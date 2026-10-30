@@ -3,7 +3,15 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { readProject, patchPyproject, discover, stage, main, MAX_PER_RUN } from './pypi-packages.mjs';
+import { readProject, patchPyproject, withVersion, discover, stage, main, MAX_PER_RUN } from './pypi-packages.mjs';
+import { parseAllowlist } from './versions.mjs';
+
+/** An allow-list and a versions manifest naming `slugs` for pypi-packages at `version`. */
+const listed = (slugs, version = '0.1.0') => ({
+  allow: parseAllowlist({ tools: slugs.map((slug) => ({ slug, channels: ['pypi-packages'], why: 'test' })) }),
+  versions: Object.fromEntries(slugs.map((slug) => [slug, { version, hash: 'sha256-x' }])),
+});
+const OURS = { info: { project_urls: { Source: 'https://github.com/duncan-haywood/oss-monorepo' } } };
 
 const toml = (extra = '') => `[build-system]\nrequires = ["setuptools"]\n\n[project]\nname = "demo-tool"\nversion = "0.1.0"\n${extra}\n[tool.setuptools.packages.find]\nwhere = ["src"]\n`;
 
@@ -60,9 +68,21 @@ test('stage ships only pyproject, LICENSE, README and src, without caches', asyn
 test('without the enabling variables nothing is fetched or executed', async () => {
   const root = await tree({ good: { py: toml() } });
   const lines = [];
-  const r = await main({ env: {}, root, fetchImpl: () => { throw new Error('network'); }, exec: () => { throw new Error('exec'); }, log: (s) => lines.push(s) });
+  const r = await main({ env: {}, root, fetchImpl: () => { throw new Error('network'); }, exec: () => { throw new Error('exec'); }, log: (s) => lines.push(s), ...listed(['good']) });
   assert.deepEqual(r, { published: 0, planned: 1 });
   assert.match(lines.join('\n'), /DRY RUN/);
+});
+
+test('a venture that is not allow-listed is never planned', async () => {
+  const root = await tree({ good: { py: toml() } });
+  const r = await main({ env: {}, root, fetchImpl: () => { throw new Error('network'); }, log() {}, ...listed([]) });
+  assert.deepEqual(r, { published: 0, planned: 0 });
+});
+
+test('withVersion replaces only the [project] version', () => {
+  const out = withVersion(`${toml()}[tool.x]\nversion = "9"\n`, '0.3.1');
+  assert.match(out, /^\[project\]\nname = "demo-tool"\nversion = "0\.3\.1"$/m);
+  assert.match(out, /^version = "9"$/m);
 });
 
 test('live: skips names already on PyPI, caps the run, uploads with a token', async () => {
@@ -70,10 +90,14 @@ test('live: skips names already on PyPI, caps the run, uploads with a token', as
   for (const n of ['a', 'b', 'c', 'd', 'e']) v[n] = { py: toml().replace('demo-tool', `pkg-${n}`) };
   const root = await tree(v);
   const execs = [];
-  const fetchImpl = async (url) => ({ ok: !url.endsWith('pkg-a/json'), status: url.endsWith('pkg-a/json') ? 404 : 200 });
-  // pkg-a is NOT on PyPI (404); the rest exist, so only a is published.
+  const fetchImpl = async (url) => {
+    if (url.endsWith('pkg-a/json')) return { ok: false, status: 404 };
+    if (url.endsWith('pkg-b/json')) return { ok: true, status: 200, json: async () => ({ info: { project_urls: { Source: 'https://example.com/x' } }, releases: {} }) };
+    return { ok: true, status: 200, json: async () => ({ ...OURS, releases: { '0.1.0': [] } }) };
+  };
+  // pkg-a is NOT on PyPI (404); pkg-b's name is someone else's; the rest already have 0.1.0.
   const r = await main({
-    env: { DISTRIBUTE_PYPI: 'true', TWINE_PASSWORD: 'pypi-secret' }, root, fetchImpl, log() {},
+    env: { DISTRIBUTE_PYPI: 'true', TWINE_PASSWORD: 'pypi-secret' }, root, fetchImpl, log() {}, ...listed(['a', 'b', 'c', 'd', 'e']),
     exec: async (cmd, args, opts) => {
       execs.push([cmd, args, opts]);
       if (args.includes('build')) await fs.mkdir(path.join(opts.cwd, 'dist')).then(() => fs.writeFile(path.join(opts.cwd, 'dist', 'x.whl'), ''));

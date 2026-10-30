@@ -9,4 +9,6 @@ Free, read-only checker that scans a repository's Dockerfiles and flags every FR
     path: .
 ```
 
+For a stable pin, replace `@main` with a full commit SHA, or with a `docker-base-image-eol-check-v<version>` tag from this repository's Releases once one exists (portfolio/distribution/versions.json has the current version).
+
 Runs [`ventures/docker-base-image-eol-check/check.py`](../../../../ventures/docker-base-image-eol-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/oss-monorepo/docker-base-image-eol-check/?ref=gh-action

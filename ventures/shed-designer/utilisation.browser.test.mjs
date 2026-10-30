@@ -9,6 +9,7 @@ import { createRequire } from 'node:module';
 import { existsSync, readFileSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { defaultDesign } from './model.mjs';
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
 
@@ -43,8 +44,13 @@ before(async () => {
 after(async () => { await browser?.close(); server?.close(); });
 
 /** A fresh page with an error log; fails the test if anything was logged as an error. */
+// These tests read the 8x12 default (model.mjs defaultDesign), so each page
+// starts with it saved; a first-time visitor opens on the gallery's balanced design.
+const START_FROM_DEFAULT = `try { if (!localStorage.getItem('shed-designer-state-v1')) localStorage.setItem('shed-designer-state-v1', ${JSON.stringify(JSON.stringify({ designs: [defaultDesign()], active: 0 }))}); } catch {}`;
+
 async function open(t, ctxOpts = { viewport: { width: 1366, height: 900 } }) {
   const ctx = await browser.newContext(ctxOpts);
+  await ctx.addInitScript(START_FROM_DEFAULT);
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
@@ -70,6 +76,9 @@ test('the Structure tab lists every checked member, most used first, with its ch
   const margin = await page.textContent('#util-margin');
   assert.match(margin, /Ridge beam at 79%/);
   assert.match(margin, /2x4 joists at 16" would still pass/);
+  // Each oversized member's lighter option says what it saves at the page's prices.
+  const joistRow = await page.$$eval('#util-margin .util-far tbody tr', (l) => l.map((r) => r.textContent).find((t) => /2x4 joists at 16"/.test(t)) || '');
+  assert.match(joistRow, /\$\d+$/, joistRow);
   await page.fill('#util-target', '85');
   await page.dispatchEvent('#util-target', 'change');
   assert.match(await page.textContent('#util-margin'), /No member is above your 85% target/);

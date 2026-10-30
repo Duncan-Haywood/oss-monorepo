@@ -112,6 +112,22 @@ export function finishName(v, table) {
   return Object.hasOwn(table, v) ? table[v].label.toLowerCase() : v;
 }
 
+/** A bought door's factory finish when no door colour is chosen (primed white, as the HOA elevations draw it). */
+export const FACTORY_DOOR = /** @type {RGB} */ ([0.953, 0.945, 0.925]);
+
+/**
+ * One door's colour as built. "Stained" is the default choice, not a material:
+ * a site-built door is skinned with the siding cut from its opening, so it
+ * takes the siding's finish, and a bought door keeps its factory finish. Any
+ * other choice paints every door.
+ * @param {any} d a normalized design @param {{ product?: string } | undefined} op the door's opening
+ */
+export function doorRgb(d, op) {
+  const pal = paletteOf(d);
+  if (d.doorColor !== 'stained') return pal.door;
+  return op?.product === 'site-built' ? pal.siding : FACTORY_DOOR;
+}
+
 /**
  * Every finish colour of a design in one place, for the 3D view and the drawings.
  * @param {any} d a normalized design

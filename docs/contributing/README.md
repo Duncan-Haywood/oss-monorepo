@@ -6,8 +6,10 @@ The pages here go one level deeper.
 
 | Page | What it covers |
 |---|---|
+| [`ideas.md`](ideas.md) | Contributing an idea without an AI agent: dictating into `IDEAS.md`, the website form, the one-box issue form, and how agents treat each |
 | [`setup.md`](setup.md) | Getting the code without downloading gigabytes, the toolchain, running one tool, its tests and the site locally |
 | [`fix-a-tool.md`](fix-a-tool.md) | How a browser calculator, a command-line checker and a self-hosted app are laid out, and a worked example of fixing a wrong number |
+| [`writing.md`](writing.md) | Blog posts, agent posts, READMEs, `llms.txt` files and other docs: where each goes, its front matter and shape, and the checks it must pass |
 | [`research.md`](research.md) | How a research project is laid out, reproducing a result, and what a useful correction or extension looks like |
 | [`start-here.md`](start-here.md) | The "Start here" blog series: which guide to send each kind of reader to, and how to write a new one |
 | [`steering-agents.md`](steering-agents.md) | The maintainer's process for directing agent sessions: scheduling, phrasing a request, reading results, turning remarks into directions, and copying it to another repository |
@@ -39,7 +41,7 @@ that.
 | `VENTURE.yaml` in each tool | Its name, stage, the hypotheses it tests ("contractors will use X because Y") and the criteria for retiring it | Read it to understand who a tool is for; you rarely need to edit it |
 | `portfolio/` | Strategy, a ledger of decisions and costs, usage readings, hosting state | No, unless you are curious why something was built |
 | `docs/reports/` | Write-ups by agents for later agents: what a session found and why | Useful background on a tool's history |
-| `docs/posts/` | Articles for readers, built from the same work | Read them like a blog |
+| `docs/posts/` | Articles for readers, built from the same work | Read them like a blog, or write one: [`writing.md`](writing.md) |
 | `docs/history/` | Records of process decisions | No |
 | "Run record", "track", "flagship", "deviation" in PRs | Bookkeeping for agent sessions | No |
 | `gitops/`, `bootstrap/`, `infra/` | A retired self-hosted cluster; the live site is on Cloudflare | No; do not try to deploy it |

@@ -169,3 +169,46 @@ test('the knee gussets reach into the corner far enough to pass, in barns of sev
     assert.ok(g.kneeExt >= 0 && g.kneeExt < 24);
   }
 });
+
+test('loft access: a ladder to a half loft, a hatch and a ladder through a full one, nothing floating', () => {
+  for (const loft of ['half', 'full']) {
+    const s = buildShed({ ...PRESETS['10x10 barn'](), loft });
+    const rails = s.members.filter((m) => m.kind === 'ladder rail');
+    const rungs = s.members.filter((m) => m.kind === 'ladder rung');
+    assert.equal(rails.length, 2, loft);
+    assert.ok(rungs.length >= 5, loft);
+    const ii = integrity(s);
+    assert.deepEqual([ii.floating, ii.clashes], [[], []], loft);
+    // The preset's door is in the left gable end, so the ladder stands toward the back, clear of it.
+    assert.ok(rails.every((m) => m.geom.origin[1] > d(s).width / 2 + 10), loft);
+    if (loft === 'full') {
+      const note = s.notes.find((n) => n.startsWith('Loft hatch'));
+      assert.match(note, /22-1\/2" x 30"/);
+      const area = s.panels.filter((p) => p.kind === 'loft deck').reduce((t, p) => t + p.geom.profile[2][0] * p.geom.profile[2][1], 0);
+      const full = buildShed({ ...PRESETS['10x10 barn'](), loft, rafterSpacing: 24, openings: [] });
+      assert.ok(area < full.panels.filter((p) => p.kind === 'loft deck').reduce((t, p) => t + p.geom.profile[2][0] * p.geom.profile[2][1], 0) + 1);
+    }
+  }
+  const tight = buildShed({ ...PRESETS['10x10 barn'](), loft: 'full', rafterSpacing: 16 });
+  assert.ok(tight.warnings.some((w) => /IRC R807\.1/.test(w)));
+});
+const d = (s) => s.design;
+
+test('wind uplift: the 0.6D + 0.6W case reverses the frame, and ties pushed into compression get a mid-span brace', () => {
+  const at = (o) => buildShed({ ...PRESETS['10x10 barn'](), ...o });
+  // At 10 psf the roof outweighs the wind's lift: no reversal, no brace.
+  assert.equal(at({ loft: 'none', windLoad: 10 }).members.filter((m) => m.kind === 'chord brace').length, 0);
+  for (const loft of ['none', 'half']) {
+    const s = at({ loft, windLoad: 20 });
+    assert.ok(s.members.some((m) => m.kind === 'chord brace'), loft);
+    assert.ok(structuralChecks(s).ok, loft);
+    const ii = integrity(s);
+    assert.deepEqual([ii.floating, ii.clashes], [[], []], loft);
+  }
+  // A full loft's floor braces the joists: no brace.
+  assert.equal(at({ loft: 'full', windLoad: 20 }).members.filter((m) => m.kind === 'chord brace').length, 0);
+  // Without the brace the tie would be a 2x4 column 112" long about its 1-1/2" face: le/d 75, over NDS 3.7.1.4's 50.
+  const g = gambrelAnalysis(normalize({ ...PRESETS['10x10 barn'](), loft: 'none', windLoad: 20 }));
+  assert.equal(g.tieBrace, true);
+  assert.ok(g.rows.find((r) => r.member === 'Truss ties').ratio <= 1);
+});

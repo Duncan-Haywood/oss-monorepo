@@ -2,6 +2,17 @@
 
 Newest first.
 
+## 2026-10-30 · Milestone 3f: does the open-centre time penalty move 2n's load-sensing break-even? (not pre-registered)
+- Why: 2n ranked on energy alone and 3a to 3e priced the time penalty separately. `experiments/time_penalised.py` stretches each open-centre phase by `phase_slowdown` (k = 1 to 10, p_n 10.91 bar) and charges the open-centre pump full power for the extra seconds, an upper bound on the energy cost of slowness. Load-sensing is charged nothing extra (3c). Load factor 0.346, standby 2 L/min, 1,500 cycles per cell.
+- Honesty note: I ran the script once before writing a prediction here, so no prediction is registered for this step. What I would have predicted was "break-even stays at 28 bar for k >= 3 where 3d's penalty is zero".
+
+### Outcome of 3f (`experiments/time_penalised_results.txt`, 26 s, seeded)
+- Break-even dp_ls (bar): 28.0 (no penalty, reproduces 2n), **35.8** (k 1), 31.1 (k 1.5), 29.4 (k 2), 28.3 (k 3), 28.0 (k 5), **29.5 (k 10)**. At the Rexroth 14 bar margin LS/OC is 0.67 to 0.76 for every k; the thesis 25 bar margin favours LS at k <= 2 and k = 10 too.
+- The "28.0 for k >= 3" guess held at k = 3 and 5 but **k = 10 is not monotone**: the median time penalty is 0 yet the break-even moves 1.5 bar, because the p95 tail (6.7% in 3d) is enough to change the cycle-mean energy ratio. Read k = 10 with 3e's validity limit in mind.
+- Reading: charging slowness in energy can only help load-sensing, and it widens the margin by 0 to 8 bar depending on how fast the bypass closes. 2n's ranking at both sourced margins therefore stands, and gets stronger if the bypass closes slowly. The 35.8 bar is for the k the PVG 32 manual contradicts (3d), so the credible range is 28 to 29.5.
+- Limits: the stretch charge is an upper bound (full pump power); no feathering; one load factor; k a one-number family.
+- Next: size sections from the PVG 32 rated flows A to E (removes k), then the compensator.
+
 ## 2026-10-30 · Milestone 3e: was 3d's k = 20 row only a bracket bug? (planned before running)
 - Why: 3d put the bad k = 20 row at 10.9 bar down to `section_area` bracketing the supply pressure at p_i + 400 bar. Fixed the bracket (it now grows until the sign changes; 1 new test) and reran `experiments/flow_share_shape.py` with k up to 50.
 - **Prediction (before running):** after the fix the median penalty is 0% for k = 20 at p_n 10.9 bar (prior 60%). Refuted if it is above 1%.

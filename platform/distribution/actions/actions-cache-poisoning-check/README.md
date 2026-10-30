@@ -9,4 +9,6 @@ Free, read-only checker that scans GitHub Actions workflow YAML for an actions/c
     path: .
 ```
 
+For a stable pin, replace `@main` with a full commit SHA, or with a `actions-cache-poisoning-check-v<version>` tag from this repository's Releases once one exists (portfolio/distribution/versions.json has the current version).
+
 Runs [`ventures/actions-cache-poisoning-check/check.py`](../../../../ventures/actions-cache-poisoning-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/oss-monorepo/actions-cache-poisoning-check/?ref=gh-action

@@ -1,0 +1,59 @@
+name: Distribution versions
+
+# Keeps portfolio/distribution/versions.json in step with what each
+# allow-listed tool ships. A tool's version is a hash of the files its npm,
+# PyPI and release channels publish, so editing a shipped CLI without running
+# `node platform/distribution/versions.mjs --write` would leave the release
+# workflow refusing to tag (it checks the same hash). This fails the pull
+# request instead, with the command to run. The paths below cover every
+# allow-listed tool and every check devsec-toolkit bundles;
+# versions.test.mjs fails if one is not covered.
+# Reads tracked files only; publishes nothing, pushes nothing, calls no paid API.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/*-check/**"
+      - "ventures/devsec-toolkit/**"
+      - "ventures/flaky-test-finder/**"
+      - "ventures/llm-spend-guard/**"
+      - "ventures/llms-txt-generator/**"
+      - "platform/distribution/**"
+      - "portfolio/distribution/**"
+      - ".pre-commit-hooks.yaml"
+      - ".github/workflows/distribution-versions-ci.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      # devsec-toolkit's `bundle` (part of its hash) is Python.
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - name: versions.json is current
+        run: node platform/distribution/versions.mjs --check
+      - name: Publisher unit tests
+        run: >-
+          node --test platform/distribution/versions.test.mjs
+          platform/distribution/tool-releases.test.mjs
+          platform/distribution/npm.test.mjs
+          platform/distribution/pypi.test.mjs
+          platform/distribution/pypi-packages.test.mjs
+          platform/distribution/homebrew.test.mjs
+          platform/distribution/ghcr.test.mjs

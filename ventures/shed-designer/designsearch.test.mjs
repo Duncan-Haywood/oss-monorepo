@@ -231,3 +231,42 @@ test('usable storage: open roof space counts, space over bare ties does not', ()
   assert.equal(board.storage.usableCuFt, board.storage.wallVolumeCuFt);
   assert.ok(OBJECTIVES.usable.of(board) < OBJECTIVES.storage.of(board));
 });
+
+test('the search tries attic storage on truss gables only, and a decked attic adds usable storage', () => {
+  const r = searchDesigns({ budget: 300, sizes: [{ length: 144, width: 96 }], knobs: { style: ['gable', 'gambrel'] } });
+  assert.ok(r.all.every((s) => !s.design.atticStorage || (s.design.roofType === 'truss' && s.design.style === 'gable')));
+  const truss = (attic) => storageOf(buildShed({ ...defaultDesign(), roofType: 'truss', autoPitch: false, pitch: 8, atticStorage: attic }));
+  assert.equal(truss(false).usableCuFt, truss(false).wallVolumeCuFt, 'bare chords hold nothing');
+  assert.ok(truss(true).usableCuFt > truss(false).usableCuFt, 'the attic deck adds space you can load');
+});
+
+test('clerestory windows: a row of transoms high in a lean-to\'s tall wall, all framed', async () => {
+  const { PRESETS } = await import('./model.mjs');
+  const ops = layoutOpenings('eave door and clerestory windows', { length: 144, width: 96 }, undefined);
+  const door = ops.find((o) => o.kind === 'door');
+  const wins = ops.filter((o) => o.kind === 'window');
+  assert.equal(wins.length, 2);
+  for (const w of wins) {
+    assert.equal(w.product, 'swm-t2312');
+    assert.equal(w.wall, 'front');
+    assert.ok(w.sill >= door.height + 6 - 1e-9, 'sill over the door head');
+  }
+  const shed = buildShed({ ...PRESETS['8x12 lean-to'](), openings: ops });
+  assert.equal(shed.framedOpenings.length, ops.length);
+  assert.deepEqual(shed.warnings, []);
+  // On a gable the front wall is too low for them: the search does not seed gables with this layout.
+  const g = evaluateDesign({ ...defaultDesign(), openings: ops, autoWall: true });
+  assert.ok(!g.feasible);
+});
+
+test('the saltbox in the search: a front twice the back, no trusses, checked and priced like the rest', () => {
+  const r = searchDesigns({ budget: 50, sizes: [{ length: 144, width: 96 }], layouts: ['eave door, two windows opposite', 'gable door, a window each side'], knobs: { style: ['saltbox'] } });
+  assert.ok(r.all.length > 5);
+  for (const s of r.all) {
+    assert.equal(s.design.style, 'saltbox');
+    assert.equal(s.design.frontPitch, Math.min(18, 2 * s.design.pitch));
+    assert.notEqual(s.design.roofType, 'truss');
+    assert.match(s.label, /saltbox/);
+    assert.ok(s.looks.terms.find((t) => t.key === 'pitch').why.includes('saltbox'));
+  }
+});

@@ -66,6 +66,8 @@ rules"), not every rulebook in the tree.
 | How runs are steered and reviewed | `prompts/` | [`prompts/README.md`](prompts/README.md) |
 | A scheduled run | anywhere | [`prompt.md`](prompt.md), which routes it to one of the above |
 | A contribution from a person: bug report, fix, research check | anywhere | [`CONTRIBUTING.md`](CONTRIBUTING.md), then [`docs/contributing/`](docs/contributing/README.md) |
+| A blog post, README, `llms.txt` or other docs from a person | anywhere | [`docs/contributing/writing.md`](docs/contributing/writing.md) |
+| An idea, dictated, with no AI agent | [`IDEAS.md`](IDEAS.md) | [`docs/contributing/ideas.md`](docs/contributing/ideas.md) |
 | Steering the agents the way the owner does | anywhere | [`docs/contributing/steering-agents.md`](docs/contributing/steering-agents.md) |
 
 One process applies to every kind of work, because it is what keeps the tree

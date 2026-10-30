@@ -23,13 +23,22 @@ public, with the right to run the result yourself.
    produce ourselves: you know your trade's numbers.
 2. **Ask for a tool.** Describe the job you are doing and where existing tools
    fall short ([feature request](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=feature.yml)).
+   Short on time, or no AI agent? Dictate it: the one-box
+   [idea form](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=idea.yml),
+   or, with write access, a paragraph in [`IDEAS.md`](IDEAS.md)
+   ([how](docs/contributing/ideas.md)).
 3. **Fix something yourself** with a pull request: a wrong default, a broken
    page, a missing test, a clearer explanation. Start with
    [`docs/contributing/fix-a-tool.md`](docs/contributing/fix-a-tool.md).
 4. **Check a research result.** Re-run a project, try a different input, or
    point out a source we missed. See
    [`docs/contributing/research.md`](docs/contributing/research.md).
-5. **Steer the agents.** The maintainer's main contribution is not code but a
+5. **Write.** A blog post that explains a tool or a result with real numbers,
+   a clearer README, a better `llms.txt`, or a fixed doc. Posts go in
+   `docs/posts/` and publish on the site's blog when merged. See
+   [`docs/contributing/writing.md`](docs/contributing/writing.md) for where
+   each kind of writing goes, its format and the checks it must pass.
+6. **Steer the agents.** The maintainer's main contribution is not code but a
    stream of short requests and corrections to agent sessions, plus scheduled
    sessions that keep working in between. If you have write access, or want
    to run the same process on your own copy or a new repository,
@@ -87,6 +96,7 @@ alike.
 | Find the guide written for your trade, field or role | [`docs/contributing/start-here.md`](docs/contributing/start-here.md) |
 | Get the code and run something in five minutes | [`docs/contributing/setup.md`](docs/contributing/setup.md) |
 | Fix or improve a calculator, checker or app | [`docs/contributing/fix-a-tool.md`](docs/contributing/fix-a-tool.md) |
+| Write a blog post, a README, an `llms.txt` or other docs | [`docs/contributing/writing.md`](docs/contributing/writing.md) |
 | Reproduce or extend a research project | [`docs/contributing/research.md`](docs/contributing/research.md) |
 | Direct agent sessions the way the maintainer does, here or in your own repository | [`docs/contributing/steering-agents.md`](docs/contributing/steering-agents.md) |
 | Make sense of the agent files you keep running into | [`docs/contributing/README.md`](docs/contributing/README.md), "What you can ignore" |
