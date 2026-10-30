@@ -83,6 +83,9 @@
     .dim-overlay span { position: absolute; transform: translate(-50%, -50%); background: #ffffffd9; color: #1f4e8c; font: 600 12px ui-sans-serif, system-ui, sans-serif; padding: 1px 5px; border-radius: 4px; white-space: nowrap; }
     #view3d:focus-visible { outline: 3px solid #e0662f; outline-offset: 2px; }
     #view3d { width: 100%; aspect-ratio: 4 / 3; display: block; border-radius: 10px; border: 1px solid var(--line); background: #edf1f5; touch-action: none; cursor: grab; }
+    .swatchrow { display: flex; gap: 6px; align-items: center; }
+    .swatchrow select { flex: 1; min-width: 0; }
+    .swatchrow input[type=color] { inline-size: 2.6em; block-size: 2.2em; padding: 2px; flex: none; }
     .toolrow { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; align-items: center; }
     .check { display: inline-flex; align-items: center; gap: 6px; font-size: .88rem; font-weight: 600; }
     .summary { background: var(--accent2); color: #f8f5eb; border-color: var(--accent2); margin-top: 14px; }
@@ -92,6 +95,10 @@
     .summary dt { font-size: .78rem; opacity: .8; }
     .summary dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
     .summary .muted { color: #d9e0d5; }
+    .summary dl div.wide { grid-column: 1 / -1; }
+    .summary dd ul { margin: 4px 0; padding-left: 18px; font-weight: 400; }
+    .summary dd a { color: var(--gold); }
+    .summary dd .muted { display: block; font-weight: 400; }
     .summary .scope { margin: -4px 0 10px; font-size: .85rem; color: #d9e0d5; }
     #warnings:not(:empty) { background: var(--warn); color: var(--ink); border: 1px solid #d9a273; border-radius: 10px; padding: 10px 12px; margin-top: 12px; font-size: .9rem; }
     #warnings ul, #notes ul { margin: 6px 0 0; padding-left: 18px; }
@@ -137,6 +144,19 @@
     .meter { display: inline-block; width: 70px; height: 8px; border-radius: 4px; background: #e7e1d4; vertical-align: middle; margin-right: 6px; overflow: hidden; }
     .meter span { display: block; height: 100%; background: #24392b; }
     .meter.hot span { background: #c0392b; }
+    .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 2px; border: 1px solid #555; vertical-align: -1px; margin-right: 6px; }
+    .util-key { white-space: nowrap; margin-right: 8px; }
+    ol.util { list-style: none; padding: 0; }
+    ol.util > li { border-top: 1px solid var(--line); padding: 6px 0; }
+    ol.util summary { cursor: pointer; min-height: 32px; }
+    .util-pct { font-variant-numeric: tabular-nums; }
+    .util-in { display: grid; gap: 2px; margin: 8px 0; }
+    .util-in div { display: flex; gap: 8px; flex-wrap: wrap; }
+    .util-in dt { font-weight: 700; min-width: 9em; }
+    .util-in dd { margin: 0; }
+    .util-parts li { margin: 4px 0; }
+    .util-parts li.gov { font-weight: 400; }
+    #util-plans svg, #util-plans .sheet { max-width: 100%; height: auto; }
     ol.build > li { margin: 14px 0; }
     ol.build h3 { margin: 0 0 4px; }
     ol.build ol { margin: 6px 0; padding-left: 22px; line-height: 1.5; }
@@ -150,6 +170,55 @@
     .card dt { color: var(--muted); }
     .card dd { margin: 0; font-weight: 700; }
     .pill { background: var(--gold); color: var(--ink); border-radius: 999px; padding: 1px 8px; font-size: .72rem; }
+    .starts { margin: 6px 0 18px; }
+    .pick-list { list-style: none; padding: 0; margin: 10px 0 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(220px, 260px); gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
+    .pick { scroll-snap-align: start; border: 1px solid var(--line); border-radius: 12px; background: #fff; display: flex; flex-direction: column; overflow: hidden; }
+    .pick-open { all: unset; cursor: pointer; display: flex; flex-direction: column; gap: 4px; padding: 10px 10px 6px; flex: 1; }
+    .pick-open:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; border-radius: 12px; }
+    .pick-img img, .pick-img .thumb-wait { width: 100%; height: auto; aspect-ratio: 3 / 2; border-radius: 8px; background: #edf1f5; display: grid; place-items: center; color: var(--muted); font-size: .8rem; }
+    .pick-line { font-size: .85rem; font-weight: 600; }
+    .pick-why { font-size: .8rem; color: var(--muted); }
+    .pick-cmp { margin: 0 10px 10px; min-height: 44px; }
+    .pick-cmp[aria-pressed="true"], .dlg-actions [aria-pressed="true"] { background: var(--accent2); color: #fff; }
+    .compare-tray { position: sticky; bottom: 8px; z-index: 5; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--card); border: 1px solid var(--accent2); border-radius: 12px; padding: 8px 12px; margin: 0 0 12px; box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+    .compare-tray[hidden] { display: none; }
+    .compare-tray > span { flex: 1 1 200px; font-size: .9rem; }
+    .pick-dialog { width: min(1100px, calc(100vw - 16px)); max-height: calc(100dvh - 16px); padding: 0 16px 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); color: var(--ink); box-sizing: border-box; }
+    .pick-dialog::backdrop { background: rgba(20,24,20,.55); }
+    .dlg-head { position: sticky; top: 0; z-index: 2; display: flex; gap: 10px; align-items: center; justify-content: space-between; background: var(--card); padding: 12px 0 8px; border-bottom: 1px solid var(--line); }
+    .dlg-title { margin: 0; font-size: 1.15rem; }
+    .pick-dialog .why { background: var(--warn); border-radius: 8px; padding: 8px 10px; }
+    .shots { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(240px, 1fr); gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; }
+    .shots figure { margin: 0; scroll-snap-align: start; }
+    .shots img, .shots .thumb-wait { width: 100%; height: auto; aspect-ratio: 3 / 2; border-radius: 8px; background: #edf1f5; display: grid; place-items: center; color: var(--muted); }
+    .shots figcaption { font-size: .8rem; color: var(--muted); text-align: center; }
+    .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 6px 22px; }
+    .detail-grid h3 { margin: 14px 0 6px; font-size: 1rem; }
+    .detail-grid h4 { margin: 10px 0 4px; font-size: .92rem; }
+    .facts { margin: 0; display: grid; gap: 3px; font-size: .88rem; }
+    .facts div { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 8px; }
+    .facts dt { color: var(--muted); }
+    .facts dd { margin: 0; }
+    .bars { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; font-size: .86rem; }
+    .bars li { display: grid; grid-template-columns: minmax(0, 9em) minmax(0, 1fr) 4.5em; gap: 8px; align-items: center; }
+    .bars .bar { height: 10px; border-radius: 5px; background: #e7e1d4; overflow: hidden; }
+    .bars .bar span { display: block; height: 100%; background: var(--accent); }
+    .bars .n { text-align: right; font-variant-numeric: tabular-nums; }
+    .ops { margin: 0; padding-left: 18px; font-size: .86rem; line-height: 1.45; }
+    .dlg-actions { position: sticky; bottom: -16px; display: flex; flex-wrap: wrap; gap: 8px; background: var(--card); padding: 12px 0; border-top: 1px solid var(--line); margin-top: 12px; }
+    .cmp { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 0 10px; font-size: .86rem; }
+    .cmp-heads, .cmp-row { display: contents; }
+    .cmp-head { display: flex; flex-direction: column; gap: 4px; padding: 8px 0; }
+    .cmp-head img, .cmp-head .thumb-wait { width: 100%; height: auto; aspect-ratio: 3 / 2; border-radius: 8px; background: #edf1f5; }
+    .cmp-head .btn { min-height: 44px; }
+    .cmp-group { grid-column: 1 / -1; margin: 12px 0 2px; font-size: .95rem; border-bottom: 2px solid var(--line); }
+    .cmp-label { grid-column: 1 / -1; color: var(--muted); font-size: .78rem; font-weight: 700; padding-top: 6px; }
+    .cmp-cell { padding: 2px 0 6px; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+    .cmp-row.differs .cmp-cell { background: #fff7e0; }
+    .cmp-row.same .cmp-cell { color: var(--muted); }
+    .cmp-cell.best { font-weight: 800; }
+    .best-tag { background: #1d6b3a; color: #fff; border-radius: 999px; padding: 0 6px; font-size: .7rem; font-weight: 700; }
+    .cmp.only-diff .cmp-row.same { display: none; }
     #status { min-height: 1.3em; font-size: .88rem; color: var(--muted); }
     .faq details { border-top: 1px solid var(--line); padding: 10px 0; }
     .faq summary { font-weight: 700; cursor: pointer; }
@@ -229,6 +298,14 @@
   </header>
   <main>
 
+  <section id="starts" class="starts" aria-labelledby="starts-h">
+    <h2 id="starts-h">Start from a ready-made design</h2>
+    <p class="hint">Open one to see it from every side, what it costs and where the money goes, and how much it holds. Add two or three to Compare to see them side by side. "Start from this design" opens a copy in the editor below, to change as you like.</p>
+    <ul class="pick-list"></ul>
+  </section>
+  <div id="compare-tray" class="compare-tray" role="region" aria-label="Designs to compare" hidden></div>
+  <dialog id="pick-dialog" class="pick-dialog"></dialog>
+
   <nav class="jump" id="jump" aria-label="Jump to the cost and the results">
     <a href="#summary" class="jump-total" id="total-pill">Total <strong id="total-pill-n"></strong></a>
     <a href="#results-h" data-jump="panel-shopping">Shopping list</a>
@@ -244,7 +321,7 @@
     <nav class="tabs" id="design-tabs" role="tablist" aria-label="Your designs"></nav>
     <label class="sr-only" for="new-design">New design</label>
     <select id="new-design" class="btn" aria-label="Start a new design">
-      <option value="">+ New design...</option>
+      <option value="">+ Quick new...</option>
       <option value="copy">Copy this design</option>
       <option value="8x12">8x12 ridge beam, 6'6" door, 8 ft height limit</option>
       <option value="8x12 classic">8x12 classic, 8 ft walls</option>
@@ -280,6 +357,8 @@
       <canvas id="view3d" tabindex="0" role="img" aria-label="3D model of the framed shed. Drag to turn it, scroll or pinch to zoom; with the keyboard, the arrow keys turn it and + and - zoom."></canvas>
       <p id="view3d-fallback" hidden>This browser has no WebGL, so the 3D view is off. The plans, cut sheet and estimate below still work.</p>
       <div class="toolrow">
+        <button type="button" class="btn" id="presentation" aria-pressed="false">Presentation</button>
+        <button type="button" class="btn" id="save-picture">Save picture</button>
         <button type="button" class="btn" id="framing-only">Framing only</button>
         <button type="button" class="btn" id="finished">Finished</button>
         <button type="button" class="btn" id="view-front">Front</button>
@@ -291,7 +370,9 @@
         <button type="button" class="btn" id="zoom-out" aria-label="Zoom out">−</button>
       </div>
       <div class="toolrow" id="layers" aria-label="Layers"></div>
-      <div class="toolrow"><label class="check"><input type="checkbox" id="show-dims" checked> Dimensions</label></div>
+      <div class="toolrow"><label class="check"><input type="checkbox" id="show-dims" checked> Dimensions</label><label class="check"><input type="checkbox" id="show-outlines" checked> Board outlines</label><label class="check"><input type="checkbox" id="show-scenery" checked> Lawn and sky</label><label class="check"><input type="checkbox" id="heat-3d"> Colour by structural use</label></div>
+      <p class="hint" id="heat-legend" hidden></p>
+      <p class="hint" id="pick-info" aria-live="polite"></p>
 
       <div class="panel summary" id="summary" aria-live="polite">
         <h2>Estimated cost</h2>
@@ -314,8 +395,6 @@
         <label>Design name<input id="name" type="text" maxlength="80"></label>
         <label>Length along the ridge (ft)<input id="lengthFt" type="number" min="4" max="40" step="0.5"></label>
         <label>Width across the gable (ft)<input id="widthFt" type="number" min="4" max="20" step="0.5"></label>
-        <label>Most height at the peak, above the gravel (ft, 0 for no limit)<input id="maxPeakFt" type="number" min="0" max="20" step="0.25"></label>
-        <label>Most floor area (sq ft, 0 for no limit; many towns need no permit under 100 or 120)<input id="maxFootprint" type="number" min="0" max="400" step="1"></label>
         <label class="check"><input id="autoWall" type="checkbox"> Walls as low as the tallest door or window allows</label>
         <label>Wall height, floor to top plate (in)<input id="wallHeight" type="number" min="60" max="144" step="0.5"></label>
         <label class="check"><input id="autoPitch" type="checkbox"> Roof pitch from the height limit</label>
@@ -324,6 +403,23 @@
         <label>Eave overhang (in)<input id="overhang" type="number" min="0" max="36" step="1"></label>
         <label>Roof snow load (psf)<input id="snowLoad" type="number" min="0" max="150" step="5"></label>
         <label>Wind pressure on the walls (psf)<input id="windLoad" type="number" min="0" max="80" step="5"></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Your limits and fixed choices</legend>
+      <p class="muted">The searches below ("Find a cheaper build", "Find a simpler build", the part options) never break these limits or change a choice you tick here.</p>
+      <div class="fields">
+        <label>Most floor area (sq ft, 0 for no limit; many towns need no permit under 100 or 120)<input id="maxFootprint" type="number" min="0" max="400" step="1"></label>
+        <label>Most height at the peak, above the gravel (ft, 0 for no limit)<input id="maxPeakFt" type="number" min="0" max="20" step="0.25"></label>
+      </div>
+      <p class="muted" id="lock-h">Keep as I chose:</p>
+      <div class="fields" role="group" aria-labelledby="lock-h">
+        <label class="check"><input type="checkbox" name="lock" value="siding"> My siding (type and colour)</label>
+        <label class="check"><input type="checkbox" name="lock" value="roofing"> My roofing (shingles or metal, colour)</label>
+        <label class="check"><input type="checkbox" name="lock" value="foundation"> My foundation</label>
+        <label class="check"><input type="checkbox" name="lock" value="floor"> My floor frame and subfloor</label>
+        <label class="check"><input type="checkbox" name="lock" value="doors"> My doors</label>
+        <label class="check"><input type="checkbox" name="lock" value="windows"> My windows</label>
       </div>
     </fieldset>
     <fieldset>
@@ -345,7 +441,8 @@
     <fieldset>
       <legend>Foundation</legend>
       <div class="fields">
-        <label>Foundation<select id="foundation"><option value="gravel">Skids on a gravel pad</option><option value="blocks">Skids on solid 4x8x16 concrete blocks</option><option value="deck blocks">Skids on concrete deck blocks</option><option value="CMU">Skids on 8x8x16 CMU (cinder) blocks</option></select></label>
+        <label>Foundation<select id="foundation"><option value="gravel">Skids on a gravel pad</option><option value="blocks">Skids on solid 4x8x16 concrete blocks</option><option value="deck blocks">Skids on concrete deck blocks</option><option value="CMU">Skids on 8x8x16 CMU (cinder) blocks</option><option value="piers">Skids on concrete piers poured in 12" form tubes</option></select></label>
+        <label>Pier depth below grade (in; your frost depth, piers only)<input id="pierDepth" type="number" min="12" max="72" step="1"></label>
         <label>Gravel<select id="pad"><option value="full">A pad under the whole shed (bulk stone)</option><option value="under blocks">Only under each block (bagged paver base; needs a block foundation)</option><option value="none">None: blocks on tamped firm soil (needs a block foundation)</option></select></label>
         <label>Subfloor<select id="floorPanel"><option value="plywood">3/4" tongue-and-groove plywood</option><option value="OSB">23/32" tongue-and-groove OSB</option></select></label>
         <label>Compacting the gravel<select id="compaction"><option value="hand tamper">Buy a hand tamper</option><option value="plate compactor">Rent a plate compactor for a day</option></select></label>
@@ -374,17 +471,33 @@
       </div>
     </fieldset>
     <fieldset>
+      <legend>Site plan, for a permit or HOA (optional; feet, 0 for none)</legend>
+      <p class="muted">Type your lot and where the shed goes, and the plans get a site plan sheet with every clearance. It draws what you type; it is not a survey.</p>
+      <div class="fields">
+        <label>Lot width along the street (ft)<input id="lotWidthFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>Lot depth (ft)<input id="lotDepthFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>Shed from the left lot line (ft)<input id="siteLeftFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>Shed from the rear lot line (ft)<input id="siteRearFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>Setback your town or HOA asks for (ft)<input id="setbackFt" type="number" min="0" max="200" step="0.5"></label>
+        <label>House width along the street (ft)<input id="houseWidthFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>House depth (ft)<input id="houseDepthFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>House from the left lot line (ft)<input id="houseLeftFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>House from the street lot line (ft)<input id="houseFrontFt" type="number" min="0" max="2000" step="0.5"></label>
+      </div>
+    </fieldset>
+    <fieldset>
       <legend>Covering and boards</legend>
       <div class="fields">
         <label class="check"><input id="siding" type="checkbox"> Siding</label>
-        <label>Siding type<select id="sidingType"><option value="T1-11">T1-11 plywood panels</option><option value="LP SmartSide">LP SmartSide 38 Series primed panels, 3/8"</option><option value="LP SmartSide 7/16">LP SmartSide 76 Series primed panels, 7/16"</option><option value="board and batten">Board and batten over OSB</option><option value="vinyl">Vinyl lap over OSB</option><option value="fiber cement">Fiber cement lap over OSB</option></select></label>
+        <label>Siding type<select id="sidingType"><option value="T1-11">T1-11 plywood panels</option><option value="LP SmartSide">LP SmartSide 38 Series primed panels, 3/8"</option><option value="LP SmartSide 7/16">LP SmartSide 76 Series primed panels, 7/16"</option><option value="board and batten">Board and batten over OSB</option><option value="vinyl">Vinyl lap over OSB</option><option value="fiber cement">Fiber cement lap (HardiePlank-type), 7" exposure, over OSB and wrap</option><option value="LP SmartSide lap">Engineered wood lap (LP SmartSide-type), 6-13/16" exposure, over OSB and wrap</option></select></label>
         <label>Wall trim<select id="wallTrim"><option value="1x4">1x4 corner boards and casings</option><option value="none">None</option></select></label>
         <label>Roof covering<select id="roofCover"><option value="shingles">Architectural shingles</option><option value="metal">Corrugated metal panels</option></select></label>
-        <label>Siding colour<select id="sidingColor"><option value="natural">Stained (solid colour)</option><option value="unfinished">Unfinished (no paint or stain)</option><option value="red">Barn red</option><option value="pink">Pink</option><option value="hot pink">Hot pink</option><option value="lavender">Lavender</option><option value="mint">Mint</option><option value="gray">Gray</option><option value="blue">Blue</option><option value="green">Green</option><option value="white">White</option></select></label>
+        <label>Siding colour<span class="swatchrow"><select id="sidingColor"></select><input type="color" id="sidingColor-custom" aria-label="Siding: pick any colour, or match a photo of your house"></span></label>
         <label class="check"><input id="polkaDots" type="checkbox"> Purple polka dots</label>
         <label class="check"><input id="glitter" type="checkbox"> Glitter finish</label>
-        <label>Roof colour<select id="roofColor"><option value="charcoal">Charcoal</option><option value="brown">Brown</option><option value="pink">Pink</option><option value="purple">Purple</option><option value="teal">Teal</option></select></label>
-        <label>Trim colour (fascia, soffit, rake)<select id="trimColor"><option value="white">White</option><option value="purple">Purple</option><option value="pink">Pink</option><option value="black">Black</option><option value="gold">Gold</option></select></label>
+        <label>Roof colour (shingle colour family)<select id="roofColor"></select></label>
+        <label>Trim colour (corner boards, casings, fascia, soffit, rake)<span class="swatchrow"><select id="trimColor"></select><input type="color" id="trimColor-custom" aria-label="Trim: pick any colour"></span></label>
+        <label>Door colour<span class="swatchrow"><select id="doorColor"></select><input type="color" id="doorColor-custom" aria-label="Door: pick any colour"></span></label>
         <label>Inside walls<select id="interior"><option value="none">Bare framing</option><option value="OSB">OSB</option><option value="plywood">Plywood, painted</option><option value="drywall">Drywall, taped and painted</option><option value="beadboard">Beadboard, painted</option><option value="pegboard">Pegboard (workshop)</option><option value="teen bedroom">Teen bedroom: pink walls, posters, lights</option></select></label>
         <label class="check"><input id="insulation" type="checkbox"> Insulate the walls (R-13 batts)</label>
         <label>Big poster picture (stays in your browser)<input id="posterFile" type="file" accept="image/*"></label>
@@ -395,6 +508,10 @@
         <label>Sales tax (% where you buy)<input id="taxRate" type="number" min="0" max="15" step="0.05"></label>
         <label>Delivery<select id="delivery"><option value="pickup">I'll pick it up</option><option value="homedepot">Home Depot delivery</option><option value="lowes">Lowe's delivery</option></select></label>
       </div>
+      <div class="fields">
+        <label>Longest board I can haul<select id="maxHaulFt"><option value="8">8 ft</option><option value="10">10 ft</option><option value="12">12 ft (a pickup bed, tailgate down)</option><option value="14">14 ft</option><option value="16">16 ft</option><option value="0">No limit (delivery)</option></select></label>
+      </div>
+      <p class="hint">Longer boards are bought only for a piece that cannot be spliced, and the cut sheet says which piece needs one.</p>
       <p class="hint">Board lengths your yard has:</p>
       <div id="stock"></div>
     </fieldset>
@@ -463,6 +580,12 @@
       <div class="table-wrap"><table id="connections"><thead><tr><th scope="col">Check</th><th scope="col">What was checked</th><th scope="col">Result</th></tr></thead><tbody></tbody></table></div>
       <h3>Strength under load</h3>
       <div class="table-wrap"><table id="structure"><thead><tr><th scope="col">Member</th><th scope="col">Size</th><th scope="col">What it carries</th><th scope="col" class="n">Use of capacity</th><th scope="col">Result</th></tr></thead><tbody></tbody></table></div>
+      <h3>Where the capacity goes</h3>
+      <p class="muted">Every checked member, most used first. Open one to see its check written out: the inputs, each formula and the numbers. A small shed framed like a house uses little of its lumber's strength; the list below says which members could be lighter and which are held where they are by something other than strength.</p>
+      <div class="toolrow"><label>Aim each member at or below <input type="number" id="util-target" min="30" max="100" step="5" value="70" style="width:5em"> % of capacity</label></div>
+      <div id="util-margin"></div>
+      <ol id="util-list" class="util"></ol>
+      <details id="util-sheets"><summary>Framing plans coloured by use</summary><div id="util-plans"></div></details>
     </div>
     <div class="result-panel print-target" id="panel-build" hidden>
       <p class="muted">Written from this design: every length, mark and angle below is this shed's. Methods are common practice for a small wood-framed shed; fastener spacings are typical values, and your local code and each product's instructions win.</p>
@@ -470,7 +593,8 @@
       <ol id="build-steps" class="build"></ol>
     </div>
     <div class="result-panel print-target" id="panel-plans" hidden>
-      <div class="toolrow"><button type="button" class="btn primary" id="print-plans">Print all plans</button><button type="button" class="btn" id="dxf-all">Download all as DXF</button></div>
+      <div class="toolrow"><button type="button" class="btn primary" id="print-plans">Print all plans</button><button type="button" class="btn" id="dxf-all">Download all as DXF</button><button type="button" class="btn" id="hoa-packet">HOA packet (PDF)</button></div>
+      <p class="muted">Taking these to a building department or an HOA? "HOA packet (PDF)" gives coloured, dimensioned elevations, the finishes and the site plan on four pages; the plan set has a cover sheet with materials and colours, a site plan (type your lot under "Site plan" above), plans, elevations with overall height, a section and details. It is not engineered or code-checked, and it is not "permit-ready": what a submission needs is set locally. Many places need no building permit for a small shed (the IRC, R105.2, exempts a one-storey detached accessory building up to 200 sq ft; the IBC sets 120 sq ft; many towns use less), but zoning setbacks and HOA rules can still apply. Check with yours.</p>
       <div id="plans"></div>
     </div>
   </section>
@@ -481,9 +605,13 @@
     <div class="toolrow"><button type="button" class="btn primary" id="make-options">Make options</button></div>
     <div id="option-cards"></div>
     <h3 style="margin-top:16px">Bring the price down, same size</h3>
-    <p class="muted">Counts your time at the hourly rate you set (in the buying settings) as well as materials. Tries cheaper off-the-shelf parts and settings one at a time (stock doors and windows, siding, roofing, the foundation and its gravel, the subfloor, overhang, pitch and spacing), keeps your footprint and the ridge and rafter-seat choices you made, and keeps a change only if the shed still passes every check and the peak rises by no more than 6". It lists each saving so you can take some and leave others.</p>
+    <p class="muted">Counts your time at the hourly rate you set (in the buying settings) as well as materials. Tries cheaper off-the-shelf parts and settings one at a time (stock doors and windows, siding, roofing, the foundation and its gravel, the subfloor, overhang, pitch and spacing), keeps your footprint, the ridge and rafter-seat choices you made and anything you fixed under "Your limits and fixed choices", and keeps a change only if the shed still passes every check and the peak rises by no more than 6". It lists each saving so you can take some and leave others.</p>
     <div class="toolrow"><button type="button" class="btn primary" id="budget">Find a cheaper build</button></div>
     <div id="budget-out"></div>
+    <h3 style="margin-top:16px">What each foundation, floor, door and window choice costs</h3>
+    <p class="muted">Every alternative for the parts under and around the shed (blocks or a gravel pad, the floor joists and subfloor, a door built on site at 36" to 72" or a stock door, the windows or none), each framed, priced and checked against the design you are editing. Shows what it saves or adds in materials and your time, whether the peak moves, and what it means on site. "Use this" changes your design; Undo takes it back.</p>
+    <div class="toolrow"><button type="button" class="btn primary" id="levers">Price the options</button></div>
+    <div id="levers-out"></div>
     <h3 style="margin-top:16px">Simplify the build</h3>
     <p class="muted">Searches small changes (roof pitch, overhang, rafter and stud spacing, connectors or notches, ridge type) for the cheapest build, the one with the fewest saw cuts, and a balance of the two. It counts every saw cut and every angled cut and notch, and keeps only designs that pass every check.</p>
     <div class="toolrow"><button type="button" class="btn primary" id="simplify">Find a simpler build</button><label class="check"><input type="checkbox" id="simplify-resize"> Let it change the length or width by a foot (within your floor-area limit)</label></div>

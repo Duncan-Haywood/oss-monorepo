@@ -17,7 +17,7 @@ Session: https://claude.ai/code/session_01XpHqyg7ixNGUH3USNit4uK (2026-10-30).
 
 ## Findings worth acting on (other lanes)
 
-- On the default 8x12 ($3,026.46 of materials), the skin (siding, roofing, trim, paint) is 45% and the framing 27%. All the untreated framing lumber is $500, so right-sizing (r2 lane 1) can save at most a share of that. The owner's $2,000 needs a different design (the gallery), not a trimmed one.
+- On the default 8x12 ($3,074.14 of materials after the 12 ft board default), the skin (siding, roofing, trim, paint) is 46% and the framing 27%. All the untreated framing lumber is $503, so right-sizing (r2 lane 1) can save at most a share of that. The owner's $2,000 needs a different design (the gallery), not a trimmed one.
 - **Fasteners and hardware are 14% ($420).** The 16d framing nails come to four 5 lb boxes ($100.80) and the VPA connectors to $89.46. The 16d count in `estimate.mjs` (two nails every 16" on every long member, plus per-member counts) looks high for a shed. Worth checking against a nailing schedule.
 - The "8x12 classic" and other `classic()` presets have custom-size doors with no unit picked, so their doors are not in the total (the "Doors, windows and vents" group is just the vents, $46). The shopping list says so, but the preset totals undercount.
 

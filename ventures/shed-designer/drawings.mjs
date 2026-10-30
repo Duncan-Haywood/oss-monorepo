@@ -6,8 +6,9 @@
 // to DXF for a CAD program, at true scale.
 
 import { fmtFtIn, fmtIn } from './lumber.mjs';
-import { WALLS, WALL_LABEL } from './model.mjs';
+import { WALLS, WALL_LABEL, siteLayout } from './model.mjs';
 import { heelJoint } from './checks.mjs';
+import { LAP_PRODUCTS } from './lap.mjs';
 
 /** @typedef {[number, number]} P */
 /**
@@ -286,7 +287,7 @@ export function buildSheets(shed, marks = new Map()) {
     items.push(text([ax + run / 2, az + 1.5], '12', 9));
     items.push(text([ax + run + 3, az + d.pitch / 2 - 3], String(d.pitch), 9, 'start'));
     items.push(dim([0, k.floorTop], [0, k.plateTop], 34, `${fmtFtIn(d.wallHeight)} wall`));
-    const sidingLabel = d.siding ? (d.sidingType === 'T1-11' || d.sidingType.startsWith('LP SmartSide') ? `${d.sidingType} panels` : `${d.sidingType} over OSB`) : '';
+    const sidingLabel = d.siding ? (d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide' || d.sidingType === 'LP SmartSide 7/16' ? `${d.sidingType} panels` : `${LAP_PRODUCTS[d.sidingType]?.short || d.sidingType} over OSB${LAP_PRODUCTS[d.sidingType] ? ` and wrap, ${fmtIn(shed.lapExposure ?? LAP_PRODUCTS[d.sidingType].exposure)} exposure` : ''}`) : '';
     // Clear of the siding label, which sits between the wall and this dimension.
     items.push(dim([W, 0], [W, k.peak], -(40 + textWidth(sidingLabel, 8)), `${fmtFtIn(k.peak)} to peak`));
     items.push(dim([0, 0], [W, 0], -30));
@@ -349,6 +350,11 @@ export function buildSheets(shed, marks = new Map()) {
         const pts = g.profile.map(([a, z]) => /** @type {P} */ ([X(hxOf(name, a)), z]));
         items.push({ t: 'poly', pts, closed: true, cls: 'sheet' });
       }
+      // Lap siding: each course piece as it shows, so the course lines and butt joints read.
+      for (const p of shed.panels.filter((x) => x.kind === 'lap siding' && x.wall === name)) {
+        const pts = p.face.map(([a, z]) => /** @type {P} */ ([X(hxOf(name, a)), z]));
+        items.push({ t: 'poly', pts, closed: true, cls: 'sheet' });
+      }
       // Roof seen from this side.
       if (eave) {
         items.push(rect(X(0), zt(-o) - 6, X(F), zt(-o), 'plate'));
@@ -382,7 +388,7 @@ export function buildSheets(shed, marks = new Map()) {
       elevation(pair[1], face(pair[0]) + 2 * o + 96, items);
       sheets.push({
         id: `exterior-${pair[0]}-${pair[1]}`, title: `Exterior elevations: ${pair[0]} and ${pair[1]}`,
-        note: `Finished outside as seen from each side: ${d.siding ? `${d.sidingType} siding (panel and sheet joints shown)` : 'no siding'}, ${d.roofCover === 'metal' ? 'metal roof' : 'shingle roof'}, rough openings for doors, windows and vents. Heights from the top of the gravel.`,
+        note: `Finished outside as seen from each side: ${d.siding ? (LAP_PRODUCTS[d.sidingType] ? `${LAP_PRODUCTS[d.sidingType].short} siding, ${fmtIn(shed.lapExposure ?? LAP_PRODUCTS[d.sidingType].exposure)} exposure (course lines and butt joints shown)` : `${d.sidingType} siding (panel and sheet joints shown)`) : 'no siding'}, ${d.roofCover === 'metal' ? 'metal roof' : 'shingle roof'}, rough openings for doors, windows and vents. Heights from the top of the gravel.`,
         items,
       });
     }
@@ -466,7 +472,7 @@ export function buildSheets(shed, marks = new Map()) {
       ...(heelJoint(shed) ? [['Rafter tie to rafter, each end', `${heelJoint(shed)?.nails}-16d common, face nailed`]] : []),
       ['Subfloor', '1-5/8" screws 6" edges, 12" field, with adhesive'],
       ['Wall and roof sheathing', '8d at 6" edges, 12" field'],
-      ['Siding panels', '8d galvanized 6" edges, 12" field'],
+      LAP_PRODUCTS[d.sidingType] ? ['Lap siding', '8d HDG siding nail, blind, each stud each course'] : ['Siding panels', '8d galvanized 6" edges, 12" field'],
     ];
     const tx = 140;
     items.push(text([tx, 18], 'NAILING SCHEDULE (typical; your code and each maker\'s instructions win)', 9, 'start', 'muted'));
@@ -582,19 +588,62 @@ export function buildSheets(shed, marks = new Map()) {
     });
   }
 
+  // Site plan, from the lot, placement, house and setback you typed: the lot
+  // lines, the shed's walls and eave line, the house, and every clearance.
+  const site = siteLayout(d);
+  if (site) {
+    const items = /** @type {Item[]} */ ([]);
+    const { lot, shed: sh, house, clear, overhang: o } = site;
+    items.push(rect(0, 0, lot.w, lot.d, 'outline'));
+    items.push(text([lot.w / 2, -lot.d * 0.04 - 6], 'STREET (front lot line)', 10, 'middle', 'muted'));
+    items.push(text([lot.w / 2, lot.d + lot.d * 0.02], 'REAR LOT LINE', 9, 'middle', 'muted'));
+    if (o > 0) items.push(rect(sh.x0, sh.y0 - o, sh.x1, sh.y1 + o, 'hidden'));
+    items.push(rect(sh.x0, sh.y0, sh.x1, sh.y1, 'member'));
+    items.push(text([(sh.x0 + sh.x1) / 2, sh.y0 - o - lot.d * 0.02], `SHED ${fmtFtIn(L)} x ${fmtFtIn(W)}`, 8));
+    items.push(text([(sh.x0 + sh.x1) / 2, sh.y0 - o - lot.d * 0.035], 'door wall to the street', 7, 'middle', 'muted'));
+    if (house) {
+      items.push(rect(house.x0, house.y0, house.x1, house.y1, 'hidden'));
+      items.push(text([(house.x0 + house.x1) / 2, (house.y0 + house.y1) / 2 - 4], 'HOUSE (as typed)', 9));
+    }
+    const midY = (sh.y0 + sh.y1) / 2;
+    // Front and rear clearances run up the side of the shed away from the house.
+    const sideX = house && (house.x0 + house.x1) / 2 > (sh.x0 + sh.x1) / 2 ? sh.x0 : sh.x1;
+    const sideOff = sideX === sh.x0 ? 12 : -12;
+    if (clear.left > 0) items.push(dim([0, midY], [sh.x0, midY], 12, fmtFtIn(clear.left)));
+    if (clear.right > 0) items.push(dim([sh.x1, midY], [lot.w, midY], 12, fmtFtIn(clear.right)));
+    if (clear.rear > 0) items.push(dim([sideX, sh.y1], [sideX, lot.d], sideOff, fmtFtIn(clear.rear)));
+    if (clear.front > 0) items.push(dim([sideX, 0], [sideX, sh.y0], sideOff, fmtFtIn(clear.front)));
+    const eave = (v) => (o > 0 ? ` (${fmtFtIn(v)} to the eave)` : '');
+    items.push(text([0, -lot.d * 0.12], `Shed to lot lines: left ${fmtFtIn(clear.left)}, right ${fmtFtIn(clear.right)}, street ${fmtFtIn(clear.front)}${eave(clear.frontEave)}, rear ${fmtFtIn(clear.rear)}${eave(clear.rearEave)}${house && site.houseGap !== null ? `; to the house ${fmtFtIn(site.houseGap)}` : ''}.`, 10, 'start'));
+    items.push(dim([0, -lot.d * 0.04], [lot.w, -lot.d * 0.04], -10, `${fmtFtIn(lot.w)} lot width`));
+    items.push(dim([lot.w, 0], [lot.w, lot.d], -24, `${fmtFtIn(lot.d)} lot depth`));
+    sheets.unshift({
+      id: 'site', title: 'Site plan',
+      note: `Lot, shed and house as you typed them; not a survey. Clearances to the shed's walls, and to its eave front and back (${fmtIn(o)} overhang; the gable ends have none).${site.setback > 0 ? ` Setback you typed: ${fmtFtIn(site.setback)}.` : ''} Add a north arrow, the street name and any easements before you submit it.`,
+      items,
+    });
+  }
+
   // 0. Cover sheet: what this is, the data, the schedule and the index. Built last so the index is complete.
   {
     const items = /** @type {Item[]} */ ([]);
     const lines = [];
     const row = (s2, size = 10, cls = 'label') => lines.push({ s2, size, cls });
     row(d.name, 18);
-    row(`${fmtFtIn(L)} x ${fmtFtIn(W)} gable shed, ${d.pitch}/12 roof, peak about ${fmtFtIn(k.peak)} above the gravel`, 11);
+    row(`${fmtFtIn(L)} x ${fmtFtIn(W)} gable shed, ${((L * W) / 144).toFixed(0)} sq ft floor area, ${d.pitch}/12 roof, peak about ${fmtFtIn(k.peak)} above the gravel`, 11);
+    row('');
+    row('PROJECT (fill in by hand)', 9, 'muted');
+    row('Owner: ______________________________   Site address: ________________________________________   Parcel no.: ______________');
+    row('');
+    row('MATERIALS AND COLOURS', 9, 'muted');
+    row(`Siding: ${d.siding ? `${d.sidingType}, ${d.sidingColor === 'natural' ? 'natural stain' : d.sidingColor === 'unfinished' ? 'unfinished' : `${d.sidingColor} paint`}${d.polkaDots ? ' with purple polka dots' : ''}` : 'none'}. Roof: ${d.roofCover === 'metal' ? 'corrugated metal' : 'asphalt shingles'}, ${d.roofColor}. Trim: ${d.wallTrim === 'none' ? 'none' : `1x4, ${d.trimColor}`}.`);
+    row(`Overall height: peak ${fmtFtIn(k.peak)} above the gravel; walls ${fmtFtIn(d.wallHeight)} floor to top of plates; floor ${fmtFtIn(k.floorTop)} above the gravel.`);
     row('');
     row('DESIGN DATA', 9, 'muted');
     row(`Walls: ${d.studSize} at ${d.studSpacing}" o.c., ${fmtFtIn(d.wallHeight)} floor to top of plates (studs ${fmtIn(k.studLen)}), double top plate interlocked at corners.`);
     row(`Floor: ${d.joistSize} joists at ${d.joistSpacing}" o.c. on ${k.skidCount} PT ${d.skidSize} skids, ${k.block ? `on ${k.block.plural} on ${k.noPad ? 'tamped firm soil' : k.underBlocks ? 'a bed of paver base each' : 'a compacted gravel pad'}` : 'on a compacted gravel pad'}; ${d.floorPanel === 'OSB' ? '23/32" T&G OSB' : '3/4" T&G plywood'}.`);
     row(`Roof: ${d.rafterSize} rafters at ${d.rafterSpacing}" o.c., ${d.roofType === 'ridgeBeam' ? `two-ply ${k.ridgeSize} ridge beam on posts, no ties` : `${k.ridgeSize} ridge board with ${d.tieSize} rafter ties`}, ${fmtIn(d.overhang)} overhang; ${d.roofCover === 'metal' ? 'corrugated metal' : 'shingles'} on 7/16" OSB.`);
-    row(`Siding: ${d.siding ? d.sidingType : 'none'}. Inside: ${d.interior === 'none' ? 'bare framing' : d.interior}${d.insulation ? ', R-13 insulation' : ''}.`);
+    row(`Siding: ${d.siding ? (LAP_PRODUCTS[d.sidingType] ? `${LAP_PRODUCTS[d.sidingType].label}, over 7/16" OSB and house wrap` : d.sidingType) : 'none'}. Inside: ${d.interior === 'none' ? 'bare framing' : d.interior}${d.insulation ? ', R-13 insulation' : ''}.`);
     row(`Loads used for the strength checks: ${d.snowLoad} psf roof snow, ${d.windLoad} psf wind on the walls, 15 psf roof dead, 40 psf floor live.`);
     row('');
     row('DOORS, WINDOWS AND VENTS (rough openings)', 9, 'muted');
@@ -611,8 +660,9 @@ export function buildSheets(shed, marks = new Map()) {
     row('Written dimensions govern; do not scale the drawings. Letters on members are marks in the cut sheet and parts list.');
     row('All lumber in ground contact or on the skids is pressure-treated. Fasteners as the build instructions and each maker specify.');
     row('Not engineered and not checked against any building code. Confirm permits, setbacks, snow and wind loads with your building department.');
+    row('Many places need no building permit for a small shed: the IRC (R105.2) exempts a one-storey detached accessory building up to 200 sq ft,');
+    row('the IBC sets 120 sq ft, and many towns use a smaller figure. Zoning setbacks and HOA rules can apply either way. Check locally.');
     lines.forEach((ln, i) => { if (ln.s2) items.push(text([0, -i * 22], ln.s2, ln.size, 'start', ln.cls)); });
-    items.push(rect(-10, -lines.length * 22, 1000, 30, 'outline'));
     sheets.unshift({ id: 'cover', title: 'Cover sheet', note: 'Design summary, opening schedule and sheet index.', items });
   }
   return sheets;
