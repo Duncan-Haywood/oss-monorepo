@@ -172,6 +172,8 @@ export const EXAMPLE_ITEMS = Object.freeze({
   gravelTon: { name: 'Crushed stone for the pad, 4 in. deep (bulk)', unit: 'ton', price: 45 },
   deckBlock: { name: 'Concrete deck block (pier block) under skids', unit: 'each', price: 10 },
   cmuBlock: { name: '8 x 8 x 16 concrete block (CMU) under skids', unit: 'each', price: 2.5 },
+  formTube: { name: 'Concrete form tube, 12 in. x 48 in. (Quikrete Quik-Tube 692203), cut to pier length', unit: 'each', price: 15 },
+  concreteBag: { name: 'Concrete mix, 80 lb bag (Quikrete 110180), for the piers', unit: 'bag', price: 6 },
   landscapeFabric: { name: 'Landscape fabric under the gravel', unit: 'roll', price: 20 },
   plateCompactor: { name: 'Plate compactor rental, 1 day (for the gravel pad)', unit: 'day', price: 90 },
   handTamper: { name: 'Steel hand tamper (buy instead of renting a compactor)', unit: 'each', price: 30 },

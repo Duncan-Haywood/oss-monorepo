@@ -75,7 +75,7 @@ export const MINUTES = {
   fasciaTrim: 15, soffitPanel: 20, rakeTrim: 15, gableVent: 30, zFlashing: 10,
   paint: 45, stain: 45, accentPaint: 60, interiorPaint: 45, glitter: 0,
   insulation: 30, drywall: 20, plywoodLining: 15, osbLining: 15, pegboard: 15, beadboard: 15, interiorPanel: 15, jointCompound: 120,
-  deckBlock: 10, cmuBlock: 10, concreteBlock: 10, gravelTon: 90, paverBase: 4, landscapeFabric: 15,
+  deckBlock: 10, cmuBlock: 10, concreteBlock: 10, formTube: 0, concreteBag: 20, gravelTon: 90, paverBase: 4, landscapeFabric: 15,
 };
 
 /**
@@ -137,9 +137,9 @@ function moves(d, base, resize, opts = {}) {
     for (const t of sidings) if (d.siding && t !== d.sidingType) set(`siding: ${SIDING_NAMES[t] || t}`, { sidingType: t });
     set(d.roofCover === 'metal' ? 'shingle roof' : 'metal roof', { roofCover: d.roofCover === 'metal' ? 'shingles' : 'metal' });
     for (const f of ['gravel', ...Object.keys(BLOCKS)]) if (f !== d.foundation) set(f === 'gravel' ? 'skids on a gravel pad' : `skids on ${/** @type {any} */ (BLOCKS)[f].plural}`, { foundation: f }, 'foundation');
-    if (d.foundation !== 'gravel') for (const pd of ['full', 'under blocks', 'none']) if (pd !== d.pad) set({ full: 'a full gravel pad', 'under blocks': 'gravel only under the blocks', none: 'no gravel: blocks on tamped soil' }[pd], { pad: pd }, 'pad');
+    if (d.foundation !== 'gravel' && !/** @type {any} */ (BLOCKS)[d.foundation]?.pier) for (const pd of ['full', 'under blocks', 'none']) if (pd !== d.pad) set({ full: 'a full gravel pad', 'under blocks': 'gravel only under the blocks', none: 'no gravel: blocks on tamped soil' }[pd], { pad: pd }, 'pad');
     // Blocks pay off only with the gravel cut back to under them, so offer the pair as one move.
-    for (const f of Object.keys(BLOCKS)) if (f !== d.foundation || d.pad !== 'under blocks') set(`skids on ${/** @type {any} */ (BLOCKS)[f].plural}, gravel only under the blocks`, { foundation: f, pad: 'under blocks' }, 'foundation');
+    for (const f of Object.keys(BLOCKS).filter((x) => !/** @type {any} */ (BLOCKS)[x].pier)) if (f !== d.foundation || d.pad !== 'under blocks') set(`skids on ${/** @type {any} */ (BLOCKS)[f].plural}, gravel only under the blocks`, { foundation: f, pad: 'under blocks' }, 'foundation');
     set(d.floorPanel === 'OSB' ? 'plywood subfloor' : 'OSB subfloor', { floorPanel: d.floorPanel === 'OSB' ? 'plywood' : 'OSB' });
   }
   // Only when asked: a foot either way on the length or width, never below 85% of the floor asked for.
