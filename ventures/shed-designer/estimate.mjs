@@ -359,6 +359,9 @@ export function estimate(shed, prices = examplePrices()) {
   });
   const gussetSheets = gussetPieces.length ? Math.min(shelfSheets(gussetPieces, d.kerf), sheetCount2d(gussetPieces)) : 0;
   if (gussetSheets) line('Sheet goods', `${label('roofSheet')}, for truss gussets`, gussetSheets, 'sheet', item('roofSheet'), src('roofSheet'));
+  // Attic storage deck on the truss bottom chords, of the floor's panel.
+  const deckSheets = sheetCount2d(panelPieces(shed.panels, 'attic deck'));
+  if (deckSheets) line('Sheet goods', `${label(floorKey)}, attic storage deck`, deckSheets, 'sheet', item(floorKey), src(floorKey));
   /** @type {ReturnType<typeof lapPlan> | null} */
   let lapCuts = null;
   if (d.siding) {
@@ -541,7 +544,7 @@ export function estimate(shed, prices = examplePrices()) {
     line('Fasteners and sealants', label('framingNails'), Math.ceil(n16 / 225), 'box', item('framingNails'), src('framingNails'));
     // Sheathing: about 60 8d nails a 4x8 sheet (6" at edges, 12" in the field); 478 in a 5 lb box.
     const panelSiding = d.siding && ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16'].includes(d.sidingType);
-    const sheathingSheets = floorSheets + roofSheets + (d.siding && !panelSiding ? Math.ceil(((shed.sidingArea ?? 0) * 1.1) / 32) : 0);
+    const sheathingSheets = floorSheets + roofSheets + deckSheets + (d.siding && !panelSiding ? Math.ceil(((shed.sidingArea ?? 0) * 1.1) / 32) : 0);
     line('Fasteners and sealants', label('sheathingNails'), Math.ceil((sheathingSheets * 60) / 478), 'box', item('sheathingNails'), src('sheathingNails'));
     if (panelSiding) {
       const sheets = shed.sidingFull.length + sidingUpperSheets(shed);
