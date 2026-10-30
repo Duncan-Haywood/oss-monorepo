@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 11638,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,21 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "scheduled task asked for product work",
+      "did": "ran venture slice under ventures track",
+      "result": "landed"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Routed to research track; owner's scheduled prompt asked for revenue products, so did flagship 2 venture work instead. stairs.test.mjs 34/34 pass locally; full CI not run.",
   "corrections": [],
   "redteam": null
 }
