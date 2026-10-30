@@ -247,7 +247,8 @@ export function evaluateDesign(design, prices, constraints = {}) {
   const why = [];
   for (const r of sc.rows) if (!r.ok || r.ratio > c.maxUtilisation + 1e-9) why.push(`${r.member} at ${Math.round(r.ratio * 100)}% of capacity`);
   if (!cc.ok) why.push('a load-path or connection check fails');
-  for (const w of shed.warnings) if (/left out|does not fit|too low|too shallow|longer than any board|need \d+ ft boards/.test(w)) why.push(w);
+  // Warnings that mean the design is not buildable as drawn, or a product used outside its rating.
+  for (const w of shed.warnings) if (/left out|does not fit|too low|too shallow|longer than any board|need \d+ ft boards|panels are rated for studs/.test(w)) why.push(w);
   const sq = (d.length * d.width) / 144;
   if (c.maxFootprint > 0 && sq > c.maxFootprint + 1e-9) why.push(`footprint ${sq.toFixed(1)} sq ft is over ${c.maxFootprint}`);
   if (c.maxPeak > 0 && shed.dims.peak > c.maxPeak + 0.01) why.push(`peak ${Math.round(shed.dims.peak)}" is over ${c.maxPeak}"`);

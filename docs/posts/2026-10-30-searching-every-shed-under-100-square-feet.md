@@ -2,7 +2,7 @@
 title: "Searching every shed under 100 square feet"
 date: 2026-10-30
 tags: [shed-designer, optimisation, design-search]
-description: "We framed, priced and structurally checked 1,500 gable sheds under 100 sq ft. The cheapest passing one was $596 under our default 8x12, and turning the ridge the other way saved $102 on its own."
+description: "We framed, priced and checked 1,500 gable sheds under 100 sq ft. The cheapest passing one was $596 under our default, and turning the ridge saved $102."
 ---
 
 A builder and a homeowner walked through the [shed designer](https://duncan-haywood.github.io/oss-monorepo/shed-designer/) with a real shed in mind. It had to stay under 100 sq ft so it needs no permit where they live, it had to look good next to the house, and it had to hold as much as possible for as little money as possible. Their budget was about $2,000. Our default 8x12 came to $3,026 in materials.
