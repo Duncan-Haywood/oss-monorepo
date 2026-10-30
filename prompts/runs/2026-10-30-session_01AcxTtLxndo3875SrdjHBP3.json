@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01AcxTtLxndo3875SrdjHBP3",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: read ./prompt.md and follow it",
+  "input_sha256": "ee033cfea43da33876e002bbf7130f57412bc4edbc40ac439e360c2c2d7a1550",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T19:10:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11835,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "bare python3 lacks pytest; pyenv.py returned /usr/bin/python3.13 but pytest still needed PYTHONPATH=src for the project"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "pick_track drew track 13 but I advanced an open programme (heavy-hydraulics) per the default",
+      "did": "milestone 3e",
+      "result": "landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-30-a-solver-bracket-was-faking-a-hydraulic-penalty.md",
+    "research/heavy-hydraulics/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Tests 13 pass, build.py ok, check_md_links ok.",
+  "corrections": [],
+  "redteam": null
+}
