@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23b0507a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EB%3C/text%3E%3C/svg%3E">
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236f1b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EB%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Run your own babysitting business server: Render, Fly.io or Docker, step by step</title>
   <meta name="description" content="A step-by-step guide for a babysitter, or a friend helping, to run the free Babysitting Business Kit server on their own Render or Fly.io account: what it costs, the settings, connecting the website form, a phone calendar feed, and daily backups.">
@@ -97,11 +97,16 @@ fly deploy</pre></li>
     <tr><td><code>UNSUBSCRIBE_SECRET</code></td><td>No</td><td>Signs unsubscribe links; defaults to <code>ADMIN_KEY</code>.</td></tr>
     <tr><td><code>TWILIO_ACCOUNT_SID</code>, <code>TWILIO_AUTH_TOKEN</code>, <code>TWILIO_FROM</code></td><td>No</td><td>Texts through your own Twilio account, for the automations you turn on in Settings. Families must have agreed to texts.</td></tr>
     <tr><td><code>TWILIO_WEBHOOK_URL</code></td><td>No</td><td>The exact incoming-text URL Twilio signs, if it differs from <code>PUBLIC_URL</code> + <code>/twilio/inbound</code>.</td></tr>
+    <tr><td><code>STRIPE_SECRET_KEY</code>, <code>STRIPE_WEBHOOK_SECRET</code></td><td>No</td><td>Optional card payments on your invoices, into <strong>your own</strong> Stripe account. Both are needed: the secret key from your Stripe dashboard, and the signing secret (<code>whsec_...</code>) of a webhook endpoint you add at <code>PUBLIC_URL/stripe/webhook</code> for the <code>checkout.session.completed</code> event. A family's pay link then offers "Pay by card" (with an optional tip if you turn tips on), and the payment is recorded on the invoice once Stripe confirms it. Stripe charges you a fee per payment; check current pricing at stripe.com/pricing. Try it first with test-mode keys.</td></tr>
     <tr><td><code>LLM_PROVIDER</code>, <code>LLM_API_KEY</code>, <code>LLM_MODEL</code>, <code>LLM_BASE_URL</code></td><td>No</td><td>Blog drafts on your own model account (<code>anthropic</code>, <code>openai</code>, <code>openai-compatible</code>, <code>ollama</code>). Drafts wait for your approval.</td></tr>
     <tr><td><code>ANTHROPIC_API_KEY</code>, <code>OPENAI_API_KEY</code>, <code>GEMINI_API_KEY</code>, <code>OLLAMA_HOST</code></td><td>No</td><td>Alternatives to <code>LLM_PROVIDER</code>: setting one of these picks that provider.</td></tr>
+    <tr><td><code>NETWORK_ID</code>, <code>NETWORK_PEERS</code></td><td>No</td><td>The sitter network handoff between two kit servers, off until set. <code>NETWORK_ID</code> is your server's short name (letters, digits, <code>-</code>); <code>NETWORK_PEERS</code> lists <code>theirname=shared-secret</code> pairs, one secret per pair of sitters, at least 16 characters (<code>openssl rand -hex 16</code>). Each side sets the other's name and the same secret. A handoff carries only a family's first name, the kids' ages and the time, signed with HMAC-SHA256, and only after you recorded the family's OK.</td></tr>
     <tr><td><code>STATE</code>, <code>PORT</code></td><td>Set for you</td><td><code>/data/desk.json</code> and <code>8080</code> in the container.</td></tr>
   </table>
   </div>
+
+  <h2>Late-sit safety check-in</h2>
+  <p>The app's Safety tab can start a check-in before a late sit: a trusted contact and a "home by" time. It needs no new settings, only texts (<code>TWILIO_ACCOUNT_SID</code> and friends) or email (<code>RESEND_API_KEY</code>, <code>FROM_EMAIL</code>) already set up; with neither, the server refuses the check-in so you never rely on one that cannot fire. At the home-by time the server pings you (your <code>NOTIFY_WEBHOOK_URL</code> or <code>NOTIFY_EMAIL</code>) with your private link, <code>PUBLIC_URL</code>/safe/&lt;token&gt;, where you tap "I'm home safe", extend or cancel. After the grace period it texts or emails your contact your name, phone, the time and only the place you chose to share, never anything about the children, and an all-clear when you check in. Unlike the automations, it ignores quiet hours: a safety alert goes out at any hour. The server checks every minute, so an alert can be up to a minute late; it is a backup, not an emergency service.</p>
 
   <h2>Backups and the status page</h2>
   <ul>

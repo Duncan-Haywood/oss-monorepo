@@ -14,6 +14,7 @@
 //   bookPage(desk, days, opts)            the public /book page: times only, no families
 
 import { DAYS, toMin, fmtMin, dayOf, addDays, daysBetween, parseWeekly, expandBookings, leadFromForm, canTake, newId } from "./engine.mjs";
+import { heldSpans, waitlistSection } from "./waitlist.mjs";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -78,7 +79,7 @@ export const pendingRequests = (desk) => (desk.leads || []).filter((l) => l.stat
  * where start/end are "HH:MM" (end may pass midnight, shown as the next morning's time
  * with `overnight`), and `full` means nothing cut into that availability window.
  */
-export function openSlots(desk, { from, weeks = 1, bufferMin, minHours, nowMin, holdRequests = true } = {}) {
+export function openSlots(desk, { from, weeks = 1, bufferMin, minHours, nowMin, holdRequests = true, at } = {}) {
   if (!DATE.test(String(from || ""))) throw new Error("openSlots needs a from date (YYYY-MM-DD)");
   const p = desk.profile || {};
   const buf = bufferMin ?? bufferOf(p);
@@ -95,6 +96,7 @@ export function openSlots(desk, { from, weeks = 1, bufferMin, minHours, nowMin, 
     const sp = spanAbs(l.requested.date, l.requested.start, l.requested.end);
     if (sp) busy.push([sp[0] - buf, sp[1] + buf]);
   }
+  for (const h of heldSpans(desk, { today: from, at })) { const sp = spanAbs(h.date, h.start, h.end); if (sp) busy.push([sp[0] - buf, sp[1] + buf]); } // holds and peak nights (waitlist.mjs)
   const days = [];
   for (let d = from; d <= last; d = addDays(d, 1)) {
     const b0 = base(d);
@@ -186,7 +188,8 @@ export function weekGrid(desk, start, { bufferMin, today = "" } = {}) {
       };
     });
     const free = date < today ? [] : open[i].windows.map((w) => { const s = toMin(w.start); return { ...w, ...pos(s, s + w.minutes) }; });
-    days.push({ date, day: DAYS[dayOf(date)], blocks, open: free });
+    const holds = heldSpans(desk, { today: today || ws }).filter((h) => h.date === date).map((h) => { const s = toMin(h.start); let e = toMin(h.end); if (e <= s) e += 1440; return { ...h, ...pos(s, e) }; }); // waitlist.mjs
+    days.push({ date, day: DAYS[dayOf(date)], blocks, open: free, holds });
   }
   return { start: ws, from: fmtMin(lo), to: hi === 1440 ? "24:00" : fmtMin(hi), hours: (hi - lo) / 60, days };
 }
@@ -276,7 +279,7 @@ export function requestReply(lead, profile = {}, approved = true) {
  * The public booking page. It shows only the sitter's own name, rates line and the open
  * times: never a family, a kid, a lead or why a time is taken.
  */
-export function bookPage(desk, days, { action = "/book", message = "" } = {}) {
+export function bookPage(desk, days, { action = "/book", message = "", waitlistAction = "/book/waitlist" } = {}) {
   const p = desk.profile || {};
   const title = p.businessName || `${p.name} Babysitting`;
   const open = days.filter((d) => d.windows.length);
@@ -314,6 +317,7 @@ ${open.length ? `<section class="card"><h2>Request a time</h2><form method="post
 <label class="hp" for="hp">Leave this empty</label><input class="hp" id="hp" name="website" tabindex="-1" autocomplete="off">
 <button type="submit">Send request</button></form></section>
 <script>(function(){var d=document.getElementById("d"),s=document.getElementById("st"),e=document.getElementById("en");function f(){var o=d.options[d.selectedIndex];if(!o)return;s.value=o.dataset.start;e.value=o.dataset.end;}d.addEventListener("change",f);f();})();</script>` : ""}
+${waitlistAction ? waitlistSection(desk, { action: waitlistAction, today: days[0]?.date || "" }) : ""}
 <p class="note"><a href="/site">About ${esc(p.name)}</a></p>
 </main></body></html>
 `;

@@ -69,7 +69,16 @@ export function normalizeDesk(d) {
   out.profile = { ...out.profile, ...(d.profile || {}), rates: { ...out.profile.rates, ...((d.profile || {}).rates || {}) } };
   for (const k of ["leads", "families", "bookings", "expenses", "references"]) out[k] = Array.isArray(d[k]) ? d[k].filter((x) => x && typeof x === "object") : [];
   if (d.automations && typeof d.automations === "object" && !Array.isArray(d.automations)) out.automations = d.automations; // sent log and opt-outs (automations.mjs)
+  if (d.safety && typeof d.safety === "object" && !Array.isArray(d.safety)) out.safety = d.safety; // late-sit check-ins (safety.mjs)
+  if (Array.isArray(d.credentials)) out.credentials = d.credentials.filter((x) => x && typeof x === "object"); // the sitter's own credentials (credentials.mjs)
+  if (d.business && typeof d.business === "object" && !Array.isArray(d.business)) out.business = d.business; // business-readiness ticks (credentials.mjs)
+  if (Array.isArray(d.invoices)) out.invoices = d.invoices.filter((x) => x && typeof x === "object"); // invoices (invoices.mjs)
+  if (d.waitlist && typeof d.waitlist === "object" && !Array.isArray(d.waitlist)) out.waitlist = d.waitlist; // waitlist, holds, peak nights (waitlist.mjs)
   if (Array.isArray(d.posts)) out.posts = d.posts.filter((x) => x && typeof x === "object"); // blog posts (content.mjs)
+  if (d.agreements && typeof d.agreements === "object" && !Array.isArray(d.agreements)) out.agreements = d.agreements; // agreement versions (agreements.mjs)
+  if (d.network && typeof d.network === "object" && !Array.isArray(d.network)) out.network = d.network; // backup sitters and pass-ons (network.mjs)
+  if (d.packages && typeof d.packages === "object" && !Array.isArray(d.packages)) out.packages = d.packages; // packages, gift certificates, events (packages.mjs)
+  if (Array.isArray(d.activityPlans)) out.activityPlans = d.activityPlans.filter((x) => x && typeof x === "object"); // saved sit plans (activities.mjs)
   return out;
 }
 
@@ -387,7 +396,10 @@ export function taxSummary(desk, year, today = `${year}-12-31`) {
   const Y = String(year);
   const sits = expandBookings(desk.bookings).filter((b) => b.date.startsWith(Y) && b.status !== "cancelled");
   const paid = [];
-  for (const b of desk.bookings) for (const pay of payments(b)) if (String(pay.date).startsWith(Y)) paid.push({ ...pay, familyId: b.familyId });
+  for (const b of desk.bookings) for (const pay of payments(b)) if (!pay.credit && String(pay.date).startsWith(Y)) paid.push({ ...pay, familyId: b.familyId });
+  // Packages and gift certificates are income when sold; using one later is a credit, not income again (packages.mjs).
+  const pk = desk.packages || {};
+  for (const x of [...(Array.isArray(pk.sold) ? pk.sold : []), ...(Array.isArray(pk.gifts) ? pk.gifts : [])]) if (x && num(x.price) && String(x.soldOn).startsWith(Y)) paid.push({ amount: num(x.price), date: x.soldOn, method: x.method || "", familyId: x.familyId || (x.code ? "gift certificates" : "") });
   const income = r2(paid.reduce((a, x) => a + num(x.amount), 0));
   const byMonth = Array(12).fill(0), byFamily = {}, byMethod = {};
   for (const x of paid) {
@@ -422,6 +434,7 @@ export function taxSummary(desk, year, today = `${year}-12-31`) {
   else flags.push(`Net profit is under $400 so far: no self-employment tax yet. If you have no other income you may not need to file; check the Form 1040 instructions.`);
   const threshold = HOUSEHOLD_THRESHOLD[year];
   for (const [fid, amt] of Object.entries(byFamily)) {
+    if (fid === "gift certificates") continue; // bought by anyone, not one family's pay
     if (threshold && amt >= threshold) {
       const f = desk.families.find((x) => x.id === fid);
       flags.push(`${f ? f.name : "One family"} paid you $${amt} this year (at or over $${threshold}). If that family controls how and when you work in their home, the IRS can treat you as their household employee (Publication 926), and they would owe the nanny tax and give you a W-2. Babysitters who run their own business for many families are usually self-employed. Talk it through with the family.`);
@@ -431,7 +444,7 @@ export function taxSummary(desk, year, today = `${year}-12-31`) {
   const appSum = appTotal.reduce((a, [, v]) => a + v, 0);
   if (appSum > 0) flags.push(`$${r2(appSum)} came through payment apps. A Form 1099-K arrives only above $${FORM_1099K.amount.toLocaleString()} and ${FORM_1099K.count} payments, but every dollar is income whether or not a form arrives, cash too.`);
   if (sits.length && !totalMiles) flags.push("No miles logged. Driving between sits (not from home to your first sit if home is not your main place of business) can be deductible; log miles on each sit.");
-  flags.push("Families who claim the child and dependent care credit (Form 2441) or a dependent-care FSA need your name, address and taxpayer ID. A free EIN from the IRS lets you give one without sharing your Social Security number. The family statement below has the totals they need.");
+  flags.push("Families who claim the child and dependent care credit (Form 2441) or a dependent-care FSA need your name, address and taxpayer ID. For a sole proprietor that is your Social Security number: the IRS instructions for Form W-10 say that for individuals and sole proprietors the taxpayer ID is an SSN, and Form 2441's instructions ask families for an individual provider's SSN. Form W-10 is the IRS form for giving it to them. The family statement below has the totals they need.");
   return { year, income, byMonth: byMonth.map(r2), byFamily, byMethod, expenses, expenseByCat, mileage, totalMiles, net, seTax, incomeTax, stateTax, setAside, setAsidePct, quarters, flags, sits: sits.length, unpaid: unpaid(desk, today) };
 }
 
@@ -449,7 +462,7 @@ export function unpaid(desk, today) {
     if (b.status === "cancelled") continue;
     const past = expandBookings([b]).filter((o) => o.status !== "cancelled" && o.date <= today);
     if (!past.length) continue;
-    let got = payments(b).reduce((a, p) => a + num(p.amount), 0);
+    let got = payments(b).filter((p) => !p.tip).reduce((a, p) => a + num(p.amount), 0); // a tip is income, not payment for a sit
     let owed = 0, oldest = null;
     for (const o of past) {
       const price = num(b.price, quote(o, desk.profile.rates, desk.profile.holidays).total);
@@ -467,7 +480,11 @@ export function familyStatement(desk, familyId, year) {
   const f = desk.families.find((x) => x.id === familyId);
   const p = desk.profile;
   const rows = [];
-  for (const b of desk.bookings) if (b.familyId === familyId) for (const pay of payments(b)) if (String(pay.date).startsWith(String(year))) rows.push({ ...pay, sit: b.date });
+  // Money this family paid: sits they paid for, and packages they bought (on the day bought).
+  // A package or gift-certificate use is a credit, not a payment, so it is left out; a gift
+  // certificate someone else bought is not this family's payment at all.
+  for (const b of desk.bookings) if (b.familyId === familyId) for (const pay of payments(b)) if (!pay.credit && String(pay.date).startsWith(String(year))) rows.push({ ...pay, sit: b.date });
+  for (const s of (desk.packages && desk.packages.sold) || []) if (s.familyId === familyId && String(s.soldOn).startsWith(String(year)) && num(s.price)) rows.push({ amount: num(s.price), date: s.soldOn, method: s.method || "", sit: `package: ${s.name}` });
   rows.sort((a, b) => a.date.localeCompare(b.date));
   const total = r2(rows.reduce((a, x) => a + num(x.amount), 0));
   const text = [
@@ -480,7 +497,7 @@ export function familyStatement(desk, familyId, year) {
     `Paid by: ${f ? f.name : familyId}`,
     `Total paid for care in ${year}: $${total.toFixed(2)}`,
     ``,
-    ...rows.map((x) => `  ${x.date}  $${num(x.amount).toFixed(2)}  ${x.method || ""}  (sit on ${x.sit})`),
+    ...rows.map((x) => `  ${x.date}  $${num(x.amount).toFixed(2)}  ${x.method || ""}  (${String(x.sit).startsWith("package:") ? x.sit : `sit on ${x.sit}`})`),
     ``,
     `This is a record of payments received, prepared by the provider. It is not tax advice.`,
   ].join("\n");
@@ -531,7 +548,7 @@ export function leadReply(lead, profile = DEFAULT_PROFILE, scored = scoreLead(le
     `Hi ${first}, thank you for reaching out! I'd love to help.`,
     `My rate is $${r.hourly}/hour for one child, plus $${r.extraChild}/hour for each additional child, with a ${r.minimumHours}-hour minimum.`,
     profile.certifications && profile.certifications.length ? `I'm ${profile.certifications.join(", ")} certified.` : "",
-    lead.faithActivities && profile.faithActivities ? `You mentioned faith-based activities: I'm happy to include ${profile.faithActivities.replace(/[:.].*$/, "").toLowerCase()}.` : "",
+    lead.faithActivities && profile.faithActivities ? `You mentioned faith-based activities: I'm happy to include ${profile.faithActivities.replace(/[:.].*$/, "").trim()}.` : "",
     `Would you like to set up a quick meet-and-greet so you and the kids can get to know me? I can also send references.`,
   ].filter(Boolean).join(" ");
 }
