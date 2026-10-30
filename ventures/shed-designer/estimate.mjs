@@ -8,6 +8,7 @@ import { boardPrice, itemPrice } from './prices.mjs';
 import { productById } from './products.mjs';
 import { optimizeCuts } from './optimize.mjs';
 import { heelJoint } from './checks.mjs';
+import { trussChecks } from './truss.mjs';
 
 /** @typedef {import('./model.mjs').Shed} Shed */
 /** @typedef {{ lumber: Record<string, Record<string, number>>, items: Record<string, number>, delivery?: Record<string, number> }} Prices */
@@ -108,6 +109,30 @@ export function sheetCount2d(pieces) {
   return Math.min(sheets, sheetCount(pieces.map((p) => p.len)));
 }
 
+/**
+ * Sheets for small pieces of mixed sizes (truss gussets): shelf packing.
+ * Pieces, widest first, go into 8 ft strips as tall as the first piece in
+ * them; the strips then stack across 4 ft sheets, tallest first.
+ * @param {{ len: number, w: number }[]} pieces
+ */
+export function shelfSheets(pieces, kerf = 0.125) {
+  /** @type {{ h: number, used: number }[]} */
+  const strips = [];
+  for (const p of [...pieces].sort((a, b) => b.w - a.w || b.len - a.len)) {
+    const s = strips.find((x) => x.h >= p.w - 1e-9 && x.used + p.len <= 96 + 1e-9);
+    if (s) s.used += p.len + kerf;
+    else strips.push({ h: p.w, used: p.len + kerf });
+  }
+  /** @type {number[]} */
+  const sheets = [];
+  for (const st of strips.sort((a, b) => b.h - a.h)) {
+    const i = sheets.findIndex((u) => u + st.h <= 48 + 1e-9);
+    if (i >= 0) sheets[i] += st.h + kerf;
+    else sheets.push(st.h + kerf);
+  }
+  return sheets.length;
+}
+
 /** The { len, w } of each panel of one kind, from its rectangle. @param {any[]} panels @param {string} kind */
 const panelPieces = (panels, kind) => panels.filter((p) => p.kind === kind).map((p) => ({ len: p.geom.profile[2][0], w: p.geom.profile[2][1] }));
 
@@ -195,6 +220,17 @@ export function estimate(shed, prices = examplePrices()) {
   const floorKey = d.floorPanel === 'OSB' ? 'floorOSB' : 'floorSheet';
   line('Sheet goods', label(floorKey), floorSheets, 'sheet', item(floorKey), src(floorKey));
   line('Sheet goods', label('roofSheet'), roofSheets, 'sheet', item('roofSheet'), src('roofSheet'));
+  // Truss gussets come out of their own sheets of the same OSB: each piece is
+  // packed as the rectangle round it, long side along the sheet.
+  const gussetPieces = shed.panels.filter((p) => p.kind === 'truss gusset').map((p) => {
+    const ys = p.geom.profile.map((q) => q[0]);
+    const zs = p.geom.profile.map((q) => q[1]);
+    const a = Math.max(...ys) - Math.min(...ys);
+    const b = Math.max(...zs) - Math.min(...zs);
+    return { len: Math.max(a, b), w: Math.min(a, b) };
+  });
+  const gussetSheets = gussetPieces.length ? Math.min(shelfSheets(gussetPieces, d.kerf), sheetCount2d(gussetPieces)) : 0;
+  if (gussetSheets) line('Sheet goods', `${label('roofSheet')}, for truss gussets`, gussetSheets, 'sheet', item('roofSheet'), src('roofSheet'));
   if (d.siding) {
     const area = shed.sidingArea ?? 0;
     const type = d.sidingType || 'T1-11';
@@ -324,7 +360,7 @@ export function estimate(shed, prices = examplePrices()) {
   // Fasteners, sealants and flashing. Counts follow the nailing schedule on
   // the details sheet (rounded up); boxes are rounded up from the counts.
   {
-    const per = { stud: 4, 'corner stud': 6, 'king stud': 6, 'jack stud': 6, 'post stud': 6, 'top cripple': 4, 'bottom cripple': 4, 'rough sill': 4, 'floor joist': 6, 'rim joist': 0, rafter: 4, 'rafter tie': 6, 'eave blocking': 4, 'gable stud': 4, 'vent trimmer': 4, 'vent header': 4, 'door stile': 0, 'door rail': 0, 'door brace': 0 };
+    const per = { stud: 4, 'corner stud': 6, 'king stud': 6, 'jack stud': 6, 'post stud': 6, 'top cripple': 4, 'bottom cripple': 4, 'rough sill': 4, 'floor joist': 6, 'rim joist': 0, rafter: 4, 'rafter tie': 6, 'eave blocking': 4, 'gable stud': 4, 'vent trimmer': 4, 'vent header': 4, 'door stile': 0, 'door rail': 0, 'door brace': 0, 'bottom chord': 4, 'king post': 0 };
     let n16 = 0;
     const tieNails = heelJoint(shed)?.nails ?? 3;
     for (const m of all) {
@@ -348,7 +384,14 @@ export function estimate(shed, prices = examplePrices()) {
     if (trimIn) line('Fasteners and sealants', label('trimNails'), Math.ceil((2 * Math.ceil(trimIn / 16)) / 168), 'box', item('trimNails'), src('trimNails'));
     // Connector nails: the rafter connectors, hangers or ties, about 8 each (check the maker's schedule).
     const connectors = dims.rafterCenters.length * 2 + (d.roofType === 'ridgeBeam' ? shed.members.filter((m) => m.kind === 'rafter').length : 0);
-    line('Fasteners and sealants', label('connectorNails'), Math.ceil((connectors * 8) / 120), 'pack', item('connectorNails'), src('connectorNails'));
+    // Truss gussets take the same 1-1/2" nails, counted per joint by the truss check (truss.mjs).
+    let gussetNails = 0;
+    if (dims.truss) {
+      const n = trussChecks(d).nails;
+      const kp = shed.members.filter((m) => m.kind === 'king post').length;
+      gussetNails = (dims.trusses || []).length * (2 * (n.heelBottom + n.heelTop) + 2 * n.peak) + kp * 2 * n.foot;
+    }
+    line('Fasteners and sealants', label('connectorNails'), Math.ceil((connectors * 8 + gussetNails) / 120), 'pack', item('connectorNails'), src('connectorNails'));
     // Exterior caulk: round each door and window (unit to casing, casing to siding), along
     // the inside edge of each corner board, plus 10 ft for vents and odd joints; a tube runs about 25 ft.
     let caulkIn = 120;

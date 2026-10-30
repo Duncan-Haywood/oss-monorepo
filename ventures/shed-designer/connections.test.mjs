@@ -6,7 +6,7 @@ import { bbox } from './integrity.mjs';
 
 const bboxMid = (m) => { const b = bbox(m.geom); return (b.lo[1] + b.hi[1]) / 2; };
 
-const variants = [{}, { foundation: 'blocks' }, { roofType: 'ridgeBoard' }, { roofType: 'ridgeBeam' }, { length: 240 }, { studSize: '2x6' }, { overhang: 0 },
+const variants = [{}, { foundation: 'blocks' }, { roofType: 'ridgeBoard' }, { roofType: 'truss' }, { roofType: 'truss', overhang: 0 }, { roofType: 'ridgeBeam' }, { length: 240 }, { studSize: '2x6' }, { overhang: 0 },
   { foundation: 'blocks', lengths: [8, 10, 12] }, { foundation: 'deck blocks', lengths: [8, 10, 12] }, { lengths: [8, 10] }, { studSpacing: 24, rafterSpacing: 24 }, { length: 150, width: 102 }];
 
 test('every preset and variation ties together', () => {

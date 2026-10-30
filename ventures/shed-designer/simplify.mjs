@@ -13,7 +13,7 @@ import { buildShed, normalize } from './model.mjs';
 import { estimate } from './estimate.mjs';
 import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
-import { BLOCKS } from './model.mjs';
+import { BLOCKS, ROOF_TYPES } from './model.mjs';
 import { PRODUCTS } from './products.mjs';
 
 /**
@@ -33,7 +33,8 @@ export function cutMetrics(shed, est) {
   let notches = 0;
   const all = [...shed.members, ...(shed.doorParts || [])];
   for (const m of all) {
-    if (m.kind === 'rafter') { angled += shed.dims.overhang > 0 ? 2 : 1; if (!shed.dims.connector) notches += 1; }
+    if (m.kind === 'rafter') { angled += shed.dims.overhang > 0 ? 2 : 1; if (!shed.dims.connector && !shed.dims.truss) notches += 1; }
+    else if (m.kind === 'king post') angled += 2;
     else if (m.kind === 'gable stud' || m.kind === 'vent trimmer' || m.kind === 'post stud' && m.group.startsWith('gable')) angled += 1;
     else if (m.kind === 'eave blocking') angled += 1;
     else if (m.kind === 'door brace') angled += 2;
@@ -85,6 +86,8 @@ export function laborHours(shed, est, cuts = cutMetrics(shed, est)) {
   let min = cuts.straight * 1 + cuts.angled * 2.5 + cuts.notches * 4;
   min += (shed.members.length + (shed.doorParts || []).length) * 2.5;
   min += shed.fixtures.filter((f) => f.kind === 'connector').length;
+  // Each truss gusset: marked and cut from OSB, glued and nailed (our planning figure, like MINUTES).
+  min += shed.panels.filter((p) => p.kind === 'truss gusset').length * 4;
   min += (shed.wallTrim || []).length * 8;
   for (const r of est.shopping) {
     const m = /** @type {Record<string, number>} */ (MINUTES)[r.source?.key];
@@ -107,7 +110,7 @@ function moves(d, base, resize, opts = {}) {
   for (const sz of ['2x4', '2x6', '2x8']) if (sz !== d.rafterSize) set(`${sz} rafters`, { rafterSize: sz });
   if (d.studSpacing === 24 || sidingSpan(d) >= 24) set(`studs ${d.studSpacing === 24 ? 16 : 24}" o.c.`, { studSpacing: d.studSpacing === 24 ? 16 : 24 });
   set(d.rafterSeat === 'connector' ? 'birdsmouth seats' : 'variable-pitch connectors', { rafterSeat: d.rafterSeat === 'connector' ? 'birdsmouth' : 'connector' });
-  set(d.roofType === 'ridgeBeam' ? 'ridge board and ties' : 'ridge beam on posts', { roofType: d.roofType === 'ridgeBeam' ? 'ridgeBoard' : 'ridgeBeam' });
+  for (const r of ROOF_TYPES) if (r.type !== d.roofType) set(r.short, { roofType: r.type }, 'roofType');
   // Off-the-shelf swaps, when asked: another stock door or window, siding,
   // roofing, foundation, gravel and subfloor.
   if (opts.products) {
