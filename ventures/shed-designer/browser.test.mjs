@@ -219,6 +219,8 @@ test('the page explains the siding price step and that undo is per design', { sk
   await page.selectOption('#new-design', '8x8 lean');
   assert.match(await page.textContent('#status'), /Undo and redo start fresh for each design/);
   assert.equal(await page.$eval('#undo', (b) => b.disabled), true);
+  // The siding note shows only where taller walls are cheaper: an 8x12 lean-to at 112".
+  await page.selectOption('#new-design', '8x12 lean-to');
   await page.fill('#wallHeight', '112');
   await page.press('#wallHeight', 'Tab');
   await page.waitForFunction(() => document.querySelector('#wallHeight').value === '112' && /4x8-and-strip/.test(document.querySelector('#notes').textContent));
@@ -340,7 +342,29 @@ test('lists, 3D view and build steps point at each other', { skip }, async (t) =
     named = await page.$eval('#xref', (e) => (e.hidden ? '' : e.textContent));
     if (named) break;
   }
-  assert.match(named, /mark [A-Z]+/, 'a click on the model names a board');
+  // The outside of the shed is siding and shingles now, not the stud behind them.
+  assert.match(named, /mark [A-Z]+|Bought as: /, 'a click on the model names a board or a panel');
+});
+
+test('sheet goods, siding, roofing, trim and door hardware lines show in 3D too', { skip }, async (t) => {
+  const { page } = await open(t);
+  const canvas = page.locator('#view3d');
+  await page.click('#jump [data-jump="panel-shopping"]');
+  const plain = await canvas.screenshot();
+  const buttons = page.locator('#shopping button[data-xref-line]');
+  assert.ok(await buttons.count() >= 8, 'most non-lumber lines can be shown');
+  // The roof sheathing line: the sheets light up, and its row is marked.
+  const sheathing = page.locator('#shopping tr', { hasText: 'roof sheathing' }).locator('button[data-xref-line]');
+  await sheathing.click();
+  await page.waitForFunction(() => /Roof sheathing/.test(document.querySelector('#xref').textContent));
+  assert.match(await page.textContent('#xref'), /Bought as: .*roof sheathing/i);
+  await settle(page);
+  assert.ok(!(await canvas.screenshot()).equals(plain), 'the sheets are highlighted');
+  assert.ok(await page.$('#shopping tr.xref-on'), 'the shopping line is marked');
+  // A hinge points at its door, and the door's frame parts are in the parts list.
+  await page.locator('#shopping tr', { hasText: 'tee hinge' }).locator('button[data-xref-line]').click();
+  await page.waitForFunction(() => /door stile \([A-Z]+\)/.test(document.querySelector('#xref').textContent));
+  assert.ok(await page.$('#parts tr.xref-on'), 'the door parts are marked in the parts list');
 });
 
 test('on a phone: no sideways scroll, finger-size handles, touch drag and pinch', { skip }, async (t) => {
@@ -745,4 +769,21 @@ test('Save picture downloads the 3D view as a PNG', { skip }, async (t) => {
   const path = await dl.path();
   const head = readFileSync(/** @type {string} */ (path)).subarray(0, 8);
   assert.deepEqual([...head], [137, 80, 78, 71, 13, 10, 26, 10], 'a PNG file');
+});
+
+test('the sticky section bar fades and lets a click through when a plan handle is under it', { skip }, async (t) => {
+  const { page } = await open(t);
+  const handle = page.locator('.handle-hit').first();
+  await handle.scrollIntoViewIfNeeded();
+  const bar = await page.locator('#jump').boundingBox();
+  const hb = await handle.boundingBox();
+  // Scroll so the handle sits in the middle of the bar.
+  await page.evaluate((dy) => scrollBy(0, dy), hb.y + hb.height / 2 - (bar.y + bar.height / 2));
+  await page.waitForFunction(() => document.querySelector('#jump').classList.contains('over-handle'));
+  const h2 = await handle.boundingBox();
+  const under = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.getAttribute('class'), [h2.x + h2.width / 2, h2.y + h2.height / 2]);
+  assert.match(under || '', /^handle(-hit)?$/, 'the pointer reaches the handle, not the bar');
+  // Scroll the handle clear and the bar comes back.
+  await page.evaluate(() => scrollBy(0, -300));
+  await page.waitForFunction(() => !document.querySelector('#jump').classList.contains('over-handle'));
 });

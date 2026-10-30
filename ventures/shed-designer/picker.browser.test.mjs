@@ -253,3 +253,21 @@ test('every gallery design, end to end: card, detail with its own reason, compar
   assert.equal(await page.$eval('#lengthFt', (e) => Number(e.value) * 12), b.design.length);
   assert.equal(await page.$eval('#widthFt', (e) => Number(e.value) * 12), b.design.width);
 });
+
+test('the compare tray stays on screen at the bottom wherever you scroll, and counts details apart from compares', { skip }, async (t) => {
+  const { page } = await open(t);
+  await page.locator('#starts [data-compare="cheapest"]').click();
+  await page.locator('#starts [data-compare="value"]').click();
+  for (const where of ['#workspace', 'footer']) {
+    await page.locator(where).first().scrollIntoViewIfNeeded();
+    const b = await page.locator('#compare-tray').boundingBox();
+    const vh = await page.evaluate(() => innerHeight);
+    assert.ok(b && b.y >= 0 && b.y + b.height <= vh + 1 && b.y + b.height > vh - 40, `tray at the bottom of the screen near ${where}: ${JSON.stringify(b)} of ${vh}`);
+  }
+  // From far down the page, the tray still opens the compare.
+  await page.locator('#compare-tray [data-compare-open]').click();
+  await page.locator('#pick-dialog').waitFor({ state: 'visible' });
+  await page.locator('#pick-dialog .cmp-head [data-detail]').first().click();
+  const n = await page.evaluate(() => Number(localStorage.getItem('shed-designer-details') || 0));
+  assert.ok(n >= 1, `a details count is kept: ${n}`);
+});
