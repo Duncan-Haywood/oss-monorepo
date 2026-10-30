@@ -1,5 +1,6 @@
 ---
 title: "Stopping a human audit at a 1-point target: valid, and cheaper than the formula says"
+seo_title: "Stopping a human audit at a 1-point target"
 date: 2026-10-25
 description: "A stop-when-narrow audit of AI-coded tweets keeps 93 to 96% coverage at a 1-point target, but stops 11 to 13% below the textbook audit size."
 tags: [research, llm-coding-inference, statistics]

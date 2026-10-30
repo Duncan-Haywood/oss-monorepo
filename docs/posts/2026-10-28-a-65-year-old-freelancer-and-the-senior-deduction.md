@@ -1,5 +1,6 @@
 ---
 title: "A 65-year-old freelancer and the new senior deduction: a $100,000 example"
+seo_title: "A 65-year-old freelancer and the new senior deduction"
 date: 2026-10-28
 description: "For $100,000 of profit in 2026, one person aged 65 or older gets about $7,000 off taxable income and owes roughly $1,227 less federal tax in this estimate."
 tags: [ai-bookkeeper, tax, self-employed]

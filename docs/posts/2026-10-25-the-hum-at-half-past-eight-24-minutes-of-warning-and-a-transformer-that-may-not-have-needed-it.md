@@ -1,5 +1,6 @@
 ---
 title: "The Hum at Half Past Eight: 24 minutes of warning and a transformer that may not have needed it"
+seo_title: "The Hum at Half Past Eight"
 date: 2026-10-25
 description: "New Hearth & Horizon story: a solar storm, a 62 km power line, induced current, and a keeper who cuts the village off without learning if she had to."
 tags: [hearth-and-horizon, fiction, space-weather]

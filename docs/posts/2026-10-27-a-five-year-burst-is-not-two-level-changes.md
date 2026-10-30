@@ -1,5 +1,6 @@
 ---
 title: "A five-year burst is not two level changes: what a changepoint detector said about great discoveries"
+seo_title: "A five-year burst is not two level changes"
 date: 2026-10-27
 description: "On 100 years of counted inventions, plain Poisson changepoint detection finds three confident changes; a bootstrap penalty finds none. Which one to believe."
 tags: [changepoint-detector, statistics, counts]

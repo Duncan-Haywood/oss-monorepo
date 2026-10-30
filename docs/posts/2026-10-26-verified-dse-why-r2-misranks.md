@@ -1,5 +1,6 @@
 ---
 title: "Why a cheap chip-flow estimate mis-ranks designs: it is the period, not the area"
+seo_title: "Why a cheap chip-flow estimate mis-ranks designs"
 date: 2026-10-26
 description: "On 40 SKY130 design-clock cells, the liberty-mapped area ranks routed area well, but the no-wire period does not; placement's period removes the worst picks."
 tags: [verified-dse, research, eda, multi-fidelity]

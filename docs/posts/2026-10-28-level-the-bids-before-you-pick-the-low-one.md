@@ -1,5 +1,6 @@
 ---
 title: "Level the bids before you pick the low one: a framing-takeoff page card"
+seo_title: "Level the bids before you pick the low one"
 date: 2026-10-28
 description: "The wall-framing takeoff now lines subcontractor bids up against its own quantities in the browser, so a short count or left-out scope shows up before you sign."
 tags: [wall-framing-takeoff, construction, estimating]

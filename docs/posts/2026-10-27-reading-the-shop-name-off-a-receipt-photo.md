@@ -1,5 +1,6 @@
 ---
 title: "Reading the shop name off a receipt photo: 45.8% right, and why the rest is hard"
+seo_title: "Reading the shop name off a receipt photo"
 date: 2026-10-27
 description: "Measured on 626 real receipt photos: what tesseract plus our receipt reader gets right for merchant, date and total, and two fixes moving the merchant score."
 tags: [ai-bookkeeper, ocr, receipts, measurement]

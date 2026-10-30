@@ -1,5 +1,6 @@
 ---
 title: "Is the gentler halving cut a real gain for chip-flow search? A leave-one-design-out test"
+seo_title: "Is the gentler halving cut a real gain for chip-flow search?"
 date: 2026-10-25
 description: "Choosing the successive-halving cut on other designs: it helps on larger designs, and the 'bias floor' reported earlier belongs to the aggressive cut."
 tags: [research, verified-dse, multi-fidelity, sky130]

@@ -1,5 +1,6 @@
 ---
 title: "Does allowing for autocorrelation hide a drifting season? On UK gas, yes"
+seo_title: "Does allowing for autocorrelation hide a drifting season?"
 date: 2026-10-29
 tags: [changepoint-detector, time-series]
 description: "The changepoint detector's --ar1 flag cuts false drift warnings on sticky noise. On real series it keeps the airline warning but loses UK gas."

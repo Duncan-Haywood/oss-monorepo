@@ -1,5 +1,6 @@
 ---
 title: "The sim2real paper draft now compiles: eight pages, no undefined references"
+seo_title: "The sim2real paper draft now compiles"
 date: 2026-10-26
 description: "After a dozen log steps nobody had built the sim2real-inference paper; it builds cleanly, and the build command is in the reproduce script."
 tags: [sim2real-inference, robotics, reproducibility]
