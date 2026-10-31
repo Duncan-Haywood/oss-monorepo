@@ -190,6 +190,8 @@ test("the schedule card is wired to schedule.mjs and its events are declared", (
   assert.match(html, /from "\.\/schedule\.mjs"/);
   for (const id of ["schedIn", "schedEx", "schedRun", "schedOut", "schedHol", "schedWx"]) assert.match(html, new RegExp(`id="${id}"`));
   for (const ev of ["schedule_run", "schedule_example_loaded"]) assert.match(html, new RegExp(`<code>${ev}</code>`));
+  assert.match(html, /resolveRates\(input,/);
+  assert.match(html, /"per": "wallFeet"/);
 });
 
 test("the drywall joint control is read into the plan and restored from a saved plan", () => {
