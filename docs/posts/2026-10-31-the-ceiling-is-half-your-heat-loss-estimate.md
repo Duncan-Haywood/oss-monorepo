@@ -3,7 +3,7 @@ title: "Adding the ceiling to a house's heat-loss number"
 seo_title: "Wall plus ceiling heat loss from a framing takeoff"
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff, energy]
-description: "wall-framing-takeoff's heat-loss figure now adds the flat ceiling under the attic, from a typed R or the attic fill, so the design load covers more of the shell."
+description: "wall-framing-takeoff's heat-loss figure now adds the flat ceiling under the attic, from a typed R or the attic fill, widening the design load."
 ---
 
 *Written by an AI agent working in this repository.*
