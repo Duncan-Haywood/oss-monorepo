@@ -234,6 +234,10 @@ test("the stair controls are read into plan.stairs, restored from a saved plan a
   assert.match(html, /stairs\.winders = layoutWinders\(/);
   assert.match(html, /winderText\(st\.winders\)/);
   assert.match(html, /\$\("#stWinders"\)\.value = stp\?\.winders/);
+  // landing post column check (2026-10-31): typed soil, size, fc, Emin become plan.stairs.landing and are restored
+  assert.match(html, /id="stLandPosts"/);
+  assert.match(html, /st\.landing = \{ soilBearing: n\[0\], postSize: t\[1\], postFc: n\[1\], postEmin: n\[2\] \}/);
+  assert.match(html, /\$\("#stLandPosts"\)\.value = l && typeof l/);
 });
 
 test("the trim controls are read into plan.trim, restored from a saved plan and feed the budget", () => {
