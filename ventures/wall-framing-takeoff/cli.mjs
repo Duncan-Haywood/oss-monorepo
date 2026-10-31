@@ -18,6 +18,7 @@ import { layoutFasteners, fastenerText } from "./fasteners.mjs";
 import { layoutStair, linkStairReaction, stairCuts, stairText, layoutStairWithLanding, landingCuts, landingText, checkWinders, layoutWinders, winderText, STAIR_LIMITS } from "./stairs.mjs";
 import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
 import { resolveHeaders, headerText } from "./headers.mjs";
+import { gangOpenings } from "./ganged.mjs";
 import { drawingSetHtml } from "./drawings.mjs";
 import { drawingSetPdf } from "./pdf.mjs";
 import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
@@ -71,6 +72,7 @@ Usage:
   node cli.mjs plan.json --schedule  critical path, crew levelling and slip effects from the plan's own schedule object (activities, durations, predecessors, crews)
   node cli.mjs plan.json --drawings   printable HTML shop drawings, one sheet per wall (marked members, dimensions, parts table)
   node cli.mjs plan.json --pdf > walls.pdf   the same shop drawings as a PDF file (no browser; add --panel-max=12ft for panel cut lines)
+  node cli.mjs plan.json --gang     frame openings too close for their own kings (same kind, height and head) as one ganged opening with a mullion, and say which
   node cli.mjs plan.json --headers  size headers from the plan's own headerTable ({upTo, header, plies?} rows from your span table; an opening with "header": "auto" takes the first row that covers it) and list hand-picked ones the table says are too light
   node cli.mjs house.ifc [--storey=N|name]  the same from an IFC file (one storey at a time; the lowest by default) (IfcWall axis lines, IfcDoor/IfcWindow; hand-written fixtures only so far)
   node cli.mjs house.dxf --plan-only  read a DXF floor plan (wall centre lines on a layer named like "wall", openings as lines on "door"/"window" layers; --units=in|ft|mm|cm|m when the file does not say; --wall-layer=RE, --door-layer=RE and --window-layer=RE name the layers when they are not called like that; walls drawn as two face lines are paired into centre lines automatically, --double-line forces it, --single-line turns it off) and print the plan JSON; without --plan-only it goes straight on to the takeoff
@@ -125,6 +127,12 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     } else plan = normalise(JSON.parse(readInput(args[0])));
   } catch (e) {
     return { code: 2, out: `Could not read the plan: ${e instanceof Error ? e.message : e}` };
+  }
+  let gangNotes = [];
+  if (flags.has("--gang")) {
+    const g = gangOpenings(plan);
+    plan = g.plan;
+    gangNotes = g.notes;
   }
   /** @type {ReturnType<typeof resolveHeaders> | null} */
   let headers = null;
@@ -299,6 +307,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (r.roof) lines.push("", "ROOF", ...roofText(r.roof));
   if (flags.has("--budget")) lines.push("", "BUDGET", ...budgetText(budget(r, plan.prices || {})));
   if (flags.has("--schedule")) lines.push("", "SCHEDULE", ...scheduleText(schedule(plan.schedule)));
+  if (gangNotes.length) lines.push("", "GANGED OPENINGS", ...gangNotes.map((n) => `  - ${n}`));
   if (headers && (flags.has("--headers") || headers.notes.length)) lines.push("", "HEADERS", ...headerText(headers));
   if (r.notes.length) lines.push("", "NOTES", ...r.notes.map((n) => `  - ${n}`));
   lines.push("", "Header sizes and jack counts are your inputs and are not checked against a span table or code.");
