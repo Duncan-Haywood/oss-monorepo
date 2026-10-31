@@ -417,6 +417,10 @@ past the wall; 1 test, plus real mouse drags in `eval-sketch-click.mjs`). Not ye
 
 `schedule.deadline` (`YYYY-MM-DD`, landed 2026-10-31) is your contract completion date. The report says how many working days late (or to spare) the finish with your crews is, and prices the late days at `carryPerDay` when that is typed. A weekend or holiday date counts as the working day before it. Hand-checked dates in `schedule.test.mjs`; CLI and JSON only, no page field yet.
 
-`activities[].cost` (landed 2026-10-31) is dollars you type on an activity. With any cost, the result carries `cashFlow`: each cost spread evenly over that activity's working days with your crews (a zero-day activity lands on its start day), grouped by week (Monday) and by month, with the running total, the week of the largest spend (`peakWeek`) and the activities with no cost typed (left out, never guessed). It prints as a "Cash out" line and as a week, spend, cumulative table in the CSV. Hand-checked in `schedule.test.mjs`; no real builder's draw schedule was compared, no payment lag or retainage, and the schedule page takes it through its JSON box only.
-
 The floor card's header-check field takes an optional eighth figure, the cantilever tip deflection ratio (`headerCheck.cantDeflLimit`, default 180, 60 to 480; landed 2026-10-31). Write `0` for a figure you skip (e.g. `40, 10, 900, 180, 1300000, 360, 0, 240`). Clicked in Chromium with a 2 ft cantilever: the note reported the 0.20 in allowance, which is 2 x 24 / 240.
+
+## Schedule risk (`--risk`)
+
+Add `min` and `max` (working days) to the schedule activities you are unsure of, with `days` as the most likely figure, then run `node cli.mjs plan.json --risk` (`--json` for data). It draws each ranged activity from a triangular distribution 1,000 times (seeded, so repeatable), re-runs the crew-levelled schedule and reports P50, P80 and P90 finish dates, the chance of making `deadline`, and how often each activity sits on the critical path. Checked by hand-computed draws and serial-chain bounds in `risk.test.mjs` only; the ranges are yours and draws are independent, so it understates delays that travel together.
+
+The cost cash flow (`cashFlow`) also groups spend by week starting Monday, with `peakWeek` and a running total (landed 2026-10-31, hand test; the month figures came from a parallel session the same day). An even spread over each activity's days is a simplification, and no payment lag or retainage is modelled.

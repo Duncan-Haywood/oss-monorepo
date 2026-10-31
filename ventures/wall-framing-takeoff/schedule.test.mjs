@@ -243,21 +243,31 @@ test("schedule refuses malformed shapes instead of throwing or looping forever",
   assert.match(schedule({ activities: [{ id: "a", days: 1 }], crews: [] }).errors[0], /crews. must be an object/);
 });
 
-test("cost per activity gives a weekly cash flow, hand-checked", () => {
-  // Mon 2026-03-02: a 5-day $5,000 (1,000 a day, week of Mar 2), then b 5-day $2,500 (week of Mar 9), c 0-day $300 at b's end.
-  const s = schedule({ start: "2026-03-02", activities: [
-    { id: "a", days: 5, cost: 5000 }, { id: "b", days: 5, after: ["a"], cost: 2500 }, { id: "c", days: 0, after: ["b"], cost: 300 }, { id: "d", days: 1, after: ["c"] } ] });
-  const cf = s.cashFlow;
-  assert.equal(cf.total, 7800);
-  assert.deepEqual(cf.weeks.map((w) => [w.week, w.spend, w.cumulative]), [["2026-03-02", 5000, 5000], ["2026-03-09", 2500, 7500], ["2026-03-16", 300, 7800]]);
-  assert.equal(cf.peakWeek, "2026-03-02");
-  assert.deepEqual(cf.uncosted, ["d"]);
-  assert.deepEqual(cf.months, [{ month: "2026-03", spend: 7800 }]);
-  assert.match(scheduleText(s).join("\n"), /Cash out: \$7,800/);
-  assert.match(scheduleCsv(s), /week,spend,cumulative\n2026-03-02,5000,5000/);
+test("cost per activity is spread over its working days and summed by month (hand-checked)", () => {
+  // Fri 2026-03-27 start: a runs Fri, Mon, Tue, Wed (Apr 1); b is Thu Apr 2.
+  const s = schedule({ start: "2026-03-27", activities: [{ id: "a", days: 4, cost: 4000 }, { id: "b", days: 1, after: ["a"], cost: 500 }, { id: "c", days: 1, after: ["b"] }] });
+  assert.deepEqual(s.cashFlow.months, [
+    { month: "2026-03", spend: 3000, cumulative: 3000 },
+    { month: "2026-04", spend: 1500, cumulative: 4500 }]);
+  assert.equal(s.cashFlow.total, 4500);
+  assert.equal(s.cashFlow.peakMonth, "2026-03");
+  assert.match(scheduleText(s).join("\n"), /Spend by month.*\$4,500/);
+  assert.match(scheduleCsv(s), /spend:2026-04,.*spend 1500; to date 4500/);
 });
 
-test("a bad cost is refused and no cost means no cash flow", () => {
-  assert.equal(schedule({ activities: [{ id: "a", days: 1, cost: -5 }] }).ok, false);
+test("no costs, no cash flow; a bad cost is refused", () => {
   assert.equal(schedule({ activities: [{ id: "a", days: 1 }] }).cashFlow, undefined);
+  const bad = schedule({ activities: [{ id: "a", days: 1, cost: -5 }] });
+  assert.equal(bad.ok, false);
+  assert.match(bad.errors[0], /cost must be/);
+});
+
+test("cash flow also groups spend by Monday week and names the peak week", () => {
+  // a: 5 days Mon 2026-03-02, $5,000 (1,000/day); b: 5 days next week, $2,500; c: 0-day $300 after b
+  const s = schedule({ start: "2026-03-02", activities: [
+    { id: "a", days: 5, cost: 5000 }, { id: "b", days: 5, after: ["a"], cost: 2500 }, { id: "c", days: 0, after: ["b"], cost: 300 } ] });
+  assert.deepEqual(s.cashFlow.weeks.map((w) => [w.week, w.spend, w.cumulative]), [["2026-03-02", 5000, 5000], ["2026-03-09", 2500, 7500], ["2026-03-16", 300, 7800]]);
+  assert.equal(s.cashFlow.peakWeek, "2026-03-02");
+  assert.match(scheduleText(s).join("\n"), /heaviest week \(from Monday\) 2026-03-02 at \$5,000/);
+  assert.match(scheduleCsv(s), /week:2026-03-09,.*spend 2500; to date 7500/);
 });
