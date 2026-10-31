@@ -25,6 +25,7 @@ export function sampleDrywall() {
 /** @param {Drywall} d */
 export function validateDrywall(d) {
   const e = [];
+  if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Drywall settings are an object."];
   if (![96, 108, 120, 144, 192].includes(d.sheetLength ?? 96)) e.push("Drywall sheet length must be 8, 9, 10, 12 or 16 ft (96, 108, 120, 144 or 192 in).");
   if (d.height != null && !(d.height >= 72 && d.height <= 192)) e.push("Drywall hang height must be between 6 and 16 ft.");
   for (const [i, c] of (d.ceiling || []).entries()) if (!(c.width >= 24 && c.depth >= 24)) e.push(`Ceiling ${i + 1} must be at least 2 ft each way.`);
