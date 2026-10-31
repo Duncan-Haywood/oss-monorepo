@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12176",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,21 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 names a security-alerts branch that does not exist on the remote; fetch fails."
+    }
+  ],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-10-31-schedule-to-spreadsheet.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Review claimed by an open PR, so routed with --skip-review to ventures. Added schedule CSV export; schedule/cli/page tests 101 pass; button not click-checked.",
   "corrections": [],
   "redteam": null
 }
