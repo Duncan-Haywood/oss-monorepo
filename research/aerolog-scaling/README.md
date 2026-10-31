@@ -108,6 +108,8 @@ figure) at 80% usable then gives only about **1 km one way (regression) to 2 to 
 63 to 83 km break-even is not reachable by this airframe: battery energy is the binding limit. Extrapolates from
 cruise windows under 150 m; pack count in the study not checked.
 
+**Altitude and payload in the fixed energy (milestone 2c, `experiments/altitude_energy/`).** The flights span four altitudes (25 to 100 m) and four payload codes, not two as planned (the plan was wrong; see `LOG.md`). A pooled fit over 132 flights (R2 0.93) gives **9.6 kJ [8.9, 10.3] per extra 25 m of altitude** and 8.0 kJ [7.0, 8.9] per payload step, so 2b's E0 was an average over altitudes. The cruise slope stays unidentified (-13 to 103 J/m; cruise windows under 150 m), so no range is claimed beyond 2b's bracket. Preliminary; one airframe; altitude may be confounded with route and time of day.
+
 ## Limitations
 
 Flat-plate drag with a form factor, no airfoil polars, no CLmax, fixed powertrain efficiency (which

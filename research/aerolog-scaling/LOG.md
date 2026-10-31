@@ -3,6 +3,20 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-31 · Milestone 2c: how much of the Matrice 100's fixed flight energy is set by cruise altitude (25 vs 50 m), and what does that do to range? (predictions fixed before the run)
+- Why: 2b's "Next". Its E0 (64 kJ at 8 m/s) is nearly all climb and hover, and the study flew two altitudes that 2b pooled.
+- Plan (`experiments/altitude_energy/run.py`): refit whole-flight energy = E0 + a50 x [altitude 50 m] + j x cruise distance by least squares per commanded speed (4, 6, 8, 10 m/s), with bootstrap intervals (flights resampled, 5000 draws); one-way range with one TB48D pack at 80% usable for each altitude, as in 2b.
+- **Predictions (before running):** (1) the 50 m altitude adds 15 to 60% to E0 at 8 m/s (prior 60%); (2) the per-metre slope j differs between altitudes by under 15% (prior 65%; tested by an interaction term); (3) one-way range with one pack at 8 m/s is at least 20% longer at 25 m than at 50 m (prior 55%). Refuted: (1) outside 15 to 60%; (2) 15% or more; (3) under 20%.
+- Limits known in advance: altitude is confounded with route and order only as far as the study design allowed (not checked beyond the design table); 8 m/s has 34 flights split in two; extrapolation from short legs as in 2b.
+
+### Outcome of 2c (`experiments/altitude_energy/`: `run.py`, `results.txt`)
+- **The plan's premise was wrong.** The study flew four altitudes (25, 50, 75, 100 m) and four payload codes (0 to 750), not two altitudes; `parameters.csv` also stores altitude as text, which made my first fit (a 50 m dummy) silently zero. Predictions (1) to (3) were therefore ill-posed; the first run was discarded and the analysis redone as a pooled fit (speeds 4 to 10 m/s with a fixed effect each, altitude and payload as linear terms, cruise distance), labelled post hoc.
+- Result (132 flights, R2 0.93, residual sd 4.9 kJ): each extra 25 m of altitude costs **9.6 kJ [8.9, 10.3]** per flight (about 384 J per metre climbed, against 38 J/m of potential energy for 3.9 kg, so climb and descent time at hover-like power dominate), each payload step of 250 costs 8.0 kJ [7.0, 8.9]. E0 at 25 m with no payload falls with speed (56, 49, 46, 42 kJ at 4, 6, 8, 10 m/s). The 2b E0 (64 kJ at 8 m/s) was an average over all four altitudes and payloads.
+- Predictions as written, at 8 m/s: (1) 50 m adds 21% to E0 (inside 15 to 60%, but by accident of a wrong premise); (2) untested; (3) **failed**, 25 m range is only 1.07 times the 50 m range, because the cruise slope, not E0, dominates range.
+- Range, one pack, 80% usable, no payload: 2.7 km at 25 m falling to 2.2 km at 100 m (8 m/s). The bootstrap interval is huge (1.4 to over 40 km): the cruise slope is **not identified** (51.7 J/m, interval -13 to 103) because cruise windows are under 150 m. The lower end, about 1.1 to 1.4 km, agrees with 2b; the point estimates should not be quoted as range. A usable range needs flights with cruise legs of kilometres, which this dataset does not have.
+- Limits: altitude may be confounded with route and time of day (not checked); payload codes taken from the table without confirming units; one airframe.
+- Next: separate climb, hover and descent power from the 5 Hz series to get a physical E0 (m g h / efficiency); a lift-plus-cruise sizing model for the cargo class (milestone 2 proper), where cruise slope comes from the Froude table, not from these short legs.
+
 ## 2026-10-31 · Milestone 2b: how much of a measured Matrice 100 flight is not cruise, and what one-way range does a battery buy? (predictions fixed before the run)
 - Why: 2a's "Next". Its cruise-only J/m flatters the drone and says nothing about battery range, the binding limit.
 - Plan (`experiments/mission_energy/run.py`): integrate V x I over each of the 134 route flights; split energy into the cruise window (as 2a) and the rest; regress whole-flight energy on cruise distance per speed (intercept = fixed energy, slope = J/m); range from one TB48D pack (129.96 Wh, retailer listing, not a DJI page) at 80% usable.
