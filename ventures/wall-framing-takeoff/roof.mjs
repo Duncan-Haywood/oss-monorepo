@@ -18,7 +18,7 @@ import { THICK, EPS, DEPTH, optimizeStock, formatLength, formatInches } from "./
 export const SHEET = { width: 48, length: 96 };
 
 /** @typedef {{ width: number, projection: number, pitch?: number, at?: number, side?: "left" | "right", valley?: string }} Wing */
-/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, wing?: Wing, wing2?: Wing, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, valleyBacking?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number }, roofing?: { waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number } }} Roof */
+/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, wing?: Wing, wing2?: Wing, plateWidth?: number, maxNotchFraction?: number, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, valleyBacking?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number }, roofing?: { waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number } }} Roof */
 
 export function sampleRoof() {
   return { id: "Main roof", width: 336, length: 480, pitch: 4, overhang: 12, gableOverhang: 12, rafter: "2x8", spacing: 16, ridge: "2x10", ceilingJoist: "2x6", collarTies: true };
@@ -26,6 +26,22 @@ export function sampleRoof() {
 
 /** Slope length per inch of run: sqrt(1 + (pitch/12)^2). */
 export const slopeFactor = (/** @type {number} */ pitch) => Math.sqrt(1 + (pitch / 12) ** 2);
+
+/**
+ * Birdsmouth (seat and plumb cut) where a rafter bears on the wall plate. The seat is the plate width
+ * (`bearing`); the plumb cut is bearing x pitch/12 tall, which measured square to the rafter edge is that
+ * over the slope factor. `maxFraction` is the deepest notch you allow as a share of the rafter's depth
+ * (default 1/4, the end-notch figure many codes use; check yours). Also gives the bearing that would just
+ * reach the limit, so a steep pitch shows how much plate the notch can sit on.
+ * @param {string} size @param {number} pitch @param {number} [bearing] @param {number} [maxFraction]
+ */
+export function birdsmouth(size, pitch, bearing = 3.5, maxFraction = 0.25) {
+  const d = DEPTH[size], k = slopeFactor(pitch);
+  const plumb = bearing * pitch / 12; // vertical height of the plumb cut
+  const notch = plumb / k; // depth square to the rafter edge
+  const maxBearing = maxFraction * d * k * 12 / pitch;
+  return { size, pitch, bearing, plumb, notch, fraction: notch / d, maxFraction, maxBearing, remaining: d - notch, ok: notch <= maxFraction * d + EPS };
+}
 
 /** @param {Roof} r @param {{stock: {size: string, length: number}[]}} plan */
 export function validateRoof(r, plan) {
@@ -318,10 +334,12 @@ export function layoutRoof(r, plan) {
   if (rest > EPS) notes.push(`The top course of each plane is ${formatInches(rest)} wide, ripped from ${ripped} sheet${ripped === 1 ? "" : "s"}; its offcut is not carried to the other plane.`);
   if (r.pitch < 4) notes.push("Under 4:12 most shingle makers need a low-slope underlayment and special installation; check the product's rules.");
   if (truss) notes.push(`${trusses.count} trusses of ${formatLength(r.width)} span at ${sp} o.c. are a purchased line from the truss maker's drawings; the rake overhang, the truss design and the bracing are theirs and the engineer's.`);
-  else notes.push("Rafter size, spacing, the ridge, collar ties and ceiling joists are your inputs and are not checked against a span table or code; hurricane ties, birdsmouth depth and bracing are not in the takeoff.");
+  else notes.push("Rafter size, spacing, the ridge, collar ties and ceiling joists are your inputs and are not checked against a span table or code; hurricane ties and bracing are not in the takeoff.");
   notes.push("Shingle, felt, drip edge and ridge quantities use the coverage in `roofing` and ignore valleys, hips, vents, flashing and nails.");
+  const bm = truss ? null : birdsmouth(r.rafter ?? "2x8", r.pitch, r.plateWidth, r.maxNotchFraction);
+  if (bm && !bm.ok) notes.push(`The birdsmouth on a ${bm.size} at ${r.pitch}:12 over a ${formatInches(bm.bearing)} plate is ${formatInches(bm.notch)} deep, ${(100 * bm.fraction).toFixed(0)}% of the rafter against your ${(100 * bm.maxFraction).toFixed(0)}% limit; the seat can bear at most ${formatInches(bm.maxBearing)}. Use a deeper rafter, a narrower seat with a raised heel, or trusses.`);
   const out = {
-    ok: true, id, width: r.width, length: r.length, pitch: r.pitch, overhang, gableOverhang: rake, spacing: sp, rafterSize: truss ? null : r.rafter ?? "2x8",
+    ok: true, id, birdsmouth: bm, width: r.width, length: r.length, pitch: r.pitch, overhang, gableOverhang: rake, spacing: sp, rafterSize: truss ? null : r.rafter ?? "2x8",
     rafterLength: truss ? null : rafterLength, slope, rise, centres, rafters, ridges, ceilingJoists, collarTies, trusses, courses,
     sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 },
     roofing, notes,
@@ -484,7 +502,8 @@ export function roofText(l) {
   out.push(`  Roof rises ${formatInches(l.rise)} over the plates; each plane is ${formatInches(l.slope)} up the slope.`);
   if (l.shape === "hip") out.push(`  Hip roof: ${l.rafters.length} common rafters of ${formatInches(l.rafterLength)}, ${l.hips.length} ${l.hipSize} hips of ${formatInches(l.hipLength)}, ${l.jacks.length} jack rafters (${l.jacks.length ? `${formatInches(Math.min(...l.jacks.map((j) => j.length)))} to ${formatInches(Math.max(...l.jacks.map((j) => j.length)))}` : "none"}), ${l.ridges.length} ridge board${l.ridges.length === 1 ? "" : "s"}${l.ceilingJoists.length ? `, ${l.ceilingJoists.length} ceiling joists` : ""}${l.collarTies.length ? `, ${l.collarTies.length} collar ties` : ""}`);
   else if (l.trusses) out.push(`  ${l.trusses.count} trusses, ${formatLength(l.trusses.span)} span, at ${l.spacing} o.c. (purchased)`);
-  else out.push(`  ${l.rafters.length} ${l.rafterSize} rafters of ${formatInches(l.rafterLength)} at ${l.spacing} o.c., ${l.ridges.length} ridge board${l.ridges.length === 1 ? "" : "s"}${l.ceilingJoists.length ? `, ${l.ceilingJoists.length} ceiling joists` : ""}${l.collarTies.length ? `, ${l.collarTies.length} collar ties` : ""}`);
+  else if (l.birdsmouth) out.push(`  Birdsmouth: ${formatInches(l.birdsmouth.bearing)} seat, ${formatInches(l.birdsmouth.plumb)} plumb cut (${formatInches(l.birdsmouth.notch)} square to the edge, ${(100 * l.birdsmouth.fraction).toFixed(0)}% of the ${l.birdsmouth.size}; limit ${(100 * l.birdsmouth.maxFraction).toFixed(0)}% = ${formatInches(l.birdsmouth.maxBearing)} of bearing)`);
+  if (l.shape !== "hip" && !l.trusses) out.push(`  ${l.rafters.length} ${l.rafterSize} rafters of ${formatInches(l.rafterLength)} at ${l.spacing} o.c., ${l.ridges.length} ridge board${l.ridges.length === 1 ? "" : "s"}${l.ceilingJoists.length ? `, ${l.ceilingJoists.length} ceiling joists` : ""}${l.collarTies.length ? `, ${l.collarTies.length} collar ties` : ""}`);
   for (const wg of l.wings || []) out.push(`  Cross wing ${formatLength(wg.width)} x ${formatLength(wg.projection)}: ${wg.rafters} wing rafters, ${wg.jacks} valley jacks, ${wg.valleys} ${wg.valleySize} valleys of ${formatInches(wg.valleyLength)}, ${wg.ridges} wing ridge board${wg.ridges === 1 ? "" : "s"}${wg.collarTies ? `, ${wg.collarTies} wing collar ties` : ""}`);
   if (l.wing) out.push(`  ${l.rafters.filter((x) => x.kind).length} main rafters end at a valley`);
   out.push(`  Roof sheathing: ${l.sheets.count} sheets of ${SHEET.width} x ${SHEET.length} in for ${l.sheets.area.toFixed(0)} sq ft (${(100 * l.sheets.waste).toFixed(1)}% offcut)`);
