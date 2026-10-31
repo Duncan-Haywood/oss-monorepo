@@ -3,7 +3,7 @@ title: "A sub-scale cargo drone needs a tail you can adjust in flight"
 seo_title: "Froude-scaled cargo UAV model: why the tail must be adjustable"
 date: 2026-10-31
 tags: [aerolog-scaling, scaling, uav]
-description: "In our simulations no fixed tail keeps a 1:5 cargo-aircraft model's gust response within 10% if the tail lift slope is 25% off; a tail area set in flight does, for 67 of 78 designs."
+description: "In simulation no fixed tail keeps a 1:5 cargo-UAV model's gust response within 10% if tail lift slope is 25% off; a tail area set in flight does, for 67 of 78."
 ---
 
 A 1:5 Froude-scaled model of a cargo aircraft flies at a Reynolds number where the tail's lift slope is poorly known. In the `aerolog-scaling` programme, with the true slope 0.75 to 1.0 of the surrogate's, none of 78 mode-matched tails kept the gust response within 10% at every slope. A tail-area multiplier set in flight did: 67 of 78 designs stayed within 10% on every gust peak.
