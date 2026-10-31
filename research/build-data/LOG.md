@@ -1,5 +1,18 @@
 # build-data log
 
+## Session 8, 2026-10-31: milestone 4 run, split-conformal on the real feeds (H2 refuted)
+
+Hypothesis (H2, written in session 7 before any run): split-conformal intervals calibrated on the year before the test year cover within 3 points of 80% on the test year in every city; refuted if coverage is outside 77 to 83% in any city. Prior 60% that it holds (I expected it to fail in Chicago and SF a2i).
+Done: `src/conformal_run.py` (fit on years <= Y-2, early-stop on odd ISO weeks of Y-1, conformalise on even weeks of Y-1, test on Y; q0.1/q0.9 LightGBM ends; 2 seeds; coverage CI by week-block bootstrap), run on 7 city/target pairs x test years 2022, 2023, 2024 (Chicago has no completion date). Feeds pulled fresh today (hosts reachable this session). Results: `results/conformal_*.json`.
+Outcome (test year 2024, the headline year):
+- Conformal coverage: Austin a2i 0.816, Austin i2c 0.813 (both within 3 points); Chicago a2i 0.860 [0.852, 0.867]; SF a2i 0.891 [0.881, 0.899]; SF i2c 0.834 [0.827, 0.840]. **H2 is refuted**: three of five pairs are outside 77 to 83%.
+- Across all 15 city/target/year cells: 7 of the 15 cells are within 3 points (Austin a2i 2022, 2024; Austin i2c 2022, 2024; Chicago a2i 2023; SF i2c 2022, 2023).
+- Mechanism for a2i: in Chicago and SF (and Austin 2024) qhat is exactly 0.00 and conformal equals raw. The raw interval over-covers on the calibration weeks, and because many permits are same-day (y = 0 with lower end 0) the CQR scores tie at 0, so the finite-sample quantile cannot go negative and cannot narrow the interval. The method is conservative here by construction, not by luck. SF a2i 2024 stays at 0.891.
+- Where the raw interval under-covers (i2c, and Austin/SF a2i in 2022 or 2023) conformal widens it by 3.5 to 22 days and lifts coverage by 4 to 11 points, usually to 0.80 to 0.86. It does not always reach 80%: Austin a2i 2022 0.780 and Austin i2c 2022 0.787, the cases where the calibration year (2021, early pandemic) differs most from the test year.
+- Drift diagnostic: the two-sample KS statistic of calibration vs test scores is small (0.02 to 0.07) except Chicago a2i 2024 (0.246), where coverage moved from 0.81 (2023) to 0.86 (2024).
+Limitations: 2 seeds; one split rule; intervals are marginal, not conditional on permit type; CQR with a clipped lower end cannot narrow. A fix to try: score the two-part (same-day indicator, then tail) model, or use a randomised tie-break, so the same-day mass does not pin qhat at 0.
+Next: milestone 5 (importance and ablations, H3), and a two-part conformal variant for a2i.
+
 ## Session 7, 2026-10-31: milestone 4 instrument (split-conformal, drift diagnostic); not run on real data
 
 Hypothesis (H2, unchanged, written before any run): split-conformal intervals calibrated on the year before the test year cover within 3 points of 80% on the test year in every city; refuted if coverage is outside 77 to 83% in any city. Given session 5 (baseline coverage 0.75 to 0.89 on 2024) and session 6 (unconformalised boosted 0.77 to 0.89), I expect H2 to be refuted in Chicago a2i and SF a2i, where the same-day share moves between years, and to hold in the i2c targets. Prior 60%.

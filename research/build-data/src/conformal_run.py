@@ -12,6 +12,8 @@ import numpy as np, pandas as pd
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import boosted, conformal, harness  # noqa: E402
 
+boosted.TAUS = (0.1, 0.9)  # CQR needs only the two interval ends
+
 
 def run(df, Y, seeds, neg=0):
     tr = df[df.year <= Y - 2]

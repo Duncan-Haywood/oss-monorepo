@@ -1,0 +1,58 @@
+{
+ "date": "2026-10-31",
+ "session": "https://claude.ai/code/session_01AcxTtGZbGRDeYb5oko14Zg",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-31T19:58:09Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12156",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/build-data/LOG.md",
+   "issue": "Session 7 design said run 3 seeds on all pairs; two chains on 4 cores with 4 threads each ran over 30 minutes without finishing, serial with 2 seeds took about 10 minutes total."
+  },
+  {
+   "file": "CLAUDE.md",
+   "issue": "Bare python3 is 3.11 while pip installs to 3.13; pyenv.py output suggested python3 works but pandas/lightgbm needed python3.13."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "research/build-data/LOG.md",
+   "why": "Used 2 seeds instead of 3 for time",
+   "did": "2 seeds",
+   "result": "intervals still tight (+-1 point)"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-10-31-permit-interval-conformal-hits-a-floor.md",
+  "research/build-data/LOG.md (session 8)"
+ ],
+ "goal": null,
+ "notes": "Ran milestone 4 on real feeds; H2 refuted. Pytest not run for build-data (not installed under python3.13); the homepage build printed ok.",
+ "corrections": [],
+ "redteam": null
+}
