@@ -62,3 +62,40 @@ test("holidays and weather days you list are skipped, and a holiday start rolls 
   assert.equal(schedule({ start: "2026-03-02", holidays: ["2026-03-07"], activities: acts }).rows[0].finishDate, "2026-03-04"); // a weekend holiday changes nothing
   assert.equal(schedule({ holidays: ["xmas"], activities: acts }).ok, false);
 });
+
+test("rate-driven durations: days = ceil(quantity / typed rate), hand-checked", async () => {
+  const { resolveRates, quantities } = await import("./schedule.mjs");
+  const r = { summary: { wallFeet: 211.5, pieces: 345 }, sheathing: { summary: { sheets: 38 } }, drywall: { sheets: { count: 61 } } };
+  assert.equal(quantities(r).wallSheathingSheets, 38);
+  const s = schedule(resolveRates({ activities: [
+    { id: "frame", per: "wallFeet", rate: 40 },                      // 211.5/40 = 5.29 -> 6
+    { id: "sheath", per: "wallSheathingSheets", rate: 19, after: ["frame"] }, // exactly 2
+    { id: "board", per: "drywallSheets", rate: 30, minDays: 4, after: ["sheath"] }, // 3 -> floor 4
+    { id: "fixed", days: 2, after: ["board"] },
+  ] }, r));
+  assert.ok(s.ok);
+  assert.deepEqual(s.rows.map((x) => x.days), [6, 2, 4, 2]);
+  assert.equal(s.workingDays, 14);
+  assert.match(scheduleText(s).join("\n"), /211\.5 wallFeet \/ 40 per crew-day/);
+});
+
+test("rate-driven durations refuse a missing quantity or rate instead of guessing", async () => {
+  const { resolveRates } = await import("./schedule.mjs");
+  const s = schedule(resolveRates({ activities: [{ id: "a", per: "roofSheets", rate: 10 }, { id: "b", per: "wallFeet" }] }, { summary: { wallFeet: 100 } }));
+  assert.equal(s.ok, false);
+  assert.ok(s.errors.some((e) => e.includes('no quantity "roofSheets"')));
+  assert.ok(s.errors.some((e) => e.includes("positive")));
+});
+
+test("CLI --schedule resolves rates from the plan's own takeoff", () => {
+  const plan = { ...samplePlan(), schedule: { start: "2026-03-02", activities: [{ id: "frame", name: "Wall framing", per: "wallFeet", rate: 50 }] } };
+  const fs = require_fs();
+  const f = `${process.env.TMPDIR || "/tmp"}/sched-rate-${process.pid}.json`;
+  fs.writeFileSync(f, JSON.stringify(plan));
+  const out = main([f, "--schedule"]);
+  fs.unlinkSync(f);
+  assert.equal(out.code, 0);
+  assert.match(out.out, /5d .*211\.5 wallFeet \/ 50/);
+});
+import { createRequire } from "node:module";
+function require_fs() { return createRequire(import.meta.url)("node:fs"); }
