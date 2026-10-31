@@ -1,6 +1,6 @@
 ---
 title: "Do boosted models predict permit wait times better than a city's own averages?"
-seo_title: "Predicting building permit duration: LightGBM vs per-type quantiles (Chicago, San Francisco, Austin)"
+seo_title: "Permit duration forecasting: LightGBM vs per-type quantiles"
 date: 2026-10-31
 tags: [research, construction, permits, build-data]
 description: "On 2024 permits from three US cities, LightGBM quantile models beat per-type empirical quantiles in 13 of 15 cells; Chicago's tails are the exception."
