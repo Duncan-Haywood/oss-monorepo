@@ -114,3 +114,13 @@ test("crewOff on the first day delays the start; bad dates are refused", () => {
   assert.equal(s.rows[0].startDate, "2026-03-04");
   assert.equal(schedule({ crews: { c: 1 }, crewOff: { c: ["nope"] }, activities: [{ id: "a", days: 1, crew: "c" }] }).ok, false);
 });
+
+test("weatherLoss pads only exposed activities by ceil(days * loss) and rejects bad values", () => {
+  const s = schedule({ start: "2026-03-02", weatherLoss: 0.2, activities: [{ id: "roof", days: 6, exposed: true }, { id: "in", days: 5, after: ["roof"] }] });
+  const roof = s.rows.find((r) => r.id === "roof");
+  assert.equal(roof.days, 8); // 6 + ceil(1.2)
+  assert.match(roof.derived, /\+2d weather allowance/);
+  assert.equal(s.rows.find((r) => r.id === "in").days, 5);
+  assert.equal(s.workingDays, 13);
+  assert.equal(schedule({ weatherLoss: 1.5, activities: [{ id: "a", days: 1 }] }).ok, false);
+});
