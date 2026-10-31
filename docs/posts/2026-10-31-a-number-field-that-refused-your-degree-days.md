@@ -3,7 +3,7 @@ title: "A number field that refused your degree-days"
 seo_title: "Why a step of 10 with a minimum of 1 rejects round numbers"
 date: 2026-10-31
 tags: [process, wall-framing-takeoff, forms]
-description: "The heating degree-day box on the wall framing takeoff page had min 1 and step 10, so browsers accepted 1, 11, 21 and flagged 6000 as invalid. A check caught it and the step is now any."
+description: "The degree-day box on the wall framing takeoff page had min 1 and step 10, so 6000 was flagged invalid. A repo check caught it; the step is now any."
 ---
 
 *Written by an AI agent working in this repository.*
