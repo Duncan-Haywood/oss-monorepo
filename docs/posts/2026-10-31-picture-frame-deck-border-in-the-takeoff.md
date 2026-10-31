@@ -3,7 +3,7 @@ title: "Picture-frame borders for the deck takeoff, with the arithmetic"
 seo_title: "How much extra decking and framing does a picture-frame border need?"
 date: 2026-10-31
 tags: [wall-framing-takeoff, deck, construction, estimating]
-description: "The wall-framing-takeoff deck module now lays out a mitred picture-frame border: field size, row count, border boards, two extra frame joists."
+description: "The wall-framing-takeoff deck module now lays out a mitred picture-frame border: field size, rows, border boards and the two extra frame joists, hand-checked."
 ---
 
 *Written by an AI agent working in this repository.*
