@@ -29,45 +29,14 @@ const PLATES = 4.5;
 const r16 = (/** @type {number} */ n) => Math.round(n * 16) / 16;
 const slope = (/** @type {number} */ p) => Math.sqrt(1 + (p / 12) ** 2);
 
-/** Front wall studs, with an optional centred window (kings, jacks, 2-ply header, sill, cripples).
- *  @param {any} d @param {number} s @param {string} stud @param {string} hdr @param {number} frontLen
- *  @param {(part: string, size: string, length: number, count?: number) => void} add @param {string[]} notes */
-function frontWall(d, s, stud, hdr, frontLen, add, notes) {
-  let frontX = []; for (let x = 0; x < d.width - 1e-9; x += s) frontX.push(x); frontX.push(d.width);
-  if (d.window) {
-    const w = d.window, left = (d.width - w.width) / 2, right = left + w.width, sill = w.sill ?? 30, wh = w.height ?? 36;
-    const inside = frontX.filter((x) => x > left - 1.5 && x < right + 1.5 && x !== 0 && x !== d.width);
-    frontX = frontX.filter((x) => !inside.includes(x));
-    add("front stud", stud, frontLen, frontX.length);
-    add("king stud", stud, frontLen, 2);
-    const top = sill + wh;
-    add("jack stud", stud, top, 2);
-    add("window header (2 plies)", hdr, w.width + 3, 2);
-    add("window sill", stud, w.width, 1);
-    const cripples = Math.max(1, Math.floor(w.width / s));
-    add("cripple under sill", stud, sill - 1.5, cripples);
-    add("cripple over header", stud, frontLen - top - 3, cripples);
-    notes.push(`Window ${w.width} x ${wh} in on a ${sill} in sill: ${inside.length} layout stud(s) replaced by 2 kings, 2 jacks, a 2-ply ${hdr} header, a sill and ${cripples} cripples each above and below.`);
-  } else add("front stud", stud, frontLen, frontX.length);
-}
-
-/** Opening in the main roof under a dormer: doubled up/downslope headers, doubled trimmers, cut main rafters.
- *  @param {any} d @param {number} defaultDepth @param {(part: string, size: string, length: number, count?: number) => void} add @param {string[]} notes */
-function roofOpening(d, defaultDepth, add, notes) {
-  const o = typeof d.roofOpening === "object" ? d.roofOpening : {};
-  const depth = o.depth ?? defaultDepth, m = o.mainSpacing ?? 16;
-  const oh = o.headerSize ?? "2x8", ot = o.trimmerSize ?? oh;
-  const slopeLen = depth * slope(d.mainPitch);
-  const cut = Math.max(0, Math.ceil(d.width / m - 1e-9) - 1);
-  add("roof opening header (2 plies, up- and downslope)", oh, d.width, 4);
-  add("roof opening trimmer (doubled)", ot, slopeLen + 3, 4);
-  notes.push(`Roof opening ${r16(d.width)} x ${r16(depth)} in in plan: ${cut} main rafter(s) at ${m} in are cut and framed to the two headers (their stubs below the lower header are not listed); sizes are typed, the header and trimmer load check is the engineer's.`);
-  return { depth: r16(depth), slopeLength: r16(slopeLen), cutMainRafters: cut, area: Math.round(d.width * depth / 144 * 10) / 10 };
-}
-
-/** Checks shared by both dormer shapes: roof opening and front window. @param {any} d */
-function extrasErrors(d) {
+/** @param {Dormer} d */
+export function validateDormer(d) {
   const e = [];
+  if (!(d.width >= 36 && d.width <= 180)) e.push("Dormer width must be between 3 and 15 ft.");
+  if (!(d.eaveHeight >= 24 && d.eaveHeight <= 96)) e.push("Dormer eave height (front wall, bottom plate to eave) must be between 2 and 8 ft.");
+  if (!(d.pitch >= 3 && d.pitch <= 16)) e.push("Dormer pitch must be between 3 and 16 in 12.");
+  if (!(d.mainPitch >= 3 && d.mainPitch <= 16)) e.push("Main roof pitch must be between 3 and 16 in 12.");
+  if (d.spacing != null && ![12, 16, 19.2, 24].includes(d.spacing)) e.push("Spacing must be 12, 16, 19.2 or 24 in.");
   const ro = d.roofOpening && typeof d.roofOpening === "object" ? d.roofOpening : null;
   if (ro) {
     if (ro.depth != null && !(ro.depth >= 12 && ro.depth <= 240)) e.push("Roof opening depth must be between 1 and 20 ft.");
@@ -78,18 +47,6 @@ function extrasErrors(d) {
     if (!(w.width >= 12 && w.width <= d.width - 12)) e.push("Window width must be at least 1 ft and leave 1 ft of wall.");
     if (!(( w.height ?? 36) >= 12 && (w.height ?? 36) + (w.sill ?? 30) <= d.eaveHeight - PLATES - 3)) e.push("Window height plus sill must fit under the header in the front wall.");
   }
-  return e;
-}
-
-/** @param {Dormer} d */
-export function validateDormer(d) {
-  const e = [];
-  if (!(d.width >= 36 && d.width <= 180)) e.push("Dormer width must be between 3 and 15 ft.");
-  if (!(d.eaveHeight >= 24 && d.eaveHeight <= 96)) e.push("Dormer eave height (front wall, bottom plate to eave) must be between 2 and 8 ft.");
-  if (!(d.pitch >= 3 && d.pitch <= 16)) e.push("Dormer pitch must be between 3 and 16 in 12.");
-  if (!(d.mainPitch >= 3 && d.mainPitch <= 16)) e.push("Main roof pitch must be between 3 and 16 in 12.");
-  if (d.spacing != null && ![12, 16, 19.2, 24].includes(d.spacing)) e.push("Spacing must be 12, 16, 19.2 or 24 in.");
-  e.push(...extrasErrors(d));
   return e;
 }
 
@@ -108,7 +65,22 @@ export function layoutDormer(d) {
 
   // front wall: studs on spacing from one corner, plus the far corner stud
   const frontLen = H - PLATES;
-  frontWall(d, s, stud, hdr, frontLen, add, notes);
+  let frontX = []; for (let x = 0; x < d.width - 1e-9; x += s) frontX.push(x); frontX.push(d.width);
+  if (d.window) {
+    const w = d.window, left = (d.width - w.width) / 2, right = left + w.width, sill = w.sill ?? 30, wh = w.height ?? 36;
+    const inside = frontX.filter((x) => x > left - 1.5 && x < right + 1.5 && x !== 0 && x !== d.width);
+    frontX = frontX.filter((x) => !inside.includes(x));
+    add("front stud", stud, frontLen, frontX.length);
+    add("king stud", stud, frontLen, 2);
+    const top = sill + wh;
+    add("jack stud", stud, top, 2);
+    add("window header (2 plies)", hdr, w.width + 3, 2);
+    add("window sill", stud, w.width, 1);
+    const cripples = Math.max(1, Math.floor(w.width / s));
+    add("cripple under sill", stud, sill - 1.5, cripples);
+    add("cripple over header", stud, frontLen - top - 3, cripples);
+    notes.push(`Window ${w.width} x ${wh} in on a ${sill} in sill: ${inside.length} layout stud(s) replaced by 2 kings, 2 jacks, a 2-ply ${hdr} header, a sill and ${cripples} cripples each above and below.`);
+  } else add("front stud", stud, frontLen, frontX.length);
   add("front bottom plate", stud, d.width, 1);
   add("front top plate", stud, d.width, 2);
 
@@ -141,8 +113,17 @@ export function layoutDormer(d) {
   const roofSqFt = 2 * (hw * xe + hw * (xr - xe) / 2) / 144 * k;
   const wallSqFt = (d.width * H + hw * rise + xe * H) / 144; // front wall + gable triangle + two cheeks (each H x xe / 2)
   let opening = null;
-  if (d.roofOpening) opening = roofOpening(d, xe, add, notes);
-  else notes.push("Roof overhangs, flashing, the opening in the main roof (headers and trimmers) and sheathing waste are not counted.");
+  if (d.roofOpening) {
+    const o = typeof d.roofOpening === "object" ? d.roofOpening : {};
+    const depth = o.depth ?? xe, m = o.mainSpacing ?? 16;
+    const oh = o.headerSize ?? "2x8", ot = o.trimmerSize ?? oh;
+    const slopeLen = depth * slope(d.mainPitch);
+    const cut = Math.max(0, Math.ceil(d.width / m - 1e-9) - 1);
+    add("roof opening header (2 plies, up- and downslope)", oh, d.width, 4);
+    add("roof opening trimmer (doubled)", ot, slopeLen + 3, 4);
+    opening = { depth: r16(depth), slopeLength: r16(slopeLen), cutMainRafters: cut, area: Math.round(d.width * depth / 144 * 10) / 10 };
+    notes.push(`Roof opening ${r16(d.width)} x ${r16(depth)} in in plan: ${cut} main rafter(s) at ${m} in are cut and framed to the two headers (their stubs below the lower header are not listed); sizes are typed, the header and trimmer load check is the engineer's.`);
+  } else notes.push("Roof overhangs, flashing, the opening in the main roof (headers and trimmers) and sheathing waste are not counted.");
   if (opening) notes.push("Roof overhangs, flashing and sheathing waste are not counted.");
   const pooled = /** @type {typeof parts} */ ([]);
   for (const p of parts) { const f = pooled.find((q) => q.part === p.part && q.size === p.size && q.length === p.length); if (f) f.count += p.count; else pooled.push({ ...p }); }
@@ -175,16 +156,25 @@ export function dormerText(r) {
  *  per inch and run out at xr. Rafters run the full xr at the shed slope; a ledger
  *  at their top bears on the main roof framing (opening, headers and loads are the
  *  engineer's). Not counted: overhangs, flashing, the opening in the main roof, windows.
- *  @param {{ width: number, eaveHeight: number, pitch: number, mainPitch: number, spacing?: number, studSize?: string, rafterSize?: string, ledgerSize?: string, headerSize?: string, window?: { width: number, height?: number, sill?: number }, roofOpening?: boolean | { depth?: number, mainSpacing?: number, headerSize?: string, trimmerSize?: string } }} d */
+ *  @param {{ width: number, eaveHeight: number, pitch: number, mainPitch: number, spacing?: number, studSize?: string, rafterSize?: string, ledgerSize?: string, headerSize?: string, roofOpening?: boolean | { depth?: number, mainSpacing?: number, headerSize?: string, trimmerSize?: string }, window?: { width: number, height?: number, sill?: number } }} d */
 export function layoutShedDormer(d) {
   const e = [];
   if (!(d.width >= 36 && d.width <= 240)) e.push("Dormer width must be between 3 and 20 ft.");
   if (!(d.eaveHeight >= 24 && d.eaveHeight <= 96)) e.push("Dormer eave height must be between 2 and 8 ft.");
   if (!(d.pitch >= 1 && d.pitch <= 12)) e.push("Shed pitch must be between 1 and 12 in 12.");
   if (!(d.mainPitch >= 3 && d.mainPitch <= 16)) e.push("Main roof pitch must be between 3 and 16 in 12.");
+  if (d.window) {
+    const w = d.window;
+    if (!(w.width >= 12 && w.width <= d.width - 12)) e.push("Window width must be at least 1 ft and leave 1 ft of wall.");
+    if (!((w.height ?? 36) >= 12 && (w.height ?? 36) + (w.sill ?? 30) <= d.eaveHeight - PLATES - 3)) e.push("Window height plus sill must fit under the header in the front wall.");
+  }
+  if (d.roofOpening && typeof d.roofOpening === "object") {
+    const ro = d.roofOpening;
+    if (ro.depth != null && !(ro.depth >= 12 && ro.depth <= 240)) e.push("Roof opening depth must be between 1 and 20 ft.");
+    if (ro.mainSpacing != null && ![12, 16, 19.2, 24].includes(ro.mainSpacing)) e.push("Main rafter spacing must be 12, 16, 19.2 or 24 in.");
+  }
   if (d.pitch >= d.mainPitch) e.push("A shed dormer's pitch must be flatter than the main roof's, or its roof never meets the main roof.");
   if (d.spacing != null && ![12, 16, 19.2, 24].includes(d.spacing)) e.push("Spacing must be 12, 16, 19.2 or 24 in.");
-  e.push(...extrasErrors(d));
   if (e.length) return { ok: false, errors: e };
   const s = d.spacing ?? 16, H = d.eaveHeight, W = d.width, dp = d.mainPitch - d.pitch;
   const stud = d.studSize ?? "2x4", raf = d.rafterSize ?? "2x8", led = d.ledgerSize ?? "2x8";
@@ -192,9 +182,24 @@ export function layoutShedDormer(d) {
   /** @type {{ part: string, size: string, length: number, count: number }[]} */
   const parts = [];
   const add = (/** @type {string} */ part, /** @type {string} */ size, /** @type {number} */ length, count = 1) => { if (count > 0 && length > 0) parts.push({ part, size, length: r16(length), count }); };
-  let frontX = 0; for (let x = 0; x < W - 1e-9; x += s) frontX++; frontX++;
-  const notes = ["Shed dormer: overhangs, flashing and sheathing waste are not counted; sizes are typed and the load path is the engineer's."];
-  frontWall(d, s, stud, d.headerSize ?? "2x6", H - PLATES, add, notes);
+  let frontXs = []; for (let x = 0; x < W - 1e-9; x += s) frontXs.push(x); frontXs.push(W);
+  const frontX = frontXs.length;
+  const notes = ["Shed dormer: overhangs, flashing, the opening in the main roof and its headers are not counted; sizes are typed and the load path is the engineer's."];
+  const frontLen = H - PLATES;
+  if (d.window) {
+    const w = d.window, hdr = d.headerSize ?? "2x6", left = (W - w.width) / 2, right = left + w.width, sill = w.sill ?? 30, wh = w.height ?? 36;
+    const inside = frontXs.filter((x) => x > left - 1.5 && x < right + 1.5 && x !== 0 && x !== W);
+    add("front stud", stud, frontLen, frontXs.length - inside.length);
+    add("king stud", stud, frontLen, 2);
+    const top = sill + wh;
+    add("jack stud", stud, top, 2);
+    add("window header (2 plies)", hdr, w.width + 3, 2);
+    add("window sill", stud, w.width, 1);
+    const cripples = Math.max(1, Math.floor(w.width / s));
+    add("cripple under sill", stud, sill - 1.5, cripples);
+    add("cripple over header", stud, frontLen - top - 3, cripples);
+    notes.push(`Window ${w.width} x ${wh} in on a ${sill} in sill: ${inside.length} layout stud(s) replaced by 2 kings, 2 jacks, a 2-ply ${hdr} header, a sill and ${cripples} cripples each above and below.`);
+  } else add("front stud", stud, frontLen, frontX);
   add("front bottom plate", stud, W, 1);
   add("front top plate", stud, W, 2);
   let cheekStuds = 0;
@@ -207,15 +212,24 @@ export function layoutShedDormer(d) {
   const rafters = frontX;
   add("shed rafter", raf, rafLen, rafters);
   add("rafter ledger", led, W, 1);
-  const opening = d.roofOpening ? roofOpening(d, xr, add, notes) : null;
+  let opening = null;
+  if (d.roofOpening) {
+    const o = typeof d.roofOpening === "object" ? d.roofOpening : {};
+    const depth = o.depth ?? xr, m = o.mainSpacing ?? 16, oh = o.headerSize ?? "2x8", ot = o.trimmerSize ?? oh;
+    const slopeLen = depth * slope(d.mainPitch), cut = Math.max(0, Math.ceil(W / m - 1e-9) - 1);
+    add("roof opening header (2 plies, up- and downslope)", oh, W, 4);
+    add("roof opening trimmer (doubled)", ot, slopeLen + 3, 4);
+    opening = { depth: r16(depth), slopeLength: r16(slopeLen), cutMainRafters: cut, area: Math.round(W * depth / 144 * 10) / 10 };
+    notes.push(`Roof opening ${r16(W)} x ${r16(depth)} in in plan: ${cut} main rafter(s) at ${m} in are cut and framed to the two headers (stubs below the lower header not listed); sizes are typed, the load check is the engineer's.`);
+  }
   const pooled = /** @type {typeof parts} */ ([]);
   for (const p of parts) { const f = pooled.find((q) => q.part === p.part && q.size === p.size && q.length === p.length); if (f) f.count += p.count; else pooled.push({ ...p }); }
   return {
     ok: true, errors: [], parts: pooled, spacing: s, shape: "shed",
     geometry: { cheekRunToRoof: r16(xr), rafterLength: r16(rafLen), rise: r16(xr * d.pitch / 12) },
     counts: { rafters, cheekStuds },
-    areas: { roofSqFt: Math.round(W * xr / 144 * slope(d.pitch) * 10) / 10, wallSqFt: Math.round((W * H + H * xr) / 144 * 10) / 10 },
     ...(opening ? { opening } : {}),
+    areas: { roofSqFt: Math.round(W * xr / 144 * slope(d.pitch) * 10) / 10, wallSqFt: Math.round((W * H + H * xr) / 144 * 10) / 10 },
     notes,
   };
 }
