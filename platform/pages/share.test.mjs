@@ -272,6 +272,16 @@ test('the card kicker: a section the site names, an unnamed one, a long crumb an
   assert.equal(kickerOf('research/x/index.html', page()), 'Research');
 });
 
+test('a writing post card kicker shows its reading time; the writing front page and a post with none keep the section name', () => {
+  const kickerOf = (relative, html) => pageCardPlan(html, relative, { baseUrl: BASE }).options.kicker;
+  const timed = page().replace('</body>', '<p>7 min read</p></body>');
+  assert.equal(kickerOf('writing/post/index.html', timed), 'Writing · 7 min read');
+  // The front page of the section keeps its section kicker even when "N min read" appears on it.
+  assert.doesNotMatch(kickerOf('writing/index.html', timed), /min read/);
+  // A post with no reading time must not print "undefined min read".
+  assert.doesNotMatch(kickerOf('writing/post/index.html', page()), /min read/);
+});
+
 test('accentFor hashes section and topic to a stable palette colour', () => {
   assert.deepEqual(['a', 'Energy', 'Housing', 'Tax and pay', 'Long topic name here'].map((t) => accentFor('research', t)), ['#1d4ed8', '#c2410c', '#9333ea', '#b91c1c', '#0f766e']);
 });
