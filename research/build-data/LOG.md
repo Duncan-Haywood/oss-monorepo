@@ -1,5 +1,14 @@
 # build-data log
 
+## Session 9, 2026-10-31: milestone 5, permutation importance and drop-one ablation (H3 holds, as worded)
+
+Hypothesis (H3, from the proposal, before the run): at most five fields account for 80% of the importance. Operationalised before running: importance is the rise in mean pinball loss (q0.1, 0.5, 0.9) of the session-6 models when one test-row column is shuffled (3 repeats, 3 seeds); k80 is the smallest number of fields whose positive importances reach 80% of their sum. Refuted if k80 > 5 in any pair. Prior 70% that it holds. Caveat noted in advance: the models have only 7 fields (6 in SF, which has no work class), so k80 <= 5 is a weak test.
+Done: `src/importance.py`; refreshed the three feeds into a scratch directory; results in `results/importance_*_2024.json`, table in `results/m5_table.md`. Drop-one refits use the first seed only (cost).
+Outcome: **H3 holds on all five pairs (k80 = 2 to 4)**, but the wording is looser than the data. The top field carries 39 to 70% of the importance: work class in Austin (68% a2i, 65% i2c) and Chicago (39%), permit type in SF a2i (70%), log cost in SF i2c (66%). Month and weekday are near zero everywhere. Drop-one agrees on the top field in four of five pairs; in Chicago a2i it picks description length (+1.16 days) while permutation picks work class, a sign of correlated fields (drop-one lets the others stand in, permutation does not) and of a one-seed refit.
+Not what H3 says: H3 speaks of the gain over the baseline, and permutation importance is not a decomposition of it. The importances sum to 1.7 to 3.4 times the gain in four pairs and 20 times in Chicago a2i, where the gain is only 0.17 days: the model leans on fields heavily and still barely beats a per-type baseline. So "five fields explain 80% of the gain" is not shown; "five fields carry 80% of the model's reliance" is.
+Limits: one test year, 3 seeds, 3 permutation repeats, importance not given intervals, no grouped permutation of correlated fields, drop-one has one seed. Hypothesis wording should be tightened (state k80 on permutation importance, or run a Shapley decomposition of the gain) before the paper.
+Next: milestone 6 (cross-city transfer, H4; licence check for a fourth city), and a grouped-permutation or Shapley variant of H3.
+
 ## Session 8, 2026-10-31: milestone 4 run, split-conformal on the real feeds (H2 refuted)
 
 Hypothesis (H2, written in session 7 before any run): split-conformal intervals calibrated on the year before the test year cover within 3 points of 80% on the test year in every city; refuted if coverage is outside 77 to 83% in any city. Prior 60% that it holds (I expected it to fail in Chicago and SF a2i).
