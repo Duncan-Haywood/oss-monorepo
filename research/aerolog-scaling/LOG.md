@@ -3,6 +3,9 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-31 · Milestone 8f: paper draft catches up with milestones 2a to 2c and 9j to 9l (no new simulation)
+- Section 4.10 gains the 10% noise, continuation-start and estimated-initial-state results; new Section 4.11 holds the measured-flight energy results with their limits; `check_numbers.py` ties the new figures to this log (all ok). Next: turbulence; thrust law; lift-plus-cruise sizing; AIAA template.
+
 ## 2026-10-31 · Milestone 9l: what does estimating the initial state cost the output-error fit at 10% noise? (planned before running)
 - Why: 9k's "Next". Every output-error fit so far was simulated from the true initial state, which a real doublet does not give; 9i and 9j flagged it as flattering.
 - Plan (`experiments/estimated_x0/run.py`): 9k's continuation fit on records of 2 phugoid periods, 10% noise, tail-slope scale 0.75, every third of the 78 mode-matched designs, 10 paired draws, seed 20261102 (reduced for session CPU). Both fits see the same record: (a) initial state known; (b) the four initial states are free parameters started at the first noisy sample, in both stages of the continuation.
