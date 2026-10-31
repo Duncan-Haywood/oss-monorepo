@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01E5sJKkb6Vodhow9Sx4SXmr",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T21:39:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12178",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Flagship 1 next: names an item (no page field for cantilever deflection ratio) that a parallel session landed the same hour; no claim mechanism for flagship slices."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Routed to review but an open 'prompts: review 2026-10-31' PR already claimed it; re-routed with --skip-review as instructed.",
+      "did": "Took ventures, flagship 1 small slice",
+      "result": "landed"
+    },
+    {
+      "file": "prompt.md",
+      "why": "No post: another session landed the same page field first, so mine was dropped.",
+      "did": "Kept only a Chromium click check of the field",
+      "result": "passes against main"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Built the cantilever tip ratio page field; PR 12177-era session landed the identical feature on main first. Merged main, kept only the Chromium click check (eval-browser-click.mjs). Duplicate-work friction: overlapping sessions on flagship 1.",
+  "corrections": [],
+  "redteam": null
+}
