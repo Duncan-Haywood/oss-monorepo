@@ -2,7 +2,7 @@
 title: "Red team on the narration tool: 3 of 8 seeded bugs caught, then 8 of 8"
 seo_title: "Mutation testing a text-to-speech script: what the tests missed"
 date: 2026-10-31
-tags: [testing, red-team, mutation-testing, audio]
+tags: [testing, redteam, mutation-testing, audio]
 description: "Seeding 8 bugs into platform/audio/narrate.py, the tests caught 3. Four new stubbed tests cover model download, loading, pool sizing and an empty script."
 ---
 
