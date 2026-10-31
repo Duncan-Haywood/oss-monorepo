@@ -111,6 +111,9 @@ concurrency:
 
 jobs:
   fire:
+    # Secrets live in the `paid-agents` environment, limited to main
+    # (docs/security/agent-hardening.md, step 4).
+    environment: paid-agents
     # The owner switch, and the thing that stops a revoked token billing.
     #
     # A 401 from /fire is not a transient error: the loop's `case` exits on it

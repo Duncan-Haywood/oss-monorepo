@@ -32,6 +32,16 @@ CHECKS = [
     ("0.759 at 14 bar and 0.949 at 25 bar", "pvg_neutral_results.txt", "dp_ls 25: LS/OC median 0.949"),
     ("0.8% and 33.6%", "pvg_neutral_results.txt", "LS worse in 33.6%"),
     ("0.92 bar of margin", "ranking_map_results.txt", "0.92 bar per bar"),
+    ("5.8% at k = 1", "flow_share_shape_results.txt", "k 1.0: penalty % median 5.80, p95 21.62"),
+    ("95th percentile of 21.6%", "flow_share_shape_results.txt", "k 1.5: penalty % median 0.00, p95 21.62"),
+    ("0.07% at k = 5", "flow_share_shape_results.txt", "k 5.0: penalty % median 0.00, p95 0.07"),
+    ("21.6% for every k up to 2", "flow_share_shape_results.txt", "p_n 1.44 k 2.0: penalty % median 21.62"),
+    ("0.00% (`flow_share_ls", "flow_share_ls_results.txt", "LS own penalty median 0.00%"),
+    ("35.8 bar at k = 1", "time_penalised_results.txt", "k 1.0: median time penalty 5.76%; break-even dp_ls 35.8"),
+    ("31.1 at k = 1.5", "time_penalised_results.txt", "break-even dp_ls 31.1"),
+    ("29.4 at k = 2", "time_penalised_results.txt", "break-even dp_ls 29.4"),
+    ("28.3 at k = 3", "time_penalised_results.txt", "break-even dp_ls 28.3"),
+    ("29.5 at k = 10", "time_penalised_results.txt", "k 10.0: median time penalty 0.00%; break-even dp_ls 29.5"),
 ]
 
 

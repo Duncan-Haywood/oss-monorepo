@@ -1,0 +1,193 @@
+Metadata-Version: 2.4
+Name: mowerbot
+Version: 0.1.0
+Summary: Open-source robot lawn mower: lawn coverage planner, RTK mowing simulation, battery sessions, blade stop-time and slope calculators, ESP32 protocol
+License: MIT
+Project-URL: Homepage, https://duncan-haywood.github.io/monorepo-projects/open-robot-mower/
+Project-URL: Source, https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/open-robot-mower
+Keywords: robot lawn mower,robotic mower,DIY,RTK GNSS,coverage planning,raspberry pi,esp32,open hardware
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Scientific/Engineering
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Provides-Extra: serial
+Requires-Dist: pyserial; extra == "serial"
+Dynamic: license-file
+
+# Open Robot Mower: a DIY robot lawn mower, fully designed and open source
+
+An open-source robotic lawn mower you can build from laser-cut aluminium,
+3D-printed parts and parts you can buy:
+
+- **Wire-free.** It navigates by RTK GNSS to a couple of centimetres, so
+  there is no boundary wire to bury. A perimeter-wire option is described
+  for lawns under heavy tree cover.
+- **Guarded blade.** A 200 mm disc with three pivoting razor blades cuts a
+  232 mm swath at 20-50 mm, inside a full guard ring that reaches below the
+  blade plane.
+- **Floating shell.** The shell sits on four rubber mounts with 3-axis hall
+  sensors: lift it or bump it and the blade stops.
+- **Safety firmware.** An ESP32 owns the motors and every safety input. The
+  blade runs only while the mower is level, the shell is down, it is dry,
+  the stop button is up and the planner's heartbeat is fresh.
+- **Docks to charge** on a pegged-down dock with contacts that stay dead
+  until a mower is on them.
+
+**Plan your own lawn in your browser:**
+https://duncan-haywood.github.io/oss-monorepo/open-robot-mower/
+
+Everything is MIT-licensed. You can build it, change it, and sell it under
+your own brand. If you sell it, you are the manufacturer (see
+[safety](hardware/safety.md)).
+
+> **Status: design v0.1, unbuilt, simulation-tested.** The CAD passes its
+> collision, clearance, hole-alignment and printer-fit checks, and the
+> planner, simulation and firmware logic are unit-tested. No mower has been
+> built yet, and every performance number below is a model under stated
+> assumptions. Builders: please open issues with what you find.
+
+## Manufacture it
+
+A parametric CAD model in code ([`cad/`](cad/README.md), build123d)
+generates the whole fab package. It is committed at
+[`manufacturing/mower-package.zip`](manufacturing/mower-package.zip)
+([browse](manufacturing/mower/); GitHub renders the STLs in 3D), with the
+dock at [`manufacturing/dock-package.zip`](manufacturing/dock-package.zip):
+
+- `laser/*.dxf`: chassis, height plate, electronics tray and blade disc,
+  flat 5052 aluminium, no bends or tapped holes
+- `print/*.stl`: 16 ASA parts (shell in six segments, guard quarters,
+  motor clamps, wheel hubs, caster forks, shell posts, height gauge...),
+  each fitting a 256 mm printer bed
+- `step/*.step`: every part, plus the assembly
+- `bom.csv` (every part and fastener), `cut_list.csv` and assembly drawings
+
+Every build checks: design rules (guard clearance and depth, blade distance
+from the shell edge, motor and caster fit); pairwise collisions with the
+spinning parts given 2 mm running clearance, **at all seven cut heights**;
+the shell pushed 8 mm each way without touching anything; wheels and
+casters on the ground; every printed part on the printer bed; and, for the
+dock, the default mower docked without touching anything but the contacts.
+Builds are byte-reproducible, and CI fails if the committed package goes
+stale.
+
+## What's here
+
+| Path | What it is |
+| --- | --- |
+| [`hardware/mower.md`](hardware/mower.md) | The mower: chassis, drive, cutting system, height adjustment, guard, shell and sensors |
+| [`hardware/navigation.md`](hardware/navigation.md) | RTK base and rover, mapping a lawn, fix losses, the perimeter-wire alternative |
+| [`hardware/dock.md`](hardware/dock.md) | Charging dock and its dead-until-docked contacts |
+| [`hardware/electronics.md`](hardware/electronics.md) | Block diagram, ESP32 pin map, power budget, wiring |
+| [`hardware/safety.md`](hardware/safety.md) | The hazard in numbers, what the design does and does not protect against, rules for running it |
+| [`hardware/bom-*.csv`](hardware/) | Bills of materials (rough estimates: ~$1,050 mower and dock, ~$300 RTK base) |
+| [`src/mowerbot/`](src/mowerbot/) | Python package for the Pi: lawn geometry, coverage planner, coverage raster, line follower, closed-loop simulation, power and charge sessions, blade stop time, slope limits, serial protocol |
+| [`firmware/esp32/`](firmware/esp32/README.md) | MicroPython firmware: blade interlock, latched stops, watchdog, soft start, blade-stop check |
+| [`cad/`](cad/README.md), [`manufacturing/`](manufacturing/) | Parametric CAD (build123d) and the generated fab packages |
+| `index.html`, `sim.mjs` | The browser lawn planner (a port of the Python planner, tested against it) |
+
+## Quick start (software)
+
+```
+pip install "git+https://github.com/duncan-haywood/oss-monorepo#subdirectory=ventures/open-robot-mower"
+
+mowerbot plan --example backyard              # stripes, loops, time, planned coverage
+mowerbot plan --lawn lawn.example.json --angle 30 --path-out path.json
+mowerbot simulate --runs 3                    # drive it with RTK noise, wheel slip and fix losses
+mowerbot schedule --battery-wh 40             # split a lawn into charge sessions
+mowerbot runtime --slope 10                   # power budget and runtime per charge
+mowerbot blade-stop --phase-r 0.6             # tip speed, stored energy, stop time
+mowerbot slope                                # steepest workable slope, dry and wet
+```
+
+Coordinates are metres in a local east-north frame (the RTK base station
+is a natural origin). A lawn file is
+`{"outer": [[x, y], ...], "holes": [[[x, y], ...]], "dock": [x, y]}`; the
+browser planner exports one.
+
+## What the models say about the default design
+
+All of these are outputs of this repository's code on the default
+parameters, not measurements.
+
+| Question | Answer | Command |
+| --- | --- | --- |
+| Back-yard example (186 m², a bed and a tree): plan | 109 stripes at 170°, 979 m, 52 min, 99.96% planned coverage | `mowerbot plan` |
+| Same lawn, closed loop (1.5 cm RTK noise, 3% slip, 2 fix losses/h) | 99.86-99.88% cut, 55-57 min, worst cross-track 6.5 cm | `mowerbot simulate --runs 3` |
+| Power while cutting at 0.35 m/s on the flat | 32.7 W (drive 7.1, blade 18.6, electronics 7.0), ~3.1 h on 126 Wh | `mowerbot runtime` |
+| Blade stop from 2,800 rpm | 0.46 s short-braked, 13.7 s coasting | `mowerbot blade-stop` |
+| Blade tip speed, stored energy | 34 m/s, 51 J (1.4 J in each blade) | `mowerbot blade-stop` |
+| Steepest workable slope | 16.7° dry, 5.1° wet, limited by climbing traction | `mowerbot slope` |
+
+Read it as:
+
+- **Coverage is not the problem; traction is.** The planner and follower
+  leave well under 1% of a lawn uncut in simulation, mostly in sharp inside
+  corners. The weak point is rear drive on wet grass: about 5 degrees. Keep
+  weight over the drive wheels, and do not mow wet.
+- **The brake matters more than anything else for safety.** Coasting, the
+  disc spins for about 14 s; shorted phases stop it in about half a second.
+  That is why the stop button drops a relay whose normally-closed contacts
+  short the motor, independent of the ESC and the firmware.
+- **Every coefficient is an assumption** (rolling resistance, cutting energy,
+  grass friction, motor constants). The first build should measure them and
+  feed them back in through the CLI options.
+
+## How the pieces fit
+
+```
+RTK base ──RTCM──> RTK rover ──fix──┐
+                                    v
+lawn.json ──> planner.plan ──> path ──> drive.LineFollower ──> protocol DRIVE / BLADE ──UART──> ESP32
+                  │                                                                          │
+                  └─> power.schedule (go home to charge)          controller.py: blade interlock, latched stops,
+                                                                  watchdog, soft start, stop-time check
+```
+
+## Develop
+
+```
+cd ventures/open-robot-mower
+PYTHONPATH=src python3 -m unittest discover -s tests   # planner, coverage, follower, simulation, physics, firmware
+node --test *.test.mjs                                 # browser port vs Python fixtures, page checks, usage counter
+PYTHONPATH=src python3 -m mowerbot.fixtures            # regenerate fixtures after changing the planner
+(cd cad && pip install -r requirements.txt && python3 -m unittest discover -s tests)   # CAD checks, ~2 min
+```
+
+## Roadmap (long-term project)
+
+1. **Build the chassis and drive first**, blade disc off: test the RTK
+   fix, mapping and the line follower on a real lawn, and measure rolling
+   resistance and slip.
+2. Bench-test the blade with the guard on and the mower upside down in a
+   cage: measure the real stop time with a slow-motion video.
+3. Design the hall-sensor helper board and the dock's charge-enable
+   circuit to schematics.
+4. Measure power over a real session and replace the assumed coefficients.
+5. Add obstacle detection ahead of the mower (ultrasonic or a camera) so it
+   does not rely on touch alone.
+
+## Licence and disclaimer
+
+MIT ([LICENSE](LICENSE)).
+
+**No warranty.** This tool is provided free and as-is, without warranty of
+any kind, express or implied. It is not engineering, electrical or safety
+advice, and it does not replace a qualified professional. Spinning mower
+blades can cause serious injury. **You are responsible for reviewing and
+verifying its output before relying on it**, and for building and operating
+any machine safely and lawfully. To the maximum extent permitted by law,
+the authors accept no liability for any loss, damage or injury arising from
+its use.
+
+**Privacy.** Everything runs in your browser. Nothing you type or draw is
+uploaded, and there are no accounts, tracking cookies or analytics vendor.
+The page counts which features get used (`plan_run`, `example_loaded`,
+`lawn_drawn` and the like) in your own browser's `localStorage` only; the
+footer's checkbox turns it off and clears the counts, and Do Not Track or
+Global Privacy Control turns it off too.
+
+Not affiliated with any lawn mower or robotic mower maker. Like it?
+[Sponsor the work on GitHub](https://github.com/sponsors/Duncan-Haywood).

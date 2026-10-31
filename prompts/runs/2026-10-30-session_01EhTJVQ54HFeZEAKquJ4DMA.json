@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": 11943,
+  "pr": "https://github.com/duncan-haywood/oss-monorepo/pull/11943",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -32,7 +32,7 @@
   "doc_friction": [],
   "deviations": [
     {
-      "file": "prompts/promptctl.py",
+      "file": "prompt.md",
       "why": "prompt route drew the research track; the scheduled task asked for revenue products, so I did ventures work on the top flagship"
     }
   ],

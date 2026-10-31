@@ -95,6 +95,9 @@ workflows:
 - workflow: conflict-markers-ci.yml
   classification: none
   publishes: []
+- workflow: control-plane-guard.yml
+  classification: none
+  publishes: []
 - workflow: coverage-drop-check-ci.yml
   classification: none
   publishes: []

@@ -169,3 +169,27 @@ test('/healthz answers only GET, unknown POST paths are 404, and a malformed fee
   assert.equal(bad.status, 400);
   assert.deepEqual(await bad.json(), { error: 'body' });
 });
+
+test('/feedback accepts a body of exactly the size cap and refuses one byte more', async () => {
+  const e = env();
+  const padded = (n) => {
+    const head = '{"type":"idea","message":"Boundary check message"}';
+    return head + ' '.repeat(n - head.length);
+  };
+  const send = (body) => worker.fetch(req('/feedback', { body, headers: { origin: ORIGIN } }), e);
+  assert.equal((await send(padded(6000))).status, 201, 'a 6000-character body is within the cap');
+  const over = await send(padded(6001));
+  assert.equal(over.status, 413);
+  assert.deepEqual(await over.json(), { error: 'size' });
+});
+
+test('/counts?since= keeps only days from that date, and ignores a malformed value', async () => {
+  const e = env();
+  await worker.fetch(req('/hit', { body: JSON.stringify({ p: 'roof-bid' }) }), e);
+  const days = async (q) => (await (await worker.fetch(req(`/counts${q}`, { method: 'GET' }), e)).json()).days;
+  assert.equal(Object.keys(await days('')).length, 1);
+  assert.equal(Object.keys(await days('?since=0000-00-00')).length, 1);
+  assert.deepEqual(await days('?since=9999-12-31'), {}, 'a valid future date filters today out');
+  assert.equal(Object.keys(await days('?since=9999-12-3')).length, 1, 'a malformed date falls back to everything');
+  assert.equal(Object.keys(await days('?since=99999-12-31')).length, 1, 'a five-digit year is malformed');
+});
