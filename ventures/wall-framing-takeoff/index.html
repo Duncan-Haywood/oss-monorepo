@@ -210,6 +210,7 @@
       <div><label for="dkGuard">Guard (railing)</label><select id="dkGuard"><option value="">Automatic (over 30 in above grade)</option><option value="always">Always lay out</option><option value="none">None</option></select></div>
       <div><label for="dkGuardSides">Guarded edges</label><select id="dkGuardSides"><option value="">All open edges</option><option value="outer">Outer edge only</option><option value="outer,left,right">Outer, left and right</option></select></div>
       <div><label for="dkStair">Stair down to grade</label><select id="dkStair"><option value="">None</option><option value="true">Yes (rise taken from the deck height)</option></select></div>
+      <div><label for="dkBorder">Picture-frame border</label><select id="dkBorder"><option value="">None</option><option value="1">1 course</option><option value="2">2 courses</option><option value="3">3 courses</option></select></div>
     </div>
     <p><input type="checkbox" id="trOn" style="width:auto"> <label for="trOn" style="display:inline">Also count interior trim (baseboard between doors; casing legs, head and window sill; packed into stock boards; lengths and widths are the trim you buy)</label></p>
     <div class="grid" id="trFields" hidden>
@@ -673,6 +674,7 @@
         if ($("#dkGuard").value === "none") dk.guard = false;
         else if ($("#dkGuard").value === "always" || $("#dkGuardSides").value) dk.guard = $("#dkGuardSides").value ? { sides: $("#dkGuardSides").value.split(",") } : {};
         if ($("#dkStair").value) dk.stairs = {};
+        if ($("#dkBorder").value) dk.border = Number($("#dkBorder").value);
         plan.deck = dk;
       }
       if ($("#stOn").checked) {
@@ -1146,7 +1148,7 @@
       $("#dkOn").checked = Boolean(dkp); $("#dkFields").hidden = !dkp;
       $("#dkWidth").value = dkp ? formatLength(dkp.width) : ""; $("#dkDepth").value = dkp ? formatLength(dkp.depth) : ""; $("#dkHeight").value = dkp ? formatLength(dkp.height) : "";
       $("#dkJoist").value = dkp?.joist || "2x8"; $("#dkSpacing").value = dkp?.spacing != null ? String(dkp.spacing) : ""; $("#dkBeam").value = dkp?.beam || "2x10";
-      $("#dkPost").value = dkp?.postSize || "6x6"; $("#dkFree").value = dkp?.freestanding ? "true" : ""; $("#dkStair").value = dkp?.stairs ? "true" : "";
+      $("#dkPost").value = dkp?.postSize || "6x6"; $("#dkFree").value = dkp?.freestanding ? "true" : ""; $("#dkStair").value = dkp?.stairs ? "true" : ""; $("#dkBorder").value = dkp?.border === true ? "1" : dkp?.border ? String(dkp.border) : "";
       $("#dkGuard").value = dkp?.guard === false ? "none" : dkp?.guard ? "always" : "";
       { const gs = dkp?.guard && typeof dkp.guard === "object" && Array.isArray(dkp.guard.sides) ? dkp.guard.sides.join(",") : ""; $("#dkGuardSides").value = [...$("#dkGuardSides").options].some((o) => o.value === gs) ? gs : ""; }
       const stp = plan.stairs && !Array.isArray(plan.stairs) ? plan.stairs : null;
