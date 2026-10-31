@@ -14,7 +14,7 @@ import { joistCentres } from "./floor.mjs";
 const DEFAULT_R = { "2x4": 15, "2x6": 21 };
 
 /** @typedef {{ rValue?: number, rPerInch?: number, bagCuFt?: number, price?: number, heel?: number, baffles?: boolean, baffleLength?: number, baffleWidth?: number, ceiling?: { width: number, depth: number }[] }} Attic */
-/** @typedef {{ continuousR?: number, sheathingR?: number, drywallR?: number, insideFilmR?: number, outsideFilmR?: number, framingRPerInch?: number, assumedFramingFraction?: number }} Assembly */
+/** @typedef {{ continuousR?: number, sheathingR?: number, drywallR?: number, insideFilmR?: number, outsideFilmR?: number, framingRPerInch?: number, assumedFramingFraction?: number, windowU?: number, doorU?: number, designDeltaF?: number, heatingDegreeDays?: number }} Assembly */
 /** @typedef {{ bagSqFt?: number, waste?: number, rValue?: number, price?: number, attic?: Attic, rim?: boolean, assembly?: Assembly | boolean }} Insulation */
 
 // Typical handbook layer values (ASHRAE Fundamentals), typed defaults: replace with your product's
@@ -32,6 +32,9 @@ export function validateInsulation(d) {
     const a = d.assembly;
     for (const k of /** @type {const} */ (["continuousR", "sheathingR", "drywallR", "insideFilmR", "outsideFilmR"])) if (a[k] != null && !(a[k] >= 0 && a[k] <= 30)) e.push(`Assembly ${k} must be between 0 and 30.`);
     if (a.framingRPerInch != null && !(a.framingRPerInch > 0 && a.framingRPerInch <= 3)) e.push("Assembly framingRPerInch must be between 0 and 3.");
+    for (const k of /** @type {const} */ (["windowU", "doorU"])) if (a[k] != null && !(a[k] > 0 && a[k] <= 2)) e.push(`Assembly ${k} must be between 0 and 2 (BTU/h per sq ft per F).`);
+    if (a.designDeltaF != null && !(a.designDeltaF > 0 && a.designDeltaF <= 120)) e.push("Assembly designDeltaF must be between 0 and 120 F.");
+    if (a.heatingDegreeDays != null && !(a.heatingDegreeDays > 0 && a.heatingDegreeDays <= 15000)) e.push("Assembly heatingDegreeDays must be between 0 and 15000 (F-days, base 65).");
     if (a.assumedFramingFraction != null && !(a.assumedFramingFraction > 0 && a.assumedFramingFraction < 0.6)) e.push("Assembly assumedFramingFraction must be between 0 and 0.6.");
   }
   const a = d.attic;
@@ -161,6 +164,31 @@ function effectiveR(walls, d) {
   return { layersR: layers, assumedFramingFraction: a.assumedFramingFraction, effectiveR: area / uA, effectiveRAtAssumed: area / uAssumedA, clearWallR: area / nominalUA, opaqueSqFt: area, sizes, settings: a };
 }
 
+/**
+ * Conduction through the wall shell: UA = opaque area / effective R + window and door areas x typed
+ * U-factors. Only the figures the user types produce a number (no climate or window is assumed);
+ * design load = UA x design temperature difference, annual energy = UA x 24 x heating degree-days.
+ * Walls only: roof, floor, air leakage and ventilation are not in it.
+ * @param {any} e @param {Insulation} d @param {any} plan
+ */
+function heatLoss(e, d, plan) {
+  const a = e.settings;
+  let win = 0, door = 0;
+  for (const w of plan.walls || []) for (const o of w.openings || []) {
+    const sq = (o.width * o.height) / 144;
+    if (o.kind === "door") door += sq; else win += sq;
+  }
+  const opaqueUA = e.opaqueSqFt / e.effectiveR;
+  const winUA = a.windowU != null ? win * a.windowU : null, doorUA = a.doorU != null ? door * a.doorU : null;
+  const complete = (win === 0 || winUA != null) && (door === 0 || doorUA != null);
+  const ua = opaqueUA + (winUA ?? 0) + (doorUA ?? 0);
+  return {
+    windowSqFt: win, doorSqFt: door, opaqueUA, windowUA: winUA, doorUA, ua, complete,
+    designBtuh: a.designDeltaF != null ? ua * a.designDeltaF : null,
+    annualKBtu: a.heatingDegreeDays != null ? (ua * 24 * a.heatingDegreeDays) / 1000 : null,
+  };
+}
+
 /** @param {Insulation} d @param {any} plan @param {any} result */
 function layoutWalls(d, plan, result) {
   const errors = validateInsulation(d);
@@ -192,6 +220,7 @@ function layoutWalls(d, plan, result) {
   });
   const bags = sizes.reduce((s, x) => s + x.bags, 0);
   const assembly = d.assembly ? effectiveR(walls, d) : null;
+  if (assembly) assembly.heat = heatLoss(assembly, d, plan);
   return {
     ok: true, errors: [], walls, sizes, bags, assembly, bagSqFt: bag, waste,
     cavitySqFt: sizes.reduce((s, x) => s + x.cavitySqFt, 0),
@@ -211,6 +240,13 @@ export function insulationText(d) {
   if (e) {
     l.push(`  Effective wall R (parallel path, opaque wall only, ${e.opaqueSqFt.toFixed(0)} sq ft): R-${e.effectiveR.toFixed(1)} from the framing as placed; R-${e.effectiveRAtAssumed.toFixed(1)} if ${(100 * e.assumedFramingFraction).toFixed(0)}% framing were assumed; R-${e.clearWallR.toFixed(1)} through the cavity alone (no framing)`);
     for (const s of e.sizes) l.push(`    ${s.size}: framing is ${(100 * s.framingFraction).toFixed(1)}% of the opaque wall; R-${s.nominalCavityR} cavity gives R-${s.effectiveR.toFixed(1)} (clear-wall R-${s.clearWallR.toFixed(1)}); layers outside the cavity add R-${e.layersR.toFixed(2)}`);
+    const h = e.heat;
+    if (h) {
+      l.push(`  Wall heat loss (conduction): UA ${h.ua.toFixed(1)} BTU/h per F = opaque ${h.opaqueUA.toFixed(1)}${h.windowUA != null ? ` + windows ${h.windowUA.toFixed(1)} (${h.windowSqFt.toFixed(0)} sq ft)` : ""}${h.doorUA != null ? ` + doors ${h.doorUA.toFixed(1)} (${h.doorSqFt.toFixed(0)} sq ft)` : ""}${h.complete ? "" : ` (INCOMPLETE: type windowU/doorU for the ${h.windowUA == null && h.windowSqFt > 0 ? `${h.windowSqFt.toFixed(0)} sq ft of windows` : ""}${h.windowUA == null && h.windowSqFt > 0 && h.doorUA == null && h.doorSqFt > 0 ? " and " : ""}${h.doorUA == null && h.doorSqFt > 0 ? `${h.doorSqFt.toFixed(0)} sq ft of doors` : ""}; they are left out)`}`);
+      if (h.designBtuh != null) l.push(`    Design load through the walls: ${Math.round(h.designBtuh).toLocaleString("en-US")} BTU/h at ${e.settings.designDeltaF} F inside-outside`);
+      if (h.annualKBtu != null) l.push(`    Seasonal conduction: ${Math.round(h.annualKBtu).toLocaleString("en-US")} kBTU at ${e.settings.heatingDegreeDays} heating degree-days (base 65 F)`);
+      l.push("    Walls only: roof, floor, air leakage and ventilation are not in it, so it is not a Manual J load. Window and door U-factors and the climate figures are the ones you typed.");
+    }
     l.push("    Layer values are typical handbook figures you can replace (insulation.assembly); windows, doors, air leakage and compressed batts are not in it. Not an energy-code compliance check.");
   }
   if (d.rim) l.push(`  Rim joist bays: ${d.rim.sqFt.toFixed(0)} sq ft (front and back, ${d.rim.joistDepthIn} in deep, less joist ends) -> ${d.rim.bags} bags at the same coverage${d.rim.cost != null ? `, ${d.rim.cost.toFixed(2)}` : ""}`);

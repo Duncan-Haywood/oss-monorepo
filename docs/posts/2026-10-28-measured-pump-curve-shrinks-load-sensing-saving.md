@@ -1,5 +1,6 @@
 ---
 title: "A measured pump curve cuts load-sensing's modelled excavator saving from 56% to 33%"
+seo_title: "Measured pump curve cuts load-sensing's excavator saving to 33%"
 date: 2026-10-28
 description: "Replacing a constant open-centre pump flow with a published measured flow-pressure curve moves the load-sensing versus open-centre median from 0.44 to 0.67."
 tags: [research, heavy-hydraulics, excavator, hydraulics]

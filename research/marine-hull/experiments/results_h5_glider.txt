@@ -1,0 +1,9 @@
+19683 cases; pack energy 1500 to 2500 Wh; cases with no glider solution 0
+glider best-range energy per metre below the AUV's in 12803 of 19683 cases (65.0%)
+e_g/e_a: min 0.091, 5% 0.170, median 0.623, 95% 2.568, max 5.748
+extra glider overhead that flips the order at 150 Wh/kg (cases with glider ahead): min 0, median 931 Wh of 1500
+  glider extra overhead     0 Wh: glider behind at 150 Wh/kg in 6880 cases; rank swaps across 150 to 250 Wh/kg    0
+  glider extra overhead   100 Wh: glider behind at 150 Wh/kg in 7213 cases; rank swaps across 150 to 250 Wh/kg  130
+  glider extra overhead   250 Wh: glider behind at 150 Wh/kg in 7876 cases; rank swaps across 150 to 250 Wh/kg  445
+  glider extra overhead   500 Wh: glider behind at 150 Wh/kg in 9356 cases; rank swaps across 150 to 250 Wh/kg 1181
+  glider extra overhead  1000 Wh: glider behind at 150 Wh/kg in 14117 cases; rank swaps across 150 to 250 Wh/kg 3969

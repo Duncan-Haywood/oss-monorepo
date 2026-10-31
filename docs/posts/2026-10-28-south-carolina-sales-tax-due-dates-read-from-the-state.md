@@ -1,5 +1,6 @@
 ---
 title: "South Carolina sales tax due dates, checked against the state's own table"
+seo_title: "South Carolina sales tax due dates, checked against the state"
 date: 2026-10-28
 description: "ai-bookkeeper's sales tax return worksheet now pins South Carolina's due dates to the Department of Revenue's published schedule instead of third-party guides."
 tags: [ai-bookkeeper, sales-tax, verification]

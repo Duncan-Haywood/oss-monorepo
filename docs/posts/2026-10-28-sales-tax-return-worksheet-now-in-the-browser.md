@@ -1,5 +1,6 @@
 ---
 title: "The sales tax return worksheet now runs in the browser, not just the command line"
+seo_title: "Sales tax return worksheet now runs in the browser"
 date: 2026-10-28
 description: "ai-bookkeeper's per-jurisdiction sales tax return worksheet, with due dates, rate checks and vendor discounts, is now a card on the page."
 tags: [ai-bookkeeper, sales-tax, small-business]

@@ -111,3 +111,11 @@ test("UBL credit note without reference is INV-033", () => {
   assert.ok(errors.some((item) => item.rule === "INV-033"));
   assert.ok(errors.every((item) => !item.message.includes("INV-1001")));
 });
+
+test("every UNCL 1001 code in the table normalizes to its document kind", () => {
+  const invoices = [71, 82, 102, 130, 202, 203, 204, 211, 218, 219, 262, 295, 296, 308, 325, 326, 331,
+    380, 382, 384, 385, 386, 387, 388, 389, 390, 393, 394, 395, 420, 457, 553, 575, 623, 633, 751, 780, 877, 935];
+  for (const code of invoices) assert.equal(normalizeDocumentType(code), "invoice", `code ${code}`);
+  for (const code of [81, 83, 381, 396, 458]) assert.equal(normalizeDocumentType(code), "credit_note", `code ${code}`);
+  for (const code of [80, 84, 383, 456, 527]) assert.equal(normalizeDocumentType(code), "debit_note", `code ${code}`);
+});

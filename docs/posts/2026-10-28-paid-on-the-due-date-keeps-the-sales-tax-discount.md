@@ -1,5 +1,6 @@
 ---
 title: "Paid on the due date keeps the sales tax discount; one day later the bookkeeper warns"
+seo_title: "Paid on the due date keeps the sales tax discount"
 date: 2026-10-28
 description: "ai-bookkeeper's sales tax return now pins the boundary: a payment on the due date keeps the timely-filing discount, the next day triggers a warning."
 tags: [ai-bookkeeper, sales-tax]

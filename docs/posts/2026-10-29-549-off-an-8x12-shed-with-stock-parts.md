@@ -1,5 +1,6 @@
 ---
 title: "$549 off an 8x12 shed with stock parts, and what the height limit holds back"
+seo_title: "$549 off an 8x12 shed with stock parts"
 date: 2026-10-29
 description: "Shed Designer now searches stock doors, windows, siding, subfloor and foundations for a cheaper shed of the same size, and says what each change saves."
 tags: [shed-designer, construction, optimization]

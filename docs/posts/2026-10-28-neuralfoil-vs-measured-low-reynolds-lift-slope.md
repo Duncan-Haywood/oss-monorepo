@@ -1,5 +1,6 @@
 ---
 title: "NeuralFoil against measured NACA 0009 lift slopes at Reynolds numbers of 40,000 to 100,000"
+seo_title: "NeuralFoil vs measured NACA 0009 lift slope, low Reynolds"
 date: 2026-10-28
 description: "A surrogate used for a sub-scale cargo UAV tail is 28% low at Re 40,600 and 15 to 18% high near Re 100,000 against University of Illinois wind-tunnel data."
 tags: [research, aerolog-scaling, aerodynamics]

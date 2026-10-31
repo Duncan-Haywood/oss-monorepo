@@ -163,6 +163,21 @@ await page.fill("#flOpen", "100 in, 40 in, 36 in, 100 in; 100 in, 100 in, 36 in,
 await page.click("#run");
 await page.waitForFunction(() => /too close/.test(document.body.textContent));
 console.log("ok: overlapping stairwells refused on the page");
+// Cantilever: a typed overhang reaches the floor card and the saved plan; one past 8 ft is refused.
+await page.fill("#flOpen", "");
+await page.fill("#flCant", "2 ft");
+await page.click("#run");
+await page.waitForFunction(() => /Joists cantilever/.test(document.querySelector("#floorOut")?.textContent || ""));
+const cantTxt = await page.textContent("#floorOut");
+const [svc] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const savedC = JSON.parse(await (await import("node:fs/promises")).readFile(await svc.path(), "utf8"));
+const cantOk = !/NaN|undefined/.test(cantTxt) && savedC.floor?.cantilever === 24;
+console.log(cantOk ? "ok: floor cantilever on the card and in the saved plan" : "FAIL: cantilever: " + cantTxt.slice(0, 300) + " saved=" + savedC.floor?.cantilever);
+await page.fill("#flCant", "10 ft");
+await page.click("#run");
+await page.waitForFunction(() => /cantilever must be between/.test(document.body.textContent));
+console.log("ok: cantilever past 8 ft refused on the page");
+await page.fill("#flCant", "");
 await page.uncheck("#flOn");
 await page.uncheck("#sheathH");
 await page.uncheck("#sheath");
@@ -233,4 +248,4 @@ const guOk = !/NaN|undefined/.test(guTxt) && /Gutter sections/.test(guBud) && sa
 console.log(guOk ? "ok: gutters card, budget line and saved plan" : "FAIL: gutters: " + guTxt.slice(0, 200));
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || horizontal.includes("CHECK FAILED") ? 1 : 0);

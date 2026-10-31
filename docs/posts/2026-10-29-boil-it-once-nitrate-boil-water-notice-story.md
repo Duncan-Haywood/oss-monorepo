@@ -1,5 +1,6 @@
 ---
 title: "Boil it once: a boil-water notice that made the nitrate worse (a 2047 story)"
+seo_title: "Boil it once: when a boil-water notice worsens nitrate"
 date: 2026-10-29
 description: "Boil It Once (Hearth & Horizon): a flooded village well has bacteria and 58 mg/L nitrate, and boiling for twenty minutes doubles the nitrate."
 tags: [fiction, hearth-and-horizon, science-fiction]

@@ -91,6 +91,25 @@ frequency and about -10% damping. The shift is the same in every case, including
 (+15%): it comes from the tail, whose Reynolds number is 1.7e5 at n = 0.2, not from the wing. So wing-only corrections
 fix power but not the short period; the next step searches the tail (7d). NeuralFoil slope at that Re is unchecked.
 
+**Energy per package against a diesel truck (milestone 2a, `experiments/energy_per_package/`).** On the same 134 Matrice 100
+cruise flights, electrical energy per metre falls steeply with speed: 127 J/m at 4 m/s, 63 at 8, 48 at 10 (bootstrap CIs over
+flights in `results.txt`). Costing a round trip (loaded out, empty back) at 8 and 10 m/s and comparing it with Stolaroff et al.'s
+(2018) diesel truck (7.8 MJ per package, 151 packages per 100 miles), the drone uses less energy than the truck out to a
+**one-way distance of 63 km at 8 m/s and 83 km at 10 m/s at Stolaroff's stop density** (31 and 41 km at twice the density, 16 and 21 km at four times). This counts
+cruise only (no takeoff, landing or hover), so it flatters the drone, and the M100's endurance is far shorter than these distances:
+range, not energy per package, is what limits a battery multicopter, as Stolaroff et al. found (about 4 km). The
+pooled mean (86 J/m, 2.7 times Stolaroff's modelled 32 J/m for a different quadcopter) is not a result: 41 of 134 flights are at
+4 m/s. Prediction 1 (50 to 80 J/m pooled) failed for that reason.
+
+**Whole-flight energy and battery range (milestone 2b, `experiments/mission_energy/`).** Integrating battery power over
+the full 134 route flights, **77% of the energy is not cruise** (climb, hover, acceleration; 95% at 8 m/s) because the legs
+are short, and whole-flight energy is 154 J/m against 60 J/m cruise-only at 8 m/s. One TB48D pack (129.96 Wh, retailer
+figure) at 80% usable then gives only about **1 km one way (regression) to 2 to 3 km (cruise-only slope)**, so 2a's
+63 to 83 km break-even is not reachable by this airframe: battery energy is the binding limit. Extrapolates from
+cruise windows under 150 m; pack count in the study not checked.
+
+**Altitude and payload in the fixed energy (milestone 2c, `experiments/altitude_energy/`).** The flights span four altitudes (25 to 100 m) and four payload codes, not two as planned (the plan was wrong; see `LOG.md`). A pooled fit over 132 flights (R2 0.93) gives **9.6 kJ [8.9, 10.3] per extra 25 m of altitude** and 8.0 kJ [7.0, 8.9] per payload step, so 2b's E0 was an average over altitudes. The cruise slope stays unidentified (-13 to 103 J/m; cruise windows under 150 m), so no range is claimed beyond 2b's bracket. Preliminary; one airframe; altitude may be confounded with route and time of day.
+
 ## Limitations
 
 Flat-plate drag with a form factor, no airfoil polars, no CLmax, fixed powertrain efficiency (which

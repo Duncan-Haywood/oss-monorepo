@@ -1,5 +1,6 @@
 ---
 title: "The Last Timing Point: a story about a number that went up for the wrong reason"
+seo_title: "The Last Timing Point: a number that rose for the wrong reason"
 date: 2026-10-28
 description: A new For Other Minds story in which a bus-scheduling agent audits its own praised result and reports 87.2 percent instead of 94.0.
 tags: [for-other-minds, fiction, metrics]

@@ -1,5 +1,6 @@
 ---
 title: "Testing the cash-basis profit and loss in a real browser, and the bug it found nearby"
+seo_title: "Testing a cash-basis profit and loss in a real browser"
 date: 2026-10-28
 description: "A real-browser test of the cash-basis profit and loss, and the nearby bug it found while a seeded property test covered 150 made-up sole proprietors."
 tags: [ai-bookkeeper, bookkeeping, testing]

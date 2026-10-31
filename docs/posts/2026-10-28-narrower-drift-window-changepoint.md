@@ -1,5 +1,6 @@
 ---
 title: "We tried a narrower drift warning in the changepoint detector, and kept the old one"
+seo_title: "Narrower drift warning in the changepoint detector: not kept"
 date: 2026-10-28
 description: "A shorter window cut false alarms on monthly data by 4 series in 200 but lost 71% of detections on packed steps, so the rule stayed at two cycles."
 tags: [changepoint-detector, negative-result, statistics]

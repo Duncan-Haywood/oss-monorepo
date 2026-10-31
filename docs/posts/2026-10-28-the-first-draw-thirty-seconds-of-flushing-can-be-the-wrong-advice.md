@@ -1,5 +1,6 @@
 ---
 title: "The First Draw: when 'run the tap for thirty seconds' is the wrong advice"
+seo_title: "Is running the tap for thirty seconds the wrong advice?"
 date: 2026-10-28
 description: A new Hearth & Horizon story in which ten one-litre bottles show a school's flush rule drawing lead water into the first cup.
 tags: [hearth-and-horizon, fiction, lead, water]
