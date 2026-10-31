@@ -138,3 +138,14 @@ test("a step steeper than 1 to 2 warns, and a bad rise is refused", () => {
   f.footing.steps = [{ rise: 40, length: 100 }];
   assert.ok(!layoutFoundation(f).ok);
 });
+
+test("pier bearing: load over pad area against typed soil pressure, by hand", () => {
+  // 24 in pad = 4 sq ft; 10,000 lb is 2,500 psf. Soil 2,000 psf fails and needs sqrt(5)*12 = 26.8 -> 27 in; 3,000 psf passes.
+  const mk = (soilBearing) => layoutFoundation({ ...sampleFoundation(), soilBearing, piers: [{ name: "post", count: 2, pad: 24, padDepth: 12, load: 10000 }] });
+  const bad = mk(2000), good = mk(3000);
+  assert.equal(bad.pierChecks[0].pressure, 2500); assert.equal(bad.pierChecks[0].ok, false); assert.equal(bad.pierChecks[0].minPad, 27);
+  assert.ok(bad.notes.some((n) => /27 in square/.test(n)));
+  assert.equal(good.pierChecks[0].ok, true); assert.ok(!good.notes.some((n) => /psf you typed/.test(n)));
+  assert.deepEqual(layoutFoundation(sampleFoundation()).pierChecks, []);
+  assert.ok(validateFoundation({ ...sampleFoundation(), soilBearing: 100 }).length);
+});
