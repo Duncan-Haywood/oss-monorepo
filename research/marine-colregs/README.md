@@ -5,6 +5,8 @@
 COLREGs (turning to port, crossing ahead). This compares three planners on scripted encounters, scored on closest
 point of approach (CPA), rule compliance and detour. A COLREGs-aware planner here is research, not a certified system.
 
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/marine-colregs/
+
 ## Result (own boat 4 m/s, target on constant course, safe = CPA of at least 100 m)
 
 | planner | safe | safe and compliant | median detour |
