@@ -1,6 +1,6 @@
 ---
 title: "Seven framing pages that now link to each other"
-seo_title: "Free building calculators: framing, drywall, concrete, siding, stairs, schedule"
+seo_title: "Free building calculators: framing, drywall, concrete, siding"
 date: 2026-10-31
 tags: [wall-framing-takeoff, construction, seo]
 description: "The wall-framing site grew from one page to seven, but the calculators only linked back to the index. Each page now links to the other six."
