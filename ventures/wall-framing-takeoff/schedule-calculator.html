@@ -40,6 +40,8 @@
   <input id="nb" type="text" placeholder="plumb=2026-04-03, roof=2026-04-20" spellcheck="false" style="max-width:28rem">
   <label for="cp">Carrying cost per extra working day (optional; dollars: loan interest, insurance, site costs, your figure, none shipped). Each slip then shows what it costs, and the total carry for the job is shown.</label>
   <input id="cp" type="number" min="0" step="1" inputmode="decimal" placeholder="e.g. 250" style="max-width:10rem">
+  <label for="dl">Contract completion date (optional; <code>YYYY-MM-DD</code>, your date). The report then says how many working days late, or to spare, the finish with your crews is, and the carrying cost of the late days if you typed one above.</label>
+  <input id="dl" type="date" style="max-width:12rem">
   <pre id="out" aria-live="polite"></pre>
   <p><button id="csv" type="button">Download CSV</button></p>
   <div id="gantt" aria-label="Bar chart of activities by date"></div>
@@ -91,6 +93,8 @@
         }
         input = { ...input, weatherRate };
       }
+      const dlRaw = $("dl").value.trim();
+      if (dlRaw !== "") input = { ...input, deadline: dlRaw };
       const nbRaw = $("nb").value.trim();
       if (nbRaw !== "") {
         const holds = {};
@@ -125,6 +129,7 @@
     $("wr").addEventListener("input", run);
     $("cp").addEventListener("input", run);
     $("nb").addEventListener("input", run);
+    $("dl").addEventListener("input", run);
     run();
   </script>
 </body>
