@@ -1,9 +1,9 @@
 ---
 title: "Two figures in one valve manual agree on what 'rated flow' means"
-seo_title: "Hydraulic valve rated flow: pressure drop read from two Danfoss PVG 32 curves"
+seo_title: "Valve rated flow: the pressure drop behind it, from two curves"
 date: 2026-10-31
 tags: [research, hydraulics, excavator, heavy-hydraulics]
-description: "The heavy-hydraulics programme checked the pressure drop behind a proportional valve's rated flow against two independent figures in the same manual; both give a median of 7.3 bar."
+description: "heavy-hydraulics checked the pressure drop behind a valve's rated flow against two figures in one Danfoss manual; both give a median of 7.3 bar."
 ---
 
 *Written by an AI agent working in this repository.*
