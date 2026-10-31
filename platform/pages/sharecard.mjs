@@ -418,15 +418,26 @@ let INDEX = null;
 export function quantize(data, n = 256) {
   if (!HIST) { HIST = new Uint32Array(1 << 24); INDEX = new Uint16Array(1 << 24); }
   const pixels = data.length / 3;
-  const keys = [];
-  for (let i = 0; i < pixels; i += 1) {
-    const k = (data[i * 3] << 16) | (data[i * 3 + 1] << 8) | data[i * 3 + 2];
-    if (HIST[k] === 0) keys.push(k);
+  // Distinct colours, in first-seen order, in one typed array: the boxes below
+  // are [start, end) ranges of it, split in place by a stable counting sort on
+  // the box's widest channel (the same order `Array.sort` with a comparator on
+  // that channel gave, without the n log n comparator calls).
+  let keys = new Int32Array(4096);
+  let distinct = 0;
+  for (let i = 0, j = 0; i < pixels; i += 1, j += 3) {
+    const k = (data[j] << 16) | (data[j + 1] << 8) | data[j + 2];
+    if (HIST[k] === 0) {
+      if (distinct === keys.length) { const grown = new Int32Array(distinct * 2); grown.set(keys); keys = grown; }
+      keys[distinct++] = k;
+    }
     HIST[k] += 1;
   }
-  const describe = (list) => {
+  const scratch = new Int32Array(distinct);
+  const bucket = new Int32Array(257);
+  const describe = (start, end) => {
     let r0 = 255; let g0 = 255; let b0 = 255; let r1 = 0; let g1 = 0; let b1 = 0; let count = 0;
-    for (const k of list) {
+    for (let i = start; i < end; i += 1) {
+      const k = keys[i];
       const r = k >> 16; const g = (k >> 8) & 255; const b = k & 255;
       if (r < r0) r0 = r; if (r > r1) r1 = r;
       if (g < g0) g0 = g; if (g > g1) g1 = g;
@@ -435,28 +446,34 @@ export function quantize(data, n = 256) {
     }
     const spans = [r1 - r0, g1 - g0, b1 - b0];
     const span = Math.max(...spans);
-    return { list, count, axis: spans.indexOf(span), score: list.length > 1 ? span * Math.sqrt(count) : -1 };
+    return { start, end, count, axis: spans.indexOf(span), score: end - start > 1 ? span * Math.sqrt(count) : -1 };
   };
-  const boxes = [describe(keys)];
+  const boxes = [describe(0, distinct)];
   while (boxes.length < n) {
     let best = -1;
     for (let i = 0; i < boxes.length; i += 1) if (boxes[i].score > 0 && (best < 0 || boxes[i].score > boxes[best].score)) best = i;
     if (best < 0) break;
-    const { list, count, axis } = boxes[best];
+    const { start, end, count, axis } = boxes[best];
     const shift = [16, 8, 0][axis];
-    list.sort((a, b) => ((a >> shift) & 255) - ((b >> shift) & 255));
+    bucket.fill(0);
+    for (let i = start; i < end; i += 1) bucket[((keys[i] >> shift) & 255) + 1] += 1;
+    for (let c = 0; c < 256; c += 1) bucket[c + 1] += bucket[c];
+    for (let i = start; i < end; i += 1) scratch[start + bucket[(keys[i] >> shift) & 255]++] = keys[i];
+    keys.set(scratch.subarray(start, end), start);
     let acc = 0;
     let cut = 1;
-    for (let i = 0; i < list.length; i += 1) {
-      acc += HIST[list[i]];
-      if (acc >= count / 2) { cut = Math.max(1, Math.min(list.length - 1, i + 1)); break; }
+    const length = end - start;
+    for (let i = 0; i < length; i += 1) {
+      acc += HIST[keys[start + i]];
+      if (acc >= count / 2) { cut = Math.max(1, Math.min(length - 1, i + 1)); break; }
     }
-    boxes.splice(best, 1, describe(list.slice(0, cut)), describe(list.slice(cut)));
+    boxes.splice(best, 1, describe(start, start + cut), describe(start + cut, end));
   }
   const palette = Buffer.alloc(boxes.length * 3);
-  boxes.forEach(({ list }, i) => {
+  boxes.forEach(({ start, end }, i) => {
     let r = 0; let g = 0; let b = 0; let t = 0;
-    for (const k of list) {
+    for (let at = start; at < end; at += 1) {
+      const k = keys[at];
       const c = HIST[k];
       r += (k >> 16) * c; g += ((k >> 8) & 255) * c; b += (k & 255) * c; t += c;
       INDEX[k] = i;
@@ -469,7 +486,7 @@ export function quantize(data, n = 256) {
   for (let i = 0; i < pixels; i += 1) {
     indices[i] = INDEX[(data[i * 3] << 16) | (data[i * 3 + 1] << 8) | data[i * 3 + 2]];
   }
-  for (const k of keys) HIST[k] = 0;
+  for (let i = 0; i < distinct; i += 1) HIST[keys[i]] = 0;
   return { palette, indices };
 }
 
