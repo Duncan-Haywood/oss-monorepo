@@ -23,7 +23,18 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-export const SITE_NAME = 'Open Tools and Research';
+import { markSvg } from './sharecard.mjs';
+
+export const SITE_NAME = 'Maris Stella Labs';
+
+/**
+ * The header's logo: the compass-star mark (`sharecard.mjs`'s `markSvg`, the
+ * same drawing as the tab icon and the share cards) as a CSS background, so
+ * the header needs no image request. It used to be a teal-to-indigo gradient
+ * square; the navy-and-gold mark is the brand the company's LinkedIn page set
+ * (2026-10-31). It reads on both the light and the dark palette.
+ */
+export const MARK_BG = `url("data:image/svg+xml,${encodeURIComponent(markSvg(40))}") center/100% no-repeat`;
 
 /** Longest `<title>` a search result shows before cutting it off. */
 export const TITLE_BUDGET = 70;
@@ -205,7 +216,7 @@ export const SITE_HEADER_CSS = `
 [data-pfs-head] :focus-visible{outline:2px solid currentColor;outline-offset:2px}
 .pfs-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px;max-width:1120px;margin:0 auto;padding:10px 16px}
 [data-pfs-head] .pfs-brand{display:inline-flex;align-items:center;gap:9px;font-weight:750;letter-spacing:-.01em;white-space:nowrap}
-.pfs-mark{display:inline-block;width:20px;height:20px;border-radius:6px;flex:none;background:var(--pfs-mark,currentColor)}
+.pfs-mark{display:inline-block;width:22px;height:22px;border-radius:50%;flex:none;background:var(--pfs-mark,currentColor)}
 .pfs-nav{display:flex;flex-wrap:wrap;gap:4px 16px;flex:1 1 auto;min-width:0}
 [data-pfs-head] .pfs-nav a{display:inline-block;padding:4px 0;font-weight:600;color:var(--pfs-muted,inherit);
   border-bottom:2px solid transparent}
@@ -264,7 +275,7 @@ export const SITE_HEADER_CSS = `
  *
  * The chrome on the ~1,300 venture pages used to take its colours from the
  * venture (`SITE_HEADER_CSS` carries none), so the one bar that says "this is
- * Open Tools and Research" was a different bar on every tool: a grey strip in
+ * Maris Stella Labs" was a different bar on every tool: a grey strip in
  * the venture's own width and font, and the brand mark a black square because
  * `--pfs-mark` was never set. A visitor arriving from search at a calculator
  * could not tell it belonged to the site they then clicked through to.
@@ -299,12 +310,12 @@ export const SITE_HEADER_CSS = `
 export const VENTURE_CHROME_CSS = `
 nav.pf-chrome.pf-chrome-top[data-pfs-head],aside.pf-chrome.pf-chrome-foot{
   --pfs-ink:#1d2530;--pfs-muted:#4a5666;--pfs-line:#d3dce6;--pfs-accent:#12594a;--pfs-panel:#ffffff;
-  --pfs-head-bg:#ffffff;--pfs-foot-bg:#f6f8fb;--pfs-mark:linear-gradient(135deg,#12594a,#3b5bdb);
+  --pfs-head-bg:#ffffff;--pfs-foot-bg:#f6f8fb;--pfs-mark:${MARK_BG};
   font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;
   text-shadow:none;letter-spacing:normal;text-transform:none;text-align:left}
 nav.pf-chrome.pf-chrome-top[data-pfs-head][data-pfs-theme="dark"],aside.pf-chrome.pf-chrome-foot[data-pfs-theme="dark"]{
   --pfs-ink:#e8eef5;--pfs-muted:#a2b0c0;--pfs-line:#2a343f;--pfs-accent:#7fd8c0;--pfs-panel:#171e27;
-  --pfs-head-bg:#171e27;--pfs-foot-bg:#121821;--pfs-mark:linear-gradient(135deg,#7fd8c0,#8ea2ff)}
+  --pfs-head-bg:#171e27;--pfs-foot-bg:#121821;--pfs-mark:${MARK_BG}}
 nav.pf-chrome.pf-chrome-top[data-pfs-head]{display:block;position:relative;z-index:30;float:none;inset:auto;
   box-sizing:border-box;height:auto;min-height:0;max-width:none;margin:0;padding:0;overflow-x:clip;
   color:var(--pfs-ink);background:var(--pfs-head-bg);border:0;border-bottom:1px solid var(--pfs-line);
@@ -323,7 +334,7 @@ aside.pf-chrome.pf-chrome-foot{display:block;position:static;float:none;max-widt
   box-shadow:none;margin-left:0;margin-right:0;font-size:15px;line-height:1.55}
 aside.pf-chrome.pf-chrome-foot h2{font-family:inherit;font-size:1.05rem;font-weight:750;letter-spacing:-.01em;color:var(--pfs-ink);
   display:flex;align-items:center;gap:9px}
-aside.pf-chrome.pf-chrome-foot h2::before{content:"";width:18px;height:18px;border-radius:5px;flex:none;background:var(--pfs-mark)}
+aside.pf-chrome.pf-chrome-foot h2::before{content:"";width:18px;height:18px;border-radius:50%;flex:none;background:var(--pfs-mark)}
 aside.pf-chrome.pf-chrome-foot p,aside.pf-chrome.pf-chrome-foot li{color:var(--pfs-ink)}
 aside.pf-chrome.pf-chrome-foot a{color:var(--pfs-accent);font-weight:550;text-decoration:underline;text-underline-offset:2px}
 aside.pf-chrome.pf-chrome-foot>details.pf-embed-offer{max-width:1080px;margin:0 auto;padding:0 16px}
@@ -393,9 +404,9 @@ export const VENTURE_CHROME_JS = `
 /** The site palette for site-owned pages, light and dark. */
 const SITE_TOKENS_CSS = `
 :root{--pfs-ink:#1d2530;--pfs-muted:#4a5666;--pfs-line:#d3dce6;--pfs-accent:#12594a;--pfs-panel:#ffffff;
-  --pfs-head-bg:#ffffff;--pfs-mark:linear-gradient(135deg,#12594a,#3b5bdb)}
+  --pfs-head-bg:#ffffff;--pfs-mark:${MARK_BG}}
 @media (prefers-color-scheme:dark){:root{--pfs-ink:#e8eef5;--pfs-muted:#a2b0c0;--pfs-line:#2a343f;--pfs-accent:#7fd8c0;
-  --pfs-panel:#171e27;--pfs-head-bg:#171e27;--pfs-mark:linear-gradient(135deg,#7fd8c0,#8ea2ff)}}
+  --pfs-panel:#171e27;--pfs-head-bg:#171e27;--pfs-mark:${MARK_BG}}}
 `;
 
 /**

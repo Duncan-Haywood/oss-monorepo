@@ -50,11 +50,10 @@ import {
 
 import { addShareCards, cardTitle, mapLimit, renderCards, siteAddress } from './share.mjs';
 import {
-  MARK_FROM,
   MARK_GEOMETRY,
   renderSiteCard,
-  MARK_TO,
   drawMark,
+  markSvg,
   encodePng as encodeCardPng,
 } from './sharecard.mjs';
 import {
@@ -127,6 +126,7 @@ import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
 import { REFLOW_CSS, WRAP_TABLES_JS, injectReflow } from './reflow.mjs';
 import {
   SITE_NAME,
+  MARK_BG,
   SITE_NAV,
   SITE_HEADER_CSS,
   SITE_STYLE_FILE,
@@ -9329,14 +9329,14 @@ const CHROME_CSS = `
  * grey the header always had. A browser without :has() keeps the old top gap.
  *
  * The mark is the one literal colour here, and it is not text: it is the
- * site's logo square (pf-site.css draws the same gradient), so it reads as one
+ * site's logo (pf-site.css draws the same compass-star mark), so it reads as one
  * site on every venture palette instead of a blot of the host's ink. */
 body:has(> .pf-chrome-top[data-pfs-head]:first-child){padding-top:0;margin-top:0}
 .pf-chrome-top[data-pfs-head]{margin:0 0 26px;border-bottom:0;
   box-shadow:0 0 0 100vmax var(--pfs-head-bg,rgba(128,128,128,.07));clip-path:inset(0 -100vmax)}
 .pf-chrome-top .pfs-bar{padding:12px 0}
 .pf-chrome-top .pfs-crumbs{padding:0 0 10px}
-.pf-chrome-top .pfs-mark{background:linear-gradient(135deg,#12594a,#3b5bdb)}
+.pf-chrome-top .pfs-mark{background:${MARK_BG}}
 .pf-chrome-top .pfs-searchlink{padding:4px 14px;border:1px solid var(--pf-line);border-radius:999px}
 [data-pfs-head].pf-chrome-top .pfs-searchlink:hover{text-decoration:none;border-color:currentColor}
 /* The shop-rates and saved-bids bars (rates.mjs, jobs.mjs) sit under the band
@@ -10048,7 +10048,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   if (isEntry) crumbs.push({ label: title || slug });
   else crumbs.push({ label: title || slug, href: `${toRoot}${slug}/` }, { label: pageTitle || 'This page' });
   if (canonical && !html.includes('"BreadcrumbList"') && (isEntry || pageTitle)) {
-    // Lets a result render as "Open Tools and Research › Marketplace sellers ›
+    // Lets a result render as "Maris Stella Labs › Marketplace sellers ›
     // eBay Fee Calculator" rather than a bare URL, and tells an answer engine
     // these are one collection rather than 1,300 unrelated pages. A page that
     // wrote its own is left alone. A deep page with no title of its own gets
@@ -10860,7 +10860,7 @@ On ${listProse(exceptions.map((x) => toolProseName(x.title)))} the one thing you
 `
     : '';
 
-  return `# Open Tools and Research
+  return `# ${SITE_NAME}
 
 > ${surfaces.length} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${researchProjects} reproducible research projects` : 'open research'}; no account or payment, and the numbers you type stay in your browser.
 
@@ -11679,36 +11679,18 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
  * deterministic -- same bytes on every run.
  */
 
-// The mark, in one place: `sharecard.mjs`'s `drawMark` (three rising bars on
-// the header's teal-to-indigo square) is what the app icons and every share
-// card draw from `MARK_GEOMETRY`, and `renderFaviconSvg` draws the same
-// geometry as vector art, so the tab,
-// the pinned tab, the home screen and a shared link carry one logo. The tab
-// icon used to be a flat green square while the header showed a gradient one
-// and the app icon a calculator: three logos for one site.
+// The mark, in one place: `sharecard.mjs`'s `MARK_GEOMETRY` (an eight-point
+// compass star in a brass ring on a navy disc, the Maris Stella Labs logo) is
+// what `drawMark` rasterises for the app icons, the .ico and every share card,
+// and what `markSvg` draws as vector art for the tab and the site header, so
+// the tab, the pinned tab, the home screen and a shared link carry one logo.
 export { MARK_GEOMETRY };
-const ICON_SIZE = 16;
 // Sizes in the .ico: 16 for the tab strip, 32 for a high-DPI tab and the
 // Windows taskbar, 48 for a desktop shortcut.
 export const FAVICON_SIZES = [16, 32, 48];
 
-const rgbHex = (rgb) => '#' + rgb.map((c) => Math.round(c).toString(16).padStart(2, '0')).join('');
-
 export function renderFaviconSvg() {
-  const n = (v) => Number((v * ICON_SIZE).toFixed(2));
-  const g = MARK_GEOMETRY;
-  const bars = g.bars.map(
-    (b) =>
-      `<rect x="${n(b.x)}" y="${n(b.top)}" width="${n(g.barWidth)}" ` +
-      `height="${n(g.bottom - b.top)}" rx="${n(g.barWidth * 0.28)}" fill="#ffffff"/>`,
-  ).join('');
-  return (
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${ICON_SIZE} ${ICON_SIZE}">` +
-    `<defs><linearGradient id="m" x1="0" y1="0" x2="1" y2="1">` +
-    `<stop offset="0" stop-color="${rgbHex(MARK_FROM)}"/><stop offset="1" stop-color="${rgbHex(MARK_TO)}"/>` +
-    `</linearGradient></defs>` +
-    `<rect width="${ICON_SIZE}" height="${ICON_SIZE}" rx="${n(g.radius)}" fill="url(#m)"/>${bars}</svg>\n`
-  );
+  return `${markSvg(16)}\n`;
 }
 
 /**
@@ -11719,7 +11701,7 @@ export function renderFaviconSvg() {
 export function renderFavicon() {
   const pngs = FAVICON_SIZES.map((size) => {
     const data = Buffer.alloc(size * size * 4);
-    drawMark({ width: size, height: size, data, channels: 4 }, 0, 0, size, { channels: 4, radius: MARK_GEOMETRY.radius });
+    drawMark({ width: size, height: size, data, channels: 4 }, 0, 0, size, { channels: 4 });
     return encodeCardPng(size, size, data, 4);
   });
   const header = Buffer.alloc(6);

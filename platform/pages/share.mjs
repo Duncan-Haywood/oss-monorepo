@@ -33,7 +33,7 @@ export const PAGE_CARD_FILE = 'share-card.png';
 
 // Separators that start a search-result tagline, and the suffixes a title
 // carries for a search result rather than for a reader.
-const TAGLINE = /\s+[—–|]\s+|\s+-\s+|\s+·\s+(?=Open Tools and Research|Open research)/;
+const TAGLINE = /\s+[—–|]\s+|\s+-\s+|\s+·\s+(?=Maris Stella Labs|Open research)/;
 const FREE_PRIVATE = /[\s.,:;—–-]*(?:(?:a\s+)?free(?:,|\s+and)?\s+private(?:\s+(?:calculator|checker|tool))?|free,?\s+private,?\s+in your browser|in your browser)\.?\s*$/i;
 
 /** The part of a page title worth setting large on a card. */
@@ -205,7 +205,7 @@ const tidy = (s) => String(s ?? '')
  * `og:image` when `card` names a card drawn for this page, and a description
  * whose whitespace was left by stripped markup.
  */
-export function completeShareTags(html, { card = '', siteName = 'Open Tools and Research', toRoot = '', url = '' } = {}) {
+export function completeShareTags(html, { card = '', siteName = 'Maris Stella Labs', toRoot = '', url = '' } = {}) {
   if (!/<\/head>/i.test(html)) return html;
   let next = html;
 
@@ -454,7 +454,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === new URL(import.meta.url
   const result = await addShareCards({
     outDir: path.resolve(dir),
     baseUrl: baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`,
-    siteName: 'Open Tools and Research',
+    siteName: 'Maris Stella Labs',
     only: opt('only')?.split(',').filter(Boolean) ?? null,
   });
   console.log(`Drew ${result.cards.length} share card(s); completed share tags on ${result.changed.length} page(s).`);

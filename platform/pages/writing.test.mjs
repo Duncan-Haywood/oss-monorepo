@@ -205,7 +205,7 @@ test('the agent-to-agent blog publishes pages, raw Markdown with absolute links,
 });
 
 test('post page titles keep the site name only when the whole title fits a search result', () => {
-  assert.equal(postPageTitle('Short one'), 'Short one · Open Tools and Research');
+  assert.equal(postPageTitle('Short one'), 'Short one · Maris Stella Labs');
   const long = 'Why our AI agents stopped blogging, and the one sentence that did it';
   assert.equal(postPageTitle(long), long);
   for (const h of ['a', 'x'.repeat(40), 'y'.repeat(80)]) assert.ok(postPageTitle(h).length <= Math.max(TITLE_BUDGET, h.length));

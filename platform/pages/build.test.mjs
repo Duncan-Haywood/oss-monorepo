@@ -697,13 +697,15 @@ test('both favicons draw the same mark', () => {
   // A drift here means the tab icon and the pinned icon are two different
   // logos, which is why the geometry lives in one constant both renderers read.
   const svg = renderFaviconSvg();
-  assert.match(svg, /stop-color="#12594a"/, "the header mark's gradient starts in the hub's green");
-  assert.match(svg, /stop-color="#3b5bdb"/, '...and ends in its indigo');
-  assert.equal((svg.match(/fill="#ffffff"/g) ?? []).length, MARK_GEOMETRY.bars.length, 'three white bars');
-  // The bars rise left to right, as `drawMark` draws them.
-  const tops = [...svg.matchAll(/<rect x="[\d.]+" y="([\d.]+)"/g)].map((m) => Number(m[1]));
-  assert.deepEqual(tops, MARK_GEOMETRY.bars.map((b) => Number((b.top * 16).toFixed(2))));
-  assert.ok(tops[0] > tops[1] && tops[1] > tops[2]);
+  assert.match(svg, /<circle [^>]*r="8" fill="#1d2b53"/, 'the navy disc fills the tile');
+  assert.match(svg, /stroke="#d4ac58"/, 'a brass ring');
+  // The compass star: the long cardinal points and the short diagonals, each
+  // the polygon `drawMark` rasterises.
+  const polys = [...svg.matchAll(/<polygon points="([^"]+)"/g)].map((m) => m[1]);
+  const asSvg = (pts) => pts.map(([u, v]) => `${Number((u * 16).toFixed(2))},${Number((v * 16).toFixed(2))}`).join(' ');
+  assert.deepEqual(polys, [asSvg(MARK_GEOMETRY.diagonal), asSvg(MARK_GEOMETRY.cardinal)]);
+  // North points straight up and reaches nearly to the edge.
+  assert.deepEqual(MARK_GEOMETRY.cardinal[0], [0.5, 0.03]);
 });
 
 test('the hub\'s top navigation links the blog and the podcast', async () => {
@@ -833,7 +835,7 @@ test('the hub links llms.txt so it is reachable, not only well-known', async () 
 test('llms.txt names every audience page and every research topic', async () => {
   const { surfaces } = await site();
   const llms = await read('llms-full.txt');
-  assert.match(llms.split('\n')[0], /^# Open Tools and Research$/);
+  assert.match(llms.split('\n')[0], /^# Maris Stella Labs$/);
   for (const { audience } of audienceGroups(surfaces)) {
     assert.ok(llms.includes(`](${BASE}c/${audiencePageId(audience)}/)`), `${audience.id} is missing from llms.txt`);
   }
@@ -3631,7 +3633,7 @@ test('every tool page declares the breadcrumb trail it shows', async () => {
     const labels = [...visible[1].matchAll(/<(?:a|span aria-current="page")[^>]*>([^<]*)</g)].map((m) =>
       m[1].replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>'));
     // A venture that wrote its own trail keeps it; only the build's must match.
-    if (crumb.itemListElement[0].name !== 'Open Tools and Research') continue;
+    if (crumb.itemListElement[0].name !== 'Maris Stella Labs') continue;
     const names = crumb.itemListElement.map((i) => i.name);
     if (names.length !== labels.length || names.slice(1).some((n, i) => n !== labels[i + 1])) {
       mismatched.push(`${rel}: ${JSON.stringify(names)} vs ${JSON.stringify(labels)}`);
@@ -4278,8 +4280,8 @@ test("a tool page's card alt text names the tool, not just the site", async () =
   assert.ok(alt, `${surface.slug} has no og:image:alt`);
   // The card really does carry these words now, so the alt describing them is
   // a description rather than a claim about a picture that says nothing.
-  assert.match(alt[1], /Open Tools and Research$/);
-  assert.notEqual(alt[1], 'Open Tools and Research — free, private, in your browser');
+  assert.match(alt[1], /Maris Stella Labs$/);
+  assert.notEqual(alt[1], 'Maris Stella Labs — free, private, in your browser');
 });
 
 test('the hub keeps the site-wide card, and About gets its own rather than a category one', async () => {
@@ -5173,7 +5175,7 @@ test('guidePageMeta takes a guide’s label from the page’s own words, or drop
   assert.equal(withH1.description, 'Worked example, in pounds.');
   // The site-name suffix the build appends is not part of the answer.
   assert.equal(
-    guidePageMeta('<title>Deadhead miles | Open Tools and Research</title>').label,
+    guidePageMeta('<title>Deadhead miles | Maris Stella Labs</title>').label,
     'Deadhead miles',
   );
   // Entities are decoded, so an index entry reads as the author wrote it.
