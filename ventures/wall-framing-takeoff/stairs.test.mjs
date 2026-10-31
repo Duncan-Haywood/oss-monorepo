@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan, formatLength } from "./engine.mjs";
 import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText, checkPostSlenderness } from "./stairs.mjs";
+import { checkStringer } from "./stairs.mjs";
 import { checkWinders, winderText, layoutLandingGuard } from "./stairs.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
@@ -381,4 +382,23 @@ test("landing post slenderness: 4x4 reaches 50 x 3.5 = 175 in, 6x6 275 in; a tal
   const r = layoutStairWithLanding({ totalRise: 160, tread: 10, landing: {} }, plan());
   assert.ok(r.landing.postSlenderness.ok);
   assert.match(landingText(r).join("\n"), /Landing post slenderness \(4x4\)/);
+});
+
+test("stringer check matches a hand calculation and flags a thin throat", () => {
+  // 2x12, 14 risers of 7.5 in, tread 10: throat 5.25 in; stringers 16 in apart? use the layout's own spacing and run
+  const l = layoutStair({ totalRise: 105, tread: 10, stringer: "2x12", width: 36, stringerCheck: { liveLoad: 40, deadLoad: 10, Fb: 875, Fv: 135, E: 1300000 } }, plan());
+  const k = l.stringerCheck;
+  const w = (50 * l.stringer.spacing) / 144, L = l.run, d = 5.25;
+  assert.ok(Math.abs(k.M - (w * L * L) / 8) < 1e-6);
+  assert.ok(Math.abs(k.fb - ((w * L * L) / 8) / (1.5 * d * d / 6)) < 1e-6);
+  assert.ok(Math.abs(k.fv - (1.5 * (w * L / 2)) / (1.5 * d)) < 1e-6);
+  assert.ok(k.reaction > 0 && Number.isFinite(k.delta));
+  assert.match(stairText(l).join("\n"), /Stringer check/);
+  const weak = checkStringer(l, { liveLoad: 40, deadLoad: 10, Fb: 100, Fv: 10, E: 200000 });
+  assert.ok(!weak.ok && weak.warnings.length === 3);
+});
+
+test("stringer check refuses untyped figures", () => {
+  const r = checkStringer({ stringer: { spacing: 16, throat: 5 }, run: 100 }, { liveLoad: 40 });
+  assert.ok(!r.ok && r.errors.length >= 3);
 });

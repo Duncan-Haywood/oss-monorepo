@@ -117,6 +117,7 @@ export function layoutStair(input, plan) {
     hardware: { topConnectors: stringers, footAnchors: stringers },
     // Stock (2026-10-30): the shortest listed board that holds one stringer, for the framer's buy list (null with no plan).
     stringerStock: plan ? { size: s.stringer, length: Math.min(...plan.stock.filter((x) => x.size === s.stringer && x.length >= stringerLength - 1e-9).map((x) => x.length)), count: stringers } : null,
+    stringerCheck: input.stringerCheck ? checkStringer({ stringer: { spacing: treadSpan, throat }, run }, input.stringerCheck) : null,
     treadBoards, openRisers: !!s.openRisers, riserBoards: s.openRisers ? 0 : risers, riserStock: riserBoards, width: s.width,
     minOpening: Math.ceil(minOpening * 16) / 16, opening, rail, marks, sumRise, notes, limits: L, nosing: s.nosing,
   };
@@ -198,6 +199,37 @@ export function stairCuts(l) {
   return rows;
 }
 
+/**
+ * Stringer strength check (2026-10-31), on typed figures only: no allowable stresses are shipped, so the
+ * person types the species/grade values from the lumber's own table. The worst (interior) stringer carries the
+ * live plus dead load over the tread width it serves (one stringer spacing) on the horizontal projection, as a
+ * simply supported beam spanning the total run with no mid support. The section is the throat under the notches
+ * (the conservative cut-section, 1-1/2 in thick), for bending, shear at the support and deflection (span/240
+ * unless `deflLimit`). A hand check for a framer or plan reviewer; the engineer of record's call governs.
+ * @param {{stringer:{spacing:number, throat:number}, run:number}} l
+ * @param {{liveLoad:number, deadLoad:number, Fb:number, Fv:number, E:number, deflLimit?:number, thickness?:number}} c
+ */
+export function checkStringer(l, c) {
+  const errors = [];
+  for (const [k, lo, hi] of [["liveLoad", 1, 200], ["deadLoad", 0, 200], ["Fb", 10, 5000], ["Fv", 1, 500], ["E", 200000, 3000000]]) {
+    if (c?.[k] == null || !(c[k] >= lo && c[k] <= hi)) errors.push(`stringerCheck.${k} must be typed, from ${lo} to ${hi} (${k === "liveLoad" || k === "deadLoad" ? "psf" : "psi"}); no default is shipped.`);
+  }
+  if (c?.deflLimit != null && !(c.deflLimit >= 120 && c.deflLimit <= 960)) errors.push("stringerCheck.deflLimit is the L/ ratio, from 120 to 960.");
+  if (errors.length) return { ok: false, errors };
+  const b = c.thickness ?? 1.5, d = l.stringer.throat, L = l.run;
+  if (!(d > 0)) return { ok: false, errors: ["The throat under the notches is zero or negative; there is no section to check."] };
+  const w = ((c.liveLoad + c.deadLoad) * l.stringer.spacing) / 12 / 12; // lb per horizontal inch
+  const M = (w * L * L) / 8, V = (w * L) / 2;
+  const S = (b * d * d) / 6, I = (b * d ** 3) / 12;
+  const fb = M / S, fv = (1.5 * V) / (b * d);
+  const delta = (5 * w * L ** 4) / (384 * c.E * I), limit = L / (c.deflLimit ?? 240);
+  const warnings = [];
+  if (fb > c.Fb) warnings.push(`Bending stress ${fb.toFixed(0)} psi in the throat exceeds the typed ${c.Fb} psi: use a deeper board, add a mid-flight support or a closer stringer spacing.`);
+  if (fv > c.Fv) warnings.push(`Shear stress ${fv.toFixed(0)} psi exceeds the typed ${c.Fv} psi at the support.`);
+  if (delta > limit) warnings.push(`Deflection ${delta.toFixed(2)} in exceeds span/${c.deflLimit ?? 240} (${limit.toFixed(2)} in).`);
+  return { ok: warnings.length === 0, fb, fv, delta, limit, Fb: c.Fb, Fv: c.Fv, M, V, reaction: V, throat: d, warnings, errors: [] };
+}
+
 export function stairText(l) {
   if (!l.ok) return l.errors.map((e) => `  - ${e}`);
   const out = [`${l.id}: ${formatLength(l.totalRise)} rise, ${l.risers} risers of ${formatInches(l.riser)}, ${l.treads} treads of ${formatInches(l.tread)} (${l.angle.toFixed(1)} deg, 2R+T ${l.comfort.toFixed(2)} in)`];
@@ -210,6 +242,11 @@ export function stairText(l) {
   if (l.rail) {
     const q = l.rail;
     out.push(`  Guard (${q.sides} side${q.sides === 1 ? "" : "s"}, ${formatInches(q.guardHeight)} high): ${q.posts.count} posts, ${q.balusters.count} balusters ${formatInches(q.balusters.length)} at the long point with ${formatInches(q.balusters.gap)} clear (limit ${formatInches(q.maxGap)}), ${q.guardRails.count} ${q.guardRails.size} rails ${formatLength(q.guardRails.length)}${q.handrail ? `; handrail ${formatLength(q.handrail.length)} at ${formatInches(q.handrail.height)} on ${q.handrail.brackets} brackets (at most ${formatInches(q.handrail.bracketSpacing)} apart)` : ""}`);
+  }
+  if (l.stringerCheck) {
+    const k = l.stringerCheck;
+    if (!k.errors.length) out.push(`  Stringer check (${formatInches(k.throat)} throat): bending ${k.fb.toFixed(0)} of ${k.Fb} psi, shear ${k.fv.toFixed(0)} of ${k.Fv} psi, deflection ${k.delta.toFixed(2)} of ${k.limit.toFixed(2)} in, end reaction ${k.reaction.toFixed(0)} lb${k.ok ? "" : " (FAILS)"}`);
+    for (const w of [...k.errors, ...k.warnings]) out.push(`  Note: ${w}`);
   }
   for (const n of l.notes) out.push(`  Note: ${n}`);
   return out;
