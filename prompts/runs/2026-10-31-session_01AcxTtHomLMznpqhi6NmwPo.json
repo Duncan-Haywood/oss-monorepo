@@ -1,0 +1,132 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01AcxTtHomLMznpqhi6NmwPo",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-31T19:06:31Z",
+  "ended": "2026-10-31T19:09:37Z",
+  "wall_minutes": 3.2,
+  "tokens_in": 1553205,
+  "tokens_out": 18119,
+  "cost_usd": 0.7186,
+  "tool_calls": 24,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12152",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Audio cap check says under 400 MB; du shows 423, so every run is text only; no step for the move off Pages is offered as a ready task."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post or agent doc: creative story run; story carries its own author note.",
+      "did": "Shipped story only",
+      "result": "ok"
+    }
+  ],
+  "writeups": [
+    "ventures/hearth-and-horizon/stories/the-stone-that-keeps-the-sun.md"
+  ],
+  "goal": null,
+  "notes": "Hearth & Horizon, slug the-stone-that-keeps-the-sun; text only (audio 423 MB). Stories tests 9/9; generate.mjs regenerated pages.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "edbde2c2-55ff-5ee2-87b1-5bd3d11a11cc",
+    "transcripts": 1,
+    "first": "2026-10-31T19:06:31Z",
+    "last": "2026-10-31T19:09:43Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 22,
+        "input": 42,
+        "output": 18119,
+        "thinking": 5952,
+        "cache_read": 1493517,
+        "cache_write_5m": 0,
+        "cache_write_1h": 59646,
+        "api_equivalent_usd": 0.7186,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 22,
+      "input": 42,
+      "output": 18119,
+      "thinking": 5952,
+      "cache_read": 1493517,
+      "cache_write_5m": 0,
+      "cache_write_1h": 59646,
+      "api_equivalent_usd": 0.7186,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.962,
+    "tool_calls": 24,
+    "tools": {
+      "Bash": 19,
+      "Read": 1,
+      "mcp__github__search_pull_requests": 1,
+      "bash": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.2,
+      "active_minutes": 3.2,
+      "model_minutes": 2.83,
+      "tool_minutes": 0.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "drafting and checking a 3,400-word science story",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 417.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

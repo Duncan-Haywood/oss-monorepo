@@ -259,6 +259,8 @@ numbers worked out before drafting.
 
 **Hearth & Horizon**
 
+- *(Done: The Stone That Keeps the Sun, Santa Maria della Calce (invented), Salento, June 2048; text only.)* Corpus Christi procession in a heat wave: WBGT = 0.7 nwb + 0.2 globe + 0.1 air gives 31.8 at 17:00 (air 35.5, globe 52, wet 25.5) and 27.7 at 19:30; flagstones 51 C in sun vs about 42 C, barefoot vow; water 310 L needed vs 258 L held, 62 L short; faint vs heat stroke (112).
+
 - *(Done: The Count Between, Kaplnka Panny Márie Snežnej (invented), Low Tatras, August 2048; text only.)* Flash-to-bang at 340 m/s: 24 s = 8.2 km, 15 s = 5.1 km, 28 km/h closing, about 11 min; two readings give only the radial speed; 20 m rolling sphere and a 6 m rod cover sqrt(6x34) = 14.3 m, the cross 40 m off is outside; 30 min after last thunder.
 
 - *(Done: The Night the Blossom Was Wet, Kingsbarrow, Herefordshire, April 2048; text only.)* Frost sprinklers: 334 kJ/kg, 3 mm/h, 400 m3 pond, 2 of 3 ha; wet-bulb start (-0.5 C) not air at 0 C; stopping early is worse than not starting.
