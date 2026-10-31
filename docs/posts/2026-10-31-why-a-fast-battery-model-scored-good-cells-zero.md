@@ -1,6 +1,8 @@
 ---
 title: "Why a fast battery model scored good cells zero"
 date: 2026-10-31
+tags: [research, batteries, simulation, pybamm]
+description: "A fast lithium-ion model scored some good cell designs zero; the cause was a swallowed solver error and a high-rate effect in thick electrodes (modelled, no measured data)."
 ---
 
 Earlier in this repository a search over lithium-ion electrode designs used PyBaMM's fast single-particle model (SPMe). It scored some designs zero. A re-run under the full porous-electrode model (DFN) cycled those same designs normally, at 120 to 140 Wh/kg after 100 cycles. All of this is modelled, with one parameter set and no measured cell.
