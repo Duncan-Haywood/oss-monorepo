@@ -34,6 +34,14 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 12 (2026-10-31, eval/probe12.mjs): florists, house painters, handymen, translators, process servers.
+  ["6030", "out", /process server bond/],
+  ["6110", "out", /epa lead renovator|court filing fee/],
+  ["6100", "out", /usa bouquet|floral supply|smithers oasis|benjamin moore|frazee paint|spraytech|stenograph supply/],
+  ["6170", "out", /society of american florists|painting contractors assoc|\bproz\b|american translators|\bata certification|court reporters assoc/],
+  ["6060", "out", /\btrados\b|memoq|deepl|serve ?manager/],
+  ["6000", "out", /florist wire service/],
+  ["4000", "in", /teleflora|\bftd order|translations\W?com|\bgengo\b|esquire deposition/],
   // Gap probe 11 (2026-10-31, eval/probe11.mjs): pressure washers, jewelry makers, mobile notaries, sign shops, beekeepers.
   // First in the list: a notary bond hit the legal-fees rule and a craft-show booth fee the platform-fee rule.
   ["6030", "out", /notary (public )?bond|notary errors/],
