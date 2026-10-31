@@ -86,6 +86,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>The Lid That Stayed Shut</title>
+      <link>https://example.invalid/hearth-and-horizon/the-lid-that-stayed-shut.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-lid-that-stayed-shut.html</guid>
+      <pubDate>Sat, 31 Oct 2026 12:00:00 GMT</pubDate>
+      <description>An ice storm takes the power for 41 hours and the pantry's chest freezer holds 240 kg of donated meat. The pantry assistant treats the freezer as one thermal mass (time constant about 83 hours at 1.6 W/K and 480 kJ/K), so the food reaches minus 8 at hour 41 and would not pass minus 3 until about hour 72; the printed rule says 48 for a full freezer, and it advises the lower number. The half-empty upright, with 60 kg, reaches 0 C near hour 22, so it is emptied first, to households that have power. The lid stays shut. Setting: Saint Agatha's food pantry, Lac-des-Aulnes, an invented parish in the Eastern Townships of Quebec, Tuesday 12 to Friday 15 January 2049. Read the full text at https://example.invalid/hearth-and-horizon/the-lid-that-stayed-shut.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>An ice storm takes the power for 41 hours and the pantry's chest freezer holds 240 kg of donated meat. The pantry assistant treats the freezer as one thermal mass (time constant about 83 hours at 1.6 W/K and 480 kJ/K), so the food reaches minus 8 at hour 41 and would not pass minus 3 until about hour 72; the printed rule says 48 for a full freezer, and it advises the lower number. The half-empty upright, with 60 kg, reaches 0 C near hour 22, so it is emptied first, to households that have power. The lid stays shut.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Night the Blossom Was Wet</title>
       <link>https://example.invalid/hearth-and-horizon/the-night-the-blossom-was-wet.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-night-the-blossom-was-wet.html</guid>
