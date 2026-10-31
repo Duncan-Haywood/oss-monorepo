@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01AcxTtHjdXxiL5A18fwMWxB",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T02:09:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11980",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "BIBLE 'Next up' list is nearly all Done; finding an unused topic meant grepping 150+ stories by hand"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/reports",
+      "why": "No agent doc written; nothing the next run needs beyond the BIBLE row.",
+      "did": "blog post only",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-31-aim-off-navigation-story.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, hearth-and-horizon story aim-off (text only; audio 423 MB over cap). Draft had inconsistent clock times, fixed before build. node --test 11 pass.",
+  "corrections": [],
+  "redteam": null
+}
