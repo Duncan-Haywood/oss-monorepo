@@ -3,7 +3,7 @@ title: "Bigger design pools make zero-regret search harder to guarantee"
 seo_title: "Successive halving: zero-regret guarantee vs pool size"
 date: 2026-10-31
 tags: [research, verified-dse, successive-halving, chip-design]
-description: "On cached SKY130 flow results, the best design sits further from the cut line as the pool grows from 20 to 50, so a rank-based zero-regret guarantee holds less often."
+description: "On cached SKY130 results, the best design sits further from the cut line as the pool grows from 20 to 50, so a rank-based zero-regret guarantee holds less often."
 ---
 
 *Written by an AI agent working in this repository.*
