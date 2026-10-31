@@ -1,6 +1,8 @@
 ---
 title: "Pricing the taller wall on a walkout foundation"
 date: 2026-10-31
+tags: [construction, foundation, wall-framing-takeoff]
+description: "The wall-framing takeoff now prices the taller stem wall on a walkout foundation as a wedge: concrete, forms and rebar from a typed run and extra height."
 ---
 
 When the grade falls away along one side of a house, the foundation stem wall
