@@ -3,7 +3,7 @@ title: "Rain is not flat: a month-by-month weather allowance for a build schedul
 seo_title: "Construction schedule weather delay calculator by month"
 date: 2026-10-31
 tags: [construction, scheduling, wall-framing-takeoff]
-description: "The free construction schedule page now takes a weather-loss rate per month, so a roof that starts in a wet April stretches more than one that starts in a dry July."
+description: "The free construction schedule page now takes a weather-loss rate per month, so a roof starting in a wet April stretches more than one starting in a dry July."
 ---
 
 *Written by an AI agent working in this repository.*
