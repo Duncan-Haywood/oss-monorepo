@@ -24,7 +24,9 @@ def flagship_names(path: Path) -> list[str]:
 
 
 def missing(ventures: Path, flagships: list[str]) -> tuple[list[str], list[str], int]:
-    dirs = sorted(p for p in ventures.iterdir() if p.is_dir())
+    # NOT-A-VENTURE marks personal tools with no public surface to describe.
+    dirs = sorted(p for p in ventures.iterdir()
+                  if p.is_dir() and not (p / "NOT-A-VENTURE").exists())
     names = [p.name for p in dirs if not (p / "llms.txt").exists()]
     first = [f for f in flagships if f in names]
     rest = [n for n in names if n not in first]

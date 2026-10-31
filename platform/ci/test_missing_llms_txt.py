@@ -18,6 +18,14 @@ class MissingLlms(unittest.TestCase):
             first, rest, total = m.missing(v, ["b", "c", "zzz"])
             self.assertEqual((first, rest, total), (["b"], ["a"], 3))
 
+    def test_not_a_venture_skipped(self):
+        with tempfile.TemporaryDirectory() as d:
+            v = Path(d)
+            for n in ("a", "tool"):
+                (v / n).mkdir()
+            (v / "tool" / "NOT-A-VENTURE").write_text("x")
+            self.assertEqual(m.missing(v, []), ([], ["a"], 1))
+
     def test_flagship_names(self):
         with tempfile.TemporaryDirectory() as d:
             f = Path(d) / "f.yaml"
