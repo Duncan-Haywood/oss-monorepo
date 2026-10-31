@@ -149,3 +149,18 @@ test("pier bearing: load over pad area against typed soil pressure, by hand", ()
   assert.deepEqual(layoutFoundation(sampleFoundation()).pierChecks, []);
   assert.ok(validateFoundation({ ...sampleFoundation(), soilBearing: 100 }).length);
 });
+
+test("walkout stem adds a wedge of wall, by hand", () => {
+  const base = layoutFoundation({ ...sampleFoundation(), interior: [] });
+  const f = { ...sampleFoundation(), interior: [] }; f.stem = { ...f.stem, walkout: { length: 240, extra: 48 } };
+  const l = layoutFoundation(f);
+  assert.ok(l.ok);
+  // wedge face = 240 x 48 / 2 = 5760 sq in, x 8 in thick
+  near(l.pours.find((p) => p.name === "stem wall").cuYd - base.pours.find((p) => p.name === "stem wall").cuYd, 5760 * 8 / 46656, 0.001);
+  near(l.forms.contactSqFt - base.forms.contactSqFt, 2 * 5760 / 144, 0.1);
+  const v = l.rebar.find((r) => r.what.startsWith("walkout stem verticals"));
+  assert.equal(v.qty, Math.ceil(240 / 32));
+  assert.ok(l.notes.some((n) => n.startsWith("Walkout")));
+  f.stem.walkout = { length: 10, extra: 48 };
+  assert.ok(!layoutFoundation(f).ok);
+});
