@@ -1,20 +1,25 @@
 # build-data log
 
-## Session 2, 2026-10-31: milestone 1, loaders, schema, datasheets
+## Session 3, 2026-10-31: correction to the Austin cost field (found by a parallel run's duplicate pull)
 
-Hypothesis (before running): the three feeds map onto one schema with every row keeping its issue date, and the pulled row counts equal the session 1 API counts (851,778, 1,297,657, 2,382,939). Also expected: Austin's issue-to-completion median is near 100 days and Chicago has no completion signal.
-Plan: `permits.py` pulls selected columns by SoQL, maps to the schema, caches gzip CSVs outside git; `manifest.json` records counts; `datasheets/README.md` records licences and what each feed cannot show.
+A second run built the same milestone 1 at the same time (PR 12048, closed as a duplicate of 12049). Its independent pull of the same three feeds matched the row counts (851,778; 1,297,657; 2,382,939) and disagreed with this log on two facts:
+- Austin does have a cost field, `total_job_valuation` (non-zero on 1,164,174 of 2,382,939 rows, 49%). The session 2 line "Austin has no cost field" is wrong; `src/permits.py` now maps it. Cross-city cost features are therefore available for all three cities, with zeros in Austin possibly meaning "not stated".
+- Austin is not issued-only: 477,248 rows have no issue date, so it can show applied-but-not-issued permits.
+- Not reconciled: that run's p90 application-to-issue lags (SF 70, Austin 176) differ from session 2's (81, 142). They used `statistics.quantiles` (exclusive method) and nulled years outside 1990 to 2100; session 2's method is in `src/describe.py`. Milestone 2 should fix one definition and test it against a hand count.
+No tables were rebuilt: `results/` still holds the session 2 numbers and Austin's cost column there is empty until the next pull.
 
+## Session 2, 2026-10-31: milestone 1, loaders, schema, datasheets, first lags
+
+Hypothesis (before the pull): the full pulls reproduce session 1's row counts, and the median application-to-issue lag is at least 7 days in every city.
+Done: `src/permits.py` (stdlib loader, one schema, paginated SoQL), 4 tests, datasheets for the three feeds, `results/manifest.json`, `src/describe.py` and `results/lags.json`. Pulled the full feeds (parquet not used; CSVs stay outside git).
 Outcome:
-- Row counts matched exactly: Chicago 851,778; San Francisco 1,297,657; Austin 2,382,939 (`manifest.json`).
-- Date coverage (rows with the date): applied 851,429 / 1,155,473 / 1,905,514; issued 851,778 / 1,108,447 / 1,905,691; completed 0 / 662,834 / 1,718,943 (Chicago / SF / Austin).
-- Austin turned out to hold 477,248 rows with no issue date although titled "Issued Construction Permits", so my datasheet assumption that it is issued-only was wrong; it has non-issued rows too.
-- Descriptive durations in days (deciles 1, 5, 9; not a model result): applied to issued, Chicago 0 / 0 / 56 (n 851,348), SF 0 / 0 / 70 (n 1,102,475), Austin 0 / 6 / 176 (n 1,904,654). Issued to completed, SF 14 / 105 / 436 (n 653,209), Austin 7 / 103 / 346 (n 1,705,347). Median is 0 days for Chicago and SF: most permits issue the day they are filed (over-the-counter), so a single quantile model will need the type split the baseline already uses.
-- Negative durations (completed or issued before applied) were dropped from these summaries: 81 Chicago, 2,089 SF, 860 Austin; the evaluation harness must apply the same documented rule.
-- 4 unit tests pass for the loader mapping, date sentinel handling and contractor hashing.
-- Prediction partly wrong: counts and the Austin median held; Austin is not issued-only.
+- Row counts match session 1 exactly: Chicago 851,778; SF 1,297,657; Austin 2,382,939. Completed: SF 750,188, Austin 2,184,191, Chicago 0.
+- **The lag hypothesis is refuted.** Median application-to-issue lag is 0 days in all three cities (p90: Chicago 56, SF 81, Austin 142). Most permits are issued over the counter the day they are filed, so the target is zero-inflated, not a smooth positive duration. Consequence for H1/H2: the empirical-quantile baseline gets q = 0.1 and 0.5 right trivially; the models will be judged mainly at q = 0.9 and on a two-part view (P(same day), then the tail). Milestone 2 must score that split explicitly or the pinball loss at q = 0.5 will be uninformative.
+- Build time (issued to completed), negative values dropped: SF median 108 days (p10 15, p90 430), Austin median 104 (p10 7, p90 330). Both feeds carry thousands of negative lags (data entry order errors), counted in the manifest.
+- Austin has no cost field; Chicago and SF do. Cross-city models must treat cost as missing for Austin, not zero.
+- Limitations: no cleaning beyond dropping negative lags; "completed" is a status date and may not mean the build finished; trade permits dominate Austin; this is descriptive, no model run.
 
-Next: milestone 2, baselines and the forward-in-time pinball-loss harness.
+Next: milestone 2 (baselines, quantile-loss harness, forward-in-time split) with the zero-inflation handled up front.
 
 ## Session 1, 2026-10-31: proposal and feed probe
 

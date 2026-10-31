@@ -1,0 +1,42 @@
+{
+ "pulled": "2026-10-31",
+ "max_rows": null,
+ "cities": {
+  "chicago": {
+   "dataset": "ydr8-5enu",
+   "host": "data.cityofchicago.org",
+   "rows": 851778,
+   "applied": 851429,
+   "issued": 851778,
+   "completed": 0,
+   "cost": 813350,
+   "both_applied_issued": 851429,
+   "negative_issue_lag": 81,
+   "negative_build_time": 0
+  },
+  "sf": {
+   "dataset": "i98e-djp9",
+   "host": "data.sf.gov",
+   "rows": 1297657,
+   "applied": 1296491,
+   "issued": 1233195,
+   "completed": 750188,
+   "cost": 1153959,
+   "both_applied_issued": 1232735,
+   "negative_issue_lag": 2257,
+   "negative_build_time": 736
+  },
+  "austin": {
+   "dataset": "3syk-w9eu",
+   "host": "data.austintexas.gov",
+   "rows": 2382939,
+   "applied": 2382910,
+   "issued": 2382939,
+   "completed": 2184191,
+   "cost": 0,
+   "both_applied_issued": 2382910,
+   "negative_issue_lag": 860,
+   "negative_build_time": 3532
+  }
+ }
+}

@@ -1,0 +1,39 @@
+{
+ "chicago": {
+  "applied_to_issued_days": {
+   "n": 851348,
+   "p10": 0,
+   "p50": 0,
+   "p90": 56
+  },
+  "issued_to_completed_days": null
+ },
+ "sf": {
+  "applied_to_issued_days": {
+   "n": 1230478,
+   "p10": 0,
+   "p50": 0,
+   "p90": 81
+  },
+  "issued_to_completed_days": {
+   "n": 748346,
+   "p10": 15,
+   "p50": 108,
+   "p90": 430
+  }
+ },
+ "austin": {
+  "applied_to_issued_days": {
+   "n": 2382050,
+   "p10": 0,
+   "p50": 0,
+   "p90": 142
+  },
+  "issued_to_completed_days": {
+   "n": 2180659,
+   "p10": 7,
+   "p50": 104,
+   "p90": 330
+  }
+ }
+}

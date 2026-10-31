@@ -271,3 +271,18 @@ test("deck.stairs adds a stair whose total rise is the deck height", async () =>
   assert.ok(Math.abs(j.stairs[0].riser - 7.2) < 1e-9);
   assert.match(main(["p.json", "--deck"], () => JSON.stringify(plan)).out, /STAIRS/);
 });
+
+test("headerCheck.stairFrom takes the stairwell header's point load from the stair's stringerCheck", () => {
+  const { out: ex } = run(["--example"]);
+  const base = JSON.parse(ex);
+  const sc = { liveLoad: 40, deadLoad: 10, Fb: 875, Fv: 135, E: 1300000 };
+  const mk = (from) => ({ ...base, floor: { width: 480, depth: 336, beam: 168, joist: "2x10", spacing: 16, openings: [{ x: 100, y: 30, width: 36, depth: 100 }], headerCheck: { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 180, E: 1300000, stairSide: "front", ...(from == null ? {} : { stairFrom: from }) } }, stairs: [{ totalRise: 105, tread: 10, stringer: "2x12", width: 36, stringerCheck: sc }] });
+  const withLink = run(["p.json", "--json"], mk(0));
+  const without = run(["p.json", "--json"], mk(null));
+  assert.equal(withLink.code, 0, withLink.out);
+  const f = (o) => JSON.parse(o.out).floor.headerChecks.find((r) => r.side === "front");
+  assert.ok(f(withLink).fb > f(without).fb, "the stair's load raises the front header's bending stress");
+  const bad = run(["p.json", "--json"], mk(3));
+  assert.equal(bad.code, 1);
+  assert.match(bad.out, /stairFrom 3/);
+});

@@ -117,7 +117,7 @@ export function layoutStair(input, plan) {
     hardware: { topConnectors: stringers, footAnchors: stringers },
     // Stock (2026-10-30): the shortest listed board that holds one stringer, for the framer's buy list (null with no plan).
     stringerStock: plan ? { size: s.stringer, length: Math.min(...plan.stock.filter((x) => x.size === s.stringer && x.length >= stringerLength - 1e-9).map((x) => x.length)), count: stringers } : null,
-    stringerCheck: input.stringerCheck ? checkStringer({ stringer: { spacing: treadSpan, throat }, run }, input.stringerCheck) : null,
+    stringerCheck: input.stringerCheck ? checkStringer({ stringer: { spacing: treadSpan, throat, count: stringers }, run }, input.stringerCheck) : null,
     treadBoards, openRisers: !!s.openRisers, riserBoards: s.openRisers ? 0 : risers, riserStock: riserBoards, width: s.width,
     minOpening: Math.ceil(minOpening * 16) / 16, opening, rail, marks, sumRise, notes, limits: L, nosing: s.nosing,
   };
@@ -227,7 +227,10 @@ export function checkStringer(l, c) {
   if (fb > c.Fb) warnings.push(`Bending stress ${fb.toFixed(0)} psi in the throat exceeds the typed ${c.Fb} psi: use a deeper board, add a mid-flight support or a closer stringer spacing.`);
   if (fv > c.Fv) warnings.push(`Shear stress ${fv.toFixed(0)} psi exceeds the typed ${c.Fv} psi at the support.`);
   if (delta > limit) warnings.push(`Deflection ${delta.toFixed(2)} in exceeds span/${c.deflLimit ?? 240} (${limit.toFixed(2)} in).`);
-  return { ok: warnings.length === 0, fb, fv, delta, limit, Fb: c.Fb, Fv: c.Fv, M, V, reaction: V, throat: d, warnings, errors: [] };
+  // Top reaction of the whole flight (every stringer), the figure to type into the floor's `headerCheck.stairReaction`; the live share is for that header's deflection.
+  const n = l.stringer.count ?? null;
+  const totalReaction = n ? n * V : null, totalReactionLive = n ? (n * V * c.liveLoad) / (c.liveLoad + c.deadLoad) : null;
+  return { ok: warnings.length === 0, fb, fv, delta, limit, Fb: c.Fb, Fv: c.Fv, M, V, reaction: V, totalReaction, totalReactionLive, throat: d, warnings, errors: [] };
 }
 
 export function stairText(l) {
@@ -245,7 +248,7 @@ export function stairText(l) {
   }
   if (l.stringerCheck) {
     const k = l.stringerCheck;
-    if (!k.errors.length) out.push(`  Stringer check (${formatInches(k.throat)} throat): bending ${k.fb.toFixed(0)} of ${k.Fb} psi, shear ${k.fv.toFixed(0)} of ${k.Fv} psi, deflection ${k.delta.toFixed(2)} of ${k.limit.toFixed(2)} in, end reaction ${k.reaction.toFixed(0)} lb${k.ok ? "" : " (FAILS)"}`);
+    if (!k.errors.length) out.push(`  Stringer check (${formatInches(k.throat)} throat): bending ${k.fb.toFixed(0)} of ${k.Fb} psi, shear ${k.fv.toFixed(0)} of ${k.Fv} psi, deflection ${k.delta.toFixed(2)} of ${k.limit.toFixed(2)} in, end reaction ${k.reaction.toFixed(0)} lb each${k.totalReaction ? `, ${k.totalReaction.toFixed(0)} lb (${k.totalReactionLive.toFixed(0)} live) on the header the flight hangs from` : ""}${k.ok ? "" : " (FAILS)"}`);
     for (const w of [...k.errors, ...k.warnings]) out.push(`  Note: ${w}`);
   }
   for (const n of l.notes) out.push(`  Note: ${n}`);
