@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12078",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,23 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio over the 400 MB cap, so text only; no run-level audio rendered.",
+      "did": "Text, pages, feeds, post",
+      "result": "tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-31-the-well-that-took-the-bleach.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Creative track; project hearth-and-horizon; slug the-well-that-took-the-bleach. Security queue branch absent; ideas inbox empty.",
   "corrections": [],
   "redteam": null
 }
