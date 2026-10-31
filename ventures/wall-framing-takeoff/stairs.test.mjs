@@ -402,3 +402,11 @@ test("stringer check refuses untyped figures", () => {
   const r = checkStringer({ stringer: { spacing: 16, throat: 5 }, run: 100 }, { liveLoad: 40 });
   assert.ok(!r.ok && r.errors.length >= 3);
 });
+
+test("stringer check totals the flight's top reaction and its live share", () => {
+  const l = layoutStair({ totalRise: 105, tread: 10, stringer: "2x12", width: 36, stringerCheck: { liveLoad: 40, deadLoad: 10, Fb: 875, Fv: 135, E: 1300000 } }, plan());
+  const k = l.stringerCheck;
+  assert.ok(Math.abs(k.totalReaction - l.stringer.count * k.reaction) < 1e-9);
+  assert.ok(Math.abs(k.totalReactionLive - k.totalReaction * 0.8) < 1e-9);
+  assert.match(stairText(l).join("\n"), /lb \(\d+ live\) on the header the flight hangs from/);
+});

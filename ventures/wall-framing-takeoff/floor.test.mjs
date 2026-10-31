@@ -302,3 +302,19 @@ test("trimmer check: point load from the header plus a half-spacing strip, by ha
   const weak = layoutFloor({ ...sampleFloor(), openings: [{ x: 100, y: 30, width: 36, depth: 100 }], headerCheck: { ...hc, Fb: 20 } }, plan());
   assert.equal(weak.trimmerChecks[0].ok, false);
 });
+
+test("stair top reaction adds a mid-span point load to the header it hangs from, by hand", () => {
+  const hc = { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 180, E: 1300000 };
+  const o = [{ x: 100, y: 30, width: 36, depth: 100 }];
+  const base = layoutFloor({ ...sampleFloor(), openings: o, headerCheck: hc }, plan()).headerChecks.find((r) => r.side === "front");
+  const withStair = layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, stairReaction: 400, stairReactionLive: 320, stairSide: "front" } }, plan());
+  const f = withStair.headerChecks.find((r) => r.side === "front"), b = withStair.headerChecks.find((r) => r.side === "back");
+  const S = (3 * 9.25 ** 2) / 6, I = (3 * 9.25 ** 3) / 12, L = 46.5;
+  assert.ok(Math.abs(f.fb - (base.fb + ((400 * L) / 4) / S)) < 1e-9);
+  assert.ok(Math.abs(f.reaction - (base.reaction + 200)) < 1e-9);
+  assert.ok(Math.abs(f.defl - (base.defl + (320 * L ** 3) / (48 * 1300000 * I))) < 1e-9);
+  assert.ok(Math.abs(b.fb - layoutFloor({ ...sampleFloor(), openings: o, headerCheck: hc }, plan()).headerChecks.find((r) => r.side === "back").fb) < 1e-9, "the other header is unchanged");
+  assert.ok(withStair.notes.some((n) => /400 lb top reaction as a mid-span point load/.test(n)));
+  assert.ok(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, stairReaction: 400 } }, plan()).errors.some((e) => /stairSide/.test(e)));
+  assert.ok(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, stairReaction: 400, stairSide: "front", stairReactionLive: 900 } }, plan()).errors.some((e) => /stairReactionLive/.test(e)));
+});
