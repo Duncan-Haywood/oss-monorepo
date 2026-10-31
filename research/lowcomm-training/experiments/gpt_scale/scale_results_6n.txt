@@ -1,0 +1,3 @@
+H=64 keep 0.25: omega=3 paired excess -0.0068 sd 0.0107 se 0.0044 (6 seeds)
+H=64 keep 0.0625: omega=15 paired excess +0.0440 sd 0.0101 se 0.0041 (6 seeds)
+ratio excess(1/16)/excess(1/4) = -6.43; omega-linear predicts 5.0
