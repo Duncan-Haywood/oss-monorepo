@@ -476,3 +476,9 @@ test("every page links to every other page (internal linking for readers and cra
     for (const other of pages) if (other !== f) assert.ok(html.includes(`<a href="${other}">`), `${f} does not link ${other}`);
   }
 });
+
+test("the schedule card resolves per/rate durations from the takeoff before it runs", () => {
+  const html = page("index.html");
+  assert.match(html, /import \{[^}]*resolveRates[^}]*\} from "\.\/schedule\.mjs"/);
+  assert.match(html, /resolveRates\(input, \{ \.\.\.last\.result/);
+});

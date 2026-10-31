@@ -454,7 +454,7 @@
 
   <section class="card" aria-labelledby="h-schedule" id="scheduleCard">
     <h2 id="h-schedule">Build schedule (critical path)</h2>
-    <p class="note">Optional and separate from the wall list. Paste your own schedule as JSON (<code>start</code>, <code>crews</code>, <code>activities</code> with <code>id, name, days, after, crew, lag</code>, and <code>slips</code>), or load the invented example. Durations are working days (Mon-Fri) that you supply; none are shipped. Holidays and weather days you list below are skipped; weather is not forecast.</p>
+    <p class="note">Optional and separate from the wall list. Paste your own schedule as JSON (<code>start</code>, <code>crews</code>, <code>activities</code> with <code>id, name, days, after, crew, lag</code>, and <code>slips</code>), or load the invented example. An activity written <code>{"id": "frame", "per": "wallFeet", "rate": 40}</code> takes its days from the takeoff above (<code>ceil(quantity / rate)</code>; your rate, none shipped; keys <code>wallFeet</code>, <code>pieces</code>, <code>boards</code>, <code>wallSheathingSheets</code>, <code>roofSheets</code>, <code>drywallSheets</code>, <code>sidingBoards</code>, <code>nails</code> and more once that part is computed): run the takeoff first. Durations are working days (Mon-Fri) that you supply; none are shipped. Holidays and weather days you list below are skipped; weather is not forecast.</p>
     <textarea id="schedIn" rows="12" spellcheck="false" aria-label="Schedule JSON" style="width:100%;font-family:monospace"></textarea>
     <p><label for="schedHol">Holidays (YYYY-MM-DD, comma or space separated)</label><input id="schedHol" type="text" autocomplete="off" style="width:100%"></p>
     <p><label for="schedWx">Weather days the crew will not work (YYYY-MM-DD)</label><input id="schedWx" type="text" autocomplete="off" style="width:100%"></p>
@@ -545,7 +545,7 @@
     import { layoutFasteners, fastenerText } from "./fasteners.mjs";
     import { budget, budgetCsv } from "./budget.mjs";
     import { levelBids } from "./bidlevel.mjs";
-    import { schedule, scheduleText, sampleSchedule } from "./schedule.mjs";
+    import { schedule, scheduleText, sampleSchedule, resolveRates } from "./schedule.mjs";
     import { resolveHeaders } from "./headers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -1452,6 +1452,10 @@
       const hol = dates("#schedHol"), wx = dates("#schedWx");
       if (hol.length) input.holidays = [...(input.holidays || []), ...hol];
       if (wx.length) input.weatherDays = [...(input.weatherDays || []), ...wx];
+      if ((input.activities || []).some((a) => a && a.per != null)) {
+        if (!last || !last.result.ok) { $("#schedOut").innerHTML = `<div class="err">An activity with "per" and "rate" takes its days from the takeoff. Run the takeoff above first, then find the critical path.</div>`; return; }
+        input = resolveRates(input, { ...last.result, floor: last.floor, roof: last.roof, foundation: last.foundation, drywall: last.drywall, insulation: last.insulation, trim: last.trim, siding: last.siding, eaves: last.eaves, gutters: last.gutters, fasteners: last.fasteners });
+      }
       const s = schedule(input);
       $("#schedOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(scheduleText(s).join("\n"))}</pre>`;
       if (s.ok) record("schedule_run");
