@@ -1,5 +1,6 @@
 ---
 title: "The Dead Leg: a hostel pipe at 27 degrees and a rule made before the test"
+seo_title: "The Dead Leg: a hostel pipe at 27 degrees"
 date: 2026-10-25
 description: "New Hearth & Horizon story: a pilgrim hostel's unused pipe, Legionella, why PCR and culture answer different questions, and what a heat pump has to do with it."
 tags: [hearth-and-horizon, fiction, water-safety]

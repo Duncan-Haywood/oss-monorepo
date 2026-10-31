@@ -1,5 +1,6 @@
 ---
 title: "Error feedback makes 16x sparser DiLoCo updates cost nothing in our small GPT runs"
+seo_title: "Error feedback makes 16x sparser DiLoCo updates cost nothing"
 date: 2026-10-25
 description: "Top-k compression of worker deltas costs 0.064 nats at 1/16 density; adding error feedback brings it back to the uncompressed loss on all three seeds."
 tags: [research, lowcomm-training, diloco, compression]

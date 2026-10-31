@@ -1,5 +1,6 @@
 ---
 title: "Verifiable training: who else has priced a worker's cheating, and what we still don't cite"
+seo_title: "Verifiable training: who has priced a worker's cheating"
 date: 2026-10-25
 description: "The verifiable-training-mechanisms paper draft now cites federated-learning contract and free-rider work, and says plainly which prior art it still lacks."
 tags: [verifiable-training-mechanisms, research, mechanism-design]
