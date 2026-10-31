@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01E5sJKnrjuD9uoQ4NbWhdAD",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T17:37:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12135",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "--until returns after 100 s with 'still failing, call again' and exit 0, so background wait notifications fired early and I had to loop"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post or paper-draft update this run: a single incremental milestone (9n) in a programme whose paper catches up in batches.",
+      "did": "Logged outcome in LOG.md only",
+      "result": "fine, paper draft still lags 9m and 9n"
+    }
+  ],
+  "writeups": [
+    "research/aerolog-scaling/LOG.md milestone 9n"
+  ],
+  "goal": null,
+  "notes": "Milestone 9n: whitened residuals recover 14 of 17 points of gust share lost to AR(1) noise; frequency-gap prediction refuted by 0.02 points.",
+  "corrections": [],
+  "redteam": null
+}
