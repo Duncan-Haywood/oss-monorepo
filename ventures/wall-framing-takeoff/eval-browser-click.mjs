@@ -404,6 +404,17 @@ const [sv5] = await Promise.all([page.waitForEvent("download"), page.click("#sav
 const saved5 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv5.path(), "utf8"));
 const sd2Ok = !/NaN|undefined/.test(sd2Txt) && /Battens:/.test(sd2Txt) && /Opening trim:/.test(sd2Txt) && saved5.siding?.style === "vertical" && saved5.siding?.battens === true && saved5.siding?.openingTrim === true && saved5.siding?.battenPrice === 5 && saved5.siding?.trimPrice === 9 && !saved5.siding?.starter;
 console.log(sd2Ok ? "ok: siding opening trim and vertical battens, card and saved plan" : "FAIL: siding trim/battens: " + (await page.textContent("#errors")).slice(0, 400) + sd2Txt.slice(0, 200) + JSON.stringify(saved5.siding));
+// slab edge F-factor and window/door U on the insulation card (2026-10-31 click test of fields that were source-tested only)
+await page.check("#inOn");
+await page.selectOption("#inEff", "true");
+await page.fill("#inWinU", "0.3"); await page.fill("#inDoorU", "0.4"); await page.fill("#inSlabF", "0.54");
+await page.click("#run");
+await page.waitForFunction(() => /slab edge/i.test(document.querySelector("#insulationOut")?.textContent || ""), null, { timeout: 30000 }).catch(() => {});
+const inTxt = await page.textContent("#insulationOut");
+const [sv6] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved6 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv6.path(), "utf8"));
+const slabOk = !/NaN|undefined/.test(inTxt) && /slab edge/i.test(inTxt) && saved6.insulation?.assembly?.slabEdgeF === 0.54 && saved6.insulation?.assembly?.windowU === 0.3;
+console.log(slabOk ? "ok: insulation slab edge F-factor, card and saved plan" : "FAIL: slab edge: " + (await page.textContent("#errors")).slice(0, 300) + inTxt.slice(0, 400));
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || !sdOk || !sd2Ok || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || !sdOk || !sd2Ok || !slabOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
