@@ -130,6 +130,8 @@ test("the page frames a floor through floor.mjs and pools its lumber with the wa
   assert.match(html, /\$\("#flHdr"\)\.value = h \?/); // and restored
   assert.match(html, /fl\.cantilever = L\(\$\("#flCant"\)\.value/); // read into the plan
   assert.match(html, /\$\("#flCant"\)\.value = fl\.cantilever/); // and restored from a saved plan
+  assert.match(html, /if \(n\[7\]\) fl\.headerCheck\.cantDeflLimit = n\[7\]/); // cantilever tip ratio, eighth figure
+  assert.match(html, /h\.cantDeflLimit \? \[h\.cantDeflLimit\]/); // and restored
   assert.match(html, /takeoff\(plan, floorExtra\)/);
   assert.match(html, /takeoff\(plan, \[\.\.\.extra, \.\.\.floorExtra\]\)/);
 });
