@@ -2,6 +2,16 @@
 
 Newest first.
 
+## 2026-10-31 · Milestone 3g: size open-centre sections from the PVG 32 rated flows (not pre-registered)
+- Why: 3b to 3f needed a closing-law constant k. The PVG 32 manual (Danfoss BC152886483664en-001602, July 2024, pp. 100 to 101, opened this session at assets.danfoss.com/documents/406946/) gives spool sizes A 10, B 25, C 40, D 65, E 100 L/min, and 3d showed the bypass shuts inside the dead band. `experiments/rated_sizing.py` gives each actuator the smallest spool covering its demand, area = Q_rated / sqrt(dp_ref), bypass closed. I ran it once before writing a prediction, so none is registered.
+- The drop dp_ref at which the rating applies is **not** in the pages I read, so it is swept (5, 10, 14, 25, 35 bar). Same random cycles as 3a to 3f.
+
+### Outcome (`experiments/rated_sizing_results.txt`)
+- Median time penalty 15.8% (5 bar), 0.9% (10), 0.0% (14, 25, 35); p95 21.6%, 21.6%, 21.6%, 7.3%, 3.8%. Dig-phase stall-bound share 46.9%, 18.4%, 8.5%, 0.3%, 0.0%.
+- Reading: with real spool sizes the conclusion of 3d/3f holds for dp_ref of 14 bar or more (median 0, small tail), so 2n's energy ranking needs no large time penalty. It fails if the rated drop is as low as 5 to 10 bar, where discrete spool sizes starve light actuators. The result hinges on dp_ref, which still needs the manual's flow-curve axis (not read).
+- Limits: sizing rule is mine (smallest covering spool); no compensator or feathering; demands are from the assumed force model.
+- Next: read dp_ref from the flow-versus-stroke figures, then the compensator.
+
 ## 2026-10-31 · Milestone 6b: the paper draft gains the cycle-time section (a writing step, no experiment)
 - Why: the draft (milestone 6) stopped at energy and listed "no cycle-time effects" as a threat, while 3a to 3f had priced them. Added section 3.5 (flow-sharing penalty by closing law k, LS pump-limit penalty, time-penalised break-even from 28.0 to 35.8 bar) and reworded threat 6. No number is new; each is copied from `flow_share_shape_results.txt`, `flow_share_ls_results.txt` or `time_penalised_results.txt`, and 10 new rows in `paper/check_numbers.py` hold them (32 claims, 0 missing).
 - k of 20 or more is left out of the text as outside the model's validity (3e).
