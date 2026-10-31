@@ -45,6 +45,7 @@ export function birdsmouth(size, pitch, bearing = 3.5, maxFraction = 0.25) {
 
 /** @param {Roof} r @param {{stock: {size: string, length: number}[]}} plan */
 export function validateRoof(r, plan) {
+  if (r == null || typeof r !== "object" || Array.isArray(r)) return ["A roof is an object with width, length and pitch."];
   const errors = [];
   if (!(r.width >= 96 && r.width <= 1200)) errors.push("Roof width (eave to eave) must be between 8 ft and 100 ft.");
   if (!(r.length >= 48 && r.length <= 2400)) errors.push("Roof length (along the ridge) must be between 4 ft and 200 ft.");

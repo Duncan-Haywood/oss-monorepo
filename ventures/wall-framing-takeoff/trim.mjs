@@ -17,6 +17,7 @@
 
 /** @param {Trim} d */
 export function validateTrim(d) {
+  if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Trim options are an object."];
   const e = [];
   if (d.baseSides != null && d.baseSides !== 1 && d.baseSides !== 2) e.push("Baseboard sides must be 1 or 2.");
   for (const k of /** @type {const} */ (["baseStock", "casingStock", "shoeStock"])) if (d[k] != null && !(d[k] >= 48 && d[k] <= 240)) e.push(`${k} must be between 48 and 240 inches.`);

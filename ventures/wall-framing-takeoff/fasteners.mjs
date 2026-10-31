@@ -37,6 +37,7 @@ const DEFAULTS = {
 
 /** @param {Fasteners} d */
 export function validateFasteners(d) {
+  if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Fastener options are an object."];
   const e = [];
   /** @param {string} k @param {number} lo @param {number} hi @param {string} what */
   const rng = (k, lo, hi, what) => { const v = /** @type {any} */ (d)[k]; if (v != null && !(v >= lo && v <= hi)) e.push(`${what} must be between ${lo} and ${hi}.`); };

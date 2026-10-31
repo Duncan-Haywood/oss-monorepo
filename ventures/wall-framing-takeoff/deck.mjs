@@ -33,6 +33,7 @@ export function defaultDeckStock() {
 
 /** @param {Deck} d */
 export function validateDeck(d) {
+  if (d == null || typeof d !== "object" || Array.isArray(d)) return ["A deck is an object with width, depth and height."];
   const errors = [];
   if (!(d.width >= 48 && d.width <= 600)) errors.push("Deck width (along the house) must be between 4 ft and 50 ft.");
   if (!(d.depth >= 48 && d.depth <= 360)) errors.push("Deck depth (out from the house) must be between 4 ft and 30 ft.");

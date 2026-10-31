@@ -24,6 +24,7 @@ const SIZE_DEPTH = { "2x4": 3.5, "2x6": 5.5 };
 
 /** @param {Insulation} d */
 export function validateInsulation(d) {
+  if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Insulation options are an object."];
   const e = [];
   if (d.bagSqFt != null && !(d.bagSqFt >= 10 && d.bagSqFt <= 500)) e.push("Insulation bag coverage must be between 10 and 500 sq ft.");
   if (d.waste != null && !(d.waste >= 0 && d.waste <= 0.3)) e.push("Insulation waste must be between 0 and 0.3.");

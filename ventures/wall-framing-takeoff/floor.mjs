@@ -24,6 +24,7 @@ export function sampleFloor() {
 
 /** @param {Floor} f @param {{stock: {size: string, length: number}[]}} plan */
 export function validateFloor(f, plan) {
+  if (f == null || typeof f !== "object" || Array.isArray(f)) return ["A floor is an object with width and depth."];
   const errors = [];
   if (!(f.width >= 24 && f.width <= 1200)) errors.push("Floor width must be between 2 ft and 100 ft.");
   if (!(f.depth >= 24 && f.depth <= 1200)) errors.push("Floor depth (the joist direction) must be between 2 ft and 100 ft.");

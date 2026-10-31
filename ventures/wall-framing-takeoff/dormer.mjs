@@ -31,6 +31,7 @@ const slope = (/** @type {number} */ p) => Math.sqrt(1 + (p / 12) ** 2);
 
 /** @param {Dormer} d */
 export function validateDormer(d) {
+  if (d == null || typeof d !== "object" || Array.isArray(d)) return ["A dormer is an object with width, eaveHeight and pitch."];
   const e = [];
   if (!(d.width >= 36 && d.width <= 180)) e.push("Dormer width must be between 3 and 15 ft.");
   if (!(d.eaveHeight >= 24 && d.eaveHeight <= 96)) e.push("Dormer eave height (front wall, bottom plate to eave) must be between 2 and 8 ft.");
