@@ -93,9 +93,40 @@ export function checkFloorHeaders(size, openings, tailSpans, loads) {
     if (defl > L / lim) breaks.push(`live deflection ${defl.toFixed(2)} in over L/${lim} (${(L / lim).toFixed(2)} in)`);
     const reaction = V; // lb at each end of the header, to a trimmer hanger
     if (loads.hangerCapacity != null && reaction > loads.hangerCapacity) breaks.push(`end reaction ${reaction.toFixed(0)} lb over the typed hanger capacity ${loads.hangerCapacity} lb`);
-    rows.push({ opening: k, side, span: L, tail, size: `2-${size}`, load: wTot * 12, reaction, fb, fv, defl, ok: !breaks.length, breaks });
+    rows.push({ opening: k, side, y: side === "front" ? o.cut[0] : o.cut[1], reactionLive: (wLive * L) / 2, span: L, tail, size: `2-${size}`, load: wTot * 12, reaction, fb, fv, defl, ok: !breaks.length, breaks });
   }
   return rows;
+}
+
+/**
+ * Doubled trimmer joist beside a stairwell, from typed figures only (same `loads` as `checkFloorHeaders`).
+ * Model: two plies of `size` as a simple span over `span` (the supported joist span, inches), carrying a uniform
+ * strip of half the joist spacing at live + dead, plus the header's end reaction as a point load `a` inches from
+ * the front support (`reactionLive` of it is live, for deflection). Bending is the larger of the moment under the
+ * point load and at the zero-shear point; shear is the support reaction (1.5V/A, no reduction near the support);
+ * live deflection is the largest of the closed-form point-load and uniform-load curves over 200 stations.
+ * Walls above, stair stringer loads and the other header's reaction are not in it.
+ */
+export function checkTrimmer(size, span, a, reaction, reactionLive, spacing, loads) {
+  const d = DEPTH[size], b = 2 * THICK, L = span;
+  const { liveLoad, deadLoad, Fb, Fv, E } = loads;
+  const lim = loads.deflLimit ?? 360;
+  const S = (b * d * d) / 6, A = b * d, I = (b * d ** 3) / 12;
+  const w = ((liveLoad + deadLoad) * (spacing / 2 / 12)) / 12, wL = (liveLoad * (spacing / 2 / 12)) / 12;
+  const P = reaction, c = L - a;
+  const R1 = (w * L) / 2 + (P * c) / L, R2 = (w * L) / 2 + (P * a) / L;
+  const mAt = (x) => R1 * x - (w * x * x) / 2 - (x > a ? P * (x - a) : 0);
+  const xz = R1 / w; // zero shear if left of the load, else under it
+  const M = Math.max(mAt(a), xz < a ? mAt(xz) : 0);
+  const V = Math.max(R1, R2);
+  const pt = (Pp, x) => { const [aa, cc] = x <= a ? [a, c] : [c, a]; const xx = x <= a ? x : L - x; return (Pp * cc * xx * (L * L - cc * cc - xx * xx)) / (6 * E * I * L); };
+  let defl = 0;
+  for (let i = 1; i < 200; i++) { const x = (L * i) / 200; defl = Math.max(defl, pt(reactionLive, x) + (wL * x * (L ** 3 - 2 * L * x * x + x ** 3)) / (24 * E * I)); }
+  const fb = M / S, fv = (1.5 * V) / A, breaks = [];
+  if (fb > Fb) breaks.push(`bending ${fb.toFixed(0)} psi over ${Fb}`);
+  if (fv > Fv) breaks.push(`shear ${fv.toFixed(0)} psi over ${Fv}`);
+  if (defl > L / lim) breaks.push(`live deflection ${defl.toFixed(2)} in over L/${lim} (${(L / lim).toFixed(2)} in)`);
+  return { size: `2-${size}`, span: L, a, point: P, uniform: w * 12, moment: M, fb, fv, defl, reactions: [R1, R2], ok: !breaks.length, breaks };
 }
 
 /**
@@ -298,13 +329,19 @@ export function layoutFloor(f, plan) {
     headerChecks = checkFloorHeaders(f.joist, openings, tails, f.headerCheck);
     for (const r of headerChecks) notes.push(`Opening ${r.opening + 1} ${r.side} header, ${r.size} over ${formatInches(r.span)} clear carrying ${formatLength(r.tail)} tail joists: ${r.ok ? "passes" : "FAILS"} on your figures (bending ${r.fb.toFixed(0)} psi, shear ${r.fv.toFixed(0)} psi, live deflection ${r.defl.toFixed(2)} in, end reaction ${r.reaction.toFixed(0)} lb each end for the hanger)${r.ok ? "" : `: ${r.breaks.join("; ")}`}. Closed-form simple span, uniform half-span strip; stair reactions and walls above are not in it.`);
   }
+  let trimmerChecks = null;
+  if (headerChecks) {
+    const span = f.beam != null ? Math.max(f.beam, f.depth - f.beam) : f.depth;
+    trimmerChecks = headerChecks.map((r) => ({ opening: r.opening, side: r.side, ...checkTrimmer(f.joist, span, r.y - rimT, r.reaction, r.reactionLive, f.spacing, f.headerCheck) }));
+    for (const r of trimmerChecks) notes.push(`Opening ${r.opening + 1} trimmer under the ${r.side} header, ${r.size} over ${formatInches(r.span)}: ${r.ok ? "passes" : "FAILS"} on your figures (bending ${r.fb.toFixed(0)} psi, shear ${r.fv.toFixed(0)} psi, live deflection ${r.defl.toFixed(2)} in, ${r.point.toFixed(0)} lb point load from the header)${r.ok ? "" : `: ${r.breaks.join("; ")}`}. One header reaction at a time on a simple span; the other header, stair loads and walls above are not in it.`);
+  }
   if (hangers.count) notes.push(`${hangers.count} joist hanger${hangers.count === 1 ? "" : "s"} counted (${tailEnds} single at tail-joist ends, ${headerEnds} double at header ends), sized for ${f.joist}; model and load rating are the engineer's call.`);
   if (cant) notes.push(`Joists cantilever ${formatLength(cant)} past the back support, ${(cant / f.depth).toFixed(2)} of the ${formatLength(f.depth)} supported span${cant > f.depth / 3 + EPS ? "; that is more than a third of it, and a common rule of thumb asks for the backspan to be at least 3 times the overhang, so have the engineer check it" : ""}. Cantilever size, backspan nailing and any tie-down are the engineer's call.`);
   const pen = f.penetrations?.length ? checkPenetrations(f.joist, f.beam != null ? Math.max(f.beam, f.depth - f.beam) : f.depth, f.penetrations, f.limits) : [];
   for (const h of pen) if (!h.ok) notes.push(`Joist ${h.type} ${h.n}: ${h.why.join("; ")}. Move it, sleeve it or ask the engineer.`);
   notes.push("Joist size and spacing are your inputs and are not checked against a span table or code; bearing, other hangers and fasteners are not in the takeoff.");
   return {
-    ok: true, penetrations: pen, hangers, headerChecks, openings, trimmers, id, width: f.width, depth: total, supportedDepth: f.depth, cantilever: cant, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
+    ok: true, penetrations: pen, hangers, headerChecks, trimmerChecks, openings, trimmers, id, width: f.width, depth: total, supportedDepth: f.depth, cantilever: cant, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
     sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 },
     notes,
   };
