@@ -1399,3 +1399,7 @@ buys false alarms; once the series is transformed to near-Gaussian it matches AR
 cycles the AR(1) profile (`--ar1`) stays the better default, and the transform matters more than the lag order. Open still:
 sunspots with a hand-set small phi2 range, and a real documented step inside a cycle.
 `ar2-profile.test.mjs` has two tests (a shift in AR(2) noise; log lynx gets none).
+
+## `--bootstrap` on 33 real series (2026-10-31)
+
+The `--bootstrap` section above was synthetic only. `eval/real-bootstrap-sweep.mjs` (output `eval/real-bootstrap-sweep.out.txt`) runs `meanvar` plain and with `--bootstrap` on every real series in `data/` (default settings, no labels): 33 series, bootstrap returns fewer changes on 22, more on none; Series with no documented break lose theirs: `lh` 1 to 0, `sunspot-year` 5 to 0, `great-discoveries` 3 to 0, `uk-gas` 3 to 1, `smi-returns` 7 to 1, `puerto-rico-daily-deaths` 8 to 2. It also keeps a documented one on `uk-driver-deaths` (3 kept, the 1983 seat-belt step among them) and `nile` (1 kept). Cost: `us-accidental-deaths` loses its one cut, the 1973-12 step the flagship notes call real. Without labels this is a count, not a false-alarm or detection rate: it shows the penalty is large on real, clustered series, not that the removed cuts were all false. Test: `real-bootstrap-sweep.test.mjs`.
