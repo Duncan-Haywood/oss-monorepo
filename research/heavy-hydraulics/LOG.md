@@ -2,6 +2,18 @@
 
 Newest first.
 
+## 2026-10-31 · Milestone 3h: 3g with the drop at rated flow read from the manual's own curves (prediction registered before running)
+- Why: 3g swept dp_ref (5 to 35 bar) because the rated drop was not in the pages read. The same manual (BC152886483664en-001601, July 2024, p. 99, "Pressure drop at maximum spool travel position, A/B to T", opened this session) plots drop against flow for each spool. `experiments/digitise_pvg_dp.py` picks each curve's pixels by colour from a 300 dpi render and reads the drop at 0.8, 1.0 and 1.2 times rated flow (`experiments/data/pvg32_dp_at_rated.csv`); `experiments/rated_sizing_curve.py` sizes each spool by its own value.
+- Read values at rated flow (bar): A 11.8, B 6.7, C 5.3, D 7.3, E 7.6. Caveat that matters: the figure is the **work-port-to-tank** drop at maximum travel, not the P-to-A drop the flow rating may refer to; I use it as the best available measure of each spool's size, not as proof of the rating point. Read error about 1 bar.
+- **Prediction (before running):** the values sit in 5 to 12 bar, the band where 3g's penalty fell from 15.8% (5 bar) to 0.9% (10 bar), so I predict a median time penalty between 1% and 8% and a dig-phase stall-bound share between 10% and 40%.
+
+### Outcome of 3h (`experiments/rated_sizing_curve_results.txt`, 2 s, seeded)
+- dp at 1.0 x rated: median time penalty **6.25%** (p95 21.6%), dig-phase stall-bound share **35.5%**. Both inside the predicted bands (1 to 8%, 10 to 40%).
+- Sensitivity to the flow at which the rating is read: 0.8 x rated gives 16.8% / 47.5%; 1.2 x rated gives 2.6% / 25.4%. So the penalty is 2.6 to 16.8% across a +-20% reading of the rating point.
+- Reading: 3g's comfortable case (dp_ref of 14 bar or more, zero penalty) is not what the manual's curves show: they give 5 to 12 bar, so with real discrete spools open-centre sections starve light actuators in a third of multi-actuator dig phases. 3f's time-penalised break-even (28 to 29.5 bar, no k) is therefore an under-statement of load-sensing's advantage if the penalty is charged as energy; it has not been rerun with this sizing.
+- Limits: the figure is the work-port-to-tank drop, not necessarily the rating point; read error about 1 bar; no compensator or feathering; demands from the assumed force model; sizing rule (smallest covering spool) is mine.
+- Next: rerun 3f's break-even with this sizing; find the manual's P-to-A flow curve; add the compensator.
+
 ## 2026-10-31 · Milestone 3g: size open-centre sections from the PVG 32 rated flows (not pre-registered)
 - Why: 3b to 3f needed a closing-law constant k. The PVG 32 manual (Danfoss BC152886483664en-001602, July 2024, pp. 100 to 101, opened this session at assets.danfoss.com/documents/406946/) gives spool sizes A 10, B 25, C 40, D 65, E 100 L/min, and 3d showed the bypass shuts inside the dead band. `experiments/rated_sizing.py` gives each actuator the smallest spool covering its demand, area = Q_rated / sqrt(dp_ref), bypass closed. I ran it once before writing a prediction, so none is registered.
 - The drop dp_ref at which the rating applies is **not** in the pages I read, so it is swept (5, 10, 14, 25, 35 bar). Same random cycles as 3a to 3f.
