@@ -143,3 +143,17 @@ test("head flashing: one piece run per opening, packed by hand (2026-10-31)", ()
   assert.equal(layoutSiding({ headFlashing: "yes" }, p).ok, false);
   assert.equal(layoutSiding({ headFlashing: true, flashingExtend: 20 }, p).ok, false);
 });
+
+test("opening tape: sill and jamb runs summed by hand, whole rolls (2026-10-31)", () => {
+  // 36 x 48 window: 36+4 = 40 sill + 2 x (48+2) = 100 jamb = 140 in; 60 x 80 door: 64 + 2 x 82 = 228 in; total 368 in
+  const p = plan([{ id: "A", length: 240, openings: [{ kind: "window", offset: 20, width: 36, height: 48 }, { kind: "door", offset: 100, width: 60, height: 80 }] }]);
+  assert.equal(layoutSiding({ waste: 0 }, p).tape, null);
+  const s = layoutSiding({ waste: 0, openingTape: true, tapeRollFeet: 20, tapePrice: 12 }, p);
+  assert.equal(s.tape.openings, 2);
+  assert.ok(Math.abs(s.tape.feet - 368 / 12) < 1e-9); // 30.67 ft in 20 ft rolls
+  assert.equal(s.tape.rolls, 2);
+  assert.equal(s.cost, 24);
+  assert.ok(sidingText(s).some((x) => x.includes("Opening tape: 2 opening(s), 31 ft")));
+  assert.equal(layoutSiding({ openingTape: 1 }, p).ok, false);
+  assert.equal(layoutSiding({ openingTape: true, tapeRollFeet: 5 }, p).ok, false);
+});
