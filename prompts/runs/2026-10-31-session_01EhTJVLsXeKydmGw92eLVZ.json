@@ -1,15 +1,32 @@
 {
   "date": "2026-10-31",
   "session": "https://claude.ai/code/session_01EhTJVLsXeKydmGw92eLVZ",
-  "track": "venture",
+  "track": "ventures",
   "prompt_version": 0,
   "task": "wall-framing-takeoff: concrete calculator landing page (slab.mjs)",
-  "projects": ["wall-framing-takeoff"],
+  "projects": [
+    "wall-framing-takeoff"
+  ],
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": ["route drew the research track; the scheduled prompt asked for revenue ventures, so I took the top flagship instead"],
-  "deviations": [{"file": "prompts/promptctl.py route", "why": "scheduled task asked for product work", "did": "venture work on flagship 1", "result": "page landed"}],
-  "writeups": ["docs/posts/2026-10-31-a-concrete-calculator-that-orders-in-quarter-yards.md"],
-  "notes": "External hosts all 403 through the proxy, so no primary sources were read. node --test slab.test.mjs page.test.mjs: 48 pass. Chromium click at 390px: slab, pier, footing and bad input, no page errors, no horizontal scroll. Bag yields and the 4 yd short-load figure are label/rule-of-thumb figures, stated as such on the page."
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "route drew the research track; the scheduled prompt asked for revenue ventures, so I took the top flagship instead"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py route",
+      "why": "scheduled task asked for product work",
+      "did": "venture work on flagship 1",
+      "result": "page landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-31-a-concrete-calculator-that-orders-in-quarter-yards.md"
+  ],
+  "notes": "External hosts all 403 through the proxy, so no primary sources were read. node --test slab.test.mjs page.test.mjs: 48 pass. Chromium click at 390px: slab, pier, footing and bad input, no page errors, no horizontal scroll. Bag yields and the 4 yd short-load figure are label/rule-of-thumb figures, stated as such on the page.",
+  "pr": 12137
 }
