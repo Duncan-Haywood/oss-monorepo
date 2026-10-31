@@ -42,7 +42,7 @@ flagships:
       headers, a published table for landing post sizing, sizing the radial
       supports under winder treads, connector and anchor sizes. Siding:
       Winders have a page field since 2026-10-31 (clicked in Chromium). Siding: exterior opening trim and vertical siding with battens are hand-
-      computed only; their page fields are source-tested only. A real
+      computed only; their page fields were clicked in Chromium 2026-10-31. A real
       architect's DXF through it (door and window symbols, dynamic blocks
       and gaps at openings are checked on hand-written or library blocks
       only). A real IFC export with doors (swept bodies, centred openings
