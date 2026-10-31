@@ -1,8 +1,8 @@
 ---
 title: "Open-centre excavator valves: slow actuators make load-sensing win at higher margins"
-seo_title: "Load-sensing vs open-centre excavator hydraulics: break-even pressure margin"
+seo_title: "Load-sensing vs open-centre excavator hydraulics: break-even"
 date: 2026-10-31
-tags: [research, heavy-hydraulics, hydraulics, excavators]
+tags: [research, heavy-hydraulics, hydraulics, excavator]
 description: "Sizing open-centre spools from Danfoss PVG 32 manual curves, load-sensing beats open-centre up to a 34 to 39 bar margin, not 28, once slowness is charged."
 ---
 
