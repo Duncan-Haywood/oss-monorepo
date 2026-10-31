@@ -16,7 +16,7 @@ import { THICK, EPS, DEPTH, optimizeStock, formatLength, formatInches } from "./
 const DOUBLE = 2 * THICK;
 export const SHEET = { width: 48, length: 96 };
 
-/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, cantilever?: number, headerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, hangerCapacity?: number, stairReaction?: number, stairReactionLive?: number, stairSide?: "front"|"back" }, blockingRows?: number, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], penetrations?: { type: "hole"|"notch", at: number, size: number, length?: number, fromEdge?: number, end?: boolean }[], limits?: { hole?: number, holeEdge?: number, notch?: number, endNotch?: number, notchLength?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
+/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, cantilever?: number, headerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, hangerCapacity?: number, bearingCapacity?: number, stairReaction?: number, stairReactionLive?: number, stairSide?: "front"|"back" }, blockingRows?: number, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], penetrations?: { type: "hole"|"notch", at: number, size: number, length?: number, fromEdge?: number, end?: boolean }[], limits?: { hole?: number, holeEdge?: number, notch?: number, endNotch?: number, notchLength?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
 
 export function sampleFloor() {
   return { id: "Main floor", width: 480, depth: 336, joist: "2x10", spacing: 16, rim: true, beam: 168, blockingRows: 0 };
@@ -55,6 +55,7 @@ export function validateFloor(f, plan) {
     const h = f.headerCheck;
     for (const [k, lo, hi] of [["liveLoad", 1, 200], ["deadLoad", 0, 200], ["Fb", 10, 5000], ["Fv", 1, 500], ["E", 200000, 3000000]]) if (!(h[k] >= lo && h[k] <= hi) || (k === "deadLoad" && h[k] == null)) errors.push(`headerCheck.${k} must be typed, from ${lo} to ${hi} (${k === "liveLoad" || k === "deadLoad" ? "psf" : "psi"}); no default is shipped.`);
     if (h.hangerCapacity != null && !(h.hangerCapacity > 0 && h.hangerCapacity <= 20000)) errors.push("headerCheck.hangerCapacity is the hanger's allowable load in lb from the maker's table, above 0 and up to 20000.");
+    if (h.bearingCapacity != null && !(h.bearingCapacity > 0 && h.bearingCapacity <= 50000)) errors.push("headerCheck.bearingCapacity is the allowable end reaction of a trimmer joist in lb (bearing on the support, from your engineer or the bearing-area table), above 0 and up to 50000.");
     if (h.deflLimit != null && !(h.deflLimit >= 120 && h.deflLimit <= 960)) errors.push("headerCheck.deflLimit is the L/ ratio, from 120 to 960.");
     if (h.stairReaction != null) {
       if (!(h.stairReaction > 0 && h.stairReaction <= 20000)) errors.push("headerCheck.stairReaction is the stair's total top reaction in lb (the stair's stringerCheck.totalReaction), above 0 and up to 20000.");
@@ -133,6 +134,8 @@ export function checkTrimmer(size, span, a, reaction, reactionLive, spacing, loa
   if (fb > Fb) breaks.push(`bending ${fb.toFixed(0)} psi over ${Fb}`);
   if (fv > Fv) breaks.push(`shear ${fv.toFixed(0)} psi over ${Fv}`);
   if (defl > L / lim) breaks.push(`live deflection ${defl.toFixed(2)} in over L/${lim} (${(L / lim).toFixed(2)} in)`);
+  const Rmax = Math.max(R1, R2);
+  if (loads.bearingCapacity != null && Rmax > loads.bearingCapacity) breaks.push(`end reaction ${Rmax.toFixed(0)} lb over the typed bearing capacity ${loads.bearingCapacity} lb`);
   return { size: `2-${size}`, span: L, a, point: P, uniform: w * 12, moment: M, fb, fv, defl, reactions: [R1, R2], ok: !breaks.length, breaks };
 }
 
