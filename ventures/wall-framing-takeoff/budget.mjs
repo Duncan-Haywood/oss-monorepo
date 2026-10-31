@@ -9,7 +9,7 @@
 //
 // Plan `prices` (all optional, dollars): { wallSheet, floorSheet, roofSheet,
 // truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle,
-// starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, drywallSheet, baseboard, casing (price per board), sidingBoard, sidingStarter, houseWrapRoll, cornerBoard, soffitPanel, fasciaBoard, jChannel, insulationBag, atticFillBag,
+// starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, drywallSheet, baseboard, casing (price per board), sidingBoard, sidingStarter, headFlashing (price per piece), houseWrapRoll, cornerBoard, soffitPanel, fasciaBoard, jChannel, insulationBag, atticFillBag,
 // vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), tax (fraction on materials), contingency (fraction) }.
 // nailBox falls back to fasteners.price; insulationBag falls back to the plan's insulation.price; atticFillBag to insulation.attic.price.
 // Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
@@ -76,6 +76,7 @@ export function budget(result, prices = {}) {
     add("Exterior", "Siding boards", sd.boards, "boards", P("sidingBoard") ?? sd.boardPrice, `${sd.courses} courses at ${sd.exposure} in exposure in ${sd.stock / 12} ft boards`);
     add("Exterior", "House wrap rolls", sd.wrapRolls, "rolls", P("houseWrapRoll") ?? sd.wrapPrice, `${sd.wrapSqFt.toFixed(0)} sq ft with laps, ${sd.wrapRollSqFt} sq ft per roll`);
     if (sd.starter?.boards) add("Exterior", "Siding starter strip boards", sd.starter.boards, "boards", P("sidingStarter") ?? sd.starter.price, `${sd.starter.feet.toFixed(0)} ft along ${sd.starter.walls} wall(s) in ${sd.starter.stock / 12} ft boards`);
+    if (sd.flashing?.pieces) add("Exterior", "Head flashing pieces", sd.flashing.pieces, "pieces", P("headFlashing") ?? sd.flashing.price, `${sd.flashing.openings} opening(s), ${sd.flashing.feet.toFixed(0)} ft in ${sd.flashing.stock / 12} ft pieces`);
     if (sd.cornerBoards) add("Exterior", "Corner boards", sd.cornerBoards, "boards", P("cornerBoard") ?? sd.cornerPrice, `${sd.corners} outside corners`);
   }
   const ea = result.eaves;
