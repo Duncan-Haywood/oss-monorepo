@@ -1,5 +1,12 @@
 # civ-levers research log
 
+## 2026-10-31 · Lagged elite recruitment and lagged stress (milestone 7, second run)
+
+- Plan (written before the run): add two delays to `history.py`, `lag` (elite recruitment responds to income smoothed over `lag` years, a generational delay) and `plag` (political stress smoothed over `plag` years), both 0 by default so the first run is reproduced exactly. H1: some lag setting gives cycles with period 150 to 400 years (Turchin and Nefedov 2009) at a population swing (std/mean) of at least 0.10. Refuted if no cell reaches both. 1350 cells (rho, m, k, g, lag, plag).
+- Outcome (`experiments/history/lag_results.txt`): **H1 half held**. Period: with lag 200 y, 20 to 28 of 54 cells per plag setting oscillate and 17 to 23 are in the 150 to 400 y band; lag 100 gives 4 to 8; lag 50 or less none. Amplitude: refuted. The largest swing in any cell is 0.089 (lag 200, plag 200) and most in-band cells swing under 0.03, with unrest share 0. These are small damped-then-sustained wiggles of a stable model, not secular cycles with collapse.
+- Reading: delay alone sets the period (about 1.5 to 2 times the lag) but not a large amplitude; the missing piece is probably the collapse reset (state failure removing elites and resetting stress) and wage-driven elite income. Next: add that reset, keeping 150 to 400 y and swing at least 0.10 as the acceptance check.
+- Caveats: all parameters swept, none measured; period by autocorrelation of N only; the 1.5 to 2 times lag reading is from the in-band rows, not tested separately. Two new tests.
+
 ## 2026-10-31 · Pooled sanctioning against peer punishment (milestone 5, second run)
 
 - Plan (written before the run): add `pooled=True` to `commons.py`: one fine per member below the group mean (same schedule: shortfall/4 tokens, cap 10, 3 removed per token), cost split equally across the group. H1: at n = 40 and react 1, pooled payoff beats no punishment (21.0) and peer punishment (2.9). Refuted if pooled payoff at n = 40 is at or below 21.0. H2: pooled holds contributions as high as peer punishment. Refuted if pooled round-10 contribution is more than 2 below peer at the same react.
