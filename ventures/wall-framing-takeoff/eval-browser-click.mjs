@@ -327,6 +327,14 @@ const dmTxt = await page.textContent("#dormerOut");
 const [svDm] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
 const savedDm = JSON.parse(await (await import("node:fs/promises")).readFile(await svDm.path(), "utf8"));
 console.log(!/NaN|undefined/.test(dmTxt) && /ridge/.test(dmTxt) && savedDm.dormer?.width === 72 ? "ok: dormer card and saved plan" : "FAIL: dormer: " + dmTxt.slice(0, 200));
+// dormer front window (2026-10-31): fields read into the plan, window rows on the card, saved plan keeps them
+await page.fill("#dmWinW", "30"); await page.fill("#dmWinH", "24"); await page.fill("#dmWinSill", "12");
+await page.click("#run");
+await page.waitForFunction(() => /window header/.test(document.querySelector("#dormerOut")?.textContent || ""), null, { timeout: 30000 }).catch(async () => { console.log("FAIL: dormer window card; errors:", await page.textContent("#errors")); });
+const [svDw] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const savedDw = JSON.parse(await (await import("node:fs/promises")).readFile(await svDw.path(), "utf8"));
+console.log(/window header/.test(await page.textContent("#dormerOut")) && savedDw.dormer?.window?.width === 30 && savedDw.dormer?.window?.sill === 12 ? "ok: dormer window card and saved plan" : "FAIL: dormer window");
+await page.fill("#dmWinW", ""); await page.fill("#dmWinH", ""); await page.fill("#dmWinSill", "");
 // shed dormer (2026-10-31): shape select, roof opening depth, shed text on the card, saved plan keeps shape
 await page.selectOption("#dmShape", "shed");
 await page.fill("#dmPitch", "3");

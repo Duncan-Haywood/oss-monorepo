@@ -287,6 +287,9 @@
       <div><label for="dmPitch">Dormer roof pitch (rise per 12)</label><input id="dmPitch" type="number" min="3" max="16" step="0.5" placeholder="e.g. 8"></div>
       <div><label for="dmMain">Main roof pitch (blank: the roof option's pitch)</label><input id="dmMain" type="number" min="3" max="16" step="0.5" placeholder="e.g. 8"></div>
       <div><label for="dmOpening">Shed only: depth of the opening cut in the main roof, in (blank: none)</label><input id="dmOpening" type="number" min="12" max="240" step="1" placeholder="e.g. 96"></div>
+      <div><label for="dmWinW">Front window width, in (blank: no window)</label><input id="dmWinW" type="number" min="12" max="168" step="1" placeholder="e.g. 36"></div>
+      <div><label for="dmWinH">Window height, in (blank: 36)</label><input id="dmWinH" type="number" min="12" max="84" step="1" placeholder="e.g. 36"></div>
+      <div><label for="dmWinSill">Window sill height, in (blank: 30)</label><input id="dmWinSill" type="number" min="0" max="84" step="1" placeholder="e.g. 30"></div>
     </div>
     <p><input type="checkbox" id="guOn" style="width:auto"> <label for="guOn" style="display:inline">Also count gutters, downspouts, hangers, end caps and elbows along the roof's eaves (needs the roof option; counted from the roof's eave runs)</label></p>
     <div class="grid" id="guFields" hidden>
@@ -776,6 +779,14 @@
           dm.shape = "shed";
           const od = $("#dmOpening").value.trim();
           if (od !== "") dm.roofOpening = { depth: Number(od) };
+        }
+        const ww = $("#dmWinW").value.trim();
+        if (ww !== "") {
+          const win = { width: Number(ww) };
+          const wh = $("#dmWinH").value.trim(), wsl = $("#dmWinSill").value.trim();
+          if (wh !== "") win.height = Number(wh);
+          if (wsl !== "") win.sill = Number(wsl);
+          dm.window = win;
         }
         plan.dormer = dm;
       }
@@ -1268,6 +1279,8 @@
       $("#dmOn").checked = Boolean(dmp); $("#dmFields").hidden = !dmp;
       $("#dmShape").value = dmp?.shape === "shed" ? "shed" : ""; $("#dmOpening").value = dmp?.roofOpening && typeof dmp.roofOpening === "object" && dmp.roofOpening.depth != null ? String(dmp.roofOpening.depth) : "";
       for (const [id, key] of [["dmWidth", "width"], ["dmEave", "eaveHeight"], ["dmPitch", "pitch"], ["dmMain", "mainPitch"]]) $("#" + id).value = dmp?.[key] != null ? String(dmp[key]) : "";
+      const dmw = dmp?.window && typeof dmp.window === "object" ? dmp.window : null;
+      for (const [id, key] of [["dmWinW", "width"], ["dmWinH", "height"], ["dmWinSill", "sill"]]) $("#" + id).value = dmw?.[key] != null ? String(dmw[key]) : "";
       const gut = plan.gutters;
       $("#guOn").checked = Boolean(gut); $("#guFields").hidden = !gut;
       for (const [id, key] of [["guStock", "gutterStock"],["guDsStock", "downspoutStock"],["guHeight", "eaveHeight"],["guHanger", "hangerSpacing"],["guMaxRun", "maxRunFeet"],["guArea", "sqFtPerDownspout"],["guWaste", "waste"],["guGutterPrice", "gutterPrice"],["guDsPrice", "downspoutPrice"],["guHangerPrice", "hangerPrice"],["guCapPrice", "capPrice"],["guElbowPrice", "elbowPrice"],["guCornerPrice", "cornerPrice"],["guStrapPrice", "strapPrice"]]) $("#" + id).value = gut && gut[key] != null ? String(gut[key]) : "";

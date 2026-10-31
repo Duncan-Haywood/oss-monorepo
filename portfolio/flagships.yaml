@@ -35,7 +35,7 @@ flagships:
       cutting-stock order within 0.02% of its LP bound on whole houses; page,
       CLI and agent engine. First tool of the new-home construction program.
     next: >-
-      Open items only (dormer page fields for gable and shed landed 2026-10-31, still no dormer window field on the page); landed work, with dates and how each was checked, is
+      Open items only (dormer page fields for gable and shed and the front window landed 2026-10-31, clicked in Chromium); landed work, with dates and how each was checked, is
       in ventures/wall-framing-takeoff/README.md and ROADMAP.md. Wanted: a
       real permitted deck plan (deck framing, guards and stairs are on hand
       arithmetic only). Stairs: landing post column check has a page field since 2026-10-31 (clicked in Chromium). Stairs: structural checks (trimmers, stairwell header, stringer, stair reaction on the header, hanger) landed 2026-10-31, hand tests only, with page fields for the header and stringer checks; details in the README; rim ties at stairwell (strap count from typed force and capacity landed 2026-10-31, hand test; the load path and nailing are the engineer's)
