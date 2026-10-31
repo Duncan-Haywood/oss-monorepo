@@ -111,3 +111,34 @@ test("blocking: off by default; rows split the joist length and one block fills 
   assert.ok(Math.abs(l.blocking.bays[1] - 14.5) < 1e-9); // 16 in centres less one joist
   assert.equal(layoutDeck({ ...sampleDeck(), blocking: { every: 200 } }).blocking, null);
 });
+
+test("picture frame: one course mitred round a 16 x 12 ft deck, field shrinks by two board pitches each way", () => {
+  const base = layoutDeck(sampleDeck());
+  const l = layoutDeck({ ...sampleDeck(), border: 1 });
+  assert.ok(l.ok);
+  const pitch = 5.5 + 0.1875;
+  assert.equal(l.fieldWidth, 192 - 2 * pitch);
+  assert.equal(l.fieldDepth, 144 - 2 * pitch);
+  assert.equal(l.rows, Math.ceil((144 - 2 * pitch + 0.1875) / pitch)); // 24 rows of the plain deck, 22 here
+  assert.equal(l.rows, base.rows - 2);
+  // outer + house edges are 16 ft (one 16 ft board each); the ends are 144 in (one board each)
+  const by = (side) => l.borderBoards.filter((b) => b.side === side).map((b) => b.length);
+  assert.deepEqual(by("outer"), [192]);
+  assert.deepEqual(by("house"), [192]);
+  assert.deepEqual(by("left"), [144]);
+  assert.deepEqual(by("right"), [144]);
+  // two extra joists carry the field ends
+  assert.equal(l.lumber.filter((x) => x.kind === "frame joist").length, 2);
+  // field joints still sit on joist centres (field starts one pitch in)
+  const byRow = new Map();
+  for (const b of layoutDeck({ ...sampleDeck(), width: 300, border: 1 }).deckBoards) byRow.set(b.row, [...(byRow.get(b.row) || []), b.length]);
+  const l2 = layoutDeck({ ...sampleDeck(), width: 300, border: 1 });
+  for (const [, ls] of byRow) {
+    assert.ok(Math.abs(ls.reduce((s, x) => s + x, 0) - l2.fieldWidth) < 1e-6);
+    let at = pitch;
+    for (const x of ls.slice(0, -1)) { at += x; assert.ok(l2.centres.some((c) => Math.abs(c - at) < 1e-6), `joint at ${at}`); }
+  }
+  assert.ok(deckText(l).some((t) => /Picture frame: 1 course/.test(t)));
+  assert.ok(layoutDeck({ ...sampleDeck(), border: 4 }).errors?.length);
+  assert.ok(layoutDeck({ ...sampleDeck(), width: 48, depth: 48, border: 3 }).errors?.length);
+});
