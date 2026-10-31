@@ -104,3 +104,29 @@ test("eave compression: the squeezed band and the missing fill, by hand", () => 
   assert.equal(layoutInsulation({ attic: { heel: 16 } }, p, r).attic.eave.lostCuFt, 0);
   assert.equal(layoutInsulation({ attic: { heel: 3.5 } }, { ...p, roof: undefined, drywall: { ceiling: [{ width: 100, depth: 100 }] } }, r).ok, false);
 });
+
+test("effective wall R: parallel path by hand, measured framing fraction beside the 25% guess", () => {
+  // 96 x 96 panel, two plates and three studs, 2x4, R-15 cavity
+  const r = { walls: [wall([m(0, 0, 96, 1.5), m(0, 94.5, 96, 1.5), m(0, 1.5, 1.5, 93), m(47, 1.5, 1.5, 93), m(94.5, 1.5, 1.5, 93)])] };
+  const l = layoutInsulation({ assembly: true }, plan, r);
+  const f = (2 * 96 * 1.5 + 3 * 1.5 * 93) / (96 * 96);
+  const layers = 0.68 + 0.17 + 0.45 + 0.62;
+  const hand = (ff) => 1 / ((1 - ff) / (layers + 15) + ff / (layers + 3.5 * 1.25));
+  assert.ok(Math.abs(l.assembly.sizes[0].framingFraction - f) < 1e-9);
+  assert.ok(Math.abs(l.assembly.effectiveR - hand(f)) < 1e-9);
+  assert.ok(Math.abs(l.assembly.effectiveRAtAssumed - hand(0.25)) < 1e-9);
+  assert.ok(Math.abs(l.assembly.clearWallR - (layers + 15)) < 1e-9);
+  assert.ok(l.assembly.effectiveR < l.assembly.clearWallR);
+  assert.match(insulationText(l).join("\n"), /Effective wall R/);
+});
+
+test("effective wall R: openings leave the opaque area, continuous insulation adds in both paths, off by default", () => {
+  const r = { walls: [wall([m(0, 0, 96, 1.5), m(0, 94.5, 96, 1.5), m(0, 1.5, 1.5, 93)])] };
+  const p = { defaultHeaderHeight: 82.5, walls: [{ id: "A", length: 96, openings: [{ offset: 20, width: 36, height: 48 }] }] };
+  const a = layoutInsulation({ assembly: {} }, p, r), b = layoutInsulation({ assembly: { continuousR: 5 } }, p, r);
+  assert.ok(Math.abs(a.assembly.opaqueSqFt - (96 * 96 - 36 * 48) / 144) < 1e-9);
+  assert.ok(Math.abs(b.assembly.clearWallR - a.assembly.clearWallR - 5) < 1e-9);
+  assert.ok(b.assembly.effectiveR - a.assembly.effectiveR >= 5); // bridging shrinks: the gain is at least the layer's R
+  assert.equal(layoutInsulation({}, p, r).assembly, null);
+  assert.equal(validateInsulation({ assembly: { drywallR: -1 } }).length, 1);
+});

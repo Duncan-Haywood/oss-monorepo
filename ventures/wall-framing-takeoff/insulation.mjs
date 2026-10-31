@@ -14,7 +14,13 @@ import { joistCentres } from "./floor.mjs";
 const DEFAULT_R = { "2x4": 15, "2x6": 21 };
 
 /** @typedef {{ rValue?: number, rPerInch?: number, bagCuFt?: number, price?: number, heel?: number, baffles?: boolean, baffleLength?: number, baffleWidth?: number, ceiling?: { width: number, depth: number }[] }} Attic */
-/** @typedef {{ bagSqFt?: number, waste?: number, rValue?: number, price?: number, attic?: Attic, rim?: boolean }} Insulation */
+/** @typedef {{ continuousR?: number, sheathingR?: number, drywallR?: number, insideFilmR?: number, outsideFilmR?: number, framingRPerInch?: number, assumedFramingFraction?: number }} Assembly */
+/** @typedef {{ bagSqFt?: number, waste?: number, rValue?: number, price?: number, attic?: Attic, rim?: boolean, assembly?: Assembly | boolean }} Insulation */
+
+// Typical handbook layer values (ASHRAE Fundamentals), typed defaults: replace with your product's
+// label figures. Wood framing is R-1.25 per inch; 25% is the usual guessed framing fraction of a 16 in wall.
+const ASSEMBLY = { continuousR: 0, sheathingR: 0.62, drywallR: 0.45, insideFilmR: 0.68, outsideFilmR: 0.17, framingRPerInch: 1.25, assumedFramingFraction: 0.25 };
+const SIZE_DEPTH = { "2x4": 3.5, "2x6": 5.5 };
 
 /** @param {Insulation} d */
 export function validateInsulation(d) {
@@ -22,6 +28,12 @@ export function validateInsulation(d) {
   if (d.bagSqFt != null && !(d.bagSqFt >= 10 && d.bagSqFt <= 500)) e.push("Insulation bag coverage must be between 10 and 500 sq ft.");
   if (d.waste != null && !(d.waste >= 0 && d.waste <= 0.3)) e.push("Insulation waste must be between 0 and 0.3.");
   if (d.rValue != null && !(d.rValue > 0 && d.rValue <= 60)) e.push("R-value must be between 0 and 60.");
+  if (d.assembly && typeof d.assembly === "object") {
+    const a = d.assembly;
+    for (const k of /** @type {const} */ (["continuousR", "sheathingR", "drywallR", "insideFilmR", "outsideFilmR"])) if (a[k] != null && !(a[k] >= 0 && a[k] <= 30)) e.push(`Assembly ${k} must be between 0 and 30.`);
+    if (a.framingRPerInch != null && !(a.framingRPerInch > 0 && a.framingRPerInch <= 3)) e.push("Assembly framingRPerInch must be between 0 and 3.");
+    if (a.assumedFramingFraction != null && !(a.assumedFramingFraction > 0 && a.assumedFramingFraction < 0.6)) e.push("Assembly assumedFramingFraction must be between 0 and 0.6.");
+  }
   const a = d.attic;
   if (a) {
     if (a.rValue != null && !(a.rValue >= 10 && a.rValue <= 80)) e.push("Attic R-value must be between 10 and 80.");
@@ -116,6 +128,39 @@ function layoutRim(d, floor) {
   return { ok: true, errors: [], sqFt, joistDepthIn: depth, bags, cost: d.price != null ? bags * d.price : null, price: d.price ?? null };
 }
 
+/**
+ * Effective whole-wall R by the parallel-path method, with the framing fraction measured from the
+ * members placed (framed area / opaque area, per wall) beside the usual 25% guess. Opaque wall only:
+ * windows and doors are not in it. Each path adds its layers in series; the paths combine by area.
+ * @param {{ id: string, size: string, framingFraction: number, opaqueSqFt: number }[]} walls
+ * @param {Insulation} d
+ */
+function effectiveR(walls, d) {
+  const a = { ...ASSEMBLY, .../** @type {Assembly} */ (typeof d.assembly === "object" ? d.assembly : {}) };
+  const layers = a.insideFilmR + a.outsideFilmR + a.drywallR + a.sheathingR + a.continuousR;
+  /** @param {number} depth @param {number} cavR @param {number} f */
+  const wallR = (depth, cavR, f) => 1 / ((1 - f) / (layers + cavR) + f / (layers + depth * a.framingRPerInch));
+  let area = 0, uA = 0, uAssumedA = 0, nominalUA = 0;
+  const bySize = new Map();
+  for (const w of walls) {
+    const depth = /** @type {Record<string, number>} */ (SIZE_DEPTH)[w.size];
+    const cavR = d.rValue ?? /** @type {Record<string, number>} */ (DEFAULT_R)[w.size];
+    if (!depth || cavR == null || !(w.opaqueSqFt > 0)) continue;
+    const r = wallR(depth, cavR, w.framingFraction);
+    const rAssumed = wallR(depth, cavR, a.assumedFramingFraction);
+    area += w.opaqueSqFt; uA += w.opaqueSqFt / r; uAssumedA += w.opaqueSqFt / rAssumed; nominalUA += w.opaqueSqFt / (layers + cavR);
+    const g = bySize.get(w.size) || { size: w.size, nominalCavityR: cavR, opaqueSqFt: 0, framedSqFt: 0 };
+    g.opaqueSqFt += w.opaqueSqFt; g.framedSqFt += w.opaqueSqFt * w.framingFraction;
+    bySize.set(w.size, g);
+  }
+  if (!(area > 0)) return null;
+  const sizes = [...bySize.values()].map((g) => {
+    const f = g.framedSqFt / g.opaqueSqFt, depth = /** @type {Record<string, number>} */ (SIZE_DEPTH)[g.size];
+    return { size: g.size, nominalCavityR: g.nominalCavityR, framingFraction: f, effectiveR: wallR(depth, g.nominalCavityR, f), effectiveRAtAssumed: wallR(depth, g.nominalCavityR, a.assumedFramingFraction), clearWallR: layers + g.nominalCavityR };
+  });
+  return { layersR: layers, assumedFramingFraction: a.assumedFramingFraction, effectiveR: area / uA, effectiveRAtAssumed: area / uAssumedA, clearWallR: area / nominalUA, opaqueSqFt: area, sizes, settings: a };
+}
+
 /** @param {Insulation} d @param {any} plan @param {any} result */
 function layoutWalls(d, plan, result) {
   const errors = validateInsulation(d);
@@ -137,7 +182,8 @@ function layoutWalls(d, plan, result) {
     const cavity = Math.max(0, panel - framed - ro);
     panelSqIn += panel; framedSqIn += framed; openSqIn += ro;
     bySize.set(size, (bySize.get(size) || 0) + cavity);
-    walls.push({ id: rw.id, size, cavitySqFt: cavity / 144, framingShare: panel > 0 ? framed / panel : 0 });
+    const opaque = framed + cavity; // panel less rough openings
+    walls.push({ id: rw.id, size, cavitySqFt: cavity / 144, framingShare: panel > 0 ? framed / panel : 0, framingFraction: opaque > 0 ? framed / opaque : 0, opaqueSqFt: opaque / 144 });
   }
   const sizes = [...bySize.entries()].map(([size, sq]) => {
     const sqFt = sq / 144;
@@ -145,8 +191,9 @@ function layoutWalls(d, plan, result) {
     return { size, cavitySqFt: sqFt, rValue: r, bags: Math.ceil((sqFt * (1 + waste)) / bag - 1e-9) };
   });
   const bags = sizes.reduce((s, x) => s + x.bags, 0);
+  const assembly = d.assembly ? effectiveR(walls, d) : null;
   return {
-    ok: true, errors: [], walls, sizes, bags, bagSqFt: bag, waste,
+    ok: true, errors: [], walls, sizes, bags, assembly, bagSqFt: bag, waste,
     cavitySqFt: sizes.reduce((s, x) => s + x.cavitySqFt, 0),
     framingShare: panelSqIn > 0 ? framedSqIn / panelSqIn : 0,
     openingSqFt: openSqIn / 144,
@@ -160,6 +207,12 @@ export function insulationText(d) {
   l.push(`  ${d.bags} bags at ${d.bagSqFt} sq ft (${d.cavitySqFt.toFixed(0)} sq ft of open cavity plus ${(100 * d.waste).toFixed(0)}% waste; framing takes ${(100 * d.framingShare).toFixed(1)}% of the wall panels)`);
   for (const s of d.sizes) l.push(`    ${s.size} cavities: ${s.cavitySqFt.toFixed(0)} sq ft, R-${s.rValue ?? "?"} -> ${s.bags} bags`);
   if (d.cost != null) l.push(`  bags at ${d.price} each: ${d.cost.toFixed(2)}`);
+  const e = d.assembly;
+  if (e) {
+    l.push(`  Effective wall R (parallel path, opaque wall only, ${e.opaqueSqFt.toFixed(0)} sq ft): R-${e.effectiveR.toFixed(1)} from the framing as placed; R-${e.effectiveRAtAssumed.toFixed(1)} if ${(100 * e.assumedFramingFraction).toFixed(0)}% framing were assumed; R-${e.clearWallR.toFixed(1)} through the cavity alone (no framing)`);
+    for (const s of e.sizes) l.push(`    ${s.size}: framing is ${(100 * s.framingFraction).toFixed(1)}% of the opaque wall; R-${s.nominalCavityR} cavity gives R-${s.effectiveR.toFixed(1)} (clear-wall R-${s.clearWallR.toFixed(1)}); layers outside the cavity add R-${e.layersR.toFixed(2)}`);
+    l.push("    Layer values are typical handbook figures you can replace (insulation.assembly); windows, doors, air leakage and compressed batts are not in it. Not an energy-code compliance check.");
+  }
   if (d.rim) l.push(`  Rim joist bays: ${d.rim.sqFt.toFixed(0)} sq ft (front and back, ${d.rim.joistDepthIn} in deep, less joist ends) -> ${d.rim.bags} bags at the same coverage${d.rim.cost != null ? `, ${d.rim.cost.toFixed(2)}` : ""}`);
   const a = d.attic;
   if (a) {

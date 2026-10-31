@@ -178,6 +178,9 @@
       <div><label for="inR">Wall R-value (blank: R-15 for 2x4, R-21 for 2x6)</label><input id="inR" type="number" min="1" max="60" step="1" placeholder="15"></div>
       <div><label for="inPrice">Price per bag (blank: none)</label><input id="inPrice" type="number" min="0" step="0.01" placeholder="e.g. 60"></div>
       <div><label for="inRim">Rim joist bays (needs the floor option)</label><select id="inRim"><option value="">Not counted</option><option value="true">Count front and back rim bays</option></select></div>
+      <div><label for="inEff">Effective wall R from the framing placed (parallel path)</label><select id="inEff"><option value="">Not worked out</option><option value="true">Work out effective wall R</option></select></div>
+      <div><label for="inContR">Continuous exterior insulation R (blank: none)</label><input id="inContR" type="number" min="0" max="30" step="0.5" placeholder="e.g. 5"></div>
+      <div><label for="inAssumedF">Framing fraction to compare against (blank: 0.25)</label><input id="inAssumedF" type="number" min="0.05" max="0.59" step="0.01" placeholder="0.25"></div>
       <div><label for="inAtticR">Attic loose fill target R-value (blank: no attic)</label><input id="inAtticR" type="number" min="10" max="80" step="1" placeholder="e.g. 38"></div>
       <div><label for="inAtticPer">Attic R per inch (read it from the bag chart; blank: 2.5, assumed)</label><input id="inAtticPer" type="number" min="1" max="8" step="0.1" placeholder="2.5"></div>
       <div><label for="inAtticBag">Attic bag volume (cu ft; blank: no bag count)</label><input id="inAtticBag" type="number" min="0" step="0.1" placeholder="e.g. 40"></div>
@@ -648,6 +651,11 @@
         if ($("#inR").value.trim()) ins.rValue = Number($("#inR").value);
         if ($("#inPrice").value.trim()) ins.price = Number($("#inPrice").value);
         if ($("#inRim").value) ins.rim = true;
+        if ($("#inEff").value) {
+          ins.assembly = {};
+          if ($("#inContR").value.trim()) ins.assembly.continuousR = Number($("#inContR").value);
+          if ($("#inAssumedF").value.trim()) ins.assembly.assumedFramingFraction = Number($("#inAssumedF").value);
+        }
         if ($("#inAtticR").value.trim()) {
           ins.attic = { rValue: Number($("#inAtticR").value) };
           if ($("#inAtticPer").value.trim()) ins.attic.rPerInch = Number($("#inAtticPer").value);
@@ -1124,6 +1132,9 @@
         $("#inBag").value = ins.bagSqFt != null ? String(ins.bagSqFt) : ""; $("#inWaste").value = ins.waste != null ? String(ins.waste) : "";
         $("#inR").value = ins.rValue != null ? String(ins.rValue) : ""; $("#inPrice").value = ins.price != null ? String(ins.price) : "";
         $("#inRim").value = ins.rim ? "true" : "";
+        $("#inEff").value = ins.assembly ? "true" : "";
+        $("#inContR").value = ins.assembly?.continuousR ?? "";
+        $("#inAssumedF").value = ins.assembly?.assumedFramingFraction ?? "";
         $("#inAtticR").value = ins.attic?.rValue != null ? String(ins.attic.rValue) : ""; $("#inAtticPer").value = ins.attic?.rPerInch != null ? String(ins.attic.rPerInch) : "";
         $("#inAtticBag").value = ins.attic?.bagCuFt != null ? String(ins.attic.bagCuFt) : "";
         $("#inAtticHeel").value = ins.attic?.heel != null ? String(ins.attic.heel) : "";
