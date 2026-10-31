@@ -3,6 +3,19 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-31 · Milestone 9l: what does estimating the initial state cost the output-error fit at 10% noise? (planned before running)
+- Why: 9k's "Next". Every output-error fit so far was simulated from the true initial state, which a real doublet does not give; 9i and 9j flagged it as flattering.
+- Plan (`experiments/estimated_x0/run.py`): 9k's continuation fit on records of 2 phugoid periods, 10% noise, tail-slope scale 0.75, every third of the 78 mode-matched designs, 10 paired draws, seed 20261102 (reduced for session CPU). Both fits see the same record: (a) initial state known; (b) the four initial states are free parameters started at the first noisy sample, in both stages of the continuation.
+- **Predictions (before running):** (1) median short-period frequency error with estimated x0 is under 3% (prior 70%). (2) Estimated x0 has no more than twice the fit failures of known x0 (prior 60%). (3) The share of draws within 10% gust drops by under 10 points (prior 55%). Refuted: (1) at or above 3%; (2) more than twice; (3) 10 points or more.
+- Limits known in advance: white noise on all four states; 10 draws on a third of the designs, so shares have coarse resolution; 2 periods only; one seed.
+
+### Outcome of 9l (`experiments/estimated_x0/`: `run.py`, `results.txt`; 8.5 min wall, 34 min CPU)
+- 26 designs (every third of 78), 260 draws, 2 periods, 10% noise. Known x0 against estimated x0: fit failures 0 and 0; median |error| in phugoid, short-period frequency and damping ratio 0.07, 0.65, 1.38% against 0.07, 0.71, 1.46%; share of draws within 10% gust 88% against 89%; designs with 90% of draws within 10% gust 23 against 21 of 26; median worst gust error 5.6% for both.
+- **(1) held** (0.71%, under 3%). **(2) held** (0 and 0). **(3) held** (the share did not drop; it rose one point, within the 10-draw resolution).
+- Reading: for a 2-period record at 10% noise, estimating the four initial states costs about 0.06 points of short-period frequency error and nothing measurable in gust outcome, so 9i to 9k's known-x0 assumption did not flatter the output-error fit at this record length. The 2-period test card advice stands.
+- Limits: as planned (a third of the designs, 10 draws, white noise, one seed); a real doublet's initial state also depends on input shape and actuator lag, not modelled; 4-period records were not rerun with free x0.
+- Next: turbulence (coloured, not white, noise); real IMU noise density; NACA 0012/0015 data; thrust law; AIAA template.
+
 ## 2026-10-31 · Milestone 9k: does starting the output-error fit by continuation from a 1-period fit fix 9j's 4-period failures at 10% noise? (planned before running)
 - Why: 9j's "Next". At 10% noise and 4 phugoid periods the output-error fit failed or landed in the wrong basin in 170 of 1560 draws (62% of draws within 10% gust, 5 of 78 designs at 90%), and its start was the least-squares transition matrix, which is badly biased at that noise.
 - Plan (`experiments/output_error_start/run.py`): 9j's script with records of 4 periods only, noise 0.10, tail-slope scale 0.75, 78 designs, 20 paired draws, seed 20261101. Both fits see the same noisy record: (a) output error started from the LS matrix (the 9j start, rerun on new draws); (b) continuation: fit the first phugoid period alone, then refit the full record from that solution.
