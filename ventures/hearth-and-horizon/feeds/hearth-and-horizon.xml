@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>One in Eleven</title>
+      <link>https://example.invalid/hearth-and-horizon/one-in-eleven.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/one-in-eleven.html</guid>
+      <pubDate>Sat, 31 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A six-day-old baby's heel-prick screen comes back positive for a rare fasting disorder. The health authority's assistant has one job at five in the afternoon: to tell two frightened parents the true number, which is not ninety-nine in a hundred, and which is not nothing. Setting: Margaree Forks, Cape Breton, Nova Scotia (invented parish and people), 12 to 15 February 2048. Read the full text at https://example.invalid/hearth-and-horizon/one-in-eleven.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A six-day-old baby's heel-prick screen comes back positive for a rare fasting disorder. The health authority's assistant has one job at five in the afternoon: to tell two frightened parents the true number, which is not ninety-nine in a hundred, and which is not nothing.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Eighteenth Place</title>
       <link>https://example.invalid/hearth-and-horizon/the-eighteenth-place.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-eighteenth-place.html</guid>
