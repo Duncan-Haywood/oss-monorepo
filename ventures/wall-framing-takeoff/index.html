@@ -275,6 +275,13 @@
       <div><label for="eaFasciaPrice">Price per fascia board (blank: none)</label><input id="eaFasciaPrice" type="number" min="0" step="0.01" placeholder="e.g. 25"></div>
       <div><label for="eaChannelPrice">Price per J-channel piece (blank: none)</label><input id="eaChannelPrice" type="number" min="0" step="0.01" placeholder="e.g. 7"></div>
     </div>
+    <p><input type="checkbox" id="dmOn" style="width:auto"> <label for="dmOn" style="display:inline">Also frame a gable dormer (cheek studs, rafters, valleys, ridge, header; closed-form geometry from the four sizes below)</label></p>
+    <div class="grid" id="dmFields" hidden>
+      <div><label for="dmWidth">Dormer width, in</label><input id="dmWidth" type="number" min="36" max="180" step="1" placeholder="e.g. 72"></div>
+      <div><label for="dmEave">Eave height on the front wall, in</label><input id="dmEave" type="number" min="24" max="96" step="1" placeholder="e.g. 48"></div>
+      <div><label for="dmPitch">Dormer roof pitch (rise per 12)</label><input id="dmPitch" type="number" min="3" max="16" step="0.5" placeholder="e.g. 8"></div>
+      <div><label for="dmMain">Main roof pitch (blank: the roof option's pitch)</label><input id="dmMain" type="number" min="3" max="16" step="0.5" placeholder="e.g. 8"></div>
+    </div>
     <p><input type="checkbox" id="guOn" style="width:auto"> <label for="guOn" style="display:inline">Also count gutters, downspouts, hangers, end caps and elbows along the roof's eaves (needs the roof option; counted from the roof's eave runs)</label></p>
     <div class="grid" id="guFields" hidden>
       <div><label for="guStock">Gutter length, in (blank: 120)</label><input id="guStock" type="number" min="48" max="288" step="1" placeholder="120"></div>
@@ -405,6 +412,10 @@
     <div id="sidingOut"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-dormer" id="dormerCard" hidden>
+    <h2 id="h-dormer">Gable dormer</h2>
+    <div id="dormerOut"></div>
+  </section>
   <section class="card" aria-labelledby="h-gutters" id="guttersCard" hidden>
     <h2 id="h-gutters">Gutters and downspouts</h2>
     <div id="guttersOut"></div>
@@ -491,7 +502,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>stairs_on</code>, <code>deck_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>dormer_on</code>, <code>stairs_on</code>, <code>deck_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -514,6 +525,7 @@
     import { layoutSiding, sidingText } from "./siding.mjs";
     import { layoutEaves, eavesText } from "./eaves.mjs";
     import { layoutGutters, guttersText } from "./gutters.mjs";
+    import { layoutDormer, dormerText } from "./dormer.mjs";
     import { layoutDeck, deckText } from "./deck.mjs";
     import { layoutStair, linkStairReaction, layoutStairWithLanding, layoutWinders, winderText, stairCuts, stairText, landingCuts, landingText, STAIR_LIMITS } from "./stairs.mjs";
     import { layoutFasteners, fastenerText } from "./fasteners.mjs";
@@ -751,6 +763,11 @@
         if ($("#eaRake").value) ea.rakeSoffit = true;
         plan.eaves = ea;
       }
+      if ($("#dmOn").checked) {
+        const dm = {};
+        for (const [id, key] of [["dmWidth", "width"], ["dmEave", "eaveHeight"], ["dmPitch", "pitch"], ["dmMain", "mainPitch"]]) { const v = $("#" + id).value.trim(); if (v !== "") dm[key] = Number(v); }
+        plan.dormer = dm;
+      }
       if ($("#guOn").checked) {
         const gu = {};
         for (const [id, key] of [["guStock", "gutterStock"],["guDsStock", "downspoutStock"],["guHeight", "eaveHeight"],["guHanger", "hangerSpacing"],["guMaxRun", "maxRunFeet"],["guArea", "sqFtPerDownspout"],["guWaste", "waste"],["guGutterPrice", "gutterPrice"],["guDsPrice", "downspoutPrice"],["guHangerPrice", "hangerPrice"],["guCapPrice", "capPrice"],["guElbowPrice", "elbowPrice"],["guCornerPrice", "cornerPrice"],["guStrapPrice", "strapPrice"]]) if ($("#" + id).value.trim()) gu[key] = Number($("#" + id).value);
@@ -952,6 +969,11 @@
       if (!sd) return;
       $("#sidingOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(sidingText(sd).join("\n"))}</pre><p class="note">Courses are counted per wall with openings cut out and packed first fit decreasing into the board length you typed. Soffit, fascia, flashing, nails, caulk and paint are not counted. Not checked against a real siding order.</p>`;
     }
+    function renderDormer(dm) {
+      $("#dormerCard").hidden = !dm;
+      if (!dm) return;
+      $("#dormerOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(dormerText(dm).join("\n"))}</pre><p class="note">Closed-form geometry from the sizes you typed; plates are one bottom and two top. Not counted: overhangs, flashing, the opening in the main roof and sheathing waste. Rafter, header and valley sizes are the defaults (2x6, 2x6, 2x8) and are not checked against a span table. Checked by hand arithmetic only, not against a real dormer plan.</p>`;
+    }
     function renderGutters(gu) {
       $("#guttersCard").hidden = !gu;
       if (!gu) return;
@@ -1106,6 +1128,11 @@
         try { eaves = layoutEaves(plan.eaves, roof); } catch (e) { eaves = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
         if (!eaves.ok) { $("#errors").innerHTML = `<ul>${eaves.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#eavesCard").hidden = true; return false; }
       }
+      let dormer = null;
+      if (plan.dormer) {
+        try { dormer = layoutDormer({ mainPitch: roof?.pitch ?? plan.roof?.pitch, ...plan.dormer }); } catch (e) { dormer = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
+        if (!dormer.ok) { $("#errors").innerHTML = `<ul>${dormer.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#dormerCard").hidden = true; return false; }
+      }
       let gutters = null;
       if (plan.gutters) {
         try { gutters = layoutGutters(plan.gutters, roof); } catch (e) { gutters = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
@@ -1117,7 +1144,7 @@
         try { fasteners = layoutFasteners(plan.fasteners, plan, { ...result, ...(sheathing?.ok ? { sheathing } : {}), ...(roof ? { roof } : {}) }); } catch (e) { fasteners = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
         if (!fasteners.ok) { $("#errors").innerHTML = `<ul>${fasteners.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#fastenersCard").hidden = true; return false; }
       }
-      last = { plan, result, nailers, floor, deck, stairs, roof, foundation, drywall, insulation, trim, siding, eaves, gutters, fasteners };
+      last = { plan, result, nailers, floor, deck, stairs, roof, foundation, drywall, insulation, trim, siding, eaves, gutters, dormer, fasteners };
       const s = result.summary;
       const money = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#summary").innerHTML = `<div class="big">
@@ -1143,6 +1170,7 @@
       renderSiding(siding);
       renderEaves(eaves);
       renderGutters(gutters);
+      renderDormer(dormer);
       renderFasteners(fasteners);
       renderSheathing(plan, result);
       renderBudget();
@@ -1225,6 +1253,9 @@
       $("#eaOn").checked = Boolean(eav); $("#eaFields").hidden = !eav;
       for (const [id, key] of [["eaPanelWidth", "panelWidth"],["eaPanelStock", "panelStock"],["eaFasciaStock", "fasciaStock"],["eaChannelStock", "channelStock"],["eaWaste", "waste"],["eaPanelPrice", "panelPrice"],["eaFasciaPrice", "fasciaPrice"],["eaChannelPrice", "channelPrice"]]) $("#" + id).value = eav && eav[key] != null ? String(eav[key]) : "";
       $("#eaRake").value = eav?.rakeSoffit ? "true" : "";
+      const dmp = plan.dormer && typeof plan.dormer === "object" ? plan.dormer : null;
+      $("#dmOn").checked = Boolean(dmp); $("#dmFields").hidden = !dmp;
+      for (const [id, key] of [["dmWidth", "width"], ["dmEave", "eaveHeight"], ["dmPitch", "pitch"], ["dmMain", "mainPitch"]]) $("#" + id).value = dmp?.[key] != null ? String(dmp[key]) : "";
       const gut = plan.gutters;
       $("#guOn").checked = Boolean(gut); $("#guFields").hidden = !gut;
       for (const [id, key] of [["guStock", "gutterStock"],["guDsStock", "downspoutStock"],["guHeight", "eaveHeight"],["guHanger", "hangerSpacing"],["guMaxRun", "maxRunFeet"],["guArea", "sqFtPerDownspout"],["guWaste", "waste"],["guGutterPrice", "gutterPrice"],["guDsPrice", "downspoutPrice"],["guHangerPrice", "hangerPrice"],["guCapPrice", "capPrice"],["guElbowPrice", "elbowPrice"],["guCornerPrice", "cornerPrice"],["guStrapPrice", "strapPrice"]]) $("#" + id).value = gut && gut[key] != null ? String(gut[key]) : "";
@@ -1358,6 +1389,7 @@
     $("#dkOn").addEventListener("change", () => { $("#dkFields").hidden = !$("#dkOn").checked; if ($("#dkOn").checked) record("deck_on"); });
     $("#stOn").addEventListener("change", () => { $("#stFields").hidden = !$("#stOn").checked; if ($("#stOn").checked) record("stairs_on"); });
     $("#eaOn").addEventListener("change", () => { $("#eaFields").hidden = !$("#eaOn").checked; if ($("#eaOn").checked) record("eaves_on"); });
+    $("#dmOn").addEventListener("change", () => { $("#dmFields").hidden = !$("#dmOn").checked; if ($("#dmOn").checked) record("dormer_on"); });
     $("#guOn").addEventListener("change", () => { $("#guFields").hidden = !$("#guOn").checked; if ($("#guOn").checked) record("gutters_on"); });
     $("#sdOn").addEventListener("change", () => { $("#sdFields").hidden = !$("#sdOn").checked; if ($("#sdOn").checked) record("siding_on"); });
     $("#trOn").addEventListener("change", () => { $("#trFields").hidden = !$("#trOn").checked; if ($("#trOn").checked) record("trim_on"); });
