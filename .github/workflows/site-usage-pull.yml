@@ -16,6 +16,9 @@ concurrency:
   cancel-in-progress: false
 jobs:
   pull:
+    # Secrets live in the `usage` environment, limited to main
+    # (docs/security/agent-hardening.md, step 4).
+    environment: usage
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 10
     # The one job, and it commits the pulled files to main.
