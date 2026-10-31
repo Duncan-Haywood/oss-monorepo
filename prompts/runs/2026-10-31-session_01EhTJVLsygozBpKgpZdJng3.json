@@ -19,12 +19,12 @@
   "projects": [
     "wall-framing-takeoff"
   ],
-  "pr": null,
+  "pr": 12063,
   "repo": null,
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 1,
@@ -42,7 +42,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Winders (CLI-only) now have a page field on the stairs card, restored from a saved plan. page.test.mjs wiring test, eval-browser-click.mjs steps, 83 node tests pass. Blog post winder-stairs-on-the-page.",
+  "notes": "Winders (CLI-only) now have a page field on the stairs card, restored from a saved plan. page.test.mjs wiring test, eval-browser-click.mjs steps, 83 node tests pass. Blog post winder-stairs-on-the-page. Chromium click run: winders fail/solved radius, pass at 12 in, malformed refused; page errors 0.",
   "corrections": [],
   "redteam": null
 }
