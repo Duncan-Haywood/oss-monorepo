@@ -45,6 +45,13 @@ await page.evaluate(() => { const t = document.getElementById("src"); const j = 
 await page.fill("#wl", "50");
 const [dl2] = await Promise.all([page.waitForEvent("download"), page.click("#csv")]);
 check(/weather allowance/.test(await readFile(await dl2.path(), "utf8")), "CSV follows the weather field (roof exposed, 50%)");
+// the deadline field: a far-off date leaves days to spare, a start-day date is late
+await page.fill("#dl", "2099-01-04");
+check(/Deadline 2099-01-04: \d+ working day\(s\) to spare/.test(await page.textContent("#out")), "deadline field: far date shows days to spare");
+await page.fill("#dl", "2000-01-03");
+check(/Deadline 2000-01-03: \d+ working day\(s\) late/.test(await page.textContent("#out")), "deadline field: past date shows days late");
+await page.fill("#dl", "");
+check(!/Deadline/.test(await page.textContent("#out")), "deadline field: cleared removes the line");
 // invalid JSON must not export the previous schedule
 await page.fill("#src", "{not json");
 let downloaded = false;
