@@ -224,6 +224,7 @@ test("deadline: days late or to spare against the leveled finish, with the late 
   assert.equal(schedule({ start: "2026-03-02", activities: acts, deadline: "2026-03-08" }).deadline.daysLate, 2); // Sunday -> Friday
   assert.equal(schedule({ activities: acts, deadline: "soon" }).ok, false);
   assert.match(scheduleText(late).join("\n"), /Deadline 2026-03-06: 2 working day\(s\) late.*\$200/);
+});
 
 test("schedule refuses malformed shapes instead of throwing or looping forever", () => {
   const acts = [{ id: "a", days: 2, crew: "f" }, { id: "b", days: 1, crew: "f" }];
