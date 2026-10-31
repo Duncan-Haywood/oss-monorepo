@@ -53,6 +53,15 @@ check(/Deadline 2000-01-03: \d+ working day\(s\) late/.test(await page.textConte
 await page.fill("#dl", "");
 check(!/Deadline/.test(await page.textContent("#out")), "deadline field: cleared removes the line");
 // invalid JSON must not export the previous schedule
+// the activity-costs field: typed costs give a spend-by-month report; bad input and unknown ids are named
+await page.fill("#ct", "footings=4200, walls=$18500");
+check(/Spend by month[^\n]*total \$22,700/.test(await page.textContent("#out")), "costs field: spend by month totals 22,700");
+await page.fill("#ct", "nope=5");
+check(/no activity with id nope/.test(await page.textContent("#out")), "costs field: unknown id named");
+await page.fill("#ct", "footings=abc");
+check(/Could not read: footings=abc/.test(await page.textContent("#out")), "costs field: bad figure named");
+await page.fill("#ct", "");
+check(!/Spend by month/.test(await page.textContent("#out")), "costs field: cleared removes the report");
 await page.fill("#src", "{not json");
 let downloaded = false;
 page.on("download", () => { downloaded = true; });
