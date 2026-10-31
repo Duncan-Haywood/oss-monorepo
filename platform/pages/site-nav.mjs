@@ -182,7 +182,7 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
   ];
   return `<p class="pfs-support">${sponsorsNote()}</p><p class="pfs-foot">${links
     .map(([href, label]) => `<a href="${esc(`${toRoot}${href}`)}">${label}</a>`)
-    .join('<span aria-hidden="true"> · </span>')}<span aria-hidden="true"> · </span><a href="${REPO_URL}">Source on GitHub</a></p>`;
+    .join('<span aria-hidden="true"> · </span>')}<span aria-hidden="true"> · </span><a href="${REPO_URL}">Source on GitHub</a></p><p class="pfs-foot">A ${esc(SITE_NAME)} project, MIT licensed.</p>`;
 }
 
 /**
