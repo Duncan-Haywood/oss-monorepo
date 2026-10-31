@@ -29,7 +29,7 @@
 </head>
 <body>
   <h1>Construction schedule</h1>
-  <p>Edit the activities (JSON: <code>id</code>, <code>days</code>, <code>after</code>, optional <code>crew</code>, <code>lag</code>, <code>name</code>) and get the critical path, slack, dates with the crews you typed, and what a slip does to the finish. The durations are yours; none are shipped. Nothing leaves your browser.</p>
+  <p>Edit the activities (JSON: <code>id</code>, <code>days</code>, <code>after</code>, optional <code>crew</code>, <code>lag</code>, <code>name</code>, <code>exposed</code>, and <code>notBefore</code>: a <code>"YYYY-MM-DD"</code> date before which an activity cannot start, such as a lumber delivery or a permit) and get the critical path, slack, dates with the crews you typed, and what a slip does to the finish. The durations are yours; none are shipped. Nothing leaves your browser.</p>
   <label for="src">Schedule</label>
   <textarea id="src" rows="18" style="width:100%;font:.85rem ui-monospace,monospace;box-sizing:border-box" spellcheck="false"></textarea>
   <label for="wl">Weather allowance on exposed activities (% of working days lost, your figure, 0 to 100; blank for none). Mark an activity <code>"exposed": true</code> in the JSON.</label>
