@@ -3,6 +3,12 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-31 · Milestone 9o: can the output-error fit estimate the noise correlation itself and still recover 9n's gain? (planned before running)
+- Why: 9n's "Next". Whitening recovered 14 of 9m's 17 points of gust share, but with rho = 0.9 given exactly, so 83% was an upper bound.
+- Plan (`experiments/estimated_rho/run.py`): 9n's script and seed (20261103: the white and coloured-unweighted rows should reproduce 9m and 9n). Third column: from the unweighted coloured fit, estimate rho as the lag-1 autocorrelation of the pooled residuals (clipped to 0 to 0.99), refit with AR(1)-whitened residuals, re-estimate, refit once more (iterated GLS). Reports the distribution of estimated rho (truth 0.9).
+- **Predictions (before running):** (1) the median estimated rho is within 0.1 of 0.9 (prior 70%; residuals of a misspecified-by-noise fit are slightly under-correlated). (2) Share of draws within 10% gust is within 3 points of 9n's known-rho 83% (prior 55%). (3) Fit failures at most twice white's (prior 65%). Refuted: (1) median outside 0.8 to 1.0; (2) gap over 3 points; (3) more than twice.
+- Limits known in advance: one true rho, AR(1) assumed in the estimator as in the generator (the model is correct, which flatters it); 10 draws on a third of the designs; one seed.
+
 ## 2026-10-31 · Milestone 9n: does fitting 9m's coloured-noise record with AR(1)-whitened residuals recover the loss? (planned before running)
 - Why: 9m's "Next". 9m's output-error fit weights residuals as independent; with AR(1) noise (rho 0.9) a generalised least-squares residual, e_t - rho e_(t-1), is the efficient weighting.
 - Plan (`experiments/whitened_noise/run.py`): 9m's script and seed (20261103, same standard normals, so the white and coloured-unweighted columns should reproduce 9m), plus a third column: the same coloured record fitted with whitened residuals, in both continuation stages. rho = 0.9 is given to the fit (known), which flatters it; estimating rho is not tried.
