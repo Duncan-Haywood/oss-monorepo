@@ -13,6 +13,9 @@ permissions:
   contents: read
 jobs:
   hub:
+    # Secrets live in the `publish` environment, limited to main
+    # (docs/security/agent-hardening.md, step 4).
+    environment: publish
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 10
     steps:
