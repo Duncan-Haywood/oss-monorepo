@@ -147,3 +147,19 @@ test("wall heat loss: UA by hand from opaque R plus typed window and door U", ()
   assert.match(insulationText(layoutInsulation({ assembly: { windowU: 0.3, doorU: 0.4, designDeltaF: 60 } }, p, r)).join("\n"), /BTU\/h at 60 F/);
   assert.equal(validateInsulation({ assembly: { windowU: 5 } }).length, 1);
 });
+
+test("heat loss adds the ceiling under the attic from typed ceilingR or the attic fill", () => {
+  const r = { walls: [wall([m(0, 0, 96, 1.5), m(0, 94.5, 96, 1.5), m(0, 1.5, 1.5, 93)])] };
+  const p = { defaultHeaderHeight: 82.5, walls: [{ id: "A", length: 96, openings: [] }] };
+  const attic = { ceiling: [{ width: 240, depth: 120 }], rValue: 38 };
+  const w = layoutInsulation({ assembly: { designDeltaF: 50 }, attic }, p, r);
+  assert.equal(w.assembly.heat.ceilingUA, undefined); // opt in only
+  const t = layoutInsulation({ assembly: { ceilingR: 40, designDeltaF: 50 }, attic }, p, r).assembly.heat;
+  assert.ok(Math.abs(t.ceilingUA - 200 / 40) < 1e-9); // 240 x 120 in = 200 sq ft
+  assert.ok(Math.abs(t.ua - (t.wallUA + 5)) < 1e-9);
+  assert.ok(Math.abs(t.designBtuh - t.ua * 50) < 1e-9);
+  const f = layoutInsulation({ assembly: { ceilingFromAttic: true }, attic }, p, r);
+  assert.ok(Math.abs(f.assembly.heat.ceilingR - (38 + f.assembly.layersR)) < 1e-9);
+  assert.match(insulationText(f).join("\n"), /Ceiling under the attic: 200 sq ft/);
+  assert.equal(validateInsulation({ assembly: { ceilingR: 0 } }).length, 1);
+});
