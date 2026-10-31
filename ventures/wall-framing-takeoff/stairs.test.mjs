@@ -442,3 +442,17 @@ test("landing with typed postFc/postEmin carries a column check and prints it", 
   const bad = layoutStairWithLanding({ totalRise: 160, width: 48, landing: { depth: 120, postFc: 1000, postEmin: 400000 } }, plan());
   assert.equal(bad.landing.postColumn.ok, false);
 });
+
+test("winder walkline uniformity: 12 in out at hand figures", () => {
+  // 3 treads of 30 deg, inner radius 20: walk = (20+12)*pi/6 = 16.755 in. Against a 10 in straight tread: off by 6.755, fails.
+  const bad = checkWinders({ count: 3, innerRadius: 20, straightTread: 10 });
+  assert.equal(bad.ok, false);
+  assert.ok(Math.abs(bad.uniformDiff - (32 * Math.PI / 6 - 10)) < 1e-9);
+  assert.match(winderText(bad).join("\n"), /differs from the 10 in straight tread/);
+  // radius 0 with 2 treads of 45 deg gives walk 12*pi/4 = 9.425; straight tread 9.5 is within 3/8 on uniformity (other rules fail separately)
+  const near = checkWinders({ count: 2, innerRadius: 0, straightTread: 9.5 });
+  assert.ok(Math.abs(near.uniformDiff - (12 * Math.PI / 4 - 9.5)) < 1e-9);
+  assert.ok(!near.problems.some((p) => /straight tread/.test(p)));
+  // untyped tread: not checked
+  assert.equal(checkWinders({ count: 3, innerRadius: 12 }).uniformDiff, null);
+});

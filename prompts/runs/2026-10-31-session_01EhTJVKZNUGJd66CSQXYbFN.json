@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01EhTJVKZNUGJd66CSQXYbFN",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T10:57:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 1): wall-framing-takeoff winder walkline uniformity",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": 12071,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-31-winder-walkline-uniformity.md"
+  ],
+  "goal": null,
+  "notes": "Explore track. Idea: close the last unchecked winder rule (walkline within 3/8 in of the straight tread). stairs.test.mjs, cli.test.mjs, page.test.mjs: 116 pass. Hand-computed test only; page wiring source-tested, not clicked.",
+  "corrections": [],
+  "redteam": null
+}

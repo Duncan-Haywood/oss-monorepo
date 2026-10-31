@@ -945,7 +945,7 @@
     function renderStairs(st) {
       $("#stairsCard").hidden = !st;
       if (!st) return;
-      $("#stairsOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc([...(st.flights ? landingText(st) : stairText(st)), ...(st.winders ? winderText(st.winders) : [])].join("\n"))}</pre><p class="note">Limits are the model residential code's usual ones (7-3/4 in riser, 10 in tread, 6 ft 8 in headroom, 36 in width); the edition your jurisdiction adopted is yours to check. Post sizing is not modelled and winders are checked against the 6 in and 10 in rules only (the walkline-uniformity rule is not checked); guards and handrails are laid out only when the plan file has a stair “rail” object. Not checked against a built stair.</p>`;
+      $("#stairsOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc([...(st.flights ? landingText(st) : stairText(st)), ...(st.winders ? winderText(st.winders) : [])].join("\n"))}</pre><p class="note">Limits are the model residential code's usual ones (7-3/4 in riser, 10 in tread, 6 ft 8 in headroom, 36 in width); the edition your jurisdiction adopted is yours to check. Post sizing is not modelled and winders are checked against the 6 in, 10 in and (against your typed tread) 3/8 in walkline-uniformity rules; guards and handrails are laid out only when the plan file has a stair “rail” object. Not checked against a built stair.</p>`;
     }
     function renderSiding(sd) {
       $("#sidingCard").hidden = !sd;
@@ -1068,7 +1068,7 @@
           stairs = stairPlan.landing || stairPlan.totalRise > STAIR_LIMITS.maxRise ? layoutStairWithLanding(stairPlan, plan) : layoutStair(stairPlan, plan);
           if (stairs.ok && stairPlan.winders) {
             const wd = typeof stairPlan.winders === "object" ? stairPlan.winders : {};
-            stairs.winders = layoutWinders({ width: typeof stairPlan.width === "number" ? stairPlan.width : undefined, ...wd });
+            stairs.winders = layoutWinders({ width: typeof stairPlan.width === "number" ? stairPlan.width : undefined, ...(typeof stairPlan.tread === "number" ? { straightTread: stairPlan.tread } : {}), ...wd });
           }
           if (!stairs.ok) { $("#errors").innerHTML = `<ul>${stairs.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#stairsCard").hidden = true; return false; }
           floorExtra = [...floorExtra, ...(stairs.flights ? [...stairs.flights.flatMap(stairCuts), ...landingCuts(stairs)] : stairCuts(stairs))];
