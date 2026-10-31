@@ -32,6 +32,8 @@
   <p>Edit the activities (JSON: <code>id</code>, <code>days</code>, <code>after</code>, optional <code>crew</code>, <code>lag</code>, <code>name</code>) and get the critical path, slack, dates with the crews you typed, and what a slip does to the finish. The durations are yours; none are shipped. Nothing leaves your browser.</p>
   <label for="src">Schedule</label>
   <textarea id="src" rows="18" style="width:100%;font:.85rem ui-monospace,monospace;box-sizing:border-box" spellcheck="false"></textarea>
+  <label for="wl">Weather allowance on exposed activities (% of working days lost, your figure, 0 to 100; blank for none). Mark an activity <code>"exposed": true</code> in the JSON.</label>
+  <input id="wl" type="number" min="0" max="100" step="1" inputmode="numeric" placeholder="e.g. 15" style="max-width:10rem">
   <pre id="out" aria-live="polite"></pre>
   <div id="gantt" aria-label="Bar chart of activities by date"></div>
   <p><a class="cta" href="index.html">Do the whole house: framing, sheathing, budget and schedule in one takeoff</a></p>
@@ -65,6 +67,8 @@
     const run = () => {
       let input;
       try { input = JSON.parse($("src").value); } catch (e) { $("out").textContent = "Not valid JSON: " + e.message; $("gantt").innerHTML = ""; return; }
+      const wlRaw = $("wl").value.trim();
+      if (wlRaw !== "") input = { ...input, weatherLoss: Number(wlRaw) / 100 };
       const s = schedule(input);
       $("out").textContent = scheduleText(s).join("\n");
       if (!s.ok) { $("gantt").innerHTML = ""; return; }
@@ -75,6 +79,7 @@
       $("gantt").innerHTML = `<svg viewBox="0 0 ${W} ${rows.length * rh + 6}" width="100%" role="img">${bars}</svg><p style="font-size:.85rem">Red bars are on the critical path. Bars show crew-levelled working days.</p>`;
     };
     $("src").addEventListener("input", run);
+    $("wl").addEventListener("input", run);
     run();
   </script>
 </body>
