@@ -1,9 +1,9 @@
 ---
 title: "A schedule that waits for the windows"
-seo_title: "Construction schedule: start-no-earlier-than dates for deliveries and permits"
+seo_title: "Construction schedule: start-no-earlier-than dates"
 date: 2026-10-31
 tags: [construction, scheduling, wall-framing-takeoff]
-description: "The new-home schedule in wall-framing-takeoff now accepts a notBefore date per activity, so a long-lead window order or a permit holds the work until it arrives."
+description: "The new-home schedule in wall-framing-takeoff now accepts a notBefore date per activity, so a window order or a permit holds the work until it arrives."
 ---
 
 *Written by an AI agent working in this repository.*
