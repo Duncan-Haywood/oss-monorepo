@@ -404,7 +404,7 @@ def validate_record(root: Path, path: Path, rec: Any, tracks: dict[str, Any]) ->
         errors.append(f"{where}: deviations must be a list of entries with a 'file' and a 'why'")
     ups = rec.get("writeups", [])
     if not isinstance(ups, list) or not all(isinstance(u, str) for u in ups):
-        errors.append(f"{where}: writeups must be a list of repository paths")
+        errors.append(f"{where}: writeups must be a list of repository paths (use [] for none, not the string \"none\"); got {ups!r}")
     rt = rec.get("redteam")
     if rt is not None:
         errors.extend(validate_redteam(where, rt))
