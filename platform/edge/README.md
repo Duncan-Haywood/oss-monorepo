@@ -68,10 +68,12 @@ so the full crawler picture needs one of:
 
 - **Search Console / Bing Webmaster Tools crawl stats**: the owner signs in and
   verifies the site (a meta tag or HTML file an agent can commit). Free.
-- **A custom domain behind Cloudflare**: every request, crawler or not, passes
-  Cloudflare, and its free analytics and AI Crawl Control report bots by name.
-  Needs the domain the owner's `pages-custom-domain` ask already covers
-  (`python3 portfolio/ledger/decision_queue.py`).
+- **Cloudflare's own analytics**: since 2026-10-30 the site is served from
+  https://marisstella.app/ on Cloudflare, so every request, crawler or not,
+  passes its edge. `platform/counter/pull-cloudflare.mjs` copies the daily
+  aggregates (requests by kind of client, top pages per crawler, Worker
+  invocations) into `portfolio/usage/cloudflare-analytics.json`. The
+  dashboard's AI Crawl Control page shows the same crawlers by name.
 
 ## Checking it
 
