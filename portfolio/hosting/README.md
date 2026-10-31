@@ -11,8 +11,9 @@ Read it for study; nothing in it is current instruction.
 - **The catalogue is served by Cloudflare** at **https://marisstella.app/**
   (owner, 2026-10-29: "we are moving from ghp to cloudflare"; the domain was
   added to the Cloudflare account on 2026-10-30). The first address,
-  https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/, serves
-  the same files with canonicals naming the domain. Two free-plan
+  https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/, forwards
+  to it since 2026-10-31: a `Refresh` header on static files, a 301 on the
+  paths the router runs for (`platform/pages/cloudflare/README.md`). Two free-plan
   Workers serve it as static files, because one free Worker holds at most
   20,000 files and the site is past that: `platform/pages/cloudflare/README.md`.
   `.github/workflows/portfolio-pages.yml` builds for that origin and deploys
