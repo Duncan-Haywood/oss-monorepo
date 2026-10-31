@@ -411,7 +411,7 @@ export function landingText(r) {
 // radius (a pivot post or box) that passes. Depth is measured along the arc at
 // a radius: radius x angle in radians, which a straight edge across the tread
 // slightly undercuts, so a pass here is a pass by a hair of margin.
-export const WINDER_LIMITS = { winderWalkline: 12, winderWalkDepth: 10, winderMinDepth: 6 };
+export const WINDER_LIMITS = { winderWalkline: 12, winderWalkDepth: 10, winderMinDepth: 6, winderUniformity: 0.375 };
 
 /** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
 export function checkWinders(w) {
@@ -430,7 +430,12 @@ export function checkWinders(w) {
   const problems = [];
   if (narrow < L.winderMinDepth - 1e-9) problems.push(`narrowest depth ${narrow.toFixed(2)} in is under ${L.winderMinDepth} in`);
   if (walk < L.winderWalkDepth - 1e-9) problems.push(`depth ${L.winderWalkline} in from the narrow side is ${walk.toFixed(2)} in, under ${L.winderWalkDepth} in`);
-  return { ok: problems.length === 0, count, turn, anglePerTread: turn / count, innerRadius: r, narrow, walk, outer, minInnerRadius, problems, limits: L };
+  // Walkline uniformity (2026-10-31): the winder's depth at the walkline against the flight's straight tread, within `winderUniformity`
+  // (3/8 in in the model code; the edition is the user's). Only checked when `straightTread` is typed. Hand-computed test only.
+  const st = w.straightTread;
+  const uniformDiff = typeof st === "number" && st > 0 ? walk - st : null;
+  if (uniformDiff != null && Math.abs(uniformDiff) > L.winderUniformity + 1e-9) problems.push(`walkline depth ${walk.toFixed(2)} in differs from the ${st} in straight tread by ${Math.abs(uniformDiff).toFixed(2)} in, over ${L.winderUniformity} in`);
+  return { ok: problems.length === 0, uniformDiff, straightTread: st ?? null, count, turn, anglePerTread: turn / count, innerRadius: r, narrow, walk, outer, minInnerRadius, problems, limits: L };
 }
 
 export function winderText(c) {

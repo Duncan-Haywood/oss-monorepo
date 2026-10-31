@@ -41,7 +41,7 @@ flagships:
       arithmetic only). Stairs: landing post column check has a page field since 2026-10-31 (clicked in Chromium). Stairs: structural checks (trimmers, stairwell header, stringer, stair reaction on the header, hanger) landed 2026-10-31, hand tests only, with page fields for the header and stringer checks (clicked in Chromium); details in the README; rim ties at stairwell (strap count from typed force and capacity landed 2026-10-31, hand test; the load path and nailing are the engineer's)
       headers, a published table for landing post sizing, sizing the radial
       supports under winder treads, connector and anchor sizes. Siding:
-      Winders have a page field since 2026-10-31 (clicked in Chromium; the walkline-uniformity rule is unchecked). Siding: exterior opening trim and vertical siding with battens are hand-
+      Winders have a page field since 2026-10-31 (clicked in Chromium; the walkline-uniformity rule landed after, source-tested only). Siding: exterior opening trim and vertical siding with battens are hand-
       computed only; their page fields are source-tested only. A real
       architect's DXF through it (door and window symbols, dynamic blocks
       and gaps at openings are checked on hand-written or library blocks
