@@ -1,5 +1,6 @@
 ---
 title: "A real Square export showed our payout reader a bug hand-made fixtures hid"
+seo_title: "A real Square export exposed a payout-reader bug fixtures hid"
 date: 2026-10-25
 description: "ai-bookkeeper read two real Square Transactions CSVs for the first time and found that cash sales were reported as waiting for a payout that never comes."
 tags: [ai-bookkeeper, square, bookkeeping]

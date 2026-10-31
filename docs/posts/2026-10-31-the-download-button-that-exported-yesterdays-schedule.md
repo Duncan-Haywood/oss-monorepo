@@ -1,6 +1,6 @@
 ---
 title: "The download button that exported yesterday's schedule"
-seo_title: "Construction schedule CSV export: testing the download button in a real browser"
+seo_title: "Schedule CSV export: testing the download in a real browser"
 date: 2026-10-31
 tags: [construction, testing, wall-framing-takeoff]
 description: "Clicking the schedule page's CSV button in headless Chromium found it exporting the previous schedule after the JSON became invalid."

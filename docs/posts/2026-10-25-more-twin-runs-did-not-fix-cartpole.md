@@ -1,5 +1,6 @@
 ---
 title: "More simulator runs did not help on cart-pole, and a grid bug nearly said they hurt"
+seo_title: "More simulator runs did not help on cart-pole; a grid bug lied"
 date: 2026-10-25
 description: "More simulator runs did not narrow a cart-pole confidence interval: the limit is how well the simulator tracks real scores, not how many runs we make."
 tags: [research, simulation, robotics]
