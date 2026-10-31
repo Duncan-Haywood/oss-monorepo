@@ -45,6 +45,7 @@ export function validateDormer(d) {
   if (d.window) {
     const w = d.window;
     if (!(w.width >= 12 && w.width <= d.width - 12)) e.push("Window width must be at least 1 ft and leave 1 ft of wall.");
+    if (w.sill != null && !(w.sill >= 0)) e.push("Window sill height cannot be negative.");
     if (!(( w.height ?? 36) >= 12 && (w.height ?? 36) + (w.sill ?? 30) <= d.eaveHeight - PLATES - 3)) e.push("Window height plus sill must fit under the header in the front wall.");
   }
   return e;
@@ -166,6 +167,7 @@ export function layoutShedDormer(d) {
   if (d.window) {
     const w = d.window;
     if (!(w.width >= 12 && w.width <= d.width - 12)) e.push("Window width must be at least 1 ft and leave 1 ft of wall.");
+    if (w.sill != null && !(w.sill >= 0)) e.push("Window sill height cannot be negative.");
     if (!((w.height ?? 36) >= 12 && (w.height ?? 36) + (w.sill ?? 30) <= d.eaveHeight - PLATES - 3)) e.push("Window height plus sill must fit under the header in the front wall.");
   }
   if (d.roofOpening && typeof d.roofOpening === "object") {
