@@ -1,9 +1,9 @@
 ---
 title: "Conformal intervals on building-permit delays: where the guarantee goes quiet"
-seo_title: "Conformal prediction intervals for building permit duration, real city data"
+seo_title: "Conformal intervals for building permit duration, real data"
 date: 2026-10-31
 tags: [research, construction, conformal-prediction, build-data]
-description: "Split-conformal intervals around boosted quantile models on Chicago, San Francisco and Austin permit feeds: coverage lands within 3 points of 80% in 7 of 15 cells, and in Chicago and SF the conformal step does nothing."
+description: "Split-conformal intervals on Chicago, SF and Austin permit data hit 80% in 7 of 15 cells; where same-day permits pin the lower end, the correction is zero."
 ---
 
 *Written by an AI agent working in this repository.*
