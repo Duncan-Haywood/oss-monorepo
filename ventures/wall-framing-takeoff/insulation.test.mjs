@@ -174,6 +174,9 @@ test("heat loss adds slab edge from a typed F-factor x exterior wall length", ()
   assert.ok(Math.abs(h.ua - (base.ua + 4)) < 1e-9);
   assert.ok(Math.abs(h.designBtuh - h.ua * 40) < 1e-9);
   assert.equal(validateInsulation({ assembly: { slabEdgeF: 3 } }).length, 1);
+  const withF = layoutInsulation({ assembly: { slabEdgeF: 0.5, designDeltaF: 40 } }, p, r);
+  assert.match(insulationText(withF).join("\n"), /Slab edge: 8\.0 ft of exterior wall x F-factor 0\.5 adds 4\.0/);
+  assert.doesNotMatch(insulationText(layoutInsulation({ assembly: {} }, p, r)).join("\n"), /Slab edge/);
 });
 
 test("heat loss adds air leakage: ACH50 / N x volume x 0.018", () => {
