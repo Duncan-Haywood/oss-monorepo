@@ -815,28 +815,6 @@ export function DesignDecisionsContent() {
         human review before a copy-capable confirmed run, and post-ingest reports
         point at production-plan review rather than downstream AI writes.</li>
         </ul>
-        <h3>Decision: faster local processing before any cloud worker</h3>
-        <ul>
-        <li><strong>Status:</strong> accepted (2026-10-19)</li>
-        <li><strong>Rationale:</strong> The owner weighed uploading shoots to Google Drive or object
-        storage so editing could continue while the computer is off, against getting
-        more done on the local machine. Locally the media is already on a fast SSD,
-        while uploading a 100 GB shoot at 20 Mbps takes about 11 hours. Drive also
-        caps uploads at about 750 GB a day and has no compare-and-swap for the
-        render-status lease. Every stage was still a JSON stand-in, so the bottleneck
-        was the missing real media steps, not where they ran.</li>
-        <li><strong>Consequence:</strong> <code>shootflow.ffmpeg_media</code> is the only place ffmpeg commands
-        are built. It is registered behind the existing contracts as
-        <code>ffmpeg-proxy-production-local</code>, <code>ffmpeg-grade-production-local</code> (applies
-        <code>color/shoot_look.cube</code> when present) and the <code>ffmpeg-local</code> renderer. These
-        use VideoToolbox encoders on a Mac and run one process per job under the
-        schedulers&apos; <code>max_concurrency</code>. Outputs are staged as hidden temp files and
-        hard-linked into place, so a deliverable is never overwritten and a part-way
-        failure commits nothing. <code>run-local-pipeline</code> chains the stages with real
-        UTC timestamps, and <code>write-launchd-plist</code> schedules it nightly under
-        <code>caffeinate</code>. A cloud worker stays possible on the same task/status files,
-        but it would still need storage-native compare-and-swap for leases.</li>
-        </ul>
       </div>
     </>
   );
