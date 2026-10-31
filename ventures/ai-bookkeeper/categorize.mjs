@@ -34,6 +34,12 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 14 (2026-10-31, eval/probe14.mjs): house cleaners, landscapers, yoga instructors, potters, dog trainers.
+  // First in the list: a janitorial supplier hit the repairs rule and an arts-festival booth fee the platform-fee rule.
+  ["6100", "out", /janitorial depot|maid pro|amaco|clayworld/],
+  ["6110", "out", /arts festival booth|pesticide applicator|soundexchange/],
+  ["6170", "out", /ars cleaning assoc|\bnalp\b|ccpdt|karen pryor/],
+  ["6090", "out", /kiln repair/],
   // Gap probe 13 (2026-10-31, eval/probe13.mjs): florists, house painters, handymen, translators, process servers.
   ["6030", "out", /process server bond/],
   ["6110", "out", /epa lead renovator|court filing fee/],
