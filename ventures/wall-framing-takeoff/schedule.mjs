@@ -60,7 +60,7 @@ function cpm(acts) {
   const rows = order.map((id) => {
     const a = /** @type {Activity} */ (byId.get(id));
     const slack = /** @type {number} */ (ls.get(id)) - /** @type {number} */ (es.get(id));
-    return { id, name: a.name || id, days: a.days, crew: a.crew || null, es: es.get(id), ef: ef.get(id), ls: ls.get(id), lf: lf.get(id), slack, critical: slack === 0 };
+    return { id, name: a.name || id, derived: /** @type {any} */ (a).derived, days: a.days, crew: a.crew || null, es: es.get(id), ef: ef.get(id), ls: ls.get(id), lf: lf.get(id), slack, critical: slack === 0 };
   });
   return { errors: [], rows, end };
 }
@@ -93,10 +93,50 @@ function level(/** @type {Activity[]} */ acts, /** @type {Record<string, number>
   return { start, finish, end: Math.max(0, ...[...finish.values()]) };
 }
 
+/**
+ * Quantities the takeoff already counted, by the key a schedule activity can name in `per`.
+ * @param {any} result takeoff result with optional sheathing, floor, roof, drywall, siding attached
+ * @returns {Record<string, number>}
+ */
+export function quantities(result) {
+  /** @type {Record<string, number | undefined>} */
+  const q = {
+    wallFeet: result?.summary?.wallFeet, pieces: result?.summary?.pieces, boards: result?.summary?.boards,
+    wallSheathingSheets: result?.sheathing?.summary?.sheets, subfloorSheets: result?.floor?.sheets?.count,
+    roofSheets: result?.roof?.sheets?.count, roofSquares: result?.roof?.roofing?.squares,
+    shingleBundles: result?.roof?.roofing?.shingleBundles, trusses: result?.roof?.trusses?.count,
+    drywallSheets: result?.drywall?.sheets?.count, sidingBoards: result?.siding?.boards,
+    nails: result?.fasteners?.total ?? result?.fasteners?.nails?.total,
+  };
+  return Object.fromEntries(Object.entries(q).filter(([, v]) => typeof v === "number" && v >= 0));
+}
+
+/**
+ * Activities written as `{ id, per: "wallFeet", rate: 40 }` take their duration from the takeoff:
+ * days = ceil(quantity / rate), with `rate` a figure you type (units per crew-day; none is shipped).
+ * `minDays` floors it (mobilisation). An activity with a typed `days` and no `per` is left alone.
+ * @param {any} input the plan's `schedule` object
+ * @param {any} result the takeoff result
+ */
+export function resolveRates(input, result) {
+  if (!input?.activities) return input;
+  const q = quantities(result);
+  /** @type {string[]} */ const errors = [];
+  const activities = input.activities.map((/** @type {any} */ a) => {
+    if (a.per == null) return a;
+    if (!(a.rate > 0)) { errors.push(`${a.id}: "per" needs a positive "rate" (units per crew-day, your figure).`); return a; }
+    if (!(a.per in q)) { errors.push(`${a.id}: the takeoff has no quantity "${a.per}" here (have: ${Object.keys(q).join(", ") || "none"}).`); return a; }
+    const days = Math.max(a.minDays || 0, Math.ceil(q[a.per] / a.rate - 1e-9));
+    return { ...a, days, derived: `${q[a.per]} ${a.per} / ${a.rate} per crew-day` };
+  });
+  return { ...input, activities, rateErrors: errors };
+}
+
 /** @param {any} input the plan's `schedule` object */
 export function schedule(input) {
-  const errors = [];
+  const errors = [...(input?.rateErrors || [])];
   const acts = /** @type {Activity[]} */ (input?.activities || []);
+  if (input?.rateErrors?.length) return { ok: false, errors };
   if (!acts.length) return { ok: false, errors: ["The schedule has no activities."] };
   const ids = new Set();
   for (const a of acts) {
@@ -143,7 +183,7 @@ export function scheduleText(s) {
   if (!s.ok) return s.errors.map((/** @type {string} */ e) => `  - ${e}`);
   const out = [`  ${s.workingDays} working days from ${s.start}, finishing ${s.finishDate} with unlimited crews; ${s.leveledDays} days (${s.leveledFinishDate}) with the crews you typed.`];
   out.push(`  Critical path: ${s.criticalPath.join(" -> ")}`);
-  for (const r of s.rows.slice().sort((/** @type {any} */ a, /** @type {any} */ b) => a.leveledStart - b.leveledStart)) out.push(`  ${r.critical ? "*" : " "} ${r.id.padEnd(12)} ${String(r.days).padStart(3)}d  ${r.startDate} to ${r.finishDate}  slack ${r.slack}${r.crew ? `  [${r.crew}]` : ""}  ${r.name}`);
+  for (const r of s.rows.slice().sort((/** @type {any} */ a, /** @type {any} */ b) => a.leveledStart - b.leveledStart)) out.push(`  ${r.critical ? "*" : " "} ${r.id.padEnd(12)} ${String(r.days).padStart(3)}d  ${r.startDate} to ${r.finishDate}  slack ${r.slack}${r.crew ? `  [${r.crew}]` : ""}  ${r.name}${r.derived ? `  (${r.derived})` : ""}`);
   for (const sl of s.slips) out.push(sl.error ? `  Slip ${sl.id}: ${sl.error}` : `  A ${sl.days}-day slip on ${sl.id} moves the finish ${sl.finishShift} day(s) (${sl.leveledFinishShift} with crews), to ${sl.newFinishDate}.`);
   for (const w of s.warnings) out.push(`  note: ${w}`);
   out.push("  * = critical. Durations, order and crews are your inputs; weekends and any holidays or weather days you list are skipped; weather is not forecast.");

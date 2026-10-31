@@ -24,7 +24,7 @@ import { drawingSetPdf } from "./pdf.mjs";
 import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
 import { budget, budgetText, budgetCsv } from "./budget.mjs";
 import { levelBids, levelText } from "./bidlevel.mjs";
-import { schedule, scheduleText } from "./schedule.mjs";
+import { schedule, scheduleText, resolveRates } from "./schedule.mjs";
 import { planFromDxf } from "./dxf.mjs";
 
 /** `--wall-layer=RE`, `--door-layer=RE`, `--window-layer=RE`: layer-name patterns (case-insensitive) for drawings whose layers are not named like "wall". */
@@ -263,7 +263,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   }
   if (flags.has("--pdf")) return { code: 0, out: "", bytes: drawingSetPdf(r, plan, { panelMax }) };
   if (flags.has("--drawings") || panelMax > 0) return { code: 0, out: drawingSetHtml(r, plan, { panelMax, sheathPsf, panelSheets: flags.has("--panel-sheets") }).trimEnd() };
-  if (flags.has("--schedule") && flags.has("--json")) return { code: 0, out: JSON.stringify(schedule(plan.schedule), null, 2) };
+  if (flags.has("--schedule") && flags.has("--json")) return { code: 0, out: JSON.stringify(schedule(resolveRates(plan.schedule, r)), null, 2) };
   if (flags.has("--level-bids")) {
     if (!Array.isArray(plan.bids) || !plan.bids.length) return { code: 1, out: 'plan has no "bids" list (each: { bidder, lines: [{ item, qty, unitPrice | amount }] })' };
     const lv = levelBids(budget(r, plan.prices || {}), plan.bids);
@@ -306,7 +306,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (r.dormer) lines.push("", "DORMER", ...dormerText(r.dormer));
   if (r.roof) lines.push("", "ROOF", ...roofText(r.roof));
   if (flags.has("--budget")) lines.push("", "BUDGET", ...budgetText(budget(r, plan.prices || {})));
-  if (flags.has("--schedule")) lines.push("", "SCHEDULE", ...scheduleText(schedule(plan.schedule)));
+  if (flags.has("--schedule")) lines.push("", "SCHEDULE", ...scheduleText(schedule(resolveRates(plan.schedule, r))));
   if (gangNotes.length) lines.push("", "GANGED OPENINGS", ...gangNotes.map((n) => `  - ${n}`));
   if (headers && (flags.has("--headers") || headers.notes.length)) lines.push("", "HEADERS", ...headerText(headers));
   if (r.notes.length) lines.push("", "NOTES", ...r.notes.map((n) => `  - ${n}`));
