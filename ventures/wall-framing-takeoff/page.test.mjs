@@ -51,7 +51,7 @@ test("every static control has a label, and generated rows label their inputs", 
 
 test("the module script imports only local files, its names exist, and it parses", async () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./bidlevel.mjs", "./budget.mjs", "./deck.mjs", "./drawings.mjs", "./drywall.mjs", "./dxf.mjs", "./eaves.mjs", "./engine.mjs", "./fasteners.mjs", "./floor.mjs", "./foundation.mjs", "./gutters.mjs", "./headers.mjs", "./insulation.mjs", "./panels.mjs", "./pdf.mjs", "./roof.mjs", "./schedule.mjs", "./sheathing.mjs", "./siding.mjs", "./sketch.mjs", "./stairs.mjs", "./trim.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./bidlevel.mjs", "./budget.mjs", "./deck.mjs", "./dormer.mjs", "./drawings.mjs", "./drywall.mjs", "./dxf.mjs", "./eaves.mjs", "./engine.mjs", "./fasteners.mjs", "./floor.mjs", "./foundation.mjs", "./gutters.mjs", "./headers.mjs", "./insulation.mjs", "./panels.mjs", "./pdf.mjs", "./roof.mjs", "./schedule.mjs", "./sheathing.mjs", "./siding.mjs", "./sketch.mjs", "./stairs.mjs", "./trim.mjs", "./usage.mjs"]);
   const names = html.match(/import \{([^}]+)\} from "\.\/engine\.mjs"/)[1].split(",").map((s) => s.trim());
   const engine = await import("./engine.mjs");
   for (const name of names) assert.ok(name in engine, name);
@@ -285,6 +285,15 @@ test("the gutter controls are read into plan.gutters, restored from a saved plan
   assert.match(html, /gutters: last\.gutters/);
   assert.match(html, /\$\("#guOn"\)\.checked = Boolean\(gut\)/);
   assert.match(html, /<code>gutters_on<\/code>/);
+});
+
+test("the dormer controls are read into plan.dormer, restored from a saved plan and drawn on a card", () => {
+  const html = page("index.html");
+  for (const id of ["dmOn", "dmFields", "dmWidth", "dmEave", "dmPitch", "dmMain", "dormerCard", "dormerOut"]) assert.match(html, new RegExp(`id="${id}"`), id);
+  assert.match(html, /plan\.dormer = dm/);
+  assert.match(html, /layoutDormer\(\{ mainPitch/);
+  assert.match(html, /\$\("#dmOn"\)\.checked = Boolean\(dmp\)/);
+  assert.match(html, /<code>dormer_on<\/code>/);
 });
 
 test("the nail controls are read into plan.fasteners, restored from a saved plan and feed the budget", () => {

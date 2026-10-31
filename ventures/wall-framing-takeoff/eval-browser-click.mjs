@@ -316,6 +316,17 @@ const [sv3] = await Promise.all([page.waitForEvent("download"), page.click("#sav
 const saved3 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv3.path(), "utf8"));
 const guOk = !/NaN|undefined/.test(guTxt) && /Gutter sections/.test(guBud) && saved3.gutters && typeof saved3.gutters === "object";
 console.log(guOk ? "ok: gutters card, budget line and saved plan" : "FAIL: gutters: " + guTxt.slice(0, 200));
+// dormer card (roof is already on, so the main pitch is left blank): parts listed, saved plan keeps it
+await page.check("#dmOn");
+await page.fill("#dmWidth", "72");
+await page.fill("#dmEave", "48");
+await page.fill("#dmPitch", "8");
+await page.click("#run");
+await page.waitForFunction(() => /ridge/.test(document.querySelector("#dormerOut")?.textContent || ""), null, { timeout: 30000 }).catch(async () => { console.log("FAIL: dormer card; errors:", await page.textContent("#errors")); });
+const dmTxt = await page.textContent("#dormerOut");
+const [svDm] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const savedDm = JSON.parse(await (await import("node:fs/promises")).readFile(await svDm.path(), "utf8"));
+console.log(!/NaN|undefined/.test(dmTxt) && /ridge/.test(dmTxt) && savedDm.dormer?.width === 72 ? "ok: dormer card and saved plan" : "FAIL: dormer: " + dmTxt.slice(0, 200));
 // siding starter strip and head flashing (2026-10-31): fields read into the plan, shown in the card, saved
 await page.check("#sdOn");
 await page.selectOption("#sdStarter", "true");
