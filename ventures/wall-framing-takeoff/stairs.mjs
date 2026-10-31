@@ -33,6 +33,7 @@ export function sampleStair() {
 
 /** @param {Stair} s */
 export function validateStair(s) {
+  if (s == null || typeof s !== "object" || Array.isArray(s)) return ["A stair is an object with totalRise."];
   const L = { ...STAIR_LIMITS, ...(s.limits || {}) };
   const errors = [];
   if (!(s.totalRise >= 12)) errors.push("Total rise (finished floor to finished floor) must be at least 1 ft.");
