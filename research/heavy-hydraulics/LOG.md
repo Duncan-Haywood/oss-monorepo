@@ -2,6 +2,14 @@
 
 Newest first.
 
+## 2026-10-31 · Milestone 3j: the manual's P-to-A flow curves pin the rating-point drop (not pre-registered)
+- Why: 3h and 3i used the work-port-to-tank drop (p. 99) as the rating point and said the P-to-A flow curve was the missing check. The same Danfoss PVG 32 manual (BC152886483664en-001601, July 2024) plots flow against spool travel at 10 bar margin (p. 95) and 20 bar margin (p. 96), uncompensated, P to A. `experiments/digitise_pvg_flow.py` reads each spool's shaded band at full travel from a 300 dpi render (`experiments/data/pvg32_flow_full_travel.csv`); `experiments/pvg_flow_rating.py` turns it into an implied rating drop.
+- Honesty note: I looked at the plots and ran a rough read before writing this entry, so no prediction is registered.
+- Result (`experiments/pvg_flow_rating_results.txt`): full-travel flow at 10 bar is **1.14 times rated** (median; 0.84 to 1.23), so with an orifice law the rating applies at a P-to-A drop of **7.3 bar** (median, spools A to E; 6.6 to 8.2), the same median as 3h's 7.3 bar from p. 99 (per spool they differ by up to 5 bar: 11.8 against 7.3 for A, 5.3 against 8.2 for C). Median exponent between the two margins 0.53 (orifice 0.50); spool scatter 0.38 to 0.96.
+- Reading: two independent figures give the same median rating drop, which removes 3h's main caveat about which drop the rating refers to, and puts the 3i sizing in the middle of the 0.8 to 1.2 times rated band (6.25% median time penalty, break-even 36.1 bar) instead of leaving it as one reading of three.
+- Limits: the figure is "theoretical performance" and plots a band across first to eighth section, I use the band middle; the margin is the pump margin, not necessarily the drop across the P-to-A path alone; spool AA (5 L/min, read error about a third of its flow) is excluded from the A to E medians; the exponent scatter shows the curves are not one orifice law per spool.
+- Next: use the P-to-A curve's spool-travel axis (not only full travel) for feathering; add the compensator.
+
 ## 2026-10-31 · Milestone 6c: paper section 3.5 gains 3i (a writing step, no experiment)
 - Added the manual-curve sizing result (6.25% median penalty, break-even 36.1 bar, 34.0 to 38.9 across the rating-point reading) to section 3.5; 5 new rows in `paper/check_numbers.py`, all matching `time_penalised_rated_results.txt` (37 claims, 0 missing).
 - Next: the manual's P-to-A flow curve; the compensator.
