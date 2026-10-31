@@ -43,7 +43,10 @@
       "result": "worked"
     }
   ],
-  "writeups": "docs/posts/2026-10-31-what-a-drone-battery-says-about-package-delivery.md; research/aerolog-scaling/LOG.md milestone 8f",
+  "writeups": [
+    "docs/posts/2026-10-31-what-a-drone-battery-says-about-package-delivery.md",
+    "research/aerolog-scaling/LOG.md"
+  ],
   "goal": null,
   "notes": "Paper-only step for aerolog-scaling: sections 4.10/4.11, check_numbers all ok, homepage build ok. No new simulation.",
   "corrections": [],
