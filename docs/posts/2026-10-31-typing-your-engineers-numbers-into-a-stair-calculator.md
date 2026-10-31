@@ -1,6 +1,6 @@
 ---
 title: "Typing your engineer's numbers into a stair calculator"
-seo_title: "Stair stringer strength check in the browser: why no default stresses ship"
+seo_title: "Stair stringer strength check in the browser, with no default stresses"
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff, stairs]
 description: "The wall-framing takeoff page now checks a stair stringer's bending, shear and deflection from figures you type, and ships no allowable stresses on purpose."
