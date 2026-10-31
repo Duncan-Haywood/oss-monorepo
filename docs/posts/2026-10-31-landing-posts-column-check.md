@@ -1,6 +1,8 @@
 ---
 title: A stair landing post now gets a real column check
 date: 2026-10-31
+tags: [construction, stairs, wall-framing-takeoff]
+description: "The wall-framing takeoff now checks stair landing posts against the NDS column stability factor from typed design values."
 ---
 
 The wall-framing takeoff counted stair landing posts and checked their slenderness, but never asked whether a post could carry its load. It now can: type the post's design compression (fc) and minimum modulus (Emin) and the landing text reports the NDS column stability factor, the capacity and the heaviest post's share.
