@@ -3,7 +3,7 @@ title: "Better batteries cannot flip a boat's hull ranking, and we checked"
 seo_title: "Can battery energy density change which boat hull goes furthest?"
 date: 2026-10-31
 tags: [marine-hull, research, autonomous-boats]
-description: "In a model of a 200 kg survey boat, 0 of 2,187 monohull-versus-catamaran cases swap rank across 150 to 250 Wh/kg packs, and a 30 W hotel load fixes the best speed."
+description: "In a model of a 200 kg survey boat, 0 of 2,187 monohull-versus-catamaran cases swap rank across 150 to 250 Wh/kg packs; a 30 W hotel load sets best speed."
 ---
 
 The marine-hull programme had two hypotheses it never ran as written. We ran them.
