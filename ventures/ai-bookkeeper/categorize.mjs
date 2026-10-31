@@ -34,6 +34,15 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 11 (2026-10-31, eval/probe11.mjs): pressure washers, jewelry makers, mobile notaries, sign shops, beekeepers.
+  // First in the list: a notary bond hit the legal-fees rule and a craft-show booth fee the platform-fee rule.
+  ["6030", "out", /notary (public )?bond|notary errors/],
+  ["6110", "out", /craft (show|fair) booth|apiary registration|bee inspection/],
+  ["6100", "out", /window cleaning resource|rio grande jewelry|fire mountain gems|orion metals|oracal|graphic products|sign warehouse|roland dga|mann lake|dadant|betterbee/],
+  ["6170", "out", /\bpwna\b|isa sign|american beekeeping/],
+  ["6060", "out", /flexisign/],
+  ["6000", "out", /nextdoor ads/],
+  ["4000", "in", /signing service fee|honey sales/],
   // Gap probe 10 (2026-10-30, eval/probe10.mjs): cottage bakers, drone pilots, locksmiths, streamers, locum clinicians.
   // First in the list: Elgato and B&H were filed as postage, a farmers-market booth fee as platform fees.
   ["6100", "out", /sugar art supply|costco business center|\bdji\b|battery barn|hillman group|southern lock|keyless entry/],
