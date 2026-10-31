@@ -326,8 +326,10 @@ test('every venture that promises a highlight is covered by the gate', async () 
 // ---------------------------------------------------------------------------
 
 class FakeNode {
-  constructor(tag, { text = '', attrs = {}, visible = true, valid = true, selected = null } = {}) {
+  constructor(tag, { text = '', attrs = {}, visible = true, valid = true, selected = null, classNames = [], box = { top: 0, bottom: 5 } } = {}) {
     this.tag = tag;
+    this.box = box;
+    this.scrolls = 0;
     this._text = text;
     this.attrs = { ...attrs };
     this.id = attrs.id || '';
@@ -341,7 +343,8 @@ class FakeNode {
     this.classList = {
       add: (c) => this.classes.add(c),
       remove: (c) => this.classes.delete(c),
-      length: 0,
+      length: classNames.length,
+      ...classNames,
     };
   }
   get textContent() { return this._text; }
@@ -350,8 +353,8 @@ class FakeNode {
   get offsetWidth() { return 0; }
   get offsetHeight() { return this.visible ? 10 : 0; }
   getClientRects() { return []; }
-  getBoundingClientRect() { return { top: 0, bottom: 5 }; }
-  scrollIntoView() {}
+  getBoundingClientRect() { return this.box; }
+  scrollIntoView() { this.scrolls += 1; }
   checkValidity() { return this.valid; }
   getAttribute(name) { return name in this.attrs ? this.attrs[name] : null; }
   setAttribute(name, value) { this.attrs[name] = value; }
@@ -489,4 +492,28 @@ test('the counter stays silent for do-not-track and for global privacy control',
     message: 'Price must be at least 0', fields: [labelled('Price')], opts: { store: { 'portfolio-hub-optout': '1' } },
   });
   assert.deepEqual(optedOut.counts(), {});
+});
+
+test('a field inside the injected site chrome is never marked', () => {
+  // Redteam 2026-10-31: flipping the pf- test to `return true` escaped, because
+  // the fake nodes had no classes. The rates bar's wage input must be skipped.
+  const bar = new FakeNode('div', { classNames: ['pf-rates'] });
+  const wage = labelled('Crew hourly wage');
+  bar.append(wage.parentElement);
+  const price = labelled('Price');
+  runInvalidModule({ message: 'Crew hourly wage must be at least 0', fields: [bar, price] });
+  assert.equal(wage.attrs['aria-invalid'], undefined);
+});
+
+test('a field is scrolled to only when its box is wholly outside the viewport', () => {
+  const scrolls = (box) => {
+    const price = labelled('Price', { box });
+    runInvalidModule({ message: 'Price must be at least 0', fields: [price] });
+    return price.scrolls;
+  };
+  assert.equal(scrolls({ top: -20, bottom: -1 }), 1, 'wholly above');
+  assert.equal(scrolls({ top: 101, bottom: 120 }), 1, 'wholly below (viewport is 100 high)');
+  assert.equal(scrolls({ top: -20, bottom: 0 }), 0, 'bottom edge exactly on the top of the viewport is not scrolled');
+  assert.equal(scrolls({ top: 100, bottom: 120 }), 0, 'top edge exactly on the bottom of the viewport is not scrolled');
+  assert.equal(scrolls({ top: 10, bottom: 20 }), 0, 'inside');
 });
