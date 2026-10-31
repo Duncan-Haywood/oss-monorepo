@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Drywall calculator: how many sheets, tape and compound for a room</title>
+  <meta name="description" content="Free drywall calculator: type a room's length, width and ceiling height, add doors and windows, and get the number of 4 x 8, 4 x 10 or 4 x 12 sheets with cuts counted, plus tape, joint compound, screws and corner bead. Runs in your browser.">
+  <meta property="og:title" content="Drywall calculator">
+  <meta property="og:description" content="Room size in, sheets, screws, tape and compound out. Cuts counted, not just area. Private, free, in your browser.">
+  <link rel="canonical" href="./drywall-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many sheets of drywall do I need for a 12 x 12 room?", "acceptedAnswer": {"@type": "Answer", "text": "For a 12 x 12 ft room with 8 ft walls, one 3 ft door and a ceiling, hung horizontally in 4 x 8 ft sheets, the calculator counts 17 sheets: 508 sq ft of faces, which is 15.9 sheets by area, plus the cuts that cannot share a sheet. Count by area alone and you buy one too few."}}, {"@type": "Question", "name": "Should I hang drywall horizontally or vertically?", "acceptedAnswer": {"@type": "Answer", "text": "This calculator hangs walls horizontally in 48 in courses, the usual way on 8 ft walls: two courses and a single flat joint instead of a joint at every stud bay. Longer sheets (12 ft) mean fewer end joints. Your hanger may choose differently, and the count changes with it."}}, {"@type": "Question", "name": "How much joint compound and tape does a room need?", "acceptedAnswer": {"@type": "Answer", "text": "The calculator measures tape from the seams, wall-to-ceiling angles and inside corners, and estimates compound at 0.01 gal per sq ft plus 10% waste, about 450 sq ft per 4.5 gal pail. For the 12 x 12 ft room that is 1 roll of tape and 2 pails of compound."}}, {"@type": "Question", "name": "How many screws for a sheet of drywall?", "acceptedAnswer": {"@type": "Answer", "text": "A common rule is about 1 screw per sq ft of board, so roughly 32 screws for a 4 x 8 ft sheet. The calculator adds 10% waste and the rate is yours to change; follow your local code and the board maker's spacing."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Drywall calculator</h1>
+  <p>Type the room and its openings. You get sheets (counting cuts, not just area), screws, tape, joint compound and corner bead, from the same drywall engine as the whole-house takeoff. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <div class="grid">
+      <div><label for="len">Room length (in or 12' 0")</label><input id="len" value="144"></div>
+      <div><label for="wid">Room width</label><input id="wid" value="144"></div>
+      <div><label for="hgt">Wall height</label><input id="hgt" value="96"></div>
+      <div><label for="doors">Doors (3 ft x 6 ft 8 in)</label><input id="doors" type="number" min="0" max="8" value="1"></div>
+      <div><label for="wins">Windows (3 ft x 4 ft)</label><input id="wins" type="number" min="0" max="8" value="0"></div>
+      <div><label for="sheet">Sheet length</label><select id="sheet"><option value="96">4 x 8 ft</option><option value="120">4 x 10 ft</option><option value="144">4 x 12 ft</option></select></div>
+      <div><label for="ceil">Ceiling</label><select id="ceil"><option value="1">Drywall it</option><option value="0">Walls only</option></select></div>
+    </div>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Do the whole house: framing, sheathing and drywall in one takeoff</a></p>
+
+  <h2>How it is counted</h2>
+  <ol>
+    <li><strong>Courses.</strong> Each wall is hung in horizontal 48 in courses; a door or window that crosses a course is cut out of it.</li>
+    <li><strong>Packing.</strong> Pieces of the same course width are packed into sheets longest first, so a short piece reuses the offcut of a long one. Ripped strips are not reused.</li>
+    <li><strong>Finishing.</strong> Tape from the measured seams and angles; compound at 0.01 gal per sq ft plus 10% waste; screws at 1 per sq ft plus 10%.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How many sheets of drywall do I need for a 12 x 12 room?</h3>
+  <p>For a 12 x 12 ft room with 8 ft walls, one 3 ft door and a ceiling, hung horizontally in 4 x 8 ft sheets, the calculator counts 17 sheets: 508 sq ft of faces, which is 15.9 sheets by area, plus the cuts that cannot share a sheet. Count by area alone and you buy one too few.</p>
+  <h3>Should I hang drywall horizontally or vertically?</h3>
+  <p>This calculator hangs walls horizontally in 48 in courses, the usual way on 8 ft walls: two courses and a single flat joint instead of a joint at every stud bay. Longer sheets (12 ft) mean fewer end joints. Your hanger may choose differently, and the count changes with it.</p>
+  <h3>How much joint compound and tape does a room need?</h3>
+  <p>The calculator measures tape from the seams, wall-to-ceiling angles and inside corners, and estimates compound at 0.01 gal per sq ft plus 10% waste, about 450 sq ft per 4.5 gal pail. For the 12 x 12 ft room that is 1 roll of tape and 2 pails of compound.</p>
+  <h3>How many screws for a sheet of drywall?</h3>
+  <p>A common rule is about 1 screw per sq ft of board, so roughly 32 screws for a 4 x 8 ft sheet. The calculator adds 10% waste and the rate is yours to change; follow your local code and the board maker's spacing.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Room and opening sizes are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Sheet counts follow the layout stated above (horizontal 48 in courses, ripped strips not reused); your hanger's method may differ.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { layoutDrywall, drywallText } from "./drywall.mjs";
+    import { parseLength } from "./engine.mjs";
+    const $ = (id) => document.getElementById(id);
+    const run = () => {
+      const L = parseLength($("len").value), W = parseLength($("wid").value), H = parseLength($("hgt").value);
+      const doors = Math.max(0, Math.floor(+$("doors").value || 0)), wins = Math.max(0, Math.floor(+$("wins").value || 0));
+      const ops = [];
+      for (let i = 0; i < doors; i++) ops.push({ offset: 12 + i * 48, width: 36, height: 80 });
+      for (let i = 0; i < wins; i++) ops.push({ offset: 12 + i * 48, width: 36, height: 48, headerHeight: 80 });
+      const wall = (id, length, openings = []) => ({ id, length, openings });
+      const plan = { studLength: H - 4.5, defaultHeaderHeight: 80, walls: [wall("A", L, ops), wall("B", W), wall("C", L), wall("D", W)] };
+      const ok = L >= 48 && W >= 48 && H >= 72 && H <= 192 && ops.length * 48 + 12 <= L;
+      if (!ok) { $("out").textContent = "Check the numbers: sides of at least 4 ft, walls 6 to 16 ft high, and the doors and windows have to fit along the first wall."; return; }
+      const d = layoutDrywall({ sheetLength: +$("sheet").value, height: H, faces: "inside", ceiling: $("ceil").value === "1" ? [{ width: L, depth: W }] : [] }, plan);
+      $("out").textContent = d.ok === false ? d.errors.join("\n") : drywallText(d).slice(0, -1).join("\n");
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>
