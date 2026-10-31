@@ -259,6 +259,8 @@ numbers worked out before drafting.
 
 **Hearth & Horizon**
 
+- *(Done: The Door Left Open at the Vigil, Kapel van Sint-Willibrord (invented), Zeeland, 17 April 2049; text only.)* CO2 in an airtight chapel: 64 people at 18 L/h plus 90 candles at 10 L/h each in 280 m3; shut, 5,600 ppm (people only) or 9,200 (with candles); doors and casements open (3.6 air changes an hour from a 2,400 to 1,400 decay in 12 min) and candles lit twice for 9 min hold about 1,800; open-door heat 4.6 kW against about 5 kW of bodies; the assistant's sensor-by-the-door error is owned.
+
 - *(Done: The Stone That Keeps the Sun, Santa Maria della Calce (invented), Salento, June 2048; text only.)* Corpus Christi procession in a heat wave: WBGT = 0.7 nwb + 0.2 globe + 0.1 air gives 31.8 at 17:00 (air 35.5, globe 52, wet 25.5) and 27.7 at 19:30; flagstones 51 C in sun vs about 42 C, barefoot vow; water 310 L needed vs 258 L held, 62 L short; faint vs heat stroke (112).
 
 - *(Done: The Count Between, Kaplnka Panny Márie Snežnej (invented), Low Tatras, August 2048; text only.)* Flash-to-bang at 340 m/s: 24 s = 8.2 km, 15 s = 5.1 km, 28 km/h closing, about 11 min; two readings give only the radial speed; 20 m rolling sphere and a 6 m rod cover sqrt(6x34) = 14.3 m, the cross 40 m off is outside; 30 min after last thunder.
