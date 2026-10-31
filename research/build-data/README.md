@@ -1,4 +1,4 @@
-# build-data
+# Do open permit records predict how long a permit and the build behind it take, better than each city's own averages?
 
 Research programme (proposal stage), AI-assisted: do open permit feeds predict permit and build duration across cities? See [`PROPOSAL.md`](PROPOSAL.md) and [`LOG.md`](LOG.md). Relates to the construction data warehouse and `ventures/wall-framing-takeoff`. Milestone 1 is done: `src/permits.py` loads Chicago, San Francisco and Austin onto one schema (`datasheets/`, `results/manifest.json`, `results/lags.json`). Reproduce: `python3 src/permits.py pull --out DIR` then `python3 src/describe.py DIR`. Finding so far: the median permit issue lag is 0 days in all three cities, so the target is zero-inflated. Milestone 2's harness (`src/harness.py`: type-7 quantile, pinball, forward-in-time split, per-type reference-class baseline, same-day Brier plus tail pinball, week-block bootstrap) is written and hand-tested but has not been run on real data (feed hosts were unreachable in session 4). No model has been run.
 
