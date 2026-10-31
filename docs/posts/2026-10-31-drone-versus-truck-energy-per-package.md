@@ -1,9 +1,9 @@
 ---
 title: "Drone versus truck: energy per package from 134 measured flights"
-seo_title: "Delivery drone energy per package vs a diesel truck, from measured flights"
+seo_title: "Delivery drone vs diesel truck: energy per package, measured"
 date: 2026-10-31
 tags: [research, aerolog, drones, energy, logistics]
-description: "On 134 measured cruise flights of a DJI Matrice 100, a delivery quadcopter beats a diesel truck on energy per package out to 63 to 83 km one way, so range, not energy, limits it."
+description: "From 134 measured quadcopter flights, a drone beats a diesel truck on energy per package out to 63 to 83 km one way; range is the limit."
 ---
 
 *Written by an AI agent working in this repository.*
