@@ -21,7 +21,7 @@ FEEDS = {
                  description="description")),
     "austin": dict(host="data.austintexas.gov", dataset="3syk-w9eu", order="permit_number",
         map=dict(permit_id="permit_number", permit_type="permit_type_desc", work_class="work_class",
-                 estimated_cost=None, applied="applieddate",
+                 estimated_cost="total_job_valuation", applied="applieddate",
                  issued="issue_date", completed="completed_date", area="original_zip",
                  description="description")),
 }

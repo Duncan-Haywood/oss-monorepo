@@ -1,5 +1,13 @@
 # build-data log
 
+## Session 3, 2026-10-31: correction to the Austin cost field (found by a parallel run's duplicate pull)
+
+A second run built the same milestone 1 at the same time (PR 12048, closed as a duplicate of 12049). Its independent pull of the same three feeds matched the row counts (851,778; 1,297,657; 2,382,939) and disagreed with this log on two facts:
+- Austin does have a cost field, `total_job_valuation` (non-zero on 1,164,174 of 2,382,939 rows, 49%). The session 2 line "Austin has no cost field" is wrong; `src/permits.py` now maps it. Cross-city cost features are therefore available for all three cities, with zeros in Austin possibly meaning "not stated".
+- Austin is not issued-only: 477,248 rows have no issue date, so it can show applied-but-not-issued permits.
+- Not reconciled: that run's p90 application-to-issue lags (SF 70, Austin 176) differ from session 2's (81, 142). They used `statistics.quantiles` (exclusive method) and nulled years outside 1990 to 2100; session 2's method is in `src/describe.py`. Milestone 2 should fix one definition and test it against a hand count.
+No tables were rebuilt: `results/` still holds the session 2 numbers and Austin's cost column there is empty until the next pull.
+
 ## Session 2, 2026-10-31: milestone 1, loaders, schema, datasheets, first lags
 
 Hypothesis (before the pull): the full pulls reproduce session 1's row counts, and the median application-to-issue lag is at least 7 days in every city.
