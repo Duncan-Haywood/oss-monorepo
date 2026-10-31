@@ -45,6 +45,7 @@ jobs:
         if: always()
         run: |
           node platform/distribution/hub.mjs pack --out hub-pack
+          node platform/distribution/hub.mjs kit --post-days 1 --out hub-pack/kits
           node platform/distribution/hub.mjs score --out hub-pack/scoreboard.json
         env:
           BSKY_HANDLE: ${{ secrets.BSKY_HANDLE }}
