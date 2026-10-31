@@ -14,7 +14,7 @@ import { formatLength } from "./engine.mjs";
 const BAR_LB_FT = { 3: 0.376, 4: 0.668, 5: 1.043, 6: 1.502 };
 const CU_IN_PER_YD = 46656;
 
-/** @typedef {{ id?: string, type?: "stem"|"monolithic", width: number, depth: number, footing?: { width?: number, depth?: number, bars?: number, bar?: number, formed?: boolean, steps?: { rise: number, length: number, name?: string }[] }, stem?: { height?: number, thickness?: number, bar?: number, spacing?: number }, slab?: { thickness?: number, bar?: number, spacing?: number, baseThickness?: number }, interior?: { length: number, width?: number, depth?: number }[], anchorBolts?: { spacing?: number, endDistance?: number, plateStock?: number, diameter?: number, embed?: number }, cornerBars?: boolean, piers?: { name?: string, count: number, pad: number, padDepth: number, column?: number, columnHeight?: number, bars?: number, bar?: number, load?: number }[], soilBearing?: number, cover?: number, barLength?: number, waste?: number, truck?: number, price?: number }} Foundation */
+/** @typedef {{ id?: string, type?: "stem"|"monolithic", width: number, depth: number, footing?: { width?: number, depth?: number, bars?: number, bar?: number, formed?: boolean, steps?: { rise: number, length: number, name?: string }[] }, stem?: { height?: number, thickness?: number, bar?: number, spacing?: number, walkout?: { length: number, extra: number } }, slab?: { thickness?: number, bar?: number, spacing?: number, baseThickness?: number }, interior?: { length: number, width?: number, depth?: number }[], anchorBolts?: { spacing?: number, endDistance?: number, plateStock?: number, diameter?: number, embed?: number }, cornerBars?: boolean, piers?: { name?: string, count: number, pad: number, padDepth: number, column?: number, columnHeight?: number, bars?: number, bar?: number, load?: number }[], soilBearing?: number, cover?: number, barLength?: number, waste?: number, truck?: number, price?: number }} Foundation */
 
 export function sampleFoundation() {
   return { id: "Foundation", type: "stem", width: 480, depth: 336, footing: { width: 20, depth: 10, bars: 2, bar: 4 }, stem: { height: 32, thickness: 8, bar: 4, spacing: 32 }, slab: { thickness: 4, bar: 3, spacing: 18, baseThickness: 4 }, interior: [{ length: 336, width: 24, depth: 12 }] };
@@ -48,6 +48,8 @@ export function validateFoundation(f) {
     if (!(st.height >= 8 && st.height <= 120)) e.push("Stem wall height must be between 8 and 120 in.");
     if (!(st.thickness >= 6 && st.thickness <= ft.width - 2)) e.push("Stem thickness must be at least 6 in and narrower than the footing.");
     if (!(st.spacing >= 8 && st.spacing <= 96)) e.push("Stem bar spacing must be between 8 and 96 in.");
+    const w = f.stem?.walkout;
+    if (w && (!(w.length >= 24 && w.length <= Math.max(f.width, f.depth)) || !(w.extra > 0 && w.extra <= 96))) e.push("Walkout stem: the tapered run must be 24 in to the longest side, and the extra height above 0 and at most 96 in.");
   }
   const sl = { thickness: 4, spacing: 18, ...f.slab };
   if (!(sl.thickness >= 3 && sl.thickness <= 12)) e.push("Slab thickness must be between 3 and 12 in.");
@@ -96,6 +98,10 @@ export function layoutFoundation(f) {
   // solid block ft.width wide, `rise` high and one footing depth long where the two levels overlap.
   const steps = (ft.steps || []).map((t, i) => ({ name: t.name ?? `step ${i + 1}`, rise: t.rise, length: t.length }));
   const stepRun = steps.reduce((a, t) => a + t.length, 0), stepStemVol = steps.reduce((a, t) => a + t.length * t.rise, 0);
+  // Walkout: along one side the grade falls away, so the stem grows linearly from the normal height to
+  // `extra` taller at the far end (a wedge: half of length x extra of wall face).
+  const wo = type === "stem" ? f.stem?.walkout : undefined;
+  const woFace = wo ? wo.length * wo.extra / 2 : 0;
   const footVol = centreline * ft.width * ft.depth;
   const interiorVol = interior.reduce((s, i) => s + i.length * i.width * i.depth, 0);
 
@@ -106,12 +112,12 @@ export function layoutFoundation(f) {
     slabW = f.width - ft.width - st.thickness; slabD = f.depth - ft.width - st.thickness;
     slabArea = slabW * slabD / 144;
     pours.push({ name: "footing", cuYd: footVol / CU_IN_PER_YD });
-    pours.push({ name: "stem wall", cuYd: ((2 * (cw + cd)) * st.height + stepStemVol) * st.thickness / CU_IN_PER_YD });
+    pours.push({ name: "stem wall", cuYd: ((2 * (cw + cd)) * st.height + stepStemVol + woFace) * st.thickness / CU_IN_PER_YD });
     if (steps.length) pours.push({ name: "footing step risers", cuYd: steps.reduce((a, t) => a + ft.width * t.rise * ft.depth, 0) / CU_IN_PER_YD });
     pours.push({ name: "slab", cuYd: slabW * slabD * sl.thickness / CU_IN_PER_YD });
     if (interiorVol) pours.push({ name: "interior footings", cuYd: interiorVol / CU_IN_PER_YD });
     // Stem forms on both faces; footings are poured in the trench unless `footing.formed`.
-    const stemFaces = 2 * (centreline * st.height + stepStemVol) / 144;
+    const stemFaces = 2 * (centreline * st.height + stepStemVol + woFace) / 144;
     const footForms = ft.formed ? centreline * 2 * ft.depth / 144 : 0;
     formArea = stemFaces + footForms;
     formEdge = 2 * centreline / 12 + (ft.formed ? 2 * centreline / 12 : 0);
@@ -176,6 +182,11 @@ export function layoutFoundation(f) {
       const n = Math.ceil(t.length / st.spacing), len = ft.depth - cover + st.height + t.rise + 6 + lapOf(st.bar);
       rebar.push({ what: `${t.name} stem verticals (${t.rise} in taller)`, bar: st.bar, qty: n, length: len / 12, feet: n * len / 12 });
     }
+    if (wo) {
+      // Verticals over the taper average half the extra height longer.
+      const n = Math.ceil(wo.length / st.spacing), len = ft.depth - cover + st.height + wo.extra / 2 + 6 + lapOf(st.bar);
+      rebar.push({ what: `walkout stem verticals (average ${wo.extra / 2} in taller)`, bar: st.bar, qty: n, length: len / 12, feet: n * len / 12 });
+    }
   }
   const nx = Math.floor((slabW - 2 * cover) / sl.spacing) + 1, ny = Math.floor((slabD - 2 * cover) / sl.spacing) + 1;
   addBars("slab bars along the width", sl.bar, ny, slabW - 2 * cover);
@@ -221,6 +232,7 @@ export function layoutFoundation(f) {
   if (anchors) notes.push(`Anchor bolts: ${anchors.bolts} of ${anchors.diameter} in x ${anchors.embed} in embed for ${anchors.pieces} sill plate pieces (at most ${anchors.spacing} in apart, one within ${anchors.endDistance} in of each plate end, two per piece); spacing and edge distances are your inputs, check them against your code edition. Interior bearing lines are not counted.`);
   for (const t of steps) if (t.length < 2 * t.rise) notes.push(`${t.name}: a ${t.rise} in step over ${t.length} in is steeper than 1 vertical to 2 horizontal; many codes limit a footing step to that slope or ask for a stepped design by an engineer.`);
   if (steps.length) notes.push(`Stepped footing: ${steps.length} step${steps.length === 1 ? "" : "s"} lowering ${stepRun} in of footing; the footing section is unchanged, the stem is taller over that run, and the digging for the lower level is not counted.`);
+  if (wo) notes.push(`Walkout: the stem grows ${wo.extra} in taller over ${wo.length} in (wedge volume and form area, verticals at their average length); backfill limits, a retaining-wall design and the lateral load on a tall stem are the engineer's.${wo.extra > 48 ? " A stem this much taller than the footing usually needs a designed retaining wall." : ""}`);
   if (type === "stem" && !ft.formed) notes.push("Footings are assumed poured against the trench, so only the stem wall is formed.");
   if (piers.length) notes.push("Piers: pad mat bars every 6 in each way and column verticals are typed-geometry estimates, not a pier design; bearing area and depth are your engineer's call.");
   for (const c of pierChecks) if (!c.ok) notes.push(`${c.name}: ${c.load} lb on a ${c.pad} in pad is ${c.pressure} psf, over the ${c.allowable} psf you typed for the soil; the pad would need to be at least ${c.minPad} in square (service load only, no footing weight or code factors).`);
