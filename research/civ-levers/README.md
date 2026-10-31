@@ -202,6 +202,7 @@ Milestone 5. Groups play the public-goods game (return 1.6/n per token, endowmen
 - Punishment with no behavioural response changes nothing and costs payoff (21.1 to 19.8): the effect is entirely the assumed response of the punished.
 - With the response swept, round-10 contributions are 5.4, 10.2 and 12.2 (react 0.5, 1, 2). In stranger groups of 40, contributions reach 16.1 but net payoff falls to 2.9 against 21.0 with no punishment, since the all-to-all fining rule makes enforcement cost grow with group size.
 - Not yet compared numerically with Fehr and Gächter (2000); the response, type shares and punisher share are assumptions. See `LOG.md`.
+- **Pooled institution** (`experiments/commons/pooled.py`, `pooled_results.txt`): one fine per member below the group mean, cost split across the group. At n = 40 payoff stays at 20.7 to 25.5 against peer punishment's −0.9 to 8.2 (no punishment 21.0). But it sustains contributions only when the punished respond strongly: round-10 contribution 2.3, 3.5, 12.6 at react 0.5, 1, 2 (peer: 15.3 to 17.0). Net payoff beats no punishment only at react 2 (25.5). Model assumptions, not a forecast.
 
 ## What this does and does not say
 
