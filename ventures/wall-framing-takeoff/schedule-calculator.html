@@ -44,6 +44,8 @@
   <input id="cp" type="number" min="0" step="1" inputmode="decimal" placeholder="e.g. 250" style="max-width:10rem">
   <label for="dl">Contract completion date (optional; <code>YYYY-MM-DD</code>, your date). The report then says how many working days late, or to spare, the finish with your crews is, and the carrying cost of the late days if you typed one above.</label>
   <input id="dl" type="date" style="max-width:12rem">
+  <label for="rg">Day ranges for risk (optional; <code>id=min-max</code> working days around the activity's <code>days</code>, your guesses, like <code>walls=6-14, roof=4-9</code>). Adds a Monte Carlo finish: P50, P80 and P90 dates, the chance of the contract date and which activities are most often critical.</label>
+  <input id="rg" type="text" placeholder="walls=6-14, roof=4-9" spellcheck="false" style="max-width:28rem">
   <pre id="out" aria-live="polite"></pre>
   <p><button id="csv" type="button">Download CSV</button></p>
   <div id="gantt" aria-label="Bar chart of activities by date"></div>
@@ -73,6 +75,7 @@
   </footer>
   <script type="module">
     import { schedule, scheduleText, scheduleCsv, sampleSchedule } from "./schedule.mjs";
+    import { scheduleRisk, riskText } from "./risk.mjs";
     const $ = (id) => document.getElementById(id);
     const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
     $("src").value = JSON.stringify(sampleSchedule(), null, 1);
@@ -123,9 +126,26 @@
         if (unknown.length) { $("out").textContent = "Activity costs: no activity with id " + unknown.join(", ") + "."; $("gantt").innerHTML = ""; return; }
         input = { ...input, activities: acts.map((a) => (a && costs[a.id] != null ? { ...a, cost: costs[a.id] } : a)) };
       }
+      const rgRaw = $("rg").value.trim();
+      let ranges = null;
+      if (rgRaw !== "") {
+        ranges = {};
+        for (const part of rgRaw.split(/[,;\n]+/).map((x) => x.trim()).filter(Boolean)) {
+          const m = part.match(/^([^=\s]+)\s*=\s*(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)$/);
+          if (!m) { $("out").textContent = "Day ranges: write each as id=min-max, e.g. walls=6-14. Could not read: " + part; $("gantt").innerHTML = ""; return; }
+          ranges[m[1]] = [Number(m[2]), Number(m[3])];
+        }
+        const acts = Array.isArray(input.activities) ? input.activities : [];
+        const unknown = Object.keys(ranges).filter((id) => !acts.some((a) => a && a.id === id));
+        if (unknown.length) { $("out").textContent = "Day ranges: no activity with id " + unknown.join(", ") + "."; $("gantt").innerHTML = ""; return; }
+      }
       const s = schedule(input);
       last = s;
       $("out").textContent = scheduleText(s).join("\n");
+      if (ranges && s.ok) {
+        const acts = input.activities.map((a) => (a && ranges[a.id] ? { ...a, min: ranges[a.id][0], max: ranges[a.id][1] } : a));
+        $("out").textContent += "\n\n" + riskText(scheduleRisk({ ...input, activities: acts })).join("\n");
+      }
       if (!s.ok) { $("gantt").innerHTML = ""; return; }
       const rows = s.rows.slice().sort((a, b) => a.leveledStart - b.leveledStart);
       const total = Math.max(1, s.leveledDays), W = 700, lab = 110, rh = 22;
@@ -146,6 +166,7 @@
     $("nb").addEventListener("input", run);
     $("ac").addEventListener("input", run);
     $("dl").addEventListener("input", run);
+    $("rg").addEventListener("input", run);
     run();
   </script>
 </body>
