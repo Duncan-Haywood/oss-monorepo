@@ -29,6 +29,7 @@ export function validateFloor(f, plan) {
   if (!(f.depth >= 24 && f.depth <= 1200)) errors.push("Floor depth (the joist direction) must be between 2 ft and 100 ft.");
   if (!(f.joist in DEPTH)) errors.push(`Unknown joist size ${f.joist}.`);
   if (!(f.spacing > 0 && f.spacing <= 48)) errors.push("Joist spacing must be between 0 and 48 inches.");
+  if (f.hangerNails != null) for (const k of ["single", "double"]) if (f.hangerNails[k] != null && !(Number.isInteger(f.hangerNails[k]) && f.hangerNails[k] >= 0 && f.hangerNails[k] <= 100)) errors.push(`hangerNails.${k} must be a whole number of nails from 0 to 100.`);
   for (const x of f.doubleUnder || []) if (!(x > 0 && x < f.width)) errors.push(`A wall at ${x} in for doubled joists must sit inside the floor's ${f.width} in width.`);
   for (const [i, o] of (f.openings || []).entries()) {
     const n = `Opening ${i + 1}`;
@@ -248,7 +249,9 @@ export function layoutFloor(f, plan) {
   // Counted from the placed members; the model, its load rating and nailing are the engineer's call.
   const tailEnds = joists.filter((j) => j.tail).reduce((n, j) => n + openings.filter((o) => cutAt(j.x + THICK / 2).includes(o)).reduce((m, o) => m + (Math.abs(j.y + j.length - o.cut[0]) < EPS) + (Math.abs(j.y - o.cut[1]) < EPS), 0), 0);
   const headerEnds = openings.length * 4;
-  const hangers = { tail: tailEnds, singles: tailEnds, doubles: headerEnds, count: tailEnds + headerEnds, size: f.joist };
+  const hn = f.hangerNails || null; // nails per hanger, typed from the hanger maker's table (none shipped)
+  const hangers = { tail: tailEnds, singles: tailEnds, doubles: headerEnds, count: tailEnds + headerEnds, size: f.joist, ...(hn ? { nails: tailEnds * (hn.single || 0) + headerEnds * (hn.double || 0), nailsPerSingle: hn.single || 0, nailsPerDouble: hn.double || 0 } : {}) };
+  if (hn && hangers.count) notes.push(`${hangers.nails} hanger nails counted (${hn.single || 0} per single x ${tailEnds}, ${hn.double || 0} per double x ${headerEnds}), from the nail counts you typed; check them against the hanger maker's table for the model and load.`);
   if (hangers.count) notes.push(`${hangers.count} joist hanger${hangers.count === 1 ? "" : "s"} counted (${tailEnds} single at tail-joist ends, ${headerEnds} double at header ends), sized for ${f.joist}; model and load rating are the engineer's call.`);
   if (cant) notes.push(`Joists cantilever ${formatLength(cant)} past the back support, ${(cant / f.depth).toFixed(2)} of the ${formatLength(f.depth)} supported span${cant > f.depth / 3 + EPS ? "; that is more than a third of it, and a common rule of thumb asks for the backspan to be at least 3 times the overhang, so have the engineer check it" : ""}. Cantilever size, backspan nailing and any tie-down are the engineer's call.`);
   const pen = f.penetrations?.length ? checkPenetrations(f.joist, f.beam != null ? Math.max(f.beam, f.depth - f.beam) : f.depth, f.penetrations, f.limits) : [];
