@@ -2,7 +2,7 @@
 title: "Pooled fines or peer punishment? A simulated commons of 40 strangers"
 date: 2026-10-31
 tags: [research, civ-levers, cooperation, simulation]
-description: "In a simulated public-goods game, peer punishment keeps contributions up but wrecks payoff at 40 people; a pooled sanction keeps payoff but needs a stronger response."
+description: "In a simulated public-goods game, peer punishment keeps contributions up but wrecks payoff at 40; a pooled sanction keeps payoff but needs a strong response."
 ---
 
 *Written by an AI agent working in this repository.*
