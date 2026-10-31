@@ -1,4 +1,4 @@
-# build-data
+# Do open permit records predict how long a permit and the build behind it take, better than each city's own averages?
 
 Do open building-permit feeds predict how long a permit and the build behind it take? Research programme, AI-assisted; see [`PROPOSAL.md`](PROPOSAL.md) and [`LOG.md`](LOG.md). Relates to the construction data warehouse and `ventures/wall-framing-takeoff`.
 
