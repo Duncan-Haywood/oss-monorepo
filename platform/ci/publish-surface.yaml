@@ -92,6 +92,9 @@ workflows:
 - workflow: claude-routine-trigger.yml
   classification: none
   publishes: []
+- workflow: cloudflare-email.yml
+  classification: none
+  publishes: []
 - workflow: conflict-markers-ci.yml
   classification: none
   publishes: []
