@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { promises as fs, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { AGENT_BLOG, BLOG, buildWriting, loadPosts, parseFrontMatter, postPageTitle, renderFeed, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
+import { AGENT_BLOG, BLOG, buildWriting, loadPosts, parseFrontMatter, postPageTitle, relatedPosts, renderFeed, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
 
 const BASE = 'https://example.test/site/';
 
@@ -246,4 +246,11 @@ test('a post may give a shorter seo_title for the results page and is held to th
   const fm = (extra) => `---\ntitle: "A very long headline that goes on and on past what a results page shows"\ndate: 2026-01-01\ndescription: "d"\n${extra}---\n\n# H\n\nbody\n`;
   const ok = parseFrontMatter(fm('seo_title: "Short query title"\n'));
   assert.equal(ok.meta.seo_title, 'Short query title');
+});
+
+test('relatedPosts never lists the post itself; same topic first, then the rest, capped', () => {
+  const mk = (slug, topic) => ({ slug, topic });
+  const posts = [mk('a', 'x'), mk('b', 'y'), mk('c', 'x'), mk('d', 'y')];
+  assert.deepEqual(relatedPosts(posts[0], posts).map((p) => p.slug), ['c', 'b', 'd']);
+  assert.deepEqual(relatedPosts(posts[0], posts, 2).map((p) => p.slug), ['c', 'b']);
 });
