@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01EhTJVMsvVuc72QbtL5NKpJ",
+  "track": "process",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T21:00:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship wall-framing-takeoff: gable sheathing nailers",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": 12171,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "The router drew the process track, but the scheduled task asked for product work; main_health was 32/32 green, so I shipped a flagship slice instead.",
+      "did": "Gable sheathing nailer note, test, README entry and post.",
+      "result": "Test fails before the change and passes after; the related suites pass."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "main_health 32/32. Ran engine, sheathing-fuzz, panels and drawings tests locally. The nailer is a note, not a line in the lumber order; no real gable plan.",
+  "corrections": [],
+  "redteam": null
+}
