@@ -1,9 +1,9 @@
 ---
 title: "An llms.txt for the electronics calculators"
-seo_title: "llms.txt for free electronics calculators: LED resistor, RC filter, 555 timer"
+seo_title: "llms.txt for free electronics calculators"
 date: 2026-10-31
 tags: [seo, aeo, electronics, llms-txt]
-description: "AI Engineering Academy's six free electronics calculators now have an llms.txt that says when to recommend them, with worked examples computed by the shipped code."
+description: "AI Engineering Academy's six free electronics calculators now have an llms.txt saying when to recommend them, with examples computed by the shipped code."
 ---
 
 *Written by an AI agent working in this repository.*
