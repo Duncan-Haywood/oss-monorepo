@@ -16,7 +16,7 @@ import { THICK, EPS, DEPTH, optimizeStock, formatLength, formatInches } from "./
 const DOUBLE = 2 * THICK;
 export const SHEET = { width: 48, length: 96 };
 
-/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, cantilever?: number, headerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, hangerCapacity?: number, bearingCapacity?: number, stairReaction?: number, stairReactionLive?: number, stairSide?: "front"|"back", tieForce?: number, tieCapacity?: number }, blockingRows?: number, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], penetrations?: { type: "hole"|"notch", at: number, size: number, length?: number, fromEdge?: number, end?: boolean }[], limits?: { hole?: number, holeEdge?: number, notch?: number, endNotch?: number, notchLength?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
+/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, cantilever?: number, headerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, hangerCapacity?: number, bearingCapacity?: number, stairReaction?: number, stairReactionLive?: number, stairSide?: "front"|"back", tieForce?: number, tieCapacity?: number, cantDeflLimit?: number }, blockingRows?: number, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], penetrations?: { type: "hole"|"notch", at: number, size: number, length?: number, fromEdge?: number, end?: boolean }[], limits?: { hole?: number, holeEdge?: number, notch?: number, endNotch?: number, notchLength?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
 
 export function sampleFloor() {
   return { id: "Main floor", width: 480, depth: 336, joist: "2x10", spacing: 16, rim: true, beam: 168, blockingRows: 0 };
@@ -60,13 +60,14 @@ export function validateFloor(f, plan) {
       if (!(h.tieForce > 0 && h.tieForce <= 50000)) errors.push("headerCheck.tieForce is the tension in lb the engineer asks each stairwell header to be tied for, above 0 and up to 50000.");
       if (!(h.tieCapacity > 0 && h.tieCapacity <= 20000)) errors.push("headerCheck.tieCapacity is one strap or tie's allowable tension in lb from the maker's table, above 0 and up to 20000.");
     }
+    if (h.cantDeflLimit != null && !(h.cantDeflLimit >= 60 && h.cantDeflLimit <= 480)) errors.push("headerCheck.cantDeflLimit is the L/ ratio on twice the overhang, from 60 to 480.");
     if (h.deflLimit != null && !(h.deflLimit >= 120 && h.deflLimit <= 960)) errors.push("headerCheck.deflLimit is the L/ ratio, from 120 to 960.");
     if (h.stairReaction != null) {
       if (!(h.stairReaction > 0 && h.stairReaction <= 20000)) errors.push("headerCheck.stairReaction is the stair's total top reaction in lb (the stair's stringerCheck.totalReaction), above 0 and up to 20000.");
       if (h.stairSide !== "front" && h.stairSide !== "back") errors.push("headerCheck.stairSide must be \"front\" or \"back\": the header the stair's top hangs from.");
       if (h.stairReactionLive != null && !(h.stairReactionLive >= 0 && h.stairReactionLive <= h.stairReaction)) errors.push("headerCheck.stairReactionLive is the live share of the stair reaction, from 0 up to stairReaction.");
     }
-    if (!(f.openings || []).length) errors.push("headerCheck needs at least one opening (a stairwell).");
+    if (!(f.openings || []).length && !f.cantilever) errors.push("headerCheck needs at least one opening (a stairwell) or a cantilever.");
   }
   if (f.cantilever != null && !(f.cantilever > 0 && f.cantilever <= 96)) errors.push("The cantilever must be between 0 and 8 ft.");
   if (f.beam != null && !(f.beam > 12 && f.beam < f.depth - 12)) errors.push("The beam must sit between 1 ft and 1 ft short of the far edge.");
@@ -143,6 +144,39 @@ export function checkTrimmer(size, span, a, reaction, reactionLive, spacing, loa
   const Rmax = Math.max(R1, R2);
   if (loads.bearingCapacity != null && Rmax > loads.bearingCapacity) breaks.push(`end reaction ${Rmax.toFixed(0)} lb over the typed bearing capacity ${loads.bearingCapacity} lb`);
   return { size: `2-${size}`, span: L, a, point: P, uniform: w * 12, moment: M, fb, fv, defl, reactions: [R1, R2], ok: !breaks.length, breaks };
+}
+
+/**
+ * One cantilevered joist, from typed figures only (same `loads` as `checkFloorHeaders`; `cantDeflLimit` is the
+ * L/ ratio on twice the overhang, 180 unless typed). Model: a single `size` joist, simple span `backspan` between
+ * its two supports with `a` inches hanging past the far one, a half-spacing strip of load on each side.
+ * Bending is the larger of the negative moment at the support (w a^2 / 2) and the backspan's positive moment, both
+ * with live + dead everywhere; shear is the larger of the two sides of the support; tip deflection is live load on
+ * the overhang alone (a loaded backspan would lift the tip, so this is the safe side) as w a^4/8EI plus the
+ * support's rotation times a. `uplift` is the pull on the near support with dead load alone on the backspan and
+ * everything on the overhang (the worst case for it); a positive figure means that support needs a tie-down.
+ * Doubled joists under walls, point loads on the tip (a wall or a balcony rail post) and bearing are not in it.
+ */
+export function checkCantilever(size, backspan, a, spacing, loads) {
+  const d = DEPTH[size], b = THICK, Lb = backspan;
+  const { liveLoad, deadLoad, Fb, Fv, E } = loads;
+  const lim = loads.cantDeflLimit ?? 180;
+  const S = (b * d * d) / 6, A = b * d, I = (b * d ** 3) / 12;
+  const strip = spacing / 144; // psf to lb per inch on one joist
+  const w = (liveLoad + deadLoad) * strip, wL = liveLoad * strip, wD = deadLoad * strip;
+  const Ra = (w * (Lb * Lb - a * a)) / (2 * Lb), Rb = (w * (Lb + a) ** 2) / (2 * Lb);
+  const mNeg = (w * a * a) / 2, mPos = Ra > 0 ? (Ra * Ra) / (2 * w) : 0;
+  const M = Math.max(mNeg, mPos);
+  const V = Math.max(w * a, Math.abs(Ra - w * Lb), Ra);
+  const defl = (wL * a ** 4) / (8 * E * I) + (wL * a * a * Lb * a) / (6 * E * I);
+  const uplift = -(wD * Lb / 2 - (w * a * a) / (2 * Lb));
+  const fb = M / S, fv = (1.5 * V) / A, breaks = [];
+  if (fb > Fb) breaks.push(`bending ${fb.toFixed(0)} psi over ${Fb}`);
+  if (fv > Fv) breaks.push(`shear ${fv.toFixed(0)} psi over ${Fv}`);
+  const allow = (2 * a) / lim;
+  if (defl > allow) breaks.push(`tip deflection ${defl.toFixed(2)} in over 2a/${lim} (${allow.toFixed(2)} in)`);
+  if (loads.bearingCapacity != null && Rb > loads.bearingCapacity) breaks.push(`support reaction ${Rb.toFixed(0)} lb over the typed bearing capacity ${loads.bearingCapacity} lb`);
+  return { size, backspan: Lb, overhang: a, moment: M, fb, fv, defl, deflAllowed: allow, reactions: [Ra, Rb], uplift: Math.max(0, uplift), ok: !breaks.length, breaks };
 }
 
 /**
@@ -352,12 +386,18 @@ export function layoutFloor(f, plan) {
     for (const r of trimmerChecks) notes.push(`Opening ${r.opening + 1} trimmer under the ${r.side} header, ${r.size} over ${formatInches(r.span)}: ${r.ok ? "passes" : "FAILS"} on your figures (bending ${r.fb.toFixed(0)} psi, shear ${r.fv.toFixed(0)} psi, live deflection ${r.defl.toFixed(2)} in, ${r.point.toFixed(0)} lb point load from the header)${r.ok ? "" : `: ${r.breaks.join("; ")}`}. One header reaction at a time on a simple span; the other header, stair loads and walls above are not in it.`);
   }
   if (hangers.count) notes.push(`${hangers.count} joist hanger${hangers.count === 1 ? "" : "s"} counted (${tailEnds} single at tail-joist ends, ${headerEnds} double at header ends), sized for ${f.joist}; model and load rating are the engineer's call.`);
+  let cantileverCheck = null;
+  if (cant && f.headerCheck) {
+    cantileverCheck = checkCantilever(f.joist, f.beam != null ? f.depth - f.beam : f.depth, cant, f.spacing, f.headerCheck);
+    const c = cantileverCheck;
+    notes.push(`Cantilever joist, ${c.size} over a ${formatInches(c.backspan)} backspan with ${formatInches(c.overhang)} out: ${c.ok ? "passes" : "FAILS"} on your figures (bending ${c.fb.toFixed(0)} psi, shear ${c.fv.toFixed(0)} psi, tip deflection ${c.defl.toFixed(2)} in against ${c.deflAllowed.toFixed(2)}, support reaction ${c.reactions[1].toFixed(0)} lb)${c.ok ? "" : `: ${c.breaks.join("; ")}`}${c.uplift > 0 ? `. The near support lifts ${c.uplift.toFixed(0)} lb a joist: it needs a tie-down` : ""}. One joist, uniform load; a wall or post on the tip, doubled joists and the engineer's detailing are not in it.`);
+  }
   if (cant) notes.push(`Joists cantilever ${formatLength(cant)} past the back support, ${(cant / f.depth).toFixed(2)} of the ${formatLength(f.depth)} supported span${cant > f.depth / 3 + EPS ? "; that is more than a third of it, and a common rule of thumb asks for the backspan to be at least 3 times the overhang, so have the engineer check it" : ""}. Cantilever size, backspan nailing and any tie-down are the engineer's call.`);
   const pen = f.penetrations?.length ? checkPenetrations(f.joist, f.beam != null ? Math.max(f.beam, f.depth - f.beam) : f.depth, f.penetrations, f.limits) : [];
   for (const h of pen) if (!h.ok) notes.push(`Joist ${h.type} ${h.n}: ${h.why.join("; ")}. Move it, sleeve it or ask the engineer.`);
   notes.push("Joist size and spacing are your inputs and are not checked against a span table or code; bearing, other hangers and fasteners are not in the takeoff.");
   return {
-    ok: true, penetrations: pen, hangers, headerChecks, trimmerChecks, openings, trimmers, id, width: f.width, depth: total, supportedDepth: f.depth, cantilever: cant, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
+    ok: true, penetrations: pen, hangers, headerChecks, trimmerChecks, cantileverCheck, openings, trimmers, id, width: f.width, depth: total, supportedDepth: f.depth, cantilever: cant, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
     sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 },
     notes,
   };
