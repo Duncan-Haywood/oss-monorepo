@@ -285,3 +285,20 @@ test("header end reaction is wL/2 and is checked against a typed hanger capacity
   assert.ok(weak.breaks.some((b) => /end reaction/.test(b)));
   assert.ok(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, hangerCapacity: -1 } }, plan()).errors.some((e) => /hangerCapacity/.test(e)));
 });
+
+test("trimmer check: point load from the header plus a half-spacing strip, by hand", () => {
+  const hc = { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 180, E: 1300000 };
+  const l = layoutFloor({ ...sampleFloor(), openings: [{ x: 100, y: 30, width: 36, depth: 100 }], headerCheck: hc }, plan());
+  const t = l.trimmerChecks.find((r) => r.side === "front");
+  const h = l.headerChecks.find((r) => r.side === "front");
+  assert.equal(t.point, h.reaction);
+  // statics: reactions sum to the total load and the moment at the point load matches R1*a - w a^2/2
+  const w = t.uniform / 12, L = t.span;
+  assert.ok(Math.abs(t.reactions[0] + t.reactions[1] - (w * L + t.point)) < 1e-9);
+  const a = t.a, R1 = (w * L) / 2 + (t.point * (L - a)) / L;
+  assert.ok(t.moment >= R1 * a - (w * a * a) / 2 - 1e-9);
+  assert.ok(Math.abs(t.fb - t.moment / ((3 * 9.25 ** 2) / 6)) < 1e-9);
+  assert.ok(l.notes.some((n) => /trimmer under the front header/.test(n)));
+  const weak = layoutFloor({ ...sampleFloor(), openings: [{ x: 100, y: 30, width: 36, depth: 100 }], headerCheck: { ...hc, Fb: 20 } }, plan());
+  assert.equal(weak.trimmerChecks[0].ok, false);
+});
