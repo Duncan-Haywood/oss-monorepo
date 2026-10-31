@@ -1,5 +1,6 @@
 ---
 title: "Widening the interval does not fix an early-stopping audit at a rare category"
+seo_title: "Widening the interval does not fix a rare-category early-stop audit"
 date: 2026-10-27
 description: "Stopping an LLM-coding audit when the interval looks narrow undercovers at 1 to 2% prevalence; a Bonferroni-wide interval still covers 64% in the worst cell."
 tags: [llm-coding, statistics, negative-result, llm-coding-inference]

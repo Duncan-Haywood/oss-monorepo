@@ -1,5 +1,6 @@
 ---
 title: "Auto-categorizing bank lines for trucking, salons, clinics and realtors: 11 of 93 to 92 of 93"
+seo_title: "Auto-categorizing bank lines for trucking, salons, clinics: 11 to 92"
 date: 2026-10-28
 description: "ai-bookkeeper filed 11 of 93 small-business bank descriptors right before a trade probe and 92 of 92 after new rules, on a probe tuned on itself."
 tags: [ai-bookkeeper, bookkeeping, categorization]

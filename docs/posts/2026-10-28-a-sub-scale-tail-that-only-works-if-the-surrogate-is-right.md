@@ -1,5 +1,6 @@
 ---
 title: "A sub-scale drone tail that only works if the airfoil surrogate is right"
+seo_title: "A sub-scale drone tail that works only if the surrogate is right"
 date: 2026-10-28
 description: "None of 78 tail designs that restore a 1:5 cargo UAV's flight modes stays within 5% if the real tail lift slope is 25% below the surrogate's."
 tags: [research, aerolog-scaling, scaling, uav]

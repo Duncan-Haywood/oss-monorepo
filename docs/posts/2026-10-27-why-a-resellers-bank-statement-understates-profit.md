@@ -1,5 +1,6 @@
 ---
 title: "Why a reseller's bank statement gets the profit wrong in both directions"
+seo_title: "Why a reseller's bank statement gets profit wrong both ways"
 date: 2026-10-27
 description: "A worked August for a Poshmark, Mercari and Depop seller: $710.60 payouts, $202.40 thrift stock, 30 of 45 items sold give $496.62 profit; cash left was $429.15."
 tags: [ai-bookkeeper, bookkeeping, resellers]

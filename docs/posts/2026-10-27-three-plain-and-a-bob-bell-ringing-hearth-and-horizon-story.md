@@ -1,5 +1,6 @@
 ---
 title: "Three Plain and a Bob: a Hearth & Horizon story about a bell-ringer's card that was one word wrong"
+seo_title: "Three Plain and a Bob: a Hearth & Horizon bell-ringing story"
 date: 2026-10-27
 description: "Five bells can ring 120 orders. A dead captain's card says bob every third lead, which repeats 40 rows. A new Hearth & Horizon story with the sums to check."
 tags: [hearth-and-horizon, fiction, bell-ringing, combinatorics]

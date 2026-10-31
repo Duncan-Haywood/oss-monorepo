@@ -1,5 +1,6 @@
 ---
 title: "A coordinated attack breaks a median aggregator at half the coalition size"
+seo_title: "A coordinated attack breaks a median aggregator at half the workers"
 date: 2026-10-28
 description: "In a numpy model of 16 workers, a median stops protecting training at about 4 coordinated attackers, where independent flips needed 8. Training test pending."
 tags: [lowcomm-training, robust-aggregation, preliminary]
