@@ -253,10 +253,25 @@ function markSample(u, v, plate) {
   return null;
 }
 
-export function drawMark(canvas, left, top, size, { channels = 3, plate = true } = {}) {
+// Coverage of the mark depends only on the size, the plate flag and the
+// fractional part of the origin, never on where it lands, so every share card
+// (one per page, thousands per build) reuses one supersampled grid.
+const MARK_COVERAGE = new Map();
+
+function markCoverage(left, top, size, plate) {
+  const fl = Math.floor(left);
+  const ft = Math.floor(top);
+  const key = `${size}|${plate}|${left - fl}|${top - ft}`;
+  let grid = MARK_COVERAGE.get(key);
+  if (grid) return grid;
   const ss = 4;
-  for (let y = Math.floor(top); y < Math.ceil(top + size); y += 1) {
-    for (let x = Math.floor(left); x < Math.ceil(left + size); x += 1) {
+  const h = Math.ceil(top + size) - ft;
+  const w = Math.ceil(left + size) - fl;
+  const cells = [];
+  for (let ry = 0; ry < h; ry += 1) {
+    for (let rx = 0; rx < w; rx += 1) {
+      const x = fl + rx;
+      const y = ft + ry;
       let hits = 0;
       const sum = [0, 0, 0];
       for (let sy = 0; sy < ss; sy += 1) {
@@ -270,22 +285,35 @@ export function drawMark(canvas, left, top, size, { channels = 3, plate = true }
           sum[0] += c[0]; sum[1] += c[1]; sum[2] += c[2];
         }
       }
-      if (!hits) continue;
-      if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) continue;
-      const c = sum.map((v) => v / hits);
-      const a = hits / (ss * ss);
-      const at = (y * canvas.width + x) * channels;
-      if (channels === 4) {
-        // Straight alpha over whatever is there (transparent for an icon).
-        const da = canvas.data[at + 3] / 255;
-        const oa = a + da * (1 - a);
-        for (let i = 0; i < 3; i += 1) {
-          canvas.data[at + i] = Math.round(oa ? (c[i] * a + canvas.data[at + i] * da * (1 - a)) / oa : 0);
-        }
-        canvas.data[at + 3] = Math.round(oa * 255);
-      } else {
-        for (let i = 0; i < 3; i += 1) canvas.data[at + i] = Math.round(canvas.data[at + i] + (c[i] - canvas.data[at + i]) * a);
+      if (hits) cells.push({ rx, ry, hits, sum });
+    }
+  }
+  grid = { fl, ft, cells };
+  MARK_COVERAGE.set(key, grid);
+  return grid;
+}
+
+export function drawMark(canvas, left, top, size, { channels = 3, plate = true } = {}) {
+  const ss = 4;
+  const fl = Math.floor(left);
+  const ft = Math.floor(top);
+  for (const { rx, ry, hits, sum } of markCoverage(left, top, size, plate).cells) {
+    const x = fl + rx;
+    const y = ft + ry;
+    if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) continue;
+    const c = sum.map((v) => v / hits);
+    const a = hits / (ss * ss);
+    const at = (y * canvas.width + x) * channels;
+    if (channels === 4) {
+      // Straight alpha over whatever is there (transparent for an icon).
+      const da = canvas.data[at + 3] / 255;
+      const oa = a + da * (1 - a);
+      for (let i = 0; i < 3; i += 1) {
+        canvas.data[at + i] = Math.round(oa ? (c[i] * a + canvas.data[at + i] * da * (1 - a)) / oa : 0);
       }
+      canvas.data[at + 3] = Math.round(oa * 255);
+    } else {
+      for (let i = 0; i < 3; i += 1) canvas.data[at + i] = Math.round(canvas.data[at + i] + (c[i] - canvas.data[at + i]) * a);
     }
   }
 }
