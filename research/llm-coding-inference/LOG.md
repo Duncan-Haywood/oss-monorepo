@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-31 · Milestone 7e: the 2,000-draw check moves into the paper and README (a writing step, no experiment)
+- Why: 7d's "Next" said to fold the library audit path into the paper's recipe. The paper's Reproducibility section and the README quoted 7c's 92.0% lowest cell but not the 2,000-draw re-run that showed it was noise.
+- Done: `paper/paper.md` (Section 10) and `README.md` now state 7d's result (coverage 94.1%, se 0.5; half-width 1.165 points) next to the 7c numbers. Every figure is copied from `experiments/h7d_admiration_2000.txt`. No claim changed; the caveat that the screen has no coverage theorem stays.
+- Next: an informative coder on a second corpus once weights are reachable.
+
 ## 2026-10-30 · Milestone 7d: does the library path really cover below 94.6% on admiration at n = 1000? (planned before running)
 - Why: 7c's "Next". 7c's 500 draws gave 92.0% against 6al's 94.6%, a 2.6-point gap that is about two sd of a difference. `experiments/h7d_admiration_2000.py` runs 2,000 fresh draws (seed B.SEED + 7) of the same library audit on that one cell; the standard error at 2,000 draws is about 0.5 points.
 - **Prediction (before running):** coverage 93.0% or higher (noise, as 7c read it), half-width within 3% of 1.152. Refuted if coverage is under 93.0%, which would mean the library's plain-variance allocation really undercovers there and the screen's validity claim needs the lambda-tuned S2 back.
