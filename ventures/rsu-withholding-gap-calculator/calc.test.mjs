@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { rsuGap, incomeTax, supplementalWithholding, addlMedicareTax, marginalRate } from "./calc.mjs";
+import { rsuGap, incomeTax, taxableOf, supplementalWithholding, addlMedicareTax, marginalRate } from "./calc.mjs";
 
 test("single, $180,000 salary + $100,000 vest: 22% flat withholding is $7,200.25 short", () => {
   const r = rsuGap({ filingStatus: "single", wages: 180000, vest: 100000 });
@@ -58,4 +58,23 @@ test("invalid input and helpers", () => {
   assert.equal(rsuGap({ vest: 0 }).invalid, true);
   assert.equal(incomeTax(50400, "single"), 5800);
   assert.equal(marginalRate(100000, "single"), 0.22);
+});
+
+test("layers carry the tax on each slice of the vest", () => {
+  const r = rsuGap({ filingStatus: "single", wages: 180000, vest: 100000 });
+  assert.deepEqual(r.layers.map((l) => l.amount), [37875, 54450, 7675]);
+  assert.deepEqual(r.layers.map((l) => l.tax), [9090, 17424, 2686.25]);
+});
+
+test("bracket edge and head-of-household deduction", () => {
+  // the dollar above the top-35% mfj edge is taxed at 37%, not 35%
+  assert.ok(Math.abs(incomeTax(768701, "mfj") - incomeTax(768700, "mfj") - 0.37) < 1e-6);
+  assert.equal(taxableOf(100000, "hoh"), 100000 - 24150);
+});
+
+test("no Additional Medicare finding when neither total nor withheld is positive", () => {
+  const r = rsuGap({ filingStatus: "single", wages: 50000, vest: 10000 });
+  assert.equal(r.medicareTotal, 0);
+  assert.equal(r.medicareWithheld, 0);
+  assert.ok(!r.findings.some((f) => /Additional Medicare/.test(f.title)));
 });
