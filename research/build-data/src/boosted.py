@@ -34,7 +34,7 @@ def load_frame(path, target):
     df["start"] = s.dt.strftime("%Y-%m-%d")
     df["year"] = s.dt.year
     df["month"] = s.dt.month
-    df["dow"] = s.dt.dayofweek
+    df["dow"] = s.dt.day_of_week
     df["log_cost"] = np.log1p(pd.to_numeric(df["estimated_cost"], errors="coerce").clip(lower=0))
     df["desc_len"] = pd.to_numeric(df["description_len"], errors="coerce")
     return df.reset_index(drop=True), neg
@@ -54,8 +54,8 @@ def featurise(tr, others):
     return out
 
 
-def fit_predict(Xtr, ytr, Xca, yca, Xte, seed, n_max=600):
-    base = dict(learning_rate=0.06, num_leaves=63, min_data_in_leaf=100, feature_fraction=0.8,
+def fit_predict(Xtr, ytr, Xca, yca, Xte, seed, n_max=300):
+    base = dict(learning_rate=0.15, num_leaves=63, min_data_in_leaf=100, feature_fraction=0.8,
                 bagging_fraction=0.8, bagging_freq=1, seed=seed, verbose=-1, num_threads=4)
     preds, rounds = {}, {}
     for t in TAUS:
@@ -96,9 +96,9 @@ def run(df, test_year, seeds, neg=0):
     ytr, yca, yte = tr.y.to_numpy(float), ca.y.to_numpy(float), te.y.to_numpy(float)
     base = harness.ReferenceClass([dict(type=t, y=y) for t, y in zip(tr.permit_type, tr.y)])
     bq = {t: np.array([base.predict(k)[t] for k in te.permit_type]) for t in TAUS}
-    wk = [harness.week(s) for s in te.start]
+    wk = np.array(["%d-%02d" % harness.week(s) for s in te.start])
     res = dict(test_year=test_year, n_train=len(tr), n_calib=len(ca), n_test=len(te),
-               negative_dropped=neg, seeds=seeds, features=list(Xtr.columns))
+               negative_dropped=neg, seeds=seeds, learning_rate=0.15, max_rounds=300, features=list(Xtr.columns))
     P = {t: [] for t in TAUS}; PZ = []; R = []
     for s in range(seeds):
         pr, pz, rd, rz = fit_predict(Xtr, ytr, Xca, yca, Xte, seed=s)
@@ -117,7 +117,7 @@ def run(df, test_year, seeds, neg=0):
         lb = np.mean([pin(yte, p, t) for p in P[t]], axis=0)
         d = lb - pin(yte, bq[t], t)           # negative = boosted better
         m, lo, hi = block_boot(d, wk)
-        wkdf = pd.DataFrame({"w": [f"{a}-{b}" for a, b in wk], "d": d}).groupby("w").d.mean()
+        wkdf = pd.DataFrame({"w": wk, "d": d}).groupby("w").d.mean()
         try:
             pw = float(wilcoxon(wkdf.to_numpy()).pvalue)
         except ValueError:
