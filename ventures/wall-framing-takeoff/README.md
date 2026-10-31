@@ -399,3 +399,8 @@ past the wall; 1 test, plus real mouse drags in `eval-sketch-click.mjs`). Not ye
 - Shed dormer front window on the page (2026-10-31): width, height and sill fields write `dormer.window`; blank height and sill take the engine's 36 and 30 in. A click test with a 48 in eave and those defaults was refused ("Window height plus sill must fit under the header"), so the fields are needed. Wiring in `page.test.mjs`, clicked in Chromium.
 - Deck blocking on the page (2026-10-31): "Blocking" field (rows so no joist run exceeds N in, 24 in or more) writes `deck.blocking: {every}` and restores from a saved plan; clicked in Chromium (`eval-browser-click.mjs`: 48 in on a 16 x 12 ft deck shows the Blocking line on the deck card), source-tested in `page.test.mjs`. Engine unchanged; whether your code wants blocking is yours to check.
 - 2026-10-31: stair guard and handrail page field ("Guard and handrail": sides, optional handrail height, saved into and restored from `stairs.rail`); clicked in Chromium on a 9 ft rise (`eval-browser-click.mjs`), source-tested in `page.test.mjs`. Landing edge guards are still not on the page.
+
+
+### Schedule: crew days off (2026-10-31)
+
+`schedule.crewOff` is `{ crew: [YYYY-MM-DD] }`: days a crew is on another job. Its activities pause on those days and the span grows; other crews are untouched. It applies to the crew-levelled dates and slips, not the unlimited-crew pass. Hand-checked in `schedule.test.mjs`; no real builder's calendar yet.

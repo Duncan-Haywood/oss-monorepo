@@ -66,7 +66,7 @@ function cpm(acts) {
 }
 
 /** Serial crew levelling: push activities later until their crew has a free slot. */
-function level(/** @type {Activity[]} */ acts, /** @type {Record<string, number>} */ crews, /** @type {any[]} */ rows) {
+function level(/** @type {Activity[]} */ acts, /** @type {Record<string, number>} */ crews, /** @type {any[]} */ rows, /** @type {Map<string, Set<number>>} */ crewOff = new Map()) {
   const byId = new Map(acts.map((a) => [a.id, a]));
   const slack = new Map(rows.map((r) => [r.id, r.slack]));
   const start = new Map(), finish = new Map();
@@ -78,17 +78,23 @@ function level(/** @type {Activity[]} */ acts, /** @type {Record<string, number>
     ready.sort((a, b) => earliest(a) - earliest(b) || slack.get(a.id) - slack.get(b.id));
     const a = ready[0];
     let s = earliest(a);
+    let len = a.days;
     const cap = a.crew ? crews[a.crew] : undefined;
+    const co = (a.crew && crewOff.get(a.crew)) || new Set();
+    // Resource calendar: the crew's own days off. Work pauses on them, so the span grows.
+    const span = (/** @type {number} */ from) => { let f = from, left = a.days; while (co.has(f)) f++; const st = f; while (left > 0) { if (!co.has(f)) left--; f++; } return [st, f]; };
+    if (co.size && a.days > 0) { const [st, f] = span(s); s = st; len = f - st; }
     if (a.crew && cap != null && a.days > 0) {
       const iv = busy.get(a.crew) || [];
       for (;;) {
-        const clash = iv.filter(([x, y]) => x < s + a.days && y > s).length;
+        const clash = iv.filter(([x, y]) => x < s + len && y > s).length;
         if (clash < cap) break;
-        s = Math.min(...iv.filter(([x, y]) => x < s + a.days && y > s).map(([, y]) => y));
+        s = Math.min(...iv.filter(([x, y]) => x < s + len && y > s).map(([, y]) => y));
+        if (co.size) { const [st, f] = span(s); s = st; len = f - st; }
       }
-      iv.push([s, s + a.days]); busy.set(a.crew, iv);
+      iv.push([s, s + len]); busy.set(a.crew, iv);
     }
-    start.set(a.id, s); finish.set(a.id, s + a.days); left.delete(a.id);
+    start.set(a.id, s); finish.set(a.id, s + len); left.delete(a.id);
   }
   return { start, finish, end: Math.max(0, ...[...finish.values()]) };
 }
@@ -160,14 +166,23 @@ export function schedule(input) {
   if (badOff.length) return { ok: false, errors: [`holidays and weatherDays must be YYYY-MM-DD dates; not: ${badOff.join(", ")}.`] };
   const off = new Set(offList.map((/** @type {string} */ h) => new Date(h + "T00:00:00Z").toISOString().slice(0, 10)));
   const date = (/** @type {number} */ n) => dateOf(start, n, off);
-  const lv = level(acts, crews, base.rows);
+  // crewOff: { crew: [YYYY-MM-DD] } days that crew is unavailable (another job, vacation); converted to project working-day indices.
+  const crewOff = new Map();
+  for (const [c, list] of Object.entries(input.crewOff || {})) {
+    if (!Array.isArray(list) || list.some((h) => typeof h !== "string" || isNaN(new Date(h + "T00:00:00Z").getTime()))) return { ok: false, errors: [`crewOff.${c} must be a list of YYYY-MM-DD dates.`] };
+    if (crews[c] == null) warn.push(`crewOff names crew "${c}", which has no count in \`crews\`; it is ignored.`);
+    const set = new Set();
+    for (const h of list) { const t = new Date(h + "T00:00:00Z"); if (!isWork(t, off) || t < start) continue; let n = 0; const d = new Date(start); while (!isWork(d, off)) d.setUTCDate(d.getUTCDate() + 1); while (d < t) { d.setUTCDate(d.getUTCDate() + 1); if (isWork(d, off)) n++; } set.add(n); }
+    crewOff.set(c, set);
+  }
+  const lv = level(acts, crews, base.rows, crewOff);
   const rows = base.rows.map((r) => ({ ...r, leveledStart: lv.start.get(r.id), leveledFinish: lv.finish.get(r.id), startDate: date(lv.start.get(r.id)), finishDate: r.days ? date(lv.finish.get(r.id) - 1) : date(lv.start.get(r.id)) }));
   // What a slip does: re-run with the extra days added and compare the finish.
   const slips = (input.slips || []).map((/** @type {{ id: string, days: number }} */ sl) => {
     if (!ids.has(sl.id)) return { id: sl.id, days: sl.days, error: "not an activity" };
     const a2 = acts.map((a) => (a.id === sl.id ? { ...a, days: a.days + sl.days } : a));
     const c2 = cpm(a2);
-    const l2 = level(a2, crews, c2.rows);
+    const l2 = level(a2, crews, c2.rows, crewOff);
     return { id: sl.id, days: sl.days, finishShift: c2.end - (base.end ?? 0), leveledFinishShift: l2.end - lv.end, newFinishDate: date(Math.max(0, l2.end - 1)) };
   });
   return {
