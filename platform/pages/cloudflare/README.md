@@ -83,3 +83,21 @@ To manage the domain from the repository instead, add
 `wrangler.toml`. The deploy token then needs Zone → Workers Routes → Edit on
 that zone (Cloudflare's "Edit Cloudflare Workers" template); the attach API
 itself lists Account → Workers Scripts → Edit.
+
+## Email: support@ and hello@marisstella.app
+
+Mail to the domain is Cloudflare Email Routing (free), kept as code like the
+rest of this directory: `email-routing.json` lists the addresses,
+`email-routing.mjs` makes Cloudflare match it (dry run unless `APPLY=1`),
+and `.github/workflows/cloudflare-email.yml` runs it on demand. Every address
+forwards to one inbox held in the `EMAIL_FORWARD_TO` secret, so the
+repository names it but never contains it.
+
+Owner setup, once: add the `EMAIL_FORWARD_TO` secret to the `cloudflare`
+environment, give the deploy token the Email Routing permissions the
+script's header lists (or add a second token), run the workflow with
+"apply" ticked, and click the verification link Cloudflare sends that inbox.
+Until then `marisstella.app` has no MX record and mail to it bounces
+(checked 2026-10-31). Sending (`noreply@`) is not part of this: a product
+that sends mail uses its own provider key (`ventures/local-site-studio`,
+`EMAIL_FROM`).

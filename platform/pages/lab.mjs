@@ -284,7 +284,7 @@ export function renderLabIndex() {
     crumbs: [{ label: 'Lab' }],
     body: `<div class="wrap">
 <section class="hero">
-<span class="eyebrow">Open Tools and Research · Lab</span>
+<span class="eyebrow">Maris Stella Labs · Lab</span>
 <h1>What can a page of free tools be?</h1>
 <p class="lede">This is where the site tries things. Each experiment lives in its own corner and touches nothing else, so ideas are cheap to try. The ones that prove useful get pulled into every page; the rest stay here. Two rules carry over from the site: everything runs in your browser with no tracking, and every tool works for you <em>and</em> for the AI agent working for you.</p>
 </section>

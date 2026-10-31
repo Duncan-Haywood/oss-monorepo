@@ -9,7 +9,7 @@ import { buildWriting, loadPosts, WRITING_PATH } from './writing.mjs';
 const BASE = 'https://example.test/site/';
 
 const post = (title, date) => `---\ntitle: "${title}"\ndate: ${date}\ndescription: "About ${title}."\n---\n\n# ${title}\n\nBody.\n`;
-const script = (title, date, postSlug, body = 'This is the Open Tools and Research podcast.\n\nSecond paragraph.') =>
+const script = (title, date, postSlug, body = 'This is the Maris Stella Labs podcast.\n\nSecond paragraph.') =>
   `---\ntitle: "${title}"\ndate: ${date}\ndescription: "Episode ${title}."\npost: ${postSlug}\n---\n\n${body}\n`;
 
 function repo({ posts = {}, scripts = {}, audio = {} }) {

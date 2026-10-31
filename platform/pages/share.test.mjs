@@ -89,7 +89,7 @@ test('cardTitle drops search-result taglines and "free, private" suffixes', () =
   assert.equal(cardTitle('Conformal Prediction Intervals Calculator — free, private, in your browser'), 'Conformal Prediction Intervals Calculator');
   assert.equal(cardTitle('Childcare costs after free hours and Tax-Free Childcare: free, private calculator'), 'Childcare costs after free hours and Tax-Free Childcare');
   assert.equal(cardTitle('Does a battery pay? | Open research'), 'Does a battery pay?');
-  assert.equal(cardTitle('Writing · Open Tools and Research'), 'Writing');
+  assert.equal(cardTitle('Writing · Maris Stella Labs'), 'Writing');
   assert.equal(cardTitle('No-Show & Cancellation Fee Calculator'), 'No-Show & Cancellation Fee Calculator');
 });
 

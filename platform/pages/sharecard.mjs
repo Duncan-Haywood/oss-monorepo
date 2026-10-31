@@ -425,7 +425,7 @@ export function renderCard({
   kicker = '',
   subtitle = '',
   footer = '',
-  site = 'Open Tools and Research',
+  site = 'Maris Stella Labs',
   address = '',
   highlight = '',
 } = {}) {
