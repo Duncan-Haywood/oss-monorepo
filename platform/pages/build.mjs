@@ -3921,6 +3921,8 @@ export const ABOUT_PATH = 'about/';
 export { SPONSORS_URL, BUY_ME_A_COFFEE_URL, sponsorsNote };
 // The repository the site is built from, named in the hub's Organization data.
 export const REPO_WEB_URL = 'https://github.com/Duncan-Haywood/oss-monorepo';
+// The person behind the organisation, for the hub's Organization data.
+export const SITE_FOUNDER = 'Duncan Haywood';
 
 /**
  * The one usage event name that is fleet-standard rather than per-product.
@@ -5745,12 +5747,12 @@ const CATEGORY_STYLE = `
     :root {
       color-scheme: light dark;
       --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
-      --line: #d3dce6; --accent: #12594a; --soft: #656e78;
+      --line: #d3dce6; --accent: #1f4e8c; --soft: #656e78;
       font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     }
     @media (prefers-color-scheme: dark) {
       :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
-              --line: #2a343f; --accent: #7fd8c0; --soft: #8d9aab; }
+              --line: #2a343f; --accent: #9dbfe8; --soft: #8d9aab; }
     }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--ink); }
@@ -6411,7 +6413,7 @@ const TOOLS_INDEX_STYLE = `
     .cats { align-items: start; }
     .cat { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 17px 18px;
            transition: transform .18s, box-shadow .18s, border-color .18s; }
-    .cat { border-top: 3px solid var(--pf-cat, #1fb68f); }
+    .cat { border-top: 3px solid var(--pf-cat, #1f4e8c); }
     .cat:hover, .cat:focus-within { transform: translateY(-2px); border-color: var(--pf-cat, var(--accent));
                                     box-shadow: 0 10px 28px rgba(20, 30, 60, .10); }
     .cat h2 { font-size: 1.1rem; margin: 0 0 6px; letter-spacing: -.01em; }
@@ -7221,6 +7223,17 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
     </header>
 
     <main class="prose">
+      <h2>Who makes this</h2>
+      <p>
+        ${escapeHtml(SITE_NAME)} is a small open-source lab in Colorado, founded
+        and run by Duncan Haywood. AI coding agents build the tools and the
+        research in public, in one
+        <a href="${escapeHtml(REPO_WEB_URL)}">GitHub repository</a>; every change
+        is tested before it ships, and the history of every merge is public.
+        Everything is MIT licensed, so you can use it, change it, or run your own
+        copy as a business of your own.
+      </p>
+
       <h2>What this is</h2>
       <p>
         A working set of ${total} small, single-purpose web tools across
@@ -7966,6 +7979,7 @@ export function renderHub(
     siteName: SITE_NAME,
     description: 'Free, open-source browser tools, self-hostable business apps and reproducible research.',
     repoUrl: REPO_WEB_URL,
+    founder: SITE_FOUNDER,
     logo: `${baseUrl}icon-512.png`,
   }))}</script>
   ${siteStyleLink('')}
@@ -7973,7 +7987,7 @@ export function renderHub(
     :root {
       color-scheme: light dark;
       --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
-      --line: #d3dce6; --accent: #12594a; --accent-ink: #f2f8f5;
+      --line: #d3dce6; --accent: #1f4e8c; --accent-ink: #f3f6fb;
       /* One step quieter than --muted, and the quietest ink on this page.
          It exists because the de-emphasis it provides used to be spelled as an
          opacity, which is not a colour and therefore cannot be checked:
@@ -7981,13 +7995,13 @@ export function renderHub(
          4.5:1 WCAG AA needs for body-size text. Naming the tint makes it a
          value contrast.mjs can measure. */
       --soft: #656e78;
-      --hero-2: #3b5bdb;
+      --hero-2: #3a6ea5;
       font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
     }
     @media (prefers-color-scheme: dark) {
       :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
-              --line: #2a343f; --accent: #7fd8c0; --accent-ink: #0d1319;
-              --soft: #8d9aab; --hero-2: #8ea2ff; }
+              --line: #2a343f; --accent: #9dbfe8; --accent-ink: #0d1319;
+              --soft: #8d9aab; --hero-2: #b4c6de; }
     }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; }
@@ -10862,7 +10876,7 @@ On ${listProse(exceptions.map((x) => toolProseName(x.title)))} the one thing you
 
   return `# ${SITE_NAME}
 
-> ${surfaces.length} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${researchProjects} reproducible research projects` : 'open research'}; no account or payment, and the numbers you type stay in your browser.
+> ${SITE_NAME} is an open-source lab where AI agents build tools and research in public, all MIT licensed. ${surfaces.length} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${researchProjects} reproducible research projects` : 'open research'}; no account or payment, and the numbers you type stay in your browser.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
@@ -10888,9 +10902,9 @@ export function renderNotFound(baseUrl) {
   <title>Not found</title>
   ${siteStyleLink(baseUrl)}
   <style>
-    :root { --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666; --line: #d3dce6; --accent: #12594a; }
+    :root { --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666; --line: #d3dce6; --accent: #1f4e8c; }
     @media (prefers-color-scheme: dark) {
-      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0; --line: #2a343f; --accent: #7fd8c0; }
+      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0; --line: #2a343f; --accent: #9dbfe8; }
     }
     body { font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; margin: 0; line-height: 1.6;
            color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; }
@@ -10898,7 +10912,7 @@ export function renderNotFound(baseUrl) {
     .nf h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.08; margin: 0 0 12px; }
     .nf .lede { font-size: 1.08rem; margin: 0 0 22px; }
     .code { font: 700 clamp(4.5rem, 14vw, 7.5rem)/1 "Inter", system-ui, sans-serif; letter-spacing: -.06em; margin: 0 0 4px;
-            background: linear-gradient(100deg, #7fe3c6, #8ea2ff 55%, #c79bff); -webkit-background-clip: text;
+            background: linear-gradient(100deg, #a8c7f0, #b4c6de 55%, #dfe8f5); -webkit-background-clip: text;
             background-clip: text; color: transparent; }
     .nf-search { display: flex; gap: 8px; max-width: 34rem; }
     .nf-search input { flex: 1 1 auto; min-width: 0; font: inherit; padding: 11px 14px; border-radius: 12px;

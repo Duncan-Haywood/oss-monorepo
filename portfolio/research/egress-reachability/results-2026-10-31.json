@@ -1,0 +1,1857 @@
+{
+  "counts": {
+    "egress_denied": 2,
+    "reachable": 94,
+    "scope_denied": 2
+  },
+  "method": "one HTTPS GET per host through this environment's egress proxy, redirects not followed, descriptive user-agent, 20s timeout. 'egress_denied' means the proxy refused the CONNECT and the origin was never contacted; any HTTP status is an origin-side answer.",
+  "n_hosts": 98,
+  "probed_at": "unstamped",
+  "proxy": {
+    "available": true,
+    "status": {
+      "bufferedAmountTrusted": true,
+      "bundleCoversEveryHost": true,
+      "caBundlePath": "/root/.ccr/ca-bundle.crt",
+      "downloadQueuedBytes": 0,
+      "downloadQueuedPeakBytes": 0,
+      "downloadReceiveGateEnabled": true,
+      "downloadReceivePauseSupported": true,
+      "enabled": true,
+      "gitConfigInjection": true,
+      "gitSshRewrite": true,
+      "governedGitTools": false,
+      "hasSystemCa": true,
+      "installedProxyPreconfiguredClis": [
+        "bq",
+        "gcloud",
+        "gh",
+        "gsutil"
+      ],
+      "javaTrustStorePath": "/etc/ssl/certs/java/cacerts",
+      "javaTrustStoreType": "JKS",
+      "noProxy": "localhost,127.0.0.1,::1,127.0.0.0/8,0.0.0.0/8,::,169.254.0.0/16,api.anthropic.com,api-staging.anthropic.com,api-pr-preview.anthropic.com,mcp-proxy.anthropic.com,mcp-proxy-staging.anthropic.com,registry.npmjs.org,jsr.io,npm.jsr.io,pypi.org,files.pythonhosted.org,index.crates.io,proxy.golang.org,host.docker.internal,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,100.64.0.0/10,.svc.cluster.local,*.svc.cluster.local",
+      "port": 42515,
+      "readmePath": "/root/.ccr/README.md",
+      "recentRelayFailures": [],
+      "selective": false,
+      "uploadGateEnabled": true,
+      "uploadPauseSupported": true,
+      "uploadPausedClients": 0,
+      "uploadPauses": 0
+    }
+  },
+  "results": [
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "addons.mozilla.org",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://addons.mozilla.org/api/v5/addons/search/?q=test&page_size=1",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": true,
+      "detail": "HTTP 401 from origin",
+      "host": "api.anthropic.com",
+      "prior_consensus": "reachable",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 401,
+      "url": "https://api.anthropic.com/v1/models",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "api.deps.dev",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://api.deps.dev/v3alpha/systems/npm/packages/express",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 502 Bad Gateway",
+      "host": "api.ecosyste.ms",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 0,
+      "url": "https://api.ecosyste.ms/api/v1/registries",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "api.github.com",
+      "prior_consensus": "scope_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "data-reachability/results-2026-08-20.json",
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://api.github.com/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 401 from origin",
+      "host": "api.gumroad.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 401 from origin",
+        "status": 401,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 401,
+      "url": "https://api.gumroad.com/v2/products",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 403 from origin",
+      "host": "api.lemonsqueezy.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 403 from origin",
+        "status": 403,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 403,
+      "url": "https://api.lemonsqueezy.com/v1/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "api.nuget.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 200,
+      "url": "https://api.nuget.org/v3/index.json",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 400 from origin",
+      "host": "api.opencollective.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 400 from origin",
+        "status": 400,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 400,
+      "url": "https://api.opencollective.com/graphql/v2",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 405 from origin",
+      "host": "api.osv.dev",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 405 from origin",
+        "status": 405,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "data-reachability/results-2026-08-20.json",
+        "publisher-audience/channel-reachability-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 405,
+      "url": "https://api.osv.dev/v1/query",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "api.paddle.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://api.paddle.com/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 404 from origin",
+      "host": "api.paypal.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 404 from origin",
+        "status": 404,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 404,
+      "url": "https://api.paypal.com/v1/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 401 from origin",
+      "host": "api.pepy.tech",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 401 from origin",
+        "status": 401,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "demand-signal-reachability/results-2026-08-24.json"
+      ],
+      "stable": true,
+      "status": 401,
+      "url": "https://api.pepy.tech/api/v2/projects/requests",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 401 from origin",
+      "host": "api.polar.sh",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 401 from origin",
+        "status": 401,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 401,
+      "url": "https://api.polar.sh/v1/products/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 404 from origin",
+      "host": "api.sam.gov",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 404 from origin",
+        "status": 404,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 404,
+      "url": "https://api.sam.gov/opportunities/v2/search",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 404 from origin",
+      "host": "api.stripe.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 404 from origin",
+        "status": 404,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 404,
+      "url": "https://api.stripe.com/v1",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "api.wordpress.org",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "data-reachability/results-2026-08-20.json",
+        "publish-reachability/results-2026-08-19.json",
+        "publisher-audience/channel-reachability-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&request[slug]=akismet",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "apps.shopify.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://apps.shopify.com/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "azuresearch-usnc.nuget.org",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://azuresearch-usnc.nuget.org/query?q=packageid:newtonsoft.json",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "bigquery.googleapis.com",
+      "prior_consensus": "reachable",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-24.json"
+      ],
+      "status": 200,
+      "url": "https://bigquery.googleapis.com/discovery/v1/apis/bigquery/v2/rest",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "chromewebstore.google.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://chromewebstore.google.com/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "Tunnel connection failed: 502 Bad Gateway",
+      "host": "clickpy-api.clickhouse.com",
+      "prior_consensus": "egress_denied",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-24.json"
+      ],
+      "status": 0,
+      "url": "https://clickpy-api.clickhouse.com/",
+      "verdict": "egress_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 403 in-band: {\"message\":\"This GitHub API path is not available: sessions are bound to their configured repositories. Use repository-s",
+      "host": "codeload.github.com",
+      "prior_consensus": "scope_denied",
+      "sources": [
+        "data-reachability/results-2026-08-20.json",
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json"
+      ],
+      "status": 403,
+      "url": "https://codeload.github.com/robots.txt",
+      "verdict": "scope_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "crates.io",
+      "prior_consensus": "reachable",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 200,
+      "url": "https://crates.io/api/v1/crates/serde",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "data.europa.eu",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://data.europa.eu/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "data.gov",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://data.gov/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "dev.to",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://dev.to/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "developer.wordpress.org",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://developer.wordpress.org/plugins/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "docs.github.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "publish-reachability/results-2026-08-19.json",
+        "publisher-audience/channel-reachability-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://docs.github.com/en/apps/github-marketplace/creating-apps-for-github-marketplace/requirements-for-listing-an-app",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 404 from origin",
+      "host": "docs.peppol.eu",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 404 from origin",
+        "status": 404,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 404,
+      "url": "https://docs.peppol.eu/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 301 from origin",
+      "host": "ec.europa.eu",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 301 from origin",
+        "status": 301,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 301,
+      "url": "https://ec.europa.eu/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 302 from origin",
+      "host": "epss.empiricalsecurity.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 302 from origin",
+        "status": 302,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 302,
+      "url": "https://epss.empiricalsecurity.com/epss_scores-current.csv.gz",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 202",
+      "host": "eur-lex.europa.eu",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 202",
+        "status": 202,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "data-reachability/results-2026-08-20.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 202,
+      "url": "https://eur-lex.europa.eu/homepage.html",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "euvd.enisa.europa.eu",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "data-reachability/results-2026-08-20.json",
+        "publisher-audience/channel-reachability-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://euvd.enisa.europa.eu/api/lastvulnerabilities",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "euvdservices.enisa.europa.eu",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "../pipeline/probes/README.md"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://euvdservices.enisa.europa.eu/api/lastvulnerabilities",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "example.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "data-reachability/results-2026-08-20.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://example.com",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": true,
+      "detail": "HTTP 404 from origin",
+      "host": "files.pythonhosted.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "publish-endpoint-reachability/results-2026-08-24.json",
+        "publish-endpoint-reachability/results.json"
+      ],
+      "status": 404,
+      "url": "https://files.pythonhosted.org/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "formulae.brew.sh",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://formulae.brew.sh/api/analytics/install/30d.json",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 401 from origin",
+      "host": "ghcr.io",
+      "prior_consensus": "reachable",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 401,
+      "url": "https://ghcr.io/v2/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 403 in-band: {\"message\":\"GitHub access to this repository is not enabled for this session. Use add_repo to request access. If add_rep",
+      "host": "github.com",
+      "prior_consensus": "scope_denied",
+      "sources": [
+        "data-reachability/results-2026-08-20.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 403,
+      "url": "https://github.com/github/advisory-database",
+      "verdict": "scope_denied"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 301 from origin",
+      "host": "gitlab.com",
+      "prior_consensus": "reachable",
+      "sources": [
+        "data-reachability/results-2026-08-20.json"
+      ],
+      "status": 301,
+      "url": "https://gitlab.com/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "glama.ai",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://glama.ai/mcp/servers",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "hex.pm",
+      "prior_consensus": "reachable",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 200,
+      "url": "https://hex.pm/api/packages?search=phoenix",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 404 from origin",
+      "host": "hub.docker.com",
+      "prior_consensus": "reachable",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 404,
+      "url": "https://hub.docker.com/v2/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "huggingface.co",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "data-reachability/results-2026-08-20.json",
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://huggingface.co/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": true,
+      "detail": "HTTP 200",
+      "host": "index.crates.io",
+      "prior_consensus": "reachable",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 200,
+      "url": "https://index.crates.io/config.json",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "index.golang.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json"
+      ],
+      "status": 200,
+      "url": "https://index.golang.org/index?limit=1",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": true,
+      "detail": "HTTP 200",
+      "host": "jsr.io",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://jsr.io/@std/fs/meta.json",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 403 from origin",
+      "host": "ko-fi.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 403 from origin",
+        "status": 403,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 403,
+      "url": "https://ko-fi.com/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "liberapay.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://liberapay.com/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "libraries.io",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://libraries.io/api/npm/express",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "login.wordpress.org",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://login.wordpress.org/register",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "marketplace.visualstudio.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "publish-reachability/results-2026-08-19.json",
+        "publisher-audience/channel-reachability-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://marketplace.visualstudio.com/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 301 from origin",
+      "host": "obsidian.md",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 301 from origin",
+        "status": 301,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json"
+      ],
+      "stable": true,
+      "status": 301,
+      "url": "https://obsidian.md/plugins",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "open-vsx.org",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "publish-reachability/results-2026-08-19.json",
+        "publisher-audience/channel-reachability-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://open-vsx.org/api/-/search?query=test&size=1",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "opencollective.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://opencollective.com/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "openssf.org",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://openssf.org/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "osv-vulnerabilities.storage.googleapis.com",
+      "prior_consensus": "reachable",
+      "sources": [
+        "data-reachability/results-2026-08-20.json"
+      ],
+      "status": 200,
+      "url": "https://osv-vulnerabilities.storage.googleapis.com/npm/all.zip",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 405 from origin",
+      "host": "packagist.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 405,
+      "url": "https://packagist.org/api/create-package",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "pkg.go.dev",
+      "prior_consensus": "reachable",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 200,
+      "url": "https://pkg.go.dev/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "plugins.svn.wordpress.org",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "publish-reachability/results-2026-08-19.json",
+        "publisher-audience/channel-reachability-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://plugins.svn.wordpress.org/akismet/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": true,
+      "detail": "HTTP 200",
+      "host": "proxy.golang.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 200,
+      "url": "https://proxy.golang.org/github.com/gorilla/mux/@v/list",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 301 from origin",
+      "host": "publications.europa.eu",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 301 from origin",
+        "status": 301,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 301,
+      "url": "https://publications.europa.eu/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": true,
+      "detail": "HTTP 200",
+      "host": "pypi.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json",
+        "publisher-audience/channel-reachability-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 200,
+      "url": "https://pypi.org/pypi/requests/json",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "pypistats.org",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://pypistats.org/api/packages/requests/recent",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "raw.githubusercontent.com",
+      "prior_consensus": "reachable",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "data-reachability/results-2026-08-20.json",
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 200,
+      "url": "https://raw.githubusercontent.com/github/advisory-database/main/README.md",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 401 from origin",
+      "host": "registry-1.docker.io",
+      "prior_consensus": "reachable",
+      "sources": [
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 401,
+      "url": "https://registry-1.docker.io/v2/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "registry.modelcontextprotocol.io",
+      "prior_consensus": "reachable",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 200,
+      "url": "https://registry.modelcontextprotocol.io/v0/servers?limit=1",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": true,
+      "detail": "HTTP 401 from origin",
+      "host": "registry.npmjs.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "data-reachability/results-2026-08-20.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json",
+        "publisher-audience/channel-reachability-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 401,
+      "url": "https://registry.npmjs.org/-/whoami",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "registry.terraform.io",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://registry.terraform.io/v1/modules?limit=1",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "repo.packagist.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-reachability/results-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 200,
+      "url": "https://repo.packagist.org/p2/monolog/monolog.json",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "rubygems.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "status": 200,
+      "url": "https://rubygems.org/api/v1/gems/rails.json",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 307 from origin",
+      "host": "s3.amazonaws.com",
+      "prior_consensus": "reachable",
+      "sources": [
+        "data-reachability/results-2026-08-20.json"
+      ],
+      "status": 307,
+      "url": "https://s3.amazonaws.com/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "services.nvd.nist.gov",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "data-reachability/results-2026-08-20.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://services.nvd.nist.gov/rest/json/cves/2.0?resultsPerPage=1",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 301 from origin",
+      "host": "shopify.dev",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 301 from origin",
+        "status": 301,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 301,
+      "url": "https://shopify.dev/docs/apps",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "smithery.ai",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://smithery.ai/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 400 from origin",
+      "host": "storage.googleapis.com",
+      "prior_consensus": "reachable",
+      "sources": [
+        "data-reachability/results-2026-08-20.json",
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "status": 400,
+      "url": "https://storage.googleapis.com/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "ted.europa.eu",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "data-reachability/results-2026-08-20.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://ted.europa.eu/en/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "thanks.dev",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://thanks.dev/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 301 from origin",
+      "host": "tidelift.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 301 from origin",
+        "status": 301,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 301,
+      "url": "https://tidelift.com/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "upload.pypi.org",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "demand-signal-reachability/results-2026-08-24.json",
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://upload.pypi.org/legacy/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "wordpress.org",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
+        "publish-reachability/results-2026-08-19.json",
+        "publisher-audience/channel-reachability-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://wordpress.org/plugins/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "www.cisa.gov",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "www.courtlistener.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://www.courtlistener.com/api/rest/v4/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "www.etsi.org",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://www.etsi.org/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 302 from origin",
+      "host": "www.federalregister.gov",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 302 from origin",
+        "status": 302,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "data-reachability/results-2026-08-20.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 302,
+      "url": "https://www.federalregister.gov/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "www.ftc.gov",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "primary-source-egress/README.md"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://www.ftc.gov/legal-library/browse/rules",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "www.gov.uk",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://www.gov.uk",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 403 from origin",
+      "host": "www.npmjs.com",
+      "prior_consensus": "reachable",
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 403,
+      "url": "https://www.npmjs.com/signup",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": true,
+      "bypasses_proxy": false,
+      "detail": "HTTP 404 from origin",
+      "host": "www.nuget.org",
+      "prior_consensus": "reachable",
+      "sources": [
+        "publish-endpoint-reachability/results-2026-08-24.json",
+        "publish-endpoint-reachability/results.json",
+        "publish-reachability/results-2026-08-19.json"
+      ],
+      "status": 404,
+      "url": "https://www.nuget.org/api/v2/package",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "www.piwheels.org",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "demand-signal-reachability/results-2026-08-24.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://www.piwheels.org/project/requests/json/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 403 from origin",
+      "host": "www.pulsemcp.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 403 from origin",
+        "status": 403,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "monetization-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 403,
+      "url": "https://www.pulsemcp.com/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "www.raycast.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://www.raycast.com/store",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "www.sec.gov",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000320193&type=10-K&count=1",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "www.shopify.com",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://www.shopify.com",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "www.w3.org",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "agent-reachability/results-2026-08-19.json",
+        "data-reachability/results-2026-08-20.json",
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://www.w3.org/WAI/standards-guidelines/wcag/",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "www.wikipedia.org",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "runtime-data-reachability/results-2026-08-20.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://www.wikipedia.org",
+      "verdict": "reachable"
+    },
+    {
+      "agrees_with_prior": false,
+      "bypasses_proxy": false,
+      "detail": "HTTP 200",
+      "host": "zed.dev",
+      "prior_consensus": "egress_denied",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "sources": [
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json"
+      ],
+      "stable": true,
+      "status": 200,
+      "url": "https://zed.dev/extensions",
+      "verdict": "reachable"
+    }
+  ]
+}

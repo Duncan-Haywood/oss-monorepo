@@ -57,3 +57,11 @@ jobs:
           platform/distribution/pypi-packages.test.mjs
           platform/distribution/homebrew.test.mjs
           platform/distribution/ghcr.test.mjs
+      # The hub writes every platform's text, and content.test.mjs checks its
+      # drafts quote each post in docs/posts/ word for word and fit every limit.
+      - name: Hub and content unit tests
+        run: >-
+          node --test platform/distribution/hub.test.mjs
+          platform/distribution/hub/content.test.mjs
+          platform/distribution/shorts.test.mjs
+          platform/distribution/launch-kit.test.mjs

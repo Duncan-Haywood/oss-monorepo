@@ -233,7 +233,7 @@ const STYLE = `
   .posts li { position:relative; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px 16px 22px; margin:0 0 14px;
     transition:transform .18s, box-shadow .18s, border-color .18s; }
   .posts li::before { content:""; position:absolute; left:-1px; top:16px; bottom:16px; width:3px; border-radius:0 3px 3px 0;
-    background:linear-gradient(180deg,#1fb68f,#4b5dff); }
+    background:linear-gradient(180deg,#1f4e8c,#3a6ea5); }
   .posts li:hover { transform:translateY(-2px); border-color:var(--accent); box-shadow:0 10px 28px rgba(20,30,60,.10); }
   .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
   .posts h2 a::after { content:""; position:absolute; inset:0; border-radius:14px; }

@@ -36,7 +36,7 @@ describe("isEmailFromPlaceholder", () => {
   });
 
   it("accepts real-looking From addresses", () => {
-    expect(isEmailFromPlaceholder("noreply@marisstellalabs.com")).toBe(false);
+    expect(isEmailFromPlaceholder("noreply@marisstella.app")).toBe(false);
     expect(isEmailFromPlaceholder("outreach@updates.localsitestudio.com")).toBe(
       false,
     );
@@ -58,7 +58,7 @@ describe("isEmailFromConfigured", () => {
   });
 
   it("accepts a trimmed real From address", () => {
-    expect(isEmailFromConfigured("noreply@marisstellalabs.com")).toBe(true);
+    expect(isEmailFromConfigured("noreply@marisstella.app")).toBe(true);
     expect(isEmailFromConfigured("  hello@acme.cafe  ")).toBe(true);
   });
 });
@@ -66,8 +66,8 @@ describe("isEmailFromConfigured", () => {
 describe("formatResendFromHeader", () => {
   it("wraps bare email with display name", () => {
     expect(
-      formatResendFromHeader("Local Site Studio", "noreply@marisstellalabs.com"),
-    ).toBe("Local Site Studio <noreply@marisstellalabs.com>");
+      formatResendFromHeader("Local Site Studio", "noreply@marisstella.app"),
+    ).toBe("Local Site Studio <noreply@marisstella.app>");
   });
 
   it("preserves an already-formatted Name <email> value", () => {
@@ -116,7 +116,7 @@ describe("assessEmailFromEnvReadiness", () => {
 
   it("is ready when EMAIL_FROM is a non-placeholder address", () => {
     const result = assessEmailFromEnvReadiness({
-      EMAIL_FROM: "noreply@marisstellalabs.com",
+      EMAIL_FROM: "noreply@marisstella.app",
     });
     expect(result.ready).toBe(true);
     expect(result.missing).toEqual([]);

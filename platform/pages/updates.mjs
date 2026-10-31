@@ -330,7 +330,7 @@ const STYLE = `
   @media (max-width:600px) { .tiles { grid-template-columns:repeat(2, minmax(0, 1fr)); } .tile b { font-size:1.6rem; } }
   .tile { position:relative; overflow:hidden; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px 18px 15px;
     transition:transform .18s, border-color .18s, box-shadow .18s; }
-  .tile::before { content:""; position:absolute; left:0; right:0; top:0; height:3px; background:linear-gradient(90deg,#1fb68f,#4b5dff,#b14bff); }
+  .tile::before { content:""; position:absolute; left:0; right:0; top:0; height:3px; background:linear-gradient(90deg,#1f4e8c,#3a6ea5,#5b7799); }
   .tile:hover { transform:translateY(-2px); border-color:var(--accent); box-shadow:0 10px 28px rgba(20,30,60,.10); }
   .tile b { display:block; font-size:2rem; line-height:1.1; letter-spacing:-.025em; font-variant-numeric:tabular-nums; }
   .tile span { display:block; margin-top:4px; font-size:.86rem; line-height:1.4; color:var(--muted); }

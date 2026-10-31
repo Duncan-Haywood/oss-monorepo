@@ -29,7 +29,7 @@
 
 import { renderCard, renderMarkIcon } from './sharecard.mjs';
 
-export const THEME_COLOR = '#12594a';
+export const THEME_COLOR = '#1f4e8c';
 const BACKGROUND_COLOR = '#eef2f7';
 
 // ---------------------------------------------------------------------------
@@ -139,10 +139,10 @@ export function renderOfflinePage(baseUrl) {
   <style>
     body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 12vh auto;
            padding: 0 1.2rem; line-height: 1.6; color: #1d2530; background: #eef2f7; }
-    a { color: #12594a; }
+    a { color: #1f4e8c; }
     ul { padding-left: 1.1rem; }
     @media (prefers-color-scheme: dark) {
-      body { color: #e8eef5; background: #10151c; } a { color: #7fd8c0; }
+      body { color: #e8eef5; background: #10151c; } a { color: #9dbfe8; }
     }
   </style>
 </head>

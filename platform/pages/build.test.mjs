@@ -2182,12 +2182,12 @@ test('a colour argument changes the field the card is drawn on', () => {
   // Two categories, two visibly different cards -- this is the whole point of
   // giving `renderSocialCard` a colour: a scraper that renders both should not
   // produce the same image.
-  const teal = renderSocialCard('#12594a');
+  const navy = renderSocialCard('#1f4e8c');
   const amber = renderSocialCard('#5c4412');
-  assert.notDeepEqual(teal, amber);
+  assert.notDeepEqual(navy, amber);
   // Both are still well-formed PNGs at the same fixed size -- only the field
   // colour was asked to change, not the geometry a scraper crops to.
-  for (const png of [teal, amber]) {
+  for (const png of [navy, amber]) {
     assert.deepEqual([...png.subarray(0, 8)], [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
     assert.equal(png.readUInt32BE(16), SOCIAL_CARD_WIDTH);
     assert.equal(png.readUInt32BE(20), SOCIAL_CARD_HEIGHT);
@@ -2197,7 +2197,7 @@ test('a colour argument changes the field the card is drawn on', () => {
 test('omitting the colour argument reproduces the original site-wide card', () => {
   // Every existing caller of `renderSocialCard()` -- the hub, the About page --
   // must keep getting exactly what they got before this parameter existed.
-  assert.deepEqual(renderSocialCard(), renderSocialCard('#12594a'));
+  assert.deepEqual(renderSocialCard(), renderSocialCard('#1f4e8c'));
 });
 
 test('injectDiscoveryTags points a page at its own card when one is given', () => {

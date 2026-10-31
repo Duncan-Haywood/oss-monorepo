@@ -293,9 +293,9 @@ export const SITE_HEADER_CSS = `
  * when it measures the venture's own background as dark (a venture with a
  * dark mode, or a dark-only one), so the bar always matches what it sits on.
  *
- * Contrast, light: muted #4a5666 on #ffffff is 7.6:1, accent #12594a on
- * #f6f8fb is 7.4:1. Dark: muted #a2b0c0 on #171e27 is 7.9:1, accent #7fd8c0
- * on #121821 is 10.6:1.
+ * Contrast, light: muted #4a5666 on #ffffff is 7.6:1, accent #1f4e8c on
+ * #f6f8fb is 7.8:1. Dark: muted #a2b0c0 on #171e27 is 7.9:1, accent #9dbfe8
+ * on #121821 is 9.4:1.
  *
  * Full width is `VENTURE_CHROME_JS`'s job, because only a measurement can say
  * where a venture's centred, padded or gridded body put the bar.
@@ -309,12 +309,12 @@ export const SITE_HEADER_CSS = `
  */
 export const VENTURE_CHROME_CSS = `
 nav.pf-chrome.pf-chrome-top[data-pfs-head],aside.pf-chrome.pf-chrome-foot{
-  --pfs-ink:#1d2530;--pfs-muted:#4a5666;--pfs-line:#d3dce6;--pfs-accent:#12594a;--pfs-panel:#ffffff;
+  --pfs-ink:#1d2530;--pfs-muted:#4a5666;--pfs-line:#d3dce6;--pfs-accent:#1f4e8c;--pfs-panel:#ffffff;
   --pfs-head-bg:#ffffff;--pfs-foot-bg:#f6f8fb;--pfs-mark:${MARK_BG};
   font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;
   text-shadow:none;letter-spacing:normal;text-transform:none;text-align:left}
 nav.pf-chrome.pf-chrome-top[data-pfs-head][data-pfs-theme="dark"],aside.pf-chrome.pf-chrome-foot[data-pfs-theme="dark"]{
-  --pfs-ink:#e8eef5;--pfs-muted:#a2b0c0;--pfs-line:#2a343f;--pfs-accent:#7fd8c0;--pfs-panel:#171e27;
+  --pfs-ink:#e8eef5;--pfs-muted:#a2b0c0;--pfs-line:#2a343f;--pfs-accent:#9dbfe8;--pfs-panel:#171e27;
   --pfs-head-bg:#171e27;--pfs-foot-bg:#121821;--pfs-mark:${MARK_BG}}
 nav.pf-chrome.pf-chrome-top[data-pfs-head]{display:block;position:relative;z-index:30;float:none;inset:auto;
   box-sizing:border-box;height:auto;min-height:0;max-width:none;margin:0;padding:0;overflow-x:clip;
@@ -403,9 +403,9 @@ export const VENTURE_CHROME_JS = `
 
 /** The site palette for site-owned pages, light and dark. */
 const SITE_TOKENS_CSS = `
-:root{--pfs-ink:#1d2530;--pfs-muted:#4a5666;--pfs-line:#d3dce6;--pfs-accent:#12594a;--pfs-panel:#ffffff;
+:root{--pfs-ink:#1d2530;--pfs-muted:#4a5666;--pfs-line:#d3dce6;--pfs-accent:#1f4e8c;--pfs-panel:#ffffff;
   --pfs-head-bg:#ffffff;--pfs-mark:${MARK_BG}}
-@media (prefers-color-scheme:dark){:root{--pfs-ink:#e8eef5;--pfs-muted:#a2b0c0;--pfs-line:#2a343f;--pfs-accent:#7fd8c0;
+@media (prefers-color-scheme:dark){:root{--pfs-ink:#e8eef5;--pfs-muted:#a2b0c0;--pfs-line:#2a343f;--pfs-accent:#9dbfe8;
   --pfs-panel:#171e27;--pfs-head-bg:#171e27;--pfs-mark:${MARK_BG}}}
 `;
 
@@ -420,15 +420,15 @@ const SITE_TOKENS_CSS = `
  * fill runs edge to edge and down past the page's bottom padding through a
  * spread shadow clipped to the band's sides and below: unlike a 100vw
  * pseudo-element, a shadow adds no scrollable overflow. Lightest
- * text-on-field pair: `--soft` #a9b5c6 on #080d1a is 9.4:1.
+ * text-on-field pair: `--soft` #a9b5c6 on #0b1626 is 8.7:1.
  */
 const SITE_FOOTER_CSS = `
 footer:has(.pfs-foot){position:relative;max-width:none;color-scheme:dark;margin-top:64px;padding:40px 0 34px;border-top:0;
-  color:#c3cddb;--ink:#eef2f8;--muted:#c3cddb;--soft:#a9b5c6;--accent:#7fe3c6;--line:rgba(148,170,210,.24);
-  --panel:rgba(20,28,48,.72);--pfs-accent:#7fe3c6;
-  background:radial-gradient(420px 160px at 30% 0%,rgba(31,182,143,.16),transparent 70%),
-    radial-gradient(460px 170px at 72% 0%,rgba(75,93,255,.18),transparent 70%),#080d1a;
-  box-shadow:0 0 0 100vmax #080d1a;clip-path:inset(0 -100vmax -100vmax)}
+  color:#c3cddb;--ink:#eef2f8;--muted:#c3cddb;--soft:#a9b5c6;--accent:#a8c7f0;--line:rgba(148,170,210,.24);
+  --panel:rgba(20,28,48,.72);--pfs-accent:#a8c7f0;
+  background:radial-gradient(420px 160px at 30% 0%,rgba(47,99,163,.16),transparent 70%),
+    radial-gradient(460px 170px at 72% 0%,rgba(58,110,165,.18),transparent 70%),#0b1626;
+  box-shadow:0 0 0 100vmax #0b1626;clip-path:inset(0 -100vmax -100vmax)}
 footer:has(.pfs-foot)>:not(.pfs-foot){max-width:84ch}
 footer:has(.pfs-foot) h2,footer:has(.pfs-foot) strong{color:#eef2f8}
 .pfs-foot{margin:18px 0 0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.9}
@@ -454,7 +454,7 @@ footer .pfs-foot a:hover,footer .pfs-foot a:focus-visible{text-decoration:underl
  * `.dek`, `.count`, `.starting` and link already read `--ink`, `--muted`,
  * `--accent` and friends, and get light-on-dark values here without each page
  * restyling them. Lightest text-on-field pair: `--soft` #a9b5c6 on the
- * brightest glow (~#1c2a52) is 6.6:1, above AA's 4.5:1.
+ * brightest glow (~#1b3451) is 6.1:1, above AA's 4.5:1.
  *
  * The band paints full-bleed from inside a centred `.wrap` with a 100vw
  * pseudo-element; `html{overflow-x:clip}` keeps that from adding a sideways
@@ -466,16 +466,16 @@ const SITE_HERO_CSS = `
 html{overflow-x:clip}
 .pf-hero{position:relative;isolation:isolate;max-width:none;margin:0 0 30px;
   padding:clamp(22px,4.4vw,46px) 0 clamp(24px,4vw,40px);color:#eef2f8;
-  --ink:#eef2f8;--muted:#c3cddb;--soft:#a9b5c6;--accent:#7fe3c6;--accent-ink:#07121a;
+  --ink:#eef2f8;--muted:#c3cddb;--soft:#a9b5c6;--accent:#a8c7f0;--accent-ink:#07121a;
   --line:rgba(148,170,210,.3);--panel:rgba(20,28,48,.72);--bg:rgba(10,16,32,.6);--code:rgba(148,170,210,.16)}
 .pf-hero::before,.pf-hero::after{content:"";position:absolute;z-index:-1;pointer-events:none;
   top:calc(-1 * var(--pf-hero-pull,26px));bottom:0;left:50%;width:100vw;margin-left:-50vw}
 .pf-hero::before{background:
-    radial-gradient(640px 300px at 8% 0%,rgba(31,182,143,.30),transparent 70%),
-    radial-gradient(760px 340px at 92% 0%,rgba(75,93,255,.34),transparent 70%),
-    radial-gradient(700px 300px at 55% 135%,rgba(177,75,255,.24),transparent 70%),
-    #080d1a;
-  border-bottom:1px solid #1d2742}
+    radial-gradient(640px 300px at 8% 0%,rgba(47,99,163,.30),transparent 70%),
+    radial-gradient(760px 340px at 92% 0%,rgba(58,110,165,.34),transparent 70%),
+    radial-gradient(700px 300px at 55% 135%,rgba(91,119,153,.24),transparent 70%),
+    #0b1626;
+  border-bottom:1px solid #1e2c42}
 .pf-hero::after{background-image:linear-gradient(rgba(140,170,255,.07) 1px,transparent 1px),
     linear-gradient(90deg,rgba(140,170,255,.07) 1px,transparent 1px);background-size:44px 44px;
   -webkit-mask-image:radial-gradient(ellipse 70% 90% at 50% 0%,#000 30%,transparent 80%);
@@ -483,7 +483,7 @@ html{overflow-x:clip}
 .pf-hero h1{color:#fff;letter-spacing:-.035em;text-wrap:balance}
 .pf-hero .eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--accent);font-size:.78rem;font-weight:700;
   letter-spacing:.09em;text-transform:uppercase;margin:0 0 10px}
-.pf-hero .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:color-mix(in srgb,var(--pf-cat,var(--accent)) 45%,#7fe3c6);
+.pf-hero .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:color-mix(in srgb,var(--pf-cat,var(--accent)) 45%,#a8c7f0);
   box-shadow:0 0 0 3px color-mix(in srgb,var(--pf-cat,var(--accent)) 30%,transparent)}
 .pf-hero .lede,.pf-hero .dek{color:var(--muted);text-wrap:pretty;max-width:68ch}
 .pf-hero a{color:var(--accent)}

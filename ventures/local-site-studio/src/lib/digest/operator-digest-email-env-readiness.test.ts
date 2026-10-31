@@ -27,7 +27,7 @@ describe("isOperatorDigestEmailPlaceholder", () => {
   });
 
   it("accepts real-looking operator inboxes", () => {
-    expect(isOperatorDigestEmailPlaceholder("you@marisstellalabs.com")).toBe(
+    expect(isOperatorDigestEmailPlaceholder("you@marisstella.app")).toBe(
       false,
     );
     expect(isOperatorDigestEmailPlaceholder("ops@localsitestudio.com")).toBe(
@@ -50,7 +50,7 @@ describe("isOperatorDigestEmailConfigured", () => {
   });
 
   it("accepts a trimmed real-looking destination", () => {
-    expect(isOperatorDigestEmailConfigured("ops@marisstellalabs.com")).toBe(
+    expect(isOperatorDigestEmailConfigured("ops@marisstella.app")).toBe(
       true,
     );
     expect(isOperatorDigestEmailConfigured("  you@localsitestudio.com  ")).toBe(
@@ -91,7 +91,7 @@ describe("assessOperatorDigestEmailEnvReadiness", () => {
 
   it("is ready when OPERATOR_DIGEST_EMAIL is a non-placeholder inbox", () => {
     const result = assessOperatorDigestEmailEnvReadiness({
-      OPERATOR_DIGEST_EMAIL: "ops@marisstellalabs.com",
+      OPERATOR_DIGEST_EMAIL: "ops@marisstella.app",
     });
     expect(result.ready).toBe(true);
     expect(result.missing).toEqual([]);

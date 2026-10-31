@@ -36,7 +36,7 @@ const GRID = [214, 176, 92];
 
 
 export const hexToRgb = (hex) => {
-  const h = String(hex || '#12594a').replace('#', '');
+  const h = String(hex || '#1f4e8c').replace('#', '');
   const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h.padEnd(6, '0').slice(0, 6);
   return [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16) || 0);
 };
@@ -462,7 +462,7 @@ function heroPaint(x0, x1) {
  *   highlight words of the headline painted in the hero's gradient
  */
 export function renderCard({
-  accent = '#12594a',
+  accent = '#1f4e8c',
   headline = '',
   kicker = '',
   subtitle = '',

@@ -15,8 +15,8 @@ export const LEGAL_ENTITY_FALLBACK = "Maris Stella Labs";
 export const LEGAL_LOCATION_FALLBACK = "Colorado, USA";
 export const POSTAL_ADDRESS_FALLBACK =
   "[Registered business address — Colorado, USA]";
-export const SUPPORT_EMAIL_FALLBACK = "support@marisstellalabs.com";
-export const EMAIL_FROM_FALLBACK = "noreply@marisstellalabs.com";
+export const SUPPORT_EMAIL_FALLBACK = "support@marisstella.app";
+export const EMAIL_FROM_FALLBACK = "noreply@marisstella.app";
 
 /** Trim and treat whitespace-only as unset. */
 function envTrimmed(name: string): string | undefined {
