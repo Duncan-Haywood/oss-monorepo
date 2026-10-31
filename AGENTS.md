@@ -92,10 +92,6 @@ Judgment first: these are defaults, not a ritual (`CLAUDE.md`, top).
 
 - **Merge when verified, yourself.** No human review gate; fix forward;
   `ventures/*` included. Open the PR at your first push.
-- **Touched `platform/marketing/` (the generators)? Run `node platform/marketing/regen.mjs --verify`**
-  (bare `regen.mjs` if it exits 1). The apex mirror under `gitops/prod/front-door*`
-  serves a retired origin (`portfolio/hosting/README.md`), so a venture edit alone
-  does not need it: the PR gate no longer runs it for ventures (P043).
 - **Verify with the workflows' own steps:**
   `python3 platform/ci/run_workflow_locally.py --for-changes`, and for a
   `ventures/**` or `platform/pages/` surface, `python3 platform/ci/browser_checks.py`

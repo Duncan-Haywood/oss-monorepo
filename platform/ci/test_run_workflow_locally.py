@@ -899,32 +899,6 @@ class ReadOnlyJobs(unittest.TestCase):
         """))
         self.assertEqual(allowed, {"lint"}, f"held: {held}")
 
-    def test_the_gitops_shellcheck_job_runs_while_its_ssh_jobs_stay_held(self):
-        """Both halves on the real file, because both halves matter.
-
-        `hetzner-gitops-ci.yml` validates the whole delivery path. The
-        `scripts` job is pure `shellcheck`; `hcloud-scope` (a secret read) was removed 2026-10-21.
-        Its `preflight` and `restore` jobs, which SSHed to the two Hetzner
-        boxes, were removed on 2026-10-01 when the owner deleted the servers
-        -- a released IP can be reassigned to a stranger -- so this also pins
-        that they do not come back. A screen that cannot tell a secret-reading
-        job from a read-only one is either useless or dangerous.
-        """
-        parsed = runner.load_workflow(
-            os.path.join(runner.WORKFLOWS, "hetzner-gitops-ci.yml"))
-        allowed, held = runner.read_only_jobs(parsed)
-        held_ids = [job for job, _ in held]
-
-        self.assertIn("scripts", allowed, f"held: {held}")
-        steps, _ = runner.collect(parsed, only={"scripts"})
-        self.assertTrue(any("shellcheck" in s.run for s in steps),
-                        "the scripts job must still carry the shellcheck step")
-
-        self.assertEqual(held_ids, [], "no job in this file reads a secret")
-        for job_id in ("preflight", "restore", "hcloud-scope"):
-            self.assertNotIn(job_id, parsed["jobs"],
-                             f"{job_id} SSHed to servers deleted 2026-10-01")
-
     def test_a_secret_reference_holds_the_job_however_long_the_command(self):
         """Why the screen walks scalars instead of re-serialising them.
 

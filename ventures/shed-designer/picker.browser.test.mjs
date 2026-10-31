@@ -168,9 +168,11 @@ test('axe finds no violations on the strip, the detail and the compare', { skip:
 test('typing a new lumber price re-prices the starting designs', { skip }, async (t) => {
   const { page } = await open(t);
   const before = await page.locator('#starts .pick-line').first().innerText();
-  // A 2x6 at $99 a board (the grid redraws after the first change, so one box takes it): the strip follows once typing pauses.
+  // A 2x4 at $99 a board, which every design buys (a 2x6 is not in every card: the
+  // gallery's cheapest has none). The grid redraws after the first change, so one
+  // box takes it; the strip follows once typing pauses.
   await page.evaluate(() => {
-    for (const e of /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll('#price-grid input[data-mat="2x6"]'))) {
+    for (const e of /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll('#price-grid input[data-mat="2x4"]'))) {
       e.value = '99';
       e.dispatchEvent(new Event('change', { bubbles: true }));
     }
@@ -252,6 +254,29 @@ test('every gallery design, end to end: card, detail with its own reason, compar
   assert.equal(await page.locator('#design-tabs [role="tab"]').count(), tabs + 1, 'started as a new design');
   assert.equal(await page.$eval('#lengthFt', (e) => Number(e.value) * 12), b.design.length);
   assert.equal(await page.$eval('#widthFt', (e) => Number(e.value) * 12), b.design.width);
+});
+
+test('each card shows its looks terms and its cost against the open design; the detail bridges the two', { skip }, async (t) => {
+  const { page } = await open(t);
+  const first = page.locator('#starts .pick').first();
+  const card = await first.innerText();
+  assert.match(card, /Looks \d+(\.\d)?\/100, (short on|full marks)/, 'the card names its looks score and terms');
+  assert.match(card, /(−|\+)\$[\d,]+ against your|Same materials cost as your/, 'the card prices itself against the open design');
+  await first.locator('.pick-open').click();
+  const dlg = page.locator('#pick-dialog');
+  await dlg.waitFor({ state: 'visible' });
+  assert.ok(await dlg.locator('.looks-terms li').count() >= 6, 'every looks term listed');
+  const text = await dlg.innerText();
+  assert.match(text, /Against your .*: materials (−|\+)\$/);
+  await dlg.locator('summary', { hasText: 'From your design' }).click();
+  assert.ok(await dlg.locator('.bridge-total').count() >= 2, 'the bridge runs from your total to the card\'s');
+  // The line follows the open design: change it and the card's figure moves.
+  await page.keyboard.press('Escape');
+  const before = await first.locator('.pick-delta').innerText();
+  await page.fill('#lengthFt', '10');
+  await page.locator('#lengthFt').blur();
+  await page.waitForFunction((b) => document.querySelector('#starts .pick .pick-delta')?.textContent !== b, before, { timeout: 5000 });
+  assert.ok(await noSideScroll(page));
 });
 
 test('the compare tray stays on screen at the bottom wherever you scroll, and counts details apart from compares', { skip }, async (t) => {

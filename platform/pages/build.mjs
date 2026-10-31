@@ -33,6 +33,7 @@ import zlib from 'node:zlib';
 import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
+import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
 import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, loadPosts, WRITING_PATH } from './writing.mjs';
 import { buildStories, STORIES_PATH } from './stories.mjs';
@@ -7508,6 +7509,7 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
       <ul>
         <li><a data-fb-issue href="${escapeHtml(`${issueBase}?template=bug.yml`)}">Report a problem</a> (a wrong result, a broken page, something confusing)</li>
         <li><a data-fb-issue href="${escapeHtml(`${issueBase}?template=feature.yml`)}">Suggest a feature or a new tool</a></li>
+        <li><a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}`)}">Request custom development</a> (ask for a tool to be built for your work, and follow its progress)</li>
       </ul>
       <p>Whatever you send is public. Please leave out names, addresses and anything else private.</p>
     </main>
@@ -7535,6 +7537,127 @@ const FEEDBACK_STYLE = `
     #fb button:disabled { opacity: .6; cursor: progress; }
     #fb-status { min-height: 1.5em; margin-top: 10px; }
     .fb-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+`;
+
+/** Where the open custom development page is served, relative to the site root. */
+export const CUSTOM_DEV_PATH = 'custom-development/';
+
+/**
+ * Open custom development: how anyone asks the agents to build something, how
+ * they follow it, and every request so far with its status, read from
+ * `portfolio/requests/requests.json` (`requests` here). Indexed and in the hub
+ * sitemap, because it is the page a person searching for free custom software
+ * should land on. The licence term is stated before the ask, not after: it is
+ * the one condition (owner, 2026-10-30).
+ */
+export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests = [] }) {
+  const url = `${baseUrl}${CUSTOM_DEV_PATH}`;
+  const toRoot = '../';
+  const title = 'Open custom development';
+  const description = 'Ask AI agents to build the tool your work needs, free and in public. Follow its progress here. One condition: it stays MIT licensed.';
+  const issueUrl = `${REPO_URL}/issues/new?template=custom-build.yml`;
+  const listUrl = `${REPO_URL}/issues?q=label%3Acustom-request`;
+  const counts = Object.keys(REQUEST_STATUSES).map((s) => [s, requests.filter((r) => r.status === s).length]);
+  const rows = [...requests]
+    .sort((a, b) => (b.updated || '').localeCompare(a.updated || '') || (a.id || '').localeCompare(b.id || ''))
+    .map((r) => {
+      const links = [
+        r.link ? `<a href="${escapeHtml(r.link)}">request</a>` : '',
+        r.project ? `<a href="${escapeHtml(`${REPO_URL}/tree/main/${r.project}`)}">project</a>` : '',
+        r.live ? `<a href="${escapeHtml(r.live)}">live</a>` : '',
+      ].filter(Boolean).join(' · ');
+      const note = r.status === 'declined' ? r.reason : r.next;
+      return `
+          <tr>
+            <td>${escapeHtml(r.id)}</td>
+            <td><strong>${escapeHtml(r.title)}</strong><br><span class="cd-ask">“${escapeHtml(r.ask)}”, from ${escapeHtml(REQUEST_SOURCES[r.source] || r.source)}, ${escapeHtml(r.received)}</span>${note ? `<br>${escapeHtml(note)}` : ''}</td>
+            <td><span class="cd-st cd-${escapeHtml(r.status)}">${escapeHtml(r.status)}</span><br><small>${escapeHtml(r.updated)}</small></td>
+            <td>${links}</td>
+          </tr>`;
+    })
+    .join('');
+  const table = requests.length
+    ? `
+      <div class="cd-table"><table>
+        <thead><tr><th>ID</th><th>Request</th><th>Status</th><th>Links</th></tr></thead>
+        <tbody>${rows}
+        </tbody>
+      </table></div>`
+    : '<p>No requests on file yet. Yours could be the first.</p>';
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(siteTitle(title))}</title>
+  <meta name="description" content="${escapeHtml(snippetize(description))}">
+  <link rel="canonical" href="${escapeHtml(url)}">
+  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
+  <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(snippetize(description))}">
+  <meta property="og:url" content="${escapeHtml(url)}">
+  <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>${CATEGORY_STYLE}${ABOUT_STYLE}${CUSTOM_DEV_STYLE}  </style>
+  ${siteStyleLink(toRoot)}
+</head>
+<body>
+  ${renderSiteHeader({ toRoot, current: 'about', crumbs: [{ label: 'Custom development' }] })}
+  <div class="wrap">
+    <header class="pf-hero">
+      <p class="eyebrow">Custom development</p>
+      <h1>${escapeHtml(title)}</h1>
+      <p class="lede">Tell us the tool your work needs. AI agent sessions build accepted requests in this public repository, free, and you can watch every step. The one condition: what is built stays open source under the MIT licence, held by the repository owner.</p>
+    </header>
+
+    <main class="prose">
+      <h2>How it works</h2>
+      <ol>
+        <li><strong>Ask.</strong> <a href="${escapeHtml(issueUrl)}">Open a request</a> on GitHub (a free account), or use the <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a> and pick “An idea” if you have no account. Short on time? The one-box <a href="${escapeHtml(`${REPO_URL}/issues/new?template=idea.yml`)}">idea form</a> works too. Describe the job from the inside: who does it, how, and where today's tools fall short.</li>
+        <li><strong>It is triaged.</strong> Each request gets an ID in the table below and a status: ${counts.map(([s]) => `<em>${s}</em>`).join(', ')}. A declined request says why.</li>
+        <li><strong>It is built in public.</strong> Sessions work in the open: every change is a pull request, and the project's README says what was tested and what was not.</li>
+        <li><strong>You follow it.</strong> Watch your issue for replies, check its row here (rebuilt on every merge), or browse <a href="${escapeHtml(listUrl)}">all requests on GitHub</a>. Add detail or real sample material to the issue at any time; that is the fastest way to move a request forward.</li>
+      </ol>
+
+      <h2>The terms</h2>
+      <ul>
+        <li><strong>Free.</strong> No fee for the engineering, the hosting or the agent compute.</li>
+        <li><strong>MIT licensed, held by the repository owner.</strong> What is built is published in <a href="${escapeHtml(REPO_URL)}">this repository</a> under its <a href="${escapeHtml(`${REPO_URL}/blob/main/LICENSE`)}">MIT licence</a>, with the owner's copyright notice. Anything you attach, you must be allowed to share, and you agree to its publication on those terms.</li>
+        <li><strong>You may use it commercially</strong>, as anyone may: deploy it, change it, sell a service on it. The licence is the same for everyone, so there is no exclusivity.</li>
+        <li><strong>No promise of a date or of acceptance.</strong> Agent time is shared across the whole repository. A request is weighed on how useful it is, how well it fits, and whether it can be built and run legally at no per-user cost.</li>
+        <li><strong>Public by default.</strong> Requests, code and discussion are visible to everyone. Leave out names, addresses and anything private.</li>
+      </ul>
+
+      <h2>Requests so far</h2>
+      <p>${requests.length} on file${requests.length ? `: ${counts.filter(([, n]) => n).map(([s, n]) => `${n} ${s}`).join(', ')}` : ''}. The list is kept in <a href="${escapeHtml(`${REPO_URL}/blob/main/portfolio/requests/requests.json`)}">one file</a>, so each request's history is that file's history. The first entries are the owner's own asks, to show how deep a request goes over many sessions.</p>${table}
+    </main>
+
+    <footer>
+      ${disclaimerHtml(toRoot, surfaces)}
+      ${renderSiteFooterNav({ toRoot })}
+    </footer>
+  </div>
+  <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="custom-development" defer></script>
+</body>
+</html>
+`;
+}
+
+const CUSTOM_DEV_STYLE = `
+    .cd-table { overflow-x: auto; }
+    .cd-table table { border-collapse: collapse; width: 100%; }
+    .cd-table th, .cd-table td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+    .cd-ask { color: var(--muted); font-size: .92em; }
+    .cd-st { display: inline-block; font-weight: 600; font-size: .85em; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); }
+    .cd-building, .cd-accepted { border-color: var(--accent); color: var(--accent); }
+    @media (max-width: 600px) {
+      .cd-table thead { display: none; }
+      .cd-table tr, .cd-table td { display: block; border: 0; padding: 2px 0; }
+      .cd-table tr { padding: 10px 0; border-bottom: 1px solid var(--line); }
+    }
 `;
 
 /** The slim search index the hub (and nothing else) loads. See `renderSearchIndex`. */
@@ -10383,6 +10506,8 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     .concat([`  <url><loc>${baseUrl}${ABOUT_PATH}</loc></url>`])
     // The assistant's page, on the same terms: hub-level, so listed here or nowhere.
     .concat([`  <url><loc>${baseUrl}${ASK_PATH}</loc></url>`])
+    // Open custom development, on the same terms.
+    .concat([`  <url><loc>${baseUrl}${CUSTOM_DEV_PATH}</loc></url>`])
     // And the comparison index, on exactly the same terms: a hub-level page
     // this build writes, so it is listed here or nowhere.
     .concat([`  <url><loc>${baseUrl}${COMPARE_PATH}</loc></url>`])
@@ -10652,6 +10777,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
       ? `- [Short index](${baseUrl}llms.txt): the same tools with one-sentence descriptions, small enough to read in one fetch.`
       : `- [Full text](${baseUrl}llms-full.txt): every tool with its complete description and the LLM docs a product ships; large (several hundred KB), fetch only when the index does not answer the question.`,
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, the country code and the device type, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [Open custom development](${baseUrl}${CUSTOM_DEV_PATH}): how anyone can ask the agents that build this site for a new tool, free and in public, the one condition (the result stays MIT licensed, held by the repository owner), and every request so far with its status.`,
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
     `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,
@@ -11295,6 +11421,12 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   const feedbackDir = path.join(outDir, FEEDBACK_PATH);
   await fs.mkdir(feedbackDir, { recursive: true });
   await fs.writeFile(path.join(feedbackDir, 'index.html'), renderFeedbackPage({ surfaces, baseUrl: base }));
+  const customDevDir = path.join(outDir, CUSTOM_DEV_PATH);
+  await fs.mkdir(customDevDir, { recursive: true });
+  await fs.writeFile(
+    path.join(customDevDir, 'index.html'),
+    renderCustomDevelopmentPage({ surfaces, baseUrl: base, requests: loadRequests() }),
+  );
 
   // The assistant's own page, and the files every page lazy-loads it from.
   const askDir = path.join(outDir, ASK_PATH);

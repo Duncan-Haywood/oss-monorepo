@@ -52,6 +52,7 @@ zero dependencies, one JSON file on a disk you own.
 - Dated time off: `off:` also takes dates, `off: 2026-11-04..2026-11-06; 2026-11-09 5pm-close`. A date applies only when it falls in the week you give as "Week starting", so one staff list holds a whole month of vacations and each week uses its own (`datedDays` in `calc.mjs`). Without a week start the page says the dated entry was not applied.
 - Youth hours: add `age: 15` (or `age: 15 summer`) to a 14-15 year old's row and the search treats the US federal limits as hard rules: only 7am-7pm (9pm in summer), at most 3 h a day and 18 h a week in a school week (8 h and 40 h in summer). Any `age:` under 18 also marks the person `minor` for the never-alone check; under 14 is refused. Add `off:` for school hours. State and local rules can be stricter, so check yours (`parseStaff` in `calc.mjs`).
 - Never alone: mark a person `minor` (or `supervised`) in their row and the page flags every stretch where only marked people are on shift, so a minor or trainee is never the only one in. A heads-up, not a search constraint: swap in an adult or pin one with `fixed:` (`unsupervisedStretches` in `calc.mjs`).
+- Seniority: add `seniority: 3` (higher = more senior) to rows and the page lists every shift a more senior person could take from a junior one with all hard rules still holding, with the payroll change and whether the senior is under their minimum hours (`seniorityClaims` in `calc.mjs`, 2026-10-30). A report, not a search rule: it shows where a seniority-bidding policy or a union contract would ask for a different roster. Contract terms themselves are not modelled.
 - Alone on shift: type a number of hours in "Warn when one person is alone for more than" and the page flags every stretch where exactly one person is on and nobody else, longer than that (`loneStretches` in `calc.mjs`). A heads-up, not a search constraint.
 - Short shifts: type a number of hours in "Warn about shifts shorter than" and the page lists every assigned shift under it (`shortShifts` in `calc.mjs`). A heads-up, not a search constraint.
 - Soft preference: add `avoid: Sat; Fri 5pm-close` to a person to keep those hours free when anyone else can cover them. Unlike `off:` the hours stay allowed, each hour inside costs half the person's wage in the search (`avoidValue`), and the page warns when someone still works inside their avoid window (`parseStaff`, `avoidMinutes` in `calc.mjs`).
@@ -186,9 +187,15 @@ The root price leaves a duality gap because the relaxation lets a contested shif
 
 Case 0 went from two-thirds of an open hour to $2.53 of pay. Still 0 of 4 proven: cases 2 and 3 barely move (case 3's gap is about one open hour that neither the roster nor the bound resolves), and case 1 is still a coverage gap of two hours. Costs 2 to 8 s per week at the default limits. A test checks the branched bound never passes the brute-force optimum on 40 tight random weeks and rises on at least one. One generator, one run each. (The clopening and call-out guide tables that failed on `main` here were re-derived from the engine on 2026-10-25.)
 
+## Trade pages (2026-10-30)
+
+[`daycare-staff-schedule.html`](daycare-staff-schedule.html) and
+[`coffee-shop-staff-schedule.html`](coffee-shop-staff-schedule.html) show a
+week for that trade; the coffee-shop page uses real CLI output, pinned by a test.
+
 ## Limits
 
-Not modelled: predictive-scheduling and fair-workweek rules as built-in law (the changes report prices a rule you enter), breaks as a hard rule (unpaid meal breaks are deducted from paid time; suggested meal-break times, and from 2026-10-30 paid rest breaks of the length and spacing you enter via `placeRestBreaks`, are shown but not enforced by the search), minor-labor limits other than the federal 14-15 rules in `age:` (state rules, work permits), union rules, seniority, time-off across weeks. A
+Not modelled: predictive-scheduling and fair-workweek rules as built-in law (the changes report prices a rule you enter), breaks as a hard rule (unpaid meal breaks are deducted from paid time; suggested meal-break times, and from 2026-10-30 paid rest breaks of the length and spacing you enter via `placeRestBreaks`, are shown but not enforced by the search), minor-labor limits other than the federal 14-15 rules in `age:` (state rules, work permits), union rules (seniority is reported, not enforced), time-off across weeks. A
 heuristic search by default; the exact check above proves optimality only on small weeks and reports when it could not. Verified against exhaustive search and invented data.
 Not legal, tax, or financial advice.
 

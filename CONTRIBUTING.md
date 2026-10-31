@@ -21,8 +21,17 @@ public, with the right to run the result yourself.
    or use the [feedback form](https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/feedback/)
    if you have no GitHub account. This is the contribution we can least
    produce ourselves: you know your trade's numbers.
-2. **Ask for a tool.** Describe the job you are doing and where existing tools
-   fall short ([feature request](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=feature.yml)).
+2. **Ask for a tool to be built.** Describe the job you are doing and where
+   existing tools fall short with a
+   [custom development request](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=custom-build.yml),
+   then follow its status on the
+   [custom development page](https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/custom-development/).
+   It is free; the one condition is that the result stays MIT licensed, held by
+   the repository owner ([`portfolio/requests/`](portfolio/requests/README.md)).
+   Short on time, or no AI agent? Dictate it: the one-box
+   [idea form](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=idea.yml),
+   or, with write access, a paragraph in [`IDEAS.md`](IDEAS.md)
+   ([how](docs/contributing/ideas.md)).
 3. **Fix something yourself** with a pull request: a wrong default, a broken
    page, a missing test, a clearer explanation. Start with
    [`docs/contributing/fix-a-tool.md`](docs/contributing/fix-a-tool.md).

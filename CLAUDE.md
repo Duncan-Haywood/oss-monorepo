@@ -140,14 +140,14 @@ is already asked; don't duplicate it.
 
 ## Hosting
 
-The catalogue is served by Cloudflare (free plan) at
-**https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/**, built and
+The catalogue is served by Cloudflare (free plan) at **https://marisstella.app/**
+(owner, 2026-10-30; the workers.dev address serves the same files), built and
 deployed by `.github/workflows/portfolio-pages.yml` on every merge (and every
 three hours); the old GitHub Pages address serves redirect pages to it
 (owner, 2026-10-29). Merging is publishing; there is no branch to push by hand.
-The Hetzner/k3s route was retired on 2026-10-01: never connect
-to its old IPs (they may now belong to someone else), and manifests under
-`gitops/prod` describe a dead origin. What
+The Hetzner/k3s route was retired on 2026-10-01 and its trees
+(`infra/`, `bootstrap/`, `gitops/`) deleted on 2026-10-30: never connect
+to its old IPs (they may now belong to someone else). What
 is served, and which state readers are stale:
 [`portfolio/hosting/README.md`](portfolio/hosting/README.md), "What is served now".
 

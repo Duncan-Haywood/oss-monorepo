@@ -67,6 +67,7 @@ rules"), not every rulebook in the tree.
 | A scheduled run | anywhere | [`prompt.md`](prompt.md), which routes it to one of the above |
 | A contribution from a person: bug report, fix, research check | anywhere | [`CONTRIBUTING.md`](CONTRIBUTING.md), then [`docs/contributing/`](docs/contributing/README.md) |
 | A blog post, README, `llms.txt` or other docs from a person | anywhere | [`docs/contributing/writing.md`](docs/contributing/writing.md) |
+| An idea, dictated, with no AI agent | [`IDEAS.md`](IDEAS.md) | [`docs/contributing/ideas.md`](docs/contributing/ideas.md) |
 | Steering the agents the way the owner does | anywhere | [`docs/contributing/steering-agents.md`](docs/contributing/steering-agents.md) |
 
 One process applies to every kind of work, because it is what keeps the tree
@@ -112,18 +113,15 @@ prompts/      the prompt system: prompt.md (the master prompt) routes each run t
               improves the prompts and docs from the records (prompts/README.md)
 portfolio/    the ledger, the router that allocates agent effort, and the
               candidate pipeline of researched-but-not-started businesses
-infra/        RETIRED: OpenTofu for the hel1 pair (servers deleted 2026-10-01)
-bootstrap/    RETIRED: k3s + Argo CD install scripts (servers deleted 2026-10-01)
-gitops/       RETIRED as a deploy target: App-of-Apps, prod/staging/agents
-              manifests, kept for offline validation only (no cluster since 2026-10-01)
 ```
 
-The hel1 servers (89.167.29.39, 157.180.80.188) were deleted by the owner on
-2026-10-01; the k3s/Argo route is retired, not down. Do not SSH to those
-addresses (they may now belong to someone else); asking for `HETZNERSSHKEY`
-again gains nothing, since the servers are gone. Actions secrets that stack used
-(names only): `HETZNERSSHKEY`, `HETZNERREADAPIKEY`. `CLAUDETRIGGERAPIKEY` is the Claude routine
-trigger, not GitOps. Table: [`infra/OWNER_CHECKLIST.md`](infra/OWNER_CHECKLIST.md).
+The self-hosted hel1 route (OpenTofu in `infra/`, k3s and Argo CD scripts in
+`bootstrap/`, manifests in `gitops/`) was retired when the owner deleted the
+servers on 2026-10-01, and the three trees were removed on 2026-10-30. They are
+in git history (`git log --diff-filter=D -- gitops/`) if a self-hosted origin is
+ever wanted again. Do not connect to the old server addresses: they may now
+belong to someone else. `CLAUDETRIGGERAPIKEY` is the Claude routine trigger,
+unrelated to that stack.
 
 ### ventures/
 

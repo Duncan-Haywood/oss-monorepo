@@ -1700,3 +1700,19 @@ test("streak: carries the days-in-a-row limit across Monday, and carry-over writ
   const full = _rcsv(buildRoster(staff("Dee,10,80,0,any,streak: 3"), slotsOf("Mon-Sun,9,13,1"), { maxConsecDays: 20 }));
   assert.match(_cos("Dee,10,80,0,any,streak: 3", full).text, /streak: 10/);
 });
+
+test("seniorityClaims: lists a more senior person who could take a junior's shift, none when ranks are unset", async () => {
+  const { parseStaff, parseShifts, buildRoster, seniorityClaims } = await import("./calc.mjs");
+  const mk = (extra) => parseStaff(`Ana, 20, 40, 0, Mon-Fri 9-17${extra[0]}\nBen, 15, 40, 0, Mon-Fri 9-17${extra[1]}`).staff;
+  const slots = parseShifts("Mon, 9am, 5pm, 1, Open").slots;
+  const staff = mk([", seniority: 5", ", seniority: 1"]);
+  const r = buildRoster(staff, slots, {});
+  const got = seniorityClaims(staff, slots, r);
+  assert.equal(got.claims.length, 1);
+  assert.equal(got.claims[0].senior, "Ana");
+  assert.equal(got.claims[0].junior, "Ben");
+  assert.ok(got.claims[0].extraCost > 0);
+  const none = seniorityClaims(mk(["", ""]), slots, buildRoster(mk(["", ""]), slots, {}));
+  assert.equal(none.claims.length, 0);
+  assert.ok(parseStaff("Ana, 20, 40, 0, Mon 9-17, seniority: x").errors.length === 1);
+});

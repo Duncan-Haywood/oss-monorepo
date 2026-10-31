@@ -164,7 +164,7 @@ class RealSitePatterns(unittest.TestCase):
 
     def test_every_configured_site_matches_its_real_file(self):
         _, problems = sync.apply(
-            sync.MIRRORED_SITES + sync.OPTOUT_SITES,
+            sync.OPTOUT_SITES,
             # A value nothing can equal, so this exercises matching only and
             # reports drift for every site rather than rewriting anything.
             999999,
@@ -173,27 +173,18 @@ class RealSitePatterns(unittest.TestCase):
         self.assertEqual(problems, [], "a configured sentence no longer matches its file")
 
     def test_every_configured_site_is_found_at_least_once(self):
-        sync.apply(sync.MIRRORED_SITES + sync.OPTOUT_SITES, 999999, write=False)
-        for site in sync.MIRRORED_SITES + sync.OPTOUT_SITES:
+        sync.apply(sync.OPTOUT_SITES, 999999, write=False)
+        for site in sync.OPTOUT_SITES:
             self.assertGreater(site.found, 0, f"{site.path}: {site.what} matched nothing")
 
 
 class Derivation(unittest.TestCase):
-    def test_the_mirrored_count_is_plausible_and_imported_not_restated(self):
-        # Imported from the guard's own helper. The assertion is deliberately
-        # a floor rather than an exact number -- pinning it here would create
-        # the very second copy this script exists to avoid.
-        count = sync.mirrored_tool_count()
-        self.assertGreater(count, 100, "the mirror holds hundreds of tools; a small number means a broken scan")
-
     def test_a_derivation_failure_raises_rather_than_returning_zero(self):
         self.assertTrue(issubclass(sync.DerivationError, RuntimeError))
 
         real = sync.REPO
         try:
             sync.REPO = Path(tempfile.gettempdir()) / "definitely-not-the-repo-12345"
-            with self.assertRaises(sync.DerivationError):
-                sync.mirrored_tool_count()
             with self.assertRaises(sync.DerivationError):
                 sync.optout_switch_count()
         finally:
@@ -258,9 +249,9 @@ class MultiGroupAndMain(ApplyBase):
         def boom():
             raise sync.DerivationError("x")
 
-        real = sync.mirrored_tool_count
-        sync.mirrored_tool_count = boom
-        self.addCleanup(setattr, sync, "mirrored_tool_count", real)
+        real = sync.optout_switch_count
+        sync.optout_switch_count = boom
+        self.addCleanup(setattr, sync, "optout_switch_count", real)
         old = sys.argv
         sys.argv = ["sync_tree_counts.py", "--check"]
         self.addCleanup(setattr, sys, "argv", old)
@@ -268,10 +259,9 @@ class MultiGroupAndMain(ApplyBase):
             self.assertEqual(sync.main(), 2)
 
     def test_main_refuses_a_derived_zero_with_exit_2(self):
-        real = (sync.mirrored_tool_count, sync.optout_switch_count)
-        sync.mirrored_tool_count = lambda: 0
-        sync.optout_switch_count = lambda: 5
-        self.addCleanup(lambda: (setattr(sync, "mirrored_tool_count", real[0]), setattr(sync, "optout_switch_count", real[1])))
+        real = sync.optout_switch_count
+        sync.optout_switch_count = lambda: 0
+        self.addCleanup(setattr, sync, "optout_switch_count", real)
         old = sys.argv
         sys.argv = ["sync_tree_counts.py", "--check"]
         self.addCleanup(setattr, sys, "argv", old)
@@ -279,17 +269,12 @@ class MultiGroupAndMain(ApplyBase):
             self.assertEqual(sync.main(), 2)
 
     def _run_main(self, *flags):
-        real = (sync.mirrored_tool_count, sync.optout_switch_count,
-                sync.MIRRORED_SITES, sync.OPTOUT_SITES)
-        sync.mirrored_tool_count = lambda: 3
-        sync.optout_switch_count = lambda: 4
-        sync.MIRRORED_SITES = [sync.Site("doc.md", r"mirrors (\d+) tools", "tools")]
-        sync.OPTOUT_SITES = []
+        real = (sync.optout_switch_count, sync.OPTOUT_SITES)
+        sync.optout_switch_count = lambda: 3
+        sync.OPTOUT_SITES = [sync.Site("doc.md", r"mirrors (\d+) tools", "tools")]
         self.addCleanup(lambda: (
-            setattr(sync, "mirrored_tool_count", real[0]),
-            setattr(sync, "optout_switch_count", real[1]),
-            setattr(sync, "MIRRORED_SITES", real[2]),
-            setattr(sync, "OPTOUT_SITES", real[3])))
+            setattr(sync, "optout_switch_count", real[0]),
+            setattr(sync, "OPTOUT_SITES", real[1])))
         old = sys.argv
         sys.argv = ["sync_tree_counts.py", *flags]
         self.addCleanup(setattr, sys, "argv", old)

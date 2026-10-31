@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Brendan and the Island That Was a Whale</title>
+      <link>https://example.invalid/hearth-and-horizon/brendan-and-the-island-that-was-a-whale.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/brendan-and-the-island-that-was-a-whale.html</guid>
+      <pubDate>Fri, 30 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Brendan, an Irish abbot who loved the sea, and about the old tale of his boat, his friends, and the green island that turned out to be a whale. Told from what is recorded of his life, with the voyage marked as a legend from a book written long after, and a note for grown-ups on what is history and what is our own addition. For ages 3 to 8, about eight minutes read aloud. His feast day is the 16th of May. Setting: The west of Ireland and the open sea, about fourteen hundred years ago. Read the full text at https://example.invalid/hearth-and-horizon/brendan-and-the-island-that-was-a-whale.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Brendan, an Irish abbot who loved the sea, and about the old tale of his boat, his friends, and the green island that turned out to be a whale. Told from what is recorded of his life, with the voyage marked as a legend from a book written long after, and a note for grown-ups on what is history and what is our own addition. For ages 3 to 8, about eight minutes read aloud. His feast day is the 16th of May.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Giles and the Doe</title>
       <link>https://example.invalid/hearth-and-horizon/giles-and-the-doe.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/giles-and-the-doe.html</guid>

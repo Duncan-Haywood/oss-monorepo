@@ -34,6 +34,41 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 9 (2026-10-30, eval/probe9.mjs): rideshare and delivery drivers, photographers, pet groomers, home daycares, mobile detailers.
+  // Wahl's "clipper" would otherwise hit the transit-card rule, so the pet-grooming supplies sit first.
+  ["6100", "out", /discount school supply|wahl clipper|\bandis\b|grooming table|detail king/],
+  ["6060", "out", /\bstride\b.*(mileage|tax)|mileage tracker|splice sounds|\bzenfolio\b|procare (software|solutions)|\bhimama\b|detailer app/],
+  ["6160", "out", /\bgetaround\b|hyredrive/],
+  ["6090", "out", /discount tire/],
+  ["6010", "out", /dasher red card/],
+  ["6170", "out", /\bnapps\b|\bnaeyc\b/],
+  ["4000", "in", /wedding photography.*zelle|child care subsidy|car detail.*cash app/],
+  // Gap probe 8 (2026-10-30, eval/probe8.mjs): truckers, small farms, tattoo artists, trainers, wedding DJs.
+  ["6060", "out", /dat load board|\btraining ?peaks\b|dj intelligence|soundcloud|bpm supreme/],
+  ["6010", "out", /freight factoring|rts financial/],
+  ["6110", "out", /fmcsa|usda organic/],
+  ["6170", "out", /\booida\b|farm bureau dues/],
+  ["6090", "out", /fleetpride|truckpro/],
+  ["6100", "out", /national ffa|inkbox|kuro sumi|sharps disposal|party city/],
+  ["4000", "in", /prime inc settlement|local harvest|csa share|(booking )?deposit.*zelle|balance due.*zelle/],
+  // Gap probe 7 (2026-10-30, eval/probe7.mjs): salons, electricians and plumbers, podcasters, tutors, print-on-demand sellers.
+  // Print-on-demand fulfilment is cost of goods; Printful was filed as marketing, so it sits first (Printify stays software, an older test pins it: its subscription and its orders look alike).
+  ["5000", "out", /\bprintful\b|\bgelato\b|\bgooten\b/],
+  ["6060", "out", /boulevard software|fieldpulse/],
+  ["6100", "out", /graybar|ced consolidated electrical|cosmoprof|\bcricut\b|joann fabrics?/],
+  ["6170", "out", /\bneca\b dues|tutoring assoc\w* dues/],
+  ["6070", "out", /everstamps/],
+  ["4000", "in", /liberated syndication/],
+  // Gap probe 6 (2026-10-30, eval/probe6.mjs): cafes and bakeries, solo lawyers and agents, landscaping and cleaning crews, vets and chiropractors, SaaS founders.
+  // Before the older rules so a coffee roaster is supplies, not meals, and a veterinary distributor is supplies, not repairs.
+  ["6100", "out", /royal cup|king arthur (baking|wholesale)|patterson veterinary|idexx|covetrus/],
+  ["6060", "out", /\bclio\b|\bmycase\b|westlaw|skyslope|applied epic|agency bloc|lawn love|yardbook|service ?autopilot|booking koala|maid central|chirotouch|vetsource|plausible analytics|mailgun|linear orbit/],
+  ["6010", "out", /\blawpay\b/],
+  ["6170", "out", /state bar dues|\bmls fees?\b|\bavma\b dues|avma dues/],
+  ["6110", "out", /insurance dept(artment)? licen[cs]e|dea registration/],
+  ["4000", "in", /commission.*closing|closing.*title co/],
+  ["6160", "out", /shell fleet|wex fleet|fuelman/],
+  ["6050", "out", /\bcarta\b|stripe atlas|firstbase/],
   // Pressure washing and window cleaning (2026-10-30, pressurewash.test.mjs; agent-written from the companies' public names, not from a real export):
   // Jobber payouts and HOA or property-manager Zelles are sales; washer gear, cleaning chemicals and squeegees are supplies (a bare "sodium hypochlorite" line is chemicals, not a pool bill).
   ["4000", "in", /jobber payout|zelle from .*(\bhoa\b|property (mgmt|management)|apartments)/],
@@ -85,6 +120,9 @@ export const BUILT_IN = [
   ["6080", "out", /\bhoa dues|homeowners assoc/],
   ["6060", "out", /freshbooks|\bwave ?(apps|financial)|smallpdf|surveymonkey|postmark|freshdesk|grammarly/],
   ["4000", "in", /\bgumroad|\bpatreon|lemon ?squeezy/],
+  ["6060", "out", /clickup|monday\.com|dashlane|\bbuffer\b|pagerduty|box\.com|jotform|pandadoc|\bifttt\b|\bhover\.com|\bhover\b(?=.*(domain|renew))/],
+  ["6000", "out", /bing ads|microsoft advertising/],
+  ["4000", "in", /kickstarter|thinkific/],
   ["6050", "out", /turbo ?tax|h&r block|\btaxact\b|freetaxusa/],
   ["6060", "out", /\btoast\b(?!.*(deposit|payout))|linkedin premium|salesforce|zendesk|\bsqsp\b|mindbody|\bacuity\b|square appointments|\bprintify\b/],
   ["6000", "out", /\bindeed\b|etsy (ads|offsite)/],

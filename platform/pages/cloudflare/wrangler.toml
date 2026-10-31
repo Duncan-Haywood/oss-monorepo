@@ -7,6 +7,11 @@ name = "monorepo-projects-site"
 main = "router.mjs"
 compatibility_date = "2025-09-01"
 workers_dev = true
+# The site's own domain, https://marisstella.app/, is attached to this Worker
+# as a Custom Domain in the Cloudflare dashboard (owner, 2026-10-30), not
+# here: with no `routes` key, `wrangler deploy` leaves it as it is, and the
+# deploy token needs no zone permissions. The workers.dev address keeps
+# serving the same files, with every canonical link naming the domain.
 
 [assets]
 directory = "../dist"
