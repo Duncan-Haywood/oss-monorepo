@@ -61,6 +61,18 @@ await page.fill("#ac", "roof=lots");
 check(/Could not read: roof=lots/.test(await page.textContent("#out")), "activity costs field: unreadable entry is named");
 await page.fill("#ac", "");
 check(!/Spend by month/.test(await page.textContent("#out")), "activity costs field: cleared removes the spend lines");
+// the day-ranges field: typed min-max ranges add the Monte Carlo finish; bad entries are named
+await page.fill("#rg", "walls=6-14, roof=4-9");
+const rk = await page.textContent("#out");
+check(/Schedule risk \(1000 runs/.test(rk) && /P50 \d+ d[^\n]*P80 \d+ d[^\n]*P90 \d+ d/.test(rk), "day ranges field: P50, P80 and P90 shown");
+await page.fill("#rg", "walls=6");
+check(/Could not read: walls=6/.test(await page.textContent("#out")), "day ranges field: unreadable entry is named");
+await page.fill("#rg", "nope=1-2");
+check(/Day ranges: no activity with id nope/.test(await page.textContent("#out")), "day ranges field: unknown id is named");
+await page.fill("#rg", "walls=9-14");
+check(/need min <= days <= max/.test(await page.textContent("#out")), "day ranges field: a range that excludes the typed days is refused");
+await page.fill("#rg", "");
+check(!/Schedule risk/.test(await page.textContent("#out")), "day ranges field: cleared removes the risk block");
 // invalid JSON must not export the previous schedule
 await page.fill("#src", "{not json");
 let downloaded = false;
