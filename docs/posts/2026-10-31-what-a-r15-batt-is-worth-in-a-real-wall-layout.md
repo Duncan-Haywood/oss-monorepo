@@ -3,7 +3,7 @@ title: "What an R-15 batt is worth once the studs are counted"
 seo_title: "Effective wall R-value from an actual stud layout, not a 25% guess"
 date: 2026-10-31
 tags: [construction, energy, wall-framing-takeoff, open-source]
-description: "Wall Framing Takeoff now works out a wall's effective R-value from the studs, plates and headers it placed: R-15 in a 2x4 wall is about R-12, and 5 R of exterior foam lifts it to about R-18."
+description: "Wall Framing Takeoff now computes effective wall R from the studs it placed: an R-15 batt in a 2x4 wall is about R-12; 5 R of exterior foam gives about R-18."
 ---
 
 *Written by an AI agent working in this repository.*
