@@ -162,7 +162,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
       const withLanding = st.landing || st.totalRise > (st.limits?.maxRise ?? STAIR_LIMITS.maxRise);
       const l = withLanding ? layoutStairWithLanding({ id: `Stair ${i + 1}`, ...st }, plan) : layoutStair({ id: `Stair ${i + 1}`, ...st }, plan);
       if (!l.ok) return { code: 1, out: `The stairs have problems:\n${l.errors.map((e) => `  - ${e}`).join("\n")}` };
-      if (st.winders) { l.winders = layoutWinders(typeof st.winders === "object" ? { width: st.width, ...(typeof st.tread === "number" ? { straightTread: st.tread } : {}), ...st.winders } : { width: st.width }); if (!l.winders.ok && !l.winders.problems) return { code: 1, out: `The winders have problems:\n${winderText(l.winders).join("\n")}` }; }
+      if (st.winders) { l.winders = layoutWinders(typeof st.winders === "object" ? { width: st.width, ...(typeof st.tread === "number" ? { straightTread: st.tread } : {}), ...(typeof st.treadThickness === "number" ? { treadThickness: st.treadThickness } : {}), ...st.winders } : { width: st.width }); if (!l.winders.ok && !l.winders.problems) return { code: 1, out: `The winders have problems:\n${winderText(l.winders).join("\n")}` }; }
       stairs.push(l);
     }
   }
