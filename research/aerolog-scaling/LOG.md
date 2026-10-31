@@ -3,6 +3,12 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-31 · Milestone 9n: does fitting 9m's coloured-noise record with AR(1)-whitened residuals recover the loss? (planned before running)
+- Why: 9m's "Next". 9m's output-error fit weights residuals as independent; with AR(1) noise (rho 0.9) a generalised least-squares residual, e_t - rho e_(t-1), is the efficient weighting.
+- Plan (`experiments/whitened_noise/run.py`): 9m's script and seed (20261103, same standard normals, so the white and coloured-unweighted columns should reproduce 9m), plus a third column: the same coloured record fitted with whitened residuals, in both continuation stages. rho = 0.9 is given to the fit (known), which flatters it; estimating rho is not tried.
+- **Predictions (before running):** (1) whitening brings the median short-period frequency error on coloured noise back to within 0.5 points of white's (prior 55%). (2) Share of draws within 10% gust recovers at least half of 9m's 17-point loss (prior 60%). (3) Fit failures stay at most twice white's (prior 65%). Refuted: (1) gap over 0.5 points; (2) recovers under 8.5 points; (3) more than twice.
+- Limits known in advance: rho known exactly, one value; 10 draws on a third of the designs; one seed.
+
 ## 2026-10-31 · Milestone 9m: does coloured (AR(1)) sensor noise break the output-error fit that white noise did not? (planned before running)
 - Why: 9l's "Next". Every noisy-identification result so far used white noise; real IMU and air-data errors are correlated in time, and a fit that treats residuals as independent can be biased by slow noise that looks like a mode.
 - Plan (`experiments/coloured_noise/run.py`): 9l's script (continuation start, estimated initial state, 2 phugoid periods, 10% noise, tail-slope scale 0.75, every third of the 78 designs, 10 paired draws, seed 20261103). Both columns see the same standard normals: white, or AR(1) with rho = 0.9 per sample (sample step is one twentieth of a short-period period, so the correlation time is about half a short-period cycle) scaled to the same marginal rms.
