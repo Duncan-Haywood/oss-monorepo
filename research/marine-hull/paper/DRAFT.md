@@ -67,9 +67,9 @@ insolation at five sites. All coefficients that are not sourced are swept on a g
 | Glider vs REMUS-100-class AUV, vendor hotel 104 to 175 W | 810 glider cases per AUV power row | glider longer in 100% of rows (total AUV power 125 to 188 W) | `results_remus.txt` |
 
 Monohull best range 560 to 1,188 km (median 836 km) at a median 1.05 m/s in the milestone-1 box.
-Hypotheses: H1 not tested as stated (the log reports a slow optimum, median 1.05 m/s at 30 W hotel, but no 10% range-spread test); H2 held; H3 untested; H4 "crossover
+Hypotheses: H1 refuted as stated (milestone 7c: range spreads 20.6% over 27 hull-form combinations, each constant alone under 10%; propulsion is 0.33 to 0.37 of power at the best speed); H2 held; H3 untested; H4 "crossover
 in 0.4 to 0.9 m/s" refuted, with the glider's edge being a hotel-load edge (break-even AUV hotel
-multiple median 4.87); H5 not yet tested against the battery sweep as a rank-swap count.
+multiple median 4.87); H5 refuted (0 mono/catamaran rank swaps in 2,187 cases over 150 to 250 Wh/kg, because range is proportional to pack energy; a flip needs a term that is not).
 
 ## 2.4 Still to write
 
