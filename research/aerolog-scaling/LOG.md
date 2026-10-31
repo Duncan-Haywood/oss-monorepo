@@ -3,6 +3,19 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-31 · Milestone 9m: does coloured (AR(1)) sensor noise break the output-error fit that white noise did not? (planned before running)
+- Why: 9l's "Next". Every noisy-identification result so far used white noise; real IMU and air-data errors are correlated in time, and a fit that treats residuals as independent can be biased by slow noise that looks like a mode.
+- Plan (`experiments/coloured_noise/run.py`): 9l's script (continuation start, estimated initial state, 2 phugoid periods, 10% noise, tail-slope scale 0.75, every third of the 78 designs, 10 paired draws, seed 20261103). Both columns see the same standard normals: white, or AR(1) with rho = 0.9 per sample (sample step is one twentieth of a short-period period, so the correlation time is about half a short-period cycle) scaled to the same marginal rms.
+- **Predictions (before running):** (1) coloured noise raises the median short-period frequency error over white, but it stays under 3% (prior 60%). (2) Fit failures with coloured noise are no more than twice white's (prior 55%). (3) The share of draws within 10% gust falls by under 10 points (prior 45%). Refuted: (1) coloured at or above 3%, or not higher than white; (2) more than twice; (3) 10 points or more.
+- Limits known in advance: a single correlation coefficient, equal on all four states and in-band with the short-period mode; 10 draws on a third of the designs; one seed.
+
+### Outcome of 9m (`experiments/coloured_noise/`: `run.py`, `results.txt`; about 15 min wall)
+- 26 designs, 260 draws each, 2 periods, 10% noise, estimated initial state, same standard normals for both. White against AR(1) rho = 0.9: fit failures 0 and 0; median |error| in phugoid, short-period frequency and damping ratio 0.07, 0.67, 1.51% against 0.26, 1.51, 2.55%; share of draws within 10% gust 86% against 69%; designs with 90% of draws within 10% gust 19 against 9 of 26; median worst gust error 5.6% against 7.2%; median worst mode error 3.1% against 4.0%.
+- **(1) held** (1.51%, higher than white's 0.67 and under 3%). **(2) held** (0 and 0). **(3) refuted:** the gust share fell 17 points, not under 10.
+- Reading: coloured noise at the same rms doubles the short-period frequency error and cost 17 points of gust-prediction reliability, with no outright fit failures, so the failure is silent: the fit converges, to slightly wrong modes. The earlier white-noise results (9h to 9l) are optimistic for a real record; the 2-period test card advice stands, but a margin on the gust error of roughly 1.5x is prudent where the noise is correlated.
+- Limits: as planned (one rho, equal on all states, 10 draws, one seed). The residual weighting is the unweighted white-noise one; a whitened (generalised) least-squares residual was not tried and may recover much of the loss.
+- Next: whitened residuals for the coloured case; real IMU noise density; NACA 0012/0015 data; thrust law; AIAA template.
+
 ## 2026-10-31 · Milestone 8f: paper draft catches up with milestones 2a to 2c and 9j to 9l (no new simulation)
 - Section 4.10 gains the 10% noise, continuation-start and estimated-initial-state results; new Section 4.11 holds the measured-flight energy results with their limits; `check_numbers.py` ties the new figures to this log (all ok). Next: turbulence; thrust law; lift-plus-cruise sizing; AIAA template.
 
