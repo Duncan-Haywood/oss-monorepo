@@ -575,18 +575,9 @@ class DispatchNeedsARunner(unittest.TestCase):
         # narrow so this stays clean.
         d = decision(action="Paste the key into Settings -> Secrets.")
         self.assertEqual(check([d], {}), [])
-
-    def test_the_shipped_pages_row_names_a_runner_free_route(self):
-        # Was pinned to `hetzner-ssh-key-is-a-public-key` until that row was
-        # removed on 2026-10-01 (servers deleted). `deploy-settings` is now the
-        # shipped row that carries the runner-free escape hatch.
-        rows = {d["id"]: d for d in load()}
-        row = rows["deploy-settings"]
-        self.assertTrue(
-            str(row.get("runner_free", "")).strip(),
-            "the Pages route that works without a runner must say so",
-        )
-        self.assertIn("publish-branch.sh", row["runner_free"])
+    # `test_the_shipped_pages_row_names_a_runner_free_route` retired on
+    # 2026-10-31 with the `deploy-settings` row: the owner confirmed the old
+    # Pages address redirects to marisstella.app, served by Cloudflare.
 
 
 class UnmeasuredIsNotBlocked(unittest.TestCase):

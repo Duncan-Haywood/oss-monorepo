@@ -227,12 +227,13 @@ class AsksAreBackedByMeasurements(unittest.TestCase):
     def test_check_passes(self):
         self.assertEqual(check_ask_hosts.main(), 0)
 
-    def test_the_euvd_api_host_is_named_in_the_ask(self):
-        """The wedge needs the API host; naming only the website host was the
-        defect that would have wasted the owner's one allowlist decision."""
-        text = open(check_ask_hosts.ASKS).read()
-        self.assertIn("euvdservices.enisa.europa.eu", text)
-
+    def test_the_euvd_api_host_is_measured(self):
+        """The wedge needs the API host, not the website host. The ask that
+        named it was granted on 2026-10-31; what must stay true is that the
+        API host carries a measured verdict, not just the website."""
+        results = os.path.join(HERE, "results-2026-10-31.json")
+        hosts = {r["host"]: r["verdict"] for r in json.load(open(results))["results"]}
+        self.assertEqual(hosts.get("euvdservices.enisa.europa.eu"), "reachable")
 
 class PublicationHostsAreNotEgress(unittest.TestCase):
     """A host the portfolio serves on is the other direction from egress.
