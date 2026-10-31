@@ -424,14 +424,20 @@ export function quantize(data, n = 256) {
   // that channel gave, without the n log n comparator calls).
   let keys = new Int32Array(4096);
   let distinct = 0;
+  let prev = -1; let run = 0;
   for (let i = 0, j = 0; i < pixels; i += 1, j += 3) {
     const k = (data[j] << 16) | (data[j + 1] << 8) | data[j + 2];
+    // Flat areas repeat a colour: count the run, touch the 64 MB table once.
+    if (k === prev) { run += 1; continue; }
+    if (run) { HIST[prev] += run; run = 0; }
+    prev = k;
     if (HIST[k] === 0) {
       if (distinct === keys.length) { const grown = new Int32Array(distinct * 2); grown.set(keys); keys = grown; }
       keys[distinct++] = k;
     }
     HIST[k] += 1;
   }
+  if (run) HIST[prev] += run;
   const scratch = new Int32Array(distinct);
   const bucket = new Int32Array(257);
   const describe = (start, end) => {
@@ -483,8 +489,11 @@ export function quantize(data, n = 256) {
     palette[i * 3 + 2] = Math.round(b / t);
   });
   const indices = Buffer.alloc(pixels);
-  for (let i = 0; i < pixels; i += 1) {
-    indices[i] = INDEX[(data[i * 3] << 16) | (data[i * 3 + 1] << 8) | data[i * 3 + 2]];
+  let last = -1; let lastIndex = 0;
+  for (let i = 0, j = 0; i < pixels; i += 1, j += 3) {
+    const k = (data[j] << 16) | (data[j + 1] << 8) | data[j + 2];
+    if (k !== last) { last = k; lastIndex = INDEX[k]; }
+    indices[i] = lastIndex;
   }
   for (let i = 0; i < distinct; i += 1) HIST[keys[i]] = 0;
   return { palette, indices };
