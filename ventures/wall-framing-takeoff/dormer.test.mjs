@@ -87,3 +87,15 @@ test("shed dormer by hand: 12 ft wide, 4 ft front wall, 3:12 on 8:12", () => {
 test("shed dormer refuses a pitch not flatter than the main roof", () => {
   assert.equal(layoutShedDormer({ width: 144, eaveHeight: 48, pitch: 8, mainPitch: 8 }).ok, false);
 });
+
+test("shed dormer front window by hand: 144 in wide, 80 in eave, 36 x 36 on a 30 sill", () => {
+  const r = layoutShedDormer({ width: 144, eaveHeight: 80, pitch: 3, mainPitch: 8, window: { width: 36, height: 36 } });
+  assert.ok(r.ok, JSON.stringify(r.errors));
+  // window spans 54..90; studs at 64 and 80 are inside, 0,16,32,48,96,112,128,144 stay (8) + 2 kings
+  assert.equal(get(r, "front stud")[0].count, 8);
+  assert.equal(get(r, "king stud")[0].count, 2);
+  assert.equal(get(r, "jack stud")[0].length, 66);
+  assert.equal(get(r, "window header (2 plies)")[0].length, 39);
+  assert.equal(get(r, "cripple under sill")[0].count, 2);
+  assert.equal(layoutShedDormer({ width: 144, eaveHeight: 80, pitch: 3, mainPitch: 8, window: { width: 200 } }).ok, false);
+});

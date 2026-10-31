@@ -156,13 +156,18 @@ export function dormerText(r) {
  *  per inch and run out at xr. Rafters run the full xr at the shed slope; a ledger
  *  at their top bears on the main roof framing (opening, headers and loads are the
  *  engineer's). Not counted: overhangs, flashing, the opening in the main roof, windows.
- *  @param {{ width: number, eaveHeight: number, pitch: number, mainPitch: number, spacing?: number, studSize?: string, rafterSize?: string, ledgerSize?: string }} d */
+ *  @param {{ width: number, eaveHeight: number, pitch: number, mainPitch: number, spacing?: number, studSize?: string, rafterSize?: string, ledgerSize?: string, headerSize?: string, window?: { width: number, height?: number, sill?: number } }} d */
 export function layoutShedDormer(d) {
   const e = [];
   if (!(d.width >= 36 && d.width <= 240)) e.push("Dormer width must be between 3 and 20 ft.");
   if (!(d.eaveHeight >= 24 && d.eaveHeight <= 96)) e.push("Dormer eave height must be between 2 and 8 ft.");
   if (!(d.pitch >= 1 && d.pitch <= 12)) e.push("Shed pitch must be between 1 and 12 in 12.");
   if (!(d.mainPitch >= 3 && d.mainPitch <= 16)) e.push("Main roof pitch must be between 3 and 16 in 12.");
+  if (d.window) {
+    const w = d.window;
+    if (!(w.width >= 12 && w.width <= d.width - 12)) e.push("Window width must be at least 1 ft and leave 1 ft of wall.");
+    if (!((w.height ?? 36) >= 12 && (w.height ?? 36) + (w.sill ?? 30) <= d.eaveHeight - PLATES - 3)) e.push("Window height plus sill must fit under the header in the front wall.");
+  }
   if (d.pitch >= d.mainPitch) e.push("A shed dormer's pitch must be flatter than the main roof's, or its roof never meets the main roof.");
   if (d.spacing != null && ![12, 16, 19.2, 24].includes(d.spacing)) e.push("Spacing must be 12, 16, 19.2 or 24 in.");
   if (e.length) return { ok: false, errors: e };
@@ -172,8 +177,24 @@ export function layoutShedDormer(d) {
   /** @type {{ part: string, size: string, length: number, count: number }[]} */
   const parts = [];
   const add = (/** @type {string} */ part, /** @type {string} */ size, /** @type {number} */ length, count = 1) => { if (count > 0 && length > 0) parts.push({ part, size, length: r16(length), count }); };
-  let frontX = 0; for (let x = 0; x < W - 1e-9; x += s) frontX++; frontX++;
-  add("front stud", stud, H - PLATES, frontX);
+  let frontXs = []; for (let x = 0; x < W - 1e-9; x += s) frontXs.push(x); frontXs.push(W);
+  const frontX = frontXs.length;
+  const notes = ["Shed dormer: overhangs, flashing, the opening in the main roof and its headers are not counted; sizes are typed and the load path is the engineer's."];
+  const frontLen = H - PLATES;
+  if (d.window) {
+    const w = d.window, hdr = d.headerSize ?? "2x6", left = (W - w.width) / 2, right = left + w.width, sill = w.sill ?? 30, wh = w.height ?? 36;
+    const inside = frontXs.filter((x) => x > left - 1.5 && x < right + 1.5 && x !== 0 && x !== W);
+    add("front stud", stud, frontLen, frontXs.length - inside.length);
+    add("king stud", stud, frontLen, 2);
+    const top = sill + wh;
+    add("jack stud", stud, top, 2);
+    add("window header (2 plies)", hdr, w.width + 3, 2);
+    add("window sill", stud, w.width, 1);
+    const cripples = Math.max(1, Math.floor(w.width / s));
+    add("cripple under sill", stud, sill - 1.5, cripples);
+    add("cripple over header", stud, frontLen - top - 3, cripples);
+    notes.push(`Window ${w.width} x ${wh} in on a ${sill} in sill: ${inside.length} layout stud(s) replaced by 2 kings, 2 jacks, a 2-ply ${hdr} header, a sill and ${cripples} cripples each above and below.`);
+  } else add("front stud", stud, frontLen, frontX);
   add("front bottom plate", stud, W, 1);
   add("front top plate", stud, W, 2);
   let cheekStuds = 0;
@@ -193,6 +214,6 @@ export function layoutShedDormer(d) {
     geometry: { cheekRunToRoof: r16(xr), rafterLength: r16(rafLen), rise: r16(xr * d.pitch / 12) },
     counts: { rafters, cheekStuds },
     areas: { roofSqFt: Math.round(W * xr / 144 * slope(d.pitch) * 10) / 10, wallSqFt: Math.round((W * H + H * xr) / 144 * 10) / 10 },
-    notes: ["Shed dormer: overhangs, flashing, windows, the opening in the main roof and its headers are not counted; sizes are typed and the load path is the engineer's."],
+    notes,
   };
 }
