@@ -128,6 +128,7 @@ test("the page frames a floor through floor.mjs and pools its lumber with the wa
   assert.match(html, /layoutFloor\(plan\.floor, plan\)/);
   assert.match(html, /fl\.headerCheck = \{ liveLoad: n\[0\]/); // header check read into the plan
   assert.match(html, /\$\("#flHdr"\)\.value = h \?/); // and restored
+  assert.match(html, /fl\.headerCheck\.cantDeflLimit = n\[7\]/); // cantilever tip ratio, the eighth figure
   assert.match(html, /fl\.cantilever = L\(\$\("#flCant"\)\.value/); // read into the plan
   assert.match(html, /\$\("#flCant"\)\.value = fl\.cantilever/); // and restored from a saved plan
   assert.match(html, /takeoff\(plan, floorExtra\)/);

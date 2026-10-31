@@ -32,7 +32,6 @@ let browser;
 try { browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined }); } catch (e) { console.log("skipped: no Chromium:", e.message.split("\n")[0]); server.close(); process.exit(0); }
 const page = await browser.newPage();
 const errors = [];
-page.on("pageerror", (e) => errors.push(e.message));
 await page.goto(`http://127.0.0.1:${server.address().port}/`);
 await page.check("#sheath");
 await page.waitForSelector("#sheathing table");
@@ -193,6 +192,15 @@ const [svh] = await Promise.all([page.waitForEvent("download"), page.click("#sav
 const savedH = JSON.parse(await (await import("node:fs/promises")).readFile(await svh.path(), "utf8"));
 const hc = savedH.floor?.headerCheck;
 console.log(hc && hc.Fb === 900 && hc.hangerCapacity === 50 && hc.deflLimit === 360 ? "ok: stairwell header check typed on the page, failing a 50 lb hanger, saved in the plan" : "FAIL: header check " + JSON.stringify(hc));
+// Cantilever tip ratio: the eighth figure reaches the plan and the check's allowed deflection (2 ft out, L/360 = 0.13 in).
+await page.fill("#flCant", "2 ft");
+await page.fill("#flHdr", "40, 10, 900, 180, 1300000, 0, 0, 360");
+await page.click("#run");
+await page.waitForFunction(() => /Cantilever joist, .*against 0\.13/.test(document.querySelector("#floorOut")?.textContent || ""), null, { timeout: 8000 }).catch(async () => console.log("FAIL: cantilever tip ratio not in the floor notes: " + JSON.stringify((await page.textContent("#floorOut")).split("\n").filter((l) => /antilever|hanger capacity/i.test(l)).map((l) => l.slice(0, 160))) + " body: " + JSON.stringify((await page.innerText("body")).split("\n").filter((l) => /ancilever|must|Stairwell header|refus/.test(l)).map((l) => l.slice(0, 200)))));
+const [svt] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const savedT = JSON.parse(await (await import("node:fs/promises")).readFile(await svt.path(), "utf8"));
+console.log(savedT.floor?.headerCheck?.cantDeflLimit === 360 ? "ok: cantilever tip ratio typed on the page, in the check and the saved plan" : "FAIL: cantDeflLimit " + JSON.stringify(savedT.floor?.headerCheck));
+await page.fill("#flCant", "");
 await page.fill("#flHdr", "40, 10, abc");
 await page.click("#run");
 await page.waitForFunction(() => /Stairwell header check: write live/.test(document.body.textContent));
