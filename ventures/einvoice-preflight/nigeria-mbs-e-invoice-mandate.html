@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nigeria e-invoicing: the NRS Merchant Buyer Solution, who is in scope and what a file check covers | E-invoice Preflight</title>
+<meta name="description" content="Nigeria's Revenue Service runs the Merchant Buyer Solution (MBS), a clearance system that returns an invoice reference number and QR code. A phased rollout by taxpayer size; dates differ between secondary sources. What this checker does and does not cover.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/nigeria-mbs-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nigeria e-invoicing: the NRS Merchant Buyer Solution, who is in scope and what a file check covers | E-invoice Preflight">
+<meta property="og:description" content="Nigeria's Revenue Service runs the Merchant Buyer Solution (MBS), a clearance system that returns an invoice reference number and QR code. A phased rollout by taxpayer size; dates differ between secondary sources. What this checker does and does not cover.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/nigeria-mbs-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is Nigeria's Merchant Buyer Solution?","acceptedAnswer":{"@type":"Answer","text":"Nigeria's national e-invoicing system, run by the Nigeria Revenue Service (NRS, successor to the Federal Inland Revenue Service). Secondary guides describe a clearance model: the seller's system sends the invoice through an NRS-accredited provider to the MBS, which validates it and returns an invoice reference number (IRN) and a QR code. NRS documents were not read for this page."}},{"@type":"Question","name":"Who has to use it, and from when?","acceptedAnswer":{"@type":"Answer","text":"Guides describe a phased rollout by turnover: large taxpayers (above 5 billion naira) first, then medium taxpayers (1 to 5 billion naira) from 1 July 2026, and smaller taxpayers in later waves reported through 2027 and 2028. Sources disagree on the large-taxpayer dates, because the deadline was extended at least once. Check NRS circulars for your own wave."}},{"@type":"Question","name":"Is the invoice format UBL or Peppol?","acceptedAnswer":{"@type":"Answer","text":"Not settled in the sources read. Guides say Nigeria's network is aligned with Peppol and that the portal lists standards including UBL, ISO 20022 and Peppol, with a Peppol PINT profile for cross-border use; one source says no separate technical standard had been gazetted. Treat the format as a lead to confirm with your accredited provider."}},{"@type":"Question","name":"Can this checker validate a Nigerian invoice?","acceptedAnswer":{"@type":"Answer","text":"No. It has no Nigerian rules, does not call the MBS and does not produce an IRN. For a UBL or CII file it applies EN 16931 and Peppol checks, which catch totals, tax breakdown and identifier faults that are likely to be rejected in any clearance system, but a clean result is not an NRS approval."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.out{min-height:1.4em}.good{color:#0a6b3a;font-weight:600}.bad{color:#a12d1b}input{font:inherit;padding:.4rem .5rem;border:1px solid #9fb0c0;border-radius:8px}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Nigeria: the Merchant Buyer Solution</h1>
+<p class="lede">Nigeria is rolling out clearance e-invoicing through the Nigeria Revenue Service&rsquo;s Merchant Buyer Solution (MBS), by taxpayer size. Below: how it works as secondary guides describe it, where the sources disagree, and what a free local file check can and cannot tell you.</p>
+</header>
+<section>
+<h2>How it works (as secondary guides report)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">What happens</th></tr></thead>
+<tbody>
+<tr><td>Issue</td><td>The seller&rsquo;s system sends the invoice through an NRS-accredited provider to the MBS, which validates it and returns an invoice reference number (IRN), a QR code and a digital signature; guides say an invoice needs them to be valid for payment.</td></tr>
+<tr><td>Who</td><td>Phased by annual turnover: large taxpayers (above 5 billion naira) first; medium taxpayers (1 to 5 billion naira) reported from 1 July 2026; smaller taxpayers later, with dates reported through 2027 and 2028. Large-taxpayer dates differ between sources after at least one extension.</td></tr>
+<tr><td>Buyer</td><td>One guide reports a 72-hour window for the buyer to reject an invoice.</td></tr>
+<tr><td>Retail (B2C)</td><td>Guides report no pre-clearance for retail invoices, which are reported to NRS within 24 hours of issue.</td></tr>
+<tr><td>Format</td><td>Reported as aligned with Peppol, with UBL, ISO 20022 and Peppol named as adopted standards on the portal; one source says no separate technical standard has been gazetted. Not confirmed here.</td></tr>
+<tr><td>Penalty</td><td>One summary lists a 200,000 naira penalty without conditions; NRS Information Circular 2026/05 is cited as restating the duties. Its text was not read.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Written from web search summaries and adviser guides (KPMG, vendor and news write-ups), not from NRS circulars or the MBS portal, none of which were read for this page. Dates, scope and penalties may have changed; treat every date and figure as a lead to check.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>The main checker reads UBL, CII and Factur-X and applies EN 16931 and Peppol rules. It does <strong>not</strong> apply Nigerian rules, call the MBS or produce an IRN. It is still useful before you hand a file to an accredited provider: wrong totals, a tax breakdown that does not add up, a missing tax reason and mistyped identifiers are the faults any clearance system rejects.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a>, drop your XML and read the findings, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded. No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all mandates by country</a>, for example <a href="kenya-etims-e-invoice-mandate.html">Kenya</a> and <a href="egypt-eta-e-invoice-mandate.html">Egypt</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is Nigeria's Merchant Buyer Solution?</h3>
+<p>Nigeria's national e-invoicing system, run by the Nigeria Revenue Service (NRS, successor to the Federal Inland Revenue Service). Secondary guides describe a clearance model: the seller's system sends the invoice through an NRS-accredited provider to the MBS, which validates it and returns an invoice reference number (IRN) and a QR code. NRS documents were not read for this page.</p>
+<h3>Who has to use it, and from when?</h3>
+<p>Guides describe a phased rollout by turnover: large taxpayers (above 5 billion naira) first, then medium taxpayers (1 to 5 billion naira) from 1 July 2026, and smaller taxpayers in later waves reported through 2027 and 2028. Sources disagree on the large-taxpayer dates, because the deadline was extended at least once. Check NRS circulars for your own wave.</p>
+<h3>Is the invoice format UBL or Peppol?</h3>
+<p>Not settled in the sources read. Guides say Nigeria's network is aligned with Peppol and that the portal lists standards including UBL, ISO 20022 and Peppol, with a Peppol PINT profile for cross-border use; one source says no separate technical standard had been gazetted. Treat the format as a lead to confirm with your accredited provider.</p>
+<h3>Can this checker validate a Nigerian invoice?</h3>
+<p>No. It has no Nigerian rules, does not call the MBS and does not produce an IRN. For a UBL or CII file it applies EN 16931 and Peppol checks, which catch totals, tax breakdown and identifier faults that are likely to be rejected in any clearance system, but a clean result is not an NRS approval.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Nigerian position from web search summaries and guides, not from NRS circulars or the Nigeria Revenue Service&rsquo;s pages; things can change, so check the Nigeria Revenue Service and the current rules before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>
