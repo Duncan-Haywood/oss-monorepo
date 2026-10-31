@@ -331,3 +331,15 @@ test("trimmer end reaction is checked against a typed bearing capacity", () => {
   assert.ok(weak.breaks.some((b) => /bearing capacity/.test(b)));
   assert.ok(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, bearingCapacity: 0 } }, plan()).errors.some((e) => /bearingCapacity/.test(e)));
 });
+
+test("header ties: straps = ceil(typed force / typed capacity), both required together", () => {
+  const hc = { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 180, E: 1300000 };
+  const o = [{ x: 100, y: 30, width: 36, depth: 100 }];
+  const l = layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, tieForce: 2500, tieCapacity: 1000 } }, plan());
+  assert.ok(l.ok);
+  assert.ok(l.headerChecks.every((r) => r.ties === 3));
+  assert.ok(l.notes.some((n) => /Ties: 3 straps at the typed 1000 lb each for the typed 2500 lb/.test(n)));
+  assert.equal(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, tieForce: 1000, tieCapacity: 1000 } }, plan()).headerChecks[0].ties, 1);
+  assert.equal(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: hc }, plan()).headerChecks[0].ties, null);
+  assert.ok(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, tieForce: 900 } }, plan()).errors.some((e) => /tieCapacity/.test(e)));
+});
