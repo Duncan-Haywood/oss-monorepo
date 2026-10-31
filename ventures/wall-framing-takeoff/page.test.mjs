@@ -344,7 +344,7 @@ test("the bid leveling card parses lines into plan.bids, restores them and level
 
 test("the deck controls are read into plan.deck, restored from a saved plan and drawn in the deck card", () => {
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
-  for (const id of ["dkOn", "dkWidth", "dkDepth", "dkHeight", "dkJoist", "dkSpacing", "dkBeam", "dkPost", "dkFree", "dkGuard", "dkGuardSides", "dkStair", "dkBorder", "dkPostCheck", "deckOut"]) assert.match(html, new RegExp(`id="${id}"`));
+  for (const id of ["dkOn", "dkWidth", "dkDepth", "dkHeight", "dkJoist", "dkSpacing", "dkBeam", "dkPost", "dkFree", "dkGuard", "dkGuardSides", "dkStair", "dkBorder", "dkBlocking", "dkPostCheck", "deckOut"]) assert.match(html, new RegExp(`id="${id}"`));
   assert.match(html, /plan\.deck = dk/);
   assert.match(html, /layoutDeck\(plan\.deck\)/);
   assert.match(html, /\$\("#dkOn"\)\.checked = Boolean\(dkp\)/);
@@ -354,6 +354,8 @@ test("the deck controls are read into plan.deck, restored from a saved plan and 
   assert.match(html, /\$\("#dkBorder"\)\.value = dkp\?\.border === true/);
   assert.match(html, /dk\.postCheck = \{ deadPsf: n\[0\], livePsf: n\[1\], fc: n\[2\], emin: n\[3\]/);
   assert.match(html, /\$\("#dkPostCheck"\)\.value = pc \?/);
+  assert.match(html, /dk\.blocking = \{ every: bk \}/);
+  assert.match(html, /\$\("#dkBlocking"\)\.value = dkp\?\.blocking\?\.every/);
   assert.match(html, /totalRise: plan\.deck\.height/);
   assert.match(html, /\$\("#dkStair"\)\.value = dkp\?\.stairs/);
   assert.match(html, /\$\("#dkGuard"\)\.value = dkp\?\.guard === false/);
