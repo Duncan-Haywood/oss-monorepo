@@ -39,6 +39,7 @@
   <label for="nb">Hold dates (optional; the earliest an activity may start, by id, like <code>plumb=2026-04-03, roof=2026-04-20</code>: a delivery or a permit, your dates). They replace any <code>notBefore</code> in the JSON for the ids listed.</label>
   <input id="nb" type="text" placeholder="plumb=2026-04-03, roof=2026-04-20" spellcheck="false" style="max-width:28rem">
   <pre id="out" aria-live="polite"></pre>
+  <p><button id="csv" type="button">Download CSV</button></p>
   <div id="gantt" aria-label="Bar chart of activities by date"></div>
   <p><a class="cta" href="index.html">Do the whole house: framing, sheathing, budget and schedule in one takeoff</a></p>
 
@@ -65,10 +66,11 @@
     <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { schedule, scheduleText, sampleSchedule } from "./schedule.mjs";
+    import { schedule, scheduleText, scheduleCsv, sampleSchedule } from "./schedule.mjs";
     const $ = (id) => document.getElementById(id);
     const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
     $("src").value = JSON.stringify(sampleSchedule(), null, 1);
+    let last = null;
     const run = () => {
       let input;
       try { input = JSON.parse($("src").value); } catch (e) { $("out").textContent = "Not valid JSON: " + e.message; $("gantt").innerHTML = ""; return; }
@@ -98,6 +100,7 @@
         input = { ...input, activities: acts.map((a) => (a && holds[a.id] ? { ...a, notBefore: holds[a.id] } : a)) };
       }
       const s = schedule(input);
+      last = s;
       $("out").textContent = scheduleText(s).join("\n");
       if (!s.ok) { $("gantt").innerHTML = ""; return; }
       const rows = s.rows.slice().sort((a, b) => a.leveledStart - b.leveledStart);
@@ -106,6 +109,12 @@
       const bars = rows.map((r, i) => `<text x="0" y="${i * rh + 15}" font-size="12">${esc(r.id)}</text><rect x="${lab + r.leveledStart * sc}" y="${i * rh + 3}" width="${Math.max(2, r.days * sc)}" height="${rh - 8}" fill="${r.critical ? "#a3321f" : "#1d5c7a"}"><title>${esc(r.id)}: ${esc(r.startDate)} to ${esc(r.finishDate)}</title></rect>`).join("");
       $("gantt").innerHTML = `<svg viewBox="0 0 ${W} ${rows.length * rh + 6}" width="100%" role="img">${bars}</svg><p style="font-size:.85rem">Red bars are on the critical path. Bars show crew-levelled working days.</p>`;
     };
+    $("csv").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([scheduleCsv(last)], { type: "text/csv" }));
+      a.download = "schedule.csv"; a.click(); URL.revokeObjectURL(a.href);
+    });
     $("src").addEventListener("input", run);
     $("wl").addEventListener("input", run);
     $("wr").addEventListener("input", run);

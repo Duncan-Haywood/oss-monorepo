@@ -1,6 +1,7 @@
+import { writeFileSync, unlinkSync } from "node:fs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { schedule, sampleSchedule, scheduleText, templateSchedule } from "./schedule.mjs";
+import { schedule, sampleSchedule, scheduleText, templateSchedule, scheduleCsv } from "./schedule.mjs";
 import { main } from "./cli.mjs";
 import { samplePlan } from "./engine.mjs";
 
@@ -184,3 +185,23 @@ test("carryPerDay prices the crew-levelled shift of a slip and the whole job", (
   assert.equal(schedule({ activities: acts }).carryTotal, undefined);
   assert.equal(schedule({ activities: acts, carryPerDay: -1 }).ok, false);
 });
+
+test("scheduleCsv lists activities in start order, quotes commas, and carries slips and errors", () => {
+  const acts = [{ id: "a", name: "Frame, walls", days: 3 }, { id: "b", days: 2, after: ["a"] }];
+  const s = schedule({ start: "2026-03-02", activities: acts, slips: [{ id: "b", days: 1 }] });
+  const lines = scheduleCsv(s).trimEnd().split("\n");
+  assert.equal(lines[0], "id,name,crew,days,start,finish,slack,critical,note");
+  assert.equal(lines[1], 'a,"Frame, walls",,3,2026-03-02,2026-03-04,0,yes,');
+  assert.equal(lines[2], "b,b,,2,2026-03-05,2026-03-06,0,yes,");
+  assert.match(lines[3], /^slip:b,,,1,,2026-03-09,,,finish moves 1 day/);
+  assert.match(scheduleCsv(schedule({ activities: [] })), /^error: The schedule has no activities/);
+  const plan = { ...samplePlan(), schedule: { start: "2026-03-02", activities: acts } };
+  const fs = await_free(plan);
+  assert.equal(fs.code, 0);
+  assert.match(fs.out, /^id,name,crew,days/);
+});
+function await_free(plan) {
+  const path = `${process.env.TMPDIR || "/tmp"}/sched-csv-${process.pid}.json`;
+  writeFileSync(path, JSON.stringify(plan));
+  try { return main([path, "--schedule", "--csv"]); } finally { unlinkSync(path); }
+}

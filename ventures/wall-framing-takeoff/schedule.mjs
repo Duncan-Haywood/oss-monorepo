@@ -249,6 +249,17 @@ export function scheduleText(s) {
   return out;
 }
 
+/** The schedule as a spreadsheet file: one row per activity in start order, then the slips. Text only; no figures beyond the schedule's own.
+ * @param {any} s */
+export function scheduleCsv(s) {
+  const q = (/** @type {any} */ v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+  if (!s.ok) return s.errors.map((/** @type {string} */ e) => q("error: " + e)).join("\n") + "\n";
+  const rows = [["id", "name", "crew", "days", "start", "finish", "slack", "critical", "note"],
+    ...s.rows.slice().sort((/** @type {any} */ a, /** @type {any} */ b) => a.leveledStart - b.leveledStart || a.es - b.es).map((/** @type {any} */ r) => [r.id, r.name ?? "", r.crew ?? "", r.days, r.startDate, r.finishDate, r.slack, r.critical ? "yes" : "no", r.derived ?? ""])];
+  for (const sl of s.slips) rows.push(["slip:" + sl.id, "", "", sl.days, "", sl.newFinishDate ?? "", "", "", sl.error ?? `finish moves ${sl.leveledFinishShift} day(s) with crews${sl.carryCost != null ? `, carry $${sl.carryCost}` : ""}`]);
+  return rows.map((r) => r.map(q).join(",")).join("\n") + "\n";
+}
+
 export function sampleSchedule() {
   return {
     start: "2026-03-02",

@@ -24,7 +24,7 @@ import { drawingSetPdf } from "./pdf.mjs";
 import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
 import { budget, budgetText, budgetCsv } from "./budget.mjs";
 import { levelBids, levelText } from "./bidlevel.mjs";
-import { schedule, scheduleText, resolveRates, templateSchedule } from "./schedule.mjs";
+import { schedule, scheduleText, scheduleCsv, resolveRates, templateSchedule } from "./schedule.mjs";
 import { planFromDxf } from "./dxf.mjs";
 
 /** `--wall-layer=RE`, `--door-layer=RE`, `--window-layer=RE`: layer-name patterns (case-insensitive) for drawings whose layers are not named like "wall". */
@@ -70,7 +70,7 @@ Usage:
   node cli.mjs plan.json --level-bids  line up the plan's "bids" (bidder, lines of item, qty, unitPrice or amount) against the budget lines: short quantities and left-out scope are priced at the bid's own, the plan's or the other bids' median price, else listed (add --json)
   node cli.mjs plan.json --budget    price the quantities with the plan's own "prices" (sheets, bundles, concrete, rebar...); lumber uses the stock prices; anything without a price is listed, not guessed (add --csv for a spreadsheet file, --json for the data)
   node cli.mjs --schedule-template   a starter activity list (order and predecessors, every duration 0) to paste into a plan as "schedule"
-  node cli.mjs plan.json --schedule  critical path, crew levelling and slip effects from the plan's own schedule object (activities, durations, predecessors, crews)
+  node cli.mjs plan.json --schedule  critical path, crew levelling and slip effects from the plan's own schedule object (activities, durations, predecessors, crews); add --csv for a spreadsheet file
   node cli.mjs plan.json --drawings   printable HTML shop drawings, one sheet per wall (marked members, dimensions, parts table)
   node cli.mjs plan.json --pdf > walls.pdf   the same shop drawings as a PDF file (no browser; add --panel-max=12ft for panel cut lines)
   node cli.mjs plan.json --gang     frame openings too close for their own kings (same kind, height and head) as one ganged opening with a mullion, and say which
@@ -265,6 +265,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   }
   if (flags.has("--pdf")) return { code: 0, out: "", bytes: drawingSetPdf(r, plan, { panelMax }) };
   if (flags.has("--drawings") || panelMax > 0) return { code: 0, out: drawingSetHtml(r, plan, { panelMax, sheathPsf, panelSheets: flags.has("--panel-sheets") }).trimEnd() };
+  if (flags.has("--schedule") && flags.has("--csv")) return { code: 0, out: scheduleCsv(schedule(resolveRates(plan.schedule, r))).trimEnd() };
   if (flags.has("--schedule") && flags.has("--json")) return { code: 0, out: JSON.stringify(schedule(resolveRates(plan.schedule, r)), null, 2) };
   if (flags.has("--level-bids")) {
     if (!Array.isArray(plan.bids) || !plan.bids.length) return { code: 1, out: 'plan has no "bids" list (each: { bidder, lines: [{ item, qty, unitPrice | amount }] })' };
