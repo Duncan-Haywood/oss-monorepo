@@ -1068,7 +1068,7 @@
           stairs = stairPlan.landing || stairPlan.totalRise > STAIR_LIMITS.maxRise ? layoutStairWithLanding(stairPlan, plan) : layoutStair(stairPlan, plan);
           if (stairs.ok && stairPlan.winders) {
             const wd = typeof stairPlan.winders === "object" ? stairPlan.winders : {};
-            stairs.winders = layoutWinders({ width: typeof stairPlan.width === "number" ? stairPlan.width : undefined, ...(typeof stairPlan.tread === "number" ? { straightTread: stairPlan.tread } : {}), ...wd });
+            stairs.winders = layoutWinders({ width: typeof stairPlan.width === "number" ? stairPlan.width : undefined, ...(typeof stairPlan.tread === "number" ? { straightTread: stairPlan.tread } : {}), ...(typeof stairPlan.treadThickness === "number" ? { treadThickness: stairPlan.treadThickness } : {}), ...wd });
           }
           if (!stairs.ok) { $("#errors").innerHTML = `<ul>${stairs.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#stairsCard").hidden = true; return false; }
           floorExtra = [...floorExtra, ...(stairs.flights ? [...stairs.flights.flatMap(stairCuts), ...landingCuts(stairs)] : stairCuts(stairs))];

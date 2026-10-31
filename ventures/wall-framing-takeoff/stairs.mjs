@@ -413,7 +413,7 @@ export function landingText(r) {
 // slightly undercuts, so a pass here is a pass by a hair of margin.
 export const WINDER_LIMITS = { winderWalkline: 12, winderWalkDepth: 10, winderMinDepth: 6, winderUniformity: 0.375 };
 
-/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
+/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, treadThickness?: number, treadSpanMax?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
 export function checkWinders(w) {
   const L = { ...WINDER_LIMITS, ...(w.limits || {}) };
   const count = w.count ?? 3, turn = w.turn ?? 90, width = w.width ?? 36, r = w.innerRadius ?? 0;
@@ -444,7 +444,7 @@ export function winderText(c) {
   out.push(c.ok ? "  Winders pass the 6 in and 10 in rules as typed." : `  Winders fail: ${c.problems.join("; ")}. The smallest inner radius that passes is ${c.minInnerRadius.toFixed(1)} in.`);
   if (c.treads) {
     out.push(`  Straight-edge depths: ${c.chordNarrow.toFixed(2)} in narrow, ${c.chordWalk.toFixed(2)} in at ${c.limits.winderWalkline} in out, ${c.chordWide.toFixed(2)} in wide${c.chordPasses ? "" : " (a straight edge fails where the arc passes: add radius)"}`);
-    if (c.framing) out.push(`  Framing under the winders: ${c.framing.supports} radial supports of ${formatInches(c.framing.supportLength)} (${formatInches(c.framing.totalLength)} all told; ${c.framing.shared} shared by two treads), each tread spanning ${formatInches(c.framing.treadSpan)} between two of them. Check that span against your own tread table.`);
+    if (c.framing) out.push(`  Framing under the winders: ${c.framing.supports} radial supports of ${formatInches(c.framing.supportLength)} (${formatInches(c.framing.totalLength)} all told; ${c.framing.shared} shared by two treads), each tread spanning up to ${formatInches(c.framing.treadSpan)} between two of them at the wall end.${c.framing.spanOk == null ? " Check that span against your own tread table." : c.framing.spanOk ? ` Within the ${formatInches(c.framing.treadSpanMax)} most.` : ` Over the ${formatInches(c.framing.treadSpanMax)} most: add a support under each tread, use thicker treads or a smaller inner radius.`}`);
     for (const t of c.treads) out.push(`  Winder tread ${t.index}: ${t.area.toFixed(1)} sq in, cut from a ${formatInches(t.blank.x)} x ${formatInches(t.blank.y)} blank`);
   }
   return out;
@@ -458,7 +458,7 @@ export function winderText(c) {
 // straight-edge ("chord") depth 2 x radius x sin(theta/2) at the narrow end,
 // 12 in out and the wide end. A chord is shorter than the arc `checkWinders`
 // measures, so `chordPasses` is the stricter answer for a straight edge.
-/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
+/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, treadThickness?: number, treadSpanMax?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
 export function layoutWinders(w) {
   const c = checkWinders(w);
   if (!c.problems) return c;
@@ -479,9 +479,13 @@ export function layoutWinders(w) {
   // Framing under the treads (2026-10-30): a radial support (a 2x ledger or
   // riser plate) under every tread edge, count + 1 in all, each as long as the
   // run from the pivot to the wall; a tread board spans that run between its
-  // two edge supports, so `treadSpan` is the stair width. No span table: the
-  // span is for the user's own table, and nothing structural is checked.
-  const framing = { supports: count + 1, supportLength: width, totalLength: (count + 1) * width, treadSpan: width, shared: count - 1 };
+  // two edge supports. The two supports fan out from the pivot, so the gap the
+  // board crosses is widest at the wall end: the straight-edge depth at the
+  // outer radius (`chordWide`), not the stair width (corrected 2026-10-31; the
+  // first version reported the width). When a tread thickness is typed the gap
+  // is checked against `maxTreadSpan`; otherwise it is reported for your table.
+  const tt = w.treadThickness, spanMax = typeof w.treadSpanMax === "number" ? w.treadSpanMax : typeof tt === "number" ? maxTreadSpan(tt) : null;
+  const framing = { supports: count + 1, supportLength: width, totalLength: (count + 1) * width, treadSpan: chordWide, shared: count - 1, treadSpanMax: spanMax, spanOk: spanMax == null ? null : chordWide <= spanMax + 1e-9 };
   return { ...c, treads, chordNarrow, chordWalk, chordWide, chordPasses, framing };
 }
 

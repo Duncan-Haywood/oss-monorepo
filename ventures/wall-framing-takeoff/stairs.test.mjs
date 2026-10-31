@@ -333,7 +333,7 @@ test("winder treads: three 30 degree treads at 12 in inner radius, hand geometry
 });
 test("winder framing: three treads need four radial supports, two shared (hand: 4 x 36 = 144 in)", () => {
   const f = layoutWinders({ count: 3, innerRadius: 12 }).framing;
-  assert.deepEqual(f, { supports: 4, supportLength: 36, totalLength: 144, treadSpan: 36, shared: 2 });
+  assert.deepEqual(f, { supports: 4, supportLength: 36, totalLength: 144, treadSpan: 2 * 48 * Math.sin(Math.PI / 12), shared: 2, treadSpanMax: null, spanOk: null });
   assert.equal(layoutWinders({ count: 4, innerRadius: 16, width: 42 }).framing.totalLength, 5 * 42);
   assert.match(winderText(layoutWinders({ count: 3, innerRadius: 12 })).join("\n"), /4 radial supports of 36"/);
 });
@@ -455,4 +455,13 @@ test("winder walkline uniformity: 12 in out at hand figures", () => {
   assert.ok(!near.problems.some((p) => /straight tread/.test(p)));
   // untyped tread: not checked
   assert.equal(checkWinders({ count: 3, innerRadius: 12 }).uniformDiff, null);
+});
+
+test("winder tread span is the widest gap between two radial supports, checked against the tread table when thickness is typed", () => {
+  // hand: 30 degree treads, outer radius 12 + 36 = 48 in, gap 2 x 48 x sin 15 = 24.85 in
+  const f = layoutWinders({ count: 3, innerRadius: 12, treadThickness: 1.5 }).framing;
+  assert.ok(Math.abs(f.treadSpan - 24.8467) < 1e-3);
+  assert.equal(f.treadSpanMax, 24); assert.equal(f.spanOk, false);
+  assert.match(winderText(layoutWinders({ count: 3, innerRadius: 12, treadThickness: 1.5 })).join("\n"), /Over the 24" most/);
+  assert.equal(layoutWinders({ count: 4, innerRadius: 12, treadThickness: 1.5 }).framing.spanOk, true); // 22.5 deg: 2 x 48 x sin 11.25 = 18.7
 });
