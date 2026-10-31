@@ -233,3 +233,34 @@ test("floor layout reports a failing penetration as a note and passes the rows t
   assert.ok(l.notes.some((n) => /Joist hole 1:/.test(n)));
   assert.ok(!l.notes.some((n) => /Joist hole 2:/.test(n)));
 });
+
+test("stairwell header check: bending, shear and deflection by hand, typed figures only", () => {
+  const hc = { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 180, E: 1300000 };
+  const l = layoutFloor({ ...sampleFloor(), openings: [{ x: 100, y: 30, width: 36, depth: 100 }], headerCheck: hc }, plan());
+  assert.ok(l.ok);
+  const front = l.headerChecks.find((r) => r.side === "front");
+  // 25.5 in tail -> 12.75 in = 1.0625 ft strip x 50 psf = 53.125 lb/ft over 46.5 in clear
+  assert.equal(front.span, 46.5);
+  assert.equal(front.tail, 25.5);
+  assert.ok(Math.abs(front.load - 53.125) < 1e-9);
+  const S = (3 * 9.25 ** 2) / 6; // two 1.5 in plies, 9.25 in deep
+  assert.ok(Math.abs(front.fb - (((53.125 / 12) * 46.5 ** 2) / 8) / S) < 1e-9);
+  assert.ok(Math.abs(front.fv - (1.5 * ((53.125 / 12) * 46.5) / 2) / (3 * 9.25)) < 1e-9);
+  assert.ok(front.ok);
+  assert.ok(l.notes.some((n) => /front header.*passes/.test(n)));
+});
+
+test("a header that is too weak for the typed strengths is reported with what it breaks", () => {
+  const hc = { liveLoad: 40, deadLoad: 10, Fb: 20, Fv: 5, E: 1300000, deflLimit: 360 };
+  const l = layoutFloor({ ...sampleFloor(), openings: [{ x: 100, y: 30, width: 36, depth: 100 }], headerCheck: hc }, plan());
+  const back = l.headerChecks.find((r) => r.side === "back");
+  assert.equal(back.ok, false);
+  assert.ok(back.breaks.some((b) => /^bending/.test(b)) && back.breaks.some((b) => /^shear/.test(b)));
+  assert.ok(l.notes.some((n) => /back header.*FAILS/.test(n)));
+});
+
+test("headerCheck needs typed loads and strengths and an opening", () => {
+  assert.ok(layoutFloor({ ...sampleFloor(), headerCheck: { liveLoad: 40 } }, plan()).errors.some((e) => /headerCheck\.Fb/.test(e)));
+  const none = layoutFloor({ ...sampleFloor(), headerCheck: { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 180, E: 1300000 } }, plan());
+  assert.ok(none.errors.some((e) => /at least one opening/.test(e)));
+});
