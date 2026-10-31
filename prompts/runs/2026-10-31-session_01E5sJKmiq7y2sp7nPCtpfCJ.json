@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01E5sJKmiq7y2sp7nPCtpfCJ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T03:28:06Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "aerolog-scaling"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11999",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Section 0 fetches origin/security-alerts, which does not exist; costs a failed command."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "Landed with the 4-period record missing: two attempts failed (container restart, 2h background limit).",
+      "did": "Reported 4 periods as not run, left it in Next.",
+      "result": "Partial result landed honestly."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-31-sensor-noise-10-percent-output-error-fit.md",
+    "research/aerolog-scaling/LOG.md (9j)"
+  ],
+  "goal": null,
+  "notes": "9j run on 1 and 2 periods only; run.py takes PERIODS from the environment so lengths run in parallel. Background jobs are capped at 2h and a restart kills them.",
+  "corrections": [],
+  "redteam": null
+}
