@@ -99,3 +99,18 @@ test("CLI --schedule resolves rates from the plan's own takeoff", () => {
 });
 import { createRequire } from "node:module";
 function require_fs() { return createRequire(import.meta.url)("node:fs"); }
+
+test("crewOff pauses one crew's work on its days off and leaves other crews alone", () => {
+  // Mon Mar 2 start. Framing is away Wed Mar 4: a 3-day job runs Mon, Tue, Thu.
+  const s = schedule({ start: "2026-03-02", crews: { framing: 1, roof: 1 }, crewOff: { framing: ["2026-03-04"] },
+    activities: [{ id: "f", days: 3, crew: "framing" }, { id: "r", days: 3, crew: "roof" }] });
+  assert.equal(s.rows.find((r) => r.id === "f").finishDate, "2026-03-05");
+  assert.equal(s.rows.find((r) => r.id === "r").finishDate, "2026-03-04");
+  assert.equal(s.leveledDays, 4);
+});
+
+test("crewOff on the first day delays the start; bad dates are refused", () => {
+  const s = schedule({ start: "2026-03-02", crews: { c: 1 }, crewOff: { c: ["2026-03-02", "2026-03-03"] }, activities: [{ id: "a", days: 1, crew: "c" }] });
+  assert.equal(s.rows[0].startDate, "2026-03-04");
+  assert.equal(schedule({ crews: { c: 1 }, crewOff: { c: ["nope"] }, activities: [{ id: "a", days: 1, crew: "c" }] }).ok, false);
+});

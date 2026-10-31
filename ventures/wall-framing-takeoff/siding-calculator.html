@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Siding calculator: boards, house wrap and corner boards for a house</title>
+  <meta name="description" content="Free siding calculator: type a house's length, width and wall height, add doors and windows and your siding's exposure, and get the number of boards counted course by course, house wrap rolls and corner boards. Runs in your browser.">
+  <meta property="og:title" content="Siding calculator">
+  <meta property="og:description" content="House size and exposure in, siding boards, house wrap and corner boards out. Counted course by course, not by area. Private, free, in your browser.">
+  <link rel="canonical" href="./siding-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much siding do I need for a 40 x 30 ft house?", "acceptedAnswer": {"@type": "Answer", "text": "For a 40 x 30 ft rectangle with 8 ft walls, one 3 ft door and two 3 x 4 ft windows, 7 in exposure and 12 ft boards, the calculator counts 56 courses, 176 boards with 10% waste, 1 roll of house wrap and 9 corner boards of 10 ft. Change any figure to match your plan."}}, {"@type": "Question", "name": "How do I calculate lap siding from the exposure?", "acceptedAnswer": {"@type": "Answer", "text": "Each course covers one exposure (the reveal, for example 7 in for an 8 in board over a 1 in lap), so the courses are the wall height divided by the exposure, rounded up. The length of every course, cut around doors and windows, is packed into stock boards, and waste is added. This is more exact than dividing square feet by a coverage figure."}}, {"@type": "Question", "name": "Does a siding calculator subtract windows and doors?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. An opening that cuts through a course splits that course's run, so the boards it removes are not counted, but the offcuts are carried into the next course the way a crew works. House wrap is the wall area less the openings plus a lap allowance."}}, {"@type": "Question", "name": "What is not counted?", "acceptedAnswer": {"@type": "Answer", "text": "Soffit and fascia, sill and jamb flashing, nails, caulk and paint. Exposure, board length and waste are figures you type from the product you buy, and the result is an estimate to check against your supplier's own takeoff."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Siding calculator</h1>
+  <p>Type the house and its openings. You get lap siding boards counted course by course around the doors and windows, house wrap and corner boards, from the same siding engine as the whole-house takeoff. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <div class="grid">
+      <div><label for="len">House length (in or 40' 0")</label><input id="len" value="480"></div>
+      <div><label for="wid">House width (in or 30' 0")</label><input id="wid" value="360"></div>
+      <div><label for="hgt">Wall height (in or 8' 0")</label><input id="hgt" value="96"></div>
+      <div><label for="exp">Exposure (in, the reveal)</label><input id="exp" value="7"></div>
+      <div><label for="stock">Board length</label><select id="stock"><option value="144">12 ft</option><option value="192">16 ft</option><option value="120">10 ft</option></select></div>
+      <div><label for="waste">Waste (%)</label><input id="waste" value="10"></div>
+      <div><label for="doors">Doors (3 x 6 ft 8 in)</label><input id="doors" type="number" min="0" value="1"></div>
+      <div><label for="wins">Windows (3 x 4 ft)</label><input id="wins" type="number" min="0" value="2"></div>
+    </div>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Add siding to a whole-house framing takeoff</a></p>
+
+  <h2>The method</h2>
+  <ol>
+    <li><strong>Courses.</strong> The wall height divided by the exposure, rounded up.</li>
+    <li><strong>Runs.</strong> Each course is as long as the wall, cut where a door or window crosses it.</li>
+    <li><strong>Boards.</strong> All the runs are packed into stock boards by first fit decreasing, so the offcut of one course starts another; waste is added on top.</li>
+    <li><strong>House wrap.</strong> Wall area less openings plus a lap allowance, in rolls of 1,350 sq ft.</li>
+    <li><strong>Corners.</strong> Two corner boards per outside corner, full height.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How much siding do I need for a 40 x 30 ft house?</h3>
+  <p>For a 40 x 30 ft rectangle with 8 ft walls, one 3 ft door and two 3 x 4 ft windows, 7 in exposure and 12 ft boards, the calculator counts 56 courses, 176 boards with 10% waste, 1 roll of house wrap and 9 corner boards of 10 ft. Change any figure to match your plan.</p>
+  <h3>How do I calculate lap siding from the exposure?</h3>
+  <p>Each course covers one exposure (the reveal, for example 7 in for an 8 in board over a 1 in lap), so the courses are the wall height divided by the exposure, rounded up. The length of every course, cut around doors and windows, is packed into stock boards, and waste is added. This is more exact than dividing square feet by a coverage figure.</p>
+  <h3>Does a siding calculator subtract windows and doors?</h3>
+  <p>Yes. An opening that cuts through a course splits that course's run, so the boards it removes are not counted, but the offcuts are carried into the next course the way a crew works. House wrap is the wall area less the openings plus a lap allowance.</p>
+  <h3>What is not counted?</h3>
+  <p>Soffit and fascia, sill and jamb flashing, nails, caulk and paint. Exposure, board length and waste are figures you type from the product you buy, and the result is an estimate to check against your supplier's own takeoff.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. House and opening sizes are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Board counts follow the course-by-course packing stated above (first fit decreasing, offcuts carried to the next course); your siding maker's coverage and your installer's method may differ.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { layoutSiding, sidingText } from "./siding.mjs";
+    import { parseLength } from "./engine.mjs";
+    const $ = (id) => document.getElementById(id);
+    const run = () => {
+      const L = parseLength($("len").value), W = parseLength($("wid").value), H = parseLength($("hgt").value);
+      const doors = Math.max(0, Math.floor(+$("doors").value || 0)), wins = Math.max(0, Math.floor(+$("wins").value || 0));
+      const ops = [];
+      for (let i = 0; i < doors; i++) ops.push({ kind: "door", offset: 60 + i * 48, width: 36, height: 80 });
+      for (let i = 0; i < wins; i++) ops.push({ kind: "window", offset: 200 + i * 100, width: 36, height: 48, headerHeight: 80 });
+      const wall = (id, length, openings = []) => ({ id, length, openings, sheathed: true });
+      const plan = { studLength: H - 4.5, defaultHeaderHeight: 80, walls: [wall("A", L, ops), wall("B", W), wall("C", L), wall("D", W)] };
+      const ok = L >= 96 && W >= 96 && H >= 72 && H <= 192 && ops.length * 100 + 160 <= L;
+      if (!ok) { $("out").textContent = "Check the numbers: sides of at least 8 ft, walls 6 to 16 ft high, and the doors and windows have to fit along the first wall."; return; }
+      const d = layoutSiding({ exposure: +$("exp").value, stock: +$("stock").value, waste: (+$("waste").value || 0) / 100, height: H }, plan);
+      $("out").textContent = d.ok === false ? d.errors.join("\n") : sidingText(d).join("\n");
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>
