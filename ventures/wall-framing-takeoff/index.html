@@ -341,6 +341,7 @@
       <div><label for="fnAnchor">Anchor bolt spacing (in; blank: no bolts counted)</label><input id="fnAnchor" type="number" min="12" max="120" placeholder="e.g. 72"></div>
       <div><label for="fnAnchorEnd">Anchor bolt distance from plate end (in)</label><input id="fnAnchorEnd" type="number" min="4" max="24" value="12"></div>
       <div style="grid-column:1/-1"><label for="fnPiers">Piers, one group per line: <code>count, pad in, pad depth in, column in, column height in, bars, bar #, name</code> (the last five are optional; blank: none)</label><textarea id="fnPiers" rows="2" placeholder="e.g. 6, 24, 12, 8, 30, 4, 4, deck posts"></textarea></div>
+      <div style="grid-column:1/-1"><label for="fnSteps">Footing steps, one per line: <code>rise in, run in, name</code> (rise 4 to 24 in lowers that run of the perimeter footing; name optional; blank: none)</label><textarea id="fnSteps" rows="2" placeholder="e.g. 16, 96, east slope"></textarea></div>
       <div><label for="fnPrice">Concrete price per cu yd (blank: none)</label><input id="fnPrice" type="number" min="0" step="1" placeholder="e.g. 165"></div>
     </div>
     <p><input type="checkbox" id="rfOn" style="width:auto"> <label for="rfOn" style="display:inline">Also frame a roof, gable or hip (rafters, ridge, ceiling joists, collar ties, roof sheathing, shingles and felt; the lumber joins the order)</label></p>
@@ -833,6 +834,16 @@
           piers.push(pier);
         }
         if (piers.length) fn.piers = piers;
+        const steps = [];
+        for (const [i, line] of $("#fnSteps").value.split("\n").map((t) => t.trim()).filter(Boolean).entries()) {
+          const c = line.split(",").map((t) => t.trim());
+          const n = c.slice(0, 2).map(Number);
+          if (c.length < 2 || c.length > 3 || c[0] === "" || c[1] === "" || n.some((v) => !Number.isFinite(v))) { bad.push(`Footing step line ${i + 1} ("${line}") needs: rise in, run in, then optionally a name.`); continue; }
+          const step = { rise: n[0], length: n[1] };
+          if (c[2]) step.name = c[2];
+          steps.push(step);
+        }
+        if (steps.length) fn.footing.steps = steps;
         if ($("#fnPrice").value.trim()) fn.price = Number($("#fnPrice").value);
         plan.foundation = fn;
       }
@@ -1308,7 +1319,8 @@
         $("#fnSlab").value = String(fn.slab?.thickness ?? 4); $("#fnPrice").value = fn.price != null ? String(fn.price) : ""; $("#fnCorner").value = fn.cornerBars ? "true" : "";
         $("#fnAnchor").value = fn.anchorBolts ? String(fn.anchorBolts.spacing ?? 72) : ""; $("#fnAnchorEnd").value = String(fn.anchorBolts?.endDistance ?? 12);
         $("#fnPiers").value = (fn.piers || []).map((p) => [p.count, p.pad, p.padDepth, p.column ?? "", p.columnHeight ?? "", p.bars ?? "", p.bar ?? "", p.name ?? ""].join(", ").replace(/(, )+$/, "")).join("\n");
-      } else $("#fnPiers").value = "";
+        $("#fnSteps").value = (fn.footing?.steps || []).map((t) => [t.rise, t.length, t.name ?? ""].join(", ").replace(/, $/, "")).join("\n");
+      } else { $("#fnPiers").value = ""; $("#fnSteps").value = ""; }
       const rf = plan.roof;
       $("#rfOn").checked = Boolean(rf); $("#rfFields").hidden = !rf;
       if (rf) {
