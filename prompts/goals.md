@@ -217,6 +217,45 @@ CCPA and the rest), honest privacy copy that says what a page actually does,
 and nothing personal in this public repository. Spec:
 `portfolio/usage/README.md`.
 
+## Direction: industrial, energy and construction
+
+Set by the owner on 2026-10-31: "let's pivot some of the big directions to deep
+tech industrial, energy real estate dev and construction data warehouse as the
+big overarching directions. this is where investment seems to be going these
+days. robotics construction imaging/sensing. autonomy."
+
+So these are now the overarching directions, the umbrella the other
+directions sit under when a run has a free choice:
+
+1. **Deep tech industrial**: applied R&D for heavy industry, materials,
+   manufacturing and logistics (research track 21, `infra`), and the robots
+   and autonomy that work in it (`osrobot`, `aerolog`, `marine`).
+2. **Energy**: supply, storage and the grid (track 16, `energy`).
+3. **Real estate development and construction**: open residential
+   construction, site robots and heavy equipment (tracks 12, 20 and 25:
+   `house`, `buildbot`, `heavy`), with imaging and sensing of the site
+   (track 15, `sensing`), and the products built on them
+   (`ventures/wall-framing-takeoff` first).
+4. **Construction data warehouse**: the shared data layer under the other
+   three, i.e. open, documented tables of real public data (permits,
+   inspections, cost indices, energy and site sensor readings) on one schema,
+   with the loaders as code, so research and products measure against the
+   same real records (`Business functions with data to build and test
+   against`). The first step is the research programme `build-data` in
+   `research/PROGRAMMES.md`.
+
+"Some of the big directions", not all: `research/_shared/pick_track.py`
+sends half of all track and programme draws to these areas first, which
+with the uniform half comes to about two thirds of track draws, and
+`portfolio/flagships.yaml` puts the construction flagship first. Every other
+track, flagship and direction stays open. The owner's reason is where
+investment is going; that is a reason to build things people in these
+industries would use or cite, never to claim traction, partners or funding
+we do not have (Guardrails, honest marketing). The safety lines of the
+heavy-equipment and water-vehicle directions apply to all four: designs are
+research, and nothing runs on a real machine, a real site or the grid
+without the owner.
+
 ## Direction: sales, marketing and business tools
 
 Set by the owner on 2026-10-16: "lets add a potential direction sales tools
