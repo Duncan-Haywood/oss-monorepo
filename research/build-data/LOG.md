@@ -1,5 +1,14 @@
 # build-data log
 
+## Session 7, 2026-10-31: milestone 4 instrument (split-conformal, drift diagnostic); not run on real data
+
+Hypothesis (H2, unchanged, written before any run): split-conformal intervals calibrated on the year before the test year cover within 3 points of 80% on the test year in every city; refuted if coverage is outside 77 to 83% in any city. Given session 5 (baseline coverage 0.75 to 0.89 on 2024) and session 6 (unconformalised boosted 0.77 to 0.89), I expect H2 to be refuted in Chicago a2i and SF a2i, where the same-day share moves between years, and to hold in the i2c targets. Prior 60%.
+Done: `src/conformal.py` (stdlib: finite-sample conformal quantile, CQR scores and intervals after Romano, Patterson and Candes 2019, coverage, two-sample KS of calibration against test scores, coverage by month) and `tests/test_conformal.py` (hand counts for the rank rule including the infinite case, scores, floor, KS; a 200-repeat exchangeable check that average coverage is at least 0.79; a drift case where coverage falls under 0.7 and KS exceeds 0.2). 9 tests run, 3 skipped (need numpy/lightgbm).
+Why no result: the feed hosts (data.cityofchicago.org, data.sf.gov, data.austintexas.gov, data.cityofnewyork.us) are refused by this session's egress proxy, as in session 4. **No number in `results/` changed.**
+Test-writing note: the first exchangeable test failed (coverage 0.40) because it used signed Gaussian data under the interval's floor of 0; permit lags are non-negative, so the test now uses absolute values. This is a test bug, not a method finding.
+Design for the real run (not yet coded): fit on years <= Y-2; early-stop on odd ISO weeks of Y-1 and conformalise on even weeks of Y-1, so the same rows never do both jobs; apply to Y; drift curve by repeating for Y = 2022, 2023, 2024.
+Next: on a network that reaches the feeds, wire `conformal.evaluate` to `boosted.fit_predict` with the odd/even split, run the three cities, and report H2 with week-block bootstrap intervals on coverage.
+
 ## Session 6, 2026-10-31: milestone 3, LightGBM quantile models vs the baseline (H1)
 
 Hypothesis (written before the run, H1 of the proposal): a gradient-boosted quantile model beats the per-city, per-type empirical quantile on mean pinball loss at q = 0.1, 0.5, 0.9 in the 2024 test year; refuted if the paired bootstrap interval of the difference includes zero in two of three cities. Planned analysis: 5 city/target pairs, features without calendar year (type, work class, log cost, area top-60, description length, month, weekday), calibration year used only for early stopping, paired week-block bootstrap (2,000 resamples) and weekly Wilcoxon.
