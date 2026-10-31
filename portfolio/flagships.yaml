@@ -52,7 +52,7 @@ flagships:
       steps checked against a real soffit. Trim boards against a real trim
       order (scarf overlap is a typed figure). Drywall `jointsOnStuds`
       against a real hang; ceiling joists from the roof beyond source
-      assertions. Bid leveling on real bids (`--level-bids`, made-up only);
+      assertions. Bid leveling on real bids (`--level-bids` and the standalone page `bid-leveling-calculator.html`, made-up only);
       a real sub's labor rates; a real builder's activity list for
       `--schedule`. Gable sheathing nested on real sheets (offcut-triangle
       heights are hand-made). Insulation: the attic bag chart and a real

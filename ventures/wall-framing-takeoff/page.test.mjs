@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
-for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html"]) {
+for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "bid-leveling-calculator.html"]) {
   test(`${name} carries the disclaimer, privacy line and sponsor link`, () => {
     const html = page(name);
     assert.match(html, /No warranty/);
@@ -469,8 +469,33 @@ test("the concrete calculator page: FAQ matches its data, the 12 x 12 x 4 in cas
   assert.ok(b80.ok); assert.equal(b80.bags, 45); // the FAQ's 45 bags to a yard
 });
 
+test("the bid leveling page: FAQ matches its data, the sample bids level as the page says", async () => {
+  const html = page("bid-leveling-calculator.html");
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("([\w-]+)"\)/g)) assert.ok(ids.has(m[1]), m[1]);
+  const { levelBids, sampleBids } = await import("./bidlevel.mjs");
+  const s = sampleBids();
+  const r = levelBids({ lines: s.scope.map((l) => ({ unitPrice: null, ...l })) }, s.bids, { tolerance: s.tolerance });
+  assert.deepEqual(r.errors, []);
+  const by = Object.fromEntries(r.bidders.map((b) => [b.bidder, b]));
+  // Sub A bids every line: 1520 + 2220 + 450 + 960
+  assert.equal(by["Sub A"].bidTotal, 5150);
+  assert.equal(by["Sub A"].additions, 0);
+  // Sub B: 100 of 120 sheets is short by 20 at its own 19 = 380; house wrap left out, at the scope's 160 x 3 = 480; ties left out, 400 x 2.5 = 1000
+  assert.equal(by["Sub B"].bidTotal, 1440 + 1900);
+  assert.equal(by["Sub B"].additions, 380 + 480 + 1000);
+  assert.equal(by["Sub B"].leveledTotal, 5200);
+  assert.equal(r.lowestAsBid, "Sub B");
+  assert.equal(r.lowestLeveled, "Sub A");
+});
+
 test("every page links to every other page (internal linking for readers and crawlers)", () => {
-  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "schedule-calculator"].map((n) => n + ".html");
+  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "schedule-calculator", "bid-leveling-calculator"].map((n) => n + ".html");
   for (const f of pages) {
     const html = page(f);
     for (const other of pages) if (other !== f) assert.ok(html.includes(`<a href="${other}">`), `${f} does not link ${other}`);
