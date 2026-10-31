@@ -340,6 +340,14 @@ test("the foundation pier box parses lines into fn.piers and loads them back fro
   assert.match(html, /Pier line \$\{i \+ 1\}/);
 });
 
+test("the footing step box parses lines into fn.footing.steps and loads them back from plan files", () => {
+  const html = page("index.html");
+  assert.match(html, /id="fnSteps"/);
+  assert.match(html, /fn\.footing\.steps = steps/);
+  assert.match(html, /\$\("#fnSteps"\)\.value = \(fn\.footing\?\.steps \|\| \[\]\)/);
+  assert.match(html, /Footing step line \$\{i \+ 1\}/);
+});
+
 test("the bid leveling card parses lines into plan.bids, restores them and levels against the budget", () => {
   const html = page("index.html");
   for (const id of ["bidsCard", "bidText", "bidsOut"]) assert.match(html, new RegExp(`id="${id}"`));

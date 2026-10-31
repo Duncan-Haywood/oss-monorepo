@@ -75,6 +75,12 @@ await page.fill("#fnPiers", "6, 24, 12, 8, 30, 4, 4, deck posts");
 await page.waitForFunction(() => document.querySelector("#foundationOut")?.textContent.includes("deck posts (6 pads and columns)"));
 const pierTxt = await page.textContent("#foundationOut");
 console.log(/pad mat/.test(pierTxt) && !/NaN|undefined/.test(pierTxt) ? "ok: foundation piers from the page box" : "FAIL: pier box\n" + pierTxt.slice(0, 400));
+// Footing steps: a typed step reaches the foundation card as a stepped-footing note.
+await page.fill("#fnSteps", "16, 96, east slope");
+await page.waitForFunction(() => document.querySelector("#foundationOut")?.textContent.includes("Stepped footing"));
+const stepTxt = await page.textContent("#foundationOut");
+console.log(!/NaN|undefined/.test(stepTxt) ? "ok: footing steps from the page box" : "FAIL: step box\n" + stepTxt.slice(0, 400));
+await page.fill("#fnSteps", "");
 await page.fill("#fnPiers", ""); await page.uncheck("#fnOn");
 await page.uncheck("#sheath");
 await page.waitForFunction(() => document.querySelector("#fastenersOut")?.textContent.includes("add --sheathing"));
