@@ -1,6 +1,6 @@
 ---
 title: "Two windows 3 inches apart: framing ganged openings"
-seo_title: "Ganged window framing in a wall takeoff: merging openings too close for king studs"
+seo_title: "Ganged window framing: merging openings too close for kings"
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff]
 description: "The wall-framing takeoff can now frame close-set windows as one ganged opening, and doing so exposed the next blocker on a real generated plan."
