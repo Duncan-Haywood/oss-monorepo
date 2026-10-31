@@ -1,0 +1,177 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01AcxTtLeBT2cqx1tuuNbxPt",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T04:06:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "targets --probe lists research/simdesign-widerweb as '(red)' only because numpy is missing in the container; the prompt says a red baseline is a real defect, but here it is an environment gap."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "No blog post/agent doc: small red-team run.",
+      "did": "skipped",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "einvoice-preflight/document.mjs: 8 mutants, 3 escaped (untested UNCL 1001 codes 82/202/623); added table-wide test; 8/8 after fix. No real defects found.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/einvoice-preflight/document.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 65329675,
+        "commit": "490ac17e",
+        "sites": 117,
+        "baseline_seconds": 4.3,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/document.mjs",
+            "line": 27,
+            "col": 2,
+            "operator": "const-plus-one",
+            "before": "82: \"invoice\",",
+            "after": "83: \"invoice\",",
+            "line_text": "  82: \"invoice\",",
+            "caught": false,
+            "seconds": 4.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "UNCL 1001 code table entry untested; added table-wide test"
+          },
+          {
+            "file": "ventures/einvoice-preflight/document.mjs",
+            "line": 30,
+            "col": 2,
+            "operator": "const-plus-one",
+            "before": "202: \"invoice\",",
+            "after": "203: \"invoice\",",
+            "line_text": "  202: \"invoice\",",
+            "caught": false,
+            "seconds": 4.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "UNCL 1001 code table entry untested; added table-wide test"
+          },
+          {
+            "file": "ventures/einvoice-preflight/document.mjs",
+            "line": 55,
+            "col": 2,
+            "operator": "const-plus-one",
+            "before": "623: \"invoice\",",
+            "after": "624: \"invoice\",",
+            "line_text": "  623: \"invoice\",",
+            "caught": false,
+            "seconds": 4.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "UNCL 1001 code table entry untested; added table-wide test"
+          },
+          {
+            "file": "ventures/einvoice-preflight/document.mjs",
+            "line": 95,
+            "col": 21,
+            "operator": "eq-flip",
+            "before": "return typeof left === \"string\"",
+            "after": "return typeof left !== \"string\"",
+            "line_text": "  return typeof left === \"string\"",
+            "caught": true,
+            "seconds": 4.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/document.mjs",
+            "line": 125,
+            "col": 120,
+            "operator": "eq-flip",
+            "before": "if (invoice.document_code !== undefined && invoice.document_code !== null && invoice.document_code !== \"\" && codeKind === \"invalid\") {",
+            "after": "if (invoice.document_code !== undefined && invoice.document_code !== null && invoice.document_code !== \"\" && codeKind !== \"invalid\") {",
+            "line_text": "  if (invoice.document_code !== undefined && invoice.document_code !== null && invoice.document_code !== \"\" && codeKind === \"invalid\") {",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/document.mjs",
+            "line": 136,
+            "col": 17,
+            "operator": "eq-flip",
+            "before": "&& (codeKind === \"invoice\" || codeKind === \"credit_note\" || codeKind === \"debit_note\")",
+            "after": "&& (codeKind !== \"invoice\" || codeKind === \"credit_note\" || codeKind === \"debit_note\")",
+            "line_text": "    && (codeKind === \"invoice\" || codeKind === \"credit_note\" || codeKind === \"debit_note\")",
+            "caught": true,
+            "seconds": 4.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/document.mjs",
+            "line": 151,
+            "col": 21,
+            "operator": "eq-flip",
+            "before": "|| (explicitKind === \"invoice\" && REVERSING.has(codeKind));",
+            "after": "|| (explicitKind !== \"invoice\" && REVERSING.has(codeKind));",
+            "line_text": "    || (explicitKind === \"invoice\" && REVERSING.has(codeKind));",
+            "caught": true,
+            "seconds": 3.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/document.mjs",
+            "line": 155,
+            "col": 39,
+            "operator": "and-to-or",
+            "before": "|| (typeof original === \"string\" && !original.trim());",
+            "after": "|| (typeof original === \"string\" || !original.trim());",
+            "line_text": "      || (typeof original === \"string\" && !original.trim());",
+            "caught": true,
+            "seconds": 4.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  }
+}
