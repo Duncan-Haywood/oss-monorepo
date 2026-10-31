@@ -717,6 +717,24 @@ daily progress post had computed by hand are now in `platform/devstats`
 (`delivery` in `dev/stats.json`). The post reads them and spends its effort
 on what they mean.
 
+## Direction: everything as code
+
+Set by the owner on 2026-10-31: "i generally want everyting as code for the
+most part. like config email support etc. ... that's a principle to add."
+
+Infrastructure and account settings live in the repository as files a
+script or workflow applies, not as clicks in a dashboard: DNS records, email
+routing and support addresses, Worker and Pages config, CI, scheduled jobs,
+redirects. A dashboard setting nobody wrote down is invisible to the next
+run and can't be reviewed, diffed or restored. So when a change has to be
+made in a provider's console, write the desired state in a file
+(`platform/pages/cloudflare/` is the model) and an idempotent apply step
+beside it, and make the console step, at most, the one-time creation of
+the token that step uses. Secrets are the exception: their *names* go in
+code, their values stay in the provider's secret store
+(see "Hard limits"). "For the most part": a one-off with no future reader
+can stay a click, said so in the run record.
+
 ## Direction: impressive sites, SEO and AEO, for a period
 
 Set by the owner on 2026-10-28: "i want like 5% of work going to making the

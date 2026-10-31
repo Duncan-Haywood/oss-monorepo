@@ -80,6 +80,10 @@ And a rule of thumb (owner, 2026-10-24): **software for the routine, agents
 for judgment.** A chore runs keep repeating that a script or scheduled build
 could do at 90 to 100% of the quality belongs in that software, so agent
 time goes to what only an agent does well (`goals.md`, same title).
+Likewise **everything as code** (owner, 2026-10-31): DNS, email routing,
+support addresses and other provider settings live in files with an apply
+step, not as dashboard clicks; secret values are the exception
+(`goals.md`, "Direction: everything as code").
 
 ## Every session lands its own work
 
