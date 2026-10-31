@@ -114,3 +114,18 @@ test("crewOff on the first day delays the start; bad dates are refused", () => {
   assert.equal(s.rows[0].startDate, "2026-03-04");
   assert.equal(schedule({ crews: { c: 1 }, crewOff: { c: ["nope"] }, activities: [{ id: "a", days: 1, crew: "c" }] }).ok, false);
 });
+
+test("weatherRate stretches exposed activities by the start month's loss rate", () => {
+  // Hand: a 10d exposed at 20% lost -> ceil(10/0.8)=13; a starts 2026-03-02 (March).
+  const s = schedule({ start: "2026-03-02", weatherRate: { "2026-03": 0.2 }, activities: [{ id: "a", days: 10, exposed: true }, { id: "b", days: 2, after: ["a"] }] });
+  assert.equal(s.rows.find((r) => r.id === "a").days, 13);
+  assert.equal(s.workingDays, 15);
+});
+
+test("weatherRate month follows the start: a late exposed activity uses its own month, unexposed are untouched", () => {
+  // a (unexposed) 25d from Mon 2026-03-02 ends in April; b starts in April (rate 0.5 -> 4d), March rate must not apply.
+  const s = schedule({ start: "2026-03-02", weatherRate: { "2026-03": 0.5, "2026-04": 0.5 }, activities: [{ id: "a", days: 25 }, { id: "b", days: 2, after: ["a"], exposed: true }] });
+  assert.equal(s.rows.find((r) => r.id === "a").days, 25);
+  assert.equal(s.rows.find((r) => r.id === "b").days, 4);
+  assert.equal(schedule({ weatherRate: { "2026-03": 1 }, activities: [{ id: "a", days: 1, exposed: true }] }).ok, false);
+});

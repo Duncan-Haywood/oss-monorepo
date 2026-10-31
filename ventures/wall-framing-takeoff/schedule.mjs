@@ -8,10 +8,10 @@
 // inspection booking). Weekends are skipped (Mon-Fri working days); `holidays` is
 // an optional list of YYYY-MM-DD dates (yours; none are shipped) that are skipped
 // too, as are `weatherDays` (dates the crew will not work, same format). Weather
-// itself is not forecast. Crew levelling is a serial greedy pass (earliest start, ties by
+// itself is not forecast; `weatherRate` + `exposed` activities apply monthly loss rates you type. Crew levelling is a serial greedy pass (earliest start, ties by
 // least slack); it is a heuristic, not an optimal resource schedule.
 
-/** @typedef {{ id: string, name?: string, days: number, after?: string[], crew?: string, lag?: number }} Activity */
+/** @typedef {{ id: string, name?: string, days: number, after?: string[], crew?: string, lag?: number, exposed?: boolean }} Activity */
 
 /** @param {Set<string>} off dates that are not worked besides weekends */
 const isWork = (/** @type {Date} */ d, off = new Set()) => d.getUTCDay() !== 0 && d.getUTCDay() !== 6 && !off.has(d.toISOString().slice(0, 10));
@@ -141,7 +141,7 @@ export function resolveRates(input, result) {
 /** @param {any} input the plan's `schedule` object */
 export function schedule(input) {
   const errors = [...(input?.rateErrors || [])];
-  const acts = /** @type {Activity[]} */ (input?.activities || []);
+  let acts = /** @type {Activity[]} */ (input?.activities || []);
   if (input?.rateErrors?.length) return { ok: false, errors };
   if (!acts.length) return { ok: false, errors: ["The schedule has no activities."] };
   const ids = new Set();
@@ -157,7 +157,7 @@ export function schedule(input) {
   for (const a of acts) if (a.crew && crews[a.crew] == null) errors.push(`${a.id}: crew "${a.crew}" has no count in \`crews\`; it is left unlimited.`);
   if (errors.some((e) => !e.includes("left unlimited"))) return { ok: false, errors };
   const warn = errors;
-  const base = cpm(acts);
+  let base = cpm(acts);
   if (base.errors.length) return { ok: false, errors: base.errors };
   const start = new Date((input.start || "2026-01-05") + "T00:00:00Z");
   if (isNaN(start.getTime())) return { ok: false, errors: [`start "${input.start}" is not a date (YYYY-MM-DD).`] };
@@ -166,6 +166,27 @@ export function schedule(input) {
   if (badOff.length) return { ok: false, errors: [`holidays and weatherDays must be YYYY-MM-DD dates; not: ${badOff.join(", ")}.`] };
   const off = new Set(offList.map((/** @type {string} */ h) => new Date(h + "T00:00:00Z").toISOString().slice(0, 10)));
   const date = (/** @type {number} */ n) => dateOf(start, n, off);
+  // weatherRate: { "YYYY-MM": fraction } share of working days you expect lost to weather that month (your figure,
+  // from your own records; none is shipped). Activities marked `exposed: true` stretch to ceil(days / (1 - rate)) using the
+  // month they start in; a few passes settle the months, since longer activities push later ones into other months.
+  const wr = input.weatherRate || {};
+  for (const [k, v] of Object.entries(wr)) if (!/^\d{4}-\d{2}$/.test(k) || typeof v !== "number" || !(v >= 0 && v <= 0.9)) return { ok: false, errors: [`weatherRate.${k} must be a fraction from 0 to 0.9 under a YYYY-MM key.`] };
+  if (Object.keys(wr).length && acts.some((a) => a.exposed)) {
+    const orig = acts;
+    for (let pass = 0; pass < 6; pass++) {
+      const next = orig.map((a) => {
+        if (!a.exposed) return a;
+        const r = base.rows.find((x) => x.id === a.id);
+        const rate = (wr[date(r ? r.es : 0).slice(0, 7)] ?? 0);
+        const days = rate > 0 ? Math.ceil(a.days / (1 - rate) - 1e-9) : a.days;
+        return { ...a, days, baseDays: a.days, derived: rate > 0 ? `${a.days}d + weather at ${Math.round(rate * 100)}% lost days` : undefined };
+      });
+      const nb = cpm(next.map((a) => ({ ...a })));
+      const same = nb.rows.every((r, i) => r.days === base.rows[i]?.days) && nb.rows.length === base.rows.length;
+      acts = next; base = nb;
+      if (same) break;
+    }
+  }
   // crewOff: { crew: [YYYY-MM-DD] } days that crew is unavailable (another job, vacation); converted to project working-day indices.
   const crewOff = new Map();
   for (const [c, list] of Object.entries(input.crewOff || {})) {
@@ -201,7 +222,7 @@ export function scheduleText(s) {
   for (const r of s.rows.slice().sort((/** @type {any} */ a, /** @type {any} */ b) => a.leveledStart - b.leveledStart)) out.push(`  ${r.critical ? "*" : " "} ${r.id.padEnd(12)} ${String(r.days).padStart(3)}d  ${r.startDate} to ${r.finishDate}  slack ${r.slack}${r.crew ? `  [${r.crew}]` : ""}  ${r.name}${r.derived ? `  (${r.derived})` : ""}`);
   for (const sl of s.slips) out.push(sl.error ? `  Slip ${sl.id}: ${sl.error}` : `  A ${sl.days}-day slip on ${sl.id} moves the finish ${sl.finishShift} day(s) (${sl.leveledFinishShift} with crews), to ${sl.newFinishDate}.`);
   for (const w of s.warnings) out.push(`  note: ${w}`);
-  out.push("  * = critical. Durations, order and crews are your inputs; weekends and any holidays or weather days you list are skipped; weather is not forecast.");
+  out.push("  * = critical. Durations, order and crews are your inputs; weekends and any holidays or weather days you list are skipped; weather is not forecast (only the loss rates you type per month, on activities marked exposed).");
   return out;
 }
 

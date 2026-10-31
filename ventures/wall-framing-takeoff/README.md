@@ -407,3 +407,5 @@ past the wall; 1 test, plus real mouse drags in `eval-sketch-click.mjs`). Not ye
 ### Schedule: crew days off (2026-10-31)
 
 `schedule.crewOff` is `{ crew: [YYYY-MM-DD] }`: days a crew is on another job. Its activities pause on those days and the span grows; other crews are untouched. It applies to the crew-levelled dates and slips, not the unlimited-crew pass. Hand-checked in `schedule.test.mjs`; no real builder's calendar yet.
+
+`schedule.weatherRate` is `{ "YYYY-MM": fraction }`, the share of working days you expect to lose to weather in that month (your figure from your own records; none is shipped). An activity marked `exposed: true` stretches to `ceil(days / (1 - rate))` using the month it starts in, re-settled over up to six passes because longer activities push later ones into other months; rates must be 0 to 0.9. This is not a forecast. Hand-checked in `schedule.test.mjs` (10 days at 20% = 13); not on the page yet, and no real builder's weather record.
