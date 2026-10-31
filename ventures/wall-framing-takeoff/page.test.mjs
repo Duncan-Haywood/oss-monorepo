@@ -117,8 +117,10 @@ test("the page downloads the shop-panel lumber order and pull lists through pane
 
 test("the page frames a floor through floor.mjs and pools its lumber with the walls", () => {
   const html = page("index.html");
-  for (const id of ["flOn", "flW", "flD", "flJoist", "flSpacing", "flBeam", "flCant", "flBlock", "flUnder", "flOpen", "floorOut"]) assert.match(html, new RegExp(`id="${id}"`), id);
+  for (const id of ["flOn", "flW", "flD", "flJoist", "flSpacing", "flBeam", "flCant", "flHdr", "flBlock", "flUnder", "flOpen", "floorOut"]) assert.match(html, new RegExp(`id="${id}"`), id);
   assert.match(html, /layoutFloor\(plan\.floor, plan\)/);
+  assert.match(html, /fl\.headerCheck = \{ liveLoad: n\[0\]/); // header check read into the plan
+  assert.match(html, /\$\("#flHdr"\)\.value = h \?/); // and restored
   assert.match(html, /fl\.cantilever = L\(\$\("#flCant"\)\.value/); // read into the plan
   assert.match(html, /\$\("#flCant"\)\.value = fl\.cantilever/); // and restored from a saved plan
   assert.match(html, /takeoff\(plan, floorExtra\)/);
