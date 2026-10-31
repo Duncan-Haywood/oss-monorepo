@@ -115,6 +115,13 @@ test("the page downloads the shop-panel lumber order and pull lists through pane
   assert.match(html, /panelPullText\(po\)/);
 });
 
+test("the page reads and restores the stair stringer check", () => {
+  const html = page("index.html");
+  assert.match(html, /id="stCheck"/);
+  assert.match(html, /st\.stringerCheck = \{ liveLoad: n\[0\]/);
+  assert.match(html, /\$\("#stCheck"\)\.value = k \?/);
+});
+
 test("the page frames a floor through floor.mjs and pools its lumber with the walls", () => {
   const html = page("index.html");
   for (const id of ["flOn", "flW", "flD", "flJoist", "flSpacing", "flBeam", "flCant", "flHdr", "flBlock", "flUnder", "flOpen", "floorOut"]) assert.match(html, new RegExp(`id="${id}"`), id);
