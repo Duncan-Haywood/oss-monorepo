@@ -410,3 +410,14 @@ test("stringer check totals the flight's top reaction and its live share", () =>
   assert.ok(Math.abs(k.totalReactionLive - k.totalReaction * 0.8) < 1e-9);
   assert.match(stairText(l).join("\n"), /lb \(\d+ live\) on the header the flight hangs from/);
 });
+
+test("linkStairReaction copies the flight's total reaction into the floor's header check, and says why when it cannot", async () => {
+  const { linkStairReaction } = await import("./stairs.mjs");
+  const { parseLength } = await import("./engine.mjs");
+  const sc = { liveLoad: 40, deadLoad: 12, Fb: 900, Fv: 180, E: 1300000 };
+  const plan = { ...samplePlan(), floor: { headerCheck: { stairFrom: 0, stairSide: "front" } }, stairs: [{ totalRise: "105", tread: 10, stringer: "2x12", width: 36, stringerCheck: sc }] };
+  assert.equal(linkStairReaction(plan, parseLength), null);
+  assert.ok(plan.floor.headerCheck.stairReaction > 0 && plan.floor.headerCheck.stairReactionLive <= plan.floor.headerCheck.stairReaction);
+  assert.match(linkStairReaction({ floor: { headerCheck: { stairFrom: 1 } }, stairs: [] }, parseLength), /stairFrom 1 needs/);
+  assert.equal(linkStairReaction({ floor: {} }, parseLength), null);
+});
