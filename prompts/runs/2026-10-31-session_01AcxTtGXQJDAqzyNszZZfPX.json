@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01AcxTtGXQJDAqzyNszZZfPX",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T00:07:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11947",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 security-alerts branch does not exist on origin; the fetch failed and cost a call."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-31-adjustable-tail-sub-scale-cargo-uav.md",
+    "research/aerolog-scaling/paper/draft.md section 4.10"
+  ],
+  "goal": null,
+  "notes": "Paper-writing step for aerolog-scaling: no new simulation. check_numbers.py all ok, homepage build.py ok. CI had not started when merged; local checks only.",
+  "corrections": [],
+  "redteam": null
+}
