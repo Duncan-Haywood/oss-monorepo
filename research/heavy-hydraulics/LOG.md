@@ -2,6 +2,11 @@
 
 Newest first.
 
+## 2026-10-31 · Milestone 6b: the paper draft gains the cycle-time section (a writing step, no experiment)
+- Why: the draft (milestone 6) stopped at energy and listed "no cycle-time effects" as a threat, while 3a to 3f had priced them. Added section 3.5 (flow-sharing penalty by closing law k, LS pump-limit penalty, time-penalised break-even from 28.0 to 35.8 bar) and reworded threat 6. No number is new; each is copied from `flow_share_shape_results.txt`, `flow_share_ls_results.txt` or `time_penalised_results.txt`, and 10 new rows in `paper/check_numbers.py` hold them (32 claims, 0 missing).
+- k of 20 or more is left out of the text as outside the model's validity (3e).
+- Next: size sections from the PVG 32 rated flows (removes k), then the compensator.
+
 ## 2026-10-30 · Milestone 3f: does the open-centre time penalty move 2n's load-sensing break-even? (not pre-registered)
 - Why: 2n ranked on energy alone and 3a to 3e priced the time penalty separately. `experiments/time_penalised.py` stretches each open-centre phase by `phase_slowdown` (k = 1 to 10, p_n 10.91 bar) and charges the open-centre pump full power for the extra seconds, an upper bound on the energy cost of slowness. Load-sensing is charged nothing extra (3c). Load factor 0.346, standby 2 L/min, 1,500 cycles per cell.
 - Honesty note: I ran the script once before writing a prediction here, so no prediction is registered for this step. What I would have predicted was "break-even stays at 28 bar for k >= 3 where 3d's penalty is zero".
