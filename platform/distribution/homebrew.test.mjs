@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { className, tarballUrl, formula, sha256Of, run, MAX_PER_RUN } from './homebrew.mjs';
 import { parseAllowlist } from './versions.mjs';
 
@@ -74,4 +75,29 @@ test('caps new formulas per run', async () => {
   const root = await fixture(slugs);
   const r = await run({ env: {}, root, fetchImpl: registry(slugs), log: () => {}, ...listed(slugs) });
   assert.equal(r.planned, MAX_PER_RUN);
+});
+
+test('NPM_SCOPE puts the scoped package name in the tarball url and the formula', async () => {
+  const root = await fixture(['aa-tool']);
+  const out = await fs.mkdtemp(path.join(os.tmpdir(), 'tap-'));
+  const urls = [];
+  const fetchImpl = async (url) => { urls.push(url); return registry(['aa-tool'])(url); };
+  await run({ env: { DISTRIBUTE_HOMEBREW: 'true', NPM_SCOPE: '@me' }, root, fetchImpl, log: () => {}, outDir: out, ...listed(['aa-tool']) });
+  assert.deepEqual(urls, ['https://registry.npmjs.org/@me/aa-tool/-/aa-tool-0.1.0.tgz']);
+  assert.match(await fs.readFile(path.join(out, 'Formula', 'aa-tool.rb'), 'utf8'), /url "https:\/\/registry\.npmjs\.org\/@me\/aa-tool\//);
+});
+
+test('formula desc is the package description, not the raw VENTURE.yaml', async () => {
+  const root = await fixture(['aa-tool']);
+  const out = await fs.mkdtemp(path.join(os.tmpdir(), 'tap-'));
+  await run({ env: { DISTRIBUTE_HOMEBREW: 'true' }, root, fetchImpl: registry(['aa-tool']), log: () => {}, outDir: out, ...listed(['aa-tool']) });
+  assert.match(await fs.readFile(path.join(out, 'Formula', 'aa-tool.rb'), 'utf8'), /desc "Checks a thing"\n/);
+});
+
+test('command line: runs when invoked directly and prints the dry-run summary', async () => {
+  const { execFileSync } = await import('node:child_process');
+  const script = fileURLToPath(new URL('./homebrew.mjs', import.meta.url));
+  const out = execFileSync(process.execPath, [script], { encoding: 'utf8', env: { ...process.env, DISTRIBUTE_HOMEBREW: '' } });
+  assert.match(out, /npm-allow-listed CLIs qualify/);
+  assert.match(out, /DRY RUN/);
 });
