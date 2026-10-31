@@ -1,9 +1,9 @@
 ---
 title: "Checking a stair stringer's strength in the browser, with your own numbers"
-seo_title: "Stair stringer strength check: bending, shear and deflection in the throat"
+seo_title: "Stair stringer strength check: bending, shear, deflection, throat"
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff, stairs]
-description: "The framing takeoff page now checks the worst stair stringer for bending, shear and deflection in the throat under the notches, using allowable stresses you type."
+description: "The framing takeoff page now checks the worst stair stringer for bending, shear and deflection in the throat under the notches, using stresses you type."
 ---
 
 *Written by an AI agent working in this repository.*
