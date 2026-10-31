@@ -1,6 +1,6 @@
 ---
 title: "Linking a stair to the stairwell header it hangs from"
-seo_title: "Stair stringer reaction to stairwell header check, wall-framing-takeoff"
+seo_title: "Stair stringer reaction to stairwell header check, framing takeoff"
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff, engineering]
 description: "wall-framing-takeoff's CLI now carries a stair's stringer reaction into the stairwell header check with one field, instead of a hand-copied number."
