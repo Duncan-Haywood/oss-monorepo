@@ -131,8 +131,9 @@ flagships:
     next: >-
       Landed history and every measurement live in the README and git; each
       item below has its numbers there. Open: (0) cycles and drift: an exact
-      two-lag (AR(2)) likelihood inside PELT (the iterated-prewhitening fit
-      failed on sunspots); a real documented step inside a cycle; a cycle
+      AR(2) likelihood inside PELT was built and measured 2026-10-30 (README:
+      no better than the AR(1) profile; a log or sqrt of the series matters
+      more); a real documented step inside a cycle; a cycle
       check not tied to rho (treering, rho 0.16, gets no hint);
       a documented real run
       of 5+ steps to test the block-variance warning, which does not yet
@@ -145,9 +146,10 @@ flagships:
       shocks and on autocorrelated nulls as well as growing seasons: wanted
       a way to tell a shape from a shock, and to widen the noise scale
       without swallowing a short quarterly shape (--ar1 fixes the rho 0.5
-      null but loses UK gas). (5) Bootstrap and holiday false-alarm cuts are
-      synthetic only: test them on real series. US accidental deaths is not
-      a null (step at 1973-12).
+      null but loses UK gas). (5) Bootstrap swept on 33 real series 2026-10-31
+      (README: fewer cuts on 22, but US accidental deaths loses its real
+      1973-12 step); holiday false-alarm cuts are synthetic only: test them on
+      real series.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
@@ -183,7 +185,7 @@ flagships:
       them. Landed 2026-10-26: coverRepair (exact
       large-neighbourhood repair, on with the exact check) reaches the optimum on
       10x28 week 7 and all four 12x30 weeks. Landed 2026-10-28: open-shift
-      tiebreak and `openShiftWeight` (weight 0: 15 h / 5 shifts; 100: 19 h / 3, sample cafe; page select and `--open-shift-hours` landed 2026-10-27). Measured 2026-10-28 (eval/relaxation-check.py): no LP relaxation closes 12x30 week 2 (cliques 68, cover cuts 68.4, Dantzig-Wolfe 72.33; floor 72, optimum 75), so the clique cut is dropped. Landed 2026-10-30: 14-day-notice page (what a late change costs by days out, from callout-churn-bench); `--import-shifts` / page box (published-schedule CSV to shift lines; invented layouts only, wanted: a real export). Landed 2026-10-30: daycare-staff-schedule page. Landed 2026-10-30: coffee-shop-staff-schedule page (real CLI output, pinned test). Landed 2026-10-30: `planStreaks` (`--weeks` flags runs of 7+ days across a week boundary). Landed 2026-10-30: `streak: N` cell, written by carry-over and `--weeks`, so the days-in-a-row limit holds across Monday in the search. `placeRestBreaks` (paid rest breaks from the operator's own spacing and length, page boxes; not enforced by the search). Next: branch-and-price on the Dantzig-Wolfe LP; then a tighter pay bound once coverage is proven, then a
+      tiebreak and `openShiftWeight` (weight 0: 15 h / 5 shifts; 100: 19 h / 3, sample cafe; page select and `--open-shift-hours` landed 2026-10-27). Measured 2026-10-28 (eval/relaxation-check.py): no LP relaxation closes 12x30 week 2 (cliques 68, cover cuts 68.4, Dantzig-Wolfe 72.33; floor 72, optimum 75), so the clique cut is dropped. Landed 2026-10-30: 14-day-notice page (what a late change costs by days out, from callout-churn-bench); `--import-shifts` / page box (published-schedule CSV to shift lines; invented layouts only, wanted: a real export). Landed 2026-10-30: `planStreaks` (`--weeks` flags 7+ day runs across weeks). Landed 2026-10-30: `streak: N` cell, written by carry-over and `--weeks`, so the days-in-a-row limit holds across Monday in the search. `placeRestBreaks` (paid rest breaks from the operator's spacing and length; not enforced by the search). Landed 2026-10-30: `seniority:` cell and `seniorityClaims` (shifts a more senior person could take; report only). Next: branch-and-price on the Dantzig-Wolfe LP; then a tighter pay bound once coverage is proven, then a
       joint multi-week solve. 
 
   - venture: photo-editing

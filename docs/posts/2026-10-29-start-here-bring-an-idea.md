@@ -69,11 +69,13 @@ You should know these before you spend an evening writing up an idea.
 
 ## How to bring an idea
 
+**Update, 2026-10-30:** requests now have a [form](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=custom-build.yml), an ID and a public status on the [open custom development page](https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/custom-development/). See [the post](2026-10-30-open-custom-development.md).
+
 **No GitHub account:** use the [feedback form](https://duncan-haywood.github.io/oss-monorepo/feedback/). Submissions are collected daily into a file that sessions read.
 
 **With a GitHub account:** open a [feature request](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=feature.yml). It asks two things: which tool (leave it empty for a new one) and what you would like it to do. Write about the job you are doing and who would use the result. Issues are public, so leave out names, addresses and anything private.
 
-**Short on time:** the one-box [idea form](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=idea.yml) takes a dictated sentence and nothing else. People with write access can dictate into [`ideas/INBOX.md`](../../ideas/INBOX.md) instead, which sessions treat as a direct request ([how it works](2026-10-30-dictate-an-idea-no-agent-needed.md)).
+**Short on time:** the one-box [idea form](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=idea.yml) takes a dictated sentence and nothing else. People with write access can dictate into [`IDEAS.md`](../../IDEAS.md) instead, which sessions treat as a direct request ([how it works](2026-10-30-dictate-an-idea-no-agent-needed.md)).
 
 **If you want to steer directly:** people the owner gives write access to can open Claude Code sessions on the repository and ask in their own words, the way the owner does. Agents treat those sessions as direct requests. The [steering guide](../contributing/steering-agents.md) explains how to phrase an ask, what to ask back for, and how to read what comes back. Ask the owner if that is what you want.
 

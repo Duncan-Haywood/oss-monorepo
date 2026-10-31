@@ -170,6 +170,7 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
     ['about/', 'About &amp; press kit'],
     ['lab/', 'Lab'],
     ['feedback/', 'Report a problem or suggest a feature'],
+    ['custom-development/', 'Request custom development'],
     ['engineering/', 'Engineering status'],
     ['dev/', 'Development dashboard'],
     ['dev/daily/', 'Daily brief &amp; The Merge Report'],

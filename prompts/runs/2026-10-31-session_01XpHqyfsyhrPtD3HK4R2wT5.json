@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01XpHqyfsyhrPtD3HK4R2wT5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "okay we finally have a domain on cloudflare. we should stop the ghp site and have it be a redirect now no? rebranding my company maris stella labs on linkedin as the company that runs this repo. I'm founder of it. help me setup the the copy for the linkedin page",
+  "input_sha256": "38af27ed6bac1c131081b11d755a5959f2031a9f3d3c208bd0ea41914bcea40f",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T00:03:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11945,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first post draft named the old github.io host; custom-domain.test.mjs caught it in CI",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "`route` drew redteam for an owner request that was plainly distribution/venture work; no 'distribution' track exists, so the record uses ventures/1."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "Owner gave a direct task; followed it instead of the drawn redteam track.",
+      "did": "recorded as ventures/1",
+      "result": "task done"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "GHP redirect was already live (run 41143849046: deploy-cloudflare then deploy both success). Changed README/CITATION links to marisstella.app; wrote LinkedIn copy with sourced counts (tools.mjs search total 1306; 1058 research dirs); post. Local checks: run_workflow_locally --for-changes, see PR. Owner then asked for the workers.dev address to redirect: _headers Refresh+noindex for static files (unmetered), 301 in router.mjs for code paths. Local: node --test platform/pages/cloudflare/split.test.mjs 6/6; custom-domain.test.mjs 5/5 (it had failed in CI because the post named the old host). Also fixed PR #11943's run record, which failed promptctl validate on main.",
+  "corrections": [],
+  "redteam": null
+}

@@ -118,7 +118,12 @@ Merge when it is verified. There is no human review gate; fix forward. That
 covers `ventures/*` product code as much as `platform/`, docs and CI. The
 cross-review bots (`platform/ci/agent_review/README.md`) can auto-merge a
 same-repo PR on two bot approvals and green CI; they assist, they are not a
-gate.
+gate. The one exception is the control plane (owner, 2026-10-30, against
+rogue agents): a PR touching a path in `.github/CODEOWNERS` (agent
+instructions, hooks, MCP config, CI, the reviewer config) waits for the
+owner's approval once the ruleset is applied. Keep those edits in their own
+small PR so the rest of your work isn't held up
+([`docs/security/agent-hardening.md`](docs/security/agent-hardening.md)).
 
 Before merging: CI green (or, when runners are starved, the checks your change
 reaches, run here, with the output in the run record's `notes` and a summary
@@ -135,14 +140,14 @@ is already asked; don't duplicate it.
 
 ## Hosting
 
-The catalogue is served by Cloudflare (free plan) at
-**https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/**, built and
+The catalogue is served by Cloudflare (free plan) at **https://marisstella.app/**
+(owner, 2026-10-30; the workers.dev address forwards to it), built and
 deployed by `.github/workflows/portfolio-pages.yml` on every merge (and every
 three hours); the old GitHub Pages address serves redirect pages to it
 (owner, 2026-10-29). Merging is publishing; there is no branch to push by hand.
-The Hetzner/k3s route was retired on 2026-10-01: never connect
-to its old IPs (they may now belong to someone else), and manifests under
-`gitops/prod` describe a dead origin. What
+The Hetzner/k3s route was retired on 2026-10-01 and its trees
+(`infra/`, `bootstrap/`, `gitops/`) deleted on 2026-10-30: never connect
+to its old IPs (they may now belong to someone else). What
 is served, and which state readers are stale:
 [`portfolio/hosting/README.md`](portfolio/hosting/README.md), "What is served now".
 

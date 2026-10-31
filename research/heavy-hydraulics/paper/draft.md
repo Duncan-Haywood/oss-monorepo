@@ -55,6 +55,8 @@ The load factor 0.346 is mean over peak electrical input power of one **electric
 
 **3.4 Energy recovery.** Boom-lowering recovery, E = (m_arm + m_load) g dh with a round-trip efficiency eta_rt, returns a median 3.3% (open-centre) and 3.2% (LS) of cycle pump-shaft energy at 300 kg, 0.8 m, 0.7, and 10.0% to 11.8% at 600 kg, 1.2 m, 0.92 (`regen_bound_results.txt`, `regen_uncapped_results.txt`). The cap on the lift phase binds in 0% of cycles at the central point and 75% at the upper corner. Arm mass, drop height and round-trip efficiency are swept, not sourced (the efficiencies are from abstracts only), and no idle time is added, so these are upper bounds on the working-time share.
 
+**3.5 Cycle time: the open-centre valve can be slower, and charging for it does not change the ranking (milestones 3a to 3f).** An uncompensated open-centre valve shares pump flow by its spool openings, so a high-pressure actuator can stall while a light one runs; load-sensing does not. In a steady-state flow-sharing model (orifice sections sized to pass their demand alone, a bypass that closes at a rate k per unit of section area, no operator feathering, dig phases capped at a factor-2 stall bound; `flow_share_shape_results.txt`), the open-centre median cycle-time penalty at the 10.9 bar neutral drop is 5.8% at k = 1 and 0.0% for k from 1.5 to 5, with a 95th percentile of 21.6% at k up to 1.5 and 0.07% at k = 5. At the 1.44 bar sectional-valve drop the median is 21.6% for every k up to 2, so a low neutral drop leaves little pressure rise to unstall the heavy actuator. Load-sensing's own pump-limit penalty on the sampled cycles is 0.00% (`flow_share_ls_results.txt`). Rows at k of 20 or more size the sections for a supply pressure above the 250 bar relief setting, outside the model's validity, and are not used. Charging the open-centre pump its full power for the stretched seconds (an upper bound on the energy cost of slowness) moves the break-even LS margin from 28.0 bar to 35.8 bar at k = 1, 31.1 at k = 1.5, 29.4 at k = 2, 28.3 at k = 3, 28.0 at k = 5, and 29.5 at k = 10 (not monotone: the 95th-percentile tail of the penalty is enough to move a cycle-mean ratio; `time_penalised_results.txt`). Charging slowness can only help load-sensing, so the energy ranking at both sourced margins stands and strengthens when the bypass closes slowly. The bypass closing law is a one-parameter family, not a measured area curve, and no compensator or line dynamics are modelled.
+
 ## 4. Threats to validity
 
 1. No measured hydraulic pressure and flow trace; H4 is untested.
@@ -62,7 +64,7 @@ The load factor 0.346 is mean over peak electrical input power of one **electric
 3. Margins come from two different machines, one simulated.
 4. The force model's lift phase carries 5.6 times the gravity work of the bucket load (median), so its phases are not purely gravitational.
 5. Parts are retail listings of different brands; the LS valve price is unsourced; diesel is from a secondary summary.
-6. No dynamics, leakage, line losses, thermal limits or cycle-time effects; no real-machine validation.
+6. No dynamics, leakage, line losses or thermal limits; cycle time is a steady-state flow-sharing model with an assumed bypass closing law and stall bound (section 3.5); no real-machine validation.
 
 ## 5. What would settle it
 

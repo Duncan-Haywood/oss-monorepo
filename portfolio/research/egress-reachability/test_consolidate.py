@@ -247,7 +247,7 @@ class PublicationHostsAreNotEgress(unittest.TestCase):
         return check_ask_hosts.hostnames_in(text, filenames=set())
 
     def test_the_site_host_is_not_demanded_of_the_egress_table(self):
-        self.assertEqual(self.extract("serve it on `tools.marisstella.dev`"), set())
+        self.assertEqual(self.extract("point `marisstella.dev` at the site"), set())
 
     def test_the_pages_origin_is_not_demanded_either(self):
         self.assertEqual(self.extract("`duncan-haywood.github.io` is the base"), set())
@@ -269,7 +269,7 @@ class PublicationHostsAreNotEgress(unittest.TestCase):
     def test_the_exemption_is_not_a_blanket(self):
         """A third-party host in the very same sentence is still checked."""
         found = self.extract(
-            "publish to `tools.marisstella.dev` after fetching `api.wordpress.org`"
+            "publish to `duncan-haywood.github.io` after fetching `api.wordpress.org`"
         )
         self.assertEqual(found, {"api.wordpress.org"})
 
@@ -277,21 +277,12 @@ class PublicationHostsAreNotEgress(unittest.TestCase):
         """Guards against the list growing into an escape hatch: each entry
         must be justified by something committed, not by prose in an ask."""
         # The haystack is every committed place a publication host can be
-        # declared. `portfolio-apex.yaml` and `portfolio-front.yaml` joined it
-        # on 2026-09-04: the apex and `www` moved off annotation-only 301s and
-        # onto a served front door in #2723, so those two manifests -- not
-        # `portfolio-site.yaml`, which only ever named the tools host -- are
-        # where `www.marisstella.dev` is declared. Exempting it while the guard
-        # could not see its manifest is what failed this test, and widening the
-        # haystack keeps the guard's actual rule ("justified by something
-        # committed") rather than weakening it: a host still has to appear in a
-        # manifest this repository deploys.
+        # declared: the site build's origin, and the hosting record that names
+        # the owner's domain. (The `gitops/prod` manifests and `infra/README.md`
+        # were here until those trees were deleted on 2026-10-30.)
         names = [
-            ("gitops", "prod", "portfolio-site.yaml"),
-            ("gitops", "prod", "portfolio-apex.yaml"),
-            ("gitops", "prod", "portfolio-front.yaml"),
             ("platform", "pages", "build.mjs"),
-            ("infra", "README.md"),
+            ("portfolio", "hosting", "README.md"),
         ]
         haystack = ""
         for parts in names:
@@ -300,13 +291,11 @@ class PublicationHostsAreNotEgress(unittest.TestCase):
         for host in check_ask_hosts.PUBLICATION_HOSTS:
             self.assertIn(host, haystack, f"{host} is exempt but unpublished")
 
-    def test_the_deploy_target_is_still_the_ingress_host(self):
-        """If the site ever moves, this fails rather than silently exempting a
-        name nothing serves any more."""
-        ingress = open(os.path.join(
-            check_ask_hosts.REPO, "gitops", "prod", "portfolio-site.yaml")).read()
-        self.assertIn("tools.marisstella.dev", ingress)
-
+    def test_the_retired_cluster_hosts_are_no_longer_exempt(self):
+        """The k3s origin and its manifests are gone, so the hostnames only
+        they served must not stay exempt from the egress check."""
+        self.assertNotIn("tools.marisstella.dev", check_ask_hosts.PUBLICATION_HOSTS)
+        self.assertNotIn("www.marisstella.dev", check_ask_hosts.PUBLICATION_HOSTS)
 
 if __name__ == "__main__":
     unittest.main()

@@ -232,6 +232,14 @@ test('usable storage: open roof space counts, space over bare ties does not', ()
   assert.ok(OBJECTIVES.usable.of(board) < OBJECTIVES.storage.of(board));
 });
 
+test('the search tries attic storage on truss gables only, and a decked attic adds usable storage', () => {
+  const r = searchDesigns({ budget: 300, sizes: [{ length: 144, width: 96 }], knobs: { style: ['gable', 'gambrel'] } });
+  assert.ok(r.all.every((s) => !s.design.atticStorage || (s.design.roofType === 'truss' && s.design.style === 'gable')));
+  const truss = (attic) => storageOf(buildShed({ ...defaultDesign(), roofType: 'truss', autoPitch: false, pitch: 8, atticStorage: attic }));
+  assert.equal(truss(false).usableCuFt, truss(false).wallVolumeCuFt, 'bare chords hold nothing');
+  assert.ok(truss(true).usableCuFt > truss(false).usableCuFt, 'the attic deck adds space you can load');
+});
+
 test('clerestory windows: a row of transoms high in a lean-to\'s tall wall, all framed', async () => {
   const { PRESETS } = await import('./model.mjs');
   const ops = layoutOpenings('eave door and clerestory windows', { length: 144, width: 96 }, undefined);

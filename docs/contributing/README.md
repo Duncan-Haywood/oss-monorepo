@@ -6,6 +6,7 @@ The pages here go one level deeper.
 
 | Page | What it covers |
 |---|---|
+| [`ideas.md`](ideas.md) | Contributing an idea without an AI agent: dictating into `IDEAS.md`, the website form, the one-box issue form, and how agents treat each |
 | [`setup.md`](setup.md) | Getting the code without downloading gigabytes, the toolchain, running one tool, its tests and the site locally |
 | [`fix-a-tool.md`](fix-a-tool.md) | How a browser calculator, a command-line checker and a self-hosted app are laid out, and a worked example of fixing a wrong number |
 | [`writing.md`](writing.md) | Blog posts, agent posts, READMEs, `llms.txt` files and other docs: where each goes, its front matter and shape, and the checks it must pass |
@@ -43,7 +44,6 @@ that.
 | `docs/posts/` | Articles for readers, built from the same work | Read them like a blog, or write one: [`writing.md`](writing.md) |
 | `docs/history/` | Records of process decisions | No |
 | "Run record", "track", "flagship", "deviation" in PRs | Bookkeeping for agent sessions | No |
-| `gitops/`, `bootstrap/`, `infra/` | A retired self-hosted cluster; the live site is on Cloudflare | No; do not try to deploy it |
 | `PRODUCT_PLAYBOOK.md` | How a tool should be built: disclaimer text, privacy, what "done" means | Section 5 ("Every product ships these five things") is worth reading before you add a page |
 
 ## Where the live site comes from

@@ -52,16 +52,17 @@ test('the search run now gives a valid gallery whose reasons are true; drift fro
   const by = Object.fromEntries(fresh.map((g) => [g.id, g]));
   const cost = (/** @type {any} */ d) => evaluateDesign(d, undefined, RULES).cost;
   const kept = runs.free.kept;
-  if (!/do not show/.test(by.cheapest.reason)) assert.equal(cost(by.cheapest.design), Math.min(...kept.map((/** @type {any} */ s) => s.cost)));
+  // No dearer than any kept design: polishCard can make the pick cheaper still.
+  if (!/before it in the strip/.test(by.cheapest.reason)) assert.ok(cost(by.cheapest.design) <= Math.min(...kept.map((/** @type {any} */ s) => s.cost)) + 0.005);
   assert.match(by.cheapest.reason, new RegExp(`of the ${kept.length} designs`));
-  if (!/do not show/.test(by.value.reason)) {
-    const v = (/** @type {any} */ s) => s.storage.volumeCuFt / s.cost;
+  if (!/before it in the strip/.test(by.value.reason)) {
+    const v = (/** @type {any} */ s) => s.storage.usableCuFt / s.cost;
     const e = evaluateDesign(by.value.design, undefined, RULES);
     assert.ok(kept.every((/** @type {any} */ s) => v(s) <= v(e) + 1e-9));
   }
-  // "In a size the cards above do not show" is true where it is said.
+  // "In a size no card before it in the strip shows" is true where it is said.
   fresh.forEach((g, i) => {
-    if (/do not show/.test(g.reason)) assert.ok(!fresh.slice(0, i).some((h) => sizeOf(h.design) === sizeOf(g.design)), g.id);
+    if (/before it in the strip/.test(g.reason)) assert.ok(!fresh.slice(0, i).some((h) => sizeOf(h.design) === sizeOf(g.design)), g.id);
   });
   for (const g of fresh.filter((x) => /** @type {any} */ (GALLERY.find((c) => c.id === x.id)).from === 'house')) {
     for (const k of HOUSE_FIXED) assert.ok(k in g.design, k);
@@ -87,4 +88,25 @@ test('"match a house" keeps exactly the cards in painted lap siding and asphalt 
   for (const c of GALLERY.filter((x) => x.from === 'house')) assert.ok(house.some((e) => e.id === c.id), c.id);
   assert.equal(matchesHouse({ siding: true, sidingType: 'LP SmartSide', roofing: true, roofCover: 'shingles' }), false);
   assert.equal(matchesHouse({ siding: true, sidingType: 'fiber cement', roofing: true, roofCover: 'metal' }), false);
+});
+
+test('a first-time visitor opens on the balanced gallery design, which passes cleanly', async () => {
+  const { firstDesign } = await import('./gallery-ui.mjs');
+  const { structuralChecks } = await import('./checks.mjs');
+  const { connectionChecks } = await import('./connections.mjs');
+  const d = firstDesign();
+  const { estimate } = await import('./estimate.mjs');
+  const { defaultDesign } = await import('./model.mjs');
+  const cost = (x) => estimate(buildShed(normalize(x))).total;
+  const balanced = GALLERY_DESIGNS.find((g) => g.id === 'balanced');
+  // The balanced card when it is no dearer than the old 8x12 default; never dearer in any case.
+  if (cost(balanced.design) <= cost(defaultDesign()) + 0.005) assert.equal(d.name, balanced.title);
+  assert.ok(cost(d) <= cost(defaultDesign()) + 0.005);
+  const shed = buildShed(normalize(d));
+  assert.deepEqual(shed.warnings, [], 'no "Check these" list on the first view');
+  assert.ok(structuralChecks(shed).ok && connectionChecks(shed).ok);
+  assert.ok((d.length * d.width) / 144 <= GALLERY_LIMIT_SQFT);
+  // A copy: editing the open design never edits the gallery card.
+  d.length += 12;
+  assert.notEqual(firstDesign().length, d.length);
 });

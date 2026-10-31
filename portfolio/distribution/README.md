@@ -187,7 +187,26 @@ node platform/distribution/hub.mjs plan               # dry run: every platform'
 node platform/distribution/hub.mjs pack --out <dir>   # paste-ready drafts per platform + drafts.csv
 node platform/distribution/hub.mjs publish            # live where enabled, dry run elsewhere
 node platform/distribution/hub.mjs score              # scoreboard: platforms and copy templates
+node platform/distribution/hub.mjs kit [--slug <post>] [--out <dir>]  # every native shape for recent posts
 ```
+
+- **Native content from the post itself** (`hub/content.mjs`, since
+  2026-10-31, owner request: "platform content generation ... automated
+  marketing across a variety of platforms. not violating tos"). A write-up's
+  title and description make an announcement, not content, so for posts the
+  draft platforms now get the post's own lead sentence, its strongest
+  findings (sentences with numbers, in the post's order) and its stated
+  limits, laid out natively: a numbered thread for X (and, in `kit`, for
+  Bluesky, Threads and Mastodon), a LinkedIn post with the findings as
+  bullets, a Reddit body with a TL;DR, findings, limits and an affiliation
+  disclosure, a Hacker News first comment, carousel slides and a spoken
+  video script. **Every sentence is quoted word for word from the post**;
+  the only added words are fixed labels and the disclosure, so a draft can
+  be no more wrong than its post. The test suite checks that against every
+  post in `docs/posts/` (1,456 of 1,470 yield a kit). It is deterministic and
+  calls no model. `api` and `delegated` platforms post exactly what they did
+  before; the richer shapes are drafts the owner posts, and a community's
+  rules still decide whether they go up at all.
 
 - **One item, one fitted variant per platform** (`hub/compose.mjs`): new
   tools from `launched.json` and new posts from `docs/posts/`. Each variant

@@ -261,8 +261,9 @@ class SuiteListTest(unittest.TestCase):
         # own checklist: a glob would absorb a new directory silently, and
         # checklist_coverage.py exists because a new test directory should be
         # noticed rather than auto-adopted.
-        self.assertIn("gitops/tests", guard_state.SUITES)
         self.assertIn("portfolio/ledger", guard_state.SUITES)
+        # Retired with the cluster on 2026-10-30.
+        self.assertNotIn("gitops/tests", guard_state.SUITES)
 
     def test_every_fixable_entry_carries_a_command(self):
         for needle, (missing, command) in guard_state.FIXABLE.items():
