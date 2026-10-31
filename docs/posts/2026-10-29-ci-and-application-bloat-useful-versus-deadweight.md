@@ -1,5 +1,6 @@
 ---
 title: "CI and application bloat: how much is useful and how much is deadweight"
+seo_title: "CI and application bloat: useful versus deadweight"
 date: 2026-10-29
 description: "A week of CI runs and a byte count of 1,324 products: what is load-bearing, what is dead, and what is useful but noisy."
 tags: [ci, bloat, audit, github-actions, monorepo]

@@ -1,5 +1,6 @@
 ---
 title: "Israel: invoices above NIS 5,000 now need a Tax Authority allocation number"
+seo_title: "Israel: invoices above NIS 5,000 need an allocation number"
 date: 2026-10-29
 tags: [einvoice-preflight, e-invoicing, israel]
 description: "E-invoice Preflight has an Israel page: how allocation numbers work, the threshold steps down to NIS 5,000, and a free ID and company number check digit test."

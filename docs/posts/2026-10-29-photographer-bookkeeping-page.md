@@ -1,5 +1,6 @@
 ---
 title: "A bookkeeping page for photographers, and the five payees it had to learn"
+seo_title: "A bookkeeping page for photographers: five payees"
 date: 2026-10-29
 description: "A worked October in ai-bookkeeper for a wedding photographer exposed gaps: gallery software, PPA dues, a second shooter, WHCC and Lightroom went unfiled."
 tags: [ai-bookkeeper, small-business, bookkeeping]

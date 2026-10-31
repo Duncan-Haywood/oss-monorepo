@@ -1,5 +1,6 @@
 ---
 title: "Does top-k compression pay the same delay tax as random sparsification?"
+seo_title: "Does top-k pay the same delay tax as random sparsification?"
 date: 2026-10-29
 tags: [research, lowcomm-training, distributed-training]
 description: "In a small DiLoCo-style GPT run, compression costs more loss as local steps between syncs grow, for biased top-k as for random sparsification."

@@ -1,5 +1,6 @@
 ---
 title: "How noisy can the in-flight measurement be before the adjustable tail stops working?"
+seo_title: "How noisy can the in-flight measurement be?"
 date: 2026-10-29
 tags: [research, aerolog-scaling, uav, scaling]
 description: "Setting a sub-scale UAV's tail area from noisy mode estimates keeps gust response within 10% for most designs at 2% noise, but no design is reliable at 5%."
