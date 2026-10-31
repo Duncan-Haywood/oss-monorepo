@@ -2,6 +2,7 @@
 title: Shed dormers now frame the hole they cut in the roof
 date: 2026-10-31
 description: "Shed dormers in the wall-framing takeoff now frame the opening they cut in the main roof: doubled headers, doubled trimmers and a count of cut rafters."
+tags: [wall-framing-takeoff, construction, estimating]
 ---
 
 The wall-framing takeoff framed a gable dormer's front window and the opening it
