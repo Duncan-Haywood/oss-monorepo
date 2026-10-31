@@ -2,10 +2,16 @@
 
 Since 2026-10-29 the public site is served by Cloudflare, at
 https://marisstella.app/ since 2026-10-30 (first at
-https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/, which still
-serves the same files; owner:
+https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/; owner:
 "we are moving from ghp to cloudflare"). The old GitHub Pages address
-serves a redirect page for every URL (`../redirect-stubs.mjs`).
+serves a redirect page for every URL (`../redirect-stubs.mjs`), and since
+2026-10-31 the workers.dev address sends visitors to the domain too (owner:
+"this should also redirect"). Static files there get a `_headers` rule that
+`split.mjs` writes (`Refresh: 0; url=https://marisstella.app/<path>` and
+`X-Robots-Tag: noindex`), because they never run code. Paths that do run
+the router (`/research`, `/writing`, `/dev`) answer with a 301 (`router.mjs`).
+A 301 on every path would need `run_worker_first = true`, which would meter
+every file request against the free plan's 100,000 a day.
 
 ## Two Workers, because of the free plan's file limit
 
@@ -68,8 +74,8 @@ Routes → Custom domain). Cloudflare created the DNS record and certificate.
 `wrangler.toml` has no `routes` key, so `wrangler deploy` leaves the
 attachment alone and the deploy token needs no zone permissions. The workflow
 builds for that origin (`CLOUDFLARE_BASE` in `portfolio-pages.yml`), so every
-canonical link, sitemap and feed names it. The workers.dev address keeps
-serving the same files. `platform/edge/wrangler.toml`'s `ALLOWED_ORIGIN`
+canonical link, sitemap and feed names it. The workers.dev address
+forwards to it (above). `platform/edge/wrangler.toml`'s `ALLOWED_ORIGIN`
 lists both.
 
 To manage the domain from the repository instead, add

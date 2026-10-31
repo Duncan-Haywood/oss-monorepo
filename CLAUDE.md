@@ -136,7 +136,7 @@ is already asked; don't duplicate it.
 ## Hosting
 
 The catalogue is served by Cloudflare (free plan) at **https://marisstella.app/**
-(owner, 2026-10-30; the workers.dev address serves the same files), built and
+(owner, 2026-10-30; the workers.dev address forwards to it), built and
 deployed by `.github/workflows/portfolio-pages.yml` on every merge (and every
 three hours); the old GitHub Pages address serves redirect pages to it
 (owner, 2026-10-29). Merging is publishing; there is no branch to push by hand.
