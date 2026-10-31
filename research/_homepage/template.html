@@ -8,13 +8,16 @@
 <meta property="og:title" content="Open research: {{PROJECT_COUNT}} reproducible projects with code and tests">
 <meta property="og:description" content="{{PROJECT_COUNT}} open-source research projects, each with its code, tests and results: digital twins, robotics, chip design, energy storage, verifiable ML training.">
 <meta property="og:type" content="website">
-{{SOCIAL_META}}<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234f46e5'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+{{SOCIAL_META}}<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232a5bd7'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 {{FONTS}}<style>
 :root{
-  --bg:#fbfaf7;--bg-2:#f3f1ec;--surface:#ffffff;--text:#1c1b22;--muted:#5d5b66;--faint:#8b8994;
-  --border:#e4e1da;--border-strong:#d3cfc6;--accent:#4f46e5;--accent-ink:#3730a3;--accent-soft:#eef0ff;
-  --code-bg:#f1efe9;--shadow:0 1px 2px rgba(28,27,34,.04),0 4px 16px rgba(28,27,34,.05);
-  --shadow-hover:0 2px 4px rgba(28,27,34,.06),0 12px 32px rgba(28,27,34,.09);
+  /* The site's palette (platform/pages: writing.mjs, site-nav.mjs): cool grey
+   * page, navy ink, one blue accent, and a dark navy hero like every other
+   * section's front. Theme colours (--t-*) stay per theme. */
+  --bg:#f7f8fa;--bg-2:#eef1f5;--surface:#ffffff;--text:#1b2129;--muted:#5a6676;--faint:#636e7d;
+  --border:#dde3ea;--border-strong:#c8d1dc;--accent:#2a5bd7;--accent-ink:#1f47b0;--accent-soft:#e8eefc;
+  --code-bg:#eef1f5;--shadow:0 1px 2px rgba(20,40,80,.04),0 4px 16px rgba(20,40,80,.06);
+  --shadow-hover:0 2px 4px rgba(20,40,80,.06),0 12px 32px rgba(20,40,120,.12);
   --t-scoring:#4f46e5;--t-effort:#0e9f6e;--t-games:#d9480f;--t-detection:#c2255c;
   --t-routing:#1c7ed6;--t-markets:#9c36b5;--t-contributions:#b08900;--t-systems:#0b7285;--t-twins:#e8590c;--t-chip:#2f9e44;--t-robofab:#5f3dc4;--t-ambient:#d6336c;--t-selfrep:#868e00;--t-simdesign:#1098ad;--t-garment:#a61e4d;--t-accel:#c2255c;--t-eda:#0c8599;--t-osrobot:#37b24d;--t-swe:#e67700;--t-mimic:#7048e8;--t-house:#8f5b2e;--t-capture:#1971c2;--t-sensing:#087f5b;--t-energy:#d9480f;--t-society:#c92a2a;--t-codesign:#2b8a3e;--t-hanger:#5c7cfa;--t-qual:#ae3ec9;--t-buildbot:#b35c00;--t-humanities:#6741d9;--t-civ:#5c940d;
   --serif:"Newsreader",Georgia,"Times New Roman",serif;
@@ -22,9 +25,9 @@
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 @media (prefers-color-scheme:dark){:root{
-  --bg:#0f0f13;--bg-2:#15151b;--surface:#18181f;--text:#ecebf1;--muted:#a3a1ad;--faint:#75737f;
-  --border:#2a2a33;--border-strong:#3a3a45;--accent:#8b87ff;--accent-ink:#b4b1ff;--accent-soft:#1f1e36;
-  --code-bg:#23232c;--shadow:0 1px 2px rgba(0,0,0,.3);--shadow-hover:0 8px 28px rgba(0,0,0,.45);
+  --bg:#0f141a;--bg-2:#141b23;--surface:#161d26;--text:#e7edf4;--muted:#a3b0bf;--faint:#8794a5;
+  --border:#2a3542;--border-strong:#3a4757;--accent:#86a8ff;--accent-ink:#a8c7f0;--accent-soft:#1a2638;
+  --code-bg:#1d2631;--shadow:0 1px 2px rgba(0,0,0,.3);--shadow-hover:0 8px 28px rgba(0,0,0,.45);
   --t-scoring:#8b87ff;--t-effort:#38d9a9;--t-games:#ff8c5a;--t-detection:#f783ac;
   --t-routing:#74c0fc;--t-markets:#da77f2;--t-contributions:#ffd43b;--t-systems:#3bc9db;--t-twins:#ffa94d;--t-chip:#69db7c;--t-robofab:#9775fa;--t-ambient:#f06595;--t-selfrep:#c0eb75;--t-simdesign:#66d9e8;--t-garment:#faa2c1;--t-accel:#f783ac;--t-eda:#3bc9db;--t-osrobot:#8ce99a;--t-swe:#ffc078;--t-mimic:#b197fc;--t-house:#e0a872;--t-capture:#74c0fc;--t-sensing:#63e6be;--t-energy:#ff922b;--t-society:#ff8787;--t-codesign:#8ce99a;--t-hanger:#91a7ff;--t-qual:#e599f7;--t-buildbot:#ffa94d;--t-humanities:#b197fc;--t-civ:#a9e34b;
 }}
@@ -47,13 +50,22 @@ code{font:0.86em var(--mono);background:var(--code-bg);padding:.08em .35em;borde
 .topbar nav a:hover{color:var(--text)}
 
 /* hero */
-.hero{position:relative;overflow:hidden;padding:84px 0 64px;border-bottom:1px solid var(--border)}
-.hero::before{content:"";position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(600px 300px at 85% 10%,color-mix(in srgb,var(--accent) 14%,transparent),transparent 70%),
-             radial-gradient(500px 280px at 5% 100%,color-mix(in srgb,var(--t-effort) 10%,transparent),transparent 70%);}
-.hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
-  background-image:radial-gradient(var(--border-strong) 1px,transparent 1px);background-size:22px 22px;
-  mask-image:linear-gradient(180deg,rgba(0,0,0,.6),transparent 85%);-webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,.6),transparent 85%)}
+/* Dark navy in both schemes, the field, glows and grid of the site's .pf-hero
+ * (platform/pages/site-nav.mjs), so it redefines the tokens its contents read. */
+.hero{position:relative;overflow:hidden;padding:84px 0 64px;border-bottom:1px solid #1e2c42;color-scheme:dark;
+  --bg:#0b1626;--bg-2:rgba(148,170,210,.14);--surface:rgba(20,28,48,.72);--text:#eef2f8;--muted:#c3cddb;--faint:#a9b5c6;
+  --border:rgba(148,170,210,.24);--border-strong:rgba(148,170,210,.4);--accent:#a8c7f0;--accent-ink:#a8c7f0;
+  --shadow:0 1px 2px rgba(0,0,0,.3);--shadow-hover:0 8px 28px rgba(0,0,0,.45);
+  background:radial-gradient(640px 300px at 8% 0%,rgba(47,99,163,.30),transparent 70%),
+    radial-gradient(760px 340px at 92% 0%,rgba(58,110,165,.34),transparent 70%),
+    radial-gradient(700px 300px at 55% 135%,rgba(91,119,153,.24),transparent 70%),#0b1626;color:var(--text)}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(140,170,255,.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(140,170,255,.07) 1px,transparent 1px);background-size:44px 44px;
+  mask-image:radial-gradient(ellipse 70% 90% at 50% 0%,#000 30%,transparent 80%);-webkit-mask-image:radial-gradient(ellipse 70% 90% at 50% 0%,#000 30%,transparent 80%)}
+.hero h1{color:#fff}
+.hero .btn.primary{background:#a8c7f0;color:#07121a;border-color:#a8c7f0}
+.hero .map .bar i{background:color-mix(in srgb,var(--c) 55%,#ffffff)}
 .hero .wrap{position:relative;z-index:1}
 .hero-grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:56px;align-items:start}
 @media (max-width:1000px){.hero-grid{grid-template-columns:1fr}}
