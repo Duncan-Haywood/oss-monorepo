@@ -246,6 +246,12 @@ await page.click("#run");
 await page.waitForFunction(() => /Deck post check: write dead psf/.test(document.body.textContent));
 console.log("ok: malformed deck post check refused on the page");
 await page.fill("#dkPostCheck", "");
+// Deck blocking: a typed spacing adds rows to the deck card.
+await page.fill("#dkBlocking", "48");
+await page.click("#run");
+await page.waitForFunction(() => /Blocking: \d+ rows?/.test(document.querySelector("#deckOut")?.textContent || ""));
+console.log("ok: deck blocking typed on the page and shown on the deck card");
+await page.fill("#dkBlocking", "");
 await page.uncheck("#dkOn");
 await page.uncheck("#stOn");
 await page.uncheck("#flOn");
