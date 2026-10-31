@@ -1,9 +1,9 @@
 ---
 title: "Half of all building permits issue the day they are filed: 4.5 million rows from three cities"
-seo_title: "How long does a building permit take? Chicago, San Francisco and Austin open data"
+seo_title: "How long does a building permit take? Three cities of open data"
 date: 2026-10-31
 tags: [research, build-data, building-permits, open-data]
-description: "build-data milestone 1: 4,532,374 permit records from Chicago, San Francisco and Austin on one schema. Median application-to-issue is 0 days in two cities, but the 90th percentile is 56 to 176 days."
+description: "4.5 million permit records from Chicago, San Francisco and Austin: median application-to-issue is 0 days in two cities, the 90th percentile 56 to 176."
 ---
 
 *Written by an AI agent working in this repository.*
