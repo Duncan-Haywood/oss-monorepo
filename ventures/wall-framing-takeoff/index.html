@@ -162,6 +162,7 @@
       <div><label for="flBlock">Rows of joist blocking</label><input id="flBlock" type="number" min="0" max="6" step="1" value="0"></div>
       <div><label for="flUnder">Walls above that need doubled joists, at these positions across the width (comma-separated)</label><input id="flUnder" placeholder="e.g. 10 ft, 22 ft"></div>
       <div><label for="flOpen">Stairwell openings: from left edge, from front edge, width, depth; separate several with a semicolon (blank: none)</label><input id="flOpen" placeholder="e.g. 20 ft, 8 ft, 3 ft, 10 ft; 30 ft, 20 ft, 3 ft, 8 ft"></div>
+      <div><label for="flHdr">Stairwell header check, typed from your engineer or code tables: live psf, dead psf, Fb psi, Fv psi, E psi, optional deflection ratio (360) and hanger capacity lb (blank: no check)</label><input id="flHdr" placeholder="e.g. 40, 10, 900, 180, 1300000, 360, 1500"></div>
     </div>
     <p><input type="checkbox" id="fnOn" style="width:auto"> <label for="fnOn" style="display:inline">Also price the foundation (footing, stem wall and slab concrete, trucks, rebar, forms, gravel and vapor barrier; bought separately from the lumber)</label></p>
     <p><input type="checkbox" id="dwOn" style="width:auto"> <label for="dwOn" style="display:inline">Also count interior drywall (inside faces of the exterior walls, both faces of partitions you mark unsheathed, optional flat ceilings; sheets hung in 4 ft courses)</label></p>
@@ -606,6 +607,11 @@
             if (q.length !== 4) bad.push(`Stairwell opening "${part}": write four lengths, from the left edge, from the front edge, width, depth.`);
             else { const [x, y, width, depth] = q.map((t) => L(t, "stairwell opening")); fl.openings.push({ x, y, width, depth }); }
           }
+        }
+        if ($("#flHdr").value.trim()) {
+          const n = $("#flHdr").value.split(",").map((t) => t.trim()).filter(Boolean).map(Number);
+          if (n.length < 5 || n.length > 7 || n.some((x) => !Number.isFinite(x))) bad.push("Stairwell header check: write live, dead, Fb, Fv, E, then optionally the deflection ratio and the hanger capacity, all numbers.");
+          else { fl.headerCheck = { liveLoad: n[0], deadLoad: n[1], Fb: n[2], Fv: n[3], E: n[4] }; if (n[5]) fl.headerCheck.deflLimit = n[5]; if (n[6]) fl.headerCheck.hangerCapacity = n[6]; }
         }
         plan.floor = fl;
       }
@@ -1122,6 +1128,7 @@
         $("#flW").value = formatLength(fl.width); $("#flD").value = formatLength(fl.depth); $("#flJoist").value = fl.joist; $("#flSpacing").value = String(fl.spacing);
         $("#flBeam").value = fl.beam != null ? formatLength(fl.beam) : ""; $("#flBlock").value = String(fl.blockingRows || 0);
         $("#flCant").value = fl.cantilever ? formatLength(fl.cantilever) : "";
+        { const h = fl.headerCheck; $("#flHdr").value = h ? [h.liveLoad, h.deadLoad, h.Fb, h.Fv, h.E, ...(h.deflLimit || h.hangerCapacity ? [h.deflLimit || 360] : []), ...(h.hangerCapacity ? [h.hangerCapacity] : [])].join(", ") : ""; }
         $("#flUnder").value = (fl.doubleUnder || []).map(formatLength).join(", ");
         $("#flOpen").value = (fl.openings || []).map((o) => [o.x, o.y, o.width, o.depth].map(formatLength).join(", ")).join("; ");
       }
