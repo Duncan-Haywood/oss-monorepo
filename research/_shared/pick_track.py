@@ -5,7 +5,11 @@ First, with probability PROGRAMME_SHARE, an open programme from research/PROGRAM
 the default since 2026-10-24, so most runs advance one hard question toward a paper.
 Otherwise a track, whose run opens a new programme in that area or advances one there.
 
-r < 0.05 is a free-choice run; otherwise track = 1 + floor((r - 0.05) / 0.95 * N), N = len(PREFIX).
+r < 0.05 is a free-choice run; otherwise track = 1 + floor((r - 0.05) / 0.95 * N), N = len(PREFIX),
+except that with probability FOCUS_SHARE the same position maps onto the FOCUS tracks only, and
+programmes in FOCUS are drawn first that often (owner, 2026-10-31: deep tech industrial, energy,
+real estate development and construction, construction data; prompts/goals.md, "Direction:
+industrial, energy and construction").
 Pass a number to map a draw you already have: pick_track.py 0.11
 With no number the first draw is saved in .git (keyed by branch, 12 h) and
 reused, so a re-run in the same session gives the same programme; --new redraws.
@@ -35,13 +39,30 @@ PREFIX = ["selfrep", "ambient", "chip", "robofab", "simdesign", "garment",
           "infra", "aerolog", "marine", "civ", "heavy"]
 SATURATED = 40
 PROGRAMME_SHARE = 0.65
+# The owner's overarching directions from 2026-10-31: construction and real estate
+# development (house, buildbot, heavy), imaging and sensing (sensing), energy (energy),
+# industrial deep tech (infra) and autonomy (osrobot, aerolog, marine). Half of all
+# track and programme draws go to these first; the rest stay uniform, so about 68% of
+# track draws and 75% of programme draws land here, and no other track is closed.
+FOCUS = ["house", "buildbot", "heavy", "sensing", "energy", "infra", "osrobot", "aerolog", "marine"]
+FOCUS_SHARE = 0.5
+# Programmes whose slug does not start with a FOCUS prefix but belong to it.
+FOCUS_PROGRAMMES = {"sim2real-inference", "build-data"}
 RESEARCH = Path(__file__).resolve().parents[1]
 
 
-def pick(r):
+def pick(r, focus_share=FOCUS_SHARE):
     if r < 0.05:
         return "free"
-    return min(len(PREFIX), 1 + math.floor((r - 0.05) / 0.95 * len(PREFIX)))
+    u = (r - 0.05) / 0.95
+    if random.Random(r + 2).random() < focus_share:
+        return PREFIX.index(FOCUS[min(len(FOCUS) - 1, math.floor(u * len(FOCUS)))]) + 1
+    return min(len(PREFIX), 1 + math.floor(u * len(PREFIX)))
+
+
+def is_focus(slug):
+    """True when programme `slug` belongs to the owner's 2026-10-31 directions."""
+    return slug in FOCUS_PROGRAMMES or slug.split("-")[0] in FOCUS
 
 
 def projects(prefix, limit=5):
@@ -152,14 +173,16 @@ def next_steps(name, width=400):
     return text if len(text) <= width else text[:width].rstrip() + "..."
 
 
-def draw_programme(r, progs, claimed=open_prs_for):
+def draw_programme(r, progs, claimed=open_prs_for, focus_share=FOCUS_SHARE):
     """(slug, has_proposal, skipped): the drawn programme, redrawn among those no open PR names.
 
     Runs drew a programme two draft PRs already held and picked another by hand (friction
     2026-10-25). `skipped` lists '#N title' lines of the claimed draws; if every programme is
-    claimed the first draw stands."""
+    claimed the first draw stands. With probability `focus_share` the FOCUS programmes go first."""
     rng = random.Random(r + 1)
     order = rng.sample(progs, len(progs))
+    if rng.random() < focus_share:
+        order = [p for p in order if is_focus(p[0])] + [p for p in order if not is_focus(p[0])]
     skipped = []
     for slug, has in order:
         prs = claimed(slug)
@@ -229,9 +252,15 @@ if __name__ == "__main__":
             print(f"CLAIM CHECK: open PR names this programme (take a different milestone or help land it): {line}")
         sys.exit(0)
     t = pick(r)
-    print(f"draw {r:.3f} -> {'free-choice' if t == 'free' else 'track ' + str(t)}")
+    focus = t != "free" and PREFIX[t - 1] in FOCUS
+    print(f"draw {r:.3f} -> {'free-choice' if t == 'free' else 'track ' + str(t)}"
+          + (" (a focus track: prompts/goals.md, 'Direction: industrial, energy and construction')" if focus else ""))
     if t != "free" and projects(PREFIX[t - 1])[0] >= SATURATED:
         open_tracks = [i + 1 for i, x in enumerate(PREFIX) if len(list(RESEARCH.glob(x + "-*"))) < SATURATED]
+        # A focus draw stays in the focus area when an open focus track is left.
+        open_focus = [i for i in open_tracks if PREFIX[i - 1] in FOCUS]
+        if focus and open_focus:
+            open_tracks = open_focus
         if open_tracks:
             old, t = t, random.Random(r).choice(open_tracks)
             print(f"track {old} has {SATURATED}+ projects; redrawn -> track {t}")

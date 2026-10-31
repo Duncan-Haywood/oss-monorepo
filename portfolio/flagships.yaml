@@ -21,6 +21,44 @@
 # retail-pilot-intel, print-atelier and real-estate-agent-photo-app (mostly
 # plans and demo UI), workflow-audit and marketplace-fee-compare (thin).
 flagships:
+  # Added 2026-10-21 second, on the owner's direction that day: "I want to make
+  # tools that can automate part of the new home construction process in the
+  # us. to drop prices and increase efficiency this is a long standing project
+  # to work on continually." The program is ventures/wall-framing-takeoff/ROADMAP.md.
+  # Moved first on 2026-10-31, on the owner's direction that day to make "deep
+  # tech industrial, energy real estate dev and construction" the overarching
+  # directions (prompts/goals.md, "Direction: industrial, energy and construction").
+  - venture: wall-framing-takeoff
+    why: >-
+      Wall layout engine (studs on layout, kings, jacks, headers, cripples,
+      plate splices over studs) with a per-wall self-check, and a Gilmore-Gomory
+      cutting-stock order within 0.02% of its LP bound on whole houses; page,
+      CLI and agent engine. First tool of the new-home construction program.
+    next: >-
+      Open items only; landed work, with dates and how each was checked, is
+      in ventures/wall-framing-takeoff/README.md and ROADMAP.md. Wanted: a
+      real permitted deck plan (deck framing, guards and stairs are on hand
+      arithmetic only). Stairs: beam hangers and rim ties at stairwell
+      headers, a published table for landing post sizing, sizing the radial
+      supports under winder treads, connector and anchor sizes. Siding:
+      exterior opening trim and vertical siding with battens are hand-
+      computed only; their page fields are source-tested only. A real
+      architect's DXF through it (door and window symbols, dynamic blocks
+      and gaps at openings are checked on hand-written or library blocks
+      only). A real IFC export with doors (swept bodies, centred openings
+      and multi-storey are hand-written only; KIT's FZK-Haus read locally,
+      not committed). A real foundation plan (anchor bolt fields, piers and
+      stepped footings are hand-checked or wiring-tested only). Ceiling
+      steps checked against a real soffit. Trim boards against a real trim
+      order (scarf overlap is a typed figure). Drywall `jointsOnStuds`
+      against a real hang; ceiling joists from the roof beyond source
+      assertions. Bid leveling on real bids (`--level-bids`, made-up only);
+      a real sub's labor rates; a real builder's activity list for
+      `--schedule`. Gable sheathing nested on real sheets (offcut-triangle
+      heights are hand-made). Insulation: the attic bag chart and a real
+      order; baffles and eave compression are hand-checked, the page field
+      source-tested only.
+
   # Added 2026-10-21 first, on the owner's direction that day: "I want to make
   # ai accounting systems". It joins up what about ninety single-step
   # accounting tools in ventures/ already did into books that persist and learn.
@@ -64,40 +102,6 @@ flagships:
       the IRS publishes the figures. A run that lands a slice replaces its
       item here; keep this under 2,000 characters.
 
-  # Added 2026-10-21 second, on the owner's direction that day: "I want to make
-  # tools that can automate part of the new home construction process in the
-  # us. to drop prices and increase efficiency this is a long standing project
-  # to work on continually." The program is ventures/wall-framing-takeoff/ROADMAP.md.
-  - venture: wall-framing-takeoff
-    why: >-
-      Wall layout engine (studs on layout, kings, jacks, headers, cripples,
-      plate splices over studs) with a per-wall self-check, and a Gilmore-Gomory
-      cutting-stock order within 0.02% of its LP bound on whole houses; page,
-      CLI and agent engine. First tool of the new-home construction program.
-    next: >-
-      Open items only; landed work, with dates and how each was checked, is
-      in ventures/wall-framing-takeoff/README.md and ROADMAP.md. Wanted: a
-      real permitted deck plan (deck framing, guards and stairs are on hand
-      arithmetic only). Stairs: beam hangers and rim ties at stairwell
-      headers, a published table for landing post sizing, sizing the radial
-      supports under winder treads, connector and anchor sizes. Siding:
-      exterior opening trim and vertical siding with battens are hand-
-      computed only; their page fields are source-tested only. A real
-      architect's DXF through it (door and window symbols, dynamic blocks
-      and gaps at openings are checked on hand-written or library blocks
-      only). A real IFC export with doors (swept bodies, centred openings
-      and multi-storey are hand-written only; KIT's FZK-Haus read locally,
-      not committed). A real foundation plan (anchor bolt fields, piers and
-      stepped footings are hand-checked or wiring-tested only). Ceiling
-      steps checked against a real soffit. Trim boards against a real trim
-      order (scarf overlap is a typed figure). Drywall `jointsOnStuds`
-      against a real hang; ceiling joists from the roof beyond source
-      assertions. Bid leveling on real bids (`--level-bids`, made-up only);
-      a real sub's labor rates; a real builder's activity list for
-      `--schedule`. Gable sheathing nested on real sheets (offcut-triangle
-      heights are hand-made). Insulation: the attic bag chart and a real
-      order; baffles and eave compression are hand-checked, the page field
-      source-tested only.
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
   - venture: sales-agent
