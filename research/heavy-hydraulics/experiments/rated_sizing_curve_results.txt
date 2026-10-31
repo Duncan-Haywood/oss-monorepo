@@ -1,0 +1,3 @@
+dp read at 1.0 x rated: penalty % median 6.25, p95 21.62; dig factor median 1.289; at stall bound 35.5%
+dp read at 0.8 x rated: penalty % median 16.81, p95 21.62; dig factor median 1.777; at stall bound 47.5%
+dp read at 1.2 x rated: penalty % median 2.64, p95 21.62; dig factor median 1.122; at stall bound 25.4%
