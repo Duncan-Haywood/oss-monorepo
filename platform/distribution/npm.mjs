@@ -109,7 +109,7 @@ export async function buildPackage({ slug, dir, scope = '', version = VERSION })
   files['bin.mjs'] = BIN_WRAPPER;
   files.LICENSE = license;
   const readme = await fs.readFile(path.join(dir, 'README.md'), 'utf8').catch(() => `# ${slug}\n\n${description}\n`);
-  files['README.md'] = `${readme.trimEnd()}\n\n---\n\nFree and open source (MIT), from the [monorepo-projects](${tagUrl(toolUrl(slug), 'npm')}) portfolio. Not legal, tax or professional advice.\nSource: ${REPO_URL}/tree/main/ventures/${slug}\n`;
+  files['README.md'] = `${readme.trimEnd()}\n\n---\n\nFree and open source (MIT), from [Maris Stella Labs](${tagUrl(toolUrl(slug), 'npm')}). Not legal, tax or professional advice.\nSource: ${REPO_URL}/tree/main/ventures/${slug}\n`;
   files['package.json'] = `${JSON.stringify({
     name,
     version,

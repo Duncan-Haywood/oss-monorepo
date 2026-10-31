@@ -104,7 +104,7 @@ export function registryManifest({ name = DEFAULT_NAME, version = VERSION, count
 
 const readmeText = (name, count) => `# ${name}
 
-An [MCP](https://modelcontextprotocol.io) server that lets an AI assistant search and run **${count} free, open-source command-line tools** (calculators, estimators and checkers) from the [monorepo-projects](https://duncan-haywood.github.io/oss-monorepo/) portfolio.
+An [MCP](https://modelcontextprotocol.io) server that lets an AI assistant search and run **${count} free, open-source command-line tools** (calculators, estimators and checkers) from [Maris Stella Labs](https://marisstella.app/).
 
 Everything runs locally on your machine. The bundled tools import no network or process modules, the server sends nothing anywhere, and there is no account or API key.
 

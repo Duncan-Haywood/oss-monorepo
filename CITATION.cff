@@ -1,9 +1,9 @@
 cff-version: 1.2.0
 message: "If you use this software or its research results, please cite them as below."
-title: "oss-monorepo: open-source products and open research"
+title: "Maris Stella Labs: open-source products and open research"
 type: software
 authors:
-  - name: "oss-monorepo contributors"
+  - name: "Maris Stella Labs"
 repository-code: "https://github.com/Duncan-Haywood/oss-monorepo"
 url: "https://marisstella.app/"
 license: MIT

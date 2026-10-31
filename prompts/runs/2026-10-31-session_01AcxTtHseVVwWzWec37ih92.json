@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01AcxTtHseVVwWzWec37ih92",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T01:09:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11968",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Bible 'Next up' lists the strand piece as the only open H&H item, so choosing a fresh topic meant grepping 111 stories; no topic index exists."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "No post or podcast: audio over 400 MB cap and run short.",
+      "did": "Text-only story; no blog post",
+      "result": "Story landed; post skipped."
+    }
+  ],
+  "writeups": [
+    "ventures/hearth-and-horizon/stories/the-black-grains.md",
+    "ventures/hearth-and-horizon/BIBLE.md"
+  ],
+  "goal": null,
+  "notes": "Project hearth-and-horizon, slug the-black-grains. Dropped lightning topic after finding it already covered.",
+  "corrections": [],
+  "redteam": null
+}
