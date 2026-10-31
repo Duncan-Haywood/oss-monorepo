@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01AcxTtKp5jKe4wBgqe26q2L",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine: read prompt.md and follow it",
+  "input_sha256": "f0c54a41b29d47fb78bd3508e932dd3d2469acf1b7d553f52d1532cf5e3eb4c8",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T19:19:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "research/aerolog-scaling"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12153",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 fetches origin security-alerts, which does not exist (fatal ref error); PR #12026 already addresses it."
+    },
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "Router sent a scheduled run to review while another review PR (#12026) was open; needed --skip-review per prompt.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No agent doc in docs/reports: nothing the next run needs beyond the LOG entry.",
+      "did": "log + blog post only",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-31-estimating-sensor-noise-correlation.md",
+    "research/aerolog-scaling/LOG.md (9o)"
+  ],
+  "goal": null,
+  "notes": "Experiment 9o ran 25 min; predictions all held. Paper draft not updated (stated in limits).",
+  "corrections": [],
+  "redteam": null
+}
