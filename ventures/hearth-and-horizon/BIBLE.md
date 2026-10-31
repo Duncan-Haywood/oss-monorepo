@@ -259,6 +259,8 @@ numbers worked out before drafting.
 
 **Hearth & Horizon**
 
+- *(Done: The Count Between, Kaplnka Panny Márie Snežnej (invented), Low Tatras, August 2048; text only.)* Flash-to-bang at 340 m/s: 24 s = 8.2 km, 15 s = 5.1 km, 28 km/h closing, about 11 min; two readings give only the radial speed; 20 m rolling sphere and a 6 m rod cover sqrt(6x34) = 14.3 m, the cross 40 m off is outside; 30 min after last thunder.
+
 - *(Done: The Night the Blossom Was Wet, Kingsbarrow, Herefordshire, April 2048; text only.)* Frost sprinklers: 334 kJ/kg, 3 mm/h, 400 m3 pond, 2 of 3 ha; wet-bulb start (-0.5 C) not air at 0 C; stopping early is worse than not starting.
 
 - *(Done: The Funeral Soup, Santa Marija tal-Qlajja, Gozo, 2044; text only.)* A 100 L pot left overnight: 13 h time constant, 57 C at 06:17, 46 C at 11:00; 12 shallow pans in ice water need about 100 kg of ice (36 MJ / 355 kJ per kg); rule cited is the US Food Code's, not Maltese law.
