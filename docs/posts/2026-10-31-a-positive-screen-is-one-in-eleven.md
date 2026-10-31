@@ -1,6 +1,6 @@
 ---
 title: "A 99% accurate newborn screen can still be wrong 91 times in 100"
-seo_title: "Why a positive newborn screening result is usually a false alarm for rare conditions"
+seo_title: "Why a positive newborn screen is usually a false alarm"
 date: 2026-10-31
 tags: [fiction, hearth-and-horizon, health, statistics]
 description: "New story: with an assumed 1-in-10,000 condition, 99% sensitivity and 0.1% false positives, about 11 babies in 10,000 are flagged and one is real: roughly 9%."
