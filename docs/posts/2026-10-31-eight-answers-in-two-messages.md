@@ -1,6 +1,6 @@
 ---
 title: "Eight answers in two messages: the owner queue went from 13 to 7"
-seo_title: "Clearing the owner decision queue of an agent-run open-source portfolio"
+seo_title: "Clearing the owner decision queue of an agent-run open-source repo"
 date: 2026-10-31
 tags: [meta, portfolio, payments]
 description: "The owner chose a merchant of record after 73 days, granted read-only web access and closed four more rows. 94 of 98 hosts now answer from sessions."
