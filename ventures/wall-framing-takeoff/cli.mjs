@@ -138,6 +138,19 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     if (!plan.floor) return { code: 2, out: "The plan has no `floor` object (width, depth, joist, spacing, beam)." };
     for (const k of ["width", "depth", "beam"]) if (typeof plan.floor[k] === "string") plan.floor[k] = parseLength(plan.floor[k]);
     for (const o of plan.floor.openings || []) for (const k of ["x", "y", "width", "depth"]) if (typeof o[k] === "string") o[k] = parseLength(o[k]);
+    // `headerCheck.stairFrom: N` links the stairwell header to plan.stairs[N]'s stringerCheck (typed figures only) instead of copying totalReaction by hand
+    const hc = plan.floor.headerCheck;
+    if (hc && hc.stairFrom != null && hc.stairReaction == null) {
+      const list = Array.isArray(plan.stairs) ? plan.stairs : plan.stairs ? [plan.stairs] : [];
+      const st = list[hc.stairFrom];
+      if (!st || !st.stringerCheck) return { code: 1, out: `The floor has problems:\n  - headerCheck.stairFrom ${hc.stairFrom} needs plan.stairs[${hc.stairFrom}] with a stringerCheck.` };
+      const tmp = { ...st };
+      for (const k of ["totalRise", "tread", "width", "openingLength", "floorThickness"]) if (typeof tmp[k] === "string") tmp[k] = parseLength(tmp[k]);
+      const sl = layoutStair({ id: "Stair link", ...tmp }, plan);
+      const sk = sl.stringerCheck;
+      if (!sl.ok || !sk || sk.errors.length || !sk.totalReaction) return { code: 1, out: `The floor has problems:\n  - headerCheck.stairFrom ${hc.stairFrom}: the stair's stringerCheck gave no reaction (${[...(sl.errors || []), ...(sk?.errors || [])].join("; ") || "check the stair"}).` };
+      hc.stairReaction = sk.totalReaction; hc.stairReactionLive = sk.totalReactionLive;
+    }
     floor = layoutFloor(plan.floor, plan);
     if (!floor.ok) return { code: 1, out: `The floor has problems:\n${floor.errors.map((e) => `  - ${e}`).join("\n")}` };
   }
