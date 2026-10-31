@@ -327,6 +327,14 @@ const dmTxt = await page.textContent("#dormerOut");
 const [svDm] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
 const savedDm = JSON.parse(await (await import("node:fs/promises")).readFile(await svDm.path(), "utf8"));
 console.log(!/NaN|undefined/.test(dmTxt) && /ridge/.test(dmTxt) && savedDm.dormer?.width === 72 ? "ok: dormer card and saved plan" : "FAIL: dormer: " + dmTxt.slice(0, 200));
+// gable dormer front window (2026-10-31): same three fields feed dormer.window on a gable
+await page.fill("#dmWinW", "30"); await page.fill("#dmWinH", "24"); await page.fill("#dmWinSill", "14");
+await page.click("#run");
+await page.waitForFunction(() => /window/.test(document.querySelector("#dormerOut")?.textContent || ""), null, { timeout: 30000 }).catch(async () => { console.log("FAIL: gable dormer window; errors:", await page.textContent("#errors")); });
+const gwTxt = await page.textContent("#dormerOut");
+const [svGw] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const savedGw = JSON.parse(await (await import("node:fs/promises")).readFile(await svGw.path(), "utf8"));
+console.log(!/NaN|undefined/.test(gwTxt) && /window/.test(gwTxt) && savedGw.dormer?.window?.width === 30 && !savedGw.dormer?.shape ? "ok: gable dormer window card and saved plan" : "FAIL: gable dormer window: " + gwTxt.slice(0, 200));
 // shed dormer (2026-10-31): shape select, roof opening depth, shed text on the card, saved plan keeps shape
 await page.selectOption("#dmShape", "shed");
 await page.fill("#dmPitch", "3");
