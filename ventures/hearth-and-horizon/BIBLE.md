@@ -172,6 +172,7 @@ introduces a dated fact.
 | 2052 | Thurlby Staithe (invented), north Norfolk: Our Lady of the Marsh, five bells (tenor about 8 cwt), tower captain Walter Ashdown (1968 to 2 Mar 2052, captain since 2000); funeral Fri 15 Mar; band Tilly Mercer (11, treble), Ibrahim Saleh (2), Colm Roche (3, conducts), Aoife Brennan (4), Mary Quigley (tenor); tower assistant called Bob; true touch = bob every fourth lead end, 120 rows about 5 minutes | *Three Plain and a Bob* |
 | 2049 | Kiriani (invented dairy co-operative), Nyeri County, Kenya, 1,950 m (air about 80 kPa, water boils 93.4 C): 200 L batch pasteuriser, 63 C for 30 min, probe fitted 12 Aug reads 95.9 in boiling water (2.5 high), so the true hold is about 61.3 C; 1,400 L a day, 310 pupils at 200 mL; phosphatase strips positive on 2 of 6; boil notice Tue 21 Oct; county lab Thu | *Sixty-One Point Three* |
 | 2047 | Sankt Olavs Holm (invented), Danish Baltic island 5 nm x 1 nm, harbour at Havnsby-side 14 nm away; 9 m boat *Maren* (6 kn, 5 L/h, 50 L), assistant Lodsen; Sat 29 June, fog from 14:41, satellite fix spoofed to an inland airfield; dead-reckoning error about 1 nm (3 degrees = 0.73 nm, 1/3 kn current = 0.78 nm); aim off 1.5 nm west (heading 041 not 047) of a harbour with a reef (Tornen) to its east, then follow the 10 m contour | *Aim Off* |
+| 2048 | Kingsbarrow (invented parish orchard), Herefordshire hills, 3 ha cider apple above the Arrow: manager Ruth Pugh, orchard assistant Nos, Dai Bevan (17); night of Fri 24 to Sat 25 Apr (St Mark's, Rogation procession 09:00); forecast low -3.8 C pocket, -2.4 C upper; pond 400 m3 usable, 3 mm/h x 2 ha = 60 m3/h (66 when filters iced); start at wet-bulb -0.5 C (01:20, air 2.7, dew point -4.2), stop about 07:30; upper 1 ha unwatered, count due at fruit set. |
 
 
 Little Lamps is set in history (Lima, about 1610 for *Brother Martin*) and is
@@ -257,6 +258,8 @@ Proposals, not commitments; pick one and say so in the PR. Each needs its
 numbers worked out before drafting.
 
 **Hearth & Horizon**
+
+- *(Done: The Night the Blossom Was Wet, Kingsbarrow, Herefordshire, April 2048; text only.)* Frost sprinklers: 334 kJ/kg, 3 mm/h, 400 m3 pond, 2 of 3 ha; wet-bulb start (-0.5 C) not air at 0 C; stopping early is worse than not starting.
 
 - *(Done: The Funeral Soup, Santa Marija tal-Qlajja, Gozo, 2044; text only.)* A 100 L pot left overnight: 13 h time constant, 57 C at 06:17, 46 C at 11:00; 12 shallow pans in ice water need about 100 kg of ice (36 MJ / 355 kJ per kg); rule cited is the US Food Code's, not Maltese law.
 
