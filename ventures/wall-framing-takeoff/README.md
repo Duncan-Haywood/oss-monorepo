@@ -20,6 +20,7 @@ For assistants: [llms.txt](https://github.com/duncan-haywood/oss-monorepo/blob/m
 It is the first tool of a longer project to automate parts of new-home
 construction in the US and bring its cost down: [ROADMAP.md](ROADMAP.md).
 
+- Every page links to the other six (a "More free building calculators" block above the footer, 2026-10-31); `page.test.mjs` pins it. Markup only, no visit data.
 - Standalone siding calculator page `siding-calculator.html` (2026-10-31): house size, exposure, openings in; courses, boards, wrap, corner boards out; page test pins the 40 x 30 ft example to the engine. Browser-checked in Chromium.
 
 ## What it does

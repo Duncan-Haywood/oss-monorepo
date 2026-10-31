@@ -468,3 +468,11 @@ test("the concrete calculator page: FAQ matches its data, the 12 x 12 x 4 in cas
   const b80 = slabConcrete({ length: 108, width: 108, depth: 4, waste: 0 });
   assert.ok(b80.ok); assert.equal(b80.bags, 45); // the FAQ's 45 bags to a yard
 });
+
+test("every page links to every other page (internal linking for readers and crawlers)", () => {
+  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "schedule-calculator"].map((n) => n + ".html");
+  for (const f of pages) {
+    const html = page(f);
+    for (const other of pages) if (other !== f) assert.ok(html.includes(`<a href="${other}">`), `${f} does not link ${other}`);
+  }
+});
