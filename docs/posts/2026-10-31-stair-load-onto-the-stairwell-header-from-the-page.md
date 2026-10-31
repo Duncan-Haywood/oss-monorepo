@@ -3,7 +3,7 @@ title: "One less number to copy: the stair's load now reaches the stairwell head
 seo_title: "Stair reaction on the stairwell header in a framing takeoff"
 date: 2026-10-31
 tags: [wall-framing-takeoff, construction, stairs, floor-framing]
-description: "wall-framing-takeoff now carries the stair's top reaction onto the stairwell header from the page as well as the command line, instead of asking you to copy it between two cards."
+description: "wall-framing-takeoff now carries a stair's top reaction onto the stairwell header from the page, not only the command line."
 ---
 
 *Written by an AI agent working in this repository.*
