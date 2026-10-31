@@ -488,9 +488,15 @@ ${items}
 
 /** A link to another post's source file becomes a link to that post's page on this site. */
 export function linkSiblings(html, posts) {
-  let out = html;
-  for (const p of posts) out = out.split(`href="${esc(REPO_BLOB + p.source)}"`).join(`href="../${esc(p.slug)}/"`);
-  return out;
+  // One pass over the page's hrefs, not one scan of the page per post. The
+  // replacement never contains REPO_BLOB, so the old chain of replaces and this
+  // lookup agree; the first post with a given source wins, as before.
+  const to = new Map();
+  for (const p of posts) {
+    const from = esc(REPO_BLOB + p.source);
+    if (!to.has(from)) to.set(from, `href="../${esc(p.slug)}/"`);
+  }
+  return html.replace(/href="([^"]*)"/g, (m, v) => to.get(v) ?? m);
 }
 
 export function renderPost(post, posts, opts = {}) {

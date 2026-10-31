@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01E5sJKiww4zTBf4Aj7Jo96u",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md and follow",
+  "input_sha256": "719c8d7b4c198edd9b8075363658ea70ede808ca0dc1d6ca4ebf5e22e8bddb1c",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T01:25:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11973",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 security-alerts branch does not exist on origin; fetch failed. ci_profile.py printed nothing in the cloud container (no auth)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "No blog post: the saving is about 1 s of 53 s, not reader-worthy.",
+      "did": "history doc only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/history/pages-build-perf-2026-10-31-link-siblings.md"
+  ],
+  "goal": null,
+  "notes": "Metric: warm Pages build local wall clock. Before 53 s, after 55 s (noise). Microbench linkSiblings 50 calls: 226 ms to 68 ms, byte-identical; diff -rq of whole site empty. Taken with date +%s and a hand microbench.",
+  "corrections": [],
+  "redteam": null
+}
