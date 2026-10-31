@@ -253,7 +253,67 @@ function markSample(u, v, plate) {
   return null;
 }
 
+const MARK_COVERAGE = new Map();
+
+/**
+ * The mark's anti-aliased coverage for one size, as [dx, dy, r, g, b, alpha]
+ * per touched pixel relative to the mark's top-left. Only valid for integer
+ * `left`/`top`, where `x - left` is exact, so the samples equal a direct draw.
+ */
+function markCoverage(size, plate) {
+  const key = `${size}|${plate}`;
+  let cov = MARK_COVERAGE.get(key);
+  if (cov) return cov;
+  cov = [];
+  const ss = 4;
+  for (let dy = 0; dy < Math.ceil(size); dy += 1) {
+    for (let dx = 0; dx < Math.ceil(size); dx += 1) {
+      let hits = 0;
+      const sum = [0, 0, 0];
+      for (let sy = 0; sy < ss; sy += 1) {
+        for (let sx = 0; sx < ss; sx += 1) {
+          const u = (dx + (sx + 0.5) / ss) / size;
+          const v = (dy + (sy + 0.5) / ss) / size;
+          if (u < 0 || v < 0 || u > 1 || v > 1) continue;
+          const c = markSample(u, v, plate);
+          if (!c) continue;
+          hits += 1;
+          sum[0] += c[0]; sum[1] += c[1]; sum[2] += c[2];
+        }
+      }
+      if (hits) cov.push([dx, dy, sum[0] / hits, sum[1] / hits, sum[2] / hits, hits / (ss * ss)]);
+    }
+  }
+  MARK_COVERAGE.set(key, cov);
+  return cov;
+}
+
 export function drawMark(canvas, left, top, size, { channels = 3, plate = true } = {}) {
+  if (!Number.isInteger(left) || !Number.isInteger(top)) return drawMarkDirect(canvas, left, top, size, { channels, plate });
+  for (const [dx, dy, r, g, b, a] of markCoverage(size, plate)) {
+    const x = left + dx;
+    const y = top + dy;
+    if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) continue;
+    blendPixel(canvas, x, y, channels, [r, g, b], a);
+  }
+}
+
+function blendPixel(canvas, x, y, channels, c, a) {
+  const at = (y * canvas.width + x) * channels;
+  if (channels === 4) {
+    // Straight alpha over whatever is there (transparent for an icon).
+    const da = canvas.data[at + 3] / 255;
+    const oa = a + da * (1 - a);
+    for (let i = 0; i < 3; i += 1) {
+      canvas.data[at + i] = Math.round(oa ? (c[i] * a + canvas.data[at + i] * da * (1 - a)) / oa : 0);
+    }
+    canvas.data[at + 3] = Math.round(oa * 255);
+  } else {
+    for (let i = 0; i < 3; i += 1) canvas.data[at + i] = Math.round(canvas.data[at + i] + (c[i] - canvas.data[at + i]) * a);
+  }
+}
+
+function drawMarkDirect(canvas, left, top, size, { channels = 3, plate = true } = {}) {
   const ss = 4;
   for (let y = Math.floor(top); y < Math.ceil(top + size); y += 1) {
     for (let x = Math.floor(left); x < Math.ceil(left + size); x += 1) {
