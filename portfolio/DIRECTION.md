@@ -76,9 +76,10 @@ highest-merit dispatchable venture.
 
 ## Revenue
 
-The owner's own instances take donations only (GitHub Sponsors). A product may
-ship payment code that is off by default and runs on the deployer's own keys,
-never the owner's (`PRODUCT_PLAYBOOK.md` §6). A per-product `github.com/sponsors`
+The owner's own instances take donations (GitHub Sponsors) and, since
+2026-10-31, may sell through the owner's merchant-of-record hosted checkout by
+a link set outside the repo. A product may ship payment code that is off by
+default and runs on the deployer's own keys (`PRODUCT_PLAYBOOK.md` §6). A per-product `github.com/sponsors`
 link is agent-decidable. The repo-level GitHub "Sponsor" button
 (`.github/FUNDING.yml`, decision `funding-sponsors-live` in
 `portfolio/ledger/decision_queue.py`) ties a real person's Sponsors profile to
