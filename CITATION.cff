@@ -5,7 +5,7 @@ type: software
 authors:
   - name: "oss-monorepo contributors"
 repository-code: "https://github.com/Duncan-Haywood/oss-monorepo"
-url: "https://duncan-haywood.github.io/oss-monorepo/"
+url: "https://marisstella.app/"
 license: MIT
 abstract: >-
   A monorepo of MIT-licensed free tools (ventures/) and open research (research/),
