@@ -465,3 +465,13 @@ test("winder tread span is the widest gap between two radial supports, checked a
   assert.match(winderText(layoutWinders({ count: 3, innerRadius: 12, treadThickness: 1.5 })).join("\n"), /Over the 24" most/);
   assert.equal(layoutWinders({ count: 4, innerRadius: 12, treadThickness: 1.5 }).framing.spanOk, true); // 22.5 deg: 2 x 48 x sin 11.25 = 18.7
 });
+
+test("bad stringer spacing, nosing and landing dimensions are refused (2026-10-31)", async () => {
+  const S = await import("./stairs.mjs");
+  assert.equal(S.layoutStair({ totalRise: 108, stringerSpacing: 0 }).ok, false);
+  assert.equal(S.layoutStair({ totalRise: 108, nosing: -5 }).ok, false);
+  assert.throws(() => S.layoutLandingPosts(36, 36, 40, 0), RangeError);
+  assert.throws(() => S.layoutLandingPosts(NaN, 36, 40), RangeError);
+  assert.equal(S.sizeLandingFootings(-36, 36, 96, { soilBearing: 1500 }).ok, false);
+  assert.equal(S.layoutStair({ totalRise: 108 }).ok, true);
+});
