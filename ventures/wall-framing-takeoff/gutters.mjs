@@ -22,6 +22,7 @@ import { packPieces } from "./trim.mjs";
 /** @param {Gutters} d */
 export function validateGutters(d) {
   const e = [];
+  if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Gutter settings are an object."];
   for (const [k, n, lo, hi] of /** @type {const} */ ([
     ["gutterStock", "Gutter length", 48, 288], ["downspoutStock", "Downspout length", 48, 240],
     ["eaveHeight", "Eave height", 48, 600], ["hangerSpacing", "Hanger spacing", 12, 48],

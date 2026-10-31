@@ -31,6 +31,7 @@ import { packPieces } from "./trim.mjs";
 /** @param {Siding} d */
 export function validateSiding(d) {
   const e = [];
+  if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Siding settings are an object."];
   if (d.exposure != null && !(d.exposure >= 2 && d.exposure <= 16)) e.push("Siding exposure must be between 2 and 16 inches.");
   if (d.stock != null && !(d.stock >= 48 && d.stock <= 240)) e.push("Siding board length must be between 48 and 240 inches.");
   if (d.cornerStock != null && !(d.cornerStock >= 48 && d.cornerStock <= 240)) e.push("Corner board length must be between 48 and 240 inches.");

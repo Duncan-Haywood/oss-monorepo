@@ -19,6 +19,7 @@ import { packPieces } from "./trim.mjs";
 /** @param {Eaves} d */
 export function validateEaves(d) {
   const e = [];
+  if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Eave settings are an object."];
   if (d.panelWidth != null && !(d.panelWidth >= 6 && d.panelWidth <= 24)) e.push("Soffit panel width must be between 6 and 24 inches.");
   for (const [k, n] of /** @type {const} */ ([["panelStock", "Soffit panel"], ["fasciaStock", "Fascia board"], ["channelStock", "J-channel"]])) {
     const v = d[k];

@@ -38,6 +38,7 @@ const DEFAULTS = {
 /** @param {Fasteners} d */
 export function validateFasteners(d) {
   const e = [];
+  if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Fastener settings are an object."];
   /** @param {string} k @param {number} lo @param {number} hi @param {string} what */
   const rng = (k, lo, hi, what) => { const v = /** @type {any} */ (d)[k]; if (v != null && !(v >= lo && v <= hi)) e.push(`${what} must be between ${lo} and ${hi}.`); };
   rng("studEndNails", 1, 6, "Nails per stud end");
