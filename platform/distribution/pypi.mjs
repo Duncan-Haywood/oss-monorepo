@@ -112,7 +112,7 @@ export async function buildPackage({ slug, dir, version = VERSION }) {
     [`${mod}/__main__.py`]: `from .cli import main\nraise SystemExit(main())\n`,
     [`${mod}/cli.py`]: src,
     LICENSE: license,
-    'README.md': `${readme.trimEnd()}\n\n---\n\nFree and open source (MIT), from the [monorepo-projects](${tagUrl(toolUrl(slug), 'pypi')}) portfolio. Install: \`pipx run ${slug}\`. Not legal, tax or professional advice.\nSource: ${REPO_URL}/tree/main/ventures/${slug}\n`,
+    'README.md': `${readme.trimEnd()}\n\n---\n\nFree and open source (MIT), from [Maris Stella Labs](${tagUrl(toolUrl(slug), 'pypi')}). Install: \`pipx run ${slug}\`. Not legal, tax or professional advice.\nSource: ${REPO_URL}/tree/main/ventures/${slug}\n`,
     'pyproject.toml': pyproject({ name: slug, slug, description, version }),
   };
   return { name: slug, version, files };
