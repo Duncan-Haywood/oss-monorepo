@@ -165,6 +165,22 @@ test("walkout stem adds a wedge of wall, by hand", () => {
   assert.ok(!layoutFoundation(f).ok);
 });
 
+test("walkout footing steps down in equal steps, by hand", () => {
+  const f = { ...sampleFoundation(), interior: [] }; f.stem = { ...f.stem, walkout: { length: 240, extra: 48, maxStepRise: 16 } };
+  const l = layoutFoundation(f);
+  assert.ok(l.ok);
+  assert.equal(l.walkoutSteps.length, 3); // ceil(48 / 16)
+  assert.equal(l.walkoutSteps[0].rise, 16); assert.equal(l.walkoutSteps[0].length, 80);
+  // risers: 3 x footing width x 16 x footing depth
+  const ft = l.footing; near(l.pours.find((p) => p.name === "walkout footing step risers").cuYd, 3 * ft.width * 16 * ft.depth / 46656, 0.001);
+  assert.ok(!l.notes.some((n) => n.includes("steeper")));
+  f.stem.walkout = { length: 60, extra: 48, maxStepRise: 24 }; // 2 steps of 24 over 30 in: steeper than 1:2
+  assert.ok(layoutFoundation(f).notes.some((n) => n.startsWith("Walkout footing steps") && n.includes("steeper")));
+  f.stem.walkout = { length: 240, extra: 48, maxStepRise: 2 };
+  assert.ok(!layoutFoundation(f).ok);
+  assert.equal(layoutFoundation({ ...sampleFoundation(), interior: [] }).walkoutSteps.length, 0);
+});
+
 test("malformed foundation bodies come back as errors, not exceptions", () => {
   const b = { width: 480, depth: 360 };
   for (const bad of [null, "x", [], { ...b, footing: null, interior: "a" }, { ...b, interior: [null] }, { ...b, piers: {} }, { ...b, piers: [null] }, { ...b, footing: { steps: {} } }, { ...b, footing: { steps: [null] } }, { ...b, stem: { walkout: "x" } }, { ...b, slab: [] }]) {
