@@ -16,3 +16,14 @@ def test_logistic_like_approach():
 def test_summary_keys():
     s = summary(*run(years=1500))
     assert set(s) == {"psi_mean", "unrest_share", "n_min", "n_cv", "period"}
+
+
+def test_zero_lags_reproduce_baseline():
+    a = run(years=400, lag=0.0, plag=0.0)[1]
+    b = run(years=400)[1]
+    assert (a == b).all()
+
+
+def test_lags_keep_equilibrium_without_instability():
+    N = run(years=3000, m=0.0, me=0.0, rho=0.0, n0=0.4, lag=50, plag=50)[1]
+    assert abs(N[-1] - 1.0) < 0.01
