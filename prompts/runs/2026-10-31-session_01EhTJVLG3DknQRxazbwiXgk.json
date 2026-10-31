@@ -38,7 +38,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "schedule cost -> cashFlow; node --test schedule.test.mjs 27/27 pass locally; CI not awaited.",
+  "notes": "Built per-activity cost -> weekly cashFlow; a parallel session landed the monthly version first (PR 12191), so rebuilt on main and kept only the weekly buckets and peak week. Also fixed main's red validate (post front matter, flagships next cap) and research live links. node --test schedule.test.mjs 28/28 locally.",
   "corrections": [],
   "redteam": null
 }
