@@ -130,3 +130,20 @@ test("effective wall R: openings leave the opaque area, continuous insulation ad
   assert.equal(layoutInsulation({}, p, r).assembly, null);
   assert.equal(validateInsulation({ assembly: { drywallR: -1 } }).length, 1);
 });
+
+test("wall heat loss: UA by hand from opaque R plus typed window and door U", () => {
+  const r = { walls: [wall([m(0, 0, 96, 1.5), m(0, 94.5, 96, 1.5), m(0, 1.5, 1.5, 93)])] };
+  const p = { defaultHeaderHeight: 82.5, walls: [{ id: "A", length: 96, openings: [{ kind: "window", offset: 10, width: 36, height: 48 }, { kind: "door", offset: 60, width: 36, height: 80 }] }] };
+  const a = layoutInsulation({ assembly: { windowU: 0.3, doorU: 0.4, designDeltaF: 60, heatingDegreeDays: 5000 } }, p, r).assembly;
+  const ua = a.opaqueSqFt / a.effectiveR + (36 * 48 / 144) * 0.3 + (36 * 80 / 144) * 0.4;
+  assert.ok(Math.abs(a.heat.ua - ua) < 1e-9);
+  assert.ok(Math.abs(a.heat.designBtuh - ua * 60) < 1e-9);
+  assert.ok(Math.abs(a.heat.annualKBtu - ua * 24 * 5000 / 1000) < 1e-9);
+  assert.ok(a.heat.complete);
+  const b = layoutInsulation({ assembly: {} }, p, r).assembly.heat;
+  assert.equal(b.complete, false);
+  assert.equal(b.designBtuh, null);
+  assert.match(insulationText(layoutInsulation({ assembly: {} }, p, r)).join("\n"), /INCOMPLETE/);
+  assert.match(insulationText(layoutInsulation({ assembly: { windowU: 0.3, doorU: 0.4, designDeltaF: 60 } }, p, r)).join("\n"), /BTU\/h at 60 F/);
+  assert.equal(validateInsulation({ assembly: { windowU: 5 } }).length, 1);
+});
