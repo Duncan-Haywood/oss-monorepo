@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan } from "./engine.mjs";
 import { budget } from "./budget.mjs";
-import { layoutFloor, floorCuts, joistCentres, sampleFloor, floorText } from "./floor.mjs";
+import { checkPenetrations, layoutFloor, floorCuts, joistCentres, sampleFloor, floorText } from "./floor.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
 
@@ -202,4 +202,34 @@ test("a cantilever over a third of the span is flagged, and one over 8 ft is ref
   const m = layoutFloor({ ...sampleFloor(), depth: 192, beam: 96, cantilever: 96 }, plan());
   assert.ok(m.ok);
   assert.ok(m.notes.some((n) => /rule of thumb/.test(n)));
+});
+
+test("joist holes and notches: 2x10 (9.25 in deep) against hand-worked limits", () => {
+  // hole limit 9.25/3 = 3.083 in; notch 9.25/6 = 1.542 in, 3.083 in long; end notch 9.25/4 = 2.3125 in; middle third of 168 in is 56..112
+  const r = checkPenetrations("2x10", 168, [
+    { type: "hole", at: 40, size: 3 },
+    { type: "hole", at: 40, size: 3.5 },
+    { type: "hole", at: 40, size: 2, fromEdge: 1.5 },
+    { type: "hole", at: 5, size: 2 },
+    { type: "notch", at: 20, size: 1.5, length: 3 },
+    { type: "notch", at: 20, size: 2, length: 3 },
+    { type: "notch", at: 80, size: 1, length: 3 },
+    { type: "notch", at: 54, size: 1, length: 3 },
+    { type: "notch", at: 0, size: 2.25, length: 3, end: true },
+    { type: "notch", at: 0, size: 2.5, length: 3, end: true },
+  ]);
+  assert.deepEqual(r.map((x) => x.ok), [true, false, false, false, true, false, false, false, true, false]);
+  assert.match(r[1].why[0], /hole 3-1\/2.* is over 3-1\/16/);
+  assert.match(r[6].why[0], /middle third/);
+  assert.match(r[7].why[0], /reaches into the middle third/);
+  assert.equal(checkPenetrations("2x10", 168, [{ type: "pipe", at: 1, size: 1 }])[0].why[0], "unknown type pipe");
+});
+
+test("floor layout reports a failing penetration as a note and passes the rows through", () => {
+  const l = layoutFloor({ ...sampleFloor(), penetrations: [{ type: "hole", at: 60, size: 4 }, { type: "hole", at: 60, size: 2 }] }, samplePlan());
+  assert.equal(l.penetrations.length, 2);
+  assert.equal(l.penetrations[0].ok, false);
+  assert.equal(l.penetrations[1].ok, true);
+  assert.ok(l.notes.some((n) => /Joist hole 1:/.test(n)));
+  assert.ok(!l.notes.some((n) => /Joist hole 2:/.test(n)));
 });
