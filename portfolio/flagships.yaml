@@ -47,8 +47,8 @@ flagships:
       and gaps at openings are checked on hand-written or library blocks
       only). A real IFC export with doors (swept bodies, centred openings
       and multi-storey are hand-written only; KIT's FZK-Haus read locally,
-      not committed). A real foundation plan (anchor bolt fields, piers and
-      stepped footings are hand-checked or wiring-tested only). Ceiling
+      not committed). A real foundation plan (anchor bolt fields, piers, stepped footings
+      and the walkout footing steps landed 2026-10-31 are hand-checked or wiring-tested only). Ceiling
       steps checked against a real soffit. Trim boards against a real trim
       order (scarf overlap is a typed figure). Drywall `jointsOnStuds`
       against a real hang; ceiling joists from the roof beyond source
