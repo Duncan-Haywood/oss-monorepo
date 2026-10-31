@@ -1,5 +1,6 @@
 ---
 title: "Ten and a Half Seconds: a story about what an earthquake warning is worth"
+seo_title: "Ten and a Half Seconds: what an earthquake warning is worth"
 date: 2026-10-28
 description: "A new Hearth & Horizon story: a school bell warns of an earthquake 10.6 seconds ahead, and nothing at all inside 21 km."
 tags: [hearth-and-horizon, fiction, science]

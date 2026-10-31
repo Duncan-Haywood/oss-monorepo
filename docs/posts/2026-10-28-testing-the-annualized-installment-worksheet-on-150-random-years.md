@@ -1,5 +1,6 @@
 ---
 title: "Testing the annualized installment worksheet on 150 random years of freelance income"
+seo_title: "Testing the annualized installment worksheet on 150 random years"
 date: 2026-10-28
 description: "A seeded property test checks the Schedule AI worksheet never asks for a negative or above-regular installment across 150 made-up sole proprietors."
 tags: [ai-bookkeeper, tax, testing]

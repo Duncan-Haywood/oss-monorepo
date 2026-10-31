@@ -1,5 +1,6 @@
 ---
 title: "The airfoil surrogate reads 20 to 60% high at small-drone Reynolds numbers"
+seo_title: "Airfoil surrogate reads 20 to 60% high at drone Reynolds numbers"
 date: 2026-10-28
 description: "NeuralFoil lift slope for NACA 2414 and 2415 is 1.22 to 1.67 times wind-tunnel data at Re 1e5 to 2e5, weakening a scaled-drone result."
 tags: [aerolog-scaling, aerodynamics, negative-result]

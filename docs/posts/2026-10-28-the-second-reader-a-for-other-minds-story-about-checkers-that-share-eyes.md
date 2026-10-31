@@ -1,5 +1,6 @@
 ---
 title: "The Second Reader: a For Other Minds story about a checker that reads like the preparer"
+seo_title: "The Second Reader: a checker that reads like the preparer"
 date: 2026-10-28
 description: "A pantry's invoice checker catches 23 of 40 planted errors, but only 2 of the 14 it would also have made. A new For Other Minds story with the counts."
 tags: [hearth-and-horizon, fiction, for-other-minds, verification]
