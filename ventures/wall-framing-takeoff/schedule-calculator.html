@@ -34,6 +34,8 @@
   <textarea id="src" rows="18" style="width:100%;font:.85rem ui-monospace,monospace;box-sizing:border-box" spellcheck="false"></textarea>
   <label for="wl">Weather allowance on exposed activities (% of working days lost, your figure, 0 to 100; blank for none). Mark an activity <code>"exposed": true</code> in the JSON.</label>
   <input id="wl" type="number" min="0" max="100" step="1" inputmode="numeric" placeholder="e.g. 15" style="max-width:10rem">
+  <label for="wr">Monthly weather rates (optional, replaces the flat figure for exposed activities; your figures as <code>YYYY-MM:percent</code>, comma separated, percent 0 to 90, e.g. <code>2026-03:20, 2026-04:10</code>)</label>
+  <input id="wr" type="text" placeholder="2026-03:20, 2026-04:10" spellcheck="false" style="max-width:24rem">
   <pre id="out" aria-live="polite"></pre>
   <div id="gantt" aria-label="Bar chart of activities by date"></div>
   <p><a class="cta" href="index.html">Do the whole house: framing, sheathing, budget and schedule in one takeoff</a></p>
@@ -69,6 +71,16 @@
       try { input = JSON.parse($("src").value); } catch (e) { $("out").textContent = "Not valid JSON: " + e.message; $("gantt").innerHTML = ""; return; }
       const wlRaw = $("wl").value.trim();
       if (wlRaw !== "") input = { ...input, weatherLoss: Number(wlRaw) / 100 };
+      const wrRaw = $("wr").value.trim();
+      if (wrRaw !== "") {
+        const weatherRate = {};
+        for (const part of wrRaw.split(",").map((x) => x.trim()).filter(Boolean)) {
+          const m = /^(\d{4}-\d{2})\s*:\s*(\d+(?:\.\d+)?)\s*%?$/.exec(part);
+          if (!m) { $("out").textContent = `Monthly rates: "${part}" is not YYYY-MM:percent.`; $("gantt").innerHTML = ""; return; }
+          weatherRate[m[1]] = Number(m[2]) / 100;
+        }
+        input = { ...input, weatherRate };
+      }
       const s = schedule(input);
       $("out").textContent = scheduleText(s).join("\n");
       if (!s.ok) { $("gantt").innerHTML = ""; return; }
@@ -80,6 +92,7 @@
     };
     $("src").addEventListener("input", run);
     $("wl").addEventListener("input", run);
+    $("wr").addEventListener("input", run);
     run();
   </script>
 </body>
