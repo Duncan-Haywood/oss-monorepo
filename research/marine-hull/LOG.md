@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-31 · Milestone 7d: can a hull-specific fixed mission energy flip the mono/cat ranking? (not pre-registered)
+- Why: 7c's "Next". Range is linear in pack energy for every hull, so ranking cannot change with specific energy unless the hulls carry different fixed energy E0 (launch, recovery): range = (E - E0)/e_km, flip at E* = c d/(c - m) for catamaran extra overhead d (Wh) and km/Wh figures m (mono), c (cat). `experiments/run_h5_overhead.py` (stdlib, seconds), 2,187 cases, 150 to 250 Wh/kg of a 50 kg pack. Written and run in one go: I logged no predictions first, so treat the outcome as exploratory.
+- Outcome (`experiments/results_h5_overhead.txt`): the catamaran out-ranges the monohull at equal overhead in only 9 of 2,187 cases (0.4%), so there is almost nothing to flip. Rank swaps: 0 at d = 0, 3 (0.1%) at d = 100 Wh, 0 at 250 Wh and above (past the window, the cat has already lost by 7.5 kWh). The closed form agrees with brute force in every row (new test).
+- Reading: within this model H5 stays refuted for mono against catamaran, even with a hull-specific fixed energy; a swap needs a near-tie in km/Wh and an overhead gap tuned to the 7.5 to 12.5 kWh window. The only pairs with real flip potential are the ones with close km/Wh (the nine cat-ahead cases), which the sweeps of run.py can list.
+- Limits: swept unsourced constants; overhead is a single number I chose, not sourced; two hull types; the 9 cases are not examined individually.
+- Next: milestone 3 curve at survey speed when a data host allows; H5 across glider/AUV (different energy structure) is the better remaining test.
+
 ## 2026-10-31 · Milestone 7c: H1 and H5 tested as the proposal states them (planned before running)
 - Why: 7b found neither was ever run as written. `experiments/run_h1_h5.py` (stdlib, seconds). H1: monohull 200 kg, 4 m, 30 W hotel, 200 Wh/kg; 27 combinations of c_s (2.6 to 3.4), k_form (0.10 to 0.40), wave_scale (0 to 1). H5: mono against catamaran over run.py's box (2,187 cases), pack 150 to 250 Wh/kg, (a) battery 25% of 200 kg, (b) 5 kWh fixed so a better pack is lighter.
 - **Predictions (before running):** (1) H1 refuted: best range spreads by 10% or more across the 27 combinations (prior 85%). (2) Best speed spreads by 15% or more (prior 55%). (3) The propulsion share of power at the best speed is within 0.30 to 0.40 everywhere (prior 70%; theory for v^3 drag gives 1/3). (4) H5 (a) has 0 rank swaps, by proof: range is linear in pack energy for every hull at fixed mass (prior 99%). (5) H5 (b) has swaps in under 2% of cases (prior 70%). Refuted: any one missed.
