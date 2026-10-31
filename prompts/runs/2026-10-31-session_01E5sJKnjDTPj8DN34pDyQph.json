@@ -7,17 +7,19 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-sonnet-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-31T15:18:17Z",
   "ended": "2026-10-31T15:19:28Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 1.51,
+  "tokens_in": 1076777,
+  "tokens_out": 5898,
+  "cost_usd": 0.4783,
+  "tool_calls": 18,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12113",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +28,99 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 fetches origin security-alerts, which does not exist; the command fails (already reported by the review in PR 12026)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Routed to review but PR 12026 already held the review claim, so re-routed with --skip-review as instructed; got explore.",
+      "did": "explore track",
+      "result": "worked"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-31-walkout-stem-wall-quantities.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Explore idea: walkout stem wall (stem.walkout) in wall-framing-takeoff foundation.mjs; hand test only.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a666f960-dc91-57fb-8aa3-0e5bc9cdfe82",
+    "transcripts": 1,
+    "first": "2026-10-31T15:18:17Z",
+    "last": "2026-10-31T15:19:48Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 16,
+        "input": 33,
+        "output": 5898,
+        "thinking": 794,
+        "cache_read": 1023089,
+        "cache_write_5m": 0,
+        "cache_write_1h": 53655,
+        "api_equivalent_usd": 0.4783,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 16,
+      "input": 33,
+      "output": 5898,
+      "thinking": 794,
+      "cache_read": 1023089,
+      "cache_write_5m": 0,
+      "cache_write_1h": 53655,
+      "api_equivalent_usd": 0.4783,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.95,
+    "tool_calls": 18,
+    "tools": {
+      "Bash": 14,
+      "Read": 1,
+      "mcp__github__search_pull_requests": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 1.51,
+      "active_minutes": 1.51,
+      "model_minutes": 1.25,
+      "tool_minutes": 0.26,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
