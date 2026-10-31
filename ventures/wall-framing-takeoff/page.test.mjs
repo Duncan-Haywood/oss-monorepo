@@ -439,3 +439,24 @@ test("the siding calculator page: FAQ matches its data, default inputs give the 
   assert.equal(s.cornerBoards, 9);
   assert.match(html, /56 courses, 176 boards with 10% waste, 1 roll of house wrap and 9 corner boards/);
 });
+
+test("the concrete calculator page: FAQ matches its data, the 12 x 12 x 4 in case orders 2 yd and 88 bags", async () => {
+  const html = page("concrete-calculator.html");
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("([\w-]+)"\)/g)) assert.ok(ids.has(m[1]), m[1]);
+  const { slabConcrete } = await import("./slab.mjs");
+  const r = slabConcrete({ length: 144, width: 144, depth: 4 });
+  assert.ok(r.ok);
+  assert.equal(r.cuFt, 48);
+  assert.equal(r.orderYd, 2);
+  assert.equal(r.bags, 88);
+  assert.match(html, /48 cu ft, which is 1\.78 cu yd/);
+  assert.match(html, /about 88 bags of 80 lb/);
+  const b80 = slabConcrete({ length: 108, width: 108, depth: 4, waste: 0 });
+  assert.ok(b80.ok); assert.equal(b80.bags, 45); // the FAQ's 45 bags to a yard
+});
