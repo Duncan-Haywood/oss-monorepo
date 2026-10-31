@@ -129,3 +129,17 @@ test("starter strip: one run along each exterior wall, packed into stock by hand
   assert.equal(layoutSiding({ starter: true, style: "vertical" }, p).ok, false);
   assert.equal(layoutSiding({ starter: "yes" }, p).ok, false);
 });
+
+test("head flashing: one piece run per opening, packed by hand (2026-10-31)", () => {
+  // openings of 36 and 60 in with 2 in past each jamb: 40 and 64 in; in 72 in stock 40 + 64 do not share a piece: 2 pieces
+  const p = plan([{ id: "A", length: 240, openings: [{ kind: "window", offset: 20, width: 36, height: 48 }, { kind: "door", offset: 100, width: 60, height: 80 }] }]);
+  assert.equal(layoutSiding({ waste: 0 }, p).flashing, null); // off by default: earlier totals do not move
+  const s = layoutSiding({ waste: 0, headFlashing: true, flashingStock: 72, flashingPrice: 4 }, p);
+  assert.equal(s.flashing.openings, 2);
+  assert.ok(Math.abs(s.flashing.feet - 104 / 12) < 1e-9);
+  assert.equal(s.flashing.pieces, 2);
+  assert.equal(s.cost, 8);
+  assert.ok(sidingText(s).some((x) => x.includes("Head flashing: 2 opening(s), 9 ft")));
+  assert.equal(layoutSiding({ headFlashing: "yes" }, p).ok, false);
+  assert.equal(layoutSiding({ headFlashing: true, flashingExtend: 20 }, p).ok, false);
+});
