@@ -158,6 +158,7 @@
       <div><label for="flJoist">Joist size</label><select id="flJoist"><option>2x8</option><option selected>2x10</option><option>2x12</option></select></div>
       <div><label for="flSpacing">Joist spacing on center</label><select id="flSpacing"><option value="16" selected>16 in</option><option value="24">24 in</option><option value="12">12 in</option></select></div>
       <div><label for="flBeam">Beam from the front edge (blank: none)</label><input id="flBeam" value="14 ft"></div>
+      <div><label for="flCant">Cantilever past the back support (blank: none, up to 8 ft)</label><input id="flCant" placeholder="e.g. 2 ft"></div>
       <div><label for="flBlock">Rows of joist blocking</label><input id="flBlock" type="number" min="0" max="6" step="1" value="0"></div>
       <div><label for="flUnder">Walls above that need doubled joists, at these positions across the width (comma-separated)</label><input id="flUnder" placeholder="e.g. 10 ft, 22 ft"></div>
       <div><label for="flOpen">Stairwell openings: from left edge, from front edge, width, depth; separate several with a semicolon (blank: none)</label><input id="flOpen" placeholder="e.g. 20 ft, 8 ft, 3 ft, 10 ft; 30 ft, 20 ft, 3 ft, 8 ft"></div>
@@ -590,6 +591,7 @@
       if ($("#flOn").checked) {
         const fl = { id: "Floor", width: L($("#flW").value, "floor width"), depth: L($("#flD").value, "floor depth"), joist: $("#flJoist").value, spacing: Number($("#flSpacing").value), rim: true, blockingRows: Math.max(0, Math.min(6, Math.round(Number($("#flBlock").value) || 0))) };
         if ($("#flBeam").value.trim()) fl.beam = L($("#flBeam").value, "floor beam");
+        if ($("#flCant").value.trim()) fl.cantilever = L($("#flCant").value, "floor cantilever");
         const under = $("#flUnder").value.split(",").map((t) => t.trim()).filter(Boolean).map((t) => L(t, "doubled joist position"));
         if (under.length) fl.doubleUnder = under;
         if ($("#flOpen").value.trim()) {
@@ -1112,6 +1114,7 @@
       if (fl) {
         $("#flW").value = formatLength(fl.width); $("#flD").value = formatLength(fl.depth); $("#flJoist").value = fl.joist; $("#flSpacing").value = String(fl.spacing);
         $("#flBeam").value = fl.beam != null ? formatLength(fl.beam) : ""; $("#flBlock").value = String(fl.blockingRows || 0);
+        $("#flCant").value = fl.cantilever ? formatLength(fl.cantilever) : "";
         $("#flUnder").value = (fl.doubleUnder || []).map(formatLength).join(", ");
         $("#flOpen").value = (fl.openings || []).map((o) => [o.x, o.y, o.width, o.depth].map(formatLength).join(", ")).join("; ");
       }
