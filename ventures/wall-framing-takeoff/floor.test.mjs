@@ -343,3 +343,39 @@ test("header ties: straps = ceil(typed force / typed capacity), both required to
   assert.equal(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: hc }, plan()).headerChecks[0].ties, null);
   assert.ok(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, tieForce: 900 } }, plan()).errors.some((e) => /tieCapacity/.test(e)));
 });
+
+test("cantilever joist check matches hand statics (2x10 at 16 in, 8 ft backspan, 2 ft out)", () => {
+  const hc = { liveLoad: 40, deadLoad: 15, Fb: 1200, Fv: 150, E: 1600000 };
+  const l = layoutFloor({ ...sampleFloor(), beam: undefined, depth: 96, cantilever: 24, headerCheck: hc }, plan());
+  const c = l.cantileverCheck;
+  // w = 55 psf x 16/144 = 6.1111 lb/in; Ra = w (96^2 - 24^2)/(2 x 96) = 270.0; Rb = w x 120^2 / 192 = 458.33
+  assert.ok(Math.abs(c.reactions[0] - 6.1111111 * (9216 - 576) / 192) < 1e-6);
+  assert.ok(Math.abs(c.reactions[1] - 458.3333) < 1e-3);
+  assert.ok(Math.abs(c.reactions[0] + c.reactions[1] - 6.1111111 * 120) < 1e-4); // equilibrium
+  // negative moment w a^2 / 2 = 1760; positive Ra^2 / 2w = 5967 wins; S = 1.5 x 9.25^2 / 6 = 21.39 in^3
+  assert.ok(Math.abs(c.moment - (275 * 275) / (2 * 6.1111111)) < 1);
+  assert.ok(Math.abs(c.fb - c.moment / 21.390625) < 1e-6);
+  // tip deflection, live only: wL = 40 x 16/144 = 4.444; I = 1.5 x 9.25^3 / 12 = 98.93
+  const wL = 40 * 16 / 144, I = 1.5 * 9.25 ** 3 / 12;
+  assert.ok(Math.abs(c.defl - (wL * 24 ** 4 / (8 * 1.6e6 * I) + wL * 24 ** 3 * 96 / (6 * 1.6e6 * I))) < 1e-9);
+  assert.equal(c.uplift, 0); // dead 15 psf x 16/144 x 96 / 2 = 80 lb vs 6.111 x 576 / 192 = 18.3 lb... no uplift
+  assert.ok(l.notes.some((n) => /Cantilever joist, 2x10/.test(n)));
+});
+
+test("a long overhang on a short backspan fails and reports uplift on the near support", () => {
+  const hc = { liveLoad: 40, deadLoad: 10, Fb: 250, Fv: 150, E: 1600000 };
+  const l = layoutFloor({ ...sampleFloor(), beam: undefined, depth: 48, cantilever: 48, headerCheck: hc }, plan());
+  const c = l.cantileverCheck;
+  assert.equal(c.ok, false);
+  assert.ok(c.uplift > 0, "overhang equal to the backspan lifts the near support");
+  // dead on backspan 10 x 16/144 x 48 / 2 = 26.67 lb; all on overhang 50 x 16/144 x 48^2 / 96 = 133.33 lb
+  assert.ok(Math.abs(c.uplift - (133.3333 - 26.6667)) < 1e-3);
+  assert.ok(l.notes.some((n) => /FAILS/.test(n) && /tie-down/.test(n)));
+});
+
+test("no cantilever check without typed loads, and cantDeflLimit is range-checked", () => {
+  assert.equal(layoutFloor({ ...sampleFloor(), cantilever: 24 }, plan()).cantileverCheck, null);
+  const hc = { liveLoad: 40, deadLoad: 10, Fb: 1200, Fv: 150, E: 1600000, cantDeflLimit: 10 };
+  const l = layoutFloor({ ...sampleFloor(), cantilever: 24, headerCheck: hc }, plan());
+  assert.equal(l.ok, false);
+});
