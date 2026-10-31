@@ -73,3 +73,17 @@ test("roof opening honours depth, spacing and sizes; bad values refused", () => 
   assert.ok(validateDormer({ ...base, roofOpening: { depth: 3 } }).length);
   assert.ok(validateDormer({ ...base, roofOpening: { mainSpacing: 20 } }).length);
 });
+
+import { layoutShedDormer } from "./dormer.mjs";
+test("shed dormer by hand: 12 ft wide, 4 ft front wall, 3:12 on 8:12", () => {
+  const r = layoutShedDormer({ width: 144, eaveHeight: 48, pitch: 3, mainPitch: 8 });
+  assert.ok(r.ok, JSON.stringify(r.errors));
+  assert.equal(r.geometry.cheekRunToRoof, r16(48 * 12 / 5)); // 115.2
+  assert.equal(r.geometry.rafterLength, r16(115.2 * Math.sqrt(1 + (3 / 12) ** 2)));
+  assert.equal(r.counts.rafters, 10); // 0..128 step 16 = 9, plus the far end
+  const lens = get(r, "cheek stud").map((p) => p.length).sort((a, b) => b - a);
+  assert.deepEqual(lens, [r16(48 - 16 * 5 / 12 - 4.5), r16(48 - 32 * 5 / 12 - 4.5), r16(48 - 48 * 5 / 12 - 4.5), r16(48 - 64 * 5 / 12 - 4.5), r16(48 - 80 * 5 / 12 - 4.5), r16(48 - 96 * 5 / 12 - 4.5)]);
+});
+test("shed dormer refuses a pitch not flatter than the main roof", () => {
+  assert.equal(layoutShedDormer({ width: 144, eaveHeight: 48, pitch: 8, mainPitch: 8 }).ok, false);
+});

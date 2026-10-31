@@ -286,3 +286,11 @@ test("headerCheck.stairFrom takes the stairwell header's point load from the sta
   assert.equal(bad.code, 1);
   assert.match(bad.out, /stairFrom 3/);
 });
+
+test("plan.dormer with shape shed lays a shed dormer", () => {
+  const plan = { ...samplePlan(), roof: { ...sampleRoof(), width: "20ft", length: "40ft", pitch: 8, rafter: "2x12" }, dormer: { shape: "shed", width: 144, eaveHeight: 48, pitch: 3 } };
+  const { code, out } = main(["p.json", "--dormer"], () => JSON.stringify(plan));
+  assert.equal(code, 0, out);
+  assert.match(out, /shed dormer: rafters/);
+  assert.match(out, /shed rafter/);
+});

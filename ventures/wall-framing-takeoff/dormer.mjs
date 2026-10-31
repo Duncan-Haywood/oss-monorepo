@@ -140,10 +140,59 @@ export function layoutDormer(d) {
 /** @param {any} r */
 export function dormerText(r) {
   const g = r.geometry, l = [];
-  l.push(`  ridge ${g.ridgeLength} in long, rise ${g.rise} in, valleys ${g.valleyLength} in, commons ${g.commonLength} in; cheeks meet the main roof ${g.cheekRunToEave} in back from the front wall`);
+  if (r.shape === "shed") l.push(`  shed dormer: rafters ${g.rafterLength} in, roof meets the main roof ${g.cheekRunToRoof} in back from the front wall, rise ${g.rise} in`);
+  else l.push(`  ridge ${g.ridgeLength} in long, rise ${g.rise} in, valleys ${g.valleyLength} in, commons ${g.commonLength} in; cheeks meet the main roof ${g.cheekRunToEave} in back from the front wall`);
   if (r.opening) l.push(`  main-roof opening ${r.opening.depth} in deep in plan (${r.opening.slopeLength} in along the slope), ${r.opening.area} sq ft, cuts ${r.opening.cutMainRafters} main rafter(s)`);
   l.push(`  roof ${r.areas.roofSqFt} sq ft, walls to sheathe ${r.areas.wallSqFt} sq ft`);
   for (const p of r.parts) l.push(`  ${String(p.count).padStart(3)} x ${p.size.padEnd(5)} ${String(p.length).padStart(8)} in  ${p.part}`);
   for (const n of r.notes) l.push(`  ${n}`);
   return l;
+}
+
+/** Shed dormer: one plane at `pitch` that must be flatter than `mainPitch`.
+ *  The front wall is `eaveHeight` tall; the shed roof rises pitch/12 per inch back
+ *  while the main roof rises mainPitch/12, so the two planes meet at
+ *  xr = eaveHeight x 12 / (mainPitch - pitch). Cheek studs fall by (mainPitch-pitch)/12
+ *  per inch and run out at xr. Rafters run the full xr at the shed slope; a ledger
+ *  at their top bears on the main roof framing (opening, headers and loads are the
+ *  engineer's). Not counted: overhangs, flashing, the opening in the main roof, windows.
+ *  @param {{ width: number, eaveHeight: number, pitch: number, mainPitch: number, spacing?: number, studSize?: string, rafterSize?: string, ledgerSize?: string }} d */
+export function layoutShedDormer(d) {
+  const e = [];
+  if (!(d.width >= 36 && d.width <= 240)) e.push("Dormer width must be between 3 and 20 ft.");
+  if (!(d.eaveHeight >= 24 && d.eaveHeight <= 96)) e.push("Dormer eave height must be between 2 and 8 ft.");
+  if (!(d.pitch >= 1 && d.pitch <= 12)) e.push("Shed pitch must be between 1 and 12 in 12.");
+  if (!(d.mainPitch >= 3 && d.mainPitch <= 16)) e.push("Main roof pitch must be between 3 and 16 in 12.");
+  if (d.pitch >= d.mainPitch) e.push("A shed dormer's pitch must be flatter than the main roof's, or its roof never meets the main roof.");
+  if (d.spacing != null && ![12, 16, 19.2, 24].includes(d.spacing)) e.push("Spacing must be 12, 16, 19.2 or 24 in.");
+  if (e.length) return { ok: false, errors: e };
+  const s = d.spacing ?? 16, H = d.eaveHeight, W = d.width, dp = d.mainPitch - d.pitch;
+  const stud = d.studSize ?? "2x4", raf = d.rafterSize ?? "2x8", led = d.ledgerSize ?? "2x8";
+  const xr = H * 12 / dp, rafLen = xr * slope(d.pitch);
+  /** @type {{ part: string, size: string, length: number, count: number }[]} */
+  const parts = [];
+  const add = (/** @type {string} */ part, /** @type {string} */ size, /** @type {number} */ length, count = 1) => { if (count > 0 && length > 0) parts.push({ part, size, length: r16(length), count }); };
+  let frontX = 0; for (let x = 0; x < W - 1e-9; x += s) frontX++; frontX++;
+  add("front stud", stud, H - PLATES, frontX);
+  add("front bottom plate", stud, W, 1);
+  add("front top plate", stud, W, 2);
+  let cheekStuds = 0;
+  for (let x = s; x < xr - 1e-9; x += s) {
+    const len = H - (dp / 12) * x - PLATES;
+    if (len >= 3) { add("cheek stud", stud, len, 2); cheekStuds += 2; }
+  }
+  add("cheek top plate (cut to the shed slope)", stud, xr * slope(d.pitch), 4);
+  add("cheek bottom plate (cut to the main slope)", stud, xr * slope(d.mainPitch), 2);
+  const rafters = frontX;
+  add("shed rafter", raf, rafLen, rafters);
+  add("rafter ledger", led, W, 1);
+  const pooled = /** @type {typeof parts} */ ([]);
+  for (const p of parts) { const f = pooled.find((q) => q.part === p.part && q.size === p.size && q.length === p.length); if (f) f.count += p.count; else pooled.push({ ...p }); }
+  return {
+    ok: true, errors: [], parts: pooled, spacing: s, shape: "shed",
+    geometry: { cheekRunToRoof: r16(xr), rafterLength: r16(rafLen), rise: r16(xr * d.pitch / 12) },
+    counts: { rafters, cheekStuds },
+    areas: { roofSqFt: Math.round(W * xr / 144 * slope(d.pitch) * 10) / 10, wallSqFt: Math.round((W * H + H * xr) / 144 * 10) / 10 },
+    notes: ["Shed dormer: overhangs, flashing, windows, the opening in the main roof and its headers are not counted; sizes are typed and the load path is the engineer's."],
+  };
 }

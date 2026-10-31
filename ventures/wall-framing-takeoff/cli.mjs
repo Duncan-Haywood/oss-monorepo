@@ -13,7 +13,7 @@ import { layoutTrim, trimText } from "./trim.mjs";
 import { layoutSiding, sidingText } from "./siding.mjs";
 import { layoutEaves, eavesText } from "./eaves.mjs";
 import { layoutGutters, guttersText } from "./gutters.mjs";
-import { layoutDormer, dormerText } from "./dormer.mjs";
+import { layoutDormer, layoutShedDormer, dormerText } from "./dormer.mjs";
 import { layoutFasteners, fastenerText } from "./fasteners.mjs";
 import { layoutStair, linkStairReaction, stairCuts, stairText, layoutStairWithLanding, landingCuts, landingText, checkWinders, layoutWinders, winderText, STAIR_LIMITS } from "./stairs.mjs";
 import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
@@ -230,7 +230,8 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   }
   let dormered = null;
   if (r.ok && (flags.has("--dormer") || plan.dormer)) {
-    const dm = layoutDormer({ mainPitch: plan.roof?.pitch, ...(plan.dormer || {}) });
+    const dArgs = { mainPitch: plan.roof?.pitch, ...(plan.dormer || {}) };
+    const dm = dArgs.shape === "shed" ? layoutShedDormer(dArgs) : layoutDormer(dArgs);
     if (!dm.ok) return { code: 1, out: `The dormer has problems:\n${dm.errors.map((e) => `  - ${e}`).join("\n")}` };
     r.dormer = dormered = dm;
   }
