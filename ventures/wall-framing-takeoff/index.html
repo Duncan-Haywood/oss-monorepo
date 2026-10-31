@@ -202,6 +202,7 @@
       <div><label for="stTreadBoard">Tread board</label><select id="stTreadBoard"><option>2x12</option><option>2x10</option><option>2x6</option></select></div>
       <div><label for="stOpen">Stairwell opening length you framed (blank: not checked)</label><input id="stOpen" type="text" placeholder="e.g. 10' 0&quot;"></div>
       <div><label for="stCheck">Stringer strength check, typed from your engineer or code tables: live psf, dead psf, Fb psi, Fv psi, E psi, optional deflection ratio (240) (blank: no check)</label><input id="stCheck" placeholder="e.g. 40, 12, 900, 180, 1300000, 240"></div>
+      <div><label for="stWinders">Winder turn, typed as treads, degrees, inner radius in (e.g. 3, 90, 12); blank: none. Checks the 6 in and 10 in rules and solves the smallest radius that passes</label><input id="stWinders" placeholder="e.g. 3, 90, 12"></div>
       <div><label for="stLanding">Landing</label><select id="stLanding"><option value="">Only if the rise needs one</option><option value="true">Split at a landing</option></select></div>
     </div>
     <p><input type="checkbox" id="dkOn" style="width:auto"> <label for="dkOn" style="display:inline">Also frame a deck (ledger or rim, joists, dropped beam, posts, footing concrete, decking rows with joints on joists, hardware; its pressure-treated lumber is its own order)</label></p>
@@ -512,7 +513,7 @@
     import { layoutEaves, eavesText } from "./eaves.mjs";
     import { layoutGutters, guttersText } from "./gutters.mjs";
     import { layoutDeck, deckText } from "./deck.mjs";
-    import { layoutStair, linkStairReaction, layoutStairWithLanding, stairCuts, stairText, landingCuts, landingText, STAIR_LIMITS } from "./stairs.mjs";
+    import { layoutStair, linkStairReaction, layoutStairWithLanding, layoutWinders, winderText, stairCuts, stairText, landingCuts, landingText, STAIR_LIMITS } from "./stairs.mjs";
     import { layoutFasteners, fastenerText } from "./fasteners.mjs";
     import { budget, budgetCsv } from "./budget.mjs";
     import { levelBids } from "./bidlevel.mjs";
@@ -702,6 +703,11 @@
         if ($("#stWidth").value.trim()) st.width = L($("#stWidth").value, "stair width");
         if ($("#stOpen").value.trim()) st.openingLength = L($("#stOpen").value, "stairwell opening length");
         if ($("#stLanding").value) st.landing = true;
+        if ($("#stWinders").value.trim()) {
+          const w = $("#stWinders").value.split(",").map((t) => t.trim()).filter(Boolean).map(Number);
+          if (w.length < 2 || w.length > 3 || w.some((x) => !Number.isFinite(x))) bad.push("Winders: write treads, turn in degrees, then optionally the inner radius in inches, all numbers.");
+          else st.winders = { count: w[0], turn: w[1], ...(w.length > 2 ? { innerRadius: w[2] } : {}) };
+        }
         if ($("#stCheck").value.trim()) {
           const n = $("#stCheck").value.split(",").map((t) => t.trim()).filter(Boolean).map(Number);
           if (n.length < 5 || n.length > 6 || n.some((x) => !Number.isFinite(x))) bad.push("Stringer check: write live, dead, Fb, Fv, E, then optionally the deflection ratio, all numbers.");
@@ -926,7 +932,7 @@
     function renderStairs(st) {
       $("#stairsCard").hidden = !st;
       if (!st) return;
-      $("#stairsOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc((st.flights ? landingText(st) : stairText(st)).join("\n"))}</pre><p class="note">Limits are the model residential code's usual ones (7-3/4 in riser, 10 in tread, 6 ft 8 in headroom, 36 in width); the edition your jurisdiction adopted is yours to check. Post sizing and winders are not modelled; guards and handrails are laid out only when the plan file has a stair “rail” object. Not checked against a built stair.</p>`;
+      $("#stairsOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc([...(st.flights ? landingText(st) : stairText(st)), ...(st.winders ? winderText(st.winders) : [])].join("\n"))}</pre><p class="note">Limits are the model residential code's usual ones (7-3/4 in riser, 10 in tread, 6 ft 8 in headroom, 36 in width); the edition your jurisdiction adopted is yours to check. Post sizing is not modelled and winders are checked against the 6 in and 10 in rules only (the walkline-uniformity rule is not checked); guards and handrails are laid out only when the plan file has a stair “rail” object. Not checked against a built stair.</p>`;
     }
     function renderSiding(sd) {
       $("#sidingCard").hidden = !sd;
@@ -1047,6 +1053,10 @@
         const stairPlan = plan.stairs || (plan.deck?.stairs ? { id: "Deck stair", tread: 10, stringer: "2x12", width: 36, ...plan.deck.stairs, totalRise: plan.deck.height } : null);
         if (stairPlan) {
           stairs = stairPlan.landing || stairPlan.totalRise > STAIR_LIMITS.maxRise ? layoutStairWithLanding(stairPlan, plan) : layoutStair(stairPlan, plan);
+          if (stairs.ok && stairPlan.winders) {
+            const wd = typeof stairPlan.winders === "object" ? stairPlan.winders : {};
+            stairs.winders = layoutWinders({ width: typeof stairPlan.width === "number" ? stairPlan.width : undefined, ...wd });
+          }
           if (!stairs.ok) { $("#errors").innerHTML = `<ul>${stairs.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#stairsCard").hidden = true; return false; }
           floorExtra = [...floorExtra, ...(stairs.flights ? [...stairs.flights.flatMap(stairCuts), ...landingCuts(stairs)] : stairCuts(stairs))];
         }
@@ -1186,6 +1196,7 @@
       $("#stRise").value = stp ? formatLength(stp.totalRise) : ""; $("#stTread").value = stp?.tread != null ? String(stp.tread) : "";
       $("#stWidth").value = stp?.width != null ? formatLength(stp.width) : ""; $("#stOpen").value = stp?.openingLength != null ? formatLength(stp.openingLength) : "";
       $("#stStringer").value = stp?.stringer || "2x12"; $("#stTreadBoard").value = stp?.treadBoard || "2x12"; $("#stLanding").value = stp?.landing ? "true" : "";
+      $("#stWinders").value = stp?.winders && typeof stp.winders === "object" ? [stp.winders.count, stp.winders.turn, ...(stp.winders.innerRadius != null ? [stp.winders.innerRadius] : [])].join(", ") : "";
       { const k = stp?.stringerCheck; $("#stCheck").value = k ? [k.liveLoad, k.deadLoad, k.Fb, k.Fv, k.E, ...(k.deflLimit ? [k.deflLimit] : [])].join(", ") : ""; }
       const trm = plan.trim;
       $("#trOn").checked = Boolean(trm); $("#trFields").hidden = !trm; $("#trShoe").value = trm && trm.shoe ? "true" : "";

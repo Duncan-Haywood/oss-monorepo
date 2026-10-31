@@ -228,6 +228,12 @@ test("the stair controls are read into plan.stairs, restored from a saved plan a
   assert.match(html, /layoutStairWithLanding\(stairPlan, plan\)/);
   assert.match(html, /\$\("#stOn"\)\.checked = Boolean\(stp\)/);
   assert.match(html, /<code>stairs_on<\/code>/);
+  // winders (2026-10-31): the field is read into plan.stairs.winders, laid out, printed under the stair and restored
+  assert.match(html, /id="stWinders"/);
+  assert.match(html, /st\.winders = \{ count: w\[0\], turn: w\[1\]/);
+  assert.match(html, /stairs\.winders = layoutWinders\(/);
+  assert.match(html, /winderText\(st\.winders\)/);
+  assert.match(html, /\$\("#stWinders"\)\.value = stp\?\.winders/);
 });
 
 test("the trim controls are read into plan.trim, restored from a saved plan and feed the budget", () => {
