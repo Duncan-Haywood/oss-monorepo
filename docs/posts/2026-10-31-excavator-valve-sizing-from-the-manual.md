@@ -1,6 +1,6 @@
 ---
 title: "Excavator hydraulics: sizing the valve from the manual moves the break-even to 36 bar"
-seo_title: "Load-sensing vs open-centre excavator hydraulics: valve sizing from the Danfoss PVG 32 manual"
+seo_title: "Excavator valve sizing from the Danfoss PVG 32 manual"
 date: 2026-10-31
 tags: [research, hydraulics, excavator, heavy-hydraulics]
 description: "Reading spool pressure drops off a Danfoss PVG 32 manual changes how slow an open-centre valve is, and moves the load-sensing break-even margin from 28 to 36 bar."
