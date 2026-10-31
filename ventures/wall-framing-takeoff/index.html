@@ -453,7 +453,7 @@
 
   <section class="card" aria-labelledby="h-schedule" id="scheduleCard">
     <h2 id="h-schedule">Build schedule (critical path)</h2>
-    <p class="note">Optional and separate from the wall list. Paste your own schedule as JSON (<code>start</code>, <code>crews</code>, <code>activities</code> with <code>id, name, days, after, crew, lag</code>, and <code>slips</code>), or load the invented example. Durations are working days (Mon-Fri) that you supply; none are shipped. Holidays and weather days you list below are skipped; weather is not forecast.</p>
+    <p class="note">Optional and separate from the wall list. Paste your own schedule as JSON (<code>start</code>, <code>crews</code>, <code>activities</code> with <code>id, name, days, after, crew, lag</code>, and <code>slips</code>), or load the invented example. Durations are working days (Mon-Fri) that you supply; none are shipped. An activity written <code>{"id": "frame", "per": "wallFeet", "rate": 40}</code> takes its days from this takeoff: <code>ceil(quantity / rate)</code>, with your own rate in units per crew-day (keys: wallFeet, pieces, boards, wallSheathingSheets, subfloorSheets, roofSheets, roofSquares, shingleBundles, trusses, drywallSheets, sidingBoards, nails). Holidays and weather days you list below are skipped; weather is not forecast.</p>
     <textarea id="schedIn" rows="12" spellcheck="false" aria-label="Schedule JSON" style="width:100%;font-family:monospace"></textarea>
     <p><label for="schedHol">Holidays (YYYY-MM-DD, comma or space separated)</label><input id="schedHol" type="text" autocomplete="off" style="width:100%"></p>
     <p><label for="schedWx">Weather days the crew will not work (YYYY-MM-DD)</label><input id="schedWx" type="text" autocomplete="off" style="width:100%"></p>
@@ -543,7 +543,7 @@
     import { layoutFasteners, fastenerText } from "./fasteners.mjs";
     import { budget, budgetCsv } from "./budget.mjs";
     import { levelBids } from "./bidlevel.mjs";
-    import { schedule, scheduleText, sampleSchedule } from "./schedule.mjs";
+    import { schedule, scheduleText, sampleSchedule, resolveRates } from "./schedule.mjs";
     import { resolveHeaders } from "./headers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -1439,6 +1439,11 @@
       const hol = dates("#schedHol"), wx = dates("#schedWx");
       if (hol.length) input.holidays = [...(input.holidays || []), ...hol];
       if (wx.length) input.weatherDays = [...(input.weatherDays || []), ...wx];
+      if ((input.activities || []).some((a) => a && a.per != null)) {
+        // durations from the takeoff: run it first, then days = ceil(quantity / your rate)
+        if (!run() || !last) { $("#schedOut").innerHTML = `<div class="err">Activities with "per" take their days from the takeoff, which has errors; fix the wall list above first.</div>`; return; }
+        input = resolveRates(input, { ...last.result, floor: last.floor, roof: last.roof, drywall: last.drywall, siding: last.siding, fasteners: last.fasteners });
+      }
       const s = schedule(input);
       $("#schedOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(scheduleText(s).join("\n"))}</pre>`;
       if (s.ok) record("schedule_run");
