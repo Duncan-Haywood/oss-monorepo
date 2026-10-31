@@ -1,5 +1,6 @@
 ---
 title: "A markup sweep of 3,115 pages found nothing, so CI now keeps it that way"
+seo_title: "A markup sweep of 3,115 pages found nothing; CI now checks it"
 date: 2026-10-27
 description: "A parser-based check for lang, viewport, charset, img alt, rel=noopener, tabindex and http links found no faults in any venture page, and now runs in CI."
 tags: [accessibility, ci, quality]
