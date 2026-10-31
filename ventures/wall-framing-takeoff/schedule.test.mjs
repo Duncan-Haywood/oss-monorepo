@@ -124,3 +124,20 @@ test("weatherLoss pads only exposed activities by ceil(days * loss) and rejects 
   assert.equal(s.workingDays, 13);
   assert.equal(schedule({ weatherLoss: 1.5, activities: [{ id: "a", days: 1 }] }).ok, false);
 });
+
+test("weatherRate stretches exposed activities by the start month's loss rate", () => {
+  // Hand: 10d exposed at 20% lost -> ceil(10/0.8)=13, starting in March.
+  const s = schedule({ start: "2026-03-02", weatherRate: { "2026-03": 0.2 }, activities: [{ id: "a", days: 10, exposed: true }, { id: "b", days: 2, after: ["a"] }] });
+  assert.equal(s.rows.find((r) => r.id === "a").days, 13);
+  assert.equal(s.workingDays, 15);
+});
+
+test("weatherRate uses the start month; unlisted months fall back to weatherLoss; bad rates are refused", () => {
+  // a (unexposed) 25d from Mon 2026-03-02 ends in April, so b starts in April (rate 0.5 -> 4d).
+  const s = schedule({ start: "2026-03-02", weatherRate: { "2026-03": 0.5, "2026-04": 0.5 }, activities: [{ id: "a", days: 25 }, { id: "b", days: 2, after: ["a"], exposed: true }] });
+  assert.equal(s.rows.find((r) => r.id === "a").days, 25);
+  assert.equal(s.rows.find((r) => r.id === "b").days, 4);
+  const f = schedule({ start: "2026-03-02", weatherLoss: 0.5, weatherRate: { "2026-09": 0.1 }, activities: [{ id: "a", days: 2, exposed: true }] });
+  assert.equal(f.rows[0].days, 4); // March unlisted: flat 50% -> ceil(2/0.5)
+  assert.equal(schedule({ weatherRate: { "2026-03": 1 }, activities: [{ id: "a", days: 1, exposed: true }] }).ok, false);
+});

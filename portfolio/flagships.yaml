@@ -35,7 +35,7 @@ flagships:
       cutting-stock order within 0.02% of its LP bound on whole houses; page,
       CLI and agent engine. First tool of the new-home construction program.
     next: >-
-      Schedule page (schedule-calculator.html, bar chart, clicked in Chromium) and per-crew days off (`crewOff`) landed 2026-10-31; a typed `weatherLoss` allowance for exposed activities landed 2026-10-31 (hand test, not on the page); the schedule still lacks a page field for it and a real builder's list. Open items only (dormer page fields for gable and shed, including the front window on both, landed 2026-10-31); landed work, with dates and how each was checked, is
+      Schedule page (schedule-calculator.html, bar chart, clicked in Chromium) and per-crew days off (`crewOff`) landed 2026-10-31; a typed `weatherLoss` allowance and monthly `weatherRate` for exposed activities landed 2026-10-31 (hand tests, not on the page); the schedule still lacks a page field for it and a real builder's list. Open items only (dormer page fields for gable and shed, including the front window on both, landed 2026-10-31); landed work, with dates and how each was checked, is
       in ventures/wall-framing-takeoff/README.md and ROADMAP.md. Wanted: a
       real permitted deck plan (deck framing, guards and stairs are on hand
       arithmetic only). Stairs: structural checks (trimmers, stairwell header, stringer, stair reaction on the header, hanger) landed 2026-10-31, hand tests only, with page fields for the header and stringer checks; details in the README; rim ties at stairwell (strap count from typed force and capacity landed 2026-10-31, hand test; the load path and nailing are the engineer's)

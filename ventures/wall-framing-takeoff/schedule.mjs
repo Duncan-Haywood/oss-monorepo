@@ -145,7 +145,9 @@ export function schedule(input) {
   // each such activity grows by ceil(days * weatherLoss). It is an allowance you type, not a forecast.
   const wl = input?.weatherLoss;
   if (wl != null && !(typeof wl === "number" && wl >= 0 && wl <= 1)) return { ok: false, errors: ["weatherLoss must be a number from 0 to 1 (fraction of exposed working days lost)."] };
-  const acts = /** @type {Activity[]} */ ((input?.activities || []).map((/** @type {any} */ a) => wl && a.exposed && a.days > 0 ? { ...a, days: a.days + Math.ceil(a.days * wl - 1e-9), derived: `${a.derived ? a.derived + "; " : ""}+${Math.ceil(a.days * wl - 1e-9)}d weather allowance (${wl * 100}% of ${a.days}d)` } : a));
+  const rawActs = /** @type {Activity[]} */ (input?.activities || []);
+  const hasMonthly = Object.keys(input?.weatherRate || {}).length > 0;
+  let acts = /** @type {Activity[]} */ ((input?.activities || []).map((/** @type {any} */ a) => !hasMonthly && wl && a.exposed && a.days > 0 ? { ...a, days: a.days + Math.ceil(a.days * wl - 1e-9), derived: `${a.derived ? a.derived + "; " : ""}+${Math.ceil(a.days * wl - 1e-9)}d weather allowance (${wl * 100}% of ${a.days}d)` } : a));
   if (input?.rateErrors?.length) return { ok: false, errors };
   if (!acts.length) return { ok: false, errors: ["The schedule has no activities."] };
   const ids = new Set();
@@ -161,7 +163,7 @@ export function schedule(input) {
   for (const a of acts) if (a.crew && crews[a.crew] == null) errors.push(`${a.id}: crew "${a.crew}" has no count in \`crews\`; it is left unlimited.`);
   if (errors.some((e) => !e.includes("left unlimited"))) return { ok: false, errors };
   const warn = errors;
-  const base = cpm(acts);
+  let base = cpm(acts);
   if (base.errors.length) return { ok: false, errors: base.errors };
   const start = new Date((input.start || "2026-01-05") + "T00:00:00Z");
   if (isNaN(start.getTime())) return { ok: false, errors: [`start "${input.start}" is not a date (YYYY-MM-DD).`] };
@@ -170,6 +172,26 @@ export function schedule(input) {
   if (badOff.length) return { ok: false, errors: [`holidays and weatherDays must be YYYY-MM-DD dates; not: ${badOff.join(", ")}.`] };
   const off = new Set(offList.map((/** @type {string} */ h) => new Date(h + "T00:00:00Z").toISOString().slice(0, 10)));
   const date = (/** @type {number} */ n) => dateOf(start, n, off);
+  // weatherRate: { "YYYY-MM": fraction } share of working days lost that month (your figure; none shipped). It replaces the flat
+  // `weatherLoss` for exposed activities: days become ceil(days / (1 - rate)) by the month the activity starts in (months not
+  // listed use `weatherLoss`, else 0). A few passes settle the months, since longer activities push later ones into other months.
+  const wr = input.weatherRate || {};
+  for (const [k, v] of Object.entries(wr)) if (!/^\d{4}-\d{2}$/.test(k) || typeof v !== "number" || !(v >= 0 && v <= 0.9)) return { ok: false, errors: [`weatherRate.${k} must be a fraction from 0 to 0.9 under a YYYY-MM key.`] };
+  if (hasMonthly && rawActs.some((a) => a.exposed)) {
+    for (let pass = 0; pass < 6; pass++) {
+      const next = rawActs.map((a) => {
+        if (!a.exposed) return a;
+        const r = base.rows.find((x) => x.id === a.id);
+        const rate = wr[date(r ? r.es : 0).slice(0, 7)] ?? wl ?? 0;
+        const days = rate > 0 ? Math.ceil(a.days / (1 - rate) - 1e-9) : a.days;
+        return rate > 0 ? { ...a, days, derived: `${a.derived ? a.derived + "; " : ""}${a.days}d + weather at ${Math.round(rate * 100)}% lost days` } : a;
+      });
+      const nb = cpm(next.map((a) => ({ ...a })));
+      const same = nb.rows.length === base.rows.length && nb.rows.every((r, i) => r.days === base.rows[i].days);
+      acts = next; base = nb;
+      if (same) break;
+    }
+  }
   // crewOff: { crew: [YYYY-MM-DD] } days that crew is unavailable (another job, vacation); converted to project working-day indices.
   const crewOff = new Map();
   for (const [c, list] of Object.entries(input.crewOff || {})) {
