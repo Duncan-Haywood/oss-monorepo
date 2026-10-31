@@ -792,3 +792,17 @@ test("blocking: stagger alternates bays above and below the row line, and fire b
   const ys = [...new Set(bl.map((m) => m.y))].sort((a, b) => a - b);
   assert.ok(ys[0] - 1.5 <= 120 && (plan.studLength + 3) - (ys[ys.length - 1] + 1.5) <= 120);
 });
+
+test("sheathing: a gable wall joint over a wide opening gets a nailer note with a length, and the wall still checks", () => {
+  const plan = { ...base(), studSpacing: 24, walls: [{ id: "G", length: 240, stud: "2x4", corner: false, gable: { pitch: 6, peak: 120 }, openings: [{ kind: "window", offset: 30, width: 120, height: 48, header: "2x10", headerHeight: 80 }] }] };
+  const r = takeoff(plan);
+  assert.ok(r.ok, JSON.stringify(r.errors));
+  const s = sheathe({ ...plan, sheathing: defaultSheathing() }, r);
+  assert.ok(s.ok, JSON.stringify(s.errors));
+  assert.ok(s.gables, "gable order present");
+  assert.ok(!s.notes.some((n) => n.includes("sheathe it by hand")), s.notes.join("\n"));
+  const note = s.notes.find((n) => n.startsWith("G: a gable panel joint"));
+  assert.ok(note, s.notes.join("\n"));
+  assert.match(note, /nailer about [\d' -]+/);
+  assert.deepEqual(s.gables.walls[0].check, []);
+});
