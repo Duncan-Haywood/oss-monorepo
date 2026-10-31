@@ -15,7 +15,7 @@ const NOMINAL = { "2x6": 5.5, "2x8": 7.25, "2x10": 9.25, "2x12": 11.25 };
 const POST = { "4x4": 3.5, "6x6": 5.5 };
 const CU_IN_PER_YD = 46656;
 
-/** @typedef {{ id?: string, width: number, depth: number, height: number, joist?: string, spacing?: number, beam?: string, beamPlies?: number, freestanding?: boolean, overhang?: number, postSize?: string, postInset?: number, maxPostSpacing?: number, border?: number | boolean, deckBoard?: { width?: number, thickness?: number, gap?: number, size?: string }, footing?: { diameter?: number, depth?: number, bagYield?: number }, screwsPerBox?: number, railPostSpacing?: number, guard?: false | { sides?: ("outer"|"left"|"right"|"inner")[], threshold?: number, railBoard?: string, balusterWidth?: number, postWidth?: number, limits?: object }, spanTable?: { joist: string, spacing: number, maxSpan: number }[], stock?: { size: string, length: number, price: number }[] }} Deck */
+/** @typedef {{ id?: string, width: number, depth: number, height: number, joist?: string, spacing?: number, beam?: string, beamPlies?: number, freestanding?: boolean, postCheck?: { deadPsf: number, livePsf: number, fc: number, emin: number, fcPerp?: number }, overhang?: number, postSize?: string, postInset?: number, maxPostSpacing?: number, border?: number | boolean, deckBoard?: { width?: number, thickness?: number, gap?: number, size?: string }, footing?: { diameter?: number, depth?: number, bagYield?: number }, screwsPerBox?: number, railPostSpacing?: number, guard?: false | { sides?: ("outer"|"left"|"right"|"inner")[], threshold?: number, railBoard?: string, balusterWidth?: number, postWidth?: number, limits?: object }, spanTable?: { joist: string, spacing: number, maxSpan: number }[], stock?: { size: string, length: number, price: number }[] }} Deck */
 
 export function sampleDeck() {
   return { id: "Rear deck", width: 192, depth: 144, height: 36, joist: "2x8", spacing: 16, beam: "2x10", beamPlies: 2, overhang: 12, postSize: "6x6" };
@@ -237,8 +237,51 @@ export function layoutDeck(d) {
   return {
     ok: true, id, width: d.width, depth: d.depth, height: d.height, joistSize: joist, beamSize: beam, beamPlies: plies, postSize, spacing, freestanding, overhang,
     centres, joists, rims, posts, postLength: postLen, beamPieces, beamBoards, concrete, rows, deckBoards, borderBoards, borderCourses: nb, fieldWidth: fieldW, fieldDepth: fieldD, joints, screws, screwBoxes: Math.ceil(screws / screwsPerBox), hardware, railPosts, guard, blocking,
+    postCheck: d.postCheck ? checkDeckPosts({ joistSpan, overhang, posts, postSize, postLength: postLen, beamPlies: plies }, d.postCheck) : undefined,
     lumber, orders, area, cost: orders.reduce((s, o) => s + o.cost, 0), joistSpan, warnings, notes,
   };
+}
+
+/**
+ * Axial check of the deck's beam posts from typed figures (ASD, NDS column stability, pin-pin, Ke = 1).
+ * `spec`: { deadPsf, livePsf, fc, emin, fcPerp? }; fc and emin are the post's design values in psi, already
+ * adjusted for wet service and treatment by you; nothing is shipped. The beam takes a joist reaction of
+ * w (L + c)^2 / (2 L) per foot (L the joist span to the beam, c the cantilever, the far support a pin), and each
+ * post the beam load over half the bay either side. Bracing, uplift, lateral load and the footing are not checked.
+ * @param {{ joistSpan: number, overhang: number, posts: number[], postSize: string, postLength: number, beamPlies: number }} l
+ * @param {{ deadPsf: number, livePsf: number, fc: number, emin: number, fcPerp?: number }} spec
+ */
+export function checkDeckPosts(l, spec) {
+  const errors = [];
+  const inr = (v, lo, hi) => Number.isFinite(v) && v >= lo && v <= hi;
+  if (!inr(spec?.deadPsf, 0, 100)) errors.push("postCheck.deadPsf is the dead load in psf, 0 to 100.");
+  if (!inr(spec?.livePsf, 0, 200)) errors.push("postCheck.livePsf is the live load in psf, 0 to 200.");
+  if (!inr(spec?.fc, 100, 3000)) errors.push("postCheck.fc is the post's compression parallel to grain in psi (100 to 3000), adjusted by you.");
+  if (!inr(spec?.emin, 50000, 1500000)) errors.push("postCheck.emin is the post's minimum modulus of elasticity in psi (50000 to 1500000).");
+  if (spec?.fcPerp != null && !inr(spec.fcPerp, 100, 3000)) errors.push("postCheck.fcPerp is the beam's compression perpendicular to grain in psi (100 to 3000).");
+  if (errors.length) return { ok: false, errors };
+  const side = POST[l.postSize], area = side * side;
+  const w = spec.deadPsf + spec.livePsf;
+  const lbPerFt = (w * ((l.joistSpan + l.overhang) ** 2 / (2 * l.joistSpan))) / 12; // psf * (in of tributary width) / 12
+  const gaps = l.posts.slice(1).map((x, i) => x - l.posts[i]);
+  const posts = l.posts.map((x, i) => {
+    const trib = ((gaps[i - 1] ?? 0) + (gaps[i] ?? 0)) / 2;
+    return { x, tributary: trib, load: (lbPerFt * trib) / 12 };
+  });
+  const worstLoad = Math.max(...posts.map((q) => q.load));
+  const slenderness = l.postLength / side;
+  const FcE = (0.822 * spec.emin) / slenderness ** 2, ratio = FcE / spec.fc, k = 0.8;
+  const a = (1 + ratio) / (2 * k);
+  const cp = a - Math.sqrt(a * a - ratio / k);
+  const capacity = spec.fc * cp * area;
+  const warnings = [];
+  if (slenderness > 50) warnings.push("Slenderness over 50 (the NDS limit): use a bigger post or brace it.");
+  const out = { ok: true, side, slenderness, cp, capacity, posts, worstLoad, utilisation: worstLoad / capacity, passes: worstLoad <= capacity && slenderness <= 50, warnings };
+  if (spec.fcPerp != null) {
+    const bearing = l.beamPlies * 1.5 * side * spec.fcPerp;
+    out.bearing = { capacity: bearing, utilisation: worstLoad / bearing, passes: worstLoad <= bearing };
+  }
+  return out;
 }
 
 export function deckText(l) {
@@ -255,6 +298,15 @@ export function deckText(l) {
   for (const h of l.hardware) out.push(`    ${h.qty} x ${h.item}${h.note ? ` (${h.note})` : ""}`);
   if (l.guard) out.push(`  Guard (${l.guard.sides.join(", ")}): ${l.guard.posts.count} posts, ${l.guard.balusters.count} balusters of ${formatInches(l.guard.balusters.length)} (clear gap at most ${formatInches(l.guard.balusters.maxGap)}), ${l.guard.guardRails.count} rails of ${l.guard.guardRails.size} PT in the order; posts and balusters are not bought`);
   else out.push(`    ${l.railPosts} guard-rail posts at the open edges (by spacing only)`);
+  if (l.postCheck) {
+    const c = l.postCheck;
+    if (!c.ok) out.push(...c.errors.map((e) => `  ! ${e}`));
+    else {
+      out.push(`  Post check (typed figures): worst post ${Math.round(c.worstLoad)} lb of ${Math.round(c.capacity)} lb (${(c.utilisation * 100).toFixed(0)}%), le/d ${c.slenderness.toFixed(1)}, Cp ${c.cp.toFixed(2)} - ${c.passes ? "passes" : "FAILS"}`);
+      if (c.bearing) out.push(`    Beam bearing on the post top: ${Math.round(c.bearing.capacity)} lb (${(c.bearing.utilisation * 100).toFixed(0)}%) - ${c.bearing.passes ? "passes" : "FAILS"}`);
+      for (const w of c.warnings) out.push(`    ! ${w}`);
+    }
+  }
   for (const w of l.warnings) out.push(`  ! ${w}`);
   for (const n of l.notes) out.push(`  - ${n}`);
   return out;

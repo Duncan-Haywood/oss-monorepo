@@ -142,3 +142,26 @@ test("picture frame: one course mitred round a 16 x 12 ft deck, field shrinks by
   assert.ok(layoutDeck({ ...sampleDeck(), border: 4 }).errors?.length);
   assert.ok(layoutDeck({ ...sampleDeck(), width: 48, depth: 48, border: 3 }).errors?.length);
 });
+
+test("postCheck: hand-worked 16 x 12 ft sample, 50 psf, typed fc and Emin", () => {
+  const l = layoutDeck({ ...sampleDeck(), postCheck: { deadPsf: 10, livePsf: 40, fc: 975, emin: 510000, fcPerp: 565 } });
+  assert.ok(l.ok && l.postCheck.ok);
+  // beam reaction: 50 * (L + 12)^2 / (2 L) / 12 lb per ft, bay 84 in, interior post takes 84 in
+  const L = l.joistSpan, perFt = (50 * (L + 12) ** 2 / (2 * L)) / 12;
+  assert.ok(Math.abs(l.postCheck.worstLoad - perFt * 84 / 12) < 1e-6);
+  // Cp by hand: le/d = postLength/5.5, FcE = 0.822 E / (le/d)^2
+  const sl = l.postLength / 5.5, FcE = 0.822 * 510000 / sl ** 2, r = FcE / 975;
+  const a = (1 + r) / 1.6, cp = a - Math.sqrt(a * a - r / 0.8);
+  assert.ok(Math.abs(l.postCheck.cp - cp) < 1e-9);
+  assert.ok(Math.abs(l.postCheck.capacity - 975 * cp * 30.25) < 1e-6);
+  assert.ok(l.postCheck.passes);
+  assert.equal(l.postCheck.bearing.capacity, 2 * 1.5 * 5.5 * 565);
+  assert.ok(deckText(l).join("\n").includes("Post check"));
+});
+
+test("postCheck: a tall 4x4 under a heavy load fails, bad figures are refused", () => {
+  const l = layoutDeck({ ...sampleDeck(), postSize: "4x4", height: 90, postCheck: { deadPsf: 100, livePsf: 200, fc: 975, emin: 510000 } });
+  assert.equal(l.postCheck.passes, false);
+  const bad = layoutDeck({ ...sampleDeck(), postCheck: { deadPsf: 10, livePsf: 40, fc: -1, emin: 510000 } });
+  assert.equal(bad.postCheck.ok, false);
+});
