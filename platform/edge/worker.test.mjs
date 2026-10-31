@@ -193,3 +193,25 @@ test('/counts?since= keeps only days from that date, and ignores a malformed val
   assert.equal(Object.keys(await days('?since=9999-12-3')).length, 1, 'a malformed date falls back to everything');
   assert.equal(Object.keys(await days('?since=99999-12-31')).length, 1, 'a five-digit year is malformed');
 });
+
+test('the per-sender burst limiter answers 429 slow-down and stores nothing', async () => {
+  const seen = [];
+  const e = env({ FEEDBACK_LIMITER: { async limit(k) { seen.push(k.key); return { success: false }; } } });
+  const res = await worker.fetch(req('/feedback', {
+    body: JSON.stringify({ type: 'idea', tool: 'roof-bid', message: 'Add a metric toggle please' }),
+    headers: { origin: ORIGIN, 'content-type': 'application/json', 'cf-connecting-ip': '203.0.113.9' },
+  }), e);
+  assert.equal(res.status, 429);
+  assert.deepEqual(await res.json(), { error: 'slow-down' });
+  assert.deepEqual(seen, ['203.0.113.9']);
+  assert.equal(e.DB.feedback.length, 0);
+});
+
+test('a CORS preflight is an empty 204 that allows POST with content-type', async () => {
+  const res = await worker.fetch(req('/feedback', { method: 'OPTIONS', headers: { origin: ORIGIN } }), env());
+  assert.equal(res.status, 204);
+  assert.equal(res.headers.get('access-control-allow-origin'), ORIGIN);
+  assert.equal(res.headers.get('access-control-allow-methods'), 'POST');
+  assert.equal(res.headers.get('access-control-allow-headers'), 'content-type');
+  assert.equal(await res.text(), '');
+});
