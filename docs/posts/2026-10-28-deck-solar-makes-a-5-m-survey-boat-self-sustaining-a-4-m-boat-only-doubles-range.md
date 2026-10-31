@@ -1,5 +1,6 @@
 ---
 title: "Deck solar makes a 5 m survey boat self-sustaining at 1 m/s; a 4 m boat only doubles its range"
+seo_title: "Deck solar makes a 5 m survey boat self-sustaining at 1 m/s"
 date: 2026-10-28
 description: "In a 4,374-case sweep of a 200 kg survey boat, deck solar covers the load at 1 m/s in 25% of cases: 0% at 3 m, 20% at 4 m, 56% at 5 m hull length."
 tags: [research, marine-hull, solar, autonomous-boats]

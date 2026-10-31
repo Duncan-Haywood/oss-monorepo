@@ -1,5 +1,6 @@
 ---
 title: "A per-tensor weight bound cuts the room a cheating trainer has from 28% to 3%"
+seo_title: "Per-tensor weight bound cuts a cheating trainer's room to 3%"
 date: 2026-10-28
 description: "In a small verifiable-training experiment, bounding each tensor by its own initial maximum admits far fewer harmful planted weights than one global bound."
 tags: [research, verifiable-training, ml-verification]
