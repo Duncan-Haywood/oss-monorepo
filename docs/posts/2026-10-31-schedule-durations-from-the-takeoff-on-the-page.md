@@ -1,6 +1,8 @@
 ---
 title: "Schedule durations from your takeoff, now on the page"
 date: 2026-10-31
+description: "The schedule box on the whole-house framing page can now take durations from the takeoff."
+tags: [wall-framing-takeoff, schedule]
 ---
 
 The wall-framing takeoff's schedule could already work out an activity's length from the quantities it counted (`{"per": "wallFeet", "rate": 40}` means `ceil(wall feet / 40)` working days), but only from the command line. Today the whole-house page does it too.
