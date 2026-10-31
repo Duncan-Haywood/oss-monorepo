@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { schedule, sampleSchedule, scheduleText } from "./schedule.mjs";
+import { schedule, sampleSchedule, scheduleText, templateSchedule } from "./schedule.mjs";
 import { main } from "./cli.mjs";
 import { samplePlan } from "./engine.mjs";
 
@@ -161,4 +161,16 @@ test("notBefore also holds under crew levelling", () => {
   const s = schedule({ start: "2026-03-02", crews: { x: 1 }, activities: [{ id: "a", days: 1, crew: "x", notBefore: "2026-03-05" }, { id: "b", days: 1, crew: "x" }] });
   assert.equal(s.rows.find((r) => r.id === "a").startDate, "2026-03-05");
   assert.equal(s.rows.find((r) => r.id === "b").startDate, "2026-03-02");
+});
+
+test("starter template is a valid acyclic list with no shipped durations", () => {
+  const t = templateSchedule();
+  assert.ok(t.activities.every((a) => a.days === 0));
+  const s = schedule({ ...t, start: "2026-03-02" });
+  assert.ok(s.ok, JSON.stringify(s.errors));
+  const out = main(["--schedule-template"]);
+  assert.equal(out.code, 0);
+  assert.equal(JSON.parse(out.out).activities.length, t.activities.length);
+  const typed = schedule({ ...t, start: "2026-03-02", activities: t.activities.map((a) => ({ ...a, days: 2 })) });
+  assert.equal(typed.workingDays, 2 * 18 + 4); // 18 activities on the longest chain, 4 one-day lags
 });

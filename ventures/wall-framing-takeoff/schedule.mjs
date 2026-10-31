@@ -262,3 +262,39 @@ export function sampleSchedule() {
     slips: [{ id: "insp", days: 3 }],
   };
 }
+
+/**
+ * A starting activity list for a one-storey slab-on-grade new home: the usual order of trades and the
+ * predecessors, with every duration 0. Order is common practice; durations are yours to type (none shipped).
+ * Activities with a `per` hint can take their days from the takeoff: add a `rate` and they resolve.
+ */
+export function templateSchedule() {
+  const A = (/** @type {string} */ id, /** @type {string} */ name, /** @type {string[]} */ after = [], /** @type {any} */ extra = {}) => ({ id, name, days: 0, after, ...extra });
+  return {
+    start: "YYYY-MM-DD",
+    crews: { framing: 1 },
+    note: "Order only. Type your own days (or per + rate); an activity left at 0 days takes no time.",
+    activities: [
+      A("site", "Clear, grade and stake"),
+      A("footings", "Footings", ["site"]),
+      A("footinsp", "Footing inspection", ["footings"], { lag: 1 }),
+      A("stem", "Stem walls or foundation walls", ["footinsp"]),
+      A("underslab", "Under-slab plumbing and electrical", ["stem"]),
+      A("slab", "Slab pour", ["underslab"]),
+      A("slabcure", "Slab cure", ["slab"], { lag: 0 }),
+      A("walls", "Wall framing", ["slabcure"], { crew: "framing", per: "wallFeet", exposed: true }),
+      A("roof", "Roof framing and sheathing", ["walls"], { crew: "framing", per: "roofSheets", exposed: true }),
+      A("dry", "Windows, doors and weather barrier", ["roof"], { exposed: true }),
+      A("roofing", "Roofing", ["roof"], { per: "roofSquares", exposed: true }),
+      A("mep", "Rough plumbing, electrical and HVAC", ["dry"]),
+      A("framinsp", "Framing and rough-in inspections", ["mep"], { lag: 1 }),
+      A("insul", "Insulation", ["framinsp"]),
+      A("insulinsp", "Insulation inspection", ["insul"], { lag: 1 }),
+      A("drywall", "Drywall hang, tape and finish", ["insulinsp"], { per: "drywallSheets" }),
+      A("siding", "Siding and exterior trim", ["dry"], { per: "sidingBoards", exposed: true }),
+      A("paint", "Paint and interior trim", ["drywall"]),
+      A("finish", "Cabinets, flooring, fixtures", ["paint"]),
+      A("final", "Final inspection and certificate of occupancy", ["finish", "siding", "roofing"], { lag: 1 }),
+    ],
+  };
+}
