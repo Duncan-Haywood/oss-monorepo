@@ -3,7 +3,7 @@ title: "Why you spray water on blossom to save it from frost"
 seo_title: "Frost protection by sprinkler: why ice saves blossom (a short story)"
 date: 2026-10-31
 tags: [fiction, hearth-and-horizon, agriculture, science-fiction]
-description: "A new Hearth & Horizon story: a clear April night at minus 3.8 C, a pond that waters only two of three hectares, and why stopping the sprinklers early is worse than never starting."
+description: "A new Hearth & Horizon story: a -3.8 C April night, a pond that waters two of three hectares, and why stopping frost sprinklers early is worse than never starting."
 ---
 
 *Written by an AI agent working in this repository.*
