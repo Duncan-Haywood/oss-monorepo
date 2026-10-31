@@ -65,9 +65,10 @@ function shape(m, H, peak) {
  * @param {any} w laid-out wall from takeoff()
  * @param {any} wall the plan's wall (for rough openings)
  * @param {{defaultHeaderHeight?: number}} plan
+ * @param {{panels: any[]}|null} [sheathing] when given (a wall of `sheathe()`'s result), each sheet is outlined in green with its mark (e.g. W1-2); gable walls carry no sheet heights and draw none
  * @param {ReturnType<typeof panelizeWall>|null} [panels] when given, panel joints are drawn as purple dash-dot lines with a letter per panel
  */
-export function wallElevationSvg(w, wall, plan = {}, panels = null) {
+export function wallElevationSvg(w, wall, plan = {}, panels = null, sheathing = null) {
   const H = w.height;
   const L = w.length;
   const { marks } = markMembers(w);
@@ -113,10 +114,17 @@ export function wallElevationSvg(w, wall, plan = {}, panels = null) {
   const panelLines = !panels ? "" : panels.cuts.map((c) => `<line x1="${c}" x2="${c}" y1="-4" y2="${H + 2}" stroke="#6a2c91" stroke-width="0.8" stroke-dasharray="4 1.5 1 1.5"/>`).join("")
     + panels.panels.map((p) => `<text x="${r3((p.x0 + p.x1) / 2)}" y="-5" class="pn">Panel ${esc(p.name)}</text>`).join("");
 
+  const sheetBoxes = (sheathing?.panels || []).filter((p) => Number.isFinite(p.y0) && p.height > 0).map((p) => {
+    const x0 = Math.max(0, p.x0), x1 = Math.min(L, p.x0 + p.width);
+    if (x1 - x0 <= 0) return "";
+    const y = H - (p.y0 + p.height);
+    return `<rect x="${r3(x0)}" y="${r3(y)}" width="${r3(x1 - x0)}" height="${r3(p.height)}" fill="none" stroke="#2e7d32" stroke-width="0.5" stroke-dasharray="6 2"><title>Sheet ${esc(p.id)}: ${esc(formatInches(p.width))} x ${esc(formatInches(p.height))}</title></rect><text x="${r3((x0 + x1) / 2)}" y="${r3(y + 5)}" class="sh">${esc(p.id)}</text>`;
+  }).join("");
+
   const vb = `${-padL} ${-padT} ${r3(L + padL + padR)} ${r3(H + padT + padB)}`;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" role="img" aria-label="Shop drawing of wall ${esc(w.id)}, ${esc(formatLength(L))} long, ${esc(formatInches(H))} high">`
-    + `<style>.mk{font:3.4px sans-serif;text-anchor:middle;dominant-baseline:middle;fill:#1b1306}.ro{font:4.4px sans-serif;text-anchor:middle;fill:#1d5c7a}.ro.sm{font-size:3.4px}.dt{font:3.6px sans-serif;text-anchor:middle;fill:#222}.dt.big{font-size:5px;font-weight:700}.dim{stroke:#444;stroke-width:0.3}.pn{font:4px sans-serif;text-anchor:middle;fill:#6a2c91;font-weight:700}</style>`
-    + `${members}${openings}${joints}${panelLines}${ticks}${chain}${overall}${hdim}</svg>`;
+    + `<style>.mk{font:3.4px sans-serif;text-anchor:middle;dominant-baseline:middle;fill:#1b1306}.ro{font:4.4px sans-serif;text-anchor:middle;fill:#1d5c7a}.ro.sm{font-size:3.4px}.dt{font:3.6px sans-serif;text-anchor:middle;fill:#222}.dt.big{font-size:5px;font-weight:700}.dim{stroke:#444;stroke-width:0.3}.sh{font:3.6px sans-serif;text-anchor:middle;fill:#2e7d32;font-weight:700}.pn{font:4px sans-serif;text-anchor:middle;fill:#6a2c91;font-weight:700}</style>`
+    + `${members}${openings}${joints}${sheetBoxes}${panelLines}${ticks}${chain}${overall}${hdim}</svg>`;
 }
 
 /**
@@ -183,7 +191,7 @@ export function drawingSetHtml(result, plan, opts = {}) {
     const joints = ["bottom", "top", "cap"].map((k) => `${k} ${(w.joints?.[k] || []).map(formatLength).join(", ") || "none"}`).join("; ");
     const pan = opts.panelMax > 0 ? panelizeWall(w, opts.panelMax) : null;
     return `<section class="sheet"><h1>${esc(w.id)}</h1><p class="sub">Sheet ${i + 1} of ${result.walls.length} &middot; ${esc(formatLength(w.length))} long &middot; ${esc(formatInches(w.height))} high &middot; ${esc(w.stud)} studs at ${esc(formatInches(plan.studSpacing))} centres${w.gable ? ` &middot; gable ${w.gable.pitch}/12` : ""}</p>`
-      + wallElevationSvg(w, wall, plan, pan)
+      + wallElevationSvg(w, wall, plan, pan, result.sheathing?.walls?.find((x) => x.id === w.id) || null)
       + (pan ? panelTableHtml(w, pan, opts.panelMax, wall, opts.sheathPsf > 0 ? opts.sheathPsf : 0) : "")
       + `<h2>Parts</h2>${partsTableHtml(w)}`
       + `<p class="chk">Plate joints (red) from the wall start: ${esc(joints)}. ${problems.length ? `<span class="err">Layout check found ${problems.length} problem(s): ${problems.map(esc).join("; ")}</span>` : "Layout check passed: every member inside the wall, none overlapping, every plate joint over a full stud."}</p>`
