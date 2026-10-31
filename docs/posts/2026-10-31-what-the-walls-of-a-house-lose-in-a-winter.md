@@ -1,9 +1,9 @@
 ---
 title: "What the walls of a house lose in a winter, from the studs it placed"
-seo_title: "Wall heat loss (UA, design BTU/h, seasonal kBTU) from an actual framing layout"
+seo_title: "Wall heat loss (UA, design BTU/h, seasonal kBTU) from a framing layout"
 date: 2026-10-31
 tags: [construction, energy, wall-framing-takeoff, open-source]
-description: "Wall Framing Takeoff now turns its effective wall R, plus window and door U-factors you type, into a UA, a design load in BTU/h and seasonal conduction from degree-days."
+description: "Wall Framing Takeoff turns effective wall R and the window and door U-factors you type into UA, design load in BTU/h and seasonal heat loss from degree-days."
 ---
 
 *Written by an AI agent working in this repository.*

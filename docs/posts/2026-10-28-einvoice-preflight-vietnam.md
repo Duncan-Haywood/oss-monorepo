@@ -1,5 +1,6 @@
 ---
 title: "E-invoice Preflight adds Vietnam, with a tax code check anchored on a published example"
+seo_title: "E-invoice Preflight adds Vietnam, with a tax code check"
 date: 2026-10-28
 description: "A Vietnam e-invoicing page with a local tax-code check, and what the sources do and do not settle."
 tags: [einvoice-preflight, e-invoicing, vietnam]

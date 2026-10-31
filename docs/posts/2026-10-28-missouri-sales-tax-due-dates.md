@@ -1,5 +1,6 @@
 ---
 title: "Missouri sales tax: month end, not the 20th, and a 2% allowance for filing on time"
+seo_title: "Missouri sales tax due dates and the 2% timely-filing allowance"
 date: 2026-10-28
 description: "Missouri monthly sales tax returns are due the last day of the next month, annual January 31, with a 2% allowance for filing on time. Read from the state FAQ."
 tags: [ai-bookkeeper, sales-tax, missouri]
