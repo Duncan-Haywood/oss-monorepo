@@ -45,7 +45,7 @@ function cpm(acts) {
   const es = new Map(), ef = new Map();
   for (const id of order) {
     const a = /** @type {Activity} */ (byId.get(id));
-    const s = Math.max(0, ...(a.after || []).map((p) => /** @type {number} */ (ef.get(p)) + (a.lag || 0)));
+    const s = Math.max(/** @type {any} */ (a).nb || 0, ...(a.after || []).map((p) => /** @type {number} */ (ef.get(p)) + (a.lag || 0)));
     es.set(id, s); ef.set(id, s + a.days);
   }
   const end = Math.max(0, ...[...ef.values()]);
@@ -74,7 +74,7 @@ function level(/** @type {Activity[]} */ acts, /** @type {Record<string, number>
   const left = new Set(acts.map((a) => a.id));
   while (left.size) {
     const ready = [...left].map((id) => /** @type {Activity} */ (byId.get(id))).filter((a) => (a.after || []).every((p) => finish.has(p)));
-    const earliest = (/** @type {Activity} */ a) => Math.max(0, ...(a.after || []).map((p) => finish.get(p) + (a.lag || 0)));
+    const earliest = (/** @type {Activity} */ a) => Math.max(/** @type {any} */ (a).nb || 0, ...(a.after || []).map((p) => finish.get(p) + (a.lag || 0)));
     ready.sort((a, b) => earliest(a) - earliest(b) || slack.get(a.id) - slack.get(b.id));
     const a = ready[0];
     let s = earliest(a);
@@ -145,9 +145,29 @@ export function schedule(input) {
   // each such activity grows by ceil(days * weatherLoss). It is an allowance you type, not a forecast.
   const wl = input?.weatherLoss;
   if (wl != null && !(typeof wl === "number" && wl >= 0 && wl <= 1)) return { ok: false, errors: ["weatherLoss must be a number from 0 to 1 (fraction of exposed working days lost)."] };
-  const rawActs = /** @type {Activity[]} */ (input?.activities || []);
+  const start = new Date((input.start || "2026-01-05") + "T00:00:00Z");
+  if (isNaN(start.getTime())) return { ok: false, errors: [`start "${input.start}" is not a date (YYYY-MM-DD).`] };
+  const offList = [...(input.holidays || []), ...(input.weatherDays || [])];
+  const badOff = offList.filter((/** @type {string} */ h) => isNaN(new Date(h + "T00:00:00Z").getTime()));
+  if (badOff.length) return { ok: false, errors: [`holidays and weatherDays must be YYYY-MM-DD dates; not: ${badOff.join(", ")}.`] };
+  const off = new Set(offList.map((/** @type {string} */ h) => new Date(h + "T00:00:00Z").toISOString().slice(0, 10)));
+  const date = (/** @type {number} */ n) => dateOf(start, n, off);
+  // notBefore: "YYYY-MM-DD" on an activity = start no earlier than that date (a delivery, a permit, a long-lead window order). Your date, not a forecast.
+  const nbErrors = [];
+  const toIndex = (/** @type {Date} */ t) => { let n = 0; const d = new Date(start); while (!isWork(d, off)) d.setUTCDate(d.getUTCDate() + 1); while (d < t) { d.setUTCDate(d.getUTCDate() + 1); if (isWork(d, off)) n++; } return n; };
+  const withNb = (/** @type {any} */ a) => {
+    if (a.notBefore == null) return a;
+    const t = new Date(a.notBefore + "T00:00:00Z");
+    if (typeof a.notBefore !== "string" || isNaN(t.getTime())) { nbErrors.push(`${a.id}: notBefore "${a.notBefore}" is not a date (YYYY-MM-DD).`); return a; }
+    if (t <= start) return a;
+    // first working day on or after t
+    const d = new Date(t); while (!isWork(d, off)) d.setUTCDate(d.getUTCDate() + 1);
+    return { ...a, nb: toIndex(d), derived: `${a.derived ? a.derived + "; " : ""}not before ${a.notBefore}` };
+  };
+  const rawActs = /** @type {Activity[]} */ ((input?.activities || []).map(withNb));
+  if (nbErrors.length) return { ok: false, errors: nbErrors };
   const hasMonthly = Object.keys(input?.weatherRate || {}).length > 0;
-  let acts = /** @type {Activity[]} */ ((input?.activities || []).map((/** @type {any} */ a) => !hasMonthly && wl && a.exposed && a.days > 0 ? { ...a, days: a.days + Math.ceil(a.days * wl - 1e-9), derived: `${a.derived ? a.derived + "; " : ""}+${Math.ceil(a.days * wl - 1e-9)}d weather allowance (${wl * 100}% of ${a.days}d)` } : a));
+  let acts = /** @type {Activity[]} */ (rawActs.map((/** @type {any} */ a) => !hasMonthly && wl && a.exposed && a.days > 0 ? { ...a, days: a.days + Math.ceil(a.days * wl - 1e-9), derived: `${a.derived ? a.derived + "; " : ""}+${Math.ceil(a.days * wl - 1e-9)}d weather allowance (${wl * 100}% of ${a.days}d)` } : a));
   if (input?.rateErrors?.length) return { ok: false, errors };
   if (!acts.length) return { ok: false, errors: ["The schedule has no activities."] };
   const ids = new Set();
@@ -165,13 +185,6 @@ export function schedule(input) {
   const warn = errors;
   let base = cpm(acts);
   if (base.errors.length) return { ok: false, errors: base.errors };
-  const start = new Date((input.start || "2026-01-05") + "T00:00:00Z");
-  if (isNaN(start.getTime())) return { ok: false, errors: [`start "${input.start}" is not a date (YYYY-MM-DD).`] };
-  const offList = [...(input.holidays || []), ...(input.weatherDays || [])];
-  const badOff = offList.filter((/** @type {string} */ h) => isNaN(new Date(h + "T00:00:00Z").getTime()));
-  if (badOff.length) return { ok: false, errors: [`holidays and weatherDays must be YYYY-MM-DD dates; not: ${badOff.join(", ")}.`] };
-  const off = new Set(offList.map((/** @type {string} */ h) => new Date(h + "T00:00:00Z").toISOString().slice(0, 10)));
-  const date = (/** @type {number} */ n) => dateOf(start, n, off);
   // weatherRate: { "YYYY-MM": fraction } share of working days lost that month (your figure; none shipped). It replaces the flat
   // `weatherLoss` for exposed activities: days become ceil(days / (1 - rate)) by the month the activity starts in (months not
   // listed use `weatherLoss`, else 0). A few passes settle the months, since longer activities push later ones into other months.

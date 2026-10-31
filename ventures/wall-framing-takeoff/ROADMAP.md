@@ -113,7 +113,7 @@ Ticked items are on `main`.
       backward pass, slack, cycle and unknown-predecessor errors), weekdays only, `lag`
       for cure time and inspection waits, serial greedy crew levelling, and what a
       slipped activity does to the finish date. No durations are shipped. Hand-checked
-      networks in `schedule.test.mjs`. Holidays and typed weather days landed 2026-10-29 (calendar dates only). Durations from takeoff quantities and a typed production rate landed 2026-10-31 (`per`/`rate`, CLI, hand tests). Page `schedule-calculator.html` (editable JSON, text report, bar chart; clicked in Chromium) landed 2026-10-31. Per-crew days off (`crewOff`, a resource calendar: work pauses on them, levelled dates; hand tests) landed 2026-10-31. Not yet: weather forecasts, a real builder's list and rates.
+      networks in `schedule.test.mjs`. Holidays and typed weather days landed 2026-10-29 (calendar dates only). Durations from takeoff quantities and a typed production rate landed 2026-10-31 (`per`/`rate`, CLI, hand tests). Page `schedule-calculator.html` (editable JSON, text report, bar chart; clicked in Chromium) landed 2026-10-31. Per-crew days off (`crewOff`, a resource calendar: work pauses on them, levelled dates; hand tests) landed 2026-10-31. Per-activity `notBefore` dates (start no earlier than a delivery, permit or long-lead order; hand tests, also under crew levelling) landed 2026-10-31. Not yet: weather forecasts, a real builder's list and rates.
 - [x] Bid leveling against the model's quantities (2026-10-28, `bidlevel.mjs`, CLI `--level-bids`, plan key `bids`; hand-made bids only, no real sub's bid checked, no page) (siblings:
       `bid-leveling-worksheet`, `estimate-maker`).
 
