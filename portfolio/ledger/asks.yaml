@@ -49,6 +49,10 @@
 #     driven by prompts and scheduled sessions, and "generally having api
 #     token billing running in actions is not ideal at the moment. not a
 #     permanent rule just not the current method." The workflows stay inert.
+#   - `routine-trigger-cadence`: "delete is fine". The workflow was deleted
+#     in the control-plane PR that amended `goals.md` the same day; what is
+#     left for the owner is removing the `CLAUDETRIGGERAPIKEY` secret and the
+#     routine's API trigger.
 #   - `deploy-settings`: the owner confirmed the old GitHub Pages address
 #     redirects to marisstella.app.
 # Row `print-atelier-stripe-checkout` is gone: the owner's 2026-10-15 rule
@@ -173,44 +177,6 @@ decisions:
     cannot be replayed against history. Until it clears, run the workflows'
     own commands locally before merging and say in the pull request exactly
     what was run, which is what the merges in this window have been doing.
-
-- id: routine-trigger-cadence
-  asks: []
-  prs: [788]
-  gates: deployment
-  exposure: none
-  opened: "2026-08-24"
-  # The whole row is about how often a GitHub Actions workflow fires, and a
-  # scheduled workflow is starved exactly as a dispatched one is. Deciding the
-  # cadence while nothing can run is deciding the speed of a stopped clock.
-  requires: [github-actions-runners]
-  action: >-
-    Decided 2026-10-31: delete the workflow ("delete is fine"). What is left
-    is approving the control-plane PR that deletes
-    `.github/workflows/claude-routine-trigger.yml`, then removing the
-    `CLAUDETRIGGERAPIKEY` secret and the routine's API trigger at
-    https://claude.ai/code/routines. Remove this row when that PR merges.
-  unlocks:
-    - >-
-      A 4-minute cadence for the "continue work via api" scheduled routine,
-      in place of whatever cadence currently triggers it -- at a stated cost
-      of roughly $300/month in Actions minutes plus the Claude Code cloud
-      sessions each fire starts, which the PR body says will exhaust the
-      account's daily routine-run cap at 360 fires/day.
-  blocked_by: []
-  note: >-
-    Opened 2026-08-24, PR body states it was requested directly by the
-    account owner. Correctly self-flagged human-gated in its own text per
-    CLAUDE.md's "Automation that writes or spends unattended" section --
-    this is exactly that: an unattended, spend-capable, PR-opening cadence
-    change. `permissions: {}`, no third-party actions, token passed via
-    `env:` not shell-spliced, `concurrency` with `cancel-in-progress` so
-    deferred runs can't stack. `test` and the `agent-permission-harness`
-    suite pass. The `validate` failure this row used to name -- the new
-    workflow missing from the publish-surface snapshot -- was resolved by
-    #1842's `--write` re-run; `publish_surface.py --check` reports 216
-    workflows, 0 live as of 2026-08-29, and the classification stands at
-    `none` since the job only POSTs to `api.anthropic.com`.
 
 - id: payout-rail
   asks: [2]

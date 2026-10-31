@@ -26,10 +26,10 @@ a release or an app build; there is no static-only or browser-only rule) rather 
 
 Target super-niches where users have money and a real problem — especially
 tools that help them earn more. Low variable cost, traditional software, AI
-only where it clearly helps. Payment code is allowed only off by default and on
-the deployer's own keys, never the owner's accounts (`../prompts/goals.md`,
-"Payments: never the owner's"); the owner's own instances take GitHub Sponsors
-donations only. Calculators are a poor use of a run: a new one rarely beats
+only where it clearly helps. Payment code ships off by default on the deployer's
+own keys; the owner's own instances may also sell through the owner's
+merchant-of-record hosted checkout, by a link set outside the repo, never a key
+(`../prompts/goals.md`, "Payments: the owner's merchant of record, never a key"; owner, 2026-10-31). Calculators are a poor use of a run: a new one rarely beats
 what a chatbot gives in one reply, so build depth elsewhere and fix existing
 ones only when broken; already-built calculator work can still be merged
 (owner, 2026-10-21; `../prompts/goals.md`, "Direction:

@@ -73,8 +73,9 @@ no venture has a single measured visitor. That is not the brief. So:
   milestone. The small tools stay; fix them when they break, but they are
   not where runs go.
 - **Payments.** A product may include payment code, off by default and
-  running only on the deployer's own keys from environment variables. Never
-  the owner's accounts (`prompts/goals.md`, "Payments: never the owner's").
+  running only on the deployer's own keys from environment variables. The
+  owner's own instances may link to the owner's merchant-of-record checkout;
+  no merchant key ever (`prompts/goals.md`, "Payments: the owner's merchant of record, never a key").
   Publishing to an app store stays an owner step. Building the app does not.
 - Where `DIRECTION.md`, `PRODUCT_PLAYBOOK.md`, `CLAUDE.md` or
   `session_gate.py` push toward another cheap static page, this section wins.
