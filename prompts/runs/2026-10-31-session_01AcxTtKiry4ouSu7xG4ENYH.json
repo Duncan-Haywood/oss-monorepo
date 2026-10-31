@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12151",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -33,7 +33,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Target rsu-withholding-gap-calculator/calc.mjs, 8 mutants, 5 escaped (3.. caught 3). Added 3 tests; 4 gaps now caught, 1 equivalent. No post: small guard-only run, no finding worth a reader.",
+  "notes": "Target rsu-withholding-gap-calculator/calc.mjs, 8 mutants, 5 escaped (3 caught). Added 3 tests; 4 gaps now caught, 1 equivalent. No post: small guard-only run, no finding worth a reader.",
   "corrections": [],
   "redteam": {
     "campaigns": [
