@@ -1,6 +1,6 @@
 ---
 title: "A schedule whose durations come from the takeoff"
-seo_title: "Construction schedule from quantities: duration = quantity / production rate"
+seo_title: "Construction schedule duration = quantity / production rate"
 date: 2026-10-31
 tags: [construction, scheduling, wall-framing-takeoff]
 description: "The wall-framing takeoff can now size schedule activities from its own counts: days = quantity divided by a production rate you type."
