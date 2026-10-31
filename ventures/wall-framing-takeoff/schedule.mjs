@@ -242,6 +242,25 @@ export function schedule(input) {
     const daysLate = (lv.end - 1) - idx;
     deadline = { deadline: input.deadline, daysLate, ...(carry != null && daysLate > 0 ? { lateCost: daysLate * carry } : {}) };
   }
+  // cost: dollars you type on an activity (quote, labor + material). Spread evenly over its levelled working days and summed by
+  // calendar month, so a lender's draw schedule or cash-flow need can be read off. Nothing is priced by this tool.
+  let cashFlow = null;
+  const costed = acts.filter((/** @type {any} */ a) => a.cost != null);
+  const badCost = costed.filter((/** @type {any} */ a) => !(typeof a.cost === "number" && Number.isFinite(a.cost) && a.cost >= 0));
+  if (badCost.length) return { ok: false, errors: badCost.map((/** @type {any} */ a) => `${a.id}: cost must be a number of dollars, zero or more.`) };
+  if (costed.length) {
+    /** @type {Map<string, number>} */ const byMonth = new Map();
+    for (const a of /** @type {any[]} */ (costed)) {
+      const st = /** @type {number} */ (lv.start.get(a.id)), fin = /** @type {number} */ (lv.finish.get(a.id));
+      const n = Math.max(1, fin - st);
+      for (let i = st; i < st + n; i++) { const m = date(i).slice(0, 7); byMonth.set(m, (byMonth.get(m) || 0) + a.cost / n); }
+    }
+    let cum = 0;
+    const months = [...byMonth.keys()].sort().map((m) => { const spend = Math.round(/** @type {number} */ (byMonth.get(m)) * 100) / 100; cum = Math.round((cum + spend) * 100) / 100; return { month: m, spend, cumulative: cum }; });
+    const total = Math.round(costed.reduce((t, /** @type {any} */ a) => t + a.cost, 0) * 100) / 100;
+    if (months.length) months[months.length - 1].cumulative = total;
+    cashFlow = { total, months, peakMonth: months.reduce((b, x) => (x.spend > b.spend ? x : b), months[0]).month };
+  }
   // What a slip does: re-run with the extra days added and compare the finish.
   const slips = (input.slips || []).map((/** @type {{ id: string, days: number }} */ sl) => {
     if (!ids.has(sl.id)) return { id: sl.id, days: sl.days, error: "not an activity" };
@@ -257,6 +276,7 @@ export function schedule(input) {
     criticalPath: rows.filter((r) => r.critical).sort((a, b) => a.es - b.es).map((r) => r.id),
     rows, slips,
     ...(deadline ? { deadline } : {}),
+    ...(cashFlow ? { cashFlow } : {}),
     ...(carry != null ? { carryPerDay: carry, carryTotal: lv.end * carry } : {}),
   };
 }
@@ -268,6 +288,7 @@ export function scheduleText(s) {
   out.push(`  Critical path: ${s.criticalPath.join(" -> ")}`);
   for (const r of s.rows.slice().sort((/** @type {any} */ a, /** @type {any} */ b) => a.leveledStart - b.leveledStart)) out.push(`  ${r.critical ? "*" : " "} ${r.id.padEnd(12)} ${String(r.days).padStart(3)}d  ${r.startDate} to ${r.finishDate}  slack ${r.slack}${r.crew ? `  [${r.crew}]` : ""}  ${r.name}${r.derived ? `  (${r.derived})` : ""}`);
   for (const sl of s.slips) out.push(sl.error ? `  Slip ${sl.id}: ${sl.error}` : `  A ${sl.days}-day slip on ${sl.id} moves the finish ${sl.finishShift} day(s) (${sl.leveledFinishShift} with crews), to ${sl.newFinishDate}${sl.carryCost != null ? `, which costs $${sl.carryCost.toLocaleString("en-US")} at your $${s.carryPerDay.toLocaleString("en-US")} per day` : ""}.`);
+  if (s.cashFlow) { out.push(`  Spend by month (your activity costs, spread over each activity's days): total $${s.cashFlow.total.toLocaleString("en-US")}, heaviest month ${s.cashFlow.peakMonth}.`); for (const m of s.cashFlow.months) out.push(`    ${m.month}  $${m.spend.toLocaleString("en-US")}  (to date $${m.cumulative.toLocaleString("en-US")})`); }
   if (s.carryTotal != null) out.push(`  Carrying cost: $${s.carryTotal.toLocaleString("en-US")} for ${s.leveledDays} working days at your $${s.carryPerDay.toLocaleString("en-US")} per day.`);
   if (s.deadline) { const d = s.deadline; out.push(`  Deadline ${d.deadline}: ${d.daysLate > 0 ? `${d.daysLate} working day(s) late with your crews${d.lateCost != null ? `, ${"$" + d.lateCost.toLocaleString("en-US")} at your carrying cost` : ""}` : d.daysLate < 0 ? `${-d.daysLate} working day(s) to spare` : "met with no spare day"}.`); }
   for (const w of s.warnings) out.push(`  note: ${w}`);
@@ -283,6 +304,7 @@ export function scheduleCsv(s) {
   const rows = [["id", "name", "crew", "days", "start", "finish", "slack", "critical", "note"],
     ...s.rows.slice().sort((/** @type {any} */ a, /** @type {any} */ b) => a.leveledStart - b.leveledStart || a.es - b.es).map((/** @type {any} */ r) => [r.id, r.name ?? "", r.crew ?? "", r.days, r.startDate, r.finishDate, r.slack, r.critical ? "yes" : "no", r.derived ?? ""])];
   for (const sl of s.slips) rows.push(["slip:" + sl.id, "", "", sl.days, "", sl.newFinishDate ?? "", "", "", sl.error ?? `finish moves ${sl.leveledFinishShift} day(s) with crews${sl.carryCost != null ? `, carry $${sl.carryCost}` : ""}`]);
+  if (s.cashFlow) for (const m of s.cashFlow.months) rows.push(["spend:" + m.month, "", "", "", "", "", "", "", `spend ${m.spend}; to date ${m.cumulative}`]);
   return rows.map((r) => r.map(q).join(",")).join("\n") + "\n";
 }
 
