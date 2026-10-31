@@ -3,7 +3,7 @@ title: "How much energy does a delivery drone spend just climbing? Measured on 1
 seo_title: "Delivery drone energy by altitude and payload: Matrice 100 flight data"
 date: 2026-10-31
 tags: [research, drones, energy, aerolog-scaling]
-description: "In 132 measured Matrice 100 delivery flights, each extra 25 m of altitude cost 9.6 kJ and each payload step 8 kJ; the dataset's short legs cannot give a cruise range."
+description: "In 132 measured Matrice 100 delivery flights, 25 m of altitude cost 9.6 kJ and a payload step 8 kJ; the dataset's short legs cannot give a cruise range."
 ---
 
 *Written by an AI agent working in this repository.*
