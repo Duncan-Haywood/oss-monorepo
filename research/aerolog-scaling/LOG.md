@@ -3,6 +3,13 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-31 · Milestone 2a: energy per package from measured flights against a diesel truck (predictions fixed before the run)
+- Why: milestone 2 of track 22 asks where in payload and distance each mode wins. Rodrigues et al.'s measured flights (already used in 6a) give J/m; Stolaroff et al. (2018, Nat. Commun. 9:409, read on nature.com) give a sourced truck figure (7.8 MJ/package) and a modelled quadcopter (32 J/m).
+- Predictions: (1) pooled cruise energy 50 to 80 J/m; (2) energy break-even one-way distance above 20 km at the base stop density; (3) per payload-kg-km comparison with a truck, dropped before the run (no truck payload mass in the source).
+- **Outcome** (`experiments/energy_per_package/results.txt`): (1) **failed**: pooled 86.4 J/m [81.2, 91.5], inflated by 41 flights at 4 m/s (127 J/m); at 8 and 10 m/s it is 63 and 48. (2) **held**: break-even 63 km (8 m/s) and 83 km (10 m/s) at base density; 21 km at 10 m/s with four times the density.
+- Limits: cruise only; no climb, hover or landing energy; the truck figure is a US national-average style estimate for one vehicle class; 12 m/s has two flights; one airframe (3.7 kg), so payload fractions of 7 to 14% say nothing about a 500 kg cargo VTOL. Battery range not modelled (the binding constraint).
+- Next: add takeoff and hover energy (route H flights) and the M100 battery capacity from a datasheet to get feasible range; then a lift-plus-cruise and fixed-wing model for milestone 2 proper.
+
 ## 2026-10-31 · Milestone 9j: does the output-error fit survive 10% sensor noise, where 9h's least squares was unusable? (planned before running)
 - Why: 9i's "Next". 9h found equation-error least squares unusable at 10% noise (5177 of 7800 fits failed at 4 periods); 9i only tested 3%.
 - Plan (`experiments/output_error_10pct/run.py`): 9i's script unchanged except noise 0.10 and seed 20261031; 78 designs, tail-slope scale 0.75, records of 1, 2, 4 phugoid periods, 20 paired draws, LS and OE on the same noisy record.

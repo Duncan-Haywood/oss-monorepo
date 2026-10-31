@@ -91,6 +91,16 @@ frequency and about -10% damping. The shift is the same in every case, including
 (+15%): it comes from the tail, whose Reynolds number is 1.7e5 at n = 0.2, not from the wing. So wing-only corrections
 fix power but not the short period; the next step searches the tail (7d). NeuralFoil slope at that Re is unchecked.
 
+**Energy per package against a diesel truck (milestone 2a, `experiments/energy_per_package/`).** On the same 134 Matrice 100
+cruise flights, electrical energy per metre falls steeply with speed: 127 J/m at 4 m/s, 63 at 8, 48 at 10 (bootstrap CIs over
+flights in `results.txt`). Costing a round trip (loaded out, empty back) at 8 and 10 m/s and comparing it with Stolaroff et al.'s
+(2018) diesel truck (7.8 MJ per package, 151 packages per 100 miles), the drone uses less energy than the truck out to a
+**one-way distance of 63 km at 8 m/s and 83 km at 10 m/s at Stolaroff's stop density** (31 and 41 km at twice the density, 16 and 21 km at four times). This counts
+cruise only (no takeoff, landing or hover), so it flatters the drone, and the M100's endurance is far shorter than these distances:
+range, not energy per package, is what limits a battery multicopter, as Stolaroff et al. found (about 4 km). The
+pooled mean (86 J/m, 2.7 times Stolaroff's modelled 32 J/m for a different quadcopter) is not a result: 41 of 134 flights are at
+4 m/s. Prediction 1 (50 to 80 J/m pooled) failed for that reason.
+
 ## Limitations
 
 Flat-plate drag with a form factor, no airfoil polars, no CLmax, fixed powertrain efficiency (which
