@@ -22,21 +22,21 @@ export const CARD_HEIGHT = 630;
 const MARGIN = 72;
 
 // The hero's palette (build.mjs, "Motion and imagery").
-const NIGHT = [8, 13, 26];
-const DEEP = [16, 32, 74];
-const TEAL = [127, 227, 198];
-const INDIGO = [142, 162, 255];
-const ORCHID = [227, 155, 255];
+const NIGHT = [11, 22, 38];
+const DEEP = [20, 42, 74];
+const TEAL = [168, 199, 240];
+const INDIGO = [180, 198, 222];
+const ORCHID = [223, 232, 245];
 const INK = [238, 242, 248];
 const MUTED = [182, 194, 211];
-const GRID = [140, 170, 255];
+const GRID = [150, 175, 210];
 
 // The mark's own gradient, as the site header draws it (`--pfs-mark`).
-export const MARK_FROM = [18, 89, 74];
-export const MARK_TO = [59, 91, 219];
+export const MARK_FROM = [31, 78, 140];
+export const MARK_TO = [58, 110, 165];
 
 export const hexToRgb = (hex) => {
-  const h = String(hex || '#12594a').replace('#', '');
+  const h = String(hex || '#1f4e8c').replace('#', '');
   const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h.padEnd(6, '0').slice(0, 6);
   return [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16) || 0);
 };
@@ -420,7 +420,7 @@ function heroPaint(x0, x1) {
  *   highlight words of the headline painted in the hero's gradient
  */
 export function renderCard({
-  accent = '#12594a',
+  accent = '#1f4e8c',
   headline = '',
   kicker = '',
   subtitle = '',
@@ -573,7 +573,7 @@ export function renderCard({
  */
 export function renderSiteCard({ address = '', subtitle = '', footer = '', site } = {}) {
   return renderCard({
-    accent: '#3b5bdb',
+    accent: '#3a6ea5',
     headline: 'Software and research that anyone can use, inspect, and run themselves.',
     highlight: 'use, inspect, and run',
     kicker: 'Open source · MIT licensed · Built in public',

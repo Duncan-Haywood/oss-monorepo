@@ -5745,12 +5745,12 @@ const CATEGORY_STYLE = `
     :root {
       color-scheme: light dark;
       --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
-      --line: #d3dce6; --accent: #12594a; --soft: #656e78;
+      --line: #d3dce6; --accent: #1f4e8c; --soft: #656e78;
       font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     }
     @media (prefers-color-scheme: dark) {
       :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
-              --line: #2a343f; --accent: #7fd8c0; --soft: #8d9aab; }
+              --line: #2a343f; --accent: #9dbfe8; --soft: #8d9aab; }
     }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--ink); }
@@ -6411,7 +6411,7 @@ const TOOLS_INDEX_STYLE = `
     .cats { align-items: start; }
     .cat { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 17px 18px;
            transition: transform .18s, box-shadow .18s, border-color .18s; }
-    .cat { border-top: 3px solid var(--pf-cat, #1fb68f); }
+    .cat { border-top: 3px solid var(--pf-cat, #1f4e8c); }
     .cat:hover, .cat:focus-within { transform: translateY(-2px); border-color: var(--pf-cat, var(--accent));
                                     box-shadow: 0 10px 28px rgba(20, 30, 60, .10); }
     .cat h2 { font-size: 1.1rem; margin: 0 0 6px; letter-spacing: -.01em; }
@@ -7973,7 +7973,7 @@ export function renderHub(
     :root {
       color-scheme: light dark;
       --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
-      --line: #d3dce6; --accent: #12594a; --accent-ink: #f2f8f5;
+      --line: #d3dce6; --accent: #1f4e8c; --accent-ink: #f3f6fb;
       /* One step quieter than --muted, and the quietest ink on this page.
          It exists because the de-emphasis it provides used to be spelled as an
          opacity, which is not a colour and therefore cannot be checked:
@@ -7981,13 +7981,13 @@ export function renderHub(
          4.5:1 WCAG AA needs for body-size text. Naming the tint makes it a
          value contrast.mjs can measure. */
       --soft: #656e78;
-      --hero-2: #3b5bdb;
+      --hero-2: #3a6ea5;
       font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
     }
     @media (prefers-color-scheme: dark) {
       :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
-              --line: #2a343f; --accent: #7fd8c0; --accent-ink: #0d1319;
-              --soft: #8d9aab; --hero-2: #8ea2ff; }
+              --line: #2a343f; --accent: #9dbfe8; --accent-ink: #0d1319;
+              --soft: #8d9aab; --hero-2: #b4c6de; }
     }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; }
@@ -9336,7 +9336,7 @@ body:has(> .pf-chrome-top[data-pfs-head]:first-child){padding-top:0;margin-top:0
   box-shadow:0 0 0 100vmax var(--pfs-head-bg,rgba(128,128,128,.07));clip-path:inset(0 -100vmax)}
 .pf-chrome-top .pfs-bar{padding:12px 0}
 .pf-chrome-top .pfs-crumbs{padding:0 0 10px}
-.pf-chrome-top .pfs-mark{background:linear-gradient(135deg,#12594a,#3b5bdb)}
+.pf-chrome-top .pfs-mark{background:linear-gradient(135deg,#1f4e8c,#3a6ea5)}
 .pf-chrome-top .pfs-searchlink{padding:4px 14px;border:1px solid var(--pf-line);border-radius:999px}
 [data-pfs-head].pf-chrome-top .pfs-searchlink:hover{text-decoration:none;border-color:currentColor}
 /* The shop-rates and saved-bids bars (rates.mjs, jobs.mjs) sit under the band
@@ -10888,9 +10888,9 @@ export function renderNotFound(baseUrl) {
   <title>Not found</title>
   ${siteStyleLink(baseUrl)}
   <style>
-    :root { --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666; --line: #d3dce6; --accent: #12594a; }
+    :root { --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666; --line: #d3dce6; --accent: #1f4e8c; }
     @media (prefers-color-scheme: dark) {
-      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0; --line: #2a343f; --accent: #7fd8c0; }
+      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0; --line: #2a343f; --accent: #9dbfe8; }
     }
     body { font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; margin: 0; line-height: 1.6;
            color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; }
@@ -10898,7 +10898,7 @@ export function renderNotFound(baseUrl) {
     .nf h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.08; margin: 0 0 12px; }
     .nf .lede { font-size: 1.08rem; margin: 0 0 22px; }
     .code { font: 700 clamp(4.5rem, 14vw, 7.5rem)/1 "Inter", system-ui, sans-serif; letter-spacing: -.06em; margin: 0 0 4px;
-            background: linear-gradient(100deg, #7fe3c6, #8ea2ff 55%, #c79bff); -webkit-background-clip: text;
+            background: linear-gradient(100deg, #a8c7f0, #b4c6de 55%, #dfe8f5); -webkit-background-clip: text;
             background-clip: text; color: transparent; }
     .nf-search { display: flex; gap: 8px; max-width: 34rem; }
     .nf-search input { flex: 1 1 auto; min-width: 0; font: inherit; padding: 11px 14px; border-radius: 12px;
