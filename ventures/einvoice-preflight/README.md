@@ -37,6 +37,13 @@ shipped example PDFs have no XMP, so they draw PDF-001. Not run on a real
 Mustang, Ghostscript or Acrobat export, and not a PDF/A validator (veraPDF unrun).
 The browser page and the Node CLI/server get these; the Python CLI does not yet.
 
+**Two more envelope notes (2026-10-31).** PDF-005 (the embedded file's stream has
+no `/Subtype`, the MIME type PDF/A-3 requires, `/text#2Fxml` for XML) and PDF-006
+(the document catalog has no `/AF` array; read only when the catalog is in plain
+text, so a catalog packed in a compressed object stream draws nothing). Both are
+notes. Tested on hand-built PDFs only, same limits as PDF-001..004. The "page
+button for PDFs" item was already done: the page runs these on any dropped PDF.
+
 **XRechnung profile (Germany).** Tick "Also apply the German XRechnung rules"
 on the page, or call the API with `POST /v1/validate?profile=xrechnung`, to add
 nine `XR-001`..`XR-009` rules that mirror the BR-DE business rules a German
