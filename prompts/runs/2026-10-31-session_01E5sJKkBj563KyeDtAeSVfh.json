@@ -45,7 +45,7 @@
       "result": "fine"
     }
   ],
-  "writeups": "none",
+  "writeups": [],
   "goal": null,
   "notes": "Creative track, Saints by Candlelight episode 62 (philip-and-the-traveller-on-the-gaza-road), text only (audio 423 MB > 400 MB cap). First route drew review but PR #12026 had already claimed it, so re-routed with --skip-review. security-alerts branch missing, step 0 skipped.",
   "corrections": [],
