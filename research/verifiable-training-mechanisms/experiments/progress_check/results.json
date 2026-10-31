@@ -1,0 +1,69 @@
+{
+ "d": 32,
+ "N": 10,
+ "R": 1.05,
+ "n": 20,
+ "cells": {
+  "stall_T10": {
+   "n": 4,
+   "harmful": 0,
+   "flagged_ever": 0,
+   "flagged_by_window_end": 0,
+   "median_evals_to_flag": null,
+   "unflagged": 4,
+   "harmful_unflagged": 0,
+   "median_dL": 0.0024242401123046875
+  },
+  "stall_T50": {
+   "n": 4,
+   "harmful": 2,
+   "flagged_ever": 1,
+   "flagged_by_window_end": 1,
+   "median_evals_to_flag": 2.0,
+   "unflagged": 3,
+   "harmful_unflagged": 1,
+   "median_dL": 0.014112710952758789
+  },
+  "stall_T200": {
+   "n": 4,
+   "harmful": 4,
+   "flagged_ever": 2,
+   "flagged_by_window_end": 2,
+   "median_evals_to_flag": 9.5,
+   "unflagged": 2,
+   "harmful_unflagged": 2,
+   "median_dL": 0.06756699085235596
+  },
+  "ascent_T10": {
+   "n": 4,
+   "harmful": 2,
+   "flagged_ever": 3,
+   "flagged_by_window_end": 3,
+   "median_evals_to_flag": 0.0,
+   "unflagged": 1,
+   "harmful_unflagged": 0,
+   "median_dL": 0.00720059871673584
+  },
+  "ascent_T50": {
+   "n": 4,
+   "harmful": 3,
+   "flagged_ever": 3,
+   "flagged_by_window_end": 3,
+   "median_evals_to_flag": 0.0,
+   "unflagged": 1,
+   "harmful_unflagged": 1,
+   "median_dL": 0.04177665710449219
+  },
+  "ascent_T200": {
+   "n": 4,
+   "harmful": 4,
+   "flagged_ever": 4,
+   "flagged_by_window_end": 4,
+   "median_evals_to_flag": 0.0,
+   "unflagged": 0,
+   "harmful_unflagged": 0,
+   "median_dL": 0.3851926326751709
+  }
+ },
+ "honest_flag_eval": 0.0
+}
