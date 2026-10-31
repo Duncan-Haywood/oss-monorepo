@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/duncan-haywood/oss-monorepo/pull/11943",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -31,7 +31,10 @@
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [
-    "prompt route drew the research track; the scheduled task asked for revenue products, so I did ventures work on the top flagship"
+    {
+      "file": "prompt.md",
+      "why": "prompt route drew the research track; the scheduled task asked for revenue products, so I did ventures work on the top flagship"
+    }
   ],
   "writeups": [
     "docs/posts/2026-10-30-ai-bookkeeper-ninth-gap-probe.md"
