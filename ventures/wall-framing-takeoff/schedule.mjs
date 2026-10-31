@@ -7,8 +7,8 @@
 // `lag` is working days of waiting after predecessors finish (cure time, an
 // inspection booking). Weekends are skipped (Mon-Fri working days); `holidays` is
 // an optional list of YYYY-MM-DD dates (yours; none are shipped) that are skipped
-// too, as are `weatherDays` (dates the crew will not work, same format). Weather
-// itself is not forecast. Crew levelling is a serial greedy pass (earliest start, ties by
+// too, as are `weatherDays` (dates the crew will not work, same format). `weatherLoss` (0 to 1) adds
+// ceil(days * loss) to activities marked `exposed: true`. Weather itself is not forecast. Crew levelling is a serial greedy pass (earliest start, ties by
 // least slack); it is a heuristic, not an optimal resource schedule.
 
 /** @typedef {{ id: string, name?: string, days: number, after?: string[], crew?: string, lag?: number }} Activity */
@@ -141,7 +141,11 @@ export function resolveRates(input, result) {
 /** @param {any} input the plan's `schedule` object */
 export function schedule(input) {
   const errors = [...(input?.rateErrors || [])];
-  const acts = /** @type {Activity[]} */ (input?.activities || []);
+  // weatherLoss: a fraction (your figure, 0 to 1) of working days lost to weather on activities marked `exposed: true`;
+  // each such activity grows by ceil(days * weatherLoss). It is an allowance you type, not a forecast.
+  const wl = input?.weatherLoss;
+  if (wl != null && !(typeof wl === "number" && wl >= 0 && wl <= 1)) return { ok: false, errors: ["weatherLoss must be a number from 0 to 1 (fraction of exposed working days lost)."] };
+  const acts = /** @type {Activity[]} */ ((input?.activities || []).map((/** @type {any} */ a) => wl && a.exposed && a.days > 0 ? { ...a, days: a.days + Math.ceil(a.days * wl - 1e-9), derived: `${a.derived ? a.derived + "; " : ""}+${Math.ceil(a.days * wl - 1e-9)}d weather allowance (${wl * 100}% of ${a.days}d)` } : a));
   if (input?.rateErrors?.length) return { ok: false, errors };
   if (!acts.length) return { ok: false, errors: ["The schedule has no activities."] };
   const ids = new Set();
