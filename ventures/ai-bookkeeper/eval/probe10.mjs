@@ -1,10 +1,10 @@
-// Gap probe 9 (2026-10-30): descriptors in the shapes US banks print, for businesses probes 1 to 8
+// Gap probe 10 (2026-10-30): descriptors in the shapes US banks print, for businesses probes 1 to 9
 // did not cover: cottage bakers, drone pilots, locksmiths, streamers, locum clinicians.
 // Agent-written from public company names, not from a real export. Expected accounts were fixed
 // before the first run, to the repo's conventions (supply houses 6100, software 6060, dues and
 // training 6170, licences and permits 6110, insurance 6030, platform fees 6000).
 // After the first run I dropped Elgato and B&H Photo, which an older creator test pins to 6070.
-// Usage: node eval/probe9.mjs [--misses]
+// Usage: node eval/probe10.mjs [--misses]
 import { suggest, trainClassifier } from "../categorize.mjs";
 export const PROBE = [
   // cottage bakers

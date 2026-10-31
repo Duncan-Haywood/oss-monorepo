@@ -34,7 +34,7 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
-  // Gap probe 9 (2026-10-30, eval/probe9.mjs): cottage bakers, drone pilots, locksmiths, streamers, locum clinicians.
+  // Gap probe 10 (2026-10-30, eval/probe10.mjs): cottage bakers, drone pilots, locksmiths, streamers, locum clinicians.
   // First in the list: Elgato and B&H were filed as postage, a farmers-market booth fee as platform fees.
   ["6100", "out", /sugar art supply|costco business center|\bdji\b|battery barn|hillman group|southern lock|keyless entry/],
   ["6110", "out", /farmers market booth|faa dronezone|laanc|locksmith license|medical license|nurse license|\bdea registration/],

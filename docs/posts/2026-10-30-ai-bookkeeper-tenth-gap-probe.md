@@ -3,7 +3,7 @@ title: "Bookkeeping rules for cottage bakers, drone pilots, locksmiths, streamer
 seo_title: "Bank-line categories for bakers, drone pilots and locums"
 date: 2026-10-30
 tags: [ai-bookkeeper, categorization, evaluation]
-description: "A ninth probe of 50 made-up bank descriptors: 22 right before new rules, 50 after. Two lines were dropped because an older test disagreed."
+description: "A tenth probe of 50 made-up bank descriptors: 22 right before new rules, 50 after. Two lines were dropped because an older test disagreed."
 ---
 
 The [AI bookkeeper](https://duncan-haywood.github.io/oss-monorepo/ai-bookkeeper/) files bank lines with built-in keyword rules before any learning happens. To find where they are thin, we write descriptors for a kind of business not yet covered and count what the rules do with them.
