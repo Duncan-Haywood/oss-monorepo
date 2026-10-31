@@ -3,6 +3,19 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-31 · Milestone 2b: how much of a measured Matrice 100 flight is not cruise, and what one-way range does a battery buy? (predictions fixed before the run)
+- Why: 2a's "Next". Its cruise-only J/m flatters the drone and says nothing about battery range, the binding limit.
+- Plan (`experiments/mission_energy/run.py`): integrate V x I over each of the 134 route flights; split energy into the cruise window (as 2a) and the rest; regress whole-flight energy on cruise distance per speed (intercept = fixed energy, slope = J/m); range from one TB48D pack (129.96 Wh, retailer listing, not a DJI page) at 80% usable.
+- **Predictions (before running):** (1) non-cruise energy is 10 to 30% of a flight; (2) whole-flight J/m at 8 m/s is at least 20% above cruise-only; (3) one pack gives under 10 km one way, loaded round trip at 8 m/s.
+
+### Outcome of 2b (`experiments/mission_energy/results.txt`)
+- **(1) failed:** non-cruise share is 77.4% [73.8, 80.8] (49% at 4 m/s, 95% at 8 m/s, 97% at 10 m/s). The legs are short (mean path 467 m, 199 s; cruise window 30 to 149 m at 8 m/s), so these flights are mostly climb, hover and acceleration. Mean non-cruise power 381 W.
+- **(2) held, by far:** 153.8 against 60.1 J/m at 8 m/s (2.56x).
+- **(3) held, trivially:** one-way range with one pack at 80% usable is 0.94 to 1.08 km from the regression (E0 64 kJ, slope 113 J/m at 8 m/s) and 2.0 to 2.9 km if the cruise-only slope (60, 44 J/m) is combined with the same fixed energy. Two packs: 2.3 to 2.7 km (regression).
+- Reading: the 2a break-even distances (63 to 83 km) are an energy-per-metre result for a drone with unlimited battery; for this airframe the pack allows about 1 to 3 km one way, so the Matrice 100 cannot make the comparison the 2a numbers suggest. The binding constraint is battery energy, as 2a guessed.
+- Limits: the regression slope absorbs acceleration and braking and extrapolates from cruise distances under 150 m to kilometres (uncertain by about a factor of 2, hence the bracket); E0 is nearly all the data's fixed climb and hover, set by the experiment's altitude (25 or 50 m, not separated here); pack capacity from a retailer and the number of packs the study flew is not checked; 80% usable is an assumption; one 3.7 kg airframe, not a 500 kg cargo aircraft.
+- Next: separate altitude (25 vs 50 m) in E0; a lift-plus-cruise and fixed-wing sizing model with the Froude table for the cargo-class question in milestone 2 proper; check the pack count in Rodrigues et al.
+
 ## 2026-10-31 · Milestone 2a: energy per package from measured flights against a diesel truck (predictions fixed before the run)
 - Why: milestone 2 of track 22 asks where in payload and distance each mode wins. Rodrigues et al.'s measured flights (already used in 6a) give J/m; Stolaroff et al. (2018, Nat. Commun. 9:409, read on nature.com) give a sourced truck figure (7.8 MJ/package) and a modelled quadcopter (32 J/m).
 - Predictions: (1) pooled cruise energy 50 to 80 J/m; (2) energy break-even one-way distance above 20 km at the base stop density; (3) per payload-kg-km comparison with a truck, dropped before the run (no truck payload mass in the source).
