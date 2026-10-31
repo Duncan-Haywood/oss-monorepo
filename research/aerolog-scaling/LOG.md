@@ -9,6 +9,14 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - **Predictions (before running):** (1) OE median short-period frequency error at 10% noise stays under 2% at every record length (prior 70%). (2) OE share of draws within 10% gust at 4 periods is at least 70% (prior 60%). (3) LS is worse than OE on short-period error by at least a factor of 5 at every record length (prior 85%). Refuted: (1) any length at or above 2%; (2) below 70%; (3) a length with a ratio under 5.
 - Limits known in advance: as 9i (known initial state, white noise, one scale); different seeds from 9i, so the 3% and 10% rows are not paired draws.
 
+### Outcome of 9j (`experiments/output_error_fit_10pct/`: `run.py`, `results.txt`; records of 1 and 2 phugoid periods only)
+- The 4-period run was started twice and did not finish (once lost to a container restart, once stopped at the 2-hour background limit), so 4 periods is **not run** and is not reported.
+- Median error in short-period frequency, LS then OE: 19.1% then 0.68% (1 period), 52.6% then 0.69% (2). Damping ratio: 14.95 then 1.32%, 34.8 then 1.44%. Share of draws within 10% gust: LS 59%, 37%; OE 85%, 84%. Designs with 90% of draws within 10% gust: LS 0 and 0 of 78; OE 57 and 55 of 78. OE fit failures: 0 of 1560 and 4 of 1560.
+- **(1) held for 1 and 2 periods** (0.68%, 0.69%, both under 2%); 4 periods untested. **(3) held for 1 and 2 periods** (ratios 28 and 76); 4 untested. **(2) untested** (it concerns 4 periods; the 1 and 2 period shares, 85% and 84%, are above the 70% bar).
+- Reading: at 10% noise least squares is unusable (frequency error 19 to 53%, and worse with a longer record, as in 9h), while the output-error fit keeps frequency within 0.7% and damping within 1.5%. The gust share falls to 84-85% (from 86-87% at 3%) and designs reaching the 90% bar fall from 67 to 55-57 of 78, so noise costs something at the design level even though the identification stays good.
+- Limits: as planned, plus 4 periods missing and 4 OE fit failures at 2 periods.
+- Next: rerun 4 periods alone (longer limit); estimated initial state and turbulence; windowed fit; real IMU noise density.
+
 ## 2026-10-30 · Milestone 9i: does an output-error fit beat 9h's equation-error least squares on the same noisy free response? (planned before running)
 - Why: 9h's "Next". Its least-squares floor got worse with longer records because noise in the regressors biases the transition matrix.
 - Plan (`experiments/output_error_fit/run.py`): 9h's 78 designs, true tail-slope scale 0.75, 3% channel noise, records of 1, 2, 4 phugoid periods, 20 paired draws per design. Both estimators see the same noisy record: LS as in 9h, and an output-error fit (Levenberg-Marquardt on the 16 entries of the continuous A, simulated from the known initial state, started at the log of the LS transition matrix). f is picked and scored as in 9f and 9h.

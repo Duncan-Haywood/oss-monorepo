@@ -1,6 +1,6 @@
 noise (0.1,) of channel rms, records (1,) phugoid periods, 20 draws per design and scale; scales (0.75,)
-78 mode-matched designs
-
 estimator | noise | periods | scale | fit failures | median |err| ph, sp, zeta (%) | median worst gust error | share of draws within 10% gust | designs with >=90% within 10% | median worst mode error
 LS | 0.10 | 1 | 0.75 | 0 of 1560 | 1.63, 19.12, 14.95 | 8.6% | 59% | 0 of 78 | 5.2%
 OE | 0.10 | 1 | 0.75 | 0 of 1560 | 0.22, 0.68, 1.32 | 5.2% | 85% | 57 of 78 | 3.1%
+LS | 0.10 | 2 | 0.75 | 0 of 1560 | 0.81, 52.57, 34.79 | 12.4% | 37% | 0 of 78 | 8.1%
+OE | 0.10 | 2 | 0.75 | 4 of 1560 | 0.07, 0.69, 1.44 | 5.3% | 84% | 55 of 78 | 3.1%
