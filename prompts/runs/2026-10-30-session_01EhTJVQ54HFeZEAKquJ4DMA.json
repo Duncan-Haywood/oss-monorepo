@@ -1,43 +1,68 @@
 {
-  "date": "2026-10-30",
-  "session": "https://claude.ai/code/session_01EhTJVQ54HFeZEAKquJ4DMA",
-  "track": "ventures",
-  "prompt_version": 1,
-  "input": "scheduled: continue work on the repo to develop, deploy, market and sell revenue-generating products",
-  "input_sha256": null,
-  "follow_up_inputs": [],
-  "model": "claude-sonnet-5-5",
-  "models_seen": [],
-  "started": null,
-  "ended": "2026-10-30T23:59:00Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
-  "repo": null,
-  "commits": [],
-  "lines_added": null,
-  "lines_removed": null,
-  "merged": null,
-  "ci_failures_before_green": null,
-  "review_findings": null,
-  "tests_added": null,
-  "outcome": "success",
-  "errors": [],
-  "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [
+ "date": "2026-10-30",
+ "session": "https://claude.ai/code/session_01EhTJVQ54HFeZEAKquJ4DMA",
+ "track": "ventures",
+ "prompt_version": 1,
+ "input": "scheduled: continue work on the repo to develop, deploy, market and sell revenue-generating products",
+ "input_sha256": null,
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-30T23:59:00Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": 11943,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [],
+ "deviations": [
+  {
+   "file": "prompt.md",
+   "why": "prompt route drew the research track; the scheduled task asked for revenue products, so I did ventures work on the top flagship"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-10-30-ai-bookkeeper-ninth-gap-probe.md"
+ ],
+ "goal": null,
+ "notes": "Ninth keyword gap probe; full ai-bookkeeper suite 2120 pass, 0 fail. flagships next not rewritten (probe pattern already described).",
+ "corrections": [
+  {
+   "date": "2026-10-31",
+   "field": "pr",
+   "from": null,
+   "to": 11943,
+   "why": "commit cf72671a on main is PR 11943, which added this record; promptctl validate failed on main without it"
+  },
+  {
+   "date": "2026-10-31",
+   "field": "deviations",
+   "from": [
     "prompt route drew the research track; the scheduled task asked for revenue products, so I did ventures work on the top flagship"
-  ],
-  "writeups": [
-    "docs/posts/2026-10-30-ai-bookkeeper-ninth-gap-probe.md"
-  ],
-  "goal": null,
-  "notes": "Ninth keyword gap probe; full ai-bookkeeper suite 2120 pass, 0 fail. flagships next not rewritten (probe pattern already described).",
-  "corrections": [],
-  "redteam": null
+   ],
+   "to": [
+    {
+     "file": "prompt.md",
+     "why": "prompt route drew the research track; the scheduled task asked for revenue products, so I did ventures work on the top flagship"
+    }
+   ],
+   "why": "validator needs {file, why} entries; the text is unchanged"
+  }
+ ],
+ "redteam": null
 }
