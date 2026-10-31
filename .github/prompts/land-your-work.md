@@ -23,12 +23,6 @@ record's `deviations`.
 step below. How to load them, and what an HTTP 500 from
 `create_pull_request` means, is in [`cloud-session.md`](cloud-session.md).
 
-## Why this has its own prompt
-
-Work gets dropped between `git push` and opening the PR (2026-10-05: 100
-branches, four of them finished ventures, never got one), and every guard here
-runs on a PR or on `main`.
-
 ## The finish line, in this order
 
 1. **Commit** everything you mean to keep. Scratch files go outside the repo.
@@ -121,7 +115,7 @@ These are **not** reasons:
 - **Another session may be doing the same thing.** Check open PRs and run
   `python3 platform/ci/slug_dupe.py <slug>` (exit 1: already on `main` or
   landed in the last 14 days), then land yours or close it with a pointer to
-  the survivor ([`duplicate-work.md`](duplicate-work.md)). Cheap open-PR search: `duplicate-work.md`.
+  the survivor ([`duplicate-work.md`](duplicate-work.md)).
 - **The brief didn't say to open a PR.** This file says so.
 
 ## Other agents' unlanded work is yours too

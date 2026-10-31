@@ -1763,3 +1763,18 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   on 97). Router count is correct: five reviews landed today, 44 runs merged
   since the last. Re-ran `derive.py fetch && build`. No audit or drift report.
 - Result: (next review)
+
+## E119: Review 2026-10-31 (reduced pass)
+
+- Change: `land-your-work.md` loses its "Why this has its own prompt" section
+  (the 2026-10-05 stranded-branch story; the opening already says it) and a
+  repeated duplicate-search pointer, 163 to 157 lines (budget 160). Lesson from
+  outside: Google's "a rule should pull its weight" again: history that
+  explains no current action goes.
+- Metric: instruction-line count for `land-your-work.md`; compare next review.
+- Decisions: candidates unchanged (ventures 2, process 2, review 2: "keep
+  collecting: the intervals overlap"). 47 runs merged since the last review.
+  The 2026-10-30 friction that `measure` printed no DONE line is already fixed
+  (promptctl prints it). Re-ran `derive.py fetch && build`. `steering.md` still
+  over budget (125/120). No audit or drift report (reduced pass).
+- Result: (next review)
