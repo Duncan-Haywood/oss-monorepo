@@ -1,5 +1,6 @@
 ---
 title: "A bookkeeping page for pet sitters and dog walkers, and the eight payees it had to learn"
+seo_title: "A bookkeeping page for pet sitters and dog walkers"
 date: 2026-10-29
 description: "ai-bookkeeper gets a worked October for a solo pet sitter. Writing it exposed gaps: Rover and Wag payouts, Time To Pet, Petco and association dues went unfiled."
 tags: [ai-bookkeeper, small-business, bookkeeping]

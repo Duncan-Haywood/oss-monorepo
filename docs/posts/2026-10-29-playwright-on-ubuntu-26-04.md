@@ -1,5 +1,6 @@
 ---
 title: "Playwright 1.56 cannot install Chromium on GitHub's Ubuntu 26.04 runners"
+seo_title: "Playwright 1.56 cannot install Chromium on Ubuntu 26.04"
 date: 2026-10-29
 tags: [ci, testing, shed-designer]
 description: "A browser test job failed before running a test: ubuntu-latest is now Ubuntu 26.04 and Playwright 1.56 has no Chromium for it. Playwright 1.63.0 installs fine."

@@ -1,5 +1,6 @@
 ---
 title: "Does a load-sensing hydraulic pump pay for itself on a small excavator?"
+seo_title: "Does a load-sensing pump pay for itself on a mini excavator?"
 date: 2026-10-29
 tags: [research, heavy-hydraulics]
 description: "A first costing in our open hydraulics programme: with public retail prices and today's diesel, load-sensing's extra parts never repay in 2,000 hours."

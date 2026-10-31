@@ -1,5 +1,6 @@
 ---
 title: "A bookkeeping page for home daycares, and the seven payees it had to learn"
+seo_title: "A bookkeeping page for home daycares: seven payees"
 date: 2026-10-29
 description: "ai-bookkeeper gets a worked October for a solo home daycare. Half the lines went unfiled until tuition, craft supplies, NAFCC dues and CACFP fees got rules."
 tags: [ai-bookkeeper, small-business, bookkeeping]

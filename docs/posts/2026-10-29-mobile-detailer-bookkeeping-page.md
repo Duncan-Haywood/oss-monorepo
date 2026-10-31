@@ -1,5 +1,6 @@
 ---
 title: "A bookkeeping page for mobile detailers, and the 'Zelle to owner' line that went unfiled"
+seo_title: "A bookkeeping page for mobile detailers"
 date: 2026-10-29
 description: "ai-bookkeeper gets a worked October for a one-van detailer. Detailing chemicals and a transfer to the owner had no rules."
 tags: [ai-bookkeeper, small-business, bookkeeping]

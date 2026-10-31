@@ -1,5 +1,6 @@
 ---
 title: "A way up to the barn loft: a ladder, and a hatch where IRC R807.1 asks for one"
+seo_title: "A way up to the barn loft"
 date: 2026-10-30
 tags: [shed-designer, gambrel, loft]
 description: "The shed designer's barn loft had a floor but no way up. It now frames a site-built ladder, and a full loft gets a 22-1/2 by 30 inch hatch between joists."
