@@ -96,7 +96,10 @@ venue, the paper says so.
 | [`aerolog-scaling`](aerolog-scaling/PROPOSAL.md) | What does a 1:N Froude-scaled model of a cargo UAV reproduce of the 1:1 aircraft, and where does it lie (Reynolds-driven drag and stall, powertrain, energy)? | `osrobot-uav`, `codesign-aero`, `uav-energy-twin`, track 22 | AIAA SciTech / *Journal of Aircraft* |
 | [`marine-hull`](marine-hull/PROPOSAL.md) | Which body (monohull, catamaran, SWATH, hydrofoil, glider, AUV) carries a survey payload furthest per kWh, and where does the ranking flip under uncertain drag inputs? | track 23; `osrobot-*`, `codesign-*` | OCEANS (IEEE/MTS) / *Ocean Engineering* |
 | [`heavy-hydraulics`](heavy-hydraulics/PROPOSAL.md) | Which buildable hydraulic circuit (open-centre, load-sensing, independent metering) gets a small excavator closest to stock energy use for the least parts cost? | track 25; `osrobot-*`, `codesign-*` | Int. J. Fluid Power / Bath-ASME fluid power symposium |
+| `build-data` | Do public building-permit records, loaded from several cities onto one open schema, predict how long a permit and the build behind it take better than each city's own averages, and which fields carry the signal? (the first table of the construction data warehouse; owner, 2026-10-31) | the city open-data permit feeds (Chicago, New York DOB, San Francisco, Austin and others, licences checked per city); `ventures/wall-framing-takeoff`; tracks 12 and 20 | *Automation in Construction* / ASCE *J. Construction Engineering and Management* |
 
-A row without a proposal is an invitation: its first session writes the
+Since 2026-10-31 half of all programme draws take the industrial, energy,
+construction and autonomy programmes first (`pick_track.py`, `FOCUS`; owner's
+direction in `prompts/goals.md`). A row without a proposal is an invitation: its first session writes the
 proposal. Add rows when a question earns one; close a row (with a line on the
 outcome) when its paper is ready or the question is settled.
