@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Construction schedule: critical path, crews and slips</title>
+  <meta name="description" content="Free construction schedule tool: type your own activities, durations and what comes after what. Get the critical path, slack, crew-levelled dates and what a slip does to the finish. In your browser.">
+  <meta property="og:title" content="Construction schedule: critical path">
+  <meta property="og:description" content="Your activities in, critical path, slack and slip effects out. No durations are shipped; they are yours.">
+  <link rel="canonical" href="./schedule-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the critical path in a construction schedule?", "acceptedAnswer": {"@type": "Answer", "text": "The critical path is the chain of activities with zero slack: if any one of them runs late, the finish date moves by the same number of days. This tool finds it with a forward and a backward pass over the predecessors you type."}}, {"@type": "Question", "name": "Does this tool know how long framing or drywall takes?", "acceptedAnswer": {"@type": "Answer", "text": "No. It ships no durations. Every duration, predecessor and crew count is yours, from your own crews and past jobs. The sample is only there to show the format."}}, {"@type": "Question", "name": "How are weekends, holidays and cure time handled?", "acceptedAnswer": {"@type": "Answer", "text": "Weekends are skipped. Holidays and weather days are dates you list. Cure time or an inspection wait is a lag in working days after the predecessors finish. Weather is not forecast."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Construction schedule</h1>
+  <p>Edit the activities (JSON: <code>id</code>, <code>days</code>, <code>after</code>, optional <code>crew</code>, <code>lag</code>, <code>name</code>) and get the critical path, slack, dates with the crews you typed, and what a slip does to the finish. The durations are yours; none are shipped. Nothing leaves your browser.</p>
+  <label for="src">Schedule</label>
+  <textarea id="src" rows="18" style="width:100%;font:.85rem ui-monospace,monospace;box-sizing:border-box" spellcheck="false"></textarea>
+  <pre id="out" aria-live="polite"></pre>
+  <div id="gantt" aria-label="Bar chart of activities by date"></div>
+  <p><a class="cta" href="index.html">Do the whole house: framing, sheathing, budget and schedule in one takeoff</a></p>
+
+  <h2>How it is counted</h2>
+  <ol>
+    <li><strong>Critical path.</strong> A forward pass gives each activity's earliest start, a backward pass its latest; zero slack means critical.</li>
+    <li><strong>Crews.</strong> With a crew count per name, a greedy pass delays activities that would need more crews than you have. It is a heuristic, not an optimal resource schedule.</li>
+    <li><strong>Calendar.</strong> Working days are Monday to Friday, less any holidays and weather days you list.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>What is the critical path in a construction schedule?</h3>
+  <p>The critical path is the chain of activities with zero slack: if any one of them runs late, the finish date moves by the same number of days. This tool finds it with a forward and a backward pass over the predecessors you type.</p>
+  <h3>Does this tool know how long framing or drywall takes?</h3>
+  <p>No. It ships no durations. Every duration, predecessor and crew count is yours, from your own crews and past jobs. The sample is only there to show the format.</p>
+  <h3>How are weekends, holidays and cure time handled?</h3>
+  <p>Weekends are skipped. Holidays and weather days are dates you list. Cure time or an inspection wait is a lag in working days after the predecessors finish. Weather is not forecast.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Room and opening sizes are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Dates follow the calendar rules stated above and your inputs; not reused); your hanger's method may differ.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { schedule, scheduleText, sampleSchedule } from "./schedule.mjs";
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+    $("src").value = JSON.stringify(sampleSchedule(), null, 1);
+    const run = () => {
+      let input;
+      try { input = JSON.parse($("src").value); } catch (e) { $("out").textContent = "Not valid JSON: " + e.message; $("gantt").innerHTML = ""; return; }
+      const s = schedule(input);
+      $("out").textContent = scheduleText(s).join("\n");
+      if (!s.ok) { $("gantt").innerHTML = ""; return; }
+      const rows = s.rows.slice().sort((a, b) => a.leveledStart - b.leveledStart);
+      const total = Math.max(1, s.leveledDays), W = 700, lab = 110, rh = 22;
+      const sc = (W - lab) / total;
+      const bars = rows.map((r, i) => `<text x="0" y="${i * rh + 15}" font-size="12">${esc(r.id)}</text><rect x="${lab + r.leveledStart * sc}" y="${i * rh + 3}" width="${Math.max(2, r.days * sc)}" height="${rh - 8}" fill="${r.critical ? "#a3321f" : "#1d5c7a"}"><title>${esc(r.id)}: ${esc(r.startDate)} to ${esc(r.finishDate)}</title></rect>`).join("");
+      $("gantt").innerHTML = `<svg viewBox="0 0 ${W} ${rows.length * rh + 6}" width="100%" role="img">${bars}</svg><p style="font-size:.85rem">Red bars are on the critical path. Bars show crew-levelled working days.</p>`;
+    };
+    $("src").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>

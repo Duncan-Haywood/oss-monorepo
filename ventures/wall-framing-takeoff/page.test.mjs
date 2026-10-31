@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
-for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html"]) {
+for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html"]) {
   test(`${name} carries the disclaimer, privacy line and sponsor link`, () => {
     const html = page(name);
     assert.match(html, /No warranty/);
@@ -396,4 +396,19 @@ test("the drywall calculator page: FAQ matches its data, default inputs give the
   assert.equal(d.finishing.tapeRolls, 1);
   assert.equal(d.finishing.compoundPails, 2);
   assert.match(html, /counts 17 sheets: 508 sq ft of faces, which is 15\.9 sheets/);
+});
+
+test("the schedule page: FAQ matches its data, the sample schedule runs and has a critical path", async () => {
+  const html = page("schedule-calculator.html");
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const id of ["src", "out", "gantt"]) assert.ok(ids.has(id), id);
+  const { schedule, sampleSchedule } = await import("./schedule.mjs");
+  const s = schedule(sampleSchedule());
+  assert.equal(s.ok, true);
+  assert.ok(s.criticalPath.length > 0);
 });
