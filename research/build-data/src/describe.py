@@ -4,8 +4,8 @@ import csv, datetime, json, os, sys
 
 def d(s): return datetime.date.fromisoformat(s)
 
-def q(xs, p):
-    xs = sorted(xs); return xs[min(len(xs) - 1, int(p * len(xs)))]
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from harness import quantile as q   # one definition (type 7); results/lags.json predates it
 
 out = {}
 for city in ["chicago", "sf", "austin"]:
