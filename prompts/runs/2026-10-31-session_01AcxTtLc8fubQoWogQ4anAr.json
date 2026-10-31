@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01AcxTtLc8fubQoWogQ4anAr",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md",
+  "input_sha256": "94a6b2a74a2fe72d09d7042291a4072d20b259b937e79b5deda0279ae57c7410",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T13:09:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12090",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 fails when security-alerts branch is missing (already in review PR #12026)."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Names no path for propose_seo_titles.py; it lives in platform/pages/, not platform/ci/."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Review was due but PR #12026 claimed it; routed with --skip-review.",
+      "did": "polish track",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-10-31-seo-titles-batch-9.md"
+  ],
+  "goal": null,
+  "notes": "No blog post: titles-only change.",
+  "corrections": [],
+  "redteam": null
+}

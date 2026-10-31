@@ -1,5 +1,6 @@
 ---
 title: "The Last Barge: a Hearth & Horizon story about a cemetery and a coastline"
+seo_title: "The Last Barge: a Hearth & Horizon story of a cemetery and coast"
 date: 2026-10-26
 description: "An Alaskan village's graves are 15.9 m from an eroding bluff. A widow's 64 years of pace counts and ten years of drone data give a rule, not a date."
 tags: [hearth-and-horizon, fiction, coastal-erosion]
