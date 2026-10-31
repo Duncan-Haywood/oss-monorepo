@@ -16,7 +16,7 @@ E = 20
 
 
 def play(n_agents, group, rounds, rng, free=0.3, lam=0.85, punish=False, punisher=0.5,
-         stranger=False, react=0.0, noise=2.0, sanction_cost=1.0, sanction_hit=3.0):
+         stranger=False, react=0.0, noise=2.0, sanction_cost=1.0, sanction_hit=3.0, pooled=False):
     """Returns (mean contribution per round, mean net payoff per round)."""
     free_rider = rng.random(n_agents) < free
     punisher_t = rng.random(n_agents) < punisher
@@ -40,7 +40,16 @@ def play(n_agents, group, rounds, rng, free=0.3, lam=0.85, punish=False, punishe
             tot = g[idx].sum()
             pay[idx] = E - g[idx] + m * tot
             cont[idx] = (tot - g[idx]) / (group - 1)
-            if punish:
+            if punish and pooled:
+                # institution: one fine per member below the group mean (not one per punisher),
+                # same schedule (tokens = shortfall/4, cap 10, 3 removed per token), the cost of
+                # running it split equally across the whole group (a tax, Sigmund et al. 2010 style)
+                short = np.maximum(g[idx].mean() - g[idx], 0.0)
+                tok = np.minimum(short / 4.0, 10.0)
+                pun = tok * sanction_hit
+                pay[idx] += -np.minimum(pun, pay[idx]) - tok.sum() * sanction_cost / group
+                hit[idx] = pun
+            elif punish:
                 pun = np.zeros(group)
                 cost = np.zeros(group)
                 for a, i in enumerate(idx):
