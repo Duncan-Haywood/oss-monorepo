@@ -3,6 +3,12 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-31 · Milestone 9j: does the output-error fit survive 10% sensor noise, where 9h's least squares was unusable? (planned before running)
+- Why: 9i's "Next". 9h found equation-error least squares unusable at 10% noise (5177 of 7800 fits failed at 4 periods); 9i only tested 3%.
+- Plan (`experiments/output_error_10pct/run.py`): 9i's script unchanged except noise 0.10 and seed 20261031; 78 designs, tail-slope scale 0.75, records of 1, 2, 4 phugoid periods, 20 paired draws, LS and OE on the same noisy record.
+- **Predictions (before running):** (1) OE short-period frequency error at 10% noise is under 3% at every record length (prior 70%). (2) OE has no more fit failures than LS and fewer at 4 periods (prior 85%). (3) At 4 periods at least 40 of 78 designs reach 90% of draws within 10% gust under OE (prior 50%). Refuted: (1) any record length at or above 3%; (2) OE failing more than LS; (3) fewer than 40.
+- Limits known in advance: those of 9i (known initial state, white noise on all four states, 20 draws, one scale); one seed.
+
 ## 2026-10-30 · Milestone 9i: does an output-error fit beat 9h's equation-error least squares on the same noisy free response? (planned before running)
 - Why: 9h's "Next". Its least-squares floor got worse with longer records because noise in the regressors biases the transition matrix.
 - Plan (`experiments/output_error_fit/run.py`): 9h's 78 designs, true tail-slope scale 0.75, 3% channel noise, records of 1, 2, 4 phugoid periods, 20 paired draws per design. Both estimators see the same noisy record: LS as in 9h, and an output-error fit (Levenberg-Marquardt on the 16 entries of the continuous A, simulated from the known initial state, started at the log of the LS transition matrix). f is picked and scored as in 9f and 9h.
