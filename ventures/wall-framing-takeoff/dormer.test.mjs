@@ -110,3 +110,14 @@ test("shed dormer main-roof opening, by hand", () => {
   assert.equal(t.length, r16(115.2 * Math.sqrt(1 + (8 / 12) ** 2) + 3));
   assert.equal(layoutShedDormer({ width: 144, eaveHeight: 48, pitch: 3, mainPitch: 8, roofOpening: { depth: 5 } }).ok, false);
 });
+
+test("a negative or non-numeric window sill is rejected, gable and shed", () => {
+  for (const [f, pitch] of [[layoutDormer, 8], [layoutShedDormer, 3]]) {
+    for (const sill of [-5, NaN]) {
+      const d = f({ width: 72, eaveHeight: 60, pitch, mainPitch: 8, window: { width: 36, height: 24, sill } });
+      assert.equal(d.ok, false);
+      assert.match(d.errors.join(" "), /sill height cannot be negative/);
+    }
+    assert.equal(f({ width: 72, eaveHeight: 60, pitch, mainPitch: 8, window: { width: 36, height: 24, sill: 0 } }).ok, true);
+  }
+});
