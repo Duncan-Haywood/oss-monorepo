@@ -115,3 +115,17 @@ test("vertical siding battens: one per seam, cut at an opening and by the gable 
   assert.ok(sidingText(s).some((x) => x.includes("Battens:")));
   assert.equal(validateSiding({ battenStock: 10 }).length, 1);
 });
+
+test("starter strip: one run along each exterior wall, packed into stock by hand (2026-10-31)", () => {
+  // walls of 240, 168 and 100 in, the last unsheathed: 408 in of strip in 240 in boards, whole pieces: [240] [168] = 2 boards
+  const p = plan([{ id: "A", length: 240 }, { id: "B", length: 168 }, { id: "C", length: 100, sheathed: false }]);
+  assert.equal(layoutSiding({ waste: 0 }, p).starter, null); // off by default: earlier totals do not move
+  const s = layoutSiding({ waste: 0, starter: true, starterPrice: 5, stock: 240 }, p);
+  assert.equal(s.starter.walls, 2);
+  assert.ok(Math.abs(s.starter.feet - 408 / 12) < 1e-9);
+  assert.equal(s.starter.boards, 2); // 240 and 168 do not share a 240 in board
+  assert.equal(s.cost, 10);
+  assert.ok(sidingText(s).some((x) => x.includes("Starter strip: 34 ft along the base of 2 wall(s)")));
+  assert.equal(layoutSiding({ starter: true, style: "vertical" }, p).ok, false);
+  assert.equal(layoutSiding({ starter: "yes" }, p).ok, false);
+});
