@@ -135,10 +135,10 @@
     </fieldset>
 
     <p style="margin-top:16px"><button type="button" id="run">Compare</button></p>
-    <p id="error" class="error" hidden></p>
+    <p id="error" class="error" role="alert" hidden></p>
   </section>
 
-  <section class="card" id="results" hidden>
+  <section class="card" id="results" aria-live="polite" hidden>
     <h2>Result</h2>
     <p class="headline" id="headline"></p>
     <p id="detail"></p>
