@@ -1,6 +1,7 @@
 # Copies the site's daily page-load counts and feedback-form messages from
 # platform/edge into portfolio/usage/site-visits.json and site-feedback.json,
-# and GitHub repo traffic into portfolio/usage/github-traffic.json,
+# GitHub repo traffic into portfolio/usage/github-traffic.json, and
+# Cloudflare's own edge analytics into portfolio/usage/cloudflare-analytics.json,
 # so agents can read them like any other committed file (owner request,
 # 2026-10-20). Each step does nothing while its site.json has no url, so this
 # is inert until the Worker is deployed and its address committed.
@@ -49,15 +50,28 @@ jobs:
           TRAFFIC_TOKEN: ${{ secrets.TRAFFIC_TOKEN }}
           TRAFFIC_REPOS: ${{ vars.TRAFFIC_REPOS || github.repository }}
         run: node platform/counter/pull-github-traffic.mjs
+      # Every request to the site passes Cloudflare, so its analytics see the
+      # crawlers and scripts the page's beacon cannot (pull-cloudflare.mjs).
+      # CLOUDFLARE_ANALYTICS_TOKEN (Account Analytics: Read, Zone Analytics:
+      # Read, Zone: Read) is tried first; the deploy token may lack those, in
+      # which case the file records which datasets answered and the job stays
+      # green.
+      - name: Pull Cloudflare analytics
+        env:
+          CLOUDFLARE_ANALYTICS_TOKEN: ${{ secrets.CLOUDFLARE_ANALYTICS_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID }}
+          CLOUDFLARE_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID }}
+        run: node platform/counter/pull-cloudflare.mjs
       - name: Commit
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
-          for f in portfolio/usage/site-visits.json portfolio/usage/site-feedback.json portfolio/usage/github-traffic.json; do if [ -f "$f" ]; then git add "$f"; fi; done
+          for f in portfolio/usage/site-visits.json portfolio/usage/site-feedback.json portfolio/usage/github-traffic.json portfolio/usage/cloudflare-analytics.json; do if [ -f "$f" ]; then git add "$f"; fi; done
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           # The Actions bot address, so GitHub credits github-actions[bot]. The old
           # noreply@users.noreply.github.com credited the stranger whose login is "noreply".
           git -c user.name="site-usage-pull (GitHub Actions)" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
-            commit -m "usage: daily site page-load counts, feedback and GitHub repo traffic"
+            commit -m "usage: daily site page-load counts, feedback, GitHub repo traffic and Cloudflare analytics"
           git push "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" HEAD:main
