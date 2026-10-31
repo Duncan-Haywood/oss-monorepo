@@ -454,3 +454,23 @@ export function layoutWinders(w) {
   const framing = { supports: count + 1, supportLength: width, totalLength: (count + 1) * width, treadSpan: width, shared: count - 1 };
   return { ...c, treads, chordNarrow, chordWalk, chordWide, chordPasses, framing };
 }
+
+/**
+ * Resolve `floor.headerCheck.stairFrom: N` (the CLI, the page): lay out plan.stairs[N] with its typed stringerCheck and copy
+ * the flight's total top reaction (and live share) into headerCheck.stairReaction. Returns an error string or null.
+ * Typed figures only; the same arithmetic as `checkStringer`, no automatic link to a different load case.
+ */
+export function linkStairReaction(plan, parseLength) {
+  const hc = plan.floor && plan.floor.headerCheck;
+  if (!hc || hc.stairFrom == null || hc.stairReaction != null) return null;
+  const list = Array.isArray(plan.stairs) ? plan.stairs : plan.stairs ? [plan.stairs] : [];
+  const st = list[hc.stairFrom];
+  if (!st || !st.stringerCheck) return `headerCheck.stairFrom ${hc.stairFrom} needs plan.stairs[${hc.stairFrom}] with a stringerCheck.`;
+  const tmp = { ...st };
+  for (const k of ["totalRise", "tread", "width", "openingLength", "floorThickness"]) if (typeof tmp[k] === "string") tmp[k] = parseLength(tmp[k]);
+  const sl = layoutStair({ id: "Stair link", ...tmp }, plan);
+  const sk = sl.stringerCheck;
+  if (!sl.ok || !sk || sk.errors.length || !sk.totalReaction) return `headerCheck.stairFrom ${hc.stairFrom}: the stair's stringerCheck gave no reaction (${[...(sl.errors || []), ...(sk?.errors || [])].join("; ") || "check the stair"}).`;
+  hc.stairReaction = sk.totalReaction; hc.stairReactionLive = sk.totalReactionLive;
+  return null;
+}
