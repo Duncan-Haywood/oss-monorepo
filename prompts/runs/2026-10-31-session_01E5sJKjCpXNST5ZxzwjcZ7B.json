@@ -38,7 +38,7 @@
       "result": "full build completes"
     }
   ],
-  "writeups": null,
+  "writeups": [],
   "goal": null,
   "notes": "No metric: no speed-up. Pages build failed after 29s (missing description; seo_title 74>70 chars); after fixes full build completes (>120s wall, not timed precisely). Gap: no pre-merge check caught the front matter errors.",
   "corrections": [],
