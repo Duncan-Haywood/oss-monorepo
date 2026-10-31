@@ -205,3 +205,11 @@ function await_free(plan) {
   writeFileSync(path, JSON.stringify(plan));
   try { return main([path, "--schedule", "--csv"]); } finally { unlinkSync(path); }
 }
+
+test("scheduleText prints the carrying cost total once carryPerDay is typed, and not before", () => {
+  const base = { start: "2026-03-02", activities: [{ id: "a", days: 5, after: [] }, { id: "b", days: 5, after: ["a"] }] };
+  const none = scheduleText(schedule(base)).join("\n");
+  assert.ok(!/Carrying cost/.test(none));
+  const withCarry = scheduleText(schedule({ ...base, carryPerDay: 250 })).join("\n");
+  assert.match(withCarry, /Carrying cost: \$2,500 for 10 working days at your \$250 per day\./);
+});
