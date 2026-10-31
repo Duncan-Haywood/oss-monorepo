@@ -52,6 +52,15 @@ await page.fill("#dl", "2000-01-03");
 check(/Deadline 2000-01-03: \d+ working day\(s\) late/.test(await page.textContent("#out")), "deadline field: past date shows days late");
 await page.fill("#dl", "");
 check(!/Deadline/.test(await page.textContent("#out")), "deadline field: cleared removes the line");
+// the activity-costs field: typed dollars by id give spend by month; a bad id or entry is named
+await page.fill("#ac", "roof=9500, walls=$18000");
+check(/Spend by month[^\n]*total \$27,500/.test(await page.textContent("#out")), "activity costs field: spend by month totals the typed costs");
+await page.fill("#ac", "nope=5");
+check(/Activity costs: no activity with id nope/.test(await page.textContent("#out")), "activity costs field: unknown id is named");
+await page.fill("#ac", "roof=lots");
+check(/Could not read: roof=lots/.test(await page.textContent("#out")), "activity costs field: unreadable entry is named");
+await page.fill("#ac", "");
+check(!/Spend by month/.test(await page.textContent("#out")), "activity costs field: cleared removes the spend lines");
 // invalid JSON must not export the previous schedule
 await page.fill("#src", "{not json");
 let downloaded = false;

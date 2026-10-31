@@ -38,6 +38,8 @@
   <input id="wr" type="text" placeholder="2026-03=20, 2026-04=12" spellcheck="false" style="max-width:24rem">
   <label for="nb">Hold dates (optional; the earliest an activity may start, by id, like <code>plumb=2026-04-03, roof=2026-04-20</code>: a delivery or a permit, your dates). They replace any <code>notBefore</code> in the JSON for the ids listed.</label>
   <input id="nb" type="text" placeholder="plumb=2026-04-03, roof=2026-04-20" spellcheck="false" style="max-width:28rem">
+  <label for="ac">Activity costs (optional; dollars by id, like <code>frame=18000, roof=9500</code>: your quotes, none shipped). They replace any <code>cost</code> in the JSON for the ids listed, and the report adds spend by month.</label>
+  <input id="ac" type="text" placeholder="frame=18000, roof=9500" spellcheck="false" style="max-width:28rem">
   <label for="cp">Carrying cost per extra working day (optional; dollars: loan interest, insurance, site costs, your figure, none shipped). Each slip then shows what it costs, and the total carry for the job is shown.</label>
   <input id="cp" type="number" min="0" step="1" inputmode="decimal" placeholder="e.g. 250" style="max-width:10rem">
   <label for="dl">Contract completion date (optional; <code>YYYY-MM-DD</code>, your date). The report then says how many working days late, or to spare, the finish with your crews is, and the carrying cost of the late days if you typed one above.</label>
@@ -108,6 +110,19 @@
         if (unknown.length) { $("out").textContent = "Hold dates: no activity with id " + unknown.join(", ") + "."; $("gantt").innerHTML = ""; return; }
         input = { ...input, activities: acts.map((a) => (a && holds[a.id] ? { ...a, notBefore: holds[a.id] } : a)) };
       }
+      const acRaw = $("ac").value.trim();
+      if (acRaw !== "") {
+        const costs = {};
+        for (const part of acRaw.split(/[,;\n]+/).map((x) => x.trim()).filter(Boolean)) {
+          const m = part.match(/^([^=\s]+)\s*=\s*\$?(\d+(?:\.\d+)?)$/);
+          if (!m) { $("out").textContent = "Activity costs: write each as id=dollars, e.g. frame=18000. Could not read: " + part; $("gantt").innerHTML = ""; return; }
+          costs[m[1]] = Number(m[2]);
+        }
+        const acts = Array.isArray(input.activities) ? input.activities : [];
+        const unknown = Object.keys(costs).filter((id) => !acts.some((a) => a && a.id === id));
+        if (unknown.length) { $("out").textContent = "Activity costs: no activity with id " + unknown.join(", ") + "."; $("gantt").innerHTML = ""; return; }
+        input = { ...input, activities: acts.map((a) => (a && costs[a.id] != null ? { ...a, cost: costs[a.id] } : a)) };
+      }
       const s = schedule(input);
       last = s;
       $("out").textContent = scheduleText(s).join("\n");
@@ -129,6 +144,7 @@
     $("wr").addEventListener("input", run);
     $("cp").addEventListener("input", run);
     $("nb").addEventListener("input", run);
+    $("ac").addEventListener("input", run);
     $("dl").addEventListener("input", run);
     run();
   </script>
