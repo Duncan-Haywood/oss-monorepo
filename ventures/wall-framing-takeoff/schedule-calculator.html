@@ -38,6 +38,8 @@
   <input id="wr" type="text" placeholder="2026-03=20, 2026-04=12" spellcheck="false" style="max-width:24rem">
   <label for="nb">Hold dates (optional; the earliest an activity may start, by id, like <code>plumb=2026-04-03, roof=2026-04-20</code>: a delivery or a permit, your dates). They replace any <code>notBefore</code> in the JSON for the ids listed.</label>
   <input id="nb" type="text" placeholder="plumb=2026-04-03, roof=2026-04-20" spellcheck="false" style="max-width:28rem">
+  <label for="cp">Carrying cost per extra working day (optional; dollars: loan interest, insurance, site costs, your figure, none shipped). Each slip then shows what it costs, and the total carry for the job is shown.</label>
+  <input id="cp" type="number" min="0" step="1" inputmode="decimal" placeholder="e.g. 250" style="max-width:10rem">
   <pre id="out" aria-live="polite"></pre>
   <p><button id="csv" type="button">Download CSV</button></p>
   <div id="gantt" aria-label="Bar chart of activities by date"></div>
@@ -76,6 +78,8 @@
       try { input = JSON.parse($("src").value); } catch (e) { $("out").textContent = "Not valid JSON: " + e.message; $("gantt").innerHTML = ""; return; }
       const wlRaw = $("wl").value.trim();
       if (wlRaw !== "") input = { ...input, weatherLoss: Number(wlRaw) / 100 };
+      const cpRaw = $("cp").value.trim();
+      if (cpRaw !== "") input = { ...input, carryPerDay: Number(cpRaw) };
       const wrRaw = $("wr").value.trim();
       if (wrRaw !== "") {
         const weatherRate = {};
@@ -118,6 +122,7 @@
     $("src").addEventListener("input", run);
     $("wl").addEventListener("input", run);
     $("wr").addEventListener("input", run);
+    $("cp").addEventListener("input", run);
     $("nb").addEventListener("input", run);
     run();
   </script>

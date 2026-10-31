@@ -423,7 +423,7 @@ test("the schedule page: FAQ matches its data, the sample schedule runs and has 
     assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
   }
   const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
-  for (const id of ["src", "out", "gantt", "nb"]) assert.ok(ids.has(id), id);
+  for (const id of ["src", "out", "gantt", "nb", "cp"]) assert.ok(ids.has(id), id);
   const { schedule, sampleSchedule } = await import("./schedule.mjs");
   const s = schedule(sampleSchedule());
   assert.equal(s.ok, true);
