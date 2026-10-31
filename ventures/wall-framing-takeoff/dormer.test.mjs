@@ -99,3 +99,14 @@ test("shed dormer front window by hand: 144 in wide, 80 in eave, 36 x 36 on a 30
   assert.equal(get(r, "cripple under sill")[0].count, 2);
   assert.equal(layoutShedDormer({ width: 144, eaveHeight: 80, pitch: 3, mainPitch: 8, window: { width: 200 } }).ok, false);
 });
+
+test("shed dormer main-roof opening, by hand", () => {
+  // planes meet 48 x 12 / 5 = 115.2 in back; 144 in wide at 24 in -> ceil(6) - 1 = 5 cut rafters
+  const r = layoutShedDormer({ width: 144, eaveHeight: 48, pitch: 3, mainPitch: 8, roofOpening: { mainSpacing: 24 } });
+  assert.ok(r.ok, JSON.stringify(r.errors));
+  assert.equal(r.opening.depth, r16(115.2));
+  assert.equal(r.opening.cutMainRafters, 5);
+  const t = r.parts.find((p) => p.part === "roof opening trimmer (doubled)");
+  assert.equal(t.length, r16(115.2 * Math.sqrt(1 + (8 / 12) ** 2) + 3));
+  assert.equal(layoutShedDormer({ width: 144, eaveHeight: 48, pitch: 3, mainPitch: 8, roofOpening: { depth: 5 } }).ok, false);
+});
