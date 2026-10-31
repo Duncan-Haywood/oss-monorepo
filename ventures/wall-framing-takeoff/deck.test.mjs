@@ -111,3 +111,22 @@ test("blocking: off by default; rows split the joist length and one block fills 
   assert.ok(Math.abs(l.blocking.bays[1] - 14.5) < 1e-9); // 16 in centres less one joist
   assert.equal(layoutDeck({ ...sampleDeck(), blocking: { every: 200 } }).blocking, null);
 });
+
+test("picture-frame border: frame on the outer edge and both sides, field shrinks by one board each side", () => {
+  const plain = layoutDeck(sampleDeck());
+  const l = layoutDeck({ ...sampleDeck(), deckBoard: { border: true } });
+  assert.ok(l.ok);
+  const f = 5.5 + 0.1875;
+  assert.deepEqual(l.borderBoards.map((b) => [b.edge, b.length]), [["outer", 192], ["left", 144], ["right", 144]]);
+  assert.equal(l.rows, Math.ceil((144 - f + 0.1875) / f - 1e-9));
+  assert.ok(l.rows <= plain.rows);
+  for (let r = 0; r < l.rows; r++) assert.equal(l.deckBoards.filter((b) => b.row === r).reduce((s, b) => s + b.length, 0), 192 - 2 * f);
+  assert.ok(l.orders.some((o) => o.size === "5/4x6 deck" && o.bought >= o.needed));
+  assert.ok(l.notes.some((n) => /Picture-frame/.test(n)));
+});
+
+test("a freestanding deck's border also frames the inner edge; no border leaves the layout unchanged", () => {
+  const l = layoutDeck({ ...sampleDeck(), freestanding: true, deckBoard: { border: true } });
+  assert.deepEqual(l.borderBoards.map((b) => b.edge), ["outer", "inner", "left", "right"]);
+  assert.equal(layoutDeck(sampleDeck()).borderBoards.length, 0);
+});

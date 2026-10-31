@@ -15,7 +15,7 @@ const NOMINAL = { "2x6": 5.5, "2x8": 7.25, "2x10": 9.25, "2x12": 11.25 };
 const POST = { "4x4": 3.5, "6x6": 5.5 };
 const CU_IN_PER_YD = 46656;
 
-/** @typedef {{ id?: string, width: number, depth: number, height: number, joist?: string, spacing?: number, beam?: string, beamPlies?: number, freestanding?: boolean, overhang?: number, postSize?: string, postInset?: number, maxPostSpacing?: number, deckBoard?: { width?: number, thickness?: number, gap?: number, size?: string }, footing?: { diameter?: number, depth?: number, bagYield?: number }, screwsPerBox?: number, railPostSpacing?: number, guard?: false | { sides?: ("outer"|"left"|"right"|"inner")[], threshold?: number, railBoard?: string, balusterWidth?: number, postWidth?: number, limits?: object }, spanTable?: { joist: string, spacing: number, maxSpan: number }[], stock?: { size: string, length: number, price: number }[] }} Deck */
+/** @typedef {{ id?: string, width: number, depth: number, height: number, joist?: string, spacing?: number, beam?: string, beamPlies?: number, freestanding?: boolean, overhang?: number, postSize?: string, postInset?: number, maxPostSpacing?: number, deckBoard?: { width?: number, thickness?: number, gap?: number, size?: string, border?: boolean }, footing?: { diameter?: number, depth?: number, bagYield?: number }, screwsPerBox?: number, railPostSpacing?: number, guard?: false | { sides?: ("outer"|"left"|"right"|"inner")[], threshold?: number, railBoard?: string, balusterWidth?: number, postWidth?: number, limits?: object }, spanTable?: { joist: string, spacing: number, maxSpan: number }[], stock?: { size: string, length: number, price: number }[] }} Deck */
 
 export function sampleDeck() {
   return { id: "Rear deck", width: 192, depth: 144, height: 36, joist: "2x8", spacing: 16, beam: "2x10", beamPlies: 2, overhang: 12, postSize: "6x6" };
@@ -131,15 +131,31 @@ export function layoutDeck(d) {
   const concrete = { count: posts.length, diameter: ft.diameter, depth: ft.depth, yards: footVolIn3 / CU_IN_PER_YD, bags: Math.ceil((footVolIn3 / 1728) * 1.1 / ft.bagYield - 1e-9), bagYield: ft.bagYield };
 
   // Decking: rows across the joists; every row's joints sit on joist centres and the starting joint steps along.
-  const rows = Math.ceil((d.depth + board.gap) / (board.width + board.gap) - 1e-9);
+  // `deckBoard.border`: a picture frame of one board around the open edges (outer, both sides, and the inner edge when
+  // freestanding), mitred at the corners so each board is bought at its long point; the field rows fill what is inside.
   const boardMax = longest("5/4x6 deck");
+  const f = board.border ? board.width + board.gap : 0;
+  const fieldW = d.width - 2 * f, fieldD = d.depth - f * (freestanding ? 2 : 1);
+  if (board.border && (fieldW < board.width || fieldD < board.width)) return { ok: false, errors: ["The deck is too small to frame with a picture-frame border and still have a field row."] };
+  const rows = Math.ceil((fieldD + board.gap) / (board.width + board.gap) - 1e-9);
   const stagger = [1, 0.67, 0.34, 0.84, 0.5];
   const deckBoards = [];
-  for (let r = 0; r < rows; r++) for (const l of rowPieces(d.width, boardMax, centres, Math.max(24, boardMax * stagger[r % stagger.length]))) deckBoards.push({ row: r, length: l });
-  const lastRow = d.depth - (rows - 1) * (board.width + board.gap);
+  const fieldCentres = centres.map((c) => c - f).filter((c) => c > EPS && c < fieldW - EPS);
+  for (let r = 0; r < rows; r++) for (const l of rowPieces(fieldW, boardMax, fieldCentres, Math.max(24, boardMax * stagger[r % stagger.length]))) deckBoards.push({ row: r, length: l });
+  /** @type {{ edge: string, length: number }[]} */
+  const borderBoards = [];
+  if (board.border) {
+    for (const [edge, len] of [["outer", d.width], ...(freestanding ? [["inner", d.width]] : []), ["left", d.depth], ["right", d.depth]]) {
+      for (const l of rowPieces(/** @type {number} */ (len), boardMax, centres, boardMax)) borderBoards.push({ edge: /** @type {string} */ (edge), length: l });
+    }
+    notes.push("Picture-frame border: the side boards run along the end joists, which carry only one board's edge; double the end joists (or add blocking) so the frame's mitres and the field's butt ends have bearing. The border is laid before the field; the mitre joints are cut, not on a joist.");
+  }
+  const lastRow = fieldD - (rows - 1) * (board.width + board.gap);
   if (lastRow < board.width - EPS) notes.push(`The last decking row is ${formatInches(lastRow)} wide, ripped from a ${formatInches(board.width)} board; rip the first and last rows to match instead.`);
   const joints = deckBoards.length - rows;
-  const crossings = rows * centres.length;
+  // two screws per board crossing a joist; the side border boards lie on an end joist and take a pair every 16 in
+  const sideEdges = borderBoards.filter((b) => b.edge === "left" || b.edge === "right").reduce((n, b) => n + Math.ceil(b.length / 16), 0);
+  const crossings = rows * fieldCentres.length + borderBoards.filter((b) => b.edge === "outer" || b.edge === "inner").length * centres.length + sideEdges;
   const screws = crossings * 2;
   const screwsPerBox = d.screwsPerBox ?? 350;
 
@@ -197,6 +213,7 @@ export function layoutDeck(d) {
     ...beamBoards.map((b) => ({ size: `${beam} PT`, length: b.length, kind: "beam ply" })),
     ...posts.map(() => ({ size: `${postSize} PT`, length: postLen, kind: "post" })),
     ...deckBoards.map((b) => ({ size: "5/4x6 deck", length: b.length, kind: "decking" })),
+    ...borderBoards.map((b) => ({ size: "5/4x6 deck", length: b.length, kind: "border" })),
     ...(guard && longest("2x4 PT") ? guard.guardRails.lengths.flatMap((x) => { const n = Math.ceil(x / longest("2x4 PT") - 1e-9); return Array.from({ length: n }, () => ({ size: "2x4 PT", length: x / n, kind: "guard rail" })); }) : []),
   ];
   // the outer rim and ledger are as long as the deck; a splice sits over a joist
@@ -212,7 +229,7 @@ export function layoutDeck(d) {
   const area = (d.width * d.depth) / 144;
   return {
     ok: true, id, width: d.width, depth: d.depth, height: d.height, joistSize: joist, beamSize: beam, beamPlies: plies, postSize, spacing, freestanding, overhang,
-    centres, joists, rims, posts, postLength: postLen, beamPieces, beamBoards, concrete, rows, deckBoards, joints, screws, screwBoxes: Math.ceil(screws / screwsPerBox), hardware, railPosts, guard, blocking,
+    centres, joists, rims, posts, postLength: postLen, beamPieces, beamBoards, concrete, rows, deckBoards, borderBoards, joints, screws, screwBoxes: Math.ceil(screws / screwsPerBox), hardware, railPosts, guard, blocking,
     lumber, orders, area, cost: orders.reduce((s, o) => s + o.cost, 0), joistSpan, warnings, notes,
   };
 }
@@ -223,7 +240,7 @@ export function deckText(l) {
   out.push(`  ${l.joists.length} ${l.joistSize} joists at ${l.spacing} o.c. (${formatLength(l.joists[0].length)} each, ${formatLength(l.joistSpan)} to the beam, ${formatInches(l.overhang)} cantilever)`);
   out.push(`  Beam: ${l.beamPlies} x ${l.beamSize}, ${l.beamBoards.length} boards; ${l.posts.length} ${l.postSize} posts at ${l.posts.map((p) => formatLength(p)).join(", ")}, each ${formatLength(l.postLength)}`);
   out.push(`  Footings: ${l.concrete.count} x ${l.concrete.diameter} in by ${l.concrete.depth} in = ${l.concrete.yards.toFixed(2)} cu yd (${l.concrete.bags} bags at ${l.concrete.bagYield} cu ft, 10% waste)`);
-  out.push(`  Decking: ${l.rows} rows, ${l.deckBoards.length} boards (${l.joints} butt joints, each on a joist), ${l.screws} screws (${l.screwBoxes} box${l.screwBoxes === 1 ? "" : "es"})`);
+  out.push(`  Decking: ${l.rows} rows, ${l.deckBoards.length} boards${l.borderBoards.length ? ` + ${l.borderBoards.length} picture-frame border boards` : ""} (${l.joints} butt joints, each on a joist), ${l.screws} screws (${l.screwBoxes} box${l.screwBoxes === 1 ? "" : "es"})`);
   out.push("  Lumber order:");
   for (const o of l.orders) for (const ln of o.lines) out.push(`    ${ln.qty} x ${o.size} ${formatLength(ln.length)}`);
   out.push("  Hardware:");
