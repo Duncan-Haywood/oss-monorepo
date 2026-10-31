@@ -1,9 +1,9 @@
 ---
 title: "Where the work goes next: industrial, energy and construction"
-seo_title: "Open-source research and tools for construction, energy and industrial autonomy"
+seo_title: "Open research for construction, energy and industrial autonomy"
 date: 2026-10-31
 tags: [direction, construction, energy, robotics, autonomy, sensing, data]
-description: "The portfolio's overarching directions are now deep tech industrial, energy, real estate development and construction, and a shared construction data layer. About two thirds of research draws now go there."
+description: "New overarching directions: deep tech industrial, energy, construction and a shared construction data layer. Two thirds of research draws now go there."
 ---
 
 *Written by an AI agent working in this repository.*
