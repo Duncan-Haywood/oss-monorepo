@@ -16,7 +16,7 @@ import { THICK, EPS, DEPTH, optimizeStock, formatLength, formatInches } from "./
 const DOUBLE = 2 * THICK;
 export const SHEET = { width: 48, length: 96 };
 
-/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, cantilever?: number, headerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number }, blockingRows?: number, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], penetrations?: { type: "hole"|"notch", at: number, size: number, length?: number, fromEdge?: number, end?: boolean }[], limits?: { hole?: number, holeEdge?: number, notch?: number, endNotch?: number, notchLength?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
+/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, cantilever?: number, headerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, hangerCapacity?: number }, blockingRows?: number, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], penetrations?: { type: "hole"|"notch", at: number, size: number, length?: number, fromEdge?: number, end?: boolean }[], limits?: { hole?: number, holeEdge?: number, notch?: number, endNotch?: number, notchLength?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
 
 export function sampleFloor() {
   return { id: "Main floor", width: 480, depth: 336, joist: "2x10", spacing: 16, rim: true, beam: 168, blockingRows: 0 };
@@ -54,6 +54,7 @@ export function validateFloor(f, plan) {
   if (f.headerCheck) {
     const h = f.headerCheck;
     for (const [k, lo, hi] of [["liveLoad", 1, 200], ["deadLoad", 0, 200], ["Fb", 10, 5000], ["Fv", 1, 500], ["E", 200000, 3000000]]) if (!(h[k] >= lo && h[k] <= hi) || (k === "deadLoad" && h[k] == null)) errors.push(`headerCheck.${k} must be typed, from ${lo} to ${hi} (${k === "liveLoad" || k === "deadLoad" ? "psf" : "psi"}); no default is shipped.`);
+    if (h.hangerCapacity != null && !(h.hangerCapacity > 0 && h.hangerCapacity <= 20000)) errors.push("headerCheck.hangerCapacity is the hanger's allowable load in lb from the maker's table, above 0 and up to 20000.");
     if (h.deflLimit != null && !(h.deflLimit >= 120 && h.deflLimit <= 960)) errors.push("headerCheck.deflLimit is the L/ ratio, from 120 to 960.");
     if (!(f.openings || []).length) errors.push("headerCheck needs at least one opening (a stairwell).");
   }
@@ -90,7 +91,9 @@ export function checkFloorHeaders(size, openings, tailSpans, loads) {
     if (fb > Fb) breaks.push(`bending ${fb.toFixed(0)} psi over ${Fb}`);
     if (fv > Fv) breaks.push(`shear ${fv.toFixed(0)} psi over ${Fv}`);
     if (defl > L / lim) breaks.push(`live deflection ${defl.toFixed(2)} in over L/${lim} (${(L / lim).toFixed(2)} in)`);
-    rows.push({ opening: k, side, span: L, tail, size: `2-${size}`, load: wTot * 12, fb, fv, defl, ok: !breaks.length, breaks });
+    const reaction = V; // lb at each end of the header, to a trimmer hanger
+    if (loads.hangerCapacity != null && reaction > loads.hangerCapacity) breaks.push(`end reaction ${reaction.toFixed(0)} lb over the typed hanger capacity ${loads.hangerCapacity} lb`);
+    rows.push({ opening: k, side, span: L, tail, size: `2-${size}`, load: wTot * 12, reaction, fb, fv, defl, ok: !breaks.length, breaks });
   }
   return rows;
 }
@@ -293,7 +296,7 @@ export function layoutFloor(f, plan) {
   if (f.headerCheck && openings.length) {
     const tails = openings.map((o) => [0, 1].map((side) => Math.max(0, ...joists.filter((j) => j.tail && (side === 0 ? Math.abs(j.y + j.length - o.cut[0]) < EPS : Math.abs(j.y - o.cut[1]) < EPS) && j.x + THICK / 2 > o.left - EPS && j.x + THICK / 2 < o.right + EPS).map((j) => j.length))));
     headerChecks = checkFloorHeaders(f.joist, openings, tails, f.headerCheck);
-    for (const r of headerChecks) notes.push(`Opening ${r.opening + 1} ${r.side} header, ${r.size} over ${formatInches(r.span)} clear carrying ${formatLength(r.tail)} tail joists: ${r.ok ? "passes" : "FAILS"} on your figures (bending ${r.fb.toFixed(0)} psi, shear ${r.fv.toFixed(0)} psi, live deflection ${r.defl.toFixed(2)} in)${r.ok ? "" : `: ${r.breaks.join("; ")}`}. Closed-form simple span, uniform half-span strip; stair reactions and walls above are not in it.`);
+    for (const r of headerChecks) notes.push(`Opening ${r.opening + 1} ${r.side} header, ${r.size} over ${formatInches(r.span)} clear carrying ${formatLength(r.tail)} tail joists: ${r.ok ? "passes" : "FAILS"} on your figures (bending ${r.fb.toFixed(0)} psi, shear ${r.fv.toFixed(0)} psi, live deflection ${r.defl.toFixed(2)} in, end reaction ${r.reaction.toFixed(0)} lb each end for the hanger)${r.ok ? "" : `: ${r.breaks.join("; ")}`}. Closed-form simple span, uniform half-span strip; stair reactions and walls above are not in it.`);
   }
   if (hangers.count) notes.push(`${hangers.count} joist hanger${hangers.count === 1 ? "" : "s"} counted (${tailEnds} single at tail-joist ends, ${headerEnds} double at header ends), sized for ${f.joist}; model and load rating are the engineer's call.`);
   if (cant) notes.push(`Joists cantilever ${formatLength(cant)} past the back support, ${(cant / f.depth).toFixed(2)} of the ${formatLength(f.depth)} supported span${cant > f.depth / 3 + EPS ? "; that is more than a third of it, and a common rule of thumb asks for the backspan to be at least 3 times the overhang, so have the engineer check it" : ""}. Cantilever size, backspan nailing and any tie-down are the engineer's call.`);

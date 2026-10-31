@@ -274,3 +274,14 @@ test("headerCheck needs typed loads and strengths and an opening", () => {
   const none = layoutFloor({ ...sampleFloor(), headerCheck: { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 180, E: 1300000 } }, plan());
   assert.ok(none.errors.some((e) => /at least one opening/.test(e)));
 });
+
+test("header end reaction is wL/2 and is checked against a typed hanger capacity", () => {
+  const hc = { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 180, E: 1300000 };
+  const o = [{ x: 100, y: 30, width: 36, depth: 100 }];
+  const front = layoutFloor({ ...sampleFloor(), openings: o, headerCheck: hc }, plan()).headerChecks.find((r) => r.side === "front");
+  assert.ok(Math.abs(front.reaction - (53.125 / 12) * 46.5 / 2) < 1e-9);
+  const weak = layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, hangerCapacity: 50 } }, plan()).headerChecks.find((r) => r.side === "front");
+  assert.equal(weak.ok, false);
+  assert.ok(weak.breaks.some((b) => /end reaction/.test(b)));
+  assert.ok(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, hangerCapacity: -1 } }, plan()).errors.some((e) => /hangerCapacity/.test(e)));
+});
