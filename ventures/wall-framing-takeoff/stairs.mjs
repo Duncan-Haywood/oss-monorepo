@@ -43,6 +43,8 @@ export function validateStair(s) {
   if (s.riserBoard && !(s.riserBoard in DEPTH)) errors.push(`Unknown riser board size ${s.riserBoard}.`);
   if (s.width != null && !(s.width >= L.minWidth)) errors.push(`Stair width ${s.width} in is under the ${L.minWidth} in minimum.`);
   if (s.width != null && s.width > 120) errors.push("Stair width over 10 ft is outside what this layout checks.");
+  if (s.stringerSpacing != null && !(s.stringerSpacing > 0 && s.stringerSpacing <= 48)) errors.push(`Stringer spacing ${s.stringerSpacing} in must be over 0 and at most 48 in.`);
+  if (s.nosing != null && !(s.nosing >= 0)) errors.push(`Nosing ${s.nosing} in cannot be negative.`);
   return errors;
 }
 
@@ -310,6 +312,7 @@ export function layoutStairWithLanding(input, plan) {
  * depth and an assumed 1-1/2 in of decking, so it is the post's length above the footing, not the footing depth.
  */
 export function layoutLandingPosts(width, depth, height, spacing = 96) {
+  if (!(width > 0 && depth > 0 && spacing > 0)) throw new RangeError("Landing width, depth and post spacing must be positive numbers.");
   const bays = (len) => Math.max(1, Math.ceil(len / spacing - 1e-9));
   const along = bays(width), across = bays(depth);
   const count = 2 * (along + across);
@@ -360,6 +363,7 @@ export function checkLandingPostColumn(height, postSize, load, { fc, emin } = {}
  */
 export function sizeLandingFootings(width, depth, spacing, { soilBearing, liveLoad = 40, deadLoad = 10, postCapacity } = {}) {
   if (!(soilBearing > 0)) return { ok: false, errors: ["soilBearing must be a positive figure in psf."] };
+  if (!(width > 0 && depth > 0 && spacing > 0)) return { ok: false, errors: ["Landing width, depth and post spacing must be positive numbers."] };
   const bays = (len) => Math.max(1, Math.ceil(len / spacing - 1e-9));
   const along = bays(width), across = bays(depth);
   const bay = (width / along) * (depth / across) / 144; // sq ft
