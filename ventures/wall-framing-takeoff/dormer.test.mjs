@@ -87,3 +87,22 @@ test("shed dormer by hand: 12 ft wide, 4 ft front wall, 3:12 on 8:12", () => {
 test("shed dormer refuses a pitch not flatter than the main roof", () => {
   assert.equal(layoutShedDormer({ width: 144, eaveHeight: 48, pitch: 8, mainPitch: 8 }).ok, false);
 });
+
+test("shed dormer with a window and a roof opening, by hand", () => {
+  // 12 ft wide, 4 ft front wall, 3:12 on 8:12 -> planes meet at 48 x 12 / 5 = 115.2 in back
+  const r = layoutShedDormer({ width: 144, eaveHeight: 48, pitch: 3, mainPitch: 8, window: { width: 36, height: 24, sill: 12 }, roofOpening: { mainSpacing: 24 } });
+  assert.ok(r.ok, JSON.stringify(r.errors));
+  const one = (n) => r.parts.find((p) => p.part === n);
+  assert.equal(one("king stud").count, 2);
+  assert.equal(one("jack stud").length, 36); // sill + height
+  assert.equal(one("window header (2 plies)").length, 39); // width + 3
+  // opening defaults to the cheek run to the roof: 115.2 in plan, slope 115.2 x sqrt(1 + (8/12)^2)
+  assert.equal(r.opening.depth, r16(115.2));
+  assert.equal(r.opening.cutMainRafters, 5); // ceil(144 / 24) - 1
+  assert.equal(one("roof opening header (2 plies, up- and downslope)").count, 4);
+  assert.equal(one("roof opening trimmer (doubled)").length, r16(115.2 * Math.sqrt(1 + (8 / 12) ** 2) + 3));
+});
+
+test("shed dormer refuses a window wider than the wall", () => {
+  assert.equal(layoutShedDormer({ width: 144, eaveHeight: 48, pitch: 3, mainPitch: 8, window: { width: 200 } }).ok, false);
+});
