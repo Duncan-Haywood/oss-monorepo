@@ -1,6 +1,6 @@
 ---
 title: "Which permit fields predict how long a permit takes?"
-seo_title: "Which building permit fields predict permit duration: Chicago, San Francisco, Austin"
+seo_title: "Which permit fields predict permit duration: 3 US cities"
 date: 2026-10-31
 tags: [research, construction, build-data]
 description: "Permutation importance on boosted quantile models of permit duration in three US cities: two to four fields carry 80% of the model's reliance."
