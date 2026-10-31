@@ -422,3 +422,5 @@ The floor card's header-check field takes an optional eighth figure, the cantile
 ## Schedule risk (`--risk`)
 
 Add `min` and `max` (working days) to the schedule activities you are unsure of, with `days` as the most likely figure, then run `node cli.mjs plan.json --risk` (`--json` for data). It draws each ranged activity from a triangular distribution 1,000 times (seeded, so repeatable), re-runs the crew-levelled schedule and reports P50, P80 and P90 finish dates, the chance of making `deadline`, and how often each activity sits on the critical path. Checked by hand-computed draws and serial-chain bounds in `risk.test.mjs` only; the ranges are yours and draws are independent, so it understates delays that travel together.
+
+The cost cash flow (`cashFlow`) also groups spend by week starting Monday, with `peakWeek` and a running total (landed 2026-10-31, hand test; the month figures came from a parallel session the same day). An even spread over each activity's days is a simplification, and no payment lag or retainage is modelled.

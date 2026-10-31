@@ -261,3 +261,13 @@ test("no costs, no cash flow; a bad cost is refused", () => {
   assert.equal(bad.ok, false);
   assert.match(bad.errors[0], /cost must be/);
 });
+
+test("cash flow also groups spend by Monday week and names the peak week", () => {
+  // a: 5 days Mon 2026-03-02, $5,000 (1,000/day); b: 5 days next week, $2,500; c: 0-day $300 after b
+  const s = schedule({ start: "2026-03-02", activities: [
+    { id: "a", days: 5, cost: 5000 }, { id: "b", days: 5, after: ["a"], cost: 2500 }, { id: "c", days: 0, after: ["b"], cost: 300 } ] });
+  assert.deepEqual(s.cashFlow.weeks.map((w) => [w.week, w.spend, w.cumulative]), [["2026-03-02", 5000, 5000], ["2026-03-09", 2500, 7500], ["2026-03-16", 300, 7800]]);
+  assert.equal(s.cashFlow.peakWeek, "2026-03-02");
+  assert.match(scheduleText(s).join("\n"), /heaviest week \(from Monday\) 2026-03-02 at \$5,000/);
+  assert.match(scheduleCsv(s), /week:2026-03-09,.*spend 2500; to date 7500/);
+});
