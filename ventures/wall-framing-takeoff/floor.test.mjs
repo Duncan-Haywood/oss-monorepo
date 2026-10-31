@@ -178,6 +178,16 @@ test("joist hangers: tail-joist ends at the headers and four double hangers per 
   assert.equal(line("Double joist hangers").amount, 20);
 });
 
+test("hanger nails: typed per-hanger counts times the hangers counted, into the budget", () => {
+  const o = [{ x: 100, y: 40, width: 36, depth: 100 }];
+  assert.equal(layoutFloor({ ...sampleFloor(), openings: o }, plan()).hangers.nails, undefined);
+  // 4 singles x 6 + 4 doubles x 10 = 64 nails
+  const l = layoutFloor({ ...sampleFloor(), openings: o, hangerNails: { single: 6, double: 10 } }, plan());
+  assert.equal(l.hangers.nails, 64);
+  assert.ok(l.notes.some((n) => n.includes("64 hanger nails counted")));
+  assert.equal(budget({ floor: l }, { hangerNail: 0.05 }).lines.find((x) => x.item === "Joist hanger nails").amount, 3.2);
+  assert.equal(layoutFloor({ ...sampleFloor(), openings: o, hangerNails: { single: -1 } }, plan()).ok, false);
+});
 
 test("a cantilever lengthens the joists, rims and subfloor past the back support, hand-counted", () => {
   const base = layoutFloor(sampleFloor(), plan());
