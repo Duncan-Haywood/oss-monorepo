@@ -27,7 +27,12 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "first post draft named the old github.io host; custom-domain.test.mjs caught it in CI",
+      "fixed": true
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -45,7 +50,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "GHP redirect was already live (run 41143849046: deploy-cloudflare then deploy both success). Changed README/CITATION links to marisstella.app; wrote LinkedIn copy with sourced counts (tools.mjs search total 1306; 1058 research dirs); post. Local checks: run_workflow_locally --for-changes, see PR.",
+  "notes": "GHP redirect was already live (run 41143849046: deploy-cloudflare then deploy both success). Changed README/CITATION links to marisstella.app; wrote LinkedIn copy with sourced counts (tools.mjs search total 1306; 1058 research dirs); post. Local checks: run_workflow_locally --for-changes, see PR. Owner then asked for the workers.dev address to redirect: _headers Refresh+noindex for static files (unmetered), 301 in router.mjs for code paths. Local: node --test platform/pages/cloudflare/split.test.mjs 6/6; custom-domain.test.mjs 5/5 (it had failed in CI because the post named the old host). Also fixed PR #11943's run record, which failed promptctl validate on main.",
   "corrections": [],
   "redteam": null
 }
