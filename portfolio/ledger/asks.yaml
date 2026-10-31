@@ -31,6 +31,26 @@
 # servers (89.167.29.39, 157.180.80.188) on 2026-10-01, so the k3s/Argo
 # cluster route is retired, not down. Do not put them back or ask for
 # HETZNERSSHKEY; GitHub Pages is the only host.
+# Rows `egress-policy` and `session-gate-economics-premise` are gone:
+# answered by the owner on 2026-10-31. Egress: "absolutely fine" to the
+# read-only list, and the same day's re-probe found 94 of 98 hosts already
+# reachable (`portfolio/research/egress-reachability/results-2026-10-31.json`).
+# Billing: "flat subscriptions on but with limits on usage. but the 16 agent
+# runs per hour 24/7 hits limits basically exactly if every run does
+# something. undershoots if the runs slack." So BUILD (#813) stands, and an
+# idle run wastes capacity rather than saving money. Do not put them back.
+# Also answered by the owner on 2026-10-31, rows gone, do not put them back:
+#   - `local-site-studio-subtree-gate-crossing`: #731 accepted as merged
+#     ("that was fine at the time").
+#   - `branch-cleanup-automation`: #829 accepted ("seems reasonable ... keeps
+#     from massive ballooning of branches"). A closed PR's commits stay
+#     reachable from the PR page, so deleting its head branch loses nothing.
+#   - `agent-cross-review-automerge`: not turned on. The owner prefers review
+#     driven by prompts and scheduled sessions, and "generally having api
+#     token billing running in actions is not ideal at the moment. not a
+#     permanent rule just not the current method." The workflows stay inert.
+#   - `deploy-settings`: the owner confirmed the old GitHub Pages address
+#     redirects to marisstella.app.
 # Row `print-atelier-stripe-checkout` is gone: the owner's 2026-10-15 rule
 # answers it (payment code is fine off by default on the deployer's keys;
 # `PRODUCT_PLAYBOOK.md` §6). Its Stripe code already works that way.
@@ -165,78 +185,11 @@ decisions:
   # cadence while nothing can run is deciding the speed of a stopped clock.
   requires: [github-actions-runners]
   action: >-
-    Decide whether the 4-minute routine cadence runs, now that the merge half
-    is already done: #788 landed on 2026-08-24 and
-    `.github/workflows/claude-routine-trigger.yml` is on `main` today.
-
-    **Corrected 2026-09-01: the secret already exists, and its token is
-    revoked.** This row said until 2026-09-01 that the secret was unset and
-    every run "fails on its first step for want of the secret -- the safe
-    state, but a noisy one". That is not what is happening. Read from the job
-    log of run 33547527610 (job 99988623632): the step's env shows
-    `CLAUDE_TRIGGER_API_KEY: ***`, i.e. the secret is set and masked, and the
-    request reaches the API and comes back `HTTP 401 ...
-    {"type":"authentication_error","message":"OAuth access token has been
-    revoked."}`. An unset value would have exited at the workflow's own
-    preflight check (its `-z` guard on the key) before any request, and does not.
-
-    So the choice is now between: **yes**, mint a fresh token on the routine's
-    API trigger at https://claude.ai/code/routines and update the existing
-    `CLAUDETRIGGERAPIKEY` secret (Settings -> Secrets and variables ->
-    Actions), accepting the spend below; or **no**, delete the workflow file,
-    which no session may do on its own because the owner requested it.
-
-    **Magnitude corrected 2026-09-01 (second correction, measured).** This
-    row said "~360 fires a day are each making a real API call on a real
-    runner and getting 401 -- burning Actions minutes on the metered
-    allowance whose exhaustion caused the 2026-08-26 starvation window". The
-    direction is right and the cost is real, but both figures were about 5x
-    and 17x too high, because they assume the run loops. It does not. On 401
-    `fire()` returns 2, and the loop's `case` does `2) exit 1` on that value
-    (the `2) exit 1` arm of the loop's `case`), so the run aborts on its *first* fire and
-    never reaches the four remaining slots or their 240s sleeps.
-
-    Measured, not inferred: five consecutive runs (33553452882, 33551039615,
-    33549288450, 33547527610, 33545549251) each ran a single `fire` job for
-    **2-3 seconds** on a real runner, `ci_starvation.py --run` exit 0 on
-    each. A 5-fire loop would occupy ~16 minutes. So the standing waste is
-    **72 API calls a day, not 360** (one per run at `*/20`), and **~72 billed
-    Actions minutes a day** (GitHub rounds each job up to the minute) --
-    roughly 2,200 minutes, on the order of **$17** a month, against the
-    ~37,000 minutes / ~$300 the `unlocks` figure below quotes. That figure is
-    not wrong; it describes the *working* state, which is what a fresh token
-    would buy. Nothing fires today, so the Claude-side spend and the daily
-    routine-run cap are both untouched at zero.
-
-    What survives the correction: it is not free, and it is the standing
-    counter-example to "CI is green" -- every scheduled run has been red on
-    its own merits since the token was revoked, with no exception yet
-    (a fixed run count is not recorded here on purpose: this row is meant to
-    stay accurate as the count keeps climbing, not to be re-edited every time
-    it does). What does not survive: any reading of this row as an
-    urgent drain on the allowance whose exhaustion went dark on 2026-08-26.
-    At ~$17/month it is affordable to leave red while the owner decides,
-    which is the difference between "delete this today" and "answer it when
-    you get to it".
-
-    **The spend and the noise both stopped on 2026-09-02; the decision did
-    not.** The `fire` job now carries
-    `if: github.event_name == 'workflow_dispatch' || vars.ROUTINE_TRIGGER_ENABLED
-    == 'true'`, and the repository variable is unset, so a scheduled run is
-    skipped before a runner is assigned -- no minute billed, no red check. The
-    workflow file is untouched otherwise and `workflow_dispatch` still runs
-    unconditionally, so a fresh token can be tested from the Actions tab
-    without flipping anything.
-
-    Read that as the bleeding stopped, not the question answered. **Yes** is
-    now three steps rather than one: mint the token, update
-    `CLAUDETRIGGERAPIKEY`, dispatch the workflow once to confirm it reports
-    `fired:`, then set the variable `ROUTINE_TRIGGER_ENABLED` to `true` under
-    Settings -> Secrets and variables -> Actions -> Variables. The variable is
-    last on purpose -- it is what re-arms the schedule, and re-arming it before
-    the token works just restores the old burn. **No** is unchanged and still
-    the owner's alone: delete the workflow file. Leaving it exactly as it is
-    now is a third, cost-free option this row did not previously have.
+    Decided 2026-10-31: delete the workflow ("delete is fine"). What is left
+    is approving the control-plane PR that deletes
+    `.github/workflows/claude-routine-trigger.yml`, then removing the
+    `CLAUDETRIGGERAPIKEY` secret and the routine's API trigger at
+    https://claude.ai/code/routines. Remove this row when that PR merges.
   unlocks:
     - >-
       A 4-minute cadence for the "continue work via api" scheduled routine,
@@ -266,10 +219,14 @@ decisions:
   exposure: legal-person
   opened: "2026-08-19"
   action: >-
-    Decide the binary in `break-even.md`: either commit to a merchant-of-record
-    account (and the egress entry it needs), or say plainly that this portfolio
-    is not going to earn under the current design, so the fleet cadence can be
-    set to match.
+    Decided 2026-10-31: a merchant of record. What is left is yours, in this
+    order: (1) approve the `prompts/goals.md` amendment PR that replaces
+    "Payments: never the owner's" with your 2026-10-31 decision (agents may
+    not edit that guardrail on their own); (2) pick the provider (Polar,
+    Lemon Squeezy or Paddle; `docs/reports/2026-10-31-payout-rail-next-steps.md`
+    compares them) and open the account yourself with 2FA on; (3) paste the
+    live checkout link into owner-only config (Cloudflare dashboard variable),
+    never into this repo or a session.
   unlocks:
     - >-
       The only thing that moves the revenue ceiling off $0. Every other item in
@@ -277,269 +234,15 @@ decisions:
       lets the portfolio take a dollar.
   blocked_by: []
   note: >-
-    Deliberately human-gated and correctly so -- `CLAUDE.md` and
-    `channel-inventory.md` both hold that an unattended agent holding a bank
-    credential is the liability this portfolio exists to avoid. So this is not
-    a gap to route around; it is a decision to make in one direction or the
-    other. `break-even.md` supersedes the old Ask 8 (report the API spend):
-    the owner does not need to report a number, only to check a bill they
-    already have against the $0.12/session threshold and then answer this.
-    Per #219 as revised by #225, the three candidates on reachable registries
-    do not on their own justify the compliance and tax overhead of a
-    merchant-of-record account -- which is an argument about *which* direction
-    to answer in, not a reason to leave it unanswered. 2026-10-30: the owner
-    asked how to turn billing on without risking a key leak; the plan
-    (merchant of record or Payment Links first, no live key anywhere this
-    repo or its agents can reach) is `docs/reports/2026-10-30-billing-plan.md`.
-
-- id: egress-policy
-  asks: [3, 7]
-  prs: []
-  gates: measurement
-  exposure: none
-  opened: "2026-08-19"
-  action: >-
-    One read-only egress allowlist decision covering `api.wordpress.org`, four
-    public storefronts (`formulae.brew.sh`, `www.raycast.com`, `obsidian.md`,
-    `zed.dev`) and the EU/US institutional publishers
-    (`eur-lex.europa.eu`, `ec.europa.eu`, `www.ftc.gov`, `www.w3.org`,
-    `www.federalregister.gov`, `euvd.enisa.europa.eu` and
-    `euvdservices.enisa.europa.eu`). No account, no write access, nothing
-    published.
-  unlocks:
-    - WordPress.org `active_installs` -- the one adopter-rate observation available on a free channel with a business buyer.
-    - "`portfolio/pipeline/`'s own graduation gate, which requires obligation dates checked against primary legislation and is otherwise unsatisfiable by any session through any tool."
-    - "`cra-evidence-desk`'s EUVD wedge, its only remaining differentiator -- which needs `euvdservices.enisa.europa.eu`, not just the website host."
-    - "`mcp-supply-chain-watch`'s only surviving path to a defensible archive (the 84.5% remote-endpoint half of its market)."
-  blocked_by: []
-  note: >-
-    Asks 3 and 7 are one decision, not two: per #253 the policy is
-    general-web hosts denied and code/package/object-storage infrastructure
-    allowed, and `https://example.com` fails with the identical signature as
-    every host above -- so granting the policy resolves both rows. Confirmed
-    denied independently by #126/#137/#166, #177, #218, #219, #232, #253, and
-    for the harness's own `WebFetch` as well as `curl`. This is the highest-
-    leverage item with no legal exposure at all: it buys four distinct things
-    and costs the owner one allowlist decision.
-    Corrected 2026-08-24 on two counts, both found by measuring the hosts this
-    row names rather than by re-reading it. First, this row asked for
-    `euvd.enisa.europa.eu` while claiming to unlock the EUVD wedge; that host
-    serves only the website, the API is served from
-    `euvdservices.enisa.europa.eu`, and granting the list as written would have
-    left the wedge blocked. Second, `www.ftc.gov` had been named here since
-    2026-08-19 with no verdict in the consolidated egress table at all -- it
-    was measured by #232, which left prose and no results file. Both hosts are
-    now measured (denied, twice each, against a reachable control) and carried
-    in `portfolio/research/egress-reachability/`, and CI fails if this row
-    ever again names a host nothing has probed.
-
-- id: deploy-settings
-  asks: [4, 6]
-  prs: []
-  gates: deployment
-  exposure: credential
-  opened: "2026-08-19"
-  # Measured, current loss of a public surface, per the OUTAGE convention in
-  # decision_queue.py: `Public surface check` run 33912053750 (2026-09-04,
-  # no credential, every request one a stranger could make) got 404 from
-  # `https://duncan-haywood.github.io/monorepo-projects/` — the origin ~670
-  # generated pages name in their own `<link rel="canonical">`.
-  #
-  # This row sat at position 9 for 16 days while the queue's outage banner
-  # told the owner that "every other row here is downstream of a host
-  # answering at all". That sentence was true of one surface and this is the
-  # other one: GitHub Pages needs no k3s, no SSH key and no sealed clone
-  # token, so it is not downstream of the cluster and never was. The ranking
-  # encoded the pre-#3199 belief that the portfolio had a single origin.
-  #
-  # CLEARED 2026-09-06. `outage: true` asserts a *measured, current* loss of a
-  # public surface -- decision_queue.py is explicit that it "is not a way to
-  # say important" -- and the measurement it rested on (the 404 from run
-  # 33912053750 on 2026-09-04) has been overtaken. GitHub's managed builder
-  # now runs on `gh-pages` and succeeds (runs 34011996382, 34012041708), which
-  # happens only for the configured Pages source, so this route is deployed
-  # rather than dark. What is left is one logged-out fetch nobody here can
-  # make, and "unverified" is not "down": leaving the flag set would keep the
-  # banner telling the owner to restore a surface that is already up, which
-  # is the same failure in the opposite direction.
-  outage: false
-  # Until 2026-09-05 this read `requires: [github-actions-runners]`, and that
-  # was correct for the only route that existed: `portfolio-pages.yml` had to
-  # build the artifact and run `deploy-pages`, and that needs a runner.
-  #
-  # `platform/pages/publish-branch.sh` (added 2026-09-05) removes that
-  # prerequisite rather than waiting on it. It builds the site in a session,
-  # checks the artifact, and commits it to an orphan `gh-pages` branch, so the
-  # owner's flip becomes Source "Deploy from a branch" — no workflow run, no
-  # runner, no k3s cluster. Every one of this repository's three execution
-  # routes was down on 2026-09-04 at once; this is the delivery path that is
-  # downstream of none of them.
-  #
-  # What is left is not CI. It is that **this repository is private, and Pages
-  # does not serve a private repository's site on the Free tier** — which
-  # applies to the branch source exactly as it did to the workflow source.
-  # Nothing here can read the account's plan, so it is `unknown`, not `up`:
-  # see `github-pages-plan` in `infra_state.yaml`. Swapping one prerequisite
-  # for none would have rendered this row `up` and floated it back to the top
-  # of the queue on the strength of a measurement nobody took.
-  requires: [github-pages-plan]
-  runner_free: >-
-    `platform/pages/publish-branch.sh` builds and commits the site to the
-    `gh-pages` branch from a session; serving it is Settings → Pages →
-    Source "Deploy from a branch". No workflow is dispatched at any point,
-    so runner starvation does not block this route.
-  action: >-
-    **GRANTED — measured 2026-09-06. Do not flip anything; one 10-second
-    confirmation is all that is left.** GitHub's own managed builder
-    `dynamic/pages/pages-build-deployment` ran on `gh-pages` and concluded
-    `success` (runs 34011996382 and 34012041708), and a managed Pages build is
-    triggered only by a push to the *configured source*. So Pages is on, the
-    source is the `gh-pages` branch, and the snapshot built from the tip of
-    `main` has been deployed. Both runs also completed while
-    `github-actions-runners` was down, so this route does not spend the
-    metered Actions allowance.
-    What is genuinely left, and it is not a settings change: **open
-    https://duncan-haywood.github.io/monorepo-projects/ in a logged-out
-    browser and confirm you see the catalogue.** A deploy succeeding is not
-    the same as an unauthenticated stranger getting a 200 — a Pages site can be
-    access-controlled — and no session can check it, because the agent egress
-    proxy answers `403 to CONNECT` for `github.io`. If it loads, this row is
-    closed and `github-pages-origin` in `infra_state.yaml` goes `up`. If it
-    404s or asks you to log in, that is the plan question below, and only then
-    does the rest of this row apply.
-    **The standing job for sessions, now that the route is live:** a committed
-    artifact does not rebuild itself, so re-run
-    `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`
-    after any merge that touches a served surface. That is this route's one
-    real cost and it is now the difference between the live site and `main`.
-    **And there is a second flip that retires that standing job — added
-    2026-09-06, because this row has been describing the drift as permanent
-    while the fix sat in the tree unmentioned.**
-    `.github/workflows/publish-pages-branch.yml` runs exactly the command
-    above on every push to `main` that touches `ventures/**` or
-    `platform/pages/**`. It ships switched off, because CLAUDE.md's
-    "Automation" rule forbids an unattended workflow that pushes commits
-    without your approval — so the gate *is* the approval, the same way
-    `PAGES_ENABLED` gates the other Pages route. To arm it: **Settings →
-    Secrets and variables → Actions → Variables → `PAGES_BRANCH_PUBLISH` =
-    `true`**. Clearing it switches the pushing back off; with it unset the
-    workflow still builds the site and runs `check.mjs`, so a dead link the
-    copy step introduces turns a merge red instead of reaching a crawler.
-    Worth setting now even though it changes nothing today: it needs an
-    Actions runner, and `github-actions-runners` has been down since
-    2026-09-04, so what setting it buys is that the drift hole closes by
-    itself on the day the allowance resets rather than waiting on somebody
-    to remember this paragraph then. It is listed here rather than as its
-    own queue row because it is the same decision as this one — how the
-    Pages route stays published — and CLAUDE.md is explicit about not
-    duplicating asks.
-    ---
-    **Superseded below (2026-09-05 and earlier), kept because the way it went
-    stale is the reusable part: every sentence was a correct reading of the
-    manifests and the API restated as a claim about what a visitor receives,
-    and nothing re-ran when the world changed.**
-    **Check the plan first — thirty seconds, and it decides whether the rest
-    of this row is worth anything.** Settings → Billing names it. Pages will
-    not serve a *private* repository's site on the Free tier, and this
-    repository is private, so on Free this row publishes nothing to a
-    stranger no matter what else is done. On Pro or above, continue.
-    **Expect that check to come back Pro or better** (new 2026-09-05, and
-    the reason this row is worth opening at all today):
-    `python3 platform/ci/pages_state.py` reads the repository object and
-    reports `private: true` **and** `has_pages: true`. GitHub does not let
-    the Free plan enable Pages on a private repository, so a Pages site
-    already being configured here is evidence the plan permits it — read
-    without any billing permission, from a session, with no runner. It is
-    evidence and not proof: `has_pages` is sticky across a repo going
-    private or an account downgrading, which is exactly why the thirty
-    seconds in Billing still settles it and why `github-pages-plan` stays
-    `unknown` in `infra_state.yaml` until you look. Also worth knowing
-    before you go: the same tool reports the `gh-pages` snapshot as
-    **current** — built from the tip of `main` — so the flip publishes
-    today's catalogue, not a stale one.
-    **Then, the runner-free route (new 2026-09-05, and the one to take):**
-    the built site is already committed to the `gh-pages` branch by
-    `platform/pages/publish-branch.sh` — 174 products, 690 pages, verified
-    by `check.mjs` before the commit was written. Serve it with Settings →
-    Pages → Source **"Deploy from a branch"** → `gh-pages` / (root). That
-    is the whole flip. It needs no Actions runner, no `PAGES_ENABLED`
-    variable and no k3s cluster, which is what makes it survivable on a day
-    like 2026-09-04 when all three were down at once. Re-run the script
-    (`CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`)
-    to refresh the snapshot; a committed artifact does not rebuild itself,
-    and that is this route's one real cost.
-    **The original route, for when runners are reliable again:** Settings →
-    Pages → Source "GitHub Actions", and set repository variable
-    `PAGES_ENABLED=true`. Prefer it once Actions minutes are healthy — it
-    republishes on every merge to `main`, so the site cannot drift from the
-    repository the way a committed snapshot can. (Not
-    `GITHUB_PAGES_ENABLED` — that name is unsettable, and until this row
-    was corrected this ask could never actually have been completed as
-    written: GitHub rejects any Actions configuration-variable name
-    starting with `GITHUB_`, case-insensitive, at creation time. See
-    `portfolio/hosting/README.md`.)
-    **This row used to call that "the remaining flip for static products".
-    It is not the remaining anything** (corrected 2026-09-05). Two things
-    sit behind it. First, `portfolio-pages.yml` has to build the artifact,
-    and it cannot today — runner assignment stopped again on 2026-09-04,
-    which is why this row now renders `down`. Second, and fixable by no
-    amount of CI: **this repository is private, and Pages from a private
-    repository does not serve a public site on the free tier.** If this
-    account is on the free tier, granting this row publishes nothing to a
-    stranger however green CI gets, and it is not a restore route at all;
-    on Pro or above it is. Nothing in this repository can read the
-    account's plan, so the owner is the only one who can settle which case
-    this is — worth thirty seconds in Settings → Billing before spending
-    anything else here, because the answer decides whether this row belongs
-    in the outage set. `portfolio/hosting/README.md` has carried the
-    private-repo constraint since 2026-09-01; this row had not caught up.
-    (2026-10-01: the Hetzner route this paragraph used to offer as the
-    alternative is gone -- the owner deleted the servers -- so GitHub Pages
-    is the only host; see `portfolio/hosting/README.md`.) Do not add Cloudflare or
-    Vercel secrets as the way the portfolio goes live.
-  unlocks:
-    - "**174 finished, tested, free products at once** -- every static venture surface in the repo, assembled into one Pages site by `platform/pages/build.mjs` and published by `.github/workflows/portfolio-pages.yml`. This is what the flip now publishes. (Recorded as 33 until 2026-08-27 and as 161 until 2026-09-04; the portfolio keeps growing and the figure keeps not keeping up, understating the payoff of this one flip each time.)"
-    - "Re-verified 2026-09-04, not merely assumed: `node platform/pages/build.mjs --out=dist` then `node platform/pages/check.mjs dist` returns \"looks publishable: 174 products, 7 category pages, 675 pages, no dead links\" (exit 0). There is no unfinished build work between this flip and a stranger using one of these tools."
-    - "**This is the only route to a public surface** (corrected 2026-10-01: the Hetzner servers behind the other route were deleted by the owner that day). It asks the owner for nothing they have to find: two clicks and a variable, in settings the owner already controls: Settings → Pages → Source \"GitHub Actions\", then `PAGES_ENABLED=true`."
-    - "The artifact is **already built and validated on every merge to `main`** -- `portfolio-pages.yml`'s `build` job runs the builder, the integrity check and `upload-pages-artifact`, and succeeds; only the `deploy` job is gated on `vars.PAGES_ENABLED == 'true'` and it is skipped every time (measured: run 33910587055, `deploy` conclusion `skipped`, `build` conclusion `success` on the same run). So the flip publishes something that has already passed its checks, rather than starting a build that might not."
-    - "The flip is self-verifying: `portfolio-pages.yml`'s deploy job ends by fetching `/`, both sitemaps, `robots.txt`, `catalog.json`, `llms.txt`, `feed.xml` and one real product page through the live public URL, and fails if any returns non-200. `Public surface check` (no credential) then re-measures the same origin on demand, so \"it worked\" is a reading rather than an inference."
-    - Three ventures whose builds already pass but which deploy nothing.
-    - "`retail-pilot-intel`'s docs deploy, which since #347 is green *and publishes nothing* -- the workflow skips the publish job rather than failing, so the record shows success for a site that does not exist. It no longer reads this variable: GitHub serves one Pages site per repo, so it moved to `RETAIL_PILOT_INTEL_PAGES` rather than racing the calculators for the origin."
-  blocked_by: []
-  note: >-
-    Narrowed 2026-08-25: the owner chose GitHub Pages for static products
-    and the existing Hetzner boxes for processes. Vercel/Cloudflare are
-    not the portfolio default. Hetzner account and GHA SSH keys already
-    exist, so this ask is no longer "pick a vendor" — it is the Pages
-    source toggle that flips gated `deploy-pages` jobs to live.
-
-
-    Sharpened 2026-08-26: the flip used to be worth much less than it looked.
-    GitHub serves one Pages site per repository, and the only workflow that
-    could claim it published `retail-pilot-intel`'s passcode-gated internal
-    docs — so setting the variable would have put a docs app live and left
-    every calculator dark. `platform/pages/` now builds the whole portfolio
-    into that one site (see its README for what is published and how to
-    exclude a venture), and `retail-pilot-intel` moved to its own variable so
-    the two cannot race. Nothing new is being asked for: same toggle, same
-    variable name, ~33 products behind it instead of none.
-
-
-    Grouped originally because both Asks 4 and 6 were repository settings
-    in one sitting. Ask 4 (Cloudflare token) is no longer the requested
-    path; leave those workflows gated and unused. Note the correction
-    recorded in #696 and on #139 (comment 5389301893): Ask 6 as originally
-    written described a *failing* deploy; it is now a silently-skipped
-    one, which is worse for the record and unchanged for the site.
-
-
-    As of 2026-08-24 the two `unlocks:` claims above are no longer prose:
-    `platform/ci/publish_surface.py --check` re-derives them from
-    `.github/workflows/` on every CI run, so "deploys nothing" cannot quietly
-    stop being true. Granting this ask is the thing that flips the Pages
-    workflow from `gated` to `live`, and that flip is what will turn the
-    check red until the snapshot is rewritten to record it.
-
+    Owner, 2026-10-31: "its time to add payout rail of some sort. merchant of
+    record sounds fine to me." That answers the binary in `break-even.md` in
+    the earning direction. The row stays open because creating the account
+    needs a legal person, ID and a bank, which no session may supply. The
+    API hosts of all four candidates (`api.polar.sh`, `api.lemonsqueezy.com`,
+    `api.paddle.com`, `api.stripe.com`) answered from a session on 2026-10-31,
+    so "the egress entry it needs" is no longer needed. The key-safety design
+    stays `docs/reports/2026-10-30-billing-plan.md`, Option A: hosted
+    checkout, no live key anywhere this repo or its agents can reach.
 - id: agent-runner-subscription-login
   asks: []
   prs: [2000]
@@ -623,7 +326,7 @@ decisions:
       direction. crates.io logs in with a GitHub account; publishing under
       the portfolio's name is the owner's call. index.crates.io answered 200
       from a cloud session on 2026-10-29, so egress is not the blocker there.
-  blocked_by: [egress-policy]
+  blocked_by: []
   note: >-
     Listed as blocked, and this is the correction the #139 table does not
     carry. `CLAUDE.md` states it in prose -- "Ask 5 is currently inert" --
@@ -634,146 +337,10 @@ decisions:
     listing carries roughly 5% odds of reaching the top decile, and per
     #219/#225 the payoff at today's reachable-registry regime is $16-$145/month
     -- a rounding error against the ceiling in `break-even.md`. Worth granting
-    after the egress decision, not before it.
-
-- id: local-site-studio-subtree-gate-crossing
-  asks: []
-  prs: [731]
-  gates: deployment
-  exposure: none
-  opened: "2026-08-24"
-  action: >-
-    Review the already-merged #731 (1,405-commit `local-site-studio` subtree
-    merge, `7b69f3d`) and decide whether to accept it as-is or revert it.
-  unlocks:
-    - >-
-      Closes a process gap rather than a code gap: #731's own body said "this
-      is venture code, so per `CLAUDE.md` it is not agent-decidable and I have
-      not merged it. Flagging for review" -- but it was merged anyway, by
-      `kilo-code-bot[bot]`, the same day it was opened. No open PR or ledger
-      entry recorded this before now.
-  blocked_by: []
-  note: >-
-    Same shape as the (now-resolved) `dependabot` row's #368 gate-crossing: a
-    PR whose body explicitly deferred to the owner was self-merged regardless.
-    Lower urgency than #368 was -- this merge did not spawn ongoing
-    automation, and `platform/ci/publish_surface.py` confirms nothing
-    currently publishes on a push to `main`, so no live site was republished
-    -- but it did land 1,405 commits and 533 changed files of upstream
-    history, a `next` 16.3.1/`react` 19.2.8 version split, and a regenerated
-    lockfile into `local-site-studio` without the sign-off `CLAUDE.md`'s
-    "breaking changes to deployable `ventures/*` code" gate requires. The
-    PR's own verification (tsc clean, lint clean, 4,030 tests passing, build
-    clean, `npm audit` 0 high/critical) is not in question; whether the owner
-    wanted this merge at all, and on this timeline, is. A same-day companion
-    PR, #786, correctly proposed removing the now-stale
-    `local-site-studio-subtree` decision row (its `action` was "merge or
-    decline #731", moot once #731 is merged) but was closed by a concurrent
-    session on the mistaken belief that "#731 is still open" -- it is not;
-    `merged: true`, `merged_at: 2026-08-24T09:45:00Z`. A second session (#787)
-    then independently made the same correct removal. This row adds the part
-    neither made: the actual open question left behind, accept or revert.
-
-- id: session-gate-economics-premise
-  asks: []
-  prs: [813]
-  gates: deployment
-  exposure: none
-  opened: "2026-08-24"
-  action: >-
-    Confirm, in one sentence, on this row or on #139: is fleet capacity for
-    this account billed as a flat subscription (a session that runs and a
-    session that idles cost the same), or metered per-session/per-token (an
-    idle session costs less than an active one)? Either answer is fine; it
-    is the one fact `session_gate.py`'s current behavior cannot get from
-    inside a session.
-  unlocks:
-    - >-
-      Settles whether `session_gate.py` v2's BUILD-not-NO-OP routing (merged
-      via #813) is correct policy or needs reverting. The two billing models
-      imply opposite conclusions from the same $0 revenue ceiling: flat
-      subscription means idle capacity is waste and BUILD is right; metered
-      billing means an unproductive session has a real marginal cost and the
-      old NO-OP stance -- "the highest-value output is nothing" -- was
-      correct. No session can distinguish these from inside a container.
-  blocked_by: []
-  note: >-
-    #813 merged 2026-08-24T14:14:45Z, replacing the session gate's NO-OP
-    verdict with a BUILD lane fleet-wide, on the stated basis that "the
-    account owner corrected the premise on 2026-08-24: fleet capacity is
-    bought as a flat subscription." That sentence is the entire load-bearing
-    justification for the change -- `break-even.md`'s new amendment repeats
-    it near-verbatim with the same lack of citation -- and it cannot be
-    checked from here: every session on this repository, including this one,
-    authenticates as the same `Duncan-Haywood` GitHub identity -- confirmed by
-    three same-day self-merges under that one account (#819, #815, #813) --
-    so a PR body attributing a claim to "the account owner" is
-    indistinguishable from a session asserting it about itself. This is not
-    a claim that #813 is
-    wrong -- the code quality is good (Kilo Code Review's 9-warning first
-    pass on `session_gate.py`/`build_targets()` reads as fixed in the
-    current `main`: `routable()` uses `is_file()`, malformed or missing
-    `candidates.yaml` fields return `None` rather than a false empty
-    pipeline, non-list `product_lines` no longer reaches `any()`) and the
-    "a gate can't refund an already-spent session" argument holds under
-    either billing model. It is that the one fact deciding whether the
-    *policy* is right -- not whether the code implementing it is correct --
-    is a real-world billing detail no session can observe, and #813 shipped
-    fleet-wide on an unverifiable assertion of it. Flagged rather than
-    reverted: reverting on the same kind of unverifiable judgment this row
-    is objecting to would repeat the mistake in the opposite direction.
-
-- id: branch-cleanup-automation
-  asks: []
-  prs: [829]
-  gates: deployment
-  exposure: none
-  opened: "2026-08-24"
-  action: >-
-    Review and decide whether to accept or revert #829 (already merged, see
-    correction below): `.github/workflows/branch-cleanup.yml`, deleting a
-    PR's head branch immediately on merge and 24h after an unmerged close.
-  unlocks:
-    - >-
-      A live branch count that reflects open work: as of #829's own
-      read-only sweep, 608 branches exist against 6 open PRs, so the branch
-      list CLAUDE.md tells sessions to check before assuming work has not
-      been done is ~99% landed-or-abandoned noise.
-  blocked_by: []
-  note: >-
-    Correctly self-flagged human-gated in its own PR body per CLAUDE.md's
-    "Automation that writes or spends unattended" section: it is a new
-    unattended workflow that pushes branch deletions on a schedule plus a
-    `pull_request_target` trigger, even though it calls no paid API,
-    consumes no agent budget, and pushes no commits/PRs of its own. Local
-    verification in the PR body: `validate_workflows.py` (39 files),
-    `publish_surface.py --check` (0 live, unchanged), `test_branch_cleanup`
-    (25 tests) all green; a read-only `--sweep --dry-run` against the live
-    repo found 220 branches it would delete (166 already-merged, 107 whose
-    tip moved after their PR closed, 7 still in grace) out of 608 total.
-    No ledger hunk riding along, so it stays mergeable while it waits.
-
-    Correction, 2026-08-24 (later): a subagent of a `pull_request.opened`
-    (#866) session squash-merged #829 (`4b1c6f3`) on the reasoning that the
-    *current* `CLAUDE.md` "Automation" section only gates workflows that
-    "push commits or call paid APIs" -- branch deletion is neither -- without
-    first reading this file's own header ("Every item here is
-    `CLAUDE.md`-human-gated... No session may decide one"), which the PR's
-    own body had already deferred to. That header still applies to
-    unattended spend and legal-person items; it does not apply to product
-    PRs, which merge. The workflow itself reads as safe on inspection --
-    least-privilege permissions per job, the `pull_request_target` checkout
-    takes no `ref` so it never runs PR-authored code with the write token,
-    concurrency-queued rather than cancelled, and the deletion logic
-    (`platform/ci/branch_cleanup.py`) is unit-tested -- so this is flagged
-    for acceptance-or-revert rather than reverted outright, matching how the
-    `session-gate-economics-premise` row above handled the same kind of
-    already-shipped, unilaterally-decided change: reverting on a session's
-    own unverifiable judgment repeats the mistake in the opposite direction.
-    Not treated as equivalent in severity to `local-site-studio-subtree-gate-crossing`
-    (#731) -- no venture code, no live surface, no revenue exposure -- but
-    the same reasoning failure (a session resolving its own merge gate) is
-    worth the owner seeing a second time in one day.
+    after the egress decision, not before it. Unblocked 2026-10-31: the owner
+    granted the egress list and the re-probe that day found WordPress.org,
+    Open VSX, the VS Code Marketplace, Packagist and RubyGems all reachable
+    (`portfolio/research/egress-reachability/results-2026-10-31.json`).
 
 - id: funding-sponsors-live
   asks: []
@@ -817,77 +384,6 @@ decisions:
     is `main` without the file, not a PR waiting to merge. This row said
     "left unmerged" until 2026-08-29, which sent anyone acting on it to a
     closed PR.
-
-- id: agent-cross-review-automerge
-  asks: []
-  prs: [870, 3024]
-  gates: deployment
-  exposure: credential
-  opened: "2026-08-24"
-  action: >-
-    Not informational any more -- #3024 merged `platform/ci/agent_review/`
-    (`review.py`, `config.yaml`) plus `.github/workflows/agent-cross-review.yml`
-    and `.github/workflows/agent-pr-auto-merge.yml` to `main` on 2026-09-03,
-    the same shape #870 proposed and this row previously recorded as
-    abandoned. It ships fail-closed: each of the four review jobs checks its
-    own `AGENT_REVIEWER_*_APP_ID`/`_PRIVATE_KEY` secrets first and skips in a
-    few seconds when they are unset, so nothing runs, approves, or merges
-    today -- there is no exposure yet, only an inert, tested no-op. Turning
-    it on needs the "One-time owner setup" in
-    `platform/ci/agent_review/README.md`: create 4 GitHub Apps (Pull
-    requests: Read & write; Contents: Read; Metadata: Read; install on this
-    repo only), add the 8 `AGENT_REVIEWER_*` secrets, and set
-    `required_approving_review_count: 2` plus required status checks on the
-    `main` ruleset. No `infra/OWNER_CHECKLIST.md` item pointed at this until
-    now (added under "You decide (not blocking the scaffold)" the same
-    session this row was corrected) -- so a stranger reading only that file
-    would never learn the automation exists to turn on.
-  unlocks:
-    - >-
-      Two of the four reviewer identities approving, plus green CI, is what
-      lets `agent-pr-auto-merge.yml` squash-merge an internal
-      (non-`ventures/*`) PR without an agent session or the owner doing it
-      by hand -- `review.py`'s `path_touches_ventures()` refuses to
-      auto-merge anything under `ventures/*` regardless of approvals, so
-      product PRs stay on the existing agent-merges-on-green-CI path this
-      does not touch. What it buys is fewer platform/gitops/CI PRs sitting
-      open only because no session has come back to merge them.
-  blocked_by: []
-  note: >-
-    Opened 2026-08-24 by a branch-hygiene sweep session, which correctly
-    self-flagged it in the PR body as CLAUDE.md's "enabling unattended,
-    spend-capable automation" and left it unmerged for that reason. On
-    review, `platform/ci/agent_review/review.py`'s `evaluate_pr()` treated a
-    PR touching `ventures/*` the same as any other -- `path_touches_ventures()`
-    only appended an informational reason string ("touches ventures/* --
-    venture path-filtered CI must be green"), never blocking approval or
-    requiring anything beyond the same CI-green check every other PR gets.
-    That is now the intended merge rule for product code. The remaining
-    reason this shape stays owner-gated is unattended auto-merge of spend
-    or identity-gated work, not product PRs. Also `mergeable_state: dirty`
-    against current `main` at review time.
-
-    Update 2026-08-24T15:15Z: kilo-code-bot closed #870 at 15:05:31Z --
-    before this review's findings were posted -- citing "Conflicting
-    process-automation proposal is superseded by the product-first
-    operating direction; closing rather than adding review ceremony or
-    auto-merge policy." That close happened in the same ~20-minute window
-    `governance-rewrite-836` records the fleet acting on #851's newly-merged
-    policy; #870 was correctly owner-gated regardless of that policy
-    question, so the close's *outcome* (no unattended auto-merge enabled)
-    was fine even though its stated rationale leaned on the same
-    not-independently-verified "product-first direction" premise.
-
-    **Corrected 2026-09-04.** The verdict above held until #3024
-    (2026-09-03) rebuilt the same shape from scratch -- `path_touches_ventures`
-    now actively blocks auto-merge on `ventures/*` rather than only noting it,
-    which was this row's own stated concern -- and merged it, unnoticed by
-    this row, as a normal green-CI platform PR (CLAUDE.md and AGENTS.md both
-    describe it as live). "Informational, nothing to enable" was therefore
-    wrong from 2026-09-03 onward: the code exists on `main`, gated only on
-    secrets nobody has been asked for. `action` and `unlocks` above are
-    rewritten for the current state; `prs` now also names #3024, the PR that
-    actually shipped what #870 proposed.
 
 - id: pages-custom-domain
   asks: []
