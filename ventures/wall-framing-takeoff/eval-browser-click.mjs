@@ -223,6 +223,17 @@ await page.click("#run");
 await page.waitForFunction(() => /Winders: write treads/.test(document.body.textContent));
 console.log("ok: malformed winders field refused on the page");
 await page.fill("#stWinders", "");
+// Landing post column check: typed soil, size, fc and Emin reach the stairs card.
+await page.fill("#stRise", "13'");
+await page.fill("#stLandPosts", "1500, 4x4, 1000, 400000");
+await page.click("#run");
+await page.waitForFunction(() => /Landing post column/.test(document.querySelector("#stairsOut")?.textContent || ""));
+console.log("ok: landing post column check typed on the page and shown on the stairs card");
+await page.fill("#stLandPosts", "1500, 4x4");
+await page.click("#run");
+await page.waitForFunction(() => /Landing post check: write soil/.test(document.body.textContent));
+console.log("ok: malformed landing post field refused on the page");
+await page.fill("#stLandPosts", "");
 await page.uncheck("#stOn");
 await page.uncheck("#flOn");
 await page.uncheck("#sheathH");
