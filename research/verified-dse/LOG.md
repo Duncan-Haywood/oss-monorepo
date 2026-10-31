@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-31 · Milestone 46: carry the rank-displacement result into the paper and test the zero-regret implication (no flow run)
+- Why: milestones 44 and 45 were in this log but not in `PAPER.md`; the implication they rely on had only a script check on the cached cells. OpenROAD is not installed in this session, so no flow work was possible.
+- Done: `PAPER.md` section 4 gets a paragraph "A rank assumption for zero regret" with the numbers copied from `optimum_rank_results.txt` and `optimum_rank_n_results.txt`, the built-in-growth caveat and the no-pilot-certificate statement. `tests/test_bound.py` gets a randomised test (600 instances, mixed tied and noisy scores): whenever rho_j < k_j at every cut, `halve` returns the optimum for 5 tie-breaks each, with more than 20 qualifying instances required.
+- Result: the new test passes (19 tests in the unittest run; `test_proof_success` needs pytest, absent from this interpreter, unrelated).
+- Next: unchanged from milestone 45, a pool above 52 candidates or detail routing needs OpenROAD.
+
 ## 2026-10-31 · Milestone 45: does the rank displacement rho/k grow with pool size? (exploratory; no predictions were written before the script ran)
 - Why: milestone 44's "Next". `experiments/theory/optimum_rank_n.py` (no flow run, a few seconds) subsamples each of the 20 cached r1-start cells to n' = 20, 30, 40, 50 candidates (200 subsamples each, the optimum recomputed on the subsample, keeps n'//3, n'//9, n'//27 floored at 1) and takes the worst rho_j/k_j over the three cuts.
 - Outcome (`optimum_rank_n_results.txt`): median rho/k 2.33, 2.60, 3.00, 3.00 and mean 4.2, 5.7, 7.2, 8.9 at n' = 20, 30, 40, 50; the share of subsamples with rho/k <= 1 falls 0.168, 0.130, 0.086, 0.050 and the share <= 2 falls 0.475, 0.474, 0.414, 0.300. So the zero-regret assumption D(1) gets harder as the pool grows, not easier.

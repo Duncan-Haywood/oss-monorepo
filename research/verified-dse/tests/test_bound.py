@@ -129,6 +129,23 @@ class T(unittest.TestCase):
             self.assertTrue(all(v == 0.0 for v in qb.values()))
             self.assertAlmostEqual(g0, math.log(3.0))
 
+    def test_rank_displacement_below_cut_size_gives_zero_regret(self):
+        # milestone 44: if every cut j has fewer than k_j rivals ranked at or ahead of the optimum, halving returns it
+        rng = random.Random(44)
+        hits = 0
+        for _ in range(600):
+            n = rng.randint(6, 30)
+            y = [rng.uniform(1, 20) for _ in range(n)]
+            keep = [max(1, n // 3), max(1, n // 9)]
+            scores = [[rng.randint(0, 6) if rng.random() < 0.5 else y[i] + rng.uniform(-8, 8) for i in range(n)] for _ in keep]
+            star = min(range(n), key=lambda i: y[i])
+            rho = [sum(1 for z in range(n) if z != star and s[z] <= s[star]) for s in scores]
+            if all(r < k for r, k in zip(rho, keep)):
+                hits += 1
+                for seed in range(5):
+                    self.assertEqual(halve(scores, y, keep, random.Random(seed)), y[star])
+        self.assertGreater(hits, 20)
+
 
 if __name__ == "__main__":
     unittest.main()
