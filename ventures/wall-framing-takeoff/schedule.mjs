@@ -140,6 +140,18 @@ export function resolveRates(input, result) {
 
 /** @param {any} input the plan's `schedule` object */
 export function schedule(input) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return { ok: false, errors: ["The schedule must be an object with `activities`."] };
+  if (input.activities != null && !Array.isArray(input.activities)) return { ok: false, errors: ["`activities` must be a list."] };
+  // Shape checks before anything reads the activities: a null entry, a text `after` or a crew count of 0 used to throw or loop forever.
+  const shape = [];
+  (input.activities || []).forEach((a, i) => {
+    if (!a || typeof a !== "object" || Array.isArray(a)) { shape.push(`Activity ${i + 1} is not an object.`); return; }
+    if (a.after != null && !Array.isArray(a.after)) shape.push(`${a.id ?? "Activity " + (i + 1)}: after must be a list of activity ids.`);
+    if (a.days != null && typeof a.days !== "number") shape.push(`${a.id ?? "Activity " + (i + 1)}: days must be a number.`);
+  });
+  if (input.crews != null && (typeof input.crews !== "object" || Array.isArray(input.crews))) shape.push("`crews` must be an object of crew name to head count.");
+  else for (const [c, n] of Object.entries(input.crews || {})) if (n != null && !(typeof n === "number" && Number.isFinite(n) && n >= 1)) shape.push(`crews.${c} must be a number of 1 or more (it is ${JSON.stringify(n)}); a crew of 0 could never start work.`);
+  if (shape.length) return { ok: false, errors: shape };
   const errors = [...(input?.rateErrors || [])];
   // weatherLoss: a fraction (your figure, 0 to 1) of working days lost to weather on activities marked `exposed: true`;
   // each such activity grows by ceil(days * weatherLoss). It is an allowance you type, not a forecast.

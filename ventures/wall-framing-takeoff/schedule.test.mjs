@@ -213,3 +213,20 @@ test("scheduleText prints the carrying cost total once carryPerDay is typed, and
   const withCarry = scheduleText(schedule({ ...base, carryPerDay: 250 })).join("\n");
   assert.match(withCarry, /Carrying cost: \$2,500 for 10 working days at your \$250 per day\./);
 });
+
+test("schedule refuses malformed shapes instead of throwing or looping forever", () => {
+  const acts = [{ id: "a", days: 2, crew: "f" }, { id: "b", days: 1, crew: "f" }];
+  for (const f of [0, -1, "2", Infinity]) {
+    const r = schedule({ start: "2026-11-02", crews: { f }, activities: acts });
+    assert.equal(r.ok, false, `crews.f = ${f}`);
+    assert.match(r.errors[0], /crews\.f must be a number of 1 or more/);
+  }
+  assert.equal(schedule({ start: "2026-11-02", crews: { f: 2 }, activities: acts }).ok, true);
+  assert.match(schedule(null).errors[0], /must be an object/);
+  assert.match(schedule([]).errors[0], /must be an object/);
+  assert.match(schedule({ activities: [null] }).errors[0], /Activity 1 is not an object/);
+  assert.match(schedule({ activities: "x" }).errors[0], /must be a list/);
+  assert.match(schedule({ activities: [{ id: "a", days: 1, after: "x" }] }).errors[0], /after must be a list/);
+  assert.match(schedule({ activities: [{ id: "a", days: "3" }] }).errors[0], /days must be a number/);
+  assert.match(schedule({ activities: [{ id: "a", days: 1 }], crews: [] }).errors[0], /crews. must be an object/);
+});
