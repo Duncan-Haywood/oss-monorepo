@@ -327,6 +327,20 @@ const dmTxt = await page.textContent("#dormerOut");
 const [svDm] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
 const savedDm = JSON.parse(await (await import("node:fs/promises")).readFile(await svDm.path(), "utf8"));
 console.log(!/NaN|undefined/.test(dmTxt) && /ridge/.test(dmTxt) && savedDm.dormer?.width === 72 ? "ok: dormer card and saved plan" : "FAIL: dormer: " + dmTxt.slice(0, 200));
+// shed dormer (2026-10-31): shape select, roof opening depth, shed text on the card, saved plan keeps shape
+await page.selectOption("#dmShape", "shed");
+await page.fill("#dmPitch", "3");
+await page.fill("#dmMain", "8");
+await page.fill("#dmOpening", "96");
+await page.click("#run");
+await page.waitForFunction(() => /shed dormer/.test(document.querySelector("#dormerOut")?.textContent || ""), null, { timeout: 30000 }).catch(async () => { console.log("FAIL: shed dormer card; errors:", await page.textContent("#errors")); });
+const shTxt = await page.textContent("#dormerOut");
+const [svSh] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const savedSh = JSON.parse(await (await import("node:fs/promises")).readFile(await svSh.path(), "utf8"));
+console.log(!/NaN|undefined/.test(shTxt) && /shed dormer/.test(shTxt) && /main-roof opening/.test(shTxt) && savedSh.dormer?.shape === "shed" && savedSh.dormer?.roofOpening?.depth === 96 ? "ok: shed dormer card and saved plan" : "FAIL: shed dormer: " + shTxt.slice(0, 200));
+await page.selectOption("#dmShape", "");
+await page.fill("#dmMain", "");
+await page.fill("#dmPitch", "8");
 // siding starter strip and head flashing (2026-10-31): fields read into the plan, shown in the card, saved
 await page.check("#sdOn");
 await page.selectOption("#sdStarter", "true");

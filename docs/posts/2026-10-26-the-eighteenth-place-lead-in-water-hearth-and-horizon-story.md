@@ -1,5 +1,6 @@
 ---
 title: "The Eighteenth Place: a Hearth & Horizon story about lead in a town's water"
+seo_title: "The Eighteenth Place: a story of lead in a town's water"
 date: 2026-10-26
 description: "A town passes its lead test because the rule reads the 18th of 20 samples. The two above it are 31 and 44 micrograms per litre. A new Hearth & Horizon story."
 tags: [hearth-and-horizon, fiction, lead-in-water]

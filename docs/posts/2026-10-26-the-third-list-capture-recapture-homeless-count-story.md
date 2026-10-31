@@ -1,5 +1,6 @@
 ---
 title: "The Third List: a Hearth & Horizon story about counting people nobody will list"
+seo_title: "The Third List: a story of counting people nobody will list"
 date: 2026-10-26
 description: "Three agencies' lists, no names shared, and a fish-counting sum that says about 310 people, not 143. A new Hearth & Horizon story with the arithmetic to check."
 tags: [hearth-and-horizon, fiction, capture-recapture, record-linkage]

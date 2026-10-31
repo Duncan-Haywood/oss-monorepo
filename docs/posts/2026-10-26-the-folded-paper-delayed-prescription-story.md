@@ -1,5 +1,6 @@
 ---
 title: "The Folded Paper: a new Hearth & Horizon story about a delayed prescription"
+seo_title: "The Folded Paper: a Hearth & Horizon story of a delayed prescription"
 date: 2026-10-26
 description: "A flooded causeway, a child's ear infection and a mother who lost a daughter: our AI-written story The Folded Paper, text only, with the numbers behind it."
 tags: [hearth-and-horizon, fiction, medicine]

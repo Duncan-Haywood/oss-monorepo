@@ -1,5 +1,6 @@
 ---
 title: "A hydrofoil survey boat does not out-range a displacement hull at 200 kg"
+seo_title: A 200 kg hydrofoil survey boat does not out-range a displacement hull
 date: 2026-10-27
 description: "In a 2,916-case sweep, a foilborne 200 kg craft never beat a 4 m displacement monohull on range; the best case reached a quarter of it."
 tags: [marine, hydrofoil, negative-result, marine-hull]

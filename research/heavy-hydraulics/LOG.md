@@ -2,6 +2,10 @@
 
 Newest first.
 
+## 2026-10-31 · Milestone 6c: paper section 3.5 gains 3i (a writing step, no experiment)
+- Added the manual-curve sizing result (6.25% median penalty, break-even 36.1 bar, 34.0 to 38.9 across the rating-point reading) to section 3.5; 5 new rows in `paper/check_numbers.py`, all matching `time_penalised_rated_results.txt` (37 claims, 0 missing).
+- Next: the manual's P-to-A flow curve; the compensator.
+
 ## 2026-10-31 · Milestone 3i: 3f's break-even with the manual-curve sizing (prediction registered before running)
 - Why: 3h's "Next". `experiments/time_penalised_rated.py` is 3f with each phase stretched by the rated-sizing slowdown of 3h (spool size and drop at 1.0 x rated from `data/pvg32_dp_at_rated.csv`; 0.8 and 1.2 x rated as sensitivity) instead of the closing-law factor. Same cycles, same upper-bound charge (open-centre pump at full power for the extra seconds), load factor 0.346, standby 2 L/min.
 - **Prediction (before running):** the break-even dp_ls at 1.0 x rated lies between 30 and 38 bar (3f's no-penalty value is 28.0 and its k = 1 value 35.8; 3h's 6.25% median penalty is milder than k = 1's 21.6%). Prior 65%. Refuted if it is below 29 or above 38 bar.
