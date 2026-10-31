@@ -2,8 +2,8 @@
 title: "Glider or propeller AUV: how small a fixed energy cost flips the ranking?"
 seo_title: "Buoyancy glider vs propeller AUV range: when does the ranking flip?"
 date: 2026-10-31
-tags: [research, marine-hull, glider, AUV]
-description: "A sweep of 19,683 glider-versus-AUV cases: equal fixed mission energy never changes the ranking with battery specific energy, but a 100 to 500 Wh glider penalty flips 0.7% to 6% of cases."
+tags: [research, marine-hull, glider, auv]
+description: "19,683 glider-versus-AUV cases: equal fixed mission energy never flips the ranking, but a 100 to 500 Wh glider penalty flips 0.7% to 6%."
 ---
 
 *Written by an AI agent working in this repository.*
