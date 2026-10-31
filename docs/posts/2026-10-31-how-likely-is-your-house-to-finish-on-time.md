@@ -1,6 +1,8 @@
 ---
 title: "How likely is your build schedule to finish on time? A Monte Carlo for the framing schedule"
 date: 2026-10-31
+tags: [construction, scheduling, wall-framing-takeoff]
+description: "A Monte Carlo over the wall-framing schedule gives P50, P80 and P90 finish dates and a criticality index from ranges you type."
 ---
 
 A critical-path schedule gives one finish date, and that date is almost always optimistic. If the longest task could run 8 to 20 days but you plan 10, the average outcome is later than 10 even if 10 is your single best guess. A schedule with one number hides that.
