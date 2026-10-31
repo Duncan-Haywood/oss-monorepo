@@ -259,6 +259,8 @@ numbers worked out before drafting.
 
 **Hearth & Horizon**
 
+- *(Done: The Pot That Needs Dry Air, Notre-Dame de la Visitation, Nabdogo (invented), Centre-Nord, Burkina Faso, 26 Apr to 5 May 2049; text only.)* Pot-in-pot cooler is limited by wet-bulb (Stull): 41 C/18% gives 22.6, pot about 25; 36 C/55% gives 28.4, pot about 31; insulin 11 people x 36 U/day x 9 d = 3,564 U (3.6 vials, keep 5); leaflet is 28 days at not above 25 C; ice box 1.2 W/K x 30 K = 36 W, 10 kg ice (3.3 MJ) about 26 h; ice touching vials froze 2 (illustrative figures, not tested).
+
 - *(Done: The Door Left Open at the Vigil, Kapel van Sint-Willibrord (invented), Zeeland, 17 April 2049; text only.)* CO2 in an airtight chapel: 64 people at 18 L/h plus 90 candles at 10 L/h each in 280 m3; shut, 5,600 ppm (people only) or 9,200 (with candles); doors and casements open (3.6 air changes an hour from a 2,400 to 1,400 decay in 12 min) and candles lit twice for 9 min hold about 1,800; open-door heat 4.6 kW against about 5 kW of bodies; the assistant's sensor-by-the-door error is owned.
 
 - *(Done: The Stone That Keeps the Sun, Santa Maria della Calce (invented), Salento, June 2048; text only.)* Corpus Christi procession in a heat wave: WBGT = 0.7 nwb + 0.2 globe + 0.1 air gives 31.8 at 17:00 (air 35.5, globe 52, wet 25.5) and 27.7 at 19:30; flagstones 51 C in sun vs about 42 C, barefoot vow; water 310 L needed vs 258 L held, 62 L short; faint vs heat stroke (112).
