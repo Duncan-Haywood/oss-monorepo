@@ -39,3 +39,5 @@ Against an exact solver on 120 seeded small cases the shipped order matched the 
 ## Limits
 
 Walls, floors, gable roofs and sheathing only; no hips or valleys, stairs, engineered lumber design or code check. Verified on hand-counted walls, 400 seeded random walls and the one example house, not on a builder's real plan set yet. Nothing is engineering, construction or code advice; review the output before ordering lumber. Built by AI coding agents with the repository owner steering; not affiliated with any lumber supplier or software vendor.
+
+Schedule risk: `node cli.mjs plan.json --risk` runs a seeded Monte Carlo over min/max day ranges on schedule activities (P50/P80/P90 finish, chance of the deadline, criticality).

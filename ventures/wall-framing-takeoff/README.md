@@ -418,3 +418,7 @@ past the wall; 1 test, plus real mouse drags in `eval-sketch-click.mjs`). Not ye
 `schedule.deadline` (`YYYY-MM-DD`, landed 2026-10-31) is your contract completion date. The report says how many working days late (or to spare) the finish with your crews is, and prices the late days at `carryPerDay` when that is typed. A weekend or holiday date counts as the working day before it. Hand-checked dates in `schedule.test.mjs`; CLI and JSON only, no page field yet.
 
 The floor card's header-check field takes an optional eighth figure, the cantilever tip deflection ratio (`headerCheck.cantDeflLimit`, default 180, 60 to 480; landed 2026-10-31). Write `0` for a figure you skip (e.g. `40, 10, 900, 180, 1300000, 360, 0, 240`). Clicked in Chromium with a 2 ft cantilever: the note reported the 0.20 in allowance, which is 2 x 24 / 240.
+
+## Schedule risk (`--risk`)
+
+Add `min` and `max` (working days) to the schedule activities you are unsure of, with `days` as the most likely figure, then run `node cli.mjs plan.json --risk` (`--json` for data). It draws each ranged activity from a triangular distribution 1,000 times (seeded, so repeatable), re-runs the crew-levelled schedule and reports P50, P80 and P90 finish dates, the chance of making `deadline`, and how often each activity sits on the critical path. Checked by hand-computed draws and serial-chain bounds in `risk.test.mjs` only; the ranges are yours and draws are independent, so it understates delays that travel together.
