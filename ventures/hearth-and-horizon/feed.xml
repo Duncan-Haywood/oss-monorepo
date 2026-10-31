@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Aim Off</title>
+      <link>https://example.invalid/hearth-and-horizon/aim-off.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/aim-off.html</guid>
+      <pubDate>Sat, 31 Oct 2026 12:00:00 GMT</pubDate>
+      <description>Fog comes down mid-crossing and the boat's satellite fix jumps to an airfield sixty kilometres inland. The assistant stops trusting the fix, then does something odd with the dead reckoning it has left. It aims a mile and a half to one side of the harbour on purpose, so that whatever the error, the island's coast tells it which way to turn. Setting: The sound between Havnsby (invented mainland harbour) and Sankt Olavs Holm (invented island, five nautical miles long), in the Danish Baltic, Saturday 29 June 2047. Read the full text at https://example.invalid/hearth-and-horizon/aim-off.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>Fog comes down mid-crossing and the boat's satellite fix jumps to an airfield sixty kilometres inland. The assistant stops trusting the fix, then does something odd with the dead reckoning it has left. It aims a mile and a half to one side of the harbour on purpose, so that whatever the error, the island's coast tells it which way to turn.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>One in Eleven</title>
       <link>https://example.invalid/hearth-and-horizon/one-in-eleven.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/one-in-eleven.html</guid>
