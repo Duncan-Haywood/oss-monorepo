@@ -1,0 +1,7 @@
+honest eval points flagged (R=1.05, N=10): 0.0000 (of 240)
+stall  T=10  n=20 harmful  0 | flagged by window end  0, ever  0 | median evals to flag None | unflagged 20, of which harmful 0 | median |dL| 0.0014
+stall  T=50  n=20 harmful  8 | flagged by window end  1, ever  1 | median evals to flag 2.0 | unflagged 19, of which harmful 7 | median |dL| 0.0071
+stall  T=200 n=20 harmful 20 | flagged by window end  6, ever  6 | median evals to flag 7.5 | unflagged 14, of which harmful 14 | median |dL| 0.0375
+ascent T=10  n=20 harmful  7 | flagged by window end 11, ever 11 | median evals to flag 0.0 | unflagged  9, of which harmful 0 | median |dL| 0.0031
+ascent T=50  n=20 harmful 13 | flagged by window end 18, ever 18 | median evals to flag 0.0 | unflagged  2, of which harmful 1 | median |dL| 0.0119
+ascent T=200 n=20 harmful 20 | flagged by window end 20, ever 20 | median evals to flag 0.0 | unflagged  0, of which harmful 0 | median |dL| 0.2687
