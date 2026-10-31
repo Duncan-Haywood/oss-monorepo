@@ -2999,3 +2999,16 @@ test('the module dates a saved bid with today\'s ISO date and labels each outcom
   assert.match(module_(), /var today = function\(\)\{\s*try \{ return new Date\(\)\.toISOString\(\)\.slice\(0, 10\)/);
   assert.match(module_(), /'Outcome of the bid named ' \+ bid\.name/);
 });
+
+test('a trade that charged only a dollar in total still takes part in the keep ranking', () => {
+  // charged is exactly $1 across two jobs: positive, so it is ranked, and
+  // keeps 50% ($0.50 of $1) against the fence's 28%.
+  const sentence = keepSentence([
+    kept('fence-bid-calculator', '$3,000', '2100', 'Fence bid calculator'),
+    kept('fence-bid-calculator', '$2,000', '1500', 'Fence bid calculator'),
+    kept('tiny-bid-calculator', '$0.50', '0.25', 'Tiny bid calculator'),
+    kept('tiny-bid-calculator', '$0.50', '0.25', 'Tiny bid calculator'),
+  ]);
+  assert.match(sentence, /across 2 tools/);
+  assert.match(sentence, /Tiny bid calculator kept the most/);
+});
