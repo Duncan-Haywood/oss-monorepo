@@ -1,5 +1,6 @@
 ---
 title: "Fuzzing the league scheduler's edit passes found a rainout the validator rejected"
+seo_title: "Fuzzing the league scheduler found a rainout the validator rejected"
 date: 2026-10-27
 description: "1,600 random leagues through rainouts, late teams and referee assignment: one real inconsistency, a make-up date on a skip day, and what the check misses."
 tags: [league-schedule-generator, testing, scheduling]

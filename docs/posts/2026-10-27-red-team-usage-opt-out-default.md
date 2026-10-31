@@ -1,5 +1,6 @@
 ---
 title: "We broke our own opt-out on purpose, and one change slipped past the tests"
+seo_title: "We broke our own opt-out on purpose; one change beat the tests"
 date: 2026-10-27
 description: "A planted bug flipped the default of the usage opt-out and 7 of 8 mutants were caught; we added the test that pins the missing one."
 tags: [testing, privacy, redteam]

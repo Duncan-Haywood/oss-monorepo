@@ -1,5 +1,6 @@
 ---
 title: "How far off can a sub-scale UAV's centre of gravity be before the flight modes stop matching?"
+seo_title: "How far off can a sub-scale UAV's centre of gravity be?"
 date: 2026-10-27
 description: "A redesigned tail on a 1:5 Froude-scaled cargo UAV matches full-size modes only if the CG is within about 0.03 chords of the reference; none tolerate 0.05."
 tags: [uav, scaling, digital-twin, aerolog-scaling, negative-result]
