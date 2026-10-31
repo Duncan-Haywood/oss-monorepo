@@ -1,6 +1,6 @@
 ---
 title: "Compressing 1/4 of the update cost nothing; 1/16 cost 0.044 nats"
-seo_title: "Low-communication training: update compression loss is not linear in the compression factor"
+seo_title: "Is DiLoCo compression loss linear in the compression factor?"
 date: 2026-10-31
 tags: [research, lowcomm-training, diloco]
 description: "A six-seed test on a 0.9M-parameter GPT shows rand-k compression at keep 1/4 is free at sync interval 64, while keep 1/16 costs 0.044 nats."
