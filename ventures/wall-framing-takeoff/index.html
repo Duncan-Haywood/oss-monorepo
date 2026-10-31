@@ -281,6 +281,7 @@
     </div>
     <p><input type="checkbox" id="dmOn" style="width:auto"> <label for="dmOn" style="display:inline">Also frame a gable dormer (cheek studs, rafters, valleys, ridge, header; closed-form geometry from the four sizes below)</label></p>
     <div class="grid" id="dmFields" hidden>
+      <div><label for="dmShape">Dormer shape</label><select id="dmShape"><option value="">gable (two planes, ridge, valleys)</option><option value="shed">shed (one plane, flatter than the main roof)</option></select></div>
       <div><label for="dmWidth">Dormer width, in</label><input id="dmWidth" type="number" min="36" max="180" step="1" placeholder="e.g. 72"></div>
       <div><label for="dmEave">Eave height on the front wall, in</label><input id="dmEave" type="number" min="24" max="96" step="1" placeholder="e.g. 48"></div>
       <div><label for="dmPitch">Dormer roof pitch (rise per 12)</label><input id="dmPitch" type="number" min="3" max="16" step="0.5" placeholder="e.g. 8"></div>
@@ -529,7 +530,7 @@
     import { layoutSiding, sidingText } from "./siding.mjs";
     import { layoutEaves, eavesText } from "./eaves.mjs";
     import { layoutGutters, guttersText } from "./gutters.mjs";
-    import { layoutDormer, dormerText } from "./dormer.mjs";
+    import { layoutDormer, layoutShedDormer, dormerText } from "./dormer.mjs";
     import { layoutDeck, deckText } from "./deck.mjs";
     import { layoutStair, linkStairReaction, layoutStairWithLanding, layoutWinders, winderText, stairCuts, stairText, landingCuts, landingText, STAIR_LIMITS } from "./stairs.mjs";
     import { layoutFasteners, fastenerText } from "./fasteners.mjs";
@@ -770,6 +771,7 @@
       if ($("#dmOn").checked) {
         const dm = {};
         for (const [id, key] of [["dmWidth", "width"], ["dmEave", "eaveHeight"], ["dmPitch", "pitch"], ["dmMain", "mainPitch"]]) { const v = $("#" + id).value.trim(); if (v !== "") dm[key] = Number(v); }
+        if ($("#dmShape").value === "shed") dm.shape = "shed";
         plan.dormer = dm;
       }
       if ($("#guOn").checked) {
@@ -1134,7 +1136,7 @@
       }
       let dormer = null;
       if (plan.dormer) {
-        try { dormer = layoutDormer({ mainPitch: roof?.pitch ?? plan.roof?.pitch, ...plan.dormer }); } catch (e) { dormer = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
+        try { const dArgs = { mainPitch: roof?.pitch ?? plan.roof?.pitch, ...plan.dormer }; dormer = dArgs.shape === "shed" ? layoutShedDormer(dArgs) : layoutDormer(dArgs); } catch (e) { dormer = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
         if (!dormer.ok) { $("#errors").innerHTML = `<ul>${dormer.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#dormerCard").hidden = true; return false; }
       }
       let gutters = null;
@@ -1258,7 +1260,7 @@
       for (const [id, key] of [["eaPanelWidth", "panelWidth"],["eaPanelStock", "panelStock"],["eaFasciaStock", "fasciaStock"],["eaChannelStock", "channelStock"],["eaWaste", "waste"],["eaPanelPrice", "panelPrice"],["eaFasciaPrice", "fasciaPrice"],["eaChannelPrice", "channelPrice"]]) $("#" + id).value = eav && eav[key] != null ? String(eav[key]) : "";
       $("#eaRake").value = eav?.rakeSoffit ? "true" : "";
       const dmp = plan.dormer && typeof plan.dormer === "object" ? plan.dormer : null;
-      $("#dmOn").checked = Boolean(dmp); $("#dmFields").hidden = !dmp;
+      $("#dmOn").checked = Boolean(dmp); $("#dmFields").hidden = !dmp; $("#dmShape").value = dmp?.shape === "shed" ? "shed" : "";
       for (const [id, key] of [["dmWidth", "width"], ["dmEave", "eaveHeight"], ["dmPitch", "pitch"], ["dmMain", "mainPitch"]]) $("#" + id).value = dmp?.[key] != null ? String(dmp[key]) : "";
       const gut = plan.gutters;
       $("#guOn").checked = Boolean(gut); $("#guFields").hidden = !gut;

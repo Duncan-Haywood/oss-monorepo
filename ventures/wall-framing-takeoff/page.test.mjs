@@ -289,11 +289,14 @@ test("the gutter controls are read into plan.gutters, restored from a saved plan
 
 test("the dormer controls are read into plan.dormer, restored from a saved plan and drawn on a card", () => {
   const html = page("index.html");
-  for (const id of ["dmOn", "dmFields", "dmWidth", "dmEave", "dmPitch", "dmMain", "dormerCard", "dormerOut"]) assert.match(html, new RegExp(`id="${id}"`), id);
+  for (const id of ["dmOn", "dmFields", "dmWidth", "dmEave", "dmPitch", "dmMain", "dmShape", "dormerCard", "dormerOut"]) assert.match(html, new RegExp(`id="${id}"`), id);
   assert.match(html, /plan\.dormer = dm/);
-  assert.match(html, /layoutDormer\(\{ mainPitch/);
+  assert.match(html, /const dArgs = \{ mainPitch/);
   assert.match(html, /\$\("#dmOn"\)\.checked = Boolean\(dmp\)/);
   assert.match(html, /<code>dormer_on<\/code>/);
+  assert.match(html, /import \{ layoutDormer, layoutShedDormer, dormerText \}/);
+  assert.match(html, /dm\.shape = "shed"/);
+  assert.match(html, /dArgs\.shape === "shed" \? layoutShedDormer\(dArgs\)/);
 });
 
 test("the nail controls are read into plan.fasteners, restored from a saved plan and feed the budget", () => {
