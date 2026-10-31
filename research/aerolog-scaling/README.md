@@ -101,6 +101,13 @@ range, not energy per package, is what limits a battery multicopter, as Stolarof
 pooled mean (86 J/m, 2.7 times Stolaroff's modelled 32 J/m for a different quadcopter) is not a result: 41 of 134 flights are at
 4 m/s. Prediction 1 (50 to 80 J/m pooled) failed for that reason.
 
+**Whole-flight energy and battery range (milestone 2b, `experiments/mission_energy/`).** Integrating battery power over
+the full 134 route flights, **77% of the energy is not cruise** (climb, hover, acceleration; 95% at 8 m/s) because the legs
+are short, and whole-flight energy is 154 J/m against 60 J/m cruise-only at 8 m/s. One TB48D pack (129.96 Wh, retailer
+figure) at 80% usable then gives only about **1 km one way (regression) to 2 to 3 km (cruise-only slope)**, so 2a's
+63 to 83 km break-even is not reachable by this airframe: battery energy is the binding limit. Extrapolates from
+cruise windows under 150 m; pack count in the study not checked.
+
 ## Limitations
 
 Flat-plate drag with a form factor, no airfoil polars, no CLmax, fixed powertrain efficiency (which
