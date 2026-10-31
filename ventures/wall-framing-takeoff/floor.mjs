@@ -16,7 +16,7 @@ import { THICK, EPS, DEPTH, optimizeStock, formatLength, formatInches } from "./
 const DOUBLE = 2 * THICK;
 export const SHEET = { width: 48, length: 96 };
 
-/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, blockingRows?: number, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
+/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, cantilever?: number, blockingRows?: number, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
 
 export function sampleFloor() {
   return { id: "Main floor", width: 480, depth: 336, joist: "2x10", spacing: 16, rim: true, beam: 168, blockingRows: 0 };
@@ -50,6 +50,7 @@ export function validateFloor(f, plan) {
       if (a.x0 < b.x1 - EPS && b.x0 < a.x1 - EPS && a.y0 < b.y1 - EPS && b.y0 < a.y1 - EPS) errors.push(`Opening ${i + 1} and opening ${j + 1} are too close: they would share a trimmer joist or a header. Leave a joist bay or a header's width between them.`);
     }
   }
+  if (f.cantilever != null && !(f.cantilever > 0 && f.cantilever <= 96)) errors.push("The cantilever must be between 0 and 8 ft.");
   if (f.beam != null && !(f.beam > 12 && f.beam < f.depth - 12)) errors.push("The beam must sit between 1 ft and 1 ft short of the far edge.");
   const longest = Math.max(0, ...plan.stock.filter((s) => s.size === f.joist).map((s) => s.length));
   if (!longest) errors.push(`No ${f.joist} boards listed in the stock.`);
@@ -95,11 +96,14 @@ export function layoutFloor(f, plan) {
   const id = f.id || "Floor";
   const rim = f.rim !== false;
   const rimT = rim ? THICK : 0;
+  // `cantilever`: the joists, rim and subfloor run this far past the back support (the far end of `depth`).
+  const cant = f.cantilever || 0;
+  const total = f.depth + cant;
   const longest = Math.max(...plan.stock.filter((s) => s.size === f.joist).map((s) => s.length));
   const centres = joistCentres(f.width, f.spacing);
   const notes = [];
   const joists = [];
-  const spans = f.beam != null ? [[rimT, f.beam], [f.beam, f.depth - rimT]] : [[rimT, f.depth - rimT]];
+  const spans = f.beam != null ? [[rimT, f.beam], [f.beam, total - rimT]] : [[rimT, total - rimT]];
   // An opening (a stairwell: x and y from the left and front edges, width across the joists, depth along them)
   // is bounded by the joist at or beside each side (the trimmers, doubled on the outer side) and a doubled header
   // at each end; joists between the trimmers become tail joists that stop at the headers.
@@ -154,8 +158,8 @@ export function layoutFloor(f, plan) {
   const sheet = { ...SHEET, price: 1, kerf: plan.kerf ?? 0.125, ...(f.sheet || {}) };
   /** @type {{y: number, width: number, pieces?: any[]}[]} */
   const courses = [];
-  const nFull = Math.floor((f.depth + EPS) / sheet.width);
-  const rest = f.depth - nFull * sheet.width;
+  const nFull = Math.floor((total + EPS) / sheet.width);
+  const rest = total - nFull * sheet.width;
   for (let k = 0; k < nFull + (rest > EPS ? 1 : 0); k++) courses.push({ y: k * sheet.width, width: k < nFull ? sheet.width : rest });
   const sheetPieces = [];
   const holes = openings.map((o) => ({ x0: o.left + THICK / 2, x1: o.right - THICK / 2, y0: o.y, y1: o.y + o.depth }));
@@ -201,7 +205,7 @@ export function layoutFloor(f, plan) {
     if (w < sheet.width - EPS) rip += need;
     sheetRows.push({ width: w, count: need, pieces: ps.length });
   }
-  const area = (f.width * f.depth - holes.reduce((a, h) => a + (h.x1 - h.x0) * (h.y1 - h.y0), 0)) / 144;
+  const area = (f.width * total - holes.reduce((a, h) => a + (h.x1 - h.x0) * (h.y1 - h.y0), 0)) / 144;
   const notched = courses.reduce((n, c) => n + (c.pieces || []).filter((p) => p.notches).length, 0);
   const sheetArea = (sheet.width * sheet.length) / 144;
   if (rest > EPS) notes.push(`The last subfloor course is ${formatInches(rest)} wide, ripped from ${rip} sheet${rip === 1 ? "" : "s"}; its long edge runs across the joists, so block or use tongue-and-groove sheets.`);
@@ -215,9 +219,10 @@ export function layoutFloor(f, plan) {
   const headerEnds = openings.length * 4;
   const hangers = { tail: tailEnds, singles: tailEnds, doubles: headerEnds, count: tailEnds + headerEnds, size: f.joist };
   if (hangers.count) notes.push(`${hangers.count} joist hanger${hangers.count === 1 ? "" : "s"} counted (${tailEnds} single at tail-joist ends, ${headerEnds} double at header ends), sized for ${f.joist}; model and load rating are the engineer's call.`);
+  if (cant) notes.push(`Joists cantilever ${formatLength(cant)} past the back support, ${(cant / f.depth).toFixed(2)} of the ${formatLength(f.depth)} supported span${cant > f.depth / 3 + EPS ? "; that is more than a third of it, and a common rule of thumb asks for the backspan to be at least 3 times the overhang, so have the engineer check it" : ""}. Cantilever size, backspan nailing and any tie-down are the engineer's call.`);
   notes.push("Joist size and spacing are your inputs and are not checked against a span table or code; bearing, other hangers and fasteners are not in the takeoff.");
   return {
-    ok: true, hangers, openings, trimmers, id, width: f.width, depth: f.depth, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
+    ok: true, hangers, openings, trimmers, id, width: f.width, depth: total, supportedDepth: f.depth, cantilever: cant, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
     sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 },
     notes,
   };

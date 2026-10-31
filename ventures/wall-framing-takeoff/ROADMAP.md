@@ -90,7 +90,7 @@ Ticked items are on `main`.
       user-chosen spacing and size, optional beam that splits the runs, rim
       boards spliced over joists, blocking rows, subfloor sheets with joints on
       joists and staggered courses; lumber pooled into the wall order. Not yet:
-      the page, openings (stairs, chases), cantilevers, doubled joists under walls.
+      the page, chases; cantilevers landed 2026-10-31 (`floor.cantilever`, engine and CLI plan key, hand-counted).
 - [x] Roof (2026-10-22, `roof.mjs`, CLI `--roof`): gable roofs; rafter or truss count
       from a footprint and pitch (trusses as a purchased line), ridge, ceiling
       joists, collar ties, roof sheathing, underlayment and shingle squares.
