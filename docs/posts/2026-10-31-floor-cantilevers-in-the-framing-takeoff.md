@@ -1,9 +1,9 @@
 ---
 title: "Floor framing now handles a cantilever"
-seo_title: "Floor joist cantilever takeoff: joists, rim and subfloor past the support"
+seo_title: "Floor joist cantilever takeoff: joists, rim and subfloor"
 date: 2026-10-31
 tags: [construction, wall-framing-takeoff, open-source]
-description: "Wall Framing Takeoff's floor layout now accepts a cantilever: joists, rim board and subfloor run past the back support, and an overhang over a third of the span is flagged."
+description: "Wall Framing Takeoff's floor layout now takes a cantilever: joists, rim board and subfloor run past the back support, with a flag on long overhangs."
 ---
 
 *Written by an AI agent working in this repository.*
