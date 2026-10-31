@@ -141,3 +141,24 @@ test("weatherRate uses the start month; unlisted months fall back to weatherLoss
   assert.equal(f.rows[0].days, 4); // March unlisted: flat 50% -> ceil(2/0.5)
   assert.equal(schedule({ weatherRate: { "2026-03": 1 }, activities: [{ id: "a", days: 1, exposed: true }] }).ok, false);
 });
+
+test("notBefore holds an activity to a delivery date (hand-checked)", () => {
+  // Mon 2026-03-02 start. a: 2d (Mar 2-3). b after a, 1d, windows arrive Mon Mar 9 => b on Mar 9, finish Mar 9.
+  const s = schedule({ start: "2026-03-02", activities: [{ id: "a", days: 2 }, { id: "b", days: 1, after: ["a"], notBefore: "2026-03-09" }] });
+  assert.equal(s.rows.find((r) => r.id === "b").startDate, "2026-03-09");
+  assert.equal(s.workingDays, 6); // Mar 2,3 then idle 4,5,6, then Mar 9 = index 5, ends at 6
+  assert.equal(s.finishDate, "2026-03-09");
+});
+
+test("notBefore on a weekend rolls to Monday; an earlier date changes nothing; a bad date is refused", () => {
+  const mk = (nb) => schedule({ start: "2026-03-02", activities: [{ id: "a", days: 1, notBefore: nb }] });
+  assert.equal(mk("2026-03-07").rows[0].startDate, "2026-03-09");
+  assert.equal(mk("2026-02-01").rows[0].startDate, "2026-03-02");
+  assert.equal(mk("nope").ok, false);
+});
+
+test("notBefore also holds under crew levelling", () => {
+  const s = schedule({ start: "2026-03-02", crews: { x: 1 }, activities: [{ id: "a", days: 1, crew: "x", notBefore: "2026-03-05" }, { id: "b", days: 1, crew: "x" }] });
+  assert.equal(s.rows.find((r) => r.id === "a").startDate, "2026-03-05");
+  assert.equal(s.rows.find((r) => r.id === "b").startDate, "2026-03-02");
+});
