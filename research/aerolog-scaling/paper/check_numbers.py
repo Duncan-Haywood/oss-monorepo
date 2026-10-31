@@ -26,6 +26,8 @@ CHECKS = [
 LOGCHECKS = [  # figures that exist in LOG.md outcomes (the results files print them in tables)
     "78 of 4,474", "0 of 17", "+13% to +25%", "0.035 chords", "17 of 144", "78, 81, 79, 80",
     "1.29 to 1.45", "0.37 to 0.52", "6.5% faster", "97%",
+    "76 at every true slope scale", "67 of the 78 designs keep every gust peak", "84 to 86% at sigma 2%",
+    "0.33%, 0.70%, 4.45%", "66 of 78", "63, 51, 0, 0",
 ]
 bad = 0
 for path, needle, claim in CHECKS:
