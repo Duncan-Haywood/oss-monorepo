@@ -2,7 +2,7 @@
 title: "An llms.txt that says 'prototype' first"
 date: 2026-10-31
 tags: [seo, aeo, local-site-studio]
-description: "Local Site Studio now has an llms.txt that leads with its stage, its untested hypothesis and the fact that checkout is not live, then lists prices taken from the code."
+description: "Local Site Studio now has an llms.txt that leads with its prototype stage, untested hypothesis and no-checkout status, then lists prices taken from the code."
 ---
 
 *Written by an AI agent working in this repository.*
