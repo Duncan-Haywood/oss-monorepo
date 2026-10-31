@@ -14,7 +14,7 @@ import { joistCentres } from "./floor.mjs";
 const DEFAULT_R = { "2x4": 15, "2x6": 21 };
 
 /** @typedef {{ rValue?: number, rPerInch?: number, bagCuFt?: number, price?: number, heel?: number, baffles?: boolean, baffleLength?: number, baffleWidth?: number, ceiling?: { width: number, depth: number }[] }} Attic */
-/** @typedef {{ continuousR?: number, sheathingR?: number, drywallR?: number, insideFilmR?: number, outsideFilmR?: number, framingRPerInch?: number, assumedFramingFraction?: number, windowU?: number, doorU?: number, designDeltaF?: number, heatingDegreeDays?: number }} Assembly */
+/** @typedef {{ continuousR?: number, sheathingR?: number, drywallR?: number, insideFilmR?: number, outsideFilmR?: number, framingRPerInch?: number, assumedFramingFraction?: number, ceilingR?: number, ceilingFromAttic?: boolean, windowU?: number, doorU?: number, designDeltaF?: number, heatingDegreeDays?: number }} Assembly */
 /** @typedef {{ bagSqFt?: number, waste?: number, rValue?: number, price?: number, attic?: Attic, rim?: boolean, assembly?: Assembly | boolean }} Insulation */
 
 // Typical handbook layer values (ASHRAE Fundamentals), typed defaults: replace with your product's
@@ -32,6 +32,7 @@ export function validateInsulation(d) {
     const a = d.assembly;
     for (const k of /** @type {const} */ (["continuousR", "sheathingR", "drywallR", "insideFilmR", "outsideFilmR"])) if (a[k] != null && !(a[k] >= 0 && a[k] <= 30)) e.push(`Assembly ${k} must be between 0 and 30.`);
     if (a.framingRPerInch != null && !(a.framingRPerInch > 0 && a.framingRPerInch <= 3)) e.push("Assembly framingRPerInch must be between 0 and 3.");
+    if (a.ceilingR != null && !(a.ceilingR > 0 && a.ceilingR <= 100)) e.push("Assembly ceilingR must be between 0 and 100 (whole-ceiling R, film to film).");
     for (const k of /** @type {const} */ (["windowU", "doorU"])) if (a[k] != null && !(a[k] > 0 && a[k] <= 2)) e.push(`Assembly ${k} must be between 0 and 2 (BTU/h per sq ft per F).`);
     if (a.designDeltaF != null && !(a.designDeltaF > 0 && a.designDeltaF <= 120)) e.push("Assembly designDeltaF must be between 0 and 120 F.");
     if (a.heatingDegreeDays != null && !(a.heatingDegreeDays > 0 && a.heatingDegreeDays <= 15000)) e.push("Assembly heatingDegreeDays must be between 0 and 15000 (F-days, base 65).");
@@ -110,7 +111,26 @@ export function layoutInsulation(d, plan, result) {
   if (!d.attic) return full;
   const attic = layoutAttic(d.attic, d.waste ?? 0.05, /** @type {any} */ (plan).drywall, /** @type {any} */ (plan).roof);
   if (!attic.ok) return { ...full, ok: false, errors: attic.errors };
-  return { ...full, attic };
+  const withAttic = { ...full, attic };
+  if (withAttic.assembly?.heat) addCeilingHeat(withAttic.assembly, attic);
+  return withAttic;
+}
+
+/**
+ * Adds the flat ceiling under the attic to the shell's conduction. R is `assembly.ceilingR` (whole ceiling,
+ * typed) or, with `ceilingFromAttic`, the attic fill's R plus the wall's film and drywall layers. Joist
+ * bridging is not modelled, so the ceiling is a little better than real; the wall figures are untouched.
+ * @param {any} e assembly result @param {any} attic
+ */
+function addCeilingHeat(e, attic) {
+  const a = e.settings, h = e.heat;
+  const r = a.ceilingR ?? (a.ceilingFromAttic ? attic.rValue + e.layersR : null);
+  if (r == null) return;
+  const ceilingUA = attic.sqFt / r;
+  h.ceilingSqFt = attic.sqFt; h.ceilingR = r; h.ceilingUA = ceilingUA;
+  h.wallUA = h.ua; h.ua += ceilingUA;
+  if (a.designDeltaF != null) h.designBtuh = h.ua * a.designDeltaF;
+  if (a.heatingDegreeDays != null) h.annualKBtu = (h.ua * 24 * a.heatingDegreeDays) / 1000;
 }
 
 /**
@@ -243,9 +263,10 @@ export function insulationText(d) {
     const h = e.heat;
     if (h) {
       l.push(`  Wall heat loss (conduction): UA ${h.ua.toFixed(1)} BTU/h per F = opaque ${h.opaqueUA.toFixed(1)}${h.windowUA != null ? ` + windows ${h.windowUA.toFixed(1)} (${h.windowSqFt.toFixed(0)} sq ft)` : ""}${h.doorUA != null ? ` + doors ${h.doorUA.toFixed(1)} (${h.doorSqFt.toFixed(0)} sq ft)` : ""}${h.complete ? "" : ` (INCOMPLETE: type windowU/doorU for the ${h.windowUA == null && h.windowSqFt > 0 ? `${h.windowSqFt.toFixed(0)} sq ft of windows` : ""}${h.windowUA == null && h.windowSqFt > 0 && h.doorUA == null && h.doorSqFt > 0 ? " and " : ""}${h.doorUA == null && h.doorSqFt > 0 ? `${h.doorSqFt.toFixed(0)} sq ft of doors` : ""}; they are left out)`}`);
-      if (h.designBtuh != null) l.push(`    Design load through the walls: ${Math.round(h.designBtuh).toLocaleString("en-US")} BTU/h at ${e.settings.designDeltaF} F inside-outside`);
+      if (h.ceilingUA != null) l.push(`    Ceiling under the attic: ${h.ceilingSqFt.toFixed(0)} sq ft at R-${h.ceilingR.toFixed(1)} adds ${h.ceilingUA.toFixed(1)} (walls ${h.wallUA.toFixed(1)}); the totals below include it`);
+      if (h.designBtuh != null) l.push(`    Design load through the ${h.ceilingUA != null ? "shell" : "walls"}: ${Math.round(h.designBtuh).toLocaleString("en-US")} BTU/h at ${e.settings.designDeltaF} F inside-outside`);
       if (h.annualKBtu != null) l.push(`    Seasonal conduction: ${Math.round(h.annualKBtu).toLocaleString("en-US")} kBTU at ${e.settings.heatingDegreeDays} heating degree-days (base 65 F)`);
-      l.push("    Walls only: roof, floor, air leakage and ventilation are not in it, so it is not a Manual J load. Window and door U-factors and the climate figures are the ones you typed.");
+      l.push(`    ${h.ceilingUA != null ? "Walls and flat ceiling only: floor, air leakage" : "Walls only: roof, floor, air leakage"} and ventilation are not in it, so it is not a Manual J load. Window and door U-factors and the climate figures are the ones you typed.`);
     }
     l.push("    Layer values are typical handbook figures you can replace (insulation.assembly); windows, doors, air leakage and compressed batts are not in it. Not an energy-code compliance check.");
   }
