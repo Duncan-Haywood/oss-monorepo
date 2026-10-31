@@ -1,0 +1,7 @@
+{
+ "theme": "buildbot",
+ "programme": "build-data",
+ "title": "Do open permit records predict how long a permit and the build behind it take, better than each city's own averages?",
+ "lede": "research programme (proposal stage): do open building-permit feeds from several US cities, on one schema, predict permit and build duration better than each city's own quantiles; feed probe so far found Chicago issued-only, San Francisco and Austin with completion dates; no model run yet",
+ "summary": "An open research programme on duration forecasting from public building-permit feeds. Session 1 wrote the proposal (12 checked works, four falsifiable hypotheses, time-split evaluation with conformal intervals) and probed the feeds: Chicago has 851,778 rows, all issued, so it cannot show permits never issued; San Francisco has 1,297,657 rows with 750,188 completed; Austin has 2,382,939 rows with 2,184,191 completed. NYC DOB NOW is excluded until its licence is checked. No model has been run: preliminary, proposal only."
+}
