@@ -2,6 +2,16 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-31 · Milestone 7c: H1 and H5 tested as the proposal states them (planned before running)
+- Why: 7b found neither was ever run as written. `experiments/run_h1_h5.py` (stdlib, seconds). H1: monohull 200 kg, 4 m, 30 W hotel, 200 Wh/kg; 27 combinations of c_s (2.6 to 3.4), k_form (0.10 to 0.40), wave_scale (0 to 1). H5: mono against catamaran over run.py's box (2,187 cases), pack 150 to 250 Wh/kg, (a) battery 25% of 200 kg, (b) 5 kWh fixed so a better pack is lighter.
+- **Predictions (before running):** (1) H1 refuted: best range spreads by 10% or more across the 27 combinations (prior 85%). (2) Best speed spreads by 15% or more (prior 55%). (3) The propulsion share of power at the best speed is within 0.30 to 0.40 everywhere (prior 70%; theory for v^3 drag gives 1/3). (4) H5 (a) has 0 rank swaps, by proof: range is linear in pack energy for every hull at fixed mass (prior 99%). (5) H5 (b) has swaps in under 2% of cases (prior 70%). Refuted: any one missed.
+
+### Outcome (`experiments/results_h1_h5.txt`)
+- **H1 refuted as stated.** Best range 763 to 921 km, a spread of 20.6%; best speed 1.00 to 1.20 m/s (20.0%). Prediction (1) and (2) held. One at a time, c_s moves range by 9.0%, k_form by 8.1% and wave_scale by 0.8%, so each hull constant alone is under the 10% line and together they are over it. The "set by the hotel load" half holds: the propulsion share of power at the best speed is 0.33 to 0.37 (3 held), the 1/3 of v^3 drag (new test `tests/test_best_speed_share.py`).
+- **H5 refuted, and not a finding about hulls.** (a) 0 swaps in 2,187 cases; the cat/mono ratio does not change at all (4 held). (b) 0 swaps; the ratio moves at most 0.13% because a lighter hull displaces less (5 held). Within this model a battery specific energy cannot flip a mono-versus-catamaran ranking; a flip needs a term that is not proportional to pack energy (a fixed energy per mission, a payload that scales with pack mass, or a mass-limited hull). Not tested against glider, SWATH or planing rungs, whose ranges are also linear in pack energy here.
+- Limits: swept, unsourced constants; two hull types for H5; one mass and length for H1.
+- Next: H5 with a term that breaks the proportionality (a fixed mission energy or a pack-volume limit); milestone 3 curve when a data host is reachable.
+
 ## 2026-10-30 · Milestone 7b: draft the introduction, model and results table (no experiment run)
 - Why: the paper file was a 47-line skeleton after about thirty experiments; the programme's bottleneck is a submittable text, not a seventh persistence variant. Drafted sections 2.1 to 2.3 of `paper/DRAFT.md` from logged numbers only, with a rung-by-rung table.
 - Found while drafting: H1 was never tested as written (a 10% range spread across the hull box) and H5 was never counted as a rank swap under the battery sweep; both are now listed in the draft as open, and are cheap next steps from existing code. H4's logged outcome (crossover refuted, hotel-load edge) is stated as such.
