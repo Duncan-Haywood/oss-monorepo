@@ -52,6 +52,18 @@ export function checkPdfEnvelope(pdf, xml = "") {
     }
   }
 
+  if (attachment.length) {
+    const embedded = [...text.matchAll(/<<[^<>]*\/Type\s*\/EmbeddedFile\b[^<>]*>>|<<[^<>]*\/Subtype\s*\/[^\s/>]+[^<>]*\/Type\s*\/EmbeddedFile\b[^<>]*>>/g)].map((m) => m[0]);
+    if (embedded.length && embedded.every((d) => !/\/Subtype\s*\//.test(d))) {
+      out.push(finding("PDF-005", "The embedded file's stream has no /Subtype (its MIME type); PDF/A-3 requires one, written /text#2Fxml for XML.", "Set the embedded file's Subtype to /text#2Fxml when attaching the XML.", "/pdf/attachment/Subtype", "note"));
+    }
+    // Only a catalog in plain text is read: one inside a compressed object stream is not visible here.
+    const catalog = text.match(/<<[^<>]*\/Type\s*\/Catalog\b[\s\S]*?>>\s*endobj/);
+    if (catalog && !/\/AF\s*[\[\d]/.test(catalog[0])) {
+      out.push(finding("PDF-006", "The document catalog has no /AF array listing the attachment, which PDF/A-3 expects for an associated file.", "Re-export with the XML attached as an associated file, so the catalog's /AF array names it.", "/pdf/catalog/AF", "note"));
+    }
+  }
+
   const level = text.match(/fx:ConformanceLevel(?:>|\s*=\s*["'])\s*([^<"']+)/);
   const fromXmp = level ? profileFromXmp(level[1]) : "";
   const guideline = String(xml).match(/GuidelineSpecifiedDocumentContextParameter[\s\S]*?<[\w:]*ID[^>]*>([^<]+)</);
