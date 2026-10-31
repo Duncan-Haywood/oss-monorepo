@@ -295,7 +295,7 @@ test("the dormer controls are read into plan.dormer, restored from a saved plan 
   assert.match(html, /\$\("#dmOn"\)\.checked = Boolean\(dmp\)/);
   assert.match(html, /<code>dormer_on<\/code>/);
   // shed dormer (2026-10-31): shape select and roof-opening depth, routed to layoutShedDormer
-  for (const id of ["dmShape", "dmOpening"]) assert.match(html, new RegExp(`id="${id}"`), id);
+  for (const id of ["dmShape", "dmOpening", "dmWinW", "dmWinH", "dmWinSill"]) assert.match(html, new RegExp(`id="${id}"`), id);
   assert.match(html, /layoutShedDormer\(dArgs\)/);
   assert.match(html, /dm\.shape = "shed"/);
   assert.match(html, /\$\("#dmShape"\)\.value = dmp\?\.shape === "shed"/);
