@@ -2,6 +2,17 @@
 
 Newest first.
 
+## 2026-10-31 · Milestone 3i: 3f's break-even with the manual-curve sizing (prediction registered before running)
+- Why: 3h's "Next". `experiments/time_penalised_rated.py` is 3f with each phase stretched by the rated-sizing slowdown of 3h (spool size and drop at 1.0 x rated from `data/pvg32_dp_at_rated.csv`; 0.8 and 1.2 x rated as sensitivity) instead of the closing-law factor. Same cycles, same upper-bound charge (open-centre pump at full power for the extra seconds), load factor 0.346, standby 2 L/min.
+- **Prediction (before running):** the break-even dp_ls at 1.0 x rated lies between 30 and 38 bar (3f's no-penalty value is 28.0 and its k = 1 value 35.8; 3h's 6.25% median penalty is milder than k = 1's 21.6%). Prior 65%. Refuted if it is below 29 or above 38 bar.
+
+### Outcome of 3i (`experiments/time_penalised_rated_results.txt`, 10 s, seeded)
+- Break-even dp_ls (bar): 28.0 (no penalty, reproduces 2n), **36.1** (rated sizing at 1.0 x rated, median time penalty 6.25%), 38.9 (0.8 x rated, 16.81%), 34.0 (1.2 x rated, 2.64%). **Prediction held** (30 to 38 bar).
+- LS/OC at the Rexroth 14 bar margin: 0.757 without penalty, 0.663 with it (0.642 to 0.682 across the +-20% rating-point reading); at 26 bar 0.965 falls to 0.846. So at the thesis 25 bar margin load-sensing already wins once slowness is charged, where 2n had it losing.
+- Reading: charged in energy, the 3h penalty moves the break-even from 28 to 34 to 39 bar, so 2n's ranking at the sourced 14 bar margin stands and strengthens. 3f's "credible range 28 to 29.5" came from a closing law the manual contradicts; with the manual's own spool curves the range is 34 to 39 bar.
+- Limits: the charge is an upper bound (full pump power during the stretch); the 3h caveat (work-port-to-tank drop used as the rating point) carries over; no compensator or feathering; one load factor.
+- Next: find the manual's P-to-A flow curve; add the compensator; fold 3i into the paper's section 3.5 and `check_numbers.py`.
+
 ## 2026-10-31 · Milestone 3h: 3g with the drop at rated flow read from the manual's own curves (prediction registered before running)
 - Why: 3g swept dp_ref (5 to 35 bar) because the rated drop was not in the pages read. The same manual (BC152886483664en-001601, July 2024, p. 99, "Pressure drop at maximum spool travel position, A/B to T", opened this session) plots drop against flow for each spool. `experiments/digitise_pvg_dp.py` picks each curve's pixels by colour from a 300 dpi render and reads the drop at 0.8, 1.0 and 1.2 times rated flow (`experiments/data/pvg32_dp_at_rated.csv`); `experiments/rated_sizing_curve.py` sizes each spool by its own value.
 - Read values at rated flow (bar): A 11.8, B 6.7, C 5.3, D 7.3, E 7.6. Caveat that matters: the figure is the **work-port-to-tank** drop at maximum travel, not the P-to-A drop the flow rating may refer to; I use it as the best available measure of each spool's size, not as proof of the rating point. Read error about 1 bar.
