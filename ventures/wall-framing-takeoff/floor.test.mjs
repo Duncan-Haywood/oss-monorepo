@@ -178,3 +178,28 @@ test("joist hangers: tail-joist ends at the headers and four double hangers per 
   assert.equal(line("Double joist hangers").amount, 20);
 });
 
+
+test("a cantilever lengthens the joists, rims and subfloor past the back support, hand-counted", () => {
+  const base = layoutFloor(sampleFloor(), plan());
+  const l = layoutFloor({ ...sampleFloor(), cantilever: 24 }, plan());
+  assert.ok(l.ok);
+  assert.equal(l.depth, 336 + 24);
+  assert.equal(l.supportedDepth, 336);
+  // the back run grows by exactly the overhang, the front run is unchanged
+  const back = (r) => r.joists.filter((j) => j.y >= 168 && !j.header);
+  assert.equal(back(l)[0].length - back(base)[0].length, 24);
+  assert.equal(l.joists.filter((j) => j.y < 100)[0].length, base.joists.filter((j) => j.y < 100)[0].length);
+  // 360 in is 7.5 courses of 48: seven full and one 24 in strip
+  assert.equal(l.courses.length, 8);
+  assert.equal(l.courses.at(-1).width, 24);
+  assert.ok(l.sheets.area === 480 * 360 / 144);
+  assert.ok(l.notes.some((n) => /cantilever 2. 0/i.test(n)) && !l.notes.some((n) => /rule of thumb/.test(n)));
+});
+
+test("a cantilever over a third of the span is flagged, and one over 8 ft is refused", () => {
+  const l = layoutFloor({ ...sampleFloor(), cantilever: 120 }, plan());
+  assert.equal(l.ok, false); // 10 ft is out of range
+  const m = layoutFloor({ ...sampleFloor(), depth: 192, beam: 96, cantilever: 96 }, plan());
+  assert.ok(m.ok);
+  assert.ok(m.notes.some((n) => /rule of thumb/.test(n)));
+});
