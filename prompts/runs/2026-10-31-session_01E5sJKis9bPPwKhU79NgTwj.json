@@ -26,10 +26,15 @@
  "ci_failures_before_green": null,
  "review_findings": null,
  "tests_added": null,
- "outcome": "success",
+ "outcome": "partial",
  "errors": [],
  "integrity_issues": [],
- "doc_friction": [],
+ "doc_friction": [
+  {
+   "file": "CLAUDE.md",
+   "issue": "Duplicate-PR search advice came after I had already picked a slice from flagships.yaml; the flagship next: is edited by many runs in parallel (210 commits/7d), so the slice was taken before I finished."
+  }
+ ],
  "deviations": [
   {
    "file": "prompt.md",
@@ -42,7 +47,7 @@
   "docs/posts/2026-10-31-schedule-deadline-on-the-page.md"
  ],
  "goal": null,
- "notes": "node eval-schedule-click.mjs all ok; node --test schedule.test.mjs page.test.mjs 74 pass. No agent doc: nothing the next run needs beyond README.",
+ "notes": "Built the deadline page field and clicked it in Chromium, but another run landed the same field on main first; resolved the conflict by taking main's code and keeping only the blog post. Duplicate work: the pre-PR duplicate search was skipped.",
  "corrections": [],
  "redteam": null
 }
