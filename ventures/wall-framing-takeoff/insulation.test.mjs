@@ -163,3 +163,15 @@ test("heat loss adds the ceiling under the attic from typed ceilingR or the atti
   assert.match(insulationText(f).join("\n"), /Ceiling under the attic: 200 sq ft/);
   assert.equal(validateInsulation({ assembly: { ceilingR: 0 } }).length, 1);
 });
+
+test("heat loss adds slab edge from a typed F-factor x exterior wall length", () => {
+  const r = { walls: [wall([m(0, 0, 96, 1.5), m(0, 94.5, 96, 1.5), m(0, 1.5, 1.5, 93)])] };
+  const p = { defaultHeaderHeight: 82.5, walls: [{ id: "A", length: 96, openings: [] }] };
+  const base = layoutInsulation({ assembly: {} }, p, r).assembly.heat;
+  assert.equal(base.slabEdgeUA, null);
+  const h = layoutInsulation({ assembly: { slabEdgeF: 0.5, designDeltaF: 40 }, }, p, r).assembly.heat;
+  assert.ok(Math.abs(h.slabEdgeUA - 4) < 1e-9); // 8 ft x 0.5
+  assert.ok(Math.abs(h.ua - (base.ua + 4)) < 1e-9);
+  assert.ok(Math.abs(h.designBtuh - h.ua * 40) < 1e-9);
+  assert.equal(validateInsulation({ assembly: { slabEdgeF: 3 } }).length, 1);
+});

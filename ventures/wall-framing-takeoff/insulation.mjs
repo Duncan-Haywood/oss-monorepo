@@ -14,7 +14,7 @@ import { joistCentres } from "./floor.mjs";
 const DEFAULT_R = { "2x4": 15, "2x6": 21 };
 
 /** @typedef {{ rValue?: number, rPerInch?: number, bagCuFt?: number, price?: number, heel?: number, baffles?: boolean, baffleLength?: number, baffleWidth?: number, ceiling?: { width: number, depth: number }[] }} Attic */
-/** @typedef {{ continuousR?: number, sheathingR?: number, drywallR?: number, insideFilmR?: number, outsideFilmR?: number, framingRPerInch?: number, assumedFramingFraction?: number, ceilingR?: number, ceilingFromAttic?: boolean, windowU?: number, doorU?: number, designDeltaF?: number, heatingDegreeDays?: number }} Assembly */
+/** @typedef {{ continuousR?: number, sheathingR?: number, drywallR?: number, insideFilmR?: number, outsideFilmR?: number, framingRPerInch?: number, assumedFramingFraction?: number, ceilingR?: number, ceilingFromAttic?: boolean, windowU?: number, doorU?: number, designDeltaF?: number, heatingDegreeDays?: number, slabEdgeF?: number }} Assembly */
 /** @typedef {{ bagSqFt?: number, waste?: number, rValue?: number, price?: number, attic?: Attic, rim?: boolean, assembly?: Assembly | boolean }} Insulation */
 
 // Typical handbook layer values (ASHRAE Fundamentals), typed defaults: replace with your product's
@@ -35,6 +35,7 @@ export function validateInsulation(d) {
     if (a.ceilingR != null && !(a.ceilingR > 0 && a.ceilingR <= 100)) e.push("Assembly ceilingR must be between 0 and 100 (whole-ceiling R, film to film).");
     for (const k of /** @type {const} */ (["windowU", "doorU"])) if (a[k] != null && !(a[k] > 0 && a[k] <= 2)) e.push(`Assembly ${k} must be between 0 and 2 (BTU/h per sq ft per F).`);
     if (a.designDeltaF != null && !(a.designDeltaF > 0 && a.designDeltaF <= 120)) e.push("Assembly designDeltaF must be between 0 and 120 F.");
+    if (a.slabEdgeF != null && !(a.slabEdgeF >= 0 && a.slabEdgeF <= 2)) e.push("Assembly slabEdgeF must be between 0 and 2 (BTU/h per ft of edge per F).");
     if (a.heatingDegreeDays != null && !(a.heatingDegreeDays > 0 && a.heatingDegreeDays <= 15000)) e.push("Assembly heatingDegreeDays must be between 0 and 15000 (F-days, base 65).");
     if (a.assumedFramingFraction != null && !(a.assumedFramingFraction > 0 && a.assumedFramingFraction < 0.6)) e.push("Assembly assumedFramingFraction must be between 0 and 0.6.");
   }
@@ -201,8 +202,13 @@ function heatLoss(e, d, plan) {
   const opaqueUA = e.opaqueSqFt / e.effectiveR;
   const winUA = a.windowU != null ? win * a.windowU : null, doorUA = a.doorU != null ? door * a.doorU : null;
   const complete = (win === 0 || winUA != null) && (door === 0 || doorUA != null);
-  const ua = opaqueUA + (winUA ?? 0) + (doorUA ?? 0);
+  // Slab edge: typed F-factor x exterior wall length (walls not marked sheathed:false). No table is shipped.
+  let edgeFt = 0;
+  for (const w of plan.walls || []) if (w.sheathed !== false) edgeFt += w.length / 12;
+  const slabEdgeUA = a.slabEdgeF != null ? a.slabEdgeF * edgeFt : null;
+  const ua = opaqueUA + (winUA ?? 0) + (doorUA ?? 0) + (slabEdgeUA ?? 0);
   return {
+    slabEdgeFt: a.slabEdgeF != null ? edgeFt : null, slabEdgeUA,
     windowSqFt: win, doorSqFt: door, opaqueUA, windowUA: winUA, doorUA, ua, complete,
     designBtuh: a.designDeltaF != null ? ua * a.designDeltaF : null,
     annualKBtu: a.heatingDegreeDays != null ? (ua * 24 * a.heatingDegreeDays) / 1000 : null,
