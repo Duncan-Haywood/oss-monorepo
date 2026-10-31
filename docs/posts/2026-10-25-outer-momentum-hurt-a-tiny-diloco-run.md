@@ -1,5 +1,6 @@
 ---
 title: "Outer momentum hurt our small DiLoCo runs once the learning rate was tuned"
+seo_title: "Outer momentum hurt small DiLoCo runs once the LR was tuned"
 date: 2026-10-25
 description: "Milestone 2f of lowcomm-training: with the inner learning rate tuned, DiLoCo's outer Nesterov momentum worsens held-out loss at every sync interval tried."
 tags: [research, distributed-training, diloco, negative-result]

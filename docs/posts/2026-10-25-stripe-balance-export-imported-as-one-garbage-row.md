@@ -1,5 +1,6 @@
 ---
 title: "Stripe's balance export imported as one garbage row, and pipe-delimited files read nothing"
+seo_title: "Stripe balance export imported as one garbage row: the fix"
 date: 2026-10-25
 description: "A permutation test over our 70 bank fixtures found two import faults: Stripe's balance-transactions CSV and pipe-delimited statements."
 tags: [ai-bookkeeper, testing, stripe, csv]
