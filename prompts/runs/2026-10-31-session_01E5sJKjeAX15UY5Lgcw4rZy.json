@@ -1,0 +1,172 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01E5sJKjeAX15UY5Lgcw4rZy",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T06:19:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Red baseline from bare python3 lacking numpy looks like a real defect; the tool message says fix it. Worth a line: check the interpreter first (pyenv.py)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-31-redteam-narrate-catch-rate.md"
+  ],
+  "goal": null,
+  "notes": "check_jsonld.py campaign 8/8 caught. narrate.py 3/8 -> 8/8 after 4 Voicing tests.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/audio/narrate.py",
+        "test": "/usr/local/bin/python3 -m pytest -q -x -p no:cacheprovider test_narrate.py  (in platform/audio)",
+        "seed": 884409104,
+        "commit": "c755b199",
+        "sites": 116,
+        "baseline_seconds": 1.1,
+        "mutants": [
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 125,
+            "col": 48,
+            "operator": "div-to-times",
+            "before": "return PAUSE_AFTER.get(mark, PAUSE_DEFAULT) / speed",
+            "after": "return PAUSE_AFTER.get(mark, PAUSE_DEFAULT) * speed",
+            "line_text": "    return PAUSE_AFTER.get(mark, PAUSE_DEFAULT) / speed",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 132,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "ramp = (0.5 - 0.5 * np.cos(np.linspace(0, np.pi, n, dtype=np.float32))).astype(np.float32)",
+            "after": "ramp = (0.5 - 0.5 * np.cos(np.linspace(1, np.pi, n, dtype=np.float32))).astype(np.float32)",
+            "line_text": "    ramp = (0.5 - 0.5 * np.cos(np.linspace(0, np.pi, n, dtype=np.float32))).astype(np.float32)",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 155,
+            "col": 25,
+            "operator": "true-to-false",
+            "before": "models.mkdir(parents=True, exist_ok=True)",
+            "after": "models.mkdir(parents=False, exist_ok=True)",
+            "line_text": "    models.mkdir(parents=True, exist_ok=True)",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test covered this path (model download, _load, pool sizing, empty script); added Voicing tests"
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 161,
+            "col": 31,
+            "operator": "div-to-times",
+            "before": "part.rename(models / name)",
+            "after": "part.rename(models * name)",
+            "line_text": "            part.rename(models / name)",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test covered this path (model download, _load, pool sizing, empty script); added Voicing tests"
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 195,
+            "col": 74,
+            "operator": "const-plus-one",
+            "before": "_KOKORO = Kokoro.from_session(session, str(Path(models) / MODEL_FILES[1]))",
+            "after": "_KOKORO = Kokoro.from_session(session, str(Path(models) / MODEL_FILES[2]))",
+            "line_text": "    _KOKORO = Kokoro.from_session(session, str(Path(models) / MODEL_FILES[1]))",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test covered this path (model download, _load, pool sizing, empty script); added Voicing tests"
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 250,
+            "col": 33,
+            "operator": "div-to-times",
+            "before": "f = self.cache / key[:2] / f\"{key}.npy\"",
+            "after": "f = self.cache / key[:2] * f\"{key}.npy\"",
+            "line_text": "        f = self.cache / key[:2] / f\"{key}.npy\"",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 272,
+            "col": 23,
+            "operator": "min-to-max",
+            "before": "procs = max(1, min(procs, len(todo)))",
+            "after": "procs = max(1, max(procs, len(todo)))",
+            "line_text": "        procs = max(1, min(procs, len(todo)))",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test covered this path (model download, _load, pool sizing, empty script); added Voicing tests"
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 309,
+            "col": 60,
+            "operator": "const-plus-one",
+            "before": "return np.concatenate(parts) if parts else np.zeros(0, dtype=np.float32)",
+            "after": "return np.concatenate(parts) if parts else np.zeros(1, dtype=np.float32)",
+            "line_text": "        return np.concatenate(parts) if parts else np.zeros(0, dtype=np.float32)",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test covered this path (model download, _load, pool sizing, empty script); added Voicing tests"
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  }
+}

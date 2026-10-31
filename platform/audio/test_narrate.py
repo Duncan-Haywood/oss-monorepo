@@ -101,6 +101,62 @@ class Render(unittest.TestCase):
 
 
 @unittest.skipUnless(shutil.which("ffmpeg") and shutil.which("ffprobe"), "needs ffmpeg")
+class Voicing(unittest.TestCase):
+    """The parts that normally need the model and a process pool, with those stubbed."""
+
+    def setUp(self):
+        self.dir = Path(tempfile.mkdtemp())
+
+    def tearDown(self):
+        shutil.rmtree(self.dir)
+
+    def test_ensure_models_downloads_to_part_then_renames(self):
+        from unittest import mock
+
+        models = self.dir / "a" / "b"
+
+        def fake(url, dest):
+            self.assertTrue(str(dest).endswith(".part"))
+            Path(dest).write_bytes(b"x")
+
+        with mock.patch.object(N.urllib.request, "urlretrieve", side_effect=fake) as get:
+            self.assertEqual(N.ensure_models(models), models)
+            self.assertEqual(get.call_count, len(N.MODEL_FILES))
+            for name in N.MODEL_FILES:
+                self.assertTrue((models / name).exists())
+                self.assertFalse((models / f"{name}.part").exists())
+            N.ensure_models(models)  # present files are not fetched again
+            self.assertEqual(get.call_count, len(N.MODEL_FILES))
+
+    def test_load_opens_the_model_and_the_voices_file(self):
+        import types
+        from unittest import mock
+
+        rt = mock.MagicMock()
+        kokoro_onnx = types.SimpleNamespace(Kokoro=mock.MagicMock())
+        with mock.patch.dict(sys.modules, {"onnxruntime": rt, "kokoro_onnx": kokoro_onnx}):
+            N._load(str(self.dir), 2)
+        self.assertEqual(rt.InferenceSession.call_args[0][0], str(self.dir / N.MODEL_FILES[0]))
+        self.assertEqual(kokoro_onnx.Kokoro.from_session.call_args[0][1], str(self.dir / N.MODEL_FILES[1]))
+
+    def test_few_units_never_get_a_pool_when_one_worker_asked(self):
+        from unittest import mock
+
+        n = N.Narrator(models=self.dir / "m", cache=self.dir / "c", g2p="espeak", workers=1)
+        units = ["one long enough sentence here.", "two long enough sentence here.", "three long enough sentence here."]
+        with mock.patch.object(N, "ensure_models"), mock.patch.object(N, "_load"), \
+                mock.patch.object(N, "_voice", return_value=np.zeros(10, dtype=np.float32)), \
+                mock.patch.object(N, "ProcessPoolExecutor", side_effect=AssertionError("pool used")):
+            out = n.voice_units(units)
+        self.assertEqual(set(out), set(units))
+
+    def test_empty_script_renders_nothing(self):
+        n = N.Narrator(models=self.dir / "m", cache=self.dir / "c", g2p="espeak")
+        out = n.render([])
+        self.assertEqual(out.shape, (0,))
+        self.assertEqual(out.dtype, np.float32)
+
+
 class Master(unittest.TestCase):
     def test_lands_on_target_loudness(self):
         t = np.arange(N.RATE * 12) / N.RATE
