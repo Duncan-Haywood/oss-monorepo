@@ -37,6 +37,7 @@ import statistics
 import sys
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from collections import defaultdict
 from datetime import datetime
 
@@ -205,7 +206,7 @@ def http_api(token=None, opener=urllib.request.urlopen):
             headers["Authorization"] = f"Bearer {token}"
         url = API_ROOT + path.lstrip("/")
         try:
-            with opener(urllib.request.Request(url, headers=headers)) as response:
+            with opener(urllib.request.Request(url, headers=headers), timeout=60) as response:
                 return json.loads(response.read().decode("utf-8"))
         except urllib.error.HTTPError as exc:
             raise RuntimeError(f"GET {url} failed: HTTP {exc.code}") from exc
@@ -226,9 +227,19 @@ def fetch(api, repo, runs):
         listed += batch
         page += 1
     listed = listed[:runs]
-    jobs = []
-    for run in listed:
-        jobs += api(f"repos/{repo}/actions/runs/{run['id']}/jobs?per_page=100").get("jobs") or []
+    # One request per run: 600 runs read serially took minutes with no output
+    # (doc_friction 2026-10-31), so fetch in parallel and report progress on stderr.
+    done = [0]
+
+    def run_jobs(run):
+        found = api(f"repos/{repo}/actions/runs/{run['id']}/jobs?per_page=100").get("jobs") or []
+        done[0] += 1
+        if done[0] % 50 == 0:
+            print(f"ci_profile: read jobs of {done[0]}/{len(listed)} runs", file=sys.stderr)
+        return found
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        jobs = [job for found in pool.map(run_jobs, listed) for job in found]
     window = ""
     if listed:
         window = f"{listed[-1]['created_at']} to {listed[0]['created_at']} ({len(listed)} runs)"
