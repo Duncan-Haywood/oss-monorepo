@@ -296,6 +296,11 @@ export function layoutStairWithLanding(input, plan) {
     guard: lc.openEdges?.length ? layoutLandingGuard(lc.openEdges.map((e) => (e === "end" ? width : depth)), input.rail || {}, Math.min(4, lc.openEdges.filter((e) => e === "end").length * lc.openEdges.filter((e) => e !== "end").length)) : null,
     notes: ["Landing posts are counted, not sized, and footings are not sized: the platform carries a stair load plus the flights' ends, so check post size, footings and the typed `postSpacing` (96 in unless set) against your code and the actual spans."],
   };
+  if (lc.postFc != null || lc.postEmin != null) {
+    landing.postColumn = landing.footings?.ok
+      ? checkLandingPostColumn(landing.posts.height, lc.postSize || "4x4", landing.footings.load, { fc: lc.postFc, emin: lc.postEmin })
+      : { ok: false, errors: ["postFc and postEmin need landing.soilBearing too, for the post load."] };
+  }
   return { ok: true, id, totalRise: input.totalRise, flights: [lower, upper], landing };
 }
 
@@ -325,6 +330,24 @@ export function checkPostSlenderness(height, postSize = "4x4") {
   const slenderness = height / face, maxHeight = POST_SLENDERNESS_LIMIT * face;
   const warnings = slenderness > POST_SLENDERNESS_LIMIT ? [`A ${postSize} post ${formatInches(height)} long is ${slenderness.toFixed(1)} times its face, over the limit of ${POST_SLENDERNESS_LIMIT}; use a 6x6 or brace it (a ${postSize} reaches ${formatInches(maxHeight)}).`] : [];
   return { ok: warnings.length === 0, postSize, face, height, slenderness, limit: POST_SLENDERNESS_LIMIT, maxHeight, warnings };
+}
+
+/**
+ * Axial capacity of a landing post by the NDS column stability factor (ASD, pin-pin, Ke = 1, c = 0.8 for sawn lumber),
+ * from typed design values: `fc` (psi, compression parallel to grain) and `emin` (psi), both already adjusted by you
+ * for wet service and treatment; none is shipped. Compared with `load` (lb, the heaviest post's share from
+ * `sizeLandingFootings`). Bracing, notches, stringer bolts, uplift and lateral load are not checked.
+ */
+export function checkLandingPostColumn(height, postSize, load, { fc, emin } = {}) {
+  const face = POST_FACE[postSize];
+  if (!face) return { ok: false, errors: [`Unknown landing post size ${postSize}; use 4x4 or 6x6.`] };
+  if (!(fc >= 100 && fc <= 3000)) return { ok: false, errors: ["postFc is the post's compression parallel to grain in psi (100 to 3000)."] };
+  if (!(emin >= 50000 && emin <= 1500000)) return { ok: false, errors: ["postEmin is the post's minimum modulus of elasticity in psi (50000 to 1500000)."] };
+  const area = face * face, slenderness = height / face, c = 0.8;
+  const ratio = (0.822 * emin) / slenderness ** 2 / fc, a = (1 + ratio) / (2 * c);
+  const cp = a - Math.sqrt(a * a - ratio / c);
+  const capacity = fc * cp * area;
+  return { ok: true, postSize, slenderness, cp, capacity, load, utilisation: load / capacity, passes: load <= capacity && slenderness <= POST_SLENDERNESS_LIMIT };
 }
 
 /**
@@ -371,6 +394,8 @@ export function landingText(r) {
     ...(g.postSlenderness?.warnings ?? []).map((w) => `  Warning: ${w}`),
     ...(g.footings?.ok ? [`  Landing footings: heaviest post ${Math.round(g.footings.load)} lb (${g.footings.tributary.toFixed(1)} sq ft at ${g.footings.liveLoad + g.footings.deadLoad} psf) on ${g.footings.soilBearing} psf soil needs ${g.footings.area.toFixed(0)} sq in: ${g.footings.round} in round or ${g.footings.square} in square, ${g.footings.count} footings`] : []),
     ...(g.footings?.ok && g.footings.postOk != null ? [`  Landing post check: heaviest post ${Math.round(g.footings.load)} lb against your ${g.footings.postCapacity} lb capacity: ${g.footings.postOk ? "holds" : "OVER, use a larger post or a closer spacing"}`] : []),
+    ...(g.postColumn?.ok ? [`  Landing post column (${g.postColumn.postSize}, typed fc and Emin): ${Math.round(g.postColumn.load)} lb of ${Math.round(g.postColumn.capacity)} lb (${(g.postColumn.utilisation * 100).toFixed(0)}%), Cp ${g.postColumn.cp.toFixed(2)} - ${g.postColumn.passes ? "passes" : "FAILS, use a larger post or a closer spacing"}`] : []),
+    ...(g.postColumn && !g.postColumn.ok ? g.postColumn.errors.map((e) => `  Warning: ${e}`) : []),
     ...(g.guard ? [`  Landing guard (${g.guard.edges.length} open edge${g.guard.edges.length === 1 ? "" : "s"}, ${formatInches(g.guard.guardHeight)} high): ${g.guard.posts.count} posts, ${g.guard.balusters.count} balusters ${formatInches(g.guard.balusters.length)} with at most ${formatInches(g.guard.balusters.maxGap)} clear (limit ${formatInches(RAIL_LIMITS.maxGap)}), ${g.guard.guardRails.count} ${g.guard.guardRails.size} rails`] : []),
     ...g.notes.map((n) => `  Note: ${n}`),
   ];

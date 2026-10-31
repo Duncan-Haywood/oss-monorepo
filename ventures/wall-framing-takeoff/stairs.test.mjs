@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan, formatLength } from "./engine.mjs";
-import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText, checkPostSlenderness } from "./stairs.mjs";
+import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText, checkPostSlenderness, checkLandingPostColumn } from "./stairs.mjs";
 import { checkStringer } from "./stairs.mjs";
 import { checkWinders, winderText, layoutLandingGuard } from "./stairs.mjs";
 
@@ -420,4 +420,25 @@ test("linkStairReaction copies the flight's total reaction into the floor's head
   assert.ok(plan.floor.headerCheck.stairReaction > 0 && plan.floor.headerCheck.stairReactionLive <= plan.floor.headerCheck.stairReaction);
   assert.match(linkStairReaction({ floor: { headerCheck: { stairFrom: 1 } }, stairs: [] }, parseLength), /stairFrom 1 needs/);
   assert.equal(linkStairReaction({ floor: {} }, parseLength), null);
+});
+
+test("landing post column: NDS Cp by hand (4x4, 60 in, fc 1000, Emin 400000)", () => {
+  // slenderness 60/3.5 = 17.14; FcE = 0.822*400000/17.14^2 = 1119.2; ratio 1.1192; a = 2.1192/1.6 = 1.3245
+  // Cp = 1.3245 - sqrt(1.3245^2 - 1.1192/0.8) = 1.3245 - sqrt(0.3548) = 0.7288; capacity = 1000*0.7288*12.25 = 8927 lb
+  const r = checkLandingPostColumn(60, "4x4", 500, { fc: 1000, emin: 400000 });
+  assert.ok(r.ok);
+  assert.ok(Math.abs(r.cp - 0.7288) < 0.002, String(r.cp));
+  assert.ok(Math.abs(r.capacity - 8927) < 30, String(r.capacity));
+  assert.ok(r.passes);
+  assert.equal(checkLandingPostColumn(60, "4x4", 9500, { fc: 1000, emin: 400000 }).passes, false);
+  assert.equal(checkLandingPostColumn(60, "4x4", 5, { fc: 10, emin: 400000 }).ok, false);
+});
+
+test("landing with typed postFc/postEmin carries a column check and prints it", () => {
+  const l = layoutStairWithLanding({ totalRise: 160, width: 48, landing: { depth: 120, postSpacing: 60, soilBearing: 1500, postFc: 1000, postEmin: 400000 } }, plan());
+  assert.ok(l.ok);
+  assert.ok(l.landing.postColumn.ok);
+  assert.ok(landingText(l).some((x) => x.includes("Landing post column")));
+  const bad = layoutStairWithLanding({ totalRise: 160, width: 48, landing: { depth: 120, postFc: 1000, postEmin: 400000 } }, plan());
+  assert.equal(bad.landing.postColumn.ok, false);
 });
