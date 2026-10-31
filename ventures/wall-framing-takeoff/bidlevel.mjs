@@ -97,3 +97,21 @@ export function levelText(r) {
   for (const e of r.errors) o.push(`ERROR ${e}`);
   return o;
 }
+
+/** A made-up scope and three made-up bids, only to show the format on the page. Not prices. */
+export function sampleBids() {
+  return {
+    tolerance: 0.05,
+    scope: [
+      { item: "Studs 2x4x92", qty: 400, unit: "ea" },
+      { item: "OSB 7/16 sheets", qty: 120, unit: "sheet" },
+      { item: "House wrap", qty: 3, unit: "roll", unitPrice: 160 },
+      { item: "Hurricane ties", qty: 400, unit: "ea", unitPrice: 2.5 },
+    ],
+    bids: [
+      { bidder: "Sub A", lines: [{ item: "Studs 2x4x92", qty: 400, unitPrice: 3.8 }, { item: "OSB 7/16 sheets", qty: 120, unitPrice: 18.5 }, { item: "House wrap", qty: 3, unitPrice: 150 }, { item: "Hurricane ties", qty: 400, unitPrice: 2.4 }] },
+      { bidder: "Sub B", lines: [{ item: "Studs 2x4x92", qty: 400, unitPrice: 3.6 }, { item: "OSB 7/16 sheets", qty: 100, unitPrice: 19 }] },
+      { bidder: "Sub C", lines: [{ item: "Studs 2x4x92", qty: 400, amount: 1700 }, { item: "OSB 7/16 sheets", qty: 120, unitPrice: 21 }, { item: "House wrap", amount: 480 }, { item: "Hurricane ties", qty: 400, unitPrice: 2.6 }] },
+    ],
+  };
+}

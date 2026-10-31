@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bid leveling: compare subcontractor bids on the same scope</title>
+  <meta name="description" content="Free bid leveling tool: type the scope and each sub's bid. It prices what a bid left out or came up short on, so the low number compares the same work. In your browser.">
+  <meta property="og:title" content="Bid leveling for subcontractor bids">
+  <meta property="og:description" content="Same scope, same quantities: the lowest bid as written is often not the lowest once leveled.">
+  <link rel="canonical" href="./bid-leveling-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is bid leveling?", "acceptedAnswer": {"@type": "Answer", "text": "Bid leveling puts subcontractor bids on the same scope. One bidder prices fewer sheets, another leaves an item out. Each gap is priced, so the bids can be compared as if each covered the same work."}}, {"@type": "Question", "name": "How does this tool price a missing item?", "acceptedAnswer": {"@type": "Answer", "text": "At the bidder's own unit price where it gave a short quantity, else at the scope line's price you typed, else at the median of the other bids. With none of those the item is listed as unleveled and never guessed."}}, {"@type": "Question", "name": "Does this tool know what lumber or labor costs?", "acceptedAnswer": {"@type": "Answer", "text": "No. It ships no prices. Every quantity and price is from your scope and your bids. The sample is made up and only shows the format."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style></head>
+<body>
+  <h1>Bid leveling</h1>
+  <p>Type the scope (<code>item</code>, <code>qty</code>, <code>unit</code>, optional <code>unitPrice</code>) and each bidder's lines (<code>item</code>, <code>qty</code>, and <code>unitPrice</code> or <code>amount</code>). The tool lines every bid up against the scope, prices what a bid left out or came up short on, and ranks the bids as written and once leveled. Nothing leaves your browser.</p>
+  <label for="src">Scope and bids (JSON)</label>
+  <textarea id="src" rows="22" style="width:100%;font:.85rem ui-monospace,monospace;box-sizing:border-box" spellcheck="false"></textarea>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Do the whole house: the takeoff makes the scope lines for you, then levels bids with <code>--level-bids</code></a></p>
+
+  <h2>How it is counted</h2>
+  <ol>
+    <li><strong>Match.</strong> Each bid line is matched to a scope line by name, ignoring case and punctuation. A name that matches nothing is reported, not dropped silently.</li>
+    <li><strong>Short quantity.</strong> If a bid's quantity is below the scope's by more than the tolerance (5% unless you set <code>tolerance</code>), the shortfall is added at the bid's own unit price. A larger quantity is flagged and left in.</li>
+    <li><strong>Left out.</strong> A missing line is added at the scope line's price, else the median of the other bids' unit prices. With neither it is listed as unleveled.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>What is bid leveling?</h3>
+  <p>Bid leveling puts subcontractor bids on the same scope. One bidder prices fewer sheets, another leaves an item out. Each gap is priced, so the bids can be compared as if each covered the same work.</p>
+  <h3>How does this tool price a missing item?</h3>
+  <p>At the bidder's own unit price where it gave a short quantity, else at the scope line's price you typed, else at the median of the other bids. With none of those the item is listed as unleveled and never guessed.</p>
+  <h3>Does this tool know what lumber or labor costs?</h3>
+  <p>No. It ships no prices. Every quantity and price is from your scope and your bids. The sample is made up and only shows the format.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Room and opening sizes are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Totals follow your inputs and the rules stated above.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { levelBids, levelText, sampleBids } from "./bidlevel.mjs";
+    const $ = (id) => document.getElementById(id);
+    $("src").value = JSON.stringify(sampleBids(), null, 1);
+    const run = () => {
+      let input;
+      try { input = JSON.parse($("src").value); } catch (e) { $("out").textContent = "Not valid JSON: " + e.message; return; }
+      const scope = Array.isArray(input.scope) ? input.scope : null;
+      if (!scope || !scope.length) { $("out").textContent = 'Give a "scope" list: [{ "item": "...", "qty": 10, "unit": "ea", "unitPrice": 5 }].'; return; }
+      if (!Array.isArray(input.bids) || !input.bids.length) { $("out").textContent = 'Give a "bids" list: [{ "bidder": "...", "lines": [{ "item": "...", "qty": 10, "unitPrice": 5 }] }].'; return; }
+      const lines = scope.map((l) => ({ item: String(l.item), qty: Number(l.qty), unit: String(l.unit || ""), unitPrice: typeof l.unitPrice === "number" ? l.unitPrice : null }));
+      const bad = lines.find((l) => !Number.isFinite(l.qty));
+      if (bad) { $("out").textContent = 'Scope line "' + bad.item + '" needs a numeric qty.'; return; }
+      const opts = typeof input.tolerance === "number" ? { tolerance: input.tolerance } : {};
+      try { $("out").textContent = levelText(levelBids({ lines }, input.bids, opts)).join("\n"); }
+      catch (e) { $("out").textContent = "Could not level these bids: " + e.message; }
+    };
+    $("src").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>
