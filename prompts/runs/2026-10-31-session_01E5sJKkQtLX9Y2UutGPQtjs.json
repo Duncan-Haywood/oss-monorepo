@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01E5sJKkQtLX9Y2UutGPQtjs",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T17:11:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12132",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Draw is deterministic per day, so re-running it always returns sim2real-inference even when its remaining items are all blocked externally."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Drawn programme sim2real-inference had only externally blocked items (CoRL 2027 site 403, no per-episode data); did a small writing step on llm-coding-inference instead.",
+      "did": "folded milestone 7d result into paper/README/LOG plus a post",
+      "result": "small; no new experiment, no run cost attached"
+    },
+    {
+      "file": "session branch rule",
+      "why": "First pushed to research/llm-coding-inference-7e by mistake; moved commit to the designated branch and deleted the extra one (delete push failed; extra branch may remain).",
+      "did": "reset designated branch to the commit",
+      "result": "PR opened from designated branch"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-31-a-92-percent-that-was-noise.md",
+    "research/llm-coding-inference/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Low-ambition run: writing step only.",
+  "corrections": [],
+  "redteam": null
+}
