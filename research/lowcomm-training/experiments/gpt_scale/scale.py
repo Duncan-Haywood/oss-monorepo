@@ -19,6 +19,7 @@ HSHAPE_SEEDS = [0, 1, 2]
 HFILL = [(k, H, s) for H, seeds in ((16, (2, 3, 4, 5)), (32, (3, 4, 5))) for k in (1.0, 0.0625) for s in seeds]  # 6k: seeds to 6 at H = 16 and 32
 HFILL128 = [(k, 128, s) for k in (1.0, 0.0625) for s in (3, 4, 5)]  # 6l: seeds to 6 at H = 128
 KEEP64 = [(0.25, 64, s) for s in range(6)]  # 6n: second keep level at H = 64, six seeds (pairs with the six uncompressed H = 64 runs)
+KEEP64B = [(k, 64, s) for s in range(4) for k in (0.125, 0.03125)]  # 6o: keep 1/8 and 1/32 at H = 64, seeds 0 to 3 (pair with uncompressed H = 64)
 load = lambda p: [json.loads(l) for l in open(p)] if os.path.exists(p) else []
 omega = lambda p: 1 / p - 1
 
@@ -134,6 +135,8 @@ if __name__ == "__main__":
         jobs = [j for j in HFILL128 if j not in have]
     if len(sys.argv) > 2 and sys.argv[2] == "keep64":
         jobs = [j for j in KEEP64 if j not in have]
+    if len(sys.argv) > 2 and sys.argv[2] == "keep64b":
+        jobs = [j for j in KEEP64B if j not in have]
     with Pool(4) as p, open(PATH, "a") as f:
         for r in p.imap_unordered(run, jobs):
             f.write(json.dumps(r) + "\n"); f.flush(); print(r, flush=True)

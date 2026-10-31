@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-31 · Milestone 6o (H6 scale-up): where between keep 1/4 and 1/16 does the size-2 excess switch on? Keep 1/8 and 1/32 at H = 64, four seeds (planned before running)
+
+- Why: 6n's "Next". At size 2, H = 64 the excess is -0.0068 at keep 1/4 (omega 3) and +0.0440 at keep 1/16 (omega 15); the omega-linear rule is refuted. Two keep levels cannot tell a threshold from a convex curve.
+- Setup (`scale.py run keep64b`): size 2, H = 64, keep 1/8 (omega 7) and keep 1/32 (omega 31), seeds 0 to 3, paired with the uncompressed H = 64 runs of the same seeds. Four seeds, not six, to fit the session's compute; the se will be about 0.005 (6n's sd 0.011 / 2).
+- **H6o-i** (prior 50%): the excess is convex in omega: the keep-1/8 excess is below the linear interpolation between keep 1/4 and 1/16 (about +0.011) by more than 2 se. Refuted if keep 1/8 sits within 2 se of that line or above it.
+- **H6o-ii** (prior 80%): keep 1/32 costs more than keep 1/16 (monotone). Refuted otherwise.
+- Not tested: other H, other widths, other compressors.
+
 ## 2026-10-31 · Milestone 6n (H6 scale-up): is the size-2 excess linear in omega? Keep 1/4 at H = 64, six seeds (planned before running)
 
 - Why: 6m's "Next". Keep-level dependence was one cell (1/4 at H = 16, two seeds). The rule says excess is proportional to omega = 1/keep - 1 (3 at keep 1/4, 15 at 1/16).
