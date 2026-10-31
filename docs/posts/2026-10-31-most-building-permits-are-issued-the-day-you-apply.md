@@ -1,6 +1,6 @@
 ---
 title: "Most building permits are issued the day you apply"
-seo_title: "How long does a building permit take? Chicago, San Francisco and Austin open data"
+seo_title: "How long does a building permit take? Open data, three cities"
 date: 2026-10-31
 tags: [research, construction, open-data, build-data]
 description: "Across 4.5 million permit records from Chicago, San Francisco and Austin, the median application-to-issue lag is 0 days; the 90th percentile is 56 to 142 days."
