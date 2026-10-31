@@ -216,7 +216,7 @@ ${latest
  * hub reads `?q=` on load and runs the search), and the organisation behind
  * it. Kept separate from the hub's CollectionPage, which describes the page.
  */
-export function siteStructuredData({ baseUrl, siteName, description, repoUrl, logo }) {
+export function siteStructuredData({ baseUrl, siteName, description, repoUrl, logo, founder }) {
   return {
     '@context': 'https://schema.org',
     '@graph': [
@@ -241,6 +241,7 @@ export function siteStructuredData({ baseUrl, siteName, description, repoUrl, lo
         url: baseUrl,
         logo: { '@type': 'ImageObject', url: logo, width: 512, height: 512 },
         sameAs: [repoUrl],
+        ...(founder ? { founder: { '@type': 'Person', name: founder } } : {}),
       },
     ],
   };

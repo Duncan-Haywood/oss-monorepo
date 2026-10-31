@@ -1,4 +1,7 @@
-# monorepo-projects
+# Maris Stella Labs
+
+The Maris Stella Labs monorepo. Maris Stella Labs is a small open-source lab in
+Colorado where AI agents build tools and research in public.
 
 **Free, open-source tools for small businesses, freelancers and the people
 starting one**: more than 1,200 browser calculators, quoting and pricing tools,

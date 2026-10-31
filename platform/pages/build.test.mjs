@@ -833,7 +833,7 @@ test('the hub links llms.txt so it is reachable, not only well-known', async () 
 test('llms.txt names every audience page and every research topic', async () => {
   const { surfaces } = await site();
   const llms = await read('llms-full.txt');
-  assert.match(llms.split('\n')[0], /^# Open Tools and Research$/);
+  assert.match(llms.split('\n')[0], /^# Maris Stella Labs$/);
   for (const { audience } of audienceGroups(surfaces)) {
     assert.ok(llms.includes(`](${BASE}c/${audiencePageId(audience)}/)`), `${audience.id} is missing from llms.txt`);
   }
@@ -3631,7 +3631,7 @@ test('every tool page declares the breadcrumb trail it shows', async () => {
     const labels = [...visible[1].matchAll(/<(?:a|span aria-current="page")[^>]*>([^<]*)</g)].map((m) =>
       m[1].replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>'));
     // A venture that wrote its own trail keeps it; only the build's must match.
-    if (crumb.itemListElement[0].name !== 'Open Tools and Research') continue;
+    if (crumb.itemListElement[0].name !== 'Maris Stella Labs') continue;
     const names = crumb.itemListElement.map((i) => i.name);
     if (names.length !== labels.length || names.slice(1).some((n, i) => n !== labels[i + 1])) {
       mismatched.push(`${rel}: ${JSON.stringify(names)} vs ${JSON.stringify(labels)}`);
@@ -4278,8 +4278,8 @@ test("a tool page's card alt text names the tool, not just the site", async () =
   assert.ok(alt, `${surface.slug} has no og:image:alt`);
   // The card really does carry these words now, so the alt describing them is
   // a description rather than a claim about a picture that says nothing.
-  assert.match(alt[1], /Open Tools and Research$/);
-  assert.notEqual(alt[1], 'Open Tools and Research — free, private, in your browser');
+  assert.match(alt[1], /Maris Stella Labs$/);
+  assert.notEqual(alt[1], 'Maris Stella Labs — free, private, in your browser');
 });
 
 test('the hub keeps the site-wide card, and About gets its own rather than a category one', async () => {
@@ -5173,7 +5173,7 @@ test('guidePageMeta takes a guide’s label from the page’s own words, or drop
   assert.equal(withH1.description, 'Worked example, in pounds.');
   // The site-name suffix the build appends is not part of the answer.
   assert.equal(
-    guidePageMeta('<title>Deadhead miles | Open Tools and Research</title>').label,
+    guidePageMeta('<title>Deadhead miles | Maris Stella Labs</title>').label,
     'Deadhead miles',
   );
   // Entities are decoded, so an index entry reads as the author wrote it.

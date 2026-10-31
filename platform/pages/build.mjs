@@ -3921,6 +3921,8 @@ export const ABOUT_PATH = 'about/';
 export { SPONSORS_URL, BUY_ME_A_COFFEE_URL, sponsorsNote };
 // The repository the site is built from, named in the hub's Organization data.
 export const REPO_WEB_URL = 'https://github.com/Duncan-Haywood/oss-monorepo';
+// The person behind the organisation, for the hub's Organization data.
+export const SITE_FOUNDER = 'Duncan Haywood';
 
 /**
  * The one usage event name that is fleet-standard rather than per-product.
@@ -7221,6 +7223,17 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
     </header>
 
     <main class="prose">
+      <h2>Who makes this</h2>
+      <p>
+        ${escapeHtml(SITE_NAME)} is a small open-source lab in Colorado, founded
+        and run by Duncan Haywood. AI coding agents build the tools and the
+        research in public, in one
+        <a href="${escapeHtml(REPO_WEB_URL)}">GitHub repository</a>; every change
+        is tested before it ships, and the history of every merge is public.
+        Everything is MIT licensed, so you can use it, change it, or run your own
+        copy as a business of your own.
+      </p>
+
       <h2>What this is</h2>
       <p>
         A working set of ${total} small, single-purpose web tools across
@@ -7966,6 +7979,7 @@ export function renderHub(
     siteName: SITE_NAME,
     description: 'Free, open-source browser tools, self-hostable business apps and reproducible research.',
     repoUrl: REPO_WEB_URL,
+    founder: SITE_FOUNDER,
     logo: `${baseUrl}icon-512.png`,
   }))}</script>
   ${siteStyleLink('')}
@@ -10048,7 +10062,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   if (isEntry) crumbs.push({ label: title || slug });
   else crumbs.push({ label: title || slug, href: `${toRoot}${slug}/` }, { label: pageTitle || 'This page' });
   if (canonical && !html.includes('"BreadcrumbList"') && (isEntry || pageTitle)) {
-    // Lets a result render as "Open Tools and Research › Marketplace sellers ›
+    // Lets a result render as "Maris Stella Labs › Marketplace sellers ›
     // eBay Fee Calculator" rather than a bare URL, and tells an answer engine
     // these are one collection rather than 1,300 unrelated pages. A page that
     // wrote its own is left alone. A deep page with no title of its own gets
@@ -10860,9 +10874,9 @@ On ${listProse(exceptions.map((x) => toolProseName(x.title)))} the one thing you
 `
     : '';
 
-  return `# Open Tools and Research
+  return `# ${SITE_NAME}
 
-> ${surfaces.length} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${researchProjects} reproducible research projects` : 'open research'}; no account or payment, and the numbers you type stay in your browser.
+> ${SITE_NAME} is an open-source lab where AI agents build tools and research in public, all MIT licensed. ${surfaces.length} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${researchProjects} reproducible research projects` : 'open research'}; no account or payment, and the numbers you type stay in your browser.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional

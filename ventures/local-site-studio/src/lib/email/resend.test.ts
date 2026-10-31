@@ -433,7 +433,7 @@ describe("resend.ts — EMAIL_FROM From header", () => {
   beforeEach(() => {
     process.env.RESEND_API_KEY = "re_live_not_a_placeholder";
     process.env.NEXT_PUBLIC_BRAND_NAME = "Local Site Studio";
-    process.env.EMAIL_FROM = "noreply@marisstellalabs.com";
+    process.env.EMAIL_FROM = "noreply@marisstella.app";
     sentFrom = "";
     sentText = "";
     vi.stubGlobal(
@@ -465,7 +465,7 @@ describe("resend.ts — EMAIL_FROM From header", () => {
     const { sendOutreachEmail } = await import("./resend");
     await sendOutreachEmail("owner@example.com", "Demo Cafe", "demo-cafe");
     expect(sentFrom).toBe(
-      "Local Site Studio <noreply@marisstellalabs.com>",
+      "Local Site Studio <noreply@marisstella.app>",
     );
     expect(sentFrom).not.toContain("outreach@updates.localsitestudio.com");
   });
@@ -474,7 +474,7 @@ describe("resend.ts — EMAIL_FROM From header", () => {
     const { sendOperatorDailyDigest } = await import("./resend");
     await sendOperatorDailyDigest("ops@example.com", "<p>digest</p>");
     expect(sentFrom).toBe(
-      "Local Site Studio <noreply@marisstellalabs.com>",
+      "Local Site Studio <noreply@marisstella.app>",
     );
     expect(sentFrom).not.toContain("outreach@updates.localsitestudio.com");
   });

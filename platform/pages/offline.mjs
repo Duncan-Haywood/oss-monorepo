@@ -95,7 +95,7 @@ export function renderSocialCard(options = {}) {
 export function renderManifest(baseUrl, toolCount, hasExternalCallException = false) {
   return `${JSON.stringify(
     {
-      name: 'Open Tools and Research',
+      name: 'Maris Stella Labs',
       // What a home screen prints under the icon: twelve characters at most.
       short_name: 'Open Tools',
       description:

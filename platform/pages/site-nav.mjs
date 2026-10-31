@@ -23,7 +23,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-export const SITE_NAME = 'Open Tools and Research';
+export const SITE_NAME = 'Maris Stella Labs';
 
 /** Longest `<title>` a search result shows before cutting it off. */
 export const TITLE_BUDGET = 70;
@@ -264,7 +264,7 @@ export const SITE_HEADER_CSS = `
  *
  * The chrome on the ~1,300 venture pages used to take its colours from the
  * venture (`SITE_HEADER_CSS` carries none), so the one bar that says "this is
- * Open Tools and Research" was a different bar on every tool: a grey strip in
+ * Maris Stella Labs" was a different bar on every tool: a grey strip in
  * the venture's own width and font, and the brand mark a black square because
  * `--pfs-mark` was never set. A visitor arriving from search at a calculator
  * could not tell it belonged to the site they then clicked through to.

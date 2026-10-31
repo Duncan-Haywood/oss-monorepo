@@ -40,7 +40,7 @@ describe("isAppUrlPlaceholder", () => {
 
   it("accepts non-placeholder public origins", () => {
     expect(isAppUrlPlaceholder("https://app.localsitestudio.com")).toBe(false);
-    expect(isAppUrlPlaceholder("https://studio.marisstellalabs.com")).toBe(
+    expect(isAppUrlPlaceholder("https://studio.marisstella.app")).toBe(
       false,
     );
   });
