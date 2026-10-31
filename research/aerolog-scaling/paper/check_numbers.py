@@ -28,6 +28,7 @@ LOGCHECKS = [  # figures that exist in LOG.md outcomes (the results files print 
     "1.29 to 1.45", "0.37 to 0.52", "6.5% faster", "97%",
     "76 at every true slope scale", "67 of the 78 designs keep every gust peak", "84 to 86% at sigma 2%",
     "0.33%, 0.70%, 4.45%", "66 of 78", "63, 51, 0, 0",
+    "19.1% then 0.74%", "144 (LS start) against 9", "0.07, 0.65, 1.38%", "86.4 J/m [81.2, 91.5]", "77.4% [73.8, 80.8]", "153.8 against 60.1", "9.6 kJ [8.9, 10.3]", "384 J per metre",
 ]
 bad = 0
 for path, needle, claim in CHECKS:
