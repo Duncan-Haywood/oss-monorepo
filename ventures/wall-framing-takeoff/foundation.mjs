@@ -23,6 +23,15 @@ export function sampleFoundation() {
 /** @param {Foundation} f */
 export function validateFoundation(f) {
   const e = [];
+  // Shape first: a hand-written or agent-built JSON body can hold null, a string or an object where a list belongs.
+  const isObj = (/** @type {unknown} */ v) => v != null && typeof v === "object" && !Array.isArray(v);
+  if (!isObj(f)) return ["A foundation is an object with width and depth."];
+  for (const k of /** @type {const} */ (["footing", "stem", "slab", "anchorBolts"])) if (f[k] != null && !isObj(f[k])) e.push(`${k} must be an object.`);
+  if (f.footing?.steps != null && !Array.isArray(f.footing.steps)) e.push("footing.steps must be a list.");
+  if (f.stem?.walkout != null && !isObj(f.stem.walkout)) e.push("stem.walkout must be an object.");
+  for (const k of /** @type {const} */ (["interior", "piers"])) if (f[k] != null && !Array.isArray(f[k])) e.push(`${k} must be a list.`);
+  for (const [k, list] of /** @type {const} */ ([["interior", f.interior], ["piers", f.piers], ["footing.steps", f.footing?.steps]])) if (Array.isArray(list) && list.some((x) => !isObj(x))) e.push(`Every entry in ${k} must be an object.`);
+  if (e.length) return e;
   const ft = { width: 16, depth: 8, bars: 2, bar: 4, ...f.footing };
   if (!(f.width >= 120 && f.width <= 2400)) e.push("Foundation width must be between 10 ft and 200 ft.");
   if (!(f.depth >= 120 && f.depth <= 2400)) e.push("Foundation depth must be between 10 ft and 200 ft.");
