@@ -1,8 +1,8 @@
 ---
 title: "How late could the build finish? Schedule risk now runs on the page"
-seo_title: "Construction schedule risk calculator: P50, P80, P90 finish dates in the browser"
+seo_title: "Construction schedule risk calculator: P50, P80, P90 dates"
 date: 2026-10-31
-description: "The construction schedule page gains a day-ranges field: type a best and worst case for the uncertain activities and get P50, P80 and P90 finish dates and the chance of making the contract date."
+description: "Type a best and worst case for uncertain activities on the schedule page and get P50, P80 and P90 finish dates and the chance of the contract date."
 tags: [wall-framing-takeoff, construction]
 ---
 
