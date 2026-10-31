@@ -1778,3 +1778,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   (promptctl prints it). Re-ran `derive.py fetch && build`. `steering.md` still
   over budget (125/120). No audit or drift report (reduced pass).
 - Result: (next review)
+
+## E120: Review 2026-10-31 (reduced pass)
+
+- Change: `prompt.md` step 0 now says to skip the security queue when
+  `security-alerts` is not on the remote (the fetch fails with `couldn't find
+  remote ref`). Three runs today reported the fatal as friction.
+- Metric: `prompt.md` doc-friction reports mentioning security-alerts; compare
+  the next 10 runs. This file is in CODEOWNERS, so the PR waits for the owner.
+- Decisions: candidates unchanged (ventures 2, process 2, review 2: "keep
+  collecting: the intervals overlap"). Re-ran `derive.py fetch && build`.
+  `steering.md` still over budget (125/120). No audit or drift report.
+- Result: (next review)
