@@ -164,3 +164,13 @@ test("walkout stem adds a wedge of wall, by hand", () => {
   f.stem.walkout = { length: 10, extra: 48 };
   assert.ok(!layoutFoundation(f).ok);
 });
+
+test("malformed foundation bodies come back as errors, not exceptions", () => {
+  const b = { width: 480, depth: 360 };
+  for (const bad of [null, "x", [], { ...b, footing: null, interior: "a" }, { ...b, interior: [null] }, { ...b, piers: {} }, { ...b, piers: [null] }, { ...b, footing: { steps: {} } }, { ...b, footing: { steps: [null] } }, { ...b, stem: { walkout: "x" } }, { ...b, slab: [] }]) {
+    const r = layoutFoundation(bad);
+    assert.equal(r.ok, false, JSON.stringify(bad));
+    assert.ok(r.errors.length > 0);
+  }
+  assert.equal(layoutFoundation({ ...b, anchorBolts: null }).ok, true);
+});
