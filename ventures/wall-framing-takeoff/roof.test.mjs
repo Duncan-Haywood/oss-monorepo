@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan } from "./engine.mjs";
-import { layoutRoof, roofCuts, sampleRoof, roofText, slopeFactor } from "./roof.mjs";
+import { layoutRoof, roofCuts, sampleRoof, roofText, slopeFactor, birdsmouth } from "./roof.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
 
@@ -294,4 +294,23 @@ test("two cross wings: same side needs room along the ridge; wing2 needs wing", 
   assert.equal(layoutRoof({ ...wingRoof(), wing2: w2 }, plan()).ok, false);
   assert.equal(layoutRoof({ ...wingRoof(), wing2: { ...w2, width: 96, at: 420 } }, plan()).ok, true);
   assert.equal(layoutRoof({ ...wingRoof(), wing: undefined, wing2: w2 }, plan()).ok, false);
+});
+
+test("birdsmouth: 2x8 at 4:12 on a 3-1/2 in plate matches hand arithmetic", () => {
+  const b = birdsmouth("2x8", 4);
+  assert.ok(Math.abs(b.plumb - 3.5 * 4 / 12) < 1e-9); // 1.1667 in
+  assert.ok(Math.abs(b.notch - (7 / 6) / Math.sqrt(10) * 3) < 1e-9); // 1.1667 / 1.05409
+  assert.ok(b.ok && b.fraction < 0.25);
+  // 0.25 x 7.25 x 1.05409 x 12 / 4 = 5.731 in of bearing would just reach a quarter of the depth
+  assert.ok(Math.abs(b.maxBearing - 0.25 * 7.25 * Math.sqrt(10) / 3 * 3) < 1e-9);
+});
+
+test("birdsmouth: a 12:12 roof on a 2x6 over a 3-1/2 in plate is flagged in the layout and the text", () => {
+  const l = layoutRoof({ ...sampleRoof(), pitch: 12, width: 168, rafter: "2x6", ceilingJoist: undefined, collarTies: false }, plan());
+  assert.ok(l.ok, JSON.stringify(l.errors));
+  assert.equal(l.birdsmouth.ok, false); // notch 3.5/sqrt2 = 2.47 in of 5.5 = 45%
+  assert.ok(l.notes.some((n) => /birdsmouth/.test(n)));
+  assert.ok(roofText(l).some((t) => /Birdsmouth/.test(t)));
+  const ok = layoutRoof(sampleRoof(), plan());
+  assert.equal(ok.birdsmouth.ok, true);
 });
