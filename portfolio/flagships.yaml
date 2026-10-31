@@ -38,7 +38,7 @@ flagships:
       Open items only; landed work, with dates and how each was checked, is
       in ventures/wall-framing-takeoff/README.md and ROADMAP.md. Wanted: a
       real permitted deck plan (deck framing, guards and stairs are on hand
-      arithmetic only). Stairs: structural checks (trimmers, stairwell header, stringer, hanger) landed 2026-10-31, hand tests only, history in the README; stringer check page field `stStr` added the same day; rim ties at stairwell
+      arithmetic only). Stairs: structural checks (trimmers, stairwell header, stringer, stair reaction on the header, hanger) landed 2026-10-31, hand tests only, with page fields for the header and stringer checks (clicked in Chromium); details in the README; rim ties at stairwell
       headers, a published table for landing post sizing, sizing the radial
       supports under winder treads, connector and anchor sizes. Siding:
       exterior opening trim and vertical siding with battens are hand-

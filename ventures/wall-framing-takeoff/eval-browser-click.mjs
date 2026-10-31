@@ -193,6 +193,22 @@ await page.waitForFunction(() => /Stairwell header check: write live/.test(docum
 console.log("ok: malformed header check refused on the page");
 await page.fill("#flHdr", "");
 await page.fill("#flOpen", "");
+// Stair stringer check: typed figures reach the stairs card and the saved plan; a malformed field is refused.
+await page.check("#stOn");
+await page.fill("#stRise", "9' 0\"");
+await page.fill("#stCheck", "40, 12, 900, 180, 1300000, 240");
+await page.click("#run");
+await page.waitForFunction(() => /Stringer check \(/.test(document.querySelector("#stairsOut")?.textContent || ""));
+const [svs] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const savedS = JSON.parse(await (await import("node:fs/promises")).readFile(await svs.path(), "utf8"));
+const sk = savedS.stairs?.stringerCheck;
+console.log(sk && sk.Fb === 900 && sk.deflLimit === 240 ? "ok: stringer check typed on the page, shown on the stairs card, saved in the plan" : "FAIL: stringer check " + JSON.stringify(sk));
+await page.fill("#stCheck", "40, 12, abc");
+await page.click("#run");
+await page.waitForFunction(() => /Stringer check: write live/.test(document.body.textContent));
+console.log("ok: malformed stringer check refused on the page");
+await page.fill("#stCheck", "");
+await page.uncheck("#stOn");
 await page.uncheck("#flOn");
 await page.uncheck("#sheathH");
 await page.uncheck("#sheath");
