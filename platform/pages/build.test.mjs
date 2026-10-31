@@ -697,13 +697,15 @@ test('both favicons draw the same mark', () => {
   // A drift here means the tab icon and the pinned icon are two different
   // logos, which is why the geometry lives in one constant both renderers read.
   const svg = renderFaviconSvg();
-  assert.match(svg, /stop-color="#1f4e8c"/, "the header mark's gradient starts in the hub's navy");
-  assert.match(svg, /stop-color="#3a6ea5"/, '...and ends in its steel blue');
-  assert.equal((svg.match(/fill="#ffffff"/g) ?? []).length, MARK_GEOMETRY.bars.length, 'three white bars');
-  // The bars rise left to right, as `drawMark` draws them.
-  const tops = [...svg.matchAll(/<rect x="[\d.]+" y="([\d.]+)"/g)].map((m) => Number(m[1]));
-  assert.deepEqual(tops, MARK_GEOMETRY.bars.map((b) => Number((b.top * 16).toFixed(2))));
-  assert.ok(tops[0] > tops[1] && tops[1] > tops[2]);
+  assert.match(svg, /<circle [^>]*r="8" fill="#1d2b53"/, 'the navy disc fills the tile');
+  assert.match(svg, /stroke="#d4ac58"/, 'a brass ring');
+  // The compass star: the long cardinal points and the short diagonals, each
+  // the polygon `drawMark` rasterises.
+  const polys = [...svg.matchAll(/<polygon points="([^"]+)"/g)].map((m) => m[1]);
+  const asSvg = (pts) => pts.map(([u, v]) => `${Number((u * 16).toFixed(2))},${Number((v * 16).toFixed(2))}`).join(' ');
+  assert.deepEqual(polys, [asSvg(MARK_GEOMETRY.diagonal), asSvg(MARK_GEOMETRY.cardinal)]);
+  // North points straight up and reaches nearly to the edge.
+  assert.deepEqual(MARK_GEOMETRY.cardinal[0], [0.5, 0.03]);
 });
 
 test('the hub\'s top navigation links the blog and the podcast', async () => {

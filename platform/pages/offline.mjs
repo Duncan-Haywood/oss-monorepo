@@ -97,7 +97,7 @@ export function renderManifest(baseUrl, toolCount, hasExternalCallException = fa
     {
       name: 'Maris Stella Labs',
       // What a home screen prints under the icon: twelve characters at most.
-      short_name: 'Open Tools',
+      short_name: 'Maris Stella',
       description:
         `${toolCount} free tools for marketplace sellers, trade contractors and small teams, plus open research. ` +
         (hasExternalCallException

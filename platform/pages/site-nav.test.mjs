@@ -144,7 +144,7 @@ test('the venture header and footer carry the site palette in both themes, on se
   // Light by default, dark only when the script measured the host page as
   // dark, each with the brand mark's gradient: without it the mark rendered as
   // a black square on every tool page. Never the OS theme (build.test.mjs).
-  assert.match(VENTURE_CHROME_CSS, /--pfs-head-bg:#ffffff[\s\S]*--pfs-mark:linear-gradient[\s\S]*\[data-pfs-theme="dark"\][\s\S]*--pfs-head-bg:#171e27/);
+  assert.match(VENTURE_CHROME_CSS, /--pfs-head-bg:#ffffff[\s\S]*--pfs-mark:url\("data:image\/svg\+xml,[\s\S]*\[data-pfs-theme="dark"\][\s\S]*--pfs-head-bg:#171e27/);
   assert.doesNotMatch(VENTURE_CHROME_CSS, /prefers-color-scheme/);
   // Three classes plus an attribute out-rank `nav a`, `.nav a` and `header nav`.
   assert.match(VENTURE_CHROME_CSS, /nav\.pf-chrome\.pf-chrome-top\[data-pfs-head\] a\{/);
