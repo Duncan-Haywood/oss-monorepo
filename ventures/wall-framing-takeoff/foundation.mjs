@@ -14,7 +14,7 @@ import { formatLength } from "./engine.mjs";
 const BAR_LB_FT = { 3: 0.376, 4: 0.668, 5: 1.043, 6: 1.502 };
 const CU_IN_PER_YD = 46656;
 
-/** @typedef {{ id?: string, type?: "stem"|"monolithic", width: number, depth: number, footing?: { width?: number, depth?: number, bars?: number, bar?: number, formed?: boolean, steps?: { rise: number, length: number, name?: string }[] }, stem?: { height?: number, thickness?: number, bar?: number, spacing?: number }, slab?: { thickness?: number, bar?: number, spacing?: number, baseThickness?: number }, interior?: { length: number, width?: number, depth?: number }[], anchorBolts?: { spacing?: number, endDistance?: number, plateStock?: number, diameter?: number, embed?: number }, cornerBars?: boolean, piers?: { name?: string, count: number, pad: number, padDepth: number, column?: number, columnHeight?: number, bars?: number, bar?: number }[], cover?: number, barLength?: number, waste?: number, truck?: number, price?: number }} Foundation */
+/** @typedef {{ id?: string, type?: "stem"|"monolithic", width: number, depth: number, footing?: { width?: number, depth?: number, bars?: number, bar?: number, formed?: boolean, steps?: { rise: number, length: number, name?: string }[] }, stem?: { height?: number, thickness?: number, bar?: number, spacing?: number }, slab?: { thickness?: number, bar?: number, spacing?: number, baseThickness?: number }, interior?: { length: number, width?: number, depth?: number }[], anchorBolts?: { spacing?: number, endDistance?: number, plateStock?: number, diameter?: number, embed?: number }, cornerBars?: boolean, piers?: { name?: string, count: number, pad: number, padDepth: number, column?: number, columnHeight?: number, bars?: number, bar?: number, load?: number }[], soilBearing?: number, cover?: number, barLength?: number, waste?: number, truck?: number, price?: number }} Foundation */
 
 export function sampleFoundation() {
   return { id: "Foundation", type: "stem", width: 480, depth: 336, footing: { width: 20, depth: 10, bars: 2, bar: 4 }, stem: { height: 32, thickness: 8, bar: 4, spacing: 32 }, slab: { thickness: 4, bar: 3, spacing: 18, baseThickness: 4 }, interior: [{ length: 336, width: 24, depth: 12 }] };
@@ -27,12 +27,14 @@ export function validateFoundation(f) {
   if (!(f.width >= 120 && f.width <= 2400)) e.push("Foundation width must be between 10 ft and 200 ft.");
   if (!(f.depth >= 120 && f.depth <= 2400)) e.push("Foundation depth must be between 10 ft and 200 ft.");
   if ((f.type ?? "stem") !== "stem" && f.type !== "monolithic") e.push(`Unknown foundation type ${f.type}; use "stem" or "monolithic".`);
+  if (f.soilBearing != null && !(f.soilBearing >= 500 && f.soilBearing <= 12000)) e.push("Soil bearing is the allowable pressure in psf, from 500 to 12,000.");
   if (!(ft.width >= 8 && ft.width <= 60)) e.push("Footing width must be between 8 and 60 in.");
   if (!(ft.depth >= 6 && ft.depth <= 48)) e.push("Footing depth must be between 6 and 48 in.");
   for (const [i, p] of (f.piers || []).entries()) {
     if (!Number.isInteger(p.count) || p.count < 1 || p.count > 200) e.push(`Pier group ${i + 1}: count must be a whole number from 1 to 200.`);
     if (!(p.pad >= 8 && p.pad <= 96) || !(p.padDepth >= 6 && p.padDepth <= 48)) e.push(`Pier group ${i + 1}: pad must be 8 to 96 in square and 6 to 48 in deep.`);
     if (p.column && (p.column < 6 || p.column > p.pad || !(p.columnHeight > 0))) e.push(`Pier group ${i + 1}: column must be at least 6 in, no wider than the pad, with a height.`);
+    if (p.load != null && !(p.load > 0 && p.load <= 200000)) e.push(`Pier group ${i + 1}: load is the service load per pier in lb, above 0 and at most 200,000.`);
     if (p.bar != null && !(p.bar in BAR_LB_FT)) e.push(`Pier group ${i + 1}: bar size #${p.bar} is not one of #3 to #6.`);
   }
   for (const [i, t] of (ft.steps || []).entries()) {
@@ -126,11 +128,16 @@ export function layoutFoundation(f) {
     formEdge = outside / 12;
   }
   // Piers: square pads with an optional square column on top (deck posts, interior columns).
-  const piers = (f.piers || []).map((p, i) => ({ name: p.name ?? `pier ${i + 1}`, count: p.count, pad: p.pad, padDepth: p.padDepth, column: p.column ?? 0, columnHeight: p.columnHeight ?? 0, bars: p.bars ?? 4, bar: p.bar ?? 4 }));
+  const piers = (f.piers || []).map((p, i) => ({ name: p.name ?? `pier ${i + 1}`, count: p.count, pad: p.pad, padDepth: p.padDepth, column: p.column ?? 0, columnHeight: p.columnHeight ?? 0, load: p.load ?? null, bars: p.bars ?? 4, bar: p.bar ?? 4 }));
   for (const p of piers) {
     const vol = p.count * (p.pad * p.pad * p.padDepth + p.column * p.column * p.columnHeight);
     pours.push({ name: `${p.name} (${p.count} pads${p.column ? " and columns" : ""})`, cuYd: vol / CU_IN_PER_YD });
   }
+  // Bearing: service load over pad area against the allowable soil pressure (both typed). Needs `load` and `soilBearing`.
+  const pierChecks = f.soilBearing ? piers.filter((p) => p.load).map((p) => {
+    const area = p.pad * p.pad / 144, pressure = p.load / area, needPad = Math.ceil(Math.sqrt(p.load / f.soilBearing * 144));
+    return { name: p.name, load: p.load, pad: p.pad, pressure: +pressure.toFixed(0), allowable: f.soilBearing, ok: pressure <= f.soilBearing, minPad: needPad };
+  }) : [];
   const concreteNet = pours.reduce((s, p) => s + p.cuYd, 0);
   const concrete = concreteNet * (1 + waste);
   const trucks = Math.max(1, Math.ceil(concrete / truck - 1e-9));
@@ -216,8 +223,9 @@ export function layoutFoundation(f) {
   if (steps.length) notes.push(`Stepped footing: ${steps.length} step${steps.length === 1 ? "" : "s"} lowering ${stepRun} in of footing; the footing section is unchanged, the stem is taller over that run, and the digging for the lower level is not counted.`);
   if (type === "stem" && !ft.formed) notes.push("Footings are assumed poured against the trench, so only the stem wall is formed.");
   if (piers.length) notes.push("Piers: pad mat bars every 6 in each way and column verticals are typed-geometry estimates, not a pier design; bearing area and depth are your engineer's call.");
+  for (const c of pierChecks) if (!c.ok) notes.push(`${c.name}: ${c.load} lb on a ${c.pad} in pad is ${c.pressure} psf, over the ${c.allowable} psf you typed for the soil; the pad would need to be at least ${c.minPad} in square (service load only, no footing weight or code factors).`);
   return {
-    ok: true, errors: [], id: f.id ?? "Foundation", type, width: f.width, depth: f.depth, footing: ft, stem: type === "stem" ? st : null, slab: sl,
+    ok: true, errors: [], pierChecks, id: f.id ?? "Foundation", type, width: f.width, depth: f.depth, footing: ft, stem: type === "stem" ? st : null, slab: sl,
     interior, steps, pours: pours.map((p) => ({ ...p, cuYd: +p.cuYd.toFixed(3) })), concrete: { net: +concreteNet.toFixed(3), waste, order: +concrete.toFixed(2), trucks, truck, lastLoad: +lastLoad.toFixed(2), cost: f.price != null ? +(concrete * f.price).toFixed(2) : null },
     rebar: rebar.map((r) => ({ ...r, feet: +r.feet.toFixed(1), length: +r.length.toFixed(2) })), rebarLb: +rebarLb.toFixed(0),
     forms: { contactSqFt: +formArea.toFixed(1), plywoodSheets: Math.ceil(formArea * 1.1 / 32), edgeLinearFt: +formEdge.toFixed(1), stakes },
