@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Concrete calculator: cubic yards, ready-mix order and bags for a slab, footing or pier</title>
+  <meta name="description" content="Free concrete calculator: slab, footing strip or round piers in, cubic yards with waste, a ready-mix order in quarter yards and the number of 40, 60 or 80 lb bags out. Private, in your browser.">
+  <meta property="og:title" content="Concrete calculator">
+  <meta property="og:description" content="Length, width and thickness in; cubic yards, ready-mix order and bags out. Private, free, in your browser.">
+  <link rel="canonical" href="./concrete-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many cubic yards of concrete for a 12 x 12 slab 4 inches thick?", "acceptedAnswer": {"@type": "Answer", "text": "A 12 x 12 ft slab 4 in thick is 48 cu ft, which is 1.78 cu yd. With 10% waste that is 1.96, so order 2 cu yd of ready-mix, or about 88 bags of 80 lb mix at 0.6 cu ft each."}}, {"@type": "Question", "name": "How many 80 lb bags of concrete make a cubic yard?", "acceptedAnswer": {"@type": "Answer", "text": "A cubic yard is 27 cu ft and an 80 lb bag yields about 0.6 cu ft, so 45 bags before waste, 50 with 10% waste. Past about a yard, ready-mix is usually the easier order."}}, {"@type": "Question", "name": "Why add 10% to a concrete order?", "acceptedAnswer": {"@type": "Answer", "text": "Subgrade is rarely dead flat, forms bow a little and some mix is left in the truck and the wheelbarrow. Running short mid-pour leaves a cold joint, so most people over-order slightly. The percentage is yours to change."}}, {"@type": "Question", "name": "Is there a minimum order for ready-mix concrete?", "acceptedAnswer": {"@type": "Answer", "text": "Many plants charge a short-load fee below roughly 3 to 4 cu yd, and the figure varies by plant, so call yours. For one or two yards, compare that fee against bagged mix."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Concrete calculator</h1>
+  <p>Pick a slab, a footing strip or round piers. You get cubic yards, the ready-mix order rounded up to a quarter yard with your waste allowance, and the bag count for 40, 60 or 80 lb mix. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <div class="grid">
+      <div><label for="shape">Shape</label><select id="shape"><option value="slab">Slab (length x width x thickness)</option><option value="footing">Footing strip (length x width x depth)</option><option value="pier">Round piers (diameter x depth)</option></select></div>
+      <div id="lw"><label for="len">Length (in or 12' 0")</label><input id="len" value="144"></div>
+      <div id="ww"><label for="wid">Width</label><input id="wid" value="144"></div>
+      <div id="dw" hidden><label for="dia">Diameter (in)</label><input id="dia" value="12"></div>
+      <div><label for="dep">Thickness or depth (in)</label><input id="dep" value="4"></div>
+      <div id="cw" hidden><label for="cnt">Number of piers</label><input id="cnt" type="number" min="1" max="500" value="6"></div>
+      <div><label for="waste">Waste (%)</label><input id="waste" type="number" min="0" max="50" value="10"></div>
+      <div><label for="bag">Bag size</label><select id="bag"><option value="80">80 lb (0.60 cu ft)</option><option value="60">60 lb (0.45 cu ft)</option><option value="40">40 lb (0.30 cu ft)</option></select></div>
+    </div>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Do the whole house: footing, stem wall, slab, rebar and forms in one takeoff</a></p>
+
+  <h2>How it is counted</h2>
+  <ol>
+    <li><strong>Volume.</strong> Area times thickness, converted from cubic inches: 1,728 to a cubic foot, 27 cubic feet to a cubic yard. A pier is a cylinder.</li>
+    <li><strong>Waste.</strong> Your percentage is added, then the order is rounded up to the next quarter yard, the way plants sell it.</li>
+    <li><strong>Bags.</strong> Volume with waste divided by the label yield of the bag, rounded up.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How many cubic yards of concrete for a 12 x 12 slab 4 inches thick?</h3>
+  <p>A 12 x 12 ft slab 4 in thick is 48 cu ft, which is 1.78 cu yd. With 10% waste that is 1.96, so order 2 cu yd of ready-mix, or about 88 bags of 80 lb mix at 0.6 cu ft each.</p>
+  <h3>How many 80 lb bags of concrete make a cubic yard?</h3>
+  <p>A cubic yard is 27 cu ft and an 80 lb bag yields about 0.6 cu ft, so 45 bags before waste, 50 with 10% waste. Past about a yard, ready-mix is usually the easier order.</p>
+  <h3>Why add 10% to a concrete order?</h3>
+  <p>Subgrade is rarely dead flat, forms bow a little and some mix is left in the truck and the wheelbarrow. Running short mid-pour leaves a cold joint, so most people over-order slightly. The percentage is yours to change.</p>
+  <h3>Is there a minimum order for ready-mix concrete?</h3>
+  <p>Many plants charge a short-load fee below roughly 3 to 4 cu yd, and the figure varies by plant, so call yours. For one or two yards, compare that fee against bagged mix.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Sizes are your inputs; thickness, reinforcement, base, soil and frost depth are not checked against any code or your site. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any ready-mix plant, bag maker, builder or code body. Bag yields are label figures (40 lb 0.30, 60 lb 0.45, 80 lb 0.60 cu ft) and vary by brand; check yours.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { slabConcrete, slabText } from "./slab.mjs";
+    import { parseLength } from "./engine.mjs";
+    const $ = (id) => document.getElementById(id);
+    const run = () => {
+      const shape = $("shape").value;
+      $("lw").hidden = $("ww").hidden = shape === "pier";
+      $("dw").hidden = $("cw").hidden = shape !== "pier";
+      const r = slabConcrete({ shape, length: parseLength($("len").value), width: parseLength($("wid").value), diameter: +$("dia").value, depth: +$("dep").value, count: shape === "pier" ? Math.floor(+$("cnt").value) : 1, waste: (+$("waste").value) / 100, bag: +$("bag").value });
+      $("out").textContent = slabText(r).join("\n");
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>
