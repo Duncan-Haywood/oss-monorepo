@@ -100,7 +100,7 @@ ${steps
  * A category tile: icon, name, count, what it is for, and a taste of what is
  * in it. `accent` tints the icon, the rule along the top and the hover.
  */
-export function renderCategoryCard({ id, href, title, blurb, count, examples = [], note = '', accent = '#12594a' }) {
+export function renderCategoryCard({ id, href, title, blurb, count, examples = [], note = '', accent = '#1f4e8c' }) {
   return `        <li class="cat" style="--cat:${esc(accent)}">
           <div class="cat-head">
             <span class="cat-ico">${icon(id)}</span>
@@ -118,7 +118,7 @@ ${examples
 }
 
 // A colour per research theme, in the order the research homepage lists them.
-const THEME_COLOURS = ['#7fe3c6', '#8ea2ff', '#e39bff', '#ffc078', '#74c0fc', '#ff8fa3', '#b2f2bb', '#ffd43b'];
+const THEME_COLOURS = ['#a8c7f0', '#c9b98a', '#9fc5b8', '#d4a5a5', '#b3b9e6', '#e0c48f', '#a9c4d8', '#c7c0d6'];
 
 function hash(text) {
   let h = 2166136261;
@@ -251,7 +251,7 @@ export const HOME_SECTIONS_CSS = `
     .band { margin-top: 72px; }
     .section-eyebrow { display: inline-flex; align-items: center; gap: 8px; }
     .section-eyebrow::before { content: ""; width: 18px; height: 2px; border-radius: 2px;
-                               background: linear-gradient(90deg, #12594a, #3b5bdb); }
+                               background: linear-gradient(90deg, #1f4e8c, #3a6ea5); }
     .ico { display: block; }
 
     /* How it works: three numbered steps joined by a dashed rule. */
@@ -260,8 +260,8 @@ export const HOME_SECTIONS_CSS = `
     .step { position: relative; padding: 22px 22px 20px; border: 1px solid var(--line); border-radius: 18px;
             background: linear-gradient(180deg, var(--panel), color-mix(in srgb, var(--panel) 92%, var(--hero-2))); }
     .step-ico { position: relative; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px;
-                color: #fff; background: linear-gradient(135deg, #12594a, #3b5bdb);
-                box-shadow: 0 10px 24px -12px rgba(59, 91, 219, .7); margin-bottom: 14px; }
+                color: #fff; background: linear-gradient(135deg, #1f4e8c, #3a6ea5);
+                box-shadow: 0 10px 24px -12px rgba(58, 110, 165, .7); margin-bottom: 14px; }
     .step-ico b { position: absolute; top: -7px; right: -7px; width: 22px; height: 22px; border-radius: 50%;
                   display: grid; place-items: center; font-size: .75rem; background: var(--panel); color: var(--ink);
                   border: 1px solid var(--line); }
@@ -278,7 +278,7 @@ export const HOME_SECTIONS_CSS = `
     /* Category tiles. */
     .cat { padding: 20px 20px 16px; overflow: hidden; border-radius: 16px; }
     .cat::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px;
-                  background: linear-gradient(90deg, var(--cat), color-mix(in srgb, var(--cat) 30%, #8ea2ff)); }
+                  background: linear-gradient(90deg, var(--cat), color-mix(in srgb, var(--cat) 30%, #b4c6de)); }
     .cat:hover { border-color: color-mix(in srgb, var(--cat) 55%, var(--line)); }
     .cat-head { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; margin-bottom: 10px; }
     .cat-head h3 { margin: 0; font-size: 1.05rem; line-height: 1.25; }
@@ -303,8 +303,8 @@ export const HOME_SECTIONS_CSS = `
        the page: the shadow paints the bleed and the clip keeps it in view. */
     .band.night { position: relative; margin-top: 80px; padding: 56px 0 60px; color: #eef2f8;
                   --ink: #eef2f8; --muted: #b6c2d3; --soft: #98a5b8; --line: rgba(148, 170, 210, .22);
-                  --panel: rgba(20, 28, 48, .72); --accent: #7fe3c6; --bg: #080d1a;
-                  background: #080d1a; box-shadow: 0 0 0 100vmax #080d1a; clip-path: inset(0 -100vmax); }
+                  --panel: rgba(20, 28, 48, .72); --accent: #a8c7f0; --bg: #0b1626;
+                  background: #0b1626; box-shadow: 0 0 0 100vmax #0b1626; clip-path: inset(0 -100vmax); }
     .band.night::before { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
                           /* Both glows fade out well inside the band, so its
                              edge never shows against the flat bleed. */
@@ -312,7 +312,7 @@ export const HOME_SECTIONS_CSS = `
                                       radial-gradient(closest-side, rgba(75, 93, 255, .2), transparent) 96% 130% / 52% 80% no-repeat; }
     .band.night > * { position: relative; z-index: 1; }
     .band.night a { color: var(--accent); }
-    .band.night .section-eyebrow { color: #7fe3c6; }
+    .band.night .section-eyebrow { color: #a8c7f0; }
     .rcards { list-style: none; padding: 0; margin: 26px 0 0; display: grid; gap: 14px;
               grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
     .rcard a { display: flex; flex-direction: column; gap: 8px; height: 100%; padding: 18px 18px 20px; border-radius: 16px;

@@ -697,8 +697,8 @@ test('both favicons draw the same mark', () => {
   // A drift here means the tab icon and the pinned icon are two different
   // logos, which is why the geometry lives in one constant both renderers read.
   const svg = renderFaviconSvg();
-  assert.match(svg, /stop-color="#12594a"/, "the header mark's gradient starts in the hub's green");
-  assert.match(svg, /stop-color="#3b5bdb"/, '...and ends in its indigo');
+  assert.match(svg, /stop-color="#1f4e8c"/, "the header mark's gradient starts in the hub's navy");
+  assert.match(svg, /stop-color="#3a6ea5"/, '...and ends in its steel blue');
   assert.equal((svg.match(/fill="#ffffff"/g) ?? []).length, MARK_GEOMETRY.bars.length, 'three white bars');
   // The bars rise left to right, as `drawMark` draws them.
   const tops = [...svg.matchAll(/<rect x="[\d.]+" y="([\d.]+)"/g)].map((m) => Number(m[1]));
@@ -2180,12 +2180,12 @@ test('a colour argument changes the field the card is drawn on', () => {
   // Two categories, two visibly different cards -- this is the whole point of
   // giving `renderSocialCard` a colour: a scraper that renders both should not
   // produce the same image.
-  const teal = renderSocialCard('#12594a');
+  const navy = renderSocialCard('#1f4e8c');
   const amber = renderSocialCard('#5c4412');
-  assert.notDeepEqual(teal, amber);
+  assert.notDeepEqual(navy, amber);
   // Both are still well-formed PNGs at the same fixed size -- only the field
   // colour was asked to change, not the geometry a scraper crops to.
-  for (const png of [teal, amber]) {
+  for (const png of [navy, amber]) {
     assert.deepEqual([...png.subarray(0, 8)], [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
     assert.equal(png.readUInt32BE(16), SOCIAL_CARD_WIDTH);
     assert.equal(png.readUInt32BE(20), SOCIAL_CARD_HEIGHT);
@@ -2195,7 +2195,7 @@ test('a colour argument changes the field the card is drawn on', () => {
 test('omitting the colour argument reproduces the original site-wide card', () => {
   // Every existing caller of `renderSocialCard()` -- the hub, the About page --
   // must keep getting exactly what they got before this parameter existed.
-  assert.deepEqual(renderSocialCard(), renderSocialCard('#12594a'));
+  assert.deepEqual(renderSocialCard(), renderSocialCard('#1f4e8c'));
 });
 
 test('injectDiscoveryTags points a page at its own card when one is given', () => {

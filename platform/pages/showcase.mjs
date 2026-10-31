@@ -120,19 +120,19 @@ export const HOME_MOTION_CSS = `
     /* The hero is dark in both colour schemes. Its tokens are redefined here so
        the search, results and stats inside it keep their own contrast. */
     .hero { position: relative; overflow: hidden; isolation: isolate;
-            --bg: #080d1a; --panel: rgba(20, 28, 48, .78); --ink: #eef2f8; --muted: #b6c2d3;
-            --soft: #98a5b8; --line: rgba(148, 170, 210, .24); --accent: #7fe3c6; --accent-ink: #07121a;
-            --hero-2: #8ea2ff; color: var(--ink);
-            background: radial-gradient(1200px 600px at 50% 120%, #10204a 0%, transparent 60%), #080d1a;
-            border-bottom: 1px solid #1d2742; }
+            --bg: #0b1626; --panel: rgba(20, 28, 48, .78); --ink: #eef2f8; --muted: #b6c2d3;
+            --soft: #98a5b8; --line: rgba(148, 170, 210, .24); --accent: #a8c7f0; --accent-ink: #07121a;
+            --hero-2: #b4c6de; color: var(--ink);
+            background: radial-gradient(1200px 600px at 50% 120%, #142a4a 0%, transparent 60%), #0b1626;
+            border-bottom: 1px solid #1e2c42; }
     .hero a { color: var(--accent); }
     .hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; display: block; }
-    .aurora { position: absolute; inset: -20%; z-index: -2; filter: blur(70px); opacity: .55; pointer-events: none; }
+    .aurora { position: absolute; inset: -20%; z-index: -2; filter: blur(70px); opacity: .35; pointer-events: none; }
     .aurora i { position: absolute; width: 46vw; height: 46vw; max-width: 720px; max-height: 720px; border-radius: 50%;
                 mix-blend-mode: screen; animation: drift 22s ease-in-out infinite alternate; }
-    .aurora i:nth-child(1) { background: #1fb68f; left: 2%; top: 4%; }
-    .aurora i:nth-child(2) { background: #4b5dff; right: 0; top: -8%; animation-duration: 28s; animation-delay: -6s; }
-    .aurora i:nth-child(3) { background: #b14bff; left: 34%; bottom: -14%; animation-duration: 34s; animation-delay: -12s; opacity: .7; }
+    .aurora i:nth-child(1) { background: #1f4e8c; left: 2%; top: 4%; }
+    .aurora i:nth-child(2) { background: #3a6ea5; right: 0; top: -8%; animation-duration: 28s; animation-delay: -6s; }
+    .aurora i:nth-child(3) { background: #5b7799; left: 34%; bottom: -14%; animation-duration: 34s; animation-delay: -12s; opacity: .7; }
     @keyframes drift { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(6vw, 4vw) scale(1.15); }
                        100% { transform: translate(-4vw, 6vw) scale(.92); } }
     .hero::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
@@ -142,7 +142,7 @@ export const HOME_MOTION_CSS = `
                    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 30%, transparent 75%);
                            mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 30%, transparent 75%); }
     .hero h1 { font-size: clamp(2.3rem, 6.4vw, 4.6rem); max-width: 18ch; }
-    .grad { background: linear-gradient(100deg, #7fe3c6 0%, #8ea2ff 30%, #e39bff 55%, #7fe3c6 80%);
+    .grad { background: linear-gradient(100deg, #a8c7f0 0%, #b4c6de 30%, #dfe8f5 55%, #a8c7f0 80%);
             background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
             animation: sheen 9s linear infinite; }
     @keyframes sheen { to { background-position: -220% 0; } }
@@ -156,9 +156,9 @@ export const HOME_MOTION_CSS = `
     .hero .stats div { border-color: var(--line); }
     .hero .stats dd a { color: var(--ink); }
     .hero .search input { background: rgba(10, 16, 32, .75); border-color: rgba(148,170,210,.35);
-                          box-shadow: 0 0 0 0 rgba(127,227,198,0); transition: box-shadow .25s, border-color .25s; }
-    .hero .search input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(127,227,198,.18), 0 10px 40px rgba(75,93,255,.25); outline: none; }
-    .hero .search button { box-shadow: 0 6px 24px rgba(127,227,198,.25); }
+                          box-shadow: 0 0 0 0 rgba(168,199,240,0); transition: box-shadow .25s, border-color .25s; }
+    .hero .search input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(168,199,240,.18), 0 10px 40px rgba(58,110,165,.25); outline: none; }
+    .hero .search button { box-shadow: 0 6px 24px rgba(168,199,240,.25); }
 
     /* The moving shelf. Without motion it is a row you can scroll sideways. */
     .marquee { margin: 0; padding: 18px 0; overflow: hidden; display: grid; gap: 10px;
@@ -255,7 +255,7 @@ export const HOME_MOTION_SCRIPT = `
       const canvas = document.querySelector('.hero-canvas');
       if (canvas && canvas.getContext) {
         const ctx = canvas.getContext('2d');
-        const colours = ['127,227,198', '142,162,255', '227,155,255'];
+        const colours = ['168,199,240', '180,198,222', '140,165,200'];
         let w = 0, h = 0, dpr = 1, points = [], running = false, visible = true, frame = 0;
         const pointer = { x: -9999, y: -9999 };
         const size = () => {

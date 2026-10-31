@@ -61,7 +61,7 @@ const SECTION_ACCENTS = {
   compare: '#0e7490',
   updates: '#15803d',
   ask: '#4338ca',
-  about: '#12594a',
+  about: '#1f4e8c',
   lab: '#be185d',
   c: '#1d4ed8',
   deploy: '#0f766e',
