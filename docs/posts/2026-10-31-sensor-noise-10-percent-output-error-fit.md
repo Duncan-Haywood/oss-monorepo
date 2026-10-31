@@ -1,7 +1,7 @@
 ---
 title: "At 10% sensor noise, least squares can't identify a drone's flight modes; an output-error fit still can"
 date: 2026-10-31
-description: "aerolog-scaling milestone 9j: identifying a model aircraft's short-period mode from a noisy free response, least squares against an output-error fit, at 10% noise."
+description: "aerolog-scaling 9j: identifying a model aircraft's short-period mode from a noisy free response at 10% noise, least squares against an output-error fit."
 tags: [research, aerolog-scaling, system-identification, uav]
 ---
 
