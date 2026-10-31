@@ -1,0 +1,5 @@
+dp_ref 5.0 bar: penalty % median 15.78, p95 21.62; dig factor median 1.730; at stall bound 46.9%
+dp_ref 10.0 bar: penalty % median 0.92, p95 21.62; dig factor median 1.043; at stall bound 18.4%
+dp_ref 14.0 bar: penalty % median 0.00, p95 21.62; dig factor median 1.000; at stall bound 8.5%
+dp_ref 25.0 bar: penalty % median 0.00, p95 7.27; dig factor median 1.000; at stall bound 0.3%
+dp_ref 35.0 bar: penalty % median 0.00, p95 3.77; dig factor median 1.000; at stall bound 0.0%
