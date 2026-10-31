@@ -26,7 +26,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
@@ -40,7 +40,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Backlog ids touched: none. Verify of P048/P050/P059/P060 not done.",
+  "notes": "Another run fixed the same post description on main first; this PR ended as run record only. Backlog ids touched: none.",
   "corrections": [],
   "redteam": null
 }
