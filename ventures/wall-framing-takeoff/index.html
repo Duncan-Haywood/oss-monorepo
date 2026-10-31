@@ -200,6 +200,7 @@
       <div><label for="stStringer">Stringer board</label><select id="stStringer"><option>2x12</option><option>2x10</option></select></div>
       <div><label for="stTreadBoard">Tread board</label><select id="stTreadBoard"><option>2x12</option><option>2x10</option><option>2x6</option></select></div>
       <div><label for="stOpen">Stairwell opening length you framed (blank: not checked)</label><input id="stOpen" type="text" placeholder="e.g. 10' 0&quot;"></div>
+      <div><label for="stStr">Stringer strength check, typed from your engineer or code tables: live psf, dead psf, Fb psi, Fv psi, E psi, optional deflection ratio (240) (blank: no check)</label><input id="stStr" placeholder="e.g. 40, 12, 875, 150, 1300000"></div>
       <div><label for="stLanding">Landing</label><select id="stLanding"><option value="">Only if the rise needs one</option><option value="true">Split at a landing</option></select></div>
     </div>
     <p><input type="checkbox" id="dkOn" style="width:auto"> <label for="dkOn" style="display:inline">Also frame a deck (ledger or rim, joists, dropped beam, posts, footing concrete, decking rows with joints on joists, hardware; its pressure-treated lumber is its own order)</label></p>
@@ -693,6 +694,11 @@
         if ($("#stTread").value.trim()) st.tread = Number($("#stTread").value);
         if ($("#stWidth").value.trim()) st.width = L($("#stWidth").value, "stair width");
         if ($("#stOpen").value.trim()) st.openingLength = L($("#stOpen").value, "stairwell opening length");
+        if ($("#stStr").value.trim()) {
+          const n = $("#stStr").value.split(",").map((t) => t.trim()).filter(Boolean).map(Number);
+          if (n.length < 5 || n.length > 6 || n.some((x) => !Number.isFinite(x))) bad.push("Stringer strength check: write live, dead, Fb, Fv, E, then optionally the deflection ratio, all numbers.");
+          else { st.stringerCheck = { liveLoad: n[0], deadLoad: n[1], Fb: n[2], Fv: n[3], E: n[4] }; if (n[5]) st.stringerCheck.deflLimit = n[5]; }
+        }
         if ($("#stLanding").value) st.landing = true;
         plan.stairs = st;
       }
@@ -1168,7 +1174,7 @@
       $("#stOn").checked = Boolean(stp); $("#stFields").hidden = !stp;
       $("#stRise").value = stp ? formatLength(stp.totalRise) : ""; $("#stTread").value = stp?.tread != null ? String(stp.tread) : "";
       $("#stWidth").value = stp?.width != null ? formatLength(stp.width) : ""; $("#stOpen").value = stp?.openingLength != null ? formatLength(stp.openingLength) : "";
-      $("#stStringer").value = stp?.stringer || "2x12"; $("#stTreadBoard").value = stp?.treadBoard || "2x12"; $("#stLanding").value = stp?.landing ? "true" : "";
+      $("#stStringer").value = stp?.stringer || "2x12"; $("#stTreadBoard").value = stp?.treadBoard || "2x12"; $("#stLanding").value = stp?.landing ? "true" : ""; { const k = stp?.stringerCheck; $("#stStr").value = k ? [k.liveLoad, k.deadLoad, k.Fb, k.Fv, k.E, ...(k.deflLimit ? [k.deflLimit] : [])].join(", ") : ""; }
       const trm = plan.trim;
       $("#trOn").checked = Boolean(trm); $("#trFields").hidden = !trm; $("#trShoe").value = trm && trm.shoe ? "true" : "";
       for (const [id, key] of [["trSides", "baseSides"], ["trBaseStock", "baseStock"], ["trCasStock", "casingStock"], ["trCasWidth", "casingWidth"], ["trReveal", "reveal"], ["trWaste", "waste"], ["trBasePrice", "basePrice"], ["trCasPrice", "casingPrice"], ["trShoeStock", "shoeStock"], ["trShoePrice", "shoePrice"], ["trScarf", "scarf"]]) $("#" + id).value = trm && trm[key] != null ? String(trm[key]) : "";
