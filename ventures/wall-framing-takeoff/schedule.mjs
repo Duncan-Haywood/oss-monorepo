@@ -216,19 +216,24 @@ export function schedule(input) {
   }
   const lv = level(acts, crews, base.rows, crewOff);
   const rows = base.rows.map((r) => ({ ...r, leveledStart: lv.start.get(r.id), leveledFinish: lv.finish.get(r.id), startDate: date(lv.start.get(r.id)), finishDate: r.days ? date(lv.finish.get(r.id) - 1) : date(lv.start.get(r.id)) }));
+  // carryPerDay: your cost of one more working day on the job (loan interest, insurance, site costs), a figure you type; none shipped.
+  const carry = input.carryPerDay ?? null;
+  if (carry != null && !(typeof carry === "number" && carry >= 0)) return { ok: false, errors: ["carryPerDay must be a number of dollars per working day, zero or more."] };
   // What a slip does: re-run with the extra days added and compare the finish.
   const slips = (input.slips || []).map((/** @type {{ id: string, days: number }} */ sl) => {
     if (!ids.has(sl.id)) return { id: sl.id, days: sl.days, error: "not an activity" };
     const a2 = acts.map((a) => (a.id === sl.id ? { ...a, days: a.days + sl.days } : a));
     const c2 = cpm(a2);
     const l2 = level(a2, crews, c2.rows, crewOff);
-    return { id: sl.id, days: sl.days, finishShift: c2.end - (base.end ?? 0), leveledFinishShift: l2.end - lv.end, newFinishDate: date(Math.max(0, l2.end - 1)) };
+    const leveledFinishShift = l2.end - lv.end;
+    return { id: sl.id, days: sl.days, finishShift: c2.end - (base.end ?? 0), leveledFinishShift, newFinishDate: date(Math.max(0, l2.end - 1)), ...(carry != null ? { carryCost: leveledFinishShift * carry } : {}) };
   });
   return {
     ok: true, warnings: warn, start: date(0), workingDays: base.end, finishDate: date(Math.max(0, (base.end ?? 0) - 1)),
     leveledDays: lv.end, leveledFinishDate: date(Math.max(0, lv.end - 1)),
     criticalPath: rows.filter((r) => r.critical).sort((a, b) => a.es - b.es).map((r) => r.id),
     rows, slips,
+    ...(carry != null ? { carryPerDay: carry, carryTotal: lv.end * carry } : {}),
   };
 }
 
@@ -238,7 +243,7 @@ export function scheduleText(s) {
   const out = [`  ${s.workingDays} working days from ${s.start}, finishing ${s.finishDate} with unlimited crews; ${s.leveledDays} days (${s.leveledFinishDate}) with the crews you typed.`];
   out.push(`  Critical path: ${s.criticalPath.join(" -> ")}`);
   for (const r of s.rows.slice().sort((/** @type {any} */ a, /** @type {any} */ b) => a.leveledStart - b.leveledStart)) out.push(`  ${r.critical ? "*" : " "} ${r.id.padEnd(12)} ${String(r.days).padStart(3)}d  ${r.startDate} to ${r.finishDate}  slack ${r.slack}${r.crew ? `  [${r.crew}]` : ""}  ${r.name}${r.derived ? `  (${r.derived})` : ""}`);
-  for (const sl of s.slips) out.push(sl.error ? `  Slip ${sl.id}: ${sl.error}` : `  A ${sl.days}-day slip on ${sl.id} moves the finish ${sl.finishShift} day(s) (${sl.leveledFinishShift} with crews), to ${sl.newFinishDate}.`);
+  for (const sl of s.slips) out.push(sl.error ? `  Slip ${sl.id}: ${sl.error}` : `  A ${sl.days}-day slip on ${sl.id} moves the finish ${sl.finishShift} day(s) (${sl.leveledFinishShift} with crews), to ${sl.newFinishDate}${sl.carryCost != null ? `, which costs $${sl.carryCost.toLocaleString("en-US")} at your $${s.carryPerDay.toLocaleString("en-US")} per day` : ""}.`);
   for (const w of s.warnings) out.push(`  note: ${w}`);
   out.push("  * = critical. Durations, order and crews are your inputs; weekends and any holidays or weather days you list are skipped; weather is not forecast.");
   return out;

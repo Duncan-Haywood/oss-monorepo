@@ -174,3 +174,13 @@ test("starter template is a valid acyclic list with no shipped durations", () =>
   const typed = schedule({ ...t, start: "2026-03-02", activities: t.activities.map((a) => ({ ...a, days: 2 })) });
   assert.equal(typed.workingDays, 2 * 18 + 4); // 18 activities on the longest chain, 4 one-day lags
 });
+
+test("carryPerDay prices the crew-levelled shift of a slip and the whole job", () => {
+  const acts = [{ id: "a", days: 3 }, { id: "b", days: 4, after: ["a"] }, { id: "c", days: 2, after: ["a"] }, { id: "d", days: 1, after: ["b", "c"] }];
+  const s = schedule({ activities: acts, carryPerDay: 150, slips: [{ id: "b", days: 3 }, { id: "c", days: 1 }] });
+  assert.equal(s.carryTotal, 8 * 150);
+  assert.deepEqual(s.slips.map((x) => x.carryCost), [450, 0]);
+  assert.match(scheduleText(s).join("\n"), /costs \$450 at your \$150 per day/);
+  assert.equal(schedule({ activities: acts }).carryTotal, undefined);
+  assert.equal(schedule({ activities: acts, carryPerDay: -1 }).ok, false);
+});
