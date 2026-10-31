@@ -1,5 +1,6 @@
 ---
 title: "A glider beats an AUV on energy per metre once you read the AUV's power bill"
+seo_title: "A glider beats an AUV on energy per metre: read the power bill"
 date: 2026-10-27
 description: "A REMUS-class AUV's vendor endurance implies 104 to 175 W of non-propulsion load; against it a buoyancy glider has the longer range per kWh in every case."
 tags: [marine-hull, auv, glider, research]
