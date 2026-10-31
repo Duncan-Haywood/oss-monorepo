@@ -1,5 +1,6 @@
 ---
 title: "Stopping early at a rare category is survivable with the right interval"
+seo_title: "Stopping early at a rare category is survivable"
 date: 2026-10-28
 description: "With pooled human labels, stopping an audit at 1 to 2% prevalence covers 90 to 99.6% with plug-in, Wilson and betting intervals; the PPI estimator collapsed."
 tags: [llm-coding, statistics, negative-result, llm-coding-inference]

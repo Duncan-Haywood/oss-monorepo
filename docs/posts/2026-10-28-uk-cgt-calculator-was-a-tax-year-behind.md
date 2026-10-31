@@ -1,5 +1,6 @@
 ---
 title: "Our UK Capital Gains Tax calculator was a tax year behind. 2026/27 is now in it"
+seo_title: "UK Capital Gains Tax calculator updated to 2026/27"
 date: 2026-10-28
 description: "A sweep for calculators that only know 2025 found 21. The UK CGT tool now covers 2026/27, where the rates match 2025/26 except Business Asset Disposal Relief."
 tags: [uk, capital-gains-tax, calculators, maintenance]

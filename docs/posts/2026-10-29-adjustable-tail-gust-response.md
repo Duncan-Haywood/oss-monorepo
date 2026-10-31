@@ -1,5 +1,6 @@
 ---
 title: "An adjustable tail fixes the gust response of a scaled UAV model, in simulation"
+seo_title: "Adjustable tail fixes a scaled UAV's gust response"
 date: 2026-10-29
 description: "Milestone 9e of aerolog-scaling: setting tail area from the flight modes alone brings 67 of 78 sub-scale designs within 10% of full-size gust response."
 tags: [research, aerolog-scaling, sim2real]

@@ -1,5 +1,6 @@
 ---
 title: "The changepoint page can now take logs first, so growth stops looking like a staircase"
+seo_title: "Changepoint page now takes logs first, so growth looks smooth"
 date: 2026-10-28
 description: "On Johnson & Johnson's quarterly earnings, a level-change detector cuts 12 steps from smooth growth; a new checkbox on the page logs the series first."
 tags: [changepoint-detector, time-series]
