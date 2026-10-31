@@ -238,6 +238,10 @@ test("the stair controls are read into plan.stairs, restored from a saved plan a
   assert.match(html, /id="stLandPosts"/);
   assert.match(html, /st\.landing = \{ soilBearing: n\[0\], postSize: t\[1\], postFc: n\[1\], postEmin: n\[2\] \}/);
   assert.match(html, /\$\("#stLandPosts"\)\.value = l && typeof l/);
+  // stair guard and handrail (2026-10-31): typed sides and handrail height become plan.stairs.rail and are restored
+  assert.match(html, /id="stRail"/);
+  assert.match(html, /st\.rail = \{ sides: r\[0\]/);
+  assert.match(html, /\$\("#stRail"\)\.value = stp\?\.rail/);
 });
 
 test("the trim controls are read into plan.trim, restored from a saved plan and feed the budget", () => {

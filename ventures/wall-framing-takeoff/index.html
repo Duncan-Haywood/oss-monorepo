@@ -208,6 +208,7 @@
       <div><label for="stCheck">Stringer strength check, typed from your engineer or code tables: live psf, dead psf, Fb psi, Fv psi, E psi, optional deflection ratio (240) (blank: no check)</label><input id="stCheck" placeholder="e.g. 40, 12, 900, 180, 1300000, 240"></div>
       <div><label for="stWinders">Winder turn, typed as treads, degrees, inner radius in (e.g. 3, 90, 12); blank: none. Checks the 6 in and 10 in rules and solves the smallest radius that passes</label><input id="stWinders" placeholder="e.g. 3, 90, 12"></div>
       <div><label for="stLandPosts">Landing post check, typed: soil bearing psf, post size (4x4 or 6x6), post fc psi, post Emin psi (e.g. 1500, 4x4, 1000, 400000); blank: posts counted only. Implies a landing</label><input id="stLandPosts" placeholder="e.g. 1500, 4x4, 1000, 400000"></div>
+      <div><label for="stRail">Guard and handrail, typed as sides (1 or 2), then optionally the handrail height in (e.g. 2, 36); blank: none. Lays out posts, balusters under the 4 in gap, rails and the handrail, and adds the rails to the order</label><input id="stRail" placeholder="e.g. 2, 36"></div>
       <div><label for="stLanding">Landing</label><select id="stLanding"><option value="">Only if the rise needs one</option><option value="true">Split at a landing</option></select></div>
     </div>
     <p><input type="checkbox" id="dkOn" style="width:auto"> <label for="dkOn" style="display:inline">Also frame a deck (ledger or rim, joists, dropped beam, posts, footing concrete, decking rows with joints on joists, hardware; its pressure-treated lumber is its own order)</label></p>
@@ -739,6 +740,11 @@
           if (t.length !== 4 || n.some((x) => !Number.isFinite(x)) || !/^[46]x[46]$/.test(t[1])) bad.push("Landing post check: write soil bearing psf, post size (4x4 or 6x6), fc psi, Emin psi.");
           else st.landing = { soilBearing: n[0], postSize: t[1], postFc: n[1], postEmin: n[2] };
         }
+        if ($("#stRail").value.trim()) {
+          const r = $("#stRail").value.split(",").map((t) => t.trim()).filter(Boolean).map(Number);
+          if (r.length < 1 || r.length > 2 || r.some((x) => !Number.isFinite(x)) || ![1, 2].includes(r[0])) bad.push("Guard and handrail: write the number of guarded sides (1 or 2), then optionally the handrail height in inches.");
+          else st.rail = { sides: r[0], ...(r.length > 1 ? { handrailHeight: r[1] } : {}) };
+        }
         if ($("#stWinders").value.trim()) {
           const w = $("#stWinders").value.split(",").map((t) => t.trim()).filter(Boolean).map(Number);
           if (w.length < 2 || w.length > 3 || w.some((x) => !Number.isFinite(x))) bad.push("Winders: write treads, turn in degrees, then optionally the inner radius in inches, all numbers.");
@@ -1258,6 +1264,7 @@
       $("#stWidth").value = stp?.width != null ? formatLength(stp.width) : ""; $("#stOpen").value = stp?.openingLength != null ? formatLength(stp.openingLength) : "";
       $("#stStringer").value = stp?.stringer || "2x12"; $("#stTreadBoard").value = stp?.treadBoard || "2x12"; $("#stLanding").value = stp?.landing ? "true" : "";
       $("#stWinders").value = stp?.winders && typeof stp.winders === "object" ? [stp.winders.count, stp.winders.turn, ...(stp.winders.innerRadius != null ? [stp.winders.innerRadius] : [])].join(", ") : "";
+      $("#stRail").value = stp?.rail && typeof stp.rail === "object" ? [stp.rail.sides ?? 1, ...(stp.rail.handrailHeight != null ? [stp.rail.handrailHeight] : [])].join(", ") : "";
       { const l = stp?.landing; $("#stLandPosts").value = l && typeof l === "object" && l.postFc != null ? [l.soilBearing, l.postSize || "4x4", l.postFc, l.postEmin].join(", ") : ""; }
       { const k = stp?.stringerCheck; $("#stCheck").value = k ? [k.liveLoad, k.deadLoad, k.Fb, k.Fv, k.E, ...(k.deflLimit ? [k.deflLimit] : [])].join(", ") : ""; }
       const trm = plan.trim;
