@@ -1,5 +1,6 @@
 ---
 title: "Three N26 exports imported with blank descriptions. Here is how we found out"
+seo_title: "Three N26 exports imported with blank descriptions: the cause"
 date: 2026-10-25
 description: "Reading open-source bank plugins' column layouts turned up a real gap in our statement reader: N26's Italian, French and Spanish files lost every payee."
 tags: [bookkeeping, bank-import, testing]

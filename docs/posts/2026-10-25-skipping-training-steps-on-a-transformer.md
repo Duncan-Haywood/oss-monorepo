@@ -1,5 +1,6 @@
 ---
 title: "How much training can a cheater skip on a transformer before the loss shows it?"
+seo_title: "How many training steps can a cheater skip on a transformer?"
 date: 2026-10-25
 description: "A drift-tolerant verifier also lets a worker skip small updates. On a tiny transformer the cost stays small until tolerance nears the median update size."
 tags: [research, verifiable-training, mechanism-design, negative-result]
