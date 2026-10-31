@@ -3,6 +3,19 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-31 · Milestone 9k: does starting the output-error fit by continuation from a 1-period fit fix 9j's 4-period failures at 10% noise? (planned before running)
+- Why: 9j's "Next". At 10% noise and 4 phugoid periods the output-error fit failed or landed in the wrong basin in 170 of 1560 draws (62% of draws within 10% gust, 5 of 78 designs at 90%), and its start was the least-squares transition matrix, which is badly biased at that noise.
+- Plan (`experiments/output_error_start/run.py`): 9j's script with records of 4 periods only, noise 0.10, tail-slope scale 0.75, 78 designs, 20 paired draws, seed 20261101. Both fits see the same noisy record: (a) output error started from the LS matrix (the 9j start, rerun on new draws); (b) continuation: fit the first phugoid period alone, then refit the full record from that solution.
+- **Predictions (before running):** (1) continuation has fewer fit failures than the LS start (prior 85%) and under 60 of 1560 (prior 65%). (2) At least 40 of 78 designs reach 90% of draws within 10% gust under continuation (prior 55%). (3) Median short-period frequency error stays under 3% for both starts (prior 80%). Refuted: (1) failures not lower, or 60 or more; (2) fewer than 40; (3) either at or above 3%.
+- Limits known in advance: those of 9j (known initial state, white noise on all four states, 20 draws, one scale); one seed.
+
+### Outcome of 9k (`experiments/output_error_start/`: `run.py`, `results.txt`; about 3 h of CPU)
+- 4 phugoid periods, 10% noise, 1560 draws. Fit failures: 144 (LS start) against 9 (continuation). Median |error| in phugoid, short-period frequency and damping ratio: 0.03, 1.34, 2.59% (LS start) against 0.03, 1.14, 2.34% (continuation). Share of draws within 10% gust: 63% against 77%. Designs with 90% of draws within 10% gust: 8 against 36 of 78. Median worst gust error 7.7% against 6.2%; median worst mode error 4.3% against 3.7%.
+- **(1) held** (9 failures, under 60). **(2) refuted:** 36 of 78 designs, not 40. **(3) held** (1.34 and 1.14%).
+- Reading: most of 9j's 4-period failures came from the starting point, not from the information in the record: fitting one period first and extending removes 94% of them and lifts the gust share from 63 to 77%. It does not reach the 85-87% of the 1 to 2 period records, so at 10% noise a long record still is not better than a short one; the extra samples are mostly decayed and add noise-dominated residual. Test card advice stays: one to two phugoid periods.
+- Limits: as 9j; the 144 LS-start failures (9 vs 170 in 9j: different draws) were counted, not diagnosed further; continuation uses the known initial state in both stages.
+- Next: estimated initial state; turbulence; real IMU noise density; NACA 0012/0015 data; thrust law; AIAA template.
+
 ## 2026-10-31 · Milestone 2c: how much of the Matrice 100's fixed flight energy is set by cruise altitude (25 vs 50 m), and what does that do to range? (predictions fixed before the run)
 - Why: 2b's "Next". Its E0 (64 kJ at 8 m/s) is nearly all climb and hover, and the study flew two altitudes that 2b pooled.
 - Plan (`experiments/altitude_energy/run.py`): refit whole-flight energy = E0 + a50 x [altitude 50 m] + j x cruise distance by least squares per commanded speed (4, 6, 8, 10 m/s), with bootstrap intervals (flights resampled, 5000 draws); one-way range with one TB48D pack at 80% usable for each altitude, as in 2b.
