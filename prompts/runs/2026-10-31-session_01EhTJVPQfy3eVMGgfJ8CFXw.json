@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01EhTJVPQfy3eVMGgfJ8CFXw",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T03:00:30Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 1: effective wall R from placed framing",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": 11991,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/wall-framing-takeoff/ROADMAP.md",
+      "issue": "unchecked items (bid leveling page, allowance savings thread) are already landed"
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Roadmap said bid leveling and the allowance bench had no page / were open; both already existed (stale checkboxes). Built effective wall R instead. Ran venture suite locally: 404 pass, 0 fail. Layer R values are typed handbook defaults, hand-arithmetic tests only.",
+  "corrections": [],
+  "redteam": null
+}
