@@ -3,7 +3,7 @@ title: "Is the house late? A deadline check for the construction schedule"
 seo_title: "Construction schedule deadline check: working days late or to spare"
 date: 2026-10-31
 tags: [construction, scheduling, wall-framing-takeoff]
-description: "The free wall-framing-takeoff schedule engine now takes a contract completion date and says how many working days late or to spare the job is, and what the late days cost."
+description: "The free schedule engine now takes a contract completion date and reports working days late or to spare, and what the late days cost."
 ---
 
 The schedule engine in `wall-framing-takeoff` already finds the critical path,
