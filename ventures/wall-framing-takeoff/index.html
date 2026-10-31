@@ -186,6 +186,7 @@
       <div><label for="inAssumedF">Framing fraction to compare against (blank: 0.25)</label><input id="inAssumedF" type="number" min="0.05" max="0.59" step="0.01" placeholder="0.25"></div>
       <div><label for="inWinU">Window U-factor, BTU/h per sq ft per F (blank: windows left out of the heat loss)</label><input id="inWinU" type="number" min="0.05" max="2" step="0.01" placeholder="e.g. 0.30"></div>
       <div><label for="inDoorU">Door U-factor (blank: doors left out)</label><input id="inDoorU" type="number" min="0.05" max="2" step="0.01" placeholder="e.g. 0.40"></div>
+      <div><label for="inSlabF">Slab edge F-factor, BTU/h per ft of edge per F, from your code table (blank: slab edge left out; slab-on-grade only)</label><input id="inSlabF" type="number" min="0" max="2" step="0.01" placeholder="e.g. 0.54"></div>
       <div><label for="inDeltaF">Design temperature difference, F (blank: no design load)</label><input id="inDeltaF" type="number" min="1" max="120" step="1" placeholder="e.g. 60"></div>
       <div><label for="inHdd">Heating degree-days, base 65 F (blank: no seasonal figure)</label><input id="inHdd" type="number" min="1" max="15000" step="any" placeholder="e.g. 6000"></div>
       <div><label for="inAtticR">Attic loose fill target R-value (blank: no attic)</label><input id="inAtticR" type="number" min="10" max="80" step="1" placeholder="e.g. 38"></div>
@@ -691,7 +692,7 @@
           ins.assembly = {};
           if ($("#inContR").value.trim()) ins.assembly.continuousR = Number($("#inContR").value);
           if ($("#inAssumedF").value.trim()) ins.assembly.assumedFramingFraction = Number($("#inAssumedF").value);
-          for (const [id, k] of [["inWinU", "windowU"], ["inDoorU", "doorU"], ["inDeltaF", "designDeltaF"], ["inHdd", "heatingDegreeDays"]]) if ($("#" + id).value.trim()) ins.assembly[k] = Number($("#" + id).value);
+          for (const [id, k] of [["inWinU", "windowU"], ["inDoorU", "doorU"], ["inSlabF", "slabEdgeF"], ["inDeltaF", "designDeltaF"], ["inHdd", "heatingDegreeDays"]]) if ($("#" + id).value.trim()) ins.assembly[k] = Number($("#" + id).value);
         }
         if ($("#inAtticR").value.trim()) {
           ins.attic = { rValue: Number($("#inAtticR").value) };
@@ -1220,7 +1221,7 @@
         $("#inEff").value = ins.assembly ? "true" : "";
         $("#inContR").value = ins.assembly?.continuousR ?? "";
         $("#inAssumedF").value = ins.assembly?.assumedFramingFraction ?? "";
-        for (const [id, k] of [["inWinU", "windowU"], ["inDoorU", "doorU"], ["inDeltaF", "designDeltaF"], ["inHdd", "heatingDegreeDays"]]) $("#" + id).value = ins.assembly?.[k] ?? "";
+        for (const [id, k] of [["inWinU", "windowU"], ["inDoorU", "doorU"], ["inSlabF", "slabEdgeF"], ["inDeltaF", "designDeltaF"], ["inHdd", "heatingDegreeDays"]]) $("#" + id).value = ins.assembly?.[k] ?? "";
         $("#inAtticR").value = ins.attic?.rValue != null ? String(ins.attic.rValue) : ""; $("#inAtticPer").value = ins.attic?.rPerInch != null ? String(ins.attic.rPerInch) : "";
         $("#inAtticBag").value = ins.attic?.bagCuFt != null ? String(ins.attic.bagCuFt) : "";
         $("#inAtticHeel").value = ins.attic?.heel != null ? String(ins.attic.heel) : "";
