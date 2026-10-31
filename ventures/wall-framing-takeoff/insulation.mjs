@@ -14,7 +14,7 @@ import { joistCentres } from "./floor.mjs";
 const DEFAULT_R = { "2x4": 15, "2x6": 21 };
 
 /** @typedef {{ rValue?: number, rPerInch?: number, bagCuFt?: number, price?: number, heel?: number, baffles?: boolean, baffleLength?: number, baffleWidth?: number, ceiling?: { width: number, depth: number }[] }} Attic */
-/** @typedef {{ continuousR?: number, sheathingR?: number, drywallR?: number, insideFilmR?: number, outsideFilmR?: number, framingRPerInch?: number, assumedFramingFraction?: number, ceilingR?: number, ceilingFromAttic?: boolean, windowU?: number, doorU?: number, designDeltaF?: number, heatingDegreeDays?: number, slabEdgeF?: number }} Assembly */
+/** @typedef {{ continuousR?: number, sheathingR?: number, drywallR?: number, insideFilmR?: number, outsideFilmR?: number, framingRPerInch?: number, assumedFramingFraction?: number, ceilingR?: number, ceilingFromAttic?: boolean, windowU?: number, doorU?: number, designDeltaF?: number, heatingDegreeDays?: number, slabEdgeF?: number, ach50?: number, nFactor?: number, volumeCuFt?: number }} Assembly */
 /** @typedef {{ bagSqFt?: number, waste?: number, rValue?: number, price?: number, attic?: Attic, rim?: boolean, assembly?: Assembly | boolean }} Insulation */
 
 // Typical handbook layer values (ASHRAE Fundamentals), typed defaults: replace with your product's
@@ -36,6 +36,8 @@ export function validateInsulation(d) {
     for (const k of /** @type {const} */ (["windowU", "doorU"])) if (a[k] != null && !(a[k] > 0 && a[k] <= 2)) e.push(`Assembly ${k} must be between 0 and 2 (BTU/h per sq ft per F).`);
     if (a.designDeltaF != null && !(a.designDeltaF > 0 && a.designDeltaF <= 120)) e.push("Assembly designDeltaF must be between 0 and 120 F.");
     if (a.slabEdgeF != null && !(a.slabEdgeF >= 0 && a.slabEdgeF <= 2)) e.push("Assembly slabEdgeF must be between 0 and 2 (BTU/h per ft of edge per F).");
+    for (const [k, lo, hi] of /** @type {const} */ ([["ach50", 0, 40], ["nFactor", 5, 40], ["volumeCuFt", 100, 200000]])) if (a[k] != null && !(a[k] >= lo && a[k] <= hi)) e.push(`Assembly ${k} must be between ${lo} and ${hi}.`);
+    if ((a.ach50 != null || a.nFactor != null || a.volumeCuFt != null) && !(a.ach50 != null && a.nFactor != null && a.volumeCuFt != null)) e.push("Air leakage needs all three of ach50 (blower-door result), nFactor (climate/height divisor) and volumeCuFt.");
     if (a.heatingDegreeDays != null && !(a.heatingDegreeDays > 0 && a.heatingDegreeDays <= 15000)) e.push("Assembly heatingDegreeDays must be between 0 and 15000 (F-days, base 65).");
     if (a.assumedFramingFraction != null && !(a.assumedFramingFraction > 0 && a.assumedFramingFraction < 0.6)) e.push("Assembly assumedFramingFraction must be between 0 and 0.6.");
   }
@@ -206,8 +208,12 @@ function heatLoss(e, d, plan) {
   let edgeFt = 0;
   for (const w of plan.walls || []) if (w.sheathed !== false) edgeFt += w.length / 12;
   const slabEdgeUA = a.slabEdgeF != null ? a.slabEdgeF * edgeFt : null;
-  const ua = opaqueUA + (winUA ?? 0) + (doorUA ?? 0) + (slabEdgeUA ?? 0);
+  // Air leakage: natural ACH = ACH50 / N (typed); sensible load 0.018 BTU/h per cu ft per F (air density x specific heat).
+  const achNat = a.ach50 != null ? a.ach50 / /** @type {number} */ (a.nFactor) : null;
+  const infiltrationUA = achNat != null ? 0.018 * /** @type {number} */ (a.volumeCuFt) * achNat : null;
+  const ua = opaqueUA + (winUA ?? 0) + (doorUA ?? 0) + (slabEdgeUA ?? 0) + (infiltrationUA ?? 0);
   return {
+    achNat, infiltrationUA,
     slabEdgeFt: a.slabEdgeF != null ? edgeFt : null, slabEdgeUA,
     windowSqFt: win, doorSqFt: door, opaqueUA, windowUA: winUA, doorUA, ua, complete,
     designBtuh: a.designDeltaF != null ? ua * a.designDeltaF : null,
@@ -269,6 +275,7 @@ export function insulationText(d) {
     const h = e.heat;
     if (h) {
       l.push(`  Wall heat loss (conduction): UA ${h.ua.toFixed(1)} BTU/h per F = opaque ${h.opaqueUA.toFixed(1)}${h.windowUA != null ? ` + windows ${h.windowUA.toFixed(1)} (${h.windowSqFt.toFixed(0)} sq ft)` : ""}${h.doorUA != null ? ` + doors ${h.doorUA.toFixed(1)} (${h.doorSqFt.toFixed(0)} sq ft)` : ""}${h.complete ? "" : ` (INCOMPLETE: type windowU/doorU for the ${h.windowUA == null && h.windowSqFt > 0 ? `${h.windowSqFt.toFixed(0)} sq ft of windows` : ""}${h.windowUA == null && h.windowSqFt > 0 && h.doorUA == null && h.doorSqFt > 0 ? " and " : ""}${h.doorUA == null && h.doorSqFt > 0 ? `${h.doorSqFt.toFixed(0)} sq ft of doors` : ""}; they are left out)`}`);
+      if (h.infiltrationUA != null) l.push(`    Air leakage: ${e.settings.ach50} ACH50 / N ${e.settings.nFactor} = ${h.achNat.toFixed(2)} natural air changes per hour x ${e.settings.volumeCuFt} cu ft x 0.018 adds ${h.infiltrationUA.toFixed(1)}; mechanical ventilation is not in it`);
       if (h.ceilingUA != null) l.push(`    Ceiling under the attic: ${h.ceilingSqFt.toFixed(0)} sq ft at R-${h.ceilingR.toFixed(1)} adds ${h.ceilingUA.toFixed(1)} (walls ${h.wallUA.toFixed(1)}); the totals below include it`);
       if (h.designBtuh != null) l.push(`    Design load through the ${h.ceilingUA != null ? "shell" : "walls"}: ${Math.round(h.designBtuh).toLocaleString("en-US")} BTU/h at ${e.settings.designDeltaF} F inside-outside`);
       if (h.annualKBtu != null) l.push(`    Seasonal conduction: ${Math.round(h.annualKBtu).toLocaleString("en-US")} kBTU at ${e.settings.heatingDegreeDays} heating degree-days (base 65 F)`);

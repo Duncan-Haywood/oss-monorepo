@@ -175,3 +175,17 @@ test("heat loss adds slab edge from a typed F-factor x exterior wall length", ()
   assert.ok(Math.abs(h.designBtuh - h.ua * 40) < 1e-9);
   assert.equal(validateInsulation({ assembly: { slabEdgeF: 3 } }).length, 1);
 });
+
+test("heat loss adds air leakage: ACH50 / N x volume x 0.018", () => {
+  const r = { walls: [wall([m(0, 0, 96, 1.5), m(0, 94.5, 96, 1.5), m(0, 1.5, 1.5, 93)])] };
+  const p = { defaultHeaderHeight: 82.5, walls: [{ id: "A", length: 96, openings: [] }] };
+  const base = layoutInsulation({ assembly: {} }, p, r).assembly.heat;
+  assert.equal(base.infiltrationUA, null);
+  const h = layoutInsulation({ assembly: { ach50: 3, nFactor: 20, volumeCuFt: 16000, designDeltaF: 50 } }, p, r).assembly.heat;
+  assert.ok(Math.abs(h.achNat - 0.15) < 1e-9);
+  assert.ok(Math.abs(h.infiltrationUA - 43.2) < 1e-9); // 0.15 x 16000 x 0.018
+  assert.ok(Math.abs(h.ua - (base.ua + 43.2)) < 1e-9);
+  assert.match(insulationText(layoutInsulation({ assembly: { ach50: 3, nFactor: 20, volumeCuFt: 16000 } }, p, r)).join("\n"), /Air leakage: 3 ACH50 \/ N 20 = 0.15/);
+  assert.equal(validateInsulation({ assembly: { ach50: 3 } }).length, 1); // needs all three
+  assert.equal(validateInsulation({ assembly: { ach50: 3, nFactor: 20, volumeCuFt: 16000 } }).length, 0);
+});
