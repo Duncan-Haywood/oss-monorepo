@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01XpHqyesFn1hk9xCUBqdj6J",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": "I think one thing worth doing is getting some platform content generation for platforms. not violating tos or anything but automated marketing across a variety of platforms.",
+  "input_sha256": "e3fdc13402a7738bd307772dab21a06e74668352cd89dc8bbac4d755835709d3",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T00:28:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Owner request: automated, ToS-compliant marketing content across many platforms. Built an extractive content engine for the distribution hub.",
+  "projects": [
+    "platform/distribution"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 14,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/distribution/hub/compose.mjs",
+      "issue": "BASE_URL (and bluesky.mjs BASE_URL) still name duncan-haywood.github.io/oss-monorepo/ although the site moved to marisstella.app on 2026-10-30; links still work via redirect stubs that keep ?ref=, but cost a hop. Left for a separate change because many tests pin the old URL."
+    },
+    {
+      "file": ".github/workflows/distribution-versions-ci.yml",
+      "issue": "hub.test.mjs, shorts.test.mjs and launch-kit.test.mjs ran in no pull-request workflow; added them (and the new content.test.mjs) to this job."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-31-threads-from-the-posts-own-words.md",
+    "docs/reports/2026-10-31-content-kit-sample.md"
+  ],
+  "goal": null,
+  "notes": "New platform/distribution/hub/content.mjs extracts a post's lead, numeric findings and stated limits verbatim and lays them out as threads (X 280, Bluesky 300, Threads/Mastodon 500), LinkedIn, Reddit (with affiliation disclosure), HN first comment, carousel slides and a video script. Draft-mode platforms get it in `pack`; new `hub.mjs kit` writes every shape; the daily distribute-hub job adds kits for the last day's posts to its uploaded artifact (files only, posts nothing). api/delegated platforms' text is unchanged (tested). Corpus check over all docs/posts: 1,456 of 1,470 yield a kit, avg 3.35 findings and 1.35 limits, 0 sentences not verbatim, 0 pieces over limit. Fixed during build: code spans losing <n> to the HTML stripper; empty description deduping every sentence away; grapheme counting cut from ~63 s to ~6 s over the corpus with an exact fast path. Local: node --test hub.test.mjs hub/content.test.mjs shorts.test.mjs launch-kit.test.mjs bluesky mastodon attribution devto hashnode: 85/85 pass; versions.mjs --check current; workflow YAML parses; new post loads (description 158, seo_title 59).",
+  "corrections": [],
+  "redteam": null
+}
