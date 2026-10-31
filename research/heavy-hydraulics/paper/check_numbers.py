@@ -46,6 +46,10 @@ CHECKS = [
     ("2.64% at 1.2 times", "time_penalised_rated_results.txt", "median time penalty 2.64%; break-even dp_ls 34.0"),
     ("16.81% at 0.8 times", "time_penalised_rated_results.txt", "median time penalty 16.81%; break-even dp_ls 38.9"),
     ("36.1 bar (34.0 to 38.9", "time_penalised_rated_results.txt", "break-even dp_ls 36.1"),
+    ("1.14 times the rated flow at 10 bar", "pvg_flow_rating_results.txt", "median Q10/rated 1.14"),
+    ("about 7.3 bar (spools A to E)", "pvg_flow_rating_results.txt", "spools A to E only: 7.3"),
+    ("exponent between the two margins is 0.53", "pvg_flow_rating_results.txt", "median exponent 0.53"),
+    ("from 0.38 to 0.96", "pvg_flow_rating_results.txt", "range 0.38 to 0.96"),
     ("LS/OC is 0.663 against 0.757", "time_penalised_rated_results.txt", "LS/OC at 14 bar 0.663"),
 ]
 
