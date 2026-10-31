@@ -244,3 +244,19 @@ test('a siding joint beside a window gets a nailer, ripped to fit where the gap 
   // A wall with no opening near a joint needs no nailer.
   assert.equal(buildShed({ ...base, openings: [] }).members.filter((m) => m.kind === 'siding nailer').length, 0);
 });
+
+test('a 40 ft wall with 12 ft plates chooses its plate joints in bounded time (junk sweep, seed 302, #272)', { timeout: 90000 }, () => {
+  // Long walls have more top-plate joint sets than can be tried; this one hung the junk sweep.
+  const d = {
+    ...defaultDesign(), length: '1e3', overhang: null, studSize: 1e9, rafterSpacing: '1e3', beamSize: false, compaction: '12', laborRate: '12', floorTreated: '', windLoad: '2x4', roofColor: [], interior: -1, insulation: '1e3',
+    openings: [
+      { id: 'o1', kind: 'door', wall: 'front', offset: 1e9, width: 38.5, height: 78, product: 'site-built' },
+      { id: 'o2', kind: 'window', wall: 'back', offset: 32, width: '1e3', height: 21.25, sill: 44, product: 0 },
+      { id: 'o3', kind: 'window', wall: 'PT 2x4', offset: 98, width: 14.25, height: 21.25, sill: 44, product: 'swm-1421' },
+    ],
+  };
+  const t = Date.now();
+  const s = buildShed(d);
+  assert.ok(Date.now() - t < 60000, `${Date.now() - t} ms`);
+  assert.ok(s.members.some((m) => m.kind === 'top plate'));
+});

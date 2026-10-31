@@ -1260,7 +1260,11 @@ function buildFramed(d, lapNailers) {
       const cap0 = splitRun(c0, c1, stock, breakCenters, tj0, 48);
       if (!tj0.length || cap0.runs.slice(1).every((x) => clearOf(tj0, 48)(x[0]))) return { top: top0, cap: cap0, overHeader: false };
       for (const [breaks, gap] of [[breakCenters, 48], [breakCenters, PLATE_OFFSET_MIN], [[...breakCenters, ...headerBreaks], PLATE_OFFSET_MIN]]) {
+        // jointSets bounds its dead ends, not its answers: a long wall has more
+        // top-plate joint sets than can be tried, so try the first few hundred.
+        let tries = 0;
         for (const tj of jointSets(0, len, stock, breaks, () => true, 400)) {
+          if (++tries > 300) break;
           const cj = jointSets(c0, c1, stock, breaks, clearOf(tj, gap), 400).next().value;
           if (!cj) continue;
           const overHeader = [...tj, ...cj].some((x) => !breakCenters.some((c) => Math.abs(c - x) < 1e-9));
