@@ -51,3 +51,25 @@ test("bad dimensions are refused", () => {
   assert.ok(validateDormer({ ...base, spacing: 20 }).length);
   assert.equal(layoutDormer({ ...base, pitch: 30 }).ok, false);
 });
+
+test("roof opening: headers, trimmers and cut rafters by hand", () => {
+  const r = layoutDormer({ ...base, roofOpening: true });
+  assert.ok(r.ok, JSON.stringify(r.errors));
+  const k = Math.sqrt(1 + (8 / 12) ** 2);
+  assert.equal(r.opening.depth, 72);
+  assert.equal(r.opening.slopeLength, r16(72 * k));
+  assert.equal(r.opening.cutMainRafters, 5); // 96 / 16 = 6 bays, 5 rafters inside
+  assert.equal(get(r, "roof opening header (2 plies, up- and downslope)")[0].count, 4);
+  assert.equal(get(r, "roof opening header (2 plies, up- and downslope)")[0].length, 96);
+  assert.equal(get(r, "roof opening trimmer (doubled)")[0].length, r16(72 * k + 3));
+  assert.equal(r.opening.area, 48);
+  assert.equal(layoutDormer(base).opening, undefined);
+});
+
+test("roof opening honours depth, spacing and sizes; bad values refused", () => {
+  const r = layoutDormer({ ...base, roofOpening: { depth: 48, mainSpacing: 24, headerSize: "2x10" } });
+  assert.equal(r.opening.cutMainRafters, 3); // 4 bays
+  assert.equal(get(r, "roof opening trimmer (doubled)")[0].size, "2x10");
+  assert.ok(validateDormer({ ...base, roofOpening: { depth: 3 } }).length);
+  assert.ok(validateDormer({ ...base, roofOpening: { mainSpacing: 20 } }).length);
+});
