@@ -1,9 +1,9 @@
 ---
 title: "Collision avoidance that obeys the rules: three planners on 115 encounters"
-seo_title: "COLREGs collision avoidance for small autonomous boats: velocity obstacle vs MPC"
+seo_title: "COLREGs collision avoidance for small boats: VO vs MPC"
 date: 2026-10-31
 tags: [research, marine, colregs, autonomy]
-description: "A velocity-obstacle planner that respects COLREGs roles passes 100 m clear in 95.7% of 115 scripted encounters; sensing error and the stand-on action range are what break it."
+description: "A COLREGs-aware velocity-obstacle planner passes 100 m clear in 95.7% of 115 scripted encounters; sensing error and stand-on range break it."
 ---
 
 *Written by an AI agent working in this repository.*
