@@ -13,37 +13,32 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just read the workflow myself?","acceptedAnswer":{"@type":"Answer","text":"For a single file you should, and you will find most of this. The two places reading breaks down are scale and recurrence. Scale: a repository with a dozen workflow files has to be read as a set, because one of these defects — two workflows deploying the same environment under different concurrency group names — is not present in either file. Recurrence: the reading is only true for the day it was done, and a workflow that gains a second deploy job six months later reintroduces the defect against a review that already happened."}},{"@type":"Question","name":"What does a checker see that a careful reader does not?","acceptedAnswer":{"@type":"Answer","text":"Nothing, on one file, read carefully, by someone who already knows all five patterns. That last clause is where the value is: the pattern that costs the most — a concurrency group keyed on something that changes every run — looks correct to a reader who has not been caught by it before, because the block is present and correctly spelled. A checker does not have to have been caught by it before, and it reads the twelfth file as carefully as the first."}},{"@type":"Question","name":"Can I run the check automatically instead of visiting a page?","acceptedAnswer":{"@type":"Answer","text":"Yes, and that is the point of the CLI. check.py takes a directory of workflows and --fail-on-risk exits 1 on a high-risk finding, so it can run in the same pull request that changes a workflow. That converts the reading from something someone has to remember to do into something that happens on the diff that would have introduced the problem. It is Python standard library only, with no network access and no GitHub token."}},{"@type":"Question","name":"Does the checker replace understanding the problem?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not built to. Every finding names the line, explains what goes wrong in terms of what a user would see, and prints the fix, because a finding you do not understand is one you will either apply wrongly or suppress. The explainer page is there for the same reason. A team that reads the findings and then decides a given race is acceptable for their target has used this correctly."}}]}</script>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #fbfbfa; --fg: #1a1a19; --muted: #53534f; --card: #fff;
-    --border: #e2e2dd; --accent: #1f5f3f; --code: #f2f2ef;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #17181a; --fg: #ececeb; --muted: #a8a8a3; --card: #202124;
-      --border: #34353a; --accent: #7fd0a4; --code: #26272b;
-    }
+    --bg: #f2f4f7; --fg: #1b1f2a; --muted: #55606f; --card: #fff;
+    --border: #d5dbe3; --accent: #17604a; --code: #f7f9fb; --head: #17324a;
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--fg);
-    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    font: 16px/1.55 system-ui, sans-serif; }
   .wrap { max-width: 54rem; margin: 0 auto; padding: 2rem 1.1rem 4rem; }
-  h1 { font-size: 1.8rem; line-height: 1.22; margin: 0 0 .5rem; max-width: 26ch; }
-  h2 { font-size: 1.12rem; margin: 2rem 0 .55rem; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; margin: 0 0 .5rem; color: var(--head); }
+  h2 { color: var(--head); font-size: 1.15rem; margin: 2rem 0 .55rem; }
   h3 { font-size: 1rem; margin: 1.4rem 0 .35rem; }
   p.lede { color: var(--muted); font-size: 1.05rem; max-width: 44rem; }
   a { color: var(--accent); overflow-wrap: anywhere; }
   section { background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; padding: 1.1rem 1.15rem; margin-top: 1.25rem; }
+    border-radius: 14px; padding: 22px; margin-top: 18px;
+    box-shadow: 0 8px 24px #17324a10; }
   .scroll { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .93rem; }
   th, td { text-align: left; padding: .55rem .6rem; border-bottom: 1px solid var(--border);
     vertical-align: top; }
   thead th { font-size: .82rem; text-transform: uppercase; letter-spacing: .04em;
     color: var(--muted); }
-  code { background: var(--code); padding: .08em .3em; border-radius: 4px; font-size: .92em; }
-  pre { background: var(--code); border: 1px solid var(--border); border-radius: 6px;
+  code { overflow-wrap: anywhere; word-break: break-word; }
+  pre { background: var(--code); border: 1px solid var(--border); border-radius: 8px;
     padding: .65rem .75rem; overflow-x: auto; font-size: .85rem; }
   .fine { font-size: .87rem; color: var(--muted); }
+  section > h2:first-child { margin-top: 0; }
   a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 </style>
 </head>
