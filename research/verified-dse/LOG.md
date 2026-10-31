@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-31 · Milestone 45: does the rank displacement rho/k grow with pool size? (exploratory; no predictions were written before the script ran)
+- Why: milestone 44's "Next". `experiments/theory/optimum_rank_n.py` (no flow run, a few seconds) subsamples each of the 20 cached r1-start cells to n' = 20, 30, 40, 50 candidates (200 subsamples each, the optimum recomputed on the subsample, keeps n'//3, n'//9, n'//27 floored at 1) and takes the worst rho_j/k_j over the three cuts.
+- Outcome (`optimum_rank_n_results.txt`): median rho/k 2.33, 2.60, 3.00, 3.00 and mean 4.2, 5.7, 7.2, 8.9 at n' = 20, 30, 40, 50; the share of subsamples with rho/k <= 1 falls 0.168, 0.130, 0.086, 0.050 and the share <= 2 falls 0.475, 0.474, 0.414, 0.300. So the zero-regret assumption D(1) gets harder as the pool grows, not easier.
+- Reading: this is partly built in. The last cut keeps k = 1 at every n' tested, so its ratio is the raw count rho_3, which can only grow with the pool, while the earlier cuts' k grow with n'. The result says the assumption cannot be expected to hold on larger pools; it does not say how fast rho/k grows beyond 50.
+- Limits: pools are capped at the 50 to 52 cached candidates, so nothing above n' = 50 is measured; subsamples of one table overlap, so the 200 draws per cell are not independent; no tests (script only); the two clocks and ten designs are 20 cells, not 20 independent designs.
+- Next: a pool above 52 candidates needs new flow runs (OpenROAD); until then rho/k at larger n is untested.
+
 ## 2026-10-30 · Milestone 44: how far do the rungs displace the pool optimum, and is a rank assumption on it enough for zero regret? (exploratory; no predictions were written before the script ran)
 - Why: milestone 43 said a pilot-side guarantee needs an assumption on the optimum's own excess. The simplest one is rank displacement: x* is cut at a cut keeping k only if at least k rivals rank at or ahead of it, so if rho_j (rivals at or ahead of x* under cut j's score) is below k_j at every cut, regret is exactly 0 (the kappa = 0 case of milestone 39). `experiments/theory/optimum_rank.py` (no flow run, about 5 s) measures rho_j / k_j on the 40 cached cells and checks the implication over 200 tie-breaks each.
 - Outcome (`optimum_rank_results.txt`): the implication holds (0 of the 11 guaranteed cells shows any regret). Cells whose worst rho/k is at most 1, 2 and 4: 13, 21 and 29 of 40; median 1.97. Where rho/k > 1, only 0.167 of tie-breaks reach zero regret on average.

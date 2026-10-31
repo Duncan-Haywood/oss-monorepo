@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01E5sJKkUJDpKTBTUp9ftZPd",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T05:21:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12018",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/sim2real-inference/LOG.md",
+      "issue": "drawn programme was saturated: remaining items blocked on owner/data, so I moved to another programme"
+    },
+    {
+      "file": "research/build-data/PROPOSAL.md",
+      "issue": "milestone 1 needs data.sfgov.org/austintexas/cityofchicago, all 403 through the proxy this run; the 10-31 session reached them"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "drawn programme sim2real-inference had no unblocked step and build-data was blocked by proxy 403s; advanced verified-dse instead",
+      "did": "ran the offline milestone 45 script before logging predictions",
+      "result": "disclosed as exploratory in LOG.md"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-31-bigger-design-pools-make-zero-regret-search-harder.md",
+    "research/verified-dse/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Small step; build-data milestone 1 still open pending network access.",
+  "corrections": [],
+  "redteam": null
+}
