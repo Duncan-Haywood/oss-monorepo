@@ -42,6 +42,11 @@ CHECKS = [
     ("29.4 at k = 2", "time_penalised_results.txt", "break-even dp_ls 29.4"),
     ("28.3 at k = 3", "time_penalised_results.txt", "break-even dp_ls 28.3"),
     ("29.5 at k = 10", "time_penalised_results.txt", "k 10.0: median time penalty 0.00%; break-even dp_ls 29.5"),
+    ("6.25% at 1.0 times rated", "time_penalised_rated_results.txt", "median time penalty 6.25%; break-even dp_ls 36.1"),
+    ("2.64% at 1.2 times", "time_penalised_rated_results.txt", "median time penalty 2.64%; break-even dp_ls 34.0"),
+    ("16.81% at 0.8 times", "time_penalised_rated_results.txt", "median time penalty 16.81%; break-even dp_ls 38.9"),
+    ("36.1 bar (34.0 to 38.9", "time_penalised_rated_results.txt", "break-even dp_ls 36.1"),
+    ("LS/OC is 0.663 against 0.757", "time_penalised_rated_results.txt", "LS/OC at 14 bar 0.663"),
 ]
 
 
