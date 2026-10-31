@@ -119,6 +119,8 @@ test("the page frames a floor through floor.mjs and pools its lumber with the wa
   const html = page("index.html");
   for (const id of ["flOn", "flW", "flD", "flJoist", "flSpacing", "flBeam", "flCant", "flBlock", "flUnder", "flOpen", "floorOut"]) assert.match(html, new RegExp(`id="${id}"`), id);
   assert.match(html, /layoutFloor\(plan\.floor, plan\)/);
+  assert.match(html, /fl\.cantilever = L\(\$\("#flCant"\)\.value/); // read into the plan
+  assert.match(html, /\$\("#flCant"\)\.value = fl\.cantilever/); // and restored from a saved plan
   assert.match(html, /takeoff\(plan, floorExtra\)/);
   assert.match(html, /takeoff\(plan, \[\.\.\.extra, \.\.\.floorExtra\]\)/);
 });
@@ -307,12 +309,14 @@ test("the bid leveling card parses lines into plan.bids, restores them and level
 
 test("the deck controls are read into plan.deck, restored from a saved plan and drawn in the deck card", () => {
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
-  for (const id of ["dkOn", "dkWidth", "dkDepth", "dkHeight", "dkJoist", "dkSpacing", "dkBeam", "dkPost", "dkFree", "dkGuard", "dkGuardSides", "dkStair", "deckOut"]) assert.match(html, new RegExp(`id="${id}"`));
+  for (const id of ["dkOn", "dkWidth", "dkDepth", "dkHeight", "dkJoist", "dkSpacing", "dkBeam", "dkPost", "dkFree", "dkGuard", "dkGuardSides", "dkStair", "dkBorder", "deckOut"]) assert.match(html, new RegExp(`id="${id}"`));
   assert.match(html, /plan\.deck = dk/);
   assert.match(html, /layoutDeck\(plan\.deck\)/);
   assert.match(html, /\$\("#dkOn"\)\.checked = Boolean\(dkp\)/);
   assert.match(html, /dk\.guard = false/);
   assert.match(html, /dk\.stairs = \{\}/);
+  assert.match(html, /dk\.border = Number\(\$\("#dkBorder"\)\.value\)/);
+  assert.match(html, /\$\("#dkBorder"\)\.value = dkp\?\.border === true/);
   assert.match(html, /totalRise: plan\.deck\.height/);
   assert.match(html, /\$\("#dkStair"\)\.value = dkp\?\.stairs/);
   assert.match(html, /\$\("#dkGuard"\)\.value = dkp\?\.guard === false/);

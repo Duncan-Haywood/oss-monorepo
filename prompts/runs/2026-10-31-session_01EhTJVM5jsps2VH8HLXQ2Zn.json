@@ -33,7 +33,8 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Page field for floor.cantilever; page/floor tests 51 pass; Chromium run on the example house gave a 40x30 ft floor. Small slice: the ROADMAP's flagship items mostly need real plans, which this run could not source.",
+  "notes": "Built a page field for floor.cantilever, then found PR 12000 had landed the same feature; dropped mine and kept only the post front-matter fix (the push hook rejected the earlier post). Duplicate-PR search was skipped at the start: lesson, search open PRs before building.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "result": "duplicate of #12000; front-matter fix only"
 }
