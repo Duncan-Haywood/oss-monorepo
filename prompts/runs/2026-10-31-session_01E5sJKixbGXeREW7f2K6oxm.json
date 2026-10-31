@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01E5sJKixbGXeREW7f2K6oxm",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T10:13:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12066",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 runs git fetch of security-alerts, which does not exist; fails with fatal error (already reported by review PR 12026)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Routed to review but PR 12026 already claimed it; re-routed with --skip-review as instructed.",
+      "did": "creative track",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-31-why-a-cold-church-organ-goes-out-of-tune-with-itself.md"
+  ],
+  "goal": null,
+  "notes": "hearth-and-horizon / the-pitch-of-the-cold-church; text only (audio 423 MB over cap).",
+  "corrections": [],
+  "redteam": null
+}
