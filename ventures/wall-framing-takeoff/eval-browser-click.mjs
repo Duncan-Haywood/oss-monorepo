@@ -234,6 +234,17 @@ await page.click("#run");
 await page.waitForFunction(() => /Landing post check: write soil/.test(document.body.textContent));
 console.log("ok: malformed landing post field refused on the page");
 await page.fill("#stLandPosts", "");
+// Stair guard and handrail: typed sides and handrail height reach the stairs card and the order.
+await page.fill("#stRise", "9'");
+await page.fill("#stRail", "2, 36");
+await page.click("#run");
+await page.waitForFunction(() => /guard|Guard|baluster/i.test(document.querySelector("#stairsOut")?.textContent || ""));
+console.log("ok: stair guard and handrail typed on the page and shown on the stairs card");
+await page.fill("#stRail", "3");
+await page.click("#run");
+await page.waitForFunction(() => /Guard and handrail: write the number/.test(document.body.textContent));
+console.log("ok: malformed guard field refused on the page");
+await page.fill("#stRail", "");
 // Deck post check: typed loads and wood figures reach the deck card.
 await page.check("#dkOn");
 await page.fill("#dkWidth", "16'"); await page.fill("#dkDepth", "12'"); await page.fill("#dkHeight", "36 in");
