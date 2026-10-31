@@ -1,5 +1,6 @@
 ---
 title: "An 8 kg Froude model of a cargo UAV needs its centre of gravity within 6 mm"
+seo_title: "An 8 kg Froude cargo UAV model needs its CG within 6 mm"
 date: 2026-10-28
 description: "A 1:5 model of a 1,000 kg cargo aircraft matches full-size flight modes within 5% only if its CG is placed within +/-6 mm (aerolog-scaling, 7h)."
 tags: [research, aerolog-scaling, scaling, uav]

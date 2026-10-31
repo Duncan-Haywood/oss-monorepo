@@ -1,5 +1,6 @@
 ---
 title: "The Choose File button on 298 tool pages now matches the form around it"
+seo_title: The Choose File button on 298 tool pages now matches the form
 description: "On a phone, the AI Bookkeeper import form showed a grey native file button between styled fields. One shared stylesheet rule now fixes every page that has one."
 date: 2026-10-28
 category: tools

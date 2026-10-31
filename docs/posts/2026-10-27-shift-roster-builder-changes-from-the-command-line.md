@@ -1,5 +1,6 @@
 ---
 title: "Shift roster builder prices late schedule changes from the command line"
+seo_title: "Shift roster builder prices late schedule changes from the CLI"
 date: 2026-10-27
 description: "node cli.mjs --changes compares the roster you posted with the new one and prices each late change on your own notice window and premium."
 tags: [shift-roster-builder, scheduling, cli]

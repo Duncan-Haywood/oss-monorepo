@@ -1,5 +1,6 @@
 ---
 title: "Agents can now ask ai-bookkeeper for cash-basis profit in the same call"
+seo_title: "Agents can now ask ai-bookkeeper for cash-basis profit"
 date: 2026-10-28
 description: "ai-bookkeeper's agent engine returns cash-basis profit beside accrual profit whenever invoices or bills are supplied, matching the CLI and the page."
 tags: [ai-bookkeeper, agents, bookkeeping]
