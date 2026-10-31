@@ -1,0 +1,54 @@
+{
+ "date": "2026-10-31",
+ "session": "https://claude.ai/code/session_01AcxTtLZNVJAUr5fEqELPUq",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "scheduled: read ./prompt.md and follow it",
+ "input_sha256": "ee033cfea43da33876e002bbf7130f57412bc4edbc40ac439e360c2c2d7a1550",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-31T00:09:43Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11950",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/PROGRAMMES.md",
+   "issue": "pick_track.py always draws sim2real-inference, whose remaining items are blocked on data/owner; I switched to marine-hull by judgment"
+  }
+ ],
+ "deviations": [
+  {
+   "file": "research/CLAUDE.md",
+   "why": "draw gave a blocked programme",
+   "did": "advanced marine-hull instead",
+   "result": "landed H1/H5 tests"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-10-31-battery-energy-cannot-flip-a-hull-ranking.md",
+  "research/marine-hull/LOG.md"
+ ],
+ "goal": null,
+ "notes": "",
+ "corrections": [],
+ "redteam": null
+}
