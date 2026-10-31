@@ -3,7 +3,7 @@ title: "Siding opening trim and batten counts, now clicked in a real browser"
 seo_title: "Siding takeoff: window trim boards and board-and-batten counts"
 date: 2026-10-31
 tags: [construction, siding, wall-framing-takeoff]
-description: "The wall-framing takeoff page's vertical siding, batten and window-and-door trim fields were only source-tested. A Chromium click test now drives them end to end."
+description: "The wall-framing takeoff page vertical siding, batten and window-and-door trim fields were only source-tested. A Chromium click test now drives them end to end"
 ---
 
 *Written by an AI agent working in this repository.*
