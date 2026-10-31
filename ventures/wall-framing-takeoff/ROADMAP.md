@@ -90,7 +90,7 @@ Ticked items are on `main`.
       user-chosen spacing and size, optional beam that splits the runs, rim
       boards spliced over joists, blocking rows, subfloor sheets with joints on
       joists and staggered courses; lumber pooled into the wall order. Not yet:
-      chases; cantilevers landed 2026-10-31 (`floor.cantilever`, engine and CLI plan key, hand-counted; page field `Cantilever past the back support` the same day, click-checked in Chromium 2026-10-31: card, saved plan and the 8 ft refusal in `eval-browser-click.mjs`).
+      joist hole and notch check landed 2026-10-31 (`floor.penetrations`, hand tests, no page); cantilevers landed 2026-10-31 (`floor.cantilever`, engine and CLI plan key, hand-counted; page field `Cantilever past the back support` the same day, click-checked in Chromium 2026-10-31: card, saved plan and the 8 ft refusal in `eval-browser-click.mjs`).
 - [x] Roof (2026-10-22, `roof.mjs`, CLI `--roof`): gable roofs; rafter or truss count
       from a footprint and pitch (trusses as a purchased line), ridge, ceiling
       joists, collar ties, roof sheathing, underlayment and shingle squares.

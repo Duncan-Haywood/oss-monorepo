@@ -16,7 +16,7 @@ import { THICK, EPS, DEPTH, optimizeStock, formatLength, formatInches } from "./
 const DOUBLE = 2 * THICK;
 export const SHEET = { width: 48, length: 96 };
 
-/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, cantilever?: number, blockingRows?: number, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
+/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, cantilever?: number, blockingRows?: number, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], penetrations?: { type: "hole"|"notch", at: number, size: number, length?: number, fromEdge?: number, end?: boolean }[], limits?: { hole?: number, holeEdge?: number, notch?: number, endNotch?: number, notchLength?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
 
 export function sampleFloor() {
   return { id: "Main floor", width: 480, depth: 336, joist: "2x10", spacing: 16, rim: true, beam: 168, blockingRows: 0 };
@@ -55,6 +55,37 @@ export function validateFloor(f, plan) {
   const longest = Math.max(0, ...plan.stock.filter((s) => s.size === f.joist).map((s) => s.length));
   if (!longest) errors.push(`No ${f.joist} boards listed in the stock.`);
   return errors;
+}
+
+/**
+ * Holes and notches in a joist of `size` over a clear `span`, against limits you can override (defaults are
+ * the commonly printed residential figures: a hole no wider than 1/3 of the depth and 2 in from the edges, a
+ * notch no deeper than 1/6 of the depth and 1/3 of it long, kept out of the middle third of the span, an end
+ * notch no deeper than 1/4; the code in force for your site decides). `at` is the distance from the nearer
+ * support to the centre of a hole or the nearer end of a notch. Returns one row per item with what it breaks.
+ */
+export function checkPenetrations(size, span, items = [], limits = {}) {
+  const d = DEPTH[size];
+  const L = { hole: 1 / 3, holeEdge: 2, notch: 1 / 6, endNotch: 1 / 4, notchLength: 1 / 3, ...limits };
+  return items.map((p, i) => {
+    const why = [];
+    if (p.type === "hole") {
+      if (p.size > L.hole * d + EPS) why.push(`hole ${formatInches(p.size)} is over ${formatInches(L.hole * d)} (${(100 * L.hole).toFixed(0)}% of the ${formatInches(d)} depth)`);
+      const edge = p.fromEdge ?? (d - p.size) / 2;
+      if (edge < L.holeEdge - EPS || d - edge - p.size < L.holeEdge - EPS) why.push(`hole edge is under ${formatInches(L.holeEdge)} from the top or bottom`);
+      if (p.at < d - EPS) why.push(`hole centre is closer to the support than one joist depth (${formatInches(d)}); a rule of thumb, check your code`);
+    } else if (p.type === "notch") {
+      const end = p.end === true;
+      const max = (end ? L.endNotch : L.notch) * d;
+      if (p.size > max + EPS) why.push(`${end ? "end " : ""}notch ${formatInches(p.size)} deep is over ${formatInches(max)}`);
+      if (!end) {
+        if (p.length != null && p.length > L.notchLength * d + EPS) why.push(`notch ${formatInches(p.length)} long is over ${formatInches(L.notchLength * d)}`);
+        if (p.at > span / 3 - EPS && p.at + (p.length ?? 0) < 2 * span / 3 + EPS) why.push("notch sits in the middle third of the span");
+        else if (p.at + (p.length ?? 0) > span / 3 + EPS && p.at < 2 * span / 3 - EPS) why.push("notch reaches into the middle third of the span");
+      } else if (p.length != null && p.length > d + EPS) why.push(`end notch is longer than the joist is deep`);
+    } else why.push(`unknown type ${p.type}`);
+    return { n: i + 1, ...p, ok: why.length === 0, why };
+  });
 }
 
 /**
@@ -220,9 +251,11 @@ export function layoutFloor(f, plan) {
   const hangers = { tail: tailEnds, singles: tailEnds, doubles: headerEnds, count: tailEnds + headerEnds, size: f.joist };
   if (hangers.count) notes.push(`${hangers.count} joist hanger${hangers.count === 1 ? "" : "s"} counted (${tailEnds} single at tail-joist ends, ${headerEnds} double at header ends), sized for ${f.joist}; model and load rating are the engineer's call.`);
   if (cant) notes.push(`Joists cantilever ${formatLength(cant)} past the back support, ${(cant / f.depth).toFixed(2)} of the ${formatLength(f.depth)} supported span${cant > f.depth / 3 + EPS ? "; that is more than a third of it, and a common rule of thumb asks for the backspan to be at least 3 times the overhang, so have the engineer check it" : ""}. Cantilever size, backspan nailing and any tie-down are the engineer's call.`);
+  const pen = f.penetrations?.length ? checkPenetrations(f.joist, f.beam != null ? Math.max(f.beam, f.depth - f.beam) : f.depth, f.penetrations, f.limits) : [];
+  for (const h of pen) if (!h.ok) notes.push(`Joist ${h.type} ${h.n}: ${h.why.join("; ")}. Move it, sleeve it or ask the engineer.`);
   notes.push("Joist size and spacing are your inputs and are not checked against a span table or code; bearing, other hangers and fasteners are not in the takeoff.");
   return {
-    ok: true, hangers, openings, trimmers, id, width: f.width, depth: total, supportedDepth: f.depth, cantilever: cant, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
+    ok: true, penetrations: pen, hangers, openings, trimmers, id, width: f.width, depth: total, supportedDepth: f.depth, cantilever: cant, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
     sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 },
     notes,
   };
