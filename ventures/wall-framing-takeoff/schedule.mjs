@@ -255,7 +255,7 @@ export function sampleSchedule() {
       { id: "slab", name: "Slab", days: 2, after: ["cure"], crew: "concrete" },
       { id: "walls", name: "Wall framing", days: 8, after: ["slab"], crew: "framing" },
       { id: "roof", name: "Roof framing", days: 5, after: ["walls"], crew: "framing" },
-      { id: "plumb", name: "Rough plumbing", days: 3, after: ["walls"] },
+      { id: "plumb", name: "Rough plumbing", days: 3, after: ["walls"], notBefore: "2026-04-03" },
       { id: "insp", name: "Framing inspection", days: 1, after: ["roof", "plumb"], lag: 2 },
       { id: "drywall", name: "Drywall", days: 6, after: ["insp"] },
     ],
