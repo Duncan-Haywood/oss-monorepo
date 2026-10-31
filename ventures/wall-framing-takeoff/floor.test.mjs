@@ -318,3 +318,16 @@ test("stair top reaction adds a mid-span point load to the header it hangs from,
   assert.ok(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, stairReaction: 400 } }, plan()).errors.some((e) => /stairSide/.test(e)));
   assert.ok(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, stairReaction: 400, stairSide: "front", stairReactionLive: 900 } }, plan()).errors.some((e) => /stairReactionLive/.test(e)));
 });
+
+test("trimmer end reaction is checked against a typed bearing capacity", () => {
+  const hc = { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 180, E: 1300000 };
+  const o = [{ x: 100, y: 30, width: 36, depth: 100 }];
+  const base = layoutFloor({ ...sampleFloor(), openings: o, headerCheck: hc }, plan()).trimmerChecks[0];
+  const big = Math.max(...base.reactions);
+  const pass = layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, bearingCapacity: big + 1 } }, plan()).trimmerChecks[0];
+  assert.ok(!pass.breaks.some((b) => /bearing/.test(b)));
+  const weak = layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, bearingCapacity: big - 1 } }, plan()).trimmerChecks[0];
+  assert.equal(weak.ok, false);
+  assert.ok(weak.breaks.some((b) => /bearing capacity/.test(b)));
+  assert.ok(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, bearingCapacity: 0 } }, plan()).errors.some((e) => /bearingCapacity/.test(e)));
+});
