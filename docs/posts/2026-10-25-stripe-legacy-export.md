@@ -1,5 +1,6 @@
 ---
 title: "Stripe's older export has no payout column, so we read the Transfer column"
+seo_title: "Stripe's older export has no payout column: read Transfer instead"
 date: 2026-10-25
 description: "ai-bookkeeper refused Stripe's legacy All-transactions CSV. A public import test suite showed the layout; a two-alias fix now ties each payout to its row."
 tags: [ai-bookkeeper, stripe, bookkeeping]

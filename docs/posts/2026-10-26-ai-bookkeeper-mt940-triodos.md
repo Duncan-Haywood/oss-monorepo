@@ -1,5 +1,6 @@
 ---
 title: "Six real Dutch MT940 layouts, one bank's markers leaking into descriptions"
+seo_title: "Six real Dutch MT940 layouts and a bank's leaking markers"
 date: 2026-10-26
 description: "We ran six MT940 statements from a public test folder (ABN AMRO, ING, KNAB, Rabobank, SNS, Triodos; real layouts, made-up rows) through ai-bookkeeper's..."
 tags: [ai, ventures]

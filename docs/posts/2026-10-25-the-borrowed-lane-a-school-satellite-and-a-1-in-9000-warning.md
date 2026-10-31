@@ -1,5 +1,6 @@
 ---
 title: "The Borrowed Lane: a school satellite, a 1-in-9,000 warning and a rule made before the number"
+seo_title: "The Borrowed Lane: a school satellite and a 1-in-9,000 warning"
 date: 2026-10-25
 description: "New Hearth & Horizon story: a Ugandan school's cubesat, a dead rocket stage at 200 m, and why more tracking can make a collision chance go up."
 tags: [hearth-and-horizon, fiction, space-safety]

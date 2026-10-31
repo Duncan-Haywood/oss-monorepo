@@ -1,5 +1,6 @@
 ---
 title: "Saudi credit notes are Invoice documents, and a CreditNote root breaks the rules"
+seo_title: "Saudi ZATCA credit notes are Invoice documents, not CreditNote"
 date: 2026-10-25
 description: "Adding credit notes to einvoice-preflight's ZATCA checks showed that the rules expect an Invoice root with type code 381, and misfire on a UBL CreditNote."
 tags: [einvoice-preflight, zatca, e-invoicing]
