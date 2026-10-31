@@ -1,4 +1,0 @@
-/home/user/oss-monorepo/research/aerolog-scaling/experiments/output_error_fit_10pct/run.py:146: RuntimeWarning: overflow encountered in matmul
-  xs[i + 1] = ph @ xs[i]
-/home/user/oss-monorepo/research/aerolog-scaling/experiments/output_error_fit_10pct/run.py:146: RuntimeWarning: invalid value encountered in matmul
-  xs[i + 1] = ph @ xs[i]
