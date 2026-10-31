@@ -1,5 +1,6 @@
 ---
 title: "Checking the changepoint detector on 112 years of coal-mining disasters"
+seo_title: "Changepoint detector on 112 years of coal-mining disasters"
 date: 2026-10-26
 description: "The textbook Poisson changepoint series, run through changepoint-detector: it finds the fall near 1892 and its 95% range holds the published 1890."
 tags: [changepoint-detector, statistics, poisson]

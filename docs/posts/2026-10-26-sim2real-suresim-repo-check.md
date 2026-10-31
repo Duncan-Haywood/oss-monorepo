@@ -1,5 +1,6 @@
 ---
 title: "We looked for SureSim's data to explain a 14.4% gap, and the repo is an empty template"
+seo_title: "SureSim's repo is an empty template: a 14.4% gap unexplained"
 date: 2026-10-26
 description: "Our betting interval never beat real-only trials in SureSim's stated setting. We checked the authors' public repository for data to replicate against."
 tags: [sim2real-inference, research, prediction-powered-inference]

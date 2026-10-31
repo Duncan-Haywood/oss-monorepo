@@ -1,5 +1,6 @@
 ---
 title: "Checking a shift scheduler against an independent solver found a search gap, not a proof gap"
+seo_title: "Shift scheduler vs an independent solver: a search gap"
 date: 2026-10-26
 description: "Eight seeded 10-person, 28-shift weeks, checked against HiGHS: two weeks left more shifts open than needed, and more search steps fixed one."
 tags: [shift-roster-builder, scheduling, optimization]

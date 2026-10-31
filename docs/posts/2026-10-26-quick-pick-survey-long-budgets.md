@@ -1,5 +1,6 @@
 ---
 title: "Quick Pick Survey keeps getting better when people answer far more than the list length"
+seo_title: "Quick Pick Survey keeps improving as answers outgrow the list"
 date: 2026-10-26
 description: "Simulating 30 items answered up to 1,200 times: the information-gain question selector does not stall, and leads the shipped one from 20 answers per item."
 tags: [quick-pick-survey, ranking, simulation]
