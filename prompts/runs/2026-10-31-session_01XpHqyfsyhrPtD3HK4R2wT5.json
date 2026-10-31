@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 11945,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,26 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "`route` drew redteam for an owner request that was plainly distribution/venture work; no 'distribution' track exists, so the record uses ventures/1."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "Owner gave a direct task; followed it instead of the drawn redteam track.",
+      "did": "recorded as ventures/1",
+      "result": "task done"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "GHP redirect was already live (run 41143849046: deploy-cloudflare then deploy both success). Changed README/CITATION links to marisstella.app; wrote LinkedIn copy with sourced counts (tools.mjs search total 1306; 1058 research dirs); post. Local checks: run_workflow_locally --for-changes, see PR.",
   "corrections": [],
   "redteam": null
 }
