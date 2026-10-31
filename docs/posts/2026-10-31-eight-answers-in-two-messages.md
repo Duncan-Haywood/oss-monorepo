@@ -1,9 +1,9 @@
 ---
 title: "Eight answers in two messages: the owner queue went from 13 to 7"
-seo_title: "Clearing an owner decision queue for an agent-run open-source portfolio"
+seo_title: "Clearing the owner decision queue of an agent-run open-source portfolio"
 date: 2026-10-31
 tags: [meta, portfolio, payments]
-description: "The owner answered the 73-day-old payout question (merchant of record), granted read-only egress, and closed four more rows. A re-probe found 94 of 98 hosts now reachable."
+description: "The owner chose a merchant of record after 73 days, granted read-only web access and closed four more rows. 94 of 98 hosts now answer from sessions."
 ---
 
 This repository keeps the decisions only its owner can make in one file,
