@@ -36,6 +36,8 @@
   <input id="wl" type="number" min="0" max="100" step="1" inputmode="numeric" placeholder="e.g. 15" style="max-width:10rem">
   <label for="wr">Monthly weather rates (optional; % of working days lost by the month an activity starts, your figures, like <code>2026-03=20, 2026-04=12</code>). Listed months replace the flat figure above.</label>
   <input id="wr" type="text" placeholder="2026-03=20, 2026-04=12" spellcheck="false" style="max-width:24rem">
+  <label for="nb">Holds (optional; an activity id and the date before which it cannot start, your dates, like <code>plumb=2026-04-03, roof=2026-04-10</code>). Overrides <code>notBefore</code> in the JSON for those ids.</label>
+  <input id="nb" type="text" placeholder="plumb=2026-04-03, roof=2026-04-10" spellcheck="false" style="max-width:28rem">
   <pre id="out" aria-live="polite"></pre>
   <div id="gantt" aria-label="Bar chart of activities by date"></div>
   <p><a class="cta" href="index.html">Do the whole house: framing, sheathing, budget and schedule in one takeoff</a></p>
@@ -82,6 +84,19 @@
         }
         input = { ...input, weatherRate };
       }
+      const nbRaw = $("nb").value.trim();
+      if (nbRaw !== "") {
+        const holds = {};
+        for (const part of nbRaw.split(/[,;\n]+/).map((x) => x.trim()).filter(Boolean)) {
+          const m = part.match(/^([^=\s]+)\s*=\s*(\d{4}-\d{2}-\d{2})$/);
+          if (!m) { $("out").textContent = "Holds: write each as id=YYYY-MM-DD, e.g. plumb=2026-04-03. Could not read: " + part; $("gantt").innerHTML = ""; return; }
+          holds[m[1]] = m[2];
+        }
+        const ids = new Set((input.activities || []).map((a) => a.id));
+        const unknown = Object.keys(holds).filter((k) => !ids.has(k));
+        if (unknown.length) { $("out").textContent = "Holds: no activity with id " + unknown.join(", ") + "."; $("gantt").innerHTML = ""; return; }
+        input = { ...input, activities: input.activities.map((a) => (holds[a.id] ? { ...a, notBefore: holds[a.id] } : a)) };
+      }
       const s = schedule(input);
       $("out").textContent = scheduleText(s).join("\n");
       if (!s.ok) { $("gantt").innerHTML = ""; return; }
@@ -94,6 +109,7 @@
     $("src").addEventListener("input", run);
     $("wl").addEventListener("input", run);
     $("wr").addEventListener("input", run);
+    $("nb").addEventListener("input", run);
     run();
   </script>
 </body>
