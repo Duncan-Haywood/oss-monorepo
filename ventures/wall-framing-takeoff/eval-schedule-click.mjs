@@ -40,6 +40,17 @@ check(dl.suggestedFilename() === "schedule.csv", "download named schedule.csv");
 const slipRows = lines.filter((l) => l.startsWith("slip:")).length;
 check(lines.length === bars + 1 + slipRows && slipRows === 1, `CSV has a header, one row per bar and the example slip row (${lines.length} lines)`);
 check(!/NaN|undefined/.test(csv), "no NaN or undefined in CSV");
+// the CSV follows the weather field once an activity is exposed
+await page.evaluate(() => { const t = document.getElementById("src"); const j = JSON.parse(t.value); j.activities.find((a) => a.id === "roof").exposed = true; t.value = JSON.stringify(j); t.dispatchEvent(new Event("input")); });
+await page.fill("#wl", "50");
+const [dl2] = await Promise.all([page.waitForEvent("download"), page.click("#csv")]);
+check(/weather allowance/.test(await readFile(await dl2.path(), "utf8")), "CSV follows the weather field (roof exposed, 50%)");
+// invalid JSON must not export the previous schedule
+await page.fill("#src", "{not json");
+let downloaded = false;
+page.on("download", () => { downloaded = true; });
+await page.click("#csv"); await page.waitForTimeout(600);
+check(!downloaded, "no download after invalid JSON");
 check(errors.length === 0, "no page errors" + (errors.length ? ": " + errors[0] : ""));
 await browser.close(); server.close();
 process.exit(fail);

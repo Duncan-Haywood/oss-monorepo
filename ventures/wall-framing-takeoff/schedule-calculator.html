@@ -72,6 +72,7 @@
     $("src").value = JSON.stringify(sampleSchedule(), null, 1);
     let last = null;
     const run = () => {
+      last = null; // a failed run must not leave the CSV button exporting the previous schedule
       let input;
       try { input = JSON.parse($("src").value); } catch (e) { $("out").textContent = "Not valid JSON: " + e.message; $("gantt").innerHTML = ""; return; }
       const wlRaw = $("wl").value.trim();
