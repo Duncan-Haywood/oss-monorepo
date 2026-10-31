@@ -213,3 +213,15 @@ test("scheduleText prints the carrying cost total once carryPerDay is typed, and
   const withCarry = scheduleText(schedule({ ...base, carryPerDay: 250 })).join("\n");
   assert.match(withCarry, /Carrying cost: \$2,500 for 10 working days at your \$250 per day\./);
 });
+
+test("deadline: days late or to spare against the leveled finish, with the late cost", () => {
+  const acts = [{ id: "a", days: 3 }, { id: "b", days: 4, after: ["a"] }]; // Mon 2026-03-02, 7 working days, last day Tue 03-10
+  assert.equal(schedule({ start: "2026-03-02", activities: acts, deadline: "2026-03-10" }).deadline.daysLate, 0);
+  assert.equal(schedule({ start: "2026-03-02", activities: acts, deadline: "2026-03-13" }).deadline.daysLate, -3);
+  const late = schedule({ start: "2026-03-02", activities: acts, deadline: "2026-03-06", carryPerDay: 100 });
+  assert.equal(late.deadline.daysLate, 2);
+  assert.equal(late.deadline.lateCost, 200);
+  assert.equal(schedule({ start: "2026-03-02", activities: acts, deadline: "2026-03-08" }).deadline.daysLate, 2); // Sunday -> Friday
+  assert.equal(schedule({ activities: acts, deadline: "soon" }).ok, false);
+  assert.match(scheduleText(late).join("\n"), /Deadline 2026-03-06: 2 working day\(s\) late.*\$200/);
+});
