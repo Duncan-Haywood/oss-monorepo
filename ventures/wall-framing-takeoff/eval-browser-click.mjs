@@ -277,6 +277,20 @@ const [sv3] = await Promise.all([page.waitForEvent("download"), page.click("#sav
 const saved3 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv3.path(), "utf8"));
 const guOk = !/NaN|undefined/.test(guTxt) && /Gutter sections/.test(guBud) && saved3.gutters && typeof saved3.gutters === "object";
 console.log(guOk ? "ok: gutters card, budget line and saved plan" : "FAIL: gutters: " + guTxt.slice(0, 200));
+// siding starter strip and head flashing (2026-10-31): fields read into the plan, shown in the card, saved
+await page.check("#sdOn");
+await page.selectOption("#sdStarter", "true");
+await page.fill("#sdStarterPrice", "6");
+await page.selectOption("#sdHeadFlashing", "true");
+await page.fill("#sdFlashingExtend", "3");
+await page.fill("#sdFlashingPrice", "12");
+await page.click("#run");
+await page.waitForFunction(() => /Starter strip:/.test(document.querySelector("#sidingOut")?.textContent || ""), null, { timeout: 30000 }).catch(() => {});
+const sdTxt = await page.textContent("#sidingOut");
+const [sv4] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved4 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv4.path(), "utf8"));
+const sdOk = !/NaN|undefined/.test(sdTxt) && /Starter strip:/.test(sdTxt) && /flashing/i.test(sdTxt) && saved4.siding?.starter === true && saved4.siding?.headFlashing === true && saved4.siding?.flashingExtend === 3 && saved4.siding?.starterPrice === 6;
+console.log(sdOk ? "ok: siding starter strip and head flashing, card and saved plan" : "FAIL: siding: " + sdTxt.slice(0, 300));
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || !sdOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
