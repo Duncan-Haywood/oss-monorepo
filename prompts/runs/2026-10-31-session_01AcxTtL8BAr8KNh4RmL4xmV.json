@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01AcxTtL8BAr8KNh4RmL4xmV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T02:09:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11979",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Flagship next: for ai-bookkeeper asks for real inputs, but recent runs keep adding synthetic gap probes; I did the same since no real data was available."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-31-ai-bookkeeper-fourteenth-gap-probe.md"
+  ],
+  "goal": null,
+  "notes": "ai-bookkeeper suite passed locally (run_venture_tests.py). No security-alerts branch existed; IDEAS.md empty.",
+  "corrections": [],
+  "redteam": null
+}
