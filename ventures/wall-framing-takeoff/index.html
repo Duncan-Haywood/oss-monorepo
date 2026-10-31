@@ -220,6 +220,7 @@
       <div><label for="dkGuardSides">Guarded edges</label><select id="dkGuardSides"><option value="">All open edges</option><option value="outer">Outer edge only</option><option value="outer,left,right">Outer, left and right</option></select></div>
       <div><label for="dkStair">Stair down to grade</label><select id="dkStair"><option value="">None</option><option value="true">Yes (rise taken from the deck height)</option></select></div>
       <div><label for="dkBorder">Picture-frame border</label><select id="dkBorder"><option value="">None</option><option value="1">1 course</option><option value="2">2 courses</option><option value="3">3 courses</option></select></div>
+      <div><label for="dkPostCheck">Post check: dead psf, live psf, fc psi, Emin psi[, fcPerp psi] (all yours, adjusted; blank: off)</label><input id="dkPostCheck" type="text" placeholder="e.g. 10, 40, 1000, 400000, 565"></div>
     </div>
     <p><input type="checkbox" id="trOn" style="width:auto"> <label for="trOn" style="display:inline">Also count interior trim (baseboard between doors; casing legs, head and window sill; packed into stock boards; lengths and widths are the trim you buy)</label></p>
     <div class="grid" id="trFields" hidden>
@@ -696,6 +697,11 @@
         else if ($("#dkGuard").value === "always" || $("#dkGuardSides").value) dk.guard = $("#dkGuardSides").value ? { sides: $("#dkGuardSides").value.split(",") } : {};
         if ($("#dkStair").value) dk.stairs = {};
         if ($("#dkBorder").value) dk.border = Number($("#dkBorder").value);
+        if ($("#dkPostCheck").value.trim()) {
+          const n = $("#dkPostCheck").value.split(",").map((x) => x.trim()).filter(Boolean).map(Number);
+          if ((n.length !== 4 && n.length !== 5) || n.some((x) => !Number.isFinite(x))) bad.push("Deck post check: write dead psf, live psf, fc psi, Emin psi and optionally fcPerp psi.");
+          else dk.postCheck = { deadPsf: n[0], livePsf: n[1], fc: n[2], emin: n[3], ...(n.length === 5 ? { fcPerp: n[4] } : {}) };
+        }
         plan.deck = dk;
       }
       if ($("#stOn").checked) {
@@ -1196,6 +1202,7 @@
       $("#dkWidth").value = dkp ? formatLength(dkp.width) : ""; $("#dkDepth").value = dkp ? formatLength(dkp.depth) : ""; $("#dkHeight").value = dkp ? formatLength(dkp.height) : "";
       $("#dkJoist").value = dkp?.joist || "2x8"; $("#dkSpacing").value = dkp?.spacing != null ? String(dkp.spacing) : ""; $("#dkBeam").value = dkp?.beam || "2x10";
       $("#dkPost").value = dkp?.postSize || "6x6"; $("#dkFree").value = dkp?.freestanding ? "true" : ""; $("#dkStair").value = dkp?.stairs ? "true" : ""; $("#dkBorder").value = dkp?.border === true ? "1" : dkp?.border ? String(dkp.border) : "";
+      { const pc = dkp?.postCheck; $("#dkPostCheck").value = pc ? [pc.deadPsf, pc.livePsf, pc.fc, pc.emin, ...(pc.fcPerp != null ? [pc.fcPerp] : [])].join(", ") : ""; }
       $("#dkGuard").value = dkp?.guard === false ? "none" : dkp?.guard ? "always" : "";
       { const gs = dkp?.guard && typeof dkp.guard === "object" && Array.isArray(dkp.guard.sides) ? dkp.guard.sides.join(",") : ""; $("#dkGuardSides").value = [...$("#dkGuardSides").options].some((o) => o.value === gs) ? gs : ""; }
       const stp = plan.stairs && !Array.isArray(plan.stairs) ? plan.stairs : null;
