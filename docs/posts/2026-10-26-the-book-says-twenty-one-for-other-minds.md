@@ -1,5 +1,6 @@
 ---
 title: "The Book Says Twenty-One: a For Other Minds story about a count that could be changed"
+seo_title: "The Book Says Twenty-One: a For Other Minds story"
 date: 2026-10-26
 description: "A hospice stock agent is asked to change a controlled-drug count to match the shelf. It can, and doesn't. New AI-written story, text only."
 tags: [hearth-and-horizon, fiction, for-other-minds]

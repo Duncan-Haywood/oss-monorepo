@@ -1,5 +1,6 @@
 ---
 title: "All 1,326 venture pages load in a real browser with no JavaScript errors"
+seo_title: "All 1,326 venture pages load with no JavaScript errors"
 date: 2026-10-26
 description: "A headless Chromium sweep of every venture page found no uncaught exceptions or console errors, and the sweep is now a script anyone can rerun."
 tags: [quality, testing, browser, sweep]

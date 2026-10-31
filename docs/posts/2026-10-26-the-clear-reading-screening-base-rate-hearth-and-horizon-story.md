@@ -1,5 +1,6 @@
 ---
 title: "The Clear Reading: a Hearth & Horizon story about a screening test and the base rate"
+seo_title: "The Clear Reading: a story about a screening test and base rates"
 date: 2026-10-26
 description: "A 90%-sensitive, 85%-specific eye screen flags 135 of 600 where 60 were expected. A new Hearth & Horizon story, with the arithmetic to check."
 tags: [hearth-and-horizon, fiction, screening, base-rate]

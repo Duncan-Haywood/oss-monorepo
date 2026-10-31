@@ -1,5 +1,6 @@
 ---
 title: "A 95% range for a bend in clumpy counts, checked on seeds we never tuned on"
+seo_title: "A 95% range for a bend in clumpy counts, on fresh seeds"
 date: 2026-10-26
 description: "On two seeds never used for tuning, the tempered 95% range for a growth-rate bend covered 101 of 107 bends (94.4%); steep bends run optimistic."
 tags: [changepoint-detector, statistics, validation]
