@@ -245,6 +245,15 @@ await page.click("#run");
 await page.waitForFunction(() => /Guard and handrail: write the number/.test(document.body.textContent));
 console.log("ok: malformed guard field refused on the page");
 await page.fill("#stRail", "");
+await page.fill("#stLandEdges", "end, side");
+await page.click("#run");
+await page.waitForFunction(() => /landing/i.test(document.querySelector("#stairsOut")?.textContent || ""));
+console.log("ok: landing open edges typed on the page and shown on the stairs card");
+await page.fill("#stLandEdges", "top");
+await page.click("#run");
+await page.waitForFunction(() => /Landing open edges: write end/.test(document.body.textContent));
+console.log("ok: malformed landing edges refused on the page");
+await page.fill("#stLandEdges", "");
 // Deck post check: typed loads and wood figures reach the deck card.
 await page.check("#dkOn");
 await page.fill("#dkWidth", "16'"); await page.fill("#dkDepth", "12'"); await page.fill("#dkHeight", "36 in");

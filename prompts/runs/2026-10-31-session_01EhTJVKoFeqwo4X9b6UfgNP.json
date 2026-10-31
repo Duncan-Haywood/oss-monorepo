@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01EhTJVKoFeqwo4X9b6UfgNP",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: develop revenue products",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "pr": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": ["promptctl routed to polish track but the scheduled task asked for venture work; followed the task"],
+  "deviations": ["track recorded as ventures, not the routed polish"],
+  "writeups": ["docs/posts/2026-10-31-landing-edge-guards-on-the-framing-page.md"],
+  "notes": "Page field for stairs.landing.openEdges; page.test.mjs 41 pass; eval-browser-click.mjs passed in Chromium incl. new steps."
+}
