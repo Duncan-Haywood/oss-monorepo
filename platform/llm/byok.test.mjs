@@ -235,3 +235,10 @@ test('anthropic: a missing usage field counts as zero, not one (spend guard char
   const cached = await complete({ provider: 'anthropic', apiKey: 'k' }, { prompt: 'P', fetch: fakeFetch({ content: [], usage: { cache_read_input_tokens: 7, output_tokens: 2 } }) });
   assert.deepEqual(cached.usage, { input: 7, output: 2 });
 });
+
+test('redteam guards: explicit default port is kept; 172.16-19 are private', () => {
+  assert.equal(configFromEnv({ OLLAMA_HOST: 'http://box.lan:80', LLM_MODEL: 'q' }).baseUrl, 'http://box.lan/v1');
+  for (const ip of ['172.16.0.1', '172.17.0.1', '172.19.5.5', '172.20.0.1', '172.31.255.1']) {
+    assert.equal(isLocal({ provider: 'openai-compatible', model: 'm', baseUrl: `http://${ip}/v1` }), true, ip);
+  }
+});
