@@ -2,7 +2,7 @@
 title: "What will this house cost to heat, gas furnace against heat pump?"
 date: 2026-11-01
 tags: [wall-framing-takeoff, energy, construction]
-description: The framing takeoff turns its seasonal heat-loss figure into a yearly fuel quantity and cost for each heating system you type, with no prices or efficiencies shipped.
+description: The framing takeoff turns its seasonal heat loss into a yearly fuel quantity and cost per heating system you type, with no prices or efficiencies shipped.
 ---
 
 The takeoff already derives wall, window, door, ceiling, slab-edge and air-leakage conductance from the framing it placed, and a seasonal kBTU from typed heating degree-days. A buyer or builder's next question is money.
