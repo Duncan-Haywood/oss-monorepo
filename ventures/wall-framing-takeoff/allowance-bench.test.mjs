@@ -29,3 +29,12 @@ test("wider spacing lowers the counted order and the on-centre rule, not the per
   assert.ok(b.onCentre < a.onCentre);
   assert.equal(a.perFoot, b.perFoot);
 });
+
+test("two windows too close to share kings: refused plain, laid out when ganged", () => {
+  const plan = { ...samplePlan(), walls: [{ id: "A", length: 240, stud: "2x4", openings: [
+    { kind: "window", offset: 60, width: 36, height: 48, sill: 36, header: "2x8" }, { kind: "window", offset: 99, width: 36, height: 48, sill: 36, header: "2x8" }] }] };
+  const plain = compare(plan);
+  assert.equal(plain.ok, false);
+  const g = compare(plan, { gang: true });
+  assert.ok(g.ok && g.ganged);
+});
