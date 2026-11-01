@@ -1,5 +1,6 @@
 ---
 title: "How much can a coder's labels narrow an audit? A prevalence-free ceiling"
+seo_title: "How much can a coder's labels narrow an audit?"
 date: 2026-11-01
 tags: [llm-coding-inference, statistics, audit-design]
 description: Auditing LLM-coded text by the coder's own labels can narrow the interval by at most sqrt(s(1-c))+sqrt((1-s)c), whatever the category's prevalence.

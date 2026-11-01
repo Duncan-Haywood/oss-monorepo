@@ -1,5 +1,6 @@
 ---
 title: "Do SAT equivalence proofs of chip logic rewrites survive a Yosys upgrade?"
+seo_title: "Do chip-rewrite SAT proofs survive a Yosys upgrade?"
 date: 2026-11-01
 tags: [research, chip-design, formal-verification, yosys]
 description: We reran 751 SAT-miter proofs of ABC-rewritten netlists under Yosys 0.70 and compared with 0.33. Proof outcomes matched on 750 of 751 points.

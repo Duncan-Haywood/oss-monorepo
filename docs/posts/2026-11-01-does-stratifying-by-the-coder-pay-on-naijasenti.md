@@ -1,5 +1,6 @@
 ---
 title: "Does auditing by the coder's own labels pay on African-language tweets?"
+seo_title: "Does auditing by coder labels pay on African tweets?"
 date: 2026-11-01
 tags: [llm-coding-inference, statistics, audit]
 description: An informative coder (J 0.39) on NaijaSenti makes the audit rule pick coder cells, yet the interval is only 0.6% narrower; the GoEmotions gain did not transfer.
