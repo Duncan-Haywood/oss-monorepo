@@ -1,5 +1,10 @@
 # build-data log
 
+## Session 12, 2026-11-01: milestone 8, five draws of the local sample (H5 re-test), hypothesis written before the run
+
+Why: M7 used one effective draw per n (seeds only partly averaged, no interval over the draw), and called differences of 1 to 2% noise. Hypothesis (H5b): with 5 independent draws of the n local rows, the M7 headline survives: the first n at which pooled (w=20) is at or below the full-history per-type baseline (grid 100, 300, 1000, 3000) is above 1000 in at least 3 of 4 a2i cities-pairs (Austin, Chicago, SF; so at least 2 of 3 here; i2c follows if time allows). Refuted if it is 1000 or less in 2 of 3. Prior 60%. Secondary: the pooled model beats base_n (same n rows) in fewer than half of the pair/n cells (M7: 6 of 15). Prior 70%.
+Changes against M7, stated up front: 5 seeds not 2; source rows capped at 100,000 per city (not 200,000) for the 4-core budget, so a shift from M7 may come from the cap; grid trimmed to 100 to 3000; `src/pooled.py` gains `--grid` and `--tag` (results `pooled_m8_*`). Feeds re-pulled today (Chicago 851,889 rows, SF 1,297,749, Austin 2,383,195).
+
 ## Session 11, 2026-11-01: milestone 7, pooled model plus a small local sample (H5), hypothesis written before the run
 
 Hypothesis (H5): a model pooled with the other cities and given n rows of the held-out city's own history matches that city's full-history per-type baseline (mean pinball over q0.1/0.5/0.9, test year 2024) only once n is in the thousands: the first n in the grid (0, 100, 300, 1000, 3000, 10000) at which the pooled point estimate is at or below the full baseline is above 1000 in at least 3 of 5 city/target pairs. Refuted if it is 1000 or less in 4 or more pairs. Prior 55% that it holds (M6 showed the cost of moving between cities is large, +2 to +137%, but the per-type baseline also needs data to fill its classes). Secondary, also written now: at every n from 100 to 1000, the pooled model (weight 1 or 20) beats the baseline built from the same n rows (base_n) in most pairs; prior 80%.
