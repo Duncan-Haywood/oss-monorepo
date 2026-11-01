@@ -51,3 +51,26 @@ test("bad input and a missing roof are errors", () => {
   assert.equal(layoutGutters({ waste: 2 }, gable()).ok, false);
   assert.ok(guttersText(layoutGutters({}, gable())).length >= 4);
 });
+
+test("a cross wing swaps 168 in of main eave for its own two eave runs", () => {
+  const roof = layoutRoof({ ...sampleRoof(), wing: { width: 144, projection: 192, side: "right", at: 240 } }, plan());
+  const base = layoutGutters({ waste: 0 }, gable());
+  const g = layoutGutters({ waste: 0 }, roof);
+  assert.ok(g.ok, JSON.stringify(g.errors));
+  const er = roof.wings[0].eaveLineRun;
+  assert.equal(g.wings, 1);
+  assert.equal(g.runs, 4);
+  assert.equal(er, 192); // 12 rake + 192 out - 12 overhang, as in eaves.test
+  assert.equal(g.runFeet, 102); // 1008 - 168 + 2 x 192 = 1224 in, the same as the fascia run
+  assert.equal(g.endCaps, 8);
+  assert.ok(g.planSqFt > base.planSqFt);
+  assert.ok(g.downspouts >= base.downspouts);
+});
+
+test("a wing at a different pitch is noted, not counted, in gutters", () => {
+  const roof = layoutRoof({ ...sampleRoof(), wing: { width: 144, projection: 192, side: "right", at: 240, pitch: 3 } }, plan());
+  const g = layoutGutters({ waste: 0 }, roof);
+  assert.equal(g.wings, 0);
+  assert.equal(g.runs, 2);
+  assert.match(g.wingNotes[0], /own pitch/);
+});
