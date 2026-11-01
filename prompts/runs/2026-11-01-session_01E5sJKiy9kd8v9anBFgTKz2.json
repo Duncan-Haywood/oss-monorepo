@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01E5sJKiy9kd8v9anBFgTKz2",
+  "track": "review",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "null",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T06:19:32Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12272",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 fetch of security-alerts errors when the branch does not exist; fixed with a note."
+    },
+    {
+      "file": "prompts/review/prompt-2.md",
+      "issue": "Reduced pass fine; validate failed on another run's record with null pr (fixed)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-2.md",
+      "why": "Skipped derive fetch, audit and drift report as a reduced pass allows.",
+      "did": "steps 1 (measure), 3, 7, 8 and one fix",
+      "result": "fine"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Reduced review; no blog post (process-only change).",
+  "corrections": [],
+  "redteam": null
+}
