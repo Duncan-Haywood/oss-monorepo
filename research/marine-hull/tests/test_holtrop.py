@@ -45,3 +45,12 @@ def test_low_speed_wave_term_uses_m2_not_m4():
     r = run(fn * math.sqrt(9.80665 * 4.0), s=2.38)
     cw = r["RW"] / (0.5 * RHO_FRESH * (fn * math.sqrt(9.80665 * 4.0)) ** 2 * 2.38)
     assert abs(cw - 1.02e-3) < 0.02e-3
+
+
+def test_m4_low_form_reproduces_pre_3d_value_and_stays_within_10_percent():
+    fn = 0.267
+    v = fn * math.sqrt(9.80665 * 4.0)
+    a, b = run(v, s=2.38), run(v, s=2.38, low_form="m4")
+    cw = b["RW"] / (0.5 * RHO_FRESH * v * v * 2.38)
+    assert abs(cw - 0.94e-3) < 0.02e-3
+    assert abs(b["RT"] / a["RT"] - 1) < 0.10
