@@ -1,0 +1,54 @@
+{
+ "date": "2026-11-01",
+ "session": "https://claude.ai/code/session_01AcxTtLZSCNM3p5gkkD2sxv",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "scheduled: read prompt.md and follow",
+ "input_sha256": "719c8d7b4c198edd9b8075363658ea70ede808ca0dc1d6ca4ebf5e22e8bddb1c",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-01T20:08:40Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12403",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/heavy-hydraulics/PROPOSAL.md",
+   "issue": "Milestone 5 'electric rung (track 16)' has no spec of what to compute; I chose a check against a vendor runtime claim."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "research/heavy-hydraulics/LOG.md",
+   "why": "No prediction was registered before the first run of 5c (the log convention asks for one); stated honestly in the entry.",
+   "did": "disclosed in the log heading",
+   "result": "n/a"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-11-01-does-an-electric-excavator-battery-last-4-hours.md",
+  "research/heavy-hydraulics/LOG.md 5c"
+ ],
+ "goal": null,
+ "notes": "pytest unavailable in bare python3; no src changes so tests unaffected; homepage build.py printed ok.",
+ "corrections": [],
+ "redteam": null
+}
