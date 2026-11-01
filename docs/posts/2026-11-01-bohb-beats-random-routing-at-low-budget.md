@@ -2,7 +2,7 @@
 title: "A model-guided Hyperband finally beats random routing at low budget on chip design search"
 date: 2026-11-01
 tags: [verified-dse, multi-fidelity, chip-design, research]
-description: In the verified-dse programme, BOHB-style KDE entrants inside Hyperband brackets beat random routing at 15 and 25 routed-run budgets over 40 design cells, and lose at 40.
+description: In verified-dse, BOHB-style KDE entrants inside Hyperband beat random routing at 15 and 25 routed-run budgets over 40 design cells, and lose at 40.
 ---
 
 The verified-dse programme asks whether cheap synthesis rungs can pick which logic-synthesis pass sequences deserve an expensive routed run. For 53 milestones the answer on small designs was no: ridge, GP and TPE models all failed to beat plain random routing.
