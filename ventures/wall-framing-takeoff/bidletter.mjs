@@ -10,7 +10,7 @@ const money = (/** @type {number} */ x) => x.toLocaleString("en-US", { minimumFr
 
 /**
  * @param {ReturnType<import("./budget.mjs").budget>} b
- * @param {{client?: string, project?: string, date?: string, validDays?: number, inclusions?: string[], exclusions?: string[], terms?: string[], partial?: boolean}} [p]
+ * @param {{client?: string, project?: string, date?: string, validDays?: number, inclusions?: string[], exclusions?: string[], terms?: string[], partial?: boolean, payments?: {name: string, pct: number}[]}} [p]
  */
 export function proposal(b, p = {}) {
   if (b.unpriced.length && !p.partial) {
@@ -25,10 +25,21 @@ export function proposal(b, p = {}) {
   // Put rounding drift in the largest row so the rows add to the price exactly.
   const drift = r2(price - rows.reduce((t, s) => t + s.amount, 0));
   if (rows.length && drift !== 0) rows.reduce((m, s) => (s.amount > m.amount ? s : m)).amount = r2(rows.reduce((m, s) => (s.amount > m.amount ? s : m)).amount + drift);
+  // Typed payment schedule: milestone percentages must add to 100; the last takes the cent drift.
+  let payments = [];
+  if (p.payments && p.payments.length) {
+    const sum = p.payments.reduce((t, m) => t + Number(m.pct), 0);
+    if (p.payments.some((m) => !(Number(m.pct) > 0)) || Math.abs(sum - 100) > 1e-9) {
+      return { ok: false, error: `payment milestones must be positive and add to 100% (they add to ${r2(sum)}%)` };
+    }
+    payments = p.payments.map((m) => ({ name: m.name, pct: Number(m.pct), amount: r2(price * Number(m.pct) / 100) }));
+    const pd = r2(price - payments.reduce((t, m) => t + m.amount, 0));
+    payments[payments.length - 1].amount = r2(payments[payments.length - 1].amount + pd);
+  }
   const scope = [...new Set(b.lines.filter((l) => l.section !== "Allowances").map((l) => l.section))];
   const allowances = b.lines.filter((l) => l.section === "Allowances").map((l) => ({ item: l.item, amount: l.amount ?? 0 }));
   return {
-    ok: true, price: r2(price), rows, scope, allowances, partial: !!(b.unpriced.length),
+    ok: true, price: r2(price), rows, payments, scope, allowances, partial: !!(b.unpriced.length),
     gaps: b.unpriced, validDays: p.validDays ?? 30, meta: { client: p.client || "", project: p.project || "", date: p.date || "" },
     inclusions: p.inclusions || [], exclusions: p.exclusions || [], terms: p.terms || [],
   };
@@ -49,6 +60,10 @@ export function proposalText(q) {
   if (q.allowances.length) {
     o.push("", "Allowances (actual cost billed; the price moves with the difference):");
     for (const a of q.allowances) o.push(`  ${a.item}: ${money(a.amount)}`);
+  }
+  if (q.payments.length) {
+    o.push("", "Payment schedule");
+    for (const m of q.payments) o.push(`  ${m.name.padEnd(24)} ${String(m.pct).padStart(5)}% ${money(m.amount).padStart(14)}`);
   }
   if (q.exclusions.length) o.push("", "Not included: " + q.exclusions.join("; ") + ".");
   if (q.terms.length) { o.push("", "Terms"); for (const t of q.terms) o.push("  - " + t); }
