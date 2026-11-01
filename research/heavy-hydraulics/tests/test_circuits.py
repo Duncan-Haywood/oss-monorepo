@@ -98,3 +98,18 @@ def test_section_area_root_found_when_supply_pressure_exceeds_old_bracket():
     ps = 200.0 + (30.0 / a) ** 2
     assert a < 1.0
     assert abs((a0 - 20.0 * a) * sqrt(ps) - 15.0) < 1e-6
+
+
+def test_ls_compensator_loss_is_inside_the_margin():
+    # Milestone 3o: a pre-compensated section throttles a light actuator down from the
+    # pump pressure (p_max + dp_ls) to its own, and that loss is already charged.
+    # Two actuators at 50 and 150 bar, 10 L/min each: shaft energy = q_total (p_max + dp_ls)
+    # exactly, so the lighter one's compensator drop is q_light * (p_max - p_light + dp_ls).
+    c = (Phase("x", 10.0, (Actuator(50, 10), Actuator(150, 10))),)
+    r = cycle_energy(c, "load_sensing", dp_ls=15, eta_pump=1.0)
+    assert r["shaft_J"] == pytest.approx(20 * (150 + 15) * W_PER_BAR_LPM * 10.0)
+    # Adding a separate compensator drop dp_c on top of the spool drop is the same as
+    # raising dp_ls by dp_c: the model has no further term for it.
+    a = cycle_energy(c, "load_sensing", dp_ls=15 + 4, eta_pump=1.0)["shaft_J"]
+    b = cycle_energy(c, "load_sensing", dp_ls=15, eta_pump=1.0)["shaft_J"]
+    assert a - b == pytest.approx(20 * 4 * W_PER_BAR_LPM * 10.0)

@@ -2,6 +2,12 @@
 
 Newest first.
 
+## 2026-11-01 · Milestone 3o: the "compensator" next step is already inside dp_ls (a model-scope check, no new sweep)
+- Why: 3c to 3n each end with "add the compensator". Reading `cycle_energy`: load-sensing charges `q_dem * (p_max + dp_ls)`, so a pre-compensated section's throttling of a lighter actuator down from pump pressure to its own is already in the shaft energy, and the pump margin `dp_ls` is the whole drop from pump to the highest load (spool plus compensator in series, as in a PVG-type section). A separate compensator drop would only be a second `dp_ls` term, identical in effect to raising `dp_ls` by that amount, so no new sweep can change a break-even except by moving the margin the reader reads it against.
+- Result: `tests/test_circuits.py::test_ls_compensator_loss_is_inside_the_margin` pins both facts (two actuators at 50 and 150 bar: exact shaft energy; +4 bar compensator equals +4 bar `dp_ls`). 14 tests pass. Consequence for the reading of 3f to 3n: the break-even margins (36.1 bar and so on) are on the **total** pump-to-load-pressure margin, so a reader comparing them with a datasheet margin must use the datasheet's pump margin and not subtract the compensator.
+- Limits: this removes the compensator as an energy term only. What is still unmodelled is compensator dynamics, flow-sharing behaviour of a compensator under pump saturation beyond `flow_share_ls.py`, and a measured bypass curve for f.
+- Next: source f (bypass flow of a sectional valve at partial lever), the only input the 3n result turns on.
+
 ## 2026-11-01 · Milestone 6d: paper section 3.5 gains 3l and 3n (a writing step, no experiment)
 - Added the pump fuel-and-parts result (3l: +14.1% shaft energy at 1.2 x, break-even machine hour $7.67) and the surplus-flow fraction sweep (3n: break-even 36.1 to 18.8 bar as f falls from 1 to 0) to section 3.5, including that both predictions were refuted. 8 new rows in `paper/check_numbers.py`, 55 claims, 0 missing.
 - Next: a sourced f (bypass-flow curve of a sectional valve); the compensator.
