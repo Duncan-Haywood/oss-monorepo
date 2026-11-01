@@ -23,9 +23,11 @@ def fmt(t):
 
 def main():
     tag = sys.argv[1] if len(sys.argv) > 1 else "tight"
-    src, dst = ("results.jsonl", "results.txt") if tag == "tight" else (f"results_{tag}.jsonl", f"results_{tag}.txt")
+    sfx = sys.argv[3] if len(sys.argv) > 3 else ""  # e.g. "_large" for the larger-design set
+    src, dst = (f"results{sfx}.jsonl", f"results{sfx}.txt") if tag == "tight" else (f"results{sfx}_{tag}.jsonl", f"results{sfx}_{tag}.txt")
     new = [r for r in load(HERE / src) if r.get("status") == "ok"]
-    old = {(r["design"], r["tag"], tuple(r["seq"])): r for r in load(HERE.parent / "rung_bias/results.jsonl") if r["status"] == "ok"}
+    oldp = HERE.parent / (sys.argv[2] if len(sys.argv) > 2 else "rung_bias/results.jsonl")  # cached table the points came from
+    old = {(r["design"], r["tag"], tuple(r["seq"])): r for r in load(oldp) if r["status"] == "ok"}
     out = [f"Milestone 47/49: detail-routed reference (R5). {tag} clock; tools: OpenROAD 26Q3, Yosys 0.70 (cached tables: 26Q2, 0.33)", ""]
     designs = sorted({r["design"] for r in new})
     hdr = f"{'design':12s}{'n':>4s}{'distinct r5':>12s}  tau(R1,R5) tau(R2,R5) tau(R3,R5) tau(R4,R5)  regret% R2/R4 pick  R5-opt in R4 top5"

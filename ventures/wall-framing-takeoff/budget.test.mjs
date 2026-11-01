@@ -294,3 +294,96 @@ test("dormer framing is priced by board feet and its roof by area, typed prices 
   const none = budget({ orders: [], dormer }, {});
   assert.ok(none.unpriced.some((u) => u.startsWith("Dormer framing lumber")));
 });
+
+test("dormer labor is a typed rate times the dormer roof area, unpriced without a rate", () => {
+  const dormer = { ok: true, parts: [], areas: { roofSqFt: 50 } };
+  const b = budget({ orders: [], dormer }, { laborDormerSqFt: 7 });
+  const l = b.lines.find((x) => x.item === "Dormer framing and roofing");
+  assert.equal(l.amount, 350);
+  const none = budget({ orders: [], dormer }, { laborWallFoot: 1 });
+  assert.equal(none.lines.find((x) => x.item === "Dormer framing and roofing").amount, null);
+});
+
+test("cost per sq ft of floor framed is total over the floor model's subfloor area", () => {
+  const plan = full({ floorSheet: 30, tax: 0.1 });
+  const b = bud(plan);
+  assert.ok(b.floorSqFt > 0);
+  assert.equal(b.perFloorSqFt, +(b.total / b.floorSqFt).toFixed(2));
+  assert.match(budgetText(b).join("\n"), /Per sq ft of floor framed .*partial/);
+  const noFloor = budget({ ...samplePlan(), orders: [], summary: {} }, {});
+  assert.equal(noFloor.perFloorSqFt, null);
+});
+
+test("overhead then profit give a bid price; profit is a share of the bid", () => {
+  const b0 = bud(full({ laborWallFoot: 10, tax: 0.07, contingency: 0.05 }));
+  const b = bud(full({ laborWallFoot: 10, tax: 0.07, contingency: 0.05, overhead: 0.1, profit: 0.1 }));
+  assert.equal(b.total, b0.total);
+  assert.equal(b0.bid, b0.total);
+  assert.equal(b.overhead, +(b.total * 0.1).toFixed(2));
+  assert.equal(b.profit, +((b.total + b.overhead) * 0.1).toFixed(2));
+  assert.equal(b.bid, +(b.total + b.overhead + b.profit).toFixed(2));
+  assert.ok(Math.abs(b.marginPct - 100 * 0.1 * 1.1 / 1.21) < 0.01); // 10% on 110% of cost = 9.09% of the bid
+  const text = run(full({ overhead: 0.1, profit: 0.1 }), "--sheathing", "--budget").out;
+  assert.match(text, /bid price/);
+  assert.match(budgetCsv(b), /Bid price/);
+});
+
+test("cost per linear foot of wall is the whole total over summary.wallFeet", () => {
+  const plan = full({ floorSheet: 30, tax: 0.1 });
+  const b = bud(plan);
+  assert.ok(b.wallFeet > 0);
+  assert.equal(b.perWallFoot, +(b.total / b.wallFeet).toFixed(2));
+  assert.match(budgetText(b).join("\n"), /Per linear foot of wall/);
+  const none = budget({ ...samplePlan(), orders: [], summary: {} }, {});
+  assert.equal(none.perWallFoot, null);
+});
+
+test("typed allowances (permit, delivery) add to cost untaxed, before overhead and profit", () => {
+  const base = bud(full({ tax: 0.1, overhead: 0.1, profit: 0.1 }));
+  const withA = bud({ ...full({ tax: 0.1, overhead: 0.1, profit: 0.1 }), allowances: { Permit: 1200, Delivery: 300.5, Bad: -5, Zero: 0 } });
+  assert.equal(withA.allowances, 1500.5);
+  assert.equal(withA.tax, base.tax);
+  assert.ok(Math.abs(withA.total - (base.total + 1500.5)) < 0.02);
+  assert.ok(Math.abs(withA.overhead - withA.total * 0.1) < 0.02);
+  assert.equal(withA.lines.filter((l) => l.section === "Allowances").length, 2);
+  assert.equal(base.allowances, 0);
+  assert.match(budgetText(withA).join("\n"), /allowances 1500.50/);
+  assert.match(budgetText(base).join("\n"), /type them under `allowances`/);
+});
+
+test("labor share is labor over the cost total, null without labor", () => {
+  const b = bud({ ...full({ laborWallSheet: 9 }) });
+  assert.ok(b.labor > 0);
+  assert.equal(b.laborPct, Math.round(10000 * b.labor / b.total) / 100);
+  assert.ok(budgetText(b).some((x) => x.includes("Labor share of the cost total")));
+  assert.equal(bud({ ...full({}) }).laborPct, null);
+});
+
+test("bid price per sq ft of floor appears only when overhead or profit lifts the bid above cost", () => {
+  const plain = bud(full({ floorSheet: 30 }));
+  assert.equal(plain.bidPerFloorSqFt, null);
+  const b = bud(full({ floorSheet: 30, overhead: 0.1, profit: 0.1 }));
+  assert.ok(b.bid > b.total);
+  assert.equal(b.bidPerFloorSqFt, +(b.bid / b.floorSqFt).toFixed(2));
+  assert.ok(b.bidPerFloorSqFt > b.perFloorSqFt);
+  assert.match(budgetText(b).join("\n"), /Bid price per sq ft of floor framed/);
+});
+
+test("bid price per foot of wall appears only when overhead or profit lifts the bid above cost", () => {
+  const plain = bud(full({ floorSheet: 30 }));
+  assert.equal(plain.bidPerWallFoot, null);
+  const b = bud(full({ floorSheet: 30, overhead: 0.1, profit: 0.1 }));
+  assert.ok(b.wallFeet > 0);
+  assert.equal(b.bidPerWallFoot, +(b.bid / b.wallFeet).toFixed(2));
+  assert.ok(b.bidPerWallFoot > b.perWallFoot);
+  assert.match(budgetText(b).join("\n"), /Bid price per linear foot of wall/);
+});
+
+test("labor line for setting doors and windows counts framed openings (kings / 2) at the typed rate", () => {
+  const b = bud(full({ laborOpening: 85 }));
+  const l = b.lines.find((x) => x.item === "Door and window setting");
+  assert.ok(l, "opening labor line appears");
+  assert.equal(l.qty, 12); // the sample plan frames 12 openings (24 king studs)
+  assert.equal(l.amount, 1020); // 12 x 85 by hand
+  assert.ok(!bud(full()).lines.some((x) => x.item === "Door and window setting"));
+});

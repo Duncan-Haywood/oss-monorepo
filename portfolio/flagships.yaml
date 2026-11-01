@@ -172,8 +172,13 @@ flagships:
       HiGHS ILP optimum (eval/ilp-check.py) on all 12 weeks at 8x22, 10x28, 12x30.
       Floors reach the optimum on 10 of 12 weeks; 10x the branching nodes leaves
       them unchanged, so the open gaps are 12x30 week 1 (72 vs 75) and 10x28 week 4
-      (77 vs 78): only a stronger relaxation (person-day clique or LP cuts) closes
-      them. Measured 2026-10-28 (eval/relaxation-check.py): no LP relaxation closes 12x30 week 2 (cliques 68, cover cuts 68.4, Dantzig-Wolfe 72.33; floor 72, optimum 75), so the clique cut is dropped. Later landings (open-shift weight, 14-day notice, --import-shifts, planStreaks, streak cell, rest breaks, seniority claims) are in the README. Measured 2026-11-01 (eval/rolling-gap-bench.mjs): carry-over costs 0 open hours over 16 seeded 10x28 weeks, so a joint multi-week solve is dropped for coverage. Measured 2026-11-01 (eval/pay-gap-bench.mjs): with coverage proven (11 of 12 seeded 8x22 weeks) pay is within $15.69 (0.7%) of the bound, so a tighter pay bound is worth little. Next: branch-and-price on the Dantzig-Wolfe LP (the coverage search gap, the one unproven 8x22 week); a real published-schedule export for --import-shifts. 
+      (77 vs 78): only a stronger relaxation closes them (no LP relaxation tried
+      does; eval/relaxation-check.py). Landed 2026-10-27 to 2026-11-01 (history in
+      the README): open-shift weighting, 14-day-notice page, `--import-shifts`,
+      `planStreaks`, `streak:` carry-over, `placeRestBreaks`, `seniorityClaims`.
+      Measured: carry-over costs 0 open hours, so a joint multi-week solve is
+      dropped; with coverage proven pay is within 0.7% of the bound.
+      Next: branch-and-price on the Dantzig-Wolfe LP (the coverage search gap, the one unproven 8x22 week); a real published-schedule export for --import-shifts. 
 
   - venture: photo-editing
     why: >-

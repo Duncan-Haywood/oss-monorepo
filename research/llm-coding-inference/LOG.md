@@ -2,6 +2,30 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-01 · Milestone 7i: why 7h's cells bought 0.6%: a closed-form ceiling on the coder-cell gain (planned before running; no sampling, arithmetic on the 7h corpus)
+- Why: 7h's "Next". 7h guessed the 6ag/6ai GoEmotions gains came from large prevalence contrast between cells. `experiments/h7i_cell_contrast.py` prints the cell prevalences of the 7h coder and the half-width ratio Neyman-cells over pooled implied by prevalence, sensitivity and specificity (no pilot cost, no finite-population correction).
+- **Prediction (before running):** the ceiling at the 7h coder is at least 5% narrower than pooled (ratio <= 0.95), so the observed 0.6% is mostly lost to the pilot-estimated allocation, and the ceiling grows as prevalence falls (the 7h guess). Refuted if the ceiling is above 0.95, or if it does not vary with prevalence.
+
+### Outcome (`experiments/h7i_cell_contrast.txt`)
+- 7h coder: P(y=1 | coder+) 0.599 (share 0.314), P(y=1 | coder-) 0.203. Ceiling ratio 0.916 (8.4% narrower); observed screened/pooled 0.994. So the ceiling prediction held and most of the ceiling (about 7.8 of 8.4 points) is not realised.
+- **The prevalence half is refuted, by an identity.** Writing the Neyman sum out, w+ sd+ = sqrt(p s (1-p)(1-c)) and w- sd- = sqrt(p (1-s)(1-p) c), so ratio = sqrt(s(1-c)) + sqrt((1-s)c), independent of prevalence p. The sweep shows it (every prevalence from 0.5% to 50% gives the same ratio). For sens = spec it is close to sqrt(1-J^2) (J 0.4: 0.917; J 0.8: 0.600) and a coder with J near 0.4 can give at most 8% narrower intervals at any prevalence. Asymmetric coders: 0.8/0.97 gives 0.595, 0.5/0.97 gives 0.819.
+- Consequence: 7h's "lower prevalence" explanation is wrong; the GoEmotions gains of 15 to 25% came from coders with higher J (ratios 0.6 to 0.8 are reachable), and the 7h shortfall is the pilot and allocation cost, not the prevalence contrast. Not tested here: how much of the gap a larger pilot or a fixed 50/50 allocation recovers.
+- Limits: asymptotic, ignores pilot cost, finite-population correction and the coder's error structure; coder sens/spec taken as known; one real corpus for the cell prevalences.
+- Next: put the ceiling in `plan_audit` (a "worth it" threshold: cells only if the ceiling is under ~0.9); measure the realised fraction of the ceiling vs pilot size on NaijaSenti; a coder with J above 0.6.
+
+## 2026-11-01 · Milestone 7h: does the screened audit rule gain on NaijaSenti with an informative coder (corpus J of 0.3 or more)? (planned before running; a 20-draw smoke test of the script ran first, to check it executes)
+- Why: 7g's "Next". The zero-shot Qwen coders had J <= 0.2, so the cell gain was untested. The in-language naive-Bayes coder (trained on the NaijaSenti train split, no audit labels) has J near 0.39 (sens 0.575, spec 0.813, from `h3_nb-in-language.txt`). `experiments/h7h_informative_coder.py`: 6,000-tweet corpus, truth known, library path `plan_audit` -> draw -> `audit_interval` vs forced-pooled (tau = 2), n = 400 and 1000, 500 draws (coverage +/- 2 points). A fine-tuned encoder was not built; this is the stand-in already in the repo.
+- **Predictions:** (1) the screen picks cells in a majority of draws. (2) Screened is at least 5% narrower than pooled at n = 1000. (3) Coverage at least 93%. Refuted otherwise.
+
+### Outcome (`experiments/h7h_informative_coder.txt`; 500 draws)
+- Corpus prevalence 0.3272, corpus J 0.388, coder-positive share 0.314.
+- **(1) held:** cells chosen in 83% (n = 400) and 95% (n = 1000) of draws.
+- **(2) refuted:** half-width 4.048 vs 4.074 points (0.6% narrower) at n = 400 and 2.423 vs 2.437 (0.6%) at n = 1000. Cells are used but buy almost nothing, even at J = 0.39.
+- **(3) held:** screened coverage 95.0% and 94.6%; pooled 96.2% and 95.0%.
+- Reading: on this corpus, with prevalence about a third and a coder at J near 0.4, coder-cell stratification is not worth the complexity; the screen is safe (never worse, coverage fine) but the 15 to 25% gains of 6ag/6ai on GoEmotions did not transfer. Those came from large prevalence contrast between cells at lower overall prevalence; here the cell prevalences are not far enough apart (not measured directly this run).
+- Limits: one corpus, one stand-in coder, 500 draws, no coverage theorem.
+- Next: report cell prevalences for this coder to confirm the contrast explanation; a coder with J above 0.6 (fine-tuned encoder) on a rarer NaijaSenti category.
+
 ## 2026-11-01 · Milestone 7g: does the library audit rule gain on NaijaSenti once the Qwen threshold is tuned on a calibration slice? (planned before running)
 - Why: 6aj's "Next". At score > 0 the three zero-shot coders carry no signal (66 to 69% agreement against 67.3% for always answering "not negative"), so "the rule does not transfer" and "these coders are empty" were not separated. `experiments/h7g_tuned_threshold.py` takes the 6,000-tweet subsample, holds out a random third as a calibration slice (best-Youden-J threshold per Qwen model), and audits the other two thirds (4,000 tweets, truth known) with the library path `plan_audit` -> draw -> `audit_interval`, against the same draws forced to one pooled stratum (tau = 2). n = 400 and 1000, 500 draws per cell (coverage +/- 2 points).
 - **Predictions (before running):** (1) a tuned threshold lifts corpus J above 0.3 for at least the 3B coder, so the screen picks cells in a majority of draws there. (2) Where cells are used the screened design is at least 5% narrower than forced-pooled at n = 1000. (3) Coverage of the screened design is at least 93% in every cell. (4) For any coder with corpus J under 0.3 the screen picks pooled and matches forced-pooled within 1%.

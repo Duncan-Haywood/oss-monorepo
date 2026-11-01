@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01E5sJKkesDD1WgJr9RHH2PR",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled: read prompt.md",
+  "input_sha256": "94a6b2a74a2fe72d09d7042291a4072d20b259b937e79b5deda0279ae57c7410",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T13:20:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12337",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Did not run venture-preflight (small engine change, no page change)",
+      "did": "ran the affected unit tests",
+      "result": "pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-01-framing-draw-markup-float.md"
+  ],
+  "goal": null,
+  "notes": "Flagship 1 slice: draw.markup in schedule.mjs. Ran node --test schedule/cli/page tests (110 pass). No CI wait beyond that; venture-preflight not run.",
+  "corrections": [],
+  "redteam": null
+}

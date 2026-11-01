@@ -121,4 +121,4 @@ the flag state's and local authority's rules (COLREGs, harbour master, permits).
 
 ## Next steps
 
-Milestone 3 (Holtrop-Mennen against tank data) and milestones 5 to 7 in the proposal; the measured hotel load of a fielded glider and AUV is the number milestone 4 needs most. AI-assisted (Claude Code).
+Milestone 3 (Holtrop-Mennen is implemented, `src/marine_hull/holtrop.py`, and run on one Wigley tank point: +17% to +22% on its own area after the 3d wave-term fix; coefficients not yet checked against the paper, see LOG 3c and 3d; a small-hull tank curve is still needed) and milestones 5 to 7 in the proposal; the measured hotel load of a fielded glider and AUV is the number milestone 4 needs most. AI-assisted (Claude Code).

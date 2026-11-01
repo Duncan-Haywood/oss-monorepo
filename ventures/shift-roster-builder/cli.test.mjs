@@ -187,3 +187,21 @@ test("--changes prices what moved since the posted roster, on the operator's num
   assert.equal(parseArgs(["--changes", "p.csv", "--changed-at", "2026-11-01 12:00", "--notice-hours", "24"]).noticeHours, 24);
   assert.throws(() => parseArgs(["--changed-at", "tuesday"]), /date and time/);
 });
+
+test("--cover lists direct takers, else a hand-over chain, and says when the shift is not found", () => {
+  const staff = "Ana, 10, 40, 0, Mon 8-16\nBen, 12, 40, 0, Mon 8-16\nCy, 11, 4, 0, Mon 8-16\n";
+  const shifts = "Mon, 8, 16, 1, long\nMon, 8, 12, 1, short\n";
+  assert.deepEqual(parseArgs(["--cover", "Mon 08:00", "--max-moves", "2", "a", "b"]).maxMoves, 2);
+  assert.throws(() => parseArgs(["--max-moves", "9"]), /1 to 5/);
+  const chain = run(staff, shifts, { cover: "Mon 08:00-16:00" });
+  assert.equal(chain.code, 0);
+  assert.match(chain.out, /Nobody can take it without giving something up/);
+  assert.match(chain.out, /2 shifts move/);
+  assert.match(chain.out, /Ben takes Mon 8am-4pm from Ana; then Cy takes Mon 8am-12pm from Ben/);
+  assert.match(run(staff, shifts, { cover: "Mon 08:00-16:00", maxMoves: 1 }).out, /No chain of up to 1 hand-overs/);
+  assert.match(run(staff, shifts, { cover: "Mon 08:00" }).out, /2 shifts start Mon 8am; add the end/);
+  assert.match(run(staff, shifts, { cover: "Tue 09:00" }).out, /No shift starts Tue/);
+  assert.match(run(staff, shifts, { cover: "later" }).out, /needs a shift like/);
+  const direct = run("Ana, 10, 40, 0, Mon 8-16\nBen, 20, 40, 0, Mon 8-16\nCy, 15, 40, 0, Mon 8-16\n", "Mon, 8, 16, 1, open\n", { cover: "Mon 8:00" });
+  assert.match(direct.out, /Can take it outright/);
+});

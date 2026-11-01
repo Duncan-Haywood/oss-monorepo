@@ -14,7 +14,7 @@
 // and the manufacturer's tables decide the real count.
 // Not counted: slope pitch, splash blocks, leaf guards, fascia brackets, sealant,
 // screws, downspout straps beyond the one per `strapSpacing` inches, and a cross
-// wing's runs (main roof only).
+// wing of a different pitch than the main roof (noted). Equal-pitch wings are counted.
 import { packPieces } from "./trim.mjs";
 
 /** @typedef {{ gutterStock?: number, downspoutStock?: number, eaveHeight?: number, hangerSpacing?: number, maxRunFeet?: number, sqFtPerDownspout?: number, strapSpacing?: number, waste?: number, gutterPrice?: number, downspoutPrice?: number, hangerPrice?: number, capPrice?: number, elbowPrice?: number, cornerPrice?: number, strapPrice?: number }} Gutters */
@@ -51,7 +51,20 @@ export function layoutGutters(d, roof) {
   const L = roof.length, W = roof.width;
   /** gutter runs in inches, and the roof's plan area (sq ft) with its overhangs */
   const runs = hip ? [L + 2 * oh, L + 2 * oh, W + 2 * oh, W + 2 * oh] : [L + 2 * rake, L + 2 * rake];
-  const planSqFt = hip ? (L + 2 * oh) * (W + 2 * oh) / 144 : (L + 2 * rake) * (W + 2 * oh) / 144;
+  let planSqFt = hip ? (L + 2 * oh) * (W + 2 * oh) / 144 : (L + 2 * rake) * (W + 2 * oh) / 144;
+  // A cross wing (equal pitch only) replaces the stretch of main eave it sits on, `width + 2 x overhang`, with
+  // its own two eave runs (gable end to the main eave line) and adds the plan area beyond that line.
+  /** @type {string[]} */ const wingNotes = [];
+  let wingCount = 0;
+  for (const wg of (hip ? [] : roof.wings || [])) {
+    if (Math.abs(wg.pitch - roof.pitch) > 1e-9) { wingNotes.push(`A cross wing ${wg.width / 12} ft wide has its own pitch, so its gutters are not counted (equal pitch only).`); continue; }
+    const cut = wg.width + 2 * oh, i = runs.findIndex((r) => r >= cut);
+    if (i < 0) { wingNotes.push("A cross wing is wider than the main eave it sits on; its gutters are not counted."); continue; }
+    runs[i] -= cut;
+    runs.push(wg.eaveLineRun, wg.eaveLineRun);
+    planSqFt += cut * wg.eaveLineRun / 144;
+    wingCount++;
+  }
   const total = runs.reduce((a, b) => a + b, 0);
   const up = (/** @type {number} */ n) => Math.ceil(n * (1 + waste) - 1e-9);
   const gp = packPieces(runs, stock);
@@ -71,7 +84,7 @@ export function layoutGutters(d, roof) {
   const m = (/** @type {number | undefined} */ p, /** @type {number} */ q) => (p != null ? q * p : 0);
   return {
     ok: true, errors: [], shape: hip ? "hip" : "gable", waste, gutterStock: stock, downspoutStock: dsStock, eaveHeight: height, hangerSpacing: hanger,
-    runFeet: total / 12, runs: runs.length, planSqFt, gutters, downspouts, downspoutPieces: dsPieces, hangers, endCaps: caps, outsideCorners: corners, elbows, straps,
+    wings: wingCount, wingNotes, runFeet: total / 12, runs: runs.length, planSqFt, gutters, downspouts, downspoutPieces: dsPieces, hangers, endCaps: caps, outsideCorners: corners, elbows, straps,
     cost: priced ? m(d.gutterPrice, gutters) + m(d.downspoutPrice, dsPieces) + m(d.hangerPrice, hangers) + m(d.capPrice, caps) + m(d.elbowPrice, elbows) + m(d.cornerPrice, corners) + m(d.strapPrice, straps) : null,
   };
 }
@@ -83,6 +96,7 @@ export function guttersText(g) {
   l.push(`  Downspouts: ${g.downspouts} (roof plan area ${g.planSqFt.toFixed(0)} sq ft), ${g.eaveHeight / 12} ft drop -> ${g.downspoutPieces} pieces of ${g.downspoutStock / 12} ft, ${g.elbows} elbows, ${g.straps} straps`);
   l.push(`  Hangers: ${g.hangers} (every ${g.hangerSpacing} in), end caps: ${g.endCaps}${g.outsideCorners ? `, outside corners: ${g.outsideCorners}` : ""}`);
   if (g.cost != null) l.push(`  Priced parts: ${g.cost.toFixed(2)}`);
-  l.push("  Downspout count is a rule of thumb (one per run length and per roof area), not a drainage design; splash blocks, leaf guards, sealant, screws and a cross wing's runs are not counted.");
+  l.push("  Downspout count is a rule of thumb (one per run length and per roof area), not a drainage design; splash blocks, leaf guards, sealant and screws are not counted.");
+  for (const n of g.wingNotes || []) l.push("  " + n);
   return l;
 }

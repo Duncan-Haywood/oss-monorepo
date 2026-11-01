@@ -159,6 +159,8 @@ the quote. Notes are agent-written, not real calls.
 
 ## Use it
 
+- **Voice (2026-11-01, optional):** the call section can take dictated notes ("next point" starts a new line, "period" and "comma" add marks) and read the brief or draft aloud, using the browser's own speech tools; the buttons appear only where the browser has them. In Chrome and Edge dictation sends audio to the browser maker's speech service; the page records and stores nothing. Tested: text rules by hand (`voice.test.mjs`), buttons by a Chromium click with a stubbed recogniser. Not tested: a real microphone or voice.
+
 - **Page:** paste replies (each starting `From:`, or separated by `---`), and
   optionally your prospect CSV and suppression list. Download the updated
   prospects, the suppression additions, Deal Keeper rows, your tasks and the

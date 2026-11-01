@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { promises as fs, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import vm from 'node:vm';
 import { AGENT_BLOG, BLOG, buildWriting, loadPosts, parseFrontMatter, postPageTitle, relatedPosts, renderFeed, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
 
 const BASE = 'https://example.test/site/';
@@ -253,4 +254,39 @@ test('relatedPosts never lists the post itself; same topic first, then the rest,
   const posts = [mk('a', 'x'), mk('b', 'y'), mk('c', 'x'), mk('d', 'y')];
   assert.deepEqual(relatedPosts(posts[0], posts).map((p) => p.slug), ['c', 'b', 'd']);
   assert.deepEqual(relatedPosts(posts[0], posts, 2).map((p) => p.slug), ['c', 'b']);
+});
+
+// Runs the index's inline finder script against a small fake DOM, so the count
+// text and the tag-menu fallback are checked by behaviour, not by matching source.
+async function runFinder(search, { selectedIndex = 0 } = {}) {
+  const root = repoWith({ '2026-10-16-hello.md': post('Hello', '2026-10-16') });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-'));
+  await buildWriting(out, BASE, { root });
+  const index = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
+  const script = [...index.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
+  assert.ok(script, 'finder script present');
+  const li = (slug, text) => ({ dataset: { slug, text, tags: 'a b', topic: 't', date: '2026-01-01', mins: '1' }, hidden: false });
+  const items = [li('x', 'alpha'), li('y', 'beta')];
+  const el = () => ({ value: '', hidden: true, textContent: '', dataset: {}, addEventListener() {}, setAttribute() {}, focus() {} });
+  const els = { posts: { children: items, appendChild() {} }, q: el(), tag: { ...el(), selectedIndex }, sort: el(), count: el(), none: el(), clear: el(), finder: el() };
+  const ctx = {
+    document: { getElementById: (id) => els[id], querySelectorAll: () => [] },
+    location: { search, pathname: '/writing/' },
+    history: { replaceState() {} },
+    fetch: () => Promise.resolve({ ok: false }),
+    URLSearchParams, Array, String,
+  };
+  vm.runInNewContext(script, ctx);
+  return els;
+}
+
+test('finder count reads "N posts" when nothing is filtered and "k of N posts" when something is', async () => {
+  assert.equal((await runFinder('')).count.textContent, '2 posts');
+  assert.equal((await runFinder('?q=alpha')).count.textContent, '1 of 2 posts');
+  assert.equal((await runFinder('?q=zzz')).count.textContent, '0 of 2 posts');
+});
+
+test('finder keeps a ?tag= that is in the menu (even the first option) and drops one that is not', async () => {
+  assert.equal((await runFinder('?tag=a', { selectedIndex: 0 })).tag.value, 'a');
+  assert.equal((await runFinder('?tag=nope', { selectedIndex: -1 })).tag.value, '');
 });

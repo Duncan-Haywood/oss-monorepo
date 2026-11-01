@@ -42,6 +42,8 @@
   <input id="ac" type="text" placeholder="frame=18000, roof=9500" spellcheck="false" style="max-width:28rem">
   <label for="dr">Draw terms (optional; needs activity costs above): days the lender or owner pays late, retainage percent, optionally days after the last working day until retainage is released, like <code>14, 10, 30</code>. The report then shows the most cash you float. Your terms; none shipped.</label>
   <input id="dr" type="text" placeholder="14, 10, 30" spellcheck="false" style="max-width:16rem">
+  <label for="mk">Markup on draws (optional; percent, needs draw terms above): overhead and profit billed on top of cost, like <code>15</code> bills cost x 1.15, so the float and retainage reflect what you invoice. Your figure; none shipped.</label>
+  <input id="mk" type="number" min="0" step="0.5" inputmode="decimal" placeholder="e.g. 15" style="max-width:10rem">
   <label for="cp">Carrying cost per extra working day (optional; dollars: loan interest, insurance, site costs, your figure, none shipped). Each slip then shows what it costs, and the total carry for the job is shown.</label>
   <input id="cp" type="number" min="0" step="1" inputmode="decimal" placeholder="e.g. 250" style="max-width:10rem">
   <label for="dl">Contract completion date (optional; <code>YYYY-MM-DD</code>, your date). The report then says how many working days late, or to spare, the finish with your crews is, and the carrying cost of the late days if you typed one above.</label>
@@ -67,7 +69,7 @@
   <p>No. It ships no durations. Every duration, predecessor and crew count is yours, from your own crews and past jobs. The sample is only there to show the format.</p>
   <h3>How are weekends, holidays and cure time handled?</h3>
   <p>Weekends are skipped. Holidays and weather days are dates you list. Cure time or an inspection wait is a lag in working days after the predecessors finish. Weather is not forecast.</p>
-  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li></ul></nav>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li></ul></nav>
   
   <footer>
     <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Room and opening sizes are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -132,7 +134,9 @@
       if (drRaw !== "") {
         const n = drRaw.split(/[,;\s]+/).filter(Boolean).map(Number);
         if (n.length < 2 || n.length > 3 || n.some((x) => !Number.isFinite(x) || x < 0) || !Number.isInteger(n[0]) || (n[2] != null && !Number.isInteger(n[2])) || n[1] > 100) { $("out").textContent = "Draw terms: write lag days, retainage percent (0 to 100), then optionally release days, e.g. 14, 10, 30. Could not read: " + drRaw; $("gantt").innerHTML = ""; return; }
-        input = { ...input, draw: { lagDays: n[0], retainagePct: n[1], ...(n[2] != null ? { releaseLagDays: n[2] } : {}) } };
+        const mkRaw = $("mk").value.trim(), mk = mkRaw === "" ? 0 : Number(mkRaw);
+        if (!Number.isFinite(mk) || mk < 0) { $("out").textContent = "Markup on draws: write a percent of zero or more, e.g. 15. Could not read: " + mkRaw; $("gantt").innerHTML = ""; return; }
+        input = { ...input, draw: { lagDays: n[0], retainagePct: n[1], ...(n[2] != null ? { releaseLagDays: n[2] } : {}), ...(mk ? { markup: mk / 100 } : {}) } };
       }
       const rgRaw = $("rg").value.trim();
       let ranges = null;
@@ -178,6 +182,7 @@
     $("cp").addEventListener("input", run);
     $("nb").addEventListener("input", run);
     $("ac").addEventListener("input", run);
+    $("mk").addEventListener("input", run);
     $("dr").addEventListener("input", run);
     $("dl").addEventListener("input", run);
     $("rg").addEventListener("input", run);
