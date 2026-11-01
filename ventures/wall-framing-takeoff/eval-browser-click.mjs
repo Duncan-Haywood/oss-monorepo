@@ -465,13 +465,14 @@ console.log(slabOk ? "ok: insulation slab edge F-factor, card and saved plan" : 
 // allowances on the price box and the customer proposal card (2026-11-01)
 await page.fill("#priceText", "wallSheet, 20\nlaborWallFoot, 10\noverhead, 0.1\nprofit, 0.1\nallowance Permit, 1200");
 await page.fill("#propClient", "Test Client"); await page.fill("#propExcl", "Painting");
+await page.fill("#propPay", "Deposit, 30\nFinal, 70");
 await page.check("#propPartial");
 await page.click("#propBtn");
 await page.waitForFunction(() => /PROPOSAL|Proposal not issued/.test(document.querySelector("#propOut")?.textContent || ""), null, { timeout: 30000 }).catch(() => {});
 const propTxt = await page.textContent("#propOut");
 const [sv7] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
 const saved7 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv7.path(), "utf8"));
-const propOk = /Prepared for Test Client/.test(propTxt) && /Permit: 1,200\.00/.test(propTxt) && /Not included: Painting/.test(propTxt) && !/NaN|undefined/.test(propTxt) && saved7.allowances?.Permit === 1200;
+const propOk = /Prepared for Test Client/.test(propTxt) && /Permit: 1,200\.00/.test(propTxt) && /Not included: Painting/.test(propTxt) && /Deposit/.test(propTxt) && /Final/.test(propTxt) && !/NaN|undefined/.test(propTxt) && saved7.allowances?.Permit === 1200;
 console.log(propOk ? "ok: allowance line and customer proposal, card and saved plan" : "FAIL: proposal: " + propTxt.slice(0, 500) + JSON.stringify(saved7.allowances));
 // the proposal's printable page opens as a self-contained page (2026-11-01)
 const [popup] = await Promise.all([page.context().waitForEvent("page", { timeout: 15000 }).catch(() => null), page.click("#propPrint")]);

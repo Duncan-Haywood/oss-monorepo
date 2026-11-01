@@ -408,6 +408,7 @@
     <p><label>Also included (one per line)<br><textarea id="propIncl" aria-label="Also included" rows="2" style="width:100%"></textarea></label></p>
     <p><label>Not included (one per line)<br><textarea id="propExcl" aria-label="Not included" rows="2" style="width:100%" placeholder="Permits&#10;Painting"></textarea></label></p>
     <p><label>Terms (one per line)<br><textarea id="propTerms" aria-label="Terms" rows="2" style="width:100%" placeholder="50% deposit&#10;Balance on completion"></textarea></label></p>
+    <p><label>Payment schedule (optional, one per line: name, percent; must add to 100)<br><textarea id="propPay" aria-label="Payment schedule" rows="2" style="width:100%" placeholder="Deposit, 30&#10;Framing complete, 40&#10;Final, 30"></textarea></label></p>
     <p><label><input type="checkbox" id="propPartial" aria-label="Issue even if some lines are unpriced"> Issue even if some lines are unpriced (the gap is printed)</label></p>
     <p><button type="button" class="secondary" id="propBtn">Preview proposal</button> <button type="button" class="secondary" id="propDl">Download proposal (.txt)</button> <button type="button" class="secondary" id="propPrint">Open printable page</button></p>
     <div id="propOut"></div>
@@ -1127,7 +1128,7 @@
     function buildProposal() {
       if (!last?.budget) return null;
       const lines = (id) => $(id).value.split(/\n/).map((x) => x.trim()).filter(Boolean);
-      return proposal(last.budget, { client: $("#propClient").value.trim(), project: $("#propProject").value.trim(), date: new Date().toISOString().slice(0, 10), validDays: Math.max(1, Math.round(Number($("#propDays").value) || 30)), inclusions: lines("#propIncl"), exclusions: lines("#propExcl"), terms: lines("#propTerms"), partial: $("#propPartial").checked });
+      return proposal(last.budget, { client: $("#propClient").value.trim(), project: $("#propProject").value.trim(), date: new Date().toISOString().slice(0, 10), validDays: Math.max(1, Math.round(Number($("#propDays").value) || 30)), inclusions: lines("#propIncl"), exclusions: lines("#propExcl"), terms: lines("#propTerms"), payments: lines("#propPay").map((x) => { const i = x.lastIndexOf(","); return { name: x.slice(0, i < 0 ? x.length : i).trim() || x, pct: i < 0 ? NaN : Number(x.slice(i + 1)) }; }), partial: $("#propPartial").checked });
     }
     function showProposal() {
       if (!run()) return null;
