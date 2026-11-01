@@ -1,5 +1,6 @@
 ---
 title: "A sick call at 4 pm: who can take the shift, and if nobody can, the shortest chain of swaps"
+seo_title: "A sick call at 4 pm: who covers, or the shortest swap chain"
 date: 2026-11-01
 tags: [shift-roster-builder, scheduling, cli]
 description: The roster builder's command line now answers a call-out with direct takers first, then the fewest hand-overs that keep every rule, with the pay change.

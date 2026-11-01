@@ -1,5 +1,6 @@
 ---
 title: "How tight can a training progress check be before it flags honest workers?"
+seo_title: "How tight can a training progress check be?"
 date: 2026-11-01
 tags: [verifiable-training-mechanisms, research, incentives]
 description: Sweeping the threshold on a loss check for outsourced training: 1% above the best honest run flags no honest worker and catches most stalling ones.
