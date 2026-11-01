@@ -1,0 +1,23 @@
+ok points: old 1004, new 1002, shared 1002; failed in ABC: old 196, new 198
+design | clock | period ns old -> new | n | tau R2 old,new | tau R4 old,new
+adder_op16 | relaxed | 1.755 -> 1.89 | 50 | 0.63 | 0.51
+adder_op16 | tight | 1.17 -> 1.26 | 50 | 0.63 | 0.62
+adder_ripple16 | relaxed | 3.18 -> 3.165 | 51 | 0.76 | 0.76
+adder_ripple16 | tight | 2.12 -> 2.11 | 51 | 0.76 | 0.74
+alu8 | relaxed | 3.09 -> 2.46 | 50 | 0.18 | 0.21
+alu8 | tight | 2.06 -> 1.64 | 50 | 0.18 | 0.14
+barrel16 | relaxed | 1.935 -> 1.545 | 50 | 0.21 | 0.23
+barrel16 | tight | 1.29 -> 1.03 | 50 | 0.17 | 0.06
+cmp_sat12 | relaxed | 2.595 -> 2.43 | 50 | 0.55 | 0.47
+cmp_sat12 | tight | 1.73 -> 1.62 | 50 | 0.56 | 0.58
+crc16 | relaxed | 0.945 -> 0.945 | 50 | 0.43 | 0.53
+crc16 | tight | 0.63 -> 0.63 | 50 | 0.43 | 0.63
+fifo8x4 | relaxed | 3.3 -> 3.57 | 50 | -0.06 | -0.16
+fifo8x4 | tight | 2.2 -> 2.38 | 50 | -0.06 | 0.37
+mac4 | relaxed | 2.67 -> 2.88 | 50 | 0.36 | 0.33
+mac4 | tight | 1.78 -> 1.92 | 50 | 0.36 | 0.39
+mult8 | relaxed | 4.035 -> 4.035 | 50 | 0.26 | 0.17
+mult8 | tight | 2.69 -> 2.69 | 50 | 0.27 | 0.40
+popcount16 | relaxed | 3.27 -> 3.315 | 50 | 0.54 | 0.64
+popcount16 | tight | 2.18 -> 2.21 | 50 | 0.54 | 0.60
+median across 20 cells: tau R2 0.39, tau R4 0.44; clock target changed in 16 of 20 cells
