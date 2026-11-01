@@ -1,0 +1,70 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01XpHqydNCW7HXNbLLa7UMgG",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "lets do a look of the usage stats from cloudflare and also do a look at the seo and aseo we have going so far. blog post report on the topic",
+  "input_sha256": "e168ee99d3f8b82f8df25a6bbbd46e8f8b768447f0ffadc90a8d2a33358c186b",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T04:04:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Review Cloudflare usage stats and the SEO / AI-search state; write a report and blog post",
+  "projects": [
+    "platform/pages",
+    "platform/counter",
+    "portfolio/usage"
+  ],
+  "pr": 12244,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "site-usage-pull.yml has failed since 2026-10-31: its direct push to main is rejected by the main ruleset (GH013, run 41172448053), so cloudflare-analytics.json never landed. Queued as a separate control-plane task.",
+    "main's site build and check_post_frontmatter were red: two 2026-11-01 posts (deck beam, stair guard post) had descriptions over 160 characters. Shortened here.",
+    "Session disk filled when node --test platform/pages/build.test.mjs left full-site builds in /tmp/pages-build-* after the build threw; cleanup of /tmp was refused by the permission classifier."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/build.test.mjs",
+      "issue": "When buildSite throws, each failing test leaves a full site build in os.tmpdir() (no finally cleanup); two runs used up the whole session disk allowance."
+    },
+    {
+      "file": "portfolio/usage/README.md",
+      "issue": "Says the counter is 'built but not yet deployed (its site.json URL is empty)'; the URL is set and the Worker answers."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Router drew ventures; the owner's message set the task (usage + SEO review and post), so the run followed that instead of the flagship default.",
+      "did": "usage/SEO review, llms.txt fix, build fix",
+      "result": "merged"
+    },
+    {
+      "file": "prompts/runs record 'model' field",
+      "why": "Session instructions forbid model identifiers in pushed artifacts, so the field is left null."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-01-nine-days-of-usage-and-what-search-sees.md",
+    "docs/reports/2026-11-01-usage-seo-aeo-review.md"
+  ],
+  "goal": null,
+  "notes": "Verification: beacon re-pulled live (pull.mjs: 78 page loads over 7 days). python3 platform/ci/check_post_frontmatter.py passes locally after the fixes. node --test platform/pages/build.test.mjs locally failed only on the pre-existing over-long deck-beam description (main was red); the rerun after the fix was lost to the disk filling up, so the page build and tests are verified by PR CI (build, validate, test jobs). Live checks via curl: robots.txt, sitemap index (1,322 children), hub sitemap 2,844 URLs, JSON-LD types on 4 sampled pages, AI crawler user agents all 200.",
+  "corrections": [],
+  "redteam": null
+}
