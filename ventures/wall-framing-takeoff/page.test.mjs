@@ -120,6 +120,9 @@ test("the page reads and restores the stair stringer check", () => {
   assert.match(html, /id="stCheck"/);
   assert.match(html, /st\.stringerCheck = \{ liveLoad: n\[0\]/);
   assert.match(html, /\$\("#stCheck"\)\.value = k \?/);
+  assert.match(html, /id="stCheck2"/);
+  assert.match(html, /st\.stringerCheck\.connectorCapacity = m\[0\]/);
+  assert.match(html, /\$\("#stCheck2"\)\.value = k && k\.connectorCapacity/);
 });
 
 test("the page frames a floor through floor.mjs and pools its lumber with the walls", () => {
