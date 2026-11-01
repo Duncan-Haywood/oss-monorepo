@@ -1,0 +1,11 @@
+Q_PUMP base 45.0 L/min; rated sizing 1.0 x; load factor 0.346; LS standby 2.0 L/min; 1,500 cycles per cell
+pump x1.0 f=1.0: break-even dp_ls 36.1 bar; LS/OC at 14 bar 0.663, 26 bar 0.846
+pump x1.0 f=0.75: break-even dp_ls 32.0 bar; LS/OC at 14 bar 0.706, 26 bar 0.901
+pump x1.0 f=0.5: break-even dp_ls 27.5 bar; LS/OC at 14 bar 0.756, 26 bar 0.973
+pump x1.0 f=0.25: break-even dp_ls 23.1 bar; LS/OC at 14 bar 0.823, 26 bar 1.055
+pump x1.0 f=0.0: break-even dp_ls 18.8 bar; LS/OC at 14 bar 0.897, 26 bar 1.153
+pump x1.2 f=1.0: break-even dp_ls 44.5 bar; LS/OC at 14 bar 0.584, 26 bar 0.748
+pump x1.2 f=0.75: break-even dp_ls 38.1 bar; LS/OC at 14 bar 0.640, 26 bar 0.819
+pump x1.2 f=0.5: break-even dp_ls 31.7 bar; LS/OC at 14 bar 0.709, 26 bar 0.906
+pump x1.2 f=0.25: break-even dp_ls 25.2 bar; LS/OC at 14 bar 0.794, 26 bar 1.015
+pump x1.2 f=0.0: break-even dp_ls 18.8 bar; LS/OC at 14 bar 0.899, 26 bar 1.152
