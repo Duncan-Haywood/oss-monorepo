@@ -1,0 +1,178 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01AcxTtLtpXLPnLDbrERojsV",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T04:08:32Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-01-red-team-two-long-descriptions-turned-the-hub-suite-red.md"
+  ],
+  "goal": null,
+  "notes": "Baseline red on hub.mjs: two posts with descriptions >160 chars. Fixed; hub kit --out test added in hub.test.mjs; catch 7/8 -> 8/8.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/distribution/hub.mjs",
+        "test": "node --test platform/distribution/hub.test.mjs  (in .)",
+        "seed": 330064641,
+        "commit": "52c67586",
+        "sites": 103,
+        "baseline_seconds": 0.7,
+        "mutants": [
+          {
+            "file": "platform/distribution/hub.mjs",
+            "line": 39,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "export const EMAIL = Object.freeze({ days: 7, weekday: 1, maxItems: 25 });",
+            "after": "export const EMAIL = Object.freeze({ days: 7, weekday: 2, maxItems: 25 });",
+            "line_text": "export const EMAIL = Object.freeze({ days: 7, weekday: 1, maxItems: 25 });",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/hub.mjs",
+            "line": 52,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "else if (a === '--out') opts.out = next();",
+            "after": "else if (a !== '--out') opts.out = next();",
+            "line_text": "    else if (a === '--out') opts.out = next();",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/hub.mjs",
+            "line": 77,
+            "col": 24,
+            "operator": "le-to-lt",
+            "before": "if (age >= 0 && age <= postDays * 864e5) items.push(postItem(p));",
+            "after": "if (age >= 0 && age < postDays * 864e5) items.push(postItem(p));",
+            "line_text": "    if (age >= 0 && age <= postDays * 864e5) items.push(postItem(p));",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/hub.mjs",
+            "line": 93,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "const mine = p.id === 'email' ? items.slice(0, EMAIL.maxItems) : recent;",
+            "after": "const mine = p.id === 'email' ? items.slice(1, EMAIL.maxItems) : recent;",
+            "line_text": "    const mine = p.id === 'email' ? items.slice(0, EMAIL.maxItems) : recent;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/hub.mjs",
+            "line": 106,
+            "col": 11,
+            "operator": "and-to-or",
+            "before": "if (note && !variants.length) lines.push('Nothing to post.', '');",
+            "after": "if (note || !variants.length) lines.push('Nothing to post.', '');",
+            "line_text": "  if (note && !variants.length) lines.push('Nothing to post.', '');",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/hub.mjs",
+            "line": 146,
+            "col": 21,
+            "operator": "eq-flip",
+            "before": "if (!why && p.id === 'email' && now.getUTCDay() !== EMAIL.weekday) why = 'the digest goes out on Mondays (UTC) only';",
+            "after": "if (!why && p.id !== 'email' && now.getUTCDay() !== EMAIL.weekday) why = 'the digest goes out on Mondays (UTC) only';",
+            "line_text": "    if (!why && p.id === 'email' && now.getUTCDay() !== EMAIL.weekday) why = 'the digest goes out on Mondays (UTC) only';",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/hub.mjs",
+            "line": 211,
+            "col": 110,
+            "operator": "plus-to-minus",
+            "before": "for (const k of kits) await fs.writeFile(path.join(o.out, `${k.item.split(':')[1]}.md`), kitMarkdown(k) + '\\n');",
+            "after": "for (const k of kits) await fs.writeFile(path.join(o.out, `${k.item.split(':')[1]}.md`), kitMarkdown(k) - '\\n');",
+            "line_text": "      for (const k of kits) await fs.writeFile(path.join(o.out, `${k.item.split(':')[1]}.md`), kitMarkdown(k) + '\\n');",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "kit --out file contents were never asserted; added test in hub/content.test.mjs"
+          },
+          {
+            "file": "platform/distribution/hub.mjs",
+            "line": 220,
+            "col": 12,
+            "operator": "eq-flip",
+            "before": "if (o.cmd === 'plan') {",
+            "after": "if (o.cmd !== 'plan') {",
+            "line_text": "  if (o.cmd === 'plan') {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "docs/posts/2026-11-01-can-a-stair-guard-post-take-200-pounds.md",
+        "issue": "description 177 chars (>160) made loadPosts throw, turning hub baseline red (2 tests)",
+        "patched": true
+      },
+      {
+        "file": "docs/posts/2026-11-01-does-a-deck-beam-hold-the-joists.md",
+        "issue": "description 171 chars (>160), same effect (4 tests red)",
+        "patched": true
+      }
+    ]
+  }
+}
