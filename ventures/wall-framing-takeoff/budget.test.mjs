@@ -172,3 +172,11 @@ test("labor lines for eaves (fascia run) and gutters (run feet) use the typed ra
   const none = bud({ ...plan, prices: {} });
   assert.ok(!none.lines.some((l) => l.section === "Labor"));
 });
+
+test("labor line for hold-downs and plate straps uses the typed rate and is not taxed", () => {
+  const b = bud({ ...full({ laborHoldDown: 12 }), fasteners: { holdDowns: { wallEnds: true }, plateStraps: true } });
+  const l = b.lines.find((x) => x.item === "Hold-down and plate strap installation");
+  assert.ok(l, "hardware labor line appears");
+  assert.ok(l.qty > 0);
+  assert.ok(Math.abs(l.amount - l.qty * 12) <= 0.02);
+});
