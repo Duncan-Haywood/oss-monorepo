@@ -76,9 +76,17 @@ test('head flashing goes over the head casing, behind siding left unnailed for i
   assert.ok(!/before the head casing goes on/.test(md));
 });
 
-test('a door wall is framed with the bottom plate already in pieces, as the cut sheet has it', () => {
+test('a door wall framed across the door is sawn out after raising; with the option off its plate is in pieces', () => {
   for (const make2 of [defaultDesign, PRESETS['10x12'], PRESETS['12x16']]) {
     const { s, md } = mdOf(make2());
+    const doorWalls = Object.values(s.walls).filter((w) => w.openings.some((p) => p.op.kind === 'door'));
+    for (const w of doorWalls) assert.ok(w.members.some((m) => m.kind === 'bottom plate' && m.cutOuts?.length), w.name);
+    assert.equal(md.match(/The bottom plate runs straight across the door opening/g)?.length, doorWalls.length);
+    assert.equal(md.match(/cut the plate out across the door: saw flush with the face of each jack stud with a reciprocating saw/g)?.length, doorWalls.length);
+    assert.ok(!/The bottom plate stops at each side of the door/.test(md));
+  }
+  for (const make2 of [defaultDesign, PRESETS['10x12'], PRESETS['12x16']]) {
+    const { s, md } = mdOf({ ...make2(), plateThroughDoors: false });
     const doorWalls = Object.values(s.walls).filter((w) => w.openings.some((p) => p.op.kind === 'door'));
     for (const w of doorWalls) assert.ok(w.members.filter((m) => m.kind === 'bottom plate').length >= 2, w.name);
     assert.ok(!/Cut the bottom plate out of the door opening/.test(md));

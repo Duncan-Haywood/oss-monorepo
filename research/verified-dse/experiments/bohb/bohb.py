@@ -1,6 +1,6 @@
 """Milestone 54: BOHB proper (Falkner et al. 2018): Hyperband brackets whose entrants are chosen by a TPE/KDE density ratio fitted on the
 highest rung with enough observations, against random-entrant Hyperband, f3 successive halving, and random routing. Same tables, cost model,
-budgets and regret as milestone 23 (mf_tpe/tpe.py). Runs no flow. Writes results.txt and summary.json. Usage: python3 bohb.py"""
+budgets and regret as milestone 23 (mf_tpe/tpe.py). Runs no flow. Writes results.txt and summary.json. Usage: python3 bohb.py [unseen]  (the argument replays the held-out unseen designs of milestone 27 and writes results_unseen.txt / summary_unseen.json)"""
 import json
 import math
 import random
@@ -19,7 +19,9 @@ SEEDS = 100
 BUDGETS = (15, 25, 40)
 ETA = 3
 GAMMA, BW_FLOOR, P_RANDOM, MIN_OBS = 0.25, 0.3, 1 / 3, 6
-TABLES = {n: HERE.parent / n / "results.jsonl" for n in ("rung_bias", "large", "nonarith")}
+HELD = len(sys.argv) > 1 and sys.argv[1] == "unseen"
+SUF = "_unseen" if HELD else ""
+TABLES = {n: HERE.parent / n / "results.jsonl" for n in (("unseen",) if HELD else ("rung_bias", "large", "nonarith"))}
 RUNGS = ("r2", "r3", "r4")
 
 
@@ -171,6 +173,6 @@ for ref_arm in ("hb", "rand"):
         p = min(1.0, 2 * sum(math.comb(n, k) for k in range(0, min(w, l) + 1)) / 2 ** n) if n else 1.0
         out.append(f"bohb vs {ref_arm}, B {B}: wins {w}, losses {l}, p {p:.3f}")
         summary[f"wins_{ref_arm}_B{B}"] = {"w": w, "l": l, "p": p}
-(HERE / "results.txt").write_text("\n".join(out) + "\n")
-(HERE / "summary.json").write_text(json.dumps(summary, indent=1))
+(HERE / f"results{SUF}.txt").write_text("\n".join(out) + "\n")
+(HERE / f"summary{SUF}.json").write_text(json.dumps(summary, indent=1))
 print("\n".join(out))

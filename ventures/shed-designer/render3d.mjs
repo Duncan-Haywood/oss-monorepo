@@ -184,7 +184,8 @@ export function solidsOf(shed, heat) {
   const out = [];
   for (const m of shed.members) {
     const color = heat ? heat.get(m.id) || HEAT_NONE : /^PT /.test(m.material) ? COLORS.pt : (m.kind === 'header' || m.kind === 'ridge board' || m.kind === 'ridge beam') ? COLORS.header : COLORS.framing;
-    out.push({ geom: m.geom, color: /** @type {any} */ (color), layer: layerOf(m), id: m.id });
+    // A bottom plate framed across a door is drawn as it ends up, with the door piece sawn out.
+    for (const geom of m.finished || [m.geom]) out.push({ geom, color: /** @type {any} */ (color), layer: layerOf(m), id: m.id });
   }
   if (heat) return out;
   const pal = paletteOf(d);

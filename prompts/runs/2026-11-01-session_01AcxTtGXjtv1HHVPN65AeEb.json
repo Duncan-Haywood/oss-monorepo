@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01AcxTtGXjtv1HHVPN65AeEb",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T23:22:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12436",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Step 1 says backlog items titled perf: exist; backlog had none, and /usr/bin/time is absent so timing needs bash time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Routed to review but two review PRs for 2026-11-01 were already open, so used --skip-review as instructed.",
+      "did": "perf track",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "docs/history/pages-test-perf-2026-11-01-failed-build-memo.md (no blog post: internal test fix)"
+  ],
+  "goal": null,
+  "notes": "Metric: failed-build test time. Before: 159 tests x ~13 s (spec log of the failing run, projected ~35 min). After: 19.4 s wall (node --test build.test.mjs with injected 170-char post description). Good tree 305/305 in 330 s.",
+  "corrections": [],
+  "redteam": null
+}
