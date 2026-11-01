@@ -2,7 +2,7 @@
 title: "Correlated sensor noise quietly skews a flight-test fit, and a cheap fix"
 date: 2026-11-01
 tags: [research, aerolog-scaling, system-identification, uav]
-description: Simulated flight-test fits of a scaled aircraft, with AR(1) sensor noise: the fit converges to slightly wrong modes, and an iterated GLS fit recovers most of the loss.
+description: Simulated flight-test fits with AR(1) sensor noise converge to slightly wrong modes; an iterated GLS fit recovers most of the loss.
 ---
 
 In the `aerolog-scaling` programme we fit a model's longitudinal modes from a
