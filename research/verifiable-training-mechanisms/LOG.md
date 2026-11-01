@@ -2,6 +2,17 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-01 · Milestone 55: price the progress-check ratio R on 16 honest seeds (H4/H3 link)
+- Why: milestone 54's "Next" (4 seeds, so the honest rate was measured on the seeds that calibrate it). Design (`experiments/progress_R16/run.py`, protocol of 53/54 unchanged): 16 honest seeds; for each test seed, 20 random calibration subsets of K = 3, 7 or 15 other seeds set the threshold (largest other-seed verifier loss over eval points e-1..e+1, times R); stall T = 200 on 32 draws (seed, start) scored against the same subsets.
+- **Disclosure: I did not write numeric predictions before this run** (the design was fixed by milestone 54's "Next", the predictions were not recorded). Read the outcome as descriptive, not as a test.
+
+### Outcome of 55 (`experiments/progress_R16/`: `run.py`, `results.txt`, `results.json`, `run.out`)
+- Honest eval points flagged / honest jobs with any flag, by calibration size K = 3, 7, 15: R = 1.000: 17.3% / 58%, 9.2% / 31%, 4.5% / 19%. R = 1.005: 7.2% / 40%, 1.5% / 16%, 0.1% / 6%. R = 1.01: 1.7% / 22%, 0.2% / 9%, 0 / 0. R = 1.02: 0.07% / 4%, 0 / 0, 0 / 0. R >= 1.03: 0 for every K.
+- Stall T = 200 (all 32 harmful, median |dL| 0.059), flagged of 32 at R = 1.000, 1.005, 1.01, 1.02, 1.03, 1.05: K = 3: 30, 27, 24, 19, 14, 10; K = 7: 28, 26, 20, 16, 13, 6; K = 15: 28, 24, 20, 16, 13, 6.
+- Reading: the false-flag-free R shrinks as the calibration set grows (1.03 at K = 3, 1.02 at K = 7, 1.01 at K = 15), because the largest of more seeds is a higher threshold. At the first R with no honest flag in any subset, stall-200 detection is 14, 16 and 20 of 32 (44%, 50%, 63%), not the 17 of 20 milestone 54 saw at R = 1.01 on 4 seeds with the same-seed calibration; that figure was optimistic. A requester can have zero honest false flags and catch about half to two thirds of 200-step stalls, or accept 1 to 5% honest flagged eval points (R = 1.00 to 1.005, K = 15) for 75 to 88%.
+- Limits: 16 seeds of one tiny model on one corpus; subsets overlap, so the 320 pairs per cell are not independent (the job-level rate is the honest-work number); stall only, non-adaptive; 0 flags in 320 bounds nothing tighter than seed-level variation; compute cost of the check not measured.
+- Next: an adaptive cheater that stalls until the verifier loss nears R x threshold; paper H4 paragraph gains milestones 43 to 55.
+
 ## 2026-11-01 · Milestone 54: what does the progress-check ratio R cost in honest false flags, and what stall detection does it buy? (H4/H3 link, planned before running)
 - Why: milestone 53's "Next". R = 1.05 flagged no honest eval point and caught only 6 of 20 stalls of 200 steps. Design (`experiments/progress_R/run.py`, protocol of 53 unchanged): the adversary runs do not depend on R (stall submits nothing; ascent uses the per-step norm check only), so each job runs once and flags are re-scored at R = 1.00, 1.005, 1.01, 1.02, 1.03, 1.05. New draw seed 54, n = 20 per cell, T = 10, 50, 200.
 - **Predictions, before running:** (1) honest false flags are zero at R = 1.02 and above and exceed 5% of eval points at R = 1.00 (the threshold is then the largest other-seed loss, so one of four seeds will sit above it often). (2) Stall at T = 200 flagged in at least 15 of 20 at R = 1.01. (3) Ascent detection is flat across R (a reversed step is far above any R here). Refuted (2) if R = 1.01 flags under 10 of 20 stalls at T = 200.
