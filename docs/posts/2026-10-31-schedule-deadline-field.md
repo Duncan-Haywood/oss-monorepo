@@ -1,6 +1,6 @@
 ---
 title: "Is your build schedule late? A deadline field for the schedule page"
-seo_title: "Construction schedule deadline check: days late or to spare"
+seo_title: "Build schedule deadline field: are you late, and by how many days?"
 date: 2026-10-31
 tags: [construction, scheduling, wall-framing-takeoff]
 description: "The free construction schedule page now takes a contract completion date and reports working days late or to spare."

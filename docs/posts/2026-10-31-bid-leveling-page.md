@@ -1,6 +1,6 @@
 ---
 title: "Why the lowest bid is often not the lowest"
-seo_title: "Bid leveling: compare subcontractor bids on the same scope"
+seo_title: "Why the lowest subcontractor bid is often not the lowest"
 date: 2026-10-31
 tags: [construction, estimating, wall-framing-takeoff]
 description: "A free bid leveling page: type a scope and each sub's bid, and see what the bids cost once short quantities and left-out items are priced."
