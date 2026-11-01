@@ -151,7 +151,12 @@
       const total = Math.max(1, s.leveledDays), W = 700, lab = 110, rh = 22;
       const sc = (W - lab) / total;
       const bars = rows.map((r, i) => `<text x="0" y="${i * rh + 15}" font-size="12">${esc(r.id)}</text><rect x="${lab + r.leveledStart * sc}" y="${i * rh + 3}" width="${Math.max(2, r.days * sc)}" height="${rh - 8}" fill="${r.critical ? "#a3321f" : "#1d5c7a"}"><title>${esc(r.id)}: ${esc(r.startDate)} to ${esc(r.finishDate)}</title></rect>`).join("");
-      $("gantt").innerHTML = `<svg viewBox="0 0 ${W} ${rows.length * rh + 6}" width="100%" role="img">${bars}</svg><p style="font-size:.85rem">Red bars are on the critical path. Bars show crew-levelled working days.</p>`;
+      $("gantt").innerHTML = `<svg viewBox="0 0 ${W} ${rows.length * rh + 6}" width="100%" role="img">${bars}</svg><p style="font-size:.85rem">Red bars are on the critical path. Bars show crew-levelled working days.</p>`
+      if (s.cashFlow && s.cashFlow.weeks.length) {
+        const wk = s.cashFlow.weeks, mx = Math.max(...wk.map((x) => x.spend), 1), H = 120, bw = (W - 40) / wk.length;
+        const cols = wk.map((x, i) => `<rect x="${40 + i * bw}" y="${H - (x.spend / mx) * (H - 10)}" width="${Math.max(1, bw - 1)}" height="${(x.spend / mx) * (H - 10)}" fill="#1d5c7a"><title>Week of ${esc(x.week)}: $${x.spend.toLocaleString("en-US")} (to date $${x.cumulative.toLocaleString("en-US")})</title></rect>`).join("");
+        $("gantt").innerHTML += `<svg id="spend-chart" viewBox="0 0 ${W} ${H + 4}" width="100%" role="img" aria-label="Spend by week"><text x="0" y="10" font-size="11">$${Math.round(mx).toLocaleString("en-US")}</text>${cols}</svg><p style="font-size:.85rem">Spend by week from Monday, from the activity costs you typed (even spread over each activity's days).</p>`;
+      }
     };
     $("csv").addEventListener("click", () => {
       if (!last) return;
