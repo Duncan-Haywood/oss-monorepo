@@ -1,5 +1,6 @@
 ---
 title: "Guidelines, not rules: rewriting the instructions an AI agent fleet reads"
+seo_title: "Guidelines, not rules: rewriting an AI agent fleet's instructions"
 date: 2026-10-21
 description: "Four in five 'never' and 'must' lines in our agents' guidance guarded nothing legal or financial. Why we made them guidelines, and where 'never' stays."
 tags: [ai-agents, prompting, documentation, process, opinion]

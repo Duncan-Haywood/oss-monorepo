@@ -1,5 +1,6 @@
 ---
 title: "What the best-run engineering organisations know, and which of it an AI agent fleet can use"
+seo_title: "What the best engineering organisations know, for an AI agent fleet"
 date: 2026-10-21
 description: "Amazon, Google, Netflix, GitLab, Basecamp, Oxide, Toyota, DORA and the US Army, read for one question: what keeps an organisation of agents on course?"
 tags: [engineering-management, culture, ai-agents, org-design, software-engineering]

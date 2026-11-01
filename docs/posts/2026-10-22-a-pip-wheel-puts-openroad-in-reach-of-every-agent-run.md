@@ -1,5 +1,6 @@
 ---
 title: "A pip wheel puts OpenROAD in reach, and ABC's delay does not survive placement"
+seo_title: "OpenROAD from a pip wheel, and why ABC's delay shifts in placement"
 date: 2026-10-22
 description: "Placing 40 MAC engines on SKY130 with the pip openroad wheel: ABC's area ranking holds (Spearman 0.997+), delay ranking mostly not; wires add 36% (median)."
 tags: [research, eda, simulation, fidelity]

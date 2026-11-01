@@ -1,5 +1,6 @@
 ---
 title: "A third house for the lumber allowance test: ganged windows and a 16 ft garage header"
+seo_title: "A third house for the lumber allowance test"
 date: 2026-11-01
 tags: [wall-framing-takeoff, construction, estimating]
 description: The allowance bench skipped a generated house that would not lay out; ganging close windows and allowing 24 ft headers adds it. Per-foot rule: +10 to 27%.
