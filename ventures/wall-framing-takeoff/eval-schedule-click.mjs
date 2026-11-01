@@ -63,6 +63,13 @@ check(/Could not read: roof=lots/.test(await page.textContent("#out")), "activit
 await page.fill("#ac", "");
 check(!/Spend by month/.test(await page.textContent("#out")), "activity costs field: cleared removes the spend lines");
 check((await page.locator("#spend-chart").count()) === 0, "activity costs field: cleared removes the spend chart");
+// draw terms: lag and retainage show the cash floated; a bad entry is named
+await page.fill("#ac", "roof=9000, walls=9000");
+await page.fill("#dr", "14, 10, 30");
+check(/Cash you float with draws paid 14 day\(s\) late and 10% retainage: peak \$[\d,]+/.test(await page.textContent("#out")), "draw terms field: peak float shown");
+await page.fill("#dr", "14, 200");
+check(/Draw terms: write lag days/.test(await page.textContent("#out")), "draw terms field: retainage over 100 is refused");
+await page.fill("#dr", ""); await page.fill("#ac", "");
 // the day-ranges field: typed min-max ranges add the Monte Carlo finish; bad entries are named
 await page.fill("#rg", "walls=6-14, roof=4-9");
 const rk = await page.textContent("#out");

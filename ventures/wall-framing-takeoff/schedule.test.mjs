@@ -271,3 +271,13 @@ test("cash flow also groups spend by Monday week and names the peak week", () =>
   assert.match(scheduleText(s).join("\n"), /heaviest week \(from Monday\) 2026-03-02 at \$5,000/);
   assert.match(scheduleCsv(s), /week:2026-03-09,.*spend 2500; to date 7500/);
 });
+
+test("draw terms: float with a payment lag and retainage (hand-checked)", () => {
+  // Two working days, $1000 each, Mon 2026-03-02 and Tue 03-03. Lag 7 days, 10% retainage, release 7 days after the last day.
+  // Spend -1000 (03-02), -1000 (03-03); receipts +900 on 03-09 and 03-10; retainage 200 on 03-10. Deepest gap -2000 on 03-03.
+  const s = schedule({ start: "2026-03-02", draw: { lagDays: 7, retainagePct: 10 }, activities: [{ id: "a", days: 2, cost: 2000 }] });
+  assert.deepEqual(s.cashFlow.float, { lagDays: 7, retainagePct: 10, peakFloat: 2000, peakDate: "2026-03-03", retainageHeld: 200, releaseDate: "2026-03-10" });
+  assert.match(scheduleText(s).join("\n"), /Cash you float with draws paid 7 day\(s\) late and 10% retainage: peak \$2,000 on 2026-03-03/);
+  assert.equal(schedule({ start: "2026-03-02", draw: {}, activities: [{ id: "a", days: 2, cost: 2000 }] }).cashFlow.float.peakFloat, 0);
+  assert.equal(schedule({ start: "2026-03-02", draw: { retainagePct: 150 }, activities: [{ id: "a", days: 1, cost: 5 }] }).ok, false);
+});
