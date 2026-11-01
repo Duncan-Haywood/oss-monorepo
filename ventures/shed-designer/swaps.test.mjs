@@ -25,7 +25,7 @@ test('a swap replaces the line, keeps its section and key, and reprices the tota
   assert.equal(r.total, 1200);
   assert.equal(r.unit, 'piece');
   assert.equal(r.was.name, line.name);
-  assert.equal(sourceLabel(r.source), 'your price');
+  assert.equal(sourceLabel(r.source), 'your swap');
   const diff = 1200 - line.total;
   assert.ok(Math.abs(out.total - (est.total + diff)) < 0.011);
   assert.equal(out.tax, Math.round(out.total * 7) / 100);
