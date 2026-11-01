@@ -445,7 +445,7 @@ not just the disclaimer in §5b.
    rather than a fact sheet is a defamation and false-advertising exposure
    for a page that costs nothing to make safe instead.
 
-## 6. Money: the deployer's keys, never the owner's
+## 6. Money: the deployer's keys, and the owner's checkout link
 
 Payment code is allowed (the owner, 2026-10-15: "I think payment is okay I just
 don't want mine. if other people want to fork and put their payment in it's
@@ -461,8 +461,15 @@ okay with me"). Build it so that:
 - the README says plainly that whoever turns payments on is the merchant,
   with that role's tax, refund and dispute duties.
 
-The owner's own instances (the GitHub Pages site) take donations only: the
-GitHub Sponsors link below, and the one approved Buy Me a Coffee link.
+The owner's own instances (marisstella.app) may also sell through the
+owner's merchant-of-record hosted checkout (owner, 2026-10-31: "merchant of
+record sounds fine to me"). Only the checkout link reaches the site, injected
+at build time from owner-only config, never committed, so the
+`check_payment_keys.py` rule above still holds and forks still pay nobody.
+The owner opens and holds the account; no merchant key goes anywhere an agent
+or a workflow can reach (`prompts/goals.md`, "Payments: the owner's merchant of record, never a key";
+`docs/reports/2026-10-30-billing-plan.md`). Donations stay too: the GitHub
+Sponsors link below, and the one approved Buy Me a Coffee link.
 
 **Two separate things exist here — keep them apart:**
 
