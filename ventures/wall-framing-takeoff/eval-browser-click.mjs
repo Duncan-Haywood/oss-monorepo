@@ -473,6 +473,11 @@ const [sv7] = await Promise.all([page.waitForEvent("download"), page.click("#sav
 const saved7 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv7.path(), "utf8"));
 const propOk = /Prepared for Test Client/.test(propTxt) && /Permit: 1,200\.00/.test(propTxt) && /Not included: Painting/.test(propTxt) && !/NaN|undefined/.test(propTxt) && saved7.allowances?.Permit === 1200;
 console.log(propOk ? "ok: allowance line and customer proposal, card and saved plan" : "FAIL: proposal: " + propTxt.slice(0, 500) + JSON.stringify(saved7.allowances));
+// the proposal's printable page opens as a self-contained page (2026-11-01)
+const [popup] = await Promise.all([page.context().waitForEvent("page", { timeout: 15000 }).catch(() => null), page.click("#propPrint")]);
+let printOk = false, printTxt = "";
+if (popup) { await popup.waitForLoadState("load").catch(() => {}); printTxt = await popup.content(); printOk = /Test Client/.test(printTxt) && /Permit/.test(printTxt) && /Painting/.test(printTxt) && !/<script/i.test(printTxt) && !/NaN|undefined/.test(await popup.innerText("body")); await popup.close(); }
+console.log(printOk ? "ok: proposal printable page opens, has client, allowance, exclusion, no script" : "FAIL: printable page: " + (popup ? printTxt.slice(0, 400) : "no popup"));
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || !sdOk || !sd2Ok || !slabOk || !propOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || !sdOk || !sd2Ok || !slabOk || !propOk || !printOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
