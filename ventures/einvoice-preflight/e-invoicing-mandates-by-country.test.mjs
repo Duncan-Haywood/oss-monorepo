@@ -13,7 +13,7 @@ test("carries the no-warranty disclaimer and licence line", () => {
 });
 
 test("has one row per country page and links each of them", () => {
-  assert.equal(countryPages.length, 64);
+  assert.equal(countryPages.length, 67);
   for (const f of countryPages) assert.ok(html.includes(`<a href="${f}">`), f);
   assert.equal((html.match(/<tbody>[\s\S]*<\/tbody>/)[0].match(/<tr>/g) || []).length, countryPages.length);
 });
