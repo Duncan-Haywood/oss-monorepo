@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01E5sJKo7CJMS11eCUjuv7KD",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: read ./prompt.md",
+  "input_sha256": "309d74eee7a943668cd28140b1420200644d428dcdd742af9d32a7d7ced9746f",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T05:20:32Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12262",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Said to write a BIBLE.md for Hearth & Horizon; one already exists with a Next up list."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-01-the-ring-of-stones.md"
+  ],
+  "goal": null,
+  "notes": "Hearth & Horizon, slug the-ring-of-stones, text only (audio 423 MB over the 400 MB cap). Security queue branch absent; ideas inbox empty.",
+  "corrections": [],
+  "redteam": null
+}
