@@ -54,6 +54,9 @@ CHECKS = [
     ("exponent between the two margins is 0.53", "pvg_flow_rating_results.txt", "median exponent 0.53"),
     ("from 0.38 to 0.96", "pvg_flow_rating_results.txt", "range 0.38 to 0.96"),
     ("LS/OC is 0.663 against 0.757", "time_penalised_rated_results.txt", "LS/OC at 14 bar 0.663"),
+    ("40.0 bar at 1.1 times", "pump_size_energy_results.txt", "break-even dp_ls 40.0 bar"),
+    ("44.5 bar at 1.2 times", "pump_size_energy_results.txt", "break-even dp_ls 44.5 bar"),
+    ("36.1 bar at 1.0 times", "pump_size_energy_results.txt", "break-even dp_ls 36.1 bar"),
 ]
 
 
