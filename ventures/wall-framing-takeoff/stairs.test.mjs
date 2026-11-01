@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan, formatLength } from "./engine.mjs";
 import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText, checkPostSlenderness, checkLandingPostColumn, checkLandingJoists, flightPostLoad } from "./stairs.mjs";
-import { checkStringer } from "./stairs.mjs";
+import { checkStringer, checkTread } from "./stairs.mjs";
 import { checkWinders, winderText, layoutLandingGuard } from "./stairs.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
@@ -504,4 +504,23 @@ test("flights' stringer reactions add to the heaviest landing post", () => {
   assert.ok(withR.landing.footings.extraLoad > 0);
   assert.ok(withR.landing.joistCheck.fb > 0);
   assert.ok(landingText(withR).some((x) => x.includes("Landing joist check")));
+});
+
+test("tread check: hand arithmetic for a 2x12 tread on 16 in spans, and refusals", () => {
+  // 1.5 x 11.25 board, 16 in span, 300 lb: M = 1200 in-lb, S = 11.25*1.5^2/6 = 4.21875, fb = 284.44 psi
+  // I = 11.25*1.5^3/12 = 3.1640625; delta = 300*4096/(48*1.3e6*3.1640625) = 0.006223 in; limit 16/240 = 0.0667 in
+  const k = checkTread({ span: 16, thickness: 1.5, width: 11.25 }, { point: 300, Fb: 875, E: 1300000 });
+  assert.ok(k.ok && Math.abs(k.fb - 284.444) < 1e-2 && Math.abs(k.delta - 0.006223) < 1e-5 && Math.abs(k.limit - 16 / 240) < 1e-9);
+  // 1 in thick, 5.5 in wide decking at 16 in: S = 0.91667, fb = 1309 psi > 1000
+  const w = checkTread({ span: 16, thickness: 1, width: 5.5 }, { point: 300, Fb: 1000, E: 1200000 });
+  assert.ok(!w.ok && Math.abs(w.fb - 1309.09) < 0.01 && w.warnings.length >= 1);
+  const r = checkTread({ span: 16, thickness: 1.5, width: 11.25 }, { point: 300 });
+  assert.ok(!r.ok && r.errors.length === 2);
+});
+
+test("tread check runs from the stair input and prints", () => {
+  const l = layoutStair({ totalRise: 105, tread: 10, stringer: "2x12", width: 36, treadCheck: { point: 300, Fb: 875, E: 1300000 } }, plan());
+  assert.ok(l.treadCheck.ok);
+  assert.match(stairText(l).join("\n"), /Tread check/);
+  assert.equal(layoutStair({ totalRise: 105, tread: 10, stringer: "2x12", width: 36 }, plan()).treadCheck, null);
 });
