@@ -1,5 +1,6 @@
 ---
 title: "Did the 2009 passport rule change Peace Bridge traffic? What a changepoint detector says"
+seo_title: "Did the 2009 passport rule change Peace Bridge traffic?"
 date: 2026-11-01
 tags: [changepoint-detector, time-series, real-data]
 description: A changepoint detector on 13 years of real bridge traffic finds a step on the month the US passport rule began, plus 13 other changes that muddy it.
