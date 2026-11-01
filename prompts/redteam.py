@@ -451,7 +451,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--timeout", type=int, default=TIMEOUT_SECONDS)
     p.add_argument("--probe", type=int, default=PROBE_SECONDS, metavar="SECONDS",
                    help="a random draw skips targets whose suite takes longer than this "
-                   "(0 keeps the first draw); ignored with --target")
+                   "(0 keeps the first draw); with --target, a slower suite stops the "
+                   "campaign (0 runs it anyway)")
     p.add_argument("--record", type=Path, help="add the campaign to this run record")
     p = sub.add_parser("rerun", help="re-run escaped mutants after the blue team's fix")
     p.add_argument("record", type=Path)
@@ -482,6 +483,14 @@ def main(argv: list[str] | None = None) -> int:
         seed = args.seed if args.seed is not None else random.randrange(1 << 30)
         if args.target:
             target = (REPO / args.target).resolve()
+            suite = suite_for(target) if args.probe else None
+            if suite is not None:
+                _, secs = run_suite(*suite, args.probe)
+                if secs >= args.probe:
+                    raise SystemExit(
+                        f"{args.target}: its suite takes over {args.probe}s and a campaign "
+                        "runs it once per mutant. Pick a faster file (`targets --probe "
+                        f"{args.probe}`), or pass --probe 0 to run it anyway.")
         else:
             pool = list_targets(under=args.under)
             if not pool:
