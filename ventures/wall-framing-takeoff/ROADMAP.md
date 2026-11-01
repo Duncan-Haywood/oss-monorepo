@@ -133,3 +133,4 @@ Ticked items are on `main`.
 - 2026-11-01: budget labor lines for siding and house wrap (`laborSidingSqFt`, per sq ft net of openings) and trim (`laborTrimFoot`, per foot of baseboard, shoe and casing), typed rates only, `budget.test.mjs`. No real contractor rates; CLI/plan key only, the page's price box accepts the names but has no labelled field.
 - 2026-11-01: budget labor lines for eaves (`laborEavesFoot`, per foot of eave plus rake) and gutters (`laborGutterFoot`, per foot of run), typed rates only, `budget.test.mjs`. No real contractor rates; plan key only, no page field.
 - 2026-11-01: budget labor line for hold-downs and plate straps (`laborHoldDown`, per piece, typed rate only), `budget.test.mjs` (hand product check). No real contractor rate; plan key only, no page field.
+- 2026-11-01: budget labor line for wall sheathing (`laborWallSheet`, per sheet, typed rate only), `budget.test.mjs`. No real contractor rate; plan key only, no page field.

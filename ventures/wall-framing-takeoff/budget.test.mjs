@@ -180,3 +180,14 @@ test("labor line for hold-downs and plate straps uses the typed rate and is not 
   assert.ok(l.qty > 0);
   assert.ok(Math.abs(l.amount - l.qty * 12) <= 0.02);
 });
+
+test("labor line for wall sheathing uses the typed per-sheet rate", () => {
+  const b = bud({ ...full({ laborWallSheet: 9 }) });
+  const sh = b.lines.find((x) => x.item === "Wall sheathing sheets");
+  const l = b.lines.find((x) => x.item === "Wall sheathing installation");
+  assert.ok(sh, "fixture has sheathing");
+  assert.ok(l, "sheathing labor line appears");
+  assert.equal(l.qty, sh.qty);
+  assert.ok(Math.abs(l.amount - l.qty * 9) <= 0.02);
+  assert.ok(!bud({ ...full({}) }).lines.some((x) => x.item === "Wall sheathing installation"));
+});
