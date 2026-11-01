@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01E5sJKk7v7ybFeoH4FVD9pk",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T19:18:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12397",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 fetch of security-alerts fails when the branch is absent (fix pending in PRs awaiting owner approval)."
+    },
+    {
+      "file": "prompts/review/prompt-2.md",
+      "issue": "Two review PRs for today were already open; the router still picked review, needing --skip-review."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Router chose review but #12367/#12272 hold the claim",
+      "did": "re-routed with --skip-review",
+      "result": "got polish"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-01-a-check-for-long-post-titles.md",
+    "docs/reports/polish-2026-11-01-long-title-check.md"
+  ],
+  "goal": null,
+  "notes": "Commit 89125a85 carries a wrong Claude-Session trailer id (typo, force-push to fix was denied); this record has the right session.",
+  "corrections": [],
+  "redteam": null
+}
