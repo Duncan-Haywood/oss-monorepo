@@ -1,6 +1,8 @@
 ---
 title: How far below the main ridge does a cross wing's ridge sit?
 date: 2026-11-01
+tags: [wall-framing-takeoff, roofing, construction]
+description: The framing takeoff now reports each cross wing ridge height over its plates and how far below the main ridge it sits.
 ---
 
 The wall-framing takeoff now says it. A 16 ft wide wing at 4:12 rises 32 in over
