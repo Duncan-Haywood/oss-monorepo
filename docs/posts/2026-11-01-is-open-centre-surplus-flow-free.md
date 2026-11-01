@@ -1,5 +1,6 @@
 ---
 title: "Can a better bypass valve make a fixed-pump excavator circuit cheaper to run?"
+seo_title: "Can a better bypass valve cut fixed-pump excavator energy?"
 date: 2026-11-01
 tags: [heavy-hydraulics, excavator, hydraulics, research]
 description: For a fixed pump, the surplus-flow fraction in the excavator circuit comparison is an identity, not a valve property; 2,000 random phases confirm it.
