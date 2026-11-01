@@ -168,13 +168,18 @@ export function buildInstructions(shed, est) {
       void left;
     }
     const hasDoor = w.openings.some((p) => p.op.kind === 'door');
-    if (hasDoor) steps.push('The bottom plate stops at each side of the door: the cut sheet has it in pieces, with the door opening left out. Nail a scrap of 2x4 across the foot of each door opening, jack to jack on the inside face, so the opening keeps its width while the wall is lifted.');
+    // The bottom plate runs across the door (the default) or stops at each side of it.
+    const through = w.members.some((m) => m.kind === 'bottom plate' && m.cutOuts?.length);
+    if (through) steps.push('The bottom plate runs straight across the door opening: leave it whole for now. Framing on one plate keeps the opening its width and the wall square while you nail it up and lift it; the piece in the doorway comes out after the wall is raised.');
+    else if (hasDoor) steps.push('The bottom plate stops at each side of the door: the cut sheet has it in pieces, with the door opening left out. Nail a scrap of 2x4 across the foot of each door opening, jack to jack on the inside face, so the opening keeps its width while the wall is lifted.');
     steps.push(
       `Nail the wall together flat ${k.floorless ? 'on that flat surface' : 'on the deck'}: two 16d through the plates into each stud end; nail jacks to kings every 16" staggered; header to kings with four 16d each end.`,
       `Square the wall (equal diagonals of ${fmtFtIn(Math.hypot(w.len, (w.height ?? d.wallHeight) - 1.5))} plate to plate), tack a diagonal brace across it, then stand it up with a helper and set it on the line${eave ? (k.floorless ? ' flush with the outside of its timber' : ' flush with the edge of the floor') : ' between the eave walls'}.`,
       `${k.floorless ? 'Nail the bottom plate down into the timber' : 'Nail the bottom plate through the subfloor into the rim or joists'}, two 16d every 16". Plumb the ends with a level and brace to stakes until the next wall is in.`,
     );
-    if (hasDoor) steps.push('Once the bottom plate is nailed down, take the scrap off the foot of the door opening.');
+    if (through) {
+      steps.push(`${k.floorless ? 'Keep the nails, and any anchor bolts you add, outside the door opening, so the piece in the doorway comes free. ' : 'Keep the plate nails outside the door opening, so the piece in the doorway comes free. '}Once the wall is raised and the bottom plate is nailed down, cut the plate out across the door: saw flush with the face of each jack stud with a reciprocating saw, blade flat against the jack, and stop at the bottom of the plate so you do not cut into the ${k.floorless ? 'timber under it' : 'subfloor'}. Knock the piece out and clean up the ends with a chisel.`);
+    } else if (hasDoor) steps.push('Once the bottom plate is nailed down, take the scrap off the foot of the door opening.');
     out.push({ title: `${wallLabel(d, name)} wall`, steps, check: ['Wall plumb at both ends and straight along the top (string line).'] });
   }
   out.push({

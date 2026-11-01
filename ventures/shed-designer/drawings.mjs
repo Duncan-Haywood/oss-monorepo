@@ -272,6 +272,12 @@ export function buildSheets(shed, marks = new Map()) {
       items.push(dim([0, -floorBand], [x0, -floorBand], -52, `${fmtIn(x0)} to opening`));
       items.push(dim([x0, p.bottom], [x1, p.bottom], p.op.kind === 'window' ? -14 : 14));
       if (p.op.kind === 'window') items.push(dim([x1, 0], [x1, p.bottom], -14, `sill ${fmtIn(p.bottom)}`));
+      // A bottom plate framed across the door: dashed saw lines at the jacks, and the piece to take out.
+      if (p.op.kind === 'door' && wall.members.some((m) => m.kind === 'bottom plate' && m.cutOuts?.some((c) => c.op === p.op.id))) {
+        items.push(line([x0, 0], [x0, 1.5], 'hidden'));
+        items.push(line([x1, 0], [x1, 1.5], 'hidden'));
+        items.push(text([(x0 + x1) / 2, 3], 'plate: cut out after raising', 6, 'middle', 'muted'));
+      }
       items.push(dim([x0, 0], [x0, p.bottom + p.op.height], 14, `${fmtIn(p.bottom + p.op.height)} to header`));
     }
     for (const [i, vent] of (shed.vents?.[name] || []).entries()) {
@@ -285,7 +291,7 @@ export function buildSheets(shed, marks = new Map()) {
     const studs = wall.members.filter((m) => m.kind === 'stud').length;
     sheets.push({
       id: `wall-${name}`, title: `${wallLabel(d, name)} wall framing`,
-      note: `${salt && !eave ? 'Saltbox gable end: the roof line peaks over the ridge, off centre. ' : ''}${fmtFtIn(wall.len)} framed length, viewed from outside. ${d.studSize} studs ${fmtIn(H - 4.5)} at ${d.studSpacing}" on centre (${studs} full studs), single bottom plate, double top plate. Letters are marks in the parts list.${eave ? (k.lean && name === 'front' ? ` The tall wall of the lean-to: ${fmtIn(k.rise)} taller than the back wall, its cap plate full length.` : '') : k.lean ? ' Raked studs above the end wall are cut to the roof line; its plates stop against the inside of the tall front wall.' : ` Gable studs are cut to the roof line; ${d.roofType === 'ridgeBeam' ? 'a two-ply post carries the ridge beam down onto two post studs' : truss ? 'the gable-end top chords bear on them and on a heel block at each corner' : 'a post carries the ridge'}${shed.vents?.[name] ? '; vents are framed with trimmers, a flat header and a sill' : ''}.`}`,
+      note: `${salt && !eave ? 'Saltbox gable end: the roof line peaks over the ridge, off centre. ' : ''}${fmtFtIn(wall.len)} framed length, viewed from outside. ${d.studSize} studs ${fmtIn(H - 4.5)} at ${d.studSpacing}" on centre (${studs} full studs), single bottom plate${wall.members.some((m) => m.kind === 'bottom plate' && m.cutOuts) ? ' run straight across the door and sawn out flush with the jacks once the wall is up and nailed down' : ''}, double top plate. Letters are marks in the parts list.${eave ? (k.lean && name === 'front' ? ` The tall wall of the lean-to: ${fmtIn(k.rise)} taller than the back wall, its cap plate full length.` : '') : k.lean ? ' Raked studs above the end wall are cut to the roof line; its plates stop against the inside of the tall front wall.' : ` Gable studs are cut to the roof line; ${d.roofType === 'ridgeBeam' ? 'a two-ply post carries the ridge beam down onto two post studs' : truss ? 'the gable-end top chords bear on them and on a heel block at each corner' : 'a post carries the ridge'}${shed.vents?.[name] ? '; vents are framed with trimmers, a flat header and a sill' : ''}.`}`,
       items,
     });
   }
