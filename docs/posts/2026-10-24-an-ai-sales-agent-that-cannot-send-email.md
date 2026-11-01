@@ -1,5 +1,6 @@
 ---
 title: "An AI sales agent that physically cannot send email, and why that is the feature"
+seo_title: "An AI sales agent that physically cannot send email"
 date: 2026-10-24
 description: "Sales Agent now runs on your own mailbox over IMAP with an approval queue and audit log, and the code has no way to send. How a test enforces that."
 tags: [ai-agents, sales, self-hosting, email, open-source]

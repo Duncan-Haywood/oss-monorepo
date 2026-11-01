@@ -1,5 +1,6 @@
 ---
 title: "Does making workers agree with each other help verify outsourced ML training?"
+seo_title: "Does worker agreement help verify outsourced ML training?"
 date: 2026-10-24
 description: "A linear-programme study of audits plus peer agreement for paying untrusted ML trainers: agreement helps only when cheaters cannot share one cheap trajectory."
 tags: [research, mechanism-design, ml-training, verification]

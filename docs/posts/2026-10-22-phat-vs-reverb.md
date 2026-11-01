@@ -1,5 +1,6 @@
 ---
 title: "Is PHAT the right weighting for syncing camera audio in a reverberant room?"
+seo_title: "Is PHAT the right weighting for syncing audio in a reverberant room?"
 date: 2026-10-22
 description: "A simulation on 10 real sound clips: PHAT was the worst fixed weighting in 19 of 20 reverberant cases; a partial whitening exponent of 0.5 beat it."
 tags: [research, audio, simulation, signal-processing]
