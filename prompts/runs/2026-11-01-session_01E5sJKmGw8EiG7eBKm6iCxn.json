@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01E5sJKmGw8EiG7eBKm6iCxn",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T18:22:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12389",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt prompts/creative/prompt-0.md",
+      "issue": "Next-up list in BIBLE.md is almost all Done, so Little Lamps topic had to be chosen without a list; no Little Lamps proposals exist."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-01-a-queen-who-carried-the-porridge.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, Hearth & Horizon / Little Lamps: margaret-and-the-book-in-the-river, text only (audio 423 MB over 400 MB cap). node --test 11/11 pass. No agent doc written.",
+  "corrections": [],
+  "redteam": null
+}
