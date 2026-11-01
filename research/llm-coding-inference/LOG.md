@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-01 · Milestone 7f: every reference in `paper/references.bib` machine-checked (no experiment)
+- Why: earlier entries said the bib's three DOIs were unchecked and that `cite_check.py` read 0 arXiv ids from `eprint=` lines. Hosts were reachable this session, and the script now parses `eprint=` (it reads 3 DOIs and 11 arXiv ids from the bib).
+- Done: `cite_check.py research/llm-coding-inference/paper/references.bib` exits 0 with 14 of 14 `ok` (3 DOIs, 11 arXiv ids), and the titles it returns match the bib entries. Output was not saved to a file; re-run the command to reproduce. All 13 entries have a DOI or an arXiv id (the Science paper has both), so none went unchecked.
+- Limits: the check confirms an id resolves to the stated title and year, not that the paper says what Section 2 attributes to it; the two closest competitors (Gligoric et al. 2024; Fisch et al. 2024) were read in full in milestone 1.
+- Next: unchanged, an informative coder on a second corpus once weights are reachable (huggingface.co returned 200 on probe today).
+
 ## 2026-10-31 · Milestone 7e: the 2,000-draw check moves into the paper and README (a writing step, no experiment)
 - Why: 7d's "Next" said to fold the library audit path into the paper's recipe. The paper's Reproducibility section and the README quoted 7c's 92.0% lowest cell but not the 2,000-draw re-run that showed it was noise.
 - Done: `paper/paper.md` (Section 10) and `README.md` now state 7d's result (coverage 94.1%, se 0.5; half-width 1.165 points) next to the 7c numbers. Every figure is copied from `experiments/h7d_admiration_2000.txt`. No claim changed; the caveat that the screen has no coverage theorem stays.
