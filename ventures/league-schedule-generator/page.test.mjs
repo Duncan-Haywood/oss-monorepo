@@ -811,3 +811,9 @@ test("the multi-division page has the four make-up checkboxes and passes them to
   for (const id of ["balance", "flip", "relocate", "swapNights"]) assert.ok(html.includes(`id="${id}"`), id);
   assert.match(html, /applyDivisionRainouts\(s, f\.rainouts, rainoutOptions\(f\)\)/);
 });
+
+test("multi-division page: reminder box feeds divisionsIcs alarmMinutes", () => {
+  const html = page("multi-division-league-schedule.html");
+  assert.match(html, /id="ics-alarm"/);
+  assert.match(html, /divisionsIcs\(last, \{ alarmMinutes:/);
+});
