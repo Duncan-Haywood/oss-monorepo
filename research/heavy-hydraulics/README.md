@@ -30,6 +30,7 @@ python3 experiments/envelope.py > experiments/envelope_results.txt  # 20,000 ran
 python3 experiments/idle_sensitivity.py > experiments/idle_sensitivity_results.txt  # milestone 2f, ~20 s
 python3 experiments/idle_models.py > experiments/idle_models_results.txt  # milestone 2g, ~60 s
 PYTHONPATH=src python3 experiments/regen_bound.py > experiments/regen_bound_results.txt  # milestone 5a, ~10 s
+python3 experiments/regen_peaky.py > experiments/regen_peaky_results.txt  # milestone 5e, under 1 s
 ```
 
 ## Method
