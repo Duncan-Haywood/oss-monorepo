@@ -1778,3 +1778,11 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   (promptctl prints it). Re-ran `derive.py fetch && build`. `steering.md` still
   over budget (125/120). No audit or drift report (reduced pass).
 - Result: (next review)
+
+## E120: Process 2026-11-01 (steering.md back under budget)
+
+- Change: `steering.md` "Amplification" section condensed (the "nothing is
+  served" anecdote and restated points dropped), 125 to 118 lines (budget 120).
+- Metric: instruction-line count for `steering.md`; compare next review.
+- Notes: `main_health.py` 33/33 green; no agent-owned backlog item open.
+- Result: (next review)

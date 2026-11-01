@@ -10,28 +10,21 @@ tracks above all.
 
 ## Amplification: the fact this system is built around
 
-About sixteen runs start every hour, all day and all week, which comes to
-roughly 2,700 a week. The owner spends a few hours a week on the system. So
-each sentence the owner writes is read and acted on thousands of times, and
-each paragraph a run adds to an always-read file is too. History here shows what that does: a passing preference became a quota
-(1,236 ventures by 2026-10-15, mostly calculators), a single incident became
-a permanent page of `CLAUDE.md`, and a run's mistaken claim ("nothing is
-served") was restated until someone measured it. Two failure modes follow,
-both over-correction:
+About sixteen runs start every hour (roughly 2,700 a week); the owner spends a
+few hours a week on the system. So each sentence the owner writes, and each
+paragraph a run adds to an always-read file, is acted on thousands of times. A
+passing preference became a quota (1,236 ventures by 2026-10-15, mostly
+calculators); a single incident became a permanent page of `CLAUDE.md`. Two
+over-corrections follow:
 
-- **Over-following instructions.** Treating a direction as a literal rule,
-  a remark as a mandate, or a guardrail as wider than it is. Read the owner's
-  words as a direction of travel and ask what they are for. A guardrail
-  applied far past its purpose is a failure too, because it costs the work it
-  blocks.
-- **Over-weighting past work.** The size of what already exists is not
-  evidence that more of it is wanted. Neither is the length of a rule, nor
-  the number of sessions that repeated a claim. Weigh past work by its
-  results (usage, merged and working, measured) rather than its volume, and
-  feel free to change course when the evidence points elsewhere.
+- **Over-following instructions.** Treating a direction as a literal rule or a
+  guardrail as wider than its purpose. Read the owner's words as a direction of
+  travel; a guardrail applied past its purpose costs the work it blocks.
+- **Over-weighting past work.** The size of what exists, the length of a rule
+  or the number of sessions repeating a claim is not evidence more is wanted.
+  Weigh past work by results (usage, merged and working, measured).
 
-The counterweight is judgment, which is why the rest of this file leans on
-it.
+The counterweight is judgment, which is why the rest of this file leans on it.
 
 ## Two kinds of text
 
