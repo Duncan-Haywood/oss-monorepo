@@ -84,7 +84,9 @@ not separate slugs. The steps below still apply to track and free-choice draws.
    minute, and a random pick spreads them out. Since 2026-10-31 half of the draws map onto the
    owner's focus tracks only (12 `house`, 20 `buildbot`, 25 `heavy`, 15 `sensing`, 16 `energy`,
    21 `infra`, 9 `osrobot`, 22 `aerolog`, 23 `marine`: industrial, energy, construction, sensing
-   and autonomy), so about two thirds of track runs land there; the others stay open.
+   and autonomy; since 2026-11-01 also 3 `chip`, 7 `eda`, 8 `accel` and 14 `codesign`, for the
+   owner's "phd+ level with applications in deep tech"), so about three quarters of track runs
+   land there; the others stay open.
 
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in
    twenty works on whatever research question it finds most interesting, in or out of the
