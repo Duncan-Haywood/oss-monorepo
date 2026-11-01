@@ -2,6 +2,22 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-01 · Milestone 7g: does the library audit rule gain on NaijaSenti once the Qwen threshold is tuned on a calibration slice? (planned before running)
+- Why: 6aj's "Next". At score > 0 the three zero-shot coders carry no signal (66 to 69% agreement against 67.3% for always answering "not negative"), so "the rule does not transfer" and "these coders are empty" were not separated. `experiments/h7g_tuned_threshold.py` takes the 6,000-tweet subsample, holds out a random third as a calibration slice (best-Youden-J threshold per Qwen model), and audits the other two thirds (4,000 tweets, truth known) with the library path `plan_audit` -> draw -> `audit_interval`, against the same draws forced to one pooled stratum (tau = 2). n = 400 and 1000, 500 draws per cell (coverage +/- 2 points).
+- **Predictions (before running):** (1) a tuned threshold lifts corpus J above 0.3 for at least the 3B coder, so the screen picks cells in a majority of draws there. (2) Where cells are used the screened design is at least 5% narrower than forced-pooled at n = 1000. (3) Coverage of the screened design is at least 93% in every cell. (4) For any coder with corpus J under 0.3 the screen picks pooled and matches forced-pooled within 1%.
+- Refuted: (1) no coder reaches corpus J 0.3; (2) screened is not 5% narrower where cells are chosen; (3) any cell under 93%; (4) a J < 0.3 coder gains or loses more than 1%.
+- Known limits in advance: calibration labels are extra human labels the audit budget does not count (a practitioner would pay for them or reuse the pilot); one corpus, three small zero-shot coders; the screen has no coverage theorem.
+
+### Outcome (`experiments/h7g_tuned_threshold.py`, about 5 min; `experiments/h7g_tuned_threshold.txt`; 500 draws per cell, coverage +/- 2 points)
+- Corpus prevalence 0.337 (4,000 audited tweets, 2,000 calibration). Best-J thresholds on the calibration slice give calibration J 0.039 / 0.193 / 0.195 (0.5B / 1.5B / 3B) and corpus J 0.029 / 0.204 / 0.192, so tuning helps (zero-shot at score > 0 was about 0) but leaves all three coders weak.
+- **(1) refuted:** no coder reaches corpus J 0.3. The screen chose cells in 0% (0.5B), 13% and 5% (1.5B, n = 400 and 1000) and 8% and 3% (3B) of draws.
+- **(2) vacuous:** the screen never chose cells in a majority of draws, so there is no "cells" regime to compare. In the minority draws it did choose cells, the screened design was not narrower: 4.270 vs 4.263 points (1.5B, n = 400), 4.279 vs 4.263 (3B), 2.472 vs 2.467 and 2.473 vs 2.470 at n = 1000, i.e. 0.1 to 0.4% wider.
+- **(3) held:** screened coverage is 94.4 to 95.8% in all six cells.
+- **(4) held:** every coder is under J 0.3 and the screened width is within 0.4% of forced-pooled (identical for 0.5B).
+- Reading: the screen behaves as designed on a corpus where the coder is weak (stays pooled, costs under 0.5% when a noisy pilot J_hat occasionally crosses 0.3). It does not answer whether the cell gain transfers: that still needs a coder with corpus J of at least 0.3 on a second corpus (a fine-tuned small model, a 7B-class coder, or a different target category). Practical note from the numbers: a calibration slice of 2,000 labels bought J of 0.2 and no width gain, so it was not worth its cost here.
+- Limits: one corpus, three zero-shot coders, one calibration split, 500 draws, no coverage theorem for the screen; calibration labels are not counted in n.
+- Next: a coder with real informedness on a second corpus (fine-tune a small encoder on NaijaSenti train; the train split is already loaded by `H3.corpus()`), then re-run this script on it.
+
 ## 2026-11-01 · Milestone 7f: every reference in `paper/references.bib` machine-checked (no experiment)
 - Why: earlier entries said the bib's three DOIs were unchecked and that `cite_check.py` read 0 arXiv ids from `eprint=` lines. Hosts were reachable this session, and the script now parses `eprint=` (it reads 3 DOIs and 11 arXiv ids from the bib).
 - Done: `cite_check.py research/llm-coding-inference/paper/references.bib` exits 0 with 14 of 14 `ok` (3 DOIs, 11 arXiv ids), and the titles it returns match the bib entries. Output was not saved to a file; re-run the command to reproduce. All 13 entries have a DOI or an arXiv id (the Science paper has both), so none went unchecked.
