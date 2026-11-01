@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-01 · Milestone 7h: fold milestone 3c (Holtrop-Mennen) into the paper draft (no experiment run)
+- Why: 3c landed in the log and `results_holtrop.txt` but the draft still said "H3 untested" and "Holtrop-Mennen not run". Updated the hypotheses paragraph and the threats-to-validity item with the 3c numbers, copied from `results_holtrop.txt`, and kept 3c's caveats (one hull, unverified coefficients, second-hand tank value).
+- Limits: prose only; no new numbers.
+- Next: open the 1982 paper or a worked example to settle the HM coefficients; a fuller small-hull tank curve.
+
 ## 2026-11-01 · Milestone 3c: Holtrop-Mennen on the Wigley tank point, and against the programme's own model (exploratory; not pre-registered)
 - Why: H3 and milestone 3 had no Holtrop-Mennen code at all after a week of blocked data hosts. `src/marine_hull/holtrop.py` implements the 1982 bare-hull terms (ITTC friction times 1+k1, wave resistance below Fn 0.4 with the blend to 0.55, correlation allowance; bulb, transom and appendages zero). `experiments/run_holtrop.py` applies it to the standard Wigley (Cb 0.444, Cp = Cm = Cwp 2/3, L/B 10) at the one published tank point (Ju 1983 via Wang et al., CT 4.16e-3 at Fn 0.267), then compares it with Michell + ITTC over Fn 0.10 to 0.40. I ran the script while writing it, so no prediction was recorded first; read every number below as exploratory.
 - Source of the coefficients: typed from memory and compared by eye, line by line, with an MIT-licensed public implementation (Albert-Gil/Ship-Propulsion-Power-Simulator). I tried to also run that code numerically on the Wigley and the sandbox refused (executing external code), so there is **no numerical cross-check**, and the 1982 paper itself was not opened. A transcription error shared by both would not show. Tests (`tests/test_holtrop.py`) only check internal consistency (components sum, friction equals the ITTC line, wave term rises with Fn, continuity at Fn 0.4).
