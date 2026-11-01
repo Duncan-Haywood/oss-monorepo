@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-01 · Milestone 53: carry milestones 51 and 52 into the paper (no flow run; OpenROAD is not installed in this session)
+- Done: `PAPER.md` gets a "Proof success under Yosys 0.70" paragraph (milestone 52) after the proof-success paragraph, a "Larger designs" paragraph (milestone 51) in the detail-routing section, and open item 1 now names only mult24 and mult32. Numbers copied from `compare_y070.txt` and `results_large.txt`.
+- Next: mult24 and mult32 under R5 (hours of compute).
+
 ## 2026-11-01 · Milestone 52: does the proof-success table (milestone 5) survive a Yosys upgrade, 0.33 to 0.70? (plan written before the run)
 - Why: milestones 47 to 51 showed tool version moves routed rankings more than the router does; the proof table (SAT miter, `sat -verify -prove-asserts`) was last run on apt Yosys 0.33 and the log's "Next" lists it under the new tools. `experiments/proof_success/proof_run.py` unchanged, `--out results_y070.jsonl`, 10 s timeout, same 60 sequences, 15 designs; Yosys 0.70 from the nixpkgs cache. Analysis: per design proved<=1/3/10 s counts and median t_sat against `results.txt`, plus agreement of the proved-within-3s label per (design, sequence) between versions.
 - **Predictions on record:** (1) no counter-example on any point (rewrites stay equivalent); (2) the design-level picture holds: all designs except mult7 to mult10 prove 50/50 within 1 s, mult9 and mult10 time out at 10 s on all points; (3) the per-point label (proved within 3 s) agrees with 0.33 on at least 95% of points; the mult7/mult8 boundary cells are where it may differ; (4) the number of ABC failures is unchanged (130 timeouts is a proof count, not an ABC one).
