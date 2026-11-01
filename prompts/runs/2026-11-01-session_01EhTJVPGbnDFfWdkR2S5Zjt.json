@@ -9,6 +9,7 @@
   "task": "Deepen (flagship 1): wall-framing-takeoff, garage-door header longer than every board",
   "projects": ["wall-framing-takeoff"],
   "outcome": "success",
+  "pr": "https://github.com/duncan-haywood/oss-monorepo/pull/12256",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
