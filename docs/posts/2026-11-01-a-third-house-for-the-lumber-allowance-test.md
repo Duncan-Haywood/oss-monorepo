@@ -2,7 +2,7 @@
 title: "A third house for the lumber allowance test: ganged windows and a 16 ft garage header"
 date: 2026-11-01
 tags: [wall-framing-takeoff, construction, estimating]
-description: The allowance bench skipped one generated house that would not lay out; ganging close windows and allowing 24 ft headers adds it. The per-foot rule over-orders 10 to 27%.
+description: The allowance bench skipped a generated house that would not lay out; ganging close windows and allowing 24 ft headers adds it. Per-foot rule: +10 to 27%.
 ---
 
 The allowance bench compares the counted lumber order with two rules of thumb. Until today it silently showed only two houses: a third, generated from a CC0 plan, "does not lay out". Two causes: three pairs of windows set 3 in apart (their king studs collide), and a 16 ft wide opening whose 2x10 header is 195 in, longer than the longest listed board.
