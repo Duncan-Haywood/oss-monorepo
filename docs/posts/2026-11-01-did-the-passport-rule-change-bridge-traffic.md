@@ -2,7 +2,7 @@
 title: "Did the 2009 passport rule change Peace Bridge traffic? What a changepoint detector says"
 date: 2026-11-01
 tags: [changepoint-detector, time-series, real-data]
-description: A changepoint detector run on 13 years of real monthly bridge traffic finds a step on the exact month the US passport rule began, and 13 other changes that muddy it.
+description: A changepoint detector on 13 years of real bridge traffic finds a step on the month the US passport rule began, plus 13 other changes that muddy it.
 ---
 
 From 1 June 2009 the US required a passport to cross a land border. The Peace Bridge between Buffalo and Fort Erie has 156 months of traffic counts around that date (2003 to 2015), and it is a fair test of a changepoint tool: a documented date, a strong summer season, and a recession going on at the same time.
