@@ -404,11 +404,11 @@
   <section class="card" aria-labelledby="h-proposal" id="proposalCard" hidden>
     <h2 id="h-proposal">Customer proposal</h2>
     <p class="note">Turns the budget above into a one-page letter: a price per section with tax, contingency, overhead and profit spread across the rows, so your customer sees neither your cost nor your margin. Needs every line priced; tick the box to issue it with the gap named. Nothing is uploaded.</p>
-    <p><label>Client <input id="propClient" style="width:14em"></label> <label>Project <input id="propProject" style="width:14em"></label> <label>Valid for (days) <input id="propDays" type="number" min="1" value="30" style="width:5em"></label></p>
-    <p><label>Also included (one per line)<br><textarea id="propIncl" rows="2" style="width:100%"></textarea></label></p>
-    <p><label>Not included (one per line)<br><textarea id="propExcl" rows="2" style="width:100%" placeholder="Permits&#10;Painting"></textarea></label></p>
-    <p><label>Terms (one per line)<br><textarea id="propTerms" rows="2" style="width:100%" placeholder="50% deposit&#10;Balance on completion"></textarea></label></p>
-    <p><label><input type="checkbox" id="propPartial"> Issue even if some lines are unpriced (the gap is printed)</label></p>
+    <p><label>Client <input id="propClient" aria-label="Client" style="width:14em"></label> <label>Project <input id="propProject" aria-label="Project" style="width:14em"></label> <label>Valid for (days) <input id="propDays" aria-label="Valid for days" type="number" min="1" value="30" style="width:5em"></label></p>
+    <p><label>Also included (one per line)<br><textarea id="propIncl" aria-label="Also included" rows="2" style="width:100%"></textarea></label></p>
+    <p><label>Not included (one per line)<br><textarea id="propExcl" aria-label="Not included" rows="2" style="width:100%" placeholder="Permits&#10;Painting"></textarea></label></p>
+    <p><label>Terms (one per line)<br><textarea id="propTerms" aria-label="Terms" rows="2" style="width:100%" placeholder="50% deposit&#10;Balance on completion"></textarea></label></p>
+    <p><label><input type="checkbox" id="propPartial" aria-label="Issue even if some lines are unpriced"> Issue even if some lines are unpriced (the gap is printed)</label></p>
     <p><button type="button" class="secondary" id="propBtn">Preview proposal</button> <button type="button" class="secondary" id="propDl">Download proposal (.txt)</button></p>
     <div id="propOut"></div>
   </section>
