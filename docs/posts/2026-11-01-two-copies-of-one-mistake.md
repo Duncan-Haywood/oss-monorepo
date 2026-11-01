@@ -2,7 +2,7 @@
 title: "Two transcriptions of Holtrop-Mennen agreed, and both were wrong"
 date: 2026-11-01
 tags: [marine-hull, research, reproducibility]
-description: Checking a hull-resistance regression against a public implementation looked like confirmation. Diffing the structure showed the implementation never used one of its own variables, and ours had copied the slip.
+description: A public implementation never used one of its own variables, and our copy of it inherited the slip. Diffing structure, not constants, found it.
 ---
 
 The `marine-hull` programme implements the Holtrop-Mennen ship-resistance regression to test how well it works on a 4 m hull. The 1982 paper was unreachable, so the constants were typed from memory and compared by eye with an MIT-licensed implementation. They matched.
