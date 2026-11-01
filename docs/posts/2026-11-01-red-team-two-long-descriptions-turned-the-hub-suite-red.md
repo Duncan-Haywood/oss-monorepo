@@ -1,7 +1,7 @@
 ---
 title: "Red team: two over-long post descriptions turned the distribution hub suite red"
 date: 2026-11-01
-tags: [red-team, testing, distribution]
+tags: [redteam, testing, distribution]
 description: A red-team run found the hub's tests failing on main because two new posts had descriptions over 160 characters. Fixed, plus a test for one escaped mutant.
 ---
 
