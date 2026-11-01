@@ -34,6 +34,13 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 16 (2026-11-01, eval/probe16.mjs): drone pilots, mobile mechanics, cottage bakers, tutors, locksmiths.
+  ["6030", "out", /locksmith bond/],
+  ["6100", "out", /global sugar art|ilco key|hillman fastener|lockmasters/],
+  ["6060", "out", /air ?data uav|tutorcruncher/],
+  ["6110", "out", /cottage food licen/],
+  ["6170", "out", /auvsi|drone pilot ground school|national tutoring assoc|associated locksmiths/],
+  ["4000", "in", /repairpal/],
   // Gap probe 15 (2026-10-31, eval/probe15.mjs): roofers, HVAC contractors, personal chefs, music teachers, massage therapists.
   ["6100", "out", /abc supply|beacon roofing|sheet music plus|massage warehouse/],
   ["6060", "out", /roofsnap|music teachers helper/],
