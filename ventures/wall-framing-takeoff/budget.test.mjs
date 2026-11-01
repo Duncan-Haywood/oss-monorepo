@@ -358,3 +358,13 @@ test("labor share is labor over the cost total, null without labor", () => {
   assert.ok(budgetText(b).some((x) => x.includes("Labor share of the cost total")));
   assert.equal(bud({ ...full({}) }).laborPct, null);
 });
+
+test("bid price per sq ft of floor appears only when overhead or profit lifts the bid above cost", () => {
+  const plain = bud(full({ floorSheet: 30 }));
+  assert.equal(plain.bidPerFloorSqFt, null);
+  const b = bud(full({ floorSheet: 30, overhead: 0.1, profit: 0.1 }));
+  assert.ok(b.bid > b.total);
+  assert.equal(b.bidPerFloorSqFt, +(b.bid / b.floorSqFt).toFixed(2));
+  assert.ok(b.bidPerFloorSqFt > b.perFloorSqFt);
+  assert.match(budgetText(b).join("\n"), /Bid price per sq ft of floor framed/);
+});
