@@ -515,3 +515,10 @@ test("the schedule card resolves per/rate durations from the takeoff before it r
   assert.match(html, /import \{[^}]*resolveRates[^}]*\} from "\.\/schedule\.mjs"/);
   assert.match(html, /resolveRates\(input, \{ \.\.\.last\.result/);
 });
+
+test("index.html price hint lists every labor rate the budget reads", () => {
+  const names = [...new Set([...readFileSync(new URL("./budget.mjs", import.meta.url), "utf8").matchAll(/P\("(labor[A-Za-z]+)"\)/g)].map((m) => m[1]))];
+  assert.ok(names.length >= 13);
+  const hint = page("index.html").match(/names: ([^;]*);/)[1];
+  for (const n of names) assert.ok(hint.includes(n), `${n} missing from the page's price-name hint`);
+});
