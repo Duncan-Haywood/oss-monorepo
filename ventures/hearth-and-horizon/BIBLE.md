@@ -259,6 +259,8 @@ numbers worked out before drafting.
 
 **Hearth & Horizon**
 
+- *(Done: The Clock That Gains in Winter, Saint Ninian's (invented), Wigtownshire, December 2048; text only.)* Steel seconds pendulum, L = g/pi^2 = 994 mm, rate change = 0.5 x 12e-6/K x dT x 86,400 = 0.52 s/day per K; 12 C to 2.4 C predicts 5.0 s/day vs 5.3 measured (37 s a week); rating nut 1 mm pitch = 43 s/day per mm, so one of 12 marks (0.083 mm) is 3.6 s/day; August at 22 C loses about 5 (illustrative; air, friction and rod-vs-thermometer temperature ignored).
+
 - *(Done: The Ring of Stones, Cill Eoin (invented), west Clare, Ireland, 23 June 2047; text only.)* Bonfire radiant heat: 1,206 kg x 15 MJ/kg = 18 GJ over 45 min, peak 1.5x average = 10 MW, radiant 0.3 = 3 MW; q = P/(4 pi r^2) gives 6.6 kW/m2 at 6 m, 1.66 at 12 m (limit about 1.6 long exposure, 4.7 for 15 s), the 300 kg fire gave 1.66 at 6 m; hay barn at 14 m gets 1.2 against about 12.5 piloted ignition, so embers decide (illustrative figures, point-source model good to about a factor of two).
 
 - *(Done: The Hour Bell, Saint Aldhelm's (invented), Combe Aldhelm, Dorset, 21 Feb to 5 Mar 2047; text only.)* Bell-chamber noise: 112 dB(A) at 1 m (meter, not a clipping phone), 6 dB less per doubling of distance, 3 dB exchange rate from 85 dB for 8 h (NIOSH); 56 strokes x 3 s = 168 s a day is about 300% at 1 m, 75% at 2 m, 19% at 4 m; foam plug (NRR 29, real about 11 dB) is safe but hides the 3 kHz+ double strike, 17 dB flat filters give about 6% (illustrative figures, not measured).
