@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "civ-patterns"
+version = "0.1.0"
+description = "Survival analysis of political regimes (Polity5, 1800-2018) and states and empires (Seshat Cliopatria, 3400 BCE-2024): hazard by age, out-of-sample forecasts, and what they imply for today's states"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["numpy", "scipy", "pandas", "xlrd"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
