@@ -187,8 +187,10 @@ export function budget(result, prices = {}) {
   // Cost per sq ft of one floor level's framed area (the floor model's subfloor area). A partial figure while any line is unpriced.
   const floorSqFt = result.floor?.sheets?.area > 0 ? r2(result.floor.sheets.area) : null;
   const total = r2(materials + tax + contingency + labor);
+  const wallFeet = result.summary?.wallFeet > 0 ? r2(result.summary.wallFeet) : 0; // total over feet of wall: a whole-budget ratio, not wall-only cost
   return {
     floorSqFt, perFloorSqFt: floorSqFt && total > 0 ? r2(total / floorSqFt) : null,
+    wallFeet: wallFeet || null, perWallFoot: wallFeet && total > 0 ? r2(total / wallFeet) : null,
     lines, sections, materials, labor, taxRate, tax, contingencyRate: contRate, contingency, total,
     unpriced: lines.filter((l) => l.amount == null).map((l) => `${l.item} (${l.qty} ${l.unit})`),
   };
@@ -205,6 +207,7 @@ export function budgetText(b) {
   out.push("  Subtotals: " + b.sections.map((s) => `${s.name} ${s.subtotal.toFixed(2)}`).join(", "));
   out.push(`  Materials ${b.materials.toFixed(2)}${b.taxRate ? `, tax ${b.tax.toFixed(2)} at ${(100 * b.taxRate).toFixed(2)}%` : ""}${b.contingencyRate ? `, contingency ${b.contingency.toFixed(2)} at ${(100 * b.contingencyRate).toFixed(1)}%` : ""}${b.labor ? `, labor ${b.labor.toFixed(2)}` : ""}; total ${b.total.toFixed(2)}`);
   if (b.perFloorSqFt != null) out.push(`  Per sq ft of floor framed (${b.floorSqFt} sq ft, one level): ${b.perFloorSqFt.toFixed(2)}${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
+  if (b.perWallFoot != null) out.push(`  Per linear foot of wall (${b.wallFeet} ft; whole budget over wall length): ${b.perWallFoot.toFixed(2)}${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
   if (b.unpriced.length) out.push(`  Not in the total, no price typed: ${b.unpriced.join("; ")}. Add them under \`prices\` in the plan.`);
   out.push("  Not included: equipment, permits, delivery, overhead or waste beyond what the takeoff already counts" + (b.lines.some((l) => l.section === "Labor") ? "; labor is only the rates you typed." : "; no labor rate typed."));
   return out;
