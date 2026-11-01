@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-01 · Milestone 3d: a shared transcription error in the Holtrop-Mennen wave term, found and fixed (not pre-registered)
+- Why: 3c's coefficients were "checked by eye" against a public implementation. Re-reading that implementation (Albert-Gil/Ship-Propulsion-Power-Simulator, MIT, read not run) for a mechanical comparison showed it computes `m2 = c15 Cp^2 exp(-0.1/Fn^2)` and never uses it: its Fn < 0.4 wave resistance uses `m4` (the Fn > 0.55 exponent, with the 0.4 factor). `holtrop.py` copied that. In the published method (Holtrop 1984 form) the low-speed branch uses `m2`, the high-speed branch `m4`, and the blend between Fn 0.4 and 0.55 uses the low-speed term evaluated at Fn = 0.4, not at the current Fn. I am fairly but not fully sure of this from memory of the standard form; the unused `m2` in the reference is the evidence, the 1982/1984 papers were still not opened (hosts 403 through the proxy; a second independent implementation, efsolefter/holtrop-mennen, is an empty repository).
+- Fix: `rw_a(fn)` uses m2; the blend calls `rw_a(0.4)`. New test pins CW_HM at the tank point (1.02e-3). Not coded: the c15 rule for L^3/volume above 512 (the Wigley is 360).
+- Effect (`experiments/results_holtrop.txt`, regenerated): the HM wave coefficient at the tank point rises from 0.94e-3 to 1.02e-3 (+8%); CT on HM's own area becomes 4.85 to 5.08e-3 (+17% to +22% over 4.16e-3, was +15% to +20%), +31% to +37% on the true area (was +29% to +36%). Over Fn 0.10 to 0.40 the HM/Michell(k=0.25) ratio moves by at most 0.03 at Fn <= 0.35 (0.20 to 0.35: 0.98, 1.05, 0.90, 1.20) and 0.03 at Fn 0.40. Conclusions of 3c stand: H3 neither supported nor refuted (+17% to +22% straddles the 20% line), survey-speed rankings unmoved.
+- Lesson: two transcriptions agreeing is weak evidence when one copied the other; an unused variable in the reference was the tell, found only by diffing structure, not constants.
+- Limits: as 3c; formulas still not checked against the paper; one hull.
+- Next: a fuller small-hull tank curve; open the 1984 re-analysis to settle m2 and the blend.
+
 ## 2026-11-01 · Milestone 7h: fold milestone 3c (Holtrop-Mennen) into the paper draft (no experiment run)
 - Why: 3c landed in the log and `results_holtrop.txt` but the draft still said "H3 untested" and "Holtrop-Mennen not run". Updated the hypotheses paragraph and the threats-to-validity item with the 3c numbers, copied from `results_holtrop.txt`, and kept 3c's caveats (one hull, unverified coefficients, second-hand tank value).
 - Limits: prose only; no new numbers.
