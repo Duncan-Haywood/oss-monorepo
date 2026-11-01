@@ -2,7 +2,7 @@
 title: "How do you test an attic vent calculator when you have no real house to check it against?"
 date: 2026-11-01
 tags: [wall-framing-takeoff, ventilation, testing]
-description: The framing takeoff's attic ventilation module now has a seeded property test over 300 random roofs and vent settings, checking the one thing a vent order must get right.
+description: The attic ventilation module now has a seeded property test over 300 random roofs and vent settings, checking the one thing a vent order must get right.
 ---
 
 The ventilation module sizes ridge and soffit vents to the IRC R806.2 ratio (1 sq ft of net free area per 150 sq ft of attic, or 1 per 300 in the balanced case). Its hand-arithmetic tests cover a few roofs. None of them is a real vent order, so what can a test say about the ones nobody wrote down?
