@@ -1,6 +1,6 @@
 ---
 title: "Five more e-invoicing country pages: Thailand, Taiwan, Oman, Pakistan, Jordan"
-seo_title: "E-invoicing mandates: Thailand, Taiwan, Oman, Pakistan and Jordan compared"
+seo_title: "E-invoicing mandates: Thailand, Taiwan, Oman, Pakistan, Jordan"
 date: 2026-11-01
 tags: [einvoice-preflight, e-invoicing, thailand, taiwan, oman, pakistan, jordan]
 description: "E-invoice Preflight now covers 61 countries. The five new pages show what each system is and, just as usefully, where the English-language sources disagree."
