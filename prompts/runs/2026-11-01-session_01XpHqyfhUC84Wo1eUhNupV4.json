@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01XpHqyfhUC84Wo1eUhNupV4",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "i want to update the privacy policies to not be o restrictive on myself use gdpr and other privacy laws as the guideline not a overly strict self imposed one.",
+  "input_sha256": "106faac1124b7075ad7ae6e1d4679c5906c83c971a2f0f26032c8b587c33382a",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T00:22:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Bring privacy rules to the legal line (GDPR/ePrivacy/CCPA) instead of stricter house rules",
+  "projects": [
+    "portfolio/usage"
+  ],
+  "pr": 12207,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/usage/README.md",
+      "issue": "P035 (2026-10-20) had already moved the rules to 'the law, no stricter' but kept 'Offer an off switch and honour DNT/Sec-GPC' as a must, which no law requires for anonymous aggregates"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/routing.json",
+      "why": "route drew ventures/1; the owner gave a direct process task, so the run is recorded as process/1",
+      "did": "recorded as process/1",
+      "result": "the owner's task was done"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-01-privacy-rules-at-the-legal-line.md",
+    "docs/legal/privacy-baseline.md"
+  ],
+  "goal": null,
+  "notes": "Docs-only change: no counter or page behaviour changed (the site still skips DNT/GPC browsers and says so). Local checks: check_post_frontmatter ok, check_md_links ok on 5 files, promptctl validate ok. Touches prompts/goals.md (CODEOWNERS), so the merge may wait for owner approval.",
+  "corrections": [],
+  "redteam": null
+}
