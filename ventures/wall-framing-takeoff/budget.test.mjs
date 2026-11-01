@@ -248,7 +248,7 @@ test("stair connectors and solid risers are priced; stairs labor is counted once
 
 test("stair balusters, guard posts and handrail brackets are priced from the rail layout", () => {
   const stairs = [{ totalRise: 108, tread: 10, stringer: "2x12", width: 36, rail: { sides: 1 } }];
-  const plan = { ...full({ stairBaluster: 4, stairRailPost: 25, handrailBracket: 10 }), stairs };
+  const plan = { ...full({ stairBaluster: 4, stairRailPost: 25, handrailBracket: 10, handrailFoot: 5 }), stairs };
   const b = bud(plan);
   const out = JSON.parse(run(plan, "--sheathing", "--json").out);
   const fl = out.stairs.flatMap((x) => x.flights || [x]);
@@ -260,5 +260,8 @@ test("stair balusters, guard posts and handrail brackets are priced from the rai
   assert.equal(post.qty, n((x) => x.rail.posts.count));
   assert.equal(brk.qty, n((x) => x.rail.handrail.brackets));
   assert.ok(Math.abs(bal.amount - bal.qty * 4) <= 0.02 && bal.qty > 0);
+  const hr = b.lines.find((x) => x.item === "Handrail");
+  assert.ok(Math.abs(hr.qty - n((x) => x.rail.handrail.length) / 12) <= 0.06 && hr.qty > 0);
+  assert.ok(Math.abs(hr.amount - hr.qty * 5) <= 0.02);
   assert.ok(!bud(full({ stairBaluster: 4 })).lines.some((x) => x.item === "Stair balusters"));
 });
