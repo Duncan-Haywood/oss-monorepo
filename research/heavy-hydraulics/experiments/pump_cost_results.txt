@@ -1,0 +1,9 @@
+Q_PUMP 45.0 L/min; pump price 147 USD at 1.0 x (assumed proportional to flow); fuel 1.66 USD/L
+pump x0.8: p_n 10.43 bar; mean cycle time 35.29 s (+3.89%); mean OC shaft energy/cycle 72.87 kJ (-17.23%); cycles kept 143, dropped (demand > pump) 1357
+pump x1.0: p_n 10.91 bar; mean cycle time 33.97 s (+0.00%); mean OC shaft energy/cycle 88.04 kJ (+0.00%); cycles kept 1500, dropped (demand > pump) 0
+pump x1.2: p_n 11.39 bar; mean cycle time 33.10 s (-2.55%); mean OC shaft energy/cycle 100.45 kJ (+14.10%); cycles kept 1500, dropped (demand > pump) 0
+pump x1.5: p_n 12.12 bar; mean cycle time 32.37 s (-4.70%); mean OC shaft energy/cycle 118.69 kJ (+34.81%); cycles kept 1500, dropped (demand > pump) 0
+pump x1.2, price slope 1 x: time saved 2.55% per hour; extra fuel +0.180 USD/h; premium 29 USD (0.015 USD/h); break-even value of a machine hour 7.67 USD
+pump x1.2, price slope 3 x: time saved 2.55% per hour; extra fuel +0.180 USD/h; premium 88 USD (0.044 USD/h); break-even value of a machine hour 8.82 USD
+pump x1.5, price slope 1 x: time saved 4.70% per hour; extra fuel +0.446 USD/h; premium 74 USD (0.037 USD/h); break-even value of a machine hour 10.27 USD
+pump x1.5, price slope 3 x: time saved 4.70% per hour; extra fuel +0.446 USD/h; premium 221 USD (0.111 USD/h); break-even value of a machine hour 11.84 USD
