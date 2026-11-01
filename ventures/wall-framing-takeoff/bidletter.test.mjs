@@ -42,6 +42,19 @@ test("text shows scope, allowances, typed exclusions and no cost words", () => {
   assert.doesNotMatch(t, /profit|overhead|contingency/i);
 });
 
+test("payment schedule: percentages of the price, last milestone takes cent drift, must add to 100", () => {
+  const q = proposal(mk(), { payments: [{ name: "Deposit", pct: 33.33 }, { name: "Framing done", pct: 33.33 }, { name: "Final", pct: 33.34 }] });
+  assert.equal(q.ok, true);
+  // by hand: 1225.20 x 0.3333 = 408.359 -> 408.36; 1225.20 x 0.3334 = 408.482 -> 408.48; the last milestone takes the 0.01 drift
+  assert.equal(q.payments.reduce((t, m) => t + m.amount, 0).toFixed(2), "1225.20");
+  assert.equal(q.payments[0].amount, 408.36);
+  assert.equal(q.payments[2].amount, 408.48);
+  assert.match(proposalText(q).join("\n"), /Payment schedule[\s\S]*Deposit/);
+  const bad = proposal(mk(), { payments: [{ name: "A", pct: 50 }, { name: "B", pct: 40 }] });
+  assert.equal(bad.ok, false);
+  assert.match(bad.error, /add to 100% \(they add to 90%\)/);
+});
+
 import { proposalHtml } from "./bidletter.mjs";
 test("printable HTML carries the price, escapes typed text, has no script and states a gap", () => {
   const q = proposal(mk(), { client: "A <b>&</b> Co", project: "Lot 4", terms: ["30% deposit"], exclusions: ["Permits"] });
