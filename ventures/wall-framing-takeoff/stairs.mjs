@@ -25,7 +25,7 @@ export function maxTreadSpan(thickness) { return thickness < 1.25 ? 12 : thickne
 export const RAIL_LIMITS = { guardHeight: 36, handrailMin: 34, handrailMax: 38, maxGap: 4, maxPostSpacing: 72, bottomGap: 4, maxBottomOpening: 6 };
 
 /** @typedef {{ sides?: number, handrail?: boolean, handrailHeight?: number, bracketSpacing?: number, balusterWidth?: number, railBoard?: string, postWidth?: number, limits?: Partial<typeof RAIL_LIMITS> }} Rail */
-/** @typedef {{ id?: string, rail?: Rail, totalRise: number, tread?: number, stringer?: string, width?: number, stringerSpacing?: number, treadThickness?: number, treadBoard?: string, treadGap?: number, nosing?: number, floorThickness?: number, openingLength?: number, openRisers?: boolean, riserBoard?: string, treadSpanMax?: number, limits?: Partial<typeof STAIR_LIMITS>, stringerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, thickness?: number }, treadCheck?: { point: number, Fb: number, E: number, deflLimit?: number }, postCheck?: { point: number, Fb: number } }} Stair */
+/** @typedef {{ id?: string, rail?: Rail, totalRise: number, tread?: number, stringer?: string, width?: number, stringerSpacing?: number, treadThickness?: number, treadBoard?: string, treadGap?: number, nosing?: number, floorThickness?: number, openingLength?: number, openRisers?: boolean, riserBoard?: string, treadSpanMax?: number, limits?: Partial<typeof STAIR_LIMITS>, stringerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, thickness?: number, connectorCapacity?: number }, treadCheck?: { point: number, Fb: number, E: number, deflLimit?: number }, postCheck?: { point: number, Fb: number } }} Stair */
 
 export function sampleStair() {
   return { id: "Main stair", totalRise: 108, tread: 10, stringer: "2x12", width: 36, treadThickness: 1.5, treadBoard: "2x12", floorThickness: 11.25 + 0.75 + 0.5, nosing: 0.75 };
@@ -219,6 +219,7 @@ export function checkStringer(l, c) {
     if (c?.[k] == null || !(c[k] >= lo && c[k] <= hi)) errors.push(`stringerCheck.${k} must be typed, from ${lo} to ${hi} (${k === "liveLoad" || k === "deadLoad" ? "psf" : "psi"}); no default is shipped.`);
   }
   if (c?.deflLimit != null && !(c.deflLimit >= 120 && c.deflLimit <= 960)) errors.push("stringerCheck.deflLimit is the L/ ratio, from 120 to 960.");
+  if (c?.connectorCapacity != null && !(c.connectorCapacity >= 50 && c.connectorCapacity <= 20000)) errors.push("stringerCheck.connectorCapacity is lb per connector or fastener group, from 50 to 20000.");
   if (errors.length) return { ok: false, errors };
   const b = c.thickness ?? 1.5, d = l.stringer.throat, L = l.run;
   if (!(d > 0)) return { ok: false, errors: ["The throat under the notches is zero or negative; there is no section to check."] };
@@ -234,7 +235,9 @@ export function checkStringer(l, c) {
   // Top reaction of the whole flight (every stringer), the figure to type into the floor's `headerCheck.stairReaction`; the live share is for that header's deflection.
   const n = l.stringer.count ?? null;
   const totalReaction = n ? n * V : null, totalReactionLive = n ? (n * V * c.liveLoad) / (c.liveLoad + c.deadLoad) : null;
-  return { ok: warnings.length === 0, fb, fv, delta, limit, Fb: c.Fb, Fv: c.Fv, M, V, reaction: V, totalReaction, totalReactionLive, throat: d, warnings, errors: [] };
+  // Top connection (2026-11-01): with a typed per-connector allowable (from the hanger or bolt maker's table; none shipped), how many carry one stringer's end reaction.
+  const connectorsNeeded = c.connectorCapacity ? Math.ceil(V / c.connectorCapacity - 1e-9) : null;
+  return { ok: warnings.length === 0, fb, fv, delta, limit, Fb: c.Fb, Fv: c.Fv, M, V, reaction: V, connectorsNeeded, connectorCapacity: c.connectorCapacity ?? null, totalReaction, totalReactionLive, throat: d, warnings, errors: [] };
 }
 
 /**
@@ -301,6 +304,7 @@ export function stairText(l) {
   if (l.stringerCheck) {
     const k = l.stringerCheck;
     if (!k.errors.length) out.push(`  Stringer check (${formatInches(k.throat)} throat): bending ${k.fb.toFixed(0)} of ${k.Fb} psi, shear ${k.fv.toFixed(0)} of ${k.Fv} psi, deflection ${k.delta.toFixed(2)} of ${k.limit.toFixed(2)} in, end reaction ${k.reaction.toFixed(0)} lb each${k.totalReaction ? `, ${k.totalReaction.toFixed(0)} lb (${k.totalReactionLive.toFixed(0)} live) on the header the flight hangs from` : ""}${k.ok ? "" : " (FAILS)"}`);
+    if (k.connectorsNeeded) out.push(`  Top connection: ${k.reaction.toFixed(0)} lb per stringer at ${k.connectorCapacity} lb each needs ${k.connectorsNeeded} connector${k.connectorsNeeded === 1 ? "" : "s"} per stringer (you buy ${k.connectorsNeeded * l.stringer.count}); the connector's own table governs`);
     for (const w of [...k.errors, ...k.warnings]) out.push(`  Note: ${w}`);
   }
   if (l.treadCheck) {

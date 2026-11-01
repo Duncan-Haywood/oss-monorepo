@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01AcxTtJnD6rzSYmDsg6QCaa",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T04:08:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12247",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Review track was drawn but another run's 'prompts: review 2026-10-31' PR is open; re-routed with --skip-review as prompt.md says.",
+      "did": "Took ventures track, flagship 1 slice.",
+      "result": "Landed a small stair stringer connector-count slice."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-01-how-many-connectors-hold-a-stair-stringer.md"
+  ],
+  "goal": null,
+  "notes": "stairs.test.mjs 59/59 pass locally. Did not run venture-preflight or rewrite flagships next (slice is small, item not listed there). security-alerts branch absent.",
+  "corrections": [],
+  "redteam": null
+}
