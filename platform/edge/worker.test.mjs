@@ -215,3 +215,13 @@ test('a CORS preflight is an empty 204 that allows POST with content-type', asyn
   assert.equal(res.headers.get('access-control-allow-headers'), 'content-type');
   assert.equal(await res.text(), '');
 });
+
+test('the per-slug daily cap defaults to 20000 and MAX_PER_SLUG_PER_DAY overrides it', async () => {
+  const caps = [];
+  const spyDb = { prepare: (sql) => ({ bind: (...a) => ({ async run() { if (sql.startsWith('INSERT INTO counts')) caps.push(a[2]); return { meta: { changes: 1 } }; } }) }) };
+  const hit = (e) => worker.fetch(req('/hit', { body: JSON.stringify({ p: 'roof-bid' }) }), e);
+  await hit({ DB: spyDb, ALLOWED_ORIGIN: ORIGIN });
+  await hit({ DB: spyDb, ALLOWED_ORIGIN: ORIGIN, MAX_PER_SLUG_PER_DAY: '5' });
+  assert.equal(caps[0], 20000);
+  assert.equal(caps.at(-1), 5);
+});
