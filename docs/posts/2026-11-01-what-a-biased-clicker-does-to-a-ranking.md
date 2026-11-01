@@ -1,7 +1,7 @@
 ---
 title: What a person who always clicks the top option does to a ranking
 date: 2026-11-01
-tags: [quick-pick-survey, ranking, survey]
+tags: [quick-pick-survey, ranking, surveys]
 description: Simulated respondents who lapse or always tap the top option, run through the real routes, show how fast a pairwise ranking degrades.
 ---
 
