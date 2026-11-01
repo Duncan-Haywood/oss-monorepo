@@ -3,6 +3,10 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-11-01 · Milestone 8g: paper draft catches up with milestones 9m to 9o (no new simulation)
+- New Section 4.10a holds the coloured-noise, whitened and estimated-rho results with their limits; `check_numbers.py` ties the figures to this log (all ok). Next: misspecified noise (AR(2) or 1/f generator); real IMU noise density; turbulence; thrust law; AIAA template.
+
+
 ## 2026-10-31 · Milestone 9o: can the output-error fit estimate the noise correlation itself and still recover 9n's gain? (planned before running)
 - Why: 9n's "Next". Whitening recovered 14 of 9m's 17 points of gust share, but with rho = 0.9 given exactly, so 83% was an upper bound.
 - Plan (`experiments/estimated_rho/run.py`): 9n's script and seed (20261103: the white and coloured-unweighted rows should reproduce 9m and 9n). Third column: from the unweighted coloured fit, estimate rho as the lag-1 autocorrelation of the pooled residuals (clipped to 0 to 0.99), refit with AR(1)-whitened residuals, re-estimate, refit once more (iterated GLS). Reports the distribution of estimated rho (truth 0.9).
