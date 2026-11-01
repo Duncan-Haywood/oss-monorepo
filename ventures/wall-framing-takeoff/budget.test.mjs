@@ -147,3 +147,15 @@ test("labor lines for drywall sheets and insulation bags use the typed rates, an
   const none = bud({ ...plan, prices: { drywallSheet: 10 } });
   assert.ok(!none.lines.some((l) => l.section === "Labor"));
 });
+
+test("labor lines for siding (sq ft) and trim (linear ft) use the typed rates and are not taxed", () => {
+  const plan = { ...full({ laborSidingSqFt: 3, laborTrimFoot: 1.5 }), siding: {}, trim: {} };
+  const b = bud(plan);
+  const ls = b.lines.find((l) => l.item === "Siding and house wrap installation");
+  const lt = b.lines.find((l) => l.item === "Trim installation");
+  assert.ok(ls && lt, "both labor lines appear");
+  assert.ok(Math.abs(ls.amount - ls.qty * 3) <= 0.02);
+  assert.ok(Math.abs(lt.amount - lt.qty * 1.5) <= 0.02);
+  const none = bud({ ...plan, prices: { laborTrimFoot: 1.5 } });
+  assert.ok(!none.lines.some((l) => l.item === "Siding and house wrap installation" && l.amount > 0));
+});
