@@ -187,6 +187,10 @@ The root price leaves a duality gap because the relaxation lets a contested shif
 
 Case 0 went from two-thirds of an open hour to $2.53 of pay. Still 0 of 4 proven: cases 2 and 3 barely move (case 3's gap is about one open hour that neither the roster nor the bound resolves), and case 1 is still a coverage gap of two hours. Costs 2 to 8 s per week at the default limits. A test checks the branched bound never passes the brute-force optimum on 40 tight random weeks and rises on at least one. One generator, one run each. (The clopening and call-out guide tables that failed on `main` here were re-derived from the engine on 2026-10-25.)
 
+## How much pay is left once coverage is proven? (measured 2026-11-01)
+
+`node eval/pay-gap-bench.mjs 8 22 12` (new): twelve seeded 8-person, 22-shift weeks, the same generator as `rolling-gap-bench.mjs`, default exact settings (100,000 nodes, 8 s). Coverage was proven (open hours equal the floor) on 11 of 12 weeks. On those 11 the roster's pay is within the bound by $0.00 to $15.69, median $4.15 and 0.7% of weekly pay at most (weeks cost $1,379 to $2,612); two are proven optimal outright, one more is within $0.04. The 12th week (open 86 h against a floor of 84 h) is a coverage gap, not a pay gap. So once coverage is proven, a tighter pay bound can recover at most about $16 a week at this size, while the unproven coverage weeks are worth whole open hours. One generator, one run, hard rules only; not a real payroll. That moves the next milestone to branch-and-price on the coverage gap.
+
 ## Trade pages (2026-10-30)
 
 [`daycare-staff-schedule.html`](daycare-staff-schedule.html) and
