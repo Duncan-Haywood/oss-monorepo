@@ -67,6 +67,11 @@ check((await page.locator("#spend-chart").count()) === 0, "activity costs field:
 await page.fill("#ac", "roof=9000, walls=9000");
 await page.fill("#dr", "14, 10, 30");
 check(/Cash you float with draws paid 14 day\(s\) late and 10% retainage: peak \$[\d,]+/.test(await page.textContent("#out")), "draw terms field: peak float shown");
+await page.fill("#mk", "25");
+check(/billed at cost \+25\.0%/.test(await page.textContent("#out")), "markup field: float is billed at cost plus 25%");
+await page.fill("#mk", "-5");
+check(/Markup on draws: write a percent/.test(await page.textContent("#out")), "markup field: a negative percent is refused");
+await page.fill("#mk", "");
 await page.fill("#dr", "14, 200");
 check(/Draw terms: write lag days/.test(await page.textContent("#out")), "draw terms field: retainage over 100 is refused");
 await page.fill("#dr", ""); await page.fill("#ac", "");
