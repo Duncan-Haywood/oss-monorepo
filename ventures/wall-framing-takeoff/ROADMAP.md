@@ -135,3 +135,4 @@ Ticked items are on `main`.
 - 2026-11-01: budget labor line for hold-downs and plate straps (`laborHoldDown`, per piece, typed rate only), `budget.test.mjs` (hand product check). No real contractor rate; plan key only, no page field.
 - 2026-11-01: budget labor line for wall sheathing (`laborWallSheet`, per sheet, typed rate only), `budget.test.mjs`. No real contractor rate; plan key only, no page field.
 - 2026-11-01: the page's budget price box help now lists every price name the engine reads (it omitted the siding, trim, eaves, gutter, sheathing and hold-down labor rates and 30 material names); `budget.test.mjs` fails if a name is missing from `index.html`. Still a plain textarea, no labelled fields.
+- 2026-11-01: the budget price box gained an "Add a price line" picker (every price name the engine reads; appends `name, ` once). Click-checked in Chromium (`eval-browser-click.mjs`, 0 page errors).

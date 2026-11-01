@@ -338,6 +338,14 @@ await page.waitForFunction(() => /Wall framing/.test(document.querySelector("#bu
 const budTxt = await page.textContent("#budgetOut");
 const budOk = !/NaN|undefined/.test(budTxt) && /total/.test(budTxt) && /labor/.test(budTxt);
 console.log(budOk ? "ok: budget from typed prices on the page" : "FAIL: budget: " + budTxt.slice(0, 200));
+// the price-name picker appends a "name, " line once and does not duplicate it
+await page.fill("#priceText", "wallSheet, 20");
+await page.selectOption("#priceName", "laborHoldDown");
+await page.click("#priceAddBtn");
+await page.click("#priceAddBtn");
+const addedTxt = await page.inputValue("#priceText");
+console.log(addedTxt === "wallSheet, 20\nlaborHoldDown, " ? "ok: price picker adds one line" : "FAIL: price picker: " + JSON.stringify(addedTxt));
+await page.fill("#priceText", "wallSheet, 20\nlaborWallFoot, 10\ntax, 0.1");
 // prices travel in the saved plan file and come back on load
 const [sv] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
 const saved = JSON.parse(await (await import("node:fs/promises")).readFile(await sv.path(), "utf8"));
