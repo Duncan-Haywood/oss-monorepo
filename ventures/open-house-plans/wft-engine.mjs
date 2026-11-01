@@ -1,5 +1,4 @@
 // Vendored from ventures/wall-framing-takeoff/engine.mjs by vendor-framing.mjs; edit the source, then run it.
-// @ts-check
 // Wall framing takeoff: from a list of walls and openings to a stud layout,
 // a cut list and the cheapest lumber order that covers it.
 //

@@ -1,5 +1,4 @@
 // Vendored from ventures/wall-framing-takeoff/drawings.mjs by vendor-framing.mjs; edit the source, then run it.
-// @ts-check
 // Shop drawings: one sheet per wall, a dimensioned elevation with a mark on
 // every member, the plate joints and a parts table, for a crew or a panel shop
 // to build from. Pure functions (no DOM): the page, the CLI and agents share them.

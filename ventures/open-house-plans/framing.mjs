@@ -129,6 +129,7 @@ export function framingInput(plan, brief, tk, style = null) {
     ...solid.filter((w) => w.type !== "ext"),
   ];
   const walls = [];
+  /** @type {Record<string, string>} */
   const map = {};
   for (const w of ordered) {
     const [a, b] = span.get(w.id);
@@ -246,10 +247,11 @@ export function framingInput(plan, brief, tk, style = null) {
 
 /**
  * Lay out every wall of a plan and order the lumber.
- * @returns {{ ok: boolean, input: any, walls: any[], cuts: any[], orders: any[], lvl: any[], summary: any, notes: string[] }}
+ * @returns {{ ok: boolean, input: any, map: Record<string, string>, walls: any[], cuts: any[], orders: any[], lvl: any[], summary: any, notes: string[] }}
  */
 export function frameHouse(plan, brief, tk, style = null) {
   const { input, map, lvl, notes } = framingInput(plan, brief, tk, style);
+  /** @type {any[]} */
   const walls = input.walls.map((w) => layoutWall(input, w));
   // engineered headers are drawn but bought from the supplier, not cut from boards
   const lvlKeys = new Set(lvl.map((l) => l.label));

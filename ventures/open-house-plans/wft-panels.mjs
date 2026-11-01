@@ -1,5 +1,4 @@
 // Vendored from ventures/wall-framing-takeoff/panels.mjs by vendor-framing.mjs; edit the source, then run it.
-// @ts-check
 // Panelizing: split a laid-out wall into shop-built panels no longer than a
 // limit (a truck bed, a table, what two people can carry), cutting only where
 // no stud, king, jack, cripple, header, sill or block crosses the line, so

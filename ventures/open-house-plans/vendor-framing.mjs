@@ -2,8 +2,9 @@
 // Copies the Wall Framing Takeoff engine into this folder, so Open House
 // Plans stays self-contained (every module imports only its siblings, and the
 // folder runs on its own when downloaded or served). The copies are the
-// source files byte for byte, apart from a first-line banner and their
-// sibling imports renamed to the wft- prefix.
+// source files byte for byte, apart from a first-line banner, their
+// sibling imports renamed to the wft- prefix, and the `// @ts-check` line
+// dropped (the source is type-checked in its own venture).
 //
 //   node vendor-framing.mjs           write the copies
 //   node vendor-framing.mjs --check   exit 1 if a copy differs from what it would write
@@ -22,6 +23,8 @@ export const VENDORED = { "engine.mjs": "wft-engine.mjs", "drawings.mjs": "wft-d
 export function vendored(name) {
   let text = readFileSync(join(source, name), "utf8");
   for (const [from, to] of Object.entries(VENDORED)) text = text.split(`from "./${from}"`).join(`from "./${to}"`);
+  // the source is type-checked where it lives; the copy drops its // @ts-check so its pre-existing diagnostics are not counted twice
+  text = text.replace(/^\/\/ @ts-check\n/m, "");
   return `// Vendored from ventures/wall-framing-takeoff/${name} by vendor-framing.mjs; edit the source, then run it.\n${text}`;
 }
 
