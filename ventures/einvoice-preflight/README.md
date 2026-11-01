@@ -65,7 +65,7 @@ default, JS only, and an offline observation, not the OpenPeppol Schematron.
 The UN/CEFACT CII reader now also captures the party electronic address.
 
 **France profile.** Tick "Also apply the French rules" on the page, or call
-`POST /v1/validate?profile=france`, to add seven `FR-001`..`FR-007` rules for
+`POST /v1/validate?profile=france`, to add eight `FR-001`..`FR-008` rules for
 invoices to French buyers under the e-invoicing reform (reception mandatory
 from 1 September 2026, issuing phased in after): the seller and buyer SIREN or
 SIRET (`legal_id`, scheme 0002) must be present and pass the Luhn check digit
