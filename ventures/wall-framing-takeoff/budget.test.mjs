@@ -159,3 +159,16 @@ test("labor lines for siding (sq ft) and trim (linear ft) use the typed rates an
   const none = bud({ ...plan, prices: { laborTrimFoot: 1.5 } });
   assert.ok(!none.lines.some((l) => l.item === "Siding and house wrap installation" && l.amount > 0));
 });
+
+test("labor lines for eaves (fascia run) and gutters (run feet) use the typed rates and are not taxed", () => {
+  const plan = { ...full({ laborEavesFoot: 2, laborGutterFoot: 4 }), eaves: {}, gutters: {} };
+  const b = bud(plan);
+  const le = b.lines.find((l) => l.item === "Fascia, soffit and J-channel installation");
+  const lg = b.lines.find((l) => l.item === "Gutter and downspout installation");
+  assert.ok(le && lg, "both labor lines appear");
+  assert.ok(le.qty > 0 && lg.qty > 0);
+  assert.ok(Math.abs(le.amount - le.qty * 2) <= 0.02);
+  assert.ok(Math.abs(lg.amount - lg.qty * 4) <= 0.02);
+  const none = bud({ ...plan, prices: {} });
+  assert.ok(!none.lines.some((l) => l.section === "Labor"));
+});

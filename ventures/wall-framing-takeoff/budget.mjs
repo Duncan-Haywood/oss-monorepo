@@ -10,7 +10,7 @@
 // Plan `prices` (all optional, dollars): { wallSheet, floorSheet, roofSheet,
 // truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle,
 // starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, drywallSheet, baseboard, casing (price per board), sidingBoard, sidingStarter, headFlashing (price per piece), openingTape (price per roll), houseWrapRoll, cornerBoard, soffitPanel, fasciaBoard, jChannel, insulationBag, atticFillBag,
-// vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), laborSidingSqFt (siding and house wrap, per sq ft of wall net of openings), laborTrimFoot (baseboard, shoe and casing, per linear foot), tax (fraction on materials), contingency (fraction) }.
+// vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), laborSidingSqFt (siding and house wrap, per sq ft of wall net of openings), laborTrimFoot (baseboard, shoe and casing, per linear foot), laborEavesFoot (fascia run, eave plus rake, per linear foot; soffit and J-channel included), laborGutterFoot (gutter run, per linear foot; downspouts included), tax (fraction on materials), contingency (fraction) }.
 // nailBox falls back to fasteners.price; insulationBag falls back to the plan's insulation.price; atticFillBag to insulation.attic.price.
 // Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
 // (`sheathing.summary.cost`) unless `wallSheet` is typed.
@@ -122,6 +122,9 @@ export function budget(result, prices = {}) {
   if (laborTyped && sd?.ok && sd.netSqFt > 0) add("Labor", "Siding and house wrap installation", sd.netSqFt, "sq ft", P("laborSidingSqFt"), "siding.netSqFt (wall net of openings) x typed laborSidingSqFt");
   const trimFt = tr?.ok ? (tr.baseFeet || 0) + (tr.shoeFeet || 0) + (tr.casingFeet || 0) : 0;
   if (laborTyped && trimFt > 0) add("Labor", "Trim installation", trimFt, "ft", P("laborTrimFoot"), "baseboard + shoe + casing feet x typed laborTrimFoot");
+  const eavesFt = ea?.ok ? (ea.eaveFeet || 0) + (ea.rakeFeet || 0) : 0;
+  if (laborTyped && eavesFt > 0) add("Labor", "Fascia, soffit and J-channel installation", eavesFt, "ft", P("laborEavesFoot"), "eaves.eaveFeet + rakeFeet x typed laborEavesFoot");
+  if (laborTyped && gu?.ok && gu.runFeet > 0) add("Labor", "Gutter and downspout installation", gu.runFeet, "ft", P("laborGutterFoot"), "gutters.runFeet x typed laborGutterFoot");
   const insBags = ins?.ok ? (ins.bags || 0) + (ins.rim?.bags || 0) + (ins.attic?.bags || 0) : 0;
   if (laborTyped && insBags > 0) add("Labor", "Insulation installation", insBags, "bags", P("laborInsulationBag"), "wall + rim + attic bags x typed laborInsulationBag");
 
