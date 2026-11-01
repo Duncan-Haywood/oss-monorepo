@@ -259,6 +259,8 @@ numbers worked out before drafting.
 
 **Hearth & Horizon**
 
+- *(Done: The Hour Bell, Saint Aldhelm's (invented), Combe Aldhelm, Dorset, 21 Feb to 5 Mar 2047; text only.)* Bell-chamber noise: 112 dB(A) at 1 m (meter, not a clipping phone), 6 dB less per doubling of distance, 3 dB exchange rate from 85 dB for 8 h (NIOSH); 56 strokes x 3 s = 168 s a day is about 300% at 1 m, 75% at 2 m, 19% at 4 m; foam plug (NRR 29, real about 11 dB) is safe but hides the 3 kHz+ double strike, 17 dB flat filters give about 6% (illustrative figures, not measured).
+
 - *(Done: The Dust on the Beams, St Wenceslaus Hall (invented), Saline County, Nebraska, 10 to 11 October 2049; text only.)* Grain dust: floor 240 g/m2 x 360 m2 = 86 kg, ledges 160 g/m2 x 220 m2 = 35 kg, 121 kg in 2,160 m3 = 56 g/m3 against about 50 to 60 minimum explosible; after damp mopping and an earthed dust-rated vacuum about 20 kg, 9 g/m3; the assistant cannot name an ignition source and owns it (illustrative figures).
 
 - *(Done: The Pot That Needs Dry Air, Notre-Dame de la Visitation, Nabdogo (invented), Centre-Nord, Burkina Faso, 26 Apr to 5 May 2049; text only.)* Pot-in-pot cooler is limited by wet-bulb (Stull): 41 C/18% gives 22.6, pot about 25; 36 C/55% gives 28.4, pot about 31; insulin 11 people x 36 U/day x 9 d = 3,564 U (3.6 vials, keep 5); leaflet is 28 days at not above 25 C; ice box 1.2 W/K x 30 K = 36 W, 10 kg ice (3.3 MJ) about 26 h; ice touching vials froze 2 (illustrative figures, not tested).
