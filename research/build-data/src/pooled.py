@@ -47,13 +47,15 @@ def fit_quantiles(Xtr, ytr, wtr, Xva, yva, Xte, seed, min_leaf, n_max=300):
     return out
 
 
-def run(frames, held, test_year, seeds, grid=GRID, weights=WEIGHTS):
+def run(frames, held, test_year, seeds, grid=GRID, weights=WEIGHTS, cap=200000):
     cities = [c for c in transfer.CITIES if c in frames]
     for c in cities:
         frames[c]["city"] = c
     src = [c for c in cities if c != held]
-    s_tr = pd.concat([frames[c][frames[c].year <= test_year - 2] for c in src])
-    s_ca = pd.concat([frames[c][frames[c].year == test_year - 1] for c in src])
+    def capped(d):  # random subsample per source city: the 4-core session cannot fit 2M+ rows 100 times
+        return d.sample(n=cap, random_state=0) if cap and len(d) > cap else d
+    s_tr = pd.concat([capped(frames[c][frames[c].year <= test_year - 2]) for c in src])
+    s_ca = pd.concat([capped(frames[c][frames[c].year == test_year - 1]) for c in src])
     own = frames[held]
     otr, te = own[own.year <= test_year - 2].reset_index(drop=True), own[own.year == test_year]
     if not all(len(d) for d in (s_tr, s_ca, otr, te)):
@@ -76,7 +78,7 @@ def run(frames, held, test_year, seeds, grid=GRID, weights=WEIGHTS):
     full = base_pred(otr)
     L_full = loss(full)
     res = dict(held_out=held, test_year=test_year, sources=src, n_test=len(te), n_own_history=len(otr),
-               n_source_train=len(s_tr), seeds=seeds, grid=grid, weights=weights,
+               n_source_train=len(s_tr), source_cap_per_city=cap, seeds=seeds, grid=grid, weights=weights,
                full_base=dict(per_tau={str(t): float(boosted.pin(yte, full[t], t).mean()) for t in TAUS},
                               mean3=float(L_full.mean())), rows=[])
     Xs_tr, Xs_ca, Xte = feats(s_tr, cities), feats(s_ca, cities), feats(te, cities)
@@ -150,6 +152,7 @@ if __name__ == "__main__":
     ap.add_argument("--target", required=True, choices=["a2i", "i2c"])
     ap.add_argument("--test-year", type=int, default=2024)
     ap.add_argument("--seeds", type=int, default=2)
+    ap.add_argument("--cap", type=int, default=200000, help="max rows per source city (0 = all)")
     ap.add_argument("--held", nargs="*", default=None)
     a = ap.parse_args()
     cities = [c for c in transfer.CITIES if os.path.exists(os.path.join(a.data_dir, f"{c}.csv"))]
@@ -157,7 +160,7 @@ if __name__ == "__main__":
     if a.target == "i2c":
         frames = {c: f for c, f in frames.items() if c != "chicago"}
     for held in (a.held or list(frames)):
-        r = run(frames, held, a.test_year, a.seeds)
+        r = run(frames, held, a.test_year, a.seeds, cap=a.cap)
         out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results",
                            f"pooled_{held}_{a.target}_{a.test_year}.json")
         json.dump(r, open(out, "w"), indent=1)
