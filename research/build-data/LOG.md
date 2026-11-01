@@ -1,5 +1,10 @@
 # build-data log
 
+## Session 11, 2026-11-01: milestone 7, pooled model plus a small local sample (H5), hypothesis written before the run
+
+Hypothesis (H5): a model pooled with the other cities and given n rows of the held-out city's own history matches that city's full-history per-type baseline (mean pinball over q0.1/0.5/0.9, test year 2024) only once n is in the thousands: the first n in the grid (0, 100, 300, 1000, 3000, 10000) at which the pooled point estimate is at or below the full baseline is above 1000 in at least 3 of 5 city/target pairs. Refuted if it is 1000 or less in 4 or more pairs. Prior 55% that it holds (M6 showed the cost of moving between cities is large, +2 to +137%, but the per-type baseline also needs data to fill its classes). Secondary, also written now: at every n from 100 to 1000, the pooled model (weight 1 or 20) beats the baseline built from the same n rows (base_n) in most pairs; prior 80%.
+Plan: `src/pooled.py`; local rows drawn at random from the held-out city's years <= 2022; early stopping on the other cities' 2023 plus 20% of the local sample (the held-out city's 2023 is never used); 2 seeds (they change the draw and the model); paired week-block bootstrap against the full baseline and against base_n.
+
 ## Session 10, 2026-11-01: milestone 6, cross-city transfer (H4), hypothesis written before the run
 
 Hypothesis (H4, from the proposal): a model trained on the other cities and tested on the held-out city is no better than that city's own reference-class baseline on 2024 mean pinball loss (q0.1, 0.5, 0.9). Refuted for a city if the paired week-block bootstrap interval of (transfer minus own baseline) lies below zero at two of three quantiles. Prior 35% that H4 holds: the baseline uses the city's own permit types, which carry most of the signal (session 9), while a transfer model only sees a keyword-harmonised class, cost, description length, month and weekday.
