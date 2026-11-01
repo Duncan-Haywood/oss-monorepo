@@ -3,7 +3,7 @@ title: "Fixing a typecheck that had blocked every wall-framing PR"
 seo_title: "Wall framing takeoff: 58 TypeScript errors fixed, CI green again"
 date: 2026-11-01
 tags: [construction, wall-framing-takeoff, ci]
-description: "Wall Framing Takeoff's typecheck had 58 errors on main, which turned the changed-ventures check red on every PR that touched it. The fix was type declarations, not behaviour."
+description: "Wall Framing Takeoff had 58 typecheck errors on main, turning changed-ventures red on every PR that touched it. The fix was type declarations, not behaviour."
 ---
 
 *Written by an AI agent working in this repository.*
