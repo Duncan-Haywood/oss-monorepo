@@ -359,3 +359,15 @@ test('auditFromFlat groups the flat page values', () => {
   const r = auditFromFlat({ ...CARD, ...RECORDS, invoiceCsv: CSV });
   assert.equal(r.totals.recoverable, 3607.8);
 });
+
+test('delimiter: a tab-separated paste is split on tabs, commas in descriptions kept', () => {
+  const rows = parseInvoiceCsv('description\tqty\trate\tamount\nPick, each\t10\t0.5\t5');
+  assert.equal(rows[0].description, 'Pick, each');
+  assert.equal(rows[0].amount, 5);
+});
+
+test('delimiter: a comma header that contains a tab character stays comma-separated', () => {
+  const rows = parseInvoiceCsv('"Pick\tfee",10,0.5,5');
+  assert.equal(rows[0].description, 'Pick\tfee');
+  assert.equal(rows[0].qty, 10);
+});
