@@ -37,3 +37,11 @@ def test_continuous_across_fn_04_blend():
     g = math.sqrt(9.80665 * 4.0)
     lo, hi = run(0.3999 * g)["RW"], run(0.4001 * g)["RW"]
     assert abs(hi / lo - 1) < 0.02
+
+
+def test_low_speed_wave_term_uses_m2_not_m4():
+    # m2 = c15 Cp^2 exp(-0.1/Fn^2); the Fn>0.55 exponent m4 was used by mistake before milestone 3d.
+    fn = 0.267
+    r = run(fn * math.sqrt(9.80665 * 4.0), s=2.38)
+    cw = r["RW"] / (0.5 * RHO_FRESH * (fn * math.sqrt(9.80665 * 4.0)) ** 2 * 2.38)
+    assert abs(cw - 1.02e-3) < 0.02e-3
