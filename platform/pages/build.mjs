@@ -10866,7 +10866,8 @@ ${research.themes
 `
     : '';
 
-  // One linked line per tool. As a single sentence ("On A, B, ... and Z the
+  // One linked line per tool, in llms-full.txt only (the index keeps under
+  // its 50 KB budget with a pointer). As a single sentence ("On A, B, ... and Z the
   // one thing you paste ...") the ~50 names ran into one paragraph, and a
   // title phrased as a question ("Does your pinned workflow ...?") read as
   // "On Does your pinned workflow ...?": an LLM could not tell where one name
@@ -10874,10 +10875,8 @@ ${research.themes
   const network = exceptions.length
     ? `## Tools that call the network
 
-On these ${exceptions.length} tools the one thing you paste is sent to the public API it checks; everything else stays in your browser. The [About page](${baseUrl}${ABOUT_PATH}) explains exactly what each sends.
-
-${exceptions.map((x) => `- [${oneLine(toolProseName(x.title))}](${baseUrl}${x.slug}/): sends what you paste to ${x.hosts.join(', ')}`).join('\n')}
-
+On ${exceptions.length} tool${exceptions.length === 1 ? '' : 's'} the one thing you paste is sent to the public API it checks; everything else stays in your browser. The [About page](${baseUrl}${ABOUT_PATH}) explains exactly what each sends${full ? '.' : `, and [llms-full.txt](${baseUrl}llms-full.txt) lists them with the hosts they call.`}
+${full ? `\n${exceptions.map((x) => `- [${oneLine(toolProseName(x.title))}](${baseUrl}${x.slug}/): sends what you paste to ${x.hosts.join(', ')}`).join('\n')}\n` : ''}
 `
     : '';
 
