@@ -1,5 +1,6 @@
 ---
 title: "The fish goes in frozen: a short story about a parish fish fry and a turkey rule"
+seo_title: "The fish goes in frozen: a parish fish fry short story"
 date: 2026-11-01
 tags: [fiction, hearth-and-horizon]
 description: A new Hearth & Horizon story works out why a parish's "thaw the fish first" rule is wrong for battered fillets and what a bigger fryer really changes.

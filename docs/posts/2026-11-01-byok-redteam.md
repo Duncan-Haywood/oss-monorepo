@@ -1,5 +1,6 @@
 ---
 title: "Two bugs we could plant in the model-key helper without a test noticing"
+seo_title: "Two bugs planted in the model-key helper, unseen by tests"
 date: 2026-11-01
 tags: [redteam, testing, byok]
 description: A seeded-fault run on the bring-your-own-key helper caught 6 of 8 mutants; the two escapes, a default-port edge and a private range, are now guarded.

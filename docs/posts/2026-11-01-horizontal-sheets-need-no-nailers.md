@@ -1,5 +1,6 @@
 ---
 title: "Do horizontal sheathing sheets need nailers? The framing takeoff says no, and checks it"
+seo_title: "Do horizontal sheathing sheets need nailers?"
 date: 2026-11-01
 tags: [wall-framing-takeoff, sheathing, construction]
 description: A roadmap line said nailers for horizontal sheets were missing. Joint blocks already cover it, and a new test checks staggered blocking rows beside a window.
