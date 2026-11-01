@@ -128,7 +128,9 @@ flagships:
       a documented real run
       of 5+ steps to test the block-variance warning, which does not yet
       separate drift from steps. (1) range95: a closure series quiet outside
-      the closure (none of 30 Ansett route/class series is). (2) The steep-
+      the closure (none of 30 Ansett route/class series is; nor is Peace Bridge
+      traffic around the 2009 passport rule, 2026-11-01: step on the month, 13
+      other changes). (2) The steep-
       bump (0.04) clumpy-count cell is under-covered, 65/79 (82%) over six
       seeds; the CLI and JSON carry that caveat. (3) GARCH: a filtered
       series has 1% false alarms but loses the real sd break (97% to 6%);
