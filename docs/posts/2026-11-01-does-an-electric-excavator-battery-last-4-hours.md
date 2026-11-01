@@ -1,5 +1,6 @@
 ---
 title: "Does a 20 kWh excavator battery last four hours? Our duty-cycle model says it should last longer"
+seo_title: "Does a 20 kWh excavator battery last four hours?"
 date: 2026-11-01
 tags: [heavy-hydraulics, excavator, electric, research]
 description: A hydraulic duty-cycle model gives a battery-electric compact excavator a mean draw of 2.5 to 4.3 kW, against the 5 kW implied by a vendor's 20 kWh for 4 hours.
