@@ -398,3 +398,19 @@ test("labor line for setting doors and windows counts framed openings (kings / 2
   assert.equal(l.amount, 1020); // 12 x 85 by hand
   assert.ok(!bud(full()).lines.some((x) => x.item === "Door and window setting"));
 });
+
+test("attic ventilation is priced from the ventilation counts: typed prices, hand product", () => {
+  const plan = { ...full({ ridgeVent: 14, soffitVent: 3, rafterBaffle: 2 }), ventilation: {} };
+  const ventOf = (p) => JSON.parse(run(p, "--sheathing", "--budget", "--ventilation", "--json").out);
+  const lines = ventOf(plan).lines;
+  const v = JSON.parse(run(plan, "--sheathing", "--ventilation", "--json").out).ventilation;
+  assert.ok(v.ok && v.ridgePieces > 0 && v.soffitUnits > 0);
+  const rv = lines.find((x) => x.item === "Ridge vent");
+  const sv = lines.find((x) => x.item === "Soffit vents");
+  assert.equal(rv.qty, v.ridgePieces);
+  assert.ok(Math.abs(rv.amount - v.ridgePieces * 14) <= 0.02);
+  assert.ok(Math.abs(sv.amount - v.soffitUnits * 3) <= 0.02);
+  if (v.baffles > 0) assert.ok(Math.abs(lines.find((x) => x.item === "Rafter baffles").amount - v.baffles * 2) <= 0.02);
+  const none = ventOf({ ...plan, prices: {} }).lines;
+  assert.equal(none.find((x) => x.item === "Ridge vent").amount, null, "no price typed: listed unpriced, not guessed");
+});
