@@ -434,15 +434,35 @@ function addWing(base, r, plan, w) {
     for (let left = len; left > EPS; left -= sheet.length) pieces.push({ length: Math.min(left, sheet.length) });
     wingCourses.push({ plane: "wing", count: 2, y, width, pieces });
   }
-  let sheets = base.sheets.count;
-  const sheetRows = [...base.sheets.rows];
-  for (const wd of [...new Set(wingCourses.map((c) => c.width))]) {
-    const ps = wingCourses.filter((c) => Math.abs(c.width - wd) < EPS).flatMap((c) => Array.from({ length: c.count }, () => c.pieces).flat());
+  // The wing's plane replaces the main plane's sheathing between the valleys. In the main plane the covered half-width at a
+  // plan run x from the eave edge is min(yEnd, (xEnd - x) / s), with xEnd = e + overhang where the wing ridge meets the plane.
+  // A main course loses the width covered at its top (narrowest) edge, centred on the wing; what is left is re-pieced.
+  // The ragged triangle beside each valley stays in the main course (it is cut from a whole piece), so this stays a mild upper bound.
+  const planeCourses = base.planeCourses ?? { left: base.courses.map((c) => ({ ...c })), right: base.courses.map((c) => ({ ...c })) };
+  const xEnd = e + overhang, centre = at + rake;
+  planeCourses[side] = planeCourses[side].map((c) => {
+    const xt = (c.y + c.width) / k;
+    const cw = Math.max(0, Math.min(yEnd, (xEnd - xt) / s));
+    if (cw <= EPS) return c;
+    const lo = centre - cw, hi = centre + cw, pieces = [];
+    for (const p of c.pieces) {
+      const p0 = p.x, p1 = p.x + p.length;
+      if (p0 < lo - EPS) pieces.push({ x: p0, length: Math.min(p1, lo) - p0 });
+      if (p1 > hi + EPS) pieces.push({ x: Math.max(p0, hi), length: p1 - Math.max(p0, hi) });
+    }
+    return { ...c, pieces };
+  });
+  let sheets = 0;
+  const sheetRows = [];
+  const poolWidths = [...new Set([...planeCourses.left, ...planeCourses.right, ...wingCourses].map((c) => c.width))];
+  for (const wd of poolWidths) {
+    const ps = [...planeCourses.left, ...planeCourses.right].filter((c) => Math.abs(c.width - wd) < EPS).flatMap((c) => c.pieces)
+      .concat(wingCourses.filter((c) => Math.abs(c.width - wd) < EPS).flatMap((c) => Array.from({ length: c.count }, () => c.pieces).flat()));
     const perSheet = Math.max(1, Math.floor((sheet.width + sheet.kerf) / (wd + sheet.kerf)));
     const res = optimizeStock(ps.map((p) => ({ length: p.length, qty: 1 })), [{ length: sheet.length, price: 1 }], sheet.kerf);
     const need = Math.ceil(res.bars.length / perSheet);
     sheets += need;
-    sheetRows.push({ width: wd, count: need, pieces: ps.length, wing: true });
+    sheetRows.push({ width: wd, count: need, pieces: ps.length, wing: wingCourses.some((c) => Math.abs(c.width - wd) < EPS) });
   }
   // area: the two wing planes (plan length rake + P + valley position, integrated across the reach) less the main-plane strip they cover
   const yKink = hw + overhang / s, m = Math.min(reach, yKink);
@@ -468,10 +488,10 @@ function addWing(base, r, plan, w) {
   notes.push(...wingNotes);
   notes.push(`${base.wing ? "Second cross wing" : "Cross wing"} ${formatLength(w.width)} wide, ${formatLength(P)} out from the main wall, centred ${formatLength(at)} along the ridge on the ${side} side: ${wingRafters.length} wing rafters, ${wingJacks.length + interrupted} valley jacks (${interrupted} of them main-roof rafters cut short at the valley), 2 ${valleySize} valleys of ${formatInches(valleyLen)}, a ${formatLength(P + e + rake)} wing ridge. The wing is ${wp}:12 against the main roof's ${r.pitch}:12, so its ridge meets the main roof ${formatLength(e)} inside the main wall.`);
   if (!w.valley) notes.push(`Valleys are ${valleySize}, as the rafters; a valley is normally one size deeper so the jacks bear on its face (set \`wing.valley\`).`);
-  notes.push("Wing sheathing counts each course at its longer edge, and the main plane is not reduced where the wing covers it, so the sheet count is an upper bound. Wing collar ties follow the main roof's rule (every other pair of wing commons); valley backing is framed only when `valleyBacking` is set (one board per valley, valley length and size, no bevel rip or lap), nor saddles, the main wall's extra header or the wing's own plates; valley flashing length is `roofing.valleyFeet`.");
+  notes.push("Wing sheathing counts each course at its longer edge, and each main course is shortened by the width the wing covers at the course's top edge (the triangles beside the valleys stay whole), so the sheet count is a mild upper bound. Wing collar ties follow the main roof's rule (every other pair of wing commons); valley backing is framed only when `valleyBacking` is set (one board per valley, valley length and size, no bevel rip or lap), nor saddles, the main wall's extra header or the wing's own plates; valley flashing length is `roofing.valleyFeet`.");
   const info = { width: w.width, projection: P, at, side, valleySize, valleyLength: valleyLen, rafters: wingRafters.length, jacks: wingJacks.length, valleys: valleys.length, ridges: wingRidges.length, collarTies: wingCollarTies.length };
   const cat = (a, b) => [...(a || []), ...b];
-  return { ...base, rafters, wing: base.wing ?? info, wings: [...(base.wings || []), info], wingRafters: cat(base.wingRafters, wingRafters), wingJacks: cat(base.wingJacks, wingJacks), wingCeilingJoists: cat(base.wingCeilingJoists, wingCeilingJoists), wingCollarTies: cat(base.wingCollarTies, wingCollarTies), valleys: cat(base.valleys, valleys), valleyBacking: cat(base.valleyBacking, valleyBacking), wingRidges: cat(base.wingRidges, wingRidges), wingCentres: base.wingCentres ?? uCentres, valleyLength: base.valleyLength ?? valleyLen, courses: [...base.courses, ...wingCourses], sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 }, roofing, notes };
+  return { ...base, rafters, wing: base.wing ?? info, wings: [...(base.wings || []), info], wingRafters: cat(base.wingRafters, wingRafters), wingJacks: cat(base.wingJacks, wingJacks), wingCeilingJoists: cat(base.wingCeilingJoists, wingCeilingJoists), wingCollarTies: cat(base.wingCollarTies, wingCollarTies), valleys: cat(base.valleys, valleys), valleyBacking: cat(base.valleyBacking, valleyBacking), wingRidges: cat(base.wingRidges, wingRidges), wingCentres: base.wingCentres ?? uCentres, valleyLength: base.valleyLength ?? valleyLen, courses: [...base.courses, ...wingCourses], planeCourses, sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 }, roofing, notes };
 }
 
 /** Cut rows in the engine's shape, so `takeoff(plan, roofCuts(layout))` buys roof lumber with the walls'. */

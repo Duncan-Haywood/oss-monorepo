@@ -314,3 +314,18 @@ test("birdsmouth: a 12:12 roof on a 2x6 over a 3-1/2 in plate is flagged in the 
   const ok = layoutRoof(sampleRoof(), plan());
   assert.equal(ok.birdsmouth.ok, true);
 });
+
+test("cross wing: main courses are shortened under the wing, and the sheet count stays between the area bound and the old count", () => {
+  const r = wingRoof();
+  const l = layoutRoof(r, plan());
+  const sheetArea = (48 * 96) / 144;
+  assert.ok(l.sheets.count >= Math.ceil(l.sheets.area / sheetArea - 1e-9));
+  // hand check, wing 192 wide, 6:12... main 4:12 same pitch (s = 1): xEnd = e + overhang = 96 + 12 = 108;
+  // first course (top edge 48 / k up the slope = 45.5 in of run) loses 2 x min(108, 108 - 45.5) = 125 in of its right-hand plane
+  const k = Math.sqrt(10) / 3;
+  const cw = Math.min(108, 108 - 48 / k);
+  const c0 = l.planeCourses.right[0], whole = layoutRoof({ ...r, wing: undefined }, plan()).courses[0];
+  const kept = c0.pieces.reduce((s, p) => s + p.length, 0), all = whole.pieces.reduce((s, p) => s + p.length, 0);
+  assert.ok(Math.abs(all - kept - 2 * cw) < 1e-6, `${all} ${kept} ${cw}`);
+  assert.equal(l.planeCourses.left[0].pieces.reduce((s, p) => s + p.length, 0), all); // the far plane is whole
+});
