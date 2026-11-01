@@ -1,5 +1,6 @@
 ---
 title: "Clicking through the trim card: shoe moulding and scarf joints in a real browser"
+seo_title: "Clicking through the trim card"
 date: 2026-11-01
 tags: [wall-framing-takeoff, testing]
 description: Two trim fields in the wall framing tool were only checked by reading the page source. A Chromium click test now types into them and reads the result.

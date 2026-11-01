@@ -1,5 +1,6 @@
 ---
 title: "Does the cheap chip-synthesis estimate rank designs like the routed one? Not when the clock is tight"
+seo_title: "Does the cheap chip estimate rank designs like the routed one?"
 date: 2026-10-24
 description: "1,200 Yosys, ABC and OpenROAD runs on SKY130: a gate-count score ignores routed area x delay, and liberty mapping mis-ranks under a tight clock."
 tags: [eda, openroad, yosys, sky130, research]

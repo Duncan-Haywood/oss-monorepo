@@ -1,5 +1,6 @@
 ---
 title: "Bench Six: a short story about a frost night, a battery and a rule worth changing"
+seo_title: "Bench Six: a short story about a frost night and a battery"
 date: 2026-10-24
 description: "New Hearth & Horizon story: two wind machines, one battery 58 kWh short, and a co-op rule that would leave a convent's orchard unprotected at its coldest hour."
 tags: [fiction, hearth-and-horizon, agriculture, frost]

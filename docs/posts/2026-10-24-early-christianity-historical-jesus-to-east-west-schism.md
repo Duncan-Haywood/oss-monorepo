@@ -1,5 +1,6 @@
 ---
 title: "From Jesus to the Schism: what historians can establish about early Christianity"
+seo_title: "From Jesus to the Schism: what historians can establish"
 date: 2026-10-24
 description: "What historians can establish about Jesus, early worship, the canon and Rome, and how Newman's and Florovsky's views of doctrine differ."
 tags: [religion, history, research, early-christianity, historical-jesus, catholic, orthodox]
