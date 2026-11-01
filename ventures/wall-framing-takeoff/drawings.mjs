@@ -179,7 +179,7 @@ const DISCLAIMER = "No warranty. These drawings are a plan-derived picture of th
 
 /**
  * The whole drawing set as one printable HTML document, one sheet per wall.
- * @param {{ok: boolean, walls: any[]}} result from takeoff()
+ * @param {{ok: boolean, walls: any[], sheathing?: {walls?: any[]}}} result from takeoff()
  * @param {any} plan the plan that produced it
  * @param {{title?: string, panelMax?: number, sheathPsf?: number, panelSheets?: boolean}} [opts] panelSheets (with panelMax) adds one sheet per panel; panelMax (inches) splits each wall into shop panels no longer than that; sheathPsf (lb per sq ft) adds sheathing weight to each panel
  */
