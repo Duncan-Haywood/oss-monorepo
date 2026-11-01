@@ -127,6 +127,8 @@
     <button type="button" id="dl-csv">Download CSV</button>
     <button type="button" id="dl-grid">Download season grid CSV</button>
     <button type="button" id="dl-sheets">Download printable score sheets</button>
+    <label for="ics-alarm">Reminder before each game (minutes, blank for none)</label>
+    <input type="number" id="ics-alarm" min="1" max="10080" step="1" placeholder="60">
     <button type="button" class="secondary" id="dl-ics">Download calendar (.ics)</button>
     <button type="button" class="secondary" id="dl-team-msgs">Download a message per team (.txt)</button>
     <button type="button" class="secondary" id="dl-off-msgs" hidden>Download a message per official (.txt)</button>
@@ -247,7 +249,7 @@
       } catch { fallback(); }
     });
     $("#dl-csv").addEventListener("click", () => { if (!last) return; download("division-schedule.csv", divisionsCsv(last), "text/csv"); record("divisions_csv_downloaded"); });
-    $("#dl-ics").addEventListener("click", () => { if (!last) return; download("division-schedule.ics", divisionsIcs(last), "text/calendar"); record("divisions_ics_downloaded"); });
+    $("#dl-ics").addEventListener("click", () => { if (!last) return; download("division-schedule.ics", divisionsIcs(last, { alarmMinutes: Number($("#ics-alarm").value) || null }), "text/calendar"); record("divisions_ics_downloaded"); });
     $("#dl-team-msgs").addEventListener("click", () => { if (!last) return; download("team-messages.txt", divisionsTeamMessages(last).map((m) => m.text).join("\n\n----\n\n"), "text/plain"); record("divisions_text_shared"); });
     $("#dl-off-msgs").addEventListener("click", () => { if (!last) return; download("official-messages.txt", divisionsOfficialMessages(last).map((m) => m.text).join("\n\n----\n\n"), "text/plain"); record("divisions_text_shared"); });
     $("#dl-sheets").addEventListener("click", () => { if (!last) return; download("division-score-sheets.html", divisionsScoreSheetsHtml(last), "text/html"); record("divisions_score_sheets_downloaded"); });
