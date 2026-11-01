@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01AcxTtJ8xjvRv9pkPtse6zW",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T15:10:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12357",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 fetches origin security-alerts, which does not exist; fails with no fallback (PRs #12236/#12038 already address it)."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "Says H&H stories are 3,500 to 6,000 words; recent stories run 1,800 to 2,700 and tests only require 500."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "why": "review already claimed by open PR #12272",
+      "did": "routed with --skip-review",
+      "result": "creative track, story landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-01-the-ice-the-weather-record-cannot-see.md"
+  ],
+  "goal": null,
+  "notes": "Project hearth-and-horizon, slug the-ice-at-the-inflow, text only (audio 423 MB over the 400 MB cap). Review track routed first but PR #12272 already claimed it; re-routed with --skip-review. Venture tests 11/11.",
+  "corrections": [],
+  "redteam": null
+}
