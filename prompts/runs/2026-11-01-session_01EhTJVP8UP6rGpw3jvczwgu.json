@@ -31,7 +31,10 @@
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [
-    "pushed a commit containing conflict markers by chaining git merge with git commit; repaired in the following commit"
+    {
+      "file": "prompts/runs/2026-11-01-session_01EhTJVP8UP6rGpw3jvczwgu.json",
+      "why": "pushed a commit containing merge-conflict markers (git merge and commit chained in one command); repaired in the next commit"
+    }
   ],
   "writeups": [],
   "goal": null,
