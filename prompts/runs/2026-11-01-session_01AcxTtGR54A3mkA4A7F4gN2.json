@@ -7,17 +7,19 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-sonnet-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-11-01T06:07:11Z",
   "ended": "2026-11-01T06:56:05Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 49.37,
+  "tokens_in": 3531477,
+  "tokens_out": 14508,
+  "cost_usd": 1.11,
+  "tool_calls": 41,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12273",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -43,7 +45,78 @@
     "research/aerolog-scaling/LOG.md"
   ],
   "goal": null,
-  "notes": "aerolog-scaling milestone 9p: AR(2) noise vs AR(1) GLS estimator; recovers 6 of 12 points; prediction 2 not clearly held.",
+  "notes": "aerolog-scaling milestone 9p: AR(2) noise vs AR(1) GLS estimator; recovers 6 of 12 points; prediction 2 not clearly held. pytest unavailable, project tests not run; check_numbers.py and homepage build.py ok.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "efe9cb1f-3f1c-5cf3-b2e4-6557fd8a5332",
+    "transcripts": 1,
+    "first": "2026-11-01T06:07:11Z",
+    "last": "2026-11-01T06:56:33Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 45,
+        "input": 95,
+        "output": 14508,
+        "thinking": 1414,
+        "cache_read": 3463364,
+        "cache_write_5m": 0,
+        "cache_write_1h": 68018,
+        "api_equivalent_usd": 1.11,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 95,
+      "output": 14508,
+      "thinking": 1414,
+      "cache_read": 3463364,
+      "cache_write_5m": 0,
+      "cache_write_1h": 68018,
+      "api_equivalent_usd": 1.11,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 33,
+      "Monitor": 4,
+      "ReadNotifications": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 49.37,
+      "active_minutes": 8.2,
+      "model_minutes": 2.4,
+      "tool_minutes": 5.81,
+      "waiting_on_human_minutes": 41.17,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
