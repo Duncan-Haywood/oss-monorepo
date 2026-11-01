@@ -378,3 +378,12 @@ test("bid price per foot of wall appears only when overhead or profit lifts the 
   assert.ok(b.bidPerWallFoot > b.perWallFoot);
   assert.match(budgetText(b).join("\n"), /Bid price per linear foot of wall/);
 });
+
+test("labor line for setting doors and windows counts framed openings (kings / 2) at the typed rate", () => {
+  const b = bud(full({ laborOpening: 85 }));
+  const l = b.lines.find((x) => x.item === "Door and window setting");
+  assert.ok(l, "opening labor line appears");
+  assert.equal(l.qty, 12); // the sample plan frames 12 openings (24 king studs)
+  assert.equal(l.amount, 1020); // 12 x 85 by hand
+  assert.ok(!bud(full()).lines.some((x) => x.item === "Door and window setting"));
+});
