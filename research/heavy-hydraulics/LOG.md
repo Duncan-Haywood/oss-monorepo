@@ -2,6 +2,13 @@
 
 Newest first.
 
+## 2026-11-01 · Milestone 5f: does a 1 to 5 kW recovery e-machine pay back in fuel? (priced from retail listings, a floor; no prediction registered)
+- Why: 5d and 5e bounded the rating at about 1 to 4.5 kW and left "price the device" open. `experiments/regen_price.py` combines retail prices for 48 V permanent-magnet generators (1.5 kW $819, 2 kW $289 EUR to $874, 5 kW EUR 1,599 with controller; listings seen 2026-11-01, wind/off-grid products) with 5a's recovery shares (3.3% central, 10% upper corner) applied to 5c's 2.3 kW mean shaft power, BSFC 250 g/kWh (assumed), $6.28/gal.
+- Outcome (`experiments/regen_price_results.txt`): central saving 76 W, 0.023 L/h, $0.04 per hour; payback 8,200 to 45,600 h. Upper corner 230 W, $0.12 per hour; payback 2,700 to 15,100 h. Only the cheapest 2 kW unit at the upper corner is under 3,000 h; every central-duty case exceeds 8,000 h.
+- Reading: on fuel alone the recovery device does not pay at the central duty; only a heavy, high-recovery corner with the cheapest hardware approaches a machine's service hours. Value would have to come from electric machines (battery size, 5c) or emissions, not diesel.
+- Limits: retail wind-generator prices are not construction-grade drive units (a floor, so true payback is longer); no inverter/DC link or mounting; applying 10% to 2.3 kW understates the corner's own draw (so it flatters nothing but is not matched); BSFC assumed; not a quote or a measured machine.
+- Next: a vendor quote for an automotive-grade 48 V motor-generator; the electric case where saved energy is battery kWh.
+
 ## 2026-11-01 · Milestone 5e: how much rated power does a peaky lowering profile need? (5d's "perhaps 2x more", measured; no prediction registered before the first run, stated honestly)
 - Why: 5d's reading said a real, peaky lowering "needs perhaps 2x more" rated power than its flat-profile cap and marked it not measured. `experiments/regen_peaky.py` takes unit-energy profiles over the lowering (flat, trapezoid with 20% ramps, half-sine, triangle; shapes swept, no measured boom trace) and finds the rating that captures 95% and 99% of the energy, as a multiple of the mean power E/T. Stdlib, deterministic; checked by `tests/test_circuits.py::test_regen_peaky_rating_bounds` against the analytic triangle result 2 - sqrt(0.2).
 - Outcome (`experiments/regen_peaky_results.txt`): peak/mean is 1.0, 1.25, 1.57, 2.0. The rating for 95% capture is 0.95, 1.17, 1.35, 1.55 times the mean power; for 99% it is 0.99, 1.23, 1.50, 1.80. A rating equal to the mean captures 100%, 84%, 79%, 75%. Applied to 5d's medians over 2.5 s: central (823 W) needs 0.78 / 0.96 / 1.11 / 1.28 kW for 95%; upper corner (2,921 W) needs 2.77 / 3.41 / 3.94 / 4.54 kW.
