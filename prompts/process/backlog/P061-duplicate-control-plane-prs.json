@@ -1,0 +1,25 @@
+{
+  "id": "P061",
+  "title": "Six open PRs make the same prompt.md step 0 fix; a CODEOWNERS-gated file invites a new copy every run",
+  "status": "open",
+  "owner": "owner",
+  "effect": 2,
+  "cost": 1,
+  "problem": "Every run that reads prompt.md step 0 hits `fatal: couldn't find remote ref security-alerts` (the branch does not exist) and files a PR that edits prompt.md. prompt.md is in .github/CODEOWNERS, so each PR waits for the owner and none merges; the next run sees the same error and opens another copy. Duplicate-search by title does not stop it because each title is worded differently.",
+  "evidence": [
+    "open PRs on 2026-11-01 with the same fix: #12408, #12405, #12399, #12395, #12236, #12038 (mcp list_pull_requests state=open)",
+    "`git fetch origin security-alerts` fails on main at 056a581e; prompt.md step 0 still has no fallback"
+  ],
+  "change": "Owner: approve one of the PRs (suggest #12408, newest) and close the other five, or create the security-alerts branch by running security-alert-queue.yml once. Agents: when step 0 fails with a missing ref, treat the queue as empty and do not edit prompt.md.",
+  "touches": [
+    "prompt.md",
+    ".github/workflows/security-alert-queue.yml"
+  ],
+  "metric": "open PRs whose title mentions the security-alerts branch",
+  "baseline": "6, 2026-11-01",
+  "opened": "2026-11-01",
+  "source": "process run 2026-11-01",
+  "pr": null,
+  "result": null,
+  "history": []
+}
