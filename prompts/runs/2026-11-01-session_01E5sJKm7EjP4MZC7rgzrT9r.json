@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12414",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +25,27 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 1,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "security-alerts branch does not exist; step 0 fetch fails (harmless)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post: small CI speed-up already written up in docs/history."
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-01-social-proof-prefilter.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Metric: wall time of check_social_proof.py over ventures/. Before 10.7 s, after 2.5 s (time, local, cProfile for the before reading). Output cmp-identical.",
   "corrections": [],
   "redteam": null
 }
