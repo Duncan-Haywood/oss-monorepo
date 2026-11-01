@@ -184,8 +184,12 @@ export function budget(result, prices = {}) {
   const labor = r2(sections.filter((x) => x.name === "Labor").reduce((s, x) => s + x.subtotal, 0));
   const taxRate = P("tax") ?? 0, contRate = P("contingency") ?? 0;
   const tax = r2(materials * taxRate), contingency = r2((materials + tax) * contRate);
+  // Cost per sq ft of one floor level's framed area (the floor model's subfloor area). A partial figure while any line is unpriced.
+  const floorSqFt = result.floor?.sheets?.area > 0 ? r2(result.floor.sheets.area) : null;
+  const total = r2(materials + tax + contingency + labor);
   return {
-    lines, sections, materials, labor, taxRate, tax, contingencyRate: contRate, contingency, total: r2(materials + tax + contingency + labor),
+    floorSqFt, perFloorSqFt: floorSqFt && total > 0 ? r2(total / floorSqFt) : null,
+    lines, sections, materials, labor, taxRate, tax, contingencyRate: contRate, contingency, total,
     unpriced: lines.filter((l) => l.amount == null).map((l) => `${l.item} (${l.qty} ${l.unit})`),
   };
 }
@@ -200,6 +204,7 @@ export function budgetText(b) {
   }
   out.push("  Subtotals: " + b.sections.map((s) => `${s.name} ${s.subtotal.toFixed(2)}`).join(", "));
   out.push(`  Materials ${b.materials.toFixed(2)}${b.taxRate ? `, tax ${b.tax.toFixed(2)} at ${(100 * b.taxRate).toFixed(2)}%` : ""}${b.contingencyRate ? `, contingency ${b.contingency.toFixed(2)} at ${(100 * b.contingencyRate).toFixed(1)}%` : ""}${b.labor ? `, labor ${b.labor.toFixed(2)}` : ""}; total ${b.total.toFixed(2)}`);
+  if (b.perFloorSqFt != null) out.push(`  Per sq ft of floor framed (${b.floorSqFt} sq ft, one level): ${b.perFloorSqFt.toFixed(2)}${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
   if (b.unpriced.length) out.push(`  Not in the total, no price typed: ${b.unpriced.join("; ")}. Add them under \`prices\` in the plan.`);
   out.push("  Not included: equipment, permits, delivery, overhead or waste beyond what the takeoff already counts" + (b.lines.some((l) => l.section === "Labor") ? "; labor is only the rates you typed." : "; no labor rate typed."));
   return out;
