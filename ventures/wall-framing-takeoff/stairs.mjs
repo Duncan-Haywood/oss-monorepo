@@ -211,7 +211,7 @@ export function stairCuts(l) {
  * (the conservative cut-section, 1-1/2 in thick), for bending, shear at the support and deflection (span/240
  * unless `deflLimit`). A hand check for a framer or plan reviewer; the engineer of record's call governs.
  * @param {{stringer:{spacing:number, throat:number, count?:number}, run:number}} l
- * @param {{liveLoad:number, deadLoad:number, Fb:number, Fv:number, E:number, deflLimit?:number, thickness?:number}} c
+ * @param {{liveLoad:number, deadLoad:number, Fb:number, Fv:number, E:number, deflLimit?:number, thickness?:number, connectorCapacity?:number, bearingFcPerp?:number, bearingLength?:number, notchedSupport?:boolean|number}} c
  */
 export function checkStringer(l, c) {
   const errors = [];
@@ -343,7 +343,7 @@ export function stairText(l) {
  * stair is wide (36 in at least), the usual code rule for a straight run or a turn; the rise is split in half
  * unless `landingRise` (finished floor to the landing surface) is typed. The stairwell opening applies to the
  * upper flight only. A turn does not change a count, so quarter-turns and straight runs buy the same lumber.
- * @param {Stair & { landing?: true | { openEdges?: string[], depth?: number, landingRise?: number, joist?: string, spacing?: number, deckBoard?: string, postSpacing?: number, postSize?: string, soilBearing?: number, liveLoad?: number, deadLoad?: number, postCapacity?: number, postFc?: number, postEmin?: number } }} input
+ * @param {Stair & { landing?: true | { openEdges?: string[], depth?: number, landingRise?: number, joist?: string, spacing?: number, deckBoard?: string, postSpacing?: number, postSize?: string, soilBearing?: number, liveLoad?: number, deadLoad?: number, postCapacity?: number, postFc?: number, postEmin?: number, joistCheck?: any } }} input
  * @param {{stock: {size: string, length: number}[]}} [plan]
  */
 export function layoutStairWithLanding(input, plan) {
