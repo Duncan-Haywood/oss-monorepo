@@ -22,9 +22,11 @@ def fmt(t):
 
 
 def main():
-    new = [r for r in load(HERE / "results.jsonl") if r.get("status") == "ok"]
+    tag = sys.argv[1] if len(sys.argv) > 1 else "tight"
+    src, dst = ("results.jsonl", "results.txt") if tag == "tight" else (f"results_{tag}.jsonl", f"results_{tag}.txt")
+    new = [r for r in load(HERE / src) if r.get("status") == "ok"]
     old = {(r["design"], r["tag"], tuple(r["seq"])): r for r in load(HERE.parent / "rung_bias/results.jsonl") if r["status"] == "ok"}
-    out = ["Milestone 47: detail-routed reference (R5). tight clock only; tools: OpenROAD 26Q3, Yosys 0.70 (cached tables: 26Q2, 0.33)", ""]
+    out = [f"Milestone 47/49: detail-routed reference (R5). {tag} clock; tools: OpenROAD 26Q3, Yosys 0.70 (cached tables: 26Q2, 0.33)", ""]
     designs = sorted({r["design"] for r in new})
     hdr = f"{'design':12s}{'n':>4s}{'distinct r5':>12s}  tau(R1,R5) tau(R2,R5) tau(R3,R5) tau(R4,R5)  regret% R2/R4 pick  R5-opt in R4 top5"
     out.append(hdr)
@@ -48,7 +50,7 @@ def main():
         out.append(line + f"   {reg2:5.1f} / {reg4:4.1f}        {hit}")
         shifts += [r["droute_wns"] - r["gr4_wns4"] for r in rows]
         # tool drift: same point, cached R4 vs re-measured R4
-        pairs = [(old[(d, "tight", tuple(r["seq"]))], r) for r in rows if (d, "tight", tuple(r["seq"])) in old]
+        pairs = [(old[(d, tag, tuple(r["seq"]))], r) for r in rows if (d, tag, tuple(r["seq"])) in old]
         if pairs:
             a = [flow.scores(o)["r4"] for o, _ in pairs]
             b = [flow.scores(n)["r4"] for _, n in pairs]
@@ -59,7 +61,7 @@ def main():
                "; ".join(f"{d} tau {fmt(t)} median |change| {100 * c:.1f}%" for d, t, c in drifts))
     out.append("detail-route time per point (s): median %.1f" % med([r["t_droute"] for r in new]))
     out.append("points with DRC violations: %d of %d" % (sum(1 for r in new if r.get("drc_violations")), len(new)))
-    (HERE / "results.txt").write_text("\n".join(out) + "\n")
+    (HERE / dst).write_text("\n".join(out) + "\n")
     print("\n".join(out))
 
 
