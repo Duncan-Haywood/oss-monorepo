@@ -2,6 +2,19 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-01 · Milestone 7h: does the screened audit rule gain on NaijaSenti with an informative coder (corpus J of 0.3 or more)? (planned before running; a 20-draw smoke test of the script ran first, to check it executes)
+- Why: 7g's "Next". The zero-shot Qwen coders had J <= 0.2, so the cell gain was untested. The in-language naive-Bayes coder (trained on the NaijaSenti train split, no audit labels) has J near 0.39 (sens 0.575, spec 0.813, from `h3_nb-in-language.txt`). `experiments/h7h_informative_coder.py`: 6,000-tweet corpus, truth known, library path `plan_audit` -> draw -> `audit_interval` vs forced-pooled (tau = 2), n = 400 and 1000, 500 draws (coverage +/- 2 points). A fine-tuned encoder was not built; this is the stand-in already in the repo.
+- **Predictions:** (1) the screen picks cells in a majority of draws. (2) Screened is at least 5% narrower than pooled at n = 1000. (3) Coverage at least 93%. Refuted otherwise.
+
+### Outcome (`experiments/h7h_informative_coder.txt`; 500 draws)
+- Corpus prevalence 0.3272, corpus J 0.388, coder-positive share 0.314.
+- **(1) held:** cells chosen in 83% (n = 400) and 95% (n = 1000) of draws.
+- **(2) refuted:** half-width 4.048 vs 4.074 points (0.6% narrower) at n = 400 and 2.423 vs 2.437 (0.6%) at n = 1000. Cells are used but buy almost nothing, even at J = 0.39.
+- **(3) held:** screened coverage 95.0% and 94.6%; pooled 96.2% and 95.0%.
+- Reading: on this corpus, with prevalence about a third and a coder at J near 0.4, coder-cell stratification is not worth the complexity; the screen is safe (never worse, coverage fine) but the 15 to 25% gains of 6ag/6ai on GoEmotions did not transfer. Those came from large prevalence contrast between cells at lower overall prevalence; here the cell prevalences are not far enough apart (not measured directly this run).
+- Limits: one corpus, one stand-in coder, 500 draws, no coverage theorem.
+- Next: report cell prevalences for this coder to confirm the contrast explanation; a coder with J above 0.6 (fine-tuned encoder) on a rarer NaijaSenti category.
+
 ## 2026-11-01 · Milestone 7g: does the library audit rule gain on NaijaSenti once the Qwen threshold is tuned on a calibration slice? (planned before running)
 - Why: 6aj's "Next". At score > 0 the three zero-shot coders carry no signal (66 to 69% agreement against 67.3% for always answering "not negative"), so "the rule does not transfer" and "these coders are empty" were not separated. `experiments/h7g_tuned_threshold.py` takes the 6,000-tweet subsample, holds out a random third as a calibration slice (best-Youden-J threshold per Qwen model), and audits the other two thirds (4,000 tweets, truth known) with the library path `plan_audit` -> draw -> `audit_interval`, against the same draws forced to one pooled stratum (tau = 2). n = 400 and 1000, 500 draws per cell (coverage +/- 2 points).
 - **Predictions (before running):** (1) a tuned threshold lifts corpus J above 0.3 for at least the 3B coder, so the screen picks cells in a majority of draws there. (2) Where cells are used the screened design is at least 5% narrower than forced-pooled at n = 1000. (3) Coverage of the screened design is at least 93% in every cell. (4) For any coder with corpus J under 0.3 the screen picks pooled and matches forced-pooled within 1%.
