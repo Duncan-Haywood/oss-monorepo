@@ -122,6 +122,7 @@ Ticked items are on `main`.
 - [ ] How much does an optimised order save over the allowance methods
       builders use? Needs real plans (public permit sets or open house plans
       with a permissive licence) rather than our invented house.
+      Measured on two generated houses 2026-10-28 and at 16 vs 24 in o.c. 2026-11-01 (`allowance-bench.mjs`, README): +2 to +25% at 16 in, +16 to +27% at 24 in. Left open for real permit sets.
 - [x] Advanced framing's material savings, measured on the same models with
       the same engine (2026-10-29, `advanced-bench.mjs`: all details + 24 in spacing -24 to -26% lumber cost on two houses; README; lumber only, no code check).
 - [x] Panelised vs stick framing, from piece counts (2026-10-29, `panelised-bench.mjs`: members handled, saw cuts and site nails; no labour rate; two generated or invented houses, no real time study; README). Not yet: a real crew's time study to turn counts into hours.

@@ -46,6 +46,11 @@ for (const n of [1, 2]) {
   if (r.ok) cases.push([`Open House Plans ${n} (CC0, generated)`, { ...samplePlan(), ...r.plan }]);
 }
 
+/** The same comparison at each stud spacing: rules that count studs per foot ignore it, the counted order does not. @param {any} plan @param {number[]} spacings */
+export function spacingSweep(plan, spacings = [16, 24]) {
+  return spacings.map((sp) => ({ spacing: sp, ...compare({ ...plan, studSpacing: sp }) }));
+}
+
 if (import.meta.url === `file://${process.argv[1]}`) {
   const pct = (x) => `${x >= 0 ? "+" : ""}${(x * 100).toFixed(1)}%`;
   console.log("plan | wall ft | counted order ft | per-foot rule | on-centre rule");
@@ -53,5 +58,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const c = compare(plan);
     if (!c.ok) { console.log(`${name} | does not lay out: ${c.errors[0]}`); continue; }
     console.log(`${name} | ${c.wallFeet.toFixed(0)} | ${c.counted.toFixed(0)} | ${c.perFoot.toFixed(0)} (${pct(c.perFootOff)}) | ${c.onCentre.toFixed(0)} (${pct(c.onCentreOff)})`);
+  }
+  console.log("\nplan | spacing | counted ft | per-foot rule | on-centre rule");
+  for (const [name, plan] of cases) for (const c of spacingSweep(plan)) {
+    if (!c.ok) continue;
+    console.log(`${name} | ${c.spacing} in | ${c.counted.toFixed(0)} | ${c.perFoot.toFixed(0)} (${pct(c.perFootOff)}) | ${c.onCentre.toFixed(0)} (${pct(c.onCentreOff)})`);
   }
 }
