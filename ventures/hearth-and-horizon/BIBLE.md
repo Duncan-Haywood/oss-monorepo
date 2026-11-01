@@ -259,6 +259,8 @@ numbers worked out before drafting.
 
 **Hearth & Horizon**
 
+- *(Done: One in Four and a Board, Saint Moling's (invented), Ballinvarrig, Co. Carlow, 6 to 8 November 2047; text only.)* Ladder statics on a smooth wall: friction needed = (fW + w/2)/(W+w) x cot(theta) = 0.949 cot(theta) for 80 kg at the top of a 9 kg ladder; 63.6 deg (foot 2.0 m) needs 0.47, 75.6 deg (foot 1.12 m, rest 4.36 m) needs 0.24; shoe friction measured by dragging a loaded foot with a spring scale (0.31 wet, 0.58 dry, invented readings); tie the top; wall friction, sideways slip and wind not modelled.
+
 - *(Done: The Clock That Gains in Winter, Saint Ninian's (invented), Wigtownshire, December 2048; text only.)* Steel seconds pendulum, L = g/pi^2 = 994 mm, rate change = 0.5 x 12e-6/K x dT x 86,400 = 0.52 s/day per K; 12 C to 2.4 C predicts 5.0 s/day vs 5.3 measured (37 s a week); rating nut 1 mm pitch = 43 s/day per mm, so one of 12 marks (0.083 mm) is 3.6 s/day; August at 22 C loses about 5 (illustrative; air, friction and rod-vs-thermometer temperature ignored).
 
 - *(Done: The Fish Goes In Frozen, Saint Cunegund's (invented), Kewaunee County, Wisconsin, 20 and 27 March 2048; text only.)* Parish fish fry on a 20 L (18.4 kg) outdoor propane fryer: 1 g of water under 175 C oil is about 1.7 L of steam, so a wet 3 kg basket (3 to 10% water, guessed) is 150 to 500 L in a 38 L pot; 3 kg frozen fish (65% water, assumed) drops the oil to about 123 C against about 146 C for 1.5 kg; burner 15 kW with 10.5 kW into oil reaches smoke (about 230 C) in about 3 min and about 330 C in about 9 min; the "thaw first" rule is a turkey rule, owned by the assistant (illustrative figures, not measured).
