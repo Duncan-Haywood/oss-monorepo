@@ -4,6 +4,8 @@
 
 **Change.** Shortened it to 160 or fewer, keeping the facts (64 countries, two Dominican Republic deadlines, Costa Rica 4.4, Kazakhstan VAT control).
 
+**Also fixed.** `2026-11-01-framing-budget-bid-price.md` had a 77-character `seo_title`, also a build failure; now under 70.
+
 **Also checked.** No duplicate titles or descriptions, no missing descriptions, no `seo_title`-less posts over 70 characters (`propose_seo_titles.py`: 0 left). `missing_llms_txt.py` exits 0.
 
 **Measured.** Python scan of front matter only; full build not run. Rankings not measured.
