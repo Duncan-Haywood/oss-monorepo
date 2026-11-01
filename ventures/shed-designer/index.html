@@ -123,7 +123,9 @@
     .fields input, .fields select, #openings input, #openings select { border: 1px solid #aaa394; border-radius: 8px; padding: 7px 8px; background: #fff; color: inherit; min-width: 0; }
     #stock { display: flex; flex-wrap: wrap; gap: 12px; }
     .table-wrap { overflow-x: auto; position: relative; }
-    #shopping tr.have td:nth-child(-n+6), #shopping tr.skip td:nth-child(-n+6) { text-decoration: line-through; color: var(--muted, #6b6457); }
+    #shopping tr.skip td:not(:nth-child(2)) { text-decoration: line-through; color: var(--muted, #6b6457); }
+    #shopping input.qty { width: 4.5em; text-align: right; border: 1px solid #aaa394; border-radius: 6px; padding: 4px 6px; font: inherit; background: #fff; color: inherit; }
+    #shopping tr.typed td:nth-child(2) input.qty, #shopping tr.skip td:nth-child(2) input.qty { border-color: #b5852b; border-width: 2px; }
     table { border-collapse: collapse; width: 100%; font-size: .9rem; }
     th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e7e1d4; vertical-align: top; }
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
@@ -153,8 +155,8 @@
     #shopping .swap-btn { margin-left: 6px; }
     #shopping tr.swapped td:first-child { border-left: 3px solid #b5852b; }
     #shopping tr.swap-form td { background: #faf6ec; }
-    /* On a phone the eight columns do not fit: each line becomes a small card, so
-       "Have it" and "Leave out" are on screen instead of past a sideways scroll. */
+    /* On a phone the six columns do not fit: each line becomes a small card, so
+       the quantity box is on screen instead of past a sideways scroll. */
     @media (max-width: 600px) {
       #shopping thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
       #shopping, #shopping tbody { display: block; }
@@ -164,10 +166,7 @@
       #shopping tr[data-line] td:nth-child(4)::before { content: "at "; color: var(--muted); }
       #shopping tr[data-line] td:nth-child(5) { font-weight: 700; }
       #shopping tr[data-line] td:nth-child(6) { grid-column: 1 / -1; font-size: .8rem; }
-      #shopping tr[data-line] td:nth-child(7), #shopping tr[data-line] td:nth-child(8) { grid-column: span 2; display: flex; align-items: center; gap: 6px; min-height: 36px; }
-      #shopping tr[data-line] td:nth-child(7)::after { content: "Have it"; }
-      #shopping tr[data-line] td:nth-child(8)::after { content: "Leave out of the total"; }
-      #shopping tr[data-line] input[type=checkbox] { width: 22px; height: 22px; margin: 0; }
+      #shopping tr[data-line] input.qty { min-height: 36px; }
       #shopping tr.sec, #shopping tr.subtot, #shopping tr.tot { display: flex; justify-content: space-between; }
       #shopping tr.sec th, #shopping tr.subtot th, #shopping tr.subtot td, #shopping tr.tot th, #shopping tr.tot td { border: 0; }
       #shopping tr.subtot td:empty, #shopping tr.tot td:empty { display: none; }
@@ -626,8 +625,8 @@
     </div>
     <div class="result-panel print-target" id="panel-shopping">
       <div class="toolrow"><label>Price the list at<select id="buy-at"><option value="mixed">Wherever each line was priced</option><option value="homedepot">Home Depot only (for a Pro desk quote)</option><option value="lowes">Lowe's only (for a Pro desk quote)</option></select></label><span class="muted" id="buy-at-note"></span></div>
-      <div class="table-wrap"><table id="shopping"><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th><th scope="col">Unit</th><th scope="col" class="n">Each</th><th scope="col" class="n">Total</th><th scope="col">Price source</th><th scope="col">Have it</th><th scope="col">Leave out</th></tr></thead><tbody></tbody></table></div>
-      <p class="muted">Prices are store listings seen on 2026-10-29 (mostly Home Depot), most read from the search result's copy of the product page, so they can be days or weeks old and vary by store. Lengths with no listing are scaled by the foot from the nearest listed length; anything with no listing at all says "estimate". Type your own store's prices below, or press "Swap for my own" on a line to put in a different product you found (say a primed wood siding in place of T1-11), with its link, price and quantity.</p>
+      <div class="table-wrap"><table id="shopping"><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th><th scope="col">Unit</th><th scope="col" class="n">Each</th><th scope="col" class="n">Total</th><th scope="col">Price source</th></tr></thead><tbody></tbody></table></div>
+      <p class="muted">Prices are store listings seen on 2026-10-29 (mostly Home Depot), most read from the search result's copy of the product page, so they can be days or weeks old and vary by store. Lengths with no listing are scaled by the foot from the nearest listed length; anything with no listing at all says "estimate". Type a different quantity in any line's box (0 leaves it out; the plans and cut sheet still follow the design), type your own store's prices below, or press "Swap for my own" on a line to put in a different product you found (say a primed wood siding in place of T1-11), with its link, price and quantity.</p>
       <details style="margin-top:12px" open>
         <summary><strong>Compare stores and swap parts</strong> (Home Depot and Lowe's, with item numbers and links)</summary>
         <div id="stores" style="margin-top:10px"></div>

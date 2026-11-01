@@ -271,14 +271,15 @@ test('the section bar opens each results tab, and a left-out line comes off the 
   await page.waitForFunction(() => { const r = document.querySelector('#results-h').getBoundingClientRect(); return r.top >= 0 && r.top < innerHeight; }, null, { timeout: 5000 });
   await page.click('#jump [data-jump="panel-shopping"]');
   const total = await page.textContent('#total');
-  const line = await page.$eval('#shopping input[data-skip]', (cb) => { const tr = cb.closest('tr'); return { name: cb.dataset.skip, total: tr.children[4].textContent }; });
-  await page.check(`#shopping input[data-skip="${line.name}"]`);
+  const line = await page.$eval('#shopping input[data-qty]', (box) => { const tr = box.closest('tr'); return { key: box.dataset.qty, total: tr.children[4].textContent }; });
+  await page.fill(`#shopping input[data-qty="${line.key}"]`, '0');
+  await page.press(`#shopping input[data-qty="${line.key}"]`, 'Enter');
   await page.waitForFunction((b) => document.querySelector('#total').textContent !== b, total);
   const num = (x) => Number(x.replace(/[$,]/g, ''));
   const drop = num(total) - num(await page.textContent('#total'));
   const rate = Number(await page.inputValue('#taxRate'));
   assert.ok(Math.abs(drop - num(line.total) * (1 + rate / 100)) < 0.02, `the total fell by the line and its tax (${drop})`);
-  assert.equal(await page.$eval(`#shopping input[data-skip="${line.name}"]`, (cb) => cb.closest('tr').className), 'skip');
+  assert.equal(await page.$eval(`#shopping input[data-qty="${line.key}"]`, (box) => box.closest('tr').className), 'skip');
   assert.match(await page.textContent('#summary-lines'), /you have or left out/);
   assert.match(await page.textContent('#shopping'), /PT 4x4 x \d+'(Show in 3D)?for skid/, 'lumber lines say what they are for');
   assert.match(await page.textContent('#shopping'), /Lumber subtotal \(\d+% of the materials\)\$[\d,]+\.\d\d/, 'each section has a subtotal');
@@ -661,7 +662,8 @@ test('where the money goes: bars by assembly open their lines, an edit says what
   // Leaving a line out takes it off the breakdown too, as it does the headline.
   const before = await page.textContent('#cost-chart .cost-foot');
   await page.click('[data-panel="panel-shopping"]');
-  await page.locator('#shopping input[data-skip]').first().check();
+  await page.locator('#shopping input[data-qty]').first().fill('0');
+  await page.locator('#shopping input[data-qty]').first().press('Enter');
   await page.click('[data-panel="panel-costs"]');
   await settle(page);
   assert.notEqual(await page.textContent('#cost-chart .cost-foot'), before);
@@ -868,12 +870,14 @@ test('first-time pass: the HOA packet is one click from the section bar, and on 
   // The gallery's long explanation is folded away, so the first card is near the top.
   assert.equal(await phone.locator('.hint-more').getAttribute('open'), null, 'how the designs were picked starts folded');
   await phone.click('#jump [data-jump="panel-shopping"]');
-  const box = phone.locator('#shopping tr[data-line] input[data-skip]').first();
+  const box = phone.locator('#shopping tr[data-line] input[data-qty]').first();
   await box.scrollIntoViewIfNeeded();
   const b = await box.boundingBox();
-  assert.ok(b && b.x >= 0 && b.x + b.width <= 390, `the Leave out box is on screen: ${JSON.stringify(b)}`);
+  assert.ok(b && b.x >= 0 && b.x + b.width <= 390, `the quantity box is on screen: ${JSON.stringify(b)}`);
   const before = await phone.textContent('#total-pill-n');
   await box.tap();
+  await box.fill('0');
+  await box.press('Enter');
   await phone.waitForFunction((x) => document.querySelector('#total-pill-n').textContent !== x, before);
   assert.equal(await phone.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'no sideways scroll');
 });
@@ -907,4 +911,32 @@ test('a shopping line can be swapped for your own product, kept on reload and pu
   assert.equal(await page.locator('#shopping tr.swapped').count(), 0);
   assert.equal(await page.$eval('#total', (e) => e.textContent), before);
   assert.ok(orig.includes('T1-11'));
+});
+
+test('typing a quantity reprices the line and the total; reset goes back to the design', { skip }, async (t) => {
+  const { page } = await open(t);
+  await page.click('[data-panel="panel-shopping"]');
+  const num = (x) => Number(x.replace(/[$,]/g, ''));
+  const before = await page.$eval('#total', (e) => e.textContent);
+  const row = page.locator('#shopping tr[data-line]', { hasText: "2x4 x 12'" }).first();
+  const box = row.locator('input[data-qty]');
+  const n = Number(await box.inputValue());
+  const each = num(await row.locator('td').nth(3).textContent());
+  await box.fill(String(n + 1));
+  await box.press('Enter');
+  await settle(page);
+  const row2 = page.locator('#shopping tr[data-line]', { hasText: "2x4 x 12'" }).first();
+  assert.equal(await row2.locator('input[data-qty]').inputValue(), String(n + 1));
+  assert.match(await row2.textContent(), new RegExp(`design needs ${n}`));
+  const rate = Number(await page.inputValue('#taxRate'));
+  const rise = num(await page.$eval('#total', (e) => e.textContent)) - num(before);
+  assert.ok(Math.abs(rise - each * (1 + rate / 100)) < 0.02, `the total rose by one board and its tax (${rise})`);
+  await page.reload();
+  await page.waitForFunction(() => document.querySelector('#total')?.textContent?.startsWith('$'));
+  await page.click('[data-panel="panel-shopping"]');
+  const row3 = page.locator('#shopping tr[data-line]', { hasText: "2x4 x 12'" }).first();
+  assert.equal(await row3.locator('input[data-qty]').inputValue(), String(n + 1), 'kept on reload');
+  await row3.locator('[data-qty-reset]').click();
+  await settle(page);
+  assert.equal(await page.$eval('#total', (e) => e.textContent), before);
 });

@@ -29,6 +29,7 @@ import { finishOptions, isHex, paletteOf, rgbToHex, SIDING_FINISHES, TRIM_FINISH
 import { leverOptions, leverTableHtml } from './costlevers.mjs';
 import { idsForLine, describePiece } from './xref.mjs';
 import { applySwaps, cleanSwap, cleanSwaps, swapKey } from './swaps.mjs';
+import { applyQty, cleanQty, cleanQtys, lineKey } from './qty.mjs';
 
 const $ = (sel) => /** @type {any} */ (document.querySelector(sel));
 const $$ = (sel) => /** @type {any[]} */ ([...document.querySelectorAll(sel)]);
@@ -49,8 +50,8 @@ try { storage = globalThis.localStorage; } catch { storage = null; }
 const optedOut = () => Boolean($('#optout')?.checked);
 const count = (event) => recordUsage(storage, optedOut(), event);
 
-/** @type {{ designs: any[], active: number, prices: any, have: string[], skip: string[], buyAt: string, swaps: Record<string, import('./swaps.mjs').Swap> }} */
-const state = { designs: [], active: 0, prices: examplePrices(), have: [], skip: [], buyAt: 'mixed', swaps: {} };
+/** @type {{ designs: any[], active: number, prices: any, qty: Record<string, number>, buyAt: string, swaps: Record<string, import('./swaps.mjs').Swap> }} */
+const state = { designs: [], active: 0, prices: examplePrices(), qty: {}, buyAt: 'mixed', swaps: {} };
 /** The shopping line whose swap form is open, by swap key. */
 let swapOpen = '';
 
@@ -60,7 +61,7 @@ let swapOpen = '';
  * prices and marks the lines it has no listing for.
  */
 function storeEstimate(shed, key = state.buyAt) {
-  return applySwaps(storeEstimateRaw(shed, key), state.swaps, shed.design.taxRate);
+  return applyQty(applySwaps(storeEstimateRaw(shed, key), state.swaps, shed.design.taxRate), state.qty, shed.design.taxRate);
 }
 function storeEstimateRaw(shed, key) {
   if (key === 'mixed') return estimate(shed, state.prices);
@@ -70,12 +71,11 @@ function storeEstimateRaw(shed, key) {
   return { ...est, shopping: sl.lines, total: sl.total, tax, grandTotal: Math.round((sl.total + tax + est.deliveryFee) * 100) / 100, storeList: sl };
 }
 /**
- * What is left to buy: the list less the lines you already have or left out,
- * with sales tax on what is left and the delivery charge.
+ * What is left to buy: the list less the lines you set to 0 (you have them, or
+ * leave them out), with sales tax on what is left and the delivery charge.
  */
 function toBuy(est) {
-  const off = new Set([...state.have, ...state.skip]);
-  const less = Math.round(est.shopping.filter((r) => off.has(r.name)).reduce((t, r) => t + r.total, 0) * 100) / 100;
+  const less = Math.round(est.shopping.filter((r) => r.off).reduce((t, r) => t + r.total, 0) * 100) / 100;
   const sub = Math.round((est.total - less) * 100) / 100;
   const tax = Math.round(sub * design().taxRate) / 100;
   return { less, sub, tax, total: Math.round((sub + tax + est.deliveryFee) * 100) / 100 };
@@ -100,8 +100,9 @@ function load() {
         state.designs = s.designs.map(normalize);
         state.active = Math.min(s.designs.length - 1, Math.max(0, Number(s.active) || 0));
         if (typeof s.buyAt === 'string') state.buyAt = s.buyAt;
-        if (Array.isArray(s.have)) state.have = s.have.filter((x) => typeof x === 'string');
-        if (Array.isArray(s.skip)) state.skip = s.skip.filter((x) => typeof x === 'string');
+        state.qty = cleanQtys(s.qty);
+        // Lines ticked "Have it" or "Leave out" before quantities could be typed are kept as 0, by name.
+        for (const n of [...(Array.isArray(s.have) ? s.have : []), ...(Array.isArray(s.skip) ? s.skip : [])]) if (typeof n === 'string' && !(n in state.qty)) state.qty[n] = 0;
         state.swaps = cleanSwaps(s.swaps);
         if (s.prices?.lumber) state.prices = { lumber: { ...state.prices.lumber, ...s.prices.lumber }, items: { ...state.prices.items, ...s.prices.items }, delivery: { ...(state.prices.delivery || {}), ...(s.prices.delivery || {}) } };
       }
@@ -279,25 +280,25 @@ function renderSummary(shed, est) {
 
 /** Where the money goes, of what is left to buy like the headline: lines you have or left out come off. */
 function renderCosts(shed, est) {
-  const off = new Set([...state.have, ...state.skip]);
-  const kept = est.shopping.filter((r) => !off.has(r.name));
+  const kept = est.shopping.filter((r) => !r.off);
   showCosts(shed, { ...est, shopping: kept, total: Math.round(kept.reduce((t, r) => t + r.total, 0) * 100) / 100 }, { index: state.active, name: shed.design.name, off: est.shopping.length - kept.length });
 }
 
 function renderShopping(est) {
   let html = '';
   let section = '';
-  // Lines you already have, or leave out for now, stay on the list struck through
-  // (so the plans and quotes are whole) but come off what is left to buy and the total.
-  const have = new Set(state.have);
-  const skip = new Set(state.skip);
+  // Each line's quantity can be typed: more or fewer than the design needs, or 0
+  // for a line you already have or leave out. A 0 line stays on the list struck
+  // through (so the plans and quotes are whole) but comes off the total.
   // What each length of lumber is for, so a 14 ft board on an 8x12 explains itself.
   const uses = lumberUses(est);
   const subs = new Map(sectionTotals(est.shopping).map((x) => [x.section, x]));
   est.shopping.forEach((r, i) => {
-    if (r.section !== section) { section = r.section; html += `<tr class="sec"><th colspan="8" scope="colgroup">${esc(section)}</th></tr>`; }
-    const got = have.has(r.name);
-    const left = skip.has(r.name);
+    if (r.section !== section) { section = r.section; html += `<tr class="sec"><th colspan="6" scope="colgroup">${esc(section)}</th></tr>`; }
+    const qk = lineKey(r);
+    const typed = r.listQty !== undefined;
+    const qcell = `<input type="number" class="qty" min="0" step="1" inputmode="decimal" data-qty="${esc(qk)}" value="${r.off ? 0 : r.qty}" aria-label="Quantity to buy: ${esc(r.name)} (the design needs ${typed ? r.listQty : r.qty}; 0 leaves it out)">`
+      + (typed ? `<div class="use">design needs ${r.listQty} <button type="button" class="link" data-qty-reset="${esc(qk)}">reset</button></div>` : '');
     const lm = r.section === 'Lumber' ? /^(.+) x (\d+)'/.exec(r.name) : null;
     const use = lm && uses.get(`${lm[1]}:${lm[2]}`);
     // Sheet goods, siding, roofing, trim and hardware point at their own panels and fixtures.
@@ -307,47 +308,58 @@ function renderShopping(est) {
     const sk = swapKey(r);
     const sbtn = sk ? `<button type="button" class="link swap-btn" data-swap-line="${esc(sk)}" aria-expanded="${swapOpen === sk}">${r.was ? 'Change swap' : 'Swap for my own'}</button>` : '';
     const was = r.was ? `<div class="use">instead of ${esc(r.was.name)} (${r.was.qty} x ${esc(r.was.unit)} at ${money(r.was.price)}, ${money(r.was.total)})</div>` : '';
-    html += `<tr data-line="${i}"${got ? ' class="have"' : left ? ' class="skip"' : r.was ? ' class="swapped"' : ''}><td>${esc(r.name)}${xbtn}${sbtn}${was}${use ? `<div class="use">for ${esc(use)}</div>` : ''}</td><td class="n">${r.qty}</td><td>${esc(r.unit)}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${r.elsewhere ? `<span class="muted">not listed at ${esc(est.storeList.store)}: </span>` : ''}${sourceCell(r.source)}</td>`
-      + `<td><input type="checkbox" data-have="${esc(r.name)}"${got ? ' checked' : ''} aria-label="I already have: ${esc(r.name)}"></td>`
-      + `<td><input type="checkbox" data-skip="${esc(r.name)}"${left ? ' checked' : ''} aria-label="Leave out of the total: ${esc(r.name)}"></td></tr>`;
+    html += `<tr data-line="${i}"${r.off ? ' class="skip"' : r.was ? ' class="swapped"' : typed ? ' class="typed"' : ''}><td>${esc(r.name)}${xbtn}${sbtn}${was}${use ? `<div class="use">for ${esc(use)}</div>` : ''}</td><td class="n">${qcell}</td><td>${esc(r.unit)}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${r.elsewhere ? `<span class="muted">not listed at ${esc(est.storeList.store)}: </span>` : ''}${sourceCell(r.source)}</td></tr>`;
     if (sk && swapOpen === sk) html += swapFormRow(r, sk);
     if (est.shopping[i + 1]?.section !== r.section) {
       const x = subs.get(r.section);
-      html += `<tr class="subtot"><th colspan="4" scope="row">${esc(r.section)} subtotal <span class="muted">(${Math.round(x.share * 100)}% of the materials)</span></th><td class="n">${money(x.total)}</td><td></td><td></td><td></td></tr>`;
+      html += `<tr class="subtot"><th colspan="4" scope="row">${esc(r.section)} subtotal <span class="muted">(${Math.round(x.share * 100)}% of the materials)</span></th><td class="n">${money(x.total)}</td><td></td></tr>`;
     }
   });
   const buy = toBuy(est);
-  const row = (label, v, cls = '') => `<tr${cls ? ` class="${cls}"` : ''}><th colspan="4" scope="row">${label}</th><td class="n">${v}</td><td></td><td></td><td></td></tr>`;
+  const row = (label, v, cls = '') => `<tr${cls ? ` class="${cls}"` : ''}><th colspan="4" scope="row">${label}</th><td class="n">${v}</td><td></td></tr>`;
   html += row('Materials', money(est.total), 'tot');
-  if (buy.less) html += row('Less what you have or left out', `-${money(buy.less)}`) + row('Still to buy', money(buy.sub), 'tot');
+  if (buy.less) html += row('Less the lines set to 0 (you have them or left them out)', `-${money(buy.less)}`) + row('Still to buy', money(buy.sub), 'tot');
   if (buy.tax) html += row(`Sales tax at ${design().taxRate}%`, money(buy.tax));
   if (est.deliveryFee) html += row('Delivery', money(est.deliveryFee));
   if (buy.tax || est.deliveryFee) html += row('Estimated total (materials only, not your labour)', money(buy.total), 'tot');
-  if (est.unpriced.length) html += `<tr><td colspan="8" class="muted"><strong>Not in the total:</strong> ${est.unpriced.map(esc).join('; ')}. Each shows a typical range from our catalogue, which is not a listing for that size. Pick a unit for each under Doors and windows, choose "Build it on site" for a door, or tick "Count custom-size openings at the range's median" there.</td></tr>`;
+  if (est.unpriced.length) html += `<tr><td colspan="6" class="muted"><strong>Not in the total:</strong> ${est.unpriced.map(esc).join('; ')}. Each shows a typical range from our catalogue, which is not a listing for that size. Pick a unit for each under Doors and windows, choose "Build it on site" for a door, or tick "Count custom-size openings at the range's median" there.</td></tr>`;
   $('#shopping tbody').innerHTML = html;
   const sl = est.storeList;
   $('#buy-at-note').textContent = sl ? `${sl.here} of ${sl.lines.length} lines (${sl.share}% of the money) at ${sl.store}, its own prices and item numbers; the rest are marked with where we found them.` : 'Each line at wherever it was priced.';
   wireSwaps();
-  for (const cb of $$('#shopping input[data-have], #shopping input[data-skip]')) {
-    cb.addEventListener('change', () => {
-      const key = cb.dataset.have !== undefined ? 'have' : 'skip';
-      const set = new Set(state[key]);
-      if (cb.checked) set.add(cb.dataset[key]); else set.delete(cb.dataset[key]);
-      state[key] = [...set];
-      save();
-      renderShopping(est);
-      renderSummary(lastShed, est);
-      renderCosts(lastShed, est);
+  for (const box of $$('#shopping input[data-qty]')) {
+    box.addEventListener('change', () => {
+      const k = box.dataset.qty;
+      const r = est.shopping.find((x) => lineKey(x) === k);
+      const q = cleanQty(box.value);
+      const next = { ...state.qty };
+      delete next[r?.was?.name ?? r?.name];
+      // A blank box, or the design's own count, goes back to following the design.
+      if (q === null || q === (r?.listQty ?? r?.qty)) delete next[k]; else next[k] = q;
+      state.qty = next;
+      count('quantities');
+      render();
+      $(`#shopping input[data-qty="${CSS.escape(k)}"]`)?.focus();
+    });
+  }
+  for (const b of $$('#shopping [data-qty-reset]')) {
+    b.addEventListener('click', () => {
+      const r = est.shopping.find((x) => lineKey(x) === b.dataset.qtyReset);
+      const next = { ...state.qty };
+      delete next[b.dataset.qtyReset];
+      if (r) delete next[r.was?.name ?? r.name];
+      state.qty = next;
+      render();
     });
   }
 }
 
 /** The form under a shopping line for putting your own product in its place. */
 function swapFormRow(r, sk) {
-  const s = state.swaps[sk] || {};
+  const s = /** @type {any} */ (state.swaps[sk] || {});
   const base = r.was || r;
   const f = (k, label, type, value, extra = '') => `<label>${label}<input type="${type}" data-swap-field="${k}" value="${esc(value ?? '')}"${extra}></label>`;
-  return `<tr class="swap-form"><td colspan="8"><form data-swap-form="${esc(sk)}" class="fields">`
+  return `<tr class="swap-form"><td colspan="6"><form data-swap-form="${esc(sk)}" class="fields">`
     + `<p class="muted" style="grid-column:1/-1;margin:0">Put the product you found in place of <strong>${esc(base.name)}</strong> (${base.qty} x ${esc(base.unit)}). If it covers a different area or comes in a different size, change the quantity too: we don't recount coverage for a product we don't know.</p>`
     + f('name', 'Product name', 'text', s.name, ' required maxlength="200" placeholder="e.g. primed wood lap siding, 8 in x 16 ft"')
     + f('price', `Price each ($)`, 'number', s.price, ' required min="0" step="0.01"')
