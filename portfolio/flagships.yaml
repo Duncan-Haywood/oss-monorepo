@@ -137,8 +137,8 @@ flagships:
       a way to tell a shape from a shock, and to widen the noise scale
       without swallowing a short quarterly shape (--ar1 fixes the rho 0.5
       null but loses UK gas). (5) Bootstrap swept on 33 real series 2026-10-31
-      (README: fewer cuts on 22, but US accidental deaths loses its real
-      1973-12 step); holiday false-alarm cuts are synthetic only: test them on
+      (README: fewer cuts on 22; US accidental deaths loses 1973-12 only
+      without --period 12, kept with it, 2026-11-01); holiday false-alarm cuts are synthetic only: test them on
       real series.
   - venture: einvoice-preflight
     why: >-
