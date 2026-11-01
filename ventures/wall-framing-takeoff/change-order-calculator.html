@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Change order calculator: what a design change does to the budget</title>
+  <meta name="description" content="Free change order tool: type the budget lines before and after a design change and see the difference by line and section. In your browser, no prices shipped.">
+  <meta property="og:title" content="Change order calculator">
+  <meta property="og:description" content="Two priced lists in, the cost of the change out, line by line.">
+  <link rel="canonical" href="./change-order-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a change order?", "acceptedAnswer": {"@type": "Answer", "text": "A change order records a change to the agreed work and what it does to the price. This tool compares two priced lists of the same job, before and after, and shows the difference line by line."}}, {"@type": "Question", "name": "How are the two lists matched?", "acceptedAnswer": {"@type": "Answer", "text": "By section and item name. A line only in the new list is added, one only in the old is removed, and a changed quantity or amount is listed with its difference. Lumber lines whose names differ only in the count of lengths are paired as one change."}}, {"@type": "Question", "name": "Does this tool know what materials cost?", "acceptedAnswer": {"@type": "Answer", "text": "No. It ships no prices. Every quantity and amount is from the lists you type, and a line priced on one side only is listed and not netted. The sample is made up."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style></head>
+<body>
+  <h1>Change order calculator</h1>
+  <p>Type the budget before and after a design change as lines of <code>section</code>, <code>item</code>, <code>unit</code>, <code>qty</code>, and <code>amount</code> (leave <code>amount</code> out for an unpriced line). The tool matches lines by section and item, lists what was added, removed or changed, and totals the difference. Nothing leaves your browser.</p>
+  <label for="src">Before and after (JSON)</label>
+  <textarea id="src" rows="22" style="width:100%;font:.85rem ui-monospace,monospace;box-sizing:border-box" spellcheck="false"></textarea>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Do the whole house: the takeoff prices both plans, then <code>--compare</code> diffs them</a></p>
+
+  <h2>How it is counted</h2>
+  <ol>
+    <li><strong>Match.</strong> A line is the same line when its section and item are the same.</li>
+    <li><strong>Difference.</strong> Quantity and amount after minus before. A line that did not change is left out.</li>
+    <li><strong>Unpriced.</strong> A line priced on one side only is listed and not netted, never guessed.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>What is a change order?</h3>
+  <p>A change order records a change to the agreed work and what it does to the price. This tool compares two priced lists of the same job, before and after, and shows the difference line by line.</p>
+  <h3>How are the two lists matched?</h3>
+  <p>By section and item name. A line only in the new list is added, one only in the old is removed, and a changed quantity or amount is listed with its difference. Lumber lines whose names differ only in the count of lengths are paired as one change.</p>
+  <h3>Does this tool know what materials cost?</h3>
+  <p>No. It ships no prices. Every quantity and amount is from the lists you type, and a line priced on one side only is listed and not netted. The sample is made up.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Room and opening sizes are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Totals follow your inputs and the rules stated above.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { budgetDiff, diffText } from "./compare.mjs";
+    const $ = (id) => document.getElementById(id);
+    const sample = {
+      before: [
+        { section: "Lumber", item: "2x4 studs", unit: "ea", qty: 300, amount: 1050 },
+        { section: "Sheathing", item: "OSB 7/16", unit: "sheet", qty: 120, amount: 2400 },
+        { section: "Labor", item: "Framing", unit: "sf", qty: 1800, amount: 5400 }
+      ],
+      after: [
+        { section: "Lumber", item: "2x4 studs", unit: "ea", qty: 228, amount: 798 },
+        { section: "Sheathing", item: "OSB 7/16", unit: "sheet", qty: 120, amount: 2400 },
+        { section: "Labor", item: "Framing", unit: "sf", qty: 1800, amount: 5400 },
+        { section: "Hardware", item: "Hold-downs", unit: "ea", qty: 6 }
+      ]
+    };
+    $("src").value = JSON.stringify(sample, null, 1);
+    const wrap = (lines) => {
+      const t = lines.reduce((s, l) => s + (typeof l.amount === "number" ? l.amount : 0), 0);
+      return { lines, total: t, bid: t };
+    };
+    const check = (name, a) => {
+      if (!Array.isArray(a) || !a.length) return 'Give a "' + name + '" list: [{ "section": "Lumber", "item": "2x4", "unit": "ea", "qty": 10, "amount": 35 }].';
+      for (const l of a) {
+        if (!l || typeof l.item !== "string" || !Number.isFinite(l.qty)) return '"' + name + '" lines need an item and a numeric qty.';
+        if (l.amount != null && !Number.isFinite(l.amount)) return '"' + name + '" amount must be a number.';
+      }
+      return "";
+    };
+    const run = () => {
+      let input;
+      try { input = JSON.parse($("src").value); } catch (e) { $("out").textContent = "Not valid JSON: " + e.message; return; }
+      const bad = check("before", input.before) || check("after", input.after);
+      if (bad) { $("out").textContent = bad; return; }
+      const norm = (a) => a.map((l) => ({ section: String(l.section || "Other"), item: l.item, unit: String(l.unit || ""), qty: l.qty, amount: l.amount ?? null }));
+      $("out").textContent = diffText(budgetDiff(wrap(norm(input.before)), wrap(norm(input.after)))).join("\n");
+    };
+    $("src").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>
