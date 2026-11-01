@@ -23,8 +23,9 @@ const r2 = (/** @type {number} */ n) => Math.round(n * 100) / 100;
 /**
  * @param {any} result takeoff result with optional sheathing, floor, roof, foundation attached
  * @param {Record<string, number>} [prices]
+ * @param {Record<string, number>} [allowances] lump sums in dollars the builder types (permit, delivery, equipment rental, dumpster...). Untaxed, no contingency; they enter the cost total before overhead and profit.
  */
-export function budget(result, prices = {}) {
+export function budget(result, prices = {}, allowances = {}) {
   /** @type {BudgetLine[]} */
   const lines = [];
   const P = (/** @type {string} */ k) => (typeof prices[k] === "number" && prices[k] >= 0 ? prices[k] : null);
@@ -176,17 +177,22 @@ export function budget(result, prices = {}) {
   if (laborTyped && insBags > 0) add("Labor", "Insulation installation", insBags, "bags", P("laborInsulationBag"), "wall + rim + attic bags x typed laborInsulationBag");
 
 
+  for (const [name, amt] of Object.entries(allowances || {})) {
+    if (typeof amt === "number" && amt > 0) lines.push({ section: "Allowances", item: name, qty: 1, unit: "lump sum", unitPrice: r2(amt), amount: r2(amt), source: "typed allowance" });
+  }
+
   const sections = [...new Set(lines.map((l) => l.section))].map((name) => {
     const ls = lines.filter((l) => l.section === name);
     return { name, subtotal: r2(ls.reduce((s, l) => s + (l.amount ?? 0), 0)), unpriced: ls.filter((l) => l.amount == null).length };
   });
-  const materials = r2(sections.filter((x) => x.name !== "Labor").reduce((s, x) => s + x.subtotal, 0));
+  const materials = r2(sections.filter((x) => x.name !== "Labor" && x.name !== "Allowances").reduce((s, x) => s + x.subtotal, 0));
   const labor = r2(sections.filter((x) => x.name === "Labor").reduce((s, x) => s + x.subtotal, 0));
+  const allowanceTotal = r2(sections.filter((x) => x.name === "Allowances").reduce((s, x) => s + x.subtotal, 0));
   const taxRate = P("tax") ?? 0, contRate = P("contingency") ?? 0;
   const tax = r2(materials * taxRate), contingency = r2((materials + tax) * contRate);
   // Cost per sq ft of one floor level's framed area (the floor model's subfloor area). A partial figure while any line is unpriced.
   const floorSqFt = result.floor?.sheets?.area > 0 ? r2(result.floor.sheets.area) : null;
-  const total = r2(materials + tax + contingency + labor);
+  const total = r2(materials + tax + contingency + labor + allowanceTotal);
   // Builder's markup on the cost total: overhead on cost, then profit on cost plus overhead. Zero unless typed.
   const ovhRate = P("overhead") ?? 0, profRate = P("profit") ?? 0;
   const overhead = r2(total * ovhRate), profit = r2((total + overhead) * profRate);
@@ -196,7 +202,7 @@ export function budget(result, prices = {}) {
   return {
     floorSqFt, perFloorSqFt: floorSqFt && total > 0 ? r2(total / floorSqFt) : null,
     wallFeet: wallFeet || null, perWallFoot: wallFeet && total > 0 ? r2(total / wallFeet) : null,
-    lines, sections, materials, labor, taxRate, tax, contingencyRate: contRate, contingency, total,
+    lines, sections, materials, labor, allowances: allowanceTotal, taxRate, tax, contingencyRate: contRate, contingency, total,
     overheadRate: ovhRate, overhead, profitRate: profRate, profit, bid, marginPct,
     unpriced: lines.filter((l) => l.amount == null).map((l) => `${l.item} (${l.qty} ${l.unit})`),
   };
@@ -211,12 +217,12 @@ export function budgetText(b) {
     out.push(`    ${l.item.padEnd(34)} ${String(l.qty).padStart(8)} ${l.unit.padEnd(7)} ${l.unitPrice == null ? "no price".padStart(10) : l.unitPrice.toFixed(2).padStart(10)} ${l.amount == null ? "".padStart(11) : l.amount.toFixed(2).padStart(11)}`);
   }
   out.push("  Subtotals: " + b.sections.map((s) => `${s.name} ${s.subtotal.toFixed(2)}`).join(", "));
-  out.push(`  Materials ${b.materials.toFixed(2)}${b.taxRate ? `, tax ${b.tax.toFixed(2)} at ${(100 * b.taxRate).toFixed(2)}%` : ""}${b.contingencyRate ? `, contingency ${b.contingency.toFixed(2)} at ${(100 * b.contingencyRate).toFixed(1)}%` : ""}${b.labor ? `, labor ${b.labor.toFixed(2)}` : ""}; total ${b.total.toFixed(2)}`);
+  out.push(`  Materials ${b.materials.toFixed(2)}${b.taxRate ? `, tax ${b.tax.toFixed(2)} at ${(100 * b.taxRate).toFixed(2)}%` : ""}${b.contingencyRate ? `, contingency ${b.contingency.toFixed(2)} at ${(100 * b.contingencyRate).toFixed(1)}%` : ""}${b.labor ? `, labor ${b.labor.toFixed(2)}` : ""}${b.allowances ? `, allowances ${b.allowances.toFixed(2)}` : ""}; total ${b.total.toFixed(2)}`);
   if (b.overheadRate || b.profitRate) out.push(`  Cost ${b.total.toFixed(2)}${b.overheadRate ? `, overhead ${b.overhead.toFixed(2)} at ${(100 * b.overheadRate).toFixed(1)}%` : ""}${b.profitRate ? `, profit ${b.profit.toFixed(2)} at ${(100 * b.profitRate).toFixed(1)}%` : ""}; bid price ${b.bid.toFixed(2)} (profit is ${b.marginPct.toFixed(1)}% of the bid)`);
   if (b.perFloorSqFt != null) out.push(`  Per sq ft of floor framed (${b.floorSqFt} sq ft, one level): ${b.perFloorSqFt.toFixed(2)}${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
   if (b.perWallFoot != null) out.push(`  Per linear foot of wall (${b.wallFeet} ft; whole budget over wall length): ${b.perWallFoot.toFixed(2)}${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
   if (b.unpriced.length) out.push(`  Not in the total, no price typed: ${b.unpriced.join("; ")}. Add them under \`prices\` in the plan.`);
-  out.push("  Not included: equipment, permits, delivery, overhead or waste beyond what the takeoff already counts" + (b.lines.some((l) => l.section === "Labor") ? "; labor is only the rates you typed." : "; no labor rate typed."));
+  out.push("  Not included: " + (b.allowances ? "" : "equipment, permits, delivery (type them under `allowances`), ") + "overhead or waste beyond what the takeoff already counts" + (b.lines.some((l) => l.section === "Labor") ? "; labor is only the rates you typed." : "; no labor rate typed."));
   return out;
 }
 
@@ -224,7 +230,7 @@ export function budgetText(b) {
 export function budgetCsv(b) {
   const q = (/** @type {any} */ v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
   const rows = [["section", "item", "qty", "unit", "unit_price", "amount", "source"], ...b.lines.map((l) => [l.section, l.item, l.qty, l.unit, l.unitPrice ?? "", l.amount ?? "", l.source])];
-  rows.push(["", "Materials", "", "", "", b.materials, ""], ["", "Tax", "", "", b.taxRate, b.tax, ""], ["", "Contingency", "", "", b.contingencyRate, b.contingency, ""], ["", "Labor", "", "", "", b.labor, ""], ["", "Total", "", "", "", b.total, ""]);
+  rows.push(["", "Materials", "", "", "", b.materials, ""], ["", "Tax", "", "", b.taxRate, b.tax, ""], ["", "Contingency", "", "", b.contingencyRate, b.contingency, ""], ["", "Labor", "", "", "", b.labor, ""], ...(b.allowances ? [["", "Allowances", "", "", "", b.allowances, ""]] : []), ["", "Total", "", "", "", b.total, ""]);
   if (b.overheadRate || b.profitRate) rows.push(["", "Overhead", "", "", b.overheadRate, b.overhead, ""], ["", "Profit", "", "", b.profitRate, b.profit, ""], ["", "Bid price", "", "", "", b.bid, ""]);
   return rows.map((r) => r.map(q).join(",")).join("\n") + "\n";
 }

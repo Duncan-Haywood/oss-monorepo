@@ -272,11 +272,11 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (flags.has("--schedule") && flags.has("--json")) return { code: 0, out: JSON.stringify(schedule(resolveRates(plan.schedule, r)), null, 2) };
   if (flags.has("--level-bids")) {
     if (!Array.isArray(plan.bids) || !plan.bids.length) return { code: 1, out: 'plan has no "bids" list (each: { bidder, lines: [{ item, qty, unitPrice | amount }] })' };
-    const lv = levelBids(budget(r, plan.prices || {}), plan.bids);
+    const lv = levelBids(budget(r, plan.prices || {}, plan.allowances || {}), plan.bids);
     return { code: lv.errors.length ? 1 : 0, out: flags.has("--json") ? JSON.stringify(lv, null, 2) : levelText(lv).join("\n") };
   }
-  if (flags.has("--budget") && flags.has("--csv")) return { code: 0, out: budgetCsv(budget(r, plan.prices || {})).trimEnd() };
-  if (flags.has("--budget") && flags.has("--json")) return { code: 0, out: JSON.stringify(budget(r, plan.prices || {}), null, 2) };
+  if (flags.has("--budget") && flags.has("--csv")) return { code: 0, out: budgetCsv(budget(r, plan.prices || {}, plan.allowances || {})).trimEnd() };
+  if (flags.has("--budget") && flags.has("--json")) return { code: 0, out: JSON.stringify(budget(r, plan.prices || {}, plan.allowances || {}), null, 2) };
   if (flags.has("--json")) return { code: 0, out: JSON.stringify(r, null, 2) };
   if (flags.has("--csv")) return { code: 0, out: toCsv(r).trimEnd() };
   const s = r.summary;
@@ -311,7 +311,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (r.gutters) lines.push("", "GUTTERS AND DOWNSPOUTS", ...guttersText(r.gutters));
   if (r.dormer) lines.push("", "DORMER", ...dormerText(r.dormer));
   if (r.roof) lines.push("", "ROOF", ...roofText(r.roof));
-  if (flags.has("--budget")) lines.push("", "BUDGET", ...budgetText(budget(r, plan.prices || {})));
+  if (flags.has("--budget")) lines.push("", "BUDGET", ...budgetText(budget(r, plan.prices || {}, plan.allowances || {})));
   if (flags.has("--schedule")) lines.push("", "SCHEDULE", ...scheduleText(schedule(resolveRates(plan.schedule, r))));
   if (gangNotes.length) lines.push("", "GANGED OPENINGS", ...gangNotes.map((n) => `  - ${n}`));
   if (headers && (flags.has("--headers") || headers.notes.length)) lines.push("", "HEADERS", ...headerText(headers));

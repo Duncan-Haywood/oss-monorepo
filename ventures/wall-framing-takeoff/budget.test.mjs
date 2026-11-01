@@ -337,3 +337,16 @@ test("cost per linear foot of wall is the whole total over summary.wallFeet", ()
   const none = budget({ ...samplePlan(), orders: [], summary: {} }, {});
   assert.equal(none.perWallFoot, null);
 });
+
+test("typed allowances (permit, delivery) add to cost untaxed, before overhead and profit", () => {
+  const base = bud(full({ tax: 0.1, overhead: 0.1, profit: 0.1 }));
+  const withA = bud({ ...full({ tax: 0.1, overhead: 0.1, profit: 0.1 }), allowances: { Permit: 1200, Delivery: 300.5, Bad: -5, Zero: 0 } });
+  assert.equal(withA.allowances, 1500.5);
+  assert.equal(withA.tax, base.tax);
+  assert.ok(Math.abs(withA.total - (base.total + 1500.5)) < 0.02);
+  assert.ok(Math.abs(withA.overhead - withA.total * 0.1) < 0.02);
+  assert.equal(withA.lines.filter((l) => l.section === "Allowances").length, 2);
+  assert.equal(base.allowances, 0);
+  assert.match(budgetText(withA).join("\n"), /allowances 1500.50/);
+  assert.match(budgetText(base).join("\n"), /type them under `allowances`/);
+});
