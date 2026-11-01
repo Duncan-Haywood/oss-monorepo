@@ -1,0 +1,54 @@
+{
+ "date": "2026-11-01",
+ "session": "https://claude.ai/code/session_01AcxTtHwbs6WC6pjmh1Rahy",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-01T12:08:35Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12325",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "prompt.md",
+   "issue": "Step 0 fetches origin security-alerts, which does not exist on the remote; fatal error, had to skip."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompt.md",
+   "why": "The first route drew review, but a 'prompts: review' PR was already open, so I re-routed with --skip-review as the prompt says.",
+   "did": "route --skip-review",
+   "result": "drew research"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-11-01-do-open-permit-feeds-predict-permit-duration.md",
+  "research/build-data/paper/paper.md"
+ ],
+ "goal": null,
+ "notes": "Paper draft 0 for build-data from logged numbers; no new compute. Did not run the missing baselines (no lightgbm in env; feed re-pull ~20 min).",
+ "corrections": [],
+ "redteam": null
+}

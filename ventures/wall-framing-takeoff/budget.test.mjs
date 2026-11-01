@@ -295,6 +295,7 @@ test("dormer framing is priced by board feet and its roof by area, typed prices 
   assert.ok(none.unpriced.some((u) => u.startsWith("Dormer framing lumber")));
 });
 
+<<<<<<< HEAD
 test("dormer labor is priced per sq ft of dormer roof, only when typed", () => {
   const dormer = { ok: true, parts: [{ part: "ridge", size: "2x8", length: 96, count: 1 }], areas: { roofSqFt: 50 } };
   const b = budget({ orders: [], dormer }, { laborDormerSqFt: 12 });
@@ -302,4 +303,13 @@ test("dormer labor is priced per sq ft of dormer roof, only when typed", () => {
   assert.equal(l.qty, 50);
   assert.equal(l.amount, 600);
   assert.ok(!budget({ orders: [], dormer }, { laborWallFoot: 5 }).lines.some((x) => x.item === "Dormer framing and roofing" && x.amount));
+=======
+test("dormer labor is a typed rate times the dormer roof area, unpriced without a rate", () => {
+  const dormer = { ok: true, parts: [], areas: { roofSqFt: 50 } };
+  const b = budget({ orders: [], dormer }, { laborDormerSqFt: 7 });
+  const l = b.lines.find((x) => x.item === "Dormer framing and roofing");
+  assert.equal(l.amount, 350);
+  const none = budget({ orders: [], dormer }, { laborWallFoot: 1 });
+  assert.equal(none.lines.find((x) => x.item === "Dormer framing and roofing").amount, null);
+>>>>>>> origin/main
 });

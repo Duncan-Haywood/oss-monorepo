@@ -34,6 +34,15 @@ puts "STAGE end"
 """
 
 
+LARGE = {  # same registry as ../large/run.py (milestone 9)
+    "mult16": ("mult_op", "mult_op", {"W": 16}, ""),
+    "mult24": ("mult_op", "mult_op", {"W": 24}, ""),
+    "mult32": ("mult_op", "mult_op", {"W": 32}, ""),
+    "adder_op64": ("adder_op", "adder_op", {"W": 64}, ""),
+    "adder_ripple64": ("adder_ripple", "adder_ripple", {"W": 64}, ""),
+}
+
+
 def patched_pnr(tmp):
     d = Path(tmp) / "src/chip_pnr"
     d.mkdir(parents=True)
@@ -72,15 +81,28 @@ def main():
     ap.add_argument("--tag", default="")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--results", default=str(HERE / "results.jsonl"))
+    ap.add_argument("--points", default=str(HERE.parent / "rung_bias/results.jsonl"), help="cached table whose points (design, sequence, clock) are re-measured")
+    ap.add_argument("--per-design", type=int, default=0, help="keep only the first N ok points per design (and tag)")
+    ap.add_argument("--large", action="store_true", help="register the milestone-9 larger designs (use with --points ../large/results.jsonl)")
     a = ap.parse_args()
+    if a.large:
+        flow.DESIGNS.update(LARGE)
     os.environ["PATH"] = a.yosys_dir + os.pathsep + os.environ["PATH"]
     out, pdk = Path(a.out), Path(a.pdk)
     out.mkdir(parents=True, exist_ok=True)
     lib = out / "lib.lib"
     flow.filtered_liberty(pdk / "lib/sky130_fd_sc_hd__tt_025C_1v80.lib", lib)
     pnr = patched_pnr(tempfile.mkdtemp(dir=out))
-    old = [json.loads(l) for l in open(HERE.parent / "rung_bias/results.jsonl")]
+    old = [json.loads(l) for l in open(a.points)]
     keep = [r for r in old if r["status"] == "ok" and (not a.designs or r["design"] in a.designs.split(",")) and (not a.tag or r["tag"] == a.tag)]
+    if a.per_design:
+        seen, k2 = {}, []
+        for r in keep:
+            key = (r["design"], r["tag"])
+            seen[key] = seen.get(key, 0) + 1
+            if seen[key] <= a.per_design:
+                k2.append(r)
+        keep = k2
     if a.limit:
         keep = keep[: a.limit]
     tasks = [(r["design"], tuple(r["seq"]), r["tag"], r["period_ns"], out / r["design"] / f"{r['tag']}_{i}", lib, pdk, a.openroad, pnr)

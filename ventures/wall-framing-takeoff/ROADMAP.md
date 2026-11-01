@@ -144,4 +144,8 @@ Ticked items are on `main`.
 - 2026-11-01: budget prices stair balusters (`stairBaluster`), guard posts (`stairRailPost`) and handrail wall brackets (`handrailBracket`) from the rail layout, each typed price only; test in `budget.test.mjs`. Rail lumber was already in the cutting-stock order. No real rail order or prices.
 - 2026-11-01: budget prices drywall finishing from the engine's own counts: screws (`drywallScrewThousand`, per 1,000), tape rolls (`drywallTapeRoll`), joint compound pails (`drywallCompoundPail`) and corner bead sticks (`cornerBeadStick`), each only when a price is typed; page help and picker carry the names. `budget.test.mjs`. Compound and screw rates are the engine's typed defaults, not measured; no real drywall order.
 - 2026-11-01: budget prices the dormer (`dormerBoardFoot`, per board foot of the dormer's listed framing parts, no stock-length waste; `dormerRoofSqFt`, per sq ft of dormer roof), typed prices only; hand sums in `budget.test.mjs`. The dormer was the one framing engine the budget ignored. No real dormer or price; page picker/help carry the names.
+<<<<<<< HEAD
 - 2026-11-01: budget prices dormer labor (`laborDormerSqFt`, per sq ft of dormer roof), typed price only; test in `budget.test.mjs`. The dormer's lumber and roof area were priced but its labor was not. No real dormer labor rate.
+=======
+- 2026-11-01: budget labor line for the dormer (`laborDormerSqFt`, per sq ft of dormer roof, typed rate only; unpriced without a rate), `budget.test.mjs` (50 x 7 = 350 by hand). Page price list and picker carry it. No real contractor rate.
+>>>>>>> origin/main
