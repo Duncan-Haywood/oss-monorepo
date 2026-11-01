@@ -2,7 +2,7 @@
 title: "How much power does an excavator's boom-lowering energy recovery need?"
 date: 2026-11-01
 tags: [heavy-hydraulics, excavator, energy-recovery]
-description: A 3-second lowering window caps how much arm energy a recovery device can take. In the heavy-hydraulics model, about 1 kW covers a light arm and 3 kW the heaviest case swept.
+description: A 3-second lowering window caps what a recovery device can take. In the heavy-hydraulics model about 1 kW covers a light arm and 3 kW the heaviest.
 ---
 
 Recovering the energy of a lowering excavator boom looks like a 1 to 10% lever on cycle pump-shaft energy (earlier step of the heavy-hydraulics programme). But lowering lasts seconds, so a device with a power rating P can take at most P times the window.
