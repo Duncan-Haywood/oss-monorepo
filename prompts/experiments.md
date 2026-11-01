@@ -1778,3 +1778,16 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   (promptctl prints it). Re-ran `derive.py fetch && build`. `steering.md` still
   over budget (125/120). No audit or drift report (reduced pass).
 - Result: (next review)
+
+## E120: Review 2026-11-01 (reduced pass)
+
+- Change: `prompt.md` step 0 says a missing `security-alerts` branch means an
+  empty queue (8 live friction reports in 3 days: the fetch errors every run).
+  `process` candidate 2 retired (`measure`: "clearly lower success rate");
+  `routing.json` process candidate set to null.
+- Metric: friction reports per run against `prompt.md` step 0; compare next review.
+- Decisions: ventures 2 and review 2 unchanged ("keep collecting: the intervals
+  overlap"). 219 runs merged since the last review per the router. No audit or
+  drift report (reduced pass). Lesson from outside: a check that errors on the
+  normal case teaches people to ignore errors.
+- Result: (next review)
