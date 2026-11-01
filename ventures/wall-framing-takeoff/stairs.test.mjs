@@ -560,6 +560,9 @@ test("stringer bearing: end reaction over thickness x length against a typed Fc-
   assert.equal(checkStringer(base, c).fcPerp, null);
   const ok = checkStringer(base, { ...c, bearingFcPerp: 425 });
   assert.ok(Math.abs(ok.fcPerp - 52.91) < 0.01 && ok.bearingLength === 3.5 && ok.ok);
+  // minimum length = 277.78 / (1.5 x 425) = 0.4357 in
+  assert.ok(Math.abs(ok.minBearingLength - 0.4357) < 0.0001);
+  assert.equal(checkStringer(base, c).minBearingLength, null);
   const bad = checkStringer(base, { ...c, bearingFcPerp: 150, bearingLength: 1 });
   assert.ok(Math.abs(bad.fcPerp - 185.19) < 0.01 && !bad.ok && /Bearing stress 185 psi/.test(bad.warnings[0]));
   assert.equal(checkStringer(base, { ...c, bearingFcPerp: 50 }).errors.length, 1);

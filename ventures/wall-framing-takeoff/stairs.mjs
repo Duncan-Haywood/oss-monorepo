@@ -248,7 +248,7 @@ export function checkStringer(l, c) {
   const totalReaction = n ? n * V : null, totalReactionLive = n ? (n * V * c.liveLoad) / (c.liveLoad + c.deadLoad) : null;
   // Top connection (2026-11-01): with a typed per-connector allowable (from the hanger or bolt maker's table; none shipped), how many carry one stringer's end reaction.
   const connectorsNeeded = c.connectorCapacity ? Math.ceil(V / c.connectorCapacity - 1e-9) : null;
-  return { ok: warnings.length === 0, fb, fv, delta, limit, Fb: c.Fb, Fv: c.Fv, M, V, reaction: V, connectorsNeeded, connectorCapacity: c.connectorCapacity ?? null, notchCapacity, fcPerp: c.bearingFcPerp != null ? fcPerp : null, bearingLength: c.bearingFcPerp != null ? bearingLength : null, totalReaction, totalReactionLive, throat: d, warnings, errors: [] };
+  return { ok: warnings.length === 0, fb, fv, delta, limit, Fb: c.Fb, Fv: c.Fv, M, V, reaction: V, connectorsNeeded, connectorCapacity: c.connectorCapacity ?? null, notchCapacity, fcPerp: c.bearingFcPerp != null ? fcPerp : null, bearingLength: c.bearingFcPerp != null ? bearingLength : null, minBearingLength: c.bearingFcPerp != null ? V / (b * c.bearingFcPerp) : null, totalReaction, totalReactionLive, throat: d, warnings, errors: [] };
 }
 
 /**
@@ -315,6 +315,7 @@ export function stairText(l) {
   if (l.stringerCheck) {
     const k = l.stringerCheck;
     if (!k.errors.length) out.push(`  Stringer check (${formatInches(k.throat)} throat): bending ${k.fb.toFixed(0)} of ${k.Fb} psi, shear ${k.fv.toFixed(0)} of ${k.Fv} psi, deflection ${k.delta.toFixed(2)} of ${k.limit.toFixed(2)} in, end reaction ${k.reaction.toFixed(0)} lb each${k.totalReaction ? `, ${k.totalReaction.toFixed(0)} lb (${k.totalReactionLive.toFixed(0)} live) on the header the flight hangs from` : ""}${k.ok ? "" : " (FAILS)"}`);
+    if (k.minBearingLength != null) out.push(`  Bearing: at least ${k.minBearingLength.toFixed(2)} in of bearing length for the typed compression-perpendicular allowable (${k.bearingLength} in used)`);
     if (k.connectorsNeeded) out.push(`  Top connection: ${k.reaction.toFixed(0)} lb per stringer at ${k.connectorCapacity} lb each needs ${k.connectorsNeeded} connector${k.connectorsNeeded === 1 ? "" : "s"} per stringer (you buy ${k.connectorsNeeded * l.stringer.count}); the connector's own table governs`);
     for (const w of [...k.errors, ...k.warnings]) out.push(`  Note: ${w}`);
   }
