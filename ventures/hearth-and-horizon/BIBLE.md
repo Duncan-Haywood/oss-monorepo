@@ -259,6 +259,8 @@ numbers worked out before drafting.
 
 **Hearth & Horizon**
 
+- *(Done: Ten Pounds at Three and a Half Thousand, Santa Rosa de Chaupimayo (invented), Cusco region, Peru, 12 to 14 June 2049; text only.)* Pressure canner at 3,400 m: air 66.6 kPa; 10 psi weight gives 135.6 kPa abs = 108.3 C vs 115.3 C at sea level; 116 C needs 174 kPa abs = 15.6 psi gauge here (15 psi 115.2 C, 20 psi 121 C); z=10 C spore-kill ratio about 4x at 115 and 19x at 108 relative to 121 (illustration only); no process time given, lab and checked dial gauge do that (steam-table figures, not tested).
+
 - *(Done: One in Four and a Board, Saint Moling's (invented), Ballinvarrig, Co. Carlow, 6 to 8 November 2047; text only.)* Ladder statics on a smooth wall: friction needed = (fW + w/2)/(W+w) x cot(theta) = 0.949 cot(theta) for 80 kg at the top of a 9 kg ladder; 63.6 deg (foot 2.0 m) needs 0.47, 75.6 deg (foot 1.12 m, rest 4.36 m) needs 0.24; shoe friction measured by dragging a loaded foot with a spring scale (0.31 wet, 0.58 dry, invented readings); tie the top; wall friction, sideways slip and wind not modelled.
 - *(Done: The Banner in the Gust, Porthgwyn (invented), north Cornwall, 2 to 3 March 2052; text only.)* Wind load on a processional banner: q = 0.5 x 1.25 x v^2, force = q x Cd (1.2 assumed) x 2.16 m2; 9 m/s gives 131 N predicted vs about 120 N on a luggage scale (Cd nearer 1.1); 15 m/s gives 140 Pa and 364 N; upper-hand grip about 3.4 x the push (lever 2.2 m, hands 0.5 and 1.0 m above the belt cup) = 1,240 N against a 52 kg boy's 510 N; rule: grip = carrier's weight at about 9.6 m/s, furl above it (furled about 0.26 m2, 36 N at 15 m/s); 6 m/s in the lee gives 58 N and 200 N of grip (illustrative figures, Cd and lever simplified).
 
