@@ -1,5 +1,6 @@
 ---
 title: "Do open permit feeds predict how long a permit takes? Three cities, one honest answer"
+seo_title: "Do open permit feeds predict how long a permit takes?"
 date: 2026-11-01
 tags: [research, build-data, permits, forecasting]
 description: A boosted model beats each city's own permit averages in 13 of 15 cells; a model from other cities does not, and conformal intervals miss 80%.
