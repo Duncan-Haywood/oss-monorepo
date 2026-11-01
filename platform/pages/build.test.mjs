@@ -788,7 +788,9 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const audiences = audienceGroups(surfaces).length;
   const topics = researchHighlights().themes.length;
   const agentBlog = loadPosts(undefined, AGENT_POSTS_DIR).length ? 1 : 0;
-  assert.equal(bullets.length, surfaces.length + 11 + audiences + topics + agentBlog);
+  // Plus one per tool that calls the network, under "Tools that call the network".
+  const network = externalCallExceptions(surfaces).length;
+  assert.equal(bullets.length, surfaces.length + 11 + audiences + topics + agentBlog + network);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }

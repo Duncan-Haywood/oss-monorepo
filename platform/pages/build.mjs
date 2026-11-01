@@ -10876,7 +10876,7 @@ ${research.themes
 
 On these ${exceptions.length} tools the one thing you paste is sent to the public API it checks; everything else stays in your browser. The [About page](${baseUrl}${ABOUT_PATH}) explains exactly what each sends.
 
-${exceptions.map((x) => `- [${oneLine(toolProseName(x.title))}](${baseUrl}${x.slug}/)`).join('\n')}
+${exceptions.map((x) => `- [${oneLine(toolProseName(x.title))}](${baseUrl}${x.slug}/): sends what you paste to ${x.hosts.join(', ')}`).join('\n')}
 
 `
     : '';
