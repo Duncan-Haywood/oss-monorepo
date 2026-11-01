@@ -656,6 +656,20 @@ test("advanced framing: two-stud corners drop one backing stud, ladder tees swap
   assert.ok(takeoff(adv).ok);
 });
 
+test("advanced framing: a tee centred on a layout stud bounds its ladder with that stud instead of blocking over it", () => {
+  // 24 in layout: the stud on the 96 in mark is centred where the partition lands
+  const wall = { id: "A", length: 240, stud: "2x6", tees: [96] };
+  const plan = { ...base(), studSpacing: 24, walls: [wall], advanced: { ladderTees: true } };
+  const w = layoutWall(plan, wall);
+  assert.deepEqual(verifyWall(w, wall), []);
+  const ladder = w.members.filter((m) => m.kind === "blocking" && m.label.startsWith("ladder blocking"));
+  assert.ok(ladder.length >= 3);
+  const studs = w.members.filter((m) => m.orient === "v");
+  assert.ok(ladder.every((b) => !studs.some((s) => b.x < s.x + s.w - 1e-6 && b.x + b.w > s.x + 1e-6)));
+  // the blocks start at the face of the stud on the mark (found in open-house-plans' 144-house sweep, 2026-11-01)
+  assert.ok(ladder.every((b) => Math.abs(b.x - (96 + 0.75)) < 1e-9));
+});
+
 test("advanced framing: a tee next to an opening falls back to standard backing with a note", () => {
   const wall = { id: "A", length: 240, stud: "2x4", tees: [120], openings: [{ kind: "window", offset: 110, width: 36, height: 48, header: "2x6", headerHeight: 80 }] };
   const plan = { ...base(), walls: [wall], advanced: { ladderTees: true } };
