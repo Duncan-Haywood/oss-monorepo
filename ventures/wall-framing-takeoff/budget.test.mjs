@@ -233,13 +233,15 @@ test("deck lines: lumber order cost, footing bags and screw boxes tie to the dec
   assert.ok(!bud(full()).lines.some((x) => x.section === "Deck"));
 });
 
-test("labor line for stairs multiplies the typed per-riser rate by every riser in the plan", () => {
-  const b = JSON.parse(run({ ...full({ laborStairRiser: 40 }), stairs: { totalRise: 108, tread: 10, stringer: "2x12", width: 36 } }, "--stairs", "--budget", "--json").out);
-  const l = b.lines.find((x) => x.item === "Stair stringers, treads and risers");
-  assert.ok(l, "stair labor line appears");
-  assert.equal(l.qty, Math.ceil(108 / 7.75 - 1e-9)); // 14 risers: fewest under the 7.75 in limit
-  assert.ok(Math.abs(l.amount - l.qty * 40) <= 0.02);
-  const none = JSON.parse(run({ ...full({ laborWallFoot: 5 }), stairs: { totalRise: 108, tread: 10, stringer: "2x12", width: 36 } }, "--stairs", "--budget", "--json").out);
-  const un = none.lines.find((x) => x.item === "Stair stringers, treads and risers");
-  assert.equal(un.amount, null); // no rate typed for stairs: listed, unpriced
+test("stair connectors and solid risers are priced; stairs labor is counted once", () => {
+  const stairs = [{ totalRise: 108, tread: 10, stringer: "2x12", width: 36, riserBoard: "2x8" }, { totalRise: 60, width: 36 }];
+  const plan = { ...full({ stairConnector: 12, stairRiserBoard: 9, laborStairRiser: 40 }), stairs };
+  const b = bud(plan);
+  const out = JSON.parse(run(plan, "--sheathing", "--json").out);
+  const fl = out.stairs.flatMap((x) => x.flights || [x]);
+  const conn = b.lines.find((x) => x.item.startsWith("Stringer top connectors"));
+  assert.equal(conn.qty, fl.reduce((t, x) => t + x.hardware.topConnectors + x.hardware.footAnchors, 0));
+  assert.ok(Math.abs(conn.amount - conn.qty * 12) <= 0.02);
+  assert.ok(b.lines.some((x) => x.item === "Solid riser boards" && x.amount > 0));
+  assert.equal(b.lines.filter((x) => x.section === "Labor" && x.unit === "risers").length, 1);
 });
