@@ -329,3 +329,30 @@ rank everything. The correlation is over rated items only and falls from 0.88
 to 0.73 as more items enter at default rating, which is not a ranking quality
 claim. Reproduce: `scripts/test-db.sh start`, then
 `DEEP_OUT=/tmp/o.txt DEEP_ANSWERS=1000 npx vitest run -c vitest.integration.config.ts src/app/api/trials/deepBudget`.
+
+### Through the route, several respondents with noise and slot bias (2026-11-01)
+
+`src/app/api/trials/noisyRespondents.integration.test.ts`: 60 items, the
+`staged` selector, 3 respondents per condition x 200 answers each, through the
+real `trials/next` and `trials/answer` routes against local Postgres 16. Hidden
+order: lower sort order wins. "Lapse" is a random answer instead of the true
+one; "bias" is always answering the top slot with that probability. Rank
+quality is Spearman between the hidden order and the stored rating over the
+items each respondent rated (mean of 3).
+
+| condition | Spearman | top-slot share of answers |
+|---|---|---|
+| clean | 0.772 | 0.51 |
+| 20% lapse | 0.708 | 0.54 |
+| 50% top-slot bias | 0.527 | 0.76 |
+| 80% top-slot bias | 0.065 | 0.93 |
+
+Reading: the unbiased person sits at 0.51 (the route shuffles slots), so the
+`>= 0.7` fallback has no reason to fire for them; 20% lapse costs 0.06 of
+Spearman; a 50% bias is heavy damage and an 80% bias leaves almost no signal,
+which no selector can recover. Honest limits: synthetic answers, 3 respondents
+per cell, one seed set, 60 items. This does **not** isolate the fallback: there
+is no run with the fallback switched off to compare, so it shows the share the
+route sees, not what the fallback saved. Reproduce: `scripts/test-db.sh start`,
+then `NOISY_OUT=/tmp/o.txt npx vitest run -c vitest.integration.config.ts src/app/api/trials/noisyRespondents`
+(about 50 s).
