@@ -552,3 +552,16 @@ test("stringer top connection: connectors per stringer from the end reaction", (
   assert.equal(checkStringer(base, { ...c, connectorCapacity: 100 }).connectorsNeeded, 3);
   assert.ok(checkStringer(base, { ...c, connectorCapacity: 5 }).errors.length === 1);
 });
+
+test("stringer bearing: end reaction over thickness x length against a typed Fc-perp", () => {
+  const base = { stringer: { spacing: 16, throat: 5, count: 3 }, run: 100 };
+  const c = { liveLoad: 40, deadLoad: 10, Fb: 1200, Fv: 180, E: 1400000 };
+  // V = 277.78 lb; 1.5 in x 3.5 in = 5.25 sq in -> 52.9 psi; 1.5 x 1 = 1.5 sq in -> 185.2 psi
+  assert.equal(checkStringer(base, c).fcPerp, null);
+  const ok = checkStringer(base, { ...c, bearingFcPerp: 425 });
+  assert.ok(Math.abs(ok.fcPerp - 52.91) < 0.01 && ok.bearingLength === 3.5 && ok.ok);
+  const bad = checkStringer(base, { ...c, bearingFcPerp: 150, bearingLength: 1 });
+  assert.ok(Math.abs(bad.fcPerp - 185.19) < 0.01 && !bad.ok && /Bearing stress 185 psi/.test(bad.warnings[0]));
+  assert.equal(checkStringer(base, { ...c, bearingFcPerp: 50 }).errors.length, 1);
+  assert.equal(checkStringer(base, { ...c, bearingFcPerp: 425, bearingLength: 0 }).errors.length, 1);
+});
