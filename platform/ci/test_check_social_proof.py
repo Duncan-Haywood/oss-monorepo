@@ -85,5 +85,22 @@ class Cli(unittest.TestCase):
         self.assertIn("1 files scanned", out)
 
 
+class PrefilterIsSuperset(unittest.TestCase):
+    """The speed-up must never skip a line CLAIM would flag."""
+
+    def test_random_lines_agree_with_raw_pattern(self):
+        import random
+        frags = ["Trusted BY", "join", "Joined", "10,000+", "5,000", "users", "happy",
+                 "Satisfied", "customers", "rated", "4.8", "/5", "/ 5", "out of 5",
+                 "stars", "★★★", "⭐⭐⭐", "3-star", "rating", "as seen", "AS FEATURED",
+                 "on", "in", "award-winning", "Award winning", "#1 rated", "#1 choice",
+                 "best-selling", "Best selling", "over", "more than", "x", " ", "<p>"]
+        rng = random.Random(7)
+        for _ in range(20000):
+            line = " ".join(rng.choice(frags) for _ in range(rng.randint(1, 6)))
+            if check_social_proof.CLAIM.search(line):
+                self.assertTrue(check_social_proof.maybe_claim(line.lower()), line)
+
+
 if __name__ == "__main__":
     unittest.main()
