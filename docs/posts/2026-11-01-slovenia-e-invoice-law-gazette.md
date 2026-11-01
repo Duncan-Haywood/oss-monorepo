@@ -2,7 +2,7 @@
 title: "Slovenia's e-invoice law: which gazette issue, and when it applies"
 date: 2026-11-01
 tags: [einvoice-preflight, slovenia, e-invoicing]
-description: The Slovenia mandate page had conflicting enactment dates from advisory sources; the gazette listing settles most of it; the transitional articles are unread.
+description: The Slovenia mandate page had conflicting enactment dates from advisory sources. The gazette listing settles most of it; transitional articles unread.
 ---
 
 The Slovenia page on E-invoice Preflight carried a warning: one advisory source put the law in Uradni list RS 85/2025 on 6 November 2025, another had a presidential signing on 26 November, and a third mentioned 1 April 2027 for part of it. We had not read the gazette.

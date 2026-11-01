@@ -1,0 +1,57 @@
+{
+ "date": "2026-11-01",
+ "session": "https://claude.ai/code/session_01XpHqyeHBv26xpMh3PJjWfP",
+ "track": "research",
+ "prompt_version": 1,
+ "input": "some articles and data analysis on civilizational histories and patterns applied to current global civilizations. predictive models etc.",
+ "input_sha256": "6189f420c406cd139a540f8222502d948472c68ab033b9ceef10f318447ce1f4",
+ "follow_up_inputs": [],
+ "model": "claude-opus-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-01T22:58:56Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": 12429,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "Research CI (research-ci.yml) does not run project test suites, only the homepage build and programme check; project tests must be run locally and the doc does not say so."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "research/CLAUDE.md",
+   "why": "The owner's 2026-11-01 direction sends new research to deep-tech programmes; the user's request this session was explicitly civilizational history and prediction, so it went to track 24 (civ) as a standalone real-data study (programme: none, why_standalone given).",
+   "did": "Opened civ-patterns as a standalone study",
+   "result": "Landed real-data results replicating two published findings, with backtested forecasts"
+  },
+  {
+   "file": "prompts/promptctl.py route",
+   "why": "The router drew the review track; the user asked for specific research work, which takes precedence.",
+   "did": "Recorded as research/1",
+   "result": "User request delivered"
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "Local verification: pytest 11 passed; research/_homepage/build.py ok; programme_check ok; check_md_links ok. Polity5 cannot be redistributed, so it is fetched at run time and only derived results are committed. Cliopatria (CC BY 4.0) attribute table is committed with attribution.",
+ "corrections": [],
+ "redteam": null
+}
