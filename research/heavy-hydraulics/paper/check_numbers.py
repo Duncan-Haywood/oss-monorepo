@@ -57,6 +57,14 @@ CHECKS = [
     ("40.0 bar at 1.1 times", "pump_size_energy_results.txt", "break-even dp_ls 40.0 bar"),
     ("44.5 bar at 1.2 times", "pump_size_energy_results.txt", "break-even dp_ls 44.5 bar"),
     ("36.1 bar at 1.0 times", "pump_size_energy_results.txt", "break-even dp_ls 36.1 bar"),
+    ("14.1% (88.0 to 100.5 kJ", "pump_cost_results.txt", "100.45 kJ (+14.10%)"),
+    ("34.8%", "pump_cost_results.txt", "(+34.81%)"),
+    ("$7.67 at 1.2 times", "pump_cost_results.txt", "break-even value of a machine hour 7.67"),
+    ("$10.27 at 1.5 times", "pump_cost_results.txt", "break-even value of a machine hour 10.27"),
+    ("($8.82 and $11.84", "pump_cost_results.txt", "machine hour 8.82"),
+    ("27.5 bar at f = 0.5", "surplus_fraction_results.txt", "f=0.5: break-even dp_ls 27.5 bar"),
+    ("18.8 bar at f = 0", "surplus_fraction_results.txt", "f=0.0: break-even dp_ls 18.8 bar"),
+    ("44.5 bar to 31.7 bar", "surplus_fraction_results.txt", "x1.2 f=0.5: break-even dp_ls 31.7 bar"),
 ]
 
 

@@ -2,6 +2,10 @@
 
 Newest first.
 
+## 2026-11-01 · Milestone 6d: paper section 3.5 gains 3l and 3n (a writing step, no experiment)
+- Added the pump fuel-and-parts result (3l: +14.1% shaft energy at 1.2 x, break-even machine hour $7.67) and the surplus-flow fraction sweep (3n: break-even 36.1 to 18.8 bar as f falls from 1 to 0) to section 3.5, including that both predictions were refuted. 8 new rows in `paper/check_numbers.py`, 55 claims, 0 missing.
+- Next: a sourced f (bypass-flow curve of a sectional valve); the compensator.
+
 ## 2026-11-01 · Milestone 3n: how much of 3m's pump-size penalty is the "full pump flow at load pressure" assumption? (prediction registered before running)
 - Why: 3m's limit says open-centre is charged the whole pump flow at the highest load pressure in every work phase, which is the pessimistic end; a real spool throttles the centre gallery only partly. `experiments/surplus_fraction.py` reruns 3m with a surplus fraction f: in each work phase open-centre draws `q_dem + f (Q_pump - q_dem)` at the highest load pressure plus the spool drop (f = 1 is 3m, f = 0 is an optimistic demand-matched open-centre). Pump scales 1.0 and 1.2 x, f in 1, 0.75, 0.5, 0.25, 0. The idle neutral term and the stretched-time charge are as in 3m.
 - **Prediction (before running):** the 1.2 x break-even dp_ls falls monotonically as f falls; at f = 0.5 it is below 3f's no-time-penalty 28.0 bar, and at f = 0 it is below 14 bar (the low end of the load-sensing margin range), because a demand-matched open-centre differs from LS only by the margin-versus-spool-drop gap plus idle. Prior 65%. Refuted if the 1.2 x break-even at f = 0.5 is 28 bar or more, or at f = 0 is 14 bar or more.
