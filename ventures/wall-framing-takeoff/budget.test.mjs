@@ -313,3 +313,17 @@ test("cost per sq ft of floor framed is total over the floor model's subfloor ar
   const noFloor = budget({ ...samplePlan(), orders: [], summary: {} }, {});
   assert.equal(noFloor.perFloorSqFt, null);
 });
+
+test("overhead then profit give a bid price; profit is a share of the bid", () => {
+  const b0 = bud(full({ laborWallFoot: 10, tax: 0.07, contingency: 0.05 }));
+  const b = bud(full({ laborWallFoot: 10, tax: 0.07, contingency: 0.05, overhead: 0.1, profit: 0.1 }));
+  assert.equal(b.total, b0.total);
+  assert.equal(b0.bid, b0.total);
+  assert.equal(b.overhead, +(b.total * 0.1).toFixed(2));
+  assert.equal(b.profit, +((b.total + b.overhead) * 0.1).toFixed(2));
+  assert.equal(b.bid, +(b.total + b.overhead + b.profit).toFixed(2));
+  assert.ok(Math.abs(b.marginPct - 100 * 0.1 * 1.1 / 1.21) < 0.01); // 10% on 110% of cost = 9.09% of the bid
+  const text = run(full({ overhead: 0.1, profit: 0.1 }), "--sheathing", "--budget").out;
+  assert.match(text, /bid price/);
+  assert.match(budgetCsv(b), /Bid price/);
+});

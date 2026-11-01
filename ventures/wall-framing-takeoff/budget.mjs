@@ -10,7 +10,7 @@
 // Plan `prices` (all optional, dollars): { wallSheet, floorSheet, roofSheet,
 // truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle,
 // starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, drywallSheet, baseboard, casing (price per board), sidingBoard, sidingStarter, headFlashing (price per piece), openingTape (price per roll), houseWrapRoll, cornerBoard, soffitPanel, fasciaBoard, jChannel, insulationBag, atticFillBag,
-// vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, drywallScrewThousand (per 1,000 screws), drywallTapeRoll, drywallCompoundPail, cornerBeadStick, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), laborSidingSqFt (siding and house wrap, per sq ft of wall net of openings), laborTrimFoot (baseboard, shoe and casing, per linear foot), laborEavesFoot (fascia run, eave plus rake, per linear foot; soffit and J-channel included), laborGutterFoot (gutter run, per linear foot; downspouts included), laborWallSheet (wall sheathing, per sheet hung), stairConnector (top connector or foot anchor, each), stairRiserBoard (solid riser board, when the stair has `riserBoard`), stairBaluster, stairRailPost, handrailBracket (each; stairs with a `rail`), handrailFoot (per linear foot of handrail run), laborDeckSqFt (deck framing, decking and rails, per sq ft of deck), deckConcreteBag, deckScrewBox, laborStairRiser (stairs, per riser, both flights of a landing stair; stringers, treads and risers set), laborDormerSqFt (dormer framing and roofing, per sq ft of dormer roof), laborHoldDown (per hold-down or plate strap set, each), tax (fraction on materials), contingency (fraction) }.
+// vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, drywallScrewThousand (per 1,000 screws), drywallTapeRoll, drywallCompoundPail, cornerBeadStick, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), laborSidingSqFt (siding and house wrap, per sq ft of wall net of openings), laborTrimFoot (baseboard, shoe and casing, per linear foot), laborEavesFoot (fascia run, eave plus rake, per linear foot; soffit and J-channel included), laborGutterFoot (gutter run, per linear foot; downspouts included), laborWallSheet (wall sheathing, per sheet hung), stairConnector (top connector or foot anchor, each), stairRiserBoard (solid riser board, when the stair has `riserBoard`), stairBaluster, stairRailPost, handrailBracket (each; stairs with a `rail`), handrailFoot (per linear foot of handrail run), laborDeckSqFt (deck framing, decking and rails, per sq ft of deck), deckConcreteBag, deckScrewBox, laborStairRiser (stairs, per riser, both flights of a landing stair; stringers, treads and risers set), laborDormerSqFt (dormer framing and roofing, per sq ft of dormer roof), laborHoldDown (per hold-down or plate strap set, each), tax (fraction on materials), contingency (fraction), overhead (fraction of cost, builder's office and general conditions), profit (fraction of cost plus overhead; both markups give the bid price, `bid`, and `marginPct`, profit as a share of the bid) }.
 // dormerBoardFoot (price per board foot of dormer framing), dormerRoofSqFt (price per sq ft of dormer roof).
 // nailBox falls back to fasteners.price; insulationBag falls back to the plan's insulation.price; atticFillBag to insulation.attic.price.
 // Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
@@ -187,9 +187,15 @@ export function budget(result, prices = {}) {
   // Cost per sq ft of one floor level's framed area (the floor model's subfloor area). A partial figure while any line is unpriced.
   const floorSqFt = result.floor?.sheets?.area > 0 ? r2(result.floor.sheets.area) : null;
   const total = r2(materials + tax + contingency + labor);
+  // Builder's markup on the cost total: overhead on cost, then profit on cost plus overhead. Zero unless typed.
+  const ovhRate = P("overhead") ?? 0, profRate = P("profit") ?? 0;
+  const overhead = r2(total * ovhRate), profit = r2((total + overhead) * profRate);
+  const bid = r2(total + overhead + profit);
+  const marginPct = bid > 0 ? r2(100 * profit / bid) : 0;
   return {
     floorSqFt, perFloorSqFt: floorSqFt && total > 0 ? r2(total / floorSqFt) : null,
     lines, sections, materials, labor, taxRate, tax, contingencyRate: contRate, contingency, total,
+    overheadRate: ovhRate, overhead, profitRate: profRate, profit, bid, marginPct,
     unpriced: lines.filter((l) => l.amount == null).map((l) => `${l.item} (${l.qty} ${l.unit})`),
   };
 }
@@ -204,6 +210,7 @@ export function budgetText(b) {
   }
   out.push("  Subtotals: " + b.sections.map((s) => `${s.name} ${s.subtotal.toFixed(2)}`).join(", "));
   out.push(`  Materials ${b.materials.toFixed(2)}${b.taxRate ? `, tax ${b.tax.toFixed(2)} at ${(100 * b.taxRate).toFixed(2)}%` : ""}${b.contingencyRate ? `, contingency ${b.contingency.toFixed(2)} at ${(100 * b.contingencyRate).toFixed(1)}%` : ""}${b.labor ? `, labor ${b.labor.toFixed(2)}` : ""}; total ${b.total.toFixed(2)}`);
+  if (b.overheadRate || b.profitRate) out.push(`  Cost ${b.total.toFixed(2)}${b.overheadRate ? `, overhead ${b.overhead.toFixed(2)} at ${(100 * b.overheadRate).toFixed(1)}%` : ""}${b.profitRate ? `, profit ${b.profit.toFixed(2)} at ${(100 * b.profitRate).toFixed(1)}%` : ""}; bid price ${b.bid.toFixed(2)} (profit is ${b.marginPct.toFixed(1)}% of the bid)`);
   if (b.perFloorSqFt != null) out.push(`  Per sq ft of floor framed (${b.floorSqFt} sq ft, one level): ${b.perFloorSqFt.toFixed(2)}${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
   if (b.unpriced.length) out.push(`  Not in the total, no price typed: ${b.unpriced.join("; ")}. Add them under \`prices\` in the plan.`);
   out.push("  Not included: equipment, permits, delivery, overhead or waste beyond what the takeoff already counts" + (b.lines.some((l) => l.section === "Labor") ? "; labor is only the rates you typed." : "; no labor rate typed."));
@@ -215,5 +222,6 @@ export function budgetCsv(b) {
   const q = (/** @type {any} */ v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
   const rows = [["section", "item", "qty", "unit", "unit_price", "amount", "source"], ...b.lines.map((l) => [l.section, l.item, l.qty, l.unit, l.unitPrice ?? "", l.amount ?? "", l.source])];
   rows.push(["", "Materials", "", "", "", b.materials, ""], ["", "Tax", "", "", b.taxRate, b.tax, ""], ["", "Contingency", "", "", b.contingencyRate, b.contingency, ""], ["", "Labor", "", "", "", b.labor, ""], ["", "Total", "", "", "", b.total, ""]);
+  if (b.overheadRate || b.profitRate) rows.push(["", "Overhead", "", "", b.overheadRate, b.overhead, ""], ["", "Profit", "", "", b.profitRate, b.profit, ""], ["", "Bid price", "", "", "", b.bid, ""]);
   return rows.map((r) => r.map(q).join(",")).join("\n") + "\n";
 }
