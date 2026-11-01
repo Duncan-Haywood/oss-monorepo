@@ -443,8 +443,9 @@ export function layoutWall(plan, wall) {
   for (const t of wall.tees || []) {
     if (adv.ladderTees) {
       const tall = members.filter((m) => m.orient === "v" && Math.abs(m.y - THICK) < EPS && Math.abs(m.h - plan.studLength) < EPS);
-      const left = tall.filter((m) => m.x + THICK <= t + EPS).sort((a, b) => b.x - a.x)[0];
-      const right = tall.filter((m) => m.x >= t - EPS).sort((a, b) => a.x - b.x)[0];
+      // by centre, so a stud the tee lands on (centred on it, as on a 16 or 24 in layout mark) bounds the ladder instead of sitting inside it
+      const left = tall.filter((m) => m.x + THICK / 2 <= t + EPS).sort((a, b) => b.x - a.x)[0];
+      const right = tall.filter((m) => m.x + THICK / 2 > t + EPS).sort((a, b) => a.x - b.x)[0];
       if (left && right) {
         const x0 = left.x + THICK;
         const x1 = right.x;

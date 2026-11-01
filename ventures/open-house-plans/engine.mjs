@@ -21,6 +21,7 @@ import { planPrimitives } from "./plan-draw.mjs";
 import { svgDoc, svgGroup, boundsOf, dxfDoc } from "./draw.mjs";
 import { toIFC } from "./ifc.mjs";
 import { area as polyArea, ftIn } from "./geom.mjs";
+import { frameHouse, orderCsv, cutListCsv, framingSheetSvg } from "./framing.mjs";
 
 export const DEFAULTS = { ...BRIEF_DEFAULTS, text: "" };
 export const VERSION = "1.0.0";
@@ -229,6 +230,12 @@ function readme(s, brief, notes, files) {
   L.push(`| Framing | ${s.framing.scheme}; ${s.framing.wallLumberBf.toLocaleString("en-US")} bf of wall lumber |`);
   L.push(`| Construction cost | **${money(s.cost.total)}** (${money(s.cost.perSqFt)}/sq ft), ${brief.region === 1 ? "US average" : `region factor ${brief.region}`}, ${ANCHOR.year} dollars* |`);
   L.push(`| Checks | ${s.checks.passed} passed, ${s.checks.failed.length} failed |`, "");
+  if (s.studFraming) {
+    const f = s.studFraming;
+    L.push("## Wall framing, stud by stud", "");
+    L.push(`Every wall is laid out member by member (\`framing.svg\`): ${f.walls} walls, ${f.wallFeet} ft, ${f.pieces} pieces cut from ${f.boards} boards (${f.boardFeet.toLocaleString("en-US")} board feet, ${f.waste}% offcut, within ${f.gapToBound}% of the cutting-stock lower bound for this cut list). Studs are ${f.studLength} precuts. \`framing-cuts.csv\` lists every cut and the board it comes from; \`lumber-order.csv\` is the order. The board order counts wall framing only (no floor, roof, sheathing or blocking), and comes from the Wall Framing Takeoff engine.${f.engineeredHeaders ? ` ${f.engineeredHeaders} header${f.engineeredHeaders > 1 ? "s are" : " is an"} engineered beam${f.engineeredHeaders > 1 ? "s" : ""} (LVL), drawn at 2x12 depth and listed for the supplier to size.` : ""}`, "");
+    if (f.notes.length) { L.push("Framing notes:", ""); for (const n of f.notes) L.push(`- ${n}`); L.push(""); }
+  }
   L.push(`\\* ${s.cost.basis}`, "");
   L.push("## Rooms", "", "| Room | Clear size | Area (sq ft, to wall centres) |", "|---|---|---|");
   for (const r of s.rooms) if (r.kind !== "closet") L.push(`| ${r.name} | ${r.clear} | ${r.area} |`);
@@ -247,6 +254,9 @@ function readme(s, brief, notes, files) {
     "bom.csv": "bill of materials: framing, sheathing, roofing, foundation, insulation, drywall, fixtures",
     "openings.csv": "window and door schedule", "cost.csv": "cost by stage", "rooms.csv": "room schedule",
     "design.json": "the brief and the full design as data; feed the brief back to regenerate it",
+    "framing.svg": "every wall's framing elevation: studs, kings, jacks, headers, sills, cripples and plates at their real lengths, marked",
+    "framing-cuts.csv": "wall framing cut list, and which board each piece is cut from",
+    "lumber-order.csv": "wall framing board order: how many of each size and length to buy",
     "LICENSE.txt": "CC0 1.0 dedication and disclaimer", "README.md": "this file",
   };
   for (const f of files) L.push(`- \`${f}\`: ${what[f] || ""}`);
@@ -293,6 +303,12 @@ export function designFiles(input = {}, { timestamp = Date.UTC(2026, 0, 1) } = {
   files["openings.csv"] = csv(openingSchedule(plan, a.model.h), [["Type", "type"], ["Width (ft)", "width"], ["Height (ft)", "height"], ["Sill (ft)", "sill"], ["Quantity", "qty"]]);
   files["cost.csv"] = csv(Object.entries(s.cost.stages).map(([k, v]) => ({ stage: STAGE_LABELS[k] || "Porch", cost: v, share: ((100 * v) / s.cost.total).toFixed(1), nahb: STAGE_SHARES[k] ? (100 * STAGE_SHARES[k]).toFixed(1) : "" })), [["Stage", "stage"], ["Cost (USD)", "cost"], ["Share %", "share"], ["NAHB 2024 share %", "nahb"]]);
   files["rooms.csv"] = csv(s.rooms, [["Room", "name"], ["Kind", "kind"], ["Clear width (ft)", "w"], ["Clear depth (ft)", "d"], ["Area (sq ft)", "area"]]);
+  // every wall stud by stud: drawings, cut list and board order (framing.mjs, Wall Framing Takeoff's engine)
+  const fr = frameHouse(plan, brief, a.tk, style);
+  s.studFraming = { ...fr.summary, notes: fr.notes };
+  files["framing.svg"] = framingSheetSvg(fr, s.title);
+  files["framing-cuts.csv"] = cutListCsv(fr);
+  files["lumber-order.csv"] = orderCsv(fr);
   files["design.json"] = JSON.stringify({
     generator: { name: "Open House Plans", version: VERSION, license: LICENSE_NAME },
     brief, notes, summary: s,
