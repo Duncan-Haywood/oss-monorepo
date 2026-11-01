@@ -40,7 +40,7 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-11-01-the-hour-bell.md",
+  "writeups": ["docs/posts/2026-11-01-the-hour-bell.md"],
   "goal": null,
   "notes": "Hearth & Horizon, slug the-hour-bell, text only (audio 423 MB over 400 cap). Checked weekday of setting date and fixed it; dose figures computed in script.",
   "corrections": [],
