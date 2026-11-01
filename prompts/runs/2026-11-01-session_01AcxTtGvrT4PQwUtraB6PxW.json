@@ -36,7 +36,10 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-11-01-is-open-centre-surplus-flow-free.md; research/heavy-hydraulics/LOG.md 3p; paper section 3.5",
+  "writeups": [
+    "docs/posts/2026-11-01-is-open-centre-surplus-flow-free.md",
+    "research/heavy-hydraulics/LOG.md"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],

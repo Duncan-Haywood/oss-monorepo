@@ -2,7 +2,7 @@
 title: "Can a better bypass valve make a fixed-pump excavator circuit cheaper to run?"
 date: 2026-11-01
 tags: [heavy-hydraulics, excavator, hydraulics, research]
-description: In the open excavator-circuit comparison, the fraction of surplus pump flow charged at load pressure turned out not to be a valve property for a fixed pump, and a flow-continuity check over 2,000 random phases shows why.
+description: For a fixed pump, the surplus-flow fraction in the excavator circuit comparison is an identity, not a valve property; 2,000 random phases confirm it.
 ---
 
 The heavy-hydraulics programme compares fixed open-centre, load-sensing and metered circuits for a small excavator. Its last step swept a "surplus fraction" f: how much of a fixed pump's unused flow gets charged at the highest load pressure. At f = 1 the load-sensing break-even margin was 36.1 bar; at f = 0 it fell to 18.8. The obvious next job was to find a real valve's bypass curve and read f off it.
