@@ -2,7 +2,7 @@
 title: "Is global-route timing a fair stand-in for detail routing?"
 date: 2026-11-01
 tags: [research, chip-design, eda, verified-dse]
-description: On five small SKY130 designs, ranking pass sequences by global-route results agrees with detail-routed ranking (tau 0.81 to 0.90 at a relaxed clock), but tool versions move rankings more than the router does.
+description: On five SKY130 designs, global-route ranking matches detail routing (tau 0.81 to 0.90, relaxed clock); tool versions shift rankings more than the router.
 ---
 
 Chip-design search loops score candidates with a cheap, early result and trust
