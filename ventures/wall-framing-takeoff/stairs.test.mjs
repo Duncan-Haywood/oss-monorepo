@@ -581,3 +581,15 @@ test("stringer notched support: reduced end shear (2/3) Fv b dn (dn/d)", () => {
   assert.ok(Math.abs(bad.notchCapacity - 175.14) < 0.01 && !bad.ok && /End shear 278 lb exceeds 175 lb/.test(bad.warnings[0]));
   assert.equal(checkStringer(base, { ...c, notchedSupport: 10 }).errors.length, 1);
 });
+
+test("stringer minimum throat: each check solved for depth, the largest governs", () => {
+  const base = { stringer: { spacing: 16, throat: 5, count: 3 }, run: 100 };
+  const c = { liveLoad: 40, deadLoad: 10, Fb: 1200, Fv: 180, E: 1400000 };
+  // w = 5.5556 lb/in, M = 6944.4 lb-in, V = 277.78 lb, limit = 100/240 = 0.41667 in
+  // bending sqrt(6*6944.4/(1.5*1200)) = 4.811; shear 1.5*277.78/(1.5*180) = 1.543; deflection cbrt(60*5.5556*1e8/(384*1.4e6*1.5*0.41667)) = 4.629
+  const r = checkStringer(base, c);
+  assert.ok(Math.abs(r.minThroat - 4.811) < 0.001 && r.minThroatGoverns === "bending");
+  // at the minimum throat bending stress equals the typed Fb
+  const at = checkStringer({ ...base, stringer: { ...base.stringer, throat: r.minThroat } }, c);
+  assert.ok(Math.abs(at.fb - 1200) < 1e-6);
+});
