@@ -2,7 +2,7 @@
 title: "Does planning a staff schedule one week at a time cost coverage?"
 date: 2026-11-01
 tags: [shift-roster-builder, scheduling, optimization]
-description: Over 16 seeded weeks the roster builder's week-by-week plan left exactly as many shifts open as each week solved fresh, so a joint multi-week solve cannot help coverage.
+description: Over 16 seeded weeks the roster builder's week-by-week plan left as many open as each week solved fresh, so a joint multi-week solve cannot help coverage.
 ---
 
 The roster builder's "Plan weeks" mode solves each week on its own and carries over the rest gap, the days-in-a-row count and the tally of closes and weekends. The obvious worry is that this rolling plan leaves shifts open that a joint solve of the whole month would fill.
