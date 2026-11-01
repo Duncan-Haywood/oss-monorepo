@@ -15,7 +15,7 @@ const NOMINAL = { "2x6": 5.5, "2x8": 7.25, "2x10": 9.25, "2x12": 11.25 };
 const POST = { "4x4": 3.5, "6x6": 5.5 };
 const CU_IN_PER_YD = 46656;
 
-/** @typedef {{ id?: string, width: number, depth: number, height: number, joist?: string, spacing?: number, beam?: string, beamPlies?: number, freestanding?: boolean, postCheck?: { deadPsf: number, livePsf: number, fc: number, emin: number, fcPerp?: number }, joistCheck?: { deadPsf: number, livePsf: number, Fb: number, Fv: number, E: number, deflLimit?: number }, overhang?: number, postSize?: string, postInset?: number, maxPostSpacing?: number, border?: number | boolean, deckBoard?: { width?: number, thickness?: number, gap?: number, size?: string }, footing?: { diameter?: number, depth?: number, bagYield?: number }, screwsPerBox?: number, blocking?: { every: number }, railPostSpacing?: number, guard?: false | { sides?: ("outer"|"left"|"right"|"inner")[], threshold?: number, railBoard?: string, balusterWidth?: number, postWidth?: number, limits?: object }, spanTable?: { joist: string, spacing: number, maxSpan: number }[], stock?: { size: string, length: number, price: number }[] }} Deck */
+/** @typedef {{ id?: string, width: number, depth: number, height: number, joist?: string, spacing?: number, beam?: string, beamPlies?: number, freestanding?: boolean, postCheck?: { deadPsf: number, livePsf: number, fc: number, emin: number, fcPerp?: number }, beamCheck?: { deadPsf: number, livePsf: number, Fb: number, Fv: number, E: number, deflLimit?: number }, joistCheck?: { deadPsf: number, livePsf: number, Fb: number, Fv: number, E: number, deflLimit?: number }, overhang?: number, postSize?: string, postInset?: number, maxPostSpacing?: number, border?: number | boolean, deckBoard?: { width?: number, thickness?: number, gap?: number, size?: string }, footing?: { diameter?: number, depth?: number, bagYield?: number }, screwsPerBox?: number, blocking?: { every: number }, railPostSpacing?: number, guard?: false | { sides?: ("outer"|"left"|"right"|"inner")[], threshold?: number, railBoard?: string, balusterWidth?: number, postWidth?: number, limits?: object }, spanTable?: { joist: string, spacing: number, maxSpan: number }[], stock?: { size: string, length: number, price: number }[] }} Deck */
 
 export function sampleDeck() {
   return { id: "Rear deck", width: 192, depth: 144, height: 36, joist: "2x8", spacing: 16, beam: "2x10", beamPlies: 2, overhang: 12, postSize: "6x6" };
@@ -239,6 +239,7 @@ export function layoutDeck(d) {
     ok: true, id, width: d.width, depth: d.depth, height: d.height, joistSize: joist, beamSize: beam, beamPlies: plies, postSize, spacing, freestanding, overhang,
     centres, joists, rims, posts, postLength: postLen, beamPieces, beamBoards, concrete, rows, deckBoards, borderBoards, borderCourses: nb, fieldWidth: fieldW, fieldDepth: fieldD, joints, screws, screwBoxes: Math.ceil(screws / screwsPerBox), hardware, railPosts, guard, blocking,
     joistCheck: d.joistCheck ? checkDeckJoists({ size: joist, spacing, span: joistSpan, overhang }, d.joistCheck) : undefined,
+    beamCheck: d.beamCheck ? checkDeckBeam({ size: beam, plies, joistSpan, overhang, posts }, d.beamCheck) : undefined,
     postCheck: d.postCheck ? checkDeckPosts({ joistSpan, overhang, posts, postSize, postLength: postLen, beamPlies: plies, footingDiameter: concrete.diameter }, d.postCheck) : undefined,
     lumber, orders, area, cost: orders.reduce((s, o) => s + o.cost, 0), joistSpan, warnings, notes,
   };
@@ -328,6 +329,36 @@ export function checkDeckJoists(j, spec) {
   return { ok: true, size: j.size, w, bending: { stress: fb, allowable: spec.Fb, moment: M }, shear: { stress: fv, allowable: spec.Fv, force: V }, midspanDeflection: { value: midDefl, limit: midLimit }, tipDeflection: { value: tip, limit: tipLimit }, reaction: r1, passes };
 }
 
+/**
+ * Beam strength from typed figures (nothing is shipped). The beam's plies are spliced only over a post, so each bay
+ * is checked as a simple span (conservative against a continuous beam): the longest bay between posts, loaded by the
+ * joists' reaction w (L + c)^2 / (2 L) per foot at (dead + live) psf, section `plies` x 1-1/2 in x the nominal depth
+ * (plies assumed to act together, nailed per your code). Bending wL^2/8, shear 1.5 V / A at the support face (no
+ * reduction), live-load deflection 5 wl L^4 / 384 E I against L/deflLimit (360 by default). Overhang of the beam past
+ * the end posts is not counted.
+ * @param {{ size: string, plies: number, joistSpan: number, overhang: number, posts: number[] }} b
+ * @param {{ deadPsf: number, livePsf: number, Fb: number, Fv: number, E: number, deflLimit?: number }} spec
+ */
+export function checkDeckBeam(b, spec) {
+  const errors = [];
+  const inr = (v, lo, hi) => Number.isFinite(v) && v >= lo && v <= hi;
+  if (!inr(spec?.deadPsf, 0, 100)) errors.push("beamCheck.deadPsf is the dead load in psf, 0 to 100.");
+  if (!inr(spec?.livePsf, 0, 200)) errors.push("beamCheck.livePsf is the live load in psf, 0 to 200.");
+  if (!inr(spec?.Fb, 200, 4000)) errors.push("beamCheck.Fb is the beam's allowable bending stress in psi (200 to 4000), adjusted by you.");
+  if (!inr(spec?.Fv, 50, 500)) errors.push("beamCheck.Fv is the beam's allowable shear stress in psi (50 to 500).");
+  if (!inr(spec?.E, 200000, 3000000)) errors.push("beamCheck.E is the beam's modulus of elasticity in psi (200000 to 3000000).");
+  if (spec?.deflLimit != null && !inr(spec.deflLimit, 120, 720)) errors.push("beamCheck.deflLimit is the span ratio (L/360 by default), 120 to 720.");
+  if (errors.length) return { ok: false, errors };
+  const dep = NOMINAL[b.size], width = 1.5 * b.plies, A = width * dep, S = (width * dep * dep) / 6, I = (width * dep ** 3) / 12;
+  const L = Math.max(...b.posts.slice(1).map((x, i) => x - b.posts[i]));
+  const lim = spec.deflLimit ?? 360;
+  const k = (b.joistSpan + b.overhang) ** 2 / (2 * b.joistSpan) / 12 / 12; // joist reaction per psf, lb per in of beam
+  const w = (spec.deadPsf + spec.livePsf) * k, wl = spec.livePsf * k;
+  const M = (w * L * L) / 8, V = (w * L) / 2;
+  const fb = M / S, fv = (1.5 * V) / A, defl = (5 * wl * L ** 4) / (384 * spec.E * I), limit = L / lim;
+  return { ok: true, size: b.size, plies: b.plies, span: L, w, bending: { stress: fb, allowable: spec.Fb, moment: M }, shear: { stress: fv, allowable: spec.Fv, force: V }, deflection: { value: defl, limit }, passes: fb <= spec.Fb && fv <= spec.Fv && defl <= limit };
+}
+
 export function deckText(l) {
   if (!l.ok) return l.errors.map((e) => `  - ${e}`);
   const out = [`${l.id}: ${formatLength(l.width)} x ${formatLength(l.depth)}, ${formatInches(l.height)} above grade, ${l.freestanding ? "freestanding" : "ledger on the house"}`];
@@ -346,6 +377,11 @@ export function deckText(l) {
     const c = l.joistCheck;
     if (!c.ok) out.push(...c.errors.map((e) => `  ! ${e}`));
     else out.push(`  Joist check (typed figures, ${c.size}): bending ${Math.round(c.bending.stress)} of ${c.bending.allowable} psi, shear ${Math.round(c.shear.stress)} of ${c.shear.allowable} psi, midspan live deflection ${c.midspanDeflection.value.toFixed(2)} of ${c.midspanDeflection.limit.toFixed(2)} in${c.tipDeflection.limit === Infinity ? "" : `, tip ${c.tipDeflection.value.toFixed(2)} of ${c.tipDeflection.limit.toFixed(2)} in`} - ${c.passes ? "passes" : "FAILS"}; notches, holes, hanger and ledger connections are yours`);
+  }
+  if (l.beamCheck) {
+    const c = l.beamCheck;
+    if (!c.ok) out.push(...c.errors.map((e) => `  ! ${e}`));
+    else out.push(`  Beam check (typed figures, ${c.plies} x ${c.size}, longest bay ${formatInches(c.span)}, simple span): bending ${Math.round(c.bending.stress)} of ${c.bending.allowable} psi, shear ${Math.round(c.shear.stress)} of ${c.shear.allowable} psi, live deflection ${c.deflection.value.toFixed(2)} of ${c.deflection.limit.toFixed(2)} in - ${c.passes ? "passes" : "FAILS"}; ply nailing and beam overhang past the end posts are yours`);
   }
   if (l.postCheck) {
     const c = l.postCheck;

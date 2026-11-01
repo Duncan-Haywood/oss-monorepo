@@ -199,3 +199,21 @@ test("joistCheck: a long weak joist fails, bad figures are refused", () => {
   assert.ok(l.ok && l.joistCheck.passes === false);
   assert.equal(layoutDeck({ ...sampleDeck(), joistCheck: { deadPsf: 10, livePsf: 40, Fb: 0, Fv: 150, E: 1e6 } }).joistCheck.ok, false);
 });
+
+test("beamCheck: hand-worked 2-2x10 over the longest bay", () => {
+  const l = layoutDeck({ ...sampleDeck(), beamCheck: { deadPsf: 10, livePsf: 40, Fb: 1000, Fv: 150, E: 1400000 } });
+  assert.ok(l.ok && l.beamCheck.ok);
+  const L = Math.max(...l.posts.slice(1).map((x, i) => x - l.posts[i]));
+  const w = 50 * ((l.joistSpan + 12) ** 2 / (2 * l.joistSpan)) / 144;
+  const S = 3 * 9.25 ** 2 / 6, I = 3 * 9.25 ** 3 / 12;
+  assert.ok(Math.abs(l.beamCheck.bending.stress - w * L * L / 8 / S) < 1e-9);
+  assert.ok(Math.abs(l.beamCheck.shear.stress - 1.5 * (w * L / 2) / (3 * 9.25)) < 1e-9);
+  assert.ok(Math.abs(l.beamCheck.deflection.value - 5 * (w * 40 / 50) * L ** 4 / (384 * 1.4e6 * I)) < 1e-12);
+  assert.ok(deckText(l).join("\n").includes("Beam check"));
+});
+
+test("beamCheck: a weak beam fails, bad figures are refused", () => {
+  const l = layoutDeck({ ...sampleDeck(), beam: "2x6", beamCheck: { deadPsf: 15, livePsf: 60, Fb: 850, Fv: 150, E: 1200000 } });
+  assert.ok(l.ok && l.beamCheck.passes === false);
+  assert.equal(layoutDeck({ ...sampleDeck(), beamCheck: { deadPsf: 10, livePsf: 40, Fb: 0, Fv: 150, E: 1e6 } }).beamCheck.ok, false);
+});
