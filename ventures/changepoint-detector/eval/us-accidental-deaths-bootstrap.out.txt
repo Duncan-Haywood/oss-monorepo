@@ -1,0 +1,9 @@
+model	period	bootstrap	changes
+mean	none	false	1973-05 1973-11 1978-05
+mean	none	true	1973-05 1973-11
+mean	12	false	1973-12 1975-07 1976-12 1978-09
+mean	12	true	1973-12 1975-07 1976-12 1978-09
+meanvar	none	false	1973-11
+meanvar	none	true	-
+meanvar	12	false	1973-12 1975-07 1978-03
+meanvar	12	true	1973-12
