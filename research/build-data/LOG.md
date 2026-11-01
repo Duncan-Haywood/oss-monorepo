@@ -1,5 +1,10 @@
 # build-data log
 
+## Session 10, 2026-11-01: milestone 6, cross-city transfer (H4), hypothesis written before the run
+
+Hypothesis (H4, from the proposal): a model trained on the other cities and tested on the held-out city is no better than that city's own reference-class baseline on 2024 mean pinball loss (q0.1, 0.5, 0.9). Refuted for a city if the paired week-block bootstrap interval of (transfer minus own baseline) lies below zero at two of three quantiles. Prior 35% that H4 holds: the baseline uses the city's own permit types, which carry most of the signal (session 9), while a transfer model only sees a keyword-harmonised class, cost, description length, month and weekday.
+Plan: `src/transfer.py`; leave one city out (a2i: three held-out cities; i2c: Austin and SF, Chicago has no completion date, so each is trained on one source city); compare with an own-city boosted model on the same harmonised features as the ceiling; 3 seeds. Feeds re-pulled today. The harmonised class map is a keyword rule written once, before seeing results, and not tuned on the test year.
+
 ## Session 9, 2026-10-31: milestone 5, permutation importance and drop-one ablation (H3 holds, as worded)
 
 Hypothesis (H3, from the proposal, before the run): at most five fields account for 80% of the importance. Operationalised before running: importance is the rise in mean pinball loss (q0.1, 0.5, 0.9) of the session-6 models when one test-row column is shuffled (3 repeats, 3 seeds); k80 is the smallest number of fields whose positive importances reach 80% of their sum. Refuted if k80 > 5 in any pair. Prior 70% that it holds. Caveat noted in advance: the models have only 7 fields (6 in SF, which has no work class), so k80 <= 5 is a weak test.
