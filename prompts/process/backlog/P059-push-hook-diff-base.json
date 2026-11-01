@@ -20,7 +20,7 @@
   "opened": "2026-10-29",
   "source": "process run, measure 'doc friction'",
   "pr": "this",
-  "result": null,
+  "result": "Helped: run records naming check_posts_before_push.py: 10 on 2026-10-29, 1 on 2026-10-30 (fix landed that day), none 2026-10-31 or 2026-11-01.",
   "history": [
     {
       "date": "2026-10-30",
