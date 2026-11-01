@@ -303,3 +303,13 @@ test("dormer labor is a typed rate times the dormer roof area, unpriced without 
   const none = budget({ orders: [], dormer }, { laborWallFoot: 1 });
   assert.equal(none.lines.find((x) => x.item === "Dormer framing and roofing").amount, null);
 });
+
+test("cost per sq ft of floor framed is total over the floor model's subfloor area", () => {
+  const plan = full({ floorSheet: 30, tax: 0.1 });
+  const b = bud(plan);
+  assert.ok(b.floorSqFt > 0);
+  assert.equal(b.perFloorSqFt, +(b.total / b.floorSqFt).toFixed(2));
+  assert.match(budgetText(b).join("\n"), /Per sq ft of floor framed .*partial/);
+  const noFloor = budget({ ...samplePlan(), orders: [], summary: {} }, {});
+  assert.equal(noFloor.perFloorSqFt, null);
+});
