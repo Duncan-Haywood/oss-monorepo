@@ -178,3 +178,24 @@ test("postCheck soilBearing: footing diameter from the worst post load over type
   assert.match(deckText(weak).join("\n"), /Footing on 500 psf soil/);
   assert.equal(layoutDeck({ ...sampleDeck(), postCheck: { deadPsf: 10, livePsf: 40, fc: 975, emin: 510000, soilBearing: 5 } }).postCheck.ok, false);
 });
+
+test("joistCheck: hand-worked 2x8 at 16 in, span and cantilever statics", () => {
+  const l = layoutDeck({ ...sampleDeck(), joistCheck: { deadPsf: 10, livePsf: 40, Fb: 1000, Fv: 150, E: 1400000 } });
+  assert.ok(l.ok && l.joistCheck.ok);
+  const L = l.joistSpan, c = 12, w = 50 * 16 / 144, S = 1.5 * 7.25 ** 2 / 6, I = 1.5 * 7.25 ** 3 / 12;
+  const r1 = w * (L * L - c * c) / (2 * L);
+  const M = Math.max(r1 * r1 / (2 * w), w * c * c / 2);
+  assert.ok(Math.abs(l.joistCheck.bending.stress - M / S) < 1e-9);
+  const wl = 40 * 16 / 144;
+  assert.ok(Math.abs(l.joistCheck.midspanDeflection.value - 5 * wl * L ** 4 / (384 * 1.4e6 * I)) < 1e-12);
+  assert.ok(Math.abs(l.joistCheck.midspanDeflection.limit - L / 360) < 1e-12);
+  // reaction at the ledger plus the beam's reaction equals the whole load
+  assert.ok(r1 > 0 && r1 < w * L / 2);
+  assert.ok(deckText(l).join("\n").includes("Joist check"));
+});
+
+test("joistCheck: a long weak joist fails, bad figures are refused", () => {
+  const l = layoutDeck({ ...sampleDeck(), depth: 216, joist: "2x6", joistCheck: { deadPsf: 15, livePsf: 60, Fb: 850, Fv: 150, E: 1200000 } });
+  assert.ok(l.ok && l.joistCheck.passes === false);
+  assert.equal(layoutDeck({ ...sampleDeck(), joistCheck: { deadPsf: 10, livePsf: 40, Fb: 0, Fv: 150, E: 1e6 } }).joistCheck.ok, false);
+});
