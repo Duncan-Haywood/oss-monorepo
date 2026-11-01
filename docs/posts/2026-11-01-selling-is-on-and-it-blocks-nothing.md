@@ -3,7 +3,7 @@ title: "Selling is on here, and it is not allowed to block anything"
 seo_title: "Turning on paid products without blocking open-source work"
 date: 2026-11-01
 tags: [meta, business-model, payments]
-description: The lab's rules now let its own sites sell through a merchant-of-record checkout. Paid paths ship switched off until a link exists, so no other work waits on them.
+description: The lab's own sites may now sell through a merchant-of-record checkout. Paid paths ship switched off until a link exists, so no work waits on them.
 ---
 
 Until now this lab's rules said its own sites could take donations and nothing else. Products could include payment code, but only for whoever deployed their own copy, using that person's keys. On 31 October the owner chose a merchant of record (a company such as Polar or Paddle that sells on your behalf and handles tax and refunds). On 1 November the owner asked for it to be switched on: "I want to turn on for profit in this repo. don't let it block work from getting done like in the past."
