@@ -1262,6 +1262,13 @@ export function takeoff(plan, extraCuts = []) {
   for (const size of sizes) {
     const stock = plan.stock.filter((s) => s.size === size);
     const pieces = cuts.filter((c) => c.size === size).map((c) => ({ length: c.length, qty: c.qty, ref: c.kind }));
+    const longest = Math.max(0, ...stock.filter((s) => s.length > 0).map((s) => s.length));
+    const over = pieces.filter((p) => p.qty > 0 && p.length > longest + 1e-6);
+    if (over.length) {
+      const kinds = [...new Set(over.map((p) => p.ref))].join(", ");
+      const worst = Math.max(...over.map((p) => p.length));
+      return { ok: false, errors: [`${size}: ${over.length === 1 ? "a" : over.length} piece${over.length === 1 ? "" : "s"} (${kinds}) up to ${formatInches(worst)} ${over.length === 1 ? "is" : "are"} longer than the longest ${size} board listed (${longest ? formatInches(longest) : "none"}). Add a longer board to "stock" (a beam, LVL or glulam length for a wide header), or split the opening.`] };
+    }
     const res = optimizeStock(pieces, stock, plan.kerf);
     const lines = new Map();
     for (const b of res.bars) {

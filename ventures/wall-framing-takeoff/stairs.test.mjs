@@ -565,3 +565,16 @@ test("stringer bearing: end reaction over thickness x length against a typed Fc-
   assert.equal(checkStringer(base, { ...c, bearingFcPerp: 50 }).errors.length, 1);
   assert.equal(checkStringer(base, { ...c, bearingFcPerp: 425, bearingLength: 0 }).errors.length, 1);
 });
+
+test("stringer notched support: reduced end shear (2/3) Fv b dn (dn/d)", () => {
+  const base = { stringer: { spacing: 16, throat: 5, depth: 9.25, count: 3 }, run: 100 };
+  const c = { liveLoad: 40, deadLoad: 10, Fb: 1200, Fv: 180, E: 1400000 };
+  // 2/3 x 180 x 1.5 x 5 x (5/9.25) = 486.5 lb against V = 277.8 lb
+  assert.equal(checkStringer(base, c).notchCapacity, null);
+  const ok = checkStringer(base, { ...c, notchedSupport: true });
+  assert.ok(Math.abs(ok.notchCapacity - 486.49) < 0.01 && ok.ok);
+  // leave 3 in: 2/3 x 180 x 1.5 x 3 x (3/9.25) = 175.1 lb < 277.8
+  const bad = checkStringer(base, { ...c, notchedSupport: 3 });
+  assert.ok(Math.abs(bad.notchCapacity - 175.14) < 0.01 && !bad.ok && /End shear 278 lb exceeds 175 lb/.test(bad.warnings[0]));
+  assert.equal(checkStringer(base, { ...c, notchedSupport: 10 }).errors.length, 1);
+});
