@@ -2,7 +2,7 @@
 title: "Sizing a peak-shaving battery by running it through your meter data"
 date: 2026-11-01
 tags: [demand-charge-interval-analyzer, energy, batteries]
-description: The demand-charge analyzer now dispatches a battery through your 15-minute readings, with inverter limit, usable kWh and round-trip loss, and prices a grid of sizes.
+description: The demand-charge analyzer now runs a battery through your 15-minute readings, with inverter limit and round-trip loss, and prices a grid of sizes.
 ---
 
 The old cap table in the demand-charge analyzer sized a battery from the single worst stretch above a cap. That ignores two things a quote should not: the battery has to recharge before the next spike, and it loses energy doing so.
