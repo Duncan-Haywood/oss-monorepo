@@ -2,7 +2,7 @@
 title: "Does auditing by the coder's own labels pay on African-language tweets?"
 date: 2026-11-01
 tags: [llm-coding-inference, statistics, audit]
-description: An informative coder (informedness 0.39) on NaijaSenti makes the audit rule choose coder cells in most draws, but the interval is only 0.6% narrower, so the earlier GoEmotions gains did not transfer.
+description: An informative coder (J 0.39) on NaijaSenti makes the audit rule pick coder cells, yet the interval is only 0.6% narrower; the GoEmotions gain did not transfer.
 ---
 
 The `llm-coding-inference` programme asks how many hand labels you need to put a valid interval on a prevalence estimated with an automated coder. On GoEmotions, splitting the audit by the coder's own positive/negative cells cut interval width by 15 to 25%. Does that carry over to a different corpus?
