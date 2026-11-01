@@ -9,7 +9,7 @@ paper was not opened in this session (host unreachable); the constants were type
 and checked line by line against an MIT-licensed public implementation
 (github.com/Albert-Gil/ship-propulsion-power-simulator, read, not copied). That is an
 agreement of two transcriptions (milestone 3d found they shared one error: the Fn < 0.4 wave term
-used the Fn > 0.55 exponent m4 where the published form uses m2; fixed here), not a check against the paper: see experiments/results_holtrop.txt.
+used the Fn > 0.55 exponent m4 where the 1984-style form uses m2; milestone 3e: that may be the 1982 form, so both are kept behind low_form, default m2), not a check against the paper: see experiments/results_holtrop.txt.
 Validity range stated by the authors: roughly L/B 3.9 to 14.9, Cp 0.55 to 0.85, Fn up to 0.45
 for full forms; ships of tens to hundreds of metres. Small-boat use is exactly what H3 tests.
 """
@@ -18,7 +18,7 @@ import math
 from .hull import G, cf_ittc57
 
 
-def hm_resistance(v, length, beam, draft, volume, cm, cwp, lcb_pct=0.0, c_stern=0.0, rho=1025.0, nu=1.1892e-6,
+def hm_resistance(v, length, beam, draft, volume, cm, cwp, lcb_pct=0.0, c_stern=0.0, rho=1025.0, nu=1.1892e-6, low_form="m2",
                   s=None, wave_scale=1.0):
     """Return a dict of components in newtons for one speed (m/s).
 
@@ -51,8 +51,10 @@ def hm_resistance(v, length, beam, draft, volume, cm, cwp, lcb_pct=0.0, c_stern=
     c15 = -1.69385   # valid for L^3/volume <= 512 (the standard three-way rule is not coded)
     w = volume * rho * G
 
-    def rw_a(f):   # low-speed branch uses m2 (the reference implementation computes m2 but uses m4: bug)
-        m2 = c15 * cp ** 2 * math.exp(-0.1 / f ** 2)
+    def rw_a(f):   # low-speed branch: low_form "m2" = c15 Cp^2 exp(-0.1/Fn^2) (1984-style, default);
+        # "m4" = c15 0.4 exp(-0.034/Fn^3.29), what two public implementations use below Fn 0.4 (milestone 3e)
+        m2 = (c15 * cp ** 2 * math.exp(-0.1 / f ** 2) if low_form == "m2"
+              else c15 * 0.4 * math.exp(-0.034 / f ** 3.29))
         return c1 * c2 * c5 * w * math.exp(m1 * f ** -0.9 + m2 * math.cos(lam / f ** 2))
 
     m4 = c15 * 0.4 * math.exp(-0.034 / fn ** 3.29)
