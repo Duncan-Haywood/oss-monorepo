@@ -200,3 +200,24 @@ test("the page's price-name help lists every price name the engine reads", () =>
   const missing = names.filter((n) => !page.includes(n));
   assert.deepEqual(missing, []);
 });
+
+test("deck lines: lumber order cost, footing bags and screw boxes tie to the deck layout; labor uses the typed per-sq-ft rate", async () => {
+  const { sampleDeck, layoutDeck } = await import("./deck.mjs");
+  const d = layoutDeck(sampleDeck());
+  const plan = { ...full({ deckConcreteBag: 6, deckScrewBox: 40, laborDeckSqFt: 15 }), deck: sampleDeck() };
+  const b = bud(plan);
+  const lum = b.lines.find((x) => x.section === "Deck" && x.item.startsWith("Deck lumber"));
+  const bags = b.lines.find((x) => x.item === "Footing concrete bags");
+  const box = b.lines.find((x) => x.item === "Deck screw boxes");
+  const lab = b.lines.find((x) => x.item === "Deck framing, decking and rails");
+  assert.ok(lum && bags && box && lab, "deck lines appear");
+  assert.ok(Math.abs(lum.amount - d.cost) <= 0.05, `${lum.amount} vs ${d.cost}`);
+  assert.equal(bags.qty, d.concrete.bags);
+  assert.ok(Math.abs(bags.amount - bags.qty * 6) <= 0.02);
+  assert.equal(box.qty, d.screwBoxes);
+  assert.equal(lab.qty, Math.round(d.area * 100) / 100);
+  assert.ok(Math.abs(lab.amount - lab.qty * 15) <= 0.02);
+  const none = bud({ ...plan, prices: {} });
+  assert.ok(!none.lines.some((x) => x.item === "Deck framing, decking and rails"));
+  assert.ok(!bud(full()).lines.some((x) => x.section === "Deck"));
+});
