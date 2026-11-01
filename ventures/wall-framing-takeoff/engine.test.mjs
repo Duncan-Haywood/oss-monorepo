@@ -828,3 +828,22 @@ test("takeoff returns an error naming the piece when a header is longer than eve
   assert.equal(r.ok, false);
   assert.match(r.errors.join(" "), /longer than the longest/);
 });
+
+test("horizontal sheets: every course joint is backed by joint blocks, also with staggered blocking rows and an opening", () => {
+  const plan = { ...tallPlan(240, 140, [{ kind: "window", label: "W", offset: 100, width: 36, height: 30, header: "2x10", headerHeight: 60 }]), blocking: { rows: 1, stagger: true } };
+  const r = takeoff(plan);
+  assert.ok(r.ok, JSON.stringify(r.errors));
+  const sheets = [{ label: "4x8", width: 48, length: 96, price: 1 }];
+  const s = sheathe({ ...plan, sheathing: { ...defaultSheathing(), orientation: "horizontal", sheets } }, r);
+  assert.ok(s.ok, JSON.stringify(s.errors));
+  const w = s.walls[0];
+  assert.deepEqual(w.check, []);
+  assert.ok(s.jointYs.length >= 1);
+  // staggered blocks sit 1.5 in off their row line, so none counts as backing a joint: all joint bays get their own block
+  for (const y of s.jointYs) {
+    const { blocks } = jointBlocking(r.walls[0], plan.walls[0].openings, plan, y);
+    assert.ok(blocks.length > 0);
+    assert.ok(blocks.every((b) => b.size === "2x4" && b.length >= 1));
+  }
+  assert.equal(nailerCuts(s).filter((c) => c.kind === "sheathing joint block").reduce((t, c) => t + c.qty, 0), w.jointBlocks.length);
+});
