@@ -32,15 +32,21 @@ rather than letting a `null` read as "still dark".
 Two rules decide everything else in this file:
 
 1. **Follow the law; go no stricter than it** (owner, 2026-10-20, in
-   [`prompts/goals.md`](../../prompts/goals.md)). Concretely:
+   [`prompts/goals.md`](../../prompts/goals.md); restated 2026-11-01: "use
+   gdpr and other privacy laws as the guideline, not an overly strict
+   self-imposed one"). The full table of what is allowed and what the law asks
+   for it is [`docs/legal/privacy-baseline.md`](../../docs/legal/privacy-baseline.md).
+   Concretely:
    - **Functional storage needs no permission.** A cookie or `localStorage`
      entry a feature needs (a setting, saved inputs, a referral code, a cart)
      is fine. The old blanket "no cookies" rule is gone.
    - **Anonymous aggregate counting is on by default.** Counting page loads or
      events, and which *kind* of site sent a visitor, stores nothing on the
-     device and nothing that identifies anyone, so it needs no consent. Keep
-     honouring `DNT`/`Sec-GPC` and the opt-out: it costs little and is
-     expected.
+     device and nothing that identifies anyone, so it needs no consent and no
+     opt-out. Honouring `DNT`/`Sec-GPC` for such counts is optional (neither
+     signal is a legal opt-out of anonymous first-party counting); GPC is
+     required only for anything that sells or shares data. Whatever the code
+     does, the copy says.
    - **Identifiers need the consent the law requires.** Anything that puts an
      ID on the device to recognise a returning browser (unique visitors,
      A/B buckets, cross-page funnels) needs prior consent from EU/UK visitors
@@ -78,16 +84,21 @@ and then within rule 1:
 
 - **Aggregate what you commit.** The server may count; what reaches
   `usage.yaml` or `site-visits.json` is a count, never a per-user record.
-- **Don't retain IPs or user agents** unless a feature needs them and the
-  privacy copy says so. A counter needs neither.
-- **No content.** Not the file they processed, not the text they typed, not
-  the URL they checked. The *fact* that the feature ran is the payload.
+- **Keep IPs and user agents only as long as a stated purpose needs them**
+  (security logs under legitimate interests, say), disclose it, and never
+  commit them. A counter needs neither, so it keeps neither.
+- **A count carries no content.** Not the file they processed, not the text
+  they typed, not the URL they checked: the *fact* that the feature ran is the
+  payload. (A server-side *feature* may process what a user submits when the
+  page says so; that is the product, not the counter.)
 - **Say what you do.** The privacy line describes what is counted and stored,
-  in plain words, and matches the code. Offer an off switch for counting and
-  honour `DNT`/`Sec-GPC`.
+  in plain words, and matches the code. An off switch and `DNT`/`Sec-GPC`
+  handling are optional for anonymous aggregates; a page that promises them
+  keeps the promise (`platform/privacy/` checks it).
 - **Prefer our own tooling** (owner, 2026-10-16, "Own the tooling") over a
-  vendor account. A vendor is not forbidden. If one is ever used, it goes
-  behind the consent the law requires, and the privacy copy names it.
+  vendor account. A vendor is not forbidden: a cookieless one needs no
+  consent, one that sets an identifier needs EU/UK consent, and the privacy
+  copy names either.
 - **Hosting the counter or a form on a service is fine** (owner, 2026-10-20:
   "obey the laws ... just have good and accurate tos and privacy policies").
   `platform/edge/` runs on Cloudflare's free plan. The copy a page shows is

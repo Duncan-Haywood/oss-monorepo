@@ -214,7 +214,14 @@ an identifier on the device (returning visitors, A/B buckets) is allowed with
 the consent the law requires where the visitor is (prior consent in the
 EU/UK under ePrivacy/PECR). What stays: the law itself (GDPR, ePrivacy, PECR,
 CCPA and the rest), honest privacy copy that says what a page actually does,
-and nothing personal in this public repository. Spec:
+and nothing personal in this public repository. Restated 2026-11-01: "update
+the privacy policies to not be so restrictive on myself. use gdpr and other
+privacy laws as the guideline, not an overly strict self-imposed one." So an
+off switch and Do Not Track / GPC handling are optional for anonymous
+aggregates (GPC stays required for anything that sells or shares data), and
+accounts, email sign-ups, server logs and cookieless analytics vendors are
+fine with a lawful basis and an accurate notice. Table of what is allowed and
+what the law asks: `docs/legal/privacy-baseline.md`. Spec:
 `portfolio/usage/README.md`.
 
 ## Direction: sales, marketing and business tools
