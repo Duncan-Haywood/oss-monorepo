@@ -2,7 +2,7 @@
 title: "How tight can a training progress check be before it flags honest workers?"
 date: 2026-11-01
 tags: [verifiable-training-mechanisms, research, incentives]
-description: Sweeping the threshold on a loss check for outsourced training: 1% above the best honest run flags no honest worker in a small sample and catches most stalling workers.
+description: Sweeping the threshold on a loss check for outsourced training: 1% above the best honest run flags no honest worker and catches most stalling ones.
 ---
 
 In the outsourced-training programme, a worker who submits no update for part of the run passes every norm check. The last step added a progress check: the verifier scores the submitted weights on its own batch every ten steps and flags a loss above R times the worst loss other honest seeds show. At R = 1.05 it flagged no honest worker and caught only 7 in 20 workers that stalled for 200 of 600 steps.
