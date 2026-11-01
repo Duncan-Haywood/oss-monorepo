@@ -2,7 +2,7 @@
 title: "Is a global-route estimate a fair stand-in for detail routing when the clock is relaxed?"
 date: 2026-11-01
 tags: [verified-dse, chip-design, openroad, sky130]
-description: Re-measuring 250 open-source SKY130 design points with real detail routing: global-route rankings agree with it at tau 0.81 to 0.90 on every design at a relaxed clock.
+description: Re-measuring 250 open-source SKY130 design points with real detail routing: global-route rankings agree at tau 0.81 to 0.90 on every design at a relaxed clock.
 ---
 
 The `verified-dse` programme ranks chip-flow candidates with cheap steps and checks them against a "routed" score from global route plus timing repair. The obvious worry is that global route is not the real thing. Yesterday's tight-clock check said it was mostly faithful. Today's run does the relaxed clock: five designs, 50 ABC pass sequences each, every point put through detailed routing and OpenRCX parasitic extraction (OpenROAD 26Q3, Yosys 0.70, SKY130 HD).
