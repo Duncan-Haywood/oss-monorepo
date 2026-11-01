@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01E5sJKjUrSBYkQao4pN5xf5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: read ./prompt.md and follow the instructions there",
+  "input_sha256": "f2d8c6470f61b3e050d0c0a8893c3b8623a29690722755209371e13aee4f6558",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T07:21:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12282",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "step 0 errors when security-alerts branch is missing (PR 12272 already fixes it)"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "flagship 1 next: every item needs real inputs, so a run has no clean slice; I closed a stale not-yet instead"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-01-horizontal-sheets-need-no-nailers.md"
+  ],
+  "goal": null,
+  "notes": "Small slice: test plus stale roadmap line. engine.test.mjs 53/53 pass locally (102 s). Venture preflight and CI not run here.",
+  "corrections": [],
+  "redteam": null
+}
