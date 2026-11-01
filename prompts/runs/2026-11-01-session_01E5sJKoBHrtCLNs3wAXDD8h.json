@@ -36,7 +36,10 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-11-01-a-bigger-hydraulic-pump-is-not-free.md; research/heavy-hydraulics/LOG.md milestone 3l",
+  "writeups": [
+    "docs/posts/2026-11-01-a-bigger-hydraulic-pump-is-not-free.md",
+    "research/heavy-hydraulics/LOG.md"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],

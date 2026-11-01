@@ -2,7 +2,7 @@
 title: "Does a bigger pump rescue the cheap excavator hydraulics?"
 date: 2026-11-01
 tags: [research, hydraulics, excavator, energy]
-description: A bigger fixed pump removes the open-centre excavator valve's slowdown, but costs enough shaft energy that load-sensing wins by more. A model result from the heavy-hydraulics programme, not a measurement.
+description: A bigger fixed pump removes the open-centre excavator valve slowdown but costs shaft energy, so load-sensing wins by more. A model result, not a measurement.
 ---
 
 The cheap way to build an excavator's hydraulics is an open-centre valve and a
