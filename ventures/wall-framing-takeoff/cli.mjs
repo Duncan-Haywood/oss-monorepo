@@ -12,6 +12,7 @@ import { layoutInsulation, insulationText } from "./insulation.mjs";
 import { layoutTrim, trimText } from "./trim.mjs";
 import { layoutSiding, sidingText } from "./siding.mjs";
 import { layoutEaves, eavesText } from "./eaves.mjs";
+import { layoutVentilation, ventilationText } from "./ventilation.mjs";
 import { layoutGutters, guttersText } from "./gutters.mjs";
 import { layoutDormer, layoutShedDormer, dormerText } from "./dormer.mjs";
 import { layoutFasteners, fastenerText } from "./fasteners.mjs";
@@ -62,6 +63,7 @@ Usage:
   node cli.mjs plan.json --stairs    add the plan's stairs (plan "stairs": one object or a list of {totalRise, tread, stringer, width, treadBoard, floorThickness, openingLength}): equal risers under the code limit, notch geometry, stringers and treads, the stairwell opening the headroom needs; the lumber joins the order
   node cli.mjs plan.json --roof      add the plan's gable roof, or hip roof with shape "hip" (rafters, ridge, sheathing, shingle and felt quantities); its lumber joins the order
   node cli.mjs plan.json --fasteners   count nails by connection (plan fasteners: studEndNails, plateSpacing, edgeSpacing, nailsPerBox, price; add --sheathing for sheathing nails)
+  node cli.mjs plan.json --ventilation  size attic vents (IRC R806 net free area, 1/150 or 1/300) and count the ridge vent and soffit vents (needs a roof; plan ventilation: ratio, atticSqFt, ridgeVent, upperShare, ridgeNfaPerFt, soffitUnitNfa, soffitUnitWidth, ridgePrice, soffitPrice)
   node cli.mjs plan.json --gutters    add gutters, downspouts, hangers, caps and elbows along the roof's eaves (needs a roof; plan gutters: gutterStock, downspoutStock, eaveHeight, hangerSpacing, maxRunFeet, sqFtPerDownspout, strapSpacing, waste, and a price for each part)
   node cli.mjs plan.json --dormer     frame a gable dormer from plan.dormer: width, eaveHeight, pitch, mainPitch (defaults to the roof pitch), spacing, studSize, rafterSize, valleySize, ridgeSize, window {width, height, sill}
   node cli.mjs plan.json --eaves       add soffit panels, fascia boards and J-channel under the roof overhangs (needs a roof; plan eaves: panelWidth, panelStock, fasciaStock, channelStock, waste, rakeSoffit, panelPrice, fasciaPrice, channelPrice)
@@ -238,6 +240,12 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     if (!eaves.ok) return { code: 1, out: `The eaves have problems:\n${eaves.errors.map((e) => `  - ${e}`).join("\n")}` };
     r.eaves = eaved = eaves;
   }
+  let vented = null;
+  if (r.ok && (flags.has("--ventilation") || plan.ventilation)) {
+    const vent = layoutVentilation(plan.ventilation || {}, roof);
+    if (!vent.ok) return { code: 1, out: `The attic ventilation has problems:\n${vent.errors.map((e) => `  - ${e}`).join("\n")}` };
+    r.ventilation = vented = vent;
+  }
   let guttered = null;
   if (r.ok && (flags.has("--gutters") || plan.gutters)) {
     const gutters = layoutGutters(plan.gutters || {}, roof);
@@ -255,7 +263,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (flags.has("--sheathing") || flags.has("--horizontal") || flags.has("--overhang") || rimLap > 0 || plan.sheathing) {
     const sheathing = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...(plan.sheathing || {}), ...(flags.has("--horizontal") ? { orientation: "horizontal" } : {}), ...(flags.has("--overhang") ? { overhang: true } : {}), ...(rimLap > 0 ? { rimLap } : {}) } }, r);
     const extra = nailerCuts(sheathing);
-    if (extra.length) { r = takeoff(plan, [...extra, ...shell()]); if (floor) r.floor = floor; if (deck) r.deck = deck; if (stairs.length) r.stairs = stairs; if (roof) r.roof = roof; if (foundation) r.foundation = foundation; if (drywall) r.drywall = drywall; if (insulation) r.insulation = insulation; if (trimmed) r.trim = trimmed; if (sided) r.siding = sided; if (eaved) r.eaves = eaved; if (guttered) r.gutters = guttered; if (dormered) r.dormer = dormered; } // nailers join the cut list and the lumber order
+    if (extra.length) { r = takeoff(plan, [...extra, ...shell()]); if (floor) r.floor = floor; if (deck) r.deck = deck; if (stairs.length) r.stairs = stairs; if (roof) r.roof = roof; if (foundation) r.foundation = foundation; if (drywall) r.drywall = drywall; if (insulation) r.insulation = insulation; if (trimmed) r.trim = trimmed; if (sided) r.siding = sided; if (eaved) r.eaves = eaved; if (vented) r.ventilation = vented; if (guttered) r.gutters = guttered; if (dormered) r.dormer = dormered; } // nailers join the cut list and the lumber order
     r.sheathing = sheathing;
   }
   if (r.ok && (flags.has("--fasteners") || plan.fasteners)) {
@@ -326,6 +334,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (r.trim) lines.push("", "TRIM", ...trimText(r.trim));
   if (r.siding) lines.push("", "SIDING", ...sidingText(r.siding));
   if (r.eaves) lines.push("", "SOFFIT AND FASCIA", ...eavesText(r.eaves));
+  if (r.ventilation) lines.push("", "ATTIC VENTILATION", ...ventilationText(r.ventilation));
   if (r.gutters) lines.push("", "GUTTERS AND DOWNSPOUTS", ...guttersText(r.gutters));
   if (r.dormer) lines.push("", "DORMER", ...dormerText(r.dormer));
   if (r.roof) lines.push("", "ROOF", ...roofText(r.roof));
