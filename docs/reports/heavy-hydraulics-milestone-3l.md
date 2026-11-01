@@ -1,0 +1,3 @@
+# heavy-hydraulics milestone 3l (2026-11-01)
+
+Priced 3k's larger open-centre pump: energy per cycle +14.1% (1.2 x) and +34.8% (1.5 x), cycle time -2.55%/-4.70%, break-even machine-hour value $7.67 to $11.84 depending on pump price slope. Prediction (energy rise < 5%) refuted; break-even < $50/h held. `experiments/pump_cost.py` is self-contained; the 0.8 x row is invalid because `cycle_energy` raises on demand above pump flow (3k used a pump-limit factor instead). Next: compare against a load-sensing pump; compensator. Not touched: the paper (`paper/`) and `check_numbers.py` do not yet carry 3k or 3l.
