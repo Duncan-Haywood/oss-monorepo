@@ -25,7 +25,7 @@ export function maxTreadSpan(thickness) { return thickness < 1.25 ? 12 : thickne
 export const RAIL_LIMITS = { guardHeight: 36, handrailMin: 34, handrailMax: 38, maxGap: 4, maxPostSpacing: 72, bottomGap: 4, maxBottomOpening: 6 };
 
 /** @typedef {{ sides?: number, handrail?: boolean, handrailHeight?: number, bracketSpacing?: number, balusterWidth?: number, railBoard?: string, postWidth?: number, limits?: Partial<typeof RAIL_LIMITS> }} Rail */
-/** @typedef {{ id?: string, rail?: Rail, totalRise: number, tread?: number, stringer?: string, width?: number, stringerSpacing?: number, treadThickness?: number, treadBoard?: string, treadGap?: number, nosing?: number, floorThickness?: number, openingLength?: number, openRisers?: boolean, riserBoard?: string, treadSpanMax?: number, limits?: Partial<typeof STAIR_LIMITS>, stringerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, thickness?: number }, treadCheck?: { point: number, Fb: number, E: number, deflLimit?: number } }} Stair */
+/** @typedef {{ id?: string, rail?: Rail, totalRise: number, tread?: number, stringer?: string, width?: number, stringerSpacing?: number, treadThickness?: number, treadBoard?: string, treadGap?: number, nosing?: number, floorThickness?: number, openingLength?: number, openRisers?: boolean, riserBoard?: string, treadSpanMax?: number, limits?: Partial<typeof STAIR_LIMITS>, stringerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, thickness?: number }, treadCheck?: { point: number, Fb: number, E: number, deflLimit?: number }, postCheck?: { point: number, Fb: number } }} Stair */
 
 export function sampleStair() {
   return { id: "Main stair", totalRise: 108, tread: 10, stringer: "2x12", width: 36, treadThickness: 1.5, treadBoard: "2x12", floorThickness: 11.25 + 0.75 + 0.5, nosing: 0.75 };
@@ -121,6 +121,7 @@ export function layoutStair(input, plan) {
     stringerStock: plan ? { size: s.stringer, length: Math.min(...plan.stock.filter((x) => x.size === s.stringer && x.length >= stringerLength - 1e-9).map((x) => x.length)), count: stringers } : null,
     stringerCheck: input.stringerCheck ? checkStringer({ stringer: { spacing: treadSpan, throat, count: stringers }, run }, input.stringerCheck) : null,
     treadCheck: input.treadCheck ? checkTread({ span: treadSpan, thickness: s.treadThickness, width: bw }, input.treadCheck) : null,
+    postCheck: input.postCheck && rail ? checkGuardPost({ width: rail.posts.width, depth: rail.posts.width, height: rail.guardHeight }, input.postCheck) : null,
     treadBoards, openRisers: !!s.openRisers, riserBoards: s.openRisers ? 0 : risers, riserStock: riserBoards, width: s.width,
     minOpening: Math.ceil(minOpening * 16) / 16, opening, rail, marks, sumRise, notes, limits: L, nosing: s.nosing,
   };
@@ -262,6 +263,28 @@ export function checkTread(t, c) {
   return { ok: warnings.length === 0, fb, delta, limit, M, Fb: c.Fb, point: c.point, warnings, errors: [] };
 }
 
+/**
+ * Guard post bending check (2026-11-01), on typed figures only. The model residential code asks a guard to resist a
+ * concentrated load (200 lb) applied at the top in any direction; the post is taken as a cantilever fixed at its
+ * attachment, so M = P h, about the weaker axis (S = d b^2 / 6, b the smaller face), fb = M / S against the typed
+ * allowable bending stress. This is the post's own bending only: the bolted or notched attachment to the stringer
+ * or rim usually governs and is not checked here. A hand check for a framer; the engineer of record's call governs.
+ * @param {{width:number, depth:number, height:number}} p  post faces and height from the attachment to the load (actual inches)
+ * @param {{point:number, Fb:number}} c
+ */
+export function checkGuardPost(p, c) {
+  const errors = [];
+  for (const [k, lo, hi] of [["point", 50, 2000], ["Fb", 10, 5000]]) {
+    if (c?.[k] == null || !(c[k] >= lo && c[k] <= hi)) errors.push(`postCheck.${k} must be typed, from ${lo} to ${hi} (${k === "point" ? "lb" : "psi"}); no default is shipped.`);
+  }
+  if (errors.length) return { ok: false, errors, warnings: [] };
+  const b = Math.min(p.width, p.depth), d = Math.max(p.width, p.depth);
+  const M = c.point * p.height, S = (d * b * b) / 6, fb = M / S;
+  const warnings = [];
+  if (fb > c.Fb) warnings.push(`Guard post bending stress ${fb.toFixed(0)} psi under ${c.point} lb at ${p.height} in exceeds the typed ${c.Fb} psi: use a larger post or a shorter guard.`);
+  return { ok: warnings.length === 0, fb, M, Fb: c.Fb, point: c.point, height: p.height, warnings, errors: [] };
+}
+
 export function stairText(l) {
   if (!l.ok) return l.errors.map((e) => `  - ${e}`);
   const out = [`${l.id}: ${formatLength(l.totalRise)} rise, ${l.risers} risers of ${formatInches(l.riser)}, ${l.treads} treads of ${formatInches(l.tread)} (${l.angle.toFixed(1)} deg, 2R+T ${l.comfort.toFixed(2)} in)`];
@@ -283,6 +306,11 @@ export function stairText(l) {
   if (l.treadCheck) {
     const k = l.treadCheck;
     if (!k.errors.length) out.push(`  Tread check (${formatInches(l.stringer.spacing)} span, ${k.point} lb at midspan): bending ${k.fb.toFixed(0)} of ${k.Fb} psi, deflection ${k.delta.toFixed(3)} of ${k.limit.toFixed(3)} in${k.ok ? "" : " (FAILS)"}`);
+    for (const w of [...k.errors, ...k.warnings]) out.push(`  Note: ${w}`);
+  }
+  if (l.postCheck) {
+    const k = l.postCheck;
+    if (!k.errors.length) out.push(`  Guard post check (${k.point} lb at ${formatInches(k.height)}): bending ${k.fb.toFixed(0)} of ${k.Fb} psi in the post itself; its bolted attachment is not checked${k.ok ? "" : " (FAILS)"}`);
     for (const w of [...k.errors, ...k.warnings]) out.push(`  Note: ${w}`);
   }
   for (const n of l.notes) out.push(`  Note: ${n}`);
