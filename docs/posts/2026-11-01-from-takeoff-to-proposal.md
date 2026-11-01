@@ -2,7 +2,7 @@
 title: "From a framing takeoff to a proposal a customer can read"
 date: 2026-11-01
 tags: [wall-framing-takeoff, construction, estimating]
-description: The framing takeoff can now turn its priced budget into a customer letter with section prices and no visible margin, and it refuses to issue one while any line is unpriced.
+description: The framing takeoff turns its priced budget into a customer letter with no visible margin, and refuses to issue one while any line is unpriced.
 ---
 
 A takeoff is for the builder. The customer wants a price by section, what is in and what is not, and how long the number holds. `node cli.mjs plan.json --proposal` now writes that from the same budget.

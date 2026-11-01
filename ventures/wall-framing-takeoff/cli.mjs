@@ -23,7 +23,7 @@ import { drawingSetHtml } from "./drawings.mjs";
 import { drawingSetPdf } from "./pdf.mjs";
 import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
 import { budget, budgetText, budgetCsv } from "./budget.mjs";
-import { proposal, proposalText } from "./proposal.mjs";
+import { proposal, proposalText } from "./bidletter.mjs";
 import { budgetDiff, diffText } from "./compare.mjs";
 import { levelBids, levelText } from "./bidlevel.mjs";
 import { scheduleRisk, riskText } from "./risk.mjs";

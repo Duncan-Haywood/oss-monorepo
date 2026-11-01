@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { proposal, proposalText } from "./proposal.mjs";
+import { proposal, proposalText } from "./bidletter.mjs";
 
 const mk = (over = {}) => ({
   lines: [
