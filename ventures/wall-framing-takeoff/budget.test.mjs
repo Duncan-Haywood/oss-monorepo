@@ -282,3 +282,17 @@ test("stair balusters, guard posts and handrail brackets are priced from the rai
   assert.ok(Math.abs(hr.amount - hr.qty * 5) <= 0.02);
   assert.ok(!bud(full({ stairBaluster: 4 })).lines.some((x) => x.item === "Stair balusters"));
 });
+
+test("dormer framing, sheathing and labor are budgeted from typed prices", () => {
+  const plan = { ...full({ dormerMember: 10, dormerSheet: 40, laborDormerSqFt: 5 }), dormer: { width: 96, eaveHeight: 48, pitch: 8, mainPitch: 12 } };
+  const b = bud(plan);
+  const parts = b.lines.find((l) => l.item.startsWith("Dormer framing members"));
+  const sh = b.lines.find((l) => l.item.startsWith("Dormer roof"));
+  const lab = b.lines.find((l) => l.item === "Dormer framing and sheathing");
+  assert.ok(parts && sh && lab, "all three dormer lines present");
+  assert.equal(parts.amount, Math.round(parts.qty * 10 * 100) / 100);
+  assert.equal(sh.amount, sh.qty * 40);
+  assert.equal(lab.amount, Math.round(lab.qty * 5 * 100) / 100);
+  const none = bud({ ...plan, prices: {} });
+  assert.ok(none.unpriced.some((u) => u.startsWith("Dormer roof")), "unpriced, not guessed");
+});

@@ -10,7 +10,7 @@
 // Plan `prices` (all optional, dollars): { wallSheet, floorSheet, roofSheet,
 // truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle,
 // starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, drywallSheet, baseboard, casing (price per board), sidingBoard, sidingStarter, headFlashing (price per piece), openingTape (price per roll), houseWrapRoll, cornerBoard, soffitPanel, fasciaBoard, jChannel, insulationBag, atticFillBag,
-// vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, drywallScrewThousand (per 1,000 screws), drywallTapeRoll, drywallCompoundPail, cornerBeadStick, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), laborSidingSqFt (siding and house wrap, per sq ft of wall net of openings), laborTrimFoot (baseboard, shoe and casing, per linear foot), laborEavesFoot (fascia run, eave plus rake, per linear foot; soffit and J-channel included), laborGutterFoot (gutter run, per linear foot; downspouts included), laborWallSheet (wall sheathing, per sheet hung), stairConnector (top connector or foot anchor, each), stairRiserBoard (solid riser board, when the stair has `riserBoard`), stairBaluster, stairRailPost, handrailBracket (each; stairs with a `rail`), handrailFoot (per linear foot of handrail run), laborDeckSqFt (deck framing, decking and rails, per sq ft of deck), deckConcreteBag, deckScrewBox, laborStairRiser (stairs, per riser, both flights of a landing stair; stringers, treads and risers set), laborHoldDown (per hold-down or plate strap set, each), tax (fraction on materials), contingency (fraction) }.
+// vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, drywallScrewThousand (per 1,000 screws), drywallTapeRoll, drywallCompoundPail, cornerBeadStick, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), laborSidingSqFt (siding and house wrap, per sq ft of wall net of openings), laborTrimFoot (baseboard, shoe and casing, per linear foot), laborEavesFoot (fascia run, eave plus rake, per linear foot; soffit and J-channel included), laborGutterFoot (gutter run, per linear foot; downspouts included), laborWallSheet (wall sheathing, per sheet hung), stairConnector (top connector or foot anchor, each), stairRiserBoard (solid riser board, when the stair has `riserBoard`), stairBaluster, stairRailPost, handrailBracket (each; stairs with a `rail`), handrailFoot (per linear foot of handrail run), laborDeckSqFt (deck framing, decking and rails, per sq ft of deck), deckConcreteBag, deckScrewBox, laborStairRiser (stairs, per riser, both flights of a landing stair; stringers, treads and risers set), dormerMember (each framing piece, average), dormerSheet (per sheet), laborDormerSqFt (dormer roof plus cheek walls, per sq ft), laborHoldDown (per hold-down or plate strap set, each), tax (fraction on materials), contingency (fraction) }.
 // nailBox falls back to fasteners.price; insulationBag falls back to the plan's insulation.price; atticFillBag to insulation.attic.price.
 // Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
 // (`sheathing.summary.cost`) unless `wallSheet` is typed.
@@ -105,6 +105,13 @@ export function budget(result, prices = {}) {
     if (gu.outsideCorners) add("Exterior", "Gutter outside corners", gu.outsideCorners, "each", P("gutterCorner"), "hip roof");
     add("Exterior", "Downspout straps", gu.straps, "each", P("downspoutStrap"), "one per strap spacing of drop");
   }
+  const dm = result.dormer;
+  if (dm?.ok) {
+    const members = dm.parts.reduce((/** @type {number} */ t, /** @type {any} */ x) => t + x.count, 0);
+    add("Dormer", "Dormer framing members (rafters, studs, headers; each cut piece)", members, "pieces", P("dormerMember"), "dormer.parts counts; the price is one average per piece, since dormer lumber is not in the cutting-stock order");
+    const sheets = Math.ceil((dm.areas.roofSqFt + dm.areas.wallSqFt) * 1.1 / 32 - 1e-9);
+    add("Dormer", "Dormer roof and cheek-wall sheathing", sheets, "sheets", P("dormerSheet"), `${dm.areas.roofSqFt} sq ft roof + ${dm.areas.wallSqFt} sq ft walls, 10% waste, 4x8 sheets`);
+  }
   const fa = result.fasteners;
   if (fa?.ok && fa.boxes != null) add("Fasteners", "Framing nails (boxes)", fa.boxes, "boxes", P("nailBox") ?? fa.price, `${fa.order} nails incl. ${(100 * fa.waste).toFixed(0)}% waste, ${fa.nailsPerBox} per box`);
   if (fa?.ok && fa.holdDowns?.count) add("Fasteners", "Hold-downs", fa.holdDowns.count, "each", P("holdDown") ?? fa.holdDowns.price, `${fa.holdDowns.wallEnds} at wall ends, ${fa.holdDowns.openingSides} beside openings`);
@@ -160,6 +167,7 @@ export function budget(result, prices = {}) {
   if (laborTyped && stairRisers > 0) add("Labor", "Stair building and installation", stairRisers, "risers", P("laborStairRiser"), "sum of stairs risers (each flight of a landing stair) x typed laborStairRiser");
   const hardware = fa?.ok ? (fa.holdDowns?.count || 0) + (fa.plateStraps?.count || 0) : 0;
   if (laborTyped && hardware > 0) add("Labor", "Hold-down and plate strap installation", hardware, "each", P("laborHoldDown"), "fasteners.holdDowns.count + plateStraps.count x typed laborHoldDown");
+  if (laborTyped && dm?.ok) add("Labor", "Dormer framing and sheathing", Math.round((dm.areas.roofSqFt + dm.areas.wallSqFt) * 10) / 10, "sq ft", P("laborDormerSqFt"), "dormer roof + wall areas x typed laborDormerSqFt");
   const insBags = ins?.ok ? (ins.bags || 0) + (ins.rim?.bags || 0) + (ins.attic?.bags || 0) : 0;
   if (laborTyped && insBags > 0) add("Labor", "Insulation installation", insBags, "bags", P("laborInsulationBag"), "wall + rim + attic bags x typed laborInsulationBag");
 
