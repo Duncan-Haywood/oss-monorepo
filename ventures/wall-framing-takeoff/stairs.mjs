@@ -25,7 +25,7 @@ export function maxTreadSpan(thickness) { return thickness < 1.25 ? 12 : thickne
 export const RAIL_LIMITS = { guardHeight: 36, handrailMin: 34, handrailMax: 38, maxGap: 4, maxPostSpacing: 72, bottomGap: 4, maxBottomOpening: 6 };
 
 /** @typedef {{ sides?: number, handrail?: boolean, handrailHeight?: number, bracketSpacing?: number, balusterWidth?: number, railBoard?: string, postWidth?: number, limits?: Partial<typeof RAIL_LIMITS> }} Rail */
-/** @typedef {{ id?: string, rail?: Rail, totalRise: number, tread?: number, stringer?: string, width?: number, stringerSpacing?: number, treadThickness?: number, treadBoard?: string, treadGap?: number, nosing?: number, floorThickness?: number, openingLength?: number, openRisers?: boolean, riserBoard?: string, treadSpanMax?: number, limits?: Partial<typeof STAIR_LIMITS>, stringerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, thickness?: number } }} Stair */
+/** @typedef {{ id?: string, rail?: Rail, totalRise: number, tread?: number, stringer?: string, width?: number, stringerSpacing?: number, treadThickness?: number, treadBoard?: string, treadGap?: number, nosing?: number, floorThickness?: number, openingLength?: number, openRisers?: boolean, riserBoard?: string, treadSpanMax?: number, limits?: Partial<typeof STAIR_LIMITS>, stringerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, thickness?: number }, treadCheck?: { point: number, Fb: number, E: number, deflLimit?: number } }} Stair */
 
 export function sampleStair() {
   return { id: "Main stair", totalRise: 108, tread: 10, stringer: "2x12", width: 36, treadThickness: 1.5, treadBoard: "2x12", floorThickness: 11.25 + 0.75 + 0.5, nosing: 0.75 };
@@ -120,6 +120,7 @@ export function layoutStair(input, plan) {
     // Stock (2026-10-30): the shortest listed board that holds one stringer, for the framer's buy list (null with no plan).
     stringerStock: plan ? { size: s.stringer, length: Math.min(...plan.stock.filter((x) => x.size === s.stringer && x.length >= stringerLength - 1e-9).map((x) => x.length)), count: stringers } : null,
     stringerCheck: input.stringerCheck ? checkStringer({ stringer: { spacing: treadSpan, throat, count: stringers }, run }, input.stringerCheck) : null,
+    treadCheck: input.treadCheck ? checkTread({ span: treadSpan, thickness: s.treadThickness, width: bw }, input.treadCheck) : null,
     treadBoards, openRisers: !!s.openRisers, riserBoards: s.openRisers ? 0 : risers, riserStock: riserBoards, width: s.width,
     minOpening: Math.ceil(minOpening * 16) / 16, opening, rail, marks, sumRise, notes, limits: L, nosing: s.nosing,
   };
@@ -235,6 +236,32 @@ export function checkStringer(l, c) {
   return { ok: warnings.length === 0, fb, fv, delta, limit, Fb: c.Fb, Fv: c.Fv, M, V, reaction: V, totalReaction, totalReactionLive, throat: d, warnings, errors: [] };
 }
 
+/**
+ * Tread board point-load check (2026-11-01), on typed figures only. The model residential code asks a stair tread
+ * to carry a concentrated load (300 lb on a small area at midspan) within a deflection limit; the load, the
+ * allowable bending stress and E are typed (no values shipped). One board is assumed to take the whole load
+ * (conservative: no sharing with the neighbouring board), simply supported between two stringers:
+ * M = P L / 4, fb = M / S, delta = P L^3 / (48 E I), limit L/`deflLimit` (240 unless typed). A hand check for a
+ * framer; the engineer of record's call governs.
+ * @param {{span:number, thickness:number, width:number}} t  span between stringers, board thickness and width (actual inches)
+ * @param {{point:number, Fb:number, E:number, deflLimit?:number}} c
+ */
+export function checkTread(t, c) {
+  const errors = [];
+  for (const [k, lo, hi] of [["point", 50, 2000], ["Fb", 10, 5000], ["E", 200000, 3000000]]) {
+    if (c?.[k] == null || !(c[k] >= lo && c[k] <= hi)) errors.push(`treadCheck.${k} must be typed, from ${lo} to ${hi} (${k === "point" ? "lb" : "psi"}); no default is shipped.`);
+  }
+  if (c?.deflLimit != null && !(c.deflLimit >= 120 && c.deflLimit <= 960)) errors.push("treadCheck.deflLimit is the L/ ratio, from 120 to 960.");
+  if (errors.length) return { ok: false, errors, warnings: [] };
+  const { span: L, thickness: b0, width: w0 } = t;
+  const M = (c.point * L) / 4, S = (w0 * b0 * b0) / 6, I = (w0 * b0 ** 3) / 12;
+  const fb = M / S, delta = (c.point * L ** 3) / (48 * c.E * I), limit = L / (c.deflLimit ?? 240);
+  const warnings = [];
+  if (fb > c.Fb) warnings.push(`Tread bending stress ${fb.toFixed(0)} psi under ${c.point} lb exceeds the typed ${c.Fb} psi: use thicker treads or a closer stringer spacing.`);
+  if (delta > limit) warnings.push(`Tread deflection ${delta.toFixed(3)} in under ${c.point} lb exceeds span/${c.deflLimit ?? 240} (${limit.toFixed(3)} in).`);
+  return { ok: warnings.length === 0, fb, delta, limit, M, Fb: c.Fb, point: c.point, warnings, errors: [] };
+}
+
 export function stairText(l) {
   if (!l.ok) return l.errors.map((e) => `  - ${e}`);
   const out = [`${l.id}: ${formatLength(l.totalRise)} rise, ${l.risers} risers of ${formatInches(l.riser)}, ${l.treads} treads of ${formatInches(l.tread)} (${l.angle.toFixed(1)} deg, 2R+T ${l.comfort.toFixed(2)} in)`];
@@ -251,6 +278,11 @@ export function stairText(l) {
   if (l.stringerCheck) {
     const k = l.stringerCheck;
     if (!k.errors.length) out.push(`  Stringer check (${formatInches(k.throat)} throat): bending ${k.fb.toFixed(0)} of ${k.Fb} psi, shear ${k.fv.toFixed(0)} of ${k.Fv} psi, deflection ${k.delta.toFixed(2)} of ${k.limit.toFixed(2)} in, end reaction ${k.reaction.toFixed(0)} lb each${k.totalReaction ? `, ${k.totalReaction.toFixed(0)} lb (${k.totalReactionLive.toFixed(0)} live) on the header the flight hangs from` : ""}${k.ok ? "" : " (FAILS)"}`);
+    for (const w of [...k.errors, ...k.warnings]) out.push(`  Note: ${w}`);
+  }
+  if (l.treadCheck) {
+    const k = l.treadCheck;
+    if (!k.errors.length) out.push(`  Tread check (${formatInches(l.stringer.spacing)} span, ${k.point} lb at midspan): bending ${k.fb.toFixed(0)} of ${k.Fb} psi, deflection ${k.delta.toFixed(3)} of ${k.limit.toFixed(3)} in${k.ok ? "" : " (FAILS)"}`);
     for (const w of [...k.errors, ...k.warnings]) out.push(`  Note: ${w}`);
   }
   for (const n of l.notes) out.push(`  Note: ${n}`);
