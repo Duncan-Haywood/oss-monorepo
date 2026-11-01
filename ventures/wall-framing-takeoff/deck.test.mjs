@@ -165,3 +165,16 @@ test("postCheck: a tall 4x4 under a heavy load fails, bad figures are refused", 
   const bad = layoutDeck({ ...sampleDeck(), postCheck: { deadPsf: 10, livePsf: 40, fc: -1, emin: 510000 } });
   assert.equal(bad.postCheck.ok, false);
 });
+
+test("postCheck soilBearing: footing diameter from the worst post load over typed psf", () => {
+  const l = layoutDeck({ ...sampleDeck(), footing: { diameter: 18, depth: 42 }, postCheck: { deadPsf: 10, livePsf: 40, fc: 975, emin: 510000, soilBearing: 1500 } });
+  assert.ok(l.ok && l.postCheck.ok);
+  const f = l.postCheck.footing, load = l.postCheck.worstLoad;
+  assert.ok(Math.abs(f.requiredDiameter - 24 * Math.sqrt(load / 1500 / Math.PI)) < 1e-9);
+  assert.ok(Math.abs(f.capacity - 1500 * Math.PI * 0.75 ** 2) < 1e-6); // 18 in round = 1.767 sq ft x 1500 = 2651 lb
+  assert.equal(f.passes, load <= f.capacity);
+  const weak = layoutDeck({ ...sampleDeck(), footing: { diameter: 12, depth: 42 }, postCheck: { deadPsf: 10, livePsf: 40, fc: 975, emin: 510000, soilBearing: 500 } });
+  assert.equal(weak.postCheck.footing.passes, false);
+  assert.match(deckText(weak).join("\n"), /Footing on 500 psf soil/);
+  assert.equal(layoutDeck({ ...sampleDeck(), postCheck: { deadPsf: 10, livePsf: 40, fc: 975, emin: 510000, soilBearing: 5 } }).postCheck.ok, false);
+});
