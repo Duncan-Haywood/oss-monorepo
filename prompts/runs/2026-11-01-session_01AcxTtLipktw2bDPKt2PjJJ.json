@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12201",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,19 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "review track drawn but an open 'prompts: review 2026-10-31' PR exists; re-routed with --skip-review as instructed"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Small run: wait_for.py campaign 7/8 caught; one gap closed. No blog post: tiny test-only change.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -139,9 +144,9 @@
             "line_text": "    print(\"\\n\".join(lines[-15:]))",
             "caught": false,
             "seconds": 0.1,
-            "triage": null,
+            "triage": "gap",
             "caught_after_fix": true,
-            "note": ""
+            "note": "no test checked the 15-line tail; added test_main_prints_only_last_15_lines"
           },
           {
             "file": "platform/ci/wait_for.py",
