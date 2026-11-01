@@ -245,3 +245,20 @@ test("stair connectors and solid risers are priced; stairs labor is counted once
   assert.ok(b.lines.some((x) => x.item === "Solid riser boards" && x.amount > 0));
   assert.equal(b.lines.filter((x) => x.section === "Labor" && x.unit === "risers").length, 1);
 });
+
+test("stair balusters, guard posts and handrail brackets are priced from the rail layout", () => {
+  const stairs = [{ totalRise: 108, tread: 10, stringer: "2x12", width: 36, rail: { sides: 1 } }];
+  const plan = { ...full({ stairBaluster: 4, stairRailPost: 25, handrailBracket: 10 }), stairs };
+  const b = bud(plan);
+  const out = JSON.parse(run(plan, "--sheathing", "--json").out);
+  const fl = out.stairs.flatMap((x) => x.flights || [x]);
+  const n = (f) => fl.reduce((t, x) => t + f(x), 0);
+  const bal = b.lines.find((x) => x.item === "Stair balusters");
+  const post = b.lines.find((x) => x.item === "Stair guard posts");
+  const brk = b.lines.find((x) => x.item === "Handrail wall brackets");
+  assert.equal(bal.qty, n((x) => x.rail.balusters.count));
+  assert.equal(post.qty, n((x) => x.rail.posts.count));
+  assert.equal(brk.qty, n((x) => x.rail.handrail.brackets));
+  assert.ok(Math.abs(bal.amount - bal.qty * 4) <= 0.02 && bal.qty > 0);
+  assert.ok(!bud(full({ stairBaluster: 4 })).lines.some((x) => x.item === "Stair balusters"));
+});
