@@ -1,5 +1,6 @@
 ---
 title: "Can you certify a robot policy from a simulator by assuming its error is small? Only if you already know the answer"
+seo_title: "Can you certify a robot policy by assuming small simulator error?"
 date: 2026-10-25
 description: "Quantile and mean bounds on simulator error, on 21 MuJoCo pendulum pairs, beat real-only bounds at 30 trials, not 120; the mean bound wins by assuming it."
 tags: [research, robotics, sim2real, statistics]

@@ -1,5 +1,6 @@
 ---
 title: "We fed AI Bookkeeper bank files from another project's test suite. It read all of them."
+seo_title: "AI Bookkeeper read every bank file from another project's tests"
 date: 2026-10-25
 description: "Four bank-shaped files from beangulp's tests, a Chase-style CSV and two OFX downloads among them, imported cleanly into AI Bookkeeper with no fault to fix."
 tags: [ai-bookkeeper, evaluation, bank-import]

@@ -1,5 +1,6 @@
 ---
 title: "Plain-word payees: a bookkeeper that knew Safeway but not 'Grocery Store'"
+seo_title: "Plain-word payees: a bookkeeper that knew Safeway, not 'Grocery Store'"
 date: 2026-10-25
 description: "Another open-source finance app's import fixture exposed a gap in ai-bookkeeper's built-in keywords: generic payee words."
 tags: [ai-bookkeeper, bookkeeping, evaluation]

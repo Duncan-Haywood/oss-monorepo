@@ -1,5 +1,6 @@
 ---
 title: "Seven Amazon settlement lines our bookkeeper filed under the wrong heading"
+seo_title: "Seven Amazon settlement lines our bookkeeper misfiled"
 date: 2026-10-25
 description: "Checking ai-bookkeeper's Amazon payout reader against Amazon's own API model found seven charge and adjustment names booked as sales or fees by mistake."
 tags: [ai-bookkeeper, accounting, amazon]

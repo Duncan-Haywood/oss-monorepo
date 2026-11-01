@@ -1,5 +1,6 @@
 ---
 title: "How likely is your build schedule to finish on time? A Monte Carlo for the framing schedule"
+seo_title: "How likely is your build schedule to finish on time?"
 date: 2026-10-31
 tags: [construction, scheduling, wall-framing-takeoff]
 description: "A Monte Carlo over the wall-framing schedule gives P50, P80 and P90 finish dates and a criticality index from ranges you type."

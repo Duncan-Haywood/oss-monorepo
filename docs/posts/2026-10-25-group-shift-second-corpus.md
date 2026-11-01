@@ -1,5 +1,6 @@
 ---
 title: "Audit-mix shift bites less when the coder's error is flat across groups"
+seo_title: "Audit-mix shift bites less when coder error is flat across groups"
 date: 2026-10-25
 description: "A second real corpus for llm-coding-inference: GoEmotions by subreddit type shows pooled prediction-powered intervals mostly hold, with one 91% cell."
 tags: [llm-coding-inference, research, prediction-powered-inference]

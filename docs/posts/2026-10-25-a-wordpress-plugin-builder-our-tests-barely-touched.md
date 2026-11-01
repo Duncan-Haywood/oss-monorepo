@@ -1,5 +1,6 @@
 ---
 title: "We broke our own WordPress plugin builder 8 ways and the tests noticed 2"
+seo_title: "We broke our WordPress plugin builder 8 ways; tests caught 2"
 date: 2026-10-25
 description: "A red-team run seeded faults into five CI and distribution scripts. Catch rate was 76%, lowest on the WordPress embed builder (2 of 8)."
 tags: [testing, redteam, wordpress]
