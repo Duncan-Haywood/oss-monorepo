@@ -1,0 +1,188 @@
+{
+ "seeds": 16,
+ "N": 10,
+ "honest": {
+  "K3_R1.0": {
+   "eval_point_rate": 0.17286458333333335,
+   "job_rate": 0.58125,
+   "n_sets": 320
+  },
+  "K3_R1.005": {
+   "eval_point_rate": 0.07203125,
+   "job_rate": 0.403125,
+   "n_sets": 320
+  },
+  "K3_R1.01": {
+   "eval_point_rate": 0.017187499999999998,
+   "job_rate": 0.21875,
+   "n_sets": 320
+  },
+  "K3_R1.02": {
+   "eval_point_rate": 0.0007291666666666667,
+   "job_rate": 0.04375,
+   "n_sets": 320
+  },
+  "K3_R1.03": {
+   "eval_point_rate": 0.0,
+   "job_rate": 0.0,
+   "n_sets": 320
+  },
+  "K3_R1.05": {
+   "eval_point_rate": 0.0,
+   "job_rate": 0.0,
+   "n_sets": 320
+  },
+  "K7_R1.0": {
+   "eval_point_rate": 0.09145833333333334,
+   "job_rate": 0.309375,
+   "n_sets": 320
+  },
+  "K7_R1.005": {
+   "eval_point_rate": 0.015416666666666667,
+   "job_rate": 0.1625,
+   "n_sets": 320
+  },
+  "K7_R1.01": {
+   "eval_point_rate": 0.0018229166666666667,
+   "job_rate": 0.0875,
+   "n_sets": 320
+  },
+  "K7_R1.02": {
+   "eval_point_rate": 0.0,
+   "job_rate": 0.0,
+   "n_sets": 320
+  },
+  "K7_R1.03": {
+   "eval_point_rate": 0.0,
+   "job_rate": 0.0,
+   "n_sets": 320
+  },
+  "K7_R1.05": {
+   "eval_point_rate": 0.0,
+   "job_rate": 0.0,
+   "n_sets": 320
+  },
+  "K15_R1.0": {
+   "eval_point_rate": 0.04479166666666667,
+   "job_rate": 0.1875,
+   "n_sets": 320
+  },
+  "K15_R1.005": {
+   "eval_point_rate": 0.0010416666666666669,
+   "job_rate": 0.0625,
+   "n_sets": 320
+  },
+  "K15_R1.01": {
+   "eval_point_rate": 0.0,
+   "job_rate": 0.0,
+   "n_sets": 320
+  },
+  "K15_R1.02": {
+   "eval_point_rate": 0.0,
+   "job_rate": 0.0,
+   "n_sets": 320
+  },
+  "K15_R1.03": {
+   "eval_point_rate": 0.0,
+   "job_rate": 0.0,
+   "n_sets": 320
+  },
+  "K15_R1.05": {
+   "eval_point_rate": 0.0,
+   "job_rate": 0.0,
+   "n_sets": 320
+  }
+ },
+ "stall": {
+  "K3_R1.0": {
+   "flagged": 30,
+   "harmful_unflagged": 2,
+   "n": 32
+  },
+  "K3_R1.005": {
+   "flagged": 27,
+   "harmful_unflagged": 5,
+   "n": 32
+  },
+  "K3_R1.01": {
+   "flagged": 24,
+   "harmful_unflagged": 8,
+   "n": 32
+  },
+  "K3_R1.02": {
+   "flagged": 19,
+   "harmful_unflagged": 13,
+   "n": 32
+  },
+  "K3_R1.03": {
+   "flagged": 14,
+   "harmful_unflagged": 18,
+   "n": 32
+  },
+  "K3_R1.05": {
+   "flagged": 10,
+   "harmful_unflagged": 22,
+   "n": 32
+  },
+  "K7_R1.0": {
+   "flagged": 28,
+   "harmful_unflagged": 4,
+   "n": 32
+  },
+  "K7_R1.005": {
+   "flagged": 26,
+   "harmful_unflagged": 6,
+   "n": 32
+  },
+  "K7_R1.01": {
+   "flagged": 20,
+   "harmful_unflagged": 12,
+   "n": 32
+  },
+  "K7_R1.02": {
+   "flagged": 16,
+   "harmful_unflagged": 16,
+   "n": 32
+  },
+  "K7_R1.03": {
+   "flagged": 13,
+   "harmful_unflagged": 19,
+   "n": 32
+  },
+  "K7_R1.05": {
+   "flagged": 6,
+   "harmful_unflagged": 26,
+   "n": 32
+  },
+  "K15_R1.0": {
+   "flagged": 28,
+   "harmful_unflagged": 4,
+   "n": 32
+  },
+  "K15_R1.005": {
+   "flagged": 24,
+   "harmful_unflagged": 8,
+   "n": 32
+  },
+  "K15_R1.01": {
+   "flagged": 20,
+   "harmful_unflagged": 12,
+   "n": 32
+  },
+  "K15_R1.02": {
+   "flagged": 16,
+   "harmful_unflagged": 16,
+   "n": 32
+  },
+  "K15_R1.03": {
+   "flagged": 13,
+   "harmful_unflagged": 19,
+   "n": 32
+  },
+  "K15_R1.05": {
+   "flagged": 6,
+   "harmful_unflagged": 26,
+   "n": 32
+  }
+ }
+}
