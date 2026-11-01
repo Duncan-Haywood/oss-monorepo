@@ -45,6 +45,8 @@ See [`experiments/results.txt`](experiments/results.txt) and the log. Swept: flo
 pressure spread, pump size, load-sensing margin (14 to 30 bar), spool drop, metering drop,
 pump efficiency (0.75 to 0.92). None is sourced yet.
 
+**Milestone 5c, the electric rung (preliminary).** Against a vendor runtime claim (Volvo ECR25 Electric: 20 kWh for up to 4 h, a 5 kW mean draw; [product page](https://www.volvoce.com/europe/en/products/electric-machines/ecr25-electric/)), the modelled duty cycle (load factor 0.346) needs only 2.5 to 4.3 kW at the battery for a chain efficiency of 0.80 to 0.92, so 20 kWh would last 4.7 to 8.0 h. The model sits 1.2 to 2x below the vendor's mean draw; what it omits (travel, auxiliaries, heavier duty) or vendor conservatism cannot be separated with this data. The circuit ranking is unchanged by electrification because the chain efficiency is common to both circuits. Table: [`experiments/electric_rung_results.txt`](experiments/electric_rung_results.txt); detail in [`LOG.md`](LOG.md).
+
 ## Limitations and next steps
 
 Illustrative cycle written from memory; no dynamics, leakage, line losses or energy recovery;
