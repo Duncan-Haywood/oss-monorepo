@@ -1676,6 +1676,51 @@ export function coverOptions(staff, slots, roster, slotIndex, options = {}) {
   return { slot, current: current >= 0 ? staff[current].name : null, fits, blocked };
 }
 
+// Least-disruption cover: `slotIndex` must change hands (a call-out, or an open shift) and `coverOptions` found nobody
+// who is free. Search chains of hand-overs, shortest first: someone takes the shift and gives up one of theirs, which a
+// third person takes (and so on), up to `maxMoves` shifts changing hands in all. Every person's list is re-checked
+// against every hard rule after each hand-over; people who are not in the chain keep their shifts. Fewest shifts moved
+// first, then lowest payroll change. Searched exhaustively inside `maxMoves`, nothing claimed beyond it.
+export function coverChain(staff, slots, roster, slotIndex, options = {}, { maxMoves = 3, limit = 10 } = {}) {
+  if (!roster || !roster.owner || !slots[slotIndex]) return { error: "Build a roster first." };
+  const ctx = buildContext(staff, slots, { ...(roster.options || {}), ...options });
+  const owner0 = roster.owner;
+  const from = owner0[slotIndex];
+  const listOf = (own, p) => own.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0).sort((a, b) => slots[a].start - slots[b].start || a - b);
+  const payAll = (own, people) => [...people].reduce((t, p) => t + payroll(ctx, p, listOf(own, p)), 0);
+  const found = [];
+  const walk = (own, steps, touched, slot, banned) => {
+    const holder = own[slot];
+    const step = (p) => ({ slot: slots[slot], index: slot, from: holder >= 0 ? staff[holder].name : null, to: staff[p].name });
+    for (let p = 0; p < ctx.P; p++) {
+      if (p === holder || banned.has(p) || !ctx.elig[p][slot]) continue;
+      const base = listOf(own, p);
+      const t2 = new Set(touched); t2.add(p); if (holder >= 0) t2.add(holder);
+      if (validList(ctx, p, insertSorted(ctx, base, slot))) {
+        const next = own.slice(); next[slot] = p;
+        found.push({ moves: steps.length + 1, steps: [...steps, step(p)], extraCost: payAll(next, t2) - payAll(owner0, t2) });
+        continue;
+      }
+      if (steps.length + 2 > maxMoves) continue;
+      for (const t of base) {
+        if (t === slotIndex) continue;
+        if (!validList(ctx, p, insertSorted(ctx, base.filter((k) => k !== t), slot))) continue;
+        const next = own.slice(); next[slot] = p; // p still holds t until the next hand-over takes it
+        walk(next, [...steps, step(p)], t2, t, new Set([...banned, p]));
+      }
+    }
+  };
+  walk(owner0.slice(), [], new Set(), slotIndex, new Set(from >= 0 ? [from] : []));
+  found.sort((a, b) => a.moves - b.moves || a.extraCost - b.extraCost || a.steps[0].to.localeCompare(b.steps[0].to));
+  const seen = new Set(), chains = [];
+  for (const c of found) {
+    const key = c.steps.map((x) => x.index + ">" + x.to).join("|");
+    if (seen.has(key)) continue; seen.add(key); chains.push(c);
+    if (chains.length >= limit) break;
+  }
+  return { slot: slots[slotIndex], current: from >= 0 ? staff[from].name : null, chains };
+}
+
 // Seniority report: for every staffed shift, the more senior people (`seniority:` cell, higher = more senior) who could take
 // it from the junior holder with every hard rule still holding, with the payroll change and each side's hours. Shows where a
 // seniority-bidding rule or a union contract would ask for a different roster; the search does not apply it. Most senior first.
