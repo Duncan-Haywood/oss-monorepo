@@ -541,3 +541,14 @@ test("guard post check runs from the stair input and prints", () => {
   assert.match(stairText(l).join("\n"), /Guard post check/);
   assert.equal(layoutStair({ totalRise: 105, tread: 10, stringer: "2x12", width: 36, rail: { sides: 1 } }, plan()).postCheck, null);
 });
+
+test("stringer top connection: connectors per stringer from the end reaction", () => {
+  const base = { stringer: { spacing: 16, throat: 5, count: 3 }, run: 100 };
+  const c = { liveLoad: 40, deadLoad: 10, Fb: 1200, Fv: 180, E: 1400000 };
+  // w = 50*16/144 = 5.5556 lb/in, V = w*100/2 = 277.8 lb
+  const none = checkStringer(base, c);
+  assert.equal(none.connectorsNeeded, null);
+  assert.equal(checkStringer(base, { ...c, connectorCapacity: 300 }).connectorsNeeded, 1);
+  assert.equal(checkStringer(base, { ...c, connectorCapacity: 100 }).connectorsNeeded, 3);
+  assert.ok(checkStringer(base, { ...c, connectorCapacity: 5 }).errors.length === 1);
+});
