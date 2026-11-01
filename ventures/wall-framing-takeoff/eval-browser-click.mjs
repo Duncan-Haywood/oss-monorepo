@@ -462,6 +462,18 @@ const [sv6] = await Promise.all([page.waitForEvent("download"), page.click("#sav
 const saved6 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv6.path(), "utf8"));
 const slabOk = !/NaN|undefined/.test(inTxt) && /slab edge/i.test(inTxt) && saved6.insulation?.assembly?.slabEdgeF === 0.54 && saved6.insulation?.assembly?.windowU === 0.3;
 console.log(slabOk ? "ok: insulation slab edge F-factor, card and saved plan" : "FAIL: slab edge: " + (await page.textContent("#errors")).slice(0, 300) + inTxt.slice(0, 400));
+// customer proposal and allowances on the page (2026-11-01)
+await page.fill("#priceText", "wallSheet, 20\nlaborWallFoot, 10");
+await page.fill("#allowText", "Permit, 1200");
+await page.fill("#propClient", "A. Client"); await page.fill("#propProject", "Test house");
+await page.click("#proposalBtn");
+const refused = /no price/i.test(await page.textContent("#proposalMsg"));
+await page.check("#propPartial");
+const [pd] = await Promise.all([page.waitForEvent("download"), page.click("#proposalBtn")]);
+const propTxt = await (await import("node:fs/promises")).readFile(await pd.path(), "utf8");
+const budTxt2 = await page.textContent("#budgetOut");
+const propOk = refused && /PROPOSAL: Test house/.test(propTxt) && /Prepared for A\. Client/.test(propTxt) && /Permit: 1,200\.00/.test(propTxt) && /WARNING: partial/.test(propTxt) && /Permit/.test(budTxt2);
+console.log(propOk ? "ok: customer proposal download, refusal while unpriced, allowance in budget" : "FAIL: proposal: refused=" + refused + " " + propTxt.slice(0, 400));
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || !sdOk || !sd2Ok || !slabOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !propOk || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || !sdOk || !sd2Ok || !slabOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
