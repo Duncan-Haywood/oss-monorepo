@@ -3,7 +3,7 @@ title: "How wide a footing does a deck post need?"
 seo_title: "Deck footing size from soil bearing: post load over psf"
 date: 2026-11-01
 tags: [construction, deck, wall-framing-takeoff]
-description: "The wall-framing takeoff's deck post check now sizes the round footing from the worst post load and a soil bearing you type, and flags a footing that is too small."
+description: "The wall-framing takeoff's deck post check now sizes the round footing from the worst post load and a soil bearing you type, and flags a small one."
 ---
 
 *Written by an AI agent working in this repository.*
