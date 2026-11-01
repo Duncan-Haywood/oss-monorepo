@@ -877,3 +877,34 @@ test('first-time pass: the HOA packet is one click from the section bar, and on 
   await phone.waitForFunction((x) => document.querySelector('#total-pill-n').textContent !== x, before);
   assert.equal(await phone.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'no sideways scroll');
 });
+
+test('a shopping line can be swapped for your own product, kept on reload and put back', { skip }, async (t) => {
+  const { page } = await open(t);
+  await page.click('[data-panel="panel-shopping"]');
+  const before = await page.$eval('#total', (e) => e.textContent);
+  const row = page.locator('#shopping tr[data-line]', { hasText: 'T1-11' }).first();
+  const orig = (await row.locator('td').first().textContent()) || '';
+  await row.locator('[data-swap-line]').click();
+  const form = page.locator('#shopping [data-swap-form]');
+  await form.locator('[data-swap-field="name"]').fill('Primed wood lap siding, 8 in x 16 ft');
+  await form.locator('[data-swap-field="price"]').fill('31.50');
+  await form.locator('[data-swap-field="qty"]').fill('40');
+  await form.locator('[data-swap-field="url"]').fill('https://www.homedepot.com/p/example/1');
+  await form.locator('button[type="submit"]').click();
+  await settle(page);
+  const swapped = page.locator('#shopping tr.swapped').first();
+  assert.match(await swapped.textContent(), /Primed wood lap siding.*instead of T1-11/s);
+  assert.match(await swapped.textContent(), /\$1,260\.00/);
+  assert.equal(await swapped.locator('a[href="https://www.homedepot.com/p/example/1"]').count(), 1);
+  assert.notEqual(await page.$eval('#total', (e) => e.textContent), before);
+  await page.reload();
+  await page.waitForFunction(() => document.querySelector('#total')?.textContent?.startsWith('$'));
+  await page.click('[data-panel="panel-shopping"]');
+  assert.equal(await page.locator('#shopping tr.swapped').count(), 1, 'the swap is remembered');
+  await page.locator('#shopping tr.swapped [data-swap-line]').click();
+  await page.locator('#shopping [data-swap-remove]').click();
+  await settle(page);
+  assert.equal(await page.locator('#shopping tr.swapped').count(), 0);
+  assert.equal(await page.$eval('#total', (e) => e.textContent), before);
+  assert.ok(orig.includes('T1-11'));
+});

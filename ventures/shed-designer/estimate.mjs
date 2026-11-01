@@ -808,6 +808,7 @@ export function cutSheetCsv(est) {
  */
 export function sourceLabel(s) {
   if (!s) return '';
+  if (s.swap) return s.store ? `your swap, ${s.store}` : 'your swap';
   if (s.kind === 'yours') return 'your price';
   const tag = s.kind === 'derived' ? ' (scaled)' : s.kind === 'estimate' ? ' (estimate)' : '';
   if (!s.store && !s.seen) return s.kind === 'estimate' ? 'estimate' : tag.trim();

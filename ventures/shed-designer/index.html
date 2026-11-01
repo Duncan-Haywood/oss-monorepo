@@ -150,6 +150,9 @@
     .card ul.changes { margin: 2px 0 0; padding-left: 18px; font-weight: 400; }
     #shopping tr.subtot th, #shopping tr.subtot td { font-weight: 600; border-top: 1px solid var(--line); }
     #shopping .use { font-size: .8rem; color: var(--muted); }
+    #shopping .swap-btn { margin-left: 6px; }
+    #shopping tr.swapped td:first-child { border-left: 3px solid #b5852b; }
+    #shopping tr.swap-form td { background: #faf6ec; }
     /* On a phone the eight columns do not fit: each line becomes a small card, so
        "Have it" and "Leave out" are on screen instead of past a sideways scroll. */
     @media (max-width: 600px) {
@@ -624,7 +627,7 @@
     <div class="result-panel print-target" id="panel-shopping">
       <div class="toolrow"><label>Price the list at<select id="buy-at"><option value="mixed">Wherever each line was priced</option><option value="homedepot">Home Depot only (for a Pro desk quote)</option><option value="lowes">Lowe's only (for a Pro desk quote)</option></select></label><span class="muted" id="buy-at-note"></span></div>
       <div class="table-wrap"><table id="shopping"><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th><th scope="col">Unit</th><th scope="col" class="n">Each</th><th scope="col" class="n">Total</th><th scope="col">Price source</th><th scope="col">Have it</th><th scope="col">Leave out</th></tr></thead><tbody></tbody></table></div>
-      <p class="muted">Prices are store listings seen on 2026-10-29 (mostly Home Depot), most read from the search result's copy of the product page, so they can be days or weeks old and vary by store. Lengths with no listing are scaled by the foot from the nearest listed length; anything with no listing at all says "estimate". Type your own store's prices below.</p>
+      <p class="muted">Prices are store listings seen on 2026-10-29 (mostly Home Depot), most read from the search result's copy of the product page, so they can be days or weeks old and vary by store. Lengths with no listing are scaled by the foot from the nearest listed length; anything with no listing at all says "estimate". Type your own store's prices below, or press "Swap for my own" on a line to put in a different product you found (say a primed wood siding in place of T1-11), with its link, price and quantity.</p>
       <details style="margin-top:12px" open>
         <summary><strong>Compare stores and swap parts</strong> (Home Depot and Lowe's, with item numbers and links)</summary>
         <div id="stores" style="margin-top:10px"></div>
