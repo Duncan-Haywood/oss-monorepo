@@ -63,7 +63,7 @@ def rung1(design, seq, wd):
     st = Path(wd) / "r1.stat"
     _yosys(front + f"abc -g {GATES} -script {abc}; opt_clean -purge; tee -o {st} stat; tee -a {st} ltp -noff", Path(wd) / "r1.log")
     txt = st.read_text()
-    cells = int(re.search(r"Number of cells:\s*(\d+)", txt).group(1))
+    cells = int((re.search(r"Number of cells:\s*(\d+)", txt) or re.search(r"^\s*(\d+)\s+cells\s*$", txt, flags=re.M)).group(1))  # Yosys 0.33 / 0.70 stat formats
     depth = int(re.search(r"Longest topological path in \S+ \(length=(\d+)\)", txt).group(1))
     return {"r1_cells": cells, "r1_depth": depth, "t1": time.time() - t0}
 
