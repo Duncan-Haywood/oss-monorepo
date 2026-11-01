@@ -153,7 +153,7 @@ flagships:
       real PINT file; RO_CIUS on a real ANAF file and the Saxon route; NLCIUS
       on a real Dutch file (UBL and CII both landed 2026-10-25, made-up examples); India's INV-01 check on a real IRP payload; mandate
       dates read from primary sources where pages cite guides (Israel page 2026-10-29 from vendor summaries, directive 01/2025 unread; Denmark, Czech, Estonia, Latvia, Slovenia vendor-only; Luxembourg bill 8815 text unread; iras.gov.sg,
-      ato.gov.au, revenue.ie, CBIC); Nigeria page (2026-10-31, search excerpts only: NRS circulars unread, large-taxpayer dates disagree, format unconfirmed); Ireland read against Revenue's hub 2026-10-31 (no specs yet); Latin American, Spain and Brazil pages from search excerpts (open: CFDI and NF-e XSD readers, NFS-e); refresh the Bulgaria page when its draft
+      ato.gov.au, revenue.ie, CBIC); Nigeria, Thailand, Taiwan, Oman, Pakistan and Jordan pages (search excerpts only; Taiwan B2B and Oman 2026 vs 2027 dates disagree); Ireland read against Revenue's hub 2026-10-31 (no specs yet); Latin American, Spain and Brazil pages from search excerpts (open: CFDI and NF-e XSD readers, NFS-e); refresh the Bulgaria page when its draft
       passes or changes (consultation closed 2026-10-23, no outcome found 2026-10-30; sources disagree on 2028 vs a 2026-2030 phase-in). A run that lands a slice replaces its item here; keep
       this under 2,000 characters.
   - venture: shift-roster-builder
