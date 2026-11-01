@@ -8,6 +8,7 @@
   "ended": "2026-11-01T06:00:00Z",
   "task": "Deepen (flagship 1): wall-framing-takeoff, garage-door header longer than every board",
   "projects": ["wall-framing-takeoff"],
+  "pr": 12256,
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],

@@ -24,6 +24,10 @@ by me a coffee or something. creating value trumps personal revenue but I
 enjoy some income from these projects if so." In order: value for people,
 then income with no legal or financial liability, then free software with a
 coffee or sponsor link.
+**Updated 2026-11-01:** "I want to turn on for profit in this repo. don't let
+it block work from getting done like in the past." Selling through the
+owner's merchant of record is on; it never gates other work (Guardrails,
+"Payments").
 
 ## Mission
 
@@ -904,13 +908,41 @@ when they don't, do the sensible thing and record it as a deviation
 - **Only code we can relicense.** Credit every idea, method and piece of code
   that is not original. Ideas and public behaviour can be borrowed; another
   project's code, copy or assets under an incompatible license cannot.
-- **Payments: never the owner's.** Set by the owner on 2026-10-15: "I think
-  payment is okay I just don't want mine. if other people want to fork and
-  put their payment in it's okay with me." So a product may include payment
-  code, but it stays off by default and runs only on keys that whoever
-  deploys it supplies through environment variables. Never wire in, register
-  or hold the owner's payment, merchant, payout or bank accounts. The
-  portfolio's own instances take donations only (GitHub Sponsors).
+- **Payments: the owner's merchant of record, never a key.** Set by the
+  owner on 2026-10-15: "I think payment is okay I just don't want mine. if
+  other people want to fork and put their payment in it's okay with me."
+  Updated by the owner on 2026-10-31: "its time to add payout rail of some
+  sort. merchant of record sounds fine to me." So:
+  - The portfolio's own instances may sell through the owner's
+    merchant-of-record **hosted checkout**. The owner opens and holds that
+    account; agents never register, hold, read or paste its credentials.
+  - A product carries at most a checkout **link**, set from owner-only
+    config (a Cloudflare dashboard variable), not committed. No live key,
+    webhook secret or merchant API key goes in this repo, its Actions
+    secrets, the public Cloudflare account or a session
+    (`docs/reports/2026-10-30-billing-plan.md`, Option A).
+  - Payment code in a product stays off by default and runs on keys that
+    whoever deploys it supplies, so a fork pays its deployer, never the owner.
+  - GitHub Sponsors donations stay allowed alongside.
+  - **For profit, without blocking work** (owner, 2026-11-01: "I want to
+    turn on for profit in this repo. don't let it block work from getting
+    done like in the past"). Selling is on, and it is additive. A "Buy" or
+    paid-tier path ships dark: with no checkout link set it renders the
+    free path, or nothing, and every test and build passes. So no feature,
+    build, deploy or merge waits on the owner's account, the provider
+    choice, the link or a test purchase, and a run never stops, re-asks or
+    calls itself blocked because money is not flowing yet. The owner's
+    steps live once, in the `payout-rail` row of the decision queue; do not
+    restate them, and do not spend runs re-measuring that revenue is $0 or
+    re-probing payment rails. Charge for new depth (a pro tier, hosted
+    extras, downloads, support), not by paywalling what the site already
+    advertises as free, which would also make those "free" claims false.
+    The code stays MIT.
+- **No API-token billing in Actions, for now.** Owner, 2026-10-31: "generally
+  having api token billing running in actions is not ideal at the moment.
+  not a permanent rule just not the current method." Agent work runs through
+  prompts and scheduled sessions; workflows that call paid model APIs stay
+  off (the cross-review bots in `platform/ci/agent_review/` stay inert).
 - **Owner-only actions stay with the owner:** moving money, registering
   accounts, publishing under the portfolio's public name, unattended
   automation that spends paid budget, and pasting secrets.

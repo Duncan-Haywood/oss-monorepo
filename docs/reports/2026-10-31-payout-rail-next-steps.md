@@ -21,13 +21,12 @@ BUILD routing is the right policy.
 
 ## What blocks agent work today
 
-`prompts/goals.md`, "Payments: never the owner's" (owner, 2026-10-15) still
-forbids wiring the owner's merchant or payout account into anything, and
-`ventures/CLAUDE.md` repeats it. Both are control-plane files
-(`.github/CODEOWNERS`). A companion PR amends them with the owner's
-2026-10-31 words and waits for the owner's approval. **Until it merges, keep
-building payment paths the 2026-10-15 way:** off by default, on the
-deployer's keys.
+Nothing, once the control-plane amendment merges (it now also carries the
+owner's 2026-11-01 "turn on for profit ... don't let it block work"). Agents
+can build paid paths now; they ship dark (no checkout link, free path shown)
+until the owner sets the link. Until the amendment merges, build payment
+paths the 2026-10-15 way: off by default, on the deployer's keys. Either way,
+no run waits on step 2 or 4 below.
 
 ## Provider comparison (pricing pages read 2026-10-31)
 
