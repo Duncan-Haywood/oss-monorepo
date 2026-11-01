@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-01 · Milestone 50: carry milestone 49 into the paper (no flow run; OpenROAD is not installed in this session)
+- Done: `PAPER.md` section 4 "Detail routing and tool versions" gets the relaxed-clock result of milestone 49 (R4 vs R5 tau 0.81 to 0.90, pick regret at most 2.3%, R2 barrel16 regret 9.2% against 0.0% at the tight clock, slack shift 0.325 ns); section 6 item 1 no longer lists the relaxed clock as open. Numbers copied from `experiments/detail_route/results_relaxed.txt`.
+- Next: the larger-design set under R5 (needs OpenROAD) and the proof-success table under the new tools.
+
 ## 2026-11-01 · Milestone 49: is global-route "routed" (R4) a faithful stand-in for detail routing at the relaxed clock? (milestone 47's open "Next"; exploratory, no new predictions written before the run)
 - Why: milestone 47 covered the tight clock only. `experiments/detail_route/run.py --tag relaxed --results results_relaxed.jsonl` reruns the same five designs x 50 sequences at the relaxed target (1.5x the baseline period) with R5 = detailed_route + OpenRCX; `analyse.py relaxed` writes `results_relaxed.txt`. Same tools as milestone 47 (OpenROAD 26Q3, Yosys 0.70). The carried-over milestone 47 expectation was that R4 stays a mostly faithful reference (tau >= 0.8 on 4 of 5 designs, pick regret under 2%).
 - A first launch failed on all 250 points (the sparse PDK checkout lacked `flow/platforms/sky130hs`, the target of the `rcx_patterns.rules` symlink: fix is `git sparse-checkout set flow/platforms/sky130hd flow/platforms/sky130hs`); that output was discarded and the 250 points rerun.
