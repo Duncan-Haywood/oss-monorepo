@@ -9,7 +9,7 @@ paper was not opened in this session (host unreachable); the constants were type
 and checked line by line against an MIT-licensed public implementation
 (github.com/Albert-Gil/ship-propulsion-power-simulator, read, not copied). That is an
 agreement of two transcriptions (milestone 3d found they shared one error: the Fn < 0.4 wave term
-used the Fn > 0.55 exponent m4 where the 1984-style form uses m2; milestone 3e: that may be the 1982 form, so both are kept behind low_form, default m2), not a check against the paper: see experiments/results_holtrop.txt.
+used the Fn > 0.55 exponent m4 where the 1984-style form uses m2; milestone 3e: that may be the 1982 form, so both are kept behind low_form, default m2; milestone 3f: a third implementation, the US EPA's MIT-licensed R code, uses m2 below Fn 0.55, which favours the default), not a check against the paper: see experiments/results_holtrop.txt.
 Validity range stated by the authors: roughly L/B 3.9 to 14.9, Cp 0.55 to 0.85, Fn up to 0.45
 for full forms; ships of tens to hundreds of metres. Small-boat use is exactly what H3 tests.
 """
