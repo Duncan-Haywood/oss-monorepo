@@ -2,7 +2,7 @@
 title: "Checking a stair landing's joists and the load the flights add to its posts"
 date: 2026-11-01
 tags: [wall-framing-takeoff, stairs, construction]
-description: The framing takeoff now checks a two-flight stair landing's joists in bending, shear and deflection, and adds the flights' stringer reactions to the heaviest post and footing.
+description: The framing takeoff now checks a stair landing's joists in bending, shear and deflection and adds both flights' reactions to the heaviest post and footing.
 ---
 
 A stair that turns on a landing has two loads people tend to forget: the platform joists themselves, and the ends of both flights, which bear on the landing's edge and run down into its posts. The [wall-framing takeoff](https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/) sized the footings from the platform's area load alone, and said so in a note.
