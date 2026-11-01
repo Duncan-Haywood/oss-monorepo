@@ -100,8 +100,9 @@ Measured against the live site with `curl`:
 - **Fixed in this PR:** the root `llms.txt` "Tools that call the network"
   section was one ~50-name sentence that began "On Does your pinned workflow
   load something unpinned underneath it?, AI Bookkeeper: ...". Names ran
-  together and none were linked. `platform/pages/build.mjs` now writes one
-  linked line per tool, with the count.
+  together and none were linked. `platform/pages/build.mjs` now writes, in
+  `llms-full.txt`, one linked line per tool naming the hosts it calls; the
+  index (held to 50 KB by a test) gives the count and points there.
 - Not measured: whether any AI crawler has fetched `llms.txt`, or whether any
   assistant cites the site. The Cloudflare file's per-class `pages` list
   would show the first; nothing in the repo can show the second yet.

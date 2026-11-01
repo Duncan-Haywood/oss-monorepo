@@ -75,7 +75,7 @@ category and trade, and `llms-full.txt` holds the full text at 603 KB.
 Reading it as a model would, we found one section that failed. It listed the
 50 tools that call a public API as one sentence, beginning "On Does your
 pinned workflow load something unpinned underneath it?, AI Bookkeeper: ...".
-The names ran together and none had a link. It's now one linked line per tool.
+The names ran together and none had a link. `llms-full.txt` now lists them one per line, each linked and naming the service it calls, and the short index points there.
 
 ## Next
 
