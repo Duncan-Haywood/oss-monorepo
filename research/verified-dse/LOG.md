@@ -2,6 +2,20 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-01 · Milestone 51: is global-route "routed" (R4) still a faithful stand-in for detail routing on the larger designs? (milestone 9's set; predictions written before the run finished)
+- Why: milestones 47 and 49 covered the five small designs only; "Next" since then names the larger-design set under R5. `experiments/detail_route/run.py --large --points ../large/results.jsonl --tag tight --per-design 24` re-measures R1 to R4 and adds detail routing + OpenRCX (R5) for mult16, adder_op64 and adder_ripple64 at the tight clock (mult24 and mult32 dropped: a first launch showed 220 to 280 s per mult16 detail-route with four jobs, so the two bigger multipliers would take many hours; the 4 mult16 points from that launch were discarded and rerun), the first 24 usable sequences per design (detail routing of the multipliers is slow, so pools are 24, not 50). OpenROAD 26Q3, Yosys 0.70 from the nixpkgs cache, as in milestones 47 to 49. `analyse.py tight ../large/results.jsonl _large` writes `results_large.txt`.
+- **Predictions on record:** (1) tau-b(R4,R5) is at least 0.8 on mult16 and adder_op64 (the small-design median was 0.84 and 0.85); (2) R4's pick costs under 2% against R5 on both of those; (3) extracted detail-route slack is more optimistic than the global-route estimate on every point; (4) the ripple adder (few distinct scores) gives a tau that is uninformative, so it is reported but not counted in (1).
+- Limits known up front: pools of 24 give wide tau intervals; tight clock only; one corner; the tool-version change is confounded with the reference change in the drift row; no multiple-comparison correction.
+- **Outcome (`experiments/detail_route/results_large.txt`: 72 launched, 71 ok, 0 DRC violations, 33.9 s median detail-route; OpenROAD 26Q3, Yosys 0.70).**
+  - tau-b of R4 against the detail-routed R5: adder_op64 0.93, mult16 0.93, adder_ripple64 1.00 (only 6 distinct R5 scores, so uninformative). **Prediction 1 held** (both above 0.8). R4's pick costs 0.0% on all three against R5 (prediction 2 held), and the R5 optimum is in R4's top 5 on all three.
+  - R2 (mapped, no wires) against R5: tau 0.80 (adder_op64), 0.67 (mult16); its pick regret is 12.0% on adder_op64 and 3.9% on mult16, so the "R2 is biased at the tight clock" reading survives a detail-routed reference on the larger designs too. R1 tau 0.63 and 0.18.
+  - Detail-route slack is more optimistic than the global-route estimate on every one of 71 points (median +0.39 ns, range +0.08 to +1.26; prediction 3 held), larger than on the small designs (+0.19).
+  - Tool-version drift of R4 against the cached 26Q2 table: tau 0.70 (adder_op64), 0.81 (ripple), 0.31 (mult16): again large on the multiplier.
+- Reading: global-route "routed" is a faithful reference for detail routing on mult16 and the 64-bit adders as on the five small designs, so the halving results on the larger set are not an artefact of stopping at global route. mult24 and mult32 are untested (a single mult16 detail route took 220 to 280 s with four jobs).
+- Limits: three designs, pools of 24 (wide intervals), tight clock, one corner, tool-version drift confounds tool version with reference; no multiple-comparison correction; predictions 1 to 3 were written before the results were read.
+- Next: mult24 and mult32 under R5 (hours of compute); the proof-success table under the new tools.
+
+
 ## 2026-11-01 · Milestone 50: carry milestone 49 into the paper (no flow run; OpenROAD is not installed in this session)
 - Done: `PAPER.md` section 4 "Detail routing and tool versions" gets the relaxed-clock result of milestone 49 (R4 vs R5 tau 0.81 to 0.90, pick regret at most 2.3%, R2 barrel16 regret 9.2% against 0.0% at the tight clock, slack shift 0.325 ns); section 6 item 1 no longer lists the relaxed clock as open. Numbers copied from `experiments/detail_route/results_relaxed.txt`.
 - Next: the larger-design set under R5 (needs OpenROAD) and the proof-success table under the new tools.

@@ -1,0 +1,12 @@
+Milestone 47/49: detail-routed reference (R5). tight clock; tools: OpenROAD 26Q3, Yosys 0.70 (cached tables: 26Q2, 0.33)
+
+design         n distinct r5  tau(R1,R5) tau(R2,R5) tau(R3,R5) tau(R4,R5)  regret% R2/R4 pick  R5-opt in R4 top5
+adder_op64    24          22       +0.63      +0.80      +0.80      +0.93     12.0 /  0.0        True
+adder_ripple64  23           6       -0.30      +0.99      +0.99      +1.00      0.0 /  0.0        True
+mult16        24          24       +0.18      +0.67      +0.53      +0.93      3.9 /  0.0        True
+
+median tau against R5 over designs: r1 +0.18 (n=3), r2 +0.80 (n=3), r3 +0.80 (n=3), r4 +0.93 (n=3)
+detail-route slack minus global-route slack (ns): median +0.392, min +0.080, max +1.262, n=71
+tool-version drift of R4 (cached 26Q2/0.33 vs re-run 26Q3/0.70, same points): adder_op64 tau +0.70 median |change| 6.9%; adder_ripple64 tau +0.81 median |change| 0.6%; mult16 tau +0.31 median |change| 3.3%
+detail-route time per point (s): median 33.9
+points with DRC violations: 0 of 71
