@@ -192,6 +192,17 @@ test("labor line for wall sheathing uses the typed per-sheet rate", () => {
   assert.ok(!bud({ ...full({}) }).lines.some((x) => x.item === "Wall sheathing installation"));
 });
 
+test("labor line for stairs counts risers, both flights of a landing stair, at the typed rate", () => {
+  const plan = { ...full({ laborStairRiser: 85 }), stairs: [{ id: "Main", totalRise: 108, width: 36 }, { id: "Tall", totalRise: 200, width: 36, landing: { width: 36, depth: 36 } }] };
+  const out = run(plan, "--sheathing", "--stairs", "--budget", "--json");
+  const r = JSON.parse(out.out);
+  const l = r.lines.find((x) => x.item === "Stair building and installation");
+  assert.ok(l, out.out.slice(0, 300));
+  assert.ok(l.qty >= 14 + 26 - 2 && l.qty < 60);
+  assert.ok(Math.abs(l.amount - l.qty * 85) <= 0.02);
+  assert.ok(!bud({ ...full({}), stairs: plan.stairs }).lines.some((x) => x.item === "Stair building and installation"));
+});
+
 test("the page's price-name help lists every price name the engine reads", () => {
   const src = readFileSync(new URL("./budget.mjs", import.meta.url), "utf8");
   const page = readFileSync(new URL("./index.html", import.meta.url), "utf8");
