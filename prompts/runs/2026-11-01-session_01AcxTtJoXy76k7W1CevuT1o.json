@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01AcxTtJoXy76k7W1CevuT1o",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T01:09:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12214",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 says to fetch origin security-alerts; the branch does not exist (fatal: couldn't find remote ref). PR 12038 already fixes this."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Took a small step (failure reasons) rather than advancing a PhD-level programme milestone: pybamm is not installed so no long re-run was possible.",
+      "did": "Added failure reasons to evaluate_with plus a unit test and post",
+      "result": "merged-ready, tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-01-a-zero-that-says-why-in-the-dfn-recheck.md"
+  ],
+  "goal": null,
+  "notes": "Review track was drawn but PR 12026 already claimed it, so routed with --skip-review. pybamm absent: pybamm-dependent test skipped.",
+  "corrections": [],
+  "redteam": null
+}
