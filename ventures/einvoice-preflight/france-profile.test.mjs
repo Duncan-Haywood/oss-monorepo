@@ -13,6 +13,7 @@ const good = () => ({
     "#PMD#Pénalités de retard : trois fois le taux d'intérêt légal.",
     "#PMT#Indemnité forfaitaire pour frais de recouvrement : 40 EUR.",
     "#AAB#Pas d'escompte pour paiement anticipé.",
+    "Catégorie d'opération : prestation de services.",
   ],
 });
 
@@ -54,10 +55,10 @@ test("VAT number built on another company's SIREN", () => {
 test("each payment mention is its own finding, accepted in French, English or by subject code", () => {
   const inv = good();
   inv.notes = ["Late payment penalty: 3x legal rate", "Recovery indemnity EUR 40"];
-  assert.deepEqual(ids(inv), ["FR-007"]);
+  assert.deepEqual(ids(inv), ["FR-007", "FR-008"]);
   inv.notes = [];
-  assert.deepEqual(ids(inv), ["FR-005", "FR-006", "FR-007"]);
-  inv.payment = { terms_text: "Escompte 2%, pénalités de retard 12%, indemnité de recouvrement 40 €" };
+  assert.deepEqual(ids(inv), ["FR-005", "FR-006", "FR-007", "FR-008"]);
+  inv.payment = { terms_text: "Escompte 2%, pénalités de retard 12%, indemnité de recouvrement 40 €, prestation de services" };
   assert.deepEqual(ids(inv), []);
 });
 
@@ -79,9 +80,20 @@ test("UBL and CII readers carry legal ids and notes into the profile", async () 
   const parsed = await parseInvoiceSource("a.xml", ubl);
   assert.equal(parsed.supplier.legal_id.id, "443061841");
   assert.equal(parsed.supplier.legal_id.scheme, "0002");
-  assert.deepEqual(ids(parsed), ["FR-006", "FR-007"]);
+  assert.deepEqual(ids(parsed), ["FR-006", "FR-007", "FR-008"]);
   const result = await preflightDocuments([{ name: "a.xml", source: ubl }], { profile: "france" });
   assert.ok(result.reports[0].errors.some((e) => e.rule === "FR-006"));
   const plain = await preflightDocuments([{ name: "a.xml", source: ubl }], {});
   assert.ok(!plain.reports[0].errors.some((e) => e.rule.startsWith("FR-")));
+});
+
+test("FR-008 accepts goods, services or mixed in French or English", () => {
+  for (const phrase of ["livraison de biens", "opération mixte", "Services", "goods"]) {
+    const inv = good();
+    inv.notes[3] = phrase;
+    assert.deepEqual(ids(inv), [], phrase);
+  }
+  const inv = good();
+  inv.notes.pop();
+  assert.deepEqual(ids(inv), ["FR-008"]);
 });

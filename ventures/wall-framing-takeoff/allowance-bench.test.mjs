@@ -20,3 +20,12 @@ test("the example house lays out and the on-centre rule overshoots the count", (
   assert.ok(c.ok);
   assert.ok(c.onCentre > c.counted);
 });
+
+import { spacingSweep } from "./allowance-bench.mjs";
+test("wider spacing lowers the counted order and the on-centre rule, not the per-foot rule", () => {
+  const [a, b] = spacingSweep(samplePlan());
+  assert.ok(a.ok && b.ok);
+  assert.ok(b.counted < a.counted);
+  assert.ok(b.onCentre < a.onCentre);
+  assert.equal(a.perFoot, b.perFoot);
+});
