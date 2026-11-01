@@ -11,7 +11,7 @@
 // ceil(days * loss) to activities marked `exposed: true`. Weather itself is not forecast. Crew levelling is a serial greedy pass (earliest start, ties by
 // least slack); it is a heuristic, not an optimal resource schedule.
 
-/** @typedef {{ id: string, name?: string, days: number, after?: string[], crew?: string, lag?: number }} Activity */
+/** @typedef {{ id: string, name?: string, days: number, after?: string[], crew?: string, lag?: number, exposed?: boolean, derived?: string }} Activity */
 
 /** @param {Set<string>} off dates that are not worked besides weekends */
 const isWork = (/** @type {Date} */ d, off = new Set()) => d.getUTCDay() !== 0 && d.getUTCDay() !== 6 && !off.has(d.toISOString().slice(0, 10));

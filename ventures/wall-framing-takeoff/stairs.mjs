@@ -25,7 +25,7 @@ export function maxTreadSpan(thickness) { return thickness < 1.25 ? 12 : thickne
 export const RAIL_LIMITS = { guardHeight: 36, handrailMin: 34, handrailMax: 38, maxGap: 4, maxPostSpacing: 72, bottomGap: 4, maxBottomOpening: 6 };
 
 /** @typedef {{ sides?: number, handrail?: boolean, handrailHeight?: number, bracketSpacing?: number, balusterWidth?: number, railBoard?: string, postWidth?: number, limits?: Partial<typeof RAIL_LIMITS> }} Rail */
-/** @typedef {{ id?: string, rail?: Rail, totalRise: number, tread?: number, stringer?: string, width?: number, stringerSpacing?: number, treadThickness?: number, treadBoard?: string, treadGap?: number, nosing?: number, floorThickness?: number, openingLength?: number, openRisers?: boolean, riserBoard?: string, treadSpanMax?: number, limits?: Partial<typeof STAIR_LIMITS> }} Stair */
+/** @typedef {{ id?: string, rail?: Rail, totalRise: number, tread?: number, stringer?: string, width?: number, stringerSpacing?: number, treadThickness?: number, treadBoard?: string, treadGap?: number, nosing?: number, floorThickness?: number, openingLength?: number, openRisers?: boolean, riserBoard?: string, treadSpanMax?: number, limits?: Partial<typeof STAIR_LIMITS>, stringerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, thickness?: number } }} Stair */
 
 export function sampleStair() {
   return { id: "Main stair", totalRise: 108, tread: 10, stringer: "2x12", width: 36, treadThickness: 1.5, treadBoard: "2x12", floorThickness: 11.25 + 0.75 + 0.5, nosing: 0.75 };
@@ -208,7 +208,7 @@ export function stairCuts(l) {
  * simply supported beam spanning the total run with no mid support. The section is the throat under the notches
  * (the conservative cut-section, 1-1/2 in thick), for bending, shear at the support and deflection (span/240
  * unless `deflLimit`). A hand check for a framer or plan reviewer; the engineer of record's call governs.
- * @param {{stringer:{spacing:number, throat:number}, run:number}} l
+ * @param {{stringer:{spacing:number, throat:number, count?:number}, run:number}} l
  * @param {{liveLoad:number, deadLoad:number, Fb:number, Fv:number, E:number, deflLimit?:number, thickness?:number}} c
  */
 export function checkStringer(l, c) {
@@ -263,7 +263,7 @@ export function stairText(l) {
  * stair is wide (36 in at least), the usual code rule for a straight run or a turn; the rise is split in half
  * unless `landingRise` (finished floor to the landing surface) is typed. The stairwell opening applies to the
  * upper flight only. A turn does not change a count, so quarter-turns and straight runs buy the same lumber.
- * @param {Stair & { landing?: true | { openEdges?: string[], depth?: number, landingRise?: number, joist?: string, spacing?: number, deckBoard?: string } }} input
+ * @param {Stair & { landing?: true | { openEdges?: string[], depth?: number, landingRise?: number, joist?: string, spacing?: number, deckBoard?: string, postSpacing?: number, postSize?: string, soilBearing?: number, liveLoad?: number, deadLoad?: number, postCapacity?: number, postFc?: number, postEmin?: number } }} input
  * @param {{stock: {size: string, length: number}[]}} [plan]
  */
 export function layoutStairWithLanding(input, plan) {
@@ -341,7 +341,7 @@ export function checkPostSlenderness(height, postSize = "4x4") {
  * for wet service and treatment; none is shipped. Compared with `load` (lb, the heaviest post's share from
  * `sizeLandingFootings`). Bracing, notches, stringer bolts, uplift and lateral load are not checked.
  */
-export function checkLandingPostColumn(height, postSize, load, { fc, emin } = {}) {
+export function checkLandingPostColumn(height, postSize, load, { fc, emin } = /** @type {{fc?: number, emin?: number}} */ ({})) {
   const face = POST_FACE[postSize];
   if (!face) return { ok: false, errors: [`Unknown landing post size ${postSize}; use 4x4 or 6x6.`] };
   if (!(fc >= 100 && fc <= 3000)) return { ok: false, errors: ["postFc is the post's compression parallel to grain in psi (100 to 3000)."] };
@@ -361,7 +361,7 @@ export function checkLandingPostColumn(height, postSize, load, { fc, emin } = {}
  * the guard are not added. `postCapacity` (lb, typed from your post table; no default) is compared with the heaviest
  * post's load and `postOk` says whether it holds. Returns the load, the area it needs, and a round and a square footing rounded up to the inch.
  */
-export function sizeLandingFootings(width, depth, spacing, { soilBearing, liveLoad = 40, deadLoad = 10, postCapacity } = {}) {
+export function sizeLandingFootings(width, depth, spacing, { soilBearing, liveLoad = 40, deadLoad = 10, postCapacity } = /** @type {{soilBearing?: number, liveLoad?: number, deadLoad?: number, postCapacity?: number}} */ ({})) {
   if (!(soilBearing > 0)) return { ok: false, errors: ["soilBearing must be a positive figure in psf."] };
   if (!(width > 0 && depth > 0 && spacing > 0)) return { ok: false, errors: ["Landing width, depth and post spacing must be positive numbers."] };
   const bays = (len) => Math.max(1, Math.ceil(len / spacing - 1e-9));
@@ -417,7 +417,7 @@ export function landingText(r) {
 // slightly undercuts, so a pass here is a pass by a hair of margin.
 export const WINDER_LIMITS = { winderWalkline: 12, winderWalkDepth: 10, winderMinDepth: 6, winderUniformity: 0.375 };
 
-/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, treadThickness?: number, treadSpanMax?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
+/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, treadThickness?: number, treadSpanMax?: number, straightTread?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
 export function checkWinders(w) {
   const L = { ...WINDER_LIMITS, ...(w.limits || {}) };
   const count = w.count ?? 3, turn = w.turn ?? 90, width = w.width ?? 36, r = w.innerRadius ?? 0;
@@ -462,7 +462,7 @@ export function winderText(c) {
 // straight-edge ("chord") depth 2 x radius x sin(theta/2) at the narrow end,
 // 12 in out and the wide end. A chord is shorter than the arc `checkWinders`
 // measures, so `chordPasses` is the stricter answer for a straight edge.
-/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, treadThickness?: number, treadSpanMax?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
+/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, treadThickness?: number, treadSpanMax?: number, straightTread?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
 export function layoutWinders(w) {
   const c = checkWinders(w);
   if (!c.problems) return c;

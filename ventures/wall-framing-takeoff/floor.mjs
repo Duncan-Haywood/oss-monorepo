@@ -16,7 +16,7 @@ import { THICK, EPS, DEPTH, optimizeStock, formatLength, formatInches } from "./
 const DOUBLE = 2 * THICK;
 export const SHEET = { width: 48, length: 96 };
 
-/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, cantilever?: number, headerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, hangerCapacity?: number, bearingCapacity?: number, stairReaction?: number, stairReactionLive?: number, stairSide?: "front"|"back", tieForce?: number, tieCapacity?: number, cantDeflLimit?: number }, blockingRows?: number, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], penetrations?: { type: "hole"|"notch", at: number, size: number, length?: number, fromEdge?: number, end?: boolean }[], limits?: { hole?: number, holeEdge?: number, notch?: number, endNotch?: number, notchLength?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
+/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, cantilever?: number, headerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, hangerCapacity?: number, bearingCapacity?: number, stairReaction?: number, stairReactionLive?: number, stairSide?: "front"|"back", tieForce?: number, tieCapacity?: number, cantDeflLimit?: number }, blockingRows?: number, hangerNails?: { single?: number, double?: number }, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], penetrations?: { type: "hole"|"notch", at: number, size: number, length?: number, fromEdge?: number, end?: boolean }[], limits?: { hole?: number, holeEdge?: number, notch?: number, endNotch?: number, notchLength?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
 
 export function sampleFloor() {
   return { id: "Main floor", width: 480, depth: 336, joist: "2x10", spacing: 16, rim: true, beam: 168, blockingRows: 0 };
@@ -368,7 +368,7 @@ export function layoutFloor(f, plan) {
   // Joist hangers: each tail joist hangs from a header at the end that meets an opening's header zone (one hanger),
   // and each doubled header hangs from its trimmers at both ends (a double hanger per end, so four per opening).
   // Counted from the placed members; the model, its load rating and nailing are the engineer's call.
-  const tailEnds = joists.filter((j) => j.tail).reduce((n, j) => n + openings.filter((o) => cutAt(j.x + THICK / 2).includes(o)).reduce((m, o) => m + (Math.abs(j.y + j.length - o.cut[0]) < EPS) + (Math.abs(j.y - o.cut[1]) < EPS), 0), 0);
+  const tailEnds = joists.filter((j) => j.tail).reduce((n, j) => n + openings.filter((o) => cutAt(j.x + THICK / 2).includes(o)).reduce((m, o) => m + Number(Math.abs(j.y + j.length - o.cut[0]) < EPS) + Number(Math.abs(j.y - o.cut[1]) < EPS), 0), 0);
   const headerEnds = openings.length * 4;
   const hn = f.hangerNails || null; // nails per hanger, typed from the hanger maker's table (none shipped)
   const hangers = { tail: tailEnds, singles: tailEnds, doubles: headerEnds, count: tailEnds + headerEnds, size: f.joist, ...(hn ? { nails: tailEnds * (hn.single || 0) + headerEnds * (hn.double || 0), nailsPerSingle: hn.single || 0, nailsPerDouble: hn.double || 0 } : {}) };

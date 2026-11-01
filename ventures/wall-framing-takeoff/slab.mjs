@@ -34,7 +34,7 @@ export function slabConcrete(s) {
 
 /** @param {ReturnType<typeof slabConcrete>} r */
 export function slabText(r) {
-  if (!r.ok) return r.errors.map((e) => `  - ${e}`);
+  if (!r.ok) return /** @type {any} */ (r).errors.map((e) => `  - ${e}`);
   const out = [`Concrete: ${r.cuFt.toFixed(1)} cu ft = ${r.cuYd.toFixed(2)} cu yd`, `With waste: ${r.withWaste.toFixed(2)} cu yd, so order ${r.orderYd.toFixed(2)} cu yd of ready-mix`, `Or ${r.bags} bags of ${r.bag} lb mix`];
   for (const n of r.notes) out.push(`- ${n}`);
   return out;

@@ -15,7 +15,7 @@ const NOMINAL = { "2x6": 5.5, "2x8": 7.25, "2x10": 9.25, "2x12": 11.25 };
 const POST = { "4x4": 3.5, "6x6": 5.5 };
 const CU_IN_PER_YD = 46656;
 
-/** @typedef {{ id?: string, width: number, depth: number, height: number, joist?: string, spacing?: number, beam?: string, beamPlies?: number, freestanding?: boolean, postCheck?: { deadPsf: number, livePsf: number, fc: number, emin: number, fcPerp?: number }, joistCheck?: { deadPsf: number, livePsf: number, Fb: number, Fv: number, E: number, deflLimit?: number }, overhang?: number, postSize?: string, postInset?: number, maxPostSpacing?: number, border?: number | boolean, deckBoard?: { width?: number, thickness?: number, gap?: number, size?: string }, footing?: { diameter?: number, depth?: number, bagYield?: number }, screwsPerBox?: number, railPostSpacing?: number, guard?: false | { sides?: ("outer"|"left"|"right"|"inner")[], threshold?: number, railBoard?: string, balusterWidth?: number, postWidth?: number, limits?: object }, spanTable?: { joist: string, spacing: number, maxSpan: number }[], stock?: { size: string, length: number, price: number }[] }} Deck */
+/** @typedef {{ id?: string, width: number, depth: number, height: number, joist?: string, spacing?: number, beam?: string, beamPlies?: number, freestanding?: boolean, postCheck?: { deadPsf: number, livePsf: number, fc: number, emin: number, fcPerp?: number }, joistCheck?: { deadPsf: number, livePsf: number, Fb: number, Fv: number, E: number, deflLimit?: number }, overhang?: number, postSize?: string, postInset?: number, maxPostSpacing?: number, border?: number | boolean, deckBoard?: { width?: number, thickness?: number, gap?: number, size?: string }, footing?: { diameter?: number, depth?: number, bagYield?: number }, screwsPerBox?: number, blocking?: { every: number }, railPostSpacing?: number, guard?: false | { sides?: ("outer"|"left"|"right"|"inner")[], threshold?: number, railBoard?: string, balusterWidth?: number, postWidth?: number, limits?: object }, spanTable?: { joist: string, spacing: number, maxSpan: number }[], stock?: { size: string, length: number, price: number }[] }} Deck */
 
 export function sampleDeck() {
   return { id: "Rear deck", width: 192, depth: 144, height: 36, joist: "2x8", spacing: 16, beam: "2x10", beamPlies: 2, overhang: 12, postSize: "6x6" };
@@ -186,7 +186,7 @@ export function layoutDeck(d) {
     const sides = gOpt.sides ?? (freestanding ? ["outer", "left", "right", "inner"] : ["outer", "left", "right"]);
     const len = { outer: d.width, inner: d.width, left: d.depth, right: d.depth };
     const shared = sides.reduce((n, a, i) => n + sides.slice(i + 1).filter((b) => (a === "outer" || a === "inner") !== (b === "outer" || b === "inner")).length, 0);
-    guard = layoutLandingGuard(sides.map((x) => len[x]), { railBoard: "2x4", ...gOpt }, shared);
+    guard = layoutLandingGuard(sides.map((x) => len[x]), /** @type {any} */ ({ railBoard: "2x4", ...gOpt }), shared);
     guard.sides = sides;
     const railMax = longest("2x4 PT");
     if (railMax && guard.guardRails.lengths.some((x) => x > railMax + EPS)) notes.push(`A guard rail longer than ${formatLength(railMax)} is bought in equal pieces; splice each over a post.`);
@@ -250,8 +250,8 @@ export function layoutDeck(d) {
  * adjusted for wet service and treatment by you; nothing is shipped. The beam takes a joist reaction of
  * w (L + c)^2 / (2 L) per foot (L the joist span to the beam, c the cantilever, the far support a pin), and each
  * post the beam load over half the bay either side. Bracing, uplift, lateral load and the footing are not checked.
- * @param {{ joistSpan: number, overhang: number, posts: number[], postSize: string, postLength: number, beamPlies: number }} l
- * @param {{ deadPsf: number, livePsf: number, fc: number, emin: number, fcPerp?: number }} spec
+ * @param {{ joistSpan: number, overhang: number, posts: number[], postSize: string, postLength: number, beamPlies: number, footingDiameter?: number }} l
+ * @param {{ deadPsf: number, livePsf: number, fc: number, emin: number, fcPerp?: number, soilBearing?: number }} spec
  */
 export function checkDeckPosts(l, spec) {
   const errors = [];

@@ -36,7 +36,7 @@ const pct = (/** @type {number[]} */ sorted, /** @type {number} */ p) => sorted[
 export function scheduleRisk(input, opts = {}) {
   const runs = opts.runs ?? 1000;
   if (!(Number.isInteger(runs) && runs >= 10 && runs <= 20000)) return { ok: false, errors: ["runs must be a whole number from 10 to 20000."] };
-  const base = schedule(input);
+  const base = /** @type {any} */ (schedule(input));
   if (!base.ok) return base;
   const errors = [];
   for (const a of input.activities) {
@@ -56,7 +56,7 @@ export function scheduleRisk(input, opts = {}) {
       if (a.min == null && a.max == null) return a;
       return { ...a, days: Math.round(triangular(a.min ?? a.days, a.days, a.max ?? a.days, rand())) };
     });
-    const s = schedule({ ...input, activities: acts, slips: [] });
+    const s = /** @type {any} */ (schedule({ ...input, activities: acts, slips: [] }));
     if (!s.ok) return s;
     finishes.push(s.leveledDays);
     for (const id of s.criticalPath) crit.set(id, (crit.get(id) || 0) + 1);
@@ -64,7 +64,7 @@ export function scheduleRisk(input, opts = {}) {
   const sorted = finishes.slice().sort((x, y) => x - y);
   // Date of a finish measured in leveled working days: reuse the schedule's own calendar by stretching one activity is overkill;
   // instead derive from the base run's day-to-date mapping through a one-activity probe.
-  const dateOfDays = (/** @type {number} */ n) => schedule({ start: input.start, holidays: input.holidays, weatherDays: input.weatherDays, activities: [{ id: "x", days: Math.max(1, n) }] }).finishDate;
+  const dateOfDays = (/** @type {number} */ n) => /** @type {any} */ (schedule({ start: input.start, holidays: input.holidays, weatherDays: input.weatherDays, activities: [{ id: "x", days: Math.max(1, n) }] })).finishDate;
   const at = (/** @type {number} */ p) => ({ workingDays: pct(sorted, p), date: dateOfDays(pct(sorted, p)) });
   const sd = Math.sqrt(finishes.reduce((t, x) => t + (x - finishes.reduce((u, v) => u + v, 0) / runs) ** 2, 0) / runs);
   const deadlineIdx = base.deadline ? base.leveledDays - base.deadline.daysLate : null;
