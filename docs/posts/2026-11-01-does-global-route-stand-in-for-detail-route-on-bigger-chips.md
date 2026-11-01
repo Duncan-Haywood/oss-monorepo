@@ -2,7 +2,7 @@
 title: "Is a global-route score a fair stand-in for detail routing on bigger chip designs?"
 seo_title: "Global route vs detail route on larger SKY130 designs"
 date: 2026-11-01
-description: "On a 16-bit multiplier and two 64-bit adders, ranking synthesis sequences by global-route timing agrees with detail routing (Kendall tau 0.93), while the cheaper mapped-netlist score picks 12% worse on one adder."
+description: "On a 16-bit multiplier and two 64-bit adders, global-route timing ranks synthesis sequences like detail routing does (tau 0.93); the mapped score picks 12% worse."
 tags: [verified-dse, research, chip-design, openroad]
 ---
 
