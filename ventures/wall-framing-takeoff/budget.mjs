@@ -11,6 +11,7 @@
 // truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle,
 // starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, drywallSheet, baseboard, casing (price per board), sidingBoard, sidingStarter, headFlashing (price per piece), openingTape (price per roll), houseWrapRoll, cornerBoard, soffitPanel, fasciaBoard, jChannel, insulationBag, atticFillBag,
 // vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, drywallScrewThousand (per 1,000 screws), drywallTapeRoll, drywallCompoundPail, cornerBeadStick, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), laborSidingSqFt (siding and house wrap, per sq ft of wall net of openings), laborTrimFoot (baseboard, shoe and casing, per linear foot), laborEavesFoot (fascia run, eave plus rake, per linear foot; soffit and J-channel included), laborGutterFoot (gutter run, per linear foot; downspouts included), laborWallSheet (wall sheathing, per sheet hung), stairConnector (top connector or foot anchor, each), stairRiserBoard (solid riser board, when the stair has `riserBoard`), stairBaluster, stairRailPost, handrailBracket (each; stairs with a `rail`), handrailFoot (per linear foot of handrail run), laborDeckSqFt (deck framing, decking and rails, per sq ft of deck), deckConcreteBag, deckScrewBox, laborStairRiser (stairs, per riser, both flights of a landing stair; stringers, treads and risers set), laborHoldDown (per hold-down or plate strap set, each), tax (fraction on materials), contingency (fraction) }.
+// dormerBoardFoot (price per board foot of dormer framing), dormerRoofSqFt (price per sq ft of dormer roof).
 // nailBox falls back to fasteners.price; insulationBag falls back to the plan's insulation.price; atticFillBag to insulation.attic.price.
 // Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
 // (`sheathing.summary.cost`) unless `wallSheet` is typed.
@@ -66,6 +67,16 @@ export function budget(result, prices = {}) {
     if (dwf?.tapeRolls) add("Interior", "Drywall tape rolls", dwf.tapeRolls, "rolls", P("drywallTapeRoll"), `${dwf.tapeFt} ft of seam and angle at ${dwf.rollFt} ft per roll`);
     if (dwf?.compoundPails) add("Interior", "Joint compound pails", dwf.compoundPails, "pails", P("drywallCompoundPail"), `${dwf.compoundGal} gal at ${dwf.compoundGalPerSqFt} gal per sq ft, ${dwf.pailGal} gal pails`);
     if (dwf?.beadSticks) add("Interior", "Corner bead sticks", dwf.beadSticks, "sticks", P("cornerBeadStick"), `${dwf.beadFt} ft at ${dwf.beadStickFt} ft per stick`);
+  }
+  const dm = result.dormer;
+  if (dm?.ok) {
+    // Dormer framing is not in the wall cutting-stock order: board feet of its listed parts at a typed price per board foot.
+    const bf = dm.parts.reduce((/** @type {number} */ t, /** @type {any} */ p) => {
+      const m = /^(\d+)x(\d+)$/.exec(p.size);
+      return m ? t + (Number(m[1]) * Number(m[2]) * p.length / 144) * p.count : t;
+    }, 0);
+    add("Dormer", "Dormer framing lumber", bf, "board feet", P("dormerBoardFoot"), `${dm.parts.length} part lines, nominal thickness x width x length / 12 (no stock-length waste)`);
+    add("Dormer", "Dormer roof area", dm.areas.roofSqFt, "sq ft", P("dormerRoofSqFt"), "dormer.areas.roofSqFt x typed dormerRoofSqFt (sheathing and covering, you decide what the price includes)");
   }
   const ins = result.insulation;
   if (ins?.ok) {

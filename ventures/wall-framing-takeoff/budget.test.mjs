@@ -282,3 +282,15 @@ test("stair balusters, guard posts and handrail brackets are priced from the rai
   assert.ok(Math.abs(hr.amount - hr.qty * 5) <= 0.02);
   assert.ok(!bud(full({ stairBaluster: 4 })).lines.some((x) => x.item === "Stair balusters"));
 });
+
+test("dormer framing is priced by board feet and its roof by area, typed prices only", () => {
+  const dormer = { ok: true, parts: [{ part: "ridge", size: "2x8", length: 96, count: 1 }, { part: "stud", size: "2x4", length: 48, count: 4 }], areas: { roofSqFt: 50 } };
+  const b = budget({ orders: [], dormer }, { dormerBoardFoot: 2, dormerRoofSqFt: 3 });
+  // 2x8 x 96 in = 2*8*96/144 = 10.667 bf; 4 x (2*4*48/144 = 2.667) = 10.667 bf; total 21.33 bf
+  const l = b.lines.find((x) => x.item === "Dormer framing lumber");
+  assert.equal(l.qty, 21.33);
+  assert.equal(l.amount, 42.67); // 21.333 bf x 2 = 42.667
+  assert.equal(b.lines.find((x) => x.item === "Dormer roof area").amount, 150);
+  const none = budget({ orders: [], dormer }, {});
+  assert.ok(none.unpriced.some((u) => u.startsWith("Dormer framing lumber")));
+});
