@@ -2,7 +2,7 @@
 title: "Dictate your call notes, hear the brief: voice in the Sales Agent page"
 date: 2026-11-01
 tags: [sales-agent, voice, sales]
-description: The Sales Agent's call section can now take dictated notes and read a call brief aloud, using the browser's own speech tools, with nothing recorded or stored by the page.
+description: The Sales Agent call section can now take dictated notes and read a call brief aloud, using the browser's own speech tools; the page records and stores nothing.
 ---
 
 A rep finishes a call and has about two minutes of memory left. Typing nine bullet points is where follow-ups go to die. The Sales Agent's call section now has a "Dictate notes" button: say "they lose about six hours a week on routing, next point, I will send the pricing sheet" and the notes box gets two lines, the second of which the follow-up draft treats as a promise.
