@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01XpHqydSTzQMsxThrroonHU",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "lets set as a direction to move the research into phd+ level with applications in deep tech applications",
+  "input_sha256": "bda422f8b044b681c832dd993ef96ebf9ca65f5077d809ed67fb2986c51fb527",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T00:30:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "direction",
+  "projects": [],
+  "pr": 12208,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Its docstring cited a prompts/goals.md section 'Direction: industrial, energy and construction' that does not exist; it now points at the new 'Direction: research at PhD+ level, aimed at deep tech', which records the 2026-10-31 pivot too."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "The root guide suggests keeping control-plane edits (prompts/, research/CLAUDE.md) in their own PR. This is one small PR on the session's single designated branch, since the owner asked for the direction directly and the non-control-plane parts only make sense alongside it.",
+      "did": "one PR for goals, research guides, pick_track and the post",
+      "result": "see pr"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-01-research-aims-at-deep-tech.md"
+  ],
+  "goal": null,
+  "notes": "Owner direction recorded in prompts/goals.md, research/CLAUDE.md, prompts/research/prompt-0.md and prompt-1.md, research/PROGRAMMES.md (deep-tech application paragraph asked for, not checked) and research/PROJECTS.md. pick_track FOCUS widened with chip, eda, accel, codesign (13 of 25 tracks, ~76% of track draws, was ~68%) and verified-dse added to FOCUS_PROGRAMMES (6 of 9 programmes). research/_shared test_pick_track: 20 tests OK.",
+  "corrections": [],
+  "redteam": null
+}

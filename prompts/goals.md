@@ -52,7 +52,9 @@ and one platform that runs them:
   gate.
 - **Research** (`research/`): a research portfolio that supports PhD
   applications in ML/AI, robotics and autonomy, operations research or
-  industrial engineering. Work a faculty member would take seriously:
+  industrial engineering, aimed since 2026-11-01 at PhD+ work with deep-tech
+  applications ("Direction: research at PhD+ level, aimed at deep tech").
+  Work a faculty member would take seriously:
   reproducible code, honest results, publishable write-ups.
 - **The platform** (`platform/`, `portfolio/`, `prompts/`): the agents,
   checks and prompts that do the work above. It exists to serve the two
@@ -481,6 +483,51 @@ Python package, a notebook, a GPU job the user runs, or a self-hosted service
 is fine when the method needs it (owner, 2026-10-30, "Direction: every
 platform"). Spec, licence rules and definition of done:
 [`portfolio/research-tools/README.md`](../portfolio/research-tools/README.md).
+
+## Direction: research at PhD+ level, aimed at deep tech
+
+Set by the owner on 2026-11-01: "lets set as a direction to move the research
+into phd+ level with applications in deep tech applications". It raises the
+2026-10-24 bar ("phd + in ambition and scope ... publishable";
+[`research/PROGRAMMES.md`](../research/PROGRAMMES.md)) and gives it an aim. It
+also names the 2026-10-31 pivot ("deep tech industrial, energy, real estate dev
+and construction, construction data warehouse; robotics, construction
+imaging/sensing, autonomy") that `research/_shared/pick_track.py` already
+weights.
+
+**What "deep tech" means here.** Hard engineering and science where the
+bottleneck is a research problem, not a product decision: semiconductors and
+chip design, robotics and autonomy (ground, air, water), sensing and
+computational imaging, energy generation, storage and grids, advanced
+manufacturing and construction, heavy equipment, materials, and the ML
+systems these run on. A programme counts when an engineer or a company in such
+a field would change what they build or how they test it because of the
+answer.
+
+**What "PhD+" means here**, read as judgment, not a checklist:
+- the question is one a strong thesis chapter answers, and the work aims past
+  the first workshop paper at a main-track venue or a journal in the
+  application's own field (ICCAD, CoRL, RSS, *Applied Energy*, *Automation in
+  Construction*, *Ocean Engineering* and the like);
+- theory and data together: a result we prove or bound, checked on real
+  measurements, real hardware logs, a standard benchmark or an industrial-grade
+  open tool (SKY130/OpenROAD, MuJoCo, real grid or permit data), not only on a
+  model we wrote;
+- a usable artefact a practitioner adopts: an open tool, dataset or benchmark
+  with one command per figure, so the work transfers without us;
+- the application stated concretely in the proposal: which system, which
+  number it moves, and what it would take to try it on the real thing.
+
+How it lands: `PROGRAMMES.md` asks each proposal for a **deep-tech
+application** paragraph, new programmes come from the deep-tech tracks in
+[`research/PROJECTS.md`](../research/PROJECTS.md) by default, and
+`pick_track.py` weights the deep-tech programmes and tracks in its `FOCUS`
+draw. Existing programmes outside deep tech (mechanism design for verifiable
+training, LLM coding for social science) stay open and get finished; this is
+about where new effort goes. The research guardrails bind as before: a higher
+bar is never a reason to overstate, simulated results stay separate from claims
+about real machines, and nothing runs on real hardware or near a person
+without the owner.
 
 ## Direction: every platform, not just the web
 

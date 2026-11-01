@@ -8,8 +8,8 @@ Otherwise a track, whose run opens a new programme in that area or advances one 
 r < 0.05 is a free-choice run; otherwise track = 1 + floor((r - 0.05) / 0.95 * N), N = len(PREFIX),
 except that with probability FOCUS_SHARE the same position maps onto the FOCUS tracks only, and
 programmes in FOCUS are drawn first that often (owner, 2026-10-31: deep tech industrial, energy,
-real estate development and construction, construction data; prompts/goals.md, "Direction:
-industrial, energy and construction").
+real estate development and construction, construction data; widened 2026-11-01 to chips and
+robot co-design; prompts/goals.md, "Direction: research at PhD+ level, aimed at deep tech").
 Pass a number to map a draw you already have: pick_track.py 0.11
 With no number the first draw is saved in .git (keyed by branch, 12 h) and
 reused, so a re-run in the same session gives the same programme; --new redraws.
@@ -41,13 +41,16 @@ SATURATED = 40
 PROGRAMME_SHARE = 0.65
 # The owner's overarching directions from 2026-10-31: construction and real estate
 # development (house, buildbot, heavy), imaging and sensing (sensing), energy (energy),
-# industrial deep tech (infra) and autonomy (osrobot, aerolog, marine). Half of all
-# track and programme draws go to these first; the rest stay uniform, so about 68% of
-# track draws and 75% of programme draws land here, and no other track is closed.
-FOCUS = ["house", "buildbot", "heavy", "sensing", "energy", "infra", "osrobot", "aerolog", "marine"]
+# industrial deep tech (infra) and autonomy (osrobot, aerolog, marine); widened on
+# 2026-11-01 ("phd+ level with applications in deep tech") to chips (chip, eda, accel)
+# and robot co-design (codesign). Half of all track and programme draws go to these
+# first; the rest stay uniform, so about 76% of track draws land here, and no other
+# track is closed.
+FOCUS = ["house", "buildbot", "heavy", "sensing", "energy", "infra", "osrobot", "aerolog", "marine",
+         "chip", "eda", "accel", "codesign"]
 FOCUS_SHARE = 0.5
 # Programmes whose slug does not start with a FOCUS prefix but belong to it.
-FOCUS_PROGRAMMES = {"sim2real-inference", "build-data"}
+FOCUS_PROGRAMMES = {"sim2real-inference", "build-data", "verified-dse"}
 RESEARCH = Path(__file__).resolve().parents[1]
 
 
@@ -61,7 +64,7 @@ def pick(r, focus_share=FOCUS_SHARE):
 
 
 def is_focus(slug):
-    """True when programme `slug` belongs to the owner's 2026-10-31 directions."""
+    """True when programme `slug` belongs to the owner's deep-tech focus (2026-10-31, 2026-11-01)."""
     return slug in FOCUS_PROGRAMMES or slug.split("-")[0] in FOCUS
 
 

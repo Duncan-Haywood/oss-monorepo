@@ -17,6 +17,13 @@ portfolio's stated aim is work a faculty member takes seriously
 **programme**: one hard, open question, pursued over many sessions until it
 yields a paper that could go to a named peer-reviewed venue.
 
+**PhD+, aimed at deep tech** (owner, 2026-11-01: "move the research into
+phd+ level with applications in deep tech applications"). The bar below is
+the floor. Aim past it: theory checked on real measurements or industrial-grade
+open tools, an artefact a practitioner adopts, and an application in chips,
+robotics and autonomy, sensing, energy, construction or heavy equipment that
+the proposal names.
+
 ## What a run does
 
 1. **Advance an open programme by default.** Pick one from the table below
@@ -66,6 +73,12 @@ yields a paper that could go to a named peer-reviewed venue.
 - **Target venue.** A named conference, journal or workshop, and the
   submission shape (page limit, artefact track). This is an aim, not a claim
   that the work will be accepted.
+- **Deep-tech application** (since 2026-11-01; asked for, not yet checked by
+  `programme_check.py`, so the nine older proposals still pass). The system
+  the answer is for (a chip flow, a robot, a sensor rig, a grid, a building
+  site, a machine), the number it moves, who would act on it, and what it would
+  take to try it on the real thing. Prefer a main-track venue or the
+  application field's own journal over a workshop.
 
 ## The bar a programme reaches before it is done
 
@@ -99,7 +112,10 @@ venue, the paper says so.
 | [`build-data`](build-data/PROPOSAL.md) | Do public building-permit records, loaded from several cities onto one open schema, predict how long a permit and the build behind it take better than each city's own averages, and which fields carry the signal? (the first table of the construction data warehouse; owner, 2026-10-31) | the city open-data permit feeds (Chicago, New York DOB, San Francisco, Austin and others, licences checked per city); `ventures/wall-framing-takeoff`; tracks 12 and 20 | *Automation in Construction* / ASCE *J. Construction Engineering and Management* |
 
 Since 2026-10-31 half of all programme draws take the industrial, energy,
-construction and autonomy programmes first (`pick_track.py`, `FOCUS`; owner's
-direction in `prompts/goals.md`). A row without a proposal is an invitation: its first session writes the
+construction and autonomy programmes first, and since 2026-11-01 the chip and
+robot co-design ones too (`verified-dse`; `pick_track.py`, `FOCUS`; owner's
+direction in `prompts/goals.md`, "Direction: research at PhD+ level, aimed at
+deep tech"). New programmes come from these areas by default; the others stay
+open and get finished. A row without a proposal is an invitation: its first session writes the
 proposal. Add rows when a question earns one; close a row (with a line on the
 outcome) when its paper is ready or the question is settled.
