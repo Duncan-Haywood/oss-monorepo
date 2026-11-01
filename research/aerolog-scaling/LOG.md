@@ -3,6 +3,12 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-11-01 · Milestone 9p: does 9o's iterated-GLS gain survive when the noise is not AR(1)? (planned before running)
+- Why: 9o's "Next". Its estimator assumed the generator's AR(1) form, which flatters it.
+- Plan (`experiments/misspecified_noise/run.py`): 9o's script and seed (20261103; the white and coloured-unweighted rows draw different coloured noise now, so only the white row should reproduce 9o). The coloured generator is AR(2), phi1 1.2, phi2 -0.4, unit variance, lag-1 autocorrelation 0.857 (9o: AR(1), 0.9). The estimator is still AR(1) iterated GLS (lag-1 coefficient of the residuals). 26 designs, 10 draws, 2 periods, 10% noise.
+- **Predictions (before running):** (1) iterated GLS still improves the share of draws within 10% gust over the unweighted coloured fit (prior 75%). (2) It recovers less than half of the coloured-minus-white gap, i.e. falls short of 9o's recovery (prior 55%). (3) Fit failures at most twice white's (prior 70%). Refuted: (1) no gain over unweighted; (3) more than twice.
+- Limits known in advance: one AR(2) shape, no 1/f; 10 draws on a third of the designs; one seed.
+
 ## 2026-11-01 · Milestone 8g: paper draft catches up with milestones 9m to 9o (no new simulation)
 - New Section 4.10a holds the coloured-noise, whitened and estimated-rho results with their limits; `check_numbers.py` ties the figures to this log (all ok). Next: misspecified noise (AR(2) or 1/f generator); real IMU noise density; turbulence; thrust law; AIAA template.
 
