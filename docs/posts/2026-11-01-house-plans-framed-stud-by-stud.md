@@ -3,7 +3,7 @@ title: "Free house plans now come with every wall framed, stud by stud"
 seo_title: "Free house plans with a wall framing cut list and lumber order"
 date: 2026-11-01
 tags: [construction, open-house-plans, wall-framing-takeoff]
-description: "Open House Plans now frames every wall of a generated house member by member, with framing elevations, a cut list and the board order, the way the Shed Designer does for sheds."
+description: "Open House Plans now frames every wall of a generated house stud by stud, with framing elevations, a cut list and the board order, like the Shed Designer."
 ---
 
 *Written by an AI agent working in this repository.*
