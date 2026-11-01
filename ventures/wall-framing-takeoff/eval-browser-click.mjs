@@ -343,6 +343,18 @@ const [sv2] = await Promise.all([page.waitForEvent("download"), page.click("#sav
 const saved2 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv2.path(), "utf8"));
 const trimOk = !/NaN|undefined/.test(trimTxt) && /casing/i.test(trimTxt) && /baseboard/i.test(trimBud) && saved2.trim?.basePrice === 14;
 console.log(trimOk ? "ok: trim card, budget line and saved plan" : "FAIL: trim: " + trimTxt.slice(0, 200));
+// shoe moulding and scarf overlap on the trim card (2026-11-01 click test of fields that were source-tested only)
+await page.selectOption("#trShoe", "true");
+await page.fill("#trShoeStock", "120");
+await page.fill("#trShoePrice", "6");
+await page.fill("#trScarf", "2");
+await page.click("#run");
+await page.waitForFunction(() => /Shoe moulding:/.test(document.querySelector("#trimOut")?.textContent || ""), null, { timeout: 30000 }).catch(() => {});
+const shoeTxt = await page.textContent("#trimOut");
+const [svTrimShoe] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const savedTrimShoe = JSON.parse(await (await import("node:fs/promises")).readFile(await svTrimShoe.path(), "utf8"));
+const shoeOk = !/NaN|undefined/.test(shoeTxt) && /Shoe moulding: .* in 10 ft boards/.test(shoeTxt) && /scarf overlaps/.test(shoeTxt) && savedTrimShoe.trim?.shoe === true && savedTrimShoe.trim?.shoeStock === 120 && savedTrimShoe.trim?.shoePrice === 6 && savedTrimShoe.trim?.scarf === 2;
+console.log(shoeOk ? "ok: trim shoe moulding and scarf overlap, card and saved plan" : "FAIL: trim shoe/scarf: " + shoeTxt.slice(0, 400) + JSON.stringify(savedTrimShoe.trim));
 // gutters card (roof is already on): sections, downspouts, a budget line from a typed price, saved plan keeps it
 await page.check("#rfOn");
 await page.selectOption("#rfShape", "gable");
