@@ -191,3 +191,12 @@ test("labor line for wall sheathing uses the typed per-sheet rate", () => {
   assert.ok(Math.abs(l.amount - l.qty * 9) <= 0.02);
   assert.ok(!bud({ ...full({}) }).lines.some((x) => x.item === "Wall sheathing installation"));
 });
+
+test("the page's price-name help lists every price name the engine reads", () => {
+  const src = readFileSync(new URL("./budget.mjs", import.meta.url), "utf8");
+  const page = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  const names = [...new Set([...src.matchAll(/P\("([A-Za-z]+)"\)/g)].map((m) => m[1]))];
+  assert.ok(names.length > 40);
+  const missing = names.filter((n) => !page.includes(n));
+  assert.deepEqual(missing, []);
+});
