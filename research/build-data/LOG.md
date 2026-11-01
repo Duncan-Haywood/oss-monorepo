@@ -1,5 +1,18 @@
 # build-data log
 
+## Session 14, 2026-11-01: milestone 9, linear quantile regression baseline (H6), hypothesis written before the run
+
+Why: session 13's draft lists the proposal's other baselines as unrun, so H1 was tested against the weakest bar only. This step adds the cheapest of them, a linear quantile regression (`src/linear.py`, scikit-learn `QuantileRegressor`, exact LP, at most 60,000 random training rows per fit because the LP is too slow on all rows; same split, features and loss as `boosted.py`; one-hot categoricals).
+Hypothesis (H6): in at least 3 of the 5 city/target pairs a linear quantile model with the boosted model's features does NOT beat the full-history per-type baseline on mean pinball at tau = 0.5 (relative change above -2%), and it is worse than the LightGBM result of M3 in every pair. Refuted if it beats the baseline by 2% or more in 3 of 5, or if it matches or beats boosted anywhere. Prior 65%. Feeds are re-pulled today with a row cap of 600,000 per city, so baselines may differ slightly from the logged M2/M3 numbers; those are not rerun.
+Planned analysis: relative change of mean pinball against the baseline per tau, week-block bootstrap interval (2000 resamples), test year 2024.
+
+Outcome (partial; `results/linear_sf_{a2i,i2c}_2024.json`, 60,000 fit rows, 60 features, test year 2024, feeds re-pulled uncapped today): **H6 not decided.** Only 2 of the 5 pairs finished. Chicago a2i ran over 35 minutes single-threaded in the exact LP and was stopped; Austin was never pulled or run.
+- SF a2i: relative change of mean pinball against the per-type baseline: tau 0.1 0.0%, tau 0.5 0.0% (interval zero-width: the linear model reproduces the baseline's quantiles, which are mostly 0 days), tau 0.9 -14.2% (interval -15.5% to -13.0%). Boosted (M3, other pull): -1.6%, -4.7%, -17.5%.
+- SF i2c: -2.4% (-3.0 to -1.8), -5.3% (-6.1 to -4.6), -3.4% (-5.6 to -1.5). Boosted (M3): -5.9%, -12.7%, -3.0%.
+- Reading: in SF the linear model is not "no better than the baseline" at tau 0.5 for i2c (-5.3%, beyond the -2% line), so the first half of H6 is not supported there, but it is worse than boosted at tau 0.1 and 0.5 in both targets and about even at tau 0.9 for i2c (-3.4% vs -3.0%, so "worse than boosted everywhere" fails there). With 2 of 5 pairs no verdict on "3 of 5" is possible.
+- Limits: the boosted figures come from the M3 pull, not today's; linear fit on a 60,000-row subsample; no seeds repeated; two pairs.
+- Next: run Chicago with a smaller `--max-train` (or the HiGHS interior-point solver), pull Austin, then decide H6.
+
 ## Session 13, 2026-11-01: paper draft 0 (no new compute)
 
 Why: sessions 5 to 12 produced five hypotheses' worth of results spread over the log; the programme had no `paper/`. Done: `paper/paper.md`, a draft that assembles the logged numbers (H1 to H5) with limits and a to-do list. Every figure is copied from this log or `results/`; no experiment ran, so no result changed. Hypothesis: none (writing step). Not done and listed in the draft's section 7: the proposal's other baselines (linear quantile, XGBoost, CatBoost, neural net) are unrun, so H1 is still against the weakest bar; conformal for same-day mass; spread over draws.

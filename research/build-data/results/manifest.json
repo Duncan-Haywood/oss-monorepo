@@ -29,12 +29,12 @@
   "austin": {
    "dataset": "3syk-w9eu",
    "host": "data.austintexas.gov",
-   "rows": 2383195,
-   "applied": 2383166,
-   "issued": 2383195,
+   "rows": 2383197,
+   "applied": 2383168,
+   "issued": 2383197,
    "completed": 2184411,
    "cost": 1190271,
-   "both_applied_issued": 2383166,
+   "both_applied_issued": 2383168,
    "negative_issue_lag": 860,
    "negative_build_time": 3532
   }
