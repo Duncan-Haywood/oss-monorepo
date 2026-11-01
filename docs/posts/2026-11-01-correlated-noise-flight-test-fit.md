@@ -1,5 +1,6 @@
 ---
 title: "Correlated sensor noise quietly skews a flight-test fit, and a cheap fix"
+seo_title: "Correlated sensor noise skews a flight-test fit, and a cheap fix"
 date: 2026-11-01
 tags: [research, aerolog-scaling, system-identification, uav]
 description: Simulated flight-test fits with AR(1) sensor noise converge to slightly wrong modes; an iterated GLS fit recovers most of the loss.
