@@ -72,7 +72,7 @@ Usage:
   node cli.mjs plan.json --foundation  add the plan's foundation (footing, stem wall and slab concrete, trucks, rebar, forms, gravel, vapor barrier)
   node cli.mjs plan.json --level-bids  line up the plan's "bids" (bidder, lines of item, qty, unitPrice or amount) against the budget lines: short quantities and left-out scope are priced at the bid's own, the plan's or the other bids' median price, else listed (add --json)
   node cli.mjs plan.json --compare=revised.json  change order: each plan priced with its own "prices", then the budget difference line by line (add --json); pass the same flags the budget needs (--sheathing...)
-  node cli.mjs plan.json --proposal  customer letter from the budget: section prices with markup spread pro rata, plan "proposal" {client, project, date, validDays, inclusions, exclusions, terms, partial}; refused while any line is unpriced (add --json)
+  node cli.mjs plan.json --proposal  customer letter from the budget: section prices with markup spread pro rata, plan "proposal" {client, project, date, validDays, inclusions, exclusions, terms, partial, payments [{name, pct}] adding to 100}; refused while any line is unpriced (add --json)
   node cli.mjs plan.json --budget    price the quantities with the plan's own "prices" (sheets, bundles, concrete, rebar...); lumber uses the stock prices; anything without a price is listed, not guessed (add --csv for a spreadsheet file, --json for the data)
   node cli.mjs --schedule-template   a starter activity list (order and predecessors, every duration 0) to paste into a plan as "schedule"
   node cli.mjs plan.json --risk      Monte Carlo finish dates (P50/P80/P90, chance of the deadline) from min/max days on the schedule activities
