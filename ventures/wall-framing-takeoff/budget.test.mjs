@@ -101,6 +101,23 @@ test("drywall sheets are budgeted once", () => {
   assert.equal(lines[0].amount, lines[0].qty * 10);
 });
 
+test("drywall screws, tape, compound and bead are priced from the engine's own counts, only when typed", () => {
+  const dw = { ceiling: [{ width: 480, depth: 336 }], openingBead: true };
+  const b = bud({ ...full({ drywallScrewThousand: 12, drywallTapeRoll: 5, drywallCompoundPail: 18, cornerBeadStick: 3 }), drywall: dw });
+  const get = (n) => b.lines.find((l) => l.item === n);
+  const screws = get("Drywall screws (per 1,000)");
+  assert.ok(screws.qty > 0);
+  assert.ok(Math.abs(screws.amount - screws.qty * 12) < 0.1); // qty is shown to 2 places
+  for (const [n, p] of [["Drywall tape rolls", 5], ["Joint compound pails", 18], ["Corner bead sticks", 3]]) {
+    const l = get(n);
+    if (n === "Corner bead sticks" && !l) continue;
+    assert.ok(l.qty >= 1, n);
+    assert.equal(l.amount, l.qty * p, n);
+  }
+  const none = bud({ ...full({ drywallSheet: 10 }), drywall: dw });
+  assert.equal(none.lines.find((l) => l.item === "Drywall tape rolls").amount, null);
+});
+
 test("anchor bolts are budgeted from the foundation count at the typed price", () => {
   const plan = full({ anchorBolt: 2.5 });
   plan.foundation = { ...plan.foundation, anchorBolts: {} };

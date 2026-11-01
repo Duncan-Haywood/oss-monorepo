@@ -10,7 +10,7 @@
 // Plan `prices` (all optional, dollars): { wallSheet, floorSheet, roofSheet,
 // truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle,
 // starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, drywallSheet, baseboard, casing (price per board), sidingBoard, sidingStarter, headFlashing (price per piece), openingTape (price per roll), houseWrapRoll, cornerBoard, soffitPanel, fasciaBoard, jChannel, insulationBag, atticFillBag,
-// vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), laborSidingSqFt (siding and house wrap, per sq ft of wall net of openings), laborTrimFoot (baseboard, shoe and casing, per linear foot), laborEavesFoot (fascia run, eave plus rake, per linear foot; soffit and J-channel included), laborGutterFoot (gutter run, per linear foot; downspouts included), laborWallSheet (wall sheathing, per sheet hung), stairConnector (top connector or foot anchor, each), stairRiserBoard (solid riser board, when the stair has `riserBoard`), stairBaluster, stairRailPost, handrailBracket (each; stairs with a `rail`), handrailFoot (per linear foot of handrail run), laborDeckSqFt (deck framing, decking and rails, per sq ft of deck), deckConcreteBag, deckScrewBox, laborStairRiser (stairs, per riser, both flights of a landing stair; stringers, treads and risers set), laborHoldDown (per hold-down or plate strap set, each), tax (fraction on materials), contingency (fraction) }.
+// vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, drywallScrewThousand (per 1,000 screws), drywallTapeRoll, drywallCompoundPail, cornerBeadStick, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), laborSidingSqFt (siding and house wrap, per sq ft of wall net of openings), laborTrimFoot (baseboard, shoe and casing, per linear foot), laborEavesFoot (fascia run, eave plus rake, per linear foot; soffit and J-channel included), laborGutterFoot (gutter run, per linear foot; downspouts included), laborWallSheet (wall sheathing, per sheet hung), stairConnector (top connector or foot anchor, each), stairRiserBoard (solid riser board, when the stair has `riserBoard`), stairBaluster, stairRailPost, handrailBracket (each; stairs with a `rail`), handrailFoot (per linear foot of handrail run), laborDeckSqFt (deck framing, decking and rails, per sq ft of deck), deckConcreteBag, deckScrewBox, laborStairRiser (stairs, per riser, both flights of a landing stair; stringers, treads and risers set), laborHoldDown (per hold-down or plate strap set, each), tax (fraction on materials), contingency (fraction) }.
 // nailBox falls back to fasteners.price; insulationBag falls back to the plan's insulation.price; atticFillBag to insulation.attic.price.
 // Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
 // (`sheathing.summary.cost`) unless `wallSheet` is typed.
@@ -59,6 +59,14 @@ export function budget(result, prices = {}) {
     }
   }
   if (result.drywall) add("Interior", "Drywall sheets", result.drywall.sheets.count, "sheets", P("drywallSheet") ?? result.drywall.sheets.price, "drywall.sheets.count");
+  const dwf = result.drywall?.finishing;
+  if (result.drywall) {
+    // Finishing materials the drywall engine already counts; each is priced only when you type a price.
+    add("Interior", "Drywall screws (per 1,000)", result.drywall.screws / 1000, "thousand", P("drywallScrewThousand"), `${result.drywall.screws} screws at ${result.drywall.assumptions?.screwsPerSqFt ?? 1} per sq ft`);
+    if (dwf?.tapeRolls) add("Interior", "Drywall tape rolls", dwf.tapeRolls, "rolls", P("drywallTapeRoll"), `${dwf.tapeFt} ft of seam and angle at ${dwf.rollFt} ft per roll`);
+    if (dwf?.compoundPails) add("Interior", "Joint compound pails", dwf.compoundPails, "pails", P("drywallCompoundPail"), `${dwf.compoundGal} gal at ${dwf.compoundGalPerSqFt} gal per sq ft, ${dwf.pailGal} gal pails`);
+    if (dwf?.beadSticks) add("Interior", "Corner bead sticks", dwf.beadSticks, "sticks", P("cornerBeadStick"), `${dwf.beadFt} ft at ${dwf.beadStickFt} ft per stick`);
+  }
   const ins = result.insulation;
   if (ins?.ok) {
     const bagPrice = P("insulationBag") ?? ins.price;
