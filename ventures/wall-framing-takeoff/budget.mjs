@@ -134,6 +134,8 @@ export function budget(result, prices = {}) {
   if (laborTyped && gu?.ok && gu.runFeet > 0) add("Labor", "Gutter and downspout installation", gu.runFeet, "ft", P("laborGutterFoot"), "gutters.runFeet x typed laborGutterFoot");
   if (laborTyped && result.sheathing?.summary?.sheets > 0) add("Labor", "Wall sheathing installation", result.sheathing.summary.sheets, "sheets", P("laborWallSheet"), "sheathing.summary.sheets x typed laborWallSheet");
   if (laborTyped && dk?.ok && dk.area > 0) add("Labor", "Deck framing, decking and rails", dk.area, "sq ft", P("laborDeckSqFt"), "deck.area x typed laborDeckSqFt");
+  const stairRisers = (result.stairs || []).reduce((/** @type {number} */ t, /** @type {any} */ x) => t + (x.flights ? x.flights.reduce((/** @type {number} */ u, /** @type {any} */ g) => u + (g.risers || 0), 0) : (x.risers || 0)), 0);
+  if (laborTyped && stairRisers > 0) add("Labor", "Stair stringers, treads and risers", stairRisers, "risers", P("laborStairRiser"), "sum of stairs risers (each flight of a landing stair) x typed laborStairRiser");
   const hardware = fa?.ok ? (fa.holdDowns?.count || 0) + (fa.plateStraps?.count || 0) : 0;
   if (laborTyped && hardware > 0) add("Labor", "Hold-down and plate strap installation", hardware, "each", P("laborHoldDown"), "fasteners.holdDowns.count + plateStraps.count x typed laborHoldDown");
   const insBags = ins?.ok ? (ins.bags || 0) + (ins.rim?.bags || 0) + (ins.attic?.bags || 0) : 0;

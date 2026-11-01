@@ -221,3 +221,14 @@ test("deck lines: lumber order cost, footing bags and screw boxes tie to the dec
   assert.ok(!none.lines.some((x) => x.item === "Deck framing, decking and rails"));
   assert.ok(!bud(full()).lines.some((x) => x.section === "Deck"));
 });
+
+test("labor line for stairs multiplies the typed per-riser rate by every riser in the plan", () => {
+  const b = JSON.parse(run({ ...full({ laborStairRiser: 40 }), stairs: { totalRise: 108, tread: 10, stringer: "2x12", width: 36 } }, "--stairs", "--budget", "--json").out);
+  const l = b.lines.find((x) => x.item === "Stair stringers, treads and risers");
+  assert.ok(l, "stair labor line appears");
+  assert.equal(l.qty, Math.ceil(108 / 7.75 - 1e-9)); // 14 risers: fewest under the 7.75 in limit
+  assert.ok(Math.abs(l.amount - l.qty * 40) <= 0.02);
+  const none = JSON.parse(run({ ...full({ laborWallFoot: 5 }), stairs: { totalRise: 108, tread: 10, stringer: "2x12", width: 36 } }, "--stairs", "--budget", "--json").out);
+  const un = none.lines.find((x) => x.item === "Stair stringers, treads and risers");
+  assert.equal(un.amount, null); // no rate typed for stairs: listed, unpriced
+});
