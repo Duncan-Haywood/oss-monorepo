@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01AcxTtGuxceEX21mCy6tArw",
+  "track": "review",
+  "prompt_version": 1,
+  "input": "scheduled: read prompt.md",
+  "input_sha256": "94a6b2a74a2fe72d09d7042291a4072d20b259b937e79b5deda0279ae57c7410",
+  "follow_up_inputs": [],
+  "model": "null",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T16:11:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12367",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 fetches origin security-alerts, which does not exist; fetch fails with no fallback."
+    },
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "validate failed on another run's post (description 166 chars); fixed it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Reduced review pass: derive fetch+build, measure, retired process candidate 2, E120 logged. No audit/drift report. No blog post: system-maintenance run.",
+  "corrections": [],
+  "redteam": null
+}
