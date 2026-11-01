@@ -313,3 +313,14 @@ test("cost per sq ft of floor framed is total over the floor model's subfloor ar
   const noFloor = budget({ ...samplePlan(), orders: [], summary: {} }, {});
   assert.equal(noFloor.perFloorSqFt, null);
 });
+
+test("each section reports its share of the priced lines, summing to about 100", () => {
+  const b = bud(full({ floorSheet: 30, concreteYd: 150, laborWallFoot: 5 }));
+  const sum = b.sections.reduce((t, x) => t + x.share, 0);
+  assert.ok(Math.abs(sum - 100) < 0.5, String(sum));
+  const priced = b.sections.reduce((t, x) => t + x.subtotal, 0);
+  const lab = b.sections.find((x) => x.name === "Labor");
+  assert.equal(lab.share, Math.round((1000 * lab.subtotal) / priced) / 10);
+  assert.match(budgetText(b).join("\n"), /Labor [\d.]+ \(\d+\.\d%\)/);
+  assert.equal(budget({ orders: [], summary: {} }, {}).sections.every((x) => x.share === 0), true);
+});
