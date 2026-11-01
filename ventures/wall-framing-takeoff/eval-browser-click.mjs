@@ -462,6 +462,17 @@ const [sv6] = await Promise.all([page.waitForEvent("download"), page.click("#sav
 const saved6 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv6.path(), "utf8"));
 const slabOk = !/NaN|undefined/.test(inTxt) && /slab edge/i.test(inTxt) && saved6.insulation?.assembly?.slabEdgeF === 0.54 && saved6.insulation?.assembly?.windowU === 0.3;
 console.log(slabOk ? "ok: insulation slab edge F-factor, card and saved plan" : "FAIL: slab edge: " + (await page.textContent("#errors")).slice(0, 300) + inTxt.slice(0, 400));
+// allowances on the price box and the customer proposal card (2026-11-01)
+await page.fill("#priceText", "wallSheet, 20\nlaborWallFoot, 10\noverhead, 0.1\nprofit, 0.1\nallowance Permit, 1200");
+await page.fill("#propClient", "Test Client"); await page.fill("#propExcl", "Painting");
+await page.check("#propPartial");
+await page.click("#propBtn");
+await page.waitForFunction(() => /PROPOSAL|Proposal not issued/.test(document.querySelector("#propOut")?.textContent || ""), null, { timeout: 30000 }).catch(() => {});
+const propTxt = await page.textContent("#propOut");
+const [sv7] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved7 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv7.path(), "utf8"));
+const propOk = /Prepared for Test Client/.test(propTxt) && /Permit: 1,200\.00/.test(propTxt) && /Not included: Painting/.test(propTxt) && !/NaN|undefined/.test(propTxt) && saved7.allowances?.Permit === 1200;
+console.log(propOk ? "ok: allowance line and customer proposal, card and saved plan" : "FAIL: proposal: " + propTxt.slice(0, 500) + JSON.stringify(saved7.allowances));
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || !sdOk || !sd2Ok || !slabOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || !sdOk || !sd2Ok || !slabOk || !propOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
