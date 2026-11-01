@@ -10,7 +10,7 @@
 // Plan `prices` (all optional, dollars): { wallSheet, floorSheet, roofSheet,
 // truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle,
 // starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, drywallSheet, baseboard, casing (price per board), sidingBoard, sidingStarter, headFlashing (price per piece), openingTape (price per roll), houseWrapRoll, cornerBoard, soffitPanel, fasciaBoard, jChannel, insulationBag, atticFillBag,
-// vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), laborSidingSqFt (siding and house wrap, per sq ft of wall net of openings), laborTrimFoot (baseboard, shoe and casing, per linear foot), laborEavesFoot (fascia run, eave plus rake, per linear foot; soffit and J-channel included), laborGutterFoot (gutter run, per linear foot; downspouts included), laborWallSheet (wall sheathing, per sheet hung), laborHoldDown (per hold-down or plate strap set, each), tax (fraction on materials), contingency (fraction) }.
+// vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), laborSidingSqFt (siding and house wrap, per sq ft of wall net of openings), laborTrimFoot (baseboard, shoe and casing, per linear foot), laborEavesFoot (fascia run, eave plus rake, per linear foot; soffit and J-channel included), laborGutterFoot (gutter run, per linear foot; downspouts included), laborWallSheet (wall sheathing, per sheet hung), laborDeckSqFt (deck framing, decking and rails, per sq ft of deck), deckConcreteBag, deckScrewBox, laborHoldDown (per hold-down or plate strap set, each), tax (fraction on materials), contingency (fraction) }.
 // nailBox falls back to fasteners.price; insulationBag falls back to the plan's insulation.price; atticFillBag to insulation.attic.price.
 // Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
 // (`sheathing.summary.cost`) unless `wallSheet` is typed.
@@ -101,6 +101,13 @@ export function budget(result, prices = {}) {
   if (fa?.ok && fa.boxes != null) add("Fasteners", "Framing nails (boxes)", fa.boxes, "boxes", P("nailBox") ?? fa.price, `${fa.order} nails incl. ${(100 * fa.waste).toFixed(0)}% waste, ${fa.nailsPerBox} per box`);
   if (fa?.ok && fa.holdDowns?.count) add("Fasteners", "Hold-downs", fa.holdDowns.count, "each", P("holdDown") ?? fa.holdDowns.price, `${fa.holdDowns.wallEnds} at wall ends, ${fa.holdDowns.openingSides} beside openings`);
   if (fa?.ok && fa.plateStraps?.count) add("Fasteners", "Plate straps", fa.plateStraps.count, "each", P("plateStrap") ?? fa.plateStraps.price, `${fa.plateStraps.topJoints} top-plate and ${fa.plateStraps.capJoints} cap-plate joints, ${fa.plateStraps.plateTies} single-top-plate ties`);
+  const dk = result.deck;
+  if (dk?.ok) {
+    const boards = dk.orders.reduce((/** @type {number} */ t, /** @type {any} */ o) => t + o.boards, 0);
+    add("Deck", "Deck lumber boards (pressure-treated order)", boards, "boards", boards ? dk.cost / boards : null, "deck.orders cost (the deck's own stock prices) over boards bought");
+    add("Deck", "Footing concrete bags", dk.concrete.bags, "bags", P("deckConcreteBag"), `${dk.concrete.count} footings, ${dk.concrete.diameter} in x ${dk.concrete.depth} in, ${dk.concrete.bagYield} cu ft per bag, 10% spare`);
+    add("Deck", "Deck screw boxes", dk.screwBoxes, "boxes", P("deckScrewBox"), `${dk.screws} screws, two per board crossing`);
+  }
   const f = result.foundation;
   if (f) {
     add("Foundation", "Concrete", f.concrete.order, "cu yd", P("concreteYd") ?? (f.concrete.cost != null ? f.concrete.cost / f.concrete.order : null), `${f.concrete.trucks} truck(s) incl. ${(100 * f.concrete.waste).toFixed(0)}% waste`);
@@ -126,6 +133,7 @@ export function budget(result, prices = {}) {
   if (laborTyped && eavesFt > 0) add("Labor", "Fascia, soffit and J-channel installation", eavesFt, "ft", P("laborEavesFoot"), "eaves.eaveFeet + rakeFeet x typed laborEavesFoot");
   if (laborTyped && gu?.ok && gu.runFeet > 0) add("Labor", "Gutter and downspout installation", gu.runFeet, "ft", P("laborGutterFoot"), "gutters.runFeet x typed laborGutterFoot");
   if (laborTyped && result.sheathing?.summary?.sheets > 0) add("Labor", "Wall sheathing installation", result.sheathing.summary.sheets, "sheets", P("laborWallSheet"), "sheathing.summary.sheets x typed laborWallSheet");
+  if (laborTyped && dk?.ok && dk.area > 0) add("Labor", "Deck framing, decking and rails", dk.area, "sq ft", P("laborDeckSqFt"), "deck.area x typed laborDeckSqFt");
   const hardware = fa?.ok ? (fa.holdDowns?.count || 0) + (fa.plateStraps?.count || 0) : 0;
   if (laborTyped && hardware > 0) add("Labor", "Hold-down and plate strap installation", hardware, "each", P("laborHoldDown"), "fasteners.holdDowns.count + plateStraps.count x typed laborHoldDown");
   const insBags = ins?.ok ? (ins.bags || 0) + (ins.rim?.bags || 0) + (ins.attic?.bags || 0) : 0;
