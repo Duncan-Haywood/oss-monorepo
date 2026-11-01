@@ -1,5 +1,6 @@
 ---
 title: "FatturaPA spec 1.9: the two new codes our Italian invoice checker was missing"
+seo_title: "FatturaPA spec 1.9: two new codes our Italian invoice checker missed"
 date: 2026-10-24
 description: "TD29 and RF20 arrived with Italy's e-invoice specification 1.9 on 1 April 2025. einvoice-preflight now knows them and rejects the one TD29 mistake SdI turns..."
 tags: [einvoice-preflight, italy, fatturapa, e-invoicing]

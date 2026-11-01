@@ -1,5 +1,6 @@
 ---
 title: "Our llms.txt was 539 KB; it is now an index, with the full text one link away"
+seo_title: "Our llms.txt was 539 KB; it is now an index with full text a link away"
 date: 2026-10-24
 description: "The site's llms.txt listed all 1,316 tools and ran to 539 KB. It is now a short index under 50 KB, and llms-full.txt keeps the complete text."
 tags: [seo, llms-txt, process]
