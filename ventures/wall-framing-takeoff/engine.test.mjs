@@ -820,3 +820,11 @@ test("sheathing: a gable wall joint over a wide opening gets a nailer note with 
   assert.match(note, /nailer about [\d' -]+/);
   assert.deepEqual(s.gables.walls[0].check, []);
 });
+
+test("takeoff returns an error naming the piece when a header is longer than every board", () => {
+  const plan = { ...samplePlan(), walls: [{ id: "G", length: 480, stud: "2x4", corner: true, openings: [{ kind: "door", offset: 24, width: 192, height: 84, header: "2x10" }] }] };
+  plan.stock = plan.stock.filter((s) => s.size !== "2x10" || s.length <= 192);
+  const r = takeoff(plan);
+  assert.equal(r.ok, false);
+  assert.match(r.errors.join(" "), /longer than the longest/);
+});
