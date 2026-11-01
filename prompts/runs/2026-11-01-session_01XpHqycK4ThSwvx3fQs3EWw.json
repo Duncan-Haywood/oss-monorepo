@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01XpHqycK4ThSwvx3fQs3EWw",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "lets do something similar to the shed design except for actual residential homes.",
+  "input_sha256": "45ec7cee1ca93006d4760a3181b358eb9df2e93a80a76bc11193cb33ae184a09",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T01:07:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Frame every wall of a generated house stud by stud (shed-designer style): framing elevations, cut list, lumber order",
+  "projects": [
+    "open-house-plans",
+    "wall-framing-takeoff"
+  ],
+  "pr": 12215,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first push blocked by the post front-matter hook (description 176 > 160 chars)",
+      "fix": "shortened, re-committed"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "`record --model` writes a model id into a committed file, while the session's instructions forbid model identifiers in pushed artifacts; left model null"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/open-house-plans/page.test.mjs",
+      "why": "its sibling-only import rule blocked importing ../wall-framing-takeoff directly; vendored the engine byte for byte with a drift test instead of loosening the rule",
+      "did": "vendor-framing.mjs + wft-*.mjs + check in framing.test.mjs",
+      "result": "rule kept; tests green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-01-house-plans-framed-stud-by-stud.md"
+  ],
+  "goal": null,
+  "notes": "open-house-plans: 39/39 + framing.test.mjs 6/6; wall-framing-takeoff 520/520 incl. new regression test (fails on old engine). 144-brief sweep: 0 walls left out, 0 verifyWall failures. Headless Chromium: page renders in 1.8 s, framing tab draws, order table 21 rows, zip 18 files, testzip clean, no console errors. Finding: mulled egress casements were sized per window (2-ply 2x6); combined span needs 2-ply 2x10/2x12.",
+  "corrections": [],
+  "redteam": null
+}

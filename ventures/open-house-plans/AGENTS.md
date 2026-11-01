@@ -16,7 +16,7 @@ node platform/agents/tools.mjs call open-house-plans design --input '{"beds":3,"
 node platform/agents/tools.mjs call open-house-plans design --input '{"text":"4 bed ranch with a two-car garage on a 90 ft lot"}'
 # how a sentence is read
 node platform/agents/tools.mjs call open-house-plans parseBrief --args '["two bedroom cottage with a porch"]'
-# the plan set (15 files) plus a zip
+# the plan set (18 files, with every wall framed stud by stud) plus a zip
 node platform/agents/tools.mjs run open-house-plans -- design --beds 3 --style modern --out house --zip --json
 ```
 
@@ -49,6 +49,8 @@ Every field is optional. Unknown fields are ignored with a note; out-of-range va
 | `variant` | 0 = best design; 1, 2, ... = the runners-up | 0 |
 
 ## What to tell the person
+
+- `designFiles` (and the CLI with `--out`) frames every wall stud by stud: `framing.svg`, `framing-cuts.csv`, `lumber-order.csv`, and `design.studFraming` (boards, pieces, offcut, notes). The order is wall framing only and in boards, not dollars.
 
 - The cost is a model anchored on NAHB's 2024 survey and scaled by the design's geometry, in 2024 US-average dollars, not a quote.
 - The checks paraphrase the IRC by section and run NDS member checks; passing them is not code compliance.

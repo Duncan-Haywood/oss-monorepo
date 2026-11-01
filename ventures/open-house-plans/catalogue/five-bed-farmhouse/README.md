@@ -17,6 +17,45 @@ A free, public-domain (CC0) house plan generated from a brief by [Open House Pla
 | Construction cost | **$468,838** ($206/sq ft), US average, 2024 dollars* |
 | Checks | 46 passed, 0 failed |
 
+## Wall framing, stud by stud
+
+Every wall is laid out member by member (`framing.svg`): 26 walls, 543 ft, 806 pieces cut from 471 boards (4,200 board feet, 0.6% offcut, within 0.19% of the cutting-stock lower bound for this cut list). Studs are 104-5/8" precuts. `framing-cuts.csv` lists every cut and the board it comes from; `lumber-order.csv` is the order. The board order counts wall framing only (no floor, roof, sheathing or blocking), and comes from the Wall Framing Takeoff engine. 1 header is an engineered beam (LVL), drawn at 2x12 depth and listed for the supplier to size.
+
+Framing notes:
+
+- Front (w1): o29 and o30 are under 12 in apart, framed as one 75-1/2" rough opening (a mulled unit).
+- Front (w1): the o29+o30 mulled windows header is sized for the combined span: 2-ply 2x12, 2 jacks a side (ratio 0.99, structure.mjs).
+- Front (w1): o31 and o32 are under 12 in apart, framed as one 75-1/2" rough opening (a mulled unit).
+- Front (w1): the o31+o32 mulled windows header is sized for the combined span: 2-ply 2x12, 2 jacks a side (ratio 0.99, structure.mjs).
+- Front (w1): o39 and o40 are under 12 in apart, framed as one 75-1/2" rough opening (a mulled unit).
+- Front (w1): the o39+o40 mulled windows header is sized for the combined span: 2-ply 2x12, 2 jacks a side (ratio 0.99, structure.mjs).
+- Back (w3): o35 and o36 are under 12 in apart, framed as one 75-1/2" rough opening (a mulled unit).
+- Back (w3): the o35+o36 mulled windows header is sized for the combined span: 2-ply 2x10, 2 jacks a side (ratio 0.98, structure.mjs).
+- Back (w3): o37 and o38 are under 12 in apart, framed as one 75-1/2" rough opening (a mulled unit).
+- Back (w3): the o37+o38 mulled windows header is sized for the combined span: 2-ply 2x10, 2 jacks a side (ratio 0.98, structure.mjs).
+- Hall / Bath 1 / Bedroom 2 / Clo. / Bedroom 3 / Clo. (w12): o3 Bath 1 door moved 2-5/16" away from the wall end so its jacks clear the end stud.
+- Hall / Bath 1 / Bedroom 2 / Clo. / Bedroom 3 / Clo. (w12): the partition at 11' 9-3/4" lands on the framing of o5 Bedroom 2 door; nail it to the king studs there (no tee backing).
+- Hall / Bath 1 / Bedroom 2 / Clo. / Bedroom 3 / Clo. (w12): the partition at 25' 3-3/4" lands on the framing of o7 Bedroom 3 door; nail it to the king studs there (no tee backing).
+- Bedroom 3 / Primary bedroom / Clo. / Hall / Clo. / Walk-in closet / Bedroom 5 (w13): the partition at 11' 11-1/2" lands on the framing of o16 Primary bedroom door; nail it to the king studs there (no tee backing).
+- Hall / Powder / Bath 2 / Bedroom 4 / Clo. / Bedroom 5 / Clo. / Primary bedroom / Walk-in closet / Primary bath (w14): o8 Powder door moved 2-5/16" away from the wall end so its jacks clear the end stud.
+- Hall / Powder / Bath 2 / Bedroom 4 / Clo. / Bedroom 5 / Clo. / Primary bedroom / Walk-in closet / Primary bath (w14): the partition at 3' 9-3/4" lands on the framing of o9 Bath 2 door; nail it to the king studs there (no tee backing).
+- Hall / Powder / Bath 2 / Bedroom 4 / Clo. / Bedroom 5 / Clo. / Primary bedroom / Walk-in closet / Primary bath (w14): the partition at 13' 9-3/4" lands on the framing of o11 Bedroom 4 door; nail it to the king studs there (no tee backing).
+- Hall / Powder / Bath 2 / Bedroom 4 / Clo. / Bedroom 5 / Clo. / Primary bedroom / Walk-in closet / Primary bath (w14): the partition at 25' 3-3/4" lands on the framing of o13 Bedroom 5 door; nail it to the king studs there (no tee backing).
+- Bedroom 2 / Clo. (w17): o4 Bedroom 2 closet narrowed from 74" to 73-1/2" so its jacks clear the end studs.
+- Bedroom 3 / Clo. (w18): o6 Bedroom 3 closet narrowed from 74" to 73-1/2" so its jacks clear the end studs.
+- Bedroom 4 / Clo. (w25): o10 Bedroom 4 closet narrowed from 74" to 73-1/2" so its jacks clear the end studs.
+- Bedroom 5 / Clo. (w26): o12 Bedroom 5 closet narrowed from 74" to 73-1/2" so its jacks clear the end studs.
+- Single top plate (advanced framing): trusses must land within 1 in of the stud centres, and 48 steel plate ties (not in the order) go at plate joints, corners and tees; each wall's drawing marks its joints. Whether a single top plate is allowed here is the code and engineer's call.
+- Front (w1): header spacers not in the takeoff: o19 Garage garage door (1"), o24 Living window (2-1/2"), o25 Living window (2-1/2"), o17 Living entry door (2-1/2"), o26 Living window (2-1/2"), o28 Bath 1 window (2-1/2"), o29+o30 mulled windows (2-1/2"), o31+o32 mulled windows (2-1/2"), o39+o40 mulled windows (2-1/2").
+- Back (w3): short top cripples over o35+o36 mulled windows (4-3/8"; a 2x12 header would leave 2-3/8"), o37+o38 mulled windows (4-3/8"; a 2x12 header would leave 2-3/8"). Header sizes are yours to check.
+- Back (w3): header spacers not in the takeoff: o21 Garage window (2-1/2"), o23 Mudroom / laundry window (2-1/2"), o18 Dining slider (2-1/2"), o27 Kitchen window (2-1/2"), o33 Powder window (2-1/2"), o34 Bath 2 window (2-1/2"), o35+o36 mulled windows (2-1/2"), o37+o38 mulled windows (2-1/2").
+- Hall / Bath 1 / Bedroom 2 / Clo. / Bedroom 3 / Clo. (w12): o3 Bath 1 door is close to the wall end: the end stud serves as its king, 0 of 1 extra king on the left.
+- Hall / Powder / Bath 2 / Bedroom 4 / Clo. / Bedroom 5 / Clo. / Primary bedroom / Walk-in closet / Primary bath (w14): o8 Powder door is close to the wall end: the end stud serves as its king, 0 of 1 extra king on the left.
+- Bedroom 2 / Clo. (w17): o4 Bedroom 2 closet is close to the wall end: the end stud serves as its king on both sides, 0 of 1 extra king on the left.
+- Bedroom 3 / Clo. (w18): o6 Bedroom 3 closet is close to the wall end: the end stud serves as its king on both sides, 0 of 1 extra king on the left.
+- Bedroom 4 / Clo. (w25): o10 Bedroom 4 closet is close to the wall end: the end stud serves as its king on both sides, 0 of 1 extra king on the left.
+- Bedroom 5 / Clo. (w26): o12 Bedroom 5 closet is close to the wall end: the end stud serves as its king on both sides, 0 of 1 extra king on the left.
+
 \* NAHB, Cost of Constructing a Home in 2024 (Eye on Housing, 2025-01-23), 2024 dollars: $428,215 for 2,647 sq ft, scaled by this design's geometry with assumed drivers (cost.mjs). Not a quote.
 
 ## Rooms
@@ -121,6 +160,9 @@ Builder's sale price excluding land, at NAHB's 2024 price shares: about $628,272
 - `openings.csv`: window and door schedule
 - `cost.csv`: cost by stage
 - `rooms.csv`: room schedule
+- `framing.svg`: every wall's framing elevation: studs, kings, jacks, headers, sills, cripples and plates at their real lengths, marked
+- `framing-cuts.csv`: wall framing cut list, and which board each piece is cut from
+- `lumber-order.csv`: wall framing board order: how many of each size and length to buy
 - `design.json`: the brief and the full design as data; feed the brief back to regenerate it
 - `LICENSE.txt`: CC0 1.0 dedication and disclaimer
 - `README.md`: this file

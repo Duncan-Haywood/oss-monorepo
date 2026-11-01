@@ -17,6 +17,33 @@ A free, public-domain (CC0) house plan generated from a brief by [Open House Pla
 | Construction cost | **$299,569** ($214/sq ft), US average, 2024 dollars* |
 | Checks | 34 passed, 0 failed |
 
+## Wall framing, stud by stud
+
+Every wall is laid out member by member (`framing.svg`): 17 walls, 301 ft, 478 pieces cut from 268 boards (2,518 board feet, 0.6% offcut, within 0.23% of the cutting-stock lower bound for this cut list). Studs are 104-5/8" precuts. `framing-cuts.csv` lists every cut and the board it comes from; `lumber-order.csv` is the order. The board order counts wall framing only (no floor, roof, sheathing or blocking), and comes from the Wall Framing Takeoff engine.
+
+Framing notes:
+
+- Front (w1): o15 and o16 are under 12 in apart, framed as one 75-1/2" rough opening (a mulled unit).
+- Front (w1): the o15+o16 mulled windows header is sized for the combined span: 2-ply 2x12, 2 jacks a side (ratio 0.94, structure.mjs).
+- Front (w1): o19 and o20 are under 12 in apart, framed as one 75-1/2" rough opening (a mulled unit).
+- Front (w1): the o19+o20 mulled windows header is sized for the combined span: 2-ply 2x12, 2 jacks a side (ratio 0.94, structure.mjs).
+- Back (w7): o23 and o24 are under 12 in apart, framed as one 75-1/2" rough opening (a mulled unit).
+- Back (w7): the o23+o24 mulled windows header is sized for the combined span: 2-ply 2x10, 2 jacks a side (ratio 0.91, structure.mjs).
+- Hall / Bath / Bedroom 3 / Clo. (w9): o7 Bath door moved 2-5/16" away from the wall end so its jacks clear the end stud.
+- Hall / Bath / Bedroom 3 / Clo. (w9): the partition at 9' 9-3/4" lands on the framing of o9 Bedroom 3 door; nail it to the king studs there (no tee backing).
+- Hall / Laundry / mech. / Bedroom 2 / Clo. (w12): o4 and o6 are under 12 in apart, framed as one 108" rough opening (a mulled unit).
+- Hall / Laundry / mech. / Bedroom 2 / Clo. (w12): the partition at 5' 9-3/4" lands on the framing of o4+o6 mulled doors; nail it to the king studs there (no tee backing).
+- Bedroom 2 / Clo. (w15): o5 Bedroom 2 closet narrowed from 74" to 69-1/4" so its jacks clear the end studs.
+- Bedroom 3 / Clo. (w19): o8 Bedroom 3 closet narrowed from 74" to 69-1/4" so its jacks clear the end studs.
+- Single top plate (advanced framing): trusses must land within 1 in of the stud centres, and 29 steel plate ties (not in the order) go at plate joints, corners and tees; each wall's drawing marks its joints. Whether a single top plate is allowed here is the code and engineer's call.
+- Front (w1): header spacers not in the takeoff: o15+o16 mulled windows (2-1/2"), o12 Living / dining window (2-1/2"), o10 Living / dining entry door (2-1/2"), o13 Living / dining window (2-1/2"), o19+o20 mulled windows (2-1/2").
+- Back (w7): short top cripples over o23+o24 mulled windows (4-3/8"; a 2x12 header would leave 2-3/8"). Header sizes are yours to check.
+- Back (w7): header spacers not in the takeoff: o11 Kitchen door (2-1/2"), o14 Kitchen window (2-1/2"), o22 Bath window (2-1/2"), o23+o24 mulled windows (2-1/2").
+- Hall / Bath / Bedroom 3 / Clo. (w9): o7 Bath door is close to the wall end: the end stud serves as its king, 0 of 1 extra king on the left.
+- Hall / Laundry / mech. / Bedroom 2 / Clo. (w12): o4+o6 mulled doors is close to the wall end: the end stud serves as its king, 0 of 1 extra king on the left.
+- Bedroom 2 / Clo. (w15): o5 Bedroom 2 closet is close to the wall end: the end stud serves as its king on both sides, 0 of 1 extra king on the left.
+- Bedroom 3 / Clo. (w19): o8 Bedroom 3 closet is close to the wall end: the end stud serves as its king on both sides, 0 of 1 extra king on the left.
+
 \* NAHB, Cost of Constructing a Home in 2024 (Eye on Housing, 2025-01-23), 2024 dollars: $428,215 for 2,647 sq ft, scaled by this design's geometry with assumed drivers (cost.mjs). Not a quote.
 
 ## Rooms
@@ -103,6 +130,9 @@ Builder's sale price excluding land, at NAHB's 2024 price shares: about $401,441
 - `openings.csv`: window and door schedule
 - `cost.csv`: cost by stage
 - `rooms.csv`: room schedule
+- `framing.svg`: every wall's framing elevation: studs, kings, jacks, headers, sills, cripples and plates at their real lengths, marked
+- `framing-cuts.csv`: wall framing cut list, and which board each piece is cut from
+- `lumber-order.csv`: wall framing board order: how many of each size and length to buy
 - `design.json`: the brief and the full design as data; feed the brief back to regenerate it
 - `LICENSE.txt`: CC0 1.0 dedication and disclaimer
 - `README.md`: this file
