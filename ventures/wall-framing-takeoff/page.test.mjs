@@ -539,3 +539,14 @@ test("index.html price hint lists every labor rate the budget reads", () => {
   const hint = page("index.html").match(/names: ([^;]*);/)[1];
   for (const n of names) assert.ok(hint.includes(n), `${n} missing from the page's price-name hint`);
 });
+
+test("the studs-per-wall page's FAQ is visible and matches its FAQPage JSON-LD", () => {
+  const html = page("how-many-studs-for-a-wall.html");
+  const blocks = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1]));
+  const faq = blocks.find((b) => b["@type"] === "FAQPage");
+  assert.ok(faq && faq.mainEntity.length >= 4);
+  for (const q of faq.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+});
