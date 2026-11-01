@@ -95,6 +95,13 @@ class T(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("one description on 2 posts", out)
 
+    def test_long_title_needs_seo_title(self):
+        long = GOOD.replace('title: "T"', 'title: "' + "x" * 71 + '"')
+        self.assertEqual(len(problems("2026-10-24-x.md", long)), 1)
+        ok = long.replace("date:", 'seo_title: "short"\ndate:')
+        self.assertEqual(problems("2026-10-24-x.md", ok), [])
+        self.assertEqual(problems("2026-10-24-x.md", GOOD.replace('"T"', '"' + "x" * 70 + '"')), [])
+
     def test_no_front_matter(self):
         self.assertEqual(problems("x.md", "# hi\n"), ["no front matter"])
 

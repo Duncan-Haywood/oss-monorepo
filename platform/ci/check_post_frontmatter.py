@@ -45,6 +45,11 @@ def problems(name, text, today=None):
     seo = fields.get("seo_title", "").strip("\"'")
     if len(seo) > 70:
         out.append(f"seo_title is {len(seo)} characters; keep it to 70")
+    # Over-budget titles with no seo_title kept arriving (about 90 cut by hand on 2026-11-01).
+    title = fields.get("title", "").strip("\"'")
+    if len(title) > 70 and not seo:
+        out.append(f"title is {len(title)} characters and there is no seo_title; add one of 70 or fewer "
+                   "(python3 platform/pages/propose_seo_titles.py proposes cuts)")
     tags = fields.get("tags")
     if tags and not re.fullmatch(r"\[\s*[^\]\s][^\]]*\]", tags):
         out.append("`tags` is not a non-empty [list]")
