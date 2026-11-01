@@ -1,5 +1,6 @@
 ---
 title: "Speak to a calculator: adding voice, chat and agent access to 1,300 free tools"
+seo_title: "Voice, chat and agent access for 1,300 free calculators"
 date: 2026-10-20
 description: "Every calculator here can now be filled by voice or a typed sentence, without a model. How it loads nothing until asked, and what its blind tests measured."
 tags: [voice-interfaces, accessibility, webmcp, on-device-ai, ai-agents]

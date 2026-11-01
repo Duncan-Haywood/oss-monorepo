@@ -1,5 +1,6 @@
 ---
 title: "The industries everything else runs on, and where open research can make them work better"
+seo_title: "The industries everything else runs on, and open research"
 date: 2026-10-21
 description: "Why energy and the grid come first, what our open energy models found, and twelve applied research problems from water and freight to cement and payments."
 tags: [infrastructure, energy, electric-grid, water, logistics, manufacturing, applied-research, open-source]
