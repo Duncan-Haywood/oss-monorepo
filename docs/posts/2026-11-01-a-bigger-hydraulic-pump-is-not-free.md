@@ -11,7 +11,7 @@ the pump, the light one takes the flow and the heavy one stalls, so the cycle
 runs about 6% longer at the median. An obvious fix is a pump 20% bigger.
 
 We tested that in the [heavy-hydraulics programme](../../research/heavy-hydraulics/README.md)
-(milestone 3l). The bigger pump does remove the slowdown (0.0% median penalty at
+(milestone 3m). The bigger pump does remove the slowdown (0.0% median penalty at
 1.2 times). But the open-centre model delivers the whole pump flow at the
 highest load pressure, so the extra flow costs shaft energy. The load-sensing
 margin at which the two circuits tie rose from 36.1 bar (pump sized to demand)

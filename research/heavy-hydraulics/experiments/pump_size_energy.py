@@ -1,4 +1,4 @@
-"""Milestone 3l: 3i's break-even dp_ls with the open-centre pump scaled (1.0, 1.1, 1.2, 1.5 x Q_PUMP).
+"""Milestone 3m: 3i's break-even dp_ls with the open-centre pump scaled (1.0, 1.1, 1.2, 1.5 x Q_PUMP).
 
 The larger pump removes the open-centre starvation slowdown (3k) but delivers more flow at the highest
 load pressure in every phase and bypasses more at neutral. Load-sensing is unchanged (it draws demand,
