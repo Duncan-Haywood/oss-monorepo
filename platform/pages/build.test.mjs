@@ -134,11 +134,13 @@ import { normalizeBid, normalizeOutcome, stripForInjection } from './jobs.mjs';
 const BASE = 'https://example.test/site/';
 const VENTURES = path.join(REPO_ROOT, 'ventures');
 
+// Memoise the promise, not the result: when the build throws (a post with a
+// 164-character description did this on 2026-11-01), every later test awaits
+// the same rejection at once instead of each re-running a ~10 s build.
 let built;
-async function site() {
+function site() {
   if (!built) {
-    const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-build-'));
-    built = await buildSite({ outDir, baseUrl: BASE });
+    built = fs.mkdtemp(path.join(os.tmpdir(), 'pages-build-')).then((outDir) => buildSite({ outDir, baseUrl: BASE }));
   }
   return built;
 }
