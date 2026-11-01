@@ -1,0 +1,163 @@
+country,type,polity,regime_began,age_2018,p_end_by_2028,p_end_by_2028_weibull,p_end_by_2028_recent40y
+Fiji,anocracy,4,2018.87,0.1,0.721,0.666,0.828
+Comoros,anocracy,-3,2018.58,0.4,0.717,0.66,0.825
+Cuba,anocracy,-5,2018.3,0.7,0.714,0.656,0.822
+Ethiopia,anocracy,1,2018.25,0.7,0.713,0.656,0.822
+Cambodia,anocracy,-4,2017.88,1.1,0.708,0.651,0.818
+Venezuela,anocracy,-3,2017.63,1.4,0.704,0.648,0.815
+Haiti,anocracy,5,2017.1,1.9,0.697,0.643,0.809
+Gambia,anocracy,4,2017.07,1.9,0.697,0.643,0.809
+Congo Kinshasa,anocracy,-3,2016.97,2.0,0.695,0.642,0.807
+Turkey,anocracy,-4,2016.54,2.5,0.686,0.638,0.8
+Niger,anocracy,5,2016.14,2.9,0.677,0.635,0.792
+Tanzania,anocracy,3,2015.82,3.2,0.67,0.633,0.786
+Burundi,anocracy,-1,2015.54,3.5,0.664,0.631,0.781
+Afghanistan,anocracy,-1,2014.99,4.0,0.651,0.628,0.769
+Ukraine,anocracy,4,2014.9,4.1,0.649,0.627,0.767
+Thailand,anocracy,-3,2014.39,4.6,0.636,0.624,0.756
+Mozambique,anocracy,5,2013.8,5.2,0.625,0.621,0.746
+Guinea,anocracy,4,2013.74,5.3,0.624,0.621,0.745
+Rwanda,anocracy,-3,2013.71,5.3,0.624,0.621,0.745
+Mali,anocracy,5,2013.67,5.3,0.623,0.62,0.745
+Egypt,anocracy,-4,2013.51,5.5,0.622,0.62,0.743
+Zimbabwe,anocracy,4,2013.39,5.6,0.621,0.619,0.742
+Djibouti,anocracy,3,2013.14,5.9,0.618,0.618,0.74
+Ecuador,anocracy,5,2013.13,5.9,0.618,0.618,0.74
+Somalia,anocracy,5,2012.71,6.3,0.614,0.616,0.736
+Papua New Guinea,anocracy,5,2012.61,6.4,0.613,0.615,0.735
+Bangladesh,autocracy,-6,2019.0,0.0,0.609,0.573,0.74
+Morocco,anocracy,-4,2011.91,7.1,0.606,0.612,0.729
+Sudan-North,anocracy,-4,2011.52,7.5,0.602,0.611,0.725
+Cote D'Ivoire,anocracy,4,2011.39,7.6,0.601,0.61,0.724
+Togo,anocracy,-2,2010.41,8.6,0.59,0.606,0.714
+Gabon,anocracy,3,2009.79,9.2,0.584,0.604,0.708
+Mauritania,anocracy,-2,2009.42,9.6,0.58,0.603,0.705
+Sri Lanka,democracy,6,2018.96,0.0,0.558,0.443,0.597
+Armenia,democracy,7,2018.94,0.1,0.558,0.443,0.597
+Bhutan,democracy,7,2018.8,0.2,0.558,0.439,0.597
+Malaysia,democracy,7,2018.36,0.6,0.557,0.433,0.596
+Nepal,democracy,7,2018.12,0.9,0.556,0.43,0.596
+Liberia,democracy,7,2018.06,0.9,0.556,0.429,0.596
+Russia,anocracy,4,2007.92,11.1,0.556,0.598,0.677
+Kyrgyzstan,democracy,8,2017.9,1.1,0.556,0.428,0.596
+United States,democracy,8,2016.85,2.1,0.55,0.419,0.591
+Jordan,anocracy,-3,2007.58,11.4,0.55,0.597,0.669
+Turkmenistan,autocracy,-8,2013.96,5.0,0.549,0.525,0.643
+United Kingdom,democracy,8,2016.48,2.5,0.542,0.416,0.581
+Nicaragua,democracy,6,2016.44,2.6,0.541,0.416,0.58
+Zambia,democracy,6,2016.44,2.6,0.541,0.416,0.58
+Dominican Republic,democracy,7,2016.37,2.6,0.539,0.416,0.578
+Central African Republic,democracy,6,2016.28,2.7,0.537,0.415,0.576
+Myanmar (Burma),democracy,8,2016.26,2.7,0.537,0.415,0.575
+Bahrain,autocracy,-10,2012.83,6.2,0.532,0.52,0.628
+Burkina Faso,democracy,6,2015.99,3.0,0.53,0.413,0.568
+Argentina,democracy,9,2015.94,3.1,0.529,0.413,0.566
+Syria,autocracy,-9,2012.42,6.6,0.526,0.518,0.622
+Guatemala,democracy,8,2015.67,3.3,0.523,0.411,0.559
+Nigeria,democracy,7,2015.41,3.6,0.516,0.41,0.551
+Guyana,democracy,7,2015.37,3.6,0.515,0.41,0.55
+Uganda,anocracy,-1,2005.57,13.4,0.51,0.591,0.62
+Tunisia,democracy,7,2015.0,4.0,0.506,0.408,0.539
+Indonesia,democracy,9,2014.8,4.2,0.501,0.407,0.533
+Iraq,democracy,6,2014.69,4.3,0.498,0.406,0.53
+Guinea-Bissau,democracy,6,2014.48,4.5,0.493,0.405,0.524
+Swaziland,autocracy,-7,1993.84,25.2,0.487,0.474,0.6
+Kuwait,autocracy,-7,1992.76,26.2,0.487,0.473,0.6
+Belarus,autocracy,-7,1996.9,22.1,0.487,0.479,0.6
+Equatorial Guinea,autocracy,-6,1996.15,22.8,0.487,0.478,0.6
+Korea North,autocracy,-10,1994.52,24.5,0.487,0.475,0.6
+Kazakhstan,autocracy,-6,1995.21,23.8,0.487,0.476,0.6
+Uzbekistan,autocracy,-9,1991.67,27.3,0.487,0.471,0.6
+Azerbaijan,autocracy,-7,1998.79,20.2,0.487,0.482,0.6
+Madagascar,democracy,6,2014.13,4.9,0.484,0.403,0.513
+Eritrea,autocracy,-7,2001.21,17.8,0.484,0.487,0.593
+Algeria,anocracy,2,2004.27,14.7,0.483,0.588,0.584
+Oman,autocracy,-8,2002.9,16.1,0.481,0.49,0.588
+Iran,autocracy,-7,2009.45,9.6,0.479,0.507,0.576
+Georgia,democracy,7,2013.88,5.1,0.478,0.402,0.506
+Paraguay,democracy,9,2013.62,5.4,0.473,0.401,0.499
+Pakistan,democracy,7,2013.36,5.6,0.467,0.4,0.492
+Tajikistan,anocracy,-3,2003.49,15.5,0.466,0.586,0.561
+Kenya,democracy,9,2013.17,5.8,0.463,0.399,0.487
+Timor Leste,democracy,8,2012.54,6.5,0.448,0.397,0.47
+Angola,anocracy,-2,2002.64,16.4,0.447,0.584,0.534
+Congo-Brazzaville,anocracy,-4,2002.61,16.4,0.446,0.584,0.533
+Lesotho,democracy,8,2012.4,6.6,0.445,0.396,0.466
+Singapore,anocracy,-4,1965.61,53.4,0.376,0.537,0.335
+El Salvador,democracy,8,2009.42,9.6,0.371,0.387,0.376
+Saudi Arabia,autocracy,-10,1926.04,93.0,0.37,0.424,0.282
+Bolivia,democracy,7,2009.1,9.9,0.363,0.386,0.365
+Cameroon,anocracy,-5,1992.78,26.2,0.356,0.566,0.4
+Chad,anocracy,-1,1996.42,22.6,0.356,0.572,0.4
+Suriname,anocracy,5,1991.71,27.3,0.356,0.565,0.4
+Vietnam,autocracy,-7,1976.5,42.5,0.354,0.454,0.45
+United Arab Emirates,autocracy,-8,1971.92,47.1,0.354,0.451,0.45
+Laos,autocracy,-7,1975.92,43.1,0.354,0.454,0.45
+China,autocracy,-7,1976.69,42.3,0.354,0.455,0.45
+Qatar,autocracy,-10,1971.67,47.3,0.354,0.45,0.45
+Kosovo,democracy,8,2008.13,10.9,0.352,0.384,0.347
+Sierra Leone,democracy,7,2007.71,11.3,0.347,0.383,0.34
+Belgium,democracy,8,2007.44,11.6,0.345,0.382,0.336
+Senegal,democracy,7,2007.42,11.6,0.345,0.382,0.335
+Slovak Republic,democracy,10,2006.46,12.5,0.335,0.38,0.319
+Serbia,democracy,8,2006.42,12.6,0.335,0.38,0.318
+Montenegro,democracy,9,2006.42,12.6,0.335,0.38,0.318
+Czech Republic,democracy,9,2006.42,12.6,0.335,0.38,0.318
+Benin,democracy,7,2006.22,12.8,0.332,0.379,0.314
+Chile,democracy,10,2006.19,12.8,0.332,0.379,0.314
+Albania,democracy,9,2005.67,13.3,0.327,0.378,0.305
+Lebanon,democracy,6,2005.32,13.7,0.323,0.377,0.298
+Moldova,democracy,9,2005.18,13.8,0.322,0.377,0.296
+Malawi,democracy,6,2005.1,13.9,0.321,0.377,0.294
+Croatia,democracy,9,2005.0,14.0,0.32,0.376,0.293
+Romania,democracy,9,2004.97,14.0,0.32,0.376,0.292
+Ghana,democracy,8,2004.93,14.1,0.319,0.376,0.291
+Solomon Islands,democracy,8,2004.62,14.4,0.316,0.376,0.286
+Taiwan,democracy,10,2004.39,14.6,0.314,0.375,0.281
+Poland,democracy,10,2002.82,16.2,0.297,0.372,0.252
+Macedonia,democracy,9,2002.71,16.3,0.296,0.372,0.25
+Peru,democracy,9,2001.57,17.4,0.284,0.37,0.227
+Bulgaria,democracy,9,2001.56,17.4,0.284,0.37,0.227
+Cape Verde,democracy,10,2001.22,17.8,0.28,0.369,0.22
+Mexico,democracy,8,2000.92,18.1,0.277,0.369,0.214
+Estonia,democracy,9,2000.2,18.8,0.269,0.368,0.2
+Honduras,democracy,7,1999.07,19.9,0.256,0.366,0.176
+Panama,democracy,9,1994.67,24.3,0.255,0.36,0.174
+Philippines,democracy,8,1992.0,27.0,0.255,0.357,0.174
+Korea South,democracy,8,1998.15,20.8,0.255,0.365,0.174
+South Africa,democracy,9,1994.32,24.7,0.255,0.359,0.174
+India,democracy,9,1998.22,20.8,0.255,0.365,0.174
+Lithuania,democracy,10,1991.68,27.3,0.255,0.356,0.174
+Jamaica,democracy,9,1993.29,25.7,0.255,0.358,0.174
+Namibia,democracy,6,1990.22,28.8,0.255,0.355,0.174
+Latvia,democracy,8,1991.68,27.3,0.255,0.356,0.174
+Trinidad and Tobago,democracy,9,1995.86,23.1,0.255,0.361,0.174
+Botswana,democracy,8,1997.6,21.4,0.255,0.364,0.174
+Hungary,democracy,10,1990.09,28.9,0.255,0.355,0.174
+Germany,democracy,10,1990.75,28.2,0.255,0.355,0.174
+Uruguay,democracy,10,1989.9,29.1,0.255,0.354,0.174
+Colombia,democracy,7,1995.84,23.2,0.255,0.361,0.174
+Slovenia,democracy,10,1991.48,27.5,0.255,0.356,0.174
+Mongolia,democracy,10,1996.5,22.5,0.255,0.362,0.174
+Brazil,democracy,8,1988.76,30.2,0.251,0.353,0.172
+France,democracy,10,1986.22,32.8,0.203,0.351,0.143
+Greece,democracy,10,1986.19,32.8,0.203,0.351,0.143
+Portugal,democracy,10,1982.83,36.2,0.136,0.347,0.103
+Mauritius,democracy,10,1982.5,36.5,0.129,0.347,0.099
+Spain,democracy,10,1982.5,36.5,0.129,0.347,0.099
+Israel,democracy,6,1981.83,37.2,0.114,0.347,0.091
+Switzerland,democracy,10,1848.7,170.3,0.081,0.298,0.057
+Australia,democracy,10,1901.0,118.0,0.081,0.31,0.057
+Sweden,democracy,10,1917.5,101.5,0.081,0.314,0.057
+Canada,democracy,10,1921.93,97.1,0.081,0.316,0.057
+New Zealand,democracy,10,1893.5,125.5,0.081,0.308,0.057
+Finland,democracy,10,1944.67,74.3,0.065,0.324,0.056
+Netherlands,democracy,10,1945.34,73.7,0.063,0.325,0.056
+Denmark,democracy,10,1945.35,73.7,0.063,0.325,0.056
+Norway,democracy,10,1945.36,73.6,0.062,0.325,0.056
+Austria,democracy,10,1946.49,72.5,0.059,0.325,0.056
+Italy,democracy,10,1948.0,71.0,0.055,0.326,0.055
+Costa Rica,democracy,10,1953.85,65.1,0.052,0.329,0.055
+Ireland,democracy,10,1952.91,66.1,0.052,0.328,0.055
+Japan,democracy,10,1952.33,66.7,0.052,0.328,0.055
+Cyprus,democracy,10,1975.12,43.9,0.052,0.341,0.055
