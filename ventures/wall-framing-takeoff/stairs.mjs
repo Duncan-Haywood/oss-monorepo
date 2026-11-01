@@ -243,12 +243,15 @@ export function checkStringer(l, c) {
   if (notchCapacity != null && V > notchCapacity) warnings.push(`End shear ${V.toFixed(0)} lb exceeds ${notchCapacity.toFixed(0)} lb allowed with a notch leaving ${dn} in of a ${boardDepth} in board at the support: keep the full depth at the bearing, or hang it from a ledger or hanger.`);
   if (fv > c.Fv) warnings.push(`Shear stress ${fv.toFixed(0)} psi exceeds the typed ${c.Fv} psi at the support.`);
   if (delta > limit) warnings.push(`Deflection ${delta.toFixed(2)} in exceeds span/${c.deflLimit ?? 240} (${limit.toFixed(2)} in).`);
+  // Minimum throat (2026-11-01): the smallest section depth that passes each check at these loads, from the same formulas solved for d: bending sqrt(6M/(b Fb)), shear 1.5V/(b Fv), deflection cbrt(60 w L^4/(384 E b limit)).
+  const dBend = Math.sqrt((6 * M) / (b * c.Fb)), dShear = (1.5 * V) / (b * c.Fv), dDefl = Math.cbrt((12 * 5 * w * L ** 4) / (384 * c.E * b * limit));
+  const minThroat = Math.max(dBend, dShear, dDefl), minThroatGoverns = minThroat === dDefl ? "deflection" : minThroat === dBend ? "bending" : "shear";
   // Top reaction of the whole flight (every stringer), the figure to type into the floor's `headerCheck.stairReaction`; the live share is for that header's deflection.
   const n = l.stringer.count ?? null;
   const totalReaction = n ? n * V : null, totalReactionLive = n ? (n * V * c.liveLoad) / (c.liveLoad + c.deadLoad) : null;
   // Top connection (2026-11-01): with a typed per-connector allowable (from the hanger or bolt maker's table; none shipped), how many carry one stringer's end reaction.
   const connectorsNeeded = c.connectorCapacity ? Math.ceil(V / c.connectorCapacity - 1e-9) : null;
-  return { ok: warnings.length === 0, fb, fv, delta, limit, Fb: c.Fb, Fv: c.Fv, M, V, reaction: V, connectorsNeeded, connectorCapacity: c.connectorCapacity ?? null, notchCapacity, fcPerp: c.bearingFcPerp != null ? fcPerp : null, bearingLength: c.bearingFcPerp != null ? bearingLength : null, minBearingLength: c.bearingFcPerp != null ? V / (b * c.bearingFcPerp) : null, totalReaction, totalReactionLive, throat: d, warnings, errors: [] };
+  return { ok: warnings.length === 0, fb, fv, delta, limit, Fb: c.Fb, Fv: c.Fv, M, V, reaction: V, connectorsNeeded, connectorCapacity: c.connectorCapacity ?? null, notchCapacity, fcPerp: c.bearingFcPerp != null ? fcPerp : null, bearingLength: c.bearingFcPerp != null ? bearingLength : null, minBearingLength: c.bearingFcPerp != null ? V / (b * c.bearingFcPerp) : null, totalReaction, totalReactionLive, minThroat, minThroatGoverns, throat: d, warnings, errors: [] };
 }
 
 /**
@@ -315,6 +318,7 @@ export function stairText(l) {
   if (l.stringerCheck) {
     const k = l.stringerCheck;
     if (!k.errors.length) out.push(`  Stringer check (${formatInches(k.throat)} throat): bending ${k.fb.toFixed(0)} of ${k.Fb} psi, shear ${k.fv.toFixed(0)} of ${k.Fv} psi, deflection ${k.delta.toFixed(2)} of ${k.limit.toFixed(2)} in, end reaction ${k.reaction.toFixed(0)} lb each${k.totalReaction ? `, ${k.totalReaction.toFixed(0)} lb (${k.totalReactionLive.toFixed(0)} live) on the header the flight hangs from` : ""}${k.ok ? "" : " (FAILS)"}`);
+    if (k.minThroat != null) out.push(`  Throat: at least ${k.minThroat.toFixed(2)} in under the notches at these loads (${k.minThroatGoverns} governs; ${k.throat.toFixed(2)} in used)`);
     if (k.minBearingLength != null) out.push(`  Bearing: at least ${k.minBearingLength.toFixed(2)} in of bearing length for the typed compression-perpendicular allowable (${k.bearingLength} in used)`);
     if (k.connectorsNeeded) out.push(`  Top connection: ${k.reaction.toFixed(0)} lb per stringer at ${k.connectorCapacity} lb each needs ${k.connectorsNeeded} connector${k.connectorsNeeded === 1 ? "" : "s"} per stringer (you buy ${k.connectorsNeeded * l.stringer.count}); the connector's own table governs`);
     for (const w of [...k.errors, ...k.warnings]) out.push(`  Note: ${w}`);
