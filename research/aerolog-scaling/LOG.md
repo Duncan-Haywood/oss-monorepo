@@ -9,6 +9,13 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - **Predictions (before running):** (1) iterated GLS still improves the share of draws within 10% gust over the unweighted coloured fit (prior 75%). (2) It recovers less than half of the coloured-minus-white gap, i.e. falls short of 9o's recovery (prior 55%). (3) Fit failures at most twice white's (prior 70%). Refuted: (1) no gain over unweighted; (3) more than twice.
 - Limits known in advance: one AR(2) shape, no 1/f; 10 draws on a third of the designs; one seed.
 
+### Outcome of 9p (`experiments/misspecified_noise/`: `run.py`, `results.txt`; about 25 min wall)
+- 26 designs, 260 draws each, 2 periods, 10% noise, AR(2) noise (phi 1.2, -0.4). Fit failures 0 in all three rows. Median |error| in phugoid, short-period frequency and damping ratio: white 0.07, 0.67, 1.51%; coloured unweighted 0.17, 1.41, 2.57; coloured with AR(1) iterated GLS 0.16, 1.57, 2.43. Share of draws within 10% gust: white 86%, unweighted 74%, AR(1) GLS 80%. Designs with 90% of draws within 10% gust: 19, 9, 14 of 26. Median worst gust error 5.6, 6.6, 6.5%; median worst mode error 3.1, 4.0, 3.8%. Estimated AR(1) coefficient: median 0.845, 5th to 95th percentile 0.821 to 0.868 (true lag-1 autocorrelation 0.857).
+- **(1) held** (80% against 74%). **(2) not clearly held:** the GLS recovers 6 of the 12-point gap, exactly half, so "under half" is not met; against 9o's 14 of 17 points (83%) the recovery is much smaller. **(3) held** (0 failures).
+- Reading: with a wrong noise family the AR(1) whitening still helps (+6 points on gust share, +5 designs at 90%) but recovers about half of the loss, not four fifths. The short-period frequency and damping errors do not improve (1.41 to 1.57%, 2.57 to 2.43%); the gain is in the gust share only. The 1.2x gust margin from 9o is not safe if the noise is not AR(1); 1.5x (9m) is the safer figure.
+- Limits: one AR(2) shape; no 1/f or measured IMU noise; 10 draws on a third of the designs; one seed; differences of 1 to 2 points in the mode errors are within draw noise and are not claimed.
+- Next: real IMU noise density; AR(2) estimator; turbulence; thrust law; AIAA template.
+
 ## 2026-11-01 · Milestone 8g: paper draft catches up with milestones 9m to 9o (no new simulation)
 - New Section 4.10a holds the coloured-noise, whitened and estimated-rho results with their limits; `check_numbers.py` ties the figures to this log (all ok). Next: misspecified noise (AR(2) or 1/f generator); real IMU noise density; turbulence; thrust law; AIAA template.
 
