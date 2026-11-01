@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-01 · Milestone 7g: is Iridium messaging the glider's deciding fixed energy? (exploratory; one sourced input, arithmetic only)
+- Why: 7e left a glider mission overhead as the deciding unsourced input; 7f found no Wh-per-surfacing figure. A second search returned an excerpt of the Spray glider description page: Iridium link energy about 40 J for the first kilobyte and 30 J per further kilobyte. The page itself could not be opened (`spray.ucsd.edu` does not resolve from this session), so the figure is taken from the search excerpt and is for a Spray, not a Slocum.
+- Method (`experiments/run_iridium_overhead.py`, stdlib, instant, 3 tests): energy = N x (40 + 30 (kB - 1)) J for N surfacings and kB per surfacing; both swept, unsourced. Compared with 7e's thresholds (100 Wh swaps 0.7% of glider/AUV cases, 250 Wh 2.3%, 500 Wh 6.0%).
+- Outcome (`experiments/results_iridium_overhead.txt`): 100 surfacings of 5 kB cost 4.4 Wh; 1,000 of 5 kB cost 44 Wh; reaching 100 Wh at 5 kB takes about 2,250 surfacings. Only a very high-volume case (1,000 surfacings of 20 kB or more, 169 Wh) crosses 7e's first threshold.
+- Reading: for plausible mission counts Iridium messaging alone is far below the overhead that would flip the glider/AUV order. Whatever overhead decides H5 for the glider, it is not the link energy; surface GPS, the pump priming, ballasting and hotel load while surfaced remain unsourced and are the remaining candidates.
+- Limits: one figure from a search excerpt for a different vehicle; surfacing counts and message sizes are not sourced; no GPS or surface hotel energy; not a flip count, only a comparison with 7e's thresholds.
+- Next: the Teledyne Webb operator manual or the 2025 G2 battery paper (martech-workshop paper 17) for surface-phase power; allow `spray.ucsd.edu` in the session network settings to open the primary page.
+
 ## 2026-11-01 · Milestone 7f: fold the H5 overhead results into the paper draft and try to source a glider mission overhead (no experiment run)
 - Why: 7d and 7e were logged but absent from `paper/DRAFT.md`; 7e left a glider mission overhead as the deciding unsourced input. Added both to the draft's hypotheses paragraph, numbers copied from `results_h5_overhead.txt` and `results_h5_glider.txt`.
 - Sourcing attempt: one web search for a Slocum energy per surfacing (GPS, Iridium) returned the Sentinel datasheet (25.2 kWh capacity, no communication power), a training deck listing surfacing as a battery-life factor and a 2025 G2 battery paper; no Wh-per-surfacing figure. Not opened beyond snippets, so nothing is sourced yet.
