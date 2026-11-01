@@ -221,6 +221,19 @@ await page.fill("#stCheck", "40, 12, abc");
 await page.click("#run");
 await page.waitForFunction(() => /Stringer check: write live/.test(document.body.textContent));
 console.log("ok: malformed stringer check refused on the page");
+// Stringer connection and bearing (#stCheck2): typed figures reach the saved plan; a lone field and a bad one are refused.
+await page.fill("#stCheck", "40, 12, 900, 180, 1300000, 240");
+await page.fill("#stCheck2", "400, 425, 3.5");
+await page.click("#run");
+await page.waitForFunction(() => /Stringer check \(/.test(document.querySelector("#stairsOut")?.textContent || ""));
+const [svs2] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const sk2 = JSON.parse(await (await import("node:fs/promises")).readFile(await svs2.path(), "utf8")).stairs?.stringerCheck;
+console.log(sk2 && sk2.connectorCapacity === 400 && sk2.bearingFcPerp === 425 && sk2.bearingLength === 3.5 ? "ok: stringer connector and bearing typed on the page, saved in the plan" : "FAIL: stringer connector/bearing " + JSON.stringify(sk2));
+await page.fill("#stCheck2", "400");
+await page.click("#run");
+await page.waitForFunction(() => /Stringer connection and bearing: write connector lb/.test(document.body.textContent));
+console.log("ok: malformed stringer connector/bearing refused on the page");
+await page.fill("#stCheck2", "");
 await page.fill("#stCheck", "");
 // Winders: typed treads, turn and radius reach the stairs card (a zero pivot fails and the smallest radius is solved).
 await page.fill("#stWinders", "3, 90, 0");
