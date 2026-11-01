@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Jerome and the Lion in the Doorway</title>
+      <link>https://example.invalid/hearth-and-horizon/jerome-and-the-lion-in-the-doorway.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/jerome-and-the-lion-in-the-doorway.html</guid>
+      <pubDate>Sun, 01 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Jerome, the grumpy, clever scholar who turned the Bible into the language of ordinary people, and the old tale of the lion with a thorn in its paw who came limping into the monastery and stayed to do an honest job. With a note for grown-ups saying plainly that this tale was first told of a different saint, Gerasimus, and was only later given to Jerome. For ages 3 to 8, about ten minutes read aloud. His feast day is the 30th of September. Setting: A monastery near Bethlehem, about sixteen hundred years ago. Read the full text at https://example.invalid/hearth-and-horizon/jerome-and-the-lion-in-the-doorway.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Jerome, the grumpy, clever scholar who turned the Bible into the language of ordinary people, and the old tale of the lion with a thorn in its paw who came limping into the monastery and stayed to do an honest job. With a note for grown-ups saying plainly that this tale was first told of a different saint, Gerasimus, and was only later given to Jerome. For ages 3 to 8, about ten minutes read aloud. His feast day is the 30th of September.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>One in Four and a Board</title>
       <link>https://example.invalid/hearth-and-horizon/one-in-four-and-a-board.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/one-in-four-and-a-board.html</guid>
