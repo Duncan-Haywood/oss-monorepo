@@ -226,7 +226,7 @@ Standard totals: $2,384.16 (253 boards) and $2,678.80 (276 boards). Open House P
 | panels up to 12 ft | 23 panels, 390 cuts, 446 site nails (24%) | 24 panels, 466 cuts, 441 site nails (19%) |
 | panels up to 16 ft | 16 panels, 369 cuts, 397 site nails (21%) | 22 panels, 460 cuts, 427 site nails (18%) |
 
-Reading: panels cut the things lifted into place by a factor of 11 to 22 and move roughly three quarters or more of the framing nails to the shop table, at the price of 5 to 21% more saw cuts. Whether that is cheaper depends on shop labour, crane or lift, and shipping, which this tool does not know. Open House Plans 2 does not lay out (two windows 3 in apart). Two generated or invented houses, no real crew's time study; the nail rules are the defaults of `fasteners.mjs`, not a code table. `panelised-bench.test.mjs` checks a 20 ft wall by hand (two panels, one seam, 41 site nails) and the ordering across limits.
+Reading: panels cut the things lifted into place by a factor of 11 to 22 and move roughly three quarters or more of the framing nails to the shop table, at the price of 5 to 21% more saw cuts. Whether that is cheaper depends on shop labour, crane or lift, and shipping, which this tool does not know. Open House Plans 2 does not lay out as drawn (two windows 3 in apart; see the allowance bench for the ganged retry). Two generated or invented houses, no real crew's time study; the nail rules are the defaults of `fasteners.mjs`, not a code table. `panelised-bench.test.mjs` checks a 20 ft wall by hand (two panels, one seam, 41 site nails) and the ordering across limits.
 
 ## Counted order against allowances (measured 2026-10-28)
 
@@ -240,9 +240,9 @@ corner and tee end, plus three plates.
 |---|---|---|---|---|
 | example house (invented) | 212 | 2316 | 2494 (+7.7%) | 2727 (+17.8%) |
 | Open House Plans 1 (CC0, generated) | 220 | 2545 | 2594 (+1.9%) | 3171 (+24.6%) |
+| Open House Plans 2 (CC0, generated), 3 pairs of windows ganged, 24 ft header stock added | 399 | 4269 | 4704 (+10.2%) | 5494 (+28.7%) |
 
-Open House Plans 2 does not lay out (two windows closer than the king-stud
-width). Both plans are invented or generated, not permit sets, so this says how
+Open House Plans 2 does not lay out as drawn (three pairs of windows 3 in apart, and a 16 ft wide opening whose 2x10 header is 195 in, longer than any listed board). Since 2026-11-01 the bench retries with `ganged.mjs` merging each close pair into one opening and, if a header is still too long, 24 ft boards in every size at 1.6x the 16 ft price (my assumption, so the counted figure for that house is softer; the allowance rules count the openings as drawn). Both plans are invented or generated, not permit sets, so this says how
 two rules behave on two houses, not what a real builder over-orders. The rules
 are my reading of common practice, not a published standard; a real plan with
 the builder's actual order would settle it (ROADMAP, research threads).
@@ -255,6 +255,8 @@ the builder's actual order would settle it (ROADMAP, research threads).
 | example house (invented) | 24 in | 1972 | 2494 (+26.5%) | 2286 (+15.9%) |
 | Open House Plans 1 (CC0, generated) | 16 in | 2545 | 2594 (+1.9%) | 3171 (+24.6%) |
 | Open House Plans 1 (CC0, generated) | 24 in | 2222 | 2594 (+16.7%) | 2679 (+20.6%) |
+| Open House Plans 2 (ganged, long headers) | 16 in | 4269 | 4704 (+10.2%) | 5494 (+28.7%) |
+| Open House Plans 2 (ganged, long headers) | 24 in | 3717 | 4704 (+26.6%) | 4637 (+24.7%) |
 
 The per-foot rule looks close at 16 in because it implicitly assumes that spacing; it does not move at 24 in, so a builder who frames at 24 in with it over-orders by 17 to 27% on these two houses. The on-centre rule follows the spacing but stays 16 to 25% high, mostly from the four-stud allowance per opening and the plate count. Still two invented or generated houses, no builder's real order.
 
