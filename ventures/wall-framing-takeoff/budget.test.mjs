@@ -326,4 +326,12 @@ test("overhead then profit give a bid price; profit is a share of the bid", () =
   const text = run(full({ overhead: 0.1, profit: 0.1 }), "--sheathing", "--budget").out;
   assert.match(text, /bid price/);
   assert.match(budgetCsv(b), /Bid price/);
+test("cost per linear foot of wall is the whole total over summary.wallFeet", () => {
+  const plan = full({ floorSheet: 30, tax: 0.1 });
+  const b = bud(plan);
+  assert.ok(b.wallFeet > 0);
+  assert.equal(b.perWallFoot, +(b.total / b.wallFeet).toFixed(2));
+  assert.match(budgetText(b).join("\n"), /Per linear foot of wall/);
+  const none = budget({ ...samplePlan(), orders: [], summary: {} }, {});
+  assert.equal(none.perWallFoot, null);
 });

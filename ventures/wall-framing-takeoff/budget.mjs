@@ -192,8 +192,10 @@ export function budget(result, prices = {}) {
   const overhead = r2(total * ovhRate), profit = r2((total + overhead) * profRate);
   const bid = r2(total + overhead + profit);
   const marginPct = bid > 0 ? r2(100 * profit / bid) : 0;
+  const wallFeet = result.summary?.wallFeet > 0 ? r2(result.summary.wallFeet) : 0; // total over feet of wall: a whole-budget ratio, not wall-only cost
   return {
     floorSqFt, perFloorSqFt: floorSqFt && total > 0 ? r2(total / floorSqFt) : null,
+    wallFeet: wallFeet || null, perWallFoot: wallFeet && total > 0 ? r2(total / wallFeet) : null,
     lines, sections, materials, labor, taxRate, tax, contingencyRate: contRate, contingency, total,
     overheadRate: ovhRate, overhead, profitRate: profRate, profit, bid, marginPct,
     unpriced: lines.filter((l) => l.amount == null).map((l) => `${l.item} (${l.qty} ${l.unit})`),
@@ -212,6 +214,7 @@ export function budgetText(b) {
   out.push(`  Materials ${b.materials.toFixed(2)}${b.taxRate ? `, tax ${b.tax.toFixed(2)} at ${(100 * b.taxRate).toFixed(2)}%` : ""}${b.contingencyRate ? `, contingency ${b.contingency.toFixed(2)} at ${(100 * b.contingencyRate).toFixed(1)}%` : ""}${b.labor ? `, labor ${b.labor.toFixed(2)}` : ""}; total ${b.total.toFixed(2)}`);
   if (b.overheadRate || b.profitRate) out.push(`  Cost ${b.total.toFixed(2)}${b.overheadRate ? `, overhead ${b.overhead.toFixed(2)} at ${(100 * b.overheadRate).toFixed(1)}%` : ""}${b.profitRate ? `, profit ${b.profit.toFixed(2)} at ${(100 * b.profitRate).toFixed(1)}%` : ""}; bid price ${b.bid.toFixed(2)} (profit is ${b.marginPct.toFixed(1)}% of the bid)`);
   if (b.perFloorSqFt != null) out.push(`  Per sq ft of floor framed (${b.floorSqFt} sq ft, one level): ${b.perFloorSqFt.toFixed(2)}${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
+  if (b.perWallFoot != null) out.push(`  Per linear foot of wall (${b.wallFeet} ft; whole budget over wall length): ${b.perWallFoot.toFixed(2)}${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
   if (b.unpriced.length) out.push(`  Not in the total, no price typed: ${b.unpriced.join("; ")}. Add them under \`prices\` in the plan.`);
   out.push("  Not included: equipment, permits, delivery, overhead or waste beyond what the takeoff already counts" + (b.lines.some((l) => l.section === "Labor") ? "; labor is only the rates you typed." : "; no labor rate typed."));
   return out;
