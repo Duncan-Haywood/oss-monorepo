@@ -11,7 +11,7 @@
 // panels by first fit decreasing. Fascia boards follow the eave and rake runs
 // and are packed the same way. J-channel is the length of wall the soffit meets.
 // Not counted: corner mitres, vented-panel mix, frieze board, drip edge (the
-// roof's own count), nails, caulk and paint; a cross wing's overhangs (main roof only).
+// roof's own count), nails, caulk and paint; a cross wing of a different pitch than the main roof (noted).
 import { packPieces } from "./trim.mjs";
 
 /** @typedef {{ panelWidth?: number, panelStock?: number, fasciaStock?: number, channelStock?: number, waste?: number, rakeSoffit?: boolean, panelPrice?: number, fasciaPrice?: number, channelPrice?: number }} Eaves */
@@ -43,8 +43,22 @@ export function layoutEaves(d, roof) {
   const hip = roof.shape === "hip";
   const L = roof.length, W = roof.width;
   /** @type {number[]} */ let eaveRuns, rakeRuns;
+  let wingCount = 0;
   if (hip) { eaveRuns = [L + 2 * oh, L + 2 * oh, W + 2 * oh, W + 2 * oh]; rakeRuns = []; }
   else { eaveRuns = [L + 2 * rake, L + 2 * rake]; rakeRuns = [roof.slope, roof.slope, roof.slope, roof.slope]; }
+  // A cross wing (equal pitch only) replaces the stretch of main eave it sits on, `width + 2 x overhang`
+  // (the valley meets the main eave line a wing half-width plus overhang either side), with its own two eaves,
+  // each from the wing's gable end to that corner, and two rakes up the wing's gable end.
+  /** @type {string[]} */ const wingNotes = [];
+  for (const wg of (hip ? [] : roof.wings || [])) {
+    if (Math.abs(wg.pitch - roof.pitch) > 1e-9) { wingNotes.push(`A cross wing ${wg.width / 12} ft wide has its own pitch, so its overhangs are not counted (equal pitch only).`); continue; }
+    const cut = wg.width + 2 * oh, i = eaveRuns.findIndex((r) => r >= cut);
+    if (i < 0) { wingNotes.push("A cross wing is wider than the main eave it sits on; its overhangs are not counted."); continue; }
+    eaveRuns[i] -= cut;
+    eaveRuns.push(wg.eaveLineRun, wg.eaveLineRun);
+    rakeRuns.push(wg.rakeRun, wg.rakeRun);
+    wingCount++;
+  }
   const eaveCourses = oh > 0 ? Math.ceil(oh / pw - 1e-9) : 0;
   const rakeCourses = rakeSoffit && rake > 0 ? Math.ceil(rake / pw - 1e-9) : 0;
   /** @type {number[]} */ const soffitRuns = [];
@@ -63,7 +77,7 @@ export function layoutEaves(d, roof) {
   return {
     ok: true, errors: [], shape: hip ? "hip" : "gable", waste, panelWidth: pw, panelStock, fasciaStock, channelStock, rakeSoffit,
     eaveFeet: eaveRuns.reduce((a, b) => a + b, 0) / 12, rakeFeet: rakeRuns.reduce((a, b) => a + b, 0) / 12,
-    soffitSqFt, eaveCourses, rakeCourses, panels, fascia, channel,
+    wings: wingCount, wingNotes, soffitSqFt, eaveCourses, rakeCourses, panels, fascia, channel,
     cost: priced ? money(d.panelPrice, panels) + money(d.fasciaPrice, fascia) + money(d.channelPrice, channel) : null,
     panelPrice: d.panelPrice ?? null, fasciaPrice: d.fasciaPrice ?? null, channelPrice: d.channelPrice ?? null,
   };
@@ -76,6 +90,8 @@ export function eavesText(s) {
   l.push(`  Soffit: ${s.soffitSqFt.toFixed(0)} sq ft under ${s.eaveFeet.toFixed(0)} ft of eave${s.rakeSoffit ? ` and ${s.rakeFeet.toFixed(0)} ft of rake` : ""}, ${s.eaveCourses} course(s) of ${s.panelWidth} in panels -> ${s.panels} panels of ${s.panelStock / 12} ft (${(100 * s.waste).toFixed(0)}% waste added)${m(s.panels, s.panelPrice)}`);
   l.push(`  Fascia: ${(s.eaveFeet + s.rakeFeet).toFixed(0)} ft (eave${s.rakeFeet ? " and rake" : ""}) -> ${s.fascia} boards of ${s.fasciaStock / 12} ft${m(s.fascia, s.fasciaPrice)}`);
   l.push(`  J-channel: ${s.channel} pieces of ${s.channelStock / 12} ft along the wall${m(s.channel, s.channelPrice)}`);
-  l.push("  Corner mitres, vented-panel mix, frieze, drip edge, nails, caulk, paint and a cross wing's overhangs are not counted; widths, stock lengths and prices are figures you type.");
+  if (s.wings) l.push(`  ${s.wings} cross wing(s): each replaces ${"`width + 2 x overhang`"} of main eave with its own two eaves and two gable-end rakes.`);
+  for (const n of s.wingNotes || []) l.push("  " + n);
+  l.push("  Corner mitres, vented-panel mix, frieze, drip edge, nails, caulk and paint are not counted; widths, stock lengths and prices are figures you type.");
   return l;
 }
