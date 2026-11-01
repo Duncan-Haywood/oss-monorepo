@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan, formatLength } from "./engine.mjs";
 import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText, checkPostSlenderness, checkLandingPostColumn, checkLandingJoists, flightPostLoad } from "./stairs.mjs";
-import { checkStringer, checkTread } from "./stairs.mjs";
+import { checkStringer, checkTread, checkGuardPost } from "./stairs.mjs";
 import { checkWinders, winderText, layoutLandingGuard } from "./stairs.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
@@ -523,4 +523,21 @@ test("tread check runs from the stair input and prints", () => {
   assert.ok(l.treadCheck.ok);
   assert.match(stairText(l).join("\n"), /Tread check/);
   assert.equal(layoutStair({ totalRise: 105, tread: 10, stringer: "2x12", width: 36 }, plan()).treadCheck, null);
+});
+
+test("guard post check: hand arithmetic for a 4x4 post at 36 in, and refusals", () => {
+  // 3.5 x 3.5 post, 200 lb at 36 in: M = 7200 in-lb, S = 3.5^3/6 = 7.1458, fb = 1007.6 psi
+  const k = checkGuardPost({ width: 3.5, depth: 3.5, height: 36 }, { point: 200, Fb: 1200 });
+  assert.ok(k.ok && Math.abs(k.fb - 1007.58) < 0.01);
+  // a 2x4 on edge-wise weak axis: 1.5 x 3.5, S = 3.5*1.5^2/6 = 1.3125, fb = 5485.7
+  const w = checkGuardPost({ width: 1.5, depth: 3.5, height: 36 }, { point: 200, Fb: 1200 });
+  assert.ok(!w.ok && Math.abs(w.fb - 5485.71) < 0.01 && w.warnings.length === 1);
+  assert.ok(!checkGuardPost({ width: 3.5, depth: 3.5, height: 36 }, { point: 200 }).ok);
+});
+
+test("guard post check runs from the stair input and prints", () => {
+  const l = layoutStair({ totalRise: 105, tread: 10, stringer: "2x12", width: 36, rail: { sides: 1 }, postCheck: { point: 200, Fb: 1200 } }, plan());
+  assert.ok(l.postCheck.ok);
+  assert.match(stairText(l).join("\n"), /Guard post check/);
+  assert.equal(layoutStair({ totalRise: 105, tread: 10, stringer: "2x12", width: 36, rail: { sides: 1 } }, plan()).postCheck, null);
 });
