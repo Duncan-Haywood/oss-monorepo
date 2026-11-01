@@ -140,3 +140,16 @@ def test_fixed_pump_surplus_is_dropped_at_pump_pressure():
         lo, hi = (mid, hi) if flow(mid, 1.2 * b) < Q else (lo, mid)
     assert lo < pl + dp
     assert a * sqrt(lo - pl) < q
+
+
+def test_regen_peaky_rating_bounds():
+    """Milestone 5e: a unit-mean profile's 95% rating is between the mean and its peak; flat needs 0.95x."""
+    import importlib.util, os
+    path = os.path.join(os.path.dirname(__file__), "..", "experiments", "regen_peaky.py")
+    spec = importlib.util.spec_from_file_location("regen_peaky", path)
+    m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+    assert abs(m.rating_for(m.profile("flat"), .95) - 0.95) < 1e-6
+    tri = m.profile("triangle")
+    assert abs(max(tri) - 2.0) < 1e-3
+    # analytic: triangle with peak 2 (unit mean) captures 1 - (2-c)^2/4 at cap c, so 95% needs c = 2 - sqrt(0.2)
+    assert abs(m.rating_for(tri, .95) - (2 - 0.2 ** 0.5)) < 1e-3
