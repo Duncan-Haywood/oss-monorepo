@@ -1,0 +1,183 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01AcxTtGxdbnFEuBMqRe9JDA",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T17:07:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "redteam.py targets --probe flagged einvoice-preflight/schematron.mjs as red, but its own suite was green; the real red test was hungary-e-invoice-mandate.test.mjs in the whole-venture run. Probe covers a narrower suite than the venture."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: small test-gap and link fix run.",
+      "did": "skipped post and agent doc",
+      "result": "none"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "hsa-shoebox calc.mjs campaign: 8 seeded, 6 caught (0.75), 2 gaps (note slice, years floor) fixed with 2 tests, 1.0 after. Hungary mandate page links added; einvoice suite 1078 pass.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/hsa-shoebox-reimbursement-planner/calc.mjs",
+        "test": "node --test ventures/hsa-shoebox-reimbursement-planner/**/*.test.mjs  (in .)",
+        "seed": 675904538,
+        "commit": "ae9ac41f",
+        "sites": 127,
+        "baseline_seconds": 0.5,
+        "mutants": [
+          {
+            "file": "ventures/hsa-shoebox-reimbursement-planner/calc.mjs",
+            "line": 79,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "const note = parts.slice(2).join(\", \");",
+            "after": "const note = parts.slice(3).join(\", \");",
+            "line_text": "    const note = parts.slice(2).join(\", \");",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added test in calc.test.mjs"
+          },
+          {
+            "file": "ventures/hsa-shoebox-reimbursement-planner/calc.mjs",
+            "line": 101,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "const years = Math.max(0, Math.min(60, Math.round(o.years)));",
+            "after": "const years = Math.max(1, Math.min(60, Math.round(o.years)));",
+            "line_text": "  const years = Math.max(0, Math.min(60, Math.round(o.years)));",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added test in calc.test.mjs"
+          },
+          {
+            "file": "ventures/hsa-shoebox-reimbursement-planner/calc.mjs",
+            "line": 101,
+            "col": 28,
+            "operator": "min-to-max",
+            "before": "const years = Math.max(0, Math.min(60, Math.round(o.years)));",
+            "after": "const years = Math.max(0, Math.max(60, Math.round(o.years)));",
+            "line_text": "  const years = Math.max(0, Math.min(60, Math.round(o.years)));",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hsa-shoebox-reimbursement-planner/calc.mjs",
+            "line": 105,
+            "col": 17,
+            "operator": "max-to-min",
+            "before": "const newRec = Math.max(0, o.annualNewReceipts);",
+            "after": "const newRec = Math.min(0, o.annualNewReceipts);",
+            "line_text": "  const newRec = Math.max(0, o.annualNewReceipts);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hsa-shoebox-reimbursement-planner/calc.mjs",
+            "line": 108,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "let hsaB = hsaA, tax = 0, basis = 0, taxable = 0, shortfall = 0;",
+            "after": "let hsaB = hsaA, tax = 0, basis = 0, taxable = 1, shortfall = 0;",
+            "line_text": "  let hsaB = hsaA, tax = 0, basis = 0, taxable = 0, shortfall = 0;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hsa-shoebox-reimbursement-planner/calc.mjs",
+            "line": 121,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "const after = taxable - Math.max(0, taxable - basis) * cg;",
+            "after": "const after = taxable - Math.max(1, taxable - basis) * cg;",
+            "line_text": "    const after = taxable - Math.max(0, taxable - basis) * cg;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hsa-shoebox-reimbursement-planner/calc.mjs",
+            "line": 121,
+            "col": 57,
+            "operator": "times-to-div",
+            "before": "const after = taxable - Math.max(0, taxable - basis) * cg;",
+            "after": "const after = taxable - Math.max(0, taxable - basis) / cg;",
+            "line_text": "    const after = taxable - Math.max(0, taxable - basis) * cg;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hsa-shoebox-reimbursement-planner/calc.mjs",
+            "line": 127,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "const ordinary = o.ordinaryRatePct / 100;",
+            "after": "const ordinary = o.ordinaryRatePct / 101;",
+            "line_text": "  const ordinary = o.ordinaryRatePct / 100;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/einvoice-preflight/hungary-e-invoice-mandate.html",
+        "issue": "Hungary page did not link 6 newer country pages (costa-rica, dominican-republic, guatemala, kazakhstan, panama, uzbekistan); venture test red on main",
+        "patched": true
+      }
+    ]
+  }
+}
