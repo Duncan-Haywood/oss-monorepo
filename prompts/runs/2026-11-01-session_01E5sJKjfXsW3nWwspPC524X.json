@@ -43,7 +43,10 @@
       "result": "landed"
     }
   ],
-  "writeups": "docs/posts/2026-11-01-does-excavator-energy-recovery-pay-back-in-fuel.md; research/heavy-hydraulics/LOG.md 5f",
+  "writeups": [
+    "docs/posts/2026-11-01-does-excavator-energy-recovery-pay-back-in-fuel.md",
+    "research/heavy-hydraulics/LOG.md"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],
