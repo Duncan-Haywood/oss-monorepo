@@ -64,3 +64,8 @@ test("every other country page links to the Slovenia page", () => {
     assert.match(page, /href="slovenia-e-invoice-mandate\.html"/, f);
   }
 });
+
+test("flags the conflicting enactment dates as unconfirmed", () => {
+  assert.match(html, /Uradni list RS 85\/2025/);
+  assert.match(html, /conflict/);
+});
