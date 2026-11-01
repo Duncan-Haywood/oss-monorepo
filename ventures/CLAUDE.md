@@ -29,7 +29,7 @@ tools that help them earn more. Low variable cost, traditional software, AI
 only where it clearly helps. Payment code ships off by default on the deployer's
 own keys; the owner's own instances may also sell through the owner's
 merchant-of-record hosted checkout, by a link set outside the repo, never a key
-(`../prompts/goals.md`, "Payments: the owner's merchant of record, never a key"; owner, 2026-10-31). Calculators are a poor use of a run: a new one rarely beats
+(`../prompts/goals.md`, "Payments: the owner's merchant of record, never a key"; owner, 2026-10-31). For-profit is on (owner, 2026-11-01) but never a blocker: a paid path ships dark until the link is set, and nothing waits on it. Calculators are a poor use of a run: a new one rarely beats
 what a chatbot gives in one reply, so build depth elsewhere and fix existing
 ones only when broken; already-built calculator work can still be merged
 (owner, 2026-10-21; `../prompts/goals.md`, "Direction:

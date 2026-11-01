@@ -24,6 +24,10 @@ by me a coffee or something. creating value trumps personal revenue but I
 enjoy some income from these projects if so." In order: value for people,
 then income with no legal or financial liability, then free software with a
 coffee or sponsor link.
+**Updated 2026-11-01:** "I want to turn on for profit in this repo. don't let
+it block work from getting done like in the past." Selling through the
+owner's merchant of record is on; it never gates other work (Guardrails,
+"Payments").
 
 ## Mission
 
@@ -920,6 +924,20 @@ when they don't, do the sensible thing and record it as a deviation
   - Payment code in a product stays off by default and runs on keys that
     whoever deploys it supplies, so a fork pays its deployer, never the owner.
   - GitHub Sponsors donations stay allowed alongside.
+  - **For profit, without blocking work** (owner, 2026-11-01: "I want to
+    turn on for profit in this repo. don't let it block work from getting
+    done like in the past"). Selling is on, and it is additive. A "Buy" or
+    paid-tier path ships dark: with no checkout link set it renders the
+    free path, or nothing, and every test and build passes. So no feature,
+    build, deploy or merge waits on the owner's account, the provider
+    choice, the link or a test purchase, and a run never stops, re-asks or
+    calls itself blocked because money is not flowing yet. The owner's
+    steps live once, in the `payout-rail` row of the decision queue; do not
+    restate them, and do not spend runs re-measuring that revenue is $0 or
+    re-probing payment rails. Charge for new depth (a pro tier, hosted
+    extras, downloads, support), not by paywalling what the site already
+    advertises as free, which would also make those "free" claims false.
+    The code stays MIT.
 - **No API-token billing in Actions, for now.** Owner, 2026-10-31: "generally
   having api token billing running in actions is not ideal at the moment.
   not a permanent rule just not the current method." Agent work runs through
