@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
-for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "bid-leveling-calculator.html"]) {
+for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html"]) {
   test(`${name} carries the disclaimer, privacy line and sponsor link`, () => {
     const html = page(name);
     assert.match(html, /No warranty/);
@@ -502,8 +502,25 @@ test("the bid leveling page: FAQ matches its data, the sample bids level as the 
   assert.equal(r.lowestLeveled, "Sub A");
 });
 
+test("the change order page: FAQ matches its data, the sample diffs as a hand sum says", async () => {
+  const html = page("change-order-calculator.html");
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("([\w-]+)"\)/g)) assert.ok(ids.has(m[1]), m[1]);
+  const { budgetDiff } = await import("./compare.mjs");
+  const w = (lines) => { const t = lines.reduce((a, l) => a + (l.amount ?? 0), 0); return { lines, total: t, bid: t }; };
+  const d = budgetDiff(w([{ section: "Lumber", item: "2x4", unit: "ea", qty: 300, amount: 1050 }]), w([{ section: "Lumber", item: "2x4", unit: "ea", qty: 228, amount: 798 }, { section: "Hardware", item: "Hold-downs", unit: "ea", qty: 6, amount: null }]));
+  // 798 - 1050 = -252; the unpriced hold-downs are listed, not netted
+  assert.equal(d.totals.total.delta, -252);
+  assert.equal(d.unpricedChanges.length, 1);
+});
+
 test("every page links to every other page (internal linking for readers and crawlers)", () => {
-  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "schedule-calculator", "bid-leveling-calculator"].map((n) => n + ".html");
+  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "schedule-calculator", "bid-leveling-calculator", "change-order-calculator"].map((n) => n + ".html");
   for (const f of pages) {
     const html = page(f);
     for (const other of pages) if (other !== f) assert.ok(html.includes(`<a href="${other}">`), `${f} does not link ${other}`);
