@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01E5sJKnrW1o7Cigf7SkWXjz",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: read prompt.md and follow",
+  "input_sha256": "719c8d7b4c198edd9b8075363658ea70ede808ca0dc1d6ca4ebf5e22e8bddb1c",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T12:20:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12330",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 security-alerts branch does not exist on origin; fetch fails fatally."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No blog post, flagships.yaml next: rewrite or venture-preflight; low-effort scheduled run, slice is a one-field budget addition",
+      "did": "ROADMAP entry only",
+      "result": "merged small"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Small slice: wall-framing-takeoff budget section shares; budget.test.mjs 29 pass locally. Security-alerts branch absent; ideas inbox empty.",
+  "corrections": [],
+  "redteam": null
+}

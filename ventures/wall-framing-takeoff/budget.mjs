@@ -186,8 +186,11 @@ export function budget(result, prices = {}, allowances = {}) {
 
   const sections = [...new Set(lines.map((l) => l.section))].map((name) => {
     const ls = lines.filter((l) => l.section === name);
-    return { name, subtotal: r2(ls.reduce((s, l) => s + (l.amount ?? 0), 0)), unpriced: ls.filter((l) => l.amount == null).length };
+    return { name, subtotal: r2(ls.reduce((s, l) => s + (l.amount ?? 0), 0)), unpriced: ls.filter((l) => l.amount == null).length, share: 0 };
   });
+  // Each section's share of the priced lines, before tax and contingency (those apply to materials only).
+  const pricedSum = sections.reduce((t, x) => t + x.subtotal, 0);
+  for (const x of sections) x.share = pricedSum > 0 ? Math.round((1000 * x.subtotal) / pricedSum) / 10 : 0;
   const materials = r2(sections.filter((x) => x.name !== "Labor" && x.name !== "Allowances").reduce((s, x) => s + x.subtotal, 0));
   const labor = r2(sections.filter((x) => x.name === "Labor").reduce((s, x) => s + x.subtotal, 0));
   const allowanceTotal = r2(sections.filter((x) => x.name === "Allowances").reduce((s, x) => s + x.subtotal, 0));
@@ -222,7 +225,7 @@ export function budgetText(b) {
     if (l.section !== sec) { sec = l.section; out.push(`  ${sec}`); }
     out.push(`    ${l.item.padEnd(34)} ${String(l.qty).padStart(8)} ${l.unit.padEnd(7)} ${l.unitPrice == null ? "no price".padStart(10) : l.unitPrice.toFixed(2).padStart(10)} ${l.amount == null ? "".padStart(11) : l.amount.toFixed(2).padStart(11)}`);
   }
-  out.push("  Subtotals: " + b.sections.map((s) => `${s.name} ${s.subtotal.toFixed(2)}`).join(", "));
+  out.push("  Subtotals: " + b.sections.map((s) => `${s.name} ${s.subtotal.toFixed(2)} (${s.share.toFixed(1)}%)`).join(", "));
   out.push(`  Materials ${b.materials.toFixed(2)}${b.taxRate ? `, tax ${b.tax.toFixed(2)} at ${(100 * b.taxRate).toFixed(2)}%` : ""}${b.contingencyRate ? `, contingency ${b.contingency.toFixed(2)} at ${(100 * b.contingencyRate).toFixed(1)}%` : ""}${b.labor ? `, labor ${b.labor.toFixed(2)}` : ""}${b.allowances ? `, allowances ${b.allowances.toFixed(2)}` : ""}; total ${b.total.toFixed(2)}`);
   if (b.overheadRate || b.profitRate) out.push(`  Cost ${b.total.toFixed(2)}${b.overheadRate ? `, overhead ${b.overhead.toFixed(2)} at ${(100 * b.overheadRate).toFixed(1)}%` : ""}${b.profitRate ? `, profit ${b.profit.toFixed(2)} at ${(100 * b.profitRate).toFixed(1)}%` : ""}; bid price ${b.bid.toFixed(2)} (profit is ${b.marginPct.toFixed(1)}% of the bid)`);
   if (b.laborPct != null) out.push(`  Labor share of the cost total (before overhead and profit): ${b.laborPct.toFixed(1)}%${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);

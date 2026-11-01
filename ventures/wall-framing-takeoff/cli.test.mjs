@@ -296,7 +296,7 @@ test("plan.dormer with shape shed lays a shed dormer", () => {
 });
 
 test("--proposal prints a customer letter from the priced budget and refuses while a line is unpriced", () => {
-  const plan = { ...samplePlan(), prices: { laborWallFoot: 4, overhead: 0.1, profit: 0.1 }, proposal: { client: "A. Owner", exclusions: ["landscaping"] } };
+  const plan = { ...samplePlan(), prices: { laborWallFoot: 4, laborOpening: 85, overhead: 0.1, profit: 0.1 }, proposal: { client: "A. Owner", exclusions: ["landscaping"] } };
   const ok = run(["plan.json", "--proposal"], plan);
   assert.equal(ok.code, 0);
   assert.match(ok.out, /Prepared for A\. Owner/);
