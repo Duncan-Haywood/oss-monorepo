@@ -1,6 +1,6 @@
 ---
 title: "From cost to bid price: overhead and profit in the framing budget"
-seo_title: "Framing budget with overhead and profit: turn a takeoff cost into a bid price"
+seo_title: "Framing budget: add overhead and profit to get a bid price"
 date: 2026-11-01
 tags: [construction, estimating, wall-framing-takeoff]
 description: "The free wall-framing takeoff's budget now adds a builder's overhead and profit to the cost and reports the bid price and the real margin."
