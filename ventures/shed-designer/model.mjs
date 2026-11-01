@@ -1243,7 +1243,7 @@ function buildFramed(d, lapNailers) {
     // a wall framed on one plate stays square while it is nailed up and raised,
     // and the piece in the door is sawn out once the plate is nailed down. With
     // the option off it is cut out at each door before framing, as two pieces.
-    const doorGaps = /** @type {[number, number, string][]} */ (ops.filter((p) => p.op.kind === 'door').map((p) => [p.a, p.a + p.w, p.op.id]).sort((a, b) => a[0] - b[0]));
+    const doorGaps = ops.filter((p) => p.op.kind === 'door').map((p) => /** @type {[number, number, string]} */ ([p.a, p.a + p.w, p.op.id])).sort((a, b) => a[0] - b[0]);
     const bottomRuns = [];
     if (d.plateThroughDoors) bottomRuns.push([0, len]);
     else {
