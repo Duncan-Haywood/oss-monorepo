@@ -1,5 +1,6 @@
 ---
 title: "A model-guided Hyperband finally beats random routing at low budget on chip design search"
+seo_title: "Model-guided Hyperband beats random routing in chip design"
 date: 2026-11-01
 tags: [verified-dse, multi-fidelity, chip-design, research]
 description: In verified-dse, BOHB-style KDE entrants inside Hyperband beat random routing at 15 and 25 routed-run budgets over 40 design cells, and lose at 40.

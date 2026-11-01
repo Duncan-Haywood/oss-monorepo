@@ -1,5 +1,6 @@
 ---
 title: "Fuzzing the wall layout engine: 400 random houses, no failed self-check"
+seo_title: "Fuzzing the wall layout engine"
 date: 2026-11-01
 tags: [wall-framing-takeoff, testing, construction]
 description: A seeded property test throws random walls and openings at the framing engine and checks every layout with its own self-check.
