@@ -127,3 +127,6 @@ Recoverable energy `(m_arm + m_load) g dh x eta_rt`, capped by the lift phase's 
 0.8 m, 70% round trip; 10.0% and 10.3% at 600 kg, 1.2 m, 92%. Arm mass, drop height and round-trip efficiency are swept, not
 sourced; the model's lift phase does a median 5.6 times the work of lifting the bucket load alone, so the cap may be generous.
 Details and the pre-registered predictions: `LOG.md`.
+
+## Milestone 3l: pricing the larger pump (prediction refuted on energy)
+A pump 1.2 x the peak demand removes the open-centre median time penalty (3k), but burns 14.1% more shaft energy per cycle (1.5 x: 34.8%) because the fixed pump's whole flow runs at load pressure in every work phase. Cycle time falls 2.6% and 4.7%. With the pump priced linearly in flow from one retail listing (assumed) and fuel at $6.28/gal, the extra fuel is $0.18 to $0.45 per hour, so the larger pump pays if an hour of the machine is worth more than about $8 to $12 (`experiments/pump_cost.py`). I had predicted an energy rise under 5% (1.2 x); that part was wrong, the break-even bound held. The 0.8 x row is not valid (most cycles exceed the pump flow). Details: `LOG.md`.

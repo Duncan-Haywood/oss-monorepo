@@ -169,6 +169,14 @@ test("cross wing: valley length, wing ridge and station counts match hand arithm
   assert.ok(Math.abs(mid.length - (168 - 0.75 - 96 - 0.75 * Math.SQRT2) * k) < 1 / 16);
 });
 
+test("cross wing: ridge height is half the width times the pitch, below the main ridge", () => {
+  const l = layoutRoof(wingRoof(), plan());
+  // 16 ft wing at 4:12: 96 in x 4/12 = 32 in; 28 ft main: 168 x 4/12 = 56 in -> 24 in lower
+  assert.equal(l.wing.ridgeRise, 32);
+  assert.equal(l.wing.ridgeBelowMain, 24);
+  assert.match(roofText(l).join("\n"), /below the main ridge/);
+});
+
 test("cross wing: area is the main roof plus two wing planes less the triangle they cover", () => {
   const base = layoutRoof({ ...wingRoof(), wing: undefined }, plan());
   const l = layoutRoof(wingRoof(), plan());
