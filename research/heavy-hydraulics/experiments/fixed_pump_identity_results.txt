@@ -1,0 +1,5 @@
+2000 random parallel open-centre phases (1 to 3 actuators, 30 to 220 bar), Q 45.0 L/min, spool drop 6.0 bar
+sized bypass: solved pressure vs p_max + drop, max abs error 5.68e-14 bar
+solved shaft energy vs cycle_energy open_centre, max relative error 5.27e-16
+wider bypass (x1.01 to x2): 8000 of 8000 cases lower the pressure; 0 of them still deliver every demanded flow
+worst delivered/demanded flow over widened-bypass cases 0.000

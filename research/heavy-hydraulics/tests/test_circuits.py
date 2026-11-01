@@ -113,3 +113,30 @@ def test_ls_compensator_loss_is_inside_the_margin():
     a = cycle_energy(c, "load_sensing", dp_ls=15 + 4, eta_pump=1.0)["shaft_J"]
     b = cycle_energy(c, "load_sensing", dp_ls=15, eta_pump=1.0)["shaft_J"]
     assert a - b == pytest.approx(20 * 4 * W_PER_BAR_LPM * 10.0)
+
+
+def test_fixed_pump_surplus_is_dropped_at_pump_pressure():
+    # Milestone 3p: a fixed pump of Q feeds a spool (q = a sqrt(p - p_l)) and a bypass (q = b sqrt(p)).
+    # With the bypass sized for the surplus, the solved pressure is p_l + drop and shaft power is Q p,
+    # i.e. cycle_energy's open_centre charge (f = 1). A wider bypass lowers p and the actuator gets less than its demand.
+    from math import sqrt
+    Q, pl, q, dp = 45.0, 150.0, 20.0, 6.0
+    a, b = q / sqrt(dp), (Q - q) / sqrt(pl + dp)
+
+    def flow(p, bb):
+        return a * sqrt(max(p - pl, 0.0)) + bb * sqrt(p)
+
+    lo, hi = pl, 1e4
+    for _ in range(200):
+        mid = (lo + hi) / 2
+        lo, hi = (mid, hi) if flow(mid, b) < Q else (lo, mid)
+    assert lo == pytest.approx(pl + dp, abs=1e-9)
+    e = cycle_energy((Phase("x", 1.0, (Actuator(pl, q),)),), "open_centre", pump_flow=Q, dp_spool=dp, eta_pump=1.0)
+    assert e["shaft_J"] == pytest.approx(Q * lo * W_PER_BAR_LPM)
+    # widen the bypass: the pressure falls and the actuator's flow falls short of its demand
+    lo, hi = 0.0, 1e4
+    for _ in range(200):
+        mid = (lo + hi) / 2
+        lo, hi = (mid, hi) if flow(mid, 1.2 * b) < Q else (lo, mid)
+    assert lo < pl + dp
+    assert a * sqrt(lo - pl) < q
