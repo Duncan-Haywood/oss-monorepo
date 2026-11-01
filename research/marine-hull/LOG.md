@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-01 · Milestone 7f: fold the H5 overhead results into the paper draft and try to source a glider mission overhead (no experiment run)
+- Why: 7d and 7e were logged but absent from `paper/DRAFT.md`; 7e left a glider mission overhead as the deciding unsourced input. Added both to the draft's hypotheses paragraph, numbers copied from `results_h5_overhead.txt` and `results_h5_glider.txt`.
+- Sourcing attempt: one web search for a Slocum energy per surfacing (GPS, Iridium) returned the Sentinel datasheet (25.2 kWh capacity, no communication power), a training deck listing surfacing as a battery-life factor and a 2025 G2 battery paper; no Wh-per-surfacing figure. Not opened beyond snippets, so nothing is sourced yet.
+- Limits: prose only; no new numbers.
+- Next: open the Teledyne Webb operator manual or the 2025 G2 battery paper (martech-workshop proceedings, paper 17) for a surfacing energy, then re-run 7e against it.
+
 ## 2026-10-31 · Milestone 7e: H5 for the glider against the propeller AUV: what fixed-energy gap flips the order? (not pre-registered)
 - Why: 7d's "Next". The glider and the AUV have different energy structures, so the equal-overhead proportionality argument of 7c needs its own check. `experiments/run_h5_glider.py` (stdlib, seconds) reuses run_glider.py's full 19,683-case grid (52 kg, 500 m dives), takes each vehicle's best-range energy per metre, and a 10 kg pack at 150 to 250 Wh/kg (1.5 to 2.5 kWh). Run in one go with no predictions logged first: exploratory.
 - Outcome (`experiments/results_h5_glider.txt`): the glider has the lower energy per metre in 12,803 of 19,683 cases (65.0%), e_g/e_a median 0.62 (5% to 95%: 0.17 to 2.57). With equal overhead there are 0 rank swaps across the 150 to 250 Wh/kg window, as 7c's argument says. A glider fixed-energy penalty of 100 Wh (7% of the smallest pack) swaps the order in 130 cases (0.7%), 250 Wh in 445 (2.3%), 500 Wh in 1,181 (6.0%), 1,000 Wh in 3,969 (20%). Among cases with the glider ahead, the median overhead that would flip it at 150 Wh/kg is 931 Wh of 1,500.
