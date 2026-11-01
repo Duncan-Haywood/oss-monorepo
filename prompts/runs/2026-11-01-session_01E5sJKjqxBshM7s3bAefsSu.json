@@ -1,0 +1,61 @@
+{
+ "date": "2026-11-01",
+ "session": "https://claude.ai/code/session_01E5sJKjqxBshM7s3bAefsSu",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-01T11:03:31Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12307",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [
+  "4 parallel then 1 sequential in-process DFN searches OOM-killed (14 GB); fixed with a fresh process per evaluation",
+  "first background searches died silently when launched with & in a Monitor shell"
+ ],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/energy-cell-dfn/README.md",
+   "issue": "Next steps still listed 'make evaluate_with report solver errors', already done in code"
+  },
+  {
+   "file": "prompts/research/prompt-0.md",
+   "issue": "does not mention that PyBaMM DFN loops need a fresh process per evaluation or RAM exhausts"
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompts/runs",
+   "why": "no human-hours estimate attached; runcost not run",
+   "did": "skipped runcost attach",
+   "result": "n/a"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-11-01-does-a-cheaper-battery-model-pick-the-wrong-cell.md",
+  "research/energy-cell-dfn/README.md (Direct DFN search section)"
+ ],
+ "goal": null,
+ "notes": "Direct DFN search (Bayes 164.3/164.4, random 155.1/159.7 Wh/kg, 2 seeds) vs SPMe-screened 163.0 under DFN; SPMe zeros labelled solver_error. Ran research/_homepage/build.py ok; project tests not rerun in full.",
+ "corrections": [],
+ "redteam": null
+}
