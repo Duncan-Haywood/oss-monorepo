@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01AcxTtLdjQxSjWpWX1hrn6G",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T02:09:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12224",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "security-alerts branch did not exist; step 0 command fails with no fallback note"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post: negative perf result, doc only",
+      "did": "history note only",
+      "result": "ok"
+    }
+  ],
+  "writeups": [
+    "docs/history/pages-build-perf-2026-11-01-deflate-level.md"
+  ],
+  "goal": null,
+  "notes": "Metric: cold Pages build 2m12s real (time, 4 cores). Deflate level 6->4 saves ~3.2ms/card (hrtime, 30 cards) but +19% bytes; no code change.",
+  "corrections": [],
+  "redteam": null
+}
