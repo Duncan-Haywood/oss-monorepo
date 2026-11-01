@@ -176,7 +176,7 @@ function loadPost(root, POSTS_DIR, name) {
     throw new Error(`${POSTS_DIR}/${name}: description is ${meta.description.length} characters; keep it to 160`);
   }
   if (meta.seo_title && String(meta.seo_title).length > TITLE_BUDGET) {
-    throw new Error(`${POSTS_DIR}/${name}: seo_title is ${String(meta.seo_title).length} characters; keep it to ${TITLE_BUDGET}`);
+    throw new Error(`${POSTS_DIR}/${name}: seo_title is ${String(meta.seo_title).length} characters; keep it to ${TITLE_BUDGET} (python3 platform/pages/propose_seo_titles.py lists posts needing a shorter one)`);
   }
   const date = String(meta.date || fm[1]);
   if (date !== fm[1]) throw new Error(`${POSTS_DIR}/${name}: date ${date} does not match the file name`);

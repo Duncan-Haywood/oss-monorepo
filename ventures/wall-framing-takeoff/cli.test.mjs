@@ -294,3 +294,18 @@ test("plan.dormer with shape shed lays a shed dormer", () => {
   assert.match(out, /shed dormer: rafters/);
   assert.match(out, /shed rafter/);
 });
+
+test("--proposal prints a customer letter from the priced budget and refuses while a line is unpriced", () => {
+  const plan = { ...samplePlan(), prices: { laborWallFoot: 4, laborOpening: 85, overhead: 0.1, profit: 0.1 }, proposal: { client: "A. Owner", exclusions: ["landscaping"] } };
+  const ok = run(["plan.json", "--proposal"], plan);
+  assert.equal(ok.code, 0);
+  assert.match(ok.out, /Prepared for A\. Owner/);
+  assert.match(ok.out, /Not included: landscaping/);
+  assert.doesNotMatch(ok.out, /profit|overhead/i);
+  const gap = run(["plan.json", "--sheathing", "--proposal"], plan); // wall sheets have no typed price
+  assert.equal(gap.code, 1);
+  assert.match(gap.out, /Proposal not issued/);
+  const part = run(["plan.json", "--sheathing", "--proposal"], { ...plan, proposal: { partial: true } });
+  assert.equal(part.code, 0);
+  assert.match(part.out, /WARNING: partial proposal/);
+});

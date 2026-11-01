@@ -266,10 +266,11 @@ export function schedule(input) {
     const weeks = [...byWeek.keys()].sort().map((w) => { const spend = Math.round(/** @type {number} */ (byWeek.get(w)) * 100) / 100; wcum = Math.round((wcum + spend) * 100) / 100; return { week: w, spend, cumulative: wcum }; });
     if (weeks.length) weeks[weeks.length - 1].cumulative = total;
     // Draw terms (typed): the lender or owner pays each day's spend `lagDays` calendar days later, less `retainagePct` held back
-    // until `releaseLagDays` after the last working day. The deepest running gap (paid out minus received) is the cash the builder floats.
+    // until `releaseLagDays` after the last working day. `markup` (fraction, default 0) bills each day's spend at cost x (1 + markup), as overhead and profit are billed. The deepest running gap (paid out minus received) is the cash the builder floats.
     let float = null;
     if (input.draw != null) {
-      const d = input.draw, lagDays = d.lagDays ?? 0, ret = d.retainagePct ?? 0, rel = d.releaseLagDays ?? lagDays;
+      const d = input.draw, lagDays = d.lagDays ?? 0, ret = d.retainagePct ?? 0, rel = d.releaseLagDays ?? lagDays, markup = d.markup ?? 0;
+      if (typeof markup !== "number" || !Number.isFinite(markup) || markup < 0) return { ok: false, errors: ["draw.markup is a fraction of cost billed on top (0.15 bills cost x 1.15), zero or more."] };
       if (![lagDays, ret, rel].every((x) => typeof x === "number" && Number.isFinite(x) && x >= 0) || !Number.isInteger(lagDays) || !Number.isInteger(rel) || ret > 100) return { ok: false, errors: ["draw: lagDays and releaseLagDays are whole days (0 or more) and retainagePct is 0 to 100."] };
       /** @type {Map<string, number>} */ const ev = new Map();
       const add = (/** @type {string} */ ds, /** @type {number} */ v) => ev.set(ds, (ev.get(ds) || 0) + v);
@@ -278,13 +279,13 @@ export function schedule(input) {
       for (const a of /** @type {any[]} */ (costed)) {
         const st = /** @type {number} */ (lv.start.get(a.id)), fin = /** @type {number} */ (lv.finish.get(a.id));
         const n = Math.max(1, fin - st);
-        for (let i = st; i < st + n; i++) { const ds = date(i); add(ds, -a.cost / n); add(shift(ds, lagDays), (a.cost / n) * (1 - ret / 100)); if (ds > lastDay) lastDay = ds; }
+        for (let i = st; i < st + n; i++) { const ds = date(i); add(ds, -a.cost / n); add(shift(ds, lagDays), (a.cost / n) * (1 + markup) * (1 - ret / 100)); if (ds > lastDay) lastDay = ds; }
       }
-      const held = total * ret / 100, releaseDate = shift(lastDay, rel);
+      const held = total * (1 + markup) * ret / 100, releaseDate = shift(lastDay, rel);
       add(releaseDate, held);
       let run = 0, peak = 0, peakDate = "";
       for (const k of [...ev.keys()].sort()) { run += ev.get(k) || 0; if (run < peak - 1e-9) { peak = run; peakDate = k; } }
-      float = { lagDays, retainagePct: ret, peakFloat: Math.round(-peak * 100) / 100 + 0, peakDate, retainageHeld: Math.round(held * 100) / 100, releaseDate };
+      float = { lagDays, retainagePct: ret, ...(markup ? { markup } : {}), peakFloat: Math.round(-peak * 100) / 100 + 0, peakDate, retainageHeld: Math.round(held * 100) / 100, releaseDate };
     }
     cashFlow = { total, ...(float ? { float } : {}), weeks, peakWeek: weeks.reduce((b, x) => (x.spend > b.spend ? x : b), weeks[0]).week, months, peakMonth: months.reduce((b, x) => (x.spend > b.spend ? x : b), months[0]).month };
   }
@@ -316,7 +317,7 @@ export function scheduleText(s) {
   for (const r of s.rows.slice().sort((/** @type {any} */ a, /** @type {any} */ b) => a.leveledStart - b.leveledStart)) out.push(`  ${r.critical ? "*" : " "} ${r.id.padEnd(12)} ${String(r.days).padStart(3)}d  ${r.startDate} to ${r.finishDate}  slack ${r.slack}${r.crew ? `  [${r.crew}]` : ""}  ${r.name}${r.derived ? `  (${r.derived})` : ""}`);
   for (const sl of s.slips) out.push(sl.error ? `  Slip ${sl.id}: ${sl.error}` : `  A ${sl.days}-day slip on ${sl.id} moves the finish ${sl.finishShift} day(s) (${sl.leveledFinishShift} with crews), to ${sl.newFinishDate}${sl.carryCost != null ? `, which costs $${sl.carryCost.toLocaleString("en-US")} at your $${s.carryPerDay.toLocaleString("en-US")} per day` : ""}.`);
   if (s.cashFlow) { out.push(`  Spend by month (your activity costs, spread over each activity's days): total $${s.cashFlow.total.toLocaleString("en-US")}, heaviest month ${s.cashFlow.peakMonth}, heaviest week (from Monday) ${s.cashFlow.peakWeek} at $${s.cashFlow.weeks.reduce((b, /** @type {any} */ x) => Math.max(b, x.spend), 0).toLocaleString("en-US")}.`); for (const m of s.cashFlow.months) out.push(`    ${m.month}  $${m.spend.toLocaleString("en-US")}  (to date $${m.cumulative.toLocaleString("en-US")})`); }
-  if (s.cashFlow?.float) { const f = s.cashFlow.float; out.push(`  Cash you float with draws paid ${f.lagDays} day(s) late and ${f.retainagePct}% retainage: peak $${f.peakFloat.toLocaleString("en-US")} on ${f.peakDate}; $${f.retainageHeld.toLocaleString("en-US")} retainage released ${f.releaseDate}. Terms are yours; no lender's rules are assumed.`); }
+  if (s.cashFlow?.float) { const f = s.cashFlow.float; out.push(`  Cash you float with draws paid ${f.lagDays} day(s) late and ${f.retainagePct}% retainage${f.markup ? `, billed at cost +${(100 * f.markup).toFixed(1)}%` : ""}: peak $${f.peakFloat.toLocaleString("en-US")} on ${f.peakDate}; $${f.retainageHeld.toLocaleString("en-US")} retainage released ${f.releaseDate}. Terms are yours; no lender's rules are assumed.`); }
   if (s.carryTotal != null) out.push(`  Carrying cost: $${s.carryTotal.toLocaleString("en-US")} for ${s.leveledDays} working days at your $${s.carryPerDay.toLocaleString("en-US")} per day.`);
   if (s.deadline) { const d = s.deadline; out.push(`  Deadline ${d.deadline}: ${d.daysLate > 0 ? `${d.daysLate} working day(s) late with your crews${d.lateCost != null ? `, ${"$" + d.lateCost.toLocaleString("en-US")} at your carrying cost` : ""}` : d.daysLate < 0 ? `${-d.daysLate} working day(s) to spare` : "met with no spare day"}.`); }
   for (const w of s.warnings) out.push(`  note: ${w}`);

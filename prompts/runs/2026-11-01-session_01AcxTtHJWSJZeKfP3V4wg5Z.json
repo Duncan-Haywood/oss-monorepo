@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01AcxTtHJWSJZeKfP3V4wg5Z",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T17:09:01Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12375",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Session branch rule (claude/...) conflicted with the polish/ branch name I first pushed; had to repush."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Took the small SEO title batch instead of a screenshot pass; no over-budget titles remain.",
+      "did": "hand-wrote 5 seo_titles",
+      "result": "script reports 0 outstanding"
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-11-01-seo-titles-batch-12.md"
+  ],
+  "goal": null,
+  "notes": "No blog post: five title edits, nothing for a reader. Full build not run.",
+  "corrections": [],
+  "redteam": null
+}

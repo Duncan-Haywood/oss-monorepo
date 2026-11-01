@@ -462,6 +462,23 @@ const [sv6] = await Promise.all([page.waitForEvent("download"), page.click("#sav
 const saved6 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv6.path(), "utf8"));
 const slabOk = !/NaN|undefined/.test(inTxt) && /slab edge/i.test(inTxt) && saved6.insulation?.assembly?.slabEdgeF === 0.54 && saved6.insulation?.assembly?.windowU === 0.3;
 console.log(slabOk ? "ok: insulation slab edge F-factor, card and saved plan" : "FAIL: slab edge: " + (await page.textContent("#errors")).slice(0, 300) + inTxt.slice(0, 400));
+// allowances on the price box and the customer proposal card (2026-11-01)
+await page.fill("#priceText", "wallSheet, 20\nlaborWallFoot, 10\noverhead, 0.1\nprofit, 0.1\nallowance Permit, 1200");
+await page.fill("#propClient", "Test Client"); await page.fill("#propExcl", "Painting");
+await page.fill("#propPay", "Deposit, 30\nFinal, 70");
+await page.check("#propPartial");
+await page.click("#propBtn");
+await page.waitForFunction(() => /PROPOSAL|Proposal not issued/.test(document.querySelector("#propOut")?.textContent || ""), null, { timeout: 30000 }).catch(() => {});
+const propTxt = await page.textContent("#propOut");
+const [sv7] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved7 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv7.path(), "utf8"));
+const propOk = /Prepared for Test Client/.test(propTxt) && /Permit: 1,200\.00/.test(propTxt) && /Not included: Painting/.test(propTxt) && /Deposit/.test(propTxt) && /Final/.test(propTxt) && !/NaN|undefined/.test(propTxt) && saved7.allowances?.Permit === 1200;
+console.log(propOk ? "ok: allowance line and customer proposal, card and saved plan" : "FAIL: proposal: " + propTxt.slice(0, 500) + JSON.stringify(saved7.allowances));
+// the proposal's printable page opens as a self-contained page (2026-11-01)
+const [popup] = await Promise.all([page.context().waitForEvent("page", { timeout: 15000 }).catch(() => null), page.click("#propPrint")]);
+let printOk = false, printTxt = "";
+if (popup) { await popup.waitForLoadState("load").catch(() => {}); printTxt = await popup.content(); printOk = /Test Client/.test(printTxt) && /Permit/.test(printTxt) && /Painting/.test(printTxt) && !/<script/i.test(printTxt) && !/NaN|undefined/.test(await popup.innerText("body")); await popup.close(); }
+console.log(printOk ? "ok: proposal printable page opens, has client, allowance, exclusion, no script" : "FAIL: printable page: " + (popup ? printTxt.slice(0, 400) : "no popup"));
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || !sdOk || !sd2Ok || !slabOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || !sdOk || !sd2Ok || !slabOk || !propOk || !printOk || horizontal.includes("CHECK FAILED") ? 1 : 0);

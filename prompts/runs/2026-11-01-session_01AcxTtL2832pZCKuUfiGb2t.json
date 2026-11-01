@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01AcxTtL2832pZCKuUfiGb2t",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T21:08:40Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12411",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pytest absent in default python3; tests not run for an experiment-only change"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-01-how-much-power-does-excavator-boom-energy-recovery-need.md",
+    "research/heavy-hydraulics/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Milestone 5d heavy-hydraulics; homepage build ok; pytest unavailable so unit tests not rerun (no src change).",
+  "corrections": [],
+  "redteam": null
+}

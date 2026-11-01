@@ -14,7 +14,7 @@ import { joistCentres } from "./floor.mjs";
 const DEFAULT_R = { "2x4": 15, "2x6": 21 };
 
 /** @typedef {{ rValue?: number, rPerInch?: number, bagCuFt?: number, price?: number, heel?: number, baffles?: boolean, baffleLength?: number, baffleWidth?: number, ceiling?: { width: number, depth: number }[] }} Attic */
-/** @typedef {{ continuousR?: number, sheathingR?: number, drywallR?: number, insideFilmR?: number, outsideFilmR?: number, framingRPerInch?: number, assumedFramingFraction?: number, ceilingR?: number, ceilingFromAttic?: boolean, windowU?: number, doorU?: number, designDeltaF?: number, heatingDegreeDays?: number, slabEdgeF?: number, ach50?: number, nFactor?: number, volumeCuFt?: number }} Assembly */
+/** @typedef {{ continuousR?: number, sheathingR?: number, drywallR?: number, insideFilmR?: number, outsideFilmR?: number, framingRPerInch?: number, assumedFramingFraction?: number, ceilingR?: number, ceilingFromAttic?: boolean, windowU?: number, doorU?: number, designDeltaF?: number, heatingDegreeDays?: number, heatingSystems?: {name?: string, efficiency: number, unitBtu: number, pricePerUnit: number}[], slabEdgeF?: number, ach50?: number, nFactor?: number, volumeCuFt?: number }} Assembly */
 /** @typedef {{ bagSqFt?: number, waste?: number, rValue?: number, price?: number, attic?: Attic, rim?: boolean, assembly?: Assembly | boolean }} Insulation */
 
 // Typical handbook layer values (ASHRAE Fundamentals), typed defaults: replace with your product's
@@ -40,6 +40,14 @@ export function validateInsulation(d) {
     for (const [k, lo, hi] of /** @type {const} */ ([["ach50", 0, 40], ["nFactor", 5, 40], ["volumeCuFt", 100, 200000]])) if (a[k] != null && !(a[k] >= lo && a[k] <= hi)) e.push(`Assembly ${k} must be between ${lo} and ${hi}.`);
     if ((a.ach50 != null || a.nFactor != null || a.volumeCuFt != null) && !(a.ach50 != null && a.nFactor != null && a.volumeCuFt != null)) e.push("Air leakage needs all three of ach50 (blower-door result), nFactor (climate/height divisor) and volumeCuFt.");
     if (a.heatingDegreeDays != null && !(a.heatingDegreeDays > 0 && a.heatingDegreeDays <= 15000)) e.push("Assembly heatingDegreeDays must be between 0 and 15000 (F-days, base 65).");
+    if (a.heatingSystems != null) {
+      if (!Array.isArray(a.heatingSystems)) e.push("Assembly heatingSystems is a list of {name, efficiency, unitBtu, pricePerUnit}.");
+      else for (const s of a.heatingSystems) {
+        if (!s || !(s.efficiency > 0 && s.efficiency <= 8)) e.push("Each heating system needs an efficiency above 0 and at most 8 (AFUE as a fraction, e.g. 0.95, or a heat pump's seasonal COP).");
+        if (!s || !(s.unitBtu > 0)) e.push("Each heating system needs unitBtu, the heat in one priced unit of fuel (BTU per kWh, therm, gallon or cubic foot).");
+        if (!s || !(s.pricePerUnit >= 0)) e.push("Each heating system needs pricePerUnit, the price of one unit of fuel.");
+      }
+    }
     if (a.assumedFramingFraction != null && !(a.assumedFramingFraction > 0 && a.assumedFramingFraction < 0.6)) e.push("Assembly assumedFramingFraction must be between 0 and 0.6.");
   }
   const a = d.attic;
@@ -135,6 +143,20 @@ function addCeilingHeat(e, attic) {
   h.wallUA = h.ua; h.ua += ceilingUA;
   if (a.designDeltaF != null) h.designBtuh = h.ua * a.designDeltaF;
   if (a.heatingDegreeDays != null) h.annualKBtu = (h.ua * 24 * a.heatingDegreeDays) / 1000;
+  h.systems = heatingCosts(h.annualKBtu, a.heatingSystems);
+}
+
+/**
+ * Yearly fuel and cost to deliver the seasonal heat through each typed system: units = heat / (efficiency x
+ * BTU per unit), cost = units x typed price. No fuel price or efficiency is shipped.
+ * @param {number | null} annualKBtu @param {any[] | undefined} systems
+ */
+function heatingCosts(annualKBtu, systems) {
+  if (annualKBtu == null || !systems?.length) return null;
+  return systems.map((s, i) => {
+    const units = (annualKBtu * 1000) / (s.efficiency * s.unitBtu);
+    return { name: s.name || `system ${i + 1}`, units, cost: units * s.pricePerUnit };
+  });
 }
 
 /**
@@ -219,6 +241,7 @@ function heatLoss(e, d, plan) {
     windowSqFt: win, doorSqFt: door, opaqueUA, windowUA: winUA, doorUA, ua, complete,
     designBtuh: a.designDeltaF != null ? ua * a.designDeltaF : null,
     annualKBtu: a.heatingDegreeDays != null ? (ua * 24 * a.heatingDegreeDays) / 1000 : null,
+    systems: heatingCosts(a.heatingDegreeDays != null ? (ua * 24 * a.heatingDegreeDays) / 1000 : null, a.heatingSystems),
   };
 }
 
@@ -281,6 +304,7 @@ export function insulationText(d) {
       if (h.ceilingUA != null) l.push(`    Ceiling under the attic: ${h.ceilingSqFt.toFixed(0)} sq ft at R-${h.ceilingR.toFixed(1)} adds ${h.ceilingUA.toFixed(1)} (walls ${h.wallUA.toFixed(1)}); the totals below include it`);
       if (h.designBtuh != null) l.push(`    Design load through the ${h.ceilingUA != null ? "shell" : "walls"}: ${Math.round(h.designBtuh).toLocaleString("en-US")} BTU/h at ${e.settings.designDeltaF} F inside-outside`);
       if (h.annualKBtu != null) l.push(`    Seasonal conduction: ${Math.round(h.annualKBtu).toLocaleString("en-US")} kBTU at ${e.settings.heatingDegreeDays} heating degree-days (base 65 F)`);
+      for (const y of h.systems || []) l.push(`    Heating cost, ${y.name}: ${y.units.toFixed(1)} units of fuel a year, ${y.cost.toFixed(2)} (efficiency and prices are the ones you typed)`);
       l.push(`    ${h.ceilingUA != null ? "Walls and flat ceiling only: floor, air leakage" : "Walls only: roof, floor, air leakage"} and ventilation are not in it, so it is not a Manual J load. Window and door U-factors and the climate figures are the ones you typed.`);
     }
     l.push("    Layer values are typical handbook figures you can replace (insulation.assembly); windows, doors, air leakage and compressed batts are not in it. Not an energy-code compliance check.");

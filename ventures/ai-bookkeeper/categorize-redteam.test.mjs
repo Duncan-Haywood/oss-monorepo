@@ -39,3 +39,15 @@ test("skipping the bank-category layer ignores a present bankCat", () => {
   assert.equal(s.source, "none");
   assert.equal(suggest({ desc: "QQQ UNKNOWNCO", cents: -500, bankCat: "Food & Drink" }, { ...model, skip: new Set() }).source, "bank-category");
 });
+
+test("NTE 5680 (a robotics part number) is a 6100 keyword", () => {
+  assert.equal(suggest({ desc: "NTE 5680 RELAY", cents: -1200 }, { rules: [], codes: null, classifier: { n: 0 } }).account, "6100");
+});
+
+test("payee memory returns the most frequent account, not the runner-up", () => {
+  const memory = new Map([["acme store|out", new Map([["6120", 1], ["6130", 4]])]]);
+  const s = suggest({ desc: "ACME STORE", cents: -900 }, { rules: [], codes: null, memory, classifier: { n: 0 } });
+  assert.equal(s.source, "memory");
+  assert.equal(s.account, "6130");
+  assert.ok(Math.abs(s.confidence - 4 / 5.5) < 1e-9);
+});

@@ -1,0 +1,6 @@
+NaijaSenti negative share, nb-in-language coder: corpus 6000 tweets, prevalence 0.3272, corpus J 0.388, coder-positive share 0.314; 500 draws
+n | design | coverage % | half-width pts | share using cells
+400 | screen | 95.0 | 4.048 | 0.83
+400 | pooled | 96.2 | 4.074 | 0.00
+1000 | screen | 94.6 | 2.423 | 0.95
+1000 | pooled | 95.0 | 2.437 | 0.00

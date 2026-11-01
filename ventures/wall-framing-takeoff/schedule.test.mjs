@@ -281,3 +281,14 @@ test("draw terms: float with a payment lag and retainage (hand-checked)", () => 
   assert.equal(schedule({ start: "2026-03-02", draw: {}, activities: [{ id: "a", days: 2, cost: 2000 }] }).cashFlow.float.peakFloat, 0);
   assert.equal(schedule({ start: "2026-03-02", draw: { retainagePct: 150 }, activities: [{ id: "a", days: 1, cost: 5 }] }).ok, false);
 });
+
+test("draw markup: receipts are billed at cost x (1 + markup) (hand-checked)", () => {
+  // one 2-day job, cost 2000 = 1000 a day; bill 1.25x, 10% retainage, paid 7 days late.
+  // Day 1 out 1000, day 2 out 1000 (peak -2000 before any pay-in); retainage held = 2500 x 10% = 250.
+  const s = schedule({ start: "2026-03-02", draw: { lagDays: 7, retainagePct: 10, markup: 0.25 }, activities: [{ id: "a", days: 2, cost: 2000 }] });
+  assert.equal(s.cashFlow.float.peakFloat, 2000);
+  assert.equal(s.cashFlow.float.retainageHeld, 250);
+  assert.equal(schedule({ start: "2026-03-02", draw: { lagDays: 7, retainagePct: 10 }, activities: [{ id: "a", days: 2, cost: 2000 }] }).cashFlow.float.retainageHeld, 200);
+  assert.match(scheduleText(s).join("\n"), /billed at cost \+25\.0%/);
+  assert.equal(schedule({ start: "2026-03-02", draw: { markup: -1 }, activities: [{ id: "a", days: 1, cost: 5 }] }).ok, false);
+});

@@ -1,5 +1,6 @@
 ---
 title: "How much of an oversized excavator pump's energy penalty is just a modelling assumption?"
+seo_title: "Is an oversized excavator pump's energy penalty an assumption?"
 date: 2026-11-01
 tags: [heavy-hydraulics, excavator, load-sensing, research]
 description: A sweep over how much surplus pump flow an open-centre circuit really wastes moves the load-sensing break-even margin from 44.5 bar to 18.8 bar.

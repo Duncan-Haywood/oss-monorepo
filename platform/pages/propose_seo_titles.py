@@ -27,7 +27,8 @@ def main():
     ap.add_argument('--apply', action='store_true')
     ap.add_argument('--limit', type=int, default=1000)
     a = ap.parse_args()
-    done = skipped = 0
+    done = 0
+    skipped = []
     for f in sorted(glob.glob(os.path.join(POSTS, '*.md')), reverse=True):
         text = open(f, encoding='utf-8').read()
         m = re.match(r'---\n(.*?)\n---\n', text, re.S)
@@ -43,7 +44,7 @@ def main():
             continue
         new = cut(title)
         if not new:
-            skipped += 1
+            skipped.append((os.path.basename(f), len(title), title))
             continue
         if done >= a.limit:
             break
@@ -53,7 +54,9 @@ def main():
             q = '"' + new.replace('\\', '\\\\').replace('"', '\\"') + '"'
             text = text[:m.start(1) + tm.end(0)] + f'\nseo_title: {q}' + text[m.start(1) + tm.end(0):]
             open(f, 'w', encoding='utf-8').write(text)
-    print(f'{done} proposed{" and written" if a.apply else ""}, {skipped} with no clean cut')
+    for name, n, title in skipped:
+        print(f'NO CLEAN CUT: {name} ({n} chars)\n  {title}')
+    print(f'{done} proposed{" and written" if a.apply else ""}, {len(skipped)} with no clean cut')
 
 
 main()

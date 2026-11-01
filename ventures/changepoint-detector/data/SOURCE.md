@@ -314,3 +314,18 @@ are R's `datasets::lynx` and `datasets::sunspot.year`, retrieved 2026-10-30 from
 `https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/`. Their own licences are not
 stated there (sunspots: SIDC, Royal Observatory of Belgium); they are small public scientific series used for a
 measurement, not redistributed as a product. Used by `eval/cyclic-series.mjs`.
+
+---
+
+# Example data: Peace Bridge monthly traffic, 2003-2015
+
+`peace-bridge.csv`: monthly vehicle traffic (thousands) over the Peace Bridge
+(Buffalo NY to Fort Erie ON), 156 months from 2003-01. R's
+`Stat2Data::PeaceBridge2003`. The US land-border passport requirement (WHTI)
+took effect on 2009-06-01, inside the 2008-09 recession.
+
+- **Retrieved:** 2026-11-01 from the Rdatasets mirror,
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/Stat2Data/PeaceBridge2003.csv>.
+- **Licence:** the Stat2Data package is GPL (Cannon et al.); the figures are
+  bridge traffic counts. Used here as test data only.
+- **Used by:** `eval/peace-bridge.mjs`, `peace-bridge.test.mjs`.

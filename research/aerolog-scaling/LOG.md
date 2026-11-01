@@ -3,6 +3,19 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-11-01 · Milestone 9q: does 9p's half-recovery hold for 1/f (pink) sensor noise? (planned before running)
+- Why: 9p's "Next" (1/f noise untried). Real IMU bias drift is closer to 1/f than to AR(1) or AR(2).
+- Plan (`experiments/pink_noise/run.py`): 9p's script and seed (20261103); the coloured generator is FFT-shaped 1/f noise (power proportional to 1/f), unit variance per channel; estimator still AR(1) iterated GLS. 26 designs, 10 draws, 2 periods, 10% noise.
+- **Predictions (before running):** (1) iterated GLS still gains over the unweighted coloured fit in gust share (prior 60%). (2) The gain is under half of the white-minus-coloured gap (prior 65%). (3) Fit failures at most twice white's (prior 70%). Refuted: (1) no gain; (3) more than twice.
+- Limits known in advance: one spectral shape (exponent 1); not measured IMU noise; 10 draws on a third of the designs; one seed.
+
+### Outcome of 9q (`experiments/pink_noise/`: `run.py`, `results.txt`; about 25 min wall)
+- 26 designs, 260 draws each, 2 periods, 10% noise, 1/f noise. Fit failures 0 in all three rows. Median |error| in phugoid, short-period frequency and damping ratio: white 0.07, 0.67, 1.51%; coloured unweighted 0.21, 1.39, 2.56; coloured with AR(1) iterated GLS 0.20, 1.30, 1.94. Share of draws within 10% gust: white 86%, unweighted 76%, GLS 81%. Designs with 90% of draws within 10%: 19, 11, 15 of 26. Estimated lag-1 coefficient median 0.623 (5th to 95th percentile 0.553 to 0.682).
+- **(1) held** (81% against 76%). **(2) not held:** the GLS recovers 5 of the 10-point gap, exactly half, not under half. **(3) held** (0 failures).
+- Reading: for 1/f noise, as for AR(2) in 9p, AR(1) whitening recovers about half of the gust-share loss; the damping error improves a little (2.56 to 1.94%), which 9p's AR(2) did not show. The 1.5x gust margin stays the safe figure when the noise family is unknown.
+- Limits: one spectral exponent; not measured IMU noise; 10 draws on a third of the designs; one seed; 1 to 2 point differences in mode errors are within draw noise.
+- Next: measured IMU noise density; AR(2) estimator; turbulence; thrust law; AIAA template.
+
 ## 2026-11-01 · Milestone 9p: does 9o's iterated-GLS gain survive when the noise is not AR(1)? (planned before running)
 - Why: 9o's "Next". Its estimator assumed the generator's AR(1) form, which flatters it.
 - Plan (`experiments/misspecified_noise/run.py`): 9o's script and seed (20261103; the white and coloured-unweighted rows draw different coloured noise now, so only the white row should reproduce 9o). The coloured generator is AR(2), phi1 1.2, phi2 -0.4, unit variance, lag-1 autocorrelation 0.857 (9o: AR(1), 0.9). The estimator is still AR(1) iterated GLS (lag-1 coefficient of the residuals). 26 designs, 10 draws, 2 periods, 10% noise.
