@@ -1,7 +1,7 @@
 ---
 title: "A pump 20% bigger removes the open-centre time penalty in our excavator model"
 date: 2026-11-01
-tags: [research, heavy-hydraulics, excavators]
+tags: [research, heavy-hydraulics, excavator]
 description: In the heavy-hydraulics programme, sizing the pump 20% above peak demand takes the median cycle-time penalty of an open-centre valve from 6.25% to zero.
 ---
 
