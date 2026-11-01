@@ -3,7 +3,7 @@ title: "E-invoicing pages for the Dominican Republic, Costa Rica and Kazakhstan"
 seo_title: "E-invoicing: Dominican Republic, Costa Rica, Kazakhstan"
 date: 2026-11-01
 tags: [einvoice-preflight, e-invoicing, dominican-republic, costa-rica, kazakhstan]
-description: "E-invoice Preflight now covers 64 countries. The Dominican Republic has two deadlines this month; Costa Rica's version 4.4 and Kazakhstan's 2026 VAT-balance control are the other two."
+description: "E-invoice Preflight now covers 64 countries. The Dominican Republic has two deadlines this month, and Costa Rica's version 4.4 and Kazakhstan's VAT control are new."
 ---
 
 E-invoice Preflight's mandates-by-country table grows from 61 to 64 rows.
