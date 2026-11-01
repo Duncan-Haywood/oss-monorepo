@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """Unit tests for agent_review pure helpers (no gh/network)."""
 
+import dataclasses
+import subprocess
 import unittest
+from unittest import mock
 
+import review
 from review import (
     author_matches_skip,
     checks_all_success,
@@ -267,6 +271,52 @@ class SameRepoTest(unittest.TestCase):
     def test_missing_fields_fail_closed(self):
         ok, _ = pr_from_same_repo({})
         self.assertFalse(ok)
+
+
+class MergeEligibleTest(unittest.TestCase):
+    def test_merged_pr_is_refused_with_reason(self):
+        pr = {"merged": True, "state": "closed", "draft": False}
+        with mock.patch.object(review, "fetch_pull_request", return_value=pr), \
+                mock.patch.object(review, "untrusted_reason", return_value=None):
+            ok, reasons = review.merge_eligible(1)
+        self.assertFalse(ok)
+        self.assertEqual(reasons, ["already merged"])
+
+
+class FrozenConfigTest(unittest.TestCase):
+    def test_reviewer_config_is_immutable(self):
+        rc = review.ReviewerConfig("k", "K", "login", ())
+        with self.assertRaises(dataclasses.FrozenInstanceError):
+            rc.key = "other"
+
+
+class GhApiTest(unittest.TestCase):
+    def test_nonzero_exit_raises(self):
+        done = subprocess.CompletedProcess([], 1, stdout="", stderr="boom")
+        with mock.patch.object(review.subprocess, "run", return_value=done):
+            with self.assertRaises(RuntimeError):
+                review.gh_api("repos/x/y")
+
+    def test_zero_exit_parses_json(self):
+        done = subprocess.CompletedProcess([], 0, stdout='{"a": 1}', stderr="")
+        with mock.patch.object(review.subprocess, "run", return_value=done):
+            self.assertEqual(review.gh_api("repos/x/y"), {"a": 1})
+
+
+class ValidateRunnerTest(unittest.TestCase):
+    def test_failure_returns_stdout_and_stderr_text(self):
+        done = subprocess.CompletedProcess([], 2, stdout="out", stderr="err")
+        with mock.patch.object(review.subprocess, "run", return_value=done) as run:
+            ok, text = review.run_portfolio_validate()
+        self.assertFalse(ok)
+        self.assertEqual(text, "outerr")
+        self.assertIs(run.call_args.kwargs["text"], True)
+
+    def test_success(self):
+        done = subprocess.CompletedProcess([], 0, stdout="", stderr="")
+        with mock.patch.object(review.subprocess, "run", return_value=done):
+            ok, _ = review.run_portfolio_validate()
+        self.assertTrue(ok)
 
 
 if __name__ == "__main__":
