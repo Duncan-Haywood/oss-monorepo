@@ -8,5 +8,5 @@ rm -rf "$DEST"; mkdir -p "$DEST"
 git clone -q --depth 1 --filter=blob:none --sparse https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts.git "$DEST/orfs"
 cd "$DEST/orfs"
 git fetch -q --depth 1 origin "$COMMIT" 2>/dev/null && git checkout -q "$COMMIT" || true
-git sparse-checkout set flow/platforms/sky130hd
+git sparse-checkout set flow/platforms/sky130hd flow/platforms/sky130hs
 git rev-parse HEAD
