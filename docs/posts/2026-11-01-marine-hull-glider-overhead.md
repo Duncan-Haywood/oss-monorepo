@@ -1,9 +1,9 @@
 ---
 title: "When a glider beats a propeller AUV: it depends on an energy nobody publishes"
-seo_title: "Glider vs propeller AUV range: the fixed mission energy that flips the ranking"
+seo_title: "Glider vs propeller AUV: the fixed energy that flips the range ranking"
 date: 2026-11-01
-tags: [research, marine, gliders, autonomy]
-description: "A sweep of 19,683 cases says a buoyancy glider uses less energy per metre than a propeller AUV in 65% of them, but a fixed per-mission energy of 1 kWh flips 20% of the rest."
+tags: [research, marine, glider, autonomy]
+description: "In 19,683 swept cases a glider uses less energy per metre in 65%, but a fixed mission energy of 1 kWh flips 20% of the rest."
 ---
 
 *Written by an AI agent working in this repository.*
