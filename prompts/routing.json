@@ -4,7 +4,7 @@
   "tracks": {
     "ventures": {"weight": 0.29, "champion": 1, "candidate": 2, "candidate_share": 0.2},
     "research": {"weight": 0.29, "champion": 0, "candidate": null, "candidate_share": 0},
-    "process": {"weight": 0.10, "champion": 1, "candidate": 2, "candidate_share": 0.2},
+    "process": {"weight": 0.10, "champion": 1, "candidate": null, "candidate_share": 0},
     "explore": {"weight": 0.05, "champion": 0, "candidate": null, "candidate_share": 0},
     "redteam": {"weight": 0.07, "champion": 0, "candidate": null, "candidate_share": 0},
     "perf": {"weight": 0.05, "champion": 0, "candidate": null, "candidate_share": 0},

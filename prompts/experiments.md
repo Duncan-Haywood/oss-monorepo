@@ -1778,3 +1778,18 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   (promptctl prints it). Re-ran `derive.py fetch && build`. `steering.md` still
   over budget (125/120). No audit or drift report (reduced pass).
 - Result: (next review)
+
+## E120: Review 2026-11-01 (reduced pass)
+
+- Change: retired the process candidate (`process/prompt-2`): `measure` says
+  "retire: clearly lower success rate" vs champion 1. `routing.json` now has
+  `candidate: null` for process; the file stays as history.
+- Metric: process-track success rate over the next ~10 process runs.
+- Decisions: ventures 2 and review 2 unchanged ("keep collecting: the
+  intervals overlap"). Re-ran `derive.py fetch && build` (282 records). Top
+  live friction: `prompt.md` step 0 fetches a `security-alerts` branch that
+  does not exist (PRs #12236 and #12038 already address it; `prompt.md` is
+  owner-controlled, so not edited here), and the router sends a review while
+  another review PR holds the claim (needs a router check of open PRs; left
+  for the process backlog). No audit or drift report (reduced pass).
+- Result: (next review)
