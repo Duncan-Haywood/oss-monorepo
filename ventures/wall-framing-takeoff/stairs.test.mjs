@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan, formatLength } from "./engine.mjs";
-import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText, checkPostSlenderness, checkLandingPostColumn } from "./stairs.mjs";
+import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText, checkPostSlenderness, checkLandingPostColumn, checkLandingJoists, flightPostLoad } from "./stairs.mjs";
 import { checkStringer } from "./stairs.mjs";
 import { checkWinders, winderText, layoutLandingGuard } from "./stairs.mjs";
 
@@ -474,4 +474,34 @@ test("bad stringer spacing, nosing and landing dimensions are refused (2026-10-3
   assert.throws(() => S.layoutLandingPosts(NaN, 36, 40), RangeError);
   assert.equal(S.sizeLandingFootings(-36, 36, 96, { soilBearing: 1500 }).ok, false);
   assert.equal(S.layoutStair({ totalRise: 108 }).ok, true);
+});
+
+test("landing joist check by hand (2x8, 120 in span, 16 in o.c., 40 live + 10 dead)", () => {
+  // w = 50*16/144 = 5.5556 lb/in; M = w L^2/8 = 10000 lb-in; V = 333.33 lb; S = 1.5*7.25^2/6 = 13.1406 in^3
+  // fb = 761 psi; fv = 1.5*333.33/(1.5*7.25) = 45.98 psi; wl = 4.4444; I = 1.5*7.25^3/12 = 47.634
+  // delta = 5*4.4444*120^4/(384*1.4e6*47.634) = 0.18 in vs L/360 = 0.333 in
+  const r = checkLandingJoists({ size: "2x8", spacing: 16, span: 120 }, { deadPsf: 10, livePsf: 40, Fb: 900, Fv: 135, E: 1400000 });
+  assert.ok(Math.abs(r.fb - 761) < 1, String(r.fb));
+  assert.ok(Math.abs(r.fv - 45.98) < 0.05, String(r.fv));
+  assert.ok(Math.abs(r.delta - 0.18) < 0.005, String(r.delta));
+  assert.ok(r.ok);
+  const weak = checkLandingJoists({ size: "2x8", spacing: 16, span: 120 }, { deadPsf: 10, livePsf: 40, Fb: 700, Fv: 135, E: 1400000 });
+  assert.equal(weak.ok, false);
+  assert.equal(checkLandingJoists({ size: "2x8", spacing: 16, span: 120 }, { deadPsf: 10, livePsf: 40, Fb: 5, Fv: 135, E: 1400000 }).ok, false);
+});
+
+test("flights' stringer reactions add to the heaviest landing post", () => {
+  // single bay along (width 48 < 96): corner post takes half of the larger flight reaction
+  assert.equal(flightPostLoad({ stringerCheck: { totalReaction: 600 } }, { stringerCheck: { totalReaction: 800 } }, 48, 96), 400);
+  // width 120 at 60 in spacing: 2 bays, a mid-edge post takes a full bay: R / 2
+  assert.equal(flightPostLoad({ stringerCheck: { totalReaction: 600 } }, null, 120, 60), 300);
+  assert.equal(flightPostLoad({}, {}, 48, 96), 0);
+  const sc = { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 135, E: 1400000 };
+  const base = layoutStairWithLanding({ totalRise: 160, width: 48, landing: { depth: 120, soilBearing: 1500 } }, plan());
+  const withR = layoutStairWithLanding({ totalRise: 160, width: 48, stringerCheck: sc, landing: { depth: 120, soilBearing: 1500, joistCheck: { deadPsf: 10, livePsf: 40, Fb: 900, Fv: 135, E: 1400000 } } }, plan());
+  assert.ok(withR.ok, JSON.stringify(withR.errors));
+  assert.ok(withR.landing.footings.load > base.landing.footings.load);
+  assert.ok(withR.landing.footings.extraLoad > 0);
+  assert.ok(withR.landing.joistCheck.fb > 0);
+  assert.ok(landingText(withR).some((x) => x.includes("Landing joist check")));
 });

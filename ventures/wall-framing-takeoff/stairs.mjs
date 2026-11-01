@@ -294,7 +294,8 @@ export function layoutStairWithLanding(input, plan) {
     footprint: lower.run + depth + upper.run,
     posts: layoutLandingPosts(width, depth, rise1 - DEPTH[joistSize] - 1.5, lc.postSpacing ?? 96),
     postSlenderness: checkPostSlenderness(rise1 - DEPTH[joistSize] - 1.5, lc.postSize),
-    footings: lc.soilBearing != null ? sizeLandingFootings(width, depth, lc.postSpacing ?? 96, { soilBearing: lc.soilBearing, liveLoad: lc.liveLoad, deadLoad: lc.deadLoad, postCapacity: lc.postCapacity }) : null,
+    footings: lc.soilBearing != null ? sizeLandingFootings(width, depth, lc.postSpacing ?? 96, { soilBearing: lc.soilBearing, liveLoad: lc.liveLoad, deadLoad: lc.deadLoad, postCapacity: lc.postCapacity, extraLoad: flightPostLoad(lower, upper, width, lc.postSpacing ?? 96) }) : null,
+    joistCheck: lc.joistCheck ? checkLandingJoists({ size: joistSize, spacing: (width - THICK) / (joists - 1), span: depth }, lc.joistCheck) : null,
     guard: lc.openEdges?.length ? layoutLandingGuard(lc.openEdges.map((e) => (e === "end" ? width : depth)), input.rail || {}, Math.min(4, lc.openEdges.filter((e) => e === "end").length * lc.openEdges.filter((e) => e !== "end").length)) : null,
     notes: ["Landing posts are counted, not sized, and footings are not sized: the platform carries a stair load plus the flights' ends, so check post size, footings and the typed `postSpacing` (96 in unless set) against your code and the actual spans."],
   };
@@ -361,18 +362,62 @@ export function checkLandingPostColumn(height, postSize, load, { fc, emin } = /*
  * the guard are not added. `postCapacity` (lb, typed from your post table; no default) is compared with the heaviest
  * post's load and `postOk` says whether it holds. Returns the load, the area it needs, and a round and a square footing rounded up to the inch.
  */
-export function sizeLandingFootings(width, depth, spacing, { soilBearing, liveLoad = 40, deadLoad = 10, postCapacity } = /** @type {{soilBearing?: number, liveLoad?: number, deadLoad?: number, postCapacity?: number}} */ ({})) {
+export function sizeLandingFootings(width, depth, spacing, { soilBearing, liveLoad = 40, deadLoad = 10, postCapacity, extraLoad = 0 } = /** @type {{soilBearing?: number, liveLoad?: number, deadLoad?: number, postCapacity?: number, extraLoad?: number}} */ ({})) {
   if (!(soilBearing > 0)) return { ok: false, errors: ["soilBearing must be a positive figure in psf."] };
   if (!(width > 0 && depth > 0 && spacing > 0)) return { ok: false, errors: ["Landing width, depth and post spacing must be positive numbers."] };
   const bays = (len) => Math.max(1, Math.ceil(len / spacing - 1e-9));
   const along = bays(width), across = bays(depth);
   const bay = (width / along) * (depth / across) / 144; // sq ft
   const share = along > 1 || across > 1 ? 0.5 : 0.25;
-  const load = bay * share * (liveLoad + deadLoad);
+  const load = bay * share * (liveLoad + deadLoad) + (extraLoad > 0 ? extraLoad : 0);
   const area = (load / soilBearing) * 144; // sq in
   const round = Math.max(1, Math.ceil(2 * Math.sqrt(area / Math.PI) - 1e-9));
   const square = Math.max(1, Math.ceil(Math.sqrt(area) - 1e-9));
-  return { ok: true, soilBearing, liveLoad, deadLoad, tributary: bay * share, load, postCapacity: postCapacity ?? null, postOk: postCapacity > 0 ? load <= postCapacity : null, area, round, square, count: 2 * (along + across) };
+  return { ok: true, soilBearing, liveLoad, deadLoad, tributary: bay * share, extraLoad: extraLoad > 0 ? extraLoad : 0, load, postCapacity: postCapacity ?? null, postOk: postCapacity > 0 ? load <= postCapacity : null, area, round, square, count: 2 * (along + across) };
+}
+
+/**
+ * Extra load on the heaviest landing post from the flights that bear on the landing's edge (2026-11-01): the larger of
+ * the two flights' total stringer reactions (typed `stringerCheck`, live + dead; each flight bears on its own edge), spread
+ * along that edge's width as a line load. A mid-edge post takes a full bay of it (R / bays along), and with one bay
+ * a corner post takes half. Returns 0 when neither flight carries a stringer check. The landing's own platform load
+ * is separate (`sizeLandingFootings`); the guard and the wind are not added.
+ */
+export function flightPostLoad(lower, upper, width, spacing = 96) {
+  const r = Math.max(lower?.stringerCheck?.totalReaction ?? 0, upper?.stringerCheck?.totalReaction ?? 0);
+  if (!(r > 0)) return 0;
+  const along = Math.max(1, Math.ceil(width / spacing - 1e-9));
+  return along > 1 ? r / along : r / 2;
+}
+
+/**
+ * Strength check of the landing joists (2026-11-01), on typed figures only (none shipped): each joist a simple span of the
+ * landing's depth between the two rims, carrying `deadPsf + livePsf` over its tributary spacing. Bending, shear (1.5V/A)
+ * and live-load deflection (L/360 unless `deflLimit`). The rims, posts and flight reactions are not in it.
+ * @param {{size: string, spacing: number, span: number}} j
+ * @param {{deadPsf: number, livePsf: number, Fb: number, Fv: number, E: number, deflLimit?: number}} c
+ */
+export function checkLandingJoists(j, c) {
+  const errors = [];
+  const inr = (v, lo, hi) => Number.isFinite(v) && v >= lo && v <= hi;
+  if (!inr(c?.deadPsf, 0, 100)) errors.push("joistCheck.deadPsf is the dead load in psf, 0 to 100.");
+  if (!inr(c?.livePsf, 0, 200)) errors.push("joistCheck.livePsf is the live load in psf, 0 to 200.");
+  if (!inr(c?.Fb, 200, 4000)) errors.push("joistCheck.Fb is the joist's allowable bending stress in psi (200 to 4000), adjusted by you.");
+  if (!inr(c?.Fv, 50, 500)) errors.push("joistCheck.Fv is the joist's allowable shear stress in psi (50 to 500).");
+  if (!inr(c?.E, 200000, 3000000)) errors.push("joistCheck.E is the joist's modulus of elasticity in psi (200000 to 3000000).");
+  if (c?.deflLimit != null && !inr(c.deflLimit, 120, 720)) errors.push("joistCheck.deflLimit is the span ratio (L/360 by default), 120 to 720.");
+  if (!(j.size in DEPTH)) errors.push(`Unknown landing joist size ${j.size}.`);
+  if (errors.length) return { ok: false, errors };
+  const b = THICK, d = DEPTH[j.size], L = j.span, lim = c.deflLimit ?? 360;
+  const w = ((c.deadPsf + c.livePsf) * j.spacing) / 144, wl = (c.livePsf * j.spacing) / 144; // lb per inch
+  const M = (w * L * L) / 8, V = (w * L) / 2;
+  const fb = (6 * M) / (b * d * d), fv = (1.5 * V) / (b * d);
+  const delta = (5 * wl * L ** 4) / (384 * c.E * ((b * d ** 3) / 12)), limit = L / lim;
+  const warnings = [];
+  if (fb > c.Fb) warnings.push(`Landing joist bending ${fb.toFixed(0)} psi exceeds the typed ${c.Fb} psi: use a deeper joist or a closer spacing.`);
+  if (fv > c.Fv) warnings.push(`Landing joist shear ${fv.toFixed(0)} psi exceeds the typed ${c.Fv} psi.`);
+  if (delta > limit) warnings.push(`Landing joist live deflection ${delta.toFixed(2)} in exceeds L/${lim} (${limit.toFixed(2)} in).`);
+  return { ok: warnings.length === 0, size: j.size, span: L, spacing: j.spacing, M, V, fb, fv, delta, limit, warnings, errors: [] };
 }
 
 export function landingCuts(r) {
@@ -398,6 +443,10 @@ export function landingText(r) {
     ...(g.postSlenderness?.warnings ?? []).map((w) => `  Warning: ${w}`),
     ...(g.footings?.ok ? [`  Landing footings: heaviest post ${Math.round(g.footings.load)} lb (${g.footings.tributary.toFixed(1)} sq ft at ${g.footings.liveLoad + g.footings.deadLoad} psf) on ${g.footings.soilBearing} psf soil needs ${g.footings.area.toFixed(0)} sq in: ${g.footings.round} in round or ${g.footings.square} in square, ${g.footings.count} footings`] : []),
     ...(g.footings?.ok && g.footings.postOk != null ? [`  Landing post check: heaviest post ${Math.round(g.footings.load)} lb against your ${g.footings.postCapacity} lb capacity: ${g.footings.postOk ? "holds" : "OVER, use a larger post or a closer spacing"}`] : []),
+    ...(g.footings?.ok && g.footings.extraLoad > 0 ? [`  Landing post load includes ${Math.round(g.footings.extraLoad)} lb from the flights' stringer reactions`] : []),
+    ...(g.joistCheck?.ok !== undefined && g.joistCheck?.fb != null ? [`  Landing joist check (${g.joistCheck.size}, ${formatInches(g.joistCheck.span)} span at ${formatInches(g.joistCheck.spacing)}): bending ${g.joistCheck.fb.toFixed(0)} psi, shear ${g.joistCheck.fv.toFixed(0)} psi, live deflection ${g.joistCheck.delta.toFixed(2)} in of ${g.joistCheck.limit.toFixed(2)} in - ${g.joistCheck.ok ? "passes" : "FAILS"}`] : []),
+    ...(g.joistCheck?.warnings ?? []).map((w) => `  Warning: ${w}`),
+    ...(g.joistCheck && g.joistCheck.errors?.length ? g.joistCheck.errors.map((e) => `  Warning: ${e}`) : []),
     ...(g.postColumn?.ok ? [`  Landing post column (${g.postColumn.postSize}, typed fc and Emin): ${Math.round(g.postColumn.load)} lb of ${Math.round(g.postColumn.capacity)} lb (${(g.postColumn.utilisation * 100).toFixed(0)}%), Cp ${g.postColumn.cp.toFixed(2)} - ${g.postColumn.passes ? "passes" : "FAILS, use a larger post or a closer spacing"}`] : []),
     ...(g.postColumn && !g.postColumn.ok ? g.postColumn.errors.map((e) => `  Warning: ${e}`) : []),
     ...(g.guard ? [`  Landing guard (${g.guard.edges.length} open edge${g.guard.edges.length === 1 ? "" : "s"}, ${formatInches(g.guard.guardHeight)} high): ${g.guard.posts.count} posts, ${g.guard.balusters.count} balusters ${formatInches(g.guard.balusters.length)} with at most ${formatInches(g.guard.balusters.maxGap)} clear (limit ${formatInches(RAIL_LIMITS.maxGap)}), ${g.guard.guardRails.count} ${g.guard.guardRails.size} rails`] : []),
