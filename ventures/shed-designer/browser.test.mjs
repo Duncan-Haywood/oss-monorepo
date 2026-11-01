@@ -228,6 +228,8 @@ test('the page explains the siding price step and that undo is per design', { sk
   assert.equal(await page.$eval('#undo', (b) => b.disabled), true);
   // The siding note shows only where taller walls are cheaper: an 8x12 lean-to at 112".
   await page.selectOption('#new-design', '8x12 lean-to');
+  // LP panels come 8, 9 and 10 ft, so their price steps with the wall (T1-11 is 4x8 only since 2026-11-01).
+  await page.selectOption('#sidingType', 'LP SmartSide');
   await page.fill('#wallHeight', '112');
   await page.press('#wallHeight', 'Tab');
   await page.waitForFunction(() => document.querySelector('#wallHeight').value === '112' && /4x8-and-strip/.test(document.querySelector('#notes').textContent));

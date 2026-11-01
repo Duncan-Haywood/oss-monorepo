@@ -51,7 +51,7 @@
  ],
  "writeups": [],
  "goal": null,
- "notes": "Local verification: pytest 11 passed; research/_homepage/build.py ok; programme_check ok; check_md_links ok. Polity5 cannot be redistributed, so it is fetched at run time and only derived results are committed. Cliopatria (CC BY 4.0) attribute table is committed with attribution.",
+ "notes": "Local verification: pytest 11 passed; research/_homepage/build.py ok; programme_check ok; check_md_links ok. Polity5 cannot be redistributed, so it is fetched at run time and only derived results are committed. Cliopatria (CC BY 4.0) attribute table is committed with attribution. Second PR in the same session (user's mid-session request): shed-designer T1-11 4x8-only, primed T1-11, horizontal panel siding with Z-flashing and blocking (IRC R703.3.1), and siding quick controls next to the 3D highlight; full shed-designer node suite run locally, plus Playwright screenshots of the page.",
  "corrections": [],
  "redteam": null
 }
