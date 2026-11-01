@@ -122,9 +122,9 @@ an agent session to prove the path, not a visitor.
    form, the ping and the matching privacy copy together.
 6. **Daily counts and feedback into the repo.** Nothing to set: once step 5
    is on `main`, the **site-usage-pull** workflow commits
-   `portfolio/usage/site-visits.json` and `site-feedback.json` once a day.
-   If `main` is protected against pushes from Actions, allow
-   `github-actions[bot]` or leave it off; any session can run
+   `site-visits.json` and `site-feedback.json` once a day to the `usage-data`
+   branch (main takes changes only through a PR), and a session lands them on
+   main with `node platform/counter/usage-data.mjs sync`. Any session can also run
    `COUNTER_URL=<url> node platform/counter/pull.mjs` and
    `EDGE_URL=<url> node platform/edge/pull-feedback.mjs` instead.
 

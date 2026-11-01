@@ -5,6 +5,17 @@
 # so agents can read them like any other committed file (owner request,
 # 2026-10-20). Each step does nothing while its site.json has no url, so this
 # is inert until the Worker is deployed and its address committed.
+#
+# Where the files land: the data branch `usage-data`, at its root, not main.
+# main's ruleset (.github/rulesets/main.json) takes changes only through a PR,
+# so the old `git push HEAD:main` was rejected with GH013 from 2026-10-31 on
+# (run 41172448053). A PR opened from here would not help: a PR created with
+# GITHUB_TOKEN starts no workflow, so the required checks (conflict-markers,
+# control-plane) would never report and it could not merge unattended. Same
+# pattern as security-alert-queue.yml and its `security-alerts` branch.
+# Sessions read the branch with `node platform/counter/usage-data.mjs show`
+# and copy it into portfolio/usage/ with `... sync` when a PR should carry it
+# (portfolio/usage/README.md, "Where the daily pull lands").
 name: site-usage-pull
 on:
   schedule:
@@ -22,18 +33,41 @@ jobs:
     environment: usage
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 10
-    # The one job, and it commits the pulled files to main.
+    # The one job, and it commits the pulled files to the `usage-data` branch.
     permissions:
       contents: write
+    env:
+      DATA_BRANCH: usage-data
     steps:
       # The token is not left in .git/config while the pull scripts run; only
-      # the push step below sees it.
+      # the clone and push steps below see it.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
+      # The pull scripts merge with the file already in portfolio/usage/, so
+      # the branch's copy goes there first. On the branch's first run there is
+      # nothing to copy and main's files are the starting point.
+      - name: Check out the data branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # The helper reads the token from each step's env, so it is never
+          # written to disk.
+          git config --global credential.helper \
+            '!f() { echo username=x-access-token; echo "password=${GITHUB_TOKEN}"; }; f'
+          url="https://github.com/${GITHUB_REPOSITORY}.git"
+          if git ls-remote --exit-code --heads "$url" "$DATA_BRANCH" >/dev/null; then
+            git clone --quiet --depth 1 --branch "$DATA_BRANCH" "$url" "$RUNNER_TEMP/data"
+          else
+            git init --quiet -b "$DATA_BRANCH" "$RUNNER_TEMP/data"
+            git -C "$RUNNER_TEMP/data" remote add origin "$url"
+          fi
+          for f in site-visits.json site-feedback.json github-traffic.json cloudflare-analytics.json; do
+            if [ -f "$RUNNER_TEMP/data/$f" ]; then cp "$RUNNER_TEMP/data/$f" "portfolio/usage/$f"; fi
+          done
       - name: Pull counts
         run: |
           url=$(node -p 'require("./platform/counter/site.json").url')
@@ -66,15 +100,28 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID }}
           CLOUDFLARE_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID }}
         run: node platform/counter/pull-cloudflare.mjs
-      - name: Commit
+      - name: Commit to the data branch
         env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          for f in portfolio/usage/site-visits.json portfolio/usage/site-feedback.json portfolio/usage/github-traffic.json portfolio/usage/cloudflare-analytics.json; do if [ -f "$f" ]; then git add "$f"; fi; done
+          d="$RUNNER_TEMP/data"
+          for f in site-visits.json site-feedback.json github-traffic.json cloudflare-analytics.json; do
+            if [ -f "portfolio/usage/$f" ]; then cp "portfolio/usage/$f" "$d/$f"; fi
+          done
+          cat > "$d/README.md" <<'MD'
+          # usage-data
+
+          Written daily by `.github/workflows/site-usage-pull.yml` on main. Holds only
+          generated, aggregate files; never merged as a branch, never edited by hand.
+          Read: `node platform/counter/usage-data.mjs show` (from a main checkout).
+          Land on main: `node platform/counter/usage-data.mjs sync`, then a PR.
+          See portfolio/usage/README.md, "Where the daily pull lands".
+          MD
+          cd "$d"
+          git add -A
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           # The Actions bot address, so GitHub credits github-actions[bot]. The old
           # noreply@users.noreply.github.com credited the stranger whose login is "noreply".
           git -c user.name="site-usage-pull (GitHub Actions)" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
-            commit -m "usage: daily site page-load counts, feedback, GitHub repo traffic and Cloudflare analytics"
-          git push "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" HEAD:main
+            commit --quiet -m "usage: daily site page-load counts, feedback, GitHub repo traffic and Cloudflare analytics"
+          git push --quiet origin "HEAD:refs/heads/${DATA_BRANCH}"

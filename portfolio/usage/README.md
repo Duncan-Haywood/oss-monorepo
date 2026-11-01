@@ -306,10 +306,55 @@ for it to get back in the repo so the agents can review it somehow."
 | What | Path into the repo | Who reads it |
 |---|---|---|
 | Bug reports and ideas from people with a GitHub account | Issue forms in `.github/ISSUE_TEMPLATE/`, linked from every tool's footer through `feedback/?tool=<slug>` | Agents, with `search_issues` and `label:site-feedback` |
-| Bug reports and ideas from people without one | The form on the site's `feedback/` page, stored by `platform/edge/` in D1, then `.github/workflows/site-usage-pull.yml` runs `platform/edge/pull-feedback.mjs` daily and commits `portfolio/usage/site-feedback.json` | Agents, by reading that file |
-| Page loads per day and page | `pf-site.js` beacon, `platform/edge/` `/hit` into D1, then the same workflow runs `platform/counter/pull.mjs` and commits `portfolio/usage/site-visits.json` | The router, the review track, any session |
+| Bug reports and ideas from people without one | The form on the site's `feedback/` page, stored by `platform/edge/` in D1, then `.github/workflows/site-usage-pull.yml` runs `platform/edge/pull-feedback.mjs` daily and commits `site-feedback.json` to the `usage-data` branch (next section) | Agents, by reading that file |
+| Page loads per day and page | `pf-site.js` beacon, `platform/edge/` `/hit` into D1, then the same workflow runs `platform/counter/pull.mjs` and commits `site-visits.json` to the same branch | The router, the review track, any session |
 | GitHub repo views, clones, referring sites and popular paths | GitHub's traffic API (14-day window), pulled by the same workflow with `platform/counter/pull-github-traffic.mjs` into `portfolio/usage/github-traffic.json` | Same |
 | Every request Cloudflare's edge served for https://marisstella.app/: totals, countries, statuses, requests by kind of client (browser, named crawler, script, probe) and top pages per kind, plus Worker invocations against the free plan's limit | Cloudflare's GraphQL Analytics API, pulled by the same workflow with `platform/counter/pull-cloudflare.mjs` into `portfolio/usage/cloudflare-analytics.json`. Browser strings are reduced to a class and dropped; scanner paths and 404s are never written | Same. Read it beside `site-visits.json`: the beacon counts page loads that ran the page's script, Cloudflare counts requests, and on 2026-10-30 the two differed by three orders of magnitude |
+
+### Where the daily pull lands
+
+**On the `usage-data` branch, not main** (since 2026-11-01). The workflow used
+to `git push HEAD:main`; once main's ruleset (`.github/rulesets/main.json`,
+"Changes must be made through a pull request", no bypass actors) was applied,
+that push failed with `GH013` (run 41172448053, 2026-10-31 05:24 UTC), so
+`cloudflare-analytics.json` never reached main and the other files moved only
+when a session ran the pull scripts by hand. Opening a PR from the workflow was
+ruled out: a PR created with `GITHUB_TOKEN` starts no workflow, so the required
+checks (`conflict-markers`, `control-plane`) would never report and the PR
+would sit unmergeable. The branch follows `security-alert-queue.yml`'s
+`security-alerts` precedent: generated files only, at the branch root, never
+merged as a branch, kept by `platform/ci/branch_cleanup.py`.
+
+Each run copies the branch's files into `portfolio/usage/` before pulling (the
+scripts merge with what is on file, so history carries over; the first run
+starts from main's copies), then commits the results back to the branch.
+
+**Reading it, for sessions:**
+
+```bash
+node platform/counter/usage-data.mjs status                  # what the branch holds vs main
+node platform/counter/usage-data.mjs show site-visits.json   # one file, from the branch
+node platform/counter/usage-data.mjs sync                    # copy into portfolio/usage/, then commit in a PR
+```
+
+`sync` lets the branch copy win but merges visit days (larger count) and
+feedback records (by id) with main's, so a hand-run pull is never lost.
+Readers that open `portfolio/usage/*.json` on main (`platform/distribution/hub.mjs`,
+`prompts/ideas.py`, the validators) see the data once a session has synced it;
+a session that reads usage numbers should run `status` first, because main's
+copy can be days behind. Raw read without the helper:
+`git fetch -q --depth=1 origin usage-data && git show origin/usage-data:site-visits.json`.
+
+**The Cloudflare token lacks Zone Analytics: Read.** The 2026-10-31 run wrote
+`cloudflare-analytics.json` with 7 days pulled and two `last_pull.errors`, both
+the same permission: `httpRequests1dGroups` and `httpRequestsAdaptiveGroups`
+answered "does not have permission `com.cloudflare.api.account.zone.analytics.read`"
+for the marisstella.app zone. `workersInvocationsAdaptive` (account-level)
+answered, so Account Analytics was not the gap. `CLOUDFLARE_ANALYTICS_TOKEN`
+was unset and the fallback deploy token was used. Until the owner adds a
+`CLOUDFLARE_ANALYTICS_TOKEN` with Zone Analytics: Read (plus Zone: Read and
+Account Analytics: Read, as `pull-cloudflare.mjs` documents), the file holds
+Worker invocations but no zone totals, countries, statuses or client classes.
 
 The no-account route commits a file rather than opening issues on purpose
 (owner, 2026-10-20: "rather have it be a file write than issues write because
