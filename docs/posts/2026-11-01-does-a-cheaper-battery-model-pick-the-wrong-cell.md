@@ -2,7 +2,7 @@
 title: "Does a cheaper battery model pick the wrong cell?"
 date: 2026-11-01
 tags: [energy-cell-dfn, batteries, simulation]
-description: Searching a lithium-ion cell design directly on the full DFN model finds about 1% more energy than screening on the faster SPMe model, in the same region of design space.
+description: Searching a lithium-ion cell design directly on the full DFN model finds about 1% more energy than screening on the faster SPMe model, in the same region.
 ---
 
 The `energy-cell` project searched four electrode numbers for the cell that still delivers the most energy per kilogram after 100 cycles, using the fast SPMe model. A fair worry is that the cheap model's optimum is not the full model's. So we ran the same 30-evaluation search straight on the full DFN model, twice per proposer.
