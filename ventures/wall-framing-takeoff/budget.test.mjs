@@ -350,3 +350,11 @@ test("typed allowances (permit, delivery) add to cost untaxed, before overhead a
   assert.match(budgetText(withA).join("\n"), /allowances 1500.50/);
   assert.match(budgetText(base).join("\n"), /type them under `allowances`/);
 });
+
+test("labor share is labor over the cost total, null without labor", () => {
+  const b = bud({ ...full({ laborWallSheet: 9 }) });
+  assert.ok(b.labor > 0);
+  assert.equal(b.laborPct, Math.round(10000 * b.labor / b.total) / 100);
+  assert.ok(budgetText(b).some((x) => x.includes("Labor share of the cost total")));
+  assert.equal(bud({ ...full({}) }).laborPct, null);
+});
