@@ -1,5 +1,6 @@
 ---
 title: "Sales Agent now ranks a CRM export in your browser, and explains every point"
+seo_title: "Sales Agent ranks a CRM export in your browser and explains each point"
 date: 2026-10-24
 description: "Paste a HubSpot or Pipedrive CSV, describe your ideal customer, and get ranked accounts with first-touch drafts. Nothing is uploaded or sent."
 tags: [sales, crm, open-source, privacy]
