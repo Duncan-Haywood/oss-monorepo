@@ -167,7 +167,7 @@ const SITE_FIELDS = ['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'se
 const FIELDS = ['name', 'lengthFt', 'widthFt', 'style', 'wallHeight', 'pitch', 'overhang', 'studSize', 'studSpacing', 'joistSize', 'joistSpacing',
   'rafterSize', 'rafterSpacing', 'tieSize', 'skidSize', 'skidSpacing', 'foundation', 'floorTreated', 'siding', 'roofing', 'gableVents', 'ventWidth', 'ventHeight', 'kerf',
   'roofType', 'beamSize', 'sidingColor', 'polkaDots', 'autoWall', 'autoStuds', 'autoPitch',
-  'autoOverhang', 'plateThroughDoors', 'overhangBudget', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'atticStorage', 'wallTrim', 'climate', 'rafterSeat', 'anchors', 'maxFootprint', 'pierDepth', 'blockSpacing', 'compaction', 'pad', 'floor', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', 'loft', 'loftJoist', 'frontPitch', 'siteFacing', 'northDeg', 'easementSide', 'easementNote', ...SITE_FIELDS];
+  'autoOverhang', 'plateThroughDoors', 'overhangBudget', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'sidingRun', 'sidingPrimed', 'roofCover', 'insulation', 'customRange', 'atticStorage', 'wallTrim', 'climate', 'rafterSeat', 'anchors', 'maxFootprint', 'pierDepth', 'blockSpacing', 'compaction', 'pad', 'floor', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', 'loft', 'loftJoist', 'frontPitch', 'siteFacing', 'northDeg', 'easementSide', 'easementNote', ...SITE_FIELDS];
 
 
 /** A colour select keeps one "Your colour" option for a hex code typed or picked. @param {HTMLSelectElement} sel @param {string} v */
@@ -196,6 +196,27 @@ function fillForm(d) {
   // The gambrel's own fields show only on a gambrel.
   for (const e of $$('[data-gambrel]')) /** @type {HTMLElement} */ (e).style.display = d.style === 'gambrel' ? '' : 'none';
   for (const e of $$('[data-saltbox]')) /** @type {HTMLElement} */ (e).style.display = d.style === 'saltbox' ? '' : 'none';
+  // Panel direction for panel siding only; the primed choice for T1-11 only.
+  for (const e of $$('[data-panelsiding]')) /** @type {HTMLElement} */ (e).style.display = PANEL_SIDING.includes(d.sidingType) ? '' : 'none';
+  for (const e of $$('[data-t111]')) /** @type {HTMLElement} */ (e).style.display = d.sidingType === 'T1-11' ? '' : 'none';
+}
+
+const PANEL_SIDING = ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16'];
+
+/**
+ * Siding choices right where the siding is shown (the 3D pick and its shopping
+ * line), so changing type, direction or primer is one click from the parts:
+ * the same fields as the form, applied as one undoable change.
+ * @param {any} d
+ */
+function sidingQuickControls(d) {
+  const sel = (id, opts, val) => `<select data-quick="${id}" aria-label="${esc(id)}">${opts.map(([v, t]) => `<option value="${esc(v)}"${v === val ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>`;
+  const types = [['T1-11', 'T1-11 panels'], ['LP SmartSide', 'LP SmartSide 3/8" panels'], ['LP SmartSide 7/16', 'LP SmartSide 7/16" panels'], ['board and batten', 'Board and batten'], ['vinyl', 'Vinyl lap'], ['fiber cement', 'Fiber cement lap'], ['LP SmartSide lap', 'Engineered wood lap']];
+  const panel = PANEL_SIDING.includes(d.sidingType);
+  return `<div class="toolrow quick-siding"><strong>Change the siding:</strong>
+    <label>Type ${sel('sidingType', types, d.sidingType)}</label>
+    ${panel ? `<label>Panels run ${sel('sidingRun', [['vertical', 'Vertical'], ['horizontal', 'Horizontal']], d.sidingRun)}</label>` : ''}
+    ${d.sidingType === 'T1-11' ? `<label class="check"><input type="checkbox" data-quick="sidingPrimed"${d.sidingPrimed ? ' checked' : ''}> Primed</label>` : ''}</div>`;
 }
 
 function readForm() {
@@ -208,8 +229,8 @@ function readForm() {
   d.width = Math.round(num('widthFt', d.width / 12) * 12);
   d.maxPeak = Math.round(num('maxPeakFt', d.maxPeak / 12) * 12);
   for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'pierDepth', 'blockSpacing', 'spares', 'taxRate', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', 'frontPitch', ...SITE_FIELDS, 'overhangBudget']) d[f] = num(f, d[f]);
-  for (const f of ['style', 'studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'climate', 'rafterSeat', 'anchors', 'compaction', 'pad', 'floor', 'floorPanel', 'delivery', 'loft', 'loftJoist', 'siteFacing', 'northDeg', 'easementSide', 'easementNote']) d[f] = v(f).value;
-  for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoStuds', 'autoPitch', 'autoOverhang', 'glitter', 'insulation', 'customRange', 'atticStorage', 'plateThroughDoors']) d[f] = v(f).checked;
+  for (const f of ['style', 'studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'sidingRun', 'roofCover', 'wallTrim', 'climate', 'rafterSeat', 'anchors', 'compaction', 'pad', 'floor', 'floorPanel', 'delivery', 'loft', 'loftJoist', 'siteFacing', 'northDeg', 'easementSide', 'easementNote']) d[f] = v(f).value;
+  for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoStuds', 'autoPitch', 'autoOverhang', 'glitter', 'insulation', 'customRange', 'atticStorage', 'plateThroughDoors', 'sidingPrimed']) d[f] = v(f).checked;
   d.lengths = $$('input[name="stock"]:checked').map((c) => Number(c.value));
   d.locked = $$('input[name="lock"]:checked').map((c) => c.value);
   return d;
@@ -618,7 +639,9 @@ function showPieces(ids, title, { scroll = false } = {}) {
   const box = $('#xref');
   box.hidden = false;
   const said = [...parts.map((p) => `${esc(p.kind)} (${p.mark}): ${p.qty} x ${fmtIn(p.length)} ${p.material}`), ...(others.length ? [esc(others.join(', '))] : [])];
+  const sidingShown = loose.some((id) => (lastShed.panels || []).some((p) => p.id === id && (p.kind === 'siding' || p.kind === 'lap siding')));
   box.innerHTML = `<h3>${esc(title)}</h3><p>${said.join('; ') || 'Nothing drawn for this line.'}</p>
+    ${sidingShown ? sidingQuickControls(design()) : ''}
     ${lines.length ? `<p class="muted">Bought as: ${lines.map((i) => esc(lastEst.shopping[i].name)).join('; ')}</p>` : ''}
     <div class="toolrow">${step >= 0 ? `<button type="button" class="btn" data-xstep="${step}">Build step: ${esc(buildSections[step].title)}</button>` : ''}
     ${lines.length ? '<button type="button" class="btn" data-xgo="panel-shopping">Shopping list</button>' : ''}
@@ -1140,6 +1163,18 @@ function wire() {
       const marks = b.dataset.xrefMarks.split(' ');
       showPieces(idsForMarks(marks), `Mark${marks.length > 1 ? 's' : ''} ${marks.join(', ')}`, { scroll: true });
     }
+  });
+  // The quick siding controls: change the design, then light the new siding so the change is seen in 3D.
+  $('#xref').addEventListener('change', (e) => {
+    const t = /** @type {any} */ (e.target);
+    const k = t?.dataset?.quick;
+    if (!k) return;
+    commit({ ...design(), [k]: t.type === 'checkbox' ? t.checked : t.value }, 'siding changed');
+    const ids = (lastShed.panels || []).filter((p) => p.kind === 'siding' || p.kind === 'lap siding').map((p) => p.id);
+    viewer?.setLayer('siding', true);
+    const cb = $$('#layers input').find((c) => c.value === 'siding');
+    if (cb) cb.checked = true;
+    showPieces(ids, 'Siding: where it goes');
   });
   $('#xref').addEventListener('click', (e) => {
     const b = e.target.closest('button');

@@ -155,7 +155,8 @@ test('a ridge board\'s temporary props come out only after the rafters and ties 
 });
 
 test('the siding step says how the nested gable pieces are cut and joined', () => {
-  const { md } = mdOf(PRESETS['8x10']());
+  // LP panels (8, 9 and 10 ft); T1-11 is 4x8 only since 2026-11-01.
+  const { md } = mdOf({ ...PRESETS['8x10'](), sidingType: 'LP SmartSide' });
   assert.match(md, /The 4 upper gable pieces come from 1 panel: two pieces that slope the same way are cut head to toe/);
   assert.match(md, /butt the joint over the stud with a bead of caulk/);
   assert.match(md, /take them from what is left of a sheet after a short full-width piece/);

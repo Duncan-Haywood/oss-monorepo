@@ -68,7 +68,7 @@ export const TRIM_COLORS = Object.fromEntries(Object.entries(TRIM_FINISHES).map(
  * 32 asphalt shingle courses, 64 T1-11 grooves, 256 window glass. A shingle face's colour blend
  * (0 to 0.5) rides in the fraction.
  */
-export const FINISH = { dots: 1, glitter: 2, lap: 4, batten: 8, metal: 16, shingle: 32, grooves: 64, glass: 256 };
+export const FINISH = { dots: 1, glitter: 2, lap: 4, batten: 8, metal: 16, shingle: 32, grooves: 64, glass: 256, groovesLevel: 512 };
 
 /** Signed area of a 2D polygon. @param {[number, number][]} pts */
 function area2(pts) {
@@ -191,7 +191,7 @@ export function solidsOf(shed, heat) {
   const pal = paletteOf(d);
   const siding = pal.siding;
   // Lap siding is modelled course by course, so it needs no painted-on shadow lines.
-  const texture = d.sidingType === 'board and batten' ? FINISH.batten : d.sidingType === 'vinyl' ? FINISH.lap : d.sidingType === 'T1-11' ? FINISH.grooves : 0;
+  const texture = d.sidingType === 'board and batten' ? FINISH.batten : d.sidingType === 'vinyl' ? FINISH.lap : d.sidingType === 'T1-11' ? (d.sidingRun === 'horizontal' ? FINISH.groovesLevel : FINISH.grooves) : 0;
   for (const p of shed.panels) {
     const sheathing = p.kind === 'roof sheathing' || p.kind === 'wall sheathing';
     // A gambrel's gussets are part of the roof frame like a truss's; its loft floor, like a truss attic's deck, is plywood like the floor.
@@ -386,6 +386,8 @@ void main(){ vec3 n = normalize(vn); vec3 base = vc.rgb; vec3 an = abs(n);
  if (has(f, 8.0)) { float bx = an.x > an.y ? vp.y : vp.x; if (fract(bx / 8.0) < 0.3) base *= 0.85; }
  // T1-11: a groove every 8".
  if (has(f, 64.0)) { float bx = an.x > an.y ? vp.y : vp.x; if (fract(bx / 8.0) < 0.05) base *= 0.72; }
+ // T1-11 laid horizontally: the grooves run level, 8" apart.
+ if (has(f, 512.0) && fract(vp.z / 8.0) < 0.05) base *= 0.72;
  // Window glass reflects the sky: haze low, blue high, with a faint diagonal glint.
  if (has(f, 256.0)) { float k = clamp((vp.z - 30.0) / 70.0, 0.0, 1.0); float bx = an.x > an.y ? vp.y : vp.x;
   base = mix(vec3(0.8, 0.86, 0.88), vec3(0.36, 0.56, 0.8), k) + (fract((bx + vp.z) / 36.0) < 0.12 ? 0.07 : 0.0); }
