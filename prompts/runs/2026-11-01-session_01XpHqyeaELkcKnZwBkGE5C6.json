@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01XpHqyeaELkcKnZwBkGE5C6",
+  "track": "process",
+  "prompt_version": 0,
+  "input": "I want to turn on for profit in this repo. don't let it block work from getting done like in the past but",
+  "input_sha256": "3667053d319e9ff36b795f82afc8aeadfa4d203f9920bc42669370b51ebefa5e",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T04:02:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "turn on for-profit selling without letting it block work",
+  "projects": [],
+  "pr": 12243,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/ledger/asks.yaml",
+      "issue": "PR #11962, the goals.md amendment the payout-rail row points to, sat unapproved for a day with no link from the row; the owner asked again in a new session."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Every session merges its own PR, but this one touches control-plane paths and waits on owner approval",
+      "did": "opened the PR and left it for the owner to approve",
+      "result": "PR #12243 open"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-01-selling-is-on-and-it-blocks-nothing.md"
+  ],
+  "goal": null,
+  "notes": "Rebuilt PR #11962 on main and added the owner's 2026-11-01 no-blocking clause. Checks: promptctl validate ok; decision_queue --check ok; control_plane_guard ok; publish_surface --check ok; check_payment_keys clean. The user's message ended mid-sentence ('but'); proceeded on the clear part.",
+  "corrections": [],
+  "redteam": null
+}
