@@ -2,7 +2,7 @@
 title: "Do open permit feeds predict how long a permit takes? Three cities, one honest answer"
 date: 2026-11-01
 tags: [research, build-data, permits, forecasting]
-description: A boosted quantile model beats each city's own per-type averages in 13 of 15 cells, but a model from other cities does not, and conformal intervals miss 80% where many permits are same-day.
+description: A boosted model beats each city's own permit averages in 13 of 15 cells; a model from other cities does not, and conformal intervals miss 80%.
 ---
 
 We loaded the public permit feeds of Chicago, San Francisco and Austin (about 4.5 million rows) onto one schema and forecast two lags: application to issue, and issue to completion. The split runs forward in time (train to 2022, tune 2023, test 2024).
