@@ -1,7 +1,7 @@
 ---
 title: "Framing lumber rules of thumb over-order 17 to 27% at 24 in spacing"
 date: 2026-11-01
-tags: [construction, framing, benchmark]
+tags: [construction, framing, benchmarks]
 description: "A counted stud layout against two common lumber allowances on two houses: the per-foot rule is close at 16 in o.c. and 17 to 27% high at 24 in."
 ---
 
