@@ -2,6 +2,16 @@
 
 Newest first.
 
+## 2026-11-01 · Milestone 3k: does the open-centre time penalty depend on how big the pump is? (prediction registered before running)
+- Why: 3a to 3j fixed the pump at `pc.Q_PUMP` (45 L/min). The starvation that costs open-centre its time comes from the pump flow being shared by spool openings, so the pump size should matter, and a reader sizing a machine picks it. `experiments/pump_size.py` reruns 3h/3i's rated-sizing slowdown (smallest covering PVG 32 spool, rated drop read at 1.0 x rated, `data/pvg32_dp_at_rated.csv`) on the same random cycles with the pump flow scaled to 0.8, 1.0, 1.2 and 1.5 times, demands unchanged, and charges load-sensing its own pump-limit factor max(1, sum q / Q) (3c). Net penalty = open-centre cycle time over load-sensing cycle time.
+- **Prediction (before running):** the net open-centre penalty is non-increasing in pump size (median at 1.5 x no higher than at 1.0 x, which reproduces 3h's 6.25% before the LS floor), and at 0.8 x it exceeds 6.25% only because the pump limit binds both circuits, so the net penalty at 0.8 x is smaller than the gross one. Prior 60%. Refuted if the net median at 1.5 x is above that at 1.0 x.
+- Limits that carry over: demands from the assumed force model; work-port-to-tank drop as rating point; no compensator.
+
+### Outcome of 3k (`experiments/pump_size_results.txt`, seeded, 1,500 cycles per row)
+- Net open-centre penalty over load-sensing, median (p95): **17.51%** (21.62%) at 0.8 x pump, **6.25%** (21.62%) at 1.0 x, **0.00%** (21.62%) at 1.2 x, **0.00%** (10.68%) at 1.5 x. Gross open-centre penalty at 0.8 x is 22.27%, load-sensing's own pump-limit penalty there 3.80%. **Both parts of the prediction held.**
+- Reading: the median penalty vanishes with a pump 20% larger than the peak demand needs, so 3h's 6.25% is a statement about a pump sized at the demand, not about open-centre as such; the tail (p95 21.6%) needs 1.5 x to fall. This is a cost, not a free fix: a larger pump costs more and carries more idle and neutral flow, which this step does not price.
+- Next: price the larger pump (parts cost from milestone 4, neutral flow from 2i to 2n) against the time saved; add the compensator.
+
 ## 2026-10-31 · Milestone 3j: the manual's P-to-A flow curves pin the rating-point drop (not pre-registered)
 - Why: 3h and 3i used the work-port-to-tank drop (p. 99) as the rating point and said the P-to-A flow curve was the missing check. The same Danfoss PVG 32 manual (BC152886483664en-001601, July 2024) plots flow against spool travel at 10 bar margin (p. 95) and 20 bar margin (p. 96), uncompensated, P to A. `experiments/digitise_pvg_flow.py` reads each spool's shaded band at full travel from a 300 dpi render (`experiments/data/pvg32_flow_full_travel.csv`); `experiments/pvg_flow_rating.py` turns it into an implied rating drop.
 - Honesty note: I looked at the plots and ran a rough read before writing this entry, so no prediction is registered.

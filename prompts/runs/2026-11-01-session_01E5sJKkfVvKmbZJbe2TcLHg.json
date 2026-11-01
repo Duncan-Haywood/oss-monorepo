@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01E5sJKkfVvKmbZJbe2TcLHg",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md",
+  "input_sha256": "94a6b2a74a2fe72d09d7042291a4072d20b259b937e79b5deda0279ae57c7410",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T01:21:38Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12219",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/PROPOSAL.md",
+      "issue": "cite_check could not run (Crossref 403 through proxy), so citations stay unopened."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-01-a-bigger-pump-removes-the-open-centre-penalty.md",
+    "research/heavy-hydraulics/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Step 3k pump-size sensitivity; prediction registered first and held. Did not run the pytest suite; ran check_numbers, homepage build, md links.",
+  "corrections": [],
+  "redteam": null
+}
