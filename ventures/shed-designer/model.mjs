@@ -31,7 +31,8 @@ import { LOCKABLE } from './levers.mjs';
 /** @typedef {{ origin: Vec, u: Vec, v: Vec, w: Vec, profile: [number, number][], thickness: number }} Geom */
 /**
  * @typedef {{ id: string, group: string, kind: string, material: string, length: number,
- *   note?: string, geom: Geom, local?: { s0: number, s1: number, z0: number, z1: number, top?: [number, number][] } }} Member
+ *   note?: string, geom: Geom, local?: { s0: number, s1: number, z0: number, z1: number, top?: [number, number][] },
+ *   cutOuts?: { s0: number, s1: number, op: string }[], finished?: Geom[] }} Member
  */
 /** @typedef {{ id: string, kind: 'door'|'window', wall: 'front'|'back'|'left'|'right', offset: number, width: number, height: number, sill?: number, header?: string, product?: string }} Opening */
 
@@ -210,7 +211,7 @@ const classic = () => ({ ...defaultDesign(), foundation: 'gravel', pad: 'full', 
 /**
  * Site plan extras that `normalize` fills in (not `defaultDesign`, so the
  * presets' design keys stay put).
- * @typedef {{ siteFacing: string, northDeg: number | null, easementSide: string, easementFt: number, easementNote: string }} SiteExtras
+ * @typedef {{ siteFacing: string, northDeg: number | null, easementSide: string, easementFt: number, easementNote: string, plateThroughDoors: boolean }} SiteExtras
  */
 /** @typedef {ReturnType<typeof defaultDesign> & Partial<SiteExtras>} Design */
 
@@ -369,6 +370,10 @@ export function normalize(input) {
     // the front (door) wall faces on the lot; north in degrees clockwise from
     // straight up the plan (toward the rear lot line), null for no arrow; and
     // an easement strip along one lot line, with a note as on the plat.
+    // Bottom plate straight across door openings, sawn out after the wall is
+    // raised (true), or cut out at each door before framing (false). Defaulted
+    // here, not in defaultDesign(), so the presets' design keys do not move.
+    plateThroughDoors: o.plateThroughDoors !== false,
     siteFacing: pick(o.siteFacing, ['street', 'left', 'right', 'rear'], 'street'),
     northDeg: o.northDeg === null || o.northDeg === undefined || /** @type {any} */ (o.northDeg) === '' || typeof o.northDeg === 'boolean' || !Number.isFinite(Number(o.northDeg)) ? null : ((Math.round(Number(o.northDeg)) % 360) + 360) % 360,
     easementSide: pick(o.easementSide, ['none', 'street', 'left', 'right', 'rear'], 'none'),
@@ -1233,12 +1238,19 @@ function buildFramed(d, lapNailers) {
       }
       fixture();
     }
-    // Plates: bottom plate is cut out at doors; top and cap plates break on studs, cap joints kept 4 ft from top joints.
-    const doorGaps = ops.filter((p) => p.op.kind === 'door').map((p) => [p.a, p.a + p.w]).sort((a, b) => a[0] - b[0]);
+    // Plates: top and cap plates break on studs, cap joints kept 4 ft from top joints.
+    // The bottom plate runs straight across each door by default (plateThroughDoors):
+    // a wall framed on one plate stays square while it is nailed up and raised,
+    // and the piece in the door is sawn out once the plate is nailed down. With
+    // the option off it is cut out at each door before framing, as two pieces.
+    const doorGaps = ops.filter((p) => p.op.kind === 'door').map((p) => /** @type {[number, number, string]} */ ([p.a, p.a + p.w, p.op.id])).sort((a, b) => a[0] - b[0]);
     const bottomRuns = [];
-    let cur = 0;
-    for (const [g0, g1] of doorGaps) { if (g0 > cur) bottomRuns.push([cur, g0]); cur = g1; }
-    if (cur < len) bottomRuns.push([cur, len]);
+    if (d.plateThroughDoors) bottomRuns.push([0, len]);
+    else {
+      let cur = 0;
+      for (const [g0, g1] of doorGaps) { if (g0 > cur) bottomRuns.push([cur, g0]); cur = g1; }
+      if (cur < len) bottomRuns.push([cur, len]);
+    }
     // The cap plate interlocks the corners: on the eave walls it stops one wall
     // depth short of each end, and the gable walls' cap runs that much long to
     // lap over the eave walls' top plate.
@@ -1287,7 +1299,22 @@ function buildFramed(d, lapNailers) {
       plates = choosePlates(plateStock);
     }
     const { top, cap, overHeader } = plates;
-    for (const r of bottomWithin(plateStock)) for (const [s0, s1] of r.runs) addM('bottom plate', floorless ? `PT ${d.studSize}` : d.studSize, s0, s1, 0, 1.5);
+    for (const r of bottomWithin(plateStock)) {
+      for (const [s0, s1] of r.runs) {
+        const cuts = doorGaps.filter(([g0, g1]) => g0 < s1 - 1e-9 && g1 > s0 + 1e-9).map(([g0, g1, op]) => ({ s0: Math.max(g0, s0), s1: Math.min(g1, s1), op }));
+        const note = cuts.length ? `runs across the door; saw out ${cuts.map((c) => fmtIn(c.s1 - c.s0)).join(' and ')} flush with the jacks after the wall is raised and nailed down` : undefined;
+        const m = addM('bottom plate', floorless ? `PT ${d.studSize}` : d.studSize, s0, s1, 0, 1.5, note);
+        if (cuts.length) {
+          // What is sawn out, and the pieces left once it is: the 3D view shows the finished shed.
+          m.cutOuts = cuts;
+          const kept = [];
+          let at = s0;
+          for (const c of cuts) { if (c.s0 > at + 1e-9) kept.push([at, c.s0]); at = c.s1; }
+          if (s1 > at + 1e-9) kept.push([at, s1]);
+          m.finished = kept.map(([a, b]) => rectGeom(add(spec.base, spec.axis, a), spec.axis, Z, spec.w, b - a, 1.5, D));
+        }
+      }
+    }
     for (const [s0, s1] of top.runs) addM('top plate', d.studSize, s0, s1, Hw - 3, Hw - 1.5);
     for (const [s0, s1] of cap.runs) addM('cap plate', d.studSize, s0, s1, Hw - 1.5, Hw, capNote);
     if (top.runs.length > 1) notes.push(`${wallLabel(d, name)}: plates are longer than the longest board you allowed or can haul, so they splice over studs; the cap plate's joints are kept 4 ft from the top plate's where the layout allows, and never under the code's 24".`);
