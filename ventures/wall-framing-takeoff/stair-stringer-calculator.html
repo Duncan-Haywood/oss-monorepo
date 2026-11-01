@@ -39,6 +39,18 @@
       <div><label for="tboard">Tread board</label><select id="tboard"><option>2x12</option><option>2x10</option><option>2x6</option></select></div>
       <div><label for="floor">Floor thickness at the opening (in)</label><input id="floor" value="12.5"></div>
     </div>
+    <details>
+      <summary>Check the stringer (optional: type your own design values, none are shipped)</summary>
+      <p>Take live and dead load (psf) and the allowable bending, shear and modulus (psi) from your lumber's design table. Leave any blank to skip the check. Optionally add the allowable compression perpendicular to grain for the bearing length.</p>
+      <div class="grid">
+        <div><label for="live">Live load (psf)</label><input id="live" inputmode="decimal"></div>
+        <div><label for="dead">Dead load (psf)</label><input id="dead" inputmode="decimal"></div>
+        <div><label for="fb">Fb bending (psi)</label><input id="fb" inputmode="decimal"></div>
+        <div><label for="fv">Fv shear (psi)</label><input id="fv" inputmode="decimal"></div>
+        <div><label for="e">E modulus (psi)</label><input id="e" inputmode="decimal"></div>
+        <div><label for="fcp">Fc-perp bearing (psi, optional)</label><input id="fcp" inputmode="decimal"></div>
+      </div>
+    </details>
   </form>
   <pre id="out" aria-live="polite"></pre>
   <p><a class="cta" href="index.html">Add the stair to a whole-house framing takeoff</a></p>
@@ -78,7 +90,10 @@
     const $ = (id) => document.getElementById(id);
     const run = () => {
       const num = (id) => parseLength($(id).value);
-      const l = layoutStair({ totalRise: num("rise"), tread: num("tread"), width: num("width"), stringer: $("stringer").value, treadBoard: $("tboard").value, treadThickness: $("tboard").value.startsWith("2x") ? 1.5 : 1, nosing: 0.75, floorThickness: num("floor") });
+      const v = (id) => $(id).value.trim() === "" ? null : Number($(id).value);
+      const sc = ["live", "dead", "fb", "fv", "e"].every((id) => v(id) != null)
+        ? { liveLoad: v("live"), deadLoad: v("dead"), Fb: v("fb"), Fv: v("fv"), E: v("e"), ...(v("fcp") != null ? { bearingFcPerp: v("fcp") } : {}) } : undefined;
+      const l = layoutStair({ stringerCheck: sc, totalRise: num("rise"), tread: num("tread"), width: num("width"), stringer: $("stringer").value, treadBoard: $("tboard").value, treadThickness: $("tboard").value.startsWith("2x") ? 1.5 : 1, nosing: 0.75, floorThickness: num("floor") });
       $("out").textContent = l.ok === false ? (l.errors || ["Check the numbers."]).join("\n") : stairText(l).concat(l.notes || []).join("\n");
     };
     $("f").addEventListener("input", run);
