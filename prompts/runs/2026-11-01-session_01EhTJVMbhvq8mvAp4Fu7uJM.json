@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": 12416,
+  "pr": 12284,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -33,7 +33,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Scheduled run routed to the review track; used --skip-review to do product work. Added a 400-flight seeded fuzz test for the stair engine (all pass, no bug found) and a post. Verified locally: node --test stairs-fuzz.test.mjs.",
+  "notes": "Redteam on 3pl-invoice-audit-checker/calc.mjs: 8 mutants, 7 caught, 1 escaped (CSV delimiter or/and), guarded with two tests; rerun confirms. No real defects found. Small run.",
   "corrections": [],
   "redteam": {
     "campaigns": [
