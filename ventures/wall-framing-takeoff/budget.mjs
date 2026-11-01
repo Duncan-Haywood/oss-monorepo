@@ -171,6 +171,9 @@ export function budget(result, prices = {}, allowances = {}) {
   const stairRisers = (result.stairs || []).reduce((/** @type {number} */ t, /** @type {any} */ x) => t + (x.flights ? x.flights.reduce((/** @type {number} */ u, /** @type {any} */ g) => u + (g.risers || 0), 0) : (x.risers || 0)), 0);
   if (laborTyped && stairRisers > 0) add("Labor", "Stair building and installation", stairRisers, "risers", P("laborStairRiser"), "sum of stairs risers (each flight of a landing stair) x typed laborStairRiser");
   if (laborTyped && dm?.ok && dm.areas?.roofSqFt > 0) add("Labor", "Dormer framing and roofing", dm.areas.roofSqFt, "sq ft", P("laborDormerSqFt"), "dormer.areas.roofSqFt x typed laborDormerSqFt");
+  const kings = (result.walls || []).reduce((/** @type {number} */ t, /** @type {any} */ w) => t + (w.members || []).filter((/** @type {any} */ m) => m.kind === "king").length, 0);
+  const openingCount = Math.floor(kings / 2);
+  if (laborTyped && openingCount > 0) add("Labor", "Door and window setting", openingCount, "openings", P("laborOpening"), "king studs / 2 (two per framed opening) x typed laborOpening");
   const hardware = fa?.ok ? (fa.holdDowns?.count || 0) + (fa.plateStraps?.count || 0) : 0;
   if (laborTyped && hardware > 0) add("Labor", "Hold-down and plate strap installation", hardware, "each", P("laborHoldDown"), "fasteners.holdDowns.count + plateStraps.count x typed laborHoldDown");
   const insBags = ins?.ok ? (ins.bags || 0) + (ins.rim?.bags || 0) + (ins.attic?.bags || 0) : 0;
