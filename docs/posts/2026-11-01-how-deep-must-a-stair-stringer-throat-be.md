@@ -2,7 +2,7 @@
 title: "How deep must a stair stringer's throat be?"
 date: 2026-11-01
 tags: [wall-framing-takeoff, stairs, construction]
-description: The framing takeoff's stringer check now solves its bending, shear and deflection formulas for depth and reports the smallest throat that passes, and which check sets it.
+description: The stringer check now solves bending, shear and deflection for depth and reports the smallest throat that passes, and which check sets it.
 ---
 
 The stringer check told you whether the throat you cut passes. It now also says how deep it must be.
