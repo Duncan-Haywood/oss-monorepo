@@ -37,7 +37,7 @@
   ],
   "deviations": [],
   "writeups": [
-    "docs/posts/2026-11-02-research-draw-skips-blocked-programmes.md"
+    "docs/posts/2026-11-01-research-draw-skips-blocked-programmes.md"
   ],
   "goal": null,
   "notes": "Process critique mode; no agent-owned backlog item. main_health 33/33. Fixed pick_track stalled-programme draw. Unit tests 22 pass.",

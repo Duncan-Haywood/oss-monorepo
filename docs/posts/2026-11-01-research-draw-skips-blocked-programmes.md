@@ -1,6 +1,6 @@
 ---
 title: "Teaching the research draw to skip a stalled programme"
-date: 2026-11-02
+date: 2026-11-01
 tags: [process, research]
 description: The research programme draw now skips programmes marked BLOCKED, after runs repeatedly drew one whose open items need outside data.
 ---
