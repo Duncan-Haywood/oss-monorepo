@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-01 · Milestone 7i: bring the paper draft and README in line with 3e and 3f (no experiment run)
+- Why: the draft still said 3d "fixed a wave-term exponent", which 3e retracted as an unresolved form choice. Replaced it with the 3e numbers (m4 vs m2: CW up to about 12%, CT 2.4%) and the 3f evidence (a third implementation uses m2), and changed the threats item to say three public implementations were read, not run, and disagree. README milestone-3 line updated the same way.
+- Limits: wording only; the 1982 and 1984 papers remain unopened.
+- Next: a small-hull tank curve; the paper itself if a host opens.
+
 ## 2026-11-01 · Milestone 3f: a third public implementation breaks the tie on the Holtrop-Mennen low-speed wave form (reading only, no experiment)
 - Why: 3e left m2 against m4 open: Albert-Gil computes m2 but uses m4 below Fn 0.4, B4kif uses m4, and neither the 1982 nor the 1984 paper could be opened (tudelft and sciencedirect refuse the proxy; arXiv has no paper on the method, a search for "Holtrop" returns only nuclear physics).
 - Evidence: the US EPA's `Marine_Emissions_Tools` (MIT licence), `ShipPowerModel/R/calcHMWaveMakingRes.r`, read not run, nothing copied, labels its Fn < 0.55 branch as the 1982 paper and codes it as `exp(m1 Fn^-0.9 + m2 cos(lambda Fn^-2))` with `m2 = c15 Cp^2 exp(-0.1 Fn^-2)`, and uses `m4 = c15 0.4 exp(-0.034 Fn^-3.29)` only in the Fn >= 0.55 (1984) branch. Its m1, c15 (three-way rule on L^3/volume) and lambda match the constants in `holtrop.py`.
