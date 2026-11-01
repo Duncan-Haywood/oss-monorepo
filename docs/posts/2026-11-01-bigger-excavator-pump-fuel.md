@@ -2,7 +2,7 @@
 title: "Is a bigger pump the cheap fix for a slow open-centre excavator valve?"
 date: 2026-11-01
 tags: [heavy-hydraulics, excavator, hydraulics, energy]
-description: A pump 20% bigger removes the open-centre time penalty in our excavator model, but burns 14% more shaft energy per cycle. At diesel prices that is still only about $8 per machine hour of break-even.
+description: A pump 20% bigger removes the open-centre time penalty in our excavator model but burns 14% more energy per cycle; break-even is about $8 per machine hour.
 ---
 
 Our heavy-hydraulics programme found that an open-centre valve sized from the Danfoss PVG 32 manual's own curves makes a small excavator's cycle about 6% slower than load-sensing, because the pump flow is shared between spool openings. Milestone 3k showed a pump 1.2 times the peak demand removes that median penalty. Milestone 3l prices the fix.
