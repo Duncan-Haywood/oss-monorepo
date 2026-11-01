@@ -123,6 +123,9 @@ test("the page reads and restores the stair stringer check", () => {
   assert.match(html, /id="stCheck2"/);
   assert.match(html, /st\.stringerCheck\.connectorCapacity = m\[0\]/);
   assert.match(html, /\$\("#stCheck2"\)\.value = k && k\.connectorCapacity/);
+  assert.match(html, /id="stCheck3"/);
+  assert.match(html, /st\.stringerCheck\.notchedSupport = true/);
+  assert.match(html, /\$\("#stCheck3"\)\.value = k && k\.notchedSupport/);
 });
 
 test("the page frames a floor through floor.mjs and pools its lumber with the walls", () => {
