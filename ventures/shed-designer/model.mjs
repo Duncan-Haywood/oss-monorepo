@@ -563,7 +563,6 @@ export function headerFor(d, op) {
 /** @param {Vec} a @param {Vec} b @param {number} k */
 const add = (a, b, k = 1) => /** @type {Vec} */ ([a[0] + b[0] * k, a[1] + b[1] * k, a[2] + b[2] * k]);
 
-/** @returns {Geom} */
 /**
  * The part of the rectangle [s0, s1] x [z0, z1] under a wall's top line `clip(s)`
  * (piecewise linear, bending only at `corners`), as a profile in the siding's
@@ -598,6 +597,7 @@ export function clipRect(clip, corners, s0, s1, z0, z1) {
   });
 }
 
+/** @returns {Geom} */
 function rectGeom(origin, u, v, w, lu, lv, thickness) {
   return { origin, u, v, w, profile: [[0, 0], [lu, 0], [lu, lv], [0, lv]], thickness };
 }
@@ -858,7 +858,7 @@ function buildAuto(d0, prices) {
 function buildFramed(d, lapNailers) {
   /** @type {Member[]} */
   const members = [];
-  /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[], course?: number, face?: [number, number][], where?: string }[]} */
+  /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[], course?: number, row?: number, face?: [number, number][], where?: string }[]} */
   const panels = [];
   /** @type {{ id?: string, kind: string, geom: Geom, group: string, op?: string, tex?: string, from?: number, bottom?: number }[]} */
   const fixtures = [];
@@ -2273,7 +2273,7 @@ function buildFramed(d, lapNailers) {
   const lapSpec = lapBase && { ...lapBase, exposure: /** @type {number} */ (lapExposure) };
   const sheathT = 7 / 16;
   const sidingT = lapSpec ? sheathT + 2 * lapSpec.thickness : d.sidingType === 'LP SmartSide' ? 3 / 8 : d.sidingType === 'LP SmartSide 7/16' ? 7 / 16 : 19 / 32;
-  /** @type {{ wall: string, length: number, need?: number }[]} */
+  /** @type {{ wall: string, length: number, need?: number, row?: number, piece?: { len: number, w: number } }[]} */
   const sidingFull = [];
   /** @type {number[]} */
   const sidingUpper = [];
