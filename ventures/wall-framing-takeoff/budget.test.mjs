@@ -282,3 +282,18 @@ test("stair balusters, guard posts and handrail brackets are priced from the rai
   assert.ok(Math.abs(hr.amount - hr.qty * 5) <= 0.02);
   assert.ok(!bud(full({ stairBaluster: 4 })).lines.some((x) => x.item === "Stair balusters"));
 });
+
+test("a dormer's roof and wall sheathing are priced from its own areas (4x8 sheets, 10% spare)", () => {
+  const plan = { ...full({ roofSheet: 40, wallSheet: 25 }), roof: { ...sampleRoof(), width: "20ft", length: "40ft", pitch: 8, rafter: "2x12" }, dormer: { shape: "shed", width: 144, eaveHeight: 48, pitch: 3 } };
+  const dm = JSON.parse(run(plan, "--dormer", "--json").out).dormer;
+  const b = JSON.parse(run(plan, "--dormer", "--budget", "--json").out);
+  const want = (a) => Math.ceil(a * 1.1 / 32 - 1e-9);
+  const roof = b.lines.find((l) => l.item === "Dormer roof sheathing sheets");
+  const wall = b.lines.find((l) => l.item === "Dormer wall sheathing sheets");
+  assert.equal(roof.qty, want(dm.areas.roofSqFt));
+  assert.equal(roof.amount, +(roof.qty * 40).toFixed(2));
+  assert.equal(wall.qty, want(dm.areas.wallSqFt));
+  assert.equal(wall.amount, +(wall.qty * 25).toFixed(2));
+  // by hand: shed dormer 144 in wide, 48 in eave wall, pitch 3 -> wall area = (W*H + H*xr)/144
+  assert.ok(dm.areas.roofSqFt > 0 && dm.areas.wallSqFt > 0);
+});

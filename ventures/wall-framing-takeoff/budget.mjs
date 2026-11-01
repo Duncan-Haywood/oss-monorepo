@@ -130,6 +130,14 @@ export function budget(result, prices = {}) {
   const hrIn = fl.reduce((/** @type {number} */ t, /** @type {any} */ x) => t + (x.rail?.handrail?.length || 0), 0);
   if (hrIn > 0) add("Stairs", "Handrail", Math.round(hrIn / 12 * 10) / 10, "ft", P("handrailFoot"), "handrail run on every flight with a rail: pitch length plus 12 in past the top and one tread past the bottom");
   if (brk) add("Stairs", "Handrail wall brackets", brk, "each", P("handrailBracket"), "one near each end and enough between to keep the typed bracket spacing");
+  // Dormer: its framing lumber is already in the cutting-stock order. Its roof and wall sheathing are priced here
+  // from the dormer's own areas, 4x8 sheets (32 sq ft) with 10% spare, at the typed roofSheet / wallSheet prices.
+  const dm = result.dormer;
+  if (dm?.ok && dm.areas) {
+    const sheets = (/** @type {number} */ sqft) => Math.ceil(sqft * 1.1 / 32 - 1e-9);
+    if (dm.areas.roofSqFt > 0) add("Dormer", "Dormer roof sheathing sheets", sheets(dm.areas.roofSqFt), "sheets", P("roofSheet"), `${dm.areas.roofSqFt} sq ft of dormer roof, 4x8 sheets, 10% spare`);
+    if (dm.areas.wallSqFt > 0) add("Dormer", "Dormer wall sheathing sheets", sheets(dm.areas.wallSqFt), "sheets", P("wallSheet"), `${dm.areas.wallSqFt} sq ft of dormer front, gable and cheeks, 4x8 sheets, 10% spare`);
+  }
   const f = result.foundation;
   if (f) {
     add("Foundation", "Concrete", f.concrete.order, "cu yd", P("concreteYd") ?? (f.concrete.cost != null ? f.concrete.cost / f.concrete.order : null), `${f.concrete.trucks} truck(s) incl. ${(100 * f.concrete.waste).toFixed(0)}% waste`);
