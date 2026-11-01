@@ -1,5 +1,10 @@
 # build-data log
 
+## Session 13, 2026-11-01: paper draft 0 (no new compute)
+
+Why: sessions 5 to 12 produced five hypotheses' worth of results spread over the log; the programme had no `paper/`. Done: `paper/paper.md`, a draft that assembles the logged numbers (H1 to H5) with limits and a to-do list. Every figure is copied from this log or `results/`; no experiment ran, so no result changed. Hypothesis: none (writing step). Not done and listed in the draft's section 7: the proposal's other baselines (linear quantile, XGBoost, CatBoost, neural net) are unrun, so H1 is still against the weakest bar; conformal for same-day mass; spread over draws.
+Next: run the missing baselines (needs a Python with lightgbm/xgboost and a fresh feed pull), then two-part conformal.
+
 ## Session 12, 2026-11-01: milestone 8, five draws of the local sample (H5 re-test), hypothesis written before the run
 
 Why: M7 used one effective draw per n (seeds only partly averaged, no interval over the draw), and called differences of 1 to 2% noise. Hypothesis (H5b): with 5 independent draws of the n local rows, the M7 headline survives: the first n at which pooled (w=20) is at or below the full-history per-type baseline (grid 100, 300, 1000, 3000) is above 1000 in at least 3 of 4 a2i cities-pairs (Austin, Chicago, SF; so at least 2 of 3 here; i2c follows if time allows). Refuted if it is 1000 or less in 2 of 3. Prior 60%. Secondary: the pooled model beats base_n (same n rows) in fewer than half of the pair/n cells (M7: 6 of 15). Prior 70%.
