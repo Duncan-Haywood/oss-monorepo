@@ -2,6 +2,18 @@
 
 Newest first.
 
+## 2026-11-01 · Milestone 5d: does a harvest-window power cap change 5a's recovery share? (prediction registered before running)
+- Why: 5a and the electric-rung entry (5c) both end "3 s harvest window". Boom lowering lasts seconds, so a recovery device (accumulator or e-machine) with rated power P_max can only take P_max x t_w of the lowering energy. `experiments/regen_window.py` reuses 5a's 5,000 force-model cycles and caps the recovered energy at min(potential x eta_rt, lift-phase shaft energy, P_max x t_w), for window t_w in 1.5, 2.5 (the model's lowering phase) and 3.0 s and P_max in 0.5, 1, 2, 5 and 10 kW (swept, not sourced). Mean-power cap on a flat lowering profile, so a peaky real profile is worse.
+- **Prediction (before running):** at the central point (300 kg, 0.8 m, eta_rt 0.7) the mean recovery power is about 0.7 to 0.9 kW, so a 5 kW cap changes the 3.3% share by under 0.1 points, and only the 0.5 and 1 kW caps bite (central share under 2.5% at 0.5 kW). At the upper corner (600 kg, 1.2 m, 0.92) a 5 kW cap at 2.5 s cuts the 10.0% share by more than 1 point. Prior 65%. Refuted if the central 5 kW change is 0.1 points or more, or the upper-corner 5 kW cut is under 1 point.
+- Limits known in advance: m_arm, dh, eta_rt, P_max swept; flat-profile mean-power cap; no accumulator sizing; no idle time.
+
+### Outcome of 5d (`experiments/regen_window_results.txt`, 3 s, same 5,000 cycles)
+- Median mean recovery power over 2.5 s is 823 W at the central point and 2,921 W at the upper corner. Central: no change from 3.33% / 3.21% (open-centre / load-sensing) at any cap of 1 kW or more with t_w 2.5 or 3 s; 0.5 kW gives 2.02% / 1.96% (under 2.5%). At t_w 1.5 s a 1 kW cap bites (2.43%) and 2 kW does not. Upper corner: 5 kW leaves 10.01% / 10.26% at 2.5 s and 3 s (and 9.99% at 1.5 s); 2 kW gives 7.9% at 2.5 s; 1 kW gives 4.0%.
+- **Central half held; the upper-corner half is refuted:** I predicted a 5 kW cap would cut the corner by over 1 point at 2.5 s; it cuts it by 0.00 points, because the corner's mean power is 2.9 kW, well under 5 kW. The cap only bites below about 3 kW there.
+- Reading: a recovery device needs rated power of roughly 1 kW for a 300 kg arm and 3 kW for the heaviest corner of this sweep to take the whole drop within a 2.5 s lowering; below that the share falls in proportion to power. A flat profile is the best case, so a real peaky lowering needs perhaps 2x more (not measured here). The 1 to 10% lever of 5a does not shrink for devices of ordinary size.
+- Limits: swept masses, heights, efficiencies and ratings; flat profile; no accumulator sizing or price.
+- Next: separate gravity from friction in the lift cap; price an e-machine of 1 to 5 kW (milestone 4 style).
+
 ## 2026-11-01 · Milestone 5c: the electric rung, what battery does the modelled duty cycle imply? (no prediction registered before the first run; stated here honestly)
 - Why: milestone 5 names "the electric rung". The cheapest honest check is against a vendor claim: Volvo ECR25 Electric lists 20 kWh for up to 4 h and 40 kWh for up to 8 h (volvoce.com product page; indicative, depends on application), a mean battery draw of 5 kW. `experiments/electric_rung.py` takes milestone 4's mean pump-shaft power (load factor 0.346, force-model cycles, sourced margins) and divides by a swept motor+inverter+battery chain efficiency (0.80 to 0.92, assumed range).
 - Outcome (`experiments/electric_rung_results.txt`, 1.5 s): mean shaft power is 2.3 kW (load-sensing, any p_n) and 2.3 / 2.7 / 3.4 kW (open-centre at p_n 8 / 20 / 40 bar). Battery draw 2.5 to 4.3 kW, so 20 kWh lasts 4.7 to 8.0 h, against the vendor's 4 h. Matching 5 kW would need a chain efficiency of 0.46 to 0.68, which is not physical.
