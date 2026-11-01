@@ -25,6 +25,20 @@ CLAIM = re.compile(
     r"|\b\d(\.\d)?-star (rated|rating|average)"
     r"|\bas (seen|featured) (on|in)\b"
     r"|\b(award[- ]winning|#1 (rated|choice)|best[- ]selling)\b)", re.I)
+# Cheap superset of CLAIM: every alternative above contains one of these
+# literals (or slash, optional space, 5), so a lowercased line without one
+# cannot match. Plain `in` tests are far faster than CLAIM, whose leading
+# `[\d,]+` alternatives cost ~9 s over the 67 MB tree (now ~1 s).
+PREFILTER_KEYS = ("trusted by", "join ", "joined ", "happy ", "satisfied ", "rated ",
+                  "★", "⭐", "out of 5", "-star ", "as seen ", "as featured ",
+                  "award", "#1 ", "best-selling", "best selling")
+SLASH5 = re.compile(r"/\s*5")
+
+
+def maybe_claim(lowered):
+    return any(k in lowered for k in PREFILTER_KEYS) or SLASH5.search(lowered) is not None
+
+
 # The claim belongs to a named third party, or is a format example.
 ATTRIBUTED = re.compile(
     r"\b(says|said|claims?|claimed|advertis\w+|its own marketing|own marketing"
@@ -34,7 +48,11 @@ ATTRIBUTED = re.compile(
 def check(text):
     """Return [(line_no, snippet)] for unattributed social-proof claims."""
     out = []
+    if not maybe_claim(text.lower()):
+        return out
     for i, line in enumerate(text.splitlines(), 1):
+        if not maybe_claim(line.lower()):
+            continue
         m = CLAIM.search(line)
         if m and not ATTRIBUTED.search(line):
             out.append((i, line.strip()[max(0, m.start() - 40):m.end() + 40]))
