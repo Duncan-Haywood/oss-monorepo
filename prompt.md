@@ -13,7 +13,8 @@ measurements to improve the sub-prompts and the documentation.
 
 Unless the starting message names a task, read the security queue first:
 `git fetch -q --depth=1 origin security-alerts && git show origin/security-alerts:QUEUE.md`.
-Take the top alert with no `security-fix/code-scanning-<n>` branch (`git ls-remote`); its
+If the fetch says `couldn't find remote ref`, the queue is empty (the hourly workflow
+succeeds and creates the branch only when an alert exists): go to step 1. Take the top alert with no `security-fix/code-scanning-<n>` branch (`git ls-remote`); its
 `alerts/<n>.md` says how. `security-alert-queue.yml` regenerates it hourly (owner, 2026-10-30).
 
 ## 1. Route
