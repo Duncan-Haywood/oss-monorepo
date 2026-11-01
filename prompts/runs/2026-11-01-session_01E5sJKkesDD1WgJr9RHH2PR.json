@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12337",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +25,24 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 1,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Did not run venture-preflight (small engine change, no page change)",
+      "did": "ran the affected unit tests",
+      "result": "pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-01-framing-draw-markup-float.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Flagship 1 slice: draw.markup in schedule.mjs. Ran node --test schedule/cli/page tests (110 pass). No CI wait beyond that; venture-preflight not run.",
   "corrections": [],
   "redteam": null
 }
