@@ -13,7 +13,7 @@
 // A wall with `gable: {pitch, peak?}` also gets its triangle (2026-10-29): the
 // courses above the eave line are as long as the triangle is wide at the
 // course's lower edge (boards are cut to the slope), the wrap is the exact
-// triangle area, and openings are only clipped to the eave line.
+// triangle area, and openings that rise into it cut its courses (2026-11-01; before that they were clipped at the eave line).
 // Window and door trim boards (2026-10-30, `openingTrim: true`): per exterior opening a head and two jambs,
 // plus a sill board on windows, cut from `trimWidth` stock (default 3.5 in, a 1x4) and packed with the corner
 // boards' first-fit rule; off by default so earlier totals do not move. Siding runs are not shortened by the trim.
@@ -92,9 +92,10 @@ export function layoutSiding(d, plan) {
     if (w.sheathed === false) continue;
     wallsDone++;
     if (d.starter) starterPieces.push(w.length);
+    const gRise = gableOf(w, height)?.rise ?? 0; // openings may rise into the triangle (clipped at the slope below)
     const ops = (w.openings || []).map((o) => {
       const top = o.headerHeight ?? plan.defaultHeaderHeight;
-      return { x0: Math.max(0, o.offset), x1: Math.min(w.length, o.offset + o.width), y0: Math.max(0, top - o.height), y1: Math.min(height, top) };
+      return { x0: Math.max(0, o.offset), x1: Math.min(w.length, o.offset + o.width), y0: Math.max(0, top - o.height), y1: Math.min(height + gRise, top) };
     });
     if (d.openingTape) for (const o of w.openings || []) { tapeOpenings++; tapeIn += o.width + 2 * flashExt + 2 * (o.height + flashExt); }
     if (d.headFlashing) for (const o of w.openings || []) flashPieces.push(o.width + 2 * flashExt);
@@ -133,9 +134,13 @@ export function layoutSiding(d, plan) {
     courses += nCourses;
     for (let k = 0; k < nCourses; k++) {
       const y0 = k * exposure, y1 = Math.min(height + (g ? g.rise : 0), y0 + exposure);
-      if (y0 >= height - 1e-9) { // wholly in the triangle: the width at the lower edge
-        const up = y0 - height, run = w.length - up / g.s1 - up / g.s2;
-        if (run > 1e-9) runs.push(Math.min(w.length, run));
+      if (y0 >= height - 1e-9) { // wholly in the triangle: the width at the lower edge, less any opening that rises into it
+        const up = y0 - height, left = up / g.s1, right = w.length - up / g.s2;
+        if (right - left <= 1e-9) continue;
+        const tcuts = ops.filter((o) => o.y0 < y1 - 1e-9 && o.y1 > y0 + 1e-9 && o.x1 > left + 1e-9 && o.x0 < right - 1e-9).sort((a, b) => a.x0 - b.x0);
+        let tx = left;
+        for (const o of tcuts) { if (o.x0 > tx + 1e-9) runs.push(o.x0 - tx); tx = Math.max(tx, o.x1); }
+        if (right > tx + 1e-9) runs.push(right - tx);
         continue;
       }
       // openings that cut this course, left to right; overlapping ones merge into one gap

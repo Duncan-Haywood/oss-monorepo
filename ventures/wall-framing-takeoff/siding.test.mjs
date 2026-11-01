@@ -53,6 +53,19 @@ test("a gable end counts its triangle, by hand", () => {
   assert.ok(Math.abs(s.runFeet * 12 - (16 * 120 + 120 + 96 + 72 + 48 + 24)) < 1e-9);
 });
 
+test("an opening that rises into the gable triangle cuts its courses and the wrap, by hand (2026-11-01)", () => {
+  // 120 wide, 6:12, eave 96, rise 30; window x 50..70, y 84..108 (head 108 is 12 in into the triangle)
+  const p = plan([{ id: "G", length: 120, gable: { pitch: 6 }, openings: [{ kind: "window", offset: 50, width: 20, height: 24, headerHeight: 108 }] }]);
+  const s = layoutSiding({ waste: 0, exposure: 6, stock: 240 }, p);
+  // courses y 0..78 (13): whole 120. Course 78..84: whole. Courses 84..90, 90..96: cut -> 50 + 50 each.
+  // triangle: up 0 (y96..102): left 0, right 120 -> 50 + 50; up 6 (102..108): left 12, right 108 -> 38 + 38;
+  // up 12 (108..114): head at 108 so not cut -> width 72; up 18: 48; up 24: 24
+  const expect = 14 * 120 + 2 * 100 + 100 + 76 + 72 + 48 + 24;
+  assert.ok(Math.abs(s.runFeet * 12 - expect) < 1e-9, `${s.runFeet * 12} vs ${expect}`);
+  // wall area less the full window (20 x 24), now that none of it is clipped away
+  assert.ok(Math.abs(s.netSqFt - (120 * 96 + 0.5 * 120 * 30 - 20 * 24) / 144) < 1e-9);
+});
+
 test("an off-centre peak: the far side has the steeper-or-shallower pitch to the same peak", () => {
   // 100 wide, peak at 25, 12:12 -> rise 25; far slope 25/75; up=10 -> 100 - 10 - 30 = 60
   const s = layoutSiding({ waste: 0, exposure: 10, stock: 240, height: 96 }, plan([{ id: "G", length: 100, gable: { pitch: 12, peak: 25 } }]));
