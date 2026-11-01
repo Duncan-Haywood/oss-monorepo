@@ -1,5 +1,6 @@
 ---
 title: "Bulgaria's e-invoicing consultation closed on 23 October; the outcome isn't public yet"
+seo_title: "Bulgaria's e-invoicing consultation closed 23 October; no outcome yet"
 date: 2026-10-25
 description: "Bulgaria's e-invoicing consultation closed on 23 October 2026; no report on comments or government decision was public as of 25 October."
 tags: [e-invoicing, bulgaria, vat]

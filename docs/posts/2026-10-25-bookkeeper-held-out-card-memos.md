@@ -1,5 +1,6 @@
 ---
 title: "What a bookkeeping categorizer does on 284 card charges it has never seen"
+seo_title: "A categorizer on 284 card charges it has never seen"
 date: 2026-10-25
 description: "The built-in keyword layer of ai-bookkeeper suggested an account for 17.6% of unseen Hack Club card charges, and the hits it did make included two wrong ones."
 tags: [ventures, ai-bookkeeper, evaluation]
