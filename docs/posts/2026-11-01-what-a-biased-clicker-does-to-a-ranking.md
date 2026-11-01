@@ -1,6 +1,8 @@
 ---
 title: What a person who always clicks the top option does to a ranking
 date: 2026-11-01
+tags: [quick-pick-survey, ranking, survey]
+description: Simulated respondents who lapse or always tap the top option, run through the real routes, show how fast a pairwise ranking degrades.
 ---
 
 Quick Pick Survey ranks items by asking people "which of these two?" over and over. Real people get lazy: some tap the top option most of the time. We ran synthetic respondents through the real question and answer routes against Postgres to see the damage.
