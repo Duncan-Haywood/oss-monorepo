@@ -1,5 +1,6 @@
 ---
 title: "Fifteen minutes: a short story about arsenic, deep wells and a village's drinking water"
+seo_title: "Fifteen minutes: a short story about arsenic, deep wells and a village"
 date: 2026-10-24
 description: "A new free AI-written short story turns a real hydrogeology worry, deep irrigation wells drawing arsenic toward drinking wells, into a village decision."
 tags: [fiction, hearth-and-horizon, bangladesh, groundwater]

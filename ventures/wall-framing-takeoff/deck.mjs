@@ -238,7 +238,7 @@ export function layoutDeck(d) {
   return {
     ok: true, id, width: d.width, depth: d.depth, height: d.height, joistSize: joist, beamSize: beam, beamPlies: plies, postSize, spacing, freestanding, overhang,
     centres, joists, rims, posts, postLength: postLen, beamPieces, beamBoards, concrete, rows, deckBoards, borderBoards, borderCourses: nb, fieldWidth: fieldW, fieldDepth: fieldD, joints, screws, screwBoxes: Math.ceil(screws / screwsPerBox), hardware, railPosts, guard, blocking,
-    postCheck: d.postCheck ? checkDeckPosts({ joistSpan, overhang, posts, postSize, postLength: postLen, beamPlies: plies }, d.postCheck) : undefined,
+    postCheck: d.postCheck ? checkDeckPosts({ joistSpan, overhang, posts, postSize, postLength: postLen, beamPlies: plies, footingDiameter: concrete.diameter }, d.postCheck) : undefined,
     lumber, orders, area, cost: orders.reduce((s, o) => s + o.cost, 0), joistSpan, warnings, notes,
   };
 }
@@ -260,6 +260,7 @@ export function checkDeckPosts(l, spec) {
   if (!inr(spec?.fc, 100, 3000)) errors.push("postCheck.fc is the post's compression parallel to grain in psi (100 to 3000), adjusted by you.");
   if (!inr(spec?.emin, 50000, 1500000)) errors.push("postCheck.emin is the post's minimum modulus of elasticity in psi (50000 to 1500000).");
   if (spec?.fcPerp != null && !inr(spec.fcPerp, 100, 3000)) errors.push("postCheck.fcPerp is the beam's compression perpendicular to grain in psi (100 to 3000).");
+  if (spec?.soilBearing != null && !inr(spec.soilBearing, 500, 10000)) errors.push("postCheck.soilBearing is the allowable soil bearing in psf (500 to 10000), from your soil report or code table.");
   if (errors.length) return { ok: false, errors };
   const side = POST[l.postSize], area = side * side;
   const w = spec.deadPsf + spec.livePsf;
@@ -281,6 +282,12 @@ export function checkDeckPosts(l, spec) {
   if (spec.fcPerp != null) {
     const bearing = l.beamPlies * 1.5 * side * spec.fcPerp;
     out.bearing = { capacity: bearing, utilisation: worstLoad / bearing, passes: worstLoad <= bearing };
+  }
+  if (spec.soilBearing != null) {
+    // Footing: post load over the typed allowable bearing gives the smallest round footing; the footing's own weight is not added.
+    const reqDiameter = (load) => 2 * Math.sqrt(load / spec.soilBearing / Math.PI) * 12;
+    const need = reqDiameter(worstLoad), have = l.footingDiameter;
+    out.footing = { soilBearing: spec.soilBearing, requiredDiameter: need, diameter: have, capacity: spec.soilBearing * Math.PI * (have / 24) ** 2, passes: have + 1e-9 >= need };
   }
   return out;
 }
@@ -305,6 +312,7 @@ export function deckText(l) {
     else {
       out.push(`  Post check (typed figures): worst post ${Math.round(c.worstLoad)} lb of ${Math.round(c.capacity)} lb (${(c.utilisation * 100).toFixed(0)}%), le/d ${c.slenderness.toFixed(1)}, Cp ${c.cp.toFixed(2)} - ${c.passes ? "passes" : "FAILS"}`);
       if (c.bearing) out.push(`    Beam bearing on the post top: ${Math.round(c.bearing.capacity)} lb (${(c.bearing.utilisation * 100).toFixed(0)}%) - ${c.bearing.passes ? "passes" : "FAILS"}`);
+      if (c.footing) out.push(`    Footing on ${c.footing.soilBearing} psf soil: worst post needs ${c.footing.requiredDiameter.toFixed(1)} in round, you have ${c.footing.diameter} in (carries ${Math.round(c.footing.capacity)} lb) - ${c.footing.passes ? "passes" : "FAILS"}; footing weight not added, frost depth and uplift are yours`);
       for (const w of c.warnings) out.push(`    ! ${w}`);
     }
   }

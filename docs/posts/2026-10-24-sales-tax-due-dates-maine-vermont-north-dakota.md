@@ -1,5 +1,6 @@
 ---
 title: "Sales tax due dates: Maine is the 15th, Vermont the 25th, North Dakota month end"
+seo_title: "Sales tax due dates: Maine 15th, Vermont 25th, North Dakota month end"
 date: 2026-10-24
 description: "Most states default to the 20th. Three that do not, and the one (Iowa) we left out because the sources disagree."
 tags: [sales-tax, bookkeeping, open-source]
