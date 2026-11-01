@@ -75,3 +75,15 @@ test("defaults analyze without warnings other than the expected ones", () => {
   assert.equal(a.table.length, 21);
   assert.ok(Number.isFinite(num("1,234.5")));
 });
+
+test("a note with commas keeps every part after the amount", () => {
+  const { rows } = parseReceipts("2020-01-01,10,a,b,c");
+  assert.equal(rows[0].note, "a, b, c");
+});
+
+test("zero years analyzes the start year only; one year adds a row", () => {
+  const a0 = analyze({ ...DEFAULTS, years: 0 });
+  const a1 = analyze({ ...DEFAULTS, years: 1 });
+  assert.equal(a0.table.length, 1);
+  assert.equal(a1.table.length, 2);
+});
