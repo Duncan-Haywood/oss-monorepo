@@ -41,3 +41,14 @@ test("text shows scope, allowances, typed exclusions and no cost words", () => {
   assert.match(t, /Not included: landscaping/);
   assert.doesNotMatch(t, /profit|overhead|contingency/i);
 });
+
+import { proposalHtml } from "./bidletter.mjs";
+test("printable HTML carries the price, escapes typed text, has no script and states a gap", () => {
+  const q = proposal(mk(), { client: "A <b>&</b> Co", project: "Lot 4", terms: ["30% deposit"], exclusions: ["Permits"] });
+  const h = proposalHtml(q);
+  assert.ok(h.includes("A &lt;b&gt;&amp;&lt;/b&gt; Co") && !h.includes("<b>&</b>"));
+  assert.ok(h.includes("1,225.20") && h.includes("30% deposit") && h.includes("Permits"));
+  assert.ok(!/<script/i.test(h));
+  assert.ok(proposalHtml(proposal(mk({ unpriced: ["Hold-downs"] }), { partial: true })).includes("Hold-downs"));
+  assert.ok(proposalHtml(proposal(mk({ unpriced: ["x"] }))).includes("Proposal not issued"));
+});
