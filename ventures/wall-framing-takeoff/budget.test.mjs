@@ -294,3 +294,12 @@ test("dormer framing is priced by board feet and its roof by area, typed prices 
   const none = budget({ orders: [], dormer }, {});
   assert.ok(none.unpriced.some((u) => u.startsWith("Dormer framing lumber")));
 });
+
+test("dormer labor is a typed rate times the dormer roof area, unpriced without a rate", () => {
+  const dormer = { ok: true, parts: [], areas: { roofSqFt: 50 } };
+  const b = budget({ orders: [], dormer }, { laborDormerSqFt: 7 });
+  const l = b.lines.find((x) => x.item === "Dormer framing and roofing");
+  assert.equal(l.amount, 350);
+  const none = budget({ orders: [], dormer }, { laborWallFoot: 1 });
+  assert.equal(none.lines.find((x) => x.item === "Dormer framing and roofing").amount, null);
+});
