@@ -745,3 +745,25 @@ test('saving keeps a bare (unversioned) stored object too', () => {
   m.click('save');
   assert.equal(JSON.parse(m.data.get(SHOP_RATES_KEY)).rates.overheadRate, 12);
 });
+
+// ---------------------------------------------------------------------------
+// Red-team 2026-11-01: the missing-input guard escaped (`&&` -> `||` threw on a
+// renamed field instead of dropping it).
+// ---------------------------------------------------------------------------
+test('a field whose input the page no longer has is dropped without throwing', () => {
+  // `burden` is named by the tag but absent from the page: with the guard
+  // broken, reading `.tagName` of null throws before the bar can render.
+  let m;
+  assert.doesNotThrow(() => {
+    m = mount({ stored: JSON.stringify({ v: 1, rates: { hourlyWage: 31, burdenRate: 22 } }),
+      inputs: { wage: '' } });
+  });
+  assert.equal(m.root.removed, true, 'a missing field removes the bar rather than offering a dead one');
+  assert.equal(m.nodes.wage.value, '', 'and nothing is filled');
+});
+
+test('a non-input element with the right id is not treated as a rate field', () => {
+  const m = mount({ stored: JSON.stringify({ v: 1, rates: { hourlyWage: 31, burdenRate: 22 } }) });
+  assert.equal(m.nodes.wage.value, 31);
+  assert.equal(m.nodes.burden.value, 22);
+});
