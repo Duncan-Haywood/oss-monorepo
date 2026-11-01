@@ -42,6 +42,8 @@
         <div><label for="batteryCostPerKwh">Battery cost ($ per kWh, optional)</label><input id="batteryCostPerKwh" type="text" value=""></div>
         <div><label for="batteryCostPerKw">Inverter and install cost ($ per kW, optional)</label><input id="batteryCostPerKw" type="text" value=""></div>
         <div><label for="usablePct">Usable share of battery capacity (%)</label><input id="usablePct" type="text" value=""></div>
+        <div><label for="roundTripPct">Battery round-trip efficiency (%, blank = 88)</label><input id="roundTripPct" type="text" value=""></div>
+        <div><label for="energyRate">Energy price for losses ($ per kWh, optional)</label><input id="energyRate" type="text" value=""></div>
       </div>
       <p class="note">Rate and ratchet are on your bill or tariff sheet. Battery costs are only used for the payback column.</p>
     </section>
@@ -81,6 +83,7 @@
   </footer>
   <script type="module">
     import { DEFAULTS, EXAMPLE_SETTINGS, parseIntervals, analyze, toCsv, exampleCsv, money, kw, fmtTime } from "./calc.mjs";
+    import { sizeSweep } from "./battery.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (id) => document.getElementById(id);
     const KEYS = Object.keys(DEFAULTS);
@@ -103,6 +106,10 @@
       const hrs = a.hourHits.map((n, i) => [i + ":00", n]).filter((r) => r[1] > 0);
       h += '<div class="finding"><h4>When the peaks happen</h4>' + table(["Hour of day", "Readings within 5% of a monthly peak"], hrs) + "</div>";
       h += '<div class="finding"><h4>What holding demand to a lower cap would do</h4>' + table(["Cap", "Shave", "Saves per year", "Longest stretch above cap", "Battery kWh (usable-adjusted)", "Est. cost", "Payback"], a.caps.map((c) => [kw(c.capKw), kw(c.kwShave), money(c.saving), c.longestMin + " min", c.batteryKwh.toFixed(1), c.cost == null ? "enter costs" : money(c.cost), c.payback == null ? "n/a" : c.payback.toFixed(1) + " yr"])) + "<p>Battery energy is the largest single stretch of demand above the cap. Round-trip losses, degradation, tariff changes, incentives and controls are not modelled. Staggering equipment starts or shifting loads can capture part of the same saving without a battery." + (a.best ? " With your costs the fastest payback in this table is a " + kw(a.best.capKw) + " cap at " + a.best.payback.toFixed(1) + " years." : "") + "</p></div>";
+      const n = (v, d) => { const x = Number(String(v).replace(/[$,%\s]/g, "")); return v !== "" && x > 0 ? x : d; };
+      const st = readAll();
+      const sw = sizeSweep(a, { roundTrip: n(st.roundTripPct, 88) / 100, usablePct: n(st.usablePct, 90), perKwh: n(st.batteryCostPerKwh, 0), perKw: n(st.batteryCostPerKw, 0), energyRate: n(st.energyRate, 0) });
+      h += '<div class="finding"><h4>Battery sizes, dispatched interval by interval</h4>' + table(["Inverter", "Duration", "Nameplate kWh", "Saves per year (net of losses)", "Est. cost", "Payback"], sw.rows.map((r) => [kw(r.kw), r.hours + " h", r.nameplateKwh.toFixed(0), money(r.saving), r.cost == null ? "enter costs" : money(r.cost), r.payback == null ? "n/a" : r.payback.toFixed(1) + " yr"])) + "<p>Unlike the cap table above, each size here is run through your readings: it discharges above the lowest cap it can hold each month and recharges as the cap allows, with the round-trip loss and the inverter limit. It knows the month's load in advance, so a real controller with a forecast will save somewhat less." + (sw.best ? " Fastest payback on your costs: " + kw(sw.best.kw) + " for " + sw.best.hours + " h, " + sw.best.payback.toFixed(1) + " years." : "") + "</p></div>";
       h += '<p><button type="button" class="secondary" id="csv">Download tables (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;
