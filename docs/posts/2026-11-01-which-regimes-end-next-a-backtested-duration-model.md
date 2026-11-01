@@ -1,9 +1,9 @@
 ---
 title: "Democracies age into stability, anocracies never do: a backtested model of regime change since 1800"
-seo_title: "How long do political regimes last? Polity5 survival analysis and 10-year forecasts"
+seo_title: "How long do political regimes last? Polity5 data and forecasts"
 date: 2026-11-01
 tags: [research, civ-patterns, political-science, forecasting, data]
-description: "In 1,387 regimes since 1800, a democracy's yearly chance of ending falls to 0.5% after 40 years, while hybrid regimes stay near 5% forever. A model trained only on the past forecasts 10-year regime change with AUC 0.69."
+description: "In 1,387 regimes since 1800, democracies grow safer with age and hybrid regimes never do. A backtested model forecasts 10-year regime change with AUC 0.69."
 ---
 
 Does a political regime get safer with age? Using the Polity5 dataset (1,387 regime spells in

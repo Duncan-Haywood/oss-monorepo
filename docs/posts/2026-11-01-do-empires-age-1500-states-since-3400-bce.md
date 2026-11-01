@@ -1,9 +1,9 @@
 ---
 title: "Do empires get old? What 1,543 states since 3400 BCE say about how civilizations end"
-seo_title: "How long do empires last? Survival analysis of 1,543 states, 3400 BCE to 2024"
+seo_title: "How long do empires last? 1,543 states from 3400 BCE to 2024"
 date: 2026-11-01
 tags: [research, civ-patterns, history, data]
-description: "Big empires behave as if they never age: their risk of ending is about constant. Small and new states die young. And over a century, the era you live in predicts survival far better than a state's age."
+description: "Big empires never age: their risk of ending is constant. Small states die young. Over a century, the era predicts survival far better than age."
 ---
 
 The story of civilizations is usually told as a life cycle: rise, maturity, decadence, fall. If
