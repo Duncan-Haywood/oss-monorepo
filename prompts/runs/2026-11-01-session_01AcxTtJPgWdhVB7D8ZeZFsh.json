@@ -43,7 +43,10 @@
       "why": "no blog post: a one-milestone programme step; the log and paper section carry the write-up"
     }
   ],
-  "writeups": "aerolog-scaling LOG.md 9q and paper/draft.md Section 4.10a",
+  "writeups": [
+    "research/aerolog-scaling/LOG.md",
+    "research/aerolog-scaling/paper/draft.md"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],
