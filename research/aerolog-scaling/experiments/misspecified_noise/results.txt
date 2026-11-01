@@ -1,0 +1,1 @@
+noise (0.1,) of channel rms, records (2,) phugoid periods, 10 draws per design and scale; scales (0.75,)
