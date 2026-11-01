@@ -55,12 +55,14 @@ check(!/Deadline/.test(await page.textContent("#out")), "deadline field: cleared
 // the activity-costs field: typed dollars by id give spend by month; a bad id or entry is named
 await page.fill("#ac", "roof=9500, walls=$18000");
 check(/Spend by month[^\n]*total \$27,500/.test(await page.textContent("#out")), "activity costs field: spend by month totals the typed costs");
+check((await page.locator("#spend-chart rect").count()) >= 2, "activity costs field: weekly spend chart draws bars");
 await page.fill("#ac", "nope=5");
 check(/Activity costs: no activity with id nope/.test(await page.textContent("#out")), "activity costs field: unknown id is named");
 await page.fill("#ac", "roof=lots");
 check(/Could not read: roof=lots/.test(await page.textContent("#out")), "activity costs field: unreadable entry is named");
 await page.fill("#ac", "");
 check(!/Spend by month/.test(await page.textContent("#out")), "activity costs field: cleared removes the spend lines");
+check((await page.locator("#spend-chart").count()) === 0, "activity costs field: cleared removes the spend chart");
 // the day-ranges field: typed min-max ranges add the Monte Carlo finish; bad entries are named
 await page.fill("#rg", "walls=6-14, roof=4-9");
 const rk = await page.textContent("#out");
