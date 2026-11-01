@@ -368,3 +368,13 @@ test("bid price per sq ft of floor appears only when overhead or profit lifts th
   assert.ok(b.bidPerFloorSqFt > b.perFloorSqFt);
   assert.match(budgetText(b).join("\n"), /Bid price per sq ft of floor framed/);
 });
+
+test("bid price per foot of wall appears only when overhead or profit lifts the bid above cost", () => {
+  const plain = bud(full({ floorSheet: 30 }));
+  assert.equal(plain.bidPerWallFoot, null);
+  const b = bud(full({ floorSheet: 30, overhead: 0.1, profit: 0.1 }));
+  assert.ok(b.wallFeet > 0);
+  assert.equal(b.bidPerWallFoot, +(b.bid / b.wallFeet).toFixed(2));
+  assert.ok(b.bidPerWallFoot > b.perWallFoot);
+  assert.match(budgetText(b).join("\n"), /Bid price per linear foot of wall/);
+});

@@ -203,6 +203,7 @@ export function budget(result, prices = {}, allowances = {}) {
     floorSqFt, perFloorSqFt: floorSqFt && total > 0 ? r2(total / floorSqFt) : null,
     wallFeet: wallFeet || null, perWallFoot: wallFeet && total > 0 ? r2(total / wallFeet) : null,
     bidPerFloorSqFt: floorSqFt && bid > total ? r2(bid / floorSqFt) : null,
+    bidPerWallFoot: wallFeet && bid > total ? r2(bid / wallFeet) : null,
     laborPct: labor > 0 && total > 0 ? r2(100 * labor / total) : null,
     lines, sections, materials, labor, allowances: allowanceTotal, taxRate, tax, contingencyRate: contRate, contingency, total,
     overheadRate: ovhRate, overhead, profitRate: profRate, profit, bid, marginPct,
@@ -225,6 +226,7 @@ export function budgetText(b) {
   if (b.perFloorSqFt != null) out.push(`  Per sq ft of floor framed (${b.floorSqFt} sq ft, one level): ${b.perFloorSqFt.toFixed(2)}${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
   if (b.perWallFoot != null) out.push(`  Per linear foot of wall (${b.wallFeet} ft; whole budget over wall length): ${b.perWallFoot.toFixed(2)}${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
   if (b.bidPerFloorSqFt != null) out.push(`  Bid price per sq ft of floor framed (${b.floorSqFt} sq ft, one level): ${b.bidPerFloorSqFt.toFixed(2)}${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
+  if (b.bidPerWallFoot != null) out.push(`  Bid price per linear foot of wall (${b.wallFeet} ft; whole bid over wall length): ${b.bidPerWallFoot.toFixed(2)}${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
   if (b.unpriced.length) out.push(`  Not in the total, no price typed: ${b.unpriced.join("; ")}. Add them under \`prices\` in the plan.`);
   out.push("  Not included: " + (b.allowances ? "" : "equipment, permits, delivery (type them under `allowances`), ") + "overhead or waste beyond what the takeoff already counts" + (b.lines.some((l) => l.section === "Labor") ? "; labor is only the rates you typed." : "; no labor rate typed."));
   return out;
