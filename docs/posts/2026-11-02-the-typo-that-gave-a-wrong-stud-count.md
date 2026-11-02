@@ -1,6 +1,6 @@
 ---
 title: "The typo that quietly gave a wrong stud count"
-seo_title: "Misspelt settings in construction takeoff software give silent wrong answers"
+seo_title: "Misspelt settings in takeoff software give silent wrong answers"
 date: 2026-11-02
 tags: [wall-framing-takeoff, construction, software-quality]
 description: "A takeoff tool that ignores a misspelt setting orders the wrong lumber without a word. How the wall-framing takeoff now catches it."
