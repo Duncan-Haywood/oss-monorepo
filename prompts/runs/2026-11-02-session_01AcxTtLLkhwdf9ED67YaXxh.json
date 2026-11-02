@@ -43,7 +43,10 @@
       "result": "merged with checks passing locally"
     }
   ],
-  "writeups": "paper/draft.md section 3.4a; research/heavy-hydraulics/LOG.md",
+  "writeups": [
+    "research/heavy-hydraulics/paper/draft.md",
+    "research/heavy-hydraulics/LOG.md"
+  ],
   "goal": null,
   "notes": "Writing step, no new experiment; heavy-hydraulics is deep and each remaining step needs outside data (measured boom trace, vendor quote).",
   "corrections": [],
