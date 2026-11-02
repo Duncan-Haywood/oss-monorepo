@@ -22,6 +22,12 @@ function rng(seed) {
 test("lengths parse the way a framer writes them", () => {
   assert.equal(parseLength("12' 6-1/2\""), 150.5);
   assert.equal(parseLength("12ft 6in"), 150);
+  // curly quotes and one-glyph fractions from phone keyboards
+  assert.equal(parseLength("8\u2019 6\u201d"), 102);
+  assert.equal(parseLength("8\u2019"), 96);
+  assert.equal(parseLength("8' 6\u00bd\""), 102.5);
+  assert.equal(parseLength("5\u00be"), 5.75);
+  assert.equal(parseLength("\u215d\""), 0.625);
   assert.equal(parseLength("150 1/2"), 150.5);
   assert.equal(parseLength("92-5/8"), 92.625);
   assert.equal(parseLength("40'"), 480);

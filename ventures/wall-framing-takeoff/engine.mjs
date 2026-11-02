@@ -131,7 +131,10 @@ export const DEFAULTS = samplePlan();
  */
 export function parseLength(text) {
   if (typeof text === "number") return text;
-  let s = String(text).trim().toLowerCase().replace(/feet|foot|ft/g, "'").replace(/inches|inch|in/g, '"').replace(/″/g, '"').replace(/′/g, "'");
+  let s = String(text).trim().toLowerCase().replace(/feet|foot|ft/g, "'").replace(/inches|inch|in/g, '"').replace(/[″”“]/g, '"').replace(/[′’‘]/g, "'");
+  // Phone keyboards type curly quotes and one-glyph fractions (6½").
+  const GLYPH = { "½": "1/2", "¼": "1/4", "¾": "3/4", "⅛": "1/8", "⅜": "3/8", "⅝": "5/8", "⅞": "7/8" };
+  s = s.replace(/(\d)?([½¼¾⅛⅜⅝⅞])/g, (_, d, g) => (d ? `${d} ${GLYPH[g]}` : GLYPH[g]));
   if (!s) return NaN;
   let feet = 0;
   const fm = s.match(/^(\d+(?:\.\d+)?)\s*'/);
