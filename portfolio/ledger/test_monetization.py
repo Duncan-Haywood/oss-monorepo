@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# Lives in portfolio/ledger/ so the merge checklist's existing pytest line
+# covers it; the module is portfolio/monetization/monetization.py.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "monetization"))
 
 import monetization as m  # noqa: E402
 

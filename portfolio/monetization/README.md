@@ -10,7 +10,8 @@ This directory is where that work lives between sessions:
   and the date read), its stage, and the next step.
 - **[`monetization.py`](monetization.py)**: prints the table and the next
   agent-doable step (`next`), and validates the file (`--check`). Tests:
-  `python3 -m pytest -q portfolio/monetization`.
+  `python3 -m pytest -q portfolio/ledger/test_monetization.py` (kept there so
+  the merge checklist's existing `portfolio/ledger` line runs it).
 - This README: the reasoning, so a later run can disagree with it on purpose.
 
 It is listed as request R-0004 in
