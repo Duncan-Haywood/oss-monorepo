@@ -27,6 +27,16 @@ class PushReachability(unittest.TestCase):
     def test_push_with_no_branch_filter_matches_main(self):
         self.assertTrue(pushes(wf("on:\n  push:\n    paths: ['a/**']\njobs: {}\n")))
 
+    def test_bare_push_key_with_no_config_is_reachable(self):
+        self.assertTrue(pushes(wf("on:\n  push:\njobs: {}\n")))
+
+    def test_missing_snapshot_is_reported_not_silently_passed(self):
+        import pathlib
+        with unittest.mock.patch.object(ps, "SNAPSHOT", pathlib.Path("/nonexistent/snap.yaml")):
+            problems = ps.check([])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("is missing", problems[0])
+
     def test_push_to_other_branches_only_is_not_reachable(self):
         self.assertFalse(pushes(wf("on:\n  push:\n    branches: [release]\njobs: {}\n")))
 
