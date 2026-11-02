@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
-for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html"]) {
+for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html", "ventilation-calculator.html"]) {
   test(`${name} carries the disclaimer, privacy line and sponsor link`, () => {
     const html = page(name);
     assert.match(html, /No warranty/);
@@ -520,7 +520,7 @@ test("the change order page: FAQ matches its data, the sample diffs as a hand su
 });
 
 test("every page links to every other page (internal linking for readers and crawlers)", () => {
-  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "schedule-calculator", "bid-leveling-calculator", "change-order-calculator"].map((n) => n + ".html");
+  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "schedule-calculator", "bid-leveling-calculator", "change-order-calculator", "ventilation-calculator"].map((n) => n + ".html");
   for (const f of pages) {
     const html = page(f);
     for (const other of pages) if (other !== f) assert.ok(html.includes(`<a href="${other}">`), `${f} does not link ${other}`);
@@ -564,4 +564,24 @@ test("the change-order card saves a budget as the original and diffs the next on
   assert.match(html, /import \{ budgetDiff \} from "\.\/compare\.mjs"/);
   assert.match(html, /budgetDiff\(coBase, last\.budget\)/);
   assert.match(html, /<code>change_order_saved<\/code>/);
+});
+
+test("the ventilation calculator page: FAQ matches its data, default inputs give the 24 x 40 ft attic's figures", async () => {
+  const html = page("ventilation-calculator.html");
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("([\w-]+)"\)/g)) assert.ok(ids.has(m[1]), m[1]);
+  const { layoutVentilation } = await import("./ventilation.mjs");
+  const roof = { ok: true, shape: "gable", width: 288, length: 480, spacing: 16 };
+  // hand: 960 sq ft / 150 = 6.4 sq ft = 921.6 sq in; half high = 460.8 / 18 = 25.6 ft -> 7 four-foot pieces; 460.8 / 56 -> 9 soffit units
+  const s = layoutVentilation({ ratio: 150, ridgeVent: true, ridgeNfaPerFt: 18, soffitUnitNfa: 56, soffitUnitWidth: 16 }, roof);
+  assert.equal(Math.round(s.requiredSqIn), 922);
+  assert.equal(s.ridgeFeetUsed.toFixed(1), "25.6");
+  assert.equal(s.ridgePieces, 7);
+  assert.equal(s.soffitUnits, 9);
+  assert.equal(Math.round(layoutVentilation({ ratio: 300 }, roof).requiredSqIn), 461);
 });
