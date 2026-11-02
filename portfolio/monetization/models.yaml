@@ -71,30 +71,28 @@ products:
       printable schedules, a public standings page they can host themselves,
       and an export to the calendar formats clubs ask for. Donations stay on.
     first_offer: season pack, one-off per season
-    price_hypothesis: "$10 to $19 a season (untested; sits under every comparable below, and LeagueLobster's free tier up to 25 teams caps what a small league will pay)"
+    price_hypothesis: "$10 to $25 a season, one-off (untested; below every comparable's monthly price)"
     comparables:
-      - what: Diamond Scheduler (Cactusware), per user per year
-        price: $99 a year on Capterra; $199 a year on Jersey Watch (sources disagree; vendor page shows no price)
-        source: https://www.capterra.com/p/178117/Diamond-Scheduler/
+      - what: TeamSnap (rec league or travel club plan)
+        price: from $29 a month
+        source: https://www.krowdbase.com/software/teamsnap  # aggregator listing, vendor page blocked
         read: 2026-11-02
-      - what: TeamSnap per team (annual billing) and Clubs & Leagues tier
-        price: Basic $6.67 / Premium $10 / Ultra $12.50 a month per team; Clubs & Leagues from $599 a year (aggregator figures, custom-quoted by the vendor)
-        source: https://exercise.com/learn/teamsnap-software-cost
+      - what: SportsEngine (league/club management)
+        price: from $79 a month
+        source: https://www.krowdbase.com/software/sportsengine
         read: 2026-11-02
       - what: LeagueLobster
-        price: free simple scheduler up to 25 teams; paid from 9.95 a month on GetApp (aggregator, may be out of date)
+        price: from $9.95 per feature per month; free plan exists
         source: https://www.getapp.com/all-software/a/leaguelobster/
         read: 2026-11-02
     stage: planned
     next: >-
-      Comparables read 2026-11-02 (all third-party listings: leagueapps.com and
-      jerseywatch.com did not resolve from the cloud session, and vendor pages
-      should be re-read when reachable). Finding: a free tier up to 25 teams
-      exists, so the paid extra must not be the schedule itself. Build the
-      first extra dark, reusing wall-framing-takeoff's checkout.mjs/licence.mjs:
-      a print-ready season pack (branded team schedules, one poster page,
-      standings sheet) behind a licence key. Start after wall-framing-takeoff
-      reaches test-paid, or earlier if the component is copied unchanged.
+      Comparables are aggregator figures; confirm on the vendors' own pricing
+      pages when a host allows it. A one-off season pack at $10 to $25 sits
+      under all three monthly prices. Build the first extra: a branded
+      printable schedule (print CSS plus an organiser name and logo field),
+      dark until a checkout link is set, following wall-framing-takeoff's
+      licence-key pattern in ventures/wall-framing-takeoff.
     next_owner: false
 
   - venture: shift-roster-builder
