@@ -3,6 +3,19 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-11-02 · Milestone 9r: does an AR(2) estimator close 9p's half-recovery on AR(2) noise? (planned before running)
+- Why: 9p/9q's "Next" (AR(2) estimator). 9p's AR(1) whitening recovered only half of the gust-share loss when the noise was AR(2); is that the wrong-estimator-family penalty, or a ceiling?
+- Plan (`experiments/ar2_estimator/run.py`): 9p's script and seed (20261103; white and coloured-unweighted rows should reproduce 9p). Third column: iterated GLS (two passes) whose whitening is AR(2), coefficients from Yule-Walker on the pooled residuals (falls back to AR(1) if the estimate is non-stationary). Start-up rows use an approximate scaling. 26 designs, 10 draws, 2 periods, 10% noise.
+- **Predictions (before running):** (1) AR(2) GLS beats 9p's AR(1) GLS in gust share (80%) by at least 3 points (prior 65%). (2) It recovers at least 9 of the 12-point gap, i.e. 75% (prior 45%). (3) Fit failures at most twice white's (prior 70%). Refuted: (1) gain under 3 points; (3) more than twice.
+- Limits known in advance: estimator order matches the generator, which flatters it; one AR(2) shape; 10 draws on a third of the designs; one seed.
+
+### Outcome of 9r (`experiments/ar2_estimator/`: `run.py`, `results.txt`; about 25 min wall)
+- 26 designs, 260 draws each, 2 periods, 10% noise, AR(2) noise (phi 1.2, -0.4). White and coloured-unweighted rows reproduce 9p exactly. Coloured with AR(2) iterated GLS: fit failures 0; median |error| in phugoid, short-period frequency and damping ratio 0.15, 1.34, 2.36% (9p AR(1) GLS 0.16, 1.57, 2.43; unweighted 0.17, 1.41, 2.57); share of draws within 10% gust 77% (AR(1) GLS 80%, unweighted 74%, white 86%); designs with 90% of draws within 10% gust 11 of 26 (14, 9, 19); median worst gust error 6.4%; median worst mode error 3.8%. Estimated coefficients: phi1 median 1.173 (5th to 95th percentile 1.117 to 1.217), phi2 median -0.396 (-0.440 to -0.344); truth 1.2 and -0.4.
+- **(1) refuted:** AR(2) GLS is 3 points *below* 9p's AR(1) GLS on gust share. **(2) refuted:** it recovers 3 of the 12-point gap (25%). **(3) held** (0 failures).
+- Reading: the coefficients are estimated well, yet the correct-order whitening gains less on gust share than the wrong-order AR(1) one, though its mode errors are slightly smaller (frequency 1.34 against 1.57%, damping 2.36 against 2.43%). So 9p's half-recovery is not an estimator-order penalty, and the gust-share gain from whitening is not reliably tied to noise-model accuracy; the 1.5x gust margin stays the safe figure. Not explained: possible causes are the approximate start-up scaling, the stronger whitening amplifying white-noise-like residual components, or draw noise; none was tested. A 3-point difference on 260 correlated draws is not a significant ordering of the two estimators.
+- Limits: one AR(2) shape; estimator order matches the generator; approximate start-up rows; 10 draws on a third of the designs; one seed.
+- Next: measured IMU noise density; turbulence; thrust law; AIAA template.
+
 ## 2026-11-01 · Milestone 9q: does 9p's half-recovery hold for 1/f (pink) sensor noise? (planned before running)
 - Why: 9p's "Next" (1/f noise untried). Real IMU bias drift is closer to 1/f than to AR(1) or AR(2).
 - Plan (`experiments/pink_noise/run.py`): 9p's script and seed (20261103); the coloured generator is FFT-shaped 1/f noise (power proportional to 1/f), unit variance per channel; estimator still AR(1) iterated GLS. 26 designs, 10 draws, 2 periods, 10% noise.
