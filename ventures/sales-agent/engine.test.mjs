@@ -211,3 +211,32 @@ test("non-English 'not interested' replies close the thread (PT, DE, FR, ES, IT,
   }
   assert.equal(triage({ subject: "Re: hi", body: "Kein Interesse, bitte entfernen Sie mich.", from: "a@b.example" }, "2026-11-02").category, "unsubscribe");
 });
+
+// A stop is sticky (2026-11-02): later messages from the same person in the same batch, or from someone already
+// unsubscribed in the table or on the suppression list, never un-stop them or earn a draft.
+import { runInbox as runInboxSticky } from "./engine.mjs";
+const stickyRun = (bodies, prospects = "email,first_name,company,status\ndana@x.example,Dana,X,active\n", suppression = "") =>
+  runInboxSticky({ replies: bodies.map((body) => ({ from: "dana@x.example", name: "Dana", subject: "Re: hi", body, raw: body })), prospects, suppression, today: "2026-11-02", offer: { sender: "S" } });
+
+test("unsubscribe then an out-of-office keeps the person unsubscribed", () => {
+  const o = stickyRun(["Please remove me from your list.", "I am out of office until Nov 20 with limited access."]);
+  assert.equal(o.prospects[0].status, "unsubscribed");
+  assert.equal(o.prospects[0].paused_until, undefined);
+  assert.equal(o.suppression.length, 1);
+});
+test("unsubscribe then 'tell me more' drafts nothing and asks a person to read both", () => {
+  const o = stickyRun(["Please remove me from your list.", "Sure, tell me more, how about Tuesday?"]);
+  assert.equal(o.prospects[0].status, "unsubscribed");
+  assert.ok(o.items.every((i) => !i.draft));
+  assert.ok(o.tasks.some((t) => /asked to stop/.test(t.task)));
+});
+test("a prospect already unsubscribed in the table gets no draft for a later interested reply", () => {
+  const o = stickyRun(["Sure, tell me more."], "email,first_name,company,status\ndana@x.example,Dana,X,unsubscribed\n");
+  assert.equal(o.prospects[0].status, "unsubscribed");
+  assert.equal(o.items[0].draft, null);
+});
+test("an unlisted prospect on the suppression list gets no draft", () => {
+  const o = stickyRun(["Sure, tell me more."], undefined, "dana@x.example\n");
+  assert.equal(o.items[0].draft, null);
+  assert.notEqual(o.prospects[0].status, "replied");
+});

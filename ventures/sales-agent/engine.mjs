@@ -486,6 +486,18 @@ export function runInbox(input, { triageFn = triage, guessFn = nbGuess } = {}) {
     const set = (k, v, why) => { if (p[k] !== v) { p[k] = v; applied.push(why); } };
     p.last_reply = today;
 
+    // A stop is sticky (2026-11-02). Someone who asked to stop, or whose address bounced, earlier in this batch, in
+    // the table or on the suppression list stays stopped: a later auto-reply must not un-stop them, and a later
+    // "tell me more" gets no draft until a person has read both messages.
+    const key = emailKey(reply.from || p.email);
+    const stopped = !(t.category === "unsubscribe" || t.category === "bounce") && (p.status === "unsubscribed" || p.status === "bounced" || (key && (suppressedNow.has(key) || suppressedBy(reply.from))));
+    if (stopped) {
+      const reopens = t.category === "interested" || t.category === "question" || t.category === "objection";
+      if (reopens) tasks.push({ email: p.email, task: `${p.email} asked to stop (or bounced) and has now written again: "${t.evidence || reply.body.split(/\n/)[0].slice(0, 120)}". Nothing was drafted and nothing was sent. Read both messages and decide; honour the first request unless they clearly asked to hear from you.` });
+      items.push({ n: i + 1, from: reply.from, name: reply.name, subject: reply.subject, body: reply.body, triage: t, applied: ["Left as stopped: they asked to stop (or bounced) earlier, and nothing in this message changes that"], draft: null, lint: null, approval: "nothing_to_send", known: Boolean(known) });
+      continue;
+    }
+
     switch (t.category) {
       case "unsubscribe":
         set("status", "unsubscribed", "Stopped every touch to this person");
