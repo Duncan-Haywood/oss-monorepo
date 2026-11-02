@@ -20,6 +20,8 @@ import { configFromEnv } from "../byok.mjs";
 import { buildMessage, sendMail } from "./smtp.mjs";
 import { oauthWanted, tokenProvider } from "./oauth.mjs";
 import { runResearch } from "../research.mjs";
+import { runPrep } from "../prep.mjs";
+import { runFollowUp } from "../followup.mjs";
 import { crmFromEnv } from "./crm.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -76,6 +78,17 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
     save();
     return { added, skipped, held: d.held.length, dropped: d.dropped.length };
   }
+
+  /** M7d: call prep and post-call follow-up from what this agent already holds (the person's replies, the prospects table, the suppression list). Sends nothing; a follow-up draft is returned for a person to copy, not queued. */
+  function callInput(email, notes) {
+    const addr = String(email || "").trim().toLowerCase();
+    if (!/^[\w.+'-]+@[\w.-]+\.\w+$/.test(addr)) return null;
+    const thread = state.items.filter((x) => !x.outbound && String(x.from).toLowerCase() === addr)
+      .map((x) => `From: ${x.from}\nSubject: ${x.subject}\nDate: ${x.receivedAt || ""}\n\n${x.body}`).join("\n---\n");
+    return { email: addr, prospects: state.prospects, replies: thread, notes: String(notes || "").slice(0, 20000), suppression: state.suppression.map((s) => s.email).join("\n"), offer, today: iso(now()) };
+  }
+  function prep(email, notes) { const i = callInput(email, notes); if (!i) return { error: "send { email, notes? }" }; const d = runPrep(i); audit("prep", { email: i.email, stop: d.stop || undefined, known: d.known.length }); return d; }
+  function followUp(email, notes) { const i = callInput(email, notes); if (!i) return { error: "send { email, notes }" }; const d = runFollowUp(i); audit("followup_drafted", { email: i.email, approval: d.approval }); return d; }
 
   async function poll() {
     const oauth = oauthWanted(env);
@@ -181,6 +194,12 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
       if (!b.crm) return json(res, 422, { error: "send { crm: <CSV text>, icp?, top? }" });
       return json(res, 200, queueResearch(b));
     }
+    if (req.method === "POST" && (url.pathname === "/api/prep" || url.pathname === "/api/followup")) {
+      let raw = ""; for await (const ch of req) { raw += ch; if (raw.length > 100000) return json(res, 413, { error: "too large" }); }
+      let b; try { b = JSON.parse(raw); } catch { return json(res, 400, { error: "bad json" }); }
+      const r = url.pathname === "/api/prep" ? prep(b.email, b.notes) : followUp(b.email, b.notes);
+      return json(res, r.error ? 422 : 200, r);
+    }
     if (req.method === "POST" && url.pathname === "/api/crm-stage") {
       let raw = ""; for await (const ch of req) { raw += ch; if (raw.length > 10000) return json(res, 413, { error: "too large" }); }
       let b; try { b = JSON.parse(raw); } catch { return json(res, 400, { error: "bad json" }); }
@@ -195,7 +214,7 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
     }
     json(res, 404, { error: "not found" });
   });
-  return { server, state, poll, ingest, queueResearch, decide, send, moveDeal, audit };
+  return { server, state, poll, ingest, queueResearch, prep, followUp, decide, send, moveDeal, audit };
 }
 
 function page(state, token, canSend, canMove) {
