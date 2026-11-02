@@ -3,7 +3,7 @@ title: "Thirty-four distribution channels, zero live: the missing piece was a ch
 seo_title: "Why none of our 34 automated distribution channels is live yet"
 date: 2026-11-02
 tags: [distribution, marketing, process]
-description: Every channel the portfolio built for posting and publishing does a dry run and stops. What stops it is eleven accounts and their switches, now listed in one generated checklist with one sign-up address.
+description: All 34 distribution channels are built and stop at a dry run. One generated checklist and one sign-up address now list the 11 accounts that switch them on.
 ---
 
 The portfolio has 34 distribution channels in `portfolio/distribution/channels.yaml`: Bluesky and Mastodon bots, dev.to and Hashnode cross-posts, npm, PyPI, Homebrew, container images, weekly GitHub releases, Threads, a Facebook Page, Instagram, an opt-in email list, and drafts for the places that forbid automation. All 34 sit on the `artifact` rung. Each one is built, tested and does a dry run. None posts anything.
