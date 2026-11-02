@@ -36,7 +36,8 @@ async function inflateRawAsync(bytes) {
   const ds = new DecompressionStream("deflate-raw");
   const w = ds.writable.getWriter();
   w.write(bytes).catch(() => {}); w.close().catch(() => {});
-  return new Uint8Array(await new Response(ds.readable).arrayBuffer());
+  try { return new Uint8Array(await new Response(ds.readable).arrayBuffer()); }
+  catch { throw new Error("damaged .xlsx: a worksheet part would not decompress"); }
 }
 
 export async function xlsxToCsv(bytes) {
