@@ -1,0 +1,63 @@
+# Writes the daily direction report (portfolio/direction/daily/<yesterday>.md)
+# every day, and on Mondays the weekly one too, then commits them with
+# LATEST.md/LATEST.json to main so agents can read where effort went and what to
+# pick next (owner request, 2026-11-02: "directional daily and weekly reports of
+# what's getting worked on and what the depth of the projects are ... with
+# suggestions for the agents"). Reads only git history and files: no secrets
+# and no paid API. The report is portfolio/direction/report.py; method in its README.
+name: direction-report
+on:
+  schedule:
+    - cron: '47 0 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: direction-report
+  cancel-in-progress: false
+jobs:
+  report:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 15
+    # The one job, and it commits the reports to main.
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          fetch-depth: 50
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - name: Install PyYAML
+        run: python3 -m pip install --quiet pyyaml
+      # checkout leaves origin/main at depth 50; report.py deepens it to two weeks itself.
+      - name: Daily report
+        run: |
+          python3 portfolio/direction/report.py --write > /dev/null
+      - name: Weekly report (Mondays, or when run by hand)
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$(date -u +%u)" = "1" ] || [ "$EVENT" = "workflow_dispatch" ]; then
+            python3 portfolio/direction/report.py --weekly --write > /dev/null
+          else
+            echo "not Monday; weekly report skipped"
+          fi
+      - name: Commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          git add portfolio/direction/daily portfolio/direction/weekly portfolio/direction/LATEST.md portfolio/direction/LATEST.json
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git -c user.name="direction-report (GitHub Actions)" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "direction: daily report $(date -u -d yesterday +%F)"
+          # main moves every few minutes; these files are only written here, so a rebase is clean.
+          for i in 1 2 3 4; do
+            if git push "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" HEAD:main; then exit 0; fi
+            sleep $((i * 5))
+            git pull -q --rebase "https://github.com/${REPO}.git" main
+          done
+          exit 1
