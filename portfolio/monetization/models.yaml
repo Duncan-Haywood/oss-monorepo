@@ -212,10 +212,16 @@ products:
         price: $38 a month
         source: https://www.nerdwallet.com/article/small-business/quickbooks-pricing
         read: 2026-11-02
-    stage: planned
+    stage: built-dark
     next: >-
-      None until a real labelled book is measured (portfolio/flagships.yaml,
-      ai-bookkeeper item 0).
+      Built 2026-11-02 and dark: the branded close pack (closepack.mjs: cover
+      with logo and period, close checks with open findings first, profit and
+      loss, balance sheet, notes; licence.mjs and checkout.mjs copied from the
+      other dark paths; closepack.test.mjs covers escaping, the logo and
+      colour allow-lists and the fresh-import findings). It is presentation
+      only: the free tool keeps every number, check and export. Not on the
+      page or CLI yet, and still not to be sold until the categoriser is
+      measured on a real labelled book (item 0), so the row stays parked.
     next_owner: false
     parked: true
 
