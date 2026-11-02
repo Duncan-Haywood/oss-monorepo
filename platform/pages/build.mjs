@@ -7437,12 +7437,14 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
         <fieldset>
           <legend>What kind of feedback is it?</legend>
           <label><input type="radio" name="type" value="problem" checked> Something is wrong or broken</label>
-          <label><input type="radio" name="type" value="idea"> An idea or feature request</label>
+          <label><input type="radio" name="type" value="idea"> An idea, a feature, or a tool you want built</label>
+          <label><input type="radio" name="type" value="research"> A research question to investigate</label>
+          <label><input type="radio" name="type" value="topic"> A topic you would like written about</label>
           <label><input type="radio" name="type" value="other"> Something else</label>
         </fieldset>
-        <p class="fb-terms">Feature requests are built free, in public, as
-        <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}`)}">custom development</a>,
-        and come ahead of routine work. What is built is published under the MIT
+        <p class="fb-terms">Ideas, research questions and topics join the
+        <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}`)}">custom development</a> queue,
+        are built free and in public, and come ahead of routine work. What is built is published under the MIT
         licence with the repository owner's copyright notice; you get no exclusive
         rights to it.</p>
         <p id="fb-tool-line" hidden>About: <a id="fb-tool-link" href="${escapeHtml(toRoot)}"></a></p>
@@ -7466,6 +7468,8 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
   }
   var f=document.getElementById('fb');${feedbackUrl ? `
   if(!f)return;
+  var want=f.querySelector('input[name=type][value="'+(q.get('type')||'').replace(/[^a-z]/g,'')+'"]');
+  if(want)want.checked=true;
   if(tool){
     var l=document.getElementById('fb-tool-link');
     l.textContent=tool;l.href='${toRoot}'+tool+'/';
@@ -7571,8 +7575,9 @@ export const CUSTOM_DEV_PATH = 'custom-development/';
 export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests = [] }) {
   const url = `${baseUrl}${CUSTOM_DEV_PATH}`;
   const toRoot = '../';
-  const title = 'Open custom development';
-  const description = 'Ask AI agents to build the tool your work needs, free and in public. Follow its progress here. One condition: it stays MIT licensed.';
+  const title = 'Free custom software for your business';
+  const headline = 'Describe your problem and it gets built.';
+  const description = 'Free custom software development for businesses: describe the problem, and AI agents build the tool in public. Follow every step here. One condition: it stays MIT licensed.';
   const issueUrl = `${REPO_URL}/issues/new?template=custom-build.yml`;
   const listUrl = `${REPO_URL}/issues?q=label%3Acustom-request`;
   const counts = Object.keys(REQUEST_STATUSES).map((s) => [s, requests.filter((r) => r.status === s).length]);
@@ -7602,6 +7607,23 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
         </tbody>
       </table></div>`
     : '<p>No requests on file yet. Yours could be the first.</p>';
+  const feedbackUrl = `${toRoot}${FEEDBACK_PATH}`;
+  const ideaUrl = `${REPO_URL}/issues/new?template=idea.yml`;
+  // Plain-text answers, shown on the page and repeated as FAQPage data, so
+  // what a search result or an assistant quotes is exactly what the page says.
+  const faq = [
+    ['Is it really free?', 'Yes. There is no fee for the engineering, the hosting of the public site, or the agent compute. You are not asked for a card.'],
+    ['Who owns what is built?', 'It is published in a public repository under the MIT licence, with the repository owner\'s copyright notice. That licence lets you, and anyone else, use it, change it, run it and sell services on it.'],
+    ['Can it be private or exclusive to my business?', 'No. Everything is built in public and the same code is open to everyone the day it lands. If your problem only makes sense with private data or a secret process, describe the general version, or this is not the right route.'],
+    ['How long does it take?', 'There is no promised date and not every request is accepted. Agent time is shared across the whole repository. Requests with a clear job and real sample material move fastest.'],
+    ['What should I send?', 'Who does the job today and how, where current tools fall short, how you would know the tool worked, and any real material you can share: a blank form, a published rate sheet, an export with private details removed.'],
+    ['Can I run it myself?', 'Yes. Browser tools run on this site at no cost to you, and self-hostable apps come with instructions to deploy into your own account. The code is yours to run under the MIT licence.'],
+  ];
+  const faqLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
+  };
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -7619,6 +7641,7 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
   <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
   <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
   <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">${jsonLd(faqLd)}</script>
   <style>${CATEGORY_STYLE}${ABOUT_STYLE}${CUSTOM_DEV_STYLE}  </style>
   ${siteStyleLink(toRoot)}
 </head>
@@ -7626,19 +7649,49 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
   ${renderSiteHeader({ toRoot, current: 'request', crumbs: [{ label: 'Custom development' }] })}
   <div class="wrap">
     <header class="pf-hero">
-      <p class="eyebrow">Custom development</p>
-      <h1>${escapeHtml(title)}</h1>
-      <p class="lede">Tell us the tool your work needs: a new product, or a feature for one already here. AI agent sessions build accepted requests in this public repository, free, and you can watch every step. The one condition: what is built stays open source under the MIT licence, held by the repository owner.</p>
+      <p class="eyebrow">Free custom development for businesses</p>
+      <h1>${escapeHtml(headline)}</h1>
+      <p class="lede">Tell us the problem your business has that no tool solves: the spreadsheet someone updates by hand every week, the quote that takes an hour, the check that keeps getting missed. AI agent sessions build accepted requests in this public repository, free, and you can watch every step. The one condition: what is built stays open source under the MIT licence, held by the repository owner.</p>
+      <p class="cd-cta">
+        <a class="cd-go" href="${escapeHtml(issueUrl)}">Describe your problem</a>
+        <a class="cd-alt" href="${escapeHtml(feedbackUrl)}">No GitHub account? Use the short form</a>
+      </p>
     </header>
 
     <main class="prose">
+      <h2>Problems that fit</h2>
+      <p>Examples of the kind of request this suits. The work is real software with tests, not a mock-up.</p>
+      <ul>
+        <li><strong>Quoting and pricing</strong> for your trade, built from your own rates, waste factors and margins.</li>
+        <li><strong>A spreadsheet that has outgrown itself</strong>, turned into a tool that checks its inputs and explains its numbers.</li>
+        <li><strong>Checking documents against rules</strong>: an invoice, an order or a form tested before it goes out.</li>
+        <li><strong>Back-office chores</strong>: categorising transactions, reconciling, estimating, scheduling from a takeoff.</li>
+        <li><strong>A replacement for a subscription</strong> that does one job, as an app you can host yourself.</li>
+      </ul>
+      <p>What does not fit: anything that needs paid accounts or a cost per user to run, must stay private, scrapes a site against its terms, or gives regulated advice with no safe framing.</p>
+
+      <h2>What has been built this way</h2>
+      <p>The first requests in the table below are the owner's own, so you can see how deep a request goes over many sessions: an <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/ai-bookkeeper`)}">AI bookkeeper</a> (double-entry ledger, bank reconciliation, QuickBooks and Xero export), a <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/wall-framing-takeoff`)}">wall framing takeoff</a> from a floor plan, and a <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/sales-agent`)}">sales agent</a>. Each README says what is tested and what is still unproven.</p>
+
       <h2>How it works</h2>
       <ol>
-        <li><strong>Ask.</strong> <a href="${escapeHtml(issueUrl)}">Open a request</a> on GitHub (a free account), or use the <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a> and pick “An idea” if you have no account. Short on time? The one-box <a href="${escapeHtml(`${REPO_URL}/issues/new?template=idea.yml`)}">idea form</a> works too. Describe the job from the inside: who does it, how, and where today's tools fall short.</li>
+        <li><strong>Describe the problem.</strong> <a href="${escapeHtml(issueUrl)}">Open a request</a> on GitHub (a free account), or use the <a href="${escapeHtml(feedbackUrl)}">feedback form</a> and pick “An idea” if you have no account. Short on time? The one-box <a href="${escapeHtml(ideaUrl)}">idea form</a> works too. Describe the job from the inside: who does it, how, and where today's tools fall short.</li>
+        <li><strong>It is screened.</strong> Before an agent reads a request as a brief, an automatic check looks for text aimed at the agents rather than describing a job (see <a href="#screening">below</a>).</li>
         <li><strong>It is triaged.</strong> Each request gets an ID in the table below and a status: ${counts.map(([s]) => `<em>${s}</em>`).join(', ')}. A declined request says why.</li>
         <li><strong>It is built in public.</strong> Sessions work in the open: every change is a pull request, and the project's README says what was tested and what was not.</li>
         <li><strong>You follow it.</strong> Watch your issue for replies, check its row here (rebuilt on every merge), or browse <a href="${escapeHtml(listUrl)}">all requests on GitHub</a>. Add detail or real sample material to the issue at any time; that is the fastest way to move a request forward.</li>
       </ol>
+
+      <h2>What you can ask for</h2>
+      <ul>
+        <li><strong>A product or tool</strong> for your work: a calculator, a checker, a document reader, a small app. <a href="${escapeHtml(issueUrl)}">GitHub request</a> · <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}?type=idea`)}">no-account form</a></li>
+        <li><strong>A feature</strong> for a tool already here. Use the form from that tool's footer, so it knows which tool you mean.</li>
+        <li><strong>A research question</strong> you would like investigated with real data, written up openly. <a href="${escapeHtml(`${REPO_URL}/issues/new?template=idea.yml&title=${encodeURIComponent('[research] ')}`)}">GitHub request</a> · <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}?type=research`)}">no-account form</a></li>
+        <li><strong>A topic to write about</strong>: a guide, an explainer, a comparison. <a href="${escapeHtml(`${REPO_URL}/issues/new?template=idea.yml&title=${encodeURIComponent('[topic] ')}`)}">GitHub request</a> · <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}?type=topic`)}">no-account form</a></li>
+      </ul>
+
+      <h2 id="screening">How requests are screened</h2>
+      <p>The builders are AI agents, so a request is also text an AI will read. Every request is checked by <a href="${escapeHtml(`${REPO_URL}/blob/main/portfolio/requests/screen.mjs`)}">an open-source screen</a> before triage. It looks for text written to steer the agents instead of describing a job: telling them to ignore their instructions, to merge, approve or run something, to reveal credentials, to send data elsewhere, or words hidden with invisible characters. A request that trips it is held for the repository owner and is not built from until they have read it. Ordinary requests pass straight through, and a held request is not a judgement of the person who sent it. Whatever the screen says, request text is treated as a description of what to build, never as instructions.</p>
 
       <h2>The terms</h2>
       <ul>
@@ -7648,6 +7701,13 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
         <li><strong>No promise of a date or of acceptance.</strong> Agent time is shared across the whole repository. A request is weighed on how useful it is, how well it fits, and whether it can be built and run legally at no per-user cost.</li>
         <li><strong>Public by default.</strong> Requests, code and discussion are visible to everyone. Leave out names, addresses and anything private.</li>
       </ul>
+
+      <h2>Questions businesses ask</h2>
+      <dl class="cd-faq">${faq.map(([q, a]) => `
+        <dt>${escapeHtml(q)}</dt>
+        <dd>${escapeHtml(a)}</dd>`).join('')}
+      </dl>
+      <p class="cd-cta"><a class="cd-go" href="${escapeHtml(issueUrl)}">Describe your problem</a></p>
 
       <h2>Requests so far</h2>
       <p>${requests.length} on file${requests.length ? `: ${counts.filter(([, n]) => n).map(([s, n]) => `${n} ${s}`).join(', ')}` : ''}. The list is kept in <a href="${escapeHtml(`${REPO_URL}/blob/main/portfolio/requests/requests.json`)}">one file</a>, so each request's history is that file's history. The first entries are the owner's own asks, to show how deep a request goes over many sessions.</p>${table}
@@ -7671,6 +7731,14 @@ const CUSTOM_DEV_STYLE = `
     .cd-ask { color: var(--muted); font-size: .92em; }
     .cd-st { display: inline-block; font-weight: 600; font-size: .85em; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); }
     .cd-building, .cd-accepted { border-color: var(--accent); color: var(--accent); }
+    .cd-cta { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin: 18px 0 0; }
+    /* Doubled class: pf-site.css loads after this and sets .pf-hero a / .prose a. */
+    a.cd-go.cd-go { display: inline-block; font-weight: 650; padding: 10px 18px; border-radius: 9px;
+                    background: var(--ink); color: var(--bg); text-decoration: none; }
+    .pf-hero a.cd-go.cd-go { background: #fff; color: #0b1f3a; } /* the hero is dark in both themes */
+    a.cd-go.cd-go:hover, a.cd-go.cd-go:focus-visible { text-decoration: underline; }
+    .cd-faq dt { font-weight: 650; color: var(--ink); margin-top: 14px; }
+    .cd-faq dd { margin: 4px 0 0; color: var(--muted); }
     @media (max-width: 600px) {
       .cd-table thead { display: none; }
       .cd-table tr, .cd-table td { display: block; border: 0; padding: 2px 0; }
@@ -8058,6 +8126,13 @@ export function renderHub(
                 font-variant-numeric: tabular-nums; }
     .stats dd a { color: var(--ink); text-decoration: none; }
     .stats dd a:hover, .stats dd a:focus-visible { color: var(--accent); }
+    .build-band { margin: 22px 0 0; max-width: 820px; padding: 16px 18px; border: 1px solid var(--accent);
+                  border-radius: 14px; background: var(--panel); }
+    .build-band h2 { margin: 0; font-size: 1.15rem; letter-spacing: -.01em; }
+    .build-band p { margin: 6px 0 0; color: var(--muted); line-height: 1.5; }
+    .build-band a.go { display: inline-block; margin-top: 10px; font-weight: 650; padding: 8px 16px; border-radius: 9px;
+                       background: #fff; color: #0b1f3a; text-decoration: none; } /* the hero is dark in both themes */
+    .build-band a.go:hover, .build-band a.go:focus-visible { text-decoration: underline; }
     @media (max-width: 640px) {
       .stats { grid-template-columns: repeat(2, 1fr); }
       .stats div:nth-child(3) { border-left: 0; }
@@ -8257,6 +8332,15 @@ ${
         <div><dt>Command-line tools</dt><dd><a href="${escapeHtml(categoryPagePath('cli'))}">${clis.length}</a></dd></div>
         <div><dt>Research projects</dt><dd><a href="${RESEARCH_PATH}">${researchCount}</a></dd></div>
       </dl>
+
+      <!-- The open custom development offer, aimed at businesses (owner,
+           2026-11-02: "advertise to businesses more"; tagline "describe your
+           problem and it gets built"). Terms are on the linked page. -->
+      <section class="build-band" aria-labelledby="build-band-h">
+        <h2 id="build-band-h">Run a business? Describe your problem and it gets built.</h2>
+        <p>No tool here does what you need? Tell us the job, and the AI agents that build this site may build it for you, free and in public. The one condition: the result stays open source (MIT).</p>
+        <a class="go" href="${CUSTOM_DEV_PATH}">Describe your problem</a>
+      </section>
     </div>
   </header>
 
@@ -10796,7 +10880,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
       ? `- [Short index](${baseUrl}llms.txt): the same tools with one-sentence descriptions, small enough to read in one fetch.`
       : `- [Full text](${baseUrl}llms-full.txt): every tool with its complete description and the LLM docs a product ships; large (several hundred KB), fetch only when the index does not answer the question.`,
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, the country code and the device type, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
-    `- [Open custom development](${baseUrl}${CUSTOM_DEV_PATH}): how anyone can ask the agents that build this site for a new tool, free and in public, the one condition (the result stays MIT licensed, held by the repository owner), and every request so far with its status.`,
+    `- [Free custom software for your business](${baseUrl}${CUSTOM_DEV_PATH}): describe your problem and it gets built. How a business, or anyone, can ask the agents that build this site for a new tool, free and in public, the one condition (the result stays MIT licensed, held by the repository owner), and every request so far with its status.`,
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
     `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,

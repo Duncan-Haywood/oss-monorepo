@@ -1,0 +1,43 @@
+{
+ "generated_for": "2026-11-02",
+ "data_through": "2026-11-02",
+ "latest_day": {
+  "day": "2026-11-02",
+  "page_loads": 12
+ },
+ "weeks": [
+  {
+   "week": "2026-W43",
+   "monday": "2026-10-19",
+   "days": 7,
+   "page_loads": 13,
+   "tool_loads": 3,
+   "tools": 1,
+   "top_tool": "hearth-and-horizon",
+   "feedback": 1,
+   "crawler_beacons": 0
+  },
+  {
+   "week": "2026-W44",
+   "monday": "2026-10-26",
+   "days": 7,
+   "page_loads": 70,
+   "tool_loads": 21,
+   "tools": 8,
+   "top_tool": "shed-designer",
+   "feedback": 0,
+   "crawler_beacons": 29267
+  },
+  {
+   "week": "2026-W45",
+   "monday": "2026-11-02",
+   "days": 1,
+   "page_loads": 12,
+   "tool_loads": 4,
+   "tools": 1,
+   "top_tool": "shed-designer",
+   "feedback": 0,
+   "crawler_beacons": 1
+  }
+ ]
+}

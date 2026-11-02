@@ -50,3 +50,9 @@ weekly: [`.github/prompts/daily-progress-post.md`](../../.github/prompts/daily-p
 ```
 node platform/daily/progress.mjs --cadence=daily|3day|weekly [--end=YYYY-MM-DD] [--json] [--ref=origin/main]
 ```
+
+## Usage-and-income blog posts
+
+`usage-report.mjs` and `usage-report-build.mjs` write a daily and a weekly
+blog post on site usage and income into `docs/posts/`: see
+[`USAGE_REPORT.md`](USAGE_REPORT.md).

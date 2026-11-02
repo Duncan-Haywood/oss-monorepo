@@ -1,139 +1,137 @@
-# What the portfolio could earn, and how
+# Monetization: the business model, product by product
 
-**The question:** for the products in `ventures/`, how much could they
-reasonably earn, by what mechanism, and what go-to-market plan would get them
-there? It is an ongoing evaluation (owner, 2026-11-02: "this is an ongoing
-thing"). Each run that touches a product's money or distribution adds to it or
-corrects it.
+Owner, 2026-11-02: "looking into monetization plans and business model for
+the things in this repo. this should be a continual thing to focus on."
 
-```bash
-node portfolio/monetization/evaluate.mjs           # scenario table (markdown)
-node portfolio/monetization/evaluate.mjs --check   # every category and flagship evaluated, every number has a basis
-node portfolio/monetization/evaluate.mjs --queue   # what to evaluate next
-node portfolio/monetization/evaluate.mjs --json
-node --test portfolio/monetization/evaluate.test.mjs
-```
+This directory is where that work lives between sessions:
 
-Agents write the judgment: buyer, willingness to pay, mechanisms, price, GTM
-steps and risks. It lives in [`evaluations.json`](evaluations.json), one
-entry per catalogue category (all 15, from `categoryFor` in
-`platform/pages/build.mjs`) and one per flagship (all 10, from
-`portfolio/flagships.yaml`), plus `local-site-studio`. The script does the
-routine part. It reads measured traffic from
-`portfolio/usage/site-visits.json`, maps all 1,325 ventures to their
-categories, applies the merchant-of-record fee and computes three year-one
-scenarios:
+- **[`models.yaml`](models.yaml)**: one row per product with its buyer, model,
+  first paid offer, a price hypothesis, competitors' list prices (with source
+  and the date read), its stage, and the next step.
+- **[`monetization.py`](monetization.py)**: prints the table and the next
+  agent-doable step (`next`), and validates the file (`--check`). Tests:
+  `python3 -m pytest -q portfolio/ledger/test_monetization.py` (kept there so
+  the merge checklist's existing `portfolio/ledger` line runs it).
+- **[`SCENARIOS.md`](SCENARIOS.md)** with [`evaluations.json`](evaluations.json)
+  and `evaluate.mjs`: every catalogue category (15) and flagship (10) in three
+  year-one revenue scenarios (now, payout rail on, 12-month traffic goal)
+  driven by the measured traffic, with the GTM steps and the owner decision
+  each mechanism waits on. `node portfolio/monetization/evaluate.mjs`; tests
+  `node --test portfolio/monetization/*.test.mjs`.
+- This README: the reasoning, so a later run can disagree with it on purpose.
 
-| Scenario | Traffic | Mechanisms counted |
-|---|---|---|
-| **Now** | measured | only those that need no owner action (`gate: none`) |
-| **Rail on** | measured | adds those gated on the payout rail or the Sponsors decision |
-| **Target** | the entry's 12-month goal | all of them, including owner partnerships and flat-priced services |
+It is listed as request R-0004 in
+[`portfolio/requests/requests.json`](../requests/requests.json), so the
+request queue keeps routing runs to it. A run that takes it runs
+`monetization.py next`, lands that step, moves the row's `stage` and rewrites
+its `next` in the same PR.
 
-The fee is 5% + 50¢ per sale, the free tier of Polar, Lemon Squeezy and
-Paddle as read on 2026-10-31
-([`docs/reports/2026-10-31-payout-rail-next-steps.md`](../../docs/reports/2026-10-31-payout-rail-next-steps.md)).
-Donations are counted with no fee.
+## The owner's frame
 
-## What the numbers rest on, and what they don't
+From [`prompts/goals.md`](../../prompts/goals.md): value for people first,
+then "more income without opening to liability financial or legal", then
+free software with a coffee or sponsor link. The business model for ventures
+(2026-10-15) is one-click deploy: strangers run their own copies on their own
+keys, and the owner hosts nothing and is not the operator. On 2026-10-31 the
+owner chose a **merchant of record** as the payout rail and on 2026-11-01 said
+"turn on for profit ... don't let it block work". The guardrail change that
+allows it is [PR #12243](https://github.com/Duncan-Haywood/oss-monorepo/pull/12243),
+waiting on the owner's approval; the design that keeps any key out of agent
+reach is [`docs/reports/2026-10-30-billing-plan.md`](../../docs/reports/2026-10-30-billing-plan.md)
+(Option A: a hosted checkout link and a licence-key validate call, no secret
+anywhere).
 
-- **Measured:** traffic, and only traffic. The first-party counter covers
-  2026-10-24 to 2026-10-30, about **176 human page loads per 30 days across
-  the whole site**. Most of those are on `/about`, `/ask` and category hubs,
-  so most ventures show zero. Cloudflare saw about a thousand times more
-  requests on 2026-10-30, mostly crawlers (`portfolio/usage/README.md`).
-  Page loads are not people, so this overstates visitors.
-- **Assumed:** every conversion rate and every price. The prices are the
-  portfolio's own proposals, not market readings. The conversions are 0.1% to
-  0.6% of page loads. That is deliberately below the 2% that
-  `free-listing-economics/` assumed and itself called its weakest input.
-  `listing-monetization/` measured that only 7.5% of top-decile developer
-  listings have any commercial mechanism at all. `--check` refuses a
-  conversion above 20% and any mechanism without a stated `basis`.
-- **Goals, not forecasts:** the traffic targets. Summed over the categories
-  they come to about 23,600 loads a month, **about 134 times today**. Revenue
-  is linear in traffic × conversion, so halve either and the target column
-  halves.
+## The constraint that matters most: traffic
 
-## Findings (2026-11-02)
+Revenue is visitors × the share who buy × price. The site's own first-party
+counter ([`portfolio/usage/site-visits.json`](../usage/site-visits.json),
+human page loads, not people) recorded **41 page loads across the five days
+it has data for (2026-10-24 to 2026-10-30), between 4 and 13 a day, on at
+most four distinct pages a day**. The crawler beacons that same week ran in
+the thousands. So at today's traffic any model earns about nothing, whatever
+its price; that is a measured reading, not a guess about demand.
 
-1. **Today's earning is $0, and that is structural.** No mechanism that needs
-   no owner action brings in money. The Sponsors links on every page lead to
-   a profile that nothing in the repo records as accepting money (decision
-   `funding-sponsors-live`). The payout rail the owner chose on 2026-10-31
-   still needs the owner's account and the `goals.md` amendment. This agrees
-   with `portfolio/ledger/break-even.md`.
-2. **Turning on the rail does almost nothing at today's traffic.** With the
-   rail on and traffic as measured, the year comes to **about $30**.
-   Distribution is the constraint, not the product count (1,325) or the
-   payment code.
-3. **If the 12-month traffic goals are hit, the model says about $30k a year
-   from the categories** (with the conversion caveats above). Over half of it
-   comes from four places:
+Two things follow:
 
-   | Rank | Where | Target-scenario year one | Mechanism | Why it ranks |
-   |---:|---|---:|---|---|
-   | 1 | `einvoice-preflight` | ~$20k | annual self-hosted licence for the CI/API validator ($290) | B2B buyers with deadlines (the venture's dozens of dated country-mandate pages) and budgets; costs nothing to serve |
-   | 2 | `ai-bookkeeper` | ~$10k | annual Pro licence, key checked offline ($59) | largest buyer base with a monthly paid job; 42 vertical landing pages already exist |
-   | 3 | `wall-framing-takeoff` | ~$7k | Pro licence plus lumberyard quote referral | the real payer is the yard or panel shop; needs an owner-signed partner |
-   | 4 | `self-hosted` apps (34) | ~$7k | deploy pack plus paid setup | buyers already pay monthly SaaS fees for the same jobs |
+1. **Distribution and SEO are monetization work.** Every paid offer below is
+   worth building only alongside the work that gets its page found (the
+   owner's standing SEO and distribution directions in `goals.md`).
+2. **Build the paid path dark, cheaply, once.** A paid path that renders only
+   when a checkout link is set costs nothing to carry and is ready the day the
+   rail and the traffic exist. One reusable checkout component, proved on one
+   product, then copied, beats six bespoke ones.
 
-   The flagship rows overlap their categories, so the two are not added.
-4. **About 1,100 of the 1,325 tools are funnels, not products.** The trades,
-   services, back-office, solo-earner, marketplace and food-service
-   calculators each make cents to low hundreds of dollars a year on their own.
-   They are worth something only if each one links to the product that has
-   the paid tier: ai-bookkeeper, shift-roster-builder or wall-framing-takeoff.
-   The one shared feature worth building across the trades tools is a
-   "turn this estimate into a branded proposal" step, priced annually.
-5. **The CI checks (178) are distribution, not revenue.** Combine them into
-   one GitHub Action and use it for developer reach and credibility. Free
-   competitors from funded companies cap what can be charged.
-6. **Every mechanism above the "rail on" line needs the owner.** The payout
-   rail (account and amendment), the Sponsors decision, affiliate programmes,
-   supplier partnerships, publishing on GitHub Marketplace, awesome-selfhosted
-   or template galleries under the public name, and any grant applications.
-   These are already the owner-only rows in `decision_queue.py`. This file
-   ranks them by what they unlock: **payout rail > publication identity >
-   one supplier partnership.**
+## Revenue options, ranked by income without liability
 
-## GTM plan, in order
+| # | Option | Who holds the money | Liability for the owner | Status |
+|---|---|---|---|---|
+| 1 | **Donations** (GitHub Sponsors link on every venture, one Buy Me a Coffee link) | owner | none | live; the repo-level Sponsor button (`FUNDING.yml`) is owner decision `funding-sponsors-live` |
+| 2 | **Paid extras on flagships** through a merchant of record's hosted checkout: one-off or yearly licence for new depth (branded exports, packaged offline builds, template packs) | merchant of record, paying out to the owner | low to medium: the MoR is the seller for tax and VAT; product terms, refunds and the disclaimer stay the owner's | rail chosen, account not open; first offer chosen (below) |
+| 3 | **Deployer-run businesses**: the one-click-deploy copies, with payment code on the deployer's own keys | the deployer | none for the owner (they are the merchant) | the existing model; keep shipping it |
+| 4 | **Paid priority lane on custom development** (website requests stay free; an optional paid "build mine next" lane, output still MIT) | MoR | medium: a paid promise of delivery | owner question 2 below; not built |
+| 5 | **Grants for open-source and research work** (foundation and public open-source funds) | owner or an entity | low, but needs the owner's identity and applications | owner question 3 below |
+| 6 | Affiliate links on comparison pages | owner | medium: FTC disclosure, and it pays us to recommend the paid tools our pages compare against | not recommended |
+| 7 | Display ads on calculator pages | owner (ad account) | low legal, real product cost: slower pages, worse look, against the "serious looking" site direction; near-zero at this traffic | not recommended now |
+| 8 | Hosted SaaS subscriptions run by the owner | owner | high: the owner becomes operator and data holder, and per-user server cost breaks `PRODUCT_PLAYBOOK.md` §2 | ruled out under the current model |
 
-What agents can do now, without the owner:
+## Product by product (detail and sources in `models.yaml`)
 
-1. Link every funnel tool to its paid product. Back-office, solo-earner,
-   services and marketplace go to ai-bookkeeper; food-service goes to
-   shift-roster-builder; new-construction trades go to wall-framing-takeoff.
-   Count the clicks.
-2. Build the paid tiers as offline licence keys (billing plan Option A,
-   `docs/reports/2026-10-30-billing-plan.md`), off by default. Start with
-   ai-bookkeeper Pro and the einvoice-preflight commercial licence. Each needs
-   a measured accuracy claim first: real books for ai-bookkeeper, real
-   invoices' false-positive rate for einvoice-preflight.
-3. Write fair comparison pages for the self-hosted apps ("open-source
-   alternative to …", with the competitor's public price and the
-   not-affiliated line), and one dated deadline page per mandate. Both match
-   searches that already happen.
-4. Combine the CI checks into one action with SARIF output.
+- **wall-framing-takeoff (first paid product).** Builders already pay for
+  takeoff software: Buildxact lists $149 to $399 a month, Autotakeoff from
+  $49 a month (pages read 2026-11-02). Liability is medium (a wrong count
+  costs a builder money), handled with the disclaimer, a refund policy and the
+  engine's self-checks. It is the first flagship, the owner's construction
+  direction, and the product whose buyers are businesses that pay for tools.
+  First offer: a **branded bid-package PDF** (logo, terms, takeoff, cut list,
+  schedule) unlocked by a yearly licence key. It is new depth, so nothing the
+  page calls free gets paywalled. Price hypothesis: $49 to $99 a year,
+  untested.
+- **league-schedule-generator (second).** The lowest liability in the set (a
+  schedule is not advice). Its buyers are volunteers with small budgets, so
+  the first job is to read competitors' public prices before choosing a
+  season-pack extra.
+- **shift-roster-builder (parked).** The market has a free tier and plans
+  from $2.50 a user a month; a hosted plan would need servers. It stays free
+  and self-hosted and reuses the checkout component later.
+- **einvoice-preflight (owner question).** Validation sells for about $4 per
+  1,000 documents on API marketplaces and free official validators exist, so
+  checks are a commodity. The depth is 60+ countries of rules; the plausible
+  sale is priority on the next country rule, which is option 4.
+- **ai-bookkeeper (parked, highest exposure).** The highest willingness to pay
+  (QuickBooks Online Simple Start lists at $38 a month) and the highest
+  liability, since books feed tax returns. Not first. Sell convenience, not
+  anything that reads as advice, and only after real-book measurements.
+- **sales-agent (donations only).** Whoever sends the email is the sender of
+  record, so it stays deployer-run on the deployer's keys.
+- **The ~1,300 calculators.** Donations only. They are the traffic engine
+  that feeds the flagships' pages; their job in this plan is to be found.
 
-What needs the owner, in order of value:
+## What counts as progress
 
-5. Payout rail: approve the amendment and open the Polar (or fallback)
-   account.
-6. Publication identity: GitHub Marketplace, awesome-selfhosted, template
-   galleries.
-7. One partnership: a lumberyard or panel shop for wall-framing-takeoff, or a
-   bookkeeper willing to try ai-bookkeeper on a client file with permission.
+A run moves one row's `stage` forward (`none` → `planned` → `built-dark` →
+`test-paid` → `live`) or adds evidence the plan can use: a competitor's price
+with its source and date, a measured traffic or click reading, a priced and
+tested offer. `monetization.py --check` refuses a `test-paid` or `live` row
+without an `evidence` file, so no row claims a sale it can't show. Writing
+that revenue is $0 again is not progress (PR #12243: "Runs should not
+re-measure that revenue is $0").
 
-## Keeping it current
+## Open questions for the owner
 
-- When a run ships a paid tier, a funnel link or a GTM step, update that
-  entry's `mechanisms` or `gtm` and its `evaluated` date in the same PR.
-- When the counter has more days, rerun the script. The "now" and "rail on"
-  columns update by themselves.
-- When something is **measured** (a real conversion, a real price someone
-  paid, a real partner's referral fee), replace the assumption and say
-  "measured" in `basis`. That matters more than anything else in this file.
-- `--queue` lists ventures without their own entry: flagships first, then
-  any venture with measured visits, then the self-hosted apps. Evaluate a
-  venture separately only when it differs from its category's entry.
+1. **Approve [PR #12243](https://github.com/Duncan-Haywood/oss-monorepo/pull/12243)**
+   and open the merchant-of-record account (Polar recommended). Until then
+   every paid path ships dark, which blocks no agent work.
+2. **Paid priority lane on custom development?** Requests stay free and MIT;
+   a buyer could pay to be built next. It earns from the people most likely
+   to pay (businesses with a named job) but it is a promise with a deadline.
+   Yes, no, or later.
+3. **Grants?** Open-source and research funds need the owner's identity and a
+   short application. If yes, a run can draft the applications for the owner
+   to send.
+
+## Adding a product
+
+Add a row to `models.yaml` with at least one comparable read from a named
+vendor's own or a review site's pricing page (source URL and date), a
+liability level, and a first offer that is new depth rather than a paywall on
+a free feature. Run `monetization.py --check`.

@@ -48,7 +48,7 @@
         "Accuracy: a wrong category is a wrong tax return; disclaimer and review queue stay.",
         "Bank-file privacy: keep everything in the browser."
       ],
-      "verdict": "Top candidate for the first paid product. Largest buyer base with a recurring job, and a paid tier that costs nothing to serve.",
+      "verdict": "Largest buyer base with a recurring job, and a paid tier that costs nothing to serve; but models.yaml parks it as the highest-liability product (books feed tax returns) until real-book measurements exist. This file agrees: no charge before that measurement.",
       "next_measurement": "Imports completed per month on the live page, and how many reach the year-end pack."
     },
     {
@@ -100,9 +100,9 @@
           "name": "commercial self-hosted licence for the CI/API validator with country add-ons and update feed",
           "unit": "annual",
           "price_usd": 290,
-          "conversion": 0.003,
+          "conversion": 0.001,
           "gate": "payout-rail",
-          "basis": "Owner price proposal for a B2B tool; conversion assumed. No integrator has been asked."
+          "basis": "Owner price proposal; conversion assumed and cut from 0.3% to 0.1% after models.yaml's comparables (validation sells for about $4 per 1,000 documents on API marketplaces, and free official validators exist): checks alone are a commodity, so a licence sells only the country-rule depth and the CI packaging. No integrator has been asked."
         },
         {
           "name": "company sponsorship for a country profile (sponsor funds the next country's rules)",
@@ -128,7 +128,7 @@
         "A validator that passes a bad invoice costs the buyer; say exactly which rules are covered.",
         "Mandate dates move; every page dated."
       ],
-      "verdict": "Second paid candidate, and the best B2B one: urgent, deadline-driven, and buyers with budgets.",
+      "verdict": "Still a strong B2B case (deadline-driven buyers with budgets), but checks are a commodity (models.yaml), so what sells is country-rule depth and CI packaging; models.yaml treats it as an owner question (paid priority on the next country).",
       "next_measurement": "CLI/API runs and country-page visits around each mandate date."
     },
     {
@@ -451,7 +451,7 @@
           "price_usd": 50,
           "conversion": 0.002,
           "gate": "owner-partner",
-          "basis": "Assumed bounty and conversion; no programme's terms have been read. Needs the owner to join a programme; every link carries an FTC-style disclosure (goals.md)."
+          "basis": "Assumed bounty and conversion; no programme's terms have been read. Needs the owner to join a programme; every link carries an FTC-style disclosure (goals.md). README.md option 6 recommends against affiliate links (it pays us to recommend the tools our pages compare against); kept here only so the scenario shows what declining them costs."
         }
       ],
       "traffic_target_monthly": {
