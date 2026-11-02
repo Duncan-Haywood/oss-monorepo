@@ -3,6 +3,9 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-11-02 · Milestone 56: carry milestone 55 into the paper (no flow run)
+- PAPER.md section 6 item 3 now cites the held-out BOHB replay (milestone 55) in place of "unconfirmed on held-out designs", with the wrong third prediction stated. Next: a held-out set with an unfaithful R2 (mult24, mult32 relaxed).
+
 ## 2026-11-01 · Milestone 55: BOHB on the five held-out designs of milestone 27 (prediction written before the run; no flow)
 - Why: milestone 54's "Next" asks for a confirmation on designs the BOHB arm was not looked at on. The 10 cells of `experiments/unseen/` (CRC-32, 64-bit priority encoder, 8x8 sorting network, AES S-box, 64-bit decoder-mux; both clocks) were not among milestone 54's 40 cells, and the hyperparameters were fixed before this look. `python3 experiments/bohb/bohb.py unseen` replays the same arms, cost model, budgets (15, 25, 40), 100 paired seeds.
 - **Predictions on record (confirmation criteria fixed now):** (1) BOHB's pooled mean regret is below random routing's at 15 and 25 (the milestone 54 claim); (2) BOHB beats random-entrant Hyperband in more cells than it loses at 15 and 25; (3) at 40 random routing is at or below BOHB, as before. Milestone 27 found R2 is faithful on these designs (pick regret 0 to 4% except crc32 tight 9.3%), so I expect the cheap-rung arms to do well here and the margins to be smaller than milestone 54's. If (1) fails at both budgets, the milestone 54 low-budget win was a property of the first 40 cells and the paper must say so. With 10 cells (5 designs) sign tests have almost no power: I report counts, not p-values as evidence.
