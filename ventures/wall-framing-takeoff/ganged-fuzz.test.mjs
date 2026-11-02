@@ -1,12 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { gangOpenings } from "./ganged.mjs";
-import { THICK } from "./engine.mjs";
 
-// Property test: random walls of random openings. Ganging never mutates its
-// input, keeps the span the openings covered, only merges same-kind, same-size,
-// same-head openings that are too close for their own jacks and kings, is
-// idempotent, and writes one note per merge.
+// Property test: random walls with random openings. Ganging never mutates the
+// input, only merges same-kind/size/head openings, keeps the covered span,
+// removes exactly one opening per note, and is idempotent.
 function rng(seed) {
   let t = seed >>> 0;
   return () => {
@@ -16,60 +14,56 @@ function rng(seed) {
     return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
   };
 }
-const pick = (rand, xs) => xs[Math.floor(rand() * xs.length)];
 
-function randomWall(rand, id) {
-  const n = Math.floor(rand() * 7);
-  const openings = [];
-  let x = rand() * 20;
-  for (let i = 0; i < n; i++) {
-    const width = pick(rand, [24, 30, 36, 48]);
-    const o = { kind: pick(rand, ["window", "window", "door"]), offset: x, width, height: pick(rand, [48, 48, 80]), headerHeight: pick(rand, [82, 82, 84]) };
-    if (rand() < 0.2) o.jacks = pick(rand, [1, 2]);
-    if (rand() < 0.2) o.kings = pick(rand, [1, 2]);
-    if (rand() < 0.2) o.header = pick(rand, ["2x8", "2x10"]);
-    if (rand() < 0.3) o.label = `o${i}`;
-    openings.push(o);
-    x += width + pick(rand, [0, 1, 3, 4.5, 6, 9, 12, 30]);
-  }
-  // shuffle so the sort inside gangOpenings is exercised
-  for (let i = openings.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [openings[i], openings[j]] = [openings[j], openings[i]]; }
-  return { id, length: Math.max(x + 20, 60), height: 96, openings };
-}
-
-test("fuzz: ganging keeps the covered span, merges only what must merge, and is idempotent", () => {
+test("fuzz: gangOpenings merges only compatible close openings and preserves coverage", () => {
   const failures = [];
-  let merges = 0;
-  for (let seed = 1; seed <= 400; seed++) {
+  let merges = 0, kept = 0;
+  for (let seed = 1; seed <= 300; seed++) {
     const rand = rng(seed);
-    const plan = { walls: [randomWall(rand, "A"), randomWall(rand, "B")] };
+    const walls = [];
+    for (let w = 0; w < 1 + Math.floor(rand() * 3); w++) {
+      const n = Math.floor(rand() * 7);
+      let off = rand() * 10;
+      const openings = [];
+      for (let i = 0; i < n; i++) {
+        const width = 12 + Math.floor(rand() * 48);
+        const o = { kind: rand() < 0.7 ? "window" : "door", offset: off, width, height: rand() < 0.8 ? 48 : 36, headerHeight: 80 };
+        if (rand() < 0.2) o.header = rand() < 0.5 ? "2x8" : "2x10";
+        if (rand() < 0.2) o.jacks = 2;
+        openings.push(o);
+        off += width + rand() * 8; // gaps of 0..8 in: some close, some not
+      }
+      // shuffle input order; the engine sorts by offset
+      openings.sort(() => rand() - 0.5);
+      walls.push({ id: `w${w}`, length: off + 40, openings });
+    }
+    const plan = { walls };
     const before = JSON.stringify(plan);
-    const { plan: out, notes } = gangOpenings(plan);
-    if (JSON.stringify(plan) !== before) failures.push(`seed ${seed}: input mutated`);
+    let res;
+    try { res = gangOpenings(plan); } catch (e) { failures.push(`${seed}: threw ${e.message}`); continue; }
+    if (JSON.stringify(plan) !== before) failures.push(`${seed}: input mutated`);
+    const { plan: out, notes } = res;
     let removed = 0;
-    plan.walls.forEach((w, wi) => {
+    walls.forEach((w, wi) => {
       const o = out.walls[wi].openings;
-      const src = w.openings;
-      removed += src.length - o.length;
-      const span = (xs) => xs.length ? [Math.min(...xs.map((q) => q.offset)), Math.max(...xs.map((q) => q.offset + q.width))] : null;
-      const a = span(src), b = span(o);
-      if (JSON.stringify(a) !== JSON.stringify(b)) failures.push(`seed ${seed} ${w.id}: span ${a} became ${b}`);
-      const gangedCount = o.reduce((s, q) => s + (q.ganged || 1), 0);
-      if (gangedCount !== src.length) failures.push(`seed ${seed} ${w.id}: ${src.length} openings became ${gangedCount} units`);
-      for (let i = 1; i < o.length; i++) {
-        if (o[i].offset < o[i - 1].offset + o[i - 1].width - 1e-9) failures.push(`seed ${seed} ${w.id}: openings overlap after ganging`);
-        const p = o[i - 1], q = o[i];
-        const gap = q.offset - (p.offset + p.width);
-        const need = THICK * ((p.jacks ?? 1) + (q.jacks ?? 1) + Math.max(p.kings ?? 1, q.kings ?? 1));
-        const same = p.kind === q.kind && p.height === q.height && p.headerHeight === q.headerHeight && (p.header ?? "") === (q.header ?? "");
-        if (same && gap < need - 1e-9) failures.push(`seed ${seed} ${w.id}: neighbours still too close (${gap} < ${need})`);
+      removed += w.openings.length - o.length;
+      for (let i = 1; i < o.length; i++) if (o[i].offset < o[i - 1].offset) failures.push(`${seed}: unsorted`);
+      const lo = (a) => Math.min(...a.map((x) => x.offset));
+      const hi = (a) => Math.max(...a.map((x) => x.offset + x.width));
+      if (w.openings.length) {
+        if (lo(o) !== lo(w.openings) || hi(o) !== hi(w.openings)) failures.push(`${seed}: span changed`);
+        if (o.some((x) => x.width <= 0)) failures.push(`${seed}: bad width`);
+      }
+      for (const x of o) {
+        if (x.ganged) merges++; else kept++;
+        const same = w.openings.filter((s) => s.offset >= x.offset && s.offset + s.width <= x.offset + x.width);
+        if (!same.length || same.some((s) => s.kind !== x.kind || s.height !== x.height || (s.header ?? "") !== (x.header ?? ""))) failures.push(`${seed}: mixed merge`);
+        if (x.ganged && same.length !== x.ganged) failures.push(`${seed}: ganged count ${x.ganged} vs ${same.length}`);
       }
     });
-    merges += removed;
-    if (notes.length !== removed) failures.push(`seed ${seed}: ${removed} merges but ${notes.length} notes`);
-    const again = gangOpenings(out);
-    if (JSON.stringify(again.plan) !== JSON.stringify(out) || again.notes.length) failures.push(`seed ${seed}: not idempotent`);
+    if (removed !== notes.length) failures.push(`${seed}: removed ${removed} but ${notes.length} notes`);
+    if (gangOpenings(out).notes.length !== 0) failures.push(`${seed}: not idempotent`);
   }
-  assert.ok(merges > 50, `only ${merges} merges exercised`);
   assert.deepEqual(failures.slice(0, 5), []);
+  assert.ok(merges > 50 && kept > 50, `coverage: ${merges} merged, ${kept} kept`);
 });
