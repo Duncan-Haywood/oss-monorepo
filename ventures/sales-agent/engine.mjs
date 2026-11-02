@@ -229,6 +229,10 @@ const RULES = {
     P("entfernen sie mich"), P("aus (ihrem|dem|ihrer) (e-?mail-?)?(verteiler|liste|datenbank)"), P("\\b(abmelden|austragen|abbestellen)\\b"), P("\\bnicht mehr (per )?(e-?mail )?(zu)?(kontaktier|anschreib|belästig|beläst)"), P("l[öo]schen sie (meine|unsere) (daten|e-?mail|adresse)"),
     P("ne m'?envoyez plus"), P("d[ée]sabonn"), P("d[ée]sinscri"), P("ne plus recevoir"), P("retirez[- ]moi"), P("supprimez (mon|mes|notre|nos)\\b"),
     P("darme de baja"), P("no me (env[ií]en?|manden?|escriban?|contacten?) m[aá]s"), P("elimin(e|en|ar) (mi|mis|nuestro)\\b.*(correo|datos|lista|direcci)"), P("cancelar (la |mi )?suscripci"), P("\\bdarse de baja\\b"),
+    // Added 2026-11-02 after a probe of 40 short non-English phrasings missed the ones below (FR/ES infinitives and imperatives, PT, NL). Agent-written, unscored on real mail.
+    P("ne plus me (contacter|[ée]crire|solliciter)"), P("ne me (contactez|[ée]crivez|sollicitez) plus"), P("(quitame|qu[ií]tame|s[aá]came|borra(me)?|b[óo]rrame) (de|mis)\\b"), P("no (quiero|deseo) (m[aá]s|seguir recibiendo)"),
+    P("(remova|retire|tire|exclua) (o )?(meu|me|nosso)\\b"), P("n[ãa]o (quero|desejo) (mais )?receber"), P("pare de (me )?(enviar|mandar|escrever)"),
+    P("stuur (mij|ons) (geen|niet meer)"), P("geen (e-?mails|mailtjes|berichten) meer"), P("verwijder (mij|ons|mijn)\\b"), P("schrijf (mij|me) uit"),
     P("\\b(cancellatemi|rimuovetemi|toglietemi|disiscriv)"), P("non (voglio|vogliamo) pi[uù] ricevere"),
     P("n[ãa]o (me )?(envie|mande|escreva|contate)n? mais"), P("remov(a|am|er) (meu|minha|o meu)\\b"), P("cancelar (a )?inscri"),
     P("\\b(schrijf|schrijven) (mij|me|ons) uit\\b"), P("\\buitschrijven\\b"), P("verwijder (mij|me|mijn|ons)\\b"), P("mail (mij|ons) (niet|nooit) meer"),
