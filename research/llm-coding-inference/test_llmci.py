@@ -293,3 +293,31 @@ def test_audit_interval_matches_the_experiment_estimator_and_covers():
     mid = (e.value + E.Z95 ** 2 / (2 * n_eff)) / d
     assert abs(est - e.value) < 1e-9 and abs(lo - (mid - half)) < 1e-6 and abs(hi - (mid + half)) < 1e-6
     assert lo < sum(y) / len(y) < hi
+
+
+def test_cell_ceiling_is_prevalence_free_and_matches_neyman_arithmetic():
+    from llmci import audit_design as S
+    # sens = spec = (1 + J) / 2 gives sqrt(1 - J^2); LOG.md 7i quotes 0.917 at J 0.4 and 0.600 at J 0.8
+    assert abs(S.cell_ceiling(0.7, 0.7) - math.sqrt(1 - 0.4 ** 2)) < 1e-12
+    assert abs(S.cell_ceiling(0.9, 0.9) - 0.6) < 1e-12
+    assert abs(S.cell_ceiling(0.8, 0.97) - 0.595) < 1e-3 and abs(S.cell_ceiling(0.5, 0.97) - 0.819) < 1e-3
+    assert abs(S.cell_ceiling(0.6, 0.4) - 1.0) < 1e-12  # J = 0: cells cannot help
+    # the Neyman arithmetic at three prevalences gives the same ratio
+    for p in (0.02, 0.1, 0.4):
+        s, c = 0.8, 0.9
+        wp = p * s + (1 - p) * (1 - c)
+        pp, pn = p * s / wp, p * (1 - s) / (1 - wp)
+        r = math.sqrt((wp * math.sqrt(pp * (1 - pp)) + (1 - wp) * math.sqrt(pn * (1 - pn))) ** 2 / (p * (1 - p)))
+        assert abs(r - S.cell_ceiling(s, c)) < 1e-12
+    assert S.pilot_ceiling([1, 1, 1], [1, 0, 1]) == 1.0  # no negative in the pilot
+
+
+def test_plan_audit_reports_the_ceiling():
+    from llmci import audit_design as S
+    rng = random.Random(5)
+    y, f = corpus(3000, 0.3, 0.9, 0.95, rng)
+    pilot = rng.sample(range(3000), 120)
+    plan = S.plan_audit(f, {i: y[i] for i in pilot}, 400)
+    assert plan["design"] == "cells" and 0.4 < plan["ceiling"] < 0.7  # sens .9 spec .95: 0.52 exact
+    noise = [rng.randint(0, 1) for _ in y]
+    assert S.plan_audit(noise, {i: y[i] for i in pilot}, 400)["ceiling"] > 0.9
