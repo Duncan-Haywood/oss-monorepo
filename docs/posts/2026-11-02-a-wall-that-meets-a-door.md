@@ -1,6 +1,8 @@
 ---
 title: "A wall that meets a door: one more plan error the framing takeoff now refuses"
 date: 2026-11-02
+tags: [wall-framing-takeoff, construction, validation]
+description: "The wall-framing takeoff now refuses a plan with a tee wall inside a door opening or two tees closer than a stud, naming the wall and position."
 ---
 
 While probing the wall-framing takeoff with hand-made bad plans, one slipped through: a tee wall (an interior partition meeting an exterior wall) listed at a spot inside a door opening. The tool answered "ok" and priced backing studs where the door's king and jack studs already stand.
