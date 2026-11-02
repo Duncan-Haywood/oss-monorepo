@@ -71,13 +71,28 @@ products:
       printable schedules, a public standings page they can host themselves,
       and an export to the calendar formats clubs ask for. Donations stay on.
     first_offer: season pack, one-off per season
-    price_hypothesis: "$10 to $25 a season (untested; no comparables read yet)"
-    comparables: []
-    stage: none
+    price_hypothesis: "$10 to $25 a season, one-off (untested; below every comparable's monthly price)"
+    comparables:
+      - what: TeamSnap (rec league or travel club plan)
+        price: from $29 a month
+        source: https://www.krowdbase.com/software/teamsnap
+        read: 2026-11-02 (aggregator listing, not the vendor page; vendor site blocked from this session)
+      - what: SportsEngine (league/club management)
+        price: from $79 a month
+        source: https://www.krowdbase.com/software/sportsengine
+        read: 2026-11-02 (aggregator listing, not the vendor page)
+      - what: LeagueLobster
+        price: from $9.95 per feature per month; free plan exists
+        source: https://www.getapp.com/all-software/a/leaguelobster/
+        read: 2026-11-02 (aggregator listing, not the vendor page)
+    stage: planned
     next: >-
-      Read three named competitors' public pricing pages (league scheduling
-      for rec leagues) and add them under comparables, then pick the first
-      extra to build. Comparables before code: the price must sit below them.
+      Comparables are aggregator figures; confirm on the vendors' own pricing
+      pages when a host allows it. A one-off season pack at $10 to $25 sits
+      under all three monthly prices. Build the first extra: a branded
+      printable schedule (print CSS plus an organiser name and logo field),
+      dark until a checkout link is set, following wall-framing-takeoff's
+      licence-key pattern in ventures/wall-framing-takeoff.
     next_owner: false
 
   - venture: shift-roster-builder
