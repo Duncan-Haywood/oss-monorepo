@@ -4,30 +4,13 @@
 // or hold a touch on its own, and it never sends one. Every touch it leaves out is listed with the reason, so the
 // run doubles as an audit trail.
 import { parseCsv, runInbox, toCsv, iso, toDay, DAY } from "./engine.mjs";
+import { suppressionIndex } from "./suppression.mjs";
 
 // Statuses the inbox agent sets that end the cadence for good (or, for closed_lost, until its 180-day pause).
 const STOPPED = { unsubscribed: "asked to stop", closed_lost: "said no", left: "left the company", replied: "replied; a person takes it from here" };
 const digits = (s) => String(s || "").replace(/\D/g, "");
 const truthy = (v) => /^(1|y|yes|true|x)$/i.test(String(v || "").trim());
 const stepKey = (email, step) => `${String(email || "").toLowerCase()}|${String(step || "").trim().toLowerCase()}`;
-
-function suppressionIndex(text) {
-  const emails = new Set(), domains = new Set(), phones = new Set();
-  for (const raw of String(text || "").split(/[\n,;]+/)) {
-    const s = raw.trim().toLowerCase();
-    if (!s) continue;
-    if (s.startsWith("@")) domains.add(s.slice(1));
-    else if (s.includes("@")) emails.add(s);
-    else if (digits(s).length >= 7) phones.add(digits(s).slice(-10));
-  }
-  return (email, phone) => {
-    const e = String(email || "").toLowerCase();
-    if (e && emails.has(e)) return "on your suppression list";
-    if (e && domains.has(e.split("@")[1])) return `domain @${e.split("@")[1]} is on your suppression list`;
-    if (phone && digits(phone).length >= 7 && phones.has(digits(phone).slice(-10))) return "phone number is on your suppression list";
-    return null;
-  };
-}
 
 /**
  * input: { tasks (cadence builder CSV text, or rows), prospects (CSV text or rows), suppression (text), done (lines
