@@ -22,3 +22,11 @@ Not changed, ranked:
    edit belongs in its own small control-plane PR.
 2. A pre-flight `loadPosts()` as the first test would fail in under a second
    instead of 54 s plus 167 cascaded failures.
+
+Third post: `2026-11-02-a-wall-that-meets-a-door.md` had a title over budget
+and no `seo_title`; `writing.test.mjs` caught it via
+`propose_seo_titles.py --check`. Added one. After the fix the full suite ran
+1396 tests, 1394 pass (508 s wall, shared container, versus 66 s of mostly
+cascaded failures before). The remaining failure, "an identical build
+produces an identical cache name", compared hashes while I was editing docs
+under the running suite, so it is a self-inflicted race; CI is the check.
