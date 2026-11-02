@@ -52,12 +52,15 @@ products:
         price: from $49 a month
         source: https://www.capterra.com/p/10029303/Autotakeoff/
         read: 2026-11-02
-    stage: planned
+    stage: built-dark
     next: >-
-      Build the branded bid-package export as a new feature, dark: a "Buy"
-      button that renders only when a build-time CHECKOUT_URL is set, and a
-      licence check against the provider's public validate endpoint, with a
-      refund policy and the disclaimer on the page. Tests pass with no link.
+      The branded bid package, licence check and refund line are built and
+      tested but dark (ventures/wall-framing-takeoff/licence-config.mjs has no
+      checkout link or organisation id). Owner step: create the merchant-of-
+      record product, confirm its validate endpoint and fields against its
+      current docs, then set CHECKOUT_URL, LICENCE_ORG_ID and VALIDATE_URL in
+      that file. Agent step meanwhile: a marketing page for contractors and a
+      sample bid-package PDF in the repo.
     next_owner: false
 
   - venture: league-schedule-generator

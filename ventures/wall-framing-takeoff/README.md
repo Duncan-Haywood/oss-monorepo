@@ -455,3 +455,20 @@ The cost cash flow (`cashFlow`) also groups spend by week starting Monday, with 
 - 2026-11-01: `budget` reports the bid price per sq ft of floor framed (`bidPerFloorSqFt`) when typed overhead or profit lifts the bid above cost; builders quote by the square foot. Checked by `budget.test.mjs` (33 pass).
 - **Insulation fuzz test** (2026-11-02, `insulation-fuzz.test.mjs`): 300 seeded random wall sets and bag settings are refused with a reason or give non-negative cavity, size groups summing to the total, whole bags covering cavity plus waste, cost = bags x price, and a printable report. No bug found; still no real order compared.
 - **Siding fuzz test** (2026-11-02, `siding-fuzz.test.mjs`): 400 seeded random wall sets (gables, non-overlapping openings, lap or vertical, battens, trim, starter, flashing, tape) are refused with a reason or give finite non-negative counts, boards that hold the runs, wrap rolls and corner boards that cover their area, and never fewer boards with more waste. No bug found; breaking the wrap-roll rounding makes it fail. Still no real siding order compared.
+
+## Branded bid package, paid path built dark (2026-11-02)
+
+`bidpackage.mjs` turns the customer proposal into one printable document on the
+contractor's letterhead: a cover with company name, logo, licence number and
+total, the price by section, payment schedule, the takeoff's materials list,
+exclusions and terms. `licence.mjs` checks a buyer's key against a merchant of
+record's public validate endpoint (the key and an organisation id are sent; no
+secret is held anywhere, per `docs/reports/2026-10-30-billing-plan.md`, Option
+A). `licence-config.mjs` ships empty, so the Buy card and the check stay hidden
+and the free tools never call the network; setting `CHECKOUT_URL`,
+`LICENCE_ORG_ID` and `VALIDATE_URL` turns it on. The page shows a refund line
+and the "estimate, not a contract" disclaimer. Verified: `node --test
+licence.test.mjs page.test.mjs` (shipped config is dark and makes no call; typed
+text, logo and colour cannot inject markup; expired, revoked and unreachable
+keys are refused). Not verified: the provider's real endpoint and field names
+(docs unreachable from the build container), so confirm them before enabling.
