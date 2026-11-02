@@ -1961,10 +1961,10 @@ export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToH
   }
   for (const r of rows) { r.form = formString(r.index, results, 5); r.streak = streakOf(formString(r.index, results, Infinity)); r.gd = r.gf - r.ga; r.adj = adjustments[r.index] ?? 0; r.points += r.adj; }
   if (headToHead) {
-    const level = new Map();
-    for (const r of rows) level.set(r.points, [...(level.get(r.points) ?? []), r.index]);
-    for (const group of level.values()) {
-      if (group.length < 2) continue;
+    // Mini-table of only the matches inside a tied group; a subset still level after it is split again by
+    // the matches among just those teams (the UEFA/FIFA method), then the overall tiebreaks.
+    for (const r of rows) r.h2hLevels = [];
+    const resolve = (group) => {
       const set = new Set(group);
       const mini = new Map(group.map((i) => [i, { pts: 0, gf: 0, ga: 0 }]));
       for (const r of results) {
@@ -1976,13 +1976,36 @@ export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToH
         else if (r.ga < r.gb) { B.pts += win; A.pts += loss; }
         else { A.pts += draw; B.pts += draw; }
       }
-      for (const i of group) { const m = mini.get(i); rows[i].h2h = { points: m.pts, gd: m.gf - m.ga, gf: m.gf }; }
+      const parts = new Map();
+      for (const i of group) {
+        const m = mini.get(i);
+        const lv = [m.pts, m.gf - m.ga, m.gf];
+        rows[i].h2hLevels.push(lv);
+        const k = lv.join("|");
+        parts.set(k, [...(parts.get(k) ?? []), i]);
+      }
+      if (parts.size > 1) for (const sub of parts.values()) if (sub.length > 1) resolve(sub);
+    };
+    const level = new Map();
+    for (const r of rows) level.set(r.points, [...(level.get(r.points) ?? []), r.index]);
+    for (const group of level.values()) {
+      if (group.length < 2) continue;
+      resolve(group);
+      for (const i of group) { const [p, d, f] = rows[i].h2hLevels[0]; rows[i].h2h = { points: p, gd: d, gf: f }; }
     }
   }
-  const h = (r) => r.h2h ?? { points: 0, gd: 0, gf: 0 };
-  rows.sort((x, y) => y.points - x.points
-    || h(y).points - h(x).points || h(y).gd - h(x).gd || h(y).gf - h(x).gf
+  const h2hCmp = (x, y) => {
+    const lx = x.h2hLevels ?? [], ly = y.h2hLevels ?? [];
+    for (let k = 0; k < Math.max(lx.length, ly.length); k++) {
+      const p = lx[k] ?? [0, 0, 0], q = ly[k] ?? [0, 0, 0];
+      const d = q[0] - p[0] || q[1] - p[1] || q[2] - p[2];
+      if (d) return d;
+    }
+    return 0;
+  };
+  rows.sort((x, y) => y.points - x.points || h2hCmp(x, y)
     || y.gd - x.gd || y.gf - x.gf || x.index - y.index);
+  for (const r of rows) delete r.h2hLevels;
   rows.forEach((r, i) => { r.rank = i + 1; });
   return rows;
 }
