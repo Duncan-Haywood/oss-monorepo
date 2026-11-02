@@ -1,7 +1,7 @@
 {
   "id": "P061",
   "title": "perf: quick-pick-survey's blocking Test step runs multi-minute measurement experiments",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 2,
@@ -22,6 +22,8 @@
   "opened": "2026-11-02",
   "source": "docs/history/ci-perf-2026-11-02-qps-simulations.md",
   "pr": null,
-  "result": null,
-  "history": []
+  "result": "Part 2: CI verify job runs test:fast; simulations run in a parallel job (same assertions). Metric to read after merge: verify job Test step minutes via ci_profile.py. Not measured yet.",
+  "history": [
+    "2026-11-02 part 2: workflow split"
+  ]
 }

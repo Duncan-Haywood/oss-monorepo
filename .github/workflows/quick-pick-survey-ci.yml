@@ -69,8 +69,10 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # The fast suite only; the minutes-long *.simulation.test.ts experiments
+      # run in the parallel `simulations` job (same assertions, P061).
       - name: Test
-        run: npm test
+        run: npm run test:fast
 
       - name: Build
         run: npm run build
@@ -126,3 +128,22 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
+  # The measurement experiments behind docs/INFORMATION-GAIN-SELECTOR.md and
+  # friends, split out of `verify` so they run in parallel instead of in front
+  # of the build. Assertions are unchanged; `npm test` still runs everything.
+  simulations:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ventures/quick-pick-survey/package-lock.json
+      - run: npm ci
+      - name: Simulation tests
+        run: npm run test:simulations
