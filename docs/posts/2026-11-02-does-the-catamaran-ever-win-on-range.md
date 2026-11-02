@@ -1,9 +1,9 @@
 ---
 title: "Does a catamaran ever beat a monohull on range? A sweep with tank-bound drag"
-seo_title: "Catamaran vs monohull range for a 200 kg survey boat: thin-ship theory sweep"
+seo_title: "Catamaran vs monohull range, 200 kg survey boat: a sweep"
 date: 2026-11-02
 tags: [marine-hull, catamaran, monohull, survey-boat]
-description: "For a 200 kg autonomous survey boat, a catamaran never out-ranged an equal-length monohull in 243 cases using Michell wave theory and form factors bounded by tank data."
+description: "For a 200 kg survey boat, a catamaran never out-ranged an equal-length monohull in 243 cases using Michell wave theory and tank-bound form factors."
 ---
 
 Small survey boats are often catamarans for deck area. Do they also go further per kWh?
