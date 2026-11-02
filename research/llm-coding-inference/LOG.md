@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-02 · Milestone 7j: the 7i ceiling becomes library code (`cell_ceiling`, `pilot_ceiling`; planned before the tests ran; no sampling)
+- Why: 7i's "Next". A planner who is told "cells" at J = 0.39 should also be told the most cells can buy (8%), since 7h realised 0.6%.
+- Change: `llmci/audit_design.py` gains `cell_ceiling(sens, spec) = sqrt(s(1-c)) + sqrt((1-s)c)` (prevalence-free by 7i's identity) and `pilot_ceiling(y, f)`; `plan_audit` returns it as `"ceiling"`. The screen itself is unchanged, so the checked 6ak to 6am rule and every earlier coverage result stand. The "worth it below 0.9" threshold 7i floated is not wired in: no experiment here shows the ceiling predicts the realised gain, only one corpus where it overstates it by 14 times.
+- **Prediction (before running):** the new tests reproduce 7i's quoted ratios (0.917 at J 0.4, 0.600 at J 0.8, 0.595 for 0.8/0.97, 0.819 for 0.5/0.97) and agree with direct Neyman arithmetic at three prevalences to 1e-12. Refuted if any differs.
+- Outcome: held; 22 tests pass. My first bound for the pilot ceiling at sens 0.9 / spec 0.95 was wrong (exact 0.520, the pilot's estimate 0.560), fixed to a 0.4 to 0.7 band.
+- Limits: asymptotic; the pilot's sens and spec are noisy at about 36 labels per class (the ceiling is a point estimate, no interval); not yet checked against realised gain across pilot sizes.
+- Next: realised fraction of the ceiling against pilot size on NaijaSenti; a coder with J above 0.6; then decide the threshold from that, not from 7i's guess.
+
 ## 2026-11-01 · Milestone 7i: why 7h's cells bought 0.6%: a closed-form ceiling on the coder-cell gain (planned before running; no sampling, arithmetic on the 7h corpus)
 - Why: 7h's "Next". 7h guessed the 6ag/6ai GoEmotions gains came from large prevalence contrast between cells. `experiments/h7i_cell_contrast.py` prints the cell prevalences of the 7h coder and the half-width ratio Neyman-cells over pooled implied by prevalence, sensitivity and specificity (no pilot cost, no finite-population correction).
 - **Prediction (before running):** the ceiling at the 7h coder is at least 5% narrower than pooled (ratio <= 0.95), so the observed 0.6% is mostly lost to the pilot-estimated allocation, and the ceiling grows as prevalence falls (the 7h guess). Refuted if the ceiling is above 0.95, or if it does not vary with prevalence.
