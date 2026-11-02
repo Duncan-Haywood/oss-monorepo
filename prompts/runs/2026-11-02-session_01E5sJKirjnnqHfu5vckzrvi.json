@@ -34,7 +34,7 @@
   "doc_friction": [],
   "deviations": [],
   "writeups": [
-    "docs/posts/2026-11-03-fuzzing-the-xlsx-reader.md"
+    "docs/posts/2026-11-02-fuzzing-the-xlsx-reader.md"
   ],
   "goal": null,
   "notes": "Fuzz found xlsx DecompressionStream TypeError leak; fixed. node --test readers-fuzz.test.mjs xlsx.test.mjs: 8 pass. Did not rewrite flagship next: (small slice).",
