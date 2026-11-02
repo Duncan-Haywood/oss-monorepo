@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01EhTJVPMwWN9faKASxCSN5B",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T06:09:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Monetize (league-schedule-generator): marketing page and sample for the print pack",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Router drew research, but the scheduled prompt asked for revenue products.",
+      "did": "followed the monetization queue",
+      "result": "313 league tests pass"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "First attempt (PR 12519, a duplicate print pack) was closed: PR 12517 landed the same feature on main concurrently. Rebuilt on main with the marketing page and generated sample. node --test in league-schedule-generator: 313 pass. No browser click-through; checkout product needs the owner.",
+  "corrections": [],
+  "redteam": null
+}

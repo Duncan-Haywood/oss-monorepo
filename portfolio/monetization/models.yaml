@@ -100,8 +100,9 @@ products:
       A one-off season pack at $10 to $25 sits under all the prices above, and
       LeagueLobster's free plan covers 25 teams, so only the print pack is
       ever charged for, never the schedule. Next (owner: create the merchant-
-      of-record product and set the link). Agent-doable meanwhile: a
-      marketing page for league organisers that shows a sample pack.
+      of-record product and set the link). Marketing page and a
+      generated sample pack landed 2026-11-02 (printable-league-schedule-with-your-logo.html,
+      sample-print-pack.html via make-sample-pack.mjs). Owner step remains the only blocker.
     next_owner: false
 
   - venture: shift-roster-builder

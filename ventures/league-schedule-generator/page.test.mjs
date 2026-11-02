@@ -824,3 +824,13 @@ test("multi-division page: results box feeds divisionsStandings and a CSV downlo
   assert.match(html, /divisionsStandings\(last, \$\("#results"\)\.value/);
   assert.match(html, /divisionsStandingsCsv\(lastStandings\)/);
 });
+
+test("print-pack marketing page: sample exists, linked, in sitemap, no review claims", () => {
+  const m = page("printable-league-schedule-with-your-logo.html");
+  assert.match(m, /rel="canonical"/);
+  assert.match(m, /not on sale yet/);
+  assert.ok(!/testimonial|rated|★/i.test(m));
+  assert.match(page("sample-print-pack.html"), /Sample Rec League \(invented teams\)/);
+  assert.match(page("sitemap.xml"), /printable-league-schedule-with-your-logo\.html/);
+  assert.match(page("index.html"), /href="\.\/printable-league-schedule-with-your-logo\.html"/);
+});
