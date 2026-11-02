@@ -1,6 +1,6 @@
 ---
 title: "A 4.5-second fix that came back as 31 seconds"
-seo_title: "Why a fixed performance bug returned: per-item scans over a growing list"
+seo_title: "Why a fixed performance bug returned: scans inside a loop"
 date: 2026-11-02
 tags: [performance, ci, profiling]
 description: "We cut a CI probe from 55 to 4.5 seconds in October. By November it took 31 again. The cause was the same shape of mistake, one level down."
