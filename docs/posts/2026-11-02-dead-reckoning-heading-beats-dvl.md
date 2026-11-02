@@ -3,7 +3,7 @@ title: "An underwater vehicle's heading sensor matters more than its Doppler log
 seo_title: "AUV dead reckoning drift: DVL accuracy against heading error"
 date: 2026-11-02
 tags: [research, marine, auv, navigation]
-description: A small simulation of how far an underwater vehicle can navigate on a DVL and a compass before it must surface, and why a heading error of 0.1 degree already rivals the DVL's own 0.2% error.
+description: A simulation of how far an underwater vehicle can navigate on a DVL and compass, and why 0.1 degree of heading error rivals the DVL's own 0.2% error.
 ---
 
 An underwater vehicle can't use GPS. It integrates the speed from a Doppler velocity log (DVL) along the heading from its gyro or compass. We built a small simulator, `research/marine-dr`, to ask how far that gets it.
