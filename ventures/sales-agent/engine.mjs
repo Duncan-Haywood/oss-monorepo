@@ -55,11 +55,30 @@ function nextMonthDay(today, m, d) {
  * "in two weeks/months", "next month", "next quarter", "Q1".."Q4", a bare month ("in January", "after June"),
  * "next year", "after the holidays" and "end of the month/quarter/year".
  */
+// Month names in German, French, Spanish, Portuguese, Italian and Dutch, mapped to the English words the date reader
+// knows (added 2026-11-02; out-of-office replies in those languages named a return date nobody read).
+const FOREIGN_MONTHS = {
+  jan: "januar|janvier|enero|janeiro|gennaio|januari", feb: "februar|f[eé]vrier|febrero|fevereiro|febbraio|februari",
+  mar: "m[aä]e?rz|mars|marzo|mar[cç]o|maart", apr: "avril|aprile", may: "mai|mayo|maio|maggio|mei",
+  jun: "juni|juin|junio|junho|giugno", jul: "juli|juillet|julio|julho|luglio", aug: "ao[uû]t|agosto",
+  sep: "septembre|septiembre|setiembre|setembro|settembre", oct: "oktober|octobre|octubre|outubro|ottobre",
+  nov: "novembre|noviembre|novembro", dec: "dezember|d[eé]cembre|diciembre|dezembro|dicembre",
+};
+const FOREIGN_RE = new RegExp(`(\\d{1,2})(?:\\.|\\s*[ºo°]|er)?\\s+(?:de\\s+|d['’]\\s*)?(${Object.values(FOREIGN_MONTHS).join("|")})\\b\\.?`, "i");
+function foreignToEnglish(text) {
+  return String(text).replace(new RegExp(`\\b(\\d{1,2})\\.\\s+(?=${MONTH_RE}\\b)`, "gi"), "$1 ").replace(new RegExp(FOREIGN_RE.source, "gi"), (all, day, name) => {
+    const mon = Object.keys(FOREIGN_MONTHS).find((k) => new RegExp(`^(?:${FOREIGN_MONTHS[k]})$`, "i").test(name));
+    return mon ? `${day} ${mon}` : all;
+  });
+}
+
 export function findDate(text, today) {
+  const orig = String(text);
+  text = foreignToEnglish(text);
   const r = findDateLower(text, today);
   if (!r) return null;
   const at = String(text).toLowerCase().indexOf(r.text); // report the words as the person wrote them ("Q1", "March 3")
-  return at < 0 ? r : { ...r, text: String(text).slice(at, at + r.text.length) };
+  return text !== orig ? { ...r, text: r.text } : at < 0 ? r : { ...r, text: String(text).slice(at, at + r.text.length) };
 }
 
 function findDateLower(text, today) {
@@ -217,7 +236,7 @@ export const toCsv = (rows, cols) => [cols.join(","), ...rows.map((r) => cols.ma
 
 // ---------- triage ----------
 
-const sentences = (t) => String(t).replace(/\s+/g, " ").split(/(?<=[.!?])\s+|\s+[-–—]\s+/).map((x) => x.trim()).filter(Boolean);
+const sentences = (t) => String(t).replace(/\s+/g, " ").split(/(?<=[.!?])(?<!\b\d{1,2}\.)\s+|\s+[-–—]\s+/).map((x) => x.trim()).filter(Boolean);
 const P = (re) => new RegExp(re, "i");
 
 const RULES = {
@@ -275,7 +294,7 @@ const RULES = {
     P("abwesenheit"), P("\\bnicht (im|in meinem|im meinem) b[üu]ro\\b"), P("\\bau(ß|ss)er haus\\b"), P("\\bbin (bis|vom|ab) .{0,40}(abwesend|im urlaub|nicht erreichbar)"), P("automatische antwort"), P("\\bim urlaub\\b"),
     P("r[ée]ponse automatique"), P("message d'?absence"), P("\\b(absent|absente) (du bureau|jusqu)"), P("\\ben cong[ée]s?\\b"), P("\\bde retour (le|lundi|mardi|mercredi|jeudi|vendredi|d[èe]s)\\b"), P("hors du bureau"),
     P("respuesta autom[áa]tica"), P("fuera de (la )?oficina"), P("\\bestar[ée] (ausente|de vacaciones|fuera)\\b"), P("\\bde vacaciones\\b"), P("mensaje autom[áa]tico"),
-    P("risposta automatica"), P("fuori (dall')?ufficio"), P("\\bsono (in ferie|assente)\\b"),
+    P("risposta automatica"), P("fuori (dall')?ufficio"), P("\\bfuori sede\\b"), P("\\bsono (in ferie|assente)\\b"),
     P("resposta autom[áa]tica"), P("fora do escrit[óo]rio"), P("\\best(ou|arei) (ausente|de f[ée]rias)\\b"),
     P("automatisch antwoord"), P("automatisch bericht"), P("\\bafwezig\\b"), P("niet (aanwezig|op kantoor)"), P("buiten kantoor"),
   ],
@@ -349,7 +368,7 @@ export function triage(reply, today) {
   })();
 
   if ((ev = find("out_of_office"))) {
-    const d = (() => { for (const s of all) { if (/\b(back|return|returning|until|till|away|leave|office|reply)\b/i.test(s)) { const f = findDate(s, today); if (f) return f; } } return null; })();
+    const d = (() => { for (const s of all) { if (/\b(back|return|returning|until|till|away|leave|office|reply|jusqu|retour|hasta|vuelta|at[ée]|volto|bis|zur[üu]ck|fino|tot)\b/i.test(s)) { const f = findDate(s, today); if (f) return f; } } return null; })();
     return res("out_of_office", ev, { date: d?.date || null, dateText: d?.text || null, referral, why: d ? `away until ${d.date}` : "away, no return date given" });
   }
   if ((ev = find("left_company"))) return res("left_company", ev, { referral, why: referral ? `points you to ${referral.email}` : "not the right contact" });
