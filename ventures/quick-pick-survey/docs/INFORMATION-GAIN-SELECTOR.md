@@ -382,3 +382,23 @@ the 2026-11-01 run had clean at 0.772 and lapse at 0.708 on other seeds, so a
 0.06 to 0.08 spread between seed sets is normal here and the 50% row is not
 distinguishable. Not run: 1000+ items.
 Reproduce as above (about 70 s).
+
+### The same at 1000 items (2026-11-02)
+
+Same test with `NOISY_ITEMS=1000 NOISY_ANSWERS=1000 NOISY_RESPONDENTS=3` (the
+test now reads these; defaults stay 60/200/3). 3 respondents x 1000 answers
+per condition, through the real routes and local Postgres 16, 602 s in all.
+At 1000 answers on 1000 items each item is seen about twice, so these are
+low-data ranks and not comparable with the 60-item table.
+
+| condition | top-slot share | Spearman, fallback on | fallback off |
+|---|---|---|---|
+| clean | 0.48 | 0.619 | not run |
+| 20% lapse | 0.50 | 0.443 | not run |
+| 50% top-slot bias | 0.76 | 0.374 | 0.312 |
+| 80% top-slot bias | 0.91 | 0.212 | 0.060 |
+
+Reading: the fallback helps at both bias levels here (+0.06 at 50%, +0.15 at
+80%), where at 60 items the 50% case showed no difference. One seed set and 3
+respondents per cell, so treat the 50% gap as suggestive. Reproduce:
+`NOISY_ITEMS=1000 NOISY_ANSWERS=1000 NOISY_OUT=/tmp/o.txt npx vitest run -c vitest.integration.config.ts src/app/api/trials/noisyRespondents`.
