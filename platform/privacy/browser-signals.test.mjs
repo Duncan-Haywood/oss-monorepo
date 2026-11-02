@@ -9,7 +9,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 
-import { checkModule, findUsageModules } from "./browser-signals.mjs";
+import { checkModule, findUsageModules, eventNamesFrom } from "./browser-signals.mjs";
 
 const REPO_ROOT = new URL("../../", import.meta.url).pathname;
 
@@ -239,4 +239,26 @@ test("cli: importing the module does not run the scan", () => {
   const r = spawnSync(process.execPath, ["--input-type=module", "-e", `await import(${JSON.stringify(url)}); console.log("imported");`], { encoding: "utf8" });
   assert.equal(r.stdout, "imported\n");
   assert.equal(r.status, 0);
+});
+
+test("eventNamesFrom caps the probe list at 24 names, the default first", () => {
+  const names = Array.from({ length: 40 }, (_, i) => `evt_name${i}`);
+  const f = fixture(names.map((n) => `export const ${n} = "${n}";`).join("\n"));
+  try {
+    const got = eventNamesFrom(f.path);
+    assert.equal(got.length, 24);
+    assert.equal(got[0], "checked");
+  } finally { f.cleanup(); }
+});
+
+test("a recorder that only counts when called as (event, true) is still driven", async () => {
+  const f = fixture(`
+let n = 0;
+export function recordEvent(event, flag) { if (flag === true) globalThis.localStorage?.setItem("k", String(++n)); }
+`);
+  try {
+    // Control run must see a write: the (event, true) shape is the only one that triggers it.
+    const result = await checkModule(f.path);
+    assert.notEqual(result.status, "undrivable");
+  } finally { f.cleanup(); }
 });
