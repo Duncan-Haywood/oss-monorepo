@@ -75,6 +75,7 @@ on:
       - "portfolio/research/egress-reachability/**"
       - "portfolio/scoring/**"
       - "portfolio/usage/**"
+      - "portfolio/requests/**"
       - "portfolio/ledger/break-even.md"
       - "portfolio/ledger/break_even.py"
       - "portfolio/ledger/test_break_even.py"
@@ -115,6 +116,7 @@ on:
       - "portfolio/research/egress-reachability/**"
       - "portfolio/scoring/**"
       - "portfolio/usage/**"
+      - "portfolio/requests/**"
       - "portfolio/ledger/break-even.md"
       - "portfolio/ledger/break_even.py"
       - "portfolio/ledger/test_break_even.py"
@@ -193,6 +195,13 @@ jobs:
       # and page-view counts; it shares platform/counter's rules (core.mjs).
       - name: Site feedback Worker and visit counter
         run: node --test "platform/edge/*.test.mjs" "platform/counter/*.test.mjs"
+
+      # The free custom development queue (portfolio/requests): the validator,
+      # the injection screen, and a request from the form through intake to
+      # its page. Nothing ran these before; build.mjs and site-feedback.json
+      # changes reach them through the platform/pages and portfolio/usage paths.
+      - name: Custom development request queue
+        run: node --test "portfolio/requests/*.test.mjs"
 
       - name: Check candidate scores agree across yaml, write-ups, and README
         run: python3 portfolio/pipeline/validate_doc_consistency.py
