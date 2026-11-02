@@ -3,7 +3,7 @@ title: "A scale model aircraft in real turbulence: the match breaks"
 seo_title: "Scaled drone model vs full-size aircraft in real turbulence"
 date: 2026-11-02
 tags: [research, uav, scaling, turbulence]
-description: "A 1:5 Froude model of a cargo UAV matches the full-size load factor in scaled turbulence, but not in real air: load factor 38 to 53% low, pitch response off by up to 180%."
+description: "A 1:5 Froude model of a cargo UAV matches full-size load factor in scaled turbulence, but not in real air: load factor 38 to 53% low, pitch response far off."
 ---
 
 A dynamically (Froude) scaled model is flown to predict how a full-size aircraft behaves. Our `aerolog-scaling` programme asks which quantities that works for. Last week's milestone found that in continuous turbulence a 1:5 model of a cargo UAV matches the full-size rms load factor within 2% but has a pitch response 25 to 40% too large. That assumed the turbulence shrinks with the model.
