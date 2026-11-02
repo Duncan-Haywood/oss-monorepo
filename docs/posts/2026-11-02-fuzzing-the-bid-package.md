@@ -3,7 +3,7 @@ title: "Fuzzing the page a contractor hands a customer"
 seo_title: "Testing a contractor bid package for leaked prices and injected markup"
 date: 2026-11-02
 tags: [testing, construction, wall-framing-takeoff]
-description: "A seeded property test for the branded bid package in wall-framing-takeoff: no unit prices shown, no injected markup, and a mutation check that proves it can fail."
+description: "A seeded property test for the branded bid package in wall-framing-takeoff: no unit prices shown, no injected markup, and a mutation check."
 ---
 
 The bid package in `wall-framing-takeoff` is the one page a contractor prints and gives a customer. It must show quantities but never unit prices, and it prints text the contractor types (company, address, client, project) plus an optional logo URL, so a stray `<script>` or an unsafe logo would land on a customer's screen.
