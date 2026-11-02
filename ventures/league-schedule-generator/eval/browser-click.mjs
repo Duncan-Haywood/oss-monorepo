@@ -115,6 +115,12 @@ check(await page.locator("#dl-standings").isVisible(), "standings: CSV button ap
   check(dl.suggestedFilename() === "division-standings.csv" && text.startsWith("Division,Rank,Team"), "standings CSV downloads with a Division column");
 }
 
+await page.fill("#po-per", "2");
+await page.fill("#po-wc", "1");
+await page.click("#show-playoffs");
+const po = await page.locator("#playoffs-out").innerText();
+check(/^ ?1\. /m.test(po) && /Final/.test(po) && /place 1/.test(po), "play-off: seeds and a bracket are shown from the standings");
+
 check(errors.length === 0, `no page errors${errors.length ? ": " + errors.join("; ") : ""}`);
 await browser.close();
 server.close();
