@@ -134,6 +134,14 @@ class ClaimScanning(unittest.TestCase):
         body = "an earlier line\nit recorded zero observed users, which used to say so"
         self.assertEqual(self._scan(body), [])
 
+    def test_a_marker_on_the_immediately_preceding_plain_line_exempts_it(self):
+        self.assertEqual(self._scan("used to open\nit recorded zero observed users across 1.\n"), [])
+
+    def test_a_marker_two_lines_before_the_claim_does_not_exempt_it(self):
+        """The window is one full line either side, before as well as after."""
+        body = "used to open\n\nit recorded zero observed users across 1.\n"
+        self.assertEqual(len(self._scan(body)), 1)
+
     def test_a_marker_two_lines_after_the_claim_does_not_exempt_it(self):
         """The window is one full line either side, not a paragraph."""
         body = "it recorded zero observed users across 184 products.\n\nThat used to say otherwise.\n"
@@ -288,6 +296,30 @@ class Cli(unittest.TestCase):
 
         with contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(state.main([]), 0)
+
+
+class RequireHonestGate(unittest.TestCase):
+    def _main(self, honest, argv):
+        import contextlib
+        import io
+        from unittest import mock
+
+        report = {"honest": honest}
+        err = io.StringIO()
+        with mock.patch.object(state, "build_report", return_value=report), \
+                mock.patch.object(state, "render", return_value="r"), \
+                contextlib.redirect_stdout(io.StringIO()), \
+                contextlib.redirect_stderr(err):
+            return state.main(argv), err.getvalue()
+
+    def test_dishonest_report_fails_only_with_the_flag(self):
+        code, err = self._main(False, ["--require-honest"])
+        self.assertEqual(code, 1)
+        self.assertIn("FAIL", err)
+        self.assertEqual(self._main(False, [])[0], 0)
+
+    def test_honest_report_passes_with_the_flag(self):
+        self.assertEqual(self._main(True, ["--require-honest"])[0], 0)
 
 
 if __name__ == "__main__":

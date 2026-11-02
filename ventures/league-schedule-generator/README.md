@@ -223,3 +223,19 @@ rounds left go first, so they finish together) and which match gets which court 
 **Messages for multi-division leagues (2026-10-29).** `multi-division-league-schedule.html` gains "Download a message per team (.txt)" and, when officials are listed, "Download a message per official (.txt)", as the single-league page has. `divisionsTeamMessages(schedule)` writes one note per team (division, date, time, court, venue, home or away opponent; teams sharing a name in two divisions get one each) and `divisionsOfficialMessages(schedule)` one per official (`divisions.mjs`). Test: every match appears once per side (2 x matches in all), each note has one line per fixture, official notes sum to the assigned total. Wiring tested, not clicked in a browser.
 
 **Reminder box on the multi-division page (2026-11-01).** `multi-division-league-schedule.html` gains a "Reminder before each game (minutes)" box next to the calendar button; a value from 1 to 10080 adds a display alarm to every timed event through the existing `divisionsIcs(..., { alarmMinutes })`, blank adds none. Checked by `page.test.mjs` (the id and the wiring) and the 105 existing page and division tests; not clicked in a browser, and how a phone calendar shows the alarm is untried.
+
+## Branded season print pack (2026-11-02, dark until a checkout link is set)
+
+`printpack.mjs` builds one printable page set on the organiser's letterhead: a
+cover (league, season, logo, contact), the full schedule, one page per team
+(home/away, byes marked) and an optional rules page. It reuses the licence-key
+check from `ventures/wall-framing-takeoff` (`licence.mjs`; the provider's
+validate call is from memory of its docs and unrun). The card in `index.html`
+shows only when `CHECKOUT_URL` in `checkout.mjs` is a plain https link, which
+is empty today, so nothing is for sale. The schedule, CSV, calendar, web page
+and score sheets stay free. The key is an honest-buyer convenience, not copy
+protection; the code is MIT. Checked: `node --test printpack.test.mjs`
+(5 cases: a page per team with each game once and the bye, escaping of every
+typed field, SVG and non-hex colour refused, the card dark, the key check never
+throwing offline); whole suite 312 passing. Not checked: a real checkout, or
+the pack in a browser print dialog.

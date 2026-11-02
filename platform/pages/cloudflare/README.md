@@ -84,7 +84,7 @@ To manage the domain from the repository instead, add
 that zone (Cloudflare's "Edit Cloudflare Workers" template); the attach API
 itself lists Account → Workers Scripts → Edit.
 
-## Email: support@ and hello@marisstella.app
+## Email: support@, hello@ and accounts@marisstella.app
 
 Mail to the domain is Cloudflare Email Routing (free), kept as code like the
 rest of this directory: `email-routing.json` lists the addresses,
@@ -92,6 +92,9 @@ rest of this directory: `email-routing.json` lists the addresses,
 and `.github/workflows/cloudflare-email.yml` runs it on demand. Every address
 forwards to one inbox held in the `EMAIL_FORWARD_TO` secret, so the
 repository names it but never contains it.
+`accounts@` is the sign-up address for the portfolio's platform accounts
+(Bluesky, Mastodon, dev.to, npm, ...); the list of those accounts and their
+setup steps is `portfolio/distribution/SETUP.md`.
 
 Owner setup, once: add the `EMAIL_FORWARD_TO` secret to the `cloudflare`
 environment, give the deploy token the Email Routing permissions the

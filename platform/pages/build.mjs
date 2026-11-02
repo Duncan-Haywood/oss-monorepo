@@ -39,6 +39,7 @@ import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, loadPosts, WRITING_PATH } f
 import { buildStories, STORIES_PATH } from './stories.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
+import { buildQueue, QUEUE_PATH } from './queue.mjs';
 import { audienceGroups, audiencePageId, audiencesFor } from './audiences.mjs';
 import {
   FEED_MAX_ENTRIES,
@@ -8816,6 +8817,7 @@ ${renderLatestWriting(posts, { writingPath: WRITING_PATH })}
         <li>No tracking cookies</li>
         <li>MIT licence throughout</li>
         <li>Every change in the <a href="${CHANGELOG_PATH}">public changelog</a></li>
+        <li>What gets built next, in order, on the <a href="${QUEUE_PATH}">work queue</a></li>
       </ul>
     </section>
 
@@ -10959,7 +10961,7 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     .concat([`  <url><loc>${baseUrl}${STORIES_PATH}</loc></url>`])
     // The open book: updates and the changelog. Both change with every merge,
     // which is what a crawler deciding how often to come back wants to see.
-    .concat([`  <url><loc>${baseUrl}${UPDATES_PATH}</loc></url>`, `  <url><loc>${baseUrl}${CHANGELOG_PATH}</loc></url>`])
+    .concat([`  <url><loc>${baseUrl}${UPDATES_PATH}</loc></url>`, `  <url><loc>${baseUrl}${CHANGELOG_PATH}</loc></url>`, `  <url><loc>${baseUrl}${QUEUE_PATH}</loc></url>`])
     // And the guides index, for the same reason. See `GUIDES_PATH`: it is the
     // only page on the site that is *about* the 342 informational pages the
     // ventures wrote, which is the half of the catalogue organic search
@@ -11218,6 +11220,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     `- [Free custom software for your business](${baseUrl}${CUSTOM_DEV_PATH}): describe your problem and it gets built. How a business, or anyone, can ask the agents that build this site for a new tool, free and in public, the one condition (the result stays MIT licensed, held by the repository owner), and every request so far with its status. Each request has its own page (custom-development/R-0001/ and so on) showing its stage and what is still open, with a form for feedback on it.`,
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
+    `- [Work queue](${baseUrl}${QUEUE_PATH}): a read-only view of what the agents work on next and in what order (owner ideas, website requests, flagship projects, research programmes), with what is in flight and what waits on the owner.`,
     `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,
     // Named individually rather than left behind the index, because the
     // question an assistant is actually asked is about one product ("a free
@@ -11944,6 +11947,13 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     published: new Set(surfaces.map((s) => s.slug)),
     researchSlugs: new Set(researchSlugs),
     titles: new Map(surfaces.map((s) => [s.slug, s.title])),
+    socialCard: `${base}${SOCIAL_CARD_FILE}`,
+  });
+
+  // The work queue (see `queue.mjs`): a read-only view of what the agents
+  // take next, in prompt.md's order, from the same files they read.
+  await buildQueue(outDir, base, {
+    published: new Set(surfaces.map((s) => s.slug)),
     socialCard: `${base}${SOCIAL_CARD_FILE}`,
   });
 

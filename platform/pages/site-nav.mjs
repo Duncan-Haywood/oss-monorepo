@@ -181,6 +181,7 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
     ['stories/', 'Stories'],
     ['updates/', 'Updates &amp; roadmap'],
     ['changelog/', 'Changelog'],
+    ['queue/', 'Work queue'],
     ['guides/', 'Guides'],
     ['compare/', 'Comparisons'],
     ['deploy/', 'Deploy your own copy'],
