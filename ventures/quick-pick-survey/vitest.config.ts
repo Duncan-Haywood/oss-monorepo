@@ -8,7 +8,15 @@ export default defineConfig({
     // `*.integration.test.ts` matches the include pattern but needs a running
     // Postgres, and this suite's whole point is that it needs nothing. It runs
     // via `npm run test:integration` — see vitest.integration.config.ts.
-    exclude: ["**/node_modules/**", "**/*.integration.test.ts"],
+    exclude: [
+      "**/node_modules/**",
+      "**/*.integration.test.ts",
+      // Measurement experiments that take minutes each (one 500-item case
+      // measured 165 s on 2026-11-02, the whole suite 8m20s locally). They run
+      // via `npm run test:slow`, which CI does on main and on PRs that touch
+      // src/lib. docs/history/ci-perf-2026-11-02-quick-pick-slow-sims.md.
+      ...(process.env.QPS_SLOW ? [] : ["**/poolCap.simulation.test.ts"]),
+    ],
     // The simulation suites drive thousands of real answering sessions to
     // produce the numbers docs/CONVERGENCE.md, docs/POOLING.md and the
     // decision records quote. The heaviest of them ran 5.1s against vitest's

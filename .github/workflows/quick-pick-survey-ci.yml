@@ -72,6 +72,18 @@ jobs:
       - name: Test
         run: npm test
 
+      # Minutes-long measurement simulations: only when src/lib (or this
+      # config) could change their result, and always on main.
+      - name: Slow simulations
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ -n "$BASE_SHA" ] && git fetch -q --depth=1 origin "$BASE_SHA" \
+             && ! git diff --name-only "$BASE_SHA" HEAD -- . ':!src/app' ':!src/components' ':!docs' | grep -qE '^(ventures/quick-pick-survey/)?(src/lib/|vitest.config|package-lock)'; then
+            echo "no src/lib change: skipping slow simulations"; exit 0
+          fi
+          npm run test:slow
+
       - name: Build
         run: npm run build
 
