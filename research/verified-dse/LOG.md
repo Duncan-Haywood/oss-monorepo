@@ -3,6 +3,20 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-11-02 · Milestone 57: how sensitive is the BOHB low-budget win to its three untuned hyperparameters? (predictions written before the sweep; no flow)
+- Why: milestones 54 and 55 fixed gamma 0.25, random fraction 1/3 and min observations 6 without tuning, and say so in their limits. Before the paper leans on "KDE entrants beat random routing at low budget", check the claim is not a knife-edge of those values. `experiments/bohb/sweep.py` varies one at a time (gamma 0.1, 0.15, 0.4; random fraction 0, 0.15, 0.6; min obs 4, 10), reruns `bohb.py` on the 40 + 10 cells (100 paired seeds, same cost model), and pools to 50 cells. `bohb.py` gains env-var overrides (defaults unchanged, reproduces milestone 55's table).
+- **Predictions on record:** (1) at 15 and 25 routed-run equivalents BOHB's pooled mean regret is below random routing's in at least 7 of the 8 non-base settings (the win is not knife-edge); (2) random fraction 0 is the worst setting for BOHB at 25 (no exploration, density model locks onto early noise); (3) at 40, random routing stays at or below BOHB in the pooled mean for most settings (milestone 54's pattern; the held-out 10 cells pull the pool toward BOHB, so I expect a narrow margin); (4) no setting beats the base by more than 0.5 percentage points at 15, i.e. the untuned defaults are not far from a local optimum. If (1) fails in 3 or more settings, the paper must call the win setting-dependent.
+- Limits known up front: one-at-a-time, no interaction grid; the 50 cells are not independent; the settings are chosen with the same cells they are scored on, so a best setting is not an out-of-sample choice and I report the spread, not a new default.
+
+- **Outcome (`experiments/bohb/sweep.txt`; 9 settings x 50 cells x 100 seeds, 9.6 min, no flow).** Pooled mean regret %, random routing 3.40 / 1.68 / 0.35 at 15 / 25 / 40; BOHB at the defaults 2.22 / 1.74 / 1.13.
+  - (1) **half held.** At 15, BOHB beats random in 8 of 8 settings (2.02 to 3.14 against 3.40). At 25 it beats random in only 4 of 8 (gamma 0.1, 0.15, prand 0.6, minobs 4: 1.49 to 1.60 against 1.68) and the **defaults themselves are above random on the 50-cell pooled mean (1.74 against 1.68)**. Milestone 54's 25-equivalent claim rested on cell win counts (25 of 36), not on the mean; on the mean it was already 2.05 against 1.77 there. The paper must say the low-budget win is at 15 on the mean, and at 25 on per-cell counts only.
+  - (2) held: random fraction 0 is BOHB's worst setting at 25 (2.03).
+  - (3) held, but the margin is not narrow: at 40 random (0.35) beats BOHB (1.13 to 1.23) in every setting; only `bohb_r4first` (0.42 to 0.73) comes close.
+  - (4) held: the best setting at 15 (gamma 0.15, 2.02) improves on the defaults by 0.20 points.
+  - New: **min observations 10 removes the win at 15** (3.14 against 3.40): with a threshold of 10 the density model rarely activates inside a 15-equivalent budget. gamma 0.4 is also worse than lower values (2.46). So the claim depends on letting the model start early (min obs 4 to 6) and a small good fraction (gamma at most 0.25).
+- Reading: the 15-equivalent win is robust to gamma and random fraction, sensitive to min observations, and the 25-equivalent one is not a pooled-mean result. No setting here is out-of-sample; settings were scored on the cells they were chosen from, so no new default is proposed.
+- Next: a held-out set with an unfaithful R2 (needs new flow runs for mult24 / mult32 under R5); a min-obs x budget interaction grid.
+
 ## 2026-11-02 · Milestone 56: carry milestone 55 into the paper (no flow run)
 - PAPER.md section 6 item 3 now cites the held-out BOHB replay (milestone 55) in place of "unconfirmed on held-out designs", with the wrong third prediction stated. Next: a held-out set with an unfaithful R2 (mult24, mult32 relaxed).
 
