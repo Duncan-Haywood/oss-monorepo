@@ -472,3 +472,5 @@ licence.test.mjs page.test.mjs` (shipped config is dark and makes no call; typed
 text, logo and colour cannot inject markup; expired, revoked and unreachable
 keys are refused). Not verified: the provider's real endpoint and field names
 (docs unreachable from the build container), so confirm them before enabling.
+
+- **Fastener fuzz test** (2026-11-02, `fasteners-fuzz.test.mjs`): 300 seeded random wall plans (openings, tees, corners, sheathed or not) and nailing schedules give finite, non-negative counts whose connection rows and per-wall rows both sum to the total, an order never under the count, whole boxes covering the order, and never fewer nails with tighter plate spacing; a wider hold-down threshold never counts more hold-downs, and out-of-range settings are refused. No bug found. Still no real framer's nail schedule compared.
