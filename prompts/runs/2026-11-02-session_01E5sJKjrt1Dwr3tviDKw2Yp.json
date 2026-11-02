@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01E5sJKjrt1Dwr3tviDKw2Yp",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md",
+  "input_sha256": "f9deac66f3092b0822ffff48bc3c0034c923410213472753663352b337302887",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T14:14:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12592",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "no guidance on suites that outlast the background time limit; my per-file timing run was killed at 15 min"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post written: perf finding is small and after-number is unmeasured until CI runs; wrote docs/history note instead."
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-02-quick-pick-slow-sims.md"
+  ],
+  "goal": null,
+  "notes": "metric: quick-pick-survey CI Test step, 20.4 job-min over 3 jobs (ci_profile --runs 200). Before: local vitest run 8m20s wall (time), poolCap case 165s. After: not measured; CI to confirm. Per-file timings of other simulation files not taken.",
+  "corrections": [],
+  "redteam": null
+}
