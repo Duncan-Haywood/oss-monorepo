@@ -208,6 +208,10 @@ export function validatePlan(plan) {
   if (!(plan.studLength >= 24 && plan.studLength <= 240)) errors.push("Stud length must be between 24 and 240 inches.");
   if (!(plan.kerf >= 0 && plan.kerf <= 0.5)) errors.push("Saw kerf must be between 0 and 1/2 inch.");
   if (!(plan.topPlateLap >= 0 && plan.topPlateLap <= 96)) errors.push("Top plate joint offset must be between 0 and 96 inches.");
+  for (const [key, label] of [["cornerExtraStuds", "Corner backing studs"], ["teeExtraStuds", "Tee backing studs"]]) {
+    const v = plan[key];
+    if (v !== undefined && !(Number.isInteger(v) && v >= 0 && v <= 6)) errors.push(`${label} must be a whole number from 0 to 6 (a value like 1e9 would never finish).`);
+  }
   const sizes = new Set((plan.stock || []).filter((s) => s.length > 0 && s.price >= 0).map((s) => s.size));
   const ids = new Set();
   for (const wall of plan.walls) {

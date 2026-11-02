@@ -894,3 +894,20 @@ test("parseLength reads metric lengths (mm, cm, m)", () => {
   assert.equal(parseLength("8 ft"), 96);
   assert.ok(Number.isNaN(parseLength("5 mm x")));
 });
+
+test("backing stud counts must be whole numbers 0 to 6 (1e9 used to hang, -5 and 1.5 were accepted)", () => {
+  for (const key of ["cornerExtraStuds", "teeExtraStuds"]) {
+    for (const bad of [1e9, -5, 1.5, 7, NaN, "2"]) {
+      const p = samplePlan();
+      p[key] = bad;
+      const r = takeoff(p);
+      assert.equal(r.ok, false, `${key}=${bad}`);
+      assert.ok(r.errors.some((e) => /whole number from 0 to 6/.test(e)), String(r.errors));
+    }
+    for (const good of [0, 1, 2, 6]) {
+      const p = samplePlan();
+      p[key] = good;
+      assert.equal(takeoff(p).ok, true, `${key}=${good}`);
+    }
+  }
+});
