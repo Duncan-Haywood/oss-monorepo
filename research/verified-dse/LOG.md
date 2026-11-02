@@ -3,6 +3,19 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-11-02 · Milestone 60: out-of-sample check of the min-observations choice (predictions written before the run; no flow)
+- Why: milestones 57 and 58 scored every min-obs setting on the cells it was tuned on and proposed no default for that reason. `experiments/bohb/oos_minobs.py` reports the 40 main cells and the 10 held-out cells of milestone 27 separately for min obs 3, 5, 6, 8, 12, then picks the best on the 40 and scores it on the 10 (100 paired seeds).
+- **Predictions on record:** (1) at 15 equivalents the min obs chosen on the 40 cells is within 0.5 points of the best on the 10 held-out cells; (2) BOHB with that choice is below random routing on the 10 held-out cells at 15; (3) at 25 and 40 random is at or below BOHB on the 10 held-out cells for every min obs (no out-of-sample win beyond 15).
+- Limits: 10 held-out cells are few and from one flow corner; all 50 cells share designs families.
+
+- **Outcome (`experiments/bohb/oos_minobs.txt`; 5 min obs values x (40 + 10) cells x 100 seeds, about 8 min, no flow).** Pooled-mean regret %, BOHB (random routing) on the 10 held-out cells: at 15, min obs 3 / 5 / 6 / 8 / 12 give 0.42 / 0.64 / 0.64 / 0.64 / 1.96 (random 2.75); at 25, 0.43 to 0.49 for min obs 3 to 12 (random 1.30); at 40, 0.14 to 0.19 (random 0.32). On the 40 main cells min obs 5 is best at 15 (2.54 against random 3.56) and random wins at 40 (0.36 against 1.38 to 1.49).
+  - (1) **held:** min obs 5, chosen on the 40 cells, scores 0.64 on the held-out 10 against 0.42 for the held-out best (min obs 3), 0.22 apart.
+  - (2) **held:** 0.64 against random 2.75 at 15.
+  - (3) **wrong:** on the 10 held-out cells BOHB is below random at 25 (0.43 to 0.49 against 1.30) and, by 0.13 to 0.18 points, at 40, while on the 40 main cells random wins at 40 by about 1 point. So the held-out designs favour BOHB at every budget, and the pooled-mean conclusion at 25 and 40 comes from the 40 main cells; the held-out set cannot overturn it (10 cells, differences at 40 are inside noise, and low regrets are floored near 0).
+- Reading: the min obs choice transfers (5 to 6 stays near the held-out best), and min obs 12 is the only setting that loses the 15-equivalent win out of sample too (1.96 against 2.75 is still below, but the margin collapses). The held-out win is bigger than the main-cell win at every budget, so the BOHB result is design-set dependent in size; I do not read the 25 and 40 held-out numbers as a reversal.
+- Limits: 10 held-out cells, one corner; the held-out cells were also pooled in milestones 57 and 58; no unfaithful-R2 designs (still needs OpenROAD).
+- Next: unfaithful-R2 held-out designs (mult24, mult32 relaxed) under the router flow.
+
 ## 2026-11-02 · Milestone 59: carry milestone 58 into the paper (no flow run)
 - PAPER.md section 6 item 3 now cites the min-observations grid (milestone 58): win at 15 equivalents fades gradually between min obs 8 and 12, none at 25 or 40. Next: a held-out set with an unfaithful R2 (mult24, mult32 relaxed), needs OpenROAD.
 
