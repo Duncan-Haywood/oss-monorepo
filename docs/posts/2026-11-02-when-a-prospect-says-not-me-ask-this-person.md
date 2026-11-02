@@ -1,9 +1,9 @@
 ---
 title: "When a prospect replies 'not me, ask Priya', the agent should say so"
-seo_title: "Handling 'wrong person' replies to cold email: referral detection in six languages"
+seo_title: "Handling wrong-person replies to cold email in six languages"
 date: 2026-11-02
 tags: [sales-agent, cold-email, replies, evaluation]
-description: "A probe of 14 'wrong person' replies found 10 that the sales agent filed as unclear. Now 13 route correctly. What changed, what it cost, and what is still unmeasured."
+description: "A probe of 14 wrong-person replies found 10 the sales agent filed as unclear. Now 13 route correctly. What changed, the cost, and what is unmeasured."
 ---
 
 Cold outreach gets a lot of "I'm not the right person." The reply is useful: it often names who is. The open-source [sales agent](../../ventures/sales-agent/README.md) already had a `left_company` category for it, with a referral address pulled from the text.
