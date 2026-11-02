@@ -197,6 +197,7 @@ export function validatePlan(plan) {
     else if (ids.has(wall.id)) errors.push(`${name}: two walls have this name.`);
     ids.add(wall.id);
     if (!(wall.length >= 12)) { errors.push(`${name}: length must be at least 12 inches.`); continue; }
+    if (wall.length > 12000) { errors.push(`${name}: length must be at most 12000 inches (1000 ft).`); continue; }
     const stud = wall.stud || "2x4";
     if (!(stud in DEPTH) || (stud !== "2x4" && stud !== "2x6")) errors.push(`${name}: studs must be 2x4 or 2x6.`);
     if (!sizes.has(plateSize(wall))) errors.push(`${name}: no ${plateSize(wall)} boards in the lumber list.`);
@@ -223,6 +224,7 @@ export function validatePlan(plan) {
       const on = `${name}, ${op.label || op.kind} at ${formatLength(op.offset)}`;
       if (!(op.width > 0)) { errors.push(`${on}: rough opening width must be more than zero.`); continue; }
       if (!(op.height > 0)) { errors.push(`${on}: rough opening height must be more than zero.`); continue; }
+      if (op.jacks !== undefined && !(Number.isInteger(op.jacks) && op.jacks >= 0 && op.jacks <= 6)) { errors.push(`${on}: jacks must be a whole number from 0 to 6.`); continue; }
       const z = vzones[oi];
       if (z.start < THICK - EPS || z.end > wall.length - THICK + EPS) {
         errors.push(`${on}: the king studs run past the end studs. Move the opening at least ${formatInches(THICK * (z.jacks + 1))} from the wall end (its jacks must clear the end stud), or frame this end by hand.`);

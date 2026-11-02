@@ -847,3 +847,13 @@ test("horizontal sheets: every course joint is backed by joint blocks, also with
   }
   assert.equal(nailerCuts(s).filter((c) => c.kind === "sheathing joint block").reduce((t, c) => t + c.qty, 0), w.jointBlocks.length);
 });
+
+test("hostile plans are refused with a reason, not silently framed or thrown on", () => {
+  const bad = (edit) => { const p = samplePlan(); edit(p.walls[0]); return takeoff(p); };
+  for (const jacks of [-3, 1.5, 99]) {
+    const r = bad((w) => { w.openings[0].jacks = jacks; });
+    assert.ok(r.errors?.some((e) => /jacks must be a whole number/.test(e)), `jacks ${jacks}`);
+  }
+  const r = bad((w) => { w.length = 1e12; });
+  assert.ok(r.errors?.some((e) => /at most 12000 inches/.test(e)));
+});
