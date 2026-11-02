@@ -3,7 +3,7 @@ title: "Does Holtrop-Mennen overstate drag for slow small boats?"
 seo_title: "Holtrop-Mennen accuracy at low Froude number: 308 tank points"
 date: 2026-11-02
 tags: [research, marine, hull-resistance, honesty]
-description: "Checking the standard ship-resistance regression against 308 Delft yacht-series tank points: fine at Froude 0.2 to 0.3, 1.3 to 2.2 times too high at survey speeds."
+description: "Checking the standard ship-resistance regression against 308 Delft yacht-series tank points: fine at Froude 0.2 to 0.3, 1.3 to 2.2 times high at survey speeds."
 ---
 
 The `marine-hull` research programme asks which small autonomous survey craft carries a payload furthest per kWh. Its resistance model leans on Holtrop-Mennen (1982), a regression fitted to ships tens of metres long. Does it hold at survey speed on a small hull?
