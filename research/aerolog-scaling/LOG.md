@@ -3,6 +3,12 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-11-02 · Milestone 9r: does an AR(2) estimator close 9p's half-recovery on AR(2) noise? (planned before running)
+- Why: 9p/9q's "Next" (AR(2) estimator). 9p's AR(1) whitening recovered only half of the gust-share loss when the noise was AR(2); is that the wrong-estimator-family penalty, or a ceiling?
+- Plan (`experiments/ar2_estimator/run.py`): 9p's script and seed (20261103; white and coloured-unweighted rows should reproduce 9p). Third column: iterated GLS (two passes) whose whitening is AR(2), coefficients from Yule-Walker on the pooled residuals (falls back to AR(1) if the estimate is non-stationary). Start-up rows use an approximate scaling. 26 designs, 10 draws, 2 periods, 10% noise.
+- **Predictions (before running):** (1) AR(2) GLS beats 9p's AR(1) GLS in gust share (80%) by at least 3 points (prior 65%). (2) It recovers at least 9 of the 12-point gap, i.e. 75% (prior 45%). (3) Fit failures at most twice white's (prior 70%). Refuted: (1) gain under 3 points; (3) more than twice.
+- Limits known in advance: estimator order matches the generator, which flatters it; one AR(2) shape; 10 draws on a third of the designs; one seed.
+
 ## 2026-11-01 · Milestone 9q: does 9p's half-recovery hold for 1/f (pink) sensor noise? (planned before running)
 - Why: 9p's "Next" (1/f noise untried). Real IMU bias drift is closer to 1/f than to AR(1) or AR(2).
 - Plan (`experiments/pink_noise/run.py`): 9p's script and seed (20261103); the coloured generator is FFT-shaped 1/f noise (power proportional to 1/f), unit variance per channel; estimator still AR(1) iterated GLS. 26 designs, 10 draws, 2 periods, 10% noise.
