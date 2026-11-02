@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-02 · Milestone 7k: fold 3i and 3j into the paper draft (no experiment run)
+- Why: the draft stopped at 3g/3h. Added the tank-implied form factor (3i) and the low-k rerun of the H2 box (3j) to the claim list and the threats item, with the keeled-yacht limit.
+- Limits: wording only; nothing re-run.
+- Next: a keel-less, fuller survey-hull tank table; the 1981/1982 papers if a host opens.
+
 ## 2026-11-02 · Milestone 3j: does the H1/H2 verdict move when form factors come from the tank bound? (exploratory; no prediction logged before the run)
 - Why: 3i's "Next". The milestone-1 box used k 0.10 to 0.40 (central 0.25); the Delft yacht tank data bound k at about 0.03 to 0.15. Reran the identical 6,561-case box with k_form and k_cat in {0.03, 0.08, 0.15} (`experiments/run_lowk.py`, `results_lowk.txt`, deterministic, about 1 s).
 - Outcome: the catamaran out-ranges the monohull in 0 of 6,561 cases (milestone 1: 27, 0.4%), none at equal length; range ratio cat/mono min 0.74, median 0.85, max 0.97 (was 0.72, 0.85, 1.02). Monohull best range 600 to 1,216 km, median 876 km (was 836), best speed median 1.10 m/s (was 1.05). Lower form factors help both hulls about equally, so H2's verdict is unchanged and slightly firmer: the earlier 27 wins came from the k = 0.4 monohull against a k = 0.1 catamaran, a combination the tank bound makes implausible.
