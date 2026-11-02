@@ -62,7 +62,7 @@ for (const n of [1, 2]) {
 }
 
 /** The same comparison at each stud spacing: rules that count studs per foot ignore it, the counted order does not. @param {any} plan @param {number[]} spacings */
-export function spacingSweep(plan, spacings = [16, 24]) {
+export function spacingSweep(plan, spacings = [12, 16, 19.2, 24]) {
   return spacings.map((sp) => ({ spacing: sp, ...compare({ ...plan, studSpacing: sp }, { gang: true }) }));
 }
 
