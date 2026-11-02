@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-02 · Milestone 62: paper gains the progress-check results (milestones 53 to 61)
+- Why: milestone 61's "Next". The paper's collusion section stopped at milestone 45; the progress-check line (53 to 61) was only in this log. Added one paragraph to `paper/main.tex` (section "Redundancy and collusion") with every number copied from the outcomes above: honest false flags, non-adaptive stall detection (20 of 32 at R = 1.01, K = 15), the adaptive stall (28 of 32 harmful and unflagged), secret batch (26 of 32), noisy threshold (32 of 128 at sigma 0.05), noise-aware fraction (best 37 of 128, within noise of 32).
+- No new experiment; no prediction to test. The paragraph states the unreconciled-then-reconciled noise implementations and the limits (one tiny model, shared seeds, cheater not online-adaptive). LaTeX not compiled this session (no TeX in the interpreter); `research/_homepage/build.py` prints ok.
+- Next: an online-adaptive fraction; compile the paper; milestones 46 to 52 are still missing from the paper too.
+
 ## 2026-11-02 · Milestone 61: finer stall fractions for a noise-aware cheater (H4/H3 link, planned before running)
 - Why: milestone 60's "Next". It tried FRAC 0.99, 0.95, 0.90, 0.80 at sigma 0.05; the best cheater payoff (harmful-and-unflagged) may lie between 0.95 and 0.99. Design (`experiments/progress_noise_aware_fine/run.py`, the milestone 60 code): R = 1.01, n = 128, FRAC 0.99, 0.98, 0.97, 0.96, 0.95 at sigma 0.02 and 0.05.
 - **Predictions, before running:** (1) FRAC 0.99 reproduces milestone 59/60 at sigma 0.05 (35 / 67 / 32). (2) At sigma 0.05 no FRAC in 0.95 to 0.98 beats 0.99 by more than 6 jobs of 128 in harmful-and-unflagged (the curve is monotone, as 0.95 gave 18 against 32). (3) At sigma 0.02 (less noise, the cheater trusts its belief more) the best FRAC is still 0.99 or 0.98. Refuted (2) if some FRAC in 0.95 to 0.98 exceeds 38 harmful-and-unflagged at sigma 0.05.
