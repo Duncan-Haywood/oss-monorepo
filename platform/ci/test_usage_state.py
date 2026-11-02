@@ -134,6 +134,15 @@ class ClaimScanning(unittest.TestCase):
         body = "an earlier line\nit recorded zero observed users, which used to say so"
         self.assertEqual(self._scan(body), [])
 
+    def test_a_marker_on_an_unterminated_line_after_the_claim_line_exempts_it(self):
+        """The window reaches the end of the file, including its last character."""
+        body = "it recorded zero observed users across 1.\nthat used to"
+        self.assertEqual(self._scan(body), [])
+
+    def test_a_claim_after_a_leading_blank_line_is_reported_on_line_two(self):
+        hits = self._scan("\nit recorded zero observed users across 1.\n")
+        self.assertEqual(hits[0][1], 2)
+
     def test_a_marker_on_the_immediately_preceding_plain_line_exempts_it(self):
         self.assertEqual(self._scan("used to open\nit recorded zero observed users across 1.\n"), [])
 
