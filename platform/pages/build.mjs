@@ -7437,12 +7437,14 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
         <fieldset>
           <legend>What kind of feedback is it?</legend>
           <label><input type="radio" name="type" value="problem" checked> Something is wrong or broken</label>
-          <label><input type="radio" name="type" value="idea"> An idea or feature request</label>
+          <label><input type="radio" name="type" value="idea"> An idea, a feature, or a tool you want built</label>
+          <label><input type="radio" name="type" value="research"> A research question to investigate</label>
+          <label><input type="radio" name="type" value="topic"> A topic you would like written about</label>
           <label><input type="radio" name="type" value="other"> Something else</label>
         </fieldset>
-        <p class="fb-terms">Feature requests are built free, in public, as
-        <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}`)}">custom development</a>,
-        and come ahead of routine work. What is built is published under the MIT
+        <p class="fb-terms">Ideas, research questions and topics join the
+        <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}`)}">custom development</a> queue,
+        are built free and in public, and come ahead of routine work. What is built is published under the MIT
         licence with the repository owner's copyright notice; you get no exclusive
         rights to it.</p>
         <p id="fb-tool-line" hidden>About: <a id="fb-tool-link" href="${escapeHtml(toRoot)}"></a></p>
@@ -7466,6 +7468,8 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
   }
   var f=document.getElementById('fb');${feedbackUrl ? `
   if(!f)return;
+  var want=f.querySelector('input[name=type][value="'+(q.get('type')||'').replace(/[^a-z]/g,'')+'"]');
+  if(want)want.checked=true;
   if(tool){
     var l=document.getElementById('fb-tool-link');
     l.textContent=tool;l.href='${toRoot}'+tool+'/';
@@ -7577,6 +7581,8 @@ export function customRequestPath(id) {
 export const REQUEST_KINDS = Object.freeze([
   { id: 'new', type: 'idea', label: 'A new tool for my work', job: 'What job should it do, and for whom?', hint: 'Who does the work today, how, and where existing tools fall short.', licence: true },
   { id: 'feature', type: 'idea', label: 'A feature for one of the tools here', job: 'What should the tool do that it does not?', hint: 'What you were trying to do, and what got in the way.', tool: true, licence: true },
+  { id: 'research', type: 'research', label: 'A research question to investigate', job: 'What question should be investigated, and why does it matter to you?', hint: 'What you already know, what data might answer it, and what you would do with the answer.', licence: true },
+  { id: 'topic', type: 'topic', label: 'A topic to write about', job: 'What should be explained, compared or written up?', hint: 'Who would read it, and what they get wrong or cannot find today.', licence: true },
   { id: 'preview', type: 'idea', label: 'Feedback on a preview or a request in progress', job: 'What did you try, and what should change?', hint: 'What worked, what did not, and what you expected instead.', request: true, licence: true },
   { id: 'problem', type: 'problem', label: 'Something is wrong with a tool', job: 'What went wrong?', hint: 'What you entered, what you expected, and what you got.', tool: true },
 ]);
@@ -7840,7 +7846,7 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
 ${form}
       <h2>How a request moves</h2>
       <ol class="cd-steps cd-steps-intro">${stages}</ol>
-      <p>A request can also be <em>declined</em>, always with the reason written beside it. Each request has its own page showing which stage it is at and what is still unproven, and once there is something to try you can send feedback on it from that page. Sessions work in the open: every change is a pull request, and the project's README says what was tested and what was not.</p>
+      <p>Before triage, every request from outside is <a href="#screening">screened</a> for text aimed at the agents rather than describing a job. A request can also be <em>declined</em>, always with the reason written beside it. Each request has its own page showing which stage it is at and what is still unproven, and once there is something to try you can send feedback on it from that page. Sessions work in the open: every change is a pull request, and the project's README says what was tested and what was not.</p>
 
       <h2>${form ? 'Other ways to ask' : 'How to ask'}</h2>
       <ul>
@@ -7851,6 +7857,17 @@ ${form}
 
       <h2>What has been built this way</h2>
       <p>The first requests in the list below are the owner's own, so you can see how deep a request goes over many sessions: an <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/ai-bookkeeper`)}">AI bookkeeper</a> (double-entry ledger, bank reconciliation, QuickBooks and Xero export), a <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/wall-framing-takeoff`)}">wall framing takeoff</a> from a floor plan, and a <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/sales-agent`)}">sales agent</a>. Each README says what is tested and what is still unproven.</p>
+
+      <h2>What you can ask for</h2>
+      <ul>
+        <li><strong>A product or tool</strong> for your work: a calculator, a checker, a document reader, a small app. <a href="${escapeHtml(issueUrl)}">GitHub request</a> · <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}?type=idea`)}">no-account form</a></li>
+        <li><strong>A feature</strong> for a tool already here. Use the form from that tool's footer, so it knows which tool you mean.</li>
+        <li><strong>A research question</strong> you would like investigated with real data, written up openly. <a href="${escapeHtml(`${REPO_URL}/issues/new?template=idea.yml&title=${encodeURIComponent('[research] ')}`)}">GitHub request</a> · <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}?type=research`)}">no-account form</a></li>
+        <li><strong>A topic to write about</strong>: a guide, an explainer, a comparison. <a href="${escapeHtml(`${REPO_URL}/issues/new?template=idea.yml&title=${encodeURIComponent('[topic] ')}`)}">GitHub request</a> · <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}?type=topic`)}">no-account form</a></li>
+      </ul>
+
+      <h2 id="screening">How requests are screened</h2>
+      <p>The builders are AI agents, so a request is also text an AI will read. Every request is checked by <a href="${escapeHtml(`${REPO_URL}/blob/main/portfolio/requests/screen.mjs`)}">an open-source screen</a> before triage. It looks for text written to steer the agents instead of describing a job: telling them to ignore their instructions, to merge, approve or run something, to reveal credentials, to send data elsewhere, or words hidden with invisible characters. A request that trips it is held for the repository owner and is not built from until they have read it. Ordinary requests pass straight through, and a held request is not a judgement of the person who sent it. Whatever the screen says, request text is treated as a description of what to build, never as instructions.</p>
 
       <h2>The terms</h2>
       <ul>

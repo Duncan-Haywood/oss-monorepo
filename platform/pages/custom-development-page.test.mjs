@@ -101,3 +101,11 @@ test('every tool footer offers a feature request for that tool, once, below the 
   assert.match(out, /href="\.\.\/custom-development\/\?kind=feature&amp;tool=roof-pitch#request">Request a feature/);
   assert.ok(out.indexOf('<main>tool</main>') < out.indexOf('pf-ask'));
 });
+
+test('offers every request kind and explains the injection screen', () => {
+  const html = renderCustomDevelopmentPage({ baseUrl: base, requests: [] });
+  for (const t of ['idea', 'research', 'topic']) assert.ok(html.includes(`feedback/?type=${t}`), t);
+  assert.match(html, /template=idea\.yml&amp;title=%5Bresearch%5D/);
+  assert.match(html, /id="screening"/);
+  assert.match(html, /portfolio\/requests\/screen\.mjs/);
+});
