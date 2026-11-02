@@ -38,7 +38,7 @@ export function staffPackHtml(roster, o = {}) {
   const notes = (o.notes || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const dl = labeler(o.weekStart);
   const week = o.weekStart && /^\d{4}-\d{2}-\d{2}$/.test(o.weekStart) ? `Week of ${htmlEsc(dl(0))}` : "This week";
-  const bar = `<header class="bar">${logo ? `<img class="logo" src="${logo}" alt="">` : ""}<div><strong>${biz}</strong> <span>${week}</span></div></header>`;
+  const bar = `<header class="bar">${logo ? `<img class="logo" src="${logo}" alt="">` : ""}<div><h1 class="biz">${biz}</h1> <span>${week}</span></div></header>`;
   /** @type {Map<string, any[]>} */
   const by = new Map();
   for (const a of roster.assignments) {
@@ -63,7 +63,7 @@ export function staffPackHtml(roster, o = {}) {
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${biz}: staff schedule</title>
-<style>:root{--a:${accent}}body{font:16px/1.5 system-ui,sans-serif;margin:0 auto;max-width:60rem;padding:1rem;color:#1a1a1a;background:#fff}.bar{display:flex;align-items:center;gap:.75rem;border-bottom:4px solid var(--a);padding-bottom:.5rem;margin-bottom:1rem}.bar span{color:#555}.logo{max-height:3.5rem;max-width:8rem}h2{color:var(--a)}table{border-collapse:collapse;width:100%;margin-bottom:.75rem}th,td{text-align:left;padding:.35rem .5rem;border:1px solid #ccc;vertical-align:top}thead th,tr:first-child th{border-bottom:2px solid var(--a)}.wk{color:#555}.open{color:#8a2a00}.sheet{page-break-before:always}.contact{margin-top:1.5rem}footer{color:#555;font-size:.85rem;margin-top:2rem}@media print{body{max-width:none}}</style></head>
+<style>:root{--a:${accent}}body{font:16px/1.5 system-ui,sans-serif;margin:0 auto;max-width:60rem;padding:1rem;color:#1a1a1a;background:#fff}.bar h1{display:inline;font-size:1em;margin:0}.bar{display:flex;align-items:center;gap:.75rem;border-bottom:4px solid var(--a);padding-bottom:.5rem;margin-bottom:1rem}.bar span{color:#555}.logo{max-height:3.5rem;max-width:8rem}h2{color:var(--a)}table{border-collapse:collapse;width:100%;margin-bottom:.75rem}th,td{text-align:left;padding:.35rem .5rem;border:1px solid #ccc;vertical-align:top}thead th,tr:first-child th{border-bottom:2px solid var(--a)}.wk{color:#555}.open{color:#8a2a00}.sheet{page-break-before:always}.contact{margin-top:1.5rem}footer{color:#555;font-size:.85rem;margin-top:2rem}@media print{body{max-width:none}}</style></head>
 <body>
 ${bar}
 <h2>The week</h2>
