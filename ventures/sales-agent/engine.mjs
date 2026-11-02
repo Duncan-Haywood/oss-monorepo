@@ -302,6 +302,10 @@ const RULES = {
     P("\\b(doesn'?t|does not|don'?t|do not|no longer) work(s|ing)? (here|there|for|at)\\b"), P("\\bno longer at\\b"), P("\\b(i|we) (don'?t|do not) (handle|deal with|look after|manage) (this|that|these|purchasing|software)\\b"), P("\\b(would be|is) the (one|person|right one) to (talk|speak) to\\b"), P("\\breplacement is\\b"), P("\\bmoved (on|to a new role|to another company)\\b"),
     P("\\bno longer (with|at|work(s|ing)? (for|at)|employed)\\b"), P("\\b(has|have) left (the company|\\w+)\\b"), P("\\b(i'?m|i am) not the right (person|contact)\\b"), P("\\bthe right (person|contact) (is|would be)\\b"), P("\\bwrong (person|contact)\\b"),
     P("\\b(please|you should|better to|try) (contact|reach out to|email|speak (to|with))\\b.*(@|\\b[A-Z][a-z]+\\b)"), P("\\bthis (mailbox|address) is (no longer|not) (monitored|in use)\\b"), P("\\bretired\\b"), P("\\bhandles? (this|that|these|purchasing|procurement)\\b"),
+    // 2026-11-02: referrals phrased around who owns the decision, and the same "wrong person" in six languages.
+    P("\\b(i|we)('ve| have)? (left|quit|resigned from)\\b"), P("\\bwho (owns|runs|decides|handles|manages|is responsible for) (this|that|these|it)\\b"), P("\\b(direct|send|route|address) (all |any )?(inquiries|enquiries|requests|questions) to\\b"), P("\\b(speak|talk) (to|with) our (head|director|vp|manager|owner|cfo|cto|ceo|coo|procurement|ops)\\b"),
+    P("\\btook over (from me|for me|this|my)\\b"), P("\\b(this|that) goes to\\b"), P("\\b(passed|handed|delegated) (this|your (note|email|message)|it) (on |over )?to\\b"),
+    P("no soy (la persona|el contacto|el responsable)"), P("je ne suis pas (la bonne personne|le bon contact|la personne)"), P("ich bin (nicht zust[äa]ndig|nicht der richtige|nicht die richtige)"), P("non sono (la persona giusta|il referente|io il responsabile)"), P("n[ãa]o sou (a pessoa|o respons[áa]vel|o contato)"), P("ik ben niet de juiste (persoon|contactpersoon)"),
   ],
   not_now: [
     P("\\b(ask|try|contact|ping|email|call) (me|us) (again )?(in|after|next|around|later|down the line|then)\\b"), P("\\btry again (in|after|next|later)\\b"), P("\\bhold off\\b"), P("\\blet you know when\\b"), P("\\bdown the (line|road)\\b"), P("\\bnot this (year|quarter|month)\\b"), P("\\bin the (spring|summer|fall|autumn|winter)\\b"), P("\\b(in the )?(middle|midst) of (a|an|our)\\b"),
@@ -362,7 +366,7 @@ export function triage(reply, today) {
   const referral = (() => {
     for (const s of sentences(body)) {
       const email = s.match(EMAIL_RE)?.[0];
-      if (email && email.toLowerCase() !== from && /\b(contact|reach|email|speak|talk|try|cc|loop|handles?|responsible|right person|in charge|forward)/i.test(s)) return { email: email.toLowerCase(), text: s };
+      if (email && email.toLowerCase() !== from && /\b(contact|reach|email|speak|talk|try|cc|loop|handles?|responsible|right person|in charge|forward|direct|replacement|took over|owns|runs|decides|goes to|passed|handed)|escrib|contactez|wenden|scriv|contate|escreva|neem contact/i.test(s)) return { email: email.toLowerCase(), text: s };
     }
     return null;
   })();
