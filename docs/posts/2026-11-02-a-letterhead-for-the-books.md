@@ -3,7 +3,7 @@ title: "A letterhead for the books: AI Bookkeeper's close pack, built but not fo
 seo_title: "Branded month-end close pack from bank statements"
 date: 2026-11-02
 tags: [ai-bookkeeper, monetization, honesty]
-description: "AI Bookkeeper can now render its close checks, P&L and balance sheet on a bookkeeper's own letterhead. It is built behind a licence check and deliberately not on sale."
+description: "AI Bookkeeper can render its close checks, P&L and balance sheet on a bookkeeper's own letterhead. Built behind a licence check, deliberately not on sale."
 ---
 
 Small bookkeeping practices send clients a month-end pack. AI Bookkeeper already computes everything in it: the close checks, the profit and loss and the balance sheet. What it lacked was a way to put those on a firm's own letterhead.
