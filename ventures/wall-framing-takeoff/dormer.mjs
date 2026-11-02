@@ -62,7 +62,7 @@ export function layoutDormer(d) {
   const stud = d.studSize ?? "2x4", raf = d.rafterSize ?? "2x6", val = d.valleySize ?? "2x8", ridge = d.ridgeSize ?? "2x8", hdr = d.headerSize ?? "2x6";
   /** @type {{ part: string, size: string, length: number, count: number }[]} */
   const parts = [];
-  const add = (/** @type {string} */ part, /** @type {string} */ size, /** @type {number} */ length, count = 1) => { if (count > 0 && length > 0) parts.push({ part, size, length: r16(length), count }); };
+  const add = (/** @type {string} */ part, /** @type {string} */ size, /** @type {number} */ length, count = 1) => { if (count > 0 && r16(length) > 0) parts.push({ part, size, length: r16(length), count }); };
   const notes = [];
 
   // front wall: studs on spacing from one corner, plus the far corner stud
@@ -184,7 +184,7 @@ export function layoutShedDormer(d) {
   const xr = H * 12 / dp, rafLen = xr * slope(d.pitch);
   /** @type {{ part: string, size: string, length: number, count: number }[]} */
   const parts = [];
-  const add = (/** @type {string} */ part, /** @type {string} */ size, /** @type {number} */ length, count = 1) => { if (count > 0 && length > 0) parts.push({ part, size, length: r16(length), count }); };
+  const add = (/** @type {string} */ part, /** @type {string} */ size, /** @type {number} */ length, count = 1) => { if (count > 0 && r16(length) > 0) parts.push({ part, size, length: r16(length), count }); };
   let frontXs = []; for (let x = 0; x < W - 1e-9; x += s) frontXs.push(x); frontXs.push(W);
   const frontX = frontXs.length;
   const notes = ["Shed dormer: overhangs, flashing, the opening in the main roof and its headers are not counted; sizes are typed and the load path is the engineer's."];
