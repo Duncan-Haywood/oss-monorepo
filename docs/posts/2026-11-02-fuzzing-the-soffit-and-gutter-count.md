@@ -2,7 +2,7 @@
 title: "Four hundred random roofs against the soffit and gutter count"
 date: 2026-11-02
 tags: [wall-framing-takeoff, testing, construction]
-description: A seeded property test throws random gable and hip roofs and eave settings at the soffit, fascia and gutter engines and checks stock, caps, hangers and downspouts.
+description: A seeded property test throws random gable and hip roofs at the soffit, fascia and gutter engines and checks stock, caps, hangers and downspouts.
 ---
 
 The soffit, fascia and gutter counts in wall-framing-takeoff run along the roof's eaves, pack each run into stock lengths, and add caps, hangers, elbows and downspouts. Hand tests cover the cases we picked. A new seeded fuzz test covers the rest: 400 random gable and hip roofs with overhangs from 0 to 24 inches and random panel widths, stock lengths, waste, hanger spacing and downspout rules.
