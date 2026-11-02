@@ -453,3 +453,4 @@ The cost cash flow (`cashFlow`) also groups spend by week starting Monday, with 
 - 2026-11-01: the stair card has a page field for `stringerCheck.notchedSupport` (`#stCheck3`: `throat` or inches left; refused when not a positive number; restored from a saved plan). Source-tested in `page.test.mjs` only, not clicked in Chromium.
 
 - 2026-11-01: `budget` reports the bid price per sq ft of floor framed (`bidPerFloorSqFt`) when typed overhead or profit lifts the bid above cost; builders quote by the square foot. Checked by `budget.test.mjs` (33 pass).
+- **Insulation fuzz test** (2026-11-02, `insulation-fuzz.test.mjs`): 300 seeded random wall sets and bag settings are refused with a reason or give non-negative cavity, size groups summing to the total, whole bags covering cavity plus waste, cost = bags x price, and a printable report. No bug found; still no real order compared.
