@@ -22,6 +22,10 @@ class MarkupBasics(unittest.TestCase):
         self.assertEqual(c.problems('<html><body></body></html>'),
                          ['no <html lang>', 'no charset', 'no viewport meta'])
 
+    def test_other_meta_is_not_a_viewport(self):
+        page = '<html lang="en"><head><meta charset="utf-8"><meta name="description" content="x"></head></html>'
+        self.assertEqual(c.problems(page), ['no viewport meta'])
+
     def test_positive_tabindex_and_http(self):
         out = c.problems(OK.format('<a tabindex="2" href="http://example.com">z</a>'))
         self.assertEqual(out, ['http:// href', 'positive tabindex'])
