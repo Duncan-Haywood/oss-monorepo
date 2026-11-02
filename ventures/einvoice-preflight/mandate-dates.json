@@ -342,7 +342,14 @@
    "date": "2026-09-30",
    "country": "Japan",
    "page": "japan-invoice-system-e-invoice-mandate.html",
-   "note": "transitional credit for unregistered sellers 80% to 30 Sep 2026",
+   "note": "transitional credit for unregistered sellers 80% until 30 Sep 2026",
+   "status": "In force (no clearance)"
+  },
+  {
+   "date": "2026-10-01",
+   "country": "Japan",
+   "page": "japan-invoice-system-e-invoice-mandate.html",
+   "note": "50% from 1 Oct 2026 to 30 Sep 2029 (vendor and advisory guides, 2026 reform revisions unread)",
    "status": "In force (no clearance)"
   },
   {
@@ -559,7 +566,7 @@
    "date": "2029-09-30",
    "country": "Japan",
    "page": "japan-invoice-system-e-invoice-mandate.html",
-   "note": "50% to 30 Sep 2029 (vendor and advisory guides, 2026 reform revisions unread)",
+   "note": "50% from 1 Oct 2026 to 30 Sep 2029 (vendor and advisory guides, 2026 reform revisions unread)",
    "status": "In force (no clearance)"
   },
   {
