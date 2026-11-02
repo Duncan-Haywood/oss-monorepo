@@ -311,3 +311,22 @@ test("a manager gives a called-out shift to a cover in one click", async () => {
   assert.equal(s.state.callouts.length, 0);
   s.close();
 });
+
+test("calendar feed keeps earlier weeks and uses stable event ids", async () => {
+  const s = await boot();
+  const staff = "name, wage, max hours, min hours, availability\nAna, 23.17, 40, 0, any";
+  const shifts = "day, start, end, people needed, label\nMon, 9, 17, 1, day";
+  await post(s.base + "/admin/save?key=adm", { act: "publish", weekStart: "2026-10-19", staff, shifts });
+  await post(s.base + "/admin/save?key=adm", { act: "publish", weekStart: "2026-10-26", staff, shifts });
+  const body = await (await fetch(s.base + "/team/feed.ics?t=tm&person=Ana")).text();
+  assert.equal((body.match(/BEGIN:VEVENT/g) || []).length, 2);
+  assert.match(body, /DTSTART:20261019T090000/);
+  assert.match(body, /DTSTART:20261026T090000/);
+  assert.match(body, /UID:roster-2026-10-19-Ana-0-540-1020-day@/);
+  assert.match(body, /REFRESH-INTERVAL/);
+  await post(s.base + "/admin/save?key=adm", { act: "publish", weekStart: "2026-10-26", staff, shifts });
+  const again = await (await fetch(s.base + "/team/feed.ics?t=tm&person=Ana")).text();
+  assert.equal((again.match(/BEGIN:VEVENT/g) || []).length, 2);
+  assert.equal((await fetch(s.base + "/team/feed.ics?t=tm&person=Nobody")).status, 404);
+  s.close();
+});

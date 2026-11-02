@@ -7,7 +7,7 @@
 import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
-import { parseStaff, parseShifts, buildRoster, rosterIcs, rosterMessages, coverOptions, checkTrade, parseAvailabilityReply, mergeAvailabilityReplies, parseTimeOffRequest, addTimeOff, scheduleFlags, fmtClock, money, num, DAYS, sampleStaff, sampleShifts } from "./calc.mjs";
+import { parseStaff, parseShifts, buildRoster, rosterIcs, rosterFeedIcs, rosterMessages, coverOptions, checkTrade, parseAvailabilityReply, mergeAvailabilityReplies, parseTimeOffRequest, addTimeOff, scheduleFlags, fmtClock, money, num, DAYS, sampleStaff, sampleShifts } from "./calc.mjs";
 
 const MAX_BODY = 64 * 1024, MAX_REPLIES = 200, MAX_CALLOUTS = 100, MAX_TRADES = 100, MAX_CLAIMS = 100, MAX_OFFS = 100;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -43,7 +43,7 @@ export function notifier(env, fetchImpl = globalThis.fetch) {
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #ddd;padding:.35rem .5rem;text-align:left}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:9rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
 const page = (title, body, head = "") => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">${head}<title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/">Shift Roster Builder</a> (MIT). Not legal advice: check breaks, minors and predictive-scheduling rules yourself.</p></body></html>`;
 
-export function emptyState() { return { staff: "", shifts: "", weekStart: "", published: null, replies: [], callouts: [], trades: [], claims: [], offs: [] }; }
+export function emptyState() { return { staff: "", shifts: "", weekStart: "", published: null, replies: [], history: [], callouts: [], trades: [], claims: [], offs: [] }; }
 
 // What staff may see: who works when. Never wages, hour caps or the cost of the week.
 function publish(state, now) {
@@ -54,6 +54,11 @@ function publish(state, now) {
   if (r.error) return { error: r.error };
   const flags = state.weekStart ? scheduleFlags(r, { weekStart: state.weekStart, today: new Date(now).toISOString().slice(0, 10) }) : null;
   state.callouts = []; state.trades = []; state.claims = [];
+  // Keep earlier weeks (last 12) for the calendar feed; publishing the same week again replaces it.
+  if (state.published && state.published.weekStart && state.published.weekStart !== (state.weekStart || null)) {
+    state.history = [...(state.history || []).filter((h) => h.weekStart !== state.published.weekStart), { weekStart: state.published.weekStart, assignments: state.published.assignments }].slice(-12);
+  }
+  state.history = (state.history || []).filter((h) => h.weekStart !== (state.weekStart || null));
   state.published = {
     at: new Date(now).toISOString(), weekStart: state.weekStart || null, unfilled: r.unfilledSlots,
     people: r.people.map((p) => ({ name: p.name, hours: p.hours })),
@@ -93,8 +98,8 @@ function teamPage(state, token) {
   const off = names.length ? `<h2>Need days off?</h2><form method="post" action="/team/timeoff?t=${esc(token)}"><label>Who are you?<select name="name" required>${names.map((n) => `<option>${esc(n)}</option>`).join("")}</select></label><label>First day<input type="date" name="from" required></label><label>Last day (leave blank for one day)<input type="date" name="to"></label><label>Note (optional)<input name="note" maxlength="140"></label><button>Ask my manager</button></form><p class="note">This only asks. If your manager agrees, the days come off your availability when they build that week.</p>` : "";
   if (!p) return page("Team schedule", `<p>No schedule has been published yet.</p>${form}`, teamHead(token));
   const msgs = rosterMessages({ assignments: p.assignments, people: p.people }, p.weekStart);
-  const rows = msgs.map((m) => `<tr><td><strong>${esc(m.person)}</strong></td><td>${esc(m.text.split("\n").slice(1, -1).join(" · ") || "no shifts")}</td><td>${p.weekStart && m.shifts ? `<a href="/team/ics?t=${esc(token)}&person=${encodeURIComponent(m.person)}">Add to calendar</a>` : ""}</td></tr>`).join("");
-  return page(`Schedule${p.weekStart ? ", week of " + p.weekStart : ""}`, `<p class="note">Published ${esc(p.at.slice(0, 16).replace("T", " "))} UTC${p.unfilled ? `. ${p.unfilled} shift(s) are still open: ask your manager.` : "."}</p><table><thead><tr><th>Person</th><th>Shifts</th><th></th></tr></thead><tbody>${rows}</tbody></table>${claim}${callout}${trade}${off}${form}<p class="note">Tip: add this page to your home screen to open it like an app. It keeps the last schedule your phone saw, so you can read it with no signal.</p>`, teamHead(token));
+  const rows = msgs.map((m) => `<tr><td><strong>${esc(m.person)}</strong></td><td>${esc(m.text.split("\n").slice(1, -1).join(" · ") || "no shifts")}</td><td>${p.weekStart && m.shifts ? `<a href="/team/ics?t=${esc(token)}&person=${encodeURIComponent(m.person)}">Add to calendar</a><br><a href="/team/feed.ics?t=${esc(token)}&person=${encodeURIComponent(m.person)}">Live feed</a>` : ""}</td></tr>`).join("");
+  return page(`Schedule${p.weekStart ? ", week of " + p.weekStart : ""}`, `<p class="note">Published ${esc(p.at.slice(0, 16).replace("T", " "))} UTC${p.unfilled ? `. ${p.unfilled} shift(s) are still open: ask your manager.` : "."}</p><table><thead><tr><th>Person</th><th>Shifts</th><th></th></tr></thead><tbody>${rows}</tbody></table>${claim}${callout}${trade}${off}${form}<p class="note">Calendar: "Live feed" is a link to paste into your calendar app's "add calendar from URL"; it keeps past weeks and updates when your manager publishes again. Tip: add this page to your home screen to open it like an app. It keeps the last schedule your phone saw, so you can read it with no signal.</p>`, teamHead(token));
 }
 
 // Who could take each reported shift without moving anyone else, cheapest first. Rebuilt from the current staff and
@@ -246,6 +251,11 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
         const p = state.published, person = url.searchParams.get("person");
         if (!p || !p.weekStart || !p.people.some((x) => x.name === person)) return send(404, "no such schedule\n", "text/plain");
         return send(200, rosterIcs({ assignments: p.assignments }, p.weekStart, person), "text/calendar; charset=utf-8", { "content-disposition": 'attachment; filename="shifts.ics"' });
+      }
+      if (req.method === "GET" && url.pathname === "/team/feed.ics") {
+        const p = state.published, person = url.searchParams.get("person");
+        if (!p || !p.weekStart || !p.people.some((x) => x.name === person)) return send(404, "no such schedule\n", "text/plain");
+        return send(200, rosterFeedIcs([...(state.history || []), { weekStart: p.weekStart, assignments: p.assignments }], person, { name: person + "'s shifts" }), "text/calendar; charset=utf-8");
       }
       if (req.method === "POST" && url.pathname === "/team/reply") {
         const line = String(form.get("line") || "").replace(/[\r\n]+/g, " ").trim().slice(0, 300);
