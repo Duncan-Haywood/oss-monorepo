@@ -1,5 +1,6 @@
 ---
 title: "Three public Holtrop-Mennen codes, two wave-term forms: which one is the paper's?"
+seo_title: "Three public Holtrop-Mennen codes, two wave-term forms"
 date: 2026-11-01
 tags: [marine-hull, research, ship-resistance]
 description: A tie-break between public implementations of the Holtrop-Mennen low-speed wave resistance term, when the original paper cannot be opened.

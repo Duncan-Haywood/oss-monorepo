@@ -1,5 +1,6 @@
 ---
 title: "A calendar feed for the shift schedule, so a re-publish updates phones instead of duplicating shifts"
+seo_title: "A calendar feed for the shift schedule that updates in place"
 date: 2026-11-02
 tags: [shift-roster-builder, calendar, small-business]
 description: The self-hosted team page now offers a subscribable calendar feed per person that keeps past weeks and updates in place when the manager publishes again.
