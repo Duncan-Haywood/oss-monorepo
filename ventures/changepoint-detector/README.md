@@ -497,6 +497,17 @@ refused by the Wikimedia API's rate limit (429) and not retried. A series with
 a real holiday closure (a shop's or office's daily counts) is still the test
 that would show the factor earning its place.
 
+## Holidays on a second real daily series: a bike-share system (2026-11-02)
+
+The test the section above asked for: real daily counts with a real holiday flag. `data/bike-sharing-daily.csv` is Capital Bikeshare (Washington DC) rentals per day, 731 days, with the dataset's own 21 holidays. `node eval/holiday-bikes.mjs` (output `eval/holiday-bikes.out.txt`, test `holiday-bikes.test.mjs`) runs `--model poisson --period 7 --overdispersion nb`.
+
+| series | holiday / weekday median | changes, no list | changes, with list | holiday factor |
+|---|---|---|---|---|
+| registered riders | 0.66 | 56 | 61 | 0.877 |
+| casual riders | 1.41 | 70 | 77 | 1.796 |
+
+Another negative result. The holiday effect is real (commuters stay home, so registered riders fall by a third; leisure riders rise by 41%), but the list does not remove changes: it adds five and seven. The fitted factor is also well short of the raw ratio (0.877 against 0.66), because most of these holidays are Mondays and the weekly factor for Monday already absorbs part of the dip. The series is dominated by weather and season over two years (a yearly cycle with a period of 7 does not model it), so most of the 56 to 77 changes are the seasonal swing, which the holiday factor cannot touch. Not tried: a period-365 term, a temperature covariate, or fitting the holidays only inside a stable stretch. So the feature still has no real series where it earns its place; it works on synthetic data and on none of the two real ones tried. Do not read the factor as a holiday effect size on series with a strong yearly swing.
+
 ## Burst or two steps? (`excursions`, counts)
 
 With `--model poisson`, the result lists an `excursions` entry (and one sentence in `summary`) when two neighbouring changes enclose a short stretch (at most a quarter of the series) whose rate sits above or below both sides, and the rate before and after it is statistically one rate (Poisson likelihood ratio under 3.84, 1 df). That reads as a temporary burst or dip on a steady baseline, not two level changes. The changes themselves are not altered. Function: `findExcursions`.
