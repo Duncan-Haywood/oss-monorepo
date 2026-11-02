@@ -1,0 +1,118 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01E5sJKkqqm2ibXX3uFs8fJi",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled: read ./prompt.md and follow it",
+  "input_sha256": "ee033cfea43da33876e002bbf7130f57412bc4edbc40ac439e360c2c2d7a1550",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-11-02T21:18:32Z",
+  "ended": "2026-11-02T21:26:11Z",
+  "wall_minutes": 7.79,
+  "tokens_in": 2286160,
+  "tokens_out": 13529,
+  "cost_usd": 0.836,
+  "tool_calls": 31,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12659",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 names a security-alerts branch that does not exist on the remote, so the fetch fails; harmless but unexplained."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-02-a-string-that-passes-a-range-check.md"
+  ],
+  "goal": null,
+  "notes": "Explore: probed wall-framing-takeoff validatePlan with hostile values; first probes were vacuous (baseline plan lacked defaults) until rebuilt on samplePlan(). Full venture suite 663/663.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a927cdf2-9d47-5af1-89cd-9cb2c7ccc8c2",
+    "transcripts": 1,
+    "first": "2026-11-02T21:18:32Z",
+    "last": "2026-11-02T21:26:19Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 30,
+        "input": 58,
+        "output": 13529,
+        "thinking": 1601,
+        "cache_read": 2222069,
+        "cache_write_5m": 0,
+        "cache_write_1h": 64033,
+        "api_equivalent_usd": 0.836,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 58,
+      "output": 13529,
+      "thinking": 1601,
+      "cache_read": 2222069,
+      "cache_write_5m": 0,
+      "cache_write_1h": 64033,
+      "api_equivalent_usd": 0.836,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 31,
+    "tools": {
+      "Bash": 28,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.79,
+      "active_minutes": 7.79,
+      "model_minutes": 2.16,
+      "tool_minutes": 5.62,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
