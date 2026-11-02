@@ -1,6 +1,8 @@
 ---
 title: "Does the BOHB win in our chip-flow search survive changing its settings?"
 date: 2026-11-02
+tags: [verified-dse, chip-design, research]
+description: Varying the three untuned settings of a BOHB search over open-source chip flows showed its low-budget win holds at 15 runs but not on the pooled mean at 25.
 ---
 
 We are searching open-source chip flows (Yosys, ABC, OpenROAD on SKY130) for good designs cheaply, by ranking candidates on cheap flow stages and only paying for place-and-route on survivors. An earlier step found that a density-model sampler inside a Hyperband schedule (BOHB) beat random routed runs at low budget, using hyperparameters nobody had tuned.
