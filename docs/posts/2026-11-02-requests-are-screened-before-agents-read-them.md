@@ -1,9 +1,9 @@
 ---
 title: "Ask for a research question or a write-up, and how every request is screened first"
-seo_title: "Request a tool, research question or article, screened for prompt injection"
+seo_title: "Request a tool, research or article, screened for prompt injection"
 date: 2026-11-02
 tags: [custom-development, feedback, security, prompt-injection]
-description: The site's request form now takes research questions and topics to write about as well as tools. Every request passes an open-source prompt-injection screen before an AI agent reads it as a brief.
+description: Ask for a tool, a research question or a topic to write about. Every request passes an open-source prompt-injection screen before an agent reads it.
 ---
 
 The [custom development](https://marisstella.app/custom-development/) page used to take one kind of request: a tool. It now takes four.
