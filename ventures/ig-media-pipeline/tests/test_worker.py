@@ -205,6 +205,17 @@ def test_serve_refuses_plan_backend(tmp_path, monkeypatch):
     assert worker.serve(c, once=True) == 2
 
 
+def test_serve_refuses_api_backend_without_a_key(tmp_path, monkeypatch):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
+    assert worker.serve(cfg(tmp_path), once=True) == 2
+
+
+@pytest.fixture(autouse=True)
+def _api_key(monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-not-used")
+
+
 def test_serve_refuses_without_bucket(tmp_path, monkeypatch, cloud):
     bucket_mod = types.ModuleType("igmp.bucket")
     bucket_mod.open_bucket = lambda cfg: None

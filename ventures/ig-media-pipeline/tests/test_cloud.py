@@ -49,8 +49,9 @@ def lavfi_clip(path: Path, seconds=1):
     subprocess.run(["ffmpeg", "-nostdin", "-v", "error", "-y",
                     "-f", "lavfi", "-i", f"testsrc=size=320x240:rate=10:duration={seconds}",
                     "-f", "lavfi", "-i", f"sine=frequency=440:duration={seconds}",
-                    "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p", "-c:a", "aac",
-                    "-f", "mp4", str(path)], check=True)
+                    # lossless, so the clip is bigger than its proxy (as a camera original is)
+                    "-c:v", "libx264", "-preset", "ultrafast", "-qp", "0", "-pix_fmt", "yuv420p",
+                    "-c:a", "aac", "-f", "mp4", str(path)], check=True)
 
 
 # --------------------------------------------------------------------------- keys and push
@@ -198,7 +199,7 @@ def test_proxy_mode_calls_the_video_recipe(tmp_path, monkeypatch):
     root = c.library_roots[0]
     root.mkdir(parents=True)
     for n in ("a_X5_VID_1.insv", "b_Pocket3_1.mp4", "c_A7RV_1.MOV"):
-        (root / n).write_bytes(b"clip")
+        (root / n).write_bytes(b"clip" * 100)
     seen = []
 
     def fake(src, dest, recipe, cfg, threads=0, want=None):
@@ -211,6 +212,23 @@ def test_proxy_mode_calls_the_video_recipe(tmp_path, monkeypatch):
                     ("b_Pocket3_1.mp4", "b_Pocket3_1.mp4", "video", None),
                     ("c_A7RV_1.MOV", "c_A7RV_1.MOV", "video", None)]
     assert all(b.get_bytes(k)[0] == b"proxy" for k in keys(b))
+
+
+def test_a_proxy_bigger_than_its_clip_sends_the_clip(tmp_path, monkeypatch):
+    from igmp import proxies
+    c = cfg(tmp_path)
+    root = c.library_roots[0]
+    root.mkdir(parents=True)
+    clip = root / "2026-10-10_174500_Harbor_Pocket3_DJI_0001.MP4"
+    clip.write_bytes(b"small")
+    monkeypatch.setattr(proxies, "make_video", lambda src, dest, recipe, cfg, threads=0, want=None:
+                        dest.write_bytes(b"a bigger proxy"))
+    store, b = Store(c.db_path), LocalBucket(tmp_path / "bucket")
+    assert cloud.push_library(c, store, b)["counts"]["pushed"] == 1
+    key = "library/2026/" + clip.name
+    assert b.get_bytes(key)[0] == b"small" and b.head(key).meta["igmp-proxy"] == "original"
+    # a fresh store on another machine sees it as done in proxy mode, not as a clip to re-send
+    assert cloud.push_library(c, Store(tmp_path / "other.sqlite"), b)["counts"]["pushed"] == 0
 
 
 def test_a_failed_transcode_is_recorded(tmp_path, monkeypatch):

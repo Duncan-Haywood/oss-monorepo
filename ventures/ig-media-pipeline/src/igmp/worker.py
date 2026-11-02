@@ -344,6 +344,9 @@ def serve(cfg: Config, *, once: bool = False, interval: int | None = None,
                   "under a daily token cap). The claude-code backend runs on your Claude plan and belongs on "
                   "your own Mac; set worker_allow_plan = true only if this machine is yours.", cfg.backend)
         return 2
+    if cfg.backend == "api" and not (os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN")):
+        log.error("worker: backend = \"api\" needs ANTHROPIC_API_KEY in the environment (see deploy/README.md)")
+        return 2
     from . import cloud
     from .bucket import open_bucket
     bucket = open_bucket(cfg)

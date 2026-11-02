@@ -373,7 +373,7 @@ def label(text: str) -> str:
     return re.sub(r"-{2,}", "-", s).strip("-")
 
 
-def camera_label(model: str, make: str, path: Path) -> str:
+def camera_label(model: str, make: str, path: Path, fallback: str = "") -> str:
     """An EXIF model (and make) as one of catalog.CAMERAS. An unknown model becomes a sanitised
     label with a warning: the catalog only parses flat names whose camera is in CAMERAS."""
     m = re.sub(r"[\s_\-]+", "", f"{model}".lower())
@@ -397,6 +397,8 @@ def camera_label(model: str, make: str, path: Path) -> str:
         guess = "DJI" if DJI_NAME.match(path.name) else "Unknown"
     else:
         guess = label(model) or "Unknown"
+    if fallback in CAMERAS:
+        return fallback             # the settings name the camera for files that carry no usable model
     if guess not in _warned_models:
         _warned_models.add(guess)
         log.warning("ingest: camera %r (%s) is not one of %s; the catalog will not read its flat names "
@@ -450,11 +452,7 @@ def plan(card: Path, cfg, store, *, location: str = "", event: str = "", reader=
         bi = info.get(best) or {"taken_at": datetime.fromtimestamp(best.stat().st_mtime), "source": "mtime"}
         camera = camera_label(bi.get("model", "") or next((info[p].get("model", "") for p in members
                                                            if info.get(p, {}).get("model")), ""),
-                              bi.get("make", ""), best)
-        fallback = str((cfg.extra or {}).get("ingest_camera", "") or "")
-        if camera not in CAMERAS and fallback in CAMERAS:
-            # no usable model (a DJI clip without exiftool): the camera the settings name for this card
-            camera = fallback
+                              bi.get("make", ""), best, str((cfg.extra or {}).get("ingest_camera", "") or ""))
         taken = _local(bi["taken_at"], cfg, location)
         source = bi.get("source", "mtime")
         for p in sorted(members):

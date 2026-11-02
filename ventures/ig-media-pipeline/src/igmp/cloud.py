@@ -160,6 +160,10 @@ def library_files(roots: list[Path]):
 
 # --------------------------------------------------------------------------- push the library
 
+# igmp-proxy values that satisfy proxy mode: "1" a proxy, "original" a clip already smaller than one
+PROXY_MARKS = ("1", "original")
+
+
 def _transcode(cfg: Config, src: Path, tmp_dir: Path) -> Path:
     from . import proxies
     recipe = "video360" if src.suffix.lower() == ".insv" else "video"
@@ -204,7 +208,7 @@ def push_paths(cfg: Config, store, bucket: Bucket, paths: list[Path], *, limit: 
                      "mtime_ns": st.st_mtime_ns, "blake2b": d, "proxied": proxied}
             have = bucket.head(key)
             if have is not None and have.meta.get("blake2b") == d \
-                    and (have.meta.get("igmp-proxy") == "1") == proxied:
+                    and (have.meta.get("igmp-proxy") in PROXY_MARKS) == proxied:
                 store.put("cloud", key, {**entry, "bytes": have.size, "pushed_at": row.get("pushed_at")
                                          or _now_iso(have.mtime)})
                 report["skipped"].append(str(path))
@@ -214,7 +218,10 @@ def push_paths(cfg: Config, store, bucket: Bucket, paths: list[Path], *, limit: 
                 tmp = _tmp_dir(cfg)
                 try:
                     up = _transcode(cfg, path, tmp)
-                    obj = bucket.put_file(key, up, meta={**meta, "igmp-proxy": "1"})
+                    if up.stat().st_size < st.st_size:
+                        obj = bucket.put_file(key, up, meta={**meta, "igmp-proxy": "1"})
+                    else:               # a low-bitrate clip: its proxy would be the bigger file
+                        obj = bucket.put_file(key, path, meta={**meta, "igmp-proxy": "original"})
                 finally:
                     shutil.rmtree(tmp, ignore_errors=True)
             else:
