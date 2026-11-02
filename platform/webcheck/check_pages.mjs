@@ -30,7 +30,22 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { checkPageIntegrity } from './page-integrity.mjs';
+import vm from 'node:vm';
+import { spawnSync } from 'node:child_process';
+
+// Parsing inline modules in-process needs this flag (page-integrity.mjs,
+// parsesAsModule); a plain `node check_pages.mjs` re-runs itself once with it
+// rather than spawning `node --check` for each of ~1,700 scripts
+// (docs/history/ci-perf-2026-11-02-page-integrity-sweep.md).
+if (typeof vm.SourceTextModule !== 'function' && !process.env.PAGE_INTEGRITY_REEXEC) {
+  const again = spawnSync(
+    process.execPath,
+    ['--experimental-vm-modules', '--disable-warning=ExperimentalWarning', ...process.argv.slice(1)],
+    { stdio: 'inherit', env: { ...process.env, PAGE_INTEGRITY_REEXEC: '1' } },
+  );
+  process.exit(again.status ?? 1);
+}
+const { checkPageIntegrity } = await import('./page-integrity.mjs');
 
 const REPO = fileURLToPath(new URL('../../', import.meta.url));
 const ROOTS = ['ventures'];
