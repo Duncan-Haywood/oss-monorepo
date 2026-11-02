@@ -339,5 +339,12 @@ test("M7d call prep and follow-up from the agent's own thread; a person who aske
   const r = await fetch(base + "/api/prep", { method: "POST", headers: { authorization: "Bearer " + env.ADMIN_TOKEN }, body: JSON.stringify({ email: "lee@corp.example" }) });
   assert.equal(r.status, 200); assert.equal((await r.json()).email, "lee@corp.example");
   assert.equal((await fetch(base + "/api/followup", { method: "POST", headers: { authorization: "Bearer " + env.ADMIN_TOKEN }, body: JSON.stringify({ email: "x" }) })).status, 422);
+  const home = await (await fetch(base + "/?token=" + env.ADMIN_TOKEN)).text();
+  assert.match(home, /id="calldesk"/); assert.match(home, /voice\.mjs\?token=/);
+  const mod = home.split('<script type="module">')[1].split("</script>")[0].replace(/^import .*?;\n/, "");
+  new (await import("node:vm")).Script(mod); // throws on a syntax error (a bad "\\n" escape once slipped through)
+  assert.equal((await fetch(base + "/voice.mjs")).status, 401);
+  const vm = await fetch(base + "/voice.mjs?token=" + env.ADMIN_TOKEN);
+  assert.equal(vm.status, 200); assert.match(await vm.text(), /export function appendDictation/);
   a.server.close(); await f.close();
 });
