@@ -1,6 +1,6 @@
 ---
 title: "A framing calculator that froze on one typo"
-seo_title: "Wall framing takeoff: validating header plies so a typo cannot hang the page"
+seo_title: "Wall framing takeoff: a header-ply typo no longer hangs it"
 date: 2026-11-02
 tags: [wall-framing-takeoff, construction, testing, validation]
 description: "Probing the wall framing takeoff with hostile plans found that a header ply count of a billion hung the page. It is now refused with a reason."
