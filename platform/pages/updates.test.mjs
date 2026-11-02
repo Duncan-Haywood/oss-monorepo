@@ -8,6 +8,7 @@ import {
   changelogEntries,
   isListable,
   kindOf,
+  loadResearchLog,
   parseDirection,
   parseMission,
   renderChangelog,
@@ -263,4 +264,23 @@ test('buildUpdates creates missing parent directories', async () => {
   await buildUpdates(out, BASE, { root, published: new Set(), researchSlugs: new Set(), titles: new Map(), now: NOW });
   await fs.access(path.join(out, CHANGELOG_PATH, 'feed.xml'));
   await fs.access(path.join(out, UPDATES_PATH, 'index.html'));
+});
+
+test('loadResearchLog reads dated headings with any separator, newest first', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'rlog-'));
+  await fs.mkdir(path.join(root, 'research', 'a'), { recursive: true });
+  await fs.writeFile(path.join(root, 'research', 'a', 'LOG.md'),
+    '## 2026-10-01 · dot\n## 2026-10-03 - hyphen\n## 2026-10-02: colon\n## 2026-10-04 – en\n## 2026-10-05 — em\n## 2026-10-06 no separator\n### 2026-10-07 · deeper\n');
+  const rows = loadResearchLog(root);
+  assert.deepEqual(rows.map((r) => r.date), ['2026-10-05', '2026-10-04', '2026-10-03', '2026-10-02', '2026-10-01']);
+  assert.deepEqual(rows.map((r) => r.title), ['em', 'en', 'hyphen', 'colon', 'dot']);
+});
+
+test('the lab notebook list keeps two entries per project and eight in all', () => {
+  const log = [];
+  for (let i = 0; i < 3; i++) log.push({ slug: 'busy', date: `2026-10-1${i}`, title: `busy-entry-${i}` });
+  for (let i = 0; i < 10; i++) log.push({ slug: `p${i}`, date: `2026-10-0${i}`, title: `solo-${i}` });
+  const html = renderUpdates(data({ researchLog: log }), { baseUrl: BASE });
+  assert.equal((html.match(/busy-entry-/g) || []).length, 2, 'two per project');
+  assert.equal((html.match(/solo-|busy-entry-/g) || []).length, 8, 'eight in all');
 });
