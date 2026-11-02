@@ -1,9 +1,9 @@
 ---
 title: "Can a changepoint detector find SARS and the Sydney Olympics in visitor data?"
-seo_title: "Changepoint detection on real Australian visitor arrivals and UK lung deaths"
+seo_title: "Changepoint detection on real visitor arrivals and lung deaths"
 date: 2026-11-02
 tags: [changepoint-detection, time-series, real-data, honesty]
-description: "We ran an open-source changepoint detector on five real series it had never been tested on. It found SARS and the Olympics, and also cut quiet series into pieces."
+description: "We ran an open-source changepoint detector on five untested real series. It found SARS and the Olympics, and also cut quiet series into pieces."
 ---
 
 The open-source [changepoint detector](../../ventures/changepoint-detector/README.md) had five real datasets sitting unused in its data folder. Today they got tests.
