@@ -92,19 +92,44 @@ once it is back (copied beside the destination, size-checked, then renamed into 
 rewrites the stored records to the new paths. Nothing is ever created under a missing
 `/Volumes/<drive>`.
 
-## Running in the cloud
+## From cards to the cloud
 
-Nothing here is built, but this is what a cloud runner would need:
+The aim: put the SD card or camera SSD in the Mac, run one command, and walk away. After that
+nothing depends on the Mac being on, or on the card or the photo drive being there. The design is
+in [docs/CLOUD.md](docs/CLOUD.md); running the worker is in [deploy/README.md](deploy/README.md).
 
-- **The state**: `state_dir` (the database, previews, caches), copied up or synced.
-- **The proxies**: `proxy_dir` in cloud storage, so the runner reads the same paths through the
-  manifest. Reels can then be planned and rendered without the original library.
-- **A Claude backend**: `backend = "claude-code"` uses the Claude plan this Mac is signed into
-  and cannot move to another machine. A cloud machine would use `backend = "api"` with an
-  Anthropic API key, billed per token (batches at half price).
-- **Tools**: ffmpeg, exiftool and Python with this package. RawTherapee is only needed for RAW
-  edits, which need the originals anyway.
-- **Outputs**: written to the runner's `output_dir` (or its outbox) and synced back.
+**`igmp ingest`** finds every mounted card (a volume with `DCIM` or Sony's `PRIVATE/M4ROOT`), reads
+each file's capture time and camera, and copies it into `ingest_root` under the catalog's naming
+scheme (`YYYY-MM-DD_HHMMSS_<Location>_<Camera>_<original>.EXT`; Insta360 files keep their names in
+a dated folder with an `_index.csv`). Each copy is hashed as it is read and hashed again from the
+destination before it is renamed into place. A file already ingested is skipped, a different file
+at the destination is never overwritten, and nothing on the card is ever changed or deleted. When
+the photo drive is away the copies go to a spool under `state_dir` with the same folder name, so
+asset ids don't change; `igmp ingest --settle` moves them onto the drive once it is back. With
+`--location Harbor` (or `ingest_location`) the shots get their place label at ingest, because the
+label is part of the file name and the asset id. `--watch` keeps running and ingests each card as it is
+inserted. The summary ends with whether each card is **safe to format**: every file verified in the
+library and, with the cloud on, pushed.
+
+**`cloud_url`** turns the cloud on: any S3-compatible bucket (Cloudflare R2, Backblaze B2, AWS S3,
+MinIO) or a folder (`file:///Volumes/NAS/igmp`). Ingest then pushes each shot as it lands,
+to `library/<root name>/<path>`. Clips go up as 1920 px H.264 copies by default (`cloud_video =
+"proxy"`, the same size `igmp stage` uses for reels, several times smaller than 4K originals); RAW
+and JPG files go up as shot. `igmp cloud push` pushes whatever hasn't gone up yet (and the library you
+already have). Keys come from the environment, never from the settings file.
+
+**`igmp worker`** runs on a cloud machine (a container, see `deploy/`). Each cycle it takes a
+lease in the bucket so two workers never share the state, mirrors `library/`, runs every stage with
+`backend = "api"`, uploads the outputs to `outputs/` and a snapshot of its database to
+`state/igmp.sqlite`, and writes `status.json` and a `status.html` page. It spends API tokens
+unattended, so `worker_tokens_per_day` is a hard daily cap: when it is reached the worker stops
+calling Claude and the remaining shots wait for the next day.
+
+**Back on the Mac**, `igmp cloud pull` downloads the finished photos, reels, carousels and the
+posting queue into `output_dir` (or the outbox while that drive is away), and `igmp cloud status`
+shows the worker's last cycle, the tokens it has used today and anything not pushed yet. `igmp
+cloud seed` hands the Mac's existing scores and plans to a worker that has no state yet, so shots
+already scored on the Claude plan aren't paid for again.
 
 ## Two ways to pay for Claude
 
@@ -133,6 +158,7 @@ Both send downscaled previews (about 1024 px), never the original files.
 
 `igmp run` runs every stage. `igmp scan | geo | prefilter | score | astro | edit | reels | tag | status` run one.
 `igmp stage` writes the proxy working set and `igmp sync-outputs` empties the outbox (see "When the drives are away").
+`igmp ingest`, `igmp cloud push | pull | seed | status` and `igmp worker` move cards into the library and the work to the cloud (see "From cards to the cloud").
 `igmp organize` files loose library shots into `<root>/<event>/RAW` (with each RAW's `.xmp` beside it, where
 Lightroom and Capture One read it), `JPG` and `VIDEO`; it shows the plan, `--apply` moves (same-drive
 renames, never overwriting, each logged to `<root>/_organize/*.jsonl` first), `--undo MANIFEST` moves

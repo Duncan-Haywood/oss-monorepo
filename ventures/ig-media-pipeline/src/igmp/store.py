@@ -13,7 +13,8 @@ from pydantic import BaseModel
 # edit_plans: director settings and critic rounds of edits still in progress; reel_plans: story-pass
 # plans of reels as they arrive; reel_rounds: every draft, check and critic round of a reel
 TABLES = ("assets", "metrics", "scores", "curation", "edit_plans", "edits", "reels", "reel_plans", "reel_rounds",
-          "meta", "geo", "carousels", "astro", "jobs")
+          "meta", "geo", "carousels", "astro", "jobs",
+          "ingest", "cloud")   # ingest: files copied off cards; cloud: what was pushed to the bucket
 M = TypeVar("M", bound=BaseModel)
 
 

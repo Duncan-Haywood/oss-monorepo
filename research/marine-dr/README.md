@@ -5,6 +5,8 @@
 heading reference drifts a computable fraction of the distance it travels. The heading reference, not the
 DVL, sets the drift unless it is better than about 0.1 degree.
 
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/marine-dr/
+
 ## Result
 
 - Drift per metre travelled on a straight track is `sqrt(s^2 + (2 sin(b/2))^2)` for DVL scale error `s`
