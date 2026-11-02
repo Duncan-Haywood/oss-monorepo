@@ -1,5 +1,6 @@
 ---
 title: "A Froude-scaled model in rough air feels the right load and pitches too much"
+seo_title: "A scaled UAV model in rough air pitches too much"
 date: 2026-11-02
 tags: [aerolog-scaling, digital-twin, sim-to-real, uav]
 description: In Dryden turbulence a 1:5 Froude model of a cargo UAV keeps rms load factor within 2% but pitches 25 to 40% harder than the full-size aircraft.
