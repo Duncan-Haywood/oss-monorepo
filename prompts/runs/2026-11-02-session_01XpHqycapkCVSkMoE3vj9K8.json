@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": "Daily and weekly usage-and-income blog posts",
   "projects": [
-    "platform/usage-report"
+    "platform/daily/usage-report"
   ],
   "pr": 12480,
   "repo": "Duncan-Haywood/oss-monorepo",
@@ -32,7 +32,7 @@
   "errors": [
     {
       "what": "site-usage-pull.yml fails since 2026-10-31: direct push to main rejected by the ruleset (run 41276810850); committed site-visits.json stopped at 2026-10-30 while the counter kept counting",
-      "fixed": "data refreshed by hand in this PR; workflow fix planned in platform/usage-report/README.md for a separate control-plane PR"
+      "fixed": "data refreshed by hand in this PR; workflow fix planned in platform/daily/USAGE_REPORT.md for a separate control-plane PR"
     }
   ],
   "integrity_issues": [],
@@ -52,7 +52,7 @@
     {
       "file": "CLAUDE.md",
       "why": "The workflow fix belongs in its own control-plane PR, but this session may push only its designated branch, so the change is written up as a plan instead of opened.",
-      "did": "plan in platform/usage-report/README.md",
+      "did": "plan in platform/daily/USAGE_REPORT.md",
       "result": "pending a follow-up session"
     }
   ],
@@ -62,7 +62,7 @@
     "docs/posts/2026-11-02-usage-and-income-week-to-2026-11-01.md"
   ],
   "goal": null,
-  "notes": "node --test platform/usage-report/*.test.mjs: 7/7 pass. check_post_frontmatter.py clean. writing.mjs loadPosts() loads the three posts. Live counter /counts (2026-11-02): 95 page loads 2026-10-24..2026-11-02, 29,268 crawler beacons; pulled into site-visits.json with platform/counter/pull.mjs (max-merge).",
+  "notes": "node --test platform/daily/usage-report.test.mjs: 7/7 pass. check_post_frontmatter.py clean. writing.mjs loadPosts() loads the three posts. Live counter /counts (2026-11-02): 95 page loads 2026-10-24..2026-11-02, 29,268 crawler beacons; pulled into site-visits.json with platform/counter/pull.mjs (max-merge).",
   "corrections": [],
   "redteam": null
 }

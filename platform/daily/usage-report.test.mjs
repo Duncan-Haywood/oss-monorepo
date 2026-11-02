@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { addDays, composeDaily, composeWeekly, dayStats, daysBetween, firstKeyDay, incomeFacts, windowStats } from './report.mjs';
+import { addDays, composeDaily, composeWeekly, dayStats, daysBetween, firstKeyDay, incomeFacts, windowStats } from './usage-report.mjs';
 
 const visits = {
   '2026-10-24': { about: 4, c: 3 },

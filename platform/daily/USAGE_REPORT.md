@@ -1,4 +1,4 @@
-# Usage-and-income reports (`docs/posts/*-usage-and-income-*.md`)
+# Usage-and-income reports (`docs/posts/*-usage-and-income-*.md`, `usage-report*.mjs` here)
 
 A daily and a weekly blog post on how use of the site and income are going
 (owner request, 2026-11-02). Each is composed only from committed files, so
@@ -13,10 +13,10 @@ the numbers in a post can be checked against the tree at that commit.
 | `.github/FUNDING.yml` | which ways to pay are open |
 
 ```
-node platform/usage-report/build.mjs --today=2026-11-02            # daily post for 2026-11-01
-node platform/usage-report/build.mjs --today=2026-11-02 --weekly   # plus the week 2026-10-26..2026-11-01
-node platform/usage-report/build.mjs --dry-run                     # print, write nothing
-node --test platform/usage-report/*.test.mjs
+node platform/daily/usage-report-build.mjs --today=2026-11-02            # daily post for 2026-11-01
+node platform/daily/usage-report-build.mjs --today=2026-11-02 --weekly   # plus the week 2026-10-26..2026-11-01
+node platform/daily/usage-report-build.mjs --dry-run                     # print, write nothing
+node --test platform/daily/usage-report.test.mjs
 ```
 
 A post is dated the day it is written and covers complete UTC days before
@@ -45,7 +45,7 @@ its own PR for the owner's approval. A plan for that PR, from the ruleset in
 `conflict-markers` and `control-plane`; code-owner review only on owned paths,
 which `portfolio/usage/` and `docs/posts/` are not):
 
-1. after the pulls, run `node platform/usage-report/build.mjs`, adding
+1. after the pulls, run `node platform/daily/usage-report-build.mjs`, adding
    `--weekly` when `date -u +%u` is 1;
 2. commit to a branch `usage-data/<date>` instead of `main` and push it;
 3. `gh pr create` with the job token (`pull-requests: write`; needs the
@@ -59,5 +59,5 @@ Until then a session can refresh the data and write the posts by hand:
 
 ```
 COUNTER_URL=$(node -p 'require("./platform/counter/site.json").url') node platform/counter/pull.mjs
-node platform/usage-report/build.mjs [--weekly]
+node platform/daily/usage-report-build.mjs [--weekly]
 ```

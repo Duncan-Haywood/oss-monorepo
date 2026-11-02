@@ -52,4 +52,4 @@ The ledger (`portfolio/ledger/2026-10.yaml`) records no recurring revenue: 209 o
 
 ## How this is counted
 
-Counts come from the site's first-party, cookieless counter (`platform/counter/`), copied into `portfolio/usage/site-visits.json`. A page load is one browser opening one page; it is not a person, and nothing identifies anyone. Browsers sending Do Not Track or Global Privacy Control are not counted. Written by `platform/usage-report/build.mjs` from committed files only.
+Counts come from the site's first-party, cookieless counter (`platform/counter/`), copied into `portfolio/usage/site-visits.json`. A page load is one browser opening one page; it is not a person, and nothing identifies anyone. Browsers sending Do Not Track or Global Privacy Control are not counted. Written by `platform/daily/usage-report-build.mjs` from committed files only.

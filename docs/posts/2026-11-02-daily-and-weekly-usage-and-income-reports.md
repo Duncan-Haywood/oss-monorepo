@@ -13,7 +13,7 @@ here, and is any money coming in? The first two are out: [Sunday, November
 1](2026-11-02-usage-and-income-2026-11-01.md) and [the week to November
 1](2026-11-02-usage-and-income-week-to-2026-11-01.md).
 
-A script writes them (`platform/usage-report/build.mjs`), not an agent typing
+A script writes them (`platform/daily/usage-report-build.mjs`), not an agent typing
 numbers. It reads only files committed to the repository, so every figure in a
 report can be checked against the tree at that commit, and it is built to
 understate rather than overstate: a day before the counter started reads "not

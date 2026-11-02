@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // Writes the usage-and-income blog posts into docs/posts/.
 //
-//   node platform/usage-report/build.mjs                 # daily post for yesterday (UTC)
-//   node platform/usage-report/build.mjs --weekly        # also the week ending yesterday
-//   node platform/usage-report/build.mjs --today=2026-11-02 [--weekly] [--force] [--dry-run]
+//   node platform/daily/usage-report-build.mjs                 # daily post for yesterday (UTC)
+//   node platform/daily/usage-report-build.mjs --weekly        # also the week ending yesterday
+//   node platform/daily/usage-report-build.mjs --today=2026-11-02 [--weekly] [--force] [--dry-run]
 //
 // --today is the publication date (default: the current UTC date); the daily
 // post covers the day before it and the weekly post the seven days before it,
@@ -18,7 +18,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { addDays, composeDaily, composeWeekly, incomeFacts } from './report.mjs';
+import { addDays, composeDaily, composeWeekly, incomeFacts } from './usage-report.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
