@@ -27,6 +27,13 @@ test('the 1980 rise is dated one quarter after the literature (1980Q4 vs 1980Q3)
   assert.equal(labels[up.range95.toIndex], '1980Q4');
 });
 
+test('the best single break lies after 1980Q3, so 1980Q3 is the last old quarter (a convention gap, not a late date)', () => {
+  const lo = labels.indexOf('1973Q4'), hi = labels.indexOf('1986Q1');
+  const sse = (a) => { const m = a.reduce((s, x) => s + x, 0) / a.length; return a.reduce((s, x) => s + (x - m) ** 2, 0); };
+  const cost = (last) => { const k = labels.indexOf(last) + 1; return sse(values.slice(lo, k)) + sse(values.slice(k, hi)); };
+  assert.ok(cost('1980Q3') < cost('1980Q2') && cost('1980Q3') < cost('1980Q4'));
+});
+
 test('the 2007-09 crisis quarters are cut into one-quarter segments (a known artefact, as in inflation)', () => {
   const cps = analyze({ values, labels, bootstrap: true }).pelt.changepoints;
   assert.ok(cps.filter((c) => labels[c.index] >= '2007Q3').length >= 3);
