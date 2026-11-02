@@ -1,5 +1,6 @@
 ---
 title: "When two teams are still level: recursive head-to-head in league tables"
+seo_title: "Recursive head-to-head tie-breaks in league tables"
 date: 2026-11-02
 tags: [league-schedule-generator, standings, testing]
 description: Level teams are now split by a fresh mini-table among only those still tied; 321 of 200,000 random leagues ranked differently.
