@@ -235,3 +235,40 @@ products:
       None; the model is donations plus the one-click deploy.
     next_owner: false
     parked: true
+
+  - venture: changepoint-detector
+    buyer: analysts, growth and ops people who need to say when a metric really shifted, without sending data to a vendor
+    liability: low
+    model: >-
+      Enterprise anomaly monitoring is priced per host or per metric stream
+      and sells continuous monitoring plus integrations; this tool does the
+      one-shot question (when did the level or volatility change, how sure)
+      in the browser, so it competes on privacy and zero setup, not on
+      monitoring. Keep the detector, the CLI and the agent engine free (they
+      are the lead magnet and the SEO surface). The charge, if any, is for
+      presentation: a branded change report (PDF or one-page HTML with the
+      chart, the segment table and the plain-language reading, on the
+      analyst's letterhead) behind the same licence-key check as the other
+      dark paths. No advice claim: the report states the statistical
+      assumptions and that a detected change is not a cause.
+    first_offer: >-
+      Branded change report (not built). Dark until CHECKOUT_URL is set,
+      like wall-framing-takeoff, league-schedule-generator and shed-designer.
+    price_hypothesis: "$5 to $15 one-off per report pack; unvalidated, and below enterprise monitoring on purpose, since the buyer is one analyst, not a platform team"
+    comparables:
+      - what: Anodot anomaly monitoring (comparison site; an AWS Marketplace listing in the same search showed $2,000 a month for 1,000 metrics but could not be opened to confirm the product)
+        price: from about $1,000 per month (search snippet; vendor page unread)
+        source: https://checkthat.ai/brands/anodot/pricing
+        read: 2026-11-02
+      - what: Datadog Infrastructure Pro (Watchdog anomaly detection included, per host)
+        price: about $15 to $18 per host per month on annual or on-demand billing (comparison sites; Datadog's own page unread)
+        source: https://toolradar.com/compare/anodot-vs-datadog
+        read: 2026-11-02
+    stage: planned
+    next: >-
+      Agent-doable: build the branded change report (reuse licence.mjs and
+      checkout.mjs from wall-framing-takeoff, hidden until CHECKOUT_URL is
+      set) and check the comparables against the vendors' own pricing pages
+      when a host allows it. Owner step afterwards is the same single
+      merchant-of-record product that serves the other dark paths.
+    next_owner: false
