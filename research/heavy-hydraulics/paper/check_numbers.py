@@ -68,6 +68,15 @@ CHECKS = [
     ("27.5 bar at f = 0.5", "surplus_fraction_results.txt", "f=0.5: break-even dp_ls 27.5 bar"),
     ("18.8 bar at f = 0", "surplus_fraction_results.txt", "f=0.0: break-even dp_ls 18.8 bar"),
     ("44.5 bar to 31.7 bar", "surplus_fraction_results.txt", "x1.2 f=0.5: break-even dp_ls 31.7 bar"),
+    ("823 W at the central point", "regen_window_results.txt", "= 823 W"),
+    ("2,921 W at the upper corner", "regen_window_results.txt", "= 2921 W"),
+    ("2.02% / 1.96%", "regen_window_results.txt", "2.02%      1.96%"),
+    ("2.77 to 4.54 kW", "regen_peaky_results.txt", "upper corner: flat 2.77, trapezoid20 3.41, halfsine 3.94, triangle 4.54"),
+    ("0.78 to 1.28 kW", "regen_peaky_results.txt", "central: flat 0.78, trapezoid20 0.96, halfsine 1.11, triangle 1.28"),
+    ("4.7 to 8.0 h", "electric_rung_results.txt", "4.69"),
+    ("4.7 to 8.0 h", "electric_rung_results.txt", "8.00"),
+    ("76 W", "regen_price_results.txt", "saved 76 W"),
+    ("230 W", "regen_price_results.txt", "saved 230 W"),
 ]
 
 
