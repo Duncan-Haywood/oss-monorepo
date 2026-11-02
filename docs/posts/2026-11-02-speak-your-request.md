@@ -15,6 +15,10 @@ The [custom development page](https://marisstella.app/custom-development/) asks 
 - Nothing reaches this site until you press **Send request**, the same as before.
 - If your browser has no speech recognition (Firefox, for one), the buttons stay hidden and the form is unchanged.
 
+## Research requests can name a direction
+
+When you pick **A research question to investigate**, the form now lists every research direction already here: the open programmes first (sim-to-real inference, permit data, marine hulls and the rest), then all of the projects grouped by theme. Pick the one your question builds on, or leave it on "A new direction". The choice goes into the request's first line, so it reaches the right programme. A research page can link straight to the form with `?dir=<slug>` to preselect its own direction.
+
 ## The honest caveat
 
 Some browsers, Chrome among them, send the audio to the browser maker's speech service to turn it into text unless they can do it on the device. The form says so next to the buttons. If that matters to you, type instead.
