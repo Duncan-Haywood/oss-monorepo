@@ -207,6 +207,19 @@
     <button type="button" class="secondary" id="dl-sheets">Download printable score sheets (.html)</button>
   </section>
 
+  <section class="card" aria-labelledby="h-pack" id="packCard" hidden>
+    <h2 id="h-pack">Branded season pack</h2>
+    <p class="note">Your schedule on your own letterhead (organiser, logo, accent colour), a master page and one fridge-sheet page per team, to print or save as PDF. The schedule and every export above stay free; this is an extra. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
+    <p id="buyRow" hidden><a id="buyLink" class="button" rel="noopener" target="_blank">Buy a season pack key</a></p>
+    <p><label>Licence key <input id="packKey" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="packCheck">Check key</button> <span id="packState" role="status"></span></p>
+    <div id="packFields" hidden>
+      <p><label>Organiser <input id="packOrg" aria-label="Organiser" style="width:14em"></label> <label>Season <input id="packSeason" aria-label="Season" style="width:8em" placeholder="Fall 2026"></label> <label>Accent <input id="packAccent" aria-label="Accent colour" type="color" value="#1f3a5f"></label></p>
+      <p><label>Contact line <input id="packContact" aria-label="Contact line" style="width:22em"></label></p>
+      <p><label>Logo (PNG, JPEG, WebP or GIF) <input id="packLogo" aria-label="Logo file" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label></p>
+      <p><button type="button" class="secondary" id="packOpen">Open season pack</button></p>
+    </div>
+  </section>
+
   <section class="card" id="pool-card">
     <h2>Pool play for a tournament (optional)</h2>
     <p class="note">List the teams best seed first above, then split them into pools by snake draft so the strong seeds are spread out. Each pool gets its own round robin using your dates, courts, blackouts and time slots, and every pool schedule is re-checked. Type results as <code>Hawks 3 - 2 Owls</code> in step 4 to see who advances.</p>
@@ -335,6 +348,9 @@
   <script type="module">
     import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { seasonPackHtml } from "./printpack.mjs";
+    import { buyLink, checkLicence } from "./licence.mjs";
+    import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
 
     const $ = (s) => document.querySelector(s);
     const status = $("#form-status");
@@ -677,6 +693,26 @@
       download("score-sheets.html", scoreSheetsHtml(last.s, { title: "League score sheets" }), "text/html");
       record("text_shared");
     });
+    {
+      // Dark until CHECKOUT_URL is set: no card, no Buy button, nothing changes for free users.
+      const buy = buyLink(CHECKOUT_URL);
+      if (buy) { $("#buyLink").href = buy; $("#buyRow").hidden = false; $("#packCard").hidden = false; }
+      let logo = "";
+      $("#packLogo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { logo = ""; return; } const r = new FileReader(); r.onload = () => { logo = String(r.result); }; r.readAsDataURL(f); });
+      $("#packCheck").addEventListener("click", async () => {
+        $("#packState").textContent = "Checking...";
+        const v = await checkLicence($("#packKey").value, { url: VALIDATE_URL });
+        $("#packState").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason;
+        $("#packFields").hidden = !v.valid;
+        if (v.valid) record("season_pack_unlocked");
+      });
+      $("#packOpen").addEventListener("click", () => {
+        if (!last) return;
+        const html = seasonPackHtml(last.s, { title: "League schedule", organiser: $("#packOrg").value, season: $("#packSeason").value, contact: $("#packContact").value, accent: $("#packAccent").value, logo, table: last.table });
+        const url = URL.createObjectURL(new Blob([html], { type: "text/html" })); window.open(url, "_blank", "noopener"); setTimeout(() => URL.revokeObjectURL(url), 60000);
+        record("season_pack_opened");
+      });
+    }
     $("#copy-week").addEventListener("click", async () => {
       if (!last || !last.table) return;
       const pr = parseResults($("#results").value, last.s.teams);

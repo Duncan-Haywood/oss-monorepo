@@ -18,6 +18,10 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks, real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. If you need registration or payments, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
+## Branded season pack (dark, 2026-11-02)
+
+`printpack.mjs` builds the schedule on the organiser's letterhead (name, season, contact line, logo, accent colour): a master page, the standings if results are typed, and one fridge-sheet page per team. Printed to PDF from the browser. It is an extra: the schedule and every export stay free. A licence key (`licence.mjs`, checked against the merchant of record's public validate call, no secret held) unlocks the form. `CHECKOUT_URL` in `checkout.mjs` is empty, so the card is hidden and nothing is on sale. The code is MIT; the key is a convenience for honest buyers. Not yet clicked through in a browser, the validate request shape is from memory of Lemon Squeezy's docs, and no organiser has seen it. Tests: `printpack.test.mjs`, `page.test.mjs`.
+
 ## Run your own league page (self-hosted)
 
 The browser tool builds the season; `server.mjs` gets it to your players. You keep the setup and post results in

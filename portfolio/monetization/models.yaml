@@ -89,14 +89,14 @@ products:
         price: $99 a year on Capterra; $199 on Jersey Watch (sources disagree)
         source: https://www.capterra.com/p/178117/Diamond-Scheduler/
         read: 2026-11-02
-    stage: planned
+    stage: built-dark
     next: >-
-      Comparables are aggregator figures; confirm on the vendors' own pricing
-      pages when a host allows it. A one-off season pack at $10 to $25 sits
-      under all the prices above. LeagueLobster's free plan covers up to 25 teams, so the extra must be new depth (a print pack), never the schedule itself. Build the first extra: a branded
-      printable schedule (print CSS plus an organiser name and logo field),
-      dark until a checkout link is set, following wall-framing-takeoff's
-      licence-key pattern in ventures/wall-framing-takeoff.
+      Branded season pack built 2026-11-02 and dark (ventures/league-schedule-generator:
+      printpack.mjs, licence.mjs, checkout.mjs; CHECKOUT_URL empty, so no card or Buy
+      button shows). Never clicked through in a browser and the licence validate call
+      is from memory of Lemon Squeezy's docs. Next: a standings page the organiser can
+      host (the self-hosted server already has one) bundled into the pack, then confirm
+      comparables on vendors' own pages. Needs the owner: a checkout product.
     next_owner: false
 
   - venture: shift-roster-builder

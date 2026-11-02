@@ -58,7 +58,7 @@ test("every static input has a label and nothing is sent anywhere", () => {
 
 test("the module scripts import only local files, and the inline script parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./checkout.mjs", "./licence.mjs", "./printpack.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   assert.doesNotMatch(page("calc.mjs"), /^\s*import\s/m);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
@@ -823,4 +823,11 @@ test("multi-division page: results box feeds divisionsStandings and a CSV downlo
   for (const id of ["results", "points", "h2h", "show-standings", "dl-standings", "standings-out"]) assert.ok(html.includes(`id="${id}"`), id);
   assert.match(html, /divisionsStandings\(last, \$\("#results"\)\.value/);
   assert.match(html, /divisionsStandingsCsv\(lastStandings\)/);
+});
+
+test("season pack stays dark: card hidden, no checkout link, imports wired", () => {
+  const html = page("index.html");
+  assert.match(html, /id="packCard" hidden/);
+  assert.match(html, /import \{ seasonPackHtml \} from "\.\/printpack\.mjs"/);
+  assert.match(page("checkout.mjs"), /CHECKOUT_URL = ""/);
 });
