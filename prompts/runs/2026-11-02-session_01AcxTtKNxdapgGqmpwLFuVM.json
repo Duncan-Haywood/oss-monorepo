@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01AcxTtKNxdapgGqmpwLFuVM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T18:16:03Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12630",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No agent doc in docs/reports/ written; small bugfix with nothing the next run needs."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-02-typing-feet-and-inches-on-a-phone.md"
+  ],
+  "goal": null,
+  "notes": "Security queue branch missing; ideas and requests empty. Took flagship 1 slice: parseLength curly quotes and fraction glyphs. engine.test.mjs 54/54 pass locally. venture-preflight and flagships.yaml next: not run or changed.",
+  "corrections": [],
+  "redteam": null
+}
