@@ -1,5 +1,6 @@
 ---
 title: "Fuzzing the concrete order: 400 random pours checked against an independent volume sum"
+seo_title: "Fuzzing the concrete order"
 date: 2026-11-02
 tags: [wall-framing-takeoff, testing, construction]
 description: The slab, footing and pier concrete engine in the framing takeoff now has a seeded property test that failed when the bag rounding was broken.
