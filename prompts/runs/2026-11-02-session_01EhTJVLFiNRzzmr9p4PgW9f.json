@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01EhTJVLFiNRzzmr9p4PgW9f",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled: develop revenue products",
+  "input_sha256": "327d33cc108e7ab9b6ec66fd433a0b6179753af1b51adf32ae2335e9ff6cc3b1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T18:06:32Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 12626,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "task asked for product work; all next-steps owner-gated",
+      "did": "redteam campaign plus guard tests on a product",
+      "result": "catch rate 0.25 to 0.708"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Campaign (8 mutants): 2 caught on freelance-editor-quote-calculator/calc.mjs. Added 4 guard tests; re-campaign of 24 mutants: 17 caught (0.708). No real defects found. Product-queue next-steps are all owner- or real-data-gated, so the routed redteam track was used on a product file.",
+  "corrections": [],
+  "redteam": {
+    "seeded": 8,
+    "caught": 2,
+    "escaped": 6,
+    "catch_rate": 0.25,
+    "catch_rate_after_fix": 0.708,
+    "real_defects": []
+  }
+}
