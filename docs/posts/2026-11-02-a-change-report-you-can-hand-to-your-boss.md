@@ -1,6 +1,6 @@
 ---
 title: "A changepoint report you can hand to your boss"
-seo_title: "Branded changepoint report: print a time-series change analysis on your letterhead"
+seo_title: "Branded changepoint report on your own letterhead"
 date: 2026-11-02
 tags: [changepoint-detector, monetization, statistics]
 description: "The free changepoint detector now has a dark paid path: the same result as a printable report on your letterhead, off until a checkout link exists."
