@@ -36,6 +36,15 @@ const ISSUE_KINDS = [
   [/^\[idea\]/i, undefined],
 ];
 const REQUEST_LABELS = new Set(['custom-request', 'idea']);
+/**
+ * The header the custom-development form puts on each message
+ * (`platform/pages/build.mjs`, the request form's submit handler):
+ * `[custom-development: <kind>]`, then ` R-0001` for a preview and
+ * ` tool: <slug>` for a feature or a problem, then a blank line and the job.
+ */
+const FORM_HEAD = /^\s*\[custom-development:\s*([a-z-]+)\](?:[ \t]+(R-\d{4}))?(?:[ \t]+tool:[ \t]*([A-Za-z0-9._\/-]*))?[ \t]*(?:\r?\n|$)/;
+/** Form kind (the page's REQUEST_KINDS ids) → queue kind. `preview` and `problem` are not new requests. */
+export const FORM_HEAD_KINDS = Object.freeze({ new: 'product', feature: 'feature', research: 'research', topic: 'writeup' });
 const ASK_MAX = 600;
 
 function readJson(file, fallback) {
@@ -49,7 +58,8 @@ function readJson(file, fallback) {
 /** A short title from the first sentence, for a human to rewrite at triage. */
 export function draftTitle(text) {
   const first = sanitize(text).replace(/^\[[a-z-]+\]\s*/i, '').split(/(?<=[.!?])\s|\n/)[0] || '';
-  const t = first.replace(/[.!?]+$/, '').trim();
+  // A question keeps its mark; a sentence loses its full stop.
+  const t = first.replace(/[.!]+$/, '').trim();
   return (t.length > 70 ? `${t.slice(0, 67).replace(/\s+\S*$/, '')}…` : t) || 'Untitled request';
 }
 
@@ -59,18 +69,59 @@ export function draftAsk(text) {
   return s.length > ASK_MAX ? `${s.slice(0, ASK_MAX - 1).replace(/\s+\S*$/, '')}…` : s;
 }
 
-/** Form messages that are requests and that no entry covers yet. */
+/**
+ * A form message split into the header the page wrote and the visitor's text:
+ * `{ kind, request, tool, body }`, with `kind` undefined when there is no header
+ * (an older message, or one sent from the plain feedback page).
+ */
+export function parseFormMessage(message) {
+  const text = String(message || '');
+  const m = text.match(FORM_HEAD);
+  if (!m) return { kind: undefined, request: undefined, tool: undefined, body: text.trim() };
+  return { kind: m[1], request: m[2], tool: m[3] || undefined, body: text.slice(m[0].length).trim() };
+}
+
+/** Form messages that are new requests and that no entry covers yet. */
 export function pendingForm(feedback, requests) {
   const seen = new Set(requests.map((r) => r.feedback_id).filter((x) => x !== undefined));
-  return feedback
-    .filter((m) => m.type in FORM_KINDS && !seen.has(m.id))
-    .map((m) => ({
+  const out = [];
+  for (const m of feedback) {
+    if (!(m.type in FORM_KINDS) || seen.has(m.id)) continue;
+    const head = parseFormMessage(m.message);
+    // Feedback on a request already queued is triaged into that request's
+    // `next` (README, "Intake"), never queued again: see pendingPreviews.
+    if (head.kind === 'preview' || head.kind === 'problem') continue;
+    const tool = m.tool || head.tool;
+    out.push({
       origin: `form #${m.id}`,
       day: m.day,
+      // Screen everything the visitor sent, header included.
       text: m.message,
-      kind: FORM_KINDS[m.type],
-      entry: { source: 'form', feedback_id: m.id, ...(m.tool ? { tool: m.tool } : {}) },
-    }));
+      body: head.body || m.message,
+      kind: FORM_KINDS[m.type] || FORM_HEAD_KINDS[head.kind],
+      entry: { source: 'form', feedback_id: m.id, ...(tool ? { tool } : {}) },
+    });
+  }
+  return out;
+}
+
+/**
+ * Preview feedback (`[custom-development: preview] R-0003 ...`) that the
+ * request it names has not taken in yet. A triager folds it into that
+ * request's `next` and adds the message id to its `preview_ids`.
+ */
+export function pendingPreviews(feedback, requests) {
+  const byId = new Map(requests.map((r) => [r.id, r]));
+  const out = [];
+  for (const m of feedback) {
+    if (!(m.type in FORM_KINDS)) continue;
+    const head = parseFormMessage(m.message);
+    if (head.kind !== 'preview') continue;
+    const target = byId.get(head.request);
+    if (target && (target.preview_ids || []).includes(m.id)) continue;
+    out.push({ origin: `form #${m.id}`, day: m.day, request: head.request, known: Boolean(target), text: m.message, body: head.body, ...screen(m.message) });
+  }
+  return out;
 }
 
 /** Issues that are requests and that no entry links yet. */
@@ -108,11 +159,11 @@ export function draftEntries(pending, requests, today) {
     const s = screenRecord(p.text);
     return {
       id: id(k + 1),
-      title: draftTitle(p.title || p.text),
+      title: draftTitle(p.title || p.body || p.text),
       received: p.day || today,
       ...p.entry,
       ...(p.kind ? { kind: p.kind } : {}),
-      ask: draftAsk(p.title ? `${p.title.replace(/^\[[a-z-]+\]\s*/i, '')}. ${p.text.slice(p.title.length).trim()}` : p.text),
+      ask: draftAsk(p.title ? `${p.title.replace(/^\[[a-z-]+\]\s*/i, '')}. ${p.text.slice(p.title.length).trim()}` : p.body || p.text),
       status: 'received',
       updated: today,
       screen: { ...s, day: today },
@@ -134,9 +185,12 @@ function main(argv) {
   const issues = val('--issues') ? readJson(val('--issues'), []) : [];
   const pending = [...pendingForm(feedback, requests), ...pendingIssues(Array.isArray(issues) ? issues : issues.items || [], requests)];
   const drafts = draftEntries(pending, requests, today);
+  const previews = pendingPreviews(feedback, requests);
 
   if (has('--json')) {
-    console.log(JSON.stringify(pending.map((p, k) => ({ origin: p.origin, ...screen(p.text), entry: drafts[k] })), null, 2));
+    const rows = pending.map((p, k) => ({ origin: p.origin, ...screen(p.text), entry: drafts[k] }));
+    // An array, as before, when there is no preview feedback to report.
+    console.log(JSON.stringify(previews.length ? { requests: rows, previews } : rows, null, 2));
   } else if (!pending.length) {
     console.log('Nothing new: every request-type form message and given issue is already in requests.json.');
   } else {
@@ -146,6 +200,10 @@ function main(argv) {
       console.log(`  ${drafts[k].id}  ${s.verdict.toUpperCase().padEnd(7)} ${p.origin} ${p.day}${p.kind ? ` [${p.kind}]` : ''}: ${drafts[k].title}`);
       for (const f of s.findings) console.log(`           ${f.severity} ${f.rule}: ${f.excerpt}`);
     });
+  }
+  if (!has('--json') && previews.length) {
+    console.log(`${previews.length} preview message(s) about requests already queued: fold each into that request's next and add its id to preview_ids (never a new entry):`);
+    for (const p of previews) console.log(`  ${p.request || '(no request named)'}${p.known ? '' : ' (not in the queue)'}  ${p.verdict.toUpperCase().padEnd(7)} ${p.origin} ${p.day}`);
   }
   if (has('--add') && drafts.length) {
     data.requests = [...requests, ...drafts];
