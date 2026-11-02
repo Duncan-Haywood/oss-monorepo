@@ -2,6 +2,16 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-02 · Milestone 60: does a cheater who shades its stall fraction for threshold noise beat the naive one? (H4/H3 link)
+- Why: milestone 58 and 59's "Next". Design (`experiments/progress_noise_aware/run.py`, the milestone 59 code with the stall fraction FRAC swept): sigma = 0.05, linear noise, R = 1.01, n = 128, FRAC in 0.99 (the naive cheater of 58 and 59), 0.95, 0.90, 0.80. Flags are scored against the true threshold.
+- **Disclosure:** I did not write predictions down before running this one (the run was started right after the script was adapted). What follows is the outcome only; read it as exploratory, not as a test of a prior prediction.
+
+### Outcome of 60 (`experiments/progress_noise_aware/`: `run.py`, `results.txt`, `results.json`, `run.out`)
+- Flagged / harmful / harmful-and-unflagged of 128, median stalled steps of 200: FRAC 0.99: 35 / 67 / 32, 51 (reproduces milestone 59 exactly); 0.95: 11 / 29 / 18, 0; 0.90: 3 / 5 / 2, 0; 0.80: 0 / 0 / 0, 0.
+- Reading: shading the fraction down does cut the flag rate (27% to 9% to 2%), but harm falls faster, because with sigma = 0.05 the cheater's belief is often below the line and it never stalls (median stalled steps 0 from FRAC 0.95). Harmful-and-unflagged, the cheater's payoff, is largest at the naive FRAC 0.99 (32 of 128, 25%) of the four values tried, and 14% at 0.95. So at sigma = 0.05 the noise-aware cheater does no better than the naive one on this metric; the threshold noise is a defence that shading does not undo.
+- Limits: four FRAC values (the best may lie between 0.95 and 0.99, e.g. 0.97, untested); one sigma, one R; the cheater knows sigma but not z; verifier batch still known; one tiny model; n = 128 shares 16 seeds. Needs python3.13 with torch here (`python3` is 3.11 without it).
+- Next: FRAC 0.96 to 0.98 and sigma 0.02; a cheater that adapts its fraction online from its own verifier loss history.
+
 ## 2026-11-02 · Milestone 59: reconcile the two milestone 58 runs (noise form and sample size; planned before running)
 - Why: the two 58 runs disagree on flags (11 against 4 of 32 at sigma 0.05, R = 1.01). They differ in the noise form (1 + sigma z against exp(sigma z)) and in the z draws; the draws share 16 seeds, so n = 32 has an interval of about +-0.15. Hypothesis: the gap is sampling noise, not the noise form. Design (`experiments/progress_noisy_form/run.py`, the code of `progress_noisy` with a switch for the form): n = 128 draws, R = 1.01, sigma 0, 0.02, 0.05, both forms.
 - **Predictions, before running:** (1) sigma = 0 reproduces milestone 56's rate (about 6% flagged). (2) At sigma = 0.05 the two forms' flagged shares differ by less than 10 points, and both lie between 4/32 and 11/32 (12% to 34%). Refuted (2) if the forms differ by 10 points or more at n = 128: then the form matters and the flag counts of the two 58 runs are not interchangeable.
