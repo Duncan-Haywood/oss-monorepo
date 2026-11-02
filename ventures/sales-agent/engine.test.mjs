@@ -205,6 +205,13 @@ test("opt-outs in SV, DA, NO, PL, FI, TR, CS, HU, RO, RU, JA, ZH and DE/EN probe
   for (const body of ["Sounds interesting, can you send pricing?", "Kan du skicka en offert?", "Prześlij proszę cennik.", "Можете прислать цены?", "请发一份报价单"]) assert.notEqual(triage({ body }, T).category, "unsubscribe", body);
 });
 
+test("non-English 'not interested' replies close the thread (PT, DE, FR, ES, IT, NL), 2026-11-02", () => {
+  for (const b of ["Não tenho interesse, obrigado.", "Kein Interesse, danke.", "Pas intéressé, merci.", "No me interesa, gracias.", "Non siamo interessati.", "Geen interesse, bedankt."]) {
+    assert.equal(triage({ subject: "Re: hi", body: b, from: "a@b.example" }, "2026-11-02").category, "not_interested", b);
+  }
+  assert.equal(triage({ subject: "Re: hi", body: "Kein Interesse, bitte entfernen Sie mich.", from: "a@b.example" }, "2026-11-02").category, "unsubscribe");
+});
+
 // A stop is sticky (2026-11-02): later messages from the same person in the same batch, or from someone already
 // unsubscribed in the table or on the suppression list, never un-stop them or earn a draft.
 import { runInbox as runInboxSticky } from "./engine.mjs";
@@ -232,9 +239,4 @@ test("an unlisted prospect on the suppression list gets no draft", () => {
   const o = stickyRun(["Sure, tell me more."], undefined, "dana@x.example\n");
   assert.equal(o.items[0].draft, null);
   assert.notEqual(o.prospects[0].status, "replied");
-test("non-English 'not interested' replies close the thread (PT, DE, FR, ES, IT, NL), 2026-11-02", () => {
-  for (const b of ["Não tenho interesse, obrigado.", "Kein Interesse, danke.", "Pas intéressé, merci.", "No me interesa, gracias.", "Non siamo interessati.", "Geen interesse, bedankt."]) {
-    assert.equal(triage({ subject: "Re: hi", body: b, from: "a@b.example" }, "2026-11-02").category, "not_interested", b);
-  }
-  assert.equal(triage({ subject: "Re: hi", body: "Kein Interesse, bitte entfernen Sie mich.", from: "a@b.example" }, "2026-11-02").category, "unsubscribe");
 });
