@@ -1,5 +1,6 @@
 ---
 title: "A wall that meets a door: one more plan error the framing takeoff now refuses"
+seo_title: "Wall framing takeoff now refuses a tee wall inside a door"
 date: 2026-11-02
 tags: [wall-framing-takeoff, construction, validation]
 description: "The wall-framing takeoff now refuses a plan with a tee wall inside a door opening or two tees closer than a stud, naming the wall and position."
