@@ -227,6 +227,11 @@ export function validatePlan(plan) {
     const v = plan[key];
     if (v !== undefined && !(Number.isInteger(v) && v >= 0 && v <= 6)) errors.push(`${label} must be a whole number from 0 to 6 (a value like 1e9 would never finish).`);
   }
+  if (plan.blocking !== undefined && plan.blocking !== null) {
+    if (!isRec(plan.blocking)) errors.push("\"blocking\" must be an object like { rows: 1, fire: true, stagger: false }.");
+    else if (plan.blocking.rows !== undefined && !(Number.isInteger(plan.blocking.rows) && plan.blocking.rows >= 0 && plan.blocking.rows <= 20)) errors.push("Blocking rows must be a whole number from 0 to 20 (a value like 1e9 would never finish).");
+  }
+  if (Array.isArray(plan.stock) && plan.stock.some((st) => Number(st.length) > 1200)) errors.push("A board in the lumber list is over 1200 inches (100 ft) long; check the length is in inches (a value like 1e9 would exhaust memory).");
   const sizes = new Set((plan.stock || []).filter((s) => s.length > 0 && s.price >= 0).map((s) => s.size));
   const ids = new Set();
   for (const wall of plan.walls) {

@@ -957,3 +957,24 @@ test("validatePlan wants real numbers: strings, booleans, null and NaN are refus
   assert.equal(noHeader.ok, false);
   assert.match(noHeader.errors.join(" "), /Default header height must be a number/);
 });
+
+test("blocking rows must be a whole number 0 to 20 and blocking an object (1e9 rows used to hang the takeoff)", () => {
+  const withBlocking = (blocking) => { const p = samplePlan(); p.blocking = blocking; return p; };
+  for (const [name, b] of [["1e9", { rows: 1e9 }], ["negative", { rows: -3 }], ["fraction", { rows: 1.5 }], ["string", { rows: "3" }], ["21", { rows: 21 }], ["text", "x"], ["list", [1]]]) {
+    const t = Date.now();
+    const r = takeoff(withBlocking(b));
+    assert.equal(r.ok, false, name);
+    assert.match(r.errors.join(" "), /[Bb]locking/, name);
+    assert.ok(Date.now() - t < 2000, `${name} refused quickly`);
+  }
+  for (const b of [undefined, null, {}, { rows: 0 }, { rows: 2, fire: true, stagger: true }, { rows: 20 }]) assert.equal(takeoff(withBlocking(b)).ok, true, JSON.stringify(b));
+});
+
+test("a lumber-list board over 1200 in is refused (1e9 used to throw a raw RangeError out of takeoff)", () => {
+  const p = samplePlan();
+  p.stock = p.stock.map((s) => ({ ...s, length: 1e9 }));
+  const r = takeoff(p); // must not throw
+  assert.equal(r.ok, false);
+  assert.match(r.errors.join(" "), /over 1200 inches/);
+  assert.equal(takeoff(samplePlan()).ok, true);
+});
