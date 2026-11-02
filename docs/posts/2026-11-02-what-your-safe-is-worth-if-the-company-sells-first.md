@@ -3,7 +3,7 @@ title: "What your SAFE is worth if the company sells before the next round"
 seo_title: "SAFE payout if the startup is acquired before a priced round"
 date: 2026-11-02
 tags: [startups, safe, cap-table, exit-waterfall]
-description: "A post-money SAFE gets the greater of its money back or its cap percentage of the sale. The free exit waterfall now models SAFEs and convertible notes, with the arithmetic shown."
+description: "A post-money SAFE gets the greater of its money back or its cap percentage of the sale. The free exit waterfall now models SAFEs and notes."
 ---
 
 Most exit-waterfall tools assume every investor holds preferred stock. A lot of early companies are sold while their money is still in SAFEs or convertible notes, and then the question "what do I actually get?" has no tidy answer in a spreadsheet template. The free [startup exit waterfall calculator](../../ventures/startup-exit-waterfall-calculator/) now handles both.
