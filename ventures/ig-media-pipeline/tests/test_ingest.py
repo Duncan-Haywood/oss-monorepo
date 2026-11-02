@@ -380,3 +380,8 @@ def test_read_times_uses_exiftool_and_sony_xml(tmp_path):
     r = ingest.read_times([jpg, clip], cfg)
     assert r[jpg] == {"taken_at": T, "model": "ILCE-7RM5", "make": "SONY", "source": "exif"}
     assert r[clip] == {"taken_at": T, "model": "ILCE-7RM5", "make": "Sony", "source": "xml"}
+
+
+def test_scan_roots_without_any_root_configured(tmp_path):
+    cfg = Config(library_roots=[], output_dir=tmp_path)
+    assert ingest.scan_roots(cfg) == []

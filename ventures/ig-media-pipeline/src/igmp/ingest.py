@@ -155,6 +155,8 @@ def _spool_files(spool: Path) -> list[Path]:
 def scan_roots(cfg) -> list[Path]:
     """The library roots to scan: library_roots, plus the spool while it holds files."""
     roots = [Path(r).expanduser() for r in cfg.library_roots]
+    if not roots and not (cfg.extra or {}).get("ingest_root"):
+        return roots                    # nothing configured to ingest into, so no spool either
     spool = spool_dir(cfg)
     if spool not in roots and _spool_files(spool):
         roots.append(spool)
