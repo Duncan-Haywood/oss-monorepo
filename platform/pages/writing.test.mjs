@@ -4,6 +4,7 @@ import { promises as fs, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import vm from 'node:vm';
+import { spawnSync } from 'node:child_process';
 import { AGENT_BLOG, BLOG, buildWriting, loadPosts, parseFrontMatter, postPageTitle, relatedPosts, renderFeed, renderIndex, renderPost, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
 
 const BASE = 'https://example.test/site/';
@@ -247,6 +248,11 @@ test('a post may give a shorter seo_title for the results page and is held to th
   const fm = (extra) => `---\ntitle: "A very long headline that goes on and on past what a results page shows"\ndate: 2026-01-01\ndescription: "d"\n${extra}---\n\n# H\n\nbody\n`;
   const ok = parseFrontMatter(fm('seo_title: "Short query title"\n'));
   assert.equal(ok.meta.seo_title, 'Short query title');
+});
+
+test('no committed post is over the title budget without a seo_title', () => {
+  const r = spawnSync('python3', [path.join(import.meta.dirname, 'propose_seo_titles.py'), '--check'], { encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
 });
 
 test('relatedPosts never lists the post itself; same topic first, then the rest, capped', () => {
