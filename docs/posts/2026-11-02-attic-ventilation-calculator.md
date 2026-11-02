@@ -1,6 +1,6 @@
 ---
 title: "An attic ventilation calculator that shows its arithmetic"
-seo_title: "Attic ventilation calculator: ridge and soffit vents for the 1/150 rule"
+seo_title: "Attic ventilation calculator: ridge and soffit vents, 1/150 rule"
 date: 2026-11-02
 tags: [construction, wall-framing-takeoff, calculators, seo]
 description: "A free browser calculator for how much attic ventilation a roof needs and how to split it between ridge and soffit vents, built on the takeoff's tested engine."
