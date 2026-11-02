@@ -21,6 +21,19 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/headers", () => import("@/test/integration/cookieMock"));
 
+// Control for the first-option fallback (2026-11-02): when `fallbackOff.on` is
+// set the staged selector is called without the person's first-option share,
+// so it never falls back to the shipped selector. Everything else is real.
+const fallbackOff = vi.hoisted(() => ({ on: false }));
+vi.mock("@/lib/pairing", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/pairing")>("@/lib/pairing");
+  return {
+    ...actual,
+    selectNextPairHybrid: (input: Parameters<typeof actual.selectNextPairHybrid>[0], o?: Parameters<typeof actual.selectNextPairHybrid>[1]) =>
+      actual.selectNextPairHybrid(fallbackOff.on ? { ...input, firstOptionShare: undefined } : input, o),
+  };
+});
+
 import { prisma } from "@/lib/prisma";
 import { jsonRequest, resetData } from "@/test/integration/db";
 import { POST as nextQuestion } from "@/app/api/trials/next/route";
@@ -49,10 +62,13 @@ function pearson(xs: number[], ys: number[]) {
 }
 
 const CONDITIONS = [
-  { name: "clean", lapse: 0, bias: 0 },
-  { name: "lapse20", lapse: 0.2, bias: 0 },
-  { name: "bias50", lapse: 0, bias: 0.5 },
-  { name: "bias80", lapse: 0, bias: 0.8 },
+  { name: "clean", lapse: 0, bias: 0, off: false },
+  { name: "lapse20", lapse: 0.2, bias: 0, off: false },
+  { name: "bias50", lapse: 0, bias: 0.5, off: false },
+  { name: "bias80", lapse: 0, bias: 0.8, off: false },
+  // Controls: the same biased people with the fallback switched off.
+  { name: "bias50-nofallback", lapse: 0, bias: 0.5, off: true },
+  { name: "bias80-nofallback", lapse: 0, bias: 0.8, off: true },
 ];
 
 describe("noisy and biased respondents through the route", () => {
@@ -80,9 +96,10 @@ describe("noisy and biased respondents through the route", () => {
     const out: Record<string, { rho: number; share: number }> = {};
 
     for (const c of CONDITIONS) {
+      fallbackOff.on = c.off;
       let rhoSum = 0, shareSum = 0;
       for (let k = 0; k < RESPONDENTS; k++) {
-        const rand = rng(1000 + k * 17 + c.name.length);
+        const rand = rng(1000 + k * 17 + c.name.replace("-nofallback", "").length);
         const p = await prisma.participant.create({ data: { surveyId: survey.id, firstName: `${c.name}${k}`, perspective: "PARTNER" } });
         let topPicks = 0;
         for (let i = 0; i < ANSWERS; i++) {
