@@ -1,4 +1,7 @@
-"""Tests for portfolio/direction/report.py: classification, rankings, suggestions."""
+"""Tests for portfolio/direction/report.py: classification, rankings, suggestions.
+
+Kept beside the router (whose checklist line already runs this directory) so the
+direction reports need no control-plane edit to be tested."""
 from __future__ import annotations
 
 import json
@@ -6,8 +9,8 @@ import sys
 from datetime import date, datetime, timezone
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import report as r  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "direction"))
+import report as r  # noqa: E402  (portfolio/direction/report.py)
 
 
 def test_bucket_projects_and_areas():

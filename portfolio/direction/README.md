@@ -87,4 +87,5 @@ approval. Until it does, a run that wants fresh numbers runs the script; a
 run that changes `flagships.yaml` or `PROGRAMMES.md` can regenerate and
 commit the reports in the same PR.
 
-Tests: `python3 -m pytest -q portfolio/direction/test_report.py`.
+Tests: `python3 -m pytest -q portfolio/router/test_direction_report.py` (beside the
+router, so the checklist line that already runs `portfolio/router` covers them).
