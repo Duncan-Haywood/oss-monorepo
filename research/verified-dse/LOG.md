@@ -3,6 +3,16 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-11-02 · Milestone 64: a no-R2 arm, BOHB with the R2 score and features carrying no information (predictions written before the run; no flow)
+- Why: milestone 63 left open whether BOHB's low-budget win comes from the routed observations and bracket structure. `bohb.py` takes `BOHB_PART=none`: every R2 score is set to a constant (ties broken at random) and the KDE features are replaced by pure N(0,1) noise; R3 and R4 scores are untouched, and R2 time is still charged. `BOHB_PART=none python3 degrade.py` replays the 40 main cells, 100 paired seeds, into `degrade_none.txt`.
+- **Predictions on record:** (1) BOHB at 15 equivalents stays below random routing (3.56) but by less than 0.16 points, since milestone 62's sigma 1 (tau 0.06) already left 0.16; (2) at 25 BOHB is within 0.3 of random (1.77); (3) at 40 random still wins; (4) SH from R2 is near its worst, above 5.7 at 15.
+- Limits: iid noise; cost of the unused R2 stage still paid.
+- **Outcome (`experiments/bohb/degrade_none.txt`; 40 main cells, 100 paired seeds, about 8 min; mean regret %, random 3.56 / 1.77 / 0.36 at 15 / 25 / 40 equivalents).** BOHB 3.79 / 2.19 / 1.25; BOHB-R4-first 4.07 / 2.02 / 0.74; SH from R2 6.06 / 4.06 / 3.62.
+  - (1) **wrong:** BOHB is 0.23 points worse than random at 15, not better. (2) **wrong by a little:** at 25 BOHB is 0.42 worse than random (I said within 0.3). (3) held: random wins at 40 (0.36 vs 1.25). (4) held: SH from R2 is 6.06 at 15.
+- Reading: with R2 carrying no information, BOHB's low-budget win is gone (3.79 against 3.56, a difference I did not test for significance), so the win is not explained by routed observations plus bracket structure alone. Together with milestone 63 (either R2 channel alone is enough) and 62 (tau 0.06 on both leaves 0.16 points), the edge needs some R2 signal, but very little: R2 at tau 0.06 still beats no signal by about 0.4 points. The earlier milestone 62 suggestion that routed observations carry the win is not supported; that sentence should not go in the paper.
+- Limits: iid synthetic corruption; the none arm pays R2's time for nothing, as does any real BOHB with a useless R2; no significance test on the 0.23 gap.
+- Next: unfaithful-R2 held-out designs under OpenROAD (needs the flow).
+
 ## 2026-11-02 · Milestone 63: separate the two corruptions, R2 score only and KDE features only (no flow)
 - Why: milestone 62 corrupted the R2 score and the standardised KDE features together and found BOHB kept most of its 15-equivalent win until sigma 1. Which corruption matters? `bohb.py` takes `BOHB_PART=score|features|both`; `degrade.py` with that variable replays sigma 0.3 and 1.0 (100 paired seeds, 40 main cells, about 8 min each, no flow) into `degrade_score.txt` / `degrade_features.txt`.
 - **Process note:** I did not write predictions before this run (the scheduled run went straight to the replay); read the reading below as post hoc. Seeds are keyed by the run tag, so the noise draws differ from milestone 62's; the features-only sh_r2 column equals sigma 0 exactly, as it must (SH reads only the score), which checks the switch.
