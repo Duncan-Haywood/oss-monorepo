@@ -2,7 +2,7 @@
 title: Does a real hydraulic boom lower the way our regeneration model assumed?
 date: 2026-11-02
 tags: [heavy-hydraulics, energy-recovery, research]
-description: 772 measured lowering strokes from an open crane dataset put the power needed to recover 95% of the lowering energy at about 1.24 times the mean, inside the range we had assumed.
+description: 772 measured crane lowering strokes put the rating for 95% energy recovery at about 1.24 times the mean power, inside our assumed range.
 ---
 
 The heavy-hydraulics programme had assumed four idealised power shapes for a boom lowering and concluded that an energy-recovery device rated 1.2 to 1.6 times the mean lowering power would take 95% of the energy. It had no measured trace to check that against.
