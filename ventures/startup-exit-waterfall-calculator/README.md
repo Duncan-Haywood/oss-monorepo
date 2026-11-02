@@ -22,7 +22,9 @@ spreadsheet with a circular reference.
   breakpoints by searching sale prices.
 - A sweep shows the same terms at 0.25x to 10x of the entered price.
 
-Not modelled: escrows, earn-outs, taxes, warrants, unconverted notes and SAFEs, unvested equity, anti-dilution,
+- **SAFEs and convertible notes not yet converted** (2026-11-02): each is paid the greater of its money back (a note adds simple interest) or its as-converted shares. A post-money SAFE converts to amount / cap of the whole company, SAFEs included (`S_i = (a_i/c_i) * F / (1 - sum a/c)` for F other shares); a note's pre-money cap gives amount / (cap / F) shares; no cap means money back only. Hand-checked in `calc.test.mjs` (a $1M SAFE at a $10M cap is 10% and takes $2M of a $20M sale, $1M of a $5M one). Not checked against a real SAFE or note.
+
+Not modelled: escrows, earn-outs, taxes, warrants, SAFE or note discounts and MFN terms, unvested equity, anti-dilution,
 pay-to-play, any term not on the form.
 
 ## Run

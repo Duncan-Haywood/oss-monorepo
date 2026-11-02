@@ -50,6 +50,38 @@ export function normalize(raw) {
     preferred.push({ name, shares: s, invested: inv, multiple, claim: inv * multiple + inv * (div / 100) * years, participation: part, capTotal: part === "capped" ? cap * inv : Infinity, rank });
   }
   if (common.length + options.length === 0) return { error: "Enter at least one common holder or option pool." };
+
+  // Unconverted SAFEs and convertible notes at a sale. Each is paid the greater
+  // of its money back (a 1x non-participating claim) or its as-converted shares,
+  // so it rides the preferred machinery. The capitalization it converts against
+  // is every share typed above (common, options, preferred as converted).
+  const baseShares = common.reduce((s, c) => s + c.shares, 0) + options.reduce((s, o) => s + o.shares, 0) + preferred.reduce((s, p) => s + p.shares, 0);
+  const safeRows = [];
+  for (const r of raw.safes || []) {
+    const amt = num(r.amount), cap = num(r.cap), rank = r.rank === "" || r.rank == null ? 1 : num(r.rank);
+    if (!(amt > 0)) continue;
+    const name = String(r.name || "").trim() || "SAFE";
+    if (!Number.isFinite(cap) || cap < 0) return { error: `${name}: the post-money valuation cap must be a number of zero or more (blank or 0 means no cap: the SAFE only gets its money back).` };
+    if (!Number.isFinite(rank) || rank < 1) return { error: `${name}: seniority must be 1 or higher.` };
+    safeRows.push({ name, amt, cap, rank });
+  }
+  const f = safeRows.reduce((s, r) => s + (r.cap > 0 ? r.amt / r.cap : 0), 0);
+  if (f >= 1) return { error: "The SAFEs' post-money ownership adds up to 100% or more of the company: check the amounts and caps." };
+  for (const r of safeRows) {
+    const sh = r.cap > 0 ? (r.amt / r.cap) * baseShares / (1 - f) : 0;
+    preferred.push({ name: r.name, shares: sh, invested: r.amt, multiple: 1, claim: r.amt, participation: "none", capTotal: Infinity, rank: r.rank, instrument: "safe" });
+  }
+  for (const r of raw.notes || []) {
+    const pr = num(r.principal), rate = num(r.rate), years = num(r.years), cap = num(r.cap), rank = r.rank === "" || r.rank == null ? 1 : num(r.rank);
+    if (!(pr > 0)) continue;
+    const name = String(r.name || "").trim() || "Convertible note";
+    if (![rate, years, cap].every(Number.isFinite) || rate < 0 || rate > 50 || years < 0 || years > 30 || cap < 0) return { error: `${name}: interest 0-50% a year, 0-30 years and a pre-money cap of zero or more (0 means no cap).` };
+    if (!Number.isFinite(rank) || rank < 1) return { error: `${name}: seniority must be 1 or higher.` };
+    const amt = pr * (1 + rate / 100 * years); // simple interest
+    // Pre-money cap price = cap / capitalization. A discount needs a round price a sale does not have, so it is not modelled.
+    const sh = cap > 0 ? amt / (cap / baseShares) : 0;
+    preferred.push({ name, shares: sh, invested: pr, multiple: 1, claim: amt, participation: "none", capTotal: Infinity, rank, instrument: "note" });
+  }
   return { exit, debt, feePct, carvePct, common, options, preferred };
 }
 
@@ -145,7 +177,7 @@ export function waterfallAt(m, exit = m.exit) {
   const rows = [];
   m.preferred.forEach((p, i) => {
     const total = seriesTotal(d, i);
-    rows.push({ group: "preferred", name: p.name, shares: p.shares, invested: p.invested, payout: total, pref: d.pref[i], participation: d.partic[i], converted: converts[i], perShare: total / p.shares });
+    rows.push({ group: "preferred", name: p.name, shares: p.shares, invested: p.invested, payout: total, pref: d.pref[i], participation: d.partic[i], converted: converts[i], perShare: p.shares > 0 ? total / p.shares : 0, instrument: p.instrument });
   });
   m.common.forEach((c, i) => rows.push({ group: "common", name: c.name, shares: c.shares, payout: d.common[i], perShare: d.common[i] / c.shares }));
   m.options.forEach((o, i) => rows.push({ group: "options", name: o.name, shares: o.shares, strike: o.strike, payout: d.options[i], perShare: d.options[i] / o.shares, underwater: d.options[i] <= EPS }));
@@ -254,6 +286,7 @@ export const sampleTerms = () => ({
   exit: "60000000", debt: "1500000", feePct: "2", carvePct: "0",
   common: [{ name: "Founders", shares: "6000000" }, { name: "Employees (exercised)", shares: "300000" }],
   options: [{ name: "Employee options", shares: "1200000", strike: "0.40" }],
+  safes: [{ name: "Bridge SAFE", amount: "500000", cap: "30000000", rank: "1" }],
   preferred: [
     { name: "Seed", invested: "2000000", shares: "1100000", multiple: "1", participation: "none", cap: "", rank: "3", dividend: "0", years: "0" },
     { name: "Series A", invested: "8000000", shares: "1600000", multiple: "1", participation: "none", cap: "", rank: "2", dividend: "0", years: "0" },
