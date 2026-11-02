@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Benedict and the Raven</title>
+      <link>https://example.invalid/hearth-and-horizon/benedict-and-the-raven.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/benedict-and-the-raven.html</guid>
+      <pubDate>Mon, 02 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Benedict of Nursia, who lived quietly in the hills at Subiaco, and the black raven that came to take bread from his hand. When a loaf was sent that was not good to eat, the old story says Benedict asked the raven to carry it far away, and the raven, after some hopping about, did. Told as Saint Gregory the Great told it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about nine minutes read aloud. His feast day is the 11th of July. Setting: Subiaco, a rocky valley in the hills east of Rome, Italy, about fifteen hundred years ago. Read the full text at https://example.invalid/hearth-and-horizon/benedict-and-the-raven.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Benedict of Nursia, who lived quietly in the hills at Subiaco, and the black raven that came to take bread from his hand. When a loaf was sent that was not good to eat, the old story says Benedict asked the raven to carry it far away, and the raven, after some hopping about, did. Told as Saint Gregory the Great told it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about nine minutes read aloud. His feast day is the 11th of July.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Jerome and the Lion in the Doorway</title>
       <link>https://example.invalid/hearth-and-horizon/jerome-and-the-lion-in-the-doorway.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/jerome-and-the-lion-in-the-doorway.html</guid>
