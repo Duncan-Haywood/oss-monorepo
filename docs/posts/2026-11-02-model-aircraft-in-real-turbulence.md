@@ -1,6 +1,6 @@
 ---
 title: "A scale model aircraft in real turbulence: the match breaks"
-seo_title: "Does a scaled drone model feel the same turbulence as the full-size aircraft?"
+seo_title: "Scaled drone model vs full-size aircraft in real turbulence"
 date: 2026-11-02
 tags: [research, uav, scaling, turbulence]
 description: "A 1:5 Froude model of a cargo UAV matches the full-size load factor in scaled turbulence, but not in real air: load factor 38 to 53% low, pitch response off by up to 180%."
