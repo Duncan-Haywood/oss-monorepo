@@ -20,6 +20,7 @@ BUDGETS = (15, 25, 40)
 ETA = 3
 import os
 GAMMA, BW_FLOOR, P_RANDOM, MIN_OBS = (float(os.environ.get("BOHB_GAMMA", 0.25)), 0.3, float(os.environ.get("BOHB_PRANDOM", 1 / 3)), int(os.environ.get("BOHB_MINOBS", 6)))
+DEGRADE = float(os.environ.get("BOHB_DEGRADE", 0))
 TAG = os.environ.get("BOHB_TAG", "")  # sensitivity runs (milestone 57) write results<_unseen>_<TAG>.* instead of overwriting
 HELD = len(sys.argv) > 1 and sys.argv[1] == "unseen"
 SUF = ("_unseen" if HELD else "") + (f"_{TAG}" if TAG else "")
@@ -149,6 +150,11 @@ for name, path in TABLES.items():
         sdv = [max(statistics.pstdev([f[j] for f in f2]), 1e-6) for j in range(2)]
         z = [tuple((f[j] - mu[j]) / sdv[j] for j in range(2)) for f in f2]
         cell = (tag, d)
+        if DEGRADE:  # milestone 62: corrupt R2 on purpose (its score and the KDE features), routed R4 untouched
+            nr = random.Random(zlib.crc32((tag + d).encode()))
+            for s_ in sc:
+                s_["r2"] = s_["r2"] * math.exp(DEGRADE * nr.gauss(0, 1))
+            z = [tuple(v + DEGRADE * nr.gauss(0, 1) for v in t) for t in z]
         r2s = [x["r2"] for x in sc]
         tau[cell] = tau_b(r2s, ref)
         for B in BUDGETS:
