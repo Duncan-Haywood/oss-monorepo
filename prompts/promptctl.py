@@ -247,6 +247,22 @@ def infer_track(task: str, tracks: dict[str, Any]) -> str | None:
     return None
 
 
+def review_claimed(repo: str = "duncan-haywood/oss-monorepo") -> bool:
+    """True when an open PR titled "prompts: review" already holds the review claim.
+
+    Reads the public pulls API; any failure (offline, rate limit, proxy) says
+    False, so routing never blocks on the network."""
+    import urllib.request
+    try:
+        url = f"https://api.github.com/repos/{repo}/pulls?state=open&per_page=100"
+        with urllib.request.urlopen(url, timeout=8) as r:
+            pulls = json.load(r)
+        return any(str(p.get("title", "")).lower().startswith("prompts: review")
+                   for p in pulls)
+    except Exception:
+        return False
+
+
 def route(root: Path = ROOT, track: str | None = None, skip_review: bool = False,
           rng: random.Random | None = None, today: date | None = None,
           task: str | None = None) -> dict[str, Any]:
@@ -265,7 +281,7 @@ def route(root: Path = ROOT, track: str | None = None, skip_review: bool = False
         if track not in tracks:
             raise SystemExit(f"unknown track {track!r}; tracks: {', '.join(tracks)}")
         reason = "chosen by the session (--track)"
-    elif (since >= every and not skip_review
+    elif (since >= every and not skip_review and not review_claimed()
           and rng.random() < float(routing.get("review_when_due", 1))):
         # Scheduled runs start in the same minute, so a due review goes to a
         # share of them rather than all of them at once.
