@@ -43,7 +43,10 @@
       "result": "n/a"
     }
   ],
-  "writeups": "research/aerolog-scaling/LOG.md milestone 9r; paper/draft.md 4.10a",
+  "writeups": [
+    "research/aerolog-scaling/LOG.md",
+    "research/aerolog-scaling/paper/draft.md"
+  ],
   "goal": null,
   "notes": "Milestone 9r run (about 25 min). A hard reset of the branch was denied by the classifier; not needed since the branch was already at origin/main. Checks: paper/check_numbers.py 0 MISS; research/_homepage/build.py ok.",
   "corrections": [],
