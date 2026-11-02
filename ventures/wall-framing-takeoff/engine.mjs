@@ -203,6 +203,21 @@ export function validatePlan(plan) {
     if (w.tees !== undefined && !Array.isArray(w.tees)) shape.push(`${at}: "tees" must be a list of distances from the wall start.`);
     if (w.openings !== undefined && (!Array.isArray(w.openings) || !w.openings.every(isRec))) shape.push(`${at}: "openings" must be a list of objects, each with an offset, width and height.`);
   });
+  // A string or boolean passes a bare >= comparison by coercion ("16" >= 8, true >= 0) and null or "x" in an offset or header height
+  // reaches the layout as NaN, which throws a raw Error out of takeoff. Numbers must be real numbers.
+  const isNum = (v) => typeof v === "number" && Number.isFinite(v);
+  for (const [key, label] of [["studSpacing", "Stud spacing"], ["studLength", "Stud length"], ["kerf", "Saw kerf"], ["topPlateLap", "Top plate joint offset"], ["defaultHeaderHeight", "Default header height"]]) {
+    if (key === "defaultHeaderHeight" && plan[key] === undefined && !plan.walls.some((w) => isRec(w) && Array.isArray(w.openings) && w.openings.some((op) => isRec(op) && op.headerHeight === undefined))) continue;
+    if (!isNum(plan[key])) shape.push(`${label} must be a number of inches.`);
+  }
+  plan.walls.forEach((w, i) => {
+    if (!isRec(w)) return;
+    const at = `Wall ${w.id || i + 1}`;
+    if (Array.isArray(w.openings)) w.openings.forEach((op) => {
+      if (!isRec(op)) return;
+      for (const k of ["offset", "width", "height"]) if (!isNum(op[k])) shape.push(`${at}, ${op.label || op.kind || "opening"}: "${k}" must be a number of inches.`);
+    });
+  });
   if (shape.length) return shape;
   if (!(plan.studSpacing >= 8 && plan.studSpacing <= 48)) errors.push("Stud spacing must be between 8 and 48 inches.");
   if (!(plan.studLength >= 24 && plan.studLength <= 240)) errors.push("Stud length must be between 24 and 240 inches.");

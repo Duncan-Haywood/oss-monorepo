@@ -935,3 +935,25 @@ test("a tee wall inside an opening, or two tees listed on top of each other, is 
   assert.match(dup.errors.join(" "), /closer than a stud thickness/);
   assert.equal(takeoff(mk([100, 300])).ok, true);
 });
+
+test("validatePlan wants real numbers: strings, booleans, null and NaN are refused, not coerced or thrown", () => {
+  const plan = (edit) => { const p = samplePlan(); p.walls = [p.walls[0]]; edit(p); return p; };
+  for (const [name, edit] of [
+    ["studSpacing string", (p) => { p.studSpacing = "16"; }],
+    ["topPlateLap true", (p) => { p.topPlateLap = true; }],
+    ["kerf null", (p) => { p.kerf = null; }],
+    ["defaultHeaderHeight NaN", (p) => { p.defaultHeaderHeight = NaN; }],
+    ["defaultHeaderHeight text", (p) => { p.defaultHeaderHeight = "x"; }],
+    ["opening offset null", (p) => { p.walls[0].openings[1].offset = null; }],
+    ["opening offset text", (p) => { p.walls[0].openings[1].offset = "x"; }],
+    ["opening width string", (p) => { p.walls[0].openings[1].width = "72"; }],
+  ]) {
+    const r = takeoff(plan(edit)); // must not throw
+    assert.equal(r.ok, false, name);
+    assert.match(r.errors.join(" "), /must be a number of inches/, name);
+  }
+  assert.equal(takeoff(plan(() => {})).ok, true);
+  const noHeader = takeoff(plan((p) => { delete p.defaultHeaderHeight; }));
+  assert.equal(noHeader.ok, false);
+  assert.match(noHeader.errors.join(" "), /Default header height must be a number/);
+});
