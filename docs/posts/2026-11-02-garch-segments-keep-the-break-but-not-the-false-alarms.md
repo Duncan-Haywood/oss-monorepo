@@ -3,7 +3,7 @@ title: "Fitting volatility clusters per segment: half a fix for changepoint fals
 seo_title: "GARCH-aware changepoint pruning: what worked and what did not"
 date: 2026-11-02
 tags: [changepoint-detection, garch, statistics, negative-result]
-description: "A segment-wise GARCH likelihood keeps a real variance break that a GARCH filter erases, but removes only part of the false alarms. Numbers from 100 seeded series per cell."
+description: "A segment-wise GARCH likelihood keeps a real variance break that a GARCH filter erases, but removes only part of the false alarms. 100 seeded series per cell."
 ---
 
 Series with bursts of volatility fool changepoint detectors: on pure GARCH noise the detector in `ventures/changepoint-detector` reports a change in about half of the series (50% at n = 200).
