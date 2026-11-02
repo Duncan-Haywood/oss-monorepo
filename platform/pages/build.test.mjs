@@ -5,6 +5,7 @@
 // still in its canonical tag. None of those turn anything red on their own —
 // the site builds fine and the visitor simply cannot get there.
 
+import { loadRequests } from '../../portfolio/requests/requests.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
@@ -4760,7 +4761,7 @@ test('the About page documents the embed feature that #2561 shipped, not just th
   assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
-test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask, custom development, /compare/, /research/, Stories, updates, the changelog and /guides/, and nothing else', () => {
+test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask, custom development and its request pages, /compare/, /research/, Stories, updates, the changelog and /guides/, and nothing else', () => {
   const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   // About, the comparison index and the guides index are hub-level pages
@@ -4774,6 +4775,8 @@ test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask
     `${BASE}about/`,
     `${BASE}ask/`,
     `${BASE}custom-development/`,
+    // Each request's own page, one per entry in portfolio/requests/requests.json.
+    ...loadRequests().map((r) => `${BASE}custom-development/${r.id}/`),
     `${BASE}${COMPARE_PATH}`,
     `${BASE}${RESEARCH_PATH}`,
     `${BASE}stories/`,
