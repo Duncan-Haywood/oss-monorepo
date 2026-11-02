@@ -2,7 +2,7 @@
 title: "Fuzzing the page a contractor hands a customer"
 date: 2026-11-02
 tags: [wall-framing-takeoff, testing, security, construction]
-description: "A random-input test for a framing tool's branded bid package: hostile letterhead text, logos and colours never become live markup; customers never see unit prices."
+description: "A random-input test for a framing tool's branded bid package: hostile letterhead text, logos and colours never become live markup; no unit prices shown."
 ---
 
 The wall-framing takeoff tool ends in a page a contractor prints and gives a customer: a proposal on the contractor's letterhead, with an appendix of quantities. Two things must hold. The customer sees quantities but never unit prices, labor or margin. And whatever the contractor types (company name, logo link, brand colour) cannot turn into live markup, because that page gets opened, saved and emailed.
