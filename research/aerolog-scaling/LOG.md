@@ -9,6 +9,15 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - **Predictions (before running):** (1) at 10% total drift OE's median short-period error is at least 2 times its 0% value (prior 65%; the ramp has half the mean offset of a constant of equal size). (2) OE+b (constant only) repairs less than half of that excess at 20% drift (prior 55%). (3) OE+b+d at 20% drift is within 1.5 times OE's 0% error and restores the within-10%-gust share to within 10 points of the 0% value (prior 55%). Refuted: (1) ratio under 2; (2) OE+b repairs half or more; (3) either condition fails.
 - Limits known in advance: linear ramp only, all four channels, total drift as a fraction of rms rather than a sensor's TCO; a quarter of the designs; 8 draws; one seed, one noise level, one scale.
 
+### Outcome of 9x (`experiments/imu_drift_fit/`: `run.py`, `results.txt`; 20 designs, 8 draws, seeded 20261031)
+- Median short-period frequency error (1 / 2 periods). OE: 0.69 / 0.75% with no drift, 0.99 / 0.73% at 10% total drift, 1.63 / 0.92% at 20%. OE+b (constant offset only): 0.65 / 0.84%, 0.78 / 1.24%, 1.65 / 2.09%. OE+b+d (offset plus slope): 0.85 / 0.87%, 0.71 / 0.57%, 0.90 / 0.65%. Share of draws within 10% gust error at 20% drift: OE 62 / 74%, OE+b 69 / 60%, OE+b+d 79 / 75%, against 78 / 75% for OE with no drift. Least squares is 12 to 53% off at every drift level.
+- **(1) refuted:** OE's error is 1.4x (1 period) and 1.0x (2 periods) its 0% value at 10% drift, under the predicted 2x. A ramp of 10% of rms ending at the record's end is much less harmful than the constant offset of 10% in 9w (3.3x).
+- **(2) held:** at 20% drift OE+b repairs none of the excess with one period (1.65 vs OE 1.63) and is worse with two (2.09 vs 0.92; gust share 60 vs 74%). A constant-offset parameter absorbs part of the ramp and biases the dynamics; 9w's remedy is not safe under drift.
+- **(3) held:** OE+b+d at 20% is 1.3x and 0.87x OE's 0% error, gust share 79 / 75% vs 78 / 75%. Costs: with no drift it is 0.85 vs 0.69% at one period (1.2x), the same size as sampling noise at 20 designs.
+- Reading: a sub-scale logger that fits offsets should fit a slope as well, or neither; the constant-only fit can be worse than none. At 10% of rms drift (9v: about 5 K over the record for a 0.75 deg/s rms) nothing needs repair.
+- Limits: linear ramp from zero only (no step, no random walk), all four channels, sizes as fractions of rms, not a measured TCO or Allan figures; 20 designs, 8 draws, one seed, one noise level, one scale; differences of under about 0.3 points of median error are inside sampling noise; overflow warnings on stderr from trial parameters; 0 to 2 of 160 fit failures.
+- Next: Allan-variance parameters from a published IMU characterisation; thrust law (UIUC host 403); AIAA template.
+
 
 ## 2026-11-02 · Milestone 9w: does a constant per-channel offset break 9j's output-error fit, and does fitting an offset parameter repair it? (planned before running)
 - Why: the "Next" of 9v. 9v showed a warm-up of 5 to 10 K leaves a slow offset about as large as the white noise; the fits of 9j to 9u assumed zero-mean channels.
