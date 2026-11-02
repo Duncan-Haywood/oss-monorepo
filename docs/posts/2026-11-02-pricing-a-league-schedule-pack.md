@@ -1,6 +1,6 @@
 ---
 title: "Pricing a league schedule pack below three competitors"
-seo_title: "How to price a one-off league schedule pack against monthly subscriptions"
+seo_title: "Pricing a one-off league schedule pack against monthly apps"
 date: 2026-11-02
 tags: [business-model, pricing, league-schedule-generator, honesty]
 description: "Three rec-league tools charge monthly. A one-off $10 to $25 season pack undercuts them all; the figures come from aggregator listings, not vendor pages."
