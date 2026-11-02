@@ -2,6 +2,17 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-02 · Milestone 7k: what fraction of the 7i ceiling do coder cells realise on NaijaSenti, against pilot share? (planned before running; a 20-draw smoke test of the script ran first, to check it executes)
+- Why: 7j's "Next". 7h realised 0.6% of an 8.4% ceiling; 7i said the shortfall is pilot and allocation cost but did not test it. `experiments/h7k_pilot_fraction.py`: n = 1000, forced cells (tau 0, guard 0) vs forced pooled on the same draws, pilot share 0.1, 0.2, 0.3, 0.5, 1,000 draws, nb-in-language coder (J 0.388, ceiling 0.916).
+- **Prediction (before running):** the realised fraction of the ceiling gain is under 50% at every pilot share, and the pilot share does not move it by more than 0.2 (the shortfall is not mainly pilot cost). Refuted if any share realises 50% or more, or if the fraction rises by more than 0.2 from share 0.1 to 0.5.
+- Coverage judged against 95% (+/- 1.4 points at 1,000 draws).
+
+### Outcome (`experiments/h7k_pilot_fraction.py`, 22 s; `experiments/h7k_pilot_fraction.txt`; 1,000 draws per cell)
+- **Prediction held, and sharper than expected.** Cells/pooled half-width ratio is 0.996, 0.994, 0.997, 0.995 at pilot share 0.1, 0.2, 0.3, 0.5 (half-widths 2.43 vs 2.44 points), so 3 to 7% of the 8.4% ceiling gain is realised at every share. The share moves it by 0.04, far under the 0.2 bar: **pilot cost does not explain the shortfall**, contrary to 7i's reading. Coverage 93.5 to 96.1% in all eight cells (pooled at share 0.3: 93.5%, 1.5 under, at the edge of binomial noise).
+- Not tested, so a candidate only: `audit_interval` applies the optimal control-variate weight lambda in the pooled design too, while the 7i ceiling compares against lambda = 1 residuals; pooled-with-lambda may already capture most of what cells offer. A check would be cells vs pooled at fixed lambda = 1 and at lambda = 0.
+- Consequence: `ceiling` in `plan_audit` overstates the realised gain by 14 to 30 times on this corpus at any pilot size, so it must not be read as a forecast. 7j's "Next" item on pilot size is closed; the lambda comparison is the open one.
+- Limits: one corpus, one coder, n = 1000, forced cells (tau 0, guard 0), fixed corpus.
+
 ## 2026-11-02 · Milestone 7j: the 7i ceiling becomes library code (`cell_ceiling`, `pilot_ceiling`; planned before the tests ran; no sampling)
 - Why: 7i's "Next". A planner who is told "cells" at J = 0.39 should also be told the most cells can buy (8%), since 7h realised 0.6%.
 - Change: `llmci/audit_design.py` gains `cell_ceiling(sens, spec) = sqrt(s(1-c)) + sqrt((1-s)c)` (prevalence-free by 7i's identity) and `pilot_ceiling(y, f)`; `plan_audit` returns it as `"ceiling"`. The screen itself is unchanged, so the checked 6ak to 6am rule and every earlier coverage result stand. The "worth it below 0.9" threshold 7i floated is not wired in: no experiment here shows the ceiling predicts the realised gain, only one corpus where it overstates it by 14 times.
