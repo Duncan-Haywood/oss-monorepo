@@ -21,9 +21,9 @@
   "baseline": "21.2 min over 5 jobs (about 4.2 min each), 2026-11-02",
   "opened": "2026-11-02",
   "source": "docs/history/ci-perf-2026-11-02-qps-simulations.md",
-  "pr": "this",
-  "result": "Part 2: CI verify job runs test:fast; simulations run in a parallel job (same assertions). Metric to read after merge: verify job Test step minutes via ci_profile.py. Not measured yet.",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12622",
+  "result": null,
   "history": [
-    "2026-11-02 part 2: workflow split"
+    "2026-11-02: part 2: Test step runs test:fast; simulations run in a parallel job (same assertions). Memoising the repeated 41/220-item cells not done; wall time per job is now the max of the two, not the sum."
   ]
 }

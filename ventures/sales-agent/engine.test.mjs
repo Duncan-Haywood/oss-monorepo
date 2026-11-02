@@ -182,3 +182,13 @@ test("non-English auto-replies and opt-outs are named, not left as unclear (agen
     "Cancellatemi dalla vostra lista.", "Não me envie mais emails.", "Graag uitschrijven, ik wil dit niet meer."];
   for (const b of out) assert.equal(t("Re: hello", b), "unsubscribe", b);
 });
+
+test("non-English opt-outs probed 2026-11-02 are all unsubscribes, and ordinary replies are not", () => {
+  const optOuts = [
+    "Ne plus me contacter.", "Ne me contactez plus, merci.", "No gracias, quítame de tu lista", "Bórrame de la lista por favor", "No quiero más correos.",
+    "Por favor remova meu email da lista.", "Não quero mais receber seus emails.", "Pare de me enviar mensagens.",
+    "Stuur mij geen e-mails meer.", "Geen mailtjes meer alstublieft.", "Verwijder mijn gegevens.", "Schrijf mij uit.",
+  ];
+  for (const body of optOuts) assert.equal(triage({ body }, T).category, "unsubscribe", body);
+  for (const body of ["Sounds interesting, can you send pricing?", "Let's talk next quarter", "Quítame una duda: ¿cuánto cuesta?"]) assert.notEqual(triage({ body }, T).category, "unsubscribe", body);
+});
