@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01AcxTtLLkhwdf9ED67YaXxh",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T00:09:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12441",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Section 0 fetches origin/security-alerts, which does not exist on this remote; the fetch fails with no fallback stated."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: a writing-only step on an existing programme; kept the run small.",
+      "did": "Paper section 3.4a plus LOG entry only",
+      "result": "merged with checks passing locally"
+    }
+  ],
+  "writeups": [
+    "research/heavy-hydraulics/paper/draft.md",
+    "research/heavy-hydraulics/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Writing step, no new experiment; heavy-hydraulics is deep and each remaining step needs outside data (measured boom trace, vendor quote).",
+  "corrections": [],
+  "redteam": null
+}

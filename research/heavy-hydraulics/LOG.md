@@ -2,6 +2,10 @@
 
 Newest first.
 
+## 2026-11-02 · Milestone 6e: paper section 3.4a gains 5c to 5f (a writing step, no experiment)
+- Added the harvest-window cap (5d), the peaky-profile rating (5e), the electric-rung battery check (5c) and the fuel payback of a recovery unit (5f) to the draft as section 3.4a, with their limits. 9 new rows in `paper/check_numbers.py`, 67 claims, 0 missing.
+- Next: a measured boom-lowering trace or a vendor quote for an automotive-grade 48 V motor-generator; the paper still lacks a measured pressure trace (H4).
+
 ## 2026-11-01 · Milestone 5f: does a 1 to 5 kW recovery e-machine pay back in fuel? (priced from retail listings, a floor; no prediction registered)
 - Why: 5d and 5e bounded the rating at about 1 to 4.5 kW and left "price the device" open. `experiments/regen_price.py` combines retail prices for 48 V permanent-magnet generators (1.5 kW $819, 2 kW $289 EUR to $874, 5 kW EUR 1,599 with controller; listings seen 2026-11-01, wind/off-grid products) with 5a's recovery shares (3.3% central, 10% upper corner) applied to 5c's 2.3 kW mean shaft power, BSFC 250 g/kWh (assumed), $6.28/gal.
 - Outcome (`experiments/regen_price_results.txt`): central saving 76 W, 0.023 L/h, $0.04 per hour; payback 8,200 to 45,600 h. Upper corner 230 W, $0.12 per hour; payback 2,700 to 15,100 h. Only the cheapest 2 kW unit at the upper corner is under 3,000 h; every central-duty case exceeds 8,000 h.
