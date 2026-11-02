@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01E5sJKm5BhFftrr57drvw8Q",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T16:33:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12612",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/infra-dcopf/README.md",
+      "issue": "Next step named case300/ratings-corrected case118; case118 limits only bind at 4% of ratings, so step 1 is only partly done."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No run-level blog post or agent doc: a small experiment step; README carries the findings.",
+      "did": "README section only",
+      "result": "ok"
+    }
+  ],
+  "writeups": [
+    "research/infra-dcopf/README.md"
+  ],
+  "goal": null,
+  "notes": "Preliminary single-case LMP comparison; homepage build and md link check ok.",
+  "corrections": [],
+  "redteam": null
+}

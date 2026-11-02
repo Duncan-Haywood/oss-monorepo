@@ -36,8 +36,23 @@ A two-bus network with a closed-form answer (DC cost 10x50 + 0.01x50^2 = 525; th
 - One solver per model (pandapower's PYPOWER-based OPF); another solver might differ at the margin on the non-convex AC problem.
 - Safety-critical note: this is research on a benchmark. Any operational use of dispatch methods needs the system operator and licensed engineers.
 
+## LMP comparison on case118 (added 2026-11-02)
+`experiments/run_lmp.py` (about 1 min) compares bus prices (`lam_p`) from pandapower's AC and DC OPF on case118 at nominal load, with every line's `max_i_ka` scaled by f so some limits bind. Output: `experiments/results_lmp.txt`.
+
+| f | DC binding lines | mean AC / DC LMP | mean abs LMP gap | AC price spread | DC price spread |
+|---|---|---|---|---|---|
+| 1.00 to 0.05 | 0 | 39.4 to 39.5 / 39.38 | 0.9 to 1.3 | 4.7 to 5.4 | 0.00 |
+| 0.04 | 2 | 39.32 / 39.56 | 1.33 | 6.39 | 1.99 |
+| 0.03 | 2 | 39.23 / 39.92 | 1.47 | 9.02 | 6.81 |
+
+Findings (one case, one load level, preliminary):
+- Where no DC line binds, the DC price is flat (one system price). The AC price still varies by 4.7 to 5.4 per MWh across buses, which is the loss component. A lossless model cannot show it, so the DC-to-AC LMP gap there (about 1 per MWh, roughly 2.4 % of the price) is a loss effect, not congestion.
+- Only at f <= 0.04 (limits at 4 % of case118's published ratings, an extreme setting; the case's ratings are loose, see Limitations) do two lines bind and DC prices separate. Even then the AC spread (6.4, 9.0) exceeds the DC spread (2.0, 6.8): the DC model understates the price separation.
+- The load-weighted "rent" column is a proxy (sum of (LMP minus system mean) times load), not settlement-grade congestion rent. The AC proxy includes losses, so the DC-AC rent difference mixes both effects. Separating them needs nodal loss factors (next step 2).
+- Correlation of bus prices is undefined (nan) while the DC prices are flat, and 0.31 to 0.39 once two lines bind.
+
 ## Next steps
-1. Locational marginal prices from both models and the congestion rent they disagree on, on a case whose limits bind (the MATPOWER `case300` or a ratings-corrected `case118`).
+1. Repeat the LMP comparison on a case whose published ratings bind (MATPOWER `case300`, or case118 with ratings from a real source) and separate the loss and congestion components of the price.
 2. Nodal loss penalty factors (from the AC solution's loss sensitivities) instead of a uniform load share, to see whether the merit order, not just the price level, is repaired.
 3. Reactive-aware fix: add voltage-band constraints to the LP and see whether case39's violations go away.
 
@@ -48,6 +63,7 @@ cd research/infra-dcopf
 python -m pytest -q tests                     # 8 tests, about 15 s
 PYTHONPATH=src python experiments/run.py      # about 1 min; writes experiments/results.txt
 PYTHONPATH=src python experiments/run_lossadj.py  # loss-adjusted DC, about 1 min; writes results_lossadj.txt
+python experiments/run_lmp.py                 # LMP comparison, about 1 min; writes experiments/results_lmp.txt
 python experiments/figure.py                  # experiments/gap_vs_load.svg
 ```
 
