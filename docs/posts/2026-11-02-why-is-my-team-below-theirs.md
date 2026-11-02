@@ -3,7 +3,7 @@ title: "Why is my team below theirs? Explaining league tie-breaks"
 seo_title: "How league standings tie-breaks are decided, explained per pair"
 date: 2026-11-02
 tags: [league-schedule-generator, standings, tie-breaks]
-description: "A small addition to the league schedule generator: each level-on-points pair in a table now says which tie-break separated it, and flags pairs nothing can separate."
+description: "A small addition to the league schedule generator: each level-on-points pair in a table now says which tie-break separated it, and flags pairs that nothing separates."
 ---
 
 The most common argument in a rec league is not the schedule, it is the table: two teams on 12 points, one listed higher, nobody sure why.
