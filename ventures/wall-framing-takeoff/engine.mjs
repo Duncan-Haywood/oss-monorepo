@@ -135,6 +135,8 @@ export function parseLength(text) {
   // Phone keyboards type curly quotes and one-glyph fractions (6½").
   const GLYPH = { "½": "1/2", "¼": "1/4", "¾": "3/4", "⅛": "1/8", "⅜": "3/8", "⅝": "5/8", "⅞": "7/8" };
   s = s.replace(/(\d)?([½¼¾⅛⅜⅝⅞])/g, (_, d, g) => (d ? `${d} ${GLYPH[g]}` : GLYPH[g]));
+  // Thousands separators in a long run ("1,200", "1,200'"): only exact 3-digit groups, so "1,5" stays refused.
+  if (/^\d{1,3}(,\d{3})+(?=\D|$)/.test(s)) s = s.replace(/^\d{1,3}(,\d{3})+/, (g) => g.replace(/,/g, ""));
   if (!s) return NaN;
   let feet = 0;
   const fm = s.match(/^(\d+(?:\.\d+)?)\s*'/);
