@@ -10,4 +10,4 @@ The most common argument in a rec league is not the schedule, it is the table: t
 
 The league schedule generator already ranked teams by points, then head to head if switched on, then goal difference and goals for. It now also says so. For every adjacent pair level on points, the printed table adds a line such as "Hawks is above Owls on goal difference (5 v 2)". When a pair is level on every criterion, the line says so and suggests a play-off or a draw instead of quietly ordering them by entry order.
 
-It is `tieBreakNotes` in `calc.mjs`, wired into the CLI `--results` output, with four tests on made-up results. The page does not show the notes yet; that is the next small step. No real league's data was used, so how organisers rate the wording is still unknown.
+It is `tieBreakNotes` in `calc.mjs`, wired into the CLI `--results` output, with four tests on made-up results. The multi-division page now shows them too, under each division's table, checked by clicking through it in a real browser. No real league's data was used, so how organisers rate the wording is still unknown.

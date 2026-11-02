@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -762,4 +762,15 @@ test("divisionsPlayoffs seeds winners first, then runners-up, with wildcards las
   assert.deepEqual(po.seeds.map((x) => x.seed), po.seeds.map((_, i) => i + 1));
   assert.ok(po.bracket.games >= po.seeds.length - 1 && /Final/.test(po.text));
   assert.match(divisionsPlayoffs({ tables: [{ division: "A", rows: [{ name: "x", played: 0, points: 0, gd: 0, gf: 0 }] }] }, { perDivision: 1 }).errors.join(), /two teams/);
+});
+
+test("divisionsTieBreakNotes lists notes per division and skips divisions with none", () => {
+  const { spec } = readDivisionsSpec(example);
+  const sch = buildDivisions(spec);
+  const [d0] = sch.divisions;
+  const r = divisionsStandings(sch, `${d0.name}: ${d0.teams[0]} 3 - 0 ${d0.teams[1]}`);
+  const n = divisionsTieBreakNotes(r);
+  assert.ok(n.length >= 1 && n[0].division === d0.name);
+  assert.ok(n[0].notes.every((x) => typeof x.text === "string"));
+  assert.deepEqual(divisionsTieBreakNotes({ tables: [{ division: "X", rows: [] }] }), []);
 });
