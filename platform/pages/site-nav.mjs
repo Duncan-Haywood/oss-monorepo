@@ -87,7 +87,9 @@ export const SITE_NAV = Object.freeze([
   // Anyone may ask for a tool, product or feature to be built (owner,
   // 2026-11-02: "on the top tab. request a tool product or feature"). The
   // page is the open custom development queue (build.mjs, CUSTOM_DEV_PATH).
-  Object.freeze({ id: 'request', label: 'Request a tool', href: 'custom-development/' }),
+  // Labelled for businesses since 2026-11-02 (owner: "advertise to businesses
+  // more", "describe your problem and it gets built").
+  Object.freeze({ id: 'request', label: 'Get it built', href: 'custom-development/' }),
   Object.freeze({ id: 'deploy', label: 'Deploy your own', href: 'deploy/' }),
   Object.freeze({ id: 'about', label: 'About', href: 'about/' }),
 ]);

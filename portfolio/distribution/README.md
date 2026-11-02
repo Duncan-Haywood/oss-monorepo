@@ -376,3 +376,10 @@ the owner step is the account, two secrets and `DISTRIBUTE_BLUESKY=true`.
 `wordpress-plugin` is at `artifact` (2026-10-19): one plugin, "Free Tools Embed", whose `[free_tool slug="..."]` shortcode embeds any launched tool as a sandboxed iframe with a link back. Dry run: `node platform/distribution/wordpress.mjs` (`--build <dir>` writes the zip). Owner step: a wordpress.org account and a submission.
 
 The distribution hub (2026-10-20) adds `hub-threads`, `hub-facebook`, `hub-instagram` and `hub-email` at `artifact` (live adapters, off by default) and eight `hub-*-drafts` rows for platforms that cannot be automated within their terms for free. Dry run: `node platform/distribution/hub.mjs plan`.
+
+## Paste-ready copy for the owner
+
+- [`linkedin-company-page.md`](linkedin-company-page.md): the company page.
+- [`custom-development-for-businesses.md`](custom-development-for-businesses.md):
+  posts and a one-to-one note advertising the free custom dev shop to
+  businesses ("describe your problem and it gets built").
