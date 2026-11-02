@@ -885,3 +885,12 @@ test("validatePlan refuses wrong-shaped walls, tees, openings and stock instead 
     assert.ok(r.errors.some((e) => re.test(e)), String(r.errors));
   }
 });
+
+test("parseLength reads metric lengths (mm, cm, m)", () => {
+  assert.ok(Math.abs(parseLength("2500mm") - 98.4252) < 1e-3);
+  assert.ok(Math.abs(parseLength("250 cm") - 98.4252) < 1e-3);
+  assert.ok(Math.abs(parseLength("2.5m") - 98.4252) < 1e-3);
+  assert.ok(Math.abs(parseLength("2,5 m") - 98.4252) < 1e-3);
+  assert.equal(parseLength("8 ft"), 96);
+  assert.ok(Number.isNaN(parseLength("5 mm x")));
+});
