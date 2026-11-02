@@ -506,6 +506,8 @@ export const SERVED_EXTENSIONS = new Map([
   ['.ico', 'stock'],
   ['.pdf', 'stock'],
   ['.webp', 'stock'],
+  // einvoice-preflight's mandate calendar feed; standard MIME databases type .ics as text/calendar.
+  ['.ics', 'stock'],
   // shed-designer's share picture (renders/og-*-share.jpg): JPEG because not every link
   // scraper reads WebP; mime.types lists image/jpeg jpeg jpg.
   ['.jpg', 'stock'],
