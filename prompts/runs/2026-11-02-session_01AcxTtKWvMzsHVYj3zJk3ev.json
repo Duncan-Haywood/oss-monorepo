@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01AcxTtKWvMzsHVYj3zJk3ev",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T08:09:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12542",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "security-alerts branch does not exist on the remote, so step 0 fails with a fetch error; harmless but undocumented"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/runs",
+      "why": "Skipped runcost.py attach and the venture-preflight run to keep the run small; the change is one test file with no site surface.",
+      "did": "Ran the new and existing bidpackage tests locally plus a mutation check.",
+      "result": "7/7 pass; mutation fails as expected."
+    }
+  ],
+  "writeups": "docs/posts/2026-11-02-fuzzing-the-bid-letterhead.md; ROADMAP.md entry",
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}
