@@ -7582,11 +7582,46 @@ export function customRequestPath(id) {
 export const REQUEST_KINDS = Object.freeze([
   { id: 'new', type: 'idea', label: 'A new tool for my work', job: 'What job should it do, and for whom?', hint: 'Who does the work today, how, and where existing tools fall short.', licence: true },
   { id: 'feature', type: 'idea', label: 'A feature for one of the tools here', job: 'What should the tool do that it does not?', hint: 'What you were trying to do, and what got in the way.', tool: true, licence: true },
-  { id: 'research', type: 'research', label: 'A research question to investigate', job: 'What question should be investigated, and why does it matter to you?', hint: 'What you already know, what data might answer it, and what you would do with the answer.', licence: true },
+  { id: 'research', type: 'research', label: 'A research question to investigate', job: 'What question should be investigated, and why does it matter to you?', hint: 'What you already know, what data might answer it, and what you would do with the answer.', direction: true, licence: true },
   { id: 'topic', type: 'topic', label: 'A topic to write about', job: 'What should be explained, compared or written up?', hint: 'Who would read it, and what they get wrong or cannot find today.', licence: true },
   { id: 'preview', type: 'idea', label: 'Feedback on a preview or a request in progress', job: 'What did you try, and what should change?', hint: 'What worked, what did not, and what you expected instead.', request: true, licence: true },
   { id: 'problem', type: 'problem', label: 'Something is wrong with a tool', job: 'What went wrong?', hint: 'What you entered, what you expected, and what you got.', tool: true },
 ]);
+
+/**
+ * Every research direction a research request can build on: the open
+ * programmes in `research/PROGRAMMES.md` (its "Open programmes" table, whose
+ * first column links `<slug>/PROPOSAL.md`), then every project by theme, as
+ * the research index groups them. Only directories that exist are kept.
+ */
+export function researchDirections(repoRoot = REPO_ROOT) {
+  const programmes = [];
+  try {
+    const md = readFileSync(path.join(repoRoot, 'research', 'PROGRAMMES.md'), 'utf8');
+    const open = md.split(/^## /m).find((part) => part.startsWith('Open programmes')) || '';
+    for (const line of open.split('\n')) {
+      const m = line.match(/^\|\s*\[`([a-z0-9-]+)`\]\([^)]*\)\s*\|\s*([^|]+?)\s*\|/);
+      if (m && existsSync(path.join(repoRoot, 'research', m[1]))) programmes.push({ slug: m[1], question: m[2].replace(/\*/g, '') });
+    }
+  } catch { /* no programmes file: themes only */ }
+  const { projects } = researchHighlights(repoRoot);
+  const themes = [];
+  const byTheme = new Map();
+  for (const p of projects) {
+    if (!byTheme.has(p.themeName)) { const t = { name: p.themeName, projects: [] }; byTheme.set(p.themeName, t); themes.push(t); }
+    byTheme.get(p.themeName).projects.push({ slug: p.slug, title: p.title || p.slug });
+  }
+  return { programmes, themes };
+}
+
+/** The `<option>`s of the research direction picker, grouped as `researchDirections` returns them. */
+function renderDirectionOptions({ programmes = [], themes = [] }) {
+  const cut = (t, n) => (t.length > n ? `${t.slice(0, n - 1).trimEnd()}…` : t);
+  const progs = programmes.length
+    ? `<optgroup label="Open research programmes">${programmes.map((p) => `<option value="${escapeHtml(p.slug)}">${escapeHtml(cut(`${p.slug}: ${p.question}`, 110))}</option>`).join('')}</optgroup>`
+    : '';
+  return progs + themes.map((t) => `<optgroup label="${escapeHtml(`${t.name} (${t.projects.length})`)}">${t.projects.map((p) => `<option value="${escapeHtml(p.slug)}">${escapeHtml(cut(p.title, 110))}</option>`).join('')}</optgroup>`).join('');
+}
 
 /** The stages a request moves through, as the stepper draws them. `declined` is shown beside them, not on the line. */
 const REQUEST_STAGES = ['received', 'accepted', 'building', 'shipped'];
@@ -7614,8 +7649,15 @@ function renderRequestStepper(status) {
  * endpoint, like the feedback page's form, so it never offers a form that goes
  * nowhere; the GitHub issue form is always linked beside it.
  */
-function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, fixedRequest = '' }) {
+function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, directions = { programmes: [], themes: [] }, fixedRequest = '' }) {
   if (!feedbackUrl) return '';
+  const dirCount = directions.programmes.length + directions.themes.reduce((n, t) => n + t.projects.length, 0);
+  const dirPicker = dirCount ? `
+        <div data-cd-for="direction" hidden>
+          <label for="cdf-dir">Which research direction does it build on? <span class="cd-opt">(optional)</span></label>
+          <p class="cd-hint" id="cdf-dir-hint">All ${dirCount} directions already here: the open programmes first, then every project by theme. Leave it on a new direction if none fits, or browse them on <a href="${escapeHtml(`${toRoot}${RESEARCH_PATH}`)}">the research index</a>.</p>
+          <select id="cdf-dir" name="dir" aria-describedby="cdf-dir-hint"><option value="">A new direction</option>${renderDirectionOptions(directions)}</select>
+        </div>` : '';
   const kinds = REQUEST_KINDS.map((k) => `
           <label><input type="radio" name="kind" value="${k.id}"${(fixedRequest ? k.id === 'preview' : k.id === 'new') ? ' checked' : ''}> ${escapeHtml(k.label)}</label>`).join('');
   const tools = [...surfaces]
@@ -7640,12 +7682,15 @@ function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, fixedReque
         <div data-cd-for="request" hidden>
           <label for="cdf-req">Which request?</label>
           <select id="cdf-req" name="req"><option value="">Choose a request</option>${reqs}</select>
-        </div>
+        </div>${dirPicker}
         <label for="cdf-job" id="cdf-job-label">${escapeHtml(REQUEST_KINDS[0].job)}</label>
         <p class="cd-hint" id="cdf-job-hint">${escapeHtml(REQUEST_KINDS[0].hint)}</p>
         <textarea id="cdf-job" name="job" rows="6" maxlength="3000" required aria-describedby="cdf-job-hint"></textarea>
+        <p class="cd-mic-row" hidden><button type="button" class="cd-mic" data-mic="cdf-job" aria-pressed="false">Speak instead of typing</button></p>
         <label for="cdf-done">How would you know it worked? <span class="cd-opt">(optional)</span></label>
         <textarea id="cdf-done" name="done" rows="3" maxlength="600" placeholder="A number it should get right, a document it should read, a step it should save."></textarea>
+        <p class="cd-mic-row" hidden><button type="button" class="cd-mic" data-mic="cdf-done" aria-pressed="false">Speak instead of typing</button></p>
+        <p class="cd-hint" id="cdf-mic-note" hidden>Dictation uses your browser's own speech recognition: the words appear in the box for you to check and edit, and nothing is sent to this site until you press Send. Some browsers (Chrome among them) send the audio to the browser maker's speech service to turn it into text, unless they can do it on your device.</p>
         <div data-cd-for="licence">
           <label class="cd-check"><input type="checkbox" name="licence" id="cdf-licence"> I understand that what is built is published here under the MIT licence, with the repository owner's copyright notice, and that I get no exclusive rights to it.</label>
         </div>
@@ -7655,7 +7700,7 @@ function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, fixedReque
       </form>
   <script>
 (function(){
-  var K=${JSON.stringify(REQUEST_KINDS.map(({ id, type, job, hint, tool, request, licence }) => ({ id, type, job, hint, tool: !!tool, request: !!request, licence: !!licence })))};
+  var K=${JSON.stringify(REQUEST_KINDS.map(({ id, type, job, hint, tool, request, direction, licence }) => ({ id, type, job, hint, tool: !!tool, request: !!request, direction: !!direction, licence: !!licence })))};
   var f=document.getElementById('cdf');if(!f)return;
   var st=document.getElementById('cdf-status'),btn=f.querySelector('button[type=submit]');
   var q=new URLSearchParams(location.search);
@@ -7670,8 +7715,35 @@ function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, fixedReque
   if(qk){var r=f.querySelector('input[name=kind][value="'+qk.replace(/[^a-z]/g,'')+'"]');if(r)r.checked=true;}
   if(qt&&f.tool.querySelector('option[value="'+qt.replace(/[^a-z0-9._\\/-]/g,'')+'"]'))f.tool.value=qt;
   if(/^R-\\d{4}$/.test(qr))f.req.value=qr;
+  var qd=(q.get('dir')||'').replace(/[^a-z0-9-]/g,'');
+  if(qd&&f.dir&&f.dir.querySelector('option[value="'+qd+'"]')){f.dir.value=qd;if(!qk){var rr=f.querySelector('input[name=kind][value=research]');if(rr)rr.checked=true;}}
   f.addEventListener('change',function(e){if(e.target.name==='kind')show();});
   show();
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition,rec=null,live=null;
+  if(SR){
+    var rows=f.querySelectorAll('.cd-mic-row');for(var j=0;j<rows.length;j++)rows[j].hidden=false;
+    document.getElementById('cdf-mic-note').hidden=false;
+    var lang=document.documentElement.lang||navigator.language||'en-US';if(lang==='en')lang='en-US';
+    var stop=function(){if(rec){try{rec.stop();}catch(_){}}};
+    var mics=f.querySelectorAll('.cd-mic');
+    for(var m=0;m<mics.length;m++)mics[m].addEventListener('click',function(){
+      var b=this,ta=document.getElementById(b.getAttribute('data-mic'));
+      if(live===b){stop();return;}
+      stop();
+      var r=new SR(),base=ta.value;r.lang=lang;r.continuous=true;r.interimResults=true;
+      r.onresult=function(ev){
+        var said='';for(var i=0;i<ev.results.length;i++)said+=ev.results[i][0].transcript;
+        said=said.trim();ta.value=(base&&said?base.replace(/\s*$/,' '):base)+said;
+        if(ta.maxLength>0&&ta.value.length>ta.maxLength)ta.value=ta.value.slice(0,ta.maxLength);
+      };
+      r.onerror=function(ev){st.textContent=ev.error==='not-allowed'||ev.error==='service-not-allowed'?'The microphone is blocked for this page. Allow it in your browser, or type instead.':ev.error==='no-speech'?'No speech heard. Try again, closer to the microphone.':'Dictation stopped ('+ev.error+'). You can type instead.';};
+      r.onend=function(){if(rec===r){rec=null;live=null;}if(/^Listening/.test(st.textContent))st.textContent='';b.setAttribute('aria-pressed','false');b.textContent='Speak instead of typing';};
+      rec=r;live=b;
+      try{r.start();b.setAttribute('aria-pressed','true');b.textContent='Stop dictating';st.textContent='Listening. Speak, then press Stop dictating.';}
+      catch(_){rec=null;live=null;st.textContent='Dictation could not start. You can type instead.';}
+    });
+    f.addEventListener('submit',stop,true);
+  }
   f.addEventListener('submit',function(e){
     e.preventDefault();
     var k=kind(),job=f.job.value.trim(),done=f.done.value.trim();
@@ -7679,7 +7751,7 @@ function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, fixedReque
     if(k.request&&!f.req.value){st.textContent='Please choose the request.';f.req.focus();return;}
     if(job.length<5){st.textContent='Please write a few words first.';f.job.focus();return;}
     if(k.licence&&!f.licence.checked){st.textContent='Please tick the licence box first: it is the one condition.';f.licence.focus();return;}
-    var head='[custom-development: '+k.id+']'+(k.request?' '+f.req.value:'')+(k.tool?' tool: '+f.tool.value:'');
+    var head='[custom-development: '+k.id+']'+(k.request?' '+f.req.value:'')+(k.tool?' tool: '+f.tool.value:'')+(k.direction&&f.dir&&f.dir.value?' direction: '+f.dir.value:'');
     var msg=head+'\\n\\n'+job+(done?'\\n\\nHow I would know it worked:\\n'+done:'');
     var body={type:k.type,tool:k.tool?f.tool.value:'',page:location.pathname,message:msg.slice(0,4000),website:f.website.value};
     btn.disabled=true;st.textContent='Sending...';
@@ -7734,7 +7806,7 @@ function customDevHead({ title, description, url, toRoot, baseUrl, extraHead = '
  * each row linking to that request's own page (`renderCustomRequestPage`).
  * Every tool's footer links here with `?kind=feature&tool=<slug>`.
  */
-export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests = [], feedbackUrl = SITE_FEEDBACK_URL }) {
+export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests = [], directions, feedbackUrl = SITE_FEEDBACK_URL }) {
   const url = `${baseUrl}${CUSTOM_DEV_PATH}`;
   const toRoot = '../';
   const title = 'Free custom software for your business';
@@ -7792,7 +7864,7 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
 })();
   </script>`
     : '<p>No requests on file yet. Yours could be the first.</p>';
-  const form = renderRequestForm({ toRoot, feedbackUrl, surfaces, requests });
+  const form = renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, directions });
   const stages = REQUEST_STAGES.map((s) => `<li class="cd-step"><span class="cd-dot" aria-hidden="true"></span><span class="cd-step-name">${escapeHtml(s)}${requests.length ? ` <small>(${requests.filter((r) => r.status === s).length})</small>` : ''}</span><span class="cd-step-what">${escapeHtml(REQUEST_STATUSES[s])}</span></li>`).join('');
   const feedbackPageUrl = `${toRoot}${FEEDBACK_PATH}`;
   const ideaUrl = `${REPO_URL}/issues/new?template=idea.yml`;
@@ -7907,7 +7979,7 @@ ${form}
  * its project and anything to try, and the form preset to "feedback on a
  * preview" for this request. Indexed: a requester shares this link.
  */
-export function renderCustomRequestPage({ request: r, surfaces = [], baseUrl, requests = [], feedbackUrl = SITE_FEEDBACK_URL }) {
+export function renderCustomRequestPage({ request: r, surfaces = [], baseUrl, requests = [], directions, feedbackUrl = SITE_FEEDBACK_URL }) {
   const toRoot = '../../';
   const url = `${baseUrl}${customRequestPath(r.id)}`;
   const title = `${r.id}: ${r.title}`;
@@ -7922,7 +7994,7 @@ export function renderCustomRequestPage({ request: r, surfaces = [], baseUrl, re
     r.link ? `<li><a href="${escapeHtml(r.link)}">The original request</a></li>` : '',
     `<li><a href="${escapeHtml(`${REPO_URL}/commits/main/portfolio/requests/requests.json`)}">The queue's history</a></li>`,
   ].filter(Boolean).join('\n        ');
-  const form = r.status === 'declined' ? '' : renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, fixedRequest: r.id });
+  const form = r.status === 'declined' ? '' : renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, directions, fixedRequest: r.id });
   return `${customDevHead({ title, description, url, toRoot, baseUrl })}
 <body>
   ${renderSiteHeader({ toRoot, current: 'request', crumbs: [{ href: `${toRoot}${CUSTOM_DEV_PATH}`, label: 'Custom development' }, { label: r.id }] })}
@@ -7984,6 +8056,10 @@ const CUSTOM_DEV_STYLE = `
     .cd-declined { color: var(--muted); }
     .cd-hint { color: var(--muted); font-size: .9em; margin: -2px 0 6px; }
     .cd-opt { font-weight: 400; color: var(--muted); }
+    .cd-mic-row { margin: 4px 0 10px; }
+    .cd-mic-row[hidden], #cdf-mic-note[hidden] { display: none; }
+    #cdf .cd-mic { font: inherit; font-size: .9em; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; }
+    #cdf .cd-mic[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: #fff; }
     #cdf select { width: 100%; box-sizing: border-box; font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
     #cdf .cd-check { font-weight: 400; color: var(--ink); display: flex; gap: 8px; align-items: flex-start; }
     .cd-filter { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
@@ -11788,17 +11864,18 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   await fs.writeFile(path.join(feedbackDir, 'index.html'), renderFeedbackPage({ surfaces, baseUrl: base }));
   const customDevDir = path.join(outDir, CUSTOM_DEV_PATH);
   const customRequests = loadRequests();
+  const researchDirs = researchDirections();
   await fs.mkdir(customDevDir, { recursive: true });
   await fs.writeFile(
     path.join(customDevDir, 'index.html'),
-    renderCustomDevelopmentPage({ surfaces, baseUrl: base, requests: customRequests }),
+    renderCustomDevelopmentPage({ surfaces, baseUrl: base, requests: customRequests, directions: researchDirs }),
   );
   // Each request's own page, linked from its row and shared by its requester.
   for (const request of customRequests) {
     if (!/^R-\d{4}$/.test(request.id || '')) continue;
     const dir = path.join(outDir, customRequestPath(request.id));
     await fs.mkdir(dir, { recursive: true });
-    await fs.writeFile(path.join(dir, 'index.html'), renderCustomRequestPage({ request, surfaces, baseUrl: base, requests: customRequests }));
+    await fs.writeFile(path.join(dir, 'index.html'), renderCustomRequestPage({ request, surfaces, baseUrl: base, requests: customRequests, directions: researchDirs }));
   }
 
   // The assistant's own page, and the files every page lazy-loads it from.

@@ -109,3 +109,32 @@ test('offers every request kind and explains the injection screen', () => {
   assert.match(html, /id="screening"/);
   assert.match(html, /portfolio\/requests\/screen\.mjs/);
 });
+
+test('the request form offers dictation, hidden until the browser can do it', () => {
+  const html = renderCustomDevelopmentPage({ baseUrl: base, requests: [one], surfaces, feedbackUrl: 'https://edge.example' });
+  assert.match(html, /data-mic="cdf-job"/);
+  assert.match(html, /data-mic="cdf-done"/);
+  assert.match(html, /<p class="cd-mic-row" hidden>/);
+  assert.match(html, /webkitSpeechRecognition/);
+  assert.match(html, /nothing is sent to this site until you press Send/);
+  // The inline script still parses after the template literal's escaping.
+  const script = html.match(/<script>\s*(\(function\(\)\{[\s\S]*?)<\/script>/)[1];
+  assert.doesNotThrow(() => new Function(script));
+});
+
+test('a research request can name any existing research direction, grouped and escaped', async () => {
+  const { researchDirections } = await import('./build.mjs');
+  const directions = researchDirections();
+  assert.ok(directions.programmes.length > 0, 'open programmes parsed from research/PROGRAMMES.md');
+  assert.ok(directions.themes.length > 0);
+  const html = renderCustomDevelopmentPage({ baseUrl: base, requests: [], surfaces, feedbackUrl: 'https://edge.example', directions });
+  assert.match(html, /id="cdf-dir"/);
+  assert.match(html, /<optgroup label="Open research programmes">/);
+  for (const p of directions.programmes) assert.ok(html.includes(`<option value="${p.slug}">`), p.slug);
+  for (const t of directions.themes) for (const p of t.projects) assert.ok(html.includes(`<option value="${p.slug}">`), p.slug);
+  assert.ok(REQUEST_KINDS.find((k) => k.id === 'research').direction);
+  const evil = renderCustomDevelopmentPage({ baseUrl: base, requests: [], surfaces, feedbackUrl: 'https://edge.example', directions: { programmes: [], themes: [{ name: '<b>t</b>', projects: [{ slug: 'x', title: '<script>y</script>' }] }] } });
+  assert.ok(!evil.includes('<script>y</script>') && !evil.includes('<b>t</b>'));
+  // With no directions there is no empty picker.
+  assert.ok(!renderCustomDevelopmentPage({ baseUrl: base, requests: [], surfaces, feedbackUrl: 'https://edge.example' }).includes('cdf-dir'));
+});
