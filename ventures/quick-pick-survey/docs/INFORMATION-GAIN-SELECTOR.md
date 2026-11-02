@@ -356,3 +356,29 @@ is no run with the fallback switched off to compare, so it shows the share the
 route sees, not what the fallback saved. Reproduce: `scripts/test-db.sh start`,
 then `NOISY_OUT=/tmp/o.txt npx vitest run -c vitest.integration.config.ts src/app/api/trials/noisyRespondents`
 (about 50 s).
+
+### The fallback switched off, as a control (2026-11-02)
+
+Same test, two added conditions: the biased respondents again with the route
+calling the staged selector without their first-option share (a `vi.mock` of
+`selectNextPairHybrid` that drops `firstOptionShare`), so it never falls back
+to the shipped selector. Same 60 items, 3 respondents x 200 answers, local
+Postgres 16. The 2026-11-01 table above used a different seed per condition
+name, so its numbers differ slightly from the clean/lapse/bias rows here.
+
+| condition | fallback on | fallback off |
+|---|---|---|
+| clean (share 0.51) | 0.777 | not run (cannot fire) |
+| 20% lapse | 0.629 | not run (cannot fire) |
+| 50% top-slot bias (share 0.77 / 0.74) | 0.492 | 0.482 |
+| 80% top-slot bias (share 0.93 / 0.91) | 0.266 | 0.096 |
+
+Reading: at 80% bias the fallback keeps 0.17 of Spearman that the information
+selector alone loses (0.266 against 0.096); at 50% bias the difference (0.010)
+is inside the noise of 3 respondents. So the fallback earns its keep on heavy
+bias and does nothing measurable at moderate bias. Honest limits: 3
+respondents per cell, one seed set, synthetic answers, 60 items, 200 answers;
+the 2026-11-01 run had clean at 0.772 and lapse at 0.708 on other seeds, so a
+0.06 to 0.08 spread between seed sets is normal here and the 50% row is not
+distinguishable. Not run: 1000+ items.
+Reproduce as above (about 70 s).
