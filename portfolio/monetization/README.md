@@ -12,6 +12,12 @@ This directory is where that work lives between sessions:
   agent-doable step (`next`), and validates the file (`--check`). Tests:
   `python3 -m pytest -q portfolio/ledger/test_monetization.py` (kept there so
   the merge checklist's existing `portfolio/ledger` line runs it).
+- **[`SCENARIOS.md`](SCENARIOS.md)** with [`evaluations.json`](evaluations.json)
+  and `evaluate.mjs`: every catalogue category (15) and flagship (10) in three
+  year-one revenue scenarios (now, payout rail on, 12-month traffic goal)
+  driven by the measured traffic, with the GTM steps and the owner decision
+  each mechanism waits on. `node portfolio/monetization/evaluate.mjs`; tests
+  `node --test portfolio/monetization/*.test.mjs`.
 - This README: the reasoning, so a later run can disagree with it on purpose.
 
 It is listed as request R-0004 in
