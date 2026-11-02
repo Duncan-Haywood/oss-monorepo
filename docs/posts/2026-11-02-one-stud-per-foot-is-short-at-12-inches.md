@@ -1,6 +1,6 @@
 ---
 title: "One stud per foot comes up short at 12 inches"
-seo_title: "Framing lumber allowance rule: one stud per foot, checked at 12, 16, 19.2 and 24 in"
+seo_title: "Framing lumber allowance: one stud per foot at 12 to 24 in"
 date: 2026-11-02
 tags: [construction, framing, takeoff, measurement]
 description: "The one-stud-per-foot rule over-orders at 16, 19.2 and 24 inch spacing and under-orders by 5 to 8% at 12 inches, on two generated houses."
