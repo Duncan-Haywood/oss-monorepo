@@ -1,0 +1,8 @@
+sensor white noise over the Nyquist band 1/(2 dt), dt = t_sp/20
+t_sp (s) | fs (Hz) | gyro rms (deg/s) | accel rms (mg) | q rms for 10% / 2% (deg/s) | dn rms for 10% / 2% (g)
+     0.4 |    50.0 |            0.070 |           0.95 |     0.70 /   3.50      | 0.0095 / 0.0475
+     0.6 |    33.3 |            0.057 |           0.78 |     0.57 /   2.86      | 0.0078 / 0.0388
+     0.9 |    22.2 |            0.047 |           0.63 |     0.47 /   2.33      | 0.0063 / 0.0317
+     1.5 |    13.3 |            0.036 |           0.49 |     0.36 /   1.81      | 0.0049 / 0.0245
+     2.5 |     8.0 |            0.028 |           0.38 |     0.28 /   1.40      | 0.0038 / 0.0190
+check: at BW 47 Hz the gyro rms is 0.096 deg/s (data sheet: 0.1)
