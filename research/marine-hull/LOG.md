@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-02 · Milestone 3j: does the H1/H2 verdict move when form factors come from the tank bound? (exploratory; no prediction logged before the run)
+- Why: 3i's "Next". The milestone-1 box used k 0.10 to 0.40 (central 0.25); the Delft yacht tank data bound k at about 0.03 to 0.15. Reran the identical 6,561-case box with k_form and k_cat in {0.03, 0.08, 0.15} (`experiments/run_lowk.py`, `results_lowk.txt`, deterministic, about 1 s).
+- Outcome: the catamaran out-ranges the monohull in 0 of 6,561 cases (milestone 1: 27, 0.4%), none at equal length; range ratio cat/mono min 0.74, median 0.85, max 0.97 (was 0.72, 0.85, 1.02). Monohull best range 600 to 1,216 km, median 876 km (was 836), best speed median 1.10 m/s (was 1.05). Lower form factors help both hulls about equally, so H2's verdict is unchanged and slightly firmer: the earlier 27 wins came from the k = 0.4 monohull against a k = 0.1 catamaran, a combination the tank bound makes implausible.
+- Limits: the k box is from keeled yachts (3i's bound, an upper bound on k at Fn 0.125); the wave term, c_s, interference and hotel load are unchanged and unsourced; a placeholder wave term as in milestone 1.
+- Next: a keel-less, fuller survey-hull tank table; the 1981/1982 papers if a host opens.
+
 ## 2026-11-02 · Milestone 3i: what form factor do the Delft yacht tank points imply at survey Froude numbers? (exploratory; no prediction logged before the run)
 - Why: 3g found Holtrop-Mennen over-predicts residuary resistance 1.3 to 2.2 times at Fn 0.125 to 0.2, and 3c said its excess is the form factor, not waves. The tank table can say how big the form factor really is: at Fn 0.125 wave making is smallest, and Rr (total minus ITTC-1957 friction) divided by the friction resistance is an upper bound on k.
 - Outcome (`experiments/run_yacht_formfactor.py`, `results_yacht_formfactor.txt`, instant, deterministic): implied k at Fn 0.125 has median 0.061 to 0.064 over 22 hulls (10th to 90th percentile 0.03 to 0.13, max 0.18; Cm 0.7 to 0.9), 0.17 at Fn 0.15. HM's k1 for the same hulls has median 0.29 to 0.36. The implied bound is below HM's k1 for 22 of 22 hulls and below the programme's central k = 0.25 for all 22.
