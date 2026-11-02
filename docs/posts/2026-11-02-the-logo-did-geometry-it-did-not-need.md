@@ -1,7 +1,8 @@
 ---
 title: "Our logo rasteriser was testing pixels that could not be in it"
 date: 2026-11-02
-description: "A profile of the Pages test suite put the logo's point-in-polygon check on top. Skipping it outside each shape's reach cut that work by 45% with byte-identical output."
+description: "A profile put the logo's point-in-polygon check on top. Skipping it outside each shape's reach cut that work 45% with byte-identical output."
+tags: [performance, ci]
 ---
 
 The slowest step on our CI runners is the site-builder test suite. A profile of
