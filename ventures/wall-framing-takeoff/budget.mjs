@@ -28,7 +28,8 @@ const r2 = (/** @type {number} */ n) => Math.round(n * 100) / 100;
 export function budget(result, prices = {}, allowances = {}) {
   /** @type {BudgetLine[]} */
   const lines = [];
-  const P = (/** @type {string} */ k) => (typeof prices[k] === "number" && prices[k] >= 0 ? prices[k] : null);
+  const read = new Set(); // price names the engine looked up while building this budget
+  const P = (/** @type {string} */ k) => { read.add(k); return typeof prices[k] === "number" && prices[k] >= 0 ? prices[k] : null; };
   const add = (/** @type {string} */ section, /** @type {string} */ item, /** @type {number} */ qty, /** @type {string} */ unit, /** @type {number | null} */ unitPrice, /** @type {string} */ source) => {
     if (!(qty > 0)) return;
     lines.push({ section, item, qty: r2(qty), unit, unitPrice, amount: unitPrice == null ? null : r2(qty * unitPrice), source });
@@ -159,7 +160,7 @@ export function budget(result, prices = {}, allowances = {}) {
   }
 
   // Labor: a typed rate times a quantity the takeoff already has. Labor is not taxed or given contingency here.
-  const laborTyped = Object.keys(prices).some((k) => k.startsWith("labor") && P(k) != null);
+  const laborTyped = Object.keys(prices).some((k) => k.startsWith("labor") && typeof prices[k] === "number" && prices[k] >= 0);
   if (laborTyped && result.summary?.wallFeet > 0) add("Labor", "Wall framing", result.summary.wallFeet, "ft of wall", P("laborWallFoot"), "summary.wallFeet x typed laborWallFoot");
   if (laborTyped && result.floor?.sheets?.area > 0) add("Labor", "Floor framing and subfloor", result.floor.sheets.area, "sq ft", P("laborFloorSqFt"), "floor.sheets.area x typed laborFloorSqFt");
   if (laborTyped && roof?.roofing?.squares > 0) add("Labor", "Roof framing and roofing", roof.roofing.squares, "squares", P("laborRoofSquare"), "roof.roofing.squares x typed laborRoofSquare");
@@ -211,7 +212,22 @@ export function budget(result, prices = {}, allowances = {}) {
   const bid = r2(total + overhead + profit);
   const marginPct = bid > 0 ? r2(100 * profit / bid) : 0;
   const wallFeet = result.summary?.wallFeet > 0 ? r2(result.summary.wallFeet) : 0; // total over feet of wall: a whole-budget ratio, not wall-only cost
+  // Typed prices that changed nothing: a misspelt name is otherwise a silent zero. A name the plan has no quantity for lands here too.
+  const edit = (/** @type {string} */ a, /** @type {string} */ b) => {
+    let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+    for (let i = 1; i <= a.length; i++) {
+      const cur = [i];
+      for (let j = 1; j <= b.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      prev = cur;
+    }
+    return prev[b.length];
+  };
+  const ignoredPrices = Object.keys(prices || {}).filter((k) => !read.has(k)).map((k) => {
+    const near = [...read].map((n) => ({ n, d: edit(k.toLowerCase(), n.toLowerCase()) })).sort((x, y) => x.d - y.d)[0];
+    return { name: k, didYouMean: near && near.d <= 3 ? near.n : null };
+  });
   return {
+    ignoredPrices,
     floorSqFt, perFloorSqFt: floorSqFt && total > 0 ? r2(total / floorSqFt) : null,
     wallFeet: wallFeet || null, perWallFoot: wallFeet && total > 0 ? r2(total / wallFeet) : null,
     bidPerFloorSqFt: floorSqFt && bid > total ? r2(bid / floorSqFt) : null,
@@ -240,6 +256,7 @@ export function budgetText(b) {
   if (b.bidPerFloorSqFt != null) out.push(`  Bid price per sq ft of floor framed (${b.floorSqFt} sq ft, one level): ${b.bidPerFloorSqFt.toFixed(2)}${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
   if (b.bidPerWallFoot != null) out.push(`  Bid price per linear foot of wall (${b.wallFeet} ft; whole bid over wall length): ${b.bidPerWallFoot.toFixed(2)}${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
   if (b.unpriced.length) out.push(`  Not in the total, no price typed: ${b.unpriced.join("; ")}. Add them under \`prices\` in the plan.`);
+  if (b.ignoredPrices.length) out.push(`  Typed prices that changed nothing (not a price name this plan reads, or no such quantity in this plan): ${b.ignoredPrices.map((x) => x.name + (x.didYouMean ? ` (did you mean ${x.didYouMean}?)` : "")).join(", ")}.`);
   out.push("  Not included: " + (b.allowances ? "" : "equipment, permits, delivery (type them under `allowances`), ") + "overhead or waste beyond what the takeoff already counts" + (b.lines.some((l) => l.section === "Labor") ? "; labor is only the rates you typed." : "; no labor rate typed."));
   return out;
 }
