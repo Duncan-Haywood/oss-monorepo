@@ -33,6 +33,17 @@
    "updated": "2026-10-30",
    "project": "ventures/sales-agent",
    "next": "Long-running; see the project README for what is measured and what is not."
+  },
+  {
+   "id": "R-0004",
+   "title": "Monetization plans and a business model for every product",
+   "received": "2026-11-02",
+   "source": "owner",
+   "ask": "looking into monetization plans and business model for the things in this repo. this should be a continual thing to focus on.",
+   "status": "building",
+   "updated": "2026-11-02",
+   "project": "portfolio/monetization",
+   "next": "Plan and per-product models written; `python3 portfolio/monetization/monetization.py next` names the next step (first: a dark paid path on wall-framing-takeoff). No sale yet: the payout rail waits on the owner."
   }
  ]
 }
