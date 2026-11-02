@@ -30,3 +30,5 @@ and no `seo_title`; `writing.test.mjs` caught it via
 cascaded failures before). The remaining failure, "an identical build
 produces an identical cache name", compared hashes while I was editing docs
 under the running suite, so it is a self-inflicted race; CI is the check.
+
+Postscript: while this PR was open another session fixed the first two posts on main; the merge kept main's versions, and this PR's remaining change is the third post's seo_title plus this note.

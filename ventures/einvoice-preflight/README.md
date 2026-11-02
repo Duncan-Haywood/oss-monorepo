@@ -222,6 +222,8 @@ text is a clause cut from the hub cell, so a few summaries are terse ("Spain:
 page link. Use: a lead magnet and a link-worthy asset for the mandate pages;
 no accounts, no cost.
 
+**Deadlines page (shipped 2026-11-02).** `node deadlines-page.mjs` writes `e-invoicing-deadlines-2027.html` from `mandate-dates.json`: the 18 full-date milestones in 14 countries between 2 Nov 2026 and 31 Dec 2027, grouped by quarter, each linking its country page, with an ItemList JSON-LD block and the no-warranty footer. A static, link-worthy page for the search "e-invoicing deadlines 2027"; linked from the hub and the sitemap. `deadlines-page.test.mjs` pins freshness against the JSON, date order, links, escaping and the disclaimer. The window start (`FROM`) is fixed in the file so the output is reproducible; move it when refreshing. Not done: months/years without a day (Germany 2027 and 2028) are not listed; they stay in the hub table.
+
 **Countdown on the hub (shipped 2026-11-02).** `mandate-countdown.js` reads `mandate-dates.json` and shows the next 8 milestones with days left on the mandates hub, or the next 12 for one chosen country. Days are whole calendar days in the visitor's browser (DST safe); no tracking, one same-origin fetch, and the table below still holds every date if the script fails. `mandate-countdown.test.mjs` (4 tests) pins the day arithmetic, sorting, filtering and links; opened in headless Chromium: 8 rows, Poland filter gives its dated entry, no console errors. Not done: a "which mandate applies to my revenue band" selector, which needs the per-country thresholds in structured form.
 
 ## Run it as your own API (self-hosted, one click)

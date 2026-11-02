@@ -1441,3 +1441,24 @@ The sweep above reported that `--bootstrap` drops the 1973-12 step on US acciden
 - **Dated one quarter after the literature, a convention gap (checked 2026-11-02):** the 1980 rise lands on 1980Q4, the first quarter of the new regime. `eval/us-real-interest-1980-date.mjs` (output `.out.txt`) splits 1973Q4 to 1985Q4 once, after 1980Q2, Q3 or Q4: SSE 186.2, **166.8**, 182.9. The best break falls after 1980Q3, so 1980Q3 (0.30, near the old mean of -1.51, far from the new 5.19) is the last old-regime quarter, and a source that dates a break by the last quarter of the old regime would write 1980Q3 for the same break. The one-quarter `range95` is then not too narrow. What I did not check: which convention Garcia and Perron use (paper unread). The detector's labels are always the first quarter of the new regime.
 - **`--ar1`:** the same 9 changes, with a wider range for 1975Q1. **`--bootstrap`:** 8, dropping the 1975Q1 step (the 1973 step now runs 1.37 to -1.52).
 - **Artefact:** 2007Q4, 2008Q3 and 2009Q1 are single-quarter swings of the financial crisis (T-bill collapse against a deflation quarter), cut as their own segments, the same failure as the 2008 quarter in US inflation. A mean-shift model has no way to call them outliers.
+
+## Five real series that had no test: Australian arrivals and UK lung deaths (2026-11-02)
+
+`au-arrivals-japan`, `au-arrivals-us` (quarterly, 127 quarters) and `uk-ldeaths`, `uk-mdeaths`, `uk-fdeaths`
+(monthly, 72) were in `data/` but only used by a drift-warning script. `arrivals-lungdeaths.test.mjs` now pins what
+the detector does on them (run 2026-11-02, `--period 4` or `12`, no tuning):
+
+| Series | Setup | Cuts | Documented event |
+|---|---|---|---|
+| Arrivals from Japan | seasonal mean | 12, including 2003Q2 | SARS (found) |
+| Arrivals from the US | seasonal mean | 12, including 2000Q3 and 2001Q3 | Olympics, September 2001 (found) |
+| Both arrivals series | `--ar1` | 6 to 8; none of those three | the shocks are lost |
+| `ldeaths` / `mdeaths` / `fdeaths` | seasonal mean | 6 / 10 / 5 | none: all false alarms |
+| `ldeaths` | seasonal NB counts | 1976-02, 1976-04, 1979-10 | none |
+| `ldeaths`, `mdeaths` | seasonal `--ar1` | 1976-04 only | none |
+
+Read it plainly: the default seasonal mean model finds real shocks and also cuts a trending or clumpy series into
+many pieces; `--ar1` removes most false alarms on the lung deaths but swallows the SARS and Olympics shocks, the same
+trade as in "Shape or shock". The January and February 1976 cuts are a bad-winter spike, which is a shock and not a
+step, so no setup here separates the two (flagship item 4). The arrivals series are counts in thousands with decimals,
+so the Poisson model rejects them.

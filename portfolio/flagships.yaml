@@ -141,7 +141,7 @@ flagships:
       shocks and on autocorrelated nulls as well as growing seasons: wanted
       a way to tell a shape from a shock, and to widen the noise scale
       without swallowing a short quarterly shape (--ar1 fixes the rho 0.5
-      null but loses UK gas). (5) Bootstrap swept on 33 real series 2026-10-31
+      null but loses UK gas). (4b) Australian arrivals (SARS, Olympics) and UK lung deaths pinned 2026-11-02 (README): `--ar1` loses the real shocks, the default keeps them and over-cuts; wanted: a setup that keeps both. (5) Bootstrap swept on 33 real series 2026-10-31
       (README: fewer cuts on 22; US accidental deaths loses 1973-12 only
       without --period 12, kept with it, 2026-11-01); holiday false-alarm cuts are synthetic only: test them on
       real series.
@@ -238,7 +238,7 @@ flagships:
       suggestFairnessWeight (CLI --suggest-weight and a page button), play-
       off race and odds; thousands of random leagues through the validator
       with 0 invalid, and the page checkboxes clicked in Chromium
-      (eval/browser-click.mjs). Travel-table warnings (missing pair, triangle typo) landed 2026-10-30, on the CLI and the multi-division page (a notice above the schedule). Season grid CSV for multi-division leagues landed 2026-10-30 (CLI --grid and a page button, clicked in Chromium 2026-10-30: eval/browser-click.mjs). Team unavailable dates on the multi-division page landed 2026-10-30 (browser-clicked). Printable score sheets for multi-division leagues landed 2026-10-30 (page button). Standings from results on the page and CLI landed 2026-11-02 (browser-clicked). Cross-division play-off seeding with wildcards from those standings landed 2026-11-02 (page, CLI --playoffs, browser-clicked). Next: a real league's travel times and a real league's unavailable-date requests.
+      (eval/browser-click.mjs). Travel-table warnings (missing pair, triangle typo) landed 2026-10-30, on the CLI and the multi-division page (a notice above the schedule). Season grid CSV for multi-division leagues landed 2026-10-30 (CLI --grid and a page button, clicked in Chromium 2026-10-30: eval/browser-click.mjs). Team unavailable dates on the multi-division page landed 2026-10-30 (browser-clicked). Printable score sheets for multi-division leagues landed 2026-10-30 (page button). Standings from results on the page and CLI landed 2026-11-02 (browser-clicked). Cross-division play-off seeding with wildcards from those standings landed 2026-11-02 (page, CLI --playoffs, browser-clicked). The play-off race was checked against full goal-difference and head-to-head tables on 45,000 random finals (2026-11-02, 0 failures). Next: a real league's travel times and a real league's unavailable-date requests.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP

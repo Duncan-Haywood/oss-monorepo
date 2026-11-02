@@ -1,9 +1,9 @@
 ---
 title: "Japan's invoice-system credit for unregistered sellers dropped to 50% on 1 October"
-seo_title: "Japan invoice system: unregistered-seller credit now 50%"
+seo_title: "Japan invoice system: credit for unregistered sellers now 50%"
 date: 2026-11-02
 tags: [e-invoicing, japan, tax, einvoice-preflight]
-description: "The 80% transitional input-tax credit for purchases from unregistered Japanese sellers ended 30 September 2026. From 1 Oct it is 50% until 30 September 2029."
+description: "The 80% transitional input-tax credit on purchases from unregistered Japanese sellers ended 30 September 2026. From 1 October it is 50% until 30 September 2029."
 ---
 
 Under Japan's qualified invoice system (since 1 October 2023), a buyer claims the consumption-tax input credit only on invoices from sellers with a registration number (the letter T and 13 digits). A transitional measure let buyers still claim part of the tax on purchases from unregistered sellers.
