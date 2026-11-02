@@ -61,3 +61,14 @@ test("corrupt stored JSON is treated as empty rather than thrown", () => {
   record("takeoff_run");
   assert.equal(readUsage().takeoff_run, 1);
 });
+
+test("event names that match Object.prototype keys count as numbers", () => {
+  record("constructor");
+  record("constructor");
+  record("toString");
+  record("__proto__");
+  const u = readUsage();
+  assert.equal(u.constructor, 2);
+  assert.equal(u.toString, 1);
+  assert.equal(Object.getOwnPropertyDescriptor(u, "__proto__")?.value, 1);
+});
