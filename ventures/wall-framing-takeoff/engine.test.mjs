@@ -864,6 +864,14 @@ test("hostile plans are refused with a reason, not silently framed or thrown on"
     const r = bad((w) => { w.openings[0].jacks = jacks; });
     assert.ok(r.errors?.some((e) => /jacks must be a whole number/.test(e)), `jacks ${jacks}`);
   }
+  for (const plies of [0, 1.5, 1e9]) {
+    const r = bad((w) => { w.openings[0].headerPlies = plies; });
+    assert.ok(r.errors?.some((e) => /header plies must be a whole number/.test(e)), `plies ${plies}`);
+  }
+  for (const kings of [-1, 1e9]) {
+    const r = bad((w) => { w.openings[0].kings = kings; });
+    assert.ok(r.errors?.some((e) => /kings must be a whole number/.test(e)), `kings ${kings}`);
+  }
   const r = bad((w) => { w.length = 1e12; });
   assert.ok(r.errors?.some((e) => /at most 12000 inches/.test(e)));
 });

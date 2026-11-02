@@ -248,6 +248,8 @@ export function validatePlan(plan) {
       if (!(op.width > 0)) { errors.push(`${on}: rough opening width must be more than zero.`); continue; }
       if (!(op.height > 0)) { errors.push(`${on}: rough opening height must be more than zero.`); continue; }
       if (op.jacks !== undefined && !(Number.isInteger(op.jacks) && op.jacks >= 0 && op.jacks <= 6)) { errors.push(`${on}: jacks must be a whole number from 0 to 6.`); continue; }
+      if (op.headerPlies !== undefined && !(Number.isInteger(op.headerPlies) && op.headerPlies >= 1 && op.headerPlies <= 4)) { errors.push(`${on}: header plies must be a whole number from 1 to 4.`); continue; }
+      if (op.kings !== undefined && !(Number.isInteger(op.kings) && op.kings >= 0 && op.kings <= 6)) { errors.push(`${on}: kings must be a whole number from 0 to 6.`); continue; }
       const z = vzones[oi];
       if (z.start < THICK - EPS || z.end > wall.length - THICK + EPS) {
         errors.push(`${on}: the king studs run past the end studs. Move the opening at least ${formatInches(THICK * (z.jacks + 1))} from the wall end (its jacks must clear the end stud), or frame this end by hand.`);
