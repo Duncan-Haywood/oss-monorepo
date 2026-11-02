@@ -1,6 +1,6 @@
 ---
 title: "When fitting a sensor offset makes the answer worse"
-seo_title: "Sensor drift in system identification: why a constant-offset fit can backfire"
+seo_title: "Sensor drift in system identification: a constant-offset fit backfires"
 date: 2026-11-02
 tags: [research, aerolog-scaling, system-identification, imu]
 description: "A simulated test of drift in a sub-scale aircraft's sensors: a fitted constant offset can be worse than none, a fitted slope fixes it."
