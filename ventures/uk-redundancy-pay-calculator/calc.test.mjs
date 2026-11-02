@@ -92,3 +92,19 @@ test("summary names its source and disclaims advice", () => {
   assert.ok(t.includes(VERIFY));
   assert.match(t, /Not tax or legal advice/);
 });
+
+test("age bands count each year of service by age during that year", () => {
+  const r = run({ dob: "2002-01-01", start: "2020-01-02", end: "2026-06-30" });
+  assert.equal(r.age, 24);
+  assert.equal(r.serviceYears, 6);
+  assert.deepEqual(r.bands, { under22: 3, mid: 3, over40: 0 });
+  assert.equal(r.weeks, 4.5);
+  assert.match(r.findings.map((f) => f.title).join("\n"), /3 years at half a week \(under 22\), 3 at one week/);
+});
+
+test("money formatting: whole amounts have no decimals and small positives have no minus", () => {
+  const t = summaryText(run({ weekly: 0.5 }));
+  assert.match(t, /Weekly pay used: GBP 0\.5 /);
+  assert.doesNotMatch(t, /GBP -|-GBP/);
+  assert.match(summaryText(run({})), /Weekly pay used: GBP 751 /);
+});
