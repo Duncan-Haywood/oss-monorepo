@@ -1,4 +1,4 @@
-"""Milestone 9t: what does '10% of channel rms' mean for a real IMU? (arithmetic on a datasheet, no simulation)
+"""Milestone 9u: what does '10% of channel rms' mean for a real IMU? (arithmetic on a datasheet, no simulation)
 
 Source: Bosch BMI088 data sheet (bosch-sensortec.com, bst-bmi088-ds001.pdf, retrieved 2026-11-02):
 gyro noise 0.014 deg/s/sqrt(Hz) (0.1 deg/s rms at BW 47 Hz); accelerometer output noise 190 ug/sqrt(Hz) (g-range 3 g, 25 C).
