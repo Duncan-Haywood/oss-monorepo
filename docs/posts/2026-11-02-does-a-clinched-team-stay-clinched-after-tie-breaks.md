@@ -1,9 +1,9 @@
 ---
 title: "Does 'clinched' survive the tie-breaks? Checking a play-off race on 45,000 final tables"
-seo_title: "Checking a play-off clinch calculator against goal difference and head-to-head"
+seo_title: "Testing a play-off clinch calculator against tie-breaks"
 date: 2026-11-02
 tags: [league-schedule-generator, testing, playoffs, tie-breaks]
-description: "A play-off race that counts every points tie against a team should never call a team clinched wrongly. We played random scores into 900 part-played leagues and checked."
+description: "A play-off race that counts every points tie against a team should never wrongly call a team clinched. We played random scores into 900 leagues to check."
 ---
 
 The league schedule generator's play-off race says which teams have clinched a place and which are out. It ranks by points only and counts any tie on points against the team being tested, so "clinched" should never be wrong whatever the tie-break rules are. That was a design claim; the tests only covered points.
