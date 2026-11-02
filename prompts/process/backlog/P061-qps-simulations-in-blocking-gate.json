@@ -1,7 +1,7 @@
 {
   "id": "P061",
   "title": "perf: quick-pick-survey's blocking Test step runs multi-minute measurement experiments",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 2,
@@ -23,5 +23,7 @@
   "source": "docs/history/ci-perf-2026-11-02-qps-simulations.md",
   "pr": null,
   "result": null,
-  "history": []
+  "history": [
+    "2026-11-02: part 2: Test step runs test:fast; simulations run in a parallel job (same assertions). Memoising the repeated 41/220-item cells not done; wall time per job is now the max of the two, not the sum."
+  ]
 }
