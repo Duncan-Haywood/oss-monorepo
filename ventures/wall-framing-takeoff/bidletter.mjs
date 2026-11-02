@@ -81,8 +81,8 @@ const escHtml = (/** @type {string} */ s) => String(s).replace(/[&<>"']/g, (c) =
  * @param {ReturnType<typeof proposal>} q
  * @returns {string}
  */
-export function proposalHtml(q) {
-  const head = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Proposal${q.ok && q.meta.project ? ": " + escHtml(q.meta.project) : ""}</title><style>body{font:14px/1.5 system-ui,sans-serif;max-width:46rem;margin:2rem auto;padding:0 1rem;color:#111}h1{font-size:1.5rem;margin:0 0 .25rem}table{width:100%;border-collapse:collapse;margin:.5rem 0}td,th{padding:.3rem .4rem;border-bottom:1px solid #ccc;text-align:left}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}tr.total td{font-weight:700;border-top:2px solid #111}.warn{border:2px solid #b00;padding:.5rem;margin:1rem 0;font-weight:700}.small{font-size:.85rem;color:#444}@media print{body{margin:0}}</style></head><body>`;
+export function proposalHtml(q, opts = {}) {
+  const head = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Proposal${q.ok && q.meta.project ? ": " + escHtml(q.meta.project) : ""}</title><style>body{font:14px/1.5 system-ui,sans-serif;max-width:46rem;margin:2rem auto;padding:0 1rem;color:#111}h1{font-size:1.5rem;margin:0 0 .25rem}table{width:100%;border-collapse:collapse;margin:.5rem 0}td,th{padding:.3rem .4rem;border-bottom:1px solid #ccc;text-align:left}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}tr.total td{font-weight:700;border-top:2px solid #111}.warn{border:2px solid #b00;padding:.5rem;margin:1rem 0;font-weight:700}.small{font-size:.85rem;color:#444}@media print{body{margin:0}}${opts.css || ""}</style></head><body>${opts.header || ""}`;
   if (!q.ok) return head + `<h1>Proposal not issued</h1><p>${escHtml(q.error)}</p></body></html>`;
   const h = [head, `<h1>Proposal${q.meta.project ? ": " + escHtml(q.meta.project) : ""}</h1>`];
   if (q.meta.client || q.meta.date) h.push(`<p>${q.meta.client ? "Prepared for " + escHtml(q.meta.client) : ""}${q.meta.client && q.meta.date ? ", " : ""}${escHtml(q.meta.date)}</p>`);
@@ -94,6 +94,7 @@ export function proposalHtml(q) {
   if (q.terms.length) h.push(`<h2>Terms</h2><ul>${q.terms.map((t) => `<li>${escHtml(t)}</li>`).join("")}</ul>`);
   h.push(`<p class="small">This price is valid for ${q.validDays} days. Quantities come from the plans as drawn; changes are priced by change order.</p>`);
   if (q.partial) h.push(`<p class="warn">Partial proposal, not priced: ${q.gaps.map(escHtml).join("; ")}.</p>`);
-  h.push("</body></html>");
+  if (opts.appendix) h.push(opts.appendix);
+  h.push(`${opts.footer || ""}</body></html>`);
   return h.join("");
 }

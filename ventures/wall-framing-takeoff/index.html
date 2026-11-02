@@ -413,6 +413,19 @@
     <p><button type="button" class="secondary" id="propBtn">Preview proposal</button> <button type="button" class="secondary" id="propDl">Download proposal (.txt)</button> <button type="button" class="secondary" id="propPrint">Open printable page</button></p>
     <div id="propOut"></div>
   </section>
+  <section class="card" aria-labelledby="h-pkg" id="pkgCard" hidden>
+    <h2 id="h-pkg">Branded bid package</h2>
+    <p class="note">The proposal above on your letterhead, plus a quantities appendix with no unit prices, as one page you print or save as PDF. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; the free proposal above is unchanged. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
+    <p id="buyRow" hidden><a id="buyLink" class="button" rel="noopener" target="_blank">Buy a licence key</a></p>
+    <p><label>Licence key <input id="pkgKey" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="pkgCheck">Check key</button> <span id="pkgState" role="status"></span></p>
+    <div id="pkgFields" hidden>
+      <p><label>Company <input id="pkgCo" aria-label="Company" style="width:14em"></label> <label>Licence no. <input id="pkgLic" aria-label="Contractor licence number" style="width:8em"></label> <label>Accent <input id="pkgAccent" aria-label="Accent colour" type="color" value="#1f3a5f"></label></p>
+      <p><label>Address <input id="pkgAddr" aria-label="Address" style="width:16em"></label> <label>Phone <input id="pkgPhone" aria-label="Phone" style="width:9em"></label> <label>Email <input id="pkgMail" aria-label="Email" style="width:13em"></label></p>
+      <p><label>Logo (PNG, JPEG, WebP or GIF) <input id="pkgLogo" aria-label="Logo file" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label></p>
+      <p><button type="button" class="secondary" id="pkgOpen">Open branded package</button></p>
+    </div>
+    <p class="note">An estimate from the prices you typed, not a contract or a legal document. Have it checked against your licence, local law and your customer's agreement before you send it.</p>
+  </section>
 
   <section class="card" aria-labelledby="h-bids" id="bidsCard" hidden>
     <h2 id="h-bids">Level subcontractor bids</h2>
@@ -532,7 +545,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>proposal_previewed</code>, <code>proposal_printed</code>, <code>proposal_downloaded</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>dormer_on</code>, <code>stairs_on</code>, <code>deck_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>proposal_previewed</code>, <code>proposal_printed</code>, <code>proposal_downloaded</code>, <code>bid_package_unlocked</code>, <code>bid_package_opened</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>dormer_on</code>, <code>stairs_on</code>, <code>deck_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -561,6 +574,9 @@
     import { layoutFasteners, fastenerText } from "./fasteners.mjs";
     import { budget, budgetCsv } from "./budget.mjs";
     import { proposal, proposalText, proposalHtml } from "./bidletter.mjs";
+    import { bidPackageHtml } from "./bidpackage.mjs";
+    import { buyLink, checkLicence } from "./licence.mjs";
+    import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { levelBids } from "./bidlevel.mjs";
     import { schedule, scheduleText, sampleSchedule, resolveRates } from "./schedule.mjs";
     import { resolveHeaders } from "./headers.mjs";
@@ -1123,6 +1139,7 @@
         <p class="note">Excludes equipment, permits, delivery and overhead. An estimate from the prices you typed, not a quote.</p>`;
       card.hidden = false;
       $("#proposalCard").hidden = false;
+      $("#pkgCard").hidden = false;
       renderBids();
     }
     function buildProposal() {
@@ -1450,6 +1467,25 @@
     });
     $("#priceText").addEventListener("input", () => { renderBudget(); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } });
     $("#bidText").addEventListener("input", renderBids);
+    {
+      const buy = buyLink(CHECKOUT_URL);
+      if (buy) { $("#buyLink").href = buy; $("#buyRow").hidden = false; }
+      let logo = "";
+      $("#pkgLogo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { logo = ""; return; } const r = new FileReader(); r.onload = () => { logo = String(r.result); }; r.readAsDataURL(f); });
+      $("#pkgCheck").addEventListener("click", async () => {
+        $("#pkgState").textContent = "Checking...";
+        const v = await checkLicence($("#pkgKey").value, { url: VALIDATE_URL });
+        $("#pkgState").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason + (buy ? "" : " (no licence is on sale yet)");
+        $("#pkgFields").hidden = !v.valid;
+        if (v.valid) record("bid_package_unlocked");
+      });
+      $("#pkgOpen").addEventListener("click", () => {
+        const q = showProposal(); if (!q) return;
+        const html = bidPackageHtml(q, last.budget, { company: $("#pkgCo").value, licenseNo: $("#pkgLic").value, accent: $("#pkgAccent").value, address: $("#pkgAddr").value, phone: $("#pkgPhone").value, email: $("#pkgMail").value, logo });
+        const url = URL.createObjectURL(new Blob([html], { type: "text/html" })); window.open(url, "_blank", "noopener"); setTimeout(() => URL.revokeObjectURL(url), 60000);
+        record("bid_package_opened");
+      });
+    }
     $("#propBtn").addEventListener("click", () => { if (showProposal()) record("proposal_previewed"); });
     $("#propPrint").addEventListener("click", () => { const q = showProposal(); if (!q) return; const url = URL.createObjectURL(new Blob([proposalHtml(q)], { type: "text/html" })); window.open(url, "_blank", "noopener"); setTimeout(() => URL.revokeObjectURL(url), 60000); record("proposal_printed"); });
     $("#propDl").addEventListener("click", () => { const q = showProposal(); if (q && q.ok) { download("framing-proposal.txt", "text/plain", proposalText(q).join("\n") + "\n"); record("proposal_downloaded"); } });
