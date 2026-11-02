@@ -3,7 +3,7 @@ title: "Two regime shifts in the US real interest rate, found a quarter late"
 seo_title: "Changepoint detection on the US real interest rate, 1959-2009"
 date: 2026-11-02
 tags: [changepoint-detector, time-series, real-data]
-description: The changepoint detector run on 202 quarters of the US real interest rate finds the 1973 fall and the 1980 rise, dates the second one quarter after the literature, and cuts the 2008 crisis into one-quarter segments.
+description: The changepoint detector on 202 quarters of the US real interest rate finds the 1973 fall and the 1980 rise, a quarter late, and over-cuts the 2008 crisis.
 ---
 
 The [changepoint detector](../../ventures/changepoint-detector/README.md) now has a new real series in its checks: the US ex-post real interest rate (three-month T-bill minus CPI inflation), 202 quarters from 1959Q2 to 2009Q3.
