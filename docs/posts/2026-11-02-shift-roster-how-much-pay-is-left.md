@@ -1,6 +1,6 @@
 ---
 title: "Once the roster covers every shift, how much pay is left to save?"
-seo_title: "How far from optimal is a computer-made staff schedule? Measured on 12 weeks"
+seo_title: "How far from optimal is a computer-made staff schedule?"
 date: 2026-11-02
 tags: [shift-roster-builder, scheduling, optimization, measurement]
 description: "On 12 seeded 8-person weeks, once coverage was proven the roster's pay sat within $16 of the lower bound. The open hours are where the money is."
