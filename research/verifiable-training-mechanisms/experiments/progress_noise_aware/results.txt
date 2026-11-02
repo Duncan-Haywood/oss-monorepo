@@ -1,0 +1,4 @@
+adaptive stall T=200, threshold noise sigma 0.050, frac 0.99, R=1.010: flagged 35 of 128, harmful 67, harmful and unflagged 32, median dL +0.0160, median stalled steps 51 of 200
+adaptive stall T=200, threshold noise sigma 0.050, frac 0.95, R=1.010: flagged 11 of 128, harmful 29, harmful and unflagged 18, median dL +0.0000, median stalled steps 0 of 200
+adaptive stall T=200, threshold noise sigma 0.050, frac 0.90, R=1.010: flagged  3 of 128, harmful  5, harmful and unflagged  2, median dL +0.0000, median stalled steps 0 of 200
+adaptive stall T=200, threshold noise sigma 0.050, frac 0.80, R=1.010: flagged  0 of 128, harmful  0, harmful and unflagged  0, median dL +0.0000, median stalled steps 0 of 200

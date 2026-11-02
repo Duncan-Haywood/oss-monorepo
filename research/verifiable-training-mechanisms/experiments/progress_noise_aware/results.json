@@ -1,0 +1,38 @@
+{
+ "R1.01_sigma0.05_frac0.99": {
+  "n": 128,
+  "flagged": 35,
+  "harmful": 67,
+  "harmful_unflagged": 32,
+  "median_dL": 0.01603412628173828,
+  "median_abs_dL": 0.01603412628173828,
+  "median_stalled_steps": 51.5
+ },
+ "R1.01_sigma0.05_frac0.95": {
+  "n": 128,
+  "flagged": 11,
+  "harmful": 29,
+  "harmful_unflagged": 18,
+  "median_dL": 0.0,
+  "median_abs_dL": 0.0,
+  "median_stalled_steps": 0.0
+ },
+ "R1.01_sigma0.05_frac0.9": {
+  "n": 128,
+  "flagged": 3,
+  "harmful": 5,
+  "harmful_unflagged": 2,
+  "median_dL": 0.0,
+  "median_abs_dL": 0.0,
+  "median_stalled_steps": 0.0
+ },
+ "R1.01_sigma0.05_frac0.8": {
+  "n": 128,
+  "flagged": 0,
+  "harmful": 0,
+  "harmful_unflagged": 0,
+  "median_dL": 0.0,
+  "median_abs_dL": 0.0,
+  "median_stalled_steps": 0.0
+ }
+}
