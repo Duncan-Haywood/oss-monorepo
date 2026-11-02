@@ -1,6 +1,6 @@
 ---
 title: "What a cheap IMU's zero offset does to a sub-scale flight test"
-seo_title: "MEMS IMU zero offset and temperature drift in sub-scale aircraft flight tests"
+seo_title: "MEMS IMU zero offset and drift in sub-scale flight tests"
 date: 2026-11-02
 tags: [research, aerolog-scaling, uav, sensors, honesty]
 description: "A commodity MEMS IMU's data-sheet offset is larger than the whole signal in a gentle pitch doublet. After zeroing, temperature drift sets the floor."
