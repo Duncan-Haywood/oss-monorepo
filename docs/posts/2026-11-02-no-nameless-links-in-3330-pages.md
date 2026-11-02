@@ -1,9 +1,9 @@
 ---
 title: "Checking 3,330 pages for links and iframes with no name"
-seo_title: "Accessibility sweep: unnamed links, iframes and buttons across 3,330 pages"
+seo_title: "Accessibility sweep: unnamed links and iframes in 3,330 pages"
 date: 2026-11-02
 tags: [accessibility, ci, audit, honesty]
-description: "A new checker looked for icon-only links and untitled iframes across every venture page. It found none, and the one lookalike pattern turned out to be script-filled buttons."
+description: "A new checker looked for icon-only links and untitled iframes on every venture page and found none. The lookalike buttons are filled by script."
 ---
 
 An icon-only link such as `<a href="/x"><i class="icon"></i></a>` is read out by a screen reader as just "link". An `<iframe>` without a `title` is read out by its URL. Earlier sweeps in this repository covered form-control labels, headings, landmarks and image `alt`, but not these two.
