@@ -1,0 +1,29 @@
+{
+ "R1.01_sigma0.0": {
+  "n": 128,
+  "flagged": 15,
+  "harmful": 123,
+  "harmful_unflagged": 108,
+  "median_dL": 0.02703225612640381,
+  "median_abs_dL": 0.02703225612640381,
+  "median_stalled_steps": 76.0
+ },
+ "R1.01_sigma0.02": {
+  "n": 128,
+  "flagged": 28,
+  "harmful": 87,
+  "harmful_unflagged": 59,
+  "median_dL": 0.019800424575805664,
+  "median_abs_dL": 0.019800424575805664,
+  "median_stalled_steps": 54.5
+ },
+ "R1.01_sigma0.05": {
+  "n": 128,
+  "flagged": 35,
+  "harmful": 67,
+  "harmful_unflagged": 32,
+  "median_dL": 0.01603412628173828,
+  "median_abs_dL": 0.01603412628173828,
+  "median_stalled_steps": 51.5
+ }
+}
