@@ -155,17 +155,21 @@ products:
       and contact, four elevations, roof plan, shopping list (prices optional)
       and the build steps, behind the same licence-key check, dark until
       CHECKOUT_URL is set.
-    price_hypothesis: "$10 to $25 one-off; unvalidated, and no comparable plan-pack price has been read yet"
-    comparables: []
+    price_hypothesis: "$10 to $25 one-off; unvalidated. Etsy shed-plan PDFs sit at roughly $4 to $35 (search-result snippets), so the top of the range is a stretch for a generic pack"
+    comparables:
+      - what: Individual shed plan PDFs on Etsy (garden, firewood and gable listings; read from search snippets only, etsy.com blocked for direct fetch)
+        price: roughly $4 to $35 one-off, often shown as a sale price (CAD and AUD listings included)
+        source: https://www.etsy.com/listing/4442823883
+        read: 2026-11-02
     stage: built-dark
     next: >-
       Built 2026-11-02 and dark (buildpack.mjs, licence.mjs, checkout.mjs;
       card hidden until CHECKOUT_URL is set; opened in headless Chromium with
       the card forced visible: five drawings, escaped letterhead, no console
       errors). Owner: the one merchant-of-record product that serves the other
-      dark paths serves this one. Agent step still open: read two plan-pack
-      sellers' prices from their own pages when a host allows it and fill
-      `comparables`.
+      dark paths serves this one. Comparables filled from search snippets
+      on 2026-11-02 (Etsy blocked for direct fetch); an agent step remains to
+      confirm them on the listings when a host allows it.
     next_owner: true
 
   - venture: einvoice-preflight
