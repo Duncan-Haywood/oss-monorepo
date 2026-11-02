@@ -1,6 +1,6 @@
 ---
 title: "How much power does a hydraulic boom release when it lowers? Measured on a forestry crane"
-seo_title: "Hydraulic boom lowering power: measured on 772 strokes of a forestry crane"
+seo_title: "Hydraulic boom lowering power measured on 772 crane strokes"
 date: 2026-11-02
 tags: [research, hydraulics, energy-recovery, heavy-equipment]
 description: "772 lowering strokes of a PATU 655 forestry crane release a median 1.2 kW for 2.9 s, if the cylinder bore is 100 mm. The bore is the weak link."
