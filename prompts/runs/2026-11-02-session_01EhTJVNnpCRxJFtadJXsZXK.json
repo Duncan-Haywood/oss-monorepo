@@ -8,7 +8,7 @@
   "model": "claude-sonnet-5-5",
   "task": "Deepen (flagship 9): league-schedule-generator",
   "projects": ["league-schedule-generator"],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12450",
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
