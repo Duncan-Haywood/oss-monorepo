@@ -43,7 +43,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Perf track. Pages build (node platform/pages/build.mjs) failed on main: post description 166>160 chars, seo_title 73>70. Shortened both; full build exit 0 locally (~19-56s to first failure, full build exceeded 120s). No speed-up measured; no perf backlog items open.",
+  "notes": "Perf track. Pages build (node platform/pages/build.mjs) failed on main: post description 166>160 chars, seo_title 73>70. Shortened both; main landed an equivalent fix first (PR conflict resolved to main), so the PR carries only this record. Full build exit 0 locally (~19-56s to first failure, full build exceeded 120s). No speed-up measured; no perf backlog items open.",
   "corrections": [],
   "redteam": null
 }
