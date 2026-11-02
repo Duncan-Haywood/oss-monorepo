@@ -115,8 +115,11 @@ products:
       would carry per-user server cost, which PRODUCT_PLAYBOOK.md section 2
       rules out. Keep it free and self-hostable; earn through donations and,
       later, a one-off printable/branded template pack. Not a first product.
-    first_offer: none yet
-    price_hypothesis: "not priced"
+    first_offer: >-
+      Branded staff schedule pack (staffpack.mjs): the week on the shop's
+      letterhead, a wall grid and one page per person, no pay shown; behind
+      the same licence-key check, dark until CHECKOUT_URL is set.
+    price_hypothesis: "$10 to $25 one-off, under a month of Homebase Essentials; unvalidated"
     comparables:
       - what: Homebase Essentials / Plus / All-in-One (per location, annual)
         price: $24 / $56 / $96 a month; free Basic for one location, 10 staff
@@ -126,12 +129,14 @@ products:
         price: $2.50 / $5 / $8 a month
         source: https://beancount.io/blog/2026/10/03/homebase-vs-7shifts-vs-when-i-work-scheduling-software-2026-guide
         read: 2026-11-02
-    stage: planned
+    stage: built-dark
     next: >-
-      None until wall-framing-takeoff's paid path is test-paid; then reuse
-      that checkout component here.
-    next_owner: false
-    parked: true
+      Built 2026-11-02 and dark (staffpack.mjs, licence.mjs, checkout.mjs;
+      card hidden until CHECKOUT_URL is set). Owner: one merchant-of-record
+      product serves all three dark paid paths. Untested: a real checkout and
+      the pack in a browser print dialog. Nothing agent-doable is left until
+      the link is set.
+    next_owner: true
 
   - venture: einvoice-preflight
     buyer: developers and finance teams sending EN 16931 / Peppol / national e-invoices
