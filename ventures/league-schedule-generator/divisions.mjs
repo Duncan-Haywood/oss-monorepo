@@ -7,7 +7,7 @@
 //   3. a team plays at the same venue as on its previous night where it can (fewer trips).
 // Each division keeps the circle-method round robin of calc.mjs (home/away balance and byes), so only
 // the dates, courts and times are decided here.
-import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, standingsCsv, parsePointSystem } from "./calc.mjs";
+import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, standingsCsv, parsePointSystem, playoffBracket, bracketText } from "./calc.mjs";
 
 const MAX_NIGHTS = 800;
 const W_CLASH = 1000;
@@ -709,6 +709,35 @@ export function divisionsStandings(schedule, text, { points = "3-1-0", headToHea
   return { tables, errors };
 }
 
+/**
+ * A cross-division play-off field from `divisionsStandings(...)`: the top `perDivision` teams of every
+ * division, plus the best `wildcards` of the rest. Seeding is by finishing place first (all division
+ * winners, then all runners-up, ...), and within a place by points per game, goal difference, goals
+ * for, then name, so divisions that played different numbers of games compare fairly. Wildcards seed
+ * after the automatic places. Returns { seeds: [{seed, name, division, rank, ppg}], bracket, text, errors }.
+ */
+export function divisionsPlayoffs(result, { perDivision = 2, wildcards = 0 } = {}) {
+  const errors = [];
+  const per = Math.max(1, Math.trunc(Number(perDivision)) || 1);
+  const wc = Math.max(0, Math.trunc(Number(wildcards)) || 0);
+  const ppg = (r) => (r.played ? r.points / r.played : 0);
+  const cmp = (a, b) => ppg(b) - ppg(a) || b.gd - a.gd || b.gf - a.gf || a.name.localeCompare(b.name);
+  const auto = [], rest = [];
+  for (const t of result.tables) {
+    if (!t.rows.some((r) => r.played)) errors.push(`${t.division}: no results yet, so its teams are seeded by name only.`);
+    t.rows.forEach((r, i) => (i < per ? auto : rest).push({ ...r, division: t.division, place: i + 1, ppg: ppg(r) }));
+  }
+  const field = [];
+  for (let place = 1; place <= per; place++) field.push(...auto.filter((x) => x.place === place).sort(cmp));
+  field.push(...rest.sort(cmp).slice(0, wc));
+  const seeds = field.map((x, i) => ({ seed: i + 1, name: x.name, division: x.division, rank: x.place, ppg: Math.round(x.ppg * 100) / 100 }));
+  if (seeds.length < 2) { errors.push("A play-off needs at least two teams."); return { seeds, bracket: null, text: "", errors }; }
+  const names = seeds.map((x) => `${x.name} (${x.division})`);
+  const bracket = playoffBracket(names);
+  const text = seeds.map((x) => `${String(x.seed).padStart(2)}. ${x.name} (${x.division}, place ${x.rank}, ${x.ppg.toFixed(2)} pts/game)`).join("\n") + "\n\n" + bracketText(bracket);
+  return { seeds, bracket, text, errors };
+}
+
 /** Plain-text league tables from `divisionsStandings(...).tables`, one block per division. */
 export function divisionsStandingsText(result) {
   const out = [];
@@ -1082,6 +1111,14 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
     const rf = process.argv[ri + 1];
     if (!rf) { console.error("usage: node divisions.mjs spec.json --results results.txt [--csv]"); process.exit(2); }
     const r = divisionsStandings(s, readFileSync(rf, "utf8"), { points: raw.points || "3-1-0", headToHead: !!raw.headToHead });
+    const pi = process.argv.indexOf("--playoffs");
+    if (pi > 0) {
+      const wi = process.argv.indexOf("--wildcards");
+      const po = divisionsPlayoffs(r, { perDivision: process.argv[pi + 1], wildcards: wi > 0 ? process.argv[wi + 1] : 0 });
+      for (const e of po.errors) console.error(`Playoffs: ${e}`);
+      process.stdout.write(po.text + "\n");
+      process.exit(po.bracket ? 0 : 1);
+    }
     process.stdout.write(process.argv.includes("--csv") ? divisionsStandingsCsv(r) : divisionsStandingsText(r));
     process.exit(0);
   }

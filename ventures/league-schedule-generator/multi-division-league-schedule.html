@@ -132,6 +132,10 @@
     <button type="button" class="secondary" id="show-standings">Show standings</button>
     <button type="button" class="secondary" id="dl-standings" hidden>Download standings CSV</button>
     <div id="standings-out" role="status"></div>
+    <label for="po-per">Play-off: teams from each division</label><input id="po-per" type="number" min="1" value="2" style="width:5em">
+    <label for="po-wc">Wildcards (best of the rest, across divisions)</label><input id="po-wc" type="number" min="0" value="0" style="width:5em">
+    <button type="button" class="secondary" id="show-playoffs">Seed a play-off from these standings</button>
+    <pre id="playoffs-out" class="mono" role="status"></pre>
     <button type="button" id="dl-csv">Download CSV</button>
     <button type="button" id="dl-grid">Download season grid CSV</button>
     <button type="button" id="dl-sheets">Download printable score sheets</button>
@@ -172,7 +176,7 @@
   </footer>
 
   <script type="module">
-    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, parseDivisionBlackouts, applyDivisionBlackouts, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsScoreSheetsHtml, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages, divisionsStandings, divisionsStandingsCsv } from "./divisions.mjs";
+    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, parseDivisionBlackouts, applyDivisionBlackouts, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsScoreSheetsHtml, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages, divisionsStandings, divisionsStandingsCsv, divisionsPlayoffs } from "./divisions.mjs";
     import { dayIso } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
@@ -268,6 +272,13 @@
       $("#dl-standings").hidden = !r.tables.length;
       $("#standings-out").innerHTML = (r.errors.length ? `<div class="warn"><strong>Not counted:</strong><ul>${r.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>` : "") + r.tables.map((t) => `<h4>${esc(t.division)}</h4><div class="scroll"><table><thead><tr><th class="n">#</th><th>Team</th><th class="n">P</th><th class="n">W</th><th class="n">D</th><th class="n">L</th><th class="n">GF</th><th class="n">GA</th><th class="n">GD</th><th class="n">Pts</th></tr></thead><tbody>${t.rows.map((x) => `<tr><td class="n">${x.rank}</td><td>${esc(x.name)}</td>${[x.played, x.won, x.drawn, x.lost, x.gf, x.ga, x.gd, x.points].map((n) => `<td class="n">${n}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`).join("");
       record("divisions_standings_shown");
+    });
+    $("#show-playoffs").addEventListener("click", () => {
+      if (!last) return;
+      const r = divisionsStandings(last, $("#results").value, { points: $("#points").value.trim() || "3-1-0", headToHead: $("#h2h").checked });
+      const po = divisionsPlayoffs(r, { perDivision: $("#po-per").value, wildcards: $("#po-wc").value });
+      $("#playoffs-out").textContent = (po.errors.length ? po.errors.map((e) => "Note: " + e).join("\n") + "\n\n" : "") + po.text;
+      record("divisions_playoffs_shown");
     });
     $("#dl-standings").addEventListener("click", () => { if (lastStandings) download("division-standings.csv", divisionsStandingsCsv(lastStandings), "text/csv"); });
     $("#dl-sheets").addEventListener("click", () => { if (!last) return; download("division-score-sheets.html", divisionsScoreSheetsHtml(last), "text/html"); record("divisions_score_sheets_downloaded"); });

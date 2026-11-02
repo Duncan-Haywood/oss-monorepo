@@ -1,5 +1,6 @@
 ---
 title: "The Tap That Let Go at Night: why a quiet water pipe is the dangerous one"
+seo_title: "Why a quiet water pipe bursts at night: break-pressure tanks"
 date: 2026-11-02
 tags: [hearth-and-horizon, fiction, water]
 description: A new Hearth & Horizon story shows why a gravity water line is at its highest pressure when every tap is shut, and how a break-pressure tank fixes it.

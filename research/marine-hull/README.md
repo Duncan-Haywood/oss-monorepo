@@ -86,6 +86,8 @@ cases. Results: [`experiments/results_time.txt`](experiments/results_time.txt).
   0.2 m/s. Vendor figures are marketing and disagree with each other; the glider side is still swept.
 
 
+- Milestone 3g (Holtrop-Mennen vs 308 Delft yacht-series tank points, `experiments/run_holtrop_yacht.py`): HM is within 20% for 44% to 79% of points at Fn 0.2 to 0.3, but over-predicts residuary resistance 1.3 to 2.2 times (median) at Fn 0.125 to 0.2, the survey regime; swept Cm, Cwp, model length; yacht hulls with keels; exploratory.
+
 - Milestone 4b (Slocum coefficients from `gliderflight`, 2,430 cases): at equal hotel load the glider has the
   longer best range in 0 cases (median AUV/glider energy ratio 0.36); the break-even AUV hotel load is a median
   4.9 times the glider's (10th to 90th 2.4 to 10.7), and the glider wins in 52% of cases at 5 times and 99.9% at

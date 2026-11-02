@@ -1,5 +1,6 @@
 ---
 title: "Does the BOHB win in our chip-flow search survive changing its settings?"
+seo_title: "Does the BOHB chip-search win survive changed settings?"
 date: 2026-11-02
 tags: [verified-dse, chip-design, research]
 description: Varying the three untuned settings of a BOHB search over open-source chip flows showed its low-budget win holds at 15 runs but not on the pooled mean at 25.
