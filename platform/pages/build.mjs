@@ -8741,6 +8741,7 @@ ${renderLatestWriting(posts, { writingPath: WRITING_PATH })}
         <li>No tracking cookies</li>
         <li>MIT licence throughout</li>
         <li>Every change in the <a href="${CHANGELOG_PATH}">public changelog</a></li>
+        <li>What gets built next, in order, on the <a href="${QUEUE_PATH}">work queue</a></li>
       </ul>
     </section>
 

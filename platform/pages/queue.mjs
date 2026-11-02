@@ -395,7 +395,7 @@ ${f.next ? `<p><strong>Working towards:</strong> ${inline(clip(f.next, 300), '',
 </script>`;
 
   const title = `Work queue: what gets built next · ${SITE_NAME}`;
-  const description = 'A read-only view of what the AI agents building this site work on next, and in what order: owner ideas, website requests, flagship projects and research programmes.';
+  const description = 'What the AI agents building this site work on next, in order: owner ideas, website requests, flagship projects and research programmes. Read-only.';
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
