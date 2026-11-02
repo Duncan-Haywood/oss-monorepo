@@ -75,16 +75,16 @@ products:
     comparables:
       - what: TeamSnap (rec league or travel club plan)
         price: from $29 a month
-        source: https://www.krowdbase.com/software/teamsnap
-        read: 2026-11-02 (aggregator listing, not the vendor page; vendor site blocked from this session)
+        source: https://www.krowdbase.com/software/teamsnap  # aggregator listing, vendor page blocked
+        read: 2026-11-02
       - what: SportsEngine (league/club management)
         price: from $79 a month
         source: https://www.krowdbase.com/software/sportsengine
-        read: 2026-11-02 (aggregator listing, not the vendor page)
+        read: 2026-11-02
       - what: LeagueLobster
         price: from $9.95 per feature per month; free plan exists
         source: https://www.getapp.com/all-software/a/leaguelobster/
-        read: 2026-11-02 (aggregator listing, not the vendor page)
+        read: 2026-11-02
     stage: planned
     next: >-
       Comparables are aggregator figures; confirm on the vendors' own pricing
