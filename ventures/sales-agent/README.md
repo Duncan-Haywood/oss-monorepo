@@ -14,7 +14,7 @@ approve:
 |---|---|---|
 | Unsubscribe / stop | Stops every touch; adds the address to a suppression file with the date and their sentence as the record | Nothing. No reply is drafted |
 | Bounce | Stops email to the address | Find the right address in your own records (it never guesses one) |
-| Out of office | Pauses until the business day after their return date (one week if none) | A task if the auto-reply names another contact |
+| Out of office | Pauses until the business day after their return date (one week if none; reads "in 2 wks", "fortnight", "mid-December", "1.12.2026", "next Tues" and similar, `dates-more.test.mjs`) | A task if the auto-reply names another contact |
 | Left / wrong person | Stops the cadence for that contact | A task to add the person they named, if you choose |
 | Not interested | Stops the cadence; not suggested again for 180 days; a lost deal row | Nothing |
 | Not now | Pauses until the date they gave (90 days if none) | A short acknowledgement draft |

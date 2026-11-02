@@ -39,6 +39,7 @@ const addDays = (day, n) => iso(toDay(day) + n * DAY);
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 const MONTH_RE = "(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)";
 const WEEKDAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+const ORDINAL_WORDS = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth", "nineteenth", "twentieth", "twenty-first", "twenty-second", "twenty-third", "twenty-fourth", "twenty-fifth", "twenty-sixth", "twenty-seventh", "twenty-eighth", "twenty-ninth", "thirtieth", "thirty-first"];
 const NUM_WORDS = { a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, couple: 2, few: 3 };
 
 // The next date on or after `today` with this month and day (year rolls forward if it has passed).
@@ -65,6 +66,16 @@ function findDateLower(text, today) {
   const s = String(text).toLowerCase();
   let m;
   if ((m = s.match(/\b(20\d\d)-(\d\d)-(\d\d)\b/))) return { date: `${m[1]}-${m[2]}-${m[3]}`, text: m[0] };
+  if ((m = s.match(/\b(20\d\d)[\/.](\d{1,2})[\/.](\d{1,2})\b/)) && +m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && +m[3] <= 31) return { date: iso(Date.UTC(+m[1], +m[2] - 1, +m[3])), text: m[0] };
+  if ((m = s.match(/\b(\d{1,2})\.(\d{1,2})\.(20\d\d|\d\d)\b/)) && +m[1] >= 1 && +m[1] <= 31 && +m[2] >= 1 && +m[2] <= 12) return { date: iso(Date.UTC(m[3].length === 2 ? 2000 + +m[3] : +m[3], +m[2] - 1, +m[1])), text: m[0] }; // day.month.year, the European way
+  if ((m = s.match(new RegExp(`\\b(${ORDINAL_WORDS.join("|")})\\s+of\\s+${MONTH_RE}\\b`)))) return { date: nextMonthDay(today, MONTHS.indexOf(m[2].slice(0, 3)), ORDINAL_WORDS.indexOf(m[1]) + 1), text: m[0] };
+  if ((m = s.match(/\bday after tomorrow\b/))) return { date: addDays(today, 2), text: m[0] };
+  if ((m = s.match(/\btomorrow\b/))) return { date: addDays(today, 1), text: m[0] };
+  if ((m = s.match(new RegExp(`\\b(start|beginning|middle|end)\\s+of\\s+${MONTH_RE}\\b|\\bmid[-\\s]${MONTH_RE}\\b`)))) {
+    const mid = m[1] === "middle" || !m[1], mo = MONTHS.indexOf((m[2] || m[3]).slice(0, 3));
+    if (m[1] === "end") return { date: nextMonthDay(today, (mo + 1) % 12, 1), text: m[0] }; // the 1st after the month, like "end of the month"
+    return { date: nextMonthDay(today, mo, mid ? 15 : 1), text: m[0] };
+  }
   if ((m = s.match(new RegExp(`\\b${MONTH_RE}\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b`)))) return { date: nextMonthDay(today, MONTHS.indexOf(m[1].slice(0, 3)), +m[2]), text: m[0] };
   if ((m = s.match(new RegExp(`\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?${MONTH_RE}\\b`)))) return { date: nextMonthDay(today, MONTHS.indexOf(m[2].slice(0, 3)), +m[1]), text: m[0] };
   if ((m = s.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/))) {
@@ -81,11 +92,12 @@ function findDateLower(text, today) {
     if (cand < toDay(today)) cand = Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, d);
     return { date: iso(cand), text: m[0] };
   }
-  if ((m = s.match(/\b(?:in|for)\s+(\d+|a|an|one|two|three|four|five|six|a couple of|couple of|a few|few)\s+(day|week|month)s?\b/))) {
+  if ((m = s.match(/\b(?:in|for)\s+(\d+|a|an|one|two|three|four|five|six|a couple of|couple of|a few|few)\s+(day|week|wk|month|mo)s?\b/))) {
     const n = /^\d+$/.test(m[1]) ? +m[1] : NUM_WORDS[m[1].replace(/^a\s+|\s+of$/g, "").trim()] || 2;
-    const date = m[2] === "day" ? addDays(today, n) : m[2] === "week" ? addDays(today, 7 * n) : (() => { const t = new Date(toDay(today)); return iso(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + n, t.getUTCDate())); })();
+    const date = m[2] === "day" ? addDays(today, n) : (m[2] === "week" || m[2] === "wk") ? addDays(today, 7 * n) : (() => { const t = new Date(toDay(today)); return iso(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + n, t.getUTCDate())); })();
     return { date, text: m[0] };
   }
+  if ((m = s.match(/\b(?:in|for)\s+(?:a|one|two)\s+fortnight\b|\ba fortnight\b/))) return { date: addDays(today, /two/.test(m[0]) ? 28 : 14), text: m[0] };
   if ((m = s.match(/\bnext week\b/))) { const w = new Date(toDay(today)).getUTCDay(); return { date: addDays(today, ((8 - w) % 7) || 7), text: m[0] }; }
   if ((m = s.match(/\bnext month\b/))) { const t = new Date(toDay(today)); return { date: iso(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, 1)), text: m[0] }; }
   if ((m = s.match(/\b(?:next|new)\s+(?:fiscal\s+)?year\b|\bafter the (?:holidays|new year)\b|\bin the new year\b/))) { const y = new Date(toDay(today)).getUTCFullYear(); return { date: iso(Date.UTC(y + 1, 0, 6)), text: m[0] }; }
@@ -101,8 +113,8 @@ function findDateLower(text, today) {
     const mo = MONTHS.indexOf(m[1].slice(0, 3)), after = /^(after|until|till)/.test(m[0]);
     return { date: nextMonthDay(today, after ? (mo + 1) % 12 : mo, 1), text: m[0] };
   }
-  if ((m = s.match(/\b(?:on|until|till|back|returning)\s+(?:next\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/))) {
-    const want = WEEKDAYS.indexOf(m[1]), w = new Date(toDay(today)).getUTCDay();
+  if ((m = s.match(/\b(?:on|until|till|back|returning)\s+(?:next\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday|sun|mon|tues?|wed|thu(?:rs?)?|fri|sat)\b/))) {
+    const want = WEEKDAYS.findIndex((d) => d.startsWith(m[1].slice(0, 3))), w = new Date(toDay(today)).getUTCDay();
     return { date: addDays(today, ((want - w + 7) % 7) || 7), text: m[0] };
   }
   return null;
