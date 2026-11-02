@@ -1,9 +1,9 @@
 ---
 title: "Cold-email opt-outs in twelve more languages: a second probe"
-seo_title: "Cold email unsubscribe detection: Swedish, Polish, Turkish, Russian, Japanese, Chinese"
+seo_title: "Cold-email opt-outs in 12 more languages, a second probe"
 date: 2026-11-02
 tags: [sales-agent, compliance, cold-email, testing]
-description: "27 of 37 short opt-outs in Swedish, Danish, Norwegian, Polish, Finnish, Turkish, Czech, Hungarian, Romanian, Russian, Japanese and Chinese fell to a person instead of the suppression list. The fix and its limits."
+description: "27 of 37 short opt-outs in twelve new languages missed the suppression list and went to a person. The fix and its limits."
 ---
 
 Earlier today the sales agent's reply rules were extended to French, Spanish, Portuguese and Dutch. A second probe used 37 short opt-outs in languages the rules had never seen: Swedish, Danish, Norwegian, Polish, Finnish, Turkish, Czech, Hungarian, Romanian, Russian, Japanese and Chinese, plus a few German and English wordings ("Please refrain from emailing me further", "Take me off", "Bitte keine Werbung mehr senden").
