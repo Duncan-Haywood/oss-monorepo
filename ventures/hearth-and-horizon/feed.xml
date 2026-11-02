@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Wind at Two O'Clock</title>
+      <link>https://example.invalid/hearth-and-horizon/the-wind-at-two-oclock.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-wind-at-two-oclock.html</guid>
+      <pubDate>Mon, 02 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A landslide cuts the only road to a mountain hamlet on All Souls' Day, and a valley cooperative's cargo drone is the way in. The delivery assistant works out what 11 kilometres, 1,300 metres of climb, thin air and a headwind cost a 900 watt-hour battery, and finds that the wind it was told about is not the wind on the ridge. Setting: San Bernardo di Prato Alto (invented), the Piedmont Alps, Italy, 2 to 3 November 2048. Read the full text at https://example.invalid/hearth-and-horizon/the-wind-at-two-oclock.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A landslide cuts the only road to a mountain hamlet on All Souls' Day, and a valley cooperative's cargo drone is the way in. The delivery assistant works out what 11 kilometres, 1,300 metres of climb, thin air and a headwind cost a 900 watt-hour battery, and finds that the wind it was told about is not the wind on the ridge.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Jerome and the Lion in the Doorway</title>
       <link>https://example.invalid/hearth-and-horizon/jerome-and-the-lion-in-the-doorway.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/jerome-and-the-lion-in-the-doorway.html</guid>
