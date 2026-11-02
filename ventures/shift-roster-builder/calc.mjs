@@ -1886,7 +1886,7 @@ export function rosterCsv(r) {
 
 // iCalendar file for one week, so each person can import their own shifts. weekStart is "YYYY-MM-DD" and
 // must be a Monday; person limits the file to one name (default: everyone, with the name in the title).
-export function rosterIcs(r, weekStart, person = null) {
+export function rosterIcs(r, weekStart, person = null, { stable = false, bare = false } = {}) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(weekStart || ""));
   if (!m) throw new Error("weekStart must be YYYY-MM-DD");
   const base = Date.UTC(+m[1], +m[2] - 1, +m[3]);
@@ -1897,16 +1897,28 @@ export function rosterIcs(r, weekStart, person = null) {
     const p = (n) => String(n).padStart(2, "0");
     return `${d.getUTCFullYear()}${p(d.getUTCMonth() + 1)}${p(d.getUTCDate())}T${p(d.getUTCHours())}${p(d.getUTCMinutes())}00`;
   };
-  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//shift-roster-builder//EN", "CALSCALE:GREGORIAN"];
+  const lines = bare ? [] : ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//shift-roster-builder//EN", "CALSCALE:GREGORIAN"];
   r.assignments.forEach((a, k) => {
     if (!a.person || (person && a.person !== person)) return;
     const s = a.slot;
     const title = (s.label || "Shift") + (s.role ? ` (${s.role})` : "") + (person ? "" : ` - ${a.person}`);
-    lines.push("BEGIN:VEVENT", `UID:roster-${weekStart}-${k}@shift-roster-builder`, `DTSTAMP:${stamp(0, 0)}Z`,
+    // A subscribed calendar matches events by UID: tie it to the shift, not its position in the list, so an edited week updates in place.
+    const uid = stable ? `${weekStart}-${a.person.replace(/[^A-Za-z0-9]+/g, "_")}-${s.day}-${s.startMin}-${s.endMin}-${(s.label || "").replace(/[^A-Za-z0-9]+/g, "_")}` : `${weekStart}-${k}`;
+    lines.push("BEGIN:VEVENT", `UID:roster-${uid}@shift-roster-builder`, `DTSTAMP:${stamp(0, 0)}Z`,
       `DTSTART:${stamp(s.startMin, s.day)}`, `DTEND:${stamp(s.endMin, s.day)}`, `SUMMARY:${esc(title)}`, "END:VEVENT");
   });
-  lines.push("END:VCALENDAR");
-  return lines.join("\r\n") + "\r\n";
+  if (!bare) lines.push("END:VCALENDAR");
+  return lines.length ? lines.join("\r\n") + "\r\n" : "";
+}
+
+// A calendar-subscription feed for one person across several published weeks ([{weekStart, assignments}]), so a phone
+// that subscribes once keeps showing past weeks and picks up each re-publish. Refresh hints are advisory; apps choose.
+export function rosterFeedIcs(weeks, person, { name = "My shifts" } = {}) {
+  const esc = (t) => String(t).replace(/([,;\\])/g, "\\$1").replace(/\n/g, "\\n");
+  const body = weeks.filter((w) => w && w.weekStart).sort((a, b) => a.weekStart.localeCompare(b.weekStart))
+    .map((w) => rosterIcs({ assignments: w.assignments }, w.weekStart, person, { stable: true, bare: true })).join("");
+  return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//shift-roster-builder//EN", "CALSCALE:GREGORIAN", `X-WR-CALNAME:${esc(name)}`,
+    "REFRESH-INTERVAL;VALUE=DURATION:PT1H", "X-PUBLISHED-TTL:PT1H"].join("\r\n") + "\r\n" + body + "END:VCALENDAR\r\n";
 }
 
 // "Mon" or, given the Monday as YYYY-MM-DD, "Mon 6 Oct".
