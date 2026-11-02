@@ -18,9 +18,11 @@ M = statistics.mean
 SEEDS = 100
 BUDGETS = (15, 25, 40)
 ETA = 3
-GAMMA, BW_FLOOR, P_RANDOM, MIN_OBS = 0.25, 0.3, 1 / 3, 6
+import os
+GAMMA, BW_FLOOR, P_RANDOM, MIN_OBS = (float(os.environ.get("BOHB_GAMMA", 0.25)), 0.3, float(os.environ.get("BOHB_PRANDOM", 1 / 3)), int(os.environ.get("BOHB_MINOBS", 6)))
+TAG = os.environ.get("BOHB_TAG", "")  # sensitivity runs (milestone 57) write results<_unseen>_<TAG>.* instead of overwriting
 HELD = len(sys.argv) > 1 and sys.argv[1] == "unseen"
-SUF = "_unseen" if HELD else ""
+SUF = ("_unseen" if HELD else "") + (f"_{TAG}" if TAG else "")
 TABLES = {n: HERE.parent / n / "results.jsonl" for n in (("unseen",) if HELD else ("rung_bias", "large", "nonarith"))}
 RUNGS = ("r2", "r3", "r4")
 
