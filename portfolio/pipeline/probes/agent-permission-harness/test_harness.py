@@ -783,6 +783,17 @@ class TestInstructionClosureWalk(unittest.TestCase):
         self.assertEqual(_expand_prompt_path("does/not/exist.md", self.root), [])
 
 
+class TestBasenameTable(unittest.TestCase):
+    def test_table_equals_the_linear_scan_and_is_not_confused_by_a_reused_list(self):
+        index = sorted(["a/x.md", "b/c/x.md", "x.md", "y.md", "d/y.md.bak"])
+        table = harness._by_basename(index)
+        for name in ["x.md", "y.md", "y.md.bak", "missing"]:
+            self.assertEqual(table.get(name, []), [f for f in index if f.rsplit("/", 1)[-1] == name])
+        other = ["z/x.md"]
+        self.assertEqual(harness._by_basename(other)["x.md"], ["z/x.md"])
+        self.assertEqual(harness._by_basename(index)["x.md"], ["a/x.md", "b/c/x.md", "x.md"])
+
+
 class TestAgentInstructionClosure(RepoCase):
     WORKFLOW = """
         name: agent
