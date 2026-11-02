@@ -293,6 +293,9 @@ const RULES = {
   not_interested: [
     P("^\\s*(nope|no|nah)\\.?\\s*$"), P("\\bnot (be )?moving forward\\b"), P("\\bnot relevant\\b"), P("\\b(we|i) (don'?t|do not) need (this|it|that|you|your)\\b"),
     P("\\bnot interested\\b"), P("\\bno,? thanks?( you)?\\b"), P("\\bno thank you\\b"), P("\\b(we'?re|we are) (all )?(set|good|fine)\\b"), P("\\b(don'?t|do not) (have a |see a )?need\\b"), P("\\bno need\\b"), P("\\b(i'?ll|i will|we'?ll|we will) pass\\b"), P("\\bnot (a )?(good )?fit\\b"), P("\\b(isn'?t|is not|wouldn'?t be) (a )?(good |great )?fit\\b"),
+    // Added 2026-11-02 after a probe: "not interested" in PT, DE, FR, ES, IT, NL went to "unclear". Agent-written, unscored on real mail.
+    P("n[ãa]o (tenho|temos|estou|estamos) interess"), P("sem interesse"), P("kein(e)? (interesse|bedarf)"), P("\\bnicht interessiert\\b"), P("pas (int[ée]ress[ée]|besoin)"), P("ne nous int[ée]resse pas"), P("ça ne m'int[ée]resse pas"),
+    P("no (me |nos )?interesa\\b"), P("no (estoy|estamos) interesad"), P("non (sono|siamo) interessat"), P("non ci interessa"), P("geen (interesse|behoefte)"), P("niet ge[ïi]nteresseerd"),
     P("\\bnot for (us|me)\\b"), P("\\bnot something (we|i)'?(re| are| am)? (looking|interested)\\b"), P("\\bnot looking (for|to)\\b"), P("\\bplease don'?t follow up\\b"), P("\\bwe'?ll never\\b"),
   ],
   objection_price: [
