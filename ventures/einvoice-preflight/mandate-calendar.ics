@@ -1093,16 +1093,16 @@ URL:https://example.invalid/einvoice-preflight/slovenia-e-invoice-mandate
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:d50fc29827f9cb11@einvoice-preflight
+UID:d627e5772385f7a3@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20280401
 DTEND;VALUE=DATE:20280402
-SUMMARY:Singapore: existing GST-registered businesses reported 1 Apr 2028
-  to 1 Apr 2031 by annual supplies
+SUMMARY:Singapore: existing GST-registered businesses 1 Apr 2028 to 1 Apr
+  2031 by annual supplies
 DESCRIPTION:Singapore (In force\, phasing in). existing GST-registered bu
- sinesses reported 1 Apr 2028 to 1 Apr 2031 by annual supplies. Detail an
- d sources: https://example.invalid/einvoice-preflight/singapore-invoicen
- ow-e-invoice-mandate.html. Not legal or tax advice.
+ sinesses 1 Apr 2028 to 1 Apr 2031 by annual supplies. Detail and sources
+ : https://example.invalid/einvoice-preflight/singapore-invoicenow-e-invo
+ ice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/singapore-invoicenow-e-inv
  oice-mandate.html
 TRANSP:TRANSPARENT
@@ -1265,16 +1265,16 @@ URL:https://example.invalid/einvoice-preflight/sweden-e-invoice-mandate.h
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:9465eb2175baa6ca@einvoice-preflight
+UID:59b3164c0b0894f4@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20310401
 DTEND;VALUE=DATE:20310402
-SUMMARY:Singapore: existing GST-registered businesses reported 1 Apr 2028
-  to 1 Apr 2031 by annual supplies
+SUMMARY:Singapore: existing GST-registered businesses 1 Apr 2028 to 1 Apr
+  2031 by annual supplies
 DESCRIPTION:Singapore (In force\, phasing in). existing GST-registered bu
- sinesses reported 1 Apr 2028 to 1 Apr 2031 by annual supplies. Detail an
- d sources: https://example.invalid/einvoice-preflight/singapore-invoicen
- ow-e-invoice-mandate.html. Not legal or tax advice.
+ sinesses 1 Apr 2028 to 1 Apr 2031 by annual supplies. Detail and sources
+ : https://example.invalid/einvoice-preflight/singapore-invoicenow-e-invo
+ ice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/singapore-invoicenow-e-inv
  oice-mandate.html
 TRANSP:TRANSPARENT
