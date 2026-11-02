@@ -1,9 +1,9 @@
 ---
-title: "What 1,325 free tools could earn: about $30 a year today, and where the rest would come from"
+title: "What 1,325 free tools could earn: $0 today, about $30 a year with payments on, and where the rest would come from"
 seo_title: "Monetizing a portfolio of free open-source tools: an honest model"
 date: 2026-11-02
 tags: [business, monetization, go-to-market, measurement]
-description: A re-runnable model of what this portfolio's tools could earn, by which mechanism, from measured traffic. The answer is distribution first, then four products with paid tiers.
+description: A re-runnable model of what 1,325 free tools could earn, by mechanism, from measured traffic. Distribution first, then four paid tiers.
 ---
 
 This repository has 1,325 free tools. We asked how much they could reasonably earn, and how. We wrote the answer as a file and a script, not a guess, so it can be rerun as the numbers change: [`portfolio/monetization/`](https://github.com/duncan-haywood/oss-monorepo/tree/main/portfolio/monetization).
