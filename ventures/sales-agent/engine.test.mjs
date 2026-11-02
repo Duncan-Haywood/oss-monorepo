@@ -90,11 +90,12 @@ test("opt-outs in French, German, Spanish and Italian and \"cease and desist\" s
 test("second fresh set (2026-10-24, written by another session, scored once): numbers stay as measured", () => {
   const s = score(load("fresh-2026-10-24.jsonl"));
   assert.equal(s.n, 41);
-  assert.equal(s.right, 27);
-  assert.equal(s.acted, 31);
-  assert.equal(s.actedRight, 24);
+  // 27 when scored once; 28 after 2026-11-02, when "I left X" counted as a wrong-person reply (one item, no regression).
+  assert.equal(s.right, 28);
+  assert.equal(s.acted, 32);
+  assert.equal(s.actedRight, 25);
   assert.equal(s.unsubMissed, 2);
-  assert.equal(s.guessRight, 4);
+  assert.equal(s.guessRight, 3);
 });
 
 test("word model: rebuilt from the training files exactly, and it guesses", () => {
@@ -166,9 +167,10 @@ test("an explicit ask anywhere in the reply makes it clear, and dates keep the w
 test("fourth set (2026-10-25): scored once at 25/42 with 9 of 18 unsubscribes missed, then those were patched; the rest stay measured", () => {
   const s = score(load("fresh-2026-10-25.jsonl"));
   assert.equal(s.n, 42);
-  assert.equal(s.right, 34);
-  assert.equal(s.acted, 34);
-  assert.equal(s.actedRight, 34);
+  // 34 before 2026-11-02, when "I left Orchid in August" started counting as a wrong-person reply (one item).
+  assert.equal(s.right, 35);
+  assert.equal(s.acted, 35);
+  assert.equal(s.actedRight, 35);
   assert.equal(s.unsubMissed, 0);
 });
 
@@ -239,4 +241,27 @@ test("an unlisted prospect on the suppression list gets no draft", () => {
   const o = stickyRun(["Sure, tell me more."], undefined, "dana@x.example\n");
   assert.equal(o.items[0].draft, null);
   assert.notEqual(o.prospects[0].status, "replied");
+});
+
+test("referrals: who owns the decision, 'I left', and 'wrong person' in six languages route to left_company with the named address (2026-11-02, invented probes)", () => {
+  const cases = [
+    ["Not me, but cc'ing my colleague Raj who runs this: raj@acme.example", "raj@acme.example"],
+    ["Please direct all inquiries to procurement@acme.example", "procurement@acme.example"],
+    ["No soy la persona indicada, escriba a luis@acme.example", "luis@acme.example"],
+    ["Je ne suis pas la bonne personne, contactez marie@acme.example", "marie@acme.example"],
+    ["Ich bin nicht zuständig, bitte wenden Sie sich an hans@acme.example", "hans@acme.example"],
+    ["I left Acme in March. Reach my replacement at kim@acme.example.", "kim@acme.example"],
+    ["Thanks but this goes to Dave in finance, dave@acme.example, he decides on these.", "dave@acme.example"],
+  ];
+  for (const [body, email] of cases) {
+    const r = triage({ from: "x@acme.example", subject: "Re: hi", body }, T);
+    assert.equal(r.category, "left_company", body);
+    assert.equal(r.referral?.email, email, body);
+  }
+  // A referral with no address still routes, with nothing to add.
+  const r = triage({ from: "x@acme.example", body: "I've passed your note on to our IT director, Priya." }, T);
+  assert.equal(r.category, "left_company");
+  assert.equal(r.referral, null);
+  // An interested reply is not turned into a referral by the word "owns".
+  assert.equal(triage({ body: "Sounds good. Can we set up a call Tuesday? I own this budget." }, T).category, "interested");
 });

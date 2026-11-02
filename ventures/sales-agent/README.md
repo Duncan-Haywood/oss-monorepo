@@ -159,6 +159,8 @@ about 61% of the fields mentioned in 20 fresh notes (precision 85%) and 48%
 matches are rare. The brief says a "known" field may be a false match, so read
 the quote. Notes are agent-written, not real calls.
 
+2026-11-02: referral replies. A probe of 14 invented "wrong person" replies had 10 misfiled (one as interested). Added "I left X", "who owns/runs this", "direct inquiries to", "passed it on to" and the wrong-person phrase in six languages; 13 of 14 now route to `left_company` with the named address. Two replies on the existing fresh sets flipped to right, none to wrong (pinned in `engine.test.mjs`). Invented probes only.
+
 ## Use it
 
 - **Voice (2026-11-01, optional):** the call section can take dictated notes ("next point" starts a new line, "period" and "comma" add marks) and read the brief or draft aloud, using the browser's own speech tools; the buttons appear only where the browser has them. In Chrome and Edge dictation sends audio to the browser maker's speech service; the page records and stores nothing. Tested: text rules by hand (`voice.test.mjs`), buttons by a Chromium click with a stubbed recogniser. Not tested: a real microphone or voice.

@@ -169,7 +169,10 @@ products:
       errors). Owner: the one merchant-of-record product that serves the other
       dark paths serves this one. Comparables filled from search snippets
       on 2026-11-02 (Etsy blocked for direct fetch); an agent step remains to
-      confirm them on the listings when a host allows it.
+      confirm them on the listings when a host allows it. Marketing page with
+      a generated sample pack landed 2026-11-02
+      (branded-shed-plan-pack-for-builders.html, sample-build-pack.html,
+      build-sample-pack.mjs, sample-pack.test.mjs).
     next_owner: true
 
   - venture: einvoice-preflight
