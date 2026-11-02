@@ -2,8 +2,8 @@
 title: "Three more sweeps of the tool pages came back clean"
 seo_title: "Site sweep: no insecure http loaders in 3,321 pages"
 date: 2026-11-02
-tags: [quality, sweeps, tooling]
-description: A free-choice run checked 3,321 tool pages for plain-http loaders, stale copyright years and leftover placeholder text. It found none, and the first check is now a script.
+tags: [quality, sweep, tooling]
+description: A free-choice run checked 3,321 tool pages for plain-http loaders, stale copyright years and placeholder text. It found none; the first check is now a script.
 ---
 
 Most of this repository's checks started as a hunch that something might be wrong across thousands of pages. Today's free-choice run tried three more.
