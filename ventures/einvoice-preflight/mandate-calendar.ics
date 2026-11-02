@@ -716,16 +716,31 @@ URL:https://example.invalid/einvoice-preflight/rwanda-eis-e-invoice-manda
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:0ca4617f14a3f2fc@einvoice-preflight
+UID:e71601f8996ac128@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20260930
 DTEND;VALUE=DATE:20261001
-SUMMARY:Japan: transitional credit for unregistered sellers 80% to 30 Sep
-  2026
+SUMMARY:Japan: transitional credit for unregistered sellers 80% until 30 
+ Sep 2026
 DESCRIPTION:Japan (In force (no clearance)). transitional credit for unre
- gistered sellers 80% to 30 Sep 2026. Detail and sources: https://example
- .invalid/einvoice-preflight/japan-invoice-system-e-invoice-mandate.html.
-  Not legal or tax advice.
+ gistered sellers 80% until 30 Sep 2026. Detail and sources: https://exam
+ ple.invalid/einvoice-preflight/japan-invoice-system-e-invoice-mandate.ht
+ ml. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/japan-invoice-system-e-inv
+ oice-mandate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:74c535e81498525f@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20261001
+DTEND;VALUE=DATE:20261002
+SUMMARY:Japan: 50% from 1 Oct 2026 to 30 Sep 2029 (vendor and advisory gu
+ ides\, 2026 reform revisions u...
+DESCRIPTION:Japan (In force (no clearance)). 50% from 1 Oct 2026 to 30 Se
+ p 2029 (vendor and advisory guides\, 2026 reform revisions unread). Deta
+ il and sources: https://example.invalid/einvoice-preflight/japan-invoice
+ -system-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/japan-invoice-system-e-inv
  oice-mandate.html
 TRANSP:TRANSPARENT
@@ -1162,16 +1177,16 @@ URL:https://example.invalid/einvoice-preflight/luxembourg-e-invoice-manda
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:bf582b270cbb06c6@einvoice-preflight
+UID:28925331cf087044@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20290930
 DTEND;VALUE=DATE:20291001
-SUMMARY:Japan: 50% to 30 Sep 2029 (vendor and advisory guides\, 2026 refo
- rm revisions unread)
-DESCRIPTION:Japan (In force (no clearance)). 50% to 30 Sep 2029 (vendor a
- nd advisory guides\, 2026 reform revisions unread). Detail and sources: 
- https://example.invalid/einvoice-preflight/japan-invoice-system-e-invoic
- e-mandate.html. Not legal or tax advice.
+SUMMARY:Japan: 50% from 1 Oct 2026 to 30 Sep 2029 (vendor and advisory gu
+ ides\, 2026 reform revisions u...
+DESCRIPTION:Japan (In force (no clearance)). 50% from 1 Oct 2026 to 30 Se
+ p 2029 (vendor and advisory guides\, 2026 reform revisions unread). Deta
+ il and sources: https://example.invalid/einvoice-preflight/japan-invoice
+ -system-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/japan-invoice-system-e-inv
  oice-mandate.html
 TRANSP:TRANSPARENT
