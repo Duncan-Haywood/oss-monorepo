@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-02 · Milestone 7j: fold 3g and 3h into the paper draft (no experiment run)
+- Why: the draft's H3 line and threats item still described one Wigley point only. Added the 3g yacht-series result (within 20% for 44% to 79% of points at Fn 0.2 to 0.3; median 1.3 to 2.2 times over-prediction at Fn 0.125 to 0.2) and the 3h structural check, with the limits (keeled yachts, swept Cm/Cwp, unverified mirror).
+- Limits: wording only; nothing re-run.
+- Next: a keel-less, fuller survey-hull tank table; the 1981/1982 papers if a host opens.
+
 ## 2026-11-02 · Milestone 3h: does the yacht-series mirror have the structure of the 1981 table? (structural check; not a validation)
 - Why: 3g's "Next" asked to check the mirror file against the paper; the paper host is blocked, so this checks what can be checked offline. Prediction (before running): 22 hulls x 14 Froude numbers (0.125 to 0.45, step 0.025), no negative Rr, and Rr rising with Fn within every hull; any violation would mean a corrupted mirror.
 - Outcome (`experiments/check_yacht_data.py`, `results_yacht_data_check.txt`, instant): 308 rows, 22 distinct hull forms, each with all 14 Froude numbers; no negative Rr; 0 of 286 hull-steps where Rr falls as Fn rises; Rr 0.01 to 62.42 per mille. Prediction held.
