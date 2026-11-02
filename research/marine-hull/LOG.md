@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-02 · Milestone 3i: what form factor do the Delft yacht tank points imply at survey Froude numbers? (exploratory; no prediction logged before the run)
+- Why: 3g found Holtrop-Mennen over-predicts residuary resistance 1.3 to 2.2 times at Fn 0.125 to 0.2, and 3c said its excess is the form factor, not waves. The tank table can say how big the form factor really is: at Fn 0.125 wave making is smallest, and Rr (total minus ITTC-1957 friction) divided by the friction resistance is an upper bound on k.
+- Outcome (`experiments/run_yacht_formfactor.py`, `results_yacht_formfactor.txt`, instant, deterministic): implied k at Fn 0.125 has median 0.061 to 0.064 over 22 hulls (10th to 90th percentile 0.03 to 0.13, max 0.18; Cm 0.7 to 0.9), 0.17 at Fn 0.15. HM's k1 for the same hulls has median 0.29 to 0.36. The implied bound is below HM's k1 for 22 of 22 hulls and below the programme's central k = 0.25 for all 22.
+- Reading: on these hulls the 3g over-prediction is explained by HM's form factor, which is 3 to 5 times the tank-implied bound. The programme's swept k box (0.25 central) is conservative for slender hulls, consistent with 3a. It also means hull rankings at survey speed that use k = 0.25 or HM k1 favour low-form-drag (long, slender) hulls less than the tank data would.
+- Limits: keeled sailing yachts, so appendage and hull form drag are mixed; RF uses HM's wetted-area regression (Cm swept, true area unknown); ITTC-1957 friction in the original table not verified; mirror file unverified (3h); the bound ignores any wave drag at Fn 0.125, so true k is lower still.
+- Next: rerun the milestone-1 range box with k from 0.03 to 0.15 to see whether the H1 spread and H2 verdict move; a keel-less fuller hull table.
+
 ## 2026-11-02 · Milestone 7j: fold 3g and 3h into the paper draft (no experiment run)
 - Why: the draft's H3 line and threats item still described one Wigley point only. Added the 3g yacht-series result (within 20% for 44% to 79% of points at Fn 0.2 to 0.3; median 1.3 to 2.2 times over-prediction at Fn 0.125 to 0.2) and the 3h structural check, with the limits (keeled yachts, swept Cm/Cwp, unverified mirror).
 - Limits: wording only; nothing re-run.
