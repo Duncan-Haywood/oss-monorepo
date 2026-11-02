@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsStandingsText, divisionsStandingsCsv } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -723,4 +723,24 @@ test("divisionsStandings ranks each division and rejects results the schedule ca
   const bad = divisionsStandings(sch, `${a} 1 - 0 ${b}\n${d0.name}: ${a} 1 - 0 Nobody\n${d0.name}: ${a} 1 - 0 ${b}\n${d0.name}: ${b} 2 - 0 ${a}`);
   assert.equal(bad.errors.length, 3);
   assert.match(bad.errors[2], /more often than it is scheduled/);
+});
+
+test("standings text and CSV carry every division, and the CLI --results reads a file", () => {
+  const { spec } = readDivisionsSpec(example);
+  const sch = buildDivisions(spec);
+  const [d0, d1] = sch.divisions;
+  const text = `${d0.name}: ${d0.teams[0]} 3 - 0 ${d0.teams[1]}\n${d1.name}: ${d1.teams[0]} 2 - 2 ${d1.teams[1]}\n${d1.name}: ${d1.teams[0]} 1 - 0 Nobody`;
+  const r = divisionsStandings(sch, text);
+  const csv = divisionsStandingsCsv(r).trim().split(/\r\n/);
+  assert.match(csv[0], /^Division,Rank,Team/);
+  assert.equal(csv.length, 1 + r.tables.reduce((n, t) => n + t.rows.length, 0));
+  assert.ok(csv[1].startsWith(`"${d0.name}",1,${d0.teams[0]},1,1,0,0,3,0,3,3`));
+  const out = divisionsStandingsText(r);
+  assert.ok(out.includes(d0.name) && out.includes(d1.name) && /Warning: .*Nobody/.test(out));
+  const dir = mkdtempSync(join(tmpdir(), "lsg-"));
+  writeFileSync(join(dir, "spec.json"), JSON.stringify(example));
+  writeFileSync(join(dir, "res.txt"), text.split("\n").slice(0, 2).join("\n"));
+  const run = spawnSync("node", [new URL("./divisions.mjs", import.meta.url).pathname, join(dir, "spec.json"), "--results", join(dir, "res.txt")], { encoding: "utf8" });
+  assert.equal(run.status, 0, run.stderr);
+  assert.ok(run.stdout.includes(`${d0.teams[0]}`) && run.stdout.includes("Pts"));
 });

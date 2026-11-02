@@ -7,7 +7,7 @@
 //   3. a team plays at the same venue as on its previous night where it can (fewer trips).
 // Each division keeps the circle-method round robin of calc.mjs (home/away balance and byes), so only
 // the dates, courts and times are decided here.
-import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, parsePointSystem } from "./calc.mjs";
+import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, standingsCsv, parsePointSystem } from "./calc.mjs";
 
 const MAX_NIGHTS = 800;
 const W_CLASH = 1000;
@@ -709,6 +709,29 @@ export function divisionsStandings(schedule, text, { points = "3-1-0", headToHea
   return { tables, errors };
 }
 
+/** Plain-text league tables from `divisionsStandings(...).tables`, one block per division. */
+export function divisionsStandingsText(result) {
+  const out = [];
+  for (const t of result.tables) {
+    out.push(`${t.division}`, "Pos Team                 P  W  D  L  GF  GA  GD  Pts");
+    for (const r of t.rows) out.push(`${String(r.rank).padStart(3)} ${String(r.name).slice(0, 20).padEnd(20)} ${[r.played, r.won, r.drawn, r.lost, r.gf, r.ga, r.gd, r.points].map((n) => String(n).padStart(3)).join(" ")}`);
+    out.push("");
+  }
+  for (const e of result.errors) out.push(`Warning: ${e}`);
+  return out.join("\n") + "\n";
+}
+
+/** One CSV for every division: the single-league standings CSV with a Division column in front. */
+export function divisionsStandingsCsv(result) {
+  const lines = [];
+  for (const t of result.tables) {
+    const rows = standingsCsv(t.rows).trim().split(/\r?\n/);
+    if (!lines.length) lines.push(`Division,${rows[0]}`);
+    for (const r of rows.slice(1)) lines.push(`"${t.division.replace(/"/g, '""')}",${r}`);
+  }
+  return lines.join("\r\n") + "\r\n";
+}
+
 /** Independent re-check of a finished multi-division schedule. */
 export function validateDivisions(schedule) {
   const errors = [];
@@ -1053,6 +1076,14 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
     const oe = validateDivisionOfficials(s, po.officials);
     if (oe.length) { console.error(oe.join("\n")); process.exit(1); }
     for (const u of a.unfilled) console.error(`No official: ${dayIso(u.day)} ${u.time || ""} ${u.division} ${u.home} v ${u.away} (${u.reason})`);
+  }
+  const ri = process.argv.indexOf("--results");
+  if (ri > 0) {
+    const rf = process.argv[ri + 1];
+    if (!rf) { console.error("usage: node divisions.mjs spec.json --results results.txt [--csv]"); process.exit(2); }
+    const r = divisionsStandings(s, readFileSync(rf, "utf8"), { points: raw.points || "3-1-0", headToHead: !!raw.headToHead });
+    process.stdout.write(process.argv.includes("--csv") ? divisionsStandingsCsv(r) : divisionsStandingsText(r));
+    process.exit(0);
   }
   if (process.argv.includes("--history")) { process.stdout.write(JSON.stringify(carryVenueHistory(s), null, 1) + "\n"); process.exit(0); }
   process.stdout.write(process.argv.includes("--grid") ? divisionsSeasonGridCsv(s) : process.argv.includes("--csv") ? divisionsCsv(s) : divisionsText(s));

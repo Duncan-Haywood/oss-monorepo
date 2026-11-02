@@ -817,3 +817,10 @@ test("multi-division page: reminder box feeds divisionsIcs alarmMinutes", () => 
   assert.match(html, /id="ics-alarm"/);
   assert.match(html, /divisionsIcs\(last, \{ alarmMinutes:/);
 });
+
+test("multi-division page: results box feeds divisionsStandings and a CSV download", () => {
+  const html = page("multi-division-league-schedule.html");
+  for (const id of ["results", "points", "h2h", "show-standings", "dl-standings", "standings-out"]) assert.ok(html.includes(`id="${id}"`), id);
+  assert.match(html, /divisionsStandings\(last, \$\("#results"\)\.value/);
+  assert.match(html, /divisionsStandingsCsv\(lastStandings\)/);
+});
