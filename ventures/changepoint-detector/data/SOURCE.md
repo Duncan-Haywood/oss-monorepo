@@ -341,3 +341,11 @@ annualised CPI inflation, %), 202 quarters (first quarter dropped: 0 by construc
 - **Cite (the documented shifts, from memory, unread):** Garcia, R. and Perron, P. (1996). An analysis of the real
   interest rate under regime shifts. *Review of Economics and Statistics* 78(1), 111-125.
 - **Used by:** `eval/us-real-interest.mjs`, `us-real-interest.test.mjs`.
+
+# Example data: Capital Bikeshare daily rentals, 2011-2012
+
+`bike-sharing-daily.csv`: casual and registered rentals per day in Washington DC, 731 days from 2011-01-01, with the dataset's own `holiday` flag (21 days). Dates converted to ISO; other columns dropped.
+
+- **Retrieved:** 2026-11-02 from a GitHub copy of `day.csv` (justmarkham/DAT3); original: Fanaee-T and Gama, UCI Machine Learning Repository "Bike Sharing Dataset".
+- **Licence:** CC BY 4.0 (UCI). Used here as test data only.
+- **Used by:** `eval/holiday-bikes.mjs`, `holiday-bikes.test.mjs`.
