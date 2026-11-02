@@ -3,7 +3,7 @@ title: "Fuzzing the code that gangs window openings"
 seo_title: "Property testing ganged window openings in a framing takeoff"
 date: 2026-11-02
 tags: [construction, testing, wall-framing-takeoff, fuzzing]
-description: "A 47-line function merges close windows into one framed opening. 400 random walls test that it keeps the span, merges only what must merge, and settles in one pass."
+description: "A 47-line function merges close windows into one framed opening. 400 random walls test that it keeps the span, merges only what must, and settles in one pass."
 ---
 
 When two windows sit so close that their king studs would collide, builders frame them as one rough opening with a mullion. The wall-framing takeoff does this in `ganged.mjs`, 47 lines long.
