@@ -3,6 +3,9 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-11-02 · Milestone 59: carry milestone 58 into the paper (no flow run)
+- PAPER.md section 6 item 3 now cites the min-observations grid (milestone 58): win at 15 equivalents fades gradually between min obs 8 and 12, none at 25 or 40. Next: a held-out set with an unfaithful R2 (mult24, mult32 relaxed), needs OpenROAD.
+
 ## 2026-11-02 · Milestone 58: min-observations grid for the BOHB low-budget win (predictions written before the run; no flow)
 - Why: milestone 57 found min observations is the one hyperparameter that removes the 15-equivalent win (10: 3.14 against random 3.40) and listed a finer grid as next. `experiments/bohb/minobs_grid.py` repeats the sweep at min obs 3, 5, 8, 12 (min obs 2 crashes: the bad set is empty, so it is excluded) (other settings at defaults; with 4, 6, 10 from milestone 57 this gives a 8-point grid), 50 cells pooled, 100 paired seeds.
 - **Predictions on record:** (1) BOHB's pooled mean at 15 is below random's 3.40 for min obs up to 8 and above it at 12 (the threshold sits between 8 and 10); (2) min obs 3 is worse than 4 to 6 at 15 (a model fitted on too few points is noisy), so the curve is U-shaped, not monotone; (3) at 25 no min-obs value in the grid beats random (1.68) by more than 0.2 points on the pooled mean; (4) at 40 random stays below BOHB at every min obs.
