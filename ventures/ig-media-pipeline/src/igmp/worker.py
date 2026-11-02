@@ -147,7 +147,8 @@ def run_cycle(cfg: Config, bucket, *, owner: str, budget: TokenBudget | None = N
     started = _now()
     interval = interval or interval_s(cfg)
     ttl = lease_s(cfg, interval)
-    status: dict = {"owner": owner, "started": _iso(started), "errors": [], "steps": {}}
+    status: dict = {"owner": owner, "host": socket.gethostname(), "started": _iso(started), "errors": [],
+                    "steps": {}}
 
     def failed(step: str, e: BaseException) -> None:
         log.error("worker: %s failed: %s", step, e, exc_info=True)
@@ -222,6 +223,8 @@ def run_cycle(cfg: Config, bucket, *, owner: str, budget: TokenBudget | None = N
         if budget is not None:
             try:
                 status["budget"] = budget.summary()
+                # the names `igmp cloud status` reads
+                status["tokens_today"], status["tokens_cap"] = status["budget"]["tokens"], status["budget"]["cap"]
             except Exception as e:
                 failed("budget", e)
         if store is not None:
@@ -252,7 +255,7 @@ def run_cycle(cfg: Config, bucket, *, owner: str, budget: TokenBudget | None = N
             status["lease"] = "lost"
 
     finished = _now()
-    status["finished"] = _iso(finished)
+    status["finished"] = status["finished_at"] = _iso(finished)
     status["duration_s"] = round(time.monotonic() - t0, 1)
     status["next_cycle"] = _iso(finished + timedelta(seconds=interval))
     write_status(cfg, bucket, status)
