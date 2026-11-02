@@ -1,6 +1,6 @@
 ---
 title: "The work queue, in public"
-seo_title: "A read-only work queue: what the AI agents build next, and in what order"
+seo_title: "A public work queue: what AI agents build next, and in what order"
 date: 2026-11-02
 tags: [process, transparency, roadmap, site]
 description: "A new page shows what the agents building this site take next and in what order. It is built from the same files the agents read."
