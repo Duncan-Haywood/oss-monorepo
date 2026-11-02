@@ -111,6 +111,27 @@ def pct(v, lo):
     return None if v is None else (v / lo - 1) * 100
 
 
+def tau_b(a, b):
+    """Kendall tau-b of two score lists (O(n^2), pools are about 50)."""
+    c = d = ta = tb = 0
+    for i in range(len(a)):
+        for j in range(i + 1, len(a)):
+            x, y = a[i] - a[j], b[i] - b[j]
+            if x == 0 and y == 0:
+                continue
+            if x == 0:
+                ta += 1
+            elif y == 0:
+                tb += 1
+            elif (x > 0) == (y > 0):
+                c += 1
+            else:
+                d += 1
+    den = math.sqrt((c + d + ta) * (c + d + tb))
+    return (c - d) / den if den else None
+
+
+tau = {}
 reg = {}
 for name, path in TABLES.items():
     rows = [json.loads(l) for l in path.read_text().splitlines()]
@@ -128,6 +149,8 @@ for name, path in TABLES.items():
         sdv = [max(statistics.pstdev([f[j] for f in f2]), 1e-6) for j in range(2)]
         z = [tuple((f[j] - mu[j]) / sdv[j] for j in range(2)) for f in f2]
         cell = (tag, d)
+        r2s = [x["r2"] for x in sc]
+        tau[cell] = tau_b(r2s, ref)
         for B in BUDGETS:
             Bc = B * C["full"]
             for sd in range(SEEDS):
@@ -175,6 +198,7 @@ for ref_arm in ("hb", "rand"):
         p = min(1.0, 2 * sum(math.comb(n, k) for k in range(0, min(w, l) + 1)) / 2 ** n) if n else 1.0
         out.append(f"bohb vs {ref_arm}, B {B}: wins {w}, losses {l}, p {p:.3f}")
         summary[f"wins_{ref_arm}_B{B}"] = {"w": w, "l": l, "p": p}
+(HERE / f"cells{SUF}.json").write_text(json.dumps({f"{c[0]}/{c[1]}": {"tau_r2": tau[c], **{f"{a}_B{B}": reg[(c, B, a)] for B in BUDGETS for a in arms}} for c in cells}, indent=1))
 (HERE / f"results{SUF}.txt").write_text("\n".join(out) + "\n")
 (HERE / f"summary{SUF}.json").write_text(json.dumps(summary, indent=1))
 print("\n".join(out))
