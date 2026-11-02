@@ -21,6 +21,7 @@ ETA = 3
 import os
 GAMMA, BW_FLOOR, P_RANDOM, MIN_OBS = (float(os.environ.get("BOHB_GAMMA", 0.25)), 0.3, float(os.environ.get("BOHB_PRANDOM", 1 / 3)), int(os.environ.get("BOHB_MINOBS", 6)))
 DEGRADE = float(os.environ.get("BOHB_DEGRADE", 0))
+PART = os.environ.get("BOHB_PART", "both")  # milestone 63: both | score | features
 TAG = os.environ.get("BOHB_TAG", "")  # sensitivity runs (milestone 57) write results<_unseen>_<TAG>.* instead of overwriting
 HELD = len(sys.argv) > 1 and sys.argv[1] == "unseen"
 SUF = ("_unseen" if HELD else "") + (f"_{TAG}" if TAG else "")
@@ -153,8 +154,12 @@ for name, path in TABLES.items():
         if DEGRADE:  # milestone 62: corrupt R2 on purpose (its score and the KDE features), routed R4 untouched
             nr = random.Random(zlib.crc32((tag + d).encode()))
             for s_ in sc:
-                s_["r2"] = s_["r2"] * math.exp(DEGRADE * nr.gauss(0, 1))
-            z = [tuple(v + DEGRADE * nr.gauss(0, 1) for v in t) for t in z]
+                g_ = nr.gauss(0, 1)
+                if PART in ("both", "score"):
+                    s_["r2"] = s_["r2"] * math.exp(DEGRADE * g_)
+            z2 = [tuple(v + DEGRADE * nr.gauss(0, 1) for v in t) for t in z]
+            if PART in ("both", "features"):
+                z = z2
         r2s = [x["r2"] for x in sc]
         tau[cell] = tau_b(r2s, ref)
         for B in BUDGETS:
