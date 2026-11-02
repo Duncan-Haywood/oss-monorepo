@@ -867,3 +867,12 @@ test("hostile plans are refused with a reason, not silently framed or thrown on"
   const r = bad((w) => { w.length = 1e12; });
   assert.ok(r.errors?.some((e) => /at most 12000 inches/.test(e)));
 });
+
+test("parseLength reads metric lengths (mm, cm, m)", () => {
+  assert.ok(Math.abs(parseLength("2500mm") - 98.4252) < 1e-3);
+  assert.ok(Math.abs(parseLength("250 cm") - 98.4252) < 1e-3);
+  assert.ok(Math.abs(parseLength("2.5m") - 98.4252) < 1e-3);
+  assert.ok(Math.abs(parseLength("2,5 m") - 98.4252) < 1e-3);
+  assert.equal(parseLength("8 ft"), 96);
+  assert.ok(Number.isNaN(parseLength("5 mm x")));
+});
