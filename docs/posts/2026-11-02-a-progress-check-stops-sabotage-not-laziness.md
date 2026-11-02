@@ -3,7 +3,7 @@ title: "A progress check stops sabotage, not laziness"
 seo_title: "Verifying ML training: what a loss check on a held batch catches"
 date: 2026-11-02
 tags: [research, verifiable-training, mechanism-design, honesty]
-description: "Nine experiments on checking outsourced training with a verifier-held loss check: it catches reversed steps at once, and a cheater who knows the threshold still stalls for free."
+description: "Nine experiments on checking outsourced training with a verifier-held loss check: it catches reversed steps, but a cheater who knows the threshold still stalls."
 ---
 
 If you pay someone to train a model, how do you know they trained it? One cheap check: every 10 steps, evaluate their weights on a small batch you hold, and flag a loss that is higher than every honest run's loss at that point (times a ratio R).
