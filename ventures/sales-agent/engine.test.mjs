@@ -192,3 +192,15 @@ test("non-English opt-outs probed 2026-11-02 are all unsubscribes, and ordinary 
   for (const body of optOuts) assert.equal(triage({ body }, T).category, "unsubscribe", body);
   for (const body of ["Sounds interesting, can you send pricing?", "Let's talk next quarter", "Quítame una duda: ¿cuánto cuesta?"]) assert.notEqual(triage({ body }, T).category, "unsubscribe", body);
 });
+
+test("opt-outs in SV, DA, NO, PL, FI, TR, CS, HU, RO, RU, JA, ZH and DE/EN probed 2026-11-02 are unsubscribes, and ordinary replies are not", () => {
+  const optOuts = [
+    "Ta bort mig från er lista.", "Sluta skicka mejl till mig.", "Fjern mig fra jeres liste.", "Send mig ikke flere mails.", "Slett meg fra listen deres.",
+    "Proszę usunąć mnie z listy mailingowej.", "Nie przesyłajcie mi więcej maili.", "Poista minut postituslistaltanne.", "Älkää lähettäkö minulle enää sähköpostia.",
+    "Beni listenizden çıkarın.", "Bana bir daha e-posta göndermeyin.", "Odhlaste mě prosím z odběru.", "Kérem, töröljenek a listáról.", "Vă rog să mă ștergeți din listă.",
+    "Не пишите мне больше.", "Удалите меня из рассылки.", "メールの配信を停止してください。", "退订", "请不要再给我发邮件",
+    "Please refrain from emailing me further.", "Take me off.", "Bitte keine Werbung mehr senden.", "Ich möchte keine weiteren Nachrichten erhalten.",
+  ];
+  for (const body of optOuts) assert.equal(triage({ body }, T).category, "unsubscribe", body);
+  for (const body of ["Sounds interesting, can you send pricing?", "Kan du skicka en offert?", "Prześlij proszę cennik.", "Можете прислать цены?", "请发一份报价单"]) assert.notEqual(triage({ body }, T).category, "unsubscribe", body);
+});

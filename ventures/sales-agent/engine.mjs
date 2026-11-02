@@ -239,6 +239,16 @@ const RULES = {
     P("\\bcease and desist\\b"), P("\\bcease (all )?(further )?(email|e-mail|communication|contact)"),
     // Other languages (added after the third eval set; unverified beyond one example each): FR, DE, ES, IT opt-out phrasings.
     P("\\bne (me )?contactez plus\\b"), P("\\b(retirer|supprimer) (de|mon|mes|mon adresse)\\b.*\\b(liste|diffusion|donn[ée]es)"), P("\\b(kontaktieren|anschreiben|schreiben)( sie)? mich nicht mehr\\b"), P("\\bnicht mehr (kontaktieren|anschreiben|schreiben)\\b"), P("\\bsc?hreiben sie mir nicht mehr\\b"), P("\\bno me (vuelvan a )?(escrib|contact)"), P("\\bnon (mi |ci )?contatt\\w* pi[uù]\\b"), P("\\bnon contattatemi\\b"),
+    // Added 2026-11-02 (second probe): SV, DA, NO, PL, FI, TR, CS, HU, RO, RU, JA, ZH and DE/EN gaps; 27 of 37 short phrasings went to "unclear". Agent-written, unscored on real mail.
+    // No \\b around non-ASCII letters (JS \\b is ASCII-only).
+    P("ta bort mig fr[åa]n"), P("sluta (skicka|maila|mejla)"), P("avregistrera"), P("inte ha fler (mejl|mail|e-?post)"), P("fjern mig fra"), P("send (mig )?ikke flere"), P("slett meg fra"), P("ikke send meg"),
+    P("usun[ąa][ćc] mnie"), P("nie (przesy[łl]a|wysy[łl]a|piszcie)\\w* (mi )?wi[ęe]cej"), P("wypisa(nie|ć)"), P("poista minut"), P("[äa]lk[äa][äa] l[äa]hett[äa]k[öo]"),
+    P("beni (listenizden|listeden) [çc][ıi]kar"), P("bir daha (e-?posta|mail|mesaj) g[öo]nderme"), P("abonelikten [çc][ıi]k"),
+    P("odhla[šs]te m[ěe]"), P("nepi[šs]te mi"), P("t[öo]r[öo]ljenek"), P("[șşs]terge[țţt]i-?m[ăa]"), P("m[ăa] [șşs]terge[țţt]i"), P("nu (mai )?trimite[țţt]i"),
+    P("не (пишите|присылайте|отправляйте) (мне )?больше"), P("удалите меня"), P("отпишите меня"), P("отписаться"),
+    P("配信を?停止"), P("配信解除"), P("退订"), P("取消订阅"), P("不要再(给我)?发"), P("请勿再(给我)?发"),
+    P("\\b(refrain|desist) from (emailing|contacting|writing|messaging|reaching out)"), P("\\bstop (reaching out|contacting|emailing|writing|messaging)\\b"), P("\\btake me off\\b"),
+    P("keine (werbung|weiteren (nachrichten|e-?mails|mails)|mails mehr)"), P("aus dem verteiler"), P("streichen sie mich"),
   ],
   bounce: [
     P("\\bdelivery (status notification|has failed|failure)\\b"), P("\\bundeliverable\\b"), P("\\bmail delivery (subsystem|failed|system)\\b"), P("\\baddress (not found|couldn'?t be found|rejected)\\b"),
