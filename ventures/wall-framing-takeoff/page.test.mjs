@@ -550,3 +550,10 @@ test("the studs-per-wall page's FAQ is visible and matches its FAQPage JSON-LD",
     assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
   }
 });
+
+test("index.html shows the budget's ignored prices, built from the engine's own list", () => {
+  const html = page("index.html");
+  assert.ok(html.includes("b.ignoredPrices.length"));
+  assert.ok(html.includes('id="ignoredPrices"'));
+  assert.ok(html.includes("did you mean"));
+});
