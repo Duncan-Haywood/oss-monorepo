@@ -108,6 +108,7 @@ await page.click("#show-standings");
 const so = await page.locator("#standings-out").innerText();
 check(/Not counted/.test(so) && /Nobody/.test(so), "standings: a result for an unknown team is named, not counted");
 check(/U10/.test(so) && /Hawks/.test(so), "standings: the division table is shown");
+check(/why teams are ranked/.test(so), "standings: tie-break notes are shown");
 check(await page.locator("#dl-standings").isVisible(), "standings: CSV button appears");
 {
   const [dl] = await Promise.all([page.waitForEvent("download", { timeout: 10000 }), page.click("#dl-standings")]);

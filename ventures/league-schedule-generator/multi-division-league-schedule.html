@@ -176,7 +176,7 @@
   </footer>
 
   <script type="module">
-    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, parseDivisionBlackouts, applyDivisionBlackouts, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsScoreSheetsHtml, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages, divisionsStandings, divisionsStandingsCsv, divisionsPlayoffs } from "./divisions.mjs";
+    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, parseDivisionBlackouts, applyDivisionBlackouts, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsScoreSheetsHtml, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages, divisionsStandings, divisionsTieBreakNotes, divisionsStandingsCsv, divisionsPlayoffs } from "./divisions.mjs";
     import { dayIso } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
@@ -270,7 +270,7 @@
       const r = divisionsStandings(last, $("#results").value, { points: $("#points").value.trim() || "3-1-0", headToHead: $("#h2h").checked });
       lastStandings = r;
       $("#dl-standings").hidden = !r.tables.length;
-      $("#standings-out").innerHTML = (r.errors.length ? `<div class="warn"><strong>Not counted:</strong><ul>${r.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>` : "") + r.tables.map((t) => `<h4>${esc(t.division)}</h4><div class="scroll"><table><thead><tr><th class="n">#</th><th>Team</th><th class="n">P</th><th class="n">W</th><th class="n">D</th><th class="n">L</th><th class="n">GF</th><th class="n">GA</th><th class="n">GD</th><th class="n">Pts</th></tr></thead><tbody>${t.rows.map((x) => `<tr><td class="n">${x.rank}</td><td>${esc(x.name)}</td>${[x.played, x.won, x.drawn, x.lost, x.gf, x.ga, x.gd, x.points].map((n) => `<td class="n">${n}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`).join("");
+      $("#standings-out").innerHTML = (r.errors.length ? `<div class="warn"><strong>Not counted:</strong><ul>${r.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>` : "") + r.tables.map((t) => `<h4>${esc(t.division)}</h4><div class="scroll"><table><thead><tr><th class="n">#</th><th>Team</th><th class="n">P</th><th class="n">W</th><th class="n">D</th><th class="n">L</th><th class="n">GF</th><th class="n">GA</th><th class="n">GD</th><th class="n">Pts</th></tr></thead><tbody>${t.rows.map((x) => `<tr><td class="n">${x.rank}</td><td>${esc(x.name)}</td>${[x.played, x.won, x.drawn, x.lost, x.gf, x.ga, x.gd, x.points].map((n) => `<td class="n">${n}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`).join("") + divisionsTieBreakNotes(r).map((x) => `<h4>${esc(x.division)}: why teams are ranked where they are</h4><ul>${x.notes.map((n) => `<li>${esc(n.text)}</li>`).join("")}</ul>`).join("");
       record("divisions_standings_shown");
     });
     $("#show-playoffs").addEventListener("click", () => {

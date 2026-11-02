@@ -673,6 +673,11 @@ export function divisionStats(schedule) {
  * schedule, or a pair reported more often than the schedule has them, is returned under `errors`, never dropped.
  * Returns { tables: [{ division, rows }], errors }.
  */
+/** Tie-break notes (why a team is above the next) for each division of `divisionsStandings(...)`: [{ division, notes }]. */
+export function divisionsTieBreakNotes(result) {
+  return result.tables.map((t) => ({ division: t.division, notes: tieBreakNotes(t.rows) })).filter((x) => x.notes.length);
+}
+
 export function divisionsStandings(schedule, text, { points = "3-1-0", headToHead = false } = {}) {
   const errors = [];
   const ps = parsePointSystem(points);
