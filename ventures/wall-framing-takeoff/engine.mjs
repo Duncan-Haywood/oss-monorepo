@@ -269,6 +269,19 @@ export function validatePlan(plan) {
       if (op.kind === "window" && g.bottomCripple < -EPS) errors.push(`${on}: the window sill is below the bottom plate. Raise the header height or shorten the window.`);
       if (op.kind === "door" && g.roBottom > THICK + EPS) errors.push(`${on}: a door opening should reach the floor; check the header height and opening height.`);
     }
+    // A tee wall cannot land inside an opening, and two tees closer than a stud
+    // thickness are one tee listed twice: either would double the backing studs or drop one under a header.
+    const tees = [...(wall.tees || [])].filter((t) => t >= THICK && t <= wall.length - THICK).sort((a, b) => a - b);
+    for (let ti = 0; ti < tees.length; ti++) {
+      const t = tees[ti];
+      if (ti > 0 && t - tees[ti - 1] < THICK - EPS) errors.push(`${name}: tees at ${formatLength(tees[ti - 1])} and ${formatLength(t)} are closer than a stud thickness; list each tee wall once.`);
+      for (const [oi, op] of ops.entries()) {
+        if (op.width > 0 && t > op.offset - EPS && t < op.offset + op.width + EPS) {
+          errors.push(`${name}: a tee at ${formatLength(t)} falls inside the ${op.label || op.kind} at ${formatLength(op.offset)}. Move the tee wall clear of the opening.`);
+          break;
+        }
+      }
+    }
   }
   return errors;
 }
