@@ -5,6 +5,9 @@
   igmp scan | prefilter | score | edit | reels | carousels | status
   igmp stage         reel-size proxies of everything reels use, so reels are made with the drives away
   igmp sync-outputs  move outputs written while the output drive was away (the outbox) onto it
+  igmp ingest [CARD...]  copy SD cards / camera SSDs into the library, verified, and push them to the cloud
+  igmp cloud push | pull | seed | status   the bucket the cloud worker reads (docs/CLOUD.md)
+  igmp worker        the continuous loop a cloud machine runs: mirror, every stage, outputs back
 """
 from __future__ import annotations
 
@@ -28,7 +31,12 @@ def scan(cfg: config.Config, store: Store) -> list[Asset]:
     if away:
         log.info("catalog: %s not connected; their assets are kept as they were",
                  ", ".join(str(r) for r in away))
-    found = catalog.scan(cfg.library_roots)
+    try:
+        from .ingest import scan_roots
+        roots = scan_roots(cfg)                      # the library roots plus the ingest spool
+    except ImportError:
+        roots = cfg.library_roots
+    found = catalog.scan(roots)
     new = updated = 0
     for a in found:
         old = store.get("assets", a.id, Asset)
@@ -175,12 +183,77 @@ def run_stage(cfg: config.Config, store: Store, args) -> int:
     return 1 if res["failed"] else 0
 
 
+def pipeline(cfg: config.Config, store: Store, command: str = "run", *, only: str | None = None,
+             limit: int | None = None, mix: str | None = None, judge=None) -> None:
+    """The stages behind `igmp run` (and the one-stage commands), also what the cloud worker runs
+    (it passes its own `judge`, wrapped in a token budget)."""
+    from . import metadata
+
+    def refresh() -> list[Asset]:
+        # every stage leaves its results in the sidecars, so metadata stays part of the process
+        current = [a for _, a in store.all("assets", Asset)]
+        metadata.tag_all(cfg, store, current)
+        return current
+
+    assets = scan(cfg, store)
+    if command in ("geo", "run"):
+        # place shots from the phone's GPS track; under `run` an unavailable track is only logged
+        from . import geo
+        geo.geo_pass(cfg, store, assets, geo.load_track(cfg) if command == "geo" else None)
+    if command in ("prefilter", "run"):
+        measure(cfg, store, assets)
+        assets = [a for _, a in store.all("assets", Asset)]
+    if only:
+        assets = [a for a in assets if only in a.event_key]
+    if limit:
+        keep = [a for a in assets if (m := store.get("metrics", a.id, Metrics)) and m.candidate
+                and not store.has("scores", a.id)][:limit]
+        ids = {a.id for a in keep} | {a.id for a in assets if store.has("scores", a.id)}
+        assets = [a for a in assets if a.id in ids]
+    if command in ("score", "astro", "edit", "reels", "carousels", "run"):
+        if judge is None:
+            from .judge import backend
+            judge = backend(cfg)
+        if command in ("score", "run"):
+            from . import taste
+            taste.score_all(cfg, store, judge, assets)
+            assets = refresh()
+        if command in ("astro", "run"):
+            # before edit: a stack becomes the edit of its run's lead frame, so editing skips it
+            from . import astro
+            astro.run(cfg, store, judge, assets, only=only)
+        if command in ("edit", "run"):
+            from . import editing
+            editing.edit_all(cfg, store, judge, assets)
+            assets = refresh()
+        if command in ("reels", "run"):
+            from . import reels
+            reels.build_all(cfg, store, judge, assets, mix=reels.Mix.parse(mix) if mix else None,
+                            only=only, limit=limit if command == "reels" else None)
+        if command in ("carousels", "run"):
+            from . import carousels
+            carousels.build_all(cfg, store, judge, assets, limit=limit if command == "carousels" else None)
+    if command in ("scan", "prefilter", "reels", "tag", "geo", "run"):
+        refresh()
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="igmp", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("command", choices=["init", "run", "scan", "prefilter", "score", "astro", "edit", "reels", "carousels",
                                        "tag", "backup", "geo", "music", "status", "organize", "stage",
-                                       "sync-outputs"])
-    p.add_argument("action", nargs="?", choices=["manifest", "verify", "copy"], help="backup only")
+                                       "sync-outputs", "ingest", "cloud", "worker"])
+    p.add_argument("action", nargs="?", default=None,
+                   help="backup: manifest | verify | copy; cloud: push | pull | seed | status")
+    p.add_argument("paths", nargs="*", default=[], help="ingest: card folders (default: every mounted card)")
+    p.add_argument("--location", type=str, default=None, help="ingest: place label for the shots")
+    p.add_argument("--event", type=str, default="", help="ingest: event label for the shots")
+    p.add_argument("--dry-run", action="store_true", help="ingest: show the plan, copy nothing")
+    p.add_argument("--watch", action="store_true", help="ingest: keep running, ingest each card inserted")
+    p.add_argument("--no-push", action="store_true", help="ingest: copy only, don't push to the cloud")
+    p.add_argument("--settle", action="store_true", help="ingest: move the spool into the library root")
+    p.add_argument("--force", action="store_true", help="cloud seed: replace the worker's state")
+    p.add_argument("--once", action="store_true", help="worker: one cycle, then exit")
+    p.add_argument("--interval", type=float, default=None, help="worker: seconds between cycles")
     p.add_argument("--to", type=str, default=None, help="backup copy destination")
     p.add_argument("--apply", action="store_true", help="organize: move the files (default: show the plan)")
     p.add_argument("--undo", type=str, default=None, help="organize: a manifest to move back")
@@ -191,6 +264,16 @@ def main(argv: list[str] | None = None) -> int:
                    help="reels per event by length, e.g. short=3,medium=1,long=1 (default: scaled by its keepers)")
     p.add_argument("--config", type=str, default=None)
     args = p.parse_args(argv)
+    valid = {"backup": ("manifest", "verify", "copy"), "cloud": ("push", "pull", "seed", "status")}
+    if args.action is not None and args.command not in valid:
+        if args.command != "ingest":
+            p.error(f"{args.command} takes no action argument")
+        args.paths = [args.action, *args.paths]       # `igmp ingest /Volumes/CARD`: the first card
+        args.action = None
+    if args.command in valid and args.action is not None and args.action not in valid[args.command]:
+        p.error(f"{args.command}: action must be one of {', '.join(valid[args.command])}")
+    if args.command == "cloud" and args.action is None:
+        p.error("cloud needs an action: push | pull | seed | status")
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
     path = config.Path(args.config).expanduser() if args.config else config.DEFAULT_PATH
@@ -206,6 +289,17 @@ def main(argv: list[str] | None = None) -> int:
         return 1 if synced.get("failed") else 0
     if args.command == "stage":
         return run_stage(cfg, store, args)
+    if args.command == "ingest":
+        from . import ingest
+        if args.location is None:
+            args.location = str((cfg.extra or {}).get("ingest_location", ""))
+        return ingest.cli_ingest(cfg, store, args)
+    if args.command == "cloud":
+        from . import cloud
+        return cloud.cli_cloud(cfg, store, args)
+    if args.command == "worker":
+        from . import worker
+        return worker.cli_worker(cfg, args)
     if args.command == "status":
         status(store)
         return 0
@@ -218,53 +312,7 @@ def main(argv: list[str] | None = None) -> int:
         print(music.library_listing(cfg) or f"no licensed tracks in {music.music_dir(cfg)}")
         return 0
 
-    from . import metadata
-
-    def refresh() -> list[Asset]:
-        # every stage leaves its results in the sidecars, so metadata stays part of the process
-        current = [a for _, a in store.all("assets", Asset)]
-        metadata.tag_all(cfg, store, current)
-        return current
-
-    assets = scan(cfg, store)
-    if args.command in ("geo", "run"):
-        # place shots from the phone's GPS track; under `run` an unavailable track is only logged
-        from . import geo
-        geo.geo_pass(cfg, store, assets, geo.load_track(cfg) if args.command == "geo" else None)
-    if args.command in ("prefilter", "run"):
-        measure(cfg, store, assets)
-        assets = [a for _, a in store.all("assets", Asset)]
-    if args.only:
-        assets = [a for a in assets if args.only in a.event_key]
-    if args.limit:
-        keep = [a for a in assets if (m := store.get("metrics", a.id, Metrics)) and m.candidate
-                and not store.has("scores", a.id)][:args.limit]
-        ids = {a.id for a in keep} | {a.id for a in assets if store.has("scores", a.id)}
-        assets = [a for a in assets if a.id in ids]
-    if args.command in ("score", "astro", "edit", "reels", "carousels", "run"):
-        from .judge import backend
-        judge = backend(cfg)
-        if args.command in ("score", "run"):
-            from . import taste
-            taste.score_all(cfg, store, judge, assets)
-            assets = refresh()
-        if args.command in ("astro", "run"):
-            # before edit: a stack becomes the edit of its run's lead frame, so editing skips it
-            from . import astro
-            astro.run(cfg, store, judge, assets, only=args.only)
-        if args.command in ("edit", "run"):
-            from . import editing
-            editing.edit_all(cfg, store, judge, assets)
-            assets = refresh()
-        if args.command in ("reels", "run"):
-            from . import reels
-            reels.build_all(cfg, store, judge, assets, mix=reels.Mix.parse(args.mix) if args.mix else None,
-                            only=args.only, limit=args.limit if args.command == "reels" else None)
-        if args.command in ("carousels", "run"):
-            from . import carousels
-            carousels.build_all(cfg, store, judge, assets, limit=args.limit if args.command == "carousels" else None)
-    if args.command in ("scan", "prefilter", "reels", "tag", "geo", "run"):
-        refresh()
+    pipeline(cfg, store, args.command, only=args.only, limit=args.limit, mix=args.mix)
     status(store)
     return 0
 
