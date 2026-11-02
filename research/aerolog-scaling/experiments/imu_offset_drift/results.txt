@@ -1,0 +1,22 @@
+1) factory offset, uncalibrated, against a channel rms of a few deg/s / hundredths of a g
+   pitch-rate rms  0.5 deg/s: offset of 1 deg/s is   200% of rms
+   pitch-rate rms  1.0 deg/s: offset of 1 deg/s is   100% of rms
+   pitch-rate rms  2.0 deg/s: offset of 1 deg/s is    50% of rms
+   pitch-rate rms  5.0 deg/s: offset of 1 deg/s is    20% of rms
+   load-factor rms 0.004 g: offset of 20 mg is   500% of rms
+   load-factor rms 0.010 g: offset of 20 mg is   200% of rms
+   load-factor rms 0.030 g: offset of 20 mg is    67% of rms
+   load-factor rms 0.100 g: offset of 20 mg is    20% of rms
+
+2) after averaging a static record of T seconds (white noise only, 1/sqrt(2T) bandwidth): residual offset
+   T =    5 s: gyro   4.43 mdeg/s, accel  60.08 ug
+   T =   30 s: gyro   1.81 mdeg/s, accel  24.53 ug
+   T =  120 s: gyro   0.90 mdeg/s, accel  12.26 ug
+
+3) offset change between calibration and manoeuvre, TCO x dT, and the rms at which it is 10% / 2% of the signal
+   dT (K) | gyro drift (deg/s) | q rms for 10% / 2% (deg/s) | accel drift (mg) | dn rms for 10% / 2% (g)
+        1 |              0.015 |      0.15 /   0.75        |             0.20 | 0.0020 / 0.0100
+        2 |              0.030 |      0.30 /   1.50        |             0.40 | 0.0040 / 0.0200
+        5 |              0.075 |      0.75 /   3.75        |             1.00 | 0.0100 / 0.0500
+       10 |              0.150 |      1.50 /   7.50        |             2.00 | 0.0200 / 0.1000
+       20 |              0.300 |      3.00 /  15.00        |             4.00 | 0.0400 / 0.2000
