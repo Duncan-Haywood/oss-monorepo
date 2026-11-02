@@ -7618,12 +7618,12 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
   ${siteStyleLink(toRoot)}
 </head>
 <body>
-  ${renderSiteHeader({ toRoot, current: 'about', crumbs: [{ label: 'Custom development' }] })}
+  ${renderSiteHeader({ toRoot, current: 'request', crumbs: [{ label: 'Custom development' }] })}
   <div class="wrap">
     <header class="pf-hero">
       <p class="eyebrow">Custom development</p>
       <h1>${escapeHtml(title)}</h1>
-      <p class="lede">Tell us the tool your work needs. AI agent sessions build accepted requests in this public repository, free, and you can watch every step. The one condition: what is built stays open source under the MIT licence, held by the repository owner.</p>
+      <p class="lede">Tell us the tool your work needs: a new product, or a feature for one already here. AI agent sessions build accepted requests in this public repository, free, and you can watch every step. The one condition: what is built stays open source under the MIT licence, held by the repository owner.</p>
     </header>
 
     <main class="prose">
