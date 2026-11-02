@@ -131,6 +131,9 @@ export const DEFAULTS = samplePlan();
  */
 export function parseLength(text) {
   if (typeof text === "number") return text;
+  // Metric from a European plan: "2500mm", "250 cm", "2.5m", "2,5 m" -> inches (exact 25.4 mm).
+  const metric = String(text).trim().toLowerCase().match(/^(\d+(?:[.,]\d+)?)\s*(mm|cm|m)$/);
+  if (metric) return Number(metric[1].replace(",", ".")) * { mm: 1, cm: 10, m: 1000 }[metric[2]] / 25.4;
   let s = String(text).trim().toLowerCase().replace(/feet|foot|ft/g, "'").replace(/inches|inch|in/g, '"').replace(/[″”“]/g, '"').replace(/[′’‘]/g, "'");
   // Phone keyboards type curly quotes and one-glyph fractions (6½").
   const GLYPH = { "½": "1/2", "¼": "1/4", "¾": "3/4", "⅛": "1/8", "⅜": "3/8", "⅝": "5/8", "⅞": "7/8" };
