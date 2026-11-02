@@ -385,3 +385,20 @@ def test_read_times_uses_exiftool_and_sony_xml(tmp_path):
 def test_scan_roots_without_any_root_configured(tmp_path):
     cfg = Config(library_roots=[], output_dir=tmp_path)
     assert ingest.scan_roots(cfg) == []
+
+
+def test_ingest_camera_names_a_card_whose_files_carry_no_model(tmp_path):
+    from igmp import config, ingest
+    from igmp.store import Store
+    card = tmp_path / "CARD"
+    clip = card / "DCIM" / "DJI_001" / "DJI_20261010173952_0001_D.MP4"
+    clip.parent.mkdir(parents=True)
+    clip.write_bytes(b"clip")
+    root = tmp_path / "lib" / "2026"
+    root.mkdir(parents=True)
+    cfg = config.Config(library_roots=[root], output_dir=tmp_path / "out",
+                        extra={"ingest_camera": "OsmoAction"})
+    reader = lambda files, cfg: {p: {"taken_at": __import__("datetime").datetime(2026, 10, 10, 17, 39, 52),
+                                     "model": "", "make": "", "source": "name"} for p in files}
+    copies = ingest.plan(card, cfg, Store(cfg.db_path), location="Harbor", reader=reader)
+    assert [c.dest.name for c in copies] == ["2026-10-10_173952_Harbor_OsmoAction_DJI_20261010173952_0001_D.MP4"]

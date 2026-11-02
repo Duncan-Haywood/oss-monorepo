@@ -451,6 +451,10 @@ def plan(card: Path, cfg, store, *, location: str = "", event: str = "", reader=
         camera = camera_label(bi.get("model", "") or next((info[p].get("model", "") for p in members
                                                            if info.get(p, {}).get("model")), ""),
                               bi.get("make", ""), best)
+        fallback = str((cfg.extra or {}).get("ingest_camera", "") or "")
+        if camera not in CAMERAS and fallback in CAMERAS:
+            # no usable model (a DJI clip without exiftool): the camera the settings name for this card
+            camera = fallback
         taken = _local(bi["taken_at"], cfg, location)
         source = bi.get("source", "mtime")
         for p in sorted(members):

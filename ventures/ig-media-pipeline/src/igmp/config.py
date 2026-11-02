@@ -58,6 +58,7 @@ natural_sound = true    # keep the clips' own sound under the music; loud moment
 # (default: the last library root; a spool under state_dir while that drive is away), verified.
 # ingest_root = "/Volumes/PhotoDrive/2026"
 # ingest_location = ""    # place label for ingested shots (or `igmp ingest --location Harbor`)
+# ingest_camera = "Pocket3"  # camera for files that carry no model (DJI clips when exiftool is missing)
 # With cloud_url set, ingest also pushes each shot to an S3-compatible bucket, and `igmp worker` on
 # a cloud machine makes the photos and reels from there. Keys come from the environment
 # (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY), never from this file.
