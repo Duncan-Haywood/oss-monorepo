@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -704,4 +704,23 @@ test("division score sheets: a page per night, every match once, names escaped",
   assert.equal((html.match(/<td class="f">/g) || []).length, total);
   assert.ok(html.includes("A&lt;b&gt;&amp;Co") && !html.includes("A<b>"));
   assert.ok(html.includes("Spring &lt;League&gt;") && !/<script/i.test(html));
+});
+
+test("divisionsStandings ranks each division and rejects results the schedule cannot have", () => {
+  const { spec } = readDivisionsSpec(example);
+  const sch = buildDivisions(spec);
+  const [d0, d1] = sch.divisions;
+  const [a, b, c] = d0.teams;
+  const text = `${d0.name}: ${a} 3 - 0 ${b}\n${d0.name}: ${c} 1 - 1 ${a}\n${d0.name}: ${b} -2 pts\n${d1.name}: ${d1.teams[0]} w/o ${d1.teams[1]}`;
+  const r = divisionsStandings(sch, text);
+  assert.deepEqual(r.errors, []);
+  const t0 = r.tables[0].rows;
+  assert.equal(t0[0].name, a);
+  assert.equal(t0[0].points, 4);
+  assert.equal(t0.find((x) => x.name === b).points, -2);
+  assert.equal(r.tables[1].rows[0].name, d1.teams[0]);
+  // no prefix in a multi-division league, an unknown team, and a pair reported twice in a single round robin
+  const bad = divisionsStandings(sch, `${a} 1 - 0 ${b}\n${d0.name}: ${a} 1 - 0 Nobody\n${d0.name}: ${a} 1 - 0 ${b}\n${d0.name}: ${b} 2 - 0 ${a}`);
+  assert.equal(bad.errors.length, 3);
+  assert.match(bad.errors[2], /more often than it is scheduled/);
 });

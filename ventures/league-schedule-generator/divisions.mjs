@@ -7,7 +7,7 @@
 //   3. a team plays at the same venue as on its previous night where it can (fewer trips).
 // Each division keeps the circle-method round robin of calc.mjs (home/away balance and byes), so only
 // the dates, courts and times are decided here.
-import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm } from "./calc.mjs";
+import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, parsePointSystem } from "./calc.mjs";
 
 const MAX_NIGHTS = 800;
 const W_CLASH = 1000;
@@ -663,6 +663,50 @@ export function divisionStats(schedule) {
   }
   const cap = schedule.config.courts.length * schedule.config.times.length;
   return { nights: schedule.nights.length, matches, trips, homeAwayBreaks, ...(travel ? { travelMinutes } : {}), ...(schedule.config.venueFairness ? { venueImbalance: venueImbalance(carryVenueHistory(schedule)) } : {}), clashes: schedule.conflicts.length, utilisation: matches / (schedule.nights.length * cap), lastDay: schedule.nights.length ? schedule.nights[schedule.nights.length - 1].day : null };
+}
+
+/**
+ * Results across divisions. One result per line, the division first: "U10: Hawks 3 - 2 Owls" (forfeit
+ * "U10: Hawks w/o Owls", points adjustment "U10: Hawks -3 pts"). A line with no division prefix is
+ * accepted only when the league has one division. Each division is ranked by `standings`
+ * (points, head-to-head if asked, goal difference, goals for). A result between teams that never meet in the
+ * schedule, or a pair reported more often than the schedule has them, is returned under `errors`, never dropped.
+ * Returns { tables: [{ division, rows }], errors }.
+ */
+export function divisionsStandings(schedule, text, { points = "3-1-0", headToHead = false } = {}) {
+  const errors = [];
+  const ps = parsePointSystem(points);
+  if (ps.error) errors.push(ps.error);
+  const byDiv = schedule.divisions.map(() => []);
+  const names = schedule.divisions.map((d) => d.name.toLowerCase());
+  for (const [i, raw] of String(text ?? "").split(/\r?\n/).entries()) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^([^:]+):\s*(.*)$/);
+    let d = -1, body = line;
+    if (m && names.includes(m[1].trim().toLowerCase())) { d = names.indexOf(m[1].trim().toLowerCase()); body = m[2]; }
+    else if (schedule.divisions.length === 1) d = 0;
+    else { errors.push(`Result line ${i + 1}: start it with a division, like "${schedule.divisions[0].name}: ${line}".`); continue; }
+    byDiv[d].push(body);
+  }
+  const tables = schedule.divisions.map((div, d) => {
+    const r = parseResults(byDiv[d].join("\n"), div.teams);
+    for (const e of r.errors) errors.push(`${div.name}: ${e}`);
+    const allowed = new Map();
+    for (const round of div.rounds) for (const mt of round.matches) { const k = [mt.home, mt.away].sort().join("/"); allowed.set(k, (allowed.get(k) ?? 0) + 1); }
+    const seen = new Map();
+    const kept = [];
+    for (const x of r.results) {
+      const k = [x.a, x.b].sort().join("/");
+      const n = (seen.get(k) ?? 0) + 1;
+      if (!allowed.has(k)) { errors.push(`${div.name}: ${div.teams[x.a]} and ${div.teams[x.b]} are not scheduled to meet.`); continue; }
+      if (n > allowed.get(k)) { errors.push(`${div.name}: ${div.teams[x.a]} v ${div.teams[x.b]} is reported more often than it is scheduled (${allowed.get(k)}).`); continue; }
+      seen.set(k, n);
+      kept.push(x);
+    }
+    return { division: div.name, rows: standings(div.teams, kept, { win: ps.win, draw: ps.draw, loss: ps.loss, headToHead, adjustments: r.adjustments }) };
+  });
+  return { tables, errors };
 }
 
 /** Independent re-check of a finished multi-division schedule. */
