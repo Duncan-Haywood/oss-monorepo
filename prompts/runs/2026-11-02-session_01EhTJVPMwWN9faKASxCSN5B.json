@@ -15,25 +15,34 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
+  "task": "Monetize (league-schedule-generator): branded printable season pack, dark",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": 12519,
   "repo": null,
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": false,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 4,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Router drew the research track, but the scheduled prompt asked for revenue products; took the monetization queue's next step instead.",
+      "did": "built the dark season pack",
+      "result": "311 venture tests pass"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Ran platform/ci/run_venture_tests.py league-schedule-generator: pass. Monetization evaluate tests: 7 pass. No browser click-through; licence validate shape from memory of Lemon Squeezy docs. Checkout product needs the owner.",
   "corrections": [],
   "redteam": null
 }
