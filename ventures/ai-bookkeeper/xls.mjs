@@ -121,7 +121,8 @@ function xlString(d, p, lenBytes = 2) {
 
 function serialToIso(v, epoch1904) {
   const d = new Date(Date.UTC(1899, 11, 30) + (Math.floor(v) + (epoch1904 ? 1462 : 0)) * 86400000);
-  return d.toISOString().slice(0, 10);
+  // A damaged file can hold a serial outside the Date range: keep the number, don't throw.
+  return Number.isNaN(d.getTime()) ? String(v) : d.toISOString().slice(0, 10);
 }
 const csvCell = (s) => (/[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
 
