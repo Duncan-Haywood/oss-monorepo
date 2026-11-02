@@ -3,7 +3,7 @@ title: "E-invoicing pages for Uganda and Rwanda"
 seo_title: "E-invoicing in Uganda (EFRIS) and Rwanda (EBM)"
 date: 2026-11-01
 tags: [einvoice-preflight, e-invoicing, uganda, rwanda]
-description: "E-invoice Preflight now covers 69 countries. Uganda's EFRIS reportedly added twelve sectors in 2026; Rwanda's EBM system has a September 2026 ministerial order reported."
+description: "E-invoice Preflight now covers 69 countries. Uganda's EFRIS reportedly added twelve sectors in 2026; Rwanda's EBM has a reported September 2026 order."
 ---
 
 E-invoice Preflight's mandates-by-country table grows from 67 to 69 rows.
