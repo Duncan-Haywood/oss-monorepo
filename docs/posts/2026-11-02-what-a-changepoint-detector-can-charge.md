@@ -1,6 +1,6 @@
 ---
 title: "What a free changepoint detector can honestly charge for"
-seo_title: "Pricing a free changepoint detection tool: what to sell and what to keep free"
+seo_title: "What a free changepoint detection tool can charge for"
 date: 2026-11-02
 tags: [business-model, monetization, changepoint-detector]
 description: "Enterprise anomaly monitoring costs roughly $15 per host or $1,000 a month. A browser tool that answers one question can't charge that, so here is what it can."
