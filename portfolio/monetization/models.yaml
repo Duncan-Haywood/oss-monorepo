@@ -273,7 +273,8 @@ products:
       card stays hidden until CHECKOUT_URL is set. Tested for escaping and
       the logo/colour allow-lists (report.test.mjs). Owner: the one
       merchant-of-record product that serves the other dark paths serves
-      this one. Agent steps left: a marketing page with a generated sample
-      report, and the comparables checked on the vendors' own pages when a
-      host allows it.
+      this one. Marketing page with a generated sample report landed
+      2026-11-02 (change-report-for-analysts.html, sample-change-report.html,
+      build-sample-report.mjs). Agent step left: the comparables checked on
+      the vendors' own pages when a host allows it.
     next_owner: true

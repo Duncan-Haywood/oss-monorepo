@@ -49,3 +49,14 @@ test("the report stays dark until a checkout link is set, and unlock never throw
   const ok = async () => ({ json: async () => ({ valid: true, license_key: { status: "active" } }) });
   assert.equal((await checkLicence("ABCD-1234-EFGH", { url: "https://x.test/v", fetch: ok })).valid, true);
 });
+
+test("sample report is what the real report code produces, and the marketing page says it is not on sale", async () => {
+  const { sampleReport } = await import("./build-sample-report.mjs");
+  const { readFileSync } = await import("node:fs");
+  assert.equal(readFileSync(new URL("./sample-change-report.html", import.meta.url), "utf8"), sampleReport());
+  const p = readFileSync(new URL("./change-report-for-analysts.html", import.meta.url), "utf8");
+  assert.match(p, /sample-change-report\.html/);
+  assert.match(p, /not on sale yet/);
+  assert.match(p, /No warranty/);
+  assert.match(readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8"), /change-report-for-analysts/);
+});
