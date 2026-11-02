@@ -155,11 +155,15 @@ for name, path in TABLES.items():
             nr = random.Random(zlib.crc32((tag + d).encode()))
             for s_ in sc:
                 g_ = nr.gauss(0, 1)
+                if PART == "none":  # milestone 64: R2 score carries no information (ties broken at random)
+                    s_["r2"] = 1.0
                 if PART in ("both", "score"):
                     s_["r2"] = s_["r2"] * math.exp(DEGRADE * g_)
             z2 = [tuple(v + DEGRADE * nr.gauss(0, 1) for v in t) for t in z]
             if PART in ("both", "features"):
                 z = z2
+            if PART == "none":  # features replaced by pure N(0,1) noise of the standardised scale
+                z = [tuple(nr.gauss(0, 1) for _ in t) for t in z]
         r2s = [x["r2"] for x in sc]
         tau[cell] = tau_b(r2s, ref)
         for B in BUDGETS:

@@ -4,7 +4,7 @@ No flow. Usage: python3 degrade.py (about 10 min). Writes degrade.txt."""
 import json, os, subprocess, sys
 from pathlib import Path
 H = Path(__file__).resolve().parent
-SIGMAS = (0.3, 1.0) if os.environ.get("BOHB_PART", "both") != "both" else (0, 0.1, 0.3, 1.0)
+SIGMAS = (1.0,) if os.environ.get("BOHB_PART") == "none" else (0.3, 1.0) if os.environ.get("BOHB_PART", "both") != "both" else (0, 0.1, 0.3, 1.0)
 PART = os.environ.get("BOHB_PART", "both")
 L = ["sigma | mean tau(R2,R4) over main 40 cells | B | rand | bohb | bohb_r4first | sh_r2 (mean regret %, 100 paired seeds)"]
 for sg in SIGMAS:
@@ -15,7 +15,7 @@ for sg in SIGMAS:
     taus = [c["tau_r2"] for c in cl.values() if c["tau_r2"] is not None]
     for B in (15, 25, 40):
         g = sm[f"mean_B{B}"]
-        L.append(f"{sg} | {sum(taus)/len(taus):.2f} | {B} | " + " | ".join(f"{float(g[a]):.2f}" for a in ("rand", "bohb", "bohb_r4first", "sh_r2")))
+        L.append(f"{sg} | {(sum(taus)/len(taus)) if taus else float('nan'):.2f} | {B} | " + " | ".join(f"{float(g[a]):.2f}" for a in ("rand", "bohb", "bohb_r4first", "sh_r2")))
     for p in (f"summary_{tag}.json", f"cells_{tag}.json", f"results_{tag}.txt"):
         (H / p).unlink()
 (H / ("degrade.txt" if PART == "both" else f"degrade_{PART}.txt")).write_text("\n".join(L) + "\n"); print("\n".join(L))
