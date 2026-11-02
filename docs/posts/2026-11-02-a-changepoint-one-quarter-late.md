@@ -1,4 +1,10 @@
-# A changepoint "one quarter late" was a labelling convention
+---
+title: "A changepoint one quarter late was a labelling convention"
+seo_title: "Changepoint dating: first vs last quarter of the regime"
+date: 2026-11-02
+tags: [changepoint, time-series, honesty]
+description: "Our detector dated the 1980 US real-rate jump a quarter after the literature. A single-break check shows it is a labelling convention, not a narrow interval."
+---
 
 Our changepoint detector dates the 1980 jump in the US real interest rate at 1980Q4. The literature is usually remembered as 1980Q3, and the detector's one-quarter confidence range excluded it. That looked like an interval that was too narrow.
 
