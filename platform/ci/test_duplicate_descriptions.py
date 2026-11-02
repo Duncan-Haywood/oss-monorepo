@@ -33,6 +33,19 @@ class Dupes(unittest.TestCase):
             page(r, "a", "index.html", "One unique description that is long enough to count.")
             self.assertEqual(main(["--root", r, "--strict"]), 0)
 
+    def test_short_threshold_is_exclusive(self):
+        with tempfile.TemporaryDirectory() as r:
+            page(r, "a", "index.html", "x" * 40)  # exactly --short: not short
+            self.assertEqual(main(["--root", r, "--strict"]), 0)
+            page(r, "b", "index.html", "x" * 39)  # one under: short
+            self.assertEqual(main(["--root", r, "--strict"]), 1)
+
+    def test_entities_in_attribute_are_decoded(self):
+        with tempfile.TemporaryDirectory() as r:
+            page(r, "a", "index.html", "Rock &amp; roll is a description long enough to count.")
+            groups, _ = scan(r)
+            self.assertIn("Rock & roll is a description long enough to count.", groups)
+
 
 if __name__ == "__main__":
     unittest.main()
