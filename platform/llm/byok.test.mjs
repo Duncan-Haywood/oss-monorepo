@@ -105,6 +105,15 @@ test('HTTP errors never echo the body and mark what is retryable', async () => {
   });
 });
 
+test('retryable boundary: 500 and 503 retry, 400 and 404 do not', async () => {
+  for (const [status, want] of [[400, false], [404, false], [500, true], [503, true]]) {
+    await assert.rejects(complete({ provider: 'anthropic', apiKey: 'k' }, { prompt: 'P', fetch: fakeFetch({}, status) }), err => {
+      assert.equal(err.retryable, want, `HTTP ${status}`);
+      return true;
+    });
+  }
+});
+
 test('withFallback: deterministic path without a key, on failure, model path otherwise', async () => {
   const det = () => 'template';
   assert.deepEqual(await withFallback(null, det, () => 'never'), { value: 'template', source: 'fallback' });
