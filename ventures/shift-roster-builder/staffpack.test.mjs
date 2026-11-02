@@ -43,3 +43,15 @@ test("dark until a checkout link is set; licence check never throws and only val
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
   assert.match(html, /id="pack-card"[^>]*hidden/);
 });
+
+import { samplePack } from "./build-sample-pack.mjs";
+test("the committed sample pack is what the real staff pack produces", () => {
+  assert.equal(readFileSync(new URL("./sample-staff-pack.html", import.meta.url), "utf8"), samplePack());
+});
+test("marketing page links the sample, says it is not on sale, and is in the sitemap", () => {
+  const p = readFileSync(new URL("./staff-schedule-pack-for-small-businesses.html", import.meta.url), "utf8");
+  assert.match(p, /sample-staff-pack\.html/);
+  assert.match(p, /not on sale yet/);
+  assert.match(p, /No warranty/);
+  assert.match(readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8"), /staff-schedule-pack-for-small-businesses/);
+});

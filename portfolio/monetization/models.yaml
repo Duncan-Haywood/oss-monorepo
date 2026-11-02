@@ -134,8 +134,10 @@ products:
       Built 2026-11-02 and dark (staffpack.mjs, licence.mjs, checkout.mjs;
       card hidden until CHECKOUT_URL is set). Owner: one merchant-of-record
       product serves all three dark paid paths. Untested: a real checkout and
-      the pack in a browser print dialog. Nothing agent-doable is left until
-      the link is set.
+      the pack in a browser print dialog. Marketing page with a generated
+      sample pack landed 2026-11-02 (staff-schedule-pack-for-small-businesses.html,
+      sample-staff-pack.html, build-sample-pack.mjs). Nothing agent-doable is
+      left until the link is set.
     next_owner: true
 
   - venture: einvoice-preflight
