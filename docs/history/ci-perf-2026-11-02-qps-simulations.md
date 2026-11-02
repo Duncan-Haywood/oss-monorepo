@@ -23,3 +23,12 @@ item P061 with the numbers. Ranked next steps: 1) memoise duplicated cells
 (same answers, about 1 min saved per run); 2) split simulations into a
 parallel job; 3) decide with the owner whether the 500/4000 cell belongs in
 a blocking gate at all.
+
+## Follow-up (2026-11-02): config split landed, workflow change still needed
+
+`ventures/quick-pick-survey` now has `npm run test:fast` (all but
+`*.simulation.test.ts`; 246 tests in about 10 s locally) and
+`npm run test:simulations` (the 9 simulation files, 1 h timeout). `npm test` is
+unchanged, so CI loses no coverage. The remaining step is a `.github/` edit
+(control plane, owner approval): run the two scripts as parallel steps or jobs
+in `quick-pick-survey-ci.yml`, with simulations path-scoped or scheduled.
