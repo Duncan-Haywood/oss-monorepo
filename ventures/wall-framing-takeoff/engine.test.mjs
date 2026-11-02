@@ -868,6 +868,24 @@ test("hostile plans are refused with a reason, not silently framed or thrown on"
   assert.ok(r.errors?.some((e) => /at most 12000 inches/.test(e)));
 });
 
+test("validatePlan refuses wrong-shaped walls, tees, openings and stock instead of throwing", () => {
+  const mk = (f) => { const p = samplePlan(); f(p); return p; };
+  const cases = [
+    [(p) => { p.walls[0].tees = 5; }, /"tees" must be a list/],
+    [(p) => { p.walls[0].openings = [null]; }, /"openings" must be a list of objects/],
+    [(p) => { p.walls[0].openings = "x"; }, /"openings" must be a list of objects/],
+    [(p) => { p.walls = [null]; }, /Wall number 1 must be an object/],
+    [(p) => { p.stock = [null]; }, /"stock" must be a list/],
+  ];
+  for (const [f, re] of cases) {
+    const p = mk(f);
+    let r;
+    assert.doesNotThrow(() => { r = takeoff(p); });
+    assert.equal(r.ok, false);
+    assert.ok(r.errors.some((e) => re.test(e)), String(r.errors));
+  }
+});
+
 test("parseLength reads metric lengths (mm, cm, m)", () => {
   assert.ok(Math.abs(parseLength("2500mm") - 98.4252) < 1e-3);
   assert.ok(Math.abs(parseLength("250 cm") - 98.4252) < 1e-3);
