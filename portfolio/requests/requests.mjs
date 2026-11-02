@@ -47,6 +47,7 @@ export function validateRequests(data, { exists = () => true } = {}) {
     if (r?.source !== 'owner' && !/^https:\/\/github\.com\//.test(r?.link || '') && r?.source !== 'form') {
       problems.push(`${at}: a request from an issue needs its issue link`);
     }
+    if (r?.feedback_id !== undefined && !Number.isInteger(r.feedback_id)) problems.push(`${at}: feedback_id is the form message's numeric id in site-feedback.json`);
     if (r?.status === 'declined' && !r?.reason?.trim()) problems.push(`${at}: a declined request says why (reason)`);
     if (r?.status === 'shipped' && !r?.project && !r?.live) problems.push(`${at}: a shipped request links its project or live page`);
     if (r?.project && !exists(r.project)) problems.push(`${at}: project ${r.project} is not in the tree`);

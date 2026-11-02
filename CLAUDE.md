@@ -57,9 +57,12 @@ when the next run needs to know something (owner, 2026-10-21 and 2026-10-24:
 empty queue, a vague brief or a task that already landed means look wider,
 not stop. Restated blockers, ledger-only edits and re-verifying unchanged
 work do not count. Never fabricate or lower the bar to have something to
-ship. For venture work the default is the top flagship in
-[`portfolio/flagships.yaml`](portfolio/flagships.yaml) (owner, 2026-10-20:
-deepen "existing projects that have real depth"). Aim the main effort at projects
+ship. For venture work the default is an open website request in
+[`portfolio/requests/`](portfolio/requests/README.md) (owner, 2026-11-02: a
+free custom dev shop for businesses, the results MIT licensed and owned by the
+repository owner; `prompt.md`, "Website requests come next"), then the top
+flagship in [`portfolio/flagships.yaml`](portfolio/flagships.yaml) (owner,
+2026-10-20: deepen "existing projects that have real depth"). Aim the main effort at projects
 a person would estimate at about 300 hours or more, built up over many sessions
 (owner, 2026-10-29, a suggestion, not a hard bar, updating the 2026-10-21 twenty-hour one; `goals.md`,
 "Direction: depth over calculators").
