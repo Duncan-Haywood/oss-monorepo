@@ -80,7 +80,7 @@ API_ROOT = os.environ.get("GITHUB_API_URL", "https://api.github.com")
 
 # Never deleted, whatever a PR says. The default branch is added at runtime.
 DEFAULT_PROTECTED = ("main", "master", "develop", "gh-pages", "release/*", "hotfix/*", "archive/*",
-                     "security-alerts")
+                     "security-alerts", "usage-data")
 
 DEFAULT_GRACE_HOURS = 24.0
 
