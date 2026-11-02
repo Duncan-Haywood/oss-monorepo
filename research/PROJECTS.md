@@ -1824,7 +1824,7 @@ generative agents, UIST.
    GSS panels) and rerun milestones 1–2 at the fitted values.
 7. `civ-history`: structural-demographic dynamics (Turchin) as a toy civilization: population,
    elites and state capacity over centuries, and which policy levers damp the cycles.
-8. `civ-llmsociety`: a town of language-model agents against the same levers, behind an
+8. `civ-llmsociety` (harness and stub-policy run landed in civ-levers 2026-11-02; no real model called): a town of language-model agents against the same levers, behind an
    environment variable with a deterministic stub. Do LLM agents assimilate and backfire like
    the rule-based models, and does `civ-levers`' ranking survive?
 

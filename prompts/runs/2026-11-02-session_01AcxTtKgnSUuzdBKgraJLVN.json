@@ -1,0 +1,57 @@
+{
+ "date": "2026-11-02",
+ "session": "https://claude.ai/code/session_01AcxTtKgnSUuzdBKgraJLVN",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-02T13:48:31Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12588",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/_shared/pick_track.py",
+   "issue": "reports civ-cascades as next free milestone though it landed 2026-10-28 in civ-levers; milestones 3,5,7 also landed there"
+  },
+  {
+   "file": "research/civ-levers/tests",
+   "issue": "4 test files lack sys.path setup; need PYTHONPATH=src"
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompts/research/prompt-0.md",
+   "why": "no blog post or docs/reports agent doc written; budget went to the experiment",
+   "did": "LOG and README only",
+   "result": "ok"
+  }
+ ],
+ "writeups": [
+  "research/civ-levers/LOG.md 2026-11-02"
+ ],
+ "goal": null,
+ "notes": "Stub-policy harness only; no real LLM run. An early command of mine hung on a stray stdin read (~10 min lost).",
+ "corrections": [],
+ "redteam": null
+}

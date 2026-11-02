@@ -1,0 +1,9 @@
+merged = gap < 0.1 (continuous civ-levers rule); counts of 10 societies, eps 0.3, tau none
+ noise       none     bridge  broadcast  moderates     ladder      nudge  tolerance
+   0.0          0          0          0          0          0          1          5
+  0.05          2          5          7          4          8          2          9
+   0.2         10         10         10          8          9         10         10
+
+same at eps 0.2 (rejection tau 0.7)
+   0.0          0          0          0          0          2          1          0
+   0.2          5          4         10          9          9          7          5
