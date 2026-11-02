@@ -7,7 +7,7 @@
 //   3. a team plays at the same venue as on its previous night where it can (fewer trips).
 // Each division keeps the circle-method round robin of calc.mjs (home/away balance and byes), so only
 // the dates, courts and times are decided here.
-import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, standingsCsv, parsePointSystem, playoffBracket, bracketText } from "./calc.mjs";
+import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, tieBreakNotes, standingsCsv, parsePointSystem, playoffBracket, bracketText } from "./calc.mjs";
 
 const MAX_NIGHTS = 800;
 const W_CLASH = 1000;
@@ -744,6 +744,7 @@ export function divisionsStandingsText(result) {
   for (const t of result.tables) {
     out.push(`${t.division}`, "Pos Team                 P  W  D  L  GF  GA  GD  Pts");
     for (const r of t.rows) out.push(`${String(r.rank).padStart(3)} ${String(r.name).slice(0, 20).padEnd(20)} ${[r.played, r.won, r.drawn, r.lost, r.gf, r.ga, r.gd, r.points].map((n) => String(n).padStart(3)).join(" ")}`);
+    for (const n of tieBreakNotes(t.rows)) out.push(`  ${n.text}`);
     out.push("");
   }
   for (const e of result.errors) out.push(`Warning: ${e}`);

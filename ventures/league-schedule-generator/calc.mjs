@@ -2010,6 +2010,32 @@ export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToH
   return rows;
 }
 
+/**
+ * Why each team sits above the next one, from `standings(...)` rows. One note per adjacent pair that is
+ * level on points, naming the first tie-break that separated them (head to head when the table was built
+ * with it, then goal difference, then goals for); pairs level on all of those are listed in entry order and
+ * flagged `unresolved` so an organiser knows a coin toss or a play-off is still needed.
+ * Returns [{ above, below, rank, by, unresolved, text }].
+ */
+export function tieBreakNotes(rows) {
+  const out = [];
+  for (let i = 0; i + 1 < rows.length; i++) {
+    const a = rows[i], b = rows[i + 1];
+    if (a.points !== b.points) continue;
+    let by, detail;
+    if (a.h2h && b.h2h && (a.h2h.points !== b.h2h.points || a.h2h.gd !== b.h2h.gd || a.h2h.gf !== b.h2h.gf)) {
+      by = "head to head";
+      detail = `${a.h2h.points} v ${b.h2h.points} points, goal difference ${a.h2h.gd} v ${b.h2h.gd}, goals ${a.h2h.gf} v ${b.h2h.gf} among the tied teams`;
+    } else if (a.gd !== b.gd) { by = "goal difference"; detail = `${a.gd} v ${b.gd}`; }
+    else if (a.gf !== b.gf) { by = "goals for"; detail = `${a.gf} v ${b.gf}`; }
+    else if (a.h2h && b.h2h) { by = "head to head"; detail = "a deeper head-to-head mini-table among the tied teams"; }
+    else { by = "entry order"; detail = "level on every tie-break"; }
+    const unresolved = by === "entry order";
+    out.push({ above: a.name, below: b.name, rank: a.rank, by, unresolved, text: `${a.name} is above ${b.name} on ${by} (${detail}).${unresolved ? " Still level: decide it by a play-off or a draw." : ""}` });
+  }
+  return out;
+}
+
 // ---------------------------------------------------------------- playoff race
 
 /** Most remaining fixtures worked through exhaustively (3^12 = 531,441 outcomes); beyond it, safe bounds. */
