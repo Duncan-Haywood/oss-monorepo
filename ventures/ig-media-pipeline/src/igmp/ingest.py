@@ -373,6 +373,15 @@ def label(text: str) -> str:
     return re.sub(r"-{2,}", "-", s).strip("-")
 
 
+def _shot_key(p: Path) -> str:
+    """The files of one shot share this: the stem, or for Insta360 names the key catalog.scan_insta360
+    groups by (VID_..._00_001.insv and its LRV_..._11_001.lrv are one clip with different stems)."""
+    m = CAMERA_NAME.match(p.name)
+    if m:
+        return f"{'IMG' if m.group(1) == 'IMG' else 'VID'}_{m.group(2)}_{m.group(3)}_{m.group(5)}"
+    return p.stem
+
+
 def camera_label(model: str, make: str, path: Path, fallback: str = "") -> str:
     """An EXIF model (and make) as one of catalog.CAMERAS. An unknown model becomes a sanitised
     label with a warning: the catalog only parses flat names whose camera is in CAMERAS."""
@@ -444,7 +453,7 @@ def plan(card: Path, cfg, store, *, location: str = "", event: str = "", reader=
     # one time and camera per shot: files that share a folder and a stem on the card
     groups: dict[tuple[str, str], list[Path]] = {}
     for p in files:
-        groups.setdefault((str(p.parent), p.stem), []).append(p)
+        groups.setdefault((str(p.parent), _shot_key(p)), []).append(p)
     copies: list[Copy] = []
     seen: set[Path] = set()
     for (_, stem), members in sorted(groups.items()):

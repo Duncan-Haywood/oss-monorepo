@@ -402,3 +402,13 @@ def test_ingest_camera_names_a_card_whose_files_carry_no_model(tmp_path):
                                      "model": "", "make": "", "source": "name"} for p in files}
     copies = ingest.plan(card, cfg, Store(cfg.db_path), location="Harbor", reader=reader)
     assert [c.dest.name for c in copies] == ["2026-10-10_173952_Harbor_OsmoAction_DJI_20261010173952_0001_D.MP4"]
+
+
+def test_an_insta360_clip_and_its_lrv_share_one_camera_in_the_index(tmp_path):
+    # the LRV carries no model; the catalog takes whichever index row it lists first, so every
+    # file of a clip must carry the clip's camera, whatever order the folder lists them in
+    cfg, store = setup(tmp_path)
+    ingest.run(cfg, store, [insta_card(tmp_path)], location="Harbor", reader=reader())
+    with (cfg.library_roots[0] / "2026-10-10_Insta360_Harbor" / "_index.csv").open() as fh:
+        rows = {r["file"]: r for r in csv.DictReader(fh)}
+    assert rows["LRV_20261010_173952_11_001.lrv"]["camera"] == rows["VID_20261010_173952_00_001.insv"]["camera"] == "X5"
