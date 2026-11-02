@@ -2,7 +2,7 @@
 title: "A string that passes a range check"
 date: 2026-11-02
 tags: [wall-framing-takeoff, javascript, validation, construction]
-description: In JavaScript "16" >= 8 is true, so a wall-framing plan with a quoted stud spacing sailed through validation; a null offset then crashed the takeoff with an error about a NaN-inch piece.
+description: In JavaScript "16" >= 8 is true, so a quoted stud spacing passed validation, and a null offset crashed the wall-framing takeoff with a NaN-inch error.
 ---
 
 The wall framing takeoff checks a plan before it lays out any studs: stud spacing between 8 and 48 inches, kerf up to half an inch, and so on. Each check is written as `plan.studSpacing >= 8 && plan.studSpacing <= 48`. That reads as a range check, but JavaScript compares a string with a number by converting the string, so `"16"` passes. So does `true`, which becomes 1 for `topPlateLap`.
