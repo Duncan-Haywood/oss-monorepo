@@ -1,0 +1,20 @@
+reps 100 per cell, seeded, per-cut penalty 12 ln n
+n | noise | plain: null any change, sd1->2 exactly one, mean+1.5 exactly one | pruned: same three
+100 | gauss | 4% / 94% / 95% | 1% / 95% / 100%
+100 | t3    | 37% / 58% / 48% | 12% / 88% / 90%
+100 | garch | 41% / 63% / 63% | 21% / 86% / 82%
+100 | ar1   | 49% / 44% / 54% | 16% / 95% / 82%
+200 | gauss | 0% / 97% / 96% | 0% / 100% / 100%
+200 | t3    | 63% / 55% / 34% | 56% / 99% / 100%
+200 | garch | 50% / 58% / 52% | 48% / 97% / 100%
+200 | ar1   | 46% / 38% / 49% | 46% / 100% / 100%
+reps 100 per cell, seeded, per-cut penalty 16 ln n
+n | noise | plain: null any change, sd1->2 exactly one, mean+1.5 exactly one | pruned: same three
+100 | gauss | 4% / 94% / 95% | 0% / 92% / 35%
+100 | t3    | 37% / 58% / 48% | 4% / 62% / 31%
+100 | garch | 41% / 63% / 63% | 5% / 58% / 36%
+100 | ar1   | 49% / 44% / 54% | 0% / 90% / 23%
+200 | gauss | 0% / 97% / 96% | 0% / 100% / 100%
+200 | t3    | 63% / 55% / 34% | 40% / 99% / 100%
+200 | garch | 50% / 58% / 52% | 28% / 97% / 100%
+200 | ar1   | 46% / 38% / 49% | 41% / 100% / 100%
