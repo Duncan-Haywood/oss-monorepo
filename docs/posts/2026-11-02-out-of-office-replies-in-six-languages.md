@@ -1,9 +1,9 @@
 ---
 title: "Reading out-of-office dates in six languages"
-seo_title: "Parsing out-of-office return dates in German, French, Spanish, Portuguese, Italian and Dutch"
+seo_title: "Out-of-office return dates in six languages"
 date: 2026-11-02
 tags: [sales-agent, email, parsing, honesty]
-description: "The sales agent recognised foreign out-of-office replies but ignored their return dates, so it paused a week instead of until the person was back. A small fix, with its limits."
+description: "The sales agent spotted foreign out-of-office replies but ignored the return date. A small parser fix, with its limits."
 ---
 
 The sales agent's inbox triage already recognised out-of-office replies in German, French, Spanish, Italian, Portuguese and Dutch. A probe today showed it threw the return date away: "bis zum 12. November" and "hasta el 20 de noviembre" both came back with no date, so the contact was paused for the default week rather than until they were back. Italian "fuori sede" was not recognised at all and fell to "unclear".
