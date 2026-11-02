@@ -79,9 +79,9 @@ CHECKS = [
     ("230 W", "regen_price_results.txt", "saved 230 W"),
     ("1.52 and the median rating for 95% capture is 1.24", "regen_measured_results.txt", "peak/mean 1.31 / 1.52 / 2.03"),
     ("1.24 times the stroke mean (p90 1.61)", "regen_measured_results.txt", "95% rating 1.09 / 1.24 / 1.61"),
-    ("0.78, 1.21 and 1.89 kW", "regen_watts_results.txt", "776 / 1419"),
-    ("0.78, 1.21 and 1.89 kW", "regen_watts_results.txt", "1212 / 2218"),
-    ("0.78, 1.21 and 1.89 kW", "regen_watts_results.txt", "1894 / 3465"),
+    ("0.78 and 1.89 kW", "regen_watts_results.txt", "776 / 1419"),
+    ("0.78 and 1.89 kW", "regen_watts_results.txt", "1894 / 3465"),
+    ("1.21 kW (p10 to p90 0.64 to 2.22 kW)", "regen_watts_results.txt", "bore sourced (rod 56) n=772  mean W 640 / 1212 / 2217"),
 ]
 
 
