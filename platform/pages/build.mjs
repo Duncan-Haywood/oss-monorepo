@@ -7440,6 +7440,11 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
           <label><input type="radio" name="type" value="idea"> An idea or feature request</label>
           <label><input type="radio" name="type" value="other"> Something else</label>
         </fieldset>
+        <p class="fb-terms">Feature requests are built free, in public, as
+        <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}`)}">custom development</a>,
+        and come ahead of routine work. What is built is published under the MIT
+        licence with the repository owner's copyright notice; you get no exclusive
+        rights to it.</p>
         <p id="fb-tool-line" hidden>About: <a id="fb-tool-link" href="${escapeHtml(toRoot)}"></a></p>
         <label for="fb-message">Your message</label>
         <textarea id="fb-message" name="message" rows="7" minlength="5" maxlength="4000" required

@@ -23,6 +23,8 @@ test('with an endpoint: the form posts to it and says the message is public', ()
   assert.match(html, /fetch\("https:\/\/edge\.example\/feedback"/);
   assert.match(html, /public GitHub repository/);
   assert.match(html, /name="website"/, 'honeypot field');
+  assert.match(html, /MIT\s+licence with the repository owner's copyright notice/, 'feature requests carry the IP terms');
+  assert.match(html, /href="\.\.\/custom-development\/"/);
 });
 
 test('the shared footer links the feedback page', () => {

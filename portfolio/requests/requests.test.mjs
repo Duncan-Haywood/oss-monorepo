@@ -21,5 +21,7 @@ test('the validator catches what a hand edit gets wrong', () => {
   assert.ok(bad({ status: 'declined' }).length, 'declines give a reason');
   assert.ok(bad({ status: 'shipped' }).length, 'shipped links something');
   assert.ok(bad({ updated: '2026-10-01' }).length);
+  assert.ok(bad({ feedback_id: '3' }).length, 'feedback_id is numeric');
+  assert.deepEqual(bad({ source: 'form', link: '', feedback_id: 3 }), []);
   assert.ok(validateRequests({ requests: [base, base] }).some((p) => /duplicate/.test(p)));
 });
