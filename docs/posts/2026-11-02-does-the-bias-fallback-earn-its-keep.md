@@ -3,7 +3,7 @@ title: "Does the bias fallback in a ranking survey earn its keep? A control run"
 seo_title: "Measuring a position-bias fallback in a pairwise ranking survey"
 date: 2026-11-02
 tags: [quick-pick-survey, pairwise-ranking, measurement, honesty]
-description: "A pairwise survey switches to a simpler question picker for people who keep tapping the first option. We switched that off to see what it saves: a lot at 80% bias, nothing measurable at 50%."
+description: "We switched off a ranking survey's bias fallback to see what it saves: a lot at 80% top-slot bias, nothing measurable at 50%."
 ---
 
 Quick Pick Survey asks people to choose between two items and builds a ranking from the answers. Its smarter question picker (an information score) assumes answers carry signal. Someone who taps the top option most of the time breaks that assumption, so the route falls back to a simpler picker once a person's first-option share reaches 0.7 (or falls to 0.3).
