@@ -1,5 +1,6 @@
 ---
 title: Does a real hydraulic boom lower the way our regeneration model assumed?
+seo_title: Does a real boom lower the way our regeneration model assumed?
 date: 2026-11-02
 tags: [heavy-hydraulics, energy-recovery, research]
 description: 772 measured crane lowering strokes put the rating for 95% energy recovery at about 1.24 times the mean power, inside our assumed range.
