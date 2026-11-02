@@ -2,6 +2,14 @@
 
 Newest first.
 
+## 2026-11-02 · Milestone 5j: the PATU 655 lift cylinder bore is now sourced (Khadim et al. 2022, Table 2); 5h's watts stand
+- Why: 5i found the dataset paper defers cylinder dimensions to Khadim et al. (IEEE Access 10:62863, doi:10.1109/ACCESS.2022.3179591) but could not open it. The open-access copy is in the University of Oulu repository (CC BY 4.0, oulurepo.oulu.fi/handle/10024/32241); it downloaded fine and Table 2 (page 62870, an image in the PDF, read by eye) lists cylinder 1 (lift boom): piston-side area A1 = 7.85e-3 m2 and rod-side area A2 = 5.4e-3 m2.
+- Derived: bore = sqrt(4 x 7.85e-3 / pi) = 100.0 mm; rod area 2.45e-3 m2, rod diameter 55.9 mm. This agrees with the 100/56 mm parts-listing reading of 5h (a prediction I had not registered, so it is a check, not a test). Other Table 2 values: pump 140 bar, tank 1 bar; cylinder 2 (outer boom) A3 = 6.4e-3, A4 = 3.9e-3 m2.
+- Rerun (`experiments/regen_watts.py`, new `sourced` row using the exact areas; `experiments/regen_watts_results.txt`): median mean lowering power **1,212 W** (p10 to p90 640 to 2,217 W), median peak 1,960 W, median stroke energy 2.9 kJ, identical to the 100 mm row within 1 W. By payload (sourced areas) median mean power is 981 (95 kg), 1,145 (180 kg), 1,194 (148 kg) and 1,753 W (278 kg).
+- Reading: the unconfirmed-bore caveat of 5h and 6f is removed; the 80 and 125 mm rows are kept only as a sensitivity sweep. The 1.2 kW is hydraulic power released at one lift cylinder of a lab forestry crane, before any recovery efficiency.
+- Limits: the table is Khadim et al.'s model parameters for the same crane type, which the dataset paper says its force computation matches; that dataset channel `S1`/`PA1` is cylinder 1 is my reading of the channel names, not stated in the paper text I read. Table 2 was read from an image by eye. Still a different machine from an excavator.
+- Next: H4 still needs an excavator pressure trace; the paper's section 3.4a now drops the "unconfirmed" wording.
+
 ## 2026-11-02 · Milestone 5i: where the PATU 655 cylinder bore is documented (a sourcing step, no experiment)
 - Why: 5h swept the bore (80, 100, 125 mm) because the dataset files carry no geometry. Looked for the real figure.
 - Found: the dataset paper (Saeed, Zhidchenko, Handroos, *Data in Brief*, doi:10.1016/j.dib.2026.112848, PMC13233766, CC BY) does not list the bore. It says "Cylinder dimensions and hydraulic parameters used for derived force computation match those reported in [1]", and [1] is Khadim et al., "State estimation in a hydraulically actuated log crane using unscented Kalman Filter", *IEEE Access* 10:62863-62878 (2022), doi:10.1109/ACCESS.2022.3179591 (gold open access; also in the LUT repository, lutpub.lut.fi/handle/10024/164458).
