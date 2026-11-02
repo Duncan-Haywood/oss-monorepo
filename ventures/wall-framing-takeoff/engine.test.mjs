@@ -29,6 +29,10 @@ test("lengths parse the way a framer writes them", () => {
   assert.equal(parseLength("5\u00be"), 5.75);
   assert.equal(parseLength("\u215d\""), 0.625);
   assert.equal(parseLength("150 1/2"), 150.5);
+  // thousands separators: exact 3-digit groups only
+  assert.equal(parseLength("1,200"), 1200);
+  assert.equal(parseLength("1,200'"), 14400);
+  assert.ok(Number.isNaN(parseLength("1,5")));
   assert.equal(parseLength("92-5/8"), 92.625);
   assert.equal(parseLength("40'"), 480);
   assert.equal(parseLength("1/8"), 0.125);
