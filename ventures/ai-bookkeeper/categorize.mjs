@@ -34,6 +34,12 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 21 (2026-11-02, eval/probe21.mjs): carpet cleaners, appliance repairers, septic pumpers, welders, driving schools.
+  // First in the list: "Lincoln Electric" hit utilities, "AWS Welding Society" hit software and "vacuum truck" hit vehicle costs.
+  ["6100", "out", /lincoln electric|miller welders?|airgas|jon-?don|prochem|marcone|repair clinic|vacuum truck parts|jurop|septic disposal|dual brake/],
+  ["6170", "out", /aws welding society|iicrc|nawt\b|driving school assoc|carpet cleaning assoc|appliance service assoc|epa 608/],
+  ["6110", "out", /septic pumping licen[cs]e|driving school licen[cs]e/],
+  ["6060", "out", /service fusion|driver ed software/],
   // Gap probe 20 (2026-11-02, eval/probe20.mjs): acupuncturists, chiropractors, tailors, window cleaners, junk haulers.
   // First in the list: "water fed pole" hit the utilities rule on the word water.
   ["6100", "out", /water.?fed pole|lhasa oms|seirin|zenith tables?|jo-?ann fabrics|mood fabrics|singer sewing/],
