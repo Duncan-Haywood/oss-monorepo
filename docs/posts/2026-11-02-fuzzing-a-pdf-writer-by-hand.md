@@ -3,7 +3,7 @@ title: "Fuzzing a hand-written PDF writer for framing drawings"
 seo_title: "Property-testing a hand-written PDF generator for shop drawings"
 date: 2026-11-02
 tags: [testing, pdf, wall-framing-takeoff, construction]
-description: "The wall-framing shop drawings are written as raw PDF with no library. A seeded fuzz test now checks 150 random plans with hostile labels for a well-formed file."
+description: "A seeded fuzz test checks 150 random plans with hostile labels for a well-formed file."
 ---
 
 The wall-framing takeoff prints its shop drawings as a PDF it writes itself: no library, just object offsets, a cross-reference table and escaped text. That is easy to get subtly wrong, and a viewer that cannot open the file is the kind of failure a builder finds on site.
