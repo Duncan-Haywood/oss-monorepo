@@ -1,9 +1,9 @@
 ---
 title: "Cold-email opt-outs in five languages: what our reply rules missed"
-seo_title: "Cold email unsubscribe detection in French, Spanish, Portuguese and Dutch"
+seo_title: "Cold email unsubscribe detection in French, Spanish, Dutch, Portuguese"
 date: 2026-11-02
 tags: [sales-agent, compliance, cold-email, testing]
-description: "A probe of short non-English opt-outs found the sales agent's rules sent several to a person instead of the suppression list. Here is what was missed and the fix."
+description: "A probe of short non-English opt-outs found the sales agent's rules sent several to a person instead of the suppression list. What was missed, and the fix."
 ---
 
 An opt-out that nobody records is the expensive mistake in cold email: the next message goes to someone who already said stop. The sales agent's reply rules already caught English, German, Italian and the common French and Spanish phrasings. On 2026-11-02 we probed about 40 more short replies and found gaps.
