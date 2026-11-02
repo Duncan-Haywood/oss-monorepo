@@ -733,6 +733,7 @@ ${activeHtml}
 ${researchLogHtml}
 
 <h2 id="in-progress">In progress</h2>
+<p class="muted">What gets picked up next, in order, is on the <a href="../queue/">work queue</a>.</p>
 ${inProgress}
 
 <h2 id="direction">Direction: where this is going</h2>
