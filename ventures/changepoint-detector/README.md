@@ -396,6 +396,10 @@ series, 40 each, in `engine.test.mjs`):
   without a step; cost differs by at most 2e-5 relative); one seeded 240-point series with
   `--trend bends` under NB, 4.4 -> 1.7 s on this container on the code before PR #9049; on top of #9049's Poisson ranking of knots the same series goes 1.05 -> 0.72 s, a smaller gain because the final fits dominate.
 
+## Branded change report (2026-11-02, dark)
+
+`report.mjs`, `licence.mjs`, `checkout.mjs`: the result on the analyst's letterhead (cover with logo, finding, chart, changes with 95% ranges, segments, stated assumptions, optional notes), opened as a printable page. Unlocked by a licence key checked against the merchant of record's public validate call (no secret held anywhere); `CHECKOUT_URL` in `checkout.mjs` is empty, so the card and Buy button stay hidden and nothing is on sale. The detector, CLI, tables and CSV are unchanged and free. Copied from the same pattern as wall-framing-takeoff and league-schedule-generator; the validate request shape is from memory of Lemon Squeezy's docs and has not run against a live product. Tested by hand-built cases in `report.test.mjs` (escaping, colour/logo allow-lists, no-change series, dark by default, offline never unlocks). No browser click-through yet and no real analyst's report compared.
+
 ## Limits
 
 Steps by default: a gradual drift is approximated by several steps unless you choose `--model trend` (a line per segment, no curvature). Seasonality is

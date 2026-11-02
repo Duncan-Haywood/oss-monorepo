@@ -97,6 +97,19 @@
     <div class="scroll"><table id="segments"></table></div>
     <button type="button" class="secondary" id="download">Download per-point results (CSV)</button>
   </section>
+  <section class="card" id="rep-card" aria-labelledby="h-rep" hidden>
+    <h2 id="h-rep">Branded change report</h2>
+    <p class="note">Your result on your own letterhead: a cover with your name and logo, the finding, the chart, the changes with their likely ranges, the segments and the stated assumptions, to print or save as PDF. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; the detector, tables and CSV stay free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
+    <p id="rep-buy-row" hidden><a id="rep-buy" class="cta" rel="noopener" target="_blank">Buy a licence key</a></p>
+    <p><label>Licence key <input id="rep-key" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="rep-check">Check key</button> <span id="rep-state" role="status"></span></p>
+    <div id="rep-fields" hidden>
+      <p><label for="rep-title">Report title</label> <input id="rep-title" placeholder="Weekly signups: did it change?"></p>
+      <p><label for="rep-org">Organisation</label> <input id="rep-org"> <label for="rep-author">Author</label> <input id="rep-author"> <label for="rep-contact">Contact</label> <input id="rep-contact"> <label for="rep-accent">Accent</label> <input id="rep-accent" type="color" value="#1f5f86"></p>
+      <p><label for="rep-logo">Logo (PNG, JPEG, WebP or GIF)</label> <input id="rep-logo" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></p>
+      <p><label for="rep-notes">Analyst notes (one per line)</label><br><textarea id="rep-notes" rows="3" style="width:100%"></textarea></p>
+      <button type="button" id="rep-open">Open the report</button>
+    </div>
+  </section>
   <p class="error" id="error" role="alert"></p>
 
   <section class="card" aria-labelledby="method-h">
@@ -143,7 +156,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> An independent implementation from the published papers; not affiliated with or endorsed by the papers' authors or their institutions.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>, <code>report_unlocked</code>, <code>report_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More research algorithms on your own data: <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> for repeated patterns and anomalies. Testing a change you made on purpose? The <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -152,6 +165,9 @@
 
   <script type="module">
     import { analyze, DEFAULTS } from "./engine.mjs";
+    import { reportHtml } from "./report.mjs";
+    import { buyLink, checkLicence } from "./licence.mjs";
+    import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -222,6 +238,26 @@
       URL.revokeObjectURL(a.href);
       record("report_downloaded");
     });
+    {
+      const buy = buyLink(CHECKOUT_URL);
+      let logo = "";
+      // Dark until a checkout link is set in checkout.mjs: no card, no Buy button.
+      if (buy) { $("#rep-buy").href = buy; $("#rep-buy-row").hidden = false; $("#rep-card").hidden = false; }
+      $("#rep-logo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { logo = ""; return; } const fr = new FileReader(); fr.onload = () => { logo = String(fr.result); }; fr.readAsDataURL(f); });
+      $("#rep-check").addEventListener("click", async () => {
+        $("#rep-state").textContent = "Checking...";
+        const v = await checkLicence($("#rep-key").value, { url: VALIDATE_URL });
+        $("#rep-state").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason + (buy ? "" : " (the report is not on sale yet)");
+        $("#rep-fields").hidden = !v.valid;
+        if (v.valid) record("report_unlocked");
+      });
+      $("#rep-open").addEventListener("click", () => {
+        if (!last) { $("#rep-state").textContent = "Run an analysis first."; return; }
+        const html = reportHtml(last, { title: $("#rep-title").value, org: $("#rep-org").value, author: $("#rep-author").value, contact: $("#rep-contact").value, accent: $("#rep-accent").value, logo, notes: $("#rep-notes").value, date: new Date().toISOString().slice(0, 10) });
+        const url = URL.createObjectURL(new Blob([html], { type: "text/html" })); window.open(url, "_blank", "noopener"); setTimeout(() => URL.revokeObjectURL(url), 60000);
+        record("report_opened");
+      });
+    }
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
   </script>
