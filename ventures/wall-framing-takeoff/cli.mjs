@@ -41,6 +41,7 @@ function layerOptions(argv) {
   return out;
 }
 import { planFromIfc } from "./ifc.mjs";
+import { misspeltPlanKeys, misspeltPlanKeysNote } from "./planKeys.mjs";
 import { takeoff, samplePlan, toCsv, formatLength, formatInches, parseLength } from "./engine.mjs";
 
 const HELP = `wall-framing-takeoff: stud layout, cut list and the cheapest lumber order for a set of walls
@@ -115,7 +116,16 @@ function normalise(plan) {
   return plan;
 }
 
+let keyNote = "";
+
+/** Runs the CLI; a text report (not JSON, which must stay parseable) gets a note on misspelt plan keys. */
 export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8")) {
+  const r = runMain(argv, readInput);
+  if (keyNote && typeof r.out === "string" && !/^\s*[\[{]/.test(r.out)) return { ...r, out: keyNote + r.out };
+  return r;
+}
+
+function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8")) {
   const args = argv.filter((a) => !a.startsWith("--"));
   const flags = new Set(argv.filter((a) => a.startsWith("--")));
   const rimLap = Math.max(0, parseLength(argv.find((a) => a.startsWith("--rim-lap="))?.slice(10) ?? "0") || 0);
@@ -125,6 +135,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (!args.length) return { code: 2, out: HELP };
   let plan;
   let dxfNotes = "";
+  keyNote = "";
   try {
     if (/\.(dxf|ifc)$/i.test(args[0])) {
       const units = argv.find((a) => a.startsWith("--units="))?.slice(8);
@@ -134,7 +145,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
       if (flags.has("--plan-only")) return { code: 0, out: JSON.stringify(r.plan, null, 2) + `\n\nNotes (not part of the JSON):\n${note}` };
       plan = normalise({ ...samplePlan(), ...r.plan });
       dxfNotes = `Read ${r.stats.walls} walls (${r.stats.exterior} exterior, ${r.stats.interior} interior), ${r.stats.tees} tees, ${r.stats.openings} openings from ${args[0]}:\n${note}\n\n`;
-    } else plan = normalise(JSON.parse(readInput(args[0])));
+    } else { const raw = JSON.parse(readInput(args[0])); keyNote = misspeltPlanKeysNote(misspeltPlanKeys(raw)); plan = normalise(raw); }
   } catch (e) {
     return { code: 2, out: `Could not read the plan: ${e instanceof Error ? e.message : e}` };
   }
