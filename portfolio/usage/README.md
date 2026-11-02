@@ -334,6 +334,31 @@ token cannot be granted that permission, and without the secret the step logs
 the remedy and skips. `TRAFFIC_REPOS` (repository variable, comma-separated
 `owner/repo`) adds repositories beyond this one.
 
+**Daily and weekly engagement reports** (added 2026-11-02, owner: "let's
+get daily and weekly reports on what sort of user engagement is happening").
+`node platform/counter/engagement-report.mjs` turns the files above into
+Markdown: `reports/daily/YYYY-MM-DD.md` (last 14 days), `reports/weekly/YYYY-Www.md`
+(ISO weeks, Monday to Sunday), a `reports/README.md` index with one row per
+week, and `reports/latest.json` for scripts. Each report gives page loads with
+the day or week before for comparison, pages ranked and split into tools,
+category and site pages, the tools opened on two or more days (the nearest
+anonymous signal to a returning user, since the beacon sets no identifier),
+pages loaded for the first time, country, device and referrer splits, crawler
+beacons kept apart, feedback messages (as code spans, so a stranger's text
+cannot render a link), and the GitHub and Cloudflare numbers when those files
+exist. It reads only committed files and calls nothing.
+
+**Where the daily numbers land.** From 2026-10-31 the pull job's direct push
+to `main` was refused ("Changes must be made through a pull request", run
+41276810850), so nothing after 2026-10-30 reached this directory by itself.
+The fix moves the job's output to the data branch `usage-data` (the
+`security-alerts` pattern: generated files only, never merged, protected from
+`branch_cleanup.py`) and runs the report step there; it needs the owner's
+approval because it edits `.github/`. Once it is in, read the latest with
+`git fetch --depth=1 origin usage-data && git show origin/usage-data:reports/README.md`
+(the JSON files sit at the branch root, the reports under `reports/`). The
+copies in this directory are a snapshot a session pulled by hand on 2026-11-02.
+
 **Reading feedback, for agents.** Read `portfolio/usage/site-feedback.json`
 (each record has an `id`, `day`, `type`, `tool` slug and `message`) and query
 open issues with

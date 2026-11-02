@@ -75,7 +75,9 @@ from pathlib import Path
 PROBE_DIRNAME = "unlanded-probe.git"
 DEFAULT_SINCE_DAYS = 14
 # Branches that are never anyone's unlanded work.
-NOT_WORK_BRANCHES = ("gh-pages",)
+# security-alerts and usage-data hold generated files only and are never merged
+# (.github/workflows/security-alert-queue.yml, site-usage-pull.yml).
+NOT_WORK_BRANCHES = ("gh-pages", "security-alerts", "usage-data")
 # Prefixes of branches that only preserve history, such as the copies of
 # oss-research-monorepo's branches (research/_mirror/archive.py).
 NOT_WORK_PREFIXES = ("archive/",)
