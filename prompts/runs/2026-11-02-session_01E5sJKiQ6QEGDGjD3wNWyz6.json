@@ -36,7 +36,7 @@
     }
   ],
   "deviations": [],
-  "writeups": null,
+  "writeups": [],
   "goal": null,
   "notes": "P061 part 2: workflow split into test:fast plus parallel simulations job. Not run in CI locally; validate_workflows passes. No blog post: small CI change. Memoisation of repeated cells left undone.",
   "corrections": [],
