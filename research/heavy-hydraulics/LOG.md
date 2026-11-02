@@ -2,6 +2,10 @@
 
 Newest first.
 
+## 2026-11-02 · Milestone 6f: paper section 3.4a gains 5g and 5h (a writing step, no experiment)
+- Added the measured lowering shape (772 PATU 655 strokes: peak/mean 1.52, 95% rating 1.24, p90 1.61) and the bore-swept watts (0.78 / 1.21 / 1.89 kW median at 80 / 100 / 125 mm) to the draft, with limits (lab crane, unconfirmed bore, hydraulic power not recovered power). 5 new rows in `paper/check_numbers.py`, 72 claims, 0 missing.
+- Next: confirm the bore from the PATU 655 drawing or dataset paper; an excavator pressure trace (H4) is still missing.
+
 ## 2026-11-02 · Milestone 5h: absolute lowering power of the PATU 655 lift cylinder, with the cylinder bore swept (no prediction registered before the first run, stated honestly)
 - Why: 5g gave only area-free shapes and ended "bores for watts". The dataset has no geometry. A spare-parts listing for the Patu 655 A names a "main lift cylinder 100/56 mm" seal kit (lectura-specs.com; read as bore/rod, **unconfirmed**), so `experiments/regen_watts.py` sweeps bore 80, 100 and 125 mm (rod 0.56 x bore) and computes the hydraulic power of each of 5g's 772 lowering strokes as `(PA1*A - PB1*(A - a)) * |dS1/dt|`. This also includes the rod-side pressure that 5g neglected.
 - Outcome (`experiments/regen_watts_results.txt`): median stroke lasts 2.9 s (p10 0.9 s, p90 8.4 s), which matches 5d's 2.5 s lowering window. Median mean power per stroke is 0.78 / 1.21 / 1.89 kW at 80 / 100 / 125 mm bore (p10 to p90 at 100 mm: 0.64 to 2.2 kW); median peak 1.96 kW at 100 mm; median stroke energy 2.9 kJ. By payload at 100 mm the median mean power is 0.98 (95 kg), 1.15 (180 kg) and 1.75 kW (278 kg).
