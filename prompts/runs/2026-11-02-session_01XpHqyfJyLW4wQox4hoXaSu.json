@@ -1,0 +1,51 @@
+{
+ "date": "2026-11-02",
+ "session": "https://claude.ai/code/session_01XpHqyfJyLW4wQox4hoXaSu",
+ "track": "ventures",
+ "prompt_version": 1,
+ "input": "lets do a blog report on each project and it's relaistic viability for running as a business. / or if some make sense as a collection",
+ "input_sha256": "005b8aa2bd4a1c899a7109f8a8ec8d3f0464c00dd45201805c73cc026929af5c",
+ "follow_up_inputs": [],
+ "model": null,
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-02T03:36:26Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12489",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "portfolio/usage/site-visits.json",
+   "issue": "Crawler beacons (botpage:) exist only for 2026-10-30, so per-page crawler counts cover one day; easy to misread as a five-day total."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "CLAUDE.md",
+   "why": "User asked for a report on 'each project'; 1,325 ventures can't each get a paragraph, so deep projects got individual verdicts and the rest were judged by site collection, which the user also asked for mid-run.",
+   "did": "per-project for ~20 deep projects, per-collection for 15 categories",
+   "result": "one post covering every venture"
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "Checks: check_post_frontmatter.py clean; post_similarity.py no pair with the new post; 12 linked marisstella.app pages return 200. Complements open PR #12487 (pricing plan); competitor prices cited from its sources.",
+ "corrections": [],
+ "redteam": null
+}
