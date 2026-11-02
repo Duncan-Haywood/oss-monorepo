@@ -1,9 +1,9 @@
-# Polish 2026-11-02: `seo_title:` batch 13, and a build-breaking post on main
+# Polish 2026-11-02: `seo_title:` batch 13, the last over-budget headline
 
-**Weak surface.** `propose_seo_titles.py` listed 2 new over-budget posts. Separately, `docs/posts/2026-11-02-ghana-zambia-tanzania-e-invoicing.md` (PR #12461) had a 186-character description and a 75-character `seo_title`, so `writing.test.mjs` failed on `main` (2 of 24) and the site build would have refused it.
+**Weak surface.** `platform/pages/propose_seo_titles.py` reported one post over the 70-character title budget with no clean cut (the 2026-11-02 excavator regeneration post, 72 characters).
 
-**Change.** One clean cut applied by the script, one title hand-written (concrete-order fuzz, aerolog rough air). The e-invoicing post's description is cut to 160 or fewer and its `seo_title` to 68 characters, keeping the facts.
+**Change.** Hand-wrote `seo_title:` (62 characters) for it. The checker now reports 0 proposed, 0 with no clean cut.
 
-**Measured.** `node --test platform/pages/writing.test.mjs`: 24 of 24 pass (22 of 24 before). The script reports 0 proposed. Full site build not run. Rankings not measured.
+**Measured.** `node --test platform/pages/writing.test.mjs`: 24 pass. Full site build not run. Rankings and click-through not measured.
 
-**Still weakest.** Authors keep adding over-length fields and finding out only at merge. PR #12397 adds the missing-`seo_title` check; a pre-commit-style hook running `writing.test.mjs` on `docs/posts/` changes would catch the rest.
+**Still weakest.** New posts arrive daily; the next run should re-run the checker first. Bigger levers remain: answer-first leads beyond the pilot and missing `llms.txt` files.
