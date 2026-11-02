@@ -1,0 +1,115 @@
+{
+ "unit": "Cloudflare edge requests to the site per UTC day: every request, crawlers and scripts included, so not page loads and not people. `classes` splits eyeball requests by kind of client (a browser string reduced to a class, then dropped); `pages` lists the most-requested 200/304 paths per class",
+ "source": "Cloudflare GraphQL Analytics API (httpRequests1dGroups, httpRequestsAdaptiveGroups, workersInvocationsAdaptive) via platform/counter/pull-cloudflare.mjs",
+ "zone": "marisstella.app",
+ "last_pull": {
+  "on": "2026-11-02",
+  "window": [
+   "2026-10-19",
+   "2026-11-01"
+  ],
+  "days_pulled": 9,
+  "errors": [
+   "httpRequests1dGroups: GraphQL answered 200: Actor 'com.cloudflare.api.token.8ebdd7e2ac70757f89604198d2541b59' does not have permission 'com.cloudflare.api.account.zone.analytics.read' for zone d80eab23317aeac52c143f3e2fc92e58",
+   "httpRequestsAdaptiveGroups 2026-10-19: GraphQL answered 200: Actor 'com.cloudflare.api.token.8ebdd7e2ac70757f89604198d2541b59' does not have permission 'com.cloudflare.api.account.zone.analytics.read' for zone d80eab23317aeac52c143f3e2fc92e58"
+  ]
+ },
+ "days": {
+  "2026-10-24": {
+   "workers": {
+    "monorepo-projects-edge": {
+     "requests": 32,
+     "errors": 0
+    }
+   }
+  },
+  "2026-10-25": {
+   "workers": {
+    "monorepo-projects-edge": {
+     "requests": 2,
+     "errors": 0
+    }
+   }
+  },
+  "2026-10-26": {
+   "workers": {
+    "monorepo-projects-edge": {
+     "requests": 9,
+     "errors": 0
+    }
+   }
+  },
+  "2026-10-27": {
+   "workers": {
+    "monorepo-projects-edge": {
+     "requests": 2,
+     "errors": 0
+    }
+   }
+  },
+  "2026-10-28": {
+   "workers": {
+    "monorepo-projects-edge": {
+     "requests": 6,
+     "errors": 0
+    }
+   }
+  },
+  "2026-10-29": {
+   "workers": {
+    "monorepo-projects-edge": {
+     "requests": 17,
+     "errors": 0
+    }
+   }
+  },
+  "2026-10-30": {
+   "workers": {
+    "monorepo-projects-site": {
+     "requests": 354,
+     "errors": 0
+    },
+    "monorepo-projects-site-shard": {
+     "requests": 2,
+     "errors": 0
+    },
+    "monorepo-projects-edge": {
+     "requests": 27289,
+     "errors": 0
+    }
+   }
+  },
+  "2026-10-31": {
+   "workers": {
+    "monorepo-projects-edge": {
+     "requests": 12492,
+     "errors": 0
+    },
+    "monorepo-projects-site": {
+     "requests": 12770,
+     "errors": 0
+    },
+    "monorepo-projects-site-shard": {
+     "requests": 2,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-01": {
+   "workers": {
+    "monorepo-projects-site-shard": {
+     "requests": 3,
+     "errors": 0
+    },
+    "monorepo-projects-edge": {
+     "requests": 12645,
+     "errors": 0
+    },
+    "monorepo-projects-site": {
+     "requests": 5067,
+     "errors": 0
+    }
+   }
+  }
+ }
+}
