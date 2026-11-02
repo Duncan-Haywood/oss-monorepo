@@ -1,6 +1,6 @@
 ---
 title: "A new story: feels like minus one, and what the wind chill number leaves out"
-seo_title: "Wind chill vs wet clothes on a hill walk: a worked example in a short story"
+seo_title: "Wind chill vs wet clothes on a hill walk: a worked example"
 date: 2026-11-02
 tags: [fiction, hearth-and-horizon, science-fiction, hillwalking]
 description: "Hearth & Horizon's new story works the wind chill formula for a youth hill walk and shows what the 'feels like' figure does not cover."
