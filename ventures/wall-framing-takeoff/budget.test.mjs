@@ -414,3 +414,13 @@ test("attic ventilation is priced from the ventilation counts: typed prices, han
   const none = ventOf({ ...plan, prices: {} }).lines;
   assert.equal(none.find((x) => x.item === "Ridge vent").amount, null, "no price typed: listed unpriced, not guessed");
 });
+
+test("a misspelt price name is reported as ignored, with the nearest name it reads", () => {
+  const b = bud(full({ laborWallFoo: 12, laborOpening: 85 }));
+  const ig = b.ignoredPrices.find((x) => x.name === "laborWallFoo");
+  assert.ok(ig, "typo listed");
+  assert.equal(ig.didYouMean, "laborWallFoot");
+  assert.ok(!b.ignoredPrices.some((x) => x.name === "laborOpening"), "a used rate is not listed");
+  assert.match(budgetText(b).join("\n"), /changed nothing[^\n]*laborWallFoo \(did you mean laborWallFoot\?\)/);
+  assert.deepEqual(bud(full()).ignoredPrices.filter((x) => x.name === "laborWallFoo"), []);
+});
