@@ -30,6 +30,17 @@ test('lists the committed queue, escaped', () => {
   assert.ok(!evil.includes('<script>x</script>'));
 });
 
+test('speaks to businesses: the headline, two ways in, and FAQ data that matches the page', () => {
+  const html = renderCustomDevelopmentPage({ baseUrl: base, requests: [] });
+  assert.match(html, /<h1>Describe your problem and it gets built\.<\/h1>/);
+  assert.match(html, /<title>Free custom software for your business/);
+  assert.match(html, /href="\.\.\/feedback\/"/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+  assert.equal(ld['@type'], 'FAQPage');
+  assert.ok(ld.mainEntity.length >= 4);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<dt>${q.name}</dt>`), q.name);
+});
+
 test('in the footer and the hub sitemap', () => {
   assert.match(renderSiteFooterNav({ toRoot: '../' }), new RegExp(`href="\\.\\./${CUSTOM_DEV_PATH}"`));
   assert.match(renderHubSitemap(base), new RegExp(`${base}${CUSTOM_DEV_PATH}`));
@@ -53,7 +64,7 @@ test('the request form offers every kind, needs the licence box, and posts to th
 test('without the endpoint there is no form that goes nowhere, and the issue form is the call to action', () => {
   const html = renderCustomDevelopmentPage({ baseUrl: base, requests: [one], surfaces, feedbackUrl: '' });
   assert.ok(!html.includes('id="cdf"'));
-  assert.match(html, /class="cd-btn" href="https:\/\/github\.com\/[^"]+custom-build\.yml"/);
+  assert.match(html, /class="cd-go" href="https:\/\/github\.com\/[^"]+custom-build\.yml"/);
 });
 
 test('the queue is filterable and each row links its own page and the published tool', () => {
