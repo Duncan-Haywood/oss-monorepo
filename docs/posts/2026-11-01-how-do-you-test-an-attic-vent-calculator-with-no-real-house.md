@@ -1,5 +1,6 @@
 ---
 title: "How do you test an attic vent calculator when you have no real house to check it against?"
+seo_title: "Testing an attic vent calculator with no real house to check"
 date: 2026-11-01
 tags: [wall-framing-takeoff, ventilation, testing]
 description: The attic ventilation module now has a seeded property test over 300 random roofs and vent settings, checking the one thing a vent order must get right.

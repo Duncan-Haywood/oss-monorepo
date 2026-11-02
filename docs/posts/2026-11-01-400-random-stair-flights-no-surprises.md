@@ -1,5 +1,6 @@
 ---
 title: "We threw 400 random stair flights at the framing takeoff's stair engine"
+seo_title: "400 random stair flights thrown at the framing takeoff"
 date: 2026-11-01
 tags: [wall-framing-takeoff, stairs, testing, construction]
 description: A seeded property test lays out 400 random stair flights and checks the riser, tread, stringer and mark arithmetic each time. It found nothing wrong.
