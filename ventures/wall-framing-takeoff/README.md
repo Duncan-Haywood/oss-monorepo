@@ -384,7 +384,7 @@ Fix 2026-10-28: panel cut lists on a gable wall (HTML panel sheets, `panelParts`
 
 ## Change orders (2026-11-01)
 
-`node cli.mjs plan.json --compare=revised.json [--sheathing ...]` prices both plans with their own `prices` and prints the budget difference by line and section (add `--json`). Lines priced on one side only are listed, not netted. Verified in `compare.test.mjs` on hand-made budgets and by tying the totals to two `--budget` runs; no page yet.
+`node cli.mjs plan.json --compare=revised.json [--sheathing ...]` prices both plans with their own `prices` and prints the budget difference by line and section (add `--json`). Lines priced on one side only are listed, not netted. Verified in `compare.test.mjs` on hand-made budgets and by tying the totals to two `--budget` runs; the page has a "Change order" card (2026-11-02): save the budget as the original, change the plan or prices, and it lists the diff (checked in headless Chromium on the example house).
 
 ## Bid leveling (2026-10-28)
 
