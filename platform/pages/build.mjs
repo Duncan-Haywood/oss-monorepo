@@ -3820,8 +3820,17 @@ const FALLBACK_CATEGORY = {
   accent: '#3a4552',
 };
 
+// Answered once per slug: the rules depend on the slug alone (the stat-ing one,
+// `shipsDeployableApp`, is already memoised) and every page's related-tools
+// scan asks about every other slug, so ~170 pages x ~170 slugs x 2 lookups.
+const categoryBySlug = new Map();
 export function categoryFor(slug) {
-  return CATEGORY_RULES.find((rule) => rule.test(slug)) ?? FALLBACK_CATEGORY;
+  let hit = categoryBySlug.get(slug);
+  if (hit === undefined) {
+    hit = CATEGORY_RULES.find((rule) => rule.test(slug)) ?? FALLBACK_CATEGORY;
+    categoryBySlug.set(slug, hit);
+  }
+  return hit;
 }
 
 /**
@@ -4677,10 +4686,17 @@ const SUBCATEGORY_FALLBACKS = {
  * The sub-group `slug` belongs to, or `null` when its category is small enough
  * that the hub shows one flat list.
  */
+const subcategoryBySlug = new Map();
 export function subcategoryFor(slug) {
-  const rules = SUBCATEGORY_RULES[categoryFor(slug).id];
-  if (!rules) return null;
-  return rules.find((rule) => rule.test(slug)) ?? SUBCATEGORY_FALLBACKS[categoryFor(slug).id];
+  let hit = subcategoryBySlug.get(slug);
+  if (hit === undefined) {
+    const id = categoryFor(slug).id;
+    const rules = SUBCATEGORY_RULES[id];
+    hit = rules ? rules.find((rule) => rule.test(slug)) ?? SUBCATEGORY_FALLBACKS[id] : null;
+    subcategoryBySlug.set(slug, hit ?? null);
+    if (hit === undefined) hit = null;
+  }
+  return hit;
 }
 
 /**
