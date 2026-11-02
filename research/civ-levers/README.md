@@ -264,3 +264,7 @@ Milestone 7 of track 24 (Turchin 2003; Turchin and Nefedov 2009). A fixed-land e
 
 
 **Second run (lags, `experiments/history/lag_results.txt`):** adding a generational delay to elite recruitment (`lag`) and a delay to political stress (`plag`) gives oscillations with a period in the 150 to 400 year band in up to 23 of 54 cells (lag 200 years), none at lag 50 or below. But the largest population swing in any of 1350 cells is 8.9% of the mean (most under 3%) with no unrest, so the period check passes and the amplitude check fails: delay alone does not make secular cycles. Next is a collapse reset. See `LOG.md` (2026-10-31).
+
+## Likert agents and a pluggable policy (milestone 8, stub only)
+
+`src/civ_levers/llmsociety.py` runs the same societies and levers with opinions on a 7-point scale and a policy that returns -1, 0 or +1 per meeting. The default policy is a deterministic stub; set `CIV_LLM_POLICY=module:callable` to use a real model (not called anywhere in this repository). Result (`experiments/llmsociety/results.txt`): rounding to 7 levels alone breaks the ladder (0 of 10 merged), and decision noise of 0.2 merges all societies with no lever, so a model run must be read against its own no-lever baseline. See `LOG.md`, 2026-11-02.
