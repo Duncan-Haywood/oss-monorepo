@@ -1,9 +1,9 @@
 ---
 title: "Four parsers, one suppression list, and the one that failed open"
-seo_title: "Suppression list bugs in a sales agent: Name <addr>, quotes and plus-tags"
+seo_title: "Suppression list bugs in a sales agent: Name <addr>, plus-tags"
 date: 2026-11-02
 tags: [sales-agent, consent, suppression, bugs]
-description: "A sales agent read its do-not-contact list in four places, four ways. One of them kept emailing people written as Name <addr>. What we found and how it was fixed."
+description: "A sales agent read its do-not-contact list in four places, four ways. One kept queuing people written as Name <addr>. What we found and how we fixed it."
 ---
 
 The sales agent in this repository keeps a suppression list: addresses of people who asked to stop. Four parts of it read that list: the inbox agent, the daily run, call prep and the research agent. Each had its own few lines of parsing.
