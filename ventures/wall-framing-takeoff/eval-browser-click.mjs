@@ -338,6 +338,12 @@ await page.waitForFunction(() => /Wall framing/.test(document.querySelector("#bu
 const budTxt = await page.textContent("#budgetOut");
 const budOk = !/NaN|undefined/.test(budTxt) && /total/.test(budTxt) && /labor/.test(budTxt);
 console.log(budOk ? "ok: budget from typed prices on the page" : "FAIL: budget: " + budTxt.slice(0, 200));
+// a misspelt price name is listed with a "did you mean" instead of a silent zero (2026-11-02)
+await page.fill("#priceText", "wallSheet, 20\nlaborWallFoo, 10");
+await page.click("#run");
+await page.waitForFunction(() => document.querySelector("#ignoredPrices"), null, { timeout: 90000 });
+const ignTxt = await page.textContent("#ignoredPrices");
+console.log(/laborWallFoo/.test(ignTxt) && /did you mean laborWallFoot/.test(ignTxt) && /laborWallFoo \(did/.test(ignTxt) ? "ok: misspelt price listed with the nearest name" : "FAIL: ignoredPrices: " + ignTxt);
 // the price-name picker appends a "name, " line once and does not duplicate it
 await page.fill("#priceText", "wallSheet, 20");
 await page.selectOption("#priceName", "laborHoldDown");
