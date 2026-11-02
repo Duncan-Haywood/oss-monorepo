@@ -83,6 +83,12 @@ export function addWall(sk, a, b) {
   sk.walls.push(w);
   return w;
 }
+// Round an offset to 1/16 in without letting the rounding push the opening past
+// the wall's far end (it could by up to 1/32 in, and a reload then dropped it).
+const snapOffset = (off, L, width) => {
+  const r = Math.round(off * 16) / 16;
+  return r + width > L ? Math.max(0, Math.floor((L - width) * 16) / 16) : r;
+};
 const same = (p, q) => Math.abs(p.x - q.x) < 0.01 && Math.abs(p.y - q.y) < 0.01;
 
 /**
@@ -119,7 +125,7 @@ export function addOpening(sk, wallId, kind, along, width) {
   const L = len(w);
   if (width > L) return { ok: false, error: `A ${width} in opening does not fit a ${Math.round(L * 16) / 16} in wall.` };
   let offset = Math.min(Math.max(along - width / 2, 0), L - width);
-  offset = Math.round(offset * 16) / 16;
+  offset = snapOffset(offset, L, width);
   for (const o of sk.openings) {
     if (o.wall === wallId && offset < o.offset + o.width && o.offset < offset + width) return { ok: false, error: "That would overlap another opening." };
   }
@@ -188,7 +194,7 @@ export function moveOpening(sk, id, along) {
   const o = sk.openings.find((x) => x.id === id);
   if (!o) return { ok: false, error: "No such opening." };
   const w = /** @type {SketchWall} */ (sk.walls.find((x) => x.id === o.wall));
-  const offset = Math.round(Math.min(Math.max(along - o.width / 2, 0), len(w) - o.width) * 16) / 16;
+  const offset = snapOffset(Math.min(Math.max(along - o.width / 2, 0), len(w) - o.width), len(w), o.width);
   if (sk.openings.some((x) => x !== o && x.wall === o.wall && offset < x.offset + x.width && x.offset < offset + o.width)) return { ok: false, error: "That would overlap another opening." };
   o.offset = offset;
   return { ok: true };
