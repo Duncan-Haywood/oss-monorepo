@@ -329,3 +329,15 @@ took effect on 2009-06-01, inside the 2008-09 recession.
 - **Licence:** the Stat2Data package is GPL (Cannon et al.); the figures are
   bridge traffic counts. Used here as test data only.
 - **Used by:** `eval/peace-bridge.mjs`, `peace-bridge.test.mjs`.
+
+# Example data: US quarterly ex-post real interest rate, 1959Q2-2009Q3
+
+`us-real-interest.csv`: the `realint` column of statsmodels' `macrodata` dataset (three-month Treasury bill rate minus
+annualised CPI inflation, %), 202 quarters (first quarter dropped: 0 by construction).
+
+- **Retrieved:** 2026-11-02 from
+  <https://raw.githubusercontent.com/statsmodels/statsmodels/main/statsmodels/datasets/macrodata/macrodata.csv>.
+- **Licence:** public domain (statsmodels' `COPYRIGHT`; underlying data via FRED).
+- **Cite (the documented shifts, from memory, unread):** Garcia, R. and Perron, P. (1996). An analysis of the real
+  interest rate under regime shifts. *Review of Economics and Statistics* 78(1), 111-125.
+- **Used by:** `eval/us-real-interest.mjs`, `us-real-interest.test.mjs`.

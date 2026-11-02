@@ -132,7 +132,9 @@ flagships:
       traffic around the 2009 passport rule, 2026-11-01: step on the month, 13
       other changes). (2) The steep-
       bump (0.04) clumpy-count cell is under-covered, 65/79 (82%) over six
-      seeds; the CLI and JSON carry that caveat. (3) GARCH: a filtered
+      seeds; the CLI and JSON carry that caveat. (2b) US real rate 1959-2009
+      (2026-11-02): 1980 rise dated 1980Q4, one-quarter range excludes the
+      cited 1980Q3, unchecked. (3) GARCH: a filtered
       series has 1% false alarms but loses the real sd break (97% to 6%);
       needs a segment-wise joint GARCH fit. (4) driftWarning fires on real
       shocks and on autocorrelated nulls as well as growing seasons: wanted
