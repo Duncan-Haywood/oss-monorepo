@@ -7,6 +7,7 @@
 // No network, no dependencies; the same file runs in a page, in Node and in a server. ai.mjs adds an optional model
 // on the user's own key, under the same rules.
 import { guess as nbGuess } from "./learn.mjs";
+import { suppressionIndex, emailKey } from "./suppression.mjs";
 
 export const DAY = 86_400_000;
 
@@ -442,7 +443,7 @@ export function runInbox(input, { triageFn = triage, guessFn = nbGuess } = {}) {
   const replies = Array.isArray(input.replies) ? input.replies : parseReplies(input.replies);
   const table = Array.isArray(input.prospects) ? input.prospects.map((p) => ({ ...p })) : parseCsv(input.prospects);
   const byEmail = new Map(table.filter((p) => p.email).map((p) => [p.email.toLowerCase(), p]));
-  const suppressed = new Set(String(input.suppression || "").split(/[\n,;]+/).map((s) => s.trim().toLowerCase()).filter((s) => s.includes("@")));
+  const suppressedBy = suppressionIndex(input.suppression), suppressedNow = new Set();
   const items = [], suppression = [], deals = [], tasks = [];
   const factsBase = Object.values(offer).join(" \n ");
 
@@ -459,7 +460,7 @@ export function runInbox(input, { triageFn = triage, guessFn = nbGuess } = {}) {
     switch (t.category) {
       case "unsubscribe":
         set("status", "unsubscribed", "Stopped every touch to this person");
-        if (reply.from && !suppressed.has(reply.from)) { suppressed.add(reply.from); suppression.push({ email: reply.from, reason: "asked to stop", date: today, evidence: t.evidence }); applied.push("Added to your suppression list, with their words as the record"); }
+        if (reply.from && !suppressedBy(reply.from) && !suppressedNow.has(emailKey(reply.from))) { suppressedNow.add(emailKey(reply.from)); suppression.push({ email: reply.from, reason: "asked to stop", date: today, evidence: t.evidence }); applied.push("Added to your suppression list, with their words as the record"); }
         break;
       case "bounce":
         set("status", "bounced", "Stopped email to this address");
