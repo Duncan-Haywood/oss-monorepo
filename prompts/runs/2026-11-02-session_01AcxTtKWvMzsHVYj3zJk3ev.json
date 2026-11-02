@@ -43,7 +43,10 @@
       "result": "7/7 pass; mutation fails as expected."
     }
   ],
-  "writeups": "docs/posts/2026-11-02-fuzzing-the-bid-letterhead.md; ROADMAP.md entry",
+  "writeups": [
+    "docs/posts/2026-11-02-fuzzing-the-bid-letterhead.md",
+    "ventures/wall-framing-takeoff/ROADMAP.md"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],
