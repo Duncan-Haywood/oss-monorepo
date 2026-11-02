@@ -3,6 +3,13 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-11-02 · Milestone 9x: does a linear drift ramp across the record break the output-error fit that a constant offset (9w) only bent, and does a fitted ramp repair it? (planned before running)
+- Why: the "Next" of 9w. 9v's temperature coefficient acts as a drift when the IMU warms during a record, not as a constant.
+- Plan (`experiments/imu_drift_fit/run.py`): 9w's script with every channel carrying a linear ramp from 0 to a total drift of 0, 10 and 20% of its rms (random sign), 10% white noise, scale 0.75, 1 and 2 phugoid periods, every fourth of the 78 mode-matched designs (stride 4, for run time), 8 draws. Estimators: LS, OE, OE+b (constant offset only, 9w's fix) and OE+b+d (offset plus slope, eight extra parameters).
+- **Predictions (before running):** (1) at 10% total drift OE's median short-period error is at least 2 times its 0% value (prior 65%; the ramp has half the mean offset of a constant of equal size). (2) OE+b (constant only) repairs less than half of that excess at 20% drift (prior 55%). (3) OE+b+d at 20% drift is within 1.5 times OE's 0% error and restores the within-10%-gust share to within 10 points of the 0% value (prior 55%). Refuted: (1) ratio under 2; (2) OE+b repairs half or more; (3) either condition fails.
+- Limits known in advance: linear ramp only, all four channels, total drift as a fraction of rms rather than a sensor's TCO; a quarter of the designs; 8 draws; one seed, one noise level, one scale.
+
+
 ## 2026-11-02 · Milestone 9w: does a constant per-channel offset break 9j's output-error fit, and does fitting an offset parameter repair it? (planned before running)
 - Why: the "Next" of 9v. 9v showed a warm-up of 5 to 10 K leaves a slow offset about as large as the white noise; the fits of 9j to 9u assumed zero-mean channels.
 - Plan (`experiments/imu_offset_fit/run.py`): 9j's script (10% white noise, 1 and 2 phugoid periods, scale 0.75), every third of the 78 mode-matched designs, 8 draws each. Each draw adds a constant offset of random sign to every normalised channel, 0, 5, 10 and 20% of that channel's rms (9v: 5 K is 7.5% of a 1 deg/s rms; 10% corresponds to a 0.75 deg/s rms at 5 K). Three estimators: LS, OE (9j), and OE+b (OE with four extra offset parameters, initial state known as in 9j/9l). Metrics as 9j. The 0% row is a repeat of 9j on a subset with fewer draws, so it only checks consistency.
