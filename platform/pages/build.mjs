@@ -7643,8 +7643,11 @@ function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, fixedReque
         <label for="cdf-job" id="cdf-job-label">${escapeHtml(REQUEST_KINDS[0].job)}</label>
         <p class="cd-hint" id="cdf-job-hint">${escapeHtml(REQUEST_KINDS[0].hint)}</p>
         <textarea id="cdf-job" name="job" rows="6" maxlength="3000" required aria-describedby="cdf-job-hint"></textarea>
+        <p class="cd-mic-row" hidden><button type="button" class="cd-mic" data-mic="cdf-job" aria-pressed="false">Speak instead of typing</button></p>
         <label for="cdf-done">How would you know it worked? <span class="cd-opt">(optional)</span></label>
         <textarea id="cdf-done" name="done" rows="3" maxlength="600" placeholder="A number it should get right, a document it should read, a step it should save."></textarea>
+        <p class="cd-mic-row" hidden><button type="button" class="cd-mic" data-mic="cdf-done" aria-pressed="false">Speak instead of typing</button></p>
+        <p class="cd-hint" id="cdf-mic-note" hidden>Dictation uses your browser's own speech recognition: the words appear in the box for you to check and edit, and nothing is sent to this site until you press Send. Some browsers (Chrome among them) send the audio to the browser maker's speech service to turn it into text, unless they can do it on your device.</p>
         <div data-cd-for="licence">
           <label class="cd-check"><input type="checkbox" name="licence" id="cdf-licence"> I understand that what is built is published here under the MIT licence, with the repository owner's copyright notice, and that I get no exclusive rights to it.</label>
         </div>
@@ -7671,6 +7674,31 @@ function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, fixedReque
   if(/^R-\\d{4}$/.test(qr))f.req.value=qr;
   f.addEventListener('change',function(e){if(e.target.name==='kind')show();});
   show();
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition,rec=null,live=null;
+  if(SR){
+    var rows=f.querySelectorAll('.cd-mic-row');for(var j=0;j<rows.length;j++)rows[j].hidden=false;
+    document.getElementById('cdf-mic-note').hidden=false;
+    var lang=document.documentElement.lang||navigator.language||'en-US';if(lang==='en')lang='en-US';
+    var stop=function(){if(rec){try{rec.stop();}catch(_){}}};
+    var mics=f.querySelectorAll('.cd-mic');
+    for(var m=0;m<mics.length;m++)mics[m].addEventListener('click',function(){
+      var b=this,ta=document.getElementById(b.getAttribute('data-mic'));
+      if(live===b){stop();return;}
+      stop();
+      var r=new SR(),base=ta.value;r.lang=lang;r.continuous=true;r.interimResults=true;
+      r.onresult=function(ev){
+        var said='';for(var i=0;i<ev.results.length;i++)said+=ev.results[i][0].transcript;
+        said=said.trim();ta.value=(base&&said?base.replace(/\s*$/,' '):base)+said;
+        if(ta.maxLength>0&&ta.value.length>ta.maxLength)ta.value=ta.value.slice(0,ta.maxLength);
+      };
+      r.onerror=function(ev){st.textContent=ev.error==='not-allowed'||ev.error==='service-not-allowed'?'The microphone is blocked for this page. Allow it in your browser, or type instead.':ev.error==='no-speech'?'No speech heard. Try again, closer to the microphone.':'Dictation stopped ('+ev.error+'). You can type instead.';};
+      r.onend=function(){if(rec===r){rec=null;live=null;}if(/^Listening/.test(st.textContent))st.textContent='';b.setAttribute('aria-pressed','false');b.textContent='Speak instead of typing';};
+      rec=r;live=b;
+      try{r.start();b.setAttribute('aria-pressed','true');b.textContent='Stop dictating';st.textContent='Listening. Speak, then press Stop dictating.';}
+      catch(_){rec=null;live=null;st.textContent='Dictation could not start. You can type instead.';}
+    });
+    f.addEventListener('submit',stop,true);
+  }
   f.addEventListener('submit',function(e){
     e.preventDefault();
     var k=kind(),job=f.job.value.trim(),done=f.done.value.trim();
@@ -7983,6 +8011,10 @@ const CUSTOM_DEV_STYLE = `
     .cd-declined { color: var(--muted); }
     .cd-hint { color: var(--muted); font-size: .9em; margin: -2px 0 6px; }
     .cd-opt { font-weight: 400; color: var(--muted); }
+    .cd-mic-row { margin: 4px 0 10px; }
+    .cd-mic-row[hidden], #cdf-mic-note[hidden] { display: none; }
+    #cdf .cd-mic { font: inherit; font-size: .9em; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; }
+    #cdf .cd-mic[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: #fff; }
     #cdf select { width: 100%; box-sizing: border-box; font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
     #cdf .cd-check { font-weight: 400; color: var(--ink); display: flex; gap: 8px; align-items: flex-start; }
     .cd-filter { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }

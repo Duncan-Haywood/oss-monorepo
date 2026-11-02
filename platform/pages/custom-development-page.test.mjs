@@ -109,3 +109,15 @@ test('offers every request kind and explains the injection screen', () => {
   assert.match(html, /id="screening"/);
   assert.match(html, /portfolio\/requests\/screen\.mjs/);
 });
+
+test('the request form offers dictation, hidden until the browser can do it', () => {
+  const html = renderCustomDevelopmentPage({ baseUrl: base, requests: [one], surfaces, feedbackUrl: 'https://edge.example' });
+  assert.match(html, /data-mic="cdf-job"/);
+  assert.match(html, /data-mic="cdf-done"/);
+  assert.match(html, /<p class="cd-mic-row" hidden>/);
+  assert.match(html, /webkitSpeechRecognition/);
+  assert.match(html, /nothing is sent to this site until you press Send/);
+  // The inline script still parses after the template literal's escaping.
+  const script = html.match(/<script>\s*(\(function\(\)\{[\s\S]*?)<\/script>/)[1];
+  assert.doesNotThrow(() => new Function(script));
+});
