@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsStandingsText, divisionsStandingsCsv } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -743,4 +743,23 @@ test("standings text and CSV carry every division, and the CLI --results reads a
   const run = spawnSync("node", [new URL("./divisions.mjs", import.meta.url).pathname, join(dir, "spec.json"), "--results", join(dir, "res.txt")], { encoding: "utf8" });
   assert.equal(run.status, 0, run.stderr);
   assert.ok(run.stdout.includes(`${d0.teams[0]}`) && run.stdout.includes("Pts"));
+});
+
+test("divisionsPlayoffs seeds winners first, then runners-up, with wildcards last", () => {
+  const { spec } = readDivisionsSpec(example);
+  const sch = buildDivisions(spec);
+  const lines = [];
+  for (const d of sch.divisions) {
+    lines.push(`${d.name}: ${d.teams[0]} 3 - 0 ${d.teams[1]}`, `${d.name}: ${d.teams[1]} 2 - 1 ${d.teams[2]}`);
+  }
+  const r = divisionsStandings(sch, lines.join("\n"));
+  const n = sch.divisions.length;
+  const po = divisionsPlayoffs(r, { perDivision: 2, wildcards: 1 });
+  assert.equal(po.seeds.length, 2 * n + 1);
+  assert.ok(po.seeds.slice(0, n).every((x) => x.rank === 1));
+  assert.ok(po.seeds.slice(n, 2 * n).every((x) => x.rank === 2));
+  assert.ok(po.seeds[2 * n].rank > 2);
+  assert.deepEqual(po.seeds.map((x) => x.seed), po.seeds.map((_, i) => i + 1));
+  assert.ok(po.bracket.games >= po.seeds.length - 1 && /Final/.test(po.text));
+  assert.match(divisionsPlayoffs({ tables: [{ division: "A", rows: [{ name: "x", played: 0, points: 0, gd: 0, gf: 0 }] }] }, { perDivision: 1 }).errors.join(), /two teams/);
 });
