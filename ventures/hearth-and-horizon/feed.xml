@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Morning It Was Too Cold</title>
+      <link>https://example.invalid/hearth-and-horizon/the-morning-it-was-too-cold.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-morning-it-was-too-cold.html</guid>
+      <pubDate>Mon, 02 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A parish hall's new rooftop solar array works all autumn and then stops on the three coldest mornings of January, with the inverter blinking a fault. The hall's energy assistant finds that solar panels make more voltage in the cold, not less: 13 panels in a string that read 564 volts in October read about 608 at minus 21, against an inverter marked 600. The fix costs two panels' worth of power and a retired electrician's pride, and it is made in the dark before dawn. Setting: Our Lady of Perpetual Help (invented), Nelson Lake, northern Minnesota, 7 to 16 January 2049. Read the full text at https://example.invalid/hearth-and-horizon/the-morning-it-was-too-cold.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A parish hall's new rooftop solar array works all autumn and then stops on the three coldest mornings of January, with the inverter blinking a fault. The hall's energy assistant finds that solar panels make more voltage in the cold, not less: 13 panels in a string that read 564 volts in October read about 608 at minus 21, against an inverter marked 600. The fix costs two panels' worth of power and a retired electrician's pride, and it is made in the dark before dawn.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Tap That Let Go at Night</title>
       <link>https://example.invalid/hearth-and-horizon/the-tap-that-let-go-at-night.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-tap-that-let-go-at-night.html</guid>
