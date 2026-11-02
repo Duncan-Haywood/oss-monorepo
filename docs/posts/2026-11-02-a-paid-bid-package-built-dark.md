@@ -1,9 +1,9 @@
 ---
 title: "A branded bid package for framers, built but switched off"
-seo_title: "Branded bid package for framers: how the licence unlock works"
+seo_title: "Branded bid package for framing contractors and its licence unlock"
 date: 2026-11-02
 tags: [wall-framing-takeoff, monetization, construction, licensing]
-description: "The framing takeoff now has a letterhead bid package behind a licence key. No checkout link is set, so it earns nothing yet. What exists, and what is unproven."
+description: "The framing takeoff now has a letterhead bid package behind a licence key. No checkout link is set, so it earns nothing yet. What exists, what is unproven."
 ---
 
 The wall framing takeoff already turns a floor plan into a stud count, a cut list and a priced budget, and its customer proposal spreads tax, contingency, overhead and profit across the section prices so a homeowner sees neither the framer's cost nor margin. This change adds the next thing a contractor needs to send a bid: it on their own letterhead.
