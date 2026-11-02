@@ -4,7 +4,7 @@ import { promises as fs, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import vm from 'node:vm';
-import { AGENT_BLOG, BLOG, buildWriting, loadPosts, parseFrontMatter, postPageTitle, relatedPosts, renderFeed, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
+import { AGENT_BLOG, BLOG, buildWriting, loadPosts, parseFrontMatter, postPageTitle, relatedPosts, renderFeed, renderIndex, renderPost, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
 
 const BASE = 'https://example.test/site/';
 
@@ -289,4 +289,26 @@ test('finder count reads "N posts" when nothing is filtered and "k of N posts" w
 test('finder keeps a ?tag= that is in the menu (even the first option) and drops one that is not', async () => {
   assert.equal((await runFinder('?tag=a', { selectedIndex: 0 })).tag.value, 'a');
   assert.equal((await runFinder('?tag=nope', { selectedIndex: -1 })).tag.value, '');
+});
+
+test('tag menu lists the most used tags first, ties alphabetical (redteam 2026-11-02)', () => {
+  const root = repoWith({
+    '2026-10-01-a.md': post('A', '2026-10-01').replace('[agents, notes]', '[alpha, zeta]'),
+    '2026-10-02-b.md': post('B', '2026-10-02').replace('[agents, notes]', '[zeta, beta]'),
+  });
+  const html = renderIndex(loadPosts(root), { baseUrl: BASE });
+  const order = [...html.matchAll(/<option value="(\w+)">\w+ \(\d\)<\/option>/g)].map((m) => m[1]);
+  assert.deepEqual(order, ['zeta', 'alpha', 'beta']);
+});
+
+test('a post missing from the list gets no older link (redteam 2026-11-02)', () => {
+  const root = repoWith({
+    '2026-10-01-a.md': post('A', '2026-10-01'),
+    '2026-10-02-b.md': post('B', '2026-10-02'),
+  });
+  const posts = loadPosts(root);
+  const stranger = { ...posts[0], slug: 'stranger' };
+  assert.doesNotMatch(renderPost(stranger, posts, { baseUrl: BASE }), /rel="prev"/);
+  // The oldest listed post has none either.
+  assert.doesNotMatch(renderPost(posts[1], posts, { baseUrl: BASE }), /rel="prev"/);
 });
