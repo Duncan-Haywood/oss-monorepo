@@ -34,6 +34,14 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 20 (2026-11-02, eval/probe20.mjs): acupuncturists, chiropractors, tailors, window cleaners, junk haulers.
+  // First in the list: "water fed pole" hit the utilities rule on the word water.
+  ["6100", "out", /water.?fed pole|lhasa oms|seirin|zenith tables?|jo-?ann fabrics|mood fabrics|singer sewing/],
+  ["6170", "out", /nccaom|acupuncturists|clean needle technique|\baca dues|activator methods|custom clothiers|window cleaning assoc/],
+  ["6110", "out", /acupuncture licen[cs]e|chiropractic (board )?licen[cs]e|junk haulers? licen[cs]e/],
+  ["6060", "out", /tailor software|alterations software/],
+  ["6000", "out", /1-?800-?got-?junk (lead|referral)/],
+  ["6080", "out", /dump trailer rental/],
   // Gap probe 19 (2026-11-02, eval/probe19.mjs): locksmiths, chimney sweeps, drone pilots, sign makers, brewers.
   ["6000", "out", /locksmith lead/],
   ["6170", "out", /chimney safety institute|international sign association/],
