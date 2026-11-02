@@ -1408,3 +1408,12 @@ The `--bootstrap` section above was synthetic only. `eval/real-bootstrap-sweep.m
 ## `--bootstrap` on US accidental deaths: the lost 1973-12 step was a missing season (2026-11-01)
 
 The sweep above reported that `--bootstrap` drops the 1973-12 step on US accidental deaths. That run had no `--period`, so the series was read with its winter peaks in it, and plain `meanvar` already found only 1973-11 (not the 1973-12 fall). `eval/us-accidental-deaths-bootstrap.mjs` (output `.out.txt`, `us-accidental-deaths-bootstrap.test.mjs`) runs both ways. With `--period 12`, `meanvar` finds 1973-12, 1975-07 and 1978-03; with `--bootstrap` it keeps 1973-12 and drops the other two. `mean` with the season gives the same four changes with and without `--bootstrap`. Without the season, `meanvar --bootstrap` returns none. So the earlier caveat is a seasonal artefact, not a power loss on a real step. One series, 72 months, and the 1973-12 date is a coincidence with the oil embargo, not a labelled truth. The sweep itself is unchanged (it still runs without a season).
+
+## A real interest-rate series: the 1973 fall and the 1980 rise (2026-11-02)
+
+`data/us-real-interest.csv` is the US ex-post real rate (T-bill minus CPI inflation), 1959Q2 to 2009Q3, 202 quarters (source in `data/SOURCE.md`). The shifts in the literature (Garcia and Perron 1996, cited from memory, paper unread) are a fall near 1973Q3 and a rise near 1980Q3. `eval/us-real-interest.mjs` (output in `eval/us-real-interest.out.txt`, `us-real-interest.test.mjs`, 3 tests), `mean` model:
+
+- **Defaults:** 9 changes. 1973Q3 (1.31 to -3.46, `range95` 1973Q1 to 1973Q3) and 1980Q4 (-1.12 to 5.45, `range95` 1980Q4 only), then 1986Q2 (5.45 to 2.10) and a run of one- and two-quarter segments from 2002 on.
+- **Dated one quarter late:** the 1980 rise lands on 1980Q4, and its one-quarter `range95` excludes the literature's 1980Q3. Either the paper's date differs from my memory of it, or the interval is too narrow here; I did not check which, and one series cannot measure coverage.
+- **`--ar1`:** the same 9 changes, with a wider range for 1975Q1. **`--bootstrap`:** 8, dropping the 1975Q1 step (the 1973 step now runs 1.37 to -1.52).
+- **Artefact:** 2007Q4, 2008Q3 and 2009Q1 are single-quarter swings of the financial crisis (T-bill collapse against a deflation quarter), cut as their own segments, the same failure as the 2008 quarter in US inflation. A mean-shift model has no way to call them outliers.
