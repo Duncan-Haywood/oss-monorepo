@@ -14,3 +14,7 @@ a post's front matter reached `main` and broke the build. Not changed, for the
 next run: make `check_post_frontmatter.py` a required check on any PR touching
 `docs/posts/**`, or run it in the session gate; a CI change is a CODEOWNERS
 path, so it needs its own small PR.
+
+Update: another session landed its own shortening of the same description on
+`main` while this PR was open; the merge kept main's text. This PR therefore
+carries only this note and the run record.
