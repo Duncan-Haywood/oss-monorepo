@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-02 · Milestone 3h: does the yacht-series mirror have the structure of the 1981 table? (structural check; not a validation)
+- Why: 3g's "Next" asked to check the mirror file against the paper; the paper host is blocked, so this checks what can be checked offline. Prediction (before running): 22 hulls x 14 Froude numbers (0.125 to 0.45, step 0.025), no negative Rr, and Rr rising with Fn within every hull; any violation would mean a corrupted mirror.
+- Outcome (`experiments/check_yacht_data.py`, `results_yacht_data_check.txt`, instant): 308 rows, 22 distinct hull forms, each with all 14 Froude numbers; no negative Rr; 0 of 286 hull-steps where Rr falls as Fn rises; Rr 0.01 to 62.42 per mille. Prediction held.
+- Reading: the mirror is structurally intact and physically monotone, which makes a silent corruption less likely. It does not show the values equal the paper's; 3g's H3 reading is unchanged and the mirror stays flagged unverified.
+- Next: a survey-boat-like (fuller, no keel) tank table; the paper itself if a host opens.
+
 ## 2026-11-02 · Milestone 3g: Holtrop-Mennen residuary resistance against 308 Delft yacht-series tank points (exploratory; not pre-registered)
 - Why: H3 had one tank point (3c). The Delft Systematic Yacht Hull Series table (Gerritsma, Onnink and Versluis 1981; UCI "Yacht Hydrodynamics", CC BY 4.0; 22 hulls, Fn 0.125 to 0.45, residuary resistance per unit weight) is a public numeric table. The data host was blocked, so the file came from a public GitHub mirror (`aamini/evidential-deep-learning`, `neurips2020/data/uci/yacht/`); I did not check it against the 1981 paper. Copy: `experiments/data/yacht_hydrodynamics.data`.
 - Method (`experiments/run_holtrop_yacht.py`, `results_holtrop_yacht.txt`): Rr is total minus ITTC-1957 friction, so the HM counterpart is RF*k1 + RW (no correlation allowance, as at model scale). Midship coefficient, waterplane coefficient and model length are not in the table, so I swept Cm 0.7 to 0.9, Cwp 0.65 to 0.85, L 1 and 2 m (my ranges). The hulls are sailing yachts with keels and rudders: the comparison is on the hull-form terms only.
