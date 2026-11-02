@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01AcxTtGrupEPprQ3wMp9YvV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T20:10:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12646",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "every remaining sales-agent next item needs real data or keys; no slice was doable without them, so I fixed a parser gap found by probing instead"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "did not land a flagship milestone from next:; all need real inputs",
+      "did": "fixed a small multilingual out-of-office date gap in the flagship",
+      "result": "124/124 tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-02-out-of-office-replies-in-six-languages.md"
+  ],
+  "goal": null,
+  "notes": "No agent doc written. Test cases agent-written.",
+  "corrections": [],
+  "redteam": null
+}
