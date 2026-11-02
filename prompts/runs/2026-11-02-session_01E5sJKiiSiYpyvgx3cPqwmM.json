@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12679",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,22 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Took flagship 4 rather than top-ranked flagship 1, whose open items all need real inputs unavailable here."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-02-holiday-list-bike-share.md",
+    "docs/reports/changepoint-holidays-real-2026-11-02.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Flagship 4 (changepoint-detector): real bike-share holiday test, negative result pinned. Wall-framing (flagship 1) skipped: needs real inputs. Local test passed; CI not yet read at record time.",
   "corrections": [],
   "redteam": null
 }
