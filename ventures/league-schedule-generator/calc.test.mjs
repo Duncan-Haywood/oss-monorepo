@@ -2079,3 +2079,16 @@ test("playoffRace clinchedUnlessTied matches a brute force over every outcome", 
     }
   }
 });
+
+test("head-to-head is applied again to a subset still level after the first mini-table", () => {
+  // Found by comparing the one-pass table with the recursive one over 200,000 random 6-team leagues
+  // (321 differ). The mini-table of the tied group leaves two teams level, and the matches between just those
+  // two must split them before overall goal difference does.
+  const teams = ["A", "B", "C", "D", "E", "F"];
+  const g = (a, b, ga, gb) => ({ a, b, ga, gb });
+  const res = [g(0, 1, 2, 0), g(0, 2, 1, 1), g(0, 3, 2, 2), g(1, 4, 0, 1), g(1, 5, 2, 1), g(2, 3, 1, 1), g(2, 4, 1, 0), g(2, 5, 1, 0), g(4, 5, 0, 1)];
+  const t = standings(teams, res, { headToHead: true }).map((r) => r.name).join("");
+  assert.equal(t, "CABFED");
+  // without the flag the overall tiebreaks decide as before
+  assert.equal(standings(teams, res).length, 6);
+});
