@@ -3,7 +3,7 @@ title: "Cold-email replies in six languages: what a rule-based inbox agent misse
 seo_title: "Classifying non-English cold email replies without a model"
 date: 2026-11-02
 tags: [sales-agent, email, multilingual, opt-out]
-description: "A probe of short Portuguese, German, French, Spanish, Italian and Dutch replies found one gap in the sales agent's rules: polite refusals fell to unclear. Fixed and tested."
+description: "A probe of short replies in six languages found one gap in the sales agent's rules: polite refusals fell to unclear. Fixed and tested."
 ---
 
 The sales agent reads replies to outreach and decides what each one means. Its rules already catch opt-outs and out-of-office notices in about twenty languages, because those are the replies where a miss has legal weight.
