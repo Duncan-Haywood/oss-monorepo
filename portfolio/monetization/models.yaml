@@ -52,13 +52,15 @@ products:
         price: from $49 a month
         source: https://www.capterra.com/p/10029303/Autotakeoff/
         read: 2026-11-02
-    stage: planned
+    stage: built-dark
     next: >-
-      Build the branded bid-package export as a new feature, dark: a "Buy"
-      button that renders only when a build-time CHECKOUT_URL is set, and a
-      licence check against the provider's public validate endpoint, with a
-      refund policy and the disclaimer on the page. Tests pass with no link.
-    next_owner: false
+      Built dark 2026-11-02 (bidpackage.mjs, licence.mjs, checkout.mjs; page
+      card "Branded bid package"). Owner step: create the hosted checkout
+      product at the merchant of record, put its public link in
+      checkout.mjs CHECKOUT_URL, and confirm the validate call against the
+      provider's live docs with a test key. Agent step after that: a
+      test-paid purchase end to end.
+    next_owner: true
 
   - venture: league-schedule-generator
     buyer: volunteer league organisers, rec departments, club secretaries
