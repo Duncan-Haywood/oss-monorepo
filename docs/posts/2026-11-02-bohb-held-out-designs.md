@@ -2,7 +2,7 @@
 title: A BOHB-style search replicated on designs it had not seen
 date: 2026-11-02
 tags: [verified-dse, hardware-design, research]
-description: Fitting a density model inside Hyperband brackets beat random routing at low budget on five chip designs held out from tuning, with the predictions written first.
+description: A density model inside Hyperband brackets beat random routing at low budget on five held-out chip designs, with the predictions written first.
 ---
 
 In the verified-dse programme, a KDE sampler inside Hyperband brackets (BOHB-style) looked better than random routing at low budgets on 40 design-clock cells. Those cells had been looked at, so the result needed a check on designs it had not seen.
