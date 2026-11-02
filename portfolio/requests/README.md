@@ -9,6 +9,16 @@ owner").
 - **Queue:** [`requests.json`](requests.json), one entry per request.
 - **Public page:** `custom-development/` on the site, built from that file by
   `renderCustomDevelopmentPage` in `platform/pages/build.mjs` on every merge.
+- **Request pages:** `custom-development/R-0001/` and so on, one per entry,
+  built by `renderCustomRequestPage`: the stage it is at, `next`, what to try,
+  and a feedback form preset to that request.
+- **No-account form:** on the page itself (and every tool's footer links to it
+  with `?kind=feature&tool=<slug>`). It posts to the same edge endpoint as the
+  feedback page, so it lands in `site-feedback.json` as type `idea` (or
+  `problem`), with a message that opens `[custom-development: <kind>]`, where
+  kind is `new`, `feature` (with the tool), `preview` (feedback on a request,
+  with its ID) or `problem`. `ideas.py` lists the idea ones like any other;
+  triage a `preview` message into that request's `next`, not a new entry.
 - **Intake:** the [`custom-build.yml`](../../.github/ISSUE_TEMPLATE/custom-build.yml)
   issue form (label `custom-request`), or an `idea` from the no-account
   feedback form (`portfolio/usage/site-feedback.json`), or an `idea`-labelled

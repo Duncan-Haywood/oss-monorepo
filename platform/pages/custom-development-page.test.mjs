@@ -3,7 +3,9 @@
 // portfolio/requests/requests.json with nothing in it unescaped.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { renderCustomDevelopmentPage, CUSTOM_DEV_PATH, renderHubSitemap } from './build.mjs';
+import { renderCustomDevelopmentPage, renderCustomRequestPage, customRequestPath, REQUEST_KINDS, CUSTOM_DEV_PATH, renderHubSitemap } from './build.mjs';
+import { FEEDBACK_TYPES } from '../edge/feedback.mjs';
+import { injectChrome } from './build.mjs';
 import { renderSiteFooterNav } from './site-nav.mjs';
 import { loadRequests } from '../../portfolio/requests/requests.mjs';
 
@@ -31,4 +33,60 @@ test('lists the committed queue, escaped', () => {
 test('in the footer and the hub sitemap', () => {
   assert.match(renderSiteFooterNav({ toRoot: '../' }), new RegExp(`href="\\.\\./${CUSTOM_DEV_PATH}"`));
   assert.match(renderHubSitemap(base), new RegExp(`${base}${CUSTOM_DEV_PATH}`));
+});
+
+const surfaces = [{ slug: 'ai-bookkeeper', title: 'AI bookkeeper' }, { slug: 'roof-pitch', title: 'Roof pitch' }];
+const one = { id: 'R-0001', title: 'Books', ask: 'make books', source: 'owner', status: 'building', received: '2026-10-21', updated: '2026-10-30', project: 'ventures/ai-bookkeeper', next: 'a real export' };
+
+test('the request form offers every kind, needs the licence box, and posts to the feedback endpoint', () => {
+  const html = renderCustomDevelopmentPage({ baseUrl: base, requests: [one], surfaces, feedbackUrl: 'https://edge.example' });
+  assert.match(html, /id="cdf"/);
+  for (const k of REQUEST_KINDS) assert.ok(html.includes(`value="${k.id}"`), k.id);
+  assert.match(html, /https:\/\/edge\.example\/feedback/);
+  assert.match(html, /name="licence"/);
+  assert.match(html, /<option value="roof-pitch">Roof pitch<\/option>/);
+  assert.match(html, /<option value="R-0001">R-0001: Books<\/option>/);
+  // Every kind maps to a type the edge accepts, so nothing is refused server side.
+  for (const k of REQUEST_KINDS) assert.ok(FEEDBACK_TYPES.includes(k.type), k.id);
+});
+
+test('without the endpoint there is no form that goes nowhere, and the issue form is the call to action', () => {
+  const html = renderCustomDevelopmentPage({ baseUrl: base, requests: [one], surfaces, feedbackUrl: '' });
+  assert.ok(!html.includes('id="cdf"'));
+  assert.match(html, /class="cd-btn" href="https:\/\/github\.com\/[^"]+custom-build\.yml"/);
+});
+
+test('the queue is filterable and each row links its own page and the published tool', () => {
+  const html = renderCustomDevelopmentPage({ baseUrl: base, requests: [one], surfaces, feedbackUrl: '' });
+  assert.match(html, /id="cd-filter"/);
+  assert.match(html, /data-status="building"/);
+  assert.match(html, /href="R-0001\/"/);
+  assert.match(html, /href="\.\.\/ai-bookkeeper\/">try it/);
+});
+
+test('a request page shows its stage, links what to try, and presets preview feedback', () => {
+  const html = renderCustomRequestPage({ request: one, baseUrl: base, requests: [one], surfaces, feedbackUrl: 'https://edge.example' });
+  assert.match(html, new RegExp(`rel="canonical" href="${base}${customRequestPath('R-0001')}"`));
+  assert.match(html, /class="cd-step cd-now" aria-current="step"><span class="cd-dot" aria-hidden="true"><\/span><span class="cd-step-name">building/);
+  assert.match(html, /href="\.\.\/\.\.\/ai-bookkeeper\/"><strong>Try it/);
+  assert.match(html, /value="preview" checked/);
+  assert.match(html, /<option value="R-0001" selected>/);
+  assert.match(html, /No warranty/);
+  const declined = renderCustomRequestPage({ request: { ...one, status: 'declined', reason: 'needs a paid account' }, baseUrl: base, surfaces, feedbackUrl: 'https://edge.example' });
+  assert.match(declined, /needs a paid account/);
+  assert.ok(!declined.includes('id="cdf"'), 'no feedback form on a declined request');
+  const evil = renderCustomRequestPage({ request: { ...one, ask: '<img src=x onerror=alert(1)>' }, baseUrl: base, surfaces });
+  assert.ok(!evil.includes('<img src=x'));
+});
+
+test('request pages are in the hub sitemap', () => {
+  for (const r of loadRequests()) assert.match(renderHubSitemap(base), new RegExp(`${base}${customRequestPath(r.id)}`));
+});
+
+test('every tool footer offers a feature request for that tool, once, below the tool itself', () => {
+  const page = '<!doctype html><html><head><title>t</title></head><body><main>tool</main></body></html>';
+  const out = injectChrome(page, { slug: 'roof-pitch', toRoot: '../', total: 3, isEntry: true, baseUrl: base });
+  assert.equal(out.match(/class="pf-ask"/g).length, 1);
+  assert.match(out, /href="\.\.\/custom-development\/\?kind=feature&amp;tool=roof-pitch#request">Request a feature/);
+  assert.ok(out.indexOf('<main>tool</main>') < out.indexOf('pf-ask'));
 });

@@ -7560,48 +7560,137 @@ const FEEDBACK_STYLE = `
 /** Where the open custom development page is served, relative to the site root. */
 export const CUSTOM_DEV_PATH = 'custom-development/';
 
+/** A request's own page, relative to the site root: `custom-development/R-0001/`. */
+export function customRequestPath(id) {
+  return `${CUSTOM_DEV_PATH}${id}/`;
+}
+
 /**
- * Open custom development: how anyone asks the agents to build something, how
- * they follow it, and every request so far with its status, read from
- * `portfolio/requests/requests.json` (`requests` here). Indexed and in the hub
- * sitemap, because it is the page a person searching for free custom software
- * should land on. The licence term is stated before the ask, not after: it is
- * the one condition (owner, 2026-10-30).
+ * What a person can send from the request form, in the order offered. Each
+ * goes to the same no-account endpoint as the feedback page (`platform/edge/`),
+ * so nothing new runs on the server: `type` is the edge's own feedback type,
+ * and the message opens with `[custom-development: <kind>]` so triage
+ * (`prompts/ideas.py`, which lists every `idea`) can tell a request from a
+ * passing remark. `tool` asks for a tool picker, `request` for a request picker,
+ * `licence` for the MIT acknowledgement before sending.
  */
-export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests = [] }) {
-  const url = `${baseUrl}${CUSTOM_DEV_PATH}`;
-  const toRoot = '../';
-  const title = 'Open custom development';
-  const description = 'Ask AI agents to build the tool your work needs, free and in public. Follow its progress here. One condition: it stays MIT licensed.';
-  const issueUrl = `${REPO_URL}/issues/new?template=custom-build.yml`;
-  const listUrl = `${REPO_URL}/issues?q=label%3Acustom-request`;
-  const counts = Object.keys(REQUEST_STATUSES).map((s) => [s, requests.filter((r) => r.status === s).length]);
-  const rows = [...requests]
-    .sort((a, b) => (b.updated || '').localeCompare(a.updated || '') || (a.id || '').localeCompare(b.id || ''))
-    .map((r) => {
-      const links = [
-        r.link ? `<a href="${escapeHtml(r.link)}">request</a>` : '',
-        r.project ? `<a href="${escapeHtml(`${REPO_URL}/tree/main/${r.project}`)}">project</a>` : '',
-        r.live ? `<a href="${escapeHtml(r.live)}">live</a>` : '',
-      ].filter(Boolean).join(' · ');
-      const note = r.status === 'declined' ? r.reason : r.next;
-      return `
-          <tr>
-            <td>${escapeHtml(r.id)}</td>
-            <td><strong>${escapeHtml(r.title)}</strong><br><span class="cd-ask">“${escapeHtml(r.ask)}”, from ${escapeHtml(REQUEST_SOURCES[r.source] || r.source)}, ${escapeHtml(r.received)}</span>${note ? `<br>${escapeHtml(note)}` : ''}</td>
-            <td><span class="cd-st cd-${escapeHtml(r.status)}">${escapeHtml(r.status)}</span><br><small>${escapeHtml(r.updated)}</small></td>
-            <td>${links}</td>
-          </tr>`;
-    })
+export const REQUEST_KINDS = Object.freeze([
+  { id: 'new', type: 'idea', label: 'A new tool for my work', job: 'What job should it do, and for whom?', hint: 'Who does the work today, how, and where existing tools fall short.', licence: true },
+  { id: 'feature', type: 'idea', label: 'A feature for one of the tools here', job: 'What should the tool do that it does not?', hint: 'What you were trying to do, and what got in the way.', tool: true, licence: true },
+  { id: 'preview', type: 'idea', label: 'Feedback on a preview or a request in progress', job: 'What did you try, and what should change?', hint: 'What worked, what did not, and what you expected instead.', request: true, licence: true },
+  { id: 'problem', type: 'problem', label: 'Something is wrong with a tool', job: 'What went wrong?', hint: 'What you entered, what you expected, and what you got.', tool: true },
+]);
+
+/** The stages a request moves through, as the stepper draws them. `declined` is shown beside them, not on the line. */
+const REQUEST_STAGES = ['received', 'accepted', 'building', 'shipped'];
+
+/** The site path of the tool a request's project lives at, when that project is a published tool. */
+function requestToolSlug(r, surfaces) {
+  const slug = (r.project || '').replace(/^ventures\//, '').replace(/\/$/, '');
+  return slug && surfaces.some((s) => s.slug === slug) ? slug : '';
+}
+
+function renderRequestStepper(status) {
+  const at = REQUEST_STAGES.indexOf(status);
+  const steps = REQUEST_STAGES.map((s, i) => {
+    const state = status === 'declined' ? '' : i < at ? ' cd-done' : i === at ? ' cd-now' : '';
+    return `<li class="cd-step${state}"${i === at ? ' aria-current="step"' : ''}><span class="cd-dot" aria-hidden="true"></span><span class="cd-step-name">${escapeHtml(s)}</span><span class="cd-step-what">${escapeHtml(REQUEST_STATUSES[s])}</span></li>`;
+  }).join('');
+  const declined = status === 'declined' ? `<p class="cd-declined">Declined. ${escapeHtml(REQUEST_STATUSES.declined)}</p>` : '';
+  return `<ol class="cd-steps" aria-label="Where this request is">${steps}</ol>${declined}`;
+}
+
+/**
+ * The no-account request form, shared by the custom development page and each
+ * request's own page. `fixedRequest` (a request id) preselects "feedback on a
+ * preview" for that request. Rendered only when the build knows the feedback
+ * endpoint, like the feedback page's form, so it never offers a form that goes
+ * nowhere; the GitHub issue form is always linked beside it.
+ */
+function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, fixedRequest = '' }) {
+  if (!feedbackUrl) return '';
+  const kinds = REQUEST_KINDS.map((k) => `
+          <label><input type="radio" name="kind" value="${k.id}"${(fixedRequest ? k.id === 'preview' : k.id === 'new') ? ' checked' : ''}> ${escapeHtml(k.label)}</label>`).join('');
+  const tools = [...surfaces]
+    .sort((a, b) => String(a.title || a.slug).localeCompare(String(b.title || b.slug)))
+    .map((s) => `<option value="${escapeHtml(s.slug)}">${escapeHtml(s.title || s.slug)}</option>`)
     .join('');
-  const table = requests.length
-    ? `
-      <div class="cd-table"><table>
-        <thead><tr><th>ID</th><th>Request</th><th>Status</th><th>Links</th></tr></thead>
-        <tbody>${rows}
-        </tbody>
-      </table></div>`
-    : '<p>No requests on file yet. Yours could be the first.</p>';
+  const reqs = requests
+    .filter((r) => r.status !== 'declined')
+    .map((r) => `<option value="${escapeHtml(r.id)}"${r.id === fixedRequest ? ' selected' : ''}>${escapeHtml(`${r.id}: ${r.title}`)}</option>`)
+    .join('');
+  return `
+      <form id="cdf" class="panel" novalidate>
+        <h2 id="request">${fixedRequest ? `Feedback on ${escapeHtml(fixedRequest)}, or a new request` : 'Send a request'}</h2>
+        <p>No account needed. What you send is published in <a href="${escapeHtml(REPO_URL)}">the public repository</a>, where the agents that build this site read it. Nothing about you is stored with it, and email addresses are removed. Leave out anything private.</p>
+        <fieldset>
+          <legend>What are you sending?</legend>${kinds}
+        </fieldset>
+        <div data-cd-for="tool" hidden>
+          <label for="cdf-tool">Which tool?</label>
+          <select id="cdf-tool" name="tool"><option value="">Choose a tool</option>${tools}</select>
+        </div>
+        <div data-cd-for="request" hidden>
+          <label for="cdf-req">Which request?</label>
+          <select id="cdf-req" name="req"><option value="">Choose a request</option>${reqs}</select>
+        </div>
+        <label for="cdf-job" id="cdf-job-label">${escapeHtml(REQUEST_KINDS[0].job)}</label>
+        <p class="cd-hint" id="cdf-job-hint">${escapeHtml(REQUEST_KINDS[0].hint)}</p>
+        <textarea id="cdf-job" name="job" rows="6" maxlength="3000" required aria-describedby="cdf-job-hint"></textarea>
+        <label for="cdf-done">How would you know it worked? <span class="cd-opt">(optional)</span></label>
+        <textarea id="cdf-done" name="done" rows="3" maxlength="600" placeholder="A number it should get right, a document it should read, a step it should save."></textarea>
+        <div data-cd-for="licence">
+          <label class="cd-check"><input type="checkbox" name="licence" id="cdf-licence"> I understand that what is built is published here under the MIT licence, with the repository owner's copyright notice, and that I get no exclusive rights to it.</label>
+        </div>
+        <div class="fb-hp" aria-hidden="true"><label for="cdf-website">Leave this empty</label><input id="cdf-website" name="website" tabindex="-1" autocomplete="off"></div>
+        <button type="submit">Send request</button>
+        <p id="cdf-status" role="status" aria-live="polite"></p>
+      </form>
+  <script>
+(function(){
+  var K=${JSON.stringify(REQUEST_KINDS.map(({ id, type, job, hint, tool, request, licence }) => ({ id, type, job, hint, tool: !!tool, request: !!request, licence: !!licence })))};
+  var f=document.getElementById('cdf');if(!f)return;
+  var st=document.getElementById('cdf-status'),btn=f.querySelector('button[type=submit]');
+  var q=new URLSearchParams(location.search);
+  function kind(){var c=f.querySelector('input[name=kind]:checked');for(var i=0;i<K.length;i++)if(c&&K[i].id===c.value)return K[i];return K[0];}
+  function show(){
+    var k=kind(),parts=f.querySelectorAll('[data-cd-for]');
+    for(var i=0;i<parts.length;i++)parts[i].hidden=!k[parts[i].getAttribute('data-cd-for')];
+    document.getElementById('cdf-job-label').textContent=k.job;
+    document.getElementById('cdf-job-hint').textContent=k.hint;
+  }
+  var qk=q.get('kind'),qt=q.get('tool')||'',qr=q.get('req')||'';
+  if(qk){var r=f.querySelector('input[name=kind][value="'+qk.replace(/[^a-z]/g,'')+'"]');if(r)r.checked=true;}
+  if(qt&&f.tool.querySelector('option[value="'+qt.replace(/[^a-z0-9._\\/-]/g,'')+'"]'))f.tool.value=qt;
+  if(/^R-\\d{4}$/.test(qr))f.req.value=qr;
+  f.addEventListener('change',function(e){if(e.target.name==='kind')show();});
+  show();
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var k=kind(),job=f.job.value.trim(),done=f.done.value.trim();
+    if(k.tool&&!f.tool.value){st.textContent='Please choose the tool.';f.tool.focus();return;}
+    if(k.request&&!f.req.value){st.textContent='Please choose the request.';f.req.focus();return;}
+    if(job.length<5){st.textContent='Please write a few words first.';f.job.focus();return;}
+    if(k.licence&&!f.licence.checked){st.textContent='Please tick the licence box first: it is the one condition.';f.licence.focus();return;}
+    var head='[custom-development: '+k.id+']'+(k.request?' '+f.req.value:'')+(k.tool?' tool: '+f.tool.value:'');
+    var msg=head+'\\n\\n'+job+(done?'\\n\\nHow I would know it worked:\\n'+done:'');
+    var body={type:k.type,tool:k.tool?f.tool.value:'',page:location.pathname,message:msg.slice(0,4000),website:f.website.value};
+    btn.disabled=true;st.textContent='Sending...';
+    fetch(${JSON.stringify(`${feedbackUrl}/feedback`)},{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})
+      .then(function(r){
+        if(r.ok){f.job.value='';f.done.value='';st.textContent='Thank you, it has been sent. It is read by the next agent session, and appears in the list on this page once triaged.';}
+        else if(r.status===429){st.textContent='Too many messages right now. Please try again later.';}
+        else{st.textContent='That did not go through. Please try again, or use the GitHub form below.';}
+      })
+      .catch(function(){st.textContent='That did not go through. Please check your connection and try again.';})
+      .then(function(){btn.disabled=false;});
+  });
+})();
+  </script>`;
+}
+
+/** The `<head>` shared by the custom development pages. */
+function customDevHead({ title, description, url, toRoot, baseUrl }) {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -7619,9 +7708,85 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
   <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
   <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
   <meta name="twitter:card" content="summary_large_image">
-  <style>${CATEGORY_STYLE}${ABOUT_STYLE}${CUSTOM_DEV_STYLE}  </style>
+  <style>${CATEGORY_STYLE}${ABOUT_STYLE}${FEEDBACK_STYLE.replace(/#fb\b/g, '#cdf')}${CUSTOM_DEV_STYLE}  </style>
   ${siteStyleLink(toRoot)}
-</head>
+</head>`;
+}
+
+/**
+ * Open custom development: how anyone asks the agents to build something, how
+ * they follow it, and every request so far with its status, read from
+ * `portfolio/requests/requests.json` (`requests` here). Indexed and in the hub
+ * sitemap, because it is the page a person searching for free custom software
+ * should land on. The licence term is stated before the ask, not after: it is
+ * the one condition (owner, 2026-10-30).
+ *
+ * The page is the workflow's interface (owner, 2026-11-02): a no-account form
+ * for a new tool, a feature, feedback on a preview, or a problem; the stages a
+ * request moves through; and the queue, filterable by status and searchable,
+ * each row linking to that request's own page (`renderCustomRequestPage`).
+ * Every tool's footer links here with `?kind=feature&tool=<slug>`.
+ */
+export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests = [], feedbackUrl = SITE_FEEDBACK_URL }) {
+  const url = `${baseUrl}${CUSTOM_DEV_PATH}`;
+  const toRoot = '../';
+  const title = 'Open custom development';
+  const description = 'Ask AI agents to build the tool your work needs, free and in public. Follow its progress here. One condition: it stays MIT licensed.';
+  const issueUrl = `${REPO_URL}/issues/new?template=custom-build.yml`;
+  const listUrl = `${REPO_URL}/issues?q=label%3Acustom-request`;
+  const counts = Object.keys(REQUEST_STATUSES).map((s) => [s, requests.filter((r) => r.status === s).length]);
+  const rows = [...requests]
+    .sort((a, b) => (b.updated || '').localeCompare(a.updated || '') || (a.id || '').localeCompare(b.id || ''))
+    .map((r) => {
+      const slug = requestToolSlug(r, surfaces);
+      const links = [
+        `<a href="${escapeHtml(`${r.id}/`)}">details</a>`,
+        r.link ? `<a href="${escapeHtml(r.link)}">request</a>` : '',
+        r.project ? `<a href="${escapeHtml(`${REPO_URL}/tree/main/${r.project}`)}">project</a>` : '',
+        slug ? `<a href="${escapeHtml(`${toRoot}${slug}/`)}">try it</a>` : '',
+        r.live ? `<a href="${escapeHtml(r.live)}">live</a>` : '',
+      ].filter(Boolean).join(' · ');
+      const note = r.status === 'declined' ? r.reason : r.next;
+      const text = `${r.id} ${r.title} ${r.ask} ${note || ''}`.toLowerCase();
+      return `
+          <tr data-status="${escapeHtml(r.status)}" data-text="${escapeHtml(text)}">
+            <td><a href="${escapeHtml(`${r.id}/`)}">${escapeHtml(r.id)}</a></td>
+            <td><strong>${escapeHtml(r.title)}</strong><br><span class="cd-ask">“${escapeHtml(r.ask)}”, from ${escapeHtml(REQUEST_SOURCES[r.source] || r.source)}, ${escapeHtml(r.received)}</span>${note ? `<br>${escapeHtml(note)}` : ''}</td>
+            <td><span class="cd-st cd-${escapeHtml(r.status)}">${escapeHtml(r.status)}</span><br><small>${escapeHtml(r.updated)}</small></td>
+            <td>${links}</td>
+          </tr>`;
+    })
+    .join('');
+  const filters = `
+      <div class="cd-filter" id="cd-filter" hidden>
+        <span role="group" aria-label="Show requests by status"><button type="button" data-st="" aria-pressed="true">All (${requests.length})</button>${counts.filter(([, n]) => n).map(([s, n]) => `<button type="button" data-st="${escapeHtml(s)}" aria-pressed="false">${escapeHtml(s)} (${n})</button>`).join('')}</span>
+        <label class="pfs-vh" for="cd-q">Search requests</label><input id="cd-q" type="search" placeholder="Search requests" autocomplete="off">
+        <span id="cd-shown" role="status" aria-live="polite"></span>
+      </div>`;
+  const table = requests.length
+    ? `${filters}
+      <div class="cd-table"><table>
+        <thead><tr><th>ID</th><th>Request</th><th>Status</th><th>Links</th></tr></thead>
+        <tbody>${rows}
+        </tbody>
+      </table></div>
+  <script>
+(function(){
+  var box=document.getElementById('cd-filter');if(!box)return;box.hidden=false;
+  var rows=document.querySelectorAll('.cd-table tbody tr'),btns=box.querySelectorAll('button'),q=document.getElementById('cd-q'),out=document.getElementById('cd-shown'),st='';
+  function run(){
+    var t=q.value.trim().toLowerCase(),n=0;
+    for(var i=0;i<rows.length;i++){var r=rows[i],ok=(!st||r.getAttribute('data-status')===st)&&(!t||r.getAttribute('data-text').indexOf(t)>=0);r.hidden=!ok;if(ok)n++;}
+    out.textContent=n===rows.length?'':n+' of '+rows.length+' shown';
+  }
+  for(var i=0;i<btns.length;i++)btns[i].addEventListener('click',function(){st=this.getAttribute('data-st');for(var j=0;j<btns.length;j++)btns[j].setAttribute('aria-pressed',String(btns[j]===this));run();});
+  q.addEventListener('input',run);
+})();
+  </script>`
+    : '<p>No requests on file yet. Yours could be the first.</p>';
+  const form = renderRequestForm({ toRoot, feedbackUrl, surfaces, requests });
+  const stages = REQUEST_STAGES.map((s) => `<li class="cd-step"><span class="cd-dot" aria-hidden="true"></span><span class="cd-step-name">${escapeHtml(s)}${requests.length ? ` <small>(${requests.filter((r) => r.status === s).length})</small>` : ''}</span><span class="cd-step-what">${escapeHtml(REQUEST_STATUSES[s])}</span></li>`).join('');
+  return `${customDevHead({ title, description, url, toRoot, baseUrl })}
 <body>
   ${renderSiteHeader({ toRoot, current: 'request', crumbs: [{ label: 'Custom development' }] })}
   <div class="wrap">
@@ -7629,16 +7794,20 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
       <p class="eyebrow">Custom development</p>
       <h1>${escapeHtml(title)}</h1>
       <p class="lede">Tell us the tool your work needs: a new product, or a feature for one already here. AI agent sessions build accepted requests in this public repository, free, and you can watch every step. The one condition: what is built stays open source under the MIT licence, held by the repository owner.</p>
+      <p class="cd-cta"><a class="cd-btn" href="${escapeHtml(form ? '#request' : issueUrl)}">Request a tool or feature</a> <a href="#queue">See every request</a></p>
     </header>
 
     <main class="prose">
-      <h2>How it works</h2>
-      <ol>
-        <li><strong>Ask.</strong> <a href="${escapeHtml(issueUrl)}">Open a request</a> on GitHub (a free account), or use the <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a> and pick “An idea” if you have no account. Short on time? The one-box <a href="${escapeHtml(`${REPO_URL}/issues/new?template=idea.yml`)}">idea form</a> works too. Describe the job from the inside: who does it, how, and where today's tools fall short.</li>
-        <li><strong>It is triaged.</strong> Each request gets an ID in the table below and a status: ${counts.map(([s]) => `<em>${s}</em>`).join(', ')}. A declined request says why.</li>
-        <li><strong>It is built in public.</strong> Sessions work in the open: every change is a pull request, and the project's README says what was tested and what was not.</li>
-        <li><strong>You follow it.</strong> Watch your issue for replies, check its row here (rebuilt on every merge), or browse <a href="${escapeHtml(listUrl)}">all requests on GitHub</a>. Add detail or real sample material to the issue at any time; that is the fastest way to move a request forward.</li>
-      </ol>
+      <h2>How a request moves</h2>
+      <ol class="cd-steps cd-steps-intro">${stages}</ol>
+      <p>A request can also be <em>declined</em>, always with the reason written beside it. Each request has its own page showing which stage it is at and what is still unproven, and once a preview is up you can try it and send feedback on it from that page.</p>
+${form}
+      <h2>${form ? 'Other ways to ask' : 'How to ask'}</h2>
+      <ul>
+        <li><a href="${escapeHtml(issueUrl)}">Open a request on GitHub</a> (a free account) to follow replies and attach sample files.</li>
+        <li>Short on time? The one-box <a href="${escapeHtml(`${REPO_URL}/issues/new?template=idea.yml`)}">idea form</a>, or the general <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback page</a>.</li>
+        <li>Describe the job from the inside: who does it, how, and where today's tools fall short. Real sample material (with private details removed) is the fastest way to move a request forward.</li>
+      </ul>
 
       <h2>The terms</h2>
       <ul>
@@ -7649,8 +7818,65 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
         <li><strong>Public by default.</strong> Requests, code and discussion are visible to everyone. Leave out names, addresses and anything private.</li>
       </ul>
 
-      <h2>Requests so far</h2>
-      <p>${requests.length} on file${requests.length ? `: ${counts.filter(([, n]) => n).map(([s, n]) => `${n} ${s}`).join(', ')}` : ''}. The list is kept in <a href="${escapeHtml(`${REPO_URL}/blob/main/portfolio/requests/requests.json`)}">one file</a>, so each request's history is that file's history. The first entries are the owner's own asks, to show how deep a request goes over many sessions.</p>${table}
+      <h2 id="queue">Requests so far</h2>
+      <p>${requests.length} on file${requests.length ? `: ${counts.filter(([, n]) => n).map(([s, n]) => `${n} ${s}`).join(', ')}` : ''}. The list is kept in <a href="${escapeHtml(`${REPO_URL}/blob/main/portfolio/requests/requests.json`)}">one file</a>, so each request's history is that file's history, and this page is rebuilt on every merge. You can also browse <a href="${escapeHtml(listUrl)}">all requests on GitHub</a>. The first entries are the owner's own asks, to show how deep a request goes over many sessions.</p>${table}
+    </main>
+
+    <footer>
+      ${disclaimerHtml(toRoot, surfaces)}
+      ${renderSiteFooterNav({ toRoot })}
+    </footer>
+  </div>
+  <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="custom-development" defer></script>
+</body>
+</html>
+`;
+}
+
+/**
+ * One request's own page (`custom-development/R-0001/`): the ask in the
+ * requester's words, the stage it is at, what is still unproven, the links to
+ * its project and anything to try, and the form preset to "feedback on a
+ * preview" for this request. Indexed: a requester shares this link.
+ */
+export function renderCustomRequestPage({ request: r, surfaces = [], baseUrl, requests = [], feedbackUrl = SITE_FEEDBACK_URL }) {
+  const toRoot = '../../';
+  const url = `${baseUrl}${customRequestPath(r.id)}`;
+  const title = `${r.id}: ${r.title}`;
+  const description = `Request ${r.id}, ${r.status}: ${r.title}. Built free and in public, MIT licensed. Follow its progress and send feedback.`;
+  const slug = requestToolSlug(r, surfaces);
+  const note = r.status === 'declined' ? r.reason : r.next;
+  const links = [
+    slug ? `<li><a href="${escapeHtml(`${toRoot}${slug}/`)}"><strong>Try it</strong></a>: the tool as published on this site now</li>` : '',
+    r.live ? `<li><a href="${escapeHtml(r.live)}">Live</a></li>` : '',
+    r.project ? `<li><a href="${escapeHtml(`${REPO_URL}/tree/main/${r.project}`)}">The project's code and README</a>, which says what was tested and what was not</li>` : '',
+    r.project ? `<li><a href="${escapeHtml(`${REPO_URL}/commits/main/${r.project}`)}">Every change to it</a></li>` : '',
+    r.link ? `<li><a href="${escapeHtml(r.link)}">The original request</a></li>` : '',
+    `<li><a href="${escapeHtml(`${REPO_URL}/commits/main/portfolio/requests/requests.json`)}">The queue's history</a></li>`,
+  ].filter(Boolean).join('\n        ');
+  const form = r.status === 'declined' ? '' : renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, fixedRequest: r.id });
+  return `${customDevHead({ title, description, url, toRoot, baseUrl })}
+<body>
+  ${renderSiteHeader({ toRoot, current: 'request', crumbs: [{ href: `${toRoot}${CUSTOM_DEV_PATH}`, label: 'Custom development' }, { label: r.id }] })}
+  <div class="wrap">
+    <header class="pf-hero">
+      <p class="eyebrow">Request ${escapeHtml(r.id)} · <span class="cd-st cd-${escapeHtml(r.status)}">${escapeHtml(r.status)}</span></p>
+      <h1>${escapeHtml(r.title)}</h1>
+      <p class="lede">“${escapeHtml(r.ask)}”</p>
+      <p class="cd-ask">From ${escapeHtml(REQUEST_SOURCES[r.source] || r.source)}, received ${escapeHtml(r.received)}, last updated ${escapeHtml(r.updated)}.</p>
+    </header>
+
+    <main class="prose">
+      <h2>Where it is</h2>
+      ${renderRequestStepper(r.status)}
+      ${note ? `<p><strong>${r.status === 'declined' ? 'Why' : 'Still open'}:</strong> ${escapeHtml(note)}</p>` : ''}
+
+      <h2>Follow it</h2>
+      <ul>
+        ${links}
+      </ul>
+${form}
+      <p><a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}`)}">← All requests, and how custom development works</a></p>
     </main>
 
     <footer>
@@ -7671,6 +7897,27 @@ const CUSTOM_DEV_STYLE = `
     .cd-ask { color: var(--muted); font-size: .92em; }
     .cd-st { display: inline-block; font-weight: 600; font-size: .85em; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); }
     .cd-building, .cd-accepted { border-color: var(--accent); color: var(--accent); }
+    .cd-cta { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+    .cd-btn { display: inline-block; font-weight: 600; padding: 9px 18px; border-radius: 9px; background: var(--accent); color: #fff !important; text-decoration: none; }
+    .cd-steps { list-style: none; padding: 0; margin: 12px 0 16px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; counter-reset: none; }
+    .cd-step { position: relative; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; }
+    .cd-step-name { display: block; font-weight: 600; text-transform: capitalize; color: var(--ink); }
+    .cd-step-what { display: block; color: var(--muted); font-size: .88em; }
+    .cd-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--line); margin-bottom: 4px; }
+    .cd-done .cd-dot { background: var(--accent); border-color: var(--accent); }
+    .cd-now { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+    .cd-now .cd-dot { border-color: var(--accent); background: var(--accent); }
+    .cd-declined { color: var(--muted); }
+    .cd-hint { color: var(--muted); font-size: .9em; margin: -2px 0 6px; }
+    .cd-opt { font-weight: 400; color: var(--muted); }
+    #cdf select { width: 100%; box-sizing: border-box; font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
+    #cdf .cd-check { font-weight: 400; color: var(--ink); display: flex; gap: 8px; align-items: flex-start; }
+    .cd-filter { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
+    .cd-filter button { font: inherit; font-size: .88em; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; text-transform: capitalize; }
+    .cd-filter button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: #fff; }
+    .cd-filter input { font: inherit; padding: 5px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
+    #cd-shown { color: var(--muted); font-size: .88em; }
+    @media (max-width: 700px) { .cd-steps { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 600px) {
       .cd-table thead { display: none; }
       .cd-table tr, .cd-table td { display: block; border: 0; padding: 2px 0; }
@@ -9331,6 +9578,7 @@ const CHROME_CSS = `
 .pf-chrome-foot ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px 18px;
   grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
 .pf-chrome-foot li{margin:0}
+.pf-chrome-foot p.pf-ask{margin:0 0 18px;padding:10px 14px;border:1px solid var(--pf-line);border-left-width:4px;border-radius:8px}
 .pf-ci{margin:0 0 14px}
 .pf-ci summary{cursor:pointer;font-weight:600}
 .pf-ci pre{overflow-x:auto;margin:0 0 10px;padding:8px 10px;border:1px solid var(--pf-line);border-radius:6px;font-size:.82rem}
@@ -10151,9 +10399,13 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   // Tested against the venture's own markup, before any chrome is added.
   const noSla = NO_SLA_PATTERN.test(html) ? '' : `    ${NO_SLA_CLAUSE}\n`;
 
+  // The way into custom development from every tool (owner, 2026-11-02:
+  // "somewhat prominent without being dominant"): one bordered line at the top
+  // of the footer, below everything the tool itself shows.
+  const askLine = `    <p class="pf-ask"><strong>Need this tool to do more?</strong> <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}?kind=feature&tool=${encodeURIComponent(slug)}#request`)}">Request a feature</a>, built free and in public, or <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}?kind=problem&tool=${encodeURIComponent(slug)}#request`)}">tell us what is wrong</a>.</p>\n`;
   const footer = `<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
   <div class="pf-inner">
-    <h2>More free tools</h2>
+${askLine}    <h2>More free tools</h2>
     <p>${externalCallHosts.length
       ? `Everything on this page runs in your browser too, except this one lookup: what you type here also goes to ${listProse(externalCallHosts)}, because that is what checking it means — see the note on this page for exactly what is sent.`
       : 'Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.'
@@ -10527,6 +10779,7 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     .concat([`  <url><loc>${baseUrl}${ASK_PATH}</loc></url>`])
     // Open custom development, on the same terms.
     .concat([`  <url><loc>${baseUrl}${CUSTOM_DEV_PATH}</loc></url>`])
+    .concat(loadRequests().filter((r) => /^R-\d{4}$/.test(r.id || '')).map((r) => `  <url><loc>${baseUrl}${customRequestPath(r.id)}</loc></url>`))
     // And the comparison index, on exactly the same terms: a hub-level page
     // this build writes, so it is listed here or nowhere.
     .concat([`  <url><loc>${baseUrl}${COMPARE_PATH}</loc></url>`])
@@ -10796,7 +11049,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
       ? `- [Short index](${baseUrl}llms.txt): the same tools with one-sentence descriptions, small enough to read in one fetch.`
       : `- [Full text](${baseUrl}llms-full.txt): every tool with its complete description and the LLM docs a product ships; large (several hundred KB), fetch only when the index does not answer the question.`,
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, the country code and the device type, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
-    `- [Open custom development](${baseUrl}${CUSTOM_DEV_PATH}): how anyone can ask the agents that build this site for a new tool, free and in public, the one condition (the result stays MIT licensed, held by the repository owner), and every request so far with its status.`,
+    `- [Open custom development](${baseUrl}${CUSTOM_DEV_PATH}): how anyone can ask the agents that build this site for a new tool, free and in public, the one condition (the result stays MIT licensed, held by the repository owner), and every request so far with its status. Each request has its own page (custom-development/R-0001/ and so on) showing its stage and what is still open, with a form for feedback on its preview.`,
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
     `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,
@@ -11441,11 +11694,19 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   await fs.mkdir(feedbackDir, { recursive: true });
   await fs.writeFile(path.join(feedbackDir, 'index.html'), renderFeedbackPage({ surfaces, baseUrl: base }));
   const customDevDir = path.join(outDir, CUSTOM_DEV_PATH);
+  const customRequests = loadRequests();
   await fs.mkdir(customDevDir, { recursive: true });
   await fs.writeFile(
     path.join(customDevDir, 'index.html'),
-    renderCustomDevelopmentPage({ surfaces, baseUrl: base, requests: loadRequests() }),
+    renderCustomDevelopmentPage({ surfaces, baseUrl: base, requests: customRequests }),
   );
+  // Each request's own page, linked from its row and shared by its requester.
+  for (const request of customRequests) {
+    if (!/^R-\d{4}$/.test(request.id || '')) continue;
+    const dir = path.join(outDir, customRequestPath(request.id));
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(path.join(dir, 'index.html'), renderCustomRequestPage({ request, surfaces, baseUrl: base, requests: customRequests }));
+  }
 
   // The assistant's own page, and the files every page lazy-loads it from.
   const askDir = path.join(outDir, ASK_PATH);
