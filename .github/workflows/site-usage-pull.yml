@@ -100,6 +100,17 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID }}
           CLOUDFLARE_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID }}
         run: node platform/counter/pull-cloudflare.mjs
+      # Daily and weekly engagement reports from the files just pulled
+      # (owner, 2026-11-02: "daily and weekly reports on what sort of user
+      # engagement is happening"). Reads the pulled files only, calls nothing,
+      # and copies the index into this run's summary page.
+      - name: Write engagement reports
+        run: |
+          if [ -f platform/counter/engagement-report.mjs ]; then
+            node platform/counter/engagement-report.mjs --data portfolio/usage --out "$RUNNER_TEMP/data/reports"
+          else
+            echo "platform/counter/engagement-report.mjs is not on main yet; no reports."
+          fi
       - name: Commit to the data branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -114,6 +125,7 @@ jobs:
           Written daily by `.github/workflows/site-usage-pull.yml` on main. Holds only
           generated, aggregate files; never merged as a branch, never edited by hand.
           Read: `node platform/counter/usage-data.mjs show` (from a main checkout).
+          Engagement reports, daily and weekly: reports/README.md.
           Land on main: `node platform/counter/usage-data.mjs sync`, then a PR.
           See portfolio/usage/README.md, "Where the daily pull lands".
           MD
