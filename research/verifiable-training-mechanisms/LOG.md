@@ -2,6 +2,18 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-02 · Milestone 61: finer stall fractions for a noise-aware cheater (H4/H3 link, planned before running)
+- Why: milestone 60's "Next". It tried FRAC 0.99, 0.95, 0.90, 0.80 at sigma 0.05; the best cheater payoff (harmful-and-unflagged) may lie between 0.95 and 0.99. Design (`experiments/progress_noise_aware_fine/run.py`, the milestone 60 code): R = 1.01, n = 128, FRAC 0.99, 0.98, 0.97, 0.96, 0.95 at sigma 0.02 and 0.05.
+- **Predictions, before running:** (1) FRAC 0.99 reproduces milestone 59/60 at sigma 0.05 (35 / 67 / 32). (2) At sigma 0.05 no FRAC in 0.95 to 0.98 beats 0.99 by more than 6 jobs of 128 in harmful-and-unflagged (the curve is monotone, as 0.95 gave 18 against 32). (3) At sigma 0.02 (less noise, the cheater trusts its belief more) the best FRAC is still 0.99 or 0.98. Refuted (2) if some FRAC in 0.95 to 0.98 exceeds 38 harmful-and-unflagged at sigma 0.05.
+- Limits known in advance: same as milestone 60 (one R, one tiny model, cheater knows sigma but not z, draws share 16 seeds).
+
+### Outcome of 61 (`experiments/progress_noise_aware_fine/`: `run.py`, `results.txt`, `results.json`, `run.out`; n = 128, R = 1.01, about 1 h)
+- Flagged / harmful / harmful-and-unflagged of 128, FRAC 0.99, 0.98, 0.97, 0.96, 0.95. Sigma 0.05: 35 / 67 / 32; 25 / 62 / 37; 20 / 44 / 24; 13 / 36 / 23; 11 / 29 / 18. Sigma 0.02: 28 / 87 / 59; 14 / 59 / 46; 11 / 40 / 30; 6 / 21 / 17; 2 / 8 / 6.
+- **(1) held** (35 / 67 / 32 reproduced). **(2) held, narrowly**: the best of 0.95 to 0.98 at sigma 0.05 is 0.98 with 37, 5 above 0.99's 32 (my bar was 6, the refutation line 38); a 5-job gap in 128 shares seeds and is not separable from noise. **(3) held**: at sigma 0.02 harmful-and-unflagged falls monotonically as FRAC drops (59, 46, 30, 17, 6), so 0.99 is best.
+- Reading: shading the fraction gains the cheater nothing reliable at either sigma; it cuts flags but cuts harm at least as fast, because a cheater whose belief sits below the line never stalls (median stalled steps 0 from FRAC 0.97). The threshold-noise defence of milestone 58 survives a cheater that knows sigma and tunes its fraction, on this model. Open: sigma 0.05 shows a flat plateau (32, 37, 24) where a larger n would be needed to find any optimum.
+- Limits: as predicted; one R, one tiny model, shared seeds, cheater does not adapt online.
+- Next: an online-adaptive fraction; paper H4 paragraph gains milestones 59 to 61.
+
 ## 2026-11-02 · Milestone 60: does a cheater who shades its stall fraction for threshold noise beat the naive one? (H4/H3 link)
 - Why: milestone 58 and 59's "Next". Design (`experiments/progress_noise_aware/run.py`, the milestone 59 code with the stall fraction FRAC swept): sigma = 0.05, linear noise, R = 1.01, n = 128, FRAC in 0.99 (the naive cheater of 58 and 59), 0.95, 0.90, 0.80. Flags are scored against the true threshold.
 - **Disclosure:** I did not write predictions down before running this one (the run was started right after the script was adapted). What follows is the outcome only; read it as exploratory, not as a test of a prior prediction.
