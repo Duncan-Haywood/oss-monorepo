@@ -564,7 +564,8 @@ def _print_status(st: dict | None, lease: dict | None, waiting: int) -> None:
         if isinstance(errors, list) and errors:
             print(f"  errors ({len(errors)}):")
             for e in errors[:10]:
-                print(f"    {e}")
+                # the step and the message; the full trace stays in status.json and the worker's log
+                print(f"    {e.get('step', '?')}: {e.get('error', e)}" if isinstance(e, dict) else f"    {e}")
         elif errors:
             print(f"  errors: {errors}")
     if lease:
