@@ -3,7 +3,7 @@ title: "Fuzzing the wall shop drawings: 150 random houses, no broken sheets"
 seo_title: "Property-testing generated framing shop drawings (HTML and PDF)"
 date: 2026-11-02
 tags: [construction, testing, wall-framing-takeoff]
-description: "A seeded test draws 150 random wall plans through the HTML and PDF drawing writers and checks every sheet is whole. It found nothing, and that is a result worth stating."
+description: "A seeded test draws 150 random wall plans through the HTML and PDF drawing writers and checks every sheet is whole. It found nothing, which is worth stating."
 ---
 
 The wall-framing takeoff writes a shop drawing per wall, as HTML and as a hand-built PDF with no library. Until now they were tested on the example house and one 133 ft wall. A crew would print them, so a malformed file matters.
