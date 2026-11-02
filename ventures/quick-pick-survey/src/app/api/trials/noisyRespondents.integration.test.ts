@@ -15,6 +15,7 @@
  * Hidden order: lower sortOrder wins. Rank quality is Spearman between the
  * order and the stored rating over every item the respondent rated.
  * Needs a database: `scripts/test-db.sh start`. NOISY_OUT=file appends the line.
+ * NOISY_ITEMS, NOISY_ANSWERS and NOISY_RESPONDENTS override 60, 200 and 3.
  */
 import { appendFileSync } from "fs";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
@@ -40,7 +41,7 @@ import { POST as nextQuestion } from "@/app/api/trials/next/route";
 import { POST as answer } from "@/app/api/trials/answer/route";
 
 const SLUG = "noisy-respondents";
-const ITEMS = 60;
+const ITEMS = Number(process.env.NOISY_ITEMS ?? 60);
 const ANSWERS = Number(process.env.NOISY_ANSWERS ?? 200);
 const RESPONDENTS = Number(process.env.NOISY_RESPONDENTS ?? 3);
 
