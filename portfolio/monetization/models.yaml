@@ -140,6 +140,34 @@ products:
       left until the link is set.
     next_owner: true
 
+  - venture: shed-designer
+    buyer: shed builders, kit sellers and handymen who give customers a plan and a materials list
+    liability: low
+    model: >-
+      The designer, plans, cut sheet, shopping list, instructions and HOA
+      packet stay free; they are the only tool in the portfolio with a
+      visible audience (6 of 41 human page loads, 24 to 30 October), so they
+      are the lead magnet. The charge is for presentation only: the same
+      design on the seller's own letterhead. A shed's materials list is not
+      advice and the pack carries the no-warranty and check-your-code lines.
+    first_offer: >-
+      Branded shed build pack (buildpack.mjs): cover with business name, logo
+      and contact, four elevations, roof plan, shopping list (prices optional)
+      and the build steps, behind the same licence-key check, dark until
+      CHECKOUT_URL is set.
+    price_hypothesis: "$10 to $25 one-off; unvalidated, and no comparable plan-pack price has been read yet"
+    comparables: []
+    stage: built-dark
+    next: >-
+      Built 2026-11-02 and dark (buildpack.mjs, licence.mjs, checkout.mjs;
+      card hidden until CHECKOUT_URL is set; opened in headless Chromium with
+      the card forced visible: five drawings, escaped letterhead, no console
+      errors). Owner: the one merchant-of-record product that serves the other
+      dark paths serves this one. Agent step still open: read two plan-pack
+      sellers' prices from their own pages when a host allows it and fill
+      `comparables`.
+    next_owner: true
+
   - venture: einvoice-preflight
     buyer: developers and finance teams sending EN 16931 / Peppol / national e-invoices
     liability: medium

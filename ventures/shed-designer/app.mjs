@@ -12,6 +12,9 @@ import { fmtIn, fmtFtIn, actual, STANDARD_LENGTHS_FT, EXAMPLE_ITEMS } from './lu
 import { recordUsage, clearUsage } from './usage.mjs';
 import { structuralChecks, anchorageText } from './checks.mjs';
 import { encodeDesign } from './hoa.mjs';
+import { buildPackHtml } from './buildpack.mjs';
+import { buyLink, checkLicence } from './licence.mjs';
+import { CHECKOUT_URL, VALIDATE_URL } from './checkout.mjs';
 import { initUtilisation, renderUtilisation, heatOption } from './utilisation-ui.mjs';
 import { connectionChecks } from './connections.mjs';
 import { generateCandidates, designDiff, openingCosts } from './candidates.mjs';
@@ -1292,6 +1295,25 @@ function wire() {
   });
   $('#print-build').addEventListener('click', () => printWhat('build'));
   $('#md-build').addEventListener('click', () => { download(`${slug()}-how-to-build.md`, buildMd, 'text/markdown'); count('csv-downloads'); });
+  {
+    // Branded build pack: dark until a checkout link is set in checkout.mjs (no card, no Buy button).
+    const buy = buyLink(CHECKOUT_URL);
+    let packLogo = '';
+    if (buy) { $('#pack-buy').href = buy; $('#pack-buy-row').hidden = false; $('#pack-card').hidden = false; }
+    $('#pack-logo').addEventListener('change', (e) => { const f = e.target.files[0]; if (!f) { packLogo = ''; return; } const r = new FileReader(); r.onload = () => { packLogo = String(r.result); }; r.readAsDataURL(f); });
+    $('#pack-check').addEventListener('click', async () => {
+      $('#pack-state').textContent = 'Checking...';
+      const v = await checkLicence($('#pack-key').value, { url: VALIDATE_URL });
+      $('#pack-state').textContent = v.valid ? 'Key accepted.' : `Not unlocked: ${v.reason}${buy ? '' : ' (the build pack is not on sale yet)'}`;
+      $('#pack-fields').hidden = !v.valid;
+    });
+    $('#pack-open').addEventListener('click', () => {
+      const html = buildPackHtml(lastShed, lastEst, buildSections, { business: $('#pack-business').value, customer: $('#pack-customer').value, contact: $('#pack-contact').value, accent: $('#pack-accent').value, logo: packLogo, notes: $('#pack-notes').value, showPrices: $('#pack-prices').checked, date: new Date().toISOString().slice(0, 10) });
+      const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+      window.open(url, '_blank', 'noopener');
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    });
+  }
   $('#print-cuts').addEventListener('click', () => printWhat('cuts'));
   window.addEventListener('afterprint', () => { delete document.body.dataset.print; });
 

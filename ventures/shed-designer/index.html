@@ -734,6 +734,19 @@
     <p>More: <a href="shed-plans-with-cut-list.html">how much lumber an 8x12 shed takes, worked through</a>, and <a href="shed-lumber-list-by-size.html">the lumber list for 12 other sizes</a>. Related free tools: <a href="../cut-list-optimizer/">Cut List Optimizer</a> for any list of boards or sheets, <a href="../wall-framing-takeoff/">Wall Framing Takeoff</a> for a whole house, and <a href="../shed-install-bid-calculator/">Shed Install Bid Calculator</a> if you install sheds for a living.</p>
   </section>
 
+  <section class="card" id="pack-card" aria-labelledby="h-pack" hidden>
+    <h2 id="h-pack">Branded shed build pack</h2>
+    <p class="muted">For builders, shed sellers and kit makers: this design on your own letterhead, with a cover (your name, logo and contact), the four elevations, the roof plan, the shopping list and the build steps, as one document to print or save as PDF for your customer. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; the designer, plans, cut sheet, shopping list, instructions and HOA packet all stay free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
+    <p id="pack-buy-row" hidden><a id="pack-buy" class="btn primary" rel="noopener" target="_blank">Buy a licence key</a></p>
+    <p><label>Licence key <input id="pack-key" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="btn" id="pack-check">Check key</button> <span id="pack-state" role="status"></span></p>
+    <div id="pack-fields" hidden>
+      <p><label>Business name <input id="pack-business" maxlength="80"></label> <label>For (customer) <input id="pack-customer" maxlength="80"></label></p>
+      <p><label>Contact line <input id="pack-contact" maxlength="160"></label> <label>Accent colour <input id="pack-accent" type="color" value="#24392b"></label> <label>Logo (PNG, JPEG or WebP) <input id="pack-logo" type="file" accept="image/png,image/jpeg,image/webp"></label></p>
+      <p><label>Notes for the customer (one per line)<br><textarea id="pack-notes" rows="3" style="width:100%"></textarea></label></p>
+      <p><label><input type="checkbox" id="pack-prices" checked> Show prices (untick for quantities only)</label></p>
+      <p><button type="button" class="btn primary" id="pack-open">Open the build pack</button></p>
+    </div>
+  </section>
   </main>
   <footer>
     <p><label class="check"><input id="keep" type="checkbox" checked> Remember my designs and prices in this browser</label></p>
