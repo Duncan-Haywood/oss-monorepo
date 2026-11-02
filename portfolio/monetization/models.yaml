@@ -85,11 +85,15 @@ products:
         price: from $9.95 per feature per month; free plan exists
         source: https://www.getapp.com/all-software/a/leaguelobster/
         read: 2026-11-02
+      - what: Diamond Scheduler (Cactusware), per user per year
+        price: $99 a year on Capterra; $199 on Jersey Watch (sources disagree)
+        source: https://www.capterra.com/p/178117/Diamond-Scheduler/
+        read: 2026-11-02
     stage: planned
     next: >-
       Comparables are aggregator figures; confirm on the vendors' own pricing
       pages when a host allows it. A one-off season pack at $10 to $25 sits
-      under all three monthly prices. Build the first extra: a branded
+      under all the prices above. LeagueLobster's free plan covers up to 25 teams, so the extra must be new depth (a print pack), never the schedule itself. Build the first extra: a branded
       printable schedule (print CSS plus an organiser name and logo field),
       dark until a checkout link is set, following wall-framing-takeoff's
       licence-key pattern in ventures/wall-framing-takeoff.
