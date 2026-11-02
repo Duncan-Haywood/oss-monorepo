@@ -668,7 +668,7 @@ export function planFromDxf(text, opt = {}) {
     return best && windowLayer.test(best.layer) && !doorLayer.test(best.layer) ? "window" : "door";
   };
   const counts = { door: 0, window: 0 };
-  let defaulted = 0;
+  let defaulted = 0, trimmed = 0;
   for (const o of op) {
     const mid = { x: (o.a.x + o.b.x) / 2, y: (o.a.y + o.b.y) / 2 };
     let host = -1, hd = snap * 2;
@@ -679,12 +679,16 @@ export function planFromDxf(text, opt = {}) {
       const h = Math.abs((mid.x - W.a.x) * (W.b.y - W.a.y) - (mid.y - W.a.y) * (W.b.x - W.a.x)) / L;
       if (h < hd) { hd = h; host = k; }
     }
-    const width = r16(dist(o.a, o.b));
+    let width = r16(dist(o.a, o.b));
     if (host < 0) { unplaced.push(`${width} in ${o.kind ?? kindOf(mid)}`); continue; }
     const n = idx.get(host), W = walls[host], L = dist(W.a, W.b);
     const p0 = param(W, o.a), p1 = param(W, o.b);
     const lo = Math.min(p0, p1), hi = Math.max(p0, p1);
-    const off = r16(order[n].flip ? L - hi : lo);
+    // an opening line that overhangs either end of its wall is trimmed to the wall
+    const Lr = out[n].length, cLo = Math.max(0, lo), cHi = Math.min(Lr, hi);
+    if (cHi - cLo < hi - lo - 1e-6) { width = r16(cHi - cLo); trimmed++; }
+    if (width > Lr) { width = Lr; trimmed++; }
+    const off = Math.min(r16(order[n].flip ? Lr - cHi : cLo), Math.max(0, Lr - width));
     const kind = o.kind ?? kindOf(mid);
     counts[kind]++;
     const own = opt.openingSize?.(mid);
@@ -695,6 +699,7 @@ export function planFromDxf(text, opt = {}) {
   }
   for (const w of out) if (w.openings) w.openings.sort((p, q) => p.offset - q.offset);
   if (unplaced.length) notes.push(`${unplaced.length} opening line${unplaced.length === 1 ? "" : "s"} not along any wall (${unplaced.slice(0, 3).join(", ")}${unplaced.length > 3 ? ", ..." : ""}) were dropped.`);
+  if (trimmed) notes.push(`${trimmed} opening line${trimmed === 1 ? "" : "s"} ran past the end of its wall and ${trimmed === 1 ? "was" : "were"} trimmed to the wall; check the width.`);
   if (defaulted) notes.push(`Opening heights are defaults, not read from the file: doors ${opt.doorHeight ?? 82.5} in, windows ${opt.windowHeight ?? 48} in tall. Every header is ${opt.header ?? "2x10"} as a placeholder; set them for your span table.`);
   else if (placed) notes.push(`Every header is ${opt.header ?? "2x10"} as a placeholder; set them for your span table.`);
   else notes.push("No opening lines found on a layer matching " + `${doorLayer} or ${windowLayer}` + ": the plan has solid walls.");
