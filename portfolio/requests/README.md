@@ -29,11 +29,20 @@ owner").
 - **Screen and queue:** `node portfolio/requests/intake.mjs` lists every
   request no entry covers yet with its injection-screen verdict, and `--add`
   writes them in as `received` (pass `--issues <file>` with issues saved from
-  `list_issues`; the script makes no network calls). See "Screening". `prompts/ideas.py` lists those last two. Ideas from people with write
+  `list_issues`; the script makes no network calls). It reads the header the
+  form writes (`[custom-development: <kind>]`), so the draft title and ask are
+  the visitor's words and `new`/`feature` set the kind. A `preview` message is
+  never queued: intake lists it under the request it names until that
+  request's `preview_ids` holds the message id (fold it into `next`, then add
+  the id). See "Screening". `prompts/ideas.py` lists those last two. Ideas from people with write
   access go to [`IDEAS.md`](../../IDEAS.md) and are direct requests; when one
   becomes a multi-session project, list it here too (`source: owner`) so its
   progress has a public row.
-- **Check:** `node --test portfolio/requests/requests.test.mjs portfolio/requests/screen.test.mjs`.
+- **Check:** `node --test portfolio/requests/*.test.mjs`: the validator and the
+  committed queue (`requests.test.mjs`), the injection screen
+  (`screen.test.mjs`), and the queue end to end (`intake.test.mjs`: form and
+  issue messages through intake and the CLI on scratch copies, every stage
+  through the validator, and the public and per-request pages).
 
 ## Priority
 
