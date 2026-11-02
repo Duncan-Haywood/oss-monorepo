@@ -7913,6 +7913,7 @@ const CUSTOM_DEV_STYLE = `
     #cdf select { width: 100%; box-sizing: border-box; font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
     #cdf .cd-check { font-weight: 400; color: var(--ink); display: flex; gap: 8px; align-items: flex-start; }
     .cd-filter { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
+    .cd-filter[hidden] { display: none; }
     .cd-filter button { font: inherit; font-size: .88em; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; text-transform: capitalize; }
     .cd-filter button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: #fff; }
     .cd-filter input { font: inherit; padding: 5px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
