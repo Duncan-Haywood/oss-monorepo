@@ -136,7 +136,8 @@ flagships:
       cited 1980Q3 is a first-vs-last-quarter convention (checked 2026-11-02;
       the paper's own convention is unread). (3) GARCH: a filtered
       series has 1% false alarms but loses the real sd break (97% to 6%);
-      needs a segment-wise joint GARCH fit. (4) driftWarning fires on real
+      a segment-wise GARCH prune (README, 2026-11-02) keeps it (97% to
+      100%) but leaves 48% false alarms at n=200: search cuts jointly. (4) driftWarning fires on real
       shocks and on autocorrelated nulls as well as growing seasons: wanted
       a way to tell a shape from a shock, and to widen the noise scale
       without swallowing a short quarterly shape (--ar1 fixes the rho 0.5

@@ -724,6 +724,30 @@ left is a joint likelihood where the variance path may break at a changepoint wh
 segment-independent cost cannot express (the recursion depends on the previous segment's state). Not shipped as an option;
 the function and the script stay so the next attempt starts from this baseline. Simulated noise only.
 
+### Pruning meanvar cuts with a segment-wise GARCH likelihood: fewer extra cuts, GARCH false alarms only partly (2026-11-02, measured, not shipped)
+
+The joint likelihood named above, in its cheapest form. `eval/meanvar-garch-segments.mjs` (output
+`eval/meanvar-garch-segments.out.txt`, 100 series per cell, same seeds and noise kinds as the filter run) takes the plain
+meanvar PELT cuts as candidates. Every segment gets its own mean and scale, and inside a segment the standardised residual
+follows a unit-variance GARCH(1,1) whose a and b are shared by all segments (small grid). The cut whose removal costs least
+quasi-log-likelihood is dropped while that cost is under `pen x ln n`. Plain, then pruned: null series with any change / sd
+1 to 2 break found exactly once / mean +1.5 sd shift found exactly once.
+
+| n, noise | plain | pruned, pen 12 | pruned, pen 16 |
+|---|---|---|---|
+| 100, GARCH | 41% / 63% / 63% | 21% / 86% / 82% | 5% / 58% / 36% |
+| 100, t3 | 37% / 58% / 48% | 12% / 88% / 90% | 4% / 62% / 31% |
+| 200, GARCH | 50% / 58% / 52% | 48% / 97% / 100% | 28% / 97% / 100% |
+| 200, t3 | 63% / 55% / 34% | 56% / 99% / 100% | 40% / 99% / 100% |
+| 200, Gaussian | 0% / 97% / 96% | 0% / 100% / 100% | 0% / 100% / 100% |
+
+Unlike the filter, the real sd break survives (97% to 100% at n = 200), and the clusters of extra cuts that made "exactly one"
+rates low go away. But the false-alarm rate on a null GARCH series barely moves at n = 200 with pen 12 (50% to 48%) and needs
+pen 16 to reach 28%, while at n = 100 pen 16 already costs the true breaks (mean shift 82% to 36%). So the penalty would have
+to depend on n and the result is still far from the filter's 1%. A single surviving cut is usually a volatility cluster that
+a segment-own scale explains better than any shared (a, b). Not wired into `analyze`; next is a joint fit where the cut
+candidates are searched, not only pruned. Simulated noise only; the penalty was swept on the same seeds it is reported on.
+
 ### A second dispersion round does not help (2026-10-26, negative result)
 
 The factor is estimated from a fit that already holds the false breaks, so one idea is to re-estimate it on the refit's
