@@ -7437,12 +7437,14 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
         <fieldset>
           <legend>What kind of feedback is it?</legend>
           <label><input type="radio" name="type" value="problem" checked> Something is wrong or broken</label>
-          <label><input type="radio" name="type" value="idea"> An idea or feature request</label>
+          <label><input type="radio" name="type" value="idea"> An idea, a feature, or a tool you want built</label>
+          <label><input type="radio" name="type" value="research"> A research question to investigate</label>
+          <label><input type="radio" name="type" value="topic"> A topic you would like written about</label>
           <label><input type="radio" name="type" value="other"> Something else</label>
         </fieldset>
-        <p class="fb-terms">Feature requests are built free, in public, as
-        <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}`)}">custom development</a>,
-        and come ahead of routine work. What is built is published under the MIT
+        <p class="fb-terms">Ideas, research questions and topics join the
+        <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}`)}">custom development</a> queue,
+        are built free and in public, and come ahead of routine work. What is built is published under the MIT
         licence with the repository owner's copyright notice; you get no exclusive
         rights to it.</p>
         <p id="fb-tool-line" hidden>About: <a id="fb-tool-link" href="${escapeHtml(toRoot)}"></a></p>
@@ -7466,6 +7468,8 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
   }
   var f=document.getElementById('fb');${feedbackUrl ? `
   if(!f)return;
+  var want=f.querySelector('input[name=type][value="'+(q.get('type')||'').replace(/[^a-z]/g,'')+'"]');
+  if(want)want.checked=true;
   if(tool){
     var l=document.getElementById('fb-tool-link');
     l.textContent=tool;l.href='${toRoot}'+tool+'/';
@@ -7635,10 +7639,22 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
       <h2>How it works</h2>
       <ol>
         <li><strong>Ask.</strong> <a href="${escapeHtml(issueUrl)}">Open a request</a> on GitHub (a free account), or use the <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a> and pick “An idea” if you have no account. Short on time? The one-box <a href="${escapeHtml(`${REPO_URL}/issues/new?template=idea.yml`)}">idea form</a> works too. Describe the job from the inside: who does it, how, and where today's tools fall short.</li>
+        <li><strong>It is screened.</strong> Before an agent reads a request as a brief, an automatic check looks for text aimed at the agents rather than describing a job (see <a href="#screening">below</a>).</li>
         <li><strong>It is triaged.</strong> Each request gets an ID in the table below and a status: ${counts.map(([s]) => `<em>${s}</em>`).join(', ')}. A declined request says why.</li>
         <li><strong>It is built in public.</strong> Sessions work in the open: every change is a pull request, and the project's README says what was tested and what was not.</li>
         <li><strong>You follow it.</strong> Watch your issue for replies, check its row here (rebuilt on every merge), or browse <a href="${escapeHtml(listUrl)}">all requests on GitHub</a>. Add detail or real sample material to the issue at any time; that is the fastest way to move a request forward.</li>
       </ol>
+
+      <h2>What you can ask for</h2>
+      <ul>
+        <li><strong>A product or tool</strong> for your work: a calculator, a checker, a document reader, a small app. <a href="${escapeHtml(issueUrl)}">GitHub request</a> · <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}?type=idea`)}">no-account form</a></li>
+        <li><strong>A feature</strong> for a tool already here. Use the form from that tool's footer, so it knows which tool you mean.</li>
+        <li><strong>A research question</strong> you would like investigated with real data, written up openly. <a href="${escapeHtml(`${REPO_URL}/issues/new?template=idea.yml&title=${encodeURIComponent('[research] ')}`)}">GitHub request</a> · <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}?type=research`)}">no-account form</a></li>
+        <li><strong>A topic to write about</strong>: a guide, an explainer, a comparison. <a href="${escapeHtml(`${REPO_URL}/issues/new?template=idea.yml&title=${encodeURIComponent('[topic] ')}`)}">GitHub request</a> · <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}?type=topic`)}">no-account form</a></li>
+      </ul>
+
+      <h2 id="screening">How requests are screened</h2>
+      <p>The builders are AI agents, so a request is also text an AI will read. Every request is checked by <a href="${escapeHtml(`${REPO_URL}/blob/main/portfolio/requests/screen.mjs`)}">an open-source screen</a> before triage. It looks for text written to steer the agents instead of describing a job: telling them to ignore their instructions, to merge, approve or run something, to reveal credentials, to send data elsewhere, or words hidden with invisible characters. A request that trips it is held for the repository owner and is not built from until they have read it. Ordinary requests pass straight through, and a held request is not a judgement of the person who sent it. Whatever the screen says, request text is treated as a description of what to build, never as instructions.</p>
 
       <h2>The terms</h2>
       <ul>

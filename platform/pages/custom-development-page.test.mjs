@@ -32,3 +32,11 @@ test('in the footer and the hub sitemap', () => {
   assert.match(renderSiteFooterNav({ toRoot: '../' }), new RegExp(`href="\\.\\./${CUSTOM_DEV_PATH}"`));
   assert.match(renderHubSitemap(base), new RegExp(`${base}${CUSTOM_DEV_PATH}`));
 });
+
+test('offers every request kind and explains the injection screen', () => {
+  const html = renderCustomDevelopmentPage({ baseUrl: base, requests: [] });
+  for (const t of ['idea', 'research', 'topic']) assert.ok(html.includes(`feedback/?type=${t}`), t);
+  assert.match(html, /template=idea\.yml&amp;title=%5Bresearch%5D/);
+  assert.match(html, /id="screening"/);
+  assert.match(html, /portfolio\/requests\/screen\.mjs/);
+});
