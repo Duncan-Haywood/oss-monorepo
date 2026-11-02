@@ -2,6 +2,12 @@
 
 Newest first.
 
+## 2026-11-02 · Milestone 5i: where the PATU 655 cylinder bore is documented (a sourcing step, no experiment)
+- Why: 5h swept the bore (80, 100, 125 mm) because the dataset files carry no geometry. Looked for the real figure.
+- Found: the dataset paper (Saeed, Zhidchenko, Handroos, *Data in Brief*, doi:10.1016/j.dib.2026.112848, PMC13233766, CC BY) does not list the bore. It says "Cylinder dimensions and hydraulic parameters used for derived force computation match those reported in [1]", and [1] is Khadim et al., "State estimation in a hydraulically actuated log crane using unscented Kalman Filter", *IEEE Access* 10:62863-62878 (2022), doi:10.1109/ACCESS.2022.3179591 (gold open access; also in the LUT repository, lutpub.lut.fi/handle/10024/164458).
+- Not done: this session could not read [1]. ieeexplore.ieee.org returned HTTP 418 through the proxy and the LUT handle page showed no PDF link. So the bore stays a swept guess (5h's 100/56 mm parts-listing reading is still unconfirmed), and no number changed.
+- Next: read Table of cylinder parameters in Khadim et al. (2022) from a host that serves the PDF, replace the 80/100/125 mm sweep with the sourced bore and rod, and rerun `experiments/regen_watts.py`. An excavator pressure trace (H4) is still missing.
+
 ## 2026-11-02 · Milestone 6f: paper section 3.4a gains 5g and 5h (a writing step, no experiment)
 - Added the measured lowering shape (772 PATU 655 strokes: peak/mean 1.52, 95% rating 1.24, p90 1.61) and the bore-swept watts (0.78 / 1.21 / 1.89 kW median at 80 / 100 / 125 mm) to the draft, with limits (lab crane, unconfirmed bore, hydraulic power not recovered power). 5 new rows in `paper/check_numbers.py`, 72 claims, 0 missing.
 - Next: confirm the bore from the PATU 655 drawing or dataset paper; an excavator pressure trace (H4) is still missing.
