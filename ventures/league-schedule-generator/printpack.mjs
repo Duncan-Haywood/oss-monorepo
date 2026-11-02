@@ -47,7 +47,7 @@ export function printPackHtml(schedule, o = {}) {
   }).join("\n");
   const noteBlock = notes.length ? `<section class="sheet"><h2>Rules and notes</h2><ul>${notes.map((l) => `<li>${htmlEsc(l)}</li>`).join("")}</ul></section>` : "";
   return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="en"><head><meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23471b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${league}${season ? " " + season : ""}: season schedule</title>
 <style>:root{--a:${accent}}body{font:16px/1.5 system-ui,sans-serif;margin:0 auto;max-width:50rem;padding:1rem;color:#1a1a1a;background:#fff}.bar{display:flex;align-items:center;gap:.75rem;border-bottom:4px solid var(--a);padding-bottom:.5rem;margin-bottom:1rem}.bar span{color:#555}.logo{max-height:3.5rem;max-width:8rem}h1,h2,h3{color:var(--a)}h3 span{font-weight:400;color:#555}table{border-collapse:collapse;width:100%;margin-bottom:.75rem}th,td{text-align:left;padding:.35rem .5rem;border-bottom:1px solid #ccc}th{border-bottom:2px solid var(--a)}.bye,.bye td{color:#555;font-style:italic}.cover{text-align:center;padding:4rem 0;page-break-after:always}.cover .logo{max-height:9rem;max-width:18rem;margin-bottom:1.5rem}.cover h1{font-size:2.4rem;margin:.2rem 0}.sheet{page-break-before:always}.round{break-inside:avoid}.contact{margin-top:1.5rem}footer{color:#555;font-size:.85rem;margin-top:2rem}@media print{body{max-width:none}}</style></head>
 <body>
@@ -57,7 +57,7 @@ ${head}
 ${full}
 ${perTeam}
 ${noteBlock}
-<footer>Made with the free league schedule generator. Check dates and venues with your organiser.</footer>
+<footer>Made with the free league schedule generator. Check dates and venues with your organiser. <strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax or financial advice. You are responsible for reviewing and verifying its output before relying on it.</footer>
 </body></html>
 `;
 }

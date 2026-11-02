@@ -27,7 +27,7 @@ test("typed text is escaped; colour and logo are restricted", () => {
   assert.ok(!h.includes("<img src=x"));
   assert.ok(!h.includes("<script>"));
   assert.ok(!h.includes("<b>x</b>") && !h.includes("<i>n</i>"));
-  assert.ok(!h.includes("svg+xml"));
+  assert.ok(!h.replace(/<link rel="icon"[^>]*>/, "").includes("svg+xml")); // the fixed tab icon is allowed; the typed logo is not
   assert.equal(safeColor("#12abEF"), "#12abEF");
   assert.equal(safeColor("red"), "#1f4e5f");
   assert.ok(safeLogo("data:image/png;base64,iVBOR"));

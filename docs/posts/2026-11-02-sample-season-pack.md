@@ -1,6 +1,8 @@
 ---
 title: Showing the season pack before it is for sale
 date: 2026-11-02
+tags: [league-schedule, marketing, honesty]
+description: "The league schedule generator's print pack is built but not for sale yet, so a sample page shows what it contains."
 ---
 
 The league schedule generator's branded print pack is built but dark: no
