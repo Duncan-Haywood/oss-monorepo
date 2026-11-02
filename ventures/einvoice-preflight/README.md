@@ -206,6 +206,22 @@ for selecting the correct format, tax treatment, and submission process.
 
 **Portugal national rules, CIUS-PT (shipped 2026-10-25).** A UBL file whose BT-24 names `CIUS-PT` (`...urn:feap.gov.pt:CIUS-PT:2.1.1`) now also gets the Portuguese profile's checks that the EU base lacks (368 of the 1,154 in AMA's v2.1.1 stylesheet, from `phive-rules-cius-pt` 4.6.3 on Maven Central): VAT identifier and tax scheme for seller and buyer (`BR-CIUS-PT-01..04`), a Deliver to group (`-66`), a credit or debit note's preceding-invoice reference (`-25`, `-65`), "lower rate" `AA` rules, and about 290 field-format rules (`DT-CIUS-PT-*`: VAT rate as `23.00`, quantities with three decimals, a remittance reference framed as `#REFERENCE@ATMPAYMENT#...#`). It is an add-on (`ADDONS["cius-pt"]`), plain route only (no Saxon form). `build-pt-rules.mjs` rebuilds `plain/cius-pt-ubl.json` (set `EINVOICE_PT_JAR` for a jar on disk); to read it, `plain-from-xslt.mjs` now also turns an `xsl:if` around a `successful-report` (a Schematron `<report>`) into an assert. Verification (`cius-pt.test.mjs`, 5 tests; made-up invoice `examples/pt-invoice.xml`, NIFs with valid check digits): it passes the EU base and the PT set with no skipped rule; a bare `23` rate, an unframed payment reference, a removed Deliver to group, a removed seller VAT block and a type-383 note without a reference each raise exactly the expected PT rule. Not done: no real invoice from a Portuguese ERP and no AT/eFatura verdict has been tried, so false positives are unmeasured; the stylesheet's own EU-base copy is dropped, and Portuguese `AA`, `RED`, `INT`, `NOR`, `ISE`, `OUT` and `NA` VAT codes fail the EU base's BR-CL-17/18 (measured 2026-10-25 on `examples/pt-invoice.xml`), although AMA's stylesheet has no BR-CL rule at all and its own DT-CIUS-PT-091/-105/-131 and BR-AA-* rules admit them; the finding now says so (`PT_CODE_NOTE`, 1 test) and is not suppressed, since which validator the receiver runs is unknown; the Portuguese page still says nothing is mandated for B2B.
 
+## Mandate calendar (shipped 2026-11-02)
+
+`node mandate-calendar.mjs` turns the "Key dates" column of the mandates hub
+into `mandate-dates.json` and `mandate-calendar.ics` (87 dated milestones
+across 48 countries), so a finance team can subscribe in any calendar app and
+the feed cannot drift from the table. Only full day-month-year dates become
+events; "Sep 2026" or "late 2028" are left out rather than guessed. Brackets
+stay whole when a cell is split, and a cell with several dates is split so each
+date keeps only its own words. `--check` fails when the files are stale;
+`--upcoming [date]` prints what starts next. `mandate-calendar.test.mjs` pins
+the parser, the RFC 5545 folding and escaping, and freshness. Not done: the
+text is a clause cut from the hub cell, so a few summaries are terse ("Spain:
+1 Jul 2027 (others)"); the description carries the status and the country
+page link. Use: a lead magnet and a link-worthy asset for the mandate pages;
+no accounts, no cost.
+
 ## Run it as your own API (self-hosted, one click)
 
 The same rules are available as a small HTTP service you run in **your own**
