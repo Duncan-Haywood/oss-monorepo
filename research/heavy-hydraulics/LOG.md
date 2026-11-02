@@ -2,6 +2,18 @@
 
 Newest first.
 
+## 2026-11-02 · Milestone 5g: do measured lowering strokes match 5e's assumed power shapes? (prediction registered before the first run)
+- Why: 5e swept four assumed lowering-power shapes and said "a measured boom-lowering trace" was missing. The PATU 655 forestry-crane dataset (Saeed, Zhidchenko, Handroos; Mendeley Data `10.17632/rn5j42rpyr.1`, CC BY 4.0, published 2026-02-17) has 108 lab recordings of lift-cylinder piston-side pressure `PA1` and stroke `S1` at 95 to 278 kg payloads, so the power proxy `PA1 x |dS1/dt|` over each retraction (lowering) stroke gives a real profile. Cylinder areas are not in the files, so absolute watts are not available; the rating as a multiple of the stroke's own mean power does not need them (it is area-free), which is the quantity 5e tabulated. `experiments/regen_measured.py` finds strokes (smoothed 0.5 s, speed above 5 mm/s for at least 0.3 s, at least 20 mm travel) and reports peak/mean and the rating for 95% and 99% capture.
+- **Prediction (before running):** the median over strokes of the 95%-capture rating lies inside 5e's assumed range (0.95 to 1.55 times the mean power), and the median peak/mean lies between 1.25 and 2.0. Prior 60%. Refuted if the median 95% rating is above 1.55 or the median peak/mean is above 2.0.
+- Limits known in advance: lab crane with proportional valves and scripted step/ramp excitation, not an operator in a digging cycle; rod-side pressure neglected; the crane is a forestry crane (a different machine), so this tests the shape assumption only, not magnitude; whether S1 retraction is gravity-assisted at every posture is assumed from the stroke direction.
+
+### Outcome of 5g (`experiments/regen_measured_results.txt`, 772 lowering strokes from 4 payloads: 95, 148, 180, 278 kg)
+- Median peak/mean power is 1.52 (p10 1.31, p90 2.03); median rating for 95% capture is 1.24 times the stroke's mean power (p10 1.09, p90 1.61); for 99%, 1.38 (p90 1.88). Payload barely moves it (median 95% rating 1.15, 1.23, 1.24, 1.26 from 148 to 95 kg; the 148 kg folder has only 39 strokes).
+- **The prediction held:** the median 95% rating (1.24) sits inside 5e's assumed 0.95 to 1.55 range, and the median peak/mean (1.52) inside 1.25 to 2.0. Measured strokes sit between 5e's trapezoid and half-sine shapes (1.17 and 1.35 for 95%). The tail is slightly beyond the assumed range: p90 of the 95% rating is 1.61 and of peak/mean 2.03, so about one stroke in ten needs a rating a little above 5e's worst assumed shape.
+- Reading: 5e's rule of thumb "a rating 1.2 to 1.6 times the mean takes 95%" is supported on a real hydraulic boom's lowering power shape. It remains a shape check only: no absolute watts (areas not in the files), a different machine, scripted excitation.
+- Not done: absolute power needs the PATU 655 cylinder bores (look in the dataset's paper); an excavator trace is still missing (the IEEE DataPort autonomous-excavation set is subscriber-only).
+- Next: bores for watts; the paper's section 3.4a gains this outcome.
+
 ## 2026-11-02 · Milestone 6e: paper section 3.4a gains 5c to 5f (a writing step, no experiment)
 - Added the harvest-window cap (5d), the peaky-profile rating (5e), the electric-rung battery check (5c) and the fuel payback of a recovery unit (5f) to the draft as section 3.4a, with their limits. 9 new rows in `paper/check_numbers.py`, 67 claims, 0 missing.
 - Next: a measured boom-lowering trace or a vendor quote for an automotive-grade 48 V motor-generator; the paper still lacks a measured pressure trace (H4).
