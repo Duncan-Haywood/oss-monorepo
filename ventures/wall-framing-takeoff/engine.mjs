@@ -190,6 +190,17 @@ export function formatInches(inches) {
 export function validatePlan(plan) {
   const errors = [];
   if (!plan || !Array.isArray(plan.walls) || !plan.walls.length) return ["Add at least one wall."];
+  // Shape first: a hand-typed or generated plan can hold null, a number or a string where the engine expects a record or a list.
+  const isRec = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+  const shape = [];
+  if (plan.stock !== undefined && (!Array.isArray(plan.stock) || !plan.stock.every(isRec))) shape.push("\"stock\" must be a list of boards, each with a size, length and price.");
+  plan.walls.forEach((w, i) => {
+    const at = isRec(w) && w.id ? `Wall ${w.id}` : `Wall number ${i + 1}`;
+    if (!isRec(w)) { shape.push(`${at} must be an object with an id, a length and openings.`); return; }
+    if (w.tees !== undefined && !Array.isArray(w.tees)) shape.push(`${at}: "tees" must be a list of distances from the wall start.`);
+    if (w.openings !== undefined && (!Array.isArray(w.openings) || !w.openings.every(isRec))) shape.push(`${at}: "openings" must be a list of objects, each with an offset, width and height.`);
+  });
+  if (shape.length) return shape;
   if (!(plan.studSpacing >= 8 && plan.studSpacing <= 48)) errors.push("Stud spacing must be between 8 and 48 inches.");
   if (!(plan.studLength >= 24 && plan.studLength <= 240)) errors.push("Stud length must be between 24 and 240 inches.");
   if (!(plan.kerf >= 0 && plan.kerf <= 0.5)) errors.push("Saw kerf must be between 0 and 1/2 inch.");
