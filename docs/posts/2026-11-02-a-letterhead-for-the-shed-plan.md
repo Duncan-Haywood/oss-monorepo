@@ -1,6 +1,6 @@
 ---
 title: "A letterhead for the shed plan: the fourth dark paid path"
-seo_title: "Shed Designer build pack: shed plans and materials list on your own letterhead"
+seo_title: "Shed Designer build pack: shed plans on your own letterhead"
 date: 2026-11-02
 tags: [shed-designer, business-model, monetization]
 description: "Shed Designer is the one tool here with visitors. It now has a licence-gated branded build pack for builders and kit sellers, dark until a checkout link exists."
