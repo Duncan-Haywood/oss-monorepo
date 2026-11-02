@@ -911,3 +911,19 @@ test("backing stud counts must be whole numbers 0 to 6 (1e9 used to hang, -5 and
     }
   }
 });
+
+test("a tee wall inside an opening, or two tees listed on top of each other, is refused", async () => {
+  const { takeoff } = await import("./engine.mjs");
+  const mk = (tees) => ({
+    studSpacing: 16, studLength: 92.625, kerf: 0.125, topPlateLap: 24, defaultHeaderHeight: 82.5,
+    stock: [96, 120, 144, 168, 192].map((length) => ({ size: "2x4", length, price: 8 })).concat([{ size: "2x10", length: 96, price: 30 }, { size: "2x10", length: 192, price: 60 }]),
+    walls: [{ id: "A", length: 480, stud: "2x4", tees, openings: [{ kind: "door", label: "Entry", offset: 204, width: 38, height: 82.5, header: "2x10" }] }],
+  });
+  const inside = takeoff(mk([220]));
+  assert.equal(inside.ok, false);
+  assert.match(inside.errors.join(" "), /tee at 18' 4" falls inside the Entry/);
+  const dup = takeoff(mk([100, 100.5]));
+  assert.equal(dup.ok, false);
+  assert.match(dup.errors.join(" "), /closer than a stud thickness/);
+  assert.equal(takeoff(mk([100, 300])).ok, true);
+});
