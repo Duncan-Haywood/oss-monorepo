@@ -14,6 +14,8 @@
     "db:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
     "test": "vitest run",
+    "test:fast": "vitest run --config vitest.fast.config.ts",
+    "test:simulations": "vitest run --config vitest.simulations.config.ts",
     "test:watch": "vitest",
     "test:integration": "vitest run --config vitest.integration.config.ts"
   },
