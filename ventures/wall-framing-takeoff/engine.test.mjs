@@ -831,6 +831,19 @@ test("sheathing: a gable wall joint over a wide opening gets a nailer note with 
   assert.deepEqual(s.gables.walls[0].check, []);
 });
 
+test("sheathing: gable nailers join the nailer lumber order and the cut list", () => {
+  const plan = { ...base(), studSpacing: 24, walls: [{ id: "G", length: 240, stud: "2x4", corner: false, gable: { pitch: 6, peak: 120 }, openings: [{ kind: "window", offset: 30, width: 120, height: 48, header: "2x10", headerHeight: 80 }] }] };
+  const r = takeoff(plan);
+  const s = sheathe({ ...plan, sheathing: defaultSheathing() }, r);
+  const pieces = s.gables.walls[0].nailerPieces;
+  assert.ok(pieces.length > 0 && pieces.every((p) => p.length > 0 && p.size === "2x4"));
+  const qty = s.nailerLumber.cuts.filter((c) => c.kind === "nailer").reduce((t, c) => t + c.qty, 0);
+  assert.equal(qty, pieces.length);
+  assert.equal(nailerCuts(s).reduce((t, c) => t + c.qty, 0), pieces.length);
+  assert.ok(s.nailerLumber.orders.length > 0 && s.nailerLumber.cost >= 0);
+  assert.ok(s.notes.some((n) => /added to the lumber order/.test(n)));
+});
+
 test("takeoff returns an error naming the piece when a header is longer than every board", () => {
   const plan = { ...samplePlan(), walls: [{ id: "G", length: 480, stud: "2x4", corner: true, openings: [{ kind: "door", offset: 24, width: 192, height: 82.5, header: "2x10" }] }] };
   plan.stock = plan.stock.filter((s) => s.size !== "2x10" || s.length <= 192);
