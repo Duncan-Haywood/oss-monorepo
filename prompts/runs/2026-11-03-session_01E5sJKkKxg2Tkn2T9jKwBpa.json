@@ -29,7 +29,10 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "browser-test red on PR for 2 shed-designer picker.browser tests (stale gallery renders); reproduces locally, unrelated to this diff; merged anyway",
+    "validate was red on main for changepoint-detector next: cap and a shed-designer sample page lacking a tab icon; fixed both here"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -50,7 +53,7 @@
     "docs/reports/polish-2026-11-03-faq-photos-import-vendor-watch.md"
   ],
   "goal": null,
-  "notes": "",
+  "notes": "Fixed two pre-existing main failures in this PR (flagships.yaml next cap; sample-build-pack icon via generator). Left shed-designer picker.browser.test failures: stale renders, needs make-renders.mjs / Pages build.",
   "corrections": [],
   "redteam": null,
   "usage": {
