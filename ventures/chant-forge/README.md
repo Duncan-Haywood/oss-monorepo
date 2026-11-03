@@ -16,7 +16,7 @@ released track:
 3. **Arrange:** genre templates (drums, bass, synths, guitars) built around
    the line. Not built.
 4. **Voice:** a real men's choir (recorded) or a singing synthesiser. Not built.
-5. **Release:** loudness, metadata, credits and AI-disclosure checks before a
+5. **Release:** loudness (done, `master-cli.mjs`), metadata, credits and AI-disclosure checks before a
    distributor upload. Not built.
 
 ## What works now
@@ -57,6 +57,24 @@ wrote dies-irae.mid
 Tests: `node --test ventures/chant-forge/chant-forge.test.mjs` (8 tests,
 passing 2026-11-03). On 2026-11-03 the example's output was also read back with
 an independent parser (Python `mido` 1.x): 3 tracks, 3.87 s, lyrics in order.
+
+## Mix and master check
+
+```sh
+node ventures/chant-forge/master-cli.mjs track.wav   # exit 0 pass, 1 fail, 2 unreadable
+```
+
+`master.mjs` reads 16/24/32-bit PCM and float WAV (mono or stereo) and reports
+BS.1770-4 integrated loudness (K-weighting, 400 ms blocks, -70 LUFS and -10 LU
+gates), true peak (4x oversampled), mono-sum loss with L/R correlation, and runs
+of full-scale samples. Targets: -14 LUFS +/- 1.5, true peak at most -1 dBTP,
+mono loss at most 3 dB, no clipping. Checked 2026-11-03 against the standard's
+calibration points (a 0 dBFS 997 Hz sine reads -3.01 LUFS mono, 0.0 stereo), a
+fs/4 sine whose samples miss the peak by 3 dB, and phase-inverted and
+over-driven files (6 tests). Not checked against a reference meter (EBU
+test files, ffmpeg `ebur128`) or a real mix; the true-peak filter is a
+windowed sinc, not the Annex 2 coefficients. Distributor targets change: read
+theirs before release.
 
 ## Not checked yet
 

@@ -59,6 +59,7 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
    - a script that measures integrated LUFS, true peak, mono compatibility and
      clipping against streaming targets;
    - it runs locally and costs nothing per track.
+   - landed 2026-11-03: `master-cli.mjs` (LUFS, true peak, mono, clipping).
 7. **Release kit:**
    - metadata, credits, ISRC slots, the AI-disclosure answers, cover-art spec
      and a per-track source note;
