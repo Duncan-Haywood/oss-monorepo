@@ -254,6 +254,8 @@ export function loadUpdates(root = DEFAULT_ROOT, { published = new Set(), resear
     // History may end inside the window: a shallow checkout, or the merge cap.
     shallow: historyStart(root) || (merges?.length ?? 0) >= CHANGELOG_MERGES,
     entries: changelogEntries(merges, { published, researchSlugs, titles, now }),
+    // Raw merges, so build.mjs can hand them to the work queue's progress view without a second git log.
+    merges,
     researchLog: loadResearchLog(root),
     researchSlugs,
     launched: readJson(path.join(root, 'platform', 'pages', 'launched.json'))?.launched ?? {},
