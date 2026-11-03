@@ -29,3 +29,27 @@ entries:
         headless Chromium with no console errors. Outreach kit (OUTREACH.md) for the
         owner's own emails; nothing sent. Not yet used by a real community.
     mrr_end: 0
+  - venture: clothing-design-studio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Owner request R-0005 (from an interview with a clothing designer):
+        AI-assisted clothing design. Started ventures/clothing-design-studio: a
+        browser studio where a tee, long-sleeve, crewneck or hoodie (drawn to
+        size-M scale) is edited by spoken or typed commands through a
+        deterministic parser (each change listed with its words and undoable;
+        optional own-key or local model rewrites free speech into the same
+        commands) or by drag, resize and rotate; three alternatives to pick by
+        voice; 9 fabrics and 8 methods with compatibility notes; landed cost,
+        margin after VAT and fees, break-even and target price from a supplier
+        sheet (CSV in and out; shipped figures are labelled placeholders); tech
+        pack, quote request and launch kit. 54 tests; driven in headless
+        Chromium with no console errors. A second interview added a
+        sunglasses designer (stock frame, 52x18-145 sizing with range checks,
+        logos on temple, lens and case, cost per pair, quote request asking for
+        EN ISO 12312-1 and the FDA drop-ball test) and a capsule wardrobe
+        planner (audience profile, outfit count by a stated colour rule,
+        in-house vs partner-brand pieces, first drop within a budget). 69
+        tests. Not yet used by the designer.
+    mrr_end: 0

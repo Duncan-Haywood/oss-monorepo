@@ -219,3 +219,12 @@ test("index links one hop to the embroidery-shop-quote-calculator sibling", () =
     "index must link ../embroidery-shop-quote-calculator/ so a crawler reaches that tool in one hop",
   );
 });
+
+// Added 2026-11-03 when clothing-design-studio shipped: the brand-side design and
+// costing tool had no inbound link from a sibling until this page named it.
+test("index links one hop to the clothing-design-studio sibling", () => {
+  assert.ok(
+    html.includes('href="../clothing-design-studio/"'),
+    "index must link ../clothing-design-studio/ so a crawler reaches that tool in one hop",
+  );
+});

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Capsule Wardrobe Planner: A Full Wardrobe From a Few Pieces, and a Small First Drop</title>
+  <meta name="description" content="Free capsule wardrobe planner: answer a few questions (age band, fit, style, climate, season, occasions, quality tier) and get a small set of pieces that combine into many outfits, with which to make in-house, which to carry from other brands, and a cautious first-drop plan.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Capsule wardrobe planner: many outfits from a few pieces">
+  <meta property="og:description" content="A full wardrobe for one kind of person, and a small first drop for a brand. Free, in your browser.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Capsule wardrobe planner (Clothing Design Studio)","applicationCategory":"LifestyleApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"capsule wardrobe from age band, fit, style, climate, season, occasions and quality tier; outfit count and examples; in-house versus partner-brand pieces; first-drop quantities within a budget"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many outfits does a capsule wardrobe make?","acceptedAnswer":{"@type":"Answer","text":"It depends on how the colours combine. The planner counts every top with every bottom, with or without a layer, allowing at most one accent colour per outfit; a 12-piece capsule in neutrals typically gives several dozen."}},{"@type":"Question","name":"How big should a new clothing brand's first drop be?","acceptedAnswer":{"@type":"Answer","text":"Small enough that unsold stock cannot sink the launch. The planner fills a production budget with the factory's minimum order of the pieces that appear in the most outfits first, and leaves the rest for a later drop."}}]}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="sunglasses.html">Sunglasses</a></p>
+  <h1>A full wardrobe from a few pieces, and a first drop small enough to be safe.</h1>
+  <p>Answer a few questions about who it is for. You get a small set of pieces chosen to combine into as many outfits as possible, which of them to make yourself and which to carry from other brands, and how much of each to make first so that unsold stock cannot sink the launch. Use it for one person's wardrobe, or for a brand's first collection aimed at an audience.</p>
+
+  <div class="grid">
+    <section>
+      <h2>Who is it for?</h2>
+      <div class="row">
+        <div><label for="ageBand">Age band</label><select id="ageBand"></select></div>
+        <div><label for="fit">Fit</label><select id="fit"></select></div>
+      </div>
+      <label for="style">Style</label><select id="style"></select>
+      <div class="row">
+        <div><label for="climate">Climate</label><select id="climate"></select></div>
+        <div><label for="season">Season</label><select id="season"></select></div>
+      </div>
+      <fieldset id="occasions"><legend>Dresses for</legend></fieldset>
+      <div class="row">
+        <div><label for="tier">Quality tier</label><select id="tier"></select></div>
+        <div><label for="size">Number of pieces</label><input id="size" type="number" min="5" max="30" step="1"></div>
+      </div>
+      <label for="source">Where the pieces come from</label>
+      <select id="source"><option value="both">Own designs and partner brands</option><option value="in-house">Only own designs</option><option value="partners">Only partner brands</option></select>
+      <p class="tag" id="tier-note"></p>
+    </section>
+
+    <div>
+      <section>
+        <h2>The wardrobe</h2>
+        <output id="results" aria-live="polite"></output>
+      </section>
+      <section>
+        <h2>First drop</h2>
+        <p class="placeholder">Unit costs start from the studio's example sheets (placeholder numbers, not quotes). Type your factory's landed cost per piece.</p>
+        <div class="row">
+          <div><label for="budget">Production budget</label><input id="budget" type="number" min="0" step="100" value="3000"></div>
+          <div><label for="moq">Minimum order per piece</label><input id="moq" type="number" min="1" step="1" value="50"></div>
+        </div>
+        <div id="drop" aria-live="polite"></div>
+      </section>
+    </div>
+  </div>
+
+  <section id="faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <h3>How many outfits does a capsule wardrobe make?</h3>
+    <p>It depends on how the colours combine. The planner counts every top with every bottom, with or without a layer, allowing at most one accent colour per outfit; a 12-piece capsule in neutrals typically gives several dozen.</p>
+    <h3>How big should a new clothing brand&#x27;s first drop be?</h3>
+    <p>Small enough that unsold stock cannot sink the launch. The planner fills a production budget with the factory&#x27;s minimum order of the pieces that appear in the most outfits first, and leaves the rest for a later drop.</p>
+  </section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional styling advice, and it does not replace a qualified professional. Its suggestions follow simple published rules (neutrals with one accent, pieces chosen by style, season and occasion), not anyone's taste. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+
+  <script type="module">
+    import { AGE_BANDS, FITS, STYLES, CLIMATES, SEASONS, OCCASIONS, TIERS, defaultProfile, planWardrobe, firstDrop } from "./wardrobe.mjs";
+    import { newDesign, applyOp, encodeDesign } from "./design.mjs";
+    import { unitCost, money } from "./costing.mjs";
+    import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
+    import { newEyewear, eyewearCost } from "./eyewear.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const opts = (id, obj) => { $(id).innerHTML = Object.entries(obj).map(([k, v]) => `<option value="${k}">${typeof v === "string" ? v : v.label}</option>`).join(""); };
+    $("#ageBand").innerHTML = AGE_BANDS.map(a => `<option>${a}</option>`).join("");
+    opts("#fit", FITS); opts("#style", STYLES); opts("#climate", CLIMATES); opts("#season", SEASONS); opts("#tier", TIERS);
+    $("#occasions").innerHTML += Object.entries(OCCASIONS).map(([k, v]) => `<label><input type="checkbox" value="${k}"> ${v}</label>`).join("");
+    let p = defaultProfile();
+    const write = () => { for (const k of ["ageBand", "fit", "style", "climate", "season", "tier", "size", "source"]) $("#" + k).value = p[k]; document.querySelectorAll("#occasions input").forEach(i => { i.checked = p.occasions.includes(i.value); }); };
+    const read = () => { p = { ...p, ageBand: $("#ageBand").value, fit: $("#fit").value, style: $("#style").value, climate: $("#climate").value, season: $("#season").value, tier: $("#tier").value, size: +$("#size").value || 12, source: $("#source").value, occasions: [...document.querySelectorAll("#occasions input:checked")].map(i => i.value) }; if (!p.occasions.length) p.occasions = ["casual"]; };
+    const costOverrides = {};
+    let plan;
+
+    function studioDesign(item) {
+      const t = TIERS[p.tier];
+      let d = newDesign({ name: `${item.colourName} ${item.label}`, garment: item.studio, fabric: t.fabric, gsm: t.gsm, colour: item.colour, colourName: item.colourName, quantity: 50 });
+      if (item.id === "graphic-tee" || p.style === "statement") d = applyOp(d, { op: "add", kind: "motif", motif: "halo", label: "Sunburst halo", method: p.tier === "luxury" ? "embroidery" : "dtg", w: 22 });
+      return d;
+    }
+    function exampleCost(item, moq) {
+      if (!item.studio) return null;
+      if (item.studio === "sunglasses") return eyewearCost(newEyewear({ material: p.tier === "essential" ? "tr90" : "acetate", quantity: moq })).landed;
+      return unitCost({ ...studioDesign(item), quantity: moq }, EXAMPLE_SUPPLIER).landed;
+    }
+
+    function render() {
+      plan = planWardrobe(p);
+      $("#tier-note").textContent = TIERS[p.tier].note;
+      const roles = { top: "Tops", bottom: "Bottoms", layer: "Layers", outer: "Outerwear", accessory: "Accessories" };
+      let html = `<p><span class="big">${plan.outfitCount}</span> outfits from <b>${plan.items.length}</b> pieces.</p>`;
+      for (const [r, label] of Object.entries(roles)) {
+        const its = plan.items.map((it, idx) => ({ ...it, idx })).filter(it => it.role === r);
+        if (!its.length) continue;
+        html += `<h3>${label}</h3><div class="pieces">${its.map(it => `<div class="piece"><span class="dot" style="background:${it.colour}"></span><b>${esc(it.colourName)} ${esc(it.label.toLowerCase())}</b>${it.accent ? " (accent)" : ""}<div class="tag">${esc(it.material)}</div><div class="tag">${esc(it.source)}${it.studio && it.studio !== "sunglasses" ? ` · <a href="./#d=${encodeDesign(studioDesign(it))}">design it</a>` : it.studio === "sunglasses" ? ' · <a href="sunglasses.html">design it</a>' : ""}</div></div>`).join("")}</div>`;
+      }
+      html += `<h3>Outfits to start with</h3><ul>${plan.outfits.map(o => `<li><b>${esc(OCCASIONS[o.occasion] ?? o.occasion)}:</b> ${esc(o.text)}</li>`).join("")}</ul>`;
+      html += `<p class="notes">${plan.notes.map(esc).join("<br>")}</p>`;
+      $("#results").innerHTML = html;
+      renderDrop();
+    }
+
+    function renderDrop() {
+      const moq = Math.max(1, +$("#moq").value || 50);
+      const unitCosts = {};
+      plan.items.forEach((it, idx) => { const v = costOverrides[`${it.id}|${it.colourName}`] ?? exampleCost(it, moq); if (v > 0) unitCosts[idx] = v; });
+      const drop = firstDrop(plan, { budget: +$("#budget").value || 0, moq, unitCosts });
+      let html = `<table><tr><th>Piece</th><th>Landed cost each</th><th class="num">Make</th></tr>`;
+      plan.items.forEach((it, idx) => {
+        if (!it.source.startsWith("in-house")) return;
+        const line = drop.lines.find(l => l.idx === idx);
+        html += `<tr><td>${esc(it.colourName)} ${esc(it.label.toLowerCase())}</td><td><input type="number" min="0" step="0.5" aria-label="Landed cost each for ${esc(it.colourName)} ${esc(it.label.toLowerCase())}" data-key="${esc(it.id)}|${esc(it.colourName)}" value="${unitCosts[idx] ?? ""}" placeholder="quote needed"></td><td class="num">${line ? line.quantity : "later"}</td></tr>`;
+      });
+      html += `</table><p>Spends ${money(drop.spent)} of the budget; ${money(drop.left)} left.</p>`;
+      if (drop.dropped.length) html += `<p class="notes">Held for a second drop (the budget covers the minimum order of the pieces in the most outfits first): ${drop.dropped.map(esc).join(", ")}.</p>`;
+      if (drop.needQuote.length) html += `<p class="notes">Need a factory quote before they can be planned: ${drop.needQuote.map(esc).join(", ")}.</p>`;
+      if (plan.items.some(it => it.source === "partner brand")) html += `<p class="tag">Partner-brand pieces carry no stock: you list them and take a commission on each sale.</p>`;
+      $("#drop").innerHTML = html;
+      $("#drop").querySelectorAll("input[data-key]").forEach(i => i.addEventListener("change", ev => { const v = +ev.target.value; if (v > 0) costOverrides[ev.target.dataset.key] = v; else delete costOverrides[ev.target.dataset.key]; renderDrop(); }));
+    }
+
+    write(); render();
+    document.querySelectorAll("section select, section input:not([data-key]), #occasions input").forEach(el => el.addEventListener("change", () => { read(); render(); recordUsage("wardrobe_plan"); }));
+    recordUsage("wardrobe_open");
+  </script>
+</body>
+</html>

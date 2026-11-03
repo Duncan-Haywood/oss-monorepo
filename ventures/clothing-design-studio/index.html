@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clothing Design Studio: Design a T-Shirt or Hoodie by Voice, Cost It, Get a Tech Pack</title>
+  <meta name="description" content="Free clothing design software for independent designers: say or click changes to a tee, sweatshirt or hoodie, compare three versions, cost every piece from your manufacturer's prices, and download a tech pack and quote request. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M11%207l-6%204%203%205%203-2v12h10V14l3%202%203-5-6-4q-5%204-10%200z'%20fill='%23efe4cc'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Clothing Design Studio: say what you want, see it on the garment, know what it costs">
+  <meta property="og:description" content="Design tees, sweatshirts and hoodies by voice or mouse, compare versions, cost them from your manufacturer's quote, and export a tech pack. Free and open source.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Clothing Design Studio",
+    "applicationCategory": "DesignApplication",
+    "operatingSystem": "Any modern browser",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "voice and typed design commands, drag and resize artwork on the garment, t-shirt long-sleeve crewneck and hoodie, fabric and weight, screen print, high-density and puff print, DTG, DTF, embroidery, 3D puff embroidery, sublimation, fabric and method compatibility notes, three alternatives to compare, unit cost and break-even from a supplier sheet, tech pack and quote request, product description, captions and store CSV, optional own-key or local AI",
+    "description": "A free browser studio for independent clothing designers: design a garment by speaking, typing or dragging, cost it from a manufacturer's prices, and export a tech pack. Runs on the visitor's device."
+  }
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Do I need to pay or sign up?","acceptedAnswer":{"@type":"Answer","text":"No. The studio is free and open source (MIT) and runs in your browser. The command box understands a fixed set of design commands with no AI at all. If you want it to understand freer speech, you can add your own AI key or point it at a model running on your own computer; that is optional and never required."}},{"@type":"Question","name":"Where do the prices come from?","acceptedAnswer":{"@type":"Answer","text":"From your manufacturer. The studio ships an example sheet with round placeholder numbers so the page has something to show, and it says so next to every figure. Type your manufacturer's quote in, or import it as a CSV, and every cost on the page uses it."}},{"@type":"Question","name":"Can it print a 3D, raised design?","acceptedAnswer":{"@type":"Answer","text":"It lets you choose raised methods (high-density screen print, puff print and 3D puff embroidery) and draws them with a shadow so you can see the effect. It also notes where a raised method suits the artwork poorly, for example fine painted detail, which usually reproduces better flat with the raised ink on an outline or halo."}},{"@type":"Question","name":"Can I put a famous old painting on a shirt?","acceptedAnswer":{"@type":"Answer","text":"Often, if the painting is in the public domain and the photograph you use is released for reuse. Several museums publish open-access images; the studio lists some. Check each image's terms yourself: the studio does not check rights."}},{"@type":"Question","name":"Is my design uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Designs and uploaded images stay in your browser. A share link carries the design inside the link, without uploaded images. If you add an AI key, your command text and a short description of the design go to the provider you chose; with a local model, nothing leaves your computer."}}]}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; --accent2:#2a2320; --gold:#b98a2e; --ok:#24603a; --warn:#fbf0e1;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1280px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    .eyebrow { color: var(--accent); font-weight: 800; letter-spacing: .12em; font-size: .75rem; text-transform: uppercase; margin: 0; }
+    h1 { font: 700 clamp(1.9rem, 4.6vw, 3.2rem)/1.05 Georgia, "Times New Roman", serif; letter-spacing: -.02em; margin: 8px 0 10px; max-width: 900px; }
+    .lede { max-width: 760px; line-height: 1.55; margin: 0 0 16px; }
+    a { color: var(--accent); }
+    .workspace { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 16px; align-items: start; }
+    @media (max-width: 900px) { .workspace { grid-template-columns: 1fr; } }
+    section, .panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; }
+    h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    input, select, textarea, button { font: inherit; }
+    input[type=text], input[type=number], input[type=password], select, textarea { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .btn { cursor: pointer; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--accent2); background: var(--card); color: var(--accent2); font-weight: 650; }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn[disabled] { opacity: .4; cursor: not-allowed; }
+    .btn.small { padding: 4px 10px; font-size: .85rem; }
+    .bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0; }
+    #stage { background: radial-gradient(circle at 50% 40%, #fff, #eee6da); border-radius: 12px; border: 1px solid var(--line); touch-action: none; outline: none; }
+    #stage:focus-visible { box-shadow: 0 0 0 3px #2f7de155; }
+    #stage svg { width: 100%; height: auto; display: block; max-height: 70vh; }
+    #stage .hit { cursor: move; }
+    #stage .handle { cursor: nwse-resize; }
+    #stage [data-handle=rotate] { cursor: grab; }
+    .command { display: flex; gap: 6px; }
+    .command input { flex: 1; font-size: 1.05rem; padding: 10px 12px; }
+    #mic[aria-pressed=true] { background: var(--accent); color: #fff; }
+    .log { list-style: none; padding: 0; margin: 8px 0 0; max-height: 220px; overflow: auto; font-size: .9rem; }
+    .log li { padding: 6px 0; border-top: 1px dashed var(--line); }
+    .log .words { color: var(--muted); font-style: italic; }
+    .log .miss { color: #9a3412; }
+    .engine { font-size: .75rem; color: var(--muted); }
+    .swatches { display: flex; flex-wrap: wrap; gap: 5px; }
+    .swatch { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--line); cursor: pointer; padding: 0; }
+    .swatch[aria-pressed=true] { box-shadow: 0 0 0 2px var(--accent); }
+    .motifs { display: flex; flex-wrap: wrap; gap: 6px; }
+    .motifs button { width: 54px; height: 54px; padding: 6px; border: 1px solid var(--line); border-radius: 10px; background: #fff; cursor: pointer; color: #3a2a12; }
+    .motifs svg { width: 100%; height: 100%; }
+    .variants { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .variant { border: 1px solid var(--line); border-radius: 10px; padding: 6px; background: #fff; text-align: center; font-size: .8rem; }
+    .variant svg { width: 100%; height: auto; }
+    .variant button { margin-top: 4px; }
+    .notes { background: var(--warn); border-left: 4px solid var(--gold); padding: 8px 10px; border-radius: 6px; font-size: .88rem; margin: 8px 0; }
+    .notes:empty { display: none; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; }
+    td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; vertical-align: top; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .big { font-size: 1.4rem; font-weight: 750; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin: 8px 0; }
+    .kpi { background: #faf6ef; border-radius: 10px; padding: 8px 10px; }
+    .kpi span { display: block; font-size: .78rem; color: var(--muted); }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    details > summary { cursor: pointer; font-weight: 700; }
+    pre { white-space: pre-wrap; background: #faf6ef; padding: 8px; border-radius: 8px; font-size: .85rem; max-height: 260px; overflow: auto; }
+    .muted { color: var(--muted); font-size: .88rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+    .sr { position: absolute; left: -9999px; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">Free clothing design studio</p>
+    <h1>Say what you want on the shirt. See it, change it, know what it costs.</h1>
+    <p class="lede">For independent designers starting a clothing line: design a tee, long-sleeve, sweatshirt or hoodie by talking, typing or dragging, compare three versions side by side, cost every piece from your manufacturer's prices, and download the tech pack and quote request to send them. <a href="for-independent-clothing-designers.html">Who it is for and what it does</a> · <a href="how-much-does-it-cost-to-make-a-t-shirt.html">What does a t-shirt cost to make?</a> · <a href="sunglasses.html">Sunglasses designer</a> · <a href="wardrobe.html">Wardrobe planner</a></p>
+  </header>
+
+  <div class="workspace">
+    <div>
+      <section aria-labelledby="h-design">
+        <h2 id="h-design" class="sr">Design</h2>
+        <form class="command" id="command-form" autocomplete="off">
+          <label for="command" class="sr">Tell the studio what to change</label>
+          <input id="command" type="text" placeholder='Try: make it cream and add a halo, then embroider it in 3D' aria-describedby="command-help">
+          <button type="button" class="btn" id="mic" aria-pressed="false" title="Speak a command">🎙 Speak</button>
+          <button class="btn primary" type="submit">Apply</button>
+        </form>
+        <p class="muted" id="command-help">Examples: <span id="examples"></span></p>
+        <div class="bar">
+          <button class="btn small" type="button" id="undo">Undo</button>
+          <button class="btn small" type="button" id="redo">Redo</button>
+          <button class="btn small" type="button" id="flip" aria-pressed="false">Show back</button>
+          <button class="btn small" type="button" id="variants-btn">Show 3 versions</button>
+          <button class="btn small" type="button" id="share">Copy share link</button>
+          <span class="engine" id="engine-label">Commands: built-in (no AI, nothing sent)</span>
+        </div>
+        <div id="stage" tabindex="0" aria-label="Garment preview. Drag artwork to move it, the corner handle to resize, the top dot to rotate. With the preview focused: arrow keys move, plus and minus resize, Delete removes."></div>
+        <div class="notes" id="compat" aria-live="polite"></div>
+        <ul class="log" id="log" aria-live="polite" aria-label="Changes made from commands"></ul>
+      </section>
+
+      <section id="compare" hidden aria-labelledby="h-compare">
+        <h2 id="h-compare">Three versions to compare</h2>
+        <p class="muted">Each is one change away from your design. Say "go with the second one", or click.</p>
+        <div class="variants" id="variants"></div>
+      </section>
+    </div>
+
+    <div>
+      <section aria-labelledby="h-garment">
+        <h2 id="h-garment">Garment and fabric</h2>
+        <label for="name">Design name</label>
+        <input id="name" type="text" maxlength="80">
+        <div class="row">
+          <div><label for="garment">Garment</label><select id="garment"></select></div>
+          <div><label for="fabric">Fabric</label><select id="fabric"></select></div>
+        </div>
+        <div class="row">
+          <div><label for="gsm">Fabric weight (gsm)</label><input id="gsm" type="number" min="80" max="600" step="5"></div>
+          <div><label for="colour">Garment colour</label><input id="colour" type="color" style="height:36px;padding:2px"></div>
+        </div>
+        <p class="muted" id="fabric-note"></p>
+        <div class="swatches" id="swatches" aria-label="Garment colours"></div>
+      </section>
+
+      <section aria-labelledby="h-art">
+        <h2 id="h-art">Artwork</h2>
+        <div class="motifs" id="motifs" aria-label="Add a motif"></div>
+        <div class="bar">
+          <input id="text-input" type="text" maxlength="60" placeholder="Text to add" aria-label="Text to add" style="flex:1;width:auto">
+          <button class="btn small" type="button" id="add-text">Add text</button>
+          <label class="btn small" style="margin:0">Upload image<input id="upload" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="sr"></label>
+        </div>
+        <details>
+          <summary>Public-domain paintings to start from</summary>
+          <p class="muted">Many old paintings of saints and angels are in the public domain, and these collections publish images released for reuse. Check the terms on each image: the studio does not check rights.</p>
+          <ul id="pd-sources" class="muted"></ul>
+        </details>
+        <div id="selected-panel" hidden>
+          <h3>Selected: <span id="sel-label"></span></h3>
+          <div class="row">
+            <div><label for="sel-area">Placement</label><select id="sel-area"></select></div>
+            <div><label for="sel-method">Decoration method</label><select id="sel-method"></select></div>
+          </div>
+          <div class="row3">
+            <div><label for="sel-width">Width (cm)</label><input id="sel-width" type="number" min="1" max="40" step="0.5"></div>
+            <div><label for="sel-rotate">Rotation (degrees)</label><input id="sel-rotate" type="number" min="0" max="359" step="1"></div>
+            <div><label for="sel-colours">Ink colours (screen)</label><input id="sel-colours" type="number" min="1" max="12" step="1"></div>
+          </div>
+          <div class="row">
+            <div><label for="sel-ink">Ink or thread colour</label><input id="sel-ink" type="color" style="height:36px;padding:2px"></div>
+            <div style="align-self:end"><button class="btn small" type="button" id="remove">Remove this artwork</button></div>
+          </div>
+          <p class="muted" id="method-note"></p>
+        </div>
+      </section>
+
+      <section aria-labelledby="h-cost">
+        <h2 id="h-cost">Cost, price and break-even</h2>
+        <p class="placeholder" id="example-warning">These costs use the example supplier sheet: round placeholder numbers, not a quote. Replace them with your manufacturer's prices below.</p>
+        <div class="row3">
+          <div><label for="quantity">Quantity (garments)</label><input id="quantity" type="number" min="1" step="1"></div>
+          <div><label for="price">Selling price (incl. tax)</label><input id="price" type="number" min="0" step="0.5"></div>
+          <div><label for="target">Target margin (%)</label><input id="target" type="number" min="0" max="95" step="1"></div>
+        </div>
+        <div class="row3">
+          <div><label for="tax">Sales tax / VAT in price (%)</label><input id="tax" type="number" min="0" max="30" step="0.5"></div>
+          <div><label for="channel">Shop or marketplace commission (%)</label><input id="channel" type="number" min="0" max="60" step="0.5"></div>
+          <div><label for="payfee">Card fee (%)</label><input id="payfee" type="number" min="0" max="10" step="0.1"></div>
+        </div>
+        <div class="row3">
+          <div><label for="payfixed">Card fee per order</label><input id="payfixed" type="number" min="0" max="5" step="0.05"></div>
+          <div><label for="unsold">Expected unsold (%)</label><input id="unsold" type="number" min="0" max="90" step="1"></div>
+          <div><label for="marketing">Launch marketing budget</label><input id="marketing" type="number" min="0" step="50"></div>
+        </div>
+        <output id="results" aria-live="polite"></output>
+        <details>
+          <summary>Supplier sheet (your manufacturer's prices)</summary>
+          <p class="muted">Prices per metre of fabric, per garment for cut and sew, and setup plus per-piece for each decoration method. Per-colour methods (screen, high-density, puff) multiply by the ink colours.</p>
+          <div class="row3">
+            <div><label for="s-name">Supplier name</label><input id="s-name" type="text"></div>
+            <div><label for="s-currency">Currency</label><select id="s-currency"><option>EUR</option><option>USD</option><option>GBP</option><option>CHF</option></select></div>
+            <div><label for="s-moq">Minimum order</label><input id="s-moq" type="number" min="0" step="1"></div>
+          </div>
+          <div class="row3">
+            <div><label for="s-fabric">Fabric price per metre</label><input id="s-fabric" type="number" min="0" step="0.1"></div>
+            <div><label for="s-metres">Metres per garment</label><input id="s-metres" type="number" min="0" step="0.05"></div>
+            <div><label for="s-cutsew">Cut and sew per garment</label><input id="s-cutsew" type="number" min="0" step="0.1"></div>
+          </div>
+          <div class="row3">
+            <div><label for="s-setup">Decoration setup (selected method)</label><input id="s-setup" type="number" min="0" step="1"></div>
+            <div><label for="s-perunit">Decoration per piece (selected method)</label><input id="s-perunit" type="number" min="0" step="0.1"></div>
+            <div><label for="s-wastage">Fabric wastage (%)</label><input id="s-wastage" type="number" min="0" max="50" step="1"></div>
+          </div>
+          <div class="row3">
+            <div><label for="s-trims">Labels and trims per garment</label><input id="s-trims" type="number" min="0" step="0.05"></div>
+            <div><label for="s-packaging">Packaging per garment</label><input id="s-packaging" type="number" min="0" step="0.05"></div>
+            <div><label for="s-freight">Freight to you per garment</label><input id="s-freight" type="number" min="0" step="0.05"></div>
+          </div>
+          <div class="row3">
+            <div><label for="s-duty">Import duty (%)</label><input id="s-duty" type="number" min="0" max="60" step="0.5"></div>
+          </div>
+          <div class="bar">
+            <button class="btn small" type="button" id="sheet-export">Download sheet (CSV)</button>
+            <label class="btn small" style="margin:0">Import sheet (CSV)<input id="sheet-import" type="file" accept=".csv,text/csv" class="sr"></label>
+            <button class="btn small" type="button" id="sheet-reset">Back to example numbers</button>
+          </div>
+          <p class="muted" id="sheet-status" aria-live="polite"></p>
+        </details>
+      </section>
+
+      <section aria-labelledby="h-export">
+        <h2 id="h-export">Tech pack, quote request and launch kit</h2>
+        <div class="bar">
+          <button class="btn small" type="button" id="techpack">Open printable tech pack</button>
+          <button class="btn small" type="button" id="techpack-json">Download tech pack (JSON)</button>
+          <button class="btn small" type="button" id="save-file">Save design file</button>
+          <label class="btn small" style="margin:0">Open design file<input id="open-file" type="file" accept=".json,application/json" class="sr"></label>
+        </div>
+        <details>
+          <summary>Quote request to send your manufacturer</summary>
+          <pre id="quote"></pre>
+          <button class="btn small" type="button" id="copy-quote">Copy</button>
+        </details>
+        <details>
+          <summary>Launch kit: product description, captions, hashtags, store file</summary>
+          <p class="muted">Drafts built from the design's own facts. Edit before posting; nothing is posted for you.</p>
+          <h3>Product description</h3><pre id="lk-desc"></pre>
+          <h3>Captions</h3><pre id="lk-captions"></pre>
+          <h3>Hashtags</h3><pre id="lk-tags"></pre>
+          <button class="btn small" type="button" id="lk-csv">Download store import CSV (Shopify-style)</button>
+        </details>
+      </section>
+
+      <section aria-labelledby="h-ai">
+        <h2 id="h-ai">Optional: a model for freer speech</h2>
+        <p class="muted">Off by default. The built-in commands need no AI. With your own key, or a model on your own computer (Ollama, LM Studio, llama.cpp), the model rewrites what you say into the same commands, so it can only do what a typed command could, and every change is listed with an Undo. Your words and a one-line description of the design go to the provider you pick; nothing goes to us.</p>
+        <div class="row">
+          <div><label for="ai-provider">Provider</label>
+            <select id="ai-provider"><option value="">Off (built-in commands)</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="ollama">Ollama on this computer</option><option value="lmstudio">LM Studio on this computer</option><option value="llamacpp">llama.cpp on this computer</option></select></div>
+          <div><label for="ai-model">Model name</label><input id="ai-model" type="text" placeholder="e.g. llama3.2"></div>
+        </div>
+        <label for="ai-key">API key (hosted providers only)</label>
+        <input id="ai-key" type="password" autocomplete="off">
+        <label style="font-weight:400"><input id="ai-remember" type="checkbox"> Remember the key in this browser</label>
+      </section>
+    </div>
+  </div>
+
+  <section id="faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <h3>Do I need to pay or sign up?</h3>
+    <p>No. The studio is free and open source (MIT) and runs in your browser. The command box understands a fixed set of design commands with no AI at all. If you want it to understand freer speech, you can add your own AI key or point it at a model running on your own computer; that is optional and never required.</p>
+    <h3>Where do the prices come from?</h3>
+    <p>From your manufacturer. The studio ships an example sheet with round placeholder numbers so the page has something to show, and it says so next to every figure. Type your manufacturer&#x27;s quote in, or import it as a CSV, and every cost on the page uses it.</p>
+    <h3>Can it print a 3D, raised design?</h3>
+    <p>It lets you choose raised methods (high-density screen print, puff print and 3D puff embroidery) and draws them with a shadow so you can see the effect. It also notes where a raised method suits the artwork poorly, for example fine painted detail, which usually reproduces better flat with the raised ink on an outline or halo.</p>
+    <h3>Can I put a famous old painting on a shirt?</h3>
+    <p>Often, if the painting is in the public domain and the photograph you use is released for reuse. Several museums publish open-access images; the studio lists some. Check each image&#x27;s terms yourself: the studio does not check rights.</p>
+    <h3>Is my design uploaded?</h3>
+    <p>No. Designs and uploaded images stay in your browser. A share link carries the design inside the link, without uploaded images. If you add an AI key, your command text and a short description of the design go to the provider you chose; with a local model, nothing leaves your computer.</p>
+  </section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, manufacturing or intellectual-property advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including the rights to any artwork you use, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser. Your designs, images and prices are saved in this browser's local storage and never uploaded; we have no accounts, tracking cookies or analytics vendor. Speaking a command uses your browser's own speech recognition, which in Chrome and Edge sends the audio to the browser maker to be transcribed (the page asks first). If you add an AI key, your command text goes to the provider you chose. We count anonymous events in this browser only (which features get used, nothing you typed). <button class="btn small" type="button" id="optout">Turn usage counting off</button> <span id="optout-status"></span></p>
+    <p>Free and open source under the <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Request a feature or give feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the work (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+
+  <script type="module">
+    import { GARMENTS, FABRICS, METHODS, COLOURS, PX_PER_CM, compatibilityNotes } from "./catalogue.mjs";
+    import { MOTIFS, PUBLIC_DOMAIN_SOURCES } from "./motifs.mjs";
+    import { newDesign, History, variants, applyOp, encodeDesign, decodeDesign, sanitizeDesign, OpError } from "./design.mjs";
+    import { EXAMPLES } from "./commands.mjs";
+    import { interpret } from "./ai.mjs";
+    import { renderDesign, placementBox, esc } from "./render.mjs";
+    import { EXAMPLE_SUPPLIER, supplierToCsv, supplierFromCsv } from "./suppliers.mjs";
+    import { economics, quantityBreaks, money, DEFAULT_PLAN } from "./costing.mjs";
+    import { techPack, techPackHtml, quoteRequest } from "./techpack.mjs";
+    import { launchKit } from "./launchkit.mjs";
+    import { recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = s => document.querySelector(s);
+    const DESIGN_KEY = "clothing-design-studio-design";
+    const SHEET_KEY = "clothing-design-studio-sheet";
+    const PLAN_KEY = "clothing-design-studio-plan";
+    const AI_KEY = "clothing-design-studio-ai";
+    const store = {
+      get(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } },
+      set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } },
+    };
+
+    // ---- state ----
+    let initial = null;
+    const hash = new URLSearchParams(location.hash.slice(1)).get("d");
+    if (hash) { try { initial = decodeDesign(hash); } catch { initial = null; } }
+    if (!initial) { const saved = store.get(DESIGN_KEY); if (saved) initial = sanitizeDesign(saved); }
+    if (!initial) {
+      initial = newDesign({ name: "Halo tee" });
+      initial = applyOp(initial, { op: "add", kind: "motif", motif: "halo", label: "Sunburst halo", method: "high-density", colours: 1, w: 20 });
+    }
+    const history = new History(initial);
+    let sheet = store.get(SHEET_KEY) ?? structuredClone(EXAMPLE_SUPPLIER);
+    let plan = { ...DEFAULT_PLAN, ...(store.get(PLAN_KEY) || {}) };
+    let currentVariants = [];
+    const d = () => history.present;
+
+    // ---- static controls ----
+    $("#examples").innerHTML = EXAMPLES.slice(0, 6).map(e => `<button type="button" class="btn small ex">${esc(e)}</button>`).join(" ");
+    document.querySelectorAll(".ex").forEach(b => b.addEventListener("click", () => { $("#command").value = b.textContent; runCommand(b.textContent, "example"); }));
+    $("#garment").innerHTML = Object.values(GARMENTS).map(g => `<option value="${g.id}">${g.label}</option>`).join("");
+    $("#fabric").innerHTML = Object.values(FABRICS).map(f => `<option value="${f.id}">${f.label} (${f.gsm[0]}–${f.gsm[1]} gsm)</option>`).join("");
+    $("#sel-method").innerHTML = Object.values(METHODS).map(m => `<option value="${m.id}">${m.label}</option>`).join("");
+    const swatchNames = ["black", "white", "cream", "bone", "heather grey", "charcoal", "navy", "burgundy", "forest green", "olive", "sage", "sand", "chocolate", "dusty pink", "sky blue"];
+    $("#swatches").innerHTML = swatchNames.map(n => `<button type="button" class="swatch" data-colour="${n}" title="${n}" aria-label="${n}" style="background:${COLOURS[n]}"></button>`).join("");
+    $("#motifs").innerHTML = Object.values(MOTIFS).map(m => `<button type="button" data-motif="${m.id}" title="Add ${m.label}" aria-label="Add ${m.label}"><svg viewBox="0 0 100 100">${m.svg}</svg></button>`).join("");
+    $("#pd-sources").innerHTML = PUBLIC_DOMAIN_SOURCES.map(s => `<li><a href="${s.url}" rel="noopener" target="_blank">${esc(s.name)}</a></li>`).join("");
+
+    // ---- applying changes ----
+    function commit(ops, event = "edit") {
+      try {
+        history.apply(ops);
+        recordUsage(event);
+        render();
+        return null;
+      } catch (e) {
+        if (e instanceof OpError) return e.message;
+        throw e;
+      }
+    }
+
+    const log = (html, cls = "") => {
+      const li = document.createElement("li");
+      li.className = cls;
+      li.innerHTML = html;
+      $("#log").prepend(li);
+    };
+
+    function aiConfig() {
+      const provider = $("#ai-provider").value;
+      if (!provider) return null;
+      return { provider, model: $("#ai-model").value.trim() || undefined, apiKey: $("#ai-key").value.trim() || undefined, browser: true };
+    }
+
+    async function runCommand(text, via = "typed") {
+      if (!text.trim()) return;
+      const out = await interpret(text, d(), aiConfig());
+      recordUsage(via === "voice" ? "voice_command" : "command");
+      const engine = out.source === "model" ? `model (${out.local ? "on your computer" : $("#ai-provider").value})` : "built-in";
+      $("#engine-label").textContent = `Last command: ${engine}${out.error ? ` (model failed: ${out.error}; used built-in)` : ""}`;
+      for (const step of out.result.steps) {
+        let err = null;
+        for (const u of step.ui) {
+          if (u.ui === "undo") { history.undo(); render(); }
+          else if (u.ui === "redo") { history.redo(); render(); }
+          else if (u.ui === "variants") showVariants();
+          else if (u.ui === "pick") pickVariant(u.index - 1);
+          else if (u.ui === "techpack") openTechPack();
+          else if (u.ui === "upload") $("#upload").click();
+        }
+        if (step.ops.length) err = commit(step.ops, "command_op");
+        log(`${err ? `<span class="miss">Could not: ${esc(err)}</span>` : esc(step.did)} <span class="words">“${esc(step.words)}”</span> <span class="engine">${engine}</span>`);
+      }
+      for (const miss of out.result.unmatched) log(`<span class="miss">Not understood:</span> <span class="words">“${esc(miss)}”</span> <span class="engine">Try one of the examples, or add a model below.</span>`);
+    }
+
+    $("#command-form").addEventListener("submit", e => { e.preventDefault(); const t = $("#command").value; $("#command").value = ""; runCommand(t); });
+    $("#undo").addEventListener("click", () => { history.undo(); render(); });
+    $("#redo").addEventListener("click", () => { history.redo(); render(); });
+    $("#flip").addEventListener("click", () => commit({ op: "side", value: d().side === "front" ? "back" : "front" }, "flip"));
+
+    // ---- speech (opt-in) ----
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let rec = null;
+    let speechOk = false;
+    $("#mic").addEventListener("click", () => {
+      if (!Recognition) { log('<span class="miss">This browser has no speech recognition. Chrome, Edge and Safari do; or type the command.</span>'); return; }
+      if (rec) { rec.stop(); return; }
+      if (!speechOk) {
+        speechOk = confirm("Speaking uses your browser's built-in speech recognition. In Chrome and Edge your audio is sent to Google or Microsoft to be turned into text; Safari can do it on your device. Nothing is sent to us. Continue?");
+        if (!speechOk) return;
+      }
+      rec = new Recognition();
+      rec.lang = navigator.language || "en-US";
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.onresult = ev => {
+        for (let i = ev.resultIndex; i < ev.results.length; i++) {
+          const r = ev.results[i];
+          $("#command").value = r[0].transcript;
+          if (r.isFinal) { $("#command").value = ""; runCommand(r[0].transcript, "voice"); }
+        }
+      };
+      rec.onend = () => { rec = null; $("#mic").setAttribute("aria-pressed", "false"); $("#mic").textContent = "🎙 Speak"; };
+      rec.onerror = ev => log(`<span class="miss">Speech stopped: ${esc(ev.error)}</span>`);
+      rec.start();
+      $("#mic").setAttribute("aria-pressed", "true");
+      $("#mic").textContent = "■ Stop";
+    });
+
+    // ---- direct manipulation ----
+    const stage = $("#stage");
+    let drag = null;
+    function svgPoint(ev) {
+      const svg = stage.querySelector("svg");
+      const pt = svg.createSVGPoint();
+      pt.x = ev.clientX; pt.y = ev.clientY;
+      return pt.matrixTransform(svg.getScreenCTM().inverse());
+    }
+    stage.addEventListener("pointerdown", ev => {
+      const t = ev.target.closest("[data-id]");
+      if (!t) return;
+      const id = Number(t.dataset.id);
+      const start = d().selected === id ? d() : applyOp(d(), { op: "select", id });
+      const p = start.placements.find(q => q.id === id);
+      drag = { id, mode: t.dataset.handle || "move", start, from: svgPoint(ev), p, box: placementBox(start, p), moved: false };
+      stage.setPointerCapture(ev.pointerId);
+      if (start !== d()) { history.replace(start); render(); }
+      ev.preventDefault();
+    });
+    stage.addEventListener("pointermove", ev => {
+      if (!drag) return;
+      const at = svgPoint(ev);
+      let next;
+      if (drag.mode === "move") {
+        next = applyOp(drag.start, { op: "moveTo", x: drag.p.x + (at.x - drag.from.x) / PX_PER_CM, y: drag.p.y + (at.y - drag.from.y) / PX_PER_CM });
+      } else if (drag.mode === "scale") {
+        const d0 = Math.hypot(drag.from.x - drag.box.cx, drag.from.y - drag.box.cy) || 1;
+        const d1 = Math.hypot(at.x - drag.box.cx, at.y - drag.box.cy);
+        next = applyOp(drag.start, { op: "width", value: drag.p.w * (d1 / d0) });
+      } else {
+        const ang = Math.atan2(at.y - drag.box.cy, at.x - drag.box.cx) * 180 / Math.PI + 90;
+        next = applyOp(drag.start, { op: "rotate", deg: Math.round(ang / 5) * 5 - (drag.p.rotate || 0) });
+      }
+      drag.moved = true;
+      history.present = next;
+      renderStage();
+    });
+    const endDrag = () => {
+      if (!drag) return;
+      if (drag.moved) {
+        const final = history.present;
+        history.present = drag.start;
+        history.replace(final);
+        recordUsage(`drag_${drag.mode}`);
+      }
+      drag = null;
+      render();
+    };
+    stage.addEventListener("pointerup", endDrag);
+    stage.addEventListener("pointercancel", endDrag);
+    stage.addEventListener("keydown", ev => {
+      if (!d().placements.length) return;
+      const step = ev.shiftKey ? 2 : 0.5;
+      const map = { ArrowUp: { op: "move", dx: 0, dy: -step }, ArrowDown: { op: "move", dx: 0, dy: step }, ArrowLeft: { op: "move", dx: -step, dy: 0 }, ArrowRight: { op: "move", dx: step, dy: 0 },
+        "+": { op: "scale", factor: 1.05 }, "=": { op: "scale", factor: 1.05 }, "-": { op: "scale", factor: 0.95 }, Delete: { op: "remove" }, Backspace: { op: "remove" } };
+      if ((ev.ctrlKey || ev.metaKey) && ev.key === "z") { history.undo(); render(); ev.preventDefault(); return; }
+      const op = map[ev.key];
+      if (op) { commit(op, "keyboard"); ev.preventDefault(); }
+    });
+
+    // ---- form controls ----
+    $("#name").addEventListener("change", e => commit({ op: "name", value: e.target.value }));
+    $("#garment").addEventListener("change", e => commit({ op: "garment", value: e.target.value }));
+    $("#fabric").addEventListener("change", e => commit({ op: "fabric", value: e.target.value }));
+    $("#gsm").addEventListener("change", e => { const err = commit({ op: "gsm", value: e.target.value }); if (err) log(`<span class="miss">${esc(err)}</span>`); });
+    $("#colour").addEventListener("change", e => commit({ op: "colour", value: e.target.value, name: e.target.value }));
+    $("#swatches").addEventListener("click", e => { const b = e.target.closest("[data-colour]"); if (b) commit({ op: "colour", value: b.dataset.colour }, "swatch"); });
+    $("#motifs").addEventListener("click", e => { const b = e.target.closest("[data-motif]"); if (b) commit({ op: "add", kind: "motif", motif: b.dataset.motif, label: MOTIFS[b.dataset.motif].label }, "add_motif"); });
+    $("#add-text").addEventListener("click", () => { const t = $("#text-input").value.trim(); if (t) { commit({ op: "add", kind: "text", text: t, label: `"${t}"` }, "add_text"); $("#text-input").value = ""; } });
+    $("#sel-area").addEventListener("change", e => commit({ op: "area", value: e.target.value }));
+    $("#sel-method").addEventListener("change", e => commit({ op: "method", value: e.target.value }));
+    $("#sel-width").addEventListener("change", e => commit({ op: "width", value: e.target.value }));
+    $("#sel-rotate").addEventListener("change", e => { const p = selected(); if (p) commit({ op: "rotate", deg: Number(e.target.value) - (p.rotate || 0) }); });
+    $("#sel-colours").addEventListener("change", e => commit({ op: "inkColours", value: e.target.value }));
+    $("#sel-ink").addEventListener("change", e => { const err = commit({ op: "ink", value: e.target.value }); if (err) log(`<span class="miss">${esc(err)}</span>`); });
+    $("#remove").addEventListener("click", () => commit({ op: "remove" }));
+
+    $("#upload").addEventListener("change", async e => {
+      const file = e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      const src = await downscale(file, 1400);
+      const img = new Image();
+      img.onload = () => commit({ op: "add", kind: "image", src, aspect: img.naturalHeight / img.naturalWidth || 1, label: file.name.slice(0, 40), method: "dtg" }, "upload_image");
+      img.src = src;
+    });
+    function downscale(file, max) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = () => {
+          if (file.type === "image/svg+xml") return resolve(reader.result);
+          const img = new Image();
+          img.onload = () => {
+            const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+            const c = document.createElement("canvas");
+            c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+            c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+            resolve(c.toDataURL(file.type === "image/png" ? "image/png" : "image/jpeg", 0.88));
+          };
+          img.onerror = reject;
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // plan and supplier inputs
+    const planFields = { target: "targetMarginPct", tax: "salesTaxPct", channel: "channelFeePct", payfee: "paymentFeePct", payfixed: "paymentFixed", unsold: "unsoldPct", marketing: "marketingBudget" };
+    for (const [id, key] of Object.entries(planFields)) {
+      $("#" + id).value = plan[key];
+      $("#" + id).addEventListener("input", e => { const v = Number(e.target.value); if (Number.isFinite(v) && v >= 0) { plan[key] = v; store.set(PLAN_KEY, plan); renderCost(); } });
+    }
+    $("#quantity").addEventListener("change", e => commit({ op: "quantity", value: e.target.value }));
+    $("#price").addEventListener("change", e => commit({ op: "price", value: e.target.value }));
+
+    function sheetEdited(mutate) {
+      sheet = structuredClone(sheet);
+      if (sheet.example) { sheet.example = false; sheet.name = "My supplier"; sheet.id = "mine"; }
+      mutate(sheet);
+      store.set(SHEET_KEY, sheet);
+      render();
+    }
+    const sheetNum = (id, fn) => $("#" + id).addEventListener("change", e => { const v = Number(e.target.value); if (Number.isFinite(v) && v >= 0) sheetEdited(s => fn(s, v)); });
+    $("#s-name").addEventListener("change", e => sheetEdited(s => { s.name = e.target.value.slice(0, 120) || s.name; }));
+    $("#s-currency").addEventListener("change", e => sheetEdited(s => { s.currency = e.target.value; }));
+    sheetNum("s-moq", (s, v) => { s.moq = v; });
+    sheetNum("s-fabric", (s, v) => { s.fabrics[d().fabric] = v; });
+    sheetNum("s-metres", (s, v) => { s.metresPerGarment[d().garment] = v; });
+    sheetNum("s-cutsew", (s, v) => { s.cutAndSew[d().garment] = v; });
+    sheetNum("s-setup", (s, v) => { const p = selected(); if (p) s.methods[p.method] = { ...(s.methods[p.method] || { perUnit: 0 }), setup: v }; });
+    sheetNum("s-perunit", (s, v) => { const p = selected(); if (p) s.methods[p.method] = { ...(s.methods[p.method] || { setup: 0 }), perUnit: v }; });
+    sheetNum("s-wastage", (s, v) => { s.wastagePct = v; });
+    sheetNum("s-trims", (s, v) => { s.trimsPerUnit = v; });
+    sheetNum("s-packaging", (s, v) => { s.packagingPerUnit = v; });
+    sheetNum("s-freight", (s, v) => { s.freightPerUnit = v; });
+    sheetNum("s-duty", (s, v) => { s.dutyPct = v; });
+    $("#sheet-export").addEventListener("click", () => download(`${slugify(sheet.name)}.csv`, supplierToCsv(sheet), "text/csv"));
+    $("#sheet-import").addEventListener("change", async e => {
+      const f = e.target.files[0]; e.target.value = "";
+      if (!f) return;
+      try { sheet = supplierFromCsv(await f.text()); store.set(SHEET_KEY, sheet); $("#sheet-status").textContent = `Imported ${sheet.name}.`; recordUsage("sheet_import"); render(); }
+      catch (err) { $("#sheet-status").textContent = `Could not import: ${err.message}`; }
+    });
+    $("#sheet-reset").addEventListener("click", () => { sheet = structuredClone(EXAMPLE_SUPPLIER); try { localStorage.removeItem(SHEET_KEY); } catch {} render(); });
+
+    // exports
+    function openTechPack() {
+      const w = window.open("", "_blank");
+      if (!w) { log('<span class="miss">The browser blocked the new tab; allow pop-ups for this page, or download the JSON.</span>'); return; }
+      w.document.write(techPackHtml(d()));
+      w.document.close();
+      recordUsage("techpack_open");
+    }
+    $("#techpack").addEventListener("click", openTechPack);
+    $("#techpack-json").addEventListener("click", () => { download(`${slugify(d().name)}-tech-pack.json`, JSON.stringify(techPack(d(), { supplier: sheet }), null, 2), "application/json"); recordUsage("techpack_json"); });
+    $("#save-file").addEventListener("click", () => download(`${slugify(d().name)}.design.json`, JSON.stringify(d(), null, 2), "application/json"));
+    $("#open-file").addEventListener("change", async e => {
+      const f = e.target.files[0]; e.target.value = "";
+      if (!f) return;
+      try { history.replace(sanitizeDesign(JSON.parse(await f.text()))); render(); } catch { log('<span class="miss">That file is not a design saved by this studio.</span>'); }
+    });
+    $("#copy-quote").addEventListener("click", () => navigator.clipboard?.writeText($("#quote").textContent).then(() => recordUsage("quote_copy")));
+    $("#lk-csv").addEventListener("click", () => { download(`${slugify(d().name)}-products.csv`, launchKit(d()).storeCsv, "text/csv"); recordUsage("store_csv"); });
+    $("#share").addEventListener("click", () => {
+      const url = `${location.href.split("#")[0]}#d=${encodeDesign(d())}`;
+      navigator.clipboard?.writeText(url);
+      log(`Share link copied${d().placements.some(p => p.kind === "image") ? " (uploaded images are not in the link; send the design file instead)" : ""}.`);
+      recordUsage("share_link");
+    });
+    function download(name, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    const slugify = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "design";
+
+    // variants
+    function showVariants() {
+      currentVariants = variants(d());
+      $("#compare").hidden = false;
+      $("#variants").innerHTML = currentVariants.map((v, i) => `<div class="variant"><strong>${i + 1}. ${esc(v.label)}</strong>${renderDesign(v.design, { uid: "v" + i, side: v.design.placements.find(p => p.id === v.design.selected)?.area === "back" ? "back" : v.design.side })}<div class="muted">${esc(v.why)}</div><button class="btn small" type="button" data-pick="${i}">Use this one</button></div>`).join("");
+      recordUsage("variants");
+    }
+    function pickVariant(i) {
+      if (!currentVariants.length) showVariants();
+      const v = currentVariants[i];
+      if (!v) return;
+      history.replace(v.design);
+      log(`Using version ${i + 1}: ${esc(v.label)}`);
+      recordUsage("variant_pick");
+      render();
+      showVariants();
+    }
+    $("#variants-btn").addEventListener("click", showVariants);
+    $("#variants").addEventListener("click", e => { const b = e.target.closest("[data-pick]"); if (b) pickVariant(Number(b.dataset.pick)); });
+
+    // AI settings
+    const savedAi = store.get(AI_KEY);
+    if (savedAi) { $("#ai-provider").value = savedAi.provider || ""; $("#ai-model").value = savedAi.model || ""; $("#ai-key").value = savedAi.apiKey || ""; $("#ai-remember").checked = !!savedAi.apiKey; }
+    const saveAi = () => {
+      const v = { provider: $("#ai-provider").value, model: $("#ai-model").value };
+      if ($("#ai-remember").checked) v.apiKey = $("#ai-key").value;
+      store.set(AI_KEY, v);
+      $("#engine-label").textContent = v.provider ? `Commands: ${v.provider} model, built-in if it fails` : "Commands: built-in (no AI, nothing sent)";
+    };
+    ["#ai-provider", "#ai-model", "#ai-key", "#ai-remember"].forEach(s => $(s).addEventListener("change", saveAi));
+
+    // usage opt-out
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); $("#optout").disabled = true; $("#optout").textContent = "Usage counting is off"; $("#optout-status").textContent = "Local counts deleted. Nothing had left this device anyway."; });
+    if (usageOptedOut()) { $("#optout").disabled = true; $("#optout").textContent = "Usage counting is off"; }
+
+    // ---- rendering ----
+    const selected = () => d().placements.find(p => p.id === d().selected) ?? null;
+
+    function renderStage() {
+      stage.innerHTML = renderDesign(d(), { guides: true, interactive: true, uid: "stage" });
+    }
+
+    function renderCost() {
+      const design = d();
+      let html = "";
+      try {
+        const e = economics(design, sheet, plan);
+        const c = e.currency;
+        html += `<div class="kpis">
+          <div class="kpi"><span>Cost per garment, landed</span><div class="big">${money(e.cost.landed, c)}</div></div>
+          <div class="kpi"><span>Left per sale after cost, tax and fees</span><div class="big">${money(e.profitPerSale, c)}</div></div>
+          <div class="kpi"><span>Margin</span><div class="big">${e.marginPct ?? "n/a"}%</div></div>
+          <div class="kpi"><span>Sales to break even</span><div class="big">${e.breakEvenUnits ?? "never"}</div></div>
+          <div class="kpi"><span>Cash needed up front</span><div class="big">${money(e.cashUpFront, c)}</div></div>
+          <div class="kpi"><span>Price for a ${plan.targetMarginPct}% margin</span><div class="big">${money(e.priceForTargetMargin, c)}</div></div>
+        </div>`;
+        html += `<p class="muted">If ${e.sellableUnits} of ${design.quantity} sell at ${money(e.price, c)}: ${e.profitIfSellable >= 0 ? "profit" : "loss"} of ${money(Math.abs(e.profitIfSellable), c)} after the run and the launch budget.</p>`;
+        if (e.notes.length) html += `<div class="notes">${e.notes.map(esc).join("<br>")}</div>`;
+        html += `<table><caption class="sr">Cost per garment</caption><tr><th>Cost per garment</th><th class="num">${c}</th><th>How</th></tr>${e.cost.lines.map(l => `<tr><td>${esc(l.label)}</td><td class="num">${l.value.toFixed(2)}</td><td class="muted">${esc(l.detail)}</td></tr>`).join("")}<tr><th>Landed</th><th class="num">${e.cost.landed.toFixed(2)}</th><td></td></tr></table>`;
+        html += `<h3>Cost per garment at other run sizes</h3><table><tr>${quantityBreaks(design, sheet).map(q => `<th class="num">${q.quantity}${q.belowMoq ? "*" : ""}</th>`).join("")}</tr><tr>${quantityBreaks(design, sheet).map(q => `<td class="num">${q.landed.toFixed(2)}</td>`).join("")}</tr></table>${sheet.moq ? `<p class="muted">* below the minimum order of ${sheet.moq}.</p>` : ""}`;
+      } catch (err) {
+        html = `<p class="notes">${esc(err.message)} Fill it in under "Supplier sheet".</p>`;
+      }
+      $("#results").innerHTML = html;
+      $("#example-warning").hidden = !sheet.example;
+    }
+
+    function render() {
+      const design = d();
+      renderStage();
+      $("#name").value = design.name;
+      $("#garment").value = design.garment;
+      $("#fabric").value = design.fabric;
+      $("#gsm").value = design.gsm;
+      $("#colour").value = design.colour;
+      $("#quantity").value = design.quantity;
+      $("#price").value = design.price;
+      $("#fabric-note").textContent = FABRICS[design.fabric].note;
+      $("#flip").textContent = design.side === "front" ? "Show back" : "Show front";
+      $("#flip").setAttribute("aria-pressed", String(design.side === "back"));
+      document.querySelectorAll(".swatch").forEach(b => b.setAttribute("aria-pressed", String(COLOURS[b.dataset.colour] === design.colour)));
+      $("#undo").disabled = !history.past.length;
+      $("#redo").disabled = !history.future.length;
+      const p = selected();
+      $("#selected-panel").hidden = !p;
+      if (p) {
+        $("#sel-label").textContent = p.kind === "text" ? `text "${p.text}"` : p.label || p.kind;
+        $("#sel-area").innerHTML = Object.entries(GARMENTS[design.garment].areas).map(([id, a]) => `<option value="${id}">${a.label}</option>`).join("");
+        $("#sel-area").value = p.area;
+        $("#sel-method").value = p.method;
+        $("#sel-width").value = p.w;
+        $("#sel-rotate").value = p.rotate || 0;
+        $("#sel-colours").value = p.colours || 1;
+        $("#sel-colours").disabled = METHODS[p.method].setup !== "per-colour";
+        $("#sel-ink").disabled = p.kind === "image";
+        if (p.ink) $("#sel-ink").value = p.ink;
+        $("#method-note").textContent = METHODS[p.method].note;
+      }
+      const notes = [...new Set(design.placements.flatMap(q => compatibilityNotes(design.fabric, q.method, { colour: design.colour, gsm: design.gsm })))];
+      $("#compat").innerHTML = notes.map(esc).join("<br>");
+      // supplier fields for the current garment, fabric and method
+      $("#s-name").value = sheet.name;
+      $("#s-currency").value = sheet.currency;
+      $("#s-moq").value = sheet.moq ?? "";
+      $("#s-fabric").value = sheet.fabrics[design.fabric] ?? "";
+      $("#s-metres").value = sheet.metresPerGarment[design.garment] ?? "";
+      $("#s-cutsew").value = sheet.cutAndSew[design.garment] ?? "";
+      $("#s-setup").value = p ? sheet.methods[p.method]?.setup ?? "" : "";
+      $("#s-perunit").value = p ? sheet.methods[p.method]?.perUnit ?? "" : "";
+      $("#s-setup").disabled = $("#s-perunit").disabled = !p;
+      $("#s-wastage").value = sheet.wastagePct ?? 0;
+      $("#s-trims").value = sheet.trimsPerUnit ?? 0;
+      $("#s-packaging").value = sheet.packagingPerUnit ?? 0;
+      $("#s-freight").value = sheet.freightPerUnit ?? 0;
+      $("#s-duty").value = sheet.dutyPct ?? 0;
+      renderCost();
+      $("#quote").textContent = quoteRequest(design);
+      const kit = launchKit(design);
+      $("#lk-desc").textContent = kit.description;
+      $("#lk-captions").textContent = kit.captions.join("\n\n");
+      $("#lk-tags").textContent = kit.hashtags.join(" ");
+      if (!store.set(DESIGN_KEY, design)) {
+        store.set(DESIGN_KEY, { ...design, placements: design.placements.filter(q => q.kind !== "image") });
+      }
+    }
+
+    render();
+    recordUsage("open");
+  </script>
+</body>
+</html>

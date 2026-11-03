@@ -44,6 +44,18 @@
    "updated": "2026-11-02",
    "project": "portfolio/monetization",
    "next": "Plan and per-product models written; `python3 portfolio/monetization/monetization.py next` names the next step (first: a dark paid path on wall-framing-takeoff). No sale yet: the payout rail waits on the owner."
+  },
+  {
+   "id": "R-0005",
+   "title": "AI-assisted clothing and accessories design, from idea to factory and store",
+   "received": "2026-11-03",
+   "source": "owner",
+   "kind": "product",
+   "ask": "AI agent assisted, software assisted clothing design, where the software handles basically everything including marketing, distribution, manufacturing and manufacturer deals. The designer works in a web browser (and later VR) by voice and by pointing and clicking: describe the garment, get a rendering, give spoken or manual feedback, compare versions. Fabric choices come from what manufacturers offer, with prices, so the designer knows what each shirt costs. From an interview with a designer planning a unisex line with raised, '3D' prints of classical and devotional paintings, sold in Europe and the US, possibly with other brands on the same site for a commission. A second interview added: sunglasses with the brand's logo on the frame and case, starting from a stock frame a manufacturer makes, with the measurements chosen (they estimated about 20 euros to make and 60 to 70 to sell); full-wardrobe sets, started small and limited, with pricing tiers that change fabric quality, and fitted to the target audience (age band, gender, style, climate, season); pieces both in-house and from other brands; and trying garments on virtually, by AI or AR.",
+   "status": "building",
+   "updated": "2026-11-03",
+   "project": "ventures/clothing-design-studio",
+   "next": "Live: the studio (voice/typed and drag design, three alternatives, costing, tech pack, quote request, launch kit), a sunglasses designer (stock frame, size, logos, case, cost, quote request with the EU/US test reports) and a wardrobe planner (capsule for an audience, outfit count, in-house vs partner pieces, first drop within a budget). Unproven: whether the designer gets a real garment or pair quoted with it. Next: their artwork and real quotes through it; a printable colour separation from an uploaded painting; then 3D, VR and try-on (ROADMAP.md)."
   }
  ]
 }
