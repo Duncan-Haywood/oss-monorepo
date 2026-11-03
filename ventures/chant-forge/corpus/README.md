@@ -1,7 +1,35 @@
 # Corpus
 
-Public-domain chant in GABC, one file per piece. It is empty on purpose until a
-piece has been transcribed from a source anyone can check.
+Public-domain chant in GABC, one file per piece. Each file's header names the
+book and page it was transcribed from.
+
+## Pieces (added 2026-11-03)
+
+| File | GregoBase id | Source named in the file | Mode |
+|---|---|---|---|
+| `dies-irae.gabc` | 3441 | Graduale Romanum (Vatican), 1908, p. 83* | 1 |
+| `pange-lingua.gabc` | 3855 | Graduale Romanum (Vatican), 1908, p. 123* (first verse only) | 3 |
+| `veni-creator.gabc` | 3431 | Graduale Romanum (Vatican), 1908, p. 121* (first verse only) | 8 |
+| `te-deum.gabc` | 16704 | Graduale Romanum, Solesmes, 1974, p. 841 | 3 |
+| `salve-regina.gabc` | 2715 | Liber Usualis, 1961, p. 276 (simple tone) | 1 |
+
+Files are unmodified GregoBase downloads (`download.php?id=N&format=gabc&elem=1`).
+Their headers carry the original transcribers. `chant-forge.test.mjs` parses
+every file here and checks the final against the `mode:` header.
+
+## Licence of the GregoBase files
+
+GregoBase's FAQ (gregobase.selapa.net, read 2026-11-03) says: "All chant
+transcriptions are released under CC0 (a.k.a. Public Domain) license." So the
+GABC text is usable. Two caveats:
+
+- The Te Deum (1974) and Salve Regina (1961) come from post-1929 books. The
+  melodies are old and GregoBase releases its transcription as CC0, but we
+  have not checked those two against a pre-1929 scan. The three Vatican 1908
+  pieces are the cleanest. A pre-1929 source for those two is wanted before a
+  release.
+- Nobody here has compared the transcriptions with the page scans. They are
+  as good as GregoBase's volunteers.
 
 Each file's header carries:
 
@@ -20,6 +48,6 @@ Rules:
   printed before 1929 (US public domain). A newer edition can carry its own
   copyright: check before using it.
 - **Third-party transcriptions** (GregoBase and the like): record their licence
-  here before copying any of them. It was not checked as of 2026-11-03.
+  here before copying any of them (done for GregoBase above).
 - **Every piece must pass** `node ../cli.mjs piece.gabc`'s mode/final check, or
   the file must say why it doesn't (for example, a transposed final).

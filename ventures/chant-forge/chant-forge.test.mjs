@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, mkdtempSync } from 'node:fs';
+import { readFileSync, readdirSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parseGabc, pitchToMidi, fitToBars, transposeToFinal, summarize, noteName } from './gabc.mjs';
@@ -100,4 +100,17 @@ test('CLI prints a summary and writes a .mid', () => {
   assert.equal(s.bars, 2);
   assert.equal(readFileSync(out).subarray(0, 4).toString('ascii'), 'MThd');
   assert.equal(run([]).code, 2);
+});
+
+test('every corpus piece parses, names its source, and ends on its mode final', () => {
+  const dir = join(here, 'corpus');
+  const files = readdirSync(dir).filter((f) => f.endsWith('.gabc'));
+  assert.ok(files.length >= 5);
+  for (const f of files) {
+    const p = parseGabc(readFileSync(join(dir, f), 'utf8'));
+    assert.ok(p.header.book || p.header.source, `${f} names no book`);
+    const s = summarize(p);
+    assert.ok(s.notes > 20, `${f} has too few notes`);
+    assert.equal(s.modeFinalMatches, true, `${f}: final ${s.final} does not fit mode ${s.mode}`);
+  }
 });
