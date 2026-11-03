@@ -140,8 +140,15 @@ export function bpmRange(genre) {
   return GENRES[genre].bpm;
 }
 
-// arrange({ genre, mode, final, bars }) -> { drums, bass, chords, mode, progression }
-export function arrange({ genre, mode, final, bars }) {
+// A snare roll on the last beat of every fourth bar (a crescendo of sixteenths), so the
+// four-bar loop announces its turn. Adds hits only; it never removes the bar's own.
+export function fillBar(t0, bar) {
+  if (bar % 4 !== 3) return [];
+  return [0, 1, 2, 3].map((i) => e(t0 + 3 * PPQ + i * step, D.snare, step, 70 + i * 14));
+}
+
+// arrange({ genre, mode, final, bars, fills }) -> { drums, bass, chords, mode, progression }
+export function arrange({ genre, mode, final, bars, fills = false }) {
   if (!GENRES[genre]) throw new Error(`unknown genre ${genre}; use one of ${GENRE_NAMES.join(', ')}`);
   if (!Number.isInteger(final)) throw new Error('final must be a MIDI number');
   if (!Number.isInteger(bars) || bars < 1) throw new Error('bars must be a positive integer');
@@ -152,6 +159,7 @@ export function arrange({ genre, mode, final, bars }) {
   for (let bar = 0; bar < bars; bar++) {
     const part = GENRES[genre].bar({ t0: bar * BAR, scale, degree: prog[bar % prog.length], final, bar });
     for (const k of ['drums', 'bass', 'chords']) out[k].push(...part[k]);
+    if (fills && bar < bars - 1) out.drums.push(...fillBar(bar * BAR, bar));
   }
   return out;
 }
