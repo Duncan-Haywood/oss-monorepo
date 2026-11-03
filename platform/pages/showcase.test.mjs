@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
-import { HOME_MOTION_SCRIPT, SHOWCASE_DIR, copyShowcase, loadShowcase, renderMarquee, renderShowcaseSection } from './showcase.mjs';
+import { HOME_MOTION_CSS, HOME_MOTION_SCRIPT, SHOWCASE_DIR, copyShowcase, loadShowcase, renderMarquee, renderShowcaseSection } from './showcase.mjs';
 
 function fixture() {
   const dir = mkdtempSync(path.join(os.tmpdir(), 'showcase-test-'));
@@ -74,4 +74,21 @@ test('scroll reveals hide only what starts below the fold, and never for good', 
 test('the motion script parses and honours reduced motion', () => {
   assert.doesNotThrow(() => new Function(HOME_MOTION_SCRIPT));
   assert.match(HOME_MOTION_SCRIPT, /prefers-reduced-motion: reduce/);
+});
+
+test('the hero stays cheap to draw: no blur filters, no canvas shadows, a 1x canvas', () => {
+  // On 2026-11-03 these four together held the homepage at 7 fps on a
+  // throttled laptop CPU ("tons of lag on the site"): a filter: blur() over
+  // moving, blended circles, backdrop-filter over the animated hero, a canvas
+  // shadowBlur on every dot, and a 2x canvas redrawn every frame. Each one
+  // repaints a large area every frame. framerate.mjs measures the result in a
+  // browser; this catches the patterns before anything is built.
+  const css = HOME_MOTION_CSS.replace(/\/\*[\s\S]*?\*\//g, '');
+  assert.doesNotMatch(css, /(^|[^-])filter:\s*blur\(/, 'filter: blur() on the hero repaints it every frame');
+  assert.doesNotMatch(css, /backdrop-filter/, 'backdrop-filter over animated content re-blurs every frame');
+  assert.doesNotMatch(css, /mix-blend-mode/, 'blend modes force the layer under them to repaint');
+  assert.doesNotMatch(css, /@keyframes[^{]*\{[^}]*background-position/, 'animating background-position repaints every frame');
+  const script = HOME_MOTION_SCRIPT.replace(/^\s*\/\/.*$/gm, '');
+  assert.doesNotMatch(script, /shadowBlur\s*=\s*[1-9]/, 'canvas shadowBlur is a blur per draw call');
+  assert.match(script, /\bdpr = 1;/, 'the decorative canvas is drawn at CSS pixels');
 });
