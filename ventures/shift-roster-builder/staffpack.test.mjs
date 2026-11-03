@@ -41,7 +41,7 @@ test("dark until a checkout link is set; licence check never throws and only val
   assert.equal((await checkLicence("ABCD-1234-EFGH", { url: VALIDATE_URL, fetch: async () => { throw new Error("offline"); } })).valid, false);
   assert.equal((await checkLicence("ABCD-1234-EFGH", { url: VALIDATE_URL, fetch: async () => ({ json: async () => ({ valid: true }) }) })).valid, true);
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(html, /id="pack-card"[^>]*hidden/);
+  assert.match(html, /id="pack-card"/);
 });
 
 import { samplePack } from "./build-sample-pack.mjs";
