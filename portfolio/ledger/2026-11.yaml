@@ -15,3 +15,17 @@ entries:
         books; driven in headless Chromium (load example, book, add Masses, reload)
         with no console errors. Not yet tried on a real parish's book.
     mrr_end: 0
+  - venture: monastery-site
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New direction from the owner (2026-11-03): an opinionated, high-quality
+        website builder for Catholic monks' and nuns' communities, with vocations
+        and donations set up well. Started ventures/monastery-site: a pure engine
+        that builds twelve page types from one community.json, six palettes checked
+        to WCAG AA, a launch checklist, a CLI, and a no-code builder page with live
+        preview and .zip download; two fictional demo sites. 39 tests; driven in
+        headless Chromium with no console errors. Outreach kit (OUTREACH.md) for the
+        owner's own emails; nothing sent. Not yet used by a real community.
+    mrr_end: 0

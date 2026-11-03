@@ -875,3 +875,29 @@ exports, which stay the open item.
 `india-inv01.mjs` (`checkInv01`, 4 tests) pre-checks an IRP INV-01 (version 1.1) JSON payload and names the field for each fault: required blocks, GSTIN shape and check character on seller and buyer, six-digit PIN, DD/MM/YYYY date, HSN length, GST slab, IGST versus CGST+SGST from seller state against place of supply, line arithmetic (Qty x UnitPrice, discount, tax, TotItemVal) and the ValDtls totals, with a one-rupee rounding tolerance. Field names, the slab list and the tolerance are from memory of the public schema and secondary guides; the IRP specification and JSON schema were not read, and no real IRP payload or rejection was run. Tests use a made-up consistent invoice. CLI (2026-10-30): `node india-cli.mjs payload.json [--json]` (exit 0 clean, 1 findings, 2 usage; examples `examples/india-inv01.json` and `-with-defects.json`, made up, tested in `india-inv01.test.mjs`). Page card (2026-10-30): the India page has a paste box that runs `checkInv01` in the browser (nothing sent); run in headless Chromium on both examples, clean and defective. Open: a real IRP sandbox payload, export/SEZ and e-way-bill blocks.
 
 **Turkey (2026-10-30).** The Turkey page tests a VKN (10 digits) or TCKN (11 digits) by length and check digits (`turkey.mjs`). Rules are the widely published ones from open-source validators, not GİB's text; a pass is not a registry lookup. Wanted: a real VKN from a GİB-issued e-Fatura to confirm.
+
+## Branded audit pack (built dark, 2026-11-03)
+
+The monetization plan (`portfolio/monetization/models.yaml`) says checking a
+document is a commodity (about $4 per 1,000 on API marketplaces, plus free
+official validators), so checks are never charged for. What an accountant or
+finance team lacks is the dated record of what was checked before sending.
+`auditpack.mjs` turns a batch run (`preflightDocuments()` output) into one
+printable document on their own letterhead: logo, name, contact, a verdict, a
+row per file, findings grouped by rule with the fix, the findings per file,
+unreadable files, their notes, and a fixed statement that a PASS is not a
+declaration of legal validity. Typed text, file names and findings are
+escaped; the logo is accepted only as a raster data: URL; the accent only as
+`#rrggbb`.
+
+It sits behind the same licence-key check as the sibling ventures' packs
+(`licence.mjs`, `checkout.mjs`). `CHECKOUT_URL` is empty, so the card on
+`index.html` stays hidden and nothing can be bought; `python3
+portfolio/monetization/golive.py` sets the link once the owner has made the
+merchant-of-record product. The validate call is written from memory of the
+provider's docs and not run against a live product. Checked 2026-11-03:
+`node --test auditpack.test.mjs` (5 tests, including that the committed
+`sample-audit-pack.html` equals what `node build-sample-pack.mjs` makes), and
+a headless-browser run with a stubbed checkout link and licence answer: card
+shown, key accepted, pack opened with the typed title escaped, no console
+errors. Marketing page: `audit-pack-for-accountants.html`.

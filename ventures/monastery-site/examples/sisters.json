@@ -1,0 +1,88 @@
+{
+  "community": {
+    "name": "Poor Clares of Brigid's Hill",
+    "kind": "nuns",
+    "order": "Poor Clare nuns",
+    "place": "Brigid's Hill",
+    "tagline": "Contemplative nuns living the Gospel in poverty, enclosure and joy, and praying for the world day and night.",
+    "founded": "1928",
+    "patron": "Saint Clare of Assisi",
+    "superior": "Mother Abbess Agnes (fictional)",
+    "fictional": true
+  },
+  "site": { "url": "", "theme": "franciscan", "language": "en" },
+  "contact": {
+    "address": { "street": "12 Monastery Lane", "city": "Brigid's Hill", "region": "OH", "postalCode": "44000", "country": "United States" },
+    "phone": "(555) 010-0177",
+    "phoneHours": "The extern sisters answer 10 am to 12 pm and 2 pm to 4 pm",
+    "email": "sisters@example.org",
+    "vocationsEmail": "discern@example.org"
+  },
+  "home": {
+    "headline": "Hidden with Christ in God, for the sake of the world",
+    "lede": "Fourteen Poor Clare nuns praying the Divine Office and keeping watch before the Blessed Sacrament.",
+    "welcome": [
+      "Our chapel is open every day for Mass and adoration. Our prayer is for you: send us your intentions and we will carry them before the Lord.",
+      "This website is a made-up example of the free monastery site template. Every name and detail here is invented."
+    ],
+    "vocationsTitle": "Called to the cloister?",
+    "giveTitle": "We live on alms"
+  },
+  "about": {
+    "intro": ["Saint Clare founded our order in Assisi in 1212 to live the Gospel as Saint Francis did, in poverty and joy. Our monastery was founded in 1928 by five sisters."],
+    "charism": ["We are contemplative nuns in papal enclosure. Our life is given to prayer: the Divine Office, the Eucharist, adoration and silence, lived in sisterly love. We own nothing and live on what Providence sends."],
+    "dailyLife": ["We rise at midnight for Matins, then sleep again until Lauds. The day is ordered by the Office, Mass, work in the altar bread department and the garden, study and recreation together."]
+  },
+  "horarium": {
+    "days": [
+      { "label": "Daily", "items": [
+        { "time": "12:00 am", "name": "Matins", "public": false },
+        { "time": "5:30 am", "name": "Lauds", "public": true },
+        { "time": "7:15 am", "name": "Holy Mass", "public": true },
+        { "time": "9:00 am", "name": "Terce, then work", "public": false },
+        { "time": "11:45 am", "name": "Sext", "public": true },
+        { "time": "3:00 pm", "name": "Adoration, chapel open", "public": true },
+        { "time": "5:00 pm", "name": "Vespers", "public": true },
+        { "time": "8:00 pm", "name": "Compline", "public": true }
+      ] }
+    ]
+  },
+  "vocations": {
+    "lede": "We welcome Catholic women who desire to give their whole life to God in prayer, poverty and enclosure.",
+    "director": { "name": "Sister Mary Joseph (fictional)", "title": "vocation directress", "email": "discern@example.org" },
+    "requirements": ["Catholic women between 18 and 35", "In good health, able to keep the night Office and the fasts of the Rule", "Free of debts and family obligations"],
+    "stages": [
+      { "name": "Correspondence and a visit", "text": "Write to the vocation directress, then visit the parlour and spend time with the community." },
+      { "name": "Aspirancy", "duration": "1 to 3 months", "text": "Live inside the enclosure to share the life before asking to enter." },
+      { "name": "Postulancy", "duration": "1 year", "text": "Learn the life, the chant and the customs of the monastery." },
+      { "name": "Novitiate", "duration": "2 years", "text": "Receive the habit and a new name, and study the Rule of Saint Clare." },
+      { "name": "Temporary vows", "duration": "3 years", "text": "Vows of obedience, poverty, chastity and enclosure, renewed until solemn profession." },
+      { "name": "Solemn vows", "duration": "for life", "text": "Lifelong consecration as a Poor Clare in this monastery." }
+    ],
+    "retreats": [ { "name": "Discernment weekend", "start": "2027-04-16", "end": "2027-04-18", "text": "For women 18 to 35. Stay in the guest quarters, pray with the community and talk with the sisters in the parlour." } ],
+    "faq": [
+      { "q": "Will I ever see my family again?", "a": "Yes. Families visit in the parlour, and the community is glad to welcome them." },
+      { "q": "What is the enclosure?", "a": "The part of the monastery reserved to the nuns, so that our life can be given wholly to prayer." },
+      { "q": "Do you need a dowry?", "a": "No. Come as you are; Providence provides." }
+    ]
+  },
+  "giving": {
+    "lede": "By our vow of poverty we own nothing and live on alms. Every gift is received with gratitude and remembered in prayer.",
+    "legalName": "Poor Clare Monastery of Brigid's Hill (fictional)",
+    "online": [ { "label": "Give online", "url": "https://example.org/donate", "recurring": true } ],
+    "check": { "payableTo": "Poor Clare Monastery" },
+    "massIntentions": { "title": "Spiritual enrollments", "text": "Enroll a loved one, living or deceased, in the prayers of the community for a year. Request a card from the extern sisters." },
+    "needs": [ { "title": "Heating the monastery", "text": "Winter fuel is our largest expense each year." }, { "title": "Care of our elderly sisters", "text": "Four sisters need nursing care in the infirmary." } ],
+    "plannedGiving": { "legalName": "Poor Clare Monastery of Brigid's Hill (fictional)" },
+    "faq": [ { "q": "Will I receive a receipt?", "a": "Yes. The extern sisters send a receipt for every gift by post or email." } ]
+  },
+  "visit": {
+    "publicPrayer": ["The chapel is open from Lauds to Compline. You are welcome at Mass, the Office and adoration; the nuns pray behind the grille."],
+    "directions": ["The monastery is at the top of Monastery Lane. Parking is beside the chapel."],
+    "etiquette": ["Please keep silence in the chapel.", "Ring the bell at the turn to speak with an extern sister."]
+  },
+  "events": [ { "name": "Solemnity of Saint Clare", "start": "2027-08-11", "time": "10:00 am", "text": "Solemn Mass in the chapel, then refreshments with the extern sisters." } ],
+  "prayer": { "lede": "Every intention is placed before the Blessed Sacrament and prayed for at the night Office." },
+  "shop": { "title": "Altar breads", "lede": "Our work: altar breads baked for parishes across the region.", "items": [ { "name": "Altar breads for parishes", "text": "Write to the extern sisters to place a standing order." } ] },
+  "forms": { "action": "" }
+}

@@ -71,9 +71,14 @@ of full-scale samples. Targets: -14 LUFS +/- 1.5, true peak at most -1 dBTP,
 mono loss at most 3 dB, no clipping. Checked 2026-11-03 against the standard's
 calibration points (a 0 dBFS 997 Hz sine reads -3.01 LUFS mono, 0.0 stereo), a
 fs/4 sine whose samples miss the peak by 3 dB, and phase-inverted and
-over-driven files (6 tests). Not checked against a reference meter (EBU
-test files, ffmpeg `ebur128`) or a real mix; the true-peak filter is a
-windowed sinc, not the Annex 2 coefficients. Distributor targets change: read
+over-driven files (6 tests). Checked 2026-11-03 against ffmpeg's `ebur128`
+filter (`node eval/ffmpeg-check.mjs`; six synthetic stereo 48 kHz signals: three
+sines, pink and white noise, a gated loud/quiet noise): integrated loudness
+within 0.05 LU on all six, true peak within 0.33 dB (the worst case, white
+noise, reads -13.47 here and -13.8 in ffmpeg; 16x oversampling gives -12.9, so
+both 4x meters under-read and ours is the closer). Not checked against EBU test
+files or a real mix; the true-peak filter is a windowed sinc, not the Annex 2
+coefficients. Distributor targets change: read
 theirs before release.
 
 ## Real Gregorio files (2026-11-03)

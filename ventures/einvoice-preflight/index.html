@@ -150,6 +150,19 @@
       <p id="copyStatus" class="muted" aria-live="polite"></p>
       <div id="results"></div>
     </section>
+    <section class="card" id="pack-card" aria-labelledby="pack-h" hidden>
+      <h2 id="pack-h">Branded audit pack</h2>
+      <p class="note">The result above as one evidence document on your own letterhead: your name and logo, a verdict, a row per file, findings grouped by rule with the fix, and a fixed statement of what a preflight does and does not show. Print it or save it as PDF for a client file or an audit trail. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; every check, repair, CSV and JSON download stays free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type or drop is uploaded; only the key is sent to the licence server.</p>
+      <p id="pack-buy-row" hidden><a id="pack-buy" rel="noopener" target="_blank">Buy a licence key</a></p>
+      <p><label>Licence key <input id="pack-key" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="pack-check">Check key</button> <span id="pack-state" role="status"></span></p>
+      <div id="pack-fields" hidden>
+        <p><label>Title <input id="pack-title" aria-label="Pack title" placeholder="Q1 sales invoices"></label> <label>Prepared by <input id="pack-author" aria-label="Pack author"></label> <label>Contact <input id="pack-contact" aria-label="Pack contact"></label> <label>Accent <input id="pack-accent" aria-label="Pack accent" type="color" value="#1f5f86"></label></p>
+        <p><label>Scope (what was checked) <input id="pack-scope" aria-label="Pack scope" style="width:100%"></label></p>
+        <p><label>Logo (PNG, JPEG, WebP or GIF) <input id="pack-logo" aria-label="Pack logo" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label></p>
+        <p><label>Preparer's notes, one per line<br><textarea id="pack-notes" aria-label="Pack notes" rows="3" style="width:100%"></textarea></label></p>
+        <button type="button" id="pack-open">Open the audit pack (print or save as PDF)</button>
+      </div>
+    </section>
   </main>
   <section aria-labelledby="faq-heading">
     <h2 id="faq-heading">What this checks</h2>
@@ -293,6 +306,9 @@
     import { repairCii } from "./repair-cii.mjs";
     import { repairFacturX } from "./repair-facturx.mjs";
     import { looksLikeCii } from "./cii.mjs";
+    import { auditPackHtml } from "./auditpack.mjs";
+    import { buyLink, checkLicence } from "./licence.mjs";
+    import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
 
     const VALID_EXAMPLE = {
@@ -493,6 +509,27 @@
       link.download = filename;
       link.click();
       URL.revokeObjectURL(link.href);
+    }
+
+    // Audit pack: dark until a checkout link is set in checkout.mjs (no card, no Buy button).
+    {
+      const $ = (id) => document.getElementById(id);
+      const buy = buyLink(CHECKOUT_URL);
+      let packLogo = "";
+      if (buy) { $("pack-buy").href = buy; $("pack-buy-row").hidden = false; $("pack-card").hidden = false; }
+      $("pack-logo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { packLogo = ""; return; } const r = new FileReader(); r.onload = () => { packLogo = String(r.result); }; r.readAsDataURL(f); });
+      $("pack-check").addEventListener("click", async () => {
+        $("pack-state").textContent = "Checking...";
+        const v = await checkLicence($("pack-key").value, { url: VALIDATE_URL });
+        $("pack-state").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason;
+        $("pack-fields").hidden = !v.valid;
+      });
+      $("pack-open").addEventListener("click", () => {
+        if (!latest) { $("pack-state").textContent = "Run a check first."; return; }
+        const html = auditPackHtml(latest, { title: $("pack-title").value, author: $("pack-author").value, contact: $("pack-contact").value, accent: $("pack-accent").value, scope: $("pack-scope").value, logo: packLogo, notes: $("pack-notes").value, date: new Date().toISOString().slice(0, 10) });
+        const url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+        window.open(url, "_blank", "noopener");
+      });
     }
 
     document.getElementById("check").addEventListener("click", async () => {
