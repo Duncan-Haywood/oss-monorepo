@@ -55,6 +55,53 @@ export function checkPageIdentity(pages) {
   return problems;
 }
 
+function h1TextOf(html) {
+  const m = /<h1[^>]*>([\s\S]*?)<\/h1>/i.exec(stripNonMarkup(html));
+  return m ? m[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() : '';
+}
+
+/**
+ * A blog post whose `seo_title` repeats a tool page's title (2026-11-03: the
+ * cold email checker post copied its page's title) failed check.mjs, and that
+ * failure stopped every deploy until someone noticed. The tool page owns its
+ * title; the post is the one renamed, to its own headline (the h1, already
+ * escaped HTML), or with " · Blog" added when the headline clashes too.
+ * pages: Map of relative path -> html. Returns [{ rel, from, to, html }].
+ */
+export function resolvePostTitleClashes(pages, { prefix = 'writing/' } = {}) {
+  const taken = new Set();
+  for (const [rel, html] of pages) {
+    if (SKIP.has(rel) || rel.startsWith(prefix)) continue;
+    const t = titleOf(html);
+    if (t) taken.add(t);
+  }
+  const changes = [];
+  for (const [rel, html] of pages) {
+    if (!rel.startsWith(prefix)) continue;
+    const from = titleOf(html);
+    if (!from || !taken.has(from)) continue;
+    const headline = h1TextOf(html);
+    let to = headline && !taken.has(headline) ? headline : `${from} · Blog`;
+    for (let n = 2; taken.has(to); n++) to = `${from} · Blog ${n}`;
+    taken.add(to);
+    const quoted = (s) => `content="${s}"`;
+    const next = html
+      .replace(/<title>[\s\S]*?<\/title>/i, `<title>${to}</title>`)
+      .split(quoted(from)).join(quoted(to));
+    changes.push({ rel, from, to, html: next });
+  }
+  return changes;
+}
+
+export async function fixPostTitleClashes(site, { log = () => {} } = {}) {
+  const changes = resolvePostTitleClashes(await loadPages(site));
+  for (const { rel, from, to, html } of changes) {
+    await fs.writeFile(path.join(site, rel), html);
+    log(`warning: ${rel} reused the title "${from}" of another page; retitled "${to}". Give the post its own seo_title.`);
+  }
+  return changes;
+}
+
 export async function loadPages(site) {
   const pages = new Map();
   async function go(dir, prefix) {
