@@ -33,3 +33,33 @@ for (const [name, sample, check] of [
     assert.deepEqual(leaks, []);
   });
 }
+
+// Option validators: every listed numeric setting given as text is refused.
+import { validateEaves } from "./eaves.mjs";
+import { validateTrim } from "./trim.mjs";
+import { validateSiding } from "./siding.mjs";
+import { validateInsulation } from "./insulation.mjs";
+import { validateGutters } from "./gutters.mjs";
+import { validateDormer } from "./dormer.mjs";
+import { validateVentilation } from "./ventilation.mjs";
+
+const OPTS = [
+  ["eaves", validateEaves, {}, ["panelWidth", "panelStock", "fasciaStock", "channelStock", "waste", "panelPrice"]],
+  ["trim", validateTrim, {}, ["baseStock", "casingStock", "casingWidth", "reveal", "scarf", "waste", "basePrice"]],
+  ["siding", validateSiding, {}, ["exposure", "stock", "cornerStock", "waste", "boardPrice", "height"]],
+  ["insulation", validateInsulation, {}, ["bagSqFt", "waste", "rValue", "price"]],
+  ["gutters", validateGutters, {}, ["gutterStock", "eaveHeight", "hangerSpacing", "waste", "gutterPrice"]],
+  ["dormer", validateDormer, { width: 96, eaveHeight: 48, pitch: 8, mainPitch: 8 }, ["width", "eaveHeight", "pitch", "mainPitch"]],
+  ["ventilation", validateVentilation, {}, ["atticSqFt", "upperShare", "ridgeNfaPerFt", "ridgePrice"]],
+];
+for (const [name, fn, base, keys] of OPTS) {
+  test(`${name}: settings given as text are refused`, () => {
+    assert.deepEqual(fn(base), []);
+    const leaks = keys.filter((k) => fn({ ...base, [k]: "12" }).length === 0);
+    assert.deepEqual(leaks, []);
+  });
+}
+test("insulation: nested attic and assembly numbers given as text are refused", () => {
+  assert.ok(validateInsulation({ attic: { rValue: "38" } }).length);
+  assert.ok(validateInsulation({ assembly: { ceilingR: "30" } }).length);
+});

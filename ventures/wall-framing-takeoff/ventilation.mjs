@@ -19,12 +19,15 @@
 // Not counted: gable-end and box vents, power vents, baffles (one per rafter or truss bay along the eaves is listed as a count only), screens' loss (the label NFA already has it),
 // and any cathedral or unvented (spray foam) assembly, which this does not model.
 
+import { textNumberErrors } from "./numfields.mjs";
 /** @typedef {{ ratio?: 150 | 300, atticSqFt?: number, ridgeVent?: boolean, upperShare?: number, ridgeNfaPerFt?: number, ridgeEndGap?: number, soffitUnitNfa?: number, soffitUnitWidth?: number, soffitFill?: number, ridgePiece?: number, ridgePrice?: number, soffitPrice?: number }} Ventilation */
 
 /** @param {Ventilation} v */
 export function validateVentilation(v) {
   const e = [];
   if (v == null || typeof v !== "object" || Array.isArray(v)) return ["Ventilation settings are an object."];
+  e.push(...textNumberErrors(v, ['atticSqFt', 'ridgeEndGap', 'ridgeNfaPerFt', 'ridgePiece', 'ridgePrice', 'soffitFill', 'soffitPrice', 'soffitUnitNfa', 'soffitUnitWidth', 'upperShare']));
+  if (e.length) return e;
   if (v.ratio != null && v.ratio !== 150 && v.ratio !== 300) e.push("Ventilation ratio must be 150 or 300 (1 sq ft of net free area per that many sq ft of attic).");
   if (v.atticSqFt != null && !(v.atticSqFt > 0 && v.atticSqFt <= 20000)) e.push("Attic floor area must be between 0 and 20,000 sq ft.");
   if (v.upperShare != null && !(v.upperShare >= 0 && v.upperShare <= 1)) e.push("Upper share of the vent area must be between 0 and 1.");

@@ -27,12 +27,15 @@
 import { THICK } from "./engine.mjs";
 import { packPieces } from "./trim.mjs";
 
+import { textNumberErrors } from "./numfields.mjs";
 /** @typedef {{ exposure?: number, stock?: number, waste?: number, wrapRollSqFt?: number, wrapLap?: number, corners?: number, cornerStock?: number, height?: number, boardPrice?: number, wrapPrice?: number, cornerPrice?: number, style?: "lap" | "vertical", boardWidth?: number, battens?: boolean, battenStock?: number, battenPrice?: number, openingTrim?: boolean, trimWidth?: number, trimStock?: number, trimPrice?: number, starter?: boolean, starterPrice?: number, headFlashing?: boolean, flashingStock?: number, flashingExtend?: number, flashingPrice?: number, openingTape?: boolean, tapeRollFeet?: number, tapePrice?: number }} Siding */
 
 /** @param {Siding} d */
 export function validateSiding(d) {
   const e = [];
   if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Siding settings are an object."];
+  e.push(...textNumberErrors(d, ['battenPrice', 'battenStock', 'boardPrice', 'boardWidth', 'cornerPrice', 'cornerStock', 'corners', 'exposure', 'flashingExtend', 'flashingPrice', 'flashingStock', 'height', 'starterPrice', 'stock', 'tapePrice', 'tapeRollFeet', 'trimPrice', 'trimStock', 'trimWidth', 'waste', 'wrapLap', 'wrapPrice', 'wrapRollSqFt']));
+  if (e.length) return e;
   if (d.exposure != null && !(d.exposure >= 2 && d.exposure <= 16)) e.push("Siding exposure must be between 2 and 16 inches.");
   if (d.stock != null && !(d.stock >= 48 && d.stock <= 240)) e.push("Siding board length must be between 48 and 240 inches.");
   if (d.cornerStock != null && !(d.cornerStock >= 48 && d.cornerStock <= 240)) e.push("Corner board length must be between 48 and 240 inches.");
