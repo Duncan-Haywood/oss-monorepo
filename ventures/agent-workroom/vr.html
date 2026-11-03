@@ -47,7 +47,8 @@
     #talk.on { background: #c92a2a; border-color: #c92a2a; color: #fff; }
     .warn { color: var(--warn); }
     table { border-collapse: collapse; width: 100%; }
-    td { border-top: 1px solid var(--line); padding: 6px 8px 6px 0; vertical-align: top; }
+    td, th { border-top: 1px solid var(--line); padding: 6px 8px 6px 0; vertical-align: top; text-align: left; }
+    th { border-top: 0; color: var(--muted); font-weight: 600; font-size: 0.9rem; }
     td:first-child { white-space: nowrap; }
     @media (max-width: 560px) { td:first-child { white-space: normal; } }
     footer { color: var(--muted); font-size: 0.9rem; padding-bottom: 40px; margin-top: 32px; border-top: 1px solid var(--line); padding-top: 16px; }
@@ -109,6 +110,7 @@
   <h2>Controls</h2>
   <div class="panel">
     <table>
+      <thead><tr><th scope="col">Control</th><th scope="col">What it does</th></tr></thead>
       <tbody>
         <tr><td>Hold <kbd>grip</kbd> or <kbd>A</kbd>/<kbd>X</kbd></td><td>Push to talk. Let go and it acts on what you said. With hand tracking, pinch the <em>Talk</em> button on the panel instead.</td></tr>
         <tr><td><kbd>trigger</kbd> (or pinch)</td><td>Select whatever the ray points at: a sticky note, a monitor, a panel button.</td></tr>
@@ -122,6 +124,7 @@
   <h2>Things to say</h2>
   <div class="panel">
     <table>
+      <thead><tr><th scope="col">Say</th><th scope="col">What happens</th></tr></thead>
       <tbody>
         <tr><td><code>go to the board</code> · <code>go to Claude's desk</code> · <code>recenter</code></td><td>Move to a spot in the room.</td></tr>
         <tr><td><code>refresh</code> · <code>check CI</code></td><td>Pull the repository's pull requests again (and, with a token, their check runs).</td></tr>
