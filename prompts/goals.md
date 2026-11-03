@@ -987,7 +987,15 @@ These earned their place in earlier runs; none is a liability line.
   weight in `routing.json` aims for that share of the non-review weight;
   `promptctl.py validate` warns outside the band. Seeded faults go through
   `prompts/redteam.py`, which restores the file, so a mutant never reaches
-  `main` (that part is a correctness line, not a preference).
+  `main` (that part is a correctness line, not a preference). The track is a
+  purple team (owner, 2026-11-03: "if it finds something by doing red team it
+  should work on fixing it"): a defect it finds is fixed in the same run, or
+  left open in the record with what the fix needs, and `redteam.py open` puts
+  it at the top of the next red-team run. Each run should also leave or
+  tighten a guard that catches a class of error with no agent in the loop:
+  a CI check, a lint, or one of our own security checkers run over this
+  repository (owner, 2026-11-03: "automation systems to try to catch security
+  errors even when it's not possible to do a full red blue team run").
 
 ### Research guardrails
 
