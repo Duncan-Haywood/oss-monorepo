@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -773,4 +773,21 @@ test("divisionsTieBreakNotes lists notes per division and skips divisions with n
   assert.ok(n.length >= 1 && n[0].division === d0.name);
   assert.ok(n[0].notes.every((x) => typeof x.text === "string"));
   assert.deepEqual(divisionsTieBreakNotes({ tables: [{ division: "X", rows: [] }] }), []);
+});
+
+test("divisionsWeeklyUpdate: one block per division with last scores, table and next round; bad results become warnings", () => {
+  const s = build();
+  const none = divisionsWeeklyUpdate(s, "");
+  assert.match(none, /== U10 ==\nNext up: Round 1/);
+  assert.match(none, /== Adult ==/);
+  assert.ok(!none.includes("Table"));
+  const r1 = s.divisions[0].rounds[0].matches;
+  const text = r1.map((m, i) => `U10: ${m.homeName} ${i + 2} - ${i} ${m.awayName}`).join("\n") + "\nU10: Hawks 1 - 0 Hawks\nU12: Hawks 2 - 2 Rams";
+  const out = divisionsWeeklyUpdate(s, text);
+  const u10 = out.split("== ").find((b) => b.startsWith("U10"));
+  assert.match(u10, /Round 1 results/);
+  assert.match(u10, /Table\n  1\./);
+  assert.match(u10, /Next up: Round 2/);
+  assert.match(out, /== U12 ==\nNext up: Round 1/);
+  assert.match(out, /Warning:/);
 });
