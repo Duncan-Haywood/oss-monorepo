@@ -642,6 +642,46 @@ export function venueImbalance(history) {
   return rows.reduce((a, o) => { const c = Object.values(o); return a + Math.max(...c) - Math.min(...c); }, 0) / rows.length;
 }
 
+/**
+ * Rest between games per team, in days: how many teams play on consecutive days (a gap of 1 or less),
+ * the shortest and longest gap, and the teams with the longest idle stretch. A team with fewer than two
+ * games has no gap. Returns { backToBack, minGap, maxGap, longest: [{ team, days }], teams: [{ team, games, minGap, maxGap }] }.
+ */
+export function restGaps(schedule) {
+  const days = new Map();
+  for (const night of schedule.nights) {
+    for (const m of night.matches) {
+      for (const t of [m.home, m.away]) {
+        const k = `${m.division}/${t === m.home ? m.homeName : m.awayName}`;
+        if (!days.has(k)) days.set(k, { team: k, set: new Set() });
+        days.get(k).set.add(night.day);
+      }
+    }
+  }
+  const teams = [];
+  let backToBack = 0;
+  for (const { team, set } of days.values()) {
+    const d = [...set].sort((a, b) => a - b);
+    let lo = null, hi = null;
+    for (let i = 1; i < d.length; i++) {
+      const g = d[i] - d[i - 1];
+      if (lo === null || g < lo) lo = g;
+      if (hi === null || g > hi) hi = g;
+      if (g <= 1) backToBack++;
+    }
+    teams.push({ team, games: d.length, minGap: lo, maxGap: hi });
+  }
+  const gaps = teams.filter((t) => t.maxGap !== null);
+  const maxGap = gaps.length ? Math.max(...gaps.map((t) => t.maxGap)) : null;
+  return {
+    backToBack,
+    minGap: gaps.length ? Math.min(...gaps.map((t) => t.minGap)) : null,
+    maxGap,
+    longest: gaps.filter((t) => t.maxGap === maxGap).map((t) => ({ team: t.team, days: t.maxGap })),
+    teams,
+  };
+}
+
 export function divisionStats(schedule) {
   let trips = 0, matches = 0, travelMinutes = 0;
   const travel = schedule.config.travel && Object.keys(schedule.config.travel).length ? schedule.config.travel : null;
@@ -1062,6 +1102,8 @@ export function divisionsText(schedule) {
   }
   const s = schedule.stats;
   lines.push("", `${s.matches} matches over ${s.nights} nights, ${s.trips} venue changes${s.travelMinutes !== undefined ? ` (${s.travelMinutes} min of travel)` : ""}, ${s.clashes} linked-team clash(es), ${(s.utilisation * 100).toFixed(0)}% of court slots used.`);
+  const r = restGaps(schedule);
+  if (r.maxGap !== null) lines.push(`Rest: ${r.backToBack} back-to-back game${r.backToBack === 1 ? "" : "s"}; gaps run ${r.minGap} to ${r.maxGap} days (longest: ${r.longest.slice(0, 3).map((x) => x.team).join(", ")}${r.longest.length > 3 ? ", ..." : ""}).`);
   for (const c of schedule.conflicts) lines.push(`Conflict: ${c}`);
   return lines.join("\n") + "\n";
 }
