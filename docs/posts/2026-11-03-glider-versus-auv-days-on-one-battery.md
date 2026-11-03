@@ -1,6 +1,8 @@
 ---
 title: "A glider goes roughly 7 to 70 times further on a battery, and takes 30 to 550 times longer"
 date: 2026-11-03
+description: On one 1.5 kWh battery a buoyancy glider out-ranges a propeller AUV in every case we ran, but takes tens to hundreds of times longer.
+tags: [research, marine-hull, glider, auv]
 ---
 
 Our marine-hull research programme asks which underwater vehicle carries a survey payload furthest per unit of energy. Earlier steps found that a buoyancy glider, using a measured Seaglider power budget, beats a propeller AUV on energy per metre at every AUV hotel load we could source. That left out time, and a glider moves at about 0.2 m/s.
