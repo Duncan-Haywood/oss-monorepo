@@ -82,6 +82,15 @@ CHECKS = [
     ("0.78 and 1.89 kW", "regen_watts_results.txt", "776 / 1419"),
     ("0.78 and 1.89 kW", "regen_watts_results.txt", "1894 / 3465"),
     ("1.21 kW (p10 to p90 0.64 to 2.22 kW)", "regen_watts_results.txt", "bore sourced (rod 56) n=772  mean W 640 / 1212 / 2217"),
+    ("979 W centrally and 3,478 W", "regen_cat_window_results.txt", "window 2.1 s: median mean power     979 W"),
+    ("979 W centrally and 3,478 W", "regen_cat_window_results.txt", "window 2.1 s: median mean power    3478 W"),
+    ("1.21 and 4.31 kW", "regen_cat_window_results.txt", "1.21 kW"),
+    ("1.21 and 4.31 kW", "regen_cat_window_results.txt", "4.31 kW"),
+    ("5.33 kW", "regen_cat_window_results.txt", "5.33 kW"),
+    ("peak-to-mean power ratio of 2.89", "cwa_profile_results.txt", "peak/mean 2.89"),
+    ("1.85 times the mean", "cwa_profile_results.txt", "= 1.85 x mean"),
+    ("22.7 kWh over 1,779 s", "cwa_profile_results.txt", "energy 22.741 kWh"),
+    ("0.001% of positive", "cwa_profile_results.txt", "(0.001% of positive)"),
 ]
 
 
