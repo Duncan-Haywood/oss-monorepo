@@ -1,5 +1,5 @@
 name: agent-workroom
-description: 'A walkable 3D room (plain CSS 3D, no libraries, no headset) for keeping track of work handed to AI coding agents. Each agent gets a desk whose monitor shows its current task and progress; the back wall is a four-column task board. Tasks are added and moved by typed or spoken commands ("fix the login redirect for Builder", "start 2", "move login to review"), and progress can be pulled from a public GitHub repository''s pull requests (draft = in progress, open = in review, merged = done; claude/, codex/, copilot/ branches go to that agent''s desk). Tasks live only in local storage, with JSON export and import.'
+description: 'A walkable 3D room (plain CSS 3D, no libraries, no headset) for keeping track of work handed to AI coding agents. Each agent gets a desk whose monitor shows its current task and progress; the back wall is a four-column task board. Tasks are added and moved by typed or spoken commands ("fix the login redirect for Builder", "start 2", "move login to review"), and progress can be pulled from a public GitHub repository''s pull requests (draft = in progress, open = in review, merged = done; claude/, codex/, copilot/ branches go to that agent''s desk). Tasks live only in local storage, with JSON export and import. vr.html is a WebXR version for headsets (Meta Quest Browser first): push-to-talk voice (browser recognition or on-device Whisper), controller pointing and stick locomotion, CI status from check runs, and confirmed @claude comments on pull requests with the user''s own token.'
 stage: prototype
 
 owner: duncan
@@ -13,6 +13,10 @@ owner: duncan
 # more work.
 hypotheses:
   - claim: Someone running several coding agents on one repository will point the GitHub import at it and come back to the room more than once in a week, because the desks answer "what is each agent on right now" faster than the pull-request list does.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: In a headset, people drive the room by voice, not only by pointing (at least three vr_voice events per vr_entered session, for anyone who entered VR more than once).
     status: untested
     checked: null
     evidence: customer-contact
