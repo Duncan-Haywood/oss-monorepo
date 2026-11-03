@@ -526,6 +526,8 @@ export const SERVED_EXTENSIONS = new Map([
   ['.webp', 'stock'],
   // einvoice-preflight's mandate calendar feed; standard MIME databases type .ics as text/calendar.
   ['.ics', 'stock'],
+  // chant-forge's sample chants (corpus/*.gabc), fetched as text by its studio page; fetch().text() ignores the type.
+  ['.gabc', 'stock'],
   // shed-designer's share picture (renders/og-*-share.jpg): JPEG because not every link
   // scraper reads WebP; mime.types lists image/jpeg jpeg jpg.
   ['.jpg', 'stock'],
