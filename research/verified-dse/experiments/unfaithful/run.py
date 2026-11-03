@@ -65,7 +65,18 @@ def main():
             period = round(base[d] * f, 3)
             for i, s in enumerate(seqs):
                 tasks.append((d, s, tag, period, out / d / f"{tag}_{i}", lib, pdk, a.openroad))
-    with Pool(a.jobs) as pool, open(HERE / "results.jsonl", "w") as fh:
+    resf = HERE / "results.jsonl"  # resume: skip points already written (a killed run leaves a partial file)
+    done = set()
+    if resf.exists():
+        for line in resf.read_text().splitlines():
+            try:
+                r = json.loads(line)
+                done.add((r["design"], tuple(r["seq"]), r["tag"]))
+            except (ValueError, KeyError):
+                pass
+    tasks = [t for t in tasks if (t[0], tuple(t[1]), t[2]) not in done]
+    print("resuming:", len(done), "done,", len(tasks), "to run", flush=True)
+    with Pool(a.jobs) as pool, open(resf, "a") as fh:
         for i, r in enumerate(pool.imap_unordered(task, tasks, chunksize=2)):
             fh.write(json.dumps(r) + "\n")
             fh.flush()
