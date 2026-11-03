@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-03 · Milestone 64: does a stall fraction that changes over the window beat the best fixed one? (H4/H3 link, planned before running)
+- Why: milestone 63's "Next" (online-adaptive fraction). The cheater gets no feedback about the true threshold during a job, so a literal online learner has no new information; the testable part is whether a fraction *schedule* over the 200-step window (stall hard early, shade later, or the reverse) beats the flat 0.99. Design (`experiments/progress_frac_schedule/run.py`, milestone 61 code): sigma = 0.05, linear noise, R = 1.01, n = 128; schedules flat 0.99, 0.99 to 0.95, 0.95 to 0.99, 0.99 to 0.90 (linear in the step within the window).
+- **Predictions, before running:** (1) flat 0.99 reproduces 35 / 67 / 32 (flagged / harmful / harmful-and-unflagged). (2) No schedule exceeds 38 harmful-and-unflagged (the milestone 61 line), since the belief error is fixed per job and a schedule adds no information about it. Refuted (2) if any schedule exceeds 38.
+- Limits known in advance: one sigma, one R, one tiny model, shares 16 seeds; schedules are open-loop.
+
 ## 2026-11-03 · Milestone 63: paper gains the magnitude and aggregate-check results (milestones 46 to 52)
 - Why: milestone 62's "Next". Milestones 46 to 52 were only in this log. Added one paragraph to `paper/main.tex` (section "Redundancy and collusion", before the progress-check paragraph); every number copied from the outcomes above, including the milestone 47 sign-error correction and the refuted predictions (50 spread16, 52 cumulative check).
 - No new experiment; no prediction to test. LaTeX not compiled (no TeX in this session's environment).
