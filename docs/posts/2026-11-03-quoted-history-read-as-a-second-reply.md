@@ -1,8 +1,8 @@
 ---
 title: "Our own email, quoted under a reply, was read as an unsubscribe"
-seo_title: "Outlook quoted headers in a pasted reply: a bug in an AI sales inbox agent"
+seo_title: "Outlook quoted headers in a pasted reply: an AI sales agent bug"
 date: 2026-11-03
-tags: [sales-agent, email, bug]
+tags: [sales-agent, email, bugs]
 description: "The sales inbox agent split pasted replies at every From: line, so an Outlook-style quote of our own outreach became a phantom second reply. Fixed, with tests."
 ---
 
