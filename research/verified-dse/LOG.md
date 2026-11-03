@@ -3,6 +3,10 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-11-03 · Milestone 65: carry milestones 63 and 64 into the paper (no flow run, no new numbers)
+- Added the score-only, features-only and no-R2 results to the PAPER.md limitations paragraph, quoting `degrade_*.txt` as logged, and stated that the routed-observations explanation from milestone 62 is not supported (milestone 64). The 0.23-point gap to random in the no-R2 arm still has no significance test: `bohb.py` writes only means, so a paired test needs per-seed output (next, about 8 min of replay, needs numpy).
+- Next: per-seed output for the none arm; unfaithful-R2 held-out designs under OpenROAD (not installed in cloud sessions).
+
 ## 2026-11-02 · Milestone 64: a no-R2 arm, BOHB with the R2 score and features carrying no information (predictions written before the run; no flow)
 - Why: milestone 63 left open whether BOHB's low-budget win comes from the routed observations and bracket structure. `bohb.py` takes `BOHB_PART=none`: every R2 score is set to a constant (ties broken at random) and the KDE features are replaced by pure N(0,1) noise; R3 and R4 scores are untouched, and R2 time is still charged. `BOHB_PART=none python3 degrade.py` replays the 40 main cells, 100 paired seeds, into `degrade_none.txt`.
 - **Predictions on record:** (1) BOHB at 15 equivalents stays below random routing (3.56) but by less than 0.16 points, since milestone 62's sigma 1 (tau 0.06) already left 0.16; (2) at 25 BOHB is within 0.3 of random (1.77); (3) at 40 random still wins; (4) SH from R2 is near its worst, above 5.7 at 15.
