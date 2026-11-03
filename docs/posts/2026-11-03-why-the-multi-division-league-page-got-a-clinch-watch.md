@@ -1,6 +1,8 @@
 ---
 title: Why the multi-division league page got a clinch watch
 date: 2026-11-03
+tags: [league-schedule-generator, sports, tournaments, open-source]
+description: "The league schedule generator now shows, for every division at once, who has clinched a top-N place, who is out, and the points still needed."
 ---
 
 League organisers get the same question every week of the run-in: "are we in?" The league-schedule-generator already answered it for a single division. From today it answers it for every division at once.
