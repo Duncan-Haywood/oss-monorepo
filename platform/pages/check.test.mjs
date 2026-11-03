@@ -11,7 +11,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 
-import { checkSite, checkServedExtensions } from './check.mjs';
+import { checkSite, checkServedExtensions, hygieneIsFatal } from './check.mjs';
 
 const BASE_PATH = '/repo/';
 const url = (relative) => `https://example.test${BASE_PATH}${relative}`;
@@ -1107,4 +1107,14 @@ test('the CLI still runs with no arguments (it checks ./dist beside the script)'
   // Either dist exists and is checked (0 or 1) or it is absent (1); what must
   // never happen is a silent exit that printed nothing at all.
   assert.ok(res.stdout.length + res.stderr.length > 0);
+});
+
+test('search hygiene blocks a pull request but never a deploy of main', () => {
+  assert.equal(hygieneIsFatal({ GITHUB_EVENT_NAME: 'pull_request' }), true);
+  assert.equal(hygieneIsFatal({}), true, 'a local run stays strict');
+  for (const event of ['push', 'schedule', 'workflow_dispatch']) {
+    assert.equal(hygieneIsFatal({ GITHUB_EVENT_NAME: event }), false, event);
+  }
+  assert.equal(hygieneIsFatal({ GITHUB_EVENT_NAME: 'push', PAGES_HYGIENE: 'fatal' }), true);
+  assert.equal(hygieneIsFatal({ GITHUB_EVENT_NAME: 'pull_request', PAGES_HYGIENE: 'warn' }), false);
 });
