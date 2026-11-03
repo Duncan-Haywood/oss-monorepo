@@ -146,7 +146,7 @@
     <button type="button" class="secondary" id="drawingsPdf">Download wall drawings (PDF)</button>
     <button type="button" class="secondary" id="panelOrderBtn">Download shop-panel lumber order (needs a panel length above)</button>
     <button type="button" class="secondary" id="savePlan">Save plan file</button>
-    <label for="openPlan" style="display:inline-block;font-weight:600">Open plan file</label> <input type="file" id="openPlan" accept=".json,application/json,.dxf" style="width:auto">
+    <label for="openPlan" style="display:inline-block;font-weight:600">Open plan file</label> <input type="file" id="openPlan" accept=".json,application/json,.dxf,.ifc" style="width:auto">
     <p><input type="checkbox" id="sheath" style="width:auto"> <label for="sheath" style="display:inline">Also lay out wall sheathing (4 x 8 to 4 x 12 sheets, 1 per square foot)</label>
       <input type="checkbox" id="sheathH" style="width:auto;margin-left:1rem"> <label for="sheathH" style="display:inline">sheets long side along the wall</label>
       <input type="checkbox" id="sheathO" style="width:auto;margin-left:1rem"> <label for="sheathO" style="display:inline">run sheathing past corners</label>
@@ -567,6 +567,7 @@
   <script type="module">
     import { takeoff, samplePlan, defaultStock, parseLength, formatLength, formatInches, toCsv, verifyWall, PRECUT, DEPTH } from "./engine.mjs";
     import { planFromDxf } from "./dxf.mjs";
+    import { planFromIfcWasm } from "./ifc-wasm.mjs";
     import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength, restoreSketch, fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners } from "./sketch.mjs";
     import { drawingSetHtml } from "./drawings.mjs";
     import { drawingSetPdf } from "./pdf.mjs";
@@ -1559,8 +1560,8 @@
       try {
         const base = samplePlan();
         let plan, dxfNote = "";
-        if (/\.dxf$/i.test(file.name)) {
-          const r = planFromDxf(await file.text());
+        if (/\.(dxf|ifc)$/i.test(file.name)) {
+          const r = /\.ifc$/i.test(file.name) ? await planFromIfcWasm(await file.text()) : planFromDxf(await file.text());
           if (!r.ok) { $("#status").textContent = `Could not read ${file.name}: ${r.errors.join(" ")}`; return; }
           plan = r.plan;
           dxfNote = ` ${r.stats.walls} walls, ${r.stats.tees} tees, ${r.stats.openings} openings. ${r.notes.join(" ")}`;

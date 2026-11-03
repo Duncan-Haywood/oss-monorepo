@@ -137,7 +137,7 @@ works on its own and is checked on a real model before the next.
 | # | milestone | est. hours | check |
 |---|---|---|---|
 | 1 | Parser, placements, walls, joins, layers, hosted openings (done) | 40 | IfcOpenShell on two real models |
-| 2 | WASM build behind the takeoff page's IFC upload, replacing `ifc.mjs`'s geometry while keeping its notes | 25 | page test; same plans as CLI |
+| 2 | WASM build behind the takeoff page's IFC upload (done 2026-11-03: `ifc-engine.wasm`, 272 KB, `ifc-wasm.mjs`; the page's Open plan file takes `.ifc`) | 25 | native and wasm DXF identical on 3 files; Chromium click-check |
 | 3 | Half-space and polygonal clipping (`IfcBooleanClippingResult`), so gable and raked walls get their real top line | 35 | IfcOpenShell mesh tops |
 | 4 | Stud layer to framing: map the structural layer (material and depth) to stud size per wall, and core-to-core centre lines for corners | 25 | a real US wood-framed model |
 | 5 | Slabs, roofs and floor openings (`IfcSlab`, `IfcRoof`), feeding `floor.mjs`, `roof.mjs`, `slab.mjs` | 50 | IfcOpenShell areas |
@@ -148,5 +148,9 @@ works on its own and is checked on a real model before the next.
 | 10 | Quantities out (`IfcElementQuantity` read and written) so a takeoff can be sent back into BIM tools | 40 | round trip through IfcOpenShell |
 | 11 | crates.io and a Python wheel (publishing needs the owner's decision on the portfolio's public name) | 30 | install on a clean machine |
 
-Most valuable next: milestone 2, so the page's users get this reader, then 4
-with a real US wood-framed model.
+Most valuable next: milestone 4 with a real US wood-framed model.
+
+WASM: `cargo build --release --target wasm32-unknown-unknown`, then copy
+`target/wasm32-unknown-unknown/release/ifc_engine.wasm` to `../ifc-engine.wasm`.
+The module exports a C ABI (`src/wasm.rs`), no wasm-bindgen. `ifc.mjs` stays
+for the CLI; `ifc-wasm.mjs` is the page's path (IFC to DXF to `planFromDxf`).

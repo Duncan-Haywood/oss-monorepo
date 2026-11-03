@@ -88,8 +88,7 @@ Ticked items are on `main`.
       `IfcRelFillsElement` and placed by their own body, material layers,
       straight runs merged. Checked against IfcOpenShell on two real models
       (Revit Duplex, ArchiCAD Schependomlaan; 0.0000 m on every extent).
-      Still open: the WASM build behind the page's IFC upload (ifc-engine
-      plan, milestone 2), clipping, and a real US wood-framed model.
+      The WASM build landed the same day (`ifc-engine.wasm`, `ifc-wasm.mjs`): the page's Open plan file takes `.ifc`, Chromium click-checked on the buildingSMART wall-with-window sample. Still open: clipping, and a real US wood-framed model.
 
 ### 3. The rest of the shell
 
