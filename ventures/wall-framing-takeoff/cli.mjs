@@ -10,6 +10,7 @@ import { layoutFoundation, foundationText } from "./foundation.mjs";
 import { layoutDrywall, drywallText } from "./drywall.mjs";
 import { layoutInsulation, insulationText } from "./insulation.mjs";
 import { layoutTrim, trimText } from "./trim.mjs";
+import { layoutOpeningSchedule, openingScheduleText } from "./openingschedule.mjs";
 import { layoutSiding, sidingText } from "./siding.mjs";
 import { layoutEaves, eavesText } from "./eaves.mjs";
 import { layoutVentilation, ventilationText } from "./ventilation.mjs";
@@ -70,6 +71,7 @@ Usage:
   node cli.mjs plan.json --eaves       add soffit panels, fascia boards and J-channel under the roof overhangs (needs a roof; plan eaves: panelWidth, panelStock, fasciaStock, channelStock, waste, rakeSoffit, panelPrice, fasciaPrice, channelPrice)
   node cli.mjs plan.json --siding      add exterior lap siding courses, house wrap and corner boards (plan siding: exposure, stock, waste, wrapRollSqFt, wrapLap, corners, cornerStock, height, boardPrice, wrapPrice, cornerPrice, style, boardWidth, openingTrim, trimWidth, trimStock, trimPrice)
   node cli.mjs plan.json --trim        add baseboard and door and window casing boards (plan trim: scarf, shoe, shoeStock, shoePrice, baseSides, baseStock, casingStock, casingWidth, reveal, waste, basePrice, casingPrice)
+  node cli.mjs plan.json --openings    print the door and window schedule: marks, counts, rough and unit sizes, header, sill height, where each sits (plan openingSchedule: unitAllowance, doorPrefix, windowPrefix)
   node cli.mjs plan.json --insulation  add wall-cavity insulation bags (measured from the framing placed; plan insulation: bagSqFt, rValue, waste, price)
   node cli.mjs plan.json --drywall     add interior drywall (inside faces, partitions both sides, optional ceilings; plan drywall: sheetLength, ceiling, price)
   node cli.mjs plan.json --foundation  add the plan's foundation (footing, stem wall and slab concrete, trucks, rebar, forms, gravel, vapor barrier)
@@ -239,6 +241,11 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     if (!trim.ok) return { code: 1, out: `The trim has problems:\n${trim.errors.map((e) => `  - ${e}`).join("\n")}` };
     r.trim = trimmed = trim;
   }
+  if (r.ok && (flags.has("--openings") || plan.openingSchedule)) {
+    const os = layoutOpeningSchedule(plan.openingSchedule || {}, plan);
+    if (!os.ok) return { code: 1, out: `The opening schedule has problems:\n${os.errors.map((e) => `  - ${e}`).join("\n")}` };
+    r.openingSchedule = os;
+  }
   let sided = null;
   if (r.ok && (flags.has("--siding") || plan.siding)) {
     const siding = layoutSiding(plan.siding || {}, plan);
@@ -343,6 +350,7 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   if (r.fasteners) lines.push("", "FASTENERS", ...fastenerText(r.fasteners));
   if (r.insulation) lines.push("", "INSULATION", ...insulationText(r.insulation));
   if (r.trim) lines.push("", "TRIM", ...trimText(r.trim));
+  if (r.openingSchedule) lines.push("", "DOOR AND WINDOW SCHEDULE", ...openingScheduleText(r.openingSchedule));
   if (r.siding) lines.push("", "SIDING", ...sidingText(r.siding));
   if (r.eaves) lines.push("", "SOFFIT AND FASCIA", ...eavesText(r.eaves));
   if (r.ventilation) lines.push("", "ATTIC VENTILATION", ...ventilationText(r.ventilation));

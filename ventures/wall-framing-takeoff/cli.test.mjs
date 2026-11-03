@@ -204,6 +204,15 @@ test("--trim adds baseboard and casing boards, kept with --sheathing and in the 
   assert.equal(main(["plan.json"], read).out.includes("TRIM"), false);
 });
 
+test("--openings prints the door and window schedule and nothing without the flag", () => {
+  const read = () => JSON.stringify(samplePlan());
+  const a = main(["plan.json", "--openings"], read);
+  assert.equal(a.code, 0);
+  assert.match(a.out, /DOOR AND WINDOW SCHEDULE\n  \d+ door\(s\) and \d+ window\(s\) in \d+ mark\(s\)/);
+  assert.match(a.out, /\bD1 {2}x\d/);
+  assert.equal(main(["plan.json"], read).out.includes("DOOR AND WINDOW SCHEDULE"), false);
+});
+
 test("--siding adds courses, house wrap and corner boards, kept with --sheathing and in the budget", () => {
   const plan = JSON.stringify({ ...samplePlan(), prices: { sidingBoard: 14, houseWrapRoll: 150, cornerBoard: 20 } });
   const read = () => plan;
