@@ -13,6 +13,7 @@ podcast, and share or adapt under **CC BY-SA 4.0**. There are three collections:
 
 ## Stories so far
 
+- [The Ringing Chamber at Ninety-Three](stories/the-ringing-chamber-at-ninety-three.md) (Hearth & Horizon; Saint Wystan's, an invented parish in Hartwell Magna, Suffolk, February 2050). A teenage ringer comes down with a whine in one ear; a borrowed calibrated meter reads about 93.1 dB(A) over a two-hour practice, a daily dose of about 87 against 85, and the assistant sends him to a doctor first, then closes the ceiling with felt-lined rope sleeves (about 86.2 afterward, dose about 80). Fiction, text only.
 - [The Hay That Warms Itself](stories/the-hay-that-warms-itself.md) (Hearth & Horizon; Saint Colum Cille's field, an invented glebe near Kells, Co. Meath, August 2049). Hay baled at about 22 per cent moisture (kitchen drying test) against about 15 for safe keeping climbs from 38 to 55 C in four days; the parish assistant says what it cannot know, tells them not to open or climb the stack and to ring the fire service, and the brigade finds 72 C in the core. Fiction, text only.
 
 - [The Third Hamper](stories/the-third-hamper.md) (Hearth & Horizon; Saint Fachtna's, an invented parish near Skibbereen, Co. Cork, 12 December 2049). The same family wins the Christmas hamper three years running. The parish assistant gives 1 in 79,507 for that family but about 1 in 570 for any of 40 households in those three years and 1 in 34 over twenty years, says a sum cannot show a draw was fair or crooked, and asks for a numbered, witnessed draw. Fiction, text only.
