@@ -25,6 +25,16 @@ def _fmt(v, unit):
     return f"{v:g}"
 
 
+def nice(v):
+    """Round an axis maximum up so its quarter ticks are round numbers."""
+    import math
+    mag = 10 ** math.floor(math.log10(v))
+    for m in (1, 1.2, 1.6, 2, 2.4, 3, 4, 5, 6, 8, 10):
+        if m * mag >= v:
+            return m * mag
+    return 10 * mag
+
+
 def _frame(w, h, title, subtitle, source, body):
     t = escape(title)
     return (
@@ -45,22 +55,22 @@ def hbar(path, title, subtitle, source, labels, series, unit="%", vmax=None, lab
     bar_h, gap = 13, 2
     group_h = n_s * bar_h + (n_s - 1) * gap + 14
     top = 70 + (22 if n_s > 1 else 0)
-    h = top + group_h * len(labels) + 40
+    h = top + group_h * len(labels) + 52
     plot_w = w - label_w - 70
     vals = [v for _, vs in series for v in vs if v is not None]
-    vmax = vmax or max(vals) * 1.05
+    vmax = vmax or nice(max(vals) * 1.05)
     x0 = label_w
     body = []
     if n_s > 1:  # legend, one row above the plot
-        lx = x0
+        lx = 20
         for i, (name, _) in enumerate(series):
             body.append(f'<rect x="{lx}" y="62" width="11" height="11" rx="2" fill="{SERIES[i]}"/>'
                         f'<text x="{lx + 16}" y="72" font-size="12" fill="{INK}">{escape(name)}</text>')
-            lx += 24 + 7.2 * len(name)
+            lx += 30 + 6.6 * len(name)
     for k in range(5):  # recessive grid
         gx = x0 + plot_w * k / 4
-        body.append(f'<line x1="{gx:.1f}" y1="{top - 4}" x2="{gx:.1f}" y2="{h - 36}" stroke="{GRID}"/>'
-                    f'<text x="{gx:.1f}" y="{h - 24}" font-size="10.5" fill="{INK2}" text-anchor="middle">{_fmt(vmax * k / 4, unit)}</text>')
+        body.append(f'<line x1="{gx:.1f}" y1="{top - 4}" x2="{gx:.1f}" y2="{h - 48}" stroke="{GRID}"/>'
+                    f'<text x="{gx:.1f}" y="{h - 36}" font-size="10.5" fill="{INK2}" text-anchor="middle">{_fmt(vmax * k / 4, unit)}</text>')
     for gi, lab in enumerate(labels):
         gy = top + gi * group_h
         body.append(f'<text x="{x0 - 8}" y="{gy + (n_s * (bar_h + gap)) / 2 + 3}" font-size="12" fill="{INK}" text-anchor="end">{escape(lab)}</text>')
@@ -82,7 +92,7 @@ def line(path, title, subtitle, source, series, unit="", ymax=None, w=760, h=380
     xs = [x for _, pts in series for x, _ in pts]
     ys = [y for _, pts in series for _, y in pts]
     xmin, xmax = min(xs), max(xs)
-    ymax = ymax or max(ys) * 1.1
+    ymax = ymax or nice(max(ys) * 1.05)
     pw, ph = w - left - right, h - top - bottom
     X = lambda x: left + pw * (x - xmin) / ((xmax - xmin) or 1)
     Y = lambda y: top + ph * (1 - y / ymax)

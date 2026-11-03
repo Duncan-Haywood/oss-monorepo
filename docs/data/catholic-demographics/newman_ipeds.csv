@@ -1,0 +1,15 @@
+unitid,name,state,ipeds_catholic,undergrads,pct_women,pct_white,pct_hispanic,pct_black,pct_asian,pct_multiracial,pct_international,pct_other_race,pct_race_unknown,pct_under_25,pct_pell,admit_rate
+446048,Ave Maria University,FL,True,1250,55.0,70.0,16.3,3.4,3.8,0.0,2.4,0.7,3.4,97.1,23.2,44.8
+197984,Belmont Abbey College,NC,True,1549,46.9,63.5,8.4,8.2,1.8,2.6,3.8,0.5,11.3,93.7,25.4,90.4
+154712,Benedictine College,KS,True,2391,51.0,75.5,12.9,2.5,1.5,3.7,0.9,0.5,2.5,98.7,16.2,76.4
+131283,The Catholic University of America,DC,True,3139,56.6,56.8,19.8,9.3,3.0,4.6,3.5,0.1,3.0,92.7,16.7,83.8
+205957,Franciscan University of Steubenville,OH,True,2978,56.1,70.8,19.3,1.1,2.8,1.9,1.1,0.7,2.3,93.7,21.0,72.2
+462354,John Paul the Great Catholic University,CA,True,298,47.3,38.9,33.2,1.3,6.4,6.7,1.7,1.3,10.4,90.9,38.0,79.3
+124292,Thomas Aquinas College,CA,True,539,50.3,62.2,19.7,0.0,2.2,5.6,6.5,0.2,3.7,98.0,19.8,78.7
+183275,Thomas More College of Liberal Arts,NH,True,95,50.5,73.7,6.3,0.0,2.1,4.2,2.1,1.1,10.5,92.6,50.5,
+224323,University of Dallas,TX,True,1427,54.7,55.8,27.7,3.0,7.2,1.8,1.8,0.4,2.3,98.2,26.4,54.2
+200217,University of Mary,ND,True,2650,58.7,78.5,0.0,2.2,1.7,2.7,2.5,2.0,10.6,87.7,17.8,78.2
+227863,University of St Thomas,TX,True,2969,57.2,18.8,52.3,11.7,9.9,1.8,3.8,0.3,1.5,77.8,37.9,93.3
+206437,Walsh University,OH,True,1423,50.1,58.5,3.1,5.8,1.4,3.2,8.9,0.1,19.0,92.0,23.3,78.2
+475398,Catholic International University,WV,True,99,55.6,50.5,33.3,2.0,3.0,3.0,4.0,0.0,4.0,16.2,20.0,
+129534,Holy Apostles College and Seminary,CT,True,270,53.0,68.1,19.3,0.7,4.8,1.5,4.4,0.4,0.7,61.1,16.2,
