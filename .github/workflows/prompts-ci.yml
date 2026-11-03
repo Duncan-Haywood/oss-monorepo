@@ -42,6 +42,17 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          # Only what the validator and prompts/ tests read (measured in
+          # docs/history/ci-perf-2026-11-03-prompts-sparse.md): the tree is
+          # ~900 MB, mostly audio and images this job never opens.
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            *.md
+            /prompt.md
+            /prompts/
+            /platform/ci/
+            /.github/
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"

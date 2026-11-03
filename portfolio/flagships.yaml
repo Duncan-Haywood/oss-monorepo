@@ -271,15 +271,17 @@ flagships:
       men's-choir lines with Latin lyrics, then genre templates, voices,
       mastering checks and a release kit for streaming distribution.
     next: >-
-      Everything through 2026-11-03 (browser studio, mix/master check, release
-      kit, GABC/NABC fixes, --fit/--repeat/--halftime/--fills/--lrc/--cues,
+      Everything through 2026-11-03 (browser studio, mix/master check with
+      suggested and per-service playback gain, release kit, GABC/NABC fixes,
+      --fit/--repeat/--halftime/--fills/--intro/--markers/--lrc/--cues,
       voice-fit finals, preview renderer with --limit and --stems) is built and
       tested; history is in the README and git. Open, all needing a person or a
-      real file: listen by ear to --stretch, --halftime, --fills and the
-      limiter output; check master-cli against EBU test files and a real mix;
-      check the release kit against a distributor's real upload form; try
-      --lrc in a real player and --cues and the voice range with real singers;
-      put the studio page in front of users. Next agent work: compare a sample
-      of the files against a pre-1929 scan (notes, not just parse), source the
-      Te Deum and Salve Regina from a pre-1929 book, and read the 11 off-final
-      endings against the book (ROADMAP.md).
+      real file: listen by ear to --stretch, --halftime, --fills, --intro and
+      the limiter output; check master-cli against EBU test files and a real
+      mix, and the per-service targets against each service's own page; check
+      the release kit against a distributor's real upload form; try --lrc in a
+      real player, --markers in a DAW, and --cues and the voice range with real
+      singers; put the studio page in front of users. Next agent work: compare
+      a sample of the files against a pre-1929 scan (notes, not just parse),
+      source the Te Deum and Salve Regina from a pre-1929 book, and read the 11
+      off-final endings against the book (ROADMAP.md).

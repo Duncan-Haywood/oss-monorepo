@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01E5sJKnmBmcvH6gu7dGgYxs",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T20:21:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12900",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "No post written; a one-workflow checkout narrowing, history doc only.",
+      "did": "history doc only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-03-prompts-sparse.md"
+  ],
+  "goal": null,
+  "notes": "Metric: Prompts workflow checkout share. Before (ci_profile.py --runs 200): 12 jobs, 31.9 job-min, median job 140s, checkout 134s (96%). After: not yet measurable (local file:// clone ignored the blob filter); local validate + 129 tests pass on the sparse tree (93 MB). Touches .github/, so the PR may wait for owner approval under CODEOWNERS.",
+  "corrections": [],
+  "redteam": null
+}
