@@ -58,12 +58,13 @@ iframe{width:100%;height:72vh;border:1px solid var(--line);border-radius:12px;ba
 .findings b{text-transform:uppercase;font-size:11px;letter-spacing:.06em}
 .steps li{margin:0 0 10px}
 footer{border-top:1px solid var(--line);margin-top:48px;padding:22px 0 40px;font:13.5px/1.6 system-ui,sans-serif;color:var(--muted)}
-.sr{position:absolute;left:-9999px}
+.sr{position:absolute;left:-9999px}.sr:focus{left:12px;top:12px;background:var(--surface);padding:8px 12px;z-index:5}
 </style>
 </head>
 <body>
+<a class="sr" href="#main">Skip to content</a>
 <header class="top"><div class="wrap">Monastery site · free website builder for religious communities · runs in your browser</div></header>
-<div class="wrap">
+<main class="wrap" id="main">
 <section class="hero">
 <h1>A complete website for your monastery, from one form.</h1>
 <p class="lede">An opinionated, free website builder for Catholic monks and nuns. Fill in your community's details and download a finished site: a horarium, a vocations page with an inquiry form, a giving page that sends gifts straight to you, prayer requests, retreats and the guesthouse, events and news. It is fast, readable on any phone, and found by search engines.</p>
@@ -259,7 +260,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding:22px 0 40px;font
 <p>Would you rather someone set it up with you? This portfolio also takes free custom development requests: <a href="https://marisstella.app/custom-development/">ask for help with your community's site</a>.</p>
 
 <section class="card" style="margin-top:24px"><label style="display:flex;gap:8px;align-items:center;margin:0"><input type="checkbox" id="usage" style="width:auto"> Count anonymous feature use in this browser</label><p class="note">Everything runs in your browser. What you type is stored only in this browser's local storage and is never uploaded. Usage counts hold only feature names, stay in this browser, and are turned off by the checkbox, Do Not Track or Global Privacy Control.</p></section>
-</div>
+</main>
 
 <footer><div class="wrap">
 <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice: what your site says about gifts, receipts and tax treatment is for your community and its advisers to decide. <strong>You are responsible for reviewing everything on the site it builds before publishing it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
