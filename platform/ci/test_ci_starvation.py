@@ -233,7 +233,7 @@ class Fetch(unittest.TestCase):
         self.assertEqual(len(rows), 1)
 
 
-class GhApi(unittest.TestCase):
+class GhSubprocessWrappers(unittest.TestCase):
     """`gh_api` and `git_remote_repo` shell out; pin how they call and decode."""
 
     def _proc(self, rc=0, out="", err=""):

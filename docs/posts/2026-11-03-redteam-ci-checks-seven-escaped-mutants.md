@@ -3,7 +3,7 @@ title: "Seeding bugs into our CI checks: 7 of 43 got through"
 seo_title: "Mutation testing a repo's own CI checks: what escaped"
 date: 2026-11-03
 tags: [testing, ci, mutation-testing, open-source]
-description: "A red-team run seeded 43 faults into six platform CI scripts. The tests caught 36. The seven that escaped were in argument defaults, text decoding and a threshold boundary."
+description: "A red-team run seeded 43 faults into six platform CI scripts. Tests caught 36; the 7 escapes were argument defaults, text decoding and a threshold boundary."
 ---
 
 A red-team run seeds small faults (flip a comparison, bump a constant) into files that tests guard, then checks whether the suite fails. This run aimed at six scripts under `platform/ci/`: the table-header, duplicate-id, markdown-link, third-party-request, CI-starvation and thin-page checks.
