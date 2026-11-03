@@ -327,3 +327,15 @@ test('the CLI exits 2 with a usage line when --base is missing', () => {
   assert.equal(r.status, 2);
   assert.match(r.stderr, /usage: share\.mjs/);
 });
+
+test('the CLI with no arguments at all prints the usage line and exits 2', () => {
+  const r = spawnSync(process.execPath, [new URL('./share.mjs', import.meta.url).pathname], { encoding: 'utf8', env: { ...process.env, PAGES_BASE_URL: 'https://example.test/' } });
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /usage: share\.mjs/);
+});
+
+test('an og:image with a scheme that contains a digit is absolute and left byte for byte', () => {
+  const image = 'X2y://CDN.example/x.jpg';
+  const out = completeShareTags(page({ image }), { url: `${BASE}ventures/shed-designer/` });
+  assert.ok(out.includes(`property="og:image" content="${image}"`));
+});
