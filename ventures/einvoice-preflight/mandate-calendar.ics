@@ -95,6 +95,21 @@ URL:https://example.invalid/einvoice-preflight/uganda-efris-e-invoice-man
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:92cd655d6f6e5fa0@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20210101
+DTEND;VALUE=DATE:20210102
+SUMMARY:Albania: Clearance through the tax authority: government buyers f
+ rom 1 Jan 2021
+DESCRIPTION:Albania (In force). Clearance through the tax authority: gove
+ rnment buyers from 1 Jan 2021. Detail and sources: https://example.inval
+ id/einvoice-preflight/albania-e-invoice-mandate.html. Not legal or tax a
+ dvice.
+URL:https://example.invalid/einvoice-preflight/albania-e-invoice-mandate.
+ html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:260db7164b6434e5@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20210101
@@ -108,6 +123,36 @@ DESCRIPTION:Uganda (In force). mandatory for VAT-registered taxpayers (Ga
  ce.
 URL:https://example.invalid/einvoice-preflight/uganda-efris-e-invoice-man
  date.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:23bc4f6d0a8ba5d3@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20210701
+DTEND;VALUE=DATE:20210702
+SUMMARY:Albania: Clearance through the tax authority: cashless B2B from 1
+  Jul 2021
+DESCRIPTION:Albania (In force). Clearance through the tax authority: cash
+ less B2B from 1 Jul 2021. Detail and sources: https://example.invalid/ei
+ nvoice-preflight/albania-e-invoice-mandate.html. Not legal or tax advice
+ .
+URL:https://example.invalid/einvoice-preflight/albania-e-invoice-mandate.
+ html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:1d2a16aea4e39de9@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20210901
+DTEND;VALUE=DATE:20210902
+SUMMARY:Albania: Clearance through the tax authority: cash sales to consu
+ mers from 1 Sep 2021 (vendor an...
+DESCRIPTION:Albania (In force). Clearance through the tax authority: cash
+  sales to consumers from 1 Sep 2021 (vendor and compliance guides\, not 
+ the DPT or the law). Detail and sources: https://example.invalid/einvoic
+ e-preflight/albania-e-invoice-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/albania-e-invoice-mandate.
+ html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT

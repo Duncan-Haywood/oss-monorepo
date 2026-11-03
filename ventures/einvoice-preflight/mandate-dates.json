@@ -46,9 +46,30 @@
   },
   {
    "date": "2021-01-01",
+   "country": "Albania",
+   "page": "albania-e-invoice-mandate.html",
+   "note": "Clearance through the tax authority: government buyers from 1 Jan 2021",
+   "status": "In force"
+  },
+  {
+   "date": "2021-01-01",
    "country": "Uganda",
    "page": "uganda-efris-e-invoice-mandate.html",
    "note": "mandatory for VAT-registered taxpayers (Gazette Notice 595 of 2020, reported; start 1 July 2020 to 1 January 2021 in different guides)",
+   "status": "In force"
+  },
+  {
+   "date": "2021-07-01",
+   "country": "Albania",
+   "page": "albania-e-invoice-mandate.html",
+   "note": "Clearance through the tax authority: cashless B2B from 1 Jul 2021",
+   "status": "In force"
+  },
+  {
+   "date": "2021-09-01",
+   "country": "Albania",
+   "page": "albania-e-invoice-mandate.html",
+   "note": "Clearance through the tax authority: cash sales to consumers from 1 Sep 2021 (vendor and compliance guides, not the DPT or the law)",
    "status": "In force"
   },
   {
