@@ -2,6 +2,10 @@
 
 Newest first.
 
+## 2026-11-03 · Milestone 6g: paper section 3.4a gains 5k and 5l (a writing step, no experiment)
+- Added the measured 2.10 s Cat 305.5E2 lowering time with the re-rated recovery power (979 / 3,478 W; 1.21 / 4.31 kW at 2.1 s; 5.33 kW at 1.7 s) and the published electric-excavator power profile (peak/mean 2.89, best 3 s window 1.85 x mean, 0.001% negative energy) to the draft, with their limits. 9 new rows in `paper/check_numbers.py`, 81 claims, 0 missing.
+- Next: read the CWA document for the profile's origin and machine; an excavator cylinder pressure trace (H4) is still missing.
+
 ## 2026-11-03 · Milestone 5l: a published electric-excavator power profile (CWA pre-normative, Zenodo 18862594) as a shape check on the duty cycle (no prediction registered before the first run, stated honestly)
 - Why: H4 still lacks an excavator pressure trace. A search of Zenodo found two excavator records: a Caterpillar 305.5E2 gauge and stopwatch test (Zenodo 17760471, CC BY, cylinder stroke times only, no pressures or trace, so unusable for H4) and the "Off-road electric power profile" (Arrinda, Popp, Chevillard, Michalow-Mauke, Zenodo 18862594, CC BY 4.0, 2026-03-04): raw electric power at 0.1 s for an electric excavator, part of a CWA pre-normative profile, three csv files (digging 80 s, grading 25 s, full 1,779 s). `experiments/cwa_profile.py` fetches them and prints shape statistics.
 - Outcome (`experiments/cwa_profile_results.txt`): full profile mean 46.0 kW, peak 133.1 kW, **peak/mean 2.89**, p95/mean 2.20, best 3 s window 1.85 x mean, 22.7 kWh over 1,779 s (2.17 h per 100 kWh). Digging alone peak/mean 2.67, grading 2.36. Negative power (regeneration at the electrical terminals) is **0.001% of positive energy**.
