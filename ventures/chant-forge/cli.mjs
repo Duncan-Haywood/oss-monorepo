@@ -18,10 +18,11 @@ const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULS
   --drone   add a held drone on the final, an octave below
   --cues    write a singer's cue sheet (bar, beat, seconds, note, syllable) to this file
   --suggest-final  print the finals that keep the whole chant in E2-E4 (a men's unison range) and exit
+  --auto-final  transpose to the recommended final from --suggest-final (a chant wider than E2-E4 is refused)
   --json    print the summary as JSON`;
 
 export function run(argv) {
-  const args = { bpm: 124, fit: null, stretch: false, halftime: false, final: null, drone: false, genre: null, json: false, suggest: false, cues: null, out: null, file: null };
+  const args = { bpm: 124, fit: null, stretch: false, halftime: false, final: null, drone: false, genre: null, json: false, suggest: false, auto: false, cues: null, out: null, file: null };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '-o') args.out = argv[++i];
@@ -34,6 +35,7 @@ export function run(argv) {
     else if (a === '--genre') args.genre = argv[++i];
     else if (a === '--cues') args.cues = argv[++i];
     else if (a === '--suggest-final') args.suggest = true;
+    else if (a === '--auto-final') args.auto = true;
     else if (a === '--json') args.json = true;
     else if (a === '-h' || a === '--help') return { code: 0, text: USAGE };
     else if (!args.file) args.file = a;
@@ -50,6 +52,13 @@ export function run(argv) {
     if (args.json) return { code: 0, text: JSON.stringify(r, null, 2) };
     if (!r.fits) return { code: 1, text: `ambitus ${r.ambitus} semitones is ${r.over} wider than ${r.range.join('-')}; split between voices or accept a falsetto/low pedal` };
     return { code: 0, text: `finals that fit ${r.range.join('-')}: ${r.finals.lowestName} to ${r.finals.highestName}; recommended --final ${r.recommended.final} (${r.recommended.name})` };
+  }
+  if (args.auto) {
+    if (args.final !== null) return { code: 2, text: '--auto-final and --final both set the final; use one' };
+    if (!events.some((e) => e.type === 'note')) return { code: 2, text: 'no notes' };
+    const r = suggestFinal(events);
+    if (!r.fits) return { code: 1, text: `--auto-final: ambitus ${r.ambitus} semitones is ${r.over} wider than ${r.range.join('-')}; use --final to choose` };
+    args.final = r.recommended.final;
   }
   if (args.final !== null) events = transposeToFinal(events, args.final);
   if (args.stretch && !args.fit) return { code: 2, text: '--stretch needs --fit' };
