@@ -1,6 +1,6 @@
 ---
 title: "The deck framing tool now refuses settings it used to swallow"
-seo_title: "Deck framing takeoff: bad post spacing, footing and board settings refused"
+seo_title: "Deck framing takeoff refuses bad post spacing, footing and boards"
 date: 2026-11-03
 tags: [wall-framing-takeoff, construction, deck]
 description: "A text post spacing, a zero screw box or a 1e-9 blocking spacing gave NaN counts or a raw RangeError; the deck check now says what is wrong."

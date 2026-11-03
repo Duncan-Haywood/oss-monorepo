@@ -17,12 +17,15 @@
 // wing of a different pitch than the main roof (noted). Equal-pitch wings are counted.
 import { packPieces } from "./trim.mjs";
 
+import { textNumberErrors } from "./numfields.mjs";
 /** @typedef {{ gutterStock?: number, downspoutStock?: number, eaveHeight?: number, hangerSpacing?: number, maxRunFeet?: number, sqFtPerDownspout?: number, strapSpacing?: number, waste?: number, gutterPrice?: number, downspoutPrice?: number, hangerPrice?: number, capPrice?: number, elbowPrice?: number, cornerPrice?: number, strapPrice?: number }} Gutters */
 
 /** @param {Gutters} d */
 export function validateGutters(d) {
   const e = [];
   if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Gutter settings are an object."];
+  e.push(...textNumberErrors(d, ['capPrice', 'cornerPrice', 'downspoutPrice', 'downspoutStock', 'eaveHeight', 'elbowPrice', 'gutterPrice', 'gutterStock', 'hangerPrice', 'hangerSpacing', 'maxRunFeet', 'sqFtPerDownspout', 'strapPrice', 'strapSpacing', 'waste']));
+  if (e.length) return e;
   for (const [k, n, lo, hi] of /** @type {const} */ ([
     ["gutterStock", "Gutter length", 48, 288], ["downspoutStock", "Downspout length", 48, 240],
     ["eaveHeight", "Eave height", 48, 600], ["hangerSpacing", "Hanger spacing", 12, 48],

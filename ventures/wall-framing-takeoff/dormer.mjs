@@ -23,6 +23,7 @@
 // is `depth` in plan back from the front wall (default: the cheek run to the
 // eave, xe); the sizes and the load path are the engineer's. Hand-arithmetic checks in dormer.test.mjs; no real dormer plan checked.
 
+import { textNumberErrors } from "./numfields.mjs";
 /** @typedef {{ width: number, eaveHeight: number, pitch: number, mainPitch: number, spacing?: number, studSize?: string, rafterSize?: string, valleySize?: string, ridgeSize?: string, headerSize?: string, window?: { width: number, height?: number, sill?: number }, roofOpening?: boolean | { depth?: number, mainSpacing?: number, headerSize?: string, trimmerSize?: string } }} Dormer */
 
 const PLATES = 4.5;
@@ -33,6 +34,8 @@ const slope = (/** @type {number} */ p) => Math.sqrt(1 + (p / 12) ** 2);
 export function validateDormer(d) {
   const e = [];
   if (d == null || typeof d !== "object" || Array.isArray(d)) return ["A dormer is an object with width, eave height and pitch."];
+  e.push(...textNumberErrors(d, ['eaveHeight', 'mainPitch', 'pitch', 'spacing', 'width']));
+  if (e.length) return e;
   if (!(d.width >= 36 && d.width <= 180)) e.push("Dormer width must be between 3 and 15 ft.");
   if (!(d.eaveHeight >= 24 && d.eaveHeight <= 96)) e.push("Dormer eave height (front wall, bottom plate to eave) must be between 2 and 8 ft.");
   if (!(d.pitch >= 3 && d.pitch <= 16)) e.push("Dormer pitch must be between 3 and 16 in 12.");

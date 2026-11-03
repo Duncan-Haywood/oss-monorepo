@@ -13,6 +13,7 @@ import { joistCentres } from "./floor.mjs";
 
 const DEFAULT_R = { "2x4": 15, "2x6": 21 };
 
+import { textNumberErrors } from "./numfields.mjs";
 /** @typedef {{ rValue?: number, rPerInch?: number, bagCuFt?: number, price?: number, heel?: number, baffles?: boolean, baffleLength?: number, baffleWidth?: number, ceiling?: { width: number, depth: number }[] }} Attic */
 /** @typedef {{ continuousR?: number, sheathingR?: number, drywallR?: number, insideFilmR?: number, outsideFilmR?: number, framingRPerInch?: number, assumedFramingFraction?: number, ceilingR?: number, ceilingFromAttic?: boolean, windowU?: number, doorU?: number, designDeltaF?: number, heatingDegreeDays?: number, heatingSystems?: {name?: string, efficiency: number, unitBtu: number, pricePerUnit: number}[], slabEdgeF?: number, ach50?: number, nFactor?: number, volumeCuFt?: number }} Assembly */
 /** @typedef {{ bagSqFt?: number, waste?: number, rValue?: number, price?: number, attic?: Attic, rim?: boolean, assembly?: Assembly | boolean }} Insulation */
@@ -26,6 +27,10 @@ const SIZE_DEPTH = { "2x4": 3.5, "2x6": 5.5 };
 export function validateInsulation(d) {
   const e = [];
   if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Insulation settings are an object."];
+  e.push(...textNumberErrors(d, ['bagSqFt', 'waste', 'rValue', 'price']));
+  if (d.attic && typeof d.attic === "object") e.push(...textNumberErrors(d.attic, ['rValue', 'rPerInch', 'bagCuFt', 'price', 'heel', 'baffleLength', 'baffleWidth']).map((x) => "Attic " + x));
+  if (d.assembly && typeof d.assembly === "object") e.push(...textNumberErrors(d.assembly, ['ach50', 'assumedFramingFraction', 'ceilingR', 'continuousR', 'designDeltaF', 'doorU', 'drywallR', 'framingRPerInch', 'heatingDegreeDays', 'insideFilmR', 'nFactor', 'outsideFilmR', 'sheathingR', 'slabEdgeF', 'volumeCuFt', 'windowU']).map((x) => "Assembly " + x));
+  if (e.length) return e;
   if (d.bagSqFt != null && !(d.bagSqFt >= 10 && d.bagSqFt <= 500)) e.push("Insulation bag coverage must be between 10 and 500 sq ft.");
   if (d.waste != null && !(d.waste >= 0 && d.waste <= 0.3)) e.push("Insulation waste must be between 0 and 0.3.");
   if (d.rValue != null && !(d.rValue > 0 && d.rValue <= 60)) e.push("R-value must be between 0 and 60.");
