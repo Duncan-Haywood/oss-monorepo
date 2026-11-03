@@ -166,7 +166,8 @@
       {
         "file": "platform/distribution/bluesky.mjs (and ~100 other files: devto, hub/compose, mcp, citation, agents/tools, daily/build, venture_live_links ...)",
         "issue": "BASE_URL is https://duncan-haywood.github.io/monorepo-projects/, which returns HTTP 404 on 2026-10-24 (curl); the catalogue is served at /oss-monorepo/ (200, CLAUDE.md 'Hosting'). Distribution posts built from these constants would link to dead pages. Too wide to patch in a mutation run; backlog item filed.",
-        "patched": false
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12779"
       }
     ]
   },

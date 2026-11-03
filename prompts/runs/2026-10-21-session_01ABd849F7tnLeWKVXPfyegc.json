@@ -179,7 +179,8 @@
       {
         "file": "ventures/ai-bookkeeper/bank.mjs",
         "issue": "unterminated quote in CSV swallows the rest of the file into one row with no problem reported",
-        "patched": false
+        "patched": true,
+        "patched_in": "already fixed on main: bank.mjs parseCsv reparses an unclosed quote as literal (bank.mjs:67-89), checked 2026-11-03"
       }
     ]
   }
