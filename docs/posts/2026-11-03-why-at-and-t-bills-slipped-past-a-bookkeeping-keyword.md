@@ -3,7 +3,7 @@ title: "Why AT&T's bill slipped past a bookkeeping keyword"
 seo_title: "Bank feeds write AT&T as ATT*BILL PAYMENT: categorising it"
 date: 2026-11-03
 tags: [bookkeeping, categorization, open-source]
-description: "Card feeds drop the ampersand from AT&T, so a keyword for 'at&t' never fired. AI Bookkeeper now files ATT*BILL PAYMENT and ATT WIRELESS under phone and utilities."
+description: "Card feeds drop the ampersand from AT&T, so an at&t keyword never fired. AI Bookkeeper now files ATT*BILL PAYMENT and ATT WIRELESS under phone and utilities."
 ---
 
 AI Bookkeeper's built-in keyword layer knew "at&t". Bank and card feeds rarely print the ampersand: processors write `ATT*BILL PAYMENT`, and the line landed in the review queue with "nothing known". A probe of 15 common small-business descriptors found it was the only miss besides a Steam purchase.
