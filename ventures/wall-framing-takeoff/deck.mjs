@@ -46,7 +46,16 @@ export function validateDeck(d) {
   if (![1, 2, 3].includes(plies)) errors.push("Beam plies must be 1, 2 or 3.");
   if (d.border != null && d.border !== true && d.border !== false && ![1, 2, 3].includes(d.border)) errors.push("Border courses must be 1, 2 or 3 (or true for one).");
   const o = d.overhang ?? 12;
-  if (!(o >= 0 && o < d.depth / 2)) errors.push("The joist overhang past the beam must be between 0 and half the depth.");
+  if (!(typeof o === "number" && o >= 0 && o < d.depth / 2)) errors.push("The joist overhang past the beam must be a number between 0 and half the depth.");
+  // Optional numeric settings: text ("96"), true, zero and huge values used to pass and then give NaN, a hang or a raw RangeError.
+  const num = (v, lo, hi, what) => { if (v != null && !(typeof v === "number" && Number.isFinite(v) && v >= lo && v <= hi)) errors.push(`${what} must be a number from ${lo} to ${hi}.`); };
+  num(d.postInset, 0, 60, "Post inset (in)");
+  num(d.maxPostSpacing, 24, 240, "Maximum post spacing (in)");
+  num(d.railPostSpacing, 12, 96, "Rail post spacing (in)");
+  if (d.screwsPerBox != null && !(Number.isInteger(d.screwsPerBox) && d.screwsPerBox >= 1 && d.screwsPerBox <= 10000)) errors.push("Screws per box must be a whole number from 1 to 10000.");
+  if (d.footing != null) { if (typeof d.footing !== "object" || Array.isArray(d.footing)) errors.push("footing is an object."); else { num(d.footing.diameter, 6, 60, "Footing diameter (in)"); num(d.footing.depth, 6, 120, "Footing depth (in)"); num(d.footing.bagYield, 0.1, 3, "Concrete bag yield (cu ft)"); } }
+  if (d.deckBoard != null) { if (typeof d.deckBoard !== "object" || Array.isArray(d.deckBoard)) errors.push("deckBoard is an object."); else { num(d.deckBoard.width, 2, 12, "Deck board width (in)"); num(d.deckBoard.thickness, 0.5, 3, "Deck board thickness (in)"); num(d.deckBoard.gap, 0, 1, "Deck board gap (in)"); } }
+  if (d.blocking != null) { if (typeof d.blocking !== "object" || Array.isArray(d.blocking)) errors.push("blocking is an object."); else num(d.blocking.every, 12, 600, "Blocking spacing (in)"); }
   if (!(Number.isFinite(d.height) && Number.isFinite(d.width) && Number.isFinite(d.depth))) errors.push("Width, depth and height must be numbers (inches).");
   return errors;
 }
