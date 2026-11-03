@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12932",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,19 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "The scheduled task asked for revenue products, so I worked a flagship instead of a creative piece."
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Scheduled revenue-products task; routed to creative but the task text named products, so deepened the top flagship (wall-framing-takeoff): IFC reader built to WASM and wired to the page upload. Checks: ifcwasm.test.mjs, page/usage tests, cargo test, headless Chromium open. Duplex/Schependomlaan not run in browser.",
   "corrections": [],
   "redteam": null
 }
