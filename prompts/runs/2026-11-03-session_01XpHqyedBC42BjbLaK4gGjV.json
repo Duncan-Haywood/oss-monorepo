@@ -47,7 +47,7 @@
  ],
  "writeups": [],
  "goal": null,
- "notes": "Runs 41701427031 and 41703999976 failed check.mjs on duplicate <title> (sales-agent/cold-email-checker.html vs writing/why-the-sales-agent-got-a-cold-email-checker/). page-identity tests 10/10 pass. Full local build+check: see follow-up commit.",
+ "notes": "Runs 41701427031 and 41703999976 failed check.mjs on duplicate <title> (sales-agent/cold-email-checker.html vs writing/why-the-sales-agent-got-a-cold-email-checker/). The new guard then surfaced a second clash already on main (SPF/DKIM/DMARC post vs its tool page, PR #12889); both posts retitled at source. page-identity tests 10/10 pass. Full local build: BUILD_EXIT=0; check.mjs: 'dist looks publishable: 1326 products, 45 category pages, 6676 pages, no dead links.' CHECK_EXIT=0.",
  "corrections": [],
  "redteam": null
 }
