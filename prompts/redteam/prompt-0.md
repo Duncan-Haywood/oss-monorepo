@@ -47,6 +47,12 @@ python3 prompts/promptctl.py record --track redteam --version 0 --session <url> 
 python3 prompts/redteam.py campaign --mutants 8 --record prompts/runs/<your record>.json
 ```
 
+Forgot `--record`? The campaign is saved anyway, to `.redteam/campaign-<seed>.json`;
+`python3 prompts/redteam.py attach .redteam/campaign-<seed>.json prompts/runs/<your record>.json`
+moves it in. If the tool warns that the mutants will pass about 600 s, start it
+with `run_in_background` (a foreground kill used to leave a mutant in the file;
+every command now restores such files first, and `redteam.py recover` does only that).
+
 With no `--target`, the tool picks a random file that some test suite guards,
 redrawing past suites slower than 20 s (`--probe N` changes that, 0 turns it off)
 (`redteam.py targets` lists them; about 95% are under `ventures/`, so
@@ -94,7 +100,10 @@ For every mutant with `"caught": false` (in the record at `redteam.campaigns[N].
   each copy. `rerun` re-applies only the copy nearest the recorded line, so
   mutate the other copy by hand to check it.
 - `"gap"`: a real hole. Write the smallest test that fails with the mutant
-  and passes without it, in the target's existing suite.
+  and passes without it, in the target's existing suite file: `rerun` runs
+  only the suite the campaign found (the sibling `<file>.test.mjs` or
+  `test_<file>.py`), so a test in a new file is never seen and the gap reads
+  `false` (friction 2026-11-03).
 
 For every real defect, write the failing test first, then fix the code and
 set `"patched": true`.
