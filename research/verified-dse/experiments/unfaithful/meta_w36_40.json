@@ -1,0 +1,7 @@
+{
+ "base_period_ns": {
+  "mult36": 5.38,
+  "mult40": 5.57
+ },
+ "n_sequences": 60
+}
