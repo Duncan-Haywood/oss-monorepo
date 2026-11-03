@@ -93,6 +93,16 @@ signs; `<v>` (raw TeX) and `<alt>` text, `{}` centre braces, `*` and the cross
 are not lyrics; a clef change inside a group, as in `(::c3)` or `(z c3)`, now
 moves the staff. NABC alternations are still cut at the first `|`.
 
+## Choosing a final (2026-11-03)
+
+`node cli.mjs piece.gabc --suggest-final` lists the finals that keep the whole
+chant inside E2-E4 (MIDI 40-64, a rule-of-thumb men's unison range) and picks
+the one that centres the line; use it as `--final N`. A piece wider than the
+range is reported with how far over it is, not forced. Corpus results: Dies
+irae and Salve Regina A2-E3 (recommended C#3), Pange lingua F#2-F#3, Te Deum
+Ab2-Ab3 (D3), Veni Creator F#2-G3. The range is a guess, not checked with
+singers (`voicefit.test.mjs`, 4 tests).
+
 ## Not checked yet
 
 - `examples/dies-irae-incipit.gabc` is the widely quoted opening motif
