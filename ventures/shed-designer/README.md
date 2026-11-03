@@ -2,7 +2,7 @@
 
 Shed Designer is a free browser tool for people building their own backyard shed. You drag out a gable shed, and it frames every board at its real size. You get construction drawings, a 3D model, a cut sheet that says which board each piece comes out of, and a shopping list with a cost.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/shed-designer/
+**Live tool:** https://marisstella.app/shed-designer/
 
 **After using this, you can now** take a printed plan set and a board-by-board cut sheet to the lumberyard and the saw, for the exact size of shed you want. **That used to take** a fixed plan set in somebody else's size plus an evening with a tape, a calculator and a spreadsheet.
 

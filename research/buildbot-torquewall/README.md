@@ -2,7 +2,7 @@
 
 Track 20, robots on the residential building site (`PROJECTS.md`, milestone 3 and 7). [`buildbot-carrycop`](../buildbot-carrycop) found that joint torque, not the sole, is the wall for the Menagerie G1 and H1 carrying a load. Which joint, and how much stronger would it need to be? This re-scores the same prescribed carry step with one joint group's torque limits multiplied by 2 or 4. Produced with AI assistance (Claude). Simulated and preliminary; the factors are what-ifs, not products.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-torquewall/
+**Live page:** https://marisstella.app/research/buildbot-torquewall/
 
 **Headline.**
 - **The G1's wall is one joint: the waist pitch (50 N·m in the model).** Doubling only the waist limits lifts the heaviest payload with a feasible step from 4 kg to 6 kg, and at 4 kg the fastest step from 0.10 to 0.20 m/s. Doubling the arms, legs or ankles alone changes nothing; at 6 kg and above, only waist-containing sets help.

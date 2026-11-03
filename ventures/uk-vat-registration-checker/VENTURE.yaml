@@ -35,5 +35,5 @@ kill_criteria:
   - A report that a threshold, date or flat rate differs from HMRC guidance on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/oss-monorepo/uk-vat-registration-checker/
+  production: https://marisstella.app/uk-vat-registration-checker/
   analytics: null

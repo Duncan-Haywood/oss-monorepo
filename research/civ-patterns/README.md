@@ -51,7 +51,7 @@ fitted to the past says for a regime or state of that type and age. They are not
 any country's politics, and they include none of the things a country analyst would use
 (economy, elites, conflict, neighbours). Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/civ-patterns/
+**Live page:** https://marisstella.app/research/civ-patterns/
 
 ![Yearly chance of ending by age: regimes (left), states and empires (right)](experiments/hazard_by_age.svg)
 

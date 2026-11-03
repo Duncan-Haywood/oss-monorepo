@@ -7,7 +7,7 @@ short faithful stories labelled as fiction. Written by an AI (Claude), read by
 an open-source synthetic voice (Kokoro). Scripts, cards and videos are
 **CC BY-SA 4.0**, free for anyone to repost; code is MIT.
 
-**Watch:** https://marisstella.app/catholic-shorts/ (also https://duncan-haywood.github.io/oss-monorepo/catholic-shorts/, which forwards there)
+**Watch:** https://marisstella.app/catholic-shorts/ (also https://marisstella.app/catholic-shorts/, which forwards there)
 
 ## Shorts so far
 

@@ -3,7 +3,7 @@
 **Status: open research programme, milestone 1 done.** The harness (`src/lowcomm/`, `tests/`, `experiments/m1_check.py`) reproduces the synchronous loop exactly at `M = 1, H = 1` and the `noisy-local-sgd` closed form on a quadratic (ratio 0.983, 95% CI containing it). No result about the research question yet. This directory is where the work
 toward one publishable paper accumulates across sessions (see [`PROPOSAL.md`](PROPOSAL.md)).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/lowcomm-training/
+**Live page:** https://marisstella.app/research/lowcomm-training/
 
 **The question.** DiLoCo-style local SGD trains a language model across workers that synchronise only
 every `H` steps. The sync interval, a compressor, a delayed or momentum-based outer update and a robust

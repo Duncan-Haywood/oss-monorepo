@@ -21,7 +21,7 @@ released track:
 
 ## Try it in the browser
 
-[`index.html`](index.html) ([live](https://duncan-haywood.github.io/oss-monorepo/chant-forge/)) is a studio page over the same modules: paste GABC (or load one of the five corpus
+[`index.html`](index.html) ([live](https://marisstella.app/chant-forge/)) is a studio page over the same modules: paste GABC (or load one of the five corpus
 pieces), pick tempo, genre, bar fitting, half-time and a drone, then press Convert, play the preview and download
 the MIDI or a preview WAV. It runs entirely client-side (2026-11-03). To make that possible `midi.mjs` and
 `render.mjs` no longer use Node's `Buffer` (`browser-safe.test.mjs` runs the pipeline with `Buffer` deleted).

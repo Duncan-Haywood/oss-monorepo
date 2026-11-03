@@ -4,7 +4,7 @@ Find copy-pasted code, fast. A token-based copy-paste (code clone) detector
 written in Rust, with the same engine compiled to WebAssembly for a browser
 page that uploads nothing.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/dupehound/
+**Live page:** https://marisstella.app/dupehound/
 
 It is the first tool in the repository's "dev tools in Rust" direction
 ([`prompts/goals.md`](../../prompts/goals.md), "Direction: dev tools in Rust,

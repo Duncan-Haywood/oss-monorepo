@@ -5,7 +5,7 @@ intentions book**: record intentions and offerings, list the Masses, book
 intentions into them, and check the book against canons 948 to 958 of the
 Code of Canon Law. Runs in the browser; nothing is uploaded.
 
-**Live tool:** https://marisstella.app/parish-office/ (also at https://duncan-haywood.github.io/oss-monorepo/parish-office/, which forwards there)
+**Live tool:** https://marisstella.app/parish-office/ (also at https://marisstella.app/parish-office/, which forwards there)
 
 After using this, you can now **see which intentions are near or past a year,
 which Masses carry two offerings, and what a second Mass's offering or a short

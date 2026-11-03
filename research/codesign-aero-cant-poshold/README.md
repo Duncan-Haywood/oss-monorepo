@@ -2,7 +2,7 @@
 
 Follow-up to `codesign-aero-cant-bound`, and five sibling READMEs that all defer the same step: "add position hold so lateral thrust components are tested". A canted rotor makes a sideways force whenever roll or pitch torque is commanded. Here the vehicle gets translation, an outer position loop and that force. Produced with AI assistance (Claude). **Simulated; the cost model, mass model, reaction-torque ratio, noise levels and plant ranges are inherited or assumed (marked in `src/.../aero.py`).**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero-cant-poshold/
+**Live page:** https://marisstella.app/research/codesign-aero-cant-poshold/
 
 ![Left: held-out position error of each co-designed vehicle; right: yaw error. One dot per seed.](experiments/poshold.png)
 

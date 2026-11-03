@@ -2,7 +2,7 @@
 
 After using this, a babysitter who runs their own business can **answer the right inquiries first, quote and schedule sits without double-booking, know who still owes them, set aside the right amount for taxes, collect references with consent, and publish their own website**. Before, that meant a notes app, a spreadsheet, a paper calendar, guesswork at tax time, or a monthly fee for software built for daycare centers.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/ · **Guide:** [Babysitting taxes, explained](babysitting-taxes.html)
+**Live tool:** https://marisstella.app/babysitting-business-kit/ · **Guide:** [Babysitting taxes, explained](babysitting-taxes.html)
 
 Free and MIT. A browser app with no build step and no account, plus an optional one-file Node 22 server with zero dependencies that the sitter runs on their own hosting account.
 
@@ -96,7 +96,7 @@ Everything outside the box is **off until you set it, on your own accounts**:
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | optional card payments on invoices, into your own Stripe account: the pay link (`/pay/<token>`) creates a Stripe Checkout Session for the balance plus an optional tip, and `/stripe/webhook` (add it in Stripe for `checkout.session.completed`) verifies the `Stripe-Signature` and records the payment. Stripe charges you its own per-payment fee |
 | `LLM_PROVIDER` (`anthropic`, `openai`, `openai-compatible`, `ollama`), `LLM_API_KEY`, `LLM_MODEL`, `LLM_BASE_URL` | blog drafts from your own model account or a local model; with none set, drafts come from the topic template |
 
-**Deploy:** `render.yaml` (Render, starter plan with a 1 GB disk; it generates `ADMIN_KEY` and `CAL_TOKEN`), `fly.toml` (Fly.io, one always-on machine with a volume), `docker-compose.yml` (any box with Docker), or the [one-click deploy page](https://duncan-haywood.github.io/oss-monorepo/deploy/?app=babysitting-business-kit), which builds all three from `render.yaml`. Nothing runs on the author's accounts. Step by step, with costs: [self-host.html](self-host.html).
+**Deploy:** `render.yaml` (Render, starter plan with a 1 GB disk; it generates `ADMIN_KEY` and `CAL_TOKEN`), `fly.toml` (Fly.io, one always-on machine with a volume), `docker-compose.yml` (any box with Docker), or the [one-click deploy page](https://marisstella.app/deploy/?app=babysitting-business-kit), which builds all three from `render.yaml`. Nothing runs on the author's accounts. Step by step, with costs: [self-host.html](self-host.html).
 
 **Data safety (`backup.mjs`):** atomic writes; a daily snapshot beside the state file (newest 14 kept); at startup a state file that does not parse is moved to `desk.json.corrupt-<time>` and logged, never overwritten, and the newest good snapshot loads instead; `GET /api/backup` downloads the desk, `GET /api/backups` lists snapshots, `POST /api/restore` takes a desk JSON or `{"snapshot": "desk-YYYY-MM-DD.json"}` and saves the current desk first; `/admin` (admin key, sent as a header) shows versions, lead counts, last digest, which integrations are on (names only), disk use and the snapshots. Optional off-site copy to your own S3-compatible bucket (`BACKUP_S3_BUCKET`, `BACKUP_S3_ACCESS_KEY_ID`, `BACKUP_S3_SECRET_ACCESS_KEY`, plus `BACKUP_S3_ENDPOINT`/`BACKUP_S3_REGION` for R2, B2 or MinIO), signed with AWS Signature V4 in plain `node:crypto` and tested against AWS's published SigV4 test suite.
 

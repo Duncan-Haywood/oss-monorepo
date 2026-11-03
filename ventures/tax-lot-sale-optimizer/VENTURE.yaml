@@ -54,5 +54,5 @@ kill_criteria:
   - A tax preparer or investor reports that a worked tax figure disagrees with the same inputs done by hand.
 
 links:
-  production: https://duncan-haywood.github.io/oss-monorepo/tax-lot-sale-optimizer/
+  production: https://marisstella.app/tax-lot-sale-optimizer/
   analytics: null

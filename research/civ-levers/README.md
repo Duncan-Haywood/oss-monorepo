@@ -15,7 +15,7 @@ none of 10 societies. Produced with AI assistance (Claude). First project of res
 (`civ`, `PROJECTS.md`). Every result is about simulated people following a stated rule, not
 about real societies.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/civ-levers/
+**Live page:** https://marisstella.app/research/civ-levers/
 
 **Play with it:** the [depolarization simulator](app/index.html) runs the same model in the
 browser (`app/model.js`, checked against the Python model by `app/tests/model.test.mjs`).

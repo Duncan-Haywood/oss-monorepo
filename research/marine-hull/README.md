@@ -9,7 +9,7 @@ wins **3.3%** of 6,561 cases, still none at equal length, and wave resistance mo
 only 4%. Milestone 5 adds a hydrofoil rung: in 2,916 swept cases a foilborne 200 kg craft never out-ranges the monohull (best case about a quarter of its range; foil coefficients swept, not sourced). Preliminary: Michell is checked against one published Wigley tank point only (milestone 3a: with no form factor the model is within a few per cent; at the central k = 0.25 it is about 20% high). Milestone 3b checks the placeholder wave term against five tank speeds of a published 2.8 m catamaran (Zenodo 18459868, CC BY 4.0): it is 35 to 43% low at Fn 0.33 to 0.58 and no single wave scale keeps all five within 20%, so it is not safe above Fn 0.3 (the programme's survey speeds are below that). See [`PROPOSAL.md`](PROPOSAL.md) and
 [`LOG.md`](LOG.md).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/marine-hull/
+**Live page:** https://marisstella.app/research/marine-hull/
 
 **Programme.** Track 23 (`marine`, autonomous water vehicles) in [`../PROJECTS.md`](../PROJECTS.md).
 Related labs: the repository's robotics and autonomy groups (ARPG, RECUV) for field vehicles; no

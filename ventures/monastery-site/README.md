@@ -8,7 +8,7 @@ visiting and the guesthouse, retreats and events, news, a shop, contact and
 privacy pages. It also writes the sitemap, structured data and llms.txt a search
 engine or AI assistant reads.
 
-**Live builder:** https://marisstella.app/monastery-site/ (also at https://duncan-haywood.github.io/oss-monorepo/monastery-site/, which forwards there)
+**Live builder:** https://marisstella.app/monastery-site/ (also at https://marisstella.app/monastery-site/, which forwards there)
 · examples (made-up communities): [monks](https://marisstella.app/monastery-site/demo/abbey/), [nuns](https://marisstella.app/monastery-site/demo/sisters/)
 
 After using this, a community that had no website, or an old one nobody can

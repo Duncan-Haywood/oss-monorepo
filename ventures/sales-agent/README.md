@@ -23,7 +23,7 @@ approve:
 | Interested | Stops the automated cadence; marks the prospect qualified; a deal row for [Deal Keeper](../deal-keeper/) | A reply with your booking link or a request for times |
 | Unclear | Pauses the cadence | The reply, with the word model's best guess. Nothing else is done on a guess |
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/sales-agent/
+**Live tool:** https://marisstella.app/sales-agent/
 
 **Milestone 3, live now: the daily run.** Paste or pass the task CSV that
 [Sales Cadence Builder](../sales-cadence-builder/) wrote and it answers "what do

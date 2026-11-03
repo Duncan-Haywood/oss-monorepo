@@ -27,6 +27,7 @@ MIT licensed, like the rest of the repository.
 | [`webcheck/`](webcheck/check_pages.mjs) | Repo-wide sweep that fails on any product page a browser would not actually run (unclosed raw-text elements, broken inline scripts). |
 | [`privacy/`](privacy/one-opt-out.mjs) | Guards for the local-only usage counters every product carries: they honour Do Not Track and Global Privacy Control, and each product has exactly one opt-out. |
 | [`marketing/`](marketing/README.md) | Distribution that sits outside the tools site: the IndexNow submitter. |
+| [`seo/`](seo/README.md) | The search-ranking feedback loop: tracked queries, `probe.py` (agent web-search readings, Search Console, Brave, a live indexability audit), the experiment log, and the Search Console / Bing verification tags the hub page carries. |
 | [`distribution/`](distribution/) | Packagers and announcers for registries and stores (npm, PyPI, Homebrew, VS Code, browser extensions, MCP, GitHub Actions, citation metadata). Each is off by default with a dry run; the rules are in [`portfolio/distribution/`](../portfolio/distribution/README.md). |
 | [`devstats/`](devstats/README.md) | Public development dashboard at [`/dev/`](https://duncan-haywood.github.io/oss-monorepo/dev/): merges, lead time, CI pass/fail, agent run cost. |
 | [`daily/`](daily/README.md) | Daily [engineering brief](https://duncan-haywood.github.io/oss-monorepo/dev/daily/) (~15 min) and [The Merge Report](https://duncan-haywood.github.io/oss-monorepo/dev/daily/show/) for the public, to read or listen to (browser speech). |

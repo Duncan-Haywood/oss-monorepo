@@ -7,7 +7,7 @@ over drag and aspect-ratio sweeps) because Reynolds number falls as n^1.5 and sk
 Flat-plate drag only: preliminary, and the proposal's hypotheses H1 to H5 are still open. See
 [`PROPOSAL.md`](PROPOSAL.md) and [`LOG.md`](LOG.md).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/aerolog-scaling/
+**Live page:** https://marisstella.app/research/aerolog-scaling/
 
 **Programme.** Track 22 (`aerolog`, autonomous flying machines for commercial logistics) in
 [`../PROJECTS.md`](../PROJECTS.md), at both sizes: scale models and the full-size aircraft. This

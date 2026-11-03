@@ -11,7 +11,7 @@ See [`PROPOSAL.md`](PROPOSAL.md) and [`LOG.md`](LOG.md).
 
 **Latest (2n, 2026-10-30):** the open-centre neutral drop read from Danfoss's PVG 32 bypass curve is about 10.9 bar at 45 L/min, which puts the load-sensing break-even margin at 28.0 bar: load-sensing uses less shaft energy than open-centre for both sourced margins (14 and 25 bar) at the measured load factor (`experiments/pvg_neutral.py`; one figure reading, standby flow still assumed).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/heavy-hydraulics/
+**Live page:** https://marisstella.app/research/heavy-hydraulics/
 
 **Programme.** Track 25 (`heavy`, open-source construction, mining and heavy equipment) in
 [`../PROJECTS.md`](../PROJECTS.md), milestone 2. Related labs: the repository's robotics and

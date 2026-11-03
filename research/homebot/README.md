@@ -6,7 +6,7 @@ A home-assistant robot you can 3D print in PLA and build from cheap, easy-to-get
 - a 0.5 m lift on an aluminium mast;
 - a holonomic three-omni-wheel base.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/homebot/
+**Live page:** https://marisstella.app/research/homebot/
 
 Every actuator is the same $14–16 Feetech STS3215 bus servo (22 in total), so each extra degree
 of freedom costs about one servo and some filament. One parameter file generates three things
