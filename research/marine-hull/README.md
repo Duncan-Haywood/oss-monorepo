@@ -78,6 +78,7 @@ cases. Results: [`experiments/results_time.txt`](experiments/results_time.txt).
   datasheet maximum, so this is a bound; the time-energy exchange rate is not sourced.
 
 - Milestone 7c (H1 and H5 run as stated, `experiments/run_h1_h5.py`): H1 is refuted, with range spreading 20.6% (and best speed 20.0%) across 27 hull-form combinations, though each constant alone moves range under 10%; propulsion is 0.33 to 0.37 of power at the best speed (theory for v^3 drag: 1/3). H5 is refuted: 0 rank swaps in 2,187 monohull-catamaran cases over 150 to 250 Wh/kg, because range is proportional to pack energy; a flip needs a term that is not.
+- Milestone 4e (`experiments/run_auv_hotel_sourced.py`): against the sourced AUV hotel loads (8 W Tethys design estimate; 104 to 175 W implied for REMUS-class), the glider with a measured Seaglider load has the longer best range in 270 of 270 cases; the AUV wins only below about 0.4 to 1.7 W. Energy per metre, not time; no measured AUV budget found.
 - Milestone 4c (REMUS-class AUV, hotel implied by vendor endurance): total power 125 to 188 W at 1.5 m/s, model
   propulsion 13 to 21 W, so the implied non-propulsion load is 104 to 175 W, 21 to 250 times the glider's swept
   0.7 to 5 W. The glider has the longer best range in 100% of 810 glider cases against all 18 AUV cases (median
