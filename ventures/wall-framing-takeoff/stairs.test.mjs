@@ -593,3 +593,13 @@ test("stringer minimum throat: each check solved for depth, the largest governs"
   const at = checkStringer({ ...base, stringer: { ...base.stringer, throat: r.minThroat } }, c);
   assert.ok(Math.abs(at.fb - 1200) < 1e-6);
 });
+
+test("validateStair refuses non-number inputs and zero limits instead of throwing", () => {
+  const base = sampleStair();
+  for (const bad of [{ tread: "10" }, { totalRise: "108" }, { width: "36" }, { treadThickness: -1 }, { treadThickness: "x" }, { openingLength: -5 }, { floorThickness: -2 }, { stringerSpacing: 1e-9 }, { limits: { maxRiser: 0 } }]) {
+    const r = layoutStair({ ...base, ...bad });
+    assert.equal(r.ok, false, JSON.stringify(bad));
+    assert.ok(r.errors.length > 0);
+  }
+  assert.equal(layoutStair(base).ok, true);
+});
