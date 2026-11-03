@@ -118,5 +118,5 @@ def line(path, title, subtitle, source, series, unit="", ymax=None, w=760, h=380
         for x, y in pts:
             body.append(f'<circle cx="{X(x):.1f}" cy="{Y(y):.1f}" r="4" fill="{c}" stroke="{SURFACE}" stroke-width="2"/>')
         lx, ly = pts[-1]
-        body.append(f'<text x="{X(lx) + 9:.1f}" y="{Y(ly) + 4:.1f}" font-size="12" fill="{INK}">{escape(name)} {_fmt(ly, unit)}</text>')
+        body.append(f'<text x="{X(lx) + 9:.1f}" y="{Y(ly) + 4:.1f}" font-size="12" fill="{INK}">{escape(name) + " " if len(series) > 1 else ""}{_fmt(ly, unit)}</text>')
     open(path, "w").write(_frame(w, h, title, subtitle, source, "".join(body)))
