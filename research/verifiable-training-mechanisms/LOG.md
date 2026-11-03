@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-03 · Milestone 63: paper gains the magnitude and aggregate-check results (milestones 46 to 52)
+- Why: milestone 62's "Next". Milestones 46 to 52 were only in this log. Added one paragraph to `paper/main.tex` (section "Redundancy and collusion", before the progress-check paragraph); every number copied from the outcomes above, including the milestone 47 sign-error correction and the refuted predictions (50 spread16, 52 cumulative check).
+- No new experiment; no prediction to test. LaTeX not compiled (no TeX in this session's environment).
+- Next: compile the paper where TeX exists; an online-adaptive stall fraction; a direction-aware check (sampled recomputation) priced against the accumulation attack.
+
 ## 2026-11-02 · Milestone 62: paper gains the progress-check results (milestones 53 to 61)
 - Why: milestone 61's "Next". The paper's collusion section stopped at milestone 45; the progress-check line (53 to 61) was only in this log. Added one paragraph to `paper/main.tex` (section "Redundancy and collusion") with every number copied from the outcomes above: honest false flags, non-adaptive stall detection (20 of 32 at R = 1.01, K = 15), the adaptive stall (28 of 32 harmful and unflagged), secret batch (26 of 32), noisy threshold (32 of 128 at sigma 0.05), noise-aware fraction (best 37 of 128, within noise of 32).
 - No new experiment; no prediction to test. The paragraph states the unreconciled-then-reconciled noise implementations and the limits (one tiny model, shared seeds, cheater not online-adaptive). LaTeX not compiled this session (no TeX in the interpreter); `research/_homepage/build.py` prints ok.
