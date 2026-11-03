@@ -1,0 +1,51 @@
+name: chant-forge
+description: >-
+  Long-term music production project: Gregorian chant and traditional Catholic hymns arranged for all-male choir
+  over deep house, EDM, hard rock and metal, for gym listening, released on streaming services. The open-source
+  pipeline goes from public-domain chant notation (GABC) to MIDI choir lines with Latin lyrics, then genre
+  templates, voices, mastering checks and a release kit. The first slice converts GABC to MIDI.
+stage: prototype
+owner: duncan
+
+# Started 2026-11-03 at the owner's request ("lets add it to the projects", after describing Gregorian chant and
+# Catholic hymns with EDM, metal, deep house and hard rock, "very masculine stuff for the gym. all male choirs",
+# "a long term project", "being able to publish to spotify etc."). Plan: ROADMAP.md.
+#
+# Duplicate check 2026-11-03: portfolio/pipeline/duplicate_check.py scored nothing above 0.06 (no music
+# production venture in the repo). Prior art outside: Enigma ("Sadeness", 1990), Gregorian, Era: chant over pop
+# and dance. Not seen: a steady gym-oriented catalogue of men's-choir chant over metal and deep house.
+#
+# First listener: people searching streaming services for gym, workout and "monk"/"Gregorian" playlists, and
+# Catholic men's groups and fitness communities. Not measured.
+#
+# Path to revenue: streaming royalties through a distributor, an account only the owner can open. The tools stay
+# MIT. Per-track cost: zero for the code. Singers and the distributor fee would be the owner's choice.
+#
+# Liability: public-domain sources only, cited per piece; no sampling of recordings; AI use disclosed in credits
+# and distributor fields; no implied real choir or monastery; no bought streams.
+
+hypotheses:
+  - claim: >-
+      Men's-choir Gregorian chant over deep house and metal finds listeners in gym and workout playlists, measured
+      as monthly listeners on the first EP within 90 days of release.
+    status: untested
+    checked: null
+    evidence: none-yet
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 0
+  protected: true
+
+kill_criteria:
+  - The voice milestone finds neither a recorded choir the owner will fund nor a synthesised one that passes the listening test.
+  - The first EP is released and has fewer than 100 monthly listeners after 180 days with honest promotion.
+
+links:
+  production: null
+  analytics: null
