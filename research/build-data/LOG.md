@@ -1,5 +1,89 @@
 # build-data log
 
+## Session 20, 2026-11-03: milestone 19 instrument, Mondrian (group-conditional) CQR for the two-part conformal; not run on real data
+
+The three data hosts returned HTTP 403 at the proxy CONNECT step again (probe: `curl` to `data.sf.gov`, "CONNECT tunnel failed, response 403"), so no pull was possible and **no number in `results/` changed**; nothing here is a result about permits.
+Done: `src/conformal.py` gains `mondrian_cqr` (one qhat per group of a classifier's P(same day), pooled fallback below 30 calibration rows or for an unseen group) and `bands`; four tests in `tests/test_conformal.py` (hand qhat per group, fallback, and a seeded synthetic zero-inflated check that grouped intervals, rounded outward as session 19 advises, do not under-cover; synthetic data tests the code only). 12 conformal tests pass; `test_baselines` needs numpy/pandas, absent here.
+Pre-registered for the next run with network access: H2c, Mondrian CQR with 3 bands of a LightGBM same-day classifier (edges 0.33, 0.67), calibrated on the even weeks of Y-1 as in session 8, brings 2024 coverage within 77 to 83% in at least 4 of 5 pairs when intervals are rounded outward. Prior 35%: session 19 showed over-coverage on Chicago and SF a2i comes from drift and the interval itself, which grouping may not fix. Refuted if fewer than 4.
+Next: `src/conformal_run.py` wiring (classifier fit, bands, coverage by band) and the real run.
+
+## Session 19, 2026-11-03: milestone 18, dequantised CQR (session 8's "two-part conformal" fix), planned before the run
+
+Hypothesis (H2b, written before any run): session 8 found that on a2i the CQR scores tie at 0 (same-day permits, y = 0, lower end clipped at 0), so qhat cannot go negative and conformal cannot narrow an over-covering interval (Chicago 0.860, SF 0.891 on 2024). Adding independent uniform jitter U[0,1) to the integer-day target y when computing calibration scores (dequantisation, breaking ties the way randomised conformal p-values do) lets qhat go negative. Prediction: dequantised CQR brings 2024 coverage within 77 to 83% in at least 4 of 5 city/target pairs (session 8 plain CQR: 2 of 5). Refuted if fewer than 4. Prior 40%: narrowing may be capped by the clipped lower end.
+Plan: `conformal.cqr_scores_dequantised` (stdlib, seeded jitter), same split, models and seeds as session 8, coverage always evaluated on the true integer y. Report coverage and width against plain CQR.
+
+Outcome (run today on fresh pulls of all three feeds, test year 2024, 3 seeds; `results/conformal_dq_*_2024.json`; coverage of the 80% interval on true integer days):
+| pair | raw | plain CQR | dequantised | dequantised, rounded outward | KS cal vs test |
+|---|---|---|---|---|---|
+| Chicago a2i | 0.860 | 0.860 | 0.556 | 0.866 | 0.247 |
+| SF a2i | 0.894 | 0.894 | 0.344 | 0.901 | 0.020 |
+| SF i2c | 0.787 | 0.834 | 0.830 | 0.838 | 0.052 |
+| Austin a2i | 0.817 | 0.819 | 0.781 | 0.847 | 0.057 |
+| Austin i2c | 0.769 | 0.811 | 0.808 | 0.817 | 0.029 |
+- **H2b is refuted.** Dequantised CQR is within 77 to 83% in 3 of 5 pairs (Austin a2i, Austin i2c, SF i2c at 0.830, the edge), plain CQR in 2 of 5 (Austin a2i, i2c), so the prediction of at least 4 fails. The two-column "rounded outward" variant (floor the lower end, ceil the upper end, a post-hoc fix I added after seeing the first Chicago run, so exploratory) is within the band in only 1 of 5.
+- **Session 8's mechanism is mostly wrong.** Jitter does let qhat go negative on a2i, but only by 0.08 to 0.26 days, because the 80th percentile of the scores is set by the non-same-day permits, not by the tied mass. Plain CQR's qhat of exactly 0 was therefore not what held Chicago (0.860) and SF a2i (0.894) above 80%. Their over-coverage comes from the interval itself plus drift (Chicago KS 0.247), and narrowing by tenths of a day cannot fix it.
+- **A real pitfall:** unrounded dequantised intervals can be empty or too narrow on integer targets (SF a2i interval upper end 0 minus 0.15 excludes every same-day permit): coverage 0.344. Anyone applying continuous conformal tools to integer-day durations should round outward.
+- The i2c targets, where raw intervals under-cover, are where conformal helps (0.787 to 0.83 in SF, 0.769 to 0.81 in Austin) and dequantising makes no practical difference there.
+- Limits: one test year; marginal coverage; the real fix for over-coverage in a2i needs a model that predicts the same-day mass directly (a two-part conformal), not a tie-break. `results/manifest.json` updated to today's pull.
+Next: two-part conformal (classifier for same-day, conformalise the tail only); adaptive conformal over the test year for Chicago's drift.
+
+## Session 18, 2026-11-03: paper section 4.1 brought up to milestones 14 to 17 (no new compute)
+
+The three data hosts returned HTTP 403 at the proxy CONNECT step again, so no pull was possible and no number in `results/` changed. Done: `paper/paper.md` section 4.1 now carries the XGBoost, CatBoost and linear table for all five pairs (copied from sessions 14 to 17), the three-library agreement finding, and corrected limitations and to-do list (the draft still said LightGBM only). Next: neural net baseline, per-library tuning, two-part conformal, once a network reaches the feeds.
+
+## Session 17, 2026-11-03: milestone 17, CatBoost quantile models on all five city/target pairs (test year 2024), session 16's "Next"
+
+Why: three tree libraries (LightGBM, XGBoost, now CatBoost) should agree if the gain over the reference class is a property of the data and not of one library's defaults. CatBoost differs most: ordered boosting and native categorical encoding (`src/catboost_run.py`, depth 6, learning rate 0.15, up to 300 rounds, early stopping 30 on the calibration year, 3 seeds, same split and week-block bootstrap).
+Prediction (written in the session plan before the runs, prior about 65%): CatBoost lands within 3 points of XGBoost at every tau in every pair.
+Data: all three feeds re-pulled today (Chicago 851,902; SF 1,297,749; Austin 2,383,209 rows). Relative change of mean pinball loss against the reference class (negative is better; interval = week-block bootstrap):
+| pair | CatBoost q0.1 | q0.5 | q0.9 | XGBoost q0.1 / 0.5 / 0.9 |
+|---|---|---|---|---|
+| Chicago a2i | +0.4% [+0.3, +0.4] | -7.8% [-8.3, -7.3] | +2.4% [+0.8, +4.0] | +0.3 / -10.5 / +4.9 |
+| SF a2i | -0.4% [-2.0, +1.3] | -4.5% [-6.8, -2.3] | -17.0% [-19.4, -14.8] | -0.7 / -3.8 / -17.7 |
+| Austin a2i | -4.9% [-5.3, -4.4] | -22.9% [-25.0, -20.9] | -31.5% [-34.9, -28.2] | -6.9 / -25.7 / -35.9 |
+| SF i2c | -6.2% [-7.6, -4.9] | -12.8% [-14.4, -11.2] | -1.7% [-4.6, +0.9] | -6.3 / -12.5 / -3.2 |
+| Austin i2c | -6.5% [-7.7, -5.3] | -18.0% [-19.5, -16.8] | -19.7% [-22.3, -17.2] | -6.9 / -18.1 / -20.1 |
+- **The prediction is refuted in one cell of 15.** CatBoost is within 3 points of XGBoost everywhere except Austin a2i q0.9, where it is 4.4 points weaker; the next widest gaps are Austin a2i q0.5 (2.8), Chicago a2i q0.5 (2.7, weaker) and q0.9 (2.5, better).
+- The ordering across pairs is the same in all three libraries: Austin gains the most, SF a2i gains only at q0.9, SF i2c gains at q0.1 and q0.5 but not q0.9, and Chicago a2i is worse than the reference class at q0.9 (+2.4%, interval above zero) for CatBoost and XGBoost alike. The conclusion that boosting helps most where permit-type means hide variance does not depend on the library.
+- CatBoost is not the best tree model in any pair at q0.5; on Austin a2i it is 2.8 points behind XGBoost. Depth 6 and 300 rounds are shared defaults, not tuned per library, so this is a comparison of defaults.
+- Fix found on the way: Austin i2c failed once on a test-year category absent from training (NaN); `prep()` now maps it to its own level. Only Austin i2c hit it and its result comes from the fixed code; the other four ran before the fix and did not fail, so their test sets held no unseen level.
+- Limits: one test year; defaults untuned; LightGBM column omitted from the table (it is in `m3_table.md`); no two-part conformal yet. `manifest.json` not touched (counts match session 16 for SF and Austin; Chicago differs by 124 rows from the 2026-10-31 pull).
+Next: two-part conformal; Chicago H6 with a fuller linear fit; per-library tuning to see whether the Austin a2i gap closes.
+
+## Session 16, 2026-11-03: milestone 16, XGBoost and linear quantile baselines on SF and Austin i2c (test year 2024), session 15's "Next"
+
+Why: sessions 14 and 15 compared XGBoost and a linear model with LightGBM on a2i only. Does the pattern hold for the second target, issue to completion (i2c)? Chicago has no completion date, so i2c is SF and Austin only.
+Prediction (stated in the session plan; the log entry was written after the run, so it was not logged beforehand): XGBoost lands within 3 points of LightGBM (M3) at each tau in both cities, and linear stays behind the trees at q0.5. Prior about 70%.
+Data: SF and Austin re-pulled today (same row counts as session 15: SF 1,297,749, Austin 2,383,209), same code, split, 3 seeds and week-block bootstrap (`results/baselines_{sf,austin}_i2c_2024.json`). Relative change of mean pinball loss against the reference class (negative is better):
+| city | model | q0.1 | q0.5 | q0.9 |
+|---|---|---|---|---|
+| SF | LightGBM (M3) | -5.9% | -12.7% | -3.0% |
+| SF | XGBoost | -6.3% [-7.7, -5.0] | -12.5% [-14.3, -10.8] | -3.2% [-6.0, -0.7] |
+| SF | linear | -2.8% [-3.3, -2.2] | -5.6% [-6.6, -4.7] | +1.9% [-0.8, +4.2] |
+| Austin | LightGBM (M3) | -6.6% | -18.1% | -20.5% |
+| Austin | XGBoost | -6.9% [-8.1, -5.7] | -18.1% [-19.5, -16.9] | -20.1% [-22.8, -17.5] |
+| Austin | linear | -4.0% [-4.7, -3.3] | -12.3% [-13.1, -11.6] | -16.6% [-18.3, -15.0] |
+(Intervals: week-block bootstrap on the pinball difference, divided by the reference-class loss.)
+- XGBoost is within 0.4 points of LightGBM in all six cells, so the first part of the prediction holds: the gain over the reference class is not a LightGBM quirk on i2c either.
+- Linear is behind the trees at q0.5 in both cities (SF -5.6% vs -12.5%; Austin -12.3% vs -18.1%), so the second part holds. In SF it does not beat the reference class at q0.9 (+1.9%, interval spans zero), unlike on SF a2i (-16.7%).
+- Limits: one test year; linear fitted on 20,000 of 685k and 2.0M training rows; CatBoost and a neural net unrun; `manifest.json` not touched (the feeds' counts match session 15).
+Next: CatBoost; two-part conformal; Chicago H6 with a fuller linear fit.
+
+## Session 15, 2026-11-03: milestone 15, XGBoost and linear quantile baselines on SF and Austin a2i (test year 2024), run as session 14's "Next"
+
+Why: session 14 found on Chicago that XGBoost agrees with LightGBM and the linear model fails at q0.9. Does that carry to the other two cities? Prediction (before running, prior 65%): in SF and Austin XGBoost lands within 3 points of LightGBM (M3) at each tau, and linear stays behind the trees at q0.5.
+Data: SF and Austin re-pulled today (SF 1,297,749 rows, Austin 2,383,209), same code, split, 3 seeds and week-block bootstrap as session 14 (`results/baselines_{sf,austin}_a2i_2024.json`). Relative change of mean pinball loss against the reference class (negative is better):
+| city | model | q0.1 | q0.5 | q0.9 |
+|---|---|---|---|---|
+| SF | XGBoost | -0.7% [-2.2, +1.1] | -3.8% [-6.0, -1.8] | -17.7% [-20.1, -15.4] |
+| SF | linear | -0.0% | +0.1% | -16.7% [-18.5, -15.1] |
+| Austin | XGBoost | -6.9% [-7.5, -6.4] | -25.7% [-27.6, -23.8] | -35.9% [-39.2, -32.6] |
+| Austin | linear | -0.8% | -14.5% [-15.6, -13.5] | -28.0% [-30.3, -25.8] |
+- Austin: XGBoost matches LightGBM at q0.5 (-25.7 vs -26.0) and q0.9 (-35.9 vs -35.9); at q0.1 it is 2.3 points better (-6.9 vs -4.6). Within the 3-point line. SF against LightGBM (M3: -1.6, -4.7, -17.5): XGBoost -0.7, -3.8, -17.7, gaps 0.9, 0.9, 0.2 points. **Prediction part 1 holds** in all six cells.
+- Linear is behind the trees at q0.5 in both cities (SF +0.1% vs -3.8%; Austin -14.5% vs -25.7%), so part 2 holds. But in SF and Austin the linear model does beat the reference class at q0.9 (-16.7%, -28.0%), unlike Chicago (+72.9%): the Chicago failure is not general, it depends on the city's permit-type structure.
+- Limits: one test year, a2i only; linear fitted on 20,000 of 1.14M and 2.19M rows; Austin XGBoost hit the 300-round cap on several taus, so it may be under-trained; CatBoost and a neural net unrun.
+Next: i2c; CatBoost; two-part conformal.
+
 ## Session 14, 2026-11-03: milestone 14, XGBoost and linear quantile baselines for H1 (Chicago a2i, test year 2024), predictions written before the run
 
 Why: the paper draft's to-do item 1 says H1 is still only against the weakest bar (reference class) plus LightGBM. Add two more: XGBoost quantile (`reg:quantileerror`) and a linear quantile regression on one-hot features (fitted on a 20,000-row random subsample, since the exact LP does not scale; disclosed). Same features, split and week-block bootstrap as `boosted.py`; `src/baselines.py`. Feed re-pulled today (not the 2026-11-01 copy).

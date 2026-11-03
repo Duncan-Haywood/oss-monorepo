@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01AcxTtLziyAnvv6ULGSnAXc",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md",
+  "input_sha256": "94a6b2a74a2fe72d09d7042291a4072d20b259b937e79b5deda0279ae57c7410",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T16:09:09Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "llm-coding-inference"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12851",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Merge/record order kept; no agent doc in docs/reports written, nothing for next run beyond LOG."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-03-why-a-coder-cell-audit-gain-was-a-fitted-weight.md",
+    "research/llm-coding-inference/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Small step: 7m docstring reword after 7l. No new experiment; no security queue, ideas or requests were open.",
+  "corrections": [],
+  "redteam": null
+}

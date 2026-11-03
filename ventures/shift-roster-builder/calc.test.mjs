@@ -1748,3 +1748,15 @@ test("parseStaff refuses hours beyond a week and absurd wages (1e9 max hours use
   }
   assert.equal(parseStaff(h + "Ana, 15, 168, 0, any").staff.length, 1);
 });
+
+test("an oversized shifts file is refused fast and yields no slots to solve", () => {
+  const big = Array.from({ length: 3000 }, () => "Mon-Sun, 9, 17, 50").join("\n");
+  const t = Date.now();
+  const r = parseShifts(big);
+  assert.ok(Date.now() - t < 2000);
+  assert.equal(r.slots.length, 0);
+  assert.match(r.errors.join(" "), /handles up to 400/);
+  const ok = parseShifts("Mon-Fri, 9, 17, 2");
+  assert.deepEqual(ok.errors, []);
+  assert.equal(ok.slots.length, 10);
+});

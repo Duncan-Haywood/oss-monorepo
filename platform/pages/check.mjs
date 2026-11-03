@@ -526,11 +526,15 @@ export const SERVED_EXTENSIONS = new Map([
   ['.webp', 'stock'],
   // einvoice-preflight's mandate calendar feed; standard MIME databases type .ics as text/calendar.
   ['.ics', 'stock'],
+  // chant-forge's sample chants (corpus/*.gabc), fetched as text by its studio page; fetch().text() ignores the type.
+  ['.gabc', 'stock'],
   // shed-designer's share picture (renders/og-*-share.jpg): JPEG because not every link
   // scraper reads WebP; mime.types lists image/jpeg jpeg jpg.
   ['.jpg', 'stock'],
   ['.mp4', 'stock'],
   ['.webm', 'stock'],
+  // sed-contra's video captions (<track> and podcast:transcript); mime-db, which Cloudflare's asset server uses, types .vtt as text/vtt.
+  ['.vtt', 'stock'],
   // Podcast audio (hearth-and-horizon, podcast.mjs); nginx's mime.types maps mp3 to audio/mpeg.
   ['.mp3', 'stock'],
   // The research pages' self-hosted fonts; mime.types lists font/woff2 woff2.

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readWav, analyze, integratedLufs, truePeak } from './master.mjs';
+import { readWav, analyze, integratedLufs, truePeak, suggestGain } from './master.mjs';
 import { run } from './master-cli.mjs';
 
 function wav(chs, rate, bits = 16) {
@@ -58,4 +58,26 @@ test('float32 wav and cli output', async () => {
   assert.equal(o.code, 0); assert.match(o.text, /PASS {2}loudness/);
   assert.equal(run([]).code, 2);
   assert.equal(run(['/nonexistent.wav']).code, 2);
+});
+
+test('suggestGain hits the target, is capped by true-peak room, and is null for silence', () => {
+  assert.equal(suggestGain(-16.8, -12), 2.8);
+  assert.equal(suggestGain(-20, -3), 2);
+  assert.equal(suggestGain(-8, -1), -6);
+  assert.equal(suggestGain(-Infinity, -Infinity), null);
+  const s = sine(0.1, 5); // -20 LUFS stereo, quiet peak
+  const r = analyze({ rate: 48000, channels: [s, s] });
+  assert.ok(Math.abs(r.suggestedGainDb - 6) < 0.1);
+});
+
+test('platform playback gain: turn-down everywhere, turn-up only where the service does it', async () => {
+  const { platformPlayback } = await import('./master.mjs');
+  const loud = Object.fromEntries(platformPlayback(-8).map((p) => [p.name, p.gainDb]));
+  assert.equal(loud.Spotify, -6); assert.equal(loud['Apple Music'], -8); assert.equal(loud.Deezer, -7);
+  const quiet = Object.fromEntries(platformPlayback(-20).map((p) => [p.name, p.gainDb]));
+  assert.equal(quiet.Spotify, 6); assert.equal(quiet.YouTube, 0); assert.equal(quiet.Tidal, 0);
+  assert.equal(platformPlayback(-Infinity), null);
+  const s = sine(0.1, 5);
+  const r = analyze({ rate: 48000, channels: [s, s] });
+  assert.equal(r.platforms.length, 6);
 });

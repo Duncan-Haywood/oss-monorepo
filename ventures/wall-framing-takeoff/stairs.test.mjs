@@ -603,3 +603,22 @@ test("validateStair refuses non-number inputs and zero limits instead of throwin
   }
   assert.equal(layoutStair(base).ok, true);
 });
+
+test("hostile landing and stair sizes are refused, not turned into billions of posts (2026-11-03)", async () => {
+  const { layoutLandingPosts, sizeLandingFootings } = await import("./stairs.mjs");
+  assert.throws(() => layoutLandingPosts(48, 48, 40, 1e-9), RangeError);
+  assert.throws(() => layoutLandingPosts(1e9, 48, 40, 96), RangeError);
+  assert.throws(() => layoutLandingPosts("48", 48, 40, 96), RangeError);
+  assert.equal(layoutLandingPosts(48, 48, 40, 96).count, 4); // normal case unchanged
+  assert.equal(sizeLandingFootings("48", 48, 96, { soilBearing: 1500 }).ok, false);
+  assert.equal(sizeLandingFootings(48, 48, 96, { soilBearing: "1500" }).ok, false);
+  assert.equal(sizeLandingFootings(48, 48, 1e-9, { soilBearing: 1500 }).ok, false);
+  assert.equal(sizeLandingFootings(48, 48, 96, { soilBearing: 1500, liveLoad: "40" }).ok, false);
+  assert.equal(sizeLandingFootings(48, 48, 96, { soilBearing: 1500 }).ok, true);
+  assert.equal(checkPostSlenderness("40", "4x4").ok, false);
+  assert.equal(checkPostSlenderness(-5, "4x4").ok, false);
+  assert.equal(checkPostSlenderness(40, "4x4").ok, true);
+  assert.ok(validateStair({ ...sampleStair(), treadThickness: 1e9 }).length > 0);
+  assert.ok(validateStair({ ...sampleStair(), nosing: 99 }).length > 0);
+  assert.deepEqual(validateStair(sampleStair()), []);
+});

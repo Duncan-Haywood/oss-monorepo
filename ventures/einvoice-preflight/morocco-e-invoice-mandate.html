@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Morocco e-invoice mandate: DGI pre-clearance model, dates not yet in force | E-invoice Preflight</title>
+<meta name="description" content="Morocco's tax authority (DGI) is building a pre-clearance e-invoicing system, but the latest guide read says the implementing decree is unpublished and no binding dates are in force. What guides report, where they conflict, and a free local checker.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/morocco-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Morocco e-invoice mandate: DGI pre-clearance model, dates not yet in force | E-invoice Preflight">
+<meta property="og:description" content="Morocco's tax authority (DGI) is building a pre-clearance e-invoicing system, but the latest guide read says the implementing decree is unpublished and no binding dates are in force. What guides report, where they conflict, and a free local checker.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/morocco-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does Morocco have an e-invoicing mandate?","acceptedAnswer":{"@type":"Answer","text":"Not yet in force on the latest source read. Vendor guides describe a DGI pre-clearance system (Simpl-TVA) and give wave dates in 2026, but a guide dated about 28 September 2026 says the decree setting effective dates and categories has not been published and the announced 2026 start has not materialised. These are not the DGI or the Official Bulletin, so confirm there. This is a summary, not advice."}},{"@type":"Question","name":"What format does Morocco use?","acceptedAnswer":{"@type":"Answer","text":"Guides describe a pre-clearance model: the invoice is sent to a DGI platform for validation before it is issued. The platform is reported as Simpl-TVA. The schema and format were not read from a primary source, and nothing here says it is Peppol or EN 16931."}},{"@type":"Question","name":"What does this checker cover for Morocco?","acceptedAnswer":{"@type":"Answer","text":"EN 16931 arithmetic and tax-breakdown rules for UBL, CII and Factur-X files. It does not apply Moroccan rules and does not talk to the DGI, so it cannot clear an invoice. A clean result is not DGI acceptance."}},{"@type":"Question","name":"How do I check an invoice before sending it?","acceptedAnswer":{"@type":"Answer","text":"Drop the file into the checker. It tests totals, tax breakdown arithmetic, mandatory fields and VAT, IBAN and BIC typos, each with a rule ID and a fix. Nothing is uploaded. It is an offline observation, not the tax authority's acceptance and not legal advice."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Morocco's e-invoice rules: a DGI pre-clearance system, with no binding dates found</h1>
+<p class="lede">Morocco's tax authority, the Direction Générale des Impôts (DGI), has been preparing mandatory e-invoicing with clearance by a central platform before an invoice is issued. Vendor guides give 2026 start dates; the most recent source read says the decree that sets them has not been published. Below: what guides report, where they conflict, and how to test a file first.</p>
+</header>
+<section>
+<h2>The timeline (as vendor guides report it, and where they conflict)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">What is reported</th></tr></thead>
+<tbody>
+<tr><td>Oct 2024</td><td>Public consultations announced by the DGI (one guide).</td></tr>
+<tr><td>Oct 2025</td><td>Pilot phase announced; reported as completed.</td></tr>
+<tr><td>1 Jan 2026</td><td>Wave 1 per some vendor guides: large companies (turnover above MAD 200 million) and public-sector suppliers. <strong>Not confirmed</strong> by the latest source.</td></tr>
+<tr><td>1 Jul 2026</td><td>Wave 2 per the same guides: medium-sized companies. <strong>Not confirmed.</strong></td></tr>
+<tr><td>2027&ndash;2028</td><td>Small and very small businesses, per one guide.</td></tr>
+<tr><td>Today</td><td><strong>No binding date found.</strong> A guide dated about 28 September 2026 says no decree or order is published in the Official Bulletin and the 2026 start has not materialised.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Where sources disagree: whether the mandate is already live (some vendors say so) or waiting for a decree (the most recent source). The legal basis is cited as Article 145-9 or 145-IX of the General Tax Code (CGI), rolled out through the 2026 Finance Bill. These are vendor and advisory pages, not the DGI or the Official Bulletin, which could not be read from this build. Confirm with the DGI before acting on any date. A summary, not tax advice.</p>
+</section>
+<section>
+<h2>Which file counts, and how it travels</h2>
+<p>Guides describe a <strong>pre-clearance</strong> model: the invoice is submitted to a DGI platform, reported as <strong>Simpl-TVA</strong>, and validated before it is issued. The schema and format were not read from a primary source, so this page does not say which syntax is used.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>It applies EN 16931 arithmetic and tax-breakdown rules to UBL, CII and Factur-X files. It does <strong>not</strong> apply Moroccan rules and does not contact the DGI, so it cannot clear an invoice. Treat a clean result as &ldquo;the numbers and structure are sound&rdquo;, not &ldquo;cleared in Morocco&rdquo;.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a>, drop your XML, and tick <em>Also apply the Peppol BIS Billing 3.0 rules</em>. It flags a wrong business process or specification identifier, a missing or malformed electronic address, arithmetic that does not add up, a missing tax reason on a 0% or exempt line, and VAT, IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all side by side</a>, <a href="sweden-e-invoice-mandate.html">Sweden</a>, <a href="mauritius-e-invoice-mandate.html">Mauritius</a>, <a href="finland-e-invoice-mandate.html">Finland</a>, <a href="australia-e-invoice-mandate.html">Australia</a>, <a href="germany-e-invoice-mandate.html">Germany</a>, <a href="france-e-invoice-mandate.html">France</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>, <a href="belgium-e-invoice-mandate.html">Belgium</a>, <a href="malta-e-invoice-mandate.html">Malta</a>, <a href="austria-e-invoice-mandate.html">Austria</a>, <a href="poland-ksef-e-invoice-mandate.html">Poland</a>, <a href="croatia-e-invoice-mandate.html">Croatia</a>, <a href="spain-verifactu-e-invoice-mandate.html">Spain</a>, <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, <a href="netherlands-e-invoice-mandate.html">the Netherlands</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="uk-e-invoice-mandate.html">the UK</a>, <a href="uae-e-invoice-mandate.html">the UAE</a>, <a href="india-gst-e-invoice-mandate.html">India</a>, <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a>, <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>, <a href="denmark-e-invoice-mandate.html">Denmark</a>, <a href="estonia-e-invoice-mandate.html">Estonia</a>, <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="lithuania-e-invoice-mandate.html">Lithuania</a>, <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a>, <a href="slovenia-e-invoice-mandate.html">Slovenia</a>, <a href="norway-e-invoice-mandate.html">Norway</a>, <a href="latvia-e-invoice-mandate.html">Latvia</a>, <a href="serbia-e-invoice-mandate.html">Serbia</a>, <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a>, <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="latvia-e-invoice-mandate.html">Latvia</a>, or the <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Does Morocco have an e-invoicing mandate?</h3>
+<p>Not yet in force on the latest source read. Vendor guides describe a DGI pre-clearance system (Simpl-TVA) and give wave dates in 2026, but a guide dated about 28 September 2026 says the decree setting effective dates and categories has not been published and the announced 2026 start has not materialised. These are not the DGI or the Official Bulletin, so confirm there. This is a summary, not advice.</p>
+<h3>What format does Morocco use?</h3>
+<p>Guides describe a pre-clearance model: the invoice is sent to a DGI platform for validation before it is issued. The platform is reported as Simpl-TVA. The schema and format were not read from a primary source, and nothing here says it is Peppol or EN 16931.</p>
+<h3>What does this checker cover for Morocco?</h3>
+<p>EN 16931 arithmetic and tax-breakdown rules for UBL, CII and Factur-X files. It does not apply Moroccan rules and does not talk to the DGI, so it cannot clear an invoice. A clean result is not DGI acceptance.</p>
+<h3>How do I check an invoice before sending it?</h3>
+<p>Drop the file into the checker. It tests totals, tax breakdown arithmetic, mandatory fields and VAT, IBAN and BIC typos, each with a rule ID and a fix. Nothing is uploaded. It is an offline observation, not the tax authority's acceptance and not legal advice.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="albania-e-invoice-mandate.html">Albania</a> <a href="new-zealand-e-invoice-mandate.html">New Zealand</a> <a href="australia-e-invoice-mandate.html">Australia</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="japan-invoice-system-e-invoice-mandate.html">Japan</a> <a href="mexico-cfdi-e-invoice-mandate.html">Mexico</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="argentina-arca-e-invoice-mandate.html">Argentina</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a> <a href="indonesia-coretax-e-invoice-mandate.html">Indonesia</a> <a href="vietnam-e-invoice-mandate.html">Vietnam</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Moroccan position as vendor and advisory guides report it, not from the law; things can change, so check the DGI and the law before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

@@ -114,6 +114,34 @@ export function clipRuns(x, minRun = TARGETS.clipRunMin, level = 0.9999) {
   return runs;
 }
 
+// Gain in dB that moves the track to the loudness target, capped so the true
+// peak stays under its ceiling (null when silent). Cap means the target may
+// stay out of reach: a limiter is then needed, not just a fader.
+export function suggestGain(lufs, truePeakDb, targets = TARGETS) {
+  if (!Number.isFinite(lufs) || !Number.isFinite(truePeakDb)) return null;
+  const want = targets.lufs - lufs, room = targets.truePeakMax - truePeakDb;
+  return +Math.min(want, room).toFixed(2);
+}
+// What each service's loudness normalisation would do to this track. Targets
+// are commonly reported figures written from memory, NOT read from the
+// services' current help pages: check them before relying on them. `up` says
+// whether the service also raises quiet tracks (otherwise it only turns down).
+export const PLATFORMS = [
+  { name: 'Spotify', lufs: -14, up: true },
+  { name: 'Apple Music', lufs: -16, up: true },
+  { name: 'YouTube', lufs: -14, up: false },
+  { name: 'Amazon Music', lufs: -14, up: false },
+  { name: 'Tidal', lufs: -14, up: false },
+  { name: 'Deezer', lufs: -15, up: false },
+];
+export function platformPlayback(lufs, platforms = PLATFORMS) {
+  if (!Number.isFinite(lufs)) return null;
+  return platforms.map((p) => {
+    const raw = p.lufs - lufs;
+    const gainDb = +(raw > 0 && !p.up ? 0 : raw).toFixed(1);
+    return { name: p.name, target: p.lufs, gainDb };
+  });
+}
 export function analyze({ rate, channels }, targets = TARGETS) {
   const { lufs } = integratedLufs(channels, rate);
   const tp = Math.max(...channels.map((c) => truePeak(c)));
@@ -133,9 +161,11 @@ export function analyze({ rate, channels }, targets = TARGETS) {
     seconds: n / rate, rate, channels: channels.length,
     lufs, truePeakDb: db(tp), monoLossDb: mono, correlation: corr, clipRuns: clips,
   };
+  r.platforms = platformPlayback(lufs);
+  r.suggestedGainDb = suggestGain(lufs, r.truePeakDb, targets);
   const checks = [];
   checks.push({ name: 'loudness', ok: Number.isFinite(lufs) && Math.abs(lufs - targets.lufs) <= targets.lufsTolerance,
-    note: `${lufs.toFixed(1)} LUFS integrated; aim ${targets.lufs} +/- ${targets.lufsTolerance}` });
+    note: `${lufs.toFixed(1)} LUFS integrated; aim ${targets.lufs} +/- ${targets.lufsTolerance}${r.suggestedGainDb !== null && Math.abs(r.suggestedGainDb) >= 0.1 ? `; suggested gain ${r.suggestedGainDb > 0 ? '+' : ''}${r.suggestedGainDb} dB` : ''}` });
   checks.push({ name: 'true peak', ok: r.truePeakDb <= targets.truePeakMax, note: `${r.truePeakDb.toFixed(2)} dBTP; ceiling ${targets.truePeakMax}` });
   if (mono !== null) checks.push({ name: 'mono compatibility', ok: -mono <= targets.monoLossMax, note: `${mono.toFixed(1)} dB summed to mono vs stereo power; correlation ${corr === null ? 'n/a' : corr.toFixed(2)}` });
   checks.push({ name: 'clipping', ok: clips === 0, note: `${clips} run(s) of ${targets.clipRunMin}+ samples at full scale` });

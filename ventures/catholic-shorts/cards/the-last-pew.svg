@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b0d16"/><stop offset="1" stop-color="#14161c"/></linearGradient></defs>
+<rect width="1080" height="1920" fill="url(#g)"/>
+<path d="M520 330h40v80h80v40h-80v120h-40V450h-80v-40h80z" fill="#e2b35c"/>
+<text x="540" y="640" fill="#e2b35c" font-family="system-ui,sans-serif" font-size="40" font-weight="600" letter-spacing="6" text-anchor="middle">STORY</text>
+<g fill="#fff" font-family="Georgia,serif" font-weight="700"><text x="540" y="760" font-size="96" text-anchor="middle">The last pew</text></g>
+<g fill="#f3d9a4" font-family="Georgia,serif" font-style="italic"><text x="540" y="946" font-size="72" text-anchor="middle">He&#39;d sat in the back</text><text x="540" y="1042" font-size="72" text-anchor="middle">row for eleven years.</text></g>
+<text x="540" y="1800" fill="#b6ab99" font-family="system-ui,sans-serif" font-size="34" text-anchor="middle">marisstella.app/catholic-shorts · written by AI · CC BY-SA</text>
+</svg>

@@ -163,5 +163,21 @@ class TallyTest(unittest.TestCase):
         self.assertEqual((t["redteam_runs"], t["catch_rate"]), (0, None))
 
 
+class OpenDefects(unittest.TestCase):
+    def test_lists_only_unpatched_real_defects_oldest_first(self):
+        recs = [
+            ("b.json", {"redteam": {"campaigns": [], "real_defects": [
+                {"file": "x.mjs", "issue": "fixed", "patched": True},
+                {"file": "y.mjs", "issue": "still wrong", "patched": False}]}}),
+            ("a.json", {"redteam": {"campaigns": [], "real_defects": [
+                {"file": "z.py", "issue": "later fixed", "patched": True, "patched_in": "pr"},
+                {"file": "w.py", "issue": "open too"}]}}),
+            ("c.json", {"track": "ventures"}),
+        ]
+        found = redteam.open_defects(recs)
+        self.assertEqual([(d["record"], d["index"], d["file"]) for d in found],
+                         [("a.json", 1, "w.py"), ("b.json", 1, "y.mjs")])
+
+
 if __name__ == "__main__":
     unittest.main()

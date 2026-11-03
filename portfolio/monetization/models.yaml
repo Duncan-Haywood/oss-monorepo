@@ -59,7 +59,9 @@ products:
       product at the merchant of record, put its public link in
       checkout.mjs CHECKOUT_URL, and confirm the validate call against the
       provider's live docs with a test key. Agent step after that: a
-      test-paid purchase end to end.
+      test-paid purchase end to end. Marketing page and a generated sample
+      package landed 2026-11-03 (branded-bid-package-for-framers.html,
+      sample-bid-package.html, build-sample-pack.mjs).
     next_owner: true
 
   - venture: league-schedule-generator
@@ -280,10 +282,10 @@ products:
         price: from about $1,000 per month (search snippet; vendor page unread)
         source: https://checkthat.ai/brands/anodot/pricing
         read: 2026-11-02
-      - what: Datadog Infrastructure Pro (Watchdog anomaly detection included, per host)
-        price: about $15 to $18 per host per month on annual or on-demand billing (comparison sites; Datadog's own page unread)
-        source: https://toolradar.com/compare/anodot-vs-datadog
-        read: 2026-11-02
+      - what: Datadog Infrastructure Monitoring (per host)
+        price: "starting at $15 per host per month with an annual commitment (Datadog's own pricing-page FAQ, read 2026-11-03; the Pro/Enterprise tier prices were not separated in the page text, and whether Watchdog anomaly detection is in the cheapest tier is unconfirmed)"
+        source: https://www.datadoghq.com/pricing/
+        read: 2026-11-03
     stage: built-dark
     next: >-
       Built 2026-11-02 and dark: report.mjs (title block with logo, the
@@ -295,6 +297,7 @@ products:
       merchant-of-record product that serves the other dark paths serves
       this one. Marketing page with a generated sample report landed
       2026-11-02 (change-report-for-analysts.html, sample-change-report.html,
-      build-sample-report.mjs). Agent step left: the comparables checked on
-      the vendors' own pages when a host allows it.
+      build-sample-report.mjs). Datadog's figure now read on its own
+      page (2026-11-03); Anodot's site is blocked from this host, so its
+      figure stays a comparison-site snippet.
     next_owner: true

@@ -19,6 +19,30 @@ released track:
 5. **Release:** loudness (done, `master-cli.mjs`), metadata, credits and AI-disclosure checks before a
    distributor upload (done: `node release-cli.mjs release.json`, 7 tests, 2026-11-03).
 
+## Try it in the browser
+
+[`index.html`](index.html) ([live](https://duncan-haywood.github.io/oss-monorepo/chant-forge/)) is a studio page over the same modules: paste GABC (or load one of the five corpus
+pieces), pick tempo, genre, bar fitting, half-time and a drone, then press Convert, play the preview and download
+the MIDI or a preview WAV. It runs entirely client-side (2026-11-03). To make that possible `midi.mjs` and
+`render.mjs` no longer use Node's `Buffer` (`browser-safe.test.mjs` runs the pipeline with `Buffer` deleted).
+Checked in headless Chromium on Dies irae and Pange lingua with the metal backing; nobody has listened yet.
+Alternatives people use today: Gregorio plus LilyPond/MuseScore by hand (print, not MIDI with a genre backing), and
+Gregorio's own web editors (notation only). This one's niche is chant as a source for gym-genre tracks.
+
+## Hear it without a DAW
+
+```sh
+node ventures/chant-forge/render-cli.mjs dies-irae.mid -o dies-irae.wav
+node ventures/chant-forge/master-cli.mjs dies-irae.wav
+```
+
+`render-cli.mjs piece.mid --stems stems/` also writes one WAV per voice (choir, organ, bass, chords, drums) that sum to the mix, for mixing in a DAW.
+
+`render-cli.mjs` is a plain preview synthesiser (choir pad, organ drone, bass,
+chord pad, synthesised drums; no dependencies, deterministic, about 2 s for a 3-minute
+piece). It is for the ear check and for running the master check on real audio. It is not a
+release master and the choir is not a real choir (`RECORDING-GUIDE.md`).
+
 ## What works now
 
 ```sh
@@ -43,6 +67,9 @@ wrote dies-irae.mid
 
   Neume shapes (virga, quilisma, liquescents and so on) are treated as plain
   notes. A note before any clef is assumed to be in c4, with a warning.
+- `fitStretch` (`--fit 8 --stretch`) lengthens the long notes of a phrase (each at most 2x) to fill the bar first and pads only the remainder; on the five corpus pieces it cuts padded rest by about half. Not yet compared by ear.
+- `halfTime` (`--halftime`) doubles every chant duration while the drums, bass and chords keep their tempo, so the chant moves at half speed over a full-time metal backing. Dies irae at 170 BPM goes from 98 to 196 bars (138 s to 277 s). 3 tests in `halftime.test.mjs`. Not listened to.
+- `--repeat N` (2026-11-03) plays the whole chant N times in a row (1 to 64), so a one-minute chant can fill a track length a distributor and a listener expect; the genre backing and cue sheet follow the longer piece. 2 tests in `repeat.test.mjs`. Not listened to; a repeated chant with no variation may tire the ear, which only a listener can judge.
 - `fitToBars` pads the rest after each full bar so the next phrase starts on a
   downbeat. Chant has no metre, and this is the simplest way to put it on a grid
   without changing any note's length.
@@ -81,6 +108,12 @@ files or a real mix; the true-peak filter is a windowed sinc, not the Annex 2
 coefficients. Distributor targets change: read
 theirs before release.
 
+`master-cli.mjs` also prints the gain each service's loudness normalisation would apply
+(Spotify and Apple Music turn quiet tracks up; YouTube, Amazon, Tidal and Deezer only
+turn loud ones down; `platformPlayback` in `master.mjs`, 2026-11-03, 1 test). The
+per-service targets (-14, -16, -14, -14, -14, -15 LUFS) are from memory, not read
+from the services' current pages: verify before relying on them.
+
 ## Real Gregorio files (2026-11-03)
 
 Fixed after reading the format, tested on made-up strings shaped like real files
@@ -91,13 +124,42 @@ signs; `<v>` (raw TeX) and `<alt>` text, `{}` centre braces, `*` and the cross
 are not lyrics; a clef change inside a group, as in `(::c3)` or `(z c3)`, now
 moves the staff. NABC alternations are still cut at the first `|`.
 
+## Choosing a final (2026-11-03)
+
+`node cli.mjs piece.gabc --suggest-final` lists the finals that keep the whole
+chant inside E2-E4 (MIDI 40-64, a rule-of-thumb men's unison range) and picks
+the one that centres the line; use it as `--final N`. A piece wider than the
+range is reported with how far over it is, not forced. Corpus results: Dies
+irae and Salve Regina A2-E3 (recommended C#3), Pange lingua F#2-F#3, Te Deum
+Ab2-Ab3 (D3), Veni Creator F#2-G3. The range is a guess, not checked with
+singers (`voicefit.test.mjs`, 4 tests).
+`--auto-final` (2026-11-03) does both steps: it transposes to the recommended
+final, and refuses a chant wider than the range (`autofinal.test.mjs`, 3 tests).
+
+## Browser check
+
+`node eval/browser-e2e.mjs` (2026-11-03) drives `index.html` in headless
+Chromium through Playwright: all 6 samples times all 5 backings convert, the MIDI
+(`MThd`) and WAV (`RIFF/WAVE`, not silent) downloads work, Play and Stop toggle,
+bad input and a zero tempo give messages, and there is no sideways scroll at 375 px.
+38 checks, no page error. It cannot hear anything: a person still has to listen.
+
 ## Not checked yet
 
 - `examples/dies-irae-incipit.gabc` is the widely quoted opening motif
   (F E F D E C D D), typed from memory. It has not been transcribed from a scan.
   It is a demo input, not a corpus entry.
-- The converter has run on the five corpus files and made-up inputs, not on a
-  batch of real Gregorio files.
+- The converter has run on 64 real GregoBase files (the five corpus pieces and
+  `corpus/gregobase-1908/`, 59 Vatican Graduale 1908 pieces, 2026-11-03;
+  `node eval/batch-check.mjs`, `batch.test.mjs`). Checked: no crash, no warning,
+  pitches 36-84, no markup left in lyrics, valid MIDI, communions, tracts, hymns
+  and sequences end on their mode final. Not checked: the notes against the page
+  scans, or by ear. 11 of the 59 end off the mode final (introits, graduals,
+  alleluias and offertories finish on a psalm-tone differentia or a verse); that
+  is read from the files, not confirmed against the book. `node eval/offfinal-report.mjs` lists them with last notes and syllables
+  (`eval/offfinal-report.md`); 5 are introits ending on "euouae".
+- `fuzz.test.mjs` throws 2000 random made-up GABC strings at the reader and
+  MIDI writer (no crash, pitches in range); it says nothing about real files.
 - Nothing has been arranged, sung, mixed or published.
 
 ## Rules this project keeps
@@ -116,3 +178,5 @@ moves the staff. NABC alternations are still cut at the first `|`.
   - no bought streams or fake listener numbers.
 - **Treat the texts with respect.** These are liturgical texts. Use them whole
   and in their sense, not as jokes.
+
+See [RECORDING-GUIDE.md](RECORDING-GUIDE.md) for recording a choir line against the MIDI guide and cue sheet.

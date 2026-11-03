@@ -51,3 +51,35 @@ test("fuzz: every valid random wall lays out with a clean self-check", () => {
   assert.deepEqual(failures.slice(0, 5), []);
   assert.ok(laid > 200, `only ${laid} valid walls (${rejected} rejected)`);
 });
+
+// Gable (rake) walls: random pitch, off-centre peak and openings, some rising into the triangle.
+// Each is rejected with a reason, or lays out with a clean self-check, and takeoff succeeds.
+test("fuzz: random gable walls lay out with a clean self-check or are refused with a reason", () => {
+  let laid = 0, rejected = 0;
+  const failures = [];
+  for (let seed = 1; seed <= 400; seed++) {
+    const rand = rng(seed + 9000);
+    const wall = randomWall(rand, "G");
+    wall.gable = { pitch: 1 + Math.floor(rand() * 16) };
+    if (rand() < 0.5) wall.gable.peak = Math.floor(wall.length * (0.25 + rand() * 0.5));
+    const plan = samplePlan();
+    plan.studSpacing = rand() < 0.5 ? 16 : 24;
+    plan.walls = [wall];
+    const errs = validatePlan(plan);
+    if (errs.length) {
+      if (typeof errs[0] !== "string" || !errs[0].length) failures.push(`seed ${seed}: empty refusal`);
+      rejected++;
+      continue;
+    }
+    let w;
+    try { w = layoutWall(plan, wall); } catch (e) { failures.push(`seed ${seed}: threw ${e.message}`); continue; }
+    const problems = verifyWall(w, wall);
+    if (problems.length) failures.push(`seed ${seed}: ${problems[0]}`);
+    const t = takeoff(plan);
+    // A rake stud longer than any listed board is a refusal that names the way out, not a failure.
+    if (!t.ok && !/longer than the longest/.test(t.errors?.[0] || "")) failures.push(`seed ${seed}: takeoff ${t.errors?.[0]}`);
+    laid++;
+  }
+  assert.deepEqual(failures.slice(0, 5), []);
+  assert.ok(laid > 150, `only ${laid} valid gable walls (${rejected} rejected)`);
+});

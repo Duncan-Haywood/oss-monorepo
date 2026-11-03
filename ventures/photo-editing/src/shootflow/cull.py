@@ -190,14 +190,8 @@ def thumbnail_data_uris(
 ) -> dict[str, str]:
     """``data:`` URIs by relative path; a photo whose thumbnail fails is left out, not fatal."""
 
-    make: Callable[[Path], bytes]
-    if maker is not None:
-        make = maker
-    else:
-        found = tools or find_ffmpeg_tools()
-
-        def make(p: Path) -> bytes:
-            return make_thumbnail(found, p)
+    ff = tools or find_ffmpeg_tools()
+    make = maker or (lambda p: make_thumbnail(ff, p))
     root = Path(result.folder)
     uris: dict[str, str] = {}
     for item in result.items:

@@ -26,7 +26,7 @@ function meta(type, data) {
 }
 
 function chunk(id, data) {
-  return [...Buffer.from(id, 'ascii'), ...u32(data.length), ...data];
+  return [...new TextEncoder().encode(id), ...u32(data.length), ...data];
 }
 
 // list of [tick, bytes] -> track bytes, sorted (stable) by tick
@@ -42,17 +42,24 @@ function track(timed) {
   return chunk('MTrk', out);
 }
 
-export function eventsToMidi(events, { bpm = 124, pulsesPerBeat = 2, title = 'chant', drone = false, velocity = 80, backing = null } = {}) {
+export function eventsToMidi(events, { bpm = 124, pulsesPerBeat = 2, title = 'chant', drone = false, velocity = 80, backing = null, markers = false } = {}) {
   const ticksPerPulse = PPQ / pulsesPerBeat;
   const usPerBeat = Math.round(60_000_000 / bpm);
 
   const choir = [[0, [0xc0, 52]]];
   let t = 0;
   let lastMidi = null;
+  const phraseStarts = [];
+  let newPhrase = true;
   for (const e of events) {
     const len = Math.round(e.pulses * ticksPerPulse);
+    if (e.type === 'bar') newPhrase = true;
+    if (e.type === 'note' && newPhrase) {
+      phraseStarts.push([t, e.syllable || '']);
+      newPhrase = false;
+    }
     if (e.type === 'note') {
-      if (e.syllable) choir.push([t, meta(0x05, [...Buffer.from(e.syllable, 'utf8')])]);
+      if (e.syllable) choir.push([t, meta(0x05, [...new TextEncoder().encode(e.syllable)])]);
       choir.push([t, [0x90, e.midi, velocity]]);
       choir.push([t + len, [0x80, e.midi, 0]]);
       lastMidi = e.midi;
@@ -62,10 +69,16 @@ export function eventsToMidi(events, { bpm = 124, pulsesPerBeat = 2, title = 'ch
   const end = t;
 
   const conductor = [
-    [0, meta(0x03, [...Buffer.from(title, 'utf8')])],
+    [0, meta(0x03, [...new TextEncoder().encode(title)])],
     [0, meta(0x51, [(usPerBeat >> 16) & 0xff, (usPerBeat >> 8) & 0xff, usPerBeat & 0xff])],
     [0, meta(0x58, [4, 2, 24, 8])],
   ];
+  if (markers) {
+    phraseStarts.forEach(([tick, syl], i) => {
+      const label = `Phrase ${i + 1}${syl ? ` ${syl}` : ''}`;
+      conductor.push([tick, meta(0x06, [...new TextEncoder().encode(label)])]);
+    });
+  }
   const tracks = [track(conductor), track(choir)];
   if (drone && lastMidi !== null && end > 0) {
     const d = lastMidi - 12;

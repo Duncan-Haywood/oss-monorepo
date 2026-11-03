@@ -16,7 +16,17 @@ const r3 = (n) => Math.round(n * 1000) / 1000;
  * @param {number} maxWidth longest panel allowed, inches
  * @returns {{id: string, panels: {name: string, x0: number, x1: number, width: number, members: number[], over: boolean}[], cuts: number[], over: boolean}}
  */
+export const PANEL_MIN = 6, PANEL_MAX = 1200;
+/** Why a longest-panel size cannot be used, or null. A guard limit (6 in to 100 ft), not a shop rule. */
+export function panelMaxError(v) {
+  if (typeof v !== "number" || !Number.isFinite(v)) return "the longest panel must be a number of inches";
+  if (v < PANEL_MIN || v > PANEL_MAX) return `the longest panel must be ${PANEL_MIN} to ${PANEL_MAX} in (got ${v})`;
+  return null;
+}
+
 export function panelizeWall(w, maxWidth) {
+  const bad = panelMaxError(maxWidth);
+  if (bad) throw new RangeError(bad);
   const L = w.length;
   const framing = w.members.filter((m) => m.kind !== "plate");
   const edges = new Set();
@@ -137,6 +147,8 @@ export function panelParts(w, pan, opts = {}) {
  * @param {any[]} [extra] cuts to pool in unchanged
  */
 export function panelOrder(result, plan, panelMax, extra = []) {
+  const bad = panelMaxError(panelMax);
+  if (bad) throw new RangeError(bad);
   const rows = [];
   const demand = new Map(); // size|length|kind -> [{panel, left}] in wall order
   const want = (panel, size, length, kind, qty) => {

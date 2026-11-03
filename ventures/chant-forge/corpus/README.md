@@ -17,6 +17,14 @@ Files are unmodified GregoBase downloads (`download.php?id=N&format=gabc&elem=1`
 Their headers carry the original transcribers. `chant-forge.test.mjs` parses
 every file here and checks the final against the `mode:` header.
 
+## Batch from the 1908 Graduale (added 2026-11-03)
+
+`gregobase-1908/` holds 59 more unmodified downloads (GregoBase ids 3400-3460
+whose `book:` header names the Graduale Romanum, Vatican edition, 1908): 17
+alleluias, 12 introits, 10 communions, 9 graduals, 6 tracts, 5 offertories and a
+few others. Pre-1929 source, CC0 transcription. `batch.test.mjs` and
+`node eval/batch-check.mjs` run the converter over them.
+
 ## Licence of the GregoBase files
 
 GregoBase's FAQ (gregobase.selapa.net, read 2026-11-03) says: "All chant

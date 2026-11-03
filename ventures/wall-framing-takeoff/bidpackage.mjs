@@ -34,7 +34,7 @@ export function bidPackageHtml(q, b, brand = {}) {
   }
   const appendix = groups.size
     ? `<h2>Quantities from the plans</h2><p class="small">Counted from the drawings as typed; no unit prices are shown.</p>` +
-      [...groups].map(([s, ls]) => `<h3>${esc(s)}</h3><table><tbody>${ls.map((/** @type {any} */ l) => `<tr><td>${esc(l.item)}</td><td class="n">${l.qty}</td><td>${esc(l.unit)}</td></tr>`).join("")}</tbody></table>`).join("")
+      [...groups].map(([s, ls]) => `<h3>${esc(s)}</h3><table><thead><tr><th scope="col">Item</th><th scope="col" class="n">Quantity</th><th scope="col">Unit</th></tr></thead><tbody>${ls.map((/** @type {any} */ l) => `<tr><td>${esc(l.item)}</td><td class="n">${l.qty}</td><td>${esc(l.unit)}</td></tr>`).join("")}</tbody></table>`).join("")
     : "";
   const css = `.brand{display:flex;gap:1rem;align-items:center;border-bottom:3px solid ${accent};padding-bottom:.6rem;margin-bottom:1rem}h1,h2,h3{color:${accent}}`;
   return proposalHtml(q, { header, appendix, css, footer: `<p class="small">Estimate from the contractor's own prices; not a contract.</p>` });

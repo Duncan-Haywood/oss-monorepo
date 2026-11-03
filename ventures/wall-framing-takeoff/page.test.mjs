@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
-for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html", "ventilation-calculator.html"]) {
+for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "insulation-calculator.html", "trim-calculator.html", "roof-calculator.html", "gutter-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html", "ventilation-calculator.html"]) {
   test(`${name} carries the disclaimer, privacy line and sponsor link`, () => {
     const html = page(name);
     assert.match(html, /No warranty/);
@@ -456,6 +456,59 @@ test("the siding calculator page: FAQ matches its data, default inputs give the 
   assert.match(html, /56 courses, 176 boards with 10% waste, 1 roll of house wrap and 9 corner boards/);
 });
 
+test("the insulation calculator page: FAQ matches its data, the 40 x 30 house gives 890 sq ft of cavity, 11 bags and R-13.1", async () => {
+  const html = page("insulation-calculator.html");
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("([\w-]+)"\)/g)) assert.ok(ids.has(m[1]), m[1]);
+  const { takeoff, defaultStock } = await import("./engine.mjs");
+  const { layoutInsulation } = await import("./insulation.mjs");
+  const build = (size) => {
+    const w = (id, length, openings = []) => ({ id, length, openings, stud: size, corner: true });
+    const ops = [{ kind: "door", offset: 60, width: 36, height: 80, header: "2x10" }, { kind: "window", offset: 200, width: 36, height: 48, header: "2x10" }, { kind: "window", offset: 300, width: 36, height: 48, header: "2x10" }];
+    return { studSpacing: 16, studLength: 91.5, kerf: 0.125, topPlateLap: 24, cornerExtraStuds: 2, teeExtraStuds: 2, defaultHeaderHeight: 80, stock: defaultStock(91.5), walls: [w("A", 480, ops), w("B", 360), w("C", 480), w("D", 360)] };
+  };
+  for (const [size, cavity, bags, effR, clearR, share] of [["2x4", 890, 11, 13.1, 16.9, 16.6], ["2x6", 882, 11, 17.8, 22.9, 17.3]]) {
+    const plan = build(size);
+    const d = layoutInsulation({ bagSqFt: 88, waste: 0.05, assembly: true }, plan, takeoff(plan));
+    assert.equal(Math.round(d.cavitySqFt), cavity, size);
+    assert.equal(d.bags, bags, size);
+    assert.equal(+d.assembly.effectiveR.toFixed(1), effR, size);
+    assert.equal(+d.assembly.clearWallR.toFixed(1), clearR, size);
+    assert.equal(+(100 * d.framingShare).toFixed(1), share, size);
+  }
+  assert.match(html, /890 sq ft of open cavity/);
+  assert.match(html, /about R-13\.1/);
+  assert.match(html, /about R-17\.8/);
+});
+
+test("the trim calculator page: FAQ matches its data, the 40 x 30 house with an interior wall needs 17 baseboard and 25 casing boards", async () => {
+  const html = page("trim-calculator.html");
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("([\w-]+)"\)/g)) assert.ok(ids.has(m[1]), m[1]);
+  const { layoutTrim } = await import("./trim.mjs");
+  const op = (kind, n, width, height) => Array.from({ length: n }, () => ({ kind, width, height }));
+  const walls = [{ id: "A", length: 480, openings: [...op("door", 1, 36, 80), ...op("window", 2, 36, 48)] }, { id: "B", length: 360 }, { id: "C", length: 480 }, { id: "D", length: 360 }, { id: "I", length: 240, sheathed: false, openings: op("door", 3, 30, 80) }];
+  const t = layoutTrim({}, { walls });
+  assert.equal(Math.round(t.baseFeet), 162);
+  assert.equal(t.baseBoards, 17);
+  assert.equal(Math.round(t.casingFeet), 143);
+  assert.equal(t.casingBoards, 25);
+  assert.equal(t.doorFaces, 7);
+  assert.equal(t.windowFaces, 2);
+  assert.match(html, /162 ft/);
+  assert.match(html, /143 ft of 2\.25 in casing/);
+});
+
 test("the concrete calculator page: FAQ matches its data, the 12 x 12 x 4 in case orders 2 yd and 88 bags", async () => {
   const html = page("concrete-calculator.html");
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
@@ -538,7 +591,7 @@ test("the deck lumber calculator page: FAQ matches its data, default inputs give
 });
 
 test("every page links to every other page (internal linking for readers and crawlers)", () => {
-  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "deck-lumber-calculator", "schedule-calculator", "bid-leveling-calculator", "change-order-calculator", "ventilation-calculator"].map((n) => n + ".html");
+  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "insulation-calculator", "trim-calculator", "roof-calculator", "gutter-calculator", "deck-lumber-calculator", "schedule-calculator", "bid-leveling-calculator", "change-order-calculator", "ventilation-calculator"].map((n) => n + ".html");
   for (const f of pages) {
     const html = page(f);
     for (const other of pages) if (other !== f) assert.ok(html.includes(`<a href="${other}">`), `${f} does not link ${other}`);
@@ -602,4 +655,50 @@ test("the ventilation calculator page: FAQ matches its data, default inputs give
   assert.equal(s.ridgePieces, 7);
   assert.equal(s.soffitUnits, 9);
   assert.equal(Math.round(layoutVentilation({ ratio: 300 }, roof).requiredSqIn), 461);
+});
+
+test("the roof calculator page: FAQ matches its data, the 24 x 40 ft 6:12 gable gives 62 rafters, 44 sheets, 41 bundles", async () => {
+  const html = page("roof-calculator.html");
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("([\w-]+)"\)/g)) assert.ok(ids.has(m[1]), m[1]);
+  const { layoutRoof } = await import("./roof.mjs");
+  const { samplePlan } = await import("./engine.mjs");
+  const l = layoutRoof({ id: "Roof", shape: "gable", width: 288, length: 480, pitch: 6, overhang: 12, gableOverhang: 12, rafter: "2x8", spacing: 16, ridge: "2x10", hip: "2x10", roofing: { waste: 1.1 } }, samplePlan());
+  assert.equal(l.rafters.length, 62);
+  assert.equal(l.rafterLength, 173.5625);
+  assert.equal(l.sheets.count, 44);
+  assert.equal(l.roofing.squares.toFixed(1), "12.2");
+  assert.equal(l.roofing.shingleBundles, 41);
+  assert.equal(l.roofing.ridgeBundles, 2);
+  const hip = layoutRoof({ id: "Roof", shape: "hip", width: 216, length: 360, pitch: 6, overhang: 12, gableOverhang: 12, rafter: "2x8", spacing: 16, ridge: "2x10", hip: "2x10", roofing: { waste: 1.1 } }, samplePlan());
+  assert.notEqual(hip.ok, false, "the hip default must lay out: " + (hip.errors || []).join("; "));
+});
+
+test("the gutter calculator page: FAQ matches its data, the 24 x 40 ft gable gives 84 ft, 10 sections, 4 downspouts, 44 hangers", async () => {
+  const html = page("gutter-calculator.html");
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("([\w-]+)"\)/g)) assert.ok(ids.has(m[1]), m[1]);
+  const { layoutRoof } = await import("./roof.mjs");
+  const { layoutGutters } = await import("./gutters.mjs");
+  const { samplePlan } = await import("./engine.mjs");
+  const roof = layoutRoof({ id: "Roof", shape: "gable", width: 288, length: 480, pitch: 6, overhang: 12, gableOverhang: 12, rafter: "2x8", spacing: 16, ridge: "2x10", hip: "2x10" }, samplePlan());
+  const g = layoutGutters({ gutterStock: 120, eaveHeight: 120, hangerSpacing: 24, maxRunFeet: 40, waste: 0.1 }, roof);
+  assert.equal(g.runFeet, 84);
+  assert.equal(g.gutters, 10);
+  assert.equal(g.downspouts, 4);
+  assert.equal(Math.round(g.planSqFt), 1092);
+  assert.equal(g.downspoutPieces, 4);
+  assert.equal(g.elbows, 8);
+  assert.equal(g.straps, 8);
+  assert.equal(g.hangers, 44);
 });

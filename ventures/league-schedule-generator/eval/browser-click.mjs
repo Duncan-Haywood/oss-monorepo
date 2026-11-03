@@ -122,6 +122,16 @@ await page.click("#show-playoffs");
 const po = await page.locator("#playoffs-out").innerText();
 check(/^ ?1\. /m.test(po) && /Final/.test(po) && /place 1/.test(po), "play-off: seeds and a bracket are shown from the standings");
 
+for (const [btn, name, test, what] of [
+  ["#dl-weekly", "weekly-update.txt", (t) => /Hawks/.test(t) && t.length > 20, "names a team from the results"],
+  ["#dl-overdue", "missing-scores.txt", (t) => t.length > 0, "is not empty (a list, or the no-scores-overdue line)"],
+]) {
+  const [dl] = await Promise.all([page.waitForEvent("download", { timeout: 10000 }), page.click(btn)]);
+  const text = (await readFile(await dl.path(), "utf8")).trim();
+  check(dl.suggestedFilename() === name, `${btn} downloads ${name}`);
+  check(test(text), `${name} ${what} (${text.split("\n").length} lines)`);
+}
+
 check(errors.length === 0, `no page errors${errors.length ? ": " + errors.join("; ") : ""}`);
 await browser.close();
 server.close();
