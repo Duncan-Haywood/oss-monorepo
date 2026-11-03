@@ -30,3 +30,4 @@ On 40 hand-written replies written after the rules were finished and scored once
 ## Limits
 
 English only; one reply at a time, not a thread; no mailbox connection yet; never sends. Not legal advice: the user must honour every opt-out, including ones it misses.
+- sequence.mjs: checkSequence(steps, {country, fromName}) checks a whole cold outreach cadence: opt-out and address on every step, spacing, bare bumps, repeated text, touch count. Pure rules, nothing sent.
