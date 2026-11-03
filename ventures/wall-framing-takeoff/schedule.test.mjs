@@ -292,3 +292,26 @@ test("draw markup: receipts are billed at cost x (1 + markup) (hand-checked)", (
   assert.match(scheduleText(s).join("\n"), /billed at cost \+25\.0%/);
   assert.equal(schedule({ start: "2026-03-02", draw: { markup: -1 }, activities: [{ id: "a", days: 1, cost: 5 }] }).ok, false);
 });
+
+test("hostile days, lags and slips are refused fast (a 1e9-day activity used to hang the calendar walk)", async () => {
+  const { schedule, sampleSchedule } = await import("./schedule.mjs");
+  for (const edit of [(s) => (s.activities[0].days = 1e9), (s) => (s.activities[1].lag = 1e9), (s) => (s.activities[0].days = Infinity), (s) => (s.slips[0].days = 1e9)]) {
+    const s = sampleSchedule();
+    edit(s);
+    const t = Date.now();
+    const r = schedule(s);
+    assert.equal(r.ok, false);
+    assert.ok(Date.now() - t < 500);
+  }
+  assert.equal(schedule(sampleSchedule()).ok, true);
+});
+
+test("dates outside 1990 to 2100 are refused (notBefore 9999-12-31 took 21 s)", () => {
+  for (const edit of [(s) => (s.start = "9999-12-31"), (s) => (s.start = "0001-01-01"), (s) => (s.activities[2].notBefore = "9999-12-31"), (s) => (s.holidays = ["3000-01-01"])]) {
+    const s = sampleSchedule();
+    edit(s);
+    const t = Date.now();
+    assert.equal(schedule(s).ok, false);
+    assert.ok(Date.now() - t < 500);
+  }
+});
