@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23637e1b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free SPF, DKIM and DMARC record checker for cold email</title>
+  <meta name="description" content="Paste your SPF, DMARC and DKIM TXT records. Get a list of what to fix before cold email goes out: too many SPF lookups, +all, p=none, short or revoked DKIM keys. Runs in your browser.">
+  <link rel="canonical" href="./sender-auth-checker.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does SPF fail with more than 10 lookups?","acceptedAnswer":{"@type":"Answer","text":"SPF allows at most 10 DNS-querying terms (include, a, mx, ptr, exists, redirect) across the whole chain. Past that, receivers return a permanent error and treat SPF as failed. Remove includes for services you no longer use."}},{"@type":"Question","name":"Is DMARC p=none enough?","acceptedAnswer":{"@type":"Answer","text":"It is the right starting point because it only monitors, but it blocks nothing. Read the reports, then move to quarantine and reject once every real sender passes."}},{"@type":"Question","name":"Does this tool look up my DNS or send anything?","acceptedAnswer":{"@type":"Answer","text":"No. You paste records you looked up yourself; the check runs in your browser and nothing is uploaded."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; } h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #4b6215; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea, select { width: 100%; box-sizing: border-box; padding: 8px; font: inherit; border: 1px solid #aab4c0; border-radius: 6px; background: #fff; color: inherit; }
+    textarea { min-height: 200px; }
+    button { margin-top: 12px; padding: 10px 14px; border: 0; border-radius: 8px; background: #4b6215; color: #fff; font: inherit; font-weight: 650; cursor: pointer; }
+    #out ul { padding-left: 1.2em; } .err { color: #9b1c1c; } .warn { color: #7a5200; } .rule { font-size: .8rem; color: #4c5a68; }
+    #score { font-size: 2rem; font-weight: 700; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Sales Agent</a></p>
+  <h1>Free SPF, DKIM and DMARC checker</h1>
+  <p>Before you send cold email from a domain, check that it authenticates. Look up the three TXT records (for example with <code>dig TXT example.com</code>) and paste them. You get a list of what to fix. Nothing is looked up for you, uploaded or sent.</p>
+  <label for="spf">SPF: the v=spf1 TXT record at your domain (paste all TXT records, one per line, if unsure)</label><textarea id="spf" rows="3"></textarea>
+  <label for="dmarc">DMARC: the TXT record at _dmarc.yourdomain.com</label><textarea id="dmarc" rows="2"></textarea>
+  <label for="dkim">DKIM: the TXT record at selector._domainkey.yourdomain.com (the selector is s= in a sent message's DKIM-Signature header)</label><textarea id="dkim" rows="3"></textarea>
+  <button id="go" type="button">Check these records</button>
+  <div id="out" aria-live="polite"></div>
+  <h2>What it checks</h2>
+  <ul>
+    <li>SPF: missing or duplicate records, +all and ?all, the ptr mechanism, the 10-lookup limit (it counts this record only, not what each include adds), misspelt terms.</li>
+    <li>DMARC: a record that does not start with v=DMARC1, a missing or invalid policy, p=none, no report address, partial pct, sp=none.</li>
+    <li>DKIM: a missing, revoked or non-base64 key, a key that looks shorter than 2048 bits, and the testing flag.</li>
+  </ul>
+  <p>The warm-up side: the <a href="./cold-email-warmup-planner.html">warm-up planner</a> for sending volume and the <a href="./cold-email-checker.html">cold email checker</a> for the message itself.</p>
+  <h2>Questions</h2>
+  <h3>Why does SPF fail with more than 10 lookups?</h3>
+  <p>SPF allows at most 10 DNS-querying terms (include, a, mx, ptr, exists, redirect) across the whole chain. Past that, receivers return a permanent error and treat SPF as failed. Remove includes for services you no longer use.</p>
+  <h3>Is DMARC p=none enough?</h3>
+  <p>It is the right starting point because it only monitors, but it blocks nothing. Read the reports, then move to quarantine and reject once every real sender passes.</p>
+  <h3>Does this tool look up my DNS or send anything?</h3>
+  <p>No. You paste records you looked up yourself; the check runs in your browser and nothing is uploaded.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. The rules were written from memory of RFC 7208, 7489 and 6376 and common provider guidance, not read against the texts, and the key-size figure is an estimate from the key's length. A clean result does not guarantee inbox placement. Check current provider guidance.</p>
+    <p>Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional. Related: <a href="../sales-cadence-builder/">sales cadence builder</a>, <a href="../deal-keeper/">deal keeper</a>.</p>
+  </footer>
+  <script type="module">
+    import { checkAuth } from "./authcheck.mjs";
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("go").addEventListener("click", () => {
+      const r = checkAuth({ spf: $("spf").value.split("\n"), dmarc: $("dmarc").value, dkim: $("dkim").value });
+      const li = (cls, x) => `<li class="${cls}">${esc(x.text)} <span class="rule">[${esc(x.part)}: ${esc(x.rule)}]</span></li>`;
+      $("out").innerHTML = `<h2>Result</h2><p>${r.ok ? "No blocking problems" : r.errors.length + " to fix before sending"}${r.warnings.length ? " &middot; " + r.warnings.length + " to consider" : ""}</p>`
+        + (r.errors.length ? `<h3>Fix</h3><ul>${r.errors.map((x) => li("err", x)).join("")}</ul>` : "")
+        + (r.warnings.length ? `<h3>Consider</h3><ul>${r.warnings.map((x) => li("warn", x)).join("")}</ul>` : "")
+        + (r.info.length ? `<h3>Notes</h3><ul>${r.info.map((x) => li("rule", x)).join("")}</ul>` : "");
+    });
+  </script>
+</body>
+</html>
