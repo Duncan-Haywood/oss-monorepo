@@ -1,6 +1,8 @@
 ---
 title: Chant at half speed over metal drums
 date: 2026-11-03
+tags: [music, gregorian-chant, midi, open-source]
+description: "Chant Forge's new --halftime option doubles chant durations over an unchanged metal backing: Dies irae goes from 98 to 196 bars at 170 BPM."
 ---
 
 Chant Forge turns public-domain Gregorian chant into MIDI and backs it with
