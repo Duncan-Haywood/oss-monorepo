@@ -46,6 +46,7 @@ export function birdsmouth(size, pitch, bearing = 3.5, maxFraction = 0.25) {
 /** @param {Roof} r @param {{stock: {size: string, length: number}[]}} plan */
 export function validateRoof(r, plan) {
   const errors = [];
+  if (r == null || typeof r !== "object" || Array.isArray(r)) return ["Roof settings are an object."];
   for (const k of ["width", "length", "pitch", "overhang", "gableOverhang", "spacing"]) if (r[k] != null && !(typeof r[k] === "number" && Number.isFinite(r[k]))) errors.push(`Roof ${k} must be a number.`);
   if (errors.length) return errors;
   if (!(r.width >= 96 && r.width <= 1200)) errors.push("Roof width (eave to eave) must be between 8 ft and 100 ft.");

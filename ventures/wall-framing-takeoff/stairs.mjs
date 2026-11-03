@@ -33,6 +33,7 @@ export function sampleStair() {
 
 /** @param {Stair} s */
 export function validateStair(s) {
+  if (s == null || typeof s !== "object" || Array.isArray(s)) return ["Stair settings are an object."];
   const L = { ...STAIR_LIMITS, ...(s.limits || {}) };
   const errors = [];
   // Typed numbers only: a string passes `>=` by coercion and later throws (tread "10" -> comfort.toFixed), a zero maxRiser makes an endless riser count.
