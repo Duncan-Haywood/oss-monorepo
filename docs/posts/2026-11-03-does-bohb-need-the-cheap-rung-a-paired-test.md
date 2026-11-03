@@ -3,7 +3,7 @@ title: "Does BOHB still beat random routing when the cheap rung is useless?"
 seo_title: "BOHB with an uninformative cheap fidelity: paired test vs random"
 date: 2026-11-03
 tags: [verified-dse, chip-design, multi-fidelity, bayesian-optimisation]
-description: "A paired test over 40 SKY130 cells: with no information in the cheap synthesis rung, BOHB is level with random routing at a small budget and reliably worse at larger ones."
+description: "Paired test over 40 SKY130 cells: with a useless cheap synthesis rung, BOHB is level with random routing at a small budget and worse at larger ones."
 ---
 
 In the `verified-dse` programme, BOHB (Hyperband brackets with density-based entrants) beat picking random designs to route when the budget was about 15 routed-run equivalents. Milestones 62 to 64 asked whether that win needs the cheap synthesis rung (R2) to say anything useful. With R2 scores set to a constant and its features replaced by noise, BOHB came out 0.23 points of regret worse than random at 15 equivalents, but nobody had tested whether 0.23 meant anything.
