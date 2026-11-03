@@ -46,12 +46,15 @@ export function birdsmouth(size, pitch, bearing = 3.5, maxFraction = 0.25) {
 /** @param {Roof} r @param {{stock: {size: string, length: number}[]}} plan */
 export function validateRoof(r, plan) {
   const errors = [];
+  if (r == null || typeof r !== "object" || Array.isArray(r)) return ["Roof settings are an object."];
+  for (const k of ["width", "length", "pitch", "overhang", "gableOverhang", "spacing"]) if (r[k] != null && !(typeof r[k] === "number" && Number.isFinite(r[k]))) errors.push(`Roof ${k} must be a number.`);
+  if (errors.length) return errors;
   if (!(r.width >= 96 && r.width <= 1200)) errors.push("Roof width (eave to eave) must be between 8 ft and 100 ft.");
   if (!(r.length >= 48 && r.length <= 2400)) errors.push("Roof length (along the ridge) must be between 4 ft and 200 ft.");
   if (!(r.pitch >= 1 && r.pitch <= 24)) errors.push("Pitch is rise in 12 of run, between 1 and 24.");
   if (!(((r.overhang ?? 12) >= 0) && ((r.overhang ?? 12) <= 48))) errors.push("Eave overhang must be between 0 and 48 inches.");
   if (!(((r.gableOverhang ?? 12) >= 0) && ((r.gableOverhang ?? 12) <= 48))) errors.push("Gable (rake) overhang must be between 0 and 48 inches.");
-  if (!(((r.spacing ?? 16) > 0) && ((r.spacing ?? 16) <= 48))) errors.push("Rafter spacing must be between 0 and 48 inches.");
+  if (!(((r.spacing ?? 16) >= 4) && ((r.spacing ?? 16) <= 48))) errors.push("Rafter spacing must be between 4 and 48 inches.");
   if (r.wing2 && !r.wing) errors.push("`wing2` is the second cross wing; set `wing` first.");
   for (const w of [r.wing, r.wing2]) if (w) {
     if (r.shape === "hip") errors.push("A cross wing is framed on a gable main roof; set shape to gable.");

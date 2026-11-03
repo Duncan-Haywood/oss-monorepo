@@ -221,6 +221,19 @@ await page.fill("#stCheck", "40, 12, abc");
 await page.click("#run");
 await page.waitForFunction(() => /Stringer check: write live/.test(document.body.textContent));
 console.log("ok: malformed stringer check refused on the page");
+// Stringer connection and bearing (#stCheck2): typed figures reach the saved plan; a lone field and a bad one are refused.
+await page.fill("#stCheck", "40, 12, 900, 180, 1300000, 240");
+await page.fill("#stCheck2", "400, 425, 3.5");
+await page.click("#run");
+await page.waitForFunction(() => /Stringer check \(/.test(document.querySelector("#stairsOut")?.textContent || ""));
+const [svs2] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const sk2 = JSON.parse(await (await import("node:fs/promises")).readFile(await svs2.path(), "utf8")).stairs?.stringerCheck;
+console.log(sk2 && sk2.connectorCapacity === 400 && sk2.bearingFcPerp === 425 && sk2.bearingLength === 3.5 ? "ok: stringer connector and bearing typed on the page, saved in the plan" : "FAIL: stringer connector/bearing " + JSON.stringify(sk2));
+await page.fill("#stCheck2", "400");
+await page.click("#run");
+await page.waitForFunction(() => /Stringer connection and bearing: write connector lb/.test(document.body.textContent));
+console.log("ok: malformed stringer connector/bearing refused on the page");
+await page.fill("#stCheck2", "");
 await page.fill("#stCheck", "");
 // Winders: typed treads, turn and radius reach the stairs card (a zero pivot fails and the smallest radius is solved).
 await page.fill("#stWinders", "3, 90, 0");
@@ -325,6 +338,20 @@ await page.waitForFunction(() => /Wall framing/.test(document.querySelector("#bu
 const budTxt = await page.textContent("#budgetOut");
 const budOk = !/NaN|undefined/.test(budTxt) && /total/.test(budTxt) && /labor/.test(budTxt);
 console.log(budOk ? "ok: budget from typed prices on the page" : "FAIL: budget: " + budTxt.slice(0, 200));
+// a misspelt price name is listed with a "did you mean" instead of a silent zero (2026-11-02)
+await page.fill("#priceText", "wallSheet, 20\nlaborWallFoo, 10");
+await page.click("#run");
+await page.waitForFunction(() => document.querySelector("#ignoredPrices"), null, { timeout: 90000 });
+const ignTxt = await page.textContent("#ignoredPrices");
+console.log(/laborWallFoo/.test(ignTxt) && /did you mean laborWallFoot/.test(ignTxt) && /laborWallFoo \(did/.test(ignTxt) ? "ok: misspelt price listed with the nearest name" : "FAIL: ignoredPrices: " + ignTxt);
+// the price-name picker appends a "name, " line once and does not duplicate it
+await page.fill("#priceText", "wallSheet, 20");
+await page.selectOption("#priceName", "laborHoldDown");
+await page.click("#priceAddBtn");
+await page.click("#priceAddBtn");
+const addedTxt = await page.inputValue("#priceText");
+console.log(addedTxt === "wallSheet, 20\nlaborHoldDown, " ? "ok: price picker adds one line" : "FAIL: price picker: " + JSON.stringify(addedTxt));
+await page.fill("#priceText", "wallSheet, 20\nlaborWallFoot, 10\ntax, 0.1");
 // prices travel in the saved plan file and come back on load
 const [sv] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
 const saved = JSON.parse(await (await import("node:fs/promises")).readFile(await sv.path(), "utf8"));
@@ -441,6 +468,34 @@ const [sv6] = await Promise.all([page.waitForEvent("download"), page.click("#sav
 const saved6 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv6.path(), "utf8"));
 const slabOk = !/NaN|undefined/.test(inTxt) && /slab edge/i.test(inTxt) && saved6.insulation?.assembly?.slabEdgeF === 0.54 && saved6.insulation?.assembly?.windowU === 0.3;
 console.log(slabOk ? "ok: insulation slab edge F-factor, card and saved plan" : "FAIL: slab edge: " + (await page.textContent("#errors")).slice(0, 300) + inTxt.slice(0, 400));
+// ceiling under the attic on the insulation card (2026-11-03: page controls for ceilingR / ceilingFromAttic, engine-only before)
+await page.fill("#inAtticR", "38");
+await page.fill("#inDeltaF", "60");
+await page.fill("#inCeilR", "40");
+await page.click("#run");
+await page.waitForFunction(() => /Ceiling under the attic/.test(document.querySelector("#insulationOut")?.textContent || ""), null, { timeout: 30000 }).catch(() => {});
+const ceTxt = await page.textContent("#insulationOut");
+const [sv8] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved8 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv8.path(), "utf8"));
+const ceilOk = !/NaN|undefined/.test(ceTxt) && /Ceiling under the attic: .* at R-40\.0/.test(ceTxt) && saved8.insulation?.assembly?.ceilingR === 40;
+console.log(ceilOk ? "ok: insulation ceiling under the attic, card and saved plan" : "FAIL: ceiling: " + (await page.textContent("#errors")).slice(0, 300) + ceTxt.slice(0, 500));
+// allowances on the price box and the customer proposal card (2026-11-01)
+await page.fill("#priceText", "wallSheet, 20\nlaborWallFoot, 10\noverhead, 0.1\nprofit, 0.1\nallowance Permit, 1200");
+await page.fill("#propClient", "Test Client"); await page.fill("#propExcl", "Painting");
+await page.fill("#propPay", "Deposit, 30\nFinal, 70");
+await page.check("#propPartial");
+await page.click("#propBtn");
+await page.waitForFunction(() => /PROPOSAL|Proposal not issued/.test(document.querySelector("#propOut")?.textContent || ""), null, { timeout: 30000 }).catch(() => {});
+const propTxt = await page.textContent("#propOut");
+const [sv7] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved7 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv7.path(), "utf8"));
+const propOk = /Prepared for Test Client/.test(propTxt) && /Permit: 1,200\.00/.test(propTxt) && /Not included: Painting/.test(propTxt) && /Deposit/.test(propTxt) && /Final/.test(propTxt) && !/NaN|undefined/.test(propTxt) && saved7.allowances?.Permit === 1200;
+console.log(propOk ? "ok: allowance line and customer proposal, card and saved plan" : "FAIL: proposal: " + propTxt.slice(0, 500) + JSON.stringify(saved7.allowances));
+// the proposal's printable page opens as a self-contained page (2026-11-01)
+const [popup] = await Promise.all([page.context().waitForEvent("page", { timeout: 15000 }).catch(() => null), page.click("#propPrint")]);
+let printOk = false, printTxt = "";
+if (popup) { await popup.waitForLoadState("load").catch(() => {}); printTxt = await popup.content(); printOk = /Test Client/.test(printTxt) && /Permit/.test(printTxt) && /Painting/.test(printTxt) && !/<script/i.test(printTxt) && !/NaN|undefined/.test(await popup.innerText("body")); await popup.close(); }
+console.log(printOk ? "ok: proposal printable page opens, has client, allowance, exclusion, no script" : "FAIL: printable page: " + (popup ? printTxt.slice(0, 400) : "no popup"));
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || !sdOk || !sd2Ok || !slabOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || !sdOk || !sd2Ok || !slabOk || !ceilOk || !propOk || !printOk || horizontal.includes("CHECK FAILED") ? 1 : 0);

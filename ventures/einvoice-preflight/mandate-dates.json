@@ -1,0 +1,664 @@
+{
+ "source": "e-invoicing-mandates-by-country.html",
+ "note": "Full day-month-year dates only. Not legal or tax advice.",
+ "events": [
+  {
+   "date": "2014-01-01",
+   "country": "Austria",
+   "page": "austria-e-invoice-mandate.html",
+   "note": "Federal government suppliers since 1 Jan 2014 (EN 16931 since 18 Apr 2020)",
+   "status": "B2G only"
+  },
+  {
+   "date": "2016-10-01",
+   "country": "Czech Republic",
+   "page": "czech-republic-e-invoice-mandate.html",
+   "note": "B2G acceptance since 1 Oct 2016",
+   "status": "B2G in force; B2B not enacted"
+  },
+  {
+   "date": "2019-07-01",
+   "country": "Estonia",
+   "page": "estonia-e-invoice-mandate.html",
+   "note": "B2G since 1 Jul 2019",
+   "status": "Partly in force"
+  },
+  {
+   "date": "2020-01-01",
+   "country": "Uzbekistan",
+   "page": "uzbekistan-soliq-e-invoice-mandate.html",
+   "note": "B2B and B2G reported from 1 January 2020, B2C from 2021",
+   "status": "In force (2026 changes disputed)"
+  },
+  {
+   "date": "2020-04-18",
+   "country": "Austria",
+   "page": "austria-e-invoice-mandate.html",
+   "note": "Federal government suppliers since 1 Jan 2014 (EN 16931 since 18 Apr 2020)",
+   "status": "B2G only"
+  },
+  {
+   "date": "2020-07-01",
+   "country": "Uganda",
+   "page": "uganda-efris-e-invoice-mandate.html",
+   "note": "mandatory for VAT-registered taxpayers (Gazette Notice 595 of 2020, reported; start 1 July 2020 to 1 January 2021 in different guides)",
+   "status": "In force"
+  },
+  {
+   "date": "2021-01-01",
+   "country": "Albania",
+   "page": "albania-e-invoice-mandate.html",
+   "note": "Clearance through the tax authority: government buyers from 1 Jan 2021",
+   "status": "In force"
+  },
+  {
+   "date": "2021-01-01",
+   "country": "Uganda",
+   "page": "uganda-efris-e-invoice-mandate.html",
+   "note": "mandatory for VAT-registered taxpayers (Gazette Notice 595 of 2020, reported; start 1 July 2020 to 1 January 2021 in different guides)",
+   "status": "In force"
+  },
+  {
+   "date": "2021-07-01",
+   "country": "Albania",
+   "page": "albania-e-invoice-mandate.html",
+   "note": "Clearance through the tax authority: cashless B2B from 1 Jul 2021",
+   "status": "In force"
+  },
+  {
+   "date": "2021-09-01",
+   "country": "Albania",
+   "page": "albania-e-invoice-mandate.html",
+   "note": "Clearance through the tax authority: cash sales to consumers from 1 Sep 2021 (vendor and compliance guides, not the DPT or the law)",
+   "status": "In force"
+  },
+  {
+   "date": "2022-07-01",
+   "country": "Australia",
+   "page": "australia-e-invoice-mandate.html",
+   "note": "Federal agencies must receive Peppol e-invoices (1 Jul 2022) and pay within five days",
+   "status": "In force for government; B2B voluntary"
+  },
+  {
+   "date": "2022-07-01",
+   "country": "Vietnam",
+   "page": "vietnam-e-invoice-mandate.html",
+   "note": "Electronic invoices compulsory for most taxpayers since 1 July 2022 (Decree 123/2020, Circular 78/2021): with a tax authority code (reference starts C) or without (K, data reported to the authority the same day)",
+   "status": "In force"
+  },
+  {
+   "date": "2023-01-01",
+   "country": "Serbia",
+   "page": "serbia-e-invoice-mandate.html",
+   "note": "B2G from 2022, B2B from 1 Jan 2023 via the state SEF platform (vendor guides; some dates disagree)",
+   "status": "In force"
+  },
+  {
+   "date": "2023-07-01",
+   "country": "Ghana",
+   "page": "ghana-e-vat-e-invoice-mandate.html",
+   "note": "GRA E-VAT electronic invoicing in phases: about 650 large taxpayers from 1 July 2023",
+   "status": "Phased (2026 expansion reported, unconfirmed)"
+  },
+  {
+   "date": "2023-08-01",
+   "country": "India",
+   "page": "india-gst-e-invoice-mandate.html",
+   "note": "Above ₹5 crore turnover since 1 Aug 2023 (secondary guides)",
+   "status": "In force"
+  },
+  {
+   "date": "2023-10-01",
+   "country": "Japan",
+   "page": "japan-invoice-system-e-invoice-mandate.html",
+   "note": "Qualified invoice system since 1 Oct 2023 (T-number on invoices for buyers to claim input credit)",
+   "status": "In force (no clearance)"
+  },
+  {
+   "date": "2024-01-01",
+   "country": "Romania",
+   "page": "romania-e-factura-e-invoice-mandate.html",
+   "note": "B2B since 1 Jan 2024, B2C added in 2025, through ANAF's RO e-Factura",
+   "status": "In force"
+  },
+  {
+   "date": "2024-05-15",
+   "country": "Mauritius",
+   "page": "mauritius-e-invoice-mandate.html",
+   "note": "Invoices registered with the MRA before issue: businesses above MUR 100 million from 15 May 2024",
+   "status": "In force, phasing in"
+  },
+  {
+   "date": "2024-05-31",
+   "country": "Jordan",
+   "page": "jordan-jofotara-e-invoice-mandate.html",
+   "note": "launched December 2022, universal registration due 31 May 2024, mandatory issuance through JoFotara from April 2025 (Regulation No. 2 of 2025, reported)",
+   "status": "In force (scope of later phases unclear)"
+  },
+  {
+   "date": "2024-07-01",
+   "country": "Zambia",
+   "page": "zambia-smart-invoice-e-invoice-mandate.html",
+   "note": "mandatory from 1 July 2024 in most guides (one says 21 July)",
+   "status": "In force"
+  },
+  {
+   "date": "2024-08-01",
+   "country": "Malaysia",
+   "page": "malaysia-myinvois-e-invoice-mandate.html",
+   "note": "MyInvois phased by turnover from 1 Aug 2024 to 2026",
+   "status": "In force, phasing in"
+  },
+  {
+   "date": "2024-09-30",
+   "country": "Zambia",
+   "page": "zambia-smart-invoice-e-invoice-mandate.html",
+   "note": "grace period to 30 September 2024",
+   "status": "In force"
+  },
+  {
+   "date": "2025-01-01",
+   "country": "Germany",
+   "page": "germany-e-invoice-mandate.html",
+   "note": "Receive since 1 Jan 2025",
+   "status": "In force (receiving)"
+  },
+  {
+   "date": "2025-01-01",
+   "country": "Indonesia",
+   "page": "indonesia-coretax-e-invoice-mandate.html",
+   "note": "VAT invoices (faktur pajak) issued electronically and approved in the tax authority&rsquo;s Coretax system since 1 January 2025 (PMK 81/2024)",
+   "status": "In force"
+  },
+  {
+   "date": "2025-01-01",
+   "country": "Latvia",
+   "page": "latvia-e-invoice-mandate.html",
+   "note": "B2G since 1 Jan 2025",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2025-01-01",
+   "country": "Zambia",
+   "page": "zambia-smart-invoice-e-invoice-mandate.html",
+   "note": "input VAT tied to it from 1 January 2025 (vendor guides and press, ZRA notices unread)",
+   "status": "In force"
+  },
+  {
+   "date": "2025-06-01",
+   "country": "Vietnam",
+   "page": "vietnam-e-invoice-mandate.html",
+   "note": "Decree 70/2025 amended the rules from 1 June 2025, adding cash-register invoices for household businesses with revenue of VND 1 billion or more (vendor and legal-news summaries; the decrees are unread and sources differ on scope)",
+   "status": "In force"
+  },
+  {
+   "date": "2025-07-01",
+   "country": "Estonia",
+   "page": "estonia-e-invoice-mandate.html",
+   "note": "buyer's choice since 1 Jul 2025 (registered recipients can require e-invoices)",
+   "status": "Partly in force"
+  },
+  {
+   "date": "2025-07-29",
+   "country": "Panama",
+   "page": "panama-dgi-sfep-e-invoice-mandate.html",
+   "note": "Resolution 201-6299 (29 July 2025) reported in force 1 January 2026",
+   "status": "In force (PAC duties from 2026)"
+  },
+  {
+   "date": "2025-09-01",
+   "country": "Costa Rica",
+   "page": "costa-rica-hacienda-e-invoice-mandate.html",
+   "note": "version 4.4 reported mandatory from 1 September 2025 (MH-DGT-RES-0001-2025)",
+   "status": "In force (version 4.4)"
+  },
+  {
+   "date": "2025-10-06",
+   "country": "Costa Rica",
+   "page": "costa-rica-hacienda-e-invoice-mandate.html",
+   "note": "with a disputed 6 October 2025 date for the CIIU 4 requirement (vendor guides, Hacienda texts unread)",
+   "status": "In force (version 4.4)"
+  },
+  {
+   "date": "2025-10-23",
+   "country": "Slovenia",
+   "page": "slovenia-e-invoice-mandate.html",
+   "note": "1 Jan 2028 for domestic B2B (law adopted 23 Oct 2025; vendor guides)",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2025-11-01",
+   "country": "Singapore",
+   "page": "singapore-invoicenow-e-invoice-mandate.html",
+   "note": "GST InvoiceNow: new voluntary registrants from 1 Nov 2025",
+   "status": "In force, phasing in"
+  },
+  {
+   "date": "2026-01-01",
+   "country": "Belgium",
+   "page": "belgium-e-invoice-mandate.html",
+   "note": "1 Jan 2026 for domestic B2B",
+   "status": "In force"
+  },
+  {
+   "date": "2026-01-01",
+   "country": "Croatia",
+   "page": "croatia-e-invoice-mandate.html",
+   "note": "1 Jan 2026, B2B and B2G, reported to the Tax Administration (Fiskalizacija 2.0)",
+   "status": "In force"
+  },
+  {
+   "date": "2026-01-01",
+   "country": "Israel",
+   "page": "israel-allocation-number-e-invoice-mandate.html",
+   "note": "the threshold (before VAT) is reported as NIS 10,000 from 1 January 2026",
+   "status": "In force, tightening"
+  },
+  {
+   "date": "2026-01-01",
+   "country": "Kazakhstan",
+   "page": "kazakhstan-is-esf-e-invoice-mandate.html",
+   "note": "Tax Code No. 214-VIII and Order No. 629 from 1 January 2026, automated VAT-balance control of issuance reported (advisory-firm summaries, orders unread; start year disputed 2017 or 2019)",
+   "status": "In force"
+  },
+  {
+   "date": "2026-01-01",
+   "country": "Panama",
+   "page": "panama-dgi-sfep-e-invoice-mandate.html",
+   "note": "Resolution 201-6299 (29 July 2025) reported in force 1 January 2026",
+   "status": "In force (PAC duties from 2026)"
+  },
+  {
+   "date": "2026-01-01",
+   "country": "Turkey",
+   "page": "turkey-e-invoice-mandate.html",
+   "note": "e-Arşiv for all other invoices, per-invoice threshold removed 1 Jan 2026 (vendor and advisory guides, not GİB)",
+   "status": "In force"
+  },
+  {
+   "date": "2026-01-02",
+   "country": "Paraguay",
+   "page": "paraguay-dnit-e-invoice-mandate.html",
+   "note": "brought in by taxpayer group: press reports start dates from 1 June 2026 to 1 September 2027 (RG 52) and State suppliers from 2 January 2026 (press and vendor guides; the resolutions are unread, and sources differ on the State-supplier rule's number)",
+   "status": "Phasing in"
+  },
+  {
+   "date": "2026-02-01",
+   "country": "Poland",
+   "page": "poland-ksef-e-invoice-mandate.html",
+   "note": "KSeF: 1 Feb 2026 largest taxpayers",
+   "status": "In force, phased"
+  },
+  {
+   "date": "2026-04-01",
+   "country": "Poland",
+   "page": "poland-ksef-e-invoice-mandate.html",
+   "note": "KSeF: 1 Apr 2026 most others",
+   "status": "In force, phased"
+  },
+  {
+   "date": "2026-04-01",
+   "country": "Singapore",
+   "page": "singapore-invoicenow-e-invoice-mandate.html",
+   "note": "GST InvoiceNow: 1 Apr 2026",
+   "status": "In force, phasing in"
+  },
+  {
+   "date": "2026-06-01",
+   "country": "Israel",
+   "page": "israel-allocation-number-e-invoice-mandate.html",
+   "note": "NIS 5,000 from 1 June 2026 (law-firm and vendor summaries; the directive is unread)",
+   "status": "In force, tightening"
+  },
+  {
+   "date": "2026-06-01",
+   "country": "Paraguay",
+   "page": "paraguay-dnit-e-invoice-mandate.html",
+   "note": "brought in by taxpayer group: press reports start dates from 1 June 2026 to 1 September 2027 (RG 52) and State suppliers from 2 January 2026 (press and vendor guides; the resolutions are unread, and sources differ on the State-supplier rule's number)",
+   "status": "Phasing in"
+  },
+  {
+   "date": "2026-06-30",
+   "country": "Saudi Arabia",
+   "page": "saudi-arabia-zatca-e-invoice-mandate.html",
+   "note": "ZATCA waves: Wave 24 due 30 Jun 2026",
+   "status": "In force, in waves"
+  },
+  {
+   "date": "2026-07-17",
+   "country": "Luxembourg",
+   "page": "luxembourg-e-invoice-mandate.html",
+   "note": "Draft law No. 8815 (approved by the Government Council 17 Jul 2026, filed 30 Jul 2026, not yet law): receive from 1 Jan 2028",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2026-07-30",
+   "country": "Luxembourg",
+   "page": "luxembourg-e-invoice-mandate.html",
+   "note": "Draft law No. 8815 (approved by the Government Council 17 Jul 2026, filed 30 Jul 2026, not yet law): receive from 1 Jan 2028",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2026-08-01",
+   "country": "Oman",
+   "page": "oman-fawtara-e-invoice-mandate.html",
+   "note": "pilot of about 100 large taxpayers from 1 August 2026 (secondary sources, Gazette text unread)",
+   "status": "Pilot; mandate reported for 2027"
+  },
+  {
+   "date": "2026-09-01",
+   "country": "France",
+   "page": "france-e-invoice-mandate.html",
+   "note": "Receive: all businesses 1 Sep 2026",
+   "status": "In force, phased"
+  },
+  {
+   "date": "2026-09-01",
+   "country": "France",
+   "page": "france-e-invoice-mandate.html",
+   "note": "Issue: large and mid-size 1 Sep 2026",
+   "status": "In force, phased"
+  },
+  {
+   "date": "2026-09-01",
+   "country": "Mauritius",
+   "page": "mauritius-e-invoice-mandate.html",
+   "note": "Invoices registered with the MRA before issue: widening in waves to above MUR 40 million from 1 Sep 2026 (compliance guides, not the MRA; earlier wave dates disagree)",
+   "status": "In force, phasing in"
+  },
+  {
+   "date": "2026-09-24",
+   "country": "Rwanda",
+   "page": "rwanda-eis-e-invoice-mandate.html",
+   "note": "Ministerial Order No 006/26/10/TC of 24 September 2026 reported (Gazette and RRA notices unread; start 2013 or 2021 in different sources)",
+   "status": "In force (2026 order reported, unconfirmed)"
+  },
+  {
+   "date": "2026-09-30",
+   "country": "Japan",
+   "page": "japan-invoice-system-e-invoice-mandate.html",
+   "note": "transitional credit for unregistered sellers 80% until 30 Sep 2026",
+   "status": "In force (no clearance)"
+  },
+  {
+   "date": "2026-10-01",
+   "country": "Japan",
+   "page": "japan-invoice-system-e-invoice-mandate.html",
+   "note": "50% from 1 Oct 2026 to 30 Sep 2029 (vendor and advisory guides, 2026 reform revisions unread)",
+   "status": "In force (no clearance)"
+  },
+  {
+   "date": "2026-10-05",
+   "country": "Spain",
+   "page": "spain-verifactu-e-invoice-mandate.html",
+   "note": "under Order HAC/1028/2026 published 5 Oct 2026 (advisory and news summaries; BOE text unread)",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2026-10-31",
+   "country": "Dominican Republic",
+   "page": "dominican-republic-dgii-e-invoice-mandate.html",
+   "note": "large local and medium taxpayers electronic-only from November 2026 (paper sequences to 31 October 2026)",
+   "status": "Phased by taxpayer size (November 2026 waves)"
+  },
+  {
+   "date": "2026-11-01",
+   "country": "Ghana",
+   "page": "ghana-e-vat-e-invoice-mandate.html",
+   "note": "and a reported extension to medium taxpayers from 1 November 2026 (vendor guides, GRA notices unread; sources disagree on the overall start)",
+   "status": "Phased (2026 expansion reported, unconfirmed)"
+  },
+  {
+   "date": "2026-11-15",
+   "country": "Dominican Republic",
+   "page": "dominican-republic-dgii-e-invoice-mandate.html",
+   "note": "small and micro taxpayers 15 November 2026 after a reported final extension (secondary sources, DGII notices unread)",
+   "status": "Phased by taxpayer size (November 2026 waves)"
+  },
+  {
+   "date": "2026-12-31",
+   "country": "Philippines",
+   "page": "philippines-bir-eis-e-invoice-mandate.html",
+   "note": "first deadline reported as 31 Dec 2026",
+   "status": "Phased (first deadline reported 31 Dec 2026)"
+  },
+  {
+   "date": "2027-01-01",
+   "country": "Denmark",
+   "page": "denmark-e-invoice-mandate.html",
+   "note": "Bookkeeping Act systems, SAF-T 2.0 from 1 Jan 2027, default NemHandel registration reported for 2027 (secondary sources, partly draft)",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2027-01-01",
+   "country": "New Zealand",
+   "page": "new-zealand-e-invoice-mandate.html",
+   "note": "large suppliers to government reported to be required to send from 1 Jan 2027, though MBIE reportedly applies it through new and renewed contracts (vendor and compliance guides, not MBIE or the law)",
+   "status": "B2G in force; B2B voluntary"
+  },
+  {
+   "date": "2027-01-01",
+   "country": "Norway",
+   "page": "norway-e-invoice-mandate.html",
+   "note": "Confirmed: bookkeeping-liable businesses must be able to send e-invoices B2B from 1 Jan 2027",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2027-01-01",
+   "country": "Poland",
+   "page": "poland-ksef-e-invoice-mandate.html",
+   "note": "KSeF: smallest 1 Jan 2027",
+   "status": "In force, phased"
+  },
+  {
+   "date": "2027-01-01",
+   "country": "Portugal",
+   "page": "portugal-e-invoice-mandate.html",
+   "note": "PDF invoices need a qualified signature from 1 Jan 2027 per most sources",
+   "status": "No B2B date"
+  },
+  {
+   "date": "2027-01-01",
+   "country": "Slovakia",
+   "page": "slovakia-e-invoice-mandate.html",
+   "note": "1 Jan 2027 for domestic B2B and B2G (vendor guides; voluntary in 2026)",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2027-01-01",
+   "country": "Spain",
+   "page": "spain-verifactu-e-invoice-mandate.html",
+   "note": "Verifactu invoicing-software rules delayed to 1 Jan 2027 (corporate taxpayers)",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2027-01-01",
+   "country": "United Arab Emirates",
+   "page": "uae-e-invoice-mandate.html",
+   "note": "1 Jan 2027 for revenue of AED 50 million or more",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2027-02-01",
+   "country": "Saudi Arabia",
+   "page": "saudi-arabia-zatca-e-invoice-mandate.html",
+   "note": "Wave 25 (taxable turnover above SAR 187,500) due 1 Feb 2027",
+   "status": "In force, in waves"
+  },
+  {
+   "date": "2027-04-01",
+   "country": "Oman",
+   "page": "oman-fawtara-e-invoice-mandate.html",
+   "note": "Decision 189/2026 reported to set 1 April 2027 (annual supplies above OMR 5 million)",
+   "status": "Pilot; mandate reported for 2027"
+  },
+  {
+   "date": "2027-07-01",
+   "country": "Spain",
+   "page": "spain-verifactu-e-invoice-mandate.html",
+   "note": "1 Jul 2027 (others)",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2027-07-01",
+   "country": "United Arab Emirates",
+   "page": "uae-e-invoice-mandate.html",
+   "note": "1 Jul 2027 for the rest",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2027-09-01",
+   "country": "France",
+   "page": "france-e-invoice-mandate.html",
+   "note": "Issue: the rest 1 Sep 2027",
+   "status": "In force, phased"
+  },
+  {
+   "date": "2027-09-01",
+   "country": "Paraguay",
+   "page": "paraguay-dnit-e-invoice-mandate.html",
+   "note": "brought in by taxpayer group: press reports start dates from 1 June 2026 to 1 September 2027 (RG 52) and State suppliers from 2 January 2026 (press and vendor guides; the resolutions are unread, and sources differ on the State-supplier rule's number)",
+   "status": "Phasing in"
+  },
+  {
+   "date": "2027-10-01",
+   "country": "Oman",
+   "page": "oman-fawtara-e-invoice-mandate.html",
+   "note": "1 October 2027 (others)",
+   "status": "Pilot; mandate reported for 2027"
+  },
+  {
+   "date": "2027-10-06",
+   "country": "Spain",
+   "page": "spain-verifactu-e-invoice-mandate.html",
+   "note": "B2B e-invoicing from 6 Oct 2027 (previous-year turnover above 8 million euro)",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2027-12-31",
+   "country": "Malaysia",
+   "page": "malaysia-myinvois-e-invoice-mandate.html",
+   "note": "relaxation period reported to 31 Dec 2027",
+   "status": "In force, phasing in"
+  },
+  {
+   "date": "2028-01-01",
+   "country": "Bulgaria",
+   "page": "bulgaria-e-invoice-mandate.html",
+   "note": "a draft proposes NISSEF invoices mostly from 1 Jan 2028",
+   "status": "Proposal only"
+  },
+  {
+   "date": "2028-01-01",
+   "country": "Latvia",
+   "page": "latvia-e-invoice-mandate.html",
+   "note": "domestic B2B postponed to 1 Jan 2028 (vendor guides)",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2028-01-01",
+   "country": "Luxembourg",
+   "page": "luxembourg-e-invoice-mandate.html",
+   "note": "Draft law No. 8815 (approved by the Government Council 17 Jul 2026, filed 30 Jul 2026, not yet law): receive from 1 Jan 2028",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2028-01-01",
+   "country": "Slovenia",
+   "page": "slovenia-e-invoice-mandate.html",
+   "note": "1 Jan 2028 for domestic B2B (law adopted 23 Oct 2025; vendor guides)",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2028-04-01",
+   "country": "Singapore",
+   "page": "singapore-invoicenow-e-invoice-mandate.html",
+   "note": "existing GST-registered businesses 1 Apr 2028 to 1 Apr 2031 by annual supplies",
+   "status": "In force, phasing in"
+  },
+  {
+   "date": "2028-07-01",
+   "country": "Luxembourg",
+   "page": "luxembourg-e-invoice-mandate.html",
+   "note": "larger businesses issue from 1 Jul 2028",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2028-10-06",
+   "country": "Spain",
+   "page": "spain-verifactu-e-invoice-mandate.html",
+   "note": "6 Oct 2028 (all others)",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2028-11-01",
+   "country": "Ireland",
+   "page": "ireland-e-invoice-mandate.html",
+   "note": "Revenue: large corporates issue and report, all businesses receive, from 1 Nov 2028",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2029-01-01",
+   "country": "Luxembourg",
+   "page": "luxembourg-e-invoice-mandate.html",
+   "note": "all from 1 Jan 2029",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2029-09-30",
+   "country": "Japan",
+   "page": "japan-invoice-system-e-invoice-mandate.html",
+   "note": "50% from 1 Oct 2026 to 30 Sep 2029 (vendor and advisory guides, 2026 reform revisions unread)",
+   "status": "In force (no clearance)"
+  },
+  {
+   "date": "2029-11-01",
+   "country": "Ireland",
+   "page": "ireland-e-invoice-mandate.html",
+   "note": "cross-border EU traders 1 Nov 2029",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2030-01-01",
+   "country": "Norway",
+   "page": "norway-e-invoice-mandate.html",
+   "note": "receiving and digital bookkeeping from 1 Jan 2030 (secondary sources, not Lovdata)",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2030-07-01",
+   "country": "Cyprus",
+   "page": "cyprus-e-invoice-mandate.html",
+   "note": "EU cross-border step 1 July 2030 (advisory guides, not the Tax Department)",
+   "status": "B2G receipt in force; B2B voluntary"
+  },
+  {
+   "date": "2030-07-01",
+   "country": "Finland",
+   "page": "finland-e-invoice-mandate.html",
+   "note": "EU-wide ViDA from 1 Jul 2030 (vendor and advisory guides, not the law)",
+   "status": "B2G in force; B2B voluntary"
+  },
+  {
+   "date": "2030-07-01",
+   "country": "Malta",
+   "page": "malta-e-invoice-mandate.html",
+   "note": "EU-wide ViDA from 1 Jul 2030 (Commission sheets and vendor guides, not the legal notices)",
+   "status": "B2G receive-side; B2B voluntary"
+  },
+  {
+   "date": "2030-07-01",
+   "country": "Sweden",
+   "page": "sweden-e-invoice-mandate.html",
+   "note": "EU-wide ViDA from 1 Jul 2030 (vendor and advisory guides, not the law)",
+   "status": "B2G in force; B2B voluntary"
+  },
+  {
+   "date": "2031-04-01",
+   "country": "Singapore",
+   "page": "singapore-invoicenow-e-invoice-mandate.html",
+   "note": "existing GST-registered businesses 1 Apr 2028 to 1 Apr 2031 by annual supplies",
+   "status": "In force, phasing in"
+  }
+ ]
+}

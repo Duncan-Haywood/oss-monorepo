@@ -1,0 +1,7 @@
+# used by BuildKit for `docker build -f deploy/Dockerfile .` (the context is the package folder)
+.venv
+**/__pycache__
+**/*.pyc
+.pytest_cache
+tests
+deploy

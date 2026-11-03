@@ -97,6 +97,19 @@
     <div class="scroll"><table id="segments"></table></div>
     <button type="button" class="secondary" id="download">Download per-point results (CSV)</button>
   </section>
+
+  <section class="card" id="report-card" aria-labelledby="report-h" hidden>
+    <h2 id="report-h">Branded change report</h2>
+    <p class="note">The result above on your own letterhead: your name and logo, the chart, the plain-language reading, the change and segment tables and a statement of assumptions, as one page to print or save as PDF. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; the detector, the CSV and everything else stay free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
+    <p id="report-buy-row" hidden><a id="report-buy" class="cta" rel="noopener" target="_blank">Buy a licence key</a></p>
+    <p><label>Licence key <input id="report-key" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="report-check">Check key</button> <span id="report-state" role="status"></span></p>
+    <div id="report-fields" hidden>
+      <p><label>Report title <input id="report-title" aria-label="Report title" placeholder="Checkout conversion, Q3"></label> <label>Prepared by <input id="report-author" aria-label="Report author"></label> <label>Contact <input id="report-contact" aria-label="Report contact"></label> <label>Accent colour <input id="report-accent" aria-label="Report accent" type="color" value="#1f5f86"></label></p>
+      <p><label>Logo (PNG, JPEG, WebP or GIF) <input id="report-logo" aria-label="Report logo" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label></p>
+      <p><label>Analyst's notes, one per line<br><textarea id="report-notes" aria-label="Report notes" rows="3" style="width:100%"></textarea></label></p>
+      <button type="button" id="report-open">Open the report (print or save as PDF)</button>
+    </div>
+  </section>
   <p class="error" id="error" role="alert"></p>
 
   <section class="card" aria-labelledby="method-h">
@@ -143,7 +156,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> An independent implementation from the published papers; not affiliated with or endorsed by the papers' authors or their institutions.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>, <code>report_unlocked</code>, <code>report_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More research algorithms on your own data: <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> for repeated patterns and anomalies. Testing a change you made on purpose? The <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -153,37 +166,14 @@
   <script type="module">
     import { analyze, DEFAULTS } from "./engine.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { chartSvg, changeReportHtml, esc, fmt } from "./report.mjs";
+    import { buyLink, checkLicence } from "./licence.mjs";
+    import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
 
     const $ = (s) => document.querySelector(s);
-    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-    const fmt = (v) => (typeof v !== "number" ? esc(v) : Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 1 ? v.toFixed(2) : v.toPrecision(3));
     let last = null;
 
     $("#penalty").addEventListener("change", () => { $("#penaltyValue").disabled = $("#penalty").value !== "custom"; });
-
-    function chart(r) {
-      const W = 900, H1 = 260, H2 = 90, P = 44, n = r.values.length;
-      const lo = Math.min(...r.values), hi = Math.max(...r.values);
-      const pad = (hi - lo) * 0.06 || 1;
-      const X = (i) => P + (i / Math.max(1, n - 1)) * (W - P - 10);
-      const Y = (v) => 10 + (1 - (v - lo + pad) / (hi - lo + 2 * pad)) * (H1 - 30);
-      const parts = [];
-      parts.push(`<line x1="${P}" y1="${H1 - 20}" x2="${W - 10}" y2="${H1 - 20}" stroke="#ccd5dd"/>`);
-      for (const t of [lo, (lo + hi) / 2, hi]) parts.push(`<text x="${P - 6}" y="${Y(t) + 4}" font-size="11" text-anchor="end" fill="#4c5a68">${fmt(t)}</text>`);
-      const tickEvery = Math.max(1, Math.ceil(n / 8));
-      for (let i = 0; i < n; i += tickEvery) parts.push(`<text x="${X(i)}" y="${H1 - 6}" font-size="11" text-anchor="middle" fill="#4c5a68">${esc(r.labels[i]).slice(0, 10)}</text>`);
-      const path = r.values.map((v, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("");
-      parts.push(`<path d="${path}" fill="none" stroke="#8aa1b1" stroke-width="1.2"/>`);
-      if (n <= 600) for (let i = 0; i < n; i++) parts.push(`<circle cx="${X(i).toFixed(1)}" cy="${Y(r.values[i]).toFixed(1)}" r="2" fill="#4c6a7d"/>`);
-      for (const s of r.pelt.segments) parts.push(`<line x1="${X(s.start)}" x2="${X(s.end)}" y1="${Y(s.mean)}" y2="${Y(s.mean)}" stroke="#c0392b" stroke-width="3"/>`);
-      for (const c of r.pelt.changepoints) parts.push(`<line x1="${X(c.index - 0.5)}" x2="${X(c.index - 0.5)}" y1="10" y2="${H1 - 20}" stroke="#c0392b" stroke-dasharray="4 4"/>`);
-      const base = H1 + H2 - 10;
-      parts.push(`<text x="${P - 6}" y="${H1 + 14}" font-size="11" text-anchor="end" fill="#4c5a68">100%</text><text x="${P - 6}" y="${base}" font-size="11" text-anchor="end" fill="#4c5a68">0%</text>`);
-      const bw = Math.max(1, (W - P - 10) / n - 1);
-      r.bocpd.changeProb.forEach((p, i) => { if (p > 0.005) parts.push(`<rect x="${(X(i) - bw / 2).toFixed(1)}" y="${(base - p * (H2 - 14)).toFixed(1)}" width="${bw.toFixed(1)}" height="${(p * (H2 - 14)).toFixed(1)}" fill="#1f5f86"><title>${esc(r.labels[i])}: ${(p * 100).toFixed(0)}%</title></rect>`); });
-      parts.push(`<line x1="${P}" y1="${base}" x2="${W - 10}" y2="${base}" stroke="#ccd5dd"/>`);
-      return `<svg viewBox="0 0 ${W} ${H1 + H2}" xmlns="http://www.w3.org/2000/svg">${parts.join("")}</svg>`;
-    }
 
     function run() {
       $("#error").textContent = "";
@@ -194,7 +184,7 @@
       const r = last;
       $("#summary").textContent = r.summary + (r.bursts && r.bursts.length ? ` Spikes cut back before fitting: ${r.bursts.slice(0, 10).map((b) => `${b.label} (${b.value} kept as ${b.keptAs})`).join(", ")}${r.bursts.length > 10 ? `, and ${r.bursts.length - 10} more` : ""}.` : "");
       $("#warnings").innerHTML = ["rangeWarning", "driftWarning", "cycleWarning"].filter((k) => r[k]).map((k) => `<p class="note" role="note"><strong>Read with care:</strong> ${esc(r[k])}</p>`).join("");
-      $("#chart").innerHTML = chart(r);
+      $("#chart").innerHTML = chartSvg(r);
       $("#changes").innerHTML = r.pelt.changepoints.length
         ? `<tr><th>New segment from</th><th class="n">Mean before</th><th class="n">Mean after</th><th class="n">Shift (noise sd)</th><th class="n">SD before → after</th><th class="n">Bayesian prob. (±3 points)</th></tr>` +
           r.pelt.changepoints.map((c) => `<tr><td>${esc(c.label)}</td><td class="n">${fmt(c.meanBefore)}</td><td class="n">${fmt(c.meanAfter)}</td><td class="n">${fmt(c.shiftInNoiseSd)}</td><td class="n">${fmt(c.sdBefore)} → ${fmt(c.sdAfter)}</td><td class="n">${Math.round(c.bocpdProbWithin3 * 100)}%</td></tr>`).join("")
@@ -222,6 +212,26 @@
       URL.revokeObjectURL(a.href);
       record("report_downloaded");
     });
+    {
+      const buy = buyLink(CHECKOUT_URL);
+      let logo = "";
+      // Dark until a checkout link is set in checkout.mjs: no card, no Buy button.
+      if (buy) { $("#report-buy").href = buy; $("#report-buy-row").hidden = false; $("#report-card").hidden = false; }
+      $("#report-logo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { logo = ""; return; } const r = new FileReader(); r.onload = () => { logo = String(r.result); }; r.readAsDataURL(f); });
+      $("#report-check").addEventListener("click", async () => {
+        $("#report-state").textContent = "Checking...";
+        const v = await checkLicence($("#report-key").value, { url: VALIDATE_URL });
+        $("#report-state").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason + (buy ? "" : " (the report is not on sale yet)");
+        $("#report-fields").hidden = !v.valid;
+        if (v.valid) record("report_unlocked");
+      });
+      $("#report-open").addEventListener("click", () => {
+        if (!last) return;
+        const html = changeReportHtml(last, { title: $("#report-title").value, author: $("#report-author").value, contact: $("#report-contact").value, accent: $("#report-accent").value, logo, notes: $("#report-notes").value, date: new Date().toISOString().slice(0, 10) });
+        const url = URL.createObjectURL(new Blob([html], { type: "text/html" })); window.open(url, "_blank", "noopener"); setTimeout(() => URL.revokeObjectURL(url), 60000);
+        record("report_opened");
+      });
+    }
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
   </script>

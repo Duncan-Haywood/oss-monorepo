@@ -1,0 +1,9 @@
+shape        peak/mean  rating for 95%   for 99%  share at rating=mean  at 1.5x mean
+flat             1.000           0.950     0.990                 1.000         1.000
+trapezoid20      1.250           1.168     1.233                 0.840         1.000
+halfsine         1.571           1.350     1.495                 0.789         0.991
+triangle         2.000           1.553     1.800                 0.750         0.937
+
+Rated power (kW) to take 95% of the drop over 2.5 s, from 5d's median mean recovery power:
+  central: flat 0.78, trapezoid20 0.96, halfsine 1.11, triangle 1.28
+  upper corner: flat 2.77, trapezoid20 3.41, halfsine 3.94, triangle 4.54

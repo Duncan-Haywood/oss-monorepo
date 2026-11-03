@@ -1,4 +1,4 @@
-Milestone 47: detail-routed reference (R5). tight clock only; tools: OpenROAD 26Q3, Yosys 0.70 (cached tables: 26Q2, 0.33)
+Milestone 47/49: detail-routed reference (R5). tight clock; tools: OpenROAD 26Q3, Yosys 0.70 (cached tables: 26Q2, 0.33)
 
 design         n distinct r5  tau(R1,R5) tau(R2,R5) tau(R3,R5) tau(R4,R5)  regret% R2/R4 pick  R5-opt in R4 top5
 alu8          50          49       +0.02      +0.60      +0.53      +0.75     10.1 /  0.0        True

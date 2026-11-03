@@ -6,6 +6,8 @@
 
 export const REPO_BLOB = 'https://github.com/Duncan-Haywood/oss-monorepo/blob/main/';
 export const REPO_PULL = 'https://github.com/Duncan-Haywood/oss-monorepo/pull/';
+// Images need the file's bytes, not GitHub's file page; raw serves an SVG as image/svg+xml.
+export const REPO_RAW = 'https://raw.githubusercontent.com/Duncan-Haywood/oss-monorepo/main/';
 
 export const esc = (v) =>
   String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -24,6 +26,13 @@ export function resolveHref(href, fromPath = '') {
   return REPO_BLOB + parts.join('/');
 }
 
+/** An image source: http(s) kept, a repository path served raw from GitHub, anything else (data:, javascript:) dropped. */
+export function resolveImageSrc(src, fromPath = '') {
+  const url = resolveHref(src, fromPath);
+  if (!url || url.startsWith('#')) return null;
+  return url.startsWith(REPO_BLOB) ? REPO_RAW + url.slice(REPO_BLOB.length) : url;
+}
+
 /** Inline spans on raw (unescaped) text. Code spans are cut out first so nothing inside them is formatted. */
 export function inline(text, fromPath = '', { linkPrs = true } = {}) {
   // Links first, so a label written in code (`[`file`](file)`) stays a link;
@@ -33,7 +42,12 @@ export function inline(text, fromPath = '', { linkPrs = true } = {}) {
   const held = [];
   const raw = [];
   const hold = (html, src = '') => `\u0000${(raw.push(src), held.push(html)) - 1}\u0000`;
-  let s = String(text).replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (src, label, href) => {
+  // Images before links, so `![alt](src)` is not read as `!` plus a link.
+  let s = String(text).replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (src, alt, href) => {
+    const url = resolveImageSrc(href, fromPath);
+    return hold(url ? `<img src="${esc(url)}" alt="${esc(alt)}" loading="lazy" style="max-width:100%;height:auto">` : esc(alt), src);
+  });
+  s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (src, label, href) => {
     const url = resolveHref(href, fromPath);
     const inner = inline(label, fromPath, { linkPrs: false });
     return hold(url ? `<a href="${esc(url)}">${inner}</a>` : inner, src);
@@ -170,6 +184,7 @@ export function summaryOf(src, max = 280) {
     if (!t || /^(#|```|\||>|<!--)/.test(t)) continue;
     const plain = t
       .replace(/^\s*([-*+]|\d+[.)])\s+/gm, '')
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
       .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
       .replace(/[`*_]/g, '')
       .replace(/\s+/g, ' ')

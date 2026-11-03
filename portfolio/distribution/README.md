@@ -290,6 +290,37 @@ owner posts by hand after reading each venue's rules that day. Links are the
 plain canonical URL, so visits from these venues are not counted by `ref`
 until a tag is added to the counter's closed list.
 
+## Setting it up: one checklist, one sign-up address
+
+Every channel above waits on an owner switch. [`SETUP.md`](SETUP.md) lists
+them all, cheapest first (repository variables, then labelled bot accounts,
+then cross-posting, registries, and the accounts that need a decision). It is
+generated from [`accounts.json`](accounts.json), one row per external account:
+where to sign up, the secret and variable names its workflows read, and the
+channels it switches on. Every account signs up with
+**accounts@marisstella.app**, which `platform/pages/cloudflare/email-routing.json`
+forwards to the owner's inbox, so confirmations and resets land in one place
+the repository describes as code.
+
+```
+node platform/distribution/setup.mjs            # print the checklist
+node platform/distribution/setup.mjs --write    # regenerate SETUP.md
+node platform/distribution/setup.mjs --check    # exit 1 on drift
+```
+
+`--check` fails when a `distribute-*.yml` workflow reads a secret or variable
+no account row asks for (a new channel nobody would be told to set up), when a
+row lists a name none of its workflows reads, or when an `unlocks` id, a
+workflow or the sign-up address does not exist.
+
+The sign-up itself stays with the owner (owner asked on 2026-11-02 for an
+email "that the agents control and use to sign up for sites"). Registering
+accounts and publishing under the portfolio's name are hard limits in
+`goals.md`, and sign-up forms ask a person to accept terms and prove they are
+a person; automating past that is on the "never" list above. What agents
+control is everything after: the address's routing, the posts, the
+de-duplication and the measuring.
+
 ## The ladder, per channel
 
 `none` → `artifact` (listing prepared, dry run passes) → `queued` (owner
@@ -376,3 +407,10 @@ the owner step is the account, two secrets and `DISTRIBUTE_BLUESKY=true`.
 `wordpress-plugin` is at `artifact` (2026-10-19): one plugin, "Free Tools Embed", whose `[free_tool slug="..."]` shortcode embeds any launched tool as a sandboxed iframe with a link back. Dry run: `node platform/distribution/wordpress.mjs` (`--build <dir>` writes the zip). Owner step: a wordpress.org account and a submission.
 
 The distribution hub (2026-10-20) adds `hub-threads`, `hub-facebook`, `hub-instagram` and `hub-email` at `artifact` (live adapters, off by default) and eight `hub-*-drafts` rows for platforms that cannot be automated within their terms for free. Dry run: `node platform/distribution/hub.mjs plan`.
+
+## Paste-ready copy for the owner
+
+- [`linkedin-company-page.md`](linkedin-company-page.md): the company page.
+- [`custom-development-for-businesses.md`](custom-development-for-businesses.md):
+  posts and a one-to-one note advertising the free custom dev shop to
+  businesses ("describe your problem and it gets built").

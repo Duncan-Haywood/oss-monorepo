@@ -1,0 +1,6 @@
+registered: n 731, 21 holidays; median weekday 3875, median holiday 2549 (ratio 0.66)
+  no holidays: 56 changes
+  with holidays: 61 changes, holiday factor 0.877
+casual: n 731, 21 holidays; median weekday 618, median holiday 874 (ratio 1.41)
+  no holidays: 70 changes
+  with holidays: 77 changes, holiday factor 1.796

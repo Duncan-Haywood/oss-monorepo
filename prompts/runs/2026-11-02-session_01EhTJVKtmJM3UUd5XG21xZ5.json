@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01EhTJVKtmJM3UUd5XG21xZ5",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T16:34:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ai-bookkeeper: generated-file test for the BAI2 reader",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 12613,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-02-testing-a-bank-file-reader-with-files-we-generate.md"
+  ],
+  "goal": null,
+  "notes": "No open website requests; wall-framing already fuzzed everywhere, so took an un-fuzzed ai-bookkeeper reader. 300 generated BAI2 files: signs, dates, closing balance all correct; mutation (debits as credits) fails the test and was reverted. No defect found. Considered adding Novo/Truist CSV layouts but did not: headers not known to me and inventing them would be fabrication. bai2-fuzz + bai2 tests pass (9).",
+  "corrections": [],
+  "redteam": null
+}

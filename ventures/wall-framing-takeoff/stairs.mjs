@@ -33,8 +33,26 @@ export function sampleStair() {
 
 /** @param {Stair} s */
 export function validateStair(s) {
+  if (s == null || typeof s !== "object" || Array.isArray(s)) return ["Stair settings are an object."];
   const L = { ...STAIR_LIMITS, ...(s.limits || {}) };
   const errors = [];
+  // Typed numbers only: a string passes `>=` by coercion and later throws (tread "10" -> comfort.toFixed), a zero maxRiser makes an endless riser count.
+  const isNum = (v) => typeof v === "number" && Number.isFinite(v);
+  for (const k of ["maxRiser", "minTread", "riserVariance", "headroom", "minWidth", "maxRise", "minThroat", "openRiserGap"]) {
+    if (!isNum(L[k]) || L[k] <= 0) errors.push(`Limit ${k} must be a number over 0.`);
+  }
+  for (const k of ["totalRise", "tread", "width", "stringerSpacing", "nosing", "treadThickness", "treadGap", "floorThickness", "openingLength"]) {
+    if (s[k] != null && !isNum(s[k])) errors.push(`${k} must be a number of inches.`);
+  }
+  for (const k of ["treadThickness", "floorThickness", "treadGap", "openingLength"]) {
+    if (isNum(s[k]) && s[k] < 0) errors.push(`${k} ${s[k]} in cannot be negative.`);
+  }
+  // A 1e9 in tread thickness gave ok: true. Guard limits for sanity, not code values.
+  for (const [k, max] of [["treadThickness", 6], ["floorThickness", 48], ["treadGap", 12], ["openingLength", 600], ["nosing", 6]]) {
+    if (isNum(s[k]) && s[k] > max) errors.push(`${k} ${s[k]} in is over ${max} in, outside what this layout checks.`);
+  }
+  if (isNum(s.stringerSpacing) && s.stringerSpacing > 0 && s.stringerSpacing < 2) errors.push(`Stringer spacing ${s.stringerSpacing} in is under 2 in; it would need thousands of stringers.`);
+  if (errors.length) return errors;
   if (!(s.totalRise >= 12)) errors.push("Total rise (finished floor to finished floor) must be at least 1 ft.");
   else if (s.totalRise > L.maxRise) errors.push(`A flight can rise at most ${formatLength(L.maxRise)} between landings; ${formatLength(s.totalRise)} needs a landing, so lay out each flight on its own.`);
   if (s.tread != null && !(s.tread >= L.minTread)) errors.push(`Tread ${s.tread} in is under the ${L.minTread} in minimum.`);
@@ -243,12 +261,15 @@ export function checkStringer(l, c) {
   if (notchCapacity != null && V > notchCapacity) warnings.push(`End shear ${V.toFixed(0)} lb exceeds ${notchCapacity.toFixed(0)} lb allowed with a notch leaving ${dn} in of a ${boardDepth} in board at the support: keep the full depth at the bearing, or hang it from a ledger or hanger.`);
   if (fv > c.Fv) warnings.push(`Shear stress ${fv.toFixed(0)} psi exceeds the typed ${c.Fv} psi at the support.`);
   if (delta > limit) warnings.push(`Deflection ${delta.toFixed(2)} in exceeds span/${c.deflLimit ?? 240} (${limit.toFixed(2)} in).`);
+  // Minimum throat (2026-11-01): the smallest section depth that passes each check at these loads, from the same formulas solved for d: bending sqrt(6M/(b Fb)), shear 1.5V/(b Fv), deflection cbrt(60 w L^4/(384 E b limit)).
+  const dBend = Math.sqrt((6 * M) / (b * c.Fb)), dShear = (1.5 * V) / (b * c.Fv), dDefl = Math.cbrt((12 * 5 * w * L ** 4) / (384 * c.E * b * limit));
+  const minThroat = Math.max(dBend, dShear, dDefl), minThroatGoverns = minThroat === dDefl ? "deflection" : minThroat === dBend ? "bending" : "shear";
   // Top reaction of the whole flight (every stringer), the figure to type into the floor's `headerCheck.stairReaction`; the live share is for that header's deflection.
   const n = l.stringer.count ?? null;
   const totalReaction = n ? n * V : null, totalReactionLive = n ? (n * V * c.liveLoad) / (c.liveLoad + c.deadLoad) : null;
   // Top connection (2026-11-01): with a typed per-connector allowable (from the hanger or bolt maker's table; none shipped), how many carry one stringer's end reaction.
   const connectorsNeeded = c.connectorCapacity ? Math.ceil(V / c.connectorCapacity - 1e-9) : null;
-  return { ok: warnings.length === 0, fb, fv, delta, limit, Fb: c.Fb, Fv: c.Fv, M, V, reaction: V, connectorsNeeded, connectorCapacity: c.connectorCapacity ?? null, notchCapacity, fcPerp: c.bearingFcPerp != null ? fcPerp : null, bearingLength: c.bearingFcPerp != null ? bearingLength : null, totalReaction, totalReactionLive, throat: d, warnings, errors: [] };
+  return { ok: warnings.length === 0, fb, fv, delta, limit, Fb: c.Fb, Fv: c.Fv, M, V, reaction: V, connectorsNeeded, connectorCapacity: c.connectorCapacity ?? null, notchCapacity, fcPerp: c.bearingFcPerp != null ? fcPerp : null, bearingLength: c.bearingFcPerp != null ? bearingLength : null, minBearingLength: c.bearingFcPerp != null ? V / (b * c.bearingFcPerp) : null, totalReaction, totalReactionLive, minThroat, minThroatGoverns, throat: d, warnings, errors: [] };
 }
 
 /**
@@ -315,6 +336,8 @@ export function stairText(l) {
   if (l.stringerCheck) {
     const k = l.stringerCheck;
     if (!k.errors.length) out.push(`  Stringer check (${formatInches(k.throat)} throat): bending ${k.fb.toFixed(0)} of ${k.Fb} psi, shear ${k.fv.toFixed(0)} of ${k.Fv} psi, deflection ${k.delta.toFixed(2)} of ${k.limit.toFixed(2)} in, end reaction ${k.reaction.toFixed(0)} lb each${k.totalReaction ? `, ${k.totalReaction.toFixed(0)} lb (${k.totalReactionLive.toFixed(0)} live) on the header the flight hangs from` : ""}${k.ok ? "" : " (FAILS)"}`);
+    if (k.minThroat != null) out.push(`  Throat: at least ${k.minThroat.toFixed(2)} in under the notches at these loads (${k.minThroatGoverns} governs; ${k.throat.toFixed(2)} in used)`);
+    if (k.minBearingLength != null) out.push(`  Bearing: at least ${k.minBearingLength.toFixed(2)} in of bearing length for the typed compression-perpendicular allowable (${k.bearingLength} in used)`);
     if (k.connectorsNeeded) out.push(`  Top connection: ${k.reaction.toFixed(0)} lb per stringer at ${k.connectorCapacity} lb each needs ${k.connectorsNeeded} connector${k.connectorsNeeded === 1 ? "" : "s"} per stringer (you buy ${k.connectorsNeeded * l.stringer.count}); the connector's own table governs`);
     for (const w of [...k.errors, ...k.warnings]) out.push(`  Note: ${w}`);
   }
@@ -338,7 +361,7 @@ export function stairText(l) {
  * stair is wide (36 in at least), the usual code rule for a straight run or a turn; the rise is split in half
  * unless `landingRise` (finished floor to the landing surface) is typed. The stairwell opening applies to the
  * upper flight only. A turn does not change a count, so quarter-turns and straight runs buy the same lumber.
- * @param {Stair & { landing?: true | { openEdges?: string[], depth?: number, landingRise?: number, joist?: string, spacing?: number, deckBoard?: string, postSpacing?: number, postSize?: string, soilBearing?: number, liveLoad?: number, deadLoad?: number, postCapacity?: number, postFc?: number, postEmin?: number, joistCheck?: { deadPsf: number, livePsf: number, Fb: number, Fv: number, E: number, deflLimit?: number } } }} input
+ * @param {Stair & { landing?: true | { openEdges?: string[], depth?: number, landingRise?: number, joist?: string, spacing?: number, deckBoard?: string, postSpacing?: number, postSize?: string, soilBearing?: number, liveLoad?: number, deadLoad?: number, postCapacity?: number, postFc?: number, postEmin?: number, joistCheck?: any } }} input
  * @param {{stock: {size: string, length: number}[]}} [plan]
  */
 export function layoutStairWithLanding(input, plan) {
@@ -388,7 +411,10 @@ export function layoutStairWithLanding(input, plan) {
  * depth and an assumed 1-1/2 in of decking, so it is the post's length above the footing, not the footing depth.
  */
 export function layoutLandingPosts(width, depth, height, spacing = 96) {
-  if (!(width > 0 && depth > 0 && spacing > 0)) throw new RangeError("Landing width, depth and post spacing must be positive numbers.");
+  const num = (v) => typeof v === "number" && Number.isFinite(v);
+  if (!(num(width) && num(depth) && num(spacing) && width > 0 && depth > 0 && spacing > 0)) throw new RangeError("Landing width, depth and post spacing must be positive numbers.");
+  // 1e-9 in spacing gave 192 billion posts; 1e9 in a width gave 20 million. Guard limits, not code values.
+  if (spacing < 12 || width > 1200 || depth > 1200) throw new RangeError("Landing post spacing must be at least 12 in and the landing no wider or deeper than 100 ft.");
   const bays = (len) => Math.max(1, Math.ceil(len / spacing - 1e-9));
   const along = bays(width), across = bays(depth);
   const count = 2 * (along + across);
@@ -406,6 +432,7 @@ export const POST_SLENDERNESS_LIMIT = 50; // unbraced length over least face for
 export function checkPostSlenderness(height, postSize = "4x4") {
   const face = POST_FACE[postSize];
   if (!face) return { ok: false, postSize, warnings: [`Unknown landing post size ${postSize}; use 4x4 or 6x6.`] };
+  if (typeof height !== "number" || !Number.isFinite(height) || height <= 0) return { ok: false, postSize, warnings: ["Post height must be a number of inches over 0."] };
   const slenderness = height / face, maxHeight = POST_SLENDERNESS_LIMIT * face;
   const warnings = slenderness > POST_SLENDERNESS_LIMIT ? [`A ${postSize} post ${formatInches(height)} long is ${slenderness.toFixed(1)} times its face, over the limit of ${POST_SLENDERNESS_LIMIT}; use a 6x6 or brace it (a ${postSize} reaches ${formatInches(maxHeight)}).`] : [];
   return { ok: warnings.length === 0, postSize, face, height, slenderness, limit: POST_SLENDERNESS_LIMIT, maxHeight, warnings };
@@ -438,8 +465,12 @@ export function checkLandingPostColumn(height, postSize, load, { fc, emin } = /*
  * post's load and `postOk` says whether it holds. Returns the load, the area it needs, and a round and a square footing rounded up to the inch.
  */
 export function sizeLandingFootings(width, depth, spacing, { soilBearing, liveLoad = 40, deadLoad = 10, postCapacity, extraLoad = 0 } = /** @type {{soilBearing?: number, liveLoad?: number, deadLoad?: number, postCapacity?: number, extraLoad?: number}} */ ({})) {
-  if (!(soilBearing > 0)) return { ok: false, errors: ["soilBearing must be a positive figure in psf."] };
-  if (!(width > 0 && depth > 0 && spacing > 0)) return { ok: false, errors: ["Landing width, depth and post spacing must be positive numbers."] };
+  const num = (v) => typeof v === "number" && Number.isFinite(v);
+  if (!(num(soilBearing) && soilBearing > 0)) return { ok: false, errors: ["soilBearing must be a positive figure in psf."] };
+  if (!(num(width) && num(depth) && num(spacing) && width > 0 && depth > 0 && spacing > 0)) return { ok: false, errors: ["Landing width, depth and post spacing must be positive numbers."] };
+  if (spacing < 12 || width > 1200 || depth > 1200) return { ok: false, errors: ["Post spacing must be at least 12 in and the landing no wider or deeper than 100 ft."] };
+  for (const [k, v] of [["liveLoad", liveLoad], ["deadLoad", deadLoad], ["extraLoad", extraLoad]]) if (!num(v) || v < 0) return { ok: false, errors: [`${k} must be a number of pounds or psf, zero or more.`] };
+  if (postCapacity != null && !(num(postCapacity) && postCapacity > 0)) return { ok: false, errors: ["postCapacity must be a positive number of pounds."] };
   const bays = (len) => Math.max(1, Math.ceil(len / spacing - 1e-9));
   const along = bays(width), across = bays(depth);
   const bay = (width / along) * (depth / across) / 144; // sq ft

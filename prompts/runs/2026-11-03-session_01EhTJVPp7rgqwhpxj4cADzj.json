@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01EhTJVPp7rgqwhpxj4cADzj",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T15:00:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 11): chant-forge browser studio page",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": 12840,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-03-hear-gregorian-chant-over-metal-in-your-browser.md"
+  ],
+  "goal": null,
+  "notes": "Added ventures/chant-forge/index.html (client-side GABC to MIDI/WAV with genre backing), made midi.mjs/render.mjs Buffer-free, browser-safe.test.mjs. 65 chant-forge tests pass locally; page exercised in headless Chromium (metal half-time, Pange lingua), no page errors. venture-preflight not run (over 5 min); ear check pending.",
+  "corrections": [],
+  "redteam": null
+}

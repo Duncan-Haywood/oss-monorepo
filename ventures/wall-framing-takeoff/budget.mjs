@@ -10,26 +10,35 @@
 // Plan `prices` (all optional, dollars): { wallSheet, floorSheet, roofSheet,
 // truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle,
 // starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, drywallSheet, baseboard, casing (price per board), sidingBoard, sidingStarter, headFlashing (price per piece), openingTape (price per roll), houseWrapRoll, cornerBoard, soffitPanel, fasciaBoard, jChannel, insulationBag, atticFillBag,
-// vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), tax (fraction on materials), contingency (fraction) }.
+// vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, drywallScrewThousand (per 1,000 screws), drywallTapeRoll, drywallCompoundPail, cornerBeadStick, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), laborSidingSqFt (siding and house wrap, per sq ft of wall net of openings), laborTrimFoot (baseboard, shoe and casing, per linear foot), laborEavesFoot (fascia run, eave plus rake, per linear foot; soffit and J-channel included), laborGutterFoot (gutter run, per linear foot; downspouts included), ridgeVent (per ridge vent piece), soffitVent (each), rafterBaffle (each), laborWallSheet (wall sheathing, per sheet hung), stairConnector (top connector or foot anchor, each), stairRiserBoard (solid riser board, when the stair has `riserBoard`), stairBaluster, stairRailPost, handrailBracket (each; stairs with a `rail`), handrailFoot (per linear foot of handrail run), laborDeckSqFt (deck framing, decking and rails, per sq ft of deck), deckConcreteBag, deckScrewBox, laborStairRiser (stairs, per riser, both flights of a landing stair; stringers, treads and risers set), laborDormerSqFt (dormer framing and roofing, per sq ft of dormer roof), laborHoldDown (per hold-down or plate strap set, each), tax (fraction on materials), contingency (fraction), overhead (fraction of cost, builder's office and general conditions), profit (fraction of cost plus overhead; both markups give the bid price, `bid`, and `marginPct`, profit as a share of the bid) }.
+// dormerBoardFoot (price per board foot of dormer framing), dormerRoofSqFt (price per sq ft of dormer roof).
 // nailBox falls back to fasteners.price; insulationBag falls back to the plan's insulation.price; atticFillBag to insulation.attic.price.
 // Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
 // (`sheathing.summary.cost`) unless `wallSheet` is typed.
 
-/** @typedef {{ section: string, item: string, qty: number, unit: string, unitPrice: number | null, amount: number | null, source: string }} BudgetLine */
+/** @typedef {{ section: string, item: string, qty: number, unit: string, unitPrice: number | null, amount: number | null, source: string, priceKey: string | null }} BudgetLine */
 
 const r2 = (/** @type {number} */ n) => Math.round(n * 100) / 100;
 
 /**
  * @param {any} result takeoff result with optional sheathing, floor, roof, foundation attached
  * @param {Record<string, number>} [prices]
+ * @param {Record<string, number>} [allowances] lump sums in dollars the builder types (permit, delivery, equipment rental, dumpster...). Untaxed, no contingency; they enter the cost total before overhead and profit.
  */
-export function budget(result, prices = {}) {
+export function budget(result, prices = {}, allowances = {}) {
   /** @type {BudgetLine[]} */
   const lines = [];
-  const P = (/** @type {string} */ k) => (typeof prices[k] === "number" && prices[k] >= 0 ? prices[k] : null);
+  const read = new Set(); // price names the engine looked up while building this budget
+  // A typed price or allowance must be a finite number from 0 to MAX_TYPED; anything else (text, negative, NaN, Infinity, 1e300) is refused and listed in refusedValues, never priced.
+  const MAX_TYPED = 1e9;
+  const okNum = (/** @type {any} */ v) => typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= MAX_TYPED;
+  /** @type {string | null} */
+  let lastKey = null; // the price name read for the line about to be added; `priceKey` on the line, so a page can ask for exactly that price
+  const P = (/** @type {string} */ k) => { read.add(k); lastKey = k; return okNum(prices[k]) ? prices[k] : null; };
   const add = (/** @type {string} */ section, /** @type {string} */ item, /** @type {number} */ qty, /** @type {string} */ unit, /** @type {number | null} */ unitPrice, /** @type {string} */ source) => {
+    const priceKey = lastKey; lastKey = null;
     if (!(qty > 0)) return;
-    lines.push({ section, item, qty: r2(qty), unit, unitPrice, amount: unitPrice == null ? null : r2(qty * unitPrice), source });
+    lines.push({ section, item, qty: r2(qty), unit, unitPrice, amount: unitPrice == null ? null : r2(qty * unitPrice), source, priceKey });
   };
 
   for (const o of result.orders || []) {
@@ -59,6 +68,24 @@ export function budget(result, prices = {}) {
     }
   }
   if (result.drywall) add("Interior", "Drywall sheets", result.drywall.sheets.count, "sheets", P("drywallSheet") ?? result.drywall.sheets.price, "drywall.sheets.count");
+  const dwf = result.drywall?.finishing;
+  if (result.drywall) {
+    // Finishing materials the drywall engine already counts; each is priced only when you type a price.
+    add("Interior", "Drywall screws (per 1,000)", result.drywall.screws / 1000, "thousand", P("drywallScrewThousand"), `${result.drywall.screws} screws at ${result.drywall.assumptions?.screwsPerSqFt ?? 1} per sq ft`);
+    if (dwf?.tapeRolls) add("Interior", "Drywall tape rolls", dwf.tapeRolls, "rolls", P("drywallTapeRoll"), `${dwf.tapeFt} ft of seam and angle at ${dwf.rollFt} ft per roll`);
+    if (dwf?.compoundPails) add("Interior", "Joint compound pails", dwf.compoundPails, "pails", P("drywallCompoundPail"), `${dwf.compoundGal} gal at ${dwf.compoundGalPerSqFt} gal per sq ft, ${dwf.pailGal} gal pails`);
+    if (dwf?.beadSticks) add("Interior", "Corner bead sticks", dwf.beadSticks, "sticks", P("cornerBeadStick"), `${dwf.beadFt} ft at ${dwf.beadStickFt} ft per stick`);
+  }
+  const dm = result.dormer;
+  if (dm?.ok) {
+    // Dormer framing is not in the wall cutting-stock order: board feet of its listed parts at a typed price per board foot.
+    const bf = dm.parts.reduce((/** @type {number} */ t, /** @type {any} */ p) => {
+      const m = /^(\d+)x(\d+)$/.exec(p.size);
+      return m ? t + (Number(m[1]) * Number(m[2]) * p.length / 144) * p.count : t;
+    }, 0);
+    add("Dormer", "Dormer framing lumber", bf, "board feet", P("dormerBoardFoot"), `${dm.parts.length} part lines, nominal thickness x width x length / 12 (no stock-length waste)`);
+    add("Dormer", "Dormer roof area", dm.areas.roofSqFt, "sq ft", P("dormerRoofSqFt"), "dormer.areas.roofSqFt x typed dormerRoofSqFt (sheathing and covering, you decide what the price includes)");
+  }
   const ins = result.insulation;
   if (ins?.ok) {
     const bagPrice = P("insulationBag") ?? ins.price;
@@ -87,6 +114,12 @@ export function budget(result, prices = {}) {
     add("Exterior", "Fascia boards", ea.fascia, "boards", P("fasciaBoard") ?? ea.fasciaPrice, `${(ea.eaveFeet + ea.rakeFeet).toFixed(0)} ft in ${ea.fasciaStock / 12} ft boards`);
     if (ea.channel) add("Exterior", "J-channel", ea.channel, "pieces", P("jChannel") ?? ea.channelPrice, `${ea.channelStock / 12} ft pieces along the wall`);
   }
+  const vt = result.ventilation;
+  if (vt?.ok) {
+    if (vt.ridgePieces > 0) add("Roof", "Ridge vent", vt.ridgePieces, "pieces", P("ridgeVent") ?? vt.ridgePrice, `${vt.ridgeFeetUsed.toFixed(0)} ft of ridge vent${vt.ridgePiece ? `, ${vt.ridgePiece} ft pieces` : ""}`);
+    if (vt.soffitUnits > 0) add("Roof", "Soffit vents", vt.soffitUnits, "each", P("soffitVent") ?? vt.soffitPrice, `${vt.soffitUnits} units to supply the lower vent area`);
+    if (vt.baffles > 0) add("Roof", "Rafter baffles", vt.baffles, "each", P("rafterBaffle"), "one per bay along the eaves (count from ventilation)");
+  }
   const gu = result.gutters;
   if (gu?.ok) {
     add("Exterior", "Gutter sections", gu.gutters, "sections", P("gutterSection"), `${gu.runFeet.toFixed(0)} ft in ${gu.gutterStock / 12} ft sections`);
@@ -101,6 +134,27 @@ export function budget(result, prices = {}) {
   if (fa?.ok && fa.boxes != null) add("Fasteners", "Framing nails (boxes)", fa.boxes, "boxes", P("nailBox") ?? fa.price, `${fa.order} nails incl. ${(100 * fa.waste).toFixed(0)}% waste, ${fa.nailsPerBox} per box`);
   if (fa?.ok && fa.holdDowns?.count) add("Fasteners", "Hold-downs", fa.holdDowns.count, "each", P("holdDown") ?? fa.holdDowns.price, `${fa.holdDowns.wallEnds} at wall ends, ${fa.holdDowns.openingSides} beside openings`);
   if (fa?.ok && fa.plateStraps?.count) add("Fasteners", "Plate straps", fa.plateStraps.count, "each", P("plateStrap") ?? fa.plateStraps.price, `${fa.plateStraps.topJoints} top-plate and ${fa.plateStraps.capJoints} cap-plate joints, ${fa.plateStraps.plateTies} single-top-plate ties`);
+  const dk = result.deck;
+  if (dk?.ok) {
+    const boards = dk.orders.reduce((/** @type {number} */ t, /** @type {any} */ o) => t + o.boards, 0);
+    add("Deck", "Deck lumber boards (pressure-treated order)", boards, "boards", boards ? dk.cost / boards : null, "deck.orders cost (the deck's own stock prices) over boards bought");
+    add("Deck", "Footing concrete bags", dk.concrete.bags, "bags", P("deckConcreteBag"), `${dk.concrete.count} footings, ${dk.concrete.diameter} in x ${dk.concrete.depth} in, ${dk.concrete.bagYield} cu ft per bag, 10% spare`);
+    add("Deck", "Deck screw boxes", dk.screwBoxes, "boxes", P("deckScrewBox"), `${dk.screws} screws, two per board crossing`);
+  }
+  // Stairs: stringer and tread lumber is already in the cutting-stock order. Connectors and solid risers are priced here.
+  const fl = (result.stairs || []).flatMap((/** @type {any} */ x) => (x.flights ? x.flights : [x])).filter((/** @type {any} */ x) => x.ok);
+  const conns = fl.reduce((/** @type {number} */ t, /** @type {any} */ x) => t + (x.hardware?.topConnectors || 0) + (x.hardware?.footAnchors || 0), 0);
+  if (conns) add("Stairs", "Stringer top connectors and foot anchors", conns, "each", P("stairConnector"), "one connector at the top and one anchor at the foot of every stringer");
+  const riserBd = fl.reduce((/** @type {number} */ t, /** @type {any} */ x) => t + (x.riserStock?.count || 0), 0);
+  if (riserBd) add("Stairs", "Solid riser boards", riserBd, "boards", P("stairRiserBoard"), "boards across the stair width, enough per riser to cover its height");
+  const bal = fl.reduce((/** @type {number} */ t, /** @type {any} */ x) => t + (x.rail?.balusters?.count || 0), 0);
+  if (bal) add("Stairs", "Stair balusters", bal, "each", P("stairBaluster"), "vertical balusters on every flight with a rail, spaced by the clear-gap limit");
+  const rpost = fl.reduce((/** @type {number} */ t, /** @type {any} */ x) => t + (x.rail?.posts?.count || 0), 0);
+  if (rpost) add("Stairs", "Stair guard posts", rpost, "each", P("stairRailPost"), "posts on every flight with a rail");
+  const brk = fl.reduce((/** @type {number} */ t, /** @type {any} */ x) => t + (x.rail?.handrail?.brackets || 0), 0);
+  const hrIn = fl.reduce((/** @type {number} */ t, /** @type {any} */ x) => t + (x.rail?.handrail?.length || 0), 0);
+  if (hrIn > 0) add("Stairs", "Handrail", Math.round(hrIn / 12 * 10) / 10, "ft", P("handrailFoot"), "handrail run on every flight with a rail: pitch length plus 12 in past the top and one tread past the bottom");
+  if (brk) add("Stairs", "Handrail wall brackets", brk, "each", P("handrailBracket"), "one near each end and enough between to keep the typed bracket spacing");
   const f = result.foundation;
   if (f) {
     add("Foundation", "Concrete", f.concrete.order, "cu yd", P("concreteYd") ?? (f.concrete.cost != null ? f.concrete.cost / f.concrete.order : null), `${f.concrete.trucks} truck(s) incl. ${(100 * f.concrete.waste).toFixed(0)}% waste`);
@@ -112,26 +166,85 @@ export function budget(result, prices = {}) {
   }
 
   // Labor: a typed rate times a quantity the takeoff already has. Labor is not taxed or given contingency here.
-  const laborTyped = Object.keys(prices).some((k) => k.startsWith("labor") && P(k) != null);
+  const laborTyped = Object.keys(prices).some((k) => k.startsWith("labor") && okNum(prices[k]));
   if (laborTyped && result.summary?.wallFeet > 0) add("Labor", "Wall framing", result.summary.wallFeet, "ft of wall", P("laborWallFoot"), "summary.wallFeet x typed laborWallFoot");
   if (laborTyped && result.floor?.sheets?.area > 0) add("Labor", "Floor framing and subfloor", result.floor.sheets.area, "sq ft", P("laborFloorSqFt"), "floor.sheets.area x typed laborFloorSqFt");
   if (laborTyped && roof?.roofing?.squares > 0) add("Labor", "Roof framing and roofing", roof.roofing.squares, "squares", P("laborRoofSquare"), "roof.roofing.squares x typed laborRoofSquare");
   if (laborTyped && f?.slabSqFt > 0) add("Labor", "Foundation forming, rebar and finishing", f.slabSqFt, "sq ft of slab", P("laborFoundationSqFt"), "foundation.slabSqFt x typed laborFoundationSqFt");
   if (laborTyped && f?.concrete?.net > 0) add("Labor", "Concrete placing", f.concrete.net, "cu yd", P("laborConcreteYd"), "foundation.concrete.net (before waste) x typed laborConcreteYd");
   if (laborTyped && result.drywall?.sheets?.count > 0) add("Labor", "Drywall hanging and finishing", result.drywall.sheets.count, "sheets", P("laborDrywallSheet"), "drywall.sheets.count x typed laborDrywallSheet");
+  if (laborTyped && sd?.ok && sd.netSqFt > 0) add("Labor", "Siding and house wrap installation", sd.netSqFt, "sq ft", P("laborSidingSqFt"), "siding.netSqFt (wall net of openings) x typed laborSidingSqFt");
+  const trimFt = tr?.ok ? (tr.baseFeet || 0) + (tr.shoeFeet || 0) + (tr.casingFeet || 0) : 0;
+  if (laborTyped && trimFt > 0) add("Labor", "Trim installation", trimFt, "ft", P("laborTrimFoot"), "baseboard + shoe + casing feet x typed laborTrimFoot");
+  const eavesFt = ea?.ok ? (ea.eaveFeet || 0) + (ea.rakeFeet || 0) : 0;
+  if (laborTyped && eavesFt > 0) add("Labor", "Fascia, soffit and J-channel installation", eavesFt, "ft", P("laborEavesFoot"), "eaves.eaveFeet + rakeFeet x typed laborEavesFoot");
+  if (laborTyped && gu?.ok && gu.runFeet > 0) add("Labor", "Gutter and downspout installation", gu.runFeet, "ft", P("laborGutterFoot"), "gutters.runFeet x typed laborGutterFoot");
+  if (laborTyped && result.sheathing?.summary?.sheets > 0) add("Labor", "Wall sheathing installation", result.sheathing.summary.sheets, "sheets", P("laborWallSheet"), "sheathing.summary.sheets x typed laborWallSheet");
+  if (laborTyped && dk?.ok && dk.area > 0) add("Labor", "Deck framing, decking and rails", dk.area, "sq ft", P("laborDeckSqFt"), "deck.area x typed laborDeckSqFt");
+  const stairRisers = (result.stairs || []).reduce((/** @type {number} */ t, /** @type {any} */ x) => t + (x.flights ? x.flights.reduce((/** @type {number} */ u, /** @type {any} */ g) => u + (g.risers || 0), 0) : (x.risers || 0)), 0);
+  if (laborTyped && stairRisers > 0) add("Labor", "Stair building and installation", stairRisers, "risers", P("laborStairRiser"), "sum of stairs risers (each flight of a landing stair) x typed laborStairRiser");
+  if (laborTyped && dm?.ok && dm.areas?.roofSqFt > 0) add("Labor", "Dormer framing and roofing", dm.areas.roofSqFt, "sq ft", P("laborDormerSqFt"), "dormer.areas.roofSqFt x typed laborDormerSqFt");
+  const kings = (result.walls || []).reduce((/** @type {number} */ t, /** @type {any} */ w) => t + (w.members || []).filter((/** @type {any} */ m) => m.kind === "king").length, 0);
+  const openingCount = Math.floor(kings / 2);
+  if (laborTyped && openingCount > 0) add("Labor", "Door and window setting", openingCount, "openings", P("laborOpening"), "king studs / 2 (two per framed opening) x typed laborOpening");
+  const hardware = fa?.ok ? (fa.holdDowns?.count || 0) + (fa.plateStraps?.count || 0) : 0;
+  if (laborTyped && hardware > 0) add("Labor", "Hold-down and plate strap installation", hardware, "each", P("laborHoldDown"), "fasteners.holdDowns.count + plateStraps.count x typed laborHoldDown");
   const insBags = ins?.ok ? (ins.bags || 0) + (ins.rim?.bags || 0) + (ins.attic?.bags || 0) : 0;
   if (laborTyped && insBags > 0) add("Labor", "Insulation installation", insBags, "bags", P("laborInsulationBag"), "wall + rim + attic bags x typed laborInsulationBag");
 
+
+  for (const [name, amt] of Object.entries(allowances || {})) {
+    if (okNum(amt) && amt > 0) lines.push({ section: "Allowances", item: name, qty: 1, unit: "lump sum", unitPrice: r2(amt), amount: r2(amt), source: "typed allowance" });
+  }
+
   const sections = [...new Set(lines.map((l) => l.section))].map((name) => {
     const ls = lines.filter((l) => l.section === name);
-    return { name, subtotal: r2(ls.reduce((s, l) => s + (l.amount ?? 0), 0)), unpriced: ls.filter((l) => l.amount == null).length };
+    return { name, subtotal: r2(ls.reduce((s, l) => s + (l.amount ?? 0), 0)), unpriced: ls.filter((l) => l.amount == null).length, share: 0 };
   });
-  const materials = r2(sections.filter((x) => x.name !== "Labor").reduce((s, x) => s + x.subtotal, 0));
+  // Each section's share of the priced lines, before tax and contingency (those apply to materials only).
+  const pricedSum = sections.reduce((t, x) => t + x.subtotal, 0);
+  for (const x of sections) x.share = pricedSum > 0 ? Math.round((1000 * x.subtotal) / pricedSum) / 10 : 0;
+  const materials = r2(sections.filter((x) => x.name !== "Labor" && x.name !== "Allowances").reduce((s, x) => s + x.subtotal, 0));
   const labor = r2(sections.filter((x) => x.name === "Labor").reduce((s, x) => s + x.subtotal, 0));
+  const allowanceTotal = r2(sections.filter((x) => x.name === "Allowances").reduce((s, x) => s + x.subtotal, 0));
   const taxRate = P("tax") ?? 0, contRate = P("contingency") ?? 0;
   const tax = r2(materials * taxRate), contingency = r2((materials + tax) * contRate);
+  // Cost per sq ft of one floor level's framed area (the floor model's subfloor area). A partial figure while any line is unpriced.
+  const floorSqFt = result.floor?.sheets?.area > 0 ? r2(result.floor.sheets.area) : null;
+  const total = r2(materials + tax + contingency + labor + allowanceTotal);
+  // Builder's markup on the cost total: overhead on cost, then profit on cost plus overhead. Zero unless typed.
+  const ovhRate = P("overhead") ?? 0, profRate = P("profit") ?? 0;
+  const overhead = r2(total * ovhRate), profit = r2((total + overhead) * profRate);
+  const bid = r2(total + overhead + profit);
+  const marginPct = bid > 0 ? r2(100 * profit / bid) : 0;
+  const wallFeet = result.summary?.wallFeet > 0 ? r2(result.summary.wallFeet) : 0; // total over feet of wall: a whole-budget ratio, not wall-only cost
+  // Typed prices that changed nothing: a misspelt name is otherwise a silent zero. A name the plan has no quantity for lands here too.
+  const edit = (/** @type {string} */ a, /** @type {string} */ b) => {
+    let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+    for (let i = 1; i <= a.length; i++) {
+      const cur = [i];
+      for (let j = 1; j <= b.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      prev = cur;
+    }
+    return prev[b.length];
+  };
+  const ignoredPrices = Object.keys(prices || {}).filter((k) => !read.has(k)).map((k) => {
+    const near = [...read].map((n) => ({ n, d: edit(k.toLowerCase(), n.toLowerCase()) })).sort((x, y) => x.d - y.d)[0];
+    return { name: k, didYouMean: near && near.d <= 3 ? near.n : null };
+  });
+  const refusedValues = [
+    ...Object.entries(prices || {}).filter(([, v]) => v != null && !okNum(v)).map(([name, v]) => ({ kind: "price", name, value: typeof v === "number" ? String(v) : JSON.stringify(v) })),
+    ...Object.entries(allowances || {}).filter(([, v]) => v != null && !okNum(v)).map(([name, v]) => ({ kind: "allowance", name, value: typeof v === "number" ? String(v) : JSON.stringify(v) })),
+  ];
   return {
-    lines, sections, materials, labor, taxRate, tax, contingencyRate: contRate, contingency, total: r2(materials + tax + contingency + labor),
+    ignoredPrices, refusedValues,
+    floorSqFt, perFloorSqFt: floorSqFt && total > 0 ? r2(total / floorSqFt) : null,
+    wallFeet: wallFeet || null, perWallFoot: wallFeet && total > 0 ? r2(total / wallFeet) : null,
+    bidPerFloorSqFt: floorSqFt && bid > total ? r2(bid / floorSqFt) : null,
+    bidPerWallFoot: wallFeet && bid > total ? r2(bid / wallFeet) : null,
+    laborPct: labor > 0 && total > 0 ? r2(100 * labor / total) : null,
+    lines, sections, materials, labor, allowances: allowanceTotal, taxRate, tax, contingencyRate: contRate, contingency, total,
+    overheadRate: ovhRate, overhead, profitRate: profRate, profit, bid, marginPct,
     unpriced: lines.filter((l) => l.amount == null).map((l) => `${l.item} (${l.qty} ${l.unit})`),
   };
 }
@@ -144,10 +257,18 @@ export function budgetText(b) {
     if (l.section !== sec) { sec = l.section; out.push(`  ${sec}`); }
     out.push(`    ${l.item.padEnd(34)} ${String(l.qty).padStart(8)} ${l.unit.padEnd(7)} ${l.unitPrice == null ? "no price".padStart(10) : l.unitPrice.toFixed(2).padStart(10)} ${l.amount == null ? "".padStart(11) : l.amount.toFixed(2).padStart(11)}`);
   }
-  out.push("  Subtotals: " + b.sections.map((s) => `${s.name} ${s.subtotal.toFixed(2)}`).join(", "));
-  out.push(`  Materials ${b.materials.toFixed(2)}${b.taxRate ? `, tax ${b.tax.toFixed(2)} at ${(100 * b.taxRate).toFixed(2)}%` : ""}${b.contingencyRate ? `, contingency ${b.contingency.toFixed(2)} at ${(100 * b.contingencyRate).toFixed(1)}%` : ""}${b.labor ? `, labor ${b.labor.toFixed(2)}` : ""}; total ${b.total.toFixed(2)}`);
+  out.push("  Subtotals: " + b.sections.map((s) => `${s.name} ${s.subtotal.toFixed(2)} (${s.share.toFixed(1)}%)`).join(", "));
+  out.push(`  Materials ${b.materials.toFixed(2)}${b.taxRate ? `, tax ${b.tax.toFixed(2)} at ${(100 * b.taxRate).toFixed(2)}%` : ""}${b.contingencyRate ? `, contingency ${b.contingency.toFixed(2)} at ${(100 * b.contingencyRate).toFixed(1)}%` : ""}${b.labor ? `, labor ${b.labor.toFixed(2)}` : ""}${b.allowances ? `, allowances ${b.allowances.toFixed(2)}` : ""}; total ${b.total.toFixed(2)}`);
+  if (b.overheadRate || b.profitRate) out.push(`  Cost ${b.total.toFixed(2)}${b.overheadRate ? `, overhead ${b.overhead.toFixed(2)} at ${(100 * b.overheadRate).toFixed(1)}%` : ""}${b.profitRate ? `, profit ${b.profit.toFixed(2)} at ${(100 * b.profitRate).toFixed(1)}%` : ""}; bid price ${b.bid.toFixed(2)} (profit is ${b.marginPct.toFixed(1)}% of the bid)`);
+  if (b.laborPct != null) out.push(`  Labor share of the cost total (before overhead and profit): ${b.laborPct.toFixed(1)}%${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
+  if (b.perFloorSqFt != null) out.push(`  Per sq ft of floor framed (${b.floorSqFt} sq ft, one level): ${b.perFloorSqFt.toFixed(2)}${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
+  if (b.perWallFoot != null) out.push(`  Per linear foot of wall (${b.wallFeet} ft; whole budget over wall length): ${b.perWallFoot.toFixed(2)}${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
+  if (b.bidPerFloorSqFt != null) out.push(`  Bid price per sq ft of floor framed (${b.floorSqFt} sq ft, one level): ${b.bidPerFloorSqFt.toFixed(2)}${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
+  if (b.bidPerWallFoot != null) out.push(`  Bid price per linear foot of wall (${b.wallFeet} ft; whole bid over wall length): ${b.bidPerWallFoot.toFixed(2)}${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
   if (b.unpriced.length) out.push(`  Not in the total, no price typed: ${b.unpriced.join("; ")}. Add them under \`prices\` in the plan.`);
-  out.push("  Not included: equipment, permits, delivery, overhead or waste beyond what the takeoff already counts" + (b.lines.some((l) => l.section === "Labor") ? "; labor is only the rates you typed." : "; no labor rate typed."));
+  if (b.ignoredPrices.length) out.push(`  Typed prices that changed nothing (not a price name this plan reads, or no such quantity in this plan): ${b.ignoredPrices.map((x) => x.name + (x.didYouMean ? ` (did you mean ${x.didYouMean}?)` : "")).join(", ")}.`);
+  if (b.refusedValues.length) out.push(`  Typed values refused, not a number from 0 to 1,000,000,000 (left out of the total): ${b.refusedValues.map((x) => `${x.kind} ${x.name} = ${x.value}`).join(", ")}.`);
+  out.push("  Not included: " + (b.allowances ? "" : "equipment, permits, delivery (type them under `allowances`), ") + "overhead or waste beyond what the takeoff already counts" + (b.lines.some((l) => l.section === "Labor") ? "; labor is only the rates you typed." : "; no labor rate typed."));
   return out;
 }
 
@@ -155,6 +276,28 @@ export function budgetText(b) {
 export function budgetCsv(b) {
   const q = (/** @type {any} */ v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
   const rows = [["section", "item", "qty", "unit", "unit_price", "amount", "source"], ...b.lines.map((l) => [l.section, l.item, l.qty, l.unit, l.unitPrice ?? "", l.amount ?? "", l.source])];
-  rows.push(["", "Materials", "", "", "", b.materials, ""], ["", "Tax", "", "", b.taxRate, b.tax, ""], ["", "Contingency", "", "", b.contingencyRate, b.contingency, ""], ["", "Labor", "", "", "", b.labor, ""], ["", "Total", "", "", "", b.total, ""]);
+  rows.push(["", "Materials", "", "", "", b.materials, ""], ["", "Tax", "", "", b.taxRate, b.tax, ""], ["", "Contingency", "", "", b.contingencyRate, b.contingency, ""], ["", "Labor", "", "", "", b.labor, ""], ...(b.allowances ? [["", "Allowances", "", "", "", b.allowances, ""]] : []), ["", "Total", "", "", "", b.total, ""]);
+  if (b.overheadRate || b.profitRate) rows.push(["", "Overhead", "", "", b.overheadRate, b.overhead, ""], ["", "Profit", "", "", b.profitRate, b.profit, ""], ["", "Bid price", "", "", "", b.bid, ""]);
   return rows.map((r) => r.map(q).join(",")).join("\n") + "\n";
+}
+
+/**
+ * The prices a person still has to type, one row per price name, from the lines that have no price.
+ * Rows come in budget order; a name that prices several lines is one row with their quantities added.
+ * Lines with no `priceKey` (priced by the plan's own stock prices) never appear. Nothing here is a
+ * price: `price` is only what was typed, or null.
+ * @param {ReturnType<typeof budget>} b
+ * @param {Record<string, number>} [typed]
+ * @returns {{ key: string, items: string[], section: string, unit: string, qty: number, price: number | null }[]}
+ */
+export function priceSheet(b, typed = {}) {
+  /** @type {Map<string, { key: string, items: string[], section: string, unit: string, qty: number, price: number | null }>} */
+  const rows = new Map();
+  for (const l of b.lines) {
+    if (!l.priceKey || (l.unitPrice != null && !(l.priceKey in typed))) continue;
+    const r = rows.get(l.priceKey) || { key: l.priceKey, items: [], section: l.section, unit: l.unit, qty: 0, price: Number.isFinite(typed[l.priceKey]) ? typed[l.priceKey] : null };
+    r.items.push(l.item); r.qty = Math.round((r.qty + l.qty) * 100) / 100;
+    rows.set(l.priceKey, r);
+  }
+  return [...rows.values()];
 }

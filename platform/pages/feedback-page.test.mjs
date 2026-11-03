@@ -23,9 +23,20 @@ test('with an endpoint: the form posts to it and says the message is public', ()
   assert.match(html, /fetch\("https:\/\/edge\.example\/feedback"/);
   assert.match(html, /public GitHub repository/);
   assert.match(html, /name="website"/, 'honeypot field');
+  assert.match(html, /MIT\s+licence with the repository owner's copyright notice/, 'feature requests carry the IP terms');
+  assert.match(html, /href="\.\.\/custom-development\/"/);
 });
 
 test('the shared footer links the feedback page', () => {
   assert.equal(FEEDBACK_PATH, 'feedback/');
   assert.match(renderSiteFooterNav({ toRoot: '../' }), /href="\.\.\/feedback\/"/);
+});
+
+test('the form offers research questions and topics, each accepted by the edge worker', async () => {
+  const { FEEDBACK_TYPES } = await import('../edge/feedback.mjs');
+  const html = renderFeedbackPage({ surfaces: [], baseUrl: base, feedbackUrl: 'https://edge.example' });
+  const offered = [...html.matchAll(/name="type" value="([a-z]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(offered, ['problem', 'idea', 'research', 'topic', 'other']);
+  for (const t of offered) assert.ok(FEEDBACK_TYPES.includes(t), t);
+  assert.match(html, /q\.get\('type'\)/, 'a ?type= link preselects the kind');
 });

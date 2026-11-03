@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01E5sJKifPfMPu4egUxH9NsT",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T23:33:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12680",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 fetches security-alerts branch which does not exist; no queue to read."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/history/pages-build-perf-2026-11-02-mark-reach.md",
+    "docs/posts/2026-11-02-the-logo-did-geometry-it-did-not-need.md"
+  ],
+  "goal": null,
+  "notes": "Metric: mark raster benchmark (drawMark, 11 sizes x2 plate) 18.8s -> 10.4s, node script wall time on 4 cores; output sha256 identical. Source: ci_profile --runs 600 + --cpu-prof of custom-domain.test.mjs.",
+  "corrections": [],
+  "redteam": null
+}

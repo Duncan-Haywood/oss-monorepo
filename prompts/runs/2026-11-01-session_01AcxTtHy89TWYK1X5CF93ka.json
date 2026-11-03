@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01AcxTtHy89TWYK1X5CF93ka",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T07:08:19Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12276",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "wall-framing-takeoff `next:` lists only items needing real inputs, so a run with none must invent a small slice; the flagship is saturated with micro-slices."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Deepen-flagship asks for a hard problem; chose a small budget slice since the remaining items all need real inputs.",
+      "did": "added siding/trim labor lines",
+      "result": "tests pass; modest value"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-01-labor-for-siding-and-trim-in-a-framing-budget.md"
+  ],
+  "goal": null,
+  "notes": "Review track skipped: an open 'prompts: review 2026-11-01' PR existed. No security-alerts branch, empty ideas inbox.",
+  "corrections": [],
+  "redteam": null
+}

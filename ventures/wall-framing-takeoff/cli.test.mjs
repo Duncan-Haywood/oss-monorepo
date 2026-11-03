@@ -204,6 +204,15 @@ test("--trim adds baseboard and casing boards, kept with --sheathing and in the 
   assert.equal(main(["plan.json"], read).out.includes("TRIM"), false);
 });
 
+test("--openings prints the door and window schedule and nothing without the flag", () => {
+  const read = () => JSON.stringify(samplePlan());
+  const a = main(["plan.json", "--openings"], read);
+  assert.equal(a.code, 0);
+  assert.match(a.out, /DOOR AND WINDOW SCHEDULE\n  \d+ door\(s\) and \d+ window\(s\) in \d+ mark\(s\)/);
+  assert.match(a.out, /\bD1 {2}x\d/);
+  assert.equal(main(["plan.json"], read).out.includes("DOOR AND WINDOW SCHEDULE"), false);
+});
+
 test("--siding adds courses, house wrap and corner boards, kept with --sheathing and in the budget", () => {
   const plan = JSON.stringify({ ...samplePlan(), prices: { sidingBoard: 14, houseWrapRoll: 150, cornerBoard: 20 } });
   const read = () => plan;
@@ -293,4 +302,39 @@ test("plan.dormer with shape shed lays a shed dormer", () => {
   assert.equal(code, 0, out);
   assert.match(out, /shed dormer: rafters/);
   assert.match(out, /shed rafter/);
+});
+
+test("--proposal prints a customer letter from the priced budget and refuses while a line is unpriced", () => {
+  const plan = { ...samplePlan(), prices: { laborWallFoot: 4, laborOpening: 85, overhead: 0.1, profit: 0.1 }, proposal: { client: "A. Owner", exclusions: ["landscaping"] } };
+  const ok = run(["plan.json", "--proposal"], plan);
+  assert.equal(ok.code, 0);
+  assert.match(ok.out, /Prepared for A\. Owner/);
+  assert.match(ok.out, /Not included: landscaping/);
+  assert.doesNotMatch(ok.out, /profit|overhead/i);
+  const gap = run(["plan.json", "--sheathing", "--proposal"], plan); // wall sheets have no typed price
+  assert.equal(gap.code, 1);
+  assert.match(gap.out, /Proposal not issued/);
+  const part = run(["plan.json", "--sheathing", "--proposal"], { ...plan, proposal: { partial: true } });
+  assert.equal(part.code, 0);
+  assert.match(part.out, /WARNING: partial proposal/);
+});
+
+test("a mistyped --rim-lap, --panel-max or --sheathing-psf is refused, not ignored", () => {
+  const ex = run(["--example"]).out;
+  for (const bad of ["--rim-lap=zzz", "--rim-lap=-3", "--panel-max=zzz", "--sheathing-psf=abc", "--sheathing-psf=-2"]) {
+    const r = run(["plan.json", bad], ex);
+    assert.equal(r.code, 1, bad);
+    assert.match(r.out, /is not a /, bad);
+  }
+  assert.equal(run(["plan.json", "--panel-max=12ft", "--panel-order"], ex).code, 0);
+  assert.equal(run(["plan.json", "--sheathing", "--sheathing-psf=2.5", "--rim-lap=9.25in"], ex).code, 0);
+});
+
+test("--panel-max under 6 in or over 100 ft is refused with a reason", () => {
+  for (const v of ["0.5in", "2in", "200ft"]) {
+    const r = main(["plan.json", `--panel-max=${v}`, "--panel-order"], () => JSON.stringify(samplePlan()));
+    assert.equal(r.code, 1, v);
+    assert.match(r.out, /longest panel must be 6 to 1200 in/);
+  }
+  assert.equal(main(["plan.json", "--panel-max=12ft"], () => JSON.stringify(samplePlan())).code, 0);
 });

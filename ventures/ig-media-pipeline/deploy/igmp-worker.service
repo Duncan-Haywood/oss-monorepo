@@ -1,0 +1,27 @@
+# systemd unit for the igmp cloud worker on any Linux VM, running the container image.
+# Install: copy to /etc/systemd/system/igmp-worker.service, put the settings in
+# /etc/igmp/config.toml and the secrets in /etc/igmp/worker.env (chmod 600), then
+#   systemctl daemon-reload && systemctl enable --now igmp-worker
+# /etc/igmp/worker.env holds lines like AWS_ACCESS_KEY_ID=..., AWS_SECRET_ACCESS_KEY=...,
+# ANTHROPIC_API_KEY=... (never commit it).
+[Unit]
+Description=igmp cloud worker
+Wants=network-online.target
+After=network-online.target docker.service
+Requires=docker.service
+
+[Service]
+Restart=always
+RestartSec=30
+# docker stop sends SIGTERM: the worker releases its lease and exits
+ExecStartPre=-/usr/bin/docker rm -f igmp-worker
+ExecStart=/usr/bin/docker run --rm --name igmp-worker \
+  --env-file /etc/igmp/worker.env \
+  -v /etc/igmp/config.toml:/config/config.toml:ro \
+  -v igmp-data:/data \
+  igmp-worker
+ExecStop=/usr/bin/docker stop -t 60 igmp-worker
+TimeoutStopSec=90
+
+[Install]
+WantedBy=multi-user.target

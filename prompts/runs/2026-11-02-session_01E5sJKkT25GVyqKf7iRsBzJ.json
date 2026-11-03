@@ -1,0 +1,53 @@
+{
+ "date": "2026-11-02",
+ "session": "https://claude.ai/code/session_01E5sJKkT25GVyqKf7iRsBzJ",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-02T08:53:32Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12548",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "CLAUDE.md",
+   "issue": "says pyenv.py finds torch-capable python; torch install took ~10 min and bare python3 lacked torch for the programme's experiments"
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompt.md",
+   "why": "no blog post or paper paragraph this run: time went to the torch install; the milestone 58 result is in LOG.md only",
+   "did": "logged plan and outcome",
+   "result": "landed log entry only"
+  }
+ ],
+ "writeups": [
+  "research/verifiable-training-mechanisms/LOG.md milestone 58"
+ ],
+ "goal": null,
+ "notes": "Milestone 58: noisy threshold does not make the verifier flag the adaptive staller; flagged <=4/32 everywhere; both pre-registered predictions 2 and 3 refuted (3 only at R=1.01 sigma=0.05).",
+ "corrections": [],
+ "redteam": null
+}

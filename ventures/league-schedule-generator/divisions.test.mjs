@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, restGaps } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -704,4 +704,144 @@ test("division score sheets: a page per night, every match once, names escaped",
   assert.equal((html.match(/<td class="f">/g) || []).length, total);
   assert.ok(html.includes("A&lt;b&gt;&amp;Co") && !html.includes("A<b>"));
   assert.ok(html.includes("Spring &lt;League&gt;") && !/<script/i.test(html));
+});
+
+test("divisionsStandings ranks each division and rejects results the schedule cannot have", () => {
+  const { spec } = readDivisionsSpec(example);
+  const sch = buildDivisions(spec);
+  const [d0, d1] = sch.divisions;
+  const [a, b, c] = d0.teams;
+  const text = `${d0.name}: ${a} 3 - 0 ${b}\n${d0.name}: ${c} 1 - 1 ${a}\n${d0.name}: ${b} -2 pts\n${d1.name}: ${d1.teams[0]} w/o ${d1.teams[1]}`;
+  const r = divisionsStandings(sch, text);
+  assert.deepEqual(r.errors, []);
+  const t0 = r.tables[0].rows;
+  assert.equal(t0[0].name, a);
+  assert.equal(t0[0].points, 4);
+  assert.equal(t0.find((x) => x.name === b).points, -2);
+  assert.equal(r.tables[1].rows[0].name, d1.teams[0]);
+  // no prefix in a multi-division league, an unknown team, and a pair reported twice in a single round robin
+  const bad = divisionsStandings(sch, `${a} 1 - 0 ${b}\n${d0.name}: ${a} 1 - 0 Nobody\n${d0.name}: ${a} 1 - 0 ${b}\n${d0.name}: ${b} 2 - 0 ${a}`);
+  assert.equal(bad.errors.length, 3);
+  assert.match(bad.errors[2], /more often than it is scheduled/);
+});
+
+test("standings text and CSV carry every division, and the CLI --results reads a file", () => {
+  const { spec } = readDivisionsSpec(example);
+  const sch = buildDivisions(spec);
+  const [d0, d1] = sch.divisions;
+  const text = `${d0.name}: ${d0.teams[0]} 3 - 0 ${d0.teams[1]}\n${d1.name}: ${d1.teams[0]} 2 - 2 ${d1.teams[1]}\n${d1.name}: ${d1.teams[0]} 1 - 0 Nobody`;
+  const r = divisionsStandings(sch, text);
+  const csv = divisionsStandingsCsv(r).trim().split(/\r\n/);
+  assert.match(csv[0], /^Division,Rank,Team/);
+  assert.equal(csv.length, 1 + r.tables.reduce((n, t) => n + t.rows.length, 0));
+  assert.ok(csv[1].startsWith(`"${d0.name}",1,${d0.teams[0]},1,1,0,0,3,0,3,3`));
+  const out = divisionsStandingsText(r);
+  assert.ok(out.includes(d0.name) && out.includes(d1.name) && /Warning: .*Nobody/.test(out));
+  const dir = mkdtempSync(join(tmpdir(), "lsg-"));
+  writeFileSync(join(dir, "spec.json"), JSON.stringify(example));
+  writeFileSync(join(dir, "res.txt"), text.split("\n").slice(0, 2).join("\n"));
+  const run = spawnSync("node", [new URL("./divisions.mjs", import.meta.url).pathname, join(dir, "spec.json"), "--results", join(dir, "res.txt")], { encoding: "utf8" });
+  assert.equal(run.status, 0, run.stderr);
+  assert.ok(run.stdout.includes(`${d0.teams[0]}`) && run.stdout.includes("Pts"));
+});
+
+test("divisionsPlayoffs seeds winners first, then runners-up, with wildcards last", () => {
+  const { spec } = readDivisionsSpec(example);
+  const sch = buildDivisions(spec);
+  const lines = [];
+  for (const d of sch.divisions) {
+    lines.push(`${d.name}: ${d.teams[0]} 3 - 0 ${d.teams[1]}`, `${d.name}: ${d.teams[1]} 2 - 1 ${d.teams[2]}`);
+  }
+  const r = divisionsStandings(sch, lines.join("\n"));
+  const n = sch.divisions.length;
+  const po = divisionsPlayoffs(r, { perDivision: 2, wildcards: 1 });
+  assert.equal(po.seeds.length, 2 * n + 1);
+  assert.ok(po.seeds.slice(0, n).every((x) => x.rank === 1));
+  assert.ok(po.seeds.slice(n, 2 * n).every((x) => x.rank === 2));
+  assert.ok(po.seeds[2 * n].rank > 2);
+  assert.deepEqual(po.seeds.map((x) => x.seed), po.seeds.map((_, i) => i + 1));
+  assert.ok(po.bracket.games >= po.seeds.length - 1 && /Final/.test(po.text));
+  assert.match(divisionsPlayoffs({ tables: [{ division: "A", rows: [{ name: "x", played: 0, points: 0, gd: 0, gf: 0 }] }] }, { perDivision: 1 }).errors.join(), /two teams/);
+});
+
+test("divisionsTieBreakNotes lists notes per division and skips divisions with none", () => {
+  const { spec } = readDivisionsSpec(example);
+  const sch = buildDivisions(spec);
+  const [d0] = sch.divisions;
+  const r = divisionsStandings(sch, `${d0.name}: ${d0.teams[0]} 3 - 0 ${d0.teams[1]}`);
+  const n = divisionsTieBreakNotes(r);
+  assert.ok(n.length >= 1 && n[0].division === d0.name);
+  assert.ok(n[0].notes.every((x) => typeof x.text === "string"));
+  assert.deepEqual(divisionsTieBreakNotes({ tables: [{ division: "X", rows: [] }] }), []);
+});
+
+test("divisionsWeeklyUpdate: one block per division with last scores, table and next round; bad results become warnings", () => {
+  const s = build();
+  const none = divisionsWeeklyUpdate(s, "");
+  assert.match(none, /== U10 ==\nNext up: Round 1/);
+  assert.match(none, /== Adult ==/);
+  assert.ok(!none.includes("Table"));
+  const r1 = s.divisions[0].rounds[0].matches;
+  const text = r1.map((m, i) => `U10: ${m.homeName} ${i + 2} - ${i} ${m.awayName}`).join("\n") + "\nU10: Hawks 1 - 0 Hawks\nU12: Hawks 2 - 2 Rams";
+  const out = divisionsWeeklyUpdate(s, text);
+  const u10 = out.split("== ").find((b) => b.startsWith("U10"));
+  assert.match(u10, /Round 1 results/);
+  assert.match(u10, /Table\n  1\./);
+  assert.match(u10, /Next up: Round 2/);
+  assert.match(out, /== U12 ==\nNext up: Round 1/);
+  assert.match(out, /Warning:/);
+});
+
+test("restGaps: counts back-to-back days and the longest idle stretch per team", () => {
+  const mk = (day, h, a) => ({ day, matches: [{ division: "D", home: h, away: a, homeName: "T" + h, awayName: "T" + a }] });
+  const sch = { nights: [mk(1, 0, 1), mk(2, 0, 2), mk(9, 1, 2)] };
+  const r = restGaps(sch);
+  assert.equal(r.backToBack, 1);
+  assert.equal(r.minGap, 1);
+  assert.equal(r.maxGap, 8);
+  assert.deepEqual(r.longest.map((x) => x.team), ["D/T1"]);
+  assert.equal(r.teams.find((t) => t.team === "D/T0").maxGap, 1);
+  assert.equal(restGaps({ nights: [mk(1, 0, 1)] }).maxGap, null);
+});
+
+test("restGaps and divisionsText on the example league", () => {
+  const s = build();
+  const r = restGaps(s);
+  assert.ok(r.teams.length >= 20 && r.minGap >= 1 && r.maxGap >= r.minGap);
+  assert.match(divisionsText(s), /^Rest: \d+ back-to-back/m);
+});
+
+test("CLI --results --weekly prints the group-chat update", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const { mkdtempSync, writeFileSync, readFileSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const dir = mkdtempSync(join(tmpdir(), "wk-"));
+  const res = join(dir, "r.txt");
+  writeFileSync(res, "U10: Hawks 2 - 1 Owls\n");
+  const spec = join(import.meta.dirname, "example-divisions.json");
+  const out = execFileSync("node", [join(import.meta.dirname, "divisions.mjs"), spec, "--results", res, "--weekly"], { encoding: "utf8" });
+  assert.match(out, /== U10 ==/);
+  assert.match(out, /== Adult ==\nNext up: Round 1/);
+});
+
+test("divisionsOverdue: lists past games with no typed result, per division, earliest meeting first", () => {
+  const s = build();
+  const r1 = s.divisions[0].rounds[0];
+  const day1 = r1.day;
+  const first = Math.min(...s.divisions.flatMap((d) => d.rounds.map((r) => r.day)));
+  const none = divisionsOverdue(s, "", first);
+  assert.deepEqual(none.overdue, []);
+  assert.equal(none.text, "");
+  const after = divisionsOverdue(s, "", day1 + 1);
+  assert.equal(after.overdue.filter((o) => o.division === "U10" && o.day === day1).length, r1.matches.length);
+  assert.match(after.text, /^Scores still missing \(\d+\):/);
+  const typed = r1.matches.map((m) => `U10: ${m.homeName} 2 - 1 ${m.awayName}`).join("\n");
+  const done = divisionsOverdue(s, typed, day1 + 1);
+  assert.equal(done.overdue.filter((o) => o.division === "U10" && o.day === day1).length, 0);
+  const junk = divisionsOverdue(s, typed + "\nU10: Hawks 1 - 0 Hawks\nNope: A 1 - 0 B", day1 + 1);
+  assert.equal(junk.overdue.length, done.overdue.length);
+  const far = divisionsOverdue(s, "", 1e9);
+  const total = s.divisions.reduce((n, d) => n + d.rounds.reduce((m, r) => m + r.matches.length, 0), 0);
+  assert.equal(far.overdue.length, total);
 });

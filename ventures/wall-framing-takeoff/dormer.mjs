@@ -23,6 +23,7 @@
 // is `depth` in plan back from the front wall (default: the cheek run to the
 // eave, xe); the sizes and the load path are the engineer's. Hand-arithmetic checks in dormer.test.mjs; no real dormer plan checked.
 
+import { textNumberErrors } from "./numfields.mjs";
 /** @typedef {{ width: number, eaveHeight: number, pitch: number, mainPitch: number, spacing?: number, studSize?: string, rafterSize?: string, valleySize?: string, ridgeSize?: string, headerSize?: string, window?: { width: number, height?: number, sill?: number }, roofOpening?: boolean | { depth?: number, mainSpacing?: number, headerSize?: string, trimmerSize?: string } }} Dormer */
 
 const PLATES = 4.5;
@@ -33,6 +34,8 @@ const slope = (/** @type {number} */ p) => Math.sqrt(1 + (p / 12) ** 2);
 export function validateDormer(d) {
   const e = [];
   if (d == null || typeof d !== "object" || Array.isArray(d)) return ["A dormer is an object with width, eave height and pitch."];
+  e.push(...textNumberErrors(d, ['eaveHeight', 'mainPitch', 'pitch', 'spacing', 'width']));
+  if (e.length) return e;
   if (!(d.width >= 36 && d.width <= 180)) e.push("Dormer width must be between 3 and 15 ft.");
   if (!(d.eaveHeight >= 24 && d.eaveHeight <= 96)) e.push("Dormer eave height (front wall, bottom plate to eave) must be between 2 and 8 ft.");
   if (!(d.pitch >= 3 && d.pitch <= 16)) e.push("Dormer pitch must be between 3 and 16 in 12.");
@@ -62,7 +65,7 @@ export function layoutDormer(d) {
   const stud = d.studSize ?? "2x4", raf = d.rafterSize ?? "2x6", val = d.valleySize ?? "2x8", ridge = d.ridgeSize ?? "2x8", hdr = d.headerSize ?? "2x6";
   /** @type {{ part: string, size: string, length: number, count: number }[]} */
   const parts = [];
-  const add = (/** @type {string} */ part, /** @type {string} */ size, /** @type {number} */ length, count = 1) => { if (count > 0 && length > 0) parts.push({ part, size, length: r16(length), count }); };
+  const add = (/** @type {string} */ part, /** @type {string} */ size, /** @type {number} */ length, count = 1) => { if (count > 0 && r16(length) > 0) parts.push({ part, size, length: r16(length), count }); };
   const notes = [];
 
   // front wall: studs on spacing from one corner, plus the far corner stud
@@ -184,7 +187,7 @@ export function layoutShedDormer(d) {
   const xr = H * 12 / dp, rafLen = xr * slope(d.pitch);
   /** @type {{ part: string, size: string, length: number, count: number }[]} */
   const parts = [];
-  const add = (/** @type {string} */ part, /** @type {string} */ size, /** @type {number} */ length, count = 1) => { if (count > 0 && length > 0) parts.push({ part, size, length: r16(length), count }); };
+  const add = (/** @type {string} */ part, /** @type {string} */ size, /** @type {number} */ length, count = 1) => { if (count > 0 && r16(length) > 0) parts.push({ part, size, length: r16(length), count }); };
   let frontXs = []; for (let x = 0; x < W - 1e-9; x += s) frontXs.push(x); frontXs.push(W);
   const frontX = frontXs.length;
   const notes = ["Shed dormer: overhangs, flashing, the opening in the main roof and its headers are not counted; sizes are typed and the load path is the engineer's."];

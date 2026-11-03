@@ -7,6 +7,7 @@
 // theirs to schedule, not the agent's to chase.
 import { parseCsv, parseReplies, triage, CATEGORIES, iso } from "./engine.mjs";
 import { normalizeRow } from "./research.mjs";
+import { suppressionIndex } from "./suppression.mjs";
 
 // The nine fields and their questions mirror sales-call-notes-desk (kept inline so this venture builds on its own).
 export const FIELDS = [
@@ -35,8 +36,7 @@ export function runPrep(input) {
   const p = table.find((x) => (x.email || "").toLowerCase() === email) || null;
   const crmRows = (Array.isArray(input.crm) ? input.crm : parseCsv(input.crm)).map(normalizeRow);
   const crm = crmRows.find((r) => r.email === email) || null;
-  const sup = String(input.suppression || "").split(/[\n,;]+/).map((s) => s.trim().toLowerCase()).filter(Boolean);
-  const onList = sup.includes(email) || sup.includes("@" + email.split("@")[1]);
+  const onList = Boolean(suppressionIndex(input.suppression)(email));
 
   // Their side of the thread only: what they wrote, in order, each one read by the same rules the inbox agent uses.
   const theirs = parseReplies(input.replies).filter((r) => r.from === email);

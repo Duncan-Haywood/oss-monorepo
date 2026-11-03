@@ -29,13 +29,26 @@ See `experiments/results.txt` (sections A to C; every design is listed). In shor
 - **What this does not show.** The pattern fits SPMe's reduced electrolyte treatment breaking down at high rate with thick, poorly connected electrodes, but no run here isolates the electrolyte term (for example by comparing electrolyte concentration profiles), and with no measured cell neither model is shown to be the accurate one.
 - **Consequence for `energy-cell`.** Its 0-score region (thick electrode, low porosity) was partly an SPMe artefact at the 5 A rate, so a search that treats it as infeasible has pruned designs DFN cycles normally (120 to 140 Wh/kg at cycle 100 here). Re-searching with a charge-rate-aware or DFN score is the natural next step.
 
+## Direct DFN search (2026-11-01)
+`experiments/dfn_search.py` runs the `energy-cell` proposers (random, Gaussian-process Bayesian) with the same 30-evaluation budget but scoring every candidate with DFN (cycle-100 Wh/kg). Outputs: `experiments/dfn_search_<proposer><seed>.json`. 2 seeds per proposer, so this shows a size, not a ranking.
+| proposer, seed | best DFN Wh/kg | design (positive thickness &micro;m, pos. porosity, neg. porosity, N/P) | zero scores |
+|---|---|---|---|
+| Bayesian 0 | 164.3 | 135.6, 0.385, 0.268, 1.30 | 0 |
+| Bayesian 1 | 164.4 | 128.9, 0.389, 0.286, 1.30 | 0 |
+| random 0 | 155.1 | 131.3, 0.383, 0.321, 1.19 | 0 |
+| random 1 | 159.7 | 101.2, 0.390, 0.229, 1.28 | 0 |
+- The best design the SPMe-guided route reaches (SPMe search, then re-scored under DFN) is 163.0 Wh/kg. Direct DFN Bayesian search finds 164.3-164.4, **about 0.8% more**, in the same region: positive electrode 129-136 &micro;m, positive porosity 0.385-0.39, N/P at the top of the range. So SPMe screening costs little here; the DFN optimum is a nearby point on the same plateau.
+- Under DFN no evaluation scored 0 (120 evaluations): the zeros in `energy-cell` were SPMe's, as diagnosed above. `failures.json` (from `classify_failures.py`) re-runs the three SPMe zeros with the failure labels: all three are `solver_error`, infeasible at initial conditions.
+- Random search is 3-9 Wh/kg behind Bayesian here, unlike under SPMe where the proposers tied; with 2 seeds, treat as suggestive.
+- Not shown: any measured cell; the 1% gap is inside what a parameter uncertainty would move. Each evaluation runs in a fresh process because a single in-process DFN search exceeded 14 GB and was OOM-killed (cost 30 s each).
+
 ## Limitations
 - 49 designs, one cell, one parameter set, one protocol. The designs were chosen to spread across the SPMe ranking, so the correlation is not the one over the whole search space or over what a search visits.
 - Both models use the same degradation submodels and the same parameters; DFN giving more energy is not evidence that it is closer to a real cell. No measured data is used, so neither model is validated here.
 - Stack-level mass only (no casing or tabs), as in `energy-cell`.
 
 ## Next steps
-Run a search directly on DFN with the same budget to see whether it finds a different optimum than the one picked from SPMe; isolate SPMe's electrolyte term in the failures (concentration profiles at 5 A); make `evaluate_with` report solver errors instead of scoring 0; compare both models with measured discharge curves.
+Isolate SPMe's electrolyte term in the failures (concentration profiles at 5 A); more DFN-search seeds and a tuned GP; compare both models with measured discharge curves.
 
 ## Reproduce
 `python experiments/run.py select|dfn|report`, then `python experiments/figure.py` (needs numpy, scipy, pybamm; `dfn` needs a lot of RAM headroom and takes about 30 minutes). Tests: `pytest research/energy-cell-dfn/tests`.

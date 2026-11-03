@@ -14,12 +14,15 @@
 // roof's own count), nails, caulk and paint; a cross wing of a different pitch than the main roof (noted).
 import { packPieces } from "./trim.mjs";
 
+import { textNumberErrors } from "./numfields.mjs";
 /** @typedef {{ panelWidth?: number, panelStock?: number, fasciaStock?: number, channelStock?: number, waste?: number, rakeSoffit?: boolean, panelPrice?: number, fasciaPrice?: number, channelPrice?: number }} Eaves */
 
 /** @param {Eaves} d */
 export function validateEaves(d) {
   const e = [];
   if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Eave settings are an object."];
+  e.push(...textNumberErrors(d, ['channelPrice', 'channelStock', 'fasciaPrice', 'fasciaStock', 'panelPrice', 'panelStock', 'panelWidth', 'waste']));
+  if (e.length) return e;
   if (d.panelWidth != null && !(d.panelWidth >= 6 && d.panelWidth <= 24)) e.push("Soffit panel width must be between 6 and 24 inches.");
   for (const [k, n] of /** @type {const} */ ([["panelStock", "Soffit panel"], ["fasciaStock", "Fascia board"], ["channelStock", "J-channel"]])) {
     const v = d[k];

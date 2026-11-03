@@ -10,6 +10,7 @@
   "projects": ["wall-framing-takeoff"],
   "pr": 12256,
   "outcome": "success",
+  "pr": "https://github.com/duncan-haywood/oss-monorepo/pull/12256",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],

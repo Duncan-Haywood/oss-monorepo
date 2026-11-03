@@ -1,0 +1,92 @@
+{
+ "R1.01_sigma0.0": {
+  "n": 32,
+  "flagged": 2,
+  "harmful": 30,
+  "harmful_unflagged": 28,
+  "median_dL": 0.027956128120422363,
+  "median_abs_dL": 0.027956128120422363,
+  "median_stalled_steps": 78.5
+ },
+ "R1.01_sigma0.005": {
+  "n": 32,
+  "flagged": 3,
+  "harmful": 27,
+  "harmful_unflagged": 24,
+  "median_dL": 0.01926398277282715,
+  "median_abs_dL": 0.01926398277282715,
+  "median_stalled_steps": 68.5
+ },
+ "R1.01_sigma0.01": {
+  "n": 32,
+  "flagged": 5,
+  "harmful": 24,
+  "harmful_unflagged": 19,
+  "median_dL": 0.02014446258544922,
+  "median_abs_dL": 0.02014446258544922,
+  "median_stalled_steps": 59.5
+ },
+ "R1.01_sigma0.02": {
+  "n": 32,
+  "flagged": 8,
+  "harmful": 19,
+  "harmful_unflagged": 11,
+  "median_dL": 0.013640642166137695,
+  "median_abs_dL": 0.013640642166137695,
+  "median_stalled_steps": 33.0
+ },
+ "R1.01_sigma0.05": {
+  "n": 32,
+  "flagged": 11,
+  "harmful": 14,
+  "harmful_unflagged": 3,
+  "median_dL": 0.0,
+  "median_abs_dL": 0.0,
+  "median_stalled_steps": 0.0
+ },
+ "R1.02_sigma0.0": {
+  "n": 32,
+  "flagged": 2,
+  "harmful": 32,
+  "harmful_unflagged": 30,
+  "median_dL": 0.043739914894104004,
+  "median_abs_dL": 0.043739914894104004,
+  "median_stalled_steps": 141.5
+ },
+ "R1.02_sigma0.005": {
+  "n": 32,
+  "flagged": 1,
+  "harmful": 32,
+  "harmful_unflagged": 31,
+  "median_dL": 0.035219669342041016,
+  "median_abs_dL": 0.035219669342041016,
+  "median_stalled_steps": 135.0
+ },
+ "R1.02_sigma0.01": {
+  "n": 32,
+  "flagged": 2,
+  "harmful": 30,
+  "harmful_unflagged": 28,
+  "median_dL": 0.03561878204345703,
+  "median_abs_dL": 0.03561878204345703,
+  "median_stalled_steps": 127.5
+ },
+ "R1.02_sigma0.02": {
+  "n": 32,
+  "flagged": 5,
+  "harmful": 25,
+  "harmful_unflagged": 20,
+  "median_dL": 0.026029109954833984,
+  "median_abs_dL": 0.026029109954833984,
+  "median_stalled_steps": 97.0
+ },
+ "R1.02_sigma0.05": {
+  "n": 32,
+  "flagged": 7,
+  "harmful": 15,
+  "harmful_unflagged": 8,
+  "median_dL": 0.00899052619934082,
+  "median_abs_dL": 0.00899052619934082,
+  "median_stalled_steps": 30.5
+ }
+}

@@ -71,3 +71,41 @@ test("dollars, summary and csv render", () => {
   assert.match(summaryText(r), /Quote: \$/);
   assert.equal(sweepCsv(r).split("\n").length, 5);
 });
+
+test("summary states every figure, and lists warnings but not the info line", () => {
+  const r = compute(raw({ workDays: "5" }));
+  const t = summaryText(r);
+  assert.match(t, /Edit quote: Copyediting, 80,000 words \(320 pages\), average manuscript/);
+  assert.match(t, /edit time 80\.0 h; billable incl\. 15% admin and 3 extra h: 95\.4 h/);
+  assert.ok(t.includes(`Quote: ${dollars(r.fee)} flat (${dollars(r.perWord)}/word, ${dollars(r.perPage)}/page) at a target $45.00/h`));
+  assert.match(t, /Working days needed: 19\.1 at 5 h\/day/);
+  assert.ok(t.includes("- The job needs about 19.1 working days"));
+  assert.ok(!t.includes("Quote $"), "the info finding is not repeated in the summary");
+});
+
+test("sweep rows carry the level pace, hours, fee and per-word rate", () => {
+  const r = compute(raw());
+  const c = r.sweep.find((x) => x.key === "copyedit");
+  assert.equal(c.pace, 1000);
+  assert.ok(Math.abs(c.hours - 95.45) < 1e-9);
+  assert.equal(c.fee, r.fee);
+  assert.ok(Math.abs(c.perWord - r.fee / 80000) < 1e-9);
+  const lines = sweepCsv(r).split("\n");
+  assert.equal(lines[2], `Copyediting,1000,95.45,${r.fee.toFixed(2)},${(r.fee / 80000).toFixed(4)}`);
+});
+
+test("the slower-pace risk is capped at 90 percent and money inputs accept $ and commas", () => {
+  const capped = compute(raw({ slower: "500" }));
+  const ninety = compute(raw({ slower: "90" }));
+  assert.equal(capped.slowEff, ninety.slowEff);
+  const r = compute(raw({ words: "80,000", rate: "$45" }));
+  assert.equal(r.input.words, 80000);
+  assert.equal(r.input.rate, 45);
+});
+
+test("rush needs both a deadline and a window, and dollars shows negatives", () => {
+  assert.equal(compute(raw({ workDays: "", rushDays: "7" })).rush, false);
+  assert.equal(compute(raw({ workDays: "5", rushDays: "" })).rush, false);
+  assert.equal(compute(raw({ workDays: "7", rushDays: "7", hoursPerDay: "40" })).rush, true);
+  assert.equal(dollars(-5), "-$5.00");
+});

@@ -1,0 +1,10 @@
+NaijaSenti negative, nb-in-language: corpus 6000, prevalence 0.3272, J 0.388, ceiling 0.916; n 1000; 1000 draws
+pilot share | design | coverage % | half-width pts | cells used | ratio cells/pooled | fraction of ceiling gain realised
+0.1 | cells | 95.0 | 2.428 | 1.00 | 0.996 | 0.05
+0.1 | pooled | 94.7 | 2.438 | 0.00 | 0.996 | 0.05
+0.2 | cells | 96.1 | 2.424 | 1.00 | 0.994 | 0.07
+0.2 | pooled | 95.3 | 2.437 | 0.00 | 0.994 | 0.07
+0.3 | cells | 94.9 | 2.429 | 1.00 | 0.997 | 0.03
+0.3 | pooled | 93.5 | 2.436 | 0.00 | 0.997 | 0.03
+0.5 | cells | 95.0 | 2.426 | 1.00 | 0.995 | 0.06
+0.5 | pooled | 95.3 | 2.437 | 0.00 | 0.995 | 0.06

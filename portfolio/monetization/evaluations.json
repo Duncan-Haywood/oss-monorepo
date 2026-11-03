@@ -1,0 +1,1006 @@
+{
+  "_about": "Monetization and go-to-market evaluations. Judgment lives here; arithmetic and coverage in evaluate.mjs. Prices are the portfolio's own proposals and conversions are assumptions unless a basis says measured. See README.md.",
+  "evaluations": [
+    {
+      "id": "ai-bookkeeper",
+      "kind": "venture",
+      "evaluated": "2026-11-02",
+      "buyer": "US micro-business owners and part-time bookkeepers who today export bank CSVs into a spreadsheet or pay for QuickBooks/Xero mainly to get a P&L and a year-end pack.",
+      "willingness_to_pay": "The strongest in the portfolio: bookkeeping is a monthly paid job, the tool already produces journals for QuickBooks/Xero/IIF and a year-end pack, and the engine runs in the browser so a paid tier costs us nothing per user.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        },
+        {
+          "name": "Pro licence: year-end tax pack, multi-entity books, saved rules sync file, priority import formats",
+          "unit": "annual",
+          "price_usd": 59,
+          "conversion": 0.006,
+          "gate": "payout-rail",
+          "basis": "Owner price proposal; conversion assumed at three times the generic 2%-of-downloads figure's floor because the visitor arrived with a bank file in hand. Not measured."
+        },
+        {
+          "name": "done-with-you year-end close (owner or a bookkeeper partner)",
+          "unit": "flat",
+          "price_usd": 250,
+          "conversion": 0,
+          "gate": "owner-partner",
+          "basis": "Needs a person and a services entity; zero expected until the owner chooses.",
+          "expected_count_per_year": 0
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 2500,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. 42 vertical landing pages already exist (salon, trucking, rental...) plus the back-office funnel; 2,500 is ~60 per page."
+      },
+      "gtm": [
+        "Turn the 42 vertical pages into the funnel: every back-office, services and solo-earner tool links to its vertical page.",
+        "Ship the Pro licence as a licence key checked offline in the browser (billing plan Option A, no server secret).",
+        "Before charging: run it on one real labelled set of books (flagships.yaml next item 0) and publish the accuracy, so the marketing page has a measured claim.",
+        "Owner: one bookkeeper partner who will try it on a client's file (with permission)."
+      ],
+      "risks": [
+        "Accuracy: a wrong category is a wrong tax return; disclaimer and review queue stay.",
+        "Bank-file privacy: keep everything in the browser."
+      ],
+      "verdict": "Largest buyer base with a recurring job, and a paid tier that costs nothing to serve; but models.yaml parks it as the highest-liability product (books feed tax returns) until real-book measurements exist. This file agrees: no charge before that measurement.",
+      "next_measurement": "Imports completed per month on the live page, and how many reach the year-end pack."
+    },
+    {
+      "id": "changepoint-detector",
+      "kind": "venture",
+      "evaluated": "2026-11-02",
+      "buyer": "Analysts and data scientists.",
+      "willingness_to_pay": "Low; method tools are expected to be free.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 400,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. method-name searches."
+      },
+      "gtm": [
+        "Rank for 'PELT changepoint online' and 'Bayesian online changepoint' with worked examples.",
+        "Cite from the research programme."
+      ],
+      "risks": [
+        "Research integrity."
+      ],
+      "verdict": "Reputation, not revenue.",
+      "next_measurement": "Series analysed per month."
+    },
+    {
+      "id": "einvoice-preflight",
+      "kind": "venture",
+      "evaluated": "2026-11-02",
+      "buyer": "Developers and finance-ops staff at EU-selling SMEs and the ERP/integration consultants who serve them, facing the e-invoicing mandates the venture's own country pages document (Belgium, Germany, France, Poland, Portugal and others).",
+      "willingness_to_pay": "High and time-boxed: a rejected invoice is a late payment, and CI validation is something integrators pay for. The validator already runs locally and as a CLI/API, so a paid tier can be a self-hosted licence with no per-user cost.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 10,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        },
+        {
+          "name": "commercial self-hosted licence for the CI/API validator with country add-ons and update feed",
+          "unit": "annual",
+          "price_usd": 290,
+          "conversion": 0.001,
+          "gate": "payout-rail",
+          "basis": "Owner price proposal; conversion assumed and cut from 0.3% to 0.1% after models.yaml's comparables (validation sells for about $4 per 1,000 documents on API marketplaces, and free official validators exist): checks alone are a commodity, so a licence sells only the country-rule depth and the CI packaging. No integrator has been asked."
+        },
+        {
+          "name": "company sponsorship for a country profile (sponsor funds the next country's rules)",
+          "unit": "flat",
+          "price_usd": 1500,
+          "conversion": 0,
+          "gate": "funding-sponsors-live",
+          "basis": "Placeholder; zero expected until a sponsor exists.",
+          "expected_count_per_year": 0
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 2000,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. Dozens of dated country-mandate pages already exist; mandate deadlines create search spikes."
+      },
+      "gtm": [
+        "Keep one dated mandate page per country, read against the primary source (the venture's practice), and link each to the validator.",
+        "Publish a GitHub Action and a Docker image so integrators run it in CI; that is where the commercial licence attaches.",
+        "Measure false positives on real invoices before any paid claim (README lists it as not done).",
+        "Owner: post in Peppol and ERP-integrator communities under the public name."
+      ],
+      "risks": [
+        "A validator that passes a bad invoice costs the buyer; say exactly which rules are covered.",
+        "Mandate dates move; every page dated."
+      ],
+      "verdict": "Still a strong B2B case (deadline-driven buyers with budgets), but checks are a commodity (models.yaml), so what sells is country-rule depth and CI packaging; models.yaml treats it as an owner question (paid priority on the next country).",
+      "next_measurement": "CLI/API runs and country-page visits around each mandate date."
+    },
+    {
+      "id": "league-schedule-generator",
+      "kind": "venture",
+      "evaluated": "2026-11-02",
+      "buyer": "Rec-league and club organisers.",
+      "willingness_to_pay": "Low for scheduling alone; league-management suites are the paid category.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        },
+        {
+          "name": "referral to a league-management or court-booking app, disclosed",
+          "unit": "one-time",
+          "price_usd": 20,
+          "conversion": 0.002,
+          "gate": "owner-partner",
+          "basis": "Assumed; VENTURE.yaml names it."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 1000,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. 'round robin schedule generator' is a searched, seasonal query."
+      },
+      "gtm": [
+        "Seasonal posts before spring and autumn league starts.",
+        "Sport-specific pages (pickleball, darts, chess)."
+      ],
+      "risks": [
+        "None."
+      ],
+      "verdict": "Good traffic, little revenue.",
+      "next_measurement": "Schedules exported per month."
+    },
+    {
+      "id": "local-site-studio",
+      "kind": "venture",
+      "evaluated": "2026-11-02",
+      "buyer": "Local businesses without a working website.",
+      "willingness_to_pay": "Real: the README's $500 flat offer is a price small businesses pay. But it is a services business under a legal entity and brand, which is owner-only.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        },
+        {
+          "name": "flat-price website build",
+          "unit": "flat",
+          "price_usd": 500,
+          "conversion": 0,
+          "gate": "owner-partner",
+          "basis": "The venture's own README price; zero expected until the owner runs it as a business.",
+          "expected_count_per_year": 0
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 300,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. "
+      },
+      "gtm": [
+        "The free website-request queue (portfolio/requests) is the owner's chosen model today; this venture is its paid counterpart if the owner ever wants one.",
+        "If the owner chooses it: one local niche (e.g. one trade in one city), outreach by the owner, the $500 offer as the README states."
+      ],
+      "risks": [
+        "Operating as a services business: contracts, refunds, support."
+      ],
+      "verdict": "Highest price per sale, but it is owner labour and a business decision, not an agent build.",
+      "next_measurement": "Website requests received."
+    },
+    {
+      "id": "open-tennis-robots",
+      "kind": "venture",
+      "evaluated": "2026-11-02",
+      "buyer": "Tennis players and clubs; hobbyist builders.",
+      "willingness_to_pay": "People pay for ball machines; this is open hardware, so kits by third parties are the money, not ours.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 10,
+          "conversion": 0.003,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 400,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. "
+      },
+      "gtm": [
+        "Build log videos and a BOM.",
+        "Invite makers to sell kits under MIT."
+      ],
+      "risks": [
+        "Moving machinery: safety notes on every build page."
+      ],
+      "verdict": "Donations and reputation.",
+      "next_measurement": "BOM downloads."
+    },
+    {
+      "id": "photo-editing",
+      "kind": "venture",
+      "evaluated": "2026-11-02",
+      "buyer": "Photographers and videographers producing social deliverables.",
+      "willingness_to_pay": "Photographers pay for presets and workflow tools; the product is still a concept with demo UI.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        },
+        {
+          "name": "preset/LUT packs",
+          "unit": "one-time",
+          "price_usd": 19,
+          "conversion": 0.004,
+          "gate": "payout-rail",
+          "basis": "Assumed; no packs exist."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 500,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. "
+      },
+      "gtm": [
+        "Finish the ingest-with-checksums path, which has a clear job.",
+        "Then decide on packs."
+      ],
+      "risks": [
+        "Never delete source media."
+      ],
+      "verdict": "Not ready to monetize.",
+      "next_measurement": "Ingest runs."
+    },
+    {
+      "id": "quick-pick-survey",
+      "kind": "venture",
+      "evaluated": "2026-11-02",
+      "buyer": "Small teams and researchers ranking options by pairwise choice.",
+      "willingness_to_pay": "Low-moderate; survey tools charge monthly, but this is deploy-your-own.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 400,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. "
+      },
+      "gtm": [
+        "Templates for common uses (feature prioritisation, hiring criteria).",
+        "Deploy button already exists."
+      ],
+      "risks": [
+        "Respondent data stays in the deployer's account."
+      ],
+      "verdict": "Donation-only.",
+      "next_measurement": "Surveys completed."
+    },
+    {
+      "id": "sales-agent",
+      "kind": "venture",
+      "evaluated": "2026-11-02",
+      "buyer": "Founders and small sales teams doing their own outbound who want replies sorted and follow-ups drafted with a person approving each message.",
+      "willingness_to_pay": "Real (sales tooling is a paid category) but crowded, and the product's value depends on being trusted with a mailbox.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        },
+        {
+          "name": "self-host licence with CRM write-back and support",
+          "unit": "monthly",
+          "price_usd": 29,
+          "conversion": 0.003,
+          "gate": "payout-rail",
+          "basis": "Owner price proposal; conversion assumed.",
+          "monthly_churn": 0.06
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 800,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. inbox-sorting and reply-classification queries."
+      },
+      "gtm": [
+        "Measure on real human replies first (flagships.yaml item 1); no paid tier before a measured accuracy.",
+        "Market on consent-records and human-approval: the honest difference from autonomous SDR tools."
+      ],
+      "risks": [
+        "Anti-spam and consent law: the human-approval gate stays."
+      ],
+      "verdict": "Plausible later; not before a real-reply measurement.",
+      "next_measurement": "Replies sorted per month on the live page."
+    },
+    {
+      "id": "shift-roster-builder",
+      "kind": "venture",
+      "evaluated": "2026-11-02",
+      "buyer": "Owner-managers of restaurants, cafes, salons and clinics scheduling 5-30 staff.",
+      "willingness_to_pay": "Moderate: they pay for scheduling apps monthly mostly for shift-swap and messaging, which need a server.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        },
+        {
+          "name": "Pro licence: saved multi-week rosters, multi-location, printable rota packs (all in-browser)",
+          "unit": "annual",
+          "price_usd": 49,
+          "conversion": 0.004,
+          "gate": "payout-rail",
+          "basis": "Owner price proposal; conversion assumed. VENTURE.yaml lists these as unbuilt."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 1200,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. 'free staff rota maker' and 'shift schedule template' queries; food-service funnel."
+      },
+      "gtm": [
+        "Ship the in-browser Pro features that need no server (saved rosters as files, multi-week).",
+        "Leave shift-swap links to deployers (needs a server; deployer's keys)."
+      ],
+      "risks": [
+        "Labour-law rules vary; the tool checks the user's own limits."
+      ],
+      "verdict": "Small but clean paid tier.",
+      "next_measurement": "Rosters generated per month."
+    },
+    {
+      "id": "wall-framing-takeoff",
+      "kind": "venture",
+      "evaluated": "2026-11-02",
+      "buyer": "Small builders, framers and owner-builders in US new-home construction; lumberyards and panel shops who quote framing packages.",
+      "willingness_to_pay": "Builders pay for takeoff and estimating software, often monthly, and lumberyards give takeoffs away to win orders. That makes the yard, not the builder, the likeliest payer.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 10,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        },
+        {
+          "name": "lumberyard/panel-shop quote referral (builder sends the cut list to a partner for a price)",
+          "unit": "one-time",
+          "price_usd": 50,
+          "conversion": 0.002,
+          "gate": "owner-partner",
+          "basis": "Assumed referral fee; needs a partner agreement the owner signs (VENTURE.yaml names this path)."
+        },
+        {
+          "name": "Pro: saved projects, DXF/IFC import, schedule and cash-flow exports",
+          "unit": "annual",
+          "price_usd": 149,
+          "conversion": 0.002,
+          "gate": "payout-rail",
+          "basis": "Owner price proposal; conversion assumed."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 1500,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. 'stud calculator', 'framing takeoff', 'how many studs' queries plus the stair, siding and drywall pages."
+      },
+      "gtm": [
+        "Get one real builder plan through it end to end (flagships.yaml lists the missing real inputs) and publish the lumber saved, with permission.",
+        "Owner: one regional lumberyard or panel shop pilot for quote referral.",
+        "Pages for each sub-trade calculator already exist; keep them linked to the whole-house takeoff."
+      ],
+      "risks": [
+        "No structural check: the page says so; never imply engineering."
+      ],
+      "verdict": "Long-horizon. Real money is B2B (yards, panel shops) and needs an owner-signed partnership; Pro licence is a smaller, agent-buildable step.",
+      "next_measurement": "Whole-house takeoffs completed per month."
+    },
+    {
+      "id": "backoffice",
+      "kind": "category",
+      "evaluated": "2026-11-02",
+      "buyer": "Owner-operators and part-time bookkeepers of US/UK/EU micro-businesses (1-10 people).",
+      "willingness_to_pay": "Moderate: they already pay for QuickBooks, Xero, Gusto. They pay for things that save an evening at month end or avoid a penalty, not for a calculator.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        },
+        {
+          "name": "referral to accounting or payroll software, disclosed",
+          "unit": "one-time",
+          "price_usd": 50,
+          "conversion": 0.002,
+          "gate": "owner-partner",
+          "basis": "Assumed bounty and conversion; no programme's terms have been read. Needs the owner to join a programme; every link carries an FTC-style disclosure (goals.md). README.md option 6 recommends against affiliate links (it pays us to recommend the tools our pages compare against); kept here only so the scenario shows what declining them costs."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 4000,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. 216 tools on high-intent long-tail queries (1099, payroll, invoice terms)."
+      },
+      "gtm": [
+        "Route every back-office tool to ai-bookkeeper as the 'do the whole month' next step; ai-bookkeeper carries the paid tier.",
+        "SEO checklist per page (PRODUCT_PLAYBOOK.md): title in the searcher's words, worked example, llms.txt.",
+        "Seasonal pushes: 1099 tools in January, quarterly estimated tax before each due date."
+      ],
+      "risks": [
+        "Tax and payroll pages carry the disclaimer; a wrong number costs a user a penalty."
+      ],
+      "verdict": "A traffic funnel, not a product. Its value is what it sends to ai-bookkeeper.",
+      "next_measurement": "Click-through from back-office pages to ai-bookkeeper."
+    },
+    {
+      "id": "ci",
+      "kind": "category",
+      "evaluated": "2026-11-02",
+      "buyer": "Developers and platform engineers who maintain GitHub Actions workflows; security teams at small companies.",
+      "willingness_to_pay": "Low for individuals (free linters exist and developers expect free), moderate for companies that need a supply-chain report for an audit. 178 separate checks dilute it.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.001,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        },
+        {
+          "name": "company sponsorship tier (logo in README, priority rule requests)",
+          "unit": "monthly",
+          "price_usd": 100,
+          "conversion": 0.0002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed. The listing-monetization study found 7.5% of top-decile developer listings carry any commercial mechanism and that every price is charged off-registry; corporate sponsorship is the common one.",
+          "monthly_churn": 0.03
+        },
+        {
+          "name": "audit pack: signed PDF report of every check across an org's repos",
+          "unit": "one-time",
+          "price_usd": 49,
+          "conversion": 0.001,
+          "gate": "payout-rail",
+          "basis": "Assumed. No buyer asked."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 3000,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. developer queries ('pull_request_target injection', 'pin actions to sha') are specific and searched; one combined action listing on the GitHub Marketplace is the lever."
+      },
+      "gtm": [
+        "Ship one combined action ('actions-hardening') that runs all 178 checks, with SARIF output, and point every per-check page at it.",
+        "Owner: publish it on the GitHub Marketplace under the public name (decision publication-identity).",
+        "Write one post per real finding class, with counts from public workflows (data-backed, no invented numbers).",
+        "Offer the audit pack only after the action has users (stars, Marketplace installs)."
+      ],
+      "risks": [
+        "Crowded with free tools from funded companies (zizmor, StepSecurity, OpenSSF Scorecard): differentiate on breadth and offline use, or don't charge."
+      ],
+      "verdict": "Low direct revenue; best used as distribution (developer reach, stars, credibility) for the paid products.",
+      "next_measurement": "Installs of a combined action once published; until then, page loads on /c/ci."
+    },
+    {
+      "id": "evidence",
+      "kind": "category",
+      "evaluated": "2026-11-02",
+      "buyer": "Compliance and operations staff at small companies: accessibility (ADA Title II), EU CRA, SBOM and records evidence.",
+      "willingness_to_pay": "Higher than most categories: deadlines are legal and consultants charge by the hour. But a product must never claim to make anyone compliant.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        },
+        {
+          "name": "evidence report export (dated, itemised PDF for an auditor)",
+          "unit": "one-time",
+          "price_usd": 49,
+          "conversion": 0.003,
+          "gate": "payout-rail",
+          "basis": "Assumed price and conversion; no buyer interviewed."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 1000,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. deadline-driven queries (ADA Title II April 2026 and 2027 dates, CRA reporting from 2026) per the ventures' own pages."
+      },
+      "gtm": [
+        "Publish one deadline explainer per rule with the primary source, dated.",
+        "Sell the export, never a 'compliant' badge; the disclaimer says what the tool does not check."
+      ],
+      "risks": [
+        "Legal exposure if copy implies compliance; keep every claim to what the check measured."
+      ],
+      "verdict": "Second-best willingness to pay; small audience. A good place for the evidence-export pattern.",
+      "next_measurement": "Exports per check, once counted."
+    },
+    {
+      "id": "food-service",
+      "kind": "category",
+      "evaluated": "2026-11-02",
+      "buyer": "Independent restaurants, cafes and food trucks: food cost, menu price, labour and rosters.",
+      "willingness_to_pay": "Moderate for labour scheduling (they pay for 7shifts/Homebase-style tools); low for cost calculators.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 1000,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. 69 tools; shift-roster-builder is the anchor."
+      },
+      "gtm": [
+        "Route labour and roster questions to shift-roster-builder, which carries the paid tier.",
+        "Menu-costing guide posts with real public price data."
+      ],
+      "risks": [
+        "None beyond the disclaimer."
+      ],
+      "verdict": "Funnel into shift-roster-builder.",
+      "next_measurement": "Click-through to shift-roster-builder."
+    },
+    {
+      "id": "learning",
+      "kind": "category",
+      "evaluated": "2026-11-02",
+      "buyer": "Engineers learning AI engineering; students.",
+      "willingness_to_pay": "Learners pay for courses with certificates and community, which an MIT text course does not give.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 500,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. 5 ventures."
+      },
+      "gtm": [
+        "Publish lessons as blog posts with runnable code.",
+        "Link the research programmes as worked examples."
+      ],
+      "risks": [
+        "None."
+      ],
+      "verdict": "Donation-only; its value is reputation.",
+      "next_measurement": "Lesson completions."
+    },
+    {
+      "id": "logistics",
+      "kind": "category",
+      "evaluated": "2026-11-02",
+      "buyer": "Small e-commerce brands and their 3PLs; freight and parcel invoice auditing.",
+      "willingness_to_pay": "High per buyer (freight audit firms take a share of recovered overcharges), small audience.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        },
+        {
+          "name": "invoice audit report export",
+          "unit": "one-time",
+          "price_usd": 99,
+          "conversion": 0.004,
+          "gate": "payout-rail",
+          "basis": "Assumed price; audit firms usually charge a share of savings, not a flat fee."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 400,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. 36 tools, specialist queries."
+      },
+      "gtm": [
+        "Make 3pl-invoice-audit-checker the anchor and show recovered dollars on a public sample invoice.",
+        "Owner: one 3PL or brand willing to share a real invoice (anonymised) for a case study, with permission."
+      ],
+      "risks": [
+        "Never claim a recovery figure without a real, permitted case."
+      ],
+      "verdict": "Small audience, high value per buyer; a share-of-savings model would need a services entity.",
+      "next_measurement": "Audits run per month."
+    },
+    {
+      "id": "marketplace",
+      "kind": "category",
+      "evaluated": "2026-11-02",
+      "buyer": "Amazon, Etsy, eBay, Shopify and TikTok Shop sellers checking fees and margins.",
+      "willingness_to_pay": "Sellers pay well for seller tools (Helium 10-style suites), but the free-calculator space is saturated by those suites' own lead magnets.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        },
+        {
+          "name": "referral to seller software, disclosed",
+          "unit": "one-time",
+          "price_usd": 40,
+          "conversion": 0.001,
+          "gate": "owner-partner",
+          "basis": "Assumed; no programme read."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 2000,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. 117 tools, competitive queries; settlement-to-journal tools are the less contested angle."
+      },
+      "gtm": [
+        "Lead with the settlement-report-to-books tools (amazon-settlement-to-journal, airbnb-payout-to-journal), which the suites do not do, and route them to ai-bookkeeper.",
+        "Skip head terms like 'amazon fba calculator'; they are owned by funded competitors."
+      ],
+      "risks": [
+        "Fee schedules change; each page must cite its date."
+      ],
+      "verdict": "Funnel into ai-bookkeeper; little standalone revenue.",
+      "next_measurement": "Visits to settlement-to-journal pages."
+    },
+    {
+      "id": "more",
+      "kind": "category",
+      "evaluated": "2026-11-02",
+      "buyer": "Mixed: tools not claimed by another section.",
+      "willingness_to_pay": "Varies.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 300,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. 9 ventures."
+      },
+      "gtm": [
+        "Re-file each into a real category when one fits.",
+        "Evaluate any that gets measured visits on its own."
+      ],
+      "risks": [
+        "None."
+      ],
+      "verdict": "No plan; re-file.",
+      "next_measurement": "Page loads per tool."
+    },
+    {
+      "id": "open-hardware",
+      "kind": "category",
+      "evaluated": "2026-11-02",
+      "buyer": "Hobbyists and clubs who build machines (open-tennis-robots, others).",
+      "willingness_to_pay": "People pay for kits and finished machines; selling physical goods brings product liability.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 300,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. 4 ventures."
+      },
+      "gtm": [
+        "Publish build logs and a bill of materials.",
+        "Let third-party makers sell kits under the MIT licence (the owner's stated wish)."
+      ],
+      "risks": [
+        "Physical product liability if the owner sells hardware; keep it to third parties."
+      ],
+      "verdict": "Donations; hardware sales belong to third parties.",
+      "next_measurement": "BOM downloads."
+    },
+    {
+      "id": "research-algorithms",
+      "kind": "category",
+      "evaluated": "2026-11-02",
+      "buyer": "Data scientists and analysts who need a published method as a tool.",
+      "willingness_to_pay": "Low as product; the money is grants and citations, not sales.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        },
+        {
+          "name": "open-source grant (e.g. NLnet-style calls) for a named method library",
+          "unit": "flat",
+          "price_usd": 20000,
+          "conversion": 0,
+          "gate": "owner-application",
+          "basis": "No call checked for eligibility or dates; a placeholder of zero expected awards a year until the owner chooses to apply.",
+          "expected_count_per_year": 0
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 600,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. 3 tools; papers drive traffic."
+      },
+      "gtm": [
+        "Publish each tool beside its paper; cite the paper so searches for the method find the tool.",
+        "Owner: decide whether to apply for open-source grants (research/PROGRAMMES.md has the programmes)."
+      ],
+      "risks": [
+        "Research integrity: claims only from the measured benchmarks."
+      ],
+      "verdict": "Reputation and grants, not revenue.",
+      "next_measurement": "Citations and stars."
+    },
+    {
+      "id": "self-hosted",
+      "kind": "category",
+      "evaluated": "2026-11-02",
+      "buyer": "Founders of small subscription businesses (roughly $5k-$100k MRR) running Stripe, and the freelancers who set up their stacks.",
+      "willingness_to_pay": "Real. Failed-payment recovery, cancel flows and MRR dashboards are categories people already pay monthly SaaS fees for; the open-source pitch is 'same job, your server, no fee'. The buyer of an MIT copy pays for setup and support, not the code.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 10,
+          "conversion": 0.003,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        },
+        {
+          "name": "paid setup and first-month support, sold per deployment",
+          "unit": "flat",
+          "price_usd": 400,
+          "conversion": 0,
+          "gate": "payout-rail",
+          "basis": "Owner's own price proposal, not a market reading. Needs a person to do the setup, so expected_count is the owner's capacity choice, set to 3 a year as a placeholder.",
+          "expected_count_per_year": 3
+        },
+        {
+          "name": "deploy pack: one-time licence for a pre-wired stack (dunning + cancel flow + MRR) with an upgrade guide",
+          "unit": "one-time",
+          "price_usd": 79,
+          "conversion": 0.004,
+          "gate": "payout-rail",
+          "basis": "Price and conversion assumed. Selling convenience on MIT code is ordinary (open-core and sponsorware both do it) but nobody has been asked whether they would pay."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 1500,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. 'open-source alternative to X' searches are the buyer's own words; 34 apps x ~45 loads each."
+      },
+      "gtm": [
+        "Write one fair comparison page per app against the paid SaaS it replaces (named competitor, its public price, the not-affiliated line; goals.md marketing rules).",
+        "Bundle the 34 apps behind one front door, 'self-hosted SaaS operations stack', with one deploy button; one strong listing beats 34 thin ones.",
+        "Owner: list the stack on awesome-selfhosted, AlternativeTo and Render/Railway template galleries (publishing under the public name is owner-only).",
+        "Measure deploy-button clicks per app (already counted locally) once the counter aggregates."
+      ],
+      "risks": [
+        "Support load scales with deployments; owner time is the cost.",
+        "Running someone else's billing code is a liability boundary: the README must say the deployer is the merchant."
+      ],
+      "verdict": "Best per-visitor value in the catalogue, because its buyer already pays for this job. Worth the first paid experiment after ai-bookkeeper and einvoice-preflight.",
+      "next_measurement": "Deploy-button clicks per app over 30 days, and how many comparison-page visitors reach the deploy page."
+    },
+    {
+      "id": "services",
+      "kind": "category",
+      "evaluated": "2026-11-02",
+      "buyer": "Solo service businesses (salons, cleaners, photographers, tutors) setting prices and deposits.",
+      "willingness_to_pay": "Low for calculators; moderate for booking, deposits and no-show tools, which they pay for inside booking software.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        },
+        {
+          "name": "referral to booking or invoicing software, disclosed",
+          "unit": "one-time",
+          "price_usd": 30,
+          "conversion": 0.001,
+          "gate": "owner-partner",
+          "basis": "Assumed; no programme read."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 2500,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. 198 pages, many on 'how much to charge for X'."
+      },
+      "gtm": [
+        "Point each service page at the matching ai-bookkeeper vertical page (salon, cleaning, photographer already exist).",
+        "One blog post per vertical with a worked pricing example from public data."
+      ],
+      "risks": [
+        "None beyond the disclaimer."
+      ],
+      "verdict": "Funnel, not product.",
+      "next_measurement": "Click-through to ai-bookkeeper vertical pages."
+    },
+    {
+      "id": "solo-earner",
+      "kind": "category",
+      "evaluated": "2026-11-02",
+      "buyer": "Freelancers, creators and gig workers estimating tax, rates and take-home.",
+      "willingness_to_pay": "Low; they look for free answers. A tax-prep or bookkeeping referral is the only money in it.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 3,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        },
+        {
+          "name": "referral to bookkeeping or tax software, disclosed",
+          "unit": "one-time",
+          "price_usd": 30,
+          "conversion": 0.001,
+          "gate": "owner-partner",
+          "basis": "Assumed."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 2000,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. 95 tools on common freelancer questions."
+      },
+      "gtm": [
+        "Route to ai-bookkeeper's freelancer and creator pages.",
+        "Quarterly estimated-tax reminders as a calendar file (.ics), no account."
+      ],
+      "risks": [
+        "Tax disclaimer on every page."
+      ],
+      "verdict": "Funnel into ai-bookkeeper; donation-only on its own.",
+      "next_measurement": "Click-through to ai-bookkeeper."
+    },
+    {
+      "id": "trades",
+      "kind": "category",
+      "evaluated": "2026-11-02",
+      "buyer": "Small contractors (roofers, painters, pavers, HVAC) pricing a job; some homeowners checking a quote.",
+      "willingness_to_pay": "Contractors pay for estimating and proposal software (monthly), not for single calculators. Homeowner traffic is worth more to lead-gen sites than to us, and selling leads is owner-only.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.001,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        },
+        {
+          "name": "branded estimate and proposal PDF with the contractor's logo, unlimited",
+          "unit": "annual",
+          "price_usd": 39,
+          "conversion": 0.002,
+          "gate": "payout-rail",
+          "basis": "Assumed price and conversion; the feature does not exist yet."
+        },
+        {
+          "name": "lead referral to a named supplier or panel shop",
+          "unit": "one-time",
+          "price_usd": 20,
+          "conversion": 0.001,
+          "gate": "owner-partner",
+          "basis": "Assumed. Needs a partner agreement the owner signs."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 3000,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. 189 bid calculators on '<job> cost calculator' and '<job> bid' queries."
+      },
+      "gtm": [
+        "Add one shared 'turn this into a proposal' step (PDF with the contractor's name, line items, terms) across all bid calculators; that is the thing a contractor would pay for.",
+        "Join trades pages to wall-framing-takeoff where the job is new construction.",
+        "Owner: one supplier partnership to test lead referral (lumberyard or panel shop), the path wall-framing-takeoff's VENTURE.yaml already names."
+      ],
+      "risks": [
+        "Pricing figures are the user's own; never assert a market rate without a source."
+      ],
+      "verdict": "Moderate. Worth one shared proposal feature, priced annually, before anything per-calculator.",
+      "next_measurement": "Proposal-PDF exports once the step ships."
+    },
+    {
+      "id": "uk-tax",
+      "kind": "category",
+      "evaluated": "2026-11-02",
+      "buyer": "UK sole traders and landlords, especially those brought into Making Tax Digital for Income Tax.",
+      "willingness_to_pay": "Moderate. MTD forces software onto people who used spreadsheets; HMRC lists recognised software, most of it paid.",
+      "mechanisms": [
+        {
+          "name": "donation (GitHub Sponsors link on every page)",
+          "unit": "donation",
+          "price_usd": 5,
+          "conversion": 0.002,
+          "gate": "funding-sponsors-live",
+          "basis": "Assumed, not measured: 0.2% of page loads give once. No donation from this site has ever been recorded (portfolio/usage, sponsor_link_clicked is counted only on the visitor's device). Gated because no row records that the owner's Sponsors profile accepts money; decision funding-sponsors-live."
+        },
+        {
+          "name": "referral to HMRC-recognised MTD software, disclosed",
+          "unit": "one-time",
+          "price_usd": 30,
+          "conversion": 0.002,
+          "gate": "owner-partner",
+          "basis": "Assumed; no programme read."
+        }
+      ],
+      "traffic_target_monthly": {
+        "value": 1500,
+        "basis": "A goal for twelve months of SEO and listing work, not a forecast. 56 tools; MTD questions are seasonal around the quarterly updates and 31 January."
+      },
+      "gtm": [
+        "One MTD explainer per question a sole trader asks, sourced from gov.uk and dated.",
+        "Do not build MTD submission itself: it needs HMRC recognition and is a liability boundary."
+      ],
+      "risks": [
+        "Thresholds change by tax year; pages must say which year."
+      ],
+      "verdict": "Small, seasonal; referral-only.",
+      "next_measurement": "Page loads around the quarterly MTD dates."
+    }
+  ]
+}

@@ -41,6 +41,8 @@ def problems(name, text, today=None):
     desc = fields.get("description", "").strip("\"'")
     if len(desc) > 160:  # writing.mjs throws on this; PR builds fail, so say so early
         out.append(f"description is {len(desc)} characters; keep it to 160")
+    if len(desc) < 60:  # a stub ("d", a filename) gives a search result or an answer engine nothing to quote
+        out.append(f"description is {len(desc)} characters; write at least 60 so a result says what the post is")
     # writing.mjs throws on this too: three posts on 2026-10-29 broke every site build.
     seo = fields.get("seo_title", "").strip("\"'")
     if len(seo) > 70:

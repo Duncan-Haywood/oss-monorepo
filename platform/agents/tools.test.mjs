@@ -201,13 +201,17 @@ test('every catalogue tool with an engine module is describable without a browse
   assert.ok(entries.length > 1000, `catalogue has ${entries.length} tools`);
   const failures = [];
   let callable = 0;
-  for (const t of entries) {
-    try {
-      const d = await describe(t.slug);
-      if (d.engines.some((e) => !e.skip && e.functions.length)) callable++;
-    } catch (e) {
-      failures.push(`${t.slug}: ${String(e?.message ?? e).split('\n')[0]}`);
-    }
+  // Batches of 16 overlap the file reads and module compiles; results are
+  // folded in catalogue order, so the failure list reads the same.
+  for (let i = 0; i < entries.length; i += 16) {
+    const batch = entries.slice(i, i + 16);
+    const results = await Promise.all(
+      batch.map((t) => describe(t.slug).then((d) => ({ d }), (e) => ({ e }))),
+    );
+    results.forEach((r, j) => {
+      if (r.e) failures.push(`${batch[j].slug}: ${String(r.e?.message ?? r.e).split('\n')[0]}`);
+      else if (r.d.engines.some((e) => !e.skip && e.functions.length)) callable++;
+    });
   }
   assert.deepEqual(failures, []);
   assert.ok(callable / entries.length > 0.95, `only ${callable} of ${entries.length} tools are callable`);

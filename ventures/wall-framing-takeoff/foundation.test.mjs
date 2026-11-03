@@ -190,3 +190,12 @@ test("malformed foundation bodies come back as errors, not exceptions", () => {
   }
   assert.equal(layoutFoundation({ ...b, anchorBolts: null }).ok, true);
 });
+
+test("validateFoundation refuses numbers given as text (a text waste made the order 10x too big)", () => {
+  const s = sampleFoundation();
+  for (const bad of [{ waste: "0.1" }, { width: "480" }, { truck: "10" }, { footing: { ...s.footing, width: "20" } }, { stem: { ...s.stem, height: "32" } }, { interior: [{ length: "336" }] }]) {
+    const e = validateFoundation({ ...s, ...bad });
+    assert.ok(e.length && /must be a number/.test(e[0]), JSON.stringify(bad));
+  }
+  assert.deepEqual(validateFoundation(s), []);
+});

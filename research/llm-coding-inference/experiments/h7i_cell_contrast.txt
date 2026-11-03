@@ -1,0 +1,20 @@
+NaijaSenti negative share, nb-in-language, 6000 tweets: prevalence 0.3272
+cell prevalence P(y=1 | coder+) = 0.5994 (cell share 0.314); P(y=1 | coder-) = 0.2028 (cell share 0.686)
+closed-form half-width ratio, Neyman cells / pooled: 0.9158 (observed 7h at n=1000: 0.9943 screened/pooled)
+
+ceiling sweep: half-width ratio (cells / pooled) by prevalence and informedness J, sens = spec = (1+J)/2
+prev \ J | 0.2 | 0.4 | 0.6 | 0.8
+0.005 | 0.980 | 0.917 | 0.800 | 0.600
+0.020 | 0.980 | 0.917 | 0.800 | 0.600
+0.050 | 0.980 | 0.917 | 0.800 | 0.600
+0.100 | 0.980 | 0.917 | 0.800 | 0.600
+0.200 | 0.980 | 0.917 | 0.800 | 0.600
+0.330 | 0.980 | 0.917 | 0.800 | 0.600
+0.500 | 0.980 | 0.917 | 0.800 | 0.600
+
+asymmetric coders (the rare-category case): half-width ratio by prevalence
+sens/spec | 0.005 | 0.02 | 0.1 | 0.33
+0.8/0.9 (J 0.70) | 0.707 | 0.707 | 0.707 | 0.707
+0.8/0.97 (J 0.77) | 0.595 | 0.595 | 0.595 | 0.595
+0.5/0.97 (J 0.47) | 0.819 | 0.819 | 0.819 | 0.819
+0.9/0.8 (J 0.70) | 0.707 | 0.707 | 0.707 | 0.707

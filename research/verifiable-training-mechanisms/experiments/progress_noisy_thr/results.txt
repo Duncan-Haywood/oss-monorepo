@@ -1,0 +1,8 @@
+adaptive stall T=200, threshold noise sigma=0.00, R=1.010: flagged  2 of 32, harmful 30, harmful and unflagged 28, median dL +0.0280, median stalled steps 78 of 200
+adaptive stall T=200, threshold noise sigma=0.01, R=1.010: flagged  1 of 32, harmful 26, harmful and unflagged 25, median dL +0.0229, median stalled steps 59 of 200
+adaptive stall T=200, threshold noise sigma=0.02, R=1.010: flagged  2 of 32, harmful 22, harmful and unflagged 20, median dL +0.0188, median stalled steps 51 of 200
+adaptive stall T=200, threshold noise sigma=0.05, R=1.010: flagged  4 of 32, harmful 16, harmful and unflagged 12, median dL +0.0093, median stalled steps 25 of 200
+adaptive stall T=200, threshold noise sigma=0.00, R=1.020: flagged  2 of 32, harmful 32, harmful and unflagged 30, median dL +0.0437, median stalled steps 141 of 200
+adaptive stall T=200, threshold noise sigma=0.01, R=1.020: flagged  1 of 32, harmful 29, harmful and unflagged 28, median dL +0.0397, median stalled steps 121 of 200
+adaptive stall T=200, threshold noise sigma=0.02, R=1.020: flagged  1 of 32, harmful 27, harmful and unflagged 26, median dL +0.0314, median stalled steps 89 of 200
+adaptive stall T=200, threshold noise sigma=0.05, R=1.020: flagged  1 of 32, harmful 20, harmful and unflagged 19, median dL +0.0230, median stalled steps 52 of 200

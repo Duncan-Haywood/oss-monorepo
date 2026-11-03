@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01XpHqydLt8E78wjgWfi2bhx",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "evaluating the things in this repo for the amount it could reasonably earn the actual mechanics of how the tool or set of tools could be monetive and gtm plans etc. / this is an ongoing thing",
+  "input_sha256": "0f45ab188df7997c602d764eeb8bef97541707dd7b3c7efa51af7d5429e04f6b",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T03:34:07Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "monetization and GTM evaluation of the ventures (user request)",
+  "projects": [
+    "portfolio/monetization"
+  ],
+  "pr": 12488,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "issue": "Section 6 still says the owner's instances take donations only; the 2026-10-31 merchant-of-record decision is recorded only in docs/reports and the decision queue, so a reader of the playbook alone gets the wrong revenue model."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Searching open PRs before starting did not catch a parallel session that began the same owner request minutes apart; both landed portfolio/monetization/. A claim file or a request-queue row (R-0004) checked at run start would have caught it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Did not follow the weighted route draw (creative); the user's request named the task, run recorded on the ventures track.",
+      "did": "ventures/1",
+      "result": "task done as asked"
+    },
+    {
+      "file": "prompts/runs (record schema)",
+      "why": "model field left null: the session's instructions forbid model identifiers in pushed artifacts."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-02-what-1325-free-tools-could-earn.md",
+    "portfolio/monetization/README.md"
+  ],
+  "goal": null,
+  "notes": "Checks run here: node --test portfolio/monetization/evaluate.test.mjs (7 pass); evaluate.mjs --check (26 evaluations, 15 categories, 10 flagships covered); check_post_frontmatter.py, check_md_links.py, check_code_refs.py clean. Wiring --check into portfolio-validate.yml is left for a separate control-plane PR. Consolidated with PR #12487, which landed portfolio/monetization/ (README, models.yaml, monetization.py) during this run: kept its README as the entry point, moved this run's write-up to SCENARIOS.md, cut einvoice-preflight's assumed conversion after its comparables, and listed the remaining disagreements in SCENARIOS.md.",
+  "corrections": [],
+  "redteam": null
+}

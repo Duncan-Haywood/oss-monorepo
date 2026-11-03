@@ -98,3 +98,7 @@ with `Status: 5.x.x` is a bounce of the address in `Final-Recipient` (not of
 `mailer-daemon`), `4.x.x` or `Action: delayed` pauses instead of bouncing, and
 `Auto-Submitted: auto-replied` or `X-Autoreply` is an auto-reply. Tested on
 hand-built messages in `agent.test.mjs`, not on a real mail server's output.
+
+## Call prep and follow-up (M7d, 2026-11-02)
+
+`POST /api/prep` with `{ "email": "lee@corp.example", "notes": "..." }` returns the call-prep brief built from the replies this agent has read from that person, its prospects table and your suppression list. `POST /api/followup` with the same fields and your call notes (one point per line) returns a follow-up draft for you to copy and approve. Both need the admin token, write an audit line, queue nothing and send nothing; anyone who asked to stop or is suppressed gets a warning and no draft. Tested against a fake IMAP server only.

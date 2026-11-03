@@ -32,6 +32,18 @@ export function validateFoundation(f) {
   for (const k of /** @type {const} */ (["interior", "piers"])) if (f[k] != null && !Array.isArray(f[k])) e.push(`${k} must be a list.`);
   for (const [k, list] of /** @type {const} */ ([["interior", f.interior], ["piers", f.piers], ["footing.steps", f.footing?.steps]])) if (Array.isArray(list) && list.some((x) => !isObj(x))) e.push(`Every entry in ${k} must be an object.`);
   if (e.length) return e;
+  // Real numbers only: a text "0.1" passed the range checks by coercion and `1 + waste` then made the order 10x too big.
+  const num = (/** @type {string} */ name, /** @type {any} */ o, /** @type {string[]} */ keys) => { for (const k of keys) if (o?.[k] != null && !(typeof o[k] === "number" && Number.isFinite(o[k]))) e.push(`${name}${k} must be a number.`); };
+  num("", f, ["width", "depth", "soilBearing", "waste", "truck", "price"]);
+  num("footing.", f.footing, ["width", "depth", "bars", "bar"]);
+  num("stem.", f.stem, ["height", "thickness", "bar", "spacing"]);
+  num("slab.", f.slab, ["thickness", "bar", "spacing", "baseThickness"]);
+  num("stem.walkout.", f.stem?.walkout, ["length", "extra", "maxStepRise"]);
+  num("anchorBolts.", f.anchorBolts, ["spacing", "endDistance", "plateStock"]);
+  for (const [i, x] of (f.interior || []).entries()) num(`interior ${i + 1} `, x, ["length", "width", "depth"]);
+  for (const [i, x] of (f.piers || []).entries()) num(`piers ${i + 1} `, x, ["count", "pad", "padDepth", "column", "columnHeight", "load", "bar"]);
+  for (const [i, x] of (f.footing?.steps || []).entries()) num(`footing.steps ${i + 1} `, x, ["rise", "length"]);
+  if (e.length) return e;
   const ft = { width: 16, depth: 8, bars: 2, bar: 4, ...f.footing };
   if (!(f.width >= 120 && f.width <= 2400)) e.push("Foundation width must be between 10 ft and 200 ft.");
   if (!(f.depth >= 120 && f.depth <= 2400)) e.push("Foundation depth must be between 10 ft and 200 ft.");

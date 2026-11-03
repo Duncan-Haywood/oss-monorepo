@@ -10,8 +10,10 @@ import { layoutFoundation, foundationText } from "./foundation.mjs";
 import { layoutDrywall, drywallText } from "./drywall.mjs";
 import { layoutInsulation, insulationText } from "./insulation.mjs";
 import { layoutTrim, trimText } from "./trim.mjs";
+import { layoutOpeningSchedule, openingScheduleText } from "./openingschedule.mjs";
 import { layoutSiding, sidingText } from "./siding.mjs";
 import { layoutEaves, eavesText } from "./eaves.mjs";
+import { layoutVentilation, ventilationText } from "./ventilation.mjs";
 import { layoutGutters, guttersText } from "./gutters.mjs";
 import { layoutDormer, layoutShedDormer, dormerText } from "./dormer.mjs";
 import { layoutFasteners, fastenerText } from "./fasteners.mjs";
@@ -21,8 +23,10 @@ import { resolveHeaders, headerText } from "./headers.mjs";
 import { gangOpenings } from "./ganged.mjs";
 import { drawingSetHtml } from "./drawings.mjs";
 import { drawingSetPdf } from "./pdf.mjs";
-import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
+import { panelMaxError, panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
 import { budget, budgetText, budgetCsv } from "./budget.mjs";
+import { proposal, proposalText } from "./bidletter.mjs";
+import { budgetDiff, diffText } from "./compare.mjs";
 import { levelBids, levelText } from "./bidlevel.mjs";
 import { scheduleRisk, riskText } from "./risk.mjs";
 import { schedule, scheduleText, scheduleCsv, resolveRates, templateSchedule } from "./schedule.mjs";
@@ -38,6 +42,7 @@ function layerOptions(argv) {
   return out;
 }
 import { planFromIfc } from "./ifc.mjs";
+import { misspeltPlanKeys, misspeltPlanKeysNote } from "./planKeys.mjs";
 import { takeoff, samplePlan, toCsv, formatLength, formatInches, parseLength } from "./engine.mjs";
 
 const HELP = `wall-framing-takeoff: stud layout, cut list and the cheapest lumber order for a set of walls
@@ -60,15 +65,19 @@ Usage:
   node cli.mjs plan.json --stairs    add the plan's stairs (plan "stairs": one object or a list of {totalRise, tread, stringer, width, treadBoard, floorThickness, openingLength}): equal risers under the code limit, notch geometry, stringers and treads, the stairwell opening the headroom needs; the lumber joins the order
   node cli.mjs plan.json --roof      add the plan's gable roof, or hip roof with shape "hip" (rafters, ridge, sheathing, shingle and felt quantities); its lumber joins the order
   node cli.mjs plan.json --fasteners   count nails by connection (plan fasteners: studEndNails, plateSpacing, edgeSpacing, nailsPerBox, price; add --sheathing for sheathing nails)
+  node cli.mjs plan.json --ventilation  size attic vents (IRC R806 net free area, 1/150 or 1/300) and count the ridge vent and soffit vents (needs a roof; plan ventilation: ratio, atticSqFt, ridgeVent, upperShare, ridgeNfaPerFt, soffitUnitNfa, soffitUnitWidth, ridgePrice, soffitPrice)
   node cli.mjs plan.json --gutters    add gutters, downspouts, hangers, caps and elbows along the roof's eaves (needs a roof; plan gutters: gutterStock, downspoutStock, eaveHeight, hangerSpacing, maxRunFeet, sqFtPerDownspout, strapSpacing, waste, and a price for each part)
   node cli.mjs plan.json --dormer     frame a gable dormer from plan.dormer: width, eaveHeight, pitch, mainPitch (defaults to the roof pitch), spacing, studSize, rafterSize, valleySize, ridgeSize, window {width, height, sill}
   node cli.mjs plan.json --eaves       add soffit panels, fascia boards and J-channel under the roof overhangs (needs a roof; plan eaves: panelWidth, panelStock, fasciaStock, channelStock, waste, rakeSoffit, panelPrice, fasciaPrice, channelPrice)
   node cli.mjs plan.json --siding      add exterior lap siding courses, house wrap and corner boards (plan siding: exposure, stock, waste, wrapRollSqFt, wrapLap, corners, cornerStock, height, boardPrice, wrapPrice, cornerPrice, style, boardWidth, openingTrim, trimWidth, trimStock, trimPrice)
   node cli.mjs plan.json --trim        add baseboard and door and window casing boards (plan trim: scarf, shoe, shoeStock, shoePrice, baseSides, baseStock, casingStock, casingWidth, reveal, waste, basePrice, casingPrice)
+  node cli.mjs plan.json --openings    print the door and window schedule: marks, counts, rough and unit sizes, header, sill height, where each sits (plan openingSchedule: unitAllowance, doorPrefix, windowPrefix)
   node cli.mjs plan.json --insulation  add wall-cavity insulation bags (measured from the framing placed; plan insulation: bagSqFt, rValue, waste, price)
   node cli.mjs plan.json --drywall     add interior drywall (inside faces, partitions both sides, optional ceilings; plan drywall: sheetLength, ceiling, price)
   node cli.mjs plan.json --foundation  add the plan's foundation (footing, stem wall and slab concrete, trucks, rebar, forms, gravel, vapor barrier)
   node cli.mjs plan.json --level-bids  line up the plan's "bids" (bidder, lines of item, qty, unitPrice or amount) against the budget lines: short quantities and left-out scope are priced at the bid's own, the plan's or the other bids' median price, else listed (add --json)
+  node cli.mjs plan.json --compare=revised.json  change order: each plan priced with its own "prices", then the budget difference line by line (add --json); pass the same flags the budget needs (--sheathing...)
+  node cli.mjs plan.json --proposal  customer letter from the budget: section prices with markup spread pro rata, plan "proposal" {client, project, date, validDays, inclusions, exclusions, terms, partial, payments [{name, pct}] adding to 100}; refused while any line is unpriced (add --json)
   node cli.mjs plan.json --budget    price the quantities with the plan's own "prices" (sheets, bundles, concrete, rebar...); lumber uses the stock prices; anything without a price is listed, not guessed (add --csv for a spreadsheet file, --json for the data)
   node cli.mjs --schedule-template   a starter activity list (order and predecessors, every duration 0) to paste into a plan as "schedule"
   node cli.mjs plan.json --risk      Monte Carlo finish dates (P50/P80/P90, chance of the deadline) from min/max days on the schedule activities
@@ -109,16 +118,35 @@ function normalise(plan) {
   return plan;
 }
 
+let keyNote = "";
+
+/** Runs the CLI; a text report (not JSON, which must stay parseable) gets a note on misspelt plan keys. */
 export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8")) {
+  const r = runMain(argv, readInput);
+  if (keyNote && typeof r.out === "string" && !/^\s*[\[{]/.test(r.out)) return { ...r, out: keyNote + r.out };
+  return r;
+}
+
+function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8")) {
   const args = argv.filter((a) => !a.startsWith("--"));
   const flags = new Set(argv.filter((a) => a.startsWith("--")));
   const rimLap = Math.max(0, parseLength(argv.find((a) => a.startsWith("--rim-lap="))?.slice(10) ?? "0") || 0);
   if (flags.has("--help") || flags.has("-h")) return { code: 0, out: HELP };
+  // A mistyped size must stop the run, not quietly turn the feature off (a "--panel-max=zzz" used to print the plain order).
+  for (const [flag, kind] of [["--rim-lap=", "length"], ["--panel-max=", "length"], ["--sheathing-psf=", "number"]]) {
+    const raw = argv.find((a) => a.startsWith(flag))?.slice(flag.length);
+    if (raw === undefined) continue;
+    const v = kind === "length" ? parseLength(raw) : (/^\s*\d+(\.\d+)?\s*$/.test(raw) ? Number(raw) : NaN);
+    if (!Number.isFinite(v) || v < 0) return { code: 1, out: `${flag}${raw} is not a ${kind === "length" ? "length such as 4ft or 9.25in" : "number of pounds per square foot"} (zero or more).` };
+  }
+  const pm = argv.find((a) => a.startsWith("--panel-max="))?.slice(12);
+  if (pm !== undefined && parseLength(pm) > 0 && panelMaxError(parseLength(pm))) return { code: 1, out: `--panel-max=${pm}: ${panelMaxError(parseLength(pm))}.` };
   if (flags.has("--schedule-template")) return { code: 0, out: JSON.stringify(templateSchedule(), null, 2) };
   if (flags.has("--example")) return { code: 0, out: JSON.stringify(samplePlan(), null, 2) };
   if (!args.length) return { code: 2, out: HELP };
   let plan;
   let dxfNotes = "";
+  keyNote = "";
   try {
     if (/\.(dxf|ifc)$/i.test(args[0])) {
       const units = argv.find((a) => a.startsWith("--units="))?.slice(8);
@@ -128,7 +156,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
       if (flags.has("--plan-only")) return { code: 0, out: JSON.stringify(r.plan, null, 2) + `\n\nNotes (not part of the JSON):\n${note}` };
       plan = normalise({ ...samplePlan(), ...r.plan });
       dxfNotes = `Read ${r.stats.walls} walls (${r.stats.exterior} exterior, ${r.stats.interior} interior), ${r.stats.tees} tees, ${r.stats.openings} openings from ${args[0]}:\n${note}\n\n`;
-    } else plan = normalise(JSON.parse(readInput(args[0])));
+    } else { const raw = JSON.parse(readInput(args[0])); keyNote = misspeltPlanKeysNote(misspeltPlanKeys(raw)); plan = normalise(raw); }
   } catch (e) {
     return { code: 2, out: `Could not read the plan: ${e instanceof Error ? e.message : e}` };
   }
@@ -222,6 +250,11 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     if (!trim.ok) return { code: 1, out: `The trim has problems:\n${trim.errors.map((e) => `  - ${e}`).join("\n")}` };
     r.trim = trimmed = trim;
   }
+  if (r.ok && (flags.has("--openings") || plan.openingSchedule)) {
+    const os = layoutOpeningSchedule(plan.openingSchedule || {}, plan);
+    if (!os.ok) return { code: 1, out: `The opening schedule has problems:\n${os.errors.map((e) => `  - ${e}`).join("\n")}` };
+    r.openingSchedule = os;
+  }
   let sided = null;
   if (r.ok && (flags.has("--siding") || plan.siding)) {
     const siding = layoutSiding(plan.siding || {}, plan);
@@ -233,6 +266,12 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     const eaves = layoutEaves(plan.eaves || {}, roof);
     if (!eaves.ok) return { code: 1, out: `The eaves have problems:\n${eaves.errors.map((e) => `  - ${e}`).join("\n")}` };
     r.eaves = eaved = eaves;
+  }
+  let vented = null;
+  if (r.ok && (flags.has("--ventilation") || plan.ventilation)) {
+    const vent = layoutVentilation(plan.ventilation || {}, roof);
+    if (!vent.ok) return { code: 1, out: `The attic ventilation has problems:\n${vent.errors.map((e) => `  - ${e}`).join("\n")}` };
+    r.ventilation = vented = vent;
   }
   let guttered = null;
   if (r.ok && (flags.has("--gutters") || plan.gutters)) {
@@ -251,7 +290,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (flags.has("--sheathing") || flags.has("--horizontal") || flags.has("--overhang") || rimLap > 0 || plan.sheathing) {
     const sheathing = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...(plan.sheathing || {}), ...(flags.has("--horizontal") ? { orientation: "horizontal" } : {}), ...(flags.has("--overhang") ? { overhang: true } : {}), ...(rimLap > 0 ? { rimLap } : {}) } }, r);
     const extra = nailerCuts(sheathing);
-    if (extra.length) { r = takeoff(plan, [...extra, ...shell()]); if (floor) r.floor = floor; if (deck) r.deck = deck; if (stairs.length) r.stairs = stairs; if (roof) r.roof = roof; if (foundation) r.foundation = foundation; if (drywall) r.drywall = drywall; if (insulation) r.insulation = insulation; if (trimmed) r.trim = trimmed; if (sided) r.siding = sided; if (eaved) r.eaves = eaved; if (guttered) r.gutters = guttered; if (dormered) r.dormer = dormered; } // nailers join the cut list and the lumber order
+    if (extra.length) { r = takeoff(plan, [...extra, ...shell()]); if (floor) r.floor = floor; if (deck) r.deck = deck; if (stairs.length) r.stairs = stairs; if (roof) r.roof = roof; if (foundation) r.foundation = foundation; if (drywall) r.drywall = drywall; if (insulation) r.insulation = insulation; if (trimmed) r.trim = trimmed; if (sided) r.siding = sided; if (eaved) r.eaves = eaved; if (vented) r.ventilation = vented; if (guttered) r.gutters = guttered; if (dormered) r.dormer = dormered; } // nailers join the cut list and the lumber order
     r.sheathing = sheathing;
   }
   if (r.ok && (flags.has("--fasteners") || plan.fasteners)) {
@@ -272,11 +311,25 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (flags.has("--schedule") && flags.has("--json")) return { code: 0, out: JSON.stringify(schedule(resolveRates(plan.schedule, r)), null, 2) };
   if (flags.has("--level-bids")) {
     if (!Array.isArray(plan.bids) || !plan.bids.length) return { code: 1, out: 'plan has no "bids" list (each: { bidder, lines: [{ item, qty, unitPrice | amount }] })' };
-    const lv = levelBids(budget(r, plan.prices || {}), plan.bids);
+    const lv = levelBids(budget(r, plan.prices || {}, plan.allowances || {}), plan.bids);
     return { code: lv.errors.length ? 1 : 0, out: flags.has("--json") ? JSON.stringify(lv, null, 2) : levelText(lv).join("\n") };
   }
-  if (flags.has("--budget") && flags.has("--csv")) return { code: 0, out: budgetCsv(budget(r, plan.prices || {})).trimEnd() };
-  if (flags.has("--budget") && flags.has("--json")) return { code: 0, out: JSON.stringify(budget(r, plan.prices || {}), null, 2) };
+  const cmp = argv.find((a) => a.startsWith("--compare="))?.slice(10);
+  if (cmp) {
+    // Each plan is priced with its own "prices"; copy the prices block into both to isolate a design change.
+    const rest = argv.filter((a) => !a.startsWith("--compare=") && a !== args[0] && a !== "--json" && a !== "--csv" && a !== "--budget");
+    const other = main([cmp, ...rest, "--budget", "--json"], readInput);
+    if (other.code !== 0) return { code: 1, out: `The revised plan has problems:\n${other.out}` };
+    const b2 = JSON.parse(other.out);
+    const d = budgetDiff(budget(r, plan.prices || {}, plan.allowances || {}), b2);
+    return { code: 0, out: flags.has("--json") ? JSON.stringify(d, null, 2) : ["CHANGE ORDER (revised minus original)", ...diffText(d)].join("\n") };
+  }
+  if (flags.has("--proposal")) {
+    const q = proposal(budget(r, plan.prices || {}, plan.allowances || {}), plan.proposal || {});
+    return { code: q.ok ? 0 : 1, out: flags.has("--json") ? JSON.stringify(q, null, 2) : proposalText(q).join("\n") };
+  }
+  if (flags.has("--budget") && flags.has("--csv")) return { code: 0, out: budgetCsv(budget(r, plan.prices || {}, plan.allowances || {})).trimEnd() };
+  if (flags.has("--budget") && flags.has("--json")) return { code: 0, out: JSON.stringify(budget(r, plan.prices || {}, plan.allowances || {}), null, 2) };
   if (flags.has("--json")) return { code: 0, out: JSON.stringify(r, null, 2) };
   if (flags.has("--csv")) return { code: 0, out: toCsv(r).trimEnd() };
   const s = r.summary;
@@ -306,12 +359,14 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (r.fasteners) lines.push("", "FASTENERS", ...fastenerText(r.fasteners));
   if (r.insulation) lines.push("", "INSULATION", ...insulationText(r.insulation));
   if (r.trim) lines.push("", "TRIM", ...trimText(r.trim));
+  if (r.openingSchedule) lines.push("", "DOOR AND WINDOW SCHEDULE", ...openingScheduleText(r.openingSchedule));
   if (r.siding) lines.push("", "SIDING", ...sidingText(r.siding));
   if (r.eaves) lines.push("", "SOFFIT AND FASCIA", ...eavesText(r.eaves));
+  if (r.ventilation) lines.push("", "ATTIC VENTILATION", ...ventilationText(r.ventilation));
   if (r.gutters) lines.push("", "GUTTERS AND DOWNSPOUTS", ...guttersText(r.gutters));
   if (r.dormer) lines.push("", "DORMER", ...dormerText(r.dormer));
   if (r.roof) lines.push("", "ROOF", ...roofText(r.roof));
-  if (flags.has("--budget")) lines.push("", "BUDGET", ...budgetText(budget(r, plan.prices || {})));
+  if (flags.has("--budget")) lines.push("", "BUDGET", ...budgetText(budget(r, plan.prices || {}, plan.allowances || {})));
   if (flags.has("--schedule")) lines.push("", "SCHEDULE", ...scheduleText(schedule(resolveRates(plan.schedule, r))));
   if (gangNotes.length) lines.push("", "GANGED OPENINGS", ...gangNotes.map((n) => `  - ${n}`));
   if (headers && (flags.has("--headers") || headers.notes.length)) lines.push("", "HEADERS", ...headerText(headers));

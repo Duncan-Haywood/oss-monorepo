@@ -1,0 +1,3 @@
+sigma 1.0 part none B 15: bohb minus random = +0.23 points [-0.23, +0.71] bootstrap over 40 cells; bohb lower in 18, higher in 18, sign test p 1.000
+sigma 1.0 part none B 25: bohb minus random = +0.42 points [+0.12, +0.71] bootstrap over 40 cells; bohb lower in 10, higher in 26, sign test p 0.011
+sigma 1.0 part none B 40: bohb minus random = +0.89 points [+0.60, +1.19] bootstrap over 40 cells; bohb lower in 2, higher in 34, sign test p 0.000

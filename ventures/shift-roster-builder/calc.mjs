@@ -245,6 +245,8 @@ export function parseStaff(text, { weekStart = null } = {}) {
     const minH = (c[3] || "") === "" ? 0 : Number(c[3]);
     if (!Number.isFinite(maxH) || maxH < 0) { errors.push(`${where} (${c[0]}): max hours is not a number`); return; }
     if (!Number.isFinite(minH) || minH < 0) { errors.push(`${where} (${c[0]}): min hours is not a number`); return; }
+    if (maxH > 168 || minH > 168) { errors.push(`${where} (${c[0]}): a week has only 168 hours, so ${maxH > 168 ? "max" : "min"} hours of ${maxH > 168 ? c[2] : c[3]} cannot be right`); return; }
+    if (wage > 10000) { errors.push(`${where} (${c[0]}): an hourly wage over $10,000 is probably a typo`); return; }
     if (staff.some((s) => s.name.toLowerCase() === c[0].toLowerCase())) { errors.push(`${where}: "${c[0]}" is listed twice`); return; }
     const tail = c.slice(4);
     const roles = tail.filter((x) => ROLE_CELL.test(x)).flatMap(parseRoles);
@@ -321,8 +323,9 @@ export function parseStaff(text, { weekStart = null } = {}) {
 export function parseShifts(text) {
   const slots = [], errors = [];
   const lines = String(text || "").split(/\r?\n/);
-  let first = true;
+  let first = true, overflow = false;
   lines.forEach((raw, i) => {
+    if (overflow) return;
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
     const c = splitLine(line);
@@ -347,13 +350,17 @@ export function parseShifts(text) {
     const fixedCell = c.slice(4).find((x) => FIXED_CELL.test(x));
     const fixedNames = fixedCell ? parseFixed(fixedCell) : [];
     if (fixedCell && !fixedNames.length) { errors.push(`${where}: "fixed:" needs a name`); return; }
+    if (slots.length + days.length * count > MAX_SLOTS * 4) { overflow = true; return; } // stop expanding a runaway file
     for (const d of days) for (let k = 0; k < count; k++) {
       const end = b <= a ? b + 1440 : b; // an end at or before the start runs overnight
       slots.push({ day: d, startMin: a, endMin: end, start: d * 1440 + a, end: d * 1440 + end, label, role: k < roleNeeded ? role : "", copy: k + 1, of: count, fixed: fixedNames[k] || "" });
     }
   });
   if (!slots.length && !errors.length) errors.push("Add at least one shift to cover.");
-  if (slots.length > MAX_SLOTS) errors.push(`That is ${slots.length} shifts to fill; this tool handles up to ${MAX_SLOTS}.`);
+  if (slots.length > MAX_SLOTS || overflow) {
+    errors.push(`That is ${overflow ? "more than " + MAX_SLOTS * 4 : slots.length} shifts to fill; this tool handles up to ${MAX_SLOTS}.`);
+    slots.length = 0; // never hand a solver an oversized week
+  }
   slots.sort((x, y) => x.start - y.start || x.end - y.end);
   slots.forEach((s, i) => { s.id = i; });
   return { slots, errors };
@@ -1676,6 +1683,51 @@ export function coverOptions(staff, slots, roster, slotIndex, options = {}) {
   return { slot, current: current >= 0 ? staff[current].name : null, fits, blocked };
 }
 
+// Least-disruption cover: `slotIndex` must change hands (a call-out, or an open shift) and `coverOptions` found nobody
+// who is free. Search chains of hand-overs, shortest first: someone takes the shift and gives up one of theirs, which a
+// third person takes (and so on), up to `maxMoves` shifts changing hands in all. Every person's list is re-checked
+// against every hard rule after each hand-over; people who are not in the chain keep their shifts. Fewest shifts moved
+// first, then lowest payroll change. Searched exhaustively inside `maxMoves`, nothing claimed beyond it.
+export function coverChain(staff, slots, roster, slotIndex, options = {}, { maxMoves = 3, limit = 10 } = {}) {
+  if (!roster || !roster.owner || !slots[slotIndex]) return { error: "Build a roster first." };
+  const ctx = buildContext(staff, slots, { ...(roster.options || {}), ...options });
+  const owner0 = roster.owner;
+  const from = owner0[slotIndex];
+  const listOf = (own, p) => own.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0).sort((a, b) => slots[a].start - slots[b].start || a - b);
+  const payAll = (own, people) => [...people].reduce((t, p) => t + payroll(ctx, p, listOf(own, p)), 0);
+  const found = [];
+  const walk = (own, steps, touched, slot, banned) => {
+    const holder = own[slot];
+    const step = (p) => ({ slot: slots[slot], index: slot, from: holder >= 0 ? staff[holder].name : null, to: staff[p].name });
+    for (let p = 0; p < ctx.P; p++) {
+      if (p === holder || banned.has(p) || !ctx.elig[p][slot]) continue;
+      const base = listOf(own, p);
+      const t2 = new Set(touched); t2.add(p); if (holder >= 0) t2.add(holder);
+      if (validList(ctx, p, insertSorted(ctx, base, slot))) {
+        const next = own.slice(); next[slot] = p;
+        found.push({ moves: steps.length + 1, steps: [...steps, step(p)], extraCost: payAll(next, t2) - payAll(owner0, t2) });
+        continue;
+      }
+      if (steps.length + 2 > maxMoves) continue;
+      for (const t of base) {
+        if (t === slotIndex) continue;
+        if (!validList(ctx, p, insertSorted(ctx, base.filter((k) => k !== t), slot))) continue;
+        const next = own.slice(); next[slot] = p; // p still holds t until the next hand-over takes it
+        walk(next, [...steps, step(p)], t2, t, new Set([...banned, p]));
+      }
+    }
+  };
+  walk(owner0.slice(), [], new Set(), slotIndex, new Set(from >= 0 ? [from] : []));
+  found.sort((a, b) => a.moves - b.moves || a.extraCost - b.extraCost || a.steps[0].to.localeCompare(b.steps[0].to));
+  const seen = new Set(), chains = [];
+  for (const c of found) {
+    const key = c.steps.map((x) => x.index + ">" + x.to).join("|");
+    if (seen.has(key)) continue; seen.add(key); chains.push(c);
+    if (chains.length >= limit) break;
+  }
+  return { slot: slots[slotIndex], current: from >= 0 ? staff[from].name : null, chains };
+}
+
 // Seniority report: for every staffed shift, the more senior people (`seniority:` cell, higher = more senior) who could take
 // it from the junior holder with every hard rule still holding, with the payroll change and each side's hours. Shows where a
 // seniority-bidding rule or a union contract would ask for a different roster; the search does not apply it. Most senior first.
@@ -1841,7 +1893,7 @@ export function rosterCsv(r) {
 
 // iCalendar file for one week, so each person can import their own shifts. weekStart is "YYYY-MM-DD" and
 // must be a Monday; person limits the file to one name (default: everyone, with the name in the title).
-export function rosterIcs(r, weekStart, person = null) {
+export function rosterIcs(r, weekStart, person = null, { stable = false, bare = false } = {}) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(weekStart || ""));
   if (!m) throw new Error("weekStart must be YYYY-MM-DD");
   const base = Date.UTC(+m[1], +m[2] - 1, +m[3]);
@@ -1852,16 +1904,28 @@ export function rosterIcs(r, weekStart, person = null) {
     const p = (n) => String(n).padStart(2, "0");
     return `${d.getUTCFullYear()}${p(d.getUTCMonth() + 1)}${p(d.getUTCDate())}T${p(d.getUTCHours())}${p(d.getUTCMinutes())}00`;
   };
-  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//shift-roster-builder//EN", "CALSCALE:GREGORIAN"];
+  const lines = bare ? [] : ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//shift-roster-builder//EN", "CALSCALE:GREGORIAN"];
   r.assignments.forEach((a, k) => {
     if (!a.person || (person && a.person !== person)) return;
     const s = a.slot;
     const title = (s.label || "Shift") + (s.role ? ` (${s.role})` : "") + (person ? "" : ` - ${a.person}`);
-    lines.push("BEGIN:VEVENT", `UID:roster-${weekStart}-${k}@shift-roster-builder`, `DTSTAMP:${stamp(0, 0)}Z`,
+    // A subscribed calendar matches events by UID: tie it to the shift, not its position in the list, so an edited week updates in place.
+    const uid = stable ? `${weekStart}-${a.person.replace(/[^A-Za-z0-9]+/g, "_")}-${s.day}-${s.startMin}-${s.endMin}-${(s.label || "").replace(/[^A-Za-z0-9]+/g, "_")}` : `${weekStart}-${k}`;
+    lines.push("BEGIN:VEVENT", `UID:roster-${uid}@shift-roster-builder`, `DTSTAMP:${stamp(0, 0)}Z`,
       `DTSTART:${stamp(s.startMin, s.day)}`, `DTEND:${stamp(s.endMin, s.day)}`, `SUMMARY:${esc(title)}`, "END:VEVENT");
   });
-  lines.push("END:VCALENDAR");
-  return lines.join("\r\n") + "\r\n";
+  if (!bare) lines.push("END:VCALENDAR");
+  return lines.length ? lines.join("\r\n") + "\r\n" : "";
+}
+
+// A calendar-subscription feed for one person across several published weeks ([{weekStart, assignments}]), so a phone
+// that subscribes once keeps showing past weeks and picks up each re-publish. Refresh hints are advisory; apps choose.
+export function rosterFeedIcs(weeks, person, { name = "My shifts" } = {}) {
+  const esc = (t) => String(t).replace(/([,;\\])/g, "\\$1").replace(/\n/g, "\\n");
+  const body = weeks.filter((w) => w && w.weekStart).sort((a, b) => a.weekStart.localeCompare(b.weekStart))
+    .map((w) => rosterIcs({ assignments: w.assignments }, w.weekStart, person, { stable: true, bare: true })).join("");
+  return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//shift-roster-builder//EN", "CALSCALE:GREGORIAN", `X-WR-CALNAME:${esc(name)}`,
+    "REFRESH-INTERVAL;VALUE=DURATION:PT1H", "X-PUBLISHED-TTL:PT1H"].join("\r\n") + "\r\n" + body + "END:VCALENDAR\r\n";
 }
 
 // "Mon" or, given the Monday as YYYY-MM-DD, "Mon 6 Oct".

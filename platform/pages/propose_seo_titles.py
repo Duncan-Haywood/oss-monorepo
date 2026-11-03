@@ -25,9 +25,12 @@ def cut(title):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--apply', action='store_true')
+    ap.add_argument('--check', action='store_true', help='exit 1 if any post is over budget with no seo_title')
     ap.add_argument('--limit', type=int, default=1000)
     a = ap.parse_args()
-    done = skipped = 0
+    done = 0
+    skipped = []
+    over = []
     for f in sorted(glob.glob(os.path.join(POSTS, '*.md')), reverse=True):
         text = open(f, encoding='utf-8').read()
         m = re.match(r'---\n(.*?)\n---\n', text, re.S)
@@ -43,17 +46,27 @@ def main():
             continue
         new = cut(title)
         if not new:
-            skipped += 1
+            skipped.append((os.path.basename(f), len(title), title))
             continue
         if done >= a.limit:
             break
         done += 1
+        over.append(os.path.basename(f))
         print(f'{os.path.basename(f)}\n  {title}\n  -> {new}')
         if a.apply:
             q = '"' + new.replace('\\', '\\\\').replace('"', '\\"') + '"'
             text = text[:m.start(1) + tm.end(0)] + f'\nseo_title: {q}' + text[m.start(1) + tm.end(0):]
             open(f, 'w', encoding='utf-8').write(text)
-    print(f'{done} proposed{" and written" if a.apply else ""}, {skipped} with no clean cut')
+    if a.check:
+        for name, n, title in skipped:
+            over.append(name)
+        if over:
+            print('over the title budget with no seo_title: ' + ', '.join(over))
+            raise SystemExit(1)
+        return
+    for name, n, title in skipped:
+        print(f'NO CLEAN CUT: {name} ({n} chars)\n  {title}')
+    print(f'{done} proposed{" and written" if a.apply else ""}, {len(skipped)} with no clean cut')
 
 
 main()

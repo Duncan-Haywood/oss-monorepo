@@ -76,7 +76,8 @@ test('the siding layout above the lower panels has the sheets the list buys, nes
 });
 
 test('the 8x10 cuts its two gable strips from one panel, nested head to toe', () => {
-  const shed = buildShed(PRESETS['8x10']());
+  // LP panels (8, 9 and 10 ft): only the gable columns need strips. T1-11 is 4x8 only since 2026-11-01.
+  const shed = buildShed({ ...PRESETS['8x10'](), sidingType: 'LP SmartSide' });
   const lay = sidingUpperLayout(shed);
   assert.equal(shed.sidingUpper.length, 4);
   assert.equal(lay.sheets.length, 1);

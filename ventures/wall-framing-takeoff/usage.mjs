@@ -47,7 +47,9 @@ export function record(event) {
     current = {};
   }
   if (!current || typeof current !== "object" || Array.isArray(current)) current = {};
-  current[event] = (current[event] || 0) + 1;
+  const has = Object.prototype.hasOwnProperty.call(current, event);
+  const n = has && Number.isFinite(current[event]) ? current[event] : 0;
+  Object.defineProperty(current, event, { value: n + 1, enumerable: true, writable: true, configurable: true });
   try {
     localStorage.setItem(KEY, JSON.stringify(current));
   } catch {

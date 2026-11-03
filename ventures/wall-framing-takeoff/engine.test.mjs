@@ -22,7 +22,17 @@ function rng(seed) {
 test("lengths parse the way a framer writes them", () => {
   assert.equal(parseLength("12' 6-1/2\""), 150.5);
   assert.equal(parseLength("12ft 6in"), 150);
+  // curly quotes and one-glyph fractions from phone keyboards
+  assert.equal(parseLength("8\u2019 6\u201d"), 102);
+  assert.equal(parseLength("8\u2019"), 96);
+  assert.equal(parseLength("8' 6\u00bd\""), 102.5);
+  assert.equal(parseLength("5\u00be"), 5.75);
+  assert.equal(parseLength("\u215d\""), 0.625);
   assert.equal(parseLength("150 1/2"), 150.5);
+  // thousands separators: exact 3-digit groups only
+  assert.equal(parseLength("1,200"), 1200);
+  assert.equal(parseLength("1,200'"), 14400);
+  assert.ok(Number.isNaN(parseLength("1,5")));
   assert.equal(parseLength("92-5/8"), 92.625);
   assert.equal(parseLength("40'"), 480);
   assert.equal(parseLength("1/8"), 0.125);
@@ -821,10 +831,214 @@ test("sheathing: a gable wall joint over a wide opening gets a nailer note with 
   assert.deepEqual(s.gables.walls[0].check, []);
 });
 
+test("sheathing: gable nailers join the nailer lumber order and the cut list", () => {
+  const plan = { ...base(), studSpacing: 24, walls: [{ id: "G", length: 240, stud: "2x4", corner: false, gable: { pitch: 6, peak: 120 }, openings: [{ kind: "window", offset: 30, width: 120, height: 48, header: "2x10", headerHeight: 80 }] }] };
+  const r = takeoff(plan);
+  const s = sheathe({ ...plan, sheathing: defaultSheathing() }, r);
+  const pieces = s.gables.walls[0].nailerPieces;
+  assert.ok(pieces.length > 0 && pieces.every((p) => p.length > 0 && p.size === "2x4"));
+  const qty = s.nailerLumber.cuts.filter((c) => c.kind === "nailer").reduce((t, c) => t + c.qty, 0);
+  assert.equal(qty, pieces.length);
+  assert.equal(nailerCuts(s).reduce((t, c) => t + c.qty, 0), pieces.length);
+  assert.ok(s.nailerLumber.orders.length > 0 && s.nailerLumber.cost >= 0);
+  assert.ok(s.notes.some((n) => /added to the lumber order/.test(n)));
+});
+
 test("takeoff returns an error naming the piece when a header is longer than every board", () => {
-  const plan = { ...samplePlan(), walls: [{ id: "G", length: 480, stud: "2x4", corner: true, openings: [{ kind: "door", offset: 24, width: 192, height: 84, header: "2x10" }] }] };
+  const plan = { ...samplePlan(), walls: [{ id: "G", length: 480, stud: "2x4", corner: true, openings: [{ kind: "door", offset: 24, width: 192, height: 82.5, header: "2x10" }] }] };
   plan.stock = plan.stock.filter((s) => s.size !== "2x10" || s.length <= 192);
   const r = takeoff(plan);
   assert.equal(r.ok, false);
   assert.match(r.errors.join(" "), /longer than the longest/);
+});
+
+test("horizontal sheets: every course joint is backed by joint blocks, also with staggered blocking rows and an opening", () => {
+  const plan = { ...tallPlan(240, 140, [{ kind: "window", label: "W", offset: 100, width: 36, height: 30, header: "2x10", headerHeight: 60 }]), blocking: { rows: 1, stagger: true } };
+  const r = takeoff(plan);
+  assert.ok(r.ok, JSON.stringify(r.errors));
+  const sheets = [{ label: "4x8", width: 48, length: 96, price: 1 }];
+  const s = sheathe({ ...plan, sheathing: { ...defaultSheathing(), orientation: "horizontal", sheets } }, r);
+  assert.ok(s.ok, JSON.stringify(s.errors));
+  const w = s.walls[0];
+  assert.deepEqual(w.check, []);
+  assert.ok(s.jointYs.length >= 1);
+  // staggered blocks sit 1.5 in off their row line, so none counts as backing a joint: all joint bays get their own block
+  for (const y of s.jointYs) {
+    const { blocks } = jointBlocking(r.walls[0], plan.walls[0].openings, plan, y);
+    assert.ok(blocks.length > 0);
+    assert.ok(blocks.every((b) => b.size === "2x4" && b.length >= 1));
+  }
+  assert.equal(nailerCuts(s).filter((c) => c.kind === "sheathing joint block").reduce((t, c) => t + c.qty, 0), w.jointBlocks.length);
+});
+
+test("hostile plans are refused with a reason, not silently framed or thrown on", () => {
+  const bad = (edit) => { const p = samplePlan(); edit(p.walls[0]); return takeoff(p); };
+  for (const jacks of [-3, 1.5, 99]) {
+    const r = bad((w) => { w.openings[0].jacks = jacks; });
+    assert.ok(r.errors?.some((e) => /jacks must be a whole number/.test(e)), `jacks ${jacks}`);
+  }
+  for (const plies of [0, 1.5, 1e9]) {
+    const r = bad((w) => { w.openings[0].headerPlies = plies; });
+    assert.ok(r.errors?.some((e) => /header plies must be a whole number/.test(e)), `plies ${plies}`);
+  }
+  for (const kings of [-1, 1e9]) {
+    const r = bad((w) => { w.openings[0].kings = kings; });
+    assert.ok(r.errors?.some((e) => /kings must be a whole number/.test(e)), `kings ${kings}`);
+  }
+  const r = bad((w) => { w.length = 1e12; });
+  assert.ok(r.errors?.some((e) => /at most 12000 inches/.test(e)));
+});
+
+test("validatePlan refuses wrong-shaped walls, tees, openings and stock instead of throwing", () => {
+  const mk = (f) => { const p = samplePlan(); f(p); return p; };
+  const cases = [
+    [(p) => { p.walls[0].tees = 5; }, /"tees" must be a list/],
+    [(p) => { p.walls[0].openings = [null]; }, /"openings" must be a list of objects/],
+    [(p) => { p.walls[0].openings = "x"; }, /"openings" must be a list of objects/],
+    [(p) => { p.walls = [null]; }, /Wall number 1 must be an object/],
+    [(p) => { p.stock = [null]; }, /"stock" must be a list/],
+  ];
+  for (const [f, re] of cases) {
+    const p = mk(f);
+    let r;
+    assert.doesNotThrow(() => { r = takeoff(p); });
+    assert.equal(r.ok, false);
+    assert.ok(r.errors.some((e) => re.test(e)), String(r.errors));
+  }
+});
+
+test("parseLength reads metric lengths (mm, cm, m)", () => {
+  assert.ok(Math.abs(parseLength("2500mm") - 98.4252) < 1e-3);
+  assert.ok(Math.abs(parseLength("250 cm") - 98.4252) < 1e-3);
+  assert.ok(Math.abs(parseLength("2.5m") - 98.4252) < 1e-3);
+  assert.ok(Math.abs(parseLength("2,5 m") - 98.4252) < 1e-3);
+  assert.equal(parseLength("8 ft"), 96);
+  assert.ok(Number.isNaN(parseLength("5 mm x")));
+});
+
+test("backing stud counts must be whole numbers 0 to 6 (1e9 used to hang, -5 and 1.5 were accepted)", () => {
+  for (const key of ["cornerExtraStuds", "teeExtraStuds"]) {
+    for (const bad of [1e9, -5, 1.5, 7, NaN, "2"]) {
+      const p = samplePlan();
+      p[key] = bad;
+      const r = takeoff(p);
+      assert.equal(r.ok, false, `${key}=${bad}`);
+      assert.ok(r.errors.some((e) => /whole number from 0 to 6/.test(e)), String(r.errors));
+    }
+    for (const good of [0, 1, 2, 6]) {
+      const p = samplePlan();
+      p[key] = good;
+      assert.equal(takeoff(p).ok, true, `${key}=${good}`);
+    }
+  }
+});
+
+test("a tee wall inside an opening, or two tees listed on top of each other, is refused", async () => {
+  const { takeoff } = await import("./engine.mjs");
+  const mk = (tees) => ({
+    studSpacing: 16, studLength: 92.625, kerf: 0.125, topPlateLap: 24, defaultHeaderHeight: 82.5,
+    stock: [96, 120, 144, 168, 192].map((length) => ({ size: "2x4", length, price: 8 })).concat([{ size: "2x10", length: 96, price: 30 }, { size: "2x10", length: 192, price: 60 }]),
+    walls: [{ id: "A", length: 480, stud: "2x4", tees, openings: [{ kind: "door", label: "Entry", offset: 204, width: 38, height: 82.5, header: "2x10" }] }],
+  });
+  const inside = takeoff(mk([220]));
+  assert.equal(inside.ok, false);
+  assert.match(inside.errors.join(" "), /tee at 18' 4" falls inside the Entry/);
+  const dup = takeoff(mk([100, 100.5]));
+  assert.equal(dup.ok, false);
+  assert.match(dup.errors.join(" "), /closer than a stud thickness/);
+  assert.equal(takeoff(mk([100, 300])).ok, true);
+});
+
+test("validatePlan wants real numbers: strings, booleans, null and NaN are refused, not coerced or thrown", () => {
+  const plan = (edit) => { const p = samplePlan(); p.walls = [p.walls[0]]; edit(p); return p; };
+  for (const [name, edit] of [
+    ["studSpacing string", (p) => { p.studSpacing = "16"; }],
+    ["topPlateLap true", (p) => { p.topPlateLap = true; }],
+    ["kerf null", (p) => { p.kerf = null; }],
+    ["defaultHeaderHeight NaN", (p) => { p.defaultHeaderHeight = NaN; }],
+    ["defaultHeaderHeight text", (p) => { p.defaultHeaderHeight = "x"; }],
+    ["opening offset null", (p) => { p.walls[0].openings[1].offset = null; }],
+    ["opening offset text", (p) => { p.walls[0].openings[1].offset = "x"; }],
+    ["opening width string", (p) => { p.walls[0].openings[1].width = "72"; }],
+  ]) {
+    const r = takeoff(plan(edit)); // must not throw
+    assert.equal(r.ok, false, name);
+    assert.match(r.errors.join(" "), /must be a number of inches/, name);
+  }
+  assert.equal(takeoff(plan(() => {})).ok, true);
+  const noHeader = takeoff(plan((p) => { delete p.defaultHeaderHeight; }));
+  assert.equal(noHeader.ok, false);
+  assert.match(noHeader.errors.join(" "), /Default header height must be a number/);
+});
+
+test("blocking rows must be a whole number 0 to 20 and blocking an object (1e9 rows used to hang the takeoff)", () => {
+  const withBlocking = (blocking) => { const p = samplePlan(); p.blocking = blocking; return p; };
+  for (const [name, b] of [["1e9", { rows: 1e9 }], ["negative", { rows: -3 }], ["fraction", { rows: 1.5 }], ["string", { rows: "3" }], ["21", { rows: 21 }], ["text", "x"], ["list", [1]]]) {
+    const t = Date.now();
+    const r = takeoff(withBlocking(b));
+    assert.equal(r.ok, false, name);
+    assert.match(r.errors.join(" "), /[Bb]locking/, name);
+    assert.ok(Date.now() - t < 2000, `${name} refused quickly`);
+  }
+  for (const b of [undefined, null, {}, { rows: 0 }, { rows: 2, fire: true, stagger: true }, { rows: 20 }]) assert.equal(takeoff(withBlocking(b)).ok, true, JSON.stringify(b));
+});
+
+test("a lumber-list board over 1200 in is refused (1e9 used to throw a raw RangeError out of takeoff)", () => {
+  const p = samplePlan();
+  p.stock = p.stock.map((s) => ({ ...s, length: 1e9 }));
+  const r = takeoff(p); // must not throw
+  assert.equal(r.ok, false);
+  assert.match(r.errors.join(" "), /over 1200 inches/);
+  assert.equal(takeoff(samplePlan()).ok, true);
+});
+
+test("an opening kind other than window or door, and a door taller than its header height, are refused", () => {
+  const withOp = (f) => { const p = samplePlan(); f(p.walls[0].openings[0]); return takeoff(p); };
+  const kind = withOp((o) => { o.kind = "garage"; });
+  assert.equal(kind.ok, false);
+  assert.match(kind.errors.join(" "), /kind must be "window" or "door"/);
+  const tall = withOp((o) => { o.height = 500; }); // Entry door: header at 82.5 in, opening 500 in
+  assert.equal(tall.ok, false);
+  assert.match(tall.errors.join(" "), /below the floor/);
+  assert.equal(withOp((o) => { o.height = 82.5; }).ok, true);
+  assert.equal(takeoff(samplePlan()).ok, true);
+});
+
+test("a non-numeric headerHeight or tee is refused with a reason (headerHeight 'x' used to throw a raw error; a string tee passed by coercion)", () => {
+  const p = samplePlan();
+  p.walls[0].openings[0].headerHeight = "x";
+  const r = takeoff(p); // must not throw
+  assert.equal(r.ok, false);
+  assert.match(r.errors.join(" "), /headerHeight/);
+  const q = samplePlan();
+  q.walls[0].tees = ["20"];
+  const r2 = takeoff(q);
+  assert.equal(r2.ok, false);
+  assert.match(r2.errors.join(" "), /tee must be a number/);
+  assert.equal(takeoff(samplePlan()).ok, true);
+});
+
+test("redteam 2026-11-03: a single-ply header and a four-ply header are accepted, only 0 and 5 are refused", () => {
+  const ok = (plies) => { const p = samplePlan(); p.walls[0].openings[0].headerPlies = plies; return validatePlan(p); };
+  assert.deepEqual(ok(1).filter((e) => /header plies/.test(e)), []);
+  assert.deepEqual(ok(4).filter((e) => /header plies/.test(e)), []);
+  assert.ok(ok(5).some((e) => /header plies must be a whole number/.test(e)));
+});
+
+test("redteam 2026-11-03: a gable header is checked at the edge of its default jacks, to the eighth of an inch", () => {
+  const at = (h) => validatePlan({ ...base(), walls: [{ id: "G", length: 240, gable: { pitch: 6 }, openings: [{ kind: "window", label: "w", offset: 30, width: 30, height: 30, header: "2x8", headerHeight: h }] }] });
+  assert.deepEqual(at(101), []); // 1/8 in under the sloped plate at the header's low end
+  assert.ok(at(101.5).some((e) => /does not fit under the sloped top plate \(3\/8" too tall/.test(e)));
+
+});
+
+test("a wall id that is not non-empty text is refused (an object id used to pass and print [object Object])", () => {
+  for (const bad of [{ a: 1 }, 7, true, "  ", ["x"]]) {
+    const p = samplePlan();
+    p.walls[0].id = bad;
+    const r = takeoff(p);
+    assert.equal(r.ok, false, JSON.stringify(bad));
+    assert.match(r.errors.join(" "), /needs a name/);
+  }
+  assert.equal(takeoff(samplePlan()).ok, true);
 });

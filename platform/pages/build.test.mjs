@@ -5,6 +5,7 @@
 // still in its canonical tag. None of those turn anything red on their own —
 // the site builds fine and the visitor simply cannot get there.
 
+import { loadRequests } from '../../portfolio/requests/requests.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
@@ -134,11 +135,13 @@ import { normalizeBid, normalizeOutcome, stripForInjection } from './jobs.mjs';
 const BASE = 'https://example.test/site/';
 const VENTURES = path.join(REPO_ROOT, 'ventures');
 
+// Memoise the promise, not the result: when the build throws (a post with a
+// 164-character description did this on 2026-11-01), every later test awaits
+// the same rejection at once instead of each re-running a ~10 s build.
 let built;
-async function site() {
+function site() {
   if (!built) {
-    const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-build-'));
-    built = await buildSite({ outDir, baseUrl: BASE });
+    built = fs.mkdtemp(path.join(os.tmpdir(), 'pages-build-')).then((outDir) => buildSite({ outDir, baseUrl: BASE }));
   }
   return built;
 }
@@ -305,7 +308,9 @@ test('no page still points at the placeholder origin', async () => {
 
   const stale = [];
   for (const file of textFiles) {
-    if ((await fs.readFile(file, 'utf8')).includes('example.invalid')) {
+    // The origin, not the bare host: a changelog line quoting a merge titled
+    // "... example.invalid placeholders" is prose, not a leaked URL.
+    if ((await fs.readFile(file, 'utf8')).includes('https://example.invalid')) {
       stale.push(path.relative(outDir, file));
     }
   }
@@ -382,7 +387,9 @@ test('relative links inside each tool resolve', async () => {
       const html = stripRawText(await fs.readFile(file, 'utf8'));
       const refs = [...html.matchAll(/(?:href|src)="([^"#?]+)"/g)]
         .map((m) => m[1])
-        .filter((r) => !/^(https?:|mailto:|data:|\/\/|#)/.test(r) && r !== '');
+        // tel: is a scheme, not a path: monastery-site's example communities
+        // print their phone number as a tap-to-call link.
+        .filter((r) => !/^(https?:|mailto:|tel:|data:|\/\/|#)/.test(r) && r !== '');
 
       for (const ref of refs) {
         // The site header links deploy/ and dev/, which publish-branch.sh
@@ -779,8 +786,8 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const { surfaces } = await site();
   const bullets = (await read('llms-full.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Eleven trailing bullets (the first links the other llms file) under "Optional" describe the site's own surfaces
-  // rather than a tool — About, open custom development, Ask, updates and the changelog, the comparison
+  // Twelve trailing bullets (the first links the other llms file) under "Optional" describe the site's own surfaces
+  // rather than a tool — About, open custom development, Ask, updates, the changelog and the work queue, the comparison
   // index, the guides index, catalog.json, the agent CLI, the sitemap and the
   // Atom feed, plus the agent-to-agent blog once `docs/agent-posts/` has a
   // post. Above the tools, one bullet per audience page; below them, one per
@@ -788,7 +795,7 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const audiences = audienceGroups(surfaces).length;
   const topics = researchHighlights().themes.length;
   const agentBlog = loadPosts(undefined, AGENT_POSTS_DIR).length ? 1 : 0;
-  assert.equal(bullets.length, surfaces.length + 11 + audiences + topics + agentBlog);
+  assert.equal(bullets.length, surfaces.length + 12 + audiences + topics + agentBlog);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -1484,7 +1491,7 @@ test('categories route each slug shape somewhere sensible', () => {
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 15, 'the fourteen named sections plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 16, 'the fifteen named sections plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
@@ -3263,17 +3270,9 @@ test('the cache name carries the build, so a deploy cannot serve a stale mix', a
   assert.match(sw, /key !== CACHE/);
 });
 
-test('an identical build produces an identical cache name', async () => {
-  // One independent build compared with the suite's shared one: two builds in
-  // different temp directories, which is all the old pair of fresh builds
-  // proved, at the cost of one full build instead of two.
-  const a = await site();
-  const second = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-sw-b-'));
-  const b = await buildSite({ outDir: second, baseUrl: BASE });
-  assert.notEqual(a.outDir, b.outDir);
-  assert.equal(a.offline.cacheName, b.offline.cacheName, 'the hash must not depend on build order or paths');
-  await fs.rm(second, { recursive: true, force: true });
-});
+// 'an identical build produces an identical cache name' lives in
+// build-determinism.test.mjs: it needs a second full build, and in its own
+// file that build runs beside this file's instead of after it.
 
 test('the worker only ever touches same-origin GETs', async () => {
   const sw = await read('sw.js');
@@ -4758,7 +4757,7 @@ test('the About page documents the embed feature that #2561 shipped, not just th
   assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
-test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask, custom development, /compare/, /research/, Stories, updates, the changelog and /guides/, and nothing else', () => {
+test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask, custom development and its request pages, /compare/, /research/, Stories, updates, the changelog, the work queue and /guides/, and nothing else', () => {
   const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   // About, the comparison index and the guides index are hub-level pages
@@ -4772,11 +4771,14 @@ test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask
     `${BASE}about/`,
     `${BASE}ask/`,
     `${BASE}custom-development/`,
+    // Each request's own page, one per entry in portfolio/requests/requests.json.
+    ...loadRequests().map((r) => `${BASE}custom-development/${r.id}/`),
     `${BASE}${COMPARE_PATH}`,
     `${BASE}${RESEARCH_PATH}`,
     `${BASE}stories/`,
     `${BASE}updates/`,
     `${BASE}changelog/`,
+    `${BASE}queue/`,
     `${BASE}${GUIDES_PATH}`,
   ]);
 

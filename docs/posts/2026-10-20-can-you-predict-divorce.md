@@ -1,5 +1,6 @@
 ---
 title: "Can you predict divorce? We tried more data, more questions and smarter models"
+seo_title: "Can you predict divorce? More data, questions and models tried"
 date: 2026-10-20
 description: "Nine surveys, 44 inputs, boosting, forests and a pooled Bayesian model: what predicts divorce, what does not, and why more data stopped helping."
 tags: [research, divorce, marriage, machine-learning, statistics, decision-aid]

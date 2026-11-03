@@ -139,3 +139,22 @@ test('formatQuoteBreakdown never throws on an empty result', () => {
   const r = computeJobQuote({ devices: [] });
   assert.doesNotThrow(() => formatQuoteBreakdown(r));
 });
+
+// Red-team 2026-11-03: guards for mutants that escaped.
+test('a zero percent discount on a single device adds no discount note', () => {
+  const r = computeJobQuote({ devices: [{ testFee: 75 }], additionalDeviceDiscountPercent: 0 });
+  assert.ok(!r.findings.some((f) => f.id === 'single-device-no-discount'));
+});
+
+test('a one-dollar device is kept, only zero-fee rows are dropped', () => {
+  const r = computeJobQuote({ devices: [{ testFee: 1 }, { testFee: 0 }] });
+  assert.equal(r.deviceCount, 1);
+  assert.equal(r.subtotalTesting, 1);
+});
+
+test('sub-dollar amounts print without a minus sign', () => {
+  const r = computeJobQuote({ devices: [{ testFee: 0.5 }] });
+  const text = formatQuoteBreakdown(r);
+  assert.match(text, /\$0\.50 test/);
+  assert.ok(!text.includes('-$0.50'));
+});

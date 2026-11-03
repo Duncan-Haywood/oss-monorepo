@@ -28,8 +28,7 @@ LOGCHECKS = [  # figures that exist in LOG.md outcomes (the results files print 
     "1.29 to 1.45", "0.37 to 0.52", "6.5% faster", "97%",
     "76 at every true slope scale", "67 of the 78 designs keep every gust peak", "84 to 86% at sigma 2%",
     "0.33%, 0.70%, 4.45%", "66 of 78", "63, 51, 0, 0",
-    "19.1% then 0.74%", "144 (LS start) against 9", "0.07, 0.65, 1.38%", "86.4 J/m [81.2, 91.5]", "77.4% [73.8, 80.8]", "153.8 against 60.1", "9.6 kJ [8.9, 10.3]", "384 J per metre",
-]
+    "19.1% then 0.74%", "144 (LS start) against 9", "0.07, 0.65, 1.38%", "86.4 J/m [81.2, 91.5]", "77.4% [73.8, 80.8]", "153.8 against 60.1", "9.6 kJ [8.9, 10.3]", "384 J per metre", "0.26, 1.51, 2.55", "0.25, 1.21, 1.63", "median 0.878", "0.07, 0.67, 1.51%", "0.16, 1.57, 2.43", "0.21, 1.39, 2.56", "0.20, 1.30, 1.94", "median 0.623", "+28.6%, +24.4%, +25.9%", "Best worst-case over the three L: 14.8%", "0.15, 1.34, 2.36", "phi1 median 1.173", "0.845, 5th to 95th percentile 0.821 to 0.868", "-38.0%, -49.3%, -52.6%", "+34.2%, +9.8%, -9.1%", "+183.5%, +112.6%, +33.5%", "best worst case 51.0%", "0.28 to 0.70 deg/s", "0.096"]
 bad = 0
 for path, needle, claim in CHECKS:
     text = (HERE / path).read_text()

@@ -81,3 +81,8 @@ test('the table maps every name to a single rendered character', () => {
     assert.equal([...value].length, 1, `${name} must map to exactly one character`);
   }
 });
+
+test('named references containing digits decode, including digits 2-9', () => {
+  assert.equal(decodeEntities('m&sup2; and m&sup3;'), 'm² and m³');
+  assert.equal(decodeEntities('&frac12; &frac34;'), '½ ¾');
+});

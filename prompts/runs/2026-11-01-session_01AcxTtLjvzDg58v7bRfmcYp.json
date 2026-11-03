@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01AcxTtLjvzDg58v7bRfmcYp",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T15:10:13Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12356",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/tests",
+      "issue": "pytest needs PYTHONPATH=src; not stated in the README/CLAUDE.md"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post: the step was a small model-scope check, not a new finding.",
+      "did": "skipped post",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "research/heavy-hydraulics/LOG.md 3o",
+    "research/heavy-hydraulics/paper/draft.md section 3.5"
+  ],
+  "goal": null,
+  "notes": "Small step: showed the compensator next-step is subsumed by dp_ls (test + log + paper note). No new sweep; thin value.",
+  "corrections": [],
+  "redteam": null
+}

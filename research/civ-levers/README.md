@@ -191,8 +191,22 @@ global media culture met with probability B per step (Shibanai, Yasuno and Ishig
 - Axelrod's base case (F 5, q 10, 10 x 10): 4.55 +- 0.36 regions (300 runs) against his 3.2.
   Higher; his sample and counting rule may differ. Not matched.
 
+- **Size scaling (compiled core, `experiments/culture/scaling.py`, `src/civ_levers/axelrod.c`).**
+  A C port of the same rule (it matches the Python model on the base case and the F = 3
+  transition: `tests/test_axelrod_c.py`) runs lattices to L = 80. The transition is sharp and
+  moves up slowly with size. F = 10, S = 0.5 crossing: q = 43 (L = 20), 50 (L = 40), 55 (L = 80);
+  F = 3: q = 8.9, 11.1, 13.2 (L = 16, 32, 64). 8 runs per cell, so intervals are narrow only
+  where the cells are steep (`scaling_results.txt`). This is **still not Castellano, Marsili and
+  Vespignani's q_c of about 300** for F = 10: at q = 80 to 400 every lattice is fragmented
+  (S under 0.03) at all three sizes. The growth with L is too slow to reach 300 by L = 150 if
+  it is logarithmic, and I did not run L = 150 or check their definition of q_c, their lattice
+  boundary or the exact q grid, so I report a disagreement with a number I read in the paper,
+  not a refutation. The earlier "q about 30 to 50 on small lattices" is the finite-size end of
+  this curve.
+
 F, q, B and the single global media culture are chosen, not measured; the finding is about
-simulated agents. Next: noise, and the L = 50 to 150 runs (a compiled core would be needed).
+simulated agents. Next: L = 150 and more runs per cell, noise (Klemm et al. 2003), and
+contacting the paper's setup (periodic boundaries, q grid) to explain the factor of five.
 
 ## Follow-up: public goods with peer punishment (`experiments/commons/`, `src/civ_levers/commons.py`)
 
@@ -264,3 +278,7 @@ Milestone 7 of track 24 (Turchin 2003; Turchin and Nefedov 2009). A fixed-land e
 
 
 **Second run (lags, `experiments/history/lag_results.txt`):** adding a generational delay to elite recruitment (`lag`) and a delay to political stress (`plag`) gives oscillations with a period in the 150 to 400 year band in up to 23 of 54 cells (lag 200 years), none at lag 50 or below. But the largest population swing in any of 1350 cells is 8.9% of the mean (most under 3%) with no unrest, so the period check passes and the amplitude check fails: delay alone does not make secular cycles. Next is a collapse reset. See `LOG.md` (2026-10-31).
+
+## Likert agents and a pluggable policy (milestone 8, stub only)
+
+`src/civ_levers/llmsociety.py` runs the same societies and levers with opinions on a 7-point scale and a policy that returns -1, 0 or +1 per meeting. The default policy is a deterministic stub; set `CIV_LLM_POLICY=module:callable` to use a real model (not called anywhere in this repository). Result (`experiments/llmsociety/results.txt`): rounding to 7 levels alone breaks the ladder (0 of 10 merged), and decision noise of 0.2 merges all societies with no lever, so a model run must be read against its own no-lever baseline. See `LOG.md`, 2026-11-02.

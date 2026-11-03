@@ -389,7 +389,25 @@ def extrusions(p: Feeder) -> list[Part]:
                         spec=f"2040 T-slot, cut {ln:.0f} mm, M5 tapped both ends",
                         notes="Stands on the deck (20 mm along the net's x); carries the hopper shelf. "
                               "Its top is level, touching the shelf at the net-side edge: shim the other edge. "
-                              "Brace the four posts before filling the tub (not modelled)."))
+                              "Braced by the hopper_brace parts."))
+    # Diagonal braces, 2020 on the outer faces so they clear the posts: x braces (one per side) stop
+    # sway toward and away from the net, the y brace (behind the rear pair) stops sway along it.
+    (xa, xz), (xb, xzb) = p.brace_ends("x")
+    ang_x = math.degrees(math.atan2(xzb - xz, xb - xa))
+    out.append(Part("hopper_brace_x", "stock", "aluminium extrusion", 2, Box(p.brace_len("x"), 20, 20),
+                    [Location(((xa + xb) / 2, sy * (p.shelf_post_y + 20 + 10), (xz + xzb) / 2), (0, -ang_x, 0))
+                     for sy in (-1, 1)],
+                    spec=f"2020 T-slot, cut {p.brace_len('x'):.0f} mm, ends mitred to {90 - abs(ang_x):.0f} deg",
+                    notes="Outside each side pair of posts, rear foot to front head; a 2020 corner bracket "
+                          "or a gusset at each end (M5), tightened before the tub is filled."))
+    (ya, yz), (yb, yzb) = p.brace_ends("y")
+    ang_y = math.degrees(math.atan2(yzb - yz, yb - ya))
+    out.append(Part("hopper_brace_y", "stock", "aluminium extrusion", 1, Box(20, p.brace_len("y"), 20),
+                    [Location((p.post_rear_x - 20, (ya + yb) / 2, (yz + yzb) / 2), (ang_y, 0, 0))],
+                    spec=f"2020 T-slot, cut {p.brace_len('y'):.0f} mm, ends mitred to {90 - abs(ang_y):.0f} deg",
+                    notes="Behind the rear posts, left foot to right head, out of the head's swing (the head's "
+                          "rear reaches x = -560 mm at +45 deg). The shelf, bolted to all four posts, holds the front "
+                          "posts' heads to the rear pair in plan, so one brace braces the frame along the net."))
     out.append(Part("camera_bar", "stock", "aluminium extrusion", 1, Box(20, p.camera_bar_len, 20),
                     [Location((-10, 0, p.net_top - 30.0 - 60.0 + 20.0))],
                     spec=f"2020 T-slot, cut {p.camera_bar_len:g} mm",
@@ -508,6 +526,7 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         ("M4 x 10 socket cap screw (spigot)", 4, "hopper spigot to the shelf"),
         ("M5 x 16 button head (hopper)", 4 + 4, "posts to the deck (from below) and to the shelf"),
         ("M5 T-nut or tapped end (hopper)", 8, "posts, deck and shelf"),
+        ("2020 corner bracket with M5 screws and T-nuts", 6, "hopper braces, two per brace"),
         ("Hose clamp, 80-90 mm", 2, "hose at the spigot and the column socket"),
         ("25 mm strap, 1 m", 2, "tub to the shelf"),
     ]
@@ -556,6 +575,10 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
         f"hose: {p.hose_len:g} mm; chord {min(c for _, c, _ in chords):.0f} to {max(c for _, c, _ in chords):.0f} mm and "
         f"falls at least {min(s for _, _, s in chords):.0f} deg over the elevation range; "
         f"bows to a {p.hose_bow_radius():.0f} mm radius at its closest pose (hose allows {p.hose_min_bend:g})",
+        f"hopper frame: full tub {p.hopper_load_n:.0f} N; sway load {p.hopper_side_load_n:.0f} N; braces carry "
+        f"{p.brace_force_n('x'):.0f} N (x) and {p.brace_force_n('y'):.0f} N (y) against buckling loads of "
+        f"{p.brace_buckling_n('x'):.0f} and {p.brace_buckling_n('y'):.0f} N; a post alone buckles at {p.post_buckling_n():.0f} N "
+        f"(pinned ends, 2040 weak axis; section figures are assumptions)",
         f"net: {p.net_w:g} wide x {p.net_top - p.rail_top - 30:g} mm tall between the poles",
         f"wind: {p.wind_force_n:.0f} N on the net at {p.design_wind:g} m/s (solidity {p.net_solidity:g}, Cd {p.drag_coeff:g}); "
         f"ballast needed over the made-part mass (hopper posts, shelf and spigot not credited): {ballast:.0f} kg",
@@ -564,5 +587,5 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
     derived = {"wheel_gap_mm": p.wheel_gap, "ball_squeeze_mm": round(p.ball_d - p.wheel_gap, 1),
                "base_width_mm": round(width), "net_w_mm": p.net_w, "wind_force_n": round(p.wind_force_n, 1),
                "ballast_kg": round(ballast, 1), "hose_len_mm": p.hose_len,
-               "hose_bow_radius_mm": round(p.hose_bow_radius()), "tub_capacity_balls": p.tub_capacity(), "retain_pass_n": round(p.retain_pass_n, 1), "made_part_mass_kg": round(mass_g / 1000, 2)}
+               "hose_bow_radius_mm": round(p.hose_bow_radius()), "tub_capacity_balls": p.tub_capacity(), "hopper_load_n": round(p.hopper_load_n), "brace_x_n": round(p.brace_force_n("x")), "brace_y_n": round(p.brace_force_n("y")), "retain_pass_n": round(p.retain_pass_n, 1), "made_part_mass_kg": round(mass_g / 1000, 2)}
     return checks, derived

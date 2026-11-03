@@ -560,6 +560,9 @@ test("stringer bearing: end reaction over thickness x length against a typed Fc-
   assert.equal(checkStringer(base, c).fcPerp, null);
   const ok = checkStringer(base, { ...c, bearingFcPerp: 425 });
   assert.ok(Math.abs(ok.fcPerp - 52.91) < 0.01 && ok.bearingLength === 3.5 && ok.ok);
+  // minimum length = 277.78 / (1.5 x 425) = 0.4357 in
+  assert.ok(Math.abs(ok.minBearingLength - 0.4357) < 0.0001);
+  assert.equal(checkStringer(base, c).minBearingLength, null);
   const bad = checkStringer(base, { ...c, bearingFcPerp: 150, bearingLength: 1 });
   assert.ok(Math.abs(bad.fcPerp - 185.19) < 0.01 && !bad.ok && /Bearing stress 185 psi/.test(bad.warnings[0]));
   assert.equal(checkStringer(base, { ...c, bearingFcPerp: 50 }).errors.length, 1);
@@ -577,4 +580,45 @@ test("stringer notched support: reduced end shear (2/3) Fv b dn (dn/d)", () => {
   const bad = checkStringer(base, { ...c, notchedSupport: 3 });
   assert.ok(Math.abs(bad.notchCapacity - 175.14) < 0.01 && !bad.ok && /End shear 278 lb exceeds 175 lb/.test(bad.warnings[0]));
   assert.equal(checkStringer(base, { ...c, notchedSupport: 10 }).errors.length, 1);
+});
+
+test("stringer minimum throat: each check solved for depth, the largest governs", () => {
+  const base = { stringer: { spacing: 16, throat: 5, count: 3 }, run: 100 };
+  const c = { liveLoad: 40, deadLoad: 10, Fb: 1200, Fv: 180, E: 1400000 };
+  // w = 5.5556 lb/in, M = 6944.4 lb-in, V = 277.78 lb, limit = 100/240 = 0.41667 in
+  // bending sqrt(6*6944.4/(1.5*1200)) = 4.811; shear 1.5*277.78/(1.5*180) = 1.543; deflection cbrt(60*5.5556*1e8/(384*1.4e6*1.5*0.41667)) = 4.629
+  const r = checkStringer(base, c);
+  assert.ok(Math.abs(r.minThroat - 4.811) < 0.001 && r.minThroatGoverns === "bending");
+  // at the minimum throat bending stress equals the typed Fb
+  const at = checkStringer({ ...base, stringer: { ...base.stringer, throat: r.minThroat } }, c);
+  assert.ok(Math.abs(at.fb - 1200) < 1e-6);
+});
+
+test("validateStair refuses non-number inputs and zero limits instead of throwing", () => {
+  const base = sampleStair();
+  for (const bad of [{ tread: "10" }, { totalRise: "108" }, { width: "36" }, { treadThickness: -1 }, { treadThickness: "x" }, { openingLength: -5 }, { floorThickness: -2 }, { stringerSpacing: 1e-9 }, { limits: { maxRiser: 0 } }]) {
+    const r = layoutStair({ ...base, ...bad });
+    assert.equal(r.ok, false, JSON.stringify(bad));
+    assert.ok(r.errors.length > 0);
+  }
+  assert.equal(layoutStair(base).ok, true);
+});
+
+test("hostile landing and stair sizes are refused, not turned into billions of posts (2026-11-03)", async () => {
+  const { layoutLandingPosts, sizeLandingFootings } = await import("./stairs.mjs");
+  assert.throws(() => layoutLandingPosts(48, 48, 40, 1e-9), RangeError);
+  assert.throws(() => layoutLandingPosts(1e9, 48, 40, 96), RangeError);
+  assert.throws(() => layoutLandingPosts("48", 48, 40, 96), RangeError);
+  assert.equal(layoutLandingPosts(48, 48, 40, 96).count, 4); // normal case unchanged
+  assert.equal(sizeLandingFootings("48", 48, 96, { soilBearing: 1500 }).ok, false);
+  assert.equal(sizeLandingFootings(48, 48, 96, { soilBearing: "1500" }).ok, false);
+  assert.equal(sizeLandingFootings(48, 48, 1e-9, { soilBearing: 1500 }).ok, false);
+  assert.equal(sizeLandingFootings(48, 48, 96, { soilBearing: 1500, liveLoad: "40" }).ok, false);
+  assert.equal(sizeLandingFootings(48, 48, 96, { soilBearing: 1500 }).ok, true);
+  assert.equal(checkPostSlenderness("40", "4x4").ok, false);
+  assert.equal(checkPostSlenderness(-5, "4x4").ok, false);
+  assert.equal(checkPostSlenderness(40, "4x4").ok, true);
+  assert.ok(validateStair({ ...sampleStair(), treadThickness: 1e9 }).length > 0);
+  assert.ok(validateStair({ ...sampleStair(), nosing: 99 }).length > 0);
+  assert.deepEqual(validateStair(sampleStair()), []);
 });

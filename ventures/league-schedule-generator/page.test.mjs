@@ -58,7 +58,7 @@ test("every static input has a label and nothing is sent anywhere", () => {
 
 test("the module scripts import only local files, and the inline script parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./checkout.mjs", "./licence.mjs", "./printpack.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   assert.doesNotMatch(page("calc.mjs"), /^\s*import\s/m);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
@@ -810,4 +810,17 @@ test("the multi-division page has the four make-up checkboxes and passes them to
   const html = page("multi-division-league-schedule.html");
   for (const id of ["balance", "flip", "relocate", "swapNights"]) assert.ok(html.includes(`id="${id}"`), id);
   assert.match(html, /applyDivisionRainouts\(s, f\.rainouts, rainoutOptions\(f\)\)/);
+});
+
+test("multi-division page: reminder box feeds divisionsIcs alarmMinutes", () => {
+  const html = page("multi-division-league-schedule.html");
+  assert.match(html, /id="ics-alarm"/);
+  assert.match(html, /divisionsIcs\(last, \{ alarmMinutes:/);
+});
+
+test("multi-division page: results box feeds divisionsStandings and a CSV download", () => {
+  const html = page("multi-division-league-schedule.html");
+  for (const id of ["results", "points", "h2h", "show-standings", "dl-standings", "standings-out", "po-per", "po-wc", "show-playoffs", "playoffs-out"]) assert.ok(html.includes(`id="${id}"`), id);
+  assert.match(html, /divisionsStandings\(last, \$\("#results"\)\.value/);
+  assert.match(html, /divisionsStandingsCsv\(lastStandings\)/);
 });

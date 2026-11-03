@@ -2,6 +2,63 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-03 · Milestone 7m: `ceiling` docstring reworded (no experiment)
+- 7l's "Next" first item. `cell_ceiling` and `plan_audit` now say the ceiling is the gain over a pooled audit at lambda = 0 and an upper bound, not a forecast, citing 7l's measured 0.995 against the fitted-lambda pooled path. Behaviour unchanged; 22 tests pass.
+- Still open: a rare-category corpus where the fitted lambda is noisy (cells might win there).
+
+## 2026-11-03 · Milestone 7l: is 7k's shortfall the fitted lambda in the pooled design? (planned before running)
+- Why: 7k's open candidate. `experiments/h7l_fixed_lambda.py`: same corpus, coder (nb-in-language), n = 1000, pilot share 0.3, 1,000 draws; cells vs pooled intervals computed at lambda = 0, 1 and fitted, on the same draws.
+- **Prediction (before running):** cells/pooled half-width ratio is near the 7i ceiling (0.916) at lambda = 1 or 0, and near 1.0 only at fitted lambda. Refuted if the fitted-lambda ratio is under 0.97, or the fixed-lambda ratios are above 0.97.
+
+### Outcome (`experiments/h7l_fixed_lambda.txt`)
+- **Supported.** Cells/pooled ratio: 0.915 at lambda 0, 0.834 at lambda 1, 0.995 fitted. Cells are unaffected by lambda (the coder code is constant inside a cell), half-width 2.425 points. Pooled is 2.650 (lambda 0), 2.908 (lambda 1), 2.438 (fitted). Coverage 94.2 to 95.5% in all six cells.
+- Reading: the cell design's gain is the control variate that a fitted pooled lambda already provides. The 7i ceiling (0.916) matches the lambda = 0 comparison, so `ceiling` forecasts the gain over an uncorrected pooled audit, not over `audit_interval`'s pooled path. Cells win only if the pooled lambda is badly fitted.
+- Limits: one corpus, one coder, one n and pilot share, fixed corpus. Library docstring for `ceiling` not yet changed.
+- Next: reword the `ceiling` docstring to "gain over pooled at lambda 0"; a rare-category corpus where the fitted lambda is noisy.
+
+## 2026-11-02 · Milestone 7k: what fraction of the 7i ceiling do coder cells realise on NaijaSenti, against pilot share? (planned before running; a 20-draw smoke test of the script ran first, to check it executes)
+- Why: 7j's "Next". 7h realised 0.6% of an 8.4% ceiling; 7i said the shortfall is pilot and allocation cost but did not test it. `experiments/h7k_pilot_fraction.py`: n = 1000, forced cells (tau 0, guard 0) vs forced pooled on the same draws, pilot share 0.1, 0.2, 0.3, 0.5, 1,000 draws, nb-in-language coder (J 0.388, ceiling 0.916).
+- **Prediction (before running):** the realised fraction of the ceiling gain is under 50% at every pilot share, and the pilot share does not move it by more than 0.2 (the shortfall is not mainly pilot cost). Refuted if any share realises 50% or more, or if the fraction rises by more than 0.2 from share 0.1 to 0.5.
+- Coverage judged against 95% (+/- 1.4 points at 1,000 draws).
+
+### Outcome (`experiments/h7k_pilot_fraction.py`, 22 s; `experiments/h7k_pilot_fraction.txt`; 1,000 draws per cell)
+- **Prediction held, and sharper than expected.** Cells/pooled half-width ratio is 0.996, 0.994, 0.997, 0.995 at pilot share 0.1, 0.2, 0.3, 0.5 (half-widths 2.43 vs 2.44 points), so 3 to 7% of the 8.4% ceiling gain is realised at every share. The share moves it by 0.04, far under the 0.2 bar: **pilot cost does not explain the shortfall**, contrary to 7i's reading. Coverage 93.5 to 96.1% in all eight cells (pooled at share 0.3: 93.5%, 1.5 under, at the edge of binomial noise).
+- Not tested, so a candidate only: `audit_interval` applies the optimal control-variate weight lambda in the pooled design too, while the 7i ceiling compares against lambda = 1 residuals; pooled-with-lambda may already capture most of what cells offer. A check would be cells vs pooled at fixed lambda = 1 and at lambda = 0.
+- Consequence: `ceiling` in `plan_audit` overstates the realised gain by 14 to 30 times on this corpus at any pilot size, so it must not be read as a forecast. 7j's "Next" item on pilot size is closed; the lambda comparison is the open one.
+- Limits: one corpus, one coder, n = 1000, forced cells (tau 0, guard 0), fixed corpus.
+
+## 2026-11-02 · Milestone 7j: the 7i ceiling becomes library code (`cell_ceiling`, `pilot_ceiling`; planned before the tests ran; no sampling)
+- Why: 7i's "Next". A planner who is told "cells" at J = 0.39 should also be told the most cells can buy (8%), since 7h realised 0.6%.
+- Change: `llmci/audit_design.py` gains `cell_ceiling(sens, spec) = sqrt(s(1-c)) + sqrt((1-s)c)` (prevalence-free by 7i's identity) and `pilot_ceiling(y, f)`; `plan_audit` returns it as `"ceiling"`. The screen itself is unchanged, so the checked 6ak to 6am rule and every earlier coverage result stand. The "worth it below 0.9" threshold 7i floated is not wired in: no experiment here shows the ceiling predicts the realised gain, only one corpus where it overstates it by 14 times.
+- **Prediction (before running):** the new tests reproduce 7i's quoted ratios (0.917 at J 0.4, 0.600 at J 0.8, 0.595 for 0.8/0.97, 0.819 for 0.5/0.97) and agree with direct Neyman arithmetic at three prevalences to 1e-12. Refuted if any differs.
+- Outcome: held; 22 tests pass. My first bound for the pilot ceiling at sens 0.9 / spec 0.95 was wrong (exact 0.520, the pilot's estimate 0.560), fixed to a 0.4 to 0.7 band.
+- Limits: asymptotic; the pilot's sens and spec are noisy at about 36 labels per class (the ceiling is a point estimate, no interval); not yet checked against realised gain across pilot sizes.
+- Next: realised fraction of the ceiling against pilot size on NaijaSenti; a coder with J above 0.6; then decide the threshold from that, not from 7i's guess.
+
+## 2026-11-01 · Milestone 7i: why 7h's cells bought 0.6%: a closed-form ceiling on the coder-cell gain (planned before running; no sampling, arithmetic on the 7h corpus)
+- Why: 7h's "Next". 7h guessed the 6ag/6ai GoEmotions gains came from large prevalence contrast between cells. `experiments/h7i_cell_contrast.py` prints the cell prevalences of the 7h coder and the half-width ratio Neyman-cells over pooled implied by prevalence, sensitivity and specificity (no pilot cost, no finite-population correction).
+- **Prediction (before running):** the ceiling at the 7h coder is at least 5% narrower than pooled (ratio <= 0.95), so the observed 0.6% is mostly lost to the pilot-estimated allocation, and the ceiling grows as prevalence falls (the 7h guess). Refuted if the ceiling is above 0.95, or if it does not vary with prevalence.
+
+### Outcome (`experiments/h7i_cell_contrast.txt`)
+- 7h coder: P(y=1 | coder+) 0.599 (share 0.314), P(y=1 | coder-) 0.203. Ceiling ratio 0.916 (8.4% narrower); observed screened/pooled 0.994. So the ceiling prediction held and most of the ceiling (about 7.8 of 8.4 points) is not realised.
+- **The prevalence half is refuted, by an identity.** Writing the Neyman sum out, w+ sd+ = sqrt(p s (1-p)(1-c)) and w- sd- = sqrt(p (1-s)(1-p) c), so ratio = sqrt(s(1-c)) + sqrt((1-s)c), independent of prevalence p. The sweep shows it (every prevalence from 0.5% to 50% gives the same ratio). For sens = spec it is close to sqrt(1-J^2) (J 0.4: 0.917; J 0.8: 0.600) and a coder with J near 0.4 can give at most 8% narrower intervals at any prevalence. Asymmetric coders: 0.8/0.97 gives 0.595, 0.5/0.97 gives 0.819.
+- Consequence: 7h's "lower prevalence" explanation is wrong; the GoEmotions gains of 15 to 25% came from coders with higher J (ratios 0.6 to 0.8 are reachable), and the 7h shortfall is the pilot and allocation cost, not the prevalence contrast. Not tested here: how much of the gap a larger pilot or a fixed 50/50 allocation recovers.
+- Limits: asymptotic, ignores pilot cost, finite-population correction and the coder's error structure; coder sens/spec taken as known; one real corpus for the cell prevalences.
+- Next: put the ceiling in `plan_audit` (a "worth it" threshold: cells only if the ceiling is under ~0.9); measure the realised fraction of the ceiling vs pilot size on NaijaSenti; a coder with J above 0.6.
+
+## 2026-11-01 · Milestone 7h: does the screened audit rule gain on NaijaSenti with an informative coder (corpus J of 0.3 or more)? (planned before running; a 20-draw smoke test of the script ran first, to check it executes)
+- Why: 7g's "Next". The zero-shot Qwen coders had J <= 0.2, so the cell gain was untested. The in-language naive-Bayes coder (trained on the NaijaSenti train split, no audit labels) has J near 0.39 (sens 0.575, spec 0.813, from `h3_nb-in-language.txt`). `experiments/h7h_informative_coder.py`: 6,000-tweet corpus, truth known, library path `plan_audit` -> draw -> `audit_interval` vs forced-pooled (tau = 2), n = 400 and 1000, 500 draws (coverage +/- 2 points). A fine-tuned encoder was not built; this is the stand-in already in the repo.
+- **Predictions:** (1) the screen picks cells in a majority of draws. (2) Screened is at least 5% narrower than pooled at n = 1000. (3) Coverage at least 93%. Refuted otherwise.
+
+### Outcome (`experiments/h7h_informative_coder.txt`; 500 draws)
+- Corpus prevalence 0.3272, corpus J 0.388, coder-positive share 0.314.
+- **(1) held:** cells chosen in 83% (n = 400) and 95% (n = 1000) of draws.
+- **(2) refuted:** half-width 4.048 vs 4.074 points (0.6% narrower) at n = 400 and 2.423 vs 2.437 (0.6%) at n = 1000. Cells are used but buy almost nothing, even at J = 0.39.
+- **(3) held:** screened coverage 95.0% and 94.6%; pooled 96.2% and 95.0%.
+- Reading: on this corpus, with prevalence about a third and a coder at J near 0.4, coder-cell stratification is not worth the complexity; the screen is safe (never worse, coverage fine) but the 15 to 25% gains of 6ag/6ai on GoEmotions did not transfer. Those came from large prevalence contrast between cells at lower overall prevalence; here the cell prevalences are not far enough apart (not measured directly this run).
+- Limits: one corpus, one stand-in coder, 500 draws, no coverage theorem.
+- Next: report cell prevalences for this coder to confirm the contrast explanation; a coder with J above 0.6 (fine-tuned encoder) on a rarer NaijaSenti category.
+
 ## 2026-11-01 · Milestone 7g: does the library audit rule gain on NaijaSenti once the Qwen threshold is tuned on a calibration slice? (planned before running)
 - Why: 6aj's "Next". At score > 0 the three zero-shot coders carry no signal (66 to 69% agreement against 67.3% for always answering "not negative"), so "the rule does not transfer" and "these coders are empty" were not separated. `experiments/h7g_tuned_threshold.py` takes the 6,000-tweet subsample, holds out a random third as a calibration slice (best-Youden-J threshold per Qwen model), and audits the other two thirds (4,000 tweets, truth known) with the library path `plan_audit` -> draw -> `audit_interval`, against the same draws forced to one pooled stratum (tau = 2). n = 400 and 1000, 500 draws per cell (coverage +/- 2 points).
 - **Predictions (before running):** (1) a tuned threshold lifts corpus J above 0.3 for at least the 3B coder, so the screen picks cells in a majority of draws there. (2) Where cells are used the screened design is at least 5% narrower than forced-pooled at n = 1000. (3) Coverage of the screened design is at least 93% in every cell. (4) For any coder with corpus J under 0.3 the screen picks pooled and matches forced-pooled within 1%.

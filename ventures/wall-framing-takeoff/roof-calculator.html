@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Roof calculator: rafters, sheathing and shingle squares for a gable or hip roof</title>
+  <meta name="description" content="Free roof calculator: type a house size, pitch and overhang and get rafter count and length, ridge, sheathing sheets, shingle squares and bundles for a gable or hip roof. Runs in your browser.">
+  <meta property="og:title" content="Roof calculator">
+  <meta property="og:description" content="House size, pitch and overhang in; rafters, sheathing and shingle bundles out. Private, free, in your browser.">
+  <link rel="canonical" href="./roof-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many squares of shingles do I need for a 24 x 40 ft gable roof?", "acceptedAnswer": {"@type": "Answer", "text": "For a 24 ft wide, 40 ft long house with a 6:12 pitch and 12 in overhangs on every side, the two planes come to 12.2 roofing squares (a square is 100 sq ft). At 3 bundles per square with 10% waste that is 41 bundles of shingles, plus 2 ridge cap bundles and 1 starter bundle."}}, {"@type": "Question", "name": "How long are the rafters for a 6:12 roof on a 24 ft wide house?", "acceptedAnswer": {"@type": "Answer", "text": "Each rafter is 173-9/16 in (14 ft 5-9/16 in) along the slope, counting a 12 in eave overhang and the room a 2x10 ridge board takes. The roof rises 72 in over the plates, and a 2x8 rafter cut with a 3-1/2 in seat has a plumb cut 1-9/16 in deep square to its edge, 22% of the board."}}, {"@type": "Question", "name": "How many sheets of roof sheathing does a roof need?", "acceptedAnswer": {"@type": "Answer", "text": "The same roof takes 44 sheets of 4 x 8 ft plywood or OSB for 1221 sq ft. The calculator lays courses up each slope with end joints staggered, so the count includes the offcuts you can reuse rather than dividing area by 32."}}, {"@type": "Question", "name": "What is not counted?", "acceptedAnswer": {"@type": "Answer", "text": "Valleys and cross wings, dormers, vents, flashing, nails, trusses and any check of rafter span against a table or code. Rafter size and spacing are what you type. Check the result against your plans and your supplier."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Roof calculator</h1>
+  <p>Type the house, the roof pitch and the overhangs. The framing engine's roof module places every rafter, cuts the sheathing courses up each slope and counts squares, bundles, felt and drip edge. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <div class="grid">
+      <div><label for="len">House length, along the ridge (ft, or 40' 0")</label><input id="len" value="40"></div>
+      <div><label for="wid">House width, eave wall to eave wall (ft)</label><input id="wid" value="24"></div>
+      <div><label for="shape">Roof shape</label><select id="shape"><option value="gable">Gable</option><option value="hip">Hip</option></select></div>
+      <div><label for="pitch">Pitch (rise in 12)</label><input id="pitch" type="number" step="0.5" value="6"></div>
+      <div><label for="oh">Eave overhang (in)</label><input id="oh" type="number" value="12"></div>
+      <div><label for="rake">Rake overhang (in, gable)</label><input id="rake" type="number" value="12"></div>
+      <div><label for="raf">Rafter size</label><select id="raf"><option>2x6</option><option selected>2x8</option><option>2x10</option><option>2x12</option></select></div>
+      <div><label for="sp">Rafter spacing (in)</label><select id="sp"><option>12</option><option selected>16</option><option>19.2</option><option>24</option></select></div>
+      <div><label for="waste">Shingle waste (%)</label><input id="waste" type="number" value="10"></div>
+    </div>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Add the roof to a whole-house framing takeoff</a></p>
+
+  <h2>The method</h2>
+  <ol>
+    <li><strong>Geometry.</strong> Run is half the width less half the ridge board; rafter length is (run + overhang) times the slope factor, the square root of 1 + (pitch/12)<sup>2</sup>, to the nearest 1/16 in.</li>
+    <li><strong>Rafters.</strong> One at each gable end, the others on your spacing; a hip roof adds hips and jack rafters.</li>
+    <li><strong>Sheathing.</strong> 4 x 8 ft sheets in courses up each slope, end joints staggered, the top course ripped to fit.</li>
+    <li><strong>Roofing.</strong> Slope area in squares, times your waste, at three bundles a square; underlayment rolls, drip edge, ridge cap and starter strip from the edge lengths.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How many squares of shingles do I need for a 24 x 40 ft gable roof?</h3>
+  <p>For a 24 ft wide, 40 ft long house with a 6:12 pitch and 12 in overhangs on every side, the two planes come to 12.2 roofing squares (a square is 100 sq ft). At 3 bundles per square with 10% waste that is 41 bundles of shingles, plus 2 ridge cap bundles and 1 starter bundle.</p>
+  <h3>How long are the rafters for a 6:12 roof on a 24 ft wide house?</h3>
+  <p>Each rafter is 173-9/16 in (14 ft 5-9/16 in) along the slope, counting a 12 in eave overhang and the room a 2x10 ridge board takes. The roof rises 72 in over the plates, and a 2x8 rafter cut with a 3-1/2 in seat has a plumb cut 1-9/16 in deep square to its edge, 22% of the board.</p>
+  <h3>How many sheets of roof sheathing does a roof need?</h3>
+  <p>The same roof takes 44 sheets of 4 x 8 ft plywood or OSB for 1221 sq ft. The calculator lays courses up each slope with end joints staggered, so the count includes the offcuts you can reuse rather than dividing area by 32.</p>
+  <h3>What is not counted?</h3>
+  <p>Valleys and cross wings, dormers, vents, flashing, nails, trusses and any check of rafter span against a table or code. Rafter size and spacing are what you type. Check the result against your plans and your supplier.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. House size, pitch, overhangs, rafter size and spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Rafter and sheet counts follow the layout stated above; shingle waste, bundle coverage and your supplier's catalogue govern what you buy.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<script type="module">
+    import { layoutRoof, roofText } from "./roof.mjs";
+    import { samplePlan, parseLength } from "./engine.mjs";
+    const $ = (id) => document.getElementById(id);
+    const ft = (v) => { const s = String(v).trim(); return /^[\d.]+$/.test(s) ? +s * 12 : parseLength(s); };
+    const run = () => {
+      const L = ft($("len").value), W = ft($("wid").value);
+      if (!(L >= 96 && W >= 96 && L <= 1200 && W <= 1200)) { $("out").textContent = "Check the numbers: sides of at least 8 ft and at most 100 ft."; return; }
+      const roof = { id: "Roof", shape: $("shape").value, width: W, length: L, pitch: +$("pitch").value, overhang: +$("oh").value, gableOverhang: +$("rake").value, rafter: $("raf").value, spacing: +$("sp").value, ridge: "2x10", hip: "2x10", roofing: { waste: 1 + (+$("waste").value || 0) / 100 } };
+      try {
+        const l = layoutRoof(roof, samplePlan());
+        $("out").textContent = roofText(l).join("\n");
+      } catch (e) { $("out").textContent = String(e && e.message || e); }
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>

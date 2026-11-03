@@ -81,6 +81,11 @@ def markers_in(path: Path) -> list[tuple[int, str]]:
         # human would ever be asked to resolve.
         return []
 
+    # A marker at the start of a line contains its marker string, so a file
+    # without the substring anywhere cannot have one: skip the per-line pass.
+    if not any(marker in text for marker in DEFINITE):
+        return []
+
     lines = text.split("\n")
     definite = [
         (number, line)
@@ -114,7 +119,8 @@ def main() -> int:
     findings: list[tuple[Path, int, str]] = []
 
     for path in tracked:
-        if path.resolve() == this_file:
+        # Name first: resolve() is a syscall chain, and only one file can match.
+        if path.name == this_file.name and path.resolve() == this_file:
             continue
         for number, line in markers_in(path):
             findings.append((path, number, line))

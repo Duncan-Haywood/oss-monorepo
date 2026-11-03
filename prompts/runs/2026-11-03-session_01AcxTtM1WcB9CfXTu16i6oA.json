@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01AcxTtM1WcB9CfXTu16i6oA",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T08:10:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12775",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "backlog command listed no perf items; fine, but ci_profile --json lacks per-step data for non-heaviest steps (had to use --save payload)"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-03-workflow-runner-yaml-memo.md (no blog post: small internal speed-up)"
+  ],
+  "goal": null,
+  "notes": "Metric: test_run_workflow_locally wall time, python3 -m unittest in platform/ci. Before 8.16s (120 tests), after 3.47s, same results. Found via cProfile: load_workflow 907 yaml parses = 13.4/16.3s.",
+  "corrections": [],
+  "redteam": null
+}

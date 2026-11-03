@@ -20,6 +20,8 @@ import { configFromEnv } from "../byok.mjs";
 import { buildMessage, sendMail } from "./smtp.mjs";
 import { oauthWanted, tokenProvider } from "./oauth.mjs";
 import { runResearch } from "../research.mjs";
+import { runPrep } from "../prep.mjs";
+import { runFollowUp } from "../followup.mjs";
 import { crmFromEnv } from "./crm.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -76,6 +78,17 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
     save();
     return { added, skipped, held: d.held.length, dropped: d.dropped.length };
   }
+
+  /** M7d: call prep and post-call follow-up from what this agent already holds (the person's replies, the prospects table, the suppression list). Sends nothing; a follow-up draft is returned for a person to copy, not queued. */
+  function callInput(email, notes) {
+    const addr = String(email || "").trim().toLowerCase();
+    if (!/^[\w.+'-]+@[\w.-]+\.\w+$/.test(addr)) return null;
+    const thread = state.items.filter((x) => !x.outbound && String(x.from).toLowerCase() === addr)
+      .map((x) => `From: ${x.from}\nSubject: ${x.subject}\nDate: ${x.receivedAt || ""}\n\n${x.body}`).join("\n---\n");
+    return { email: addr, prospects: state.prospects, replies: thread, notes: String(notes || "").slice(0, 20000), suppression: state.suppression.map((s) => s.email).join("\n"), offer, today: iso(now()) };
+  }
+  function prep(email, notes) { const i = callInput(email, notes); if (!i) return { error: "send { email, notes? }" }; const d = runPrep(i); audit("prep", { email: i.email, stop: d.stop || undefined, known: d.known.length }); return d; }
+  function followUp(email, notes) { const i = callInput(email, notes); if (!i) return { error: "send { email, notes }" }; const d = runFollowUp(i); audit("followup_drafted", { email: i.email, approval: d.approval }); return d; }
 
   async function poll() {
     const oauth = oauthWanted(env);
@@ -164,6 +177,7 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
     if (url.pathname === "/healthz") return json(res, 200, { ok: true, lastPoll: state.lastPoll, lastError: state.lastError });
     if (!authed(req)) { res.writeHead(401, { "content-type": "text/plain", "www-authenticate": "Bearer" }); return res.end("Add ?token=YOUR_ADMIN_TOKEN"); }
     if (req.method === "GET" && url.pathname === "/") { res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "referrer-policy": "no-referrer" }); return res.end(page(state, url.searchParams.get("token") || "", !!env.SMTP_HOST, !!(crm && Object.keys(crm.stages).length))); }
+    if (req.method === "GET" && url.pathname === "/voice.mjs") { res.writeHead(200, { "content-type": "text/javascript; charset=utf-8", "cache-control": "no-store" }); return res.end(readFileSync(new URL("../voice.mjs", import.meta.url))); }
     if (req.method === "GET" && url.pathname === "/api/queue") return json(res, 200, { lastPoll: state.lastPoll, lastError: state.lastError, items: state.items });
     if (req.method === "GET" && url.pathname === "/api/prospects.csv") { res.writeHead(200, { "content-type": "text/csv" }); return res.end(toCsv(state.prospects, ["email", "first_name", "company", "status", "stage", "paused_until", "last_reply"])); }
     if (req.method === "GET" && url.pathname === "/api/suppression.csv") { res.writeHead(200, { "content-type": "text/csv" }); return res.end(toCsv(state.suppression, ["email", "reason", "date", "evidence"])); }
@@ -181,6 +195,12 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
       if (!b.crm) return json(res, 422, { error: "send { crm: <CSV text>, icp?, top? }" });
       return json(res, 200, queueResearch(b));
     }
+    if (req.method === "POST" && (url.pathname === "/api/prep" || url.pathname === "/api/followup")) {
+      let raw = ""; for await (const ch of req) { raw += ch; if (raw.length > 100000) return json(res, 413, { error: "too large" }); }
+      let b; try { b = JSON.parse(raw); } catch { return json(res, 400, { error: "bad json" }); }
+      const r = url.pathname === "/api/prep" ? prep(b.email, b.notes) : followUp(b.email, b.notes);
+      return json(res, r.error ? 422 : 200, r);
+    }
     if (req.method === "POST" && url.pathname === "/api/crm-stage") {
       let raw = ""; for await (const ch of req) { raw += ch; if (raw.length > 10000) return json(res, 413, { error: "too large" }); }
       let b; try { b = JSON.parse(raw); } catch { return json(res, 400, { error: "bad json" }); }
@@ -195,7 +215,7 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
     }
     json(res, 404, { error: "not found" });
   });
-  return { server, state, poll, ingest, queueResearch, decide, send, moveDeal, audit };
+  return { server, state, poll, ingest, queueResearch, prep, followUp, decide, send, moveDeal, audit };
 }
 
 function page(state, token, canSend, canMove) {
@@ -215,11 +235,28 @@ ${it.decision === "pending" ? `<button data-d="approved">Approve</button> <butto
 <style>body{font:16px/1.5 system-ui;max-width:760px;margin:0 auto;padding:16px;color:#1b1f23;background:#fff}@media(prefers-color-scheme:dark){body{background:#14171a;color:#e6e8ea}blockquote{background:#1d2226}}article{border:1px solid #8884;border-radius:8px;padding:12px 16px;margin:16px 0}blockquote{margin:8px 0;padding:8px 12px;background:#f3f4f6;border-radius:6px}textarea{width:100%;box-sizing:border-box}.tag{font-size:12px;border:1px solid #8886;border-radius:10px;padding:1px 8px}.re{opacity:.7;margin:0}button{padding:6px 14px;margin-right:6px}small{opacity:.7;font-weight:400}</style>
 <h1>Approval queue</h1><p>Last poll: ${esc(state.lastPoll || "never")}${state.lastError ? ` <b>Error: ${esc(state.lastError)}</b>` : ""}. <button id="poll">Poll now</button> <a href="/api/audit?token=${t}">Audit log</a> · <a href="/api/prospects.csv?token=${t}">Prospects CSV</a> · <a href="/api/suppression.csv?token=${t}">Suppression CSV</a></p>
 <p>${canSend ? "Approving a draft does not send it. Press Send on an approved draft to send it from your mailbox, once, with an unsubscribe header." : "Sending is off (no SMTP_HOST). Approving marks a draft approved in the audit log and gives you a link to send it yourself."}</p>${rows}
+<section id="calldesk"><h2>Call desk</h2><p>Before a call, prepare a brief from what this agent already holds on the person (their replies, the prospects table, the suppression list). After it, paste or dictate your notes and draft a follow-up. Nothing is sent.</p>
+<p><input id="cd-email" type="email" placeholder="their email" size="32"> <button id="cd-prep">Prepare the call</button></p>
+<textarea id="cd-notes" rows="6" placeholder="Call notes, one point per line"></textarea>
+<p><button id="cd-follow">Draft the follow-up</button> <button id="cd-dictate" hidden>Dictate notes</button> <button id="cd-read" hidden>Read it aloud</button></p>
+<p id="cd-status" role="status"></p><pre id="cd-out" hidden style="white-space:pre-wrap"></pre>
+<p id="cd-voice" hidden style="font-size:14px;opacity:.8">Voice is optional and uses your browser's own speech tools; in Chrome and Edge dictation sends audio to the browser maker's speech service. Say "next point" for a new line. This page records and stores nothing.</p></section>
 <script>const T=${JSON.stringify(token)};const H={authorization:"Bearer "+T,"content-type":"application/json"};
 document.getElementById("poll").onclick=async()=>{await fetch("/api/poll",{method:"POST",headers:H});location.reload()};
 document.querySelectorAll("article button[data-move]").forEach(b=>b.onclick=async()=>{b.disabled=true;const a=b.closest("article");const r=await fetch("/api/crm-stage",{method:"POST",headers:H,body:JSON.stringify({id:a.dataset.id})});const j=await r.json();if(!r.ok){alert(j.error);b.disabled=false}else{alert(j.results.map(x=>x.crm+": "+(x.moved?"moved":x.error||x.reason)).join("\\n"));location.reload()}});
 document.querySelectorAll("article button[data-send]").forEach(b=>b.onclick=async()=>{b.disabled=true;const a=b.closest("article");const r=await fetch("/api/send",{method:"POST",headers:H,body:JSON.stringify({id:a.dataset.id})});if(!r.ok){alert((await r.json()).error);b.disabled=false}else location.reload()});
-document.querySelectorAll("article button[data-d]").forEach(b=>b.onclick=async()=>{const a=b.closest("article");const r=await fetch("/api/decide",{method:"POST",headers:H,body:JSON.stringify({id:a.dataset.id,decision:b.dataset.d,body:a.querySelector("textarea").value})});if(!r.ok){alert((await r.json()).error)}else location.reload()});</script></html>`;
+document.querySelectorAll("article button[data-d]").forEach(b=>b.onclick=async()=>{const a=b.closest("article");const r=await fetch("/api/decide",{method:"POST",headers:H,body:JSON.stringify({id:a.dataset.id,decision:b.dataset.d,body:a.querySelector("textarea").value})});if(!r.ok){alert((await r.json()).error)}else location.reload()});</script>
+<script type="module">import { appendDictation, speakable } from "/voice.mjs?token=${t}";
+const $=(i)=>document.getElementById(i),out=(t,s)=>{$("cd-out").textContent=t;$("cd-out").hidden=false;$("cd-status").textContent=s+" Nothing was sent."};
+const call=async(path)=>{const email=$("cd-email").value.trim();if(!email){$("cd-status").textContent="Type their email first.";return}const r=await fetch(path,{method:"POST",headers:H,body:JSON.stringify({email,notes:$("cd-notes").value})});const j=await r.json();if(!r.ok){$("cd-status").textContent=j.error||"Failed.";return}return j};
+$("cd-prep").onclick=async()=>{const p=await call("/api/prep");if(p)out(p.brief,p.stop?"Do not chase this person: "+p.stop+".":p.unknown.length+" of 9 discovery fields still unknown.")};
+$("cd-follow").onclick=async()=>{const f=await call("/api/followup");if(f)out((f.issues&&f.issues.length?f.issues.map(i=>"> "+i).join("\\n")+"\\n\\n":"")+(f.draft?"Subject: "+f.draft.subject+"\\n\\n"+f.draft.body+"\\n\\n"+(f.lint.ok?"Checks passed.":"Fix first: "+f.lint.errors.join("; ")):""),f.approval==="needs_approval"?"Draft ready for you to read and approve.":f.approval==="fix_first"?"Draft needs fixes before you use it.":"No draft.")};
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition,TTS=window.speechSynthesis;if(SR||TTS)$("cd-voice").hidden=false;
+if(SR){$("cd-dictate").hidden=false;let rec=null;$("cd-dictate").onclick=()=>{if(rec){rec.stop();return}rec=new SR();rec.lang="en-US";rec.continuous=true;rec.interimResults=false;
+rec.onresult=(e)=>{let h="";for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)h+=e.results[i][0].transcript+" ";if(h)$("cd-notes").value=appendDictation($("cd-notes").value,h)};
+rec.onend=()=>{rec=null;$("cd-dictate").textContent="Dictate notes"};rec.onerror=(e)=>{$("cd-status").textContent="Dictation stopped: "+(e.error||"unknown")+"."};$("cd-dictate").textContent="Stop dictating";rec.start()}}
+if(TTS){$("cd-read").hidden=false;$("cd-read").onclick=()=>{if(TTS.speaking){TTS.cancel();$("cd-read").textContent="Read it aloud";return}const t=speakable($("cd-out").textContent);if(!t){$("cd-status").textContent="Prepare the call or draft the follow-up first.";return}const u=new SpeechSynthesisUtterance(t);u.onend=u.onerror=()=>{$("cd-read").textContent="Read it aloud"};$("cd-read").textContent="Stop reading";TTS.speak(u)}}
+</script></html>`;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

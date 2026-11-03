@@ -34,6 +34,43 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 21 (2026-11-02, eval/probe21.mjs): carpet cleaners, appliance repairers, septic pumpers, welders, driving schools.
+  // First in the list: "Lincoln Electric" hit utilities, "AWS Welding Society" hit software and "vacuum truck" hit vehicle costs.
+  ["6100", "out", /lincoln electric|miller welders?|airgas|jon-?don|prochem|marcone|repair clinic|vacuum truck parts|jurop|septic disposal|dual brake/],
+  ["6170", "out", /aws welding society|iicrc|nawt\b|driving school assoc|carpet cleaning assoc|appliance service assoc|epa 608/],
+  ["6110", "out", /septic pumping licen[cs]e|driving school licen[cs]e/],
+  ["6060", "out", /service fusion|driver ed software/],
+  // Gap probe 20 (2026-11-02, eval/probe20.mjs): acupuncturists, chiropractors, tailors, window cleaners, junk haulers.
+  // First in the list: "water fed pole" hit the utilities rule on the word water.
+  ["6100", "out", /water.?fed pole|lhasa oms|seirin|zenith tables?|jo-?ann fabrics|mood fabrics|singer sewing/],
+  ["6170", "out", /nccaom|acupuncturists|clean needle technique|\baca dues|activator methods|custom clothiers|window cleaning assoc/],
+  ["6110", "out", /acupuncture licen[cs]e|chiropractic (board )?licen[cs]e|junk haulers? licen[cs]e/],
+  ["6060", "out", /tailor software|alterations software/],
+  ["6000", "out", /1-?800-?got-?junk (lead|referral)/],
+  ["6080", "out", /dump trailer rental/],
+  // Gap probe 19 (2026-11-02, eval/probe19.mjs): locksmiths, chimney sweeps, drone pilots, sign makers, brewers.
+  ["6000", "out", /locksmith lead/],
+  ["6170", "out", /chimney safety institute|international sign association/],
+  ["6100", "out", /chimney brush|fireplace supply|more beer/],
+  ["6060", "out", /chimney sweep software|brewfather/],
+  // Gap probe 18 (2026-11-01, eval/probe18.mjs): wedding photographers, notaries, pool cleaners, court reporters, beekeepers.
+  ["6100", "out", /notary essentials|pentair pool|pool brite/],
+  ["6060", "out", /skimmer software|casecatalyst/],
+  ["6170", "out", /certified pool operator/],
+  ["4000", "in", /veritext/],
+  // Gap probe 17 (2026-11-01, eval/probe17.mjs): freelance editors, podcast producers, virtual assistants, farriers, bounce-house renters.
+  ["6100", "out", /farriers? supply|mustad|party craft inflatable|bounce house supply/],
+  ["6060", "out", /prowritingaid|chicago manual of style|signnow/],
+  ["6170", "out", /editorial freelancers|aces society|podcast movement|virtual assistants association|american farriers|inflatable operator cert/],
+  ["6000", "out", /partyslate/],
+  ["4000", "in", /reedsy|fancy hands|time etc/],
+  // Gap probe 16 (2026-11-01, eval/probe16.mjs): drone pilots, mobile mechanics, cottage bakers, tutors, locksmiths.
+  ["6030", "out", /locksmith bond/],
+  ["6100", "out", /global sugar art|ilco key|hillman fastener|lockmasters/],
+  ["6060", "out", /air ?data uav|tutorcruncher/],
+  ["6110", "out", /cottage food licen/],
+  ["6170", "out", /auvsi|drone pilot ground school|national tutoring assoc|associated locksmiths/],
+  ["4000", "in", /repairpal/],
   // Gap probe 15 (2026-10-31, eval/probe15.mjs): roofers, HVAC contractors, personal chefs, music teachers, massage therapists.
   ["6100", "out", /abc supply|beacon roofing|sheet music plus|massage warehouse/],
   ["6060", "out", /roofsnap|music teachers helper/],
@@ -362,7 +399,7 @@ export const BUILT_IN = [
   ["6110", "out", /business licen[cs]e|secretary of|annual report|franchise tax|permit fee/],
   ["6120", "out", /airline|\btram\b|subway fare|metro transit|transit authority|delta air|united air|american air|southwest|jetblue|marriott|hilton|hyatt|expedia|booking\.com|amtrak|hertz|\bavis\b|enterprise rent|uber\s+\*?\s*trip|uber\s+\*?\s*(?:ride|pool)|lyft|radisson|wyndham|best western|airbnb|priceline|hotwire|car rental|rent a car|\bturo\b|budget rent/],
   ["6130", "out", /restaurant|eating out|cafe|coffee|starbucks|doordash|uber eats|grubhub|chipotle|panera|mcdonald|pizza|bistro|diner|taqueria|sushi|ihop|applebee|jack in the box|\bsonic\b|tim hortons|wingstop|tgi friday|panda express|dunkin|wendy|burger king|\bkfc\b|taco bell|popeyes|domino|chick-fil-a|\bramen\b|dim sum|bakery|\bgrill\b|steakhouse|noodle|\bbbq\b|\bdeli\b|kebab|burrito|wings/],
-  ["6140", "out", /verizon|at&t|t-mobile|tmobile|comcast|xfinity|spectrum|cox comm|google fi|mint mobile|electric|pg&e|pgande|pg ?and ?e\b|pacific gas|national grid|duke energy|monkeybrains|sonic\.net|google fiber|webpass|starry|frontier comm|centurylink|\blumen\b|astound|con ?ed|water bill|utility|\bwater\b|\bpower\b(?! (manager|supply|module|adapter|bank|strip|cable|board|tool|button|switch|led))|\benergy\b|ebill|edison|dominion|entergy|eversource|cricket|visible|optimum|us mobile|\bting\b|telekom|vodafone|\bo2 (uk|germany)|orange (s\.?a|france)|\bbt group|sky broadband|virgin media|\bee limited|rogers comm|bell canada|telus|optus|telstra|stadtwerke/],
+  ["6140", "out", /verizon|at&t|\batt\*|\batt (?:bill|wireless|internet|mobility|u-verse)|t-mobile|tmobile|comcast|xfinity|spectrum|cox comm|google fi|mint mobile|electric|pg&e|pgande|pg ?and ?e\b|pacific gas|national grid|duke energy|monkeybrains|sonic\.net|google fiber|webpass|starry|frontier comm|centurylink|\blumen\b|astound|con ?ed|water bill|utility|\bwater\b|\bpower\b(?! (manager|supply|module|adapter|bank|strip|cable|board|tool|button|switch|led))|\benergy\b|ebill|edison|dominion|entergy|eversource|cricket|visible|optimum|us mobile|\bting\b|telekom|vodafone|\bo2 (uk|germany)|orange (s\.?a|france)|\bbt group|sky broadband|virgin media|\bee limited|rogers comm|bell canada|telus|optus|telstra|stadtwerke/],
   ["6150", "out", /net pay|payroll(?! tax)|wages/],
   ["6160", "out", /shell oil|chevron|exxon|mobil\b|\bbp\b|sunoco|valero|\barco\b|phillips 66|quiktrip|speedway|casey's|firestone|safelite|gas station|fuel|jiffy lube|car wash|autozone|parking|toll/],
   ["6170", "out", /udemy|coursera|chegg|datacamp|skillshare|linkedin learning|masterclass|pearson|mcgraw|tuition|conference|membership dues|association dues|chamber of commerce/],
