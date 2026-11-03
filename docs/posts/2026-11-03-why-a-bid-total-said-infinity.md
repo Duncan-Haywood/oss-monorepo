@@ -1,6 +1,6 @@
 ---
 title: "Why a framing bid total said Infinity, and a permit vanished"
-seo_title: "Construction budget calculator bug: Infinity totals and silently dropped allowances"
+seo_title: "Budget bug: Infinity totals and silently dropped allowances"
 date: 2026-11-03
 tags: [construction, wall-framing-takeoff, testing, open-source]
 description: "A wall-framing takeoff budget accepted Infinity as a price and silently dropped text or negative allowances. It now refuses and lists them."
