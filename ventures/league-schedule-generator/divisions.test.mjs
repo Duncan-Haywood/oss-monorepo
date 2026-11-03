@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, restGaps } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, restGaps } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -844,4 +844,25 @@ test("divisionsOverdue: lists past games with no typed result, per division, ear
   const far = divisionsOverdue(s, "", 1e9);
   const total = s.divisions.reduce((n, d) => n + d.rounds.reduce((m, r) => m + r.matches.length, 0), 0);
   assert.equal(far.overdue.length, total);
+});
+
+test("divisionsRace: clinched and eliminated teams per division from typed results", () => {
+  const s = build();
+  const div = s.divisions[0];
+  const none = divisionsRace(s, "", { spots: 2 });
+  assert.equal(none.errors.length, 0);
+  assert.ok(none.rows.every((r) => r.status === "alive"));
+  assert.match(none.text, new RegExp(`^${div.name} \\(top 2 qualify, \\d+ games? left\\)`));
+  // The first-named team wins every scheduled game in its division: it must end up clinched once enough are in.
+  const lines = [];
+  for (const d of s.divisions) for (const r of d.rounds) for (const m of r.matches) lines.push(`${d.name}: ${m.homeName} ${m.home === 0 ? 3 : 0} - ${m.home === 0 ? 0 : (m.away === 0 ? 3 : 1)} ${m.awayName}`);
+  const full = divisionsRace(s, lines.join("\n"), { spots: 2 });
+  assert.equal(full.errors.length, 0);
+  for (const d of s.divisions) {
+    const rs = full.rows.filter((r) => r.division === d.name);
+    assert.ok(rs.filter((r) => r.status === "clinched").length <= Math.min(2, d.teams.length));
+    assert.equal(rs.find((r) => r.index === 0).status, "clinched");
+  }
+  const bad = divisionsRace(s, "Nope: A 1 - 0 B", { spots: 2 });
+  assert.ok(bad.errors.length > 0);
 });

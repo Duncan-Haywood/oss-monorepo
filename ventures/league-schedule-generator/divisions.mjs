@@ -7,7 +7,7 @@
 //   3. a team plays at the same venue as on its previous night where it can (fewer trips).
 // Each division keeps the circle-method round robin of calc.mjs (home/away balance and byes), so only
 // the dates, courts and times are decided here.
-import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, tieBreakNotes, standingsCsv, parsePointSystem, playoffBracket, bracketText, weeklyUpdate } from "./calc.mjs";
+import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, tieBreakNotes, standingsCsv, parsePointSystem, playoffBracket, bracketText, weeklyUpdate, playoffRace, remainingFixtures, raceText } from "./calc.mjs";
 
 const MAX_NIGHTS = 800;
 const W_CLASH = 1000;
@@ -755,6 +755,40 @@ export function divisionsStandings(schedule, text, { points = "3-1-0", headToHea
 }
 
 /**
+ * Who has clinched a play-off place and who is out, per division, from the results typed so far and the
+ * fixtures still to play ("U10: Hawks 3 - 2 Owls" lines, as for `divisionsStandings`). `spots` is how many
+ * teams per division qualify. Points only, ties counted against the team tested, so "clinched" and "out"
+ * are never wrong (see `playoffRace`). Returns { rows: [{division, ...raceRow}], text, errors }.
+ */
+export function divisionsRace(schedule, text, { spots = 2, points = "3-1-0" } = {}) {
+  const errors = [];
+  const ps = parsePointSystem(points);
+  if (ps.error) errors.push(ps.error);
+  const names = schedule.divisions.map((d) => d.name.toLowerCase());
+  const byDiv = schedule.divisions.map(() => []);
+  for (const raw of String(text ?? "").split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^([^:]+):\s*(.*)$/);
+    if (m && names.includes(m[1].trim().toLowerCase())) byDiv[names.indexOf(m[1].trim().toLowerCase())].push(m[2]);
+    else if (schedule.divisions.length === 1) byDiv[0].push(line);
+    else errors.push(`Result line "${line}": start it with a division.`);
+  }
+  const k = Math.max(1, Math.floor(Number(spots)) || 1);
+  const rows = [];
+  const blocks = [];
+  schedule.divisions.forEach((div, d) => {
+    const r = parseResults(byDiv[d].join("\n"), div.teams);
+    for (const e of r.errors) errors.push(`${div.name}: ${e}`);
+    const left = remainingFixtures(div, r.results);
+    const race = playoffRace(div.teams, r.results, left, k, { win: ps.win, draw: ps.draw, loss: ps.loss, adjustments: r.adjustments });
+    for (const x of race) rows.push({ division: div.name, ...x });
+    blocks.push(`${div.name} (top ${Math.min(k, div.teams.length)} qualify, ${left.length} game${left.length === 1 ? "" : "s"} left)\n` + raceText(race, Math.min(k, div.teams.length)).split("\n").map((l) => "  " + l).join("\n"));
+  });
+  return { rows, text: blocks.join("\n\n"), errors };
+}
+
+/**
  * A cross-division play-off field from `divisionsStandings(...)`: the top `perDivision` teams of every
  * division, plus the best `wildcards` of the rest. Seeding is by finishing place first (all division
  * winners, then all runners-up, ...), and within a place by points per game, goal difference, goals
@@ -1239,6 +1273,13 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
       if (today == null || Number.isNaN(today)) { console.error("usage: --overdue [YYYY-MM-DD]"); process.exit(2); }
       const o = divisionsOverdue(s, readFileSync(rf, "utf8"), today);
       process.stdout.write((o.text || "No scores overdue.") + "\n");
+      process.exit(0);
+    }
+    const ci = process.argv.indexOf("--clinch");
+    if (ci > 0) {
+      const rc = divisionsRace(s, readFileSync(rf, "utf8"), { spots: process.argv[ci + 1] || 2, points: raw.points || "3-1-0" });
+      for (const e of rc.errors) console.error(`Clinch: ${e}`);
+      process.stdout.write(rc.text + "\n");
       process.exit(0);
     }
     if (process.argv.includes("--weekly")) {
