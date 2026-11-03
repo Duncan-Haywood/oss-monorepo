@@ -1042,3 +1042,19 @@ test("a wall id that is not non-empty text is refused (an object id used to pass
   }
   assert.equal(takeoff(samplePlan()).ok, true);
 });
+
+test("a wall marked bearing:false frames one header ply per opening, and says so", async () => {
+  const { layoutWall, samplePlan } = await import("./engine.mjs");
+  const mk = (bearing) => {
+    const plan = samplePlan();
+    const wall = { id: "P", stud: "2x4", length: 144, ...(bearing === undefined ? {} : { bearing }), openings: [{ kind: "door", label: "D", offset: 48, width: 32, height: 80, header: "2x6" }] };
+    return { plan, ...layoutWall(plan, wall) };
+  };
+  const plies = (r) => r.members.filter((m) => m.kind === "header").length;
+  assert.equal(plies(mk(undefined)), 2);
+  assert.equal(plies(mk(true)), 2);
+  const nb = mk(false);
+  assert.equal(plies(nb), 1);
+  assert.ok(nb.notes.some((n) => /single-ply headers/.test(n) && /D/.test(n)));
+  assert.ok(!mk(undefined).notes.some((n) => /single-ply/.test(n)));
+});
