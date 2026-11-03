@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01AcxTtH9WwvkSV1j3PziFuh",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read prompt.md (scheduled run)",
+  "input_sha256": "469e6f857af54e0860bad35e210411ae4d7abbb4c758af30ff084cd60fcfd872",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T23:09:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12945",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "WebFetch returns PDFs as binary dumps; pdftotext on the saved tool-results file worked but is not documented."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-03-does-a-glider-beat-an-auv-at-any-sourced-hotel-load.md",
+    "research/marine-hull/LOG.md (4e)"
+  ],
+  "goal": null,
+  "notes": "Milestone 4e of marine-hull; no measured AUV hotel budget found, used Tethys 8 W estimate and REMUS implied loads. Homepage build and link check pass; CI not awaited.",
+  "corrections": [],
+  "redteam": null
+}
