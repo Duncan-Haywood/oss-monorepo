@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Deck lumber calculator: joists, beam, posts, deck boards and footings</title>
+  <meta name="description" content="Free deck lumber calculator: type a deck's width, depth and height above grade, pick joist size and spacing, and get joists, beam boards, posts, deck board rows, footing concrete and hardware. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Deck lumber calculator">
+  <meta property="og:description" content="Deck size in, joists, beam, posts, deck boards, concrete and hardware out. Counted from a layout, not by area. Private, free, in your browser.">
+  <link rel="canonical" href="./deck-lumber-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much lumber do I need for a 16 x 12 ft deck?", "acceptedAnswer": {"@type": "Answer", "text": "For a 16 ft by 12 ft ledger-attached deck 36 in above grade with 2x8 joists at 16 in on center, the calculator counts 13 joists, a double 2x10 beam, 3 6x6 posts, 26 deck boards of 16 ft and 16 bags of concrete for the footings. Change any figure to match your deck."}}, {"@type": "Question", "name": "How many joists do I need for a deck?", "acceptedAnswer": {"@type": "Answer", "text": "Joists sit on every multiple of the spacing along the deck's width, plus one at the far end. At 16 in on center a 16 ft wide deck takes 13 joists. At 12 in it takes more and at 24 in fewer, but the decking you choose may need the closer spacing."}}, {"@type": "Question", "name": "How many deck boards do I need?", "acceptedAnswer": {"@type": "Answer", "text": "Boards run across the joists, so the number of rows is the deck's depth divided by a board's width plus its gap, rounded up. A 12 ft deep deck of 5-1/2 in boards with a 3/16 in gap is 26 rows. End joints are placed on a joist centre and staggered, and the last row may need ripping."}}, {"@type": "Question", "name": "Does this size my joists, beam or footings?", "acceptedAnswer": {"@type": "Answer", "text": "No. Joist, beam and post sizes are inputs you take from your local code's span tables or an engineer, and footing depth and diameter are typed figures because frost depth is local. The page counts lumber and hardware for the sizes you pick. A building department or licensed engineer decides what is allowed."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Deck lumber calculator</h1>
+  <p>Type the deck. You get joists, the beam, posts, footing concrete, deck board rows with joints on joists, a lumber order in stock lengths and a hardware count, from the same deck engine as the whole-house takeoff. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <div class="grid">
+      <div><label for="wid">Width along the house (in or 16' 0")</label><input id="wid" value="192"></div>
+      <div><label for="dep">Depth out from the house</label><input id="dep" value="144"></div>
+      <div><label for="hgt">Height above grade</label><input id="hgt" value="36"></div>
+      <div><label for="joist">Joist size</label><select id="joist"><option>2x6</option><option selected>2x8</option><option>2x10</option><option>2x12</option></select></div>
+      <div><label for="sp">Joist spacing (in o.c.)</label><select id="sp"><option>12</option><option selected>16</option><option>24</option></select></div>
+      <div><label for="beam">Beam size</label><select id="beam"><option>2x8</option><option selected>2x10</option><option>2x12</option></select></div>
+      <div><label for="plies">Beam plies</label><select id="plies"><option>1</option><option selected>2</option><option>3</option></select></div>
+      <div><label for="post">Post size</label><select id="post"><option>4x4</option><option selected>6x6</option></select></div>
+      <div><label for="free">Attachment</label><select id="free"><option value="">Ledger on the house</option><option value="1">Freestanding</option></select></div>
+    </div>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Add a deck to a whole-house framing takeoff</a></p>
+
+  <h2>The method</h2>
+  <ol>
+    <li><strong>Joists.</strong> One on every multiple of the spacing along the width, plus one at the far end, each running the depth between the ledger and the outer rim.</li>
+    <li><strong>Beam and posts.</strong> The beam sits under the joists a little in from the outer edge; posts stand under it at an even spacing no wider than the maximum.</li>
+    <li><strong>Footings.</strong> One round footing per post, in cubic yards and bags of mix with a waste allowance.</li>
+    <li><strong>Decking.</strong> Rows across the joists, each board's end joints on a joist centre and staggered from the row beside it. The lumber is bought as an order of stock lengths.</li>
+    <li><strong>Hardware.</strong> Hangers, post bases, ties and ledger fasteners counted from the layout.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How much lumber do I need for a 16 x 12 ft deck?</h3>
+  <p>For a 16 ft by 12 ft ledger-attached deck 36 in above grade with 2x8 joists at 16 in on center, the calculator counts 13 joists, a double 2x10 beam, 3 6x6 posts, 26 deck boards of 16 ft and 16 bags of concrete for the footings. Change any figure to match your deck.</p>
+  <h3>How many joists do I need for a deck?</h3>
+  <p>Joists sit on every multiple of the spacing along the deck's width, plus one at the far end. At 16 in on center a 16 ft wide deck takes 13 joists. At 12 in it takes more and at 24 in fewer, but the decking you choose may need the closer spacing.</p>
+  <h3>How many deck boards do I need?</h3>
+  <p>Boards run across the joists, so the number of rows is the deck's depth divided by a board's width plus its gap, rounded up. A 12 ft deep deck of 5-1/2 in boards with a 3/16 in gap is 26 rows. End joints are placed on a joist centre and staggered, and the last row may need ripping.</p>
+  <h3>Does this size my joists, beam or footings?</h3>
+  <p>No. Joist, beam and post sizes are inputs you take from your local code's span tables or an engineer, and footing depth and diameter are typed figures because frost depth is local. The page counts lumber and hardware for the sizes you pick. A building department or licensed engineer decides what is allowed.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. House and opening sizes are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Counts follow the layout rules stated above; your lumberyard's coverage and your installer's method may differ.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { layoutDeck, deckText } from "./deck.mjs";
+    import { parseLength } from "./engine.mjs";
+    const $ = (id) => document.getElementById(id);
+    const run = () => {
+      const d = { width: parseLength($("wid").value), depth: parseLength($("dep").value), height: parseLength($("hgt").value),
+        joist: $("joist").value, spacing: +$("sp").value, beam: $("beam").value, beamPlies: +$("plies").value, postSize: $("post").value, overhang: 12, freestanding: !!$("free").value };
+      const l = layoutDeck(d);
+      $("out").textContent = deckText(l).join("\n");
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>

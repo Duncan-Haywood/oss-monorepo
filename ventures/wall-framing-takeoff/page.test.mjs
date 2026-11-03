@@ -519,8 +519,26 @@ test("the change order page: FAQ matches its data, the sample diffs as a hand su
   assert.equal(d.unpricedChanges.length, 1);
 });
 
+test("the deck lumber calculator page: FAQ matches its data, default inputs give the 16 x 12 ft deck's counts", async () => {
+  const html = page("deck-lumber-calculator.html");
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("([\w-]+)"\)/g)) assert.ok(ids.has(m[1]), m[1]);
+  const { layoutDeck } = await import("./deck.mjs");
+  const l = layoutDeck({ width: 192, depth: 144, height: 36, joist: "2x8", spacing: 16, beam: "2x10", beamPlies: 2, postSize: "6x6", overhang: 12 });
+  assert.equal(l.joists.length, 13);
+  assert.equal(l.posts.length, 3);
+  assert.equal(l.rows, 26);
+  assert.equal(l.concrete.bags, 16);
+  assert.ok(html.includes("13 joists") && html.includes("26 deck boards of 16 ft") && html.includes("16 bags"));
+});
+
 test("every page links to every other page (internal linking for readers and crawlers)", () => {
-  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "schedule-calculator", "bid-leveling-calculator", "change-order-calculator", "ventilation-calculator"].map((n) => n + ".html");
+  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "deck-lumber-calculator", "schedule-calculator", "bid-leveling-calculator", "change-order-calculator", "ventilation-calculator"].map((n) => n + ".html");
   for (const f of pages) {
     const html = page(f);
     for (const other of pages) if (other !== f) assert.ok(html.includes(`<a href="${other}">`), `${f} does not link ${other}`);
