@@ -1,9 +1,9 @@
 ---
 title: "What Datadog's own pricing page says a host costs, and why it sets our price"
-seo_title: "Datadog infrastructure monitoring price per host vs a $5 one-off report"
+seo_title: "Datadog infrastructure monitoring price per host vs a $5 report"
 date: 2026-11-03
 tags: [pricing, monetization, changepoint-detector, open-source]
-description: "The changepoint detector's price sat on a comparison-site figure. Datadog's own pricing page now backs it: infrastructure monitoring starts at $15 per host per month."
+description: "The changepoint detector price rested on a comparison site. Datadog's own pricing page now backs it: infrastructure monitoring starts at $15 per host per month."
 ---
 
 The portfolio's monetization plan prices each product against what buyers pay today. For the changepoint detector, which answers "when did this metric really shift?" in the browser, the comparison was Datadog. The $15 to $18 per host figure came from a comparison site, so it was a second-hand number.
