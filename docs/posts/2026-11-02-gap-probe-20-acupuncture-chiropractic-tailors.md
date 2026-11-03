@@ -1,5 +1,6 @@
 ---
 title: "Gap probe 20: 27 bank descriptors for five trades, 5 filed before the rules"
+seo_title: "AI bookkeeper test: 27 bank descriptors for tailors, chiropractors"
 date: 2026-11-02
 description: "ai-bookkeeper filed 5 of 27 made-up descriptors for acupuncturists, chiropractors, tailors, window cleaners and junk haulers. New rules file all 27."
 tags: [ai-bookkeeper, small-business, bookkeeping]
