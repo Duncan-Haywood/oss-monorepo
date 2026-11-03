@@ -43,7 +43,10 @@
    "result": "honest but weaker than a pre-registered prediction"
   }
  ],
- "writeups": "docs/posts/2026-11-03-a-cheaper-gate-for-chip-flow-search-did-not-work.md; LOG.md milestone 71",
+ "writeups": [
+  "docs/posts/2026-11-03-a-cheaper-gate-for-chip-flow-search-did-not-work.md",
+  "research/verified-dse/LOG.md"
+ ],
  "goal": null,
  "notes": "Milestone 71, negative result. Local checks: research homepage build.py ok.",
  "corrections": [],

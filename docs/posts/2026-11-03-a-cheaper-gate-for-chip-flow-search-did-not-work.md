@@ -1,6 +1,6 @@
 ---
 title: "A cheaper gate for chip-flow search did not work, and why that is useful"
-seo_title: "Multi-fidelity chip design search: why an R2 versus R3 placement gate fails"
+seo_title: "Why an R2 versus R3 placement gate fails in chip design search"
 date: 2026-11-03
 tags: [research, chips, openroad, negative-result]
 description: "A gate that checks synthesis scores against six placed probes cannot tell when BOHB will get stuck on multiplier designs at relaxed clocks."
