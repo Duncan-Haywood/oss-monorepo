@@ -273,13 +273,16 @@ flagships:
     next: >-
       Landed by 2026-11-03 (history in the README and git): browser studio page
       (driven end to end, eval/browser-e2e.mjs), mix/master check (master-cli.mjs,
-      checked against ffmpeg ebur128; suggested gain), release kit (release.mjs),
+      checked against ffmpeg ebur128; suggested gain and
+      per-service playback gain), release kit (release.mjs),
       GABC reader fixes and NABC, a 59-file Graduale 1908 batch with no crash,
       preview renderer with --stems and --limit, and the --fit/--stretch, --repeat,
-      --halftime, --fills, --lrc, --cues, --suggest-final and --auto-final options.
+      --halftime, --fills, --lrc, --cues, --markers, --suggest-final and --auto-final options.
       Open, all needing a person: listen by ear to --stretch, --repeat, --halftime,
       --fills, --limit (pumping) and the stems in a DAW; deep house previews 2.8 LU
-      quiet; try --lrc in a real player; try --cues, RECORDING-GUIDE.md and the
+      quiet; verify the per-service playback targets (written from
+      memory) against the services' pages; check --markers locators in a DAW;
+      try --lrc in a real player; try --cues, RECORDING-GUIDE.md and the
       E2-E4 final range with real singers; check master-cli on EBU test files and
       a real mix; check the release kit against a distributor's real upload form;
       put the studio page in front of users. Next: compare a sample of the files

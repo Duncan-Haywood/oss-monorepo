@@ -122,6 +122,26 @@ export function suggestGain(lufs, truePeakDb, targets = TARGETS) {
   const want = targets.lufs - lufs, room = targets.truePeakMax - truePeakDb;
   return +Math.min(want, room).toFixed(2);
 }
+// What each service's loudness normalisation would do to this track. Targets
+// are commonly reported figures written from memory, NOT read from the
+// services' current help pages: check them before relying on them. `up` says
+// whether the service also raises quiet tracks (otherwise it only turns down).
+export const PLATFORMS = [
+  { name: 'Spotify', lufs: -14, up: true },
+  { name: 'Apple Music', lufs: -16, up: true },
+  { name: 'YouTube', lufs: -14, up: false },
+  { name: 'Amazon Music', lufs: -14, up: false },
+  { name: 'Tidal', lufs: -14, up: false },
+  { name: 'Deezer', lufs: -15, up: false },
+];
+export function platformPlayback(lufs, platforms = PLATFORMS) {
+  if (!Number.isFinite(lufs)) return null;
+  return platforms.map((p) => {
+    const raw = p.lufs - lufs;
+    const gainDb = +(raw > 0 && !p.up ? 0 : raw).toFixed(1);
+    return { name: p.name, target: p.lufs, gainDb };
+  });
+}
 export function analyze({ rate, channels }, targets = TARGETS) {
   const { lufs } = integratedLufs(channels, rate);
   const tp = Math.max(...channels.map((c) => truePeak(c)));
@@ -141,6 +161,7 @@ export function analyze({ rate, channels }, targets = TARGETS) {
     seconds: n / rate, rate, channels: channels.length,
     lufs, truePeakDb: db(tp), monoLossDb: mono, correlation: corr, clipRuns: clips,
   };
+  r.platforms = platformPlayback(lufs);
   r.suggestedGainDb = suggestGain(lufs, r.truePeakDb, targets);
   const checks = [];
   checks.push({ name: 'loudness', ok: Number.isFinite(lufs) && Math.abs(lufs - targets.lufs) <= targets.lufsTolerance,
