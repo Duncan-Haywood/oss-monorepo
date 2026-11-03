@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01E5sJKioaHKrEPXH6yAU6EP",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "null",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T00:20:30Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12689",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "step 0 fetches nonexistent security-alerts branch; fix already in 9 open PRs awaiting owner (P061)"
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "civ-cascades/commons/history lacked (landed) marks so pick_track offered them as free; fixed here"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "No agent-owned backlog item; critique mode. Skipped the usual run-record cost attach and blog post: tiny doc fix."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Backlog ids touched: none (P061 referenced). main_health ran in background, output not inspected beyond first 8 checks.",
+  "corrections": [],
+  "redteam": null
+}
