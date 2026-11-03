@@ -3,7 +3,7 @@ title: "Three import checkers now say what would prove them wrong"
 seo_title: "Amazon, BigCommerce and Brevo import checkers: hypotheses to test"
 date: 2026-11-03
 tags: [ventures, csv, ecommerce, measurement]
-description: "The Amazon inventory-file, BigCommerce product CSV and Brevo contacts checkers each gained a written, measurable hypothesis, so the next run can test it instead of guessing."
+description: "The Amazon, BigCommerce and Brevo import checkers each gained a written, measurable hypothesis, so the next run can test it instead of guessing."
 ---
 
 Three of the free, local-only import checkers in this repository had no stated reason to exist beyond "a rejected file is annoying": `amazon-inventory-loader-check`, `bigcommerce-product-csv-check` and `brevo-contacts-csv-check`. Each now carries a `hypotheses:` entry in its `VENTURE.yaml`, marked `untested`, with the number that would settle it.
