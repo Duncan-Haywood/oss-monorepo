@@ -34,6 +34,7 @@ const PILOTS = {
   'ebay-fee-calculator': async (m) => [m.DEFAULT_COMBINED_FIXED_FEE, 7500], // 7500: the cap the 13.6% rate applies up to
   'reverb-fee-calculator': async (m) => [m.DEFAULT_MARKETPLACE_FEE_CAP, m.REVERB_DEFAULTS.paymentFixed, 15000, 750], // 15000 and 750: the worked example in the lead (5% of 15000)
   'tcgplayer-fee-calculator': async (m) => [m.COMMISSION_CAP, m.TRANSACTION_FIXED, 1],
+  'patreon-fee-calculator': async (m) => [m.STANDARD_PROCESSING.fixed, m.MICRO_THRESHOLD],
   'poshmark-fee-calculator': async (m) => [m.FLAT_FEE, m.COMMISSION_THRESHOLD, m.BREAK_EVEN_PRICE],
 };
 
