@@ -1,5 +1,6 @@
 ---
 title: "The public electric-excavator power profile is a simulation, not a measurement"
+seo_title: "The public electric-excavator power trace is a simulation, not data"
 date: 2026-11-03
 tags: [research, heavy-hydraulics, data-provenance]
 description: "Reading the draft CEN workshop agreement behind a Zenodo power trace showed it was computed for a 75 t machine, and what that does and does not change."

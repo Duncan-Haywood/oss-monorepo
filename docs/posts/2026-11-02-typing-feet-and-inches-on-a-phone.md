@@ -1,6 +1,6 @@
 ---
 title: "Typing 8’ 6½” on a phone broke our length parser"
-seo_title: "Why a wall framing calculator must accept curly quotes and ½ on phones"
+seo_title: "Why a framing calculator must accept curly quotes and ½ on phones"
 date: 2026-11-02
 tags: [wall-framing-takeoff, construction, input, bugfix]
 description: "Phone keyboards type curly quotes and one-glyph fractions. The framing takeoff's length parser read neither. A small fix, with the cases that now pass."
