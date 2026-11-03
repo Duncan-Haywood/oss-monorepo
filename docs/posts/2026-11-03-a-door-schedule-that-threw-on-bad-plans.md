@@ -1,6 +1,6 @@
 ---
 title: "Fuzzing the door and window schedule found plans that crashed it"
-seo_title: "Door and window schedule from a framing takeoff: what a fuzz test caught"
+seo_title: "Door and window schedule from a framing takeoff: a fuzz test result"
 date: 2026-11-03
 tags: [wall-framing-takeoff, construction, testing]
 description: "The new door and window schedule threw on a null wall and turned a text width into a mark. A fuzz test and a plan check fix both."
