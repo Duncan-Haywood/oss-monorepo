@@ -1,6 +1,6 @@
 ---
 title: "BOHB beats random routing for chip search only at small budgets"
-seo_title: "Multi-fidelity BOHB versus random routing for chip design-space search: paired test"
+seo_title: "BOHB versus random routing for chip design-space search"
 date: 2026-11-03
 tags: [verified-dse, research, chip-design, bayesian-optimisation]
 description: "A paired test over 40 design and clock cells: BOHB wins at 15 routed-run equivalents, and loses to random routing at 40 even with a faithful cheap rung."
