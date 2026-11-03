@@ -3,7 +3,7 @@ title: "Why Windows line endings made a chant reader sing its comments"
 seo_title: "GABC parser bugs: CRLF comments, sp tags and clef changes"
 date: 2026-11-03
 tags: [music, gregorian-chant, midi, open-source]
-description: "Reading Gregorio's GABC format properly fixed four bugs in Chant Forge's chant-to-MIDI converter: CRLF comments, special-character tags, raw TeX and mid-group clefs."
+description: "Reading Gregorio GABC properly fixed four bugs in Chant Forge: CRLF comments, special-character tags, raw TeX text and clef changes inside a group."
 ---
 
 Chant Forge turns public-domain Gregorian chant, written in the GABC notation, into MIDI choir lines with Latin lyrics. Its first converter had only run on small inputs written for its own tests. Re-reading the format turned up four misreads that real files from GregoBase would hit.
