@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12774",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,16 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-03-checking-a-loudness-meter-against-ffmpeg.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Chant-forge master check vs ffmpeg ebur128: 0.05 LU, 0.33 dB on synthetic signals. security-alerts branch absent; IDEAS and requests empty.",
   "corrections": [],
   "redteam": null
 }
