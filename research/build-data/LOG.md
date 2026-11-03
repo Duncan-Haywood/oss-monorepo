@@ -1,5 +1,20 @@
 # build-data log
 
+## Session 15, 2026-11-03: milestone 15, XGBoost and linear quantile baselines on SF and Austin a2i (test year 2024), run as session 14's "Next"
+
+Why: session 14 found on Chicago that XGBoost agrees with LightGBM and the linear model fails at q0.9. Does that carry to the other two cities? Prediction (before running, prior 65%): in SF and Austin XGBoost lands within 3 points of LightGBM (M3) at each tau, and linear stays behind the trees at q0.5.
+Data: SF and Austin re-pulled today (SF 1,297,749 rows, Austin 2,383,209), same code, split, 3 seeds and week-block bootstrap as session 14 (`results/baselines_{sf,austin}_a2i_2024.json`). Relative change of mean pinball loss against the reference class (negative is better):
+| city | model | q0.1 | q0.5 | q0.9 |
+|---|---|---|---|---|
+| SF | XGBoost | -0.7% [-2.2, +1.1] | -3.8% [-6.0, -1.8] | -17.7% [-20.1, -15.4] |
+| SF | linear | -0.0% | +0.1% | -16.7% [-18.5, -15.1] |
+| Austin | XGBoost | -6.9% [-7.5, -6.4] | -25.7% [-27.6, -23.8] | -35.9% [-39.2, -32.6] |
+| Austin | linear | -0.8% | -14.5% [-15.6, -13.5] | -28.0% [-30.3, -25.8] |
+- Austin: XGBoost matches LightGBM at q0.5 (-25.7 vs -26.0) and q0.9 (-35.9 vs -35.9); at q0.1 it is 2.3 points better (-6.9 vs -4.6). Within the 3-point line. SF against LightGBM (M3: -1.6, -4.7, -17.5): XGBoost -0.7, -3.8, -17.7, gaps 0.9, 0.9, 0.2 points. **Prediction part 1 holds** in all six cells.
+- Linear is behind the trees at q0.5 in both cities (SF +0.1% vs -3.8%; Austin -14.5% vs -25.7%), so part 2 holds. But in SF and Austin the linear model does beat the reference class at q0.9 (-16.7%, -28.0%), unlike Chicago (+72.9%): the Chicago failure is not general, it depends on the city's permit-type structure.
+- Limits: one test year, a2i only; linear fitted on 20,000 of 1.14M and 2.19M rows; Austin XGBoost hit the 300-round cap on several taus, so it may be under-trained; CatBoost and a neural net unrun.
+Next: i2c; CatBoost; two-part conformal.
+
 ## Session 14, 2026-11-03: milestone 14, XGBoost and linear quantile baselines for H1 (Chicago a2i, test year 2024), predictions written before the run
 
 Why: the paper draft's to-do item 1 says H1 is still only against the weakest bar (reference class) plus LightGBM. Add two more: XGBoost quantile (`reg:quantileerror`) and a linear quantile regression on one-hot features (fitted on a 20,000-row random subsample, since the exact LP does not scale; disclosed). Same features, split and week-block bootstrap as `boosted.py`; `src/baselines.py`. Feed re-pulled today (not the 2026-11-01 copy).
