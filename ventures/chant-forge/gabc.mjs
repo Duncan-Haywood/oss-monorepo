@@ -202,6 +202,61 @@ export function fitToBars(events, pulsesPerBar) {
   });
 }
 
+// Rhythm option two: instead of padding silence, lengthen the phrase's own long
+// notes (the ones the edition already lengthened with a mora dot or episema, then
+// the phrase-final note) so the phrase fills whole bars. Each note may grow to at
+// most `maxGrow` times its length (default 2); whatever still does not fit is
+// padded as rest, as `fitToBars` does. Phrases end at a full or double bar.
+// Notes keep their order and pitch; only `pulses` change, and `stretched` counts
+// the pulses added to that note so a reader can see what was done to the chant.
+export function fitStretch(events, pulsesPerBar, { maxGrow = 2 } = {}) {
+  if (!(pulsesPerBar > 0)) throw new Error('pulsesPerBar must be positive');
+  if (!(maxGrow >= 1)) throw new Error('maxGrow must be at least 1');
+  const out = events.map((e) => ({ ...e }));
+  let t = 0;
+  let start = 0;
+  for (let i = 0; i < out.length; i++) {
+    t += out[i].pulses;
+    const e = out[i];
+    if (e.type !== 'bar' || (e.kind !== 'full' && e.kind !== 'double')) continue;
+    let need = (pulsesPerBar - (t % pulsesPerBar)) % pulsesPerBar;
+    if (need > 1e-9) {
+      const notes = out.slice(start, i).filter((x) => x.type === 'note');
+      if (notes.length) {
+        // longest first; the phrase-final note wins a tie
+        const order = notes
+          .map((n, k) => ({ n, k }))
+          .sort((a, b) => b.n.pulses - a.n.pulses || b.k - a.k)
+          .map((x) => x.n);
+        const cap = new Map(order.map((n) => [n, n.pulses * (maxGrow - 1)]));
+        const pool = order;
+        let progressed = true;
+        while (need > 1e-9 && progressed) {
+          progressed = false;
+          for (const n of pool) {
+            const step = Math.min(1, need, cap.get(n));
+            if (step > 1e-9) {
+              n.pulses += step;
+              n.stretched = (n.stretched || 0) + step;
+              cap.set(n, cap.get(n) - step);
+              need -= step;
+              t += step;
+              progressed = true;
+              if (need <= 1e-9) break;
+            }
+          }
+        }
+      }
+      if (need > 1e-9) {
+        e.pulses += need;
+        t += need;
+      }
+    }
+    start = i + 1;
+  }
+  return out;
+}
+
 export function transposeToFinal(events, finalMidi) {
   const notes = events.filter((e) => e.type === 'note');
   if (!notes.length) return events;

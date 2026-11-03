@@ -30,6 +30,12 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
 - 2026-11-03: GABC reader fixes for real files (CRLF comments, `<sp>`/`<v>`/`<alt>`
   text markup, clef change inside a group): 6 tests on made-up strings.
 
+- 2026-11-03: rhythm option two, `--fit 8 --stretch` (`fitStretch` in `gabc.mjs`):
+  lengthens a phrase's longest notes (each at most 2x, phrase-final note on a tie)
+  to fill whole bars before padding rest. Padded rest on the five corpus pieces
+  falls from 171/19/53/200/13 to 79/6/26/87/6 pulses. 5 tests in `stretch.test.mjs`.
+  Not listened to; no ear comparison yet.
+
 - 2026-11-03: fuzz test (`fuzz.test.mjs`): 2000 seeded random GABC strings (odd clefs, unclosed groups, CRLF, markup) through the reader and MIDI writer; none throws, every pitch is 0-127, every file has MThd/MTrk. Made-up input only; GregoBase is blocked from the cloud proxy, so real-file batches are still open.
 
 ## Next
@@ -44,8 +50,7 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
    - NABC sections;
    - neumes split across groups.
 3. **Rhythm options beyond padding:**
-   - fit each phrase to a whole number of bars by stretching a few long notes,
-     marked with the mora and episema the edition gives;
+   - (stretching landed above; ear-compare it against padding on two pieces);
    - a "half-time chant over full-time drums" mode for metal;
    - compare the options by ear on two pieces.
 4. **Genre templates as code** (first version landed above; ear check, fills,
