@@ -108,6 +108,12 @@ files or a real mix; the true-peak filter is a windowed sinc, not the Annex 2
 coefficients. Distributor targets change: read
 theirs before release.
 
+`master-cli.mjs` also prints the gain each service's loudness normalisation would apply
+(Spotify and Apple Music turn quiet tracks up; YouTube, Amazon, Tidal and Deezer only
+turn loud ones down; `platformPlayback` in `master.mjs`, 2026-11-03, 1 test). The
+per-service targets (-14, -16, -14, -14, -14, -15 LUFS) are from memory, not read
+from the services' current pages: verify before relying on them.
+
 ## Real Gregorio files (2026-11-03)
 
 Fixed after reading the format, tested on made-up strings shaped like real files

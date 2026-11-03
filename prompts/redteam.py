@@ -5,6 +5,7 @@
     python3 prompts/redteam.py campaign [--target FILE | --under DIR] [--mutants 8] [--seed S] [--record RUN.json]
     python3 prompts/redteam.py rerun RUN.json          # blue team: re-run escaped mutants
     python3 prompts/redteam.py tally [RUN.json ...]    # catch rate from run records
+    python3 prompts/redteam.py open [RUN.json ...]     # real defects nobody has patched yet
 
 A *mutant* is one small, deliberate defect in a source file: a flipped
 comparison, `+` for `-`, `true` for `false`, a constant off by one. The
@@ -17,7 +18,10 @@ anything notice?".
 The red-team sub-prompt (`prompts/redteam/prompt-<n>.md`) says how a run uses
 this; the blue half is the run's job, not this tool's: triage every escaped
 mutant (a real gap, or an `equivalent` mutant that changes no behaviour), add
-the guard that catches each gap, and prove it with `rerun`.
+the guard that catches each gap, and prove it with `rerun`. The track is a
+purple team (owner, 2026-11-03): whatever the red half finds, the run fixes,
+and `open` lists the real defects earlier runs left unpatched so the next run
+starts on them.
 
 Every number this prints comes from a test run it made. `--record` writes the
 campaign into the run record so nobody copies numbers by hand, and
@@ -420,6 +424,21 @@ def tally(records: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def open_defects(records: list[tuple[str, dict[str, Any]]]) -> list[dict[str, Any]]:
+    """Real defects still `patched: false`, oldest record first. A later run
+    that fixes one sets `patched: true` and `patched_in` (its PR) on the entry
+    in the record that found it, so the list only ever shrinks by a fix."""
+    out = []
+    for name, rec in sorted(records, key=lambda r: r[0]):
+        rt = rec.get("redteam")
+        if not isinstance(rt, dict):
+            continue
+        for i, d in enumerate(rt.get("real_defects", [])):
+            if isinstance(d, dict) and not d.get("patched"):
+                out.append({"record": name, "index": i, "file": d.get("file"), "issue": d.get("issue")})
+    return out
+
+
 def add_to_record(record_path: Path, camp: dict[str, Any]) -> None:
     rec = json.loads(record_path.read_text())
     rt = rec.get("redteam") or {}
@@ -457,6 +476,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("record", type=Path)
     p.add_argument("--timeout", type=int, default=TIMEOUT_SECONDS)
     p = sub.add_parser("tally", help="catch rate across run records")
+    p.add_argument("records", nargs="*", type=Path,
+                   help="default: every record under prompts/runs/")
+    p = sub.add_parser("open", help="real defects earlier runs found and left unpatched")
     p.add_argument("records", nargs="*", type=Path,
                    help="default: every record under prompts/runs/")
     args = parser.parse_args(argv)
@@ -502,6 +524,13 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(tally([rec]), indent=2))
         return 0
     paths = args.records or sorted((REPO / "prompts" / "runs").glob("*.json"))
+    if args.cmd == "open":
+        found = open_defects([(p.name, json.loads(p.read_text())) for p in paths])
+        for d in found:
+            print(f"{d['record']} #{d['index']}  {d['file']}\n    {d['issue']}")
+        print(f"({len(found)} open: fix them first, then set patched: true and "
+              "patched_in on the entry)", file=sys.stderr)
+        return 0
     print(json.dumps(tally([json.loads(p.read_text()) for p in paths]), indent=2))
     return 0
 
