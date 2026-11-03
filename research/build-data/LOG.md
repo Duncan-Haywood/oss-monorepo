@@ -1,5 +1,12 @@
 # build-data log
 
+## Session 20, 2026-11-03: milestone 19 instrument, Mondrian (group-conditional) CQR for the two-part conformal; not run on real data
+
+The three data hosts returned HTTP 403 at the proxy CONNECT step again (probe: `curl` to `data.sf.gov`, "CONNECT tunnel failed, response 403"), so no pull was possible and **no number in `results/` changed**; nothing here is a result about permits.
+Done: `src/conformal.py` gains `mondrian_cqr` (one qhat per group of a classifier's P(same day), pooled fallback below 30 calibration rows or for an unseen group) and `bands`; four tests in `tests/test_conformal.py` (hand qhat per group, fallback, and a seeded synthetic zero-inflated check that grouped intervals, rounded outward as session 19 advises, do not under-cover; synthetic data tests the code only). 12 conformal tests pass; `test_baselines` needs numpy/pandas, absent here.
+Pre-registered for the next run with network access: H2c, Mondrian CQR with 3 bands of a LightGBM same-day classifier (edges 0.33, 0.67), calibrated on the even weeks of Y-1 as in session 8, brings 2024 coverage within 77 to 83% in at least 4 of 5 pairs when intervals are rounded outward. Prior 35%: session 19 showed over-coverage on Chicago and SF a2i comes from drift and the interval itself, which grouping may not fix. Refuted if fewer than 4.
+Next: `src/conformal_run.py` wiring (classifier fit, bands, coverage by band) and the real run.
+
 ## Session 19, 2026-11-03: milestone 18, dequantised CQR (session 8's "two-part conformal" fix), planned before the run
 
 Hypothesis (H2b, written before any run): session 8 found that on a2i the CQR scores tie at 0 (same-day permits, y = 0, lower end clipped at 0), so qhat cannot go negative and conformal cannot narrow an over-covering interval (Chicago 0.860, SF 0.891 on 2024). Adding independent uniform jitter U[0,1) to the integer-day target y when computing calibration scores (dequantisation, breaking ties the way randomised conformal p-values do) lets qhat go negative. Prediction: dequantised CQR brings 2024 coverage within 77 to 83% in at least 4 of 5 city/target pairs (session 8 plain CQR: 2 of 5). Refuted if fewer than 4. Prior 40%: narrowing may be capped by the clipped lower end.
