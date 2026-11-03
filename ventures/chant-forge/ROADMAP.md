@@ -40,6 +40,7 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
 - 2026-11-03: fuzz test (`fuzz.test.mjs`): 2000 seeded random GABC strings (odd clefs, unclosed groups, CRLF, markup) through the reader and MIDI writer; none throws, every pitch is 0-127, every file has MThd/MTrk. Made-up input only; GregoBase is blocked from the cloud proxy, so real-file batches are still open.
 
 - 2026-11-03: `nabc.test.mjs`: NABC alternation (`(fg|vi|ls)`), neumes split across groups, `!`, `/`, `z`/`Z`, `;2`, backtick and `[ob:...]` markers all keep exactly the GABC pitches. Made-up strings; the real-file batch is still open.
+- 2026-11-03: `--halftime` (`halfTime` in `gabc.mjs`): chant durations doubled against an unchanged backing tempo. 3 tests; bar and second counts checked on Dies irae. Not listened to.
 
 ## Next
 
@@ -54,7 +55,7 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
    - neumes split across groups.
 3. **Rhythm options beyond padding:**
    - (stretching landed above; ear-compare it against padding on two pieces);
-   - a "half-time chant over full-time drums" mode for metal;
+   - (half-time mode landed above, `--halftime`; ear check pending);
    - compare the options by ear on two pieces.
 4. **Genre templates as code** (first version landed above; ear check, fills,
    and transitions between sections remain), each a MIDI drum, bass and harmony generator

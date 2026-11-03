@@ -44,6 +44,7 @@ wrote dies-irae.mid
   Neume shapes (virga, quilisma, liquescents and so on) are treated as plain
   notes. A note before any clef is assumed to be in c4, with a warning.
 - `fitStretch` (`--fit 8 --stretch`) lengthens the long notes of a phrase (each at most 2x) to fill the bar first and pads only the remainder; on the five corpus pieces it cuts padded rest by about half. Not yet compared by ear.
+- `halfTime` (`--halftime`) doubles every chant duration while the drums, bass and chords keep their tempo, so the chant moves at half speed over a full-time metal backing. Dies irae at 170 BPM goes from 98 to 196 bars (138 s to 277 s). 3 tests in `halftime.test.mjs`. Not listened to.
 - `fitToBars` pads the rest after each full bar so the next phrase starts on a
   downbeat. Chant has no metre, and this is the simplest way to put it on a grid
   without changing any note's length.
