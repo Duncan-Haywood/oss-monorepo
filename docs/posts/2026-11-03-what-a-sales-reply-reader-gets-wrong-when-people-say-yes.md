@@ -3,7 +3,7 @@ title: "What a sales-reply reader gets wrong when people say yes (or just 'pass'
 seo_title: "Classifying cold-email replies: meeting asks, declines and objections"
 date: 2026-11-03
 tags: [sales, email, classification, open-source]
-description: "A fresh 50-reply probe of Sales Agent's reply rules scored 37/50. Meeting asks, one-word declines and 'unless you...' objections were the misses; the patch took it to 50/50 with no other set getting worse."
+description: "A fresh 50-reply probe of Sales Agent's reply rules scored 37/50: meeting asks, one-word declines and 'unless you' objections were missed. Now 50/50."
 ---
 
 Sales Agent reads replies to outreach and decides what each one is: interested, not now, not interested, an objection, a question, a wrong person, out of office, or an opt-out. Earlier probes hammered the opt-outs, because wrongly missing a "stop" does the most harm. This one went at everything else.
