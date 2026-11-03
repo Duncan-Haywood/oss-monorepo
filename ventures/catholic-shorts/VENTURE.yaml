@@ -21,11 +21,11 @@ hypotheses:
   - claim: People who land on a short's page from search watch the video to the end (video_finished / video_played) often enough to justify a weekly cadence.
     status: untested
     checked: null
-    evidence: usage-events
+    evidence: customer-contact
   - claim: Parishes, catechists or Catholic creators will download and repost the CC BY-SA videos (video_downloaded) once they find them.
     status: untested
     checked: null
-    evidence: usage-events
+    evidence: customer-contact
 
 economics:
   currency: USD

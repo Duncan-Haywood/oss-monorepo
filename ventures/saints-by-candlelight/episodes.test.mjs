@@ -89,3 +89,8 @@ test('every page links its sibling audio venture (platform/pages/siblings.mjs)',
     if (rel.endsWith('.html')) assert.match(contents, /href="\.\.\/listen-and-learn-audio\/"/, rel);
   }
 });
+
+test('the footer links its sibling Catholic Shorts', async () => {
+  const { renderIndex } = await import('./episodes.mjs');
+  assert.match(renderIndex([], {}), /href="\.\.\/catholic-shorts\/"/);
+});
