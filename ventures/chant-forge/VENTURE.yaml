@@ -30,7 +30,7 @@ hypotheses:
       as monthly listeners on the first EP within 90 days of release.
     status: untested
     checked: null
-    evidence: none-yet
+    evidence: customer-contact
 
 economics:
   currency: USD
@@ -39,7 +39,7 @@ economics:
   customers: null
 
 budget:
-  monthly_cap: 0
+  monthly_cap: 1
   protected: true
 
 kill_criteria:
