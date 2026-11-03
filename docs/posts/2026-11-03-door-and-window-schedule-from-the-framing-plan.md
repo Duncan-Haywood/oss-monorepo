@@ -3,7 +3,7 @@ title: "A door and window schedule from the framing plan"
 seo_title: "Door and window schedule generator from a wall framing plan"
 date: 2026-11-03
 tags: [wall-framing-takeoff, construction, estimating]
-description: "The wall framing takeoff now prints a door and window schedule (marks, counts, rough and unit sizes, headers, sill heights) from the openings already in the plan."
+description: "The wall framing takeoff now prints a door and window schedule (marks, counts, sizes, headers, sill heights) from the plan's openings."
 ---
 
 Every permit set and window order starts with a door and window schedule: a table of marks (D1, W2), how many of each, the sizes, and where they go. The framing takeoff already knew every opening's width, height, header and header height, so it now prints the table: `node cli.mjs plan.json --openings`.
