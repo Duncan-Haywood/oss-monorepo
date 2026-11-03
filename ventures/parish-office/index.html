@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b2737'/%3E%3Cpath%20d='M14%206h4v6h6v4h-6v10h-4V16H8v-4h6z'%20fill='%23fff'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free Mass Intentions Book for Parishes, with Canon Law Checks</title>
+  <meta name="description" content="A free Mass intentions book for parish offices: record intentions and offerings, book them into Masses, and check the one-year rule, bination and transfers against canons 948-958. Runs in your browser.">
+  <meta property="og:title" content="Mass Intentions Book for Parish Offices">
+  <meta property="og:description" content="Record Mass intentions, book them into Masses, and check them against canons 948-958. Free, private, runs in your browser.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Mass Intentions Book","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free browser-based Mass intentions book for Catholic parish offices, with checks against canons 948-958 of the Code of Canon Law."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How long does a parish have to say a Mass intention?", "acceptedAnswer": {"@type": "Answer", "text": "Canon 953: no one may accept more offerings than he can satisfy within a year. Canon 956: obligations not satisfied within a year go to the ordinary, in the way he sets. The year starts the day the priest received the intention unless it is otherwise evident (c. 955 §2)."}}, {"@type": "Question", "name": "Can a priest keep the offering from every Mass he says in a day?", "acceptedAnswer": {"@type": "Answer", "text": "No. Except on Christmas, he keeps the offering for one Mass and transfers the others to the purposes the ordinary prescribes (c. 951 §1). A priest who concelebrates a second Mass that day cannot accept an offering for it at all (c. 951 §2)."}}, {"@type": "Question", "name": "Can we pass intentions to another priest or the missions?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, unless the donor expressly asked otherwise (c. 954), and the whole offering goes with it unless the excess over the diocesan amount was certainly given for the priest personally (c. 955 §1). Record what you passed on and to whom (c. 955 §3)."}}, {"@type": "Question", "name": "What does the tool not check?", "acceptedAnswer": {"@type": "Answer", "text": "Collective intentions under the 1991 decree, foundation Masses, the Mass for the people, the \"extrinsic title\" recompense in c. 951 §1, and anything your diocese has added. It reads only what you type."}}, {"@type": "Question", "name": "Is my book uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser. The book is kept in this browser's local storage on this device, so back it up as JSON. It is a working copy, not the parish's official book (c. 958 §1)."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #241b1d; background: #f7f3ef; }
+    body { max-width: 1040px; margin: auto; padding: 28px 16px; }
+    a { color: #7a2336; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #4a1724; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #4a1724; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5d4d50; }
+    .card { background: #fff; border: 1px solid #e5d8d2; border-radius: 14px; padding: 20px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid #c9b6ae; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    input[type=checkbox] { width: auto; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0 14px; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; background: #7a2336; color: #fff; font-weight: 700; cursor: pointer; margin: 12px 8px 0 0; }
+    button.secondary { background: #f0e6e2; color: #4a1724; }
+    button.small { padding: 5px 9px; margin: 0; font-size: .82rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid #efe5e1; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .03em; color: #5d4d50; }
+    .scroll { overflow-x: auto; }
+    .f { border-left: 4px solid #999; padding: 6px 10px; margin: 8px 0; }
+    .f.high { border-color: #9a1b1b; } .f.medium { border-color: #b7791f; } .f.low { border-color: #3d6b9a; }
+    .f q { display: block; font-size: .84rem; color: #5d4d50; margin-top: 4px; }
+    footer { margin-top: 28px; border-top: 1px solid #e5d8d2; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PARISH OFFICE · MASS INTENTIONS BOOK · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>Keep the Mass intentions book, and catch the problems before the bishop's visit does.</h1>
+    <p>Write down each intention and its offering, list the parish's Masses, and book intentions into them. The book shows what is <strong>open, booked, said or passed on</strong>, and checks the entries against canons 948 to 958: one offered intention per Mass, the one-year limit, offerings from a second Mass the same day, and transfers to other priests. It exports the register as a spreadsheet.</p>
+    <p class="note">For parish secretaries, pastors and business managers. Free and open source. Not canonical advice: your diocese's own rules come first. See <a href="mass-intention-rules.html">what canon law says about Mass intentions, with a worked example</a>, and <a href="parish-tools.html">the plan for the rest of the parish office</a>.</p>
+  </header>
+<main>
+  <section class="card">
+    <h2>1. Parish settings</h2>
+    <div class="grid">
+      <div><label for="offering">Offering set in your diocese ($ per Mass, c. 952)</label><input type="number" id="offering" min="0" step="any" value="10"></div>
+      <div><label for="perWeek">Masses a week free for intentions</label><input type="number" id="perWeek" min="0" step="any" value="6"></div>
+      <div><label for="warnDays">Warn this many days before a year</label><input type="number" id="warnDays" min="0" step="1" value="30"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Record an intention</h2>
+    <div class="grid">
+      <div><label for="iId">Number in the book</label><input type="text" id="iId" placeholder="2026-118"></div>
+      <div><label for="iReceived">Date received</label><input type="date" id="iReceived"></div>
+      <div><label for="iDonor">Requested by</label><input type="text" id="iDonor"></div>
+      <div><label for="iText">Intention</label><input type="text" id="iText" placeholder="+ Name, or Thanksgiving"></div>
+      <div><label for="iOffering">Offering received ($, 0 if none)</label><input type="number" id="iOffering" min="0" step="any" value="10"></div>
+      <div><label for="iRequested">Requested date (optional)</label><input type="date" id="iRequested"></div>
+    </div>
+    <label><input type="checkbox" id="iForbid"> The donor asked that it be said here only (c. 954)</label>
+    <button type="button" id="addIntention">Add intention</button>
+    <p class="note">A lump sum with no number of Masses? <label for="lump" style="display:inline">Sum ($)</label> <input type="number" id="lump" min="0" step="any" style="width:8em"> <button type="button" class="secondary small" id="lumpBtn">How many Masses (c. 950)</button> <span id="lumpOut" aria-live="polite"></span></p>
+  </section>
+
+  <section class="card">
+    <h2>3. List the Masses</h2>
+    <p class="note">Add the Masses at which intentions can be said. Tick "keep free" for a Mass you do not take offered intentions at.</p>
+    <div class="grid">
+      <div><label for="mFrom">From</label><input type="date" id="mFrom"></div>
+      <div><label for="mWeeks">For this many weeks</label><input type="number" id="mWeeks" min="1" max="60" value="4"></div>
+      <div><label for="mCelebrant">Celebrant</label><input type="text" id="mCelebrant" value="Pastor"></div>
+    </div>
+    <label for="mTimes">Weekly times, one per line: <code>day time</code>, add <code>free</code> to keep it free of intentions</label>
+    <textarea id="mTimes" rows="5" spellcheck="false">Mon 08:00
+Tue 08:00
+Wed 08:00
+Thu 08:00
+Fri 08:00
+Sat 08:00
+Sat 17:00
+Sun 08:00
+Sun 10:30 free</textarea>
+    <button type="button" id="addMasses">Add these Masses</button>
+  </section>
+
+  <section class="card">
+    <h2>4. The book</h2>
+    <button type="button" id="autoBook">Book open intentions into free Masses</button>
+    <button type="button" class="secondary" id="csv">Download the register (CSV)</button>
+    <button type="button" class="secondary" id="saveJson">Back up the book (JSON)</button>
+    <label for="loadJson" style="display:inline-block;margin-left:4px"><span class="note">Restore a backup</span></label> <input type="file" id="loadJson" accept="application/json,.json" style="width:auto">
+    <button type="button" class="secondary" id="sample">Load a made-up example</button>
+    <button type="button" class="secondary" id="clear">Clear the book</button>
+    <p class="note" id="status" aria-live="polite"></p>
+    <h3>What to look at</h3>
+    <div id="findings" aria-live="polite"></div>
+    <h3>Intentions</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">No.</th><th scope="col">Received</th><th scope="col">Intention</th><th scope="col">Offering</th><th scope="col">State</th><th scope="col">Mass</th><th scope="col">A year on</th><th scope="col"></th></tr></thead><tbody id="iRows"></tbody></table></div>
+    <h3>Masses ahead</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Mass</th><th scope="col">Celebrant</th><th scope="col">Intention</th><th scope="col"></th></tr></thead><tbody id="mRows"></tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How long does a parish have to say a Mass intention?</h3>
+    <p>Canon 953: no one may accept more offerings than he can satisfy within a year. Canon 956: obligations not satisfied within a year go to the ordinary, in the way he sets. The year starts the day the priest received the intention unless it is otherwise evident (c. 955 §2).</p>
+    <h3>Can a priest keep the offering from every Mass he says in a day?</h3>
+    <p>No. Except on Christmas, he keeps the offering for one Mass and transfers the others to the purposes the ordinary prescribes (c. 951 §1). A priest who concelebrates a second Mass that day cannot accept an offering for it at all (c. 951 §2).</p>
+    <h3>Can we pass intentions to another priest or the missions?</h3>
+    <p>Yes, unless the donor expressly asked otherwise (c. 954), and the whole offering goes with it unless the excess over the diocesan amount was certainly given for the priest personally (c. 955 §1). Record what you passed on and to whom (c. 955 §3).</p>
+    <h3>What does the tool not check?</h3>
+    <p>Collective intentions under the 1991 decree, foundation Masses, the Mass for the people, the "extrinsic title" recompense in c. 951 §1, and anything your diocese has added. It reads only what you type.</p>
+    <h3>Is my book uploaded?</h3>
+    <p>No. Everything runs in your browser. The book is kept in this browser's local storage on this device, so back it up as JSON. It is a working copy, not the parish's official book (c. 958 §1).</p>
+  </section>
+
+  <section class="card privacy"><label><input type="checkbox" id="usage"> Count anonymous feature use in this browser</label><p class="note">Everything runs in your browser. The book is stored only in this browser's local storage and is never uploaded. Usage counts hold only feature names, stay in this browser, and are turned off by the checkbox, Do Not Track or Global Privacy Control.</p></section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not canonical, legal, tax, or financial advice, and it does not replace your diocese's own rules, your chancery or a canon lawyer. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  <p>Canon text quoted from the English translation of the Code of Canon Law on vatican.va. Not affiliated with any diocese or with the Holy See. MIT licensed. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/parish-office">Source code</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor this work</a></p>
+</footer>
+<script type="module">
+  import { check, status, autoBook, registerCsv, massesFromLumpSum, money } from "./intentions.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+  const STORE = "parish-office-intentions-book";
+  const $ = (id) => document.getElementById(id);
+  const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+  const empty = () => ({ settings: {}, intentions: [], masses: [], transfers: [] });
+  let book = empty();
+  try { const s = localStorage.getItem(STORE); if (s) book = { ...empty(), ...JSON.parse(s) }; } catch { /* storage is optional */ }
+
+  $("usage").checked = !usageOptedOut();
+  $("usage").addEventListener("change", (e) => setUsageOptOut(!e.target.checked));
+
+  function settingsFromForm() {
+    book.settings = {
+      localOfferingCents: Math.round(Number($("offering").value || 0) * 100),
+      intentionMassesPerWeek: Number($("perWeek").value || 0),
+      warnDays: Number($("warnDays").value || 0),
+    };
+  }
+  function formFromSettings() {
+    const s = book.settings || {};
+    if (s.localOfferingCents != null) $("offering").value = s.localOfferingCents / 100;
+    if (s.intentionMassesPerWeek != null) $("perWeek").value = s.intentionMassesPerWeek;
+    if (s.warnDays != null) $("warnDays").value = s.warnDays;
+  }
+  function save() { try { localStorage.setItem(STORE, JSON.stringify(book)); } catch { /* storage is optional */ } }
+  function say(msg) { $("status").textContent = msg; }
+  function cell(tr, text) { const td = document.createElement("td"); td.textContent = text; tr.append(td); return td; }
+  function btn(td, text, fn) { const b = document.createElement("button"); b.type = "button"; b.className = "secondary small"; b.textContent = text; b.addEventListener("click", fn); td.append(b); }
+
+  function render() {
+    settingsFromForm();
+    save();
+    const t = today();
+    let fs = [], st = [];
+    try { fs = check(book, t); st = status(book, t); } catch (e) { say(`The book has a problem: ${e.message}`); }
+    const box = $("findings"); box.replaceChildren();
+    if (!fs.length) { const p = document.createElement("p"); p.className = "note"; p.textContent = book.intentions.length ? "Nothing to flag today." : "Add intentions and Masses, or load the example."; box.append(p); }
+    for (const f of fs) {
+      const d = document.createElement("div"); d.className = `f ${f.severity}`;
+      const strong = document.createElement("strong"); strong.textContent = `c. ${String(f.canon).replace(".", " §")} · ${f.severity}: `;
+      const q = document.createElement("q"); q.textContent = f.quote;
+      d.append(strong, f.message, q); box.append(d);
+    }
+    const rows = $("iRows"); rows.replaceChildren();
+    for (const s of st.sort((a, b) => a.received.localeCompare(b.received))) {
+      const tr = document.createElement("tr");
+      cell(tr, s.id); cell(tr, s.received); cell(tr, s.intention); cell(tr, money(s.offeringCents)); cell(tr, s.state);
+      cell(tr, s.massId || ""); cell(tr, s.daysLeft === null ? "done" : `${s.dueBy} (${s.daysLeft} days)`);
+      const td = cell(tr, "");
+      if (s.state === "open") btn(td, "Passed on", () => {
+        const who = prompt("Passed on to which priest or work?"); if (!who) return;
+        const amt = prompt("Amount passed on ($)", (s.offeringCents / 100).toFixed(2)); if (amt === null) return;
+        book.transfers.push({ intentionId: s.id, date: t, toPriest: who, amountCents: Math.round(Number(amt) * 100) });
+        record("intention_transferred"); render();
+      });
+      btn(td, "Delete", () => {
+        if (!confirm(`Delete intention ${s.id}?`)) return;
+        book.intentions = book.intentions.filter((r) => r.id !== s.id);
+        book.transfers = book.transfers.filter((x) => x.intentionId !== s.id);
+        for (const m of book.masses) m.intentionIds = (m.intentionIds || []).filter((x) => x !== s.id);
+        render();
+      });
+      rows.append(tr);
+    }
+    const byId = new Map(book.intentions.map((r) => [r.id, r]));
+    const mr = $("mRows"); mr.replaceChildren();
+    const ahead = book.masses.filter((m) => !m.celebrated || m.date >= t).sort((a, b) => a.date.localeCompare(b.date) || String(a.time).localeCompare(String(b.time))).slice(0, 80);
+    for (const m of ahead) {
+      const tr = document.createElement("tr");
+      cell(tr, `${m.date} ${m.time || ""}${m.celebrated ? " (said)" : ""}`); cell(tr, m.celebrant || "");
+      cell(tr, m.noIntention ? "kept free" : (m.intentionIds || []).map((id) => `${id}: ${byId.get(id)?.intention || ""}`).join("; "));
+      const td = cell(tr, "");
+      if (!m.celebrated && (m.intentionIds || []).length) btn(td, "Mark said", () => { m.celebrated = true; record("mass_marked_said"); render(); });
+      if (!m.celebrated && (m.intentionIds || []).length) btn(td, "Unbook", () => { m.intentionIds = []; render(); });
+      mr.append(tr);
+    }
+  }
+
+  $("addIntention").addEventListener("click", () => {
+    const id = $("iId").value.trim() || `${today().slice(0, 4)}-${String(book.intentions.length + 1).padStart(3, "0")}`;
+    if (book.intentions.some((r) => r.id === id)) return say(`Number ${id} is already in the book.`);
+    const received = $("iReceived").value || today();
+    book.intentions.push({ id, received, donor: $("iDonor").value.trim(), intention: $("iText").value.trim(), offeringCents: Math.round(Number($("iOffering").value || 0) * 100), ...($("iRequested").value ? { requestedDate: $("iRequested").value } : {}), forbidTransfer: $("iForbid").checked });
+    for (const k of ["iId", "iDonor", "iText", "iRequested"]) $(k).value = "";
+    $("iForbid").checked = false;
+    record("intention_added"); say(`Added intention ${id}.`); render();
+  });
+
+  $("lumpBtn").addEventListener("click", () => {
+    try { const r = massesFromLumpSum(Math.round(Number($("lump").value || 0) * 100), Math.round(Number($("offering").value) * 100)); $("lumpOut").textContent = `${r.masses} Masses, ${money(r.remainderCents)} left over`; }
+    catch (e) { $("lumpOut").textContent = e.message; }
+  });
+
+  const DAYS = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
+  $("addMasses").addEventListener("click", () => {
+    const from = $("mFrom").value || today();
+    const weeks = Math.min(60, Math.max(1, Number($("mWeeks").value || 1)));
+    const slots = [];
+    for (const line of $("mTimes").value.split("\n")) {
+      const m = /^\s*(\w{3})\w*\s+(\d{1,2}:\d{2})\s*(free)?\s*$/i.exec(line);
+      if (!line.trim()) continue;
+      if (!m || !(m[1].toLowerCase() in DAYS)) return say(`Could not read "${line}". Use for example: Sun 10:30`);
+      slots.push({ dow: DAYS[m[1].toLowerCase()], time: m[2].padStart(5, "0"), free: !!m[3] });
+    }
+    const [y, mo, d] = from.split("-").map(Number);
+    const ids = new Set(book.masses.map((m) => m.id));
+    let n = 0;
+    for (let i = 0; i < weeks * 7; i++) {
+      const dt = new Date(Date.UTC(y, mo - 1, d + i));
+      const iso = dt.toISOString().slice(0, 10);
+      for (const s of slots.filter((s) => s.dow === dt.getUTCDay())) {
+        const id = `${iso} ${s.time}`;
+        if (ids.has(id)) continue;
+        ids.add(id); n++;
+        book.masses.push({ id, date: iso, time: s.time, celebrant: $("mCelebrant").value.trim(), intentionIds: [], ...(s.free ? { noIntention: true } : {}) });
+      }
+    }
+    record("masses_added"); say(`Added ${n} Masses.`); render();
+  });
+
+  $("autoBook").addEventListener("click", () => {
+    try {
+      const r = autoBook(book, today());
+      book = { ...book, masses: r.book.masses };
+      record("intentions_booked");
+      say(`Booked ${r.placed.length}. ${r.unplaced.length ? "Not booked: " + r.unplaced.map((u) => `${u.id} (${u.reason})`).join("; ") : ""}`);
+      render();
+    } catch (e) { say(e.message); }
+  });
+
+  function download(name, type, text) {
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+  $("csv").addEventListener("click", () => { try { download(`mass-intentions-${today()}.csv`, "text/csv", registerCsv(book, today())); record("register_exported"); } catch (e) { say(e.message); } });
+  $("saveJson").addEventListener("click", () => { download(`mass-intentions-book-${today()}.json`, "application/json", JSON.stringify(book, null, 2)); record("book_backed_up"); });
+  $("loadJson").addEventListener("change", async (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    try { const b = { ...empty(), ...JSON.parse(await f.text()) }; check(b, today()); book = b; formFromSettings(); say(`Restored ${book.intentions.length} intentions and ${book.masses.length} Masses.`); render(); }
+    catch (err) { say(`Could not restore: ${err.message}`); }
+  });
+  $("sample").addEventListener("click", async () => {
+    if (book.intentions.length && !confirm("Replace the book in this browser with the made-up example?")) return;
+    book = { ...empty(), ...(await (await fetch("./examples/sample-book.json")).json()) };
+    formFromSettings(); record("example_loaded"); say("Loaded a made-up parish. Its dates are fixed, so some findings depend on today's date."); render();
+  });
+  $("clear").addEventListener("click", () => { if (confirm("Clear the whole book from this browser? Back it up first.")) { book = empty(); render(); } });
+  for (const id of ["offering", "perWeek", "warnDays"]) $(id).addEventListener("change", render);
+
+  formFromSettings();
+  render();
+</script>
+</body>
+</html>

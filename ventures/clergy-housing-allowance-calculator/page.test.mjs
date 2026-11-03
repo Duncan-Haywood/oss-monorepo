@@ -51,3 +51,9 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
 });
+
+// Closes the crawlable orphan for parish-office (siblings.mjs): a church
+// treasurer here is the same reader as a parish office keeping the Mass book.
+test("index links one hop to the parish-office sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/parish-office\/"/);
+});

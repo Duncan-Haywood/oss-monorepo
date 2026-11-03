@@ -1660,6 +1660,9 @@ const CATEGORY_RULES = [
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
       || /^(einvoice|backup-verification|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check|salary-range-posting-check|eu-pay-gap-report-calculator|pay-transparency-directive-checker|eu-einvoicing-mandate-checker|dac7-seller-reporting-checker|eu-platform-work-directive-checker|eu-product-liability-directive-checker|eu-whistleblower-channel-checker|eu-dora-readiness-checker|eu-espr-readiness-checker|nis2-scope-checker|eu-ai-act-risk-checker|eudr-scope-checker|cbam-cost-estimator|eaa-accessibility-act-checker|eu-data-act-checker|gpsr-product-safety-checker|eu-battery-regulation-checker|eu-packaging-regulation-checker|eu-green-claims-checker|eu-green-claims-copy-scanner|eu-csrd-scope-checker|eu-dsa-obligations-checker|eu-price-reduction-claim-checker)/.test(slug)
+      // `parish-office` joined 2026-11-03 on its first commit: the canon 958 Mass intentions book, a dated register whose
+      // checks (cc. 948-956) are observations the pastor acts on, the same posture as the trackers above.
+      || slug === 'parish-office'
       || slug === '1099-k-threshold-checker'
       || slug === 'osha-trir-dart-calculator'
       || slug === 'final-paycheck-deadline-calculator'
