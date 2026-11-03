@@ -80,12 +80,12 @@ reason in the PR.
 
 ## Keeping it current
 
-Software for the routine: a scheduled workflow should run `--write` daily and
-`--weekly --write` on Mondays and commit the result. Workflows are control
-plane (`.github/CODEOWNERS`), so that lands in its own PR for the owner's
-approval. Until it does, a run that wants fresh numbers runs the script; a
-run that changes `flagships.yaml` or `PROGRAMMES.md` can regenerate and
-commit the reports in the same PR.
+Software for the routine: `.github/workflows/direction-report.yml` runs
+`--write` every day at 00:47 UTC (the report for the UTC day just ended) and
+`--weekly --write` on Mondays, then commits the reports and `LATEST.*` to main.
+It reads only git history and files: no secrets, no paid API. A run that changes
+`flagships.yaml` or `PROGRAMMES.md` can regenerate `LATEST.md` in the same PR so
+the suggestions match at once.
 
 Tests: `python3 -m pytest -q portfolio/router/test_direction_report.py` (beside the
 router, so the checklist line that already runs `portfolio/router` covers them).
