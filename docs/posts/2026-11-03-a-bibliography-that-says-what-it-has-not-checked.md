@@ -1,6 +1,6 @@
 ---
 title: "A bibliography that says what it has not checked"
-seo_title: "Froude-scaled cargo UAV paper: a BibTeX file with per-entry verification status"
+seo_title: "Scaled cargo UAV paper: BibTeX with per-entry check status"
 date: 2026-11-03
 tags: [research, uav, scaling, citations]
 description: "The aerolog-scaling paper now has a references.bib where every entry records whether a registry confirmed it, and the unchecked ones are marked."
