@@ -1,6 +1,6 @@
 ---
 title: "A waste factor typed as text ordered ten times the concrete"
-seo_title: "Concrete slab calculator bug: waste given as text ordered 50 cubic yards"
+seo_title: "Concrete calculator bug: a text waste factor ordered 50 cubic yards"
 date: 2026-11-03
 tags: [wall-framing-takeoff, construction, bugs]
 description: "In JavaScript, 1 + \"0.1\" is the string \"10.1\". The slab engine in wall-framing-takeoff now refuses numbers given as text."
