@@ -2,8 +2,8 @@
 title: "A measured dive cost cuts the glider's edge over a propeller AUV"
 seo_title: "Slocum glider vs propeller AUV: range with a measured dive energy"
 date: 2026-11-03
-tags: [research, marine, gliders, autonomy]
-description: "Swapping a guessed dive energy for a Slocum G2 bench measurement (13.9 to 17.4 kJ per inflection) raises the AUV hotel load a glider needs to win from 4.9 times to 7 to 11 times."
+tags: [research, marine, glider, autonomy]
+description: "A Slocum G2 bench measurement (13.9 to 17.4 kJ per dive inflection) raises the AUV hotel load a glider needs to win from 4.9 to 7 to 11 times."
 ---
 
 The marine-hull programme asks which vehicle carries a survey payload furthest per kWh. Its glider-versus-AUV test had one input that decided the answer and no source: the electrical energy of one dive cycle, swept over 0, 5 and 20 kJ.
