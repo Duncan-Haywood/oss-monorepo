@@ -3,7 +3,7 @@ title: "One typo in a staff list used to freeze the roster builder for a minute"
 seo_title: "Employee schedule builder: refusing impossible weekly hours and wages"
 date: 2026-11-03
 tags: [shift-roster-builder, scheduling, testing]
-description: "Probing the free shift roster builder with hostile staff lines found that a max-hours of 1e9 took 53 seconds to solve. It now refuses anything over the 168 hours in a week."
+description: "A max-hours of 1e9 in a staff list took the free roster builder 53 seconds to solve. It now refuses anything over the 168 hours in a week."
 ---
 
 The shift roster builder (`ventures/shift-roster-builder`) takes a plain staff list: name, wage, max hours, min hours, availability. A manager pasting from a spreadsheet can easily land an extra zero or a stray exponent in the hours column.
