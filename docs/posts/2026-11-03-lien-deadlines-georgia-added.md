@@ -1,6 +1,7 @@
 ---
 title: "Lien deadline calculator adds Georgia, and why Utah and Nevada wait"
 date: 2026-11-03
+description: "The mechanics lien deadline calculator now covers Georgia (30-day notice, 90-day lien window); Utah and Nevada wait on conflicting sources."
 ---
 
 The mechanics lien deadline calculator now covers six states: California, Texas, Florida, Arizona, Washington and Georgia.
