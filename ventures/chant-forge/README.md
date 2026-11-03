@@ -126,3 +126,5 @@ moves the staff. NABC alternations are still cut at the first `|`.
   - no bought streams or fake listener numbers.
 - **Treat the texts with respect.** These are liturgical texts. Use them whole
   and in their sense, not as jokes.
+
+See [RECORDING-GUIDE.md](RECORDING-GUIDE.md) for recording a choir line against the MIDI guide and cue sheet.
