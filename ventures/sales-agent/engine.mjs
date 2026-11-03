@@ -290,6 +290,9 @@ const RULES = {
     P("\\b(cancellatemi|rimuovetemi|toglietemi|disiscriv)"), P("non (voglio|vogliamo) pi[uù] ricevere"),
     P("n[ãa]o (me )?(envie|mande|escreva|contate)n? mais"), P("remov(a|am|er) (meu|minha|o meu)\\b"), P("cancelar (a )?inscri"),
     P("\\b(schrijf|schrijven) (mij|me|ons) uit\\b"), P("\\buitschrijven\\b"), P("verwijder (mij|me|mijn|ons)\\b"), P("mail (mij|ons) (niet|nooit) meer"),
+    // Added 2026-11-03 after eval/fresh-2026-11-03.jsonl missed 5 of 16 opt-outs: "remove it immediately" (address), "ne m'écrivez plus",
+    // "non contattarmi più", a GDPR Article 21 objection, and "I don't want to hear from you again".
+    P("\\bremove (it|this|that)( (address|email))? (immediately|now|asap)\\b"), P("\\bne m.[ée]crivez plus\\b"), P("\\bnon contattarmi\\b"), P("\\b(cease|stop) processing my (personal )?data\\b"), P("\\bgdpr\\b.*\\b(article 21|object|erasure|delete)"), P("\\b(i )?(don'?t|do not|never) want to (hear|receive|get)\\b.*\\b(from you|again|more)\\b"),
     P("\\bcease and desist\\b"), P("\\bcease (all )?(further )?(email|e-mail|communication|contact)"),
     // Other languages (added after the third eval set; unverified beyond one example each): FR, DE, ES, IT opt-out phrasings.
     P("\\bne (me )?contactez plus\\b"), P("\\b(retirer|supprimer) (de|mon|mes|mon adresse)\\b.*\\b(liste|diffusion|donn[ée]es)"), P("\\b(kontaktieren|anschreiben|schreiben)( sie)? mich nicht mehr\\b"), P("\\bnicht mehr (kontaktieren|anschreiben|schreiben)\\b"), P("\\bsc?hreiben sie mir nicht mehr\\b"), P("\\bno me (vuelvan a )?(escrib|contact)"), P("\\bnon (mi |ci )?contatt\\w* pi[uù]\\b"), P("\\bnon contattatemi\\b"),
