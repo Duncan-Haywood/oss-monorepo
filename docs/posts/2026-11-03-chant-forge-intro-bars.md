@@ -1,6 +1,6 @@
 ---
 title: "Chant Forge gets an intro: bars of silence before the chant"
-seo_title: "Adding an intro to a Gregorian chant MIDI track for a metal or house arrangement"
+seo_title: "Adding an intro to a Gregorian chant MIDI track for metal or house"
 date: 2026-11-03
 tags: [music, midi, gregorian-chant, open-source]
 description: "chant-forge --intro N puts N bars of silence before the chant so the drums and bass can start first. Cue sheets and lyrics shift to match."
