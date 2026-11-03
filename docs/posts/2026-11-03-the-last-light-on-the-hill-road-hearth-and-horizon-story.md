@@ -1,6 +1,6 @@
 ---
 title: "The Last Light on the Hill Road: a Hearth & Horizon story about timing a winter pilgrimage"
-seo_title: "Winter hill walk timing: slowest-walker pace, Naismith's rule and sunset"
+seo_title: "Winter hill walk timing: slowest pace, Naismith's rule, sunset"
 date: 2026-11-03
 tags: [fiction, hearth-and-horizon, walking, safety]
 description: "A parish pilgrimage set for a 3pm Mass in December would finish in the dark. The new story does the sums from the slowest walker's pace."
