@@ -1,5 +1,6 @@
 ---
 title: "Gap probe 21: 24 bank descriptors for five trades, 7 filed before the rules"
+seo_title: "AI bookkeeper test: 24 bank descriptors for carpet, septic, welding"
 date: 2026-11-02
 description: "ai-bookkeeper filed 7 of 24 made-up descriptors for carpet cleaners, appliance repairers, septic pumpers, welders and driving schools. New rules file all 24."
 tags: [ai-bookkeeper, small-business, bookkeeping]
