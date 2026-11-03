@@ -438,3 +438,18 @@ test("a typed price or allowance that is text, negative, NaN, Infinity or huge i
   assert.deepEqual(base.refusedValues, []);
   assert.deepEqual(budget(r, { laborWallFoot: 0 }).refusedValues, [], "zero is a legal price");
 });
+
+test("every unpriced line names the price that would fill it, and typing those prices prices the whole budget", async () => {
+  const { priceSheet } = await import("./budget.mjs");
+  const b0 = bud(full());
+  const un = b0.lines.filter((l) => l.amount == null);
+  assert.ok(un.length > 0);
+  assert.ok(un.every((l) => typeof l.priceKey === "string" && l.priceKey), "an unpriced line without a priceKey: " + un.filter((l) => !l.priceKey).map((l) => l.item).join("; "));
+  const rows = priceSheet(b0);
+  assert.equal(new Set(rows.map((r) => r.key)).size, rows.length);
+  const typed = Object.fromEntries(rows.map((r) => [r.key, 2]));
+  const b1 = bud(full(typed));
+  assert.deepEqual(b1.unpriced, [], "still unpriced after typing every row");
+  assert.ok(priceSheet(b1, typed).every((r) => r.price === 2));
+  assert.ok(rows.every((r) => r.price === null));
+});
