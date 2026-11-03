@@ -2,6 +2,16 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-03 · Milestone 7l: is 7k's shortfall the fitted lambda in the pooled design? (planned before running)
+- Why: 7k's open candidate. `experiments/h7l_fixed_lambda.py`: same corpus, coder (nb-in-language), n = 1000, pilot share 0.3, 1,000 draws; cells vs pooled intervals computed at lambda = 0, 1 and fitted, on the same draws.
+- **Prediction (before running):** cells/pooled half-width ratio is near the 7i ceiling (0.916) at lambda = 1 or 0, and near 1.0 only at fitted lambda. Refuted if the fitted-lambda ratio is under 0.97, or the fixed-lambda ratios are above 0.97.
+
+### Outcome (`experiments/h7l_fixed_lambda.txt`)
+- **Supported.** Cells/pooled ratio: 0.915 at lambda 0, 0.834 at lambda 1, 0.995 fitted. Cells are unaffected by lambda (the coder code is constant inside a cell), half-width 2.425 points. Pooled is 2.650 (lambda 0), 2.908 (lambda 1), 2.438 (fitted). Coverage 94.2 to 95.5% in all six cells.
+- Reading: the cell design's gain is the control variate that a fitted pooled lambda already provides. The 7i ceiling (0.916) matches the lambda = 0 comparison, so `ceiling` forecasts the gain over an uncorrected pooled audit, not over `audit_interval`'s pooled path. Cells win only if the pooled lambda is badly fitted.
+- Limits: one corpus, one coder, one n and pilot share, fixed corpus. Library docstring for `ceiling` not yet changed.
+- Next: reword the `ceiling` docstring to "gain over pooled at lambda 0"; a rare-category corpus where the fitted lambda is noisy.
+
 ## 2026-11-02 · Milestone 7k: what fraction of the 7i ceiling do coder cells realise on NaijaSenti, against pilot share? (planned before running; a 20-draw smoke test of the script ran first, to check it executes)
 - Why: 7j's "Next". 7h realised 0.6% of an 8.4% ceiling; 7i said the shortfall is pilot and allocation cost but did not test it. `experiments/h7k_pilot_fraction.py`: n = 1000, forced cells (tau 0, guard 0) vs forced pooled on the same draws, pilot share 0.1, 0.2, 0.3, 0.5, 1,000 draws, nb-in-language coder (J 0.388, ceiling 0.916).
 - **Prediction (before running):** the realised fraction of the ceiling gain is under 50% at every pilot share, and the pilot share does not move it by more than 0.2 (the shortfall is not mainly pilot cost). Refuted if any share realises 50% or more, or if the fraction rises by more than 0.2 from share 0.1 to 0.5.
