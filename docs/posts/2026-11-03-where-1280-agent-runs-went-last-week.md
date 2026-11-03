@@ -3,7 +3,7 @@ title: "Where 1,280 agent runs went last week, and where the next ones are route
 seo_title: "Where 1,280 AI agent runs went in a week"
 date: 2026-11-03
 tags: [devstats, dashboard, process, real-data]
-description: "The development dashboard now counts agent runs by period, track and project, and shows where the router sends the next ones. A week of it, read from 4,461 run records."
+description: "The dev dashboard now counts agent runs by period, track and project, and shows where the router sends the next ones: a week read from 4,461 run records."
 ---
 
 Automated agent runs build this repository, and every run leaves a record in `prompts/runs/`. Those records knew each run's track, but nothing put them side by side over time, so it was hard to answer two plain questions: where did the effort go, and where is it going next? The [development dashboard](https://marisstella.app/dev/#allocation) now answers both. Each count is worked out from the files, not estimated.
