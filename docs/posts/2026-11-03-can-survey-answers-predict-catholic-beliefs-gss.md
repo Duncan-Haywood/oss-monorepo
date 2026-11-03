@@ -1,7 +1,7 @@
 ---
 title: "Can your other survey answers predict what you believe about marriage? Catholic and Protestant beliefs in 50 years of GSS data"
 date: 2026-11-03
-description: "Using GSS 1972–2024, a model predicts a Catholic's unasked answers on Mass attendance, premarital sex, same-sex marriage and abortion with AUC 0.75–0.88. The associations carry over to immigrants and Protestants; the levels do not."
+description: "In 50 years of GSS data, a Catholic's other answers predict their unasked views on Mass, sex and marriage (AUC 0.75–0.88). Associations transfer; levels do not."
 tags: [religion, catholic, protestant, immigration, marriage, survey-methods, machine-learning, research]
 ---
 
