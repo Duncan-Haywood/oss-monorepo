@@ -1,0 +1,172 @@
+# Tasks: concrete, landable pieces of work under a direction in directions.yaml.
+#
+# `python3 portfolio/work/workctl.py next` picks from the open ones. A task is
+# one PR's worth (or a few), with a "done when" a reviewer could check. When a
+# PR lands one, set `status: done` and `pr:` in that same PR, and add the next
+# task if the work continues. Put `[work:<id>]` in the PR title so overlapping
+# sessions see it is taken (`next` skips ids named in open PR titles).
+#
+# Fields:
+#   id          short slug, unique
+#   direction   an id from directions.yaml (kind: area)
+#   title       imperative, one line
+#   done_when   what a reviewer checks
+#   hours       a rough estimate of a person's hours for this task
+#   status      open, done or dropped
+#   added       YYYY-MM-DD
+#   pr          the PR number that landed it, when done
+#   blocked_on  optional: what it waits for (an owner decision, a key, a host)
+#   notes       optional
+
+tasks:
+  - id: agent-fleet-kit-cli
+    direction: agent-org-tooling
+    title: Ship ci_starvation and unlanded_work as one CLI that runs on any repository
+    done_when: >-
+      `ventures/agent-fleet-kit/` holds a CLI with no imports from this
+      monorepo, tests, a README and a page; run against this repository with
+      the output in the README; a blog post.
+    hours: 25
+    status: open
+    added: 2026-11-03
+
+  - id: work-registry
+    direction: agent-org-tooling
+    title: Add a machine-readable registry of directions and tasks with a picker
+    done_when: >-
+      portfolio/work/ holds directions.yaml, tasks.yaml and workctl.py
+      (list, next, coverage, validate) with tests.
+    hours: 8
+    status: done
+    added: 2026-11-03
+    pr: 12929
+    notes: This file's first task, landed with the registry itself.
+
+  - id: work-registry-routing
+    direction: agent-org-tooling
+    title: Point prompt.md's free-choice step at `workctl.py next`
+    done_when: >-
+      prompt.md (control plane, owner-approved PR) names `workctl.py next` as
+      the way to pick work when the brief leaves the choice open, beside
+      `allocate.py` and the direction report.
+    hours: 1
+    status: open
+    added: 2026-11-03
+    blocked_on: owner approval (prompt.md is in .github/CODEOWNERS)
+
+  - id: work-coverage-in-report
+    direction: agent-org-tooling
+    title: Add per-direction coverage to the daily and weekly direction report
+    done_when: >-
+      portfolio/direction/report.py prints commits per direction from
+      directions.yaml paths and names directions with no commits in the window.
+    hours: 4
+    status: open
+    added: 2026-11-03
+
+  - id: duplicate-work-precheck
+    direction: agent-org-tooling
+    title: Warn before a session starts work another open PR already covers
+    done_when: >-
+      A script takes a slug or task id, searches open PR titles and recently
+      merged commits, and prints candidates to extend instead; wired into
+      .github/prompts/duplicate-work.md by an owner-approved PR.
+    hours: 6
+    status: open
+    added: 2026-11-03
+
+  - id: permit-preflight-one-city
+    direction: construction
+    title: Residential permit-package preflight for one city with a public checklist
+    done_when: >-
+      `ventures/permit-preflight/` checks a submission's file list and form
+      fields against one named city's published residential checklist, cites
+      the checklist URL and date, carries the disclaimer, and has tests.
+    hours: 30
+    status: open
+    added: 2026-11-03
+
+  - id: robot-bom-origin-check
+    direction: robots-made-in-america
+    title: Bill-of-materials country-of-origin checker for an open robot design
+    done_when: >-
+      Reads a BOM CSV with cost and origin per line and reports the domestic
+      share against the threshold in the FCC rule text, read from the FCC and
+      cited; run on one of the repo's open robot designs.
+    hours: 15
+    status: open
+    added: 2026-11-03
+    notes: Read the rule from the FCC before writing thresholds; YC's page is secondhand.
+
+  - id: gpu-cluster-underwriting-model
+    direction: physical-buildout-finance
+    title: Open underwriting model for a GPU cluster or robot fleet lease
+    done_when: >-
+      A documented model (utilisation, residual value, downtime, power cost)
+      with sourced defaults and sensitivity output, framed as research, not a
+      lending offer.
+    hours: 20
+    status: open
+    added: 2026-11-03
+
+  - id: transformer-lead-time-tracker
+    direction: data-center-supply-chain
+    title: Lead-time tracker for large power transformers and switchgear from public sources
+    done_when: >-
+      Every row cites a public source and date; a page and a CSV; a note on
+      what the sources do and do not cover.
+    hours: 20
+    status: open
+    added: 2026-11-03
+
+  - id: vertical-model-baseline
+    direction: vertical-foundation-models
+    title: Small domain time-series model against a general model on public data
+    done_when: >-
+      A research programme entry with the dataset, both models, the metric
+      and the result, wins or losses, per research/CLAUDE.md.
+    hours: 40
+    status: open
+    added: 2026-11-03
+
+  - id: solo-business-workspace
+    direction: solo-business-os
+    title: Join bookkeeping, invoicing, support and rostering into one workspace shell
+    done_when: >-
+      One page links the existing flagships' engines over shared business
+      data (name, customers, invoices) kept in the browser, with no per-user
+      cost to us.
+    hours: 40
+    status: open
+    added: 2026-11-03
+
+  - id: household-money-model
+    direction: ai-wealth-guide
+    title: One household model that ties the retirement and tax calculators together
+    done_when: >-
+      A page takes one household profile and runs the existing calculators'
+      engines on it, with an education-not-advice disclaimer and no account
+      access.
+    hours: 30
+    status: open
+    added: 2026-11-03
+
+  - id: job-shop-scheduler
+    direction: manufacturing-autonomy
+    title: Open job-shop scheduling and quoting from a part list
+    done_when: >-
+      Schedules jobs across named machines with setup times, reports
+      makespan against a lower bound, tests, a page.
+    hours: 30
+    status: open
+    added: 2026-11-03
+
+  - id: text-to-printable-part
+    direction: generative-creation
+    title: Text or photo to a printable part on a local model
+    done_when: >-
+      Produces a valid STL from a prompt for a small class of parts
+      (brackets, spacers), runs locally, with a page and the failure cases.
+    hours: 40
+    status: open
+    added: 2026-11-03

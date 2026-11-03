@@ -1,0 +1,333 @@
+# Directions: the owner's standing directions, one entry each, machine-readable.
+#
+# The owner, 2026-11-03: "i think it also makes sense to vamp up the structure
+# of the task and direction handling system." Before this file, directions
+# lived only as prose sections in prompts/goals.md, portfolio/DIRECTION.md and
+# portfolio/opinions/, so no script could say which ones were getting work.
+#
+# The prose stays canonical for the owner's words and the reasoning. This file
+# is the index: what each direction is, where its text lives, which paths count
+# as work on it, and how much weight it carries when `workctl.py next` picks a
+# task. Tasks under a direction live in tasks.yaml.
+#
+# Fields:
+#   id        short slug, used by tasks.yaml
+#   title     a short name
+#   kind      area (a body of work that takes tasks) or principle (how to
+#             work, no tasks; listed so the index is complete)
+#   set       date the owner set it (YYYY-MM-DD)
+#   source    the file holding the owner's words
+#   section   optional: the heading in that file
+#   status    active, paused or retired
+#   weight    relative pull on `workctl.py next` (1 is normal; agents may tune
+#             this with a reason in the PR; the owner's "special focus" is 3)
+#   paths     globs of repository paths whose commits count as work on it
+#             (`workctl.py coverage`); areas only
+#
+# Agents may add directions the owner sets, adjust weights and paths, and
+# retire a direction only when the owner says so.
+
+directions:
+  # --- areas ---------------------------------------------------------------
+  - id: agent-org-tooling
+    title: Tooling for running orgs of agents (this repo first)
+    kind: area
+    set: 2026-11-03
+    source: portfolio/opinions/2026-11-03-requests-for-startups.md
+    status: active
+    weight: 3
+    paths:
+      - portfolio/work/**
+      - platform/agents/**
+      - platform/ci/unlanded_work.py
+      - platform/ci/ci_starvation.py
+      - platform/ci/adopt_stranded.py
+      - portfolio/ledger/supersede_check.py
+      - portfolio/direction/**
+      - portfolio/router/**
+      - ventures/agent-workroom/**
+      - ventures/agent-instructions-drift-check/**
+      - ventures/agent-permission-config-check/**
+      - ventures/claude-code-subagent-check/**
+      - ventures/agent-fleet-kit/**
+
+  - id: construction
+    title: Industrial, energy, real estate development and construction
+    kind: area
+    set: 2026-10-31
+    source: portfolio/DIRECTION.md
+    section: "Current priority"
+    status: active
+    weight: 2
+    paths:
+      - ventures/wall-framing-takeoff/**
+      - ventures/construction-evidence-log/**
+      - ventures/permit-preflight/**
+
+  - id: heavy-equipment
+    title: Open construction, mining and heavy equipment
+    kind: area
+    set: 2026-10-24
+    source: prompts/goals.md
+    section: "Direction: open construction, mining and heavy equipment"
+    status: active
+    weight: 1
+    paths:
+      - research/heavy-*/**
+
+  - id: robots-made-in-america
+    title: US-made robot parts and open robots
+    kind: area
+    set: 2026-11-03
+    source: portfolio/opinions/2026-11-03-requests-for-startups.md
+    status: active
+    weight: 1
+    paths:
+      - ventures/open-floor-robots/**
+      - ventures/open-robot-mower/**
+      - ventures/open-tennis-robots/**
+
+  - id: physical-buildout-finance
+    title: Financing the physical buildout (robots, GPUs, data centers)
+    kind: area
+    set: 2026-11-03
+    source: portfolio/opinions/2026-11-03-requests-for-startups.md
+    status: active
+    weight: 1
+    paths:
+      - ventures/equipment-lease-vs-buy-calculator/**
+      - ventures/equipment-lease-buyout-calculator/**
+
+  - id: data-center-supply-chain
+    title: Data center supply chain
+    kind: area
+    set: 2026-11-03
+    source: portfolio/opinions/2026-11-03-requests-for-startups.md
+    status: active
+    weight: 1
+    paths:
+      - ventures/datacenter-*/**
+
+  - id: vertical-foundation-models
+    title: Vertical foundation models
+    kind: area
+    set: 2026-11-03
+    source: portfolio/opinions/2026-11-03-requests-for-startups.md
+    status: active
+    weight: 1
+    paths:
+      - research/vfm-*/**
+
+  - id: solo-business-os
+    title: An AI operating system for solo businesses
+    kind: area
+    set: 2026-11-03
+    source: portfolio/opinions/2026-11-03-requests-for-startups.md
+    status: active
+    weight: 1
+    paths:
+      - ventures/ai-bookkeeper/**
+      - ventures/sales-agent/**
+      - ventures/support-agent/**
+      - ventures/einvoice-preflight/**
+      - ventures/shift-roster-builder/**
+
+  - id: ai-wealth-guide
+    title: An AI wealth guide (education, never advice)
+    kind: area
+    set: 2026-11-03
+    source: portfolio/opinions/2026-11-03-requests-for-startups.md
+    status: active
+    weight: 1
+    paths:
+      - ventures/household-money-model/**
+
+  - id: manufacturing-autonomy
+    title: Autonomy for manufacturing
+    kind: area
+    set: 2026-11-03
+    source: portfolio/opinions/2026-11-03-requests-for-startups.md
+    status: active
+    weight: 1
+    paths:
+      - ventures/cnc-machining-quote-calculator/**
+
+  - id: generative-creation
+    title: 3D generative AI and vibe-creation
+    kind: area
+    set: 2026-11-03
+    source: portfolio/opinions/2026-11-03-requests-for-startups.md
+    status: active
+    weight: 1
+    paths:
+      - ventures/3d-print-price-calculator/**
+
+  - id: ai-native-education
+    title: AI-native education
+    kind: area
+    set: 2026-11-03
+    source: portfolio/opinions/2026-11-03-requests-for-startups.md
+    status: active
+    weight: 1
+    paths:
+      - ventures/ai-engineering-academy/**
+
+  - id: ai-accounting
+    title: AI accounting systems
+    kind: area
+    set: 2026-10-21
+    source: prompts/goals.md
+    section: "Direction: AI accounting systems"
+    status: active
+    weight: 1
+    paths:
+      - ventures/ai-bookkeeper/**
+
+  - id: sales-business-tools
+    title: Sales, marketing and business tools
+    kind: area
+    set: 2026-10-16
+    source: prompts/goals.md
+    section: "Direction: sales, marketing and business tools"
+    status: active
+    weight: 1
+    paths:
+      - ventures/sales-agent/**
+      - ventures/sales-*/**
+
+  - id: water-vehicles
+    title: Autonomous water vehicles
+    kind: area
+    set: 2026-10-24
+    source: prompts/goals.md
+    section: "Direction: autonomous water vehicles"
+    status: active
+    weight: 1
+    paths:
+      - research/marine-*/**
+
+  - id: phd-research
+    title: Research at PhD+ level, aimed at deep tech
+    kind: area
+    set: 2026-11-01
+    source: prompts/goals.md
+    section: "Direction: research at PhD+ level, aimed at deep tech"
+    status: active
+    weight: 1
+    paths:
+      - research/**
+
+  - id: rust-dev-tools
+    title: Dev tools in Rust, common and niche
+    kind: area
+    set: 2026-10-29
+    source: prompts/goals.md
+    section: "Direction: dev tools in Rust, common and niche"
+    status: active
+    weight: 1
+    paths:
+      - ventures/dupehound/**
+
+  - id: website-requests
+    title: Free custom websites for businesses (website requests)
+    kind: area
+    set: 2026-11-02
+    source: portfolio/requests/README.md
+    status: active
+    weight: 2
+    paths:
+      - portfolio/requests/**
+
+  - id: distribution
+    title: Automated, unpaid, compliant distribution
+    kind: area
+    set: 2026-10-15
+    source: prompts/goals.md
+    section: "Long-term goal: automated, unpaid, compliant distribution"
+    status: active
+    weight: 1
+    paths:
+      - portfolio/distribution/**
+
+  - id: impressive-sites-seo
+    title: Impressive sites, SEO and AEO, for a period
+    kind: area
+    set: 2026-10-28
+    source: prompts/goals.md
+    section: "Direction: impressive sites, SEO and AEO, for a period"
+    status: active
+    weight: 1
+    paths:
+      - platform/pages/**
+
+  # --- principles (how to work; no tasks) ----------------------------------
+  - id: depth-over-calculators
+    title: Depth over calculators
+    kind: principle
+    set: 2026-10-20
+    source: prompts/goals.md
+    section: "Direction: depth over calculators"
+    status: active
+  - id: write-about-the-work
+    title: Write about the work
+    kind: principle
+    set: 2026-10-20
+    source: prompts/goals.md
+    section: "Direction: write about the work"
+    status: active
+  - id: llm-docs-marketing
+    title: LLM docs and a marketing page for every product
+    kind: principle
+    set: 2026-10-21
+    source: prompts/goals.md
+    section: "Direction: LLM docs and a marketing page for every product"
+    status: active
+  - id: local-models
+    title: Local models as an option beside API keys
+    kind: principle
+    set: 2026-10-18
+    source: prompts/goals.md
+    section: "Direction: local models as an option beside API keys"
+    status: active
+  - id: voice-chat-agents
+    title: Voice, chat and agents as primary ways in
+    kind: principle
+    set: 2026-10-20
+    source: prompts/goals.md
+    section: "Direction: voice, chat and agents as primary ways in"
+    status: active
+  - id: every-platform
+    title: Every platform, not just the web
+    kind: principle
+    set: 2026-10-20
+    source: prompts/goals.md
+    section: "Direction: every platform, not just the web"
+    status: active
+  - id: files-first
+    title: Files first, not the GitHub API
+    kind: principle
+    set: 2026-10-20
+    source: prompts/goals.md
+    section: "Direction: files first, not the GitHub API"
+    status: active
+  - id: software-for-routine
+    title: Software for the routine, agents for judgment
+    kind: principle
+    set: 2026-10-24
+    source: prompts/goals.md
+    section: "Direction: software for the routine, agents for judgment"
+    status: active
+  - id: everything-as-code
+    title: Everything as code
+    kind: principle
+    set: 2026-10-31
+    source: prompts/goals.md
+    section: "Direction: everything as code"
+    status: active
+  - id: language-judgment
+    title: Language is a judgment call (Rust where it is essential)
+    kind: principle
+    set: 2026-10-21
+    source: prompts/goals.md
+    section: "Direction: language is a judgment call"
+    status: active
