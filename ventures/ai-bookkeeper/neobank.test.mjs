@@ -396,3 +396,16 @@ test("N26: the German, French and older English exports are named n26 and read",
     assert.deepEqual(r.problems, [], f);
   }
 });
+
+test("Qonto, Tide and Novo: named, day-first dates, payee as description (made-up rows, headers from memory)", () => {
+  const q = read("qonto-sample.csv");
+  assert.equal(q.bank, "qonto");
+  assert.deepEqual(q.rows.map((x) => [x.date, x.cents, x.desc]), [["2026-03-02", -1200, "Notion Labs"], ["2026-03-05", 150000, "ACME SARL"]]);
+  const t = read("tide-sample.csv");
+  assert.equal(t.bank, "tide");
+  assert.deepEqual(t.rows.map((x) => [x.date, x.cents, x.desc]), [["2026-03-02", -4500, "SCREWFIX"], ["2026-03-05", 120000, "CUSTOMER LTD INV 9"]]);
+  const n = read("novo-sample.csv");
+  assert.equal(n.bank, "novo");
+  assert.deepEqual(n.rows.map((x) => x.cents), [240050, -1200]);
+  assert.equal(n.problems.length, 1);
+});
