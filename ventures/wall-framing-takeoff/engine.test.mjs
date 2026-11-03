@@ -990,3 +990,17 @@ test("an opening kind other than window or door, and a door taller than its head
   assert.equal(withOp((o) => { o.height = 82.5; }).ok, true);
   assert.equal(takeoff(samplePlan()).ok, true);
 });
+
+test("a non-numeric headerHeight or tee is refused with a reason (headerHeight 'x' used to throw a raw error; a string tee passed by coercion)", () => {
+  const p = samplePlan();
+  p.walls[0].openings[0].headerHeight = "x";
+  const r = takeoff(p); // must not throw
+  assert.equal(r.ok, false);
+  assert.match(r.errors.join(" "), /headerHeight/);
+  const q = samplePlan();
+  q.walls[0].tees = ["20"];
+  const r2 = takeoff(q);
+  assert.equal(r2.ok, false);
+  assert.match(r2.errors.join(" "), /tee must be a number/);
+  assert.equal(takeoff(samplePlan()).ok, true);
+});

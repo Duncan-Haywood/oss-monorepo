@@ -216,7 +216,9 @@ export function validatePlan(plan) {
     if (Array.isArray(w.openings)) w.openings.forEach((op) => {
       if (!isRec(op)) return;
       for (const k of ["offset", "width", "height"]) if (!isNum(op[k])) shape.push(`${at}, ${op.label || op.kind || "opening"}: "${k}" must be a number of inches.`);
+      if (op.headerHeight !== undefined && !isNum(op.headerHeight)) shape.push(`${at}, ${op.label || op.kind || "opening"}: "headerHeight" must be a number of inches.`);
     });
+    if (Array.isArray(w.tees) && !w.tees.every(isNum)) shape.push(`${at}: every tee must be a number of inches from the wall start.`);
   });
   if (shape.length) return shape;
   if (!(plan.studSpacing >= 8 && plan.studSpacing <= 48)) errors.push("Stud spacing must be between 8 and 48 inches.");
