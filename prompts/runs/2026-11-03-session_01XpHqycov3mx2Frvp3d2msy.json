@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 12768,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,25 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "overwrote email-routing.json and dropped accounts@ another session had added on main; caught in the diff and restored",
+      "fixed": true
+    },
+    {
+      "what": "unescaped backticks in setup.mjs template string broke the SETUP.md generator; fixed before commit",
+      "fixed": true
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-03-an-inbox-run-by-agents.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Owner: inbox is agent-managed, no forwarding. Email Routing -> edge Worker email handler -> D1 (private, never committed); GET /inbox behind INBOX_TOKEN; read-inbox.mjs with screen verdicts. cloudflare-email.yml still names EMAIL_FORWARD_TO (unused) - control-plane path, separate PR. Local: edge+counter+cloudflare+setup+writing 104/104, hub 50/50, build.test 305/305, router validate, publish_surface ok. LICENSE holder left as Duncan Haywood: correct for a sole prop and for an LLC until work is assigned; owner unsure which they have.",
   "corrections": [],
   "redteam": null
 }
