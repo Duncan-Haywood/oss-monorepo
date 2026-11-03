@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { MAX_TITLE_LENGTH, checkPageIdentity, h1Count, loadPages, titleOf } from './page-identity.mjs';
+import { MAX_TITLE_LENGTH, checkPageIdentity, h1Count, loadPages, resolvePostTitleClashes, titleOf } from './page-identity.mjs';
 
 const page = (title, body) => `<html><head><title>${title}</title></head><body>${body}</body></html>`;
 
@@ -79,4 +79,23 @@ test('a title over the ceiling is flagged, entities counting as one character', 
   assert.deepEqual(checkPageIdentity(long('x'.repeat(MAX_TITLE_LENGTH))), []);
   assert.deepEqual(checkPageIdentity(long('&#39;'.repeat(MAX_TITLE_LENGTH))), []);
   assert.match(checkPageIdentity(long('x'.repeat(MAX_TITLE_LENGTH + 1)))[0], /over 130/);
+});
+
+test('a post that reuses a tool page title is renamed, not left to fail the deploy', () => {
+  const tool = '<title>Free checker</title><h1>Checker</h1>';
+  const post = (h1) => `<title>Free checker</title><meta property="og:title" content="Free checker"><h1>${h1}</h1>`;
+  const pages = new Map([
+    ['tool/index.html', tool],
+    ['writing/a/index.html', post('Why we built a checker')],
+    ['writing/b/index.html', post('Free checker')],
+  ]);
+  const changes = resolvePostTitleClashes(pages);
+  assert.deepEqual(changes.map((c) => [c.rel, c.to]), [
+    ['writing/a/index.html', 'Why we built a checker'],
+    ['writing/b/index.html', 'Free checker · Blog'],
+  ]);
+  assert.match(changes[0].html, /og:title" content="Why we built a checker"/);
+  for (const c of changes) pages.set(c.rel, c.html);
+  assert.deepEqual(checkPageIdentity(pages), []);
+  assert.deepEqual(resolvePostTitleClashes(new Map([['tool/index.html', tool]])), []);
 });
