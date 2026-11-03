@@ -44,3 +44,4 @@ hypotheses:
       check-digit test restores a stripped UPC zero only when it validates,
       measured as the share of file checks whose safe-fixes pass is used.
     status: untested
+    evidence: in-repo
