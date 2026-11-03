@@ -1,5 +1,6 @@
 ---
 title: "Can your other survey answers predict what you believe about marriage? Catholic and Protestant beliefs in 50 years of GSS data"
+seo_title: "Can your other survey answers predict what you believe about marriage?"
 date: 2026-11-03
 description: "In 50 years of GSS data, a Catholic's other answers predict their unasked views on Mass, sex and marriage (AUC 0.75–0.88). Associations transfer; levels do not."
 tags: [religion, catholic, protestant, immigration, marriage, survey-methods, machine-learning, research]
