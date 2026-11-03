@@ -36,6 +36,8 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   falls from 171/19/53/200/13 to 79/6/26/87/6 pulses. 5 tests in `stretch.test.mjs`.
   Not listened to; no ear comparison yet.
 
+- 2026-11-03: fuzz test (`fuzz.test.mjs`): 2000 seeded random GABC strings (odd clefs, unclosed groups, CRLF, markup) through the reader and MIDI writer; none throws, every pitch is 0-127, every file has MThd/MTrk. Made-up input only; GregoBase is blocked from the cloud proxy, so real-file batches are still open.
+
 ## Next
 
 1. **Corpus hardening:** compare the five files against a pre-1929 scan,

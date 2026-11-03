@@ -99,6 +99,8 @@ moves the staff. NABC alternations are still cut at the first `|`.
   It is a demo input, not a corpus entry.
 - The converter has run on the five corpus files and made-up inputs, not on a
   batch of real Gregorio files.
+- `fuzz.test.mjs` throws 2000 random made-up GABC strings at the reader and
+  MIDI writer (no crash, pitches in range); it says nothing about real files.
 - Nothing has been arranged, sung, mixed or published.
 
 ## Rules this project keeps
