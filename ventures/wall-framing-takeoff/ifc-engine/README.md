@@ -150,3 +150,7 @@ works on its own and is checked on a real model before the next.
 
 Most valuable next: milestone 2, so the page's users get this reader, then 4
 with a real US wood-framed model.
+
+## WebAssembly (2026-11-03)
+
+`src/wasm.rs` exports a C ABI (`ifc_alloc`, `ifc_plan`, `ifc_dxf`, `ifc_result_ptr`, `ifc_result_len`, `ifc_dealloc`) on `wasm32`. Build: `cargo build --release --target wasm32-unknown-unknown --lib`, then copy `ifc_engine.wasm` to `../ifc-engine.wasm`. The JS loader is `../ifcwasm.mjs`; `../ifcwasm.test.mjs` compares it with the native binary.

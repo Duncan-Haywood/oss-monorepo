@@ -7,7 +7,7 @@ license = "MIT"
 repository = "https://github.com/duncan-haywood/oss-monorepo"
 
 [lib]
-crate-type = ["rlib"]
+crate-type = ["rlib", "cdylib"]
 
 [[bin]]
 name = "ifc-engine"
