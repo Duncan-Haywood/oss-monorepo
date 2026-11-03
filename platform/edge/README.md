@@ -68,10 +68,12 @@ so the full crawler picture needs one of:
 
 - **Search Console / Bing Webmaster Tools crawl stats**: the owner signs in and
   verifies the site (a meta tag or HTML file an agent can commit). Free.
-- **A custom domain behind Cloudflare**: every request, crawler or not, passes
-  Cloudflare, and its free analytics and AI Crawl Control report bots by name.
-  Needs the domain the owner's `pages-custom-domain` ask already covers
-  (`python3 portfolio/ledger/decision_queue.py`).
+- **Cloudflare's own analytics**: since 2026-10-30 the site is served from
+  https://marisstella.app/ on Cloudflare, so every request, crawler or not,
+  passes its edge. `platform/counter/pull-cloudflare.mjs` copies the daily
+  aggregates (requests by kind of client, top pages per crawler, Worker
+  invocations) into `portfolio/usage/cloudflare-analytics.json`. The
+  dashboard's AI Crawl Control page shows the same crawlers by name.
 
 ## Checking it
 
@@ -120,9 +122,9 @@ an agent session to prove the path, not a visitor.
    form, the ping and the matching privacy copy together.
 6. **Daily counts and feedback into the repo.** Nothing to set: once step 5
    is on `main`, the **site-usage-pull** workflow commits
-   `portfolio/usage/site-visits.json` and `site-feedback.json` once a day.
-   If `main` is protected against pushes from Actions, allow
-   `github-actions[bot]` or leave it off; any session can run
+   `site-visits.json` and `site-feedback.json` once a day to the `usage-data`
+   branch (main takes changes only through a PR), and a session lands them on
+   main with `node platform/counter/usage-data.mjs sync`. Any session can also run
    `COUNTER_URL=<url> node platform/counter/pull.mjs` and
    `EDGE_URL=<url> node platform/edge/pull-feedback.mjs` instead.
 

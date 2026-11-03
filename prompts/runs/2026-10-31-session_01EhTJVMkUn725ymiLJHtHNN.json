@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01EhTJVMkUn725ymiLJHtHNN",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T05:58:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 1: starter strip for lap siding",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": 12022,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "why": "The router sent a review run, but the scheduled task asked for product work, so I routed with --skip-review.",
+      "did": "Ran product work on a flagship; recorded the track as research because the skip-review route returned it.",
+      "result": "One engine slice, a test, a post and a budget line landed."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Checked: node --test siding/budget/cli/page tests, 88 pass. Bulgaria e-invoice page re-searched, no new outcome, so no change. gov.il unreachable (not on the allowed hosts).",
+  "corrections": [],
+  "redteam": null
+}

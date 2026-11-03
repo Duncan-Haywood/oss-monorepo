@@ -364,6 +364,7 @@ series, 40 each, in `engine.test.mjs`):
 - **The steep-bend range is under-covered (2026-10-27, `eval/growth-change-interval-nb-steep.out.txt`).** Four more fresh seeds (5, 13, 29, 61; same script, temper 1.4, nothing tuned) covered 198 of 215 found bends (92.1%): bump 0.015 83/84 (99%), 0.025 68/73 (93%), 0.04 47/58 (81%). With the earlier 21 steep bends that is 65 of 79 (82%) for bump 0.04, so the 95% label is optimistic there; the steep cell has the narrowest median ranges (43 to 52 points against 90 or more). Not retuned: raising the temper for steep bends would be fitting this one synthetic design. Synthetic only; a real series with a documented steep slope break is still wanted. From 2026-10-27 the NB growth range carries this caveat itself: the CLI prints a note under it and the JSON has `trend.growthChangeRangeNote` (not set for Poisson).
 - **A real count series with a documented break: the UK seat-belt law (2026-10-26).** Monthly car drivers killed or seriously injured in Great Britain, 1969-1984 (`data/uk-driver-deaths.csv`, 192 months); the front-seat belt law took effect on 31 January 1983 (Harvey and Durbin 1986). `node eval/seatbelt-law.mjs` (output in `eval/seatbelt-law.out.txt`, test `seatbelt-law.test.mjs`). `--model poisson --period 12 --overdispersion nb` returns 8 changes, one of them 1983-01 (1600 to 1329 a month) with `range95` 1983-01 to 1983-02, which holds the first full month under the law; the other changes include the winter-1973 dip (1973-11, range 1973-10 to 1973-11, fuel rationing and the new speed limits that winter) and the 1974 rebound. Adding `--trend bends` gives the same date and range. Two things the series shows: plain `--model poisson --period 12` treats the clumpy counts as exact Poisson and returns 33 changes, so use `--overdispersion nb` on counts like these; and `--model mean --period 12` finds 1983-01 (range 1982-12 to 1983-02) but also a 2-month dip in 1981-12 and 1982-02 that the count model does not report. One series, one documented break, 0 of 1 misses: this shows the range is not absurd on real data, not that it is calibrated (the calibration is the seeded sets above). The date is one month before the law's first full month, as the January 1983 count is already low.
 - **A real daily count series with a documented shock: Puerto Rico deaths and Hurricane Maria (2026-10-29).** All-cause deaths per day, 1,201 days from 2015-01-01 (`data/puerto-rico-daily-deaths.csv`, R's `dslabs::pr_death_counts`). Maria made landfall on 2017-09-20; the count was 106 that day against a 60-day mean of 78.5. `node eval/maria-deaths.mjs` (output `eval/maria-deaths.out.txt`, test `maria-deaths.test.mjs`). All five setups (`mean` and `poisson --overdispersion nb`, with no season, weekly 7 or yearly 365) put a change within a day of landfall, 78.8 to 82.1 per day before and 101.7 to 119.8 after, and the `range95` holds 2017-09-20 in all five (a single day in three of them). The cost is the same as for Ansett: 9 to 11 other changes, mostly the winter peak and the rebound (a drop to about 90 on 2017-10-08 or 10-29), which a three-year series cannot pin as a yearly cycle (a yearly period gave 10, not fewer). The detector reports the rebound as a second change rather than a burst. Two real events now hold, one closure and one shock.
+- **A real monthly series with a documented rule change: Peace Bridge traffic and the 2009 passport requirement (2026-11-01).** Monthly vehicle traffic over the Buffalo-Fort Erie bridge, 156 months from 2003-01 (`data/peace-bridge.csv`, R's `Stat2Data::PeaceBridge2003`). The US required passports for land crossings from 2009-06-01, inside the 2008-09 recession. `node eval/peace-bridge.mjs` (output `eval/peace-bridge.out.txt`, test `peace-bridge.test.mjs`). The seasonal mean model (`--period 12`) puts a step down on exactly 2009-06 (498 to 466, `range95` 2009-05 to 2009-06), but it returns 14 changes, most of them 3 to 6 month swings (including a reversal 2009-09 back up to 503), so the passport step is found and is not distinguishable from the recession or the other wobbles. The seasonal count model (`poisson nb`) is worse on the date: its nearest change is 2008-12, and a wide `range95` (2009-02 to 2011-03) is what holds June 2009. Without a season both models chase the July-August peak (26 to 29 changes). One series and a confounded event: this shows the range can hold a documented date, not that the step is the rule's effect and not that this series is quiet elsewhere (it is not), so the open item "a closure series quiet outside the closure" stays open.
 - **A real series quiet outside its one event: US airline passenger miles, 1937-1960 (2026-10-29).** 24 annual values, in logs (`data/airmiles.csv`, R's `datasets::airmiles`). `--model trend` reports exactly one change, 1946 (the first peacetime year; `range95` 1945 to 1948), where the slope falls from 0.250 to 0.136 per year and the level jumps by 0.276 (about 30%). A level-only model reads the same smooth growth as 7 steps, so on a trending series use `trend`. The series is strongly autocorrelated (rho about 0.95, the tool says so and the range is then too narrow); one event and 24 points make this a sanity check, not a coverage test. `node eval/airmiles.mjs` (output `eval/airmiles.out.txt`, test `airmiles.test.mjs`). Still wanted: a closure series quiet outside it.
 - **All 30 Ansett route and class series: no quiet closure series exists, and the count model's range holds the stop in 29 (2026-10-29).** Last entry asked for a closure series that is quiet outside the closure. The full `tsibbledata::ansett` table (10 routes x economy, business, first; `data/ansett-all.csv`) is 30 weekly series covering the 1989 pilots' dispute. `node eval/ansett-sweep.mjs` (output `eval/ansett-sweep.out.txt`, test `ansett-sweep.test.mjs`) runs `mean` and `poisson --overdispersion nb` (no season) on each and scores whether a `range95` holds the first week below 25% of the prior median (1989 W34 in 29 of 30; SYD-BNE First closes in W33). The count model's range holds it in 29 of 30 series, the mean model's in 19 of 30 (it misses most MEL-SYD, SYD-* economy and first series, where the mean model's steps sit away from the stop). Quiet outside the closure: none. The fewest other changes is 8 (SYD-OOL Business, count model), the most 36, typically 12 to 30; business series are shortest (about 176 weeks from 1989 W28) and quietest. So the Ansett data cannot score false alarms; it scores the closure range, and the bar for a quiet series still stands. Caveat: the closure week is defined from the data by a threshold, and one series, not thirty, is independent evidence for the pilots' dispute (the same event hit every route).
 
@@ -495,6 +496,17 @@ or burst rule, not a holiday list. One series only; a second article was
 refused by the Wikimedia API's rate limit (429) and not retried. A series with
 a real holiday closure (a shop's or office's daily counts) is still the test
 that would show the factor earning its place.
+
+## Holidays on a second real daily series: a bike-share system (2026-11-02)
+
+The test the section above asked for: real daily counts with a real holiday flag. `data/bike-sharing-daily.csv` is Capital Bikeshare (Washington DC) rentals per day, 731 days, with the dataset's own 21 holidays. `node eval/holiday-bikes.mjs` (output `eval/holiday-bikes.out.txt`, test `holiday-bikes.test.mjs`) runs `--model poisson --period 7 --overdispersion nb`.
+
+| series | holiday / weekday median | changes, no list | changes, with list | holiday factor |
+|---|---|---|---|---|
+| registered riders | 0.66 | 56 | 61 | 0.877 |
+| casual riders | 1.41 | 70 | 77 | 1.796 |
+
+Another negative result. The holiday effect is real (commuters stay home, so registered riders fall by a third; leisure riders rise by 41%), but the list does not remove changes: it adds five and seven. The fitted factor is also well short of the raw ratio (0.877 against 0.66), because most of these holidays are Mondays and the weekly factor for Monday already absorbs part of the dip. The series is dominated by weather and season over two years (a yearly cycle with a period of 7 does not model it), so most of the 56 to 77 changes are the seasonal swing, which the holiday factor cannot touch. Not tried: a period-365 term, a temperature covariate, or fitting the holidays only inside a stable stretch. So the feature still has no real series where it earns its place; it works on synthetic data and on none of the two real ones tried. Do not read the factor as a holiday effect size on series with a strong yearly swing.
 
 ## Burst or two steps? (`excursions`, counts)
 
@@ -722,6 +734,30 @@ sd 1 to 2 break (97% down to 6% on Gaussian noise at n = 200). It cannot be a de
 left is a joint likelihood where the variance path may break at a changepoint while GARCH holds within segments, which PELT's
 segment-independent cost cannot express (the recursion depends on the previous segment's state). Not shipped as an option;
 the function and the script stay so the next attempt starts from this baseline. Simulated noise only.
+
+### Pruning meanvar cuts with a segment-wise GARCH likelihood: fewer extra cuts, GARCH false alarms only partly (2026-11-02, measured, not shipped)
+
+The joint likelihood named above, in its cheapest form. `eval/meanvar-garch-segments.mjs` (output
+`eval/meanvar-garch-segments.out.txt`, 100 series per cell, same seeds and noise kinds as the filter run) takes the plain
+meanvar PELT cuts as candidates. Every segment gets its own mean and scale, and inside a segment the standardised residual
+follows a unit-variance GARCH(1,1) whose a and b are shared by all segments (small grid). The cut whose removal costs least
+quasi-log-likelihood is dropped while that cost is under `pen x ln n`. Plain, then pruned: null series with any change / sd
+1 to 2 break found exactly once / mean +1.5 sd shift found exactly once.
+
+| n, noise | plain | pruned, pen 12 | pruned, pen 16 |
+|---|---|---|---|
+| 100, GARCH | 41% / 63% / 63% | 21% / 86% / 82% | 5% / 58% / 36% |
+| 100, t3 | 37% / 58% / 48% | 12% / 88% / 90% | 4% / 62% / 31% |
+| 200, GARCH | 50% / 58% / 52% | 48% / 97% / 100% | 28% / 97% / 100% |
+| 200, t3 | 63% / 55% / 34% | 56% / 99% / 100% | 40% / 99% / 100% |
+| 200, Gaussian | 0% / 97% / 96% | 0% / 100% / 100% | 0% / 100% / 100% |
+
+Unlike the filter, the real sd break survives (97% to 100% at n = 200), and the clusters of extra cuts that made "exactly one"
+rates low go away. But the false-alarm rate on a null GARCH series barely moves at n = 200 with pen 12 (50% to 48%) and needs
+pen 16 to reach 28%, while at n = 100 pen 16 already costs the true breaks (mean shift 82% to 36%). So the penalty would have
+to depend on n and the result is still far from the filter's 1%. A single surviving cut is usually a volatility cluster that
+a segment-own scale explains better than any shared (a, b). Not wired into `analyze`; next is a joint fit where the cut
+candidates are searched, not only pruned. Simulated noise only; the penalty was swept on the same seeds it is reported on.
 
 ### A second dispersion round does not help (2026-10-26, negative result)
 
@@ -1375,3 +1411,84 @@ coefficients fall to about 0). Even seeded, the coefficients drift (sunspots AR(
 1 or 2 sd step inserted at six positions is found with 3 or fewer steps reported found 0 of 6 in every cell, so there is no power to
 protect either. Plain prewhitening is not the route; an AR(2) fit would need the exact two-lag likelihood inside PELT
 (as `ar1mean` does for one lag) with coefficients profiled on a grid. Not built. Real data only; no inserted-step claim beyond the table.
+
+## An exact AR(2) likelihood inside PELT: no better than AR(1) (2026-10-30, later still)
+
+Open item from the flagship list: the iterated-prewhitening fit failed on sunspots, so score segment means under an exact
+AR(2) likelihood instead. `ar2mean` (cost, known phi1 and phi2, stationary start, closed form per segment from prefix sums) and
+`ar2ProfileFit` (grid over phi1 0 to 1.8 and phi2 -0.9 to 0.2 in steps of 0.1, a PELT fit and innovation sd per pair, best
+`n log sd^2 + log(k0 k1) + penalty` wins) are in `engine.mjs`; `eval/ar2-profile.mjs` and `.out.txt` hold the run. Not wired into
+the CLI or the page, because it did not win:
+
+| series | AR(1) profile | AR(2) profile |
+|---|---|---|
+| lynx (no documented step) | 0 | 9 (phi 1.5, -0.9) |
+| sunspots, yearly | 1 | 3 |
+| lynx, log10 | 0 | 0 |
+| sunspots, sqrt | 1 | 1 |
+| 40 synthetic AR(2) nulls (1.4, -0.7), n 200 | 0.00 changes each | 0.38 changes each |
+| same with a 2 sd step at 100 (found within 5) | 39/40 | 40/40 |
+
+Reading: on raw skewed counts the AR(2) fit runs to the edge of the grid (phi2 -0.9, close to a unit root) and the extra freedom
+buys false alarms; once the series is transformed to near-Gaussian it matches AR(1) and costs about seven times the time
+(sunspots, 289 points: grid of 190 fits). Its one gain, 40/40 against 39/40 on a 2 sd step, is within noise of 40 runs. So for
+cycles the AR(1) profile (`--ar1`) stays the better default, and the transform matters more than the lag order. Open still:
+sunspots with a hand-set small phi2 range, and a real documented step inside a cycle.
+`ar2-profile.test.mjs` has two tests (a shift in AR(2) noise; log lynx gets none).
+
+## `--bootstrap` on 33 real series (2026-10-31)
+
+The `--bootstrap` section above was synthetic only. `eval/real-bootstrap-sweep.mjs` (output `eval/real-bootstrap-sweep.out.txt`) runs `meanvar` plain and with `--bootstrap` on every real series in `data/` (default settings, no labels): 33 series, bootstrap returns fewer changes on 22, more on none; Series with no documented break lose theirs: `lh` 1 to 0, `sunspot-year` 5 to 0, `great-discoveries` 3 to 0, `uk-gas` 3 to 1, `smi-returns` 7 to 1, `puerto-rico-daily-deaths` 8 to 2. It also keeps a documented one on `uk-driver-deaths` (3 kept, the 1983 seat-belt step among them) and `nile` (1 kept). Cost: `us-accidental-deaths` loses its one cut, the 1973-12 step the flagship notes call real. Without labels this is a count, not a false-alarm or detection rate: it shows the penalty is large on real, clustered series, not that the removed cuts were all false. Test: `real-bootstrap-sweep.test.mjs`.
+
+## `--bootstrap` on US accidental deaths: the lost 1973-12 step was a missing season (2026-11-01)
+
+The sweep above reported that `--bootstrap` drops the 1973-12 step on US accidental deaths. That run had no `--period`, so the series was read with its winter peaks in it, and plain `meanvar` already found only 1973-11 (not the 1973-12 fall). `eval/us-accidental-deaths-bootstrap.mjs` (output `.out.txt`, `us-accidental-deaths-bootstrap.test.mjs`) runs both ways. With `--period 12`, `meanvar` finds 1973-12, 1975-07 and 1978-03; with `--bootstrap` it keeps 1973-12 and drops the other two. `mean` with the season gives the same four changes with and without `--bootstrap`. Without the season, `meanvar --bootstrap` returns none. So the earlier caveat is a seasonal artefact, not a power loss on a real step. One series, 72 months, and the 1973-12 date is a coincidence with the oil embargo, not a labelled truth. The sweep itself is unchanged (it still runs without a season).
+
+## A real interest-rate series: the 1973 fall and the 1980 rise (2026-11-02)
+
+`data/us-real-interest.csv` is the US ex-post real rate (T-bill minus CPI inflation), 1959Q2 to 2009Q3, 202 quarters (source in `data/SOURCE.md`). The shifts in the literature (Garcia and Perron 1996, cited from memory, paper unread) are a fall near 1973Q3 and a rise near 1980Q3. `eval/us-real-interest.mjs` (output in `eval/us-real-interest.out.txt`, `us-real-interest.test.mjs`, 3 tests), `mean` model:
+
+- **Defaults:** 9 changes. 1973Q3 (1.31 to -3.46, `range95` 1973Q1 to 1973Q3) and 1980Q4 (-1.12 to 5.45, `range95` 1980Q4 only), then 1986Q2 (5.45 to 2.10) and a run of one- and two-quarter segments from 2002 on.
+- **Dated one quarter after the literature, a convention gap (checked 2026-11-02):** the 1980 rise lands on 1980Q4, the first quarter of the new regime. `eval/us-real-interest-1980-date.mjs` (output `.out.txt`) splits 1973Q4 to 1985Q4 once, after 1980Q2, Q3 or Q4: SSE 186.2, **166.8**, 182.9. The best break falls after 1980Q3, so 1980Q3 (0.30, near the old mean of -1.51, far from the new 5.19) is the last old-regime quarter, and a source that dates a break by the last quarter of the old regime would write 1980Q3 for the same break. The one-quarter `range95` is then not too narrow. What I did not check: which convention Garcia and Perron use (paper unread). The detector's labels are always the first quarter of the new regime.
+- **`--ar1`:** the same 9 changes, with a wider range for 1975Q1. **`--bootstrap`:** 8, dropping the 1975Q1 step (the 1973 step now runs 1.37 to -1.52).
+- **Artefact:** 2007Q4, 2008Q3 and 2009Q1 are single-quarter swings of the financial crisis (T-bill collapse against a deflation quarter), cut as their own segments, the same failure as the 2008 quarter in US inflation. A mean-shift model has no way to call them outliers.
+
+## Five real series that had no test: Australian arrivals and UK lung deaths (2026-11-02)
+
+`au-arrivals-japan`, `au-arrivals-us` (quarterly, 127 quarters) and `uk-ldeaths`, `uk-mdeaths`, `uk-fdeaths`
+(monthly, 72) were in `data/` but only used by a drift-warning script. `arrivals-lungdeaths.test.mjs` now pins what
+the detector does on them (run 2026-11-02, `--period 4` or `12`, no tuning):
+
+| Series | Setup | Cuts | Documented event |
+|---|---|---|---|
+| Arrivals from Japan | seasonal mean | 12, including 2003Q2 | SARS (found) |
+| Arrivals from the US | seasonal mean | 12, including 2000Q3 and 2001Q3 | Olympics, September 2001 (found) |
+| Both arrivals series | `--ar1` | 6 to 8; none of those three | the shocks are lost |
+| `ldeaths` / `mdeaths` / `fdeaths` | seasonal mean | 6 / 10 / 5 | none: all false alarms |
+| `ldeaths` | seasonal NB counts | 1976-02, 1976-04, 1979-10 | none |
+| `ldeaths`, `mdeaths` | seasonal `--ar1` | 1976-04 only | none |
+
+Read it plainly: the default seasonal mean model finds real shocks and also cuts a trending or clumpy series into
+many pieces; `--ar1` removes most false alarms on the lung deaths but swallows the SARS and Olympics shocks, the same
+trade as in "Shape or shock". The January and February 1976 cuts are a bad-winter spike, which is a shock and not a
+step, so no setup here separates the two (flagship item 4). The arrivals series are counts in thousands with decimals,
+so the Poisson model rejects them.
+
+## A real series of recessions: US unemployment (2026-11-03)
+
+`data/us-unemployment.csv` is the US unemployment rate, 1959Q2 to 2009Q3, 202 quarters (source in `data/SOURCE.md`). It rises in each recession and falls back over years, so no step is documented: the question is what the mean model does with a slow, smooth swing. `eval/us-unemployment.mjs` (output `eval/us-unemployment.out.txt`, `us-unemployment.test.mjs`, 3 tests):
+
+| Setup | Changes |
+|---|---|
+| Defaults | 33, a new level about every six quarters |
+| `--bootstrap` | 33, the same dates |
+| `--min-segment 12` | 13 |
+| `--ar1` | 0 |
+
+- The default output already says why: lag-1 rho is about 0.95, the ranges are "too narrow", and the warning points to `--ar1`. The warning fired as designed.
+- `--ar1` is the right call for this series. It also loses nothing documented, because there is nothing documented to lose; this is the opposite of the Australian arrivals, where `--ar1` loses real shocks.
+- `--bootstrap` does not help here: block resampling of the residuals of a 33-step fit inherits the steps, so the penalty stays low. That matches the cyclic series (lynx, sunspots).
+- With `--min-segment 12` the cuts fall near 1974Q4, 1981Q2, 1991Q1 and 2001Q4 (recession starts) and near 1984Q2, 1987Q2 and 1994Q2 (recoveries): the recessions are read as levels. A user who wants to know "when did the recession start" gets a date, but not a step in any causal sense.
+
+Not done: no model with a slow return (an AR(1) around a level, with steps) is fitted jointly; `--ar1` removes steps rather than finding the ones that are real. That is flagship item 0 and 4 again, on a series with no documented step to test it against.
+

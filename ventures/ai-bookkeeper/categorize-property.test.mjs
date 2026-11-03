@@ -41,3 +41,19 @@ test("suggest survives hostile input", () => {
     assert.equal(s.account, null);
   }
 });
+
+// Redteam 2026-10-31: a mutant that smoothed an unseen token with a count of 1 instead of 0
+// escaped every test. Pin the Laplace formula to exact numbers.
+test("classifier smooths a token a class never saw with count 0 + 1", () => {
+  const rec = (tokens, account) => ({ tokens, dir: "out", cents: -1000, account });
+  const model = trainClassifier([rec(["aaa"], "A"), rec(["bbb"], "B")]);
+  const out = classify(model, { desc: "aaa", cents: -1000 });
+  const A = model.classes.get("A"), B = model.classes.get("B");
+  assert.equal(A.total, 3); assert.equal(B.total, 3);
+  // Known features: aaa, dir:out, out:<bucket>. A saw each once; B saw aaa zero times, the other two once.
+  const la = 3 * Math.log(2 / (3 + model.vocab)) + Math.log(0.5);
+  const lb = Math.log(1 / (3 + model.vocab)) + 2 * Math.log(2 / (3 + model.vocab)) + Math.log(0.5);
+  const pA = 1 / (1 + Math.exp(lb - la));
+  assert.equal(out[0].account, "A");
+  assert.ok(Math.abs(out[0].p - pA) < 1e-12, `${out[0].p} vs ${pA}`);
+});

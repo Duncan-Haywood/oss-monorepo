@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01XpHqyeJyKW3N7tenAHEsG8",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "owner: pivot some of the big directions to deep tech industrial, energy, real estate dev and construction, construction data warehouse; robotics, construction imaging/sensing, autonomy",
+  "pr": 11985,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "The owner set a direction in chat; goals.md is the owner's file, so the new section ships in its own control-plane PR (11986) awaiting the owner's approval rather than being edited by a review."
+    }
+  ],
+  "writeups": ["docs/posts/2026-10-31-industrial-energy-construction.md", "docs/reports/2026-10-31-industrial-energy-construction-pivot.md"],
+  "notes": "pick_track.py FOCUS (9 tracks) at FOCUS_SHARE 0.5: test_pick_track 20/20 pass, measured share within 0.02 of 0.68 (tracks) and 0.03 of 0.75 (programmes). test_allocate 71 passed. check_post_frontmatter and promptctl validate pass. Also set pr=11980 on another session's run record that left it null and was failing promptctl validate on main.",
+  "corrections": []
+}

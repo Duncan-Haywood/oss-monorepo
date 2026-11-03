@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01AcxTtLzU6RjPtbzwUiLaXv",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read prompt.md (scheduled)",
+  "input_sha256": "5185b8481e29f779e19c759f5e34b52f9d49d707e062ce54e20c537b823710ad",
+  "follow_up_inputs": [],
+  "model": "null",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T03:12:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12477",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "Router sent runs to review although an open 'prompts: review' PR held the claim; fixed in this PR by checking the pulls API."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "security-alerts branch does not exist, so step 0 fails with a fatal error."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Backlog had only owner rows; main_health 33/33 green; critique via doc_friction. No blog post: small tooling fix, no new findings to report.",
+  "corrections": [],
+  "redteam": null
+}

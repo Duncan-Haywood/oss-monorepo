@@ -1,0 +1,71 @@
+name: Control-plane guard
+
+# Keeps the files that steer every agent (.github/CODEOWNERS lists them) from
+# changing without the owner's say. No path filter on purpose: the job is a
+# required check in .github/rulesets/main.json, and a required check that a
+# path filter skips leaves the PR waiting forever.
+#
+#   pull_request  CODEOWNERS still owns what it must, and the job summary
+#                 lists the owned files this PR touches.
+#   push to main  the merged commit's owned files had an owner's approving
+#                 review; fails the run if not (an admin bypass, or a merge
+#                 before the ruleset was applied).
+#
+# Reads the GitHub API with a read-only token. It publishes nothing, pushes
+# nothing, and calls no paid API -- a test runner, not the unattended-
+# automation kind of workflow CLAUDE.md gates. Background:
+# docs/security/agent-hardening.md.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  control-plane:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    # A sparse checkout and a handful of API reads -- normally under 15s. See
+    # hetzner-gitops-ci.yml's timeout-minutes addition for why an unbounded
+    # job is worth capping on a metered-minutes account.
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            .github
+            platform/ci
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Guard unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_control_plane_guard
+
+      - name: CODEOWNERS still owns the control plane
+        run: python3 platform/ci/control_plane_guard.py --check-coverage
+
+      - name: List control-plane files this PR touches
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: python3 platform/ci/control_plane_guard.py --pr "$PR_NUMBER"
+
+      - name: Audit the merged commit for unreviewed control-plane changes
+        if: github.event_name == 'push'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SHA: ${{ github.sha }}
+        run: python3 platform/ci/control_plane_guard.py --audit-commit "$SHA"

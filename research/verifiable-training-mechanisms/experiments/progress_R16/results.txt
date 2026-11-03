@@ -1,0 +1,37 @@
+honest, calibration K= 3, R=1.000: eval points flagged 0.1729, jobs with any flag 0.581 (320 (seed, subset) pairs)
+honest, calibration K= 3, R=1.005: eval points flagged 0.0720, jobs with any flag 0.403 (320 (seed, subset) pairs)
+honest, calibration K= 3, R=1.010: eval points flagged 0.0172, jobs with any flag 0.219 (320 (seed, subset) pairs)
+honest, calibration K= 3, R=1.020: eval points flagged 0.0007, jobs with any flag 0.044 (320 (seed, subset) pairs)
+honest, calibration K= 3, R=1.030: eval points flagged 0.0000, jobs with any flag 0.000 (320 (seed, subset) pairs)
+honest, calibration K= 3, R=1.050: eval points flagged 0.0000, jobs with any flag 0.000 (320 (seed, subset) pairs)
+honest, calibration K= 7, R=1.000: eval points flagged 0.0915, jobs with any flag 0.309 (320 (seed, subset) pairs)
+honest, calibration K= 7, R=1.005: eval points flagged 0.0154, jobs with any flag 0.163 (320 (seed, subset) pairs)
+honest, calibration K= 7, R=1.010: eval points flagged 0.0018, jobs with any flag 0.087 (320 (seed, subset) pairs)
+honest, calibration K= 7, R=1.020: eval points flagged 0.0000, jobs with any flag 0.000 (320 (seed, subset) pairs)
+honest, calibration K= 7, R=1.030: eval points flagged 0.0000, jobs with any flag 0.000 (320 (seed, subset) pairs)
+honest, calibration K= 7, R=1.050: eval points flagged 0.0000, jobs with any flag 0.000 (320 (seed, subset) pairs)
+honest, calibration K=15, R=1.000: eval points flagged 0.0448, jobs with any flag 0.188 (320 (seed, subset) pairs)
+honest, calibration K=15, R=1.005: eval points flagged 0.0010, jobs with any flag 0.062 (320 (seed, subset) pairs)
+honest, calibration K=15, R=1.010: eval points flagged 0.0000, jobs with any flag 0.000 (320 (seed, subset) pairs)
+honest, calibration K=15, R=1.020: eval points flagged 0.0000, jobs with any flag 0.000 (320 (seed, subset) pairs)
+honest, calibration K=15, R=1.030: eval points flagged 0.0000, jobs with any flag 0.000 (320 (seed, subset) pairs)
+honest, calibration K=15, R=1.050: eval points flagged 0.0000, jobs with any flag 0.000 (320 (seed, subset) pairs)
+stall T=200: n=32, harmful 32 (median |dL| 0.0588)
+stall T=200, K= 3, R=1.000: flagged 30 of 32, harmful and unflagged  2
+stall T=200, K= 3, R=1.005: flagged 27 of 32, harmful and unflagged  5
+stall T=200, K= 3, R=1.010: flagged 24 of 32, harmful and unflagged  8
+stall T=200, K= 3, R=1.020: flagged 19 of 32, harmful and unflagged 13
+stall T=200, K= 3, R=1.030: flagged 14 of 32, harmful and unflagged 18
+stall T=200, K= 3, R=1.050: flagged 10 of 32, harmful and unflagged 22
+stall T=200, K= 7, R=1.000: flagged 28 of 32, harmful and unflagged  4
+stall T=200, K= 7, R=1.005: flagged 26 of 32, harmful and unflagged  6
+stall T=200, K= 7, R=1.010: flagged 20 of 32, harmful and unflagged 12
+stall T=200, K= 7, R=1.020: flagged 16 of 32, harmful and unflagged 16
+stall T=200, K= 7, R=1.030: flagged 13 of 32, harmful and unflagged 19
+stall T=200, K= 7, R=1.050: flagged  6 of 32, harmful and unflagged 26
+stall T=200, K=15, R=1.000: flagged 28 of 32, harmful and unflagged  4
+stall T=200, K=15, R=1.005: flagged 24 of 32, harmful and unflagged  8
+stall T=200, K=15, R=1.010: flagged 20 of 32, harmful and unflagged 12
+stall T=200, K=15, R=1.020: flagged 16 of 32, harmful and unflagged 16
+stall T=200, K=15, R=1.030: flagged 13 of 32, harmful and unflagged 19
+stall T=200, K=15, R=1.050: flagged  6 of 32, harmful and unflagged 26

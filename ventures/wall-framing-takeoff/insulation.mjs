@@ -13,15 +13,48 @@ import { joistCentres } from "./floor.mjs";
 
 const DEFAULT_R = { "2x4": 15, "2x6": 21 };
 
+import { textNumberErrors } from "./numfields.mjs";
 /** @typedef {{ rValue?: number, rPerInch?: number, bagCuFt?: number, price?: number, heel?: number, baffles?: boolean, baffleLength?: number, baffleWidth?: number, ceiling?: { width: number, depth: number }[] }} Attic */
-/** @typedef {{ bagSqFt?: number, waste?: number, rValue?: number, price?: number, attic?: Attic, rim?: boolean }} Insulation */
+/** @typedef {{ continuousR?: number, sheathingR?: number, drywallR?: number, insideFilmR?: number, outsideFilmR?: number, framingRPerInch?: number, assumedFramingFraction?: number, ceilingR?: number, ceilingFromAttic?: boolean, windowU?: number, doorU?: number, designDeltaF?: number, heatingDegreeDays?: number, heatingSystems?: {name?: string, efficiency: number, unitBtu: number, pricePerUnit: number}[], slabEdgeF?: number, ach50?: number, nFactor?: number, volumeCuFt?: number }} Assembly */
+/** @typedef {{ bagSqFt?: number, waste?: number, rValue?: number, price?: number, attic?: Attic, rim?: boolean, assembly?: Assembly | boolean }} Insulation */
+
+// Typical handbook layer values (ASHRAE Fundamentals), typed defaults: replace with your product's
+// label figures. Wood framing is R-1.25 per inch; 25% is the usual guessed framing fraction of a 16 in wall.
+const ASSEMBLY = { continuousR: 0, sheathingR: 0.62, drywallR: 0.45, insideFilmR: 0.68, outsideFilmR: 0.17, framingRPerInch: 1.25, assumedFramingFraction: 0.25 };
+const SIZE_DEPTH = { "2x4": 3.5, "2x6": 5.5 };
 
 /** @param {Insulation} d */
 export function validateInsulation(d) {
   const e = [];
+  if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Insulation settings are an object."];
+  e.push(...textNumberErrors(d, ['bagSqFt', 'waste', 'rValue', 'price']));
+  if (d.attic && typeof d.attic === "object") e.push(...textNumberErrors(d.attic, ['rValue', 'rPerInch', 'bagCuFt', 'price', 'heel', 'baffleLength', 'baffleWidth']).map((x) => "Attic " + x));
+  if (d.assembly && typeof d.assembly === "object") e.push(...textNumberErrors(d.assembly, ['ach50', 'assumedFramingFraction', 'ceilingR', 'continuousR', 'designDeltaF', 'doorU', 'drywallR', 'framingRPerInch', 'heatingDegreeDays', 'insideFilmR', 'nFactor', 'outsideFilmR', 'sheathingR', 'slabEdgeF', 'volumeCuFt', 'windowU']).map((x) => "Assembly " + x));
+  if (e.length) return e;
   if (d.bagSqFt != null && !(d.bagSqFt >= 10 && d.bagSqFt <= 500)) e.push("Insulation bag coverage must be between 10 and 500 sq ft.");
   if (d.waste != null && !(d.waste >= 0 && d.waste <= 0.3)) e.push("Insulation waste must be between 0 and 0.3.");
   if (d.rValue != null && !(d.rValue > 0 && d.rValue <= 60)) e.push("R-value must be between 0 and 60.");
+  if (d.assembly && typeof d.assembly === "object") {
+    const a = d.assembly;
+    for (const k of /** @type {const} */ (["continuousR", "sheathingR", "drywallR", "insideFilmR", "outsideFilmR"])) if (a[k] != null && !(a[k] >= 0 && a[k] <= 30)) e.push(`Assembly ${k} must be between 0 and 30.`);
+    if (a.framingRPerInch != null && !(a.framingRPerInch > 0 && a.framingRPerInch <= 3)) e.push("Assembly framingRPerInch must be between 0 and 3.");
+    if (a.ceilingR != null && !(a.ceilingR > 0 && a.ceilingR <= 100)) e.push("Assembly ceilingR must be between 0 and 100 (whole-ceiling R, film to film).");
+    for (const k of /** @type {const} */ (["windowU", "doorU"])) if (a[k] != null && !(a[k] > 0 && a[k] <= 2)) e.push(`Assembly ${k} must be between 0 and 2 (BTU/h per sq ft per F).`);
+    if (a.designDeltaF != null && !(a.designDeltaF > 0 && a.designDeltaF <= 120)) e.push("Assembly designDeltaF must be between 0 and 120 F.");
+    if (a.slabEdgeF != null && !(a.slabEdgeF >= 0 && a.slabEdgeF <= 2)) e.push("Assembly slabEdgeF must be between 0 and 2 (BTU/h per ft of edge per F).");
+    for (const [k, lo, hi] of /** @type {const} */ ([["ach50", 0, 40], ["nFactor", 5, 40], ["volumeCuFt", 100, 200000]])) if (a[k] != null && !(a[k] >= lo && a[k] <= hi)) e.push(`Assembly ${k} must be between ${lo} and ${hi}.`);
+    if ((a.ach50 != null || a.nFactor != null || a.volumeCuFt != null) && !(a.ach50 != null && a.nFactor != null && a.volumeCuFt != null)) e.push("Air leakage needs all three of ach50 (blower-door result), nFactor (climate/height divisor) and volumeCuFt.");
+    if (a.heatingDegreeDays != null && !(a.heatingDegreeDays > 0 && a.heatingDegreeDays <= 15000)) e.push("Assembly heatingDegreeDays must be between 0 and 15000 (F-days, base 65).");
+    if (a.heatingSystems != null) {
+      if (!Array.isArray(a.heatingSystems)) e.push("Assembly heatingSystems is a list of {name, efficiency, unitBtu, pricePerUnit}.");
+      else for (const s of a.heatingSystems) {
+        if (!s || !(s.efficiency > 0 && s.efficiency <= 8)) e.push("Each heating system needs an efficiency above 0 and at most 8 (AFUE as a fraction, e.g. 0.95, or a heat pump's seasonal COP).");
+        if (!s || !(s.unitBtu > 0)) e.push("Each heating system needs unitBtu, the heat in one priced unit of fuel (BTU per kWh, therm, gallon or cubic foot).");
+        if (!s || !(s.pricePerUnit >= 0)) e.push("Each heating system needs pricePerUnit, the price of one unit of fuel.");
+      }
+    }
+    if (a.assumedFramingFraction != null && !(a.assumedFramingFraction > 0 && a.assumedFramingFraction < 0.6)) e.push("Assembly assumedFramingFraction must be between 0 and 0.6.");
+  }
   const a = d.attic;
   if (a) {
     if (a.rValue != null && !(a.rValue >= 10 && a.rValue <= 80)) e.push("Attic R-value must be between 10 and 80.");
@@ -95,7 +128,40 @@ export function layoutInsulation(d, plan, result) {
   if (!d.attic) return full;
   const attic = layoutAttic(d.attic, d.waste ?? 0.05, /** @type {any} */ (plan).drywall, /** @type {any} */ (plan).roof);
   if (!attic.ok) return { ...full, ok: false, errors: attic.errors };
-  return { ...full, attic };
+  const withAttic = { ...full, attic };
+  if (withAttic.assembly?.heat) addCeilingHeat(withAttic.assembly, attic);
+  return withAttic;
+}
+
+/**
+ * Adds the flat ceiling under the attic to the shell's conduction. R is `assembly.ceilingR` (whole ceiling,
+ * typed) or, with `ceilingFromAttic`, the attic fill's R plus the wall's film and drywall layers. Joist
+ * bridging is not modelled, so the ceiling is a little better than real; the wall figures are untouched.
+ * @param {any} e assembly result @param {any} attic
+ */
+function addCeilingHeat(e, attic) {
+  const a = e.settings, h = e.heat;
+  const r = a.ceilingR ?? (a.ceilingFromAttic ? attic.rValue + e.layersR : null);
+  if (r == null) return;
+  const ceilingUA = attic.sqFt / r;
+  h.ceilingSqFt = attic.sqFt; h.ceilingR = r; h.ceilingUA = ceilingUA;
+  h.wallUA = h.ua; h.ua += ceilingUA;
+  if (a.designDeltaF != null) h.designBtuh = h.ua * a.designDeltaF;
+  if (a.heatingDegreeDays != null) h.annualKBtu = (h.ua * 24 * a.heatingDegreeDays) / 1000;
+  h.systems = heatingCosts(h.annualKBtu, a.heatingSystems);
+}
+
+/**
+ * Yearly fuel and cost to deliver the seasonal heat through each typed system: units = heat / (efficiency x
+ * BTU per unit), cost = units x typed price. No fuel price or efficiency is shipped.
+ * @param {number | null} annualKBtu @param {any[] | undefined} systems
+ */
+function heatingCosts(annualKBtu, systems) {
+  if (annualKBtu == null || !systems?.length) return null;
+  return systems.map((s, i) => {
+    const units = (annualKBtu * 1000) / (s.efficiency * s.unitBtu);
+    return { name: s.name || `system ${i + 1}`, units, cost: units * s.pricePerUnit };
+  });
 }
 
 /**
@@ -114,6 +180,74 @@ function layoutRim(d, floor) {
   const waste = d.waste ?? 0.05, bag = d.bagSqFt ?? 88;
   const bags = Math.ceil((sqFt * (1 + waste)) / bag - 1e-9);
   return { ok: true, errors: [], sqFt, joistDepthIn: depth, bags, cost: d.price != null ? bags * d.price : null, price: d.price ?? null };
+}
+
+/**
+ * Effective whole-wall R by the parallel-path method, with the framing fraction measured from the
+ * members placed (framed area / opaque area, per wall) beside the usual 25% guess. Opaque wall only:
+ * windows and doors are not in it. Each path adds its layers in series; the paths combine by area.
+ * @param {{ id: string, size: string, framingFraction: number, opaqueSqFt: number }[]} walls
+ * @param {Insulation} d
+ */
+function effectiveR(walls, d) {
+  const a = { ...ASSEMBLY, .../** @type {Assembly} */ (typeof d.assembly === "object" ? d.assembly : {}) };
+  const layers = a.insideFilmR + a.outsideFilmR + a.drywallR + a.sheathingR + a.continuousR;
+  /** @param {number} depth @param {number} cavR @param {number} f */
+  const wallR = (depth, cavR, f) => 1 / ((1 - f) / (layers + cavR) + f / (layers + depth * a.framingRPerInch));
+  let area = 0, uA = 0, uAssumedA = 0, nominalUA = 0;
+  const bySize = new Map();
+  for (const w of walls) {
+    const depth = /** @type {Record<string, number>} */ (SIZE_DEPTH)[w.size];
+    const cavR = d.rValue ?? /** @type {Record<string, number>} */ (DEFAULT_R)[w.size];
+    if (!depth || cavR == null || !(w.opaqueSqFt > 0)) continue;
+    const r = wallR(depth, cavR, w.framingFraction);
+    const rAssumed = wallR(depth, cavR, a.assumedFramingFraction);
+    area += w.opaqueSqFt; uA += w.opaqueSqFt / r; uAssumedA += w.opaqueSqFt / rAssumed; nominalUA += w.opaqueSqFt / (layers + cavR);
+    const g = bySize.get(w.size) || { size: w.size, nominalCavityR: cavR, opaqueSqFt: 0, framedSqFt: 0 };
+    g.opaqueSqFt += w.opaqueSqFt; g.framedSqFt += w.opaqueSqFt * w.framingFraction;
+    bySize.set(w.size, g);
+  }
+  if (!(area > 0)) return null;
+  const sizes = [...bySize.values()].map((g) => {
+    const f = g.framedSqFt / g.opaqueSqFt, depth = /** @type {Record<string, number>} */ (SIZE_DEPTH)[g.size];
+    return { size: g.size, nominalCavityR: g.nominalCavityR, framingFraction: f, effectiveR: wallR(depth, g.nominalCavityR, f), effectiveRAtAssumed: wallR(depth, g.nominalCavityR, a.assumedFramingFraction), clearWallR: layers + g.nominalCavityR };
+  });
+  return { layersR: layers, assumedFramingFraction: a.assumedFramingFraction, effectiveR: area / uA, effectiveRAtAssumed: area / uAssumedA, clearWallR: area / nominalUA, opaqueSqFt: area, sizes, settings: a };
+}
+
+/**
+ * Conduction through the wall shell: UA = opaque area / effective R + window and door areas x typed
+ * U-factors. Only the figures the user types produce a number (no climate or window is assumed);
+ * design load = UA x design temperature difference, annual energy = UA x 24 x heating degree-days.
+ * Walls only: roof, floor, air leakage and ventilation are not in it.
+ * @param {any} e @param {Insulation} d @param {any} plan
+ */
+function heatLoss(e, d, plan) {
+  const a = e.settings;
+  let win = 0, door = 0;
+  for (const w of plan.walls || []) for (const o of w.openings || []) {
+    const sq = (o.width * o.height) / 144;
+    if (o.kind === "door") door += sq; else win += sq;
+  }
+  const opaqueUA = e.opaqueSqFt / e.effectiveR;
+  const winUA = a.windowU != null ? win * a.windowU : null, doorUA = a.doorU != null ? door * a.doorU : null;
+  const complete = (win === 0 || winUA != null) && (door === 0 || doorUA != null);
+  // Slab edge: typed F-factor x exterior wall length (walls not marked sheathed:false). No table is shipped.
+  let edgeFt = 0;
+  for (const w of plan.walls || []) if (w.sheathed !== false) edgeFt += w.length / 12;
+  const slabEdgeUA = a.slabEdgeF != null ? a.slabEdgeF * edgeFt : null;
+  // Air leakage: natural ACH = ACH50 / N (typed); sensible load 0.018 BTU/h per cu ft per F (air density x specific heat).
+  const achNat = a.ach50 != null ? a.ach50 / /** @type {number} */ (a.nFactor) : null;
+  const infiltrationUA = achNat != null ? 0.018 * /** @type {number} */ (a.volumeCuFt) * achNat : null;
+  const ua = opaqueUA + (winUA ?? 0) + (doorUA ?? 0) + (slabEdgeUA ?? 0) + (infiltrationUA ?? 0);
+  return {
+    achNat, infiltrationUA,
+    slabEdgeFt: a.slabEdgeF != null ? edgeFt : null, slabEdgeUA,
+    windowSqFt: win, doorSqFt: door, opaqueUA, windowUA: winUA, doorUA, ua, complete,
+    designBtuh: a.designDeltaF != null ? ua * a.designDeltaF : null,
+    annualKBtu: a.heatingDegreeDays != null ? (ua * 24 * a.heatingDegreeDays) / 1000 : null,
+    systems: heatingCosts(a.heatingDegreeDays != null ? (ua * 24 * a.heatingDegreeDays) / 1000 : null, a.heatingSystems),
+  };
 }
 
 /** @param {Insulation} d @param {any} plan @param {any} result */
@@ -137,7 +271,8 @@ function layoutWalls(d, plan, result) {
     const cavity = Math.max(0, panel - framed - ro);
     panelSqIn += panel; framedSqIn += framed; openSqIn += ro;
     bySize.set(size, (bySize.get(size) || 0) + cavity);
-    walls.push({ id: rw.id, size, cavitySqFt: cavity / 144, framingShare: panel > 0 ? framed / panel : 0 });
+    const opaque = framed + cavity; // panel less rough openings
+    walls.push({ id: rw.id, size, cavitySqFt: cavity / 144, framingShare: panel > 0 ? framed / panel : 0, framingFraction: opaque > 0 ? framed / opaque : 0, opaqueSqFt: opaque / 144 });
   }
   const sizes = [...bySize.entries()].map(([size, sq]) => {
     const sqFt = sq / 144;
@@ -145,8 +280,10 @@ function layoutWalls(d, plan, result) {
     return { size, cavitySqFt: sqFt, rValue: r, bags: Math.ceil((sqFt * (1 + waste)) / bag - 1e-9) };
   });
   const bags = sizes.reduce((s, x) => s + x.bags, 0);
+  const assembly = d.assembly ? effectiveR(walls, d) : null;
+  if (assembly) assembly.heat = heatLoss(assembly, d, plan);
   return {
-    ok: true, errors: [], walls, sizes, bags, bagSqFt: bag, waste,
+    ok: true, errors: [], walls, sizes, bags, assembly, bagSqFt: bag, waste,
     cavitySqFt: sizes.reduce((s, x) => s + x.cavitySqFt, 0),
     framingShare: panelSqIn > 0 ? framedSqIn / panelSqIn : 0,
     openingSqFt: openSqIn / 144,
@@ -160,6 +297,23 @@ export function insulationText(d) {
   l.push(`  ${d.bags} bags at ${d.bagSqFt} sq ft (${d.cavitySqFt.toFixed(0)} sq ft of open cavity plus ${(100 * d.waste).toFixed(0)}% waste; framing takes ${(100 * d.framingShare).toFixed(1)}% of the wall panels)`);
   for (const s of d.sizes) l.push(`    ${s.size} cavities: ${s.cavitySqFt.toFixed(0)} sq ft, R-${s.rValue ?? "?"} -> ${s.bags} bags`);
   if (d.cost != null) l.push(`  bags at ${d.price} each: ${d.cost.toFixed(2)}`);
+  const e = d.assembly;
+  if (e) {
+    l.push(`  Effective wall R (parallel path, opaque wall only, ${e.opaqueSqFt.toFixed(0)} sq ft): R-${e.effectiveR.toFixed(1)} from the framing as placed; R-${e.effectiveRAtAssumed.toFixed(1)} if ${(100 * e.assumedFramingFraction).toFixed(0)}% framing were assumed; R-${e.clearWallR.toFixed(1)} through the cavity alone (no framing)`);
+    for (const s of e.sizes) l.push(`    ${s.size}: framing is ${(100 * s.framingFraction).toFixed(1)}% of the opaque wall; R-${s.nominalCavityR} cavity gives R-${s.effectiveR.toFixed(1)} (clear-wall R-${s.clearWallR.toFixed(1)}); layers outside the cavity add R-${e.layersR.toFixed(2)}`);
+    const h = e.heat;
+    if (h) {
+      l.push(`  Wall heat loss (conduction): UA ${h.ua.toFixed(1)} BTU/h per F = opaque ${h.opaqueUA.toFixed(1)}${h.windowUA != null ? ` + windows ${h.windowUA.toFixed(1)} (${h.windowSqFt.toFixed(0)} sq ft)` : ""}${h.doorUA != null ? ` + doors ${h.doorUA.toFixed(1)} (${h.doorSqFt.toFixed(0)} sq ft)` : ""}${h.complete ? "" : ` (INCOMPLETE: type windowU/doorU for the ${h.windowUA == null && h.windowSqFt > 0 ? `${h.windowSqFt.toFixed(0)} sq ft of windows` : ""}${h.windowUA == null && h.windowSqFt > 0 && h.doorUA == null && h.doorSqFt > 0 ? " and " : ""}${h.doorUA == null && h.doorSqFt > 0 ? `${h.doorSqFt.toFixed(0)} sq ft of doors` : ""}; they are left out)`}`);
+      if (h.slabEdgeUA != null) l.push(`    Slab edge: ${h.slabEdgeFt.toFixed(1)} ft of exterior wall x F-factor ${e.settings.slabEdgeF} adds ${h.slabEdgeUA.toFixed(1)} (the F-factor is the one you typed from your code table)`);
+      if (h.infiltrationUA != null) l.push(`    Air leakage: ${e.settings.ach50} ACH50 / N ${e.settings.nFactor} = ${h.achNat.toFixed(2)} natural air changes per hour x ${e.settings.volumeCuFt} cu ft x 0.018 adds ${h.infiltrationUA.toFixed(1)}; mechanical ventilation is not in it`);
+      if (h.ceilingUA != null) l.push(`    Ceiling under the attic: ${h.ceilingSqFt.toFixed(0)} sq ft at R-${h.ceilingR.toFixed(1)} adds ${h.ceilingUA.toFixed(1)} (walls ${h.wallUA.toFixed(1)}); the totals below include it`);
+      if (h.designBtuh != null) l.push(`    Design load through the ${h.ceilingUA != null ? "shell" : "walls"}: ${Math.round(h.designBtuh).toLocaleString("en-US")} BTU/h at ${e.settings.designDeltaF} F inside-outside`);
+      if (h.annualKBtu != null) l.push(`    Seasonal conduction: ${Math.round(h.annualKBtu).toLocaleString("en-US")} kBTU at ${e.settings.heatingDegreeDays} heating degree-days (base 65 F)`);
+      for (const y of h.systems || []) l.push(`    Heating cost, ${y.name}: ${y.units.toFixed(1)} units of fuel a year, ${y.cost.toFixed(2)} (efficiency and prices are the ones you typed)`);
+      l.push(`    ${h.ceilingUA != null ? "Walls and flat ceiling only: floor, air leakage" : "Walls only: roof, floor, air leakage"} and ventilation are not in it, so it is not a Manual J load. Window and door U-factors and the climate figures are the ones you typed.`);
+    }
+    l.push("    Layer values are typical handbook figures you can replace (insulation.assembly); windows, doors, air leakage and compressed batts are not in it. Not an energy-code compliance check.");
+  }
   if (d.rim) l.push(`  Rim joist bays: ${d.rim.sqFt.toFixed(0)} sq ft (front and back, ${d.rim.joistDepthIn} in deep, less joist ends) -> ${d.rim.bags} bags at the same coverage${d.rim.cost != null ? `, ${d.rim.cost.toFixed(2)}` : ""}`);
   const a = d.attic;
   if (a) {

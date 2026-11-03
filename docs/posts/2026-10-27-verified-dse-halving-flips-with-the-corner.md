@@ -1,5 +1,6 @@
 ---
 title: "A chip-search shortcut that helped at one corner stopped helping at the other"
+seo_title: "A chip-search shortcut that helped at one corner stopped at another"
 date: 2026-10-27
 description: "Replaying successive halving on a second SKY130 timing corner: it now wins on the clock where it lost, and loses on the one where it won."
 tags: [verified-dse, research, chip-design, design-space-exploration]

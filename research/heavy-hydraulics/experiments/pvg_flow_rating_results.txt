@@ -1,0 +1,10 @@
+spool  rated  Q@10bar(mid)  Q10/rated  n(10->20)  dp_rated(P->A, orifice)  work-port-to-tank dp (3h)
+  AA      5          4.2       0.84       0.96                     14.2                        nan
+   A     10         11.7       1.17       0.53                      7.3                       11.8
+   B     25         27.6       1.11       0.53                      8.2                        6.7
+   C     40         44.3       1.11       0.76                      8.2                        5.3
+   D     65         80.0       1.23       0.44                      6.6                        7.3
+   E    100        120.7       1.21       0.38                      6.9                        7.6
+median Q10/rated 1.14; median exponent 0.53 (range 0.38 to 0.96; orifice 0.50)
+median implied rated drop 7.7 bar (range 6.6 to 14.2); spools A to E only: 7.3
+median work-port-to-tank drop from 3h (A to E): 7.3 bar

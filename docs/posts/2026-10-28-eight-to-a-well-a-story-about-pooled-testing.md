@@ -1,5 +1,6 @@
 ---
 title: "Eight to a Well: a story about pooled testing and what a clear pool means"
+seo_title: "Eight to a Well: a story about pooled testing"
 date: 2026-10-28
 description: A new Hearth & Horizon story in which 200 test wells screen 483 schoolchildren by pooling urine eight to a well, with the numbers worked out and checkable.
 tags: [hearth-and-horizon, fiction, statistics]

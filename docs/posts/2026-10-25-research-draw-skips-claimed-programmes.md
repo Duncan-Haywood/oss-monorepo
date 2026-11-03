@@ -1,5 +1,6 @@
 ---
 title: "The research draw now skips programmes an open pull request already holds"
+seo_title: "The research draw now skips programmes an open PR holds"
 date: 2026-10-25
 description: "Three runs in one day drew a research programme that draft PRs already claimed. pick_track.py now redraws past it, and its --help no longer crashes."
 tags: [process, research, tooling]

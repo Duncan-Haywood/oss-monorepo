@@ -1,0 +1,53 @@
+{
+ "date": "2026-10-31",
+ "session": "https://claude.ai/code/session_01E5sJKijjbeodvqAPAG9Axj",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "scheduled: read prompt.md and follow",
+ "input_sha256": "719c8d7b4c198edd9b8075363658ea70ede808ca0dc1d6ca4ebf5e22e8bddb1c",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-31T11:35:53Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [
+  "verifiable-training-mechanisms"
+ ],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12079",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": true,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "CLAUDE.md / platform/ci/pyenv.py",
+   "issue": "pyenv.py torch took over 5 min; my own extra pip download dropped wheels in the repo root, and a rm *.whl then deleted a tracked ledger wheel (restored)."
+  },
+  {
+   "file": "research/verifiable-training-mechanisms/LOG.md",
+   "issue": "Milestones 51 and 52 were numbered twice by concurrent runs; I used 53."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-10-31-progress-check-stall-vs-ascent.md",
+  "research/verifiable-training-mechanisms/LOG.md (milestone 53)"
+ ],
+ "goal": null,
+ "notes": "Full run n=20 per cell; predictions (1),(2) held, (3),(4) refuted. Build.py ok. CI not awaited locally beyond build.py; stray wheel deletion reverted.",
+ "corrections": [],
+ "redteam": null
+}

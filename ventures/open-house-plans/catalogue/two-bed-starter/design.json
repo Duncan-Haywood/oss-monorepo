@@ -508,6 +508,33 @@
     "frontGlazing": 0.182
    },
    "daylight": 0.86
+  },
+  "studFraming": {
+   "walls": 14,
+   "plateTies": 20,
+   "wallFeet": 211,
+   "pieces": 340,
+   "boards": 194,
+   "boardFeet": 1653,
+   "waste": 0.5,
+   "gapToBound": 0.11,
+   "engineeredHeaders": 0,
+   "studLength": "92-5/8\"",
+   "wallsLeftOut": 0,
+   "notes": [
+    "Front (w1): o14 Bath window head lowered 1-7/8\" so its 2-ply 2x6 header fits under the top plate.",
+    "Hall / Bath / Bedroom 2 / Clo. (w8): o1 Bath door moved 2-5/16\" away from the wall end so its jacks clear the end stud.",
+    "Hall / Bath / Bedroom 2 / Clo. (w8): the partition at 10' 9-3/4\" lands on the framing of o3 Bedroom 2 door; nail it to the king studs there (no tee backing).",
+    "Hall / Laundry / mech. / Primary bedroom / Clo. (w10): o4 and o6 are under 12 in apart, framed as one 108\" rough opening (a mulled unit).",
+    "Hall / Laundry / mech. / Primary bedroom / Clo. (w10): the partition at 5' 9-3/4\" lands on the framing of o4+o6 mulled doors; nail it to the king studs there (no tee backing).",
+    "Bedroom 2 / Clo. (w12): o2 Bedroom 2 closet narrowed from 74\" to 69-1/4\" so its jacks clear the end studs.",
+    "Single top plate (advanced framing): trusses must land within 1 in of the stud centres, and 20 steel plate ties (not in the order) go at plate joints, corners and tees; each wall's drawing marks its joints. Whether a single top plate is allowed here is the code and engineer's call.",
+    "Front (w1): header spacers not in the takeoff: o9 Living / dining window (2-1/2\"), o7 Living / dining entry door (2-1/2\"), o10 Living / dining window (2-1/2\"), o14 Bath window (2-1/2\"), o15 Bedroom 2 window (2-1/2\").",
+    "Back (w7): header spacers not in the takeoff: o13 Kitchen window (2-1/2\"), o17 Primary bedroom window (2-1/2\").",
+    "Hall / Bath / Bedroom 2 / Clo. (w8): o1 Bath door is close to the wall end: the end stud serves as its king, 0 of 1 extra king on the left.",
+    "Hall / Laundry / mech. / Primary bedroom / Clo. (w10): o4+o6 mulled doors is close to the wall end: the end stud serves as its king, 0 of 1 extra king on the left.",
+    "Bedroom 2 / Clo. (w12): o2 Bedroom 2 closet is close to the wall end: the end stud serves as its king on both sides, 0 of 1 extra king on the left."
+   ]
   }
  },
  "geometry": {

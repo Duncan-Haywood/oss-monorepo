@@ -1,5 +1,6 @@
 ---
 title: "The youngest ring: how tree-ring dating can overrule a village's founding legend"
+seo_title: "The youngest ring: tree-ring dating vs a founding legend"
 date: 2026-10-25
 description: "New Hearth & Horizon story: 163 rings on a Madonna's back say the oak grew until 1297, not 1248. What dendrochronology can prove, and what it cannot."
 tags: [fiction, dendrochronology, archives, ai-assistants]

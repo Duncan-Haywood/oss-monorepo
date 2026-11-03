@@ -1,0 +1,9 @@
+H1: 27 hull-form combinations at 4 m, 200 Wh/kg
+  best range km: min 763 max 921  spread (max/min - 1) 20.6%
+  best-range speed m/s: min 1.00 max 1.20  spread 20.0%
+  propulsion share of power at best speed: min 0.33 max 0.37
+  one at a time, c_s 2.6 -> 3.4: range 875 -> 797 km (-9.0%)
+  one at a time, k_form 0.1 -> 0.4: range 871 -> 800 km (-8.1%)
+  one at a time, wave 0.0 -> 1.0: range 836 -> 830 km (-0.8%)
+H5 (a) battery 25% of 200 kg: 2187 cases, mono/cat rank swaps over 150 to 250 Wh/kg: 0; max change in cat/mono ratio 0.0000%
+H5 (b) battery energy fixed at 5 kWh, rest 150 kg: 2187 cases, mono/cat rank swaps over 150 to 250 Wh/kg: 0; max change in cat/mono ratio 0.1298%

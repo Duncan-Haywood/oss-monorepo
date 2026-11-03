@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan, formatLength } from "./engine.mjs";
-import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText, checkPostSlenderness } from "./stairs.mjs";
+import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText, checkPostSlenderness, checkLandingPostColumn, checkLandingJoists, flightPostLoad } from "./stairs.mjs";
+import { checkStringer, checkTread, checkGuardPost } from "./stairs.mjs";
 import { checkWinders, winderText, layoutLandingGuard } from "./stairs.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
@@ -332,7 +333,7 @@ test("winder treads: three 30 degree treads at 12 in inner radius, hand geometry
 });
 test("winder framing: three treads need four radial supports, two shared (hand: 4 x 36 = 144 in)", () => {
   const f = layoutWinders({ count: 3, innerRadius: 12 }).framing;
-  assert.deepEqual(f, { supports: 4, supportLength: 36, totalLength: 144, treadSpan: 36, shared: 2 });
+  assert.deepEqual(f, { supports: 4, supportLength: 36, totalLength: 144, treadSpan: 2 * 48 * Math.sin(Math.PI / 12), shared: 2, treadSpanMax: null, spanOk: null });
   assert.equal(layoutWinders({ count: 4, innerRadius: 16, width: 42 }).framing.totalLength, 5 * 42);
   assert.match(winderText(layoutWinders({ count: 3, innerRadius: 12 })).join("\n"), /4 radial supports of 36"/);
 });
@@ -381,4 +382,224 @@ test("landing post slenderness: 4x4 reaches 50 x 3.5 = 175 in, 6x6 275 in; a tal
   const r = layoutStairWithLanding({ totalRise: 160, tread: 10, landing: {} }, plan());
   assert.ok(r.landing.postSlenderness.ok);
   assert.match(landingText(r).join("\n"), /Landing post slenderness \(4x4\)/);
+});
+
+test("stringer check matches a hand calculation and flags a thin throat", () => {
+  // 2x12, 14 risers of 7.5 in, tread 10: throat 5.25 in; stringers 16 in apart? use the layout's own spacing and run
+  const l = layoutStair({ totalRise: 105, tread: 10, stringer: "2x12", width: 36, stringerCheck: { liveLoad: 40, deadLoad: 10, Fb: 875, Fv: 135, E: 1300000 } }, plan());
+  const k = l.stringerCheck;
+  const w = (50 * l.stringer.spacing) / 144, L = l.run, d = 5.25;
+  assert.ok(Math.abs(k.M - (w * L * L) / 8) < 1e-6);
+  assert.ok(Math.abs(k.fb - ((w * L * L) / 8) / (1.5 * d * d / 6)) < 1e-6);
+  assert.ok(Math.abs(k.fv - (1.5 * (w * L / 2)) / (1.5 * d)) < 1e-6);
+  assert.ok(k.reaction > 0 && Number.isFinite(k.delta));
+  assert.match(stairText(l).join("\n"), /Stringer check/);
+  const weak = checkStringer(l, { liveLoad: 40, deadLoad: 10, Fb: 100, Fv: 10, E: 200000 });
+  assert.ok(!weak.ok && weak.warnings.length === 3);
+});
+
+test("stringer check refuses untyped figures", () => {
+  const r = checkStringer({ stringer: { spacing: 16, throat: 5 }, run: 100 }, { liveLoad: 40 });
+  assert.ok(!r.ok && r.errors.length >= 3);
+});
+
+test("stringer check totals the flight's top reaction and its live share", () => {
+  const l = layoutStair({ totalRise: 105, tread: 10, stringer: "2x12", width: 36, stringerCheck: { liveLoad: 40, deadLoad: 10, Fb: 875, Fv: 135, E: 1300000 } }, plan());
+  const k = l.stringerCheck;
+  assert.ok(Math.abs(k.totalReaction - l.stringer.count * k.reaction) < 1e-9);
+  assert.ok(Math.abs(k.totalReactionLive - k.totalReaction * 0.8) < 1e-9);
+  assert.match(stairText(l).join("\n"), /lb \(\d+ live\) on the header the flight hangs from/);
+});
+
+test("linkStairReaction copies the flight's total reaction into the floor's header check, and says why when it cannot", async () => {
+  const { linkStairReaction } = await import("./stairs.mjs");
+  const { parseLength } = await import("./engine.mjs");
+  const sc = { liveLoad: 40, deadLoad: 12, Fb: 900, Fv: 180, E: 1300000 };
+  const plan = { ...samplePlan(), floor: { headerCheck: { stairFrom: 0, stairSide: "front" } }, stairs: [{ totalRise: "105", tread: 10, stringer: "2x12", width: 36, stringerCheck: sc }] };
+  assert.equal(linkStairReaction(plan, parseLength), null);
+  assert.ok(plan.floor.headerCheck.stairReaction > 0 && plan.floor.headerCheck.stairReactionLive <= plan.floor.headerCheck.stairReaction);
+  assert.match(linkStairReaction({ floor: { headerCheck: { stairFrom: 1 } }, stairs: [] }, parseLength), /stairFrom 1 needs/);
+  assert.equal(linkStairReaction({ floor: {} }, parseLength), null);
+});
+
+test("landing post column: NDS Cp by hand (4x4, 60 in, fc 1000, Emin 400000)", () => {
+  // slenderness 60/3.5 = 17.14; FcE = 0.822*400000/17.14^2 = 1119.2; ratio 1.1192; a = 2.1192/1.6 = 1.3245
+  // Cp = 1.3245 - sqrt(1.3245^2 - 1.1192/0.8) = 1.3245 - sqrt(0.3548) = 0.7288; capacity = 1000*0.7288*12.25 = 8927 lb
+  const r = checkLandingPostColumn(60, "4x4", 500, { fc: 1000, emin: 400000 });
+  assert.ok(r.ok);
+  assert.ok(Math.abs(r.cp - 0.7288) < 0.002, String(r.cp));
+  assert.ok(Math.abs(r.capacity - 8927) < 30, String(r.capacity));
+  assert.ok(r.passes);
+  assert.equal(checkLandingPostColumn(60, "4x4", 9500, { fc: 1000, emin: 400000 }).passes, false);
+  assert.equal(checkLandingPostColumn(60, "4x4", 5, { fc: 10, emin: 400000 }).ok, false);
+});
+
+test("landing with typed postFc/postEmin carries a column check and prints it", () => {
+  const l = layoutStairWithLanding({ totalRise: 160, width: 48, landing: { depth: 120, postSpacing: 60, soilBearing: 1500, postFc: 1000, postEmin: 400000 } }, plan());
+  assert.ok(l.ok);
+  assert.ok(l.landing.postColumn.ok);
+  assert.ok(landingText(l).some((x) => x.includes("Landing post column")));
+  const bad = layoutStairWithLanding({ totalRise: 160, width: 48, landing: { depth: 120, postFc: 1000, postEmin: 400000 } }, plan());
+  assert.equal(bad.landing.postColumn.ok, false);
+});
+
+test("winder walkline uniformity: 12 in out at hand figures", () => {
+  // 3 treads of 30 deg, inner radius 20: walk = (20+12)*pi/6 = 16.755 in. Against a 10 in straight tread: off by 6.755, fails.
+  const bad = checkWinders({ count: 3, innerRadius: 20, straightTread: 10 });
+  assert.equal(bad.ok, false);
+  assert.ok(Math.abs(bad.uniformDiff - (32 * Math.PI / 6 - 10)) < 1e-9);
+  assert.match(winderText(bad).join("\n"), /differs from the 10 in straight tread/);
+  // radius 0 with 2 treads of 45 deg gives walk 12*pi/4 = 9.425; straight tread 9.5 is within 3/8 on uniformity (other rules fail separately)
+  const near = checkWinders({ count: 2, innerRadius: 0, straightTread: 9.5 });
+  assert.ok(Math.abs(near.uniformDiff - (12 * Math.PI / 4 - 9.5)) < 1e-9);
+  assert.ok(!near.problems.some((p) => /straight tread/.test(p)));
+  // untyped tread: not checked
+  assert.equal(checkWinders({ count: 3, innerRadius: 12 }).uniformDiff, null);
+});
+
+test("winder tread span is the widest gap between two radial supports, checked against the tread table when thickness is typed", () => {
+  // hand: 30 degree treads, outer radius 12 + 36 = 48 in, gap 2 x 48 x sin 15 = 24.85 in
+  const f = layoutWinders({ count: 3, innerRadius: 12, treadThickness: 1.5 }).framing;
+  assert.ok(Math.abs(f.treadSpan - 24.8467) < 1e-3);
+  assert.equal(f.treadSpanMax, 24); assert.equal(f.spanOk, false);
+  assert.match(winderText(layoutWinders({ count: 3, innerRadius: 12, treadThickness: 1.5 })).join("\n"), /Over the 24" most/);
+  assert.equal(layoutWinders({ count: 4, innerRadius: 12, treadThickness: 1.5 }).framing.spanOk, true); // 22.5 deg: 2 x 48 x sin 11.25 = 18.7
+});
+
+test("bad stringer spacing, nosing and landing dimensions are refused (2026-10-31)", async () => {
+  const S = await import("./stairs.mjs");
+  assert.equal(S.layoutStair({ totalRise: 108, stringerSpacing: 0 }).ok, false);
+  assert.equal(S.layoutStair({ totalRise: 108, nosing: -5 }).ok, false);
+  assert.throws(() => S.layoutLandingPosts(36, 36, 40, 0), RangeError);
+  assert.throws(() => S.layoutLandingPosts(NaN, 36, 40), RangeError);
+  assert.equal(S.sizeLandingFootings(-36, 36, 96, { soilBearing: 1500 }).ok, false);
+  assert.equal(S.layoutStair({ totalRise: 108 }).ok, true);
+});
+
+test("landing joist check by hand (2x8, 120 in span, 16 in o.c., 40 live + 10 dead)", () => {
+  // w = 50*16/144 = 5.5556 lb/in; M = w L^2/8 = 10000 lb-in; V = 333.33 lb; S = 1.5*7.25^2/6 = 13.1406 in^3
+  // fb = 761 psi; fv = 1.5*333.33/(1.5*7.25) = 45.98 psi; wl = 4.4444; I = 1.5*7.25^3/12 = 47.634
+  // delta = 5*4.4444*120^4/(384*1.4e6*47.634) = 0.18 in vs L/360 = 0.333 in
+  const r = checkLandingJoists({ size: "2x8", spacing: 16, span: 120 }, { deadPsf: 10, livePsf: 40, Fb: 900, Fv: 135, E: 1400000 });
+  assert.ok(Math.abs(r.fb - 761) < 1, String(r.fb));
+  assert.ok(Math.abs(r.fv - 45.98) < 0.05, String(r.fv));
+  assert.ok(Math.abs(r.delta - 0.18) < 0.005, String(r.delta));
+  assert.ok(r.ok);
+  const weak = checkLandingJoists({ size: "2x8", spacing: 16, span: 120 }, { deadPsf: 10, livePsf: 40, Fb: 700, Fv: 135, E: 1400000 });
+  assert.equal(weak.ok, false);
+  assert.equal(checkLandingJoists({ size: "2x8", spacing: 16, span: 120 }, { deadPsf: 10, livePsf: 40, Fb: 5, Fv: 135, E: 1400000 }).ok, false);
+});
+
+test("flights' stringer reactions add to the heaviest landing post", () => {
+  // single bay along (width 48 < 96): corner post takes half of the larger flight reaction
+  assert.equal(flightPostLoad({ stringerCheck: { totalReaction: 600 } }, { stringerCheck: { totalReaction: 800 } }, 48, 96), 400);
+  // width 120 at 60 in spacing: 2 bays, a mid-edge post takes a full bay: R / 2
+  assert.equal(flightPostLoad({ stringerCheck: { totalReaction: 600 } }, null, 120, 60), 300);
+  assert.equal(flightPostLoad({}, {}, 48, 96), 0);
+  const sc = { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 135, E: 1400000 };
+  const base = layoutStairWithLanding({ totalRise: 160, width: 48, landing: { depth: 120, soilBearing: 1500 } }, plan());
+  const withR = layoutStairWithLanding({ totalRise: 160, width: 48, stringerCheck: sc, landing: { depth: 120, soilBearing: 1500, joistCheck: { deadPsf: 10, livePsf: 40, Fb: 900, Fv: 135, E: 1400000 } } }, plan());
+  assert.ok(withR.ok, JSON.stringify(withR.errors));
+  assert.ok(withR.landing.footings.load > base.landing.footings.load);
+  assert.ok(withR.landing.footings.extraLoad > 0);
+  assert.ok(withR.landing.joistCheck.fb > 0);
+  assert.ok(landingText(withR).some((x) => x.includes("Landing joist check")));
+});
+
+test("tread check: hand arithmetic for a 2x12 tread on 16 in spans, and refusals", () => {
+  // 1.5 x 11.25 board, 16 in span, 300 lb: M = 1200 in-lb, S = 11.25*1.5^2/6 = 4.21875, fb = 284.44 psi
+  // I = 11.25*1.5^3/12 = 3.1640625; delta = 300*4096/(48*1.3e6*3.1640625) = 0.006223 in; limit 16/240 = 0.0667 in
+  const k = checkTread({ span: 16, thickness: 1.5, width: 11.25 }, { point: 300, Fb: 875, E: 1300000 });
+  assert.ok(k.ok && Math.abs(k.fb - 284.444) < 1e-2 && Math.abs(k.delta - 0.006223) < 1e-5 && Math.abs(k.limit - 16 / 240) < 1e-9);
+  // 1 in thick, 5.5 in wide decking at 16 in: S = 0.91667, fb = 1309 psi > 1000
+  const w = checkTread({ span: 16, thickness: 1, width: 5.5 }, { point: 300, Fb: 1000, E: 1200000 });
+  assert.ok(!w.ok && Math.abs(w.fb - 1309.09) < 0.01 && w.warnings.length >= 1);
+  const r = checkTread({ span: 16, thickness: 1.5, width: 11.25 }, { point: 300 });
+  assert.ok(!r.ok && r.errors.length === 2);
+});
+
+test("tread check runs from the stair input and prints", () => {
+  const l = layoutStair({ totalRise: 105, tread: 10, stringer: "2x12", width: 36, treadCheck: { point: 300, Fb: 875, E: 1300000 } }, plan());
+  assert.ok(l.treadCheck.ok);
+  assert.match(stairText(l).join("\n"), /Tread check/);
+  assert.equal(layoutStair({ totalRise: 105, tread: 10, stringer: "2x12", width: 36 }, plan()).treadCheck, null);
+});
+
+test("guard post check: hand arithmetic for a 4x4 post at 36 in, and refusals", () => {
+  // 3.5 x 3.5 post, 200 lb at 36 in: M = 7200 in-lb, S = 3.5^3/6 = 7.1458, fb = 1007.6 psi
+  const k = checkGuardPost({ width: 3.5, depth: 3.5, height: 36 }, { point: 200, Fb: 1200 });
+  assert.ok(k.ok && Math.abs(k.fb - 1007.58) < 0.01);
+  // a 2x4 on edge-wise weak axis: 1.5 x 3.5, S = 3.5*1.5^2/6 = 1.3125, fb = 5485.7
+  const w = checkGuardPost({ width: 1.5, depth: 3.5, height: 36 }, { point: 200, Fb: 1200 });
+  assert.ok(!w.ok && Math.abs(w.fb - 5485.71) < 0.01 && w.warnings.length === 1);
+  assert.ok(!checkGuardPost({ width: 3.5, depth: 3.5, height: 36 }, { point: 200 }).ok);
+});
+
+test("guard post check runs from the stair input and prints", () => {
+  const l = layoutStair({ totalRise: 105, tread: 10, stringer: "2x12", width: 36, rail: { sides: 1 }, postCheck: { point: 200, Fb: 1200 } }, plan());
+  assert.ok(l.postCheck.ok);
+  assert.match(stairText(l).join("\n"), /Guard post check/);
+  assert.equal(layoutStair({ totalRise: 105, tread: 10, stringer: "2x12", width: 36, rail: { sides: 1 } }, plan()).postCheck, null);
+});
+
+test("stringer top connection: connectors per stringer from the end reaction", () => {
+  const base = { stringer: { spacing: 16, throat: 5, count: 3 }, run: 100 };
+  const c = { liveLoad: 40, deadLoad: 10, Fb: 1200, Fv: 180, E: 1400000 };
+  // w = 50*16/144 = 5.5556 lb/in, V = w*100/2 = 277.8 lb
+  const none = checkStringer(base, c);
+  assert.equal(none.connectorsNeeded, null);
+  assert.equal(checkStringer(base, { ...c, connectorCapacity: 300 }).connectorsNeeded, 1);
+  assert.equal(checkStringer(base, { ...c, connectorCapacity: 100 }).connectorsNeeded, 3);
+  assert.ok(checkStringer(base, { ...c, connectorCapacity: 5 }).errors.length === 1);
+});
+
+test("stringer bearing: end reaction over thickness x length against a typed Fc-perp", () => {
+  const base = { stringer: { spacing: 16, throat: 5, count: 3 }, run: 100 };
+  const c = { liveLoad: 40, deadLoad: 10, Fb: 1200, Fv: 180, E: 1400000 };
+  // V = 277.78 lb; 1.5 in x 3.5 in = 5.25 sq in -> 52.9 psi; 1.5 x 1 = 1.5 sq in -> 185.2 psi
+  assert.equal(checkStringer(base, c).fcPerp, null);
+  const ok = checkStringer(base, { ...c, bearingFcPerp: 425 });
+  assert.ok(Math.abs(ok.fcPerp - 52.91) < 0.01 && ok.bearingLength === 3.5 && ok.ok);
+  // minimum length = 277.78 / (1.5 x 425) = 0.4357 in
+  assert.ok(Math.abs(ok.minBearingLength - 0.4357) < 0.0001);
+  assert.equal(checkStringer(base, c).minBearingLength, null);
+  const bad = checkStringer(base, { ...c, bearingFcPerp: 150, bearingLength: 1 });
+  assert.ok(Math.abs(bad.fcPerp - 185.19) < 0.01 && !bad.ok && /Bearing stress 185 psi/.test(bad.warnings[0]));
+  assert.equal(checkStringer(base, { ...c, bearingFcPerp: 50 }).errors.length, 1);
+  assert.equal(checkStringer(base, { ...c, bearingFcPerp: 425, bearingLength: 0 }).errors.length, 1);
+});
+
+test("stringer notched support: reduced end shear (2/3) Fv b dn (dn/d)", () => {
+  const base = { stringer: { spacing: 16, throat: 5, depth: 9.25, count: 3 }, run: 100 };
+  const c = { liveLoad: 40, deadLoad: 10, Fb: 1200, Fv: 180, E: 1400000 };
+  // 2/3 x 180 x 1.5 x 5 x (5/9.25) = 486.5 lb against V = 277.8 lb
+  assert.equal(checkStringer(base, c).notchCapacity, null);
+  const ok = checkStringer(base, { ...c, notchedSupport: true });
+  assert.ok(Math.abs(ok.notchCapacity - 486.49) < 0.01 && ok.ok);
+  // leave 3 in: 2/3 x 180 x 1.5 x 3 x (3/9.25) = 175.1 lb < 277.8
+  const bad = checkStringer(base, { ...c, notchedSupport: 3 });
+  assert.ok(Math.abs(bad.notchCapacity - 175.14) < 0.01 && !bad.ok && /End shear 278 lb exceeds 175 lb/.test(bad.warnings[0]));
+  assert.equal(checkStringer(base, { ...c, notchedSupport: 10 }).errors.length, 1);
+});
+
+test("stringer minimum throat: each check solved for depth, the largest governs", () => {
+  const base = { stringer: { spacing: 16, throat: 5, count: 3 }, run: 100 };
+  const c = { liveLoad: 40, deadLoad: 10, Fb: 1200, Fv: 180, E: 1400000 };
+  // w = 5.5556 lb/in, M = 6944.4 lb-in, V = 277.78 lb, limit = 100/240 = 0.41667 in
+  // bending sqrt(6*6944.4/(1.5*1200)) = 4.811; shear 1.5*277.78/(1.5*180) = 1.543; deflection cbrt(60*5.5556*1e8/(384*1.4e6*1.5*0.41667)) = 4.629
+  const r = checkStringer(base, c);
+  assert.ok(Math.abs(r.minThroat - 4.811) < 0.001 && r.minThroatGoverns === "bending");
+  // at the minimum throat bending stress equals the typed Fb
+  const at = checkStringer({ ...base, stringer: { ...base.stringer, throat: r.minThroat } }, c);
+  assert.ok(Math.abs(at.fb - 1200) < 1e-6);
+});
+
+test("validateStair refuses non-number inputs and zero limits instead of throwing", () => {
+  const base = sampleStair();
+  for (const bad of [{ tread: "10" }, { totalRise: "108" }, { width: "36" }, { treadThickness: -1 }, { treadThickness: "x" }, { openingLength: -5 }, { floorThickness: -2 }, { stringerSpacing: 1e-9 }, { limits: { maxRiser: 0 } }]) {
+    const r = layoutStair({ ...base, ...bad });
+    assert.equal(r.ok, false, JSON.stringify(bad));
+    assert.ok(r.errors.length > 0);
+  }
+  assert.equal(layoutStair(base).ok, true);
 });

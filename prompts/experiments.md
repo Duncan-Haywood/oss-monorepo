@@ -1763,3 +1763,36 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   on 97). Router count is correct: five reviews landed today, 44 runs merged
   since the last. Re-ran `derive.py fetch && build`. No audit or drift report.
 - Result: (next review)
+
+## E119: Review 2026-10-31 (reduced pass)
+
+- Change: `land-your-work.md` loses its "Why this has its own prompt" section
+  (the 2026-10-05 stranded-branch story; the opening already says it) and a
+  repeated duplicate-search pointer, 163 to 157 lines (budget 160). Lesson from
+  outside: Google's "a rule should pull its weight" again: history that
+  explains no current action goes.
+- Metric: instruction-line count for `land-your-work.md`; compare next review.
+- Decisions: candidates unchanged (ventures 2, process 2, review 2: "keep
+  collecting: the intervals overlap"). 47 runs merged since the last review.
+  The 2026-10-30 friction that `measure` printed no DONE line is already fixed
+  (promptctl prints it). Re-ran `derive.py fetch && build`. `steering.md` still
+  over budget (125/120). No audit or drift report (reduced pass).
+- Result: (next review)
+
+## E120: Process 2026-11-01 (steering.md back under budget)
+
+- Change: `steering.md` "Amplification" section condensed (the "nothing is
+  served" anecdote and restated points dropped), 125 to 118 lines (budget 120).
+- Metric: instruction-line count for `steering.md`; compare next review.
+- Notes: `main_health.py` 33/33 green; no agent-owned backlog item open.
+- Result: (next review)
+
+## E121: Process 2026-11-01 (verify P048, P050, P059)
+
+- Change: wrote `result` on the three done-but-unchecked backlog items from
+  `ci_profile.py --runs 200` and the run records: P048 checkout share 40% to
+  20%; P050 test step 1.63 to 1.28 min per job; P059 hook friction 10 reports
+  on 2026-10-29 to none since 2026-10-31.
+- Metric: none new. `main_health.py` 33/33 green; no agent-owned item open
+  (P056 blocked), so no fix to ship; the review PR dated 2026-11-01 holds the claim.
+- Result: (verification only; no unverified done items left)

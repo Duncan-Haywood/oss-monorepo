@@ -70,9 +70,9 @@ test('the research band shows featured projects with their theme and summary', (
 });
 
 test('a research motif is deterministic, decorative and inside its box', () => {
-  const a = researchMotif('energy-tou', '#7fe3c6');
-  assert.equal(a, researchMotif('energy-tou', '#7fe3c6'));
-  assert.notEqual(a, researchMotif('house-adufees', '#7fe3c6'));
+  const a = researchMotif('energy-tou', '#a8c7f0');
+  assert.equal(a, researchMotif('energy-tou', '#a8c7f0'));
+  assert.notEqual(a, researchMotif('house-adufees', '#a8c7f0'));
   assert.match(a, /aria-hidden="true"/);
   for (const slug of ['a', 'energy-tou', 'mimic-webcam', 'chip-abc-orderblocks', 'x'.repeat(40)]) {
     const svg = researchMotif(slug, '#fff');

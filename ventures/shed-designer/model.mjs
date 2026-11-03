@@ -31,7 +31,8 @@ import { LOCKABLE } from './levers.mjs';
 /** @typedef {{ origin: Vec, u: Vec, v: Vec, w: Vec, profile: [number, number][], thickness: number }} Geom */
 /**
  * @typedef {{ id: string, group: string, kind: string, material: string, length: number,
- *   note?: string, geom: Geom, local?: { s0: number, s1: number, z0: number, z1: number, top?: [number, number][] } }} Member
+ *   note?: string, geom: Geom, local?: { s0: number, s1: number, z0: number, z1: number, top?: [number, number][] },
+ *   cutOuts?: { s0: number, s1: number, op: string }[], finished?: Geom[] }} Member
  */
 /** @typedef {{ id: string, kind: 'door'|'window', wall: 'front'|'back'|'left'|'right', offset: number, width: number, height: number, sill?: number, header?: string, product?: string }} Opening */
 
@@ -142,6 +143,11 @@ export function defaultDesign() {
     // Count custom-size doors and windows at the median of the catalogue's range (off: left out of the total).
     customRange: false,
     sidingType: 'T1-11',
+    // Panel siding (T1-11, LP panels) runs with its 8 ft length up the wall ('vertical', the usual way)
+    // or along it ('horizontal': rows of 4 ft high panels, each row joint Z-flashed over blocking).
+    sidingRun: 'vertical',
+    // T1-11 bought primed (a primed 19/32" 4x8 wood panel) instead of bare, to paint.
+    sidingPrimed: false,
     wallTrim: '1x4',
     // For fiber cement: James Hardie sells HZ5 plank where winters freeze and HZ10 where they don't.
     climate: 'mild',
@@ -210,7 +216,7 @@ const classic = () => ({ ...defaultDesign(), foundation: 'gravel', pad: 'full', 
 /**
  * Site plan extras that `normalize` fills in (not `defaultDesign`, so the
  * presets' design keys stay put).
- * @typedef {{ siteFacing: string, northDeg: number | null, easementSide: string, easementFt: number, easementNote: string }} SiteExtras
+ * @typedef {{ siteFacing: string, northDeg: number | null, easementSide: string, easementFt: number, easementNote: string, plateThroughDoors: boolean }} SiteExtras
  */
 /** @typedef {ReturnType<typeof defaultDesign> & Partial<SiteExtras>} Design */
 
@@ -357,6 +363,8 @@ export function normalize(input) {
     wallTrim: pick(o.wallTrim, ['1x4', '5/4', 'none'], d.wallTrim),
     climate: pick(o.climate, ['mild', 'freezing'], d.climate),
     sidingType: pick(o.sidingType, ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement', 'LP SmartSide lap'], d.sidingType),
+    sidingRun: pick(o.sidingRun, ['vertical', 'horizontal'], d.sidingRun),
+    sidingPrimed: o.sidingPrimed === true,
     roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
     rafterSeat: pick(o.rafterSeat, ['birdsmouth', 'connector'], d.rafterSeat),
     anchors: pick(o.anchors, ['48', '30', 'none'], d.anchors),
@@ -369,6 +377,10 @@ export function normalize(input) {
     // the front (door) wall faces on the lot; north in degrees clockwise from
     // straight up the plan (toward the rear lot line), null for no arrow; and
     // an easement strip along one lot line, with a note as on the plat.
+    // Bottom plate straight across door openings, sawn out after the wall is
+    // raised (true), or cut out at each door before framing (false). Defaulted
+    // here, not in defaultDesign(), so the presets' design keys do not move.
+    plateThroughDoors: o.plateThroughDoors !== false,
     siteFacing: pick(o.siteFacing, ['street', 'left', 'right', 'rear'], 'street'),
     northDeg: o.northDeg === null || o.northDeg === undefined || /** @type {any} */ (o.northDeg) === '' || typeof o.northDeg === 'boolean' || !Number.isFinite(Number(o.northDeg)) ? null : ((Math.round(Number(o.northDeg)) % 360) + 360) % 360,
     easementSide: pick(o.easementSide, ['none', 'street', 'left', 'right', 'rear'], 'none'),
@@ -550,6 +562,40 @@ export function headerFor(d, op) {
 
 /** @param {Vec} a @param {Vec} b @param {number} k */
 const add = (a, b, k = 1) => /** @type {Vec} */ ([a[0] + b[0] * k, a[1] + b[1] * k, a[2] + b[2] * k]);
+
+/**
+ * The part of the rectangle [s0, s1] x [z0, z1] under a wall's top line `clip(s)`
+ * (piecewise linear, bending only at `corners`), as a profile in the siding's
+ * order: bottom left to right, then the top right to left. Null when less than
+ * half an inch of it is under the line.
+ * @param {(s: number) => number} clip @param {number[]} corners
+ * @param {number} s0 @param {number} s1 @param {number} z0 @param {number} z1
+ * @returns {[number, number][] | null}
+ */
+export function clipRect(clip, corners, s0, s1, z0, z1) {
+  const xs = [s0, s1, ...corners.filter((c) => c > s0 && c < s1)].sort((a, b) => a - b);
+  // Where the top line crosses the row's top or bottom between two breakpoints.
+  const all = [...xs];
+  for (let i = 0; i + 1 < xs.length; i++) {
+    const [a, b] = [xs[i], xs[i + 1]];
+    const [ca, cb] = [clip(a), clip(b)];
+    for (const zz of [z0, z1]) if ((ca - zz) * (cb - zz) < 0) all.push(a + ((zz - ca) / (cb - ca)) * (b - a));
+  }
+  const pts = [...new Set(all.map((x) => Math.round(x * 1e6) / 1e6))].sort((a, b) => a - b).filter((x) => clip(x) >= z0 - 1e-6);
+  if (pts.length < 2 || pts[pts.length - 1] - pts[0] < 0.5) return null;
+  const top = pts.map((x) => /** @type {[number, number]} */ ([x, Math.max(z0, Math.min(z1, clip(x)))]));
+  if (Math.max(...top.map((q) => q[1])) - z0 < 0.5) return null;
+  /** @type {[number, number][]} */
+  const raw = [[pts[0], z0], [pts[pts.length - 1], z0], ...top.reverse()];
+  // Merge repeated points (where the roof line meets the row's bottom), then drop
+  // points on a straight line between their neighbours.
+  const out = raw.filter((q, i) => { const r = raw[(i + raw.length - 1) % raw.length]; return Math.hypot(q[0] - r[0], q[1] - r[1]) > 1e-6; });
+  return out.filter((q, i) => {
+    const a = out[(i + out.length - 1) % out.length];
+    const b = out[(i + 1) % out.length];
+    return Math.abs((q[0] - a[0]) * (b[1] - a[1]) - (q[1] - a[1]) * (b[0] - a[0])) > 1e-6;
+  });
+}
 
 /** @returns {Geom} */
 function rectGeom(origin, u, v, w, lu, lv, thickness) {
@@ -812,7 +858,7 @@ function buildAuto(d0, prices) {
 function buildFramed(d, lapNailers) {
   /** @type {Member[]} */
   const members = [];
-  /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[], course?: number, face?: [number, number][], where?: string }[]} */
+  /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[], course?: number, row?: number, face?: [number, number][], where?: string }[]} */
   const panels = [];
   /** @type {{ id?: string, kind: string, geom: Geom, group: string, op?: string, tex?: string, from?: number, bottom?: number }[]} */
   const fixtures = [];
@@ -1233,12 +1279,19 @@ function buildFramed(d, lapNailers) {
       }
       fixture();
     }
-    // Plates: bottom plate is cut out at doors; top and cap plates break on studs, cap joints kept 4 ft from top joints.
-    const doorGaps = ops.filter((p) => p.op.kind === 'door').map((p) => [p.a, p.a + p.w]).sort((a, b) => a[0] - b[0]);
+    // Plates: top and cap plates break on studs, cap joints kept 4 ft from top joints.
+    // The bottom plate runs straight across each door by default (plateThroughDoors):
+    // a wall framed on one plate stays square while it is nailed up and raised,
+    // and the piece in the door is sawn out once the plate is nailed down. With
+    // the option off it is cut out at each door before framing, as two pieces.
+    const doorGaps = ops.filter((p) => p.op.kind === 'door').map((p) => /** @type {[number, number, string]} */ ([p.a, p.a + p.w, p.op.id])).sort((a, b) => a[0] - b[0]);
     const bottomRuns = [];
-    let cur = 0;
-    for (const [g0, g1] of doorGaps) { if (g0 > cur) bottomRuns.push([cur, g0]); cur = g1; }
-    if (cur < len) bottomRuns.push([cur, len]);
+    if (d.plateThroughDoors) bottomRuns.push([0, len]);
+    else {
+      let cur = 0;
+      for (const [g0, g1] of doorGaps) { if (g0 > cur) bottomRuns.push([cur, g0]); cur = g1; }
+      if (cur < len) bottomRuns.push([cur, len]);
+    }
     // The cap plate interlocks the corners: on the eave walls it stops one wall
     // depth short of each end, and the gable walls' cap runs that much long to
     // lap over the eave walls' top plate.
@@ -1260,7 +1313,11 @@ function buildFramed(d, lapNailers) {
       const cap0 = splitRun(c0, c1, stock, breakCenters, tj0, 48);
       if (!tj0.length || cap0.runs.slice(1).every((x) => clearOf(tj0, 48)(x[0]))) return { top: top0, cap: cap0, overHeader: false };
       for (const [breaks, gap] of [[breakCenters, 48], [breakCenters, PLATE_OFFSET_MIN], [[...breakCenters, ...headerBreaks], PLATE_OFFSET_MIN]]) {
+        // jointSets bounds its dead ends, not its answers: a long wall has more
+        // top-plate joint sets than can be tried, so try the first few hundred.
+        let tries = 0;
         for (const tj of jointSets(0, len, stock, breaks, () => true, 400)) {
+          if (++tries > 300) break;
           const cj = jointSets(c0, c1, stock, breaks, clearOf(tj, gap), 400).next().value;
           if (!cj) continue;
           const overHeader = [...tj, ...cj].some((x) => !breakCenters.some((c) => Math.abs(c - x) < 1e-9));
@@ -1283,7 +1340,22 @@ function buildFramed(d, lapNailers) {
       plates = choosePlates(plateStock);
     }
     const { top, cap, overHeader } = plates;
-    for (const r of bottomWithin(plateStock)) for (const [s0, s1] of r.runs) addM('bottom plate', floorless ? `PT ${d.studSize}` : d.studSize, s0, s1, 0, 1.5);
+    for (const r of bottomWithin(plateStock)) {
+      for (const [s0, s1] of r.runs) {
+        const cuts = doorGaps.filter(([g0, g1]) => g0 < s1 - 1e-9 && g1 > s0 + 1e-9).map(([g0, g1, op]) => ({ s0: Math.max(g0, s0), s1: Math.min(g1, s1), op }));
+        const note = cuts.length ? `runs across the door; saw out ${cuts.map((c) => fmtIn(c.s1 - c.s0)).join(' and ')} flush with the jacks after the wall is raised and nailed down` : undefined;
+        const m = addM('bottom plate', floorless ? `PT ${d.studSize}` : d.studSize, s0, s1, 0, 1.5, note);
+        if (cuts.length) {
+          // What is sawn out, and the pieces left once it is: the 3D view shows the finished shed.
+          m.cutOuts = cuts;
+          const kept = [];
+          let at = s0;
+          for (const c of cuts) { if (c.s0 > at + 1e-9) kept.push([at, c.s0]); at = c.s1; }
+          if (s1 > at + 1e-9) kept.push([at, s1]);
+          m.finished = kept.map(([a, b]) => rectGeom(add(spec.base, spec.axis, a), spec.axis, Z, spec.w, b - a, 1.5, D));
+        }
+      }
+    }
     for (const [s0, s1] of top.runs) addM('top plate', d.studSize, s0, s1, Hw - 3, Hw - 1.5);
     for (const [s0, s1] of cap.runs) addM('cap plate', d.studSize, s0, s1, Hw - 1.5, Hw, capNote);
     if (top.runs.length > 1) notes.push(`${wallLabel(d, name)}: plates are longer than the longest board you allowed or can haul, so they splice over studs; the cap plate's joints are kept 4 ft from the top plate's where the layout allows, and never under the code's 24".`);
@@ -2201,7 +2273,7 @@ function buildFramed(d, lapNailers) {
   const lapSpec = lapBase && { ...lapBase, exposure: /** @type {number} */ (lapExposure) };
   const sheathT = 7 / 16;
   const sidingT = lapSpec ? sheathT + 2 * lapSpec.thickness : d.sidingType === 'LP SmartSide' ? 3 / 8 : d.sidingType === 'LP SmartSide 7/16' ? 7 / 16 : 19 / 32;
-  /** @type {{ wall: string, length: number, need?: number }[]} */
+  /** @type {{ wall: string, length: number, need?: number, row?: number, piece?: { len: number, w: number } }[]} */
   const sidingFull = [];
   /** @type {number[]} */
   const sidingUpper = [];
@@ -2209,9 +2281,13 @@ function buildFramed(d, lapNailers) {
   // edge (left and right as seen from outside), and whether the peak is in it.
   /** @type {{ h0: number, h1: number, peak: boolean }[]} */
   const sidingUpperShapes = [];
+  /** Horizontal panel joints (horizontal runs only): each is Z-flashed and backed by blocking. @type {{ wall: string, z: number, s0: number, s1: number, len: number, clip: (s: number) => number, eave: boolean }[]} */
+  const sidingJoints = [];
   if (d.siding) {
     const bottomZ = sidingBottom;
-    const sheetFor = (h) => (lapSpec ? [96] : [96, 108, 120]).find((s) => s >= h - 1e-9);
+    // T1-11 is sold as 4x8 only (a "4x9" listing turned out to be a 4x8: owner, 2026-11-01); LP panels come 8, 9 and 10 ft.
+    const sheetFor = (h) => (lapSpec || d.sidingType === 'T1-11' ? [96] : [96, 108, 120]).find((s) => s >= h - 1e-9);
+    const horizontal = !lapSpec && d.sidingRun === 'horizontal';
     for (const name of WALLS) {
       const eave = name === 'front' || name === 'back';
       const faceLen = eave ? L : W;
@@ -2219,12 +2295,38 @@ function buildFramed(d, lapNailers) {
       const origin = name === 'front' ? [0, 0, 0] : name === 'back' ? [0, W, 0] : name === 'left' ? [0, 0, 0] : [L, 0, 0];
       const u = eave ? X : Y;
       const w = name === 'front' ? neg(Y) : name === 'back' ? Y : name === 'left' ? neg(X) : X;
+      const corners = !eave && !lean ? (gam ? [W - gam.yk, W / 2, gam.yk] : [yR]) : [];
+      if (horizontal) {
+        // Rows of panels laid on their side: 8 ft along the wall, 4 ft high, from the bottom up,
+        // each piece trimmed to the roof line. Vertical joints every 8 ft land on studs at 12, 16 or 24".
+        const topZ = Math.max(...[0, faceLen, ...corners].map(clip));
+        for (let z0 = bottomZ, row = 0; z0 < topZ - 0.5; z0 += 48, row += 1) {
+          if (row > 0) {
+            // The joint runs where the wall reaches above it (a gable's slope cuts it short).
+            let len = 0;
+            for (let s = 0.25; s < faceLen; s += 0.5) if (clip(s) > z0) len += 0.5;
+            sidingJoints.push({ wall: name, z: z0, s0: 0, s1: faceLen, len, clip, eave });
+          }
+          for (let s0 = 0; s0 < faceLen - 1e-9; s0 += 96) {
+            const prof = clipRect(clip, corners, s0, Math.min(faceLen, s0 + 96), z0, z0 + 48);
+            if (!prof) continue;
+            const zs = prof.map((q) => q[1]);
+            const ss = prof.map((q) => q[0]);
+            sidingFull.push({ wall: name, length: 96, need: NaN, row, piece: { len: Math.max(...ss) - Math.min(...ss), w: Math.max(...zs) - Math.min(...zs) } });
+            panels.push({
+              id: nextId('SD'), kind: 'siding', item: 'siding', group: 'siding', wall: name, row,
+              geom: { origin: /** @type {Vec} */ (origin), u, v: Z, w, profile: prof, thickness: sidingT },
+            });
+          }
+        }
+        continue;
+      }
       for (let s0 = 0; s0 < faceLen - 1e-9; s0 += 48) {
         const s1 = Math.min(faceLen, s0 + 48);
         /** @type {[number, number][]} */
         const prof = [[s0, bottomZ], [s1, bottomZ], [s1, clip(s1)]];
         // The roof line's corners inside this panel, right to left: the peak, and a gambrel's knees.
-        if (!eave && !lean) for (const y of gam ? [W - gam.yk, W / 2, gam.yk] : [yR]) if (s0 < y && s1 > y) prof.push([y, clip(y)]);
+        for (const y of corners) if (s0 < y && s1 > y) prof.push([y, clip(y)]);
         prof.push([s0, clip(s0)]);
         const need = Math.max(...prof.map((p) => p[1])) - bottomZ;
         const sheet = sheetFor(need);
@@ -2287,6 +2389,48 @@ function buildFramed(d, lapNailers) {
           geom: { origin: base, u, v, w, profile: pc.pts.map(([s, z]) => /** @type {[number, number]} */ ([s, (z - pc.zb) / vz])), thickness: t },
         });
       }
+    }
+  }
+
+  // ---------------- Blocking behind horizontal panel joints ----------------
+  // IRC R703.3.1: a horizontal joint in panel siding is lapped, shiplapped, or
+  // Z-flashed over solid blocking or sheathing. T1-11 has no sheathing behind it,
+  // so a flat stud-size block fills each bay where a row joint crosses open
+  // framing (not where a plate, header or sill already backs it, nor across a
+  // door or window opening).
+  for (const j of sidingJoints) {
+    const name = j.wall;
+    const spec = wallSpecs[name];
+    const eave = spec.eave;
+    const ax = eave ? 0 : 1;
+    const across = eave ? 1 : 0;
+    const zone = name === 'front' ? [0, D] : name === 'back' ? [W - D, W] : name === 'left' ? [0, D] : [L - D, L];
+    const zb = j.z - 0.75;
+    const zt = j.z + 0.75;
+    // Wall and gable framing only: a sloped rafter's bounding box would cover the whole gable.
+    const wood = members.filter((m) => /^(wall|gable):/.test(m.group || '')).map((m) => bbox(m.geom)).filter((g) => g.lo[across] < zone[1] - 1e-6 && g.hi[across] > zone[0] + 1e-6 && g.lo[2] < zt - 1e-6 && g.hi[2] > zb + 1e-6)
+      .map((g) => [g.lo[ax], g.hi[ax]]).sort((a, b) => a[0] - b[0]);
+    const holes = walls[name].openings.filter((p) => floorTop + p.bottom < zt && floorTop + p.bottom + p.op.height > zb).map((p) => [spec.start + p.a, spec.start + p.a + p.w]);
+    for (const v of ventInfo[name] || []) if (floorTop + v.z0 < zt && floorTop + v.z1 > zb) holes.push([v.s0, v.s1]);
+    let at = 0;
+    const gaps = [];
+    for (const [a, b] of wood) { if (a > at + 0.25) gaps.push([at, a]); at = Math.max(at, b); }
+    const end = eave ? L : W;
+    if (end > at + 0.25) gaps.push([at, end]);
+    for (const [g0, g1] of gaps) {
+      // A gap of a few inches (a corner's studs) leaves wood within reach of the joint on both sides.
+      if (g1 - g0 < 3.5) continue;
+      if (holes.some(([h0, h1]) => h0 < g1 - 1e-6 && h1 > g0 + 1e-6)) continue;
+      // Only where the siding reaches above the joint (a gable's slope cuts it short).
+      if (Math.min(j.clip(g0), j.clip(g1)) < zt) continue;
+      const s0 = g0 - spec.start;
+      const m = push({
+        id: nextId(prefix[name]), group: zb >= plateTop - 1e-6 && !eave ? `gable:${name}` : `wall:${name}`, kind: 'siding blocking', material: d.studSize, length: ceil16(g1 - g0),
+        note: 'flat between studs behind the horizontal siding joint',
+        geom: rectGeom(add(add(spec.base, spec.axis, s0), Z, zb - floorTop), spec.axis, Z, spec.w, g1 - g0, 1.5, D),
+        local: { s0, s1: s0 + (g1 - g0), z0: zb - floorTop, z1: zt - floorTop },
+      });
+      walls[name].members.push(m);
     }
   }
 
@@ -2429,6 +2573,9 @@ function buildFramed(d, lapNailers) {
       ? 'Unfinished LP SmartSide: the factory primer is not a finish. LP asks for a paint topcoat within 180 days of installing it to keep the warranty.'
       : 'Unfinished siding: bare wood and plywood siding grey, check and absorb water. Leaving it unfinished is a choice you can make, but paint or stain makes it last.');
   }
+  if (d.siding && d.sidingRun === 'horizontal' && sidingJoints.length && !lapSpec) {
+    notes.push(`Siding runs horizontally: rows of 4x8 panels on their side, ${d.sidingType === 'T1-11' ? 'grooves level, ' : ''}${sidingJoints.length} row joint${sidingJoints.length > 1 ? 's' : ''} around the shed. Each row joint gets Z-flashing and a flat ${d.studSize} block in every open stud bay behind it (IRC R703.3.1: horizontal joints in panel siding are lapped, shiplapped, or Z-flashed over solid blocking); the blocks are in the parts list. Vertical joints every 8 ft land on studs.`);
+  }
   if (d.siding && d.studSpacing > 16 && (d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide')) {
     warnings.push(`${d.sidingType === 'T1-11' ? 'T1-11' : 'LP SmartSide 3/8"'} panels are rated for studs at 16" on centre; at ${d.studSpacing}" use the 7/16" LP panel, lap siding over OSB, or studs at 16".`);
   }
@@ -2458,7 +2605,7 @@ function buildFramed(d, lapNailers) {
       return again;
     }
   }
-  return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes, lap, lapExposure, sidingStudLimit: lapStudLimit(d) };
+  return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes, sidingJoints: sidingJoints.map(({ clip, ...j }) => j), lap, lapExposure, sidingStudLimit: lapStudLimit(d) };
 }
 
 /** @typedef {ReturnType<typeof buildFramed>} Shed */

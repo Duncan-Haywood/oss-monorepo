@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01AcxTtJvbNyXeTR3bpDZABV",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled run: read ./prompt.md",
+  "input_sha256": "41e9b6a547148c0d906b7e9f86cf33d9a1c0faa367c181c6711625dbc2b2b288",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T13:27:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12096",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 reads origin/security-alerts, which does not exist; the fetch fails (already reported in PR 12026)."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "No note that the cloud python3 lacks aerosandbox and that pip install breaks on a shadowing system PIL; needed pip install --force-reinstall --no-deps pillow into /usr/local/bin/python3. Cost ~10 min."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Routed to review but PR 12026 already claimed it, so re-routed with --skip-review as instructed.",
+      "did": "research track, aerolog-scaling milestone 9m",
+      "result": "landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-31-aerolog-coloured-noise.md",
+    "research/aerolog-scaling/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Experiment ran 15 min wall; 2 of 3 predictions held, gust-share prediction refuted. Paper draft check_numbers not updated (follow-up).",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,237 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01E5sJKmMTk6R6Scu7DmqyNa",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-31T10:18:05Z",
+  "ended": "2026-10-31T10:18:19Z",
+  "wall_minutes": 2.08,
+  "tokens_in": 821626,
+  "tokens_out": 3539,
+  "cost_usd": 0.3342,
+  "tool_calls": 15,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12067",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Target platform/edge/worker.mjs: 8 mutants, 6 caught, 2 escaped (limiter 429 status, preflight 204); both guarded by new tests, rerun caught both. No real defects found. No blog post: small run.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/edge/worker.mjs",
+        "test": "node --test platform/edge/worker.test.mjs  (in .)",
+        "seed": 711007730,
+        "commit": "917fb45a",
+        "sites": 54,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "platform/edge/worker.mjs",
+            "line": 51,
+            "col": 25,
+            "operator": "and-to-or",
+            "before": "if (r?.meta?.changes && verdict.slug) await add(`${BOT_PAGE_KEY}${verdict.slug}`);",
+            "after": "if (r?.meta?.changes || verdict.slug) await add(`${BOT_PAGE_KEY}${verdict.slug}`);",
+            "line_text": "    if (r?.meta?.changes && verdict.slug) await add(`${BOT_PAGE_KEY}${verdict.slug}`);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/edge/worker.mjs",
+            "line": 103,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "return json(400, { error: 'body' }, cors);",
+            "after": "return json(401, { error: 'body' }, cors);",
+            "line_text": "    return json(400, { error: 'body' }, cors);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/edge/worker.mjs",
+            "line": 112,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "if (!success) return json(429, { error: 'slow-down' }, cors);",
+            "after": "if (!success) return json(430, { error: 'slow-down' }, cors);",
+            "line_text": "    if (!success) return json(429, { error: 'slow-down' }, cors);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test hit the limiter 429 or the OPTIONS preflight; added both"
+          },
+          {
+            "file": "platform/edge/worker.mjs",
+            "line": 129,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "status: 204,",
+            "after": "status: 205,",
+            "line_text": "        status: 204,",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test hit the limiter 429 or the OPTIONS preflight; added both"
+          },
+          {
+            "file": "platform/edge/worker.mjs",
+            "line": 135,
+            "col": 35,
+            "operator": "and-to-or",
+            "before": "if (request.method === 'GET' && url.pathname === '/counts') {",
+            "after": "if (request.method === 'GET' || url.pathname === '/counts') {",
+            "line_text": "      if (request.method === 'GET' && url.pathname === '/counts') {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/edge/worker.mjs",
+            "line": 140,
+            "col": 51,
+            "operator": "eq-flip",
+            "before": "if (request.method === 'GET' && url.pathname === '/feedback') {",
+            "after": "if (request.method === 'GET' && url.pathname !== '/feedback') {",
+            "line_text": "      if (request.method === 'GET' && url.pathname === '/feedback') {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/edge/worker.mjs",
+            "line": 145,
+            "col": 36,
+            "operator": "and-to-or",
+            "before": "if (request.method === 'POST' && url.pathname === '/hit') {",
+            "after": "if (request.method === 'POST' || url.pathname === '/hit') {",
+            "line_text": "      if (request.method === 'POST' && url.pathname === '/hit') {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/edge/worker.mjs",
+            "line": 150,
+            "col": 52,
+            "operator": "eq-flip",
+            "before": "if (request.method === 'POST' && url.pathname === '/feedback') return await handleFeedback(request, env, headers, cors);",
+            "after": "if (request.method === 'POST' && url.pathname !== '/feedback') return await handleFeedback(request, env, headers, cors);",
+            "line_text": "      if (request.method === 'POST' && url.pathname === '/feedback') return await handleFeedback(request, env, headers, cors);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2981cf99-6cfa-5a7c-b7cb-fb9b0c961c74",
+    "transcripts": 1,
+    "first": "2026-10-31T10:18:05Z",
+    "last": "2026-10-31T10:20:10Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 14,
+        "input": 29,
+        "output": 3539,
+        "thinking": 0,
+        "cache_read": 786226,
+        "cache_write_5m": 0,
+        "cache_write_1h": 35371,
+        "api_equivalent_usd": 0.3342,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 14,
+      "input": 29,
+      "output": 3539,
+      "thinking": 0,
+      "cache_read": 786226,
+      "cache_write_5m": 0,
+      "cache_write_1h": 35371,
+      "api_equivalent_usd": 0.3342,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.957,
+    "tool_calls": 15,
+    "tools": {
+      "Bash": 12,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.08,
+      "active_minutes": 2.08,
+      "model_minutes": 0.54,
+      "tool_minutes": 1.53,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

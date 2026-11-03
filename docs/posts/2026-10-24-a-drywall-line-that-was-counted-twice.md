@@ -1,5 +1,6 @@
 ---
 title: "A drywall line that was counted twice, and the page that finally showed it"
+seo_title: "A drywall line that was counted twice, and the page that showed it"
 date: 2026-10-24
 description: "Putting drywall on the wall-framing takeoff page exposed a budget bug: the sheets were listed twice, doubling their cost."
 tags: [construction, estimating, testing, wall-framing-takeoff]

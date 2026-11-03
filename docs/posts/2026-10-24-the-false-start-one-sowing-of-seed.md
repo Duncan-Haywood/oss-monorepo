@@ -1,5 +1,6 @@
 ---
 title: "The False Start: a short story about one sowing of seed and a rain that lies"
+seo_title: "The False Start: a short story about a sowing of seed and a lying rain"
 date: 2026-10-24
 description: "New Hearth & Horizon story: a Niger village with one sowing of seed, a field adviser's 38 percent, and a split sowing. The sums are shown."
 tags: [fiction, hearth-and-horizon, decisions, agriculture]

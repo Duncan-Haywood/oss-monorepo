@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01EhTJVLsygozBpKgpZdJng3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T10:00:30Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": 12063,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "promptctl route drew the perf track, but the scheduled task asked for revenue venture work; ran the ventures track on flagship 1",
+      "did": "added a winders page field",
+      "result": "page tests 83 pass; Chromium click script run"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Winders (CLI-only) now have a page field on the stairs card, restored from a saved plan. page.test.mjs wiring test, eval-browser-click.mjs steps, 83 node tests pass. Blog post winder-stairs-on-the-page. Chromium click run: winders fail/solved radius, pass at 12 in, malformed refused; page errors 0.",
+  "corrections": [],
+  "redteam": null
+}

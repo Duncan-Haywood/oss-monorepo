@@ -693,6 +693,44 @@
     "frontGlazing": 0.2276
    },
    "daylight": 0.9
+  },
+  "studFraming": {
+   "walls": 17,
+   "plateTies": 29,
+   "wallFeet": 305,
+   "pieces": 489,
+   "boards": 273,
+   "boardFeet": 2616,
+   "waste": 0.3,
+   "gapToBound": 0.05,
+   "engineeredHeaders": 0,
+   "studLength": "104-5/8\"",
+   "wallsLeftOut": 0,
+   "notes": [
+    "Front (w1): o16 and o17 are under 12 in apart, framed as one 75-1/2\" rough opening (a mulled unit).",
+    "Front (w1): the o16+o17 mulled windows header is sized for the combined span: 2-ply 2x12, 2 jacks a side (ratio 0.99, structure.mjs).",
+    "Front (w1): o12 and o13 are under 12 in apart, framed as one 77\" rough opening (a mulled unit).",
+    "Front (w1): the o12+o13 mulled windows header is sized for the combined span: 3-ply 2x10, 2 jacks a side (ratio 0.92, structure.mjs).",
+    "Front (w1): o21 and o22 are under 12 in apart, framed as one 75-1/2\" rough opening (a mulled unit).",
+    "Front (w1): the o21+o22 mulled windows header is sized for the combined span: 2-ply 2x12, 2 jacks a side (ratio 0.99, structure.mjs).",
+    "Back (w8): o24 and o25 are under 12 in apart, framed as one 75-1/2\" rough opening (a mulled unit).",
+    "Back (w8): the o24+o25 mulled windows header is sized for the combined span: 2-ply 2x10, 2 jacks a side (ratio 0.98, structure.mjs).",
+    "Hall / Bath / Bedroom 2 / Clo. (w12): o4 Bath door moved 2-5/16\" away from the wall end so its jacks clear the end stud.",
+    "Hall / Bath / Bedroom 2 / Clo. (w12): the partition at 9' 9-3/4\" lands on the framing of o6 Bedroom 2 door; nail it to the king studs there (no tee backing).",
+    "Hall / Laundry / mech. / Bedroom 3 / Clo. (w14): o7 and o9 are under 12 in apart, framed as one 108\" rough opening (a mulled unit).",
+    "Hall / Laundry / mech. / Bedroom 3 / Clo. (w14): the partition at 5' 9-3/4\" lands on the framing of o7+o9 mulled doors; nail it to the king studs there (no tee backing).",
+    "Bedroom 2 / Clo. (w16): o5 Bedroom 2 closet narrowed from 74\" to 69-1/4\" so its jacks clear the end studs.",
+    "Bedroom 3 / Clo. (w20): o8 Bedroom 3 closet narrowed from 74\" to 69-1/4\" so its jacks clear the end studs.",
+    "Single top plate (advanced framing): trusses must land within 1 in of the stud centres, and 29 steel plate ties (not in the order) go at plate joints, corners and tees; each wall's drawing marks its joints. Whether a single top plate is allowed here is the code and engineer's call.",
+    "Front (w1): short top cripples over o12+o13 mulled windows (4-3/8\"; a 2x12 header would leave 2-3/8\"). Header sizes are yours to check.",
+    "Front (w1): header spacers not in the takeoff: o16+o17 mulled windows (2-1/2\"), o12+o13 mulled windows (1\"), o10 Living entry door (2-1/2\"), o14 Living window (2-1/2\"), o20 Bath window (2-1/2\"), o21+o22 mulled windows (2-1/2\").",
+    "Back (w8): short top cripples over o24+o25 mulled windows (4-3/8\"; a 2x12 header would leave 2-3/8\"). Header sizes are yours to check.",
+    "Back (w8): header spacers not in the takeoff: o11 Dining slider (2-1/2\"), o15 Kitchen window (2-1/2\"), o24+o25 mulled windows (2-1/2\").",
+    "Hall / Bath / Bedroom 2 / Clo. (w12): o4 Bath door is close to the wall end: the end stud serves as its king, 0 of 1 extra king on the left.",
+    "Hall / Laundry / mech. / Bedroom 3 / Clo. (w14): o7+o9 mulled doors is close to the wall end: the end stud serves as its king, 0 of 1 extra king on the left.",
+    "Bedroom 2 / Clo. (w16): o5 Bedroom 2 closet is close to the wall end: the end stud serves as its king on both sides, 0 of 1 extra king on the left.",
+    "Bedroom 3 / Clo. (w20): o8 Bedroom 3 closet is close to the wall end: the end stud serves as its king on both sides, 0 of 1 extra king on the left."
+   ]
   }
  },
  "geometry": {

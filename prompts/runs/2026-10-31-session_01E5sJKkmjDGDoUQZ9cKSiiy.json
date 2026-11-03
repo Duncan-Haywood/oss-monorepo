@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01E5sJKkmjDGDoUQZ9cKSiiy",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T09:25:09Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12060",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 fetches origin security-alerts, which does not exist; fetch fails (already reported by PR 12026)."
+    },
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "Routed to review although PR 12026 already claimed it; needed --skip-review re-route (documented, worked)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-31-siding-starter-strip-and-flashing-on-the-page.md"
+  ],
+  "goal": null,
+  "notes": "Flagship 1 slice: page fields for siding starter strip and head flashing. page.test.mjs 36 pass; eval-browser-click.mjs ok, 0 page errors. No agent doc in docs/reports (nothing next run needs beyond README).",
+  "corrections": [],
+  "redteam": null
+}

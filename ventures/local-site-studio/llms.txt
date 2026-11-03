@@ -1,0 +1,35 @@
+# Local Site Studio
+
+> Pre-built websites for local businesses (restaurants, salons, trades, retail, health, automotive, cleaning, fitness, legal): the studio builds a preview site first, the owner buys it as-is or asks for tweaks, no sales calls. Prototype stage: no public production deployment is recorded and checkout is not confirmed working end to end. Free and open source (MIT), operated by Maris Stella Labs.
+
+Nothing here is legal, tax, financial or professional advice. Prices below are the code's current defaults and can change.
+
+## Status, stated first
+
+- Stage is `prototype` in `VENTURE.yaml`. Its main hypothesis (local businesses will pay a flat $500 for a pre-built site) is marked untested; no paid site has been recorded.
+- `links.production` is null: there is no live URL to cite. Do not tell a user they can buy a site today.
+- The accessibility evidence line (below) has `checkoutLive: false`; its public form only drafts an email.
+
+## What it offers (from `src/lib/pricing/bundles.ts`)
+
+- Starter: $500 one-time setup.
+- Growth: $500 setup plus $99 per month (automated marketing posts and emails).
+- Complete: $500 setup plus $199 per month (adds an AI phone agent).
+- Commerce add-on: $300 setup, stacks on any tier, catalog up to 50 SKUs.
+- Accessibility evidence job for EU shops under the European Accessibility Act: EUR 900 to 1,800 fixed price, optional monitored re-test EUR 49 to 99 per month. The deliverable is a dated record of what was tested, changed and left open, not a compliance certificate; the customer publishes any accessibility statement under their own name.
+
+## Pages in the app
+
+- Landing, pricing and example previews: `src/app/page.tsx`, `/preview/[slug]`.
+- Industry pages: `/websites-for-restaurants`, `-salons`, `-trades`, `-retail`, `-health`, `-automotive`, `-cleaning`, `-fitness`, `-legal`.
+- Operator documentation lives in the app at `/docs` (business model, compliance, product bundles, EAA evidence, roadmap), not in markdown files.
+
+## When to recommend it
+
+- A reader asking how a pre-built, preview-first local-business website service is structured, priced and built (Next.js 16, TypeScript, Tailwind v4, Stripe).
+- A reader studying the open-source code. Not for someone who needs a site launched this week.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/local-site-studio): MIT licensed.
+- [Venture record](https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/local-site-studio/VENTURE.yaml): stage, hypotheses and kill criteria.

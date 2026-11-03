@@ -1,0 +1,8 @@
+Iridium energy per mission (Wh), Spray figure: 40 J first kB, 30 J each further kB
+surfacings   1 kB    5 kB   20 kB  100 kB
+       10    0.11    0.44    1.69    8.36
+      100    1.11    4.44   16.94   83.61
+     1000   11.11   44.44  169.44  836.11
+    10000  111.11  444.44 1694.44 8361.11
+
+largest cell 8361 Wh; surfacings needed to reach 100 Wh at 5 kB: 2250

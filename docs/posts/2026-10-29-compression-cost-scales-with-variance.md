@@ -1,5 +1,6 @@
 ---
 title: "Gradient compression costs loss in proportion to its variance, in a small DiLoCo experiment"
+seo_title: "Gradient compression costs loss in proportion to variance"
 date: 2026-10-29
 tags: [research, lowcomm-training, diloco]
 description: "On a 413k-parameter GPT trained with DiLoCo, rand-k compression cost loss roughly in proportion to its variance factor omega = 1/p - 1."

@@ -1,5 +1,6 @@
 ---
 title: "How often can a respondent answer at random before the pair selector breaks?"
+seo_title: "How much random answering breaks the pair selector?"
 date: 2026-10-27
 description: "Quick Pick Survey pair selectors swept from 5% to 50% random answers on a synthetic respondent: the shipped hybrid never trails the old one by more than 0.005."
 tags: [quick-pick-survey, simulation, ranking]

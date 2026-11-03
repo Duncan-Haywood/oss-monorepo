@@ -20,7 +20,7 @@
   "opened": "2026-10-30",
   "source": "prompts/process/backlog/P049-jobs-per-pr-head.json",
   "pr": "this",
-  "result": null,
+  "result": "helped: yaml scan of pull_request paths on 2026-11-01 (prefix match, so an upper bound) finds 2 workflows for portfolio/research/a11y-evidence-record/** (baseline 9) and 5 for eaa-wcag-triage/** (baseline 8); workflow files 134 -> 128.",
   "history": [
     {
       "date": "2026-10-30",

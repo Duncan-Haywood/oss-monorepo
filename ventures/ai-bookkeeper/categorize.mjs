@@ -34,6 +34,121 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 21 (2026-11-02, eval/probe21.mjs): carpet cleaners, appliance repairers, septic pumpers, welders, driving schools.
+  // First in the list: "Lincoln Electric" hit utilities, "AWS Welding Society" hit software and "vacuum truck" hit vehicle costs.
+  ["6100", "out", /lincoln electric|miller welders?|airgas|jon-?don|prochem|marcone|repair clinic|vacuum truck parts|jurop|septic disposal|dual brake/],
+  ["6170", "out", /aws welding society|iicrc|nawt\b|driving school assoc|carpet cleaning assoc|appliance service assoc|epa 608/],
+  ["6110", "out", /septic pumping licen[cs]e|driving school licen[cs]e/],
+  ["6060", "out", /service fusion|driver ed software/],
+  // Gap probe 20 (2026-11-02, eval/probe20.mjs): acupuncturists, chiropractors, tailors, window cleaners, junk haulers.
+  // First in the list: "water fed pole" hit the utilities rule on the word water.
+  ["6100", "out", /water.?fed pole|lhasa oms|seirin|zenith tables?|jo-?ann fabrics|mood fabrics|singer sewing/],
+  ["6170", "out", /nccaom|acupuncturists|clean needle technique|\baca dues|activator methods|custom clothiers|window cleaning assoc/],
+  ["6110", "out", /acupuncture licen[cs]e|chiropractic (board )?licen[cs]e|junk haulers? licen[cs]e/],
+  ["6060", "out", /tailor software|alterations software/],
+  ["6000", "out", /1-?800-?got-?junk (lead|referral)/],
+  ["6080", "out", /dump trailer rental/],
+  // Gap probe 19 (2026-11-02, eval/probe19.mjs): locksmiths, chimney sweeps, drone pilots, sign makers, brewers.
+  ["6000", "out", /locksmith lead/],
+  ["6170", "out", /chimney safety institute|international sign association/],
+  ["6100", "out", /chimney brush|fireplace supply|more beer/],
+  ["6060", "out", /chimney sweep software|brewfather/],
+  // Gap probe 18 (2026-11-01, eval/probe18.mjs): wedding photographers, notaries, pool cleaners, court reporters, beekeepers.
+  ["6100", "out", /notary essentials|pentair pool|pool brite/],
+  ["6060", "out", /skimmer software|casecatalyst/],
+  ["6170", "out", /certified pool operator/],
+  ["4000", "in", /veritext/],
+  // Gap probe 17 (2026-11-01, eval/probe17.mjs): freelance editors, podcast producers, virtual assistants, farriers, bounce-house renters.
+  ["6100", "out", /farriers? supply|mustad|party craft inflatable|bounce house supply/],
+  ["6060", "out", /prowritingaid|chicago manual of style|signnow/],
+  ["6170", "out", /editorial freelancers|aces society|podcast movement|virtual assistants association|american farriers|inflatable operator cert/],
+  ["6000", "out", /partyslate/],
+  ["4000", "in", /reedsy|fancy hands|time etc/],
+  // Gap probe 16 (2026-11-01, eval/probe16.mjs): drone pilots, mobile mechanics, cottage bakers, tutors, locksmiths.
+  ["6030", "out", /locksmith bond/],
+  ["6100", "out", /global sugar art|ilco key|hillman fastener|lockmasters/],
+  ["6060", "out", /air ?data uav|tutorcruncher/],
+  ["6110", "out", /cottage food licen/],
+  ["6170", "out", /auvsi|drone pilot ground school|national tutoring assoc|associated locksmiths/],
+  ["4000", "in", /repairpal/],
+  // Gap probe 15 (2026-10-31, eval/probe15.mjs): roofers, HVAC contractors, personal chefs, music teachers, massage therapists.
+  ["6100", "out", /abc supply|beacon roofing|sheet music plus|massage warehouse/],
+  ["6060", "out", /roofsnap|music teachers helper/],
+  ["6170", "out", /\bnrca\b|epa 608|\bacca\b|\buspca\b|\bmtna\b/],
+  ["6110", "out", /massage license/],
+  // Gap probe 14 (2026-10-31, eval/probe14.mjs): house cleaners, landscapers, yoga instructors, potters, dog trainers.
+  // First in the list: a janitorial supplier hit the repairs rule and an arts-festival booth fee the platform-fee rule.
+  ["6100", "out", /janitorial depot|maid pro|amaco|clayworld/],
+  ["6110", "out", /arts festival booth|pesticide applicator|soundexchange/],
+  ["6170", "out", /ars cleaning assoc|\bnalp\b|ccpdt|karen pryor/],
+  ["6090", "out", /kiln repair/],
+  // Gap probe 13 (2026-10-31, eval/probe13.mjs): florists, house painters, handymen, translators, process servers.
+  ["6030", "out", /process server bond/],
+  ["6110", "out", /epa lead renovator|court filing fee/],
+  ["6100", "out", /usa bouquet|floral supply|benjamin moore|frazee paint|spraytech|stenograph supply/],
+  ["6170", "out", /painting contractors assoc|\bata certification|court reporters assoc/],
+  ["6060", "out", /serve ?manager/],
+  ["6000", "out", /florist wire service/],
+  ["4000", "in", /teleflora|\bftd order|translations\W?com|\bgengo\b|esquire deposition/],
+  // Gap probe 12 (2026-10-31, eval/probe12.mjs): florists, home inspectors, food trucks, translators, event planners.
+  ["6090", "out", /florist cooler|cooler repair/],
+  ["6100", "out", /usa bloom|flora bunda|smithers.oasis|radon test/],
+  ["6000", "out", /\bteleflora\b|\bzola\b/],
+  ["6170", "out", /florists|\bashi\b|internachi|proz (membership|\.com)|translators association|bridal consultants/],
+  ["6060", "out", /spectora|\btrados\b|\bmemoq\b|\bsmartcat\b|\bdeepl\b/],
+  ["6110", "out", /festival vendor/],
+  ["4000", "in", /inspection fee|translation payout/],
+  // Gap probe 11 (2026-10-31, eval/probe11.mjs): pressure washers, jewelry makers, mobile notaries, sign shops, beekeepers.
+  // First in the list: a notary bond hit the legal-fees rule and a craft-show booth fee the platform-fee rule.
+  ["6030", "out", /notary (public )?bond|notary errors/],
+  ["6110", "out", /craft (show|fair) booth|apiary registration|bee inspection/],
+  ["6100", "out", /window cleaning resource|rio grande jewelry|fire mountain gems|orion metals|oracal|graphic products|sign warehouse|roland dga|mann lake|dadant|betterbee/],
+  ["6170", "out", /\bpwna\b|isa sign|american beekeeping/],
+  ["6060", "out", /flexisign/],
+  ["6000", "out", /nextdoor ads/],
+  ["4000", "in", /signing service fee|honey sales/],
+  // Gap probe 10 (2026-10-30, eval/probe10.mjs): cottage bakers, drone pilots, locksmiths, streamers, locum clinicians.
+  // First in the list: Elgato and B&H were filed as postage, a farmers-market booth fee as platform fees.
+  ["6100", "out", /sugar art supply|costco business center|\bdji\b|battery barn|hillman group|southern lock|keyless entry/],
+  ["6110", "out", /farmers market booth|faa dronezone|laanc|locksmith license|medical license|nurse license|\bdea registration/],
+  ["6060", "out", /\bpix4d\b|dronedeploy|propeller aero|servicepro|streamlabs|memberful|uptodate/],
+  ["6170", "out", /part 107|\baloa\b|\bbls\b|\bacls\b|\baanp\b|\bama membership/],
+  ["4000", "in", /youtube adsense|chg healthcare|locum tenens/],
+  // Gap probe 9 (2026-10-30, eval/probe9.mjs): rideshare and delivery drivers, photographers, pet groomers, home daycares, mobile detailers.
+  // Wahl's "clipper" would otherwise hit the transit-card rule, so the pet-grooming supplies sit first.
+  ["6100", "out", /discount school supply|wahl clipper|\bandis\b|grooming table|detail king/],
+  ["6060", "out", /\bstride\b.*(mileage|tax)|mileage tracker|splice sounds|\bzenfolio\b|procare (software|solutions)|\bhimama\b|detailer app/],
+  ["6160", "out", /\bgetaround\b|hyredrive/],
+  ["6090", "out", /discount tire/],
+  ["6010", "out", /dasher red card/],
+  ["6170", "out", /\bnapps\b|\bnaeyc\b/],
+  ["4000", "in", /wedding photography.*zelle|child care subsidy|car detail.*cash app/],
+  // Gap probe 8 (2026-10-30, eval/probe8.mjs): truckers, small farms, tattoo artists, trainers, wedding DJs.
+  ["6060", "out", /dat load board|\btraining ?peaks\b|dj intelligence|soundcloud|bpm supreme/],
+  ["6010", "out", /freight factoring|rts financial/],
+  ["6110", "out", /fmcsa|usda organic/],
+  ["6170", "out", /\booida\b|farm bureau dues/],
+  ["6090", "out", /fleetpride|truckpro/],
+  ["6100", "out", /national ffa|inkbox|kuro sumi|sharps disposal|party city/],
+  ["4000", "in", /prime inc settlement|local harvest|csa share|(booking )?deposit.*zelle|balance due.*zelle/],
+  // Gap probe 7 (2026-10-30, eval/probe7.mjs): salons, electricians and plumbers, podcasters, tutors, print-on-demand sellers.
+  // Print-on-demand fulfilment is cost of goods; Printful was filed as marketing, so it sits first (Printify stays software, an older test pins it: its subscription and its orders look alike).
+  ["5000", "out", /\bprintful\b|\bgelato\b|\bgooten\b/],
+  ["6060", "out", /boulevard software|fieldpulse/],
+  ["6100", "out", /graybar|ced consolidated electrical|cosmoprof|\bcricut\b|joann fabrics?/],
+  ["6170", "out", /\bneca\b dues|tutoring assoc\w* dues/],
+  ["6070", "out", /everstamps/],
+  ["4000", "in", /liberated syndication/],
+  // Gap probe 6 (2026-10-30, eval/probe6.mjs): cafes and bakeries, solo lawyers and agents, landscaping and cleaning crews, vets and chiropractors, SaaS founders.
+  // Before the older rules so a coffee roaster is supplies, not meals, and a veterinary distributor is supplies, not repairs.
+  ["6100", "out", /royal cup|king arthur (baking|wholesale)|patterson veterinary|idexx|covetrus/],
+  ["6060", "out", /\bclio\b|\bmycase\b|westlaw|skyslope|applied epic|agency bloc|lawn love|yardbook|service ?autopilot|booking koala|maid central|chirotouch|vetsource|plausible analytics|mailgun|linear orbit/],
+  ["6010", "out", /\blawpay\b/],
+  ["6170", "out", /state bar dues|\bmls fees?\b|\bavma\b dues|avma dues/],
+  ["6110", "out", /insurance dept(artment)? licen[cs]e|dea registration/],
+  ["4000", "in", /commission.*closing|closing.*title co/],
+  ["6160", "out", /shell fleet|wex fleet|fuelman/],
+  ["6050", "out", /\bcarta\b|stripe atlas|firstbase/],
   // Pressure washing and window cleaning (2026-10-30, pressurewash.test.mjs; agent-written from the companies' public names, not from a real export):
   // Jobber payouts and HOA or property-manager Zelles are sales; washer gear, cleaning chemicals and squeegees are supplies (a bare "sodium hypochlorite" line is chemicals, not a pool bill).
   ["4000", "in", /jobber payout|zelle from .*(\bhoa\b|property (mgmt|management)|apartments)/],
@@ -85,6 +200,9 @@ export const BUILT_IN = [
   ["6080", "out", /\bhoa dues|homeowners assoc/],
   ["6060", "out", /freshbooks|\bwave ?(apps|financial)|smallpdf|surveymonkey|postmark|freshdesk|grammarly/],
   ["4000", "in", /\bgumroad|\bpatreon|lemon ?squeezy/],
+  ["6060", "out", /clickup|monday\.com|dashlane|\bbuffer\b|pagerduty|box\.com|jotform|pandadoc|\bifttt\b|\bhover\.com|\bhover\b(?=.*(domain|renew))/],
+  ["6000", "out", /bing ads|microsoft advertising/],
+  ["4000", "in", /kickstarter|thinkific/],
   ["6050", "out", /turbo ?tax|h&r block|\btaxact\b|freetaxusa/],
   ["6060", "out", /\btoast\b(?!.*(deposit|payout))|linkedin premium|salesforce|zendesk|\bsqsp\b|mindbody|\bacuity\b|square appointments|\bprintify\b/],
   ["6000", "out", /\bindeed\b|etsy (ads|offsite)/],

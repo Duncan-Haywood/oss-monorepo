@@ -1,5 +1,6 @@
 ---
 title: "When an LLM codes your text, a rare category breaks the confidence interval first"
+seo_title: "When an LLM codes your text, rare categories break the interval first"
 date: 2026-10-24
 description: "A simulation of stratified hand-coding audits: the usual normal interval covers 57% at 1% prevalence and only reaches nominal near 20%."
 tags: [research, llm, statistics, qualitative-data]

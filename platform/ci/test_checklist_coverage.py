@@ -19,12 +19,12 @@ CHECKLIST_TEMPLATE = """
 Some prose before.
 
 ```
-node platform/marketing/regen.mjs        # then commit whatever it rewrites
+python3 platform/ci/checklist_coverage.py  # fails if a line below is missing
 node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
 node --test platform/proposal/*.test.mjs
 node --test platform/privacy/*.test.mjs platform/webcheck/*.test.mjs
 node --test ventures/<slug>/*.test.mjs
-python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new venture
+python3 -m pytest portfolio/ledger -q
 (cd platform/ci && for m in test_*.py; do python3 -m unittest "${m%.py}" || break; done)
 ```
 
@@ -59,18 +59,18 @@ class ReadChecklistBlock(unittest.TestCase):
     def test_finds_the_fenced_block(self):
         block = cc.read_checklist_block(CHECKLIST_TEMPLATE)
         self.assertIsNotNone(block)
-        self.assertIn("regen.mjs", block)
+        self.assertIn("checklist_coverage.py", block)
         self.assertIn("platform/webcheck", block)
 
     def test_returns_none_when_marker_absent(self):
         self.assertIsNone(cc.read_checklist_block("nothing relevant here"))
 
     def test_finds_a_block_whose_fence_opens_the_text(self):
-        text = "```\nnode platform/marketing/regen.mjs\n```\n"
-        self.assertEqual(cc.read_checklist_block(text), "```\nnode platform/marketing/regen.mjs\n")
+        text = "```\npython3 platform/ci/checklist_coverage.py\n```\n"
+        self.assertEqual(cc.read_checklist_block(text), "```\npython3 platform/ci/checklist_coverage.py\n")
 
     def test_returns_none_when_the_marker_sits_outside_any_fence(self):
-        self.assertIsNone(cc.read_checklist_block("node platform/marketing/regen.mjs\n```\n"))
+        self.assertIsNone(cc.read_checklist_block("python3 platform/ci/checklist_coverage.py\n```\n"))
 
 
 class ChecklistDirectories(unittest.TestCase):
@@ -285,7 +285,7 @@ class LiteralPrefix(unittest.TestCase):
         self.assertEqual(cc.literal_prefix("platform/slug>/x"), "platform")
 
     def test_keeps_a_plain_directory_and_drops_a_filename(self):
-        self.assertEqual(cc.literal_prefix("gitops/tests"), "gitops/tests")
+        self.assertEqual(cc.literal_prefix("portfolio/scoring"), "portfolio/scoring")
         self.assertEqual(cc.literal_prefix("portfolio/ledger/README.md"), "portfolio/ledger")
 
 

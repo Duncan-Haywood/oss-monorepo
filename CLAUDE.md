@@ -57,9 +57,12 @@ when the next run needs to know something (owner, 2026-10-21 and 2026-10-24:
 empty queue, a vague brief or a task that already landed means look wider,
 not stop. Restated blockers, ledger-only edits and re-verifying unchanged
 work do not count. Never fabricate or lower the bar to have something to
-ship. For venture work the default is the top flagship in
-[`portfolio/flagships.yaml`](portfolio/flagships.yaml) (owner, 2026-10-20:
-deepen "existing projects that have real depth"). Aim the main effort at projects
+ship. For venture work the default is an open website request in
+[`portfolio/requests/`](portfolio/requests/README.md) (owner, 2026-11-02: a
+free custom dev shop for businesses, the results MIT licensed and owned by the
+repository owner; `prompt.md`, "Website requests come next"), then the top
+flagship in [`portfolio/flagships.yaml`](portfolio/flagships.yaml) (owner,
+2026-10-20: deepen "existing projects that have real depth"). Aim the main effort at projects
 a person would estimate at about 300 hours or more, built up over many sessions
 (owner, 2026-10-29, a suggestion, not a hard bar, updating the 2026-10-21 twenty-hour one; `goals.md`,
 "Direction: depth over calculators").
@@ -80,6 +83,10 @@ And a rule of thumb (owner, 2026-10-24): **software for the routine, agents
 for judgment.** A chore runs keep repeating that a script or scheduled build
 could do at 90 to 100% of the quality belongs in that software, so agent
 time goes to what only an agent does well (`goals.md`, same title).
+Likewise **everything as code** (owner, 2026-10-31): DNS, email routing,
+support addresses and other provider settings live in files with an apply
+step, not as dashboard clicks; secret values are the exception
+(`goals.md`, "Direction: everything as code").
 
 ## Every session lands its own work
 
@@ -118,7 +125,12 @@ Merge when it is verified. There is no human review gate; fix forward. That
 covers `ventures/*` product code as much as `platform/`, docs and CI. The
 cross-review bots (`platform/ci/agent_review/README.md`) can auto-merge a
 same-repo PR on two bot approvals and green CI; they assist, they are not a
-gate.
+gate. The one exception is the control plane (owner, 2026-10-30, against
+rogue agents): a PR touching a path in `.github/CODEOWNERS` (agent
+instructions, hooks, MCP config, CI, the reviewer config) waits for the
+owner's approval once the ruleset is applied. Keep those edits in their own
+small PR so the rest of your work isn't held up
+([`docs/security/agent-hardening.md`](docs/security/agent-hardening.md)).
 
 Before merging: CI green (or, when runners are starved, the checks your change
 reaches, run here, with the output in the run record's `notes` and a summary
@@ -136,13 +148,13 @@ is already asked; don't duplicate it.
 ## Hosting
 
 The catalogue is served by Cloudflare (free plan) at **https://marisstella.app/**
-(owner, 2026-10-30; the workers.dev address serves the same files), built and
+(owner, 2026-10-30; the workers.dev address forwards to it), built and
 deployed by `.github/workflows/portfolio-pages.yml` on every merge (and every
 three hours); the old GitHub Pages address serves redirect pages to it
 (owner, 2026-10-29). Merging is publishing; there is no branch to push by hand.
-The Hetzner/k3s route was retired on 2026-10-01: never connect
-to its old IPs (they may now belong to someone else), and manifests under
-`gitops/prod` describe a dead origin. What
+The Hetzner/k3s route was retired on 2026-10-01 and its trees
+(`infra/`, `bootstrap/`, `gitops/`) deleted on 2026-10-30: never connect
+to its old IPs (they may now belong to someone else). What
 is served, and which state readers are stale:
 [`portfolio/hosting/README.md`](portfolio/hosting/README.md), "What is served now".
 

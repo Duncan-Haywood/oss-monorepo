@@ -1,5 +1,6 @@
 ---
 title: "Stopping an audit when the interval looks narrow fails at 1% prevalence"
+seo_title: "Stopping an audit on a narrow interval fails at 1% prevalence"
 date: 2026-10-27
 description: "A sequential audit that worked at 45% prevalence covers 64 to 90% for fear and sadness in GoEmotions, and a minimum-positives guard makes it worse."
 tags: [research, llm-coding-inference, statistics]

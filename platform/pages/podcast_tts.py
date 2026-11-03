@@ -39,7 +39,7 @@ sys.path.insert(0, str(ROOT / "platform" / "audio"))
 PODCAST = ROOT / "docs" / "podcast"
 AUDIO = PODCAST / "audio"
 MANIFEST = AUDIO / "manifest.json"
-SHOW = "Open Tools and Research podcast"
+SHOW = "Maris Stella Labs podcast"
 
 # af_heart is the voice Kokoro's own card grades highest; a warm, conversational read.
 VOICE = "af_heart"

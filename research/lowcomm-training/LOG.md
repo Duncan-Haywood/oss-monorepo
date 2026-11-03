@@ -2,6 +2,18 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-31 · Milestone 6n (H6 scale-up): is the size-2 excess linear in omega? Keep 1/4 at H = 64, six seeds (planned before running)
+
+- Why: 6m's "Next". Keep-level dependence was one cell (1/4 at H = 16, two seeds). The rule says excess is proportional to omega = 1/keep - 1 (3 at keep 1/4, 15 at 1/16).
+- Setup (`scale.py run keep64`): size 2, H = 64, keep 1/4, seeds 0 to 5, paired with the six uncompressed H = 64 runs. **H6n-i** (prior 55%): the excess at keep 1/4 is within 2 se of 3/15 of the keep-1/16 excess (+0.0088).
+
+### Outcome of 6n (`scale_results_6n.txt`; 6 runs, about 27 min each on 4 cores)
+- Paired excess at H = 64: keep 1/4 **-0.0068** (sd 0.0107, se 0.0044); keep 1/16 +0.0440 (se 0.0041). The keep-1/4 runs are not worse than uncompressed.
+- **H6n-i refuted**: the omega-linear prediction +0.0088 is 0.0156 above the observation, about 2.6 se (combined se about 0.006). The excess is not linear in omega at size 2: compression at keep 1/4 costs nothing measurable, and the whole cost appears between omega 3 and 15 (a threshold or convex form).
+- Reading: together with 6l/6m (flat in H from 16), the size-2 excess behaves like a switch on the keep level rather than a product of omega and a power of H. Two keep levels, one H, one width; keep 1/64 and keep 1/8 are untested.
+- Limits: a single H; six seeds; standard errors treat cells as independent.
+- Next: keep 1/8 and 1/32 at H = 64 to locate the threshold, then refit with a form convex in omega.
+
 ## 2026-10-30 · Milestone 7c: draft the compression section of the paper from 6a to 6m (no training)
 
 - Wrote `paper/section_compression.md`: setup, seven numbered results, related work, limits, what it does not claim. Every number is copied from the 6a to 6m entries above; no new runs.

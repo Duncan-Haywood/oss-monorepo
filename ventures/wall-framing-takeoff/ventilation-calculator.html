@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Attic ventilation calculator: ridge and soffit vents for the 1/150 rule</title>
+  <meta name="description" content="Free attic ventilation calculator: type the attic size, pick 1/150 or 1/300, and get the net free area required, feet of ridge vent and the number of soffit vents, from the label ratings you type. Runs in your browser.">
+  <meta property="og:title" content="Attic ventilation calculator">
+  <meta property="og:description" content="Attic size in, required net free area, ridge vent and soffit vents out. Private, free, in your browser.">
+  <link rel="canonical" href="./ventilation-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much attic ventilation do I need for a 24 x 40 ft attic?", "acceptedAnswer": {"@type": "Answer", "text": "A 24 x 40 ft attic is 960 sq ft. At the code's 1 sq ft of net free area per 150 sq ft of attic that is 922 sq in (6.4 sq ft). With a ridge vent taking half, the calculator gives 25.6 ft of ridge vent (7 four-foot pieces at 18 sq in per foot) and 9 soffit vents of 56 sq in each. At 1/300, where the code allows it, the need halves to 461 sq in."}}, {"@type": "Question", "name": "What is the 1/150 and 1/300 attic ventilation rule?", "acceptedAnswer": {"@type": "Answer", "text": "IRC R806.2 asks for net free ventilating area of at least 1/150 of the attic floor area. It allows 1/300 where a Class I or II vapor retarder is on the warm side of the ceiling, or where 40% to 50% of the vent area is high (a ridge vent) and the rest low in the eaves. Which one applies to your house is for you and your building inspector; the calculator takes the ratio as your input."}}, {"@type": "Question", "name": "What does net free area mean on a vent label?", "acceptedAnswer": {"@type": "Answer", "text": "Net free area (NFA) is the open airflow area after the louver, screen or baffle takes its share. Ridge vents are labelled in square inches per foot and soffit vents in square inches per unit. Type the figures from the product you will buy: the defaults here (18 sq in per foot, 56 sq in per 16 in unit) are placeholders, not any maker's numbers."}}, {"@type": "Question", "name": "Why split the vents between ridge and soffit?", "acceptedAnswer": {"@type": "Answer", "text": "Air enters low and leaves high, so the roof moves air by temperature even with no wind. The calculator puts half the area at the ridge by default, and if the ridge is too short to supply that share it takes what fits and moves the rest to the eaves. With no ridge vent, all the area is low, which moves air only when wind pushes it."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Attic ventilation calculator</h1>
+  <p>Type the attic and the ratings printed on the vents you will buy. You get the net free area the 1/150 rule asks for and how much of it goes in a ridge vent and in soffit vents, from the same engine as the whole-house takeoff. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <div class="grid">
+      <div><label for="len">Attic length (ft, or 40' 0")</label><input id="len" value="40"></div>
+      <div><label for="wid">Attic width (ft)</label><input id="wid" value="24"></div>
+      <div><label for="ratio">Rule</label><select id="ratio"><option value="150">1/150</option><option value="300">1/300 (balanced or vapor retarder)</option></select></div>
+      <div><label for="ridge">Ridge vent</label><select id="ridge"><option value="1">Yes, along the ridge</option><option value="0">No, soffit only</option></select></div>
+      <div><label for="rnfa">Ridge vent NFA (sq in per ft)</label><input id="rnfa" type="number" min="1" max="60" step="any" value="18"></div>
+      <div><label for="snfa">Soffit vent NFA (sq in per unit)</label><input id="snfa" type="number" min="1" max="200" step="any" value="56"></div>
+      <div><label for="swid">Soffit vent width (in)</label><input id="swid" type="number" min="4" max="96" step="any" value="16"></div>
+    </div>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Do the whole house: framing, roof and ventilation in one takeoff</a></p>
+
+  <h2>How it is counted</h2>
+  <ol>
+    <li><strong>Required area.</strong> Attic floor area divided by 150 (or 300), in square inches.</li>
+    <li><strong>High and low.</strong> Half goes in the ridge vent (less 1 ft at each end) and the rest in the soffit; a short ridge passes its share to the eaves.</li>
+    <li><strong>Units.</strong> Ridge vent in 4 ft pieces and soffit vents rounded up, checked against half the eave length.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How much attic ventilation do I need for a 24 x 40 ft attic?</h3>
+  <p>A 24 x 40 ft attic is 960 sq ft. At the code's 1 sq ft of net free area per 150 sq ft of attic that is 922 sq in (6.4 sq ft). With a ridge vent taking half, the calculator gives 25.6 ft of ridge vent (7 four-foot pieces at 18 sq in per foot) and 9 soffit vents of 56 sq in each. At 1/300, where the code allows it, the need halves to 461 sq in.</p>
+  <h3>What is the 1/150 and 1/300 attic ventilation rule?</h3>
+  <p>IRC R806.2 asks for net free ventilating area of at least 1/150 of the attic floor area. It allows 1/300 where a Class I or II vapor retarder is on the warm side of the ceiling, or where 40% to 50% of the vent area is high (a ridge vent) and the rest low in the eaves. Which one applies to your house is for you and your building inspector; the calculator takes the ratio as your input.</p>
+  <h3>What does net free area mean on a vent label?</h3>
+  <p>Net free area (NFA) is the open airflow area after the louver, screen or baffle takes its share. Ridge vents are labelled in square inches per foot and soffit vents in square inches per unit. Type the figures from the product you will buy: the defaults here (18 sq in per foot, 56 sq in per 16 in unit) are placeholders, not any maker's numbers.</p>
+  <h3>Why split the vents between ridge and soffit?</h3>
+  <p>Air enters low and leaves high, so the roof moves air by temperature even with no wind. The calculator puts half the area at the ridge by default, and if the ridge is too short to supply that share it takes what fits and moves the rest to the eaves. With no ridge vent, all the area is low, which moves air only when wind pushes it.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li></ul></nav>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Attic size, the 1/150 or 1/300 ratio and vent ratings are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Vent counts follow IRC R806.2 as described above; the ratio that applies to your house is for you and your inspector, and gable, box and power vents are not counted.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { layoutVentilation, ventilationText } from "./ventilation.mjs";
+    import { parseLength } from "./engine.mjs";
+    const $ = (id) => document.getElementById(id);
+    const ft = (v) => { const s = String(v).trim(); return /^[\d.]+$/.test(s) ? +s * 12 : parseLength(s); };
+    const run = () => {
+      const L = ft($("len").value), W = ft($("wid").value);
+      if (!(L >= 48 && W >= 48 && L <= 1200 && W <= 1200)) { $("out").textContent = "Check the numbers: attic sides of at least 4 ft and at most 100 ft."; return; }
+      const roof = { ok: true, shape: "gable", width: W, length: L, spacing: 16 };
+      const s = layoutVentilation({ ratio: +$("ratio").value, ridgeVent: $("ridge").value === "1", ridgeNfaPerFt: +$("rnfa").value, soffitUnitNfa: +$("snfa").value, soffitUnitWidth: +$("swid").value }, roof);
+      $("out").textContent = s.ok === false ? s.errors.join("\n") : ventilationText(s).join("\n");
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>

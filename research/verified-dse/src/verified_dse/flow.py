@@ -63,7 +63,7 @@ def rung1(design, seq, wd):
     st = Path(wd) / "r1.stat"
     _yosys(front + f"abc -g {GATES} -script {abc}; opt_clean -purge; tee -o {st} stat; tee -a {st} ltp -noff", Path(wd) / "r1.log")
     txt = st.read_text()
-    cells = int(re.search(r"Number of cells:\s*(\d+)", txt).group(1))
+    cells = int((re.search(r"Number of cells:\s*(\d+)", txt) or re.search(r"^\s*(\d+)\s+cells\s*$", txt, flags=re.M)).group(1))  # Yosys 0.33 / 0.70 stat formats
     depth = int(re.search(r"Longest topological path in \S+ \(length=(\d+)\)", txt).group(1))
     return {"r1_cells": cells, "r1_depth": depth, "t1": time.time() - t0}
 
@@ -84,6 +84,8 @@ def run_point(design, seq, period, wd, lib, pdk, openroad):
            f"hilomap -singleton -hicell sky130_fd_sc_hd__conb_1 HI -locell sky130_fd_sc_hd__conb_1 LO; "
            f"opt_clean -purge; write_verilog -noattr -noexpr {net}", wd / "r2.log")
     r["t2_yosys"] = time.time() - t0
+    # Yosys 0.70 writes "input signed [n:0] x;", which OpenSTA 26Q3 rejects (STA-0171); signedness is meaningless in a mapped netlist.
+    net.write_text(net.read_text().replace(" signed [", " ["))
     tcl = (PNR / "src/chip_pnr/pnr.tcl").read_text()
     tcl = re.sub(r'^(puts "STAGE (\w+)")$', r'\1\nputs "TIME \2 [clock milliseconds]"', tcl, flags=re.M)
     tcl = 'puts "TIME start [clock milliseconds]"\n' + tcl

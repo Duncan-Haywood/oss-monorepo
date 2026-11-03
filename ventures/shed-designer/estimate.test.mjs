@@ -145,7 +145,8 @@ test('sheet goods mix strip widths and rip strips from a full sheet\'s offcut', 
 
 test('gable siding pieces that slope the same way nest head to toe', async () => {
   const { sidingUpperSheets } = await import('./estimate.mjs');
-  const shed = buildShed(PRESETS['8x10']()); // 8 ft walls, 6/12: four pieces 10-5/8" rising to 34-5/8"
+  // LP panels (sold 8, 9 and 10 ft); T1-11 is 4x8 only since 2026-11-01, so its eave columns take strips too.
+  const shed = buildShed({ ...PRESETS['8x10'](), sidingType: 'LP SmartSide' }); // 8 ft walls, 6/12: four pieces 10-5/8" rising to 34-5/8"
   assert.equal(shed.sidingUpper.length, 4);
   // Nested in pairs each takes 10.65 + 34.65 = 45.3, so 46" a pair and both pairs on one panel; alone they took two.
   assert.equal(sidingUpperSheets(shed), 1);
@@ -160,7 +161,8 @@ test('gable siding pieces that slope the same way nest head to toe', async () =>
 });
 
 test('the siding note speaks only when taller walls would really make the siding cheaper', () => {
-  const at = (name, h) => estimate(buildShed(normalize({ ...PRESETS[name](), wallHeight: h, autoWall: false })));
+  // LP panels: sold 8, 9 and 10 ft, so the price steps with the wall (T1-11 is 4x8 only since 2026-11-01).
+  const at = (name, h) => estimate(buildShed(normalize({ ...PRESETS[name](), wallHeight: h, autoWall: false, sidingType: 'LP SmartSide' })));
   // 8x8 lean at 112": its strips nest into one panel, so 114" costs more and there is nothing to say.
   const [low, high] = [at('8x8 lean', 112), at('8x8 lean', 114)];
   assert.ok(low.total < high.total, `112" walls cost less than 114" (${low.total} vs ${high.total})`);

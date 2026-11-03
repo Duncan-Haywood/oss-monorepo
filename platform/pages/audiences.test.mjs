@@ -141,7 +141,7 @@ test("a tool page's footer links the audiences that claim it", () => {
 test('the root README links every audience page, so the repository points searchers at them too', async () => {
   const { readFile } = await import('node:fs/promises');
   const readme = await readFile(new URL('../../README.md', import.meta.url), 'utf8');
-  const linked = new Set([...readme.matchAll(/\/oss-monorepo\/c\/for-([a-z0-9-]+)\//g)].map((m) => m[1]));
+  const linked = new Set([...readme.matchAll(/\/c\/for-([a-z0-9-]+)\//g)].map((m) => m[1]));
   assert.deepEqual([...linked].sort(), AUDIENCES.map((a) => a.id).sort());
 });
 

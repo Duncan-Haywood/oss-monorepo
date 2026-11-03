@@ -20,7 +20,7 @@ S0 = A
 
 
 def run(years=3000, dt=0.5, r=0.015, tau=0.3, g=1.0, k=4.0, m=0.02, me=0.04, rho=0.02,
-        elite_cap=None, welfare=0.0, n0=0.5, e0f=0.05, seed=0, noise=0.0):
+        elite_cap=None, welfare=0.0, n0=0.5, e0f=0.05, seed=0, noise=0.0, lag=0.0, plag=0.0):
     """Returns arrays t, N, E, S, psi sampled each year. Levers: elite_cap (max elite
     number, a ceiling on recruitment), welfare (share of rent paid to peasants as a transfer)."""
     rng = np.random.default_rng(seed)
@@ -28,6 +28,8 @@ def run(years=3000, dt=0.5, r=0.015, tau=0.3, g=1.0, k=4.0, m=0.02, me=0.04, rho
     Estar = e0f                            # elite number at equilibrium by definition of e0
     e0 = (1 - tau) * R_star / Estar        # aspiration: income per elite at N = 1, E = E*
     N, E = n0, Estar
+    ei_s = e0                              # lagged elite income (lag > 0)
+    PSI_s = 1.0                            # lagged stress (plag > 0)
     S = tau * R_star / (g * Estar)
     steps = int(years / dt)
     out = np.empty((steps, 4))
@@ -35,8 +37,14 @@ def run(years=3000, dt=0.5, r=0.015, tau=0.3, g=1.0, k=4.0, m=0.02, me=0.04, rho
         w = A * N ** (A - 1) + welfare * (1 - A) * N ** A / N
         R = (1 - A) * N ** A * (1 - welfare)
         PSI = (E / Estar) * (S0 / w) / S
+        if plag > 0:
+            PSI_s += dt * (PSI - PSI_s) / plag
+            PSI = PSI_s
         psi = 1 / (1 + np.exp(-k * (PSI - 1)))
         ei = (1 - tau) * R / E
+        if lag > 0:
+            ei_s += dt * (ei - ei_s) / lag
+            ei = ei_s
         dN = r * N * (w / S0 - 1) - m * psi * N
         dE = rho * E * (ei / e0 - 1) - me * psi * E
         if elite_cap is not None and E >= elite_cap and dE > 0:

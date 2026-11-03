@@ -1,5 +1,6 @@
 ---
 title: "Four closed forms for verifying outsourced ML training, rederived from payoffs"
+seo_title: "Four closed forms for verifying outsourced ML training, from payoffs"
 date: 2026-10-24
 description: "One stdlib library rederives the inspection-game equilibrium, audit threshold, bribe floor and Brier effort rent from payoffs, matching four earlier projects."
 tags: [research, mechanism-design, verification, machine-learning]

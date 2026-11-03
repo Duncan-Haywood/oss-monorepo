@@ -1,5 +1,6 @@
 ---
 title: "Two ways to keep the tail in a bootstrap penalty, and neither worked on the franc"
+seo_title: "Two bootstrap tail fixes for the changepoint penalty; neither worked"
 date: 2026-10-27
 description: "changepoint-detector tried a robust scale for its bootstrap penalty on real daily FX returns: one changed nothing, the other erased the 2015 Swiss franc shock."
 tags: [changepoint-detector, time-series, bootstrap, negative-result]

@@ -1,5 +1,6 @@
 ---
 title: "A cheap synthesis ranking failed on one high-fanout chip design and held on another"
+seo_title: "A cheap synthesis ranking failed on one high-fanout chip design"
 date: 2026-10-27
 description: "Two high-fanout SKY130 designs, 36 to 39 distinct outcomes each: the mapped-netlist ranking picked 14% worse on one and 0.4% on the other."
 tags: [research, chip-design, search]

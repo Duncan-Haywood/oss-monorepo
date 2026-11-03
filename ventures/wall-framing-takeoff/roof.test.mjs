@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan } from "./engine.mjs";
-import { layoutRoof, roofCuts, sampleRoof, roofText, slopeFactor } from "./roof.mjs";
+import { layoutRoof, roofCuts, sampleRoof, roofText, slopeFactor, birdsmouth } from "./roof.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
 
@@ -169,6 +169,14 @@ test("cross wing: valley length, wing ridge and station counts match hand arithm
   assert.ok(Math.abs(mid.length - (168 - 0.75 - 96 - 0.75 * Math.SQRT2) * k) < 1 / 16);
 });
 
+test("cross wing: ridge height is half the width times the pitch, below the main ridge", () => {
+  const l = layoutRoof(wingRoof(), plan());
+  // 16 ft wing at 4:12: 96 in x 4/12 = 32 in; 28 ft main: 168 x 4/12 = 56 in -> 24 in lower
+  assert.equal(l.wing.ridgeRise, 32);
+  assert.equal(l.wing.ridgeBelowMain, 24);
+  assert.match(roofText(l).join("\n"), /below the main ridge/);
+});
+
 test("cross wing: area is the main roof plus two wing planes less the triangle they cover", () => {
   const base = layoutRoof({ ...wingRoof(), wing: undefined }, plan());
   const l = layoutRoof(wingRoof(), plan());
@@ -294,4 +302,38 @@ test("two cross wings: same side needs room along the ridge; wing2 needs wing", 
   assert.equal(layoutRoof({ ...wingRoof(), wing2: w2 }, plan()).ok, false);
   assert.equal(layoutRoof({ ...wingRoof(), wing2: { ...w2, width: 96, at: 420 } }, plan()).ok, true);
   assert.equal(layoutRoof({ ...wingRoof(), wing: undefined, wing2: w2 }, plan()).ok, false);
+});
+
+test("birdsmouth: 2x8 at 4:12 on a 3-1/2 in plate matches hand arithmetic", () => {
+  const b = birdsmouth("2x8", 4);
+  assert.ok(Math.abs(b.plumb - 3.5 * 4 / 12) < 1e-9); // 1.1667 in
+  assert.ok(Math.abs(b.notch - (7 / 6) / Math.sqrt(10) * 3) < 1e-9); // 1.1667 / 1.05409
+  assert.ok(b.ok && b.fraction < 0.25);
+  // 0.25 x 7.25 x 1.05409 x 12 / 4 = 5.731 in of bearing would just reach a quarter of the depth
+  assert.ok(Math.abs(b.maxBearing - 0.25 * 7.25 * Math.sqrt(10) / 3 * 3) < 1e-9);
+});
+
+test("birdsmouth: a 12:12 roof on a 2x6 over a 3-1/2 in plate is flagged in the layout and the text", () => {
+  const l = layoutRoof({ ...sampleRoof(), pitch: 12, width: 168, rafter: "2x6", ceilingJoist: undefined, collarTies: false }, plan());
+  assert.ok(l.ok, JSON.stringify(l.errors));
+  assert.equal(l.birdsmouth.ok, false); // notch 3.5/sqrt2 = 2.47 in of 5.5 = 45%
+  assert.ok(l.notes.some((n) => /birdsmouth/.test(n)));
+  assert.ok(roofText(l).some((t) => /Birdsmouth/.test(t)));
+  const ok = layoutRoof(sampleRoof(), plan());
+  assert.equal(ok.birdsmouth.ok, true);
+});
+
+test("cross wing: main courses are shortened under the wing, and the sheet count stays between the area bound and the old count", () => {
+  const r = wingRoof();
+  const l = layoutRoof(r, plan());
+  const sheetArea = (48 * 96) / 144;
+  assert.ok(l.sheets.count >= Math.ceil(l.sheets.area / sheetArea - 1e-9));
+  // hand check, wing 192 wide, 6:12... main 4:12 same pitch (s = 1): xEnd = e + overhang = 96 + 12 = 108;
+  // first course (top edge 48 / k up the slope = 45.5 in of run) loses 2 x min(108, 108 - 45.5) = 125 in of its right-hand plane
+  const k = Math.sqrt(10) / 3;
+  const cw = Math.min(108, 108 - 48 / k);
+  const c0 = l.planeCourses.right[0], whole = layoutRoof({ ...r, wing: undefined }, plan()).courses[0];
+  const kept = c0.pieces.reduce((s, p) => s + p.length, 0), all = whole.pieces.reduce((s, p) => s + p.length, 0);
+  assert.ok(Math.abs(all - kept - 2 * cw) < 1e-6, `${all} ${kept} ${cw}`);
+  assert.equal(l.planeCourses.left[0].pieces.reduce((s, p) => s + p.length, 0), all); // the far plane is whole
 });

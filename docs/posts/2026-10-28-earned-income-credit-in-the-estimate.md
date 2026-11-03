@@ -1,5 +1,6 @@
 ---
 title: "Earned income credit in a free self-employed tax estimate, with no guessed numbers"
+seo_title: "Earned income credit in a free self-employed tax estimate"
 date: 2026-10-28
 description: "ai-bookkeeper's federal estimate now takes an earned income credit schedule from a file and refunds it, instead of shipping figures nobody checked."
 tags: [ai-bookkeeper, tax, self-employed]

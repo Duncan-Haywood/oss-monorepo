@@ -1,5 +1,6 @@
 ---
 title: "A bank file in the wrong order no longer looks like a missing transaction"
+seo_title: "Bank file in the wrong order is not a missing transaction"
 date: 2026-10-26
 description: "When a bank file's rows are neither in order nor reversed, ai-bookkeeper now searches for the one order whose running balances chain, not a missing row."
 tags: [ai-bookkeeper, bank-import, testing]

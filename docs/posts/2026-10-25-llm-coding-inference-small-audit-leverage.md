@@ -1,5 +1,6 @@
 ---
 title: "Small hand-coding audits under-cover because of leverage, not the normal quantile"
+seo_title: "Small hand-coding audits under-cover because of leverage"
 date: 2026-10-25
 description: "On 6,000+ NaijaSenti tweets, a 60-tweet audit's 95% interval covered 91% of the time. A t quantile added 0.6 points; an HC3 leverage correction added 2.3."
 tags: [llm-coding-inference, statistics, qualitative-research]

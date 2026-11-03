@@ -1,5 +1,6 @@
 ---
 title: "A Square 'processing fee refund' is a fee credit, not a customer refund"
+seo_title: "A Square 'processing fee refund' is a fee credit, not a refund"
 date: 2026-10-25
 description: "Checking ai-bookkeeper's Square payout reader against Square's published activity types fixed how fee refunds, holds and loan repayments are booked."
 tags: [ai-bookkeeper, square, bookkeeping]

@@ -1,5 +1,6 @@
 ---
 title: "Two fixes for confidence intervals on rare LLM-coded categories, and why neither worked"
+seo_title: "Two fixes for rare LLM-coded category intervals, and why both failed"
 date: 2026-10-24
 description: "Two attempts at better confidence intervals for rare LLM-coded categories under a weighted audit, and why neither worked."
 tags: [research, llm-coding, statistics, negative-result]

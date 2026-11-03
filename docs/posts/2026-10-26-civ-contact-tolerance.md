@@ -1,5 +1,6 @@
 ---
 title: "Does contact between polarized camps work if it also makes people more tolerant?"
+seo_title: "Does contact between polarized camps work if it raises tolerance?"
 date: 2026-10-26
 description: "In a simulated two-camp society, contact that widens tolerance merges the camps where plain bridging never did, but not under strong backfire."
 tags: [simulation, opinion-dynamics, research, open-source]

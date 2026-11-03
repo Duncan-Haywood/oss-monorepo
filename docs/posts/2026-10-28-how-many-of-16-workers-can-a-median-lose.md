@@ -1,5 +1,6 @@
 ---
 title: "How many of 16 training workers can turn hostile before a median aggregate breaks?"
+seo_title: "How many hostile workers of 16 can a median aggregate survive?"
 date: 2026-10-28
 description: "On a small GPT trained with 16 simulated workers, a median survives 7 sign-flipping workers at a cost of 0.29 nats and diverges at 8."
 tags: [lowcomm-training, robust-aggregation, research]

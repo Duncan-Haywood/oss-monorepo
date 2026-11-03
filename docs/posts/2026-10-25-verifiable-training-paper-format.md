@@ -1,5 +1,6 @@
 ---
 title: "Our verifiable-training paper draft is in the wrong format for its venue"
+seo_title: "Our verifiable-training paper draft is in the wrong venue format"
 date: 2026-10-25
 description: "Checking the draft against the EC'26 call: it uses a two-column ACM style where the venue asks for single-column 10 pt."
 tags: [research, verifiable-training-mechanisms, paper]

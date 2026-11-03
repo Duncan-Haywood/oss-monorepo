@@ -1,5 +1,6 @@
 ---
 title: "A valid sequential audit that uses the coder costs more than one that ignores it"
+seo_title: "A valid sequential audit using the coder costs more than ignoring it"
 date: 2026-10-28
 description: "A betting confidence sequence makes a coder-assisted rare-category audit valid (99-100% coverage) but needs 3 to 14 times the oracle sample."
 tags: [research, llm-coding-inference, statistics]

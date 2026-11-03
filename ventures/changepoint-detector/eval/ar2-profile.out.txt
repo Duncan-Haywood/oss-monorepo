@@ -1,0 +1,7 @@
+lynx                         n=114  AR(1): 0 (rho 0.7)   AR(2): 9 (phi 1.5, -0.9)
+sunspot-year                 n=289  AR(1): 1 (rho 0.8)   AR(2): 3 (phi 1.5, -0.8)
+lynx (log10)                 n=114  AR(1): 0 (rho 0.8)   AR(2): 0 (phi 1.4, -0.8)
+sunspot-year (sqrt)          n=289  AR(1): 1 (rho 0.8)   AR(2): 1 (phi 1.4, -0.7)
+AR(2) 1.4/-0.7 no step    mean changes AR(1) 0.00  AR(2) 0.38
+AR(2) 1.4/-0.7 step 2 sd  mean changes AR(1) 1.13  AR(2) 1.43   step found within 5: AR(1) 39/40  AR(2) 40/40
+AR(2) 1.4/-0.7 step 3 sd  mean changes AR(1) 1.02  AR(2) 1.95   step found within 5: AR(1) 40/40  AR(2) 40/40

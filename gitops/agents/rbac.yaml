@@ -1,9 +1,0 @@
-# Worker ServiceAccount exists so we can set automountServiceAccountToken:
-# false on a named SA. It is bound to nothing that can write the API.
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: codex-worker
-automountServiceAccountToken: false
----
-# No RoleBinding for codex-worker on purpose. The governor SA is separate.

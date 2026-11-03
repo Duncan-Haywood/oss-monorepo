@@ -1,5 +1,6 @@
 ---
 title: "Real bank descriptors: 9% to 72% auto-suggested on a makerspace's books"
+seo_title: "Real bank descriptors: 9% to 72% auto-suggested on real books"
 date: 2026-10-25
 description: "ai-bookkeeper's built-in keywords scored on a real nonprofit's bank exports for the first time, what failed, and why the gain is smaller than it looks."
 tags: [ai-bookkeeper, bookkeeping, evaluation]

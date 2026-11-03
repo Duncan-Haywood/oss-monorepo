@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan } from "./engine.mjs";
 import { budget } from "./budget.mjs";
-import { layoutFloor, floorCuts, joistCentres, sampleFloor, floorText } from "./floor.mjs";
+import { checkPenetrations, layoutFloor, floorCuts, joistCentres, sampleFloor, floorText } from "./floor.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
 
@@ -178,3 +178,204 @@ test("joist hangers: tail-joist ends at the headers and four double hangers per 
   assert.equal(line("Double joist hangers").amount, 20);
 });
 
+test("hanger nails: typed per-hanger counts times the hangers counted, into the budget", () => {
+  const o = [{ x: 100, y: 40, width: 36, depth: 100 }];
+  assert.equal(layoutFloor({ ...sampleFloor(), openings: o }, plan()).hangers.nails, undefined);
+  // 4 singles x 6 + 4 doubles x 10 = 64 nails
+  const l = layoutFloor({ ...sampleFloor(), openings: o, hangerNails: { single: 6, double: 10 } }, plan());
+  assert.equal(l.hangers.nails, 64);
+  assert.ok(l.notes.some((n) => n.includes("64 hanger nails counted")));
+  assert.equal(budget({ floor: l }, { hangerNail: 0.05 }).lines.find((x) => x.item === "Joist hanger nails").amount, 3.2);
+  assert.equal(layoutFloor({ ...sampleFloor(), openings: o, hangerNails: { single: -1 } }, plan()).ok, false);
+});
+
+test("a cantilever lengthens the joists, rims and subfloor past the back support, hand-counted", () => {
+  const base = layoutFloor(sampleFloor(), plan());
+  const l = layoutFloor({ ...sampleFloor(), cantilever: 24 }, plan());
+  assert.ok(l.ok);
+  assert.equal(l.depth, 336 + 24);
+  assert.equal(l.supportedDepth, 336);
+  // the back run grows by exactly the overhang, the front run is unchanged
+  const back = (r) => r.joists.filter((j) => j.y >= 168 && !j.header);
+  assert.equal(back(l)[0].length - back(base)[0].length, 24);
+  assert.equal(l.joists.filter((j) => j.y < 100)[0].length, base.joists.filter((j) => j.y < 100)[0].length);
+  // 360 in is 7.5 courses of 48: seven full and one 24 in strip
+  assert.equal(l.courses.length, 8);
+  assert.equal(l.courses.at(-1).width, 24);
+  assert.ok(l.sheets.area === 480 * 360 / 144);
+  assert.ok(l.notes.some((n) => /cantilever 2. 0/i.test(n)) && !l.notes.some((n) => /rule of thumb/.test(n)));
+});
+
+test("a cantilever over a third of the span is flagged, and one over 8 ft is refused", () => {
+  const l = layoutFloor({ ...sampleFloor(), cantilever: 120 }, plan());
+  assert.equal(l.ok, false); // 10 ft is out of range
+  const m = layoutFloor({ ...sampleFloor(), depth: 192, beam: 96, cantilever: 96 }, plan());
+  assert.ok(m.ok);
+  assert.ok(m.notes.some((n) => /rule of thumb/.test(n)));
+});
+
+test("joist holes and notches: 2x10 (9.25 in deep) against hand-worked limits", () => {
+  // hole limit 9.25/3 = 3.083 in; notch 9.25/6 = 1.542 in, 3.083 in long; end notch 9.25/4 = 2.3125 in; middle third of 168 in is 56..112
+  const r = checkPenetrations("2x10", 168, [
+    { type: "hole", at: 40, size: 3 },
+    { type: "hole", at: 40, size: 3.5 },
+    { type: "hole", at: 40, size: 2, fromEdge: 1.5 },
+    { type: "hole", at: 5, size: 2 },
+    { type: "notch", at: 20, size: 1.5, length: 3 },
+    { type: "notch", at: 20, size: 2, length: 3 },
+    { type: "notch", at: 80, size: 1, length: 3 },
+    { type: "notch", at: 54, size: 1, length: 3 },
+    { type: "notch", at: 0, size: 2.25, length: 3, end: true },
+    { type: "notch", at: 0, size: 2.5, length: 3, end: true },
+  ]);
+  assert.deepEqual(r.map((x) => x.ok), [true, false, false, false, true, false, false, false, true, false]);
+  assert.match(r[1].why[0], /hole 3-1\/2.* is over 3-1\/16/);
+  assert.match(r[6].why[0], /middle third/);
+  assert.match(r[7].why[0], /reaches into the middle third/);
+  assert.equal(checkPenetrations("2x10", 168, [{ type: "pipe", at: 1, size: 1 }])[0].why[0], "unknown type pipe");
+});
+
+test("floor layout reports a failing penetration as a note and passes the rows through", () => {
+  const l = layoutFloor({ ...sampleFloor(), penetrations: [{ type: "hole", at: 60, size: 4 }, { type: "hole", at: 60, size: 2 }] }, samplePlan());
+  assert.equal(l.penetrations.length, 2);
+  assert.equal(l.penetrations[0].ok, false);
+  assert.equal(l.penetrations[1].ok, true);
+  assert.ok(l.notes.some((n) => /Joist hole 1:/.test(n)));
+  assert.ok(!l.notes.some((n) => /Joist hole 2:/.test(n)));
+});
+
+test("stairwell header check: bending, shear and deflection by hand, typed figures only", () => {
+  const hc = { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 180, E: 1300000 };
+  const l = layoutFloor({ ...sampleFloor(), openings: [{ x: 100, y: 30, width: 36, depth: 100 }], headerCheck: hc }, plan());
+  assert.ok(l.ok);
+  const front = l.headerChecks.find((r) => r.side === "front");
+  // 25.5 in tail -> 12.75 in = 1.0625 ft strip x 50 psf = 53.125 lb/ft over 46.5 in clear
+  assert.equal(front.span, 46.5);
+  assert.equal(front.tail, 25.5);
+  assert.ok(Math.abs(front.load - 53.125) < 1e-9);
+  const S = (3 * 9.25 ** 2) / 6; // two 1.5 in plies, 9.25 in deep
+  assert.ok(Math.abs(front.fb - (((53.125 / 12) * 46.5 ** 2) / 8) / S) < 1e-9);
+  assert.ok(Math.abs(front.fv - (1.5 * ((53.125 / 12) * 46.5) / 2) / (3 * 9.25)) < 1e-9);
+  assert.ok(front.ok);
+  assert.ok(l.notes.some((n) => /front header.*passes/.test(n)));
+});
+
+test("a header that is too weak for the typed strengths is reported with what it breaks", () => {
+  const hc = { liveLoad: 40, deadLoad: 10, Fb: 20, Fv: 5, E: 1300000, deflLimit: 360 };
+  const l = layoutFloor({ ...sampleFloor(), openings: [{ x: 100, y: 30, width: 36, depth: 100 }], headerCheck: hc }, plan());
+  const back = l.headerChecks.find((r) => r.side === "back");
+  assert.equal(back.ok, false);
+  assert.ok(back.breaks.some((b) => /^bending/.test(b)) && back.breaks.some((b) => /^shear/.test(b)));
+  assert.ok(l.notes.some((n) => /back header.*FAILS/.test(n)));
+});
+
+test("headerCheck needs typed loads and strengths and an opening", () => {
+  assert.ok(layoutFloor({ ...sampleFloor(), headerCheck: { liveLoad: 40 } }, plan()).errors.some((e) => /headerCheck\.Fb/.test(e)));
+  const none = layoutFloor({ ...sampleFloor(), headerCheck: { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 180, E: 1300000 } }, plan());
+  assert.ok(none.errors.some((e) => /at least one opening/.test(e)));
+});
+
+test("header end reaction is wL/2 and is checked against a typed hanger capacity", () => {
+  const hc = { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 180, E: 1300000 };
+  const o = [{ x: 100, y: 30, width: 36, depth: 100 }];
+  const front = layoutFloor({ ...sampleFloor(), openings: o, headerCheck: hc }, plan()).headerChecks.find((r) => r.side === "front");
+  assert.ok(Math.abs(front.reaction - (53.125 / 12) * 46.5 / 2) < 1e-9);
+  const weak = layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, hangerCapacity: 50 } }, plan()).headerChecks.find((r) => r.side === "front");
+  assert.equal(weak.ok, false);
+  assert.ok(weak.breaks.some((b) => /end reaction/.test(b)));
+  assert.ok(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, hangerCapacity: -1 } }, plan()).errors.some((e) => /hangerCapacity/.test(e)));
+});
+
+test("trimmer check: point load from the header plus a half-spacing strip, by hand", () => {
+  const hc = { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 180, E: 1300000 };
+  const l = layoutFloor({ ...sampleFloor(), openings: [{ x: 100, y: 30, width: 36, depth: 100 }], headerCheck: hc }, plan());
+  const t = l.trimmerChecks.find((r) => r.side === "front");
+  const h = l.headerChecks.find((r) => r.side === "front");
+  assert.equal(t.point, h.reaction);
+  // statics: reactions sum to the total load and the moment at the point load matches R1*a - w a^2/2
+  const w = t.uniform / 12, L = t.span;
+  assert.ok(Math.abs(t.reactions[0] + t.reactions[1] - (w * L + t.point)) < 1e-9);
+  const a = t.a, R1 = (w * L) / 2 + (t.point * (L - a)) / L;
+  assert.ok(t.moment >= R1 * a - (w * a * a) / 2 - 1e-9);
+  assert.ok(Math.abs(t.fb - t.moment / ((3 * 9.25 ** 2) / 6)) < 1e-9);
+  assert.ok(l.notes.some((n) => /trimmer under the front header/.test(n)));
+  const weak = layoutFloor({ ...sampleFloor(), openings: [{ x: 100, y: 30, width: 36, depth: 100 }], headerCheck: { ...hc, Fb: 20 } }, plan());
+  assert.equal(weak.trimmerChecks[0].ok, false);
+});
+
+test("stair top reaction adds a mid-span point load to the header it hangs from, by hand", () => {
+  const hc = { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 180, E: 1300000 };
+  const o = [{ x: 100, y: 30, width: 36, depth: 100 }];
+  const base = layoutFloor({ ...sampleFloor(), openings: o, headerCheck: hc }, plan()).headerChecks.find((r) => r.side === "front");
+  const withStair = layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, stairReaction: 400, stairReactionLive: 320, stairSide: "front" } }, plan());
+  const f = withStair.headerChecks.find((r) => r.side === "front"), b = withStair.headerChecks.find((r) => r.side === "back");
+  const S = (3 * 9.25 ** 2) / 6, I = (3 * 9.25 ** 3) / 12, L = 46.5;
+  assert.ok(Math.abs(f.fb - (base.fb + ((400 * L) / 4) / S)) < 1e-9);
+  assert.ok(Math.abs(f.reaction - (base.reaction + 200)) < 1e-9);
+  assert.ok(Math.abs(f.defl - (base.defl + (320 * L ** 3) / (48 * 1300000 * I))) < 1e-9);
+  assert.ok(Math.abs(b.fb - layoutFloor({ ...sampleFloor(), openings: o, headerCheck: hc }, plan()).headerChecks.find((r) => r.side === "back").fb) < 1e-9, "the other header is unchanged");
+  assert.ok(withStair.notes.some((n) => /400 lb top reaction as a mid-span point load/.test(n)));
+  assert.ok(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, stairReaction: 400 } }, plan()).errors.some((e) => /stairSide/.test(e)));
+  assert.ok(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, stairReaction: 400, stairSide: "front", stairReactionLive: 900 } }, plan()).errors.some((e) => /stairReactionLive/.test(e)));
+});
+
+test("trimmer end reaction is checked against a typed bearing capacity", () => {
+  const hc = { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 180, E: 1300000 };
+  const o = [{ x: 100, y: 30, width: 36, depth: 100 }];
+  const base = layoutFloor({ ...sampleFloor(), openings: o, headerCheck: hc }, plan()).trimmerChecks[0];
+  const big = Math.max(...base.reactions);
+  const pass = layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, bearingCapacity: big + 1 } }, plan()).trimmerChecks[0];
+  assert.ok(!pass.breaks.some((b) => /bearing/.test(b)));
+  const weak = layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, bearingCapacity: big - 1 } }, plan()).trimmerChecks[0];
+  assert.equal(weak.ok, false);
+  assert.ok(weak.breaks.some((b) => /bearing capacity/.test(b)));
+  assert.ok(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, bearingCapacity: 0 } }, plan()).errors.some((e) => /bearingCapacity/.test(e)));
+});
+
+test("header ties: straps = ceil(typed force / typed capacity), both required together", () => {
+  const hc = { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 180, E: 1300000 };
+  const o = [{ x: 100, y: 30, width: 36, depth: 100 }];
+  const l = layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, tieForce: 2500, tieCapacity: 1000 } }, plan());
+  assert.ok(l.ok);
+  assert.ok(l.headerChecks.every((r) => r.ties === 3));
+  assert.ok(l.notes.some((n) => /Ties: 3 straps at the typed 1000 lb each for the typed 2500 lb/.test(n)));
+  assert.equal(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, tieForce: 1000, tieCapacity: 1000 } }, plan()).headerChecks[0].ties, 1);
+  assert.equal(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: hc }, plan()).headerChecks[0].ties, null);
+  assert.ok(layoutFloor({ ...sampleFloor(), openings: o, headerCheck: { ...hc, tieForce: 900 } }, plan()).errors.some((e) => /tieCapacity/.test(e)));
+});
+
+test("cantilever joist check matches hand statics (2x10 at 16 in, 8 ft backspan, 2 ft out)", () => {
+  const hc = { liveLoad: 40, deadLoad: 15, Fb: 1200, Fv: 150, E: 1600000 };
+  const l = layoutFloor({ ...sampleFloor(), beam: undefined, depth: 96, cantilever: 24, headerCheck: hc }, plan());
+  const c = l.cantileverCheck;
+  // w = 55 psf x 16/144 = 6.1111 lb/in; Ra = w (96^2 - 24^2)/(2 x 96) = 270.0; Rb = w x 120^2 / 192 = 458.33
+  assert.ok(Math.abs(c.reactions[0] - 6.1111111 * (9216 - 576) / 192) < 1e-6);
+  assert.ok(Math.abs(c.reactions[1] - 458.3333) < 1e-3);
+  assert.ok(Math.abs(c.reactions[0] + c.reactions[1] - 6.1111111 * 120) < 1e-4); // equilibrium
+  // negative moment w a^2 / 2 = 1760; positive Ra^2 / 2w = 5967 wins; S = 1.5 x 9.25^2 / 6 = 21.39 in^3
+  assert.ok(Math.abs(c.moment - (275 * 275) / (2 * 6.1111111)) < 1);
+  assert.ok(Math.abs(c.fb - c.moment / 21.390625) < 1e-6);
+  // tip deflection, live only: wL = 40 x 16/144 = 4.444; I = 1.5 x 9.25^3 / 12 = 98.93
+  const wL = 40 * 16 / 144, I = 1.5 * 9.25 ** 3 / 12;
+  assert.ok(Math.abs(c.defl - (wL * 24 ** 4 / (8 * 1.6e6 * I) + wL * 24 ** 3 * 96 / (6 * 1.6e6 * I))) < 1e-9);
+  assert.equal(c.uplift, 0); // dead 15 psf x 16/144 x 96 / 2 = 80 lb vs 6.111 x 576 / 192 = 18.3 lb... no uplift
+  assert.ok(l.notes.some((n) => /Cantilever joist, 2x10/.test(n)));
+});
+
+test("a long overhang on a short backspan fails and reports uplift on the near support", () => {
+  const hc = { liveLoad: 40, deadLoad: 10, Fb: 250, Fv: 150, E: 1600000 };
+  const l = layoutFloor({ ...sampleFloor(), beam: undefined, depth: 48, cantilever: 48, headerCheck: hc }, plan());
+  const c = l.cantileverCheck;
+  assert.equal(c.ok, false);
+  assert.ok(c.uplift > 0, "overhang equal to the backspan lifts the near support");
+  // dead on backspan 10 x 16/144 x 48 / 2 = 26.67 lb; all on overhang 50 x 16/144 x 48^2 / 96 = 133.33 lb
+  assert.ok(Math.abs(c.uplift - (133.3333 - 26.6667)) < 1e-3);
+  assert.ok(l.notes.some((n) => /FAILS/.test(n) && /tie-down/.test(n)));
+});
+
+test("no cantilever check without typed loads, and cantDeflLimit is range-checked", () => {
+  assert.equal(layoutFloor({ ...sampleFloor(), cantilever: 24 }, plan()).cantileverCheck, null);
+  const hc = { liveLoad: 40, deadLoad: 10, Fb: 1200, Fv: 150, E: 1600000, cantDeflLimit: 10 };
+  const l = layoutFloor({ ...sampleFloor(), cantilever: 24, headerCheck: hc }, plan());
+  assert.equal(l.ok, false);
+});

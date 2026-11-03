@@ -12,6 +12,7 @@ where they differ).
 
 | Directory | What it holds |
 |---|---|
+| [`direction/`](direction/README.md) | Daily and weekly reports: where commits went, how deep each project is, and suggestions towards higher-value work ([`LATEST.md`](direction/LATEST.md)). |
 | [`router/`](router/README.md) | Decides which product gets the next unit of agent effort, from each `VENTURE.yaml` and the ledger. |
 | [`scoring/`](scoring/README.md) | Merit scores for the products the portfolio owns, on the same six dimensions used for candidate ideas. |
 | [`pipeline/`](pipeline/README.md) | Businesses researched and scored but not yet started, and how one graduates into `ventures/`. |

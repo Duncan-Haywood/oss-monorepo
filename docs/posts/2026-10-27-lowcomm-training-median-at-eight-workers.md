@@ -1,5 +1,6 @@
 ---
 title: "A trimmed mean does not beat the median against one sign-flipping worker"
+seo_title: "A trimmed mean does not beat the median vs a sign-flipping worker"
 date: 2026-10-27
 description: "In a small-GPT DiLoCo run at 8 workers, dropping the highest and lowest delta per coordinate cost +0.026 nats under a sign-flip; the median cost +0.021."
 tags: [lowcomm-training, research, distributed-training, robust-aggregation]

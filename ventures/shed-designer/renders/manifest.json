@@ -485,15 +485,15 @@
   "gallery-cheapest": {
    "key": "Cheapest 8x10",
    "name": "Cheapest 8x10",
-   "hash": "ef615d801d29d123",
-   "designKey": "ff04fccd",
+   "hash": "863dcec727806b4a",
+   "designKey": "ca11a477",
    "files": {
     "card": {
      "file": "gallery-cheapest-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 7946,
-     "alt": "3D render of the Cheapest 8x10, 8 by 10 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 10' 4-11/16\" to the peak, showing a 39\" door on the right (gable end)."
+     "bytes": 7944,
+     "alt": "3D render of the Cheapest 8x10, 8 by 10 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 10' 8-9/16\" to the peak, showing a 39\" door on the right (gable end)."
     }
    }
   },

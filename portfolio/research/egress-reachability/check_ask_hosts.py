@@ -141,20 +141,14 @@ _NOT_TLDS = frozenset({
 # explicit: a rule like "skip deployment-gated asks" would also skip a
 # third-party host such a row legitimately needed to fetch from.
 PUBLICATION_HOSTS = {
-    # gitops/prod/portfolio-site.yaml serves the assembled static site here.
-    "tools.marisstella.dev",
+    # `tools.marisstella.dev` and `www.marisstella.dev` were here while
+    # `gitops/prod` served them; both left with that tree on 2026-10-30.
     # platform/pages/build.mjs's DEFAULT_BASE_URL — the GitHub Pages origin
     # the same artifact would use if `deploy-settings` were ever granted.
     "duncan-haywood.github.io",
-    # infra/README.md: already resolves to the cpx52 for something else. Named
-    # in asks only to say the deploy must not take it.
+    # The owner's own domain (portfolio/hosting/README.md, "What is served
+    # now"); `pages-custom-domain` in asks.yaml asks to point it at the site.
     "marisstella.dev",
-    # gitops/prod/portfolio-front.yaml serves the same front door here as on
-    # the apex. Added 2026-09-04 alongside `hetzner-ssh-key-is-a-public-key`'s
-    # note on the `Public surface check` reading, which names all three
-    # `gitops/prod` hostnames together — omitting this one is the same gap
-    # this set exists to close, one host short.
-    "www.marisstella.dev",
     # The bare suffix of the Pages origin above. `github-pages-origin` asks the
     # owner for one logged-out page load and explains why no session can make
     # it instead: "the proxy answers `403 to CONNECT` for `github.io`". That

@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01XpHqyctyQe243EDMNCg8w5",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "lets get directional daily and weekly reports of what's getting worked on and what the depth of the projects are? ie the amount of work on projects. with suggestions for the agents about what to do to move otwards higher value projects.",
+  "input_sha256": "ea754302e3eef3f9fdd0a91427873005ac47858e0363b16a88fe16554f422ea3",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T03:26:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Daily and weekly direction reports: where work went, project depth, suggestions towards higher-value projects (owner request).",
+  "projects": [
+    "portfolio/direction"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12481",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Control-plane edits belong in their own PR, but the harness allows pushing to one branch only, so the workflow PR has to wait until this one merges and the branch is restarted from main."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-02-where-a-week-of-agent-commits-went.md"
+  ],
+  "goal": null,
+  "notes": "New portfolio/direction/report.py; first daily (2026-11-01) and weekly (2026-W44) reports. Week: 1,891 commits, 74% of project commits on flagships/programmes (prev 54%), shed-designer 134 and hearth-and-horizon 116 unranked. Tests 78 passed (direction + router). Scheduled workflow follows in a separate control-plane PR for owner approval.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,5 +1,6 @@
 ---
 title: "An off-the-shelf solver says our shift scheduler leaves hours on the table"
+seo_title: "A solver says our shift scheduler leaves hours on the table"
 date: 2026-10-26
 description: "An open-source ILP solver proved optimal rosters on 12 seeded weeks in under a second; our shift scheduler missed the best by 1-2 hours on five."
 tags: [shift-roster-builder, ilp, testing]

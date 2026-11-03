@@ -1,5 +1,6 @@
 ---
 title: "The official Peppol negative-invoice example was rejected by our e-invoice checker"
+seo_title: "The official Peppol negative-invoice example failed our checker"
 date: 2026-10-25
 description: "einvoice-preflight on Peppol BIS 3.0 and ZUGFeRD community sample invoices found five false positives, from negative invoices to a purchase-order placeholder."
 tags: [e-invoicing, peppol, testing]

@@ -7,6 +7,7 @@
 // No network, no dependencies; the same file runs in a page, in Node and in a server. ai.mjs adds an optional model
 // on the user's own key, under the same rules.
 import { guess as nbGuess } from "./learn.mjs";
+import { suppressionIndex, emailKey } from "./suppression.mjs";
 
 export const DAY = 86_400_000;
 
@@ -38,6 +39,7 @@ const addDays = (day, n) => iso(toDay(day) + n * DAY);
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 const MONTH_RE = "(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)";
 const WEEKDAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+const ORDINAL_WORDS = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth", "nineteenth", "twentieth", "twenty-first", "twenty-second", "twenty-third", "twenty-fourth", "twenty-fifth", "twenty-sixth", "twenty-seventh", "twenty-eighth", "twenty-ninth", "thirtieth", "thirty-first"];
 const NUM_WORDS = { a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, couple: 2, few: 3 };
 
 // The next date on or after `today` with this month and day (year rolls forward if it has passed).
@@ -53,17 +55,46 @@ function nextMonthDay(today, m, d) {
  * "in two weeks/months", "next month", "next quarter", "Q1".."Q4", a bare month ("in January", "after June"),
  * "next year", "after the holidays" and "end of the month/quarter/year".
  */
+// Month names in German, French, Spanish, Portuguese, Italian and Dutch, mapped to the English words the date reader
+// knows (added 2026-11-02; out-of-office replies in those languages named a return date nobody read).
+const FOREIGN_MONTHS = {
+  jan: "januar|janvier|enero|janeiro|gennaio|januari", feb: "februar|f[eé]vrier|febrero|fevereiro|febbraio|februari",
+  mar: "m[aä]e?rz|mars|marzo|mar[cç]o|maart", apr: "avril|aprile", may: "mai|mayo|maio|maggio|mei",
+  jun: "juni|juin|junio|junho|giugno", jul: "juli|juillet|julio|julho|luglio", aug: "ao[uû]t|agosto",
+  sep: "septembre|septiembre|setiembre|setembro|settembre", oct: "oktober|octobre|octubre|outubro|ottobre",
+  nov: "novembre|noviembre|novembro", dec: "dezember|d[eé]cembre|diciembre|dezembro|dicembre",
+};
+const FOREIGN_RE = new RegExp(`(\\d{1,2})(?:\\.|\\s*[ºo°]|er)?\\s+(?:de\\s+|d['’]\\s*)?(${Object.values(FOREIGN_MONTHS).join("|")})\\b\\.?`, "i");
+function foreignToEnglish(text) {
+  return String(text).replace(new RegExp(`\\b(\\d{1,2})\\.\\s+(?=${MONTH_RE}\\b)`, "gi"), "$1 ").replace(new RegExp(FOREIGN_RE.source, "gi"), (all, day, name) => {
+    const mon = Object.keys(FOREIGN_MONTHS).find((k) => new RegExp(`^(?:${FOREIGN_MONTHS[k]})$`, "i").test(name));
+    return mon ? `${day} ${mon}` : all;
+  });
+}
+
 export function findDate(text, today) {
+  const orig = String(text);
+  text = foreignToEnglish(text);
   const r = findDateLower(text, today);
   if (!r) return null;
   const at = String(text).toLowerCase().indexOf(r.text); // report the words as the person wrote them ("Q1", "March 3")
-  return at < 0 ? r : { ...r, text: String(text).slice(at, at + r.text.length) };
+  return text !== orig ? { ...r, text: r.text } : at < 0 ? r : { ...r, text: String(text).slice(at, at + r.text.length) };
 }
 
 function findDateLower(text, today) {
   const s = String(text).toLowerCase();
   let m;
   if ((m = s.match(/\b(20\d\d)-(\d\d)-(\d\d)\b/))) return { date: `${m[1]}-${m[2]}-${m[3]}`, text: m[0] };
+  if ((m = s.match(/\b(20\d\d)[\/.](\d{1,2})[\/.](\d{1,2})\b/)) && +m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && +m[3] <= 31) return { date: iso(Date.UTC(+m[1], +m[2] - 1, +m[3])), text: m[0] };
+  if ((m = s.match(/\b(\d{1,2})\.(\d{1,2})\.(20\d\d|\d\d)\b/)) && +m[1] >= 1 && +m[1] <= 31 && +m[2] >= 1 && +m[2] <= 12) return { date: iso(Date.UTC(m[3].length === 2 ? 2000 + +m[3] : +m[3], +m[2] - 1, +m[1])), text: m[0] }; // day.month.year, the European way
+  if ((m = s.match(new RegExp(`\\b(${ORDINAL_WORDS.join("|")})\\s+of\\s+${MONTH_RE}\\b`)))) return { date: nextMonthDay(today, MONTHS.indexOf(m[2].slice(0, 3)), ORDINAL_WORDS.indexOf(m[1]) + 1), text: m[0] };
+  if ((m = s.match(/\bday after tomorrow\b/))) return { date: addDays(today, 2), text: m[0] };
+  if ((m = s.match(/\btomorrow\b/))) return { date: addDays(today, 1), text: m[0] };
+  if ((m = s.match(new RegExp(`\\b(start|beginning|middle|end)\\s+of\\s+${MONTH_RE}\\b|\\bmid[-\\s]${MONTH_RE}\\b`)))) {
+    const mid = m[1] === "middle" || !m[1], mo = MONTHS.indexOf((m[2] || m[3]).slice(0, 3));
+    if (m[1] === "end") return { date: nextMonthDay(today, (mo + 1) % 12, 1), text: m[0] }; // the 1st after the month, like "end of the month"
+    return { date: nextMonthDay(today, mo, mid ? 15 : 1), text: m[0] };
+  }
   if ((m = s.match(new RegExp(`\\b${MONTH_RE}\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b`)))) return { date: nextMonthDay(today, MONTHS.indexOf(m[1].slice(0, 3)), +m[2]), text: m[0] };
   if ((m = s.match(new RegExp(`\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?${MONTH_RE}\\b`)))) return { date: nextMonthDay(today, MONTHS.indexOf(m[2].slice(0, 3)), +m[1]), text: m[0] };
   if ((m = s.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/))) {
@@ -80,11 +111,12 @@ function findDateLower(text, today) {
     if (cand < toDay(today)) cand = Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, d);
     return { date: iso(cand), text: m[0] };
   }
-  if ((m = s.match(/\b(?:in|for)\s+(\d+|a|an|one|two|three|four|five|six|a couple of|couple of|a few|few)\s+(day|week|month)s?\b/))) {
+  if ((m = s.match(/\b(?:in|for)\s+(\d+|a|an|one|two|three|four|five|six|a couple of|couple of|a few|few)\s+(day|week|wk|month|mo)s?\b/))) {
     const n = /^\d+$/.test(m[1]) ? +m[1] : NUM_WORDS[m[1].replace(/^a\s+|\s+of$/g, "").trim()] || 2;
-    const date = m[2] === "day" ? addDays(today, n) : m[2] === "week" ? addDays(today, 7 * n) : (() => { const t = new Date(toDay(today)); return iso(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + n, t.getUTCDate())); })();
+    const date = m[2] === "day" ? addDays(today, n) : (m[2] === "week" || m[2] === "wk") ? addDays(today, 7 * n) : (() => { const t = new Date(toDay(today)); return iso(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + n, t.getUTCDate())); })();
     return { date, text: m[0] };
   }
+  if ((m = s.match(/\b(?:in|for)\s+(?:a|one|two)\s+fortnight\b|\ba fortnight\b/))) return { date: addDays(today, /two/.test(m[0]) ? 28 : 14), text: m[0] };
   if ((m = s.match(/\bnext week\b/))) { const w = new Date(toDay(today)).getUTCDay(); return { date: addDays(today, ((8 - w) % 7) || 7), text: m[0] }; }
   if ((m = s.match(/\bnext month\b/))) { const t = new Date(toDay(today)); return { date: iso(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, 1)), text: m[0] }; }
   if ((m = s.match(/\b(?:next|new)\s+(?:fiscal\s+)?year\b|\bafter the (?:holidays|new year)\b|\bin the new year\b/))) { const y = new Date(toDay(today)).getUTCFullYear(); return { date: iso(Date.UTC(y + 1, 0, 6)), text: m[0] }; }
@@ -100,8 +132,8 @@ function findDateLower(text, today) {
     const mo = MONTHS.indexOf(m[1].slice(0, 3)), after = /^(after|until|till)/.test(m[0]);
     return { date: nextMonthDay(today, after ? (mo + 1) % 12 : mo, 1), text: m[0] };
   }
-  if ((m = s.match(/\b(?:on|until|till|back|returning)\s+(?:next\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/))) {
-    const want = WEEKDAYS.indexOf(m[1]), w = new Date(toDay(today)).getUTCDay();
+  if ((m = s.match(/\b(?:on|until|till|back|returning)\s+(?:next\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday|sun|mon|tues?|wed|thu(?:rs?)?|fri|sat)\b/))) {
+    const want = WEEKDAYS.findIndex((d) => d.startsWith(m[1].slice(0, 3))), w = new Date(toDay(today)).getUTCDay();
     return { date: addDays(today, ((want - w + 7) % 7) || 7), text: m[0] };
   }
   return null;
@@ -153,13 +185,36 @@ export function stripQuoted(body) {
 }
 
 /**
+ * Split at each `From:` line that opens a new message. A `From:` that opens quoted history is not a new message: it
+ * follows an "Original Message" / "Forwarded message" divider or an underscore rule, or is followed by `Sent:`
+ * (Outlook's quote header, also Gesendet / Envoyé / Enviado). Otherwise our own earlier email, quoted under a
+ * top-posted reply, would be read as a second reply (found 2026-11-03: it was triaged as an unsubscribe).
+ */
+function splitAtFromHeaders(src) {
+  const lines = src.split("\n"), blocks = [];
+  let cur = [], prev = "";
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    if (/^From:\s/i.test(l)) {
+      const divider = /^\s*-{2,}\s*(original|forwarded|reply|ursprüngliche|message d'origine)/i.test(prev) || /^\s*_{5,}\s*$/.test(prev) || /^\s*-{5,}[^-]*-{5,}\s*$/.test(prev);
+      const outlook = /^\s*[*_]*(Sent|Gesendet|Envoyé|Enviado|Inviato)[*_]*\s*:/i.test(lines[i + 1] || "");
+      if (cur.length && !divider && !outlook) { blocks.push(cur.join("\n")); cur = []; }
+    }
+    cur.push(l);
+    if (l.trim()) prev = l;
+  }
+  if (cur.length) blocks.push(cur.join("\n"));
+  return blocks;
+}
+
+/**
  * Split pasted replies into messages. Messages are separated by a line of three or more dashes, or each one starts
  * with a `From:` header. Headers read: From, Subject, Date. Returns [{ from, name, subject, date, body, raw }].
  */
 export function parseReplies(text) {
   const src = String(text || "").replace(/\r\n/g, "\n");
   let blocks = src.split(/\n\s*-{3,}\s*\n/);
-  if (blocks.length === 1) blocks = src.split(/\n(?=From:\s)/i);
+  if (blocks.length === 1) blocks = splitAtFromHeaders(src);
   const out = [];
   for (const b of blocks) {
     const raw = b.trim();
@@ -204,7 +259,7 @@ export const toCsv = (rows, cols) => [cols.join(","), ...rows.map((r) => cols.ma
 
 // ---------- triage ----------
 
-const sentences = (t) => String(t).replace(/\s+/g, " ").split(/(?<=[.!?])\s+|\s+[-–—]\s+/).map((x) => x.trim()).filter(Boolean);
+const sentences = (t) => String(t).replace(/\s+/g, " ").split(/(?<=[.!?])(?<!\b\d{1,2}\.)\s+|\s+[-–—]\s+/).map((x) => x.trim()).filter(Boolean);
 const P = (re) => new RegExp(re, "i");
 
 const RULES = {
@@ -228,12 +283,26 @@ const RULES = {
     P("entfernen sie mich"), P("aus (ihrem|dem|ihrer) (e-?mail-?)?(verteiler|liste|datenbank)"), P("\\b(abmelden|austragen|abbestellen)\\b"), P("\\bnicht mehr (per )?(e-?mail )?(zu)?(kontaktier|anschreib|belästig|beläst)"), P("l[öo]schen sie (meine|unsere) (daten|e-?mail|adresse)"),
     P("ne m'?envoyez plus"), P("d[ée]sabonn"), P("d[ée]sinscri"), P("ne plus recevoir"), P("retirez[- ]moi"), P("supprimez (mon|mes|notre|nos)\\b"),
     P("darme de baja"), P("no me (env[ií]en?|manden?|escriban?|contacten?) m[aá]s"), P("elimin(e|en|ar) (mi|mis|nuestro)\\b.*(correo|datos|lista|direcci)"), P("cancelar (la |mi )?suscripci"), P("\\bdarse de baja\\b"),
+    // Added 2026-11-02 after a probe of 40 short non-English phrasings missed the ones below (FR/ES infinitives and imperatives, PT, NL). Agent-written, unscored on real mail.
+    P("ne plus me (contacter|[ée]crire|solliciter)"), P("ne me (contactez|[ée]crivez|sollicitez) plus"), P("(quitame|qu[ií]tame|s[aá]came|borra(me)?|b[óo]rrame) (de|mis)\\b"), P("no (quiero|deseo) (m[aá]s|seguir recibiendo)"),
+    P("(remova|retire|tire|exclua) (o )?(meu|me|nosso)\\b"), P("n[ãa]o (quero|desejo) (mais )?receber"), P("pare de (me )?(enviar|mandar|escrever)"),
+    P("stuur (mij|ons) (geen|niet meer)"), P("geen (e-?mails|mailtjes|berichten) meer"), P("verwijder (mij|ons|mijn)\\b"), P("schrijf (mij|me) uit"),
     P("\\b(cancellatemi|rimuovetemi|toglietemi|disiscriv)"), P("non (voglio|vogliamo) pi[uù] ricevere"),
     P("n[ãa]o (me )?(envie|mande|escreva|contate)n? mais"), P("remov(a|am|er) (meu|minha|o meu)\\b"), P("cancelar (a )?inscri"),
     P("\\b(schrijf|schrijven) (mij|me|ons) uit\\b"), P("\\buitschrijven\\b"), P("verwijder (mij|me|mijn|ons)\\b"), P("mail (mij|ons) (niet|nooit) meer"),
     P("\\bcease and desist\\b"), P("\\bcease (all )?(further )?(email|e-mail|communication|contact)"),
     // Other languages (added after the third eval set; unverified beyond one example each): FR, DE, ES, IT opt-out phrasings.
     P("\\bne (me )?contactez plus\\b"), P("\\b(retirer|supprimer) (de|mon|mes|mon adresse)\\b.*\\b(liste|diffusion|donn[ée]es)"), P("\\b(kontaktieren|anschreiben|schreiben)( sie)? mich nicht mehr\\b"), P("\\bnicht mehr (kontaktieren|anschreiben|schreiben)\\b"), P("\\bsc?hreiben sie mir nicht mehr\\b"), P("\\bno me (vuelvan a )?(escrib|contact)"), P("\\bnon (mi |ci )?contatt\\w* pi[uù]\\b"), P("\\bnon contattatemi\\b"),
+    // Added 2026-11-02 (second probe): SV, DA, NO, PL, FI, TR, CS, HU, RO, RU, JA, ZH and DE/EN gaps; 27 of 37 short phrasings went to "unclear". Agent-written, unscored on real mail.
+    // No \\b around non-ASCII letters (JS \\b is ASCII-only).
+    P("ta bort mig fr[åa]n"), P("sluta (skicka|maila|mejla)"), P("avregistrera"), P("inte ha fler (mejl|mail|e-?post)"), P("fjern mig fra"), P("send (mig )?ikke flere"), P("slett meg fra"), P("ikke send meg"),
+    P("usun[ąa][ćc] mnie"), P("nie (przesy[łl]a|wysy[łl]a|piszcie)\\w* (mi )?wi[ęe]cej"), P("wypisa(nie|ć)"), P("poista minut"), P("[äa]lk[äa][äa] l[äa]hett[äa]k[öo]"),
+    P("beni (listenizden|listeden) [çc][ıi]kar"), P("bir daha (e-?posta|mail|mesaj) g[öo]nderme"), P("abonelikten [çc][ıi]k"),
+    P("odhla[šs]te m[ěe]"), P("nepi[šs]te mi"), P("t[öo]r[öo]ljenek"), P("[șşs]terge[țţt]i-?m[ăa]"), P("m[ăa] [șşs]terge[țţt]i"), P("nu (mai )?trimite[țţt]i"),
+    P("не (пишите|присылайте|отправляйте) (мне )?больше"), P("удалите меня"), P("отпишите меня"), P("отписаться"),
+    P("配信を?停止"), P("配信解除"), P("退订"), P("取消订阅"), P("不要再(给我)?发"), P("请勿再(给我)?发"),
+    P("\\b(refrain|desist) from (emailing|contacting|writing|messaging|reaching out)"), P("\\bstop (reaching out|contacting|emailing|writing|messaging)\\b"), P("\\btake me off\\b"),
+    P("keine (werbung|weiteren (nachrichten|e-?mails|mails)|mails mehr)"), P("aus dem verteiler"), P("streichen sie mich"),
   ],
   bounce: [
     P("\\bdelivery (status notification|has failed|failure)\\b"), P("\\bundeliverable\\b"), P("\\bmail delivery (subsystem|failed|system)\\b"), P("\\baddress (not found|couldn'?t be found|rejected)\\b"),
@@ -248,7 +317,7 @@ const RULES = {
     P("abwesenheit"), P("\\bnicht (im|in meinem|im meinem) b[üu]ro\\b"), P("\\bau(ß|ss)er haus\\b"), P("\\bbin (bis|vom|ab) .{0,40}(abwesend|im urlaub|nicht erreichbar)"), P("automatische antwort"), P("\\bim urlaub\\b"),
     P("r[ée]ponse automatique"), P("message d'?absence"), P("\\b(absent|absente) (du bureau|jusqu)"), P("\\ben cong[ée]s?\\b"), P("\\bde retour (le|lundi|mardi|mercredi|jeudi|vendredi|d[èe]s)\\b"), P("hors du bureau"),
     P("respuesta autom[áa]tica"), P("fuera de (la )?oficina"), P("\\bestar[ée] (ausente|de vacaciones|fuera)\\b"), P("\\bde vacaciones\\b"), P("mensaje autom[áa]tico"),
-    P("risposta automatica"), P("fuori (dall')?ufficio"), P("\\bsono (in ferie|assente)\\b"),
+    P("risposta automatica"), P("fuori (dall')?ufficio"), P("\\bfuori sede\\b"), P("\\bsono (in ferie|assente)\\b"),
     P("resposta autom[áa]tica"), P("fora do escrit[óo]rio"), P("\\best(ou|arei) (ausente|de f[ée]rias)\\b"),
     P("automatisch antwoord"), P("automatisch bericht"), P("\\bafwezig\\b"), P("niet (aanwezig|op kantoor)"), P("buiten kantoor"),
   ],
@@ -256,6 +325,10 @@ const RULES = {
     P("\\b(doesn'?t|does not|don'?t|do not|no longer) work(s|ing)? (here|there|for|at)\\b"), P("\\bno longer at\\b"), P("\\b(i|we) (don'?t|do not) (handle|deal with|look after|manage) (this|that|these|purchasing|software)\\b"), P("\\b(would be|is) the (one|person|right one) to (talk|speak) to\\b"), P("\\breplacement is\\b"), P("\\bmoved (on|to a new role|to another company)\\b"),
     P("\\bno longer (with|at|work(s|ing)? (for|at)|employed)\\b"), P("\\b(has|have) left (the company|\\w+)\\b"), P("\\b(i'?m|i am) not the right (person|contact)\\b"), P("\\bthe right (person|contact) (is|would be)\\b"), P("\\bwrong (person|contact)\\b"),
     P("\\b(please|you should|better to|try) (contact|reach out to|email|speak (to|with))\\b.*(@|\\b[A-Z][a-z]+\\b)"), P("\\bthis (mailbox|address) is (no longer|not) (monitored|in use)\\b"), P("\\bretired\\b"), P("\\bhandles? (this|that|these|purchasing|procurement)\\b"),
+    // 2026-11-02: referrals phrased around who owns the decision, and the same "wrong person" in six languages.
+    P("\\b(i|we)('ve| have)? (left|quit|resigned from)\\b"), P("\\bwho (owns|runs|decides|handles|manages|is responsible for) (this|that|these|it)\\b"), P("\\b(direct|send|route|address) (all |any )?(inquiries|enquiries|requests|questions) to\\b"), P("\\b(speak|talk) (to|with) our (head|director|vp|manager|owner|cfo|cto|ceo|coo|procurement|ops)\\b"),
+    P("\\btook over (from me|for me|this|my)\\b"), P("\\b(this|that) goes to\\b"), P("\\b(passed|handed|delegated) (this|your (note|email|message)|it) (on |over )?to\\b"),
+    P("no soy (la persona|el contacto|el responsable)"), P("je ne suis pas (la bonne personne|le bon contact|la personne)"), P("ich bin (nicht zust[äa]ndig|nicht der richtige|nicht die richtige)"), P("non sono (la persona giusta|il referente|io il responsabile)"), P("n[ãa]o sou (a pessoa|o respons[áa]vel|o contato)"), P("ik ben niet de juiste (persoon|contactpersoon)"),
   ],
   not_now: [
     P("\\b(ask|try|contact|ping|email|call) (me|us) (again )?(in|after|next|around|later|down the line|then)\\b"), P("\\btry again (in|after|next|later)\\b"), P("\\bhold off\\b"), P("\\blet you know when\\b"), P("\\bdown the (line|road)\\b"), P("\\bnot this (year|quarter|month)\\b"), P("\\bin the (spring|summer|fall|autumn|winter)\\b"), P("\\b(in the )?(middle|midst) of (a|an|our)\\b"),
@@ -266,6 +339,9 @@ const RULES = {
   not_interested: [
     P("^\\s*(nope|no|nah)\\.?\\s*$"), P("\\bnot (be )?moving forward\\b"), P("\\bnot relevant\\b"), P("\\b(we|i) (don'?t|do not) need (this|it|that|you|your)\\b"),
     P("\\bnot interested\\b"), P("\\bno,? thanks?( you)?\\b"), P("\\bno thank you\\b"), P("\\b(we'?re|we are) (all )?(set|good|fine)\\b"), P("\\b(don'?t|do not) (have a |see a )?need\\b"), P("\\bno need\\b"), P("\\b(i'?ll|i will|we'?ll|we will) pass\\b"), P("\\bnot (a )?(good )?fit\\b"), P("\\b(isn'?t|is not|wouldn'?t be) (a )?(good |great )?fit\\b"),
+    // Added 2026-11-02 after a probe: "not interested" in PT, DE, FR, ES, IT, NL went to "unclear". Agent-written, unscored on real mail.
+    P("n[ãa]o (tenho|temos|estou|estamos) interess"), P("sem interesse"), P("kein(e)? (interesse|bedarf)"), P("\\bnicht interessiert\\b"), P("pas (int[ée]ress[ée]|besoin)"), P("ne nous int[ée]resse pas"), P("ça ne m'int[ée]resse pas"),
+    P("no (me |nos )?interesa\\b"), P("no (estoy|estamos) interesad"), P("non (sono|siamo) interessat"), P("non ci interessa"), P("geen (interesse|behoefte)"), P("niet ge[ïi]nteresseerd"),
     P("\\bnot for (us|me)\\b"), P("\\bnot something (we|i)'?(re| are| am)? (looking|interested)\\b"), P("\\bnot looking (for|to)\\b"), P("\\bplease don'?t follow up\\b"), P("\\bwe'?ll never\\b"),
   ],
   objection_price: [
@@ -313,13 +389,13 @@ export function triage(reply, today) {
   const referral = (() => {
     for (const s of sentences(body)) {
       const email = s.match(EMAIL_RE)?.[0];
-      if (email && email.toLowerCase() !== from && /\b(contact|reach|email|speak|talk|try|cc|loop|handles?|responsible|right person|in charge|forward)/i.test(s)) return { email: email.toLowerCase(), text: s };
+      if (email && email.toLowerCase() !== from && /\b(contact|reach|email|speak|talk|try|cc|loop|handles?|responsible|right person|in charge|forward|direct|replacement|took over|owns|runs|decides|goes to|passed|handed)|escrib|contactez|wenden|scriv|contate|escreva|neem contact/i.test(s)) return { email: email.toLowerCase(), text: s };
     }
     return null;
   })();
 
   if ((ev = find("out_of_office"))) {
-    const d = (() => { for (const s of all) { if (/\b(back|return|returning|until|till|away|leave|office|reply)\b/i.test(s)) { const f = findDate(s, today); if (f) return f; } } return null; })();
+    const d = (() => { for (const s of all) { if (/\b(back|return|returning|until|till|away|leave|office|reply|jusqu|retour|hasta|vuelta|at[ée]|volto|bis|zur[üu]ck|fino|tot)\b/i.test(s)) { const f = findDate(s, today); if (f) return f; } } return null; })();
     return res("out_of_office", ev, { date: d?.date || null, dateText: d?.text || null, referral, why: d ? `away until ${d.date}` : "away, no return date given" });
   }
   if ((ev = find("left_company"))) return res("left_company", ev, { referral, why: referral ? `points you to ${referral.email}` : "not the right contact" });
@@ -442,7 +518,7 @@ export function runInbox(input, { triageFn = triage, guessFn = nbGuess } = {}) {
   const replies = Array.isArray(input.replies) ? input.replies : parseReplies(input.replies);
   const table = Array.isArray(input.prospects) ? input.prospects.map((p) => ({ ...p })) : parseCsv(input.prospects);
   const byEmail = new Map(table.filter((p) => p.email).map((p) => [p.email.toLowerCase(), p]));
-  const suppressed = new Set(String(input.suppression || "").split(/[\n,;]+/).map((s) => s.trim().toLowerCase()).filter((s) => s.includes("@")));
+  const suppressedBy = suppressionIndex(input.suppression), suppressedNow = new Set();
   const items = [], suppression = [], deals = [], tasks = [];
   const factsBase = Object.values(offer).join(" \n ");
 
@@ -456,10 +532,22 @@ export function runInbox(input, { triageFn = triage, guessFn = nbGuess } = {}) {
     const set = (k, v, why) => { if (p[k] !== v) { p[k] = v; applied.push(why); } };
     p.last_reply = today;
 
+    // A stop is sticky (2026-11-02). Someone who asked to stop, or whose address bounced, earlier in this batch, in
+    // the table or on the suppression list stays stopped: a later auto-reply must not un-stop them, and a later
+    // "tell me more" gets no draft until a person has read both messages.
+    const key = emailKey(reply.from || p.email);
+    const stopped = !(t.category === "unsubscribe" || t.category === "bounce") && (p.status === "unsubscribed" || p.status === "bounced" || (key && (suppressedNow.has(key) || suppressedBy(reply.from))));
+    if (stopped) {
+      const reopens = t.category === "interested" || t.category === "question" || t.category === "objection";
+      if (reopens) tasks.push({ email: p.email, task: `${p.email} asked to stop (or bounced) and has now written again: "${t.evidence || reply.body.split(/\n/)[0].slice(0, 120)}". Nothing was drafted and nothing was sent. Read both messages and decide; honour the first request unless they clearly asked to hear from you.` });
+      items.push({ n: i + 1, from: reply.from, name: reply.name, subject: reply.subject, body: reply.body, triage: t, applied: ["Left as stopped: they asked to stop (or bounced) earlier, and nothing in this message changes that"], draft: null, lint: null, approval: "nothing_to_send", known: Boolean(known) });
+      continue;
+    }
+
     switch (t.category) {
       case "unsubscribe":
         set("status", "unsubscribed", "Stopped every touch to this person");
-        if (reply.from && !suppressed.has(reply.from)) { suppressed.add(reply.from); suppression.push({ email: reply.from, reason: "asked to stop", date: today, evidence: t.evidence }); applied.push("Added to your suppression list, with their words as the record"); }
+        if (reply.from && !suppressedBy(reply.from) && !suppressedNow.has(emailKey(reply.from))) { suppressedNow.add(emailKey(reply.from)); suppression.push({ email: reply.from, reason: "asked to stop", date: today, evidence: t.evidence }); applied.push("Added to your suppression list, with their words as the record"); }
         break;
       case "bounce":
         set("status", "bounced", "Stopped email to this address");

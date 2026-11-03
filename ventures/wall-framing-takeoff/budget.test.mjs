@@ -101,6 +101,23 @@ test("drywall sheets are budgeted once", () => {
   assert.equal(lines[0].amount, lines[0].qty * 10);
 });
 
+test("drywall screws, tape, compound and bead are priced from the engine's own counts, only when typed", () => {
+  const dw = { ceiling: [{ width: 480, depth: 336 }], openingBead: true };
+  const b = bud({ ...full({ drywallScrewThousand: 12, drywallTapeRoll: 5, drywallCompoundPail: 18, cornerBeadStick: 3 }), drywall: dw });
+  const get = (n) => b.lines.find((l) => l.item === n);
+  const screws = get("Drywall screws (per 1,000)");
+  assert.ok(screws.qty > 0);
+  assert.ok(Math.abs(screws.amount - screws.qty * 12) < 0.1); // qty is shown to 2 places
+  for (const [n, p] of [["Drywall tape rolls", 5], ["Joint compound pails", 18], ["Corner bead sticks", 3]]) {
+    const l = get(n);
+    if (n === "Corner bead sticks" && !l) continue;
+    assert.ok(l.qty >= 1, n);
+    assert.equal(l.amount, l.qty * p, n);
+  }
+  const none = bud({ ...full({ drywallSheet: 10 }), drywall: dw });
+  assert.equal(none.lines.find((l) => l.item === "Drywall tape rolls").amount, null);
+});
+
 test("anchor bolts are budgeted from the foundation count at the typed price", () => {
   const plan = full({ anchorBolt: 2.5 });
   plan.foundation = { ...plan.foundation, anchorBolts: {} };
@@ -146,4 +163,264 @@ test("labor lines for drywall sheets and insulation bags use the typed rates, an
   assert.equal(b.labor, +(b.sections.find((s) => s.name === "Labor").subtotal).toFixed(2));
   const none = bud({ ...plan, prices: { drywallSheet: 10 } });
   assert.ok(!none.lines.some((l) => l.section === "Labor"));
+});
+
+test("labor lines for siding (sq ft) and trim (linear ft) use the typed rates and are not taxed", () => {
+  const plan = { ...full({ laborSidingSqFt: 3, laborTrimFoot: 1.5 }), siding: {}, trim: {} };
+  const b = bud(plan);
+  const ls = b.lines.find((l) => l.item === "Siding and house wrap installation");
+  const lt = b.lines.find((l) => l.item === "Trim installation");
+  assert.ok(ls && lt, "both labor lines appear");
+  assert.ok(Math.abs(ls.amount - ls.qty * 3) <= 0.02);
+  assert.ok(Math.abs(lt.amount - lt.qty * 1.5) <= 0.02);
+  const none = bud({ ...plan, prices: { laborTrimFoot: 1.5 } });
+  assert.ok(!none.lines.some((l) => l.item === "Siding and house wrap installation" && l.amount > 0));
+});
+
+test("labor lines for eaves (fascia run) and gutters (run feet) use the typed rates and are not taxed", () => {
+  const plan = { ...full({ laborEavesFoot: 2, laborGutterFoot: 4 }), eaves: {}, gutters: {} };
+  const b = bud(plan);
+  const le = b.lines.find((l) => l.item === "Fascia, soffit and J-channel installation");
+  const lg = b.lines.find((l) => l.item === "Gutter and downspout installation");
+  assert.ok(le && lg, "both labor lines appear");
+  assert.ok(le.qty > 0 && lg.qty > 0);
+  assert.ok(Math.abs(le.amount - le.qty * 2) <= 0.02);
+  assert.ok(Math.abs(lg.amount - lg.qty * 4) <= 0.02);
+  const none = bud({ ...plan, prices: {} });
+  assert.ok(!none.lines.some((l) => l.section === "Labor"));
+});
+
+test("labor line for hold-downs and plate straps uses the typed rate and is not taxed", () => {
+  const b = bud({ ...full({ laborHoldDown: 12 }), fasteners: { holdDowns: { wallEnds: true }, plateStraps: true } });
+  const l = b.lines.find((x) => x.item === "Hold-down and plate strap installation");
+  assert.ok(l, "hardware labor line appears");
+  assert.ok(l.qty > 0);
+  assert.ok(Math.abs(l.amount - l.qty * 12) <= 0.02);
+});
+
+test("labor line for wall sheathing uses the typed per-sheet rate", () => {
+  const b = bud({ ...full({ laborWallSheet: 9 }) });
+  const sh = b.lines.find((x) => x.item === "Wall sheathing sheets");
+  const l = b.lines.find((x) => x.item === "Wall sheathing installation");
+  assert.ok(sh, "fixture has sheathing");
+  assert.ok(l, "sheathing labor line appears");
+  assert.equal(l.qty, sh.qty);
+  assert.ok(Math.abs(l.amount - l.qty * 9) <= 0.02);
+  assert.ok(!bud({ ...full({}) }).lines.some((x) => x.item === "Wall sheathing installation"));
+});
+
+test("labor line for stairs counts risers, both flights of a landing stair, at the typed rate", () => {
+  const plan = { ...full({ laborStairRiser: 85 }), stairs: [{ id: "Main", totalRise: 108, width: 36 }, { id: "Tall", totalRise: 200, width: 36, landing: { width: 36, depth: 36 } }] };
+  const out = run(plan, "--sheathing", "--stairs", "--budget", "--json");
+  const r = JSON.parse(out.out);
+  const l = r.lines.find((x) => x.item === "Stair building and installation");
+  assert.ok(l, out.out.slice(0, 300));
+  assert.ok(l.qty >= 14 + 26 - 2 && l.qty < 60);
+  assert.ok(Math.abs(l.amount - l.qty * 85) <= 0.02);
+  assert.ok(!bud({ ...full({}), stairs: plan.stairs }).lines.some((x) => x.item === "Stair building and installation"));
+});
+
+test("the page's price-name help lists every price name the engine reads", () => {
+  const src = readFileSync(new URL("./budget.mjs", import.meta.url), "utf8");
+  const page = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  const names = [...new Set([...src.matchAll(/P\("([A-Za-z]+)"\)/g)].map((m) => m[1]))];
+  assert.ok(names.length > 40);
+  const missing = names.filter((n) => !page.includes(n));
+  assert.deepEqual(missing, []);
+});
+
+test("deck lines: lumber order cost, footing bags and screw boxes tie to the deck layout; labor uses the typed per-sq-ft rate", async () => {
+  const { sampleDeck, layoutDeck } = await import("./deck.mjs");
+  const d = layoutDeck(sampleDeck());
+  const plan = { ...full({ deckConcreteBag: 6, deckScrewBox: 40, laborDeckSqFt: 15 }), deck: sampleDeck() };
+  const b = bud(plan);
+  const lum = b.lines.find((x) => x.section === "Deck" && x.item.startsWith("Deck lumber"));
+  const bags = b.lines.find((x) => x.item === "Footing concrete bags");
+  const box = b.lines.find((x) => x.item === "Deck screw boxes");
+  const lab = b.lines.find((x) => x.item === "Deck framing, decking and rails");
+  assert.ok(lum && bags && box && lab, "deck lines appear");
+  assert.ok(Math.abs(lum.amount - d.cost) <= 0.05, `${lum.amount} vs ${d.cost}`);
+  assert.equal(bags.qty, d.concrete.bags);
+  assert.ok(Math.abs(bags.amount - bags.qty * 6) <= 0.02);
+  assert.equal(box.qty, d.screwBoxes);
+  assert.equal(lab.qty, Math.round(d.area * 100) / 100);
+  assert.ok(Math.abs(lab.amount - lab.qty * 15) <= 0.02);
+  const none = bud({ ...plan, prices: {} });
+  assert.ok(!none.lines.some((x) => x.item === "Deck framing, decking and rails"));
+  assert.ok(!bud(full()).lines.some((x) => x.section === "Deck"));
+});
+
+test("stair connectors and solid risers are priced; stairs labor is counted once", () => {
+  const stairs = [{ totalRise: 108, tread: 10, stringer: "2x12", width: 36, riserBoard: "2x8" }, { totalRise: 60, width: 36 }];
+  const plan = { ...full({ stairConnector: 12, stairRiserBoard: 9, laborStairRiser: 40 }), stairs };
+  const b = bud(plan);
+  const out = JSON.parse(run(plan, "--sheathing", "--json").out);
+  const fl = out.stairs.flatMap((x) => x.flights || [x]);
+  const conn = b.lines.find((x) => x.item.startsWith("Stringer top connectors"));
+  assert.equal(conn.qty, fl.reduce((t, x) => t + x.hardware.topConnectors + x.hardware.footAnchors, 0));
+  assert.ok(Math.abs(conn.amount - conn.qty * 12) <= 0.02);
+  assert.ok(b.lines.some((x) => x.item === "Solid riser boards" && x.amount > 0));
+  assert.equal(b.lines.filter((x) => x.section === "Labor" && x.unit === "risers").length, 1);
+});
+
+test("stair balusters, guard posts and handrail brackets are priced from the rail layout", () => {
+  const stairs = [{ totalRise: 108, tread: 10, stringer: "2x12", width: 36, rail: { sides: 1 } }];
+  const plan = { ...full({ stairBaluster: 4, stairRailPost: 25, handrailBracket: 10, handrailFoot: 5 }), stairs };
+  const b = bud(plan);
+  const out = JSON.parse(run(plan, "--sheathing", "--json").out);
+  const fl = out.stairs.flatMap((x) => x.flights || [x]);
+  const n = (f) => fl.reduce((t, x) => t + f(x), 0);
+  const bal = b.lines.find((x) => x.item === "Stair balusters");
+  const post = b.lines.find((x) => x.item === "Stair guard posts");
+  const brk = b.lines.find((x) => x.item === "Handrail wall brackets");
+  assert.equal(bal.qty, n((x) => x.rail.balusters.count));
+  assert.equal(post.qty, n((x) => x.rail.posts.count));
+  assert.equal(brk.qty, n((x) => x.rail.handrail.brackets));
+  assert.ok(Math.abs(bal.amount - bal.qty * 4) <= 0.02 && bal.qty > 0);
+  const hr = b.lines.find((x) => x.item === "Handrail");
+  assert.ok(Math.abs(hr.qty - n((x) => x.rail.handrail.length) / 12) <= 0.06 && hr.qty > 0);
+  assert.ok(Math.abs(hr.amount - hr.qty * 5) <= 0.02);
+  assert.ok(!bud(full({ stairBaluster: 4 })).lines.some((x) => x.item === "Stair balusters"));
+});
+
+test("dormer framing is priced by board feet and its roof by area, typed prices only", () => {
+  const dormer = { ok: true, parts: [{ part: "ridge", size: "2x8", length: 96, count: 1 }, { part: "stud", size: "2x4", length: 48, count: 4 }], areas: { roofSqFt: 50 } };
+  const b = budget({ orders: [], dormer }, { dormerBoardFoot: 2, dormerRoofSqFt: 3 });
+  // 2x8 x 96 in = 2*8*96/144 = 10.667 bf; 4 x (2*4*48/144 = 2.667) = 10.667 bf; total 21.33 bf
+  const l = b.lines.find((x) => x.item === "Dormer framing lumber");
+  assert.equal(l.qty, 21.33);
+  assert.equal(l.amount, 42.67); // 21.333 bf x 2 = 42.667
+  assert.equal(b.lines.find((x) => x.item === "Dormer roof area").amount, 150);
+  const none = budget({ orders: [], dormer }, {});
+  assert.ok(none.unpriced.some((u) => u.startsWith("Dormer framing lumber")));
+});
+
+test("dormer labor is a typed rate times the dormer roof area, unpriced without a rate", () => {
+  const dormer = { ok: true, parts: [], areas: { roofSqFt: 50 } };
+  const b = budget({ orders: [], dormer }, { laborDormerSqFt: 7 });
+  const l = b.lines.find((x) => x.item === "Dormer framing and roofing");
+  assert.equal(l.amount, 350);
+  const none = budget({ orders: [], dormer }, { laborWallFoot: 1 });
+  assert.equal(none.lines.find((x) => x.item === "Dormer framing and roofing").amount, null);
+});
+
+test("cost per sq ft of floor framed is total over the floor model's subfloor area", () => {
+  const plan = full({ floorSheet: 30, tax: 0.1 });
+  const b = bud(plan);
+  assert.ok(b.floorSqFt > 0);
+  assert.equal(b.perFloorSqFt, +(b.total / b.floorSqFt).toFixed(2));
+  assert.match(budgetText(b).join("\n"), /Per sq ft of floor framed .*partial/);
+  const noFloor = budget({ ...samplePlan(), orders: [], summary: {} }, {});
+  assert.equal(noFloor.perFloorSqFt, null);
+});
+
+test("each section reports its share of the priced lines, summing to about 100", () => {
+  const b = bud(full({ floorSheet: 30, concreteYd: 150, laborWallFoot: 5 }));
+  const sum = b.sections.reduce((t, x) => t + x.share, 0);
+  assert.ok(Math.abs(sum - 100) < 0.5, String(sum));
+  const priced = b.sections.reduce((t, x) => t + x.subtotal, 0);
+  const lab = b.sections.find((x) => x.name === "Labor");
+  assert.equal(lab.share, Math.round((1000 * lab.subtotal) / priced) / 10);
+  assert.match(budgetText(b).join("\n"), /Labor [\d.]+ \(\d+\.\d%\)/);
+  assert.equal(budget({ orders: [], summary: {} }, {}).sections.every((x) => x.share === 0), true);
+});
+
+test("overhead then profit give a bid price; profit is a share of the bid", () => {
+  const b0 = bud(full({ laborWallFoot: 10, tax: 0.07, contingency: 0.05 }));
+  const b = bud(full({ laborWallFoot: 10, tax: 0.07, contingency: 0.05, overhead: 0.1, profit: 0.1 }));
+  assert.equal(b.total, b0.total);
+  assert.equal(b0.bid, b0.total);
+  assert.equal(b.overhead, +(b.total * 0.1).toFixed(2));
+  assert.equal(b.profit, +((b.total + b.overhead) * 0.1).toFixed(2));
+  assert.equal(b.bid, +(b.total + b.overhead + b.profit).toFixed(2));
+  assert.ok(Math.abs(b.marginPct - 100 * 0.1 * 1.1 / 1.21) < 0.01); // 10% on 110% of cost = 9.09% of the bid
+  const text = run(full({ overhead: 0.1, profit: 0.1 }), "--sheathing", "--budget").out;
+  assert.match(text, /bid price/);
+  assert.match(budgetCsv(b), /Bid price/);
+});
+
+test("cost per linear foot of wall is the whole total over summary.wallFeet", () => {
+  const plan = full({ floorSheet: 30, tax: 0.1 });
+  const b = bud(plan);
+  assert.ok(b.wallFeet > 0);
+  assert.equal(b.perWallFoot, +(b.total / b.wallFeet).toFixed(2));
+  assert.match(budgetText(b).join("\n"), /Per linear foot of wall/);
+  const none = budget({ ...samplePlan(), orders: [], summary: {} }, {});
+  assert.equal(none.perWallFoot, null);
+});
+
+test("typed allowances (permit, delivery) add to cost untaxed, before overhead and profit", () => {
+  const base = bud(full({ tax: 0.1, overhead: 0.1, profit: 0.1 }));
+  const withA = bud({ ...full({ tax: 0.1, overhead: 0.1, profit: 0.1 }), allowances: { Permit: 1200, Delivery: 300.5, Bad: -5, Zero: 0 } });
+  assert.equal(withA.allowances, 1500.5);
+  assert.equal(withA.tax, base.tax);
+  assert.ok(Math.abs(withA.total - (base.total + 1500.5)) < 0.02);
+  assert.ok(Math.abs(withA.overhead - withA.total * 0.1) < 0.02);
+  assert.equal(withA.lines.filter((l) => l.section === "Allowances").length, 2);
+  assert.equal(base.allowances, 0);
+  assert.match(budgetText(withA).join("\n"), /allowances 1500.50/);
+  assert.match(budgetText(base).join("\n"), /type them under `allowances`/);
+});
+
+test("labor share is labor over the cost total, null without labor", () => {
+  const b = bud({ ...full({ laborWallSheet: 9 }) });
+  assert.ok(b.labor > 0);
+  assert.equal(b.laborPct, Math.round(10000 * b.labor / b.total) / 100);
+  assert.ok(budgetText(b).some((x) => x.includes("Labor share of the cost total")));
+  assert.equal(bud({ ...full({}) }).laborPct, null);
+});
+
+test("bid price per sq ft of floor appears only when overhead or profit lifts the bid above cost", () => {
+  const plain = bud(full({ floorSheet: 30 }));
+  assert.equal(plain.bidPerFloorSqFt, null);
+  const b = bud(full({ floorSheet: 30, overhead: 0.1, profit: 0.1 }));
+  assert.ok(b.bid > b.total);
+  assert.equal(b.bidPerFloorSqFt, +(b.bid / b.floorSqFt).toFixed(2));
+  assert.ok(b.bidPerFloorSqFt > b.perFloorSqFt);
+  assert.match(budgetText(b).join("\n"), /Bid price per sq ft of floor framed/);
+});
+
+test("bid price per foot of wall appears only when overhead or profit lifts the bid above cost", () => {
+  const plain = bud(full({ floorSheet: 30 }));
+  assert.equal(plain.bidPerWallFoot, null);
+  const b = bud(full({ floorSheet: 30, overhead: 0.1, profit: 0.1 }));
+  assert.ok(b.wallFeet > 0);
+  assert.equal(b.bidPerWallFoot, +(b.bid / b.wallFeet).toFixed(2));
+  assert.ok(b.bidPerWallFoot > b.perWallFoot);
+  assert.match(budgetText(b).join("\n"), /Bid price per linear foot of wall/);
+});
+
+test("labor line for setting doors and windows counts framed openings (kings / 2) at the typed rate", () => {
+  const b = bud(full({ laborOpening: 85 }));
+  const l = b.lines.find((x) => x.item === "Door and window setting");
+  assert.ok(l, "opening labor line appears");
+  assert.equal(l.qty, 12); // the sample plan frames 12 openings (24 king studs)
+  assert.equal(l.amount, 1020); // 12 x 85 by hand
+  assert.ok(!bud(full()).lines.some((x) => x.item === "Door and window setting"));
+});
+
+test("attic ventilation is priced from the ventilation counts: typed prices, hand product", () => {
+  const plan = { ...full({ ridgeVent: 14, soffitVent: 3, rafterBaffle: 2 }), ventilation: {} };
+  const ventOf = (p) => JSON.parse(run(p, "--sheathing", "--budget", "--ventilation", "--json").out);
+  const lines = ventOf(plan).lines;
+  const v = JSON.parse(run(plan, "--sheathing", "--ventilation", "--json").out).ventilation;
+  assert.ok(v.ok && v.ridgePieces > 0 && v.soffitUnits > 0);
+  const rv = lines.find((x) => x.item === "Ridge vent");
+  const sv = lines.find((x) => x.item === "Soffit vents");
+  assert.equal(rv.qty, v.ridgePieces);
+  assert.ok(Math.abs(rv.amount - v.ridgePieces * 14) <= 0.02);
+  assert.ok(Math.abs(sv.amount - v.soffitUnits * 3) <= 0.02);
+  if (v.baffles > 0) assert.ok(Math.abs(lines.find((x) => x.item === "Rafter baffles").amount - v.baffles * 2) <= 0.02);
+  const none = ventOf({ ...plan, prices: {} }).lines;
+  assert.equal(none.find((x) => x.item === "Ridge vent").amount, null, "no price typed: listed unpriced, not guessed");
+});
+
+test("a misspelt price name is reported as ignored, with the nearest name it reads", () => {
+  const b = bud(full({ laborWallFoo: 12, laborOpening: 85 }));
+  const ig = b.ignoredPrices.find((x) => x.name === "laborWallFoo");
+  assert.ok(ig, "typo listed");
+  assert.equal(ig.didYouMean, "laborWallFoot");
+  assert.ok(!b.ignoredPrices.some((x) => x.name === "laborOpening"), "a used rate is not listed");
+  assert.match(budgetText(b).join("\n"), /changed nothing[^\n]*laborWallFoo \(did you mean laborWallFoot\?\)/);
+  assert.deepEqual(bud(full()).ignoredPrices.filter((x) => x.name === "laborWallFoo"), []);
 });

@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01AcxTtJ7cdBccAaQvsKm6VD",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled run: read prompt.md",
+  "input_sha256": "286f8d6d52bd7fa2ab98708ea1499a41fef0fa8a7f2e6bb8ed79854aae75a7d6",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T10:08:43Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12065",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Did not run full CI-equivalent locally; ran node --test stairs.test.mjs (49/49) only, since the change is confined to stairs.mjs."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-31-landing-posts-column-check.md"
+  ],
+  "goal": null,
+  "notes": "Landing post NDS Cp check, hand-tested. Flagship next: was not rewritten (open items list already names post sizing).",
+  "corrections": [],
+  "redteam": null
+}

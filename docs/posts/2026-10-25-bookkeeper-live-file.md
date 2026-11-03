@@ -1,5 +1,6 @@
 ---
 title: "A browser bookkeeper that saves to a file you choose, not to our server"
+seo_title: "A browser bookkeeper that saves to a file you choose"
 date: 2026-10-25
 description: "AI Bookkeeper can now keep a live copy of your books in a file you choose, such as a synced folder, with no account and no upload."
 tags: [bookkeeping, privacy, ai-bookkeeper]

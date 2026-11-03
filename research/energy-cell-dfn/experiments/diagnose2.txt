@@ -1,0 +1,37 @@
+[random4] x=[56.338, 0.245, 0.214, 1.053]  SPMe logged 98.4  DFN 103.3
+   SPMe: V(t=0)=4.033  neg stoich=0.907  pos stoich=0.266
+   DFN: V(t=0)=4.035  neg stoich=0.907  pos stoich=0.266
+   SPMe Wh by cycle 1,2,5,10,20,50,100: 13.17, 7.74, 7.63, 7.34, 6.72, 5.36, 4.21
+[bayes4] x=[51.161, 0.299, 0.201, 1.059]  SPMe logged 95.3  DFN 100.1
+   SPMe: V(t=0)=4.029  neg stoich=0.907  pos stoich=0.266
+   DFN: V(t=0)=4.030  neg stoich=0.907  pos stoich=0.266
+   SPMe Wh by cycle 1,2,5,10,20,50,100: 12.02, 7.09, 6.98, 6.74, 6.19, 4.88, 3.80
+[bayes2] x=[55.995, 0.208, 0.212, 0.974]  SPMe logged 89.6  DFN 93.5
+   SPMe: V(t=0)=4.029  neg stoich=0.908  pos stoich=0.266
+   DFN: V(t=0)=4.031  neg stoich=0.908  pos stoich=0.266
+   SPMe Wh by cycle 1,2,5,10,20,50,100: 12.25, 6.78, 6.61, 6.33, 5.83, 4.68, 3.78
+[random0] x=[51.471, 0.373, 0.396, 1.283]  SPMe logged 84.2  DFN 85.9
+   SPMe: V(t=0)=4.027  neg stoich=0.907  pos stoich=0.266
+   DFN: V(t=0)=4.028  neg stoich=0.907  pos stoich=0.266
+   SPMe Wh by cycle 1,2,5,10,20,50,100: 10.75, 6.36, 6.26, 6.10, 5.60, 4.42, 3.42
+[bayes0] x=[143.958, 0.226, 0.389, 1.289]  SPMe logged 80.1  DFN 141.7
+   SPMe: V(t=0)=4.058  neg stoich=0.908  pos stoich=0.266
+   DFN: V(t=0)=4.063  neg stoich=0.908  pos stoich=0.266
+   SPMe Wh by cycle 1,2,5,10,20,50,100: 21.19, 11.80, 11.88, 12.01, 11.30, 9.08, 7.11
+[random1] x=[149.614, 0.249, 0.251, 0.929]  SPMe logged 27.6  DFN 129.9
+   SPMe: V(t=0)=4.049  neg stoich=0.908  pos stoich=0.266
+   DFN: V(t=0)=4.055  neg stoich=0.908  pos stoich=0.266
+   SPMe Wh by cycle 1,2,5,10,20,50,100: 20.51, 3.03, 2.15, 2.08, 2.25, 2.26, 2.28
+[bayes3] x=[113.125, 0.288, 0.204, 1.16]  SPMe logged 18.9  DFN 145.5
+   SPMe: V(t=0)=4.052  neg stoich=0.906  pos stoich=0.266
+   DFN: V(t=0)=4.059  neg stoich=0.906  pos stoich=0.266
+   SPMe Wh by cycle 1,2,5,10,20,50,100: 29.16, 0.22, 1.31, 1.32, 1.32, 1.33, 1.33
+[random0] x=[137.648, 0.212, 0.267, 0.96]  SPMe logged 0.0  DFN 127.9
+   SPMe: V(t=0)=4.047  neg stoich=0.909  pos stoich=0.266
+   DFN: V(t=0)=4.054  neg stoich=0.909  pos stoich=0.266
+[bayes1] x=[149.696, 0.201, 0.389, 1.299]  SPMe logged 0.0  DFN 139.4
+   SPMe: V(t=0)=4.054  neg stoich=0.908  pos stoich=0.266
+   DFN: V(t=0)=4.061  neg stoich=0.908  pos stoich=0.266
+[bayes1] x=[138.708, 0.209, 0.204, 1.282]  SPMe logged 0.0  DFN 120.5
+   SPMe: V(t=0)=4.046  neg stoich=0.906  pos stoich=0.266
+   DFN: V(t=0)=4.059  neg stoich=0.906  pos stoich=0.266

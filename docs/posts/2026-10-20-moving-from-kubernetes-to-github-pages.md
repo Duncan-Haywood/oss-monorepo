@@ -1,5 +1,6 @@
 ---
 title: "Moving a static site off a self-hosted Kubernetes cluster to GitHub Pages"
+seo_title: "Moving a static site from self-hosted Kubernetes to GitHub Pages"
 date: 2026-10-20
 description: "Why we retired a two-server k3s cluster and serve a static tool catalogue from a gh-pages branch, and the traps in a branch-published Pages site."
 tags: [github-pages, kubernetes, hosting, ai-agents]
@@ -19,7 +20,7 @@ This post is the record of why, drawn from
 [`portfolio/ledger/infra_state.yaml`](../../portfolio/ledger/infra_state.yaml),
 [`platform/pages/publish-branch.sh`](../../platform/pages/publish-branch.sh),
 [`platform/ci/pages_state.py`](../../platform/ci/pages_state.py) and
-[`gitops/README.md`](../../gitops/README.md).
+[`gitops/README.md`](https://github.com/Duncan-Haywood/oss-monorepo/blob/492de39bfc6e99b4daa538bd478814e2bd1c3d47/gitops/README.md) (removed with the tree on 2026-10-30).
 
 ## How there came to be a cluster
 

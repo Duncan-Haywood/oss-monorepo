@@ -1,0 +1,73 @@
+{
+  "label": "session B r2",
+  "probed_at": "2026-10-30T22:12:58Z",
+  "specs": {
+    "hostname": "vm",
+    "kernel": "6.18.44-fc-v185",
+    "hypervisor": "KVM",
+    "firecracker": true,
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "cpu_mhz_reported": 2100.0,
+    "cpu_family_model_stepping": [
+      "6",
+      "207",
+      "2"
+    ],
+    "vcpus": 4,
+    "threads_per_core": "1",
+    "l2": "8 MiB (4 instances)",
+    "l3": "260 MiB (1 instance)",
+    "avx2": true,
+    "avx512f": true,
+    "avx512_vnni": true,
+    "amx": true,
+    "sha_ni": true,
+    "cpu_generation_guess": "Emerald Rapids",
+    "mem_total_gib": 15.71,
+    "mem_available_gib": 15.16,
+    "process_cgroup_mem_limit_gib": 13.36,
+    "swap_gib": 0.0,
+    "shm_gib": 15.7,
+    "root_fs_size_gib": 252.0,
+    "root_fs_used_gib": 10.0,
+    "root_fs_avail_gib": 28.5,
+    "gpu": null,
+    "uptime_s": 35.27,
+    "python": "3.13.17",
+    "node": "v22.22.0"
+  },
+  "cpu": {
+    "sha256_mb_s_1core": 1438.0,
+    "sha256_mb_s_2proc": 2791.5,
+    "scaling_2proc": 1.94,
+    "sha256_mb_s_4proc": 5273.0,
+    "scaling_4proc": 3.67,
+    "sha256_mb_s_8proc": 5651.8,
+    "scaling_8proc": 3.93,
+    "py_loop_10m_s": 0.59
+  },
+  "memory": {
+    "first_touch_gib_s": 0.2,
+    "warm_memcpy_gib_s": 9.04,
+    "allocated_and_touched_gib": 9.5,
+    "alloc_gib_s": 0.2
+  },
+  "disk": {
+    "seq_write_fsync_mb_s": 680.5,
+    "seq_read_mb_s": 2451.2,
+    "fsync_4k_per_s": 4480,
+    "create_small_files_per_s": 43149
+  },
+  "network": {
+    "https_proxy_set": true,
+    "npm_registry_fetch_s_median": 0.108,
+    "npm_registry_body_kb": 6936,
+    "npm_registry_mb_s": 76.7
+  },
+  "shed_designer_node_suite": {
+    "tests": 409,
+    "concurrency_1_wall_s": 399.0,
+    "concurrency_4_wall_s": 150.0
+  },
+  "source": "reported verbatim by child cloud session session_01XpHqye1Qdj271VVpYNV6yp; its container had restarted (uptime 35 s) between rounds"
+}

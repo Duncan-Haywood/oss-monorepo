@@ -55,6 +55,6 @@ will carry the same local-only, DNT-respecting counters as its siblings.
 
 ## Status
 
-`stage: prototype` in [`VENTURE.yaml`](VENTURE.yaml). Next: a browser page
-(port of `check.py` with a parity test, as in `actions-timeout-check`) and an
-`llms.txt`.
+`stage: prototype` in [`VENTURE.yaml`](VENTURE.yaml). An `llms.txt` landed
+2026-10-31. Next: a browser page (port of `check.py` with a parity test, as in
+`actions-timeout-check`).

@@ -1961,10 +1961,10 @@ export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToH
   }
   for (const r of rows) { r.form = formString(r.index, results, 5); r.streak = streakOf(formString(r.index, results, Infinity)); r.gd = r.gf - r.ga; r.adj = adjustments[r.index] ?? 0; r.points += r.adj; }
   if (headToHead) {
-    const level = new Map();
-    for (const r of rows) level.set(r.points, [...(level.get(r.points) ?? []), r.index]);
-    for (const group of level.values()) {
-      if (group.length < 2) continue;
+    // Mini-table of only the matches inside a tied group; a subset still level after it is split again by
+    // the matches among just those teams (the UEFA/FIFA method), then the overall tiebreaks.
+    for (const r of rows) r.h2hLevels = [];
+    const resolve = (group) => {
       const set = new Set(group);
       const mini = new Map(group.map((i) => [i, { pts: 0, gf: 0, ga: 0 }]));
       for (const r of results) {
@@ -1976,15 +1976,64 @@ export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToH
         else if (r.ga < r.gb) { B.pts += win; A.pts += loss; }
         else { A.pts += draw; B.pts += draw; }
       }
-      for (const i of group) { const m = mini.get(i); rows[i].h2h = { points: m.pts, gd: m.gf - m.ga, gf: m.gf }; }
+      const parts = new Map();
+      for (const i of group) {
+        const m = mini.get(i);
+        const lv = [m.pts, m.gf - m.ga, m.gf];
+        rows[i].h2hLevels.push(lv);
+        const k = lv.join("|");
+        parts.set(k, [...(parts.get(k) ?? []), i]);
+      }
+      if (parts.size > 1) for (const sub of parts.values()) if (sub.length > 1) resolve(sub);
+    };
+    const level = new Map();
+    for (const r of rows) level.set(r.points, [...(level.get(r.points) ?? []), r.index]);
+    for (const group of level.values()) {
+      if (group.length < 2) continue;
+      resolve(group);
+      for (const i of group) { const [p, d, f] = rows[i].h2hLevels[0]; rows[i].h2h = { points: p, gd: d, gf: f }; }
     }
   }
-  const h = (r) => r.h2h ?? { points: 0, gd: 0, gf: 0 };
-  rows.sort((x, y) => y.points - x.points
-    || h(y).points - h(x).points || h(y).gd - h(x).gd || h(y).gf - h(x).gf
+  const h2hCmp = (x, y) => {
+    const lx = x.h2hLevels ?? [], ly = y.h2hLevels ?? [];
+    for (let k = 0; k < Math.max(lx.length, ly.length); k++) {
+      const p = lx[k] ?? [0, 0, 0], q = ly[k] ?? [0, 0, 0];
+      const d = q[0] - p[0] || q[1] - p[1] || q[2] - p[2];
+      if (d) return d;
+    }
+    return 0;
+  };
+  rows.sort((x, y) => y.points - x.points || h2hCmp(x, y)
     || y.gd - x.gd || y.gf - x.gf || x.index - y.index);
+  for (const r of rows) delete r.h2hLevels;
   rows.forEach((r, i) => { r.rank = i + 1; });
   return rows;
+}
+
+/**
+ * Why each team sits above the next one, from `standings(...)` rows. One note per adjacent pair that is
+ * level on points, naming the first tie-break that separated them (head to head when the table was built
+ * with it, then goal difference, then goals for); pairs level on all of those are listed in entry order and
+ * flagged `unresolved` so an organiser knows a coin toss or a play-off is still needed.
+ * Returns [{ above, below, rank, by, unresolved, text }].
+ */
+export function tieBreakNotes(rows) {
+  const out = [];
+  for (let i = 0; i + 1 < rows.length; i++) {
+    const a = rows[i], b = rows[i + 1];
+    if (a.points !== b.points) continue;
+    let by, detail;
+    if (a.h2h && b.h2h && (a.h2h.points !== b.h2h.points || a.h2h.gd !== b.h2h.gd || a.h2h.gf !== b.h2h.gf)) {
+      by = "head to head";
+      detail = `${a.h2h.points} v ${b.h2h.points} points, goal difference ${a.h2h.gd} v ${b.h2h.gd}, goals ${a.h2h.gf} v ${b.h2h.gf} among the tied teams`;
+    } else if (a.gd !== b.gd) { by = "goal difference"; detail = `${a.gd} v ${b.gd}`; }
+    else if (a.gf !== b.gf) { by = "goals for"; detail = `${a.gf} v ${b.gf}`; }
+    else if (a.h2h && b.h2h) { by = "head to head"; detail = "a deeper head-to-head mini-table among the tied teams"; }
+    else { by = "entry order"; detail = "level on every tie-break"; }
+    const unresolved = by === "entry order";
+    out.push({ above: a.name, below: b.name, rank: a.rank, by, unresolved, text: `${a.name} is above ${b.name} on ${by} (${detail}).${unresolved ? " Still level: decide it by a play-off or a draw." : ""}` });
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------- playoff race

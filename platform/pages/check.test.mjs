@@ -861,81 +861,44 @@ test('entities are counted as the one character a reader sees', async () => {
   assert.deepEqual(mentioning(problems, 'character budget'), [], description);
 });
 
-// ---- How nginx will type each served file ---------------------------------
+// ---- Every served extension has a known type --------------------------------
 //
-// The two bugs this generalizes both shipped: `.mjs` and `.webmanifest` are
-// absent from nginx's mime.types, so the pod served them as
-// application/octet-stream, and with nosniff set a browser refuses the module
-// outright. Neither reproduced on GitHub Pages, which types both correctly.
-
-const nginxWith = (...extensions) =>
-  extensions
-    .map((ext) => `      location ~ \\${ext}$ {\n        types { }\n        default_type text/x-thing;\n      }\n`)
-    .join('');
+// The two bugs this generalizes both shipped on the retired nginx origin:
+// `.mjs` and `.webmanifest` were served as application/octet-stream, and with
+// nosniff set a browser refuses the module outright.
 
 test('an extension nothing knows how to type fails the check', () => {
-  const problems = checkServedExtensions(['tool/model.glb'], nginxWith('.mjs'));
+  const problems = checkServedExtensions(['tool/model.glb']);
   assert.equal(problems.length, 1);
-  assert.match(problems[0], /nothing says how nginx should type "\.glb"/);
+  assert.match(problems[0], /nothing says how the site should type "\.glb"/);
   // The message has to carry the fix, because the person who trips it is
-  // adding an asset to a venture and has no reason to know nginx's mime.types.
+  // adding an asset to a venture and has no reason to know about MIME types.
   assert.match(problems[0], /SERVED_EXTENSIONS/);
-  assert.match(problems[0], /gitops\/prod\/portfolio-site\.yaml/);
 });
 
-test('a conf-typed extension whose location block was deleted fails the check', () => {
-  // The regression that reopens the original bug: the allowlist still claims
-  // `.mjs` is handled, but the manifest no longer handles it.
-  const problems = checkServedExtensions(['tool/calc.mjs'], nginxWith('.webmanifest'));
-  assert.equal(problems.length, 1);
-  assert.match(problems[0], /"\.mjs" is marked 'conf'/);
-  assert.match(problems[0], /application\/octet-stream/);
-});
-
-test('a location block that lost its types/default_type pair does not count', () => {
-  // `types { }` extends the inherited map; a block without it (or without the
-  // default_type) is present in the file but types nothing, which is exactly
-  // the shape a careless edit leaves behind.
-  const hollow = '      location ~ \\.mjs$ {\n        add_header X-Frame-Options DENY always;\n      }\n';
-  const problems = checkServedExtensions(['tool/calc.mjs'], hollow);
-  assert.equal(problems.length, 1);
-  assert.match(problems[0], /marked 'conf'/);
-});
-
-test('stock extensions need no location block', () => {
-  // nginx's own mime.types covers these, so requiring a block for them would
-  // be noise that trains people to add empty ones.
+test('common extensions pass', () => {
   const files = ['a.html', 'b.css', 'c.js', 'd.json', 'e.xml', 'f.txt', 'g.png', 'h.svg', 'i.ico', 'j.pdf'];
-  assert.deepEqual(checkServedExtensions(files, ''), []);
+  assert.deepEqual(checkServedExtensions(files), []);
 });
 
 test('a dotfile with no extension is not flagged', () => {
-  // path.extname('.nojekyll') is '', and the file is never linked; nginx's
-  // default_type is right for it. Flagging it would be a false positive on
-  // every build.
-  assert.deepEqual(checkServedExtensions(['.nojekyll'], ''), []);
-});
-
-test('the allowlist still applies when the manifest is not on disk', () => {
-  // `check.mjs --dist=` run against a downloaded artifact has no repo checkout
-  // to cross-check against. The extension allowlist is still meaningful there;
-  // only the manifest half is skipped.
-  assert.deepEqual(checkServedExtensions(['tool/calc.mjs'], null), []);
-  assert.match(checkServedExtensions(['tool/model.glb'], null)[0], /nothing says how/);
+  // path.extname('.nojekyll') is '', and the file is never linked. Flagging
+  // it would be a false positive on every build.
+  assert.deepEqual(checkServedExtensions(['.nojekyll']), []);
 });
 
 test('each extension is reported once, not once per file', () => {
   // 552 .mjs files must not produce 552 problems.
   const files = Array.from({ length: 50 }, (_, i) => `tool/a${i}.glb`);
-  assert.equal(checkServedExtensions(files, '').length, 1);
+  assert.equal(checkServedExtensions(files).length, 1);
 });
 
 test('a file the leak check already condemns is not also reported as untyped', () => {
   // Each defect gets reported once, by the check that owns it. `VENTURE.yaml`
-  // should not ship at all; answering "how should nginx type .yaml" would bury
+  // should not ship at all; answering "how should the site type .yaml" would bury
   // the actual fix, which is to delete it.
-  assert.deepEqual(checkServedExtensions(['tool/VENTURE.yaml', 'tool/README.md'], ''), []);
-  assert.deepEqual(checkServedExtensions(['tool/node_modules/left-pad/x.ts'], ''), []);
+  assert.deepEqual(checkServedExtensions(['tool/VENTURE.yaml', 'tool/README.md']), []);
+  assert.deepEqual(checkServedExtensions(['tool/node_modules/left-pad/x.ts']), []);
 });
 
 // ---------------------------------------------------------------------------

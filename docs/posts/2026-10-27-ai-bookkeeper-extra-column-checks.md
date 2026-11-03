@@ -1,5 +1,6 @@
 ---
 title: "ai-bookkeeper: two more checks that a bank file's layout can change without changing the books"
+seo_title: "ai-bookkeeper: two checks for bank file layout changes"
 date: 2026-10-27
 description: "An unused column, or a signed amount split into debit and credit columns, must not change what ai-bookkeeper reads. Both hold on every fixture."
 tags: [ai-bookkeeper, testing, bank-import]

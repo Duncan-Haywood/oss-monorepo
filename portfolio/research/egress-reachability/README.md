@@ -245,6 +245,19 @@ the policy is still a settings toggle, so a row is worth re-probing when
 something suggests the toggle moved (the owner says so, or a host that should
 be denied answers). Absent such a signal, cite the table.
 
+**Amendment, 2026-10-31 — the policy moved.** The owner granted the
+read-only allowlist ask (`asks.yaml`, `egress-policy`: "absolutely fine") and
+a full re-probe the same day found **94 of 98 hosts reachable**
+([results-2026-10-31.json](results-2026-10-31.json)). 68 hosts changed from
+the prior consensus, all from denied to reachable; none went the other way.
+Still blocked: `api.ecosyste.ms` and `clickpy-api.clickhouse.com` (proxy 502,
+denied) and `github.com` / `codeload.github.com` (scope-denied by the GitHub
+proxy, by design: use the MCP tools or `add_repo`). `www.ftc.gov` counts as
+reachable but answers 403 from its own Akamai bot screen; that is the site's
+choice, not our proxy, and is not something to work around. The four
+merchant-of-record and payment APIs (`api.polar.sh`, `api.lemonsqueezy.com`,
+`api.paddle.com`, `api.stripe.com`) now answer too.
+
 Re-run `consolidate.py --probe` before citing any row; it takes about two
 minutes and updates the whole table at once. **Do not write a new probe
 directory** — add hosts to the inventory this one already builds.

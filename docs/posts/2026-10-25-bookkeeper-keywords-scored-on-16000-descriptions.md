@@ -1,5 +1,6 @@
 ---
 title: "We scored our bookkeeper's keyword rules on 16,000 descriptions someone else wrote"
+seo_title: "Bookkeeper keyword rules scored on 16,000 outside descriptions"
 date: 2026-10-25
 description: "ai-bookkeeper's built-in categorizer suggested an account for 27% of held-out bank lines and was right 85% of the time. Three fixes later: 53% and 99%."
 tags: [ai-bookkeeper, evaluation, bookkeeping, open-data]

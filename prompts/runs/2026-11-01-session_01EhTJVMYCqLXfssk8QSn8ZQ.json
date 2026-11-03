@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01EhTJVMYCqLXfssk8QSn8ZQ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T18:58:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen sales-agent (flagship 3): voice on the call section (M7c)",
+  "projects": [
+    "sales-agent"
+  ],
+  "pr": 12392,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "ventures/sales-agent",
+      "why": "venture-preflight not run (5+ min); change is one page section and a pure module",
+      "did": "ran the venture's own tests and a Chromium click",
+      "result": "pass"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Chose sales-agent over wall-framing-takeoff (283 commits in 7d, micro-slices). ROADMAP M7 'page section for prep and follow-up' was already done; stale text fixed. Verified: node --test page/voice/usage/dockerfile tests 20 pass; Chromium click with stubbed SpeechRecognition. Full CI and venture-preflight not run locally.",
+  "corrections": [],
+  "redteam": null
+}

@@ -97,7 +97,7 @@ def find_figure(slug):
                 return found[0]
     return None
 
-SITE_NAME = "Open Tools and Research"
+SITE_NAME = "Maris Stella Labs"
 
 # Self-hosted, not Google Fonts. Every research page used to block its first
 # paint on a stylesheet from fonts.googleapis.com and then fetch the faces from

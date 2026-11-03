@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01E5sJKiR7g1AHs6oik7bW7K",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T04:19:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12250",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Review route was due but an open 'prompts: review 2026-10-31' PR existed; had to scan 80KB of PR list output to find it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Routed with --skip-review because another run's review PR is open.",
+      "did": "Took ventures track, flagship 1 slice.",
+      "result": "Landed stringer bearing check, 60/60 tests."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-01-where-a-stair-stringer-bears.md"
+  ],
+  "goal": null,
+  "notes": "Ran stairs.test.mjs only; flagships.yaml next: unchanged (still accurate).",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,5 +1,6 @@
 ---
 title: "We tried our BAI2 reader on four public bank files and it miscounted accounts"
+seo_title: "We tried our BAI2 reader on four public bank files"
 date: 2026-10-24
 description: "A bookkeeping parser written from memory of the BAI2 layout met four real-shaped sample files. It read the money right and got one thing wrong."
 tags: [bookkeeping, bai2, testing, open-source]

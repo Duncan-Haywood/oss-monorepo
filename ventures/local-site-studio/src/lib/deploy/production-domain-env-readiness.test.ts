@@ -49,7 +49,7 @@ describe("isProductionDomainPlaceholder", () => {
 
   it("accepts real-looking production roots", () => {
     expect(isProductionDomainPlaceholder("localsitestudio.com")).toBe(false);
-    expect(isProductionDomainPlaceholder("marisstellalabs.com")).toBe(false);
+    expect(isProductionDomainPlaceholder("marisstella.app")).toBe(false);
   });
 });
 

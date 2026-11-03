@@ -329,3 +329,76 @@ rank everything. The correlation is over rated items only and falls from 0.88
 to 0.73 as more items enter at default rating, which is not a ranking quality
 claim. Reproduce: `scripts/test-db.sh start`, then
 `DEEP_OUT=/tmp/o.txt DEEP_ANSWERS=1000 npx vitest run -c vitest.integration.config.ts src/app/api/trials/deepBudget`.
+
+### Through the route, several respondents with noise and slot bias (2026-11-01)
+
+`src/app/api/trials/noisyRespondents.integration.test.ts`: 60 items, the
+`staged` selector, 3 respondents per condition x 200 answers each, through the
+real `trials/next` and `trials/answer` routes against local Postgres 16. Hidden
+order: lower sort order wins. "Lapse" is a random answer instead of the true
+one; "bias" is always answering the top slot with that probability. Rank
+quality is Spearman between the hidden order and the stored rating over the
+items each respondent rated (mean of 3).
+
+| condition | Spearman | top-slot share of answers |
+|---|---|---|
+| clean | 0.772 | 0.51 |
+| 20% lapse | 0.708 | 0.54 |
+| 50% top-slot bias | 0.527 | 0.76 |
+| 80% top-slot bias | 0.065 | 0.93 |
+
+Reading: the unbiased person sits at 0.51 (the route shuffles slots), so the
+`>= 0.7` fallback has no reason to fire for them; 20% lapse costs 0.06 of
+Spearman; a 50% bias is heavy damage and an 80% bias leaves almost no signal,
+which no selector can recover. Honest limits: synthetic answers, 3 respondents
+per cell, one seed set, 60 items. This does **not** isolate the fallback: there
+is no run with the fallback switched off to compare, so it shows the share the
+route sees, not what the fallback saved. Reproduce: `scripts/test-db.sh start`,
+then `NOISY_OUT=/tmp/o.txt npx vitest run -c vitest.integration.config.ts src/app/api/trials/noisyRespondents`
+(about 50 s).
+
+### The fallback switched off, as a control (2026-11-02)
+
+Same test, two added conditions: the biased respondents again with the route
+calling the staged selector without their first-option share (a `vi.mock` of
+`selectNextPairHybrid` that drops `firstOptionShare`), so it never falls back
+to the shipped selector. Same 60 items, 3 respondents x 200 answers, local
+Postgres 16. The 2026-11-01 table above used a different seed per condition
+name, so its numbers differ slightly from the clean/lapse/bias rows here.
+
+| condition | fallback on | fallback off |
+|---|---|---|
+| clean (share 0.51) | 0.777 | not run (cannot fire) |
+| 20% lapse | 0.629 | not run (cannot fire) |
+| 50% top-slot bias (share 0.77 / 0.74) | 0.492 | 0.482 |
+| 80% top-slot bias (share 0.93 / 0.91) | 0.266 | 0.096 |
+
+Reading: at 80% bias the fallback keeps 0.17 of Spearman that the information
+selector alone loses (0.266 against 0.096); at 50% bias the difference (0.010)
+is inside the noise of 3 respondents. So the fallback earns its keep on heavy
+bias and does nothing measurable at moderate bias. Honest limits: 3
+respondents per cell, one seed set, synthetic answers, 60 items, 200 answers;
+the 2026-11-01 run had clean at 0.772 and lapse at 0.708 on other seeds, so a
+0.06 to 0.08 spread between seed sets is normal here and the 50% row is not
+distinguishable. Not run: 1000+ items.
+Reproduce as above (about 70 s).
+
+### The same at 1000 items (2026-11-02)
+
+Same test with `NOISY_ITEMS=1000 NOISY_ANSWERS=1000 NOISY_RESPONDENTS=3` (the
+test now reads these; defaults stay 60/200/3). 3 respondents x 1000 answers
+per condition, through the real routes and local Postgres 16, 602 s in all.
+At 1000 answers on 1000 items each item is seen about twice, so these are
+low-data ranks and not comparable with the 60-item table.
+
+| condition | top-slot share | Spearman, fallback on | fallback off |
+|---|---|---|---|
+| clean | 0.48 | 0.619 | not run |
+| 20% lapse | 0.50 | 0.443 | not run |
+| 50% top-slot bias | 0.76 | 0.374 | 0.312 |
+| 80% top-slot bias | 0.91 | 0.212 | 0.060 |
+
+Reading: the fallback helps at both bias levels here (+0.06 at 50%, +0.15 at
+80%), where at 60 items the 50% case showed no difference. One seed set and 3
+respondents per cell, so treat the 50% gap as suggestive. Reproduce:
+`NOISY_ITEMS=1000 NOISY_ANSWERS=1000 NOISY_OUT=/tmp/o.txt npx vitest run -c vitest.integration.config.ts src/app/api/trials/noisyRespondents`.

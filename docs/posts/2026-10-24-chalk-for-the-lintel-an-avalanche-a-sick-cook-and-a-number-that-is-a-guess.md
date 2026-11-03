@@ -1,5 +1,6 @@
 ---
 title: "Chalk for the Lintel: a short story about an avalanche forecast, a sick cook and a number that is a guess"
+seo_title: "Chalk for the Lintel: a short story about an avalanche forecast"
 date: 2026-10-24
 description: "New Hearth & Horizon story: an alpine hospice, a slope with a strength-to-load ratio of 1.09, and an AI that says no to a rescue and shows its arithmetic."
 tags: [fiction, hearth-and-horizon, avalanche, risk]

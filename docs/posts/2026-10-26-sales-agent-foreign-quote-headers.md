@@ -1,5 +1,6 @@
 ---
 title: "A Russian quote header made our reply reader think the prospect wrote the whole history"
+seo_title: "A Russian quote header fooled our sales reply reader"
 date: 2026-10-26
 description: "Testing sales-agent's quote stripper on 12 real mail-client emails from mailgun/talon found one miss: non-English 'wrote:' lines. Fixed, with tests."
 tags: [sales-agent, email, testing, open-source]

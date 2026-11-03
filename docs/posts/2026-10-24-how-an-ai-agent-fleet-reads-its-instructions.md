@@ -1,5 +1,6 @@
 ---
 title: "How an AI agent fleet reads its instructions, and where the system leaks"
+seo_title: "How an AI agent fleet reads its instructions, and where it leaks"
 date: 2026-10-24
 description: "How about sixteen unattended AI coding runs an hour read 47 instruction files in seven layers, and five places 2,603 run records say the system leaks."
 tags: [ai-agents, prompting, documentation, process, analysis]

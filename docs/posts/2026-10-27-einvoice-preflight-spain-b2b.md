@@ -1,5 +1,6 @@
 ---
 title: "Spain's B2B e-invoicing dates are now fixed, and the Spain page says so"
+seo_title: "Spain's B2B e-invoicing dates are fixed; the Spain page says so"
 date: 2026-10-27
 description: "Order HAC/1028/2026 sets 6 October 2027 and 6 October 2028. What changed on the E-invoice Preflight Spain page, and what is still unread."
 tags: [einvoice-preflight, e-invoicing, spain]

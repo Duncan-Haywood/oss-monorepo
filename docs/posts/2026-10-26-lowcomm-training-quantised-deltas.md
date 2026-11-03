@@ -1,5 +1,6 @@
 ---
 title: "One sign bit per coordinate matches full precision in low-communication training, 2 bits with error feedback does not"
+seo_title: "One sign bit per coordinate matches full precision training"
 date: 2026-10-26
 description: "On a small GPT trained with 4 workers, 4-bit and 1-bit sign deltas match full precision; error feedback on 2-bit costs 0.87 nats."
 tags: [lowcomm-training, research, diloco, compression]

@@ -15,6 +15,9 @@ concurrency:
   cancel-in-progress: false
 jobs:
   publish:
+    # Secrets live in the `publish` environment, limited to main
+    # (docs/security/agent-hardening.md, step 4).
+    environment: publish
     permissions:
       contents: read
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}

@@ -1,6 +1,6 @@
 """Milestone 9i: does an output-error fit beat the 9h equation-error least squares on the same noisy free response?
 
-    PY experiments/output_error_fit/run.py > experiments/output_error_fit/results.txt     (run from research/aerolog-scaling)
+    PY experiments/output_error_fit/run.py > experiments/output_error_fit/results.txt     (run from research/aerolog-scaling; NOISE=0.10 PERIODS=1 reruns the 10% case)
 
 Same 78 designs as 9f. The 4-state model at f = 1 (true tail-slope scale 0.75 or 1.0) is released from an initial
 disturbance, sampled with white sensor noise, and x[k+1] = Phi x[k] is fitted by least squares; the eigenvalues give the
@@ -32,8 +32,9 @@ ts = load("experiments/tail_search/run.py", "ts",
 nm, gm = ts.nm, load("experiments/gust_response/run.py", "gm")
 HS = gm.HS
 SCALES = (0.75,)
-NOISE = (0.03,)
-PERIODS = (1, 2, 4)
+import os
+NOISE = tuple(float(x) for x in os.environ.get("NOISE", "0.03").split(","))
+PERIODS = tuple(int(x) for x in os.environ.get("PERIODS", "1,2,4").split(","))
 DRAWS = 20
 F = np.round(np.arange(0.6, 1.801, 0.05), 2)
 rng = np.random.default_rng(20261030)

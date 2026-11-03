@@ -1,5 +1,6 @@
 ---
 title: "Real drone flights: electrical power scales as mass to the 1.54, as rotor theory says"
+seo_title: "Drone flights: electrical power scales as mass to the 1.54"
 date: 2026-10-27
 description: "On 134 measured cruise flights of a DJI Matrice 100 the fitted mass exponent is 1.54 (95% interval 1.41 to 1.67), consistent with the m^1.5 behind Froude power."
 tags: [research, uav, scaling, digital-twin]

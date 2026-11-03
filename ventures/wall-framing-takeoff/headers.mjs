@@ -49,13 +49,29 @@ export function validateHeaderTable(table) {
  */
 export function resolveHeaders(plan) {
   const out = structuredClone(plan);
-  if (!plan.headerTable) return { ok: true, plan: out, errors: [], rows: [], notes: [] };
-  const errors = validateHeaderTable(plan.headerTable);
+  const byStud = plan.headerTables && typeof plan.headerTables === "object" ? plan.headerTables : {};
+  const anyTable = plan.headerTable || Object.keys(byStud).length || (plan.walls || []).some((w) => w.headerTable);
+  if (!anyTable) return { ok: true, plan: out, errors: [], rows: [], notes: [] };
+  const errors = [];
+  /** Table for a wall: its own `headerTable`, else `headerTables[stud]`, else the plan's `headerTable`. */
+  const tableFor = (wall) => {
+    const own = wall.headerTable ? ["wall " + wall.id, wall.headerTable] : byStud[wall.stud || "2x4"] ? [`headerTables["${wall.stud || "2x4"}"]`, byStud[wall.stud || "2x4"]] : plan.headerTable ? ["headerTable", plan.headerTable] : null;
+    return own;
+  };
+  const checked = new Set();
+  for (const wall of out.walls || []) {
+    const t = tableFor(wall);
+    if (!t || checked.has(t[1])) continue;
+    checked.add(t[1]);
+    for (const e of validateHeaderTable(t[1])) errors.push(t[0] === "headerTable" ? e : `${t[0]}: ${e}`);
+  }
   if (errors.length) return { ok: false, plan: out, errors, rows: [], notes: [] };
-  const table = [...plan.headerTable].sort((a, b) => a.upTo - b.upTo);
   /** @type {{ wall: string, opening: string, span: number, required: string, chosen: string, status: "set"|"ok"|"under" }[]} */
   const rows = [];
   for (const wall of out.walls || []) {
+    const t = tableFor(wall);
+    if (!t) continue;
+    const table = [...t[1]].sort((a, b) => a.upTo - b.upTo);
     for (const op of wall.openings || []) {
       const name = `${wall.id}, ${op.label || op.kind} at ${formatLength(op.offset)}`;
       const row = table.find((r) => r.upTo + EPS >= op.width);

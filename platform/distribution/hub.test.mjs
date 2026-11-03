@@ -8,6 +8,8 @@ import { TEMPLATES, templateOf, toolItem, postItem, variant, digest, glen, pickT
 import { ADAPTERS } from './hub/adapters.mjs';
 import { READERS, reading, scoreboard, arrivals, collect, MIN_POSTS } from './hub/metrics.mjs';
 import { main, parseArgs, gatherItems, planAll, publish, writePack, toCsv, toMarkdown, EMAIL } from './hub.mjs';
+import { kit } from './hub/compose.mjs';
+import { loadPosts } from '../pages/writing.mjs';
 import { REFS } from '../counter/counter.mjs';
 
 const LONG = 'A very long description that keeps going. '.repeat(40);
@@ -284,4 +286,19 @@ test('toMarkdown: "Nothing to post" only when there is a note and no variants', 
   assert.match(toMarkdown({ platform: p, variants: [], note: 'x' }), /Nothing to post\./);
   assert.doesNotMatch(toMarkdown({ platform: p, variants: [v], note: 'x' }), /Nothing to post\./);
   assert.doesNotMatch(toMarkdown({ platform: p, variants: [], note: '' }), /Nothing to post\./);
+});
+
+test('hub kit --out writes each kit as markdown ending in one newline', async () => {
+  const p = loadPosts().find((x) => kit(postItem(x), PLATFORMS));
+  assert.ok(p, 'some real post yields a kit');
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'hub-kit-'));
+  await main(['kit', '--slug', p.slug, '--out', dir], { log: () => {} });
+  const files = await fs.readdir(dir);
+  assert.ok(files.length > 0);
+  for (const f of files) {
+    const text = await fs.readFile(path.join(dir, f), 'utf8');
+    assert.ok(!text.includes('NaN'), 'markdown, not NaN');
+    assert.ok(text.endsWith('\n'), 'ends with a newline');
+    assert.match(text, /## Thread: x/);
+  }
 });

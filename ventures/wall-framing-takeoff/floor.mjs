@@ -16,7 +16,7 @@ import { THICK, EPS, DEPTH, optimizeStock, formatLength, formatInches } from "./
 const DOUBLE = 2 * THICK;
 export const SHEET = { width: 48, length: 96 };
 
-/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, blockingRows?: number, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
+/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, cantilever?: number, headerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, hangerCapacity?: number, bearingCapacity?: number, stairReaction?: number, stairReactionLive?: number, stairSide?: "front"|"back", tieForce?: number, tieCapacity?: number, cantDeflLimit?: number }, blockingRows?: number, hangerNails?: { single?: number, double?: number }, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], penetrations?: { type: "hole"|"notch", at: number, size: number, length?: number, fromEdge?: number, end?: boolean }[], limits?: { hole?: number, holeEdge?: number, notch?: number, endNotch?: number, notchLength?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
 
 export function sampleFloor() {
   return { id: "Main floor", width: 480, depth: 336, joist: "2x10", spacing: 16, rim: true, beam: 168, blockingRows: 0 };
@@ -25,10 +25,14 @@ export function sampleFloor() {
 /** @param {Floor} f @param {{stock: {size: string, length: number}[]}} plan */
 export function validateFloor(f, plan) {
   const errors = [];
+  if (f == null || typeof f !== "object" || Array.isArray(f)) return ["Floor settings are an object."];
+  for (const k of ["width", "depth", "beam"]) if (f[k] != null && typeof f[k] !== "number") errors.push(`Floor ${k} must be a number of inches.`);
   if (!(f.width >= 24 && f.width <= 1200)) errors.push("Floor width must be between 2 ft and 100 ft.");
   if (!(f.depth >= 24 && f.depth <= 1200)) errors.push("Floor depth (the joist direction) must be between 2 ft and 100 ft.");
   if (!(f.joist in DEPTH)) errors.push(`Unknown joist size ${f.joist}.`);
-  if (!(f.spacing > 0 && f.spacing <= 48)) errors.push("Joist spacing must be between 0 and 48 inches.");
+  if (!(typeof f.spacing === "number" && f.spacing >= 4 && f.spacing <= 48)) errors.push("Joist spacing must be a number between 4 and 48 inches.");
+  if (f.blockingRows != null && !(Number.isInteger(f.blockingRows) && f.blockingRows >= 0 && f.blockingRows <= 20)) errors.push("blockingRows must be a whole number from 0 to 20.");
+  if (f.hangerNails != null) for (const k of ["single", "double"]) if (f.hangerNails[k] != null && !(Number.isInteger(f.hangerNails[k]) && f.hangerNails[k] >= 0 && f.hangerNails[k] <= 100)) errors.push(`hangerNails.${k} must be a whole number of nails from 0 to 100.`);
   for (const x of f.doubleUnder || []) if (!(x > 0 && x < f.width)) errors.push(`A wall at ${x} in for doubled joists must sit inside the floor's ${f.width} in width.`);
   for (const [i, o] of (f.openings || []).entries()) {
     const n = `Opening ${i + 1}`;
@@ -50,10 +54,163 @@ export function validateFloor(f, plan) {
       if (a.x0 < b.x1 - EPS && b.x0 < a.x1 - EPS && a.y0 < b.y1 - EPS && b.y0 < a.y1 - EPS) errors.push(`Opening ${i + 1} and opening ${j + 1} are too close: they would share a trimmer joist or a header. Leave a joist bay or a header's width between them.`);
     }
   }
+  if (f.headerCheck) {
+    const h = f.headerCheck;
+    for (const [k, lo, hi] of [["liveLoad", 1, 200], ["deadLoad", 0, 200], ["Fb", 10, 5000], ["Fv", 1, 500], ["E", 200000, 3000000]]) if (!(h[k] >= lo && h[k] <= hi) || (k === "deadLoad" && h[k] == null)) errors.push(`headerCheck.${k} must be typed, from ${lo} to ${hi} (${k === "liveLoad" || k === "deadLoad" ? "psf" : "psi"}); no default is shipped.`);
+    if (h.hangerCapacity != null && !(h.hangerCapacity > 0 && h.hangerCapacity <= 20000)) errors.push("headerCheck.hangerCapacity is the hanger's allowable load in lb from the maker's table, above 0 and up to 20000.");
+    if (h.bearingCapacity != null && !(h.bearingCapacity > 0 && h.bearingCapacity <= 50000)) errors.push("headerCheck.bearingCapacity is the allowable end reaction of a trimmer joist in lb (bearing on the support, from your engineer or the bearing-area table), above 0 and up to 50000.");
+    if (h.tieForce != null || h.tieCapacity != null) {
+      if (!(h.tieForce > 0 && h.tieForce <= 50000)) errors.push("headerCheck.tieForce is the tension in lb the engineer asks each stairwell header to be tied for, above 0 and up to 50000.");
+      if (!(h.tieCapacity > 0 && h.tieCapacity <= 20000)) errors.push("headerCheck.tieCapacity is one strap or tie's allowable tension in lb from the maker's table, above 0 and up to 20000.");
+    }
+    if (h.cantDeflLimit != null && !(h.cantDeflLimit >= 60 && h.cantDeflLimit <= 480)) errors.push("headerCheck.cantDeflLimit is the L/ ratio on twice the overhang, from 60 to 480.");
+    if (h.deflLimit != null && !(h.deflLimit >= 120 && h.deflLimit <= 960)) errors.push("headerCheck.deflLimit is the L/ ratio, from 120 to 960.");
+    if (h.stairReaction != null) {
+      if (!(h.stairReaction > 0 && h.stairReaction <= 20000)) errors.push("headerCheck.stairReaction is the stair's total top reaction in lb (the stair's stringerCheck.totalReaction), above 0 and up to 20000.");
+      if (h.stairSide !== "front" && h.stairSide !== "back") errors.push("headerCheck.stairSide must be \"front\" or \"back\": the header the stair's top hangs from.");
+      if (h.stairReactionLive != null && !(h.stairReactionLive >= 0 && h.stairReactionLive <= h.stairReaction)) errors.push("headerCheck.stairReactionLive is the live share of the stair reaction, from 0 up to stairReaction.");
+    }
+    if (!(f.openings || []).length && !f.cantilever) errors.push("headerCheck needs at least one opening (a stairwell) or a cantilever.");
+  }
+  if (f.cantilever != null && !(f.cantilever > 0 && f.cantilever <= 96)) errors.push("The cantilever must be between 0 and 8 ft.");
   if (f.beam != null && !(f.beam > 12 && f.beam < f.depth - 12)) errors.push("The beam must sit between 1 ft and 1 ft short of the far edge.");
   const longest = Math.max(0, ...plan.stock.filter((s) => s.size === f.joist).map((s) => s.length));
   if (!longest) errors.push(`No ${f.joist} boards listed in the stock.`);
   return errors;
+}
+
+/**
+ * Bending, shear and deflection of the doubled header at each end of a stairwell, from typed figures only:
+ * `liveLoad` and `deadLoad` in psf, and the lumber's allowable bending `Fb`, shear `Fv` and modulus `E` in psi
+ * (copy them from your span tables or the engineer's schedule, already adjusted for duration, repetition and
+ * wet service; none is shipped). Model: a simple span between the trimmers (the clear width), carrying a
+ * uniform strip of half the tail joists' span at live + dead, two plies of `size`. Deflection is live load
+ * only against L / `deflLimit` (360 unless typed). A stair's own stringer reactions, a wall above and the
+ * trimmers' own load are not in it. `tailSpans[k]` is [front, back] tail length for opening k.
+ */
+export function checkFloorHeaders(size, openings, tailSpans, loads) {
+  const d = DEPTH[size], b = 2 * THICK;
+  const { liveLoad, deadLoad, Fb, Fv, E } = loads;
+  const lim = loads.deflLimit ?? 360;
+  const S = (b * d * d) / 6, A = b * d, I = (b * d ** 3) / 12;
+  const rows = [];
+  for (const [k, o] of openings.entries()) for (const [side, tail] of [["front", tailSpans[k]?.[0]], ["back", tailSpans[k]?.[1]]]) {
+    if (!(tail > 0)) continue;
+    const L = o.clearWidth;
+    const wTot = ((liveLoad + deadLoad) * (tail / 2 / 12)) / 12; // lb per inch: psf x strip width in ft / 12
+    const wLive = ((liveLoad) * (tail / 2 / 12)) / 12;
+    // Stair top reaction (typed): a point load at mid-span of the header the flight hangs from, the worst place for it; its live share defaults to all of it (safe side for deflection).
+    const P = loads.stairReaction != null && loads.stairSide === side ? loads.stairReaction : 0, PL = P ? (loads.stairReactionLive ?? P) : 0;
+    const M = (wTot * L * L) / 8 + (P * L) / 4, V = (wTot * L) / 2 + P / 2;
+    const fb = M / S, fv = (1.5 * V) / A, defl = (5 * wLive * L ** 4) / (384 * E * I) + (PL * L ** 3) / (48 * E * I);
+    const breaks = [];
+    if (fb > Fb) breaks.push(`bending ${fb.toFixed(0)} psi over ${Fb}`);
+    if (fv > Fv) breaks.push(`shear ${fv.toFixed(0)} psi over ${Fv}`);
+    if (defl > L / lim) breaks.push(`live deflection ${defl.toFixed(2)} in over L/${lim} (${(L / lim).toFixed(2)} in)`);
+    const reaction = V; // lb at each end of the header, to a trimmer hanger
+    if (loads.hangerCapacity != null && reaction > loads.hangerCapacity) breaks.push(`end reaction ${reaction.toFixed(0)} lb over the typed hanger capacity ${loads.hangerCapacity} lb`);
+    // Rim/header ties (typed): straps needed = ceil(tieForce / tieCapacity). Neither figure is shipped; nail counts and the load path are the engineer's.
+    const ties = loads.tieForce != null && loads.tieCapacity > 0 ? Math.ceil(loads.tieForce / loads.tieCapacity - 1e-9) : null;
+    rows.push({ opening: k, side, ties, stair: P, y: side === "front" ? o.cut[0] : o.cut[1], reactionLive: (wLive * L) / 2 + PL / 2, span: L, tail, size: `2-${size}`, load: wTot * 12, reaction, fb, fv, defl, ok: !breaks.length, breaks });
+  }
+  return rows;
+}
+
+/**
+ * Doubled trimmer joist beside a stairwell, from typed figures only (same `loads` as `checkFloorHeaders`).
+ * Model: two plies of `size` as a simple span over `span` (the supported joist span, inches), carrying a uniform
+ * strip of half the joist spacing at live + dead, plus the header's end reaction as a point load `a` inches from
+ * the front support (`reactionLive` of it is live, for deflection). Bending is the larger of the moment under the
+ * point load and at the zero-shear point; shear is the support reaction (1.5V/A, no reduction near the support);
+ * live deflection is the largest of the closed-form point-load and uniform-load curves over 200 stations.
+ * Walls above, stair stringer loads and the other header's reaction are not in it.
+ */
+export function checkTrimmer(size, span, a, reaction, reactionLive, spacing, loads) {
+  const d = DEPTH[size], b = 2 * THICK, L = span;
+  const { liveLoad, deadLoad, Fb, Fv, E } = loads;
+  const lim = loads.deflLimit ?? 360;
+  const S = (b * d * d) / 6, A = b * d, I = (b * d ** 3) / 12;
+  const w = ((liveLoad + deadLoad) * (spacing / 2 / 12)) / 12, wL = (liveLoad * (spacing / 2 / 12)) / 12;
+  const P = reaction, c = L - a;
+  const R1 = (w * L) / 2 + (P * c) / L, R2 = (w * L) / 2 + (P * a) / L;
+  const mAt = (x) => R1 * x - (w * x * x) / 2 - (x > a ? P * (x - a) : 0);
+  const xz = R1 / w; // zero shear if left of the load, else under it
+  const M = Math.max(mAt(a), xz < a ? mAt(xz) : 0);
+  const V = Math.max(R1, R2);
+  const pt = (Pp, x) => { const [aa, cc] = x <= a ? [a, c] : [c, a]; const xx = x <= a ? x : L - x; return (Pp * cc * xx * (L * L - cc * cc - xx * xx)) / (6 * E * I * L); };
+  let defl = 0;
+  for (let i = 1; i < 200; i++) { const x = (L * i) / 200; defl = Math.max(defl, pt(reactionLive, x) + (wL * x * (L ** 3 - 2 * L * x * x + x ** 3)) / (24 * E * I)); }
+  const fb = M / S, fv = (1.5 * V) / A, breaks = [];
+  if (fb > Fb) breaks.push(`bending ${fb.toFixed(0)} psi over ${Fb}`);
+  if (fv > Fv) breaks.push(`shear ${fv.toFixed(0)} psi over ${Fv}`);
+  if (defl > L / lim) breaks.push(`live deflection ${defl.toFixed(2)} in over L/${lim} (${(L / lim).toFixed(2)} in)`);
+  const Rmax = Math.max(R1, R2);
+  if (loads.bearingCapacity != null && Rmax > loads.bearingCapacity) breaks.push(`end reaction ${Rmax.toFixed(0)} lb over the typed bearing capacity ${loads.bearingCapacity} lb`);
+  return { size: `2-${size}`, span: L, a, point: P, uniform: w * 12, moment: M, fb, fv, defl, reactions: [R1, R2], ok: !breaks.length, breaks };
+}
+
+/**
+ * One cantilevered joist, from typed figures only (same `loads` as `checkFloorHeaders`; `cantDeflLimit` is the
+ * L/ ratio on twice the overhang, 180 unless typed). Model: a single `size` joist, simple span `backspan` between
+ * its two supports with `a` inches hanging past the far one, a half-spacing strip of load on each side.
+ * Bending is the larger of the negative moment at the support (w a^2 / 2) and the backspan's positive moment, both
+ * with live + dead everywhere; shear is the larger of the two sides of the support; tip deflection is live load on
+ * the overhang alone (a loaded backspan would lift the tip, so this is the safe side) as w a^4/8EI plus the
+ * support's rotation times a. `uplift` is the pull on the near support with dead load alone on the backspan and
+ * everything on the overhang (the worst case for it); a positive figure means that support needs a tie-down.
+ * Doubled joists under walls, point loads on the tip (a wall or a balcony rail post) and bearing are not in it.
+ */
+export function checkCantilever(size, backspan, a, spacing, loads) {
+  const d = DEPTH[size], b = THICK, Lb = backspan;
+  const { liveLoad, deadLoad, Fb, Fv, E } = loads;
+  const lim = loads.cantDeflLimit ?? 180;
+  const S = (b * d * d) / 6, A = b * d, I = (b * d ** 3) / 12;
+  const strip = spacing / 144; // psf to lb per inch on one joist
+  const w = (liveLoad + deadLoad) * strip, wL = liveLoad * strip, wD = deadLoad * strip;
+  const Ra = (w * (Lb * Lb - a * a)) / (2 * Lb), Rb = (w * (Lb + a) ** 2) / (2 * Lb);
+  const mNeg = (w * a * a) / 2, mPos = Ra > 0 ? (Ra * Ra) / (2 * w) : 0;
+  const M = Math.max(mNeg, mPos);
+  const V = Math.max(w * a, Math.abs(Ra - w * Lb), Ra);
+  const defl = (wL * a ** 4) / (8 * E * I) + (wL * a * a * Lb * a) / (6 * E * I);
+  const uplift = -(wD * Lb / 2 - (w * a * a) / (2 * Lb));
+  const fb = M / S, fv = (1.5 * V) / A, breaks = [];
+  if (fb > Fb) breaks.push(`bending ${fb.toFixed(0)} psi over ${Fb}`);
+  if (fv > Fv) breaks.push(`shear ${fv.toFixed(0)} psi over ${Fv}`);
+  const allow = (2 * a) / lim;
+  if (defl > allow) breaks.push(`tip deflection ${defl.toFixed(2)} in over 2a/${lim} (${allow.toFixed(2)} in)`);
+  if (loads.bearingCapacity != null && Rb > loads.bearingCapacity) breaks.push(`support reaction ${Rb.toFixed(0)} lb over the typed bearing capacity ${loads.bearingCapacity} lb`);
+  return { size, backspan: Lb, overhang: a, moment: M, fb, fv, defl, deflAllowed: allow, reactions: [Ra, Rb], uplift: Math.max(0, uplift), ok: !breaks.length, breaks };
+}
+
+/**
+ * Holes and notches in a joist of `size` over a clear `span`, against limits you can override (defaults are
+ * the commonly printed residential figures: a hole no wider than 1/3 of the depth and 2 in from the edges, a
+ * notch no deeper than 1/6 of the depth and 1/3 of it long, kept out of the middle third of the span, an end
+ * notch no deeper than 1/4; the code in force for your site decides). `at` is the distance from the nearer
+ * support to the centre of a hole or the nearer end of a notch. Returns one row per item with what it breaks.
+ */
+export function checkPenetrations(size, span, items = [], limits = {}) {
+  const d = DEPTH[size];
+  const L = { hole: 1 / 3, holeEdge: 2, notch: 1 / 6, endNotch: 1 / 4, notchLength: 1 / 3, ...limits };
+  return items.map((p, i) => {
+    const why = [];
+    if (p.type === "hole") {
+      if (p.size > L.hole * d + EPS) why.push(`hole ${formatInches(p.size)} is over ${formatInches(L.hole * d)} (${(100 * L.hole).toFixed(0)}% of the ${formatInches(d)} depth)`);
+      const edge = p.fromEdge ?? (d - p.size) / 2;
+      if (edge < L.holeEdge - EPS || d - edge - p.size < L.holeEdge - EPS) why.push(`hole edge is under ${formatInches(L.holeEdge)} from the top or bottom`);
+      if (p.at < d - EPS) why.push(`hole centre is closer to the support than one joist depth (${formatInches(d)}); a rule of thumb, check your code`);
+    } else if (p.type === "notch") {
+      const end = p.end === true;
+      const max = (end ? L.endNotch : L.notch) * d;
+      if (p.size > max + EPS) why.push(`${end ? "end " : ""}notch ${formatInches(p.size)} deep is over ${formatInches(max)}`);
+      if (!end) {
+        if (p.length != null && p.length > L.notchLength * d + EPS) why.push(`notch ${formatInches(p.length)} long is over ${formatInches(L.notchLength * d)}`);
+        if (p.at > span / 3 - EPS && p.at + (p.length ?? 0) < 2 * span / 3 + EPS) why.push("notch sits in the middle third of the span");
+        else if (p.at + (p.length ?? 0) > span / 3 + EPS && p.at < 2 * span / 3 - EPS) why.push("notch reaches into the middle third of the span");
+      } else if (p.length != null && p.length > d + EPS) why.push(`end notch is longer than the joist is deep`);
+    } else why.push(`unknown type ${p.type}`);
+    return { n: i + 1, ...p, ok: why.length === 0, why };
+  });
 }
 
 /**
@@ -95,11 +252,14 @@ export function layoutFloor(f, plan) {
   const id = f.id || "Floor";
   const rim = f.rim !== false;
   const rimT = rim ? THICK : 0;
+  // `cantilever`: the joists, rim and subfloor run this far past the back support (the far end of `depth`).
+  const cant = f.cantilever || 0;
+  const total = f.depth + cant;
   const longest = Math.max(...plan.stock.filter((s) => s.size === f.joist).map((s) => s.length));
   const centres = joistCentres(f.width, f.spacing);
   const notes = [];
   const joists = [];
-  const spans = f.beam != null ? [[rimT, f.beam], [f.beam, f.depth - rimT]] : [[rimT, f.depth - rimT]];
+  const spans = f.beam != null ? [[rimT, f.beam], [f.beam, total - rimT]] : [[rimT, total - rimT]];
   // An opening (a stairwell: x and y from the left and front edges, width across the joists, depth along them)
   // is bounded by the joist at or beside each side (the trimmers, doubled on the outer side) and a doubled header
   // at each end; joists between the trimmers become tail joists that stop at the headers.
@@ -154,8 +314,8 @@ export function layoutFloor(f, plan) {
   const sheet = { ...SHEET, price: 1, kerf: plan.kerf ?? 0.125, ...(f.sheet || {}) };
   /** @type {{y: number, width: number, pieces?: any[]}[]} */
   const courses = [];
-  const nFull = Math.floor((f.depth + EPS) / sheet.width);
-  const rest = f.depth - nFull * sheet.width;
+  const nFull = Math.floor((total + EPS) / sheet.width);
+  const rest = total - nFull * sheet.width;
   for (let k = 0; k < nFull + (rest > EPS ? 1 : 0); k++) courses.push({ y: k * sheet.width, width: k < nFull ? sheet.width : rest });
   const sheetPieces = [];
   const holes = openings.map((o) => ({ x0: o.left + THICK / 2, x1: o.right - THICK / 2, y0: o.y, y1: o.y + o.depth }));
@@ -201,7 +361,7 @@ export function layoutFloor(f, plan) {
     if (w < sheet.width - EPS) rip += need;
     sheetRows.push({ width: w, count: need, pieces: ps.length });
   }
-  const area = (f.width * f.depth - holes.reduce((a, h) => a + (h.x1 - h.x0) * (h.y1 - h.y0), 0)) / 144;
+  const area = (f.width * total - holes.reduce((a, h) => a + (h.x1 - h.x0) * (h.y1 - h.y0), 0)) / 144;
   const notched = courses.reduce((n, c) => n + (c.pieces || []).filter((p) => p.notches).length, 0);
   const sheetArea = (sheet.width * sheet.length) / 144;
   if (rest > EPS) notes.push(`The last subfloor course is ${formatInches(rest)} wide, ripped from ${rip} sheet${rip === 1 ? "" : "s"}; its long edge runs across the joists, so block or use tongue-and-groove sheets.`);
@@ -211,13 +371,36 @@ export function layoutFloor(f, plan) {
   // Joist hangers: each tail joist hangs from a header at the end that meets an opening's header zone (one hanger),
   // and each doubled header hangs from its trimmers at both ends (a double hanger per end, so four per opening).
   // Counted from the placed members; the model, its load rating and nailing are the engineer's call.
-  const tailEnds = joists.filter((j) => j.tail).reduce((n, j) => n + openings.filter((o) => cutAt(j.x + THICK / 2).includes(o)).reduce((m, o) => m + (Math.abs(j.y + j.length - o.cut[0]) < EPS) + (Math.abs(j.y - o.cut[1]) < EPS), 0), 0);
+  const tailEnds = joists.filter((j) => j.tail).reduce((n, j) => n + openings.filter((o) => cutAt(j.x + THICK / 2).includes(o)).reduce((m, o) => m + Number(Math.abs(j.y + j.length - o.cut[0]) < EPS) + Number(Math.abs(j.y - o.cut[1]) < EPS), 0), 0);
   const headerEnds = openings.length * 4;
-  const hangers = { tail: tailEnds, singles: tailEnds, doubles: headerEnds, count: tailEnds + headerEnds, size: f.joist };
+  const hn = f.hangerNails || null; // nails per hanger, typed from the hanger maker's table (none shipped)
+  const hangers = { tail: tailEnds, singles: tailEnds, doubles: headerEnds, count: tailEnds + headerEnds, size: f.joist, ...(hn ? { nails: tailEnds * (hn.single || 0) + headerEnds * (hn.double || 0), nailsPerSingle: hn.single || 0, nailsPerDouble: hn.double || 0 } : {}) };
+  if (hn && hangers.count) notes.push(`${hangers.nails} hanger nails counted (${hn.single || 0} per single x ${tailEnds}, ${hn.double || 0} per double x ${headerEnds}), from the nail counts you typed; check them against the hanger maker's table for the model and load.`);
+  let headerChecks = null;
+  if (f.headerCheck && openings.length) {
+    const tails = openings.map((o) => [0, 1].map((side) => Math.max(0, ...joists.filter((j) => j.tail && (side === 0 ? Math.abs(j.y + j.length - o.cut[0]) < EPS : Math.abs(j.y - o.cut[1]) < EPS) && j.x + THICK / 2 > o.left - EPS && j.x + THICK / 2 < o.right + EPS).map((j) => j.length))));
+    headerChecks = checkFloorHeaders(f.joist, openings, tails, f.headerCheck);
+    for (const r of headerChecks) notes.push(`Opening ${r.opening + 1} ${r.side} header, ${r.size} over ${formatInches(r.span)} clear carrying ${formatLength(r.tail)} tail joists: ${r.ok ? "passes" : "FAILS"} on your figures (bending ${r.fb.toFixed(0)} psi, shear ${r.fv.toFixed(0)} psi, live deflection ${r.defl.toFixed(2)} in, end reaction ${r.reaction.toFixed(0)} lb each end for the hanger)${r.ok ? "" : `: ${r.breaks.join("; ")}`}${r.ties != null ? `. Ties: ${r.ties} strap${r.ties === 1 ? "" : "s"} at the typed ${f.headerCheck.tieCapacity} lb each for the typed ${f.headerCheck.tieForce} lb` : ""}. Closed-form simple span, uniform half-span strip${r.stair ? `, plus the stair's ${r.stair.toFixed(0)} lb top reaction as a mid-span point load` : "; stair reactions"} and walls above are not in it.`);
+  }
+  let trimmerChecks = null;
+  if (headerChecks) {
+    const span = f.beam != null ? Math.max(f.beam, f.depth - f.beam) : f.depth;
+    trimmerChecks = headerChecks.map((r) => ({ opening: r.opening, side: r.side, ...checkTrimmer(f.joist, span, r.y - rimT, r.reaction, r.reactionLive, f.spacing, f.headerCheck) }));
+    for (const r of trimmerChecks) notes.push(`Opening ${r.opening + 1} trimmer under the ${r.side} header, ${r.size} over ${formatInches(r.span)}: ${r.ok ? "passes" : "FAILS"} on your figures (bending ${r.fb.toFixed(0)} psi, shear ${r.fv.toFixed(0)} psi, live deflection ${r.defl.toFixed(2)} in, ${r.point.toFixed(0)} lb point load from the header)${r.ok ? "" : `: ${r.breaks.join("; ")}`}. One header reaction at a time on a simple span; the other header, stair loads and walls above are not in it.`);
+  }
   if (hangers.count) notes.push(`${hangers.count} joist hanger${hangers.count === 1 ? "" : "s"} counted (${tailEnds} single at tail-joist ends, ${headerEnds} double at header ends), sized for ${f.joist}; model and load rating are the engineer's call.`);
+  let cantileverCheck = null;
+  if (cant && f.headerCheck) {
+    cantileverCheck = checkCantilever(f.joist, f.beam != null ? f.depth - f.beam : f.depth, cant, f.spacing, f.headerCheck);
+    const c = cantileverCheck;
+    notes.push(`Cantilever joist, ${c.size} over a ${formatInches(c.backspan)} backspan with ${formatInches(c.overhang)} out: ${c.ok ? "passes" : "FAILS"} on your figures (bending ${c.fb.toFixed(0)} psi, shear ${c.fv.toFixed(0)} psi, tip deflection ${c.defl.toFixed(2)} in against ${c.deflAllowed.toFixed(2)}, support reaction ${c.reactions[1].toFixed(0)} lb)${c.ok ? "" : `: ${c.breaks.join("; ")}`}${c.uplift > 0 ? `. The near support lifts ${c.uplift.toFixed(0)} lb a joist: it needs a tie-down` : ""}. One joist, uniform load; a wall or post on the tip, doubled joists and the engineer's detailing are not in it.`);
+  }
+  if (cant) notes.push(`Joists cantilever ${formatLength(cant)} past the back support, ${(cant / f.depth).toFixed(2)} of the ${formatLength(f.depth)} supported span${cant > f.depth / 3 + EPS ? "; that is more than a third of it, and a common rule of thumb asks for the backspan to be at least 3 times the overhang, so have the engineer check it" : ""}. Cantilever size, backspan nailing and any tie-down are the engineer's call.`);
+  const pen = f.penetrations?.length ? checkPenetrations(f.joist, f.beam != null ? Math.max(f.beam, f.depth - f.beam) : f.depth, f.penetrations, f.limits) : [];
+  for (const h of pen) if (!h.ok) notes.push(`Joist ${h.type} ${h.n}: ${h.why.join("; ")}. Move it, sleeve it or ask the engineer.`);
   notes.push("Joist size and spacing are your inputs and are not checked against a span table or code; bearing, other hangers and fasteners are not in the takeoff.");
   return {
-    ok: true, hangers, openings, trimmers, id, width: f.width, depth: f.depth, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
+    ok: true, penetrations: pen, hangers, headerChecks, trimmerChecks, cantileverCheck, openings, trimmers, id, width: f.width, depth: total, supportedDepth: f.depth, cantilever: cant, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
     sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 },
     notes,
   };

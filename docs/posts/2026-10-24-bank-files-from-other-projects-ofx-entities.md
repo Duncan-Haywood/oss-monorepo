@@ -1,5 +1,6 @@
 ---
 title: "We read other projects' OFX files with our bookkeeper. It got 13 right and one wrong thing."
+seo_title: "We read other projects' OFX files: 13 right, one wrong thing"
 date: 2026-10-24
 description: "ai-bookkeeper's bank readers checked against sample files from ofxparse and ofxtools: every transaction counted, one character-reference bug fixed."
 tags: [bookkeeping, ofx, testing, open-source]

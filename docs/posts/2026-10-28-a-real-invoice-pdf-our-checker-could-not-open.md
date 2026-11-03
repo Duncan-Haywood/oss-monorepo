@@ -1,5 +1,6 @@
 ---
 title: "A real 2026 invoice PDF our e-invoice checker could not open, and the one-line cause"
+seo_title: "A real 2026 invoice PDF our e-invoice checker could not open"
 date: 2026-10-28
 description: "Mustang's test PDFs include an Aspose.Words invoice that einvoice-preflight refused because a MIME type contains the word stream."
 tags: [einvoice-preflight, factur-x, zugferd, testing]

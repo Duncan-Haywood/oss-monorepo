@@ -1,0 +1,36 @@
+# Control plane: the files that decide what every later agent reads, runs or
+# is allowed to merge. With "Require review from Code Owners" on in the `main`
+# ruleset (.github/rulesets/main.json), a PR touching any of these needs the
+# owner's approval; everything else still merges without review.
+#
+# Why each line is here: docs/security/agent-hardening.md. The guard in
+# platform/ci/control_plane_guard.py fails CI if a line it expects goes
+# missing. The last matching line wins, so the unowned exemptions sit at the
+# bottom.
+
+# Instructions every agent session reads.
+/CLAUDE.md                        @Duncan-Haywood
+/AGENTS.md                        @Duncan-Haywood
+/prompt.md                        @Duncan-Haywood
+**/CLAUDE.md                      @Duncan-Haywood
+**/AGENTS.md                      @Duncan-Haywood
+/prompts/                         @Duncan-Haywood
+
+# Code that agent tools run on their own at session start (hooks, MCP servers).
+/.claude/                         @Duncan-Haywood
+/.cursor/                         @Duncan-Haywood
+/.mcp.json                        @Duncan-Haywood
+/platform/agents/                 @Duncan-Haywood
+
+# CI, secrets, rulesets, and the merge gate itself.
+/.github/                         @Duncan-Haywood
+/platform/ci/agent_review/        @Duncan-Haywood
+/platform/ci/control_plane_guard.py      @Duncan-Haywood
+/platform/ci/test_control_plane_guard.py @Duncan-Haywood
+# agent-pr-auto-merge.yml pip-installs this inside its write-token job.
+/portfolio/router/requirements.txt @Duncan-Haywood
+
+# Data agents write on every run: no owner, so no review.
+/prompts/runs/
+/prompts/derived/
+/prompts/drift/

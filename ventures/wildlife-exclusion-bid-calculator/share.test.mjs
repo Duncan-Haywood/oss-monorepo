@@ -462,3 +462,16 @@ test('the note names the box on screen, not the id in the markup', () => {
     /^your not-included list, payment terms and notes are too long/,
   );
 });
+
+test('a term of exactly the limit still rides in the link; one over is named', () => {
+  assert.deepEqual(overlongTerms({ paymentTerms: 'x'.repeat(MAX_TERM_TEXT) }), []);
+  assert.deepEqual(overlongTerms({ paymentTerms: 'x'.repeat(MAX_TERM_TEXT + 1) }), ['paymentTerms']);
+});
+
+test('loadBid with no storage key reads nothing, even if a blob sits under "undefined"', () => {
+  // Real Storage coerces its key to a string, so getItem(undefined) reads "undefined".
+  const blob = JSON.stringify({ v: 1, values: { area: '48' } });
+  const storage = { getItem: key => (String(key) === 'undefined' ? blob : null) };
+  assert.deepEqual(loadBid(storage, { ...SPEC, key: undefined }), {});
+  assert.deepEqual(loadBid(null, SPEC), {});
+});

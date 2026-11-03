@@ -1,0 +1,128 @@
+Polity5 p5v2018d: 1410 regime spells (gaps -66/-77/-88 removed); 23 already running in 1800 dropped (age unknown); 1387 used, 1225 ended by 2018, 162 still in place.
+
+## 1. Median duration by regime type (Kaplan-Meier, years; censored at end of 2018)
+democracy  n= 349 ended= 251 KM median=  8.9 share lasting 20+ years=0.18 (of all, incl. censored young ones)
+anocracy   n= 615 ended= 572 KM median=  4.8 share lasting 20+ years=0.10 (of all, incl. censored young ones)
+autocracy  n= 423 ended= 402 KM median=  7.3 share lasting 20+ years=0.21 (of all, incl. censored young ones)
+all        n=1387 ended=1225 KM median=  6.2
+
+## 2. Weibull shape k (k < 1: the older a regime, the lower its yearly risk of ending)
+democracy  k=0.806 [0.735, 0.884]  median= 11.6y  AIC weibull 1959.6 vs exponential 1981.5
+anocracy   k=0.855 [0.805, 0.907]  median=  5.7y  AIC weibull 3699.4 vs exponential 3726.6
+autocracy  k=0.952 [0.884, 1.024]  median=  8.5y  AIC weibull 2852.1 vs exponential 2851.9
+all        k=0.855 [0.820, 0.891]  median=  7.6y  AIC weibull 8586.2 vs exponential 8644.8
+Empirical yearly hazard by age band (events / regime-years at risk), all types:
+  age   0-2   years:  236 ends /     2555 regime-years = 0.092 per year
+  age   2-5   years:  344 ends /     2832 regime-years = 0.121 per year
+  age   5-10  years:  288 ends /     2926 regime-years = 0.098 per year
+  age  10-20  years:  204 ends /     3136 regime-years = 0.065 per year
+  age  20-40  years:  112 ends /     2311 regime-years = 0.048 per year
+  age  40-80  years:   35 ends /     1266 regime-years = 0.028 per year
+  age  80-220 years:    6 ends /      316 regime-years = 0.019 per year
+Weibull+type, all spells: k=0.871; hazard ratio vs democracy: anocracy 1.89 [1.63, 2.19], autocracy 1.45 [1.23, 1.69]
+
+## 3. Backtest: P(regime ends within 10 years), fit only on data before each cutoff
+Brier (lower is better), log loss, AUC; base rate = share of regimes in place that ended.
+cutoff 1966: 118 regimes in place, 66 ended by 1976 (base rate 0.56); trained on 597 spells
+   piecewise          Brier 0.240  logloss 0.672  AUC 0.694  mean forecast 0.44
+   piecewise+type     Brier 0.249  logloss 0.783  AUC 0.623  mean forecast 0.42
+   piecewise+type,40y Brier 0.212  logloss 0.702  AUC 0.727  mean forecast 0.46
+   exponential        Brier 0.255  logloss 0.704  AUC 0.550  mean forecast 0.46
+   weibull            Brier 0.252  logloss 0.696  AUC 0.693  mean forecast 0.45
+   exponential+type   Brier 0.253  logloss 0.700  AUC 0.614  mean forecast 0.43
+   weibull+type       Brier 0.251  logloss 0.695  AUC 0.678  mean forecast 0.42
+cutoff 1976: 136 regimes in place, 67 ended by 1986 (base rate 0.49); trained on 736 spells
+   piecewise          Brier 0.234  logloss 0.660  AUC 0.651  mean forecast 0.47
+   piecewise+type     Brier 0.228  logloss 0.643  AUC 0.688  mean forecast 0.44
+   piecewise+type,40y Brier 0.221  logloss 0.631  AUC 0.688  mean forecast 0.46
+   exponential        Brier 0.250  logloss 0.693  AUC 0.436  mean forecast 0.49
+   weibull            Brier 0.244  logloss 0.680  AUC 0.653  mean forecast 0.47
+   exponential+type   Brier 0.238  logloss 0.669  AUC 0.646  mean forecast 0.45
+   weibull+type       Brier 0.236  logloss 0.664  AUC 0.699  mean forecast 0.43
+cutoff 1986: 137 regimes in place, 92 ended by 1996 (base rate 0.67); trained on 856 spells
+   piecewise          Brier 0.252  logloss 0.696  AUC 0.688  mean forecast 0.45
+   piecewise+type     Brier 0.249  logloss 0.682  AUC 0.704  mean forecast 0.41
+   piecewise+type,40y Brier 0.265  logloss 0.894  AUC 0.656  mean forecast 0.44
+   exponential        Brier 0.249  logloss 0.692  AUC 0.520  mean forecast 0.50
+   weibull            Brier 0.252  logloss 0.698  AUC 0.686  mean forecast 0.47
+   exponential+type   Brier 0.252  logloss 0.697  AUC 0.637  mean forecast 0.46
+   weibull+type       Brier 0.260  logloss 0.712  AUC 0.713  mean forecast 0.43
+cutoff 1996: 151 regimes in place, 83 ended by 2006 (base rate 0.55); trained on 1058 spells
+   piecewise          Brier 0.221  logloss 0.632  AUC 0.674  mean forecast 0.51
+   piecewise+type     Brier 0.207  logloss 0.594  AUC 0.721  mean forecast 0.48
+   piecewise+type,40y Brier 0.204  logloss 0.665  AUC 0.721  mean forecast 0.57
+   exponential        Brier 0.248  logloss 0.688  AUC 0.524  mean forecast 0.54
+   weibull            Brier 0.238  logloss 0.670  AUC 0.673  mean forecast 0.52
+   exponential+type   Brier 0.229  logloss 0.650  AUC 0.661  mean forecast 0.49
+   weibull+type       Brier 0.225  logloss 0.641  AUC 0.736  mean forecast 0.47
+cutoff 2006: 154 regimes in place, 67 ended by 2016 (base rate 0.44); trained on 1222 spells
+   piecewise          Brier 0.216  logloss 0.622  AUC 0.720  mean forecast 0.50
+   piecewise+type     Brier 0.208  logloss 0.594  AUC 0.736  mean forecast 0.45
+   piecewise+type,40y Brier 0.211  logloss 0.605  AUC 0.740  mean forecast 0.52
+   exponential        Brier 0.260  logloss 0.713  AUC 0.528  mean forecast 0.55
+   weibull            Brier 0.240  logloss 0.674  AUC 0.720  mean forecast 0.52
+   exponential+type   Brier 0.233  logloss 0.659  AUC 0.621  mean forecast 0.49
+   weibull+type       Brier 0.222  logloss 0.636  AUC 0.715  mean forecast 0.47
+Pooled over cutoffs:
+   piecewise          Brier 0.232  logloss 0.655  AUC 0.663
+   piecewise+type     Brier 0.227  logloss 0.653  AUC 0.686
+   piecewise+type,40y Brier 0.222  logloss 0.696  AUC 0.685
+   exponential        Brier 0.252  logloss 0.698  AUC 0.467
+   weibull            Brier 0.245  logloss 0.683  AUC 0.611
+   exponential+type   Brier 0.240  logloss 0.673  AUC 0.653
+   weibull+type       Brier 0.238  logloss 0.668  AUC 0.697
+   Brier(weibull+type) - Brier(exponential): -0.0147 95% bootstrap [-0.0221, -0.0074] (units resampled, n=696; units repeat across cutoffs)
+   Brier(piecewise) - Brier(weibull+type): -0.0060 95% bootstrap [-0.0128, +0.0007]
+   Brier(piecewise+type) - Brier(weibull+type): -0.0109 95% bootstrap [-0.0156, -0.0064]
+   Brier(piecewise+type,40y) - Brier(weibull+type): -0.0154 95% bootstrap [-0.0262, -0.0048]
+   Brier(weibull+type) - Brier(exponential+type): -0.0026 95% bootstrap [-0.0049, -0.0004]
+   Calibration of weibull+type by forecast quintile (mean forecast -> observed share):
+     0.35 -> 0.24 (n=139)
+     0.39 -> 0.50 (n=139)
+     0.43 -> 0.58 (n=139)
+     0.48 -> 0.65 (n=139)
+     0.58 -> 0.73 (n=140)
+   Calibration of piecewise+type by forecast quintile (mean forecast -> observed share):
+     0.22 -> 0.24 (n=139)
+     0.40 -> 0.54 (n=139)
+     0.46 -> 0.55 (n=139)
+     0.51 -> 0.63 (n=139)
+     0.62 -> 0.73 (n=140)
+   Calibration of piecewise+type,40y by forecast quintile (mean forecast -> observed share):
+     0.14 -> 0.19 (n=139)
+     0.41 -> 0.56 (n=139)
+     0.52 -> 0.60 (n=139)
+     0.60 -> 0.59 (n=139)
+     0.81 -> 0.76 (n=140)
+
+## 4. Forecast from 31 Dec 2018: P(regime spell ends by end of 2028), fit on all spells
+piecewise+type yearly hazard by age band (bands 0-2-5-10-20-40-80-inf years):
+   democracy  0.050 0.095 0.086 0.045 0.029 0.005 0.008
+   anocracy   0.133 0.154 0.111 0.086 0.044 0.047 0.056
+   autocracy  0.071 0.106 0.096 0.064 0.067 0.044 0.046
+162 regimes in place at the end of 2018 (spells begun after 1800); expected number ending by 2028: 67 (0.41 of them) under piecewise+type, 73 under weibull+type, 72 under piecewise+type fitted on 1979-2018 only.
+   democracy  n= 98  mean P(end by 2028)=0.32  median age 14y
+   anocracy   n= 43  mean P(end by 2028)=0.60  median age 6y
+   autocracy  n= 21  mean P(end by 2028)=0.46  median age 24y
+Highest ten (piecewise+type):
+   Fiji                     anocracy   polity   4 since 2019  P=0.72
+   Comoros                  anocracy   polity  -3 since 2019  P=0.72
+   Cuba                     anocracy   polity  -5 since 2018  P=0.71
+   Ethiopia                 anocracy   polity   1 since 2018  P=0.71
+   Cambodia                 anocracy   polity  -4 since 2018  P=0.71
+   Venezuela                anocracy   polity  -3 since 2018  P=0.70
+   Haiti                    anocracy   polity   5 since 2017  P=0.70
+   Gambia                   anocracy   polity   4 since 2017  P=0.70
+   Congo Kinshasa           anocracy   polity  -3 since 2017  P=0.69
+   Turkey                   anocracy   polity  -4 since 2017  P=0.69
+Lowest ten:
+   Finland                  democracy  polity  10 since 1945  P=0.07
+   Netherlands              democracy  polity  10 since 1945  P=0.06
+   Denmark                  democracy  polity  10 since 1945  P=0.06
+   Norway                   democracy  polity  10 since 1945  P=0.06
+   Austria                  democracy  polity  10 since 1946  P=0.06
+   Italy                    democracy  polity  10 since 1948  P=0.06
+   Costa Rica               democracy  polity  10 since 1954  P=0.05
+   Ireland                  democracy  polity  10 since 1953  P=0.05
+   Japan                    democracy  polity  10 since 1952  P=0.05
+   Cyprus                   democracy  polity  10 since 1975  P=0.05

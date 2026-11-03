@@ -33,11 +33,13 @@ import zlib from 'node:zlib';
 import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
+import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
 import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, loadPosts, WRITING_PATH } from './writing.mjs';
 import { buildStories, STORIES_PATH } from './stories.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
+import { buildQueue, QUEUE_PATH } from './queue.mjs';
 import { audienceGroups, audiencePageId, audiencesFor } from './audiences.mjs';
 import {
   FEED_MAX_ENTRIES,
@@ -49,11 +51,10 @@ import {
 
 import { addShareCards, cardTitle, mapLimit, renderCards, siteAddress } from './share.mjs';
 import {
-  MARK_FROM,
   MARK_GEOMETRY,
   renderSiteCard,
-  MARK_TO,
   drawMark,
+  markSvg,
   encodePng as encodeCardPng,
 } from './sharecard.mjs';
 import {
@@ -126,6 +127,7 @@ import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
 import { REFLOW_CSS, WRAP_TABLES_JS, injectReflow } from './reflow.mjs';
 import {
   SITE_NAME,
+  MARK_BG,
   SITE_NAV,
   SITE_HEADER_CSS,
   SITE_STYLE_FILE,
@@ -3818,8 +3820,17 @@ const FALLBACK_CATEGORY = {
   accent: '#3a4552',
 };
 
+// Answered once per slug: the rules depend on the slug alone (the stat-ing one,
+// `shipsDeployableApp`, is already memoised) and every page's related-tools
+// scan asks about every other slug, so ~170 pages x ~170 slugs x 2 lookups.
+const categoryBySlug = new Map();
 export function categoryFor(slug) {
-  return CATEGORY_RULES.find((rule) => rule.test(slug)) ?? FALLBACK_CATEGORY;
+  let hit = categoryBySlug.get(slug);
+  if (hit === undefined) {
+    hit = CATEGORY_RULES.find((rule) => rule.test(slug)) ?? FALLBACK_CATEGORY;
+    categoryBySlug.set(slug, hit);
+  }
+  return hit;
 }
 
 /**
@@ -3920,6 +3931,8 @@ export const ABOUT_PATH = 'about/';
 export { SPONSORS_URL, BUY_ME_A_COFFEE_URL, sponsorsNote };
 // The repository the site is built from, named in the hub's Organization data.
 export const REPO_WEB_URL = 'https://github.com/Duncan-Haywood/oss-monorepo';
+// The person behind the organisation, for the hub's Organization data.
+export const SITE_FOUNDER = 'Duncan Haywood';
 
 /**
  * The one usage event name that is fleet-standard rather than per-product.
@@ -4673,10 +4686,17 @@ const SUBCATEGORY_FALLBACKS = {
  * The sub-group `slug` belongs to, or `null` when its category is small enough
  * that the hub shows one flat list.
  */
+const subcategoryBySlug = new Map();
 export function subcategoryFor(slug) {
-  const rules = SUBCATEGORY_RULES[categoryFor(slug).id];
-  if (!rules) return null;
-  return rules.find((rule) => rule.test(slug)) ?? SUBCATEGORY_FALLBACKS[categoryFor(slug).id];
+  let hit = subcategoryBySlug.get(slug);
+  if (hit === undefined) {
+    const id = categoryFor(slug).id;
+    const rules = SUBCATEGORY_RULES[id];
+    hit = rules ? rules.find((rule) => rule.test(slug)) ?? SUBCATEGORY_FALLBACKS[id] : null;
+    subcategoryBySlug.set(slug, hit ?? null);
+    if (hit === undefined) hit = null;
+  }
+  return hit;
 }
 
 /**
@@ -5744,12 +5764,12 @@ const CATEGORY_STYLE = `
     :root {
       color-scheme: light dark;
       --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
-      --line: #d3dce6; --accent: #12594a; --soft: #656e78;
+      --line: #d3dce6; --accent: #1f4e8c; --soft: #656e78;
       font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     }
     @media (prefers-color-scheme: dark) {
       :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
-              --line: #2a343f; --accent: #7fd8c0; --soft: #8d9aab; }
+              --line: #2a343f; --accent: #9dbfe8; --soft: #8d9aab; }
     }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--ink); }
@@ -6410,7 +6430,7 @@ const TOOLS_INDEX_STYLE = `
     .cats { align-items: start; }
     .cat { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 17px 18px;
            transition: transform .18s, box-shadow .18s, border-color .18s; }
-    .cat { border-top: 3px solid var(--pf-cat, #1fb68f); }
+    .cat { border-top: 3px solid var(--pf-cat, #1f4e8c); }
     .cat:hover, .cat:focus-within { transform: translateY(-2px); border-color: var(--pf-cat, var(--accent));
                                     box-shadow: 0 10px 28px rgba(20, 30, 60, .10); }
     .cat h2 { font-size: 1.1rem; margin: 0 0 6px; letter-spacing: -.01em; }
@@ -7220,6 +7240,17 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
     </header>
 
     <main class="prose">
+      <h2>Who makes this</h2>
+      <p>
+        ${escapeHtml(SITE_NAME)} is a small open-source lab in Colorado, founded
+        and run by Duncan Haywood. AI coding agents build the tools and the
+        research in public, in one
+        <a href="${escapeHtml(REPO_WEB_URL)}">GitHub repository</a>; every change
+        is tested before it ships, and the history of every merge is public.
+        Everything is MIT licensed, so you can use it, change it, or run your own
+        copy as a business of your own.
+      </p>
+
       <h2>What this is</h2>
       <p>
         A working set of ${total} small, single-purpose web tools across
@@ -7423,9 +7454,16 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
         <fieldset>
           <legend>What kind of feedback is it?</legend>
           <label><input type="radio" name="type" value="problem" checked> Something is wrong or broken</label>
-          <label><input type="radio" name="type" value="idea"> An idea or feature request</label>
+          <label><input type="radio" name="type" value="idea"> An idea, a feature, or a tool you want built</label>
+          <label><input type="radio" name="type" value="research"> A research question to investigate</label>
+          <label><input type="radio" name="type" value="topic"> A topic you would like written about</label>
           <label><input type="radio" name="type" value="other"> Something else</label>
         </fieldset>
+        <p class="fb-terms">Ideas, research questions and topics join the
+        <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}`)}">custom development</a> queue,
+        are built free and in public, and come ahead of routine work. What is built is published under the MIT
+        licence with the repository owner's copyright notice; you get no exclusive
+        rights to it.</p>
         <p id="fb-tool-line" hidden>About: <a id="fb-tool-link" href="${escapeHtml(toRoot)}"></a></p>
         <label for="fb-message">Your message</label>
         <textarea id="fb-message" name="message" rows="7" minlength="5" maxlength="4000" required
@@ -7447,6 +7485,8 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
   }
   var f=document.getElementById('fb');${feedbackUrl ? `
   if(!f)return;
+  var want=f.querySelector('input[name=type][value="'+(q.get('type')||'').replace(/[^a-z]/g,'')+'"]');
+  if(want)want.checked=true;
   if(tool){
     var l=document.getElementById('fb-tool-link');
     l.textContent=tool;l.href='${toRoot}'+tool+'/';
@@ -7508,6 +7548,7 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
       <ul>
         <li><a data-fb-issue href="${escapeHtml(`${issueBase}?template=bug.yml`)}">Report a problem</a> (a wrong result, a broken page, something confusing)</li>
         <li><a data-fb-issue href="${escapeHtml(`${issueBase}?template=feature.yml`)}">Suggest a feature or a new tool</a></li>
+        <li><a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}`)}">Request custom development</a> (ask for a tool to be built for your work, and follow its progress)</li>
       </ul>
       <p>Whatever you send is public. Please leave out names, addresses and anything else private.</p>
     </main>
@@ -7535,6 +7576,520 @@ const FEEDBACK_STYLE = `
     #fb button:disabled { opacity: .6; cursor: progress; }
     #fb-status { min-height: 1.5em; margin-top: 10px; }
     .fb-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+`;
+
+/** Where the open custom development page is served, relative to the site root. */
+export const CUSTOM_DEV_PATH = 'custom-development/';
+
+/** A request's own page, relative to the site root: `custom-development/R-0001/`. */
+export function customRequestPath(id) {
+  return `${CUSTOM_DEV_PATH}${id}/`;
+}
+
+/**
+ * What a person can send from the request form, in the order offered. Each
+ * goes to the same no-account endpoint as the feedback page (`platform/edge/`),
+ * so nothing new runs on the server: `type` is the edge's own feedback type,
+ * and the message opens with `[custom-development: <kind>]` so triage
+ * (`prompts/ideas.py`, which lists every `idea`) can tell a request from a
+ * passing remark. `tool` asks for a tool picker, `request` for a request picker,
+ * `licence` for the MIT acknowledgement before sending.
+ */
+export const REQUEST_KINDS = Object.freeze([
+  { id: 'new', type: 'idea', label: 'A new tool for my work', job: 'What job should it do, and for whom?', hint: 'Who does the work today, how, and where existing tools fall short.', licence: true },
+  { id: 'feature', type: 'idea', label: 'A feature for one of the tools here', job: 'What should the tool do that it does not?', hint: 'What you were trying to do, and what got in the way.', tool: true, licence: true },
+  { id: 'research', type: 'research', label: 'A research question to investigate', job: 'What question should be investigated, and why does it matter to you?', hint: 'What you already know, what data might answer it, and what you would do with the answer.', direction: true, licence: true },
+  { id: 'topic', type: 'topic', label: 'A topic to write about', job: 'What should be explained, compared or written up?', hint: 'Who would read it, and what they get wrong or cannot find today.', licence: true },
+  { id: 'preview', type: 'idea', label: 'Feedback on a preview or a request in progress', job: 'What did you try, and what should change?', hint: 'What worked, what did not, and what you expected instead.', request: true, licence: true },
+  { id: 'problem', type: 'problem', label: 'Something is wrong with a tool', job: 'What went wrong?', hint: 'What you entered, what you expected, and what you got.', tool: true },
+]);
+
+/**
+ * Every research direction a research request can build on: the open
+ * programmes in `research/PROGRAMMES.md` (its "Open programmes" table, whose
+ * first column links `<slug>/PROPOSAL.md`), then every project by theme, as
+ * the research index groups them. Only directories that exist are kept.
+ */
+export function researchDirections(repoRoot = REPO_ROOT) {
+  const programmes = [];
+  try {
+    const md = readFileSync(path.join(repoRoot, 'research', 'PROGRAMMES.md'), 'utf8');
+    const open = md.split(/^## /m).find((part) => part.startsWith('Open programmes')) || '';
+    for (const line of open.split('\n')) {
+      const m = line.match(/^\|\s*\[`([a-z0-9-]+)`\]\([^)]*\)\s*\|\s*([^|]+?)\s*\|/);
+      if (m && existsSync(path.join(repoRoot, 'research', m[1]))) programmes.push({ slug: m[1], question: m[2].replace(/\*/g, '') });
+    }
+  } catch { /* no programmes file: themes only */ }
+  const { projects } = researchHighlights(repoRoot);
+  const themes = [];
+  const byTheme = new Map();
+  for (const p of projects) {
+    if (!byTheme.has(p.themeName)) { const t = { name: p.themeName, projects: [] }; byTheme.set(p.themeName, t); themes.push(t); }
+    byTheme.get(p.themeName).projects.push({ slug: p.slug, title: p.title || p.slug });
+  }
+  return { programmes, themes };
+}
+
+/** The `<option>`s of the research direction picker, grouped as `researchDirections` returns them. */
+function renderDirectionOptions({ programmes = [], themes = [] }) {
+  const cut = (t, n) => (t.length > n ? `${t.slice(0, n - 1).trimEnd()}…` : t);
+  const progs = programmes.length
+    ? `<optgroup label="Open research programmes">${programmes.map((p) => `<option value="${escapeHtml(p.slug)}">${escapeHtml(cut(`${p.slug}: ${p.question}`, 110))}</option>`).join('')}</optgroup>`
+    : '';
+  return progs + themes.map((t) => `<optgroup label="${escapeHtml(`${t.name} (${t.projects.length})`)}">${t.projects.map((p) => `<option value="${escapeHtml(p.slug)}">${escapeHtml(cut(p.title, 110))}</option>`).join('')}</optgroup>`).join('');
+}
+
+/** The stages a request moves through, as the stepper draws them. `declined` is shown beside them, not on the line. */
+const REQUEST_STAGES = ['received', 'accepted', 'building', 'shipped'];
+
+/** The site path of the tool a request's project lives at, when that project is a published tool. */
+function requestToolSlug(r, surfaces) {
+  const slug = (r.project || '').replace(/^ventures\//, '').replace(/\/$/, '');
+  return slug && surfaces.some((s) => s.slug === slug) ? slug : '';
+}
+
+function renderRequestStepper(status) {
+  const at = REQUEST_STAGES.indexOf(status);
+  const steps = REQUEST_STAGES.map((s, i) => {
+    const state = status === 'declined' ? '' : i < at ? ' cd-done' : i === at ? ' cd-now' : '';
+    return `<li class="cd-step${state}"${i === at ? ' aria-current="step"' : ''}><span class="cd-dot" aria-hidden="true"></span><span class="cd-step-name">${escapeHtml(s)}</span><span class="cd-step-what">${escapeHtml(REQUEST_STATUSES[s])}</span></li>`;
+  }).join('');
+  const declined = status === 'declined' ? `<p class="cd-declined">Declined. ${escapeHtml(REQUEST_STATUSES.declined)}</p>` : '';
+  return `<ol class="cd-steps" aria-label="Where this request is">${steps}</ol>${declined}`;
+}
+
+/**
+ * The no-account request form, shared by the custom development page and each
+ * request's own page. `fixedRequest` (a request id) preselects "feedback on a
+ * preview" for that request. Rendered only when the build knows the feedback
+ * endpoint, like the feedback page's form, so it never offers a form that goes
+ * nowhere; the GitHub issue form is always linked beside it.
+ */
+function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, directions = { programmes: [], themes: [] }, fixedRequest = '' }) {
+  if (!feedbackUrl) return '';
+  const dirCount = directions.programmes.length + directions.themes.reduce((n, t) => n + t.projects.length, 0);
+  const dirPicker = dirCount ? `
+        <div data-cd-for="direction" hidden>
+          <label for="cdf-dir">Which research direction does it build on? <span class="cd-opt">(optional)</span></label>
+          <p class="cd-hint" id="cdf-dir-hint">All ${dirCount} directions already here: the open programmes first, then every project by theme. Leave it on a new direction if none fits, or browse them on <a href="${escapeHtml(`${toRoot}${RESEARCH_PATH}`)}">the research index</a>.</p>
+          <select id="cdf-dir" name="dir" aria-describedby="cdf-dir-hint"><option value="">A new direction</option>${renderDirectionOptions(directions)}</select>
+        </div>` : '';
+  const kinds = REQUEST_KINDS.map((k) => `
+          <label><input type="radio" name="kind" value="${k.id}"${(fixedRequest ? k.id === 'preview' : k.id === 'new') ? ' checked' : ''}> ${escapeHtml(k.label)}</label>`).join('');
+  const tools = [...surfaces]
+    .sort((a, b) => String(a.title || a.slug).localeCompare(String(b.title || b.slug)))
+    .map((s) => `<option value="${escapeHtml(s.slug)}">${escapeHtml(s.title || s.slug)}</option>`)
+    .join('');
+  const reqs = requests
+    .filter((r) => r.status !== 'declined')
+    .map((r) => `<option value="${escapeHtml(r.id)}"${r.id === fixedRequest ? ' selected' : ''}>${escapeHtml(`${r.id}: ${r.title}`)}</option>`)
+    .join('');
+  return `
+      <form id="cdf" class="panel" novalidate>
+        <h2 id="request">${fixedRequest ? `Feedback on ${escapeHtml(fixedRequest)}, or a new request` : 'Send a request'}</h2>
+        <p>No account needed. What you send is published in <a href="${escapeHtml(REPO_URL)}">the public repository</a>, where the agents that build this site read it. Nothing about you is stored with it, and email addresses are removed. Leave out anything private.</p>
+        <fieldset>
+          <legend>What are you sending?</legend>${kinds}
+        </fieldset>
+        <div data-cd-for="tool" hidden>
+          <label for="cdf-tool">Which tool?</label>
+          <select id="cdf-tool" name="tool"><option value="">Choose a tool</option>${tools}</select>
+        </div>
+        <div data-cd-for="request" hidden>
+          <label for="cdf-req">Which request?</label>
+          <select id="cdf-req" name="req"><option value="">Choose a request</option>${reqs}</select>
+        </div>${dirPicker}
+        <label for="cdf-job" id="cdf-job-label">${escapeHtml(REQUEST_KINDS[0].job)}</label>
+        <p class="cd-hint" id="cdf-job-hint">${escapeHtml(REQUEST_KINDS[0].hint)}</p>
+        <textarea id="cdf-job" name="job" rows="6" maxlength="3000" required aria-describedby="cdf-job-hint"></textarea>
+        <p class="cd-mic-row" hidden><button type="button" class="cd-mic" data-mic="cdf-job" aria-pressed="false">Speak instead of typing</button></p>
+        <label for="cdf-done">How would you know it worked? <span class="cd-opt">(optional)</span></label>
+        <textarea id="cdf-done" name="done" rows="3" maxlength="600" placeholder="A number it should get right, a document it should read, a step it should save."></textarea>
+        <p class="cd-mic-row" hidden><button type="button" class="cd-mic" data-mic="cdf-done" aria-pressed="false">Speak instead of typing</button></p>
+        <p class="cd-hint" id="cdf-mic-note" hidden>Dictation uses your browser's own speech recognition: the words appear in the box for you to check and edit, and nothing is sent to this site until you press Send. Some browsers (Chrome among them) send the audio to the browser maker's speech service to turn it into text, unless they can do it on your device.</p>
+        <div data-cd-for="licence">
+          <label class="cd-check"><input type="checkbox" name="licence" id="cdf-licence"> I understand that what is built is published here under the MIT licence, with the repository owner's copyright notice, and that I get no exclusive rights to it.</label>
+        </div>
+        <div class="fb-hp" aria-hidden="true"><label for="cdf-website">Leave this empty</label><input id="cdf-website" name="website" tabindex="-1" autocomplete="off"></div>
+        <button type="submit">Send request</button>
+        <p id="cdf-status" role="status" aria-live="polite"></p>
+      </form>
+  <script>
+(function(){
+  var K=${JSON.stringify(REQUEST_KINDS.map(({ id, type, job, hint, tool, request, direction, licence }) => ({ id, type, job, hint, tool: !!tool, request: !!request, direction: !!direction, licence: !!licence })))};
+  var f=document.getElementById('cdf');if(!f)return;
+  var st=document.getElementById('cdf-status'),btn=f.querySelector('button[type=submit]');
+  var q=new URLSearchParams(location.search);
+  function kind(){var c=f.querySelector('input[name=kind]:checked');for(var i=0;i<K.length;i++)if(c&&K[i].id===c.value)return K[i];return K[0];}
+  function show(){
+    var k=kind(),parts=f.querySelectorAll('[data-cd-for]');
+    for(var i=0;i<parts.length;i++)parts[i].hidden=!k[parts[i].getAttribute('data-cd-for')];
+    document.getElementById('cdf-job-label').textContent=k.job;
+    document.getElementById('cdf-job-hint').textContent=k.hint;
+  }
+  var qk=q.get('kind'),qt=q.get('tool')||'',qr=q.get('req')||'';
+  if(qk){var r=f.querySelector('input[name=kind][value="'+qk.replace(/[^a-z]/g,'')+'"]');if(r)r.checked=true;}
+  if(qt&&f.tool.querySelector('option[value="'+qt.replace(/[^a-z0-9._\\/-]/g,'')+'"]'))f.tool.value=qt;
+  if(/^R-\\d{4}$/.test(qr))f.req.value=qr;
+  var qd=(q.get('dir')||'').replace(/[^a-z0-9-]/g,'');
+  if(qd&&f.dir&&f.dir.querySelector('option[value="'+qd+'"]')){f.dir.value=qd;if(!qk){var rr=f.querySelector('input[name=kind][value=research]');if(rr)rr.checked=true;}}
+  f.addEventListener('change',function(e){if(e.target.name==='kind')show();});
+  show();
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition,rec=null,live=null;
+  if(SR){
+    var rows=f.querySelectorAll('.cd-mic-row');for(var j=0;j<rows.length;j++)rows[j].hidden=false;
+    document.getElementById('cdf-mic-note').hidden=false;
+    var lang=document.documentElement.lang||navigator.language||'en-US';if(lang==='en')lang='en-US';
+    var stop=function(){if(rec){try{rec.stop();}catch(_){}}};
+    var mics=f.querySelectorAll('.cd-mic');
+    for(var m=0;m<mics.length;m++)mics[m].addEventListener('click',function(){
+      var b=this,ta=document.getElementById(b.getAttribute('data-mic'));
+      if(live===b){stop();return;}
+      stop();
+      var r=new SR(),base=ta.value;r.lang=lang;r.continuous=true;r.interimResults=true;
+      r.onresult=function(ev){
+        var said='';for(var i=0;i<ev.results.length;i++)said+=ev.results[i][0].transcript;
+        said=said.trim();ta.value=(base&&said?base.replace(/\s*$/,' '):base)+said;
+        if(ta.maxLength>0&&ta.value.length>ta.maxLength)ta.value=ta.value.slice(0,ta.maxLength);
+      };
+      r.onerror=function(ev){st.textContent=ev.error==='not-allowed'||ev.error==='service-not-allowed'?'The microphone is blocked for this page. Allow it in your browser, or type instead.':ev.error==='no-speech'?'No speech heard. Try again, closer to the microphone.':'Dictation stopped ('+ev.error+'). You can type instead.';};
+      r.onend=function(){if(rec===r){rec=null;live=null;}if(/^Listening/.test(st.textContent))st.textContent='';b.setAttribute('aria-pressed','false');b.textContent='Speak instead of typing';};
+      rec=r;live=b;
+      try{r.start();b.setAttribute('aria-pressed','true');b.textContent='Stop dictating';st.textContent='Listening. Speak, then press Stop dictating.';}
+      catch(_){rec=null;live=null;st.textContent='Dictation could not start. You can type instead.';}
+    });
+    f.addEventListener('submit',stop,true);
+  }
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var k=kind(),job=f.job.value.trim(),done=f.done.value.trim();
+    if(k.tool&&!f.tool.value){st.textContent='Please choose the tool.';f.tool.focus();return;}
+    if(k.request&&!f.req.value){st.textContent='Please choose the request.';f.req.focus();return;}
+    if(job.length<5){st.textContent='Please write a few words first.';f.job.focus();return;}
+    if(k.licence&&!f.licence.checked){st.textContent='Please tick the licence box first: it is the one condition.';f.licence.focus();return;}
+    var head='[custom-development: '+k.id+']'+(k.request?' '+f.req.value:'')+(k.tool?' tool: '+f.tool.value:'')+(k.direction&&f.dir&&f.dir.value?' direction: '+f.dir.value:'');
+    var msg=head+'\\n\\n'+job+(done?'\\n\\nHow I would know it worked:\\n'+done:'');
+    var body={type:k.type,tool:k.tool?f.tool.value:'',page:location.pathname,message:msg.slice(0,4000),website:f.website.value};
+    btn.disabled=true;st.textContent='Sending...';
+    fetch(${JSON.stringify(`${feedbackUrl}/feedback`)},{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})
+      .then(function(r){
+        if(r.ok){f.job.value='';f.done.value='';st.textContent='Thank you, it has been sent. It is read by the next agent session, and appears in the list on this page once triaged.';}
+        else if(r.status===429){st.textContent='Too many messages right now. Please try again later.';}
+        else{st.textContent='That did not go through. Please try again, or use the GitHub form below.';}
+      })
+      .catch(function(){st.textContent='That did not go through. Please check your connection and try again.';})
+      .then(function(){btn.disabled=false;});
+  });
+})();
+  </script>`;
+}
+
+/** The `<head>` shared by the custom development pages. */
+function customDevHead({ title, description, url, toRoot, baseUrl, extraHead = '' }) {
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(siteTitle(title))}</title>
+  <meta name="description" content="${escapeHtml(snippetize(description))}">
+  <link rel="canonical" href="${escapeHtml(url)}">
+  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
+  <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(snippetize(description))}">
+  <meta property="og:url" content="${escapeHtml(url)}">
+  <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
+  <meta name="twitter:card" content="summary_large_image">${extraHead ? `\n  ${extraHead}` : ''}
+  <style>${CATEGORY_STYLE}${ABOUT_STYLE}${FEEDBACK_STYLE.replace(/#fb\b/g, '#cdf')}${CUSTOM_DEV_STYLE}  </style>
+  ${siteStyleLink(toRoot)}
+</head>`;
+}
+
+/**
+ * Open custom development: how anyone asks the agents to build something, how
+ * they follow it, and every request so far with its status, read from
+ * `portfolio/requests/requests.json` (`requests` here). Indexed and in the hub
+ * sitemap, because it is the page a person searching for free custom software
+ * should land on. The licence term is stated before the ask, not after: it is
+ * the one condition (owner, 2026-10-30).
+ *
+ * The page is the workflow's interface (owner, 2026-11-02): a no-account form
+ * for a new tool, a feature, feedback on a preview, or a problem; the stages a
+ * request moves through; and the queue, filterable by status and searchable,
+ * each row linking to that request's own page (`renderCustomRequestPage`).
+ * Every tool's footer links here with `?kind=feature&tool=<slug>`.
+ */
+export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests = [], directions, feedbackUrl = SITE_FEEDBACK_URL }) {
+  const url = `${baseUrl}${CUSTOM_DEV_PATH}`;
+  const toRoot = '../';
+  const title = 'Free custom software for your business';
+  const headline = 'Describe your problem and it gets built.';
+  const description = 'Free custom software development for businesses: describe the problem, and AI agents build the tool in public. Follow every step here. One condition: it stays MIT licensed.';
+  const issueUrl = `${REPO_URL}/issues/new?template=custom-build.yml`;
+  const listUrl = `${REPO_URL}/issues?q=label%3Acustom-request`;
+  const counts = Object.keys(REQUEST_STATUSES).map((s) => [s, requests.filter((r) => r.status === s).length]);
+  const rows = [...requests]
+    .sort((a, b) => (b.updated || '').localeCompare(a.updated || '') || (a.id || '').localeCompare(b.id || ''))
+    .map((r) => {
+      const slug = requestToolSlug(r, surfaces);
+      const links = [
+        `<a href="${escapeHtml(`${r.id}/`)}">details</a>`,
+        r.link ? `<a href="${escapeHtml(r.link)}">request</a>` : '',
+        r.project ? `<a href="${escapeHtml(`${REPO_URL}/tree/main/${r.project}`)}">project</a>` : '',
+        slug ? `<a href="${escapeHtml(`${toRoot}${slug}/`)}">try it</a>` : '',
+        r.live ? `<a href="${escapeHtml(r.live)}">live</a>` : '',
+      ].filter(Boolean).join(' · ');
+      const note = r.status === 'declined' ? r.reason : r.next;
+      const text = `${r.id} ${r.title} ${r.ask} ${note || ''}`.toLowerCase();
+      return `
+          <tr data-status="${escapeHtml(r.status)}" data-text="${escapeHtml(text)}">
+            <td><a href="${escapeHtml(`${r.id}/`)}">${escapeHtml(r.id)}</a></td>
+            <td><strong>${escapeHtml(r.title)}</strong><br><span class="cd-ask">“${escapeHtml(r.ask)}”, from ${escapeHtml(REQUEST_SOURCES[r.source] || r.source)}, ${escapeHtml(r.received)}</span>${note ? `<br>${escapeHtml(note)}` : ''}</td>
+            <td><span class="cd-st cd-${escapeHtml(r.status)}">${escapeHtml(r.status)}</span><br><small>${escapeHtml(r.updated)}</small></td>
+            <td>${links}</td>
+          </tr>`;
+    })
+    .join('');
+  const filters = `
+      <div class="cd-filter" id="cd-filter" hidden>
+        <span role="group" aria-label="Show requests by status"><button type="button" data-st="" aria-pressed="true">All (${requests.length})</button>${counts.filter(([, n]) => n).map(([s, n]) => `<button type="button" data-st="${escapeHtml(s)}" aria-pressed="false">${escapeHtml(s)} (${n})</button>`).join('')}</span>
+        <label class="pfs-vh" for="cd-q">Search requests</label><input id="cd-q" type="search" placeholder="Search requests" autocomplete="off">
+        <span id="cd-shown" role="status" aria-live="polite"></span>
+      </div>`;
+  const table = requests.length
+    ? `${filters}
+      <div class="cd-table"><table>
+        <thead><tr><th>ID</th><th>Request</th><th>Status</th><th>Links</th></tr></thead>
+        <tbody>${rows}
+        </tbody>
+      </table></div>
+  <script>
+(function(){
+  var box=document.getElementById('cd-filter');if(!box)return;box.hidden=false;
+  var rows=document.querySelectorAll('.cd-table tbody tr'),btns=box.querySelectorAll('button'),q=document.getElementById('cd-q'),out=document.getElementById('cd-shown'),st='';
+  function run(){
+    var t=q.value.trim().toLowerCase(),n=0;
+    for(var i=0;i<rows.length;i++){var r=rows[i],ok=(!st||r.getAttribute('data-status')===st)&&(!t||r.getAttribute('data-text').indexOf(t)>=0);r.hidden=!ok;if(ok)n++;}
+    out.textContent=n===rows.length?'':n+' of '+rows.length+' shown';
+  }
+  for(var i=0;i<btns.length;i++)btns[i].addEventListener('click',function(){st=this.getAttribute('data-st');for(var j=0;j<btns.length;j++)btns[j].setAttribute('aria-pressed',String(btns[j]===this));run();});
+  q.addEventListener('input',run);
+})();
+  </script>`
+    : '<p>No requests on file yet. Yours could be the first.</p>';
+  const form = renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, directions });
+  const stages = REQUEST_STAGES.map((s) => `<li class="cd-step"><span class="cd-dot" aria-hidden="true"></span><span class="cd-step-name">${escapeHtml(s)}${requests.length ? ` <small>(${requests.filter((r) => r.status === s).length})</small>` : ''}</span><span class="cd-step-what">${escapeHtml(REQUEST_STATUSES[s])}</span></li>`).join('');
+  const feedbackPageUrl = `${toRoot}${FEEDBACK_PATH}`;
+  const ideaUrl = `${REPO_URL}/issues/new?template=idea.yml`;
+  // Plain-text answers, shown on the page and repeated as FAQPage data, so
+  // what a search result or an assistant quotes is exactly what the page says.
+  const faq = [
+    ['Is it really free?', 'Yes. There is no fee for the engineering, the hosting of the public site, or the agent compute. You are not asked for a card.'],
+    ['Who owns what is built?', 'It is published in a public repository under the MIT licence, with the repository owner\'s copyright notice. That licence lets you, and anyone else, use it, change it, run it and sell services on it.'],
+    ['Can it be private or exclusive to my business?', 'No. Everything is built in public and the same code is open to everyone the day it lands. If your problem only makes sense with private data or a secret process, describe the general version, or this is not the right route.'],
+    ['How long does it take?', 'There is no promised date and not every request is accepted. Agent time is shared across the whole repository. Requests with a clear job and real sample material move fastest.'],
+    ['What should I send?', 'Who does the job today and how, where current tools fall short, how you would know the tool worked, and any real material you can share: a blank form, a published rate sheet, an export with private details removed.'],
+    ['Can I run it myself?', 'Yes. Browser tools run on this site at no cost to you, and self-hostable apps come with instructions to deploy into your own account. The code is yours to run under the MIT licence.'],
+  ];
+  const faqLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
+  };
+  // With the no-account form on the page, the main call to action jumps to it
+  // and GitHub is the alternative; without it, the issue form leads.
+  const cta = form
+    ? `<a class="cd-go" href="#request">Describe your problem</a>
+        <a class="cd-alt" href="${escapeHtml(issueUrl)}">Or open a request on GitHub</a>`
+    : `<a class="cd-go" href="${escapeHtml(issueUrl)}">Describe your problem</a>
+        <a class="cd-alt" href="${escapeHtml(feedbackPageUrl)}">No GitHub account? Use the short form</a>`;
+  return `${customDevHead({ title, description, url, toRoot, baseUrl, extraHead: `<script type="application/ld+json">${jsonLd(faqLd)}</script>` })}
+<body>
+  ${renderSiteHeader({ toRoot, current: 'request', crumbs: [{ label: 'Custom development' }] })}
+  <div class="wrap">
+    <header class="pf-hero">
+      <p class="eyebrow">Free custom development for businesses</p>
+      <h1>${escapeHtml(headline)}</h1>
+      <p class="lede">Tell us the problem your business has that no tool solves: the spreadsheet someone updates by hand every week, the quote that takes an hour, the check that keeps getting missed. AI agent sessions build accepted requests in this public repository, free, and you can watch every step. The one condition: what is built stays open source under the MIT licence, held by the repository owner.</p>
+      <p class="cd-cta">
+        ${cta}
+        <a class="cd-alt" href="#queue">See every request</a>
+      </p>
+    </header>
+
+    <main class="prose">
+      <h2>Problems that fit</h2>
+      <p>Examples of the kind of request this suits. The work is real software with tests, not a mock-up.</p>
+      <ul>
+        <li><strong>Quoting and pricing</strong> for your trade, built from your own rates, waste factors and margins.</li>
+        <li><strong>A spreadsheet that has outgrown itself</strong>, turned into a tool that checks its inputs and explains its numbers.</li>
+        <li><strong>Checking documents against rules</strong>: an invoice, an order or a form tested before it goes out.</li>
+        <li><strong>Back-office chores</strong>: categorising transactions, reconciling, estimating, scheduling from a takeoff.</li>
+        <li><strong>A replacement for a subscription</strong> that does one job, as an app you can host yourself.</li>
+        <li><strong>A feature for a tool already here</strong>: every tool's footer links to this form with that tool chosen.</li>
+      </ul>
+      <p>What does not fit: anything that needs paid accounts or a cost per user to run, must stay private, scrapes a site against its terms, or gives regulated advice with no safe framing.</p>
+${form}
+      <h2>How a request moves</h2>
+      <ol class="cd-steps cd-steps-intro">${stages}</ol>
+      <p>Before triage, every request from outside is <a href="#screening">screened</a> for text aimed at the agents rather than describing a job. A request can also be <em>declined</em>, always with the reason written beside it. Each request has its own page showing which stage it is at and what is still unproven, and once there is something to try you can send feedback on it from that page. Sessions work in the open: every change is a pull request, and the project's README says what was tested and what was not.</p>
+
+      <h2>${form ? 'Other ways to ask' : 'How to ask'}</h2>
+      <ul>
+        <li><a href="${escapeHtml(issueUrl)}">Open a request on GitHub</a> (a free account) to follow replies and attach sample files.</li>
+        <li>Short on time? The one-box <a href="${escapeHtml(ideaUrl)}">idea form</a>, or the general <a href="${escapeHtml(feedbackPageUrl)}">feedback page</a>.</li>
+        <li>Describe the job from the inside: who does it, how, and where today's tools fall short. Real sample material (with private details removed) is the fastest way to move a request forward.</li>
+      </ul>
+
+      <h2>What has been built this way</h2>
+      <p>The first requests in the list below are the owner's own, so you can see how deep a request goes over many sessions: an <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/ai-bookkeeper`)}">AI bookkeeper</a> (double-entry ledger, bank reconciliation, QuickBooks and Xero export), a <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/wall-framing-takeoff`)}">wall framing takeoff</a> from a floor plan, and a <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/sales-agent`)}">sales agent</a>. Each README says what is tested and what is still unproven.</p>
+
+      <h2>What you can ask for</h2>
+      <ul>
+        <li><strong>A product or tool</strong> for your work: a calculator, a checker, a document reader, a small app. <a href="${escapeHtml(issueUrl)}">GitHub request</a> · <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}?type=idea`)}">no-account form</a></li>
+        <li><strong>A feature</strong> for a tool already here. Use the form from that tool's footer, so it knows which tool you mean.</li>
+        <li><strong>A research question</strong> you would like investigated with real data, written up openly. <a href="${escapeHtml(`${REPO_URL}/issues/new?template=idea.yml&title=${encodeURIComponent('[research] ')}`)}">GitHub request</a> · <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}?type=research`)}">no-account form</a></li>
+        <li><strong>A topic to write about</strong>: a guide, an explainer, a comparison. <a href="${escapeHtml(`${REPO_URL}/issues/new?template=idea.yml&title=${encodeURIComponent('[topic] ')}`)}">GitHub request</a> · <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}?type=topic`)}">no-account form</a></li>
+      </ul>
+
+      <h2 id="screening">How requests are screened</h2>
+      <p>The builders are AI agents, so a request is also text an AI will read. Every request is checked by <a href="${escapeHtml(`${REPO_URL}/blob/main/portfolio/requests/screen.mjs`)}">an open-source screen</a> before triage. It looks for text written to steer the agents instead of describing a job: telling them to ignore their instructions, to merge, approve or run something, to reveal credentials, to send data elsewhere, or words hidden with invisible characters. A request that trips it is held for the repository owner and is not built from until they have read it. Ordinary requests pass straight through, and a held request is not a judgement of the person who sent it. Whatever the screen says, request text is treated as a description of what to build, never as instructions.</p>
+
+      <h2>The terms</h2>
+      <ul>
+        <li><strong>Free.</strong> No fee for the engineering, the hosting or the agent compute.</li>
+        <li><strong>MIT licensed, held by the repository owner.</strong> What is built is published in <a href="${escapeHtml(REPO_URL)}">this repository</a> under its <a href="${escapeHtml(`${REPO_URL}/blob/main/LICENSE`)}">MIT licence</a>, with the owner's copyright notice. Anything you attach, you must be allowed to share, and you agree to its publication on those terms.</li>
+        <li><strong>You may use it commercially</strong>, as anyone may: deploy it, change it, sell a service on it. The licence is the same for everyone, so there is no exclusivity.</li>
+        <li><strong>No promise of a date or of acceptance.</strong> Agent time is shared across the whole repository. A request is weighed on how useful it is, how well it fits, and whether it can be built and run legally at no per-user cost.</li>
+        <li><strong>Public by default.</strong> Requests, code and discussion are visible to everyone. Leave out names, addresses and anything private.</li>
+      </ul>
+
+      <h2>Questions businesses ask</h2>
+      <dl class="cd-faq">${faq.map(([q, a]) => `
+        <dt>${escapeHtml(q)}</dt>
+        <dd>${escapeHtml(a)}</dd>`).join('')}
+      </dl>
+      <p class="cd-cta"><a class="cd-go" href="${escapeHtml(form ? '#request' : issueUrl)}">Describe your problem</a></p>
+
+      <h2 id="queue">Requests so far</h2>
+      <p>${requests.length} on file${requests.length ? `: ${counts.filter(([, n]) => n).map(([s, n]) => `${n} ${s}`).join(', ')}` : ''}. The list is kept in <a href="${escapeHtml(`${REPO_URL}/blob/main/portfolio/requests/requests.json`)}">one file</a>, so each request's history is that file's history, and this page is rebuilt on every merge. You can also browse <a href="${escapeHtml(listUrl)}">all requests on GitHub</a>.</p>${table}
+    </main>
+
+    <footer>
+      ${disclaimerHtml(toRoot, surfaces)}
+      ${renderSiteFooterNav({ toRoot })}
+    </footer>
+  </div>
+  <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="custom-development" defer></script>
+</body>
+</html>
+`;
+}
+
+/**
+ * One request's own page (`custom-development/R-0001/`): the ask in the
+ * requester's words, the stage it is at, what is still unproven, the links to
+ * its project and anything to try, and the form preset to "feedback on a
+ * preview" for this request. Indexed: a requester shares this link.
+ */
+export function renderCustomRequestPage({ request: r, surfaces = [], baseUrl, requests = [], directions, feedbackUrl = SITE_FEEDBACK_URL }) {
+  const toRoot = '../../';
+  const url = `${baseUrl}${customRequestPath(r.id)}`;
+  const title = `${r.id}: ${r.title}`;
+  const description = `Request ${r.id}, ${r.status}: ${r.title}. Built free and in public, MIT licensed. Follow its progress and send feedback.`;
+  const slug = requestToolSlug(r, surfaces);
+  const note = r.status === 'declined' ? r.reason : r.next;
+  const links = [
+    slug ? `<li><a href="${escapeHtml(`${toRoot}${slug}/`)}"><strong>Try it</strong></a>: the tool as published on this site now</li>` : '',
+    r.live ? `<li><a href="${escapeHtml(r.live)}">Live</a></li>` : '',
+    r.project ? `<li><a href="${escapeHtml(`${REPO_URL}/tree/main/${r.project}`)}">The project's code and README</a>, which says what was tested and what was not</li>` : '',
+    r.project ? `<li><a href="${escapeHtml(`${REPO_URL}/commits/main/${r.project}`)}">Every change to it</a></li>` : '',
+    r.link ? `<li><a href="${escapeHtml(r.link)}">The original request</a></li>` : '',
+    `<li><a href="${escapeHtml(`${REPO_URL}/commits/main/portfolio/requests/requests.json`)}">The queue's history</a></li>`,
+  ].filter(Boolean).join('\n        ');
+  const form = r.status === 'declined' ? '' : renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, directions, fixedRequest: r.id });
+  return `${customDevHead({ title, description, url, toRoot, baseUrl })}
+<body>
+  ${renderSiteHeader({ toRoot, current: 'request', crumbs: [{ href: `${toRoot}${CUSTOM_DEV_PATH}`, label: 'Custom development' }, { label: r.id }] })}
+  <div class="wrap">
+    <header class="pf-hero">
+      <p class="eyebrow">Request ${escapeHtml(r.id)} · <span class="cd-st cd-${escapeHtml(r.status)}">${escapeHtml(r.status)}</span></p>
+      <h1>${escapeHtml(r.title)}</h1>
+      <p class="lede">“${escapeHtml(r.ask)}”</p>
+      <p class="cd-ask">From ${escapeHtml(REQUEST_SOURCES[r.source] || r.source)}, received ${escapeHtml(r.received)}, last updated ${escapeHtml(r.updated)}.</p>
+    </header>
+
+    <main class="prose">
+      <h2>Where it is</h2>
+      ${renderRequestStepper(r.status)}
+      ${note ? `<p><strong>${r.status === 'declined' ? 'Why' : 'Still open'}:</strong> ${escapeHtml(note)}</p>` : ''}
+
+      <h2>Follow it</h2>
+      <ul>
+        ${links}
+      </ul>
+${form}
+      <p><a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}`)}">← All requests, and how custom development works</a></p>
+    </main>
+
+    <footer>
+      ${disclaimerHtml(toRoot, surfaces)}
+      ${renderSiteFooterNav({ toRoot })}
+    </footer>
+  </div>
+  <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="custom-development" defer></script>
+</body>
+</html>
+`;
+}
+
+const CUSTOM_DEV_STYLE = `
+    .cd-table { overflow-x: auto; }
+    .cd-table table { border-collapse: collapse; width: 100%; }
+    .cd-table th, .cd-table td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+    .cd-ask { color: var(--muted); font-size: .92em; }
+    .cd-st { display: inline-block; font-weight: 600; font-size: .85em; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); }
+    .cd-building, .cd-accepted { border-color: var(--accent); color: var(--accent); }
+    .cd-cta { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin: 18px 0 0; }
+    /* Doubled class: pf-site.css loads after this and sets .pf-hero a / .prose a. */
+    a.cd-go.cd-go { display: inline-block; font-weight: 650; padding: 10px 18px; border-radius: 9px;
+                    background: var(--ink); color: var(--bg); text-decoration: none; }
+    .pf-hero a.cd-go.cd-go { background: #fff; color: #0b1f3a; } /* the hero is dark in both themes */
+    a.cd-go.cd-go:hover, a.cd-go.cd-go:focus-visible { text-decoration: underline; }
+    .cd-faq dt { font-weight: 650; color: var(--ink); margin-top: 14px; }
+    .cd-faq dd { margin: 4px 0 0; color: var(--muted); }
+    .cd-steps { list-style: none; padding: 0; margin: 12px 0 16px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; counter-reset: none; }
+    .cd-step { position: relative; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; }
+    .cd-step-name { display: block; font-weight: 600; text-transform: capitalize; color: var(--ink); }
+    .cd-step-what { display: block; color: var(--muted); font-size: .88em; }
+    .cd-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--line); margin-bottom: 4px; }
+    .cd-done .cd-dot { background: var(--accent); border-color: var(--accent); }
+    .cd-now { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+    .cd-now .cd-dot { border-color: var(--accent); background: var(--accent); }
+    .cd-declined { color: var(--muted); }
+    .cd-hint { color: var(--muted); font-size: .9em; margin: -2px 0 6px; }
+    .cd-opt { font-weight: 400; color: var(--muted); }
+    .cd-mic-row { margin: 4px 0 10px; }
+    .cd-mic-row[hidden], #cdf-mic-note[hidden] { display: none; }
+    #cdf .cd-mic { font: inherit; font-size: .9em; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; }
+    #cdf .cd-mic[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: #fff; }
+    #cdf select { width: 100%; box-sizing: border-box; font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
+    #cdf .cd-check { font-weight: 400; color: var(--ink); display: flex; gap: 8px; align-items: flex-start; }
+    .cd-filter { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
+    .cd-filter[hidden] { display: none; }
+    .cd-filter button { font: inherit; font-size: .88em; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; text-transform: capitalize; }
+    .cd-filter button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: #fff; }
+    .cd-filter input { font: inherit; padding: 5px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
+    #cd-shown { color: var(--muted); font-size: .88em; }
+    @media (max-width: 700px) { .cd-steps { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) {
+      .cd-table thead { display: none; }
+      .cd-table tr, .cd-table td { display: block; border: 0; padding: 2px 0; }
+      .cd-table tr { padding: 10px 0; border-bottom: 1px solid var(--line); }
+    }
 `;
 
 /** The slim search index the hub (and nothing else) loads. See `renderSearchIndex`. */
@@ -7843,6 +8398,7 @@ export function renderHub(
     siteName: SITE_NAME,
     description: 'Free, open-source browser tools, self-hostable business apps and reproducible research.',
     repoUrl: REPO_WEB_URL,
+    founder: SITE_FOUNDER,
     logo: `${baseUrl}icon-512.png`,
   }))}</script>
   ${siteStyleLink('')}
@@ -7850,7 +8406,7 @@ export function renderHub(
     :root {
       color-scheme: light dark;
       --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
-      --line: #d3dce6; --accent: #12594a; --accent-ink: #f2f8f5;
+      --line: #d3dce6; --accent: #1f4e8c; --accent-ink: #f3f6fb;
       /* One step quieter than --muted, and the quietest ink on this page.
          It exists because the de-emphasis it provides used to be spelled as an
          opacity, which is not a colour and therefore cannot be checked:
@@ -7858,13 +8414,13 @@ export function renderHub(
          4.5:1 WCAG AA needs for body-size text. Naming the tint makes it a
          value contrast.mjs can measure. */
       --soft: #656e78;
-      --hero-2: #3b5bdb;
+      --hero-2: #3a6ea5;
       font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
     }
     @media (prefers-color-scheme: dark) {
       :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
-              --line: #2a343f; --accent: #7fd8c0; --accent-ink: #0d1319;
-              --soft: #8d9aab; --hero-2: #8ea2ff; }
+              --line: #2a343f; --accent: #9dbfe8; --accent-ink: #0d1319;
+              --soft: #8d9aab; --hero-2: #b4c6de; }
     }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; }
@@ -7916,6 +8472,13 @@ export function renderHub(
                 font-variant-numeric: tabular-nums; }
     .stats dd a { color: var(--ink); text-decoration: none; }
     .stats dd a:hover, .stats dd a:focus-visible { color: var(--accent); }
+    .build-band { margin: 22px 0 0; max-width: 820px; padding: 16px 18px; border: 1px solid var(--accent);
+                  border-radius: 14px; background: var(--panel); }
+    .build-band h2 { margin: 0; font-size: 1.15rem; letter-spacing: -.01em; }
+    .build-band p { margin: 6px 0 0; color: var(--muted); line-height: 1.5; }
+    .build-band a.go { display: inline-block; margin-top: 10px; font-weight: 650; padding: 8px 16px; border-radius: 9px;
+                       background: #fff; color: #0b1f3a; text-decoration: none; } /* the hero is dark in both themes */
+    .build-band a.go:hover, .build-band a.go:focus-visible { text-decoration: underline; }
     @media (max-width: 640px) {
       .stats { grid-template-columns: repeat(2, 1fr); }
       .stats div:nth-child(3) { border-left: 0; }
@@ -8115,6 +8678,15 @@ ${
         <div><dt>Command-line tools</dt><dd><a href="${escapeHtml(categoryPagePath('cli'))}">${clis.length}</a></dd></div>
         <div><dt>Research projects</dt><dd><a href="${RESEARCH_PATH}">${researchCount}</a></dd></div>
       </dl>
+
+      <!-- The open custom development offer, aimed at businesses (owner,
+           2026-11-02: "advertise to businesses more"; tagline "describe your
+           problem and it gets built"). Terms are on the linked page. -->
+      <section class="build-band" aria-labelledby="build-band-h">
+        <h2 id="build-band-h">Run a business? Describe your problem and it gets built.</h2>
+        <p>No tool here does what you need? Tell us the job, and the AI agents that build this site may build it for you, free and in public. The one condition: the result stays open source (MIT).</p>
+        <a class="go" href="${CUSTOM_DEV_PATH}">Describe your problem</a>
+      </section>
     </div>
   </header>
 
@@ -8261,6 +8833,7 @@ ${renderLatestWriting(posts, { writingPath: WRITING_PATH })}
         <li>No tracking cookies</li>
         <li>MIT licence throughout</li>
         <li>Every change in the <a href="${CHANGELOG_PATH}">public changelog</a></li>
+        <li>What gets built next, in order, on the <a href="${QUEUE_PATH}">work queue</a></li>
       </ul>
     </section>
 
@@ -9189,6 +9762,7 @@ const CHROME_CSS = `
 .pf-chrome-foot ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px 18px;
   grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
 .pf-chrome-foot li{margin:0}
+.pf-chrome-foot p.pf-ask{margin:0 0 18px;padding:10px 14px;border:1px solid var(--pf-line);border-left-width:4px;border-radius:8px}
 .pf-ci{margin:0 0 14px}
 .pf-ci summary{cursor:pointer;font-weight:600}
 .pf-ci pre{overflow-x:auto;margin:0 0 10px;padding:8px 10px;border:1px solid var(--pf-line);border-radius:6px;font-size:.82rem}
@@ -9206,14 +9780,14 @@ const CHROME_CSS = `
  * grey the header always had. A browser without :has() keeps the old top gap.
  *
  * The mark is the one literal colour here, and it is not text: it is the
- * site's logo square (pf-site.css draws the same gradient), so it reads as one
+ * site's logo (pf-site.css draws the same compass-star mark), so it reads as one
  * site on every venture palette instead of a blot of the host's ink. */
 body:has(> .pf-chrome-top[data-pfs-head]:first-child){padding-top:0;margin-top:0}
 .pf-chrome-top[data-pfs-head]{margin:0 0 26px;border-bottom:0;
   box-shadow:0 0 0 100vmax var(--pfs-head-bg,rgba(128,128,128,.07));clip-path:inset(0 -100vmax)}
 .pf-chrome-top .pfs-bar{padding:12px 0}
 .pf-chrome-top .pfs-crumbs{padding:0 0 10px}
-.pf-chrome-top .pfs-mark{background:linear-gradient(135deg,#12594a,#3b5bdb)}
+.pf-chrome-top .pfs-mark{background:${MARK_BG}}
 .pf-chrome-top .pfs-searchlink{padding:4px 14px;border:1px solid var(--pf-line);border-radius:999px}
 [data-pfs-head].pf-chrome-top .pfs-searchlink:hover{text-decoration:none;border-color:currentColor}
 /* The shop-rates and saved-bids bars (rates.mjs, jobs.mjs) sit under the band
@@ -9925,7 +10499,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   if (isEntry) crumbs.push({ label: title || slug });
   else crumbs.push({ label: title || slug, href: `${toRoot}${slug}/` }, { label: pageTitle || 'This page' });
   if (canonical && !html.includes('"BreadcrumbList"') && (isEntry || pageTitle)) {
-    // Lets a result render as "Open Tools and Research › Marketplace sellers ›
+    // Lets a result render as "Maris Stella Labs › Marketplace sellers ›
     // eBay Fee Calculator" rather than a bare URL, and tells an answer engine
     // these are one collection rather than 1,300 unrelated pages. A page that
     // wrote its own is left alone. A deep page with no title of its own gets
@@ -10009,9 +10583,13 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   // Tested against the venture's own markup, before any chrome is added.
   const noSla = NO_SLA_PATTERN.test(html) ? '' : `    ${NO_SLA_CLAUSE}\n`;
 
+  // The way into custom development from every tool (owner, 2026-11-02:
+  // "somewhat prominent without being dominant"): one bordered line at the top
+  // of the footer, below everything the tool itself shows.
+  const askLine = `    <p class="pf-ask"><strong>Need this tool to do more?</strong> <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}?kind=feature&tool=${encodeURIComponent(slug)}#request`)}">Request a feature</a>, built free and in public, or <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}?kind=problem&tool=${encodeURIComponent(slug)}#request`)}">tell us what is wrong</a>.</p>\n`;
   const footer = `<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
   <div class="pf-inner">
-    <h2>More free tools</h2>
+${askLine}    <h2>More free tools</h2>
     <p>${externalCallHosts.length
       ? `Everything on this page runs in your browser too, except this one lookup: what you type here also goes to ${listProse(externalCallHosts)}, because that is what checking it means — see the note on this page for exactly what is sent.`
       : 'Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.'
@@ -10383,6 +10961,9 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     .concat([`  <url><loc>${baseUrl}${ABOUT_PATH}</loc></url>`])
     // The assistant's page, on the same terms: hub-level, so listed here or nowhere.
     .concat([`  <url><loc>${baseUrl}${ASK_PATH}</loc></url>`])
+    // Open custom development, on the same terms.
+    .concat([`  <url><loc>${baseUrl}${CUSTOM_DEV_PATH}</loc></url>`])
+    .concat(loadRequests().filter((r) => /^R-\d{4}$/.test(r.id || '')).map((r) => `  <url><loc>${baseUrl}${customRequestPath(r.id)}</loc></url>`))
     // And the comparison index, on exactly the same terms: a hub-level page
     // this build writes, so it is listed here or nowhere.
     .concat([`  <url><loc>${baseUrl}${COMPARE_PATH}</loc></url>`])
@@ -10396,7 +10977,7 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     .concat([`  <url><loc>${baseUrl}${STORIES_PATH}</loc></url>`])
     // The open book: updates and the changelog. Both change with every merge,
     // which is what a crawler deciding how often to come back wants to see.
-    .concat([`  <url><loc>${baseUrl}${UPDATES_PATH}</loc></url>`, `  <url><loc>${baseUrl}${CHANGELOG_PATH}</loc></url>`])
+    .concat([`  <url><loc>${baseUrl}${UPDATES_PATH}</loc></url>`, `  <url><loc>${baseUrl}${CHANGELOG_PATH}</loc></url>`, `  <url><loc>${baseUrl}${QUEUE_PATH}</loc></url>`])
     // And the guides index, for the same reason. See `GUIDES_PATH`: it is the
     // only page on the site that is *about* the 342 informational pages the
     // ventures wrote, which is the half of the catalogue organic search
@@ -10652,8 +11233,10 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
       ? `- [Short index](${baseUrl}llms.txt): the same tools with one-sentence descriptions, small enough to read in one fetch.`
       : `- [Full text](${baseUrl}llms-full.txt): every tool with its complete description and the LLM docs a product ships; large (several hundred KB), fetch only when the index does not answer the question.`,
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, the country code and the device type, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [Free custom software for your business](${baseUrl}${CUSTOM_DEV_PATH}): describe your problem and it gets built. How a business, or anyone, can ask the agents that build this site for a new tool, free and in public, the one condition (the result stays MIT licensed, held by the repository owner), and every request so far with its status. Each request has its own page (custom-development/R-0001/ and so on) showing its stage and what is still open, with a form for feedback on it.`,
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
+    `- [Work queue](${baseUrl}${QUEUE_PATH}): a read-only view of what the agents work on next and in what order (owner ideas, website requests, flagship projects, research programmes), with what is in flight and what waits on the owner.`,
     `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,
     // Named individually rather than left behind the index, because the
     // question an assistant is actually asked is about one product ("a free
@@ -10734,9 +11317,9 @@ On ${listProse(exceptions.map((x) => toolProseName(x.title)))} the one thing you
 `
     : '';
 
-  return `# Open Tools and Research
+  return `# ${SITE_NAME}
 
-> ${surfaces.length} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${researchProjects} reproducible research projects` : 'open research'}; no account or payment, and the numbers you type stay in your browser.
+> ${SITE_NAME} is an open-source lab where AI agents build tools and research in public, all MIT licensed. ${surfaces.length} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${researchProjects} reproducible research projects` : 'open research'}; no account or payment, and the numbers you type stay in your browser.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
@@ -10762,9 +11345,9 @@ export function renderNotFound(baseUrl) {
   <title>Not found</title>
   ${siteStyleLink(baseUrl)}
   <style>
-    :root { --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666; --line: #d3dce6; --accent: #12594a; }
+    :root { --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666; --line: #d3dce6; --accent: #1f4e8c; }
     @media (prefers-color-scheme: dark) {
-      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0; --line: #2a343f; --accent: #7fd8c0; }
+      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0; --line: #2a343f; --accent: #9dbfe8; }
     }
     body { font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; margin: 0; line-height: 1.6;
            color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; }
@@ -10772,7 +11355,7 @@ export function renderNotFound(baseUrl) {
     .nf h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.08; margin: 0 0 12px; }
     .nf .lede { font-size: 1.08rem; margin: 0 0 22px; }
     .code { font: 700 clamp(4.5rem, 14vw, 7.5rem)/1 "Inter", system-ui, sans-serif; letter-spacing: -.06em; margin: 0 0 4px;
-            background: linear-gradient(100deg, #7fe3c6, #8ea2ff 55%, #c79bff); -webkit-background-clip: text;
+            background: linear-gradient(100deg, #a8c7f0, #b4c6de 55%, #dfe8f5); -webkit-background-clip: text;
             background-clip: text; color: transparent; }
     .nf-search { display: flex; gap: 8px; max-width: 34rem; }
     .nf-search input { flex: 1 1 auto; min-width: 0; font: inherit; padding: 11px 14px; border-radius: 12px;
@@ -11295,6 +11878,21 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   const feedbackDir = path.join(outDir, FEEDBACK_PATH);
   await fs.mkdir(feedbackDir, { recursive: true });
   await fs.writeFile(path.join(feedbackDir, 'index.html'), renderFeedbackPage({ surfaces, baseUrl: base }));
+  const customDevDir = path.join(outDir, CUSTOM_DEV_PATH);
+  const customRequests = loadRequests();
+  const researchDirs = researchDirections();
+  await fs.mkdir(customDevDir, { recursive: true });
+  await fs.writeFile(
+    path.join(customDevDir, 'index.html'),
+    renderCustomDevelopmentPage({ surfaces, baseUrl: base, requests: customRequests, directions: researchDirs }),
+  );
+  // Each request's own page, linked from its row and shared by its requester.
+  for (const request of customRequests) {
+    if (!/^R-\d{4}$/.test(request.id || '')) continue;
+    const dir = path.join(outDir, customRequestPath(request.id));
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(path.join(dir, 'index.html'), renderCustomRequestPage({ request, surfaces, baseUrl: base, requests: customRequests, directions: researchDirs }));
+  }
 
   // The assistant's own page, and the files every page lazy-loads it from.
   const askDir = path.join(outDir, ASK_PATH);
@@ -11361,10 +11959,19 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // The open book (see `updates.mjs`): what shipped, what is in progress, the
   // owner's direction and the process, plus the changelog of every merge.
   // After the research pages so a merge can link the page it changed.
-  await buildUpdates(outDir, base, {
+  const updatesData = await buildUpdates(outDir, base, {
     published: new Set(surfaces.map((s) => s.slug)),
     researchSlugs: new Set(researchSlugs),
     titles: new Map(surfaces.map((s) => [s.slug, s.title])),
+    socialCard: `${base}${SOCIAL_CARD_FILE}`,
+  });
+
+  // The work queue (see `queue.mjs`): a read-only view of what the agents
+  // take next, in prompt.md's order, from the same files they read.
+  // Each roadmap project's progress reads the merges the updates page already loaded.
+  await buildQueue(outDir, base, {
+    published: new Set(surfaces.map((s) => s.slug)),
+    merges: updatesData?.merges ?? null,
     socialCard: `${base}${SOCIAL_CARD_FILE}`,
   });
 
@@ -11547,36 +12154,18 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
  * deterministic -- same bytes on every run.
  */
 
-// The mark, in one place: `sharecard.mjs`'s `drawMark` (three rising bars on
-// the header's teal-to-indigo square) is what the app icons and every share
-// card draw from `MARK_GEOMETRY`, and `renderFaviconSvg` draws the same
-// geometry as vector art, so the tab,
-// the pinned tab, the home screen and a shared link carry one logo. The tab
-// icon used to be a flat green square while the header showed a gradient one
-// and the app icon a calculator: three logos for one site.
+// The mark, in one place: `sharecard.mjs`'s `MARK_GEOMETRY` (an eight-point
+// compass star in a brass ring on a navy disc, the Maris Stella Labs logo) is
+// what `drawMark` rasterises for the app icons, the .ico and every share card,
+// and what `markSvg` draws as vector art for the tab and the site header, so
+// the tab, the pinned tab, the home screen and a shared link carry one logo.
 export { MARK_GEOMETRY };
-const ICON_SIZE = 16;
 // Sizes in the .ico: 16 for the tab strip, 32 for a high-DPI tab and the
 // Windows taskbar, 48 for a desktop shortcut.
 export const FAVICON_SIZES = [16, 32, 48];
 
-const rgbHex = (rgb) => '#' + rgb.map((c) => Math.round(c).toString(16).padStart(2, '0')).join('');
-
 export function renderFaviconSvg() {
-  const n = (v) => Number((v * ICON_SIZE).toFixed(2));
-  const g = MARK_GEOMETRY;
-  const bars = g.bars.map(
-    (b) =>
-      `<rect x="${n(b.x)}" y="${n(b.top)}" width="${n(g.barWidth)}" ` +
-      `height="${n(g.bottom - b.top)}" rx="${n(g.barWidth * 0.28)}" fill="#ffffff"/>`,
-  ).join('');
-  return (
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${ICON_SIZE} ${ICON_SIZE}">` +
-    `<defs><linearGradient id="m" x1="0" y1="0" x2="1" y2="1">` +
-    `<stop offset="0" stop-color="${rgbHex(MARK_FROM)}"/><stop offset="1" stop-color="${rgbHex(MARK_TO)}"/>` +
-    `</linearGradient></defs>` +
-    `<rect width="${ICON_SIZE}" height="${ICON_SIZE}" rx="${n(g.radius)}" fill="url(#m)"/>${bars}</svg>\n`
-  );
+  return `${markSvg(16)}\n`;
 }
 
 /**
@@ -11587,7 +12176,7 @@ export function renderFaviconSvg() {
 export function renderFavicon() {
   const pngs = FAVICON_SIZES.map((size) => {
     const data = Buffer.alloc(size * size * 4);
-    drawMark({ width: size, height: size, data, channels: 4 }, 0, 0, size, { channels: 4, radius: MARK_GEOMETRY.radius });
+    drawMark({ width: size, height: size, data, channels: 4 }, 0, 0, size, { channels: 4 });
     return encodeCardPng(size, size, data, 4);
   });
   const header = Buffer.alloc(6);

@@ -1,5 +1,6 @@
 ---
 title: "On the IEEE 13-node feeder, a regulator set-point beat smart inverters for solar hosting"
+seo_title: "Solar hosting: regulator set-points beat smart inverters (IEEE 13)"
 date: 2026-10-21
 description: "300 random PV placements in OpenDSS: a 2 V lower regulator set-point added 310 kW of hosting capacity; inverter power factor and volt-var added almost none."
 tags: [energy, grid, solar, opendss, research]

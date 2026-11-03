@@ -1,5 +1,6 @@
 ---
 title: "Small human audits make LLM-coded intervals too narrow, and most of it is leverage"
+seo_title: "Small audits make LLM-coded intervals too narrow: leverage"
 date: 2026-10-26
 description: "On 44,485 NaijaSenti tweets, small human audits of LLM-coded labels give intervals that are too narrow; a leverage correction fixes most of the gap."
 tags: [research, llm-coding-inference, statistics]

@@ -79,8 +79,8 @@ python3 devsec-src/ventures/devsec-toolkit/devsec.py scan . --fail-on high      
       <button type="button" id="open-report">Show findings</button>
       <button type="button" class="secondary" id="load-example">Load example report</button>
     </p>
-    <p id="status" class="note">The example is a real scan of the toolkit's own deliberately vulnerable test repository.</p>
-    <div id="results" hidden>
+    <p id="status" class="note" role="status">The example is a real scan of the toolkit's own deliberately vulnerable test repository.</p>
+    <div id="results" aria-live="polite" hidden>
       <div class="stats" id="stats"></div>
       <div id="hotspots" class="note"></div>
       <div class="controls">

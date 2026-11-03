@@ -1,5 +1,6 @@
 ---
 title: "Bookkeeping for massage therapists and estheticians, from a bank statement"
+seo_title: "Bookkeeping for massage therapists and estheticians"
 date: 2026-10-29
 tags: [ai-bookkeeper, small-business]
 description: "A free worked October for a solo massage therapist: Square and Vagaro payouts against lotions, dues, a state licence and suite rent, booked from a bank CSV."

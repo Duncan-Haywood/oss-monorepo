@@ -1,5 +1,6 @@
 ---
 title: "Texas pays you 0.5% to file on time, and an old ruling says something else"
+seo_title: "Texas sales tax timely-filing discount: two answers"
 date: 2026-10-28
 description: "Two Texas sources disagree on the sales tax prepayment discount. Which one ai-bookkeeper's sales tax return uses, and what it leaves out."
 tags: [ai-bookkeeper, sales-tax, texas]

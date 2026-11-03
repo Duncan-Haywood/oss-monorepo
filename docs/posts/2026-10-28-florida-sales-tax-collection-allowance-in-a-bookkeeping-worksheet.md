@@ -1,5 +1,6 @@
 ---
 title: "Florida's sales tax collection allowance is 2.5% of the first $1,200, and a worksheet can model it"
+seo_title: "Florida sales tax collection allowance in a bookkeeping worksheet"
 date: 2026-10-28
 description: "Florida lets dealers keep 2.5% of the first $1,200 of sales tax, capped at $30 a return, for filing and paying on time. ai-bookkeeper models it as one flag."
 tags: [ai-bookkeeper, sales-tax, florida]

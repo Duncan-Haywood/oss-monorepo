@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01E5sJKmsqqgbyftfAY4nnmT",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "scheduled: read ./prompt.md and follow the instructions there",
+  "input_sha256": "f2d8c6470f61b3e050d0c0a8893c3b8623a29690722755209371e13aee4f6558",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T02:10:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11982",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says to build the site locally first (7-20 min); skipped for a text-only llms.txt change."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "Security alerts step: origin/security-alerts branch does not exist, so the queue read fails."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "No site build or screenshots: the chosen piece was an llms.txt",
+      "did": "Ran check_llms_txt_links.py and missing_llms_txt.py instead",
+      "result": "0 dead links; missing 4 to 3"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-31-an-llms-txt-that-says-prototype.md",
+    "docs/reports/polish-2026-10-31-local-site-studio-llms-txt.md"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}

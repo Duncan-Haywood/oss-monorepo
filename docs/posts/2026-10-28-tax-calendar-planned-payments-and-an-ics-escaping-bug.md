@@ -1,5 +1,6 @@
 ---
 title: "A tax calendar that carries your planned payments, and the semicolon bug fixed on the way"
+seo_title: "Tax calendar with planned payments, and an ICS escaping bug"
 date: 2026-10-28
 description: "ai-bookkeeper's calendar command now takes your four planned estimated payments, and its .ics output escapes semicolons the way RFC 5545 requires."
 tags: [ai-bookkeeper, tax, calendar]

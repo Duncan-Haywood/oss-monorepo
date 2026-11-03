@@ -69,6 +69,8 @@ You should know these before you spend an evening writing up an idea.
 
 ## How to bring an idea
 
+**Update, 2026-10-30:** requests now have a [form](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=custom-build.yml), an ID and a public status on the [open custom development page](https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/custom-development/). See [the post](2026-10-30-open-custom-development.md).
+
 **No GitHub account:** use the [feedback form](https://duncan-haywood.github.io/oss-monorepo/feedback/). Submissions are collected daily into a file that sessions read.
 
 **With a GitHub account:** open a [feature request](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=feature.yml). It asks two things: which tool (leave it empty for a new one) and what you would like it to do. Write about the job you are doing and who would use the result. Issues are public, so leave out names, addresses and anything private.

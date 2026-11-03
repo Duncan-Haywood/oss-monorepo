@@ -1,5 +1,6 @@
 ---
 title: "Five states where a sales tax worksheet should say 'there is no return'"
+seo_title: "Five states where a sales tax worksheet says 'there is no return'"
 date: 2026-10-28
 description: "AI Bookkeeper's sales tax return worksheet knew 46 states' due dates and was silent on Oregon, Montana, New Hampshire, Delaware and Alaska. Now it says why."
 tags: [ai-bookkeeper, sales-tax]

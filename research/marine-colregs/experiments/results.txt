@@ -1,0 +1,45 @@
+115 scripted encounters, D_SAFE 100.0 m, own 4 m/s, target constant course
+
+== target-velocity estimate error sigma_v = 0.0 m/s (3 seeds when > 0)
+planner   safe %  compl %  both %  med cpa  min cpa  med detour m
+none         8.7     46.1     4.3       42        0             0
+rule        77.4    100.0    77.4      157        2            95
+vo          95.7    100.0    95.7      110       30            19
+mpc         84.3     83.5    79.1      106       62            23
+
+== target-velocity estimate error sigma_v = 0.3 m/s (3 seeds when > 0)
+planner   safe %  compl %  both %  med cpa  min cpa  med detour m
+none         8.7     46.1     4.3       42        0             0
+rule        77.4    100.0    77.4      157        2            95
+vo          84.6    100.0    84.6      110        2            24
+mpc         92.8     79.4    74.8      109       42            27
+
+== target-velocity estimate error sigma_v = 0.6 m/s (3 seeds when > 0)
+planner   safe %  compl %  both %  med cpa  min cpa  med detour m
+none         8.7     46.1     4.3       42        0             0
+rule        77.4    100.0    77.4      157        2            95
+vo          82.0    100.0    82.0      110        3            27
+mpc         89.0     75.9    68.1      110       42            29
+
+== stand-on action range sweep (sigma 0): share of ALL encounters passing >= D_SAFE
+STANDON_RANGE  200 m  rule  70.4%  vo  91.3%  mpc  74.8%
+STANDON_RANGE  300 m  rule  77.4%  vo  95.7%  mpc  84.3%
+STANDON_RANGE  450 m  rule  83.5%  vo  98.3%  mpc  87.8%
+STANDON_RANGE  600 m  rule  88.7%  vo  99.1%  mpc  88.7%
+
+== by encounter kind (sigma 0)
+rule headon       safe 15/15  compliant 15/15  med detour 98 m
+rule cross-stbd   safe 43/45  compliant 45/45  med detour 106 m
+rule cross-port   safe 21/45  compliant 45/45  med detour 75 m
+rule overtaking   safe 5/5  compliant 5/5  med detour 61 m
+rule overtaken    safe 5/5  compliant 5/5  med detour 44 m
+vo   headon       safe 15/15  compliant 15/15  med detour 17 m
+vo   cross-stbd   safe 45/45  compliant 45/45  med detour 19 m
+vo   cross-port   safe 40/45  compliant 45/45  med detour 28 m
+vo   overtaking   safe 5/5  compliant 5/5  med detour 3 m
+vo   overtaken    safe 5/5  compliant 5/5  med detour 5 m
+mpc  headon       safe 12/15  compliant 9/15  med detour 11 m
+mpc  cross-stbd   safe 35/45  compliant 32/45  med detour 33 m
+mpc  cross-port   safe 40/45  compliant 45/45  med detour 25 m
+mpc  overtaking   safe 5/5  compliant 5/5  med detour 10 m
+mpc  overtaken    safe 5/5  compliant 5/5  med detour 13 m

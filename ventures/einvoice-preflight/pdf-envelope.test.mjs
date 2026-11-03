@@ -53,3 +53,16 @@ test("the report carries the envelope findings for a PDF", async () => {
   const { reports } = await preflightDocuments([{ name: "a.pdf", source: new Uint8Array(pdf) }]);
   assert.ok(reports[0].errors.some((f) => f.rule === "PDF-001"));
 });
+
+test("PDF-005 when the embedded file has no MIME subtype", () => {
+  const pdf = new TextDecoder("latin1").decode(withXmp("EN 16931")).replace("/Subtype /text#2Fxml ", "");
+  const rules = checkPdfEnvelope(new TextEncoder().encode(pdf), xml("urn:cen.eu:en16931:2017")).map((f) => f.rule);
+  assert.deepEqual(rules, ["PDF-005"]);
+});
+
+test("PDF-006 when the catalog has no AF array", () => {
+  const pdf = new TextDecoder("latin1").decode(withXmp("EN 16931")).replace(" /AF [4 0 R]", "");
+  const found = checkPdfEnvelope(new TextEncoder().encode(pdf), xml("urn:cen.eu:en16931:2017"));
+  assert.deepEqual(found.map((f) => f.rule), ["PDF-006"]);
+  assert.equal(found[0].severity, "note");
+});

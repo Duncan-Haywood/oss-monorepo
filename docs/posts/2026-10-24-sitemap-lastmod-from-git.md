@@ -1,5 +1,6 @@
 ---
 title: "Our sitemaps now say when each page last changed, and only when we know"
+seo_title: "Our sitemaps now say when each page last changed, if we know"
 date: 2026-10-24
 description: "1,300 tool pages had sitemap entries with no lastmod. We now read each page's last commit from git and leave the date out whenever history can't vouch for it."
 tags: [seo, sitemap, git, build]

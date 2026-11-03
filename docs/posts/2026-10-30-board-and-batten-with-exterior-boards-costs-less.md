@@ -1,5 +1,6 @@
 ---
 title: "Board and batten with exterior boards costs less than the interior boards it replaced"
+seo_title: "Board and batten with exterior boards costs less"
 date: 2026-10-30
 tags: [shed-designer, siding, prices]
 description: "The shed designer priced board and batten with interior finger-joint pine. Exterior LP SmartSide 440 boards and battens cost $128 less on an 8x12."

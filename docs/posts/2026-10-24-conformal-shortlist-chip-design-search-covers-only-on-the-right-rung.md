@@ -1,5 +1,6 @@
 ---
 title: "A conformal shortlist for chip design search works on the mapped rung and fails on the generic-gate one"
+seo_title: "A conformal shortlist for chip design search: where it covers"
 date: 2026-10-24
 description: "A conformal bound on a routed pilot keeps the best SKY130 design 99% of the time at about half the routed runs, but only if the cheap rung is a mapped netlist."
 tags: [research, eda, conformal, chip-design]

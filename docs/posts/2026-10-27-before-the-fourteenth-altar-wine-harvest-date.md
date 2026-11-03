@@ -1,5 +1,6 @@
 ---
 title: "Before the Fourteenth: when a 60-year-old harvest date stops being right"
+seo_title: "Before the Fourteenth: when a 60-year-old harvest date is wrong"
 date: 2026-10-27
 description: "A new Hearth & Horizon story: a convent weighs a harvest date kept since 1962 against pH, sulphur and a chiller, in the Alentejo in 2050."
 tags: [hearth-and-horizon, fiction, wine, climate]

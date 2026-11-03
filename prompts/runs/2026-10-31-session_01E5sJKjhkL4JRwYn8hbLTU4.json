@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01E5sJKjhkL4JRwYn8hbLTU4",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "scheduled: read ./prompt.md and follow the instructions there",
+  "input_sha256": "f2d8c6470f61b3e050d0c0a8893c3b8623a29690722755209371e13aee4f6558",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T22:23:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12188",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "ci_profile.py --runs 600 printed nothing in the cloud session (no output, no error), so step 2 gave no reading"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post: change is a small perf tweak already covered by a history note",
+      "did": "history note only",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "docs/history/pages-build-perf-2026-10-31-run-length.md"
+  ],
+  "goal": null,
+  "notes": "Metric: quantize ms per 1200x630 mixed image, hrtime mean of 30 in one process. Before 6.4-9.4, after 4.0-6.8 (noisy). Output byte-identical. Cold full Pages build 2m33s, not re-timed after.",
+  "corrections": [],
+  "redteam": null
+}

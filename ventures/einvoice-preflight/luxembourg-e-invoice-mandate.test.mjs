@@ -65,3 +65,10 @@ test("links to Belgium and the hub and the sitemap entry is its own url block", 
   assert.match(html, /href="e-invoicing-mandates-by-country\.html"/);
   assert.match(sitemap, /<\/url>\s*<url>\s*<loc>[^<]*luxembourg-e-invoice-mandate\.html<\/loc>\s*<\/url>/);
 });
+
+test("states what the bill text says: usage fee, same-format corrections, no penalty provision", () => {
+  assert.match(html, /read directly on 2026-11-02|read from the bill on 2026-11-02/i);
+  assert.match(html, /usage fee/);
+  assert.match(html, /same format as the original/);
+  assert.match(html, /contains no fine or penalty/);
+});

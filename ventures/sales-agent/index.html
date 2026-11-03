@@ -150,6 +150,9 @@
     <p class="note">Uses the replies, prospects, CRM export, suppression list, offer and date from the sections above.</p>
     <button type="button" id="go-prep">Prepare the call</button>
     <button type="button" class="secondary" id="go-followup">Draft the follow-up</button>
+    <button type="button" class="secondary" id="dictate" hidden>Dictate notes</button>
+    <button type="button" class="secondary" id="read-aloud" hidden>Read it aloud</button>
+    <p class="note" id="voice-note" hidden>Voice is optional and uses your browser's own speech tools. In Chrome and Edge, dictation sends the audio to the browser maker's speech service; Safari and Firefox may not offer it. Say "next point" for a new line, "period" or "comma" for marks. This page records and stores nothing.</p>
     <p id="call-status" role="status" class="note"></p>
     <pre id="call-out" hidden style="white-space:pre-wrap"></pre>
   </section>
@@ -214,6 +217,7 @@
     import { runResearch, csvAccounts, csvLeftOutResearch, SAMPLE_CRM } from "./research.mjs";
     import { runPrep } from "./prep.mjs";
     import { runFollowUp } from "./followup.mjs";
+    import { appendDictation, speakable } from "./voice.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const SAVE = "sales-agent:setup", AIKEY = "sales-agent:ai";
@@ -357,6 +361,31 @@
       callOut(text, f.approval === "needs_approval" ? "Draft ready for you to read and approve." : f.approval === "fix_first" ? "Draft needs fixes before you use it." : "No draft.");
       record("call_followup_run");
     });
+    {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition, TTS = window.speechSynthesis;
+      if (SR || TTS) $("#voice-note").hidden = false;
+      if (SR) {
+        $("#dictate").hidden = false;
+        let rec = null;
+        $("#dictate").addEventListener("click", () => {
+          if (rec) { rec.stop(); return; }
+          rec = new SR(); rec.lang = document.documentElement.lang || "en-US"; rec.continuous = true; rec.interimResults = false;
+          rec.onresult = (e) => { let heard = ""; for (let i = e.resultIndex; i < e.results.length; i++) if (e.results[i].isFinal) heard += e.results[i][0].transcript + " "; if (heard) $("#call-notes").value = appendDictation($("#call-notes").value, heard); };
+          rec.onend = () => { rec = null; $("#dictate").textContent = "Dictate notes"; };
+          rec.onerror = (e) => { $("#call-status").textContent = "Dictation stopped: " + (e.error || "unknown") + "."; };
+          $("#dictate").textContent = "Stop dictating"; rec.start(); record("call_dictate");
+        });
+      }
+      if (TTS) {
+        $("#read-aloud").hidden = false;
+        $("#read-aloud").addEventListener("click", () => {
+          if (TTS.speaking) { TTS.cancel(); $("#read-aloud").textContent = "Read it aloud"; return; }
+          const t = speakable($("#call-out").textContent); if (!t) { $("#call-status").textContent = "Prepare the call or draft the follow-up first."; return; }
+          const u = new SpeechSynthesisUtterance(t); u.onend = u.onerror = () => { $("#read-aloud").textContent = "Read it aloud"; };
+          $("#read-aloud").textContent = "Stop reading"; TTS.speak(u); record("call_read_aloud");
+        });
+      }
+    }
     $("#dl-accounts").addEventListener("click", () => research && download("ranked-accounts.csv", csvAccounts(research)));
     $("#dl-research-leftout").addEventListener("click", () => research && download("research-left-out.csv", csvLeftOutResearch(research)));
     $("#dl-queue").addEventListener("click", () => daily && download("todays-queue.csv", csvQueue(daily)));

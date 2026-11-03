@@ -1,5 +1,6 @@
 ---
 title: "A cheating worker's gradient error is 320 times sharper than random noise, and that still doesn't predict the damage"
+seo_title: "A cheating worker's gradient error is 320 times sharper"
 date: 2026-10-26
 description: "A subsampled-gradient cheat's error is 320x sharper than random noise, yet a one-step quadratic estimate overshoots its measured damage 44x to 110x."
 tags: [verifiable-training-mechanisms, training, verification, mechanism-design]

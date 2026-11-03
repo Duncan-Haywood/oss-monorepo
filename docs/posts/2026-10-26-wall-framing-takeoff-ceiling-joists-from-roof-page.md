@@ -1,5 +1,6 @@
 ---
 title: "Wall framing takeoff: ceiling drywall can now follow the roof's joists from the page"
+seo_title: "Wall framing takeoff: ceiling drywall follows the roof's joists"
 date: 2026-10-26
 description: "A new option in the ceiling joist select makes drywall ceiling joints land on the joists the roof model already placed."
 tags: [wall-framing-takeoff, construction, drywall]

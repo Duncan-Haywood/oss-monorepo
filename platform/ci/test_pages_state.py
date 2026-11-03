@@ -502,6 +502,24 @@ class SourceNoteFromVerdict(unittest.TestCase):
         self.assertIn("source            actions", text)
 
 
+class MissingToken(unittest.TestCase):
+    def test_no_token_exits_2_with_a_message(self):
+        import contextlib
+        with unittest.mock.patch.object(ps, "api_token", return_value=None), \
+                contextlib.redirect_stderr(io.StringIO()) as err:
+            code = ps.main(["--repo", "o/r"])
+        self.assertEqual(code, 2)
+        self.assertIn("GH_TOKEN", err.getvalue())
+
+    def test_api_failure_exits_2_with_its_message(self):
+        import contextlib
+        with unittest.mock.patch.object(ps, "collect", side_effect=RuntimeError("boom")), \
+                contextlib.redirect_stderr(io.StringIO()) as err:
+            code = ps.main([], api=object())
+        self.assertEqual(code, 2)
+        self.assertIn("boom", err.getvalue())
+
+
 if __name__ == "__main__":
     unittest.main()
 

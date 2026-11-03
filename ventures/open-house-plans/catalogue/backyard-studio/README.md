@@ -17,6 +17,17 @@ A free, public-domain (CC0) house plan generated from a brief by [Open House Pla
 | Construction cost | **$147,870** ($370/sq ft), US average, 2024 dollars* |
 | Checks | 17 passed, 0 failed |
 
+## Wall framing, stud by stud
+
+Every wall is laid out member by member (`framing.svg`): 7 walls, 115 ft, 170 pieces cut from 107 boards (1,000 board feet, 0.8% offcut, within 0.08% of the cutting-stock lower bound for this cut list). Studs are 104-5/8" precuts. `framing-cuts.csv` lists every cut and the board it comes from; `lumber-order.csv` is the order. The board order counts wall framing only (no floor, roof, sheathing or blocking), and comes from the Wall Framing Takeoff engine.
+
+Framing notes:
+
+- Living / dining / Bath / Laundry / mech. / Kitchen / Clo. (w2): the partition at 12' 11-1/2" lands on the framing of o2 Laundry / mech. bifold; nail it to the king studs there (no tee backing).
+- Single top plate (advanced framing): trusses must land within 1 in of the stud centres, and 9 steel plate ties (not in the order) go at plate joints, corners and tees; each wall's drawing marks its joints. Whether a single top plate is allowed here is the code and engineer's call.
+- Front (w1): header spacers not in the takeoff: o4 Living / dining entry door (2-1/2"), o8 Bath window (2-1/2").
+- Back (w5): header spacers not in the takeoff: o7 Kitchen window (2-1/2").
+
 \* NAHB, Cost of Constructing a Home in 2024 (Eye on Housing, 2025-01-23), 2024 dollars: $428,215 for 2,647 sq ft, scaled by this design's geometry with assumed drivers (cost.mjs). Not a quote.
 
 ## Rooms
@@ -82,6 +93,9 @@ Builder's sale price excluding land, at NAHB's 2024 price shares: about $198,155
 - `openings.csv`: window and door schedule
 - `cost.csv`: cost by stage
 - `rooms.csv`: room schedule
+- `framing.svg`: every wall's framing elevation: studs, kings, jacks, headers, sills, cripples and plates at their real lengths, marked
+- `framing-cuts.csv`: wall framing cut list, and which board each piece is cut from
+- `lumber-order.csv`: wall framing board order: how many of each size and length to buy
 - `design.json`: the brief and the full design as data; feed the brief back to regenerate it
 - `LICENSE.txt`: CC0 1.0 dedication and disclaimer
 - `README.md`: this file

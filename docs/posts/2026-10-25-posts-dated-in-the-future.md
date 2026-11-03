@@ -1,5 +1,6 @@
 ---
 title: "77 blog posts were dated up to three weeks in the future; a check now refuses that"
+seo_title: "77 blog posts were dated in the future; a check now refuses that"
 date: 2026-10-25
 description: "Agents dated posts days ahead of their commit, so they topped the feed with a false date. They are redated and the front-matter check now fails future dates."
 tags: [process, blog, ci, seo]

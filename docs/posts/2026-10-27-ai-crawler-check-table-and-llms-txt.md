@@ -1,5 +1,6 @@
 ---
 title: "AI crawler check: a misaligned table fixed, and an llms.txt for assistants"
+seo_title: "AI crawler check: table fix and an llms.txt for assistants"
 date: 2026-10-27
 description: "The CLI's report table ran long operator names into the status column; it now sizes columns from the data. The tool also gains an llms.txt."
 tags: [ai-crawler-access-check, seo, cli]

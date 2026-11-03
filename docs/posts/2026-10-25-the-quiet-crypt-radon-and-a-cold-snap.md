@@ -1,5 +1,6 @@
 ---
 title: "The Quiet Crypt: a radon reading, a cold snap and an assistant that says yes to the week"
+seo_title: "The Quiet Crypt: a radon reading and a cold snap"
 date: 2026-10-25
 description: "New Hearth & Horizon story: a 420 Bq/m³ radon screen in a shelter crypt, and the arithmetic of four nights versus ninety."
 tags: [hearth-and-horizon, fiction, radon]

@@ -1,5 +1,6 @@
 ---
 title: "A Laplace cost cuts the variance-break detector's false alarms on heavy-tailed data from 63% to 8%"
+seo_title: "A Laplace cost cut variance-break false alarms from 63% to 8%"
 date: 2026-10-25
 description: "A Laplace cost behind --robust cuts the changepoint detector's variance-break false alarms on heavy-tailed noise from 37-63% to 5-8%."
 tags: [changepoint-detector, statistics]

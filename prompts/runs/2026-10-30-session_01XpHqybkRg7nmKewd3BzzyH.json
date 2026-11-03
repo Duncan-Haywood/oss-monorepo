@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01XpHqybkRg7nmKewd3BzzyH",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": "i think maybe having open custom development is a worthwhile thing to market as well. like here's how you add your request to the repo and follow up and check progress. only requirement is stays mit license held by the repo owner.",
+  "input_sha256": "4067624f6cee60a88e7d8f677902e6db6ec08b30798a8c1ee267fb127af8cbe5",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T22:19:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Open custom development: request form, file-backed request queue, public status page, blog post",
+  "projects": [
+    "portfolio/requests",
+    "platform/pages"
+  ],
+  "pr": 11925,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "route drew research; the owner's message asked for product/marketing work",
+      "did": "ran under the ventures track",
+      "result": "landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-30-open-custom-development.md"
+  ],
+  "goal": null,
+  "notes": "requests.test.mjs pass; custom-development-page, feedback-page, check, product-llms, writing tests pass after merging main (pre-merge failure was the Bulgaria post description, fixed on main). Full local `node build.mjs --out=dist --audio-cdn` exit 0 and `node check.mjs dist`: 'looks publishable: 1321 products, 44 category pages, 5904 pages, no dead links'. custom-development/ in sitemap-hub.xml and llms.txt; 390px screenshot has no horizontal scroll, request table stacks on phones. GitHub Actions had started no runs on the PR, so I ran it locally: platform/pages `node --test *.test.mjs cloudflare/*.test.mjs` gave 1353 pass and 2 fail. Both failures were pinned counts my change moves (llms-full bullet count, hub sitemap list); I updated them and they now pass. portfolio-validate.yml: 102/108 pass. Fixed in this PR: Start-here links both ways and the checklist naming portfolio/requests tests. Already failing on main and untouched here: flagships.yaml shift-roster-builder `next:` is 2038 chars (router validate + test_allocate) and distribution-versions-ci.yml has no concurrency group (validate_workflows + its test).",
+  "corrections": [],
+  "redteam": null
+}

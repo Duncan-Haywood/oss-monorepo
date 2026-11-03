@@ -1,5 +1,6 @@
 ---
 title: "Wall framing takeoff budget now exports to a spreadsheet from the command line"
+seo_title: "Wall framing takeoff budget now exports to CSV from the command line"
 date: 2026-10-27
 description: "node cli.mjs plan.json --budget --csv prints the priced takeoff, labor lines and totals as CSV."
 tags: [wall-framing-takeoff, construction, budget]

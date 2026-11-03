@@ -112,3 +112,19 @@ test("panelSheets adds one cropped sheet per panel with its own cut list", () =>
   assert.match(html, /<h1>[^<]* panel A<\/h1>/);
   assert.equal(sheets(drawingSetHtml(r, plan, { panelSheets: true })), r.walls.length, "ignored without panelMax");
 });
+
+test("sheathing sheet marks are outlined on the wall elevation when a sheathing result is given", async () => {
+  const { sheathe } = await import("./sheathing.mjs");
+  const { plan, r } = house();
+  const sh = sheathe(plan, r);
+  assert.ok(sh.ok);
+  const sw = sh.walls.find((x) => Number.isFinite(x.panels[0]?.y0));
+  const w = r.walls.find((x) => x.id === sw.id);
+  const wall = plan.walls.find((x) => x.id === sw.id);
+  const withSheets = wallElevationSvg(w, wall, plan, null, sw);
+  assert.equal((withSheets.match(/stroke="#2e7d32"/g) || []).length, sw.panels.length);
+  for (const p of sw.panels) assert.ok(withSheets.includes(`>${p.id}</text>`));
+  assert.ok(!wallElevationSvg(w, wall, plan).includes("#2e7d32\""));
+  r.sheathing = sh;
+  assert.ok(drawingSetHtml(r, plan, {}).includes(`>${sw.panels[0].id}</text>`));
+});

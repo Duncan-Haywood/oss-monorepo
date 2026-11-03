@@ -1,0 +1,28 @@
+route flights 134; duration 199 s mean; whole-flight energy 22.4 Wh mean, max 38.0 Wh
+mean path length 467 m
+
+non-cruise share of energy: 77.4% [73.8, 80.8]
+mean non-cruise power 381 W
+(1) FAILED
+
+by commanded speed: whole-flight J/m, cruise-only J/m, ratio
+     4 m/s n= 41 whole  205.3  share non-cruise  49.0%  Wh/flight  27.0
+     6 m/s n= 38 whole  169.8  share non-cruise  81.5%  Wh/flight  22.2
+     8 m/s n= 34 whole  153.8  share non-cruise  95.2%  Wh/flight  19.6
+    10 m/s n= 19 whole  144.3  share non-cruise  96.8%  Wh/flight  18.3
+    12 m/s n=  2 whole  166.6  share non-cruise  97.6%  Wh/flight  21.0
+
+fixed + per-metre split: e_tot = E0 + j * cruise_distance, fitted per speed and payload class
+  8 m/s n=34 E0 64374 J, per metre 113.4 J/m, cruise distance range 30 to 149 m
+     one pack, usable 60%: round trip one-way range 0.67 km;  two packs 1.91 km
+     one pack, usable 80%: round trip one-way range 1.08 km;  two packs 2.73 km
+     one pack, usable 100%: round trip one-way range 1.50 km;  two packs 3.56 km
+  10 m/s n=19 E0 59422 J, per metre 136.6 J/m, cruise distance range 37 to 65 m
+     one pack, usable 60%: round trip one-way range 0.59 km;  two packs 1.62 km
+     one pack, usable 80%: round trip one-way range 0.94 km;  two packs 2.31 km
+     one pack, usable 100%: round trip one-way range 1.28 km;  two packs 2.99 km
+
+(3) held: one pack, 80% usable, 8 m/s: 1.08 km one way
+bracket 8 m/s, one pack 80%: regression 1.08 km, cruise-only slope 60 J/m with E0 2.04 km; cruise window longest 149 m
+bracket 10 m/s, one pack 80%: regression 0.94 km, cruise-only slope 44 J/m with E0 2.91 km; cruise window longest 65 m
+(2) held: whole 153.8 vs cruise-only 60.1 J/m at 8 m/s (2.56)

@@ -11,7 +11,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
 
 import { checkSource, checkVentures, findShareSources } from "./share-location.mjs";
 
@@ -173,4 +174,17 @@ test("no venture writes share state to the query string", async () => {
       "Referer header of any outbound click. Assign `url.hash` instead, and keep\n" +
       "reading `location.search` so links shared earlier still open.",
   );
+});
+
+test("it skips a bare test.mjs or test.js but still scans other .mjs files", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "share-location-"));
+  try {
+    for (const name of ["test.mjs", "test.js", "calc.mjs"]) {
+      await writeFile(path.join(root, name), "export const ok = 1;\n", "utf8");
+    }
+    const names = (await findShareSources(root)).map((f) => path.basename(f));
+    assert.deepEqual(names, ["calc.mjs"]);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });

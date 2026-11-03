@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01AcxTtGQaHgPk9QTKRBcTcB",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T05:22:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12019",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "step 0 fetches origin security-alerts, which does not exist on the remote (fatal); no fallback stated."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pick_track.py drew track 14 (codesign), but the programme table says advance a programme; I took aerolog-scaling's logged Next instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "why": "draw gave codesign track 14; advanced the open aerolog-scaling programme instead, as PROGRAMMES.md says is the default",
+      "did": "milestone 9k",
+      "result": "landed, one prediction refuted"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-31-fitting-a-long-noisy-flight-record-start-short.md",
+    "research/aerolog-scaling/LOG.md"
+  ],
+  "goal": null,
+  "notes": "9k ran about 3 h CPU (BLAS oversubscribed at ~400% CPU). CI not waited on beyond local research build ok.",
+  "corrections": [],
+  "redteam": null
+}

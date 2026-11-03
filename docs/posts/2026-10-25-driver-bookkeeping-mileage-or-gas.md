@@ -1,5 +1,6 @@
 ---
 title: "A gig driver's books: the standard mileage rate and the gas receipts are not both deductible"
+seo_title: "Gig driver books: mileage rate or gas receipts, not both"
 date: 2026-10-25
 description: "A made-up Uber, Lyft and DoorDash month showed ai-bookkeeper deducting logged miles and fuel together on Schedule C line 9. It now warns and reads payouts."
 tags: [ventures, ai-bookkeeper, gig-economy]

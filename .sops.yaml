@@ -1,6 +1,0 @@
-# Placeholder creation rules. Replace age1replace-me with the public key
-# from bootstrap/scripts/gen-age-key.sh (laptop, private key offline).
-creation_rules:
-  - path_regex: infra/secrets/.*
-    encrypted_regex: "^(token|password|private_key|secret)$"
-    age: age1replace-me-do-not-encrypt-with-this-placeholder

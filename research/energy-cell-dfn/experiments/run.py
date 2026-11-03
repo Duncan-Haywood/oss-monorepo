@@ -58,6 +58,11 @@ def _model(cls):
     return cls({"SEI": "solvent-diffusion limited", "lithium plating": "irreversible"})
 
 
+def failure(kind, detail, cycles_done=0):
+    """A zero-score result that records why, so a solver crash is not mistaken for a dead design."""
+    return dict(score=0.0, wh_kg_bol=0.0, failure=kind, detail=detail, cycles_done=cycles_done)
+
+
 def evaluate_with(x, model_name, cycles=100):
     """Same protocol as energy_cell.evaluate, with the electrochemical model swapped."""
     import pybamm
@@ -72,10 +77,12 @@ def evaluate_with(x, model_name, cycles=100):
         for c in (sol.cycles[1], sol.cycles[-1]):
             d = c.steps[0]
             e.append(float(np.trapezoid(d["Terminal voltage [V]"].entries * d["Current [A]"].entries, d["Time [s]"].entries)) / 3600.0)
-    except Exception:
-        return dict(score=0.0, wh_kg_bol=0.0)
-    if len(sol.cycles) < cycles or e[0] <= 0:
-        return dict(score=0.0, wh_kg_bol=0.0)
+    except Exception as exc:  # keep score 0 for old readers, but say why
+        return failure("solver_error", f"{type(exc).__name__}: {str(exc)[:200]}")
+    if len(sol.cycles) < cycles:
+        return failure("stopped_early", f"{len(sol.cycles)} of {cycles} cycles", len(sol.cycles))
+    if e[0] <= 0:
+        return failure("no_discharge", "first cycle delivered no energy", len(sol.cycles))
     return dict(score=e[1] / mass, wh_kg_bol=e[0] / mass)
 
 

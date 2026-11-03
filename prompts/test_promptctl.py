@@ -69,6 +69,20 @@ class PromptTestCase(unittest.TestCase):
 
 
 class RouteTest(PromptTestCase):
+    def setUp(self):
+        super().setUp()
+        from unittest import mock
+        patch = mock.patch.object(promptctl, "review_claimed", return_value=False)
+        patch.start()
+        self.addCleanup(patch.stop)
+
+    def test_a_claimed_review_is_not_drawn_again(self):
+        from unittest import mock
+        with mock.patch.object(promptctl, "review_claimed", return_value=True):
+            for seed in range(20):
+                r = promptctl.route(self.fx.root, rng=random.Random(seed))
+                self.assertNotEqual(r["track"], "review")
+
     def test_forced_track_uses_its_champion(self):
         r = promptctl.route(self.fx.root, track="research", rng=random.Random(0))
         self.assertEqual((r["track"], r["version"], r["role"]), ("research", 0, "champion"))

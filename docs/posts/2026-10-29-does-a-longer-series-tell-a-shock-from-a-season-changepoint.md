@@ -1,5 +1,6 @@
 ---
 title: "A longer series did not help the changepoint detector tell a shock from a season"
+seo_title: "Can a longer series tell a shock from a season?"
 date: 2026-10-29
 description: "195 months of euro-area factory orders through the 2008 crash: the detector found the collapse, warned about a drifting season, and cut 16 to 22 steps in all."
 tags: [changepoint-detector, time-series]

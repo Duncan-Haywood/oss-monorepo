@@ -1,5 +1,6 @@
 ---
 title: "A five-point pilot can flag a bad cheap rung, but never cutting on it still wins"
+seo_title: A five-point pilot can flag a bad cheap rung; never cutting still wins
 date: 2026-10-26
 description: "A pilot of five routed points flags a mis-ranking cheap rung (AUC 0.85), but a gate built on it only ties never cutting on that rung."
 tags: [verified-dse, chip-design, multi-fidelity-search, negative-result]

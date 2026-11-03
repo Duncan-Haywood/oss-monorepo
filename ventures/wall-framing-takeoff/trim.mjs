@@ -13,11 +13,15 @@
 // modelled. A run longer than the stock is split; `scarf` (inches, default 0,
 // a butt joint) adds the overlap each splice uses, the waste figure covers the rest.
 
+import { textNumberErrors } from "./numfields.mjs";
 /** @typedef {{ baseSides?: 1|2, baseStock?: number, casingStock?: number, casingWidth?: number, reveal?: number, waste?: number, basePrice?: number, casingPrice?: number, base?: boolean, casing?: boolean, shoe?: boolean, shoeStock?: number, shoePrice?: number, scarf?: number }} Trim */
 
 /** @param {Trim} d */
 export function validateTrim(d) {
   const e = [];
+  if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Trim settings are an object."];
+  e.push(...textNumberErrors(d, ['basePrice', 'baseStock', 'casingPrice', 'casingStock', 'casingWidth', 'reveal', 'scarf', 'shoePrice', 'shoeStock', 'waste']));
+  if (e.length) return e;
   if (d.baseSides != null && d.baseSides !== 1 && d.baseSides !== 2) e.push("Baseboard sides must be 1 or 2.");
   for (const k of /** @type {const} */ (["baseStock", "casingStock", "shoeStock"])) if (d[k] != null && !(d[k] >= 48 && d[k] <= 240)) e.push(`${k} must be between 48 and 240 inches.`);
   if (d.casingWidth != null && !(d.casingWidth > 0 && d.casingWidth <= 8)) e.push("Casing width must be between 0 and 8 inches.");

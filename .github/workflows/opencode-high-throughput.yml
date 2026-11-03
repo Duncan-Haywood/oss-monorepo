@@ -115,6 +115,9 @@ jobs:
           printf '%s\n' "agent_ids=$(printf '%s\n' "${ids[@]}" | jq -R . | jq -sc .)" >> "$GITHUB_OUTPUT"
 
   opencode-agent:
+    # Secrets live in the `paid-agents` environment, limited to main
+    # (docs/security/agent-hardening.md, step 4).
+    environment: paid-agents
     needs: resolve-config
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 120

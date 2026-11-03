@@ -138,3 +138,64 @@ test("a step steeper than 1 to 2 warns, and a bad rise is refused", () => {
   f.footing.steps = [{ rise: 40, length: 100 }];
   assert.ok(!layoutFoundation(f).ok);
 });
+
+test("pier bearing: load over pad area against typed soil pressure, by hand", () => {
+  // 24 in pad = 4 sq ft; 10,000 lb is 2,500 psf. Soil 2,000 psf fails and needs sqrt(5)*12 = 26.8 -> 27 in; 3,000 psf passes.
+  const mk = (soilBearing) => layoutFoundation({ ...sampleFoundation(), soilBearing, piers: [{ name: "post", count: 2, pad: 24, padDepth: 12, load: 10000 }] });
+  const bad = mk(2000), good = mk(3000);
+  assert.equal(bad.pierChecks[0].pressure, 2500); assert.equal(bad.pierChecks[0].ok, false); assert.equal(bad.pierChecks[0].minPad, 27);
+  assert.ok(bad.notes.some((n) => /27 in square/.test(n)));
+  assert.equal(good.pierChecks[0].ok, true); assert.ok(!good.notes.some((n) => /psf you typed/.test(n)));
+  assert.deepEqual(layoutFoundation(sampleFoundation()).pierChecks, []);
+  assert.ok(validateFoundation({ ...sampleFoundation(), soilBearing: 100 }).length);
+});
+
+test("walkout stem adds a wedge of wall, by hand", () => {
+  const base = layoutFoundation({ ...sampleFoundation(), interior: [] });
+  const f = { ...sampleFoundation(), interior: [] }; f.stem = { ...f.stem, walkout: { length: 240, extra: 48 } };
+  const l = layoutFoundation(f);
+  assert.ok(l.ok);
+  // wedge face = 240 x 48 / 2 = 5760 sq in, x 8 in thick
+  near(l.pours.find((p) => p.name === "stem wall").cuYd - base.pours.find((p) => p.name === "stem wall").cuYd, 5760 * 8 / 46656, 0.001);
+  near(l.forms.contactSqFt - base.forms.contactSqFt, 2 * 5760 / 144, 0.1);
+  const v = l.rebar.find((r) => r.what.startsWith("walkout stem verticals"));
+  assert.equal(v.qty, Math.ceil(240 / 32));
+  assert.ok(l.notes.some((n) => n.startsWith("Walkout")));
+  f.stem.walkout = { length: 10, extra: 48 };
+  assert.ok(!layoutFoundation(f).ok);
+});
+
+test("walkout footing steps down in equal steps, by hand", () => {
+  const f = { ...sampleFoundation(), interior: [] }; f.stem = { ...f.stem, walkout: { length: 240, extra: 48, maxStepRise: 16 } };
+  const l = layoutFoundation(f);
+  assert.ok(l.ok);
+  assert.equal(l.walkoutSteps.length, 3); // ceil(48 / 16)
+  assert.equal(l.walkoutSteps[0].rise, 16); assert.equal(l.walkoutSteps[0].length, 80);
+  // risers: 3 x footing width x 16 x footing depth
+  const ft = l.footing; near(l.pours.find((p) => p.name === "walkout footing step risers").cuYd, 3 * ft.width * 16 * ft.depth / 46656, 0.001);
+  assert.ok(!l.notes.some((n) => n.includes("steeper")));
+  f.stem.walkout = { length: 60, extra: 48, maxStepRise: 24 }; // 2 steps of 24 over 30 in: steeper than 1:2
+  assert.ok(layoutFoundation(f).notes.some((n) => n.startsWith("Walkout footing steps") && n.includes("steeper")));
+  f.stem.walkout = { length: 240, extra: 48, maxStepRise: 2 };
+  assert.ok(!layoutFoundation(f).ok);
+  assert.equal(layoutFoundation({ ...sampleFoundation(), interior: [] }).walkoutSteps.length, 0);
+});
+
+test("malformed foundation bodies come back as errors, not exceptions", () => {
+  const b = { width: 480, depth: 360 };
+  for (const bad of [null, "x", [], { ...b, footing: null, interior: "a" }, { ...b, interior: [null] }, { ...b, piers: {} }, { ...b, piers: [null] }, { ...b, footing: { steps: {} } }, { ...b, footing: { steps: [null] } }, { ...b, stem: { walkout: "x" } }, { ...b, slab: [] }]) {
+    const r = layoutFoundation(bad);
+    assert.equal(r.ok, false, JSON.stringify(bad));
+    assert.ok(r.errors.length > 0);
+  }
+  assert.equal(layoutFoundation({ ...b, anchorBolts: null }).ok, true);
+});
+
+test("validateFoundation refuses numbers given as text (a text waste made the order 10x too big)", () => {
+  const s = sampleFoundation();
+  for (const bad of [{ waste: "0.1" }, { width: "480" }, { truck: "10" }, { footing: { ...s.footing, width: "20" } }, { stem: { ...s.stem, height: "32" } }, { interior: [{ length: "336" }] }]) {
+    const e = validateFoundation({ ...s, ...bad });
+    assert.ok(e.length && /must be a number/.test(e[0]), JSON.stringify(bad));
+  }
+  assert.deepEqual(validateFoundation(s), []);
+});

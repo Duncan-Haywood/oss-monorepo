@@ -1,0 +1,185 @@
+{
+  "_about": "Every external account the distribution channels need, as code (owner, 2026-10-31: everything as code; 2026-11-02: a managed email the agents use for sign-ups). One row per account: where to sign up, which address to sign up with, which secrets and variables the workflows read, and which channels it switches on. Secret NAMES only; values live in the GitHub secret store. Creating the account stays with the owner (goals.md, Hard limits: registering accounts and publishing under the portfolio's public name). `node platform/distribution/setup.mjs` prints the checklist and checks this file against the workflows.",
+  "signup_address": {
+    "local": "accounts",
+    "purpose": "the one address every portfolio platform account is registered with: sign-up confirmations, password resets and platform notices"
+  },
+  "accounts": [
+    {
+      "id": "github",
+      "name": "GitHub (this repository)",
+      "tier": 0,
+      "signup_url": null,
+      "signup_with": null,
+      "unlocks": ["github-release-digest", "tool-releases", "ghcr-container-images", "desktop-apps"],
+      "workflows": ["distribute-releases.yml", "distribute-tool-releases.yml", "distribute-ghcr.yml", "distribute-desktop.yml"],
+      "secrets": [],
+      "variables": ["DISTRIBUTE_RELEASES", "DISTRIBUTE_TOOL_RELEASES", "DISTRIBUTE_GHCR", "DISTRIBUTE_DESKTOP"],
+      "steps": [
+        "No new account: the workflows use their own GITHUB_TOKEN.",
+        "Settings > Secrets and variables > Actions > Variables: set DISTRIBUTE_RELEASES=true (a weekly launches release) and DISTRIBUTE_TOOL_RELEASES=true (version tags for allow-listed tools).",
+        "Optional: DISTRIBUTE_GHCR=true (container images) and DISTRIBUTE_DESKTOP=true (desktop app builds)."
+      ]
+    },
+    {
+      "id": "cloudflare-email",
+      "name": "Mail to accounts@marisstella.app (Cloudflare Email Routing)",
+      "tier": 0,
+      "signup_url": null,
+      "signup_with": null,
+      "unlocks": [],
+      "workflows": ["cloudflare-email.yml"],
+      "secrets": ["EMAIL_FORWARD_TO"],
+      "variables": [],
+      "steps": [
+        "Do this before any sign-up below, or the confirmation emails bounce (the domain had no MX record on 2026-10-31).",
+        "Add the EMAIL_FORWARD_TO secret (your inbox) to the `cloudflare` environment and give the deploy token the Email Routing permissions listed at the top of platform/pages/cloudflare/email-routing.mjs.",
+        "Run the cloudflare-email workflow with apply ticked, then click the verification link Cloudflare sends your inbox. support@, hello@ and accounts@ then forward to it."
+      ]
+    },
+    {
+      "id": "bluesky",
+      "name": "Bluesky",
+      "tier": 1,
+      "signup_url": "https://bsky.app",
+      "signup_with": "accounts",
+      "unlocks": ["bluesky-bot"],
+      "workflows": ["distribute-bluesky.yml", "distribute-hub.yml"],
+      "secrets": ["BSKY_HANDLE", "BSKY_APP_PASSWORD"],
+      "variables": ["DISTRIBUTE_BLUESKY"],
+      "steps": [
+        "Sign up with accounts@marisstella.app. Say in the bio that the account is automated and posts new free tools and write-ups from the portfolio.",
+        "Settings > Privacy and security > App passwords: create one for this repository. Never store the account password.",
+        "Add secrets BSKY_HANDLE and BSKY_APP_PASSWORD, then set DISTRIBUTE_BLUESKY=true. Dry run first: node platform/distribution/bluesky.mjs"
+      ]
+    },
+    {
+      "id": "mastodon",
+      "name": "Mastodon (one instance that welcomes labelled bots)",
+      "tier": 1,
+      "signup_url": "https://joinmastodon.org/servers",
+      "signup_with": "accounts",
+      "unlocks": ["mastodon-bot"],
+      "workflows": ["distribute-mastodon.yml", "distribute-hub.yml"],
+      "secrets": ["MASTODON_TOKEN"],
+      "variables": ["DISTRIBUTE_MASTODON", "MASTODON_INSTANCE", "MASTODON_ACCT"],
+      "steps": [
+        "Pick an instance whose rules allow bot accounts and self-promotion of free software. Read its rules the day you sign up.",
+        "Sign up with accounts@marisstella.app and tick \"This is a bot account\" in the profile (the script refuses to post without it).",
+        "Preferences > Development > New application: scopes write:statuses and read:accounts only. Store the token as MASTODON_TOKEN.",
+        "Set MASTODON_INSTANCE (https URL), MASTODON_ACCT (the handle, for the hub's metrics) and DISTRIBUTE_MASTODON=true."
+      ]
+    },
+    {
+      "id": "devto",
+      "name": "dev.to",
+      "tier": 2,
+      "signup_url": "https://dev.to/enter",
+      "signup_with": "accounts",
+      "unlocks": ["devto-crosspost"],
+      "workflows": ["distribute-devto.yml", "distribute-hub.yml"],
+      "secrets": ["DEVTO_API_KEY"],
+      "variables": ["DISTRIBUTE_DEVTO", "DEVTO_PUBLISH"],
+      "steps": [
+        "Sign up with accounts@marisstella.app (email sign-up, not a social login, so the account does not hang off a personal profile).",
+        "Settings > Extensions > DEV Community API Keys: generate one, store it as DEVTO_API_KEY, set DISTRIBUTE_DEVTO=true.",
+        "Articles are drafts until DEVTO_PUBLISH=true. Read the first few drafts before you set it."
+      ]
+    },
+    {
+      "id": "hashnode",
+      "name": "Hashnode",
+      "tier": 2,
+      "signup_url": "https://hashnode.com/onboard",
+      "signup_with": "accounts",
+      "unlocks": ["hashnode-crosspost"],
+      "workflows": ["distribute-hashnode.yml"],
+      "secrets": ["HASHNODE_TOKEN"],
+      "variables": ["DISTRIBUTE_HASHNODE", "HASHNODE_PUBLICATION_ID", "HASHNODE_PUBLISH"],
+      "steps": [
+        "Sign up with accounts@marisstella.app and create one publication (blog).",
+        "Account settings > Developer: generate a personal access token, store it as HASHNODE_TOKEN.",
+        "Set HASHNODE_PUBLICATION_ID and DISTRIBUTE_HASHNODE=true. Posts are drafts until HASHNODE_PUBLISH=true."
+      ]
+    },
+    {
+      "id": "npm",
+      "name": "npm registry",
+      "tier": 3,
+      "signup_url": "https://www.npmjs.com/signup",
+      "signup_with": "accounts",
+      "unlocks": ["npm-cli-packages", "mcp-server"],
+      "workflows": ["distribute-npm.yml", "distribute-mcp.yml", "distribute-tool-releases.yml", "distribute-homebrew.yml"],
+      "secrets": ["NPM_TOKEN"],
+      "variables": ["DISTRIBUTE_NPM", "NPM_SCOPE", "DISTRIBUTE_MCP"],
+      "steps": [
+        "Sign up with accounts@marisstella.app and turn on two-factor authentication (npm asks for it to publish).",
+        "Create an organisation for the scope (NPM_SCOPE); two names are taken by other projects without one (portfolio/distribution/README.md).",
+        "Access Tokens > Generate: a granular token limited to that scope, with an expiry. Store it as NPM_TOKEN; set NPM_SCOPE, DISTRIBUTE_NPM=true and, for the MCP server, DISTRIBUTE_MCP=true."
+      ]
+    },
+    {
+      "id": "pypi",
+      "name": "PyPI",
+      "tier": 3,
+      "signup_url": "https://pypi.org/account/register/",
+      "signup_with": "accounts",
+      "unlocks": ["pypi-python-clis", "pypi-pyproject-packages"],
+      "workflows": ["distribute-pypi.yml", "distribute-pypi-packages.yml", "distribute-tool-releases.yml"],
+      "secrets": ["PYPI_TOKEN"],
+      "variables": ["DISTRIBUTE_PYPI"],
+      "steps": [
+        "Sign up with accounts@marisstella.app and turn on two-factor authentication (PyPI requires it).",
+        "Account settings > API tokens: create one. Store it as PYPI_TOKEN and set DISTRIBUTE_PYPI=true."
+      ]
+    },
+    {
+      "id": "homebrew-tap",
+      "name": "Homebrew tap (a second GitHub repository)",
+      "tier": 3,
+      "signup_url": null,
+      "signup_with": null,
+      "unlocks": ["homebrew-tap"],
+      "workflows": ["distribute-homebrew.yml"],
+      "secrets": ["HOMEBREW_TAP_TOKEN"],
+      "variables": ["DISTRIBUTE_HOMEBREW", "HOMEBREW_TAP_REPO"],
+      "steps": [
+        "Create an empty public repository named homebrew-<something> under your account.",
+        "Create a fine-grained token with Contents: write on that repository only. Store it as HOMEBREW_TAP_TOKEN.",
+        "Set HOMEBREW_TAP_REPO (owner/name) and DISTRIBUTE_HOMEBREW=true. Needs the npm channel live first (formulae install the npm packages)."
+      ]
+    },
+    {
+      "id": "meta",
+      "name": "Meta: Threads, a Facebook Page, Instagram",
+      "tier": 4,
+      "signup_url": "https://developers.facebook.com/apps",
+      "signup_with": null,
+      "unlocks": ["hub-threads", "hub-facebook", "hub-instagram"],
+      "workflows": ["distribute-hub.yml"],
+      "secrets": ["THREADS_TOKEN", "FACEBOOK_PAGE_TOKEN", "INSTAGRAM_TOKEN"],
+      "variables": ["DISTRIBUTE_THREADS", "THREADS_USER_ID", "DISTRIBUTE_FACEBOOK", "FACEBOOK_PAGE_ID", "DISTRIBUTE_INSTAGRAM", "INSTAGRAM_USER_ID", "INSTAGRAM_IMAGE_BASE"],
+      "steps": [
+        "These hang off a personal Meta login: a Page is administered from a personal profile, and Threads and Instagram professional accounts link to it. So the sign-up address is yours, not accounts@. Contact email on the Page can still be hello@marisstella.app.",
+        "Create the Page and an Instagram professional account, then a Meta developer app with the permissions listed in node platform/distribution/hub.mjs platforms.",
+        "Store THREADS_TOKEN, FACEBOOK_PAGE_TOKEN, INSTAGRAM_TOKEN; set the IDs, INSTAGRAM_IMAGE_BASE and each DISTRIBUTE_* you want on. Each platform is independent."
+      ]
+    },
+    {
+      "id": "buttondown",
+      "name": "Buttondown (opt-in email list)",
+      "tier": 4,
+      "signup_url": "https://buttondown.com/register",
+      "signup_with": "accounts",
+      "unlocks": ["hub-email"],
+      "workflows": ["distribute-hub.yml"],
+      "secrets": ["BUTTONDOWN_API_KEY"],
+      "variables": ["DISTRIBUTE_EMAIL", "EMAIL_SEND"],
+      "steps": [
+        "Decide the postal address every email must show (CAN-SPAM). That is the only decision here that is not a click.",
+        "Sign up with accounts@marisstella.app, set the reply-to to hello@marisstella.app, keep double opt-in on.",
+        "Store BUTTONDOWN_API_KEY and set DISTRIBUTE_EMAIL=true. Emails are drafts until EMAIL_SEND=true."
+      ]
+    }
+  ]
+}

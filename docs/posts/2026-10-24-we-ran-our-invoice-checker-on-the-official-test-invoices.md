@@ -1,5 +1,6 @@
 ---
 title: "We ran our e-invoice checker on the EU's own example invoices. None passed."
+seo_title: "We ran our e-invoice checker on the EU's example invoices"
 date: 2026-10-24
 description: "Our free e-invoice preflight failed all 41 official EN 16931 examples. The causes were arithmetic false positives, now fixed."
 tags: [e-invoicing, testing, peppol, en16931]

@@ -1,5 +1,6 @@
 ---
 title: "Skipping training steps helped on an easy task, and it was not the data split"
+seo_title: "Skipping training steps helped on an easy task, not the data split"
 date: 2026-10-24
 description: "Resampling the train/test split 20 times, skipping steps a drift-tolerant check passes still lowered held-out loss on breast cancer and cost little on digits."
 tags: [research, verifiable-training, simulation]

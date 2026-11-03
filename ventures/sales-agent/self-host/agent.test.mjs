@@ -311,3 +311,40 @@ test("M8b stage move: only on a person's call, only an interested reply, only a 
   assert.match((await off.moveDeal("<4@x>")).error, /stage moves are off/);
   await new Promise((r) => srv.close(r));
 });
+
+test("M7d call prep and follow-up from the agent's own thread; a person who asked to stop gets a warning and no draft; HTTP needs the token", async () => {
+  const f = fakeImap({ messages: {
+    1: mail("Lee <lee@corp.example>", "Re: routes", "We use spreadsheets by hand today and it takes hours. Could you send a few times next week for a call?"),
+    2: mail("Dana <dana@bright.example>", "Re: routes", "Unsubscribe me please, stop emailing."),
+  } });
+  const port = await f.listen();
+  const env = { ADMIN_TOKEN: "x".repeat(16), DATA_DIR: mkdtempSync(join(tmpdir(), "sa-")), IMAP_HOST: "127.0.0.1", IMAP_PORT: String(port), IMAP_SECURE: "false", IMAP_USER: "me@example.com", IMAP_PASS: "pw", PORT: "0" };
+  const a = createAgent(env, { now: () => Date.parse("2026-10-26T10:00:00Z") });
+  await a.poll();
+  const p = a.prep("lee@corp.example", "");
+  assert.equal(p.stop, "");
+  assert.ok(p.history.length === 1 && p.known.length >= 1 && p.unknown.length >= 1);
+  const fu = a.followUp("lee@corp.example", "Wants fewer hours on routing.\nI will send the pricing sheet.\nNext call Thursday 2pm");
+  assert.ok(fu.draft && /pricing sheet/i.test(fu.draft.body));
+  const stop = a.followUp("dana@bright.example", "Spoke briefly.");
+  assert.equal(stop.draft, null);
+  assert.match(stop.issues.join(" "), /Do not send/);
+  assert.match(a.prep("dana@bright.example").brief, /./);
+  assert.ok(a.prep("not-an-email").error);
+  const audit = rf(join(env.DATA_DIR, "audit.jsonl"), "utf8");
+  assert.match(audit, /"event":"prep"/); assert.match(audit, /"event":"followup_drafted"/);
+  await new Promise((r) => a.server.listen(0, r));
+  const base = `http://127.0.0.1:${a.server.address().port}`;
+  assert.equal((await fetch(base + "/api/prep", { method: "POST", body: "{}" })).status, 401);
+  const r = await fetch(base + "/api/prep", { method: "POST", headers: { authorization: "Bearer " + env.ADMIN_TOKEN }, body: JSON.stringify({ email: "lee@corp.example" }) });
+  assert.equal(r.status, 200); assert.equal((await r.json()).email, "lee@corp.example");
+  assert.equal((await fetch(base + "/api/followup", { method: "POST", headers: { authorization: "Bearer " + env.ADMIN_TOKEN }, body: JSON.stringify({ email: "x" }) })).status, 422);
+  const home = await (await fetch(base + "/?token=" + env.ADMIN_TOKEN)).text();
+  assert.match(home, /id="calldesk"/); assert.match(home, /voice\.mjs\?token=/);
+  const mod = home.split('<script type="module">')[1].split("</script>")[0].replace(/^import .*?;\n/, "");
+  new (await import("node:vm")).Script(mod); // throws on a syntax error (a bad "\\n" escape once slipped through)
+  assert.equal((await fetch(base + "/voice.mjs")).status, 401);
+  const vm = await fetch(base + "/voice.mjs?token=" + env.ADMIN_TOKEN);
+  assert.equal(vm.status, 200); assert.match(await vm.text(), /export function appendDictation/);
+  a.server.close(); await f.close();
+});

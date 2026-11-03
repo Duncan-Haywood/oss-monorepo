@@ -16,6 +16,9 @@ concurrency:
   cancel-in-progress: false
 jobs:
   publish:
+    # Secrets live in the `publish` environment, limited to main
+    # (docs/security/agent-hardening.md, step 4).
+    environment: publish
     permissions:
       contents: read
       id-token: write

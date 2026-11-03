@@ -1,5 +1,6 @@
 ---
 title: "Schwab's checking export has note lines under the header, and our reader warned about them"
+seo_title: Schwab checking export note lines, now flagged by ai-bookkeeper
 date: 2026-10-27
 description: "Sweeping 33 public bank-file fixtures through ai-bookkeeper's reader found one fault: Schwab's newer checking CSV was not recognised and gave false warnings."
 tags: [ai-bookkeeper, bank-import, testing]

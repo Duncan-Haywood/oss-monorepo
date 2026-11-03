@@ -1,7 +1,7 @@
 # Fixing or improving a tool
 
 Every tool lives in its own directory, `ventures/<slug>/`, and its live page is
-`https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/<slug>/` (the old
+`https://marisstella.app/<slug>/` (the old
 `https://duncan-haywood.github.io/oss-monorepo/<slug>/` address redirects there). So the page you were
 using tells you the directory to open. The catalogue,
 [`ventures/README.md`](../../ventures/README.md), lists every tool with links

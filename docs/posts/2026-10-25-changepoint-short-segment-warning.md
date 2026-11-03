@@ -1,5 +1,6 @@
 ---
 title: "Changepoint detector now warns when a volatility model finds a too-short calm patch"
+seo_title: "Changepoint detector now warns on too-short calm patches"
 date: 2026-10-25
 description: "On real US GDP growth the default settings found a five-quarter quiet patch instead of the Great Moderation; the tool now says so."
 tags: [changepoint-detector, statistics]

@@ -1,0 +1,41 @@
+# Applies platform/pages/cloudflare/email-routing.json to Cloudflare Email
+# Routing for marisstella.app (owner, 2026-10-31: everything as code, email
+# included). Run by hand: Actions → Cloudflare email routing → Run workflow,
+# with "apply" ticked to write; unticked it only prints the plan.
+#
+# Secrets: CLOUDFLARE_API_TOKEN (needs Email Routing permissions, see the
+# script's header), CLOUDFLARE_ACCOUNT_ID, and EMAIL_FORWARD_TO, the inbox
+# every address forwards to. Cloudflare's API is free; nothing here pushes.
+name: Cloudflare email routing
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: Write the changes (unticked prints the plan only)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  email-routing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment:
+      name: cloudflare
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID }}
+      EMAIL_FORWARD_TO: ${{ secrets.EMAIL_FORWARD_TO }}
+      APPLY: ${{ inputs.apply && '1' || '0' }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+      - run: node --test platform/pages/cloudflare/email-routing.test.mjs
+      - run: node platform/pages/cloudflare/email-routing.mjs

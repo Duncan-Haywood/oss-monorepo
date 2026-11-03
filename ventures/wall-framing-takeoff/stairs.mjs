@@ -25,7 +25,7 @@ export function maxTreadSpan(thickness) { return thickness < 1.25 ? 12 : thickne
 export const RAIL_LIMITS = { guardHeight: 36, handrailMin: 34, handrailMax: 38, maxGap: 4, maxPostSpacing: 72, bottomGap: 4, maxBottomOpening: 6 };
 
 /** @typedef {{ sides?: number, handrail?: boolean, handrailHeight?: number, bracketSpacing?: number, balusterWidth?: number, railBoard?: string, postWidth?: number, limits?: Partial<typeof RAIL_LIMITS> }} Rail */
-/** @typedef {{ id?: string, rail?: Rail, totalRise: number, tread?: number, stringer?: string, width?: number, stringerSpacing?: number, treadThickness?: number, treadBoard?: string, treadGap?: number, nosing?: number, floorThickness?: number, openingLength?: number, openRisers?: boolean, riserBoard?: string, treadSpanMax?: number, limits?: Partial<typeof STAIR_LIMITS> }} Stair */
+/** @typedef {{ id?: string, rail?: Rail, totalRise: number, tread?: number, stringer?: string, width?: number, stringerSpacing?: number, treadThickness?: number, treadBoard?: string, treadGap?: number, nosing?: number, floorThickness?: number, openingLength?: number, openRisers?: boolean, riserBoard?: string, treadSpanMax?: number, limits?: Partial<typeof STAIR_LIMITS>, stringerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, thickness?: number, connectorCapacity?: number, bearingFcPerp?: number, bearingLength?: number, notchedSupport?: boolean | number }, treadCheck?: { point: number, Fb: number, E: number, deflLimit?: number }, postCheck?: { point: number, Fb: number } }} Stair */
 
 export function sampleStair() {
   return { id: "Main stair", totalRise: 108, tread: 10, stringer: "2x12", width: 36, treadThickness: 1.5, treadBoard: "2x12", floorThickness: 11.25 + 0.75 + 0.5, nosing: 0.75 };
@@ -33,8 +33,22 @@ export function sampleStair() {
 
 /** @param {Stair} s */
 export function validateStair(s) {
+  if (s == null || typeof s !== "object" || Array.isArray(s)) return ["Stair settings are an object."];
   const L = { ...STAIR_LIMITS, ...(s.limits || {}) };
   const errors = [];
+  // Typed numbers only: a string passes `>=` by coercion and later throws (tread "10" -> comfort.toFixed), a zero maxRiser makes an endless riser count.
+  const isNum = (v) => typeof v === "number" && Number.isFinite(v);
+  for (const k of ["maxRiser", "minTread", "riserVariance", "headroom", "minWidth", "maxRise", "minThroat", "openRiserGap"]) {
+    if (!isNum(L[k]) || L[k] <= 0) errors.push(`Limit ${k} must be a number over 0.`);
+  }
+  for (const k of ["totalRise", "tread", "width", "stringerSpacing", "nosing", "treadThickness", "treadGap", "floorThickness", "openingLength"]) {
+    if (s[k] != null && !isNum(s[k])) errors.push(`${k} must be a number of inches.`);
+  }
+  for (const k of ["treadThickness", "floorThickness", "treadGap", "openingLength"]) {
+    if (isNum(s[k]) && s[k] < 0) errors.push(`${k} ${s[k]} in cannot be negative.`);
+  }
+  if (isNum(s.stringerSpacing) && s.stringerSpacing > 0 && s.stringerSpacing < 2) errors.push(`Stringer spacing ${s.stringerSpacing} in is under 2 in; it would need thousands of stringers.`);
+  if (errors.length) return errors;
   if (!(s.totalRise >= 12)) errors.push("Total rise (finished floor to finished floor) must be at least 1 ft.");
   else if (s.totalRise > L.maxRise) errors.push(`A flight can rise at most ${formatLength(L.maxRise)} between landings; ${formatLength(s.totalRise)} needs a landing, so lay out each flight on its own.`);
   if (s.tread != null && !(s.tread >= L.minTread)) errors.push(`Tread ${s.tread} in is under the ${L.minTread} in minimum.`);
@@ -43,6 +57,8 @@ export function validateStair(s) {
   if (s.riserBoard && !(s.riserBoard in DEPTH)) errors.push(`Unknown riser board size ${s.riserBoard}.`);
   if (s.width != null && !(s.width >= L.minWidth)) errors.push(`Stair width ${s.width} in is under the ${L.minWidth} in minimum.`);
   if (s.width != null && s.width > 120) errors.push("Stair width over 10 ft is outside what this layout checks.");
+  if (s.stringerSpacing != null && !(s.stringerSpacing > 0 && s.stringerSpacing <= 48)) errors.push(`Stringer spacing ${s.stringerSpacing} in must be over 0 and at most 48 in.`);
+  if (s.nosing != null && !(s.nosing >= 0)) errors.push(`Nosing ${s.nosing} in cannot be negative.`);
   return errors;
 }
 
@@ -117,6 +133,9 @@ export function layoutStair(input, plan) {
     hardware: { topConnectors: stringers, footAnchors: stringers },
     // Stock (2026-10-30): the shortest listed board that holds one stringer, for the framer's buy list (null with no plan).
     stringerStock: plan ? { size: s.stringer, length: Math.min(...plan.stock.filter((x) => x.size === s.stringer && x.length >= stringerLength - 1e-9).map((x) => x.length)), count: stringers } : null,
+    stringerCheck: input.stringerCheck ? checkStringer({ stringer: { spacing: treadSpan, throat, count: stringers }, run }, input.stringerCheck) : null,
+    treadCheck: input.treadCheck ? checkTread({ span: treadSpan, thickness: s.treadThickness, width: bw }, input.treadCheck) : null,
+    postCheck: input.postCheck && rail ? checkGuardPost({ width: rail.posts.width, depth: rail.posts.width, height: rail.guardHeight }, input.postCheck) : null,
     treadBoards, openRisers: !!s.openRisers, riserBoards: s.openRisers ? 0 : risers, riserStock: riserBoards, width: s.width,
     minOpening: Math.ceil(minOpening * 16) / 16, opening, rail, marks, sumRise, notes, limits: L, nosing: s.nosing,
   };
@@ -198,6 +217,105 @@ export function stairCuts(l) {
   return rows;
 }
 
+/**
+ * Stringer strength check (2026-10-31), on typed figures only: no allowable stresses are shipped, so the
+ * person types the species/grade values from the lumber's own table. The worst (interior) stringer carries the
+ * live plus dead load over the tread width it serves (one stringer spacing) on the horizontal projection, as a
+ * simply supported beam spanning the total run with no mid support. The section is the throat under the notches
+ * (the conservative cut-section, 1-1/2 in thick), for bending, shear at the support and deflection (span/240
+ * unless `deflLimit`). A hand check for a framer or plan reviewer; the engineer of record's call governs.
+ * @param {{stringer:{spacing:number, throat:number, count?:number}, run:number}} l
+ * @param {{liveLoad:number, deadLoad:number, Fb:number, Fv:number, E:number, deflLimit?:number, thickness?:number, connectorCapacity?:number, bearingFcPerp?:number, bearingLength?:number, notchedSupport?:boolean|number}} c
+ */
+export function checkStringer(l, c) {
+  const errors = [];
+  for (const [k, lo, hi] of [["liveLoad", 1, 200], ["deadLoad", 0, 200], ["Fb", 10, 5000], ["Fv", 1, 500], ["E", 200000, 3000000]]) {
+    if (c?.[k] == null || !(c[k] >= lo && c[k] <= hi)) errors.push(`stringerCheck.${k} must be typed, from ${lo} to ${hi} (${k === "liveLoad" || k === "deadLoad" ? "psf" : "psi"}); no default is shipped.`);
+  }
+  if (c?.deflLimit != null && !(c.deflLimit >= 120 && c.deflLimit <= 960)) errors.push("stringerCheck.deflLimit is the L/ ratio, from 120 to 960.");
+  if (c?.connectorCapacity != null && !(c.connectorCapacity >= 50 && c.connectorCapacity <= 20000)) errors.push("stringerCheck.connectorCapacity is lb per connector or fastener group, from 50 to 20000.");
+  if (c?.bearingFcPerp != null && !(c.bearingFcPerp >= 100 && c.bearingFcPerp <= 2000)) errors.push("stringerCheck.bearingFcPerp is the allowable compression perpendicular to grain in psi, from 100 to 2000.");
+  if (c?.bearingLength != null && !(c.bearingLength >= 1 && c.bearingLength <= 24)) errors.push("stringerCheck.bearingLength is the bearing length in inches, from 1 to 24 (3.5 unless typed).");
+  const boardDepth = /** @type {any} */ (l.stringer).depth;
+  if (c?.notchedSupport != null && c.notchedSupport !== false && !(c.notchedSupport === true ? boardDepth > 0 : c.notchedSupport > 0 && c.notchedSupport < boardDepth)) errors.push("stringerCheck.notchedSupport is true (the throat is what is left at the support) or the depth in inches left at the support, under the board's depth.");
+  if (errors.length) return { ok: false, errors };
+  const b = c.thickness ?? 1.5, d = l.stringer.throat, L = l.run;
+  if (!(d > 0)) return { ok: false, errors: ["The throat under the notches is zero or negative; there is no section to check."] };
+  const w = ((c.liveLoad + c.deadLoad) * l.stringer.spacing) / 12 / 12; // lb per horizontal inch
+  const M = (w * L * L) / 8, V = (w * L) / 2;
+  const S = (b * d * d) / 6, I = (b * d ** 3) / 12;
+  const fb = M / S, fv = (1.5 * V) / (b * d);
+  const delta = (5 * w * L ** 4) / (384 * c.E * I), limit = L / (c.deflLimit ?? 240);
+  const warnings = [];
+  // Bearing (2026-11-01): the end reaction over the stringer's thickness x bearing length, against a typed compression-perpendicular allowable (none shipped).
+  const bearingLength = c.bearingLength ?? 3.5, fcPerp = V / (b * bearingLength);
+  if (c.bearingFcPerp != null && fcPerp > c.bearingFcPerp) warnings.push(`Bearing stress ${fcPerp.toFixed(0)} psi over ${bearingLength} in exceeds the typed ${c.bearingFcPerp} psi: lengthen the bearing, add a ledger or bear on a wider member.`);
+  if (fb > c.Fb) warnings.push(`Bending stress ${fb.toFixed(0)} psi in the throat exceeds the typed ${c.Fb} psi: use a deeper board, add a mid-flight support or a closer stringer spacing.`);
+  // Notch at the support (2026-11-01): a tension-face notch where the stringer bears cuts shear capacity to (2/3) Fv b dn (dn/d) (NDS 3.4.3.2 form), dn the depth left, d the board depth; typed Fv, none shipped.
+  const dn = c.notchedSupport === true ? d : typeof c.notchedSupport === "number" ? c.notchedSupport : null;
+  const notchCapacity = dn != null ? (2 / 3) * c.Fv * b * dn * (dn / boardDepth) : null;
+  if (notchCapacity != null && V > notchCapacity) warnings.push(`End shear ${V.toFixed(0)} lb exceeds ${notchCapacity.toFixed(0)} lb allowed with a notch leaving ${dn} in of a ${boardDepth} in board at the support: keep the full depth at the bearing, or hang it from a ledger or hanger.`);
+  if (fv > c.Fv) warnings.push(`Shear stress ${fv.toFixed(0)} psi exceeds the typed ${c.Fv} psi at the support.`);
+  if (delta > limit) warnings.push(`Deflection ${delta.toFixed(2)} in exceeds span/${c.deflLimit ?? 240} (${limit.toFixed(2)} in).`);
+  // Minimum throat (2026-11-01): the smallest section depth that passes each check at these loads, from the same formulas solved for d: bending sqrt(6M/(b Fb)), shear 1.5V/(b Fv), deflection cbrt(60 w L^4/(384 E b limit)).
+  const dBend = Math.sqrt((6 * M) / (b * c.Fb)), dShear = (1.5 * V) / (b * c.Fv), dDefl = Math.cbrt((12 * 5 * w * L ** 4) / (384 * c.E * b * limit));
+  const minThroat = Math.max(dBend, dShear, dDefl), minThroatGoverns = minThroat === dDefl ? "deflection" : minThroat === dBend ? "bending" : "shear";
+  // Top reaction of the whole flight (every stringer), the figure to type into the floor's `headerCheck.stairReaction`; the live share is for that header's deflection.
+  const n = l.stringer.count ?? null;
+  const totalReaction = n ? n * V : null, totalReactionLive = n ? (n * V * c.liveLoad) / (c.liveLoad + c.deadLoad) : null;
+  // Top connection (2026-11-01): with a typed per-connector allowable (from the hanger or bolt maker's table; none shipped), how many carry one stringer's end reaction.
+  const connectorsNeeded = c.connectorCapacity ? Math.ceil(V / c.connectorCapacity - 1e-9) : null;
+  return { ok: warnings.length === 0, fb, fv, delta, limit, Fb: c.Fb, Fv: c.Fv, M, V, reaction: V, connectorsNeeded, connectorCapacity: c.connectorCapacity ?? null, notchCapacity, fcPerp: c.bearingFcPerp != null ? fcPerp : null, bearingLength: c.bearingFcPerp != null ? bearingLength : null, minBearingLength: c.bearingFcPerp != null ? V / (b * c.bearingFcPerp) : null, totalReaction, totalReactionLive, minThroat, minThroatGoverns, throat: d, warnings, errors: [] };
+}
+
+/**
+ * Tread board point-load check (2026-11-01), on typed figures only. The model residential code asks a stair tread
+ * to carry a concentrated load (300 lb on a small area at midspan) within a deflection limit; the load, the
+ * allowable bending stress and E are typed (no values shipped). One board is assumed to take the whole load
+ * (conservative: no sharing with the neighbouring board), simply supported between two stringers:
+ * M = P L / 4, fb = M / S, delta = P L^3 / (48 E I), limit L/`deflLimit` (240 unless typed). A hand check for a
+ * framer; the engineer of record's call governs.
+ * @param {{span:number, thickness:number, width:number}} t  span between stringers, board thickness and width (actual inches)
+ * @param {{point:number, Fb:number, E:number, deflLimit?:number}} c
+ */
+export function checkTread(t, c) {
+  const errors = [];
+  for (const [k, lo, hi] of [["point", 50, 2000], ["Fb", 10, 5000], ["E", 200000, 3000000]]) {
+    if (c?.[k] == null || !(c[k] >= lo && c[k] <= hi)) errors.push(`treadCheck.${k} must be typed, from ${lo} to ${hi} (${k === "point" ? "lb" : "psi"}); no default is shipped.`);
+  }
+  if (c?.deflLimit != null && !(c.deflLimit >= 120 && c.deflLimit <= 960)) errors.push("treadCheck.deflLimit is the L/ ratio, from 120 to 960.");
+  if (errors.length) return { ok: false, errors, warnings: [] };
+  const { span: L, thickness: b0, width: w0 } = t;
+  const M = (c.point * L) / 4, S = (w0 * b0 * b0) / 6, I = (w0 * b0 ** 3) / 12;
+  const fb = M / S, delta = (c.point * L ** 3) / (48 * c.E * I), limit = L / (c.deflLimit ?? 240);
+  const warnings = [];
+  if (fb > c.Fb) warnings.push(`Tread bending stress ${fb.toFixed(0)} psi under ${c.point} lb exceeds the typed ${c.Fb} psi: use thicker treads or a closer stringer spacing.`);
+  if (delta > limit) warnings.push(`Tread deflection ${delta.toFixed(3)} in under ${c.point} lb exceeds span/${c.deflLimit ?? 240} (${limit.toFixed(3)} in).`);
+  return { ok: warnings.length === 0, fb, delta, limit, M, Fb: c.Fb, point: c.point, warnings, errors: [] };
+}
+
+/**
+ * Guard post bending check (2026-11-01), on typed figures only. The model residential code asks a guard to resist a
+ * concentrated load (200 lb) applied at the top in any direction; the post is taken as a cantilever fixed at its
+ * attachment, so M = P h, about the weaker axis (S = d b^2 / 6, b the smaller face), fb = M / S against the typed
+ * allowable bending stress. This is the post's own bending only: the bolted or notched attachment to the stringer
+ * or rim usually governs and is not checked here. A hand check for a framer; the engineer of record's call governs.
+ * @param {{width:number, depth:number, height:number}} p  post faces and height from the attachment to the load (actual inches)
+ * @param {{point:number, Fb:number}} c
+ */
+export function checkGuardPost(p, c) {
+  const errors = [];
+  for (const [k, lo, hi] of [["point", 50, 2000], ["Fb", 10, 5000]]) {
+    if (c?.[k] == null || !(c[k] >= lo && c[k] <= hi)) errors.push(`postCheck.${k} must be typed, from ${lo} to ${hi} (${k === "point" ? "lb" : "psi"}); no default is shipped.`);
+  }
+  if (errors.length) return { ok: false, errors, warnings: [] };
+  const b = Math.min(p.width, p.depth), d = Math.max(p.width, p.depth);
+  const M = c.point * p.height, S = (d * b * b) / 6, fb = M / S;
+  const warnings = [];
+  if (fb > c.Fb) warnings.push(`Guard post bending stress ${fb.toFixed(0)} psi under ${c.point} lb at ${p.height} in exceeds the typed ${c.Fb} psi: use a larger post or a shorter guard.`);
+  return { ok: warnings.length === 0, fb, M, Fb: c.Fb, point: c.point, height: p.height, warnings, errors: [] };
+}
+
 export function stairText(l) {
   if (!l.ok) return l.errors.map((e) => `  - ${e}`);
   const out = [`${l.id}: ${formatLength(l.totalRise)} rise, ${l.risers} risers of ${formatInches(l.riser)}, ${l.treads} treads of ${formatInches(l.tread)} (${l.angle.toFixed(1)} deg, 2R+T ${l.comfort.toFixed(2)} in)`];
@@ -211,6 +329,24 @@ export function stairText(l) {
     const q = l.rail;
     out.push(`  Guard (${q.sides} side${q.sides === 1 ? "" : "s"}, ${formatInches(q.guardHeight)} high): ${q.posts.count} posts, ${q.balusters.count} balusters ${formatInches(q.balusters.length)} at the long point with ${formatInches(q.balusters.gap)} clear (limit ${formatInches(q.maxGap)}), ${q.guardRails.count} ${q.guardRails.size} rails ${formatLength(q.guardRails.length)}${q.handrail ? `; handrail ${formatLength(q.handrail.length)} at ${formatInches(q.handrail.height)} on ${q.handrail.brackets} brackets (at most ${formatInches(q.handrail.bracketSpacing)} apart)` : ""}`);
   }
+  if (l.stringerCheck) {
+    const k = l.stringerCheck;
+    if (!k.errors.length) out.push(`  Stringer check (${formatInches(k.throat)} throat): bending ${k.fb.toFixed(0)} of ${k.Fb} psi, shear ${k.fv.toFixed(0)} of ${k.Fv} psi, deflection ${k.delta.toFixed(2)} of ${k.limit.toFixed(2)} in, end reaction ${k.reaction.toFixed(0)} lb each${k.totalReaction ? `, ${k.totalReaction.toFixed(0)} lb (${k.totalReactionLive.toFixed(0)} live) on the header the flight hangs from` : ""}${k.ok ? "" : " (FAILS)"}`);
+    if (k.minThroat != null) out.push(`  Throat: at least ${k.minThroat.toFixed(2)} in under the notches at these loads (${k.minThroatGoverns} governs; ${k.throat.toFixed(2)} in used)`);
+    if (k.minBearingLength != null) out.push(`  Bearing: at least ${k.minBearingLength.toFixed(2)} in of bearing length for the typed compression-perpendicular allowable (${k.bearingLength} in used)`);
+    if (k.connectorsNeeded) out.push(`  Top connection: ${k.reaction.toFixed(0)} lb per stringer at ${k.connectorCapacity} lb each needs ${k.connectorsNeeded} connector${k.connectorsNeeded === 1 ? "" : "s"} per stringer (you buy ${k.connectorsNeeded * l.stringer.count}); the connector's own table governs`);
+    for (const w of [...k.errors, ...k.warnings]) out.push(`  Note: ${w}`);
+  }
+  if (l.treadCheck) {
+    const k = l.treadCheck;
+    if (!k.errors.length) out.push(`  Tread check (${formatInches(l.stringer.spacing)} span, ${k.point} lb at midspan): bending ${k.fb.toFixed(0)} of ${k.Fb} psi, deflection ${k.delta.toFixed(3)} of ${k.limit.toFixed(3)} in${k.ok ? "" : " (FAILS)"}`);
+    for (const w of [...k.errors, ...k.warnings]) out.push(`  Note: ${w}`);
+  }
+  if (l.postCheck) {
+    const k = l.postCheck;
+    if (!k.errors.length) out.push(`  Guard post check (${k.point} lb at ${formatInches(k.height)}): bending ${k.fb.toFixed(0)} of ${k.Fb} psi in the post itself; its bolted attachment is not checked${k.ok ? "" : " (FAILS)"}`);
+    for (const w of [...k.errors, ...k.warnings]) out.push(`  Note: ${w}`);
+  }
   for (const n of l.notes) out.push(`  Note: ${n}`);
   return out;
 }
@@ -221,7 +357,7 @@ export function stairText(l) {
  * stair is wide (36 in at least), the usual code rule for a straight run or a turn; the rise is split in half
  * unless `landingRise` (finished floor to the landing surface) is typed. The stairwell opening applies to the
  * upper flight only. A turn does not change a count, so quarter-turns and straight runs buy the same lumber.
- * @param {Stair & { landing?: true | { openEdges?: string[], depth?: number, landingRise?: number, joist?: string, spacing?: number, deckBoard?: string } }} input
+ * @param {Stair & { landing?: true | { openEdges?: string[], depth?: number, landingRise?: number, joist?: string, spacing?: number, deckBoard?: string, postSpacing?: number, postSize?: string, soilBearing?: number, liveLoad?: number, deadLoad?: number, postCapacity?: number, postFc?: number, postEmin?: number, joistCheck?: any } }} input
  * @param {{stock: {size: string, length: number}[]}} [plan]
  */
 export function layoutStairWithLanding(input, plan) {
@@ -252,10 +388,16 @@ export function layoutStairWithLanding(input, plan) {
     footprint: lower.run + depth + upper.run,
     posts: layoutLandingPosts(width, depth, rise1 - DEPTH[joistSize] - 1.5, lc.postSpacing ?? 96),
     postSlenderness: checkPostSlenderness(rise1 - DEPTH[joistSize] - 1.5, lc.postSize),
-    footings: lc.soilBearing != null ? sizeLandingFootings(width, depth, lc.postSpacing ?? 96, { soilBearing: lc.soilBearing, liveLoad: lc.liveLoad, deadLoad: lc.deadLoad, postCapacity: lc.postCapacity }) : null,
+    footings: lc.soilBearing != null ? sizeLandingFootings(width, depth, lc.postSpacing ?? 96, { soilBearing: lc.soilBearing, liveLoad: lc.liveLoad, deadLoad: lc.deadLoad, postCapacity: lc.postCapacity, extraLoad: flightPostLoad(lower, upper, width, lc.postSpacing ?? 96) }) : null,
+    joistCheck: lc.joistCheck ? checkLandingJoists({ size: joistSize, spacing: (width - THICK) / (joists - 1), span: depth }, lc.joistCheck) : null,
     guard: lc.openEdges?.length ? layoutLandingGuard(lc.openEdges.map((e) => (e === "end" ? width : depth)), input.rail || {}, Math.min(4, lc.openEdges.filter((e) => e === "end").length * lc.openEdges.filter((e) => e !== "end").length)) : null,
     notes: ["Landing posts are counted, not sized, and footings are not sized: the platform carries a stair load plus the flights' ends, so check post size, footings and the typed `postSpacing` (96 in unless set) against your code and the actual spans."],
   };
+  if (lc.postFc != null || lc.postEmin != null) {
+    landing.postColumn = landing.footings?.ok
+      ? checkLandingPostColumn(landing.posts.height, lc.postSize || "4x4", landing.footings.load, { fc: lc.postFc, emin: lc.postEmin })
+      : { ok: false, errors: ["postFc and postEmin need landing.soilBearing too, for the post load."] };
+  }
   return { ok: true, id, totalRise: input.totalRise, flights: [lower, upper], landing };
 }
 
@@ -265,6 +407,7 @@ export function layoutStairWithLanding(input, plan) {
  * depth and an assumed 1-1/2 in of decking, so it is the post's length above the footing, not the footing depth.
  */
 export function layoutLandingPosts(width, depth, height, spacing = 96) {
+  if (!(width > 0 && depth > 0 && spacing > 0)) throw new RangeError("Landing width, depth and post spacing must be positive numbers.");
   const bays = (len) => Math.max(1, Math.ceil(len / spacing - 1e-9));
   const along = bays(width), across = bays(depth);
   const count = 2 * (along + across);
@@ -288,6 +431,24 @@ export function checkPostSlenderness(height, postSize = "4x4") {
 }
 
 /**
+ * Axial capacity of a landing post by the NDS column stability factor (ASD, pin-pin, Ke = 1, c = 0.8 for sawn lumber),
+ * from typed design values: `fc` (psi, compression parallel to grain) and `emin` (psi), both already adjusted by you
+ * for wet service and treatment; none is shipped. Compared with `load` (lb, the heaviest post's share from
+ * `sizeLandingFootings`). Bracing, notches, stringer bolts, uplift and lateral load are not checked.
+ */
+export function checkLandingPostColumn(height, postSize, load, { fc, emin } = /** @type {{fc?: number, emin?: number}} */ ({})) {
+  const face = POST_FACE[postSize];
+  if (!face) return { ok: false, errors: [`Unknown landing post size ${postSize}; use 4x4 or 6x6.`] };
+  if (!(fc >= 100 && fc <= 3000)) return { ok: false, errors: ["postFc is the post's compression parallel to grain in psi (100 to 3000)."] };
+  if (!(emin >= 50000 && emin <= 1500000)) return { ok: false, errors: ["postEmin is the post's minimum modulus of elasticity in psi (50000 to 1500000)."] };
+  const area = face * face, slenderness = height / face, c = 0.8;
+  const ratio = (0.822 * emin) / slenderness ** 2 / fc, a = (1 + ratio) / (2 * c);
+  const cp = a - Math.sqrt(a * a - ratio / c);
+  const capacity = fc * cp * area;
+  return { ok: true, postSize, slenderness, cp, capacity, load, utilisation: load / capacity, passes: load <= capacity && slenderness <= POST_SLENDERNESS_LIMIT };
+}
+
+/**
  * Footing size under the heaviest landing post, from typed figures only (`soilBearing` psf has no default: it is the
  * site's, from the soil report or the local book; `liveLoad` 40 and `deadLoad` 10 psf are the usual figures, typed over
  * if yours differ). The platform load is shared by the posts around its edge: a mid-edge post takes half a bay, a corner
@@ -295,17 +456,62 @@ export function checkPostSlenderness(height, postSize = "4x4") {
  * the guard are not added. `postCapacity` (lb, typed from your post table; no default) is compared with the heaviest
  * post's load and `postOk` says whether it holds. Returns the load, the area it needs, and a round and a square footing rounded up to the inch.
  */
-export function sizeLandingFootings(width, depth, spacing, { soilBearing, liveLoad = 40, deadLoad = 10, postCapacity } = {}) {
+export function sizeLandingFootings(width, depth, spacing, { soilBearing, liveLoad = 40, deadLoad = 10, postCapacity, extraLoad = 0 } = /** @type {{soilBearing?: number, liveLoad?: number, deadLoad?: number, postCapacity?: number, extraLoad?: number}} */ ({})) {
   if (!(soilBearing > 0)) return { ok: false, errors: ["soilBearing must be a positive figure in psf."] };
+  if (!(width > 0 && depth > 0 && spacing > 0)) return { ok: false, errors: ["Landing width, depth and post spacing must be positive numbers."] };
   const bays = (len) => Math.max(1, Math.ceil(len / spacing - 1e-9));
   const along = bays(width), across = bays(depth);
   const bay = (width / along) * (depth / across) / 144; // sq ft
   const share = along > 1 || across > 1 ? 0.5 : 0.25;
-  const load = bay * share * (liveLoad + deadLoad);
+  const load = bay * share * (liveLoad + deadLoad) + (extraLoad > 0 ? extraLoad : 0);
   const area = (load / soilBearing) * 144; // sq in
   const round = Math.max(1, Math.ceil(2 * Math.sqrt(area / Math.PI) - 1e-9));
   const square = Math.max(1, Math.ceil(Math.sqrt(area) - 1e-9));
-  return { ok: true, soilBearing, liveLoad, deadLoad, tributary: bay * share, load, postCapacity: postCapacity ?? null, postOk: postCapacity > 0 ? load <= postCapacity : null, area, round, square, count: 2 * (along + across) };
+  return { ok: true, soilBearing, liveLoad, deadLoad, tributary: bay * share, extraLoad: extraLoad > 0 ? extraLoad : 0, load, postCapacity: postCapacity ?? null, postOk: postCapacity > 0 ? load <= postCapacity : null, area, round, square, count: 2 * (along + across) };
+}
+
+/**
+ * Extra load on the heaviest landing post from the flights that bear on the landing's edge (2026-11-01): the larger of
+ * the two flights' total stringer reactions (typed `stringerCheck`, live + dead; each flight bears on its own edge), spread
+ * along that edge's width as a line load. A mid-edge post takes a full bay of it (R / bays along), and with one bay
+ * a corner post takes half. Returns 0 when neither flight carries a stringer check. The landing's own platform load
+ * is separate (`sizeLandingFootings`); the guard and the wind are not added.
+ */
+export function flightPostLoad(lower, upper, width, spacing = 96) {
+  const r = Math.max(lower?.stringerCheck?.totalReaction ?? 0, upper?.stringerCheck?.totalReaction ?? 0);
+  if (!(r > 0)) return 0;
+  const along = Math.max(1, Math.ceil(width / spacing - 1e-9));
+  return along > 1 ? r / along : r / 2;
+}
+
+/**
+ * Strength check of the landing joists (2026-11-01), on typed figures only (none shipped): each joist a simple span of the
+ * landing's depth between the two rims, carrying `deadPsf + livePsf` over its tributary spacing. Bending, shear (1.5V/A)
+ * and live-load deflection (L/360 unless `deflLimit`). The rims, posts and flight reactions are not in it.
+ * @param {{size: string, spacing: number, span: number}} j
+ * @param {{deadPsf: number, livePsf: number, Fb: number, Fv: number, E: number, deflLimit?: number}} c
+ */
+export function checkLandingJoists(j, c) {
+  const errors = [];
+  const inr = (v, lo, hi) => Number.isFinite(v) && v >= lo && v <= hi;
+  if (!inr(c?.deadPsf, 0, 100)) errors.push("joistCheck.deadPsf is the dead load in psf, 0 to 100.");
+  if (!inr(c?.livePsf, 0, 200)) errors.push("joistCheck.livePsf is the live load in psf, 0 to 200.");
+  if (!inr(c?.Fb, 200, 4000)) errors.push("joistCheck.Fb is the joist's allowable bending stress in psi (200 to 4000), adjusted by you.");
+  if (!inr(c?.Fv, 50, 500)) errors.push("joistCheck.Fv is the joist's allowable shear stress in psi (50 to 500).");
+  if (!inr(c?.E, 200000, 3000000)) errors.push("joistCheck.E is the joist's modulus of elasticity in psi (200000 to 3000000).");
+  if (c?.deflLimit != null && !inr(c.deflLimit, 120, 720)) errors.push("joistCheck.deflLimit is the span ratio (L/360 by default), 120 to 720.");
+  if (!(j.size in DEPTH)) errors.push(`Unknown landing joist size ${j.size}.`);
+  if (errors.length) return { ok: false, errors };
+  const b = THICK, d = DEPTH[j.size], L = j.span, lim = c.deflLimit ?? 360;
+  const w = ((c.deadPsf + c.livePsf) * j.spacing) / 144, wl = (c.livePsf * j.spacing) / 144; // lb per inch
+  const M = (w * L * L) / 8, V = (w * L) / 2;
+  const fb = (6 * M) / (b * d * d), fv = (1.5 * V) / (b * d);
+  const delta = (5 * wl * L ** 4) / (384 * c.E * ((b * d ** 3) / 12)), limit = L / lim;
+  const warnings = [];
+  if (fb > c.Fb) warnings.push(`Landing joist bending ${fb.toFixed(0)} psi exceeds the typed ${c.Fb} psi: use a deeper joist or a closer spacing.`);
+  if (fv > c.Fv) warnings.push(`Landing joist shear ${fv.toFixed(0)} psi exceeds the typed ${c.Fv} psi.`);
+  if (delta > limit) warnings.push(`Landing joist live deflection ${delta.toFixed(2)} in exceeds L/${lim} (${limit.toFixed(2)} in).`);
+  return { ok: warnings.length === 0, size: j.size, span: L, spacing: j.spacing, M, V, fb, fv, delta, limit, warnings, errors: [] };
 }
 
 export function landingCuts(r) {
@@ -331,6 +537,12 @@ export function landingText(r) {
     ...(g.postSlenderness?.warnings ?? []).map((w) => `  Warning: ${w}`),
     ...(g.footings?.ok ? [`  Landing footings: heaviest post ${Math.round(g.footings.load)} lb (${g.footings.tributary.toFixed(1)} sq ft at ${g.footings.liveLoad + g.footings.deadLoad} psf) on ${g.footings.soilBearing} psf soil needs ${g.footings.area.toFixed(0)} sq in: ${g.footings.round} in round or ${g.footings.square} in square, ${g.footings.count} footings`] : []),
     ...(g.footings?.ok && g.footings.postOk != null ? [`  Landing post check: heaviest post ${Math.round(g.footings.load)} lb against your ${g.footings.postCapacity} lb capacity: ${g.footings.postOk ? "holds" : "OVER, use a larger post or a closer spacing"}`] : []),
+    ...(g.footings?.ok && g.footings.extraLoad > 0 ? [`  Landing post load includes ${Math.round(g.footings.extraLoad)} lb from the flights' stringer reactions`] : []),
+    ...(g.joistCheck?.ok !== undefined && g.joistCheck?.fb != null ? [`  Landing joist check (${g.joistCheck.size}, ${formatInches(g.joistCheck.span)} span at ${formatInches(g.joistCheck.spacing)}): bending ${g.joistCheck.fb.toFixed(0)} psi, shear ${g.joistCheck.fv.toFixed(0)} psi, live deflection ${g.joistCheck.delta.toFixed(2)} in of ${g.joistCheck.limit.toFixed(2)} in - ${g.joistCheck.ok ? "passes" : "FAILS"}`] : []),
+    ...(g.joistCheck?.warnings ?? []).map((w) => `  Warning: ${w}`),
+    ...(g.joistCheck && g.joistCheck.errors?.length ? g.joistCheck.errors.map((e) => `  Warning: ${e}`) : []),
+    ...(g.postColumn?.ok ? [`  Landing post column (${g.postColumn.postSize}, typed fc and Emin): ${Math.round(g.postColumn.load)} lb of ${Math.round(g.postColumn.capacity)} lb (${(g.postColumn.utilisation * 100).toFixed(0)}%), Cp ${g.postColumn.cp.toFixed(2)} - ${g.postColumn.passes ? "passes" : "FAILS, use a larger post or a closer spacing"}`] : []),
+    ...(g.postColumn && !g.postColumn.ok ? g.postColumn.errors.map((e) => `  Warning: ${e}`) : []),
     ...(g.guard ? [`  Landing guard (${g.guard.edges.length} open edge${g.guard.edges.length === 1 ? "" : "s"}, ${formatInches(g.guard.guardHeight)} high): ${g.guard.posts.count} posts, ${g.guard.balusters.count} balusters ${formatInches(g.guard.balusters.length)} with at most ${formatInches(g.guard.balusters.maxGap)} clear (limit ${formatInches(RAIL_LIMITS.maxGap)}), ${g.guard.guardRails.count} ${g.guard.guardRails.size} rails`] : []),
     ...g.notes.map((n) => `  Note: ${n}`),
   ];
@@ -346,9 +558,9 @@ export function landingText(r) {
 // radius (a pivot post or box) that passes. Depth is measured along the arc at
 // a radius: radius x angle in radians, which a straight edge across the tread
 // slightly undercuts, so a pass here is a pass by a hair of margin.
-export const WINDER_LIMITS = { winderWalkline: 12, winderWalkDepth: 10, winderMinDepth: 6 };
+export const WINDER_LIMITS = { winderWalkline: 12, winderWalkDepth: 10, winderMinDepth: 6, winderUniformity: 0.375 };
 
-/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
+/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, treadThickness?: number, treadSpanMax?: number, straightTread?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
 export function checkWinders(w) {
   const L = { ...WINDER_LIMITS, ...(w.limits || {}) };
   const count = w.count ?? 3, turn = w.turn ?? 90, width = w.width ?? 36, r = w.innerRadius ?? 0;
@@ -365,7 +577,12 @@ export function checkWinders(w) {
   const problems = [];
   if (narrow < L.winderMinDepth - 1e-9) problems.push(`narrowest depth ${narrow.toFixed(2)} in is under ${L.winderMinDepth} in`);
   if (walk < L.winderWalkDepth - 1e-9) problems.push(`depth ${L.winderWalkline} in from the narrow side is ${walk.toFixed(2)} in, under ${L.winderWalkDepth} in`);
-  return { ok: problems.length === 0, count, turn, anglePerTread: turn / count, innerRadius: r, narrow, walk, outer, minInnerRadius, problems, limits: L };
+  // Walkline uniformity (2026-10-31): the winder's depth at the walkline against the flight's straight tread, within `winderUniformity`
+  // (3/8 in in the model code; the edition is the user's). Only checked when `straightTread` is typed. Hand-computed test only.
+  const st = w.straightTread;
+  const uniformDiff = typeof st === "number" && st > 0 ? walk - st : null;
+  if (uniformDiff != null && Math.abs(uniformDiff) > L.winderUniformity + 1e-9) problems.push(`walkline depth ${walk.toFixed(2)} in differs from the ${st} in straight tread by ${Math.abs(uniformDiff).toFixed(2)} in, over ${L.winderUniformity} in`);
+  return { ok: problems.length === 0, uniformDiff, straightTread: st ?? null, count, turn, anglePerTread: turn / count, innerRadius: r, narrow, walk, outer, minInnerRadius, problems, limits: L };
 }
 
 export function winderText(c) {
@@ -374,7 +591,7 @@ export function winderText(c) {
   out.push(c.ok ? "  Winders pass the 6 in and 10 in rules as typed." : `  Winders fail: ${c.problems.join("; ")}. The smallest inner radius that passes is ${c.minInnerRadius.toFixed(1)} in.`);
   if (c.treads) {
     out.push(`  Straight-edge depths: ${c.chordNarrow.toFixed(2)} in narrow, ${c.chordWalk.toFixed(2)} in at ${c.limits.winderWalkline} in out, ${c.chordWide.toFixed(2)} in wide${c.chordPasses ? "" : " (a straight edge fails where the arc passes: add radius)"}`);
-    if (c.framing) out.push(`  Framing under the winders: ${c.framing.supports} radial supports of ${formatInches(c.framing.supportLength)} (${formatInches(c.framing.totalLength)} all told; ${c.framing.shared} shared by two treads), each tread spanning ${formatInches(c.framing.treadSpan)} between two of them. Check that span against your own tread table.`);
+    if (c.framing) out.push(`  Framing under the winders: ${c.framing.supports} radial supports of ${formatInches(c.framing.supportLength)} (${formatInches(c.framing.totalLength)} all told; ${c.framing.shared} shared by two treads), each tread spanning up to ${formatInches(c.framing.treadSpan)} between two of them at the wall end.${c.framing.spanOk == null ? " Check that span against your own tread table." : c.framing.spanOk ? ` Within the ${formatInches(c.framing.treadSpanMax)} most.` : ` Over the ${formatInches(c.framing.treadSpanMax)} most: add a support under each tread, use thicker treads or a smaller inner radius.`}`);
     for (const t of c.treads) out.push(`  Winder tread ${t.index}: ${t.area.toFixed(1)} sq in, cut from a ${formatInches(t.blank.x)} x ${formatInches(t.blank.y)} blank`);
   }
   return out;
@@ -388,7 +605,7 @@ export function winderText(c) {
 // straight-edge ("chord") depth 2 x radius x sin(theta/2) at the narrow end,
 // 12 in out and the wide end. A chord is shorter than the arc `checkWinders`
 // measures, so `chordPasses` is the stricter answer for a straight edge.
-/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
+/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, treadThickness?: number, treadSpanMax?: number, straightTread?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
 export function layoutWinders(w) {
   const c = checkWinders(w);
   if (!c.problems) return c;
@@ -409,8 +626,32 @@ export function layoutWinders(w) {
   // Framing under the treads (2026-10-30): a radial support (a 2x ledger or
   // riser plate) under every tread edge, count + 1 in all, each as long as the
   // run from the pivot to the wall; a tread board spans that run between its
-  // two edge supports, so `treadSpan` is the stair width. No span table: the
-  // span is for the user's own table, and nothing structural is checked.
-  const framing = { supports: count + 1, supportLength: width, totalLength: (count + 1) * width, treadSpan: width, shared: count - 1 };
+  // two edge supports. The two supports fan out from the pivot, so the gap the
+  // board crosses is widest at the wall end: the straight-edge depth at the
+  // outer radius (`chordWide`), not the stair width (corrected 2026-10-31; the
+  // first version reported the width). When a tread thickness is typed the gap
+  // is checked against `maxTreadSpan`; otherwise it is reported for your table.
+  const tt = w.treadThickness, spanMax = typeof w.treadSpanMax === "number" ? w.treadSpanMax : typeof tt === "number" ? maxTreadSpan(tt) : null;
+  const framing = { supports: count + 1, supportLength: width, totalLength: (count + 1) * width, treadSpan: chordWide, shared: count - 1, treadSpanMax: spanMax, spanOk: spanMax == null ? null : chordWide <= spanMax + 1e-9 };
   return { ...c, treads, chordNarrow, chordWalk, chordWide, chordPasses, framing };
+}
+
+/**
+ * Resolve `floor.headerCheck.stairFrom: N` (the CLI, the page): lay out plan.stairs[N] with its typed stringerCheck and copy
+ * the flight's total top reaction (and live share) into headerCheck.stairReaction. Returns an error string or null.
+ * Typed figures only; the same arithmetic as `checkStringer`, no automatic link to a different load case.
+ */
+export function linkStairReaction(plan, parseLength) {
+  const hc = plan.floor && plan.floor.headerCheck;
+  if (!hc || hc.stairFrom == null || hc.stairReaction != null) return null;
+  const list = Array.isArray(plan.stairs) ? plan.stairs : plan.stairs ? [plan.stairs] : [];
+  const st = list[hc.stairFrom];
+  if (!st || !st.stringerCheck) return `headerCheck.stairFrom ${hc.stairFrom} needs plan.stairs[${hc.stairFrom}] with a stringerCheck.`;
+  const tmp = { ...st };
+  for (const k of ["totalRise", "tread", "width", "openingLength", "floorThickness"]) if (typeof tmp[k] === "string") tmp[k] = parseLength(tmp[k]);
+  const sl = layoutStair({ id: "Stair link", ...tmp }, plan);
+  const sk = sl.stringerCheck;
+  if (!sl.ok || !sk || sk.errors.length || !sk.totalReaction) return `headerCheck.stairFrom ${hc.stairFrom}: the stair's stringerCheck gave no reaction (${[...(sl.errors || []), ...(sk?.errors || [])].join("; ") || "check the stair"}).`;
+  hc.stairReaction = sk.totalReaction; hc.stairReactionLive = sk.totalReactionLive;
+  return null;
 }

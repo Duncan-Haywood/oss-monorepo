@@ -1,5 +1,6 @@
 ---
 title: "Too clean to be bread: a new Hearth & Horizon story about testing for the wrong zero"
+seo_title: "Too clean to be bread: testing for the wrong zero"
 date: 2026-10-28
 description: "Enough to Be Bread: a wheat-starch lot reads under 5 mg/kg gluten, and that is a failure. Notes on the numbers behind the story."
 tags: [hearth-and-horizon, fiction, science]

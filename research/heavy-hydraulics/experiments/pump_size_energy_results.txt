@@ -1,0 +1,5 @@
+Q_PUMP base 45.0 L/min; rated sizing at 1.0 x; load factor 0.346; LS standby 2.0 L/min; 1,500 cycles per cell
+pump x1.0 (45.0 L/min, p_n 10.91 bar): median OC time penalty 6.25%; break-even dp_ls 36.1 bar; LS/OC at 14 bar 0.663, 20 bar 0.754, 26 bar 0.846
+pump x1.1 (49.5 L/min, p_n 11.15 bar): median OC time penalty 0.93%; break-even dp_ls 40.0 bar; LS/OC at 14 bar 0.622, 20 bar 0.708, 26 bar 0.795
+pump x1.2 (54.0 L/min, p_n 11.39 bar): median OC time penalty 0.00%; break-even dp_ls 44.5 bar; LS/OC at 14 bar 0.584, 20 bar 0.667, 26 bar 0.748
+pump x1.5 (67.5 L/min, p_n 12.12 bar): median OC time penalty 0.00%; break-even dp_ls None bar; LS/OC at 14 bar 0.487, 20 bar 0.553, 26 bar 0.620

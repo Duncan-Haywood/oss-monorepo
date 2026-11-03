@@ -1,5 +1,6 @@
 ---
 title: "Checking a payroll deposit scheduler against the IRS's own worked examples"
+seo_title: "Checking a payroll deposit scheduler against IRS Pub 15"
 date: 2026-10-24
 description: "The $100,000 next-day deposit rule in an open-source bookkeeper, tested against the two examples printed in IRS Publication 15 (2026)."
 tags: [payroll, testing, accounting, open-source]

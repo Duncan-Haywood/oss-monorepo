@@ -1,5 +1,6 @@
 ---
 title: "Error feedback makes top-k compression free down to 1/16, then it stops"
+seo_title: "Error feedback makes top-k compression free down to 1/16"
 date: 2026-10-25
 description: "On a 413k-parameter GPT trained DiLoCo-style, top-k with error feedback matches uncompressed at keep 1/16 but costs 0.043 nats at 1/64 and 0.121 at 1/256."
 tags: [lowcomm-training, research, distributed-training]

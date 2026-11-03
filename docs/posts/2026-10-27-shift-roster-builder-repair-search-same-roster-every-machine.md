@@ -1,5 +1,6 @@
 ---
 title: "The shift roster repair search now gives the same roster on every machine"
+seo_title: "Shift roster repair search now gives the same roster on every machine"
 date: 2026-10-27
 description: "shift-roster-builder's open-hours repair stopped on a 6 second clock, so a slow laptop could print a different week. It now stops on a work budget."
 tags: [shift-roster-builder, scheduling, optimization]

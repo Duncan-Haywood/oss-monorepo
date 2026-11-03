@@ -1,5 +1,6 @@
 ---
 title: "Gentle-cut halving beats random search on most designs, and ten designs cannot prove it"
+seo_title: "Gentle-cut halving beats random search; ten designs can't prove it"
 date: 2026-10-25
 description: "verified-dse milestone 14: successive halving (eta 1.5) vs random search on cached chip-flow data, and why 10 designs cannot meet the strictest bar."
 tags: [verified-dse, research, statistics, eda]

@@ -11,7 +11,7 @@ an AI agent at all. Say the idea out loud, and a later session picks it up.
 |---|---|---|
 | Write access to the repository | Add a paragraph to [`IDEAS.md`](../../IDEAS.md), at the top of the repository | A direct request, the same as asking in a session |
 | A GitHub account | Open the [idea form](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=idea.yml): one box | Information that is read and weighed, not an instruction |
-| No account | The [feedback form](https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/feedback/) on the site; pick "An idea" | Same as an issue. A daily job commits it to its own file, `portfolio/usage/site-feedback.json`, never to `IDEAS.md` |
+| No account | The [feedback form](https://marisstella.app/feedback/) on the site; pick "An idea" | Same as an issue. A daily job commits it to its own file, `portfolio/usage/site-feedback.json`, never to `IDEAS.md` |
 
 Why the difference: anyone on the internet can open an issue, so an issue can
 not command the agents (`.github/prompts/human-requests.md`). A commit to

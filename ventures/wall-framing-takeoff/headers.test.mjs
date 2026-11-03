@@ -10,7 +10,12 @@ const table = [
   { upTo: 72, header: "2x10", plies: 2 },
   { upTo: 96, header: "2x12", plies: 3 },
 ];
-const planWith = (extra = {}) => ({ ...samplePlan(), headerTable: table, ...extra });
+// The sample's tees sit where these tests put windows; a tee inside an opening is refused, so clear them.
+const planWith = (extra = {}) => {
+  const p = { ...samplePlan(), headerTable: table, ...extra };
+  p.walls.forEach((w) => { w.tees = []; });
+  return p;
+};
 
 test("auto openings take the first row whose span covers the width", () => {
   const plan = planWith();
@@ -75,4 +80,31 @@ test("the CLI sizes auto headers and prints the comparison", () => {
   assert.match(res.out, /UNDER/);
   const bad = main(["p.json"], () => JSON.stringify(plan)); // table present: auto still resolves without the flag
   assert.equal(bad.code, 0, bad.out);
+});
+
+test("a wall's own table, or one keyed by stud size, overrides the plan table", () => {
+  const plan = planWith();
+  const [w0, w1] = plan.walls;
+  w0.openings = [{ kind: "window", label: "A", offset: 48, width: 36, height: 48, header: "auto" }];
+  w1.openings = [{ kind: "window", label: "B", offset: 48, width: 36, height: 48, header: "auto" }];
+  w0.headerTable = [{ upTo: 60, header: "2x8", plies: 2 }]; // wall-level override
+  const r = resolveHeaders(plan);
+  assert.ok(r.ok, JSON.stringify(r.errors));
+  assert.equal(r.plan.walls[0].openings[0].header, "2x8");
+  assert.equal(r.plan.walls[1].openings[0].header, "2x6"); // plan table
+
+  const p2 = planWith({ headerTables: { "2x4": [{ upTo: 96, header: "2x10", plies: 2 }] } });
+  p2.walls[0].stud = "2x4";
+  p2.walls[0].openings = [{ kind: "window", label: "A", offset: 48, width: 36, height: 48, header: "auto" }];
+  const r2 = resolveHeaders(p2);
+  assert.ok(r2.ok, JSON.stringify(r2.errors));
+  assert.equal(r2.plan.walls[0].openings[0].header, "2x10");
+});
+
+test("a bad per-wall table is reported with its wall", () => {
+  const plan = planWith();
+  plan.walls[0].headerTable = [{ upTo: 0, header: "2x8" }];
+  const r = resolveHeaders(plan);
+  assert.equal(r.ok, false);
+  assert.match(r.errors[0], /^wall /);
 });

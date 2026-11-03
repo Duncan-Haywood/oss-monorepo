@@ -1,5 +1,6 @@
 ---
 title: "Does BOHB's model pick better chip-flow candidates than random routing? Not on 20 designs"
+seo_title: Does BOHB pick better chip-flow candidates than random? Not on 20
 date: 2026-10-26
 description: "A TPE density ratio, the model inside BOHB, loses to never cutting on the cheap rung at every budget on 40 chip-flow cells."
 tags: [research, verified-dse, bohb, multi-fidelity, sky130]

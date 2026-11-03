@@ -1,5 +1,6 @@
 ---
 title: "A fitted fudge factor for predicting how much a lazy trainer loses did not transfer"
+seo_title: A fitted correction for a lazy trainer's loss did not transfer
 date: 2026-10-26
 description: "One fitted scalar to predict a lazy trainer's accuracy loss did not transfer to held-out settings."
 tags: [verifiable-training, negative-result, research]

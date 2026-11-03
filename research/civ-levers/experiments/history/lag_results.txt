@@ -1,0 +1,139 @@
+civ-history lag results (run_lag.py; do not edit by hand)
+1350 cells; 2500 years, first 500 dropped; band 150-400 y; grid {'rho': (0.03, 0.06, 0.12), 'm': (0.02, 0.05, 0.1), 'k': (4, 16), 'g': (0.5, 1.0, 2.0), 'lag': (0, 25, 50, 100, 200), 'plag': (0, 25, 50, 100, 200)}
+
+lag   0 plag   0: cycles  0/54 in-band  0 max swing 0.0023
+lag   0 plag  25: cycles  0/54 in-band  0 max swing 0.0027
+lag   0 plag  50: cycles  0/54 in-band  0 max swing 0.0031
+lag   0 plag 100: cycles  0/54 in-band  0 max swing 0.0039
+lag   0 plag 200: cycles  0/54 in-band  0 max swing 0.0248
+lag  25 plag   0: cycles  0/54 in-band  0 max swing 0.0023
+lag  25 plag  25: cycles  0/54 in-band  0 max swing 0.0027
+lag  25 plag  50: cycles  0/54 in-band  0 max swing 0.0031
+lag  25 plag 100: cycles  0/54 in-band  0 max swing 0.0040
+lag  25 plag 200: cycles  0/54 in-band  0 max swing 0.0250
+lag  50 plag   0: cycles  0/54 in-band  0 max swing 0.0023
+lag  50 plag  25: cycles  0/54 in-band  0 max swing 0.0027
+lag  50 plag  50: cycles  0/54 in-band  0 max swing 0.0031
+lag  50 plag 100: cycles  0/54 in-band  0 max swing 0.0040
+lag  50 plag 200: cycles  0/54 in-band  0 max swing 0.0251
+lag 100 plag   0: cycles  6/54 in-band  6 max swing 0.0037
+lag 100 plag  25: cycles  7/54 in-band  7 max swing 0.0066
+lag 100 plag  50: cycles  8/54 in-band  8 max swing 0.0085
+lag 100 plag 100: cycles  4/54 in-band  4 max swing 0.0082
+lag 100 plag 200: cycles  0/54 in-band  0 max swing 0.0271
+lag 200 plag   0: cycles 20/54 in-band 17 max swing 0.0152
+lag 200 plag  25: cycles 24/54 in-band 19 max swing 0.0287
+lag 200 plag  50: cycles 28/54 in-band 23 max swing 0.0389
+lag 200 plag 100: cycles 23/54 in-band 19 max swing 0.0670
+lag 200 plag 200: cycles  9/54 in-band  7 max swing 0.0893
+
+in-band {'rho': 0.03, 'm': 0.02, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 50} period 297 swing 0.003 unrest 0.00
+in-band {'rho': 0.03, 'm': 0.02, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 100} period 310 swing 0.011 unrest 0.00
+in-band {'rho': 0.03, 'm': 0.02, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 200} period 304 swing 0.031 unrest 0.00
+in-band {'rho': 0.03, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 100, 'plag': 50} period 318 swing 0.003 unrest 0.00
+in-band {'rho': 0.03, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 100, 'plag': 100} period 319 swing 0.003 unrest 0.00
+in-band {'rho': 0.03, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 25} period 383 swing 0.007 unrest 0.00
+in-band {'rho': 0.03, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 50} period 377 swing 0.012 unrest 0.00
+in-band {'rho': 0.03, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 100} period 391 swing 0.028 unrest 0.00
+in-band {'rho': 0.03, 'm': 0.05, 'k': 16, 'g': 2.0, 'lag': 100, 'plag': 0} period 219 swing 0.002 unrest 0.00
+in-band {'rho': 0.03, 'm': 0.1, 'k': 4, 'g': 1.0, 'lag': 100, 'plag': 25} period 338 swing 0.002 unrest 0.00
+in-band {'rho': 0.03, 'm': 0.1, 'k': 4, 'g': 1.0, 'lag': 100, 'plag': 50} period 322 swing 0.003 unrest 0.00
+in-band {'rho': 0.03, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 100, 'plag': 0} period 329 swing 0.004 unrest 0.00
+in-band {'rho': 0.03, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 100, 'plag': 25} period 333 swing 0.007 unrest 0.00
+in-band {'rho': 0.03, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 100, 'plag': 50} period 341 swing 0.008 unrest 0.00
+in-band {'rho': 0.03, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 100, 'plag': 100} period 325 swing 0.008 unrest 0.00
+in-band {'rho': 0.03, 'm': 0.1, 'k': 16, 'g': 2.0, 'lag': 100, 'plag': 0} period 272 swing 0.002 unrest 0.00
+in-band {'rho': 0.03, 'm': 0.1, 'k': 16, 'g': 2.0, 'lag': 100, 'plag': 25} period 287 swing 0.002 unrest 0.00
+in-band {'rho': 0.03, 'm': 0.1, 'k': 16, 'g': 2.0, 'lag': 100, 'plag': 50} period 310 swing 0.003 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.02, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 50} period 289 swing 0.003 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.02, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 100} period 317 swing 0.009 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.02, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 50} period 177 swing 0.002 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.02, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 100} period 180 swing 0.002 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.05, 'k': 4, 'g': 0.5, 'lag': 200, 'plag': 0} period 332 swing 0.001 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.05, 'k': 4, 'g': 0.5, 'lag': 200, 'plag': 25} period 313 swing 0.002 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.05, 'k': 4, 'g': 0.5, 'lag': 200, 'plag': 50} period 270 swing 0.002 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.05, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 0} period 347 swing 0.003 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.05, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 25} period 343 swing 0.003 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.05, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 50} period 342 swing 0.004 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.05, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 100} period 286 swing 0.007 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 100, 'plag': 25} period 228 swing 0.002 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 100, 'plag': 50} period 238 swing 0.002 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 100, 'plag': 100} period 252 swing 0.002 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 0} period 328 swing 0.004 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 25} period 311 swing 0.006 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 50} period 316 swing 0.010 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 100} period 331 swing 0.015 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.05, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 0} period 198 swing 0.004 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.05, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 25} period 222 swing 0.004 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.05, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 50} period 258 swing 0.004 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.05, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 100} period 290 swing 0.003 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.05, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 200} period 253 swing 0.004 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 4, 'g': 0.5, 'lag': 200, 'plag': 0} period 352 swing 0.002 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 4, 'g': 0.5, 'lag': 200, 'plag': 25} period 344 swing 0.003 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 4, 'g': 0.5, 'lag': 200, 'plag': 50} period 322 swing 0.004 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 4, 'g': 0.5, 'lag': 200, 'plag': 100} period 265 swing 0.009 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 4, 'g': 1.0, 'lag': 100, 'plag': 25} period 259 swing 0.002 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 4, 'g': 1.0, 'lag': 100, 'plag': 50} period 262 swing 0.002 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 0} period 348 swing 0.006 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 25} period 348 swing 0.009 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 50} period 346 swing 0.011 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 100} period 311 swing 0.013 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 100, 'plag': 0} period 238 swing 0.004 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 100, 'plag': 25} period 248 swing 0.007 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 100, 'plag': 50} period 255 swing 0.006 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 100, 'plag': 100} period 251 swing 0.003 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 0} period 326 swing 0.014 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 25} period 330 swing 0.025 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 50} period 338 swing 0.036 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 100} period 342 swing 0.037 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 200} period 272 swing 0.040 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 0} period 329 swing 0.008 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 25} period 315 swing 0.011 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 50} period 299 swing 0.011 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 100} period 307 swing 0.009 unrest 0.00
+in-band {'rho': 0.06, 'm': 0.1, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 200} period 297 swing 0.008 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.02, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 0} period 240 swing 0.002 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.02, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 25} period 227 swing 0.002 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.02, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 50} period 229 swing 0.003 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.02, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 100} period 222 swing 0.005 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.02, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 50} period 199 swing 0.003 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.02, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 100} period 210 swing 0.008 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.02, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 25} period 225 swing 0.003 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.02, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 50} period 240 swing 0.003 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.05, 'k': 4, 'g': 0.5, 'lag': 200, 'plag': 0} period 252 swing 0.002 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.05, 'k': 4, 'g': 0.5, 'lag': 200, 'plag': 25} period 253 swing 0.002 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.05, 'k': 4, 'g': 0.5, 'lag': 200, 'plag': 50} period 254 swing 0.003 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.05, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 0} period 248 swing 0.003 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.05, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 25} period 246 swing 0.004 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.05, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 50} period 249 swing 0.004 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.05, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 100} period 254 swing 0.006 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 0} period 235 swing 0.004 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 25} period 226 swing 0.006 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 50} period 232 swing 0.010 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 100} period 242 swing 0.012 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 200} period 243 swing 0.016 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.05, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 0} period 241 swing 0.006 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.05, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 25} period 247 swing 0.006 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.05, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 50} period 255 swing 0.004 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.05, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 100} period 267 swing 0.003 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 4, 'g': 0.5, 'lag': 200, 'plag': 0} period 254 swing 0.003 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 4, 'g': 0.5, 'lag': 200, 'plag': 25} period 258 swing 0.004 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 4, 'g': 0.5, 'lag': 200, 'plag': 50} period 262 swing 0.004 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 0} period 249 swing 0.007 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 25} period 253 swing 0.009 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 50} period 257 swing 0.009 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 4, 'g': 1.0, 'lag': 200, 'plag': 100} period 262 swing 0.009 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 100, 'plag': 0} period 174 swing 0.003 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 100, 'plag': 25} period 177 swing 0.004 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 100, 'plag': 50} period 182 swing 0.002 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 0} period 236 swing 0.015 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 25} period 243 swing 0.029 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 50} period 251 swing 0.032 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 100} period 256 swing 0.024 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 4, 'g': 2.0, 'lag': 200, 'plag': 200} period 259 swing 0.023 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 16, 'g': 2.0, 'lag': 100, 'plag': 0} period 189 swing 0.002 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 0} period 243 swing 0.013 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 25} period 253 swing 0.015 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 50} period 258 swing 0.010 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 100} period 261 swing 0.006 unrest 0.00
+in-band {'rho': 0.12, 'm': 0.1, 'k': 16, 'g': 2.0, 'lag': 200, 'plag': 200} period 281 swing 0.005 unrest 0.00

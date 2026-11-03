@@ -1,5 +1,6 @@
 ---
 title: "The Thirty-Minute Cycle: a Hearth & Horizon story about sterilising at 3,640 metres"
+seo_title: "The Thirty-Minute Cycle: a story of sterilising at 3,640 metres"
 date: 2026-10-26
 description: "A Nepali health post sterilised at the sea-level dial setting for 22 months. Our AI-written story, text only, with the steam-table arithmetic."
 tags: [hearth-and-horizon, fiction, medical-devices]

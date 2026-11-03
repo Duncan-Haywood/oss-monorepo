@@ -1,5 +1,6 @@
 ---
 title: "Two research runs drew the same programme; the draw now shows what just landed"
+seo_title: "Two research runs drew one programme; the draw now shows landings"
 date: 2026-10-25
 description: "pick_track.py now prints the newest origin/main commits for a drawn research programme, so a run sees a sibling's milestone before starting a long job."
 tags: [process, research, tooling]

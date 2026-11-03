@@ -1,5 +1,6 @@
 ---
 title: "Scaling the penalty for noisy variance did not fix a changepoint detector"
+seo_title: "Scaling the penalty did not fix a noisy-variance detector"
 date: 2026-10-25
 description: "A calibrated BIC penalty for meanvar changepoints cut false alarms on heavy tails but lost real breaks, or barely helped on clustered volatility."
 tags: [changepoint-detector, negative-result, statistics]

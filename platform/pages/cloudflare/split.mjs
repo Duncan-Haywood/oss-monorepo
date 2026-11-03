@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 // Moves router.mjs's SHARD_DIRS out of the built site into the shard Worker's
 // asset directory, copies 404.html beside them, and checks both halves fit the
-// free plan: at most 20,000 files per Worker and 25 MiB per file.
+// free plan: at most 20,000 files per Worker and 25 MiB per file. It also
+// writes the site Worker's _headers, which sends visitors on the workers.dev
+// address to the domain.
 //
 //   node platform/pages/cloudflare/split.mjs platform/pages/dist platform/pages/dist-shard
 
@@ -9,7 +11,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { SHARD_DIRS } from './router.mjs';
+import { SHARD_DIRS, SITE_ORIGIN, WORKERS_DEV_HOST } from './router.mjs';
 
 export const MAX_FILES = 20000;
 export const MAX_FILE_BYTES = 25 * 1024 * 1024;
@@ -31,6 +33,17 @@ async function survey(dir) {
   return { files, big };
 }
 
+/** A _headers rule for the workers.dev address only. Static files there are
+ *  served without running the router (run_worker_first lists only the shard
+ *  directories, which keeps them unmetered), so a Worker 301 cannot reach
+ *  them; browsers follow a `Refresh` header instead, and `noindex` keeps the
+ *  address out of search results. :splat carries the path across. */
+export function workersDevHeaders() {
+  return `https://${WORKERS_DEV_HOST}/*\n` +
+    `  Refresh: 0; url=${SITE_ORIGIN}/:splat\n` +
+    `  X-Robots-Tag: noindex\n`;
+}
+
 export async function split(siteDir, shardDir) {
   await fs.mkdir(shardDir, { recursive: true });
   for (const d of SHARD_DIRS) {
@@ -40,6 +53,8 @@ export async function split(siteDir, shardDir) {
   await fs.copyFile(path.join(siteDir, '404.html'), path.join(shardDir, '404.html'));
   const site = await survey(siteDir);
   const shard = await survey(shardDir);
+  // After the count: Cloudflare reads _headers as configuration, not an asset.
+  await fs.writeFile(path.join(siteDir, '_headers'), workersDevHeaders());
   const problems = [];
   for (const [name, s] of [['site', site], ['shard', shard]]) {
     if (s.files > MAX_FILES) problems.push(`${name}: ${s.files} files, over the free plan's ${MAX_FILES}`);

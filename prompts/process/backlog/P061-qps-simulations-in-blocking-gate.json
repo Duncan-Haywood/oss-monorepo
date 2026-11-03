@@ -1,0 +1,29 @@
+{
+  "id": "P061",
+  "title": "perf: quick-pick-survey's blocking Test step runs multi-minute measurement experiments",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 2,
+  "problem": "ventures/quick-pick-survey `npm test` (vitest include src/**/*.test.ts) runs the *.simulation.test.ts experiments in the blocking gate. They are measurement runs for docs/INFORMATION-GAIN-SELECTOR.md, written with timeouts of 1.8M to 3.6M ms. On a 4-core box poolCap.simulation.test.ts '500 items, 2000 answers' alone took 177.9 s; the 41/220-item info-gain cells repeat in four files (7-16 s each). The job is the 3rd largest runner consumer.",
+  "evidence": [
+    "python3 platform/ci/ci_profile.py --runs 600 --top 25, 2026-11-02: quick-pick-survey CI 5 jobs, 39.2 job-min, median 582 s, heaviest step Test 21.2 min (only 2 other workflows beyond Pages/validate are larger)",
+    "npx vitest run --reporter=verbose locally, 4 cores, 2026-11-02: poolCap '500 items, 2000 answers' 177899 ms; hybridDip 30 items 25929 ms; four files each repeat 'information-gain selector vs shipped, 220 items, 300 answers' at 14.6-15.9 s; the full run did not finish inside 500 s (the 500/4000 and 600/1000-item cells were still pending)",
+    "src/lib/poolCap.simulation.test.ts: its own header calls the uncapped runs 'minutes each'"
+  ],
+  "change": "Do not skip them: move the simulations to their own vitest config and a path-scoped, scheduled or label-gated job (or a second parallel job so wall time drops), keeping assertions identical. Also share the repeated 41/220-item cells between the four files (memoise simulate() per seed/items/budget) so a run computes each once. Verify the same assertions pass and compare job minutes with ci_profile.py.",
+  "touches": [
+    "ventures/quick-pick-survey/vitest.config.ts",
+    ".github/workflows/quick-pick-survey-ci.yml",
+    "ventures/quick-pick-survey/src/lib/"
+  ],
+  "metric": "quick-pick-survey CI Test step minutes per job (ci_profile.py)",
+  "baseline": "21.2 min over 5 jobs (about 4.2 min each), 2026-11-02",
+  "opened": "2026-11-02",
+  "source": "docs/history/ci-perf-2026-11-02-qps-simulations.md",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12622",
+  "result": null,
+  "history": [
+    "2026-11-02: part 2: Test step runs test:fast; simulations run in a parallel job (same assertions). Memoising the repeated 41/220-item cells not done; wall time per job is now the max of the two, not the sum."
+  ]
+}

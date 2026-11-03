@@ -1,0 +1,35 @@
+series	n	plain	bootstrap	bootstrapPenalty
+airline-passengers.csv	144	5	4	36.39
+airmiles.csv	24	1	1	
+ansett-melsyd-economy.csv	282	9	6	26.62
+ansett-melsyd-first.csv	270	14	5	31.48
+au-arrivals-japan.csv	127	6	4	21.02
+au-arrivals-us.csv	127	3	2	17.64
+cac-returns.csv	1859	5	2	44.01
+coal-mining-disasters.csv	112	2	2	17.74
+dax-returns.csv	1859	6	3	57
+eu-elecequip.csv	195	5	2	38.76
+ftse-returns.csv	1859	5	3	29.76
+fx-daily-returns.csv	1751	7	4	45.58
+great-discoveries.csv	100	3	0	43.46
+johnson-johnson.csv	84	5	4	30.79
+lake-huron.csv	98	2	2	32.26
+lh.csv	48	1	0	15.88
+lynx.csv	114	0	0	29.7
+nhtemp.csv	60	1	1	20.59
+nile.csv	100	1	1	
+nottem.csv	240	0	0	
+payroll-views.csv	731	6	4	40.5
+puerto-rico-daily-deaths.csv	1201	8	2	59.49
+smi-returns.csv	1859	7	1	76.31
+sunspot-year.csv	289	5	0	61.75
+uk-driver-deaths.csv	192	3	3	21.47
+uk-fdeaths.csv	72	0	0	16.23
+uk-gas.csv	108	3	1	32.78
+uk-ldeaths.csv	72	0	0	16.95
+uk-mdeaths.csv	72	0	0	16.61
+us-accidental-deaths.csv	72	1	0	20.04
+us-gdp-growth.csv	202	2	1	31.86
+us-inflation.csv	202	6	5	31.12
+www-usage.csv	100	6	4	38.85
+# 33 series; bootstrap returns fewer changes on 22, more on 0

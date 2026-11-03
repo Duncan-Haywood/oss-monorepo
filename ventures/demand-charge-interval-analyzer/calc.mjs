@@ -10,6 +10,8 @@ export const DEFAULTS = {
   batteryCostPerKwh: "",
   batteryCostPerKw: "",
   usablePct: "",
+  roundTripPct: "",
+  energyRate: "",
 };
 
 export const EXAMPLE_SETTINGS = {
@@ -20,6 +22,8 @@ export const EXAMPLE_SETTINGS = {
   batteryCostPerKwh: "600",
   batteryCostPerKw: "250",
   usablePct: "90",
+  roundTripPct: "88",
+  energyRate: "0.12",
 };
 
 const num = (v) => {

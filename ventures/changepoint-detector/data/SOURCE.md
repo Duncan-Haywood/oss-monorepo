@@ -314,3 +314,48 @@ are R's `datasets::lynx` and `datasets::sunspot.year`, retrieved 2026-10-30 from
 `https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/`. Their own licences are not
 stated there (sunspots: SIDC, Royal Observatory of Belgium); they are small public scientific series used for a
 measurement, not redistributed as a product. Used by `eval/cyclic-series.mjs`.
+
+---
+
+# Example data: Peace Bridge monthly traffic, 2003-2015
+
+`peace-bridge.csv`: monthly vehicle traffic (thousands) over the Peace Bridge
+(Buffalo NY to Fort Erie ON), 156 months from 2003-01. R's
+`Stat2Data::PeaceBridge2003`. The US land-border passport requirement (WHTI)
+took effect on 2009-06-01, inside the 2008-09 recession.
+
+- **Retrieved:** 2026-11-01 from the Rdatasets mirror,
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/Stat2Data/PeaceBridge2003.csv>.
+- **Licence:** the Stat2Data package is GPL (Cannon et al.); the figures are
+  bridge traffic counts. Used here as test data only.
+- **Used by:** `eval/peace-bridge.mjs`, `peace-bridge.test.mjs`.
+
+# Example data: US quarterly ex-post real interest rate, 1959Q2-2009Q3
+
+`us-real-interest.csv`: the `realint` column of statsmodels' `macrodata` dataset (three-month Treasury bill rate minus
+annualised CPI inflation, %), 202 quarters (first quarter dropped: 0 by construction).
+
+- **Retrieved:** 2026-11-02 from
+  <https://raw.githubusercontent.com/statsmodels/statsmodels/main/statsmodels/datasets/macrodata/macrodata.csv>.
+- **Licence:** public domain (statsmodels' `COPYRIGHT`; underlying data via FRED).
+- **Cite (the documented shifts, from memory, unread):** Garcia, R. and Perron, P. (1996). An analysis of the real
+  interest rate under regime shifts. *Review of Economics and Statistics* 78(1), 111-125.
+- **Used by:** `eval/us-real-interest.mjs`, `us-real-interest.test.mjs`.
+
+# Example data: Capital Bikeshare daily rentals, 2011-2012
+
+`bike-sharing-daily.csv`: casual and registered rentals per day in Washington DC, 731 days from 2011-01-01, with the dataset's own `holiday` flag (21 days). Dates converted to ISO; other columns dropped.
+
+- **Retrieved:** 2026-11-02 from a GitHub copy of `day.csv` (justmarkham/DAT3); original: Fanaee-T and Gama, UCI Machine Learning Repository "Bike Sharing Dataset".
+- **Licence:** CC BY 4.0 (UCI). Used here as test data only.
+- **Used by:** `eval/holiday-bikes.mjs`, `holiday-bikes.test.mjs`.
+
+# Example data: US civilian unemployment rate, 1959Q2-2009Q3
+
+`us-unemployment.csv`: the `unemp` column of statsmodels' `macrodata` dataset, 202 quarters (same rows as
+`us-gdp-growth.csv` and `us-real-interest.csv`).
+
+- **Retrieved:** 2026-11-03 from
+  <https://raw.githubusercontent.com/statsmodels/statsmodels/main/statsmodels/datasets/macrodata/macrodata.csv>.
+- **Licence:** public domain (statsmodels dataset module, `COPYRIGHT`); underlying figures are US BLS data via FRED.
+- **Used by:** `eval/us-unemployment.mjs`, `us-unemployment.test.mjs`.

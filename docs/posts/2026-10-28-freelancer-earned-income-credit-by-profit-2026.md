@@ -1,5 +1,6 @@
 ---
 title: "What the earned income credit is worth to a freelancer at each profit level, 2026"
+seo_title: "Earned income credit for a freelancer at each profit level, 2026"
 date: 2026-10-28
 description: "A single filer with one child and $15,000 of Schedule C profit gets about $4,427 back; at $50,000 it is $819. Figures from ai-bookkeeper's 2026 schedule."
 tags: [ai-bookkeeper, tax, self-employed, eitc]

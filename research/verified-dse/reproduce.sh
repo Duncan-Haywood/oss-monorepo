@@ -27,3 +27,4 @@ $PY experiments/proof_success/analyse.py
 for s in bound quantile topk sweep kth kth_pilot kth_inflate quantile_g; do $PY experiments/theory/$s.py; done
 $PY -m unittest discover -s tests
 git diff --stat -- experiments   # empty when the committed tables are reproduced exactly
+$PY experiments/bohb/bohb.py       # milestone 54 (about 80 s)

@@ -30,6 +30,8 @@ python3 experiments/envelope.py > experiments/envelope_results.txt  # 20,000 ran
 python3 experiments/idle_sensitivity.py > experiments/idle_sensitivity_results.txt  # milestone 2f, ~20 s
 python3 experiments/idle_models.py > experiments/idle_models_results.txt  # milestone 2g, ~60 s
 PYTHONPATH=src python3 experiments/regen_bound.py > experiments/regen_bound_results.txt  # milestone 5a, ~10 s
+python3 experiments/regen_peaky.py > experiments/regen_peaky_results.txt  # milestone 5e, under 1 s
+python3 experiments/regen_measured.py <dir of the CC BY PATU 655 crane data, doi 10.17632/rn5j42rpyr.1>  # milestone 5g, needs numpy
 ```
 
 ## Method
@@ -44,6 +46,8 @@ actuator at its own pressure plus a small drop. Shaft energy divides by pump eff
 See [`experiments/results.txt`](experiments/results.txt) and the log. Swept: flow demand,
 pressure spread, pump size, load-sensing margin (14 to 30 bar), spool drop, metering drop,
 pump efficiency (0.75 to 0.92). None is sourced yet.
+
+**Milestone 5c, the electric rung (preliminary).** Against a vendor runtime claim (Volvo ECR25 Electric: 20 kWh for up to 4 h, a 5 kW mean draw; [product page](https://www.volvoce.com/europe/en/products/electric-machines/ecr25-electric/)), the modelled duty cycle (load factor 0.346) needs only 2.5 to 4.3 kW at the battery for a chain efficiency of 0.80 to 0.92, so 20 kWh would last 4.7 to 8.0 h. The model sits 1.2 to 2x below the vendor's mean draw; what it omits (travel, auxiliaries, heavier duty) or vendor conservatism cannot be separated with this data. The circuit ranking is unchanged by electrification because the chain efficiency is common to both circuits. Table: [`experiments/electric_rung_results.txt`](experiments/electric_rung_results.txt); detail in [`LOG.md`](LOG.md).
 
 ## Limitations and next steps
 
@@ -98,7 +102,7 @@ figure. Run `python3 experiments/physics_cycle.py --sourced`; output in
 
 ## Milestone 2e: is the assumed cycle's load shape like a measured excavator's?
 
-A public electrical power trace of an electric excavator (Zenodo 18862594, CC-BY-4.0; copied to
+A public electrical power profile for an electric excavator (a computed 75 t reference profile scaled to 100 kW, per the draft CWA; Zenodo 18862594, CC-BY-4.0; copied to
 `experiments/data/`) has a load factor (mean over peak) of 0.346 and spends 52% of the time below
 30% of its peak. The force-model cycles have a median load factor of 0.606 (5 to 95%: 0.41 to 0.78)
 and a median 14% of time below 30% of peak, so the model has *less* low-load time than the machine,
@@ -127,3 +131,9 @@ Recoverable energy `(m_arm + m_load) g dh x eta_rt`, capped by the lift phase's 
 0.8 m, 70% round trip; 10.0% and 10.3% at 600 kg, 1.2 m, 92%. Arm mass, drop height and round-trip efficiency are swept, not
 sourced; the model's lift phase does a median 5.6 times the work of lifting the bucket load alone, so the cap may be generous.
 Details and the pre-registered predictions: `LOG.md`.
+
+## Milestone 3l: pricing the larger pump (prediction refuted on energy)
+A pump 1.2 x the peak demand removes the open-centre median time penalty (3k), but burns 14.1% more shaft energy per cycle (1.5 x: 34.8%) because the fixed pump's whole flow runs at load pressure in every work phase. Cycle time falls 2.6% and 4.7%. With the pump priced linearly in flow from one retail listing (assumed) and fuel at $6.28/gal, the extra fuel is $0.18 to $0.45 per hour, so the larger pump pays if an hour of the machine is worth more than about $8 to $12 (`experiments/pump_cost.py`). I had predicted an energy rise under 5% (1.2 x); that part was wrong, the break-even bound held. The 0.8 x row is not valid (most cycles exceed the pump flow). Details: `LOG.md`.
+
+## Milestone 3n: how much of the pump-size penalty is the full-flow assumption?
+With open-centre drawing `q_dem + f (Q_pump - q_dem)` at load pressure, the median load-sensing/open-centre break-even margin at a 1.2 x pump falls from 44.5 bar (f = 1, 3m) to 31.7 (f = 0.5) and 18.8 (f = 0, demand-matched), where it equals the 1.0 x value. My prediction (below 28 bar at f = 0.5, below 14 at f = 0) was refuted. f is swept, not sourced, so this brackets the answer rather than settling it. Run `python3 experiments/surplus_fraction.py`; output in `experiments/surplus_fraction_results.txt`; reasoning in [`LOG.md`](LOG.md).

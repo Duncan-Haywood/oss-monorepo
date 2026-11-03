@@ -33,6 +33,25 @@ class T(unittest.TestCase):
         posts = {HUB: post("start-here"), "2026-10-30-other.md": post("news")}
         self.assertEqual(problems(posts), [])
 
+    def test_only_the_dated_start_here_name_is_a_hub(self):
+        # ends with the suffix but is a sibling, not a second hub
+        sib = "2026-10-30-foo-start-here.md"
+        posts = {HUB: post("start-here", f"[s]({sib})"), sib: post("start-here", f"[hub]({HUB})")}
+        self.assertEqual(problems(posts), [])
+
+    def test_two_hubs_rejected(self):
+        posts = {HUB: post("start-here"), "2026-10-30-start-here.md": post("start-here")}
+        self.assertEqual(len(problems(posts)), 1)
+        self.assertIn("found 2", problems(posts)[0])
+
+    def test_help_uses_summary_line(self):
+        import io, contextlib
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), self.assertRaises(SystemExit):
+            main(["--help"])
+        import check_start_here
+        self.assertIn(check_start_here.__doc__.splitlines()[0], buf.getvalue().replace("\n", " "))
+
     def test_repository_passes(self):
         self.assertEqual(main([]), 0)
 

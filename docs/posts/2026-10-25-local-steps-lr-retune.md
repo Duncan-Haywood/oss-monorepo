@@ -1,5 +1,6 @@
 ---
 title: "Re-tuning the learning rate removed the cost of 16 local steps in DiLoCo-style training"
+seo_title: "Re-tuning the learning rate removed the 16-local-step cost"
 date: 2026-10-25
 description: "On a 413k-parameter character GPT with 4 workers, an inner learning rate tuned at the full 3,840-step budget made 16 local steps match synchronous AdamW."
 tags: [lowcomm-training, diloco, local-sgd, research]

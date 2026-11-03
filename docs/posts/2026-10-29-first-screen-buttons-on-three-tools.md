@@ -1,5 +1,6 @@
 ---
 title: "Three scheduling and sales tools now show their buttons on a phone's first screen"
+seo_title: "Buttons on a phone's first screen, on three tools"
 date: 2026-10-29
 description: "A phone-width check found three tool pages with no action above the fold. Each now has a start button and a try-an-example button."
 tags: [polish, shift-roster-builder, league-schedule-generator, sales-agent]

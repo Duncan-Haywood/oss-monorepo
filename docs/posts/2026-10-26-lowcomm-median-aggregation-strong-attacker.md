@@ -1,5 +1,6 @@
 ---
 title: "One bad worker breaks mean aggregation in DiLoCo training; the median holds at a small cost"
+seo_title: "One bad worker breaks mean aggregation in DiLoCo; median holds"
 date: 2026-10-26
 description: "On a 2-layer character GPT with 4 workers, a large-offset attacker makes mean aggregation diverge; the coordinate-wise median stays within 0.01 nats."
 tags: [research, lowcomm-training, diloco, robust-aggregation]

@@ -1,0 +1,8 @@
+2187 cases; pack energy 7500 to 12500 Wh (150 to 250 Wh/kg of 50 kg)
+catamaran out-ranges mono with equal overhead in 9 cases (0.4%)
+  catamaran extra overhead     0 Wh: rank swaps    0 (  0.0%); closed form disagrees in 0
+  catamaran extra overhead   100 Wh: rank swaps    3 (  0.1%); closed form disagrees in 0
+  catamaran extra overhead   250 Wh: rank swaps    0 (  0.0%); closed form disagrees in 0
+  catamaran extra overhead   500 Wh: rank swaps    0 (  0.0%); closed form disagrees in 0
+  catamaran extra overhead  1000 Wh: rank swaps    0 (  0.0%); closed form disagrees in 0
+  catamaran extra overhead  2000 Wh: rank swaps    0 (  0.0%); closed form disagrees in 0

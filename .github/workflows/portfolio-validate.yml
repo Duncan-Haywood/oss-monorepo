@@ -60,30 +60,11 @@ on:
       - "ventures/**/VENTURE.yaml"
       - "ventures/**/NOT-A-VENTURE"
       - "ventures/**/*.html"
-      # The apex tool mirror is generated from whole venture directories,
-      # so a venture's module, script, stylesheet or licence going stale in
-      # `gitops/prod/front-door-tools/` is exactly as invisible as a page
-      # would be. The mirror-staleness step below is what reads them.
-      # `.css`/`.js` joined `.mjs` here on 2026-09-02: `front-door-tools.mjs`'s
-      # own SERVABLE_EXTENSIONS has mirrored all four since the mirror shipped
-      # (construction-evidence-log's app.js and style.css are in the mirror
-      # today), but neither extension had a path here or in
-      # hetzner-gitops-ci.yml, so an edit to either file triggered no workflow
-      # that runs the staleness check at all -- confirmed by editing
-      # ventures/construction-evidence-log/app.js locally and watching
-      # `front-door-tools.test.mjs` fail with the change unreverted.
       - "ventures/**/*.mjs"
       - "ventures/**/*.css"
       - "ventures/**/*.js"
       - "ventures/**/LICENSE"
       - "platform/marketing/**"
-      # `platform/marketing/*.test.mjs` (the staleness step below) checks the
-      # committed front door under `gitops/prod/` and reads
-      # `gitops/tests/test_*.py`. This is the only workflow that runs it since
-      # hetzner-gitops-ci.yml dropped its duplicate copy, so a hand edit to a
-      # generated file there has to trigger it here.
-      - "gitops/prod/**"
-      - "gitops/tests/**"
       - "platform/pages/**"
       - "platform/agents/**"
       - "platform/edge/**"
@@ -119,19 +100,11 @@ on:
       - "ventures/**/VENTURE.yaml"
       - "ventures/**/NOT-A-VENTURE"
       - "ventures/**/*.html"
-      # The apex tool mirror is generated from whole venture directories,
-      # so a venture's module, script, stylesheet or licence going stale in
-      # `gitops/prod/front-door-tools/` is exactly as invisible as a page
-      # would be. The mirror-staleness step below is what reads them. See the
-      # `push:` block above for why `.css`/`.js` are here too.
       - "ventures/**/*.mjs"
       - "ventures/**/*.css"
       - "ventures/**/*.js"
       - "ventures/**/LICENSE"
       - "platform/marketing/**"
-      # See the `push:` block above for why `gitops/prod/` and `gitops/tests/`.
-      - "gitops/prod/**"
-      - "gitops/tests/**"
       - "platform/pages/**"
       - "platform/agents/**"
       - "platform/edge/**"
@@ -178,13 +151,12 @@ jobs:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # This job runs on every PR that touches any of the paths above and chains
     # roughly fifty checks and unit-test modules in sequence; it has taken
-    # 3-4 minutes when the catalogue was small; with ~1,300 ventures the
-    # front-door tests alone take ~8 minutes (2026-10-19), so the cap is 35.
-    # Uncapped, a hung pip install or a stalled
-    # step anywhere in that chain would ride GitHub's default 360-minute
-    # ceiling instead of failing fast -- see hetzner-gitops-ci.yml's own
-    # timeout-minutes addition for why that matters on a metered-minutes
-    # account (CLAUDE.md's CI-starvation history, 2026-08-26 to 2026-09-01).
+    # 3-4 minutes when the catalogue was small; the apex-mirror tests that
+    # once took ~8 minutes of it left with the retired cluster (2026-10-30).
+    # Uncapped, a hung pip install or a stalled step anywhere in that chain
+    # would ride GitHub's default 360-minute ceiling instead of failing fast
+    # on a metered-minutes account (CLAUDE.md's CI-starvation history,
+    # 2026-08-26 to 2026-09-01).
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -207,57 +179,7 @@ jobs:
       - name: Validate VENTURE.yaml schema
         run: python3 portfolio/router/validate.py
 
-      # The mirror serves nothing since the k3s origin was retired
-      # (portfolio/hosting/README.md), and its two checks were 7.5 of this
-      # job's 10 minutes (P039). They only matter when the mirror or its
-      # generator changes, so any doubt (shallow fetch fails, no base) runs them.
-      - name: Does this change touch the apex mirror or its generator?
-        id: mirror
-        env:
-          EVENT: ${{ github.event_name }}
-          BEFORE: ${{ github.event.before }}
-        run: |
-          base=
-          if [ "$EVENT" = pull_request ]; then
-            if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
-              git fetch --no-tags --depth=2 origin "+$(git rev-parse HEAD):refs/ci/pr-merge" 2>/dev/null || true
-            fi
-            base=$(git rev-parse -q --verify HEAD^1 || true)
-          elif [ "$EVENT" = push ] && [ "${BEFORE#0000000}" != "$BEFORE" ]; then
-            base=
-          elif [ "$EVENT" = push ]; then
-            if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
-              git fetch --no-tags --depth=1 origin "$BEFORE" 2>/dev/null || true
-            else
-              git fetch --no-tags origin "$BEFORE" 2>/dev/null || true
-            fi
-            base=$(git rev-parse -q --verify "$BEFORE^{commit}" || true)
-          fi
-          run=true
-          if [ -n "$base" ] && changed=$(git diff --name-only "$base" HEAD 2>/dev/null); then
-            # A PR is gated on the generator and this workflow only. Main's
-            # committed mirror drifts from merges that never ran this step, and
-            # failing the next PR that touches gitops/prod/ for that drift
-            # (P043) made authors regenerate files for the retired apex. Push
-            # runs still check gitops/prod/, so drift surfaces on main.
-            paths='^(platform/marketing/|\.github/workflows/portfolio-validate\.yml$)'
-            [ "$EVENT" = pull_request ] || paths='^(gitops/prod/|platform/marketing/|\.github/workflows/portfolio-validate\.yml$)'
-            if ! printf '%s\n' "$changed" | grep -qE "$paths"; then
-              run=false
-            fi
-          fi
-          echo "run=$run" >> "$GITHUB_OUTPUT"
-
-      # The apex serves a mirrored copy of 14 whole ventures so that the front
-      # door's cards work while `portfolio-site-repo` is unsealed. The copy is
-      # committed (Argo CD delivers it; no CI job builds it), so editing one of
-      # those ventures without regenerating leaves the apex serving the old
-      # tool. This is also the only place the generator suite runs for
-      # `gitops/prod/**` and `platform/marketing/**` changes:
-      # `hetzner-gitops-ci.yml` used to run a duplicate copy and dropped it on
-      # 2026-10-20 when it pushed that job past its timeout.
-      - name: Check the apex tool mirror is not stale
-        if: steps.mirror.outputs.run == 'true'
+      - name: IndexNow submitter tests
         run: node --test "platform/marketing/*.test.mjs"
 
       # platform/agents/tools.mjs lets an agent call any tool's engine with no
@@ -271,25 +193,6 @@ jobs:
       # and page-view counts; it shares platform/counter's rules (core.mjs).
       - name: Site feedback Worker and visit counter
         run: node --test "platform/edge/*.test.mjs" "platform/counter/*.test.mjs"
-
-      # `MIRROR_BYTE_CEILING` is a wall with no approach lights: `buildMirror`
-      # throws on it, and that throw lands in the step above -- which this
-      # workflow runs on every PR touching a venture page. So the first session
-      # to cross it does not learn that the mirror is full, it learns that
-      # *nothing in the catalogue can publish* until someone frees room, in the
-      # middle of shipping something unrelated. The apex is the portfolio's
-      # entire public surface and the fleet adds tools daily.
-      #
-      # This step fails at `MIRROR_HEADROOM_WARN_RATIO` (85%) instead, leaving
-      # roughly a third of the runway to land the remedy as an ordinary
-      # reviewed change. It was at 76.3% when the step was added -- 173 tools,
-      # ~53 from the wall -- so it passes today and exists for the day it does
-      # not. Its output also names the 18.5% of the mirror that is byte-
-      # identical duplication, which is the remedy the constant's comment
-      # spells out; raising the ceiling is not the first answer.
-      - name: Check the apex tool mirror has room left
-        if: steps.mirror.outputs.run == 'true'
-        run: node platform/marketing/front-door-tools.mjs --headroom
 
       - name: Check candidate scores agree across yaml, write-ups, and README
         run: python3 portfolio/pipeline/validate_doc_consistency.py
@@ -440,20 +343,6 @@ jobs:
       - name: Tree-count sync unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_sync_tree_counts
-
-      # And the reader for the three standalone host-mode routes. Same
-      # argument as the two above, at the point where it is most expensive to
-      # be wrong: this one is read while the owner is holding the private key,
-      # during the single session the recovery gets, and it is the thing that
-      # says which of the three drivers is worth that session. Its own
-      # refusals are the behaviour under test -- it must parse the box and
-      # installer out of the drivers rather than restating them (a restated
-      # constant is how this repo has twice shipped a claim that went quietly
-      # wrong), and it must never imply it measured whether a box answers,
-      # which no session can do.
-      - name: Host-route reader unit tests
-        working-directory: platform/ci
-        run: python3 -m unittest test_host_routes_state
 
       # A calculator whose shipped defaults fail constraint validation cannot be
       # submitted at all: the browser refuses before dispatching the event, so
@@ -883,15 +772,6 @@ jobs:
       - name: Publish-surface unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_publish_surface
-
-      # The other half of that pair. `publish_surface.py` reads what a merge
-      # *ships*; `public_surface.py` reads what the hostnames actually
-      # *serve*, and only the second can contradict a stale claim. These tests
-      # open no socket -- the probe itself runs in `public-surface-check.yml`,
-      # which needs a runner's unrestricted egress and no credential at all.
-      - name: Public-surface prober unit tests
-        working-directory: platform/ci
-        run: python3 -m unittest test_public_surface
 
       - name: Branch-cleanup decision-rule tests
         working-directory: platform/ci

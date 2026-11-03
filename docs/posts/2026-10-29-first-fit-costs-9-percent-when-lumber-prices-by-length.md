@@ -1,5 +1,6 @@
 ---
 title: "First-fit lumber ordering costs 9.5% extra when long boards cost more per foot"
+seo_title: "First-fit lumber ordering costs 9.5% extra"
 date: 2026-10-29
 description: "On 150 small framing orders with length-priced lumber, first-fit-decreasing found the cheapest order 29% of the time; the shipped solver found it every time."
 tags: [wall-framing-takeoff, optimization, construction]

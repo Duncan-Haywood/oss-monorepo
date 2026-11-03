@@ -1,0 +1,56 @@
+{
+ "date": "2026-10-31",
+ "session": "https://claude.ai/code/session_01XpHqygBvxa4SWwYseE56ZX",
+ "track": "process",
+ "prompt_version": 1,
+ "input": "gonnna have more rogue agents contributing how do I harden settings and setup? / okay work on all of that.",
+ "input_sha256": "c01e416ef8bccfef0b7dd178452b28d966de1715016e86bf6b18554590d2dc77",
+ "follow_up_inputs": [],
+ "model": null,
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-31T00:05:12Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "Harden the repo against misbehaving agents: CODEOWNERS for the control plane, ruleset, control-plane guard, Environments for publishing secrets",
+ "projects": [
+  "platform"
+ ],
+ "pr": 11946,
+ "repo": "duncan-haywood/oss-monorepo",
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 14,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": ".github/rulesets/README.md",
+   "issue": "Only two workflows (conflict-markers, agent-cross-review) run on every PR, so a new required check needs its own unfiltered workflow; the ruleset JSON in the repo is not live until an admin applies it."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "docs/security/agent-hardening.md",
+   "why": "Moving the Cloudflare token into an environment would make portfolio-pages.yml's PR-time gate see no token and quietly fall back from the Cloudflare deploy",
+   "did": "left Cloudflare, reviewer-key and Vercel secrets as repository secrets and documented why",
+   "result": "14 jobs in 3 environments; the catalogue deploy path untouched"
+  }
+ ],
+ "writeups": [
+  "docs/security/agent-hardening.md",
+  "docs/posts/2026-10-31-the-files-that-steer-the-agents.md"
+ ],
+ "goal": "One misbehaving agent cannot rewrite the rules, hooks or merge gate for every other agent, or read publishing secrets from a branch",
+ "notes": "Local checks: test_control_plane_guard 14 OK; control_plane_guard --check-coverage OK; agent-permission-harness check_results_current exit 0 on branch and on main, its 93 tests OK; check_md_links, check_code_refs, check_conflict_markers, promptctl validate clean. validate_workflows.py reports one pre-existing problem in distribution-versions-ci.yml (untouched). --pr and --audit-commit not run against the live API locally (no token). GitHub settings (agent identities, applying the ruleset, Actions settings, moving secrets, push protection) are owner steps listed in docs/security/agent-hardening.md.",
+ "corrections": [],
+ "redteam": null
+}

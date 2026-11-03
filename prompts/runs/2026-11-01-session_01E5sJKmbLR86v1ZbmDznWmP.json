@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01E5sJKmbLR86v1ZbmDznWmP",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T14:22:08Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/history/pages-build-perf-2026-11-01-seo-title-gate.md",
+      "issue": "its 'not changed' item 2 proposed a seo_title pre-merge check that already exists (platform/ci/check_post_frontmatter.py); cost a lookup"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "no blog post: the run was a measurement note with no change",
+      "did": "history note only",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "docs/history/pages-build-perf-2026-11-01-card-pool-idle.md"
+  ],
+  "goal": null,
+  "notes": "Metric: cold local Pages build, 4 cores, no card cache: 2m54s real, 4m02s user (time node platform/pages/build.mjs --out=dir). No code change, so no after. Closed two stale leads: seo_title check already in CI; card-pool idle is cold-build only since portfolio-pages.yml restores a daily card cache.",
+  "corrections": [],
+  "redteam": null
+}

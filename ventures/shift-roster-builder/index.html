@@ -162,6 +162,21 @@
     <p id="merge-status" role="status" class="note"></p>
   </section>
 
+  <section class="card" id="pack-card" aria-labelledby="h-pack" hidden>
+    <h2 id="h-pack">Branded staff schedule pack</h2>
+    <p class="note">This week on your own letterhead: your logo and colours, a wall grid, and one page per person to print or save as PDF and send. No pay appears on it. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; the roster and every other download here stay free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
+    <p id="pack-buy-row" hidden><a id="pack-buy" class="cta" rel="noopener" target="_blank">Buy a licence key</a></p>
+    <p><label>Licence key <input id="pack-key" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="pack-check">Check key</button> <span id="pack-state" role="status"></span></p>
+    <div id="pack-fields" hidden>
+      <label for="pack-biz">Business name</label><input id="pack-biz">
+      <label for="pack-contact">Contact line</label><input id="pack-contact" placeholder="Email or phone for swaps">
+      <label for="pack-accent">Accent colour</label><input id="pack-accent" type="color" value="#1f4e5f">
+      <label for="pack-logo">Logo (PNG, JPEG, WebP or GIF)</label><input id="pack-logo" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+      <label for="pack-notes">Notes page (one per line, optional)</label><textarea id="pack-notes" rows="3"></textarea>
+      <p><button type="button" id="pack-open">Open the staff pack</button></p>
+    </div>
+  </section>
+
   <section id="report" class="card" hidden>
     <h2>Result</h2>
     <div id="notices"></div>
@@ -266,7 +281,10 @@
   <script type="module">
     import { importStaffCsv } from "./import-staff.mjs";
     import { importShiftsCsv } from "./import-shifts.mjs";
-    import { planWeeks, planFairness, parseAvailability, placeBreaks, placeRestBreaks, scheduleChanges, carryOverStaff, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, splitShiftPay, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { staffPackHtml } from "./staffpack.mjs";
+    import { buyLink, checkLicence } from "./licence.mjs";
+    import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
+    import { planWeeks, planFairness, parseAvailability, placeBreaks, placeRestBreaks, scheduleChanges, carryOverStaff, scheduleFlags, seniorityClaims, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, splitShiftPay, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -373,6 +391,7 @@
         ...unsupervisedStretches(r, st.staff).map((x) => `${x.people.join(" and ")} ${x.people.length > 1 ? "are" : "is"} on shift ${x.day} ${fmtClock(x.startMin)}–${fmtClock(x.endMin)} with nobody who is not marked minor/supervised. Swap in an adult or pin one with fixed:; the search does not enforce this.`),
         ...(parseFloat($("#minshift").value) > 0 ? shortShifts(r, parseFloat($("#minshift").value)).map((x) => `${x.person} has a ${num(x.hours)}-hour shift ${x.day} ${fmtClock(x.startMin)}–${fmtClock(x.endMin)}, under your ${num(parseFloat($("#minshift").value))}-hour minimum. Lengthen the shift row or merge it with a neighbour; the search does not enforce this.`) : []),
         ...(parseFloat($("#loneafter").value) >= 0 ? loneStretches(r, parseFloat($("#loneafter").value)).map((x) => `${x.person} is alone on shift ${x.day} ${fmtClock(x.startMin)}–${fmtClock(x.endMin)} (${num(x.hours)} hours). Add a second person or pin one with fixed:; the search does not enforce this.`) : []),
+        ...(st.staff.some((p) => p.seniority != null) ? seniorityClaims(st.staff, lastIn.slots, r).claims.map((x) => `${x.senior} (more senior) could take ${x.junior}'s ${x.slot.label || "shift"} on ${DAYS[x.slot.day]} ${fmtClock(x.slot.startMin)}–${fmtClock(x.slot.endMin)} with every hard rule holding; payroll ${x.extraCost >= 0 ? "+" : "-"}${money2(Math.abs(x.extraCost))}${x.underMinimum ? ", and they are under their minimum hours" : ""}${x.juniorWouldDropBelowMinimum ? `, but ${x.junior} would fall under their minimum` : ""}. Seniority is a report, not a search rule.`) : []),
         ...(sf.notice && sf.notice.short ? [`The week starts in ${sf.notice.days} days. Fair-workweek rules in some cities require ${sf.notice.required} days of notice, so changes after posting may owe premium pay.`] : []),
       ];
       const brk = placeBreaks(r);
@@ -478,6 +497,26 @@
       window.print();
       document.body.classList.remove("print-wall");
     });
+    {
+      const buy = buyLink(CHECKOUT_URL);
+      let packLogo = "";
+      // Dark until a checkout link is set in checkout.mjs: no card, no Buy button.
+      if (buy) { $("#pack-buy").href = buy; $("#pack-buy-row").hidden = false; $("#pack-card").hidden = false; }
+      $("#pack-logo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { packLogo = ""; return; } const r = new FileReader(); r.onload = () => { packLogo = String(r.result); }; r.readAsDataURL(f); });
+      $("#pack-check").addEventListener("click", async () => {
+        $("#pack-state").textContent = "Checking...";
+        const v = await checkLicence($("#pack-key").value, { url: VALIDATE_URL });
+        $("#pack-state").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason + (buy ? "" : " (the staff pack is not on sale yet)");
+        $("#pack-fields").hidden = !v.valid;
+        if (v.valid) record("staff_pack_unlocked");
+      });
+      $("#pack-open").addEventListener("click", () => {
+        if (!last) { status.textContent = "Build a roster first."; return; }
+        const html = staffPackHtml(last, { business: $("#pack-biz").value, weekStart: $("#weekstart").value || null, contact: $("#pack-contact").value, accent: $("#pack-accent").value, logo: packLogo, notes: $("#pack-notes").value });
+        const url = URL.createObjectURL(new Blob([html], { type: "text/html" })); window.open(url, "_blank", "noopener"); setTimeout(() => URL.revokeObjectURL(url), 60000);
+        record("staff_pack_opened");
+      });
+    }
     $("#download").addEventListener("click", () => { if (last) download("roster.csv", rosterCsv(last)); });
     $("#download-hours").addEventListener("click", () => { if (last) download("roster-hours.csv", hoursCsv(last)); });
     $("#download-ics").addEventListener("click", () => {

@@ -118,3 +118,11 @@ test('the command line passes its first argument as the slug', () => {
   const run = spawnSync(process.execPath, [new URL('./faq-duplicate.mjs', import.meta.url).pathname, 'no-such-venture-xyz']);
   assert.equal(run.status, 1);
 });
+
+test('normalize keeps every digit, so questions differing in a number stay distinct', () => {
+  assert.equal(normalize('Is 25% or 9 enough?'), 'is 25 or 9 enough');
+});
+
+test('a one-character repeated question is ignored', () => {
+  assert.deepEqual(duplicates('<h3>Q?</h3><p>a</p><h3>Q?</h3><p>b</p>'), []);
+});

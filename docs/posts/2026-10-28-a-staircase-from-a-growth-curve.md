@@ -1,5 +1,6 @@
 ---
 title: "Why a changepoint detector found 16 changes in a company's growing earnings"
+seo_title: "Why a changepoint detector found 16 changes in growing earnings"
 date: 2026-10-28
 description: "Johnson & Johnson's quarterly earnings, fed raw to a changepoint detector, come out as 12 to 16 steps. Logging the series first leaves 2 to 5."
 tags: [changepoint-detector, time-series, statistics]

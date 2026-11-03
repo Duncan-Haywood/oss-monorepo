@@ -3,7 +3,7 @@
 // Regenerate the catalogue: node build-catalogue.mjs [--check]
 //
 // For each brief in catalogue.mjs, writes catalogue/<id>/ (README.md,
-// design.json, view.svg, plan.svg) and catalogue-data.mjs, the summaries the
+// design.json, view.svg, plan.svg, lumber-order.csv) and catalogue-data.mjs, the summaries the
 // page shows. --check exits 1 if anything on disk differs from a fresh run,
 // which is how the tests keep the catalogue in step with the engine.
 
@@ -14,7 +14,7 @@ import { designFiles } from "./engine.mjs";
 import { CATALOGUE } from "./catalogue.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const KEEP = ["README.md", "design.json", "view.svg", "plan.svg"];
+const KEEP = ["README.md", "design.json", "view.svg", "plan.svg", "lumber-order.csv"];
 
 export function buildCatalogue() {
   const out = {};

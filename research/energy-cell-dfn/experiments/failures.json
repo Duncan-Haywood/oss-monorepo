@@ -1,0 +1,56 @@
+[
+ {
+  "i": 46,
+  "source": "random0",
+  "x": [
+   137.64842308107038,
+   0.21171360696103889,
+   0.2672234121091321,
+   0.9601117867579356
+  ],
+  "spme_rerun": {
+   "score": 0.0,
+   "wh_kg_bol": 0.0,
+   "failure": "solver_error",
+   "detail": "SolverError: All steps in the cycle ('Discharge at 5.0 A until 2.5 V', 'Charge at 5.0 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. skip_ok is True for all steps. Please recheck the ",
+   "cycles_done": 0
+  },
+  "dfn_score": 127.85050763756759
+ },
+ {
+  "i": 47,
+  "source": "bayes1",
+  "x": [
+   149.69603599717183,
+   0.2009021219295476,
+   0.3894604580712893,
+   1.2985601476489577
+  ],
+  "spme_rerun": {
+   "score": 0.0,
+   "wh_kg_bol": 0.0,
+   "failure": "solver_error",
+   "detail": "SolverError: All steps in the cycle ('Discharge at 5.0 A until 2.5 V', 'Charge at 5.0 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. skip_ok is True for all steps. Please recheck the ",
+   "cycles_done": 0
+  },
+  "dfn_score": 139.40319570441088
+ },
+ {
+  "i": 48,
+  "source": "bayes1",
+  "x": [
+   138.70779117222503,
+   0.2093432521442553,
+   0.20373563075596504,
+   1.2818762900383562
+  ],
+  "spme_rerun": {
+   "score": 0.0,
+   "wh_kg_bol": 0.0,
+   "failure": "solver_error",
+   "detail": "SolverError: All steps in the cycle ('Discharge at 5.0 A until 2.5 V', 'Charge at 5.0 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. skip_ok is True for all steps. Please recheck the ",
+   "cycles_done": 0
+  },
+  "dfn_score": 120.54517857826669
+ }
+]

@@ -1,5 +1,6 @@
 ---
 title: "The barn's knee gussets were too small, and the search now shapes the barn"
+seo_title: "The barn's knee gussets were too small"
 date: 2026-10-30
 tags: [shed-designer, structure, gambrel, search]
 description: "APA's published capacities put the shed designer's barn knee gussets at 334%. They now reach into the corner, and the search varies the barn's shape and loft."

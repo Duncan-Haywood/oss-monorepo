@@ -14,7 +14,7 @@ approve:
 |---|---|---|
 | Unsubscribe / stop | Stops every touch; adds the address to a suppression file with the date and their sentence as the record | Nothing. No reply is drafted |
 | Bounce | Stops email to the address | Find the right address in your own records (it never guesses one) |
-| Out of office | Pauses until the business day after their return date (one week if none) | A task if the auto-reply names another contact |
+| Out of office | Pauses until the business day after their return date (one week if none; reads "in 2 wks", "fortnight", "mid-December", "1.12.2026", "next Tues", and German, French, Spanish, Portuguese, Italian and Dutch month names such as "12. November" or "20 de noviembre" (added 2026-11-02, agent-written cases only), `dates-more.test.mjs`) | A task if the auto-reply names another contact |
 | Left / wrong person | Stops the cadence for that contact | A task to add the person they named, if you choose |
 | Not interested | Stops the cadence; not suggested again for 180 days; a lost deal row | Nothing |
 | Not now | Pauses until the date they gave (90 days if none) | A short acknowledgement draft |
@@ -38,6 +38,10 @@ first, so someone who wrote "stop" this morning is not called this afternoon.
 It sends nothing.
 
 **Milestone 4a: self-host it.** [`self-host/`](self-host/README.md) runs the inbox agent on your own mailbox (IMAP, read-only), with an approval queue and an audit log, in Node, Docker or compose, or one-click on Render or Fly.io in your own account (`render.yaml`, `fly.toml`; see its README). It still sends nothing; approved drafts open in your mail app. Tested against a fake IMAP server, not yet a real mailbox.
+
+**Quoted history is not a second reply (2026-11-03, `engine.test.mjs`).** A top-posted Outlook reply carries our own email under a `From: / Sent:` block (or `-----Original Message-----`, an underscore rule, a forwarded divider); the paste splitter read that as a second message, and our footer's "reply stop" came out as an unsubscribe. Fixed in `splitAtFromHeaders`; found with hand-written layouts, no real mailbox.
+
+**Suppression list reader (2026-11-02, `suppression.mjs`, `suppression.test.mjs`, 5 tests).** The inbox agent, daily run, call prep and research agent each parsed the list their own way; the daily run ignored `Name <addr>` and quoted entries, so a person written that way was still queued (the unsafe direction). One shared reader now takes `bob@x.com`, quotes, `Name <addr>`, `mailto:`, `+tag` (same person both ways), `@domain`, phones, and the agent's own `suppression-add.csv` (only the email and phone columns count, so an address quoted in the evidence suppresses nobody). Found by reading the code, not from real user lists.
 
 **Milestone 7a: call prep.** `node cli.mjs --prep dana@example.com --prospects prospects.csv --replies thread.txt [--notes notes.txt] [--crm export.csv] [--suppression s.txt]` ([`prep.mjs`](prep.mjs), 2026-10-24) writes `call-prep.md` for one person: what the prospects table and CRM export say, what they wrote (each message read by the inbox agent's own rules), which of nine discovery fields (need, impact, budget, decision maker, timeline, process, criteria, alternatives, next step) their words or your notes already answer, quoted so you can see a false match, and the question to ask for each field still unknown. Anyone who asked to stop, bounced or is on your suppression list gets a warning first and no agenda. Reads only the files you pass, invents nothing, sends nothing. `prep.test.mjs` runs on a hand-built thread; the field matching is keyword rules and has not been scored against labelled notes.
 
@@ -157,7 +161,11 @@ about 61% of the fields mentioned in 20 fresh notes (precision 85%) and 48%
 matches are rare. The brief says a "known" field may be a false match, so read
 the quote. Notes are agent-written, not real calls.
 
+2026-11-02: referral replies. A probe of 14 invented "wrong person" replies had 10 misfiled (one as interested). Added "I left X", "who owns/runs this", "direct inquiries to", "passed it on to" and the wrong-person phrase in six languages; 13 of 14 now route to `left_company` with the named address. Two replies on the existing fresh sets flipped to right, none to wrong (pinned in `engine.test.mjs`). Invented probes only.
+
 ## Use it
+
+- **Voice (2026-11-01, optional):** the call section can take dictated notes ("next point" starts a new line, "period" and "comma" add marks) and read the brief or draft aloud, using the browser's own speech tools; the buttons appear only where the browser has them. In Chrome and Edge dictation sends audio to the browser maker's speech service; the page records and stores nothing. Tested: text rules by hand (`voice.test.mjs`), buttons by a Chromium click with a stubbed recogniser. Not tested: a real microphone or voice.
 
 - **Page:** paste replies (each starting `From:`, or separated by `---`), and
   optionally your prospect CSV and suppression list. Download the updated
@@ -200,7 +208,9 @@ the quote. Notes are agent-written, not real calls.
 
 `node --test` runs the suite.
 
-**Limits.** English only. Reads one reply at a time, not a thread. Dates are
+**Stop is sticky (2026-11-02).** A contact who asked to stop or bounced (in this batch, the table or the suppression list) is not un-stopped by a later out-of-office, and a later interested/question/objection reply gets no draft, only a task to read both messages (`engine.test.mjs`, four tests).
+
+**Limits.** English only. Reads one reply at a time (a stop in the same batch is remembered, but not a full thread). Dates are
 read in US order for `3/4`. It does not connect to a mailbox yet (ROADMAP M4),
 so replies are pasted or exported.
 

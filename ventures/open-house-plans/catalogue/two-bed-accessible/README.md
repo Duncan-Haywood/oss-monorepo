@@ -17,6 +17,26 @@ A free, public-domain (CC0) house plan generated from a brief by [Open House Pla
 | Construction cost | **$248,224** ($217/sq ft), US average, 2024 dollars* |
 | Checks | 33 passed, 0 failed |
 
+## Wall framing, stud by stud
+
+Every wall is laid out member by member (`framing.svg`): 14 walls, 251 ft, 372 pieces cut from 224 boards (1,897 board feet, 0.7% offcut, within 0.17% of the cutting-stock lower bound for this cut list). Studs are 92-5/8" precuts. `framing-cuts.csv` lists every cut and the board it comes from; `lumber-order.csv` is the order. The board order counts wall framing only (no floor, roof, sheathing or blocking), and comes from the Wall Framing Takeoff engine.
+
+Framing notes:
+
+- Right (w12): o19 Bath window head lowered 1-7/8" so its 2-ply 2x6 header fits under the top plate.
+- Left (w9): o15 Primary bath window head lowered 1-7/8" so its 2-ply 2x6 header fits under the top plate.
+- Hall / Bedroom 2 / Clo. (w11): the partition at 7' 3-3/4" lands on the framing of o5 Bedroom 2 door; nail it to the king studs there (no tee backing).
+- Hall / Laundry / mech. / Bath (w13): o6 and o7 are under 12 in apart, framed as one 107-15/16" rough opening (a mulled unit).
+- Hall / Laundry / mech. / Bath (w13): the partition at 5' 9-3/4" lands on the framing of o6+o7 mulled doors; nail it to the king studs there (no tee backing).
+- Bedroom 2 / Clo. (w14): o4 Bedroom 2 closet narrowed from 74" to 69-1/4" so its jacks clear the end studs.
+- Single top plate (advanced framing): trusses must land within 1 in of the stud centres, and 23 steel plate ties (not in the order) go at plate joints, corners and tees; each wall's drawing marks its joints. Whether a single top plate is allowed here is the code and engineer's call.
+- Front (w1): header spacers not in the takeoff: o13 Primary bedroom window (2-1/2"), o10 Living / dining window (2-1/2"), o8 Living / dining entry door (2-1/2"), o11 Living / dining window (2-1/2"), o17 Bedroom 2 window (2-1/2").
+- Right (w12): header spacers not in the takeoff: o18 Bedroom 2 window (2-1/2"), o16 Hall window (2-1/2"), o19 Bath window (2-1/2").
+- Back (w7): header spacers not in the takeoff: o9 Kitchen door (2-1/2"), o12 Kitchen window (2-1/2").
+- Left (w9): header spacers not in the takeoff: o14 Primary bedroom window (2-1/2"), o15 Primary bath window (2-1/2").
+- Hall / Laundry / mech. / Bath (w13): o6+o7 mulled doors is close to the wall end: the end stud serves as its king, 0 of 1 extra king on the left.
+- Bedroom 2 / Clo. (w14): o4 Bedroom 2 closet is close to the wall end: the end stud serves as its king on both sides, 0 of 1 extra king on the left.
+
 \* NAHB, Cost of Constructing a Home in 2024 (Eye on Housing, 2025-01-23), 2024 dollars: $428,215 for 2,647 sq ft, scaled by this design's geometry with assumed drivers (cost.mjs). Not a quote.
 
 ## Rooms
@@ -101,6 +121,9 @@ Builder's sale price excluding land, at NAHB's 2024 price shares: about $332,636
 - `openings.csv`: window and door schedule
 - `cost.csv`: cost by stage
 - `rooms.csv`: room schedule
+- `framing.svg`: every wall's framing elevation: studs, kings, jacks, headers, sills, cripples and plates at their real lengths, marked
+- `framing-cuts.csv`: wall framing cut list, and which board each piece is cut from
+- `lumber-order.csv`: wall framing board order: how many of each size and length to buy
 - `design.json`: the brief and the full design as data; feed the brief back to regenerate it
 - `LICENSE.txt`: CC0 1.0 dedication and disclaimer
 - `README.md`: this file

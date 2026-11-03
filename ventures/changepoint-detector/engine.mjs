@@ -870,6 +870,48 @@ export function ar1ProfileFit(x, { penalty = 'bic', minSegment = 2, grid = [0, 0
   return { ...rest, grid: scores };
 }
 
+const range = (a, b, d) => { const o = []; for (let v = a; v <= b + 1e-9; v += d) o.push(Math.round(v * 100) / 100); return o; };
+
+/**
+ * Profile fit over (phi1, phi2): the exact AR(2) likelihood ('ar2mean') scored on a grid of stationary pairs, each with its own
+ * PELT fit and innovation sd; the best score wins. Score: n log(sd^2) + log(k0 k1) + penalty per change, where k0 k1 is the
+ * start's variance factor. For series with a cycle, where one lag cannot hold the swing (sunspots). Slower than ar1ProfileFit.
+ * Returns { changepoints, phi1, phi2, sigma, penalty, grid }.
+ */
+export function ar2ProfileFit(x, { penalty = 'bic', minSegment = 3, phi1s = range(0, 1.9, 0.1), phi2s = range(-0.9, 0.3, 0.1) } = {}) {
+  const n = x.length;
+  let best = null;
+  const scores = [];
+  for (const f1 of phi1s) for (const f2 of phi2s) {
+    if (f1 + f2 >= 0.98 || f2 - f1 >= 0.98 || Math.abs(f2) >= 0.98) continue;
+    const rho = [f1, f2];
+    const r1 = f1 / (1 - f2);
+    const k0 = (1 - f2) / ((1 + f2) * ((1 - f2) ** 2 - f1 * f1));
+    let sigma = robustSd(x) / Math.sqrt(k0), p;
+    for (let it = 0; it < 3; it++) {
+      p = pelt(x, { model: 'ar2mean', penalty, minSegment, sigma, rho });
+      const b = [0, ...p.changepoints, n];
+      const c = 1 - f1 - f2, k1 = k0 * (1 - r1 * r1);
+      let ss = 0;
+      for (let k = 0; k + 1 < b.length; k++) {
+        const s = b[k], t = b[k + 1];
+        let A = 1 / k0 + (1 - r1) ** 2 / k1, B = x[s] / k0 + (1 - r1) * (x[s + 1] - r1 * x[s]) / k1;
+        for (let i = s + 2; i < t; i++) { A += c * c; B += c * (x[i] - f1 * x[i - 1] - f2 * x[i - 2]); }
+        const mu = B / A;
+        ss += (x[s] - mu) ** 2 / k0 + (x[s + 1] - r1 * x[s] - (1 - r1) * mu) ** 2 / k1;
+        for (let i = s + 2; i < t; i++) ss += (x[i] - f1 * x[i - 1] - f2 * x[i - 2] - c * mu) ** 2;
+      }
+      sigma = Math.sqrt(ss / n) || sigma;
+    }
+    const k1 = k0 * (1 - r1 * r1);
+    const score = n * Math.log(sigma * sigma) + Math.log(k0 * k1) + 2 * p.changepoints.length * Math.log(n);
+    scores.push({ phi1: f1, phi2: f2, score: round(score, 3), changes: p.changepoints.length });
+    if (!best || score < best.score) best = { ...p, phi1: f1, phi2: f2, sigma, score };
+  }
+  const { score, ...rest } = best;
+  return { ...rest, grid: scores };
+}
+
 // ---------------------------------------------------------------- input
 
 /** Split one CSV line, honouring double quotes. */
@@ -1022,6 +1064,40 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposu
       const B = w0 * x[s] + c * su;
       const C = w0 * x[s] * x[s] + suu;
       return Math.max(0, C - (B * B) / A) / s2 - Math.log(w0);
+    };
+  }
+  if (model === 'ar2mean') {
+    // Segment means with AR(2) noise of known (phi1, phi2) and innovation sd sigma (rho = [phi1, phi2]). The exact Gaussian
+    // likelihood given a stationary start: x[s] has variance k0 s2, x[s+1] given x[s] has mean r1 x[s] and variance
+    // k0 (1 - r1^2) s2, later points have u = x[i] - phi1 x[i-1] - phi2 x[i-2] with mean (1 - phi1 - phi2) mu. Quadratic in mu.
+    const [f1, f2] = rho;
+    const r1 = f1 / (1 - f2);
+    const k0 = (1 - f2) / ((1 + f2) * ((1 - f2) ** 2 - f1 * f1));
+    const k1 = k0 * (1 - r1 * r1);
+    const U1 = new Float64Array(n + 1);
+    const U2 = new Float64Array(n + 1);
+    for (let i = 0; i < n; i++) {
+      const u = i > 1 ? x[i] - f1 * x[i - 1] - f2 * x[i - 2] : 0;
+      U1[i + 1] = U1[i] + u; U2[i + 1] = U2[i] + u * u;
+    }
+    const c = 1 - f1 - f2, s2 = sigma * sigma, lg = Math.log(k0) + Math.log(k1);
+    return (s, t) => {
+      const m = t - s;
+      if (m < 3) {
+        // too short for the lag-2 recursion: score as independent noise of the stationary spread
+        let a = 0, q = 0;
+        for (let i = s; i < t; i++) { a += x[i]; q += x[i] * x[i]; }
+        return Math.max(0, q - (a * a) / m) / (k0 * s2) + m * Math.log(k0);
+      }
+      // points s and s+1 as regressions on mu, the rest from the prefix sums (their u uses the two points before: inside the
+      // segment only from s+2, so the prefix sums for i >= s+2 are right; x[i-2] of s+2 is x[s], inside)
+      const z0 = x[s], a0 = 1, w0 = 1 / k0;
+      const z1 = x[s + 1] - r1 * x[s], a1 = 1 - r1, w1 = 1 / k1;
+      const su = U1[t] - U1[s + 2], suu = U2[t] - U2[s + 2];
+      const A = w0 * a0 * a0 + w1 * a1 * a1 + (m - 2) * c * c;
+      const B = w0 * a0 * z0 + w1 * a1 * z1 + c * su;
+      const C = w0 * z0 * z0 + w1 * z1 * z1 + suu;
+      return Math.max(0, C - (B * B) / A) / s2 + lg;
     };
   }
   if (model === 'meanvar') {

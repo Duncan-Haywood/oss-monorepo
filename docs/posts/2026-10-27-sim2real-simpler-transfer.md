@@ -1,5 +1,6 @@
 ---
 title: "A simulator worth ten real trials is worth five for a new policy on a new task"
+seo_title: "A simulator worth ten real trials is worth five on a new task"
 date: 2026-10-27
 description: "On SIMPLER's robot tables a calibrated simulator is worth about 10 real trials, but only if it has seen the policy and task elsewhere; held out, far less."
 tags: [sim2real-inference, robotics, simulation, statistics]

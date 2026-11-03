@@ -1,5 +1,6 @@
 ---
 title: "A smaller, longer tail restores the short period of a 1:5 scale aircraft model"
+seo_title: "A smaller, longer tail restores a 1:5 aircraft model's short period"
 date: 2026-10-27
 description: "Searching 270 tail designs on each of 17 power-matched wings, 6 reach phugoid, short-period frequency and damping within 5% of the full-size aircraft."
 tags: [aerospace, scale-models, froude-scaling, digital-twin, aerolog-scaling]

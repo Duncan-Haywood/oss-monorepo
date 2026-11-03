@@ -1,5 +1,6 @@
 ---
 title: "Drawing a tennis-ball feeder in code found three problems before any metal was cut"
+seo_title: "A tennis-ball feeder drawn in code: three problems found early"
 date: 2026-10-21
 description: "We modelled the hopper and ball feed of an open tennis ball machine as checked CAD. The checks showed gravity cannot feed a head that tilts nose-up."
 tags: [hardware, cad, robotics, open-source]

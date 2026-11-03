@@ -11,6 +11,7 @@
 //   node cli.mjs --check staff.txt shifts.txt               # exit 1 if any shift stays open (cron, CI, a Sunday reminder)
 //   node cli.mjs --weeks 4 --week-start 2026-11-02 staff.txt shifts.txt   # a month: rest gaps and tough-shift tallies carry week to week
 //   node cli.mjs --changes posted.csv --week-start 2026-11-02 --changed-at "2026-10-30 14:00" staff.txt shifts.txt   # what changed since you posted, notice and premium on your numbers
+//   node cli.mjs --cover "Tue 17:00" staff.txt shifts.txt   # a call-out: who can take that shift, or the fewest hand-overs that cover it
 //   node cli.mjs --example                                  # run on the built-in invented week
 //
 // Staff and shift files are the same text as on the web page. Zero dependencies, no network: names and wages never
@@ -22,7 +23,7 @@ import process from "node:process";
 import { importStaffCsv } from "./import-staff.mjs";
 import { importShiftsCsv } from "./import-shifts.mjs";
 import {
-  parseStaff, parseShifts, buildRoster, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, sampleStaff, sampleShifts,
+  parseStaff, parseShifts, buildRoster, coverOptions, coverChain, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
 } from "./calc.mjs";
 
@@ -56,6 +57,9 @@ Options:
                       --premium-hours (default 1) and --exempt "Ben,Cleo" (employee-requested changes) are yours to set, not a statement of any law
   --import-shifts <csv> convert a published-schedule export (date, start, end, position rows) to shift lines on stdout; notes on stderr
   --import-staff <csv>  convert a staff export from another scheduler (name, hourly rate, hours, position columns) to staff lines on stdout; notes on stderr
+  --cover "<Day HH:MM>" a call-out or open shift that starts then (add -HH:MM to tell two apart): who could take it outright, else the
+                      shortest chains of hand-overs (one person takes it and gives up a shift a third takes; --max-moves n, default 3) with the pay change
+  --max-moves <n>     longest hand-over chain for --cover (1-5, default 3)
   --check             print the report; exit 1 if any shift is left open
   --example           use the built-in invented week
   -h, --help          this text
@@ -83,6 +87,12 @@ export function parseArgs(argv) {
     else if (a === "--import-shifts") { o.importShifts = argv[++i]; if (!o.importShifts) throw new Error("--import-shifts needs a CSV file"); }
     else if (a === "--import-staff") { o.importStaff = argv[++i]; if (!o.importStaff) throw new Error("--import-staff needs a CSV file"); }
     else if (a === "--check") o.check = true;
+    else if (a === "--cover") { o.cover = argv[++i]; if (!o.cover) throw new Error('--cover needs a shift like "Tue 17:00"'); }
+    else if (a === "--max-moves") {
+      const v = Number(argv[++i]);
+      if (!Number.isInteger(v) || v < 1 || v > 5) throw new Error("--max-moves needs a whole number from 1 to 5");
+      o.maxMoves = v;
+    }
     else if (a === "--changes") { o.changes = argv[++i]; if (!o.changes) throw new Error("--changes needs the posted roster CSV"); }
     else if (a === "--changed-at") {
       o.changedAt = argv[++i];
@@ -173,6 +183,7 @@ export function run(staffText, shiftsText, opts = {}) {
   if (opts.mode === "messages") {
     try { return { code, out: rosterMessages(r, opts.weekStart || null).map((m) => m.text).join("\n\n") + "\n" }; } catch (e) { return { code: 2, out: e.message + "\n" }; }
   }
+  if (opts.cover) return { code: 0, out: coverReport(st.staff, sh.slots, r, opts) };
   if (opts.postedCsv) return { code, out: changesReport(st.staff, opts, rosterCsv(r)) };
   if (opts.mode === "hours") return { code, out: hoursCsv(r) };
   if (opts.mode === "json") {
@@ -188,6 +199,41 @@ export function run(staffText, shiftsText, opts = {}) {
     };
   }
   return { code, out: reportText(r) };
+}
+
+// --cover "Tue 17:00[-22:00]": find the shift, then who can take it outright (coverOptions) or, failing that, the shortest hand-over chains (coverChain).
+const hm = (m) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+function coverReport(staff, slots, r, opts) {
+  const m = /^\s*(mon|tue|wed|thu|fri|sat|sun)[a-z]*\s+(\d{1,2}):(\d{2})(?:\s*-\s*(\d{1,2}):(\d{2}))?\s*$/i.exec(opts.cover);
+  if (!m) return '--cover needs a shift like "Tue 17:00" or "Tue 17:00-22:00"\n';
+  const day = DAYS.findIndex((d) => d.toLowerCase() === m[1].toLowerCase());
+  const start = +m[2] * 60 + +m[3], end = m[4] === undefined ? null : +m[4] * 60 + +m[5];
+  const hits = slots.map((s, i) => i).filter((i) => slots[i].day === day && slots[i].startMin === start && (end === null || slots[i].endMin % 1440 === end % 1440));
+  if (!hits.length) return `No shift starts ${DAYS[day]} ${fmtClock(start)}. Shifts that day: ${slots.filter((s) => s.day === day).map(clock).join(", ") || "none"}\n`;
+  if (hits.length > 1) return `${hits.length} shifts start ${DAYS[day]} ${fmtClock(start)}; add the end, like "${DAYS[day]} ${hm(start)}-${hm(slots[hits[0]].endMin % 1440)}": ${hits.map((i) => clock(slots[i]) + (slots[i].label ? " " + slots[i].label : "")).join(", ")}\n`;
+  const i = hits[0], s = slots[i];
+  const head = `${DAYS[s.day]} ${clock(s)}${s.label ? " " + s.label : ""}, now ${r.owner[i] >= 0 ? staff[r.owner[i]].name : "open"}`;
+  const direct = coverOptions(staff, slots, r, i);
+  if (direct.error) return direct.error + "\n";
+  const money2 = (x) => (x >= 0 ? "+" : "-") + money(Math.abs(x));
+  const lines = [head, ""];
+  if (direct.fits.length) {
+    lines.push("Can take it outright, everyone else keeps their shifts (cheapest first):");
+    for (const f of direct.fits) lines.push(`  ${f.name}: payroll ${money2(f.extraCost)}, ${num(f.hoursAfter)} h that week${f.overtimeAfter > 0 ? `, ${num(f.overtimeAfter)} h overtime` : ""}`);
+  } else {
+    lines.push("Nobody can take it without giving something up.");
+    for (const b of direct.blocked) lines.push(`  ${b.name}: ${b.reason}`);
+    const c = coverChain(staff, slots, r, i, {}, { maxMoves: opts.maxMoves ?? 3 });
+    if (c.error) return c.error + "\n";
+    lines.push("");
+    if (!c.chains.length) lines.push(`No chain of up to ${opts.maxMoves ?? 3} hand-overs keeps every rule. Try --max-moves ${(opts.maxMoves ?? 3) + 1}, or post the shift.`);
+    else {
+      lines.push(`Shortest hand-over chains (fewest shifts moved first, then lowest pay change):`);
+      c.chains.forEach((ch, k) => lines.push(`  ${k + 1}. ${ch.moves} shifts move, payroll ${money2(ch.extraCost)}: ` + ch.steps.map((x) => `${x.to} takes ${DAYS[x.slot.day]} ${clock(x.slot)}${x.from ? ` from ${x.from}` : ""}`).join("; then ")));
+    }
+  }
+  lines.push("", "Checks the hard rules in the staff file for everyone touched; people outside the chain keep their shifts. Planning aid, not legal advice.");
+  return lines.join("\n") + "\n";
 }
 
 function reportText(r) {

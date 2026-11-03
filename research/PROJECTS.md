@@ -81,7 +81,12 @@ not separate slugs. The steps below still apply to track and free-choice draws.
 
 1. **Pick a track at random:** `python3 research/_shared/pick_track.py` (below 0.05 is a
    free-choice run; otherwise it maps the draw onto tracks 1-25, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
-   minute, and a random pick spreads them out.
+   minute, and a random pick spreads them out. Since 2026-10-31 half of the draws map onto the
+   owner's focus tracks only (12 `house`, 20 `buildbot`, 25 `heavy`, 15 `sensing`, 16 `energy`,
+   21 `infra`, 9 `osrobot`, 22 `aerolog`, 23 `marine`: industrial, energy, construction, sensing
+   and autonomy; since 2026-11-01 also 3 `chip`, 7 `eda`, 8 `accel` and 14 `codesign`, for the
+   owner's "phd+ level with applications in deep tech"), so about three quarters of track runs
+   land there; the others stay open.
 
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in
    twenty works on whatever research question it finds most interesting, in or out of the
@@ -1806,20 +1811,20 @@ generative agents, UIST.
 2. `civ-contact` (landed in civ-levers 2026-10-26): contact that also widens tolerance (Pettigrew and Tropp's prejudice reduction
    as a change in ε), and identity: a moderate voice each camp reads as the other side's. Does
    the bridging verdict flip?
-3. `civ-cascades`: Granovetter thresholds and complex contagion on clustered against random
+3. `civ-cascades` (landed in civ-levers 2026-10-28; H1 not testable, H2/H3 half held, quantitative check vs Centola and Macy not done): Granovetter thresholds and complex contagion on clustered against random
    networks. Where to seed a behaviour (hubs, bridges, clustered patches) and how many seeds it
    takes; check against Centola and Macy (2007) and Centola et al. (2018)'s 25% tipping point.
 4. `civ-culture` (first run landed in civ-levers 2026-10-28; broadcast fragments, q_c at L=150 not reproduced): Axelrod's culture model with media and migration. Does a common broadcast
    homogenise or fragment culture (Shibanai, Yasuno and Ishiguro 2001)? Reproduce the
    order–disorder transition of Castellano, Marsili and Vespignani (2000) first.
-5. `civ-commons`: public goods with punishment and institutions. Which sanctioning
+5. `civ-commons` (landed in civ-levers 2026-10-30, second run 2026-10-31): public goods with punishment and institutions. Which sanctioning
    institutions keep cooperation in large, mobile populations; fit contribution decay to
    Fehr and Gächter's published rounds.
 6. `civ-calibrate`: estimate ε and τ from public panel data on attitude change (e.g. ANES or
    GSS panels) and rerun milestones 1–2 at the fitted values.
-7. `civ-history`: structural-demographic dynamics (Turchin) as a toy civilization: population,
+7. `civ-history` (landed in civ-levers 2026-10-30, second run 2026-10-31): structural-demographic dynamics (Turchin) as a toy civilization: population,
    elites and state capacity over centuries, and which policy levers damp the cycles.
-8. `civ-llmsociety`: a town of language-model agents against the same levers, behind an
+8. `civ-llmsociety` (harness and stub-policy run landed in civ-levers 2026-11-02; no real model called): a town of language-model agents against the same levers, behind an
    environment variable with a deterministic stub. Do LLM agents assimilate and backfire like
    the rule-based models, and does `civ-levers`' ranking survive?
 

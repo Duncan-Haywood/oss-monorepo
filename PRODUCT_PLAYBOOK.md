@@ -349,11 +349,13 @@ observation they act on ("3 of 12 checks did not pass — here is each one").
 ### c. A privacy line, honestly stated
 
 One short section that says what the product actually does. The rules behind
-it are the law's, not stricter ones (owner, 2026-10-20;
-[`portfolio/usage/README.md`](portfolio/usage/README.md), rule 1): a cookie or
-`localStorage` entry a feature needs is fine, and is named here; an identifier
-used for analytics needs consent from EU/UK visitors first. If everything is
-client-side, say so. It is a feature:
+it are the law's, not stricter ones (owner, 2026-10-20 and 2026-11-01;
+[`docs/legal/privacy-baseline.md`](docs/legal/privacy-baseline.md)): a cookie
+or `localStorage` entry a feature needs is fine, and is named here; an
+identifier used for analytics needs consent from EU/UK visitors first;
+accounts, email sign-ups, server logs and server-side features are fine with a
+lawful basis and a notice that says what, why, who receives it and how long it
+is kept. If everything is client-side, say so. It is a feature:
 
 > Everything runs in your browser. Your data is never uploaded, and we don't
 > have accounts, tracking cookies, or an analytics vendor. We count anonymous
@@ -366,9 +368,11 @@ lives. Never write a privacy claim you haven't checked against the code.
 ### d. Usage counting
 
 Per [`portfolio/usage/README.md`](portfolio/usage/README.md). Anonymous
-aggregate counts are on by default. Anything that identifies a returning
-browser goes behind the consent the law requires. No content, and nothing
-personal committed to the repository. Make it visible and switch-off-able. Then write the numbers into
+aggregate counts are on by default and need no consent. Anything that
+identifies a returning browser goes behind the consent the law requires. No
+content in a count, and nothing personal committed to the repository. Say on
+the page what is counted; an off switch is a courtesy, not a requirement, for
+anonymous aggregates. Then write the numbers into
 `portfolio/usage/usage.yaml` so the router can see which products are alive.
 
 ### e. Discoverability

@@ -66,16 +66,13 @@ repos:
 
       1. Getting built products in front of users. 164 finished tools
          under ventures/ are assembled into a public site by
-         platform/pages/build.mjs and served by
-         gitops/prod/portfolio-site.yaml. Anything that makes that path
-         more reliable, or fixes a tool that is broken once published,
-         beats new features nobody can reach.
-      2. CI and deployment. GitHub Actions and the Hetzner GitOps tree
-         (gitops/, infra/, bootstrap/) are in scope. A workflow that is
-         red for a real reason, a manifest that cannot apply, a deploy
-         step that only works by hand — those are product problems here.
-         Verify manifests locally (python3 -m pytest gitops/tests) rather
-         than assuming; you have no cluster.
+         platform/pages/build.mjs and deployed to Cloudflare by
+         .github/workflows/portfolio-pages.yml. Anything that makes that
+         path more reliable, or fixes a tool that is broken once
+         published, beats new features nobody can reach.
+      2. CI and deployment. GitHub Actions is in scope. A workflow that
+         is red for a real reason, or a deploy step that only works by
+         hand, is a product problem here.
       3. Core usefulness of a shipped venture: a real bug, a half-built
          slice finished end to end (logic, UI, tests, usage tracking), a
          test-coverage gap, a small feature the existing code clearly

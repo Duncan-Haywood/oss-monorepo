@@ -13,22 +13,29 @@
 // A wall with `gable: {pitch, peak?}` also gets its triangle (2026-10-29): the
 // courses above the eave line are as long as the triangle is wide at the
 // course's lower edge (boards are cut to the slope), the wrap is the exact
-// triangle area, and openings are only clipped to the eave line.
+// triangle area, and openings that rise into it cut its courses (2026-11-01; before that they were clipped at the eave line).
 // Window and door trim boards (2026-10-30, `openingTrim: true`): per exterior opening a head and two jambs,
 // plus a sill board on windows, cut from `trimWidth` stock (default 3.5 in, a 1x4) and packed with the corner
 // boards' first-fit rule; off by default so earlier totals do not move. Siding runs are not shortened by the trim.
 // Vertical siding (2026-10-30, `style: "vertical"`, `boardWidth` coverage per board, default 11.25 in): columns of full-height boards; an opening leaves a piece above and below it; with `battens: true` one batten covers each seam between columns (see below); nailers and splices are not counted (a piece longer than the board length is refused).
-// Not counted: soffit and fascia, flashing, nails, caulk, paint, and the starter strip's rip.
+// Starter strip (2026-10-31, `starter: true`, lap style only, `starterPrice`): one strip along the base of every sheathed wall, its length, packed into `stock` boards with the same waste; the rip to width and splices over studs are not modelled; off by default so earlier totals do not move.
+// Head flashing (2026-10-31, `headFlashing: true`, `flashingExtend` inches past each jamb, default 2, `flashingStock` piece length, default 120 in, `flashingPrice`): one Z-flashing piece over every exterior opening, the opening width plus the extension at both ends, packed into stock with the same waste; off by default so earlier totals do not move.
+// Sill and jamb flashing tape (2026-10-31, `openingTape: true`, `tapeRollFeet` per roll, default 75, `tapePrice`): per exterior opening one sill run (width + 2 x `flashingExtend`) and two jamb runs (height + `flashingExtend`), summed in feet and bought in whole rolls with the same waste; off by default; the tape width and the order of laps are the installer's.
+// Not counted: soffit and fascia, nails, caulk, paint, and the starter strip's rip.
 // Wall height defaults to the plan's stud length plus the plates, as the
 // drywall hang height does.
 import { THICK } from "./engine.mjs";
 import { packPieces } from "./trim.mjs";
 
-/** @typedef {{ exposure?: number, stock?: number, waste?: number, wrapRollSqFt?: number, wrapLap?: number, corners?: number, cornerStock?: number, height?: number, boardPrice?: number, wrapPrice?: number, cornerPrice?: number, style?: "lap" | "vertical", boardWidth?: number, battens?: boolean, battenStock?: number, battenPrice?: number, openingTrim?: boolean, trimWidth?: number, trimStock?: number, trimPrice?: number }} Siding */
+import { textNumberErrors } from "./numfields.mjs";
+/** @typedef {{ exposure?: number, stock?: number, waste?: number, wrapRollSqFt?: number, wrapLap?: number, corners?: number, cornerStock?: number, height?: number, boardPrice?: number, wrapPrice?: number, cornerPrice?: number, style?: "lap" | "vertical", boardWidth?: number, battens?: boolean, battenStock?: number, battenPrice?: number, openingTrim?: boolean, trimWidth?: number, trimStock?: number, trimPrice?: number, starter?: boolean, starterPrice?: number, headFlashing?: boolean, flashingStock?: number, flashingExtend?: number, flashingPrice?: number, openingTape?: boolean, tapeRollFeet?: number, tapePrice?: number }} Siding */
 
 /** @param {Siding} d */
 export function validateSiding(d) {
   const e = [];
+  if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Siding settings are an object."];
+  e.push(...textNumberErrors(d, ['battenPrice', 'battenStock', 'boardPrice', 'boardWidth', 'cornerPrice', 'cornerStock', 'corners', 'exposure', 'flashingExtend', 'flashingPrice', 'flashingStock', 'height', 'starterPrice', 'stock', 'tapePrice', 'tapeRollFeet', 'trimPrice', 'trimStock', 'trimWidth', 'waste', 'wrapLap', 'wrapPrice', 'wrapRollSqFt']));
+  if (e.length) return e;
   if (d.exposure != null && !(d.exposure >= 2 && d.exposure <= 16)) e.push("Siding exposure must be between 2 and 16 inches.");
   if (d.stock != null && !(d.stock >= 48 && d.stock <= 240)) e.push("Siding board length must be between 48 and 240 inches.");
   if (d.cornerStock != null && !(d.cornerStock >= 48 && d.cornerStock <= 240)) e.push("Corner board length must be between 48 and 240 inches.");
@@ -41,6 +48,13 @@ export function validateSiding(d) {
   if (d.battenStock != null && !(d.battenStock >= 48 && d.battenStock <= 240)) e.push("Batten length must be between 48 and 240 inches.");
   if (d.trimWidth != null && !(d.trimWidth > 0 && d.trimWidth <= 8)) e.push("Trim board width must be between 0 and 8 inches.");
   if (d.trimStock != null && !(d.trimStock >= 48 && d.trimStock <= 240)) e.push("Trim board length must be between 48 and 240 inches.");
+  if (d.starter != null && typeof d.starter !== "boolean") e.push("Starter strip must be true or false.");
+  if (d.headFlashing != null && typeof d.headFlashing !== "boolean") e.push("Head flashing must be true or false.");
+  if (d.flashingExtend != null && !(d.flashingExtend >= 0 && d.flashingExtend <= 12)) e.push("Flashing extension must be between 0 and 12 inches.");
+  if (d.flashingStock != null && !(d.flashingStock >= 24 && d.flashingStock <= 240)) e.push("Flashing length must be between 24 and 240 inches.");
+  if (d.openingTape != null && typeof d.openingTape !== "boolean") e.push("Opening tape must be true or false.");
+  if (d.tapeRollFeet != null && !(d.tapeRollFeet >= 10 && d.tapeRollFeet <= 500)) e.push("Tape roll length must be between 10 and 500 ft.");
+  if (d.starter && d.style === "vertical") e.push("A starter strip belongs to lap siding; vertical boards need none.");
   if (d.height != null && !(d.height >= 72 && d.height <= 192)) e.push("Siding height must be between 6 and 16 ft.");
   return e;
 }
@@ -71,15 +85,23 @@ export function layoutSiding(d, plan) {
   /** @type {number[]} */ const trimPieces = [];
   /** @type {number[]} */ const battenPieces = [];
   const battenStock = d.battenStock ?? stock;
+  /** @type {number[]} */ const starterPieces = [];
+  /** @type {number[]} */ const flashPieces = [];
+  const flashStock = d.flashingStock ?? 120, flashExt = d.flashingExtend ?? 2;
+  let tapeIn = 0, tapeOpenings = 0;
   let trimDoors = 0, trimWindows = 0;
   let areaIn = 0, openIn = 0, wallsDone = 0, courses = 0;
   for (const w of plan.walls) {
     if (w.sheathed === false) continue;
     wallsDone++;
+    if (d.starter) starterPieces.push(w.length);
+    const gRise = gableOf(w, height)?.rise ?? 0; // openings may rise into the triangle (clipped at the slope below)
     const ops = (w.openings || []).map((o) => {
       const top = o.headerHeight ?? plan.defaultHeaderHeight;
-      return { x0: Math.max(0, o.offset), x1: Math.min(w.length, o.offset + o.width), y0: Math.max(0, top - o.height), y1: Math.min(height, top) };
+      return { x0: Math.max(0, o.offset), x1: Math.min(w.length, o.offset + o.width), y0: Math.max(0, top - o.height), y1: Math.min(height + gRise, top) };
     });
+    if (d.openingTape) for (const o of w.openings || []) { tapeOpenings++; tapeIn += o.width + 2 * flashExt + 2 * (o.height + flashExt); }
+    if (d.headFlashing) for (const o of w.openings || []) flashPieces.push(o.width + 2 * flashExt);
     if (d.openingTrim) for (const o of w.openings || []) {
       if (o.kind === "door") { trimDoors++; trimPieces.push(o.width + 2 * tw, o.height, o.height); }
       else { trimWindows++; trimPieces.push(o.width + 2 * tw, o.width + 2 * tw, o.height, o.height); }
@@ -115,9 +137,13 @@ export function layoutSiding(d, plan) {
     courses += nCourses;
     for (let k = 0; k < nCourses; k++) {
       const y0 = k * exposure, y1 = Math.min(height + (g ? g.rise : 0), y0 + exposure);
-      if (y0 >= height - 1e-9) { // wholly in the triangle: the width at the lower edge
-        const up = y0 - height, run = w.length - up / g.s1 - up / g.s2;
-        if (run > 1e-9) runs.push(Math.min(w.length, run));
+      if (y0 >= height - 1e-9) { // wholly in the triangle: the width at the lower edge, less any opening that rises into it
+        const up = y0 - height, left = up / g.s1, right = w.length - up / g.s2;
+        if (right - left <= 1e-9) continue;
+        const tcuts = ops.filter((o) => o.y0 < y1 - 1e-9 && o.y1 > y0 + 1e-9 && o.x1 > left + 1e-9 && o.x0 < right - 1e-9).sort((a, b) => a.x0 - b.x0);
+        let tx = left;
+        for (const o of tcuts) { if (o.x0 > tx + 1e-9) runs.push(o.x0 - tx); tx = Math.max(tx, o.x1); }
+        if (right > tx + 1e-9) runs.push(right - tx);
         continue;
       }
       // openings that cut this course, left to right; overlapping ones merge into one gap
@@ -141,13 +167,21 @@ export function layoutSiding(d, plan) {
   const cornerBoards = corners > 0 ? Math.ceil(cp.boards * (1 + waste) - 1e-9) : 0;
   const tp = d.openingTrim ? packPieces(trimPieces, trimStock) : null;
   const trimBoards = tp ? Math.ceil(tp.boards * (1 + waste) - 1e-9) : 0;
+  const sp = d.starter ? packPieces(starterPieces, stock) : null;
+  const starterBoards = sp ? Math.ceil(sp.boards * (1 + waste) - 1e-9) : 0;
+  const fp = d.headFlashing ? packPieces(flashPieces, flashStock) : null;
+  const flashBoards = fp ? Math.ceil(fp.boards * (1 + waste) - 1e-9) : 0;
+  const tapeRolls = d.openingTape ? Math.ceil(tapeIn / 12 / (d.tapeRollFeet ?? 75) * (1 + waste) - 1e-9) : 0;
   const money = (/** @type {number | undefined} */ p, /** @type {number} */ q) => (p != null ? q * p : 0);
   return {
     ok: true, errors: [], style: vertical ? "vertical" : "lap", boardWidth: vertical ? bw : null, waste, exposure, stock, height, courses, walls: wallsDone,
     netSqFt, openingSqFt: openIn / 144, runFeet: b.usedIn / 12, boards, wrapSqFt, wrapRollSqFt: wrapRoll, wrapRolls, corners, cornerBoards, cornerStock,
     battens: bp ? { pieces: battenPieces.length, feet: bp.usedIn / 12, stock: battenStock, boards: battenBoards, price: d.battenPrice ?? null } : null,
     trim: tp ? { doors: trimDoors, windows: trimWindows, width: tw, stock: trimStock, feet: tp.usedIn / 12, boards: trimBoards, price: d.trimPrice ?? null } : null,
-    cost: d.boardPrice != null || d.wrapPrice != null || d.cornerPrice != null || (tp && d.trimPrice != null) || (bp && d.battenPrice != null) ? money(d.boardPrice, boards) + money(d.wrapPrice, wrapRolls) + money(d.cornerPrice, cornerBoards) + money(d.trimPrice, trimBoards) + money(d.battenPrice, battenBoards) : null,
+    flashing: fp ? { openings: flashPieces.length, feet: fp.usedIn / 12, stock: flashStock, pieces: flashBoards, price: d.flashingPrice ?? null } : null,
+    tape: d.openingTape ? { openings: tapeOpenings, feet: tapeIn / 12, rollFeet: d.tapeRollFeet ?? 75, rolls: tapeRolls, price: d.tapePrice ?? null } : null,
+    starter: sp ? { walls: starterPieces.length, feet: sp.usedIn / 12, stock, boards: starterBoards, price: d.starterPrice ?? null } : null,
+    cost: d.boardPrice != null || (sp && d.starterPrice != null) || d.wrapPrice != null || d.cornerPrice != null || (tp && d.trimPrice != null) || (fp && d.flashingPrice != null) || (bp && d.battenPrice != null) || (d.openingTape && d.tapePrice != null) ? money(d.boardPrice, boards) + money(d.wrapPrice, wrapRolls) + money(d.cornerPrice, cornerBoards) + money(d.trimPrice, trimBoards) + money(d.battenPrice, battenBoards) + money(d.starterPrice, starterBoards) + money(d.flashingPrice, flashBoards) + money(d.tapePrice, tapeRolls) : null,
     boardPrice: d.boardPrice ?? null, wrapPrice: d.wrapPrice ?? null, cornerPrice: d.cornerPrice ?? null,
   };
 }
@@ -160,7 +194,10 @@ export function sidingText(s) {
   if (s.battens) l.push(`  Battens: one over each seam between columns, ${s.battens.pieces} piece(s), ${s.battens.feet.toFixed(0)} ft packed into ${s.battens.stock / 12} ft boards -> ${s.battens.boards} boards (waste added)${s.battens.price != null ? `, ${(s.battens.boards * s.battens.price).toFixed(2)} at ${s.battens.price} each` : ""}; boards sit edge to edge, so the batten is a cover strip, not a gap spacer.`);
   l.push(`  House wrap: ${s.netSqFt.toFixed(0)} sq ft of wall net of ${s.openingSqFt.toFixed(0)} sq ft of openings, ${s.wrapSqFt.toFixed(0)} with laps -> ${s.wrapRolls} roll(s) of ${s.wrapRollSqFt} sq ft${s.wrapPrice != null ? `, ${(s.wrapRolls * s.wrapPrice).toFixed(2)} at ${s.wrapPrice} each` : ""}`);
   l.push(`  Corner boards: ${s.corners} outside corners x 2 = ${s.cornerBoards} boards of ${s.cornerStock / 12} ft${s.cornerPrice != null ? `, ${(s.cornerBoards * s.cornerPrice).toFixed(2)} at ${s.cornerPrice} each` : ""}`);
+  if (s.flashing) l.push(`  Head flashing: ${s.flashing.openings} opening(s), ${s.flashing.feet.toFixed(0)} ft packed into ${s.flashing.stock / 12} ft pieces -> ${s.flashing.pieces} pieces (waste added)${s.flashing.price != null ? `, ${(s.flashing.pieces * s.flashing.price).toFixed(2)} at ${s.flashing.price} each` : ""}`);
+  if (s.starter) l.push(`  Starter strip: ${s.starter.feet.toFixed(0)} ft along the base of ${s.starter.walls} wall(s) packed into ${s.starter.stock / 12} ft boards -> ${s.starter.boards} boards (waste added)${s.starter.price != null ? `, ${(s.starter.boards * s.starter.price).toFixed(2)} at ${s.starter.price} each` : ""}`);
   if (s.trim) l.push(`  Opening trim: ${s.trim.doors} door(s) x (head + 2 jambs), ${s.trim.windows} window(s) x (head + sill + 2 jambs), ${s.trim.width} in boards, ${s.trim.feet.toFixed(0)} ft packed into ${s.trim.stock / 12} ft boards -> ${s.trim.boards} boards (waste added)${s.trim.price != null ? `, ${(s.trim.boards * s.trim.price).toFixed(2)} at ${s.trim.price} each` : ""}`);
+  if (s.tape) l.push(`  Opening tape: ${s.tape.openings} opening(s), ${s.tape.feet.toFixed(0)} ft of sill and jamb runs in ${s.tape.rollFeet} ft rolls -> ${s.tape.rolls} roll(s) (waste added)${s.tape.price != null ? `, ${(s.tape.rolls * s.tape.price).toFixed(2)} at ${s.tape.price} each` : ""}`);
   l.push(`  Soffit and fascia, ${s.trim ? "" : "window and door trim, "}flashing, nails, caulk and paint are not counted; exposure, stock lengths, coverage and prices are figures you type.`);
   return l;
 }

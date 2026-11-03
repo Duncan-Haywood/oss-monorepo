@@ -18,6 +18,13 @@ rather than into new slugs. The bar, the open programmes and how a run picks one
 [`PROGRAMMES.md`](PROGRAMMES.md); `research/_shared/programme_check.py` (research CI) holds new
 directories to it. The tracks in [`PROJECTS.md`](PROJECTS.md) say which areas programmes come from.
 
+**PhD+, with deep-tech applications** (owner, 2026-11-01: "move the research into phd+ level
+with applications in deep tech applications"). New effort goes to programmes whose answer an
+engineer in chips, robotics and autonomy, sensing, energy, construction or heavy equipment would
+act on, aimed at a main-track venue or the field's journal, with theory checked on real data or
+industrial-grade open tools and an artefact a practitioner can adopt. What that means and what
+it does not: `prompts/goals.md`, "Direction: research at PhD+ level, aimed at deep tech".
+
 **SEO is a top priority here too** (owner, 2026-10-16; `prompts/goals.md`). A
 project's `README.md` and its page should open with the question it answers and
 its headline result in the words a searcher would use, and link to each other.

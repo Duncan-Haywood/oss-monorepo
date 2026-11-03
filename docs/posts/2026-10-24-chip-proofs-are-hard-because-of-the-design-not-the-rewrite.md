@@ -1,5 +1,6 @@
 ---
 title: "Chip equivalence proofs are hard because of the design, not the rewrite"
+seo_title: "Chip equivalence proofs are hard because of the design"
 date: 2026-10-24
 description: "752 SAT proofs of ABC-rewritten netlists: proof time tracks multiplier width, and a classifier's high AUC is just design size."
 tags: [research, verified-dse, chip-design, negative-result]

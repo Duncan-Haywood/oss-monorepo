@@ -67,7 +67,9 @@ import {
  * edited by every session that renames a venture, and the friction is what
  * makes a guard get skipped.
  */
-export const ORPHAN_BUDGET_FILE = path.join(REPO_ROOT, 'platform', 'pages', 'siblings-budget.json');
+// SIBLINGS_BUDGET_FILE lets a test point --check at a fixture budget.
+export const ORPHAN_BUDGET_FILE =
+  process.env.SIBLINGS_BUDGET_FILE ?? path.join(REPO_ROOT, 'platform', 'pages', 'siblings-budget.json');
 
 /**
  * One-hop links out of a tool's entry page into *another tool's* entry page.

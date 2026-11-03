@@ -1,5 +1,6 @@
 ---
 title: "India's GST e-invoice number is a SHA-256 hash, so we check it in the browser"
+seo_title: "India's GST e-invoice number is a SHA-256 hash: check it free"
 date: 2026-10-25
 description: "A free GSTIN check and IRN calculator for India's GST e-invoicing, tested against a published worked sample, with the limits of what it covers."
 tags: [einvoice-preflight, india, gst, e-invoicing]

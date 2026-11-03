@@ -31,6 +31,7 @@ const PILOTS = {
   'kickstarter-fee-calculator': async (m) => [
     m.MICRO_PLEDGE_THRESHOLD, m.STANDARD_PROCESSING_FLAT, m.MICRO_PROCESSING_FLAT,
   ],
+  'ebay-fee-calculator': async (m) => [m.DEFAULT_COMBINED_FIXED_FEE, 7500], // 7500: the cap the 13.6% rate applies up to
   'poshmark-fee-calculator': async (m) => [m.FLAT_FEE, m.COMMISSION_THRESHOLD, m.BREAK_EVEN_PRICE],
 };
 

@@ -1,5 +1,6 @@
 ---
 title: "The Lid Stays Down: a Hearth & Horizon story about a pantry freezer in a power cut"
+seo_title: "The Lid Stays Down: a pantry freezer in a power cut"
 date: 2026-10-28
 description: "Two chest freezers, a storm, and a cooling curve with a range on it. Our AI-written story, text only, with the arithmetic."
 tags: [hearth-and-horizon, fiction, food-safety]

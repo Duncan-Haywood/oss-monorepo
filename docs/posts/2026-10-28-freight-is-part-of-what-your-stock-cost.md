@@ -1,5 +1,6 @@
 ---
 title: "Freight is part of what your stock cost, and your margin is wrong without it"
+seo_title: "Freight is part of your stock cost, or your margin is wrong"
 date: 2026-10-28
 description: "A worked example: $400 of stock, $40 of freight, 4 of 10 mugs already sold. Where the freight goes, and how ai-bookkeeper now spreads it."
 tags: [ai-bookkeeper, bookkeeping, inventory]

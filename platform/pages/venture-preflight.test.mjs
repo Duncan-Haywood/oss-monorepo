@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { buildProblem, checkProblems, COUNT_CHECKS, countProblem, launchedProblems, mirrorProblem } from './venture-preflight.mjs';
+import { buildProblem, checkProblems, COUNT_CHECKS, countProblem, launchedProblems } from './venture-preflight.mjs';
 
 async function fixture(launched) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-'));
@@ -25,14 +25,6 @@ test('flags a slug with no date', async () => {
 test('flags out-of-order keys', async () => {
   const p = await launchedProblems('a', await fixture({ b: '2026-10-02', a: '2026-10-01' }));
   assert.match(p.join('\n'), /out of order/);
-});
-
-test('mirror status: 0 clean, 1 stale, anything else could not answer', () => {
-  assert.equal(mirrorProblem(0), null);
-  assert.match(mirrorProblem(1), /mirror is stale/);
-  assert.match(mirrorProblem(2), /could not answer \(exit 2\)/);
-  assert.match(mirrorProblem(null), /could not answer/);
-  assert.match(mirrorProblem(2, 'git: not a repo\n'), /could not answer \(exit 2\):\ngit: not a repo/);
 });
 
 test('build problem only on a non-zero exit, tail of stderr first', () => {
@@ -60,5 +52,5 @@ test('unparseable check output is reported whole', () => {
 
 test('countProblem is silent on exit 0 and names the fix otherwise', () => {
   assert.equal(countProblem(COUNT_CHECKS[0], 0), null);
-  assert.match(countProblem(COUNT_CHECKS[2], 1), /sync_readme_counts\.py` and commit/);
+  assert.match(countProblem(COUNT_CHECKS[1], 1), /publish_surface\.py --write` and commit/);
 });

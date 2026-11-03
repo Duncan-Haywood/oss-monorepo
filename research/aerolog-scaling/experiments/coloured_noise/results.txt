@@ -1,0 +1,6 @@
+noise (0.1,) of channel rms, records (2,) phugoid periods, 10 draws per design and scale; scales (0.75,)
+26 mode-matched designs
+
+estimator | noise | periods | scale | fit failures | median |err| ph, sp, zeta (%) | median worst gust error | share of draws within 10% gust | designs with >=90% within 10% | median worst mode error
+white | 0.10 | 2 | 0.75 | 0 of 260 | 0.07, 0.67, 1.51 | 5.6% | 86% | 19 of 26 | 3.1%
+coloured | 0.10 | 2 | 0.75 | 0 of 260 | 0.26, 1.51, 2.55 | 7.2% | 69% | 9 of 26 | 4.0%

@@ -1,5 +1,6 @@
 ---
 title: "Ranking chip-design candidates by area alone fixes the worst cases and breaks the rest"
+seo_title: "Ranking chip-design candidates by area alone: where it fails"
 date: 2026-10-28
 description: "On 12 unseen SKY130 designs, scoring the cheap rung by mapped area fixes wire-dominated cases, hurts the argmin elsewhere, and changes nothing in halving."
 tags: [verified-dse, research, chip-design, design-space-exploration]

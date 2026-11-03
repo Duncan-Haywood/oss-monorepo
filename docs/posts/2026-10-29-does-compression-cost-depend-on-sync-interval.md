@@ -1,5 +1,6 @@
 ---
 title: "Does the cost of compressing DiLoCo updates depend on how often workers sync?"
+seo_title: "Does DiLoCo compression cost depend on sync interval?"
 date: 2026-10-29
 description: "On a small GPT, the loss cost of keeping 1/16 of each DiLoCo update grows with sync interval H; a separable rule fitted on three H predicts two held-out H."
 tags: [research, lowcomm-training, diloco]

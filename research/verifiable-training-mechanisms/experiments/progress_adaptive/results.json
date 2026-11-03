@@ -1,0 +1,38 @@
+{
+ "R1.005": {
+  "n": 32,
+  "flagged": 3,
+  "harmful": 23,
+  "harmful_unflagged": 20,
+  "median_dL": 0.017989516258239746,
+  "median_abs_dL": 0.017989516258239746,
+  "median_stalled_steps": 58.5
+ },
+ "R1.01": {
+  "n": 32,
+  "flagged": 2,
+  "harmful": 30,
+  "harmful_unflagged": 28,
+  "median_dL": 0.027956128120422363,
+  "median_abs_dL": 0.027956128120422363,
+  "median_stalled_steps": 78.5
+ },
+ "R1.02": {
+  "n": 32,
+  "flagged": 2,
+  "harmful": 32,
+  "harmful_unflagged": 30,
+  "median_dL": 0.043739914894104004,
+  "median_abs_dL": 0.043739914894104004,
+  "median_stalled_steps": 141.5
+ },
+ "R1.05": {
+  "n": 32,
+  "flagged": 0,
+  "harmful": 32,
+  "harmful_unflagged": 32,
+  "median_dL": 0.06241762638092041,
+  "median_abs_dL": 0.06241762638092041,
+  "median_stalled_steps": 200.0
+ }
+}

@@ -7,17 +7,17 @@
 //      (`launched.mjs`, the same refresh `--write` runs).
 //   2. Build the Pages site and run `check.mjs` over it: page integrity,
 //      inline-script parse, [hidden] CSS, links, disclaimers, feed dates.
-//   3. `platform/marketing/regen.mjs --verify`: is the committed mirror stale?
-//      (run right after step 1, so a stale mirror fails in seconds, not minutes)
-//   4. The hand-written counts a new venture or workflow moves
-//      (`sync_tree_counts.py`, `publish_surface.py`, `sync_readme_counts.py`,
-//      each with `--check`, about 25 s together). Three CI rounds on one
-//      venture came from these (publish-kit NEXT.md, 2026-10-21).
+//   3. The hand-written counts a new venture or workflow moves
+//      (`sync_tree_counts.py`, `publish_surface.py`, each with `--check`),
+//      run right after step 1 so they fail in seconds, not minutes. Three CI
+//      rounds on one venture came from these (publish-kit NEXT.md, 2026-10-21).
+//      The apex-mirror check that used to sit here left with `gitops/` on
+//      2026-10-30.
 //
 //   node platform/pages/venture-preflight.mjs <slug> [--skip-build]
 //
-// Takes about five minutes (the build is most of it); a stale mirror fails first, in seconds. Exit 0: clean for this
-// slug. Exit 1: a problem names the slug, or the launch date / mirror is
+// Takes about five minutes (the build is most of it); the cheap checks fail first, in seconds. Exit 0: clean for this
+// slug. Exit 1: a problem names the slug, or the launch date / counts are
 // wrong. Problems from other slugs are printed as notes and do not fail you.
 // `--skip-build` runs steps 1 and 3 only (about 15 s).
 
@@ -48,18 +48,10 @@ export async function launchedProblems(slug, file = LAUNCHED_FILE) {
   return problems;
 }
 
-export function mirrorProblem(status, output = '') {
-  if (status === 0) return null;
-  if (status === 1) return 'front-door mirror is stale: run `node platform/marketing/regen.mjs` and commit what it rewrites';
-  const tail = output.trim().slice(-1500);
-  return `regen.mjs --verify could not answer (exit ${status})${tail ? `:\n${tail}` : ''}`;
-}
-
 /** The cheap `--check` scripts, each with the command that fixes its drift. */
 export const COUNT_CHECKS = [
   { script: 'platform/ci/sync_tree_counts.py', fix: 'python3 platform/ci/sync_tree_counts.py' },
   { script: 'platform/ci/publish_surface.py', fix: 'python3 platform/ci/publish_surface.py --write' },
-  { script: 'gitops/ci/sync_readme_counts.py', fix: 'python3 gitops/ci/sync_readme_counts.py' },
 ];
 
 export function countProblem({ script, fix }, status) {
@@ -100,14 +92,9 @@ async function main(argv) {
   console.log('1/3 launched.json');
   failures.push(...(await launchedProblems(slug)));
 
-  // The mirror check takes seconds and the build takes minutes, and a stale
-  // mirror is the commonest failure, so answer it first and stop early: fix
-  // it with regen.mjs, then rerun for the build.
-  console.log('1b/3 marketing mirror (regen.mjs --verify)');
-  const verify = run(['platform/marketing/regen.mjs', '--verify']);
-  const mirror = mirrorProblem(verify.status, (verify.stderr || '') + (verify.stdout || ''));
-  if (mirror) failures.push(mirror);
-  console.log('1c/3 hand-written counts (--check)');
+  // The count checks take seconds and the build takes minutes, so answer
+  // them first and stop early.
+  console.log('1b/3 hand-written counts (--check)');
   for (const check of COUNT_CHECKS) {
     const r = spawnSync('python3', [check.script, '--check'], { cwd: ROOT, encoding: 'utf8' });
     const problem = countProblem(check, r.status);

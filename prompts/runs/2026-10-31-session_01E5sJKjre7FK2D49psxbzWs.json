@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01E5sJKjre7FK2D49psxbzWs",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T13:20:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12095",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Picked Saints by Candlelight (longest since a piece) rather than Hearth & Horizon; text only, audio over cap",
+      "did": "episode 59 text",
+      "result": "checks pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-31-hezekiah-and-the-letter-spread-out.md"
+  ],
+  "goal": null,
+  "notes": "saints-by-candlelight, slug hezekiah-and-the-letter-spread-out-in-the-temple; no agent doc written",
+  "corrections": [],
+  "redteam": null
+}

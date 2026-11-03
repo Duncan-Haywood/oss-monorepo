@@ -67,6 +67,12 @@ calculators beyond fixes; already-built ones can still merge (owner, 2026-10-21;
 1. If `pages_state.py` says the snapshot is stale, refresh it.
 2. Get a first usage reading for a product, or act on one that exists.
 3. Deepen the top flagship in [`portfolio/flagships.yaml`](flagships.yaml).
+   Since 2026-10-31 the overarching directions are deep tech industrial,
+   energy, real estate development and construction, and a construction data
+   warehouse, with robotics, site imaging and sensing, and autonomy inside
+   them (`prompts/goals.md`, "Direction: industrial, energy and
+   construction"): the construction flagship ranks first, and a new venture
+   in these areas is the first kind to look for.
 4. A genuinely new, different venture, when one clears the gates.
 
 The catalogue is live at `https://duncan-haywood.github.io/monorepo-projects/`;

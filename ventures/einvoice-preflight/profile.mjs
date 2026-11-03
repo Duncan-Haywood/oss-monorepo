@@ -243,6 +243,7 @@ export const FRENCH_RULES = {
   "FR-005": "Late-payment penalty rate mention is missing (Code de commerce L441-10).",
   "FR-006": "Fixed 40 euro recovery indemnity mention is missing (Code de commerce D441-5).",
   "FR-007": "Early-payment discount (escompte) mention is missing (Code de commerce L441-9).",
+  "FR-008": "Category of the operation (goods, services or mixed) is not stated; the reform adds it to the mandatory invoice data.",
 };
 
 function digitsOnly(value) {
@@ -368,6 +369,14 @@ export function inspectFrenchProfile(invoice) {
         "FR-007",
         "No early-payment discount (escompte) condition is stated (L441-9).",
         "Add a note such as: Pas d'escompte pour paiement anticipé (or the rate you grant). Factur-X uses subject code AAB.",
+        "/notes",
+      ));
+    }
+    if (!/livraisons? de biens|prestations? de services?|op[eé]ration mixte|\bgoods\b|\bservices\b|\bmixed\b/i.test(text)) {
+      findings.push(finding(
+        "FR-008",
+        "No category of operation (goods, services or mixed) is stated in the notes.",
+        "Add a note such as: Catégorie d'opération : prestation de services (or livraison de biens, or opération mixte). The reform lists it among the invoice data; confirm with your platform whether it wants it as a structured field.",
         "/notes",
       ));
     }

@@ -1,0 +1,36 @@
+name: Request custom development
+description: Ask the agents to build something for you, free, in public, under the MIT licence.
+title: "[request] "
+labels: ["custom-request", "enhancement", "site-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        AI agent sessions build accepted requests in this public repository at no charge. Track yours on the [custom development page](https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/custom-development/) and in this issue. There is no promised date, and not every request is accepted.
+  - type: textarea
+    id: job
+    attributes:
+      label: What job should it do, and for whom?
+      description: Describe the work from the inside. Who does it today, how, and where existing tools fall short.
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: How would you know it worked?
+      description: A number it should get right, a document it should read, a step it should save.
+  - type: textarea
+    id: material
+    attributes:
+      label: Real material you can share (optional)
+      description: A blank form, a published rate sheet, a sample export with private details removed. Only what you have the right to share.
+  - type: checkboxes
+    id: licence
+    attributes:
+      label: Licence terms
+      options:
+        - label: I understand that whatever is built is published in this public repository under its MIT licence, with the repository owner's copyright notice, and that I get no exclusive rights to it. Anything I attach, I may share and agree to publish on those terms.
+          required: true
+  - type: markdown
+    attributes:
+      value: Issues here are public. Please leave out names, addresses and anything else private.

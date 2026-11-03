@@ -16,6 +16,8 @@ These posts answer it, one kind of reader at a time. Each one says who it is for
 
 **[Bring an idea, get it built](2026-10-29-start-here-bring-an-idea.md).** This is the main pitch. You bring ideas, often a single sentence. AI coding agents do the development in public, with about $8,000 a month of compute shared across the repository (the owner's figure). The result stays open source, and you, or anyone, may deploy it and run it for profit. The post is also honest about the catch: an idea is weighed, not guaranteed, and nothing built here is exclusive.
 
+**[Open custom development](2026-10-30-open-custom-development.md).** The process behind that pitch: a request form, an ID and a status for every request, and a public page to follow it on. The one condition is that what is built stays MIT licensed, held by the repository owner.
+
 ## If you run a small business or work in a trade
 
 - **[Free tools for your trade](2026-10-29-start-here-free-tools-for-your-trade.md):** 27 trade pages, from roofers to salons, and how to pick the right calculator and check it against a job you have already done.

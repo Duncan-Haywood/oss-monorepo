@@ -20,3 +20,27 @@ test("the example house lays out and the on-centre rule overshoots the count", (
   assert.ok(c.ok);
   assert.ok(c.onCentre > c.counted);
 });
+
+import { spacingSweep } from "./allowance-bench.mjs";
+test("wider spacing lowers the counted order and the on-centre rule, not the per-foot rule", () => {
+  const [a, b] = spacingSweep(samplePlan());
+  assert.ok(a.ok && b.ok);
+  assert.ok(b.counted < a.counted);
+  assert.ok(b.onCentre < a.onCentre);
+  assert.equal(a.perFoot, b.perFoot);
+});
+
+test("two windows too close to share kings: refused plain, laid out when ganged", () => {
+  const plan = { ...samplePlan(), walls: [{ id: "A", length: 240, stud: "2x4", openings: [
+    { kind: "window", offset: 60, width: 36, height: 48, sill: 36, header: "2x8" }, { kind: "window", offset: 99, width: 36, height: 48, sill: 36, header: "2x8" }] }] };
+  const plain = compare(plan);
+  assert.equal(plain.ok, false);
+  const g = compare(plan, { gang: true });
+  assert.ok(g.ok && g.ganged);
+});
+
+test("at 12 in o.c. the per-foot rule under-orders; at 16 in and wider it over-orders", () => {
+  const [s12, s16, s192, s24] = spacingSweep(samplePlan(), [12, 16, 19.2, 24]);
+  assert.ok(s12.perFootOff < 0);
+  assert.ok(s16.perFootOff > 0 && s192.perFootOff > s16.perFootOff && s24.perFootOff > s192.perFootOff);
+});

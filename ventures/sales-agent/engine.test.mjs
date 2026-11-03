@@ -90,11 +90,12 @@ test("opt-outs in French, German, Spanish and Italian and \"cease and desist\" s
 test("second fresh set (2026-10-24, written by another session, scored once): numbers stay as measured", () => {
   const s = score(load("fresh-2026-10-24.jsonl"));
   assert.equal(s.n, 41);
-  assert.equal(s.right, 27);
-  assert.equal(s.acted, 31);
-  assert.equal(s.actedRight, 24);
+  // 27 when scored once; 28 after 2026-11-02, when "I left X" counted as a wrong-person reply (one item, no regression).
+  assert.equal(s.right, 28);
+  assert.equal(s.acted, 32);
+  assert.equal(s.actedRight, 25);
   assert.equal(s.unsubMissed, 2);
-  assert.equal(s.guessRight, 4);
+  assert.equal(s.guessRight, 3);
 });
 
 test("word model: rebuilt from the training files exactly, and it guesses", () => {
@@ -166,9 +167,10 @@ test("an explicit ask anywhere in the reply makes it clear, and dates keep the w
 test("fourth set (2026-10-25): scored once at 25/42 with 9 of 18 unsubscribes missed, then those were patched; the rest stay measured", () => {
   const s = score(load("fresh-2026-10-25.jsonl"));
   assert.equal(s.n, 42);
-  assert.equal(s.right, 34);
-  assert.equal(s.acted, 34);
-  assert.equal(s.actedRight, 34);
+  // 34 before 2026-11-02, when "I left Orchid in August" started counting as a wrong-person reply (one item).
+  assert.equal(s.right, 35);
+  assert.equal(s.acted, 35);
+  assert.equal(s.actedRight, 35);
   assert.equal(s.unsubMissed, 0);
 });
 
@@ -181,4 +183,99 @@ test("non-English auto-replies and opt-outs are named, not left as unclear (agen
   const out = ["Bitte entfernen Sie mich aus Ihrem Verteiler.", "Ne m'envoyez plus d'emails s'il vous plaît.", "Por favor, quiero darme de baja de su lista.",
     "Cancellatemi dalla vostra lista.", "Não me envie mais emails.", "Graag uitschrijven, ik wil dit niet meer."];
   for (const b of out) assert.equal(t("Re: hello", b), "unsubscribe", b);
+});
+
+test("non-English opt-outs probed 2026-11-02 are all unsubscribes, and ordinary replies are not", () => {
+  const optOuts = [
+    "Ne plus me contacter.", "Ne me contactez plus, merci.", "No gracias, quítame de tu lista", "Bórrame de la lista por favor", "No quiero más correos.",
+    "Por favor remova meu email da lista.", "Não quero mais receber seus emails.", "Pare de me enviar mensagens.",
+    "Stuur mij geen e-mails meer.", "Geen mailtjes meer alstublieft.", "Verwijder mijn gegevens.", "Schrijf mij uit.",
+  ];
+  for (const body of optOuts) assert.equal(triage({ body }, T).category, "unsubscribe", body);
+  for (const body of ["Sounds interesting, can you send pricing?", "Let's talk next quarter", "Quítame una duda: ¿cuánto cuesta?"]) assert.notEqual(triage({ body }, T).category, "unsubscribe", body);
+});
+
+test("opt-outs in SV, DA, NO, PL, FI, TR, CS, HU, RO, RU, JA, ZH and DE/EN probed 2026-11-02 are unsubscribes, and ordinary replies are not", () => {
+  const optOuts = [
+    "Ta bort mig från er lista.", "Sluta skicka mejl till mig.", "Fjern mig fra jeres liste.", "Send mig ikke flere mails.", "Slett meg fra listen deres.",
+    "Proszę usunąć mnie z listy mailingowej.", "Nie przesyłajcie mi więcej maili.", "Poista minut postituslistaltanne.", "Älkää lähettäkö minulle enää sähköpostia.",
+    "Beni listenizden çıkarın.", "Bana bir daha e-posta göndermeyin.", "Odhlaste mě prosím z odběru.", "Kérem, töröljenek a listáról.", "Vă rog să mă ștergeți din listă.",
+    "Не пишите мне больше.", "Удалите меня из рассылки.", "メールの配信を停止してください。", "退订", "请不要再给我发邮件",
+    "Please refrain from emailing me further.", "Take me off.", "Bitte keine Werbung mehr senden.", "Ich möchte keine weiteren Nachrichten erhalten.",
+  ];
+  for (const body of optOuts) assert.equal(triage({ body }, T).category, "unsubscribe", body);
+  for (const body of ["Sounds interesting, can you send pricing?", "Kan du skicka en offert?", "Prześlij proszę cennik.", "Можете прислать цены?", "请发一份报价单"]) assert.notEqual(triage({ body }, T).category, "unsubscribe", body);
+});
+
+test("non-English 'not interested' replies close the thread (PT, DE, FR, ES, IT, NL), 2026-11-02", () => {
+  for (const b of ["Não tenho interesse, obrigado.", "Kein Interesse, danke.", "Pas intéressé, merci.", "No me interesa, gracias.", "Non siamo interessati.", "Geen interesse, bedankt."]) {
+    assert.equal(triage({ subject: "Re: hi", body: b, from: "a@b.example" }, "2026-11-02").category, "not_interested", b);
+  }
+  assert.equal(triage({ subject: "Re: hi", body: "Kein Interesse, bitte entfernen Sie mich.", from: "a@b.example" }, "2026-11-02").category, "unsubscribe");
+});
+
+// A stop is sticky (2026-11-02): later messages from the same person in the same batch, or from someone already
+// unsubscribed in the table or on the suppression list, never un-stop them or earn a draft.
+import { runInbox as runInboxSticky } from "./engine.mjs";
+const stickyRun = (bodies, prospects = "email,first_name,company,status\ndana@x.example,Dana,X,active\n", suppression = "") =>
+  runInboxSticky({ replies: bodies.map((body) => ({ from: "dana@x.example", name: "Dana", subject: "Re: hi", body, raw: body })), prospects, suppression, today: "2026-11-02", offer: { sender: "S" } });
+
+test("unsubscribe then an out-of-office keeps the person unsubscribed", () => {
+  const o = stickyRun(["Please remove me from your list.", "I am out of office until Nov 20 with limited access."]);
+  assert.equal(o.prospects[0].status, "unsubscribed");
+  assert.equal(o.prospects[0].paused_until, undefined);
+  assert.equal(o.suppression.length, 1);
+});
+test("unsubscribe then 'tell me more' drafts nothing and asks a person to read both", () => {
+  const o = stickyRun(["Please remove me from your list.", "Sure, tell me more, how about Tuesday?"]);
+  assert.equal(o.prospects[0].status, "unsubscribed");
+  assert.ok(o.items.every((i) => !i.draft));
+  assert.ok(o.tasks.some((t) => /asked to stop/.test(t.task)));
+});
+test("a prospect already unsubscribed in the table gets no draft for a later interested reply", () => {
+  const o = stickyRun(["Sure, tell me more."], "email,first_name,company,status\ndana@x.example,Dana,X,unsubscribed\n");
+  assert.equal(o.prospects[0].status, "unsubscribed");
+  assert.equal(o.items[0].draft, null);
+});
+test("an unlisted prospect on the suppression list gets no draft", () => {
+  const o = stickyRun(["Sure, tell me more."], undefined, "dana@x.example\n");
+  assert.equal(o.items[0].draft, null);
+  assert.notEqual(o.prospects[0].status, "replied");
+});
+
+test("referrals: who owns the decision, 'I left', and 'wrong person' in six languages route to left_company with the named address (2026-11-02, invented probes)", () => {
+  const cases = [
+    ["Not me, but cc'ing my colleague Raj who runs this: raj@acme.example", "raj@acme.example"],
+    ["Please direct all inquiries to procurement@acme.example", "procurement@acme.example"],
+    ["No soy la persona indicada, escriba a luis@acme.example", "luis@acme.example"],
+    ["Je ne suis pas la bonne personne, contactez marie@acme.example", "marie@acme.example"],
+    ["Ich bin nicht zuständig, bitte wenden Sie sich an hans@acme.example", "hans@acme.example"],
+    ["I left Acme in March. Reach my replacement at kim@acme.example.", "kim@acme.example"],
+    ["Thanks but this goes to Dave in finance, dave@acme.example, he decides on these.", "dave@acme.example"],
+  ];
+  for (const [body, email] of cases) {
+    const r = triage({ from: "x@acme.example", subject: "Re: hi", body }, T);
+    assert.equal(r.category, "left_company", body);
+    assert.equal(r.referral?.email, email, body);
+  }
+  // A referral with no address still routes, with nothing to add.
+  const r = triage({ from: "x@acme.example", body: "I've passed your note on to our IT director, Priya." }, T);
+  assert.equal(r.category, "left_company");
+  assert.equal(r.referral, null);
+  // An interested reply is not turned into a referral by the word "owns".
+  assert.equal(triage({ body: "Sounds good. Can we set up a call Tuesday? I own this budget." }, T).category, "interested");
+});
+
+test("quoted Outlook/forwarded headers under a reply are not read as second replies (2026-11-03)", () => {
+  const outlook = `From: Dana <dana@x.example>\nSubject: RE: Routing\n\nSounds interesting, can you do Thursday at 3?\n\nFrom: Sam Ortiz <sam@ex.example>\nSent: Monday, November 2, 2026 9:14 AM\nTo: Dana <dana@x.example>\nSubject: Routing\n\nIf you'd rather not hear from me, reply stop and I will unsubscribe you.`;
+  const orig = `From: Dana <dana@x.example>\nSubject: RE: Routing\n\nThanks, send pricing.\n\n-----Original Message-----\nFrom: Sam\nPlease let me know and I'll remove you from my list.`;
+  const under = `From: Dana <dana@x.example>\n\nLet's talk.\n\n________________________________\nFrom: Sam Ortiz\nNo worries if not interested.`;
+  for (const t of [outlook, orig, under]) {
+    const r = parseReplies(t);
+    assert.equal(r.length, 1);
+    assert.equal(r[0].from, "dana@x.example");
+    assert.equal(triage(r[0], "2026-11-03").category, "interested");
+  }
+  // genuinely separate messages still split
+  assert.equal(parseReplies("From: a@x.example\n\nstop\n\nFrom: b@y.example\n\nyes please").length, 2);
 });

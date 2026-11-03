@@ -17,6 +17,10 @@ The brief came from the "Open" and "Next step" sections of the round 3 lane 1, 2
 
 `LEVER_KNOBS` (24" joists, piers, gravel options) were already wired into `designsearch.mjs` when this lane started.
 
+## Addendum: saltboxes in the gallery (after lane 2's #11920)
+
+The gallery's searches now include the saltbox. About 100 saltboxes pass in each search, but none reaches the Pareto front on cost, usable storage and looks. A saltbox's roof is tied, so its roof space counts nothing until it is decked, and the lean-tos beat it on room per dollar. Its best looks score (100) ties the looks card, which takes the cheaper design. No card changed style. Lane 2's clerestory layout was already among the gallery's layouts.
+
 ## Findings worth knowing
 
 - **$2,000 does not buy a lap-and-shingle shed of useful size** at today's prices.

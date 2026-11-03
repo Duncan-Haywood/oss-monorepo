@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-31",
+  "session": "https://claude.ai/code/session_01EhTJVLdJtgTpPesHhhSUk2",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-31T15:59:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "polish: drywall calculator landing page for wall-framing-takeoff",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": 12118,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "did not run the full pages build; checked the one new page directly",
+      "did": "unit test plus Chromium click",
+      "result": "page works"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Skipped the 7-20 min full site build; verified with node --test page.test.mjs (39 pass) and a Chromium click at 390px (17 sheets default, 12 sheets of 4x12 at 14 ft, no errors, no horizontal scroll).",
+  "corrections": [],
+  "redteam": null
+}

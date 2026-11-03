@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01AcxTtM1Pf9XCUt7kRfc27e",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T01:07:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12213",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 fetches origin security-alerts, which does not exist; fatal error, no queue."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Run was small: no new experiment; paper update plus one failed sourcing search.",
+      "did": "Folded 7d/7e into paper draft, logged 7f, wrote post",
+      "result": "landed; modest value"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-01-marine-hull-glider-overhead.md",
+    "research/marine-hull/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Review was due but PR 'prompts: review 2026-10-31' already open, so routed with --skip-review.",
+  "corrections": [],
+  "redteam": null
+}

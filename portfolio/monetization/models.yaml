@@ -1,0 +1,289 @@
+# Business model per product: how each flagship could earn, at what stage it
+# is, and the next step. Read by monetization.py (plan, next, --check).
+#
+# Owner, 2026-11-02: "looking into monetization plans and business model for
+# the things in this repo. this should be a continual thing to focus on."
+# The plan and its reasoning: README.md in this directory.
+#
+# Rules that bound every row (prompts/goals.md, "Hard limits"):
+# - never the owner's merchant key anywhere an agent can reach; the owner's
+#   own sites sell only through a hosted merchant-of-record checkout link set
+#   in owner-only config (decision 2026-10-31, PR #12243 pending approval);
+# - charge for new depth, never paywall what a page already calls free;
+# - comparables are other vendors' list prices as read on `read`, not our
+#   sales; no row claims a sale, a user or a demand number it can't back.
+#
+# stage: one of
+#   none        no model chosen yet
+#   planned     model and first offer chosen (this file)
+#   built-dark  the paid path exists in code, off with no checkout link set
+#   test-paid   one test-mode purchase ran end to end (record it in README)
+#   live        owner set the live link; a real sale is possible
+# liability: low | medium | high: exposure a paid version adds for the seller
+#   (advice-like output, compliance claims, data held). Lower goes first.
+# next_owner: true when the next step needs the owner (account, link, money).
+# parked: true when the row waits on something else (named in `next`); runs
+#   skip it until that lands.
+
+as_of: 2026-11-02
+rail:
+  provider: undecided (Polar recommended; docs/reports/2026-10-31-payout-rail-next-steps.md)
+  rule_change_pr: https://github.com/Duncan-Haywood/oss-monorepo/pull/12243
+  stage: owner-gated
+
+products:
+  - venture: wall-framing-takeoff
+    buyer: small residential framers, remodelers and owner-builders who bid jobs by hand
+    liability: medium
+    model: >-
+      Free engine and pages stay free. Sell new depth made for a contractor's
+      paperwork: a branded bid package (company logo, terms, the takeoff,
+      cut list and schedule in one PDF) as a one-off purchase or a yearly
+      licence key, through the merchant of record's hosted checkout and its
+      licence-key validate call, so no server holds a secret.
+    first_offer: branded bid-package PDF export, licence key, yearly
+    price_hypothesis: "$49 to $99 a year (untested; well under the comparables' monthly price)"
+    comparables:
+      - what: Buildxact Entry / Pro / Teams
+        price: $149 / $249 / $399 a month
+        source: https://www.buildxact.com/us/?p=9872
+        read: 2026-11-02
+      - what: Autotakeoff (Capterra listing)
+        price: from $49 a month
+        source: https://www.capterra.com/p/10029303/Autotakeoff/
+        read: 2026-11-02
+    stage: built-dark
+    next: >-
+      Built dark 2026-11-02 (bidpackage.mjs, licence.mjs, checkout.mjs; page
+      card "Branded bid package"). Owner step: create the hosted checkout
+      product at the merchant of record, put its public link in
+      checkout.mjs CHECKOUT_URL, and confirm the validate call against the
+      provider's live docs with a test key. Agent step after that: a
+      test-paid purchase end to end.
+    next_owner: true
+
+  - venture: league-schedule-generator
+    buyer: volunteer league organisers, rec departments, club secretaries
+    liability: low
+    model: >-
+      Lowest-liability product in the set: a schedule is not advice. Sell a
+      season pack for organisers who run several divisions: branded
+      printable schedules, a public standings page they can host themselves,
+      and an export to the calendar formats clubs ask for. Donations stay on.
+    first_offer: season pack, one-off per season
+    price_hypothesis: "$10 to $25 a season, one-off (untested; below every comparable's monthly price)"
+    comparables:
+      - what: TeamSnap (rec league or travel club plan)
+        price: from $29 a month
+        source: https://www.krowdbase.com/software/teamsnap  # aggregator listing, vendor page blocked
+        read: 2026-11-02
+      - what: SportsEngine (league/club management)
+        price: from $79 a month
+        source: https://www.krowdbase.com/software/sportsengine
+        read: 2026-11-02
+      - what: LeagueLobster
+        price: from $9.95 per feature per month; free plan exists
+        source: https://www.getapp.com/all-software/a/leaguelobster/
+        read: 2026-11-02
+      - what: Diamond Scheduler (Cactusware), per user per year
+        price: $99 a year on Capterra; $199 on Jersey Watch (sources disagree)
+        source: https://www.capterra.com/p/178117/Diamond-Scheduler/
+        read: 2026-11-02
+    stage: built-dark
+    next: >-
+      Built 2026-11-02 and dark: the branded season print pack (cover with
+      logo, full schedule, one page per team, notes page; `printpack.mjs`,
+      tested for escaping, bye rows and the logo/colour allow-lists) behind
+      the same licence-key check as wall-framing-takeoff; the card stays hidden
+      until `CHECKOUT_URL` in `checkout.mjs` is set. Comparables are aggregator
+      figures; confirm on the vendors' own pricing pages when a host allows it.
+      A one-off season pack at $10 to $25 sits under all the prices above, and
+      LeagueLobster's free plan covers 25 teams, so only the print pack is
+      ever charged for, never the schedule. Next (owner: create the merchant-
+      of-record product and set the link). Marketing page with a
+      generated sample pack landed 2026-11-02
+      (season-pack-for-league-organisers.html, sample-season-pack.html,
+      build-sample-pack.mjs). Nothing agent-doable is left until the link is set.
+    next_owner: false
+
+  - venture: shift-roster-builder
+    buyer: small shops with one location and under about fifteen staff
+    liability: medium
+    model: >-
+      The market has a free tier (Homebase Basic) and cheap per-user plans,
+      so a hosted subscription would compete on price with funded vendors and
+      would carry per-user server cost, which PRODUCT_PLAYBOOK.md section 2
+      rules out. Keep it free and self-hostable; earn through donations and,
+      later, a one-off printable/branded template pack. Not a first product.
+    first_offer: >-
+      Branded staff schedule pack (staffpack.mjs): the week on the shop's
+      letterhead, a wall grid and one page per person, no pay shown; behind
+      the same licence-key check, dark until CHECKOUT_URL is set.
+    price_hypothesis: "$10 to $25 one-off, under a month of Homebase Essentials; unvalidated"
+    comparables:
+      - what: Homebase Essentials / Plus / All-in-One (per location, annual)
+        price: $24 / $56 / $96 a month; free Basic for one location, 10 staff
+        source: https://beancount.io/blog/2026/10/03/homebase-vs-7shifts-vs-when-i-work-scheduling-software-2026-guide
+        read: 2026-11-02
+      - what: When I Work Essentials / Pro / Premium (per user)
+        price: $2.50 / $5 / $8 a month
+        source: https://beancount.io/blog/2026/10/03/homebase-vs-7shifts-vs-when-i-work-scheduling-software-2026-guide
+        read: 2026-11-02
+    stage: built-dark
+    next: >-
+      Built 2026-11-02 and dark (staffpack.mjs, licence.mjs, checkout.mjs;
+      card hidden until CHECKOUT_URL is set). Owner: one merchant-of-record
+      product serves all three dark paid paths. Untested: a real checkout and
+      the pack in a browser print dialog. Marketing page with a generated
+      sample pack landed 2026-11-02 (staff-schedule-pack-for-small-businesses.html,
+      sample-staff-pack.html, build-sample-pack.mjs). Nothing agent-doable is
+      left until the link is set.
+    next_owner: true
+
+  - venture: shed-designer
+    buyer: shed builders, kit sellers and handymen who give customers a plan and a materials list
+    liability: low
+    model: >-
+      The designer, plans, cut sheet, shopping list, instructions and HOA
+      packet stay free; they are the only tool in the portfolio with a
+      visible audience (6 of 41 human page loads, 24 to 30 October), so they
+      are the lead magnet. The charge is for presentation only: the same
+      design on the seller's own letterhead. A shed's materials list is not
+      advice and the pack carries the no-warranty and check-your-code lines.
+    first_offer: >-
+      Branded shed build pack (buildpack.mjs): cover with business name, logo
+      and contact, four elevations, roof plan, shopping list (prices optional)
+      and the build steps, behind the same licence-key check, dark until
+      CHECKOUT_URL is set.
+    price_hypothesis: "$10 to $25 one-off; unvalidated. Etsy shed-plan PDFs sit at roughly $4 to $35 (search-result snippets), so the top of the range is a stretch for a generic pack"
+    comparables:
+      - what: Individual shed plan PDFs on Etsy (garden, firewood and gable listings; read from search snippets only, etsy.com blocked for direct fetch)
+        price: roughly $4 to $35 one-off, often shown as a sale price (CAD and AUD listings included)
+        source: https://www.etsy.com/listing/4442823883
+        read: 2026-11-02
+    stage: built-dark
+    next: >-
+      Built 2026-11-02 and dark (buildpack.mjs, licence.mjs, checkout.mjs;
+      card hidden until CHECKOUT_URL is set; opened in headless Chromium with
+      the card forced visible: five drawings, escaped letterhead, no console
+      errors). Owner: the one merchant-of-record product that serves the other
+      dark paths serves this one. Comparables filled from search snippets
+      on 2026-11-02 (Etsy blocked for direct fetch); an agent step remains to
+      confirm them on the listings when a host allows it. Marketing page with
+      a generated sample pack landed 2026-11-02
+      (branded-shed-plan-pack-for-builders.html, sample-build-pack.html,
+      build-sample-pack.mjs, sample-pack.test.mjs).
+    next_owner: true
+
+  - venture: einvoice-preflight
+    buyer: developers and finance teams sending EN 16931 / Peppol / national e-invoices
+    liability: medium
+    model: >-
+      Per-document validation is a commodity (about $4 per 1,000 on API
+      marketplaces, plus free official validators), so selling checks earns
+      little. The depth is the 60+ country rule set and the repair step.
+      Candidate: a paid support/priority lane for a country rule a buyer
+      needs next, delivered MIT like everything else. Owner decision first
+      (see README, "Open questions for the owner").
+    first_offer: none yet
+    price_hypothesis: "not priced"
+    comparables:
+      - what: Peppol BIS preflight validator (Apify actor)
+        price: from $4.00 per 1,000 validations
+        source: https://apify.com/kamerozkan/peppol-bis-preflight-validator
+        read: 2026-11-02
+    stage: planned
+    next: >-
+      Wait for the owner's answer on a paid priority lane (README, open
+      question 2).
+    next_owner: true
+
+  - venture: ai-bookkeeper
+    buyer: sole traders and very small businesses doing their own books
+    liability: high
+    model: >-
+      Highest willingness to pay in the set (QuickBooks Online Simple Start
+      lists at $38 a month) and the highest exposure: books feed tax returns.
+      Do not sell it first. When it is sold, sell convenience (a packaged
+      offline desktop build, year-end pack PDF) rather than anything that
+      reads as tax or accounting advice, with the disclaimer and a refund
+      policy, and only after the categoriser is measured on real books.
+    first_offer: none yet
+    price_hypothesis: "not priced"
+    comparables:
+      - what: QuickBooks Online Simple Start (US list)
+        price: $38 a month
+        source: https://www.nerdwallet.com/article/small-business/quickbooks-pricing
+        read: 2026-11-02
+    stage: built-dark
+    next: >-
+      Built 2026-11-02 and dark: the branded close pack (closepack.mjs: cover
+      with logo and period, close checks with open findings first, profit and
+      loss, balance sheet, notes; licence.mjs and checkout.mjs copied from the
+      other dark paths; closepack.test.mjs covers escaping, the logo and
+      colour allow-lists and the fresh-import findings). It is presentation
+      only: the free tool keeps every number, check and export. Not on the
+      page or CLI yet, and still not to be sold until the categoriser is
+      measured on a real labelled book (item 0), so the row stays parked.
+    next_owner: false
+    parked: true
+
+  - venture: sales-agent
+    buyer: founders and small sales teams who self-host
+    liability: medium
+    model: >-
+      Self-hosted on the deployer's own keys (PRODUCT_PLAYBOOK.md section 6):
+      whoever deploys it and sends email is the sender of record. The owner
+      earns through donations only; selling a hosted copy would make the
+      owner the sender for strangers' outreach (CAN-SPAM, GDPR exposure).
+    first_offer: none (donations)
+    price_hypothesis: "not priced"
+    comparables: []
+    stage: planned
+    next: >-
+      None; the model is donations plus the one-click deploy.
+    next_owner: false
+    parked: true
+
+  - venture: changepoint-detector
+    buyer: analysts, growth and ops people who need to say when a metric really shifted, without sending data to a vendor
+    liability: low
+    model: >-
+      Enterprise anomaly monitoring is priced per host or per metric stream
+      and sells continuous monitoring plus integrations; this tool does the
+      one-shot question (when did the level or volatility change, how sure)
+      in the browser, so it competes on privacy and zero setup, not on
+      monitoring. Keep the detector, the CLI and the agent engine free (they
+      are the lead magnet and the SEO surface). The charge, if any, is for
+      presentation: a branded change report (PDF or one-page HTML with the
+      chart, the segment table and the plain-language reading, on the
+      analyst's letterhead) behind the same licence-key check as the other
+      dark paths. No advice claim: the report states the statistical
+      assumptions and that a detected change is not a cause.
+    first_offer: >-
+      Branded change report (report.mjs, built 2026-11-02). Dark until CHECKOUT_URL is set,
+      like wall-framing-takeoff, league-schedule-generator and shed-designer.
+    price_hypothesis: "$5 to $15 one-off per report pack; unvalidated, and below enterprise monitoring on purpose, since the buyer is one analyst, not a platform team"
+    comparables:
+      - what: Anodot anomaly monitoring (comparison site; an AWS Marketplace listing in the same search showed $2,000 a month for 1,000 metrics but could not be opened to confirm the product)
+        price: from about $1,000 per month (search snippet; vendor page unread)
+        source: https://checkthat.ai/brands/anodot/pricing
+        read: 2026-11-02
+      - what: Datadog Infrastructure Pro (Watchdog anomaly detection included, per host)
+        price: about $15 to $18 per host per month on annual or on-demand billing (comparison sites; Datadog's own page unread)
+        source: https://toolradar.com/compare/anodot-vs-datadog
+        read: 2026-11-02
+    stage: built-dark
+    next: >-
+      Built 2026-11-02 and dark: report.mjs (title block with logo, the
+      page's chart, the reading, change and segment tables, fixed
+      assumptions statement, "does not show what caused the change"),
+      licence.mjs and checkout.mjs copied from the other dark paths; the
+      card stays hidden until CHECKOUT_URL is set. Tested for escaping and
+      the logo/colour allow-lists (report.test.mjs). Owner: the one
+      merchant-of-record product that serves the other dark paths serves
+      this one. Marketing page with a generated sample report landed
+      2026-11-02 (change-report-for-analysts.html, sample-change-report.html,
+      build-sample-report.mjs). Agent step left: the comparables checked on
+      the vendors' own pages when a host allows it.
+    next_owner: true

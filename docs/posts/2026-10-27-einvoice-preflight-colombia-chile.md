@@ -1,5 +1,6 @@
 ---
 title: "E-invoice Preflight adds Colombia and Chile, and a check digit that hides one error in fifty"
+seo_title: "E-invoice Preflight adds Colombia and Chile check digits"
 date: 2026-10-27
 description: "Two new Latin American pages with local NIT and RUT check-digit tests, and the measured blind spot of Colombia's digit."
 tags: [einvoice-preflight, e-invoicing, colombia, chile]

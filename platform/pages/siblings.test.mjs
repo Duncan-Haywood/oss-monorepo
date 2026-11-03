@@ -177,3 +177,25 @@ test('the committed budget matches what the tree measures today', async () => {
       'Close a pair, or raise the budget deliberately and say in the PR why.',
   );
 });
+
+test('each shared job word adds exactly one point; generic words add none', () => {
+  // Shares `asphalt` and `sealcoat` (2); `bid` is generic.
+  assert.equal(relatedness('asphalt-sealcoat-bid', 'asphalt-sealcoat-driveway-bid'), 2);
+  assert.equal(relatedness('asphalt-bid', 'asphalt-bid'), 1);
+});
+
+test('--check exits 1 when orphans exceed the budget, or when no budget exists', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'sib-budget-'));
+  const tight = path.join(dir, 'budget.json');
+  await fs.writeFile(tight, JSON.stringify({ orphanBudget: -1 }));
+  const run = (file) => {
+    try {
+      execFileSync('node', [CLI, '--check'], { encoding: 'utf8', stdio: 'pipe', env: { ...process.env, SIBLINGS_BUDGET_FILE: file } });
+      return 0;
+    } catch (e) {
+      return e.status;
+    }
+  };
+  assert.equal(run(tight), 1);
+  assert.equal(run(path.join(dir, 'missing.json')), 1);
+});

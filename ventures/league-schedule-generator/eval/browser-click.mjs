@@ -103,6 +103,25 @@ for (const [btn, name, test] of [
   check(test(text), `${name} has a header and rows (${text.split("\n").length} lines)`);
 }
 
+await page.fill("#results", "U10: Hawks 3 - 2 Owls\nU10: Hawks 9 - 9 Nobody");
+await page.click("#show-standings");
+const so = await page.locator("#standings-out").innerText();
+check(/Not counted/.test(so) && /Nobody/.test(so), "standings: a result for an unknown team is named, not counted");
+check(/U10/.test(so) && /Hawks/.test(so), "standings: the division table is shown");
+check(/why teams are ranked/.test(so), "standings: tie-break notes are shown");
+check(await page.locator("#dl-standings").isVisible(), "standings: CSV button appears");
+{
+  const [dl] = await Promise.all([page.waitForEvent("download", { timeout: 10000 }), page.click("#dl-standings")]);
+  const text = (await readFile(await dl.path(), "utf8")).trim();
+  check(dl.suggestedFilename() === "division-standings.csv" && text.startsWith("Division,Rank,Team"), "standings CSV downloads with a Division column");
+}
+
+await page.fill("#po-per", "2");
+await page.fill("#po-wc", "1");
+await page.click("#show-playoffs");
+const po = await page.locator("#playoffs-out").innerText();
+check(/^ ?1\. /m.test(po) && /Final/.test(po) && /place 1/.test(po), "play-off: seeds and a bracket are shown from the standings");
+
 check(errors.length === 0, `no page errors${errors.length ? ": " + errors.join("; ") : ""}`);
 await browser.close();
 server.close();

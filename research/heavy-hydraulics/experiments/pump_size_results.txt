@@ -1,0 +1,5 @@
+Q_PUMP base 45.0 L/min
+pump x0.8 (36.0 L/min): OC gross median 22.27%; LS own median 3.80%; NET OC over LS median 17.51% p95 21.62%
+pump x1.0 (45.0 L/min): OC gross median 6.25%; LS own median 0.00%; NET OC over LS median 6.25% p95 21.62%
+pump x1.2 (54.0 L/min): OC gross median 0.00%; LS own median 0.00%; NET OC over LS median 0.00% p95 21.62%
+pump x1.5 (67.5 L/min): OC gross median 0.00%; LS own median 0.00%; NET OC over LS median 0.00% p95 10.68%

@@ -1,5 +1,6 @@
 ---
 title: "A second round of the dispersion penalty doesn't fix GARCH false alarms"
+seo_title: "A second dispersion penalty doesn't fix GARCH false alarms"
 date: 2026-10-26
 description: "Re-measuring the dispersion factor for a second round cuts GARCH false alarms from 30% to 27%: a negative result."
 tags: [changepoint-detector, statistics, negative-result]

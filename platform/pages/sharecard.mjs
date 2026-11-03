@@ -3,8 +3,9 @@
 // A shared link is the first thing most people ever see of this site: in a
 // Slack thread, an iMessage bubble, a LinkedIn post or a forum reply, the card
 // is read before the title and long before the page. So the card is drawn in
-// the homepage hero's own look (the night field, the teal and indigo aurora,
-// the faint grid and the constellation), set in Inter, the face the pages use,
+// the Maris Stella Labs look the company's LinkedIn banner set (2026-10-31):
+// a deep navy sea, brass-gold light, a faint chart grid and a constellation
+// for the star the name means, set in Inter, the face the pages use,
 // with the page's own section as a coloured kicker. A roofing bid, a research
 // project and an essay therefore preview as visibly different cards that are
 // still obviously one site.
@@ -21,22 +22,21 @@ export const CARD_WIDTH = 1200;
 export const CARD_HEIGHT = 630;
 const MARGIN = 72;
 
-// The hero's palette (build.mjs, "Motion and imagery").
-const NIGHT = [8, 13, 26];
-const DEEP = [16, 32, 74];
-const TEAL = [127, 227, 198];
-const INDIGO = [142, 162, 255];
-const ORCHID = [227, 155, 255];
-const INK = [238, 242, 248];
-const MUTED = [182, 194, 211];
-const GRID = [140, 170, 255];
+// The brand palette: navy sea, brass gold, parchment. The names TEAL, INDIGO
+// and ORCHID are the roles the hero's aurora had (first, second and third
+// glow), now filled with the navy-and-gold theme.
+const NIGHT = [9, 16, 36];
+const DEEP = [26, 42, 88];
+const TEAL = [214, 176, 92];
+const INDIGO = [120, 146, 206];
+const ORCHID = [244, 232, 204];
+const INK = [247, 242, 230];
+const MUTED = [196, 200, 214];
+const GRID = [214, 176, 92];
 
-// The mark's own gradient, as the site header draws it (`--pfs-mark`).
-export const MARK_FROM = [18, 89, 74];
-export const MARK_TO = [59, 91, 219];
 
 export const hexToRgb = (hex) => {
-  const h = String(hex || '#12594a').replace('#', '');
+  const h = String(hex || '#1f4e8c').replace('#', '');
   const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h.padEnd(6, '0').slice(0, 6);
   return [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16) || 0);
 };
@@ -107,7 +107,7 @@ function field(accent) {
         c = mix(c, g.rgb, k);
       }
       // The hero's faint 48px grid.
-      if (x % 48 === 0 || y % 48 === 0) c = mix(c, GRID, 0.07);
+      if (x % 48 === 0 || y % 48 === 0) c = mix(c, GRID, 0.045);
       const at = (y * w + x) * 3;
       data[at] = Math.round(c[0]);
       data[at + 1] = Math.round(c[1]);
@@ -179,59 +179,173 @@ function constellation(canvas, seed, accent) {
 }
 
 /**
- * The brand mark: three rising bars on a rounded square in the header's
- * teal-to-indigo gradient. Drawn into any RGB(A) canvas at any size, so the
- * favicon, the app icons and the cards are one logo.
+ * The brand mark: an eight-point compass star inside a brass ring on a navy
+ * disc, the star of the sea that "Maris Stella" names. Drawn into any RGB(A)
+ * canvas at any size, so the favicon, the app icons and the cards are one
+ * logo. Geometry is in unit coordinates (0..1 across the mark), and
+ * `renderFaviconSvg` in build.mjs draws the same shapes as vector art.
  */
+export const MARK_NAVY = [29, 43, 83];
+export const MARK_GOLD = [212, 172, 88];
+export const MARK_PEARL = [250, 244, 230];
+
+function starPoints(cx, cy, outer, inner, turn) {
+  const pts = [];
+  for (let i = 0; i < 8; i += 1) {
+    const a = turn + (i * Math.PI) / 4;
+    const r = i % 2 === 0 ? outer : inner;
+    pts.push([Number((cx + r * Math.sin(a)).toFixed(4)), Number((cy - r * Math.cos(a)).toFixed(4))]);
+  }
+  return pts;
+}
+
 export const MARK_GEOMETRY = {
-  radius: 0.24,
-  bars: [
-    { x: 0.2, top: 0.56 },
-    { x: 0.42, top: 0.38 },
-    { x: 0.64, top: 0.2 },
-  ],
-  barWidth: 0.16,
-  bottom: 0.8,
+  disc: 0.5,
+  ring: { outer: 0.43, inner: 0.375 },
+  // The four short diagonal points sit under the four long cardinal ones.
+  diagonal: starPoints(0.5, 0.5, 0.3, 0.075, Math.PI / 4),
+  cardinal: starPoints(0.5, 0.5, 0.47, 0.1, 0),
+  hub: 0.045,
 };
 
-export function drawMark(canvas, left, top, size, { radius = MARK_GEOMETRY.radius, channels = 3, plate = true, barsOnly = false } = {}) {
-  const r = size * radius;
-  const { bars, barWidth: barW, bottom } = MARK_GEOMETRY;
+const hex = (rgb) => '#' + rgb.map((c) => Math.round(c).toString(16).padStart(2, '0')).join('');
+
+/**
+ * The mark as SVG source, drawn from `MARK_GEOMETRY` on a 0..`size` canvas:
+ * the tab icon (`favicon.svg`) and the site header's mark both use it, so the
+ * vector and the raster logos cannot drift apart.
+ */
+export function markSvg(size = 32) {
+  const g = MARK_GEOMETRY;
+  const n = (v) => Number((v * size).toFixed(2));
+  const poly = (pts, fill) => `<polygon points="${pts.map(([u, v]) => `${n(u)},${n(v)}`).join(' ')}" fill="${fill}"/>`;
+  const ringR = (g.ring.outer + g.ring.inner) / 2;
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">` +
+    `<circle cx="${n(0.5)}" cy="${n(0.5)}" r="${n(g.disc)}" fill="${hex(MARK_NAVY)}"/>` +
+    `<circle cx="${n(0.5)}" cy="${n(0.5)}" r="${n(ringR)}" fill="none" stroke="${hex(MARK_GOLD)}" stroke-width="${n(g.ring.outer - g.ring.inner)}"/>` +
+    poly(g.diagonal, hex(MARK_GOLD)) +
+    poly(g.cardinal, hex(MARK_PEARL)) +
+    `<circle cx="${n(0.5)}" cy="${n(0.5)}" r="${n(g.hub)}" fill="${hex(MARK_GOLD)}"/>` +
+    `</svg>`
+  );
+}
+
+function inPolygon(pts, u, v) {
+  let inside = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i, i += 1) {
+    const [xi, yi] = pts[i];
+    const [xj, yj] = pts[j];
+    if ((yi > v) !== (yj > v) && u < ((xj - xi) * (v - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+
+const STAR_REACH = {
+  cardinal: Math.max(...vertexRadii(MARK_GEOMETRY.cardinal)) + 0.001,
+  diagonal: Math.max(...vertexRadii(MARK_GEOMETRY.diagonal)) + 0.001,
+};
+function vertexRadii(pts) {
+  return pts.map(([x, y]) => Math.hypot(x - 0.5, y - 0.5));
+}
+
+/** The mark's colour at one unit-space sample, or null outside it. */
+function markSample(u, v, plate) {
+  const g = MARK_GEOMETRY;
+  const d = Math.hypot(u - 0.5, v - 0.5);
+  if (d <= g.hub) return MARK_GOLD;
+  // Every shape lies inside its farthest vertex's circle (a convex hull of the
+  // star's points, vertices rounded to 4 decimals, hence the 0.001 margin), so
+  // a sample beyond that radius cannot hit it: skip the polygon walk. Exact.
+  if (d > g.disc) return null;
+  if (d <= STAR_REACH.cardinal && inPolygon(g.cardinal, u, v)) return MARK_PEARL;
+  if (d <= STAR_REACH.diagonal && inPolygon(g.diagonal, u, v)) return MARK_GOLD;
+  if (d <= g.ring.outer && d >= g.ring.inner) return MARK_GOLD;
+  if (plate && d <= g.disc) return MARK_NAVY;
+  return null;
+}
+
+const MARK_COVERAGE = new Map();
+
+/**
+ * The mark's anti-aliased coverage for one size, as [dx, dy, r, g, b, alpha]
+ * per touched pixel relative to the mark's top-left. Only valid for integer
+ * `left`/`top`, where `x - left` is exact, so the samples equal a direct draw.
+ */
+function markCoverage(size, plate) {
+  const key = `${size}|${plate}`;
+  let cov = MARK_COVERAGE.get(key);
+  if (cov) return cov;
+  cov = [];
+  const ss = 4;
+  for (let dy = 0; dy < Math.ceil(size); dy += 1) {
+    for (let dx = 0; dx < Math.ceil(size); dx += 1) {
+      let hits = 0;
+      const sum = [0, 0, 0];
+      for (let sy = 0; sy < ss; sy += 1) {
+        for (let sx = 0; sx < ss; sx += 1) {
+          const u = (dx + (sx + 0.5) / ss) / size;
+          const v = (dy + (sy + 0.5) / ss) / size;
+          if (u < 0 || v < 0 || u > 1 || v > 1) continue;
+          const c = markSample(u, v, plate);
+          if (!c) continue;
+          hits += 1;
+          sum[0] += c[0]; sum[1] += c[1]; sum[2] += c[2];
+        }
+      }
+      if (hits) cov.push([dx, dy, sum[0] / hits, sum[1] / hits, sum[2] / hits, hits / (ss * ss)]);
+    }
+  }
+  MARK_COVERAGE.set(key, cov);
+  return cov;
+}
+
+export function drawMark(canvas, left, top, size, { channels = 3, plate = true } = {}) {
+  if (!Number.isInteger(left) || !Number.isInteger(top)) return drawMarkDirect(canvas, left, top, size, { channels, plate });
+  for (const [dx, dy, r, g, b, a] of markCoverage(size, plate)) {
+    const x = left + dx;
+    const y = top + dy;
+    if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) continue;
+    blendPixel(canvas, x, y, channels, [r, g, b], a);
+  }
+}
+
+function blendPixel(canvas, x, y, channels, c, a) {
+  const at = (y * canvas.width + x) * channels;
+  if (channels === 4) {
+    // Straight alpha over whatever is there (transparent for an icon).
+    const da = canvas.data[at + 3] / 255;
+    const oa = a + da * (1 - a);
+    for (let i = 0; i < 3; i += 1) {
+      canvas.data[at + i] = Math.round(oa ? (c[i] * a + canvas.data[at + i] * da * (1 - a)) / oa : 0);
+    }
+    canvas.data[at + 3] = Math.round(oa * 255);
+  } else {
+    for (let i = 0; i < 3; i += 1) canvas.data[at + i] = Math.round(canvas.data[at + i] + (c[i] - canvas.data[at + i]) * a);
+  }
+}
+
+function drawMarkDirect(canvas, left, top, size, { channels = 3, plate = true } = {}) {
   const ss = 4;
   for (let y = Math.floor(top); y < Math.ceil(top + size); y += 1) {
     for (let x = Math.floor(left); x < Math.ceil(left + size); x += 1) {
-      let plateCover = 0;
-      let barCover = 0;
+      let hits = 0;
+      const sum = [0, 0, 0];
       for (let sy = 0; sy < ss; sy += 1) {
         for (let sx = 0; sx < ss; sx += 1) {
           const u = (x + (sx + 0.5) / ss - left) / size;
           const v = (y + (sy + 0.5) / ss - top) / size;
           if (u < 0 || v < 0 || u > 1 || v > 1) continue;
-          const px = u * size;
-          const py = v * size;
-          const dx = Math.max(r - px, px - (size - r), 0);
-          const dy = Math.max(r - py, py - (size - r), 0);
-          if (!plate || dx * dx + dy * dy <= r * r) plateCover += 1;
-          else continue;
-          for (const b of bars) {
-            const br = barW * 0.28;
-            if (u < b.x || u > b.x + barW || v < b.top || v > bottom) continue;
-            // Round the bar's top corners a little.
-            const cu = Math.max(b.x + br - u, u - (b.x + barW - br), 0);
-            const cv = Math.max(b.top + br - v, 0);
-            if (cu * cu + cv * cv <= br * br) { barCover += 1; break; }
-          }
+          const c = markSample(u, v, plate);
+          if (!c) continue;
+          hits += 1;
+          sum[0] += c[0]; sum[1] += c[1]; sum[2] += c[2];
         }
       }
-      if (!plateCover) continue;
-      if (barsOnly && !barCover) continue;
-      const t = Math.max(0, Math.min(1, ((x - left) / size + (y - top) / size) / 2));
-      const base = mix(MARK_FROM, MARK_TO, t);
-      // `barsOnly` draws white bars over whatever field is already there (an
-      // icon's full-bleed gradient), so no second plate shows as a seam.
-      const c = barsOnly ? [255, 255, 255] : mix(base, [255, 255, 255], barCover / plateCover);
-      const a = barsOnly ? barCover / (ss * ss) : plateCover / (ss * ss);
+      if (!hits) continue;
       if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) continue;
+      const c = sum.map((v) => v / hits);
+      const a = hits / (ss * ss);
       const at = (y * canvas.width + x) * channels;
       if (channels === 4) {
         // Straight alpha over whatever is there (transparent for an icon).
@@ -316,15 +430,32 @@ let INDEX = null;
 export function quantize(data, n = 256) {
   if (!HIST) { HIST = new Uint32Array(1 << 24); INDEX = new Uint16Array(1 << 24); }
   const pixels = data.length / 3;
-  const keys = [];
-  for (let i = 0; i < pixels; i += 1) {
-    const k = (data[i * 3] << 16) | (data[i * 3 + 1] << 8) | data[i * 3 + 2];
-    if (HIST[k] === 0) keys.push(k);
+  // Distinct colours, in first-seen order, in one typed array: the boxes below
+  // are [start, end) ranges of it, split in place by a stable counting sort on
+  // the box's widest channel (the same order `Array.sort` with a comparator on
+  // that channel gave, without the n log n comparator calls).
+  let keys = new Int32Array(4096);
+  let distinct = 0;
+  let prev = -1; let run = 0;
+  for (let i = 0, j = 0; i < pixels; i += 1, j += 3) {
+    const k = (data[j] << 16) | (data[j + 1] << 8) | data[j + 2];
+    // Flat areas repeat a colour: count the run, touch the 64 MB table once.
+    if (k === prev) { run += 1; continue; }
+    if (run) { HIST[prev] += run; run = 0; }
+    prev = k;
+    if (HIST[k] === 0) {
+      if (distinct === keys.length) { const grown = new Int32Array(distinct * 2); grown.set(keys); keys = grown; }
+      keys[distinct++] = k;
+    }
     HIST[k] += 1;
   }
-  const describe = (list) => {
+  if (run) HIST[prev] += run;
+  const scratch = new Int32Array(distinct);
+  const bucket = new Int32Array(257);
+  const describe = (start, end) => {
     let r0 = 255; let g0 = 255; let b0 = 255; let r1 = 0; let g1 = 0; let b1 = 0; let count = 0;
-    for (const k of list) {
+    for (let i = start; i < end; i += 1) {
+      const k = keys[i];
       const r = k >> 16; const g = (k >> 8) & 255; const b = k & 255;
       if (r < r0) r0 = r; if (r > r1) r1 = r;
       if (g < g0) g0 = g; if (g > g1) g1 = g;
@@ -333,28 +464,34 @@ export function quantize(data, n = 256) {
     }
     const spans = [r1 - r0, g1 - g0, b1 - b0];
     const span = Math.max(...spans);
-    return { list, count, axis: spans.indexOf(span), score: list.length > 1 ? span * Math.sqrt(count) : -1 };
+    return { start, end, count, axis: spans.indexOf(span), score: end - start > 1 ? span * Math.sqrt(count) : -1 };
   };
-  const boxes = [describe(keys)];
+  const boxes = [describe(0, distinct)];
   while (boxes.length < n) {
     let best = -1;
     for (let i = 0; i < boxes.length; i += 1) if (boxes[i].score > 0 && (best < 0 || boxes[i].score > boxes[best].score)) best = i;
     if (best < 0) break;
-    const { list, count, axis } = boxes[best];
+    const { start, end, count, axis } = boxes[best];
     const shift = [16, 8, 0][axis];
-    list.sort((a, b) => ((a >> shift) & 255) - ((b >> shift) & 255));
+    bucket.fill(0);
+    for (let i = start; i < end; i += 1) bucket[((keys[i] >> shift) & 255) + 1] += 1;
+    for (let c = 0; c < 256; c += 1) bucket[c + 1] += bucket[c];
+    for (let i = start; i < end; i += 1) scratch[start + bucket[(keys[i] >> shift) & 255]++] = keys[i];
+    keys.set(scratch.subarray(start, end), start);
     let acc = 0;
     let cut = 1;
-    for (let i = 0; i < list.length; i += 1) {
-      acc += HIST[list[i]];
-      if (acc >= count / 2) { cut = Math.max(1, Math.min(list.length - 1, i + 1)); break; }
+    const length = end - start;
+    for (let i = 0; i < length; i += 1) {
+      acc += HIST[keys[start + i]];
+      if (acc >= count / 2) { cut = Math.max(1, Math.min(length - 1, i + 1)); break; }
     }
-    boxes.splice(best, 1, describe(list.slice(0, cut)), describe(list.slice(cut)));
+    boxes.splice(best, 1, describe(start, start + cut), describe(start + cut, end));
   }
   const palette = Buffer.alloc(boxes.length * 3);
-  boxes.forEach(({ list }, i) => {
+  boxes.forEach(({ start, end }, i) => {
     let r = 0; let g = 0; let b = 0; let t = 0;
-    for (const k of list) {
+    for (let at = start; at < end; at += 1) {
+      const k = keys[at];
       const c = HIST[k];
       r += (k >> 16) * c; g += ((k >> 8) & 255) * c; b += (k & 255) * c; t += c;
       INDEX[k] = i;
@@ -364,10 +501,13 @@ export function quantize(data, n = 256) {
     palette[i * 3 + 2] = Math.round(b / t);
   });
   const indices = Buffer.alloc(pixels);
-  for (let i = 0; i < pixels; i += 1) {
-    indices[i] = INDEX[(data[i * 3] << 16) | (data[i * 3 + 1] << 8) | data[i * 3 + 2]];
+  let last = -1; let lastIndex = 0;
+  for (let i = 0, j = 0; i < pixels; i += 1, j += 3) {
+    const k = (data[j] << 16) | (data[j + 1] << 8) | data[j + 2];
+    if (k !== last) { last = k; lastIndex = INDEX[k]; }
+    indices[i] = lastIndex;
   }
-  for (const k of keys) HIST[k] = 0;
+  for (let i = 0; i < distinct; i += 1) HIST[keys[i]] = 0;
   return { palette, indices };
 }
 
@@ -399,7 +539,7 @@ const DISPLAY = 'InterDisplay-Bold';
 const SEMI = 'Inter-SemiBold';
 const MEDIUM = 'Inter-Medium';
 
-const HERO_GRADIENT = [TEAL, INDIGO, ORCHID];
+const HERO_GRADIENT = [TEAL, ORCHID, TEAL];
 function heroPaint(x0, x1) {
   return (x) => {
     const t = Math.max(0, Math.min(1, (x - x0) / Math.max(1, x1 - x0)));
@@ -420,12 +560,12 @@ function heroPaint(x0, x1) {
  *   highlight words of the headline painted in the hero's gradient
  */
 export function renderCard({
-  accent = '#12594a',
+  accent = '#1f4e8c',
   headline = '',
   kicker = '',
   subtitle = '',
   footer = '',
-  site = 'Open Tools and Research',
+  site = 'Maris Stella Labs',
   address = '',
   highlight = '',
 } = {}) {
@@ -465,7 +605,7 @@ export function renderCard({
   for (let y = h - 8; y < h; y += 1) {
     for (let x = 0; x < w; x += 1) {
       const t = x / w;
-      const c = t < 0.5 ? mix(acc.map((v) => v * 0.6 + 100), TEAL, t * 2) : mix(TEAL, INDIGO, (t - 0.5) * 2);
+      const c = t < 0.5 ? mix(acc.map((v) => v * 0.6 + 100), TEAL, t * 2) : mix(TEAL, ORCHID, (t - 0.5) * 2);
       blend(canvas, x, y, c, 0.9);
     }
   }
@@ -573,7 +713,7 @@ export function renderCard({
  */
 export function renderSiteCard({ address = '', subtitle = '', footer = '', site } = {}) {
   return renderCard({
-    accent: '#3b5bdb',
+    accent: '#d4ac58',
     headline: 'Software and research that anyone can use, inspect, and run themselves.',
     highlight: 'use, inspect, and run',
     kicker: 'Open source · MIT licensed · Built in public',
@@ -586,23 +726,23 @@ export function renderSiteCard({ address = '', subtitle = '', footer = '', site 
 
 /**
  * An app icon in the brand mark: transparent corners by default, full-bleed
- * for `maskable` (the mark inside Android's 80% safe zone on the gradient), and
+ * for `maskable` (the mark inside Android's 80% safe zone on navy), and
  * `opaque` for Apple's touch icon, which must have no alpha.
  */
 export function renderMarkIcon({ size = 192, maskable = false, opaque = false } = {}) {
   const data = Buffer.alloc(size * size * 4);
   const canvas = { width: size, height: size, data, channels: 4 };
   if (maskable || opaque) {
-    // Full-bleed gradient, then the bars inset.
+    // Full-bleed navy, then the ring and star inset.
     for (let y = 0; y < size; y += 1) {
       for (let x = 0; x < size; x += 1) {
-        const c = mix(MARK_FROM, MARK_TO, (x + y) / (2 * size));
+        const c = MARK_NAVY;
         const at = (y * size + x) * 4;
         data[at] = Math.round(c[0]); data[at + 1] = Math.round(c[1]); data[at + 2] = Math.round(c[2]); data[at + 3] = 255;
       }
     }
     const inset = maskable ? size * 0.14 : size * 0.06;
-    drawMark(canvas, inset, inset, size - inset * 2, { channels: 4, radius: 0, barsOnly: true });
+    drawMark(canvas, inset, inset, size - inset * 2, { channels: 4, plate: false });
   } else {
     drawMark(canvas, 0, 0, size, { channels: 4 });
   }

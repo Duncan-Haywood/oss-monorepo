@@ -48,3 +48,26 @@ test("waste, prices, text, and bad input", () => {
   assert.equal(layoutEaves({}, null).ok, false);
   assert.equal(layoutEaves({ waste: 0.9 }, gable()).ok, false);
 });
+
+test("a cross wing swaps 168 in of main eave for its own two eaves and two rakes (by hand)", () => {
+  const wing = { width: 144, projection: 192, side: "right", at: 240 };
+  const roof = layoutRoof({ ...sampleRoof(), wing }, plan());
+  assert.ok(roof.ok, JSON.stringify(roof.errors));
+  const e = layoutEaves({ waste: 0 }, roof);
+  assert.ok(e.ok, JSON.stringify(e.errors));
+  // eaves: 504 + (504 - (144 + 2 x 12)) + 2 x (12 rake + 192 out - 12 overhang) = 504 + 336 + 384 = 1224 in
+  assert.equal(e.wings, 1);
+  assert.equal(e.eaveFeet, 102);
+  // rakes: the main roof's four plus two wing slopes of (72 + 12) in run at 4/12... slope factor from the roof
+  const k = roof.slope / (roof.width / 2 + roof.overhang);
+  assert.ok(Math.abs(e.rakeFeet - (4 * roof.slope + 2 * 84 * k) / 12) < 0.05);
+  assert.ok(e.soffitSqFt > 84);
+});
+
+test("a wing at a different pitch is noted, not counted", () => {
+  const roof = layoutRoof({ ...sampleRoof(), wing: { width: 144, projection: 192, side: "right", at: 240, pitch: 3 } }, plan());
+  if (!roof.ok) return;
+  const e = layoutEaves({ waste: 0 }, roof);
+  assert.equal(e.wings, 0);
+  assert.match(eavesText(e).join("\n"), /own pitch/);
+});

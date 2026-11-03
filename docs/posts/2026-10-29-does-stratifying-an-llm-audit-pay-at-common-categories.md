@@ -1,5 +1,6 @@
 ---
 title: "Does stratifying a human audit of LLM codes pay when the category is common?"
+seo_title: "Does stratifying an LLM-code audit pay for common categories?"
 date: 2026-10-29
 description: "On two common GoEmotions categories, four audit strata moved interval width by about 1%, and the LLM coder's gain tracked its accuracy."
 tags: [research, llm-coding-inference, statistics]

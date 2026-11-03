@@ -1,5 +1,6 @@
 ---
 title: "Changepoint detector: the count bootstrap stops working when you add a trend"
+seo_title: "Changepoint detector: the count bootstrap fails with a trend"
 date: 2026-10-27
 description: "A measurement of --bootstrap on clustered counts combined with --trend, a weekly season and negative-binomial noise."
 tags: [changepoint-detector, statistics, measurement]

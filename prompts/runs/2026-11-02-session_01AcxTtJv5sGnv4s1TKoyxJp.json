@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01AcxTtJv5sGnv4s1TKoyxJp",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T19:11:30Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12637",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Build takes 15+ min and a single post over-length description aborts it after all venture pages; the 160-char limit is not checked by any quick pre-merge check, and my first fix left it at 162."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Planned visual pass was blocked by the build failure; shipped only the build fix, no screenshots or post.",
+      "did": "Fixed the over-long description, verified via loadPosts()",
+      "result": "1869 posts load; full build not re-run"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Screenshots of research index and Stories at 390px remain undone; next polish run should do them. A check that validates post description length in CI would prevent this class of break.",
+  "corrections": [],
+  "redteam": null
+}

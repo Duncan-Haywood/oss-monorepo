@@ -128,8 +128,7 @@ reports `unknown` rather than guessing when it does not.
 **What it still does not prove.** That the site *serves*. `has_pages` is
 sticky and a workflow listing is not an HTTP 200 — the reading is about
 configuration, exactly as the plan verdict above is about billing. A stranger
-opening the URL remains the only proof of serving, and `public_surface.py`'s
-runner-side probe remains the credential-free way to get one.
+opening the URL remains the only proof of serving.
 """
 
 import argparse
@@ -152,7 +151,27 @@ from ci_starvation import (  # noqa: E402  (path shim must precede the import)
     http_api_for,
     resolve_repo,
 )
-import public_surface  # noqa: E402  (same shim)
+
+# The canonical site build, whose `DEFAULT_BASE_URL` export is the origin every
+# generated page names in its canonical tag. Read, never restated.
+BUILD_MJS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "pages", "build.mjs")
+
+
+def pages_base_url(path=None):
+    """The origin `platform/pages/build.mjs` publishes to, or None if not found.
+
+    Moved here from the retired `public_surface.py` on 2026-10-30.
+    """
+    path = path or BUILD_MJS
+    if not os.path.isfile(path):
+        return None
+    with open(path, encoding="utf-8") as fh:
+        match = re.search(
+            r"^export\s+const\s+DEFAULT_BASE_URL\s*=\s*['\"]([^'\"]+)['\"]",
+            fh.read(),
+            re.MULTILINE,
+        )
+    return match.group(1) if match else None
 
 REPO_PATH = f"repos/{REPO_PLACEHOLDER}"
 BRANCH_PATH = f"repos/{REPO_PLACEHOLDER}/branches/{{branch}}"
@@ -737,7 +756,7 @@ def source_note(repo, base_url, source="unknown", source_reason=""):
     carries the answer and is one of the paths the agent egress proxy refuses
     (403), which is why this module reads only the plain repository object.
     And the credential-free check that could settle it from a runner --
-    `platform/ci/public_surface.py`'s Pages probe -- has never once executed:
+    the since-retired `public_surface.py` Pages probe -- never once executed:
     it landed in dbf614c74, one commit *after* run 33887885219, the last run to
     get a real runner. Every dispatch since has come back `runner_id: 0`.
 
@@ -917,7 +936,7 @@ def collect(api):
     head_sha = read_default_head(api, repo["default_branch"])
     # Read from build.mjs by the module that already owns that parse, rather
     # than restated here -- the copied-constant mistake CLAUDE.md records twice.
-    base_url = public_surface.pages_base_url()
+    base_url = pages_base_url()
     verdict, reason = plan_verdict(repo)
     # Only pay for the comparison when the cheap check would say `stale`: when
     # the snapshot was built from the tip there is nothing to compare, and the

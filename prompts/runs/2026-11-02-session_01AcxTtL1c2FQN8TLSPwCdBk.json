@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01AcxTtL1c2FQN8TLSPwCdBk",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "scheduled run: read prompt.md",
+  "input_sha256": "286f8d6d52bd7fa2ab98708ea1499a41fef0fa8a7f2e6bb8ed79854aae75a7d6",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-11-02T04:07:11Z",
+  "ended": "2026-11-02T04:16:37Z",
+  "wall_minutes": 9.54,
+  "tokens_in": 1631618,
+  "tokens_out": 8372,
+  "cost_usd": 0.5936,
+  "tool_calls": 27,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12499",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 says to fetch origin security-alerts; the branch does not exist, so the fetch fails and costs a call."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-02-a-fix-that-came-back.md",
+    "docs/history/ci-perf-2026-11-02-harness-basename-table.md"
+  ],
+  "goal": null,
+  "notes": "Metric: harness.py wall time 30.9s -> 2.5s (time python3 harness.py, cloud container, before via git stash); unittest module >60s -> 13.5s; outputs cmp-identical. Pool reading: ci_profile.py --runs 600 showed agent-permission-harness CI 103.7 of 690.5 job-minutes. CI effect not yet re-measured.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "83625a8b-d7f1-515c-9576-a9f6cac41a2a",
+    "transcripts": 1,
+    "first": "2026-11-02T04:07:11Z",
+    "last": "2026-11-02T04:16:44Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 25,
+        "input": 49,
+        "output": 8372,
+        "thinking": 607,
+        "cache_read": 1583285,
+        "cache_write_5m": 0,
+        "cache_write_1h": 48284,
+        "api_equivalent_usd": 0.5936,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 25,
+      "input": 49,
+      "output": 8372,
+      "thinking": 607,
+      "cache_read": 1583285,
+      "cache_write_5m": 0,
+      "cache_write_1h": 48284,
+      "api_equivalent_usd": 0.5936,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 27,
+    "tools": {
+      "Bash": 23,
+      "Read": 1,
+      "Monitor": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.54,
+      "active_minutes": 9.54,
+      "model_minutes": 1.41,
+      "tool_minutes": 8.13,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile, fix, verify, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 505.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

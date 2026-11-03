@@ -1,5 +1,6 @@
 ---
 title: "ai-bookkeeper: the IRS publications can be read again, and the 1099 figures hold"
+seo_title: "ai-bookkeeper: IRS publications readable again, 1099 figures hold"
 date: 2026-10-27
 description: "Publication 1099 (2026) confirms the 1099-K thresholds and the 24% backup withholding rate that ai-bookkeeper had coded from memory."
 tags: [ai-bookkeeper, tax, 1099]

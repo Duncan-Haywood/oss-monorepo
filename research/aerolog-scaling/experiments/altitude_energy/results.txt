@@ -1,0 +1,26 @@
+flights 132; payload values [0, 250, 500, 750] (as coded in parameters.csv); altitudes [25, 50, 75, 100] m
+mean whole-flight energy (kJ) by altitude and payload, speeds 4 to 10 m/s pooled:
+payload  0.0    250.0  500.0  750.0
+alt                                
+25.0      62.9   64.7   73.3   93.2
+50.0      67.4   84.5   84.2    NaN
+75.0      76.4   86.9   93.0    NaN
+100.0     87.0   92.5  108.1    NaN
+
+n=132, residual sd 4.9 kJ, R2 0.93
+  E0 at 25 m, no payload, 4 m/s: 56.0 kJ [36.5, 80.5]
+  E0 at 25 m, no payload, 6 m/s: 49.1 kJ [40.2, 59.8]
+  E0 at 25 m, no payload, 8 m/s: 46.0 kJ [42.8, 50.1]
+  E0 at 25 m, no payload, 10 m/s: 42.2 kJ [39.3, 45.9]
+  per +25 m altitude: 9.6 kJ [8.9, 10.3]
+  per +250 payload unit: 8.0 kJ [7.0, 8.9]
+  cruise slope: 51.7 J/m [-13.4, 102.7]
+
+one-way range, one pack, 80% usable, no payload (km, bootstrap 95% interval):
+  6 m/s: 25 m 2.67 [1.42, 41.67]; 50 m 2.48 [1.32, 38.60]; 75 m 2.30 [1.23, 35.49]; 100 m 2.11 [1.14, 32.26]
+  8 m/s: 25 m 2.73 [1.39, 44.32]; 50 m 2.54 [1.30, 41.20]; 75 m 2.36 [1.21, 38.04]; 100 m 2.17 [1.12, 34.95]
+  10 m/s: 25 m 2.80 [1.42, 45.54]; 50 m 2.61 [1.33, 42.40]; 75 m 2.43 [1.24, 39.29]; 100 m 2.24 [1.15, 36.16]
+
+(1) held (premise of two altitudes was wrong): 50 m vs 25 m adds 21% to E0 at 8 m/s
+(2) not tested: the pooled model has one cruise slope and no altitude interaction
+(3) FAILED: 25 m range / 50 m range = 1.07 at 8 m/s

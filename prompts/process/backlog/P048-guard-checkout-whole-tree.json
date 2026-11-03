@@ -23,7 +23,7 @@
   "opened": "2026-10-24",
   "source": "prompts/runs/2026-10-24-session_01Gcz8nVnXVeNTiqb8JKabK1.json",
   "pr": 11711,
-  "result": null,
+  "result": "Helped: ci_profile.py --runs 200 (2026-11-01 18:59-20:08 UTC) shows checkout 47.8 of 237.0 job-minutes (20%), down from 40% on 2026-10-24. Conflict markers still 58% checkout (22 jobs, 10.3 min), Prompts 66%: whole-tree guards remain; small absolute cost now.",
   "history": [
     {
       "date": "2026-10-30",

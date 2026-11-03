@@ -422,6 +422,31 @@
     "frontGlazing": 0.1743
    },
    "daylight": 0.81
+  },
+  "studFraming": {
+   "walls": 9,
+   "plateTies": 16,
+   "wallFeet": 152,
+   "pieces": 255,
+   "boards": 145,
+   "boardFeet": 1270,
+   "waste": 1.1,
+   "gapToBound": 0.44,
+   "engineeredHeaders": 0,
+   "studLength": "92-5/8\"",
+   "wallsLeftOut": 0,
+   "notes": [
+    "Living / dining / Bedroom / Bath / Kitchen / Laundry / mech. (w2): o4 Laundry / mech. bifold moved 4-1/2\" away from the wall end so its jacks clear the end stud.",
+    "Living / dining / Bedroom / Bath / Kitchen / Laundry / mech. (w2): the partition at 19' 5-1/2\" lands on the framing of o4 Laundry / mech. bifold; nail it to the king studs there (no tee backing).",
+    "Bedroom / Clo. (w7): o1 Bedroom closet narrowed from 68\" to 57-1/4\" so its jacks clear the end studs.",
+    "Bedroom / Clo. (w7): o1 Bedroom closet moved 3-1/4\" away from the wall end so its jacks clear the end stud.",
+    "Single top plate (advanced framing): trusses must land within 1 in of the stud centres, and 16 steel plate ties (not in the order) go at plate joints, corners and tees; each wall's drawing marks its joints. Whether a single top plate is allowed here is the code and engineer's call.",
+    "Front (w1): header spacers not in the takeoff: o7 Living / dining window (2-1/2\"), o5 Living / dining entry door (2-1/2\"), o8 Living / dining window (2-1/2\"), o12 Bedroom window (2-1/2\").",
+    "Right (w6): a gap too small for cripples between header and top plate over o14 Bath window (1/8\"): shim or fill it.",
+    "Back (w5): header spacers not in the takeoff: o11 Kitchen window (2-1/2\").",
+    "Living / dining / Bedroom / Bath / Kitchen / Laundry / mech. (w2): o4 Laundry / mech. bifold is close to the wall end: the end stud serves as its king.",
+    "Bedroom / Clo. (w7): o1 Bedroom closet is close to the wall end: the end stud serves as its king on both sides, 0 of 1 extra king on the left."
+   ]
   }
  },
  "geometry": {

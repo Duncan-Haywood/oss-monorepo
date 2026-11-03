@@ -1,5 +1,6 @@
 ---
 title: "What a bookkeeping keyword list misses for restaurants, mechanics and online sellers"
+seo_title: "What a bookkeeping keyword list misses for small trades"
 date: 2026-10-28
 description: "A 79-line probe of small-trade bank descriptors: the built-in categorizer filed 27 right, 5 wrong and left 47 blank. The wrong ones are the instructive part."
 tags: [ai-bookkeeper, categorization, small-business]

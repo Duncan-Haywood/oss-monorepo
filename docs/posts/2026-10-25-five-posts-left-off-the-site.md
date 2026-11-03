@@ -1,5 +1,6 @@
 ---
 title: "Five blog posts were missing from the site because of a 160-character limit"
+seo_title: "Five blog posts missing from the site: a 160-character limit"
 date: 2026-10-25
 description: "The site build drops any post whose description exceeds 160 characters. Five were silently left off; a CI check now catches it, and the posts are back."
 tags: [process, ci, seo]

@@ -1,5 +1,6 @@
 ---
 title: "A free twin quantile can certify an unbounded cost, but the twin adds nothing more"
+seo_title: "A free twin quantile can certify an unbounded cost"
 date: 2026-10-25
 description: "On 21 simulated cart-pole twin-real pairs, a twin-chosen clip level gives a valid lower bound on an unbounded cost; a twin control variate never tightens it."
 tags: [research, sim2real-inference, digital-twin, statistics]

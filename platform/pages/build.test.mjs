@@ -5,6 +5,7 @@
 // still in its canonical tag. None of those turn anything red on their own —
 // the site builds fine and the visitor simply cannot get there.
 
+import { loadRequests } from '../../portfolio/requests/requests.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
@@ -134,11 +135,13 @@ import { normalizeBid, normalizeOutcome, stripForInjection } from './jobs.mjs';
 const BASE = 'https://example.test/site/';
 const VENTURES = path.join(REPO_ROOT, 'ventures');
 
+// Memoise the promise, not the result: when the build throws (a post with a
+// 164-character description did this on 2026-11-01), every later test awaits
+// the same rejection at once instead of each re-running a ~10 s build.
 let built;
-async function site() {
+function site() {
   if (!built) {
-    const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-build-'));
-    built = await buildSite({ outDir, baseUrl: BASE });
+    built = fs.mkdtemp(path.join(os.tmpdir(), 'pages-build-')).then((outDir) => buildSite({ outDir, baseUrl: BASE }));
   }
   return built;
 }
@@ -305,7 +308,9 @@ test('no page still points at the placeholder origin', async () => {
 
   const stale = [];
   for (const file of textFiles) {
-    if ((await fs.readFile(file, 'utf8')).includes('example.invalid')) {
+    // The origin, not the bare host: a changelog line quoting a merge titled
+    // "... example.invalid placeholders" is prose, not a leaked URL.
+    if ((await fs.readFile(file, 'utf8')).includes('https://example.invalid')) {
       stale.push(path.relative(outDir, file));
     }
   }
@@ -697,13 +702,15 @@ test('both favicons draw the same mark', () => {
   // A drift here means the tab icon and the pinned icon are two different
   // logos, which is why the geometry lives in one constant both renderers read.
   const svg = renderFaviconSvg();
-  assert.match(svg, /stop-color="#12594a"/, "the header mark's gradient starts in the hub's green");
-  assert.match(svg, /stop-color="#3b5bdb"/, '...and ends in its indigo');
-  assert.equal((svg.match(/fill="#ffffff"/g) ?? []).length, MARK_GEOMETRY.bars.length, 'three white bars');
-  // The bars rise left to right, as `drawMark` draws them.
-  const tops = [...svg.matchAll(/<rect x="[\d.]+" y="([\d.]+)"/g)].map((m) => Number(m[1]));
-  assert.deepEqual(tops, MARK_GEOMETRY.bars.map((b) => Number((b.top * 16).toFixed(2))));
-  assert.ok(tops[0] > tops[1] && tops[1] > tops[2]);
+  assert.match(svg, /<circle [^>]*r="8" fill="#1d2b53"/, 'the navy disc fills the tile');
+  assert.match(svg, /stroke="#d4ac58"/, 'a brass ring');
+  // The compass star: the long cardinal points and the short diagonals, each
+  // the polygon `drawMark` rasterises.
+  const polys = [...svg.matchAll(/<polygon points="([^"]+)"/g)].map((m) => m[1]);
+  const asSvg = (pts) => pts.map(([u, v]) => `${Number((u * 16).toFixed(2))},${Number((v * 16).toFixed(2))}`).join(' ');
+  assert.deepEqual(polys, [asSvg(MARK_GEOMETRY.diagonal), asSvg(MARK_GEOMETRY.cardinal)]);
+  // North points straight up and reaches nearly to the edge.
+  assert.deepEqual(MARK_GEOMETRY.cardinal[0], [0.5, 0.03]);
 });
 
 test('the hub\'s top navigation links the blog and the podcast', async () => {
@@ -777,8 +784,8 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const { surfaces } = await site();
   const bullets = (await read('llms-full.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Ten trailing bullets (the first links the other llms file) under "Optional" describe the site's own surfaces
-  // rather than a tool — About, Ask, updates and the changelog, the comparison
+  // Twelve trailing bullets (the first links the other llms file) under "Optional" describe the site's own surfaces
+  // rather than a tool — About, open custom development, Ask, updates, the changelog and the work queue, the comparison
   // index, the guides index, catalog.json, the agent CLI, the sitemap and the
   // Atom feed, plus the agent-to-agent blog once `docs/agent-posts/` has a
   // post. Above the tools, one bullet per audience page; below them, one per
@@ -786,7 +793,7 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const audiences = audienceGroups(surfaces).length;
   const topics = researchHighlights().themes.length;
   const agentBlog = loadPosts(undefined, AGENT_POSTS_DIR).length ? 1 : 0;
-  assert.equal(bullets.length, surfaces.length + 10 + audiences + topics + agentBlog);
+  assert.equal(bullets.length, surfaces.length + 12 + audiences + topics + agentBlog);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -833,7 +840,7 @@ test('the hub links llms.txt so it is reachable, not only well-known', async () 
 test('llms.txt names every audience page and every research topic', async () => {
   const { surfaces } = await site();
   const llms = await read('llms-full.txt');
-  assert.match(llms.split('\n')[0], /^# Open Tools and Research$/);
+  assert.match(llms.split('\n')[0], /^# Maris Stella Labs$/);
   for (const { audience } of audienceGroups(surfaces)) {
     assert.ok(llms.includes(`](${BASE}c/${audiencePageId(audience)}/)`), `${audience.id} is missing from llms.txt`);
   }
@@ -2180,12 +2187,12 @@ test('a colour argument changes the field the card is drawn on', () => {
   // Two categories, two visibly different cards -- this is the whole point of
   // giving `renderSocialCard` a colour: a scraper that renders both should not
   // produce the same image.
-  const teal = renderSocialCard('#12594a');
+  const navy = renderSocialCard('#1f4e8c');
   const amber = renderSocialCard('#5c4412');
-  assert.notDeepEqual(teal, amber);
+  assert.notDeepEqual(navy, amber);
   // Both are still well-formed PNGs at the same fixed size -- only the field
   // colour was asked to change, not the geometry a scraper crops to.
-  for (const png of [teal, amber]) {
+  for (const png of [navy, amber]) {
     assert.deepEqual([...png.subarray(0, 8)], [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
     assert.equal(png.readUInt32BE(16), SOCIAL_CARD_WIDTH);
     assert.equal(png.readUInt32BE(20), SOCIAL_CARD_HEIGHT);
@@ -2195,7 +2202,7 @@ test('a colour argument changes the field the card is drawn on', () => {
 test('omitting the colour argument reproduces the original site-wide card', () => {
   // Every existing caller of `renderSocialCard()` -- the hub, the About page --
   // must keep getting exactly what they got before this parameter existed.
-  assert.deepEqual(renderSocialCard(), renderSocialCard('#12594a'));
+  assert.deepEqual(renderSocialCard(), renderSocialCard('#1f4e8c'));
 });
 
 test('injectDiscoveryTags points a page at its own card when one is given', () => {
@@ -3623,7 +3630,7 @@ test('every tool page declares the breadcrumb trail it shows', async () => {
     const labels = [...visible[1].matchAll(/<(?:a|span aria-current="page")[^>]*>([^<]*)</g)].map((m) =>
       m[1].replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>'));
     // A venture that wrote its own trail keeps it; only the build's must match.
-    if (crumb.itemListElement[0].name !== 'Open Tools and Research') continue;
+    if (crumb.itemListElement[0].name !== 'Maris Stella Labs') continue;
     const names = crumb.itemListElement.map((i) => i.name);
     if (names.length !== labels.length || names.slice(1).some((n, i) => n !== labels[i + 1])) {
       mismatched.push(`${rel}: ${JSON.stringify(names)} vs ${JSON.stringify(labels)}`);
@@ -4270,8 +4277,8 @@ test("a tool page's card alt text names the tool, not just the site", async () =
   assert.ok(alt, `${surface.slug} has no og:image:alt`);
   // The card really does carry these words now, so the alt describing them is
   // a description rather than a claim about a picture that says nothing.
-  assert.match(alt[1], /Open Tools and Research$/);
-  assert.notEqual(alt[1], 'Open Tools and Research — free, private, in your browser');
+  assert.match(alt[1], /Maris Stella Labs$/);
+  assert.notEqual(alt[1], 'Maris Stella Labs — free, private, in your browser');
 });
 
 test('the hub keeps the site-wide card, and About gets its own rather than a category one', async () => {
@@ -4748,7 +4755,7 @@ test('the About page documents the embed feature that #2561 shipped, not just th
   assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
-test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask, /compare/, /research/, Stories, updates, the changelog and /guides/, and nothing else', () => {
+test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask, custom development and its request pages, /compare/, /research/, Stories, updates, the changelog, the work queue and /guides/, and nothing else', () => {
   const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   // About, the comparison index and the guides index are hub-level pages
@@ -4761,11 +4768,15 @@ test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask
     `${BASE}c/trades/`,
     `${BASE}about/`,
     `${BASE}ask/`,
+    `${BASE}custom-development/`,
+    // Each request's own page, one per entry in portfolio/requests/requests.json.
+    ...loadRequests().map((r) => `${BASE}custom-development/${r.id}/`),
     `${BASE}${COMPARE_PATH}`,
     `${BASE}${RESEARCH_PATH}`,
     `${BASE}stories/`,
     `${BASE}updates/`,
     `${BASE}changelog/`,
+    `${BASE}queue/`,
     `${BASE}${GUIDES_PATH}`,
   ]);
 
@@ -5164,7 +5175,7 @@ test('guidePageMeta takes a guide’s label from the page’s own words, or drop
   assert.equal(withH1.description, 'Worked example, in pounds.');
   // The site-name suffix the build appends is not part of the answer.
   assert.equal(
-    guidePageMeta('<title>Deadhead miles | Open Tools and Research</title>').label,
+    guidePageMeta('<title>Deadhead miles | Maris Stella Labs</title>').label,
     'Deadhead miles',
   );
   // Entities are decoded, so an index entry reads as the author wrote it.

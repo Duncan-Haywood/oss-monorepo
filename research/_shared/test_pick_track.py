@@ -28,6 +28,27 @@ class DrawProgrammeTest(unittest.TestCase):
         self.assertEqual(pick_track.draw_programme(0.3, self.progs, lambda s: [])[2], [])
 
 
+class BlockedTest(unittest.TestCase):
+    progs = [("a-prog", True), ("b-prog", True), ("c-prog", True)]
+
+    def test_blocked_programme_is_never_drawn(self):
+        old = pick_track.is_blocked
+        pick_track.is_blocked = lambda s: s == "a-prog"
+        try:
+            for r in [i / 50 for i in range(50)]:
+                self.assertNotEqual(pick_track.draw_programme(r, self.progs, lambda s: [])[0], "a-prog")
+        finally:
+            pick_track.is_blocked = old
+
+    def test_all_blocked_still_draws(self):
+        old = pick_track.is_blocked
+        pick_track.is_blocked = lambda s: True
+        try:
+            self.assertIn(pick_track.draw_programme(0.3, self.progs, lambda s: [])[0], {"a-prog", "b-prog", "c-prog"})
+        finally:
+            pick_track.is_blocked = old
+
+
 class MilestonesTest(unittest.TestCase):
     def test_capture_lists_milestones(self):
         listed, free = pick_track.milestones("capture")
@@ -94,6 +115,33 @@ class CliTest(unittest.TestCase):
         self.assertEqual(r.returncode, 1)
         self.assertIn("usage:", r.stderr)
         self.assertNotIn("Traceback", r.stderr)
+
+
+class FocusTest(unittest.TestCase):
+    """Owner, 2026-10-31: industrial, energy and construction get about two thirds of draws."""
+
+    def test_focus_tracks_exist(self):
+        self.assertTrue(set(pick_track.FOCUS) <= set(pick_track.PREFIX))
+
+    def test_track_draws_lean_to_focus(self):
+        draws = [pick_track.pick(0.05 + 0.95 * i / 20000) for i in range(20000)]
+        share = sum(pick_track.PREFIX[t - 1] in pick_track.FOCUS for t in draws) / len(draws)
+        uniform = len(pick_track.FOCUS) / len(pick_track.PREFIX)
+        expected = pick_track.FOCUS_SHARE + (1 - pick_track.FOCUS_SHARE) * uniform
+        self.assertAlmostEqual(share, expected, delta=0.02)
+        self.assertEqual(len(set(draws)), len(pick_track.PREFIX))  # no track is closed
+
+    def test_zero_share_is_the_old_uniform_map(self):
+        self.assertEqual(pick_track.pick(0.11, focus_share=0), 2)
+        self.assertEqual(pick_track.pick(0.04), "free")
+
+    def test_programme_draws_lean_to_focus(self):
+        progs = [("heavy-hydraulics", True), ("lowcomm-training", True),
+                 ("qual-x", True), ("build-data", False)]
+        firsts = [pick_track.draw_programme(i / 4000, progs, lambda s: [])[0] for i in range(4000)]
+        share = sum(pick_track.is_focus(s) for s in firsts) / len(firsts)
+        self.assertAlmostEqual(share, 0.75, delta=0.03)
+        self.assertEqual(set(firsts), {p[0] for p in progs})
 
 
 if __name__ == "__main__":

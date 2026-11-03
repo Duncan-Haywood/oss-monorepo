@@ -1,5 +1,6 @@
 ---
 title: "Idle time decides whether a load-sensing excavator circuit beats open-centre"
+seo_title: "Load-sensing vs open-centre excavator circuit: idle time decides"
 date: 2026-10-29
 tags: [research, heavy-hydraulics, hydraulics]
 description: "In an open excavator-circuit simulation, load-sensing used 104% of open-centre energy with no idle time and 79 to 82% once idle matched a measured trace."

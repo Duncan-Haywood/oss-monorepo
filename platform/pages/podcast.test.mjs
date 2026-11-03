@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { promises as fs, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { promises as fs, mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { clock, loadEpisodes, renderPodcastFeed } from './podcast.mjs';
@@ -9,7 +9,7 @@ import { buildWriting, loadPosts, WRITING_PATH } from './writing.mjs';
 const BASE = 'https://example.test/site/';
 
 const post = (title, date) => `---\ntitle: "${title}"\ndate: ${date}\ndescription: "About ${title}."\n---\n\n# ${title}\n\nBody.\n`;
-const script = (title, date, postSlug, body = 'This is the Open Tools and Research podcast.\n\nSecond paragraph.') =>
+const script = (title, date, postSlug, body = 'This is the Maris Stella Labs podcast.\n\nSecond paragraph.') =>
   `---\ntitle: "${title}"\ndate: ${date}\ndescription: "Episode ${title}."\npost: ${postSlug}\n---\n\n${body}\n`;
 
 function repo({ posts = {}, scripts = {}, audio = {} }) {
@@ -117,4 +117,23 @@ test('writing.mjs loads on its own (no import cycle through podcast.mjs)', async
   const here = path.dirname(new URL(import.meta.url).pathname);
   const out = execFileSync(process.execPath, ['-e', `import(${JSON.stringify(path.join(here, 'writing.mjs'))}).then((m) => console.log(typeof m.buildWriting))`]);
   assert.equal(String(out).trim(), 'function');
+});
+
+test('episodes sort newest first, ties by slug, and voice falls back to empty', () => {
+  const root = repo({
+    scripts: {
+      '2026-10-20-b.md': script('B', '2026-10-20', 'b'),
+      '2026-10-20-a.md': script('A', '2026-10-20', 'a'),
+      '2026-10-25-c.md': script('C', '2026-10-25', 'c'),
+    },
+    audio: { '2026-10-20-a': 5, '2026-10-20-b': 5, '2026-10-25-c': 5 },
+  });
+  const m = path.join(root, 'docs/podcast/audio/manifest.json');
+  const man = JSON.parse(readFileSync(m, 'utf8'));
+  delete man['2026-10-20-b'].voice;
+  writeFileSync(m, JSON.stringify(man));
+  const eps = loadEpisodes(root);
+  assert.deepEqual(eps.map((e) => e.slug), ['c', 'a', 'b']);
+  assert.equal(eps[2].voice, '');
+  assert.equal(eps[1].voice, 'kokoro-82m-af_heart');
 });

@@ -1,5 +1,6 @@
 ---
 title: "How short a regime should a volatility-break detector be allowed to find?"
+seo_title: "How short a regime can a volatility-break detector find?"
 date: 2026-10-25
 description: "A seeded simulation of 100 series per cell shows a minimum segment of 10 beats 5 for variance breaks, and costs only a few points on true 8-point regimes."
 tags: [ventures, changepoint-detector, statistics]

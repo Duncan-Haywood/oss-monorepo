@@ -1,5 +1,6 @@
 ---
 title: "We ran 626 real receipt photos through tesseract. The totals dropped from 96% to 75%."
+seo_title: "626 real receipts through tesseract: totals fell from 96% to 75%"
 date: 2026-10-26
 description: "Scoring ai-bookkeeper's receipt reader on real tesseract output for 626 SROIE receipts drops total accuracy from 96% to 75%; three faults fixed along the way."
 tags: [ai-bookkeeper, receipts, evaluation]

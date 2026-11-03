@@ -204,6 +204,15 @@ test("--trim adds baseboard and casing boards, kept with --sheathing and in the 
   assert.equal(main(["plan.json"], read).out.includes("TRIM"), false);
 });
 
+test("--openings prints the door and window schedule and nothing without the flag", () => {
+  const read = () => JSON.stringify(samplePlan());
+  const a = main(["plan.json", "--openings"], read);
+  assert.equal(a.code, 0);
+  assert.match(a.out, /DOOR AND WINDOW SCHEDULE\n  \d+ door\(s\) and \d+ window\(s\) in \d+ mark\(s\)/);
+  assert.match(a.out, /\bD1 {2}x\d/);
+  assert.equal(main(["plan.json"], read).out.includes("DOOR AND WINDOW SCHEDULE"), false);
+});
+
 test("--siding adds courses, house wrap and corner boards, kept with --sheathing and in the budget", () => {
   const plan = JSON.stringify({ ...samplePlan(), prices: { sidingBoard: 14, houseWrapRoll: 150, cornerBoard: 20 } });
   const read = () => plan;
@@ -270,4 +279,42 @@ test("deck.stairs adds a stair whose total rise is the deck height", async () =>
   assert.equal(j.stairs[0].risers, 5); // 36 / 7.75 = 4.65, so 5 equal risers of 7.2 in
   assert.ok(Math.abs(j.stairs[0].riser - 7.2) < 1e-9);
   assert.match(main(["p.json", "--deck"], () => JSON.stringify(plan)).out, /STAIRS/);
+});
+
+test("headerCheck.stairFrom takes the stairwell header's point load from the stair's stringerCheck", () => {
+  const { out: ex } = run(["--example"]);
+  const base = JSON.parse(ex);
+  const sc = { liveLoad: 40, deadLoad: 10, Fb: 875, Fv: 135, E: 1300000 };
+  const mk = (from) => ({ ...base, floor: { width: 480, depth: 336, beam: 168, joist: "2x10", spacing: 16, openings: [{ x: 100, y: 30, width: 36, depth: 100 }], headerCheck: { liveLoad: 40, deadLoad: 10, Fb: 900, Fv: 180, E: 1300000, stairSide: "front", ...(from == null ? {} : { stairFrom: from }) } }, stairs: [{ totalRise: 105, tread: 10, stringer: "2x12", width: 36, stringerCheck: sc }] });
+  const withLink = run(["p.json", "--json"], mk(0));
+  const without = run(["p.json", "--json"], mk(null));
+  assert.equal(withLink.code, 0, withLink.out);
+  const f = (o) => JSON.parse(o.out).floor.headerChecks.find((r) => r.side === "front");
+  assert.ok(f(withLink).fb > f(without).fb, "the stair's load raises the front header's bending stress");
+  const bad = run(["p.json", "--json"], mk(3));
+  assert.equal(bad.code, 1);
+  assert.match(bad.out, /stairFrom 3/);
+});
+
+test("plan.dormer with shape shed lays a shed dormer", () => {
+  const plan = { ...samplePlan(), roof: { ...sampleRoof(), width: "20ft", length: "40ft", pitch: 8, rafter: "2x12" }, dormer: { shape: "shed", width: 144, eaveHeight: 48, pitch: 3 } };
+  const { code, out } = main(["p.json", "--dormer"], () => JSON.stringify(plan));
+  assert.equal(code, 0, out);
+  assert.match(out, /shed dormer: rafters/);
+  assert.match(out, /shed rafter/);
+});
+
+test("--proposal prints a customer letter from the priced budget and refuses while a line is unpriced", () => {
+  const plan = { ...samplePlan(), prices: { laborWallFoot: 4, laborOpening: 85, overhead: 0.1, profit: 0.1 }, proposal: { client: "A. Owner", exclusions: ["landscaping"] } };
+  const ok = run(["plan.json", "--proposal"], plan);
+  assert.equal(ok.code, 0);
+  assert.match(ok.out, /Prepared for A\. Owner/);
+  assert.match(ok.out, /Not included: landscaping/);
+  assert.doesNotMatch(ok.out, /profit|overhead/i);
+  const gap = run(["plan.json", "--sheathing", "--proposal"], plan); // wall sheets have no typed price
+  assert.equal(gap.code, 1);
+  assert.match(gap.out, /Proposal not issued/);
+  const part = run(["plan.json", "--sheathing", "--proposal"], { ...plan, proposal: { partial: true } });
+  assert.equal(part.code, 0);
+  assert.match(part.out, /WARNING: partial proposal/);
 });

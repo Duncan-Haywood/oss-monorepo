@@ -1,5 +1,6 @@
 ---
 title: "A 1:10 model of a cargo drone needs about a quarter more power than scaling laws predict"
+seo_title: "A 1:10 cargo drone model needs a quarter more power than scaling says"
 date: 2026-10-27
 description: "First result of the aerolog-scaling programme: Froude scaling keeps trim and dynamics, but Reynolds number falls as n^1.5 and drag rises."
 tags: [aerolog-scaling, research, uav, scaling]

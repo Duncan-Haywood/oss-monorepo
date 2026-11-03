@@ -73,6 +73,14 @@ class WaitFor(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("still failing", err)
 
+    def test_main_prints_only_last_15_lines(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("".join(f"l{i}\n" for i in range(20)) + "DONE\n")
+            code, out, _ = self._main(p, "--timeout", "1")
+        self.assertEqual(code, 0)
+        self.assertEqual(out.splitlines(), [f"l{i}" for i in range(6, 20)] + ["DONE"])
+
 
 if __name__ == "__main__":
     unittest.main()

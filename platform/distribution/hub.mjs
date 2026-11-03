@@ -7,6 +7,7 @@
  *   node platform/distribution/hub.mjs pack --out <dir>     # paste-ready drafts per platform (+ drafts.csv)
  *   node platform/distribution/hub.mjs publish              # live on enabled `api` platforms, dry run elsewhere
  *   node platform/distribution/hub.mjs score [--json] [--since YYYY-MM-DD] [--readings <file>]
+ *   node platform/distribution/hub.mjs kit [--slug <post-slug>] [--out <dir>]   # every native shape for recent posts
  *
  * Options: --days N (tool launch window, default 3), --post-days N (writing
  * window, default 7), --max N (posts per platform per run, default 3),
@@ -25,7 +26,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PLATFORMS, byId } from './hub/platforms.mjs';
-import { toolItem, postItem, variant, digest } from './hub/compose.mjs';
+import { toolItem, postItem, variant, digest, kit, kitMarkdown } from './hub/compose.mjs';
 import { ADAPTERS } from './hub/adapters.mjs';
 import { collect, scoreboard, formatScoreboard } from './hub/metrics.mjs';
 import { readMeta, recentLaunches } from './bluesky.mjs';
@@ -39,7 +40,7 @@ export const EMAIL = Object.freeze({ days: 7, weekday: 1, maxItems: 25 });
 
 export function parseArgs(argv) {
   const [cmd = 'plan', ...rest] = argv;
-  const opts = { cmd, ...DEFAULTS, only: null, out: null, json: false, since: '', readings: null, today: null };
+  const opts = { cmd, ...DEFAULTS, only: null, out: null, json: false, since: '', readings: null, today: null, slug: null };
   for (let i = 0; i < rest.length; i++) {
     const a = rest[i];
     const next = () => rest[++i];
@@ -52,6 +53,7 @@ export function parseArgs(argv) {
     else if (a === '--since') opts.since = next();
     else if (a === '--readings') opts.readings = next();
     else if (a === '--today') opts.today = next();
+    else if (a === '--slug') opts.slug = next();
     else throw new Error(`unknown option ${a}`);
   }
   if (opts.only) for (const id of opts.only) if (!byId(id)) throw new Error(`unknown platform "${id}"`);
@@ -107,6 +109,9 @@ export function toMarkdown({ platform: p, variants, note }) {
     if (v.title) lines.push(`**Title:** ${v.title}`, '');
     if (v.script) lines.push('**Video script:**', '', '```', v.script, '```', '');
     if (v.text) lines.push('```', v.text, '```', '');
+    if (v.thread) { lines.push(`**As a thread (${v.thread.length} posts):**`, ''); for (const t of v.thread) lines.push('```', t, '```', ''); }
+    if (v.comment) lines.push('**First comment:**', '', '```', v.comment, '```', '');
+    if (v.slides) { lines.push('**Carousel slides:**', ''); v.slides.forEach((x, i) => lines.push(`${i + 1}. *(${x.role})* ${x.text}`)); lines.push(''); }
     if (v.link) lines.push(`Link: ${v.link}`, '');
   }
   return lines.join('\n');
@@ -195,6 +200,20 @@ export async function main(argv = process.argv.slice(2), { env = process.env, fe
     return log(formatScoreboard(s));
   }
 
+  if (o.cmd === 'kit') {
+    const posts = loadPosts(REPO_ROOT);
+    const chosen = o.slug ? posts.filter((p) => p.slug === o.slug) : posts.filter((p) => { const age = Date.parse(today) - Date.parse(p.date); return age >= 0 && age <= o.postDays * 864e5; });
+    if (o.slug && !chosen.length) throw new Error(`no post with slug "${o.slug}" in docs/posts`);
+    const kits = chosen.map((p) => kit(postItem(p), PLATFORMS)).filter(Boolean);
+    if (o.json) return log(JSON.stringify(kits, null, 2));
+    if (o.out) {
+      await fs.mkdir(o.out, { recursive: true });
+      for (const k of kits) await fs.writeFile(path.join(o.out, `${k.item.split(':')[1]}.md`), kitMarkdown(k) + '\n');
+      return log(`wrote ${kits.length} kit(s) to ${o.out} (${chosen.length - kits.length} post(s) had no findings to extract)`);
+    }
+    return log(kits.map(kitMarkdown).join('\n\n---\n\n') || 'No posts with findings in the window.');
+  }
+
   const items = await gatherItems({ today, days: Math.max(o.days, EMAIL.days), postDays: o.postDays });
   const plan = planAll(items, { only: o.only, max: o.max, today, days: o.days });
 
@@ -218,7 +237,7 @@ export async function main(argv = process.argv.slice(2), { env = process.env, fe
     for (const r of results) log(`${r.platform}: ${r.dry ? `DRY RUN (${r.dry}), ${r.planned} planned` : `${r.posted} posted of ${r.planned}${r.skipped.length ? `; skipped ${r.skipped.join('; ')}` : ''}`}`);
     return results;
   }
-  throw new Error(`unknown command "${o.cmd}" (platforms | plan | pack | publish | score)`);
+  throw new Error(`unknown command "${o.cmd}" (platforms | plan | pack | publish | score | kit)`);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

@@ -42,3 +42,9 @@ def test_spme_baseline_matches_energy_cell_figure():
     from energy_cell import BASELINE
     r = run.evaluate_with(BASELINE, "SPMe", cycles=100)
     assert r["score"] == pytest.approx(109.1, abs=0.2)  # energy-cell README: 109 Wh/kg
+
+
+def test_failure_result_keeps_zero_score_and_names_the_cause():
+    r = run.failure("solver_error", "SolverError: x", 3)
+    assert r["score"] == 0.0 and r["wh_kg_bol"] == 0.0
+    assert r["failure"] == "solver_error" and r["cycles_done"] == 3

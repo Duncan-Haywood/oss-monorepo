@@ -1,5 +1,6 @@
 ---
 title: "A rare-category audit sized without any human label stays valid, at about twice the cost"
+seo_title: A label-free audit size stays valid at a rare category
 date: 2026-10-27
 description: "Sizing a rare-category audit from the coder's own positive share covered 91.8 to 94.4% at 1.9 to 2.8 times the oracle size, where stopping rules failed."
 tags: [llm-coding-inference, research, audit, prediction-powered-inference]

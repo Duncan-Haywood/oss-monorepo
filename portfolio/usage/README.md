@@ -32,15 +32,21 @@ rather than letting a `null` read as "still dark".
 Two rules decide everything else in this file:
 
 1. **Follow the law; go no stricter than it** (owner, 2026-10-20, in
-   [`prompts/goals.md`](../../prompts/goals.md)). Concretely:
+   [`prompts/goals.md`](../../prompts/goals.md); restated 2026-11-01: "use
+   gdpr and other privacy laws as the guideline, not an overly strict
+   self-imposed one"). The full table of what is allowed and what the law asks
+   for it is [`docs/legal/privacy-baseline.md`](../../docs/legal/privacy-baseline.md).
+   Concretely:
    - **Functional storage needs no permission.** A cookie or `localStorage`
      entry a feature needs (a setting, saved inputs, a referral code, a cart)
      is fine. The old blanket "no cookies" rule is gone.
    - **Anonymous aggregate counting is on by default.** Counting page loads or
      events, and which *kind* of site sent a visitor, stores nothing on the
-     device and nothing that identifies anyone, so it needs no consent. Keep
-     honouring `DNT`/`Sec-GPC` and the opt-out: it costs little and is
-     expected.
+     device and nothing that identifies anyone, so it needs no consent and no
+     opt-out. Honouring `DNT`/`Sec-GPC` for such counts is optional (neither
+     signal is a legal opt-out of anonymous first-party counting); GPC is
+     required only for anything that sells or shares data. Whatever the code
+     does, the copy says.
    - **Identifiers need the consent the law requires.** Anything that puts an
      ID on the device to recognise a returning browser (unique visitors,
      A/B buckets, cross-page funnels) needs prior consent from EU/UK visitors
@@ -78,16 +84,21 @@ and then within rule 1:
 
 - **Aggregate what you commit.** The server may count; what reaches
   `usage.yaml` or `site-visits.json` is a count, never a per-user record.
-- **Don't retain IPs or user agents** unless a feature needs them and the
-  privacy copy says so. A counter needs neither.
-- **No content.** Not the file they processed, not the text they typed, not
-  the URL they checked. The *fact* that the feature ran is the payload.
+- **Keep IPs and user agents only as long as a stated purpose needs them**
+  (security logs under legitimate interests, say), disclose it, and never
+  commit them. A counter needs neither, so it keeps neither.
+- **A count carries no content.** Not the file they processed, not the text
+  they typed, not the URL they checked: the *fact* that the feature ran is the
+  payload. (A server-side *feature* may process what a user submits when the
+  page says so; that is the product, not the counter.)
 - **Say what you do.** The privacy line describes what is counted and stored,
-  in plain words, and matches the code. Offer an off switch for counting and
-  honour `DNT`/`Sec-GPC`.
+  in plain words, and matches the code. An off switch and `DNT`/`Sec-GPC`
+  handling are optional for anonymous aggregates; a page that promises them
+  keeps the promise (`platform/privacy/` checks it).
 - **Prefer our own tooling** (owner, 2026-10-16, "Own the tooling") over a
-  vendor account. A vendor is not forbidden. If one is ever used, it goes
-  behind the consent the law requires, and the privacy copy names it.
+  vendor account. A vendor is not forbidden: a cookieless one needs no
+  consent, one that sets an identifier needs EU/UK consent, and the privacy
+  copy names either.
 - **Hosting the counter or a form on a service is fine** (owner, 2026-10-20:
   "obey the laws ... just have good and accurate tos and privacy policies").
   `platform/edge/` runs on Cloudflare's free plan. The copy a page shows is
@@ -295,9 +306,55 @@ for it to get back in the repo so the agents can review it somehow."
 | What | Path into the repo | Who reads it |
 |---|---|---|
 | Bug reports and ideas from people with a GitHub account | Issue forms in `.github/ISSUE_TEMPLATE/`, linked from every tool's footer through `feedback/?tool=<slug>` | Agents, with `search_issues` and `label:site-feedback` |
-| Bug reports and ideas from people without one | The form on the site's `feedback/` page, stored by `platform/edge/` in D1, then `.github/workflows/site-usage-pull.yml` runs `platform/edge/pull-feedback.mjs` daily and commits `portfolio/usage/site-feedback.json` | Agents, by reading that file |
-| Page loads per day and page | `pf-site.js` beacon, `platform/edge/` `/hit` into D1, then the same workflow runs `platform/counter/pull.mjs` and commits `portfolio/usage/site-visits.json` | The router, the review track, any session |
+| Bug reports and ideas from people without one | The form on the site's `feedback/` page, stored by `platform/edge/` in D1, then `.github/workflows/site-usage-pull.yml` runs `platform/edge/pull-feedback.mjs` daily and commits `site-feedback.json` to the `usage-data` branch (next section) | Agents, by reading that file |
+| Page loads per day and page | `pf-site.js` beacon, `platform/edge/` `/hit` into D1, then the same workflow runs `platform/counter/pull.mjs` and commits `site-visits.json` to the same branch | The router, the review track, any session |
 | GitHub repo views, clones, referring sites and popular paths | GitHub's traffic API (14-day window), pulled by the same workflow with `platform/counter/pull-github-traffic.mjs` into `portfolio/usage/github-traffic.json` | Same |
+| Every request Cloudflare's edge served for https://marisstella.app/: totals, countries, statuses, requests by kind of client (browser, named crawler, script, probe) and top pages per kind, plus Worker invocations against the free plan's limit | Cloudflare's GraphQL Analytics API, pulled by the same workflow with `platform/counter/pull-cloudflare.mjs` into `portfolio/usage/cloudflare-analytics.json`. Browser strings are reduced to a class and dropped; scanner paths and 404s are never written | Same. Read it beside `site-visits.json`: the beacon counts page loads that ran the page's script, Cloudflare counts requests, and on 2026-10-30 the two differed by three orders of magnitude |
+
+### Where the daily pull lands
+
+**On the `usage-data` branch, not main** (since 2026-11-01). The workflow used
+to `git push HEAD:main`; once main's ruleset (`.github/rulesets/main.json`,
+"Changes must be made through a pull request", no bypass actors) was applied,
+that push failed with `GH013` (run 41172448053, 2026-10-31 05:24 UTC), so
+`cloudflare-analytics.json` never reached main and the other files moved only
+when a session ran the pull scripts by hand. Opening a PR from the workflow was
+ruled out: a PR created with `GITHUB_TOKEN` starts no workflow, so the required
+checks (`conflict-markers`, `control-plane`) would never report and the PR
+would sit unmergeable. The branch follows `security-alert-queue.yml`'s
+`security-alerts` precedent: generated files only, at the branch root, never
+merged as a branch, kept by `platform/ci/branch_cleanup.py`.
+
+Each run copies the branch's files into `portfolio/usage/` before pulling (the
+scripts merge with what is on file, so history carries over; the first run
+starts from main's copies), then commits the results back to the branch.
+
+**Reading it, for sessions:**
+
+```bash
+node platform/counter/usage-data.mjs status                  # what the branch holds vs main
+node platform/counter/usage-data.mjs show site-visits.json   # one file, from the branch
+node platform/counter/usage-data.mjs sync                    # copy into portfolio/usage/, then commit in a PR
+```
+
+`sync` lets the branch copy win but merges visit days (larger count) and
+feedback records (by id) with main's, so a hand-run pull is never lost.
+Readers that open `portfolio/usage/*.json` on main (`platform/distribution/hub.mjs`,
+`prompts/ideas.py`, the validators) see the data once a session has synced it;
+a session that reads usage numbers should run `status` first, because main's
+copy can be days behind. Raw read without the helper:
+`git fetch -q --depth=1 origin usage-data && git show origin/usage-data:site-visits.json`.
+
+**The Cloudflare token lacks Zone Analytics: Read.** The 2026-10-31 run wrote
+`cloudflare-analytics.json` with 7 days pulled and two `last_pull.errors`, both
+the same permission: `httpRequests1dGroups` and `httpRequestsAdaptiveGroups`
+answered "does not have permission `com.cloudflare.api.account.zone.analytics.read`"
+for the marisstella.app zone. `workersInvocationsAdaptive` (account-level)
+answered, so Account Analytics was not the gap. `CLOUDFLARE_ANALYTICS_TOKEN`
+was unset and the fallback deploy token was used. Until the owner adds a
+`CLOUDFLARE_ANALYTICS_TOKEN` with Zone Analytics: Read (plus Zone: Read and
+Account Analytics: Read, as `pull-cloudflare.mjs` documents), the file holds
+Worker invocations but no zone totals, countries, statuses or client classes.
 
 The no-account route commits a file rather than opening issues on purpose
 (owner, 2026-10-20: "rather have it be a file write than issues write because
@@ -321,6 +378,32 @@ signal. **It needs a `TRAFFIC_TOKEN` Actions secret**, a fine-grained PAT with
 token cannot be granted that permission, and without the secret the step logs
 the remedy and skips. `TRAFFIC_REPOS` (repository variable, comma-separated
 `owner/repo`) adds repositories beyond this one.
+
+**Daily and weekly engagement reports** (added 2026-11-02, owner: "let's
+get daily and weekly reports on what sort of user engagement is happening").
+`node platform/counter/engagement-report.mjs` turns the files above into
+Markdown: `reports/daily/YYYY-MM-DD.md` (last 14 days), `reports/weekly/YYYY-Www.md`
+(ISO weeks, Monday to Sunday), a `reports/README.md` index with one row per
+week, and `reports/latest.json` for scripts. Each report gives page loads with
+the day or week before for comparison, pages ranked and split into tools,
+category and site pages, the tools opened on two or more days (the nearest
+anonymous signal to a returning user, since the beacon sets no identifier),
+pages loaded for the first time, country, device and referrer splits, crawler
+beacons kept apart, feedback messages (as code spans, so a stranger's text
+cannot render a link), and the GitHub and Cloudflare numbers when those files
+exist. It reads only committed files and calls nothing.
+
+**Where the reports land.** The daily pull's direct push to `main` has been
+refused since 2026-10-31 (run 41276810850), so nothing after 2026-10-30
+reached this directory by itself. PR 12253 moves the pull's output to the
+data branch `usage-data`, and a stacked PR adds the report step there, so
+each morning's `reports/` sits beside the JSON on that branch
+(`git fetch --depth=1 origin usage-data && git show origin/usage-data:reports/README.md`).
+Both edit `.github/`, so they wait for the owner. The `reports/` copy in this
+directory is a snapshot a session generated by hand on 2026-11-02 from counts
+pulled from the live counter. A second generator, `platform/usage-report/`
+(PR 12480, in draft), writes the same numbers as public blog posts with income
+added; this one is the fuller agent- and owner-facing reading.
 
 **Reading feedback, for agents.** Read `portfolio/usage/site-feedback.json`
 (each record has an `id`, `day`, `type`, `tool` slug and `message`) and query

@@ -91,6 +91,25 @@ frequency and about -10% damping. The shift is the same in every case, including
 (+15%): it comes from the tail, whose Reynolds number is 1.7e5 at n = 0.2, not from the wing. So wing-only corrections
 fix power but not the short period; the next step searches the tail (7d). NeuralFoil slope at that Re is unchecked.
 
+**Energy per package against a diesel truck (milestone 2a, `experiments/energy_per_package/`).** On the same 134 Matrice 100
+cruise flights, electrical energy per metre falls steeply with speed: 127 J/m at 4 m/s, 63 at 8, 48 at 10 (bootstrap CIs over
+flights in `results.txt`). Costing a round trip (loaded out, empty back) at 8 and 10 m/s and comparing it with Stolaroff et al.'s
+(2018) diesel truck (7.8 MJ per package, 151 packages per 100 miles), the drone uses less energy than the truck out to a
+**one-way distance of 63 km at 8 m/s and 83 km at 10 m/s at Stolaroff's stop density** (31 and 41 km at twice the density, 16 and 21 km at four times). This counts
+cruise only (no takeoff, landing or hover), so it flatters the drone, and the M100's endurance is far shorter than these distances:
+range, not energy per package, is what limits a battery multicopter, as Stolaroff et al. found (about 4 km). The
+pooled mean (86 J/m, 2.7 times Stolaroff's modelled 32 J/m for a different quadcopter) is not a result: 41 of 134 flights are at
+4 m/s. Prediction 1 (50 to 80 J/m pooled) failed for that reason.
+
+**Whole-flight energy and battery range (milestone 2b, `experiments/mission_energy/`).** Integrating battery power over
+the full 134 route flights, **77% of the energy is not cruise** (climb, hover, acceleration; 95% at 8 m/s) because the legs
+are short, and whole-flight energy is 154 J/m against 60 J/m cruise-only at 8 m/s. One TB48D pack (129.96 Wh, retailer
+figure) at 80% usable then gives only about **1 km one way (regression) to 2 to 3 km (cruise-only slope)**, so 2a's
+63 to 83 km break-even is not reachable by this airframe: battery energy is the binding limit. Extrapolates from
+cruise windows under 150 m; pack count in the study not checked.
+
+**Altitude and payload in the fixed energy (milestone 2c, `experiments/altitude_energy/`).** The flights span four altitudes (25 to 100 m) and four payload codes, not two as planned (the plan was wrong; see `LOG.md`). A pooled fit over 132 flights (R2 0.93) gives **9.6 kJ [8.9, 10.3] per extra 25 m of altitude** and 8.0 kJ [7.0, 8.9] per payload step, so 2b's E0 was an average over altitudes. The cruise slope stays unidentified (-13 to 103 J/m; cruise windows under 150 m), so no range is claimed beyond 2b's bracket. Preliminary; one airframe; altitude may be confounded with route and time of day.
+
 ## Limitations
 
 Flat-plate drag with a form factor, no airfoil polars, no CLmax, fixed powertrain efficiency (which
@@ -117,6 +136,10 @@ only as a topic; no affiliation is implied. Written with AI assistance (Claude C
 
 **Milestone 9h** (`experiments/doublet_fit`): a least-squares fit of a noisy simulated free response (4 states, 78 designs) gives mode errors small enough for the adjustable tail at 1% sensor noise and about one phugoid period (87% of draws within 10% on gust, 0.3% short-period frequency error), but not with longer records (short-period error 4.5% at 4 periods) or 10% noise (61 to 63%). A naive fit is a floor, not the best estimator.
 
-**Milestone 9i** (`experiments/output_error_fit`): an output-error fit of the same noisy free response (3% noise, 20 paired draws) cuts the short-period frequency error from 1.9, 6.1, 33% (least squares, 1, 2, 4 phugoid periods) to 0.21, 0.21, 0.33%, and puts 66 to 67 of 78 designs at 90% of draws within 10% on gust (least squares: 52, 51, 13). 9h's worsening with record length was an estimator artefact. Known initial state; 10% noise not rerun.
+**Milestone 9i** (`experiments/output_error_fit`): an output-error fit of the same noisy free response (3% noise, 20 paired draws) cuts the short-period frequency error from 1.9, 6.1, 33% (least squares, 1, 2, 4 phugoid periods) to 0.21, 0.21, 0.33%, and puts 66 to 67 of 78 designs at 90% of draws within 10% on gust (least squares: 52, 51, 13). 9h's worsening with record length was an estimator artefact. Known initial state. At 10% noise and one phugoid period (`results_noise10_1period.txt`; the 2 and 4 period runs did not finish in the session's time limit) the output-error fit has short-period error 0.70% against 19.1% for least squares, and 59 of 78 designs at 90% of draws within 10% on gust (least squares: 2). Preliminary; one record length, one scale (0.75), 20 draws.
+
+**Milestone 9p** (`experiments/misspecified_noise`): with AR(2) noise (phi 1.2, -0.4) and the AR(1) iterated-GLS estimator of 9o, the share of draws within 10% on gust is 86% (white), 74% (unweighted) and 80% (whitened): half the loss recovered, against 83% when the noise really is AR(1). Mode errors do not improve (short-period frequency 1.41% to 1.57%). Keep the 1.5x gust margin. One AR(2) shape, 10 draws, one seed.
+
+**Milestone 9q** (`experiments/pink_noise`): with 1/f (pink) noise and the same AR(1) iterated-GLS estimator, the share of draws within 10% on gust is 86% (white), 76% (unweighted) and 81% (whitened): again half of the 10-point gap, with 0 fit failures. Damping-ratio error improves a little (2.56% to 1.94%). Keep the 1.5x gust margin when the noise family is unknown. One spectral exponent, not measured IMU noise, 10 draws, one seed.
 
 Open the NASA table and each reference; gust response and a thrust model for H1; XFOIL polars against Selig data (H2, H3; milestone 8c did NACA 0009 against UIUC Vol. 1, see `experiments/uiuc_tail_slope`, and found NeuralFoil's section slope 15 to 28% off at Re 4e4 to 1e5, and milestone 8d did the cambered NACA 2414/2415 at Re 1e5 to 2e5, `experiments/uiuc_naca241x`, finding NeuralFoil's slope 1.22 to 1.67 times measured; symmetric 0012 and 0015 remain, and a tail re-search with the slope cut by 20 to 25%); full-size propeller Reynolds number from a sourced propeller (to close H4); a motor-efficiency model.

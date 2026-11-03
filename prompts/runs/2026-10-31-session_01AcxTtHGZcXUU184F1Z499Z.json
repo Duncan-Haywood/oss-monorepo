@@ -1,0 +1,49 @@
+{
+ "date": "2026-10-31",
+ "session": "https://claude.ai/code/session_01AcxTtHGZcXUU184F1Z499Z",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "scheduled run: read prompt.md",
+ "input_sha256": "286f8d6d52bd7fa2ab98708ea1499a41fef0fa8a7f2e6bb8ed79854aae75a7d6",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-31T10:21:13Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12069",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [
+  "Drafted a post line with median tail waits (18/26/43 days) that no output backed; caught and removed before merge."
+ ],
+ "doc_friction": [
+  {
+   "file": "prompt.md",
+   "issue": "Step 0 security-alerts branch did not exist on origin; fine but unremarked."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-10-31-permit-wait-times-three-cities-baseline.md",
+  "research/build-data/LOG.md"
+ ],
+ "goal": null,
+ "notes": "Baselines run for 5 city/target pairs; ~20 min pull via background process.",
+ "corrections": [],
+ "redteam": null
+}

@@ -1,5 +1,6 @@
 ---
 title: "A bookkeeping page for farmers-market and cottage-food vendors, and the three stores it had to learn"
+seo_title: "A bookkeeping page for farmers-market and cottage-food vendors"
 date: 2026-10-29
 description: "ai-bookkeeper gets a worked October for a market baker. Writing it exposed gaps: GFS, Sam's Club ingredient buys and packaging went unfiled."
 tags: [ai-bookkeeper, small-business, bookkeeping]

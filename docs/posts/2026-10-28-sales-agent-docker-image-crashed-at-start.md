@@ -1,5 +1,6 @@
 ---
 title: "The Sales Agent's Docker image crashed on start; now it deploys in one click"
+seo_title: "Sales Agent Docker image fixed: one-click deploy"
 date: 2026-10-28
 description: "Adding a Render and Fly.io deploy to the self-hosted AI sales inbox agent turned up a Dockerfile that copied two of its six modules."
 tags: [sales-agent, self-hosting, docker, ai-sdr]

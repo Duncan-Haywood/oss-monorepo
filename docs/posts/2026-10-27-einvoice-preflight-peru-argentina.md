@@ -1,5 +1,6 @@
 ---
 title: "E-invoice Preflight adds Peru and Argentina, with RUC and CUIT check-digit tests"
+seo_title: "E-invoice Preflight adds Peru and Argentina, with RUC and CUIT checks"
 date: 2026-10-27
 description: "Two more Latin American mandate pages, each with a local tax-number check, and what the sources do and do not settle."
 tags: [einvoice-preflight, e-invoicing, peru, argentina]

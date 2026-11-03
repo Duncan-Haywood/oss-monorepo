@@ -1,5 +1,6 @@
 ---
 title: "New York's sales tax year ends in February, and the bookkeeper now knows"
+seo_title: "New York's sales tax year ends in February; the bookkeeper knows"
 date: 2026-10-27
 description: "A small fix from reading a state's own bulletin instead of search excerpts: New York annual sales tax returns cover March to February and are due March 20."
 tags: [bookkeeping, sales-tax, ai-bookkeeper]

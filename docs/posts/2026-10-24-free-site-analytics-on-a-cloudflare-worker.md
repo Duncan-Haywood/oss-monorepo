@@ -1,5 +1,6 @@
 ---
 title: "Visitor counts and a feedback form for a GitHub Pages site, on Cloudflare's free plan"
+seo_title: "Visitor counts and a feedback form for a Pages site, on Cloudflare"
 date: 2026-10-24
 description: "One free Cloudflare Worker takes our GitHub Pages page-view pings and feedback form; a daily Action commits both to the repo. How it went live."
 tags: [analytics, cloudflare, github-pages, privacy, process]

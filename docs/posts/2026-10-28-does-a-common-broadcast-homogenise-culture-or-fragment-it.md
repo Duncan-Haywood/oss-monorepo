@@ -1,5 +1,6 @@
 ---
 title: "Does a common broadcast homogenise a society's culture, or fragment it?"
+seo_title: "Does a common broadcast homogenise culture or fragment it?"
 date: 2026-10-28
 description: "In Axelrod's culture model, a voice everyone hears splits a one-culture society into dozens of regions, because people far from it never listen."
 tags: [simulation, culture-dynamics, research, open-source]

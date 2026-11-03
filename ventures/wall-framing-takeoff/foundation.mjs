@@ -14,7 +14,7 @@ import { formatLength } from "./engine.mjs";
 const BAR_LB_FT = { 3: 0.376, 4: 0.668, 5: 1.043, 6: 1.502 };
 const CU_IN_PER_YD = 46656;
 
-/** @typedef {{ id?: string, type?: "stem"|"monolithic", width: number, depth: number, footing?: { width?: number, depth?: number, bars?: number, bar?: number, formed?: boolean, steps?: { rise: number, length: number, name?: string }[] }, stem?: { height?: number, thickness?: number, bar?: number, spacing?: number }, slab?: { thickness?: number, bar?: number, spacing?: number, baseThickness?: number }, interior?: { length: number, width?: number, depth?: number }[], anchorBolts?: { spacing?: number, endDistance?: number, plateStock?: number, diameter?: number, embed?: number }, cornerBars?: boolean, piers?: { name?: string, count: number, pad: number, padDepth: number, column?: number, columnHeight?: number, bars?: number, bar?: number }[], cover?: number, barLength?: number, waste?: number, truck?: number, price?: number }} Foundation */
+/** @typedef {{ id?: string, type?: "stem"|"monolithic", width: number, depth: number, footing?: { width?: number, depth?: number, bars?: number, bar?: number, formed?: boolean, steps?: { rise: number, length: number, name?: string }[] }, stem?: { height?: number, thickness?: number, bar?: number, spacing?: number, walkout?: { length: number, extra: number, maxStepRise?: number } }, slab?: { thickness?: number, bar?: number, spacing?: number, baseThickness?: number }, interior?: { length: number, width?: number, depth?: number }[], anchorBolts?: { spacing?: number, endDistance?: number, plateStock?: number, diameter?: number, embed?: number }, cornerBars?: boolean, piers?: { name?: string, count: number, pad: number, padDepth: number, column?: number, columnHeight?: number, bars?: number, bar?: number, load?: number }[], soilBearing?: number, cover?: number, barLength?: number, waste?: number, truck?: number, price?: number }} Foundation */
 
 export function sampleFoundation() {
   return { id: "Foundation", type: "stem", width: 480, depth: 336, footing: { width: 20, depth: 10, bars: 2, bar: 4 }, stem: { height: 32, thickness: 8, bar: 4, spacing: 32 }, slab: { thickness: 4, bar: 3, spacing: 18, baseThickness: 4 }, interior: [{ length: 336, width: 24, depth: 12 }] };
@@ -23,16 +23,39 @@ export function sampleFoundation() {
 /** @param {Foundation} f */
 export function validateFoundation(f) {
   const e = [];
+  // Shape first: a hand-written or agent-built JSON body can hold null, a string or an object where a list belongs.
+  const isObj = (/** @type {unknown} */ v) => v != null && typeof v === "object" && !Array.isArray(v);
+  if (!isObj(f)) return ["A foundation is an object with width and depth."];
+  for (const k of /** @type {const} */ (["footing", "stem", "slab", "anchorBolts"])) if (f[k] != null && !isObj(f[k])) e.push(`${k} must be an object.`);
+  if (f.footing?.steps != null && !Array.isArray(f.footing.steps)) e.push("footing.steps must be a list.");
+  if (f.stem?.walkout != null && !isObj(f.stem.walkout)) e.push("stem.walkout must be an object.");
+  for (const k of /** @type {const} */ (["interior", "piers"])) if (f[k] != null && !Array.isArray(f[k])) e.push(`${k} must be a list.`);
+  for (const [k, list] of /** @type {const} */ ([["interior", f.interior], ["piers", f.piers], ["footing.steps", f.footing?.steps]])) if (Array.isArray(list) && list.some((x) => !isObj(x))) e.push(`Every entry in ${k} must be an object.`);
+  if (e.length) return e;
+  // Real numbers only: a text "0.1" passed the range checks by coercion and `1 + waste` then made the order 10x too big.
+  const num = (/** @type {string} */ name, /** @type {any} */ o, /** @type {string[]} */ keys) => { for (const k of keys) if (o?.[k] != null && !(typeof o[k] === "number" && Number.isFinite(o[k]))) e.push(`${name}${k} must be a number.`); };
+  num("", f, ["width", "depth", "soilBearing", "waste", "truck", "price"]);
+  num("footing.", f.footing, ["width", "depth", "bars", "bar"]);
+  num("stem.", f.stem, ["height", "thickness", "bar", "spacing"]);
+  num("slab.", f.slab, ["thickness", "bar", "spacing", "baseThickness"]);
+  num("stem.walkout.", f.stem?.walkout, ["length", "extra", "maxStepRise"]);
+  num("anchorBolts.", f.anchorBolts, ["spacing", "endDistance", "plateStock"]);
+  for (const [i, x] of (f.interior || []).entries()) num(`interior ${i + 1} `, x, ["length", "width", "depth"]);
+  for (const [i, x] of (f.piers || []).entries()) num(`piers ${i + 1} `, x, ["count", "pad", "padDepth", "column", "columnHeight", "load", "bar"]);
+  for (const [i, x] of (f.footing?.steps || []).entries()) num(`footing.steps ${i + 1} `, x, ["rise", "length"]);
+  if (e.length) return e;
   const ft = { width: 16, depth: 8, bars: 2, bar: 4, ...f.footing };
   if (!(f.width >= 120 && f.width <= 2400)) e.push("Foundation width must be between 10 ft and 200 ft.");
   if (!(f.depth >= 120 && f.depth <= 2400)) e.push("Foundation depth must be between 10 ft and 200 ft.");
   if ((f.type ?? "stem") !== "stem" && f.type !== "monolithic") e.push(`Unknown foundation type ${f.type}; use "stem" or "monolithic".`);
+  if (f.soilBearing != null && !(f.soilBearing >= 500 && f.soilBearing <= 12000)) e.push("Soil bearing is the allowable pressure in psf, from 500 to 12,000.");
   if (!(ft.width >= 8 && ft.width <= 60)) e.push("Footing width must be between 8 and 60 in.");
   if (!(ft.depth >= 6 && ft.depth <= 48)) e.push("Footing depth must be between 6 and 48 in.");
   for (const [i, p] of (f.piers || []).entries()) {
     if (!Number.isInteger(p.count) || p.count < 1 || p.count > 200) e.push(`Pier group ${i + 1}: count must be a whole number from 1 to 200.`);
     if (!(p.pad >= 8 && p.pad <= 96) || !(p.padDepth >= 6 && p.padDepth <= 48)) e.push(`Pier group ${i + 1}: pad must be 8 to 96 in square and 6 to 48 in deep.`);
     if (p.column && (p.column < 6 || p.column > p.pad || !(p.columnHeight > 0))) e.push(`Pier group ${i + 1}: column must be at least 6 in, no wider than the pad, with a height.`);
+    if (p.load != null && !(p.load > 0 && p.load <= 200000)) e.push(`Pier group ${i + 1}: load is the service load per pier in lb, above 0 and at most 200,000.`);
     if (p.bar != null && !(p.bar in BAR_LB_FT)) e.push(`Pier group ${i + 1}: bar size #${p.bar} is not one of #3 to #6.`);
   }
   for (const [i, t] of (ft.steps || []).entries()) {
@@ -46,6 +69,9 @@ export function validateFoundation(f) {
     if (!(st.height >= 8 && st.height <= 120)) e.push("Stem wall height must be between 8 and 120 in.");
     if (!(st.thickness >= 6 && st.thickness <= ft.width - 2)) e.push("Stem thickness must be at least 6 in and narrower than the footing.");
     if (!(st.spacing >= 8 && st.spacing <= 96)) e.push("Stem bar spacing must be between 8 and 96 in.");
+    const w = f.stem?.walkout;
+    if (w?.maxStepRise != null && !(w.maxStepRise >= 4 && w.maxStepRise <= 24)) e.push("Walkout maxStepRise (the tallest single footing step) must be between 4 and 24 in.");
+    if (w && (!(w.length >= 24 && w.length <= Math.max(f.width, f.depth)) || !(w.extra > 0 && w.extra <= 96))) e.push("Walkout stem: the tapered run must be 24 in to the longest side, and the extra height above 0 and at most 96 in.");
   }
   const sl = { thickness: 4, spacing: 18, ...f.slab };
   if (!(sl.thickness >= 3 && sl.thickness <= 12)) e.push("Slab thickness must be between 3 and 12 in.");
@@ -94,6 +120,15 @@ export function layoutFoundation(f) {
   // solid block ft.width wide, `rise` high and one footing depth long where the two levels overlap.
   const steps = (ft.steps || []).map((t, i) => ({ name: t.name ?? `step ${i + 1}`, rise: t.rise, length: t.length }));
   const stepRun = steps.reduce((a, t) => a + t.length, 0), stepStemVol = steps.reduce((a, t) => a + t.length * t.rise, 0);
+  // Walkout: along one side the grade falls away, so the stem grows linearly from the normal height to
+  // `extra` taller at the far end (a wedge: half of length x extra of wall face).
+  const wo = type === "stem" ? f.stem?.walkout : undefined;
+  const woFace = wo ? wo.length * wo.extra / 2 : 0;
+  // Optional: the footing under the taper steps down with the grade in equal steps no taller than `maxStepRise`,
+  // each over an equal share of the run. Each riser is a solid block (footing width x rise x footing depth); the
+  // stem wedge above already carries the taller wall, and the footing section itself is unchanged.
+  const woN = wo?.maxStepRise ? Math.ceil(wo.extra / wo.maxStepRise) : 0;
+  const woSteps = Array.from({ length: woN }, (_, i) => ({ name: `walkout footing step ${i + 1}`, rise: wo.extra / woN, length: wo.length / woN }));
   const footVol = centreline * ft.width * ft.depth;
   const interiorVol = interior.reduce((s, i) => s + i.length * i.width * i.depth, 0);
 
@@ -104,12 +139,13 @@ export function layoutFoundation(f) {
     slabW = f.width - ft.width - st.thickness; slabD = f.depth - ft.width - st.thickness;
     slabArea = slabW * slabD / 144;
     pours.push({ name: "footing", cuYd: footVol / CU_IN_PER_YD });
-    pours.push({ name: "stem wall", cuYd: ((2 * (cw + cd)) * st.height + stepStemVol) * st.thickness / CU_IN_PER_YD });
+    pours.push({ name: "stem wall", cuYd: ((2 * (cw + cd)) * st.height + stepStemVol + woFace) * st.thickness / CU_IN_PER_YD });
+    if (woSteps.length) pours.push({ name: "walkout footing step risers", cuYd: woSteps.reduce((a, t) => a + ft.width * t.rise * ft.depth, 0) / CU_IN_PER_YD });
     if (steps.length) pours.push({ name: "footing step risers", cuYd: steps.reduce((a, t) => a + ft.width * t.rise * ft.depth, 0) / CU_IN_PER_YD });
     pours.push({ name: "slab", cuYd: slabW * slabD * sl.thickness / CU_IN_PER_YD });
     if (interiorVol) pours.push({ name: "interior footings", cuYd: interiorVol / CU_IN_PER_YD });
     // Stem forms on both faces; footings are poured in the trench unless `footing.formed`.
-    const stemFaces = 2 * (centreline * st.height + stepStemVol) / 144;
+    const stemFaces = 2 * (centreline * st.height + stepStemVol + woFace) / 144;
     const footForms = ft.formed ? centreline * 2 * ft.depth / 144 : 0;
     formArea = stemFaces + footForms;
     formEdge = 2 * centreline / 12 + (ft.formed ? 2 * centreline / 12 : 0);
@@ -126,11 +162,16 @@ export function layoutFoundation(f) {
     formEdge = outside / 12;
   }
   // Piers: square pads with an optional square column on top (deck posts, interior columns).
-  const piers = (f.piers || []).map((p, i) => ({ name: p.name ?? `pier ${i + 1}`, count: p.count, pad: p.pad, padDepth: p.padDepth, column: p.column ?? 0, columnHeight: p.columnHeight ?? 0, bars: p.bars ?? 4, bar: p.bar ?? 4 }));
+  const piers = (f.piers || []).map((p, i) => ({ name: p.name ?? `pier ${i + 1}`, count: p.count, pad: p.pad, padDepth: p.padDepth, column: p.column ?? 0, columnHeight: p.columnHeight ?? 0, load: p.load ?? null, bars: p.bars ?? 4, bar: p.bar ?? 4 }));
   for (const p of piers) {
     const vol = p.count * (p.pad * p.pad * p.padDepth + p.column * p.column * p.columnHeight);
     pours.push({ name: `${p.name} (${p.count} pads${p.column ? " and columns" : ""})`, cuYd: vol / CU_IN_PER_YD });
   }
+  // Bearing: service load over pad area against the allowable soil pressure (both typed). Needs `load` and `soilBearing`.
+  const pierChecks = f.soilBearing ? piers.filter((p) => p.load).map((p) => {
+    const area = p.pad * p.pad / 144, pressure = p.load / area, needPad = Math.ceil(Math.sqrt(p.load / f.soilBearing * 144));
+    return { name: p.name, load: p.load, pad: p.pad, pressure: +pressure.toFixed(0), allowable: f.soilBearing, ok: pressure <= f.soilBearing, minPad: needPad };
+  }) : [];
   const concreteNet = pours.reduce((s, p) => s + p.cuYd, 0);
   const concrete = concreteNet * (1 + waste);
   const trucks = Math.max(1, Math.ceil(concrete / truck - 1e-9));
@@ -168,6 +209,11 @@ export function layoutFoundation(f) {
     for (const t of steps) {
       const n = Math.ceil(t.length / st.spacing), len = ft.depth - cover + st.height + t.rise + 6 + lapOf(st.bar);
       rebar.push({ what: `${t.name} stem verticals (${t.rise} in taller)`, bar: st.bar, qty: n, length: len / 12, feet: n * len / 12 });
+    }
+    if (wo) {
+      // Verticals over the taper average half the extra height longer.
+      const n = Math.ceil(wo.length / st.spacing), len = ft.depth - cover + st.height + wo.extra / 2 + 6 + lapOf(st.bar);
+      rebar.push({ what: `walkout stem verticals (average ${wo.extra / 2} in taller)`, bar: st.bar, qty: n, length: len / 12, feet: n * len / 12 });
     }
   }
   const nx = Math.floor((slabW - 2 * cover) / sl.spacing) + 1, ny = Math.floor((slabD - 2 * cover) / sl.spacing) + 1;
@@ -213,12 +259,16 @@ export function layoutFoundation(f) {
   if (lastLoad < 3 && trucks > 1) notes.push(`The last truck carries only ${lastLoad.toFixed(1)} cu yd; most plants charge a short-load fee under about 3 yd, so consider rounding the pour up or splitting it.`);
   if (anchors) notes.push(`Anchor bolts: ${anchors.bolts} of ${anchors.diameter} in x ${anchors.embed} in embed for ${anchors.pieces} sill plate pieces (at most ${anchors.spacing} in apart, one within ${anchors.endDistance} in of each plate end, two per piece); spacing and edge distances are your inputs, check them against your code edition. Interior bearing lines are not counted.`);
   for (const t of steps) if (t.length < 2 * t.rise) notes.push(`${t.name}: a ${t.rise} in step over ${t.length} in is steeper than 1 vertical to 2 horizontal; many codes limit a footing step to that slope or ask for a stepped design by an engineer.`);
+  for (const t of woSteps) if (t.length < 2 * t.rise) { notes.push(`Walkout footing steps: ${woSteps.length} steps of ${+t.rise.toFixed(1)} in over ${+t.length.toFixed(1)} in each are steeper than 1 vertical to 2 horizontal; shorten maxStepRise or lengthen the taper, or get a stepped design from an engineer.`); break; }
+  if (woSteps.length) notes.push(`Walkout footing: stepped down in ${woSteps.length} equal step${woSteps.length === 1 ? "" : "s"} of ${+woSteps[0].rise.toFixed(1)} in (maxStepRise ${wo.maxStepRise}); riser concrete is counted, the extra digging and the bars lapped across risers are not.`);
   if (steps.length) notes.push(`Stepped footing: ${steps.length} step${steps.length === 1 ? "" : "s"} lowering ${stepRun} in of footing; the footing section is unchanged, the stem is taller over that run, and the digging for the lower level is not counted.`);
+  if (wo) notes.push(`Walkout: the stem grows ${wo.extra} in taller over ${wo.length} in (wedge volume and form area, verticals at their average length); backfill limits, a retaining-wall design and the lateral load on a tall stem are the engineer's.${wo.extra > 48 ? " A stem this much taller than the footing usually needs a designed retaining wall." : ""}`);
   if (type === "stem" && !ft.formed) notes.push("Footings are assumed poured against the trench, so only the stem wall is formed.");
   if (piers.length) notes.push("Piers: pad mat bars every 6 in each way and column verticals are typed-geometry estimates, not a pier design; bearing area and depth are your engineer's call.");
+  for (const c of pierChecks) if (!c.ok) notes.push(`${c.name}: ${c.load} lb on a ${c.pad} in pad is ${c.pressure} psf, over the ${c.allowable} psf you typed for the soil; the pad would need to be at least ${c.minPad} in square (service load only, no footing weight or code factors).`);
   return {
-    ok: true, errors: [], id: f.id ?? "Foundation", type, width: f.width, depth: f.depth, footing: ft, stem: type === "stem" ? st : null, slab: sl,
-    interior, steps, pours: pours.map((p) => ({ ...p, cuYd: +p.cuYd.toFixed(3) })), concrete: { net: +concreteNet.toFixed(3), waste, order: +concrete.toFixed(2), trucks, truck, lastLoad: +lastLoad.toFixed(2), cost: f.price != null ? +(concrete * f.price).toFixed(2) : null },
+    ok: true, errors: [], pierChecks, id: f.id ?? "Foundation", type, width: f.width, depth: f.depth, footing: ft, stem: type === "stem" ? st : null, slab: sl,
+    interior, steps, walkoutSteps: woSteps.map((t) => ({ ...t, rise: +t.rise.toFixed(2), length: +t.length.toFixed(2) })), pours: pours.map((p) => ({ ...p, cuYd: +p.cuYd.toFixed(3) })), concrete: { net: +concreteNet.toFixed(3), waste, order: +concrete.toFixed(2), trucks, truck, lastLoad: +lastLoad.toFixed(2), cost: f.price != null ? +(concrete * f.price).toFixed(2) : null },
     rebar: rebar.map((r) => ({ ...r, feet: +r.feet.toFixed(1), length: +r.length.toFixed(2) })), rebarLb: +rebarLb.toFixed(0),
     forms: { contactSqFt: +formArea.toFixed(1), plywoodSheets: Math.ceil(formArea * 1.1 / 32), edgeLinearFt: +formEdge.toFixed(1), stakes },
     base: { cuYd: +base.toFixed(2), thickness: sl.baseThickness }, anchors, vaporBarrierSqFt: +barrier.toFixed(0), slabSqFt: +slabArea.toFixed(1), centreline: +centreline.toFixed(1), notes,

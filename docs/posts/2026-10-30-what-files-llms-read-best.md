@@ -1,5 +1,6 @@
 ---
 title: "What files an LLM reads best, and how that differs from what people read"
+seo_title: "What files an LLM reads best, versus what people read"
 date: 2026-10-30
 description: "We tokenised the same content as Markdown, HTML, JSON, YAML, TOML, XML and CSV. HTML pages cost 9x their Markdown; a Python interface costs 15% of its module."
 tags: [llms-txt, ai-agents, documentation, software-engineering]

@@ -1,5 +1,6 @@
 ---
 title: "Ambrose and the bees: a new Saints by Candlelight episode, and what is history in it"
+seo_title: "Ambrose and the bees: a Saints by Candlelight episode"
 date: 2026-10-28
 description: "Episode 46 tells the life of Saint Ambrose of Milan for bedtime, and sorts the documented from the legend in it."
 tags: [saints-by-candlelight, fiction, history]

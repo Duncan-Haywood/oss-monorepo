@@ -22,3 +22,15 @@ def test_response_to_punishment_raises_contributions():
     a, _ = play(240, 4, 10, np.random.default_rng(2))
     b, _ = play(240, 4, 10, np.random.default_rng(2), punish=True, react=1.0)
     assert b[-1] > 3 * a[-1]
+
+
+def test_pooled_fines_cost_less_than_peer_punishment_in_large_groups():
+    _, peer = play(240, 40, 10, np.random.default_rng(3), stranger=True, punish=True, react=1.0)
+    _, pool = play(240, 40, 10, np.random.default_rng(3), stranger=True, punish=True, react=1.0, pooled=True)
+    assert pool[-1] > peer[-1]
+
+
+def test_pooled_without_response_is_pure_cost():
+    a, pa = play(240, 8, 10, np.random.default_rng(4))
+    b, pb = play(240, 8, 10, np.random.default_rng(4), punish=True, pooled=True)
+    assert np.allclose(a, b) and pb[-1] < pa[-1]

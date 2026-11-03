@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { placeBreaks, placeRestBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts,
-  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
+  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, coverChain, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
   sampleStaff, openFloorByPricing, branchedScoreBound, optimalityText, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
 
@@ -1699,4 +1699,42 @@ test("streak: carries the days-in-a-row limit across Monday, and carry-over writ
   // A person on all seven days adds their old streak: 7 + 3 = 10.
   const full = _rcsv(buildRoster(staff("Dee,10,80,0,any,streak: 3"), slotsOf("Mon-Sun,9,13,1"), { maxConsecDays: 20 }));
   assert.match(_cos("Dee,10,80,0,any,streak: 3", full).text, /streak: 10/);
+});
+
+test("seniorityClaims: lists a more senior person who could take a junior's shift, none when ranks are unset", async () => {
+  const { parseStaff, parseShifts, buildRoster, seniorityClaims } = await import("./calc.mjs");
+  const mk = (extra) => parseStaff(`Ana, 20, 40, 0, Mon-Fri 9-17${extra[0]}\nBen, 15, 40, 0, Mon-Fri 9-17${extra[1]}`).staff;
+  const slots = parseShifts("Mon, 9am, 5pm, 1, Open").slots;
+  const staff = mk([", seniority: 5", ", seniority: 1"]);
+  const r = buildRoster(staff, slots, {});
+  const got = seniorityClaims(staff, slots, r);
+  assert.equal(got.claims.length, 1);
+  assert.equal(got.claims[0].senior, "Ana");
+  assert.equal(got.claims[0].junior, "Ben");
+  assert.ok(got.claims[0].extraCost > 0);
+  const none = seniorityClaims(mk(["", ""]), slots, buildRoster(mk(["", ""]), slots, {}));
+  assert.equal(none.claims.length, 0);
+  assert.ok(parseStaff("Ana, 20, 40, 0, Mon 9-17, seniority: x").errors.length === 1);
+});
+
+test("coverChain: finds the shortest hand-over chain when nobody is free to take the shift outright", () => {
+  const staff = staffOf("Ana, 10, 40, 0, Mon 8-16\nBen, 12, 40, 0, Mon 8-16\nCy, 11, 4, 0, Mon 8-16");
+  const slots = slotsOf("Mon, 8, 16, 1, long\nMon, 8, 12, 1, short");
+  const roster = { owner: [1, 0], options: {} }; // slots sort by end time: 0 is the short shift (Ben), 1 the long one (Ana)
+  assert.deepEqual(coverOptions(staff, slots, roster, 1).fits, []); // Ben overlaps, Cy is capped at 4 hours
+  const c = coverChain(staff, slots, roster, 1);
+  assert.equal(c.current, "Ana");
+  assert.equal(c.chains.length, 1);
+  assert.equal(c.chains[0].moves, 2);
+  assert.deepEqual(c.chains[0].steps.map((x) => [x.index, x.from, x.to]), [[1, "Ana", "Ben"], [0, "Ben", "Cy"]]);
+  // Ben 8h long at 12 instead of Ana at 10, and Cy's 4h short at 11 instead of Ben's at 12: the pay change:
+  assert.ok(Math.abs(c.chains[0].extraCost - (8 * 12 + 4 * 11 - 8 * 10 - 4 * 12)) < 1e-6);
+  assert.deepEqual(coverChain(staff, slots, roster, 1, {}, { maxMoves: 1 }).chains, []);
+});
+
+test("coverChain: a direct taker is a one-move chain and ranks before any longer chain", () => {
+  const staff = staffOf("Ana, 10, 40, 0, Mon 8-16\nBen, 20, 40, 0, Mon 8-16\nCy, 15, 40, 0, Mon 8-16");
+  const slots = slotsOf("Mon, 8, 16, 1, open");
+  const c = coverChain(staff, slots, { owner: [0], options: {} }, 0);
+  assert.deepEqual(c.chains.map((x) => [x.moves, x.steps[0].to]), [[1, "Cy"], [1, "Ben"]]);
 });

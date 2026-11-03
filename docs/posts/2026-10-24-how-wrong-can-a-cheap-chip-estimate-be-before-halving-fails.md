@@ -1,5 +1,6 @@
 ---
 title: "How wrong can a cheap chip estimate be before successive halving fails?"
+seo_title: "How wrong can a cheap chip estimate be before successive halving fails"
 date: 2026-10-24
 description: "A three-line regret bound for successive halving, tested on 20 SKY130 design-by-clock groups: vacuous for the generic-gate score, loose for the mapped one."
 tags: [research, eda, multi-fidelity, theory]

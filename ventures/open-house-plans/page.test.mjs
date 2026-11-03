@@ -43,7 +43,7 @@ test("every control has a label and nothing is sent anywhere", () => {
     assert.ok(id && html.includes(`<label for="${id}"`), `unlabelled: ${tag}`);
   }
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts/);
-  for (const f of readdirSync(new URL(".", import.meta.url)).filter((n) => n.endsWith(".mjs") && !n.endsWith(".test.mjs") && n !== "cli.mjs" && n !== "build-catalogue.mjs")) {
+  for (const f of readdirSync(new URL(".", import.meta.url)).filter((n) => n.endsWith(".mjs") && !n.endsWith(".test.mjs") && n !== "cli.mjs" && n !== "build-catalogue.mjs" && n !== "vendor-framing.mjs")) {
     assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|\bimport\(/, f);
   }
 });
@@ -51,7 +51,7 @@ test("every control has a label and nothing is sent anywhere", () => {
 test("module scripts import only local files, and every engine module imports only siblings", () => {
   assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./catalogue-data.mjs", "./engine.mjs", "./usage.mjs", "./zip.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
-  for (const f of readdirSync(new URL(".", import.meta.url)).filter((n) => n.endsWith(".mjs") && !n.endsWith(".test.mjs") && n !== "cli.mjs" && n !== "build-catalogue.mjs")) {
+  for (const f of readdirSync(new URL(".", import.meta.url)).filter((n) => n.endsWith(".mjs") && !n.endsWith(".test.mjs") && n !== "cli.mjs" && n !== "build-catalogue.mjs" && n !== "vendor-framing.mjs")) {
     for (const m of page(f).matchAll(/^import .* from "([^"]+)";$/gm)) assert.match(m[1], /^\.\/[\w-]+\.mjs$/, `${f} imports ${m[1]}`);
   }
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];

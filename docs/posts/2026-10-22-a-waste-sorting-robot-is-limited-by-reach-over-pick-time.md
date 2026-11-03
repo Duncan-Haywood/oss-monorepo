@@ -1,5 +1,6 @@
 ---
 title: "A waste-sorting robot is limited by reach over pick time, not by its vision"
+seo_title: "A waste-sorting robot is limited by reach, not by its vision"
 date: 2026-10-22
 description: "One pick robot on the TACO litter item mix: bottle and can recovery collapses once belt speed passes reach divided by pick time; pick order changes nothing."
 tags: [research, robotics, simulation, waste, recycling]

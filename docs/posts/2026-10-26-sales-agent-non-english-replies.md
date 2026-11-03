@@ -1,5 +1,6 @@
 ---
 title: "Our sales-reply triage ignored every non-English auto-reply and opt-out"
+seo_title: "Sales-reply triage ignored non-English auto-replies, opt-outs"
 date: 2026-10-26
 description: "The sales agent's reply triage now recognises German, French, Spanish, Italian, Portuguese and Dutch auto-replies and opt-outs."
 tags: [sales-agent, triage, i18n]
