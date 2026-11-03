@@ -5,6 +5,7 @@ import { basename } from 'node:path';
 import { parseGabc, fitToBars, fitStretch, halfTime, transposeToFinal, summarize } from './gabc.mjs';
 import { eventsToMidi } from './midi.mjs';
 import { cueSheet } from './cues.mjs';
+import { suggestFinal } from './voicefit.mjs';
 import { arrange, barsFor, bpmRange, GENRE_NAMES } from './genre.mjs';
 
 const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--final MIDI] [--drone] [--genre NAME] [--json]
@@ -16,10 +17,11 @@ const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULS
   --final   transpose so the last note is this MIDI number (50 = D3, a low men's choir final)
   --drone   add a held drone on the final, an octave below
   --cues    write a singer's cue sheet (bar, beat, seconds, note, syllable) to this file
+  --suggest-final  print the finals that keep the whole chant in E2-E4 (a men's unison range) and exit
   --json    print the summary as JSON`;
 
 export function run(argv) {
-  const args = { bpm: 124, fit: null, stretch: false, halftime: false, final: null, drone: false, genre: null, json: false, cues: null, out: null, file: null };
+  const args = { bpm: 124, fit: null, stretch: false, halftime: false, final: null, drone: false, genre: null, json: false, suggest: false, cues: null, out: null, file: null };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '-o') args.out = argv[++i];
@@ -31,6 +33,7 @@ export function run(argv) {
     else if (a === '--drone') args.drone = true;
     else if (a === '--genre') args.genre = argv[++i];
     else if (a === '--cues') args.cues = argv[++i];
+    else if (a === '--suggest-final') args.suggest = true;
     else if (a === '--json') args.json = true;
     else if (a === '-h' || a === '--help') return { code: 0, text: USAGE };
     else if (!args.file) args.file = a;
@@ -41,6 +44,13 @@ export function run(argv) {
 
   const parsed = parseGabc(readFileSync(args.file, 'utf8'));
   let events = parsed.events;
+  if (args.suggest) {
+    if (!events.some((e) => e.type === 'note')) return { code: 2, text: 'no notes' };
+    const r = suggestFinal(events);
+    if (args.json) return { code: 0, text: JSON.stringify(r, null, 2) };
+    if (!r.fits) return { code: 1, text: `ambitus ${r.ambitus} semitones is ${r.over} wider than ${r.range.join('-')}; split between voices or accept a falsetto/low pedal` };
+    return { code: 0, text: `finals that fit ${r.range.join('-')}: ${r.finals.lowestName} to ${r.finals.highestName}; recommended --final ${r.recommended.final} (${r.recommended.name})` };
+  }
   if (args.final !== null) events = transposeToFinal(events, args.final);
   if (args.stretch && !args.fit) return { code: 2, text: '--stretch needs --fit' };
   if (args.fit) events = args.stretch ? fitStretch(events, args.fit) : fitToBars(events, args.fit);
