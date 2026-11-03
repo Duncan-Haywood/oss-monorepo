@@ -43,7 +43,10 @@
       "result": "build ok"
     }
   ],
-  "writeups": "docs/posts/2026-11-03-how-fast-does-an-excavator-boom-lower.md; research/heavy-hydraulics/LOG.md 5k",
+  "writeups": [
+    "docs/posts/2026-11-03-how-fast-does-an-excavator-boom-lower.md",
+    "research/heavy-hydraulics/LOG.md"
+  ],
   "goal": null,
   "notes": "Small sourcing step; H4 pressure trace still not found on Zenodo. runcost not attached.",
   "corrections": [],

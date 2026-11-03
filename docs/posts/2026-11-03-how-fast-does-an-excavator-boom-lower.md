@@ -1,6 +1,6 @@
 ---
 title: "How fast does an excavator boom come down? A check on energy-recovery sizing"
-seo_title: "Excavator boom lowering time and the power rating of an energy-recovery device"
+seo_title: "Excavator boom lowering time and energy-recovery device rating"
 date: 2026-11-03
 tags: [heavy-hydraulics, excavator, energy-recovery]
 description: "A measured 2.1 s boom-lowering time on a Caterpillar 305.5E2 shows why a recovery device sized on a 2.5 s window is rated a little low."
