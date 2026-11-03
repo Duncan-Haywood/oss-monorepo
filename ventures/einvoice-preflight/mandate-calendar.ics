@@ -262,6 +262,21 @@ URL:https://example.invalid/einvoice-preflight/romania-e-factura-e-invoic
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:14373784e5ffd86b@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20240515
+DTEND;VALUE=DATE:20240516
+SUMMARY:Mauritius: Invoices registered with the MRA before issue: busines
+ ses above MUR 100 million from 15...
+DESCRIPTION:Mauritius (In force\, phasing in). Invoices registered with t
+ he MRA before issue: businesses above MUR 100 million from 15 May 2024. 
+ Detail and sources: https://example.invalid/einvoice-preflight/mauritius
+ -e-invoice-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/mauritius-e-invoice-mandat
+ e.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:45cbb2e1077b29b3@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20240531
@@ -742,6 +757,22 @@ DESCRIPTION:France (In force\, phased). Issue: large and mid-size 1 Sep 2
  ce-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/france-e-invoice-mandate.h
  tml
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:a884056707c9a72a@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20260902
+SUMMARY:Mauritius: Invoices registered with the MRA before issue: widenin
+ g in waves to above MUR 40 millio...
+DESCRIPTION:Mauritius (In force\, phasing in). Invoices registered with t
+ he MRA before issue: widening in waves to above MUR 40 million from 1 Se
+ p 2026 (compliance guides\, not the MRA; earlier wave dates disagree). D
+ etail and sources: https://example.invalid/einvoice-preflight/mauritius-
+ e-invoice-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/mauritius-e-invoice-mandat
+ e.html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
