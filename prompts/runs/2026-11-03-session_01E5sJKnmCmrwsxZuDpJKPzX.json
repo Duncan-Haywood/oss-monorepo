@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12694",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12688",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -31,16 +31,17 @@
   "integrity_issues": [],
   "doc_friction": [
     {
-      "file": "prompt.md",
-      "issue": "Step 0 points at a security-alerts branch that does not exist on origin; fetch failed, skipped."
+      "file": "ventures/wall-framing-takeoff/engine.mjs",
+      "issue": "validatePlan returns a bare array of error strings, not {ok, errors}; my first probe assumed the latter and wasted a step."
     }
   ],
   "deviations": [],
   "writeups": [
-    "docs/posts/2026-11-03-the-chairs-behind-the-car.md"
+    "docs/posts/2026-11-03-a-garage-is-not-a-kind-of-opening.md",
+    "ventures/wall-framing-takeoff/ROADMAP.md"
   ],
   "goal": null,
-  "notes": "Creative track, hearth-and-horizon, slug the-chairs-behind-the-car; text only (audio 423 MB over cap).",
+  "notes": "Flagship 1 slice: validatePlan refuses unknown opening kinds and doors taller than header height. Full venture suite 669/669.",
   "corrections": [],
   "redteam": null
 }
