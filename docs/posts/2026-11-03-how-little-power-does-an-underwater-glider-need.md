@@ -1,9 +1,9 @@
 ---
 title: "How little power does an underwater glider really need?"
-seo_title: "Underwater glider power budget: a measured Seaglider dive against a propeller AUV"
+seo_title: "Underwater glider power budget: Seaglider against a propeller AUV"
 date: 2026-11-03
 tags: [research, marine, autonomy, energy, open-source]
-description: "A measured Seaglider dive averages 137 mW, far under the 0.7 to 5 W our glider-versus-AUV sweeps assumed. With it, a glider outranges a propeller AUV above about half a watt of AUV hotel load."
+description: "A measured Seaglider dive averages 137 mW, far under the 0.7 to 5 W we assumed; a glider then outranges a propeller AUV above about 0.5 W of AUV hotel load."
 ---
 
 Our marine-hull research programme asks which vehicle carries a survey payload furthest per kWh. For the glider-versus-propeller-AUV question we had been sweeping the glider's electronics load over 0.7 to 5 W, because we had no measurement.
