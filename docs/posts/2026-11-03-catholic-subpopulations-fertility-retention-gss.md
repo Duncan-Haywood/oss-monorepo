@@ -1,6 +1,6 @@
 ---
 title: "Do Catholics still have bigger families? What 50 years of survey data say about Catholic subgroups"
-seo_title: "Catholic fertility, retention and Mass attendance by subgroup, 1972-2024"
+seo_title: "Catholic fertility, retention and Mass attendance by subgroup (GSS)"
 date: 2026-11-03
 tags: [catholic, demographics, research, data, religion]
 description: "White Catholics born 1965-80 have fewer children than white Protestants, and white Catholic retention is falling faster than Hispanic retention."
