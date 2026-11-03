@@ -105,7 +105,8 @@ moves the staff. NABC alternations are still cut at the first `|`.
   and sequences end on their mode final. Not checked: the notes against the page
   scans, or by ear. 11 of the 59 end off the mode final (introits, graduals,
   alleluias and offertories finish on a psalm-tone differentia or a verse); that
-  is read from the files, not confirmed against the book.
+  is read from the files, not confirmed against the book. `node eval/offfinal-report.mjs` lists them with last notes and syllables
+  (`eval/offfinal-report.md`); 5 are introits ending on "euouae".
 - `fuzz.test.mjs` throws 2000 random made-up GABC strings at the reader and
   MIDI writer (no crash, pitches in range); it says nothing about real files.
 - Nothing has been arranged, sung, mixed or published.
