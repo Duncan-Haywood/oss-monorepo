@@ -39,6 +39,7 @@ const PILOTS = {
   'shopify-fee-calculator': async (m) => [
     m.PLAN_PRESETS.basic.monthlyPlan, m.PLAN_PRESETS.grow.monthlyPlan, m.PLAN_PRESETS.advanced.monthlyPlan, m.PLAN_PRESETS.basic.paymentsFixed,
   ],
+  'ucr-fee-calculator': async (m) => m.parseFees(m.DEFAULT_FEES_TEXT).brackets.map((b) => b.fee),
   'poshmark-fee-calculator': async (m) => [m.FLAT_FEE, m.COMMISSION_THRESHOLD, m.BREAK_EVEN_PRICE],
 };
 
