@@ -1,6 +1,6 @@
 ---
 title: "A published electric-excavator power profile: peaky, and no regeneration in it"
-seo_title: "Electric excavator power profile: peak to mean 2.9, regeneration near zero"
+seo_title: "Electric excavator power profile: peak 2.9x mean, no regeneration"
 date: 2026-11-03
 tags: [research, excavator, hydraulics, electric, open-data]
 description: An open CWA pre-normative electric excavator power profile has a peak 2.9 times its mean and almost no negative power, so it cannot test energy recovery.
