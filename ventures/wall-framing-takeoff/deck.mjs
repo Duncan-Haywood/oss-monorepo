@@ -46,6 +46,7 @@ export function validateDeck(d) {
   if (![1, 2, 3].includes(plies)) errors.push("Beam plies must be 1, 2 or 3.");
   if (d.border != null && d.border !== true && d.border !== false && ![1, 2, 3].includes(d.border)) errors.push("Border courses must be 1, 2 or 3 (or true for one).");
   const o = d.overhang ?? 12;
+  if (typeof o !== "number") errors.push("The joist overhang must be a number of inches.");
   if (!(o >= 0 && o < d.depth / 2)) errors.push("The joist overhang past the beam must be between 0 and half the depth.");
   if (!(Number.isFinite(d.height) && Number.isFinite(d.width) && Number.isFinite(d.depth))) errors.push("Width, depth and height must be numbers (inches).");
   return errors;

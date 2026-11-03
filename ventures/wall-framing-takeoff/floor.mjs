@@ -26,6 +26,7 @@ export function sampleFloor() {
 export function validateFloor(f, plan) {
   const errors = [];
   if (f == null || typeof f !== "object" || Array.isArray(f)) return ["Floor settings are an object."];
+  for (const k of ["width", "depth", "beam"]) if (f[k] != null && typeof f[k] !== "number") errors.push(`Floor ${k} must be a number of inches.`);
   if (!(f.width >= 24 && f.width <= 1200)) errors.push("Floor width must be between 2 ft and 100 ft.");
   if (!(f.depth >= 24 && f.depth <= 1200)) errors.push("Floor depth (the joist direction) must be between 2 ft and 100 ft.");
   if (!(f.joist in DEPTH)) errors.push(`Unknown joist size ${f.joist}.`);

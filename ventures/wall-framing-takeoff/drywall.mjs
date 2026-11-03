@@ -28,7 +28,7 @@ export function validateDrywall(d) {
   if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Drywall settings are an object."];
   if (![96, 108, 120, 144, 192].includes(d.sheetLength ?? 96)) e.push("Drywall sheet length must be 8, 9, 10, 12 or 16 ft (96, 108, 120, 144 or 192 in).");
   if (d.height != null && !(d.height >= 72 && d.height <= 192)) e.push("Drywall hang height must be between 6 and 16 ft.");
-  for (const [i, c] of (d.ceiling || []).entries()) if (!(c.width >= 24 && c.depth >= 24)) e.push(`Ceiling ${i + 1} must be at least 2 ft each way.`);
+  for (const [i, c] of (d.ceiling || []).entries()) if (!(typeof c.width === "number" && typeof c.depth === "number" && c.width >= 24 && c.depth >= 24)) e.push(`Ceiling ${i + 1} must be at least 2 ft each way.`);
   if (d.ceilingJoistSpacing != null && ![12, 16, 19.2, 24].includes(d.ceilingJoistSpacing)) e.push("Ceiling joist spacing must be 12, 16, 19.2 or 24 in.");
   if (d.ceilingJoistsFromRoof != null && typeof d.ceilingJoistsFromRoof !== "boolean") e.push("ceilingJoistsFromRoof must be true or false.");
   if (d.ceilingJoistsFromRoof && d.ceilingJoistSpacing != null) e.push("Set ceilingJoistSpacing or ceilingJoistsFromRoof, not both.");
