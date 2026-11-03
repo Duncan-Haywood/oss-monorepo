@@ -1,0 +1,220 @@
+// Preview renderer: Standard MIDI File -> stereo 16-bit WAV, no dependencies.
+//
+// A deliberately plain synthesiser so the ear check and the mix/master check can run
+// on real audio with no DAW and no soundfont: choir-like additive pad (a few detuned
+// voices, slow attack, a formant-ish "ah" tilt), organ drone, subby bass, a saw chord
+// pad, and synthesised GM drums. It is a PREVIEW, not a release master: the real
+// voices are recorded singers (RECORDING-GUIDE.md). Deterministic: a seeded noise
+// source, so the same MIDI gives the same bytes.
+import { readWav } from './master.mjs';
+export { readWav };
+
+// ---- MIDI reading (format 0/1, running status, tempo map, channel programs) ----
+
+export function parseMidi(bytes) {
+  const b = Buffer.from(bytes);
+  if (b.length < 14 || b.toString('latin1', 0, 4) !== 'MThd') throw new Error('not a MIDI file');
+  const ntrk = b.readUInt16BE(10);
+  const division = b.readUInt16BE(12);
+  if (division & 0x8000) throw new Error('SMPTE time division is not supported');
+  let pos = 8 + b.readUInt32BE(4);
+  const notes = [];
+  const tempos = [[0, 500000]];
+  const programs = new Map(); // channel -> [[tick, program]]
+  for (let t = 0; t < ntrk && pos + 8 <= b.length; t++) {
+    if (b.toString('latin1', pos, pos + 4) !== 'MTrk') throw new Error('bad track chunk');
+    const end = Math.min(b.length, pos + 8 + b.readUInt32BE(pos + 4));
+    let p = pos + 8, tick = 0, status = 0;
+    const open = new Map();
+    const vlq = () => { let v = 0, c; do { if (p >= end) throw new Error('truncated track'); c = b[p++]; v = (v << 7) | (c & 0x7f); } while (c & 0x80); return v; };
+    while (p < end) {
+      tick += vlq();
+      let s = b[p];
+      if (s & 0x80) { status = s; p++; } else s = status;
+      if (s === 0xff) {
+        const type = b[p++], len = vlq();
+        if (type === 0x51 && len === 3) tempos.push([tick, (b[p] << 16) | (b[p + 1] << 8) | b[p + 2]]);
+        p += len;
+        if (type === 0x2f) break;
+      } else if (s === 0xf0 || s === 0xf7) { p += vlq(); }
+      else {
+        const hi = s & 0xf0, ch = s & 0x0f;
+        if (hi === 0xc0 || hi === 0xd0) {
+          if (hi === 0xc0) { if (!programs.has(ch)) programs.set(ch, []); programs.get(ch).push([tick, b[p]]); }
+          p += 1;
+        } else {
+          const d1 = b[p], d2 = b[p + 1];
+          p += 2;
+          const key = ch * 128 + d1;
+          if (hi === 0x90 && d2 > 0) {
+            if (!open.has(key)) open.set(key, []);
+            open.get(key).push({ tick, vel: d2 });
+          } else if (hi === 0x80 || (hi === 0x90 && d2 === 0)) {
+            const q = open.get(key);
+            if (q && q.length) { const o = q.shift(); notes.push({ ch, note: d1, vel: o.vel, tick: o.tick, end: tick }); }
+          }
+        }
+      }
+    }
+    for (const [key, q] of open) for (const o of q) notes.push({ ch: Math.floor(key / 128), note: key % 128, vel: o.vel, tick: o.tick, end: tick });
+    pos = end;
+  }
+  tempos.sort((x, y) => x[0] - y[0]);
+  return { division, notes, tempos, programs };
+}
+
+// tick -> seconds through the tempo map
+export function tickToSeconds(tick, division, tempos) {
+  let sec = 0, lastTick = 0, us = 500000;
+  for (const [tk, tempo] of tempos) {
+    if (tk >= tick) break;
+    sec += ((tk - lastTick) * us) / division / 1e6;
+    lastTick = tk; us = tempo;
+  }
+  return sec + ((tick - lastTick) * us) / division / 1e6;
+}
+
+// ---- synthesis ----
+
+function rng(seed) { let s = seed >>> 0; return () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296) * 2 - 1; }
+const hz = (n) => 440 * 2 ** ((n - 69) / 12);
+
+function pad(partials, detunes, attack, release) {
+  return (f, dur, rate) => {
+    const total = Math.round((dur + release) * rate);
+    const out = new Float64Array(total);
+    for (const dt of detunes) {
+      const ff = f * 2 ** (dt / 1200);
+      for (let h = 1; h <= partials && ff * h < rate / 2.2; h++) {
+        // "ah"-like tilt: 1/h roll-off with a bump near 700 and 1100 Hz
+        const fh = ff * h;
+        const g = (1 / h) * (1 + 1.6 * Math.exp(-(((fh - 700) / 220) ** 2)) + 0.9 * Math.exp(-(((fh - 1100) / 260) ** 2)));
+        const w = (2 * Math.PI * fh) / rate;
+        const ph0 = h * dt; // spread starting phases per voice
+        // rotation recurrence: one multiply-add pair per sample instead of Math.sin
+        const c = Math.cos(w), sn = Math.sin(w);
+        let x = Math.sin(ph0), y = Math.cos(ph0);
+        for (let i = 0; i < total; i++) { out[i] += g * x; const nx = x * c + y * sn; y = y * c - x * sn; x = nx; }
+      }
+    }
+    const norm = 1 / (detunes.length * 2.5);
+    const aN = Math.max(1, Math.round(attack * rate)), rN = Math.max(1, Math.round(release * rate));
+    const dN = Math.round(dur * rate);
+    for (let i = 0; i < total; i++) {
+      let env = Math.min(1, i / aN);
+      if (i > dN) env *= Math.max(0, 1 - (i - dN) / rN);
+      out[i] *= env * norm;
+    }
+    return out;
+  };
+}
+
+const choir = pad(14, [-14, -5, 0, 6, 15], 0.09, 0.25);
+const organ = pad(6, [0, 3], 0.4, 0.8);
+const chordPad = (f, dur, rate) => {
+  const total = Math.round((dur + 0.15) * rate), out = new Float64Array(total);
+  for (const dt of [-8, 8]) {
+    const ff = f * 2 ** (dt / 1200);
+    let ph = 0, lp = 0;
+    for (let i = 0; i < total; i++) {
+      ph = (ph + ff / rate) % 1;
+      lp += 0.18 * ((2 * ph - 1) - lp); // one-pole low-pass on a saw
+      const env = Math.min(1, i / (0.02 * rate)) * (i > dur * rate ? Math.max(0, 1 - (i - dur * rate) / (0.15 * rate)) : 1);
+      out[i] += lp * env * 0.5;
+    }
+  }
+  return out;
+};
+const bass = (f, dur, rate) => {
+  const total = Math.round((dur + 0.08) * rate), out = new Float64Array(total);
+  let ph = 0, lp = 0;
+  for (let i = 0; i < total; i++) {
+    ph = (ph + f / rate) % 1;
+    lp += 0.07 * ((2 * ph - 1) - lp);
+    const env = Math.min(1, i / (0.005 * rate)) * (i > dur * rate ? Math.max(0, 1 - (i - dur * rate) / (0.08 * rate)) : 1);
+    out[i] = (0.7 * lp + 0.5 * Math.sin(2 * Math.PI * f * i / rate)) * env;
+  }
+  return out;
+};
+
+function drum(note, rate, rand) {
+  const len = Math.round(rate * (note === 49 ? 1.2 : note === 46 ? 0.35 : note === 51 ? 0.5 : note === 42 ? 0.06 : 0.22));
+  const out = new Float64Array(len);
+  let hp = 0, prev = 0;
+  for (let i = 0; i < len; i++) {
+    const t = i / rate;
+    if (note === 36) { // kick: falling sine
+      const f = 45 + 110 * Math.exp(-t * 28);
+      out[i] = Math.sin(2 * Math.PI * (45 * t + (110 / 28) * (1 - Math.exp(-t * 28)))) * Math.exp(-t * 11) * (f > 0 ? 1 : 0);
+    } else if (note === 38 || note === 39) { // snare / clap: noise plus a body tone
+      const n = rand();
+      out[i] = (0.8 * n * Math.exp(-t * (note === 39 ? 24 : 18)) + (note === 38 ? 0.5 * Math.sin(2 * Math.PI * 190 * t) * Math.exp(-t * 30) : 0)) * 0.9;
+    } else { // hats, ride, crash: high-passed noise
+      const n = rand();
+      hp = 0.92 * (hp + n - prev); prev = n;
+      const dec = note === 42 ? 70 : note === 46 ? 12 : note === 49 ? 3.5 : 7;
+      out[i] = hp * Math.exp(-t * dec) * 0.5;
+    }
+  }
+  return out;
+}
+
+// GM program -> voice. 52 choir, 19 organ, 38 bass, 89 pad; anything else falls back.
+function voiceFor(ch, program) {
+  if (ch === 9) return 'drums';
+  if (program === 52 || program === 53 || program === 54) return 'choir';
+  if (program === 19 || program === 16 || program === 20) return 'organ';
+  if (program >= 32 && program <= 39) return 'bass';
+  return 'chords';
+}
+
+export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0.8 } = {}) {
+  const m = parseMidi(midiBytes);
+  const sec = (t) => tickToSeconds(t, m.division, m.tempos);
+  const progAt = (ch) => (m.programs.get(ch) || [[0, 0]])[0][1];
+  let endSec = 0;
+  for (const n of m.notes) endSec = Math.max(endSec, sec(n.end));
+  const total = Math.ceil((endSec + tail) * rate);
+  const L = new Float64Array(total), R = new Float64Array(total);
+  const rand = rng(12345);
+  const drumCache = new Map();
+  const waveCache = new Map(); // same voice, pitch and length renders once
+  const pan = { choir: 0, organ: 0.0, bass: 0, chords: 0.25, drums: 0 };
+  const gain = { choir: 0.9, organ: 0.35, bass: 0.7, chords: 0.28, drums: 0.8 };
+  for (const n of m.notes) {
+    const v = voiceFor(n.ch, progAt(n.ch));
+    const start = Math.round(sec(n.tick) * rate);
+    const dur = Math.max(0.03, sec(n.end) - sec(n.tick));
+    let wave;
+    if (v === 'drums') {
+      if (!drumCache.has(n.note)) drumCache.set(n.note, drum(n.note, rate, rand));
+      wave = drumCache.get(n.note);
+    } else {
+      const key = `${v}:${n.note}:${Math.round(dur * 1000)}`;
+      if (!waveCache.has(key)) waveCache.set(key, (v === 'choir' ? choir : v === 'organ' ? organ : v === 'bass' ? bass : chordPad)(hz(n.note), dur, rate));
+      wave = waveCache.get(key);
+    }
+    const g = (n.vel / 127) * gain[v];
+    const p = pan[v], gl = g * (1 - Math.max(0, p)), gr = g * (1 + Math.min(0, p));
+    for (let i = 0; i < wave.length && start + i < total; i++) { L[start + i] += wave[i] * gl; R[start + i] += wave[i] * gr; }
+  }
+  // normalise the peak (a preview level, not a loudness target: master-cli.mjs judges that)
+  let peak = 0;
+  for (let i = 0; i < total; i++) peak = Math.max(peak, Math.abs(L[i]), Math.abs(R[i]));
+  const k = peak > 0 ? targetPeak / peak : 1;
+  for (let i = 0; i < total; i++) { L[i] *= k; R[i] *= k; }
+  return { rate, channels: [L, R], seconds: total / rate, notes: m.notes.length };
+}
+
+export function encodeWav({ rate, channels }) {
+  const n = channels[0].length, c = channels.length;
+  const buf = Buffer.alloc(44 + n * c * 2);
+  buf.write('RIFF', 0); buf.writeUInt32LE(36 + n * c * 2, 4); buf.write('WAVEfmt ', 8);
+  buf.writeUInt32LE(16, 16); buf.writeUInt16LE(1, 20); buf.writeUInt16LE(c, 22); buf.writeUInt32LE(rate, 24);
+  buf.writeUInt32LE(rate * c * 2, 28); buf.writeUInt16LE(c * 2, 32); buf.writeUInt16LE(16, 34);
+  buf.write('data', 36); buf.writeUInt32LE(n * c * 2, 40);
+  for (let i = 0; i < n; i++) for (let k = 0; k < c; k++) {
+    buf.writeInt16LE(Math.max(-32768, Math.min(32767, Math.round(channels[k][i] * 32767))), 44 + (i * c + k) * 2);
+  }
+  return buf;
+}

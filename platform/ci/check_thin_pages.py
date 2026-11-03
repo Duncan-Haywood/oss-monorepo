@@ -4,7 +4,8 @@
 A page whose HTML holds few words gives search engines and LLM crawlers (which
 mostly do not run scripts) nothing to index. This counts visible words in each
 `index.html` after dropping script, style, noscript and svg, and reports pages
-under a threshold. It is a report, not a gate: app shells are thin on purpose.
+under a threshold. It is a report, not a gate: app shells are thin on purpose, and pages with
+`<meta name="robots" content="noindex">` are skipped.
 
     python3 platform/ci/check_thin_pages.py [--root DIR] [--min 200]   # exit 1 if any
 """
@@ -17,6 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 DROP = re.compile(r"(?is)<(script|style|noscript|svg)\b.*?</\1>")
 TAG = re.compile(r"(?s)<[^>]+>")
+NOINDEX = re.compile(r'(?i)<meta[^>]+name=["\']robots["\'][^>]*noindex')
 
 
 def word_count(html: str) -> int:
@@ -34,7 +36,10 @@ def main(argv=None):
         if "node_modules" in page.parts:
             continue
         try:
-            rows.append((word_count(page.read_text(encoding="utf8", errors="ignore")), page))
+            html = page.read_text(encoding="utf8", errors="ignore")
+            if NOINDEX.search(html):
+                continue  # deliberately unindexed (private app shell): thin is fine
+            rows.append((word_count(html), page))
         except OSError:
             continue
     rows.sort(key=lambda r: (r[0], str(r[1])))

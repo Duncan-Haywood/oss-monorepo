@@ -19,6 +19,18 @@ released track:
 5. **Release:** loudness (done, `master-cli.mjs`), metadata, credits and AI-disclosure checks before a
    distributor upload (done: `node release-cli.mjs release.json`, 7 tests, 2026-11-03).
 
+## Hear it without a DAW
+
+```sh
+node ventures/chant-forge/render-cli.mjs dies-irae.mid -o dies-irae.wav
+node ventures/chant-forge/master-cli.mjs dies-irae.wav
+```
+
+`render-cli.mjs` is a plain preview synthesiser (choir pad, organ drone, bass,
+chord pad, synthesised drums; no dependencies, deterministic, about 2 s for a 3-minute
+piece). It is for the ear check and for running the master check on real audio. It is not a
+release master and the choir is not a real choir (`RECORDING-GUIDE.md`).
+
 ## What works now
 
 ```sh
@@ -92,6 +104,18 @@ being sung as a lyric); `<sp>R/</sp>`, `<sp>V/</sp>` and `<sp>'ae</sp>` keep the
 signs; `<v>` (raw TeX) and `<alt>` text, `{}` centre braces, `*` and the cross
 are not lyrics; a clef change inside a group, as in `(::c3)` or `(z c3)`, now
 moves the staff. NABC alternations are still cut at the first `|`.
+
+## Choosing a final (2026-11-03)
+
+`node cli.mjs piece.gabc --suggest-final` lists the finals that keep the whole
+chant inside E2-E4 (MIDI 40-64, a rule-of-thumb men's unison range) and picks
+the one that centres the line; use it as `--final N`. A piece wider than the
+range is reported with how far over it is, not forced. Corpus results: Dies
+irae and Salve Regina A2-E3 (recommended C#3), Pange lingua F#2-F#3, Te Deum
+Ab2-Ab3 (D3), Veni Creator F#2-G3. The range is a guess, not checked with
+singers (`voicefit.test.mjs`, 4 tests).
+`--auto-final` (2026-11-03) does both steps: it transposes to the recommended
+final, and refuses a chant wider than the range (`autofinal.test.mjs`, 3 tests).
 
 ## Not checked yet
 
