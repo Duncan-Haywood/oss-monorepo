@@ -137,6 +137,7 @@ export function readPayoutReport(text) {
   const squareSplit = head.includes("total_collected") && head.includes("net_total") && (head.includes("tax") || head.includes("tip"));
   for (const need of ["gross", "net", "category"]) if (col[need] === -1) throw new Error(`No "${need}" column: the report needs payout id, payout date, category, gross, fee and net columns.`);
   if (col.payout === -1 && head.includes("transaction_id") && head.includes("status") && head.includes("type")) return { ...readPaypal(table, head), source: "paypal" };
+  if (col.payout === -1 && head.includes("balance_transaction_id") && head.includes("reporting_category")) throw new Error('This is Stripe\'s balance report without the payout column, so a bank deposit cannot be matched to its charges, refunds and fees. In Stripe: Reports, Balance, "Balance change from activity", Edit columns, tick "automatic_payout_id" (or use the Payout reconciliation report), and export again.');
   if (col.payout === -1) throw new Error('No payout id column (Stripe: "automatic_payout_id"). Export the payout reconciliation report, not the plain payments list.');
   const problems = [];
   const rows = [];
