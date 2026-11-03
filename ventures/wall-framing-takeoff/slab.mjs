@@ -3,6 +3,7 @@
 // bagged-mix count. Closed-form geometry; the bag yields are the label
 // figures (typed, change them); nothing here checks soil, frost depth or
 // whether a thickness is enough for the load.
+import { textNumberErrors } from "./numfields.mjs";
 const CU_FT_PER_YD = 27;
 /** Cubic feet per bag, from product labels: 40 lb 0.30, 60 lb 0.45, 80 lb 0.60. */
 export const BAG_YIELD = { 40: 0.3, 60: 0.45, 80: 0.6 };
@@ -10,7 +11,7 @@ export const BAG_YIELD = { 40: 0.3, 60: 0.45, 80: 0.6 };
 /** @param {{ shape?: "slab"|"footing"|"pier", length?: number, width?: number, diameter?: number, depth?: number, count?: number, waste?: number, bag?: number }} s inches
  *  @returns {{ ok: true, cuFt: number, cuYd: number, orderYd: number, withWaste: number, bags: number, bag: number, shortLoad: boolean, notes: string[] } | { ok: false, errors: string[] }} */
 export function slabConcrete(s) {
-  const shape = s.shape ?? "slab", waste = s.waste ?? 0.1, bag = s.bag ?? 80, count = s.count ?? 1, errors = [];
+  const shape = s.shape ?? "slab", waste = s.waste ?? 0.1, bag = s.bag ?? 80, count = s.count ?? 1, errors = textNumberErrors(s, ["length", "width", "diameter", "depth", "count", "waste", "bag"]);
   if (!["slab", "footing", "pier"].includes(shape)) errors.push('shape is "slab", "footing" or "pier".');
   if (!(s.depth >= 2 && s.depth <= 96)) errors.push("Thickness or depth must be between 2 and 96 in.");
   if (shape !== "pier" && !(s.length >= 12 && s.length <= 4800)) errors.push("Length must be between 1 and 400 ft.");
