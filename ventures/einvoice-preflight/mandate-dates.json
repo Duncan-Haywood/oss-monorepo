@@ -122,6 +122,13 @@
    "status": "In force"
   },
   {
+   "date": "2024-05-15",
+   "country": "Mauritius",
+   "page": "mauritius-e-invoice-mandate.html",
+   "note": "Invoices registered with the MRA before issue: businesses above MUR 100 million from 15 May 2024",
+   "status": "In force, phasing in"
+  },
+  {
    "date": "2024-05-31",
    "country": "Jordan",
    "page": "jordan-jofotara-e-invoice-mandate.html",
@@ -351,6 +358,13 @@
    "page": "france-e-invoice-mandate.html",
    "note": "Issue: large and mid-size 1 Sep 2026",
    "status": "In force, phased"
+  },
+  {
+   "date": "2026-09-01",
+   "country": "Mauritius",
+   "page": "mauritius-e-invoice-mandate.html",
+   "note": "Invoices registered with the MRA before issue: widening in waves to above MUR 40 million from 1 Sep 2026 (compliance guides, not the MRA; earlier wave dates disagree)",
+   "status": "In force, phasing in"
   },
   {
    "date": "2026-09-24",
