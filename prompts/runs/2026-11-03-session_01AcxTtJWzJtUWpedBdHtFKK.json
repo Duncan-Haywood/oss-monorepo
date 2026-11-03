@@ -1,0 +1,157 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01AcxTtJWzJtUWpedBdHtFKK",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T21:12:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says three of four open entries were fixed 2026-11-03, but their records still read patched:false; the open list was stale, not the code."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 security-alerts branch does not exist on the remote (fatal: couldn't find remote ref); the fetch also hung past the 120 s tool timeout."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Purple step 0: closed all 4 open defects (2 already fixed on main, 2 fixed here: static-site ventures wrongly flagged as servers broke build.test.mjs; orphan branches read as landed in unlanded_work.py, with a vacuous existing test inverted). Campaign on platform/pages/faq-duplicate.mjs: 6 seeded, 6 caught. No new post or agent doc (small run).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/pages/faq-duplicate.mjs",
+        "test": "node --test platform/pages/faq-duplicate.test.mjs  (in .)",
+        "seed": 994889522,
+        "commit": "5b24fa99",
+        "sites": 23,
+        "baseline_seconds": 2.4,
+        "mutants": [
+          {
+            "file": "platform/pages/faq-duplicate.mjs",
+            "line": 51,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": ".replace(/[^a-z0-9 ]/g, ' ')",
+            "after": ".replace(/[^a-z0-10 ]/g, ' ')",
+            "line_text": "    .replace(/[^a-z0-9 ]/g, ' ')",
+            "caught": true,
+            "seconds": 2.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/faq-duplicate.mjs",
+            "line": 58,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "return [...html.matchAll(/<h[1-3]\\b[^>]*>([\\s\\S]*?)<\\/h[1-3]>/gi)]",
+            "after": "return [...html.matchAll(/<h[2-3]\\b[^>]*>([\\s\\S]*?)<\\/h[1-3]>/gi)]",
+            "line_text": "  return [...html.matchAll(/<h[1-3]\\b[^>]*>([\\s\\S]*?)<\\/h[1-3]>/gi)]",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/faq-duplicate.mjs",
+            "line": 58,
+            "col": 58,
+            "operator": "const-plus-one",
+            "before": "return [...html.matchAll(/<h[1-3]\\b[^>]*>([\\s\\S]*?)<\\/h[1-3]>/gi)]",
+            "after": "return [...html.matchAll(/<h[1-3]\\b[^>]*>([\\s\\S]*?)<\\/h[2-3]>/gi)]",
+            "line_text": "  return [...html.matchAll(/<h[1-3]\\b[^>]*>([\\s\\S]*?)<\\/h[1-3]>/gi)]",
+            "caught": true,
+            "seconds": 2.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/faq-duplicate.mjs",
+            "line": 99,
+            "col": 14,
+            "operator": "gt-to-ge",
+            "before": "if (count > 1) found.push({ kind: 'section', detail: label, count });",
+            "after": "if (count >= 1) found.push({ kind: 'section', detail: label, count });",
+            "line_text": "    if (count > 1) found.push({ kind: 'section', detail: label, count });",
+            "caught": true,
+            "seconds": 2.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/faq-duplicate.mjs",
+            "line": 99,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "if (count > 1) found.push({ kind: 'section', detail: label, count });",
+            "after": "if (count > 2) found.push({ kind: 'section', detail: label, count });",
+            "line_text": "    if (count > 1) found.push({ kind: 'section', detail: label, count });",
+            "caught": true,
+            "seconds": 2.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/faq-duplicate.mjs",
+            "line": 133,
+            "col": 9,
+            "operator": "const-plus-one",
+            "before": "return 0;",
+            "after": "return 1;",
+            "line_text": "  return 0;",
+            "caught": true,
+            "seconds": 2.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/deploy/catalog.mjs",
+        "issue": "static-site ventures (runtime: static) treated as servers",
+        "patched": true
+      },
+      {
+        "file": "platform/ci/unlanded_work.py",
+        "issue": "orphan branch read as landed",
+        "patched": true
+      }
+    ]
+  }
+}

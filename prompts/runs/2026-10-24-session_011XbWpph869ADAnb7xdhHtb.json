@@ -66,9 +66,9 @@
             "line": 47,
             "col": 25,
             "operator": "const-plus-one",
-            "before": "title: name.length > 120 ? name.slice(0, 119) + '\u2026' : name,",
-            "after": "title: name.length > 121 ? name.slice(0, 119) + '\u2026' : name,",
-            "line_text": "    title: name.length > 120 ? name.slice(0, 119) + '\u2026' : name,",
+            "before": "title: name.length > 120 ? name.slice(0, 119) + '…' : name,",
+            "after": "title: name.length > 121 ? name.slice(0, 119) + '…' : name,",
+            "line_text": "    title: name.length > 120 ? name.slice(0, 119) + '…' : name,",
             "caught": false,
             "seconds": 0.3,
             "triage": "gap",
@@ -80,9 +80,9 @@
             "line": 47,
             "col": 42,
             "operator": "const-plus-one",
-            "before": "title: name.length > 120 ? name.slice(0, 119) + '\u2026' : name,",
-            "after": "title: name.length > 120 ? name.slice(1, 119) + '\u2026' : name,",
-            "line_text": "    title: name.length > 120 ? name.slice(0, 119) + '\u2026' : name,",
+            "before": "title: name.length > 120 ? name.slice(0, 119) + '…' : name,",
+            "after": "title: name.length > 120 ? name.slice(1, 119) + '…' : name,",
+            "line_text": "    title: name.length > 120 ? name.slice(0, 119) + '…' : name,",
             "caught": false,
             "seconds": 0.3,
             "triage": "gap",
@@ -166,7 +166,8 @@
       {
         "file": "platform/distribution/bluesky.mjs (and ~100 other files: devto, hub/compose, mcp, citation, agents/tools, daily/build, venture_live_links ...)",
         "issue": "BASE_URL is https://duncan-haywood.github.io/monorepo-projects/, which returns HTTP 404 on 2026-10-24 (curl); the catalogue is served at /oss-monorepo/ (200, CLAUDE.md 'Hosting'). Distribution posts built from these constants would link to dead pages. Too wide to patch in a mutation run; backlog item filed.",
-        "patched": false
+        "patched": true,
+        "patched_in": "already fixed on main: bluesky.mjs BASE_URL is .../oss-monorepo/ (checked 2026-11-03)"
       }
     ]
   },

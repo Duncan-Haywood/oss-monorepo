@@ -412,7 +412,8 @@
       {
         "file": "platform/ci/unlanded_work.py",
         "issue": "landed_by_content returns True when branch and main share no history (git diff base...tip errors, output ignored), so any orphan branch with stranded work is never reported; test_gh_pages_is_never_reported was vacuous for the same reason (passes with the name filter removed). Test made non-vacuous; code left unchanged because flagging orphans may newly fail sweeps.",
-        "patched": false
+        "patched": true,
+        "patched_in": "this run: landed_by_content returns False when git diff fails; test_orphan_branch_with_stranded_work_is_reported"
       }
     ]
   },
