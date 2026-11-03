@@ -27,3 +27,21 @@ CREATE TABLE IF NOT EXISTS feedback_daily (
   day TEXT    PRIMARY KEY,
   n   INTEGER NOT NULL DEFAULT 0
 );
+
+-- Mail to support@ and hello@marisstella.app (inbox.mjs). Private: read only
+-- through GET /inbox with INBOX_TOKEN, never copied into the repository.
+CREATE TABLE IF NOT EXISTS inbox (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  received   TEXT NOT NULL,
+  mail_from  TEXT NOT NULL,
+  rcpt_to    TEXT NOT NULL,
+  subject    TEXT NOT NULL DEFAULT '',
+  message_id TEXT NOT NULL DEFAULT '',
+  raw        TEXT NOT NULL
+);
+
+-- Messages accepted each day, for the inbox's daily cap.
+CREATE TABLE IF NOT EXISTS inbox_daily (
+  day TEXT    PRIMARY KEY,
+  n   INTEGER NOT NULL DEFAULT 0
+);
