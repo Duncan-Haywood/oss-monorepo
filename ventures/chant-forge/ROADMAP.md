@@ -94,3 +94,4 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
 
 - Artist name and whether it is published under the portfolio's name.
 - Distributor account (card, about $20–25 a year) and whether to pay singers.
+- 2026-11-03: `render-cli.mjs --lufs N --limit` (`limiterCurve` in `render.mjs`): 5 ms lookahead limiter looping on LUFS and true peak. Dies irae deep house: -14.00 LUFS, -1.05 dBTP (without `--limit` -15.91, -0.19); metal unchanged. 1 test; stems sum to the mix. Not listened to (pumping is an ear judgement).

@@ -6,7 +6,7 @@
 // pad, and synthesised GM drums. It is a PREVIEW, not a release master: the real
 // voices are recorded singers (RECORDING-GUIDE.md). Deterministic: a seeded noise
 // source, so the same MIDI gives the same bytes.
-import { readWav, integratedLufs } from './master.mjs';
+import { readWav, integratedLufs, truePeak } from './master.mjs';
 export { readWav };
 
 // ---- MIDI reading (format 0/1, running status, tempo map, channel programs) ----
@@ -173,7 +173,30 @@ function voiceFor(ch, program) {
   return 'chords';
 }
 
-export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0.8, targetLufs = null, ceiling = 0.89, stems = false } = {}) {
+// 0.80 sample ceiling (-1.9 dBFS) leaves room for inter-sample peaks under the -1 dBTP target
+const limitCeiling = (c) => Math.min(c, 0.8);
+
+// Per-sample gain (<= 1) that keeps max(|L|,|R|) under `ceil`: a 5 ms lookahead minimum,
+// then a 5 ms moving average of that minimum, which can only be lower than needed.
+export function limiterCurve(L, R, rate, ceil, ms = 5) {
+  const n = L.length, w = Math.max(1, Math.round(rate * ms / 1000));
+  const need = new Float64Array(n);
+  for (let i = 0; i < n; i++) { const a = Math.max(Math.abs(L[i]), Math.abs(R[i])); need[i] = a > ceil ? ceil / a : 1; }
+  const mn = new Float64Array(n), dq = new Int32Array(n);
+  let h = 0, t = 0;
+  for (let i = n - 1; i >= 0; i--) { // min over need[i..i+w]
+    while (t > h && need[dq[t - 1]] >= need[i]) t--;
+    dq[t++] = i;
+    while (dq[h] > i + w) h++;
+    mn[i] = need[dq[h]];
+  }
+  const out = new Float64Array(n), cs = new Float64Array(n + 1);
+  for (let i = 0; i < n; i++) cs[i + 1] = cs[i] + mn[i];
+  for (let i = 0; i < n; i++) { const a = Math.max(0, i - w + 1); out[i] = (cs[i + 1] - cs[a]) / (i + 1 - a); }
+  return out;
+}
+
+export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0.8, targetLufs = null, ceiling = 0.89, stems = false, limit = false } = {}) {
   const m = parseMidi(midiBytes);
   const sec = (t) => tickToSeconds(t, m.division, m.tempos);
   const progAt = (ch) => (m.programs.get(ch) || [[0, 0]])[0][1];
@@ -218,7 +241,32 @@ export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0
   // optional loudness target: gain to the target, then capped so the sample peak stays under
   // `ceiling` (0.89 = -1 dBFS); a quiet mix that would clip reports the LUFS it reached instead
   let lufs = null;
-  if (targetLufs !== null) {
+  if (targetLufs !== null && limit) {
+    // lookahead peak limiter: the loudness target is reached by pushing gain up and
+    // pulling the drum transients back down, instead of stopping where the first peak hits the ceiling
+    const before = integratedLufs([L, R], rate).lufs;
+    if (Number.isFinite(before)) {
+      let g = 10 ** ((targetLufs - before) / 20);
+      const base = [L.slice(), R.slice()];
+      const stemBase = stemBuf ? [...stemBuf].map(([, ch]) => [ch[0].slice(), ch[1].slice()]) : null;
+      let curve = null, gUsed = g, c = limitCeiling(ceiling);
+      for (let pass = 0; pass < 8; pass++) {
+        gUsed = g;
+        const x0 = base[0].map((v) => v * g), x1 = base[1].map((v) => v * g);
+        curve = limiterCurve(x0, x1, rate, c);
+        for (let i = 0; i < total; i++) { L[i] = x0[i] * curve[i]; R[i] = x1[i] * curve[i]; }
+        const now = integratedLufs([L, R], rate).lufs;
+        const tp = Math.max(truePeak(L), truePeak(R));
+        const tpDb = 20 * Math.log10(tp || 1e-9);
+        const loud = Number.isFinite(now) && Math.abs(now - targetLufs) < 0.05;
+        if (loud && tpDb <= -1.05) break;
+        if (tpDb > -1.05) c *= 10 ** ((-1.05 - tpDb) / 20); // inter-sample peaks: tighten the ceiling
+        if (Number.isFinite(now)) g *= 10 ** ((targetLufs - now) / 20);
+      }
+      if (stemBuf) [...stemBuf.values()].forEach(([sl, sr], k2) => { for (let i = 0; i < total; i++) { sl[i] = stemBase[k2][0][i] * gUsed * curve[i]; sr[i] = stemBase[k2][1][i] * gUsed * curve[i]; } });
+      lufs = integratedLufs([L, R], rate).lufs;
+    }
+  } else if (targetLufs !== null) {
     const before = integratedLufs([L, R], rate).lufs;
     if (Number.isFinite(before)) {
       let g = 10 ** ((targetLufs - before) / 20);
