@@ -4,6 +4,7 @@
 Run with: python3 -m unittest portfolio/router/test_allocate.py
 (or: cd portfolio/router && python3 -m unittest test_allocate)
 """
+import copy
 import tempfile
 import unittest
 from pathlib import Path
@@ -18,7 +19,7 @@ from allocate import (
     is_calculator,
     load_flagships,
     load_merit_scores,
-    load_ventures,
+    load_ventures as _load_ventures,
     next_task,
     rank,
     work_queue,
@@ -27,6 +28,25 @@ from allocate import (
     VENTURES_DIR,
     FLAGSHIPS_PATH,
 )
+
+
+_REAL_VENTURES = None
+
+
+def load_ventures(*args, **kwargs):
+    """load_ventures, parsing the real ~1,300 VENTURE.yaml files once per run.
+
+    Twelve tests loaded the real tree, ~10 s each without libyaml (the CI
+    runner's case). Calls with the default tree share one parse and get a deep
+    copy, so a test that mutates its list cannot leak into another; calls with
+    their own directory still parse fresh.
+    """
+    global _REAL_VENTURES
+    if args and args[0] != VENTURES_DIR or kwargs:
+        return _load_ventures(*args, **kwargs)
+    if _REAL_VENTURES is None:
+        _REAL_VENTURES = _load_ventures(VENTURES_DIR)
+    return copy.deepcopy(_REAL_VENTURES)
 
 
 def make(
