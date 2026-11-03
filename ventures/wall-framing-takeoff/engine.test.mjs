@@ -1017,6 +1017,8 @@ test("redteam 2026-11-03: a gable header is checked at the edge of its default j
   assert.deepEqual(at(101), []); // 1/8 in under the sloped plate at the header's low end
   assert.ok(at(101.5).some((e) => /does not fit under the sloped top plate \(3\/8" too tall/.test(e)));
 
+});
+
 test("a wall id that is not non-empty text is refused (an object id used to pass and print [object Object])", () => {
   for (const bad of [{ a: 1 }, 7, true, "  ", ["x"]]) {
     const p = samplePlan();
