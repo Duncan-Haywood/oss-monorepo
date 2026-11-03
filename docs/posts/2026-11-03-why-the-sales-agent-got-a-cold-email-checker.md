@@ -1,9 +1,9 @@
 ---
 title: "Why the sales agent got a free cold email checker"
-seo_title: "Free cold email checker: opt-out, postal address, spam signals, consent by country"
+seo_title: "Free cold email checker: opt-out, address, spam signals"
 date: 2026-11-03
 tags: [sales, email, compliance, open-source]
-description: "Sales Agent handled the replies to cold email but nothing before the send. A browser checker now lists the missing opt-out, address and spam signals, by country."
+description: "Sales Agent handled replies to cold email but nothing before the send. A browser checker now lists the missing opt-out, address and spam signals, by country."
 ---
 
 The sales agent starts after the send: it sorts replies, suppresses unsubscribes and drafts answers for a person to approve. Nothing sat in front of the first touch, which is where the avoidable mistakes are: no opt-out line, no postal address, a `Re:` on an email that is not a reply, a `[Company]` placeholder left in.
