@@ -49,7 +49,10 @@
       "result": "honest disclosure"
     }
   ],
-  "writeups": "docs/posts/2026-11-03-how-little-power-does-an-underwater-glider-need.md; research/marine-hull/LOG.md 4d",
+  "writeups": [
+    "docs/posts/2026-11-03-how-little-power-does-an-underwater-glider-need.md",
+    "research/marine-hull/LOG.md"
+  ],
   "goal": null,
   "notes": "Local checks: build.py ok, cite_check no ids, script deterministic. No new tests (reuses tested functions).",
   "corrections": [],
