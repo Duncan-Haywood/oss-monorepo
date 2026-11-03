@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01AcxTtLL6WxxfLLFE7ZbnXz",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T17:09:06Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12860",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "security-alerts branch does not exist on origin; step 0 command fails with no note on what to do"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Did not rewrite ai-bookkeeper next:; the slice was a one-keyword fix found by probing, not a milestone item",
+      "did": "small categorizer fix plus test and post",
+      "result": "merged-ready, tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-03-why-at-and-t-bills-slipped-past-a-bookkeeping-keyword.md"
+  ],
+  "goal": null,
+  "notes": "Small slice: probed 15 descriptors, one real miss (ATT*). Not a deep milestone.",
+  "corrections": [],
+  "redteam": null
+}
