@@ -26,28 +26,32 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
-  "errors": [],
+  "outcome": "partial",
+  "errors": [
+    "Pushed a merge commit with conflict markers in portfolio/flagships.yaml, then removed it in the next commit; never merged to main."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompt.md",
-      "issue": "security-alerts branch does not exist on origin; step 0 fetch failed (harmless)."
+      "issue": "security-alerts branch does not exist on origin; step 0 fetch fails."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Two overlapping sessions picked the same chant-forge next: item; no claim marker."
     }
   ],
   "deviations": [
     {
       "file": "prompts/ventures/prompt-1.md",
-      "why": "Took the chant-forge flagship (small, self-contained) rather than the top allocate row, wall-framing-takeoff, whose remaining items need real inputs.",
-      "did": "landed mastercheck.mjs",
-      "result": "8 tests pass"
+      "why": "Built a chant-forge mix check that PR #12763 landed minutes earlier (same milestone).",
+      "did": "dropped my duplicate (mastercheck.mjs, post), kept only a fix for missing tags in the Georgia lien post that broke the validate check",
+      "result": "duplicate avoided; the run's value is the validate fix"
     }
   ],
-  "writeups": [
-    "docs/posts/2026-11-03-chant-forge-loudness-check.md"
-  ],
+  "writeups": [],
   "goal": null,
-  "notes": "Chant-forge suite run locally; calibration fixed test expectations (997 Hz sine reads its dBFS).",
+  "notes": "Duplicate-work collision with #12763; consolidated by deleting my copy.",
   "corrections": [],
   "redteam": null
 }
