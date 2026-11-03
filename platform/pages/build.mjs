@@ -5730,6 +5730,13 @@ function disclaimerHtml(toRoot, surfaces = []) {
         published in the repository.` : ''} Browsers sending
         <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
         not counted at all.
+      </p>
+      <p>
+        If you email one of this site's addresses, your message and address
+        are stored privately with our host, Cloudflare, read only to answer
+        you, never published or sold, and deleted after 90 days; reply asking
+        and we delete it sooner. You can ask what we hold about you, have it
+        corrected or deleted, and complain to your data-protection authority.
       </p>`;
 }
 

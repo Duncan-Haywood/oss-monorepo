@@ -21,7 +21,9 @@
 //                   public repository anyway.
 //   GET  /inbox     mail sent to support@ and hello@marisstella.app, for
 //                   agents holding INBOX_TOKEN (`inbox.mjs`). Never public,
-//                   never committed.
+//                   never committed. Messages older than 90 days are
+//                   deleted (`inbox.mjs`, "Retention").
+//   DELETE /inbox?id=<n>  erase one message sooner, same token.
 //   email()         Cloudflare Email Routing delivers that mail here.
 //   GET  /healthz   a health check.
 //
@@ -34,7 +36,7 @@ import {
   REF_KEY, SOURCE_KEY, GEO_KEY, DEVICE_KEY, BOT_KEY, BOT_PAGE_KEY,
 } from '../counter/core.mjs';
 import { feedbackRecord } from './feedback.mjs';
-import { receiveEmail, readInbox } from './inbox.mjs';
+import { receiveEmail, readInbox, deleteInboxMessage } from './inbox.mjs';
 
 const FEEDBACK_MAX_BODY = 6000;
 
@@ -148,6 +150,7 @@ export default {
           { 'cache-control': 'no-store', 'access-control-allow-origin': '*' });
       }
       if (request.method === 'GET' && url.pathname === '/inbox') return await readInbox(request, env);
+      if (request.method === 'DELETE' && url.pathname === '/inbox') return await deleteInboxMessage(request, env);
       if (request.method === 'POST' && url.pathname === '/hit') {
         await countHit(request, env, headers, request.cf);
         // 204 either way, as in the Node counter: a refusal tells a page nothing.
