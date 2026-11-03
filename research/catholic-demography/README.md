@@ -3,7 +3,7 @@
 A research programme comparing the demography of Catholic subpopulations, starting with the
 United States and the General Social Survey (GSS) 1972-2024, with design-based 95% intervals.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/catholic-demography/
+**Live page:** https://marisstella.app/research/catholic-demography/
 
 ## Headline results (milestone 1, 2026-11-03)
 
