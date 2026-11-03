@@ -1005,6 +1005,20 @@ test("a non-numeric headerHeight or tee is refused with a reason (headerHeight '
   assert.equal(takeoff(samplePlan()).ok, true);
 });
 
+test("redteam 2026-11-03: a single-ply header and a four-ply header are accepted, only 0 and 5 are refused", () => {
+  const ok = (plies) => { const p = samplePlan(); p.walls[0].openings[0].headerPlies = plies; return validatePlan(p); };
+  assert.deepEqual(ok(1).filter((e) => /header plies/.test(e)), []);
+  assert.deepEqual(ok(4).filter((e) => /header plies/.test(e)), []);
+  assert.ok(ok(5).some((e) => /header plies must be a whole number/.test(e)));
+});
+
+test("redteam 2026-11-03: a gable header is checked at the edge of its default jacks, to the eighth of an inch", () => {
+  const at = (h) => validatePlan({ ...base(), walls: [{ id: "G", length: 240, gable: { pitch: 6 }, openings: [{ kind: "window", label: "w", offset: 30, width: 30, height: 30, header: "2x8", headerHeight: h }] }] });
+  assert.deepEqual(at(101), []); // 1/8 in under the sloped plate at the header's low end
+  assert.ok(at(101.5).some((e) => /does not fit under the sloped top plate \(3\/8" too tall/.test(e)));
+
+});
+
 test("a wall id that is not non-empty text is refused (an object id used to pass and print [object Object])", () => {
   for (const bad of [{ a: 1 }, 7, true, "  ", ["x"]]) {
     const p = samplePlan();
