@@ -1,0 +1,11 @@
+NaijaSenti negative, nb-in-language: prevalence 0.3272, n 1000, pilot share 0.3, 1000 draws
+design | lambda | coverage % | half-width pts
+cells | 0 | 94.2 | 2.425
+pooled | 0 | 94.7 | 2.650
+ratio cells/pooled at lambda 0: 0.915
+cells | 1 | 94.2 | 2.425
+pooled | 1 | 95.5 | 2.908
+ratio cells/pooled at lambda 1: 0.834
+cells | fit | 94.2 | 2.425
+pooled | fit | 94.8 | 2.438
+ratio cells/pooled at lambda fit: 0.995
