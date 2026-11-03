@@ -23,9 +23,10 @@ GAMMA, BW_FLOOR, P_RANDOM, MIN_OBS = (float(os.environ.get("BOHB_GAMMA", 0.25)),
 DEGRADE = float(os.environ.get("BOHB_DEGRADE", 0))
 PART = os.environ.get("BOHB_PART", "both")  # milestone 63: both | score | features
 TAG = os.environ.get("BOHB_TAG", "")  # sensitivity runs (milestone 57) write results<_unseen>_<TAG>.* instead of overwriting
-HELD = len(sys.argv) > 1 and sys.argv[1] == "unseen"
-SUF = ("_unseen" if HELD else "") + (f"_{TAG}" if TAG else "")
-TABLES = {n: HERE.parent / n / "results.jsonl" for n in (("unseen",) if HELD else ("rung_bias", "large", "nonarith"))}
+ARG = sys.argv[1] if len(sys.argv) > 1 else ""  # "unseen" (milestone 27) or "unfaithful" (milestone 68: mult20, mult28)
+HELD = ARG in ("unseen", "unfaithful")
+SUF = (f"_{ARG}" if HELD else "") + (f"_{TAG}" if TAG else "")
+TABLES = {n: HERE.parent / n / "results.jsonl" for n in ((ARG,) if HELD else ("rung_bias", "large", "nonarith"))}
 RUNGS = ("r2", "r3", "r4")
 
 
