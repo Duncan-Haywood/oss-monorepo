@@ -57,6 +57,13 @@ test("Florida: 45 days to Notice to Owner, 90 days after last furnishing to lien
   assert.ok(r.findings.some((f) => /final payment/.test(f.detail)));
 });
 
+test("Georgia: 30-day notice from first furnishing, 90 days to lien", () => {
+  const r = run({ state: "GA" });
+  assert.equal(iso(r.prelim.date), "2026-04-09");
+  assert.equal(iso(r.lien.date), "2026-09-18");
+  assert.match(JSON.stringify(r), /Notice to Contractor/);
+});
+
 test("Washington: 60 days commercial, 10 days residential, 90 days to lien", () => {
   assert.equal(iso(run({ state: "WA" }).prelim.date), "2026-05-09");
   const res = run({ state: "WA", projectType: "residential" });
