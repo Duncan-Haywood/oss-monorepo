@@ -469,7 +469,7 @@ export function sizeLandingFootings(width, depth, spacing, { soilBearing, liveLo
   if (!(num(soilBearing) && soilBearing > 0)) return { ok: false, errors: ["soilBearing must be a positive figure in psf."] };
   if (!(num(width) && num(depth) && num(spacing) && width > 0 && depth > 0 && spacing > 0)) return { ok: false, errors: ["Landing width, depth and post spacing must be positive numbers."] };
   if (spacing < 12 || width > 1200 || depth > 1200) return { ok: false, errors: ["Post spacing must be at least 12 in and the landing no wider or deeper than 100 ft."] };
-  for (const [k, v] of [["liveLoad", liveLoad], ["deadLoad", deadLoad], ["extraLoad", extraLoad]]) if (!num(v) || v < 0) return { ok: false, errors: [`${k} must be a number of pounds or psf, zero or more.`] };
+  for (const [k, v] of /** @type {[string, any][]} */ ([["liveLoad", liveLoad], ["deadLoad", deadLoad], ["extraLoad", extraLoad]])) if (!num(v) || v < 0) return { ok: false, errors: [`${k} must be a number of pounds or psf, zero or more.`] };
   if (postCapacity != null && !(num(postCapacity) && postCapacity > 0)) return { ok: false, errors: ["postCapacity must be a positive number of pounds."] };
   const bays = (len) => Math.max(1, Math.ceil(len / spacing - 1e-9));
   const along = bays(width), across = bays(depth);
