@@ -114,6 +114,14 @@ export function clipRuns(x, minRun = TARGETS.clipRunMin, level = 0.9999) {
   return runs;
 }
 
+// Gain in dB that moves the track to the loudness target, capped so the true
+// peak stays under its ceiling (null when silent). Cap means the target may
+// stay out of reach: a limiter is then needed, not just a fader.
+export function suggestGain(lufs, truePeakDb, targets = TARGETS) {
+  if (!Number.isFinite(lufs) || !Number.isFinite(truePeakDb)) return null;
+  const want = targets.lufs - lufs, room = targets.truePeakMax - truePeakDb;
+  return +Math.min(want, room).toFixed(2);
+}
 export function analyze({ rate, channels }, targets = TARGETS) {
   const { lufs } = integratedLufs(channels, rate);
   const tp = Math.max(...channels.map((c) => truePeak(c)));
@@ -133,9 +141,10 @@ export function analyze({ rate, channels }, targets = TARGETS) {
     seconds: n / rate, rate, channels: channels.length,
     lufs, truePeakDb: db(tp), monoLossDb: mono, correlation: corr, clipRuns: clips,
   };
+  r.suggestedGainDb = suggestGain(lufs, r.truePeakDb, targets);
   const checks = [];
   checks.push({ name: 'loudness', ok: Number.isFinite(lufs) && Math.abs(lufs - targets.lufs) <= targets.lufsTolerance,
-    note: `${lufs.toFixed(1)} LUFS integrated; aim ${targets.lufs} +/- ${targets.lufsTolerance}` });
+    note: `${lufs.toFixed(1)} LUFS integrated; aim ${targets.lufs} +/- ${targets.lufsTolerance}${r.suggestedGainDb !== null && Math.abs(r.suggestedGainDb) >= 0.1 ? `; suggested gain ${r.suggestedGainDb > 0 ? '+' : ''}${r.suggestedGainDb} dB` : ''}` });
   checks.push({ name: 'true peak', ok: r.truePeakDb <= targets.truePeakMax, note: `${r.truePeakDb.toFixed(2)} dBTP; ceiling ${targets.truePeakMax}` });
   if (mono !== null) checks.push({ name: 'mono compatibility', ok: -mono <= targets.monoLossMax, note: `${mono.toFixed(1)} dB summed to mono vs stereo power; correlation ${corr === null ? 'n/a' : corr.toFixed(2)}` });
   checks.push({ name: 'clipping', ok: clips === 0, note: `${clips} run(s) of ${targets.clipRunMin}+ samples at full scale` });
