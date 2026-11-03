@@ -387,7 +387,7 @@ decisions:
 
 - id: search-engine-verification
   asks: []
-  prs: []
+  prs: [12907]
   gates: distribution
   exposure: none
   opened: "2026-11-03"
