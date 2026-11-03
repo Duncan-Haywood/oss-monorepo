@@ -108,3 +108,19 @@ test('--lufs brings a quiet deep-house preview to the target within 0.3 LU, peak
   assert.ok(Math.abs(res.lufs + 14) < 1.5 || peak > 0.88, `lufs ${res.lufs} peak ${peak}`);
   assert.equal(run(['x.mid', '--lufs', '5']).code, 2);
 });
+
+test('stems sum to the mix and cover each voice', () => {
+  const { p, events } = piece();
+  const backing = arrange({ genre: 'metal', mode: Number(p.header.mode), final: 50, bars: 4 });
+  const midi = eventsToMidi(events.slice(0, 12), { bpm: 124, drone: true, backing });
+  const r = renderMidi(midi, { stems: true });
+  const names = Object.keys(r.stems);
+  assert.ok(names.includes('choir') && names.includes('drums') && names.includes('bass'), names.join());
+  let worst = 0;
+  for (let i = 0; i < r.channels[0].length; i += 7) {
+    let s = 0; for (const v of names) s += r.stems[v].channels[0][i];
+    worst = Math.max(worst, Math.abs(s - r.channels[0][i]));
+  }
+  assert.ok(worst < 1e-9, `stems differ from mix by ${worst}`);
+  assert.equal(renderMidi(midi).stems, undefined);
+});
