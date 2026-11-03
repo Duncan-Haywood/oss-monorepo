@@ -4,7 +4,8 @@ Every session started from this file follows it; the scheduled routines say
 "read ./prompt.md". This repository holds two portfolios, products under
 `ventures/` and research under `research/`, and one prompt system. About 7%
 of runs go to the red team / blue team track, which seeds faults to measure
-how many the repository's tests catch, and patches what gets through. The system
+how many the repository's tests catch, and, as a purple team, fixes what it
+finds as well as finding it. The system
 routes each run to a sub-prompt, measures how runs go, and uses the
 measurements to improve the sub-prompts and the documentation.
 [`prompts/README.md`](prompts/README.md) explains the whole loop.

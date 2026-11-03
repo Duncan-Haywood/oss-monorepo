@@ -1,0 +1,51 @@
+name: Workflow self-audit
+
+# Standing security guard between red-team runs (owner, 2026-11-03: red, blue
+# and purple team work should build "automation systems to try to catch
+# security errors even when it's not possible to do a full red blue team run").
+# Runs this repository's own Workflow Audit (ventures/workflow-audit, twelve
+# GitHub Actions checks: pull_request_target checkouts, script injection,
+# unpinned actions, write-all tokens, leaked secrets...) over .github/workflows
+# and fails on any high-severity finding. On 2026-11-03 it reported 0 high,
+# 11 medium, 3 low, so it starts green and holds the line. Reads tracked files
+# only; publishes nothing, pushes nothing, calls no paid API.
+
+on:
+  pull_request:
+    paths: [".github/workflows/**", ".github/actions/**", "ventures/workflow-audit/**"]
+  push:
+    branches: [main]
+    paths: [".github/workflows/**", ".github/actions/**", "ventures/workflow-audit/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  audit:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/
+            /ventures/workflow-audit/
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Audit this repository's workflows (fail on high)
+        run: python3 ventures/workflow-audit/audit.py . --fail-on high --format markdown --output "$GITHUB_STEP_SUMMARY"
+
+      - name: Same findings in the log
+        if: always()
+        run: python3 ventures/workflow-audit/audit.py . --fail-on none
