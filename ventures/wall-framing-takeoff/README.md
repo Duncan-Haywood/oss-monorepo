@@ -22,6 +22,7 @@ construction in the US and bring its cost down: [ROADMAP.md](ROADMAP.md).
 
 - Every page links to the other six (a "More free building calculators" block above the footer, 2026-10-31); `page.test.mjs` pins it. Markup only, no visit data.
 - Standalone siding calculator page `siding-calculator.html` (2026-10-31): house size, exposure, openings in; courses, boards, wrap, corner boards out; page test pins the 40 x 30 ft example to the engine. Browser-checked in Chromium.
+- Standalone deck lumber calculator page `deck-lumber-calculator.html` (2026-11-03): width, depth, height, joist spacing, beam, posts and attachment in; joists, beam, posts, footing bags, deck board rows, lumber order and hardware out, by the same `layoutDeck` as `--deck`. `page.test.mjs` pins the 16 x 12 ft default (13 joists, 3 posts, 26 rows, 16 bags) and its FAQ; clicked in headless Chromium (spacing and depth changes re-run, no console errors). Linked from every sibling page, the sitemap and `llms.txt`. Sizes are typed inputs, not checked against a code.
 
 ## What it does
 
