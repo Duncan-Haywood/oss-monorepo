@@ -100,6 +100,74 @@ injects it. That copy covers uptime and "the URL went away". It does not
 cover storing personal data, so a product that must store any says so in its
 privacy line.
 
+## Keeping the deploy green
+
+On 2026-11-03 the site kept answering 200 but stopped changing from 17:04
+UTC on, for two separate reasons. First, the build job's 20-minute cap: its
+depth-3000 checkout had grown to 12 to 20 minutes on every runner, so every
+push run timed out and showed as `cancelled`. Second, from 18:04, a blog post
+that reused a tool page's `<title>`, which `check.mjs` treated as fatal. A
+site that answers but has stopped changing is the outage to guard against
+here, because an uptime probe never sees it. The guidelines below came out of
+that incident (PR #12902, PR #12910 and the PR that added this section).
+
+**A deploy degrades; it does not block.** The PR run is the gate. The run that
+deploys `main` should block only on something that would make the site worse
+than the last good build: a missing disclaimer, a leaked file, a dead link, a
+collapse in the product count. Search hygiene (duplicate titles, h1 count,
+title length) fails a PR run and a local `check.mjs`, but on a push,
+scheduled or manual run it prints `::warning::` lines and the deploy goes
+ahead (`hygieneIsFatal` in `platform/pages/check.mjs`; `PAGES_HYGIENE=fatal`
+or `warn` overrides). When you add a check, decide which kind it is. If it
+would block a deploy, say why in a comment.
+
+**Where the right answer is clear, the build applies it.** A blog post whose
+title matches a tool page's title is renamed to its own headline at build
+time, with a warning (`fixPostTitleClashes` in `platform/pages/page-identity.mjs`).
+The tool page keeps the query-shaped title. Prefer this kind of build-time
+repair to a fatal check when the repair cannot be wrong, and still fix the
+source in a PR when the warning shows up.
+
+**Don't merge over a red or unfinished Portfolio Pages PR run.** It builds the
+same site the deploy will. The PR that caused this incident merged before its
+run had finished, and that run would have failed.
+
+**Keep the slowest step well under the job's timeout.** A job that hits
+`timeout-minutes` ends `cancelled`, not `failure`, and on a busy day it looks
+just like the normal cancellations of replaced pending runs. Checkout time
+grows with the repository's history, so a cap that fit with room to spare in
+October can stop fitting in November. When you set or tighten a timeout, leave
+at least twice the measured job time (PR #12910 raised the build cap to 45
+minutes). When a step's time jumps, record it in `docs/history/`.
+
+**Watch freshness, not status codes.** Each build writes `version.json`
+(`sha`, `built_at`, `event`). `python3 platform/ci/check_site_fresh.py` fails
+when the live build is more than 4.5 h old: three hours between scheduled
+deploys plus an hour to build. It reports "unknown" rather than failing when
+the site can't be reached from where it runs. `main_health.py` runs it with
+every other `check_*.py`, so any session that checks main health also sees a
+stale site.
+
+### When the site stops updating
+
+1. List the recent `portfolio-pages.yml` runs on `main` and find the last
+   `success`. A run that is `cancelled` and has no `build` job, or whose
+   build job never got past its first steps, was a pending run replaced by a
+   newer merge. That is normal. A `cancelled` run whose `build` job ran right
+   up to its `timeout-minutes` timed out, and that is the outage, just as a
+   string of `failure` runs is. Compare step times (checkout, "Build the site")
+   with the last success.
+2. For a `failure`, read the failed `build` job's log tail. `check.mjs` prints each problem on
+   its own line, so the cause is usually the last 20 lines.
+3. Fix the source, run `node build.mjs --out=dist && node check.mjs dist`
+   locally (about ten minutes; start it with `run_in_background`), then merge.
+   Look again after the merge: a second blocker can be hiding behind the
+   first (2026-11-03 had two). A fix to the workflow itself sits under
+   `.github/` and needs the owner's approval: open it as its own small PR and
+   tell them it is holding the site.
+4. If the class of failure can come back, add a build-time repair or move the
+   check to the PR-only kind (above) in the same or the next PR.
+
 ## Lessons from the hosting history
 
 Each is one line of what happened and what it suggests. The evidence is in

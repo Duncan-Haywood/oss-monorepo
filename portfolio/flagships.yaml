@@ -273,13 +273,15 @@ flagships:
     next: >-
       Landed work (browser studio, mix/master check, release kit, GABC and NABC
       readers, --fit/--stretch, --repeat, --halftime, --fills, --lrc, --cues,
-      --suggest-final/--auto-final, preview renderer, --limit, --stems), with
+      --suggest-final/--auto-final, preview renderer, --limit, --stems, --intro,
+      --markers, per-service playback gain), with
       dates and tests, is in ventures/chant-forge/README.md and git. Open, most
       valuable first: listen to the outputs by ear (--stretch, --halftime,
-      --fills, --limit pumping, stems in a DAW) and put the studio page in front
+      --fills, --intro, --limit pumping, stems and --markers in a DAW) and put the studio page in front
       of users; check the range and cue sheets with real singers
       (RECORDING-GUIDE.md); check the release kit against a distributor's real
-      upload form; check master-cli on EBU test files and a real mix; compare a
+      upload form; check master-cli on EBU test files and a real mix, and its per-service
+      playback targets against each service's own page; compare a
       sample of the Graduale files against a pre-1929 scan (notes, not just
       parse); source the Te Deum and Salve Regina from a pre-1929 book; read the
       11 off-final endings against the book (ROADMAP.md).

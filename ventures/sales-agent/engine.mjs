@@ -293,6 +293,13 @@ const RULES = {
     // Added 2026-11-03 after eval/fresh-2026-11-03.jsonl missed 5 of 16 opt-outs: "remove it immediately" (address), "ne m'écrivez plus",
     // "non contattarmi più", a GDPR Article 21 objection, and "I don't want to hear from you again".
     P("\\bremove (it|this|that)( (address|email))? (immediately|now|asap)\\b"), P("\\bne m.[ée]crivez plus\\b"), P("\\bnon contattarmi\\b"), P("\\b(cease|stop) processing my (personal )?data\\b"), P("\\bgdpr\\b.*\\b(article 21|object|erasure|delete)"), P("\\b(i )?(don'?t|do not|never) want to (hear|receive|get)\\b.*\\b(from you|again|more)\\b"),
+    // Added 2026-11-03 after eval/fresh-2026-11-03c.jsonl (agent-written, 24 opt-outs) missed 10: "add this address to your do-not-contact list",
+    // "refrain from further correspondence", "no-solicitation policy", "rather you didn't contact me", "leave our company out", "don't ever contact",
+    // "don't send me anything else", and ES/FR/IT phrasings. Unscored on real mail.
+    P("\\bdo[- ]not[- ](contact|call|email|mail)\\b"), P("\\brefrain from (any )?(further|more|future)? ?(correspondence|contact|communication|emails?|messages?)"), P("\\bno[- ]solicitation\\b"),
+    P("\\b(rather|prefer) (that )?you (didn'?t|did not|not|wouldn'?t|would not) (contact|email|write|message|call)"), P("\\bleave (me|us|our \\w+|my \\w+) out of\\b"), P("\\b(don'?t|do not|never) ever (contact|email|write|message|call)"),
+    P("\\b(don'?t|dont|do not) send (me|us) (anything|any ?more|more)\\b"), P("\\b(contact|email|write to|message) (me|us) (anymore|any more|again)\\b.*\\b(don'?t|do not|please don)"),
+    P("supprimiez (mon|mes|notre|nos)\\b"), P("deja de (enviar|mandar|escribir)(me|nos)?\\b"), P("\\bnon (scrivetemi|scrivermi|inviatemi|mandatemi)\\b"),
     P("\\bcease and desist\\b"), P("\\bcease (all )?(further )?(email|e-mail|communication|contact)"),
     // Other languages (added after the third eval set; unverified beyond one example each): FR, DE, ES, IT opt-out phrasings.
     P("\\bne (me )?contactez plus\\b"), P("\\b(retirer|supprimer) (de|mon|mes|mon adresse)\\b.*\\b(liste|diffusion|donn[ée]es)"), P("\\b(kontaktieren|anschreiben|schreiben)( sie)? mich nicht mehr\\b"), P("\\bnicht mehr (kontaktieren|anschreiben|schreiben)\\b"), P("\\bsc?hreiben sie mir nicht mehr\\b"), P("\\bno me (vuelvan a )?(escrib|contact)"), P("\\bnon (mi |ci )?contatt\\w* pi[uù]\\b"), P("\\bnon contattatemi\\b"),

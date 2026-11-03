@@ -1,0 +1,61 @@
+{
+ "date": "2026-11-03",
+ "session": "https://claude.ai/code/session_01XpHqyedBC42BjbLaK4gGjV",
+ "track": "process",
+ "prompt_version": 1,
+ "input": "site is down. work on bug fixing that",
+ "input_sha256": "b5e485799e545896f638de4f65119b2fd1efe214bf8a93eff4befd23dce7963a",
+ "follow_up_inputs": [],
+ "model": "claude-opus-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-03T20:21:40Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "fix site deploy outage",
+ "projects": [
+  "platform/pages"
+ ],
+ "pr": 12902,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 1,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [
+  {
+   "issue": "My first post and PR #12902 named the duplicate title as the sole cause; the build timeout had already frozen the site an hour earlier. Corrected in the post (dated correction note) and the follow-up PR."
+  }
+ ],
+ "doc_friction": [
+  {
+   "file": "platform/pages/check.mjs",
+   "issue": "Every check problem is fatal before upload, so a single duplicated post title stopped all deploys for over an hour; PR-side Portfolio Pages runs showed the failure but the PRs merged anyway."
+  },
+  {
+   "file": "portfolio/hosting/README.md",
+   "issue": "Nothing said a 'cancelled' Pages run can be a timeout rather than a replaced pending run; on a busy day the timeouts hid among normal cancellations for 3.5 h. Now documented in the runbook."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompt.md",
+   "why": "User directed the task (site down), so skipped the weighted route draw and recorded under process/1.",
+   "did": "fixed the deploy blocker directly",
+   "result": "deploy unblocked pending merge"
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "Runs 41701427031 and 41703999976 failed check.mjs on duplicate <title> (sales-agent/cold-email-checker.html vs writing/why-the-sales-agent-got-a-cold-email-checker/). The new guard then surfaced a second clash already on main (SPF/DKIM/DMARC post vs its tool page, PR #12889); both posts retitled at source. page-identity tests 10/10 pass. Full local build: BUILD_EXIT=0; check.mjs: 'dist looks publishable: 1326 products, 45 category pages, 6676 pages, no dead links.' CHECK_EXIT=0. FOLLOW-UP (user asked for prevention): the real freeze began 17:04 UTC. Build job timeout-minutes 20 vs a depth-3000 checkout of 12-20 min on every runner (97 s on 2026-10-24); every push run 17:10-20:33 timed out as 'cancelled'. Timeout raised to 45 in PR #12910 (control plane, awaiting owner approval). Prevention PR: search hygiene warns instead of blocking on deploy runs (hygieneIsFatal), version.json + platform/ci/check_site_fresh.py (in main_health), hosting README 'Keeping the deploy green' guidelines and runbook, corrected first post, follow-up post. check.test.mjs 97/97.",
+ "corrections": [],
+ "redteam": null
+}
