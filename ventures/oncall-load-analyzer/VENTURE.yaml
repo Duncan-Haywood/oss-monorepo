@@ -55,5 +55,5 @@ kill_criteria:
   - A user reports that the night or flap classification mislabelled their pages, at which point the rules need per-team configuration.
 
 links:
-  production: https://duncan-haywood.github.io/oss-monorepo/oncall-load-analyzer/
+  production: https://marisstella.app/oncall-load-analyzer/
   analytics: null

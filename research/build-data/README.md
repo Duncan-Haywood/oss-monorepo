@@ -4,4 +4,4 @@ Research programme (proposal stage), AI-assisted: do open permit feeds predict p
 
 Paper: a first draft assembling milestones 1 to 8 is in [`paper/paper.md`](paper/paper.md) (numbers copied from the log, with limits and a to-do list; the proposal's other baselines are still unrun).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/build-data/
+**Live page:** https://marisstella.app/research/build-data/

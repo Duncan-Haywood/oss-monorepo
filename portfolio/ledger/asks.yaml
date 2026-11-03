@@ -385,110 +385,56 @@ decisions:
     "left unmerged" until 2026-08-29, which sent anyone acting on it to a
     closed PR.
 
-- id: pages-custom-domain
+- id: search-engine-verification
   asks: []
-  prs: [4427]
+  prs: []
   gates: distribution
   exposure: none
-  opened: "2026-09-10"
+  opened: "2026-11-03"
   action: >-
-    **URGENT as of 2026-10-01 -- domain-takeover risk.** The owner deleted the
-    Hetzner servers that day, but `marisstella.dev`, `www`, `tools` and the
-    wildcard `A *` record (`portfolio/hosting/README.md`) still resolve to the
-    released IP `89.167.29.39`. If Hetzner reassigns that address, a stranger
-    serves content under the portfolio's name. Repoint the records as below,
-    or delete them (including the wildcard) if you are not ready to; do not
-    leave them pointing at the released IP.
-    **Point `marisstella.dev` at GitHub Pages instead of the deleted servers, at
-    your registrar's DNS panel, then set it as this repository's custom domain
-    in Settings → Pages.** Two records, both replacing what is there now: the
-    apex `A` records (and `AAAA` if the panel offers them) at GitHub's Pages
-    addresses, and `www` as a `CNAME` to `duncan-haywood.github.io`. Take the
-    addresses from GitHub's own "Managing a custom domain for your GitHub
-    Pages site" page rather than from any number typed into this repository --
-    a published IP restated in a file that nothing re-reads is the exact
-    failure `CLAUDE.md` records paying for twice. After the domain verifies,
-    tick "Enforce HTTPS" once the certificate issues (minutes to an hour), and
-    re-run `CONFIRM=publish-pages-branch PAGES_CNAME=marisstella.dev PUSH=1
-    ./platform/pages/publish-branch.sh` so the serving branch carries the
-    `CNAME` file. Nothing here is pasted into this repository and no secret
-    changes hands; it is reversible by putting the old record back.
+    Prove to Google and Bing that you own https://marisstella.app/, then hand
+    them the sitemap. (1) Google Search Console, https://search.google.com/search-console:
+    add a URL-prefix property for https://marisstella.app/, pick the "HTML tag"
+    method, and paste only the `content="..."` value into the `google` list in
+    `platform/seo/site-verification.json` (or give it to any agent session).
+    Merging deploys the tag to the home page; then press Verify, and under
+    Sitemaps submit `sitemap.xml`. A Domain property verified by a DNS TXT
+    record in Cloudflare works as well and needs no file change.
+    (2) Bing Webmaster Tools, https://www.bing.com/webmasters: "Import from
+    Google Search Console" after step 1 (no token needed), or the meta-tag
+    method into the `bing` list. (3) Optional, for the measurement loop: in
+    Google Cloud, enable the Search Console API, create a service account, add
+    its email as a Restricted user on the property, and store the key JSON as
+    the repository secret `GSC_SERVICE_ACCOUNT_JSON`; `platform/seo/probe.py
+    gsc` then reads clicks, impressions and position. (4) Repository About ->
+    Website: https://marisstella.app/. Tokens are public by design (each
+    engine reads them from the live page); the service-account key is a
+    secret and goes only in the secrets store. Remove this row once (1) and
+    (2) verify.
   unlocks:
     - >-
-      Sitemap auto-discovery for all 881 published pages, which has never once
-      happened. The site is served from a project-Pages *subpath*
-      (`https://duncan-haywood.github.io/monorepo-projects/`), but a crawler
-      fetches `robots.txt` from the *host* root -- which belongs to the
-      owner's separate user-level Pages site. So the `Sitemap:` line this
-      build writes has never been read by anything, and
-      `portfolio/usage/usage.yaml` carries no visitor reading at all for any of
-      the 200 products -- every one of its `live_url_visitors` entries is
-      `null`, and not one is a measured zero. Never-measured is not the same as
-      measured-zero: the first is evidence about nothing and licenses going to
-      get a reading, the second would be evidence against the products
-      themselves. At an origin root the file the build publishes is the file
-      crawlers read. This is the same defect `platform/ci/pages_state.py`
-      reports as its `indexing` row.
-      **Corrected 2026-09-17: this row used to call itself "the cheaper, more
-      permanent" of two fixes, and it is no longer the cheapest of three.**
-      `pages_state.py` now names a third, ahead of this one: a `robots.txt` at
-      the *user* Pages site root (`https://duncan-haywood.github.io/
-      robots.txt`) carrying this catalogue's `Sitemap:` line. The sitemaps
-      protocol only requires verification for a *cross-host* sitemap, and
-      every `<loc>` published here is same-host under the one subpath
-      (checked against `origin/gh-pages`), so two lines in a repository named
-      `<owner>.github.io` restore enumeration for every crawler at once --
-      with no registrar, no DNS change, no certificate wait and no money. It
-      shares this row's advantage over Search Console (read at fetch time, so
-      it reaches crawlers nobody submits to) at a fraction of the cost.
-      So enumeration alone no longer justifies this row, and the honest
-      ranking on that one axis puts the robots.txt route first. What that
-      route does *not* buy is everything below -- the public name, and
-      IndexNow from an origin-root key file -- which is why this row stands
-      rather than being closed. Do the robots.txt first; it is not a reason
-      to skip the domain, only a reason not to wait for it.
+      Google indexing on purpose instead of by luck. On 2026-11-03 no
+      tracked query (8 of 23 run, `platform/seo/history/observations.jsonl`),
+      including the brand name and `site:marisstella.app`, returned a single
+      marisstella.app page, while the live audit (`probe.py audit`) found no
+      blocker: robots allows all, 1,327 child sitemaps, self canonicals, no
+      noindex. The site is crawlable and undiscovered. Search Console is the
+      only route to Google's own sitemap submission, URL inspection and
+      indexing reports; there is no IndexNow for Google.
     - >-
-      A public name for the portfolio. 200 finished products currently live at
-      a URL that names a GitHub account and a repository; every card, share
-      link and canonical tag they publish names it too.
+      Bing Webmaster data. Bing's index also serves several AI assistants'
+      web search, so it is the cheapest lever on "AI agents find us".
+      IndexNow (Bing, Yandex, Seznam, Naver) was submitted by hand on
+      2026-11-03 and answered 200, which means "asked", not "indexed".
     - >-
-      IndexNow submission from a key file at the origin root rather than a
-      subpath (`platform/marketing/indexnow.mjs`), removing its dependence on
-      the `keyLocation` override.
+      Real ranking numbers for the feedback loop (`platform/seo/README.md`):
+      without Search Console, Google rankings are read only by agent web
+      searches, which are a sample, not a measurement.
   blocked_by: []
   note: >-
-    2026-10-01: the cluster route (`hetzner-ssh-key-is-a-public-key`) this
-    note used to contrast with is gone -- the servers were deleted -- so this
-    row now also closes the dangling-DNS exposure described in `action`.
-    It buys *discovery* for a catalogue that is already served and already
-    current: no SSH key, no sealed secret, no runner, no cluster, nothing pasted.
-    Why it had no row until now, which is the reusable part. The queue's
-    outage banner has said since 2026-09-04 that "every other row here is
-    downstream of a host answering at all", and that sentence assumed the
-    portfolio had one origin. It has two, and the `deploy-settings` row
-    already records paying for that assumption once -- it sat at position 9
-    for 16 days for the same reason. `marisstella.dev` was read as the
-    cluster's hostname because that is what its DNS points at, so "the domain"
-    and "the dead box" became one thing; the domain is an asset the owner
-    holds independently of anything Hetzner runs, and it can point wherever a
-    working origin is.
-    Measured 2026-09-10, this session. `pages_state.py` reports the `gh-pages`
-    snapshot `current` against `main` at `f7a7b032` and `deployed` via
-    GitHub's managed builder (run 34449496624), so the catalogue this would
-    put on the domain is live and up to date rather than hypothetical.
-    A full `node platform/pages/build.mjs --base=https://marisstella.dev/`
-    was then run here to check the switch produces a correct site rather than
-    assuming it: 2,543 files, 229 sitemap `<loc>`s all on the apex, every
-    `rel="canonical"` on the apex, `robots.txt` naming
-    `https://marisstella.dev/sitemap.xml`, and **zero** surviving references
-    to the old origin anywhere in the artifact. That property is now pinned by
-    `platform/pages/custom-domain.test.mjs` -- verified against two mutants of
-    `applyBaseUrl`, because the first draft of that test passed against a
-    build with the rewrite deleted and a guard that cannot fail is worth less
-    than no guard.
-    The one thing not measured, as ever, is a logged-out fetch: no session can
-    reach `github.io` (the egress proxy answers `403 to CONNECT`), so whether
-    a stranger receives the page is still the owner's to confirm. Note also
-    that this repository is private, which is why `deploy-settings` carries
-    `requires: [github-pages-plan]`; the same plan question applies here and
-    is unchanged by the domain.
+    Replaces `pages-custom-domain` (opened 2026-09-10), which asked for a
+    custom domain; marisstella.app has served the site since 2026-10-30, so
+    that row was done. Its history is in git (`git log -p --
+    portfolio/ledger/asks.yaml`). No money, no new account beyond a Google and
+    Microsoft login the owner already controls, and fully reversible (remove
+    the token, delete the property).

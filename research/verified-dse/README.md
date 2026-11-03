@@ -6,7 +6,7 @@ The cheap rungs are measurably biased against routed area x delay; H2 to H4 are 
 cached table; H5 (proof prediction) is not testable on this benchmark as built.** Produced with AI assistance (Claude Code).
 It builds on none of the CU Boulder groups and claims no affiliation.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/verified-dse/
+**Live page:** https://marisstella.app/research/verified-dse/
 
 ## Question
 Can cheap rungs (generic gates, liberty mapping, placement, global route) and a

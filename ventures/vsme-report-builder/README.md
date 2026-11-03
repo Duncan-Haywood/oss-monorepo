@@ -2,7 +2,7 @@
 
 Free, private browser tool for small EU suppliers whose customers or banks ask for ESG data: fill in energy, emissions, workforce, safety and pay figures and get a draft **VSME Basic Module** report (disclosures B1 to B11), a completeness check per disclosure, and flags where the figures contradict each other.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/vsme-report-builder/
+**Live tool:** https://marisstella.app/vsme-report-builder/
 
 After using this, you have a draft sustainability report to send a customer, with the gaps named, which used to mean reading a 100-page standard and building a spreadsheet.
 

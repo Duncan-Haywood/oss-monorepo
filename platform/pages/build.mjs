@@ -20,6 +20,7 @@
 // point is published on the next push, and `EXCLUDED_SLUGS` is the deliberate
 // opt-out.
 
+import { verificationHead } from '../seo/verification.mjs';
 import { promises as fs, existsSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { loadLastChanged } from './lastmod.mjs';
@@ -8395,7 +8396,7 @@ export function renderHub(
       `${surfaces.length} free, open-source products: browser tools, self-hostable business apps and command-line checks, plus ${researchCount} research projects. Browser tools run on your device; apps deploy to your own cloud.`,
     ),
   )}">
-  <link rel="canonical" href="${escapeHtml(baseUrl)}">
+  <link rel="canonical" href="${escapeHtml(baseUrl)}">${verificationHead()}
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="alternate icon" href="favicon.ico" sizes="16x16">
   <!-- Feed autodiscovery. This is how a reader, and every aggregator that

@@ -5,7 +5,7 @@ the work toward one publishable paper accumulates across sessions; it consolidat
 small scoring, audit and verifier projects in this repository into one question (see
 [`PROPOSAL.md`](PROPOSAL.md)).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/verifiable-training-mechanisms/
+**Live page:** https://marisstella.app/research/verifiable-training-mechanisms/
 
 **The question.** A requester pays untrusted workers to train a model. Cheating is cheap (skip
 steps, use less data, lower precision, copy a peer) and the weights cannot be checked without redoing

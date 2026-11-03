@@ -21,7 +21,7 @@ OPENAI_BASE_URL=http://127.0.0.1:8787/openai/v1
 ```
 
 Browser simulator (paste a usage log, nothing uploaded):
-<https://duncan-haywood.github.io/oss-monorepo/llm-spend-guard/>.
+<https://marisstella.app/llm-spend-guard/>.
 
 ## Why use this
 

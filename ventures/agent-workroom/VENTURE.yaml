@@ -41,5 +41,5 @@ kill_criteria:
   - The owner stops opening it within 60 days of launch and no one else files an issue or star mentioning it.
 
 links:
-  production: https://duncan-haywood.github.io/oss-monorepo/agent-workroom/
+  production: https://marisstella.app/agent-workroom/
   analytics: null

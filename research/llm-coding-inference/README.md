@@ -2,7 +2,7 @@
 
 **Status: open research programme; estimator library built (`llmci/`); H1 supported on real data (milestone 3), replicated more weakly on a second corpus (3b); one preliminary simulated result below.** When an LLM codes qualitative text and you want a valid confidence interval for a prevalence, a group gap or a regression coefficient, how small can the hand-coded audit be, and how should it be sampled, when the model's error differs between groups and the category is rare? See [`PROPOSAL.md`](PROPOSAL.md) for the question, related work, gap, hypotheses H1 to H5, method, evaluation, milestones and target venue, and [`LOG.md`](LOG.md) for the running log.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/llm-coding-inference/
+**Live page:** https://marisstella.app/research/llm-coding-inference/
 
 It consolidates the `qual-*` projects (track 19 in [`../PROJECTS.md`](../PROJECTS.md)), which found on GoEmotions with stand-in coders (no LLM) that naive counts are confidently wrong, that prediction-powered inference is valid but no narrower than hand-coding for weak coders, and that a random audit cannot estimate a rare group. Starting points: [`qual-correction`](../qual-correction), [`qual-real`](../qual-real), [`qual-dialect`](../qual-dialect), [`qual-rareerror`](../qual-rareerror).
 

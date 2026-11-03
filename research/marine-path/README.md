@@ -5,7 +5,7 @@
 off a line steered by plain line-of-sight (LOS) guidance by a computable amount; integral LOS removes the
 drift, unless its gain is too high for the look-ahead.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/marine-path/
+**Live page:** https://marisstella.app/research/marine-path/
 
 ## Result
 

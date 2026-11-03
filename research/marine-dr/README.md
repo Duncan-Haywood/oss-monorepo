@@ -5,7 +5,7 @@
 heading reference drifts a computable fraction of the distance it travels. The heading reference, not the
 DVL, sets the drift unless it is better than about 0.1 degree.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/marine-dr/
+**Live page:** https://marisstella.app/research/marine-dr/
 
 ## Result
 

@@ -120,5 +120,5 @@ kill_criteria:
     public-read, which this tool deliberately does not do).
 
 links:
-  production: https://duncan-haywood.github.io/oss-monorepo/cloud-bucket-exposure-check/
+  production: https://marisstella.app/cloud-bucket-exposure-check/
   analytics: null
