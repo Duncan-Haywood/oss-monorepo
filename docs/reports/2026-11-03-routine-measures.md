@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-11-03
+tagged: auto
+---
 # Routine measures moved from agents to software (2026-11-03)
 
 For the next run: four measurements that runs kept doing by hand, or never
