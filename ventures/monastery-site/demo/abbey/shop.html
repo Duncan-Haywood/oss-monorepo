@@ -42,14 +42,16 @@ p.lede{font-size:1.2rem;max-width:44em;color:var(--muted)}
 main{padding:8px 0 56px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;margin:18px 0}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 22px}
-.card h3{margin-top:0}
+.card h3,.card h2.t{margin-top:0}
+h2.t{font-size:1.15rem;margin:0 0 6px}
 .btn{display:inline-block;background:var(--accent);color:var(--on-accent);text-decoration:none;font:600 15px/1.2 system-ui,sans-serif;padding:12px 20px;border-radius:999px;border:0;cursor:pointer;margin:6px 8px 6px 0}
 .btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
 .hero.image .btn.ghost{color:#fff;border-color:#fff}
 table{width:100%;border-collapse:collapse;font:15px/1.5 system-ui,sans-serif}
 th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 th{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-td.time{white-space:nowrap;font-variant-numeric:tabular-nums;width:6.5em}
+th.time{font-size:15px;letter-spacing:0;text-transform:none;color:var(--ink);font-weight:400}
+td.time,th.time{white-space:nowrap;font-variant-numeric:tabular-nums;width:6.5em}
 .tag{font:12px/1 system-ui,sans-serif;border:1px solid var(--line);border-radius:999px;padding:3px 8px;color:var(--muted);white-space:nowrap}
 .steps{counter-reset:s;list-style:none;padding:0}
 .steps li{counter-increment:s;position:relative;padding:0 0 18px 52px}
@@ -93,7 +95,7 @@ footer.site ul{list-style:none;padding:0;margin:0}
 </div></section>
 <main id="main"><div class="wrap">
 
-<div class="grid"><section class="card"><h3>Abbey bread</h3><p>Whole wheat and rye, baked on Tuesdays and Fridays.</p></section><section class="card"><h3>Wildflower honey</h3><p>From the abbey&#39;s thirty hives.</p></section><section class="card"><h3>Hand-bound journals</h3><p>Sewn and bound in the bindery.</p></section></div>
+<div class="grid"><section class="card"><h2 class="t">Abbey bread</h2><p>Whole wheat and rye, baked on Tuesdays and Fridays.</p></section><section class="card"><h2 class="t">Wildflower honey</h2><p>From the abbey&#39;s thirty hives.</p></section><section class="card"><h2 class="t">Hand-bound journals</h2><p>Sewn and bound in the bindery.</p></section></div>
 <p class="note">The shop by the gate is open Monday to Saturday, 10 am to 4 pm.</p>
 </div></main>
 <footer class="site"><div class="wrap cols">

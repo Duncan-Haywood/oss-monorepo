@@ -173,14 +173,16 @@ p.lede{font-size:1.2rem;max-width:44em;color:var(--muted)}
 main{padding:8px 0 56px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;margin:18px 0}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 22px}
-.card h3{margin-top:0}
+.card h3,.card h2.t{margin-top:0}
+h2.t{font-size:1.15rem;margin:0 0 6px}
 .btn{display:inline-block;background:var(--accent);color:var(--on-accent);text-decoration:none;font:600 15px/1.2 system-ui,sans-serif;padding:12px 20px;border-radius:999px;border:0;cursor:pointer;margin:6px 8px 6px 0}
 .btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
 .hero.image .btn.ghost{color:#fff;border-color:#fff}
 table{width:100%;border-collapse:collapse;font:15px/1.5 system-ui,sans-serif}
 th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 th{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-td.time{white-space:nowrap;font-variant-numeric:tabular-nums;width:6.5em}
+th.time{font-size:15px;letter-spacing:0;text-transform:none;color:var(--ink);font-weight:400}
+td.time,th.time{white-space:nowrap;font-variant-numeric:tabular-nums;width:6.5em}
 .tag{font:12px/1 system-ui,sans-serif;border:1px solid var(--line);border-radius:999px;padding:3px 8px;color:var(--muted);white-space:nowrap}
 .steps{counter-reset:s;list-style:none;padding:0}
 .steps li{counter-increment:s;position:relative;padding:0 0 18px 52px}
@@ -372,10 +374,10 @@ function upcoming(events) {
   return list(events).filter((e) => text(e.name) && /^\d{4}-\d{2}-\d{2}/.test(text(e.start))).sort((a, b) => text(a.start).localeCompare(text(b.start)));
 }
 
-function eventCard(e) {
+function eventCard(e, h = "h3") {
   const when = text(e.end) && text(e.end) !== text(e.start) ? `${formatDate(e.start)} to ${formatDate(e.end)}` : formatDate(e.start);
   const link = safeUrl(e.url);
-  return `<article class="card" data-ends="${esc(text(e.end) || text(e.start)).slice(0, 10)}"><p class="kicker">${esc(when)}${e.time ? ` · ${esc(e.time)}` : ""}</p><h3>${esc(e.name)}</h3>${e.location ? `<p class="note">${esc(e.location)}</p>` : ""}${paras(e.text)}${link ? `<p><a href="${esc(link)}">${esc(text(e.linkText) || "Details and registration")}</a></p>` : ""}</article>`;
+  return `<article class="card" data-ends="${esc(text(e.end) || text(e.start)).slice(0, 10)}"><p class="kicker">${esc(when)}${e.time ? ` · ${esc(e.time)}` : ""}</p><${h}${h === "h2" ? ' class="t"' : ""}>${esc(e.name)}</${h}>${e.location ? `<p class="note">${esc(e.location)}</p>` : ""}${paras(e.text)}${link ? `<p><a href="${esc(link)}">${esc(text(e.linkText) || "Details and registration")}</a></p>` : ""}</article>`;
 }
 
 const PAGE = {
@@ -394,12 +396,12 @@ const PAGE = {
     const body = `${hero(c, { kicker: text(c.community?.kicker) || (new RegExp(`\\b${k.members}\\b`, "i").test(text(c.community?.order)) ? text(c.community?.order) : [c.community?.order, k.members].map(text).filter(Boolean).join(" ")), title: text(c.home?.headline) || name, lede: text(c.home?.lede) || text(c.community?.tagline), actions, image: true })}
 ${main(`${has(c.home?.welcome) ? `<h2>${esc(text(c.home?.welcomeTitle) || "Welcome")}</h2>\n${paras(c.home.welcome)}` : ""}
 <div class="grid two">
-${today ? `<section class="card"><h3>Pray with us</h3><p class="note">${esc(today.label)}</p><table><tbody>${list(today.items).filter((i) => i.public !== false).slice(0, 6).map((i) => `<tr><td class="time">${esc(i.time)}</td><td>${esc(i.name)}</td></tr>`).join("")}</tbody></table><p><a href="horarium.html">The full horarium</a></p></section>` : ""}
-${c.vocations !== false ? `<section class="card"><h3>${esc(text(c.home?.vocationsTitle) || "Is God calling you?")}</h3>${paras(c.home?.vocationsText || `If you are wondering whether you are called to this life, we would be glad to hear from you. You can write to us, visit, or come to a discernment retreat.`)}<p><a href="vocations.html">Vocations</a></p></section>` : ""}
-${c.giving !== false ? `<section class="card"><h3>${esc(text(c.home?.giveTitle) || "Support our life of prayer")}</h3>${paras(c.home?.giveText || `We live from the work of our hands and the generosity of our friends. Every gift, large or small, keeps the life of prayer going here.`)}${camp && Number(camp.goal) > 0 ? meter(camp) : ""}<p>${firstGive && safeUrl(firstGive.url) ? `<a href="${esc(safeUrl(firstGive.url))}">${esc(text(firstGive.label) || "Give online")}</a> · ` : ""}<a href="give.html">Ways to give</a></p></section>` : ""}
-${c.prayer !== false ? `<section class="card"><h3>Prayer requests</h3><p>We pray every day for the intentions entrusted to us. Send us yours.</p><p><a href="prayer.html">Send a prayer request</a></p></section>` : ""}
+${today ? `<section class="card"><h2 class="t">Pray with us</h2><p class="note">${esc(today.label)}</p><table><tbody>${list(today.items).filter((i) => i.public !== false).slice(0, 6).map((i) => `<tr><th scope="row" class="time">${esc(i.time)}</th><td>${esc(i.name)}</td></tr>`).join("")}</tbody></table><p><a href="horarium.html">The full horarium</a></p></section>` : ""}
+${c.vocations !== false ? `<section class="card"><h2 class="t">${esc(text(c.home?.vocationsTitle) || "Is God calling you?")}</h2>${paras(c.home?.vocationsText || `If you are wondering whether you are called to this life, we would be glad to hear from you. You can write to us, visit, or come to a discernment retreat.`)}<p><a href="vocations.html">Vocations</a></p></section>` : ""}
+${c.giving !== false ? `<section class="card"><h2 class="t">${esc(text(c.home?.giveTitle) || "Support our life of prayer")}</h2>${paras(c.home?.giveText || `We live from the work of our hands and the generosity of our friends. Every gift, large or small, keeps the life of prayer going here.`)}${camp && Number(camp.goal) > 0 ? meter(camp) : ""}<p>${firstGive && safeUrl(firstGive.url) ? `<a href="${esc(safeUrl(firstGive.url))}">${esc(text(firstGive.label) || "Give online")}</a> · ` : ""}<a href="give.html">Ways to give</a></p></section>` : ""}
+${c.prayer !== false ? `<section class="card"><h2 class="t">Prayer requests</h2><p>We pray every day for the intentions entrusted to us. Send us yours.</p><p><a href="prayer.html">Send a prayer request</a></p></section>` : ""}
 </div>
-${ev.length ? `<h2>Coming up</h2><div class="grid">${ev.map(eventCard).join("\n")}<p class="note" data-empty-when-past hidden>Nothing scheduled right now. Check back soon.</p></div><p><a href="events.html">All events</a></p>` : ""}
+${ev.length ? `<h2>Coming up</h2><div class="grid">${ev.map((e) => eventCard(e)).join("\n")}<p class="note" data-empty-when-past hidden>Nothing scheduled right now. Check back soon.</p></div><p><a href="events.html">All events</a></p>` : ""}
 ${news.length ? `<h2>News</h2><div class="grid">${news.map((n) => `<article class="card"><p class="kicker">${esc(formatDate(n.date))}</p><h3><a href="news.html#${slug(n.title)}">${esc(n.title)}</a></h3><p>${esc(list(n.body)[0] || "")}</p></article>`).join("\n")}</div>` : ""}
 ${gallery(c)}`)}`;
     return { title: name, description: text(c.home?.description) || [text(c.community?.tagline), `${name}: horarium, vocations, retreats and ways to support the community.`].filter(Boolean).join(" ").slice(0, 160), body, jsonld: [orgLd(c)] };
@@ -414,7 +416,7 @@ ${gallery(c)}`)}`;
 ${main(`${paras(a.intro)}
 ${facts.length ? `<div class="card"><table><tbody>${facts.map(([k, v]) => `<tr><th scope="row">${k}</th><td>${esc(v)}</td></tr>`).join("")}</tbody></table></div>` : ""}
 ${has(a.charism) ? `<h2>Our charism</h2>${paras(a.charism)}` : ""}
-${has(a.values) ? `<div class="grid">${list(a.values).map((v) => `<section class="card"><h3>${esc(v.title)}</h3>${paras(v.text)}</section>`).join("")}</div>` : ""}
+${has(a.values) ? `<div class="grid">${list(a.values).map((v) => `<section class="card"><h2 class="t">${esc(v.title)}</h2>${paras(v.text)}</section>`).join("")}</div>` : ""}
 ${has(a.dailyLife) ? `<h2>A day in the ${esc((KINDS[c.community?.kind] || KINDS.monks).house)}</h2>${paras(a.dailyLife)}${has(c.horarium?.days) ? `<p><a href="horarium.html">See the horarium</a></p>` : ""}` : ""}
 ${has(a.history) ? `<h2>Our history</h2>${list(a.history).map((h) => (typeof h === "object" ? `<h3>${esc(h.year)}</h3>${paras(h.text)}` : `<p>${esc(h)}</p>`)).join("\n")}` : ""}
 ${has(a.community) ? `<h2>The community</h2><div class="grid">${list(a.community).map((m) => `<section class="card"><h3>${esc(m.name)}</h3>${m.role ? `<p class="note">${esc(m.role)}</p>` : ""}${paras(m.text)}</section>`).join("")}</div>` : ""}
@@ -502,10 +504,10 @@ ${has(g.faq) ? `<h2>Questions about giving</h2>${list(g.faq).map((f) => `<detail
     const body = `${hero(c, { kicker: "Visit", title: text(v.title) || "Visit us", lede: text(v.lede) || "Guests are received as Christ. You are welcome to join us for Mass and the Divine Office, or to stay for a few days of quiet." })}
 ${main(`${paras(v.intro)}
 <div class="grid">
-${has(v.publicPrayer) ? `<section class="card"><h3>Mass and the Office</h3>${paras(v.publicPrayer)}${has(c.horarium?.days) ? `<p><a href="horarium.html">Times of prayer</a></p>` : ""}</section>` : ""}
-${has(gh) ? `<section class="card"><h3>${esc(text(gh.title) || "The guesthouse")}</h3>${paras(gh.text)}${has(gh.details) ? `<ul>${list(gh.details).map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}${safeUrl(gh.bookingUrl) ? `<p><a class="btn" href="${esc(safeUrl(gh.bookingUrl))}">Book a stay</a></p>` : to ? `<p><a class="btn" href="#stay">Ask about a stay</a></p>` : ""}</section>` : ""}
-${has(v.directions) || map ? `<section class="card"><h3>Getting here</h3>${addressLines(c.contact?.address).length ? `<p>${addressLines(c.contact.address).map(esc).join("<br>")}</p>` : ""}${paras(v.directions)}${map ? `<p><a href="${esc(map)}">Open in a map</a></p>` : ""}</section>` : ""}
-${has(v.etiquette) ? `<section class="card"><h3>${esc(text(v.etiquetteTitle) || "While you are here")}</h3><ul>${list(v.etiquette).map((x) => `<li>${esc(x)}</li>`).join("")}</ul></section>` : ""}
+${has(v.publicPrayer) ? `<section class="card"><h2 class="t">Mass and the Office</h2>${paras(v.publicPrayer)}${has(c.horarium?.days) ? `<p><a href="horarium.html">Times of prayer</a></p>` : ""}</section>` : ""}
+${has(gh) ? `<section class="card"><h2 class="t">${esc(text(gh.title) || "The guesthouse")}</h2>${paras(gh.text)}${has(gh.details) ? `<ul>${list(gh.details).map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}${safeUrl(gh.bookingUrl) ? `<p><a class="btn" href="${esc(safeUrl(gh.bookingUrl))}">Book a stay</a></p>` : to ? `<p><a class="btn" href="#stay">Ask about a stay</a></p>` : ""}</section>` : ""}
+${has(v.directions) || map ? `<section class="card"><h2 class="t">Getting here</h2>${addressLines(c.contact?.address).length ? `<p>${addressLines(c.contact.address).map(esc).join("<br>")}</p>` : ""}${paras(v.directions)}${map ? `<p><a href="${esc(map)}">Open in a map</a></p>` : ""}</section>` : ""}
+${has(v.etiquette) ? `<section class="card"><h2 class="t">${esc(text(v.etiquetteTitle) || "While you are here")}</h2><ul>${list(v.etiquette).map((x) => `<li>${esc(x)}</li>`).join("")}</ul></section>` : ""}
 </div>
 ${has(v.retreats) ? `<h2>Retreats</h2><div class="grid">${list(v.retreats).map((r) => `<section class="card"><h3>${esc(r.name)}</h3>${r.when ? `<p class="kicker">${esc(r.when)}</p>` : ""}${paras(r.text)}</section>`).join("")}</div>` : ""}
 ${has(gh) && !safeUrl(gh.bookingUrl) ? `<h2 id="stay">Ask about a stay</h2>${form(c, {
@@ -526,7 +528,7 @@ ${has(gh) && !safeUrl(gh.bookingUrl) ? `<h2 id="stay">Ask about a stay</h2>${for
   events(c) {
     const ev = upcoming(c.events);
     const body = `${hero(c, { kicker: "Events", title: "Events and retreats", lede: text(c.eventsLede) || "Feasts, retreats and days of recollection open to friends of the community." })}
-${main(`<div class="grid">${ev.map(eventCard).join("\n")}<p class="note" data-empty-when-past hidden>Nothing scheduled right now. Check back soon, or write to us.</p></div>`)}`;
+${main(`<div class="grid">${ev.map((e) => eventCard(e, "h2")).join("\n")}<p class="note" data-empty-when-past hidden>Nothing scheduled right now. Check back soon, or write to us.</p></div>`)}`;
     return { title: "Events", description: `Upcoming feasts, retreats and events at ${text(c.community?.name)}.`, body, jsonld: ev.map((e) => eventLd(c, e)) };
   },
 
@@ -560,7 +562,7 @@ ${has(p.after) ? paras(p.after) : `<p class="note">We do not publish intentions 
     const s = c.shop || {};
     const body = `${hero(c, { kicker: "Shop", title: text(s.title) || "From our workshop", lede: text(s.lede) || "We support ourselves by the work of our hands. Every purchase helps the community.", actions: safeUrl(s.url) ? `<a class="btn" href="${esc(safeUrl(s.url))}">${esc(text(s.linkText) || "Visit the shop")}</a>` : "" })}
 ${main(`${paras(s.intro)}
-<div class="grid">${list(s.items).map((i) => `<section class="card">${safeUrl(i.image) ? `<img src="${esc(safeUrl(i.image))}" alt="${esc(text(i.alt))}" loading="lazy" style="width:100%;border-radius:8px">` : ""}<h3>${esc(i.name)}</h3>${paras(i.text)}${safeUrl(i.url) ? `<p><a href="${esc(safeUrl(i.url))}">${esc(text(i.linkText) || "Order")}</a></p>` : ""}</section>`).join("")}</div>
+<div class="grid">${list(s.items).map((i) => `<section class="card">${safeUrl(i.image) ? `<img src="${esc(safeUrl(i.image))}" alt="${esc(text(i.alt))}" loading="lazy" style="width:100%;border-radius:8px">` : ""}<h2 class="t">${esc(i.name)}</h2>${paras(i.text)}${safeUrl(i.url) ? `<p><a href="${esc(safeUrl(i.url))}">${esc(text(i.linkText) || "Order")}</a></p>` : ""}</section>`).join("")}</div>
 ${has(s.hours) ? `<p class="note">${esc(s.hours)}</p>` : ""}`)}`;
     return { title: "Shop", description: text(s.description) || `Goods made by ${text(c.community?.name)}. Every purchase supports the community.`, body };
   },
@@ -573,8 +575,8 @@ ${has(s.hours) ? `<p class="note">${esc(s.hours)}</p>` : ""}`)}`;
     ].filter(([, e]) => text(e));
     const body = `${hero(c, { kicker: "Contact", title: "Contact us" })}
 ${main(`<div class="grid">
-<section class="card"><h3>Write or call</h3>${addressLines(ct.address).length ? `<p>${addressLines(ct.address).map(esc).join("<br>")}</p>` : ""}${ct.phone ? `<p><a href="tel:${esc(text(ct.phone).replace(/[^+\d]/g, ""))}">${esc(ct.phone)}</a>${ct.phoneHours ? `<br><span class="note">${esc(ct.phoneHours)}</span>` : ""}</p>` : ""}${map ? `<p><a href="${esc(map)}">Open in a map</a></p>` : ""}</section>
-${rows.length ? `<section class="card"><h3>Email</h3><table><tbody>${rows.map(([k, e]) => `<tr><th scope="row">${k}</th><td><a href="mailto:${esc(e)}">${esc(e)}</a></td></tr>`).join("")}</tbody></table></section>` : ""}
+<section class="card"><h2 class="t">Write or call</h2>${addressLines(ct.address).length ? `<p>${addressLines(ct.address).map(esc).join("<br>")}</p>` : ""}${ct.phone ? `<p><a href="tel:${esc(text(ct.phone).replace(/[^+\d]/g, ""))}">${esc(ct.phone)}</a>${ct.phoneHours ? `<br><span class="note">${esc(ct.phoneHours)}</span>` : ""}</p>` : ""}${map ? `<p><a href="${esc(map)}">Open in a map</a></p>` : ""}</section>
+${rows.length ? `<section class="card"><h2 class="t">Email</h2><table><tbody>${rows.map(([k, e]) => `<tr><th scope="row">${k}</th><td><a href="mailto:${esc(e)}">${esc(e)}</a></td></tr>`).join("")}</tbody></table></section>` : ""}
 </div>
 <h2>Send a message</h2>
 ${form(c, {

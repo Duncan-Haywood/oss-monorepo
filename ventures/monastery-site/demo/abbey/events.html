@@ -42,14 +42,16 @@ p.lede{font-size:1.2rem;max-width:44em;color:var(--muted)}
 main{padding:8px 0 56px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;margin:18px 0}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 22px}
-.card h3{margin-top:0}
+.card h3,.card h2.t{margin-top:0}
+h2.t{font-size:1.15rem;margin:0 0 6px}
 .btn{display:inline-block;background:var(--accent);color:var(--on-accent);text-decoration:none;font:600 15px/1.2 system-ui,sans-serif;padding:12px 20px;border-radius:999px;border:0;cursor:pointer;margin:6px 8px 6px 0}
 .btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
 .hero.image .btn.ghost{color:#fff;border-color:#fff}
 table{width:100%;border-collapse:collapse;font:15px/1.5 system-ui,sans-serif}
 th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 th{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-td.time{white-space:nowrap;font-variant-numeric:tabular-nums;width:6.5em}
+th.time{font-size:15px;letter-spacing:0;text-transform:none;color:var(--ink);font-weight:400}
+td.time,th.time{white-space:nowrap;font-variant-numeric:tabular-nums;width:6.5em}
 .tag{font:12px/1 system-ui,sans-serif;border:1px solid var(--line);border-radius:999px;padding:3px 8px;color:var(--muted);white-space:nowrap}
 .steps{counter-reset:s;list-style:none;padding:0}
 .steps li{counter-increment:s;position:relative;padding:0 0 18px 52px}
@@ -94,9 +96,9 @@ footer.site ul{list-style:none;padding:0;margin:0}
 <p class="lede">Feasts, retreats and days of recollection open to friends of the community.</p>
 </div></section>
 <main id="main"><div class="wrap">
-<div class="grid"><article class="card" data-ends="2026-12-05"><p class="kicker">5 December 2026 · 9:30 am to 3:30 pm</p><h3>Advent day of recollection</h3><p class="note">Guesthouse conference room</p><p>Two conferences, Mass and Vespers with the monks. Lunch provided; registration requested.</p></article>
-<article class="card" data-ends="2027-03-14"><p class="kicker">12 March 2027 to 14 March 2027</p><h3>Come and See weekend</h3><p>For men discerning a monastic vocation.</p><p><a href="vocations.html#retreats">About the weekend</a></p></article>
-<article class="card" data-ends="2027-07-11"><p class="kicker">11 July 2027 · 10:00 am</p><h3>Feast of Saint Benedict</h3><p>Solemn Mass followed by a picnic for friends of the abbey.</p></article><p class="note" data-empty-when-past hidden>Nothing scheduled right now. Check back soon, or write to us.</p></div>
+<div class="grid"><article class="card" data-ends="2026-12-05"><p class="kicker">5 December 2026 · 9:30 am to 3:30 pm</p><h2 class="t">Advent day of recollection</h2><p class="note">Guesthouse conference room</p><p>Two conferences, Mass and Vespers with the monks. Lunch provided; registration requested.</p></article>
+<article class="card" data-ends="2027-03-14"><p class="kicker">12 March 2027 to 14 March 2027</p><h2 class="t">Come and See weekend</h2><p>For men discerning a monastic vocation.</p><p><a href="vocations.html#retreats">About the weekend</a></p></article>
+<article class="card" data-ends="2027-07-11"><p class="kicker">11 July 2027 · 10:00 am</p><h2 class="t">Feast of Saint Benedict</h2><p>Solemn Mass followed by a picnic for friends of the abbey.</p></article><p class="note" data-empty-when-past hidden>Nothing scheduled right now. Check back soon, or write to us.</p></div>
 </div></main>
 <footer class="site"><div class="wrap cols">
 <div><h2>Saint Aelred&#39;s Abbey</h2>100 Abbey Road<br>Larkspur Hollow, VT 05000<br>United States<br><a href="tel:5550100142">(555) 010-0142</a><br><a href="mailto:office@example.org">office@example.org</a></div>

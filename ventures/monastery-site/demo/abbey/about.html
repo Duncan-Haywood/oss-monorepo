@@ -42,14 +42,16 @@ p.lede{font-size:1.2rem;max-width:44em;color:var(--muted)}
 main{padding:8px 0 56px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;margin:18px 0}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 22px}
-.card h3{margin-top:0}
+.card h3,.card h2.t{margin-top:0}
+h2.t{font-size:1.15rem;margin:0 0 6px}
 .btn{display:inline-block;background:var(--accent);color:var(--on-accent);text-decoration:none;font:600 15px/1.2 system-ui,sans-serif;padding:12px 20px;border-radius:999px;border:0;cursor:pointer;margin:6px 8px 6px 0}
 .btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
 .hero.image .btn.ghost{color:#fff;border-color:#fff}
 table{width:100%;border-collapse:collapse;font:15px/1.5 system-ui,sans-serif}
 th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 th{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-td.time{white-space:nowrap;font-variant-numeric:tabular-nums;width:6.5em}
+th.time{font-size:15px;letter-spacing:0;text-transform:none;color:var(--ink);font-weight:400}
+td.time,th.time{white-space:nowrap;font-variant-numeric:tabular-nums;width:6.5em}
 .tag{font:12px/1 system-ui,sans-serif;border:1px solid var(--line);border-radius:999px;padding:3px 8px;color:var(--muted);white-space:nowrap}
 .steps{counter-reset:s;list-style:none;padding:0}
 .steps li{counter-increment:s;position:relative;padding:0 0 18px 52px}
@@ -95,7 +97,7 @@ footer.site ul{list-style:none;padding:0;margin:0}
 <p>Saint Aelred&#39;s was founded by six monks who came to the hills to build a house of prayer. Today the community farms, makes bread and receives about two thousand guests a year.</p>
 <div class="card"><table><tbody><tr><th scope="row">Order</th><td>Benedictine monks</td></tr><tr><th scope="row">Founded</th><td>1952</td></tr><tr><th scope="row">Patron</th><td>Saint Aelred of Rievaulx</td></tr><tr><th scope="row">Diocese</th><td>A made-up diocese</td></tr><tr><th scope="row">Motto</th><td>Ut in omnibus glorificetur Deus</td></tr><tr><th scope="row">Superior</th><td>Abbot Gregory (fictional)</td></tr></tbody></table></div>
 <h2>Our charism</h2><p>We follow the Rule of Saint Benedict: the Work of God, sacred reading, manual labour and a stable life in one community under an abbot. Our particular work is hospitality, and the guesthouse is the heart of it.</p>
-<div class="grid"><section class="card"><h3>Prayer</h3><p>The Divine Office sung in choir seven times a day, and the conventual Mass.</p></section><section class="card"><h3>Work</h3><p>The farm, the bakery and the bindery support the community and the poor.</p></section><section class="card"><h3>Hospitality</h3><p>Guests stay with us for a day or a week of silence and prayer.</p></section></div>
+<div class="grid"><section class="card"><h2 class="t">Prayer</h2><p>The Divine Office sung in choir seven times a day, and the conventual Mass.</p></section><section class="card"><h2 class="t">Work</h2><p>The farm, the bakery and the bindery support the community and the poor.</p></section><section class="card"><h2 class="t">Hospitality</h2><p>Guests stay with us for a day or a week of silence and prayer.</p></section></div>
 <h2>A day in the monastery</h2><p>The day begins with Vigils before dawn and ends with Compline and the Great Silence. Between them come Lauds, Mass, the little hours, Vespers, the morning and afternoon work, and lectio divina.</p><p><a href="horarium.html">See the horarium</a></p>
 <h2>Our history</h2><h3>1952</h3><p>Six monks arrive and convert a dairy barn into the first chapel.</p>
 <h3>1971</h3><p>The abbey church is consecrated.</p>

@@ -42,14 +42,16 @@ p.lede{font-size:1.2rem;max-width:44em;color:var(--muted)}
 main{padding:8px 0 56px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;margin:18px 0}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 22px}
-.card h3{margin-top:0}
+.card h3,.card h2.t{margin-top:0}
+h2.t{font-size:1.15rem;margin:0 0 6px}
 .btn{display:inline-block;background:var(--accent);color:var(--on-accent);text-decoration:none;font:600 15px/1.2 system-ui,sans-serif;padding:12px 20px;border-radius:999px;border:0;cursor:pointer;margin:6px 8px 6px 0}
 .btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
 .hero.image .btn.ghost{color:#fff;border-color:#fff}
 table{width:100%;border-collapse:collapse;font:15px/1.5 system-ui,sans-serif}
 th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 th{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-td.time{white-space:nowrap;font-variant-numeric:tabular-nums;width:6.5em}
+th.time{font-size:15px;letter-spacing:0;text-transform:none;color:var(--ink);font-weight:400}
+td.time,th.time{white-space:nowrap;font-variant-numeric:tabular-nums;width:6.5em}
 .tag{font:12px/1 system-ui,sans-serif;border:1px solid var(--line);border-radius:999px;padding:3px 8px;color:var(--muted);white-space:nowrap}
 .steps{counter-reset:s;list-style:none;padding:0}
 .steps li{counter-increment:s;position:relative;padding:0 0 18px 52px}
@@ -94,10 +96,10 @@ footer.site ul{list-style:none;padding:0;margin:0}
 <main id="main"><div class="wrap">
 
 <div class="grid">
-<section class="card"><h3>Mass and the Office</h3><p>All are welcome at the Divine Office and at Mass in the abbey church. Visitors sit in the nave; the choir is reserved for the monks.</p><p><a href="horarium.html">Times of prayer</a></p></section>
-<section class="card"><h3>The guesthouse</h3><p>Twenty single rooms for men and women making a private retreat of up to a week. Guests share the monks&#39; meals in silence and may speak with a monk on request.</p><ul><li>Stays of one to seven nights</li><li>A suggested offering per night, and no one is turned away for lack of means</li><li>Two rooms with step-free access</li></ul><p><a class="btn" href="#stay">Ask about a stay</a></p></section>
-<section class="card"><h3>Getting here</h3><p>100 Abbey Road<br>Larkspur Hollow, VT 05000<br>United States</p><p>Two hours by car from the nearest city. The nearest train station is 20 miles away; the guestmaster can sometimes meet a train.</p><p><a href="https://www.openstreetmap.org/">Open in a map</a></p></section>
-<section class="card"><h3>While you are here</h3><ul><li>Please dress modestly in the church.</li><li>Silence is kept in the cloister, the church and the guesthouse corridors.</li><li>Photography is welcome outside, but not during the Office.</li></ul></section>
+<section class="card"><h2 class="t">Mass and the Office</h2><p>All are welcome at the Divine Office and at Mass in the abbey church. Visitors sit in the nave; the choir is reserved for the monks.</p><p><a href="horarium.html">Times of prayer</a></p></section>
+<section class="card"><h2 class="t">The guesthouse</h2><p>Twenty single rooms for men and women making a private retreat of up to a week. Guests share the monks&#39; meals in silence and may speak with a monk on request.</p><ul><li>Stays of one to seven nights</li><li>A suggested offering per night, and no one is turned away for lack of means</li><li>Two rooms with step-free access</li></ul><p><a class="btn" href="#stay">Ask about a stay</a></p></section>
+<section class="card"><h2 class="t">Getting here</h2><p>100 Abbey Road<br>Larkspur Hollow, VT 05000<br>United States</p><p>Two hours by car from the nearest city. The nearest train station is 20 miles away; the guestmaster can sometimes meet a train.</p><p><a href="https://www.openstreetmap.org/">Open in a map</a></p></section>
+<section class="card"><h2 class="t">While you are here</h2><ul><li>Please dress modestly in the church.</li><li>Silence is kept in the cloister, the church and the guesthouse corridors.</li><li>Photography is welcome outside, but not during the Office.</li></ul></section>
 </div>
 
 <h2 id="stay">Ask about a stay</h2><form class="site card" id="stayform" action="mailto:guesthouse@example.org" method="post" enctype="text/plain" data-mailto="guesthouse@example.org" data-subject="Guesthouse request: Saint Aelred&#39;s Abbey">

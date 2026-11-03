@@ -204,3 +204,18 @@ test("the example sites say on every page that they are fictional", () => {
   for (const c of [abbey, sisters]) for (const [name, page] of html(buildSite(c).files)) assert.match(page, /made-up example community/, name);
   assert.ok(![...html(buildSite(minimal).files)].some(([, p]) => /made-up example/.test(p)));
 });
+
+test("no generated page skips a heading level, and every table has header cells, whatever sections are filled", () => {
+  const sparse = { ...minimal, events: [{ name: "Feast", start: "2027-01-01" }], shop: { items: [{ name: "Bread" }] }, visit: { guesthouse: { text: "Rooms" } }, about: { values: [{ title: "Prayer" }] }, horarium: { days: [{ label: "Daily", items: [{ time: "6:00", name: "Lauds", public: true }] }] } };
+  for (const config of [abbey, sisters, minimal, sparse]) {
+    for (const [name, page] of html(buildSite(config).files)) {
+      let last = 0;
+      for (const [, lvl] of page.matchAll(/<h([1-6])[\s>]/g)) {
+        const n = Number(lvl);
+        assert.ok(n <= last + 1 || last === 0, `${name}: h${last} then h${n}`);
+        last = n;
+      }
+      for (const [table] of page.matchAll(/<table[\s\S]*?<\/table>/g)) assert.match(table, /<th[\s>]/, `${name}: table with no <th>`);
+    }
+  }
+});
