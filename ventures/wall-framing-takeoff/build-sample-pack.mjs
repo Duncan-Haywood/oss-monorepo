@@ -22,6 +22,8 @@ export function samplePack() {
   if (!q.ok) throw new Error(q.error || "proposal refused");
   const html = bidPackageHtml(q, b, { company: "Sample Framing Co. (invented)", address: "Sample only", phone: "555-0100", licenseNo: "SAMPLE-0", accent: "#7e1b26" });
   // A published sample, not a product page: kept out of search results.
-  return html.replace('</head>', `<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">${SAMPLE_LD}</head>`);
+  // The sample page is ours, not the buyer's bid, so it carries the site's no-warranty line (PRODUCT_PLAYBOOK.md 5b).
+  const note = '<p class="small"><strong>No warranty.</strong> This sample uses invented names and prices; it is provided as-is and is not engineering, construction, legal or financial advice.</p>';
+  return html.replace('</body>', `${note}</body>`).replace('</head>', `<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">${SAMPLE_LD}</head>`);
 }
 if (process.argv[1] && process.argv[1].endsWith("build-sample-pack.mjs")) writeFileSync(new URL("./sample-bid-package.html", import.meta.url), samplePack());
