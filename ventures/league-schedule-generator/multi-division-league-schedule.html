@@ -132,6 +132,7 @@
     <button type="button" class="secondary" id="show-standings">Show standings</button>
     <button type="button" class="secondary" id="dl-standings" hidden>Download standings CSV</button>
     <button type="button" class="secondary" id="dl-weekly">Download weekly update (text)</button>
+    <button type="button" class="secondary" id="dl-overdue">Download missing-scores list (text)</button>
     <div id="standings-out" role="status"></div>
     <label for="po-per">Play-off: teams from each division</label><input id="po-per" type="number" min="1" value="2" style="width:5em">
     <label for="po-wc">Wildcards (best of the rest, across divisions)</label><input id="po-wc" type="number" min="0" value="0" style="width:5em">
@@ -177,8 +178,8 @@
   </footer>
 
   <script type="module">
-    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, parseDivisionBlackouts, applyDivisionBlackouts, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsScoreSheetsHtml, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages, divisionsStandings, divisionsTieBreakNotes, divisionsStandingsCsv, divisionsPlayoffs, divisionsWeeklyUpdate } from "./divisions.mjs";
-    import { dayIso } from "./calc.mjs";
+    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, parseDivisionBlackouts, applyDivisionBlackouts, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsScoreSheetsHtml, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages, divisionsStandings, divisionsTieBreakNotes, divisionsStandingsCsv, divisionsPlayoffs, divisionsWeeklyUpdate, divisionsOverdue } from "./divisions.mjs";
+    import { dayIso, parseDate } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "blackouts", "rainouts", "venueHistory", "fairnessWeight", "officials"];
@@ -281,6 +282,7 @@
       $("#playoffs-out").textContent = (po.errors.length ? po.errors.map((e) => "Note: " + e).join("\n") + "\n\n" : "") + po.text;
       record("divisions_playoffs_shown");
     });
+    $("#dl-overdue").addEventListener("click", () => { if (!last) return; const n = new Date(); const today = parseDate(`${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(n.getDate()).padStart(2, "0")}`); download("missing-scores.txt", divisionsOverdue(last, $("#results").value, today).text || "No scores overdue.\n", "text/plain"); record("divisions_overdue_downloaded"); });
     $("#dl-weekly").addEventListener("click", () => { if (!last) return; download("weekly-update.txt", divisionsWeeklyUpdate(last, $("#results").value, { points: $("#points").value.trim() || "3-1-0", headToHead: $("#h2h").checked }), "text/plain"); record("divisions_weekly_update_downloaded"); });
     $("#dl-standings").addEventListener("click", () => { if (lastStandings) download("division-standings.csv", divisionsStandingsCsv(lastStandings), "text/csv"); });
     $("#dl-sheets").addEventListener("click", () => { if (!last) return; download("division-score-sheets.html", divisionsScoreSheetsHtml(last), "text/html"); record("divisions_score_sheets_downloaded"); });
