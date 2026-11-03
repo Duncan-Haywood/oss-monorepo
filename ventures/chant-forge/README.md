@@ -36,6 +36,8 @@ node ventures/chant-forge/render-cli.mjs dies-irae.mid -o dies-irae.wav
 node ventures/chant-forge/master-cli.mjs dies-irae.wav
 ```
 
+`render-cli.mjs piece.mid --stems stems/` also writes one WAV per voice (choir, organ, bass, chords, drums) that sum to the mix, for mixing in a DAW.
+
 `render-cli.mjs` is a plain preview synthesiser (choir pad, organ drone, bass,
 chord pad, synthesised drums; no dependencies, deterministic, about 2 s for a 3-minute
 piece). It is for the ear check and for running the master check on real audio. It is not a

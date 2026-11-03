@@ -45,6 +45,7 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
 - 2026-11-03: preview renderer (`render.mjs`, `render-cli.mjs`, `render.test.mjs`, 6 tests): MIDI to stereo WAV with an additive choir pad, organ drone, bass, chord pad and synthesised GM drums. Checked: a D3 note measures 146.8 Hz by autocorrelation, length follows the tempo map, output is deterministic. First reading through `master-cli.mjs` on Dies irae (`--fit 8 --final 50`): deep house at 124 BPM -16.8 LUFS (2.8 LU too quiet), true peak -1.12 dBTP; metal at 170 BPM half-time -14.0 LUFS, -1.67 dBTP, all four checks pass. Mono correlation reads 1.00 (everything is centred; no stereo image yet). Sound quality not judged by a person.
 - 2026-11-03: `render-cli.mjs --lufs N` (`targetLufs` in `renderMidi`): gain to a loudness target, capped at -1 dBFS sample peak; 1 test reads the WAV back through `analyze` (reported vs measured within 0.3 LU). Not listened to.
 - 2026-11-03: `--fills` (`fillBar` in `genre.mjs`, `fills.test.mjs`, 3 tests): a four-hit snare crescendo on the last beat of every fourth bar, never the final bar; off by default, adds hits only. Not listened to.
+- 2026-11-03: `render-cli.mjs --stems DIR` (`stems: true` in `renderMidi`): one WAV per voice (choir, organ, bass, chords, drums) at the mix's scale, so a producer can load them into a DAW and mix by ear. 1 test: the stems sum to the mix within 1e-9; Dies irae metal gives 5 stems. Not listened to.
 
 ## Next
 

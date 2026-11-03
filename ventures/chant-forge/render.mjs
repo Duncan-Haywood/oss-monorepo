@@ -173,7 +173,7 @@ function voiceFor(ch, program) {
   return 'chords';
 }
 
-export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0.8, targetLufs = null, ceiling = 0.89 } = {}) {
+export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0.8, targetLufs = null, ceiling = 0.89, stems = false } = {}) {
   const m = parseMidi(midiBytes);
   const sec = (t) => tickToSeconds(t, m.division, m.tempos);
   const progAt = (ch) => (m.programs.get(ch) || [[0, 0]])[0][1];
@@ -181,6 +181,7 @@ export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0
   for (const n of m.notes) endSec = Math.max(endSec, sec(n.end));
   const total = Math.ceil((endSec + tail) * rate);
   const L = new Float64Array(total), R = new Float64Array(total);
+  const stemBuf = stems ? new Map() : null; // voice -> [L, R], same scale as the mix
   const rand = rng(12345);
   const drumCache = new Map();
   const waveCache = new Map(); // same voice, pitch and length renders once
@@ -202,12 +203,18 @@ export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0
     const g = (n.vel / 127) * gain[v];
     const p = pan[v], gl = g * (1 - Math.max(0, p)), gr = g * (1 + Math.min(0, p));
     for (let i = 0; i < wave.length && start + i < total; i++) { L[start + i] += wave[i] * gl; R[start + i] += wave[i] * gr; }
+    if (stemBuf) {
+      if (!stemBuf.has(v)) stemBuf.set(v, [new Float64Array(total), new Float64Array(total)]);
+      const [sl, sr] = stemBuf.get(v);
+      for (let i = 0; i < wave.length && start + i < total; i++) { sl[start + i] += wave[i] * gl; sr[start + i] += wave[i] * gr; }
+    }
   }
   // normalise the peak (a preview level, not a loudness target: master-cli.mjs judges that)
   let peak = 0;
   for (let i = 0; i < total; i++) peak = Math.max(peak, Math.abs(L[i]), Math.abs(R[i]));
   const k = peak > 0 ? targetPeak / peak : 1;
   for (let i = 0; i < total; i++) { L[i] *= k; R[i] *= k; }
+  if (stemBuf) for (const [sl, sr] of stemBuf.values()) for (let i = 0; i < total; i++) { sl[i] *= k; sr[i] *= k; }
   // optional loudness target: gain to the target, then capped so the sample peak stays under
   // `ceiling` (0.89 = -1 dBFS); a quiet mix that would clip reports the LUFS it reached instead
   let lufs = null;
@@ -219,10 +226,13 @@ export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0
       for (let i = 0; i < total; i++) pk = Math.max(pk, Math.abs(L[i]), Math.abs(R[i]));
       if (pk * g > ceiling) g = ceiling / pk;
       for (let i = 0; i < total; i++) { L[i] *= g; R[i] *= g; }
+      if (stemBuf) for (const [sl, sr] of stemBuf.values()) for (let i = 0; i < total; i++) { sl[i] *= g; sr[i] *= g; }
       lufs = before + 20 * Math.log10(g);
     }
   }
-  return { rate, channels: [L, R], seconds: total / rate, notes: m.notes.length, lufs };
+  const out = { rate, channels: [L, R], seconds: total / rate, notes: m.notes.length, lufs };
+  if (stemBuf) out.stems = Object.fromEntries([...stemBuf].map(([v, ch]) => [v, { rate, channels: ch }]));
+  return out;
 }
 
 export function encodeWav({ rate, channels }) {
