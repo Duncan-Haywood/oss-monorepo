@@ -1,9 +1,9 @@
 ---
 title: "A pre-upload checker for a streaming release, built for chant-over-metal"
-seo_title: "Streaming release checklist as code: ISRC, UPC, cover art, AI disclosure"
+seo_title: "Streaming release checklist as code: ISRC, UPC, art, AI"
 date: 2026-11-03
 tags: [chant-forge, music-production, tools, streaming]
-description: "Chant Forge's release kit checks ISRC and UPC check digits, cover art size, WAV format, loudness, source-edition rights and AI disclosure before a distributor upload."
+description: "Chant Forge's release kit checks ISRC and UPC digits, cover art, WAV format, loudness, source rights and AI disclosure before a distributor upload."
 ---
 
 A distributor rejecting a release after upload costs days. The things that get releases bounced are mostly mechanical, so [Chant Forge](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/chant-forge) now has a `release-cli.mjs` that checks them first, from a `release.json` and the files it names.
