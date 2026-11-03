@@ -237,8 +237,8 @@ export function validatePlan(plan) {
   const sizes = new Set((plan.stock || []).filter((s) => s.length > 0 && s.price >= 0).map((s) => s.size));
   const ids = new Set();
   for (const wall of plan.walls) {
-    const name = `Wall ${wall.id || "?"}`;
-    if (!wall.id) errors.push("Every wall needs a name.");
+    const name = `Wall ${typeof wall.id === "string" ? wall.id || "?" : "?"}`;
+    if (typeof wall.id !== "string" || !wall.id.trim()) errors.push("Every wall needs a name (text, not a number or object).");
     else if (ids.has(wall.id)) errors.push(`${name}: two walls have this name.`);
     ids.add(wall.id);
     if (!(wall.length >= 12)) { errors.push(`${name}: length must be at least 12 inches.`); continue; }
