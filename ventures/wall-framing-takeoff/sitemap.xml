@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>./index.html</loc></url>
+  <url><loc>./branded-bid-package-for-framers.html</loc></url>
   <url><loc>./how-many-studs-for-a-wall.html</loc></url>
   <url><loc>./stair-stringer-calculator.html</loc></url>
   <url><loc>./drywall-calculator.html</loc></url>
   <url><loc>./concrete-calculator.html</loc></url>
   <url><loc>./siding-calculator.html</loc></url>
+  <url><loc>./insulation-calculator.html</loc></url>
   <url><loc>./deck-lumber-calculator.html</loc></url>
+  <url><loc>./trim-calculator.html</loc></url>
+  <url><loc>./roof-calculator.html</loc></url>
+  <url><loc>./gutter-calculator.html</loc></url>
   <url><loc>./schedule-calculator.html</loc></url>
   <url><loc>./bid-leveling-calculator.html</loc></url>
   <url><loc>./change-order-calculator.html</loc></url>

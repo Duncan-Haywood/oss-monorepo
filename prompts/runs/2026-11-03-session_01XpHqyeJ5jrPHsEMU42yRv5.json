@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01XpHqyeJ5jrPHsEMU42yRv5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "sort of an experimental idea. a meta vr app to interact with claude code agents and work with this repo. like coding process management sort of setup. / mainly voice controled but also like normal vr controls.",
+  "input_sha256": "b96650433bda67939110cb91fc65bdeb58835193bc0500c0d0721fd161ce7fa4",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T08:37:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "agent-workroom: WebXR headset room, voice first, with controller pointing",
+  "projects": [
+    "ventures/agent-workroom"
+  ],
+  "pr": 12782,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 26,
+  "outcome": "success",
+  "errors": [
+    "Local run_workflow_locally: agent-permission-harness-ci's byte-identical-report test failed because the repository file count changed between its two runs (11777 vs 11778) while other local checks were writing files; not caused by this diff."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/agent-workroom/README.md",
+      "issue": "The 'Ideas' list said a WebXR mode 'would need WebGL'; true, but nothing said Quest Browser lacks SpeechRecognition, which decides whether a voice-first headset app needs an on-device model. Now recorded in the README."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "`promptctl.py route` drew the research track at random; the owner's message asked directly for venture work, so the run followed ventures/1 instead.",
+      "did": "Recorded under ventures/1.",
+      "result": "Feature shipped on the venture the request fits."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-03-a-voice-first-vr-room-for-coding-agents.md"
+  ],
+  "goal": "A headset (Meta Quest) app to manage the coding agents working on this repo, driven mainly by voice, with normal VR controls.",
+  "notes": "Built on the existing agent-workroom venture (owner 2026-10-24 'vr like workplace for working with agents'). Verification: node --test on engine/page/xr/vr tests, 49 pass; run_venture_tests.py agent-workroom ok. Headless Chromium (SwiftShader) at 1280x900 and 390x800 with a mocked GitHub API: 3 PRs -> tasks on Claude/Codex/Dependabot desks, check runs mark #2 failing, 'go to Codex's desk' moves the camera, 'ask claude on 4' refused (local task), 'ask claude on 2 ...' + 'confirm' POSTs '@claude look at the failing test\\n\\n_Sent from Agent Workroom._' with the bearer token; 2D page sees the same 4 tasks; no page errors; no horizontal scroll. Fake WebXR device (stubbed navigator.xr/session/frames/controller): headset frame loop ran 31-42 frames, no errors; right stick snap-turned 30 degrees. On-device speech through the real jsDelivr CDN and Hugging Face model: Whisper tiny.en q8/wasm transcribed the 11 s JFK sample word for word in 8.6 s. Push to talk end to end (Chromium fake mic playing the clip -> voice.mjs -> Whisper -> run()): 'Added task 1: And so my fellow America!' (clip cut at 5 s). Not verified on a real headset: rendering, controller mapping and speech latency on Quest are untested; Quest Browser's lack of SpeechRecognition is from Meta forum threads, not checked on a device.",
+  "corrections": [],
+  "redteam": null
+}

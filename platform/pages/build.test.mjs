@@ -387,7 +387,9 @@ test('relative links inside each tool resolve', async () => {
       const html = stripRawText(await fs.readFile(file, 'utf8'));
       const refs = [...html.matchAll(/(?:href|src)="([^"#?]+)"/g)]
         .map((m) => m[1])
-        .filter((r) => !/^(https?:|mailto:|data:|\/\/|#)/.test(r) && r !== '');
+        // tel: is a scheme, not a path: monastery-site's example communities
+        // print their phone number as a tap-to-call link.
+        .filter((r) => !/^(https?:|mailto:|tel:|data:|\/\/|#)/.test(r) && r !== '');
 
       for (const ref of refs) {
         // The site header links deploy/ and dev/, which publish-branch.sh
@@ -1489,7 +1491,7 @@ test('categories route each slug shape somewhere sensible', () => {
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 15, 'the fourteen named sections plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 16, 'the fifteen named sections plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
@@ -3268,17 +3270,9 @@ test('the cache name carries the build, so a deploy cannot serve a stale mix', a
   assert.match(sw, /key !== CACHE/);
 });
 
-test('an identical build produces an identical cache name', async () => {
-  // One independent build compared with the suite's shared one: two builds in
-  // different temp directories, which is all the old pair of fresh builds
-  // proved, at the cost of one full build instead of two.
-  const a = await site();
-  const second = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-sw-b-'));
-  const b = await buildSite({ outDir: second, baseUrl: BASE });
-  assert.notEqual(a.outDir, b.outDir);
-  assert.equal(a.offline.cacheName, b.offline.cacheName, 'the hash must not depend on build order or paths');
-  await fs.rm(second, { recursive: true, force: true });
-});
+// 'an identical build produces an identical cache name' lives in
+// build-determinism.test.mjs: it needs a second full build, and in its own
+// file that build runs beside this file's instead of after it.
 
 test('the worker only ever touches same-origin GETs', async () => {
   const sw = await read('sw.js');

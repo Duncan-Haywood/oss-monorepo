@@ -2,6 +2,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   parseTask,
+  pullRef,
+  checkRunsApiUrl,
+  commentApiUrl,
+  checkSummary,
+  agentComment,
   parseCommand,
   findTask,
   emptyState,
@@ -221,4 +226,72 @@ test("deskLayout spreads desks symmetrically on an arc", () => {
 test("'for <agent>' still assigns when a priority word follows it", () => {
   const p = parseTask("ship the workroom for Scout urgent");
   assert.deepEqual([p.title, p.agent, p.priority], ["Ship the workroom", "Scout", "high"]);
+});
+
+test("hands-free commands parse, and near-misses stay tasks", () => {
+  const agents = ["Scout", "Builder", "Claude"];
+  const kind = (line) => parseCommand(line, agents);
+  assert.equal(kind("refresh").kind, "sync");
+  assert.equal(kind("check CI").kind, "sync");
+  assert.equal(kind("Sync from GitHub.").kind, "sync");
+  assert.equal(kind("what can I say?").kind, "help");
+  assert.equal(kind("confirm").kind, "confirm");
+  assert.equal(kind("send it").kind, "confirm");
+  assert.equal(kind("never mind").kind, "cancel");
+  assert.deepEqual(kind("go to the board").target, { kind: "board" });
+  assert.deepEqual(kind("take me to Builder's desk").target, { kind: "desk", agent: "Builder" });
+  assert.deepEqual(kind("look at claude").target, { kind: "desk", agent: "Claude" });
+  assert.deepEqual(kind("recenter").target, { kind: "home" });
+  assert.deepEqual(kind("select task three"), { kind: "select", ref: "three" });
+  // "go"/"show" + something that is not a place or a number is a task title.
+  assert.equal(kind("go through the onboarding copy").kind, "add");
+  assert.equal(kind("show errors on the form").kind, "add");
+});
+
+test("ask commands name a known or mentionable agent, a task and the request", () => {
+  const agents = ["Scout", "Claude"];
+  assert.deepEqual(parseCommand("ask claude on 3 to add tests", agents), { kind: "ask", agent: "Claude", ref: "3", text: "add tests" });
+  assert.deepEqual(parseCommand("Tell Copilot about task four, rebase onto main", ["Scout"]), {
+    kind: "ask", agent: "Copilot", ref: "four", text: "rebase onto main",
+  });
+  assert.deepEqual(parseCommand("ask Scout to look at the flaky test", agents), { kind: "ask", agent: "Scout", ref: null, text: "look at the flaky test" });
+  // An unknown name is not an agent, so this stays a task.
+  assert.equal(parseCommand("tell the team about lunch", agents).kind, "add");
+});
+
+test("page commands leave the board alone", () => {
+  const s = emptyState();
+  for (const line of ["refresh", "go to the board", "confirm", "ask claude to fix it"]) {
+    const r = applyCommand(s, parseCommand(line, ["Claude"]));
+    assert.equal(r.state, s);
+    assert.equal(r.page, true);
+  }
+});
+
+test("pull requests keep their head sha and a pull reference", () => {
+  const pr = { number: 9, state: "open", draft: false, title: "T", head: { ref: "claude/x", sha: "abc1234def" }, user: { login: "u" } };
+  const { state } = mergePulls(emptyState(), [pr], "a/b");
+  const t = state.tasks[0];
+  assert.equal(t.sha, "abc1234def");
+  assert.deepEqual(pullRef(t), { repo: "a/b", number: 9 });
+  assert.equal(pullRef({ id: "t1", source: "local" }), null);
+  const moved = mergePulls(state, [{ ...pr, head: { ...pr.head, sha: "fff0000aaa" } }], "a/b");
+  assert.equal(moved.changed, 1);
+  assert.equal(moved.state.tasks[0].sha, "fff0000aaa");
+  assert.equal(loadState(JSON.stringify({ tasks: [{ title: "x", sha: "not a sha" }] })).tasks[0].sha, null);
+  assert.equal(checkRunsApiUrl("a/b", "abc1234"), "https://api.github.com/repos/a/b/commits/abc1234/check-runs?per_page=100");
+  assert.equal(commentApiUrl("a/b", 9), "https://api.github.com/repos/a/b/issues/9/comments");
+});
+
+test("checkSummary reduces check runs to one word", () => {
+  assert.equal(checkSummary({}).state, "none");
+  assert.equal(checkSummary({ check_runs: [{ status: "completed", conclusion: "success" }, { status: "completed", conclusion: "skipped" }] }).state, "passing");
+  assert.equal(checkSummary({ check_runs: [{ status: "in_progress" }, { status: "completed", conclusion: "success" }] }).state, "running");
+  const red = checkSummary({ check_runs: [{ status: "in_progress" }, { status: "completed", conclusion: "failure" }] });
+  assert.deepEqual(red, { state: "failing", failed: 1, running: 1, total: 2 });
+});
+
+test("agentComment leads with the mention and refuses an empty request", () => {
+  assert.equal(agentComment("Claude", "  add   tests "), "@claude add tests\n\n_Sent from Agent Workroom._");
+  assert.equal(agentComment("Claude", " "), null);
 });

@@ -281,6 +281,17 @@ class Feeder:
     post_front_x: float = -380.0
     post_rear_x: float = -640.0
     shelf_post_y: float = 225.0
+    # Hopper frame loads and bracing (all assumptions to replace with a measurement).
+    tub_mass_kg: float = 1.6          # empty storage tub
+    side_load_g: float = 0.25         # sway load at the shelf as a fraction of the full hopper's weight
+    side_load_min_n: float = 60.0     # a person leaning on it or a bump, if that is larger
+    ext_E_mpa: float = 70000.0        # 6063 aluminium
+    ext_I_weak_mm4: float = 9000.0    # 2040 T-slot, weak axis (catalogue figure is about 0.9 cm^4: check yours)
+    ext_I_2020_mm4: float = 6000.0    # 2020 T-slot, either axis (about 0.6 cm^4)
+    ext_A_2020_mm2: float = 360.0     # 2020 T-slot cross-section
+    brace_foot_z: float = 120.0       # lower brace end above the deck
+    brace_head_z: float = 120.0       # upper brace end below the shelf underside
+    brace_min_factor: float = 3.0     # Euler buckling load over the brace's working load
 
     # ---- derived -----------------------------------------------------------
     @property
@@ -463,6 +474,64 @@ class Feeder:
         inside = (self.tub_l - 2 * self.tub_wall) * (self.tub_w - 2 * self.tub_wall) * (self.tub_h - self.tub_wall)
         return int(self.packing * inside / (math.pi / 6 * self.ball_d ** 3))
 
+    # ---- hopper frame: four posts, then two diagonal braces each way ----------
+    @property
+    def hopper_load_n(self) -> float:
+        """Weight on the posts: the full tub of balls, the tub and the 5 mm aluminium shelf (density 2.7 g/cm^3)."""
+        shelf_kg = self.shelf_l * self.shelf_w * self.plate_t * 2.7e-6
+        return 9.81 * (self.tub_capacity() * self.ball_g / 1000 + self.tub_mass_kg + shelf_kg)
+
+    @property
+    def hopper_side_load_n(self) -> float:
+        return max(self.side_load_g * self.hopper_load_n, self.side_load_min_n)
+
+    @property
+    def post_len(self) -> float:
+        """Mean post length, deck to shelf underside."""
+        xs = (self.post_front_x, self.post_rear_x)
+        return sum(self.shelf_underside_z(x + 10.0) for x in xs) / 2 - (self.rail_top + self.plate_t)
+
+    def brace_ends(self, axis: str) -> tuple[tuple[float, float], tuple[float, float]]:
+        """Centre-line ends (a, z) of a diagonal in the x-z plane (axis 'x', a = x) or the y-z plane ('y', a = y).
+
+        x braces rise from the rear post's foot to the front post's head, on the outer face of each side pair of
+        posts; the y brace rises from the left rear post's foot to the right rear post's head, behind the pair.
+        """
+        z0 = self.rail_top + self.plate_t + self.brace_foot_z
+        if axis == "x":
+            return (self.post_rear_x, z0), (self.post_front_x, self.shelf_underside_z(self.post_front_x + 10.0) - self.brace_head_z)
+        return (-self.shelf_post_y, z0), (self.shelf_post_y, self.shelf_underside_z(self.post_rear_x + 10.0) - self.brace_head_z)
+
+    def brace_len(self, axis: str) -> float:
+        (a0, z0), (a1, z1) = self.brace_ends(axis)
+        return math.hypot(a1 - a0, z1 - z0)
+
+    def brace_force_n(self, axis: str) -> float:
+        """Axial force in one diagonal under the side load, taking the posts' ends as pins (M5 joints carry no
+        useful moment). Two x braces share a load toward the net; the one y brace takes the whole load along it
+        (the shelf, bolted to all four posts, holds the front pair's heads to the rear pair's in plan)."""
+        (a0, z0), (a1, z1) = self.brace_ends(axis)
+        return self.hopper_side_load_n / (2 if axis == "x" else 1) * self.brace_len(axis) / abs(a1 - a0)
+
+    def brace_buckling_n(self, axis: str) -> float:
+        """Euler load of a pinned 2020 diagonal."""
+        return math.pi ** 2 * self.ext_E_mpa * self.ext_I_2020_mm4 / self.brace_len(axis) ** 2
+
+    def post_buckling_n(self) -> float:
+        """Euler load of one pinned, unbraced 2040 post about its weak axis."""
+        return math.pi ** 2 * self.ext_E_mpa * self.ext_I_weak_mm4 / self.post_len ** 2
+
+    def check_hopper_frame(self) -> list[str]:
+        bad = []
+        per_post = self.hopper_load_n / 4
+        if self.post_buckling_n() < 4 * per_post:
+            bad.append(f"a hopper post buckles at {self.post_buckling_n():.0f} N, under 4x its {per_post:.0f} N share")
+        for ax in ("x", "y"):
+            f, cr = self.brace_force_n(ax), self.brace_buckling_n(ax)
+            if cr < self.brace_min_factor * f:
+                bad.append(f"{ax} brace carries {f:.0f} N and buckles at {cr:.0f} N (needs {self.brace_min_factor:g}x)")
+        return bad
+
     def hose_chords(self, steps: int = 4) -> list[tuple[float, float, float]]:
         """(elevation, chord mm, slope deg) from the hopper outlet to the socket mouth over the elevation range."""
         out = []
@@ -514,6 +583,7 @@ class Feeder:
         if self.cheek_x_half > self.head_x1:
             bad.append("cheeks reach past the muzzle")
         bad += self.check_feed()
+        bad += self.check_hopper_frame()
         bad += self.check_launch()
         return bad
 

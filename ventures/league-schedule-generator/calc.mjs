@@ -1948,14 +1948,23 @@ export function crossTable(teams, results, order = teams.map((_, i) => i)) {
   };
 }
 
-export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToHead = false, adjustments = {} } = {}) {
+export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToHead = false, adjustments = {}, setScoring = false } = {}) {
   const rows = teams.map((name, i) => ({ index: i, name, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, points: 0 }));
   for (const r of results) {
     const A = rows[r.a];
     const B = rows[r.b];
     A.played++; B.played++;
     A.gf += r.ga; A.ga += r.gb; B.gf += r.gb; B.ga += r.ga;
-    if (r.ga > r.gb) { A.won++; B.lost++; A.points += win; B.points += loss; }
+    if (setScoring && r.ga !== r.gb) {
+      // Volleyball (FIVB) style: scores are sets won. A win by two or more sets earns the full `win`
+      // points and the loser nothing; a one-set win (e.g. 3-2) earns `win - 1` and the loser `1`.
+      const close = Math.abs(r.ga - r.gb) === 1;
+      const [W, L] = r.ga > r.gb ? [A, B] : [B, A];
+      W.won++; L.lost++;
+      W.points += close ? win - 1 : win;
+      L.points += close ? 1 : loss;
+    }
+    else if (r.ga > r.gb) { A.won++; B.lost++; A.points += win; B.points += loss; }
     else if (r.ga < r.gb) { B.won++; A.lost++; B.points += win; A.points += loss; }
     else { A.drawn++; B.drawn++; A.points += draw; B.points += draw; }
   }

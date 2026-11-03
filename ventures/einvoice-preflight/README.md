@@ -847,6 +847,9 @@ exports, which stay the open item.
 - Norway mandate page, 2026-10-25 (`norway-e-invoice-mandate.html`, 8 tests, hub counts 30 pages): send duty 1 Jan 2027, receive and digital bookkeeping 1 Jan 2030, EHF / Peppol BIS 3.0; from search excerpts only (Lovdata and skatteetaten.no unread), so no penalty stated and exemptions flagged as reported. No ELMA lookup.
 - Lithuania mandate page, 2026-10-25 (`lithuania-e-invoice-mandate.html`, 8 tests, hub test now counts 29 pages): B2G mandatory since 2017 (SABIS from 2024), i.SAF monthly reporting since 2016, no enacted B2B mandate; a 2028 target and the 2030 ViDA date come from secondary sources that disagree, and vmi.lt and e-tar.lt were not read (search excerpts only). To refresh when a B2B law is tabled.
 - Sweden mandate page, 2026-10-26 (`sweden-e-invoice-mandate.html`, 8 tests, hub counts 35 pages): no dated domestic B2B mandate; public-sector suppliers on e-invoices since April 2019 with Peppol BIS 3.0 preferred; EU ViDA 1 Jul 2030. Search excerpts of vendor pages only (Invopop, B2Brouter, Stripe, VATcalc); Skatteverket, DIGG and the law unread, no penalty stated, sources disagree on whether Svefaktura/EDIFACT ended 1 Jul 2025. To refresh from primary texts.
+- Albania mandate page, 2026-11-03 (`albania-e-invoice-mandate.html`, 8 tests, hub counts 74 pages): clearance through the DPT under Law 87/2019, B2G 1 Jan 2021, cashless B2B 1 Jul 2021, B2C cash 1 Sep 2021; UBL 2.1 or CII signed with an AKSHI certificate, NIVF/NSLF. Search excerpts of vendor pages only (DPT, the law and the vendor sites unreachable from the build host); sources disagree on retention (5 vs 10 years). No future date, so no calendar entry. Not tested: Albanian schema, signing, clearance.
+- Mauritius mandate page, 2026-11-03 (`mauritius-e-invoice-mandate.html`, 8 tests, hub counts 75 pages): MRA invoice registration (EBS to IFP, IRN and QR); MUR 100m from 15 May 2024, widening to MUR 40m from 1 Sep 2026. Search excerpts only (mra.mu and vatupdate unreachable from the build host); sources disagree on the 2025 and 2026 wave dates, and the Finance Act 2026 fine is one aggregator's claim, not stated as fact. Not tested: Mauritian schema, registration.
+- Morocco mandate page, 2026-11-03 (`morocco-e-invoice-mandate.html`, 8 tests, hub counts 76 pages): DGI pre-clearance (Simpl-TVA); vendor guides give 1 Jan and 1 Jul 2026 waves, the newest source read (about 28 Sep 2026) says no decree is published, so the page states no binding date. Search excerpts only; Official Bulletin and DGI unread. Not tested: Moroccan format, clearance.
 - New Zealand mandate page, 2026-11-03 (`new-zealand-e-invoice-mandate.html`, 8 tests, hub counts 73 pages): no general B2B mandate; central agencies receive Peppol e-invoices since 2022; large suppliers to government reported required from 1 Jan 2027; PINT A-NZ, MBIE as Peppol authority. Search excerpts of vendor and compliance pages only (MBIE, Inland Revenue and the procurement rules unreachable from the build host); sources disagree on the PINT A-NZ send date, the NZD 33 million line and how firm 2027 is. Calendar, JSON and the 2027 deadlines page regenerated. Not tested: PINT A-NZ rules, NZBN identifiers.
 - Turkey mandate page, 2026-10-26 (`turkey-e-invoice-mandate.html`, 8 tests, hub counts 36 pages): e-Fatura at TRY 3 million gross sales (TRY 500,000 in listed sectors, some categories regardless), e-Arşiv for all other invoices since the TRY 3,000 threshold went on 1 Jan 2026; UBL-TR through GİB or a licensed integrator, so the checker has no rules for it and says so. Vendor and advisory excerpts only (communiqués and GİB unread; a 2027 simplified-method date and Communiqué 535 are single-source or unread). Open: UBL-TR rules from GİB's published schematron.
 - Switzerland mandate page, 2026-10-26 (`switzerland-e-invoice-mandate.html`, 8 tests, hub counts 38 pages): federal B2G e-invoices for contracts of CHF 5,000 or more since 2016, no private B2B mandate or timeline. Vendor guides only (zoneandco, Comarch, B2Brouter, ecosio, Vertex); they disagree on whether a central EFV platform exists and on the format list, both flagged. EFV and the ordinance unread. No eCH rules in the checker.
@@ -873,3 +876,33 @@ exports, which stay the open item.
 `india-inv01.mjs` (`checkInv01`, 4 tests) pre-checks an IRP INV-01 (version 1.1) JSON payload and names the field for each fault: required blocks, GSTIN shape and check character on seller and buyer, six-digit PIN, DD/MM/YYYY date, HSN length, GST slab, IGST versus CGST+SGST from seller state against place of supply, line arithmetic (Qty x UnitPrice, discount, tax, TotItemVal) and the ValDtls totals, with a one-rupee rounding tolerance. Field names, the slab list and the tolerance are from memory of the public schema and secondary guides; the IRP specification and JSON schema were not read, and no real IRP payload or rejection was run. Tests use a made-up consistent invoice. CLI (2026-10-30): `node india-cli.mjs payload.json [--json]` (exit 0 clean, 1 findings, 2 usage; examples `examples/india-inv01.json` and `-with-defects.json`, made up, tested in `india-inv01.test.mjs`). Page card (2026-10-30): the India page has a paste box that runs `checkInv01` in the browser (nothing sent); run in headless Chromium on both examples, clean and defective. Open: a real IRP sandbox payload, export/SEZ and e-way-bill blocks.
 
 **Turkey (2026-10-30).** The Turkey page tests a VKN (10 digits) or TCKN (11 digits) by length and check digits (`turkey.mjs`). Rules are the widely published ones from open-source validators, not GİB's text; a pass is not a registry lookup. Wanted: a real VKN from a GİB-issued e-Fatura to confirm.
+
+## Branded audit pack (built dark, 2026-11-03)
+
+The monetization plan (`portfolio/monetization/models.yaml`) says checking a
+document is a commodity (about $4 per 1,000 on API marketplaces, plus free
+official validators), so checks are never charged for. What an accountant or
+finance team lacks is the dated record of what was checked before sending.
+`auditpack.mjs` turns a batch run (`preflightDocuments()` output) into one
+printable document on their own letterhead: logo, name, contact, a verdict, a
+row per file, findings grouped by rule with the fix, the findings per file,
+unreadable files, their notes, and a fixed statement that a PASS is not a
+declaration of legal validity. Typed text, file names and findings are
+escaped; the logo is accepted only as a raster data: URL; the accent only as
+`#rrggbb`.
+
+It sits behind the same licence-key check as the sibling ventures' packs
+(`licence.mjs`, `checkout.mjs`). `CHECKOUT_URL` is empty, so the card on
+`index.html` stays hidden and nothing can be bought; `python3
+portfolio/monetization/golive.py` sets the link once the owner has made the
+merchant-of-record product. The validate call is written from memory of the
+provider's docs and not run against a live product. Checked 2026-11-03:
+`node --test auditpack.test.mjs` (5 tests, including that the committed
+`sample-audit-pack.html` equals what `node build-sample-pack.mjs` makes), and
+a headless-browser run with a stubbed checkout link and licence answer: card
+shown, key accepted, pack opened with the typed title escaped, no console
+errors. Marketing page: `audit-pack-for-accountants.html`.
+
+## ISDOC detection (2026-11-03)
+
+`looksLikeIsdoc` (`report.mjs`) matches the `http://isdoc.cz/namespace/2013` namespace; `preflightDocuments` then gives a read error naming the format and the fix instead of "UBL field TaxAmount is missing". `isdoc.test.mjs`, 3 tests, on a made-up stub; `report.test.mjs` and `page.test.mjs` still pass. The namespace string is from memory of the public ISDOC schema, not read here (cz hosts unreachable from the cloud runner). Open: an ISDOC reader and a real file.

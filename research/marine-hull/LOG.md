@@ -2,6 +2,19 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-03 · Milestone 4c: glider against AUV with the dive energy taken from a Slocum G2 bench test
+- Why: 4b swept the glider's dive energy over {0, 5, 20 kJ} per cycle, unsourced; 7e/7f left it the deciding input and found no figure. The SOCIB bench test of Slocum G2 batteries (MARTECH 2025, paper 17, two pages, opened and read) gives a measured high-drain phase: 3 min at 6.43 A, regular battery range 15 V to 12 V, modelling the deep inflection of a 1000 m dive under the harshest expected conditions. Electrical energy 6.43 A x 12/13.5/15 V x 180 s = 13.9 / 15.6 / 17.4 kJ per inflection.
+- Prediction (before running, `experiments/run_slocum_socib.py`): the glider still wins in 0% of cases at equal hotel load. I also predicted the break-even AUV hotel multiple would fall below 4b's median 4.87; that was a sign error on my part, since a costlier dive makes the glider worse and so raises the hotel multiple the AUV can carry before it loses.
+- Outcome (`results_slocum_socib.txt`, 2,430 cases per row, deterministic, seconds): one inflection per cycle (13.9 to 17.4 kJ): glider farther in 0% at equal hotel, 19.7% at AUV hotel x5 (4b: 51.6%), 99.9% at x20; break-even multiple median 7.19 (10th to 90th 4.19 to 11.62; 4b 4.87). Two inflections per cycle (27.8 to 34.7 kJ): 0%, 3.4%, 87.5%; break-even median 11.26 (6.16 to 21.12). The AUV beats the glider even at zero hotel in 0 cases either way. The first part of the prediction held; the second was wrong in direction.
+- Reading: with a measured dive energy the glider needs an AUV whose hotel load is about 7 to 11 times its own to win on range, against 4.9 in 4b. H4's glider advantage is therefore smaller than 4b suggested at 0.2 m/s, and rests on the hotel gap (glider 0.7 to 5 W is itself swept).
+- Limits: the bench profile is a worst case, for 1000 m dives, while the model's depth is 500 m and e_cycle is spread over it as in 4b (so the per-metre cost at 500 m is probably overstated); 'one versus two inflections per cycle' is bracketed, not known; the paper reports 490/565 'Ah' capacity, a unit I could not reconcile and did not use; glider hotel, pump efficiency and buoyancy still swept; surfacing GPS/Iridium energy still unsourced.
+- Next: a surface-phase (GPS, Iridium) energy from the Teledyne Webb manual or the Ocean Science 2019 glider energy budget (telemetry 1014 J, 19% of a 5410 J total, seen only as a search excerpt).
+
+## 2026-11-03 · Milestone 7l: fold 3k into the paper draft (no experiment run)
+- Why: the draft stopped at 3j. Added the Michell-wave, tank-bound-k cross-check (7 of 729 wins, 0 of 243 at equal length) to the claim list, numbers copied from `results_michell_lowk.txt`.
+- Limits: wording only; nothing re-run.
+- Next: a keel-less, fuller survey-hull tank table; the 1981/1982 papers if a host opens.
+
 ## 2026-11-02 · Milestone 3k: Michell wave term with tank-bound form factors (H2 cross-check)
 - Why: 3j reran the H2 box at k 0.03 to 0.15 but kept the placeholder wave term; milestone 2 used Michell thin-ship theory but k 0.10 to 0.40. Neither crossed the two. Prediction (before running): 0 equal-length catamaran wins, and an overall win share below milestone 2's 3.3%.
 - Outcome (`experiments/run_michell_lowk.py`, `results_michell_lowk.txt`, 729 cases, deterministic, about 1 min): the catamaran out-ranges the monohull in 7 cases (1.0%), 0 of 243 at equal length; range ratio cat/mono min 0.73, median 0.86, max 1.02; monohull best range 783 to 888 km, best speed median 1.05 m/s. All 7 wins have the 3 m monohull against a 4 or 5 m catamaran, zero interference and the heaviest form-factor gap. Prediction held.
