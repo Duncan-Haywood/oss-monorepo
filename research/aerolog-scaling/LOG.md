@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-03 · Milestone 8c: bibliography checked against the registries (a check, not an experiment)
+- Why: 8b left four entries unchecked because Crossref and doi.org returned 403; both answered today (HTTP 200, with a 429 on two DOIs through `cite_check.py`, so Crossref was read directly).
+- Outcome: `paper/references.bib` now has full author lists for Stolaroff et al. (six) and Rodrigues et al. (six), the Brandt and Selig venue (49th AIAA ASM, Orlando, 4 Jan 2011), and a **correction**: Jordan et al. appeared at AUVSI's Unmanned Systems North America 2004 (Anaheim, 3 to 5 Aug 2004), not "Unmanned Unlimited" as the proposal and first bib wrote from memory. PROPOSAL.md fixed. `cite_check.py` re-run: 5 of 7 DOIs ok, 2 got HTTP 429 (not a verdict); Rodrigues was confirmed by direct Crossref read. Still unchecked: Drela 1989 (no DOI), Raymer 6th ed., Sharpe 2021 title and year, Selig LSAT volume and year. `check_numbers.py` passes. Science unchanged.
+- Next: the four unchecked entries; Allan-variance parameters; thrust law from the UIUC database (host answers now); AIAA template.
+
 ## 2026-11-03 · Milestone 9y: does a random-walk drift (bias instability) break the output-error fit that 9x's linear ramp only bent, and does a fitted ramp still repair it? (planned before running)
 - Why: the "Next" of 9x. A real gyro's slow error is a random walk plus a ramp (Allan variance), not a straight line; 9x's remedy (offset plus slope) might only fit the mean trend.
 - Plan (`experiments/imu_walk_fit/run.py`): 9x's script with each channel carrying a Gaussian random walk from 0 whose standard deviation at the record's end is 0, 10 and 20% of channel rms (so the same end-point scale as 9x's ramp), 10% white noise, scale 0.75, 1 and 2 phugoid periods, stride 4 of 78 designs, 8 draws, seed 20261103. Estimators as 9x: LS, OE, OE+b, OE+b+d.
