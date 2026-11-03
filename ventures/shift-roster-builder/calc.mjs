@@ -323,8 +323,9 @@ export function parseStaff(text, { weekStart = null } = {}) {
 export function parseShifts(text) {
   const slots = [], errors = [];
   const lines = String(text || "").split(/\r?\n/);
-  let first = true;
+  let first = true, overflow = false;
   lines.forEach((raw, i) => {
+    if (overflow) return;
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
     const c = splitLine(line);
@@ -349,13 +350,17 @@ export function parseShifts(text) {
     const fixedCell = c.slice(4).find((x) => FIXED_CELL.test(x));
     const fixedNames = fixedCell ? parseFixed(fixedCell) : [];
     if (fixedCell && !fixedNames.length) { errors.push(`${where}: "fixed:" needs a name`); return; }
+    if (slots.length + days.length * count > MAX_SLOTS * 4) { overflow = true; return; } // stop expanding a runaway file
     for (const d of days) for (let k = 0; k < count; k++) {
       const end = b <= a ? b + 1440 : b; // an end at or before the start runs overnight
       slots.push({ day: d, startMin: a, endMin: end, start: d * 1440 + a, end: d * 1440 + end, label, role: k < roleNeeded ? role : "", copy: k + 1, of: count, fixed: fixedNames[k] || "" });
     }
   });
   if (!slots.length && !errors.length) errors.push("Add at least one shift to cover.");
-  if (slots.length > MAX_SLOTS) errors.push(`That is ${slots.length} shifts to fill; this tool handles up to ${MAX_SLOTS}.`);
+  if (slots.length > MAX_SLOTS || overflow) {
+    errors.push(`That is ${overflow ? "more than " + MAX_SLOTS * 4 : slots.length} shifts to fill; this tool handles up to ${MAX_SLOTS}.`);
+    slots.length = 0; // never hand a solver an oversized week
+  }
   slots.sort((x, y) => x.start - y.start || x.end - y.end);
   slots.forEach((s, i) => { s.id = i; });
   return { slots, errors };
