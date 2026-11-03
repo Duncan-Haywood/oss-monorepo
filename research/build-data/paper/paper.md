@@ -1,6 +1,6 @@
 # Open permit feeds predict permit duration only where the city's own history is available: a three-city benchmark with a forward-in-time split
 
-Draft 0 (session 13, 2026-11-01). AI-assisted work; no affiliation with any city,
+Draft 0 (session 13, 2026-11-01; section 4.1 and the to-do list updated 2026-11-03). AI-assisted work; no affiliation with any city,
 agency or journal. Not legal, engineering or financial advice. Every number below
 is copied from `../LOG.md` and `../results/`; nothing here is new compute. Target
 venue: *Automation in Construction* (an aim, not a claim of acceptance; submitting
@@ -37,7 +37,7 @@ use one agency's or firm's project data (Gondia et al. 2020), with no public dat
 and no calibrated intervals. We ask whether open, multi-city feeds support a
 reproducible benchmark. Models: gradient-boosted trees (Chen and Guestrin 2016;
 Prokhorenkova et al. 2018), which tend to lead on tabular data (Grinsztajn et al.
-2022; Shwartz-Ziv and Armon 2022); we run LightGBM only. Scoring: pinball loss
+2022; Shwartz-Ziv and Armon 2022); we run LightGBM, XGBoost and CatBoost. Scoring: pinball loss
 (Koenker and Bassett 1978) as a strictly proper rule for quantiles (Gneiting and
 Raftery 2007). Intervals: conformalised quantile regression (Romano et al. 2019;
 Angelopoulos and Bates 2021). Field attribution: permutation importance, with
@@ -83,12 +83,37 @@ bootstrap interval excludes zero in every cell listed.
 | SF i2c | -5.9% | -12.7% | -3.0% |
 
 Table source: `../results/m3_table.md`. Caveat: a boosted model beating the
-weakest fixed reference class is a low bar. Milestone 14 adds two baselines on the
-Chicago a2i pair only (`../results/baselines_chicago_a2i_2024.json`, feed re-pulled
-2026-11-03): XGBoost gives +0.3%, -10.5%, +4.9% at q0.1, q0.5, q0.9 (LightGBM: +0.3,
--9.7, +6.5), so the q0.9 loss to the reference class is not specific to LightGBM; a
-linear quantile regression fitted on 20,000 training rows gives +0.0%, -2.3%, +72.9%.
-CatBoost, a neural net and the other pairs are not run.
+weakest fixed reference class is a low bar, so milestones 14 to 17 add XGBoost,
+CatBoost and a linear quantile regression (20,000 training rows) on all five pairs
+(`../results/baselines_*`, `../results/catboost_*`, feeds re-pulled 2026-11-03;
+week-block bootstrap intervals are in `../LOG.md` sessions 14 to 17). Relative
+change of mean pinball loss against the reference class:
+
+| pair | model | q0.1 | q0.5 | q0.9 |
+|---|---|---|---|---|
+| Chicago a2i | XGBoost | +0.3% | -10.5% | +4.9% |
+| Chicago a2i | CatBoost | +0.4% | -7.8% | +2.4% |
+| Chicago a2i | linear | +0.0% | -2.3% | +72.9% |
+| SF a2i | XGBoost | -0.7% | -3.8% | -17.7% |
+| SF a2i | CatBoost | -0.4% | -4.5% | -17.0% |
+| SF a2i | linear | -0.0% | +0.1% | -16.7% |
+| Austin a2i | XGBoost | -6.9% | -25.7% | -35.9% |
+| Austin a2i | CatBoost | -4.9% | -22.9% | -31.5% |
+| Austin a2i | linear | -0.8% | -14.5% | -28.0% |
+| SF i2c | XGBoost | -6.3% | -12.5% | -3.2% |
+| SF i2c | CatBoost | -6.2% | -12.8% | -1.7% |
+| SF i2c | linear | -2.8% | -5.6% | +1.9% |
+| Austin i2c | XGBoost | -6.9% | -18.1% | -20.1% |
+| Austin i2c | CatBoost | -6.5% | -18.0% | -19.7% |
+| Austin i2c | linear | -4.0% | -12.3% | -16.6% |
+
+Three tree libraries agree: XGBoost is within 3 points of LightGBM in every cell
+checked and CatBoost within 3 points of XGBoost in 14 of 15 (Austin a2i q0.9, 4.4
+points weaker), so the gain is a property of the data, not one library. The q0.9
+loss to the reference class in Chicago a2i holds for all three trees. The linear
+model trails the trees at q0.5 everywhere and fails badly only in Chicago a2i
+(+72.9% at q0.9), so that failure depends on the city's permit-type structure.
+Defaults are shared, not tuned per library. A neural net is not run.
 
 ### 4.2 Coverage (H2 refuted)
 
@@ -131,7 +156,7 @@ boosted model on the local rows alone is as good or better than pooling at every
 ## 5 Limitations
 
 One test year (2024) for H1, H3, H4, H5; three seeds (two for conformal); one fixed
-LightGBM configuration; the other baselines in the proposal are not run; the
+configuration per library (defaults, untuned); the neural net in the proposal is not run; the
 harmonised class map is a keyword rule not validated against hand labels; Chicago
 is survivorship-biased and has no i2c; "completed" is a status date; the spread over
 draws in 4.5 is not reported; i2c is not rerun for H5b; no fourth city (NYC DOB NOW
@@ -147,8 +172,7 @@ same-day indicator separately first.
 
 ## 7 To do before submission
 
-1. CatBoost and a neural net baseline, and XGBoost / linear quantile on the other
-   four pairs (Chicago a2i done, milestone 14).
+1. A neural net baseline; per-library tuning (Austin a2i CatBoost gap).
 2. Two-part conformal (same-day indicator, then tail) to repair 4.2.
 3. Spread over draws and i2c for 4.5; first-n-rows ordering instead of random draws.
 4. Multiple test years for H1; a fourth city after a licence check.

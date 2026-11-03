@@ -1,5 +1,9 @@
 # build-data log
 
+## Session 18, 2026-11-03: paper section 4.1 brought up to milestones 14 to 17 (no new compute)
+
+The three data hosts returned HTTP 403 at the proxy CONNECT step again, so no pull was possible and no number in `results/` changed. Done: `paper/paper.md` section 4.1 now carries the XGBoost, CatBoost and linear table for all five pairs (copied from sessions 14 to 17), the three-library agreement finding, and corrected limitations and to-do list (the draft still said LightGBM only). Next: neural net baseline, per-library tuning, two-part conformal, once a network reaches the feeds.
+
 ## Session 17, 2026-11-03: milestone 17, CatBoost quantile models on all five city/target pairs (test year 2024), session 16's "Next"
 
 Why: three tree libraries (LightGBM, XGBoost, now CatBoost) should agree if the gain over the reference class is a property of the data and not of one library's defaults. CatBoost differs most: ordered boosting and native categorical encoding (`src/catboost_run.py`, depth 6, learning rate 0.15, up to 300 rounds, early stopping 30 on the calibration year, 3 seeds, same split and week-block bootstrap).
