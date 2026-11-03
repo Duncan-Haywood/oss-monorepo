@@ -1,6 +1,6 @@
 ---
 title: "Chant Forge now has five real chants, and all of them end where their mode says"
-seo_title: "Chant Forge: five real chants that end where their mode says"
+seo_title: "Chant Forge: five Gregorian chants to MIDI, each ending on its mode"
 date: 2026-11-03
 tags: [chant-forge, gregorian-chant, open-source]
 description: "Dies irae, Pange lingua, Veni Creator, Te Deum and Salve Regina in GABC, converted to MIDI, with a test that checks every final against its mode."

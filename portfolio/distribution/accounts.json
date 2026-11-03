@@ -29,12 +29,12 @@
       "signup_with": null,
       "unlocks": [],
       "workflows": ["cloudflare-email.yml"],
-      "secrets": ["EMAIL_FORWARD_TO"],
+      "secrets": [],
       "variables": [],
       "steps": [
         "Do this before any sign-up below, or the confirmation emails bounce (the domain had no MX record on 2026-10-31).",
-        "Add the EMAIL_FORWARD_TO secret (your inbox) to the `cloudflare` environment and give the deploy token the Email Routing permissions listed at the top of platform/pages/cloudflare/email-routing.mjs.",
-        "Run the cloudflare-email workflow with apply ticked, then click the verification link Cloudflare sends your inbox. support@, hello@ and accounts@ then forward to it."
+        "Give the deploy token the Email Routing permissions listed at the top of platform/pages/cloudflare/email-routing.mjs, then run the cloudflare-email workflow with apply ticked. support@, hello@ and accounts@ then land in the agent-managed inbox (platform/edge/inbox.mjs); nothing is forwarded and there is no verification link.",
+        "Set the INBOX_TOKEN secret on the edge Worker (`npx wrangler secret put INBOX_TOKEN` in platform/edge, any long random string) and give agent sessions the same value as an environment variable, so they can read the inbox with `node platform/edge/read-inbox.mjs`."
       ]
     },
     {

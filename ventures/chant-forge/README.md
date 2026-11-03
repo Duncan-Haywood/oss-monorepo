@@ -17,7 +17,7 @@ released track:
    the line. Not built.
 4. **Voice:** a real men's choir (recorded) or a singing synthesiser. Not built.
 5. **Release:** loudness (done, `master-cli.mjs`), metadata, credits and AI-disclosure checks before a
-   distributor upload. Not built.
+   distributor upload (done: `node release-cli.mjs release.json`, 7 tests, 2026-11-03).
 
 ## What works now
 
@@ -71,18 +71,33 @@ of full-scale samples. Targets: -14 LUFS +/- 1.5, true peak at most -1 dBTP,
 mono loss at most 3 dB, no clipping. Checked 2026-11-03 against the standard's
 calibration points (a 0 dBFS 997 Hz sine reads -3.01 LUFS mono, 0.0 stereo), a
 fs/4 sine whose samples miss the peak by 3 dB, and phase-inverted and
-over-driven files (6 tests). Not checked against a reference meter (EBU
-test files, ffmpeg `ebur128`) or a real mix; the true-peak filter is a
-windowed sinc, not the Annex 2 coefficients. Distributor targets change: read
+over-driven files (6 tests). Checked 2026-11-03 against ffmpeg's `ebur128`
+filter (`node eval/ffmpeg-check.mjs`; six synthetic stereo 48 kHz signals: three
+sines, pink and white noise, a gated loud/quiet noise): integrated loudness
+within 0.05 LU on all six, true peak within 0.33 dB (the worst case, white
+noise, reads -13.47 here and -13.8 in ffmpeg; 16x oversampling gives -12.9, so
+both 4x meters under-read and ours is the closer). Not checked against EBU test
+files or a real mix; the true-peak filter is a windowed sinc, not the Annex 2
+coefficients. Distributor targets change: read
 theirs before release.
+
+## Real Gregorio files (2026-11-03)
+
+Fixed after reading the format, tested on made-up strings shaped like real files
+(`real-files.test.mjs`, 6 tests), not yet run on a batch of GregoBase files:
+CRLF line endings no longer defeat `%` comment stripping (a comment's text was
+being sung as a lyric); `<sp>R/</sp>`, `<sp>V/</sp>` and `<sp>'ae</sp>` keep their
+signs; `<v>` (raw TeX) and `<alt>` text, `{}` centre braces, `*` and the cross
+are not lyrics; a clef change inside a group, as in `(::c3)` or `(z c3)`, now
+moves the staff. NABC alternations are still cut at the first `|`.
 
 ## Not checked yet
 
 - `examples/dies-irae-incipit.gabc` is the widely quoted opening motif
   (F E F D E C D D), typed from memory. It has not been transcribed from a scan.
   It is a demo input, not a corpus entry.
-- The converter has only run on the small inputs in the tests. It has not been
-  tried on a real GregoBase or Gregorio file.
+- The converter has run on the five corpus files and made-up inputs, not on a
+  batch of real Gregorio files.
 - Nothing has been arranged, sung, mixed or published.
 
 ## Rules this project keeps

@@ -296,3 +296,20 @@ test('shortfall to break-even is the rate gap times production, only for plans b
   assert.equal(r.totalShortfallToBreakEven, 4000);
   assert.equal(r.annualShortfallToBreakEven, 48000);
 });
+
+test('a plan paying exactly the break-even rate is not below it: no pay rise is asked for', () => {
+  const r = effectiveReimbursement({
+    plans: [{ planName: 'Even', grossProduction: 80000, writeOff: 40000 }],
+    selfPayProduction: 0,
+    chairHours: 200,
+    providerCompensation: 20000,
+    practiceOverhead: 20000,
+  });
+  assert.equal(r.ok, true);
+  // cost/hr 200, gross/hr 400 => break-even 0.5; Even pays 1 - 40000/80000 = 0.5
+  const even = r.plans.find((p) => p.name === 'Even');
+  assert.equal(r.breakEvenReimbursementRate, 0.5);
+  assert.equal(even.belowBreakEven, false);
+  assert.equal(even.shortfallToBreakEven, 0);
+  assert.equal(even.payRiseToBreakEven, null);
+});
