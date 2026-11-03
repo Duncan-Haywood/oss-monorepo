@@ -83,3 +83,12 @@ an independent parser (Python `mido` 1.x): 3 tracks, 3.87 s, lyrics in order.
   - no bought streams or fake listener numbers.
 - **Treat the texts with respect.** These are liturgical texts. Use them whole
   and in their sense, not as jokes.
+
+## Check a mix before release
+
+`node mastercheck.mjs track.wav [--json]` reads a 16, 24 or 32-bit WAV (mono or
+stereo) and reports integrated loudness (BS.1770-4 K-weighting with the R128
+gates), true peak (4x oversampled), clipped samples, and stereo correlation
+with the mono fold-down loss. It compares them with the common streaming
+guidance of about -14 LUFS and -1 dBTP. It runs locally and costs nothing.
+Checked on synthetic tones only so far (`mastercheck.test.mjs`).

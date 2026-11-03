@@ -23,6 +23,8 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   notes stay inside the mode scale, a kick in every bar, four on the floor, half
   time metal. Not yet listened to through a synthesiser: ear check pending.
 
+- 2026-11-03: mix and master check (`mastercheck.mjs`, `node mastercheck.mjs track.wav [--json]`): integrated loudness (BS.1770-4 K-weighting, EBU R128 gates), 4x oversampled true peak, clipped samples, channel correlation and mono fold-down, against -14 LUFS / -1 dBTP guidance. 8 tests: a 997 Hz stereo sine reads its own dBFS (0.0 and -20.0 LUFS within 0.1), a quiet tail under the gate does not move the reading, an inter-sample peak reads near full scale, clipping and out-of-phase mixes are flagged. Only synthetic signals checked; not compared with a reference meter (ffmpeg ebur128 or similar) on a real mix. The true-peak filter is a windowed sinc, a close estimate, not the standard's exact filter.
+
 ## Next
 
 1. **Corpus hardening:** compare the five files against a pre-1929 scan,
@@ -53,7 +55,7 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
    - (b) a research spike on whether an open singing synthesiser can sing
      ecclesiastical Latin as a men's choir at acceptable quality, with a
      listening test and a written protocol.
-6. **Mix and master checks:**
+6. **Mix and master checks** (first version landed above; compare with a reference meter on a real render):
    - a script that measures integrated LUFS, true peak, mono compatibility and
      clipping against streaming targets;
    - it runs locally and costs nothing per track.
