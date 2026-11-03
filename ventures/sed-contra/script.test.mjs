@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkEpisode, citation, normalise, parseEpisode, segments } from './script.mjs';
-import { buildAll, loadEpisodes, renderFeed, vtt } from './generate.mjs';
+import { buildAll, loadEpisodes, renderFeed } from './generate.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 
@@ -77,10 +77,6 @@ test('the feed lists only episodes with audio, with an exact enclosure length', 
   const feed = renderFeed([ep], { [ep.slug]: { audio: { file: 'x.mp3', bytes: 1234, seconds: 61 } } });
   assert.match(feed, /<enclosure url="https:\/\/marisstella\.app\/sed-contra\/media\/x\.mp3" length="1234" type="audio\/mpeg"\/>/);
   assert.match(feed, /<itunes:duration>61<\/itunes:duration>/);
-});
-
-test('SRT converts to WebVTT for the browser', () => {
-  assert.equal(vtt('1\n00:00:01,250 --> 00:00:02,000\nHi\n'), 'WEBVTT\n\n00:00:01.250 --> 00:00:02.000\nHi\n');
 });
 
 test('pages link their sibling Saints by Candlelight, carry the no-warranty clause and a tab icon', () => {

@@ -29,7 +29,7 @@ after it:
 | Step | File | What it does |
 |---|---|---|
 | Parse and check | `script.mjs` | Reads the script; fails if any Thomas line is not verbatim in `sources/`, a speaker is not cast, or a short would run over a minute |
-| Voice, picture, encode | `render.py` | Kokoro voices per character (offline, Apache-2.0 weights, via `platform/audio/narrate.py`); typeset 1080p cards with the sky warming from night to dawn; ffmpeg joins them into an MP4 with chapter markers; SRT captions, Podcasting 2.0 chapters and YouTube timestamps from the same timeline; vertical 1080x1920 shorts |
+| Voice, picture, encode | `render.py` | Kokoro voices per character (offline, Apache-2.0 weights, via `platform/audio/narrate.py`); typeset 1080p cards with the sky warming from night to dawn; ffmpeg joins them into an MP4 with chapter markers; WebVTT captions, Podcasting 2.0 chapters and YouTube timestamps from the same timeline; vertical 1080x1920 shorts |
 | Publish | `generate.mjs` | Episode pages with video, audio, cited transcript and downloads; the index; the podcast RSS feed; WebVTT captions; sitemap |
 
 ```bash

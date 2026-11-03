@@ -109,7 +109,7 @@ export function renderEpisode(ep, media) {
   const words = ep.chapters.reduce((n, c) => n + c.segments.reduce((k, s) => k + wordCount(s.text), 0), 0);
   const quotes = [...new Set([...ep.chapters, ...ep.shorts].flatMap((c) => c.segments.map((s) => s.source).filter(Boolean)))];
   const watch = m.video ? `<video controls preload="metadata" src="media/${m.video.file}"><track kind="captions" srclang="en" label="English" src="media/${ep.slug}.vtt"></video>
-<p class="meta">Long-form video, ${mins(m.video.seconds)}, ${m.video.width}x${m.video.height}, chapters built in. <a href="media/${m.video.file}" download data-count="video_downloaded">Download MP4</a> (${mb(m.video.bytes)}) · <a href="media/${ep.slug}.srt" download>captions (SRT)</a> · <a href="media/${ep.slug}.youtube.txt">chapter timestamps</a></p>` : '<p class="meta">Video coming soon.</p>';
+<p class="meta">Long-form video, ${mins(m.video.seconds)}, ${m.video.width}x${m.video.height}, chapters built in. <a href="media/${m.video.file}" download data-count="video_downloaded">Download MP4</a> (${mb(m.video.bytes)}) · <a href="media/${ep.slug}.vtt" download>captions (WebVTT)</a> · <a href="media/${ep.slug}.youtube.txt">chapter timestamps</a></p>` : '<p class="meta">Video coming soon.</p>';
   const listen = m.audio ? `<audio controls preload="none" src="media/${m.audio.file}"></audio>
 <p class="meta">Podcast episode, ${mins(m.audio.seconds)}. <a href="media/${m.audio.file}" download data-count="audio_downloaded">Download MP3</a> (${mb(m.audio.bytes)}) · <a href="feed.xml">podcast feed</a></p>` : '';
   const shorts = ep.shorts.map((sh) => {
@@ -193,7 +193,7 @@ export function renderFeed(eps, media) {
 <itunes:duration>${Math.round(a.seconds)}</itunes:duration>
 <itunes:episode>${ep.number}</itunes:episode>
 <podcast:chapters url="${SITE}media/${ep.slug}.chapters.json" type="application/json+chapters"/>
-<podcast:transcript url="${SITE}media/${ep.slug}.srt" type="application/srt"/>
+<podcast:transcript url="${SITE}media/${ep.slug}.vtt" type="text/vtt"/>
 </item>`;
   }).join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -214,11 +214,6 @@ ${items}
 `;
 }
 
-/** SRT to WebVTT, for the browser's <track>. */
-export function vtt(srt) {
-  return 'WEBVTT\n\n' + srt.replace(/^\d+\n/gm, '').replace(/(\d\d:\d\d:\d\d),(\d\d\d)/g, '$1.$2');
-}
-
 export function buildAll(root = ROOT) {
   const eps = loadEpisodes(root);
   const media = loadMedia(root);
@@ -229,8 +224,6 @@ export function buildAll(root = ROOT) {
   };
   for (const ep of eps) {
     files[`${ep.slug}.html`] = renderEpisode(ep, media);
-    const srt = path.join(root, 'media', `${ep.slug}.srt`);
-    if (existsSync(srt)) files[`media/${ep.slug}.vtt`] = vtt(readFileSync(srt, 'utf8'));
   }
   return files;
 }

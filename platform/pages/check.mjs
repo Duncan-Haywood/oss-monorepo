@@ -531,6 +531,8 @@ export const SERVED_EXTENSIONS = new Map([
   ['.jpg', 'stock'],
   ['.mp4', 'stock'],
   ['.webm', 'stock'],
+  // sed-contra's video captions (<track> and podcast:transcript); mime-db, which Cloudflare's asset server uses, types .vtt as text/vtt.
+  ['.vtt', 'stock'],
   // Podcast audio (hearth-and-horizon, podcast.mjs); nginx's mime.types maps mp3 to audio/mpeg.
   ['.mp3', 'stock'],
   // The research pages' self-hosted fonts; mime.types lists font/woff2 woff2.

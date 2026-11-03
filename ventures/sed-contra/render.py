@@ -12,7 +12,8 @@ never read the script differently) it writes, under `media/`:
 - `<slug>.mp3`         the podcast episode (mono, -16 LUFS, the shared engine's mastering)
 - `<slug>.chapters.json` Podcasting 2.0 chapters, and `<slug>.youtube.txt`, the same
                          chapters as YouTube description timestamps
-- `<slug>.srt`         captions, one cue per sentence, timed from the voiced audio
+- `<slug>.vtt`         WebVTT captions, one cue per sentence, timed from the voiced audio
+                         (YouTube, the page's <track> and the feed's transcript all take it)
 - `<slug>.mp4`         the long-form video, 1920x1080: one typeset card per line,
                          speaker named, Thomas's words in italic with the citation,
                          the sky warming from night to dawn as the episode runs,
@@ -136,12 +137,12 @@ def chapter_marks(cues: list[dict]) -> list[dict]:
 def stamp(t: float, srt: bool = False) -> str:
     h, rem = divmod(t, 3600); m, s = divmod(rem, 60)
     if srt:
-        return f"{int(h):02}:{int(m):02}:{int(s):02},{int(round((s % 1) * 1000)) % 1000:03}"
+        return f"{int(h):02}:{int(m):02}:{int(s):02}.{int(round((s % 1) * 1000)) % 1000:03}"
     return f"{int(h)}:{int(m):02}:{int(s):02}" if h else f"{int(m)}:{int(s):02}"
 
 
-def srt(cues: list[dict]) -> str:
-    """One cue per sentence, each line's time shared out by characters."""
+def captions(cues: list[dict]) -> str:
+    """WebVTT, one cue per sentence, each line's time shared out by characters."""
     out, n = [], 0
     for c in cues:
         sents = narrate.sentences(c["text"].replace(" … ", " … "))
@@ -151,9 +152,9 @@ def srt(cues: list[dict]) -> str:
             d = (c["end"] - c["start"]) * len(x) / total
             n += 1
             label = "" if c["speaker"] == "NARRATOR" else f"{c['name'].split(' (')[0].upper()}: "
-            out.append(f"{n}\n{stamp(t, True)} --> {stamp(t + d, True)}\n{label}{x}\n")
+            out.append(f"{stamp(t, True)} --> {stamp(t + d, True)}\n{label}{x}\n")
             t += d
-    return "\n".join(out)
+    return "WEBVTT\n\n" + "\n".join(out)
 
 
 # --- frames ----------------------------------------------------------------------
@@ -298,7 +299,7 @@ def main() -> None:
             entry["audio"] = {"file": mp3.name, "bytes": a["bytes"], "seconds": a["seconds"]}
         (media / f"{args.slug}.chapters.json").write_text(json.dumps({"version": "1.2.0", "chapters": marks}, indent=2) + "\n")
         (media / f"{args.slug}.youtube.txt").write_text("".join(f"{stamp(m['startTime'])} {m['title']}\n" for m in marks))
-        (media / f"{args.slug}.srt").write_text(srt(cues))
+        (media / f"{args.slug}.vtt").write_text(captions(cues))
         if args.only != "audio":
             entry["video"] = video(cues, mp3, media / f"{args.slug}.mp4", (1920, 1080), show, marks)
 

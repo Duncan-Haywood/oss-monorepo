@@ -980,6 +980,7 @@
     "security-headers-check": "2026-09-10",
     "security-questionnaire-matcher": "2026-10-15",
     "security-txt-check": "2026-09-16",
+    "sed-contra": "2026-11-03",
     "self-employed-health-insurance-deduction-calculator": "2026-09-30",
     "self-employed-schedule-c-categorizer": "2026-09-29",
     "self-employment-tax-calculator": "2026-09-29",

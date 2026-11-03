@@ -20,7 +20,7 @@
 <itunes:duration>911</itunes:duration>
 <itunes:episode>1</itunes:episode>
 <podcast:chapters url="https://marisstella.app/sed-contra/media/the-first-mover.chapters.json" type="application/json+chapters"/>
-<podcast:transcript url="https://marisstella.app/sed-contra/media/the-first-mover.srt" type="application/srt"/>
+<podcast:transcript url="https://marisstella.app/sed-contra/media/the-first-mover.vtt" type="text/vtt"/>
 </item>
 </channel>
 </rss>
