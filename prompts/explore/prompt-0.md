@@ -48,6 +48,7 @@ What still holds:
   Missing local `src`/`href` files are clean too (3,307 venture pages, 0 missing; `platform/ci/check_local_assets.py`, 2026-11-01).
   Plain-`http://` loaders (`platform/ci/check_insecure_refs.py`, 0 of 3,321 pages), stale `©` years and `lorem ipsum`/`FIXME` placeholders in venture pages are clean too (2026-11-02).
   Positive `tabindex`, `autofocus`, meta refresh, `user-scalable=no`, obsolete tags (`marquee`, `center`, `font`) and `<img>` without width/height are clean too (0 real hits across venture pages; the two `<img>` matches are a user-supplied preview and demo text, 2026-11-02).
+  Relative links and images in `docs/posts/` are clean too (1,312 checked, 0 broken; `platform/ci/check_post_links.py`, 2026-11-03).
   Only sweeps of a kind not listed are open.
 - **Not more admin.** A free-choice run that only writes plans, ledger prose
   or direction documents has wasted the slot. Build something.

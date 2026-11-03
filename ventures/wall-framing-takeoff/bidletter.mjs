@@ -88,8 +88,8 @@ export function proposalHtml(q, opts = {}) {
   if (q.meta.client || q.meta.date) h.push(`<p>${q.meta.client ? "Prepared for " + escHtml(q.meta.client) : ""}${q.meta.client && q.meta.date ? ", " : ""}${escHtml(q.meta.date)}</p>`);
   h.push(`<h2>Scope of work</h2><p>${q.scope.map(escHtml).join(", ")}.</p>`);
   if (q.inclusions.length) h.push(`<p>Also included: ${q.inclusions.map(escHtml).join("; ")}.</p>`);
-  h.push(`<h2>Price by section</h2><table><tbody>${q.rows.map((r) => `<tr><td>${escHtml(r.name)}</td><td class="n">${money(r.amount)}</td></tr>`).join("")}<tr class="total"><td>Total</td><td class="n">${money(q.price)}</td></tr></tbody></table>`);
-  if (q.allowances.length) h.push(`<h2>Allowances</h2><p class="small">Actual cost is billed; the price moves with the difference.</p><table><tbody>${q.allowances.map((a) => `<tr><td>${escHtml(a.item)}</td><td class="n">${money(a.amount)}</td></tr>`).join("")}</tbody></table>`);
+  h.push(`<h2>Price by section</h2><table><thead><tr><th>Section</th><th class="n">Amount</th></tr></thead><tbody>${q.rows.map((r) => `<tr><td>${escHtml(r.name)}</td><td class="n">${money(r.amount)}</td></tr>`).join("")}<tr class="total"><td>Total</td><td class="n">${money(q.price)}</td></tr></tbody></table>`);
+  if (q.allowances.length) h.push(`<h2>Allowances</h2><p class="small">Actual cost is billed; the price moves with the difference.</p><table><thead><tr><th>Item</th><th class="n">Amount</th></tr></thead><tbody>${q.allowances.map((a) => `<tr><td>${escHtml(a.item)}</td><td class="n">${money(a.amount)}</td></tr>`).join("")}</tbody></table>`);
   if (q.exclusions.length) h.push(`<h2>Not included</h2><ul>${q.exclusions.map((e) => `<li>${escHtml(e)}</li>`).join("")}</ul>`);
   if (q.terms.length) h.push(`<h2>Terms</h2><ul>${q.terms.map((t) => `<li>${escHtml(t)}</li>`).join("")}</ul>`);
   h.push(`<p class="small">This price is valid for ${q.validDays} days. Quantities come from the plans as drawn; changes are priced by change order.</p>`);

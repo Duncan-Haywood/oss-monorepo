@@ -76,6 +76,7 @@ names what tripped it so a real verification step is not silently dropped.
 from __future__ import annotations
 
 import argparse
+import copy
 import functools
 import hashlib
 import os
@@ -584,9 +585,16 @@ class Step:
         return f"{self.job} / {self.name}"
 
 
+@functools.lru_cache(maxsize=None)
+def _parse_workflow(text: str):
+    return yaml.safe_load(text)
+
+
 def load_workflow(path: str) -> dict:
+    # Keyed by the file's text, not its path, so an edited file is re-read.
+    # Callers get their own copy: collect() and the tests may mutate it.
     with open(path) as fh:
-        return yaml.safe_load(fh)
+        return copy.deepcopy(_parse_workflow(fh.read()))
 
 
 def _default_dir(node, inherited: str) -> str:

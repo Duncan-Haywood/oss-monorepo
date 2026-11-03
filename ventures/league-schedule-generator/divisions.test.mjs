@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, restGaps } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, restGaps } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -823,4 +823,25 @@ test("CLI --results --weekly prints the group-chat update", async () => {
   const out = execFileSync("node", [join(import.meta.dirname, "divisions.mjs"), spec, "--results", res, "--weekly"], { encoding: "utf8" });
   assert.match(out, /== U10 ==/);
   assert.match(out, /== Adult ==\nNext up: Round 1/);
+});
+
+test("divisionsOverdue: lists past games with no typed result, per division, earliest meeting first", () => {
+  const s = build();
+  const r1 = s.divisions[0].rounds[0];
+  const day1 = r1.day;
+  const first = Math.min(...s.divisions.flatMap((d) => d.rounds.map((r) => r.day)));
+  const none = divisionsOverdue(s, "", first);
+  assert.deepEqual(none.overdue, []);
+  assert.equal(none.text, "");
+  const after = divisionsOverdue(s, "", day1 + 1);
+  assert.equal(after.overdue.filter((o) => o.division === "U10" && o.day === day1).length, r1.matches.length);
+  assert.match(after.text, /^Scores still missing \(\d+\):/);
+  const typed = r1.matches.map((m) => `U10: ${m.homeName} 2 - 1 ${m.awayName}`).join("\n");
+  const done = divisionsOverdue(s, typed, day1 + 1);
+  assert.equal(done.overdue.filter((o) => o.division === "U10" && o.day === day1).length, 0);
+  const junk = divisionsOverdue(s, typed + "\nU10: Hawks 1 - 0 Hawks\nNope: A 1 - 0 B", day1 + 1);
+  assert.equal(junk.overdue.length, done.overdue.length);
+  const far = divisionsOverdue(s, "", 1e9);
+  const total = s.divisions.reduce((n, d) => n + d.rounds.reduce((m, r) => m + r.matches.length, 0), 0);
+  assert.equal(far.overdue.length, total);
 });

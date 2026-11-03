@@ -18,7 +18,7 @@ Your professional judgement is what the agents cannot supply. Each guide below s
 
 - **[Small-business owners and managers](2026-11-03-start-here-business-owners-shape-the-tools.md):** five ways to shape the tools without code, from checking one against a job you did to asking for a custom build.
 - **[Accountants and bookkeepers](2026-11-03-start-here-accountants-and-bookkeepers.md):** tax bands, retirement limits and due dates typed from memory, and the bookkeeper's categorisation rules, waiting for an expert's check.
-- **[E-invoicing and compliance professionals](2026-11-03-start-here-einvoicing-and-compliance-professionals.md):** 73 country mandate pages, most built from vendor guides, to read against the official text.
+- **[E-invoicing and compliance professionals](2026-11-03-start-here-einvoicing-and-compliance-professionals.md):** 76 country mandate pages, most built from vendor guides, to read against the official text.
 - **[Developers, by stack](2026-11-03-start-here-developers-pick-a-stack.md):** plain-JS calculators, Python checkers, Next.js apps, the site builder, MCP and research code, with test commands.
 - **[Designers and accessibility specialists](2026-11-03-start-here-designers-and-accessibility.md):** what the automated checks catch, what they miss, and where a human audit helps most.
 

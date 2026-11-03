@@ -89,3 +89,14 @@ test('every page links its sibling audio venture (platform/pages/siblings.mjs)',
     if (rel.endsWith('.html')) assert.match(contents, /href="\.\.\/listen-and-learn-audio\/"/, rel);
   }
 });
+
+test('every page links Sed Contra, the Aquinas series (platform/pages/siblings.mjs)', () => {
+  for (const [rel, contents] of Object.entries(buildAll())) {
+    if (rel.endsWith('.html')) assert.match(contents, /href="\.\.\/sed-contra\/"/, rel);
+  }
+});
+
+test('the footer links its sibling Catholic Shorts', async () => {
+  const { renderIndex } = await import('./episodes.mjs');
+  assert.match(renderIndex([], {}), /href="\.\.\/catholic-shorts\/"/);
+});

@@ -1,0 +1,23 @@
+one inflection kJ at 12/13.5/15 V: 13.9, 15.6, 17.4
+
+### e_cycle = one inflection per cycle: 13.9, 15.6, 17.4 kJ
+gliderflight Slocum coefficients: S 0.1 m2, aw 3.73, ah 3.8, a = 7.53 /rad, K = 10.49 /rad2
+cases 2430; mass 52.0 kg; glider flown at best-glide incidence, one fixed buoyancy per case
+glide angle deg: median 22.4 (min 18.4, max 25.6)
+glider horizontal speed m/s: median 0.21 (10th 0.12, 90th 0.33)
+AUV/glider energy-per-metre ratio at equal hotel (>1: glider farther): median 0.28 (10th 0.20, 90th 0.40)
+AUV hotel x1: glider longer best range in 0/2430 (0.0%)
+AUV hotel x5: glider longer best range in 479/2430 (19.7%)
+AUV hotel x20: glider longer best range in 2428/2430 (99.9%)
+break-even AUV hotel multiple (glider ties AUV): defined in 2430/2430 cases; median 7.19 (10th 4.19, 90th 11.62); cases where the AUV beats the glider even at zero hotel: 0
+
+### e_cycle = two inflections per cycle: 27.8, 31.2, 34.7 kJ
+gliderflight Slocum coefficients: S 0.1 m2, aw 3.73, ah 3.8, a = 7.53 /rad, K = 10.49 /rad2
+cases 2430; mass 52.0 kg; glider flown at best-glide incidence, one fixed buoyancy per case
+glide angle deg: median 22.4 (min 18.4, max 25.6)
+glider horizontal speed m/s: median 0.21 (10th 0.12, 90th 0.33)
+AUV/glider energy-per-metre ratio at equal hotel (>1: glider farther): median 0.21 (10th 0.14, 90th 0.31)
+AUV hotel x1: glider longer best range in 0/2430 (0.0%)
+AUV hotel x5: glider longer best range in 82/2430 (3.4%)
+AUV hotel x20: glider longer best range in 2126/2430 (87.5%)
+break-even AUV hotel multiple (glider ties AUV): defined in 2430/2430 cases; median 11.26 (10th 6.16, 90th 21.12); cases where the AUV beats the glider even at zero hotel: 0

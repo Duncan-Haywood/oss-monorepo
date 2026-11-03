@@ -191,8 +191,22 @@ global media culture met with probability B per step (Shibanai, Yasuno and Ishig
 - Axelrod's base case (F 5, q 10, 10 x 10): 4.55 +- 0.36 regions (300 runs) against his 3.2.
   Higher; his sample and counting rule may differ. Not matched.
 
+- **Size scaling (compiled core, `experiments/culture/scaling.py`, `src/civ_levers/axelrod.c`).**
+  A C port of the same rule (it matches the Python model on the base case and the F = 3
+  transition: `tests/test_axelrod_c.py`) runs lattices to L = 80. The transition is sharp and
+  moves up slowly with size. F = 10, S = 0.5 crossing: q = 43 (L = 20), 50 (L = 40), 55 (L = 80);
+  F = 3: q = 8.9, 11.1, 13.2 (L = 16, 32, 64). 8 runs per cell, so intervals are narrow only
+  where the cells are steep (`scaling_results.txt`). This is **still not Castellano, Marsili and
+  Vespignani's q_c of about 300** for F = 10: at q = 80 to 400 every lattice is fragmented
+  (S under 0.03) at all three sizes. The growth with L is too slow to reach 300 by L = 150 if
+  it is logarithmic, and I did not run L = 150 or check their definition of q_c, their lattice
+  boundary or the exact q grid, so I report a disagreement with a number I read in the paper,
+  not a refutation. The earlier "q about 30 to 50 on small lattices" is the finite-size end of
+  this curve.
+
 F, q, B and the single global media culture are chosen, not measured; the finding is about
-simulated agents. Next: noise, and the L = 50 to 150 runs (a compiled core would be needed).
+simulated agents. Next: L = 150 and more runs per cell, noise (Klemm et al. 2003), and
+contacting the paper's setup (periodic boundaries, q grid) to explain the factor of five.
 
 ## Follow-up: public goods with peer punishment (`experiments/commons/`, `src/civ_levers/commons.py`)
 

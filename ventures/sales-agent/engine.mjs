@@ -290,6 +290,9 @@ const RULES = {
     P("\\b(cancellatemi|rimuovetemi|toglietemi|disiscriv)"), P("non (voglio|vogliamo) pi[uù] ricevere"),
     P("n[ãa]o (me )?(envie|mande|escreva|contate)n? mais"), P("remov(a|am|er) (meu|minha|o meu)\\b"), P("cancelar (a )?inscri"),
     P("\\b(schrijf|schrijven) (mij|me|ons) uit\\b"), P("\\buitschrijven\\b"), P("verwijder (mij|me|mijn|ons)\\b"), P("mail (mij|ons) (niet|nooit) meer"),
+    // Added 2026-11-03 after eval/fresh-2026-11-03.jsonl missed 5 of 16 opt-outs: "remove it immediately" (address), "ne m'écrivez plus",
+    // "non contattarmi più", a GDPR Article 21 objection, and "I don't want to hear from you again".
+    P("\\bremove (it|this|that)( (address|email))? (immediately|now|asap)\\b"), P("\\bne m.[ée]crivez plus\\b"), P("\\bnon contattarmi\\b"), P("\\b(cease|stop) processing my (personal )?data\\b"), P("\\bgdpr\\b.*\\b(article 21|object|erasure|delete)"), P("\\b(i )?(don'?t|do not|never) want to (hear|receive|get)\\b.*\\b(from you|again|more)\\b"),
     P("\\bcease and desist\\b"), P("\\bcease (all )?(further )?(email|e-mail|communication|contact)"),
     // Other languages (added after the third eval set; unverified beyond one example each): FR, DE, ES, IT opt-out phrasings.
     P("\\bne (me )?contactez plus\\b"), P("\\b(retirer|supprimer) (de|mon|mes|mon adresse)\\b.*\\b(liste|diffusion|donn[ée]es)"), P("\\b(kontaktieren|anschreiben|schreiben)( sie)? mich nicht mehr\\b"), P("\\bnicht mehr (kontaktieren|anschreiben|schreiben)\\b"), P("\\bsc?hreiben sie mir nicht mehr\\b"), P("\\bno me (vuelvan a )?(escrib|contact)"), P("\\bnon (mi |ci )?contatt\\w* pi[uù]\\b"), P("\\bnon contattatemi\\b"),
@@ -322,6 +325,7 @@ const RULES = {
     P("automatisch antwoord"), P("automatisch bericht"), P("\\bafwezig\\b"), P("niet (aanwezig|op kantoor)"), P("buiten kantoor"),
   ],
   left_company: [
+    P("\\b[a-z]+ left (the company|the firm|the business|us)\\b"),
     P("\\b(doesn'?t|does not|don'?t|do not|no longer) work(s|ing)? (here|there|for|at)\\b"), P("\\bno longer at\\b"), P("\\b(i|we) (don'?t|do not) (handle|deal with|look after|manage) (this|that|these|purchasing|software)\\b"), P("\\b(would be|is) the (one|person|right one) to (talk|speak) to\\b"), P("\\breplacement is\\b"), P("\\bmoved (on|to a new role|to another company)\\b"),
     P("\\bno longer (with|at|work(s|ing)? (for|at)|employed)\\b"), P("\\b(has|have) left (the company|\\w+)\\b"), P("\\b(i'?m|i am) not the right (person|contact)\\b"), P("\\bthe right (person|contact) (is|would be)\\b"), P("\\bwrong (person|contact)\\b"),
     P("\\b(please|you should|better to|try) (contact|reach out to|email|speak (to|with))\\b.*(@|\\b[A-Z][a-z]+\\b)"), P("\\bthis (mailbox|address) is (no longer|not) (monitored|in use)\\b"), P("\\bretired\\b"), P("\\bhandles? (this|that|these|purchasing|procurement)\\b"),
@@ -337,6 +341,8 @@ const RULES = {
     P("\\b(revisit|reconsider|look at (this|it)) (in|next|after|later)\\b"), P("\\b(too busy|swamped|slammed) (right now|at the moment|this (month|quarter))\\b"), P("\\bnext (quarter|year|fiscal year)\\b"), P("\\b(later|end of) (this|the) year\\b"), P("\\bafter (the )?(holidays|new year)\\b"),
   ],
   not_interested: [
+    // Added 2026-11-03 (eval/fresh-2026-11-03b.jsonl, 13 of 50 missed): bare "pass", "different direction", "isn't relevant", "not looking at", "so no".
+    P("^\\s*pass[.!]*\\s*$"), P("\\b(different|another) direction\\b"), P("\\b(isn'?t|is not|aren'?t|are not) (really )?relevant\\b"), P("\\bnot looking at\\b"), P("\\bso no[.!]*\\s*$"),
     P("^\\s*(nope|no|nah)\\.?\\s*$"), P("\\bnot (be )?moving forward\\b"), P("\\bnot relevant\\b"), P("\\b(we|i) (don'?t|do not) need (this|it|that|you|your)\\b"),
     P("\\bnot interested\\b"), P("\\bno,? thanks?( you)?\\b"), P("\\bno thank you\\b"), P("\\b(we'?re|we are) (all )?(set|good|fine)\\b"), P("\\b(don'?t|do not) (have a |see a )?need\\b"), P("\\bno need\\b"), P("\\b(i'?ll|i will|we'?ll|we will) pass\\b"), P("\\bnot (a )?(good )?fit\\b"), P("\\b(isn'?t|is not|wouldn'?t be) (a )?(good |great )?fit\\b"),
     // Added 2026-11-02 after a probe: "not interested" in PT, DE, FR, ES, IT, NL went to "unclear". Agent-written, unscored on real mail.
@@ -347,12 +353,17 @@ const RULES = {
   objection_price: [
     P("\\b(over|beyond|outside|above) (what (we|i) can (spend|afford|pay)|our (budget|range|price range))\\b"), P("\\bmoney is tight\\b"), P("\\bhard to justify\\b"), P("\\b(cost|price|pricing|quote)s?\\b.*\\b(too high|way over|steep|out of reach)\\b"),P("\\btoo (expensive|pricey|costly|much)\\b"), P("\\b(can'?t|cannot|couldn'?t) afford\\b"), P("\\b(no|don'?t have (the |a )?|out of) budget\\b"), P("\\bprice is (too )?(high|steep)\\b"), P("\\bcheaper\\b")],
   objection_competitor: [
+    P("\\b(under |in a |have a |signed a )?(contract|agreement) with\\b.*\\b(until|through|expires|renew)"), P("\\blocked (in|into)\\b"),
     P("\\bswitched to\\b"), P("\\b(no|not) plan(s|ning)? to (change|switch|move)\\b"), P("\\balready (does|handles|covers|has|do)\\b"),P("\\b(we|i) (already )?(use|have|work with|are using|'?re using|rely on)\\b.*\\b(already|currently|happy|for (this|that))\\b"), P("\\balready (have|use|using|work with|got)\\b"), P("\\bhappy with (our|what|the)\\b"), P("\\b(locked|signed) (in|into)\\b.*\\bcontract\\b"), P("\\bin a contract\\b"), P("\\bbuilt (it|this|our own) (in[- ]house|ourselves)\\b"), P("\\bbuilt (our|my) own\\b"), P("\\bin[- ]house\\b"), P("\\bin[- ]house (solution|tool|team)\\b")],
   objection_authority: [
+    P("\\b(legal|security|compliance|it|infosec|procurement) (team |department )?(would|will|won'?t|wouldn'?t)( never| not)? (approve|allow|sign off|permit)"),
     P("\\b(need|get|have) (approval|sign[- ]?off)\\b"), P("\\bsign[- ]?off from\\b"),P("\\bnot my (decision|call|department|area)\\b"), P("\\b(need|have) to (check with|check|run it by|ask|talk to) (my|our|the) (boss|manager|team|cfo|ceo|partner|director|head)\\b"), P("\\b(above|outside) my (pay grade|remit)\\b")],
   objection_need: [
+    P("\\bunless you\\b"),
     P("\\bwhy would (we|i) need\\b"), P("\\b(already )?know (their|our|the) routes\\b"),P("\\b(don'?t|do not) see (the|how|why)\\b"), P("\\bwhat makes (you|this|it) different\\b"), P("\\bsounds like (every|all the) other\\b"), P("\\bhow is (this|it) different\\b"), P("\\bnot convinced\\b"), P("\\bskeptical\\b")],
   meeting: [
+    // 2026-11-03: "are you free next Tuesday", "set up 20 minutes", "book something with me", "walk me through", "curious to learn".
+    P("\\bare you (free|available)\\b"), P("\\b(set up|schedule|book|grab) (\\d+ (min|minutes)|something|some time|time)\\b"), P("\\bcan we (set up|schedule|book)\\b"), P("\\bwalk me through\\b"), P("\\b(curious|keen|eager) to (learn|hear|know|see)\\b"), P("\\bplease (book|schedule|set up)\\b"), P("\\bsee a demo\\b"),
     P("\\b(would|'d) love (a|to see|to learn|to hear)\\b"), P("\\byes,? please\\b"), P("\\bcount (me|us) in\\b"), P("\\bwhat are (the )?next steps\\b"), P("\\bi can do (a call|monday|tuesday|wednesday|thursday|friday|tomorrow)\\b"), P("\\bmy calendar is\\b"), P("\\bfind (\\d+ minutes|some time|a time|time)\\b"), P("\\bforward(ing|ed)? (this |you )?to\\b"), P("\\bover to you\\b"), P("\\bwhen can you (show|demo|walk)\\b"),
     P("\\b(let'?s|happy to|glad to|would love to|i'?d (like|love) to|open to|keen to|could|can) (set up|schedule|book|jump on|hop on|have) (a )?(call|chat|meeting|demo|time|conversation)\\b"), P("\\b(send|share) (me |over )?(some |a few )?(times|slots|availability|your calendar|a (calendar )?link|a link)\\b"),
     P("\\b(book|grab|find|pick) (a )?(time|slot)\\b"), P("\\bhow (about|does) (monday|tuesday|wednesday|thursday|friday|next week|tomorrow)\\b"), P("\\b(free|available|works for me) (on |at )?(monday|tuesday|wednesday|thursday|friday|tomorrow|next week|this week|\\d)\\b"),
@@ -402,7 +413,7 @@ export function triage(reply, today) {
 
   // A sentence that asks to meet anywhere in the reply counts, not only the first positive one ("Sounds interesting.
   // Could you send times?" is an explicit ask).
-  const EXPLICIT = /(set up|schedule|book|times|slots|availability|calendar|link|calendly|can we|i can do|find|next steps|count|yes|love|forward|over to you|when can you|monday|tuesday|wednesday|thursday|friday|tomorrow|next week|this week|demo|jump on|hop on)/i;
+  const EXPLICIT = /(are you (free|available)|walk me through|please (book|schedule)|see a demo|set up|schedule|book|times|slots|availability|calendar|link|calendly|can we|i can do|find|next steps|count|yes|love|forward|over to you|when can you|monday|tuesday|wednesday|thursday|friday|tomorrow|next week|this week|demo|jump on|hop on)/i;
   let meet = null, explicitMeeting = false;
   for (const s of all) { const m = hits(RULES.meeting, s); if (m) { const ex = EXPLICIT.test(m[0]); if (!meet || (ex && !explicitMeeting)) { meet = { s, m: m[0] }; explicitMeeting = ex; } if (ex) break; } }
   const notNow = find("not_now");
@@ -413,7 +424,7 @@ export function triage(reply, today) {
     for (const s of all) { const f = findDate(s, today); if (f) { d = f; break; } }
     return res("not_now", notNow, { date: d?.date || addDays(today, 90), dateText: d?.text || null, confidence: d ? "clear" : "weak", why: d ? `come back ${d.date}` : "no date given: 90 days by default" });
   }
-  if (notInt && !explicitMeeting) return res("not_interested", notInt, { why: "declined" });
+  if (notInt && !explicitMeeting && !/\bunless\b/i.test(notInt.s)) return res("not_interested", notInt, { why: "declined" });
 
   for (const sub of ["price", "competitor", "authority", "need"]) {
     const o = find(`objection_${sub}`);

@@ -49,7 +49,7 @@ All in [`calc.mjs`](calc.mjs), pure functions, no dependencies:
 
 - Not legal advice; lien rights are lost by missing a deadline.
 - First-tier claimants only; second-tier clocks differ.
-- Five states only (California, Texas, Florida, Arizona, Washington).
+- Six states only (California, Texas, Florida, Arizona, Washington, Georgia).
 - No public-project bond claims, no holidays, no notice content or delivery
   rules, no foreclosure deadlines.
 - Point-in-time figures; statutes change.

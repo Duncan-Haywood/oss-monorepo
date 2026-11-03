@@ -245,6 +245,8 @@ export function parseStaff(text, { weekStart = null } = {}) {
     const minH = (c[3] || "") === "" ? 0 : Number(c[3]);
     if (!Number.isFinite(maxH) || maxH < 0) { errors.push(`${where} (${c[0]}): max hours is not a number`); return; }
     if (!Number.isFinite(minH) || minH < 0) { errors.push(`${where} (${c[0]}): min hours is not a number`); return; }
+    if (maxH > 168 || minH > 168) { errors.push(`${where} (${c[0]}): a week has only 168 hours, so ${maxH > 168 ? "max" : "min"} hours of ${maxH > 168 ? c[2] : c[3]} cannot be right`); return; }
+    if (wage > 10000) { errors.push(`${where} (${c[0]}): an hourly wage over $10,000 is probably a typo`); return; }
     if (staff.some((s) => s.name.toLowerCase() === c[0].toLowerCase())) { errors.push(`${where}: "${c[0]}" is listed twice`); return; }
     const tail = c.slice(4);
     const roles = tail.filter((x) => ROLE_CELL.test(x)).flatMap(parseRoles);
@@ -321,8 +323,9 @@ export function parseStaff(text, { weekStart = null } = {}) {
 export function parseShifts(text) {
   const slots = [], errors = [];
   const lines = String(text || "").split(/\r?\n/);
-  let first = true;
+  let first = true, overflow = false;
   lines.forEach((raw, i) => {
+    if (overflow) return;
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
     const c = splitLine(line);
@@ -347,13 +350,17 @@ export function parseShifts(text) {
     const fixedCell = c.slice(4).find((x) => FIXED_CELL.test(x));
     const fixedNames = fixedCell ? parseFixed(fixedCell) : [];
     if (fixedCell && !fixedNames.length) { errors.push(`${where}: "fixed:" needs a name`); return; }
+    if (slots.length + days.length * count > MAX_SLOTS * 4) { overflow = true; return; } // stop expanding a runaway file
     for (const d of days) for (let k = 0; k < count; k++) {
       const end = b <= a ? b + 1440 : b; // an end at or before the start runs overnight
       slots.push({ day: d, startMin: a, endMin: end, start: d * 1440 + a, end: d * 1440 + end, label, role: k < roleNeeded ? role : "", copy: k + 1, of: count, fixed: fixedNames[k] || "" });
     }
   });
   if (!slots.length && !errors.length) errors.push("Add at least one shift to cover.");
-  if (slots.length > MAX_SLOTS) errors.push(`That is ${slots.length} shifts to fill; this tool handles up to ${MAX_SLOTS}.`);
+  if (slots.length > MAX_SLOTS || overflow) {
+    errors.push(`That is ${overflow ? "more than " + MAX_SLOTS * 4 : slots.length} shifts to fill; this tool handles up to ${MAX_SLOTS}.`);
+    slots.length = 0; // never hand a solver an oversized week
+  }
   slots.sort((x, y) => x.start - y.start || x.end - y.end);
   slots.forEach((s, i) => { s.id = i; });
   return { slots, errors };

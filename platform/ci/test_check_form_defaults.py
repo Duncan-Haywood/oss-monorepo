@@ -42,6 +42,11 @@ class CheckInput(unittest.TestCase):
         self.assertIsNone(check_input(attrs(type="number", min="0.01", step="0.01", value="1200")))
         self.assertIsNone(check_input(attrs(type="number", min="0.01", step="0.1", value="90.01")))
 
+    def test_without_min_the_step_base_is_zero(self):
+        # HTML: no min means the grid starts at 0, so 3 is off a step of 2.
+        self.assertIn("not reachable", check_input(attrs(type="number", step="2", value="3")))
+        self.assertIsNone(check_input(attrs(type="number", step="2", value="4")))
+
     def test_missing_step_defaults_to_one(self):
         self.assertIsNone(check_input(attrs(type="number", min="0", value="7")))
         self.assertIsNotNone(check_input(attrs(type="number", min="0", value="7.5")))

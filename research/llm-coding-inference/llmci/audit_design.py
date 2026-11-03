@@ -50,7 +50,10 @@ def cell_ceiling(sens, spec):
     """Best-case half-width ratio, Neyman coder cells over one pooled stratum, for a coder with this sensitivity and
     specificity: sqrt(sens (1 - spec)) + sqrt((1 - sens) spec). It does not depend on prevalence (LOG.md, 7i: the
     prevalence terms cancel). Asymptotic, no pilot cost and no finite-population correction, so the gain a real
-    audit realises is smaller; 1.0 means cells cannot help, and a coder with J = 0.4 cannot do better than about 0.92."""
+    audit realises is smaller; 1.0 means cells cannot help, and a coder with J = 0.4 cannot do better than about 0.92.
+    It is the gain over a pooled audit at lambda = 0 (no control variate). Against `audit_interval`'s pooled path,
+    which fits lambda, LOG.md 7l measured the cells/pooled ratio at 0.995, not 0.916: read the ceiling as an upper
+    bound on what cells can add, not as a forecast."""
     return (sens * (1 - spec)) ** 0.5 + ((1 - sens) * spec) ** 0.5
 
 
@@ -72,7 +75,7 @@ def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR):
     draw at random from each cell's unpiloted items, so pilot items count toward n. The coder's codes feed only the
     design; the pilot must be a random draw or J_hat is biased. The result also carries "ceiling": the best-case
     half-width ratio of cells over pooled at the pilot's sensitivity and specificity (`pilot_ceiling`), reported for
-    the planner and not used by the rule: 7h saw the screen pick cells at J = 0.39 for a gain of 0.6% against a
+    the planner and not used by the rule (an upper bound, not a forecast; see `cell_ceiling`): 7h saw the screen pick cells at J = 0.39 for a gain of 0.6% against a
     ceiling of 8%."""
     idx = sorted(pilot_y)
     y = [pilot_y[i] for i in idx]

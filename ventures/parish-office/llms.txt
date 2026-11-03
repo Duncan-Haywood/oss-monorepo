@@ -1,0 +1,21 @@
+# Parish office: a free Mass intentions book with canon law checks
+
+> A free, open-source Mass intentions book for Catholic parish offices. Record intentions and offerings, list Masses, book intentions into free Masses, and check the book against canons 948-958 of the Code of Canon Law (one offered intention per Mass, the one-year limit, bination, transfers). Runs in the browser; nothing is uploaded.
+
+Free and open source (MIT). Not canonical, legal, tax or financial advice; the diocese's own rules come first. The canon text it quotes is the English translation on vatican.va.
+
+## Pages
+
+- [The Mass intentions book](index.html): the tool.
+- [What canon law says about Mass intentions](mass-intention-rules.html): the rules quoted, with a worked example.
+- [Free parish office tools](parish-tools.html): what exists and what is planned.
+
+## Command line and engine
+
+- `node cli.mjs book.json` checks a book (JSON); `--csv` prints the c. 958 register, `--book` books open intentions into free Masses, `--summary YEAR` gives year totals, `--lump CENTS --offering CENTS` applies c. 950, `--json` for machine output. Exit 1 when a high finding is present.
+- `intentions.mjs` exports `check`, `status`, `autoBook`, `registerCsv`, `yearSummary`, `massesFromLumpSum`.
+- Not modelled: collective intentions (1991 decree), foundation Masses, the Mass for the people, extrinsic-title recompense, diocesan particular law.
+
+## Source
+
+- [Source code, README and roadmap](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/parish-office)

@@ -15,6 +15,13 @@ function redactValues(text) {
   return String(text).replace(/\b\d+(?:\.\d+)?\b/g, "[value]");
 }
 
+// ISDOC (the Czech national invoice XML) sits in the http://isdoc.cz/namespace/2013 namespace.
+export function looksLikeIsdoc(text) {
+  return /xmlns(?::\w+)?\s*=\s*["']http:\/\/isdoc\.cz\/namespace\/2013["']/.test(String(text).slice(0, 4096));
+}
+
+export const ISDOC_MESSAGE = "This is an ISDOC invoice (the Czech national format). The checker reads UBL, CII, Factur-X, FatturaPA and FA(3), not ISDOC, and applies no Czech national rules. Export the invoice from your accounting software as Peppol BIS (UBL) or EN 16931 and check that file instead.";
+
 export async function inspectInvoiceSource(name, source) {
   let payload = source;
   let envelope = "";
@@ -70,6 +77,11 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
     }
     try {
       const peek = typeof source === "string" ? source : new TextDecoder().decode(source);
+      if (!looksLikePdf(name, source) && looksLikeIsdoc(peek)) {
+        // Czech ISDOC is its own schema; reading it as UBL gives a misleading "TaxAmount is missing".
+        readErrors.push({ file: name, error: ISDOC_MESSAGE });
+        continue;
+      }
       if (!looksLikePdf(name, source) && looksLikeFatturaPa(peek)) {
         // Italy's FatturaPA is its own schema, not EN 16931: own rules, no UBL/CII reading.
         const italian = checkFatturaPa(peek);

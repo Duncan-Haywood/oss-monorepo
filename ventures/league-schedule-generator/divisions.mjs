@@ -820,6 +820,43 @@ export function divisionsWeeklyUpdate(schedule, text, { points = "3-1-0", headTo
   return blocks.join("\n\n");
 }
 
+/**
+ * Games dated before `today` (days since 1970, as `parseDate` gives) with no typed result: the scores an
+ * organiser still has to chase, per division. Results are read as in `divisionsStandings`; a pair's typed
+ * results are matched to its meetings earliest first (as `overdueResults` does), so a double round robin
+ * with one result typed reports only the second meeting. Result lines that are rejected are ignored here
+ * (`divisionsStandings` reports them). Returns { overdue: [{ division, home, away, day }], text }, in date
+ * order; `text` is a chase-list ready for the group chat, "" when nothing is overdue.
+ */
+export function divisionsOverdue(schedule, text, today) {
+  const names = schedule.divisions.map((d) => d.name.toLowerCase());
+  const byDiv = schedule.divisions.map(() => []);
+  for (const raw of String(text ?? "").split(/\r?\n/)) {
+    const line = raw.trim();
+    const m = line.match(/^([^:]+):\s*(.*)$/);
+    if (m && names.includes(m[1].trim().toLowerCase())) byDiv[names.indexOf(m[1].trim().toLowerCase())].push(m[2]);
+    else if (line && schedule.divisions.length === 1) byDiv[0].push(line);
+  }
+  const overdue = [];
+  schedule.divisions.forEach((div, d) => {
+    const r = parseResults(byDiv[d].join("\n"), div.teams);
+    const typed = new Map();
+    for (const x of r.results) { const k = [x.a, x.b].sort().join("/"); typed.set(k, (typed.get(k) ?? 0) + 1); }
+    const all = [];
+    for (const round of div.rounds) for (const mt of round.matches) all.push({ division: div.name, home: mt.homeName, away: mt.awayName, day: round.day, k: [mt.home, mt.away].sort().join("/") });
+    all.sort((a, b) => a.day - b.day);
+    for (const mt of all) {
+      if (typed.get(mt.k) > 0) typed.set(mt.k, typed.get(mt.k) - 1);
+      else if (mt.day < today) overdue.push({ division: mt.division, home: mt.home, away: mt.away, day: mt.day });
+    }
+  });
+  overdue.sort((a, b) => a.day - b.day);
+  const out = overdue.length
+    ? `Scores still missing (${overdue.length}):\n` + overdue.map((o) => `  ${dayIso(o.day)}  ${o.division}: ${o.home} v ${o.away}`).join("\n")
+    : "";
+  return { overdue, text: out };
+}
+
 /** Plain-text league tables from `divisionsStandings(...).tables`, one block per division. */
 export function divisionsStandingsText(result) {
   const out = [];
@@ -1195,6 +1232,15 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
   if (ri > 0) {
     const rf = process.argv[ri + 1];
     if (!rf) { console.error("usage: node divisions.mjs spec.json --results results.txt [--csv]"); process.exit(2); }
+    const oi = process.argv.indexOf("--overdue");
+    if (oi > 0) {
+      const given = process.argv[oi + 1];
+      const today = given && !given.startsWith("--") ? parseDate(given) : parseDate(new Date().toISOString().slice(0, 10));
+      if (today == null || Number.isNaN(today)) { console.error("usage: --overdue [YYYY-MM-DD]"); process.exit(2); }
+      const o = divisionsOverdue(s, readFileSync(rf, "utf8"), today);
+      process.stdout.write((o.text || "No scores overdue.") + "\n");
+      process.exit(0);
+    }
     if (process.argv.includes("--weekly")) {
       process.stdout.write(divisionsWeeklyUpdate(s, readFileSync(rf, "utf8"), { points: raw.points || "3-1-0", headToHead: !!raw.headToHead }) + "\n");
       process.exit(0);

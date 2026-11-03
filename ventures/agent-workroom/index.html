@@ -11,7 +11,7 @@
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Agent Workroom","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A walkable 3D room for keeping track of work handed to AI coding agents: one desk per agent showing its current task and progress, a task wall with to-do, in-progress, review and done columns, task entry by voice or text, and optional progress import from a public GitHub repository's pull requests. Runs entirely in the browser; tasks are stored only in local storage."}
   </script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is this real VR?","acceptedAnswer":{"@type":"Answer","text":"No headset needed and none supported yet. It is a 3D room drawn with CSS that you walk through with the keyboard or by dragging, on a laptop or a phone. It feels like a small virtual office; it is not a WebXR app."}},{"@type":"Question","name":"Where are my tasks stored?","acceptedAnswer":{"@type":"Answer","text":"Only in this browser's local storage. Nothing is sent to a server of ours. Export the board as JSON to back it up or move it to another device."}},{"@type":"Question","name":"Does voice input send my audio anywhere?","acceptedAnswer":{"@type":"Answer","text":"Voice uses your browser's built-in speech recognition. Some browsers, Chrome among them, send the audio to the browser maker's speech service to transcribe it. The page only receives the text. If you'd rather not, type instead: the commands are the same."}},{"@type":"Question","name":"How does the GitHub import work?","acceptedAnswer":{"@type":"Answer","text":"Give it a public repository. The page asks GitHub's public API for the 40 most recently updated pull requests: drafts become in-progress tasks, open ones in-review, merged ones done. Branches named claude/…, codex/… or copilot/… go to a desk for that agent; other pull requests go to their author. No token is used, so GitHub allows about 60 requests an hour from your address."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is this real VR?","acceptedAnswer":{"@type":"Answer","text":"This page isn't: it is a 3D room drawn with CSS that you walk through with the keyboard or by dragging, on a laptop or a phone. Agent Workroom VR is the headset version (WebXR, for Meta Quest Browser and others) of the same board: mostly voice-driven push to talk, with controller pointing, CI status on the monitors, and \"ask Claude on 12 to \u2026\" to post an @claude comment on a pull request once you confirm."}},{"@type":"Question","name":"Where are my tasks stored?","acceptedAnswer":{"@type":"Answer","text":"Only in this browser's local storage. Nothing is sent to a server of ours. Export the board as JSON to back it up or move it to another device."}},{"@type":"Question","name":"Does voice input send my audio anywhere?","acceptedAnswer":{"@type":"Answer","text":"Voice uses your browser's built-in speech recognition. Some browsers, Chrome among them, send the audio to the browser maker's speech service to transcribe it. The page only receives the text. If you'd rather not, type instead: the commands are the same."}},{"@type":"Question","name":"How does the GitHub import work?","acceptedAnswer":{"@type":"Answer","text":"Give it a public repository. The page asks GitHub's public API for the 40 most recently updated pull requests: drafts become in-progress tasks, open ones in-review, merged ones done. Branches named claude/…, codex/… or copilot/… go to a desk for that agent; other pull requests go to their author. No token is used, so GitHub allows about 60 requests an hour from your address."}}]}</script>
   <style>
     :root {
       --bg: #f5f4f0; --ink: #1d1d1f; --muted: #5b5b63; --card: #fff; --line: #dcdad3; --accent: #3b5bdb; --accent-ink: #fff;
@@ -126,6 +126,7 @@
 <header>
   <h1>Agent Workroom</h1>
   <p class="lede">A small 3D office for the AI agents you hand work to. Each agent has a desk with its current task on the monitor; the wall holds every task as a sticky note in to&nbsp;do, in progress, in review or done. Type or say what needs doing, and pull real progress from a GitHub repository's pull requests.</p>
+  <p><a href="vr.html"><strong>Got a headset? Open Agent Workroom VR</strong></a>: the same board in WebXR (Meta Quest Browser and others), voice first, with controller pointing.</p>
 </header>
 
 <div id="scene" tabindex="0" role="application" aria-label="3D workroom. Drag or use the arrow keys to look around; W, A, S and D walk. Every task is also listed in the table below the room.">
@@ -214,7 +215,7 @@
   <section class="faq">
     <h2>Questions</h2>
     <h3>Is this real VR?</h3>
-    <p>No headset needed and none supported yet. It is a 3D room drawn with CSS that you walk through with the keyboard or by dragging, on a laptop or a phone. It feels like a small virtual office; it is not a WebXR app.</p>
+    <p>This page isn't: it is a 3D room drawn with CSS that you walk through with the keyboard or by dragging, on a laptop or a phone. <a href="vr.html">Agent Workroom VR</a> is the headset version (WebXR, for Meta Quest Browser and others) of the same board: mostly voice-driven push to talk, with controller pointing, CI status on the monitors, and "ask Claude on 12 to …" to post an <code>@claude</code> comment on a pull request once you confirm.</p>
     <h3>Where are my tasks stored?</h3>
     <p>Only in this browser's local storage. Nothing is sent to a server of ours. Export the board as JSON to back it up or move it to another device.</p>
     <h3>Does voice input send my audio anywhere?</h3>
@@ -239,6 +240,7 @@
   import {
     STATUSES, STATUS_LABELS, emptyState, loadState, parseCommand, applyCommand, updateTask, removeTask, addAgent,
     normaliseRepo, pullsApiUrl, mergePulls, agentSummary, overallProgress, issueUrl, taskBrief, deskLayout,
+    HELP_TEXT, findTask,
   } from "./engine.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -488,6 +490,21 @@
 
   function run(line, via) {
     const command = parseCommand(line, state.agents);
+    if (via === "voice") record("voice_used");
+    // Commands written for the headset room. The useful ones work here too.
+    if (command.kind === "sync") return state.repo ? pull(state.repo) : say("Set a repository under Progress from GitHub first.");
+    if (command.kind === "help") return say(HELP_TEXT);
+    if (command.kind === "select") {
+      const t = findTask(state.tasks, command.ref);
+      if (!t) return say(`There's no task ${command.ref}.`);
+      select(t.id, true);
+      return say(`Task ${t.num}: ${t.title}.`);
+    }
+    if (command.kind === "go") {
+      if (command.target.kind === "home") { Object.assign(cam, START); applyCamera(); return say("Back at the start."); }
+      return say("Walk with W, A, S and D here; \"go to\" moves you in the VR room.");
+    }
+    if (["ask", "confirm", "cancel"].includes(command.kind)) return say("Asking an agent on a pull request works in the VR room (vr.html), with a GitHub token. Here, use Copy brief.");
     const before = state;
     const r = applyCommand(state, command);
     state = r.state;
@@ -495,7 +512,6 @@
       record("task_added");
       selected = state.tasks[state.tasks.length - 1].id;
     }
-    if (via === "voice") record("voice_used");
     commit(r.message);
   }
 

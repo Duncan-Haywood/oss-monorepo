@@ -1,16 +1,16 @@
 ---
-title: "Start here: e-invoicing and compliance professionals, 73 mandate pages want a second reader"
+title: "Start here: e-invoicing and compliance professionals, 76 mandate pages want a second reader"
 seo_title: "E-invoicing mandate pages by country: help check them against the law"
 date: 2026-11-03
 tags: [start-here, e-invoicing, compliance, contributing, tax-technology]
-description: "For tax-technology, AP and compliance staff: 73 free e-invoicing mandate pages, mostly from secondary sources, and how to check one against the law."
+description: "For tax-technology, AP and compliance staff: 76 free e-invoicing mandate pages, mostly from secondary sources, and how to check one against the law."
 ---
 
-# Start here: e-invoicing and compliance professionals, 73 mandate pages want a second reader
+# Start here: e-invoicing and compliance professionals, 76 mandate pages want a second reader
 
 This guide is for people who work with e-invoicing mandates for a living: tax-technology and indirect-tax teams, accounts-payable and ERP leads, Peppol access-point staff, compliance officers and the lawyers who advise them. It is also for anyone who has read their country's e-invoicing decree in the original language and knows what it actually says.
 
-The [E-invoice preflight](2026-10-29-start-here-einvoice-preflight.md) is a free, MIT-licensed checker that runs the EN 16931, XRechnung and Peppol rules in the browser, plus several national rule sets, and never uploads the invoice. Around it sit 73 country pages on what each mandate requires and when, gathered in [one table](https://marisstella.app/einvoice-preflight/e-invoicing-mandates-by-country). The pages were written by AI agents, and most were written from what the agents could reach: vendor guides, advisory notes and search excerpts, not the gazette.
+The [E-invoice preflight](2026-10-29-start-here-einvoice-preflight.md) is a free, MIT-licensed checker that runs the EN 16931, XRechnung and Peppol rules in the browser, plus several national rule sets, and never uploads the invoice. Around it sit 76 country pages on what each mandate requires and when, gathered in [one table](https://marisstella.app/einvoice-preflight/e-invoicing-mandates-by-country). The pages were written by AI agents, and most were written from what the agents could reach: vendor guides, advisory notes and search excerpts, not the gazette.
 
 ## The problem, in your words
 
@@ -18,7 +18,7 @@ The [E-invoice preflight](2026-10-29-start-here-einvoice-preflight.md) is a free
 
 ## How the pages record their sources today
 
-Honestly, but in prose. There is no structured "verified against the official source" field yet. A page says what it was built from in its text, and four of the 73 record a dated read of an official or near-official source:
+Honestly, but in prose. There is no structured "verified against the official source" field yet. A page says what it was built from in its text, and four of the 76 record a dated read of an official or near-official source:
 
 - **Ireland**: "Source: Revenue's eInvoicing hub on revenue.ie ... read 2026-10-31."
 - **United Kingdom**: "(gov.uk, read 30 October 2026)"

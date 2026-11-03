@@ -16,7 +16,7 @@
 // Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
 // (`sheathing.summary.cost`) unless `wallSheet` is typed.
 
-/** @typedef {{ section: string, item: string, qty: number, unit: string, unitPrice: number | null, amount: number | null, source: string }} BudgetLine */
+/** @typedef {{ section: string, item: string, qty: number, unit: string, unitPrice: number | null, amount: number | null, source: string, priceKey: string | null }} BudgetLine */
 
 const r2 = (/** @type {number} */ n) => Math.round(n * 100) / 100;
 
@@ -29,10 +29,16 @@ export function budget(result, prices = {}, allowances = {}) {
   /** @type {BudgetLine[]} */
   const lines = [];
   const read = new Set(); // price names the engine looked up while building this budget
-  const P = (/** @type {string} */ k) => { read.add(k); return typeof prices[k] === "number" && prices[k] >= 0 ? prices[k] : null; };
+  // A typed price or allowance must be a finite number from 0 to MAX_TYPED; anything else (text, negative, NaN, Infinity, 1e300) is refused and listed in refusedValues, never priced.
+  const MAX_TYPED = 1e9;
+  const okNum = (/** @type {any} */ v) => typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= MAX_TYPED;
+  /** @type {string | null} */
+  let lastKey = null; // the price name read for the line about to be added; `priceKey` on the line, so a page can ask for exactly that price
+  const P = (/** @type {string} */ k) => { read.add(k); lastKey = k; return okNum(prices[k]) ? prices[k] : null; };
   const add = (/** @type {string} */ section, /** @type {string} */ item, /** @type {number} */ qty, /** @type {string} */ unit, /** @type {number | null} */ unitPrice, /** @type {string} */ source) => {
+    const priceKey = lastKey; lastKey = null;
     if (!(qty > 0)) return;
-    lines.push({ section, item, qty: r2(qty), unit, unitPrice, amount: unitPrice == null ? null : r2(qty * unitPrice), source });
+    lines.push({ section, item, qty: r2(qty), unit, unitPrice, amount: unitPrice == null ? null : r2(qty * unitPrice), source, priceKey });
   };
 
   for (const o of result.orders || []) {
@@ -160,7 +166,7 @@ export function budget(result, prices = {}, allowances = {}) {
   }
 
   // Labor: a typed rate times a quantity the takeoff already has. Labor is not taxed or given contingency here.
-  const laborTyped = Object.keys(prices).some((k) => k.startsWith("labor") && typeof prices[k] === "number" && prices[k] >= 0);
+  const laborTyped = Object.keys(prices).some((k) => k.startsWith("labor") && okNum(prices[k]));
   if (laborTyped && result.summary?.wallFeet > 0) add("Labor", "Wall framing", result.summary.wallFeet, "ft of wall", P("laborWallFoot"), "summary.wallFeet x typed laborWallFoot");
   if (laborTyped && result.floor?.sheets?.area > 0) add("Labor", "Floor framing and subfloor", result.floor.sheets.area, "sq ft", P("laborFloorSqFt"), "floor.sheets.area x typed laborFloorSqFt");
   if (laborTyped && roof?.roofing?.squares > 0) add("Labor", "Roof framing and roofing", roof.roofing.squares, "squares", P("laborRoofSquare"), "roof.roofing.squares x typed laborRoofSquare");
@@ -188,7 +194,7 @@ export function budget(result, prices = {}, allowances = {}) {
 
 
   for (const [name, amt] of Object.entries(allowances || {})) {
-    if (typeof amt === "number" && amt > 0) lines.push({ section: "Allowances", item: name, qty: 1, unit: "lump sum", unitPrice: r2(amt), amount: r2(amt), source: "typed allowance" });
+    if (okNum(amt) && amt > 0) lines.push({ section: "Allowances", item: name, qty: 1, unit: "lump sum", unitPrice: r2(amt), amount: r2(amt), source: "typed allowance" });
   }
 
   const sections = [...new Set(lines.map((l) => l.section))].map((name) => {
@@ -226,8 +232,12 @@ export function budget(result, prices = {}, allowances = {}) {
     const near = [...read].map((n) => ({ n, d: edit(k.toLowerCase(), n.toLowerCase()) })).sort((x, y) => x.d - y.d)[0];
     return { name: k, didYouMean: near && near.d <= 3 ? near.n : null };
   });
+  const refusedValues = [
+    ...Object.entries(prices || {}).filter(([, v]) => v != null && !okNum(v)).map(([name, v]) => ({ kind: "price", name, value: typeof v === "number" ? String(v) : JSON.stringify(v) })),
+    ...Object.entries(allowances || {}).filter(([, v]) => v != null && !okNum(v)).map(([name, v]) => ({ kind: "allowance", name, value: typeof v === "number" ? String(v) : JSON.stringify(v) })),
+  ];
   return {
-    ignoredPrices,
+    ignoredPrices, refusedValues,
     floorSqFt, perFloorSqFt: floorSqFt && total > 0 ? r2(total / floorSqFt) : null,
     wallFeet: wallFeet || null, perWallFoot: wallFeet && total > 0 ? r2(total / wallFeet) : null,
     bidPerFloorSqFt: floorSqFt && bid > total ? r2(bid / floorSqFt) : null,
@@ -257,6 +267,7 @@ export function budgetText(b) {
   if (b.bidPerWallFoot != null) out.push(`  Bid price per linear foot of wall (${b.wallFeet} ft; whole bid over wall length): ${b.bidPerWallFoot.toFixed(2)}${b.unpriced.length ? " (partial: unpriced lines left out)" : ""}`);
   if (b.unpriced.length) out.push(`  Not in the total, no price typed: ${b.unpriced.join("; ")}. Add them under \`prices\` in the plan.`);
   if (b.ignoredPrices.length) out.push(`  Typed prices that changed nothing (not a price name this plan reads, or no such quantity in this plan): ${b.ignoredPrices.map((x) => x.name + (x.didYouMean ? ` (did you mean ${x.didYouMean}?)` : "")).join(", ")}.`);
+  if (b.refusedValues.length) out.push(`  Typed values refused, not a number from 0 to 1,000,000,000 (left out of the total): ${b.refusedValues.map((x) => `${x.kind} ${x.name} = ${x.value}`).join(", ")}.`);
   out.push("  Not included: " + (b.allowances ? "" : "equipment, permits, delivery (type them under `allowances`), ") + "overhead or waste beyond what the takeoff already counts" + (b.lines.some((l) => l.section === "Labor") ? "; labor is only the rates you typed." : "; no labor rate typed."));
   return out;
 }
@@ -268,4 +279,25 @@ export function budgetCsv(b) {
   rows.push(["", "Materials", "", "", "", b.materials, ""], ["", "Tax", "", "", b.taxRate, b.tax, ""], ["", "Contingency", "", "", b.contingencyRate, b.contingency, ""], ["", "Labor", "", "", "", b.labor, ""], ...(b.allowances ? [["", "Allowances", "", "", "", b.allowances, ""]] : []), ["", "Total", "", "", "", b.total, ""]);
   if (b.overheadRate || b.profitRate) rows.push(["", "Overhead", "", "", b.overheadRate, b.overhead, ""], ["", "Profit", "", "", b.profitRate, b.profit, ""], ["", "Bid price", "", "", "", b.bid, ""]);
   return rows.map((r) => r.map(q).join(",")).join("\n") + "\n";
+}
+
+/**
+ * The prices a person still has to type, one row per price name, from the lines that have no price.
+ * Rows come in budget order; a name that prices several lines is one row with their quantities added.
+ * Lines with no `priceKey` (priced by the plan's own stock prices) never appear. Nothing here is a
+ * price: `price` is only what was typed, or null.
+ * @param {ReturnType<typeof budget>} b
+ * @param {Record<string, number>} [typed]
+ * @returns {{ key: string, items: string[], section: string, unit: string, qty: number, price: number | null }[]}
+ */
+export function priceSheet(b, typed = {}) {
+  /** @type {Map<string, { key: string, items: string[], section: string, unit: string, qty: number, price: number | null }>} */
+  const rows = new Map();
+  for (const l of b.lines) {
+    if (!l.priceKey || (l.unitPrice != null && !(l.priceKey in typed))) continue;
+    const r = rows.get(l.priceKey) || { key: l.priceKey, items: [], section: l.section, unit: l.unit, qty: 0, price: Number.isFinite(typed[l.priceKey]) ? typed[l.priceKey] : null };
+    r.items.push(l.item); r.qty = Math.round((r.qty + l.qty) * 100) / 100;
+    rows.set(l.priceKey, r);
+  }
+  return [...rows.values()];
 }
