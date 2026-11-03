@@ -133,15 +133,26 @@ test('server ventures get servers/<slug>.json whose blueprint matches the repo l
     const serverFiles = JSON.parse(await fs.readFile(path.join(out, 'servers', `${slug}.json`), 'utf8'));
     const repo = composeRepo({ slug, title: slug, provider: 'render', serverFiles, templates });
     assert.match(repo['render.yaml'], new RegExp(`ventures/${slug}`), `${slug}: render.yaml must point at its own directory`);
-    assert.ok(repo[`ventures/${slug}/Dockerfile`] && repo[`ventures/${slug}/server.mjs`], slug);
+    // A server venture is anything with a Dockerfile + render.yaml: a node
+    // server.mjs or a static nginx image (28 calculators, 2026-11-03). What it
+    // must ship is its Dockerfile and every file that Dockerfile copies.
+    assert.ok(repo[`ventures/${slug}/Dockerfile`], slug);
     assert.ok(!Object.keys(repo).some((k) => /\.test\.m?js$/.test(k)), `${slug}: no test files`);
     const bundle = composeRepo({ slug, title: slug, provider: 'docker', serverFiles, templates });
     assert.ok(bundle['compose.yaml'] && bundle['setup.sh'] && bundle['.env.example'], `${slug}: docker bundle`);
-    assert.ok(bundle['app/Dockerfile'] && bundle['app/server.mjs'], `${slug}: docker bundle has the app`);
+    assert.ok(bundle['app/Dockerfile'], `${slug}: docker bundle has the app`);
     const fly = composeRepo({ slug, title: slug, provider: 'fly', serverFiles, templates });
-    assert.ok(fly['fly.toml'] && fly['app/Dockerfile'] && fly['app/server.mjs'], `${slug}: fly bundle`);
-    // every file the Dockerfile COPYs by name must be in the repo
-    const copy = serverFiles.Dockerfile.text.match(/^COPY\s+(.+?)\s+\.\/\s*$/m)?.[1].split(/\s+/) ?? [];
-    for (const f of copy.filter((x) => !x.includes('*'))) assert.ok(repo[`ventures/${slug}/${f}`], `${slug}: Dockerfile copies ${f}`);
+    assert.ok(fly['fly.toml'] && fly['app/Dockerfile'], `${slug}: fly bundle`);
+    // every file a COPY names (to any destination, every COPY line) must be in
+    // the repo and in each bundle
+    const copies = [...serverFiles.Dockerfile.text.matchAll(/^COPY\s+(?!--from)(.+)$/gm)]
+      .flatMap((m) => m[1].trim().split(/\s+/).filter((x) => !x.startsWith('--')).slice(0, -1));
+    for (const f of copies.filter((x) => !x.includes('*') && x !== '.' && x !== './')) {
+      const rel = f.replace(/^\.\//, '').replace(/\/$/, '');
+      const has = (files, prefix) => Object.keys(files).some((k) => k === prefix + rel || k.startsWith(`${prefix}${rel}/`));
+      assert.ok(has(repo, `ventures/${slug}/`), `${slug}: Dockerfile copies ${f}`);
+      assert.ok(has(bundle, 'app/'), `${slug}: docker bundle has ${f}`);
+    }
+    if (/^CMD .*server\.mjs/m.test(serverFiles.Dockerfile.text)) assert.ok(repo[`ventures/${slug}/server.mjs`], `${slug}: CMD runs server.mjs`);
   }
 });

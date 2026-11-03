@@ -4,7 +4,7 @@ This directory is the management layer for the products in
 [`ventures/`](../ventures/README.md): what to build next, what each product has
 cost, what usage it gets, and how it reaches people. Nothing here is a product
 itself; the tools are at
-**[duncan-haywood.github.io/monorepo-projects](https://duncan-haywood.github.io/monorepo-projects/)**.
+**[marisstella.app](https://marisstella.app/)**.
 
 Start with [`DIRECTION.md`](DIRECTION.md), the strategy reference (long: read
 the sections your task touches; [`prompts/goals.md`](../prompts/goals.md) wins

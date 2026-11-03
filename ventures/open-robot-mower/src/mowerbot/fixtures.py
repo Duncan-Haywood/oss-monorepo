@@ -14,6 +14,21 @@ CASES = [
 ]
 
 
+def stable(v):
+    """Round floats to 12 significant digits. Summation order differs across
+    Python builds and CPUs in the last digit or two (CI on 3.12 and a 3.13
+    container disagreed at the 1e-13 level), which made `git diff --exit-code`
+    on these fixtures red on main from 2026-10-31. sim.test.mjs compares with
+    tolerances of 1e-9 or wider, far above this rounding."""
+    if isinstance(v, float):
+        return float(f"{v:.12g}")
+    if isinstance(v, dict):
+        return {k: stable(x) for k, x in v.items()}
+    if isinstance(v, (list, tuple)):
+        return [stable(x) for x in v]
+    return v
+
+
 def build() -> dict:
     out = []
     for c in CASES:
@@ -37,5 +52,5 @@ def build() -> dict:
 
 if __name__ == "__main__":
     path = Path(__file__).resolve().parents[2] / "fixtures" / "reference.json"
-    path.write_text(json.dumps(build(), indent=2) + "\n")
+    path.write_text(json.dumps(stable(build()), indent=2) + "\n")
     print(f"wrote {path}")

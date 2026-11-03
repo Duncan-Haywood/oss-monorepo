@@ -1,4 +1,5 @@
 import unittest
+from unittest import mock
 
 import pick_track
 
@@ -138,7 +139,10 @@ class FocusTest(unittest.TestCase):
     def test_programme_draws_lean_to_focus(self):
         progs = [("heavy-hydraulics", True), ("lowcomm-training", True),
                  ("qual-x", True), ("build-data", False)]
-        firsts = [pick_track.draw_programme(i / 4000, progs, lambda s: [])[0] for i in range(4000)]
+        # Real slugs, so a research/<slug>/BLOCKED file on main (heavy-hydraulics got one on
+        # 2026-11-03) would drop it from the draw and skew the share: hold is_blocked off.
+        with mock.patch.object(pick_track, "is_blocked", lambda slug: False):
+            firsts = [pick_track.draw_programme(i / 4000, progs, lambda s: [])[0] for i in range(4000)]
         share = sum(pick_track.is_focus(s) for s in firsts) / len(firsts)
         self.assertAlmostEqual(share, 0.75, delta=0.03)
         self.assertEqual(set(firsts), {p[0] for p in progs})

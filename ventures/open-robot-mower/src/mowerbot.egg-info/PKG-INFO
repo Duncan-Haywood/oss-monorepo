@@ -3,7 +3,7 @@ Name: mowerbot
 Version: 0.1.0
 Summary: Open-source robot lawn mower: lawn coverage planner, RTK mowing simulation, battery sessions, blade stop-time and slope calculators, ESP32 protocol
 License: MIT
-Project-URL: Homepage, https://duncan-haywood.github.io/monorepo-projects/open-robot-mower/
+Project-URL: Homepage, https://marisstella.app/open-robot-mower/
 Project-URL: Source, https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/open-robot-mower
 Keywords: robot lawn mower,robotic mower,DIY,RTK GNSS,coverage planning,raspberry pi,esp32,open hardware
 Classifier: License :: OSI Approved :: MIT License

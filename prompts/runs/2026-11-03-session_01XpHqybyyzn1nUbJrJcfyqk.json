@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01XpHqybyyzn1nUbJrJcfyqk",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "i think generally red team should double purpose as purple team. if it finds something by doing red team it should work on fixing it.",
+  "input_sha256": "b981cb4f03a090c6da2a421d4f38764e648eb22899f91b70b9ced15d14416bf3",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T08:13:09Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Owner asked that the red team double as a purple team (fix what it finds), then mid-run that red/blue/purple work build automation that catches security errors between full runs.",
+  "projects": [
+    "prompts/redteam",
+    "platform/ci",
+    "platform/deploy",
+    "ventures/workflow-audit",
+    "ventures/einvoice-preflight",
+    "ventures/open-house-plans"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12779",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "'keep control-plane edits in their own small PR' needs a second branch, but the session harness names one branch; used <branch>-fixes for the non-control-plane half."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "two PRs instead of one so the defect fixes are not held by owner approval of the prompt/workflow change",
+      "did": "PR 12779 (fixes, this record) and PR 12780 (prompts + .github workflow)",
+      "result": "fixes mergeable without review; prompt change waits for owner"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-03-red-team-findings-that-nobody-fixed.md"
+  ],
+  "goal": "Red-team track fixes what it finds and leaves automated security guards.",
+  "notes": "Measured 373 red-team records: 105 real defects, 101 patched; 1,118 gaps, 1,061 proven closed. Four open defects: one already fixed (record never updated), three fixed here (red deploy test, orphan branches read as landed by unlanded_work.py, ~190 venture files on the 404 github.io/monorepo-projects host). Also fixed: workflow-audit cross-file path stacking (found by dogfooding it on this repo), einvoice-preflight and open-house-plans red on main. Guards added: test_no_dead_pages_base ventures test; workflow-self-audit.yml in PR 12780 (0 high on first run). Verification: run_venture_tests.py over 109 touched ventures green after fixes; build.test.mjs 11/11; test_unlanded_work 38/38 (new orphan test fails without the fix); workflow-audit 17/17 (new test fails without the fix); validate_workflows, check_md_links, check_code_refs, check_post_frontmatter OK.",
+  "corrections": [],
+  "redteam": null
+}
