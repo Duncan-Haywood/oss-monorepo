@@ -33,6 +33,19 @@
       <li>Private, loopback and link-local addresses are refused; only public http/https pages are supported.</li>
     </ul>
   </section>
+  <section id="faq">
+    <h2>Questions</h2>
+    <h3>How do I get alerted when a vendor changes its terms of service?</h3>
+    <p>Run <code>npm run watch -- &lt;url&gt;</code> from a cron job or CI step. It compares the page with your last snapshot and exits non-zero when the text changed, so the scheduler can notify you. This version has no built-in scheduled monitor; each check is one you or your job triggers.</p>
+    <h3>What if the vendor's page is down or returns an error?</h3>
+    <p>The check is labelled inconclusive. It never overwrites your last good snapshot and is never reported as no change.</p>
+    <h3>Where are my snapshots stored?</h3>
+    <p>On your own disk for the command line, and in your own browser's local storage for the browser tool. The server does not persist them, so clearing site data or switching devices starts a watch over.</p>
+    <h3>Can it watch any URL?</h3>
+    <p>Only public http and https pages. Private, loopback and link-local addresses are refused. Monitor only pages you are authorized to monitor.</p>
+    <h3>Is the diff legal advice?</h3>
+    <p>No. It is an evidence feed showing what changed, when, and at which source URL. Confirm any change against the vendor's original page.</p>
+  </section>
   <section>
     <h2>Run it yourself</h2>
     <p>The CLI needs only Node. Baselines are stored on your own disk.</p>
