@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, restGaps } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining, restGaps } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -865,4 +865,20 @@ test("divisionsRace: clinched and eliminated teams per division from typed resul
   }
   const bad = divisionsRace(s, "Nope: A 1 - 0 B", { spots: 2 });
   assert.ok(bad.errors.length > 0);
+});
+
+test("divisionsRemaining: games left and opponents' points per game, hardest run-in first", () => {
+  const s = build();
+  const total = s.divisions.reduce((n, d) => n + d.rounds.reduce((m, r) => m + r.matches.length, 0), 0);
+  const none = divisionsRemaining(s, "");
+  assert.equal(none.rows.reduce((n, r) => n + r.left, 0), total * 2);
+  assert.ok(none.rows.every((r) => r.left === 0 || r.oppPpg === 0));
+  const m = s.divisions[0].rounds[0].matches[0];
+  const typed = divisionsRemaining(s, `U10: ${m.homeName} 3 - 0 ${m.awayName}`);
+  assert.equal(typed.rows.reduce((n, r) => n + r.left, 0), total * 2 - 2);
+  const u10 = typed.rows.filter((r) => r.division === "U10");
+  for (let i = 1; i < u10.length; i++) assert.ok((u10[i - 1].oppPpg ?? -1) >= (u10[i].oppPpg ?? -1));
+  const hawk = u10.find((r) => r.team === m.homeName);
+  assert.ok(hawk.oppPpg < 3);
+  assert.match(typed.text, /hardest run-in first/);
 });

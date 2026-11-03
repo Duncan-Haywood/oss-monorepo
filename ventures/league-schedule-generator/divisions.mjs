@@ -891,6 +891,37 @@ export function divisionsOverdue(schedule, text, today) {
   return { overdue, text: out };
 }
 
+/**
+ * Strength of the remaining schedule, per division, from the results typed so far (lines as for
+ * `divisionsStandings`). For each team: games left, and the average points per game of the opponents it
+ * still has to face (an opponent with no games yet counts as the division average). A higher number is a
+ * harder run-in. Informational only; it does not predict results. Returns { rows: [{ division, team, left,
+ * oppPpg }], text, errors }.
+ */
+export function divisionsRemaining(schedule, text, { points = "3-1-0" } = {}) {
+  const st = divisionsStandings(schedule, text, { points });
+  const rows = [];
+  const blocks = [];
+  schedule.divisions.forEach((div, d) => {
+    const table = st.tables[d].rows;
+    const ppg = new Map(table.map((r) => [r.name, r.played ? r.points / r.played : null]));
+    const known = [...ppg.values()].filter((v) => v != null);
+    const avg = known.length ? known.reduce((a, b) => a + b, 0) / known.length : 0;
+    const names = div.teams;
+    const parsed = parseResults(String(text ?? "").split(/\r?\n/).map((l) => l.trim()).filter((l) => l.toLowerCase().startsWith(div.name.toLowerCase() + ":")).map((l) => l.replace(/^[^:]+:\s*/, "")).concat(schedule.divisions.length === 1 ? String(text ?? "").split(/\r?\n/).filter((l) => l.trim() && !l.includes(":")) : []).join("\n"), names);
+    const left = remainingFixtures(div, parsed.results);
+    const mine = names.map(() => []);
+    for (const [a, b] of left) { mine[a].push(b); mine[b].push(a); }
+    const out = names.map((n, i) => {
+      const opp = mine[i].map((o) => ppg.get(names[o]) ?? avg);
+      return { division: div.name, team: n, left: opp.length, oppPpg: opp.length ? opp.reduce((a, b) => a + b, 0) / opp.length : null };
+    }).sort((a, b) => (b.oppPpg ?? -1) - (a.oppPpg ?? -1) || a.team.localeCompare(b.team));
+    rows.push(...out);
+    blocks.push(`${div.name} (hardest run-in first)\n` + out.map((r) => `  ${r.team.slice(0, 20).padEnd(20)} ${String(r.left).padStart(2)} left  opponents avg ${r.oppPpg == null ? "-" : r.oppPpg.toFixed(2)} pts/game`).join("\n"));
+  });
+  return { rows, text: blocks.join("\n\n"), errors: st.errors };
+}
+
 /** Plain-text league tables from `divisionsStandings(...).tables`, one block per division. */
 export function divisionsStandingsText(result) {
   const out = [];
@@ -1273,6 +1304,12 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
       if (today == null || Number.isNaN(today)) { console.error("usage: --overdue [YYYY-MM-DD]"); process.exit(2); }
       const o = divisionsOverdue(s, readFileSync(rf, "utf8"), today);
       process.stdout.write((o.text || "No scores overdue.") + "\n");
+      process.exit(0);
+    }
+    if (process.argv.includes("--remaining")) {
+      const rm = divisionsRemaining(s, readFileSync(rf, "utf8"), { points: raw.points || "3-1-0" });
+      for (const e of rm.errors) console.error(`Remaining: ${e}`);
+      process.stdout.write(rm.text + "\n");
       process.exit(0);
     }
     const ci = process.argv.indexOf("--clinch");
