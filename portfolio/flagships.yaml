@@ -271,7 +271,19 @@ flagships:
       men's-choir lines with Latin lyrics, then genre templates, voices,
       mastering checks and a release kit for streaming distribution.
     next: >-
-      Browser studio page (ventures/chant-forge/index.html: GABC in, preview and MIDI/WAV out, client-side; browser-safe.test.mjs) landed 2026-11-03; driven end to end in headless Chromium 2026-11-03 (eval/browser-e2e.mjs, 38 checks: every sample x backing, downloads, Play/Stop, 375 px); listen to it by ear and put it in front of users. History is in the README and git. Mix/master check
-      (master-cli.mjs: LUFS, true peak, mono, clipping, 6 tests) landed 2026-11-03;
-      checked against ffmpeg ebur128 2026-11-03 (eval/ffmpeg-check.mjs: 0.05 LU, 0.33 dB on synthetic signals); EBU test files and a real mix remain. Release kit (release.mjs: ISRC/UPC, cover, WAV, rights, AI disclosure, 7 tests) landed 2026-11-03; check it against a distributor's real upload form. GABC reader fixes for CRLF, <sp>/<v>/<alt> and in-group clefs landed 2026-11-03 (made-up strings); NABC and split-neume pitch test (nabc.test.mjs) landed 2026-11-03. `--fit 8 --stretch` (2026-11-03) lengthens long notes to fill bars, halving padded rest on the corpus; ear check pending. `--repeat N` (2026-11-03) loops the chant for full-length tracks; ear check pending. `--halftime` (2026-11-03) doubles chant durations over an unchanged backing for metal; ear check pending. Real-file batch landed 2026-11-03: 59 Graduale 1908 files, no crash or warning (batch.test.mjs, eval/batch-check.mjs). `--fills` (2026-11-03, genre.mjs fillBar, 3 tests) adds a snare roll every fourth bar; ear check pending. `--lrc FILE` timed lyrics (lrc.mjs, 3 tests, 2026-11-03; try in a real player). `--cues FILE` singer cue sheet (cues.mjs, 3 tests) landed 2026-11-03; try it with real singers; RECORDING-GUIDE.md (2026-11-03) is the protocol to try. `--suggest-final` (voicefit.mjs, 2026-11-03) lists finals that fit E2-E4; check the range with real singers. `--auto-final` (2026-11-03) applies that recommendation in one step. Preview renderer (render-cli.mjs: MIDI to WAV, 6 tests, 2026-11-03) lets master-cli run on real audio: metal preview passes all four checks, deep house is 2.8 LU quiet; a person must listen. `--limit` with `--lufs` (2026-11-03) limiter reaches -14 LUFS under -1 dBTP on deep house; listen for pumping. master-cli prints per-service playback gain (platformPlayback, 2026-11-03; service targets from memory, verify against their pages). master-cli now prints a suggested gain (suggestGain, capped by true-peak room, 2026-11-03). `--intro N` (2026-11-03, intro.test.mjs) puts N silent bars before the chant, backing under them; ear check pending. `--markers` (2026-11-03, markers.test.mjs) adds a MIDI marker at each phrase start; check the locators in a DAW. `render-cli.mjs --stems DIR` (2026-11-03, 1 test) writes per-voice WAV stems that sum to the mix; load them in a DAW and judge by ear. Next: compare a sample of the files against a pre-1929 scan (notes, not just parse), source the Te Deum and
-      Salve Regina from a pre-1929 book, read the 11 off-final endings against the book, and listen to the --stretch output (ROADMAP.md).
+      Landed 2026-11-03 and tested (history in the README, ROADMAP.md and git): the
+      browser studio page (headless e2e, 38 checks), master-cli (LUFS, true peak,
+      mono, clipping; within 0.05 LU of ffmpeg ebur128 on synthetic signals), the
+      release kit, GABC/NABC reader fixes, a 59-file Graduale 1908 batch, the
+      preview renderer and stems, and the --fit/--stretch, --repeat, --halftime,
+      --fills, --lrc, --cues, --suggest-final/--auto-final, --limit, --intro and
+      --markers options. Open checks, none done yet: listen by ear to the studio
+      page and to every --stretch, --halftime, --fills, --intro, --limit and stems
+      output; run master-cli on EBU test files and a real mix; verify per-service
+      playback targets against the services' own pages; check the release kit
+      against a distributor's real upload form; try --cues, RECORDING-GUIDE.md and
+      the E2-E4 range with real singers; check --lrc in a real player and
+      --markers in a DAW. Next: compare a sample of the files against a pre-1929
+      scan (notes, not just parse), source the Te Deum and Salve Regina from a
+      pre-1929 book, read the 11 off-final endings against the book, and put the
+      studio page in front of users.
