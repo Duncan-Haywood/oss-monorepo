@@ -50,6 +50,13 @@ prefix of the heading) or a bare path. `doc_index.py check` fails on a heading
 that no longer exists, so a renamed section shows up as a broken anchor instead
 of a silently stale pointer. Aliases may not collide across topics.
 
+`promptctl.py validate` runs the same check. It fails on a broken anchor, an
+alias collision, or a kind, topic or subject that isn't in the vocabulary. A
+report with no front matter only gets a warning naming it (`check --strict`
+fails on it), because with about sixteen agents merging in parallel, one
+untagged note should not turn every prompts CI run red. Run `backfill --write`
+when you see the warning.
+
 `infer` is optional: `false` keeps `backfill` from ever adding the topic, and a
 list restricts it to those words (for ids like `depth` or `money` that are
 ordinary English in a title).

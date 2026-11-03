@@ -327,7 +327,16 @@ def report_problems(root: Path, p: Path, tax: dict, slugs: dict[str, str]) -> li
 # --------------------------------------------------------------------------
 # Check
 
-def check(root: Path = ROOT) -> list[str]:
+def untagged_reports(root: Path = ROOT) -> list[str]:
+    """Reports with no `kind` front matter yet: drafted by `backfill --write`."""
+    return [f"{REPORTS}/{p.name}" for p in report_files(root)
+            if "kind" not in (parse_frontmatter(p.read_text(errors="replace"))[0] or {})]
+
+
+def check(root: Path = ROOT, strict: bool = False) -> list[str]:
+    """Dangling anchors, alias collisions and invalid report tags. A report with no
+    front matter at all fails only with `strict`: ~16 agents merge in parallel, and
+    one untagged note should not turn every prompts CI run red (it is warned about)."""
     tax, slugs, errors = load_taxonomy(root), project_slugs(root), []
     seen: dict[str, str] = {}
     for t in tax["topics"]:
@@ -348,7 +357,9 @@ def check(root: Path = ROOT) -> list[str]:
         if target not in slugs:
             errors.append(f"{TAXONOMY}: subject alias {alias!r} -> {target!r} names no project directory")
     for p in report_files(root):
-        errors += report_problems(root, p, tax, slugs)
+        probs = report_problems(root, p, tax, slugs)
+        if strict or not (len(probs) == 1 and "no front matter" in probs[0]):
+            errors += probs
     return errors
 
 
@@ -476,7 +487,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--limit", type=int, default=10)
     p.add_argument("--json", action="store_true")
     sub.add_parser("topics", help="the topic vocabulary, with report and post counts")
-    sub.add_parser("check", help="exit 1 on a dangling anchor, an alias collision or a bad report tag")
+    p = sub.add_parser("check", help="exit 1 on a dangling anchor, an alias collision or a bad report tag")
+    p.add_argument("--strict", action="store_true", help="also fail on a report with no front matter")
     p = sub.add_parser("backfill", help="infer front matter for reports that lack it")
     p.add_argument("--write", action="store_true")
     a = ap.parse_args(argv)
@@ -492,7 +504,11 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{tid:22} {nr:7} {np_:6}  {label}")
         return 0
     if a.cmd == "check":
-        errs = check(root)
+        errs = check(root, a.strict)
+        untagged = [] if a.strict else untagged_reports(root)
+        if untagged:
+            print(f"doc_index: {len(untagged)} report(s) without front matter "
+                  f"(`doc_index.py backfill --write` drafts it): {', '.join(untagged)}", file=sys.stderr)
         for e in errs:
             print(e)
         print(f"doc_index: {len(errs)} problem(s)" if errs else "doc_index: ok", file=sys.stderr)
