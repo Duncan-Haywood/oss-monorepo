@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12854",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,16 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-03-from-too-quiet-to-a-number-to-fix-it.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "chant-forge suggestGain; venture tests pass locally. No security queue branch, ideas or requests open.",
   "corrections": [],
   "redteam": null
 }
