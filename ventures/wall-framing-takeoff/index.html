@@ -566,7 +566,7 @@
     import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength, restoreSketch, fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners } from "./sketch.mjs";
     import { drawingSetHtml } from "./drawings.mjs";
     import { drawingSetPdf } from "./pdf.mjs";
-    import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
+    import { panelMaxError, panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
     import { sheathe, defaultSheathing, nailerCuts } from "./sheathing.mjs";
     import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
     import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
@@ -1482,11 +1482,15 @@
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     };
     $("#csv").addEventListener("click", () => { if (run() && last) { download("framing-takeoff.csv", "text/csv", toCsv(last.result)); record("csv_downloaded"); } });
-    $("#drawingsPdf").addEventListener("click", () => { if (run() && last) { download("wall-drawings.pdf", "application/pdf", drawingSetPdf(last.result, last.plan, { panelMax: Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0) })); record("drawings_pdf_downloaded"); } });
-    $("#drawings").addEventListener("click", () => { if (run() && last) { download("wall-drawings.html", "text/html", drawingSetHtml(last.result, last.plan, { panelMax: Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0), sheathPsf: Math.max(0, parseFloat($("#sheathPsf").value) || 0), panelSheets: $("#panelSheets").checked })); record("drawings_downloaded"); } });
+    // 0 = whole walls; a size outside 6 in to 100 ft is refused (the engine throws on it), never passed on.
+    function panelMaxIn() { const v = Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0); return v > 0 && panelMaxError(v) ? -1 : v; }
+    function panelMaxOk() { if (panelMaxIn() < 0) { $("#status").textContent = "Longest shop panel: " + panelMaxError(Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0)) + "."; return false; } return true; }
+    $("#drawingsPdf").addEventListener("click", () => { if (run() && last && panelMaxOk()) { download("wall-drawings.pdf", "application/pdf", drawingSetPdf(last.result, last.plan, { panelMax: panelMaxIn() })); record("drawings_pdf_downloaded"); } });
+    $("#drawings").addEventListener("click", () => { if (run() && last && panelMaxOk()) { download("wall-drawings.html", "text/html", drawingSetHtml(last.result, last.plan, { panelMax: panelMaxIn(), sheathPsf: Math.max(0, parseFloat($("#sheathPsf").value) || 0), panelSheets: $("#panelSheets").checked })); record("drawings_downloaded"); } });
     $("#panelOrderBtn").addEventListener("click", () => {
       if (!run() || !last) return;
-      const panelMax = Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0);
+      const panelMax = panelMaxIn();
+      if (panelMax < 0) { panelMaxOk(); return; }
       if (!panelMax) { $("#status").textContent = "Enter the longest shop panel (e.g. 12 ft) in the wall settings first."; return; }
       const po = panelOrder(last.result, last.plan, panelMax, last.nailers);
       download("shop-panel-lumber-order.txt", "text/plain", [...panelOrderText(po), "", ...panelPullText(po)].join("\n") + "\n");
