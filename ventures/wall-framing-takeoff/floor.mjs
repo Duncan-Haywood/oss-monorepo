@@ -28,7 +28,8 @@ export function validateFloor(f, plan) {
   if (!(f.width >= 24 && f.width <= 1200)) errors.push("Floor width must be between 2 ft and 100 ft.");
   if (!(f.depth >= 24 && f.depth <= 1200)) errors.push("Floor depth (the joist direction) must be between 2 ft and 100 ft.");
   if (!(f.joist in DEPTH)) errors.push(`Unknown joist size ${f.joist}.`);
-  if (!(f.spacing > 0 && f.spacing <= 48)) errors.push("Joist spacing must be between 0 and 48 inches.");
+  if (!(typeof f.spacing === "number" && f.spacing >= 4 && f.spacing <= 48)) errors.push("Joist spacing must be a number between 4 and 48 inches.");
+  if (f.blockingRows != null && !(Number.isInteger(f.blockingRows) && f.blockingRows >= 0 && f.blockingRows <= 20)) errors.push("blockingRows must be a whole number from 0 to 20.");
   if (f.hangerNails != null) for (const k of ["single", "double"]) if (f.hangerNails[k] != null && !(Number.isInteger(f.hangerNails[k]) && f.hangerNails[k] >= 0 && f.hangerNails[k] <= 100)) errors.push(`hangerNails.${k} must be a whole number of nails from 0 to 100.`);
   for (const x of f.doubleUnder || []) if (!(x > 0 && x < f.width)) errors.push(`A wall at ${x} in for doubled joists must sit inside the floor's ${f.width} in width.`);
   for (const [i, o] of (f.openings || []).entries()) {
