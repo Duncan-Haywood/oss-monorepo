@@ -92,7 +92,8 @@ jobs:
             # ZATCA (Saudi) samples are KSA UBL; their rules run in the browser engine (zatca.test.mjs).
             # PINT (Singapore, Australia/New Zealand) samples pay by local bank account,
             # not IBAN; their rules run in the browser engine (pint.test.mjs).
-            case "$example" in *-with-defects.*|*/draft-*|*/fatturapa-*|*/fa3-*|*/pint-*|*/zatca-*) continue;; esac
+            # India INV-01 (GST IRP JSON) is read by india-inv01.mjs / india-cli.mjs (india-inv01.test.mjs).
+            case "$example" in *-with-defects.*|*/draft-*|*/fatturapa-*|*/fa3-*|*/pint-*|*/zatca-*|*/india-*) continue;; esac
             echo "--- $example"
             python3 -m einvoice_preflight "$example"
             found=$((found + 1))
