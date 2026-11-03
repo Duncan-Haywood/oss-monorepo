@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:podcast="https://podcastindex.org/namespace/1.0">
+<channel>
+<title>Sed Contra: Thomas Aquinas, told as stories</title>
+<link>https://marisstella.app/sed-contra/</link>
+<language>en</language>
+<description>Free stories, podcast episodes and videos that dramatise one article of Thomas Aquinas's Summa Theologiae at a time. Invented people argue it out in ordinary places, and every line read as Thomas is his own text in the public-domain 1920 Dominican translation, checked word for word. Both sides get their strongest case. Written by an AI and read by synthetic voices.</description>
+<copyright>CC BY-SA 4.0</copyright>
+<itunes:author>Sed Contra</itunes:author>
+<itunes:explicit>false</itunes:explicit>
+<itunes:category text="Religion &amp; Spirituality"><itunes:category text="Christianity"/></itunes:category>
+<itunes:category text="Society &amp; Culture"><itunes:category text="Philosophy"/></itunes:category>
+<item>
+<title>The First Mover</title>
+<description>A night-shift nurse whose patient died at three walks into a bakery where the baker keeps a copy of Thomas Aquinas by the proving cabinet. The Five Ways, read in Thomas's own words, with both of his objections put at full strength. Maren, Teodor, the bakery and the town are invented. Every line spoken by the Reader is Thomas Aquinas in the 1920 English Dominican translation, copied word for word from the public-domain text; cuts are marked with an ellipsis. Transcript and sources: https://marisstella.app/sed-contra/the-first-mover.html</description>
+<link>https://marisstella.app/sed-contra/the-first-mover.html</link>
+<guid isPermaLink="false">sed-contra-the-first-mover</guid>
+<pubDate>Tue, 03 Nov 2026 06:00:00 GMT</pubDate>
+<enclosure url="https://marisstella.app/sed-contra/media/the-first-mover.mp3" length="5468185" type="audio/mpeg"/>
+<itunes:duration>911</itunes:duration>
+<itunes:episode>1</itunes:episode>
+<podcast:chapters url="https://marisstella.app/sed-contra/media/the-first-mover.chapters.json" type="application/json+chapters"/>
+<podcast:transcript url="https://marisstella.app/sed-contra/media/the-first-mover.srt" type="application/srt"/>
+</item>
+</channel>
+</rss>
