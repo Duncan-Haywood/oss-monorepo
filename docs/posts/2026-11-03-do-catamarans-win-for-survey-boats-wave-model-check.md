@@ -1,6 +1,6 @@
 ---
 title: "Do catamarans beat monohulls for slow survey boats? A second wave model says no"
-seo_title: "Catamaran vs monohull range for small survey vessels: Michell wave resistance check"
+seo_title: "Catamaran vs monohull range for survey boats: wave model check"
 date: 2026-11-03
 tags: [marine, research, naval-architecture, autonomy]
 description: "At equal length, a catamaran out-ranged a monohull in 0 of 243 cases under Michell thin-ship wave theory and tank-bound form factors."
