@@ -1,6 +1,6 @@
 ---
 title: "Gable-end nailers now reach the lumber order"
-seo_title: "Wall framing takeoff: gable sheathing nailers added to the lumber order"
+seo_title: "Wall framing takeoff: gable sheathing nailers in the lumber order"
 date: 2026-11-03
 tags: [construction, wall-framing-takeoff]
 description: "A sheathing joint over a wide window on a gable end needs a nailer. The takeoff used to only mention it; now it buys it."
