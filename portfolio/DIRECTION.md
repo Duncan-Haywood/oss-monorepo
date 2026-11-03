@@ -75,6 +75,17 @@ calculators beyond fixes; already-built ones can still merge (owner, 2026-10-21;
    in these areas is the first kind to look for.
 4. A genuinely new, different venture, when one clears the gates.
 
+Since 2026-11-03 the owner also asks runs to consider areas from investors'
+published requests for startups (YC Winter 2027, a16z Speedrun, Conviction,
+Pear and partners' picks): US-made robot parts, financing the physical
+buildout, vertical foundation models, construction-permit tooling, the data
+center supply chain, 3D generative AI, vibe-creation, AI-native education,
+agent harnesses, an AI wealth guide, manufacturing autonomy, and an AI
+operating system for solo businesses. The special focus is **tooling for
+running orgs of agents**, starting with this repository's own dev-shop
+scripts. The areas, what already exists for each, and first steps:
+[`opinions/2026-11-03-requests-for-startups.md`](opinions/2026-11-03-requests-for-startups.md).
+
 The catalogue is live at `https://duncan-haywood.github.io/monorepo-projects/`;
 merging publishes it. `python3 platform/ci/publish_surface.py` says whether a
 merge publishes anything. `python3 portfolio/router/allocate.py` names the

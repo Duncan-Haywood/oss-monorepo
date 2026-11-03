@@ -7,6 +7,7 @@
 
 import { loadRequests } from '../../portfolio/requests/requests.mjs';
 import { test } from 'node:test';
+import { servedPath } from './served-path.mjs';
 import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
@@ -634,7 +635,7 @@ test('every page the site serves is listed in some sitemap', async () => {
     // A page that tells crawlers not to index it is not expected in a sitemap;
     // listing one would be asking for it to be indexed and then refusing.
     if (/<meta name="robots" content="noindex">/.test(await read(page))) continue;
-    const candidates = [`/${page}`];
+    const candidates = [`/${page}`, `/${servedPath(page)}`];
     if (page.endsWith('/index.html')) candidates.push(`/${page.slice(0, -'index.html'.length)}`);
     if (page === 'index.html') candidates.push('/');
     if (!candidates.some((c) => listed.has(pathOf(BASE) + c.slice(1)))) orphans.push(page);
@@ -650,24 +651,26 @@ test('every sitemap URL resolves to a page that shipped', async () => {
   for (const urlPath of await sitemapUrlPaths()) {
     const relative = urlPath.slice(pathOf(BASE).length);
     // A sitemap index lists sitemaps; a urlset lists pages. Both must exist.
+    // Cloudflare serves `page.html` at `page` (`served-path.mjs`), so an
+    // extensionless URL is that file; a sitemap's own `.xml` is itself.
     const target = relative === '' ? 'index.html' : relative.endsWith('/') ? `${relative}index.html` : relative;
-    if (!(await exists(path.join(outDir, target)))) dead.push(urlPath);
+    if (!(await exists(path.join(outDir, target))) && !(await exists(path.join(outDir, `${target}.html`)))) dead.push(urlPath);
   }
 
   assert.deepEqual(dead, [], 'a sitemap URL that 404s is worse than no sitemap at all');
 });
 
-test('a generated sitemap lists directories, not index.html', () => {
+test('a generated sitemap lists served URLs: directories, no .html', () => {
   const xml = renderVentureSitemap('tool', ['index.html', 'compare.html', 'guides/index.html'], BASE);
   assert.ok(xml.includes(`<loc>${BASE}tool/</loc>`));
-  assert.ok(xml.includes(`<loc>${BASE}tool/compare.html</loc>`));
+  assert.ok(xml.includes(`<loc>${BASE}tool/compare</loc>`), 'page.html is served as page, its .html URL is a 307');
   assert.ok(xml.includes(`<loc>${BASE}tool/guides/</loc>`));
   assert.ok(!xml.includes('index.html'), 'index.html is served as its directory');
 });
 
 test('pageUrlPath maps a published file to the URL it is served at', () => {
   assert.equal(pageUrlPath('tool', 'index.html'), 'tool/');
-  assert.equal(pageUrlPath('tool', 'compare.html'), 'tool/compare.html');
+  assert.equal(pageUrlPath('tool', 'compare.html'), 'tool/compare');
   assert.equal(pageUrlPath('tool', 'nested/index.html'), 'tool/nested/');
 });
 
@@ -795,7 +798,9 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const audiences = audienceGroups(surfaces).length;
   const topics = researchHighlights().themes.length;
   const agentBlog = loadPosts(undefined, AGENT_POSTS_DIR).length ? 1 : 0;
-  assert.equal(bullets.length, surfaces.length + 12 + audiences + topics + agentBlog);
+  // Plus one per tool that calls the network, under "Tools that call the network".
+  const network = externalCallExceptions(surfaces).length;
+  assert.equal(bullets.length, surfaces.length + 12 + audiences + topics + agentBlog + network);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -2240,7 +2245,7 @@ test('every published page names a canonical that resolves to its own URL', asyn
       assert.match(html, /<meta name="robots" content="noindex">/, `${relative}: no canonical and not noindex`);
       continue;
     }
-    const pageUrl = new URL(relative.replace(/(^|\/)index\.html$/, '$1'), BASE).href;
+    const pageUrl = new URL(servedPath(relative), BASE).href;
     if (new URL(canonical[1], pageUrl).href !== pageUrl) wrong.push(`${relative} -> ${canonical[1]}`);
   }
   assert.deepEqual(wrong, [], 'pages whose canonical names a URL they are not served at');

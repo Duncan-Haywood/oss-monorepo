@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-10-28
+tagged: auto
+---
 # Polish run 2026-10-28: native file button
 
 **Looked at** (390px and 1280px, local build): hub, AI Bookkeeper, research

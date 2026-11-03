@@ -1,3 +1,10 @@
+---
+kind: analysis
+subjects: [ci]
+topics: [ci]
+date: 2026-10-30
+tagged: auto
+---
 # How the CI/CD platform should evolve next (2026-10-30)
 
 The owner asked: "is there a way to evolve our cicd system and platform? do a

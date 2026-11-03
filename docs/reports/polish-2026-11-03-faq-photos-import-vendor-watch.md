@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-03
+tagged: auto
+---
 # Polish 2026-11-03: visible FAQs for Photos Import Tools and Vendor Watch
 
 **Weak surface.** `node platform/pages/faq-coverage.mjs` listed 5 entry pages with no question-shaped heading, so `build.mjs` derived no `FAQPage` schema for them. The `seo_title:` backlog is clear (`propose_seo_titles.py`: 0 proposed), so this was the next measurable gap.

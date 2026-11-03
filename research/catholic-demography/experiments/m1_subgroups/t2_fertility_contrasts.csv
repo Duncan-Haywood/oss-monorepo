@@ -1,0 +1,19 @@
+group,cohort,contrast,outcome,estimate,se,lo,hi,n_a,n_b
+All,All cohorts,Catholic - Protestant,childs_f,0.1036,0.0391,0.0270,0.1801,4604,10844
+All,Born 1925-44,Catholic - Protestant,childs_f,0.2858,0.0856,0.1179,0.4536,1197,3039
+All,Born 1945-64,Catholic - Protestant,childs_f,0.1007,0.0467,0.0092,0.1922,2571,6020
+All,Born 1965-80,Catholic - Protestant,childs_f,-0.1260,0.0857,-0.2940,0.0420,670,1321
+NH white,All cohorts,Catholic - Protestant,childs_f,0.0506,0.0393,-0.0264,0.1277,3386,8282
+NH white,Born 1925-44,Catholic - Protestant,childs_f,0.2100,0.0833,0.0467,0.3733,971,2535
+NH white,Born 1945-64,Catholic - Protestant,childs_f,0.0436,0.0479,-0.0503,0.1376,1895,4469
+NH white,Born 1965-80,Catholic - Protestant,childs_f,-0.2838,0.0986,-0.4771,-0.0906,372,868
+Hispanic,All cohorts,Catholic - Protestant,childs_f,0.0794,0.1580,-0.2302,0.3890,905,352
+Hispanic,Born 1925-44,Catholic - Protestant,childs_f,-0.2392,0.4910,-1.2016,0.7231,162,53
+Hispanic,Born 1945-64,Catholic - Protestant,childs_f,0.1815,0.1758,-0.1631,0.5260,517,212
+Hispanic,Born 1965-80,Catholic - Protestant,childs_f,-0.1005,0.2426,-0.5761,0.3751,217,86
+All (1972-2024),Born 1900-24,Catholic - Protestant,childs_f,0.0343,0.0583,-0.0799,0.1485,2013,6366
+All (1972-2024),Born 1925-44,Catholic - Protestant,childs_f,0.2525,0.0540,0.1467,0.3583,2834,7647
+All (1972-2024),Born 1945-64,Catholic - Protestant,childs_f,0.1080,0.0432,0.0234,0.1926,2880,6785
+All (1972-2024),Born 1965-80,Catholic - Protestant,childs_f,-0.1260,0.0857,-0.2940,0.0420,670,1321
+NH white,All cohorts,Catholic weekly - Catholic less than weekly,childs_f,0.5990,0.0770,0.4482,0.7499,1054,2318
+Hispanic,All cohorts,Catholic weekly - Catholic less than weekly,childs_f,0.4771,0.2087,0.0680,0.8862,230,671

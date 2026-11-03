@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-03
+tagged: auto
+---
 # Polish 2026-11-03: `seo_title:` batch 15
 
 **Weak surface.** `platform/pages/propose_seo_titles.py` reported two new posts (gap probes 20 and 21) over the 70-character title budget with no clean cut.

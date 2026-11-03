@@ -138,7 +138,12 @@ class FocusTest(unittest.TestCase):
     def test_programme_draws_lean_to_focus(self):
         progs = [("heavy-hydraulics", True), ("lowcomm-training", True),
                  ("qual-x", True), ("build-data", False)]
-        firsts = [pick_track.draw_programme(i / 4000, progs, lambda s: [])[0] for i in range(4000)]
+        # The fixture slugs must not depend on which programmes are BLOCKED on disk today.
+        real, pick_track.is_blocked = pick_track.is_blocked, lambda slug: False
+        try:
+            firsts = [pick_track.draw_programme(i / 4000, progs, lambda s: [])[0] for i in range(4000)]
+        finally:
+            pick_track.is_blocked = real
         share = sum(pick_track.is_focus(s) for s in firsts) / len(firsts)
         self.assertAlmostEqual(share, 0.75, delta=0.03)
         self.assertEqual(set(firsts), {p[0] for p in progs})

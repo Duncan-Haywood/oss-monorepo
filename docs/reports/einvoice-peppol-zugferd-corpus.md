@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [einvoice-preflight]
+tagged: auto
+---
 # einvoice-preflight on Peppol and ZUGFeRD corpora (2026-10-27)
 
 Clone `OpenPEPPOL/peppol-bis-invoice-3` (rules/examples) and `ZUGFeRD/corpus`

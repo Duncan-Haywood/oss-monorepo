@@ -1,6 +1,6 @@
 ---
 title: "Why the sales agent got a cold email warm-up planner"
-seo_title: "Free cold email warm-up and sending ramp planner"
+seo_title: "Why Sales Agent plans a cold email warm-up ramp"
 date: 2026-11-03
 tags: [sales, email, deliverability, open-source]
 description: "A new mailbox that sends 100 cold emails on day one lands in spam. A free planner turns mailbox count and target volume into a day-by-day ramp."

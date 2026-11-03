@@ -1,3 +1,10 @@
+---
+kind: polish
+subjects: [sales-agent]
+topics: [seo]
+date: 2026-10-29
+tagged: auto
+---
 # Polish 2026-10-29: a guide page for sales-agent (SEO/AEO)
 
 **Weak surface.** `node platform/pages/surface-budget.mjs --for sales-agent`: 0 guides, "no marketing surface yet".

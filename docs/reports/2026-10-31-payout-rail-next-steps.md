@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-31
+tagged: auto
+---
 # Payout rail: the owner chose a merchant of record (2026-10-31)
 
 For the next session that touches billing. The design (why no live key may

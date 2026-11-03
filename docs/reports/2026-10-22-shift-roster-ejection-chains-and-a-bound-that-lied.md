@@ -1,3 +1,9 @@
+---
+kind: analysis
+subjects: [shift-roster-builder]
+date: 2026-10-22
+tagged: auto
+---
 # An exact search that lied once the heuristic got good, and ejection chains for open shifts
 
 **Date:** 2026-10-22. **Run:** ventures track, `ventures/shift-roster-builder`. **Method:** seeded random weeks

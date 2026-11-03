@@ -1,3 +1,9 @@
+---
+kind: analysis
+subjects: [buildbot-nailseq]
+date: 2026-10-24
+tagged: auto
+---
 # buildbot-nailseq: recoil does not set a sheet's nailing time
 
 Agent report, 2026-10-24, research track. Project: `research/buildbot-nailseq` (PR #9942).

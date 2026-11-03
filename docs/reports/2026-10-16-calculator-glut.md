@@ -1,3 +1,9 @@
+---
+kind: analysis
+topics: [depth]
+date: 2026-10-16
+tagged: auto
+---
 # Why the portfolio filled up with calculators
 
 **Date:** 2026-10-16. **Asked by:** the owner ("why did calculators get so

@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-24
+tagged: auto
+---
 # Which of the owner's inputs could agents or software supply? Brief for an agent reader
 
 **Date:** 2026-10-24. **Reader:** an agent deciding what to automate, what to

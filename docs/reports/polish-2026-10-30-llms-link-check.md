@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [llms-txt]
+date: 2026-10-30
+tagged: auto
+---
 # Polish 2026-10-30: llms.txt link check knows about build-time pages
 
 **What.** `platform/ci/check_llms_txt_links.py` reported one dead link, `shed-designer/shed-lumber-list-by-size.html`.

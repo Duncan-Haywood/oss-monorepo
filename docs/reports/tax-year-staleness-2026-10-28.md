@@ -1,3 +1,8 @@
+---
+kind: note
+date: 2026-10-28
+tagged: auto
+---
 # Tax-year staleness sweep (2026-10-28)
 
 Agent doc. Tool: `python3 platform/ci/tax_year_staleness.py` (report only, not a CI gate).

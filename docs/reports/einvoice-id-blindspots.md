@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [einvoice-preflight]
+tagged: auto
+---
 # einvoice-preflight: ID check-digit blind spots (2026-10-27)
 
 For the next run: `ventures/einvoice-preflight/eval/id-blindspots.mjs` measures the share of single-character substitutions and adjacent swaps each ID validator (mexico, colombia, chile, brazil, peru, argentina, japan modules) fails to catch. Results are in the venture README ("How often a check digit misses a typo") and the post `docs/posts/2026-10-27-einvoice-preflight-check-digit-blind-spots.md`.

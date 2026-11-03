@@ -1,0 +1,20 @@
+[package]
+name = "ifc-engine"
+version = "0.1.0"
+edition = "2021"
+description = "IFC (ISO 10303-21) reader for framing takeoff: walls, joins, material layers and hosted openings"
+license = "MIT"
+repository = "https://github.com/duncan-haywood/oss-monorepo"
+
+[lib]
+crate-type = ["rlib"]
+
+[[bin]]
+name = "ifc-engine"
+path = "src/main.rs"
+
+[dependencies]
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

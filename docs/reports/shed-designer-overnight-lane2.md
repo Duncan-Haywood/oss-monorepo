@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed Designer overnight, lane 2: plans, drawings and cut sheet
 
 Session: https://claude.ai/code/session_01XpHqycCR7esoCNZ2PusK5P (2026-10-29). Read-only audit while PR #11268 was open, then three PRs after it merged.

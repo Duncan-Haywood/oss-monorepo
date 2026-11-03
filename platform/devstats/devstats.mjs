@@ -18,6 +18,7 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { fromAllocation } from './allocation.mjs';
 
 const DAY = 86_400_000;
 
@@ -590,6 +591,7 @@ export async function collect(repo, { now = Date.now(), token, ghRepo, fetch, pr
     inventory: inventory(repo),
     git: fromGit(repo, { now }),
     runs: fromRuns(repo, { now }),
+    allocation: fromAllocation(repo, { now }),
     github: await fromGitHub({ token, repo: ghRepo, now, fetch }),
     ci: await fromCI({ token, repo: ghRepo, now, fetch, previous: previous?.ci?.available ? previous.ci : null }),
     delivery: await fromDelivery({ token, repo: ghRepo, gitRepo: repo, now, fetch }),

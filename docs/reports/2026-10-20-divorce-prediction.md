@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-20
+tagged: auto
+---
 # Predicting divorce from public survey data: what more data, more inputs and more flexible models bought
 
 **Date:** 2026-10-20. **Asked by:** the owner, who wanted the
