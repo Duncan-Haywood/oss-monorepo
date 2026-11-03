@@ -1,6 +1,8 @@
 ---
 title: Five opt-outs the reply rules missed
 date: 2026-11-03
+tags: [sales-agent, email, compliance, evaluation]
+description: "A fresh 21-reply set showed the sales agent missed 5 of 16 opt-outs; each is now caught and no other eval set moved."
 ---
 
 We wrote a fresh set of 21 cold-outreach replies for the sales agent, 16 of them ways of saying "stop". Scored once before any change, the rules missed 5 of the 16: "Remove it immediately" (after "how did you get my address?"), French "ne m'écrivez plus", Italian "non contattarmi più", a GDPR Article 21 objection, and plain "I don't want to hear from you again".
