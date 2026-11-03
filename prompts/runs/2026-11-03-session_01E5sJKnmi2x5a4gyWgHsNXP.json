@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12819",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,26 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
+  "doc_friction": [
+    {
+      "file": "ventures/wall-framing-takeoff/ROADMAP.md",
+      "issue": "said schedule CSV button was not click-checked; eval-schedule-click.mjs already checks it"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "queue empty and flagship next-items all need real inputs; landed only a verified doc correction, no blog post",
+      "did": "re-ran click eval, fixed stale note",
+      "result": "thin deliverable"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "eval-schedule-click.mjs all ok in Chromium",
   "corrections": [],
   "redteam": null
 }
