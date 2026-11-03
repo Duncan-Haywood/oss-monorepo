@@ -16,6 +16,13 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   compared against page scans; Te Deum and Salve Regina come from post-1929
   books (`corpus/README.md`).
 
+- 2026-11-03: genre templates as code (`genre.mjs`, `--genre` in the CLI):
+  deep house, EDM, hard rock and metal each write drums (GM channel 10), bass and
+  chord parts bar by bar, in the chant's mode (Dorian, Phrygian, Lydian or
+  Mixolydian, with a four-bar loop that fits the mode). 5 new tests check
+  notes stay inside the mode scale, a kick in every bar, four on the floor, half
+  time metal. Not yet listened to through a synthesiser: ear check pending.
+
 ## Next
 
 1. **Corpus hardening:** compare the five files against a pre-1929 scan,
@@ -32,7 +39,8 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
      marked with the mora and episema the edition gives;
    - a "half-time chant over full-time drums" mode for metal;
    - compare the options by ear on two pieces.
-4. **Genre templates as code**, each a MIDI drum, bass and harmony generator
+4. **Genre templates as code** (first version landed above; ear check, fills,
+   and transitions between sections remain), each a MIDI drum, bass and harmony generator
    keyed to the mode:
    - deep house at 122–124 BPM;
    - EDM and hard rock at 140–150;

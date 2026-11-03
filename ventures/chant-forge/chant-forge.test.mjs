@@ -114,3 +114,48 @@ test('every corpus piece parses, names its source, and ends on its mode final', 
     assert.equal(s.modeFinalMatches, true, `${f}: final ${s.final} does not fit mode ${s.mode}`);
   }
 });
+
+import { arrange, barsFor, SCALES, GENRE_NAMES, BAR } from './genre.mjs';
+
+test('every genre fills each bar with drums, bass and chords inside the mode scale', () => {
+  for (const genre of GENRE_NAMES) {
+    for (const [mode, name] of [[1, 'dorian'], [3, 'phrygian'], [5, 'lydian'], [8, 'mixolydian']]) {
+      const a = arrange({ genre, mode, final: 50, bars: 8 });
+      assert.equal(a.mode, name);
+      const pcs = new Set(SCALES[name].map((x) => (50 + x) % 12));
+      for (const part of ['bass', 'chords']) {
+        assert.ok(a[part].length >= 8, `${genre} ${part}`);
+        for (const n of a[part]) assert.ok(pcs.has(n.note % 12), `${genre}/${name} ${part} note ${n.note} outside scale`);
+      }
+      assert.ok(a.drums.every((d) => d.tick >= 0 && d.tick < 8 * BAR));
+      for (let bar = 0; bar < 8; bar++) assert.ok(a.drums.some((d) => d.tick >= bar * BAR && d.tick < (bar + 1) * BAR && d.note === 36), `${genre} bar ${bar} has no kick`);
+    }
+  }
+});
+
+test('deep house is four on the floor with the open hat on the offbeat; metal is half time', () => {
+  const h = arrange({ genre: 'deep-house', mode: 1, final: 50, bars: 1 });
+  assert.deepEqual(h.drums.filter((d) => d.note === 36).map((d) => d.tick), [0, 480, 960, 1440]);
+  assert.deepEqual(h.drums.filter((d) => d.note === 46).map((d) => d.tick), [240, 720, 1200, 1680]);
+  const m = arrange({ genre: 'metal', mode: 3, final: 50, bars: 1 });
+  assert.deepEqual(m.drums.filter((d) => d.note === 38).map((d) => d.tick), [960]);
+  assert.equal(m.drums.filter((d) => d.note === 36).length, 16);
+});
+
+test('arrange rejects bad input and the progression follows the mode', () => {
+  assert.throws(() => arrange({ genre: 'polka', mode: 1, final: 50, bars: 1 }), /unknown genre/);
+  assert.throws(() => arrange({ genre: 'metal', mode: 9, final: 50, bars: 1 }), /mode must be/);
+  assert.deepEqual(arrange({ genre: 'edm', mode: 3, final: 50, bars: 4 }).progression, [0, 1, 0, 6]);
+  assert.equal(barsFor([{ type: 'note', pulses: 8 }, { type: 'note', pulses: 1 }]), 2);
+});
+
+test('the CLI writes a multi-track file with --genre and refuses a genre without a mode', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'cf-'));
+  const out = join(dir, 'x.mid');
+  const r = run([join(here, 'examples/dies-irae-incipit.gabc'), '-o', out, '--genre', 'metal', '--bpm', '170', '--fit', '8']);
+  assert.equal(r.code, 0);
+  const b = readFileSync(out);
+  assert.equal(b.readUInt16BE(10), 5); // tempo, choir, drums, bass, chords
+  const bad = run([join(here, 'examples/dies-irae-incipit.gabc'), '-o', out, '--genre', 'polka']);
+  assert.equal(bad.code, 2);
+});
