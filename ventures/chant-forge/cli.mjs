@@ -23,10 +23,11 @@ const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULS
   --lrc     write timed lyrics (LRC, one line per phrase) to this file
   --suggest-final  print the finals that keep the whole chant in E2-E4 (a men's unison range) and exit
   --auto-final  transpose to the recommended final from --suggest-final (a chant wider than E2-E4 is refused)
+  --markers add a MIDI marker at the start of each phrase (DAW locators)
   --json    print the summary as JSON`;
 
 export function run(argv) {
-  const args = { bpm: 124, fit: null, stretch: false, halftime: false, repeat: 1, final: null, drone: false, genre: null, fills: false, json: false, suggest: false, auto: false, cues: null, lrc: null, out: null, file: null };
+  const args = { bpm: 124, fit: null, stretch: false, halftime: false, repeat: 1, final: null, drone: false, genre: null, fills: false, markers: false, json: false, suggest: false, auto: false, cues: null, lrc: null, out: null, file: null };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '-o') args.out = argv[++i];
@@ -39,6 +40,7 @@ export function run(argv) {
     else if (a === '--drone') args.drone = true;
     else if (a === '--genre') args.genre = argv[++i];
     else if (a === '--fills') args.fills = true;
+    else if (a === '--markers') args.markers = true;
     else if (a === '--cues') args.cues = argv[++i];
     else if (a === '--lrc') args.lrc = argv[++i];
     else if (a === '--suggest-final') args.suggest = true;
@@ -100,7 +102,7 @@ export function run(argv) {
       const [lo, hi] = bpmRange(args.genre);
       if (args.bpm < lo || args.bpm > hi) summary.warnings.push(`${args.genre} usually runs ${lo}-${hi} BPM; you asked for ${args.bpm}`);
     }
-    writeFileSync(args.out, eventsToMidi(events, { bpm: args.bpm, title, drone: args.drone, backing }));
+    writeFileSync(args.out, eventsToMidi(events, { bpm: args.bpm, title, drone: args.drone, backing, markers: args.markers }));
     summary.wrote = args.out;
   }
   const text = args.json
