@@ -38,7 +38,7 @@
       "result": "checks green locally"
     }
   ],
-  "writeups": null,
+  "writeups": [],
   "goal": null,
   "notes": "Critique mode via main_health.py; no backlog ids touched. Fixed check_table_headers, check_post_frontmatter, promptctl validate (all from PR 12795).",
   "corrections": [],
