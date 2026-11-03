@@ -35,6 +35,19 @@ export function sampleStair() {
 export function validateStair(s) {
   const L = { ...STAIR_LIMITS, ...(s.limits || {}) };
   const errors = [];
+  // Typed numbers only: a string passes `>=` by coercion and later throws (tread "10" -> comfort.toFixed), a zero maxRiser makes an endless riser count.
+  const isNum = (v) => typeof v === "number" && Number.isFinite(v);
+  for (const k of ["maxRiser", "minTread", "riserVariance", "headroom", "minWidth", "maxRise", "minThroat", "openRiserGap"]) {
+    if (!isNum(L[k]) || L[k] <= 0) errors.push(`Limit ${k} must be a number over 0.`);
+  }
+  for (const k of ["totalRise", "tread", "width", "stringerSpacing", "nosing", "treadThickness", "treadGap", "floorThickness", "openingLength"]) {
+    if (s[k] != null && !isNum(s[k])) errors.push(`${k} must be a number of inches.`);
+  }
+  for (const k of ["treadThickness", "floorThickness", "treadGap", "openingLength"]) {
+    if (isNum(s[k]) && s[k] < 0) errors.push(`${k} ${s[k]} in cannot be negative.`);
+  }
+  if (isNum(s.stringerSpacing) && s.stringerSpacing > 0 && s.stringerSpacing < 2) errors.push(`Stringer spacing ${s.stringerSpacing} in is under 2 in; it would need thousands of stringers.`);
+  if (errors.length) return errors;
   if (!(s.totalRise >= 12)) errors.push("Total rise (finished floor to finished floor) must be at least 1 ft.");
   else if (s.totalRise > L.maxRise) errors.push(`A flight can rise at most ${formatLength(L.maxRise)} between landings; ${formatLength(s.totalRise)} needs a landing, so lay out each flight on its own.`);
   if (s.tread != null && !(s.tread >= L.minTread)) errors.push(`Tread ${s.tread} in is under the ${L.minTread} in minimum.`);
