@@ -1,9 +1,9 @@
 ---
 title: "Turning a painting into screen-print films, in the browser"
-seo_title: "Colour separation for screen printing a painting, free and in your browser"
+seo_title: "Free colour separation for screen printing a painting"
 date: 2026-11-03
 tags: [clothing, screen-printing, open-source, colour-separation]
-description: "The clothing design studio now reduces a painting to 2 to 8 inks, counts the screens, flags lines too fine for the mesh and builds a raised-outline layer. Nothing is uploaded."
+description: "Reduce a painting to 2 to 8 inks, count the screens, flag lines too fine for the mesh and build a raised-outline layer. Runs in your browser."
 ---
 
 A designer planning a line of tees with raised prints of classical paintings asked for more than a preview. A screen printer needs films: one black-and-white sheet per ink, in print order, and a screen count to quote against.
