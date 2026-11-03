@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, restGaps } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -790,4 +790,23 @@ test("divisionsWeeklyUpdate: one block per division with last scores, table and 
   assert.match(u10, /Next up: Round 2/);
   assert.match(out, /== U12 ==\nNext up: Round 1/);
   assert.match(out, /Warning:/);
+});
+
+test("restGaps: counts back-to-back days and the longest idle stretch per team", () => {
+  const mk = (day, h, a) => ({ day, matches: [{ division: "D", home: h, away: a, homeName: "T" + h, awayName: "T" + a }] });
+  const sch = { nights: [mk(1, 0, 1), mk(2, 0, 2), mk(9, 1, 2)] };
+  const r = restGaps(sch);
+  assert.equal(r.backToBack, 1);
+  assert.equal(r.minGap, 1);
+  assert.equal(r.maxGap, 8);
+  assert.deepEqual(r.longest.map((x) => x.team), ["D/T1"]);
+  assert.equal(r.teams.find((t) => t.team === "D/T0").maxGap, 1);
+  assert.equal(restGaps({ nights: [mk(1, 0, 1)] }).maxGap, null);
+});
+
+test("restGaps and divisionsText on the example league", () => {
+  const s = build();
+  const r = restGaps(s);
+  assert.ok(r.teams.length >= 20 && r.minGap >= 1 && r.maxGap >= r.minGap);
+  assert.match(divisionsText(s), /^Rest: \d+ back-to-back/m);
 });
