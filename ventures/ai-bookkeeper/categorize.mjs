@@ -34,6 +34,11 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 22 (2026-11-03, eval/probe22.mjs): mobile notaries, piano tuners, florists, tattoo artists, pool installers.
+  // First in the list: "Notary public stamp and seal supplies" hit 6050 on the word stamp.
+  ["6100", "out", /notary public stamp|schaff piano|cunningham piano|piano tuning|team flower|floral foam|pool supply world|gunite|shotcrete/],
+  ["6170", "out", /piano technicians guild|alliance of professional tattoo|association of pool and spa/],
+  ["6060", "out", /signingorder|florist software|pool builder software/],
   // Gap probe 21 (2026-11-02, eval/probe21.mjs): carpet cleaners, appliance repairers, septic pumpers, welders, driving schools.
   // First in the list: "Lincoln Electric" hit utilities, "AWS Welding Society" hit software and "vacuum truck" hit vehicle costs.
   ["6100", "out", /lincoln electric|miller welders?|airgas|jon-?don|prochem|marcone|repair clinic|vacuum truck parts|jurop|septic disposal|dual brake/],
