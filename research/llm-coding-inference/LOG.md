@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-03 · Milestone 7m: `ceiling` docstring reworded (no experiment)
+- 7l's "Next" first item. `cell_ceiling` and `plan_audit` now say the ceiling is the gain over a pooled audit at lambda = 0 and an upper bound, not a forecast, citing 7l's measured 0.995 against the fitted-lambda pooled path. Behaviour unchanged; 22 tests pass.
+- Still open: a rare-category corpus where the fitted lambda is noisy (cells might win there).
+
 ## 2026-11-03 · Milestone 7l: is 7k's shortfall the fitted lambda in the pooled design? (planned before running)
 - Why: 7k's open candidate. `experiments/h7l_fixed_lambda.py`: same corpus, coder (nb-in-language), n = 1000, pilot share 0.3, 1,000 draws; cells vs pooled intervals computed at lambda = 0, 1 and fitted, on the same draws.
 - **Prediction (before running):** cells/pooled half-width ratio is near the 7i ceiling (0.916) at lambda = 1 or 0, and near 1.0 only at fitted lambda. Refuted if the fitted-lambda ratio is under 0.97, or the fixed-lambda ratios are above 0.97.
