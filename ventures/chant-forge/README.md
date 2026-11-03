@@ -16,8 +16,8 @@ released track:
 3. **Arrange:** genre templates (drums, bass, synths, guitars) built around
    the line. Not built.
 4. **Voice:** a real men's choir (recorded) or a singing synthesiser. Not built.
-5. **Release:** loudness (done, `master-cli.mjs`), metadata, credits and AI-disclosure checks before a
-   distributor upload. Not built.
+5. **Release:** loudness (done, `master-cli.mjs`) and a release-readiness check (done,
+   `release-cli.mjs`: sources, AI disclosure, credits, cover art, ISRCs). The upload is the owner's.
 
 ## What works now
 
@@ -76,13 +76,41 @@ test files, ffmpeg `ebur128`) or a real mix; the true-peak filter is a
 windowed sinc, not the Annex 2 coefficients. Distributor targets change: read
 theirs before release.
 
+## Release check
+
+```sh
+node ventures/chant-forge/release-cli.mjs ventures/chant-forge/examples/release-example.json   # exit 0 ready, 1 problems, 2 unreadable
+```
+
+`release.mjs` reads a JSON description of a single or EP and reports errors and
+warnings before anyone uploads: a chant source that is not cited (book, page,
+year) or is from 1929 or later; a modern translation; synthesised voices with
+no AI disclosure, or credits that say monks or a monastery sang them; real
+singers not named; any sample; a cover that is not square, under 3000 px, in an
+odd format, carrying a web address or without a stated origin; malformed or
+repeated ISRCs; tracks under 30 s; a track with no passing `master-cli.mjs
+--json` report. It uploads nothing. 8 tests (2026-11-03). The distributor
+limits (3000 px, 30 s, ISRC shape) are from memory and not checked against any
+distributor's current page; they are the `limits` argument so they can be
+changed. The example is invented.
+
+## Real Gregorio files (2026-11-03)
+
+Fixed after reading the format, tested on made-up strings shaped like real files
+(`real-files.test.mjs`, 6 tests), not yet run on a batch of GregoBase files:
+CRLF line endings no longer defeat `%` comment stripping (a comment's text was
+being sung as a lyric); `<sp>R/</sp>`, `<sp>V/</sp>` and `<sp>'ae</sp>` keep their
+signs; `<v>` (raw TeX) and `<alt>` text, `{}` centre braces, `*` and the cross
+are not lyrics; a clef change inside a group, as in `(::c3)` or `(z c3)`, now
+moves the staff. NABC alternations are still cut at the first `|`.
+
 ## Not checked yet
 
 - `examples/dies-irae-incipit.gabc` is the widely quoted opening motif
   (F E F D E C D D), typed from memory. It has not been transcribed from a scan.
   It is a demo input, not a corpus entry.
-- The converter has only run on the small inputs in the tests. It has not been
-  tried on a real GregoBase or Gregorio file.
+- The converter has run on the five corpus files and made-up inputs, not on a
+  batch of real Gregorio files.
 - Nothing has been arranged, sung, mixed or published.
 
 ## Rules this project keeps

@@ -275,6 +275,6 @@ flagships:
       then genre templates (genre.mjs: deep house, EDM, hard rock, metal;
       drums, bass, chords in the chant's mode, 13 tests). Mix/master check
       (master-cli.mjs: LUFS, true peak, mono, clipping, 6 tests) landed 2026-11-03;
-      check it against ffmpeg ebur128 or EBU test files. Next: a release kit, compare the files against a pre-1929 scan, source the Te Deum and
+      check it against ffmpeg ebur128 or EBU test files. Release check (release-cli.mjs: sources, AI disclosure, cover, ISRC, master report; limits from memory) and GABC fixes for CRLF, <sp>/<v>/<alt> and in-group clefs landed 2026-11-03. Next: compare the files against a pre-1929 scan, source the Te Deum and
       Salve Regina from a pre-1929 book, then run the converter over a batch
       of real Gregorio files and fix what it misreads (ROADMAP.md).
