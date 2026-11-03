@@ -102,7 +102,7 @@ figure. Run `python3 experiments/physics_cycle.py --sourced`; output in
 
 ## Milestone 2e: is the assumed cycle's load shape like a measured excavator's?
 
-A public electrical power trace of an electric excavator (Zenodo 18862594, CC-BY-4.0; copied to
+A public electrical power profile for an electric excavator (a computed 75 t reference profile scaled to 100 kW, per the draft CWA; Zenodo 18862594, CC-BY-4.0; copied to
 `experiments/data/`) has a load factor (mean over peak) of 0.346 and spends 52% of the time below
 30% of its peak. The force-model cycles have a median load factor of 0.606 (5 to 95%: 0.41 to 0.78)
 and a median 14% of time below 30% of peak, so the model has *less* low-load time than the machine,

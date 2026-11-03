@@ -2,6 +2,14 @@
 
 Newest first.
 
+## 2026-11-03 · Milestone 5m: where the CWA electric-excavator profile comes from (a reading step, no experiment)
+- Read the draft CWA (CEN-CENELEC workshop on BATSS, draft CWA XXXXX, section 6, https://www.cencenelec.eu/media/CEN-CENELEC/News/Workshops/2026/20260625_BATTS/draft_cwa_xxxxx_-e.pdf; text extracted with pdftotext). 5l's open question is answered, and it corrects how 5l and the load factor 0.346 were framed.
+- Zenodo 18862594 is the **theoretical** reference profile, not a measurement: digging and grading power computed for a **75 t, 410 kW diesel** excavator (after Fecke's PhD thesis, Tranplhyn project) and scaled linearly to a 100 kW motor (section 6.1, 6.4; the 133 kW peak is the grading case). The CWA's own Table 2: theoretical digging 93 kW peak / 35 kW mean, grading 133 / 56. Two **real** BATSS electric excavators: 13 t class 81 kW peak / 40 kW mean, and 20 t class 92 / 49 kW (1 min sampling).
+- Load factors (mean/peak) from that table: theoretical digging 0.376, grading 0.421; real 0.494 and 0.533. The 0.346 used in 2e to 2g (mean over peak of the full 1,779 s synthetic profile) is therefore a synthetic machine's value and sits below both real ones. No result changes: `ranking_map_lf_results.txt` already sweeps load factor to 0.50 and 0.70, where the break-even dp_ls moves only 19.3 to 21.7 bar (p_n 1.44 bar) and 23.9 to 23.3 bar (p_n 6.44 bar); LS-versus-open-centre conclusions are insensitive to the choice. The real traces themselves are not public (they are in BATSS deliverable D2.1), so they could not replace the profile.
+- The CWA also states commercial excavators have no hydraulic energy recovery, consistent with 5l's 0.001% negative energy, which is therefore a property of the synthetic profile, not evidence about real machines.
+- Limits: only the draft text was read (figures and Table 2 as extracted); mean/peak from rounded table values.
+- Next: an excavator cylinder pressure trace (H4) is still missing; paper wording on the 0.346 is corrected in `paper/draft.md`.
+
 ## 2026-11-03 · Milestone 6g: paper section 3.4a gains 5k and 5l (a writing step, no experiment)
 - Added the measured 2.10 s Cat 305.5E2 lowering time with the re-rated recovery power (979 / 3,478 W; 1.21 / 4.31 kW at 2.1 s; 5.33 kW at 1.7 s) and the published electric-excavator power profile (peak/mean 2.89, best 3 s window 1.85 x mean, 0.001% negative energy) to the draft, with their limits. 9 new rows in `paper/check_numbers.py`, 81 claims, 0 missing.
 - Next: read the CWA document for the profile's origin and machine; an excavator cylinder pressure trace (H4) is still missing.
