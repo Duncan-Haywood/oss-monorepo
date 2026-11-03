@@ -11959,7 +11959,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // The open book (see `updates.mjs`): what shipped, what is in progress, the
   // owner's direction and the process, plus the changelog of every merge.
   // After the research pages so a merge can link the page it changed.
-  await buildUpdates(outDir, base, {
+  const updatesData = await buildUpdates(outDir, base, {
     published: new Set(surfaces.map((s) => s.slug)),
     researchSlugs: new Set(researchSlugs),
     titles: new Map(surfaces.map((s) => [s.slug, s.title])),
@@ -11968,8 +11968,10 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
 
   // The work queue (see `queue.mjs`): a read-only view of what the agents
   // take next, in prompt.md's order, from the same files they read.
+  // Each roadmap project's progress reads the merges the updates page already loaded.
   await buildQueue(outDir, base, {
     published: new Set(surfaces.map((s) => s.slug)),
+    merges: updatesData?.merges ?? null,
     socialCard: `${base}${SOCIAL_CARD_FILE}`,
   });
 

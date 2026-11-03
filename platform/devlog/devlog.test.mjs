@@ -40,6 +40,16 @@ test('link syntax written inside a code span is shown as text, not a NUL placeho
   assert.ok(!html.includes('\u0000'));
 });
 
+test('images render as <img>: repository paths served raw, unsafe sources dropped', () => {
+  const html = inline('See ![A chart](charts/a.svg) and ![x](javascript:alert(1)) and ![w](https://e.com/w.png)', 'docs/posts/x.md');
+  assert.ok(html.includes('<img src="https://raw.githubusercontent.com/Duncan-Haywood/oss-monorepo/main/docs/posts/charts/a.svg" alt="A chart"'));
+  assert.ok(html.includes('<img src="https://e.com/w.png" alt="w"'));
+  assert.ok(!html.includes('javascript:'));
+  assert.ok(!html.includes('!<a'));
+  assert.equal(inline('![a"b](x.svg)', 'p.md').includes('alt="a&quot;b"'), true);
+  assert.equal(summaryOf('# T\n\n![chart](a.svg) The point of this paragraph is long enough.'), 'The point of this paragraph is long enough.');
+});
+
 test('blocks: title dropped, headings demoted, tables, lists, fences', () => {
   const md = '# Title\n\nPara one\ncontinues.\n\n## Sub\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n- one\n- two\n\n```\n<b>x</b>\n```\n';
   const html = renderMarkdown(md, { dropTitle: true });

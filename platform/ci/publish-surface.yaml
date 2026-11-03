@@ -122,6 +122,9 @@ workflows:
 - workflow: devsec-toolkit-ci.yml
   classification: none
   publishes: []
+- workflow: direction-report.yml
+  classification: none
+  publishes: []
 - workflow: distribute-bluesky.yml
   classification: none
   publishes: []

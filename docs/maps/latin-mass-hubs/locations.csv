@@ -1,0 +1,212 @@
+society,name,city,state,zip,kind,note,source,lat,lon,geocoded_by
+FSSP,Little Rock,Little Rock,AR,,apostolate,,https://fssp.com/locations-list/,34.72539,-92.35856,place
+FSSP,Springdale,Springdale,AR,,apostolate,,https://fssp.com/locations-list/,36.19144,-94.15506,place
+FSSP,Clarkdale,Clarkdale,AZ,,apostolate,,https://fssp.com/locations-list/,34.74798,-112.05870,place
+FSSP,Phoenix,Phoenix,AZ,,apostolate,,https://fssp.com/locations-list/,33.57215,-112.09013,place
+FSSP,Camarillo,Camarillo,CA,,apostolate,,https://fssp.com/locations-list/,34.22182,-119.03215,place
+FSSP,Fresno,Fresno,CA,,apostolate,,https://fssp.com/locations-list/,36.78268,-119.79336,place
+FSSP,Los Angeles,Los Angeles,CA,,apostolate,,https://fssp.com/locations-list/,34.01939,-118.41083,place
+FSSP,Sacramento,Sacramento,CA,,apostolate,,https://fssp.com/locations-list/,38.56769,-121.46816,place
+FSSP,San Diego,San Diego,CA,,apostolate,,https://fssp.com/locations-list/,32.81498,-117.13556,place
+FSSP,Colorado Springs,Colorado Springs,CO,,apostolate,,https://fssp.com/locations-list/,38.86726,-104.76075,place
+FSSP,Denver,Denver,CO,,apostolate,,https://fssp.com/locations-list/,39.76185,-104.88111,place
+FSSP,Fort Myers,Fort Myers,FL,,apostolate,,https://fssp.com/locations-list/,26.62007,-81.82955,place
+FSSP,Miami,Miami,FL,,apostolate,,https://fssp.com/locations-list/,25.77516,-80.20861,place
+FSSP,Naples,Naples,FL,,apostolate,,https://fssp.com/locations-list/,26.15048,-81.79530,place
+FSSP,Orlando,Orlando,FL,,apostolate,,https://fssp.com/locations-list/,28.40865,-81.25481,place
+FSSP,Sarasota,Sarasota,FL,,apostolate,,https://fssp.com/locations-list/,27.33826,-82.54372,place
+FSSP,Atlanta,Atlanta,GA,,apostolate,,https://fssp.com/locations-list/,33.76291,-84.42267,place
+FSSP,Post Falls,Post Falls,ID,,apostolate,,https://fssp.com/locations-list/,47.72556,-116.94417,place
+FSSP,Rockdale,Rockdale,IL,,apostolate,,https://fssp.com/locations-list/,41.50488,-88.12476,place
+FSSP,Quincy,Quincy,IL,,apostolate,,https://fssp.com/locations-list/,39.93368,-91.37930,place
+FSSP,Brookville,Brookville,IN,,apostolate,,https://fssp.com/locations-list/,39.42327,-85.01016,place
+FSSP,Fort Wayne,Fort Wayne,IN,,apostolate,,https://fssp.com/locations-list/,41.08913,-85.14390,place
+FSSP,South Bend,South Bend,IN,,apostolate,,https://fssp.com/locations-list/,41.67664,-86.26881,place
+FSSP,Kansas City/Westwood,Westwood,KS,,apostolate,,https://fssp.com/locations-list/,39.03938,-94.61558,place
+FSSP,Maple Hill,Maple Hill,KS,,apostolate,,https://fssp.com/locations-list/,39.08542,-96.02801,place
+FSSP,Lexington,Lexington,KY,,apostolate,,https://fssp.com/locations-list/,38.04068,-84.45827,place
+FSSP,Baltimore,Baltimore,MD,,apostolate,,https://fssp.com/locations-list/,39.30003,-76.61048,place
+FSSP,Minneapolis,Minneapolis,MN,,apostolate,,https://fssp.com/locations-list/,44.96332,-93.26832,place
+FSSP,Denton (Seminary),Denton,NE,,seminary,,https://fssp.com/locations-list/,40.73925,-96.84597,place
+FSSP,Lincoln,Lincoln,NE,,apostolate,,https://fssp.com/locations-list/,40.80894,-96.67790,place
+FSSP,Omaha,Omaha,NE,,apostolate,,https://fssp.com/locations-list/,41.26270,-96.05348,place
+FSSP,Nashua,Nashua,NH,,apostolate,,https://fssp.com/locations-list/,42.74907,-71.49054,place
+FSSP,Pequannock,Pequannock,NJ,07440,apostolate,,https://fssp.com/locations-list/,40.94647,-74.29304,zcta
+FSSP,Dayton,Dayton,OH,,apostolate,,https://fssp.com/locations-list/,39.78474,-84.19963,place
+FSSP,Youngstown,Youngstown,OH,,apostolate,,https://fssp.com/locations-list/,41.09909,-80.64590,place
+FSSP,Oklahoma City,Oklahoma City,OK,,apostolate,,https://fssp.com/locations-list/,35.46708,-97.51366,place
+FSSP,Tulsa,Tulsa,OK,,apostolate,,https://fssp.com/locations-list/,36.12795,-95.90232,place
+FSSP,Allentown/Bethlehem,Allentown,PA,,apostolate,,https://fssp.com/locations-list/,40.59365,-75.47839,place
+FSSP,Conshohocken (Philadelphia),Conshohocken,PA,,apostolate,,https://fssp.com/locations-list/,40.07722,-75.30410,place
+FSSP,Harrisburg,Harrisburg,PA,,apostolate,,https://fssp.com/locations-list/,40.27589,-76.88502,place
+FSSP,Scranton,Scranton,PA,,apostolate,,https://fssp.com/locations-list/,41.40418,-75.66591,place
+FSSP,South Abington Twp (Provincial HQ),South Abington Township,PA,18411,headquarters,,https://fssp.com/locations-list/,41.45918,-75.74687,zcta
+FSSP,Providence,Providence,RI,,apostolate,,https://fssp.com/locations-list/,41.82306,-71.41878,place
+FSSP,Rapid City,Rapid City,SD,,apostolate,,https://fssp.com/locations-list/,44.07107,-103.21792,place
+FSSP,Dallas,Dallas,TX,,apostolate,,https://fssp.com/locations-list/,32.79333,-96.76651,place
+FSSP,El Paso,El Paso,TX,,apostolate,,https://fssp.com/locations-list/,31.84778,-106.43111,place
+FSSP,Fort Worth,Fort Worth,TX,,apostolate,,https://fssp.com/locations-list/,32.78195,-97.34857,place
+FSSP,Houston,Houston,TX,,apostolate,,https://fssp.com/locations-list/,29.78574,-95.38881,place
+FSSP,Tyler,Tyler,TX,,apostolate,,https://fssp.com/locations-list/,32.31726,-95.30589,place
+FSSP,Chesapeake,Chesapeake,VA,,apostolate,,https://fssp.com/locations-list/,36.67938,-76.30179,place
+FSSP,Richmond,Richmond,VA,,apostolate,,https://fssp.com/locations-list/,37.53140,-77.47601,place
+FSSP,Seattle,Seattle,WA,,apostolate,,https://fssp.com/locations-list/,47.61933,-122.35154,place
+FSSP,Tacoma,Tacoma,WA,,apostolate,,https://fssp.com/locations-list/,47.25220,-122.45983,place
+ICKSP,St. Gianna Oratory,Tucson,AZ,,apostolate,,https://institute-christ-king.org/,32.15304,-110.87077,place
+ICKSP,Institute of Christ the King - Bay Area,Oakland,CA,,apostolate,city inferred from the page's link slug /oakland-home,https://institute-christ-king.org/,37.76985,-122.22569,place
+ICKSP,Immaculate Heart of Mary,San Jose,CA,,apostolate,,https://institute-christ-king.org/,37.29601,-121.81455,place
+ICKSP,Sts. Cyril & Methodius,Bridgeport,CT,,apostolate,,https://institute-christ-king.org/,41.18739,-73.19576,place
+ICKSP,St. Patrick Oratory,Waterbury,CT,,apostolate,,https://institute-christ-king.org/,41.55850,-73.03669,place
+ICKSP,Epiphany of Our Lord Shrine,Tampa,FL,,apostolate,,https://institute-christ-king.org/,27.96626,-82.47762,place
+ICKSP,Holy Family Log Church,Cahokia Heights,IL,,apostolate,"listed as Cahokia, now part of Cahokia Heights",https://institute-christ-king.org/,38.57205,-90.15532,place
+ICKSP,US Provincial Headquarters,Chicago,IL,,headquarters,,https://institute-christ-king.org/,41.83705,-87.68494,place
+ICKSP,St. Mary Oratory,Rockford,IL,,apostolate,,https://institute-christ-king.org/,42.25884,-89.06455,place
+ICKSP,St. Joseph Oratory,Merrillville,IN,,apostolate,,https://institute-christ-king.org/,41.47269,-87.31807,place
+ICKSP,St. Francis de Sales Oratory,Sulphur,LA,,apostolate,,https://institute-christ-king.org/,30.22979,-93.35634,place
+ICKSP,St. Paul,Warren,MA,01083,apostolate,,https://institute-christ-king.org/,42.20684,-72.19862,zcta
+ICKSP,Old St. Patrick Oratory,Kansas City,MO,,apostolate,,https://institute-christ-king.org/,39.12236,-94.55512,place
+ICKSP,St. Francis de Sales Oratory,St. Louis,MO,,apostolate,,https://institute-christ-king.org/,38.63570,-90.24458,place
+ICKSP,St. Joseph Shrine,Detroit,MI,,apostolate,,https://institute-christ-king.org/,42.38304,-83.10224,place
+ICKSP,Oratory,Reno,NV,,apostolate,,https://institute-christ-king.org/,39.54910,-119.84991,place
+ICKSP,St. Anthony,West Orange,NJ,07052,apostolate,,https://institute-christ-king.org/,40.78576,-74.26506,zcta
+ICKSP,St. Mary of the Assumption,Oswego,NY,,apostolate,,https://institute-christ-king.org/,43.45805,-76.50369,place
+ICKSP,St. Josaphat Oratory (Queens),New York,NY,,apostolate,placed at the New York City centroid,https://institute-christ-king.org/,40.66271,-73.93868,place
+ICKSP,St. Leo Oratory,Columbus,OH,,apostolate,,https://institute-christ-king.org/,39.98394,-82.98488,place
+ICKSP,Immaculate Conception Oratory,Cleveland,OH,,apostolate,,https://institute-christ-king.org/,41.47846,-81.67943,place
+ICKSP,Most Precious Blood of Jesus Parish,Pittsburgh,PA,,apostolate,,https://institute-christ-king.org/,40.43994,-79.97568,place
+ICKSP,Sacred Heart Retreat Center,Burlington,WI,,apostolate,,https://institute-christ-king.org/,42.67525,-88.27187,place
+ICKSP,St. Patrick's Oratory,Green Bay,WI,,apostolate,,https://institute-christ-king.org/,44.52154,-87.98657,place
+ICKSP,St. Stanislaus Oratory,Milwaukee,WI,,apostolate,,https://institute-christ-king.org/,43.06335,-87.96670,place
+ICKSP,Ss. Cyril & Methodius,Sheboygan,WI,,apostolate,,https://institute-christ-king.org/,43.73871,-87.73153,place
+ICKSP,St. Mary's Oratory,Wausau,WI,,apostolate,,https://institute-christ-king.org/,44.96177,-89.64654,place
+SSPX,Annunciation Chapel,Fort Collins,CO,80524,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,40.64685,-105.02952,zcta
+SSPX,Assumption of the BVM Chapel,Clayton,TX,75633,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,32.13850,-94.27416,zcta
+SSPX,Blessed Virgin Mary Church,Warners,NY,13164,mass centre,Priests' Residence;Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,43.09685,-76.31264,zcta
+SSPX,Carmel of the Holy Trinity,Spokane,WA,99206,mass centre,Sunday Mass;Weekday Mass;Convent,https://sspx.org/en/list-sspx-chapels,47.62765,-117.25461,zcta
+SSPX,Child Jesus Chapel,Pittston,PA,18640,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,41.29736,-75.74025,zcta
+SSPX,Christ the King Church,Ridgefield,CT,06877,mass centre,Retreat House;Priests' Residence;Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,41.31768,-73.49984,zcta
+SSPX,Convent of Christ the King,Kansas City,MO,64131,house (no Sunday Mass listed),Convent,https://sspx.org/en/list-sspx-chapels,38.95981,-94.57195,zcta
+SSPX,Corpus Christi Chapel,Franklin,TN,37064,mass centre,Sunday Mass;Weekday Mass,https://sspx.org/en/list-sspx-chapels,35.88486,-86.95414,zcta
+SSPX,Corpus Christi Church,Edmonds,WA,98020,mass centre,Sunday Mass;Weekday Mass,https://sspx.org/en/list-sspx-chapels,47.80059,-122.37419,zcta
+SSPX,Holy Name of Jesus Academy,Massena,NY,13662,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,44.93730,-74.89416,zcta
+SSPX,Holy Redeemer Church,Youngsville,NC,27587,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,35.98084,-78.55105,zcta
+SSPX,Immaculate Conception Chapel,Kalispell,MT,59901,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,48.23056,-114.40331,zcta
+SSPX,Immaculate Conception Church,Gilford,NH,03249,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,43.51950,-71.37584,zcta
+SSPX,Immaculate Conception Church,Post Falls,ID,83854,mass centre,Priests' Residence;Sunday Mass;Weekday Mass,https://sspx.org/en/list-sspx-chapels,47.72622,-116.97617,zcta
+SSPX,Immaculate Heart of Mary Chapel,Linden,VA,22642,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,38.94812,-78.02772,zcta
+SSPX,Immaculate Heart of Mary Chapel,Kingsford Heights,IN,46346,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,41.47817,-86.69332,zcta
+SSPX,Immaculate Heart of Mary Chapel,Akron,OH,44312,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,41.00651,-81.43855,zcta
+SSPX,Immaculate Heart of Mary Chapel & Academy,Oak Grove,MN,55011,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,45.34442,-93.25202,zcta
+SSPX,Infant of Prague Mission,Bay City,MI,48708,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,43.55706,-83.84968,zcta
+SSPX,Jesus and Mary Church,El Paso,TX,79902,mass centre,Priests' Residence;Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,31.78486,-106.49688,zcta
+SSPX,Maria Stella Maris Mission,San Pedro,CA,90731,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,33.73235,-118.27815,zcta
+SSPX,Mary Immaculate Church,Wichita,KS,67211,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,37.66706,-97.31704,zcta
+SSPX,Mission Santa Maria,Dewey,AZ,86327,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,34.55679,-112.11091,zcta
+SSPX,Monastery of the Most Holy Trinity,Arlington,TX,76017,house (no Sunday Mass listed),Convent,https://sspx.org/en/list-sspx-chapels,32.66251,-97.16402,zcta
+SSPX,North American Martyrs Chapel,Hudson Falls,NY,12839,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,43.35449,-73.55395,zcta
+SSPX,Notre Dame de la Salette Chapel,Georgetown,IL,61846,mass centre,Priests' Residence;Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,39.97725,-87.60754,zcta
+SSPX,Old Saint Mary's Church,Goldsboro,NC,27530,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,35.38270,-78.06114,zcta
+SSPX,Our Lady Help of Christians,Garden Grove,CA,92841,house (no Sunday Mass listed),,https://sspx.org/en/list-sspx-chapels,33.78683,-117.98204,zcta
+SSPX,Our Lady Immaculate Church,Oak Park,IL,60302,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,41.89477,-87.78982,zcta
+SSPX,Our Lady Immaculate Priory,Chicago,IL,60634,house (no Sunday Mass listed),Priests' Residence,https://sspx.org/en/list-sspx-chapels,41.94619,-87.80612,zcta
+SSPX,Our Lady of Fatima Catholic Church,Lacombe,LA,70445,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,30.37150,-89.89234,zcta
+SSPX,Our Lady of Fatima Chapel,Richmond,VA,23231,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,37.44220,-77.31493,zcta
+SSPX,Our Lady of Fatima Church,Vancouver,WA,98682,mass centre,Sunday Mass;Weekday Mass,https://sspx.org/en/list-sspx-chapels,45.67296,-122.48324,zcta
+SSPX,Our Lady of Fatima Church,Sanger,TX,76266,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,33.37283,-97.21326,zcta
+SSPX,Our Lady of Fatima Church,Dade City,FL,33525,house (no Sunday Mass listed),,https://sspx.org/en/list-sspx-chapels,28.33081,-82.18333,zcta
+SSPX,Our Lady of Good Counsel,Dayton,OH,45414,house (no Sunday Mass listed),,https://sspx.org/en/list-sspx-chapels,39.83939,-84.21072,zcta
+SSPX,Our Lady of Good Success,Louisiana,MO,63353,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,39.45404,-91.11304,zcta
+SSPX,Our Lady of Good Success Church,Dickinson,ND,58601,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,46.90816,-102.82656,zcta
+SSPX,Our Lady of Grace Church,Kenner,LA,70062,mass centre,Sunday Mass;Weekday Mass,https://sspx.org/en/list-sspx-chapels,29.99166,-90.25812,zcta
+SSPX,Our Lady of Guadalupe,New Plymouth,ID,83655,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,43.95125,-116.78849,zcta
+SSPX,Our Lady of Guadalupe Church,Cass Lake,MN,56633,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,47.31878,-94.50118,zcta
+SSPX,Our Lady of Guadalupe Monastery,Silver City,NM,88061,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,32.62854,-108.40641,zcta
+SSPX,Our Lady of Lourdes,Bethlehem,WV,26003,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,40.06918,-80.65081,zcta
+SSPX,Our Lady of Lourdes Mission,Honolulu (Waikiki),HI,96815,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,21.27216,-157.82229,zcta
+SSPX,Our Lady of Mount Carmel Church,North Richland Hills,TX,76180,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,32.84072,-97.22424,zcta
+SSPX,Our Lady of Sorrows  Chapel,Crookston,MN,56716,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,47.74325,-96.55541,zcta
+SSPX,Our Lady of Sorrows Chapel,Baton Rouge,LA,70814,mass centre,Sunday Mass;Weekday Mass,https://sspx.org/en/list-sspx-chapels,30.48502,-91.06167,zcta
+SSPX,Our Lady of Sorrows Chapel,Omaha,NE,68132,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,41.26502,-96.00296,zcta
+SSPX,Our Lady of Sorrows Church,Girard,OH,44420,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,41.16993,-80.67150,zcta
+SSPX,Our Lady of Sorrows Church,Phoenix,AZ,85042,mass centre,Priests' Residence;Retreat House;Sunday Mass;Weekday Mass,https://sspx.org/en/list-sspx-chapels,33.35554,-112.05224,zcta
+SSPX,Our Lady of the Angels Church,Arcadia,CA,91007,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,34.12828,-118.04773,zcta
+SSPX,Our Lady of the Angels Priory,Arcadia,CA,91006,house (no Sunday Mass listed),Priests' Residence,https://sspx.org/en/list-sspx-chapels,34.13516,-118.02669,zcta
+SSPX,Our Lady of the Assumption Church,Walton,KY,41094,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,38.88275,-84.62411,zcta
+SSPX,Our Lady of the Assumption Priory,Walton,KY,41094,house (no Sunday Mass listed),Priests' Residence,https://sspx.org/en/list-sspx-chapels,38.88275,-84.62411,zcta
+SSPX,Our Lady of the BitterRoot Chapel,Victor,MT,59875,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,46.42038,-114.31560,zcta
+SSPX,Our Lady of the Blessed Sacrament Mission,Corpus Christi,TX,78408,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,27.79963,-97.44369,zcta
+SSPX,Our Lady of the Rosary Church,Buffalo,NY,14220,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,42.84574,-78.82208,zcta
+SSPX,Our Lady of the Visitation Roman Catholic Church,Saint Paul,MN,55107,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,44.93107,-93.07917,zcta
+SSPX,Our Lady of Victory,Necedah,WI,54646,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,44.08282,-90.09297,zcta
+SSPX,Our Lady of Victory Church,Las Vegas,NV,89123,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,36.03522,-115.14912,zcta
+SSPX,Our Lady of Victory Church,Davie,FL,33314,mass centre,Sunday Mass;Weekday Mass,https://sspx.org/en/list-sspx-chapels,26.06789,-80.22416,zcta
+SSPX,Our Lady Queen of Angels Chapel,Fort Myers,FL,33905,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,26.66773,-81.76395,zcta
+SSPX,Queen of All Saints Chapel,Springfield,MO,65803,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,37.28316,-93.28991,zcta
+SSPX,Queen of Angels Church,Dickinson,TX,77539,mass centre,Priests' Residence;Sunday Mass;Weekday Mass,https://sspx.org/en/list-sspx-chapels,29.45300,-95.02847,zcta
+SSPX,Queen of the Miraculous Medal Chapel,Bryant,AR,72022,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,34.60642,-92.49391,zcta
+SSPX,Queen of the Most Holy Rosary Chapel,West Palm Beach,FL,33407,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,26.75769,-80.09117,zcta
+SSPX,Sacred Heart Church,Mancelona,MI,49659,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,44.90556,-85.03417,zcta
+SSPX,Sacred Heart Novitiate,Browerville,MN,56438,mass centre,Sunday Mass;Weekday Mass;Convent,https://sspx.org/en/list-sspx-chapels,46.13860,-94.81918,zcta
+SSPX,Saint Aloysius Gonzaga Retreat House,Los Gatos,CA,95033,mass centre,Priests' Residence;Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,37.15828,-121.97368,zcta
+SSPX,Saint Anne's Church,Livonia,MI,48154,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,42.39818,-83.37236,zcta
+SSPX,Saint Anthony Mary Claret Chapel,Miramar Beach,FL,32550,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,30.38143,-86.34567,zcta
+SSPX,Saint Anthony of Padua Chapel,North Caldwell,NJ,07006,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,40.85119,-74.28287,zcta
+SSPX,Saint Anthony of Padua Church,Mount Holly,NC,28120,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,35.32859,-81.02642,zcta
+SSPX,Saint Athanasius Church,Endwell,NY,13760,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,42.13333,-76.08462,zcta
+SSPX,Saint Benedict's Church,Louisville,KY,40215,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,38.19048,-85.78573,zcta
+SSPX,Saint Catherine of Sienna Mission,Weston,MA,02493,mass centre,Sunday Mass;Weekday Mass,https://sspx.org/en/list-sspx-chapels,42.36050,-71.30343,zcta
+SSPX,Saint Cecilia's Church,Collierville,TN,38017,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,35.06695,-89.65408,zcta
+SSPX,Saint Christopher's Mission,New York,NY,10036,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,40.75979,-73.99068,zcta
+SSPX,Saint Dominic Chapel,Post Falls,ID,83854,mass centre,Sunday Mass;Weekday Mass,https://sspx.org/en/list-sspx-chapels,47.72622,-116.97617,zcta
+SSPX,Saint Francis of Assisi Mission,Austin,TX,78704,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,30.24303,-97.76508,zcta
+SSPX,Saint Isidore's Church,Watkins,CO,80137,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,39.71218,-104.59410,zcta
+SSPX,Saint Isidore's Priory,Watkins,CO,80137,house (no Sunday Mass listed),Priests' Residence,https://sspx.org/en/list-sspx-chapels,39.71218,-104.59410,zcta
+SSPX,Saint James Church,Pittsburgh,PA,15220,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,40.41881,-80.04899,zcta
+SSPX,Saint John Bosco Mission,San Diego,CA,92111,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,32.80648,-117.16897,zcta
+SSPX,Saint John Fisher Church,Fort Wayne,IN,46807,mass centre,Sunday Mass;Weekday Mass,https://sspx.org/en/list-sspx-chapels,41.04489,-85.14757,zcta
+SSPX,Saint John Vianney Chapel,Long Prairie,MN,56347,mass centre,Sunday Mass;Weekday Mass,https://sspx.org/en/list-sspx-chapels,45.97071,-94.86056,zcta
+SSPX,Saint John Vianney Priory,Browerville,MN,56438,house (no Sunday Mass listed),Priests' Residence,https://sspx.org/en/list-sspx-chapels,46.13860,-94.81918,zcta
+SSPX,Saint Joseph Mission,St Maries,ID,83861,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,47.24904,-116.58690,zcta
+SSPX,Saint Joseph's and Immaculate Heart Church,Colton,CA,92324,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,34.02519,-117.28885,zcta
+SSPX,Saint Joseph's Church,Greenwood,IN,46142,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,39.62181,-86.17532,zcta
+SSPX,Saint Joseph's Church,San Antonio,TX,78213,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,29.51639,-98.52302,zcta
+SSPX,Saint Joseph's Church,Ray Township,MI,48096,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,42.76215,-82.92047,zcta
+SSPX,Saint Joseph's Priory,Armada,MI,48005,house (no Sunday Mass listed),Priests' Residence,https://sspx.org/en/list-sspx-chapels,42.85592,-82.91238,zcta
+SSPX,Saint Jude's Church,Eddystone,PA,19022,mass centre,Sunday Mass;Weekday Mass,https://sspx.org/en/list-sspx-chapels,39.85744,-75.33697,zcta
+SSPX,Saint Lawrence Chapel,South Windsor,CT,06074,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,41.83809,-72.57784,zcta
+SSPX,Saint Margaret Mary Church,Allendale,MI,49401,mass centre,Sunday Mass;Weekday Mass,https://sspx.org/en/list-sspx-chapels,42.97759,-85.95857,zcta
+SSPX,Saint Mary Magdalene Chapel,Mexico,MO,65265,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,39.20337,-91.88537,zcta
+SSPX,Saint Mary's Assumption Church & Priory,Saint Louis,MO,63104,mass centre,Priests' Residence;Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,38.61113,-90.21409,zcta
+SSPX,Saint Michael the Archangel Chapel,Midland,TX,79701,house (no Sunday Mass listed),,https://sspx.org/en/list-sspx-chapels,31.99245,-102.08098,zcta
+SSPX,Saint Michael the Archangel Church,Spring,TX,77373,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,30.06217,-95.38397,zcta
+SSPX,Saint Michael The Archangel's Church,Farmingville,NY,11738,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,40.83777,-73.03768,zcta
+SSPX,Saint Michael's Chapel,De Pere,WI,54115,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,44.40537,-88.08935,zcta
+SSPX,Saint Michael's Church,Roswell,GA,30075,mass centre,Sunday Mass;Weekday Mass,https://sspx.org/en/list-sspx-chapels,34.05269,-84.39159,zcta
+SSPX,Saint Michael's Church,Bethany,OK,73008,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,35.51085,-97.64254,zcta
+SSPX,Saint Michael's Church,Mandan,ND,58554,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,46.75566,-100.94866,zcta
+SSPX,Saint Michael's Church,Bakersfield,CA,93306,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,35.46819,-118.77975,zcta
+SSPX,Saint Michael's Church,Carmichael,CA,95608,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,38.62694,-121.33119,zcta
+SSPX,Saint Peregrine Church,Richfield,OH,44286,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,41.23313,-81.64394,zcta
+SSPX,Saint Peter Chanel Mission,Keaau,HI,96749,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,19.62128,-154.98973,zcta
+SSPX,Saint Philomena Mission,Bremer,IA,50677,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,42.76669,-92.43976,zcta
+SSPX,Saint Pius V Chapel,Mukwonago,WI,53149,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,42.87537,-88.34158,zcta
+SSPX,Saint Robert Bellarmine Church,Saint Cloud,MN,56301,mass centre,Sunday Mass;Weekday Mass,https://sspx.org/en/list-sspx-chapels,45.48708,-94.24278,zcta
+SSPX,Saint Stephen Chapel,Grants Pass,OR,97526,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,42.53570,-123.33826,zcta
+SSPX,Saint Therese Chapel,Keno,OR,97627,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,42.07015,-122.07224,zcta
+SSPX,Saint Therese Chapel,Nicholville,NY,12965,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,44.70589,-74.68396,zcta
+SSPX,Saint Therese Chapel,Waunakee (Springfield Twnshp),WI,53597,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,43.18141,-89.45737,zcta
+SSPX,Saint Therese Church,Chico,CA,95926,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,39.74577,-121.84392,zcta
+SSPX,Saint Therese Priory,Nicholville,NY,12965,house (no Sunday Mass listed),Priests' Residence,https://sspx.org/en/list-sspx-chapels,44.70589,-74.68396,zcta
+SSPX,"Saint Therese, Patroness of Alaska Mission",Anchorage,AK,99502,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,61.16365,-149.99664,zcta
+SSPX,Saint Thomas Becket Church,Veneta,OR,97487,mass centre,Priests' Residence;Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,43.98886,-123.38720,zcta
+SSPX,Saint Thomas Chapel,Carson City,NV,89701,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,39.12893,-119.72541,zcta
+SSPX,Saint Thomas More Chapel,San Jose,CA,95127,mass centre,Retreat House;Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,37.37167,-121.78710,zcta
+SSPX,Saint Thomas More Church,Sanford,FL,32771,mass centre,Priests' Residence;Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,28.81466,-81.31758,zcta
+SSPX,Saint Vincent de Paul Church,Kansas City,MO,64109,mass centre,Priests' Residence;Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,39.06583,-94.56760,zcta
+SSPX,Saints Peter and Paul Church,Albuquerque,NM,87120,mass centre,Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,35.14054,-106.76097,zcta
+SSPX,Society of Saint Pius X | Regina Coeli House,Platte City,MO,64079,house (no Sunday Mass listed),Priests' Residence;Weekday Mass,https://sspx.org/en/list-sspx-chapels,39.36380,-94.79330,zcta
+SSPX,District House,Grangeville,ID,83530,house (no Sunday Mass listed),,https://sspx.org/en/list-sspx-chapels,45.91803,-116.02157,zcta
+SSPX,St. Joseph Monastery,Silver City,NM,88061,mass centre,Convent;Weekday Mass;Sunday Mass,https://sspx.org/en/list-sspx-chapels,32.62854,-108.40641,zcta
+SSPX,St. Michael the Archangel Chapel,Jacksonville,FL,32207,house (no Sunday Mass listed),Weekday Mass,https://sspx.org/en/list-sspx-chapels,30.28964,-81.64097,zcta
+SSPX,St. Pius X Chapel,Upper Marlboro,MD,20772,mass centre,Sunday Mass,https://sspx.org/en/list-sspx-chapels,38.78027,-76.76699,zcta
+SSPX,The Immaculata,Saint Marys,KS,66536,mass centre,Priests' Residence;Sunday Mass;Weekday Mass,https://sspx.org/en/list-sspx-chapels,39.21544,-96.06950,zcta
