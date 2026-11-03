@@ -45,3 +45,4 @@ hypotheses:
       measured as the share of file checks that report at least one
       structure finding (SKU row with no product or option set).
     status: untested
+    evidence: in-repo

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { buildQueue, clip, loadQueue, orderRequests, parseFlagships, parseIdeas, parseProgrammes, QUEUE_PATH, renderQueue } from './queue.mjs';
+import { buildQueue, clip, loadQueue, orderRequests, parseFlagships, parseIdeas, parseProgrammes, progressFor, PROGRESS_DAYS, QUEUE_PATH, renderQueue, requestDir } from './queue.mjs';
 
 const IDEAS = `# Ideas inbox
 
@@ -153,7 +153,7 @@ test('buildQueue writes queue/index.html from a repository tree', async () => {
   await fs.writeFile(path.join(root, 'portfolio', 'flagships.yaml'), FLAGSHIPS);
   await fs.writeFile(path.join(root, 'portfolio', 'requests', 'requests.json'), JSON.stringify({ requests: REQUESTS }));
   await fs.writeFile(path.join(root, 'research', 'PROGRAMMES.md'), PROGRAMMES);
-  const data = await buildQueue(out, '', { root });
+  const data = await buildQueue(out, '', { root, merges: null });
   assert.equal(data.flagships.length, 2);
   assert.equal(data.decisions, null); // no decision_queue.py in the fixture tree
   const html = await fs.readFile(path.join(out, QUEUE_PATH, 'index.html'), 'utf8');
@@ -166,4 +166,60 @@ test('the real repository files parse', () => {
   assert.ok(d.flagships.length > 0 && d.flagships.every((f) => f.venture && f.next));
   assert.ok(d.programmes.length > 0);
   assert.ok(d.requests);
+});
+
+const MERGES = [
+  { sha: 'a1', date: '2026-11-02', pr: 30, title: 'alpha: third slice', files: ['ventures/alpha-tool/src/x.mjs'] },
+  { sha: 'a2', date: '2026-11-02', pr: 29, title: 'sim-a: first run', files: ['research/sim-a/LOG.md'] },
+  { sha: 'a3', date: '2026-10-31', pr: 28, title: 'alpha: second slice', files: ['ventures/alpha-tool/README.md', 'docs/posts/x.md'] },
+  { sha: 'a4', date: '2026-10-30', pr: null, title: "Merge branch 'main' into x", files: ['ventures/alpha-tool/a'] },
+  { sha: 'a5', date: '2026-10-01', pr: 20, title: 'alpha: first slice', files: ['ventures/alpha-tool/a'] },
+  { sha: 'a6', date: '2026-09-20', pr: 10, title: 'alpha-tools-other: not alpha', files: ['ventures/alpha-tool-other/a'] },
+];
+
+test('progressFor counts merges under the folder in the window, by day', () => {
+  const now = Date.parse('2026-11-02T12:00:00Z');
+  const p = progressFor(MERGES, 'ventures/alpha-tool', { now });
+  assert.equal(p.inWindow, 2); // the branch merge and the 2026-10-01 one are out
+  assert.equal(p.daily.length, PROGRESS_DAYS);
+  assert.equal(p.daily.at(-1), 1);
+  assert.equal(p.daily.at(-3), 1);
+  assert.equal(p.lastDate, '2026-11-02');
+  assert.deepEqual(p.recent.map((m) => m.pr), [30, 28, 20]);
+  assert.equal(p.historyFrom, '2026-09-20');
+  // A sibling folder that shares the prefix is not counted.
+  assert.equal(progressFor(MERGES, 'ventures/alpha-tool-other', { now }).inWindow, 0);
+  assert.equal(progressFor(MERGES, 'ventures/beta-tool', { now }).lastDate, null);
+  assert.equal(progressFor(null, 'ventures/alpha-tool'), null);
+});
+
+test('requestDir reads the project folder a request names', () => {
+  assert.equal(requestDir({ project: 'ventures/alpha-tool/' }), 'ventures/alpha-tool');
+  assert.equal(requestDir({ project: 'research/sim-a' }), 'research/sim-a');
+  assert.equal(requestDir({ project: 'platform/pages' }), null);
+  assert.equal(requestDir({}), null);
+});
+
+test('renderQueue shows progress per roadmap project and a glance table', () => {
+  const reqs = REQUESTS.map((r) => (r.id === 'R-0005' ? { ...r, project: 'ventures/alpha-tool' } : r));
+  const html = renderQueue({ ...DATA, requests: orderRequests(reqs), merges: MERGES });
+  assert.match(html, /id="glance"/);
+  assert.ok(html.indexOf('id="glance"') < html.indexOf('id="security"'));
+  // Rows: the request with a project, two flagships, two programmes.
+  const table = html.slice(html.indexOf('<table class="glance">'), html.indexOf('</table>'));
+  assert.equal((table.match(/<tr>/g) ?? []).length, 6);
+  assert.match(table, /alpha-tool<\/a><\/td><td><a href="#flagships">Flagship/);
+  assert.match(html, /Progress, last 14 days:/);
+  assert.match(html, /2 merges<\/span> <span class="meta">· last change 2026-11-02/);
+  assert.match(html, /href="https:\/\/github\.com\/[^"]+\/pull\/30"/);
+  assert.match(html, /no merges<\/span>/); // beta-tool
+});
+
+test('without merge history the progress says so, never zero', () => {
+  const html = renderQueue({ ...DATA, merges: null });
+  assert.match(html, /Merge history is not available in this build/);
+  assert.match(html, /Progress is not available in this build/);
+  assert.doesNotMatch(html, /0 merges/);
+  // Old callers that pass no merges get the page as before.
+  assert.doesNotMatch(renderQueue(DATA), /id="glance"|Progress, last/);
 });
