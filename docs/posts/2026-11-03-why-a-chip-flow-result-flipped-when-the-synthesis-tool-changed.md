@@ -1,6 +1,6 @@
 ---
 title: "Why a chip-flow result flipped when the synthesis tool changed"
-seo_title: "Yosys version changes design-space exploration results (OpenROAD, SKY130)"
+seo_title: "Yosys version changes chip design-space exploration results"
 date: 2026-11-03
 tags: [research, chip-design, openroad, reproducibility]
 description: "A fanout sweep on a one-hot mux gave zero pick regret under Yosys 0.70 and 16 to 109% under Yosys 0.33. Which one is right is the point."
