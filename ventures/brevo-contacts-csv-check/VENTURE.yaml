@@ -36,3 +36,13 @@ owner: duncan
 #
 # Liability: format checks on the user's own file, rules stated as read from memory, no warranty, not
 # legal advice on messaging law, independent-of-Brevo clause, trademark used nominatively.
+
+hypotheses:
+  - claim: >-
+      Small businesses and agencies moving contacts into Brevo will use a free
+      local checker to catch SMS numbers without a country code and
+      Excel-mangled long numbers before the import, because those rows fail
+      silently or map wrongly; measured as the share of file checks that raise
+      an SMS-number finding.
+    status: untested
+    evidence: in-repo

@@ -36,3 +36,13 @@ owner: duncan
 #
 # Liability: format checks on the user's own file, rules stated as read from memory, covers the
 # legacy template only, no warranty, independent-of-BigCommerce clause, trademark used nominatively.
+
+hypotheses:
+  - claim: >-
+      BigCommerce store owners and migration agencies will use a checker that
+      understands the Item Type / SKU-row structure before importing, because
+      the importer's own error report names a row but rarely the cause;
+      measured as the share of file checks that report at least one
+      structure finding (SKU row with no product or option set).
+    status: untested
+    evidence: in-repo

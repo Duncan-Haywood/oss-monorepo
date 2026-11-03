@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01E5sJKnKvF7cyFYXovN1mF8",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T11:19:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12808",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 fetches origin/security-alerts, which does not exist; the command fails and the step gives no fallback."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "Landed a small bibliography step rather than an experiment: registries returned 403 and no LaTeX is installed.",
+      "did": "wrote paper/references.bib with per-entry check status",
+      "result": "merged-ready; no new science"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-03-a-bibliography-that-says-what-it-has-not-checked.md",
+    "research/aerolog-scaling/LOG.md milestone 8b"
+  ],
+  "goal": null,
+  "notes": "Small step; cite_check could not run (403). check_numbers.py passes; homepage build ok.",
+  "corrections": [],
+  "redteam": null
+}

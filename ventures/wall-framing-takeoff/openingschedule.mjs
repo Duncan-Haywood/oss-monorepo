@@ -23,6 +23,26 @@ export function validateOpeningSchedule(d) {
   return e;
 }
 
+/**
+ * The plan shape this schedule reads: walls that are objects, openings that are
+ * objects with a finite positive framed width and height (numbers, not text).
+ * @param {any} plan
+ */
+export function validateSchedulePlan(plan) {
+  const e = [];
+  if (plan == null || typeof plan !== "object" || !Array.isArray(plan.walls)) return ["The plan needs a walls list."];
+  plan.walls.forEach((/** @type {any} */ w, /** @type {number} */ i) => {
+    if (w == null || typeof w !== "object" || Array.isArray(w)) { e.push(`Wall ${i + 1} is not an object.`); return; }
+    if (w.openings != null && !Array.isArray(w.openings)) { e.push(`Wall ${w.id ?? i + 1}: openings must be a list.`); return; }
+    (w.openings || []).forEach((/** @type {any} */ op, /** @type {number} */ j) => {
+      const at = `Wall ${w.id ?? i + 1}, opening ${j + 1}`;
+      if (op == null || typeof op !== "object" || Array.isArray(op)) { e.push(`${at}: not an object.`); return; }
+      for (const k of ["width", "height"]) if (!(typeof op[k] === "number" && Number.isFinite(op[k]) && op[k] > 0)) e.push(`${at}: ${k} must be a positive number of inches.`);
+    });
+  });
+  return e;
+}
+
 const fmt = (/** @type {number} */ n) => String(Math.round(n * 1000) / 1000);
 
 /**
@@ -30,7 +50,7 @@ const fmt = (/** @type {number} */ n) => String(Math.round(n * 1000) / 1000);
  * @param {{ defaultHeaderHeight?: number, walls: { id: string, stud?: string, openings?: any[] }[] }} plan
  */
 export function layoutOpeningSchedule(d, plan) {
-  const errors = validateOpeningSchedule(d);
+  const errors = [...validateOpeningSchedule(d), ...validateSchedulePlan(plan)];
   if (errors.length) return { ok: false, errors };
   const allow = d.unitAllowance ?? 0.5, dp = d.doorPrefix ?? "D", wp = d.windowPrefix ?? "W";
   /** @type {Map<string, any>} */ const groups = new Map();

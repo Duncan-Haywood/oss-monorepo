@@ -349,3 +349,26 @@ test('ventures-tests.yml runs the clause check for every touched venture, as its
   assert.match(step, /if: \$\{\{ !cancelled\(\) \}\}/, 'a test failure would skip the clause check');
   assert.match(workflow, /pull_request:\n    paths:\n      - "ventures\/\*\*"/);
 });
+
+test('the command line reads its slug from argv[2]: an unknown slug exits non-zero', () => {
+  // main() defaults argv to process.argv.slice(2); a slice(3) would drop the slug and walk everything.
+  let code = 0;
+  try {
+    execFileSync('node', [path.join(REPO_ROOT, 'platform/pages/clauses.mjs'), 'no-such-venture-xyz'], { stdio: 'pipe' });
+  } catch (e) {
+    code = e.status;
+  }
+  assert.equal(code, 1);
+});
+
+test('a page missing only not-affiliated gets no empty no-warranty section', async () => {
+  const { root } = fixtureRepo({ 'ventures/cmp-tool/index.html': BOTH, 'ventures/cmp-tool/vs-jobber.html': BOTH });
+  try {
+    const { code, err } = await run(['cmp-tool'], { repoRoot: root });
+    assert.equal(code, 1);
+    assert.match(err, /not-affiliated \(PRODUCT_PLAYBOOK\.md 5f\)/);
+    assert.doesNotMatch(err, /no-warranty \(PRODUCT_PLAYBOOK\.md 5b\)/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

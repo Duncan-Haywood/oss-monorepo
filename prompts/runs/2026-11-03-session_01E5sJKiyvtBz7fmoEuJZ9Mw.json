@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01E5sJKiyvtBz7fmoEuJZ9Mw",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T07:12:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12759",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "security-alerts branch does not exist on origin; step 0 fetch fails (fell through to routing)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-03-checking-1300-relative-links-in-blog-posts.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: relative link/image sweep of blog posts (check_post_links.py). 0 broken of 1,312. Test passes locally; CI not awaited. Skipped a docs/reports agent doc: nothing the next run needs beyond the prompt line.",
+  "corrections": [],
+  "redteam": null
+}

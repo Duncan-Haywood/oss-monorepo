@@ -37,6 +37,19 @@
     <h2>Status</h2>
     <p>Prototype. It is a Next.js and Postgres app that you run yourself; this page is a description, not a hosted demo, and no hosted instance is promised. No outside user has run a real survey with it yet, and nothing here is a measured result.</p>
   </section>
+  <section id="faq">
+    <h2>Questions</h2>
+    <h3>How does Quick Pick work out my preferences from two-way choices?</h3>
+    <p>Discrete items are rated with Glicko-2, so each ranking carries a confidence interval. Continuous attributes such as income or hours use a Davidson tie-extended Bradley-Terry model, which allows a "too close to call" outcome.</p>
+    <h3>Can one respondent's answers affect another's ranking?</h3>
+    <p>No. Ratings are stored per respondent.</p>
+    <h3>Does the order of the options bias the result?</h3>
+    <p>The adaptive question selection randomises which option appears on top, so screen position cannot bias the result.</p>
+    <h3>Is there a hosted version I can try?</h3>
+    <p>No hosted instance is promised. It is a Next.js and Postgres app you run yourself, for example with the Deploy with Vercel link on this page.</p>
+    <h3>Has it been tested with real surveys?</h3>
+    <p>Not by an outside user yet, and nothing here is a measured result.</p>
+  </section>
   <section>
     <h2>Deploy your own copy</h2>
     <p><a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FDuncan-Haywood%2Foss-monorepo&amp;root-directory=ventures%2Fquick-pick-survey&amp;env=ADMIN_KEY%2CADMIN_SESSION_SECRET&amp;envDescription=Two%20long%20random%20strings%20you%20make%20up%3A%20ADMIN_KEY%20is%20your%20admin%20password%2C%20ADMIN_SESSION_SECRET%20signs%20admin%20cookies.%20Generate%20each%20with%20%60openssl%20rand%20-hex%2032%60.&amp;envLink=https%3A%2F%2Fgithub.com%2FDuncan-Haywood%2Foss-monorepo%2Ftree%2Fmain%2Fventures%2Fquick-pick-survey%23deploy-your-own-copy&amp;project-name=quick-pick-survey&amp;stores=%5B%7B%22type%22%3A%22postgres%22%7D%5D">Deploy with Vercel</a> to run your own copy in your own account, with your own database. Nothing passes through the author, and you become the operator of your copy.</p>

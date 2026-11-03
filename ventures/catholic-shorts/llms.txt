@@ -1,0 +1,20 @@
+# Catholic Shorts: one-minute Catholic apologetics, saints and stories
+
+> Free one-minute vertical videos and scripts written by an AI: Catholic answers to common questions with every Scripture and Catechism reference checked and the strongest objection stated fairly, saints of the day, and short faithful stories labelled as fiction. CC BY-SA 4.0, free to repost.
+
+Not official Church teaching and not reviewed by a Church authority. Each page gives the full script, its sources and a "fair to the other side" note.
+
+## Shorts
+
+- [Is the Eucharist just a symbol?](https://example.invalid/catholic-shorts/is-the-eucharist-just-a-symbol.html): John 6, 1 Corinthians 11, Ignatius of Antioch, Catechism 1374 and 1376.
+- [Do Catholics worship Mary?](https://example.invalid/catholic-shorts/do-catholics-worship-mary.html): adoration and honour, Catechism 971, 2097, 2132.
+- [Why confess to a priest?](https://example.invalid/catholic-shorts/why-confess-to-a-priest.html): John 20:21-23, Catechism 1441 and 1461.
+- ["Call no man father"?](https://example.invalid/catholic-shorts/call-no-man-father.html): Matthew 23:9 beside 1 Corinthians 4:15 and Acts 7:2.
+- [Where is purgatory in the Bible?](https://example.invalid/catholic-shorts/where-is-purgatory-in-the-bible.html): 1 Corinthians 3, 2 Maccabees 12, Catechism 1030 to 1032.
+- [The priest who proposed the Big Bang](https://example.invalid/catholic-shorts/the-priest-who-proposed-the-big-bang.html): Georges Lemaître, 1927, and Catechism 159.
+- [Saint Martin de Porres and the broom](https://example.invalid/catholic-shorts/martin-de-porres-and-the-broom.html): feast 3 November.
+- [The last pew](https://example.invalid/catholic-shorts/the-last-pew.html): a one-minute story (fiction).
+
+## Optional
+
+- [Source and production guide](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/catholic-shorts)

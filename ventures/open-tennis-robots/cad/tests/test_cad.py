@@ -340,6 +340,23 @@ class FeederGeometryTest(unittest.TestCase):
             bb = deck.placed()[0].bounding_box()
             self.assertTrue(bb.min.X < x < bb.max.X and bb.min.Y < y < bb.max.Y, (x, y))
 
+    def test_hopper_braces_are_sized_and_clear_posts_and_shelf(self):
+        from otr_cad.package import clashes
+        p = self.p
+        self.assertEqual(p.check_hopper_frame(), [])
+        for ax in "xy":
+            self.assertGreater(p.brace_buckling_n(ax), p.brace_min_factor * p.brace_force_n(ax))
+            part = next(x for x in self.parts if x.name == f"hopper_brace_{ax}")
+            self.assertAlmostEqual(part.shape.bounding_box().size.X if ax == "x" else part.shape.bounding_box().size.Y,
+                                   p.brace_len(ax), places=3)
+        named = [(f"{x.name}[{i}]", s) for x in self.parts
+                 if x.name.startswith("hopper_") and x.name not in ("hopper_tub", "hopper_spigot", "hopper_hose")
+                 for i, s in enumerate(x.placed())]
+        self.assertEqual(clashes(named), [])
+        # A weaker brace or a much larger sway load must be refused.
+        self.assertTrue(Feeder(ext_I_2020_mm4=500.0).check_hopper_frame())
+        self.assertTrue(Feeder(side_load_min_n=1500.0).check_hopper_frame())
+
     def test_head_plates_clear_the_ball(self):
         """The ball path (a 67 mm cylinder along x) must not touch either head plate."""
         from build123d import Cylinder, Location

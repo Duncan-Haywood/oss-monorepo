@@ -23,9 +23,10 @@ CHECKS RUN WHEN THIS PACKAGE WAS BUILT
 - feed: shuttle meters one ball (72 mm tall, 95 mm stroke to the wheels at -37 mm); tub holds about 125 balls
 - retainer: front narrowed to 58.3 mm by two 1.6 mm arms; strain 1.0%, 17 N to pull a ball through against 0.14 N of ball weight at -15 deg (wheels assumed to pull 60 N)
 - hose: 600 mm; chord 342 to 570 mm and falls at least 56 deg over the elevation range; bows to a 171 mm radius at its closest pose (hose allows 150)
+- hopper frame: full tub 116 N; sway load 60 N; braces carry 134 N (x) and 169 N (y) against buckling loads of 3091 and 2585 N; a post alone buckles at 3190 N (pinned ends, 2040 weak axis; section figures are assumptions)
 - net: 3000 wide x 2470 mm tall between the poles
 - wind: 69 N on the net at 8 m/s (solidity 0.2, Cd 1.2); ballast needed over the made-part mass (hopper posts, shelf and spigot not credited): 15 kg
-- made-part mass (estimate, excludes bought-in parts): 34.4 kg
+- made-part mass (estimate, excludes bought-in parts): 36.2 kg
 
 STATUS
 Design v0.1, not yet built, and the launcher head throws balls at 30+ m/s:

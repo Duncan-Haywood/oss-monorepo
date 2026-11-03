@@ -122,6 +122,9 @@ workflows:
 - workflow: devsec-toolkit-ci.yml
   classification: none
   publishes: []
+- workflow: direction-report.yml
+  classification: none
+  publishes: []
 - workflow: distribute-bluesky.yml
   classification: none
   publishes: []
@@ -426,6 +429,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: ventures-tests.yml
+  classification: none
+  publishes: []
+- workflow: workflow-self-audit.yml
   classification: none
   publishes: []
 - workflow: world-clock-widget-ci.yml

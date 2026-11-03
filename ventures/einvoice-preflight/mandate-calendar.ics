@@ -95,6 +95,21 @@ URL:https://example.invalid/einvoice-preflight/uganda-efris-e-invoice-man
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:92cd655d6f6e5fa0@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20210101
+DTEND;VALUE=DATE:20210102
+SUMMARY:Albania: Clearance through the tax authority: government buyers f
+ rom 1 Jan 2021
+DESCRIPTION:Albania (In force). Clearance through the tax authority: gove
+ rnment buyers from 1 Jan 2021. Detail and sources: https://example.inval
+ id/einvoice-preflight/albania-e-invoice-mandate.html. Not legal or tax a
+ dvice.
+URL:https://example.invalid/einvoice-preflight/albania-e-invoice-mandate.
+ html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:260db7164b6434e5@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20210101
@@ -108,6 +123,36 @@ DESCRIPTION:Uganda (In force). mandatory for VAT-registered taxpayers (Ga
  ce.
 URL:https://example.invalid/einvoice-preflight/uganda-efris-e-invoice-man
  date.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:23bc4f6d0a8ba5d3@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20210701
+DTEND;VALUE=DATE:20210702
+SUMMARY:Albania: Clearance through the tax authority: cashless B2B from 1
+  Jul 2021
+DESCRIPTION:Albania (In force). Clearance through the tax authority: cash
+ less B2B from 1 Jul 2021. Detail and sources: https://example.invalid/ei
+ nvoice-preflight/albania-e-invoice-mandate.html. Not legal or tax advice
+ .
+URL:https://example.invalid/einvoice-preflight/albania-e-invoice-mandate.
+ html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:1d2a16aea4e39de9@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20210901
+DTEND;VALUE=DATE:20210902
+SUMMARY:Albania: Clearance through the tax authority: cash sales to consu
+ mers from 1 Sep 2021 (vendor an...
+DESCRIPTION:Albania (In force). Clearance through the tax authority: cash
+  sales to consumers from 1 Sep 2021 (vendor and compliance guides\, not 
+ the DPT or the law). Detail and sources: https://example.invalid/einvoic
+ e-preflight/albania-e-invoice-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/albania-e-invoice-mandate.
+ html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
@@ -214,6 +259,21 @@ DESCRIPTION:Romania (In force). B2B since 1 Jan 2024\, B2C added in 2025\
  l or tax advice.
 URL:https://example.invalid/einvoice-preflight/romania-e-factura-e-invoic
  e-mandate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:14373784e5ffd86b@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20240515
+DTEND;VALUE=DATE:20240516
+SUMMARY:Mauritius: Invoices registered with the MRA before issue: busines
+ ses above MUR 100 million from 15...
+DESCRIPTION:Mauritius (In force\, phasing in). Invoices registered with t
+ he MRA before issue: businesses above MUR 100 million from 15 May 2024. 
+ Detail and sources: https://example.invalid/einvoice-preflight/mauritius
+ -e-invoice-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/mauritius-e-invoice-mandat
+ e.html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
@@ -700,6 +760,22 @@ URL:https://example.invalid/einvoice-preflight/france-e-invoice-mandate.h
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:a884056707c9a72a@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20260902
+SUMMARY:Mauritius: Invoices registered with the MRA before issue: widenin
+ g in waves to above MUR 40 millio...
+DESCRIPTION:Mauritius (In force\, phasing in). Invoices registered with t
+ he MRA before issue: widening in waves to above MUR 40 million from 1 Se
+ p 2026 (compliance guides\, not the MRA; earlier wave dates disagree). D
+ etail and sources: https://example.invalid/einvoice-preflight/mauritius-
+ e-invoice-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/mauritius-e-invoice-mandat
+ e.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:5d4d5b5196f10e81@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20260924
@@ -836,6 +912,23 @@ DESCRIPTION:Denmark (Upcoming). Bookkeeping Act systems\, SAF-T 2.0 from
  .
 URL:https://example.invalid/einvoice-preflight/denmark-e-invoice-mandate.
  html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:85f6fd47e84fc26a@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:New Zealand: large suppliers to government reported to be require
+ d to send from 1 Jan 2027\, though M...
+DESCRIPTION:New Zealand (B2G in force; B2B voluntary). large suppliers to
+  government reported to be required to send from 1 Jan 2027\, though MBI
+ E reportedly applies it through new and renewed contracts (vendor and co
+ mpliance guides\, not MBIE or the law). Detail and sources: https://exam
+ ple.invalid/einvoice-preflight/new-zealand-e-invoice-mandate.html. Not l
+ egal or tax advice.
+URL:https://example.invalid/einvoice-preflight/new-zealand-e-invoice-mand
+ ate.html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT

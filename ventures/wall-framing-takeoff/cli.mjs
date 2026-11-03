@@ -23,7 +23,7 @@ import { resolveHeaders, headerText } from "./headers.mjs";
 import { gangOpenings } from "./ganged.mjs";
 import { drawingSetHtml } from "./drawings.mjs";
 import { drawingSetPdf } from "./pdf.mjs";
-import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
+import { panelMaxError, panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
 import { budget, budgetText, budgetCsv } from "./budget.mjs";
 import { proposal, proposalText } from "./bidletter.mjs";
 import { budgetDiff, diffText } from "./compare.mjs";
@@ -132,6 +132,15 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   const flags = new Set(argv.filter((a) => a.startsWith("--")));
   const rimLap = Math.max(0, parseLength(argv.find((a) => a.startsWith("--rim-lap="))?.slice(10) ?? "0") || 0);
   if (flags.has("--help") || flags.has("-h")) return { code: 0, out: HELP };
+  // A mistyped size must stop the run, not quietly turn the feature off (a "--panel-max=zzz" used to print the plain order).
+  for (const [flag, kind] of [["--rim-lap=", "length"], ["--panel-max=", "length"], ["--sheathing-psf=", "number"]]) {
+    const raw = argv.find((a) => a.startsWith(flag))?.slice(flag.length);
+    if (raw === undefined) continue;
+    const v = kind === "length" ? parseLength(raw) : (/^\s*\d+(\.\d+)?\s*$/.test(raw) ? Number(raw) : NaN);
+    if (!Number.isFinite(v) || v < 0) return { code: 1, out: `${flag}${raw} is not a ${kind === "length" ? "length such as 4ft or 9.25in" : "number of pounds per square foot"} (zero or more).` };
+  }
+  const pm = argv.find((a) => a.startsWith("--panel-max="))?.slice(12);
+  if (pm !== undefined && parseLength(pm) > 0 && panelMaxError(parseLength(pm))) return { code: 1, out: `--panel-max=${pm}: ${panelMaxError(parseLength(pm))}.` };
   if (flags.has("--schedule-template")) return { code: 0, out: JSON.stringify(templateSchedule(), null, 2) };
   if (flags.has("--example")) return { code: 0, out: JSON.stringify(samplePlan(), null, 2) };
   if (!args.length) return { code: 2, out: HELP };

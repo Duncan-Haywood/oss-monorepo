@@ -46,9 +46,30 @@
   },
   {
    "date": "2021-01-01",
+   "country": "Albania",
+   "page": "albania-e-invoice-mandate.html",
+   "note": "Clearance through the tax authority: government buyers from 1 Jan 2021",
+   "status": "In force"
+  },
+  {
+   "date": "2021-01-01",
    "country": "Uganda",
    "page": "uganda-efris-e-invoice-mandate.html",
    "note": "mandatory for VAT-registered taxpayers (Gazette Notice 595 of 2020, reported; start 1 July 2020 to 1 January 2021 in different guides)",
+   "status": "In force"
+  },
+  {
+   "date": "2021-07-01",
+   "country": "Albania",
+   "page": "albania-e-invoice-mandate.html",
+   "note": "Clearance through the tax authority: cashless B2B from 1 Jul 2021",
+   "status": "In force"
+  },
+  {
+   "date": "2021-09-01",
+   "country": "Albania",
+   "page": "albania-e-invoice-mandate.html",
+   "note": "Clearance through the tax authority: cash sales to consumers from 1 Sep 2021 (vendor and compliance guides, not the DPT or the law)",
    "status": "In force"
   },
   {
@@ -99,6 +120,13 @@
    "page": "romania-e-factura-e-invoice-mandate.html",
    "note": "B2B since 1 Jan 2024, B2C added in 2025, through ANAF's RO e-Factura",
    "status": "In force"
+  },
+  {
+   "date": "2024-05-15",
+   "country": "Mauritius",
+   "page": "mauritius-e-invoice-mandate.html",
+   "note": "Invoices registered with the MRA before issue: businesses above MUR 100 million from 15 May 2024",
+   "status": "In force, phasing in"
   },
   {
    "date": "2024-05-31",
@@ -332,6 +360,13 @@
    "status": "In force, phased"
   },
   {
+   "date": "2026-09-01",
+   "country": "Mauritius",
+   "page": "mauritius-e-invoice-mandate.html",
+   "note": "Invoices registered with the MRA before issue: widening in waves to above MUR 40 million from 1 Sep 2026 (compliance guides, not the MRA; earlier wave dates disagree)",
+   "status": "In force, phasing in"
+  },
+  {
    "date": "2026-09-24",
    "country": "Rwanda",
    "page": "rwanda-eis-e-invoice-mandate.html",
@@ -393,6 +428,13 @@
    "page": "denmark-e-invoice-mandate.html",
    "note": "Bookkeeping Act systems, SAF-T 2.0 from 1 Jan 2027, default NemHandel registration reported for 2027 (secondary sources, partly draft)",
    "status": "Upcoming"
+  },
+  {
+   "date": "2027-01-01",
+   "country": "New Zealand",
+   "page": "new-zealand-e-invoice-mandate.html",
+   "note": "large suppliers to government reported to be required to send from 1 Jan 2027, though MBIE reportedly applies it through new and renewed contracts (vendor and compliance guides, not MBIE or the law)",
+   "status": "B2G in force; B2B voluntary"
   },
   {
    "date": "2027-01-01",
