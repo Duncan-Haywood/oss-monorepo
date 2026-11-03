@@ -47,6 +47,8 @@ def main():
     ap.add_argument("--n", type=int, default=60)
     ap.add_argument("--jobs", type=int, default=4)
     ap.add_argument("--yosys-dir", required=True)
+    ap.add_argument("--results", default="results.jsonl")  # milestone 74: a second table under another Yosys
+    ap.add_argument("--meta", default="meta.json")
     a = ap.parse_args()
     import os
     os.environ["PATH"] = a.yosys_dir + os.pathsep + os.environ["PATH"]
@@ -65,13 +67,13 @@ def main():
             period = round(base[d] * f, 3)
             for i, s in enumerate(seqs):
                 tasks.append((d, s, tag, period, out / d / f"{tag}_{i}", lib, pdk, a.openroad))
-    with Pool(a.jobs) as pool, open(HERE / "results.jsonl", "w") as fh:
+    with Pool(a.jobs) as pool, open(HERE / a.results, "w") as fh:
         for i, r in enumerate(pool.imap_unordered(task, tasks, chunksize=2)):
             fh.write(json.dumps(r) + "\n")
             fh.flush()
             if i % 50 == 0:
                 print(i, len(tasks), flush=True)
-    (HERE / "meta.json").write_text(json.dumps({"base_period_ns": base, "n_sequences": len(seqs)}, indent=1))
+    (HERE / a.meta).write_text(json.dumps({"base_period_ns": base, "n_sequences": len(seqs)}, indent=1))
 
 
 if __name__ == "__main__":
