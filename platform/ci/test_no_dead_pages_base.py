@@ -38,6 +38,27 @@ class NoDeadPagesBase(unittest.TestCase):
                     hits.append(f.relative_to(ROOT).as_posix())
         self.assertEqual(hits, [], "dead Pages base in a venture front door; use https://duncan-haywood.github.io/oss-monorepo/<slug>/")
 
+    def test_venture_code_and_docs_do_not_name_the_dead_path(self):
+        """The build rewrites the dead path in served pages, but not in what ships
+        outside them: CLI user-agents, SARIF helpUri links shown in code scanning,
+        footers a self-hosted server emails, READMEs, sitemaps. Red team found about 190
+        such files on 2026-10-24 and fixed them 2026-11-03; this keeps them fixed.
+        Test files may name it, and so may subpath-robots-check: its worked
+        example needs a site served from a subpath, and this is one."""
+        hits = []
+        for p in sorted((ROOT / "ventures").rglob("*")):
+            if (not p.is_file() or "node_modules" in p.parts or ".test." in p.name
+                    or "subpath-robots-check" in p.parts
+                    or p.name.startswith("test_") or p.suffix in {".png", ".jpg", ".woff2", ".ico", ".pdf"}):
+                continue
+            try:
+                text = p.read_text(encoding="utf-8")
+            except (UnicodeDecodeError, OSError):
+                continue
+            if DEAD in text:
+                hits.append(p.relative_to(ROOT).as_posix())
+        self.assertEqual(hits, [], "dead Pages base in a venture; use https://marisstella.app/<slug>/")
+
 
 if __name__ == "__main__":
     unittest.main()

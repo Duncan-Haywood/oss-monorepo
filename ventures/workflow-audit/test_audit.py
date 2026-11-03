@@ -127,6 +127,22 @@ jobs:
             text = audit.render_sarif(audit.audit(d)[0])
         self.assertTrue(text.startswith('{\n  "$schema"'))
 
+    def test_cross_file_finding_names_each_file_once_and_sarif_points_at_one(self):
+        d = tempfile.TemporaryDirectory()
+        wf = Path(d.name) / ".github" / "workflows"
+        wf.mkdir(parents=True)
+        for name in ("a.yml", "b.yml"):
+            (wf / name).write_text(
+                "on: push\npermissions:\n  contents: read\nconcurrency:\n  group: %s\n"
+                "jobs:\n  deploy:\n    runs-on: ubuntu-latest\n    timeout-minutes: 5\n"
+                "    environment: production\n    steps:\n      - run: echo ship\n" % name)
+        findings, _ = audit.audit(Path(d.name))
+        split = [f for f in findings if f["rule"] == "split-concurrency-group"]
+        self.assertEqual([f["file"] for f in split], [".github/workflows/a.yml, .github/workflows/b.yml"])
+        sarif = json.loads(audit.render_sarif(split))
+        self.assertEqual(sarif["runs"][0]["results"][0]["locations"][0]["physicalLocation"]
+                         ["artifactLocation"]["uri"], ".github/workflows/a.yml")
+
     def test_deploy_without_concurrency_is_flagged(self):
         d = repo("on: push\npermissions:\n  contents: read\njobs:\n  deploy:\n    runs-on: ubuntu-latest\n    timeout-minutes: 5\n    steps:\n      - run: echo ship\n")
         findings, errors = audit.audit(Path(d.name))

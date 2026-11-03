@@ -1,7 +1,7 @@
 # Open research: reproducible papers with code and benchmarks
 
 Open research: white papers, reproducible code and benchmarks, one directory per project (MIT licensed, see [`LICENSE`](LICENSE)). Topics run from verification markets, scoring rules and decentralised training to LLM chip-design loops, task-specific AI accelerators, robot manufacturing, digital twins, engineered clothing and open-source housing.
-Moved here from the former `oss-research-monorepo` repository with its history. The homepage is built from [`_homepage/`](_homepage) and published at [`/research/`](https://duncan-haywood.github.io/monorepo-projects/research/) on the repository's GitHub Pages site.
+Moved here from the former `oss-research-monorepo` repository with its history. The homepage is built from [`_homepage/`](_homepage) and published at [`/research/`](https://marisstella.app/research/) on the repository's GitHub Pages site.
 
 <!-- topics:start -->
 ## Browse by topic

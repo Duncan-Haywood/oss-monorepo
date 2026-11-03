@@ -327,9 +327,28 @@ class TestSweep(Fixture):
         self.push("gh-pages")
         self.assertEqual(uw.sweep(str(self.clone), since=None, probe=self.probe), [])
 
+    def test_orphan_branch_with_work_main_lacks_is_reported(self):
+        # Once read as landed: `main...orphan` has no merge base, so the diff
+        # errored, listed nothing, and the branch passed (red team 2026-10-26).
+        run(self.clone, "checkout", "-q", "--orphan", "claude/orphan")
+        run(self.clone, "rm", "-rq", "--cached", ".")
+        self.commit("ventures/o/index.html", "orphan work\n", "o: new venture", day="2026-10-01")
+        self.push("claude/orphan")
+        self.assertEqual([r[1] for r in uw.sweep(str(self.clone), since=None, probe=self.probe)],
+                         ["claude/orphan"])
+
+    def test_orphan_branch_whose_files_main_has_is_not_reported(self):
+        self.squash_merge("ventures/o/index.html", "same\n", "o (#4)")
+        run(self.clone, "checkout", "-q", "--orphan", "claude/orphan-landed")
+        run(self.clone, "rm", "-rq", "--cached", ".")
+        run(self.clone, "clean", "-fdqx")
+        self.commit("ventures/o/index.html", "same\n", "o: new venture", day="2026-10-01")
+        self.push("claude/orphan-landed")
+        self.assertEqual(uw.sweep(str(self.clone), since=None, probe=self.probe), [])
+
     def test_gh_pages_with_history_shared_with_main_is_never_reported(self):
-        # The orphan case above is vacuous: with no merge base the content
-        # check reads the branch as landed whatever the name filter does.
+        # The orphan case above relies on the name filter alone; this one
+        # shares history, so the content check would report it without it.
         self.branch("gh-pages")
         self.commit("index.html", "site\n", "publish", day="2026-10-01")
         self.push("gh-pages")

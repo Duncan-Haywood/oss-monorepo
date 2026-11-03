@@ -188,9 +188,16 @@ def landed_by_content(probe, tip_ref, base_ref):
     other commit ids (a squash merge, or a cherry-pick). Conservative: an
     added path counts if base has it, a modified path only if base's copy is
     byte-identical, a deleted path only if base lacks it."""
-    out = git(["diff", "--name-status", "--no-renames", f"{base_ref}...{tip_ref}"],
-              probe, check=False)
-    changes = [line.split("\t", 1) for line in out.splitlines() if "\t" in line]
+    if is_orphan(probe, tip_ref, base_ref):
+        # No merge base, so `base...tip` errors and lists nothing, which once
+        # read every orphan branch as landed (red team, 2026-10-26). Its
+        # whole tree is its change: landed only if base has every file as is.
+        out = git(["ls-tree", "-r", "--name-only", tip_ref], probe, check=False)
+        changes = [("M", path) for path in out.splitlines() if path]
+    else:
+        out = git(["diff", "--name-status", "--no-renames", f"{base_ref}...{tip_ref}"],
+                  probe, check=False)
+        changes = [line.split("\t", 1) for line in out.splitlines() if "\t" in line]
     if not changes:
         return True
 
@@ -208,6 +215,20 @@ def landed_by_content(probe, tip_ref, base_ref):
             continue
         return False
     return True
+
+
+def is_orphan(probe, tip_ref, base_ref):
+    """True when both refs exist and share no history. A shallow clone cannot
+    tell an orphan from history cut off at its depth, so it answers False
+    there and the branch keeps the old, quiet reading."""
+    for ref in (tip_ref, base_ref):
+        if not git(["rev-parse", "-q", "--verify", f"{ref}^{{commit}}"], probe, check=False).strip():
+            return False
+    if git(["rev-parse", "--is-shallow-repository"], probe, check=False).strip() == "true":
+        return False
+    proc = subprocess.run(["git", "merge-base", base_ref, tip_ref], cwd=probe,
+                          capture_output=True, text=True)
+    return proc.returncode == 1 and not proc.stdout.strip()
 
 
 def is_ancestor(probe, tip_ref, base_ref):

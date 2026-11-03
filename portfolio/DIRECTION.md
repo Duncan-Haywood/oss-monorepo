@@ -75,7 +75,7 @@ calculators beyond fixes; already-built ones can still merge (owner, 2026-10-21;
    in these areas is the first kind to look for.
 4. A genuinely new, different venture, when one clears the gates.
 
-The catalogue is live at `https://duncan-haywood.github.io/monorepo-projects/`;
+The catalogue is live at `https://marisstella.app/`;
 merging publishes it. `python3 platform/ci/publish_surface.py` says whether a
 merge publishes anything. `python3 portfolio/router/allocate.py` names the
 highest-merit dispatchable venture.

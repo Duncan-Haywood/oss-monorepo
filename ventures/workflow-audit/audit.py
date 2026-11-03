@@ -107,6 +107,11 @@ def run_check(name, root):
 
 
 def relpath(file, root):
+    # A cross-file finding names its files joined by ", " (split concurrency
+    # groups). Resolving that string as one path stacked `.github/workflows/`
+    # once per file and dropped the other names (red team, 2026-11-03).
+    if ", " in str(file):
+        return ", ".join(relpath(part, root) for part in str(file).split(", "))
     try:
         return Path(file).resolve().relative_to(Path(root).resolve()).as_posix()
     except ValueError:
@@ -287,7 +292,7 @@ def render_sarif(findings):
             "id": f["rule"],
             "name": f["rule"],
             "shortDescription": {"text": f"{f['check']}: {f['rule']}"},
-            "helpUri": "https://duncan-haywood.github.io/monorepo-projects/workflow-audit/",
+            "helpUri": "https://marisstella.app/workflow-audit/",
         })
     level = {"high": "error", "medium": "warning", "low": "note"}
     results = [{
@@ -295,7 +300,7 @@ def render_sarif(findings):
         "level": level[f["severity"]],
         "message": {"text": f"{f['detail']} -- {f['fix']}".strip(" -")},
         "locations": [{"physicalLocation": {
-            "artifactLocation": {"uri": f["file"]},
+            "artifactLocation": {"uri": f["file"].split(", ")[0]},
             "region": {"startLine": f["line"]}}}],
     } for f in findings]
     return json.dumps({
