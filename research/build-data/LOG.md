@@ -1,5 +1,50 @@
 # build-data log
 
+## Session 16, 2026-11-03: milestone 16, XGBoost and linear quantile baselines on SF and Austin i2c (test year 2024), session 15's "Next"
+
+Why: sessions 14 and 15 compared XGBoost and a linear model with LightGBM on a2i only. Does the pattern hold for the second target, issue to completion (i2c)? Chicago has no completion date, so i2c is SF and Austin only.
+Prediction (stated in the session plan; the log entry was written after the run, so it was not logged beforehand): XGBoost lands within 3 points of LightGBM (M3) at each tau in both cities, and linear stays behind the trees at q0.5. Prior about 70%.
+Data: SF and Austin re-pulled today (same row counts as session 15: SF 1,297,749, Austin 2,383,209), same code, split, 3 seeds and week-block bootstrap (`results/baselines_{sf,austin}_i2c_2024.json`). Relative change of mean pinball loss against the reference class (negative is better):
+| city | model | q0.1 | q0.5 | q0.9 |
+|---|---|---|---|---|
+| SF | LightGBM (M3) | -5.9% | -12.7% | -3.0% |
+| SF | XGBoost | -6.3% [-7.7, -5.0] | -12.5% [-14.3, -10.8] | -3.2% [-6.0, -0.7] |
+| SF | linear | -2.8% [-3.3, -2.2] | -5.6% [-6.6, -4.7] | +1.9% [-0.8, +4.2] |
+| Austin | LightGBM (M3) | -6.6% | -18.1% | -20.5% |
+| Austin | XGBoost | -6.9% [-8.1, -5.7] | -18.1% [-19.5, -16.9] | -20.1% [-22.8, -17.5] |
+| Austin | linear | -4.0% [-4.7, -3.3] | -12.3% [-13.1, -11.6] | -16.6% [-18.3, -15.0] |
+(Intervals: week-block bootstrap on the pinball difference, divided by the reference-class loss.)
+- XGBoost is within 0.4 points of LightGBM in all six cells, so the first part of the prediction holds: the gain over the reference class is not a LightGBM quirk on i2c either.
+- Linear is behind the trees at q0.5 in both cities (SF -5.6% vs -12.5%; Austin -12.3% vs -18.1%), so the second part holds. In SF it does not beat the reference class at q0.9 (+1.9%, interval spans zero), unlike on SF a2i (-16.7%).
+- Limits: one test year; linear fitted on 20,000 of 685k and 2.0M training rows; CatBoost and a neural net unrun; `manifest.json` not touched (the feeds' counts match session 15).
+Next: CatBoost; two-part conformal; Chicago H6 with a fuller linear fit.
+
+## Session 15, 2026-11-03: milestone 15, XGBoost and linear quantile baselines on SF and Austin a2i (test year 2024), run as session 14's "Next"
+
+Why: session 14 found on Chicago that XGBoost agrees with LightGBM and the linear model fails at q0.9. Does that carry to the other two cities? Prediction (before running, prior 65%): in SF and Austin XGBoost lands within 3 points of LightGBM (M3) at each tau, and linear stays behind the trees at q0.5.
+Data: SF and Austin re-pulled today (SF 1,297,749 rows, Austin 2,383,209), same code, split, 3 seeds and week-block bootstrap as session 14 (`results/baselines_{sf,austin}_a2i_2024.json`). Relative change of mean pinball loss against the reference class (negative is better):
+| city | model | q0.1 | q0.5 | q0.9 |
+|---|---|---|---|---|
+| SF | XGBoost | -0.7% [-2.2, +1.1] | -3.8% [-6.0, -1.8] | -17.7% [-20.1, -15.4] |
+| SF | linear | -0.0% | +0.1% | -16.7% [-18.5, -15.1] |
+| Austin | XGBoost | -6.9% [-7.5, -6.4] | -25.7% [-27.6, -23.8] | -35.9% [-39.2, -32.6] |
+| Austin | linear | -0.8% | -14.5% [-15.6, -13.5] | -28.0% [-30.3, -25.8] |
+- Austin: XGBoost matches LightGBM at q0.5 (-25.7 vs -26.0) and q0.9 (-35.9 vs -35.9); at q0.1 it is 2.3 points better (-6.9 vs -4.6). Within the 3-point line. SF against LightGBM (M3: -1.6, -4.7, -17.5): XGBoost -0.7, -3.8, -17.7, gaps 0.9, 0.9, 0.2 points. **Prediction part 1 holds** in all six cells.
+- Linear is behind the trees at q0.5 in both cities (SF +0.1% vs -3.8%; Austin -14.5% vs -25.7%), so part 2 holds. But in SF and Austin the linear model does beat the reference class at q0.9 (-16.7%, -28.0%), unlike Chicago (+72.9%): the Chicago failure is not general, it depends on the city's permit-type structure.
+- Limits: one test year, a2i only; linear fitted on 20,000 of 1.14M and 2.19M rows; Austin XGBoost hit the 300-round cap on several taus, so it may be under-trained; CatBoost and a neural net unrun.
+Next: i2c; CatBoost; two-part conformal.
+
+## Session 14, 2026-11-03: milestone 14, XGBoost and linear quantile baselines for H1 (Chicago a2i, test year 2024), predictions written before the run
+
+Why: the paper draft's to-do item 1 says H1 is still only against the weakest bar (reference class) plus LightGBM. Add two more: XGBoost quantile (`reg:quantileerror`) and a linear quantile regression on one-hot features (fitted on a 20,000-row random subsample, since the exact LP does not scale; disclosed). Same features, split and week-block bootstrap as `boosted.py`; `src/baselines.py`. Feed re-pulled today (not the 2026-11-01 copy).
+Predictions (before running): (1) XGBoost lands within 3 points of LightGBM's relative change at each tau (M3: q0.1 +0.3%, q0.5 -9.7%, q0.9 +6.5%), so the q0.9 failure of boosting against the reference class is not a LightGBM quirk. Prior 70%. (2) The linear quantile model is worse than both trees at q0.5 and does not beat the reference class at q0.9. Prior 75%.
+
+Outcome (`results/baselines_chicago_a2i_2024.json`; n_train 727,114, calibration 34,782, test 33,062; 3 seeds; relative change of mean pinball loss against the reference class, week-block bootstrap interval; the feed re-pull has 851,902 rows against 851,889 on 2026-11-01, so the data moved slightly): **both predictions held.**
+- XGBoost: q0.1 +0.3% [+0.2, +0.3], q0.5 -10.5% [-11.2, -9.9], q0.9 +4.9% [+3.5, +6.2]. LightGBM (M3): +0.3, -9.7, +6.5. Gaps 0.0, 0.8 and 1.6 points, all inside the 3-point line. The Chicago q0.9 loss to the reference class is therefore not a LightGBM quirk: a second tree library with a different split rule agrees.
+- Linear quantile regression (20,000-row subsample, one-hot features): q0.1 +0.0%, q0.5 -2.3% [-2.6, -2.0], q0.9 +72.9% [+65.6, +81.1]. It captures about a fifth of the trees' q0.5 gain and is far worse than the reference class at q0.9, so permit type interacts with the other fields in a way a linear model cannot represent.
+- Limits: one city, one target, one test year. XGBoost's early stopping on the calibration year stopped after 3, 135 and 15 rounds for q0.1, q0.5, q0.9 (the calibration year may not resemble the test year for the tails). The linear model saw 20,000 of 727,114 training rows, so part of its gap may be sample size, not form. CatBoost and a neural net remain unrun. `enable_categorical` printed a harmless xgboost warning (the setting belongs to the DMatrix, which does set it).
+Next: the same two baselines on SF and Austin; CatBoost; then two-part conformal.
+
 ## Session 13, 2026-11-01: paper draft 0 (no new compute)
 
 Why: sessions 5 to 12 produced five hypotheses' worth of results spread over the log; the programme had no `paper/`. Done: `paper/paper.md`, a draft that assembles the logged numbers (H1 to H5) with limits and a to-do list. Every figure is copied from this log or `results/`; no experiment ran, so no result changed. Hypothesis: none (writing step). Not done and listed in the draft's section 7: the proposal's other baselines (linear quantile, XGBoost, CatBoost, neural net) are unrun, so H1 is still against the weakest bar; conformal for same-day mass; spread over draws.

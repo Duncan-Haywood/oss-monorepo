@@ -1718,8 +1718,11 @@ const RELATIVE_SELF = relative(
 // +1: `ca-crypto-acb-calculator` graduated.
 // +1: `vsme-report-builder` graduated.
 // +1: `dupehound` graduated.
+// +1: `parish-office` graduated.
+// +1: `monastery-site` graduated.
+// +1: `sed-contra` graduated.
 // +1: `catholic-shorts` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1294;
+const SWITCHES_IN_THE_CATALOGUE = 1297;
 // +1: `open-tennis-robots` graduated.
 // +1: `uk-statutory-residence-test-checker` graduated.
 // +1: `llm-spend-guard` graduated.

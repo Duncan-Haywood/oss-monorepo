@@ -92,6 +92,33 @@ function bearingCentres(plan, w, ops, cover) {
 }
 
 /**
+ * Refuses sheathing settings that are not real numbers in range. Before this a
+ * text or negative `minStrip`, `minCourse` or `rimLap` was accepted and gave a
+ * layout built on coerced values. Ranges are guard limits, not code values.
+ * @param {any} cfg
+ * @returns {string[]}
+ */
+export function sheathingErrors(cfg) {
+  const e = [];
+  const num = (k, lo, hi, nullOk = true) => {
+    const v = cfg[k];
+    if (v == null) { if (!nullOk) e.push(`sheathing ${k} must be a number.`); return; }
+    if (typeof v !== "number" || !Number.isFinite(v)) e.push(`sheathing ${k} must be a number.`);
+    else if (v < lo || v > hi) e.push(`sheathing ${k} must be from ${lo} to ${hi} in.`);
+  };
+  num("minStrip", 0, SHEET_WIDTH);
+  num("minCourse", 0, 240);
+  num("rimLap", 0, 48);
+  num("coverHeight", 0, 1200);
+  if (cfg.sheets != null && !Array.isArray(cfg.sheets)) e.push("sheathing sheets must be a list.");
+  else for (const [i, s] of (cfg.sheets || []).entries()) {
+    if (!s || typeof s !== "object") { e.push(`sheathing sheet ${i + 1} must be an object.`); continue; }
+    for (const k of ["width", "length", "price"]) if (typeof s[k] !== "number" || !Number.isFinite(s[k])) e.push(`sheathing sheet ${i + 1} ${k} must be a number.`);
+  }
+  return e;
+}
+
+/**
  * Panel x-ranges for one wall: joints at the furthest stud centre within one
  * sheet width. When no framing is in reach, the joint goes over an opening
  * (`spans`, the open stretches of the walls' rough openings) and a nailer is
@@ -197,6 +224,8 @@ export function jointBlocking(w, ops, plan, y) {
 export function sheathe(plan, result) {
   const cfg = { ...defaultSheathing(), ...(plan.sheathing || {}) };
   const notes = [];
+  const bad = sheathingErrors(cfg);
+  if (bad.length) return { ok: false, errors: bad };
   const sheets = (cfg.sheets || []).filter((s) => s.width > 0 && s.length > 0 && s.price >= 0 && s.width <= SHEET_WIDTH + EPS);
   if (!sheets.length) return { ok: false, errors: ["List at least one sheet size for sheathing."] };
   const wallHeight = result.walls.find((w) => !w.gable)?.height ?? (plan.studLength + 3 * THICK); // gable-only plan: the eave height

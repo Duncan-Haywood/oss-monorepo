@@ -28,6 +28,13 @@
 //     furnishing; lien recorded within 120 days after completion of the
 //     project as a whole, or within 60 days after a recorded notice of
 //     completion (Ariz. Rev. Stat. §§ 33-992.01, 33-993).
+//   - Georgia (added 2026-11-03; law-firm and lien-service explainers agree,
+//     statute text not opened): notice to contractor within 30 days of the
+//     later of first furnishing and the notice of commencement (modeled from
+//     first furnishing, the earlier and safe reading); claim of lien within
+//     90 days after last furnishing (O.C.G.A. §§ 44-14-361.1, 44-14-361.5).
+//     Utah and Nevada were searched the same day and left out: sources
+//     conflicted on residential and notice-of-completion timing.
 //   - Washington: preliminary notice within 60 days after first furnishing
 //     on commercial work, 10 days on new single-family residential work;
 //     claim of lien within 90 days after last furnishing
@@ -92,6 +99,15 @@ export const STATE_RULES = {
     },
     lienLabel: "record a lien",
     prelimLabel: "20-day preliminary notice",
+  },
+  GA: {
+    name: "Georgia",
+    citation: "O.C.G.A. §§ 44-14-361.1, 44-14-361.5",
+    prelim: { type: "days_after_first", days: 30 },
+    lien: { type: "days_after_last", days: 90 },
+    lienLabel: "record a claim of lien",
+    prelimLabel: "Notice to Contractor",
+    prelimExtra: "The statute counts 30 days from the later of first furnishing and the owner's recorded notice of commencement, so the true date can be later than this one; this date is the safe, earlier reading. The recorded lien must also be served on the owner within 2 business days, and suit filed within 365 days of recording.",
   },
   WA: {
     name: "Washington",

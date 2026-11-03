@@ -387,7 +387,9 @@ test('relative links inside each tool resolve', async () => {
       const html = stripRawText(await fs.readFile(file, 'utf8'));
       const refs = [...html.matchAll(/(?:href|src)="([^"#?]+)"/g)]
         .map((m) => m[1])
-        .filter((r) => !/^(https?:|mailto:|data:|\/\/|#)/.test(r) && r !== '');
+        // tel: is a scheme, not a path: monastery-site's example communities
+        // print their phone number as a tap-to-call link.
+        .filter((r) => !/^(https?:|mailto:|tel:|data:|\/\/|#)/.test(r) && r !== '');
 
       for (const ref of refs) {
         // The site header links deploy/ and dev/, which publish-branch.sh

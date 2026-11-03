@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-03 · Milestone 8b: a machine-readable bibliography for the paper (a check, not an experiment)
+- Why: the draft's References section pointed at the proposal; "Before submission" item 3 needs a bibliography the AIAA conversion can use. Planned: write `paper/references.bib` from the 14 works the draft cites, marking per entry what was checked, and re-run `cite_check.py`.
+- Outcome: `paper/references.bib` has 14 entries. Ten carry a registry confirmation from 2026-10-27 (see PROPOSAL.md, "Citation status"). Unchecked and marked so in each `note`: Jordan et al. venue, Drela 1989, Raymer 6th ed., Sharpe 2021 title and year, the Brandt and Selig venue line, full author lists for Stolaroff et al. and Rodrigues et al. (written as "and others" rather than guessed). `cite_check.py` could not run: Crossref and doi.org returned 403 through the session proxy on 2026-11-03, so no new confirmation exists. `check_numbers.py` still passes.
+- Limits: no LaTeX toolchain here (`pdflatex` absent), so the AIAA template conversion and a compiled PDF are still open; nothing about the science changed.
+- Next: re-run `cite_check.py` when the registries answer and fill the unchecked entries; Allan-variance parameters from a published IMU characterisation; thrust law (UIUC host 403).
 
 ## 2026-11-02 · Milestone 9x: does a linear drift ramp across the record break the output-error fit that a constant offset (9w) only bent, and does a fitted ramp repair it? (planned before running)
 - Why: the "Next" of 9w. 9v's temperature coefficient acts as a drift when the IMU warms during a record, not as a constant.

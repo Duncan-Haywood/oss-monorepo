@@ -150,6 +150,19 @@
       <p id="copyStatus" class="muted" aria-live="polite"></p>
       <div id="results"></div>
     </section>
+    <section class="card" id="pack-card" aria-labelledby="pack-h" hidden>
+      <h2 id="pack-h">Branded audit pack</h2>
+      <p class="note">The result above as one evidence document on your own letterhead: your name and logo, a verdict, a row per file, findings grouped by rule with the fix, and a fixed statement of what a preflight does and does not show. Print it or save it as PDF for a client file or an audit trail. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; every check, repair, CSV and JSON download stays free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type or drop is uploaded; only the key is sent to the licence server.</p>
+      <p id="pack-buy-row" hidden><a id="pack-buy" rel="noopener" target="_blank">Buy a licence key</a></p>
+      <p><label>Licence key <input id="pack-key" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="pack-check">Check key</button> <span id="pack-state" role="status"></span></p>
+      <div id="pack-fields" hidden>
+        <p><label>Title <input id="pack-title" aria-label="Pack title" placeholder="Q1 sales invoices"></label> <label>Prepared by <input id="pack-author" aria-label="Pack author"></label> <label>Contact <input id="pack-contact" aria-label="Pack contact"></label> <label>Accent <input id="pack-accent" aria-label="Pack accent" type="color" value="#1f5f86"></label></p>
+        <p><label>Scope (what was checked) <input id="pack-scope" aria-label="Pack scope" style="width:100%"></label></p>
+        <p><label>Logo (PNG, JPEG, WebP or GIF) <input id="pack-logo" aria-label="Pack logo" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label></p>
+        <p><label>Preparer's notes, one per line<br><textarea id="pack-notes" aria-label="Pack notes" rows="3" style="width:100%"></textarea></label></p>
+        <button type="button" id="pack-open">Open the audit pack (print or save as PDF)</button>
+      </div>
+    </section>
   </main>
   <section aria-labelledby="faq-heading">
     <h2 id="faq-heading">What this checks</h2>
@@ -247,6 +260,7 @@
   <p>Uruguay: tax receipts are electronic (CFE) in the tax authority DGI's format, and recent resolutions reportedly extend the duty to all VAT taxpayers. <a href="uruguay-dgi-e-invoice-mandate.html">Check a RUT and see how it works</a>.</p>
   <p>Brazil: goods invoices are NF-e, XML the state authorises before the goods move, and from July 2026 a new CNPJ can contain letters. <a href="brazil-nfe-e-invoice-mandate.html">Check a CNPJ or CPF and see what sources differ on</a>.</p>
   <p>Sweden: no domestic B2B e-invoicing mandate yet (optional); public-sector suppliers send e-invoices since 2019, with Peppol BIS 3.0 preferred, and EU rules reach intra-EU B2B in 2030. See <a href="sweden-e-invoice-mandate.html">what is reported and what sources disagree on</a>.</p>
+  <p>Mauritius: invoices registered with the MRA, widening by turnover to MUR 40 million from 1 September 2026. See <a href="mauritius-e-invoice-mandate.html">what is reported and what sources disagree on</a>.</p>
   <p>Albania: e-invoices cleared by the tax authority since 2021 (B2B from 1 July 2021). See <a href="albania-e-invoice-mandate.html">what is reported and what sources disagree on</a>.</p>
   <p>New Zealand: no general B2B e-invoicing mandate (voluntary); central agencies receive Peppol e-invoices, with large suppliers to government reported required from 1 January 2027. See <a href="new-zealand-e-invoice-mandate.html">what is reported and what sources disagree on</a>.</p>
   <p>Malta: no domestic B2B e-invoicing mandate yet (voluntary); public bodies receive EN 16931 invoices over Peppol BIS 3.0, and EU rules reach intra-EU B2B in 2030. See <a href="malta-e-invoice-mandate.html">what is reported and what sources disagree on</a>.</p>
@@ -292,6 +306,9 @@
     import { repairCii } from "./repair-cii.mjs";
     import { repairFacturX } from "./repair-facturx.mjs";
     import { looksLikeCii } from "./cii.mjs";
+    import { auditPackHtml } from "./auditpack.mjs";
+    import { buyLink, checkLicence } from "./licence.mjs";
+    import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
 
     const VALID_EXAMPLE = {
@@ -492,6 +509,27 @@
       link.download = filename;
       link.click();
       URL.revokeObjectURL(link.href);
+    }
+
+    // Audit pack: dark until a checkout link is set in checkout.mjs (no card, no Buy button).
+    {
+      const $ = (id) => document.getElementById(id);
+      const buy = buyLink(CHECKOUT_URL);
+      let packLogo = "";
+      if (buy) { $("pack-buy").href = buy; $("pack-buy-row").hidden = false; $("pack-card").hidden = false; }
+      $("pack-logo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { packLogo = ""; return; } const r = new FileReader(); r.onload = () => { packLogo = String(r.result); }; r.readAsDataURL(f); });
+      $("pack-check").addEventListener("click", async () => {
+        $("pack-state").textContent = "Checking...";
+        const v = await checkLicence($("pack-key").value, { url: VALIDATE_URL });
+        $("pack-state").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason;
+        $("pack-fields").hidden = !v.valid;
+      });
+      $("pack-open").addEventListener("click", () => {
+        if (!latest) { $("pack-state").textContent = "Run a check first."; return; }
+        const html = auditPackHtml(latest, { title: $("pack-title").value, author: $("pack-author").value, contact: $("pack-contact").value, accent: $("pack-accent").value, scope: $("pack-scope").value, logo: packLogo, notes: $("pack-notes").value, date: new Date().toISOString().slice(0, 10) });
+        const url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+        window.open(url, "_blank", "noopener");
+      });
     }
 
     document.getElementById("check").addEventListener("click", async () => {

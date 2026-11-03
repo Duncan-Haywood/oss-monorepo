@@ -47,8 +47,24 @@ export function pitchToMidi(letter, clef, accidental = null, refC = DEFAULTS.ref
   return refC + 12 * octave + DEGREE_SEMITONES[degree] + acc;
 }
 
-function stripMarkup(text) {
-  return text.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+const SP = { 'V/': '\u2123', 'R/': '\u211F', "'ae": '\u01FD', "'\u00E6": '\u01FD', "'oe": '\u0153\u0301', "'\u0153": '\u0153\u0301' };
+
+// Lyric text for one GABC syllable. <v> (raw TeX) and <alt> (text above the
+// staff) are not sung; <sp> is Gregorio's special-character tag (V/ and R/ are
+// the versicle and response signs); other tags only style the text. Centre
+// braces, the non-breaking space, and the intonation marks * and the cross
+// are not sung either.
+export function lyricText(text) {
+  return text
+    .replace(/<v>[\s\S]*?<\/v>/g, '')
+    .replace(/<alt>[\s\S]*?<\/alt>/g, '')
+    .replace(/<sp>([\s\S]*?)<\/sp>/g, (_, k) => SP[k.trim()] ?? k.replace(/\//g, ''))
+    .replace(/<[^>]*>/g, '')
+    .replace(/[{}]/g, '')
+    .replace(/~/g, ' ')
+    .replace(/[*\u2020\u2021]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 export function parseGabc(src, opts = {}) {
@@ -57,7 +73,7 @@ export function parseGabc(src, opts = {}) {
   const header = sep >= 0 ? parseHeader(src.slice(0, sep)) : {};
   let body = sep >= 0 ? src.slice(sep + 2) : src;
   body = body
-    .split('\n')
+    .split(/\r?\n/)
     .map((l) => l.replace(/%.*$/, ''))
     .join('\n');
 
@@ -82,7 +98,7 @@ export function parseGabc(src, opts = {}) {
       continue;
     }
 
-    let syllable = stripMarkup(rawText);
+    let syllable = lyricText(rawText);
     let lyricPending = syllable.length > 0;
     let i = 0;
     let lastNote = null;
@@ -92,6 +108,17 @@ export function parseGabc(src, opts = {}) {
         const close = neumes.indexOf(ch === '[' ? ']' : '}', i);
         i = close < 0 ? neumes.length : close + 1;
         continue;
+      }
+      if (ch === 'c' || ch === 'f') {
+        // A clef change inside a group, as in (::c3) or (z c3): digits follow a pitch
+        // letter nowhere else (episema and bar digits are eaten with their sign).
+        const cm = /^[cf]b?[1-4]/.exec(neumes.slice(i));
+        if (cm) {
+          clef = parseClef(cm[0]);
+          accidentals = {};
+          i += cm[0].length;
+          continue;
+        }
       }
       if (PITCHES.includes(ch.toLowerCase())) {
         const next = neumes[i + 1];
@@ -175,6 +202,61 @@ export function fitToBars(events, pulsesPerBar) {
   });
 }
 
+// Rhythm option two: instead of padding silence, lengthen the phrase's own long
+// notes (the ones the edition already lengthened with a mora dot or episema, then
+// the phrase-final note) so the phrase fills whole bars. Each note may grow to at
+// most `maxGrow` times its length (default 2); whatever still does not fit is
+// padded as rest, as `fitToBars` does. Phrases end at a full or double bar.
+// Notes keep their order and pitch; only `pulses` change, and `stretched` counts
+// the pulses added to that note so a reader can see what was done to the chant.
+export function fitStretch(events, pulsesPerBar, { maxGrow = 2 } = {}) {
+  if (!(pulsesPerBar > 0)) throw new Error('pulsesPerBar must be positive');
+  if (!(maxGrow >= 1)) throw new Error('maxGrow must be at least 1');
+  const out = events.map((e) => ({ ...e }));
+  let t = 0;
+  let start = 0;
+  for (let i = 0; i < out.length; i++) {
+    t += out[i].pulses;
+    const e = out[i];
+    if (e.type !== 'bar' || (e.kind !== 'full' && e.kind !== 'double')) continue;
+    let need = (pulsesPerBar - (t % pulsesPerBar)) % pulsesPerBar;
+    if (need > 1e-9) {
+      const notes = out.slice(start, i).filter((x) => x.type === 'note');
+      if (notes.length) {
+        // longest first; the phrase-final note wins a tie
+        const order = notes
+          .map((n, k) => ({ n, k }))
+          .sort((a, b) => b.n.pulses - a.n.pulses || b.k - a.k)
+          .map((x) => x.n);
+        const cap = new Map(order.map((n) => [n, n.pulses * (maxGrow - 1)]));
+        const pool = order;
+        let progressed = true;
+        while (need > 1e-9 && progressed) {
+          progressed = false;
+          for (const n of pool) {
+            const step = Math.min(1, need, cap.get(n));
+            if (step > 1e-9) {
+              n.pulses += step;
+              n.stretched = (n.stretched || 0) + step;
+              cap.set(n, cap.get(n) - step);
+              need -= step;
+              t += step;
+              progressed = true;
+              if (need <= 1e-9) break;
+            }
+          }
+        }
+      }
+      if (need > 1e-9) {
+        e.pulses += need;
+        t += need;
+      }
+    }
+    start = i + 1;
+  }
+  return out;
+}
+
 export function transposeToFinal(events, finalMidi) {
   const notes = events.filter((e) => e.type === 'note');
   if (!notes.length) return events;
@@ -212,4 +294,12 @@ export function summarize(parsed, { refC = DEFAULTS.refC, pulsesPerBar = 8, bpm 
     }
   }
   return out;
+}
+
+// Half-time chant over full-time drums: every duration (notes and rests) is
+// multiplied by `factor` (default 2), so the chant moves at half speed against
+// a backing that keeps its tempo. Pure; the input events are not changed.
+export function halfTime(events, factor = 2) {
+  if (!(factor > 0)) throw new Error(`factor must be positive, got ${factor}`);
+  return events.map((e) => (typeof e.pulses === 'number' ? { ...e, pulses: e.pulses * factor } : { ...e }));
 }

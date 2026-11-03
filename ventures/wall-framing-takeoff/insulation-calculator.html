@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Insulation calculator: wall batt bags and effective R-value for a house</title>
+  <meta name="description" content="Free insulation calculator: type a house's size, wall height, doors and windows and your batt's bag coverage and R-value, and get the open cavity measured from the studs and headers placed, the bags to buy and the effective wall R-value. Runs in your browser.">
+  <meta property="og:title" content="Insulation calculator">
+  <meta property="og:description" content="House size and batt label in, bags and the whole-wall R-value out. Cavity measured from the framing, not a framing-factor guess. Private, free, in your browser.">
+  <link rel="canonical" href="./insulation-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many bags of insulation do I need for a 40 x 30 ft house?", "acceptedAnswer": {"@type": "Answer", "text": "For a 40 x 30 ft rectangle with 8 ft walls, one 3 ft door and two 3 x 4 ft windows framed in 2x4 at 16 in on center, the calculator finds 890 sq ft of open cavity. With 5% waste and bags that cover 88 sq ft, that is 11 bags. Change any figure to match your plan."}}, {"@type": "Question", "name": "Is a 2x4 wall with R-15 batts really R-15?", "acceptedAnswer": {"@type": "Answer", "text": "No. Framing conducts heat around the batt, so the whole wall is lower than the label. With the studs, plates, headers and cripples this calculator places, framing is 17.3% of the opaque wall, and the R-15 cavity gives about R-13.1 (R-16.9 through the cavity alone). A 2x6 wall with R-21 batts comes to about R-17.8 by the same method."}}, {"@type": "Question", "name": "How much insulation does framing take out of a wall?", "acceptedAnswer": {"@type": "Answer", "text": "Counted from the members placed rather than guessed: in the 40 x 30 ft example, framing takes 16.6% of the wall panel area in 2x4 walls and 17.3% in 2x6 walls, so the open cavity is a little over 80% of the panel. The common 25% framing-factor guess is more pessimistic than a layout with 16 in spacing and one door and two windows needs."}}, {"@type": "Question", "name": "What is not counted?", "acceptedAnswer": {"@type": "Answer", "text": "Attic and ceiling insulation, rim joists, air sealing, windows and doors (their U-factors are yours to type), and compressed batts. Bag coverage and R-values come from your product's label, and the effective R uses typical handbook layer values you can replace. It is an estimate to check against your supplier, not an energy-code compliance check."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Insulation calculator</h1>
+  <p>Type the house and its openings. The framing engine places every stud, king, jack, header, cripple and plate, measures the open cavity between them, and counts batt bags and the whole-wall R-value. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <div class="grid">
+      <div><label for="len">House length (in or 40' 0")</label><input id="len" value="480"></div>
+      <div><label for="wid">House width (in or 30' 0")</label><input id="wid" value="360"></div>
+      <div><label for="hgt">Wall height (in or 8' 0")</label><input id="hgt" value="96"></div>
+      <div><label for="size">Wall framing</label><select id="size"><option value="2x4">2x4 (3.5 in cavity)</option><option value="2x6">2x6 (5.5 in cavity)</option></select></div>
+      <div><label for="sp">Stud spacing</label><select id="sp"><option value="16">16 in on center</option><option value="24">24 in on center</option></select></div>
+      <div><label for="bag">Bag coverage (sq ft, from the label)</label><input id="bag" value="88"></div>
+      <div><label for="waste">Waste (%)</label><input id="waste" value="5"></div>
+      <div><label for="doors">Doors (3 x 6 ft 8 in)</label><input id="doors" type="number" min="0" value="1"></div>
+      <div><label for="wins">Windows (3 x 4 ft)</label><input id="wins" type="number" min="0" value="2"></div>
+    </div>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Add insulation to a whole-house framing takeoff</a></p>
+
+  <h2>The method</h2>
+  <ol>
+    <li><strong>Place the framing.</strong> The same engine as the whole-house takeoff lays out studs, corner and tee backing, kings, jacks, headers, sills, cripples and plates.</li>
+    <li><strong>Subtract.</strong> Per wall, panel area less the area of every framed member and each opening's rough area is open cavity.</li>
+    <li><strong>Bags.</strong> Cavity plus waste, divided by the bag coverage you type, rounded up.</li>
+    <li><strong>Effective R.</strong> A parallel-path calculation: the cavity path and the framing path (wood at R-1.25 per inch) each add the same sheathing, drywall and air-film layers, then combine by area using the framing share measured from the placed members.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How many bags of insulation do I need for a 40 x 30 ft house?</h3>
+  <p>For a 40 x 30 ft rectangle with 8 ft walls, one 3 ft door and two 3 x 4 ft windows framed in 2x4 at 16 in on center, the calculator finds 890 sq ft of open cavity. With 5% waste and bags that cover 88 sq ft, that is 11 bags. Change any figure to match your plan.</p>
+  <h3>Is a 2x4 wall with R-15 batts really R-15?</h3>
+  <p>No. Framing conducts heat around the batt, so the whole wall is lower than the label. With the studs, plates, headers and cripples this calculator places, framing is 17.3% of the opaque wall, and the R-15 cavity gives about R-13.1 (R-16.9 through the cavity alone). A 2x6 wall with R-21 batts comes to about R-17.8 by the same method.</p>
+  <h3>How much insulation does framing take out of a wall?</h3>
+  <p>Counted from the members placed rather than guessed: in the 40 x 30 ft example, framing takes 16.6% of the wall panel area in 2x4 walls and 17.3% in 2x6 walls, so the open cavity is a little over 80% of the panel. The common 25% framing-factor guess is more pessimistic than a layout with 16 in spacing and one door and two windows needs.</p>
+  <h3>What is not counted?</h3>
+  <p>Attic and ceiling insulation, rim joists, air sealing, windows and doors (their U-factors are yours to type), and compressed batts. Bag coverage and R-values come from your product's label, and the effective R uses typical handbook layer values you can replace. It is an estimate to check against your supplier, not an energy-code compliance check.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. House and opening sizes are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Cavity areas follow the member layout stated above; bag coverage, R-values and layer values are figures you type or typical handbook defaults, and your insulation maker's label governs.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { takeoff, defaultStock, parseLength } from "./engine.mjs";
+    import { layoutInsulation, insulationText } from "./insulation.mjs";
+    const $ = (id) => document.getElementById(id);
+    const run = () => {
+      const L = parseLength($("len").value), W = parseLength($("wid").value), H = parseLength($("hgt").value);
+      const doors = Math.max(0, Math.floor(+$("doors").value || 0)), wins = Math.max(0, Math.floor(+$("wins").value || 0));
+      const ops = [];
+      for (let i = 0; i < doors; i++) ops.push({ kind: "door", offset: 60 + i * 48, width: 36, height: 80, header: "2x10" });
+      for (let i = 0; i < wins; i++) ops.push({ kind: "window", offset: 200 + i * 100, width: 36, height: 48, header: "2x10" });
+      const stud = $("size").value;
+      const wall = (id, length, openings = []) => ({ id, length, openings, stud, corner: true });
+      const plan = { studSpacing: +$("sp").value, studLength: H - 4.5, kerf: 0.125, topPlateLap: 24, cornerExtraStuds: 2, teeExtraStuds: 2, defaultHeaderHeight: 80, stock: defaultStock(H - 4.5), walls: [wall("A", L, ops), wall("B", W), wall("C", L), wall("D", W)] };
+      const bag = +$("bag").value, waste = (+$("waste").value || 0) / 100;
+      const ok = L >= 96 && W >= 96 && H >= 72 && H <= 192 && ops.length * 100 + 160 <= L && bag >= 10 && bag <= 500 && waste >= 0 && waste <= 0.3;
+      if (!ok) { $("out").textContent = "Check the numbers: sides of at least 8 ft, walls 6 to 16 ft high, bags of 10 to 500 sq ft, waste 0 to 30%, and the doors and windows have to fit along the first wall."; return; }
+      try {
+        const r = takeoff(plan);
+        const d = layoutInsulation({ bagSqFt: bag, waste, assembly: true }, plan, r);
+        $("out").textContent = d.ok === false ? d.errors.join("\n") : insulationText(d).join("\n");
+      } catch (e) { $("out").textContent = String(e && e.message || e); }
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>

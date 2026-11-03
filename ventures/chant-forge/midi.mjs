@@ -42,7 +42,7 @@ function track(timed) {
   return chunk('MTrk', out);
 }
 
-export function eventsToMidi(events, { bpm = 124, pulsesPerBeat = 2, title = 'chant', drone = false, velocity = 80 } = {}) {
+export function eventsToMidi(events, { bpm = 124, pulsesPerBeat = 2, title = 'chant', drone = false, velocity = 80, backing = null } = {}) {
   const ticksPerPulse = PPQ / pulsesPerBeat;
   const usPerBeat = Math.round(60_000_000 / bpm);
 
@@ -70,6 +70,17 @@ export function eventsToMidi(events, { bpm = 124, pulsesPerBeat = 2, title = 'ch
   if (drone && lastMidi !== null && end > 0) {
     const d = lastMidi - 12;
     tracks.push(track([[0, [0xc1, 19]], [0, [0x91, d, 60]], [end, [0x81, d, 0]]]));
+  }
+  if (backing) {
+    // drums on channel 10 (index 9), bass and chords on their own channels
+    const part = (list, ch, program) => {
+      const tl = program === null ? [] : [[0, [0xc0 | ch, program]]];
+      for (const n of list) {
+        tl.push([n.tick, [0x90 | ch, n.note, n.vel]], [n.tick + n.len, [0x80 | ch, n.note, 0]]);
+      }
+      return track(tl);
+    };
+    tracks.push(part(backing.drums, 9, null), part(backing.bass, 2, 38), part(backing.chords, 3, 89));
   }
   const header = chunk('MThd', [...u16(1), ...u16(tracks.length), ...u16(PPQ)]);
   return Uint8Array.from([...header, ...tracks.flat()]);

@@ -16,8 +16,20 @@ released track:
 3. **Arrange:** genre templates (drums, bass, synths, guitars) built around
    the line. Not built.
 4. **Voice:** a real men's choir (recorded) or a singing synthesiser. Not built.
-5. **Release:** loudness, metadata, credits and AI-disclosure checks before a
-   distributor upload. Not built.
+5. **Release:** loudness (done, `master-cli.mjs`), metadata, credits and AI-disclosure checks before a
+   distributor upload (done: `node release-cli.mjs release.json`, 7 tests, 2026-11-03).
+
+## Hear it without a DAW
+
+```sh
+node ventures/chant-forge/render-cli.mjs dies-irae.mid -o dies-irae.wav
+node ventures/chant-forge/master-cli.mjs dies-irae.wav
+```
+
+`render-cli.mjs` is a plain preview synthesiser (choir pad, organ drone, bass,
+chord pad, synthesised drums; no dependencies, deterministic, about 2 s for a 3-minute
+piece). It is for the ear check and for running the master check on real audio. It is not a
+release master and the choir is not a real choir (`RECORDING-GUIDE.md`).
 
 ## What works now
 
@@ -43,6 +55,8 @@ wrote dies-irae.mid
 
   Neume shapes (virga, quilisma, liquescents and so on) are treated as plain
   notes. A note before any clef is assumed to be in c4, with a warning.
+- `fitStretch` (`--fit 8 --stretch`) lengthens the long notes of a phrase (each at most 2x) to fill the bar first and pads only the remainder; on the five corpus pieces it cuts padded rest by about half. Not yet compared by ear.
+- `halfTime` (`--halftime`) doubles every chant duration while the drums, bass and chords keep their tempo, so the chant moves at half speed over a full-time metal backing. Dies irae at 170 BPM goes from 98 to 196 bars (138 s to 277 s). 3 tests in `halftime.test.mjs`. Not listened to.
 - `fitToBars` pads the rest after each full bar so the next phrase starts on a
   downbeat. Chant has no metre, and this is the simplest way to put it on a grid
   without changing any note's length.
@@ -58,13 +72,67 @@ Tests: `node --test ventures/chant-forge/chant-forge.test.mjs` (8 tests,
 passing 2026-11-03). On 2026-11-03 the example's output was also read back with
 an independent parser (Python `mido` 1.x): 3 tracks, 3.87 s, lyrics in order.
 
+## Mix and master check
+
+```sh
+node ventures/chant-forge/master-cli.mjs track.wav   # exit 0 pass, 1 fail, 2 unreadable
+```
+
+`master.mjs` reads 16/24/32-bit PCM and float WAV (mono or stereo) and reports
+BS.1770-4 integrated loudness (K-weighting, 400 ms blocks, -70 LUFS and -10 LU
+gates), true peak (4x oversampled), mono-sum loss with L/R correlation, and runs
+of full-scale samples. Targets: -14 LUFS +/- 1.5, true peak at most -1 dBTP,
+mono loss at most 3 dB, no clipping. Checked 2026-11-03 against the standard's
+calibration points (a 0 dBFS 997 Hz sine reads -3.01 LUFS mono, 0.0 stereo), a
+fs/4 sine whose samples miss the peak by 3 dB, and phase-inverted and
+over-driven files (6 tests). Checked 2026-11-03 against ffmpeg's `ebur128`
+filter (`node eval/ffmpeg-check.mjs`; six synthetic stereo 48 kHz signals: three
+sines, pink and white noise, a gated loud/quiet noise): integrated loudness
+within 0.05 LU on all six, true peak within 0.33 dB (the worst case, white
+noise, reads -13.47 here and -13.8 in ffmpeg; 16x oversampling gives -12.9, so
+both 4x meters under-read and ours is the closer). Not checked against EBU test
+files or a real mix; the true-peak filter is a windowed sinc, not the Annex 2
+coefficients. Distributor targets change: read
+theirs before release.
+
+## Real Gregorio files (2026-11-03)
+
+Fixed after reading the format, tested on made-up strings shaped like real files
+(`real-files.test.mjs`, 6 tests), not yet run on a batch of GregoBase files:
+CRLF line endings no longer defeat `%` comment stripping (a comment's text was
+being sung as a lyric); `<sp>R/</sp>`, `<sp>V/</sp>` and `<sp>'ae</sp>` keep their
+signs; `<v>` (raw TeX) and `<alt>` text, `{}` centre braces, `*` and the cross
+are not lyrics; a clef change inside a group, as in `(::c3)` or `(z c3)`, now
+moves the staff. NABC alternations are still cut at the first `|`.
+
+## Choosing a final (2026-11-03)
+
+`node cli.mjs piece.gabc --suggest-final` lists the finals that keep the whole
+chant inside E2-E4 (MIDI 40-64, a rule-of-thumb men's unison range) and picks
+the one that centres the line; use it as `--final N`. A piece wider than the
+range is reported with how far over it is, not forced. Corpus results: Dies
+irae and Salve Regina A2-E3 (recommended C#3), Pange lingua F#2-F#3, Te Deum
+Ab2-Ab3 (D3), Veni Creator F#2-G3. The range is a guess, not checked with
+singers (`voicefit.test.mjs`, 4 tests).
+`--auto-final` (2026-11-03) does both steps: it transposes to the recommended
+final, and refuses a chant wider than the range (`autofinal.test.mjs`, 3 tests).
+
 ## Not checked yet
 
 - `examples/dies-irae-incipit.gabc` is the widely quoted opening motif
   (F E F D E C D D), typed from memory. It has not been transcribed from a scan.
   It is a demo input, not a corpus entry.
-- The converter has only run on the small inputs in the tests. It has not been
-  tried on a real GregoBase or Gregorio file.
+- The converter has run on 64 real GregoBase files (the five corpus pieces and
+  `corpus/gregobase-1908/`, 59 Vatican Graduale 1908 pieces, 2026-11-03;
+  `node eval/batch-check.mjs`, `batch.test.mjs`). Checked: no crash, no warning,
+  pitches 36-84, no markup left in lyrics, valid MIDI, communions, tracts, hymns
+  and sequences end on their mode final. Not checked: the notes against the page
+  scans, or by ear. 11 of the 59 end off the mode final (introits, graduals,
+  alleluias and offertories finish on a psalm-tone differentia or a verse); that
+  is read from the files, not confirmed against the book. `node eval/offfinal-report.mjs` lists them with last notes and syllables
+  (`eval/offfinal-report.md`); 5 are introits ending on "euouae".
+- `fuzz.test.mjs` throws 2000 random made-up GABC strings at the reader and
+  MIDI writer (no crash, pitches in range); it says nothing about real files.
 - Nothing has been arranged, sung, mixed or published.
 
 ## Rules this project keeps
@@ -83,3 +151,5 @@ an independent parser (Python `mido` 1.x): 3 tracks, 3.87 s, lyrics in order.
   - no bought streams or fake listener numbers.
 - **Treat the texts with respect.** These are liturgical texts. Use them whole
   and in their sense, not as jokes.
+
+See [RECORDING-GUIDE.md](RECORDING-GUIDE.md) for recording a choir line against the MIDI guide and cue sheet.
