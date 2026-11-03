@@ -318,3 +318,14 @@ test("--proposal prints a customer letter from the priced budget and refuses whi
   assert.equal(part.code, 0);
   assert.match(part.out, /WARNING: partial proposal/);
 });
+
+test("a mistyped --rim-lap, --panel-max or --sheathing-psf is refused, not ignored", () => {
+  const ex = run(["--example"]).out;
+  for (const bad of ["--rim-lap=zzz", "--rim-lap=-3", "--panel-max=zzz", "--sheathing-psf=abc", "--sheathing-psf=-2"]) {
+    const r = run(["plan.json", bad], ex);
+    assert.equal(r.code, 1, bad);
+    assert.match(r.out, /is not a /, bad);
+  }
+  assert.equal(run(["plan.json", "--panel-max=12ft", "--panel-order"], ex).code, 0);
+  assert.equal(run(["plan.json", "--sheathing", "--sheathing-psf=2.5", "--rim-lap=9.25in"], ex).code, 0);
+});

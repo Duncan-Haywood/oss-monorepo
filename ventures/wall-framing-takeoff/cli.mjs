@@ -132,6 +132,13 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   const flags = new Set(argv.filter((a) => a.startsWith("--")));
   const rimLap = Math.max(0, parseLength(argv.find((a) => a.startsWith("--rim-lap="))?.slice(10) ?? "0") || 0);
   if (flags.has("--help") || flags.has("-h")) return { code: 0, out: HELP };
+  // A mistyped size must stop the run, not quietly turn the feature off (a "--panel-max=zzz" used to print the plain order).
+  for (const [flag, kind] of [["--rim-lap=", "length"], ["--panel-max=", "length"], ["--sheathing-psf=", "number"]]) {
+    const raw = argv.find((a) => a.startsWith(flag))?.slice(flag.length);
+    if (raw === undefined) continue;
+    const v = kind === "length" ? parseLength(raw) : (/^\s*\d+(\.\d+)?\s*$/.test(raw) ? Number(raw) : NaN);
+    if (!Number.isFinite(v) || v < 0) return { code: 1, out: `${flag}${raw} is not a ${kind === "length" ? "length such as 4ft or 9.25in" : "number of pounds per square foot"} (zero or more).` };
+  }
   if (flags.has("--schedule-template")) return { code: 0, out: JSON.stringify(templateSchedule(), null, 2) };
   if (flags.has("--example")) return { code: 0, out: JSON.stringify(samplePlan(), null, 2) };
   if (!args.length) return { code: 2, out: HELP };
