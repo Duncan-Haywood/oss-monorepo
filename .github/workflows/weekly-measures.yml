@@ -49,7 +49,15 @@ jobs:
         with:
           python-version: "3.12"
       - name: Fetch the usage-data branch
-        run: git fetch -q --depth=1 origin usage-data:refs/remotes/origin/usage-data || echo "no usage-data branch"
+        # --depth only on a shallow clone: on a full one it would truncate the
+        # whole repository (validate_workflows.py; run_workflow_locally.py runs
+        # these steps against a full clone).
+        run: |
+          if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+            git fetch -q --depth=1 origin usage-data:refs/remotes/origin/usage-data || echo "no usage-data branch"
+          else
+            git fetch -q origin usage-data:refs/remotes/origin/usage-data || echo "no usage-data branch"
+          fi
       - name: Friction, doc counts and flagship usage
         run: |
           rc=0
