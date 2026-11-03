@@ -29,3 +29,7 @@ test('index.html imports only files that exist and has the disclaimer', () => {
   assert.match(html, /No warranty/);
   assert.match(html, /<title>[^<]{20,}<\/title>/);
 });
+
+test('index.html links the music distribution fee calculator sibling', () => {
+  assert.match(readFileSync(new URL('./index.html', import.meta.url), 'utf8'), /href="\.\.\/music-distribution-fee-calculator\/"/);
+});
