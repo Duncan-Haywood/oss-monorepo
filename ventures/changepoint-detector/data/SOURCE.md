@@ -349,3 +349,13 @@ annualised CPI inflation, %), 202 quarters (first quarter dropped: 0 by construc
 - **Retrieved:** 2026-11-02 from a GitHub copy of `day.csv` (justmarkham/DAT3); original: Fanaee-T and Gama, UCI Machine Learning Repository "Bike Sharing Dataset".
 - **Licence:** CC BY 4.0 (UCI). Used here as test data only.
 - **Used by:** `eval/holiday-bikes.mjs`, `holiday-bikes.test.mjs`.
+
+# Example data: US civilian unemployment rate, 1959Q2-2009Q3
+
+`us-unemployment.csv`: the `unemp` column of statsmodels' `macrodata` dataset, 202 quarters (same rows as
+`us-gdp-growth.csv` and `us-real-interest.csv`).
+
+- **Retrieved:** 2026-11-03 from
+  <https://raw.githubusercontent.com/statsmodels/statsmodels/main/statsmodels/datasets/macrodata/macrodata.csv>.
+- **Licence:** public domain (statsmodels dataset module, `COPYRIGHT`); underlying figures are US BLS data via FRED.
+- **Used by:** `eval/us-unemployment.mjs`, `us-unemployment.test.mjs`.

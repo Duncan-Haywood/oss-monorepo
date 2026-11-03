@@ -1473,3 +1473,22 @@ many pieces; `--ar1` removes most false alarms on the lung deaths but swallows t
 trade as in "Shape or shock". The January and February 1976 cuts are a bad-winter spike, which is a shock and not a
 step, so no setup here separates the two (flagship item 4). The arrivals series are counts in thousands with decimals,
 so the Poisson model rejects them.
+
+## A real series of recessions: US unemployment (2026-11-03)
+
+`data/us-unemployment.csv` is the US unemployment rate, 1959Q2 to 2009Q3, 202 quarters (source in `data/SOURCE.md`). It rises in each recession and falls back over years, so no step is documented: the question is what the mean model does with a slow, smooth swing. `eval/us-unemployment.mjs` (output `eval/us-unemployment.out.txt`, `us-unemployment.test.mjs`, 3 tests):
+
+| Setup | Changes |
+|---|---|
+| Defaults | 33, a new level about every six quarters |
+| `--bootstrap` | 33, the same dates |
+| `--min-segment 12` | 13 |
+| `--ar1` | 0 |
+
+- The default output already says why: lag-1 rho is about 0.95, the ranges are "too narrow", and the warning points to `--ar1`. The warning fired as designed.
+- `--ar1` is the right call for this series. It also loses nothing documented, because there is nothing documented to lose; this is the opposite of the Australian arrivals, where `--ar1` loses real shocks.
+- `--bootstrap` does not help here: block resampling of the residuals of a 33-step fit inherits the steps, so the penalty stays low. That matches the cyclic series (lynx, sunspots).
+- With `--min-segment 12` the cuts fall near 1974Q4, 1981Q2, 1991Q1 and 2001Q4 (recession starts) and near 1984Q2, 1987Q2 and 1994Q2 (recoveries): the recessions are read as levels. A user who wants to know "when did the recession start" gets a date, but not a step in any causal sense.
+
+Not done: no model with a slow return (an AR(1) around a level, with steps) is fitted jointly; `--ar1` removes steps rather than finding the ones that are real. That is flagship item 0 and 4 again, on a series with no documented step to test it against.
+
