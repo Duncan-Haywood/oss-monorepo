@@ -185,17 +185,28 @@ products:
       Candidate: a paid support/priority lane for a country rule a buyer
       needs next, delivered MIT like everything else. Owner decision first
       (see README, "Open questions for the owner").
-    first_offer: none yet
-    price_hypothesis: "not priced"
+    first_offer: >-
+      Branded audit pack (built dark 2026-11-03): a batch run as one printable
+      evidence document on the accountant's letterhead (verdict, a row per
+      file, findings by rule with the fix, stated limits), behind the same
+      licence-key check as the other packs. Checks, repairs, CSV and JSON stay
+      free.
+    price_hypothesis: "one-off per pack, around $15 to $40 (not tested; below the cost of one hour of a bookkeeper's time and far below a per-invoice SaaS plan)"
     comparables:
       - what: Peppol BIS preflight validator (Apify actor)
         price: from $4.00 per 1,000 validations
         source: https://apify.com/kamerozkan/peppol-bis-preflight-validator
         read: 2026-11-02
-    stage: planned
+    stage: built-dark
     next: >-
-      Wait for the owner's answer on a paid priority lane (README, open
-      question 2).
+      Built 2026-11-03 and dark: `auditpack.mjs` (tested for escaping, the
+      logo/colour allow-lists, empty and all-pass runs; the committed
+      sample-audit-pack.html is checked against the code), the card on
+      index.html hidden until `CHECKOUT_URL` in `checkout.mjs` is set, and a
+      marketing page (audit-pack-for-accountants.html). Next (owner: create
+      the merchant-of-record product and set the link). The paid priority
+      lane for a country rule (README, open question 2) is still the owner's
+      call.
     next_owner: true
 
   - venture: ai-bookkeeper
