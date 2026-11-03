@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%3E%3Crect%20width='40'%20height='40'%20rx='8'%20fill='%231d1a16'/%3E%3Cpath%20d='M18.4%208h3.2v8.4H30v3.2h-8.4V32h-3.2V19.6H10v-3.2h8.4z'%20fill='%23f6f1e7'/%3E%3C/svg%3E">
+<title>Free Website Builder for Catholic Monasteries and Convents</title>
+<meta name="description" content="A free, opinionated website builder for Catholic monks and nuns: horarium, vocations with an inquiry form, online giving, prayer requests, retreats and a guesthouse. Download the site and host it free.">
+<meta property="og:title" content="A free website builder for monasteries and convents">
+<meta property="og:description" content="Fill in one form and download a complete website for your community: horarium, vocations, giving, prayer requests, retreats. Free and open source.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://marisstella.app/monastery-site/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Monastery Site","applicationCategory":"WebApplication","operatingSystem":"Any web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free, open-source website builder for Catholic monasteries, convents, abbeys and friaries. One form builds a complete static site with a horarium, vocations page and inquiry form, giving page, prayer requests, retreats and guesthouse, events and news.","license":"https://opensource.org/licenses/MIT"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does this take donations for us?","acceptedAnswer":{"@type":"Answer","text":"No. The giving page links to your community's own donation page, the one your bank, your diocese or a donation platform gives you, and prints your details for cheques and bequests. The money goes straight to you; this template never touches it."}},{"@type":"Question","name":"Where do vocation inquiries and prayer requests go?","acceptedAnswer":{"@type":"Answer","text":"To the email addresses you type. With no form service set, the forms open the visitor's email program with the message ready to send. With a form service address in Forms, they post to that service, which emails you."}},{"@type":"Question","name":"What does it cost to put online?","acceptedAnswer":{"@type":"Answer","text":"The template is free. The download is a folder of plain web pages, which several hosts serve on their free plans. A domain name is the one thing you would normally pay for, and you can add it later."}},{"@type":"Question","name":"Can we change the design?","acceptedAnswer":{"@type":"Answer","text":"Within limits, on purpose. Choose one of six palettes and an accent colour, add your logo and photographs, and write every word yourself. The layout stays fixed, so the site stays fast, readable and easy to keep up."}},{"@type":"Question","name":"Is what we type uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The builder runs in your browser. What you type is kept in this browser's local storage on this device, and photographs stay in memory until you download the site."}}]}</script>
+<style>
+:root{--bg:#f6f1e7;--surface:#fffdf8;--ink:#1d1a16;--muted:#544c42;--accent:#7a1f1f;--line:#ddd2bf;--band:#1d1a16;--on-band:#f6f1e7}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+a{color:var(--accent)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 18px}
+header.top{background:var(--band);color:var(--on-band);padding:14px 0;font:14px system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.hero{padding:48px 0 34px}
+h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.1;margin:0 0 14px;max-width:18em}
+h2{font-size:clamp(1.35rem,3vw,1.8rem);margin:44px 0 12px;line-height:1.2}
+h3{font-size:1.08rem;margin:0 0 6px}
+.lede{font-size:1.2rem;color:var(--muted);max-width:44em}
+.btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;font:600 15px/1.2 system-ui,sans-serif;padding:12px 18px;border-radius:999px;border:0;cursor:pointer;margin:6px 8px 6px 0}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.btn.small{padding:7px 12px;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.note{font:14px/1.5 system-ui,sans-serif;color:var(--muted)}
+ul.opinions li{margin:0 0 10px}
+.builder{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:18px;align-items:start}
+@media (max-width:980px){.builder{grid-template-columns:1fr}}
+.panel{position:sticky;top:10px}
+@media (max-width:980px){.panel{position:static}}
+fieldset{border:1px solid var(--line);border-radius:12px;background:var(--surface);margin:0 0 12px;padding:4px 16px 14px}
+legend{font:700 15px system-ui,sans-serif;padding:0 6px}
+details.sec{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin:0 0 10px;padding:0 16px}
+details.sec>summary{cursor:pointer;font:700 15px/1.3 system-ui,sans-serif;padding:14px 0}
+details.sec[open]>summary{border-bottom:1px solid var(--line);margin-bottom:6px}
+details.sec .body{padding-bottom:14px}
+label{display:block;font:600 13.5px/1.35 system-ui,sans-serif;margin:12px 0 4px}
+label .hint{font-weight:400;color:var(--muted)}
+input,select,textarea{width:100%;font:15px/1.4 system-ui,sans-serif;padding:8px 10px;border:1px solid #b9ab95;border-radius:7px;background:#fff;color:var(--ink)}
+textarea{min-height:5.5em;resize:vertical}
+textarea.lines{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px}
+input[type=color]{height:38px;padding:2px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+@media (max-width:520px){.two{grid-template-columns:1fr}}
+.toolbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px}
+.toolbar select{width:auto}
+iframe{width:100%;height:72vh;border:1px solid var(--line);border-radius:12px;background:#fff}
+.findings{margin:10px 0 0;padding:0;list-style:none;font:14px/1.45 system-ui,sans-serif}
+.findings li{border-left:4px solid #999;padding:6px 10px;margin:6px 0;background:var(--surface)}
+.findings li.high{border-color:#9a1b1b}.findings li.medium{border-color:#a3670f}.findings li.low{border-color:#3d6b9a}
+.findings b{text-transform:uppercase;font-size:11px;letter-spacing:.06em}
+.steps li{margin:0 0 10px}
+footer{border-top:1px solid var(--line);margin-top:48px;padding:22px 0 40px;font:13.5px/1.6 system-ui,sans-serif;color:var(--muted)}
+.sr{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">Monastery site · free website builder for religious communities · runs in your browser</div></header>
+<div class="wrap">
+<section class="hero">
+<h1>A complete website for your monastery, from one form.</h1>
+<p class="lede">An opinionated, free website builder for Catholic monks and nuns. Fill in your community's details and download a finished site: a horarium, a vocations page with an inquiry form, a giving page that sends gifts straight to you, prayer requests, retreats and the guesthouse, events and news. It is fast, readable on any phone, and found by search engines.</p>
+<p><a class="btn" href="#build">Build your site</a><a class="btn ghost" href="demo/abbey/index.html">See a monks' example</a><a class="btn ghost" href="demo/sisters/index.html">See a nuns' example</a></p>
+<p class="note">Free and open source (MIT). For abbeys, priories, Carmels, Poor Clare and Visitation monasteries, convents and friaries. The two examples are made-up communities.</p>
+</section>
+
+<h2>Everything a good community website has</h2>
+<div class="grid">
+<div class="card"><h3>Vocations</h3><p>Who may apply, the stages of formation from postulancy to solemn vows, Come and See retreats, the questions discerners ask, and an inquiry form that goes to the vocation director.</p></div>
+<div class="card"><h3>Giving</h3><p>Your online donation page with monthly giving, cheques, Mass intentions or enrollments, current needs, a campaign with an honest dated total, and the legal name a will needs.</p></div>
+<div class="card"><h3>Horarium</h3><p>The Divine Office and Mass, weekdays and Sundays, with the hours open to visitors marked, and a link to your livestream.</p></div>
+<div class="card"><h3>Prayer requests</h3><p>A short form, no name required, sent to the community and kept private.</p></div>
+<div class="card"><h3>Visit and retreats</h3><p>The guesthouse, a stay request form, retreats, directions and what guests should know.</p></div>
+<div class="card"><h3>Found by search</h3><p>Page titles and descriptions, structured data for your community, events and FAQ, a sitemap and an llms.txt for AI assistants.</p></div>
+</div>
+
+<h2>Opinions it holds, so you do not have to</h2>
+<ul class="opinions">
+<li><strong>The pages are fixed.</strong> Home, our life, horarium, vocations, visit, events, news, prayer, shop, give and contact. A page you leave empty disappears; you cannot add a tenth menu item that nobody finds.</li>
+<li><strong>Six palettes, all legible.</strong> Each is checked for the contrast people with low vision need. A custom accent colour is checked too.</li>
+<li><strong>Vocations and giving are in the first screen.</strong> They are the two things a community most needs its website to do.</li>
+<li><strong>The money never passes through the website.</strong> Gifts go to the donation page your community already trusts; the site only links to it, over https.</li>
+<li><strong>Nothing is invented.</strong> The template never writes a tax statement, a total or a promise for you. The checklist asks for them instead.</li>
+<li><strong>No tracking, no cookies, no plug-ins.</strong> Plain pages that load fast on a rural connection and need no updates.</li>
+</ul>
+
+<h2 id="build">Build your site</h2>
+<p class="note">Everything runs in your browser. What you type is saved in this browser only. Start from an example and change it, or start blank. Lists take one item per line, with a <code>|</code> between parts.</p>
+<div class="toolbar">
+<button class="btn small" type="button" id="loadAbbey">Start from the monks' example</button>
+<button class="btn small" type="button" id="loadSisters">Start from the nuns' example</button>
+<button class="btn small ghost" type="button" id="startBlank">Start blank</button>
+<span class="note" id="status" aria-live="polite"></span>
+</div>
+<div class="builder">
+<form id="form" autocomplete="off">
+<details class="sec" open><summary>1. Your community</summary><div class="body">
+<label for="f-name">Name of the community</label><input id="f-name" data-path="community.name" placeholder="Saint Benedict's Abbey">
+<div class="two">
+<div><label for="f-kind">We are</label><select id="f-kind" data-path="community.kind"><option value="monks">monks</option><option value="nuns">nuns</option><option value="sisters">sisters</option><option value="brothers">brothers</option><option value="friars">friars</option></select></div>
+<div><label for="f-order">Order <span class="hint">(as you say it)</span></label><input id="f-order" data-path="community.order" placeholder="Benedictine monks"></div>
+<div><label for="f-place">Place</label><input id="f-place" data-path="community.place" placeholder="Town or valley"></div>
+<div><label for="f-founded">Founded</label><input id="f-founded" data-path="community.founded" placeholder="1952"></div>
+<div><label for="f-patron">Patron</label><input id="f-patron" data-path="community.patron"></div>
+<div><label for="f-diocese">Diocese</label><input id="f-diocese" data-path="community.diocese"></div>
+</div>
+<label for="f-superior">Superior <span class="hint">(optional)</span></label><input id="f-superior" data-path="community.superior" placeholder="Abbot, Prioress, Mother Abbess">
+<label for="f-tagline">One sentence about the community</label><input id="f-tagline" data-path="community.tagline">
+</div></details>
+
+<details class="sec"><summary>2. Look</summary><div class="body">
+<div class="two">
+<div><label for="f-theme">Palette</label><select id="f-theme" data-path="site.theme"><option value="benedictine">Benedictine black and parchment</option><option value="cistercian">Cistercian white and stone</option><option value="franciscan">Franciscan brown and linen</option><option value="carmelite">Carmelite brown, cream and gold</option><option value="dominican">Dominican white and black</option><option value="marian">Marian blue and white</option></select></div>
+<div><label for="f-accent">Accent colour <span class="hint">(optional)</span></label><input id="f-accent" data-path="site.accent" placeholder="#7a1f1f"></div>
+</div>
+<label for="f-logo">Logo <span class="hint">(web address of an image, optional)</span></label><input id="f-logo" data-path="site.logo" placeholder="https://…/logo.png">
+<label for="f-hero">Main photograph <span class="hint">(the church, the cloister or the community at prayer)</span></label><input id="f-hero" type="file" accept="image/jpeg,image/png,image/webp">
+<label for="f-heroAlt">Describe the photograph for blind visitors</label><input id="f-heroAlt" data-path="images.hero.alt" placeholder="The monks singing Vespers in the abbey church">
+<p class="note">The photograph is added to the download as images/hero. Keep it under about 500 KB so the page loads fast; it is not saved between visits, so choose it again before downloading.</p>
+</div></details>
+
+<details class="sec"><summary>3. Contact and address</summary><div class="body">
+<label for="f-street">Street</label><input id="f-street" data-path="contact.address.street">
+<div class="two">
+<div><label for="f-city">Town or city</label><input id="f-city" data-path="contact.address.city"></div>
+<div><label for="f-region">State or region</label><input id="f-region" data-path="contact.address.region"></div>
+<div><label for="f-postal">Postal code</label><input id="f-postal" data-path="contact.address.postalCode"></div>
+<div><label for="f-country">Country</label><input id="f-country" data-path="contact.address.country"></div>
+<div><label for="f-phone">Phone</label><input id="f-phone" data-path="contact.phone"></div>
+<div><label for="f-phoneHours">When the phone is answered</label><input id="f-phoneHours" data-path="contact.phoneHours"></div>
+<div><label for="f-email">General email</label><input id="f-email" type="email" data-path="contact.email"></div>
+<div><label for="f-vemail">Vocations email</label><input id="f-vemail" type="email" data-path="contact.vocationsEmail"></div>
+<div><label for="f-gemail">Guesthouse email</label><input id="f-gemail" type="email" data-path="contact.guestEmail"></div>
+<div><label for="f-map">Map link</label><input id="f-map" data-path="contact.mapUrl" placeholder="https://www.openstreetmap.org/…"></div>
+</div>
+<label for="f-url">Website address, once you have one</label><input id="f-url" data-path="site.url" placeholder="https://www.yourabbey.org">
+</div></details>
+
+<details class="sec"><summary>4. Home page</summary><div class="body">
+<label for="f-headline">Headline</label><input id="f-headline" data-path="home.headline" placeholder="Seeking God together in prayer, work and hospitality">
+<label for="f-lede">Under the headline</label><input id="f-lede" data-path="home.lede">
+<label for="f-welcome">Welcome <span class="hint">(paragraphs, a blank line between them)</span></label><textarea id="f-welcome" data-path="home.welcome" data-kind="paras"></textarea>
+</div></details>
+
+<details class="sec"><summary>5. Our life</summary><div class="body">
+<label for="f-aboutIntro">Introduction</label><textarea id="f-aboutIntro" data-path="about.intro" data-kind="paras"></textarea>
+<label for="f-charism">Our charism</label><textarea id="f-charism" data-path="about.charism" data-kind="paras"></textarea>
+<label for="f-daily">A day in the community</label><textarea id="f-daily" data-path="about.dailyLife" data-kind="paras"></textarea>
+<label for="f-history">History <span class="hint">year | what happened</span></label><textarea class="lines" id="f-history" data-path="about.history" data-kind="lines" data-fields="year,text" placeholder="1952 | Six monks arrive"></textarea>
+</div></details>
+
+<details class="sec"><summary>6. Horarium</summary><div class="body">
+<label for="f-day1">First schedule is for</label><input id="f-day1" data-path="horarium.days.0.label" placeholder="Monday to Saturday">
+<label for="f-day1items">Times <span class="hint">time | hour | public (if visitors may come)</span></label><textarea class="lines" id="f-day1items" data-path="horarium.days.0.items" data-kind="lines" data-fields="time,name,public" placeholder="4:30 am | Vigils | public"></textarea>
+<label for="f-day2">Second schedule is for <span class="hint">(optional)</span></label><input id="f-day2" data-path="horarium.days.1.label" placeholder="Sundays and solemnities">
+<label for="f-day2items">Times</label><textarea class="lines" id="f-day2items" data-path="horarium.days.1.items" data-kind="lines" data-fields="time,name,public"></textarea>
+<label for="f-live">Livestream link <span class="hint">(optional)</span></label><input id="f-live" data-path="media.livestream">
+</div></details>
+
+<details class="sec"><summary>7. Vocations</summary><div class="body">
+<label for="f-vlede">Opening sentence</label><input id="f-vlede" data-path="vocations.lede">
+<div class="two">
+<div><label for="f-vdir">Vocation director</label><input id="f-vdir" data-path="vocations.director.name" placeholder="Sister Mary Joseph"></div>
+<div><label for="f-vtitle">Title</label><input id="f-vtitle" data-path="vocations.director.title" placeholder="vocation directress"></div>
+</div>
+<label for="f-vreq">Who may apply <span class="hint">(one per line)</span></label><textarea class="lines" id="f-vreq" data-path="vocations.requirements" data-kind="list" placeholder="Catholic women between 18 and 35"></textarea>
+<label for="f-vstages">Stages of formation <span class="hint">stage | how long | what happens</span></label><textarea class="lines" id="f-vstages" data-path="vocations.stages" data-kind="lines" data-fields="name,duration,text" placeholder="Postulancy | 1 year | Learn the life and the chant"></textarea>
+<label for="f-vret">Come and See retreats <span class="hint">start | end | name | description (dates as 2027-03-12)</span></label><textarea class="lines" id="f-vret" data-path="vocations.retreats" data-kind="lines" data-fields="start,end,name,text"></textarea>
+<label for="f-vfaq">Questions discerners ask <span class="hint">question | answer</span></label><textarea class="lines" id="f-vfaq" data-path="vocations.faq" data-kind="lines" data-fields="q,a" placeholder="I have student loans. Can I still apply? | Yes, write to us."></textarea>
+</div></details>
+
+<details class="sec"><summary>8. Giving</summary><div class="body">
+<label for="f-gonline">Online giving links <span class="hint">button label | https:// address | monthly (if it offers monthly gifts)</span></label><textarea class="lines" id="f-gonline" data-path="giving.online" data-kind="lines" data-fields="label,url,recurring" placeholder="Give online | https://… | monthly"></textarea>
+<div class="two">
+<div><label for="f-glegal">Legal name <span class="hint">(for wills and cheques)</span></label><input id="f-glegal" data-path="giving.legalName"></div>
+<div><label for="f-gpay">Make cheques payable to</label><input id="f-gpay" data-path="giving.check.payableTo"></div>
+</div>
+<label for="f-gmass">Mass intentions or enrollments <span class="hint">(how to request one)</span></label><textarea id="f-gmass" data-path="giving.massIntentions.text" data-kind="paras"></textarea>
+<label for="f-gneeds">Current needs <span class="hint">need | a sentence about it</span></label><textarea class="lines" id="f-gneeds" data-path="giving.needs" data-kind="lines" data-fields="title,text"></textarea>
+<div class="two">
+<div><label for="f-cname">Campaign <span class="hint">(optional)</span></label><input id="f-cname" data-path="giving.campaign.name" placeholder="The church roof"></div>
+<div><label for="f-casof">Total as of <span class="hint">(date)</span></label><input id="f-casof" type="date" data-path="giving.campaign.asOf"></div>
+<div><label for="f-cgoal">Goal ($)</label><input id="f-cgoal" type="number" min="0" data-path="giving.campaign.goal" data-kind="number"></div>
+<div><label for="f-craised">Raised so far ($)</label><input id="f-craised" type="number" min="0" data-path="giving.campaign.raised" data-kind="number"></div>
+</div>
+<label for="f-gbequest">Bequests <span class="hint">(a sentence for people remembering you in a will)</span></label><textarea id="f-gbequest" data-path="giving.plannedGiving.text" data-kind="paras"></textarea>
+<label for="f-gtaxid">Tax ID <span class="hint">(optional, as your accountant gives it)</span></label><input id="f-gtaxid" data-path="giving.plannedGiving.taxId">
+<label for="f-gtax">Tax statement <span class="hint">(optional, in your accountant's words; never filled in for you)</span></label><textarea id="f-gtax" data-path="giving.taxStatement"></textarea>
+</div></details>
+
+<details class="sec"><summary>9. Visiting and the guesthouse</summary><div class="body">
+<label for="f-vislede">Opening sentence</label><input id="f-vislede" data-path="visit.lede">
+<label for="f-vispray">Mass and the Office for visitors</label><textarea id="f-vispray" data-path="visit.publicPrayer" data-kind="paras"></textarea>
+<label for="f-gh">The guesthouse <span class="hint">(leave empty if you have none)</span></label><textarea id="f-gh" data-path="visit.guesthouse.text" data-kind="paras"></textarea>
+<label for="f-ghd">Guesthouse details <span class="hint">(one per line)</span></label><textarea class="lines" id="f-ghd" data-path="visit.guesthouse.details" data-kind="list"></textarea>
+<label for="f-ghbook">Booking link <span class="hint">(optional; without one, a request form is shown)</span></label><input id="f-ghbook" data-path="visit.guesthouse.bookingUrl">
+<label for="f-dir">Getting here</label><textarea id="f-dir" data-path="visit.directions" data-kind="paras"></textarea>
+</div></details>
+
+<details class="sec"><summary>10. Events, news, shop</summary><div class="body">
+<label for="f-events">Events <span class="hint">start | end | name | description (dates as 2026-12-05; end may be empty)</span></label><textarea class="lines" id="f-events" data-path="events" data-kind="lines" data-fields="start,end,name,text"></textarea>
+<label for="f-news">News <span class="hint">date | title | text</span></label><textarea class="lines" id="f-news" data-path="news" data-kind="lines" data-fields="date,title,body"></textarea>
+<label for="f-shopurl">Online shop link <span class="hint">(optional)</span></label><input id="f-shopurl" data-path="shop.url">
+<label for="f-shop">What you make <span class="hint">name | a sentence</span></label><textarea class="lines" id="f-shop" data-path="shop.items" data-kind="lines" data-fields="name,text"></textarea>
+<label for="f-newsletter">Newsletter sign-up link <span class="hint">(optional)</span></label><input id="f-newsletter" data-path="newsletter.url">
+<label for="f-social">Social media <span class="hint">name | link</span></label><textarea class="lines" id="f-social" data-path="social" data-kind="lines" data-fields="label,url" placeholder="YouTube | https://…"></textarea>
+</div></details>
+
+<details class="sec"><summary>11. Forms</summary><div class="body">
+<label for="f-action">Form service address <span class="hint">(optional, https://)</span></label><input id="f-action" data-path="forms.action" placeholder="https://formspree.io/f/…">
+<p class="note">Leave it empty and the vocation, prayer, stay and contact forms open the visitor's email program with the message ready. With a form service (Formspree, Basin, Netlify Forms, or your own), messages arrive by email even from visitors with no mail program. The forms send a hidden <code>_gotcha</code> field to catch spam robots.</p>
+</div></details>
+
+<details class="sec"><summary>Advanced: the whole site as a file</summary><div class="body">
+<label for="json">community.json <span class="hint">(every option, including ones the form above does not show)</span></label>
+<textarea class="lines" id="json" rows="14" spellcheck="false"></textarea>
+<button class="btn small" type="button" id="applyJson">Apply this file</button>
+<label for="loadFile">Open a saved community.json</label><input type="file" id="loadFile" accept="application/json,.json">
+</div></details>
+</form>
+
+<div class="panel">
+<div class="toolbar">
+<label class="sr" for="pagePick">Preview page</label><select id="pagePick"></select>
+<button class="btn small" type="button" id="downloadZip">Download the website (.zip)</button>
+<button class="btn small ghost" type="button" id="downloadJson">Save community.json</button>
+</div>
+<iframe id="preview" title="Preview of your website" sandbox="allow-same-origin allow-scripts"></iframe>
+<h3 style="margin-top:14px">Launch checklist</h3>
+<ul class="findings" id="findings"></ul>
+</div>
+</div>
+
+<h2 id="online">Putting it online</h2>
+<ol class="steps">
+<li><strong>Download the website</strong> above. It is a .zip of plain pages; unzip it.</li>
+<li><strong>Choose a free static host.</strong> Cloudflare Pages, Netlify and GitHub Pages each let you upload a folder on their free plans. Drag the unzipped folder in, or connect it to a repository so the site rebuilds when you change it.</li>
+<li><strong>Add your domain</strong> in the host's settings, then put its address in "Website address" and download again, so search engines get full links.</li>
+<li><strong>Set up giving.</strong> Use the donation page your bank, diocese or a donation platform gives you. Compare their fees and whether they offer monthly gifts, then paste the link into "Online giving links".</li>
+<li><strong>Test every form</strong> by sending yourself a vocation inquiry and a prayer request.</li>
+</ol>
+<p class="note">Developers can do the same from the command line: <code>node build.mjs community.json --out site/</code>, with the checklist as a deploy gate. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/monastery-site">Source and README</a>.</p>
+
+<h2>Questions</h2>
+<div class="card">
+<h3>Does this take donations for us?</h3><p>No. The giving page links to your community's own donation page, the one your bank, your diocese or a donation platform gives you, and prints your details for cheques and bequests. The money goes straight to you; this template never touches it.</p>
+<h3>Where do vocation inquiries and prayer requests go?</h3><p>To the email addresses you type. With no form service set, the forms open the visitor's email program with the message ready to send. With a form service address in Forms, they post to that service, which emails you.</p>
+<h3>What does it cost to put online?</h3><p>The template is free. The download is a folder of plain web pages, which several hosts serve on their free plans. A domain name is the one thing you would normally pay for, and you can add it later.</p>
+<h3>Can we change the design?</h3><p>Within limits, on purpose. Choose one of six palettes and an accent colour, add your logo and photographs, and write every word yourself. The layout stays fixed, so the site stays fast, readable and easy to keep up.</p>
+<h3>Is what we type uploaded?</h3><p>No. The builder runs in your browser. What you type is kept in this browser's local storage on this device, and photographs stay in memory until you download the site.</p>
+</div>
+<p>Would you rather someone set it up with you? This portfolio also takes free custom development requests: <a href="https://marisstella.app/custom-development/">ask for help with your community's site</a>.</p>
+
+<section class="card" style="margin-top:24px"><label style="display:flex;gap:8px;align-items:center;margin:0"><input type="checkbox" id="usage" style="width:auto"> Count anonymous feature use in this browser</label><p class="note">Everything runs in your browser. What you type is stored only in this browser's local storage and is never uploaded. Usage counts hold only feature names, stay in this browser, and are turned off by the checkbox, Do Not Track or Global Privacy Control.</p></section>
+</div>
+
+<footer><div class="wrap">
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice: what your site says about gifts, receipts and tax treatment is for your community and its advisers to decide. <strong>You are responsible for reviewing everything on the site it builds before publishing it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This builder is free and experimental, and may be slow, broken, moved or taken offline without notice. Save your community.json; the site you download keeps working wherever you host it.</p>
+<p>Not affiliated with any order, diocese or the Holy See. The example communities are fictional. MIT licensed. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/monastery-site">Source code</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor this work</a></p>
+</div></footer>
+
+<script type="module">
+import { buildSite, checkSite, parseLines, toLines } from "./site.mjs";
+import { zip } from "./zip.mjs";
+import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+const STORE = "monastery-site-config";
+const $ = (id) => document.getElementById(id);
+let config = load() || {};
+let page = "index.html";
+let hero = null; // { name, bytes, url }
+
+function load() { try { return JSON.parse(localStorage.getItem(STORE) || "null"); } catch { return null; } }
+function save() { try { localStorage.setItem(STORE, JSON.stringify(config)); } catch { /* storage is optional */ } }
+const say = (m) => { $("status").textContent = m; };
+
+function get(o, path) { return path.split(".").reduce((x, k) => (x == null ? undefined : x[k]), o); }
+function set(o, path, value) {
+  const keys = path.split(".");
+  let x = o;
+  keys.slice(0, -1).forEach((k, i) => {
+    if (x[k] == null || typeof x[k] !== "object") x[k] = /^\d+$/.test(keys[i + 1]) ? [] : {};
+    x = x[k];
+  });
+  const last = keys[keys.length - 1];
+  if (value === undefined) { if (Array.isArray(x)) x[last] = x[last] && typeof x[last] === "object" ? x[last] : undefined; else delete x[last]; }
+  else x[last] = value;
+}
+
+const fields = () => [...document.querySelectorAll("[data-path]")];
+const paraText = (v) => (Array.isArray(v) ? v.join("\n\n") : v || "");
+
+function fillForm() {
+  for (const el of fields()) {
+    const v = get(config, el.dataset.path);
+    const kind = el.dataset.kind;
+    if (kind === "lines") {
+      const items = Array.isArray(v) ? v.map((o) => ({ ...o, body: Array.isArray(o.body) ? o.body.join(" ") : o.body, text: Array.isArray(o.text) ? o.text.join(" ") : o.text })) : [];
+      el.value = toLines(items, el.dataset.fields.split(","));
+    } else if (kind === "list") el.value = Array.isArray(v) ? v.join("\n") : v || "";
+    else if (kind === "paras") el.value = paraText(v);
+    else if (el.tagName === "SELECT") el.value = v || el.options[0].value;
+    else el.value = v ?? "";
+  }
+  $("json").value = JSON.stringify(config, null, 2);
+}
+
+function readField(el) {
+  const raw = el.value;
+  const kind = el.dataset.kind;
+  if (kind === "lines") {
+    const names = el.dataset.fields.split(",");
+    const items = mergeLines(get(config, el.dataset.path), parseLines(raw, names), names);
+    if (el.dataset.path === "news") items.forEach((n) => { if (typeof n.body === "string") n.body = [n.body]; });
+    return items.length ? items : undefined;
+  }
+  if (kind === "list") { const l = raw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean); return l.length ? l : undefined; }
+  if (kind === "paras") { const p = raw.split(/\n\s*\n/).map((s) => s.replace(/\s*\n\s*/g, " ").trim()).filter(Boolean); return p.length ? p : undefined; }
+  if (kind === "number") return raw === "" ? undefined : Number(raw);
+  return raw.trim() === "" ? undefined : raw.trim();
+}
+
+// The one-per-line lists show only some fields of each item. Keep the rest
+// (an event's time and location, a news item's paragraphs) when the line for
+// that item is unchanged in its first field, so editing a list in the form
+// never throws away what a community.json set.
+function mergeLines(prev, items, names) {
+  if (!Array.isArray(prev)) return items;
+  return items.map((item, i) => {
+    const old = prev.find((p) => p && p[names[0]] === item[names[0]]) || (prev[i] && typeof prev[i] === "object" ? prev[i] : null);
+    if (!old) return item;
+    const merged = { ...old, ...item };
+    for (const n of names) {
+      if (Array.isArray(old[n]) && old[n].join(" ") === item[n]) merged[n] = old[n];
+      if (!(n in item) && n in old && typeof old[n] !== "boolean") delete merged[n];
+      if ((n === "public" || n === "recurring") && !(n in item)) delete merged[n];
+    }
+    return merged;
+  });
+}
+
+function prune(o) {
+  if (Array.isArray(o)) { const a = o.map(prune).filter((x) => x !== undefined); return a.length ? a : undefined; }
+  if (o && typeof o === "object") {
+    const r = {};
+    for (const [k, v] of Object.entries(o)) { const p = prune(v); if (p !== undefined) r[k] = p; }
+    return Object.keys(r).length ? r : undefined;
+  }
+  return o === "" || o === null ? undefined : o;
+}
+
+function fromForm() {
+  for (const el of fields()) set(config, el.dataset.path, readField(el));
+  if (config.horarium?.days) config.horarium.days = config.horarium.days.filter((d) => d && (d.label || d.items));
+  config = prune(config) || {};
+  if (config.community?.fictional && !/example/i.test(JSON.stringify(config.contact || {}))) delete config.community.fictional;
+  $("json").value = JSON.stringify(config, null, 2);
+  save();
+}
+
+function siteConfig({ forPreview }) {
+  const c = structuredClone(config);
+  if (hero) { c.images = c.images || {}; c.images.hero = { ...(c.images.hero || {}), src: forPreview ? hero.url : `images/${hero.name}` }; }
+  return c;
+}
+
+function render() {
+  let built;
+  try { built = buildSite(siteConfig({ forPreview: true })); } catch (e) { say(`Could not build: ${e.message}`); return; }
+  const pick = $("pagePick");
+  const names = built.pages.map((p) => [p.path, p.nav]);
+  if (!names.some(([p]) => p === page)) page = "index.html";
+  pick.innerHTML = names.map(([p, n]) => `<option value="${p}"${p === page ? " selected" : ""}>Preview: ${n}</option>`).join("");
+  $("preview").srcdoc = built.files.get(page);
+  const order = { high: 0, medium: 1, low: 2 };
+  const f = checkSite(siteConfig({ forPreview: false })).sort((a, b) => order[a.level] - order[b.level]);
+  $("findings").innerHTML = f.length ? f.map((x) => `<li class="${x.level}"><b>${x.level}</b> · ${x.page}: ${escapeHtml(x.message)}</li>`).join("") : `<li class="low">Nothing missing. Download the website and put it online.</li>`;
+}
+const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+$("preview").addEventListener("load", () => {
+  const doc = $("preview").contentDocument;
+  if (!doc) return;
+  doc.addEventListener("click", (e) => {
+    const a = e.target.closest && e.target.closest("a[href]");
+    if (!a) return;
+    const href = a.getAttribute("href");
+    const m = /^([a-z0-9-]+\.html)(#.*)?$/.exec(href);
+    e.preventDefault();
+    if (m) { page = m[1]; render(); record("preview_navigated"); }
+  });
+  doc.addEventListener("submit", (e) => { e.preventDefault(); say("Forms are switched off in the preview."); });
+});
+
+let timer;
+$("form").addEventListener("input", (e) => {
+  if (e.target.id === "json" || e.target.type === "file") return;
+  clearTimeout(timer);
+  timer = setTimeout(() => { fromForm(); render(); }, 250);
+});
+$("pagePick").addEventListener("change", (e) => { page = e.target.value; render(); });
+
+async function loadExample(name) {
+  if (Object.keys(config).length && !confirm("Replace what you have typed with the example?")) return;
+  config = await (await fetch(`./examples/${name}.json`)).json();
+  fillForm(); save(); render(); record("example_loaded");
+  say("Loaded a made-up example. Change anything; the preview follows.");
+}
+$("loadAbbey").addEventListener("click", () => loadExample("abbey"));
+$("loadSisters").addEventListener("click", () => loadExample("sisters"));
+$("startBlank").addEventListener("click", () => {
+  if (Object.keys(config).length && !confirm("Clear everything you have typed? Save community.json first if you want to keep it.")) return;
+  config = { community: { kind: "nuns" }, site: { theme: "benedictine" } }; fillForm(); save(); render(); say("Started blank.");
+});
+
+$("applyJson").addEventListener("click", () => {
+  try { config = JSON.parse($("json").value); fillForm(); save(); render(); say("Applied."); record("config_edited"); }
+  catch (e) { say(`That file is not valid JSON: ${e.message}`); }
+});
+$("loadFile").addEventListener("change", async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  try { config = JSON.parse(await f.text()); fillForm(); save(); render(); say(`Opened ${f.name}.`); record("config_imported"); }
+  catch (err) { say(`Could not open it: ${err.message}`); }
+});
+$("f-hero").addEventListener("change", async (e) => {
+  const f = e.target.files[0];
+  if (hero) URL.revokeObjectURL(hero.url);
+  if (!f) { hero = null; render(); return; }
+  const ext = (f.type.split("/")[1] || "jpg").replace("jpeg", "jpg");
+  hero = { name: `hero.${ext}`, bytes: new Uint8Array(await f.arrayBuffer()), url: URL.createObjectURL(f) };
+  say(f.size > 600000 ? `Added. At ${Math.round(f.size / 1000)} KB it will slow the page; a smaller copy would load faster.` : "Photograph added.");
+  render();
+});
+
+function download(name, type, data) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([data], { type }));
+  a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+const fileSlug = () => (config.community?.name || "community").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "community";
+$("downloadZip").addEventListener("click", () => {
+  const c = siteConfig({ forPreview: false });
+  const { files, findings } = buildSite(c);
+  const high = findings.filter((f) => f.level === "high");
+  if (high.length && !confirm(`The checklist has ${high.length} problem(s) marked high. Download anyway?`)) return;
+  const entries = [...files, ["community.json", JSON.stringify(config, null, 2) + "\n"]];
+  if (hero) entries.push([`images/${hero.name}`, hero.bytes]);
+  download(`${fileSlug()}-website.zip`, "application/zip", zip(entries, { date: new Date() }));
+  record("site_downloaded");
+  say("Downloaded. Unzip it and upload the folder to your host.");
+});
+$("downloadJson").addEventListener("click", () => { download("community.json", "application/json", JSON.stringify(config, null, 2) + "\n"); record("config_saved"); });
+
+$("usage").checked = !usageOptedOut();
+$("usage").addEventListener("change", (e) => setUsageOptOut(!e.target.checked));
+
+if (!Object.keys(config).length) {
+  try { config = await (await fetch("./examples/sisters.json")).json(); say("Showing the nuns' example. Change anything, or start blank."); } catch { config = {}; }
+}
+fillForm();
+render();
+</script>
+</body>
+</html>
