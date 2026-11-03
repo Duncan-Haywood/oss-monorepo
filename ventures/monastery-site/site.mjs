@@ -623,8 +623,12 @@ export const slug = (s) => String(s ?? "").toLowerCase().normalize("NFKD").repla
 
 // ---------------------------------------------------------------- build
 
-/** Build every page. Returns { files: Map<path, contents>, pages, findings }. */
-export function buildSite(config) {
+/**
+ * Build every page. Returns { files: Map<path, contents>, pages, findings }.
+ * `notFound: false` leaves out 404.html, for a copy served inside another site
+ * (the demos in the catalogue), where nothing links to it.
+ */
+export function buildSite(config, { notFound = true } = {}) {
   const c = normalize(config);
   const pages = pagesFor(c);
   const files = new Map();
@@ -636,7 +640,7 @@ export function buildSite(config) {
   files.set("robots.txt", `User-agent: *\nAllow: /\n${url ? `Sitemap: ${url}/sitemap.xml\n` : ""}`);
   files.set("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${esc(url ? `${url}/${p.path === "index.html" ? "" : p.path}` : `./${p.path}`)}</loc></url>`).join("\n")}\n</urlset>\n`);
   files.set("llms.txt", llms(c, pages));
-  files.set("404.html", layout(c, { path: "404.html", key: "404" }, pages, {
+  if (notFound) files.set("404.html", layout(c, { path: "404.html", key: "404" }, pages, {
     title: "Page not found", description: "This page could not be found.",
     body: `${hero(c, { title: "This page could not be found", lede: "It may have moved. The links above lead to every page on the site." })}${main(`<p><a class="btn" href="index.html">Go to the home page</a></p>`)}`,
   }));

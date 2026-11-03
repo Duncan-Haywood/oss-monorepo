@@ -192,7 +192,7 @@ test("the one-per-line lists round-trip between the builder form and the config"
 
 test("the committed demo sites are what the engine builds now (run node build.mjs --demo)", () => {
   for (const [name, file] of Object.entries(DEMOS)) {
-    const { files } = buildSite(JSON.parse(read(file)));
+    const { files } = buildSite(JSON.parse(read(file)), { notFound: false });
     const dir = new URL(`demo/${name}/`, import.meta.url);
     assert.ok(existsSync(dir), `demo/${name} missing`);
     assert.deepEqual(readdirSync(dir).sort(), [...files.keys()].sort(), name);

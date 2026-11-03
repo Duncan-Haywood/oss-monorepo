@@ -17,8 +17,8 @@ import { zip } from "./zip.mjs";
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const DEMOS = { abbey: "examples/abbey.json", sisters: "examples/sisters.json" };
 
-export function writeSite(config, outDir) {
-  const { files, findings } = buildSite(config);
+export function writeSite(config, outDir, opts) {
+  const { files, findings } = buildSite(config, opts);
   mkdirSync(outDir, { recursive: true });
   for (const [name, body] of files) writeFileSync(path.join(outDir, name), body);
   return { files, findings };
@@ -42,7 +42,8 @@ function main(argv) {
     for (const [name, file] of Object.entries(DEMOS)) {
       const out = path.join(here, "demo", name);
       if (existsSync(out)) rmSync(out, { recursive: true });
-      const { files } = writeSite(JSON.parse(readFileSync(path.join(here, file), "utf8")), out);
+      // No 404.html: the demos are served inside the catalogue, whose own 404 applies.
+      const { files } = writeSite(JSON.parse(readFileSync(path.join(here, file), "utf8")), out, { notFound: false });
       console.log(`demo/${name}: ${files.size} files`);
     }
     return 0;
