@@ -3,7 +3,7 @@ title: "When the cheap rung lies: BOHB on two new multiplier widths"
 seo_title: "Multi-fidelity chip search failure on multipliers: BOHB vs random"
 date: 2026-11-03
 tags: [verified-dse, research, chip-design, openroad]
-description: "On 20 and 28-bit multipliers run through OpenROAD, BOHB wins at small budgets, but one design-clock cell leaves it stuck at 6.9% regret where random routing reaches 0.2%."
+description: "On 20 and 28-bit multipliers through OpenROAD, BOHB wins at small budgets, but one cell leaves it at 6.9% regret where random routing reaches 0.2%."
 ---
 
 Earlier `verified-dse` tests corrupted the cheap rung (R2) with synthetic noise. This run used real structured failure: two multiplier widths never run before (20 and 28 bits), 240 OpenROAD runs on SKY130, then the BOHB replay.
