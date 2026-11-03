@@ -295,3 +295,11 @@ export function summarize(parsed, { refC = DEFAULTS.refC, pulsesPerBar = 8, bpm 
   }
   return out;
 }
+
+// Half-time chant over full-time drums: every duration (notes and rests) is
+// multiplied by `factor` (default 2), so the chant moves at half speed against
+// a backing that keeps its tempo. Pure; the input events are not changed.
+export function halfTime(events, factor = 2) {
+  if (!(factor > 0)) throw new Error(`factor must be positive, got ${factor}`);
+  return events.map((e) => (typeof e.pulses === 'number' ? { ...e, pulses: e.pulses * factor } : { ...e }));
+}
