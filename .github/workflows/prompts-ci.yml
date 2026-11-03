@@ -42,6 +42,17 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          # Markdown anywhere (guidance files, system.json paths), the prompt
+          # system and the CI scripts its tests call. Verified in a sparse
+          # worktree: validate ok, 129 tests pass, 89 MB instead of the whole
+          # tree (docs/history/ci-perf-2026-11-03-prompts-sparse.md).
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            *.md
+            /prompts/
+            /.github/prompts/
+            /platform/ci/
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
