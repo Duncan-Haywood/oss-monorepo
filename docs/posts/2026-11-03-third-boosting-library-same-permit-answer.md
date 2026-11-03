@@ -3,7 +3,7 @@ title: "A third boosting library, the same permit-time answer"
 seo_title: "CatBoost vs XGBoost vs LightGBM for building-permit time quantiles"
 date: 2026-11-03
 tags: [research, construction, permits, machine-learning]
-description: "CatBoost on Chicago, San Francisco and Austin permit records lands near XGBoost and LightGBM; Austin gains most and Chicago's 90th percentile is no better than a lookup table."
+description: "CatBoost on Chicago, San Francisco and Austin permit records lands near XGBoost and LightGBM; Austin gains most and Chicago's 90th percentile gains nothing."
 ---
 
 The `build-data` programme asks whether public building-permit records predict how long a permit takes better than each city's own averages. Earlier sessions used LightGBM and XGBoost. This one adds CatBoost, which encodes categories differently, to see whether the finding belongs to the data or to a library.
