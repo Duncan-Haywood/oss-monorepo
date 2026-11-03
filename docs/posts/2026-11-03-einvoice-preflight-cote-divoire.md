@@ -2,7 +2,7 @@
 title: "E-invoice Preflight adds Côte d'Ivoire: the FNE is mandatory, and the sources disagree on when"
 date: 2026-11-03
 seo_title: "E-invoice Preflight adds Côte d'Ivoire"
-description: "Côte d'Ivoire page: the DGI's facture normalisée électronique, start dates from June 2025 to June 2026, controls from September 2026, and what could not be confirmed."
+description: "Côte d'Ivoire page: the DGI's electronic invoice (FNE), start dates from June 2025 to June 2026, controls from September 2026, and what is unconfirmed."
 tags: [einvoice-preflight, e-invoicing, cote-divoire]
 ---
 
