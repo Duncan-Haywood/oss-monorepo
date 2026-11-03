@@ -86,3 +86,29 @@ def evaluate(cal, test, alpha=0.2, months=None):
     if months is not None:
         r["coverage_by_month"] = coverage_by_group(lo2, hi2, test["y"], months)
     return r
+
+
+def mondrian_cqr(cal, test, g_cal, g_test, alpha=0.2, min_group=30):
+    """Group-conditional (Mondrian) CQR: one qhat per group, so a group the model over-covers can
+    narrow without a group it under-covers being pulled with it. For zero-inflated lags the groups
+    are bands of a classifier's P(same day), the "two-part" idea of LOG.md session 19's Next. A
+    group with fewer than `min_group` calibration rows (or one a test row falls in that
+    calibration never saw) falls back to the pooled qhat. Returns (lo, hi, qhat_by_group, pooled)."""
+    pooled = conformal_quantile(cqr_scores(cal["lo"], cal["hi"], cal["y"]), alpha)
+    qs = {}
+    for g in sorted(set(g_cal)):
+        idx = [i for i, x in enumerate(g_cal) if x == g]
+        if len(idx) >= min_group:
+            qs[g] = conformal_quantile(cqr_scores([cal["lo"][i] for i in idx], [cal["hi"][i] for i in idx],
+                                                  [cal["y"][i] for i in idx]), alpha)
+    lo, hi = [], []
+    for l, h, g in zip(test["lo"], test["hi"], g_test):
+        q = qs.get(g, pooled)
+        lo.append(max(0.0, l - q))
+        hi.append(h + q)
+    return lo, hi, qs, pooled
+
+
+def bands(p, edges):
+    """Index of the band each probability falls in (edges sorted ascending; len(edges)+1 bands)."""
+    return [sum(v >= e for e in edges) for v in p]
