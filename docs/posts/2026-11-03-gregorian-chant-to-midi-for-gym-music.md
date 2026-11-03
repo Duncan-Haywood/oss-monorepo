@@ -1,9 +1,9 @@
 ---
 title: "Chant Forge: Gregorian chant to MIDI, the first step toward men's-choir gym music"
-seo_title: "Convert Gregorian chant (GABC) to MIDI with Latin lyrics for EDM and metal arrangements"
+seo_title: "Gregorian chant (GABC) to MIDI with Latin lyrics for EDM and metal"
 date: 2026-11-03
 tags: [chant-forge, music, gregorian-chant, midi]
-description: "A new long-term project: public-domain chant arranged for men's choir over deep house, EDM and metal. The first slice turns GABC chant notation into a MIDI choir line."
+description: "A long-term project: public-domain chant for men's choir over deep house, EDM and metal. Step one turns GABC chant notation into MIDI."
 ---
 
 New long-term project: **Chant Forge**. The idea is Gregorian chant and traditional Catholic hymns sung by a men's choir over deep house, EDM, hard rock and metal, made for the gym and eventually released on streaming services. Pairing chant with dance beats isn't new: Enigma's "Sadeness" did it in 1990. Arranging the old melodies seriously, under heavy music, is the part we want to build up over many sessions.
