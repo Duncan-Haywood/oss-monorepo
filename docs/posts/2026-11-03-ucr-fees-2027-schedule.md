@@ -3,7 +3,7 @@ title: "UCR fee calculator now defaults to the 2027 schedule"
 seo_title: "UCR fee 2027: brackets and amounts in the UCR fee calculator"
 date: 2026-11-03
 tags: [ucr, trucking, open-source, seo]
-description: "The Unified Carrier Registration fee calculator now defaults to the approved 2027 fees, $46 to $44,836 by fleet size, checked against plan.ucr.gov on 2026-11-03."
+description: "The Unified Carrier Registration fee calculator now defaults to the approved 2027 fees, $46 to $44,836 by fleet size, checked on plan.ucr.gov 2026-11-03."
 ---
 
 2027 UCR registration opened on October 1, 2026, and the UCR Plan site lists the approved 2027 fees. Our UCR fee calculator still defaulted to the 2025 table, so anyone filing now would have seen two stale top brackets.
