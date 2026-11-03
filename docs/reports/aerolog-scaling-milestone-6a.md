@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [aerolog-scaling]
+tagged: auto
+---
 # aerolog-scaling milestone 6a (for the next run)
 
 - Rodrigues et al. data: Figshare article 12683453 (API `https://api.figshare.com/v2/articles/12683453`, files via `ndownloader.figshare.com/files/<id>`; reachable through the proxy). `parameters.csv` + `flights.csv` (107 MB). `cite_check.py` cannot resolve this DataCite DOI (404 via Crossref); verified instead by the Figshare API title and licence.

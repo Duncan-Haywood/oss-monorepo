@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [ai-bookkeeper]
+tagged: auto
+---
 # ai-bookkeeper: statement text, opening and closing balance (2026-10-26)
 
 For the next run on flagship 1, item (2). Landed in `ventures/ai-bookkeeper/statementtext.mjs`:

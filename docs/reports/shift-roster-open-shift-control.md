@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [shift-roster-builder]
+tagged: auto
+---
 # shift-roster-builder: open-shift control landed (2026-10-27)
 
 - `openShiftWeight` is now reachable: CLI `--open-shift-hours`, page select `#openpref`. An explicit weight enables `coverRepair` in `calc.mjs`.

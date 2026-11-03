@@ -1,3 +1,9 @@
+---
+kind: analysis
+topics: [judgment]
+date: 2026-10-20
+tagged: auto
+---
 # Tools that serve the goal, claims that prevent collisions, records that write themselves
 
 **Date:** 2026-10-20. **Asked by:** the owner, following up

@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-03
+tagged: auto
+---
 # Polish 2026-11-03: answer-first lead on the TCGplayer fee calculator
 
 **Weak surface.** 23 `*-fee-calculator` pages still have no `data-answer-lead`.

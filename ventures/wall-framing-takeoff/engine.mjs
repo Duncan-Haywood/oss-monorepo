@@ -41,7 +41,7 @@ export const PRECUT = { "8ft": 92.625, "9ft": 104.625, "10ft": 116.625 };
  *   headerHeight?: number, header?: string, headerPlies?: number, jacks?: number,
  *   kings?: number, sillPlies?: number, label?: string }} Opening
  * @typedef {{ id: string, length: number, stud?: "2x4"|"2x6", treatedPlate?: boolean,
- *   corner?: boolean, tees?: number[], tee?: { wall: string, at: number, end?: "start"|"end" }, openings?: Opening[], sheathed?: boolean, freeEnds?: 0|1|2, gable?: { pitch: number, peak?: number } }} Wall
+ *   bearing?: boolean, corner?: boolean, tees?: number[], tee?: { wall: string, at: number, end?: "start"|"end" }, openings?: Opening[], sheathed?: boolean, freeEnds?: 0|1|2, gable?: { pitch: number, peak?: number } }} Wall
  * @typedef {{ size: string, length: number, price: number, label?: string }} Stock
  * @typedef {{ studSpacing: number, studLength: number, kerf: number, topPlateLap: number,
  *   cornerExtraStuds: number, teeExtraStuds: number, defaultHeaderHeight: number,
@@ -414,6 +414,7 @@ export function layoutWall(plan, wall) {
   const members = [];
   const notes = [];
   const spacers = [];
+  const nonBearing = [];
   const shortCripples = [];
   const shimGaps = [];
   const add = (kind, x, y, w, h, size, orient, label) =>
@@ -462,9 +463,10 @@ export function layoutWall(plan, wall) {
       add("jack", hStart + i * THICK, THICK, THICK, g.jack, stud, "v", `jack, ${name}`);
       add("jack", hEnd - (i + 1) * THICK, THICK, THICK, g.jack, stud, "v", `jack, ${name}`);
     }
-    const plies = op.headerPlies ?? (stud === "2x6" ? 3 : 2);
+    const plies = op.headerPlies ?? (wall.bearing === false ? 1 : stud === "2x6" ? 3 : 2);
+    if (wall.bearing === false && op.headerPlies === undefined) nonBearing.push(name);
     for (let i = 0; i < plies; i++) add("header", hStart, g.headerHeight, hEnd - hStart, g.depth, op.header, "h", `header ply, ${name}`);
-    if (plies * THICK < DEPTH[stud] - EPS && DEPTH[op.header] > DEPTH["2x4"]) spacers.push(`${name} (${formatInches(DEPTH[stud] - plies * THICK)})`);
+    if (wall.bearing !== false && plies * THICK < DEPTH[stud] - EPS && DEPTH[op.header] > DEPTH["2x4"]) spacers.push(`${name} (${formatInches(DEPTH[stud] - plies * THICK)})`);
     if (g.topCripple > 0.5) {
       for (const x of layout) if (inside(x, hStart, hEnd)) add("cripple", x, g.headerHeight + g.depth, THICK, g.topCripple, stud, "v", `top cripple, ${name}`);
       const room = g.topCripple + g.depth;
@@ -615,6 +617,7 @@ export function layoutWall(plan, wall) {
   if (shortCripples.length) notes.push(`short top cripples over ${shortCripples.join(", ")}. Header sizes are yours to check.`);
   if (shimGaps.length) notes.push(`a gap too small for cripples between header and top plate over ${shimGaps.join(", ")}: shim or fill it.`);
   if (spacers.length) notes.push(`header spacers not in the takeoff: ${spacers.join(", ")}.`);
+  if (nonBearing.length) notes.push(`single-ply headers (wall marked non-bearing) over ${nonBearing.join(", ")}: no load above is assumed. A doubled header is the default wherever the wall carries a roof or floor; confirm with your engineer.`);
   return { id: wall.id, length: L, height, stud, members, notes, layout, lapped: !!plan.plateLaps, ...(single ? { singleTopPlate: true, plateTies: ties } : {}), joints: { bottom: bottomJoints, top: topJoints || [], cap: single ? [] : capJoints || [] } };
 }
 
@@ -672,6 +675,7 @@ function layoutGable(plan, wall) {
     studAt(x, "stud", x === 0 || x === L - THICK ? "end stud" : "stud");
   }
   const spacers = [];
+  const nonBearing = [];
   const shimGaps = [];
   for (const z of zones) {
     const { op, g } = z;
@@ -693,9 +697,10 @@ function layoutGable(plan, wall) {
       add("jack", hStart + i * THICK, THICK, THICK, g.jack, stud, "v", `jack, ${name}`);
       add("jack", hEnd - (i + 1) * THICK, THICK, THICK, g.jack, stud, "v", `jack, ${name}`);
     }
-    const plies = op.headerPlies ?? (stud === "2x6" ? 3 : 2);
+    const plies = op.headerPlies ?? (wall.bearing === false ? 1 : stud === "2x6" ? 3 : 2);
+    if (wall.bearing === false && op.headerPlies === undefined) nonBearing.push(name);
     for (let i = 0; i < plies; i++) add("header", hStart, g.headerHeight, hEnd - hStart, g.depth, op.header, "h", `header ply, ${name}`);
-    if (plies * THICK < DEPTH[stud] - EPS && DEPTH[op.header] > DEPTH["2x4"]) spacers.push(`${name} (${formatInches(DEPTH[stud] - plies * THICK)})`);
+    if (wall.bearing !== false && plies * THICK < DEPTH[stud] - EPS && DEPTH[op.header] > DEPTH["2x4"]) spacers.push(`${name} (${formatInches(DEPTH[stud] - plies * THICK)})`);
     // Each cripple runs to the long point of the sloped plate above it; a header that rises above the
     // eave line gets cripples only where the roof has climbed clear of it (and none if it never does).
     const crippleXs = layout.filter((x) => inside(x, hStart, hEnd));
@@ -788,6 +793,7 @@ function layoutGable(plan, wall) {
   }
   if (shimGaps.length) notes.push(`a gap too small for cripples between header and top plate over ${shimGaps.join(", ")}: shim or fill it.`);
   if (spacers.length) notes.push(`header spacers not in the takeoff: ${spacers.join(", ")}.`);
+  if (nonBearing.length) notes.push(`single-ply headers (wall marked non-bearing) over ${nonBearing.join(", ")}: no load above is assumed. A doubled header is the default wherever the wall carries a roof or floor; confirm with your engineer.`);
   return { id: wall.id, length: L, height: base + maxRise + 2 * Math.max(vtL, vtR), stud, members, notes, layout, lapped: false, gable: { pitch: wall.gable.pitch, peak: mid, peakRise: maxRise, eave: base, ...(mid !== L / 2 ? { farPitch: slopeR * 12 } : {}) }, joints: { bottom: bottomJoints, top: topJoints, cap: capJoints } };
 }
 

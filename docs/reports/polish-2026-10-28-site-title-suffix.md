@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-10-28
+tagged: auto
+---
 # Polish 2026-10-28: the site-name suffix only when the title still fits
 
 **Weak surface.** A scan of the built site (3,453 `index.html`) found 967 titles over 70 characters, the

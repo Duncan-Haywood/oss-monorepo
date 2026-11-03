@@ -169,7 +169,8 @@
       {
         "file": "platform/deploy/build.test.mjs",
         "issue": "test 'server ventures get servers/<slug>.json' fails on main for ad-spend-saturation-optimizer (baseline red for build.test.mjs, unrelated to this PR)",
-        "patched": false
+        "patched": true,
+        "patched_in": "this run: platform/deploy/catalog.mjs readServer skips `runtime: static` ventures"
       }
     ]
   }

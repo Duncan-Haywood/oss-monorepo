@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed Designer round 3b, lane 4: design detail and compare view
 
 Session: https://claude.ai/code/session_01XpHqyg18KFJ7wq52yKE93G (2026-10-30). PRs #11559, #11580, #11610, #11627 and the gallery end-to-end test.

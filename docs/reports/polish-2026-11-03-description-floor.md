@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-03
+tagged: auto
+---
 # Polish 2026-11-03: stub post descriptions fail the front-matter check
 
 **State found.** `propose_seo_titles.py --check` exits 0 (no post is over the 70-character title budget), no post lacks a `description`, none exceeds 160 characters, no description or seo_title is duplicated, and `missing_llms_txt.py` reports nothing (the three `ventures/` folders without `llms.txt` carry `NOT-A-VENTURE`).

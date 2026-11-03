@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-20
+tagged: auto
+---
 # Where the tokens go in an agent run, and how to get more work per quota
 
 **Date:** 2026-10-20. **Asked by:** the owner: "can you analyze where tokens
