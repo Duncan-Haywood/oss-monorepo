@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free SPF, DKIM and DMARC record checker for cold email</title>
+  <meta name="description" content="Paste your SPF, DKIM and DMARC DNS records and get plain-English problems back: too many SPF lookups, +all, p=none, 1024-bit keys, revoked selectors. Runs in your browser; nothing is uploaded.">
+  <link rel="canonical" href="./cold-email-auth-checker.html">
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    a { color: #4b6215; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 8px; font: inherit; border: 1px solid #aab4c0; border-radius: 6px; background: #fff; color: inherit; }
+    button { margin: 12px 8px 0 0; padding: 10px 14px; border: 0; border-radius: 8px; background: #4b6215; color: #fff; font: inherit; font-weight: 650; cursor: pointer; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { border-bottom: 1px solid #ccd3db; padding: 4px 6px; text-align: right; }
+    .warn { color: #7a5200; } footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+      textarea { width: 100%; box-sizing: border-box; min-height: 140px; padding: 8px; font: .9rem ui-monospace, monospace; border: 1px solid #aab4c0; border-radius: 6px; }
+    .err { color: #9b1c1c; } .ok { color: #2d6a1f; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Sales Agent</a></p>
+  <h1>SPF, DKIM and DMARC record checker for cold email</h1>
+  <p>Bad email authentication sends cold email to spam before anyone reads it. Paste your records, one per line, and see what is wrong in plain English. It only reads the text you paste: no DNS lookups, nothing uploaded.</p>
+  <label for="in">Records (SPF at your domain, DKIM at selector._domainkey.yourdomain, DMARC at _dmarc.yourdomain)</label>
+  <textarea id="in" spellcheck="false">v=spf1 include:_spf.google.com ~all
+v=DMARC1; p=none; rua=mailto:dmarc@example.com</textarea>
+  <button id="go" type="button">Check records</button>
+  <div id="out" aria-live="polite"></div>
+  <h2>Questions</h2>
+  <h3>Where do I find these records?</h3>
+  <p>In your DNS host, or look them up with <code>dig TXT yourdomain</code>, <code>dig TXT _dmarc.yourdomain</code> and <code>dig TXT selector._domainkey.yourdomain</code>. Your mail provider tells you the DKIM selector.</p>
+  <h3>Does a clean result mean my mail reaches the inbox?</h3>
+  <p>No. It means the text parses and avoids common mistakes. Placement also depends on list quality, content and sending volume; see the <a href="./cold-email-warmup-planner.html">warm-up planner</a> and the <a href="./cold-email-checker.html">cold email checker</a>.</p>
+  <h3>Why does SPF stop at 10 lookups?</h3>
+  <p>RFC 7208 caps DNS-lookup terms (include, a, mx, ptr, exists, redirect) at 10 per check. Included records count too, and this tool cannot see inside them, so treat 8 or more as close to the limit.</p>
+  <footer><p><strong>No warranty.</strong> Free and as-is, from the author's reading of the RFCs and recalled provider rules, not legal or deliverability advice. Key size is estimated from the pasted key's length.</p></footer>
+  <script type="module">
+    import { checkAll, bulkSenderGaps } from "./authcheck.mjs";
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const run = () => {
+      const rs = checkAll($("in").value);
+      if (!rs.length) { $("out").innerHTML = '<p class="warn">Paste at least one record.</p>'; return; }
+      const gaps = bulkSenderGaps(rs);
+      $("out").innerHTML = "<h2>Result</h2>" + rs.map((r) => `<h3>${esc(r.type)} <span class="${r.ok ? "ok" : "err"}">${r.ok ? "parses" : "has errors"}</span></h3><p><code>${esc(r.record.slice(0, 120))}${r.record.length > 120 ? "..." : ""}</code></p>` + (r.issues.length ? `<ul>${r.issues.map((i) => `<li class="${i.level === "error" ? "err" : "warn"}">${esc(i.msg)}</li>`).join("")}</ul>` : "<p>No problems found.</p>")).join("") + (gaps.length ? `<h3>Still missing</h3><ul>${gaps.map((g) => `<li class="warn">${esc(g)}</li>`).join("")}</ul>` : "");
+    };
+    $("go").addEventListener("click", run);
+    run();
+  </script>
+</body>
+</html>
