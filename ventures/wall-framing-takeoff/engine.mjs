@@ -131,7 +131,15 @@ export const DEFAULTS = samplePlan();
  */
 export function parseLength(text) {
   if (typeof text === "number") return text;
-  let s = String(text).trim().toLowerCase().replace(/feet|foot|ft/g, "'").replace(/inches|inch|in/g, '"').replace(/″/g, '"').replace(/′/g, "'");
+  // Metric from a European plan: "2500mm", "250 cm", "2.5m", "2,5 m" -> inches (exact 25.4 mm).
+  const metric = String(text).trim().toLowerCase().match(/^(\d+(?:[.,]\d+)?)\s*(mm|cm|m)$/);
+  if (metric) return Number(metric[1].replace(",", ".")) * { mm: 1, cm: 10, m: 1000 }[metric[2]] / 25.4;
+  let s = String(text).trim().toLowerCase().replace(/feet|foot|ft/g, "'").replace(/inches|inch|in/g, '"').replace(/[″”“]/g, '"').replace(/[′’‘]/g, "'");
+  // Phone keyboards type curly quotes and one-glyph fractions (6½").
+  const GLYPH = { "½": "1/2", "¼": "1/4", "¾": "3/4", "⅛": "1/8", "⅜": "3/8", "⅝": "5/8", "⅞": "7/8" };
+  s = s.replace(/(\d)?([½¼¾⅛⅜⅝⅞])/g, (_, d, g) => (d ? `${d} ${GLYPH[g]}` : GLYPH[g]));
+  // Thousands separators in a long run ("1,200", "1,200'"): only exact 3-digit groups, so "1,5" stays refused.
+  if (/^\d{1,3}(,\d{3})+(?=\D|$)/.test(s)) s = s.replace(/^\d{1,3}(,\d{3})+/, (g) => g.replace(/,/g, ""));
   if (!s) return NaN;
   let feet = 0;
   const fm = s.match(/^(\d+(?:\.\d+)?)\s*'/);
@@ -185,18 +193,58 @@ export function formatInches(inches) {
 export function validatePlan(plan) {
   const errors = [];
   if (!plan || !Array.isArray(plan.walls) || !plan.walls.length) return ["Add at least one wall."];
+  // Shape first: a hand-typed or generated plan can hold null, a number or a string where the engine expects a record or a list.
+  const isRec = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+  const shape = [];
+  if (plan.stock !== undefined && (!Array.isArray(plan.stock) || !plan.stock.every(isRec))) shape.push("\"stock\" must be a list of boards, each with a size, length and price.");
+  plan.walls.forEach((w, i) => {
+    const at = isRec(w) && w.id ? `Wall ${w.id}` : `Wall number ${i + 1}`;
+    if (!isRec(w)) { shape.push(`${at} must be an object with an id, a length and openings.`); return; }
+    if (w.tees !== undefined && !Array.isArray(w.tees)) shape.push(`${at}: "tees" must be a list of distances from the wall start.`);
+    if (w.openings !== undefined && (!Array.isArray(w.openings) || !w.openings.every(isRec))) shape.push(`${at}: "openings" must be a list of objects, each with an offset, width and height.`);
+  });
+  // A string or boolean passes a bare >= comparison by coercion ("16" >= 8, true >= 0) and null or "x" in an offset or header height
+  // reaches the layout as NaN, which throws a raw Error out of takeoff. Numbers must be real numbers.
+  const isNum = (v) => typeof v === "number" && Number.isFinite(v);
+  for (const [key, label] of [["studSpacing", "Stud spacing"], ["studLength", "Stud length"], ["kerf", "Saw kerf"], ["topPlateLap", "Top plate joint offset"], ["defaultHeaderHeight", "Default header height"]]) {
+    if (key === "defaultHeaderHeight" && plan[key] === undefined && !plan.walls.some((w) => isRec(w) && Array.isArray(w.openings) && w.openings.some((op) => isRec(op) && op.headerHeight === undefined))) continue;
+    if (!isNum(plan[key])) shape.push(`${label} must be a number of inches.`);
+  }
+  plan.walls.forEach((w, i) => {
+    if (!isRec(w)) return;
+    const at = `Wall ${w.id || i + 1}`;
+    if (Array.isArray(w.openings)) w.openings.forEach((op) => {
+      if (!isRec(op)) return;
+      for (const k of ["offset", "width", "height"]) if (!isNum(op[k])) shape.push(`${at}, ${op.label || op.kind || "opening"}: "${k}" must be a number of inches.`);
+      if (op.headerHeight !== undefined && !isNum(op.headerHeight)) shape.push(`${at}, ${op.label || op.kind || "opening"}: "headerHeight" must be a number of inches.`);
+    });
+    if (!isNum(w.length)) shape.push(`${at}: "length" must be a number of inches.`);
+    if (Array.isArray(w.tees) && !w.tees.every(isNum)) shape.push(`${at}: every tee must be a number of inches from the wall start.`);
+  });
+  if (Array.isArray(plan.stock)) plan.stock.forEach((st, i) => { if (!isRec(st)) return; for (const k of ["length", "price"]) if (st[k] !== undefined && !isNum(st[k])) shape.push(`Lumber list entry ${i + 1}: "${k}" must be a number.`); });
+  if (shape.length) return shape;
   if (!(plan.studSpacing >= 8 && plan.studSpacing <= 48)) errors.push("Stud spacing must be between 8 and 48 inches.");
   if (!(plan.studLength >= 24 && plan.studLength <= 240)) errors.push("Stud length must be between 24 and 240 inches.");
   if (!(plan.kerf >= 0 && plan.kerf <= 0.5)) errors.push("Saw kerf must be between 0 and 1/2 inch.");
   if (!(plan.topPlateLap >= 0 && plan.topPlateLap <= 96)) errors.push("Top plate joint offset must be between 0 and 96 inches.");
+  for (const [key, label] of [["cornerExtraStuds", "Corner backing studs"], ["teeExtraStuds", "Tee backing studs"]]) {
+    const v = plan[key];
+    if (v !== undefined && !(Number.isInteger(v) && v >= 0 && v <= 6)) errors.push(`${label} must be a whole number from 0 to 6 (a value like 1e9 would never finish).`);
+  }
+  if (plan.blocking !== undefined && plan.blocking !== null) {
+    if (!isRec(plan.blocking)) errors.push("\"blocking\" must be an object like { rows: 1, fire: true, stagger: false }.");
+    else if (plan.blocking.rows !== undefined && !(Number.isInteger(plan.blocking.rows) && plan.blocking.rows >= 0 && plan.blocking.rows <= 20)) errors.push("Blocking rows must be a whole number from 0 to 20 (a value like 1e9 would never finish).");
+  }
+  if (Array.isArray(plan.stock) && plan.stock.some((st) => Number(st.length) > 1200)) errors.push("A board in the lumber list is over 1200 inches (100 ft) long; check the length is in inches (a value like 1e9 would exhaust memory).");
   const sizes = new Set((plan.stock || []).filter((s) => s.length > 0 && s.price >= 0).map((s) => s.size));
   const ids = new Set();
   for (const wall of plan.walls) {
-    const name = `Wall ${wall.id || "?"}`;
-    if (!wall.id) errors.push("Every wall needs a name.");
+    const name = `Wall ${typeof wall.id === "string" ? wall.id || "?" : "?"}`;
+    if (typeof wall.id !== "string" || !wall.id.trim()) errors.push("Every wall needs a name (text, not a number or object).");
     else if (ids.has(wall.id)) errors.push(`${name}: two walls have this name.`);
     ids.add(wall.id);
     if (!(wall.length >= 12)) { errors.push(`${name}: length must be at least 12 inches.`); continue; }
+    if (wall.length > 12000) { errors.push(`${name}: length must be at most 12000 inches (1000 ft).`); continue; }
     const stud = wall.stud || "2x4";
     if (!(stud in DEPTH) || (stud !== "2x4" && stud !== "2x6")) errors.push(`${name}: studs must be 2x4 or 2x6.`);
     if (!sizes.has(plateSize(wall))) errors.push(`${name}: no ${plateSize(wall)} boards in the lumber list.`);
@@ -221,8 +269,12 @@ export function validatePlan(plan) {
     const vzones = framingZones(ops, wall.length);
     for (const [oi, op] of ops.entries()) {
       const on = `${name}, ${op.label || op.kind} at ${formatLength(op.offset)}`;
+      if (op.kind !== "window" && op.kind !== "door") { errors.push(`${on}: kind must be "window" or "door" (got ${JSON.stringify(op.kind)}); a garage door is a door with a wide opening.`); continue; }
       if (!(op.width > 0)) { errors.push(`${on}: rough opening width must be more than zero.`); continue; }
       if (!(op.height > 0)) { errors.push(`${on}: rough opening height must be more than zero.`); continue; }
+      if (op.jacks !== undefined && !(Number.isInteger(op.jacks) && op.jacks >= 0 && op.jacks <= 6)) { errors.push(`${on}: jacks must be a whole number from 0 to 6.`); continue; }
+      if (op.headerPlies !== undefined && !(Number.isInteger(op.headerPlies) && op.headerPlies >= 1 && op.headerPlies <= 4)) { errors.push(`${on}: header plies must be a whole number from 1 to 4.`); continue; }
+      if (op.kings !== undefined && !(Number.isInteger(op.kings) && op.kings >= 0 && op.kings <= 6)) { errors.push(`${on}: kings must be a whole number from 0 to 6.`); continue; }
       const z = vzones[oi];
       if (z.start < THICK - EPS || z.end > wall.length - THICK + EPS) {
         errors.push(`${on}: the king studs run past the end studs. Move the opening at least ${formatInches(THICK * (z.jacks + 1))} from the wall end (its jacks must clear the end stud), or frame this end by hand.`);
@@ -242,7 +294,21 @@ export function validatePlan(plan) {
         if (room < -EPS) errors.push(`${on}: the header does not fit under the sloped top plate (${formatInches(-room)} too tall at its lower end). Lower the header height or use a shallower header.`);
       } else if (g.topCripple < -EPS) errors.push(`${on}: the header does not fit under the top plates (${formatInches(-g.topCripple)} too tall). Lower the header height or use a shallower header.`);
       if (op.kind === "window" && g.bottomCripple < -EPS) errors.push(`${on}: the window sill is below the bottom plate. Raise the header height or shorten the window.`);
+      if (op.kind === "door" && g.roBottom < -EPS) errors.push(`${on}: the door opening is ${formatInches(-g.roBottom)} taller than its header height, so it would end below the floor. Raise the header height or shorten the opening.`);
       if (op.kind === "door" && g.roBottom > THICK + EPS) errors.push(`${on}: a door opening should reach the floor; check the header height and opening height.`);
+    }
+    // A tee wall cannot land inside an opening, and two tees closer than a stud
+    // thickness are one tee listed twice: either would double the backing studs or drop one under a header.
+    const tees = [...(wall.tees || [])].filter((t) => t >= THICK && t <= wall.length - THICK).sort((a, b) => a - b);
+    for (let ti = 0; ti < tees.length; ti++) {
+      const t = tees[ti];
+      if (ti > 0 && t - tees[ti - 1] < THICK - EPS) errors.push(`${name}: tees at ${formatLength(tees[ti - 1])} and ${formatLength(t)} are closer than a stud thickness; list each tee wall once.`);
+      for (const [oi, op] of ops.entries()) {
+        if (op.width > 0 && t > op.offset - EPS && t < op.offset + op.width + EPS) {
+          errors.push(`${name}: a tee at ${formatLength(t)} falls inside the ${op.label || op.kind} at ${formatLength(op.offset)}. Move the tee wall clear of the opening.`);
+          break;
+        }
+      }
     }
   }
   return errors;
@@ -1262,6 +1328,13 @@ export function takeoff(plan, extraCuts = []) {
   for (const size of sizes) {
     const stock = plan.stock.filter((s) => s.size === size);
     const pieces = cuts.filter((c) => c.size === size).map((c) => ({ length: c.length, qty: c.qty, ref: c.kind }));
+    const longest = Math.max(0, ...stock.filter((s) => s.length > 0).map((s) => s.length));
+    const over = pieces.filter((p) => p.qty > 0 && p.length > longest + 1e-6);
+    if (over.length) {
+      const kinds = [...new Set(over.map((p) => p.ref))].join(", ");
+      const worst = Math.max(...over.map((p) => p.length));
+      return { ok: false, errors: [`${size}: ${over.length === 1 ? "a" : over.length} piece${over.length === 1 ? "" : "s"} (${kinds}) up to ${formatInches(worst)} ${over.length === 1 ? "is" : "are"} longer than the longest ${size} board listed (${longest ? formatInches(longest) : "none"}). Add a longer board to "stock" (a beam, LVL or glulam length for a wide header), or split the opening.`] };
+    }
     const res = optimizeStock(pieces, stock, plan.kerf);
     const lines = new Map();
     for (const b of res.bars) {

@@ -10,7 +10,12 @@ const table = [
   { upTo: 72, header: "2x10", plies: 2 },
   { upTo: 96, header: "2x12", plies: 3 },
 ];
-const planWith = (extra = {}) => ({ ...samplePlan(), headerTable: table, ...extra });
+// The sample's tees sit where these tests put windows; a tee inside an opening is refused, so clear them.
+const planWith = (extra = {}) => {
+  const p = { ...samplePlan(), headerTable: table, ...extra };
+  p.walls.forEach((w) => { w.tees = []; });
+  return p;
+};
 
 test("auto openings take the first row whose span covers the width", () => {
   const plan = planWith();

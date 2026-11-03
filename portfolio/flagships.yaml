@@ -127,33 +127,37 @@ flagships:
       check not tied to rho (treering, rho 0.16, gets no hint);
       a documented real run
       of 5+ steps to test the block-variance warning, which does not yet
-      separate drift from steps. (1) range95: a closure series quiet outside
-      the closure (none of 30 Ansett route/class series is). (2) The steep-
+      separate drift from steps; (1) range95: a closure series quiet outside
+      the closure (none of 30 Ansett route/class series is; nor is Peace Bridge
+      traffic around the 2009 passport rule, 2026-11-01: step on the month, 13
+      other changes). (2) The steep-
       bump (0.04) clumpy-count cell is under-covered, 65/79 (82%) over six
-      seeds; the CLI and JSON carry that caveat. (3) GARCH: a filtered
+      seeds; the CLI and JSON carry that caveat. (2b) US real rate: 1980Q4 vs the
+      cited 1980Q3 is a first-vs-last-quarter convention (checked 2026-11-02;
+      the paper's own convention is unread). (3) GARCH: a filtered
       series has 1% false alarms but loses the real sd break (97% to 6%);
-      needs a segment-wise joint GARCH fit. (4) driftWarning fires on real
+      a segment-wise GARCH prune (README, 2026-11-02) keeps it (97% to
+      100%) but leaves 48% false alarms at n=200: search cuts jointly. (4) driftWarning fires on real
       shocks and on autocorrelated nulls as well as growing seasons: wanted
       a way to tell a shape from a shock, and to widen the noise scale
       without swallowing a short quarterly shape (--ar1 fixes the rho 0.5
-      null but loses UK gas). (5) Bootstrap swept on 33 real series 2026-10-31
-      (README: fewer cuts on 22, but US accidental deaths loses its real
-      1973-12 step); holiday false-alarm cuts are synthetic only: test them on
-      real series.
+      null but loses UK gas). (4b) Australian arrivals and UK lung deaths: `--ar1` loses the real shocks, the default keeps them and over-cuts; wanted: a setup that keeps both. (5) Bootstrap swept on 33 real series 2026-10-31
+      holiday false-alarm cuts: two real daily series tried
+      (Payroll pageviews; Capital Bikeshare 2026-11-02, README) and the list added changes on the bikes and cut two of 47 on the pageviews;
+      wanted: a daily series without a strong yearly swing and with a deep holiday dip (a shop's or office's counts), or a yearly term.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      Landed history lives in the README and git (UK page read against gov.uk 2026-10-30, standards consultation spring 2027 next; South Korea page from memory, NTS unread). Open: ZATCA rules on a real sandbox invoice, a real ZATCA credit or debit note (both made up), the Saxon route; FatturaPA
-      code lists (TD29, RF20 added 2026-10-24 from vendor summaries) and tolerances against the primary spec 1.9 text and any later structure change; Portugal's CIUS-PT add-on (made-up invoice; AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's rules admit them: which validator does AT run?); Poland's FA(3) (PL-001..017; XSD gate history in the README) on an issued invoice or KSeF test-environment file, more seeds covering the correction, advance and attachment branches;
+      History: README and git (UK page read against gov.uk 2026-10-30, consultation spring 2027 next; South Korea from memory, NTS unread). Open: ZATCA rules on a real sandbox invoice, a real ZATCA credit or debit note (both made up), the Saxon route; FatturaPA
+      code lists (TD29, RF20 from vendor summaries) and tolerances against the primary spec 1.9 text and any later structure change; Portugal's CIUS-PT add-on (made-up invoice; AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's rules admit them: which validator does AT run?); Poland's FA(3) (PL-001..017; XSD gate history in the README) on an issued invoice or KSeF test-environment file, more seeds covering the correction, advance and attachment branches;
       the rules and a repair on a real ERP or
       Factur-X export (repaired PDF opens in poppler 2026-10-30; veraPDF and Acrobat unrun); PINT SG and A-NZ rules on the Saxon/server route and on a
       real PINT file; RO_CIUS on a real ANAF file and the Saxon route; NLCIUS
       on a real Dutch file (UBL and CII both landed 2026-10-25, made-up examples); India's INV-01 check on a real IRP payload; mandate
-      dates read from primary sources where pages cite guides (Israel page 2026-10-29 from vendor summaries, directive 01/2025 unread; Denmark, Czech, Estonia, Latvia, Slovenia vendor-only; Luxembourg bill 8815 text unread; iras.gov.sg,
-      ato.gov.au, revenue.ie, CBIC); Nigeria page (2026-10-31, search excerpts only: NRS circulars unread, large-taxpayer dates disagree, format unconfirmed); Ireland read against Revenue's hub 2026-10-31 (no specs yet); Latin American, Spain and Brazil pages from search excerpts (open: CFDI and NF-e XSD readers, NFS-e); refresh the Bulgaria page when its draft
+      dates read from primary sources where pages cite guides (Singapore read against IRAS 2026-11-02, all phases confirmed; Israel from vendor summaries, directive 01/2025 unread; Denmark, Czech, Estonia, Latvia vendor-only; Slovenia and Luxembourg: law texts' implementing rules unread; ato.gov.au (403 from cloud), revenue.ie, CBIC); Nigeria, Thailand, Taiwan, Oman, Pakistan and Jordan pages (search excerpts only; Taiwan B2B and Oman 2026 vs 2027 dates disagree); Ireland read against Revenue's hub 2026-10-31 (no specs yet); Latin American, Spain and Brazil pages from search excerpts (open: CFDI and NF-e XSD readers, NFS-e); refresh the Bulgaria page when its draft
       passes or changes (consultation closed 2026-10-23, no outcome found 2026-10-30; sources disagree on 2028 vs a 2026-2030 phase-in). A run that lands a slice replaces its item here; keep
       this under 2,000 characters.
   - venture: shift-roster-builder
@@ -170,9 +174,13 @@ flagships:
       HiGHS ILP optimum (eval/ilp-check.py) on all 12 weeks at 8x22, 10x28, 12x30.
       Floors reach the optimum on 10 of 12 weeks; 10x the branching nodes leaves
       them unchanged, so the open gaps are 12x30 week 1 (72 vs 75) and 10x28 week 4
-      (77 vs 78): only a stronger relaxation (person-day clique or LP cuts) closes
-      them. Landed 2026-10-28: open-shift
-      tiebreak and `openShiftWeight` (weight 0: 15 h / 5 shifts; 100: 19 h / 3, sample cafe; page select and `--open-shift-hours` landed 2026-10-27). Measured 2026-10-28 (eval/relaxation-check.py): no LP relaxation closes 12x30 week 2 (cliques 68, cover cuts 68.4, Dantzig-Wolfe 72.33; floor 72, optimum 75), so the clique cut is dropped. Landed 2026-10-30: 14-day-notice page; `--import-shifts` / page box (published-schedule CSV to shift lines; invented layouts only, wanted: a real export). Landed 2026-10-30: `planStreaks` (`--weeks` flags 7+ day runs across weeks). Landed 2026-10-30: `streak: N` cell, written by carry-over and `--weeks`, so the days-in-a-row limit holds across Monday in the search. `placeRestBreaks` (paid rest breaks from the operator's spacing and length; not enforced by the search). Landed 2026-10-30: `seniority:` cell and `seniorityClaims` (shifts a more senior person could take; report only). Measured 2026-11-01 (eval/rolling-gap-bench.mjs): carry-over costs 0 open hours over 16 seeded 10x28 weeks, so a joint multi-week solve is dropped for coverage. Next: branch-and-price on the Dantzig-Wolfe LP (the 36 h search gap); then a tighter pay bound once coverage is proven. 
+      (77 vs 78): only a stronger relaxation closes them (no LP relaxation tried
+      does; eval/relaxation-check.py). Landed 2026-10-27 to 2026-11-01 (history in
+      the README): open-shift weighting, 14-day-notice page, `--import-shifts`,
+      `planStreaks`, `streak:` carry-over, `placeRestBreaks`, `seniorityClaims`.
+      Measured: carry-over costs 0 open hours, so a joint multi-week solve is
+      dropped; with coverage proven pay is within 0.7% of the bound.
+      Next: branch-and-price on the Dantzig-Wolfe LP (the coverage search gap, the one unproven 8x22 week); a real published-schedule export for --import-shifts. 
 
   - venture: photo-editing
     why: >-
@@ -214,10 +222,7 @@ flagships:
       `pairSelector`; an INFO_POOL_CAP of 400 (3000 items 1983 -> 36 ms;
       capped equals uncapped on 600 and 1000 items at 600 answers,
       poolCap.simulation.test.ts); and a live-Postgres ranking integration
-      test (ranking.integration.test.ts, 2026-10-22). Pool-cap accuracy at 3000 items measured 2026-10-22 (selector loop,
-      2 respondents). Budgets past the list length measured 2026-10-26 (30 items to 1,200
-      answers: no stall; hybrid dips below shipped at 300 answers, 5 seeds; 500 items at 2,000
-      and 4,000 answers: the cap hides nothing). The 300-answer dip was seed noise (20 seeds, 2026-10-27); with 20% random answers the information selector alone loses to shipped at 120/300 answers and the hybrid does not (docs). Lapse 0.05-0.5 measured 2026-10-27 (hybrid within 0.005 of shipped). First-option bias measured 2026-10-28 (hybrid +0.02 at bias 0.1-0.3, -0.04 at 0.5, 300 answers; docs). First-option fallback landed 2026-10-27 (share >= 0.7 uses shipped; bias 0.5 hybrid 0.592 to 0.651, docs). Second-option fallback landed 2026-10-27 (share <= 0.3 too; bias 0.5 hybrid 0.574 to 0.666, docs). 1000 items through the route with Postgres landed 2026-10-30 (one respondent, 1000 answers: next() p50 22 ms, max 60 ms; docs). Next: several respondents with noisy answers on 1000+ items through the route, and the first-option fallback through the route.
+      test (ranking.integration.test.ts, 2026-10-22). Pool-cap accuracy, budgets past the list length and lapse rates 0.05-0.5 measured 2026-10-22 to 10-27 (docs). First-option bias measured 2026-10-28 (hybrid +0.02 at bias 0.1-0.3, -0.04 at 0.5, 300 answers; docs). First-option fallback landed 2026-10-27 (share >= 0.7 uses shipped; bias 0.5 hybrid 0.592 to 0.651, docs). Second-option fallback landed 2026-10-27 (share <= 0.3 too; bias 0.5 hybrid 0.574 to 0.666, docs). 1000 items through the route with Postgres landed 2026-10-30 (one respondent, 1000 answers: next() p50 22 ms, max 60 ms; docs). Several respondents with lapse and slot bias through the route landed 2026-11-01 (60 items, Spearman 0.77 clean, 0.71 at 20% lapse, 0.53 and 0.07 at 50% and 80% bias; docs). Fallback switched off as a control landed 2026-11-02 (at 80% bias it keeps Spearman 0.266 vs 0.096 without; at 50% no measurable difference; docs). Same at 1000 items landed 2026-11-02 (3 respondents x 1000 answers: fallback +0.06 at 50% bias, +0.15 at 80%; docs). Next: more respondents per cell and more answers per item (3000+ answers on 1000 items).
 
   - venture: league-schedule-generator
     why: >-
@@ -233,7 +238,7 @@ flagships:
       suggestFairnessWeight (CLI --suggest-weight and a page button), play-
       off race and odds; thousands of random leagues through the validator
       with 0 invalid, and the page checkboxes clicked in Chromium
-      (eval/browser-click.mjs). Travel-table warnings (missing pair, triangle typo) landed 2026-10-30, on the CLI and the multi-division page (a notice above the schedule). Season grid CSV for multi-division leagues landed 2026-10-30 (CLI --grid and a page button, clicked in Chromium 2026-10-30: eval/browser-click.mjs). Team unavailable dates on the multi-division page landed 2026-10-30 (browser-clicked). Printable score sheets for multi-division leagues landed 2026-10-30 (page button). Next: a real league's travel times and a real league's unavailable-date requests.
+      (eval/browser-click.mjs). Travel-table warnings (missing pair, triangle typo) landed 2026-10-30, on the CLI and the multi-division page (a notice above the schedule). Season grid CSV for multi-division leagues landed 2026-10-30 (CLI --grid and a page button, clicked in Chromium 2026-10-30: eval/browser-click.mjs). Team unavailable dates on the multi-division page landed 2026-10-30 (browser-clicked). Standings from results on the page and CLI landed 2026-11-02 (browser-clicked). Cross-division play-off seeding with wildcards from those standings landed 2026-11-02 (page, CLI --playoffs, browser-clicked). Tie-break notes (why a team is above the next) landed 2026-11-02 (tiebreak.test.mjs) and show on the multi-division page from 2026-11-02 (browser-clicked). Weekly group-chat update for every division landed 2026-11-03 (divisionsWeeklyUpdate, page button; unit-tested on the made-up example league only; CLI `--results r.txt --weekly` landed 2026-11-03). Missing-scores chase list for multi-division leagues landed 2026-11-03 (divisionsOverdue, CLI --overdue, page button; unit-tested, browser-clicked 2026-11-03 with the weekly-update button: eval/browser-click.mjs). Next: a real league's travel times and a real league's unavailable-date requests.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
@@ -249,9 +254,24 @@ flagships:
       plates (checks for one-ball metering, column and wheel clearance, tub
       capacity, hose slope and bend radius, shuttle clear when advanced;
       cad/README.md "Feed"); a printed front retainer (two flexure arms, strain,
-      hold and pull-through forces checked) landed 2026-10-22. Next: close the feed's
-      remaining gaps (post bracing, the hose end swinging about 450 mm), then the
+      hold and pull-through forces checked) landed 2026-10-22. Hopper post bracing landed 2026-11-03 (two
+      x diagonals and one y diagonal, buckling-checked; cad/README.md). Next: close the hose end
+      swinging about 450 mm, then the
       actuator brackets (shuttle and elevation) and azimuth drive, then the netting
       trough that rolls balls to the hopper inlet; then check the head's
       wheel-to-wheel gap and plate clearance against the ball path with the
       flight model's launch speeds.
+  # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
+  # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
+  # "would be fun to make as a long term project. also being able to publish to
+  # spotify etc." Placed last so it does not displace the construction programme.
+  - venture: chant-forge
+    why: >-
+      Long-term music production programme: public-domain chant (GABC) to MIDI
+      men's-choir lines with Latin lyrics, then genre templates, voices,
+      mastering checks and a release kit for streaming distribution.
+    next: >-
+      Browser studio page (ventures/chant-forge/index.html: GABC in, preview and MIDI/WAV out, client-side; browser-safe.test.mjs) landed 2026-11-03; driven end to end in headless Chromium 2026-11-03 (eval/browser-e2e.mjs, 38 checks: every sample x backing, downloads, Play/Stop, 375 px); listen to it by ear and put it in front of users. History is in the README and git. Mix/master check
+      (master-cli.mjs: LUFS, true peak, mono, clipping, 6 tests) landed 2026-11-03;
+      checked against ffmpeg ebur128 2026-11-03 (eval/ffmpeg-check.mjs: 0.05 LU, 0.33 dB on synthetic signals); EBU test files and a real mix remain. Release kit (release.mjs: ISRC/UPC, cover, WAV, rights, AI disclosure, 7 tests) landed 2026-11-03; check it against a distributor's real upload form. GABC reader fixes for CRLF, <sp>/<v>/<alt> and in-group clefs landed 2026-11-03 (made-up strings); NABC and split-neume pitch test (nabc.test.mjs) landed 2026-11-03. `--fit 8 --stretch` (2026-11-03) lengthens long notes to fill bars, halving padded rest on the corpus; ear check pending. `--repeat N` (2026-11-03) loops the chant for full-length tracks; ear check pending. `--halftime` (2026-11-03) doubles chant durations over an unchanged backing for metal; ear check pending. Real-file batch landed 2026-11-03: 59 Graduale 1908 files, no crash or warning (batch.test.mjs, eval/batch-check.mjs). `--fills` (2026-11-03, genre.mjs fillBar, 3 tests) adds a snare roll every fourth bar; ear check pending. `--lrc FILE` timed lyrics (lrc.mjs, 3 tests, 2026-11-03; try in a real player). `--cues FILE` singer cue sheet (cues.mjs, 3 tests) landed 2026-11-03; try it with real singers; RECORDING-GUIDE.md (2026-11-03) is the protocol to try. `--suggest-final` (voicefit.mjs, 2026-11-03) lists finals that fit E2-E4; check the range with real singers. `--auto-final` (2026-11-03) applies that recommendation in one step. Preview renderer (render-cli.mjs: MIDI to WAV, 6 tests, 2026-11-03) lets master-cli run on real audio: metal preview passes all four checks, deep house is 2.8 LU quiet; a person must listen. `--limit` with `--lufs` (2026-11-03) limiter reaches -14 LUFS under -1 dBTP on deep house; listen for pumping. master-cli prints per-service playback gain (platformPlayback, 2026-11-03; service targets from memory, verify against their pages). master-cli now prints a suggested gain (suggestGain, capped by true-peak room, 2026-11-03). `--intro N` (2026-11-03, intro.test.mjs) puts N silent bars before the chant, backing under them; ear check pending. `--markers` (2026-11-03, markers.test.mjs) adds a MIDI marker at each phrase start; check the locators in a DAW. `render-cli.mjs --stems DIR` (2026-11-03, 1 test) writes per-voice WAV stems that sum to the mix; load them in a DAW and judge by ear. Next: compare a sample of the files against a pre-1929 scan (notes, not just parse), source the Te Deum and
+      Salve Regina from a pre-1929 book, read the 11 off-final endings against the book, and listen to the --stretch output (ROADMAP.md).

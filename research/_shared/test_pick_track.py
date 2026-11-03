@@ -28,6 +28,27 @@ class DrawProgrammeTest(unittest.TestCase):
         self.assertEqual(pick_track.draw_programme(0.3, self.progs, lambda s: [])[2], [])
 
 
+class BlockedTest(unittest.TestCase):
+    progs = [("a-prog", True), ("b-prog", True), ("c-prog", True)]
+
+    def test_blocked_programme_is_never_drawn(self):
+        old = pick_track.is_blocked
+        pick_track.is_blocked = lambda s: s == "a-prog"
+        try:
+            for r in [i / 50 for i in range(50)]:
+                self.assertNotEqual(pick_track.draw_programme(r, self.progs, lambda s: [])[0], "a-prog")
+        finally:
+            pick_track.is_blocked = old
+
+    def test_all_blocked_still_draws(self):
+        old = pick_track.is_blocked
+        pick_track.is_blocked = lambda s: True
+        try:
+            self.assertIn(pick_track.draw_programme(0.3, self.progs, lambda s: [])[0], {"a-prog", "b-prog", "c-prog"})
+        finally:
+            pick_track.is_blocked = old
+
+
 class MilestonesTest(unittest.TestCase):
     def test_capture_lists_milestones(self):
         listed, free = pick_track.milestones("capture")

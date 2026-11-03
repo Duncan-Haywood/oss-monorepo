@@ -271,3 +271,47 @@ test("cash flow also groups spend by Monday week and names the peak week", () =>
   assert.match(scheduleText(s).join("\n"), /heaviest week \(from Monday\) 2026-03-02 at \$5,000/);
   assert.match(scheduleCsv(s), /week:2026-03-09,.*spend 2500; to date 7500/);
 });
+
+test("draw terms: float with a payment lag and retainage (hand-checked)", () => {
+  // Two working days, $1000 each, Mon 2026-03-02 and Tue 03-03. Lag 7 days, 10% retainage, release 7 days after the last day.
+  // Spend -1000 (03-02), -1000 (03-03); receipts +900 on 03-09 and 03-10; retainage 200 on 03-10. Deepest gap -2000 on 03-03.
+  const s = schedule({ start: "2026-03-02", draw: { lagDays: 7, retainagePct: 10 }, activities: [{ id: "a", days: 2, cost: 2000 }] });
+  assert.deepEqual(s.cashFlow.float, { lagDays: 7, retainagePct: 10, peakFloat: 2000, peakDate: "2026-03-03", retainageHeld: 200, releaseDate: "2026-03-10" });
+  assert.match(scheduleText(s).join("\n"), /Cash you float with draws paid 7 day\(s\) late and 10% retainage: peak \$2,000 on 2026-03-03/);
+  assert.equal(schedule({ start: "2026-03-02", draw: {}, activities: [{ id: "a", days: 2, cost: 2000 }] }).cashFlow.float.peakFloat, 0);
+  assert.equal(schedule({ start: "2026-03-02", draw: { retainagePct: 150 }, activities: [{ id: "a", days: 1, cost: 5 }] }).ok, false);
+});
+
+test("draw markup: receipts are billed at cost x (1 + markup) (hand-checked)", () => {
+  // one 2-day job, cost 2000 = 1000 a day; bill 1.25x, 10% retainage, paid 7 days late.
+  // Day 1 out 1000, day 2 out 1000 (peak -2000 before any pay-in); retainage held = 2500 x 10% = 250.
+  const s = schedule({ start: "2026-03-02", draw: { lagDays: 7, retainagePct: 10, markup: 0.25 }, activities: [{ id: "a", days: 2, cost: 2000 }] });
+  assert.equal(s.cashFlow.float.peakFloat, 2000);
+  assert.equal(s.cashFlow.float.retainageHeld, 250);
+  assert.equal(schedule({ start: "2026-03-02", draw: { lagDays: 7, retainagePct: 10 }, activities: [{ id: "a", days: 2, cost: 2000 }] }).cashFlow.float.retainageHeld, 200);
+  assert.match(scheduleText(s).join("\n"), /billed at cost \+25\.0%/);
+  assert.equal(schedule({ start: "2026-03-02", draw: { markup: -1 }, activities: [{ id: "a", days: 1, cost: 5 }] }).ok, false);
+});
+
+test("hostile days, lags and slips are refused fast (a 1e9-day activity used to hang the calendar walk)", async () => {
+  const { schedule, sampleSchedule } = await import("./schedule.mjs");
+  for (const edit of [(s) => (s.activities[0].days = 1e9), (s) => (s.activities[1].lag = 1e9), (s) => (s.activities[0].days = Infinity), (s) => (s.slips[0].days = 1e9)]) {
+    const s = sampleSchedule();
+    edit(s);
+    const t = Date.now();
+    const r = schedule(s);
+    assert.equal(r.ok, false);
+    assert.ok(Date.now() - t < 500);
+  }
+  assert.equal(schedule(sampleSchedule()).ok, true);
+});
+
+test("dates outside 1990 to 2100 are refused (notBefore 9999-12-31 took 21 s)", () => {
+  for (const edit of [(s) => (s.start = "9999-12-31"), (s) => (s.start = "0001-01-01"), (s) => (s.activities[2].notBefore = "9999-12-31"), (s) => (s.holidays = ["3000-01-01"])]) {
+    const s = sampleSchedule();
+    edit(s);
+    const t = Date.now();
+    assert.equal(schedule(s).ok, false);
+    assert.ok(Date.now() - t < 500);
+  }
+});

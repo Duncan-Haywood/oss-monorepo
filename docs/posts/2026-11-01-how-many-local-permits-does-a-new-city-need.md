@@ -1,5 +1,6 @@
 ---
 title: "How many local permits does a new city need before other cities' data helps?"
+seo_title: "How many local permits does a new city need?"
 date: 2026-11-01
 tags: [research, build-data]
 description: Pooling three US cities' building-permit records with a few rows of a new city rarely beats a simple per-permit-type baseline built from the same few rows.

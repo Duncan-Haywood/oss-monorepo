@@ -1,0 +1,7 @@
+{
+ "theme": "osrobot",
+ "programme": "marine-hull",
+ "title": "How far can an underwater vehicle dead-reckon before it must surface? DVL drift per kilometre",
+ "lede": "drift per metre is sqrt(s^2 + (2 sin(b/2))^2) for DVL scale error s and heading bias b (simulation within 1%); with a 0.2% DVL, 1 degree of heading bias drifts 8.7x more than the DVL itself, and a 3 m surface fix every 1 to 2 km holds the 20 km worst-case error to 11 to 15 m against 64 m with no fix",
+ "summary": "Milestone 6 of track 23 (marine-dr), filed under the marine-hull programme. A stdlib 2-D straight-track dead-reckoning simulator with a DVL scale error (Teledyne Workhorse Navigator bottom-track accuracy 0.2 to 0.4%, from a datasheet excerpt), a heading bias and gyro random walk (assumed, swept) and periodic surface fixes. Check: end error equals the analytic drift rate within 1%. Result: the heading reference dominates unless better than about 0.115 degree; a 10 m error is reached after 3.8 km at 0.2% and 0.1 degree. Monte Carlo over 200 runs of 20 km: median worst error 64 m with no fix, 15 m with a fix every 2 km, 11 m every 1 km, and the 3 m fix noise floor below that. Straight track only; no currents, DVL dropouts, USBL or surfacing energy; gyro noise and fix quality are assumed, and a first run with an unrealistic gyro noise was discarded. Preliminary; simulation only."
+}

@@ -1,0 +1,4 @@
+{
+  "note": "Payments received from the portfolio's open ways to pay (GitHub Sponsors, Buy Me a Coffee; see .github/FUNDING.yml). Those balances sit in the owner's accounts and no token here can read them, so a payment counts in the usage-and-income posts (platform/daily/usage-report.mjs) only once it is written here. One entry per payment or per day: {\"day\": \"YYYY-MM-DD\", \"amount_usd\": 5.0, \"channel\": \"Buy Me a Coffee\"}. Aggregate amounts only: no names, emails or messages from the payer (this repository is public). An empty list means none recorded, not none received.",
+  "entries": []
+}

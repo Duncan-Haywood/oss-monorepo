@@ -7,7 +7,7 @@ from pathlib import Path
 
 from check_post_frontmatter import ROOT, main, problems
 
-GOOD = '---\ntitle: "T"\ndate: 2026-10-24\ndescription: "d"\ntags: [a, b]\n---\nbody\n'
+GOOD = '---\ntitle: "T"\ndate: 2026-10-24\ndescription: "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"\ntags: [a, b]\n---\nbody\n'
 
 
 class T(unittest.TestCase):
@@ -26,12 +26,16 @@ class T(unittest.TestCase):
         self.assertEqual(len(problems("2026-10-25-x.md", GOOD)), 1)
 
     def test_long_description(self):
-        t = GOOD.replace('"d"', '"' + "x" * 161 + '"')
+        t = GOOD.replace('"' + 'D' * 60 + '"', '"' + "x" * 161 + '"')
         self.assertEqual(problems("2026-10-24-x.md", t), ["description is 161 characters; keep it to 160"])
 
     def test_description_of_exactly_160_is_fine(self):
-        t = GOOD.replace('"d"', '"' + "x" * 160 + '"')
+        t = GOOD.replace('"' + 'D' * 60 + '"', '"' + "x" * 160 + '"')
         self.assertEqual(problems("2026-10-24-x.md", t), [])
+
+    def test_stub_description(self):
+        t = GOOD.replace('"' + 'D' * 60 + '"', '"d"')
+        self.assertEqual(problems("2026-10-24-x.md", t), ["description is 1 characters; write at least 60 so a result says what the post is"])
 
     def test_long_seo_title(self):
         t = GOOD.replace('title: "T"\n', 'title: "T"\nseo_title: "' + "x" * 71 + '"\n')
@@ -48,7 +52,7 @@ class T(unittest.TestCase):
 
     def _run(self, posts, distinct=True):
         if distinct:  # each post needs its own description or the duplicate check fires
-            posts = {n: t.replace('description: "d"', f'description: "d {n}"') for n, t in posts.items()}
+            posts = {n: t.replace('description: "' + 'D' * 60 + '"', f'description: "{n} ' + 'D' * 60 + '"') for n, t in posts.items()}
         with tempfile.TemporaryDirectory() as d:
             (Path(d) / "docs" / "posts").mkdir(parents=True)
             for name, text in posts.items():

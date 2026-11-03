@@ -38,3 +38,9 @@ test("two windows too close to share kings: refused plain, laid out when ganged"
   const g = compare(plan, { gang: true });
   assert.ok(g.ok && g.ganged);
 });
+
+test("at 12 in o.c. the per-foot rule under-orders; at 16 in and wider it over-orders", () => {
+  const [s12, s16, s192, s24] = spacingSweep(samplePlan(), [12, 16, 19.2, 24]);
+  assert.ok(s12.perFootOff < 0);
+  assert.ok(s16.perFootOff > 0 && s192.perFootOff > s16.perFootOff && s24.perFootOff > s192.perFootOff);
+});

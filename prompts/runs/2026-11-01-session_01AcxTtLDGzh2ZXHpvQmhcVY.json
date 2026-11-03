@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01AcxTtLDGzh2ZXHpvQmhcVY",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T11:10:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12318",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "No perf backlog items and no check catches over-long seo_title before deploy; found only by running the build."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Build was broken on main, so fixed that instead of a speed-up",
+      "did": "Shortened seo_title",
+      "result": "cold build passes, 2m04s"
+    }
+  ],
+  "writeups": [
+    "docs/history/pages-build-perf-2026-11-01-seo-title-gate.md"
+  ],
+  "goal": null,
+  "notes": "Metric: cold Pages build. Before: exit 1 (seo_title 74>70). After: exit 0, 2m04s real, via node platform/pages/build.mjs. No new blog post: one-line fix.",
+  "corrections": [],
+  "redteam": null
+}

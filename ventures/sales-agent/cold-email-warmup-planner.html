@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free cold email warm-up and sending ramp planner</title>
+  <meta name="description" content="Plan how many cold emails per day each mailbox can send while it warms up, how many mailboxes you need for your target volume, and download the day-by-day schedule as CSV. Runs in your browser.">
+  <link rel="canonical" href="./cold-email-warmup-planner.html">
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    a { color: #4b6215; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 8px; font: inherit; border: 1px solid #aab4c0; border-radius: 6px; background: #fff; color: inherit; }
+    button { margin: 12px 8px 0 0; padding: 10px 14px; border: 0; border-radius: 8px; background: #4b6215; color: #fff; font: inherit; font-weight: 650; cursor: pointer; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { border-bottom: 1px solid #ccd3db; padding: 4px 6px; text-align: right; }
+    .warn { color: #7a5200; } footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Sales Agent</a></p>
+  <h1>Cold email warm-up and sending ramp planner</h1>
+  <p>New mailboxes that jump straight to volume land in spam. Enter how many mailboxes you have and the daily volume you want; get the day-by-day ramp and a warning if you need more mailboxes. Nothing is uploaded.</p>
+  <label for="mb">Mailboxes</label><input id="mb" type="number" min="1" value="3">
+  <label for="tg">Target cold emails per day (all mailboxes)</label><input id="tg" type="number" min="1" value="90">
+  <label for="st">Start per mailbox per day</label><input id="st" type="number" min="1" value="10">
+  <label for="sp">Add per mailbox every step</label><input id="sp" type="number" min="1" value="5">
+  <label for="sd">Days per step</label><input id="sd" type="number" min="1" value="3">
+  <label for="cp">Cap per mailbox per day</label><input id="cp" type="number" min="1" value="40">
+  <button id="go" type="button">Plan the ramp</button><button id="csv" type="button">Download CSV</button>
+  <div id="out" aria-live="polite"></div>
+  <h2>Questions</h2>
+  <h3>How many cold emails can one mailbox send per day?</h3>
+  <p>There is no single number. A common conservative habit is to start near 10 a day on a fresh mailbox and stay under about 40 to 50 a day once warm, adding mailboxes instead of volume. Your provider's published limits are higher than what filters tolerate; check them.</p>
+  <h3>Does this guarantee inbox placement?</h3>
+  <p>No. Placement depends on your list quality, content, domain reputation and authentication (SPF, DKIM, DMARC). This only plans the volume.</p>
+  <p>Before you send, run the <a href="./cold-email-checker.html">cold email checker</a>; after, the <a href="./how-to-handle-replies-to-cold-outreach.html">inbox agent</a> sorts replies.</p>
+  <footer><p><strong>No warranty.</strong> Free and as-is. The ramp numbers are rules of thumb, not provider guarantees or legal advice. Cold email rules vary by country; see the checker.</p></footer>
+  <script type="module">
+    import { plan, toCsv } from "./sendramp.mjs";
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last;
+    const run = () => {
+      try {
+        last = plan({ mailboxes: $("mb").value, targetPerDay: $("tg").value, startPerDay: $("st").value, stepPerDay: $("sp").value, stepDays: $("sd").value, capPerMailbox: $("cp").value });
+      } catch (e) { $("out").innerHTML = `<p class="warn">${esc(e.message)}</p>`; last = null; return; }
+      const rows = last.schedule.map((x) => `<tr><td>${x.day}</td><td>${x.perMailbox}</td><td>${x.total}</td><td>${x.cumulative}</td></tr>`).join("");
+      $("out").innerHTML = `<h2>Plan</h2><p>${last.reachedTarget ? `Reaches ${last.finalPerDay}/day on day ${last.daysToTarget}.` : `Tops out at ${last.finalPerDay}/day; target not reachable with this setup.`} First week: ${last.firstWeekTotal} emails.</p><ul>${last.warnings.map((w) => `<li class="warn">${esc(w)}</li>`).join("")}</ul><table><tr><th>Day</th><th>Per mailbox</th><th>Total</th><th>Cumulative</th></tr>${rows}</table>`;
+    };
+    $("go").addEventListener("click", run);
+    $("csv").addEventListener("click", () => { run(); if (!last) return; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" })); a.download = "sending-ramp.csv"; a.click(); });
+    run();
+  </script>
+</body>
+</html>

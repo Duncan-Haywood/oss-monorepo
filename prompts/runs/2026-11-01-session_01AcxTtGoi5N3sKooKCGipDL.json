@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01AcxTtGoi5N3sKooKCGipDL",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T12:11:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12328",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "research/marine-hull/LOG.md",
+      "why": "Ran the experiment before recording predictions, so 3c is labelled exploratory and not pre-registered.",
+      "did": "Logged it as exploratory",
+      "result": "honest labelling"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-01-holtrop-mennen-on-a-4-m-hull.md",
+    "research/marine-hull/LOG.md (3c)"
+  ],
+  "goal": null,
+  "notes": "Numerical cross-check against external repo was refused by the sandbox classifier (exec of external code); not worked around. H3 left open.",
+  "corrections": [],
+  "redteam": null
+}

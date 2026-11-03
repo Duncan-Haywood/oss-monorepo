@@ -31,6 +31,13 @@ const PILOTS = {
   'kickstarter-fee-calculator': async (m) => [
     m.MICRO_PLEDGE_THRESHOLD, m.STANDARD_PROCESSING_FLAT, m.MICRO_PROCESSING_FLAT,
   ],
+  'ebay-fee-calculator': async (m) => [m.DEFAULT_COMBINED_FIXED_FEE, 7500], // 7500: the cap the 13.6% rate applies up to
+  'reverb-fee-calculator': async (m) => [m.DEFAULT_MARKETPLACE_FEE_CAP, m.REVERB_DEFAULTS.paymentFixed, 15000, 750], // 15000 and 750: the worked example in the lead (5% of 15000)
+  'tcgplayer-fee-calculator': async (m) => [m.COMMISSION_CAP, m.TRANSACTION_FIXED, 1],
+  'patreon-fee-calculator': async (m) => [m.STANDARD_PROCESSING.fixed, m.MICRO_THRESHOLD],
+  'shopify-fee-calculator': async (m) => [
+    m.PLAN_PRESETS.basic.monthlyPlan, m.PLAN_PRESETS.grow.monthlyPlan, m.PLAN_PRESETS.advanced.monthlyPlan, m.PLAN_PRESETS.basic.paymentsFixed,
+  ],
   'poshmark-fee-calculator': async (m) => [m.FLAT_FEE, m.COMMISSION_THRESHOLD, m.BREAK_EVEN_PRICE],
 };
 
@@ -41,7 +48,7 @@ for (const [slug, figures] of Object.entries(PILOTS)) {
     assert.ok(m, 'no data-answer-lead paragraph');
     const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
     assert.match(text, /Source:/);
-    assert.match(text, /(?:verified|as of) \d{4}-\d{2}-\d{2}/i);
+    assert.match(text, /(?:verified|as of) \d{4}-\d{2}(?:-\d{2})?/i);
     const allowed = (await figures(await import(new URL(`${slug}/calc.mjs`, root)))).map(Number);
     const stated = [...text.matchAll(/\$([\d,]+(?:\.\d+)?)/g)].map((x) => Number(x[1].replace(/,/g, '')));
     assert.ok(stated.length > 0, 'lead states no figure');

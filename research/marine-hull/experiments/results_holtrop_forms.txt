@@ -1,0 +1,13 @@
+Wigley 4 x 0.4 x 0.25 m, 15 C fresh water; CW and CT on Ju's area 2.380 m2; tank CT 4.16e-3 at Fn 0.267
+-- tank point, HM-regression area (like-for-like HM) --
+m2: CW 1.022e-3, CT 4.995e-3 (+20.1% on tank)
+m4: CW 0.944e-3, CT 4.918e-3 (+18.2% on tank)
+-- ratio RW(m4 form)/RW(m2 form) and RT ratio over Fn, exact area --
+Fn    RW_m2[N]  RW_m4[N]  RW ratio  RT ratio
+0.10     0.001     0.001  1.00      1.000
+0.15     0.056     0.056  1.00      1.000
+0.20     0.559     0.531  0.95      0.997
+0.25     2.469     2.185  0.88      0.982
+0.30     4.376     4.944  1.13      1.024
+0.35    10.137    10.363  1.02      1.006
+0.40    25.421    24.141  0.95      0.978

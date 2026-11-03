@@ -1,5 +1,6 @@
 ---
 title: "Checking a stair landing's joists and the load the flights add to its posts"
+seo_title: "Stair landing joists: checking the load the flights add"
 date: 2026-11-01
 tags: [wall-framing-takeoff, stairs, construction]
 description: The framing takeoff now checks a stair landing's joists in bending, shear and deflection and adds both flights' reactions to the heaviest post and footing.

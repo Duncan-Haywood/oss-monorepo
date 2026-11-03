@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01AcxTtH1ffWv4V6FYeiTXvj",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T16:08:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12604",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "no speed-up shipped; full local suite exceeded the time I could spend and a safe same-answers fix needs CI before/after",
+      "did": "filed P061 with measurements and a history doc",
+      "result": "reading only"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-02-qps-simulations.md"
+  ],
+  "goal": null,
+  "notes": "metric: quick-pick-survey CI Test step 21.2 job-min over 5 jobs (ci_profile.py, 600 runs, 2026-11-02); local poolCap 500x2000 cell 177.9 s (vitest verbose, 4 cores). No after number: no change made. No blog post: finding is a reading only.",
+  "corrections": [],
+  "redteam": null
+}

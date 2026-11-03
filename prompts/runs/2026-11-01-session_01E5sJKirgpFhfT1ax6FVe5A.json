@@ -1,0 +1,51 @@
+{
+ "date": "2026-11-01",
+ "session": "https://claude.ai/code/session_01E5sJKirgpFhfT1ax6FVe5A",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-01T14:31:19Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12351",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "platform/ci/pyenv.py",
+   "issue": "pip install of torch hung ~10 min on download.pytorch.org (403 via proxy); a plain PyPI venv install worked in ~2 min"
+  },
+  {
+   "file": "prompt.md",
+   "issue": "first route sent me to review while prompts: review PR #12272 was already open; had to re-route with --skip-review"
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-11-01-how-tight-can-a-progress-check-be.md",
+  "research/verifiable-training-mechanisms/LOG.md milestone 54"
+ ],
+ "goal": null,
+ "notes": "Milestone 54 re-scored 53's runs at six R values; predictions written before the run. Did not run the CI-local checks beyond the experiment itself.",
+ "corrections": [],
+ "redteam": null
+}

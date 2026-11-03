@@ -116,6 +116,6 @@ construction and autonomy programmes first, and since 2026-11-01 the chip and
 robot co-design ones too (`verified-dse`; `pick_track.py`, `FOCUS`; owner's
 direction in `prompts/goals.md`, "Direction: research at PhD+ level, aimed at
 deep tech"). New programmes come from these areas by default; the others stay
-open and get finished. A row without a proposal is an invitation: its first session writes the
+open and get finished. A programme whose open items all wait on outside data or an owner step gets a one-line `research/<slug>/BLOCKED` file; `pick_track.py` then skips it (delete the file when work is doable again). A row without a proposal is an invitation: its first session writes the
 proposal. Add rows when a question earns one; close a row (with a line on the
 outcome) when its paper is ready or the question is settled.

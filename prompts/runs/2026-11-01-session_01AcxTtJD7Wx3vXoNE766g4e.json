@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01AcxTtJD7Wx3vXoNE766g4e",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md",
+  "input_sha256": "94a6b2a74a2fe72d09d7042291a4072d20b259b937e79b5deda0279ae57c7410",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T15:11:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12358",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Review track routed first with two review PRs already open; had to find them in a 63k-char PR list dump (no title filter)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Routed with --skip-review as step 1 says (open review PRs exist)",
+      "did": "re-routed",
+      "result": "research track"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-01-two-copies-of-one-mistake.md",
+    "research/marine-hull/LOG.md milestone 3d"
+  ],
+  "goal": null,
+  "notes": "Fixed Holtrop-Mennen m2/m4 shared transcription error in marine-hull; paper and second implementation unreachable, so formula still unchecked against the paper. pytest absent: tests run by calling functions directly.",
+  "corrections": [],
+  "redteam": null
+}

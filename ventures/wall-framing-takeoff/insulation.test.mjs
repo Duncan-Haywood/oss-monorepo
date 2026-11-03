@@ -192,3 +192,23 @@ test("heat loss adds air leakage: ACH50 / N x volume x 0.018", () => {
   assert.equal(validateInsulation({ assembly: { ach50: 3 } }).length, 1); // needs all three
   assert.equal(validateInsulation({ assembly: { ach50: 3, nFactor: 20, volumeCuFt: 16000 } }).length, 0);
 });
+
+test("heating cost: seasonal heat / (efficiency x BTU per unit) x typed price, by hand", () => {
+  const r = { walls: [wall([m(0, 0, 96, 1.5), m(0, 94.5, 96, 1.5), m(0, 1.5, 1.5, 93)])] };
+  const p = { defaultHeaderHeight: 82.5, walls: [{ id: "A", length: 96 }] };
+  const systems = [
+    { name: "gas furnace", efficiency: 0.95, unitBtu: 100000, pricePerUnit: 1.5 }, // per therm
+    { name: "heat pump", efficiency: 3, unitBtu: 3412, pricePerUnit: 0.15 }, // per kWh
+  ];
+  const h = layoutInsulation({ assembly: { heatingDegreeDays: 5000, heatingSystems: systems } }, p, r).assembly.heat;
+  const kbtu = h.annualKBtu;
+  assert.ok(Math.abs(h.systems[0].units - kbtu * 1000 / (0.95 * 100000)) < 1e-9);
+  assert.ok(Math.abs(h.systems[0].cost - h.systems[0].units * 1.5) < 1e-9);
+  assert.ok(Math.abs(h.systems[1].units - kbtu * 1000 / (3 * 3412)) < 1e-9);
+  assert.equal(h.systems[1].name, "heat pump");
+  // no degree-days: nothing is costed
+  assert.equal(layoutInsulation({ assembly: { heatingSystems: systems } }, p, r).assembly.heat.systems, null);
+  // bad input is refused
+  const bad = layoutInsulation({ assembly: { heatingSystems: [{ efficiency: 0, unitBtu: 1, pricePerUnit: 1 }] } }, p, r);
+  assert.equal(bad.ok, false);
+});

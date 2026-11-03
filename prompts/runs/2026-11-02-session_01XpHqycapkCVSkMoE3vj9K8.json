@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01XpHqycapkCVSkMoE3vj9K8",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "let's do daily and weekly reports on how monetization and usage is going blog post",
+  "input_sha256": "136628b94ebdbae598801c582119592edef28a3a6ad5900e85b7d5800e5d7a5a",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T03:25:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Daily and weekly usage-and-income blog posts",
+  "projects": [
+    "platform/daily/usage-report"
+  ],
+  "pr": 12480,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "site-usage-pull.yml fails since 2026-10-31: direct push to main rejected by the ruleset (run 41276810850); committed site-visits.json stopped at 2026-10-30 while the counter kept counting",
+      "fixed": "data refreshed by hand in this PR; workflow fix planned in platform/daily/USAGE_REPORT.md for a separate control-plane PR"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/post_similarity.py",
+      "issue": "A recurring generated series will always read as near-copies; the check has no way to mark a series. Daily boilerplate was cut to links to keep containment down."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Direct owner request fitting no track; recorded under process (closest by nature: repo measurement tooling), not the weighted draw.",
+      "did": "routed --track process",
+      "result": "generator, tests and first three posts shipped"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "The workflow fix belongs in its own control-plane PR, but this session may push only its designated branch, so the change is written up as a plan instead of opened.",
+      "did": "plan in platform/daily/USAGE_REPORT.md",
+      "result": "pending a follow-up session"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-02-daily-and-weekly-usage-and-income-reports.md",
+    "docs/posts/2026-11-02-usage-and-income-2026-11-01.md",
+    "docs/posts/2026-11-02-usage-and-income-week-to-2026-11-01.md"
+  ],
+  "goal": null,
+  "notes": "node --test platform/daily/usage-report.test.mjs: 7/7 pass. check_post_frontmatter.py clean. writing.mjs loadPosts() loads the three posts. Live counter /counts (2026-11-02): 95 page loads 2026-10-24..2026-11-02, 29,268 crawler beacons; pulled into site-visits.json with platform/counter/pull.mjs (max-merge).",
+  "corrections": [],
+  "redteam": null
+}

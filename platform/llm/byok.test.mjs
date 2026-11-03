@@ -105,6 +105,15 @@ test('HTTP errors never echo the body and mark what is retryable', async () => {
   });
 });
 
+test('retryable boundary: 500 and 503 retry, 400 and 404 do not', async () => {
+  for (const [status, want] of [[400, false], [404, false], [500, true], [503, true]]) {
+    await assert.rejects(complete({ provider: 'anthropic', apiKey: 'k' }, { prompt: 'P', fetch: fakeFetch({}, status) }), err => {
+      assert.equal(err.retryable, want, `HTTP ${status}`);
+      return true;
+    });
+  }
+});
+
 test('withFallback: deterministic path without a key, on failure, model path otherwise', async () => {
   const det = () => 'template';
   assert.deepEqual(await withFallback(null, det, () => 'never'), { value: 'template', source: 'fallback' });
@@ -234,4 +243,11 @@ test('anthropic: a missing usage field counts as zero, not one (spend guard char
   assert.deepEqual(none.usage, { input: 0, output: 0 });
   const cached = await complete({ provider: 'anthropic', apiKey: 'k' }, { prompt: 'P', fetch: fakeFetch({ content: [], usage: { cache_read_input_tokens: 7, output_tokens: 2 } }) });
   assert.deepEqual(cached.usage, { input: 7, output: 2 });
+});
+
+test('redteam guards: explicit default port is kept; 172.16-19 are private', () => {
+  assert.equal(configFromEnv({ OLLAMA_HOST: 'http://box.lan:80', LLM_MODEL: 'q' }).baseUrl, 'http://box.lan/v1');
+  for (const ip of ['172.16.0.1', '172.17.0.1', '172.19.5.5', '172.20.0.1', '172.31.255.1']) {
+    assert.equal(isLocal({ provider: 'openai-compatible', model: 'm', baseUrl: `http://${ip}/v1` }), true, ip);
+  }
 });

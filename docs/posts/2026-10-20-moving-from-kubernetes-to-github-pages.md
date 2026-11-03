@@ -1,5 +1,6 @@
 ---
 title: "Moving a static site off a self-hosted Kubernetes cluster to GitHub Pages"
+seo_title: "Moving a static site from self-hosted Kubernetes to GitHub Pages"
 date: 2026-10-20
 description: "Why we retired a two-server k3s cluster and serve a static tool catalogue from a gh-pages branch, and the traps in a branch-published Pages site."
 tags: [github-pages, kubernetes, hosting, ai-agents]

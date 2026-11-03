@@ -699,6 +699,12 @@ def print_table(ventures: list[Venture], queue: list[dict]) -> None:
             "the highest-merit one are not the same -- read this beside #139's "
             "cost ordering, not instead of it."
         )
+    latest = REPO_ROOT / "portfolio" / "direction" / "LATEST.md"
+    if latest.exists():
+        print(
+            "\nWhere effort actually went, and suggestions towards higher-value work: "
+            "portfolio/direction/LATEST.md (daily and weekly reports in portfolio/direction/)."
+        )
 
 
 def main(argv: Optional[list[str]] = None) -> int:

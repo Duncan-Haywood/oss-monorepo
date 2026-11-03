@@ -721,7 +721,7 @@ def _expand_prompt_path(
         # first: the naming document's own subtree, then the whole repository.
         scope = repo_root / base_dir if base_dir else repo_root
         if index is not None:
-            named = [f for f in index if f.rsplit("/", 1)[-1] == normalised]
+            named = _by_basename(index).get(normalised, [])
             if scope.is_dir() and scope != repo_root:
                 prefix = scope.relative_to(repo_root).as_posix() + "/"
                 scoped = [f for f in named if f.startswith(prefix)]
@@ -742,6 +742,28 @@ def _expand_prompt_path(
             if p.is_file() and not _pruned(p, repo_root)
         )
     return []
+
+
+_BASENAME_MEMO: dict[int, tuple[Sequence[str], dict[str, list[str]]]] = {}
+
+
+def _by_basename(index: Sequence[str]) -> dict[str, list[str]]:
+    """Map basename -> files (in index order), built once per index object.
+
+    The bare-filename branch of `_expand_prompt_path` used to scan the whole
+    index per spec (about 2,900 specs x 47,000 files = 138 million `rsplit`
+    calls, 30 s of a 31 s run). The memo holds the index itself so a reused
+    `id()` can never return another list's map.
+    """
+    hit = _BASENAME_MEMO.get(id(index))
+    if hit is not None and hit[0] is index:
+        return hit[1]
+    table: dict[str, list[str]] = {}
+    for f in index:
+        table.setdefault(f.rsplit("/", 1)[-1], []).append(f)
+    _BASENAME_MEMO.clear()
+    _BASENAME_MEMO[id(index)] = (index, table)
+    return table
 
 
 def _pruned(path: Path, repo_root: Path) -> bool:

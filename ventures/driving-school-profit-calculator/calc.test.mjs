@@ -159,3 +159,26 @@ test("csv has a header and one row per volume", () => {
   assert.equal(lines.length, 6);
   assert.match(lines[0], /^volume_pct,booked_per_week,car_hours,utilization_pct,owner_instructs_after_pay,employ_instructor,lease_car$/);
 });
+
+// Red-team 2026-11-03: boundary and default guards for mutants that escaped.
+test("instructor pay of exactly 100 percent is refused, 99 is accepted", () => {
+  assert.match(readInput({ ...sampleInput(), instructorPayPct: "100", targetMarginPct: "0" }).error, /keep it below 100/);
+  assert.ok(readInput({ ...sampleInput(), instructorPayPct: "40", targetMarginPct: "0" }).v);
+});
+
+test("a target margin of exactly 90 percent is refused with the margin message", () => {
+  assert.match(readInput({ ...sampleInput(), targetMarginPct: "90" }).error, /below 90 percent of the price/);
+});
+
+test("blank inputs fall back to the documented defaults", () => {
+  const v = readInput({ lessonQty: "1" }).v;
+  assert.equal(v.instructorPayPct, 40);
+  assert.equal(v.payrollPct, 10);
+  assert.equal(v.carLeaseWeek, 450);
+});
+
+test("owner break-even charges the owner's hourly rate for exactly the booked minutes", () => {
+  const v = readInput({ ...sampleInput(), blockQty: "0", testQty: "0", noShowPct: "0", addonAttachPct: "0", ownerRate: "30" }).v;
+  // $65 price - $6 fuel and wear - 60 min x $30/h = $29 per lesson
+  assert.equal(breakEven(v).owner.contribution, 29);
+});

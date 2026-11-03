@@ -241,13 +241,25 @@ function inPolygon(pts, u, v) {
   return inside;
 }
 
+const STAR_REACH = {
+  cardinal: Math.max(...vertexRadii(MARK_GEOMETRY.cardinal)) + 0.001,
+  diagonal: Math.max(...vertexRadii(MARK_GEOMETRY.diagonal)) + 0.001,
+};
+function vertexRadii(pts) {
+  return pts.map(([x, y]) => Math.hypot(x - 0.5, y - 0.5));
+}
+
 /** The mark's colour at one unit-space sample, or null outside it. */
 function markSample(u, v, plate) {
   const g = MARK_GEOMETRY;
   const d = Math.hypot(u - 0.5, v - 0.5);
   if (d <= g.hub) return MARK_GOLD;
-  if (inPolygon(g.cardinal, u, v)) return MARK_PEARL;
-  if (inPolygon(g.diagonal, u, v)) return MARK_GOLD;
+  // Every shape lies inside its farthest vertex's circle (a convex hull of the
+  // star's points, vertices rounded to 4 decimals, hence the 0.001 margin), so
+  // a sample beyond that radius cannot hit it: skip the polygon walk. Exact.
+  if (d > g.disc) return null;
+  if (d <= STAR_REACH.cardinal && inPolygon(g.cardinal, u, v)) return MARK_PEARL;
+  if (d <= STAR_REACH.diagonal && inPolygon(g.diagonal, u, v)) return MARK_GOLD;
   if (d <= g.ring.outer && d >= g.ring.inner) return MARK_GOLD;
   if (plate && d <= g.disc) return MARK_NAVY;
   return null;

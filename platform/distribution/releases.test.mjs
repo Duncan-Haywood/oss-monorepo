@@ -94,3 +94,10 @@ test('live: the release is pinned to GITHUB_SHA when set and unpinned otherwise'
   assert.equal((await bodyFor({ ...base, GITHUB_SHA: 'abc123' })).target_commitish, 'abc123');
   assert.equal('target_commitish' in (await bodyFor(base)), false);
 });
+
+test('the window includes a tool launched 7 days ago and excludes one from 8 days ago', async () => {
+  const readPage = async () => page;
+  const inside = await plan({ launched: { a: '2026-10-08' }, today: '2026-10-15', readPage });
+  assert.ok(inside && inside.body.includes('/a'), 'launched 7 days ago is in');
+  assert.equal(await plan({ launched: { a: '2026-10-07' }, today: '2026-10-15', readPage }), null);
+});

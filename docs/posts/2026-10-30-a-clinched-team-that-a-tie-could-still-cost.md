@@ -1,7 +1,7 @@
 ---
 title: "Clinched, unless a tie-break says otherwise"
 date: 2026-10-30
-tags: [league-schedule-generator, play-offs, scheduling]
+tags: [league-schedule-generator, playoffs, scheduling]
 description: "The play-off race now flags a team that is in a place in every outcome except a points tie at the cut that it loses on goal difference."
 ---
 

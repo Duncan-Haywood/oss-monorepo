@@ -1,0 +1,31 @@
+period: 2026-11
+entries:
+  - venture: parish-office
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New direction from the owner (2026-11-03): tools for Catholic parishes and
+        other religious organisations, for the standard problems they have. Started
+        ventures/parish-office with a ROADMAP of the standard parish-office problems
+        as modules, and landed the first: a Mass intentions book (the canon 958
+        register) that books intentions into free Masses and checks cc. 948, 950,
+        951 §1-2, 953, 954, 955 §1-2 and 956, quoting vatican.va text fetched the
+        same day; register CSV, year summary, CLI and page. 32 tests on made-up
+        books; driven in headless Chromium (load example, book, add Masses, reload)
+        with no console errors. Not yet tried on a real parish's book.
+    mrr_end: 0
+  - venture: monastery-site
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New direction from the owner (2026-11-03): an opinionated, high-quality
+        website builder for Catholic monks' and nuns' communities, with vocations
+        and donations set up well. Started ventures/monastery-site: a pure engine
+        that builds twelve page types from one community.json, six palettes checked
+        to WCAG AA, a launch checklist, a CLI, and a no-code builder page with live
+        preview and .zip download; two fictional demo sites. 39 tests; driven in
+        headless Chromium with no console errors. Outreach kit (OUTREACH.md) for the
+        owner's own emails; nothing sent. Not yet used by a real community.
+    mrr_end: 0

@@ -187,6 +187,8 @@
       <div><label for="inWinU">Window U-factor, BTU/h per sq ft per F (blank: windows left out of the heat loss)</label><input id="inWinU" type="number" min="0.05" max="2" step="0.01" placeholder="e.g. 0.30"></div>
       <div><label for="inDoorU">Door U-factor (blank: doors left out)</label><input id="inDoorU" type="number" min="0.05" max="2" step="0.01" placeholder="e.g. 0.40"></div>
       <div><label for="inSlabF">Slab edge F-factor, BTU/h per ft of edge per F, from your code table (blank: slab edge left out; slab-on-grade only)</label><input id="inSlabF" type="number" min="0" max="2" step="0.01" placeholder="e.g. 0.54"></div>
+      <div><label for="inCeilR">Ceiling under the attic, whole-ceiling R typed (blank: see next field; needs the attic fill option)</label><input id="inCeilR" type="number" min="1" max="100" step="0.5" placeholder="e.g. 40"></div>
+      <div><label for="inCeilAtt">Ceiling R from the attic fill (used when no R is typed above)</label><select id="inCeilAtt"><option value="">Ceiling left out</option><option value="true">Attic fill R plus wall film and drywall</option></select></div>
       <div><label for="inAch50">Air leakage, ACH50 from a blower-door test (blank: left out; needs N and volume too)</label><input id="inAch50" type="number" min="0" max="40" step="0.1" placeholder="e.g. 3"></div>
       <div><label for="inNFac">N-factor (ACH50 divisor for your climate and height)</label><input id="inNFac" type="number" min="5" max="40" step="0.5" placeholder="e.g. 20"></div>
       <div><label for="inVol">Conditioned volume, cu ft</label><input id="inVol" type="number" min="100" max="200000" step="100" placeholder="e.g. 16000"></div>
@@ -206,6 +208,8 @@
       <div><label for="stTreadBoard">Tread board</label><select id="stTreadBoard"><option>2x12</option><option>2x10</option><option>2x6</option></select></div>
       <div><label for="stOpen">Stairwell opening length you framed (blank: not checked)</label><input id="stOpen" type="text" placeholder="e.g. 10' 0&quot;"></div>
       <div><label for="stCheck">Stringer strength check, typed from your engineer or code tables: live psf, dead psf, Fb psi, Fv psi, E psi, optional deflection ratio (240) (blank: no check)</label><input id="stCheck" placeholder="e.g. 40, 12, 900, 180, 1300000, 240"></div>
+      <div><label for="stCheck2">Stringer connection and bearing, typed from the maker's and lumber tables: connector capacity lb, bearing Fc-perp psi, optional bearing length in (needs the strength check above; blank: off)</label><input id="stCheck2" placeholder="e.g. 400, 425, 3.5"></div>
+      <div><label for="stCheck3">Stringer notched at the support: write throat, or the inches of board left at the support (needs the strength check above; blank: off)</label><input id="stCheck3" placeholder="throat, or e.g. 5"></div>
       <div><label for="stWinders">Winder turn, typed as treads, degrees, inner radius in (e.g. 3, 90, 12); blank: none. Checks the 6 in and 10 in rules and solves the smallest radius that passes</label><input id="stWinders" placeholder="e.g. 3, 90, 12"></div>
       <div><label for="stLandPosts">Landing post check, typed: soil bearing psf, post size (4x4 or 6x6), post fc psi, post Emin psi (e.g. 1500, 4x4, 1000, 400000); blank: posts counted only. Implies a landing</label><input id="stLandPosts" placeholder="e.g. 1500, 4x4, 1000, 400000"></div>
       <div><label for="stRail">Guard and handrail, typed as sides (1 or 2), then optionally the handrail height in (e.g. 2, 36); blank: none. Lays out posts, balusters under the 4 in gap, rails and the handrail, and adds the rails to the order</label><input id="stRail" placeholder="e.g. 2, 36"></div>
@@ -392,10 +396,48 @@
 
   <section class="card" aria-labelledby="h-budget" id="budgetCard" hidden>
     <h2 id="h-budget">Budget from your prices</h2>
-    <p class="note">Type one price per line as <code>name, number</code> (names: wallSheet, floorSheet, roofSheet, truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle, starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, plateStrap, drywallSheet, insulationBag, atticFillBag, vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, laborDrywallSheet, laborInsulationBag; tax and contingency as fractions, e.g. <code>tax, 0.07</code>). Lumber uses the board prices in the stock table. A quantity with no price is listed and left out of the total. No price is supplied by this tool.</p>
+    <p class="note">Type one price per line as <code>name, number</code> (names: anchorBolt, ridgeVent, soffitVent, rafterBaffle, atticFillBag, baseboard, casing, concreteYd, deckConcreteBag, deckScrewBox, laborDormerSqFt, cornerBeadStick, cornerBoard, doubleJoistHanger, downspoutElbow, downspoutPiece, downspoutStrap, dormerBoardFoot, dormerRoofSqFt, dripEdgePiece, drywallCompoundPail, drywallScrewThousand, drywallSheet, drywallTapeRoll, fasciaBoard, floorSheet, formPlywoodSheet, gravelYd, gutterCap, gutterCorner, gutterHanger, gutterSection, hangerNail, handrailBracket, handrailFoot, headFlashing, holdDown, houseWrapRoll, insulationBag, jChannel, joistHanger, laborConcreteYd, laborDeckSqFt, laborDrywallSheet, laborEavesFoot, laborFloorSqFt, laborFoundationSqFt, laborGutterFoot, laborHoldDown, laborInsulationBag, laborOpening, laborRoofSquare, laborSidingSqFt, laborStairRiser, laborTrimFoot, laborWallFoot, laborWallSheet, nailBox, openingTape, overhead, plateStrap, profit, rebarLb, ridgeBundle, roofSheet, shingleBundle, shoeMoulding, sidingBoard, sidingStarter, soffitPanel, stairBaluster, stairConnector, stairRailPost, stairRiserBoard, starterBundle, truss, underlaymentRoll, vaporBarrierSqFt, wallSheet; tax, contingency, overhead and profit as fractions, e.g. <code>tax, 0.07</code>; overhead and profit give a bid price). Lump sums such as a permit or a dumpster go in as <code>allowance Permit, 1200</code>: untaxed, no contingency, added before overhead and profit. Lumber uses the board prices in the stock table. A quantity with no price is listed and left out of the total. No price is supplied by this tool.</p>
+    <p><label>Add a price line <select id="priceName" aria-label="Price name to add"><option value="">choose a name</option><option value="anchorBolt">anchorBolt</option><option value="laborDormerSqFt">laborDormerSqFt</option><option value="atticFillBag">atticFillBag</option><option value="baseboard">baseboard</option><option value="casing">casing</option><option value="concreteYd">concreteYd</option><option value="deckConcreteBag">deckConcreteBag</option><option value="deckScrewBox">deckScrewBox</option><option value="cornerBeadStick">cornerBeadStick</option><option value="cornerBoard">cornerBoard</option><option value="doubleJoistHanger">doubleJoistHanger</option><option value="downspoutElbow">downspoutElbow</option><option value="downspoutPiece">downspoutPiece</option><option value="downspoutStrap">downspoutStrap</option><option value="dormerBoardFoot">dormerBoardFoot</option><option value="dormerRoofSqFt">dormerRoofSqFt</option><option value="dripEdgePiece">dripEdgePiece</option><option value="drywallCompoundPail">drywallCompoundPail</option><option value="drywallScrewThousand">drywallScrewThousand</option><option value="drywallSheet">drywallSheet</option><option value="drywallTapeRoll">drywallTapeRoll</option><option value="fasciaBoard">fasciaBoard</option><option value="floorSheet">floorSheet</option><option value="formPlywoodSheet">formPlywoodSheet</option><option value="gravelYd">gravelYd</option><option value="gutterCap">gutterCap</option><option value="gutterCorner">gutterCorner</option><option value="gutterHanger">gutterHanger</option><option value="gutterSection">gutterSection</option><option value="hangerNail">hangerNail</option><option value="headFlashing">headFlashing</option><option value="handrailBracket">handrailBracket</option><option value="handrailFoot">handrailFoot</option><option value="holdDown">holdDown</option><option value="houseWrapRoll">houseWrapRoll</option><option value="insulationBag">insulationBag</option><option value="jChannel">jChannel</option><option value="joistHanger">joistHanger</option><option value="laborConcreteYd">laborConcreteYd</option><option value="laborDeckSqFt">laborDeckSqFt</option><option value="laborDrywallSheet">laborDrywallSheet</option><option value="laborEavesFoot">laborEavesFoot</option><option value="laborFloorSqFt">laborFloorSqFt</option><option value="laborFoundationSqFt">laborFoundationSqFt</option><option value="laborGutterFoot">laborGutterFoot</option><option value="laborHoldDown">laborHoldDown</option><option value="laborInsulationBag">laborInsulationBag</option><option value="laborOpening">laborOpening</option><option value="laborRoofSquare">laborRoofSquare</option><option value="laborSidingSqFt">laborSidingSqFt</option><option value="laborStairRiser">laborStairRiser</option><option value="laborTrimFoot">laborTrimFoot</option><option value="laborWallFoot">laborWallFoot</option><option value="laborWallSheet">laborWallSheet</option><option value="nailBox">nailBox</option><option value="openingTape">openingTape</option><option value="plateStrap">plateStrap</option><option value="rebarLb">rebarLb</option><option value="ridgeBundle">ridgeBundle</option><option value="roofSheet">roofSheet</option><option value="shingleBundle">shingleBundle</option><option value="shoeMoulding">shoeMoulding</option><option value="sidingBoard">sidingBoard</option><option value="sidingStarter">sidingStarter</option><option value="soffitPanel">soffitPanel</option><option value="stairBaluster">stairBaluster</option><option value="stairRailPost">stairRailPost</option><option value="stairConnector">stairConnector</option><option value="stairRiserBoard">stairRiserBoard</option><option value="starterBundle">starterBundle</option><option value="truss">truss</option><option value="underlaymentRoll">underlaymentRoll</option><option value="vaporBarrierSqFt">vaporBarrierSqFt</option><option value="wallSheet">wallSheet</option></select></label> <button type="button" class="secondary" id="priceAddBtn">Add line</button></p>
+    <details id="priceSheet" open><summary>Price sheet: the prices this plan still needs (<span id="priceSheetCount">0</span>)</summary>
+      <p class="note">One box per price this plan's quantities need, with the unit it is quoted in. Fill what you know; every box writes the line in the text area below, and leaving one empty keeps that line out of the total. Nothing is pre-filled: no price is stated or implied.</p>
+      <div id="priceSheetRows"></div>
+    </details>
     <textarea id="priceText" rows="5" style="width:100%" aria-label="Unit prices, one per line" placeholder="wallSheet, 24&#10;laborWallFoot, 11&#10;tax, 0.07"></textarea>
     <p><button type="button" class="secondary" id="budgetCsvBtn">Download budget CSV</button></p>
     <div id="budgetOut"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-proposal" id="proposalCard" hidden>
+    <h2 id="h-proposal">Customer proposal</h2>
+    <p class="note">Turns the budget above into a one-page letter: a price per section with tax, contingency, overhead and profit spread across the rows, so your customer sees neither your cost nor your margin. Needs every line priced; tick the box to issue it with the gap named. Nothing is uploaded.</p>
+    <p><label>Client <input id="propClient" aria-label="Client" style="width:14em"></label> <label>Project <input id="propProject" aria-label="Project" style="width:14em"></label> <label>Valid for (days) <input id="propDays" aria-label="Valid for days" type="number" min="1" value="30" style="width:5em"></label></p>
+    <p><label>Also included (one per line)<br><textarea id="propIncl" aria-label="Also included" rows="2" style="width:100%"></textarea></label></p>
+    <p><label>Not included (one per line)<br><textarea id="propExcl" aria-label="Not included" rows="2" style="width:100%" placeholder="Permits&#10;Painting"></textarea></label></p>
+    <p><label>Terms (one per line)<br><textarea id="propTerms" aria-label="Terms" rows="2" style="width:100%" placeholder="50% deposit&#10;Balance on completion"></textarea></label></p>
+    <p><label>Payment schedule (optional, one per line: name, percent; must add to 100)<br><textarea id="propPay" aria-label="Payment schedule" rows="2" style="width:100%" placeholder="Deposit, 30&#10;Framing complete, 40&#10;Final, 30"></textarea></label></p>
+    <p><label><input type="checkbox" id="propPartial" aria-label="Issue even if some lines are unpriced"> Issue even if some lines are unpriced (the gap is printed)</label></p>
+    <p><button type="button" class="secondary" id="propBtn">Preview proposal</button> <button type="button" class="secondary" id="propDl">Download proposal (.txt)</button> <button type="button" class="secondary" id="propPrint">Open printable page</button></p>
+    <div id="propOut"></div>
+  </section>
+  <section class="card" aria-labelledby="h-pkg" id="pkgCard" hidden>
+    <h2 id="h-pkg">Branded bid package</h2>
+    <p class="note">The proposal above on your letterhead, plus a quantities appendix with no unit prices, as one page you print or save as PDF. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; the free proposal above is unchanged. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
+    <p id="buyRow" hidden><a id="buyLink" class="button" rel="noopener" target="_blank">Buy a licence key</a></p>
+    <p><label>Licence key <input id="pkgKey" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="pkgCheck">Check key</button> <span id="pkgState" role="status"></span></p>
+    <div id="pkgFields" hidden>
+      <p><label>Company <input id="pkgCo" aria-label="Company" style="width:14em"></label> <label>Licence no. <input id="pkgLic" aria-label="Contractor licence number" style="width:8em"></label> <label>Accent <input id="pkgAccent" aria-label="Accent colour" type="color" value="#1f3a5f"></label></p>
+      <p><label>Address <input id="pkgAddr" aria-label="Address" style="width:16em"></label> <label>Phone <input id="pkgPhone" aria-label="Phone" style="width:9em"></label> <label>Email <input id="pkgMail" aria-label="Email" style="width:13em"></label></p>
+      <p><label>Logo (PNG, JPEG, WebP or GIF) <input id="pkgLogo" aria-label="Logo file" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label></p>
+      <p><button type="button" class="secondary" id="pkgOpen">Open branded package</button></p>
+    </div>
+    <p class="note">An estimate from the prices you typed, not a contract or a legal document. Have it checked against your licence, local law and your customer's agreement before you send it.</p>
+  </section>
+
+  <section class="card" aria-labelledby="h-co" id="coCard" hidden>
+    <h2 id="h-co">Change order: what the change costs</h2>
+    <p class="note">Save the budget above as the original, change the plan or the prices, and this lists every line that moved, by section, with the effect on cost and on the bid price (overhead and profit follow at the rates you typed). A line priced on one side only is named, not netted. Nothing is uploaded; the saved original lives in this tab only.</p>
+    <p><button type="button" class="secondary" id="coSave">Save this budget as the original</button> <button type="button" class="secondary" id="coClear" hidden>Forget the original</button> <span id="coState" role="status"></span></p>
+    <div id="coOut"></div>
   </section>
 
   <section class="card" aria-labelledby="h-bids" id="bidsCard" hidden>
@@ -511,12 +553,12 @@
   </section>
 
   </main>
-  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li></ul></nav>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li></ul></nav>
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>dormer_on</code>, <code>stairs_on</code>, <code>deck_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>proposal_previewed</code>, <code>proposal_printed</code>, <code>proposal_downloaded</code>, <code>bid_package_unlocked</code>, <code>bid_package_opened</code>, <code>bids_leveled</code>, <code>change_order_saved</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>dormer_on</code>, <code>stairs_on</code>, <code>deck_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -528,7 +570,7 @@
     import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength, restoreSketch, fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners } from "./sketch.mjs";
     import { drawingSetHtml } from "./drawings.mjs";
     import { drawingSetPdf } from "./pdf.mjs";
-    import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
+    import { panelMaxError, panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
     import { sheathe, defaultSheathing, nailerCuts } from "./sheathing.mjs";
     import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
     import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
@@ -543,8 +585,13 @@
     import { layoutDeck, deckText } from "./deck.mjs";
     import { layoutStair, linkStairReaction, layoutStairWithLanding, layoutWinders, winderText, stairCuts, stairText, landingCuts, landingText, STAIR_LIMITS } from "./stairs.mjs";
     import { layoutFasteners, fastenerText } from "./fasteners.mjs";
-    import { budget, budgetCsv } from "./budget.mjs";
+    import { budget, budgetCsv, priceSheet } from "./budget.mjs";
+    import { proposal, proposalText, proposalHtml } from "./bidletter.mjs";
+    import { bidPackageHtml } from "./bidpackage.mjs";
+    import { buyLink, checkLicence } from "./licence.mjs";
+    import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { levelBids } from "./bidlevel.mjs";
+    import { budgetDiff } from "./compare.mjs";
     import { schedule, scheduleText, sampleSchedule, resolveRates } from "./schedule.mjs";
     import { resolveHeaders } from "./headers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -705,6 +752,8 @@
           ins.assembly = {};
           if ($("#inContR").value.trim()) ins.assembly.continuousR = Number($("#inContR").value);
           if ($("#inAssumedF").value.trim()) ins.assembly.assumedFramingFraction = Number($("#inAssumedF").value);
+          if ($("#inCeilR").value.trim()) ins.assembly.ceilingR = Number($("#inCeilR").value);
+          else if ($("#inCeilAtt").value) ins.assembly.ceilingFromAttic = true;
           for (const [id, k] of [["inWinU", "windowU"], ["inDoorU", "doorU"], ["inSlabF", "slabEdgeF"], ["inAch50", "ach50"], ["inNFac", "nFactor"], ["inVol", "volumeCuFt"], ["inDeltaF", "designDeltaF"], ["inHdd", "heatingDegreeDays"]]) if ($("#" + id).value.trim()) ins.assembly[k] = Number($("#" + id).value);
         }
         if ($("#inAtticR").value.trim()) {
@@ -762,6 +811,15 @@
           const n = $("#stCheck").value.split(",").map((t) => t.trim()).filter(Boolean).map(Number);
           if (n.length < 5 || n.length > 6 || n.some((x) => !Number.isFinite(x))) bad.push("Stringer check: write live, dead, Fb, Fv, E, then optionally the deflection ratio, all numbers.");
           else { st.stringerCheck = { liveLoad: n[0], deadLoad: n[1], Fb: n[2], Fv: n[3], E: n[4] }; if (n[5]) st.stringerCheck.deflLimit = n[5]; }
+          if (st.stringerCheck && $("#stCheck2").value.trim()) {
+            const m = $("#stCheck2").value.split(",").map((t) => t.trim()).filter(Boolean).map(Number);
+            if (m.length < 2 || m.length > 3 || m.some((x) => !Number.isFinite(x) || x <= 0)) bad.push("Stringer connection and bearing: write connector lb, Fc-perp psi, then optionally the bearing length in inches, all positive numbers.");
+            else { st.stringerCheck.connectorCapacity = m[0]; st.stringerCheck.bearingFcPerp = m[1]; if (m[2]) st.stringerCheck.bearingLength = m[2]; }
+          } else if ($("#stCheck2").value.trim()) bad.push("Stringer connection and bearing needs the strength check filled in first.");
+          const ns = $("#stCheck3").value.trim().toLowerCase();
+          if (ns && !st.stringerCheck) bad.push("Stringer notched at the support needs the strength check filled in first.");
+          else if (ns === "throat") st.stringerCheck.notchedSupport = true;
+          else if (ns) { const v = Number(ns); if (!Number.isFinite(v) || v <= 0) bad.push("Stringer notched at the support: write throat, or a positive number of inches left."); else st.stringerCheck.notchedSupport = v; }
         }
         plan.stairs = st;
       }
@@ -858,7 +916,7 @@
         wall.openings.push(op);
       }
       const source = plan;
-      { const pr = parsePrices(); if (!pr.bad.length && Object.keys(pr.prices).length) plan.prices = pr.prices; }
+      { const pr = parsePrices(); if (!pr.bad.length && Object.keys(pr.prices).length) plan.prices = pr.prices; if (!pr.bad.length && Object.keys(pr.allowances).length) plan.allowances = pr.allowances; }
       { const pb = parseBids(); if (!pb.bad.length && pb.bids.length) plan.bids = pb.bids; }
       const tableText = $("#hdrTable").value.trim();
       let resolved = plan, hdrRows = [];
@@ -1042,14 +1100,15 @@
       $("#foundationOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(foundationText(fn).join("\n"))}</pre><p class="note">Concrete, rebar, forms and gravel are not in the lumber order. Bar sizes, footing size, frost depth and soil bearing are your inputs; check them against your plans and engineer.</p>`;
     }
     function parsePrices() {
-      const prices = {}, bad = [];
+      const prices = {}, allowances = {}, bad = [];
       ($("#priceText").value || "").split(/\n+/).map((x) => x.trim()).filter(Boolean).forEach((line, n) => {
         const t = line.split(/[,=:\t]+/).map((x) => x.trim());
         const v = Number(t[1]);
         if (t.length < 2 || !t[0] || !Number.isFinite(v) || v < 0) bad.push(`Price line ${n + 1}: write it as  wallSheet, 24`);
+        else if (/^allowance\s+\S/i.test(t[0])) allowances[t[0].replace(/^allowance\s+/i, "")] = v;
         else prices[t[0]] = v;
       });
-      return { prices, bad };
+      return { prices, allowances, bad };
     }
     function parseBids() {
       const byName = new Map(), bad = [];
@@ -1081,21 +1140,73 @@
       if (!bidsRecorded) { bidsRecorded = true; record("bids_leveled"); }
     }
     let bidsRecorded = false;
+    let priceSheetSig = null;
+    function setPriceLine(key, value) {
+      const lines = ($("#priceText").value || "").split(/\n/).filter((x) => x.trim() && x.split(/[,=:\t]+/)[0].trim() !== key);
+      if (value !== "" && Number.isFinite(Number(value)) && Number(value) >= 0) lines.push(`${key}, ${value}`);
+      $("#priceText").value = lines.join("\n");
+      renderBudget();
+      try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ }
+    }
+    function renderPriceSheet(b, typed) {
+      const rows = priceSheet(b, typed);
+      $("#priceSheetCount").textContent = String(rows.filter((r) => r.price == null).length);
+      const sig = rows.map((r) => r.key).join("|");
+      const box = $("#priceSheetRows");
+      if (sig === priceSheetSig && box.contains(document.activeElement)) return;
+      if (sig === priceSheetSig) { rows.forEach((r) => { const el = box.querySelector(`[data-key="${r.key}"]`); if (el && el.value === "" && r.price != null) el.value = String(r.price); }); return; }
+      priceSheetSig = sig;
+      box.innerHTML = rows.length ? `<table><thead><tr><th>Item</th><th class="n">Qty</th><th>Price per</th><th>Price ($)</th></tr></thead><tbody>${rows.map((r) => `<tr><td>${esc(r.section)}: ${esc(r.items.join(", "))}</td><td class="n">${r.qty}</td><td>${esc(r.unit)}</td><td><input type="number" min="0" step="any" inputmode="decimal" data-key="${esc(r.key)}" value="${r.price == null ? "" : r.price}" aria-label="Price per ${esc(r.unit)} for ${esc(r.items.join(", "))} (${esc(r.key)})" style="width:7em"></td></tr>`).join("")}</tbody></table>` : `<p class="note">Every line in this plan has a price.</p>`;
+    }
+    $("#priceSheetRows").addEventListener("input", (e) => { const t = e.target; if (t && t.dataset && t.dataset.key) setPriceLine(t.dataset.key, t.value.trim()); });
     function renderBudget() {
       const card = $("#budgetCard");
       if (!last) { card.hidden = true; return; }
       const pr = parsePrices();
       if (pr.bad.length) { $("#budgetOut").innerHTML = `<div class="err"><ul>${pr.bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`; card.hidden = false; return; }
       const res = { ...last.result, floor: last.floor, roof: last.roof, foundation: last.foundation, drywall: last.drywall, insulation: last.insulation, trim: last.trim, siding: last.siding, eaves: last.eaves, gutters: last.gutters, fasteners: last.fasteners };
-      const b = budget(res, pr.prices);
+      const b = budget(res, pr.prices, pr.allowances);
       last.budget = b;
+      renderPriceSheet(b, pr.prices);
       const m = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#budgetOut").innerHTML = `<table><thead><tr><th>Section</th><th>Item</th><th class="n">Qty</th><th>Unit</th><th class="n">Price</th><th class="n">Amount</th></tr></thead><tbody>${b.lines.map((l) => `<tr><td>${esc(l.section)}</td><td>${esc(l.item)}</td><td class="n">${l.qty}</td><td>${esc(l.unit)}</td><td class="n">${l.unitPrice == null ? "no price" : m(l.unitPrice)}</td><td class="n">${l.amount == null ? "" : m(l.amount)}</td></tr>`).join("")}</tbody></table>
-        <p><strong>Materials ${m(b.materials)}</strong>${b.taxRate ? `; tax ${m(b.tax)}` : ""}${b.contingencyRate ? `; contingency ${m(b.contingency)}` : ""}${b.labor ? `; labor ${m(b.labor)}` : ""}; <strong>total ${m(b.total)}</strong></p>
+        <p><strong>Materials ${m(b.materials)}</strong>${b.taxRate ? `; tax ${m(b.tax)}` : ""}${b.contingencyRate ? `; contingency ${m(b.contingency)}` : ""}${b.labor ? `; labor ${m(b.labor)}` : ""}; <strong>total ${m(b.total)}</strong>${b.overheadRate || b.profitRate ? `; overhead ${m(b.overhead)}; profit ${m(b.profit)}; <strong>bid price ${m(b.bid)}</strong> (profit ${b.marginPct}% of the bid)` : ""}</p>
         ${b.unpriced.length ? `<p class="note">Not in the total, no price typed: ${esc(b.unpriced.join("; "))}.</p>` : ""}
+        ${b.ignoredPrices.length ? `<p class="note" id="ignoredPrices">Typed prices that changed nothing (not a price name this plan reads, or no such quantity in this plan): ${esc(b.ignoredPrices.map((x) => x.name + (x.didYouMean ? ` (did you mean ${x.didYouMean}?)` : "")).join(", "))}.</p>` : ""}
         <p class="note">Excludes equipment, permits, delivery and overhead. An estimate from the prices you typed, not a quote.</p>`;
       card.hidden = false;
+      $("#proposalCard").hidden = false;
+      $("#pkgCard").hidden = false;
       renderBids();
+      renderChange();
+    }
+    let coBase = null;
+    function renderChange() {
+      const card = $("#coCard");
+      if (!last?.budget) { card.hidden = true; return; }
+      card.hidden = false;
+      $("#coClear").hidden = !coBase;
+      if (!coBase) { $("#coState").textContent = ""; $("#coOut").innerHTML = ""; return; }
+      const d = budgetDiff(coBase, last.budget);
+      const m = (v) => (v >= 0 ? "+" : "") + v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      const t = d.totals;
+      $("#coState").textContent = d.lines.length ? `${d.lines.length} line${d.lines.length === 1 ? "" : "s"} changed against the saved original.` : "No line differs from the saved original.";
+      $("#coOut").innerHTML = (d.lines.length ? `<table><thead><tr><th>Section</th><th>Item</th><th>Change</th><th class="n">Before</th><th class="n">After</th><th>Unit</th><th class="n">Amount</th></tr></thead><tbody>${d.lines.map((l) => `<tr><td>${esc(l.section)}</td><td>${esc(l.item)}</td><td>${esc(l.status)}</td><td class="n">${l.qtyBefore}</td><td class="n">${l.qtyAfter}</td><td>${esc(l.unit)}</td><td class="n">${l.dAmount == null ? "no price" : m(l.dAmount)}</td></tr>`).join("")}</tbody></table>` : "")
+        + `<p><strong>Cost total ${m(t.total.delta)}</strong>${d.pctOfBase == null ? "" : ` (${d.pctOfBase >= 0 ? "+" : ""}${d.pctOfBase.toFixed(1)}% of the original)`}${t.bid.before || t.bid.after ? `; <strong>bid price ${m(t.bid.delta)}</strong>` : ""}. By section: ${esc(d.sections.map((x) => `${x.name} ${m(x.delta)}`).join(", ") || "none")}.</p>`
+        + (d.unpricedChanges.length ? `<p class="note">A side has no price, so not in the total: ${esc(d.unpricedChanges.join("; "))}.</p>` : "");
+    }
+    $("#coSave").addEventListener("click", () => { if (!last?.budget) return; coBase = JSON.parse(JSON.stringify(last.budget)); record("change_order_saved"); renderChange(); $("#coState").textContent = "Original saved. Now change the plan or prices."; });
+    $("#coClear").addEventListener("click", () => { coBase = null; renderChange(); });
+    function buildProposal() {
+      if (!last?.budget) return null;
+      const lines = (id) => $(id).value.split(/\n/).map((x) => x.trim()).filter(Boolean);
+      return proposal(last.budget, { client: $("#propClient").value.trim(), project: $("#propProject").value.trim(), date: new Date().toISOString().slice(0, 10), validDays: Math.max(1, Math.round(Number($("#propDays").value) || 30)), inclusions: lines("#propIncl"), exclusions: lines("#propExcl"), terms: lines("#propTerms"), payments: lines("#propPay").map((x) => { const i = x.lastIndexOf(","); return { name: x.slice(0, i < 0 ? x.length : i).trim() || x, pct: i < 0 ? NaN : Number(x.slice(i + 1)) }; }), partial: $("#propPartial").checked });
+    }
+    function showProposal() {
+      if (!run()) return null;
+      const q = buildProposal(); if (!q) return null;
+      $("#propOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(proposalText(q).join("\n"))}</pre><p class="note">An estimate from the prices you typed, not a contract or a legal document. Have it checked against your licence, local law and your customer's agreement before you send it.</p>`;
+      return q;
     }
     function run() {
       const { plan, bad, source } = toPlan();
@@ -1242,7 +1353,7 @@
         $("#flUnder").value = (fl.doubleUnder || []).map(formatLength).join(", ");
         $("#flOpen").value = (fl.openings || []).map((o) => [o.x, o.y, o.width, o.depth].map(formatLength).join(", ")).join("; ");
       }
-      if (plan.prices && typeof plan.prices === "object") { $("#priceText").value = Object.entries(plan.prices).filter(([, v]) => Number.isFinite(v)).map(([k, v]) => `${k}, ${v}`).join("\n"); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } }
+      if (plan.prices && typeof plan.prices === "object") { $("#priceText").value = Object.entries(plan.prices).filter(([, v]) => Number.isFinite(v)).map(([k, v]) => `${k}, ${v}`).concat(plan.allowances && typeof plan.allowances === "object" ? Object.entries(plan.allowances).filter(([, v]) => Number.isFinite(v)).map(([k, v]) => `allowance ${k}, ${v}`) : []).join("\n"); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } }
       if (Array.isArray(plan.bids)) $("#bidText").value = plan.bids.flatMap((b) => (b.lines || []).map((l) => [b.bidder, l.item, ...(typeof l.amount === "number" ? [l.amount] : [l.qty, l.unitPrice])].join("; "))).join("\n");
       const dw = plan.drywall;
       $("#dwOn").checked = Boolean(dw); $("#dwFields").hidden = !dw;
@@ -1262,6 +1373,8 @@
         $("#inEff").value = ins.assembly ? "true" : "";
         $("#inContR").value = ins.assembly?.continuousR ?? "";
         $("#inAssumedF").value = ins.assembly?.assumedFramingFraction ?? "";
+        $("#inCeilR").value = ins.assembly?.ceilingR ?? "";
+        $("#inCeilAtt").value = ins.assembly?.ceilingFromAttic ? "true" : "";
         for (const [id, k] of [["inWinU", "windowU"], ["inDoorU", "doorU"], ["inSlabF", "slabEdgeF"], ["inAch50", "ach50"], ["inNFac", "nFactor"], ["inVol", "volumeCuFt"], ["inDeltaF", "designDeltaF"], ["inHdd", "heatingDegreeDays"]]) $("#" + id).value = ins.assembly?.[k] ?? "";
         $("#inAtticR").value = ins.attic?.rValue != null ? String(ins.attic.rValue) : ""; $("#inAtticPer").value = ins.attic?.rPerInch != null ? String(ins.attic.rPerInch) : "";
         $("#inAtticBag").value = ins.attic?.bagCuFt != null ? String(ins.attic.bagCuFt) : "";
@@ -1286,6 +1399,8 @@
       $("#stLandEdges").value = Array.isArray(stp?.landing?.openEdges) ? stp.landing.openEdges.join(", ") : "";
       { const l = stp?.landing; $("#stLandPosts").value = l && typeof l === "object" && l.postFc != null ? [l.soilBearing, l.postSize || "4x4", l.postFc, l.postEmin].join(", ") : ""; }
       { const k = stp?.stringerCheck; $("#stCheck").value = k ? [k.liveLoad, k.deadLoad, k.Fb, k.Fv, k.E, ...(k.deflLimit ? [k.deflLimit] : [])].join(", ") : ""; }
+      { const k = stp?.stringerCheck; $("#stCheck3").value = k && k.notchedSupport ? (k.notchedSupport === true ? "throat" : String(k.notchedSupport)) : ""; }
+      { const k = stp?.stringerCheck; $("#stCheck2").value = k && k.connectorCapacity != null && k.bearingFcPerp != null ? [k.connectorCapacity, k.bearingFcPerp, ...(k.bearingLength ? [k.bearingLength] : [])].join(", ") : ""; }
       const trm = plan.trim;
       $("#trOn").checked = Boolean(trm); $("#trFields").hidden = !trm; $("#trShoe").value = trm && trm.shoe ? "true" : "";
       for (const [id, key] of [["trSides", "baseSides"], ["trBaseStock", "baseStock"], ["trCasStock", "casingStock"], ["trCasWidth", "casingWidth"], ["trReveal", "reveal"], ["trWaste", "waste"], ["trBasePrice", "basePrice"], ["trCasPrice", "casingPrice"], ["trShoeStock", "shoeStock"], ["trShoePrice", "shoePrice"], ["trScarf", "scarf"]]) $("#" + id).value = trm && trm[key] != null ? String(trm[key]) : "";
@@ -1391,18 +1506,50 @@
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     };
     $("#csv").addEventListener("click", () => { if (run() && last) { download("framing-takeoff.csv", "text/csv", toCsv(last.result)); record("csv_downloaded"); } });
-    $("#drawingsPdf").addEventListener("click", () => { if (run() && last) { download("wall-drawings.pdf", "application/pdf", drawingSetPdf(last.result, last.plan, { panelMax: Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0) })); record("drawings_pdf_downloaded"); } });
-    $("#drawings").addEventListener("click", () => { if (run() && last) { download("wall-drawings.html", "text/html", drawingSetHtml(last.result, last.plan, { panelMax: Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0), sheathPsf: Math.max(0, parseFloat($("#sheathPsf").value) || 0), panelSheets: $("#panelSheets").checked })); record("drawings_downloaded"); } });
+    // 0 = whole walls; a size outside 6 in to 100 ft is refused (the engine throws on it), never passed on.
+    function panelMaxIn() { const v = Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0); return v > 0 && panelMaxError(v) ? -1 : v; }
+    function panelMaxOk() { if (panelMaxIn() < 0) { $("#status").textContent = "Longest shop panel: " + panelMaxError(Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0)) + "."; return false; } return true; }
+    $("#drawingsPdf").addEventListener("click", () => { if (run() && last && panelMaxOk()) { download("wall-drawings.pdf", "application/pdf", drawingSetPdf(last.result, last.plan, { panelMax: panelMaxIn() })); record("drawings_pdf_downloaded"); } });
+    $("#drawings").addEventListener("click", () => { if (run() && last && panelMaxOk()) { download("wall-drawings.html", "text/html", drawingSetHtml(last.result, last.plan, { panelMax: panelMaxIn(), sheathPsf: Math.max(0, parseFloat($("#sheathPsf").value) || 0), panelSheets: $("#panelSheets").checked })); record("drawings_downloaded"); } });
     $("#panelOrderBtn").addEventListener("click", () => {
       if (!run() || !last) return;
-      const panelMax = Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0);
+      const panelMax = panelMaxIn();
+      if (panelMax < 0) { panelMaxOk(); return; }
       if (!panelMax) { $("#status").textContent = "Enter the longest shop panel (e.g. 12 ft) in the wall settings first."; return; }
       const po = panelOrder(last.result, last.plan, panelMax, last.nailers);
       download("shop-panel-lumber-order.txt", "text/plain", [...panelOrderText(po), "", ...panelPullText(po)].join("\n") + "\n");
       record("panel_order_downloaded");
     });
+    $("#priceAddBtn").addEventListener("click", () => {
+      const n = $("#priceName").value; if (!n) return;
+      const t = $("#priceText"); const lines = (t.value || "").split(/\n/);
+      if (!lines.some((l) => l.split(",")[0].trim() === n)) t.value = (t.value && !t.value.endsWith("\n") ? t.value + "\n" : t.value) + n + ", ";
+      t.focus(); t.dispatchEvent(new Event("input"));
+    });
     $("#priceText").addEventListener("input", () => { renderBudget(); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } });
     $("#bidText").addEventListener("input", renderBids);
+    {
+      const buy = buyLink(CHECKOUT_URL);
+      if (buy) { $("#buyLink").href = buy; $("#buyRow").hidden = false; }
+      let logo = "";
+      $("#pkgLogo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { logo = ""; return; } const r = new FileReader(); r.onload = () => { logo = String(r.result); }; r.readAsDataURL(f); });
+      $("#pkgCheck").addEventListener("click", async () => {
+        $("#pkgState").textContent = "Checking...";
+        const v = await checkLicence($("#pkgKey").value, { url: VALIDATE_URL });
+        $("#pkgState").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason + (buy ? "" : " (no licence is on sale yet)");
+        $("#pkgFields").hidden = !v.valid;
+        if (v.valid) record("bid_package_unlocked");
+      });
+      $("#pkgOpen").addEventListener("click", () => {
+        const q = showProposal(); if (!q) return;
+        const html = bidPackageHtml(q, last.budget, { company: $("#pkgCo").value, licenseNo: $("#pkgLic").value, accent: $("#pkgAccent").value, address: $("#pkgAddr").value, phone: $("#pkgPhone").value, email: $("#pkgMail").value, logo });
+        const url = URL.createObjectURL(new Blob([html], { type: "text/html" })); window.open(url, "_blank", "noopener"); setTimeout(() => URL.revokeObjectURL(url), 60000);
+        record("bid_package_opened");
+      });
+    }
+    $("#propBtn").addEventListener("click", () => { if (showProposal()) record("proposal_previewed"); });
+    $("#propPrint").addEventListener("click", () => { const q = showProposal(); if (!q) return; const url = URL.createObjectURL(new Blob([proposalHtml(q)], { type: "text/html" })); window.open(url, "_blank", "noopener"); setTimeout(() => URL.revokeObjectURL(url), 60000); record("proposal_printed"); });
+    $("#propDl").addEventListener("click", () => { const q = showProposal(); if (q && q.ok) { download("framing-proposal.txt", "text/plain", proposalText(q).join("\n") + "\n"); record("proposal_downloaded"); } });
     $("#budgetCsvBtn").addEventListener("click", () => { if (run() && last?.budget) { download("framing-budget.csv", "text/csv", budgetCsv(last.budget)); record("budget_csv_downloaded"); } });
     $("#savePlan").addEventListener("click", () => { const { source, bad } = toPlan(); if (bad.length) { run(); return; } download("framing-plan.json", "application/json", JSON.stringify(source, null, 2)); record("plan_saved"); });
     $("#openPlan").addEventListener("change", async (e) => {

@@ -31,6 +31,11 @@ for _w in WIDTHS:
 DESIGNS = [d for d in flow.DESIGNS if d != "fifo8x4"]
 
 
+def _cells(txt):
+    m = re.search(r"Number of cells:\s*(\d+)", txt) or re.search(r"^\s*(\d+)\s+cells\s*$", txt, flags=re.M)  # Yosys 0.33 / 0.70
+    return int(m.group(1))
+
+
 def point(a):
     design, seq, timeout = a
     top, front = flow._front(design, None)
@@ -51,9 +56,9 @@ def point(a):
         if pre.returncode:
             return {**row, "status": "fail", "error": (pre.stderr or pre.stdout)[-200:]}
         txt = stat.read_text()
-        row["cells"] = int(re.search(r"Number of cells:\s*(\d+)", txt).group(1))
+        row["cells"] = _cells(txt)
         row["depth"] = int(re.search(r"Longest topological path in \S+ \(length=(\d+)\)", txt).group(1))
-        row["ref_cells"] = int(re.search(r"Number of cells:\s*(\d+)", (Path(wd) / "ref.stat").read_text()).group(1))
+        row["ref_cells"] = _cells((Path(wd) / "ref.stat").read_text())
         mod = json.loads((Path(wd) / "ref.json").read_text())["modules"][top]
         row["input_bits"] = sum(len(v["bits"]) for v in mod["ports"].values() if v["direction"] == "input")
         t0 = time.time()

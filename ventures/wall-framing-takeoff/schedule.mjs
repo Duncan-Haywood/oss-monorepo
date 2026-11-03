@@ -139,6 +139,10 @@ export function resolveRates(input, result) {
 }
 
 /** @param {any} input the plan's `schedule` object */
+const MAX_DAYS = 3650;
+// Dates far from today made the day-by-day calendar walk run for seconds (notBefore 9999-12-31 took 21 s): a guard, not a rule.
+const YEAR_LO = 1990, YEAR_HI = 2100;
+const inRange = (/** @type {Date} */ t) => t.getUTCFullYear() >= YEAR_LO && t.getUTCFullYear() <= YEAR_HI;
 export function schedule(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) return { ok: false, errors: ["The schedule must be an object with `activities`."] };
   if (input.activities != null && !Array.isArray(input.activities)) return { ok: false, errors: ["`activities` must be a list."] };
@@ -148,7 +152,12 @@ export function schedule(input) {
     if (!a || typeof a !== "object" || Array.isArray(a)) { shape.push(`Activity ${i + 1} is not an object.`); return; }
     if (a.after != null && !Array.isArray(a.after)) shape.push(`${a.id ?? "Activity " + (i + 1)}: after must be a list of activity ids.`);
     if (a.days != null && typeof a.days !== "number") shape.push(`${a.id ?? "Activity " + (i + 1)}: days must be a number.`);
+    // A 1e9-day activity (or lag) made the calendar walk loop for minutes: cap both at ten years of working days (a guard, not a rule).
+    else if (a.days != null && !(Number.isFinite(a.days) && a.days <= MAX_DAYS)) shape.push(`${a.id ?? "Activity " + (i + 1)}: days must be a finite number of at most ${MAX_DAYS}.`);
+    if (a.lag != null && !(typeof a.lag === "number" && Number.isFinite(a.lag) && a.lag <= MAX_DAYS)) shape.push(`${a.id ?? "Activity " + (i + 1)}: lag must be a finite number of at most ${MAX_DAYS}.`);
   });
+  if (input.slips != null && !Array.isArray(input.slips)) shape.push("`slips` must be a list of {id, days}.");
+  else for (const sl of input.slips || []) if (!sl || typeof sl !== "object" || !(typeof sl.days === "number" && Number.isFinite(sl.days) && sl.days <= MAX_DAYS)) shape.push(`A slip needs a finite number of days of at most ${MAX_DAYS}.`);
   if (input.crews != null && (typeof input.crews !== "object" || Array.isArray(input.crews))) shape.push("`crews` must be an object of crew name to head count.");
   else for (const [c, n] of Object.entries(input.crews || {})) if (n != null && !(typeof n === "number" && Number.isFinite(n) && n >= 1)) shape.push(`crews.${c} must be a number of 1 or more (it is ${JSON.stringify(n)}); a crew of 0 could never start work.`);
   if (shape.length) return { ok: false, errors: shape };
@@ -158,9 +167,9 @@ export function schedule(input) {
   const wl = input?.weatherLoss;
   if (wl != null && !(typeof wl === "number" && wl >= 0 && wl <= 1)) return { ok: false, errors: ["weatherLoss must be a number from 0 to 1 (fraction of exposed working days lost)."] };
   const start = new Date((input.start || "2026-01-05") + "T00:00:00Z");
-  if (isNaN(start.getTime())) return { ok: false, errors: [`start "${input.start}" is not a date (YYYY-MM-DD).`] };
+  if (isNaN(start.getTime()) || !inRange(start)) return { ok: false, errors: [`start "${input.start}" is not a date (YYYY-MM-DD, ${YEAR_LO} to ${YEAR_HI}).`] };
   const offList = [...(input.holidays || []), ...(input.weatherDays || [])];
-  const badOff = offList.filter((/** @type {string} */ h) => isNaN(new Date(h + "T00:00:00Z").getTime()));
+  const badOff = offList.filter((/** @type {string} */ h) => { const t = new Date(h + "T00:00:00Z"); return isNaN(t.getTime()) || !inRange(t); });
   if (badOff.length) return { ok: false, errors: [`holidays and weatherDays must be YYYY-MM-DD dates; not: ${badOff.join(", ")}.`] };
   const off = new Set(offList.map((/** @type {string} */ h) => new Date(h + "T00:00:00Z").toISOString().slice(0, 10)));
   const date = (/** @type {number} */ n) => dateOf(start, n, off);
@@ -170,7 +179,7 @@ export function schedule(input) {
   const withNb = (/** @type {any} */ a) => {
     if (a.notBefore == null) return a;
     const t = new Date(a.notBefore + "T00:00:00Z");
-    if (typeof a.notBefore !== "string" || isNaN(t.getTime())) { nbErrors.push(`${a.id}: notBefore "${a.notBefore}" is not a date (YYYY-MM-DD).`); return a; }
+    if (typeof a.notBefore !== "string" || isNaN(t.getTime()) || !inRange(t)) { nbErrors.push(`${a.id}: notBefore "${a.notBefore}" is not a date (YYYY-MM-DD).`); return a; }
     if (t <= start) return a;
     // first working day on or after t
     const d = new Date(t); while (!isWork(d, off)) d.setUTCDate(d.getUTCDate() + 1);
@@ -265,7 +274,29 @@ export function schedule(input) {
     let wcum = 0;
     const weeks = [...byWeek.keys()].sort().map((w) => { const spend = Math.round(/** @type {number} */ (byWeek.get(w)) * 100) / 100; wcum = Math.round((wcum + spend) * 100) / 100; return { week: w, spend, cumulative: wcum }; });
     if (weeks.length) weeks[weeks.length - 1].cumulative = total;
-    cashFlow = { total, weeks, peakWeek: weeks.reduce((b, x) => (x.spend > b.spend ? x : b), weeks[0]).week, months, peakMonth: months.reduce((b, x) => (x.spend > b.spend ? x : b), months[0]).month };
+    // Draw terms (typed): the lender or owner pays each day's spend `lagDays` calendar days later, less `retainagePct` held back
+    // until `releaseLagDays` after the last working day. `markup` (fraction, default 0) bills each day's spend at cost x (1 + markup), as overhead and profit are billed. The deepest running gap (paid out minus received) is the cash the builder floats.
+    let float = null;
+    if (input.draw != null) {
+      const d = input.draw, lagDays = d.lagDays ?? 0, ret = d.retainagePct ?? 0, rel = d.releaseLagDays ?? lagDays, markup = d.markup ?? 0;
+      if (typeof markup !== "number" || !Number.isFinite(markup) || markup < 0) return { ok: false, errors: ["draw.markup is a fraction of cost billed on top (0.15 bills cost x 1.15), zero or more."] };
+      if (![lagDays, ret, rel].every((x) => typeof x === "number" && Number.isFinite(x) && x >= 0) || !Number.isInteger(lagDays) || !Number.isInteger(rel) || ret > 100) return { ok: false, errors: ["draw: lagDays and releaseLagDays are whole days (0 or more) and retainagePct is 0 to 100."] };
+      /** @type {Map<string, number>} */ const ev = new Map();
+      const add = (/** @type {string} */ ds, /** @type {number} */ v) => ev.set(ds, (ev.get(ds) || 0) + v);
+      const shift = (/** @type {string} */ ds, /** @type {number} */ n) => { const t = new Date(ds + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); };
+      let lastDay = "";
+      for (const a of /** @type {any[]} */ (costed)) {
+        const st = /** @type {number} */ (lv.start.get(a.id)), fin = /** @type {number} */ (lv.finish.get(a.id));
+        const n = Math.max(1, fin - st);
+        for (let i = st; i < st + n; i++) { const ds = date(i); add(ds, -a.cost / n); add(shift(ds, lagDays), (a.cost / n) * (1 + markup) * (1 - ret / 100)); if (ds > lastDay) lastDay = ds; }
+      }
+      const held = total * (1 + markup) * ret / 100, releaseDate = shift(lastDay, rel);
+      add(releaseDate, held);
+      let run = 0, peak = 0, peakDate = "";
+      for (const k of [...ev.keys()].sort()) { run += ev.get(k) || 0; if (run < peak - 1e-9) { peak = run; peakDate = k; } }
+      float = { lagDays, retainagePct: ret, ...(markup ? { markup } : {}), peakFloat: Math.round(-peak * 100) / 100 + 0, peakDate, retainageHeld: Math.round(held * 100) / 100, releaseDate };
+    }
+    cashFlow = { total, ...(float ? { float } : {}), weeks, peakWeek: weeks.reduce((b, x) => (x.spend > b.spend ? x : b), weeks[0]).week, months, peakMonth: months.reduce((b, x) => (x.spend > b.spend ? x : b), months[0]).month };
   }
   // What a slip does: re-run with the extra days added and compare the finish.
   const slips = (input.slips || []).map((/** @type {{ id: string, days: number }} */ sl) => {
@@ -295,6 +326,7 @@ export function scheduleText(s) {
   for (const r of s.rows.slice().sort((/** @type {any} */ a, /** @type {any} */ b) => a.leveledStart - b.leveledStart)) out.push(`  ${r.critical ? "*" : " "} ${r.id.padEnd(12)} ${String(r.days).padStart(3)}d  ${r.startDate} to ${r.finishDate}  slack ${r.slack}${r.crew ? `  [${r.crew}]` : ""}  ${r.name}${r.derived ? `  (${r.derived})` : ""}`);
   for (const sl of s.slips) out.push(sl.error ? `  Slip ${sl.id}: ${sl.error}` : `  A ${sl.days}-day slip on ${sl.id} moves the finish ${sl.finishShift} day(s) (${sl.leveledFinishShift} with crews), to ${sl.newFinishDate}${sl.carryCost != null ? `, which costs $${sl.carryCost.toLocaleString("en-US")} at your $${s.carryPerDay.toLocaleString("en-US")} per day` : ""}.`);
   if (s.cashFlow) { out.push(`  Spend by month (your activity costs, spread over each activity's days): total $${s.cashFlow.total.toLocaleString("en-US")}, heaviest month ${s.cashFlow.peakMonth}, heaviest week (from Monday) ${s.cashFlow.peakWeek} at $${s.cashFlow.weeks.reduce((b, /** @type {any} */ x) => Math.max(b, x.spend), 0).toLocaleString("en-US")}.`); for (const m of s.cashFlow.months) out.push(`    ${m.month}  $${m.spend.toLocaleString("en-US")}  (to date $${m.cumulative.toLocaleString("en-US")})`); }
+  if (s.cashFlow?.float) { const f = s.cashFlow.float; out.push(`  Cash you float with draws paid ${f.lagDays} day(s) late and ${f.retainagePct}% retainage${f.markup ? `, billed at cost +${(100 * f.markup).toFixed(1)}%` : ""}: peak $${f.peakFloat.toLocaleString("en-US")} on ${f.peakDate}; $${f.retainageHeld.toLocaleString("en-US")} retainage released ${f.releaseDate}. Terms are yours; no lender's rules are assumed.`); }
   if (s.carryTotal != null) out.push(`  Carrying cost: $${s.carryTotal.toLocaleString("en-US")} for ${s.leveledDays} working days at your $${s.carryPerDay.toLocaleString("en-US")} per day.`);
   if (s.deadline) { const d = s.deadline; out.push(`  Deadline ${d.deadline}: ${d.daysLate > 0 ? `${d.daysLate} working day(s) late with your crews${d.lateCost != null ? `, ${"$" + d.lateCost.toLocaleString("en-US")} at your carrying cost` : ""}` : d.daysLate < 0 ? `${-d.daysLate} working day(s) to spare` : "met with no spare day"}.`); }
   for (const w of s.warnings) out.push(`  note: ${w}`);

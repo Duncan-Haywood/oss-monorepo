@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kazakhstan IS ESF e-invoices: the 2026 Tax Code, VAT balance control and what a file check covers | E-invoice Preflight</title>
+<meta name="description" content="Kazakh e-invoices (ESF) are issued in the State Revenue Committee&#x27;s IS ESF. Guides report the 2026 Tax Code, Order No. 629 and automated VAT-balance control that can block an invoice. What this checker covers.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/kazakhstan-is-esf-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kazakhstan IS ESF e-invoices: the 2026 Tax Code, VAT balance control and what a file check covers | E-invoice Preflight">
+<meta property="og:description" content="Kazakh e-invoices (ESF) are issued in the State Revenue Committee&#x27;s IS ESF. Guides report the 2026 Tax Code, Order No. 629 and automated VAT-balance control that can block an invoice. What this checker covers.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/kazakhstan-is-esf-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is IS ESF?","acceptedAnswer":{"@type":"Answer","text":"The State Revenue Committee's information system for electronic invoices (ESF), where Kazakh e-invoices are issued and registered."}},{"@type":"Question","name":"What changed in 2026?","acceptedAnswer":{"@type":"Answer","text":"Guides report Tax Code No. 214-VIII from 1 January 2026, Order No. 629 replacing Order No. 370, and automated control of ESF issuance against the issuer's VAT balance."}},{"@type":"Question","name":"Can an invoice be blocked?","acceptedAnswer":{"@type":"Answer","text":"Reportedly yes: if the invoice VAT exceeds the VAT balance, it is held in the IS ESF until the balance covers it. Confirm against current orders."}},{"@type":"Question","name":"Can this checker validate a Kazakh ESF?","acceptedAnswer":{"@type":"Answer","text":"No. It has no Kazakh rules and does not call the IS ESF. For UBL or CII it applies EN 16931 and Peppol checks that catch totals, tax breakdown and identifier faults. A clean result is not IS ESF registration."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.out{min-height:1.4em}.good{color:#0a6b3a;font-weight:600}.bad{color:#a12d1b}input{font:inherit;padding:.4rem .5rem;border:1px solid #9fb0c0;border-radius:8px}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Kazakhstan: IS ESF</h1>
+<p class="lede">Kazakhstan has issued e-invoices through the State Revenue Committee&#x27;s IS ESF for years. 2026 changed the rules around it. Below: what advisory firms report and what a free local file check can and cannot tell you.</p>
+</header>
+<section>
+<h2>How it works (as secondary guides report)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Topic</th><th scope="col">What the sources say</th></tr></thead>
+<tbody>
+<tr><td>Model</td><td>Electronic invoices (ESF) issued in the IS ESF portal and registered there. Not EN 16931.</td></tr>
+<tr><td>Timeline</td><td>Sources disagree on the start: one says 2017, another says all VAT payers from 2019.</td></tr>
+<tr><td>2026 changes</td><td>Tax Code No. 214-VIII applies from 1 January 2026, keeps the IS ESF and the 15-day issuance deadline, and adds automated control of ESF issuance. Order No. 629 (from 1 January 2026) replaced Order No. 370 of 2019. One source says Order No. 646 later restated it; that is unverified.</td></tr>
+<tr><td>VAT balance control</td><td>Under Order No. 611, covered taxpayers reportedly get an ESF registration number only if the invoice VAT is within their VAT balance; otherwise the invoice is blocked until funds are added.</td></tr>
+<tr><td>Corrections</td><td>Corrected, additional and cancelled invoices reportedly need confirmation by a VAT-paying recipient.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Written from web search summaries and vendor guides (EY Kazakhstan, Moore Kazakhstan, Thomson Reuters, VATupdate, Sovos, e-invoice.app), not from State Revenue Committee or Ministry of Finance texts, none of which were read. Dates and thresholds may have changed.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>The main checker reads UBL, CII and Factur-X and applies EN 16931 and Peppol rules. It does <strong>not</strong> apply local rules, sign an invoice or call JoFotara. It is still useful on the numbers: wrong totals, a tax breakdown that does not add up and mistyped identifiers are faults any clearance system rejects.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a>, drop your XML and read the findings, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded. No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all mandates by country</a>, for example <a href="serbia-e-invoice-mandate.html">Serbia</a> and <a href="turkey-e-invoice-mandate.html">Turkey</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is IS ESF?</h3>
+<p>The State Revenue Committee&#x27;s information system for electronic invoices (ESF), where Kazakh e-invoices are issued and registered.</p>
+<h3>What changed in 2026?</h3>
+<p>Guides report Tax Code No. 214-VIII from 1 January 2026, Order No. 629 replacing Order No. 370, and automated control of ESF issuance against the issuer&#x27;s VAT balance.</p>
+<h3>Can an invoice be blocked?</h3>
+<p>Reportedly yes: if the invoice VAT exceeds the VAT balance, it is held in the IS ESF until the balance covers it. Confirm against current orders.</p>
+<h3>Can this checker validate a Kazakh ESF?</h3>
+<p>No. It has no Kazakh rules and does not call the IS ESF. For UBL or CII it applies EN 16931 and Peppol checks that catch totals, tax breakdown and identifier faults. A clean result is not IS ESF registration.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="australia-e-invoice-mandate.html">Australia</a> <a href="austria-e-invoice-mandate.html">Austria</a> <a href="belgium-e-invoice-mandate.html">Belgium</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="croatia-e-invoice-mandate.html">Croatia</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a> <a href="denmark-e-invoice-mandate.html">Denmark</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a> <a href="estonia-e-invoice-mandate.html">Estonia</a> <a href="finland-e-invoice-mandate.html">Finland</a> <a href="france-e-invoice-mandate.html">France</a> <a href="germany-e-invoice-mandate.html">Germany</a> <a href="greece-mydata-e-invoice-mandate.html">Greece</a> <a href="hungary-e-invoice-mandate.html">Hungary</a> <a href="india-gst-e-invoice-mandate.html">India</a> <a href="indonesia-coretax-e-invoice-mandate.html">Indonesia</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="italy-sdi-e-invoice-mandate.html">Italy</a> <a href="latvia-e-invoice-mandate.html">Latvia</a> <a href="lithuania-e-invoice-mandate.html">Lithuania</a> <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a> <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a> <a href="malta-e-invoice-mandate.html">Malta</a> <a href="netherlands-e-invoice-mandate.html">Netherlands</a> <a href="norway-e-invoice-mandate.html">Norway</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="poland-ksef-e-invoice-mandate.html">Poland</a> <a href="portugal-e-invoice-mandate.html">Portugal</a> <a href="romania-e-factura-e-invoice-mandate.html">Romania</a> <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a> <a href="serbia-e-invoice-mandate.html">Serbia</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="slovakia-e-invoice-mandate.html">Slovakia</a> <a href="slovenia-e-invoice-mandate.html">Slovenia</a> <a href="spain-verifactu-e-invoice-mandate.html">Spain</a> <a href="sweden-e-invoice-mandate.html">Sweden</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uk-e-invoice-mandate.html">Uk</a> <a href="uae-e-invoice-mandate.html">United Arab Emirates</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Kazakhstan position from web search summaries and guides, not from State Revenue Committee texts; things can change, so check the State Revenue Committee and the current rules before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>

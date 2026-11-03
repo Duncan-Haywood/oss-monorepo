@@ -104,3 +104,12 @@ test("index page's relative links point at servable files, so the front-door mir
   const hrefs = [...page("index.html").matchAll(/href="([^"#?:]+)"/g)].map((m) => m[1]);
   assert.deepEqual(hrefs.filter((h) => /\.md$/i.test(h)), []);
 });
+
+test("the call section offers optional dictation and read-aloud, feature-detected, with the audio caveat and no network code", () => {
+  const html = page("index.html");
+  for (const id of ["dictate", "read-aloud", "voice-note"]) assert.ok(html.includes(`id="${id}"`), id);
+  assert.match(html, /from "\.\/voice\.mjs"/);
+  assert.match(html, /webkitSpeechRecognition/);
+  assert.match(html, /sends the audio to the browser maker/);
+  assert.doesNotMatch(page("voice.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);
+});

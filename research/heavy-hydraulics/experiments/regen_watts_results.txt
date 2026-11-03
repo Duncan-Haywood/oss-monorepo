@@ -1,0 +1,8 @@
+bore 80 mm (rod 45) n=772  mean W 410 / 776 / 1419 | peak W 613 / 1255 / 2290 | duration ms 900 / 2862 / 8388 | energy J 584 / 1846 / 8679   (p10/median/p90)
+bore 100 mm (rod 56) n=772  mean W 640 / 1212 / 2218 | peak W 958 / 1961 / 3578 | duration ms 900 / 2862 / 8388 | energy J 912 / 2885 / 13561   (p10/median/p90)
+bore 125 mm (rod 70) n=772  mean W 1000 / 1894 / 3465 | peak W 1497 / 3064 / 5591 | duration ms 900 / 2862 / 8388 | energy J 1425 / 4508 / 21188   (p10/median/p90)
+bore sourced (rod 56) n=772  mean W 640 / 1212 / 2217 | peak W 958 / 1960 / 3576 | duration ms 900 / 2862 / 8388 | energy J 912 / 2883 / 13553   (p10/median/p90)
+  sourced, 148KG  n=  39 median mean W 1194, median peak W 1743
+  sourced, 180KG  n= 312 median mean W 1145, median peak W 1810
+  sourced, 278KG  n= 184 median mean W 1753, median peak W 2926
+  sourced, 95KG   n= 237 median mean W 981, median peak W 1650

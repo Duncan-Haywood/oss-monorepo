@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01EhTJVNrSy5nJXd7h4sEkxz",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures run",
+  "input_sha256": "ced1e7d741bd270c543c208b4302ee603d34e9760c1a7d8281c9536b509a1191",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T11:59:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "ventures/einvoice-preflight"
+  ],
+  "pr": 12577,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "did not deepen a flagship this run; shipped a post only",
+      "did": "post from mandate table",
+      "result": "post landed, no product change"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Monetization queue had no agent-doable step left (dark paid paths wait on the owner checkout link). boe.es and AEAT blocked by the proxy, so no country page edits. Landed one post built from mandate-dates.json; check_post_frontmatter.py passes. Small run, below the depth bar.",
+  "corrections": [],
+  "redteam": null
+}

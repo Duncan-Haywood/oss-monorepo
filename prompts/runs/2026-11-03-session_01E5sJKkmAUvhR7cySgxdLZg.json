@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01E5sJKkmAUvhR7cySgxdLZg",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T06:19:07Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12753",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 fetches origin security-alerts, which does not exist on this remote; no fallback stated."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "why": "Draw landed on hanger-* milestones; chose the deep-tech marine-hull programme instead, per PROGRAMMES.md",
+      "did": "advanced marine-hull",
+      "result": "small wording-only step"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-03-do-catamarans-win-for-survey-boats-wave-model-check.md",
+    "docs/reports/marine-hull-milestone-7l.md"
+  ],
+  "goal": null,
+  "notes": "Wording-only paper fold-in of LOG 3k; no new experiment. Initially pushed a side branch, then moved work to the designated branch.",
+  "corrections": [],
+  "redteam": null
+}

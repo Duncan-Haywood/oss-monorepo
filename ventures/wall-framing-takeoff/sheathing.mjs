@@ -92,6 +92,33 @@ function bearingCentres(plan, w, ops, cover) {
 }
 
 /**
+ * Refuses sheathing settings that are not real numbers in range. Before this a
+ * text or negative `minStrip`, `minCourse` or `rimLap` was accepted and gave a
+ * layout built on coerced values. Ranges are guard limits, not code values.
+ * @param {any} cfg
+ * @returns {string[]}
+ */
+export function sheathingErrors(cfg) {
+  const e = [];
+  const num = (k, lo, hi, nullOk = true) => {
+    const v = cfg[k];
+    if (v == null) { if (!nullOk) e.push(`sheathing ${k} must be a number.`); return; }
+    if (typeof v !== "number" || !Number.isFinite(v)) e.push(`sheathing ${k} must be a number.`);
+    else if (v < lo || v > hi) e.push(`sheathing ${k} must be from ${lo} to ${hi} in.`);
+  };
+  num("minStrip", 0, SHEET_WIDTH);
+  num("minCourse", 0, 240);
+  num("rimLap", 0, 48);
+  num("coverHeight", 0, 1200);
+  if (cfg.sheets != null && !Array.isArray(cfg.sheets)) e.push("sheathing sheets must be a list.");
+  else for (const [i, s] of (cfg.sheets || []).entries()) {
+    if (!s || typeof s !== "object") { e.push(`sheathing sheet ${i + 1} must be an object.`); continue; }
+    for (const k of ["width", "length", "price"]) if (typeof s[k] !== "number" || !Number.isFinite(s[k])) e.push(`sheathing sheet ${i + 1} ${k} must be a number.`);
+  }
+  return e;
+}
+
+/**
  * Panel x-ranges for one wall: joints at the furthest stud centre within one
  * sheet width. When no framing is in reach, the joint goes over an opening
  * (`spans`, the open stretches of the walls' rough openings) and a nailer is
@@ -197,6 +224,8 @@ export function jointBlocking(w, ops, plan, y) {
 export function sheathe(plan, result) {
   const cfg = { ...defaultSheathing(), ...(plan.sheathing || {}) };
   const notes = [];
+  const bad = sheathingErrors(cfg);
+  if (bad.length) return { ok: false, errors: bad };
   const sheets = (cfg.sheets || []).filter((s) => s.width > 0 && s.length > 0 && s.price >= 0 && s.width <= SHEET_WIDTH + EPS);
   if (!sheets.length) return { ok: false, errors: ["List at least one sheet size for sheathing."] };
   const wallHeight = result.walls.find((w) => !w.gable)?.height ?? (plan.studLength + 3 * THICK); // gable-only plan: the eave height
@@ -300,8 +329,8 @@ export function sheathe(plan, result) {
   const stripArea = panelArea + cutoutArea;
   if (two) notes.push(`Walls are ${formatInches(cover + lap)} to cover and no sheet is that long: two courses, a ${formatInches(courses[0].sheet.length)} lower sheet and a ${formatInches(cover - courses[0].y1)} upper course, with the horizontal joint at ${formatInches(jointY)} on blocking set on edge between the studs.`);
   if (lap) notes.push(`Sheathing runs ${formatInches(lap)} below the bottom plate to cover the rim board; nail it to the rim as well as the plate.`);
-  const nailerLumber = nailerOrder(walls, plan);
   const gables = sheatheGables(plan, result, cfg, sheets, notes);
+  const nailerLumber = nailerOrder([...walls, ...(gables ? gables.walls : [])], plan);
   return {
     ok: true,
     gables,
@@ -436,9 +465,10 @@ function sheatheHorizontal(plan, result, cfg, sheets, cover) {
   const cutoutArea = panelAll.reduce((t, p) => t + p.cutouts.reduce((u, c) => u + area(c.x1 - c.x0, c.y1 - c.y0), 0), 0);
   const panelArea = panelAll.reduce((t, p) => t + area(p.width, p.height), 0) - cutoutArea;
   const naive = panelAll.reduce((t, p) => t + sheet.price * (p.height < sheet.width - EPS ? 1 / courses[p.course].perSheet : 1), 0);
+  const gables = sheatheGables(plan, result, cfg, sheets, notes);
   return {
     ok: true,
-    gables: sheatheGables(plan, result, cfg, sheets, notes),
+    gables,
     orientation: "horizontal",
     sheet,
     cover,
@@ -447,7 +477,7 @@ function sheatheHorizontal(plan, result, cfg, sheets, cover) {
     jointYs: courses.slice(1).map((c) => c.y0),
     walls,
     strips,
-    nailerLumber: nailerOrder(walls, plan),
+    nailerLumber: nailerOrder([...walls, ...(gables ? gables.walls : [])], plan),
     order: { label, qty: best.sheetsBought, price: sheet.price, cost: best.cost },
     orders,
     summary: {
@@ -502,11 +532,13 @@ function sheatheGables(plan, result, cfg, sheets, notes) {
     const found = panelBreaks(L, centres, SHEET_WIDTH, cfg.minStrip, ops.map((o) => [o.offset, o.offset + o.width]));
     if (!found) { notes.push(`${w.id}: gable wall with no stud within ${formatInches(SHEET_WIDTH)} of a panel edge; sheathe it by hand.`); continue; }
     // A joint over an opening with no stud in reach needs a nailer between the header and the sloped top plate, as on the straight walls.
+    const nailerPieces = [];
     for (const n of found.nailers) {
       const hdr = w.members.filter((m) => m.kind === "header" && m.x - EPS <= n && n <= m.x + m.length + EPS).sort((a, b) => b.y + b.h - (a.y + a.h))[0];
       const plateY = base + (n <= mid ? slopeL * n : slopeR * (L - n)); // underside of the top plate at the joint
       const len = hdr ? Math.round((plateY - (hdr.y + hdr.h)) * 16) / 16 : 0;
-      notes.push(`${w.id}: a gable panel joint at ${formatInches(n)} falls over an opening with no cripple under it; fit a ${w.stud} nailer${len > EPS ? ` about ${formatInches(len)} long` : ""} on end between the header and the sloped top plate there (not in the lumber order).`);
+      nailerPieces.push({ wall: w.id, x: n, size: w.stud, length: len > EPS ? len : null });
+      notes.push(`${w.id}: a gable panel joint at ${formatInches(n)} falls over an opening with no cripple under it; fit a ${w.stud} nailer${len > EPS ? ` about ${formatInches(len)} long` : ""} on end between the header and the sloped top plate there (added to the lumber order).`);
     }
     const panels = [];
     let bad = false;
@@ -542,7 +574,7 @@ function sheatheGables(plan, result, cfg, sheets, notes) {
       for (const e of [p.x0, p.x1]) if (e > EPS && e < L - EPS && !centres.some((c) => Math.abs(c - e) < EPS) && !found.nailers.some((c) => Math.abs(c - e) < EPS)) check.push(`${p.id} has an edge at ${formatInches(e)} with no full-height stud under it`);
     }
     if (Math.abs(at - L) > EPS) check.push("panels do not reach the wall end");
-    walls.push({ id: w.id, peak: mid, panels, check });
+    walls.push({ id: w.id, peak: mid, panels, nailerPieces, jointBlocks: [], check });
   }
   if (!walls.length) return null;
   const plain = priceGableUnits(units, []);
@@ -554,8 +586,8 @@ function sheatheGables(plan, result, cfg, sheets, notes) {
   const { orders, count, cost, bound, proven, bought } = use;
   const names = walls.map((w) => w.id).join(", ");
   notes.push(use === nested
-    ? `Gable walls (${names}) are sheathed with vertical sheets; ${pairs.length} pair${pairs.length > 1 ? "s" : ""} of sloped top courses nest on one sheet (one turned end for end), which costs ${(plain.cost - nested.cost).toFixed(2)} less than buying each as its bounding box. Nailers over openings on gable walls are noted but not added to the lumber order.`
-    : `Gable walls (${names}) are sheathed with vertical sheets; each panel is bought as its bounding box${pairs.length ? " (nesting the offcut triangles did not lower the cost)" : ""}, so the order is an upper bound. Nailers over openings on gable walls are noted but not added to the lumber order.`);
+    ? `Gable walls (${names}) are sheathed with vertical sheets; ${pairs.length} pair${pairs.length > 1 ? "s" : ""} of sloped top courses nest on one sheet (one turned end for end), which costs ${(plain.cost - nested.cost).toFixed(2)} less than buying each as its bounding box. Nailers over openings on gable walls are in the nailer lumber order.`
+    : `Gable walls (${names}) are sheathed with vertical sheets; each panel is bought as its bounding box${pairs.length ? " (nesting the offcut triangles did not lower the cost)" : ""}, so the order is an upper bound. Nailers over openings on gable walls are in the nailer lumber order.`);
   return { walls, orders, summary: { panels: walls.reduce((t, w) => t + w.panels.length, 0), sheets: count, cost, bound, proven, areaCovered: covered, areaCutOut: cutOut, areaBought: bought, waste: bought > 0 ? (bought - covered) / bought : 0, nestedPairs: use === nested ? pairs.length : 0, unnestedCost: plain.cost } };
 }
 
@@ -638,7 +670,7 @@ function priceGableUnits(units, pairs) {
 export function nailerCuts(s) {
   if (!s || !s.ok) return [];
   const map = new Map();
-  for (const w of s.walls) {
+  for (const w of [...s.walls, ...(s.gables ? s.gables.walls : [])]) {
     for (const [p, kind] of extraPieces(w)) {
       if (!(p.length > EPS)) continue;
       const key = `${kind}|${p.size}|${p.length}`;

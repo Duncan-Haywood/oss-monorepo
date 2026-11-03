@@ -1,5 +1,6 @@
 ---
 title: "What went wrong with sixteen AI agents on one main branch, and the git alternatives we weighed"
+seo_title: "Sixteen AI agents on one main branch: what went wrong"
 date: 2026-10-20
 description: "A postmortem of parallel AI agents merging to one branch: generated files, false-red CI, cancelled runs, and seven alternatives to the git workflow."
 tags: [ai-agents, git, ci, postmortem, software-engineering]

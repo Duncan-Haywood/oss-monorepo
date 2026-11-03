@@ -34,8 +34,13 @@ test('front wall framing around a 38 x 82 door, counted by hand', () => {
   assert.equal(headers[0].length, 41); // 38 + two jacks
   // Header top 82 + 3-1/2 = 85-1/2; underside of top plates 93: cripples 7-1/2 at 64 and 80.
   assert.deepEqual(of(s, 'wall:front', 'top cripple').map((m) => m.length), [7.5, 7.5]);
-  // Bottom plate is cut out at the door: 53 and 144 - 91 = 53.
-  assert.deepEqual(of(s, 'wall:front', 'bottom plate').map((m) => m.length), [53, 53]);
+  // Bottom plate runs across the door (plateThroughDoors, the default): one 144" piece,
+  // with the 38" between the jacks (53 to 91) sawn out after the wall is raised.
+  const plate = of(s, 'wall:front', 'bottom plate');
+  assert.deepEqual(plate.map((m) => m.length), [144]);
+  assert.deepEqual(plate[0].cutOuts.map((c) => [c.s0, c.s1]), [[53, 91]]);
+  // Cut at the door before framing instead: 53 and 144 - 91 = 53.
+  assert.deepEqual(of(buildShed({ ...classic(), plateThroughDoors: false }), 'wall:front', 'bottom plate').map((m) => m.length), [53, 53]);
 });
 
 test('gable ends frame between the eave walls and windows get sills and cripples', () => {

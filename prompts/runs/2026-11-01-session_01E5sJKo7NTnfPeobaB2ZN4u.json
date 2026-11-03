@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01E5sJKo7NTnfPeobaB2ZN4u",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T17:21:13Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12382",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "No blog post or agent doc written; the run was a short creative-track episode.",
+      "did": "episode only",
+      "result": "landed"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Saints by Candlelight episode 67, ananias-and-the-street-called-straight-at-damascus, text only (audio 423 MB > 400 MB cap). 5383 words, slightly under the 5500 target but above 4500 floor.",
+  "corrections": [],
+  "redteam": null
+}

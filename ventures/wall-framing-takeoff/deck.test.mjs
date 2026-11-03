@@ -217,3 +217,12 @@ test("beamCheck: a weak beam fails, bad figures are refused", () => {
   assert.ok(l.ok && l.beamCheck.passes === false);
   assert.equal(layoutDeck({ ...sampleDeck(), beamCheck: { deadPsf: 10, livePsf: 40, Fb: 0, Fv: 150, E: 1e6 } }).beamCheck.ok, false);
 });
+
+test("validateDeck refuses text, zero and huge optional numbers that used to give NaN, a hang or a RangeError", () => {
+  const bad = [{ overhang: "10" }, { overhang: true }, { postInset: "6" }, { postInset: 1e9 }, { maxPostSpacing: 0 }, { maxPostSpacing: "96" }, { railPostSpacing: 0 }, { screwsPerBox: 0 }, { screwsPerBox: "100" }, { screwsPerBox: 1.5 },
+    { footing: { diameter: "12" } }, { footing: { bagYield: 0 } }, { footing: [] }, { deckBoard: { width: 0 } }, { deckBoard: { gap: 100 } }, { deckBoard: { thickness: "1" } }, { blocking: { every: 1e-9 } }, { blocking: { every: "48" } }, { blocking: 3 }];
+  for (const b of bad) assert.ok(validateDeck({ ...sampleDeck(), ...b }).length, JSON.stringify(b));
+  const good = { postInset: 12, maxPostSpacing: 96, railPostSpacing: 72, screwsPerBox: 350, footing: { diameter: 12, depth: 42, bagYield: 0.6 }, deckBoard: { width: 5.5, thickness: 1, gap: 0.1875 }, blocking: { every: 96 } };
+  assert.deepEqual(validateDeck({ ...sampleDeck(), ...good }), []);
+  assert.deepEqual(validateDeck(sampleDeck()), []);
+});

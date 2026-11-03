@@ -68,6 +68,11 @@ def is_focus(slug):
     return slug in FOCUS_PROGRAMMES or slug.split("-")[0] in FOCUS
 
 
+def is_blocked(slug):
+    """True when research/<slug>/BLOCKED exists: every open item needs data or a step outside a session."""
+    return (RESEARCH / slug / "BLOCKED").is_file()
+
+
 def projects(prefix, limit=5):
     """(count, newest `limit` project dirs) for slugs starting `prefix-`."""
     dirs = sorted(d.name for d in RESEARCH.glob(prefix + "-*") if d.is_dir())
@@ -184,6 +189,9 @@ def draw_programme(r, progs, claimed=open_prs_for, focus_share=FOCUS_SHARE):
     claimed the first draw stands. With probability `focus_share` the FOCUS programmes go first."""
     rng = random.Random(r + 1)
     order = rng.sample(progs, len(progs))
+    # A programme with a research/<slug>/BLOCKED file (its reason, one line) waits on outside
+    # data or an owner step; it is drawn only when every programme is blocked (friction 2026-10-30..11-01).
+    order = [p for p in order if not is_blocked(p[0])] or order
     if rng.random() < focus_share:
         order = [p for p in order if is_focus(p[0])] + [p for p in order if not is_focus(p[0])]
     skipped = []

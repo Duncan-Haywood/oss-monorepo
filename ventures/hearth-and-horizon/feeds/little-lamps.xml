@@ -16,6 +16,36 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Benedict and the Raven</title>
+      <link>https://example.invalid/hearth-and-horizon/benedict-and-the-raven.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/benedict-and-the-raven.html</guid>
+      <pubDate>Mon, 02 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Benedict of Nursia, who lived quietly in the hills at Subiaco, and the black raven that came to take bread from his hand. When a loaf was sent that was not good to eat, the old story says Benedict asked the raven to carry it far away, and the raven, after some hopping about, did. Told as Saint Gregory the Great told it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about nine minutes read aloud. His feast day is the 11th of July. Setting: Subiaco, a rocky valley in the hills east of Rome, Italy, about fifteen hundred years ago. Read the full text at https://example.invalid/hearth-and-horizon/benedict-and-the-raven.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Benedict of Nursia, who lived quietly in the hills at Subiaco, and the black raven that came to take bread from his hand. When a loaf was sent that was not good to eat, the old story says Benedict asked the raven to carry it far away, and the raven, after some hopping about, did. Told as Saint Gregory the Great told it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about nine minutes read aloud. His feast day is the 11th of July.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
+      <title>Jerome and the Lion in the Doorway</title>
+      <link>https://example.invalid/hearth-and-horizon/jerome-and-the-lion-in-the-doorway.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/jerome-and-the-lion-in-the-doorway.html</guid>
+      <pubDate>Sun, 01 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Jerome, the grumpy, clever scholar who turned the Bible into the language of ordinary people, and the old tale of the lion with a thorn in its paw who came limping into the monastery and stayed to do an honest job. With a note for grown-ups saying plainly that this tale was first told of a different saint, Gerasimus, and was only later given to Jerome. For ages 3 to 8, about ten minutes read aloud. His feast day is the 30th of September. Setting: A monastery near Bethlehem, about sixteen hundred years ago. Read the full text at https://example.invalid/hearth-and-horizon/jerome-and-the-lion-in-the-doorway.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Jerome, the grumpy, clever scholar who turned the Bible into the language of ordinary people, and the old tale of the lion with a thorn in its paw who came limping into the monastery and stayed to do an honest job. With a note for grown-ups saying plainly that this tale was first told of a different saint, Gerasimus, and was only later given to Jerome. For ages 3 to 8, about ten minutes read aloud. His feast day is the 30th of September.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
+      <title>Margaret and the Book in the River</title>
+      <link>https://example.invalid/hearth-and-horizon/margaret-and-the-book-in-the-river.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/margaret-and-the-book-in-the-river.html</guid>
+      <pubDate>Sun, 01 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Margaret of Scotland, a queen who fed nine hungry orphans herself every morning before she ate a crumb, and about her little gospel book that fell into a river and came out dry. Told from Turgot's Life of Margaret, with a note for grown-ups on what is history and what is told in the Life. For ages 3 to 8, about ten minutes read aloud. Her feast day is the 16th of November. Setting: Scotland, in the castle at Dunfermline and on the road to the river, about nine hundred and fifty years ago. Read the full text at https://example.invalid/hearth-and-horizon/margaret-and-the-book-in-the-river.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Margaret of Scotland, a queen who fed nine hungry orphans herself every morning before she ate a crumb, and about her little gospel book that fell into a river and came out dry. Told from Turgot's Life of Margaret, with a note for grown-ups on what is history and what is told in the Life. For ages 3 to 8, about ten minutes read aloud. Her feast day is the 16th of November.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Clare and the Loaves with a Cross</title>
       <link>https://example.invalid/hearth-and-horizon/clare-and-the-loaves-with-a-cross.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/clare-and-the-loaves-with-a-cross.html</guid>

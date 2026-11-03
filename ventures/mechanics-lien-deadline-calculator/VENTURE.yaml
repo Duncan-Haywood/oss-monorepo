@@ -26,7 +26,7 @@ owner: duncan
 # generation for paid notice-filing services -- a free, private date lookup
 # is the part they gate.
 #
-# Liability: the one risk is a wrong date. Mitigations: five states only,
+# Liability: the one risk is a wrong date. Mitigations: six states only,
 # each verified against multiple agreeing sources; first-tier claimants
 # only; unsupported states throw rather than guess; completion-based rules
 # fall back to the cautious (earlier) date; weekend dates show the last

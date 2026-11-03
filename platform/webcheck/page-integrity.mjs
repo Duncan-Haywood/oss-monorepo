@@ -53,6 +53,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import vm from 'node:vm';
 
 // Elements whose content a browser does not parse as markup. Leaving one open
 // silently discards the remainder of the document with no parse error anywhere.
@@ -159,6 +160,22 @@ function describeParseFailure(stderr, body) {
 }
 
 /**
+ * True when `body` parses as an ES module, in this process, without running it.
+ * `vm.SourceTextModule` only compiles; it is absent unless node was started
+ * with --experimental-vm-modules, and then this returns false and the caller
+ * spawns `node --check` as before.
+ */
+function parsesAsModule(body) {
+  if (typeof vm.SourceTextModule !== 'function') return false;
+  try {
+    new vm.SourceTextModule(body);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Parse every inline script the browser would execute, and every JSON-LD block.
  *
  * Uses `node --check`, which runs V8's parser and never executes the code. That
@@ -196,6 +213,11 @@ export function checkScriptSyntax(scripts, scriptTags = []) {
     // `.cjs` and not `.js`: since v22 node sniffs module syntax in a `.js` file
     // and re-parses it as a module, which would quietly accept an `import` that
     // a browser rejects in a non-module script.
+    // Fast path: a module that parses in-process needs no child process (one
+    // `node --check` spawn per script was ~all of the sweep's time). Only a
+    // module can take it, and only when node runs with --experimental-vm-modules;
+    // a failure falls through to the spawn below so the message is unchanged.
+    if (type === 'module' && parsesAsModule(body)) return;
     const file = scratchPath(`s${index}.${type === 'module' ? 'mjs' : 'cjs'}`);
     writeFileSync(file, body);
     try {
@@ -408,12 +430,12 @@ export function scanSource(source) {
       /\b(break|continue)[^\S\n\r\u2028\u2029]+[\p{ID_Start}$_][\p{ID_Continue}$]*$/u,
     );
     if (labelled) {
-      const head = before.slice(0, before.length - labelled[0].length).replace(/\s+$/, '');
+      const head = before.slice(0, before.length - labelled[0].length).trimEnd();
       return !head.endsWith('.') && !head.endsWith('#');
     }
     const match = before.match(REGEX_AFTER_KEYWORD);
     if (!match) return false;
-    const head = before.slice(0, before.length - match[0].length).replace(/\s+$/, '');
+    const head = before.slice(0, before.length - match[0].length).trimEnd();
     // `.` covers `?.` as well, since both end in a dot. `#` covers a private
     // member -- `this.#break` leaves `#` as the last character, not `.`, which
     // the first version of this guard missed.
@@ -553,12 +575,12 @@ export function scanSource(source) {
     if (!head) return false;
     const upto = before
       .slice(0, before.length - head[0].length)
-      .replace(/\s+$/, '')
+      .trimEnd()
       // `const n = async function(){…}` -- the match begins at `function`, so
       // `async` is left in the prefix and would read as an identifier, making
       // the body look like a declaration's block.
       .replace(/\basync$/, '')
-      .replace(/\s+$/, '');
+      .trimEnd();
     if (inStatementPosition(upto)) return false;
     const prev = upto.slice(-1);
     return REGEX_AFTER_PUNCT.has(prev) || OBJECT_LITERAL_AFTER_KEYWORD.test(upto);
@@ -568,7 +590,7 @@ export function scanSource(source) {
     // `out` has comments already blanked to spaces, so trimming trailing
     // whitespace skips them -- a comment between a token and a `/` should not
     // change what that `/` means.
-    const before = out.replace(/\s+$/, '');
+    const before = out.trimEnd();
     if (before === '') return true;
     const last = before.slice(-1);
     // There is deliberately no "a newline before the slash means a regex"
@@ -657,7 +679,7 @@ export function scanSource(source) {
       // header reaches only as far as its own nesting level, so a `{` opened
       // inside it ends that reach (review finding 32).
       parens.push({
-        control: CONTROL_FLOW_PAREN.test(out.replace(/\s+$/, '')),
+        control: CONTROL_FLOW_PAREN.test(out.trimEnd()),
         bracesAtOpen: braces.length,
       });
       out += c;
@@ -686,7 +708,7 @@ export function scanSource(source) {
       i += 1;
       continue;
     }
-    if (c === ';' && !inStatementPosition(out.replace(/\s+$/, '') + ';')) {
+    if (c === ';' && !inStatementPosition(out.trimEnd() + ';')) {
       // Inside a `for` header: the delimiter is not a statement boundary, so
       // leave the conditional count alone (`for (a ? b : c; ; )`).
       out += c;
@@ -708,7 +730,7 @@ export function scanSource(source) {
     // literal; anywhere else it opens a block. That is the same question
     // `regexCanStartHere` answers about `/`, so it is answered the same way.
     if (c === '{') {
-      const before = out.replace(/\s+$/, '');
+      const before = out.trimEnd();
       const last = before.slice(-1);
       // An object literal: a `{` sitting in expression position. See
       // `inStatementPosition` for why `REGEX_AFTER_PUNCT` alone cannot decide

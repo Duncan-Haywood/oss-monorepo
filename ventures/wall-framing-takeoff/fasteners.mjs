@@ -1,4 +1,5 @@
 // @ts-check
+import { textNumberErrors } from "./numfields.mjs";
 // Nail counts by connection, measured from the members the takeoff placed.
 //
 // Every number of nails per connection is a typed input with a default that is
@@ -37,8 +38,8 @@ const DEFAULTS = {
 
 /** @param {Fasteners} d */
 export function validateFasteners(d) {
-  const e = [];
   if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Fastener settings are an object."];
+  const e = textNumberErrors(d, ["studEndNails", "headerEndNails", "sillEndNails", "headerRows", "plateSpacing", "jackSpacing", "backingSpacing", "headerSpacing", "fieldSpacing", "edgeSpacing", "waste", "nailsPerBox", "price"]);
   /** @param {string} k @param {number} lo @param {number} hi @param {string} what */
   const rng = (k, lo, hi, what) => { const v = /** @type {any} */ (d)[k]; if (v != null && !(v >= lo && v <= hi)) e.push(`${what} must be between ${lo} and ${hi}.`); };
   rng("studEndNails", 1, 6, "Nails per stud end");

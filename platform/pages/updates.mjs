@@ -254,6 +254,8 @@ export function loadUpdates(root = DEFAULT_ROOT, { published = new Set(), resear
     // History may end inside the window: a shallow checkout, or the merge cap.
     shallow: historyStart(root) || (merges?.length ?? 0) >= CHANGELOG_MERGES,
     entries: changelogEntries(merges, { published, researchSlugs, titles, now }),
+    // Raw merges, so build.mjs can hand them to the work queue's progress view without a second git log.
+    merges,
     researchLog: loadResearchLog(root),
     researchSlugs,
     launched: readJson(path.join(root, 'platform', 'pages', 'launched.json'))?.launched ?? {},
@@ -733,6 +735,7 @@ ${activeHtml}
 ${researchLogHtml}
 
 <h2 id="in-progress">In progress</h2>
+<p class="muted">What gets picked up next, in order, is on the <a href="../queue/">work queue</a>.</p>
 ${inProgress}
 
 <h2 id="direction">Direction: where this is going</h2>

@@ -1,0 +1,67 @@
+{
+  "date": "2026-11-02",
+  "session": "https://claude.ai/code/session_01XpHqycyta4UzigYXoofSzg",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "I want to advertise to businesses more for automated custom dev shop / describe your problem and it gets built.",
+  "input_sha256": "bc21df81fcb539f065e3f318933b208afa33c63da4946fa5ecfec2fe0a0bbcb3",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-02T03:26:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Advertise the free custom dev shop to businesses (owner direct request)",
+  "projects": [
+    "platform/pages",
+    "portfolio/distribution",
+    "portfolio/requests"
+  ],
+  "pr": 12485,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First full platform/pages test run failed across build tests: new post description was 165 chars (limit 160). Shortened; rerun.",
+      "file": "docs/posts/2026-11-02-describe-your-problem-and-it-gets-built.md"
+    },
+    {
+      "what": "First render of the CTA buttons had invisible text: pf-site.css loads after the page's inline style and sets .pf-hero a / .prose a colour. Fixed with higher specificity.",
+      "file": "platform/pages/build.mjs"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "The front-matter check exits 0 on a description over 160 characters, but the site build throws on it and fails ~20 build tests. Running the checker does not catch what the build will reject."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Direct owner request; routed with --track ventures (closest by nature) rather than the weighted draw.",
+      "did": "route --track ventures",
+      "result": "work matched the request"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-02-describe-your-problem-and-it-gets-built.md",
+    "portfolio/distribution/custom-development-for-businesses.md"
+  ],
+  "goal": null,
+  "notes": "Verified: node --test custom-development-page, site-nav, feedback-page tests 22/22 pass; check_post_frontmatter clean for the new post; Chromium renders of custom-development/ and the hub at 1200px and 390px, light and dark, no horizontal scroll, CTAs legible. Full platform/pages/*.test.mjs rerun: 90 ok and 0 not ok at the time of writing; CI on the PR is the final check. Outreach copy is for the owner to post; nothing posts automatically. ref tags used are in platform/counter/core.mjs REFS.",
+  "corrections": [],
+  "redteam": null
+}

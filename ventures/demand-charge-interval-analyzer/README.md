@@ -10,11 +10,13 @@ After using this, you can **tell whether your bill is set by a short spike you c
 
 Readings are parsed as wall-clock timestamps plus a usage column (kW, or kWh per interval converted by interval length). Per month: peak = highest interval kW, billed = max(peak, ratchet% x highest peak of the prior 11 months in the data), charge = billed x rate, load factor = average / peak. A cap sweep recomputes billed demand with every interval limited to 97%...70% of the highest peak; saving = (charge before - after), scaled from complete months to 12. Battery energy = the largest contiguous stretch of kWh above the cap, divided by the usable share; cost = energy x $/kWh + kW shaved x $/kW; payback = cost / yearly saving.
 
-Not modelled: time-of-use or seasonal demand tiers, power-factor charges, round-trip losses, degradation, incentives, controls, tariff changes, energy-charge arbitrage.
+**Battery dispatch (`battery.mjs`, 2026-11-01).** Sizes are run through your readings, not estimated from the worst stretch. For a fixed cap on grid draw the best control is greedy (discharge above the cap, recharge as fast as the cap and inverter allow), and it is exact for feasibility: if any control holds the cap, this one does. Feasibility only gets easier as the cap rises, so each month's lowest holdable cap is found by bisection; the ratchet is then recomputed from the shaved peaks (lower early peaks only lower later floors, so month-by-month is optimal). One-way efficiency is the square root of the round trip; loss kWh x your energy price is subtracted from the saving. Tests (`battery.test.mjs`) check the cap is tight (feasible at it, infeasible just under it) on random series, the kW-limited and kWh-limited cases by hand, and the ratchet. Not checked: any real site's bill, or a real controller. Perfect foresight of the month, a full battery at each month's start, no degradation: an upper bound on real savings.
+
+Not modelled: time-of-use or seasonal demand tiers, power-factor charges, degradation, incentives, controls, tariff changes, energy-charge arbitrage.
 
 ## Run
 
-Open `index.html` through any static server. Tests: `node --test`.
+Open `index.html` through any static server. Tests: `node --test *.test.mjs`.
 
 ## Disclaimer
 

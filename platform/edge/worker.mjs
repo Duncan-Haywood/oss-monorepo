@@ -19,6 +19,10 @@
 //                   `portfolio/usage/site-feedback.json` for agents to read.
 //                   Public, like /counts: the same text is committed to a
 //                   public repository anyway.
+//   GET  /inbox     mail sent to support@ and hello@marisstella.app, for
+//                   agents holding INBOX_TOKEN (`inbox.mjs`). Never public,
+//                   never committed.
+//   email()         Cloudflare Email Routing delivers that mail here.
 //   GET  /healthz   a health check.
 //
 // Cost: the free plan has hard daily limits (Workers requests, D1 rows
@@ -30,6 +34,7 @@ import {
   REF_KEY, SOURCE_KEY, GEO_KEY, DEVICE_KEY, BOT_KEY, BOT_PAGE_KEY,
 } from '../counter/core.mjs';
 import { feedbackRecord } from './feedback.mjs';
+import { receiveEmail, readInbox } from './inbox.mjs';
 
 const FEEDBACK_MAX_BODY = 6000;
 
@@ -142,6 +147,7 @@ export default {
         return json(200, { feedback: await readFeedback(env, after) },
           { 'cache-control': 'no-store', 'access-control-allow-origin': '*' });
       }
+      if (request.method === 'GET' && url.pathname === '/inbox') return await readInbox(request, env);
       if (request.method === 'POST' && url.pathname === '/hit') {
         await countHit(request, env, headers, request.cf);
         // 204 either way, as in the Node counter: a refusal tells a page nothing.
@@ -152,5 +158,8 @@ export default {
     } catch {
       return json(500, { error: 'internal' }, cors);
     }
+  },
+  async email(message, env) {
+    await receiveEmail(message, env);
   },
 };

@@ -3,10 +3,10 @@
 
 Identical descriptions across pages weaken search snippets and often signal a
 template bug (for example a description cut at the first apostrophe). Reports
-groups of 2+ pages; `--min N` sets the group size, `--max-len` flags short
+groups of 2+ pages; `--min N` sets the group size, `--short` flags short
 descriptions (default 40 chars) that look truncated.
 
-    python3 platform/ci/duplicate_descriptions.py [--root DIR] [--min 2] [--strict]
+    python3 platform/ci/duplicate_descriptions.py [--root DIR] [--min 2] [--short 40] [--strict]
 """
 import argparse
 import collections

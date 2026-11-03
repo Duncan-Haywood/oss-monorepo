@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-01",
+  "session": "https://claude.ai/code/session_01E5sJKmyerL6BvKoNcnAxcD",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled run: read prompt.md",
+  "input_sha256": "286f8d6d52bd7fa2ab98708ea1499a41fef0fa8a7f2e6bb8ed79854aae75a7d6",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-01T11:10:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12319",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "No OpenROAD in session, so advanced the programme with a paper/log catch-up step rather than a new experiment",
+      "did": "wrote milestone 49 into PAPER.md plus a post",
+      "result": "small but landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-01-is-global-route-a-fair-stand-in-for-detail-routing.md",
+    "research/verified-dse/LOG.md milestone 50"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}

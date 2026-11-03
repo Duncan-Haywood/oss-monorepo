@@ -32,10 +32,12 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
+import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { checkPageIdentity, loadPages } from './page-identity.mjs';
+import { mapLimit } from './share.mjs';
 
 const execFileAsync = promisify(execFile);
 
@@ -116,6 +118,8 @@ export const WRITING_DIR = 'writing';
 // The open book (`updates.mjs`): indexed pages about what the repository ships.
 export const UPDATES_DIR = 'updates';
 export const CHANGELOG_DIR = 'changelog';
+// The work queue (`queue.mjs`): read-only view of what the agents take next.
+export const QUEUE_DIR = 'queue';
 export const ASK_DIR = 'ask';
 // The lab (`lab.mjs`): `noindex` experiments in what the site can be.
 export const LAB_DIR = 'lab';
@@ -146,7 +150,7 @@ export const FEEDBACK_DIR = 'feedback';
 // request queue and how to add to it, linked from the footer, not a tool.
 export const CUSTOM_DEV_DIR = 'custom-development';
 
-export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, CUSTOM_DEV_DIR, ASK_DIR, STORIES_DIR]);
+export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, CUSTOM_DEV_DIR, ASK_DIR, STORIES_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -290,6 +294,12 @@ async function collectSitemapUrls(site, basePath, relative, seen, out, problems)
 async function checkInlineScripts(site, servedPages, problems) {
   const scratch = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-parse-'));
   const jobs = [];
+  // Most inline scripts are the site's own, injected into every page, so the
+  // same body turns up thousands of times: 7,333 blocks but 1,462 distinct
+  // ones on 2026-10-30, and one `node --check` each was two thirds of this
+  // file's run time. A body parses the same wherever it sits, so each distinct
+  // (body, goal) is checked once and its verdict reported for every page.
+  const byBody = new Map();
 
   for (const relative of servedPages) {
     const html = await fs.readFile(path.join(site, relative), 'utf8');
@@ -315,15 +325,23 @@ async function checkInlineScripts(site, servedPages, problems) {
       if (!JS_SCRIPT_TYPES.has(type)) continue;
 
       const extension = type === 'module' || type === 'module-shim' ? 'mjs' : 'js';
-      const scratchFile = path.join(scratch, `${relative.replace(/[^\w.-]/g, '_')}.${index}.${extension}`);
+      const key = `${extension}:${createHash('sha1').update(body).digest('hex')}`;
+      const seen = byBody.get(key);
+      if (seen) {
+        seen.sites.push({ relative, index });
+        continue;
+      }
+      const scratchFile = path.join(scratch, `${jobs.length}.${extension}`);
       await fs.writeFile(scratchFile, body);
-      jobs.push({ relative, index, scratchFile });
+      const job = { scratchFile, sites: [{ relative, index }] };
+      byBody.set(key, job);
+      jobs.push(job);
     }
   }
 
-  // Bounded concurrency: one `node --check` per inline script, a few hundred on
-  // a full artifact, and spawning them all at once is what makes a check that
-  // should take seconds take minutes.
+  // Bounded concurrency: one `node --check` per distinct inline script, about
+  // 1,500 on a full artifact, and spawning them all at once is what makes a
+  // check that should take seconds take minutes.
   const LIMIT = 8;
   let next = 0;
   async function worker() {
@@ -335,9 +353,11 @@ async function checkInlineScripts(site, servedPages, problems) {
         const detail = String(error.stderr || error.message)
           .split('\n')
           .find((line) => /^\w*(Syntax)?Error\b/.test(line.trim())) ?? 'failed to parse';
-        problems.push(
-          `${job.relative}: inline <script> block ${job.index} does not parse, so the browser runs none of it -> ${detail.trim()}`,
-        );
+        for (const { relative, index } of job.sites) {
+          problems.push(
+            `${relative}: inline <script> block ${index} does not parse, so the browser runs none of it -> ${detail.trim()}`,
+          );
+        }
       }
     }
   }
@@ -504,11 +524,17 @@ export const SERVED_EXTENSIONS = new Map([
   ['.ico', 'stock'],
   ['.pdf', 'stock'],
   ['.webp', 'stock'],
+  // einvoice-preflight's mandate calendar feed; standard MIME databases type .ics as text/calendar.
+  ['.ics', 'stock'],
+  // chant-forge's sample chants (corpus/*.gabc), fetched as text by its studio page; fetch().text() ignores the type.
+  ['.gabc', 'stock'],
   // shed-designer's share picture (renders/og-*-share.jpg): JPEG because not every link
   // scraper reads WebP; mime.types lists image/jpeg jpeg jpg.
   ['.jpg', 'stock'],
   ['.mp4', 'stock'],
   ['.webm', 'stock'],
+  // sed-contra's video captions (<track> and podcast:transcript); mime-db, which Cloudflare's asset server uses, types .vtt as text/vtt.
+  ['.vtt', 'stock'],
   // Podcast audio (hearth-and-horizon, podcast.mjs); nginx's mime.types maps mp3 to audio/mpeg.
   ['.mp3', 'stock'],
   // The research pages' self-hosted fonts; mime.types lists font/woff2 woff2.
@@ -716,7 +742,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     }
   }
 
-  for (const dir of [UPDATES_DIR, CHANGELOG_DIR, STORIES_DIR]) {
+  for (const dir of [UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, STORIES_DIR]) {
     // Optional, like the writing pages: a fixture build may write neither.
     const relative = path.join(dir, 'index.html');
     const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
@@ -980,6 +1006,16 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   const files = await walk(site);
   const servedPages = files.filter((f) => f.endsWith('.html'));
 
+  // The walk has already listed every file, so "does this target exist" is a
+  // lookup for the tens of thousands of links that resolve. A miss still asks
+  // the disk, so a symlink or an empty directory reads as it always did.
+  const siteRoot = path.resolve(site);
+  const known = new Set();
+  for (const relative of files) {
+    for (let p = relative; p !== '.'; p = path.dirname(p)) known.add(path.join(siteRoot, p));
+  }
+  const present = (target) => known.has(target) || exists(target);
+
   problems.push(...checkServedExtensions(files));
 
   await checkInlineScripts(site, servedPages, problems);
@@ -1171,15 +1207,18 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   // that something did. Markup edges between HTML pages only -- see `navigable`.
   const outboundPages = new Map();
 
-  for (const relative of files) {
+  // Files are read 32 at a time; each file's problems are kept apart and
+  // joined in file order, so the report reads the same as a serial pass.
+  const linkProblems = await mapLimit(files, 32, async (relative) => {
     const extension = path.extname(relative).toLowerCase();
-    if (!TEXT_EXTENSIONS.has(extension)) continue;
+    if (!TEXT_EXTENSIONS.has(extension)) return [];
 
+    const found = [];
     const text = await fs.readFile(path.join(site, relative), 'utf8');
     if (text.includes(PLACEHOLDER_ORIGIN)) {
-      problems.push(`${relative}: still contains ${PLACEHOLDER_ORIGIN}`);
+      found.push(`${relative}: still contains ${PLACEHOLDER_ORIGIN}`);
     }
-    if (!LINKED_EXTENSIONS.has(extension)) continue;
+    if (!LINKED_EXTENSIONS.has(extension)) return found;
 
     // REFERENCE_RE only makes sense against real markup: an `.html` file with
     // its <script>/<style> bodies stripped. A `.mjs`/`.js` file has no such
@@ -1220,18 +1259,18 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       const from = path.resolve(site, path.dirname(relative));
       let resolved = path.resolve(from, cleaned);
       if (path.relative(path.resolve(site), resolved).startsWith('..')) {
-        problems.push(`${relative}: link escapes the site root -> ${target}`);
+        found.push(`${relative}: link escapes the site root -> ${target}`);
         continue;
       }
       if (cleaned.endsWith('/')) resolved = path.join(resolved, 'index.html');
       else if (!path.extname(resolved)) {
         // A extension-less link is served as a directory if one is there.
-        if (await exists(path.join(resolved, 'index.html'))) resolved = path.join(resolved, 'index.html');
+        if (await present(path.join(resolved, 'index.html'))) resolved = path.join(resolved, 'index.html');
         else if (extension !== '.html') {
           // A bundler-style import ('./App', './src/store') names a module
           // without its extension (React Native sources shipped as files).
           for (const ext of ['.js', '.jsx', '.mjs', '.ts', '.tsx']) {
-            if (await exists(resolved + ext)) { resolved += ext; break; }
+            if (await present(resolved + ext)) { resolved += ext; break; }
           }
         }
       }
@@ -1241,7 +1280,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       // Everything under dev/ (the dashboard, its stats.json and dev/analyses/)
       // is written by publish-branch.sh after this check, on the same terms.
       if (resolved.startsWith(path.resolve(site, DEV_DIR) + path.sep)) continue;
-      if (!(await exists(resolved))) problems.push(`${relative}: dead link -> ${target}`);
+      if (!(await present(resolved))) found.push(`${relative}: dead link -> ${target}`);
       else {
         inboundLinks.add(resolved);
         if (extension === '.html' && navigable.has(target) && resolved.endsWith('.html')) {
@@ -1251,7 +1290,9 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
         }
       }
     }
-  }
+    return found;
+  });
+  for (const found of linkProblems) problems.push(...found);
 
   // ---- Orphaned pages: a link resolving is not the same as a link existing -
   //
@@ -1352,7 +1393,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   // site is broken.
   for (const [urlPath, source] of listed) {
     const target = urlPath === '' || urlPath.endsWith('/') ? `${urlPath}index.html` : urlPath;
-    if (!(await exists(path.join(site, target)))) {
+    if (!(await present(path.join(siteRoot, target)))) {
       problems.push(`${source}: lists a URL that did not ship -> /${urlPath}`);
     }
   }

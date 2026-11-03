@@ -100,6 +100,9 @@ export function parseCsv(text, literal = new Set()) {
 export const asciiDigits = (s) => String(s ?? "")
   .replace(/[\u0660-\u0669\u06F0-\u06F9\uFF10-\uFF19]/g, (c) => { const n = c.charCodeAt(0); return String(n >= 0xFF10 ? n - 0xFF10 : n >= 0x06F0 ? n - 0x06F0 : n - 0x0660); })
   .replace(/\u066B/g, ".").replace(/\u066C/g, ",");
+// Largest amount a register will take: $100 billion in cents. Past 2^53 cents sums stop being exact.
+export const MAX_CENTS = 1e13;
+
 export function parseCents(v, decimalComma = false) {
   let s = asciiDigits(v).trim();
   if (s === "" || /^[-–—−‐‑‒﹣－\s]+$/.test(s)) return 0;

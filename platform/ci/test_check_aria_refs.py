@@ -23,6 +23,11 @@ class AriaRefs(unittest.TestCase):
     def test_data_for_and_templated_values_are_ignored(self):
         self.assertEqual(dangling('<div data-for="regular"></div><i aria-controls="p-${n}"></i>'), [])
 
+    def test_brace_only_and_dollar_only_templates_are_each_ignored(self):
+        self.assertEqual(dangling('<i aria-controls="{{ id }}"></i>'), [])
+        self.assertEqual(dangling('<i aria-controls="$id"></i>'), [])
+        self.assertEqual(dangling('<i aria-controls=""></i>'), [])
+
     def test_for_on_non_label_is_ignored(self):
         self.assertEqual(dangling('<output for="a b"></output>'), [])
 

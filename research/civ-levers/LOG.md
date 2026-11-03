@@ -1,5 +1,19 @@
 # civ-levers research log
 
+## 2026-11-03 · Axelrod's transition on lattices to L = 80 (milestone 4, third run)
+
+- Plan (written before the run): port the rule to C (`src/civ_levers/axelrod.c`), sweep q at three sizes for F = 3 and F = 10, and read off q_half(L), where the largest-region fraction S crosses 0.5. H1: q_half rises with L and approaches the published q_c of about 300 (F = 10, Castellano, Marsili and Vespignani 2000). Refuted if q_half(F = 10) stays under 100 at the largest L. H2: the drop sharpens with L.
+- Outcome (`experiments/culture/scaling_results.txt`, 8 runs per cell): **H2 held** (F = 10, S at q 50: 0.25, 0.49, 0.94 for L = 20, 40, 80; at q 60 it is 0.06, 0.06, 0.02). **H1 refuted**: q_half = 43, 50, 55 at L = 20, 40, 80, and S is under 0.03 at every q from 80 to 400. F = 3: 8.9, 11.1, 13.2 at L = 16, 32, 64. The C core agrees with the Python model (base case 4.30 regions against 4.55 +- 0.36; three tests).
+- Reading: the published q_c of about 300 is not reproduced by Axelrod's rule as implemented here; I have not found the reason (boundary, q grid, definition of q_c are the candidates) and did not run L = 150.
+- Caveats: 8 runs per cell; q grid coarse near the transition; L = 80 at q = 50 sits close to the transition where relaxation is slow.
+
+## 2026-11-02 · Likert agents behind a pluggable policy (milestone 8, harness and stub-policy run)
+
+- Plan (written before the run): `src/civ_levers/llmsociety.py` puts opinions on a 7-point scale and asks a *policy* for a move of -1, 0 or +1 per meeting. The default policy is a deterministic stub (the civ-levers accept/reject rule on the coarse grid, plus decision noise); `CIV_LLM_POLICY=module:callable` swaps in a real model. No paid API is called here. H1: with the stub, civ-levers' ranking (ladder best, bridging worst) survives rounding to 7 levels. Refuted if the ladder does not merge more societies than bridging at noise 0. H2: small decision noise (0.05) leaves the ranking intact. Refuted if the rank order changes.
+- Outcome (`experiments/llmsociety/results.txt`, 10 societies per cell, n 300, eps 0.3, top doses): **H1 refuted**: at noise 0, nothing merges except tolerance (5 of 10) and nudge (1); ladder 0 of 10, against 24 of 25 settings continuous. A one-level step is 0.17 of the scale, so the committed voices' spacing (0.8 eps) rounds badly and a camp at level 1 never reaches a partner at level 3 or 4. **H2 refuted**: at noise 0.05 even no lever merges 2 of 10 and the order is tolerance 9, ladder 8, broadcast 7, bridge 5, moderates 4, nudge 2; at noise 0.2 every cell merges 8 to 10 of 10, including no lever (10). At eps 0.2 with tau 0.7 and noise 0.2 the no-lever baseline merges 5 of 10.
+- Reading: the stub's random moves are a diffusion process that merges the camps by themselves, so "merged" stops measuring what a lever did once noise is above a few percent; any language-model result must be reported against its own no-lever baseline. Coarse scales alone change the ranking, a warning for survey-style LLM agents. This says nothing about what an LLM would do; the harness is the deliverable, and the real-model run is left to an owner who supplies the callable and budget.
+- Caveats: stub only; one scale (7 points); noise is uniform over -1, 0, +1; 10 societies per cell, counts not intervals. Two new tests.
+
 ## 2026-10-31 · Lagged elite recruitment and lagged stress (milestone 7, second run)
 
 - Plan (written before the run): add two delays to `history.py`, `lag` (elite recruitment responds to income smoothed over `lag` years, a generational delay) and `plag` (political stress smoothed over `plag` years), both 0 by default so the first run is reproduced exactly. H1: some lag setting gives cycles with period 150 to 400 years (Turchin and Nefedov 2009) at a population swing (std/mean) of at least 0.10. Refuted if no cell reaches both. 1350 cells (rho, m, k, g, lag, plag).

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { placeBreaks, placeRestBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts,
-  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
+  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, coverChain, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
   sampleStaff, openFloorByPricing, branchedScoreBound, optimalityText, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
 
@@ -1715,4 +1715,48 @@ test("seniorityClaims: lists a more senior person who could take a junior's shif
   const none = seniorityClaims(mk(["", ""]), slots, buildRoster(mk(["", ""]), slots, {}));
   assert.equal(none.claims.length, 0);
   assert.ok(parseStaff("Ana, 20, 40, 0, Mon 9-17, seniority: x").errors.length === 1);
+});
+
+test("coverChain: finds the shortest hand-over chain when nobody is free to take the shift outright", () => {
+  const staff = staffOf("Ana, 10, 40, 0, Mon 8-16\nBen, 12, 40, 0, Mon 8-16\nCy, 11, 4, 0, Mon 8-16");
+  const slots = slotsOf("Mon, 8, 16, 1, long\nMon, 8, 12, 1, short");
+  const roster = { owner: [1, 0], options: {} }; // slots sort by end time: 0 is the short shift (Ben), 1 the long one (Ana)
+  assert.deepEqual(coverOptions(staff, slots, roster, 1).fits, []); // Ben overlaps, Cy is capped at 4 hours
+  const c = coverChain(staff, slots, roster, 1);
+  assert.equal(c.current, "Ana");
+  assert.equal(c.chains.length, 1);
+  assert.equal(c.chains[0].moves, 2);
+  assert.deepEqual(c.chains[0].steps.map((x) => [x.index, x.from, x.to]), [[1, "Ana", "Ben"], [0, "Ben", "Cy"]]);
+  // Ben 8h long at 12 instead of Ana at 10, and Cy's 4h short at 11 instead of Ben's at 12: the pay change:
+  assert.ok(Math.abs(c.chains[0].extraCost - (8 * 12 + 4 * 11 - 8 * 10 - 4 * 12)) < 1e-6);
+  assert.deepEqual(coverChain(staff, slots, roster, 1, {}, { maxMoves: 1 }).chains, []);
+});
+
+test("coverChain: a direct taker is a one-move chain and ranks before any longer chain", () => {
+  const staff = staffOf("Ana, 10, 40, 0, Mon 8-16\nBen, 20, 40, 0, Mon 8-16\nCy, 15, 40, 0, Mon 8-16");
+  const slots = slotsOf("Mon, 8, 16, 1, open");
+  const c = coverChain(staff, slots, { owner: [0], options: {} }, 0);
+  assert.deepEqual(c.chains.map((x) => [x.moves, x.steps[0].to]), [[1, "Cy"], [1, "Ben"]]);
+});
+
+test("parseStaff refuses hours beyond a week and absurd wages (1e9 max hours used to hang the search for about a minute)", () => {
+  const h = "name, wage, max hours, min hours, availability\n";
+  for (const [line, word] of [["Ana, 15, 1e9, 0, Mon 9-17", "168"], ["Ana, 15, 40, 500, Mon 9-17", "168"], ["Ana, 1e9, 40, 0, Mon 9-17", "typo"]]) {
+    const r = parseStaff(h + line);
+    assert.equal(r.staff.length, 0);
+    assert.match(r.errors.join(" "), new RegExp(word));
+  }
+  assert.equal(parseStaff(h + "Ana, 15, 168, 0, any").staff.length, 1);
+});
+
+test("an oversized shifts file is refused fast and yields no slots to solve", () => {
+  const big = Array.from({ length: 3000 }, () => "Mon-Sun, 9, 17, 50").join("\n");
+  const t = Date.now();
+  const r = parseShifts(big);
+  assert.ok(Date.now() - t < 2000);
+  assert.equal(r.slots.length, 0);
+  assert.match(r.errors.join(" "), /handles up to 400/);
+  const ok = parseShifts("Mon-Fri, 9, 17, 2");
+  assert.deepEqual(ok.errors, []);
+  assert.equal(ok.slots.length, 10);
 });

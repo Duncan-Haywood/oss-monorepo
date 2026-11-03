@@ -4,10 +4,11 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 
 import { fillText, fitText, font, measureText, wrapText } from './fontraster.mjs';
-import { accentFor, cardKey, cardTitle, completeShareTags, crumbsOf, mapLimit, pageCardPlan, renderCards, researchTopicColour, siteAddress } from './share.mjs';
+import { accentFor, addShareCards, cardKey, cardTitle, completeShareTags, crumbsOf, mapLimit, pageCardPlan, renderCards, researchTopicColour, siteAddress } from './share.mjs';
 import { CARD_HEIGHT, CARD_WIDTH, quantize, renderCard, renderMarkIcon, renderSiteCard } from './sharecard.mjs';
 
 const PNG = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
@@ -304,4 +305,37 @@ test('renderCards takes its cache directory from PAGES_CARD_CACHE', async () => 
   } finally {
     if (saved === undefined) delete process.env.PAGES_CARD_CACHE; else process.env.PAGES_CARD_CACHE = saved;
   }
+});
+
+test('addShareCards links the favicon relative to each page depth', async () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'share-depth-'));
+  const { mkdirSync } = await import('node:fs');
+  mkdirSync(path.join(dir, 'a', 'b'), { recursive: true });
+  const head = '<!doctype html><html><head><title>T</title></head><body></body></html>';
+  writeFileSync(path.join(dir, 'index.html'), head);
+  writeFileSync(path.join(dir, 'a', 'index.html'), head);
+  writeFileSync(path.join(dir, 'a', 'b', 'index.html'), head);
+  // Pages with a card of their own, so no card is drawn.
+  await addShareCards({ outDir: dir, baseUrl: BASE, siteName: 'S', siteCard: 'social-card.png', only: null }).catch(() => {});
+  assert.match(readFileSync(path.join(dir, 'index.html'), 'utf8'), /href="favicon\.svg"/);
+  assert.match(readFileSync(path.join(dir, 'a', 'index.html'), 'utf8'), /href="\.\.\/favicon\.svg"/);
+  assert.match(readFileSync(path.join(dir, 'a', 'b', 'index.html'), 'utf8'), /href="\.\.\/\.\.\/favicon\.svg"/);
+});
+
+test('the CLI exits 2 with a usage line when --base is missing', () => {
+  const r = spawnSync(process.execPath, [new URL('./share.mjs', import.meta.url).pathname, os.tmpdir()], { encoding: 'utf8', env: { ...process.env, PAGES_BASE_URL: '' } });
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /usage: share\.mjs/);
+});
+
+test('the CLI with no arguments at all prints the usage line and exits 2', () => {
+  const r = spawnSync(process.execPath, [new URL('./share.mjs', import.meta.url).pathname], { encoding: 'utf8', env: { ...process.env, PAGES_BASE_URL: 'https://example.test/' } });
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /usage: share\.mjs/);
+});
+
+test('an og:image with a scheme that contains a digit is absolute and left byte for byte', () => {
+  const image = 'X2y://CDN.example/x.jpg';
+  const out = completeShareTags(page({ image }), { url: `${BASE}ventures/shed-designer/` });
+  assert.ok(out.includes(`property="og:image" content="${image}"`));
 });

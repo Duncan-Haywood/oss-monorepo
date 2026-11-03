@@ -14,7 +14,7 @@ const RULES = [
   { keys: /^(floorSheet|floorOSB)$/, panels: ['floor sheet', 'attic deck', 'loft deck'] },
   { keys: /^roofSheet$/, panels: ['roof sheathing', 'truss gusset'] },
   { keys: /^plywoodLining$/, section: 'Sheet goods', panels: ['gambrel gusset'] },
-  { keys: /^(siding\d*|lpPanel\w*)$/, panels: ['siding'] },
+  { keys: /^(siding\d*(primed)?|lpPanel\w*)$/, panels: ['siding'] },
   { keys: /^(wallSheathing|houseWrap|wrapTape|capNails)$/, panels: ['wall sheathing'] },
   { keys: /^(lap\w*|hardiePlank|starterStrip|jointFlashing|sidingNails5?)$/, panels: ['lap siding'] },
   { keys: /^(bbBoard|bbBatten|vinyl\w*)$/, panels: ['siding'] },

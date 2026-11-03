@@ -10,8 +10,11 @@ import { validateFasteners } from "./fasteners.mjs";
 import { validateDeck } from "./deck.mjs";
 import { validateDormer } from "./dormer.mjs";
 import { validateDrywall } from "./drywall.mjs";
+import { validateFloor } from "./floor.mjs";
+import { validateRoof } from "./roof.mjs";
+import { validateStair } from "./stairs.mjs";
 
-const all = { validateInsulation, validateTrim, validateSiding, validateGutters, validateEaves, validateFasteners, validateDeck, validateDormer, validateDrywall };
+const all = { validateInsulation, validateTrim, validateSiding, validateGutters, validateEaves, validateFasteners, validateDeck, validateDormer, validateDrywall, validateFloor, validateRoof, validateStair };
 for (const [name, fn] of Object.entries(all)) {
   test(`${name} returns an error for wrong-shaped input`, () => {
     for (const bad of [null, undefined, 5, "x", []]) {

@@ -34,10 +34,10 @@ test("every input and select carries a visible <label>", () => {
   }
 });
 
-test("the page names all five modeled states and does not pretend to cover others", () => {
+test("the page names all six modeled states and does not pretend to cover others", () => {
   const html = page("index.html");
-  for (const s of ["California", "Texas", "Florida", "Arizona", "Washington"]) assert.match(html, new RegExp(s));
-  assert.match(html, /Five states only/);
+  for (const s of ["California", "Texas", "Florida", "Arizona", "Washington", "Georgia"]) assert.match(html, new RegExp(s));
+  assert.match(html, /Six states only/);
 });
 
 test("the usage events are counted separately", () => {

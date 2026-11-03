@@ -168,13 +168,18 @@ export function buildInstructions(shed, est) {
       void left;
     }
     const hasDoor = w.openings.some((p) => p.op.kind === 'door');
-    if (hasDoor) steps.push('The bottom plate stops at each side of the door: the cut sheet has it in pieces, with the door opening left out. Nail a scrap of 2x4 across the foot of each door opening, jack to jack on the inside face, so the opening keeps its width while the wall is lifted.');
+    // The bottom plate runs across the door (the default) or stops at each side of it.
+    const through = w.members.some((m) => m.kind === 'bottom plate' && m.cutOuts?.length);
+    if (through) steps.push('The bottom plate runs straight across the door opening: leave it whole for now. Framing on one plate keeps the opening its width and the wall square while you nail it up and lift it; the piece in the doorway comes out after the wall is raised.');
+    else if (hasDoor) steps.push('The bottom plate stops at each side of the door: the cut sheet has it in pieces, with the door opening left out. Nail a scrap of 2x4 across the foot of each door opening, jack to jack on the inside face, so the opening keeps its width while the wall is lifted.');
     steps.push(
       `Nail the wall together flat ${k.floorless ? 'on that flat surface' : 'on the deck'}: two 16d through the plates into each stud end; nail jacks to kings every 16" staggered; header to kings with four 16d each end.`,
       `Square the wall (equal diagonals of ${fmtFtIn(Math.hypot(w.len, (w.height ?? d.wallHeight) - 1.5))} plate to plate), tack a diagonal brace across it, then stand it up with a helper and set it on the line${eave ? (k.floorless ? ' flush with the outside of its timber' : ' flush with the edge of the floor') : ' between the eave walls'}.`,
       `${k.floorless ? 'Nail the bottom plate down into the timber' : 'Nail the bottom plate through the subfloor into the rim or joists'}, two 16d every 16". Plumb the ends with a level and brace to stakes until the next wall is in.`,
     );
-    if (hasDoor) steps.push('Once the bottom plate is nailed down, take the scrap off the foot of the door opening.');
+    if (through) {
+      steps.push(`${k.floorless ? 'Keep the nails, and any anchor bolts you add, outside the door opening, so the piece in the doorway comes free. ' : 'Keep the plate nails outside the door opening, so the piece in the doorway comes free. '}Once the wall is raised and the bottom plate is nailed down, cut the plate out across the door: saw flush with the face of each jack stud with a reciprocating saw, blade flat against the jack, and stop at the bottom of the plate so you do not cut into the ${k.floorless ? 'timber under it' : 'subfloor'}. Knock the piece out and clean up the ends with a chisel.`);
+    } else if (hasDoor) steps.push('Once the bottom plate is nailed down, take the scrap off the foot of the door opening.');
     out.push({ title: `${wallLabel(d, name)} wall`, steps, check: ['Wall plumb at both ends and straight along the top (string line).'] });
   }
   out.push({
@@ -352,7 +357,9 @@ export function buildInstructions(shed, est) {
   else out.push({
     title: 'Siding',
     steps: [
-      d.siding ? `${sidingPanelName(d.sidingType)}, grooves vertical, ${shed.sidingFull.length} panel positions around the shed (see the shopping list for 8, 9 and 10 ft lengths). Start at a corner, keep the bottom edge level with the top of the skids so it laps the rim joist and floor, and plumb the first panel with a level.` : 'Siding is off in this design.',
+      !d.siding ? 'Siding is off in this design.'
+        : d.sidingRun === 'horizontal' ? `${sidingPanelName(d.sidingType)}, laid horizontally: ${shed.sidingFull.length} pieces in rows of 4x8 panels on their side${d.sidingType === 'T1-11' ? ', grooves level' : ''}. Start the bottom row level with the top of the skids so it laps the rim joist and floor, and check it with a level along its whole length; each vertical joint lands on a stud. Before the next row, nail the flat blocks (in the parts list) between the studs at the joint height, and lap Z-flashing over the top edge of the row below, behind the wrap or building paper. Rip the top row to the soffit and cut the gable pieces to the roof line.`
+        : `${sidingPanelName(d.sidingType)}, grooves vertical, ${shed.sidingFull.length} panel positions around the shed (see the shopping list for the panel lengths). Start at a corner, keep the bottom edge level with the top of the skids so it laps the rim joist and floor, and plumb the first panel with a level.`,
       d.sidingType.startsWith('LP SmartSide')
         ? `Every vertical panel edge lands on a stud. Nail 8d hot-dipped galvanized box or common nails (the siding nails on the list) every 6" on every edge, and every ${d.sidingType === 'LP SmartSide 7/16' && d.studSpacing > 16 ? '6" on intermediate studs (on studs at 24", LP\'s ESR-1301)' : '12" on intermediate studs'}, none in the grooves. Double-nail each shiplap joint: one nail through the underlap and a second through the full thickness about 1" from the edge, both at 6". That nailing is what LP's racking value (APA PR-N124) assumes, and these panels are what brace the walls.`
         : 'Every vertical panel edge lands on a stud. Nail 8d galvanized every 6" on edges and every 12" on intermediate studs.',

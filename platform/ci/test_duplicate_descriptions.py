@@ -2,6 +2,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import contextlib
+import io
+
+import duplicate_descriptions
 from duplicate_descriptions import main, scan
 
 
@@ -32,6 +36,44 @@ class Dupes(unittest.TestCase):
         with tempfile.TemporaryDirectory() as r:
             page(r, "a", "index.html", "One unique description that is long enough to count.")
             self.assertEqual(main(["--root", r, "--strict"]), 0)
+
+    def test_short_threshold_is_exclusive(self):
+        with tempfile.TemporaryDirectory() as r:
+            page(r, "a", "index.html", "x" * 40)  # exactly --short: not short
+            self.assertEqual(main(["--root", r, "--strict"]), 0)
+            page(r, "b", "index.html", "x" * 39)  # one under: short
+            self.assertEqual(main(["--root", r, "--strict"]), 1)
+
+    def test_entities_in_attribute_are_decoded(self):
+        with tempfile.TemporaryDirectory() as r:
+            page(r, "a", "index.html", "Rock &amp; roll is a description long enough to count.")
+            groups, _ = scan(r)
+            self.assertIn("Rock & roll is a description long enough to count.", groups)
+
+    def test_default_root_is_the_repository_root(self):
+        self.assertTrue((duplicate_descriptions.ROOT / "ventures").is_dir())
+
+    def test_only_meta_description_tags_count(self):
+        with tempfile.TemporaryDirectory() as r:
+            d = Path(r, "ventures", "a")
+            d.mkdir(parents=True)
+            (d / "index.html").write_text(
+                '<html><head><meta charset="utf-8">'
+                '<meta name="description" content="The real description, long enough to count."></head>'
+                '<body><div name="description" content="not a meta tag"></div></body></html>')
+            groups, total = scan(r)
+            self.assertEqual(list(groups), ["The real description, long enough to count."])
+            self.assertEqual(total, 1)
+
+    def test_duplicate_report_is_capped_at_25_groups(self):
+        with tempfile.TemporaryDirectory() as r:
+            for i in range(26):
+                for slug in ("a", "b"):
+                    page(r, f"{slug}{i}", "index.html", f"Shared description number {i:02d}, long enough to count.")
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                main(["--root", r])
+            self.assertEqual(out.getvalue().count("pages share:"), 25)
 
 
 if __name__ == "__main__":

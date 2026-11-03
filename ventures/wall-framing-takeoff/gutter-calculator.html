@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Gutter calculator: gutter sections, downspouts, hangers and fittings for a gable or hip roof</title>
+  <meta name="description" content="Free gutter calculator: type a house size and overhangs and get feet of gutter, sections, downspouts, hangers, end caps, elbows and corners for a gable or hip roof. Runs in your browser.">
+  <meta property="og:title" content="Gutter calculator">
+  <meta property="og:description" content="House size and overhangs in; gutter sections, downspouts, hangers and fittings out. Private, free, in your browser.">
+  <link rel="canonical" href="./gutter-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much gutter do I need for a 24 x 40 ft gable roof?", "acceptedAnswer": {"@type": "Answer", "text": "For a 24 ft wide, 40 ft long house with 12 in overhangs, a gable roof drains to its two long eaves. Each eave run is 42 ft (40 ft plus the 12 in rake overhang at each end), so 84 ft of gutter, which is 10 sections of 10 ft once 10% waste is added."}}, {"@type": "Question", "name": "How many downspouts does a 24 x 40 ft house need?", "acceptedAnswer": {"@type": "Answer", "text": "The calculator takes the larger of two rules of thumb for each eave run: one downspout per 40 ft of gutter, and one per 600 sq ft of roof plan area drained. A 24 x 40 ft gable roof has 1092 sq ft of plan area and two 42 ft runs, so it gets 4 downspouts, 2 per run, and with a 10 ft drop that is 4 downspout pieces, 8 elbows and 8 straps. These are sizing habits, not a drainage design."}}, {"@type": "Question", "name": "How many gutter hangers do I need?", "acceptedAnswer": {"@type": "Answer", "text": "Hangers go every 24 in along each run by default, plus one at the end: 22 on each 42 ft run, 44 in all for this house. Close the spacing to 16 in or less where snow or ice load is heavy."}}, {"@type": "Question", "name": "What is not counted?", "acceptedAnswer": {"@type": "Answer", "text": "Slope, splash blocks, leaf guards, sealant, screws, and a cross wing of a different pitch. Local rainfall and the manufacturer's tables decide the real downspout count. Check the result against your plans and your supplier."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Gutter calculator</h1>
+  <p>Type the house and the overhangs. The framing engine lays out the roof, finds the eave runs gutters hang on, packs them into stock lengths and counts downspouts, hangers, end caps, elbows, straps and mitred corners. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <div class="grid">
+      <div><label for="len">House length, along the ridge (ft, or 40' 0")</label><input id="len" value="40"></div>
+      <div><label for="wid">House width, eave wall to eave wall (ft)</label><input id="wid" value="24"></div>
+      <div><label for="shape">Roof shape</label><select id="shape"><option value="gable">Gable</option><option value="hip">Hip</option></select></div>
+      <div><label for="pitch">Roof pitch (rise in 12)</label><input id="pitch" type="number" step="0.5" value="6"></div>
+      <div><label for="oh">Eave overhang (in)</label><input id="oh" type="number" value="12"></div>
+      <div><label for="rake">Rake overhang (in, gable)</label><input id="rake" type="number" value="12"></div>
+      <div><label for="stock">Gutter section length (ft)</label><select id="stock"><option>10</option><option>20</option><option>24</option></select></div>
+      <div><label for="drop">Eave height, for downspouts (ft)</label><input id="drop" type="number" step="0.5" value="10"></div>
+      <div><label for="hang">Hanger spacing (in)</label><input id="hang" type="number" value="24"></div>
+      <div><label for="maxrun">One downspout per (ft of gutter)</label><input id="maxrun" type="number" value="40"></div>
+      <div><label for="waste">Waste (%)</label><input id="waste" type="number" value="10"></div>
+    </div>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Add gutters to a whole-house framing takeoff</a></p>
+
+  <h2>The method</h2>
+  <ol>
+    <li><strong>Eave runs.</strong> Gutters hang on eaves only: the two long sides of a gable roof (rakes shed onto the ground), all four sides of a hip. Each run is the wall length plus the overhang at both ends.</li>
+    <li><strong>Sections.</strong> Runs are packed into your stock lengths, first fit decreasing, then your waste is added.</li>
+    <li><strong>Downspouts.</strong> Per run, the larger of one per 40 ft of gutter and one per 600 sq ft of roof plan area drained; each takes two elbows and straps every 6 ft of drop. Change the 40 to match your supplier's guidance.</li>
+    <li><strong>Fittings.</strong> Hangers every spacing along each run, two end caps per run, and four outside mitres on a hip roof.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How much gutter do I need for a 24 x 40 ft gable roof?</h3>
+  <p>For a 24 ft wide, 40 ft long house with 12 in overhangs, a gable roof drains to its two long eaves. Each eave run is 42 ft (40 ft plus the 12 in rake overhang at each end), so 84 ft of gutter, which is 10 sections of 10 ft once 10% waste is added.</p>
+  <h3>How many downspouts does a 24 x 40 ft house need?</h3>
+  <p>The calculator takes the larger of two rules of thumb for each eave run: one downspout per 40 ft of gutter, and one per 600 sq ft of roof plan area drained. A 24 x 40 ft gable roof has 1092 sq ft of plan area and two 42 ft runs, so it gets 4 downspouts, 2 per run, and with a 10 ft drop that is 4 downspout pieces, 8 elbows and 8 straps. These are sizing habits, not a drainage design.</p>
+  <h3>How many gutter hangers do I need?</h3>
+  <p>Hangers go every 24 in along each run by default, plus one at the end: 22 on each 42 ft run, 44 in all for this house. Close the spacing to 16 in or less where snow or ice load is heavy.</p>
+  <h3>What is not counted?</h3>
+  <p>Slope, splash blocks, leaf guards, sealant, screws, and a cross wing of a different pitch. Local rainfall and the manufacturer's tables decide the real downspout count. Check the result against your plans and your supplier.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. House size, pitch, overhangs and the sizing habits above are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Gutter, downspout and fitting counts follow the layout stated above; your local rainfall, the manufacturer's tables and your supplier's catalogue govern what you buy.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<script type="module">
+    import { layoutRoof } from "./roof.mjs";
+    import { layoutGutters, guttersText } from "./gutters.mjs";
+    import { samplePlan, parseLength } from "./engine.mjs";
+    const $ = (id) => document.getElementById(id);
+    const ft = (v) => { const s = String(v).trim(); return /^[\d.]+$/.test(s) ? +s * 12 : parseLength(s); };
+    const run = () => {
+      const L = ft($("len").value), W = ft($("wid").value);
+      if (!(L >= 96 && W >= 96 && L <= 1200 && W <= 1200)) { $("out").textContent = "Check the numbers: sides of at least 8 ft and at most 100 ft."; return; }
+      const roof = { id: "Roof", shape: $("shape").value, width: W, length: L, pitch: +$("pitch").value, overhang: +$("oh").value, gableOverhang: +$("rake").value, rafter: "2x8", spacing: 16, ridge: "2x10", hip: "2x10" };
+      try {
+        const plan = samplePlan(); for (const sz of ["2x8", "2x10", "2x12"]) plan.stock.push({ size: sz, length: 288, price: 0 }); // long boards: only the eave runs matter here
+        const r = layoutRoof(roof, plan);
+        if (!r.ok) { $("out").textContent = (r.errors || ["The roof does not lay out."]).join("\n"); return; }
+        const g = layoutGutters({ gutterStock: +$("stock").value * 12, eaveHeight: +$("drop").value * 12, hangerSpacing: +$("hang").value, maxRunFeet: +$("maxrun").value, waste: (+$("waste").value || 0) / 100 }, r);
+        $("out").textContent = g.ok ? guttersText(g).join("\n") : g.errors.join("\n");
+      } catch (e) { $("out").textContent = String(e && e.message || e); }
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>

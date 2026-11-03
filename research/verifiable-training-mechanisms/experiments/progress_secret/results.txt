@@ -1,0 +1,8 @@
+adaptive stall T=200, batch known, R=1.005: flagged  3 of 32, harmful 23, harmful and unflagged 20, median dL +0.0180, median stalled steps 58 of 200
+adaptive stall T=200, batch secret, R=1.005: flagged  3 of 32, harmful 22, harmful and unflagged 19, median dL +0.0169, median stalled steps 52 of 200
+adaptive stall T=200, batch known, R=1.010: flagged  2 of 32, harmful 30, harmful and unflagged 28, median dL +0.0280, median stalled steps 78 of 200
+adaptive stall T=200, batch secret, R=1.010: flagged  3 of 32, harmful 29, harmful and unflagged 26, median dL +0.0249, median stalled steps 67 of 200
+adaptive stall T=200, batch known, R=1.020: flagged  2 of 32, harmful 32, harmful and unflagged 30, median dL +0.0437, median stalled steps 141 of 200
+adaptive stall T=200, batch secret, R=1.020: flagged  1 of 32, harmful 32, harmful and unflagged 31, median dL +0.0402, median stalled steps 119 of 200
+adaptive stall T=200, batch known, R=1.050: flagged  0 of 32, harmful 32, harmful and unflagged 32, median dL +0.0624, median stalled steps 200 of 200
+adaptive stall T=200, batch secret, R=1.050: flagged  0 of 32, harmful 32, harmful and unflagged 32, median dL +0.0624, median stalled steps 200 of 200

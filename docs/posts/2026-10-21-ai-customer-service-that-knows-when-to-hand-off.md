@@ -1,5 +1,6 @@
 ---
 title: "An AI support agent that knows when to hand off, measured on 2,160 real bank questions"
+seo_title: "AI support agent that knows when to hand off: 2,160 bank questions"
 date: 2026-10-21
 description: "Past tickets matter more than the model: on BANKING77's held-out test, 40 labelled past questions per topic took right answers from 65 to 1,007."
 tags: [projects, customer-service, ai-agents, evaluation, open-source]

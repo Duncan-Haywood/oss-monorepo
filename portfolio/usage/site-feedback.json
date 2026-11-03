@@ -7,7 +7,12 @@
    "type": "other",
    "tool": "",
    "page": "/oss-monorepo/feedback/",
-   "message": "this is just an automated test message"
+   "message": "this is just an automated test message",
+   "screen": {
+    "verdict": "clear",
+    "version": 1,
+    "rules": []
+   }
   }
  ]
 }

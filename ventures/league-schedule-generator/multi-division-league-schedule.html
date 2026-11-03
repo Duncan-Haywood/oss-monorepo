@@ -124,9 +124,25 @@
     <p id="check-line"></p>
     <div class="scroll"><table id="nights"><thead><tr><th>Date</th><th>Time</th><th>Court</th><th>Venue</th><th>Division</th><th class="n">Rd</th><th>Home</th><th>Away</th><th class="off-col" hidden>Official</th></tr></thead><tbody></tbody></table></div>
     <div id="history-box" hidden><label for="next-history">Next season's venue history (paste it into the box above next season)</label><textarea id="next-history" class="mono" rows="3" readonly></textarea></div>
+    <h3 style="margin-top:18px">Standings from results</h3>
+    <label for="results">Results so far, one per line, division first (U10: Hawks 3 - 2 Owls; U10: Hawks w/o Owls)</label>
+    <textarea id="results" class="mono" rows="4" placeholder="U10: Hawks 3 - 2 Owls&#10;Adult: Rams 1 - 1 Kings"></textarea>
+    <label for="points">Points for a win-draw-loss</label><input id="points" placeholder="3-1-0">
+    <label style="font-weight:normal"><input type="checkbox" id="h2h" style="width:auto"> Break ties on points by the games between the tied teams</label>
+    <button type="button" class="secondary" id="show-standings">Show standings</button>
+    <button type="button" class="secondary" id="dl-standings" hidden>Download standings CSV</button>
+    <button type="button" class="secondary" id="dl-weekly">Download weekly update (text)</button>
+    <button type="button" class="secondary" id="dl-overdue">Download missing-scores list (text)</button>
+    <div id="standings-out" role="status"></div>
+    <label for="po-per">Play-off: teams from each division</label><input id="po-per" type="number" min="1" value="2" style="width:5em">
+    <label for="po-wc">Wildcards (best of the rest, across divisions)</label><input id="po-wc" type="number" min="0" value="0" style="width:5em">
+    <button type="button" class="secondary" id="show-playoffs">Seed a play-off from these standings</button>
+    <pre id="playoffs-out" class="mono" role="status"></pre>
     <button type="button" id="dl-csv">Download CSV</button>
     <button type="button" id="dl-grid">Download season grid CSV</button>
     <button type="button" id="dl-sheets">Download printable score sheets</button>
+    <label for="ics-alarm">Reminder before each game (minutes, blank for none)</label>
+    <input type="number" id="ics-alarm" min="1" max="10080" step="1" placeholder="60">
     <button type="button" class="secondary" id="dl-ics">Download calendar (.ics)</button>
     <button type="button" class="secondary" id="dl-team-msgs">Download a message per team (.txt)</button>
     <button type="button" class="secondary" id="dl-off-msgs" hidden>Download a message per official (.txt)</button>
@@ -162,8 +178,8 @@
   </footer>
 
   <script type="module">
-    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, parseDivisionBlackouts, applyDivisionBlackouts, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsScoreSheetsHtml, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages } from "./divisions.mjs";
-    import { dayIso } from "./calc.mjs";
+    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, parseDivisionBlackouts, applyDivisionBlackouts, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsScoreSheetsHtml, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages, divisionsStandings, divisionsTieBreakNotes, divisionsStandingsCsv, divisionsPlayoffs, divisionsWeeklyUpdate, divisionsOverdue } from "./divisions.mjs";
+    import { dayIso, parseDate } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "blackouts", "rainouts", "venueHistory", "fairnessWeight", "officials"];
@@ -247,9 +263,28 @@
       } catch { fallback(); }
     });
     $("#dl-csv").addEventListener("click", () => { if (!last) return; download("division-schedule.csv", divisionsCsv(last), "text/csv"); record("divisions_csv_downloaded"); });
-    $("#dl-ics").addEventListener("click", () => { if (!last) return; download("division-schedule.ics", divisionsIcs(last), "text/calendar"); record("divisions_ics_downloaded"); });
+    $("#dl-ics").addEventListener("click", () => { if (!last) return; download("division-schedule.ics", divisionsIcs(last, { alarmMinutes: Number($("#ics-alarm").value) || null }), "text/calendar"); record("divisions_ics_downloaded"); });
     $("#dl-team-msgs").addEventListener("click", () => { if (!last) return; download("team-messages.txt", divisionsTeamMessages(last).map((m) => m.text).join("\n\n----\n\n"), "text/plain"); record("divisions_text_shared"); });
     $("#dl-off-msgs").addEventListener("click", () => { if (!last) return; download("official-messages.txt", divisionsOfficialMessages(last).map((m) => m.text).join("\n\n----\n\n"), "text/plain"); record("divisions_text_shared"); });
+    let lastStandings = null;
+    $("#show-standings").addEventListener("click", () => {
+      if (!last) return;
+      const r = divisionsStandings(last, $("#results").value, { points: $("#points").value.trim() || "3-1-0", headToHead: $("#h2h").checked });
+      lastStandings = r;
+      $("#dl-standings").hidden = !r.tables.length;
+      $("#standings-out").innerHTML = (r.errors.length ? `<div class="warn"><strong>Not counted:</strong><ul>${r.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>` : "") + r.tables.map((t) => `<h4>${esc(t.division)}</h4><div class="scroll"><table><thead><tr><th class="n">#</th><th>Team</th><th class="n">P</th><th class="n">W</th><th class="n">D</th><th class="n">L</th><th class="n">GF</th><th class="n">GA</th><th class="n">GD</th><th class="n">Pts</th></tr></thead><tbody>${t.rows.map((x) => `<tr><td class="n">${x.rank}</td><td>${esc(x.name)}</td>${[x.played, x.won, x.drawn, x.lost, x.gf, x.ga, x.gd, x.points].map((n) => `<td class="n">${n}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`).join("") + divisionsTieBreakNotes(r).map((x) => `<h4>${esc(x.division)}: why teams are ranked where they are</h4><ul>${x.notes.map((n) => `<li>${esc(n.text)}</li>`).join("")}</ul>`).join("");
+      record("divisions_standings_shown");
+    });
+    $("#show-playoffs").addEventListener("click", () => {
+      if (!last) return;
+      const r = divisionsStandings(last, $("#results").value, { points: $("#points").value.trim() || "3-1-0", headToHead: $("#h2h").checked });
+      const po = divisionsPlayoffs(r, { perDivision: $("#po-per").value, wildcards: $("#po-wc").value });
+      $("#playoffs-out").textContent = (po.errors.length ? po.errors.map((e) => "Note: " + e).join("\n") + "\n\n" : "") + po.text;
+      record("divisions_playoffs_shown");
+    });
+    $("#dl-overdue").addEventListener("click", () => { if (!last) return; const n = new Date(); const today = parseDate(`${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(n.getDate()).padStart(2, "0")}`); download("missing-scores.txt", divisionsOverdue(last, $("#results").value, today).text || "No scores overdue.\n", "text/plain"); record("divisions_overdue_downloaded"); });
+    $("#dl-weekly").addEventListener("click", () => { if (!last) return; download("weekly-update.txt", divisionsWeeklyUpdate(last, $("#results").value, { points: $("#points").value.trim() || "3-1-0", headToHead: $("#h2h").checked }), "text/plain"); record("divisions_weekly_update_downloaded"); });
+    $("#dl-standings").addEventListener("click", () => { if (lastStandings) download("division-standings.csv", divisionsStandingsCsv(lastStandings), "text/csv"); });
     $("#dl-sheets").addEventListener("click", () => { if (!last) return; download("division-score-sheets.html", divisionsScoreSheetsHtml(last), "text/html"); record("divisions_score_sheets_downloaded"); });
     $("#dl-grid").addEventListener("click", () => { if (!last) return; download("division-season-grid.csv", divisionsSeasonGridCsv(last), "text/csv"); record("divisions_grid_downloaded"); });
     $("#copy-text").addEventListener("click", async () => { if (!last) return; try { await navigator.clipboard.writeText(divisionsText(last)); $("#form-status").textContent = "Copied."; } catch { $("#form-status").textContent = "Copy blocked by the browser; use Download CSV."; } record("divisions_text_copied"); });

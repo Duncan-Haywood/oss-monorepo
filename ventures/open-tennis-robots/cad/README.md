@@ -88,9 +88,17 @@ the part you actually buy before cutting metal.
   through against 0.14 N of ball weight at -15 deg, and 1.5x that must stay
   under the wheels' assumed 60 N pull. The modulus (1.5 GPa) and the wheel pull
   are assumptions: print one and pull a ball through with a scale.
-  **Known gaps, found by this model:** the hose end swings about 450 mm as the
-  head tilts (`mouth_world`), which the 600 mm cut length only just absorbs; the
-  1.4 m posts need bracing before the tub is filled.
+  **Known gap, found by this model:** the hose end swings about 450 mm as the
+  head tilts (`mouth_world`), which the 600 mm cut length only just absorbs.
+  **Hopper bracing (added 2026-11-03, `Feeder.check_hopper_frame`):** the four
+  1.4 m posts were free-standing on M5 joints, which carry no useful moment. Two 2020 diagonals
+  (`hopper_brace_x`, one each side, rear foot to front head) and one (`hopper_brace_y`, behind the
+  rear pair; the head's swing rules out the front) now brace them. A y brace in front would hit the
+  head at +45 deg: the collision sweep caught it. Checked: a full tub weighs about 116 N, the sway load is
+  max(0.25 of that, 60 N), and each brace's Euler buckling load must be 3x its working force
+  (x: about 134 N against 3090 N; y: about 168 N against 2585 N). One post alone buckles at about 3190 N,
+  far above its share. The shelf is taken as rigid in plan. The 2020 and 2040 section figures,
+  the sway load and pinned ends are assumptions: load a built frame and measure its sway.
   **Launch checks (added 2026-10-29, `Feeder.check_launch`):** the wheel gap and
   nip are tied to the flight model's launcher. For an assumed 25 m/s with 3000 rpm
   topspin the wheels must turn 6425 and 1065 rpm (the same figures as

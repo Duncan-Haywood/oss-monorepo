@@ -115,3 +115,14 @@ Measured against the live site with `curl`:
    `claudebot` fetched `llms.txt`.
 3. Owner: Google Search Console (already in the decision queue) and
    `TRAFFIC_TOKEN` for GitHub traffic.
+
+## Update, 2026-11-03
+
+Re-pulled from the Worker before merging (`pull.mjs`): **115 page loads over
+nine days** to 2026-11-03 (16 on 11-01, 22 on 11-02, 10 so far on 11-03).
+The first mobile loads appeared on 11-02: 5, all from Cameroon. There was one
+from Singapore on 11-03, and 10 loads came from an unclassified referring
+site. Headless-browser beacons have held at 12,000 to 15,000 a day (57,211 in
+total), so the full-site rendering is daily, not a one-off after the move.
+The usage-pull job is still unfixed, so `cloudflare-analytics.json` is still
+absent.

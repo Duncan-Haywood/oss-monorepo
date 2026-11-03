@@ -154,14 +154,16 @@ if __name__ == "__main__":
     ap.add_argument("--seeds", type=int, default=2)
     ap.add_argument("--cap", type=int, default=200000, help="max rows per source city (0 = all)")
     ap.add_argument("--held", nargs="*", default=None)
+    ap.add_argument("--grid", nargs="*", type=int, default=None, help="local sample sizes (default GRID)")
+    ap.add_argument("--tag", default="", help="suffix for the results file, so a rerun does not overwrite M7")
     a = ap.parse_args()
     cities = [c for c in transfer.CITIES if os.path.exists(os.path.join(a.data_dir, f"{c}.csv"))]
     frames = {c: transfer.frame(os.path.join(a.data_dir, f"{c}.csv"), a.target)[0] for c in cities}
     if a.target == "i2c":
         frames = {c: f for c, f in frames.items() if c != "chicago"}
     for held in (a.held or list(frames)):
-        r = run(frames, held, a.test_year, a.seeds, cap=a.cap)
+        r = run(frames, held, a.test_year, a.seeds, grid=a.grid or GRID, cap=a.cap)
         out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results",
-                           f"pooled_{held}_{a.target}_{a.test_year}.json")
+                           f"pooled{a.tag}_{held}_{a.target}_{a.test_year}.json")
         json.dump(r, open(out, "w"), indent=1)
         print(held, a.target, json.dumps(r["crossing"]), flush=True)
