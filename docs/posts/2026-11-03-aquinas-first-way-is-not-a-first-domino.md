@@ -3,7 +3,7 @@ title: "Aquinas's First Way is not a first domino: Thomas said reason can't prov
 seo_title: "Aquinas's First Way is not a first domino, in his own words"
 date: 2026-11-03
 tags: [catholic, aquinas, apologetics, philosophy, video, podcast]
-description: "Thomas Aquinas held that no argument proves the universe had a beginning. His first mover is first like a hand holding a stick, not like the first domino. A new free series stages it as a story."
+description: "Thomas Aquinas held that no argument proves the universe began. His first mover is first like a hand holding a stick, not like the first domino."
 ---
 
 Ask someone what Thomas Aquinas's first proof of God says, and you will usually hear a row of dominoes: everything that moves was moved by something earlier, you can't go back for ever, so there was a first push at the beginning of time, and that was God. Then the reply: the Big Bang, or an eternal universe, or "who pushed God?"
