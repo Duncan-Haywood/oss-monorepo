@@ -431,6 +431,9 @@ workflows:
 - workflow: ventures-tests.yml
   classification: none
   publishes: []
+- workflow: weekly-measures.yml
+  classification: none
+  publishes: []
 - workflow: workflow-self-audit.yml
   classification: none
   publishes: []
