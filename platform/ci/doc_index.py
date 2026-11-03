@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 import sys
 from functools import lru_cache
 from pathlib import Path
@@ -77,6 +78,14 @@ def topic_index(tax: dict) -> dict[str, str]:
 def project_slugs(root: Path = ROOT) -> dict[str, str]:
     """Project directory name -> its path, for ventures/, research/ and platform/."""
     out: dict[str, str] = {}
+    # The git tree first: a sparse checkout (prompts CI) lacks directories that hold no .md file.
+    done = subprocess.run(["git", "-C", str(root), "ls-tree", "-d", "--name-only", "HEAD",
+                           *(f"{t}/" for t in PROJECT_DIRS)], capture_output=True, text=True)
+    if done.returncode == 0 and done.stdout.strip() and (root / ".git").exists():
+        for rel in done.stdout.split():
+            top, _, name = rel.partition("/")
+            if name and not name.startswith((".", "_")):
+                out.setdefault(name, rel)
     for top in PROJECT_DIRS:
         base = root / top
         if not base.is_dir():
