@@ -1,6 +1,6 @@
 ---
 title: "The Ringing Chamber at Ninety-Three: a new Hearth & Horizon story about bell-ringers' hearing"
-seo_title: "The Ringing Chamber at Ninety-Three: bell-ringing noise dose, a Hearth & Horizon story"
+seo_title: "The Ringing Chamber at Ninety-Three: bell-ringing noise dose"
 date: 2026-11-03
 tags: [fiction, hearth-and-horizon, hearing-safety]
 description: "A new short story: a two-hour bell practice at 93 dB(A) is a daily noise dose of about 87. The sum, the meter and why the doctor comes first."
