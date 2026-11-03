@@ -25,7 +25,7 @@ def run(df, Y, seeds, neg=0):
     ytr, yes, yca, yte = (d.y.to_numpy(float) for d in (tr, es, ca, te))
     wk = np.array(["%d-%02d" % harness.week(s) for s in te.start])
     mon = [int(s[5:7]) for s in te.start]
-    ev, ind_raw, ind_cf, ind_dq, qdq, wdq, ks, qh = [], [], [], [], [], [], [], []
+    ev, ind_raw, ind_cf, ind_dq, ind_dqr, qdq, wdq, ks, qh = [], [], [], [], [], [], [], [], []
     for s in range(seeds):
         # fit_predict predicts one frame; stack calibration and test rows to get both from one fit
         Xct = pd.concat([Xca, Xte], ignore_index=True)
@@ -40,13 +40,14 @@ def run(df, Y, seeds, neg=0):
         qd = conformal.conformal_quantile(conformal.cqr_scores_dequantised(cal["lo"], cal["hi"], cal["y"], seed=s), 0.2)
         lo3, hi3 = conformal.cqr_interval(tst["lo"], tst["hi"], qd)
         ind_dq.append(((np.array(lo3) <= yte) & (yte <= np.array(hi3))).astype(float))
+        ind_dqr.append(((np.floor(lo3) <= yte) & (yte <= np.ceil(hi3))).astype(float))
         qdq.append(qd)
         wdq.append(float(np.mean(np.array(hi3) - np.array(lo3))))
         ind_raw.append(((np.array(tst["lo"]) <= yte) & (yte <= np.array(tst["hi"]))).astype(float))
         ind_cf.append(((np.array(lo2) <= yte) & (yte <= np.array(hi2))).astype(float))
     out = dict(test_year=Y, n_train=len(tr), n_earlystop=len(es), n_conformal=len(ca), n_test=len(te),
                negative_dropped=neg, seeds=seeds, alpha=0.2)
-    for name, ind in (("raw", ind_raw), ("conformal", ind_cf), ("dequantised", ind_dq)):
+    for name, ind in (("raw", ind_raw), ("conformal", ind_cf), ("dequantised", ind_dq), ("dequantised_rounded", ind_dqr)):
         m, lo, hi = boosted.block_boot(np.mean(ind, 0), wk)
         out["coverage_" + name] = dict(mean=m, lo=lo, hi=hi, per_seed=[float(i.mean()) for i in ind])
     for k in ("qhat", "mean_width_raw", "mean_width_conformal", "ks_scores_cal_vs_test"):

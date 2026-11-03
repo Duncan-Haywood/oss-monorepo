@@ -5,6 +5,21 @@
 Hypothesis (H2b, written before any run): session 8 found that on a2i the CQR scores tie at 0 (same-day permits, y = 0, lower end clipped at 0), so qhat cannot go negative and conformal cannot narrow an over-covering interval (Chicago 0.860, SF 0.891 on 2024). Adding independent uniform jitter U[0,1) to the integer-day target y when computing calibration scores (dequantisation, breaking ties the way randomised conformal p-values do) lets qhat go negative. Prediction: dequantised CQR brings 2024 coverage within 77 to 83% in at least 4 of 5 city/target pairs (session 8 plain CQR: 2 of 5). Refuted if fewer than 4. Prior 40%: narrowing may be capped by the clipped lower end.
 Plan: `conformal.cqr_scores_dequantised` (stdlib, seeded jitter), same split, models and seeds as session 8, coverage always evaluated on the true integer y. Report coverage and width against plain CQR.
 
+Outcome (run today on fresh pulls of all three feeds, test year 2024, 3 seeds; `results/conformal_dq_*_2024.json`; coverage of the 80% interval on true integer days):
+| pair | raw | plain CQR | dequantised | dequantised, rounded outward | KS cal vs test |
+|---|---|---|---|---|---|
+| Chicago a2i | 0.860 | 0.860 | 0.556 | 0.866 | 0.247 |
+| SF a2i | 0.894 | 0.894 | 0.344 | 0.901 | 0.020 |
+| SF i2c | 0.787 | 0.834 | 0.830 | 0.838 | 0.052 |
+| Austin a2i | 0.817 | 0.819 | 0.781 | 0.847 | 0.057 |
+| Austin i2c | 0.769 | 0.811 | 0.808 | 0.817 | 0.029 |
+- **H2b is refuted.** Dequantised CQR is within 77 to 83% in 3 of 5 pairs (Austin a2i, Austin i2c, SF i2c at 0.830, the edge), plain CQR in 2 of 5 (Austin a2i, i2c), so the prediction of at least 4 fails. The two-column "rounded outward" variant (floor the lower end, ceil the upper end, a post-hoc fix I added after seeing the first Chicago run, so exploratory) is within the band in only 1 of 5.
+- **Session 8's mechanism is mostly wrong.** Jitter does let qhat go negative on a2i, but only by 0.08 to 0.26 days, because the 80th percentile of the scores is set by the non-same-day permits, not by the tied mass. Plain CQR's qhat of exactly 0 was therefore not what held Chicago (0.860) and SF a2i (0.894) above 80%. Their over-coverage comes from the interval itself plus drift (Chicago KS 0.247), and narrowing by tenths of a day cannot fix it.
+- **A real pitfall:** unrounded dequantised intervals can be empty or too narrow on integer targets (SF a2i interval upper end 0 minus 0.15 excludes every same-day permit): coverage 0.344. Anyone applying continuous conformal tools to integer-day durations should round outward.
+- The i2c targets, where raw intervals under-cover, are where conformal helps (0.787 to 0.83 in SF, 0.769 to 0.81 in Austin) and dequantising makes no practical difference there.
+- Limits: one test year; marginal coverage; the real fix for over-coverage in a2i needs a model that predicts the same-day mass directly (a two-part conformal), not a tie-break. `results/manifest.json` updated to today's pull.
+Next: two-part conformal (classifier for same-day, conformalise the tail only); adaptive conformal over the test year for Chicago's drift.
+
 ## Session 18, 2026-11-03: paper section 4.1 brought up to milestones 14 to 17 (no new compute)
 
 The three data hosts returned HTTP 403 at the proxy CONNECT step again, so no pull was possible and no number in `results/` changed. Done: `paper/paper.md` section 4.1 now carries the XGBoost, CatBoost and linear table for all five pairs (copied from sessions 14 to 17), the three-library agreement finding, and corrected limitations and to-do list (the draft still said LightGBM only). Next: neural net baseline, per-library tuning, two-part conformal, once a network reaches the feeds.
