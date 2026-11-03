@@ -165,6 +165,7 @@ import {
   renderResearchBand,
   siteStructuredData,
 } from './home.mjs';
+import { servedPath } from './served-path.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -10740,9 +10741,10 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       const url = relative.split(path.sep).join('/');
       const html = await fs.readFile(file, 'utf8');
       const toRoot = upToRoot(relative);
-      // `/tool/index.html` and `/tool/` are the same page; the directory form
-      // is the one to declare.
-      const canonical = `${baseUrl}${url.replace(/(^|\/)index\.html$/, '$1')}`;
+      // `/tool/index.html` and `/tool/` are the same page, as are
+      // `/tool/page.html` and `/tool/page`; the served form is the one to
+      // declare, because the other one is a 307 to it (`served-path.mjs`).
+      const canonical = `${baseUrl}${servedPath(url)}`;
       // The attribute pass runs on the venture's own markup, before the chrome
       // adds any input of its own, and is a no-op on a page with no numbers.
       const pageMeta = readMeta(html, surface.slug);
@@ -11021,13 +11023,11 @@ ${urls.join('\n')}
 
 /**
  * The URL a published page is served at, relative to the site root.
- * `index.html` is served as its directory, so it is listed that way.
+ * `index.html` is served as its directory and `page.html` as `page`
+ * (`served-path.mjs`), so they are listed that way.
  */
 export function pageUrlPath(slug, relativePath) {
-  const posix = relativePath.split(path.sep).join('/');
-  if (posix === 'index.html') return `${slug}/`;
-  if (posix.endsWith('/index.html')) return `${slug}/${posix.slice(0, -'index.html'.length)}`;
-  return `${slug}/${posix}`;
+  return `${slug}/${servedPath(relativePath.split(path.sep).join('/'))}`;
 }
 
 /**

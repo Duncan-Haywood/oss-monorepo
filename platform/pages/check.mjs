@@ -38,6 +38,7 @@ import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { checkPageIdentity, loadPages } from './page-identity.mjs';
 import { mapLimit } from './share.mjs';
+import { servedPath } from './served-path.mjs';
 
 const execFileAsync = promisify(execFile);
 
@@ -1133,7 +1134,9 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       // Resolving both sides and comparing is what makes the relative form
       // checkable at all: a canonical is right when it resolves to the URL the
       // page is served at, whatever spelling it uses to get there.
-      const pageUrl = new URL(relative.replace(/(^|\/)index\.html$/, '$1'), siteBase).href;
+      // Served at, as Cloudflare serves it: `page.html` at `page`
+      // (`served-path.mjs`); the `.html` spelling is a 307 to that.
+      const pageUrl = new URL(servedPath(relative), siteBase).href;
       let resolved;
       try {
         resolved = new URL(canonical[1], pageUrl).href;
@@ -1392,8 +1395,10 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   // A URL that 404s is worse than no sitemap at all: it teaches a crawler the
   // site is broken.
   for (const [urlPath, source] of listed) {
+    // Cloudflare serves `page.html` at `page` (`served-path.mjs`), which is
+    // how build.mjs lists it, so an extensionless URL resolves to that file.
     const target = urlPath === '' || urlPath.endsWith('/') ? `${urlPath}index.html` : urlPath;
-    if (!(await present(path.join(siteRoot, target)))) {
+    if (!(await present(path.join(siteRoot, target))) && !(await present(path.join(siteRoot, `${target}.html`)))) {
       problems.push(`${source}: lists a URL that did not ship -> /${urlPath}`);
     }
   }
@@ -1408,7 +1413,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     if (NOINDEX_RE.test(await fs.readFile(path.join(site, page), 'utf8'))) {
       continue;
     }
-    const candidates = [page];
+    const candidates = [page, servedPath(page)];
     if (page.endsWith('/index.html')) candidates.push(page.slice(0, -'index.html'.length));
     if (page === 'index.html') candidates.push('');
     if (!candidates.some((c) => listed.has(c))) {
