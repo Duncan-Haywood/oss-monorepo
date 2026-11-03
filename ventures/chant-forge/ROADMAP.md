@@ -41,6 +41,7 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
 
 - 2026-11-03: `nabc.test.mjs`: NABC alternation (`(fg|vi|ls)`), neumes split across groups, `!`, `/`, `z`/`Z`, `;2`, backtick and `[ob:...]` markers all keep exactly the GABC pitches. Made-up strings; the real-file batch is still open.
 - 2026-11-03: `--halftime` (`halfTime` in `gabc.mjs`): chant durations doubled against an unchanged backing tempo. 3 tests; bar and second counts checked on Dies irae. Not listened to.
+- 2026-11-03: `RECORDING-GUIDE.md` (5a): make the guide and cue sheet, learn the line, record, run `master-cli.mjs`. Not tried with real singers.
 
 ## Next
 
@@ -66,7 +67,7 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
 
    Dorian and Phrygian voicings come first.
 5. **Voices:**
-   - (a) a guide for recording a real men's choir or multi-tracking one singer
+   - (a) (landed 2026-11-03, `RECORDING-GUIDE.md`, untried) a guide for recording a real men's choir or multi-tracking one singer
      against the MIDI line;
    - (b) a research spike on whether an open singing synthesiser can sing
      ecclesiastical Latin as a men's choir at acceptable quality, with a
