@@ -1,6 +1,8 @@
 ---
 title: "Why the league scheduler now shows who has the hard run-in"
 date: 2026-11-03
+description: "The multi-division league scheduler now lists each team's games left and how strong the opponents it still faces are, hardest run-in first."
+tags: [league-schedule-generator, scheduling, open-source]
 ---
 
 Two teams on 12 points can face very different finishes: one still plays the
