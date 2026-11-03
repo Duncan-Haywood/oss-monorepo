@@ -93,3 +93,17 @@ test("sheathing: text, negative and huge settings are refused, not coerced", asy
   const s0 = base.sheets[0];
   assert.equal(sheathe({ ...plan, sheathing: { ...base, sheets: [{ ...s0, width: "48" }] } }, r).ok, false);
 });
+
+test("option validators refuse a negative or huge price (a basePrice of -5 gave a negative cost line)", () => {
+  const cases = [
+    [validateTrim, "basePrice"], [validateTrim, "casingPrice"], [validateSiding, "boardPrice"],
+    [validateInsulation, "price"], [validateGutters, "gutterPrice"], [validateVentilation, "ridgePrice"],
+    [validateEaves, "panelPrice"], [validateFasteners, "price"],
+  ];
+  for (const [fn, k] of cases) {
+    assert.ok(fn({ [k]: -5 }).length, `${k} -5`);
+    assert.ok(fn({ [k]: 1e12 }).length, `${k} 1e12`);
+    assert.deepEqual(fn({ [k]: 0 }), [], `${k} 0 stays allowed`);
+    assert.deepEqual(fn({ [k]: 12.5 }), [], `${k} 12.5 stays allowed`);
+  }
+});
