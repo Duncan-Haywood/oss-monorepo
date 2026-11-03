@@ -1,0 +1,53 @@
+name: catholic-shorts
+description: >-
+  Free one-minute Catholic videos and scripts, written by an AI: apologetics
+  answers with every Scripture and Catechism reference checked and the
+  strongest objection stated fairly, saints of the day, and short faithful
+  stories labelled as fiction. Vertical MP4s with a synthetic voice, SVG cards
+  and a page per short, all CC BY-SA for anyone to repost.
+stage: prototype
+
+owner: duncan
+
+# Origin (2026-11-03): the owner's idea, "catholic ai shortform content.
+# apologetics. faithful entertainment etc." Siblings: hearth-and-horizon
+# (stories) and saints-by-candlelight (bedtime podcast) share the worldview
+# but are long-form; this is the short-video format.
+#
+# Shape: $0 per viewer. Static pages, cards and videos on the portfolio site;
+# voice rendered offline with Kokoro (Apache 2.0), frames with Playwright,
+# joined with ffmpeg. About 1 MB per one-minute video.
+hypotheses:
+  - claim: People who land on a short's page from search watch the video to the end (video_finished / video_played) often enough to justify a weekly cadence.
+    status: untested
+    checked: null
+    evidence: usage-events
+  - claim: Parishes, catechists or Catholic creators will download and repost the CC BY-SA videos (video_downloaded) once they find them.
+    status: untested
+    checked: null
+    evidence: usage-events
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 3
+  protected: true
+
+kill_criteria:
+  - Fewer than ten video_finished events recorded within 120 days of the site being indexed and the owner deciding on (or declining) social accounts.
+  - Video storage on the site host hits a size limit and no free CC-friendly host (Internet Archive) can replace it.
+
+links:
+  production: https://marisstella.app/catholic-shorts/
+  analytics: null
+
+channel_notes: >-
+  Organic search for the question itself ("do catholics worship mary",
+  "is the eucharist just a symbol", "where is purgatory in the bible"),
+  feast-day timing for saint shorts, and reposting by parishes and creators
+  under CC BY-SA. TikTok, YouTube Shorts, Instagram Reels and Facebook
+  accounts under the portfolio's public name are the owner's decision.

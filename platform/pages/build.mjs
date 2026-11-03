@@ -3795,7 +3795,7 @@ const CATEGORY_RULES = [
     // `saints-by-candlelight` joined 2026-10-28, when it and
     // `wall-framing-takeoff` took the catch-all to 6: a bedtime podcast of
     // saints' stories, the same read-and-listen axis as `hearth-and-horizon`.
-    test: (slug) => ['ai-engineering-academy', 'hands-free-language-coach', 'listen-and-learn-audio', 'hearth-and-horizon', 'saints-by-candlelight'].includes(slug),
+    test: (slug) => ['ai-engineering-academy', 'hands-free-language-coach', 'listen-and-learn-audio', 'hearth-and-horizon', 'saints-by-candlelight', 'catholic-shorts'].includes(slug),
   },
   {
     // Added 2026-10-21 when `open-floor-robots` and `open-robot-mower` took
