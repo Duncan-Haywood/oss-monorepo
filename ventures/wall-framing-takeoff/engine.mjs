@@ -265,6 +265,7 @@ export function validatePlan(plan) {
     const vzones = framingZones(ops, wall.length);
     for (const [oi, op] of ops.entries()) {
       const on = `${name}, ${op.label || op.kind} at ${formatLength(op.offset)}`;
+      if (op.kind !== "window" && op.kind !== "door") { errors.push(`${on}: kind must be "window" or "door" (got ${JSON.stringify(op.kind)}); a garage door is a door with a wide opening.`); continue; }
       if (!(op.width > 0)) { errors.push(`${on}: rough opening width must be more than zero.`); continue; }
       if (!(op.height > 0)) { errors.push(`${on}: rough opening height must be more than zero.`); continue; }
       if (op.jacks !== undefined && !(Number.isInteger(op.jacks) && op.jacks >= 0 && op.jacks <= 6)) { errors.push(`${on}: jacks must be a whole number from 0 to 6.`); continue; }
@@ -289,6 +290,7 @@ export function validatePlan(plan) {
         if (room < -EPS) errors.push(`${on}: the header does not fit under the sloped top plate (${formatInches(-room)} too tall at its lower end). Lower the header height or use a shallower header.`);
       } else if (g.topCripple < -EPS) errors.push(`${on}: the header does not fit under the top plates (${formatInches(-g.topCripple)} too tall). Lower the header height or use a shallower header.`);
       if (op.kind === "window" && g.bottomCripple < -EPS) errors.push(`${on}: the window sill is below the bottom plate. Raise the header height or shorten the window.`);
+      if (op.kind === "door" && g.roBottom < -EPS) errors.push(`${on}: the door opening is ${formatInches(-g.roBottom)} taller than its header height, so it would end below the floor. Raise the header height or shorten the opening.`);
       if (op.kind === "door" && g.roBottom > THICK + EPS) errors.push(`${on}: a door opening should reach the floor; check the header height and opening height.`);
     }
     // A tee wall cannot land inside an opening, and two tees closer than a stud
