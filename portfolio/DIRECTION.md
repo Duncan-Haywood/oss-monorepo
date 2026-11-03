@@ -91,6 +91,20 @@ link is agent-decidable. The repo-level GitHub "Sponsor" button
 the repo and stays owner-only. Keeping customers happy means working, honest
 products: no fake claims, working links, answers to feedback.
 
+## Owner direction: tools for parishes and religious organisations
+
+The owner, 2026-11-03: "it'd be nice to build tools for catholic orgs.
+parishes. relgiious orgs. as a direction" and "standard problems they have."
+A standing direction for many runs: the books, counts, registers and schedules
+a parish office keeps, built as one local-first parish office in
+[`ventures/parish-office/`](../ventures/parish-office/ROADMAP.md), a module at
+a time (Mass intentions book first, landed 2026-11-03; the two-counter Sunday
+collection sheet next). Most modules serve any congregation. Canon law and tax
+rules are quoted only from their official text, fetched in the run that cites
+them; the diocese's own rules come first, and the tools report observations,
+not canonical judgments. Notes for the next run:
+[`docs/reports/parish-office-direction.md`](../docs/reports/parish-office-direction.md).
+
 ## Owner direction: new ventures get first call, legal exposure is the one hard stop
 
 New ventures rank ahead of a parity feature on a product nobody has visited,
