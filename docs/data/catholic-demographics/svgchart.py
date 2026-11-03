@@ -18,6 +18,8 @@ FONT = "font-family:system-ui,-apple-system,'Segoe UI',sans-serif"
 def _fmt(v, unit):
     if v is None:
         return "n/a"
+    if unit == "%" and 0 < v < 1:
+        return "<1%"
     if unit == "%":
         return f"{v:.0f}%"
     if abs(v) >= 1000:
