@@ -28,7 +28,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 3,
   "review_findings": null,
   "tests_added": 27,
   "outcome": "success",
@@ -62,7 +62,7 @@
     "platform/seo/EXPERIMENTS.md"
   ],
   "goal": "Ongoing: rank on Google and in AI agents' web search, with a feedback loop (platform/seo/).",
-  "notes": "Baseline: 0 of 8 tracked queries (claude-websearch) find marisstella.app; live audit 0 blockers, title-length warnings only. IndexNow by hand: 1,343 URLs, POST api.indexnow.org -> 200. Rewrote 3,655 README/VENTURE.yaml files; before rewriting, fetched all 2,429 distinct URLs on the new host: 2,419 x 200, 5 x 307, 4 transient connection errors (200 on retry), 1 x 404 (retail-pilot-intel, also 404 on the old host). Checks: platform/ci/test_seo_probe.py 23 pass; verification.test.mjs 4 pass; platform/pages build.test+home.test+check.test 408/408 pass; readme-live-link.test 9 pass; pytest test_venture_live_links, test_research_live_links, test_no_dead_pages_base pass; test_decision_queue 83 pass; check_post_frontmatter pass; portfolio/router/validate.py shows 1 problem that is already on main (chant-forge next: length in flagships.yaml). Next reads: E1 on or after 2026-11-10, E2 on or after 2026-11-17.",
+  "notes": "Baseline: 0 of 8 tracked queries (claude-websearch) find marisstella.app; live audit 0 blockers, title-length warnings only. IndexNow by hand: 1,343 URLs, POST api.indexnow.org -> 200. Rewrote 3,655 README/VENTURE.yaml files; before rewriting, fetched all 2,429 distinct URLs on the new host: 2,419 x 200, 5 x 307, 4 transient connection errors (200 on retry), 1 x 404 (retail-pilot-intel, also 404 on the old host). Checks: platform/ci/test_seo_probe.py 23 pass; verification.test.mjs 4 pass; platform/pages build.test+home.test+check.test 408/408 pass; readme-live-link.test 9 pass; pytest test_venture_live_links, test_research_live_links, test_no_dead_pages_base pass; test_decision_queue 83 pass; check_post_frontmatter pass; portfolio/router/validate.py shows 1 problem that is already on main (chant-forge next: length in flagships.yaml). Next reads: E1 on or after 2026-11-10, E2 on or after 2026-11-17. CI follow-ups this run caused, fixed: checklist_coverage (tests moved to platform/ci and platform/pages), stale portfolio/distribution/versions.json (versions.mjs --write), 4 venture tests asserting the old README/VENTURE.yaml base, and open-house-plans engine.mjs generating catalogue READMEs with the old base. Red but also red on main: homepage (test_pick_track), validate (chant-forge next: length), deploy-concurrency-check self-scan, open-robot-mower float drift, einvoice-preflight Hungary/Morocco link, open-house-plans vendored framing engine, changepoint-detector 1200 s timeout.",
   "corrections": [],
   "redteam": null
 }
