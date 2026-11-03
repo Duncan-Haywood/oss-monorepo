@@ -48,6 +48,8 @@ import { validateInsulation } from "./insulation.mjs";
 import { validateGutters } from "./gutters.mjs";
 import { validateDormer } from "./dormer.mjs";
 import { validateVentilation } from "./ventilation.mjs";
+import { validateFasteners } from "./fasteners.mjs";
+import { slabConcrete } from "./slab.mjs";
 
 const OPTS = [
   ["eaves", validateEaves, {}, ["panelWidth", "panelStock", "fasciaStock", "channelStock", "waste", "panelPrice"]],
@@ -56,6 +58,7 @@ const OPTS = [
   ["insulation", validateInsulation, {}, ["bagSqFt", "waste", "rValue", "price"]],
   ["gutters", validateGutters, {}, ["gutterStock", "eaveHeight", "hangerSpacing", "waste", "gutterPrice"]],
   ["dormer", validateDormer, { width: 96, eaveHeight: 48, pitch: 8, mainPitch: 8 }, ["width", "eaveHeight", "pitch", "mainPitch"]],
+  ["fasteners", validateFasteners, {}, ["studEndNails", "headerEndNails", "sillEndNails", "headerRows", "plateSpacing", "jackSpacing", "backingSpacing", "headerSpacing", "fieldSpacing", "edgeSpacing", "waste", "nailsPerBox", "price"]],
   ["ventilation", validateVentilation, {}, ["atticSqFt", "upperShare", "ridgeNfaPerFt", "ridgePrice"]],
 ];
 for (const [name, fn, base, keys] of OPTS) {
@@ -68,4 +71,12 @@ for (const [name, fn, base, keys] of OPTS) {
 test("insulation: nested attic and assembly numbers given as text are refused", () => {
   assert.ok(validateInsulation({ attic: { rValue: "38" } }).length);
   assert.ok(validateInsulation({ assembly: { ceilingR: "30" } }).length);
+});
+test("slab: numbers given as text are refused (a text waste of \"0.1\" used to order 50 yd for a 5.5 yd slab)", () => {
+  const b = { shape: "slab", length: 240, width: 240, depth: 4 };
+  assert.equal(slabConcrete(b).ok, true);
+  for (const k of ["length", "width", "depth", "waste", "count", "bag"]) {
+    assert.equal(slabConcrete({ ...b, [k]: "1" }).ok, false, k);
+  }
+  assert.equal(slabConcrete({ shape: "pier", diameter: "12", depth: 36 }).ok, false);
 });
