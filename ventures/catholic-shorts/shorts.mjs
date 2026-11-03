@@ -246,6 +246,7 @@ export function renderIndex(shorts, media = {}) {
 <p class="lede">${escapeHtml(SHOW.tagline)}. Free one-minute videos and scripts you can watch, share and repost: Catholic answers with every source cited and the other side stated fairly, saints told truthfully, and short stories labelled as fiction.</p>
 </div></header>
 <main class="wrap">
+<h2>All shorts</h2>
 <div class="grid">
 ${list}
 </div>
