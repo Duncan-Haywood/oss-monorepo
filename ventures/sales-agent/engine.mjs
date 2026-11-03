@@ -185,13 +185,36 @@ export function stripQuoted(body) {
 }
 
 /**
+ * Split at each `From:` line that opens a new message. A `From:` that opens quoted history is not a new message: it
+ * follows an "Original Message" / "Forwarded message" divider or an underscore rule, or is followed by `Sent:`
+ * (Outlook's quote header, also Gesendet / Envoyé / Enviado). Otherwise our own earlier email, quoted under a
+ * top-posted reply, would be read as a second reply (found 2026-11-03: it was triaged as an unsubscribe).
+ */
+function splitAtFromHeaders(src) {
+  const lines = src.split("\n"), blocks = [];
+  let cur = [], prev = "";
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    if (/^From:\s/i.test(l)) {
+      const divider = /^\s*-{2,}\s*(original|forwarded|reply|ursprüngliche|message d'origine)/i.test(prev) || /^\s*_{5,}\s*$/.test(prev) || /^\s*-{5,}[^-]*-{5,}\s*$/.test(prev);
+      const outlook = /^\s*[*_]*(Sent|Gesendet|Envoyé|Enviado|Inviato)[*_]*\s*:/i.test(lines[i + 1] || "");
+      if (cur.length && !divider && !outlook) { blocks.push(cur.join("\n")); cur = []; }
+    }
+    cur.push(l);
+    if (l.trim()) prev = l;
+  }
+  if (cur.length) blocks.push(cur.join("\n"));
+  return blocks;
+}
+
+/**
  * Split pasted replies into messages. Messages are separated by a line of three or more dashes, or each one starts
  * with a `From:` header. Headers read: From, Subject, Date. Returns [{ from, name, subject, date, body, raw }].
  */
 export function parseReplies(text) {
   const src = String(text || "").replace(/\r\n/g, "\n");
   let blocks = src.split(/\n\s*-{3,}\s*\n/);
-  if (blocks.length === 1) blocks = src.split(/\n(?=From:\s)/i);
+  if (blocks.length === 1) blocks = splitAtFromHeaders(src);
   const out = [];
   for (const b of blocks) {
     const raw = b.trim();
