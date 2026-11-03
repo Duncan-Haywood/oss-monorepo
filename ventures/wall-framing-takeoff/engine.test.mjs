@@ -1016,4 +1016,14 @@ test("redteam 2026-11-03: a gable header is checked at the edge of its default j
   const at = (h) => validatePlan({ ...base(), walls: [{ id: "G", length: 240, gable: { pitch: 6 }, openings: [{ kind: "window", label: "w", offset: 30, width: 30, height: 30, header: "2x8", headerHeight: h }] }] });
   assert.deepEqual(at(101), []); // 1/8 in under the sloped plate at the header's low end
   assert.ok(at(101.5).some((e) => /does not fit under the sloped top plate \(3\/8" too tall/.test(e)));
+
+test("a wall id that is not non-empty text is refused (an object id used to pass and print [object Object])", () => {
+  for (const bad of [{ a: 1 }, 7, true, "  ", ["x"]]) {
+    const p = samplePlan();
+    p.walls[0].id = bad;
+    const r = takeoff(p);
+    assert.equal(r.ok, false, JSON.stringify(bad));
+    assert.match(r.errors.join(" "), /needs a name/);
+  }
+  assert.equal(takeoff(samplePlan()).ok, true);
 });

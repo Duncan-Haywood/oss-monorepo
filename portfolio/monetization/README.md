@@ -135,3 +135,12 @@ Add a row to `models.yaml` with at least one comparable read from a named
 vendor's own or a review site's pricing page (source URL and date), a
 liability level, and a first offer that is new depth rather than a paywall on
 a free feature. Run `monetization.py --check`.
+
+## Going live (golive.py)
+
+When the owner has a hosted checkout link, `python3 portfolio/monetization/golive.py set <https-link>`
+(or `set slug=<link> ...` for a link per product) fills `CHECKOUT_URL` in every
+`ventures/*/checkout.mjs`; `unset` goes dark again; no argument shows status.
+It accepts only plain https links and edits nothing else. Then run each
+venture's tests and move its stage to `test-paid` only after a real test-mode
+purchase (tested in `test_golive.py`, added 2026-11-03).

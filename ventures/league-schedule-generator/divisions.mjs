@@ -7,7 +7,7 @@
 //   3. a team plays at the same venue as on its previous night where it can (fewer trips).
 // Each division keeps the circle-method round robin of calc.mjs (home/away balance and byes), so only
 // the dates, courts and times are decided here.
-import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, tieBreakNotes, standingsCsv, parsePointSystem, playoffBracket, bracketText } from "./calc.mjs";
+import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, tieBreakNotes, standingsCsv, parsePointSystem, playoffBracket, bracketText, weeklyUpdate } from "./calc.mjs";
 
 const MAX_NIGHTS = 800;
 const W_CLASH = 1000;
@@ -741,6 +741,43 @@ export function divisionsPlayoffs(result, { perDivision = 2, wildcards = 0 } = {
   const bracket = playoffBracket(names);
   const text = seeds.map((x) => `${String(x.seed).padStart(2)}. ${x.name} (${x.division}, place ${x.rank}, ${x.ppg.toFixed(2)} pts/game)`).join("\n") + "\n\n" + bracketText(bracket);
   return { seeds, bracket, text, errors };
+}
+
+/**
+ * The weekly group-chat post for a multi-division league: for each division, last round's scores,
+ * the top of its table and the next round's fixtures (the single-league `weeklyUpdate`, run per
+ * division on the results typed in `divisionsStandings` format). Results that `divisionsStandings`
+ * rejects (unscheduled pair, over-reported pair) are left out and listed as warnings at the end.
+ * Returns one text, divisions separated by a blank line.
+ */
+export function divisionsWeeklyUpdate(schedule, text, { points = "3-1-0", headToHead = false, maxRows = 6 } = {}) {
+  const std = divisionsStandings(schedule, text, { points, headToHead });
+  const ps = parsePointSystem(points);
+  const names = schedule.divisions.map((d) => d.name.toLowerCase());
+  const byDiv = schedule.divisions.map(() => []);
+  for (const raw of String(text ?? "").split(/\r?\n/)) {
+    const line = raw.trim();
+    const m = line.match(/^([^:]+):\s*(.*)$/);
+    if (m && names.includes(m[1].trim().toLowerCase())) byDiv[names.indexOf(m[1].trim().toLowerCase())].push(m[2]);
+    else if (line && schedule.divisions.length === 1) byDiv[0].push(line);
+  }
+  const blocks = [];
+  schedule.divisions.forEach((div, d) => {
+    const r = parseResults(byDiv[d].join("\n"), div.teams);
+    const allowed = new Map(), seen = new Map(), kept = [];
+    for (const round of div.rounds) for (const mt of round.matches) { const k = [mt.home, mt.away].sort().join("/"); allowed.set(k, (allowed.get(k) ?? 0) + 1); }
+    for (const x of r.results) {
+      const k = [x.a, x.b].sort().join("/");
+      const n = (seen.get(k) ?? 0) + 1;
+      if (!allowed.has(k) || n > allowed.get(k)) continue;
+      seen.set(k, n);
+      kept.push(x);
+    }
+    const body = weeklyUpdate({ teams: div.teams, rounds: div.rounds }, kept, { adjustments: r.adjustments, points: ps.error ? {} : { win: ps.win, draw: ps.draw, loss: ps.loss }, headToHead, maxRows });
+    if (body) blocks.push(`== ${div.name} ==\n${body}`);
+  });
+  for (const e of std.errors) blocks.push(`Warning: ${e}`);
+  return blocks.join("\n\n");
 }
 
 /** Plain-text league tables from `divisionsStandings(...).tables`, one block per division. */
