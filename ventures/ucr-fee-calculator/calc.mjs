@@ -3,8 +3,8 @@
 // forwarders and leasing companies pay the lowest bracket whatever their size. The default table below is the
 // schedule this tool was last checked against; the fee table is an input so a visitor can correct it from ucr.gov.
 
-export const DEFAULT_FEES_TEXT = ["0-2: 46", "3-5: 138", "6-20: 276", "21-100: 963", "101-1000: 4588", "1001+: 44797"].join("\n");
-export const FEE_TABLE_LABEL = "2025 registration year schedule (verify against ucr.gov for the year you are filing)";
+export const DEFAULT_FEES_TEXT = ["0-2: 46", "3-5: 138", "6-20: 276", "21-100: 963", "101-1000: 4592", "1001+: 44836"].join("\n");
+export const FEE_TABLE_LABEL = "2027 registration year schedule (verify against ucr.gov for the year you are filing)";
 export const TYPES = ["motor-carrier", "private-carrier", "broker", "freight-forwarder", "leasing"];
 
 const round2 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;

@@ -14,7 +14,7 @@ test("bracket edges: 2->3 and 20->21 change the fee", () => {
   assert.equal(bracketFor(brackets, 3).fee, 138);
   assert.equal(bracketFor(brackets, 20).fee, 276);
   assert.equal(bracketFor(brackets, 21).fee, 963);
-  assert.equal(bracketFor(brackets, 5000).fee, 44797);
+  assert.equal(bracketFor(brackets, 5000).fee, 44836);
 });
 
 test("bad fee lines and overlaps are reported", () => {
