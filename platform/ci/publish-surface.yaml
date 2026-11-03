@@ -89,9 +89,6 @@ workflows:
 - workflow: ci-profile-ci.yml
   classification: none
   publishes: []
-- workflow: claude-routine-trigger.yml
-  classification: none
-  publishes: []
 - workflow: cloudflare-email.yml
   classification: none
   publishes: []

@@ -645,25 +645,6 @@ jobs:
                 offenders[path.name] = sorted(found)
         self.assertEqual(offenders, {})
 
-    def test_the_routine_trigger_schedule_is_gated_on_an_owner_variable(self):
-        # The reason invariant 5 was written now rather than later: the gate
-        # added to claude-routine-trigger.yml is what stops a revoked token
-        # billing ~72 runner-minutes a day, and a gate on a reserved name
-        # would look identical while doing nothing.
-        #
-        # Pinned here rather than in a workflow-specific file because the two
-        # properties that matter are exactly the ones a well-meaning edit
-        # breaks: that `schedule` cannot start the job on its own, and that
-        # `workflow_dispatch` still can, so a new token stays testable without
-        # flipping the variable first.
-        path = REPO_ROOT / ".github" / "workflows" / "claude-routine-trigger.yml"
-        data = yaml.safe_load(path.read_text())
-        condition = data["jobs"]["fire"]["if"]
-
-        self.assertIn("vars.ROUTINE_TRIGGER_ENABLED == 'true'", condition)
-        self.assertIn("github.event_name == 'workflow_dispatch'", condition)
-        self.assertEqual(reserved_github_refs(data), set())
-
 
 class UnguardedShallowFetchTest(unittest.TestCase):
     """A `--depth` fetch truncates the whole clone, not just the ref it names.

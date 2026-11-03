@@ -85,7 +85,8 @@ sequence. Build each one with [`platform/llm/byok.mjs`](../../platform/llm/READM
    store-listing kit (see `mileage-log`'s); never register an account in the
    owner's name.
 5. **Payments** are off by default and run on the deployer's own Stripe keys,
-   never the owner's (`prompts/goals.md`, "Payments: never the owner's").
+   and the owner's own instances use only a merchant-of-record checkout link
+   set outside the repo (`prompts/goals.md`, "Payments: the owner's merchant of record, never a key").
 
 ## Guardrails specific to sales and marketing
 
