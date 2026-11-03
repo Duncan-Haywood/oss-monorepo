@@ -1,7 +1,7 @@
 ---
 title: "E-invoice Preflight adds New Zealand: B2B voluntary, large government suppliers from 2027"
 date: 2026-11-03
-description: "A new New Zealand page: Peppol PINT A-NZ, central agencies receiving e-invoices since 2022, large suppliers to government reported required from 1 January 2027, B2B voluntary."
+description: "New Zealand page: Peppol PINT A-NZ, large government suppliers reported required from 1 January 2027, B2B voluntary, with the source disagreements flagged."
 tags: [einvoice-preflight, e-invoicing, new-zealand]
 ---
 
