@@ -1,9 +1,9 @@
 ---
 title: "Do Catholics still have bigger families? What 50 years of survey data say about Catholic subgroups"
-seo_title: "Catholic fertility, retention and Mass attendance by subgroup: GSS 1972-2024"
+seo_title: "Catholic fertility, retention and Mass attendance by subgroup, 1972-2024"
 date: 2026-11-03
 tags: [catholic, demographics, research, data, religion]
-description: "White Catholics born 1965-80 have fewer children than white Protestants, and only 55% of white Catholics born 1981-96 still call themselves Catholic. Hispanic retention holds up better."
+description: "White Catholics born 1965-80 have fewer children than white Protestants, and white Catholic retention is falling faster than Hispanic retention."
 ---
 
 "Catholics have big families" was true once. In the General Social Survey (GSS), non-Hispanic white Catholics born 1925-44 had about 0.21 more children than white Protestants of the same age. For those born 1945-64 the gap is 0.04, which is statistically zero. For those born 1965-80 it has reversed: Catholics have 0.28 fewer children (95% interval -0.48 to -0.09).
