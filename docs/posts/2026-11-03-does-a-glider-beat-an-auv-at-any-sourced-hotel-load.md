@@ -1,6 +1,6 @@
 ---
 title: "Does a buoyancy glider beat a propeller AUV at any hotel load we can source?"
-seo_title: "Glider vs propeller AUV range: hotel load from Tethys and REMUS figures"
+seo_title: "Glider vs propeller AUV range: hotel loads from Tethys and REMUS"
 date: 2026-11-03
 tags: [research, marine, auv, glider]
 description: "Against every propeller-AUV hotel load I could source (8 W to 175 W), a Seaglider-budget glider model has the longer best range in all 270 swept cases."
