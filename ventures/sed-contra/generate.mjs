@@ -57,6 +57,7 @@ function page({ title, description, canonical, body, event, jsonLd }) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23141a2b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='Georgia,serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23e8c478'%3ES%3C/text%3E%3C/svg%3E">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 <link rel="canonical" href="${canonical}">
@@ -71,6 +72,7 @@ function page({ title, description, canonical, body, event, jsonLd }) {
 ${body}
 <footer>
   ${DISCLAIMER}
+  <p><strong>No warranty.</strong> These stories, recordings and videos are provided free and as-is, without warranty of any kind, express or implied. They are not theological, pastoral or philosophical advice, and they do not replace a priest, a catechist, a teacher or reading Thomas himself; check anything you rely on against the sources linked on each page. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
   <p>Stories, audio and video: <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>, so parishes, teachers and creators may repost, cut and adapt them with credit. Code: MIT. Source: <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/sed-contra">GitHub</a>.</p>
   <p>Related: <a href="../saints-by-candlelight/">Saints by Candlelight</a> (bedtime saints podcast) · <a href="../hearth-and-horizon/">Hearth &amp; Horizon</a> (Catholic science fiction).</p>
   <p><strong>Privacy.</strong> No accounts, cookies or analytics vendor. We count anonymous events in this browser only (pages opened, audio and video played). <button id="usageToggle" type="button">Turn off counting</button></p>

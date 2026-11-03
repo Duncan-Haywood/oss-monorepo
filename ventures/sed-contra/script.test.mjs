@@ -82,3 +82,11 @@ test('the feed lists only episodes with audio, with an exact enclosure length', 
 test('SRT converts to WebVTT for the browser', () => {
   assert.equal(vtt('1\n00:00:01,250 --> 00:00:02,000\nHi\n'), 'WEBVTT\n\n00:00:01.250 --> 00:00:02.000\nHi\n');
 });
+
+test('pages link their sibling Saints by Candlelight, carry the no-warranty clause and a tab icon', () => {
+  for (const [name, html] of Object.entries(buildAll()).filter(([n]) => n.endsWith('.html'))) {
+    assert.match(html, /href="\.\.\/saints-by-candlelight\/"/, name);
+    assert.match(html, /No warranty\./, name);
+    assert.match(html, /<link rel="icon"/, name);
+  }
+});
