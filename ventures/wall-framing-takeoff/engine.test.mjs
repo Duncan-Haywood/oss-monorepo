@@ -832,7 +832,7 @@ test("sheathing: a gable wall joint over a wide opening gets a nailer note with 
 });
 
 test("takeoff returns an error naming the piece when a header is longer than every board", () => {
-  const plan = { ...samplePlan(), walls: [{ id: "G", length: 480, stud: "2x4", corner: true, openings: [{ kind: "door", offset: 24, width: 192, height: 84, header: "2x10" }] }] };
+  const plan = { ...samplePlan(), walls: [{ id: "G", length: 480, stud: "2x4", corner: true, openings: [{ kind: "door", offset: 24, width: 192, height: 82.5, header: "2x10" }] }] };
   plan.stock = plan.stock.filter((s) => s.size !== "2x10" || s.length <= 192);
   const r = takeoff(plan);
   assert.equal(r.ok, false);
@@ -976,6 +976,18 @@ test("a lumber-list board over 1200 in is refused (1e9 used to throw a raw Range
   const r = takeoff(p); // must not throw
   assert.equal(r.ok, false);
   assert.match(r.errors.join(" "), /over 1200 inches/);
+  assert.equal(takeoff(samplePlan()).ok, true);
+});
+
+test("an opening kind other than window or door, and a door taller than its header height, are refused", () => {
+  const withOp = (f) => { const p = samplePlan(); f(p.walls[0].openings[0]); return takeoff(p); };
+  const kind = withOp((o) => { o.kind = "garage"; });
+  assert.equal(kind.ok, false);
+  assert.match(kind.errors.join(" "), /kind must be "window" or "door"/);
+  const tall = withOp((o) => { o.height = 500; }); // Entry door: header at 82.5 in, opening 500 in
+  assert.equal(tall.ok, false);
+  assert.match(tall.errors.join(" "), /below the floor/);
+  assert.equal(withOp((o) => { o.height = 82.5; }).ok, true);
   assert.equal(takeoff(samplePlan()).ok, true);
 });
 
