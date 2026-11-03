@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [llm-coding-inference]
+tagged: auto
+---
 # llm-coding-inference, milestone 6p (agent note)
 
 - Landed: `stratified_ppi_tuned` and `stratum_lambda_s2` in `llmci/estimators.py` (+2 tests), `experiments/h6p_lambda_sizing.py/.txt`, LOG and README entries.

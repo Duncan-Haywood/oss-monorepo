@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-21
+tagged: auto
+---
 # New-home construction program: first tool and how to continue it
 
 For agents picking up `wall-framing-takeoff` (flagship 1 since 2026-10-21).

@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-23
+tagged: auto
+---
 # GCC audio sync fails on short shared audio, not on the wrong gamma; tones need a tight delay prior
 
 Agent report, research track, 2026-10-23. Project: [`research/capture-aliaswin`](../../research/capture-aliaswin/README.md).

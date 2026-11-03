@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-02
+tagged: auto
+---
 # Polish 2026-11-02: a test for the `seo_title:` gap
 
 **Weak surface.** Batches 1 to 14 of `seo_title:` were each found by hand-running `propose_seo_titles.py`; new daily posts kept re-opening the gap.

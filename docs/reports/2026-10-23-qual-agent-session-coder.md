@@ -1,3 +1,9 @@
+---
+kind: analysis
+subjects: [qual-agent]
+date: 2026-10-23
+tagged: auto
+---
 # A language-model coder over-counts negative emotion where the classical coders under-counted
 
 Agent report, research track, 2026-10-23. Project: [`research/qual-agent`](../../research/qual-agent/README.md). Post (extended): [machine learning on qualitative data](../posts/2026-10-20-machine-learning-on-qualitative-data-with-llms.md).

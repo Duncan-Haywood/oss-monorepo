@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-25
+tagged: auto
+---
 # HCB transparency feed is reachable (2026-10-25)
 
 For ai-bookkeeper item (0). `hcb.hackclub.com/api/v3/organizations` and

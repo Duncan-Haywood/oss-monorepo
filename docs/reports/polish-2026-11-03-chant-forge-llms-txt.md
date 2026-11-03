@@ -1,3 +1,10 @@
+---
+kind: polish
+subjects: [chant-forge]
+topics: [llms-txt]
+date: 2026-11-03
+tagged: auto
+---
 # Polish 2026-11-03: llms.txt for chant-forge
 
 **What.** Hand-written `ventures/chant-forge/llms.txt` for the new flagship: what the converter does today, an example run through the real `cli.mjs` (8 notes, C3-F3, final D3, 2 bars, 3.9 s at 124 BPM), limits, and an explicit "no music exists yet, no choir sings it" line so assistants do not overclaim.

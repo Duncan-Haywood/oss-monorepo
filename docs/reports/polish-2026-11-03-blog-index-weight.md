@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-03
+tagged: auto
+---
 # Polish 2026-11-03: the blog and research indexes are one huge page each
 
 **Measured** (full local build, Chromium at 390 px, 2026-11-03):

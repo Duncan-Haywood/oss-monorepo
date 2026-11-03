@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-01
+tagged: auto
+---
 # Polish 2026-11-01: `seo_title:` batch 12, the five newest over-budget posts
 
 **Weak surface.** `propose_seo_titles.py` listed 5 posts (all 2026-11-01) over the 70-character title budget; one had a clean cut, four did not.

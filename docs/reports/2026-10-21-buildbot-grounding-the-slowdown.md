@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-21
+tagged: auto
+---
 # Grounding the robot slowdown: what track 20 changed once skills were simulated
 
 **Date:** 2026-10-21. **Run:** research track, `research/buildbot-grounded`. **Method:** read the `results.json`

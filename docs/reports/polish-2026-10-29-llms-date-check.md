@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [llms-txt]
+date: 2026-10-29
+tagged: auto
+---
 # Polish 2026-10-29: check that built llms.txt files state a date (AEO)
 
 **Why.** The two earlier runs today stamped a git date on every generated and hand-written product `llms.txt`.

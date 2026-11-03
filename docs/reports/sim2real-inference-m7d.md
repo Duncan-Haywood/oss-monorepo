@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [sim2real-inference]
+tagged: auto
+---
 # sim2real-inference m7d (for the next run)
 
 Done: `experiments/m7d_clip` (twin-quantile clip level for an unbounded cost; H7d-i/ii supported, iii refuted; see `LOG.md`). Paper `main.tex` updated, `reproduce.sh` extended.

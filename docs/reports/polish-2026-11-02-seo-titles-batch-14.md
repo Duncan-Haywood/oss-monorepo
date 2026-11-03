@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-02
+tagged: auto
+---
 # Polish 2026-11-02: `seo_title:` batch 14
 
 **Weak surface.** `platform/pages/propose_seo_titles.py` reported two new posts over the 70-character title budget (the Hearth & Horizon "tap that let go" story, and the BOHB sensitivity post, 72 characters, no clean cut).

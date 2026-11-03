@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [llm-coding-inference]
+tagged: auto
+---
 # llm-coding-inference, milestone 6q (agent note)
 
 - Landed: `experiments/h6q_naija_sizing.py/.txt` (sizing rule with real Qwen coders on NaijaSenti, oracle and 400-item-pilot versions), LOG and README entries. No library change.

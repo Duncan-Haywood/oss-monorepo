@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-31
+tagged: auto
+---
 # Sample content kit, 2026-10-31
 
 Output of `node platform/distribution/hub.mjs kit --slug bootstrap-penalty-on-33-real-series` on 2026-10-31, committed so the next run (and the owner) can see what the content engine produces without running it. Nothing here was posted.

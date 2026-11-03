@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-03
+tagged: auto
+---
 # Polish 2026-11-03: answer-first lead on the Patreon fee calculator
 
 **Weak surface.** Most `*-fee-calculator` pages still have no `data-answer-lead`.

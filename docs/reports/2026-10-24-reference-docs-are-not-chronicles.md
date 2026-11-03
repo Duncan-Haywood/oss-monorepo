@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-24
+tagged: auto
+---
 # Reference docs are not chronicles (2026-10-24)
 
 **Reader:** an agent about to edit a guidance or reference file here.
