@@ -74,9 +74,10 @@ test("the fresh set is reported, not tuned: numbers recorded in README stay as m
 test("third set (2026-10-24b): scored once at 34/41, then its two missed unsubscribes were patched; the rest stay measured", () => {
   const s = score(load("fresh-2026-10-24b.jsonl"));
   assert.equal(s.n, 41);
-  assert.equal(s.right, 36);
+  // 36 before 2026-11-03, when the "are you free" meeting phrasing was added (one item).
+  assert.equal(s.right, 37);
   assert.equal(s.acted, 31);
-  assert.equal(s.actedRight, 30);
+  assert.equal(s.actedRight, 31);
   assert.equal(s.unsubMissed, 0);
   assert.equal(s.overreach, 0);
 });
@@ -168,9 +169,10 @@ test("fourth set (2026-10-25): scored once at 25/42 with 9 of 18 unsubscribes mi
   const s = score(load("fresh-2026-10-25.jsonl"));
   assert.equal(s.n, 42);
   // 34 before 2026-11-02, when "I left Orchid in August" started counting as a wrong-person reply (one item).
-  assert.equal(s.right, 35);
-  assert.equal(s.acted, 35);
-  assert.equal(s.actedRight, 35);
+  // 35 before 2026-11-03, when "X left the company" was added as a wrong-person phrasing (one item).
+  assert.equal(s.right, 36);
+  assert.equal(s.acted, 36);
+  assert.equal(s.actedRight, 36);
   assert.equal(s.unsubMissed, 0);
 });
 
@@ -278,4 +280,17 @@ test("quoted Outlook/forwarded headers under a reply are not read as second repl
   }
   // genuinely separate messages still split
   assert.equal(parseReplies("From: a@x.example\n\nstop\n\nFrom: b@y.example\n\nyes please").length, 2);
+});
+
+test("sixth set (2026-11-03b): non-opt-out replies, scored once at 37/50 before the change, patched to 50/50; a tuned set", () => {
+  const s = score(load("fresh-2026-11-03b.jsonl"));
+  assert.equal(s.n, 50);
+  assert.equal(s.right, 50);
+  assert.equal(s.actedRight, s.acted);
+  assert.equal(s.overreach, 0);
+});
+
+test("\"not interested in switching unless you integrate\" is an objection, not a decline", () => {
+  const t = triage({ subject: "Re: hi", body: "Not interested in switching unless you integrate with Xero." }, "2026-11-03");
+  assert.equal(t.category, "objection");
 });
