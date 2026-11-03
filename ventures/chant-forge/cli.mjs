@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { parseGabc, fitToBars, fitStretch, halfTime, transposeToFinal, summarize } from './gabc.mjs';
 import { eventsToMidi } from './midi.mjs';
+import { lrc } from './lrc.mjs';
 import { cueSheet } from './cues.mjs';
 import { suggestFinal } from './voicefit.mjs';
 import { arrange, barsFor, bpmRange, GENRE_NAMES } from './genre.mjs';
@@ -19,12 +20,13 @@ const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULS
   --final   transpose so the last note is this MIDI number (50 = D3, a low men's choir final)
   --drone   add a held drone on the final, an octave below
   --cues    write a singer's cue sheet (bar, beat, seconds, note, syllable) to this file
+  --lrc     write timed lyrics (LRC, one line per phrase) to this file
   --suggest-final  print the finals that keep the whole chant in E2-E4 (a men's unison range) and exit
   --auto-final  transpose to the recommended final from --suggest-final (a chant wider than E2-E4 is refused)
   --json    print the summary as JSON`;
 
 export function run(argv) {
-  const args = { bpm: 124, fit: null, stretch: false, halftime: false, repeat: 1, final: null, drone: false, genre: null, fills: false, json: false, suggest: false, auto: false, cues: null, out: null, file: null };
+  const args = { bpm: 124, fit: null, stretch: false, halftime: false, repeat: 1, final: null, drone: false, genre: null, fills: false, json: false, suggest: false, auto: false, cues: null, lrc: null, out: null, file: null };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '-o') args.out = argv[++i];
@@ -38,6 +40,7 @@ export function run(argv) {
     else if (a === '--genre') args.genre = argv[++i];
     else if (a === '--fills') args.fills = true;
     else if (a === '--cues') args.cues = argv[++i];
+    else if (a === '--lrc') args.lrc = argv[++i];
     else if (a === '--suggest-final') args.suggest = true;
     else if (a === '--auto-final') args.auto = true;
     else if (a === '--json') args.json = true;
@@ -76,6 +79,10 @@ export function run(argv) {
   if (args.cues) {
     writeFileSync(args.cues, cueSheet(events, { bpm: args.bpm, pulsesPerBar: args.fit || 8 }));
     summary.cues = args.cues;
+  }
+  if (args.lrc) {
+    writeFileSync(args.lrc, lrc(events, { bpm: args.bpm }, parsed.header.name || ''));
+    summary.lrc = args.lrc;
   }
   if (args.out) {
     const title = parsed.header.name || basename(args.file, '.gabc');
