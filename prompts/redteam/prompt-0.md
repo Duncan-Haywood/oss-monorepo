@@ -1,5 +1,11 @@
 # Red team / blue team track, prompt 0
 
+**This track is a purple team** (owner, 2026-11-03: "red team should double
+purpose as purple team. if it finds something by doing red team it should work
+on fixing it"). Finding a defect is half the job; the run is not done until
+each thing it found is fixed and guarded, or, when a fix is unsafe in this run,
+written up so the next red-team run starts on it (step 0).
+
 The master prompt (`prompt.md`) routes about 7% of runs here (`redteam` in
 `prompts/routing.json`; [`prompts/goals.md`](../goals.md) holds it between 5%
 and 10%). The goals and guardrails there bind every version of this prompt.
@@ -16,6 +22,23 @@ The run measures two things the rest of the system cannot see:
 
 One run, one pull request, titled `redteam: <target> YYYY-MM-DD`. Land it like
 any other run ([`land-your-work.md`](../../.github/prompts/land-your-work.md)).
+
+## 0. Purple: fix what earlier runs left open
+
+```
+python3 prompts/redteam.py open
+```
+
+lists every real defect a red-team record holds as `patched: false`. Before
+seeding anything, check each one still reproduces on `main`. If it does, fix it
+with a failing test first, like a step-3 defect. If it no longer reproduces, a
+later run fixed it without saying so. Either way, set `"patched": true` and
+`"patched_in": "<your PR url>"` on the entry in the record that found it (or
+`"patched_in": "already fixed on main: <how you checked>"`). That is the one
+edit an older record takes. On 2026-11-03 the list held 4 entries: one already
+fixed, and three fixed that day (a red deploy test, orphan branches read as
+landed, about 190 venture files linking to a 404 host). If fixing everything on the
+list would take the whole run, fix what you can and seed fewer mutants.
 
 ## 1. Red: seed faults
 
@@ -91,9 +114,14 @@ and before any refactor that moves or rewrites those lines (extracting
 helpers, say). A line it reports as `line changed` is triaged by hand: re-apply
 the mutant to the new code and say so in `note`.
 
-If a defect is too large for this run, such as a product that is wrong in a
-way that needs a redesign, leave `patched: false`, describe it in the PR, and
-fix only what is safe. Avoid widening the run.
+Fix what you find even when it reaches past the target: a sweep across many
+files, a sibling with the same bug, or a test that was red before you came
+(the open list's three oldest entries were each "too wide" or "unrelated",
+and each took under an hour to fix). Leave `patched: false` only when the fix
+is unsafe here: a product that needs a redesign, a control-plane file
+(`.github/CODEOWNERS`) that wants its own PR, or another person's open PR. Say
+in `issue` what the fix needs, so the run that picks it up from step 0 can
+start without rediscovering it.
 
 ## 4. Fix the class, not the instance
 
@@ -102,6 +130,38 @@ of ventures with no boundary tests or a `platform/ci/` check that accepts
 anything, prefer one check that catches the class. A lint in `platform/ci/`
 or a shared test helper is better than eight one-off tests. Record it in
 `notes` as the guard you added.
+
+## 4b. Automate: leave a guard that runs without a red-team run
+
+A red-team run happens on about 7% of sessions; a bug can land on any of the
+other 93%. So each run should leave the repository better at catching a class
+of error, especially a security error, with no agent in the loop (owner,
+2026-11-03: red, blue and purple team should "work towards automation systems
+to try to catch security errors even when it's not possible to do a full red
+blue team run"). In rough order of preference:
+
+- **Tighten a check that already runs.** A CI workflow that passes on the
+  input it exists to reject is the cheapest win: give it the failing input as
+  a test, then fix it.
+- **Turn the defect you just fixed into a check**, a lint under `platform/ci/`
+  or a test over every file of that kind, so the next copy fails CI instead
+  of waiting for a red-team run to find it (2026-11-03: the dead-host guard in
+  `platform/ci/test_no_dead_pages_base.py`).
+- **Dogfood our own security products on this repository.** `ventures/`
+  ships checkers for workflow injection, secret leaks, pinned actions, Docker
+  build secrets, cookie flags and more. `.github/workflows/workflow-self-audit.yml`
+  runs `ventures/workflow-audit` over our own workflows on every PR and fails on
+  a high finding. Wiring another checker in the same way (a guard on our own
+  tree that starts green) beats re-auditing by hand. Running one over our tree
+  also tests the product: the first self-audit found a path bug in its JSON
+  and SARIF output.
+- **Feed the queue.** CodeQL alerts already reach agents as files
+  (`platform/ci/security_alerts.py`, the `security-alerts` branch). A check
+  that writes its findings into a file queue like that one counts too.
+
+A new workflow file is control plane (`.github/CODEOWNERS`): open it as its
+own small PR so the fixes in this run aren't held up. Say in `notes` which
+guard you added or tightened, and what it caught on its first run.
 
 ## 5. Record and land
 
@@ -127,4 +187,5 @@ numbers in the PR are a summary, never the source.
   generated trees out of a campaign too (`research/` is fair game since the
   mirror was retired on 2026-10-16; its suites run under the same probe limit).
 - Real defects in other people's open pull requests go in a comment on that
-  PR, not a fix pushed to their branch.
+  PR, not a fix pushed to their branch. The same defect on `main` is yours to
+  fix.
