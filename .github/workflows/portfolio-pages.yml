@@ -199,7 +199,11 @@ jobs:
     # Builds and checks the whole 500+-page site artifact -- measured at 173s
     # on a recent PR. See hetzner-gitops-ci.yml's timeout-minutes addition for
     # why an unbounded job is worth capping on a metered-minutes account.
-    timeout-minutes: 20
+    # 45, not 20 (2026-11-03): the depth-3000 push checkout grew from 97 s
+    # (2026-10-24) to 12-20 min on every runner, so every push run from 17:10
+    # to 20:30 UTC hit the 20-minute cap during checkout and ended `cancelled`,
+    # and the live site stopped updating. The rest of the job needs about 6 min.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
