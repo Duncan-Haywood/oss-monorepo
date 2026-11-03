@@ -1,6 +1,6 @@
 ---
 title: "Why stratifying an LLM-coding audit by the coder's labels bought almost nothing"
-seo_title: "Prediction-powered inference: coder-cell audits vs a fitted control variate"
+seo_title: "LLM-coding audits: coder-cell split vs a fitted control variate"
 date: 2026-11-03
 tags: [research, statistics, llm-coding, prediction-powered-inference]
 description: "A closed-form ceiling promised an 8% narrower interval from splitting a human audit by the LLM coder's label. Measured on NaijaSenti, the pooled audit with a fitted weight was already within 0.5%."
