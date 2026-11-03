@@ -1,6 +1,6 @@
 ---
 title: "A pre-flight check before a chant record goes to Spotify"
-seo_title: "Release checklist for public-domain Gregorian chant tracks with AI voices"
+seo_title: "Release checklist for public-domain chant tracks with AI voices"
 date: 2026-11-03
 tags: [music, gregorian-chant, open-source, ai-disclosure]
 description: "Chant Forge now checks a release before upload: cited pre-1929 sources, AI disclosure, no fake monks, cover art, ISRCs and a passing loudness report."
