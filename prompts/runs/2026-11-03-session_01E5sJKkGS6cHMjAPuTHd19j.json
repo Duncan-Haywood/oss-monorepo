@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01E5sJKkGS6cHMjAPuTHd19j",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T21:19:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12924",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Plain python3 lacks numpy; pyenv.py install was slow, /usr/bin/python3.13 already had numpy and ran the experiment."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 says to fetch origin security-alerts, but that branch does not exist."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-03-do-coder-cells-help-when-the-category-is-rare.md",
+    "research/llm-coding-inference/LOG.md 7n"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}

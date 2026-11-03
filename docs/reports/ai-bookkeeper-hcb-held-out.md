@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [ai-bookkeeper]
+tagged: auto
+---
 # ai-bookkeeper: held-out HCB reading (2026-10-25)
 
 For the next run on flagship 1. `node eval/hcb-memos.mjs --orgpage 2 --from 0 --to 100`

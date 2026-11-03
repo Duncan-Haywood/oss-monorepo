@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [depth]
+date: 2026-10-29
+tagged: auto
+---
 # Polish 2026-10-29: a check that keeps flagship first-screen buttons in place
 
 **What.** Earlier polish runs added a call-to-action link under the h1 of flagship tool pages

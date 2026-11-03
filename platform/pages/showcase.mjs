@@ -127,12 +127,18 @@ export const HOME_MOTION_CSS = `
             border-bottom: 1px solid #1e2c42; }
     .hero a { color: var(--accent); }
     .hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; display: block; }
-    .aurora { position: absolute; inset: -20%; z-index: -2; filter: blur(70px); opacity: .35; pointer-events: none; }
+    /* Soft colour from radial gradients, not a blur filter. A filter: blur()
+       over blended, moving circles re-rasterised the whole hero every frame
+       (5 fps on a throttled laptop CPU, 2026-11-03); gradients on their own
+       layers move on the compositor at no paint cost. */
+    .aurora { position: absolute; inset: -20%; z-index: -2; opacity: .35; pointer-events: none; }
     .aurora i { position: absolute; width: 46vw; height: 46vw; max-width: 720px; max-height: 720px; border-radius: 50%;
-                mix-blend-mode: screen; animation: drift 22s ease-in-out infinite alternate; }
-    .aurora i:nth-child(1) { background: #1f4e8c; left: 2%; top: 4%; }
-    .aurora i:nth-child(2) { background: #3a6ea5; right: 0; top: -8%; animation-duration: 28s; animation-delay: -6s; }
-    .aurora i:nth-child(3) { background: #5b7799; left: 34%; bottom: -14%; animation-duration: 34s; animation-delay: -12s; opacity: .7; }
+                --c: #1f4e8c; background: radial-gradient(closest-side, var(--c) 35%, transparent);
+                will-change: transform; animation: drift 22s ease-in-out infinite alternate; }
+    .aurora i:nth-child(1) { left: 2%; top: 4%; }
+    .aurora i:nth-child(2) { --c: #3a6ea5; right: 0; top: -8%; animation-duration: 28s; animation-delay: -6s; }
+    .aurora i:nth-child(3) { --c: #5b7799; left: 34%; bottom: -14%; animation-duration: 34s; animation-delay: -12s; opacity: .7; }
+    .hero.paused .aurora i { animation-play-state: paused; }
     @keyframes drift { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(6vw, 4vw) scale(1.15); }
                        100% { transform: translate(-4vw, 6vw) scale(.92); } }
     .hero::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
@@ -143,16 +149,13 @@ export const HOME_MOTION_CSS = `
                            mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 30%, transparent 75%); }
     .hero h1 { font-size: clamp(2.3rem, 6.4vw, 4.6rem); max-width: 18ch; }
     .grad { background: linear-gradient(100deg, #a8c7f0 0%, #b4c6de 30%, #dfe8f5 55%, #a8c7f0 80%);
-            background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
-            animation: sheen 9s linear infinite; }
-    @keyframes sheen { to { background-position: -220% 0; } }
+            -webkit-background-clip: text; background-clip: text; color: transparent; }
     .ticker { margin: 0 0 18px; font-size: clamp(1rem, 1.8vw, 1.2rem); color: var(--muted); }
     .ticker b { display: inline-block; color: var(--ink); font-weight: 750;
                 border-bottom: 2px solid var(--accent); transition: opacity .35s, transform .35s; }
     @media (min-width: 720px) { .ticker b { min-width: 6ch; } }
     .ticker b.out { opacity: 0; transform: translateY(-.4em); }
-    .hero .stats { background: rgba(14, 20, 38, .6); border-color: var(--line);
-                   -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+    .hero .stats { background: rgba(14, 20, 38, .72); border-color: var(--line); }
     .hero .stats div { border-color: var(--line); }
     .hero .stats dd a { color: var(--ink); }
     .hero .search input { background: rgba(10, 16, 32, .75); border-color: rgba(148,170,210,.35);
@@ -165,7 +168,7 @@ export const HOME_MOTION_CSS = `
                border-bottom: 1px solid var(--line); background: var(--panel);
                -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
                        mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
-    .marquee-row { display: flex; width: max-content; }
+    .marquee-row { display: flex; width: max-content; will-change: transform; }
     .marquee-track { list-style: none; margin: 0; padding: 0 10px 0 0; display: flex; gap: 10px; }
     .marquee-track a, .marquee-track span { display: inline-block; white-space: nowrap; padding: 8px 15px; border-radius: 999px;
                        border: 1px solid var(--line); background: var(--bg); color: var(--ink);
@@ -224,7 +227,7 @@ export const HOME_MOTION_CSS = `
     .motion .reveal.in { opacity: 1; transform: none; }
 
     @media (prefers-reduced-motion: reduce) {
-      .aurora i, .grad, .marquee-row { animation: none; }
+      .aurora i, .marquee-row { animation: none; }
       .marquee { overflow-x: auto; }
       .marquee-track[aria-hidden="true"] { display: none; }
       .frame, .reel:hover .frame { transform: none; }
@@ -260,50 +263,72 @@ export const HOME_MOTION_SCRIPT = `
         const pointer = { x: -9999, y: -9999 };
         const size = () => {
           const box = canvas.getBoundingClientRect();
-          dpr = Math.min(window.devicePixelRatio || 1, 2);
+          // Drawn at CSS pixels: soft dots need no retina detail, and a 2x
+          // canvas is four times the pixels to clear, draw and upload each frame.
+          dpr = 1;
           w = box.width; h = box.height;
           canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-          const count = Math.min(110, Math.round((w * h) / 9000));
+          const count = Math.min(90, Math.round((w * h) / 11000));
           points = Array.from({ length: count }, (_, i) => ({
             x: Math.random() * w, y: Math.random() * h,
             vx: (Math.random() - .5) * .35, vy: (Math.random() - .5) * .35,
             r: Math.random() * 1.6 + .6, c: colours[i % colours.length],
           }));
         };
-        const draw = () => {
+        // Lines are batched into a few paths by strength, and the dots' glow
+        // is a wider faint disc, not shadowBlur: a stroke per pair and a
+        // blurred shadow per dot cost most of a frame on a slow laptop.
+        const bands = 4, reach = 130, reach2 = reach * reach;
+        const draw = (step = 1) => {
           ctx.clearRect(0, 0, w, h);
-          const reach = 130;
           for (const p of points) {
             const dx = pointer.x - p.x, dy = pointer.y - p.y, d = Math.hypot(dx, dy);
-            if (d < 200 && d > 1) { p.vx += dx / d * .012; p.vy += dy / d * .012; }
-            p.vx *= .992; p.vy *= .992;
-            p.x += p.vx; p.y += p.vy;
+            if (d < 200 && d > 1) { p.vx += dx / d * .012 * step; p.vy += dy / d * .012 * step; }
+            p.vx *= Math.pow(.992, step); p.vy *= Math.pow(.992, step);
+            p.x += p.vx * step; p.y += p.vy * step;
             if (p.x < 0 || p.x > w) p.vx *= -1;
             if (p.y < 0 || p.y > h) p.vy *= -1;
           }
+          const paths = Array.from({ length: bands }, () => new Path2D());
           for (let i = 0; i < points.length; i++) {
             const a = points[i];
             for (let j = i + 1; j < points.length; j++) {
-              const b = points[j], d = Math.hypot(a.x - b.x, a.y - b.y);
-              if (d < reach) {
-                ctx.strokeStyle = 'rgba(' + a.c + ',' + (0.22 * (1 - d / reach)).toFixed(3) + ')';
-                ctx.lineWidth = 1;
-                ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+              const b = points[j], dx = a.x - b.x, dy = a.y - b.y, d2 = dx * dx + dy * dy;
+              if (d2 < reach2) {
+                const band = Math.min(bands - 1, Math.floor((1 - Math.sqrt(d2) / reach) * bands));
+                paths[band].moveTo(a.x, a.y); paths[band].lineTo(b.x, b.y);
               }
             }
           }
-          for (const p of points) {
-            ctx.fillStyle = 'rgba(' + p.c + ',.9)';
-            ctx.shadowColor = 'rgba(' + p.c + ',.9)'; ctx.shadowBlur = 8;
-            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+          ctx.lineWidth = 1;
+          paths.forEach((path, band) => {
+            ctx.strokeStyle = 'rgba(' + colours[0] + ',' + (0.22 * (band + .5) / bands).toFixed(3) + ')';
+            ctx.stroke(path);
+          });
+          for (const c of colours) {
+            const glow = new Path2D(), dot = new Path2D();
+            for (const p of points) {
+              if (p.c !== c) continue;
+              glow.moveTo(p.x + p.r * 3, p.y); glow.arc(p.x, p.y, p.r * 3, 0, Math.PI * 2);
+              dot.moveTo(p.x + p.r, p.y); dot.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            }
+            ctx.fillStyle = 'rgba(' + c + ',.12)'; ctx.fill(glow);
+            ctx.fillStyle = 'rgba(' + c + ',.9)'; ctx.fill(dot);
           }
-          ctx.shadowBlur = 0;
         };
-        const loop = () => { if (!running) return; draw(); frame = requestAnimationFrame(loop); };
+        // About 30 frames a second is plenty for a slow drift, and halves the work.
+        let last = 0;
+        const loop = (now) => {
+          if (!running) return;
+          frame = requestAnimationFrame(loop);
+          if (now - last < 30) return;
+          draw(last ? Math.min(3, (now - last) / 16.7) : 1); last = now;
+        };
         const update = () => {
           const should = !still && visible && !document.hidden;
-          if (should && !running) { running = true; frame = requestAnimationFrame(loop); }
+          canvas.parentElement.classList.toggle('paused', !visible || document.hidden);
+          if (should && !running) { running = true; last = 0; frame = requestAnimationFrame(loop); }
           if (!should && running) { running = false; cancelAnimationFrame(frame); }
         };
         size(); draw();
@@ -376,12 +401,19 @@ export const HOME_MOTION_SCRIPT = `
       }
 
       // ---- Pointer light on cards -------------------------------------------
+      // At most once a frame: pointer events can arrive faster than frames.
+      let lit = null, litFrame = 0;
       document.addEventListener('pointermove', (e) => {
-        const card = e.target.closest && e.target.closest('.cat, .pillar, .featured li, .step');
-        if (!card) return;
-        const box = card.getBoundingClientRect();
-        card.style.setProperty('--mx', (e.clientX - box.left) + 'px');
-        card.style.setProperty('--my', (e.clientY - box.top) + 'px');
+        lit = e;
+        if (litFrame) return;
+        litFrame = requestAnimationFrame(() => {
+          litFrame = 0;
+          const card = lit.target.closest && lit.target.closest('.cat, .pillar, .featured li, .step');
+          if (!card) return;
+          const box = card.getBoundingClientRect();
+          card.style.setProperty('--mx', (lit.clientX - box.left) + 'px');
+          card.style.setProperty('--my', (lit.clientY - box.top) + 'px');
+        });
       }, { passive: true });
 
       // ---- The recording plays only while it is on screen --------------------

@@ -335,6 +335,15 @@ class TestSweep(Fixture):
         self.push("gh-pages")
         self.assertEqual(uw.sweep(str(self.clone), since=None, probe=self.probe), [])
 
+    def test_orphan_branch_with_stranded_work_is_reported(self):
+        # No merge base: `git diff base...tip` errors, which must not read as landed.
+        run(self.clone, "checkout", "-q", "--orphan", "claude/orphan")
+        run(self.clone, "rm", "-rq", "--cached", ".")
+        self.commit("stranded.txt", "work\n", "orphan work", day="2026-10-01")
+        self.push("claude/orphan")
+        self.assertEqual([r[1] for r in uw.sweep(str(self.clone), since=None, probe=self.probe)],
+                         ["claude/orphan"])
+
     def test_archive_branches_are_never_reported(self):
         self.branch("archive/research/claude/old-work")
         self.commit("a.txt", "a\n", "kept from oss-research-monorepo")
@@ -415,7 +424,7 @@ class TestMain(Fixture):
         self.commit("a.txt", "a\n", "a")
         self.push("claude/x")
         run(self.clone, "fetch", "-q", "origin")
-        self.assertTrue(uw.landed_by_content(
+        self.assertFalse(uw.landed_by_content(
             str(self.clone), "origin/no-such-branch", "origin/main"))
 
     def test_help_describes_the_script_by_its_first_paragraph(self):

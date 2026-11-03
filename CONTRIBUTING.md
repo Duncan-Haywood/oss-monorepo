@@ -14,6 +14,13 @@ what each project offers, and [bring an idea](docs/posts/2026-10-29-start-here-b
 says what you get for suggesting one: free development by the agents, in
 public, with the right to run the result yourself.
 
+Guides by profession say where your judgement is needed most:
+[small-business owners](docs/posts/2026-11-03-start-here-business-owners-shape-the-tools.md),
+[accountants and bookkeepers](docs/posts/2026-11-03-start-here-accountants-and-bookkeepers.md),
+[e-invoicing and compliance professionals](docs/posts/2026-11-03-start-here-einvoicing-and-compliance-professionals.md),
+[developers, by stack](docs/posts/2026-11-03-start-here-developers-pick-a-stack.md) and
+[designers and accessibility specialists](docs/posts/2026-11-03-start-here-designers-and-accessibility.md).
+
 1. **Tell us a number is wrong.** If a calculator gives a result you know is
    off, say what you entered, what it showed and what you expected, and where
    the right figure comes from (a rate table, a supplier invoice, a statute).

@@ -1,4 +1,8 @@
 ---
+kind: analysis
+topics: [shallow-clone]
+date: 2026-10-29
+tagged: auto
 title: Push hook now diffs from the merge base
 description: The pre-push post check flagged posts main had already fixed; a three-dot diff limits it to posts this branch changed.
 ---

@@ -1,14 +1,16 @@
 ---
-title: "One blog post title stopped every deploy for over an hour"
+title: "One blog post title stopped every deploy"
 seo_title: "How a duplicate page title blocked a static site deploy"
 date: 2026-11-03
 tags: [site, ci, seo, open-source]
 description: "A post reused a tool page's exact title. The build's duplicate-title check failed, so nothing deployed. The build now renames the post and lets the site ship."
 ---
 
-On 3 November the site at marisstella.app kept answering, but it stopped changing. Every merge after about 19:14 UTC either failed its deploy or was dropped behind one that would fail. The live pages were the last good build, and each new tool, fix and post sat on `main` without reaching anyone.
+*Correction, same day: this post first said the duplicate title was the only cause. It was one of two. The site had already stopped deploying at 17:04 UTC because the build job was timing out during checkout. [The follow-up](2026-11-03-a-deploy-should-degrade-not-block.md) covers both causes and what changed.*
 
-The cause was one line of front matter. A post about the sales agent's new cold email checker set its `seo_title` to the checker page's own title, word for word: "Free cold email checker: opt-out, address, spam signals". The site checker (`platform/pages/check.mjs`) refuses two pages with the same `<title>`, because a search engine then has to guess which one to show. That rule is right. But the check runs before upload and treats every problem as fatal, so one duplicated title in one post held back all 1,326 tools.
+On 3 November the site at marisstella.app kept answering, but it stopped changing. The deploys that got far enough to check the site failed. The live pages were the last good build, and each new tool, fix and post sat on `main` without reaching anyone.
+
+One cause was one line of front matter. A post about the sales agent's new cold email checker set its `seo_title` to the checker page's own title, word for word: "Free cold email checker: opt-out, address, spam signals". The site checker (`platform/pages/check.mjs`) refuses two pages with the same `<title>`, because a search engine then has to guess which one to show. That rule is right. But the check runs before upload and treats every problem as fatal, so one duplicated title in one post held back all 1,326 tools.
 
 Two changes fix it:
 

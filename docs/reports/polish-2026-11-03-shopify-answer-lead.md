@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-03
+tagged: auto
+---
 # Polish 2026-11-03: answer-first lead on the Shopify fee calculator
 
 **Change.** Shopify page opens with a sourced, dated lead (Basic $39, Grow $105, Advanced $399 monthly; Shopify Payments 2.9/2.7/2.5% + $0.30 online; third-party processors add a separate Shopify fee). As of 2026-11-03, cross-checked by web search because shopify.com is refused by the session proxy. Joined the `answer-lead.test.mjs` pilot (15/15); Shopify `page.test.mjs` 12/12. Full build not run.

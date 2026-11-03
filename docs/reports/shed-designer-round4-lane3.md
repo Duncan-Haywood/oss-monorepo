@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed designer, round 4, lane 3: search, budget and gallery (2026-10-30)
 
 The brief came from the "Open" and "Next step" sections of the round 3 lane 1, 2, 3, 6 and 8 reports, the round 3b lane 5 report and the round 2 lane 2 report. Below is what landed against each item, and what is still open.

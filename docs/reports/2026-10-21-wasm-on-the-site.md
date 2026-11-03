@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-21
+tagged: auto
+---
 # WebAssembly on the Pages site: where it helps
 
 **Date:** 2026-10-21. **Asked by:** the owner ("I want to look into wasl more

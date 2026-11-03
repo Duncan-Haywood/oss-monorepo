@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01XpHqycYz8DVhrDBfM3F9Um",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "are there other tasks that would be beneficial to allocate work to consistently? or automated testing or measuring that would be good to implement? / do all of them",
+  "input_sha256": "29fcc1e1eb34bbcedc0c9519af229eb3add24197e5c6c660b6e44336e3b3dbb2",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T20:22:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Implement the routine-measures suggestions: friction ranking, doc count markers, weekly repro watch, flagship usage join, redteam safety, duplicate-PR consolidation",
+  "projects": [
+    "platform/ci",
+    "research/_shared",
+    "portfolio/usage"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12903",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "measure totals doc_friction per file but never groups it by problem, so one bug reported by 135 sessions looked like 135 different notes; friction_rank.py now does the grouping"
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "rerun had no SIGTERM guard (campaign did), and SIGKILL beat both, which is how a mutant was left in wall-framing-takeoff; fixed in the control-plane PR"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Control-plane edits (prompts/redteam.py, .github/workflows/weekly-measures.yml) held for a second PR from the same branch after this one merges, so this PR is not gated",
+      "did": "split into two PRs",
+      "result": "ungated work lands now"
+    },
+    {
+      "file": "portfolio/usage",
+      "why": "A weekly usage digest already exists (platform/counter/engagement-report.mjs); building a second would duplicate it",
+      "did": "built only the missing join with flagships.yaml",
+      "result": "flagship_usage.py"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Local checks: pytest 13 new tests pass; promptctl validate ok (4676); check_post_frontmatter, check_md_links, research homepage build, programme_check, writing.test.mjs 27/27 ok. repro_watch local sample 7: 4 identical, 3 tool-missing, 0 differ. Mutation step validated locally on platform/pages/surface-budget.mjs (2/2 caught, tree clean). Consolidation: 15 duplicate step-0 PRs closed for PR 12885 after carrying their 7 unique run records here.",
+  "corrections": [],
+  "redteam": null
+}

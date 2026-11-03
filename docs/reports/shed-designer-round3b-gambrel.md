@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed designer, round 3b lane 2: the gambrel (barn) roof
 
 Lane: a gambrel roof as a fully modelled style, with framing, checks, plans, 3D, cut sheet, build steps and prices, an optional loft, a storage measure against a gable, and a place in the design search and the gallery. 2026-10-30.

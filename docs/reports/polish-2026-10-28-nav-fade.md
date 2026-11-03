@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-10-28
+tagged: auto
+---
 # Polish 2026-10-28: phone top nav fade only while there is more to scroll
 
 **Weak surface.** At 390 px the hub's top nav (9 items, scrollWidth 676 vs 374 visible) clips "Updates" and

@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-10-28
+tagged: auto
+---
 # Polish 2026-10-28: research page titles clipped for search results
 
 **Weak surface.** A scan of every built page (3,439 `index.html`, `node platform/pages/build.mjs`) for

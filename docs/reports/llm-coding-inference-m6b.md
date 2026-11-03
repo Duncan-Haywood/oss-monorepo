@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [llm-coding-inference]
+tagged: auto
+---
 # llm-coding-inference milestone 6b (2026-10-25)
 
 Pilot-based audit sizing is done: `research/llm-coding-inference/experiments/h6b_pilot.py`

@@ -38,6 +38,6 @@ test('loadLastChanged reports each file at its own last commit, never a later on
 
 test('renderVentureSitemap writes lastmod only where a date is known', () => {
   const xml = renderVentureSitemap('t', ['index.html', 'b.html'], 'https://x/', { 'b.html': '2026-02-01T00:00:00+00:00' });
-  assert.match(xml, /<loc>https:\/\/x\/t\/b\.html<\/loc><lastmod>2026-02-01T00:00:00\+00:00<\/lastmod>/);
+  assert.match(xml, /<loc>https:\/\/x\/t\/b<\/loc><lastmod>2026-02-01T00:00:00\+00:00<\/lastmod>/);
   assert.match(xml, /<url><loc>https:\/\/x\/t\/<\/loc><\/url>/);
 });

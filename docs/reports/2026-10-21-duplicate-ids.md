@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-21
+tagged: auto
+---
 # Two elements, one id: a sweep of 2,865 calculator pages
 
 **Date:** 2026-10-21. **Track:** explore (free choice). **Method:** I parsed

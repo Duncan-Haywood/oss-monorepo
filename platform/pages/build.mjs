@@ -166,6 +166,7 @@ import {
   renderResearchBand,
   siteStructuredData,
 } from './home.mjs';
+import { servedPath } from './served-path.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -5729,6 +5730,13 @@ function disclaimerHtml(toRoot, surfaces = []) {
         published in the repository.` : ''} Browsers sending
         <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
         not counted at all.
+      </p>
+      <p>
+        If you email one of this site's addresses, your message and address
+        are stored privately with our host, Cloudflare, read only to answer
+        you, never published or sold, and deleted after 90 days; reply asking
+        and we delete it sooner. You can ask what we hold about you, have it
+        corrected or deleted, and complain to your data-protection authority.
       </p>`;
 }
 
@@ -10741,9 +10749,10 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       const url = relative.split(path.sep).join('/');
       const html = await fs.readFile(file, 'utf8');
       const toRoot = upToRoot(relative);
-      // `/tool/index.html` and `/tool/` are the same page; the directory form
-      // is the one to declare.
-      const canonical = `${baseUrl}${url.replace(/(^|\/)index\.html$/, '$1')}`;
+      // `/tool/index.html` and `/tool/` are the same page, as are
+      // `/tool/page.html` and `/tool/page`; the served form is the one to
+      // declare, because the other one is a 307 to it (`served-path.mjs`).
+      const canonical = `${baseUrl}${servedPath(url)}`;
       // The attribute pass runs on the venture's own markup, before the chrome
       // adds any input of its own, and is a no-op on a page with no numbers.
       const pageMeta = readMeta(html, surface.slug);
@@ -11022,13 +11031,11 @@ ${urls.join('\n')}
 
 /**
  * The URL a published page is served at, relative to the site root.
- * `index.html` is served as its directory, so it is listed that way.
+ * `index.html` is served as its directory and `page.html` as `page`
+ * (`served-path.mjs`), so they are listed that way.
  */
 export function pageUrlPath(slug, relativePath) {
-  const posix = relativePath.split(path.sep).join('/');
-  if (posix === 'index.html') return `${slug}/`;
-  if (posix.endsWith('/index.html')) return `${slug}/${posix.slice(0, -'index.html'.length)}`;
-  return `${slug}/${posix}`;
+  return `${slug}/${servedPath(relativePath.split(path.sep).join('/'))}`;
 }
 
 /**
@@ -11329,11 +11336,17 @@ ${research.themes
 `
     : '';
 
+  // One linked line per tool, in llms-full.txt only (the index keeps under
+  // its 50 KB budget with a pointer). As a single sentence ("On A, B, ... and Z the
+  // one thing you paste ...") the ~50 names ran into one paragraph, and a
+  // title phrased as a question ("Does your pinned workflow ...?") read as
+  // "On Does your pinned workflow ...?": an LLM could not tell where one name
+  // ended or which page it belonged to.
   const network = exceptions.length
     ? `## Tools that call the network
 
-On ${listProse(exceptions.map((x) => toolProseName(x.title)))} the one thing you paste is sent to the public API it checks; the [About page](${baseUrl}${ABOUT_PATH}) explains exactly what.
-
+On ${exceptions.length} tool${exceptions.length === 1 ? '' : 's'} the one thing you paste is sent to the public API it checks; everything else stays in your browser. The [About page](${baseUrl}${ABOUT_PATH}) explains exactly what each sends${full ? '.' : `, and [llms-full.txt](${baseUrl}llms-full.txt) lists them with the hosts they call.`}
+${full ? `\n${exceptions.map((x) => `- [${oneLine(toolProseName(x.title))}](${baseUrl}${x.slug}/): sends what you paste to ${x.hosts.join(', ')}`).join('\n')}\n` : ''}
 `
     : '';
 
@@ -12156,6 +12169,11 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // rewritten. Reversed, every deploy would cache a page missing its nav.
   const offline = await addOfflineSupport({ outDir, base, surfaces, disableWorker });
 
+  // After the offline layer, so a build time that changes every run does not
+  // rename the offline cache. platform/ci/check_site_fresh.py reads it to tell
+  // a stale live site (deploys failing) from a healthy one.
+  await fs.writeFile(path.join(outDir, 'version.json'), `${JSON.stringify(buildVersion())}\n`);
+
   return {
     outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
     highlighted, narrowed, embedded, sponsored, offline, comparisons, shareCards, audio, retitled,
@@ -12222,6 +12240,19 @@ export function renderFavicon() {
     entries.push(entry);
   });
   return Buffer.concat([header, ...entries, ...pngs]);
+}
+
+/** The commit this build is of and when it ran, for `version.json`. */
+export function buildVersion(env = process.env, now = new Date()) {
+  let sha = env.GITHUB_SHA || '';
+  if (!sha) {
+    try {
+      sha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: REPO_ROOT, encoding: 'utf8' }).trim();
+    } catch {
+      sha = 'unknown';
+    }
+  }
+  return { sha, built_at: now.toISOString().replace(/\.\d{3}Z$/, 'Z'), event: env.GITHUB_EVENT_NAME || 'local' };
 }
 
 // ---------------------------------------------------------------------------

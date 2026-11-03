@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-03
+tagged: auto
+---
 # Polish 2026-11-03: answer-first lead on the Reverb fee calculator
 
 **Weak surface.** 19 `*-fee-calculator` pages have no `data-answer-lead`; the pilot covered 10.
