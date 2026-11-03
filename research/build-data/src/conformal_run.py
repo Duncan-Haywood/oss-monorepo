@@ -25,7 +25,7 @@ def run(df, Y, seeds, neg=0):
     ytr, yes, yca, yte = (d.y.to_numpy(float) for d in (tr, es, ca, te))
     wk = np.array(["%d-%02d" % harness.week(s) for s in te.start])
     mon = [int(s[5:7]) for s in te.start]
-    ev, ind_raw, ind_cf, ks, qh = [], [], [], [], []
+    ev, ind_raw, ind_cf, ind_dq, qdq, wdq, ks, qh = [], [], [], [], [], [], [], []
     for s in range(seeds):
         # fit_predict predicts one frame; stack calibration and test rows to get both from one fit
         Xct = pd.concat([Xca, Xte], ignore_index=True)
@@ -37,11 +37,16 @@ def run(df, Y, seeds, neg=0):
         ev.append(r)
         q = r["qhat"]
         lo2, hi2 = conformal.cqr_interval(tst["lo"], tst["hi"], q)
+        qd = conformal.conformal_quantile(conformal.cqr_scores_dequantised(cal["lo"], cal["hi"], cal["y"], seed=s), 0.2)
+        lo3, hi3 = conformal.cqr_interval(tst["lo"], tst["hi"], qd)
+        ind_dq.append(((np.array(lo3) <= yte) & (yte <= np.array(hi3))).astype(float))
+        qdq.append(qd)
+        wdq.append(float(np.mean(np.array(hi3) - np.array(lo3))))
         ind_raw.append(((np.array(tst["lo"]) <= yte) & (yte <= np.array(tst["hi"]))).astype(float))
         ind_cf.append(((np.array(lo2) <= yte) & (yte <= np.array(hi2))).astype(float))
     out = dict(test_year=Y, n_train=len(tr), n_earlystop=len(es), n_conformal=len(ca), n_test=len(te),
                negative_dropped=neg, seeds=seeds, alpha=0.2)
-    for name, ind in (("raw", ind_raw), ("conformal", ind_cf)):
+    for name, ind in (("raw", ind_raw), ("conformal", ind_cf), ("dequantised", ind_dq)):
         m, lo, hi = boosted.block_boot(np.mean(ind, 0), wk)
         out["coverage_" + name] = dict(mean=m, lo=lo, hi=hi, per_seed=[float(i.mean()) for i in ind])
     for k in ("qhat", "mean_width_raw", "mean_width_conformal", "ks_scores_cal_vs_test"):
@@ -51,6 +56,9 @@ def run(df, Y, seeds, neg=0):
         for m_, (n_, c_) in e["coverage_by_month"].items():
             bm.setdefault(m_, []).append((n_, c_))
     out["coverage_by_month"] = {str(m_): dict(n=v[0][0], coverage=float(np.mean([c for _, c in v]))) for m_, v in sorted(bm.items())}
+    out["qhat_dequantised"] = float(np.mean(qdq))
+    out["mean_width_dequantised"] = float(np.mean(wdq))
+    out["h2b_within_3pts"] = abs(out["coverage_dequantised"]["mean"] - 0.8) <= 0.03
     out["h2_within_3pts"] = abs(out["coverage_conformal"]["mean"] - 0.8) <= 0.03
     return out
 
@@ -67,7 +75,8 @@ if __name__ == "__main__":
     r = run(df, a.test_year, a.seeds, neg)
     r.update(city=a.city, target=a.target)
     out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results",
-                       f"conformal_{a.city}_{a.target}_{a.test_year}.json")
+                       f"conformal_dq_{a.city}_{a.target}_{a.test_year}.json")
     json.dump(r, open(out, "w"), indent=1)
-    print(a.city, a.target, a.test_year, "raw %.3f conf %.3f qhat %.2f ks %.3f" % (
-        r["coverage_raw"]["mean"], r["coverage_conformal"]["mean"], r["qhat"], r["ks_scores_cal_vs_test"]))
+    print(a.city, a.target, a.test_year, "raw %.3f conf %.3f dq %.3f qhat %.2f qhat_dq %.2f ks %.3f" % (
+        r["coverage_raw"]["mean"], r["coverage_conformal"]["mean"], r["coverage_dequantised"]["mean"],
+        r["qhat"], r["qhat_dequantised"], r["ks_scores_cal_vs_test"]))

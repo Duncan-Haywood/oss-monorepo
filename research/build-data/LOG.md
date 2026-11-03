@@ -1,5 +1,10 @@
 # build-data log
 
+## Session 19, 2026-11-03: milestone 18, dequantised CQR (session 8's "two-part conformal" fix), planned before the run
+
+Hypothesis (H2b, written before any run): session 8 found that on a2i the CQR scores tie at 0 (same-day permits, y = 0, lower end clipped at 0), so qhat cannot go negative and conformal cannot narrow an over-covering interval (Chicago 0.860, SF 0.891 on 2024). Adding independent uniform jitter U[0,1) to the integer-day target y when computing calibration scores (dequantisation, breaking ties the way randomised conformal p-values do) lets qhat go negative. Prediction: dequantised CQR brings 2024 coverage within 77 to 83% in at least 4 of 5 city/target pairs (session 8 plain CQR: 2 of 5). Refuted if fewer than 4. Prior 40%: narrowing may be capped by the clipped lower end.
+Plan: `conformal.cqr_scores_dequantised` (stdlib, seeded jitter), same split, models and seeds as session 8, coverage always evaluated on the true integer y. Report coverage and width against plain CQR.
+
 ## Session 18, 2026-11-03: paper section 4.1 brought up to milestones 14 to 17 (no new compute)
 
 The three data hosts returned HTTP 403 at the proxy CONNECT step again, so no pull was possible and no number in `results/` changed. Done: `paper/paper.md` section 4.1 now carries the XGBoost, CatBoost and linear table for all five pairs (copied from sessions 14 to 17), the three-library agreement finding, and corrected limitations and to-do list (the draft still said LightGBM only). Next: neural net baseline, per-library tuning, two-part conformal, once a network reaches the feeds.

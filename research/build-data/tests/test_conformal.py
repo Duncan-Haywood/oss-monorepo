@@ -47,5 +47,24 @@ class T(unittest.TestCase):
         self.assertEqual(set(r["coverage_by_month"]), {"a", "b"})
 
 
+
+
+class TestDequantised(unittest.TestCase):
+    def test_ties_broken_and_qhat_can_narrow(self):
+        # 100 same-day permits with a loose interval [0, 10]: plain scores tie at -0... qhat <= 0
+        lo, hi, y = [0.0] * 100, [10.0] * 100, [0] * 100
+        plain = c.conformal_quantile(c.cqr_scores(lo, hi, y), 0.2)
+        dq_scores = c.cqr_scores_dequantised(lo, hi, y, seed=1)
+        self.assertEqual(len(set(c.cqr_scores(lo, hi, y))), 1)  # all tied
+        self.assertGreater(len(set(dq_scores)), 90)                      # jitter separates them
+        self.assertLess(c.conformal_quantile(dq_scores, 0.2), 0)
+        self.assertLessEqual(plain, 0)
+
+    def test_deterministic_by_seed(self):
+        a = c.cqr_scores_dequantised([0], [5], [3], seed=7)
+        b = c.cqr_scores_dequantised([0], [5], [3], seed=7)
+        self.assertEqual(a, b)
+
+
 if __name__ == "__main__":
     unittest.main()
