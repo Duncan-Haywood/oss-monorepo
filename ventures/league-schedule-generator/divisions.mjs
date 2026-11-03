@@ -1152,7 +1152,7 @@ export function rainoutOptions(f) {
   return { balance: on(f.balance), flip: on(f.flip), relocate: on(f.relocate), swapNights: on(f.swapNights) };
 }
 
-// node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, --grid for the season grid CSV, --history for next season's venueHistory, or --suggest-weight to pick fairnessWeight). spec.json holds the form fields.
+// node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, --results results.txt --weekly for the group-chat update, --grid for the season grid CSV, --history for next season's venueHistory, or --suggest-weight to pick fairnessWeight). spec.json holds the form fields.
 if (typeof process !== "undefined" && process.argv && import.meta.url === `file://${process.argv[1]}`) {
   const { readFileSync } = await import("node:fs");
   const file = process.argv[2];
@@ -1195,6 +1195,10 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
   if (ri > 0) {
     const rf = process.argv[ri + 1];
     if (!rf) { console.error("usage: node divisions.mjs spec.json --results results.txt [--csv]"); process.exit(2); }
+    if (process.argv.includes("--weekly")) {
+      process.stdout.write(divisionsWeeklyUpdate(s, readFileSync(rf, "utf8"), { points: raw.points || "3-1-0", headToHead: !!raw.headToHead }) + "\n");
+      process.exit(0);
+    }
     const r = divisionsStandings(s, readFileSync(rf, "utf8"), { points: raw.points || "3-1-0", headToHead: !!raw.headToHead });
     const pi = process.argv.indexOf("--playoffs");
     if (pi > 0) {
