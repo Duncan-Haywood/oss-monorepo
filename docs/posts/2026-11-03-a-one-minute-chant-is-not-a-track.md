@@ -1,6 +1,6 @@
 ---
 title: "A one-minute chant is not a track: Chant Forge gets --repeat"
-seo_title: "Chant Forge --repeat: turn a short Gregorian chant into a full-length MIDI track"
+seo_title: "Chant Forge --repeat: a short Gregorian chant as a full MIDI track"
 date: 2026-11-03
 tags: [music, gregorian-chant, midi, open-source]
 description: "Most Graduale pieces last about a minute. Chant Forge's new --repeat flag loops the chant, and the drums, bass and cue sheet follow."
