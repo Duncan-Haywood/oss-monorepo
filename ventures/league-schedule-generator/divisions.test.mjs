@@ -810,3 +810,17 @@ test("restGaps and divisionsText on the example league", () => {
   assert.ok(r.teams.length >= 20 && r.minGap >= 1 && r.maxGap >= r.minGap);
   assert.match(divisionsText(s), /^Rest: \d+ back-to-back/m);
 });
+
+test("CLI --results --weekly prints the group-chat update", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const { mkdtempSync, writeFileSync, readFileSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const dir = mkdtempSync(join(tmpdir(), "wk-"));
+  const res = join(dir, "r.txt");
+  writeFileSync(res, "U10: Hawks 2 - 1 Owls\n");
+  const spec = join(import.meta.dirname, "example-divisions.json");
+  const out = execFileSync("node", [join(import.meta.dirname, "divisions.mjs"), spec, "--results", res, "--weekly"], { encoding: "utf8" });
+  assert.match(out, /== U10 ==/);
+  assert.match(out, /== Adult ==\nNext up: Round 1/);
+});
