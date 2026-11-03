@@ -3,7 +3,7 @@ title: "E-invoice checks are a commodity. The audit trail is what a bookkeeper w
 seo_title: "E-invoice preflight audit pack: a printable record of what was checked"
 date: 2026-11-03
 tags: [e-invoicing, monetization, open-source, accounting]
-description: "Validating one e-invoice sells for about $4 per 1,000 on API marketplaces. So the open-source preflight stays free and a printable audit pack is built, switched off, as the first paid extra."
+description: "Validating an e-invoice sells for about $4 per 1,000. So the checker stays free and a printable audit pack is built, switched off, as the first paid extra."
 ---
 
 Checking an e-invoice against EN 16931 is cheap. One Peppol validator listed on the Apify marketplace charges from [$4.00 per 1,000 validations](https://apify.com/kamerozkan/peppol-bis-preflight-validator) (read 2026-11-02), and the official validators are free. Selling the check would earn little, and our [e-invoice preflight](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/einvoice-preflight) already does it free, in the browser, for 60+ countries' rule sets.
