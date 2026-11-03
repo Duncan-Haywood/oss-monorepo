@@ -16,8 +16,10 @@
   "cost_usd": null,
   "tool_calls": null,
   "task": null,
-  "projects": [],
-  "pr": null,
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12788",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +27,25 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 2,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Picked flagship 11 rather than flagship 1 because it was a small slice finishable in one run",
+      "did": "added a test",
+      "result": "landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-03-chant-forge-nabc-and-split-neumes-checked.md",
+    "ventures/chant-forge/ROADMAP.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Small slice: test locking in NABC/split-neume handling on made-up strings. No agent doc written; the roadmap entry carries it. Chant-forge suite 40/40 locally.",
   "corrections": [],
   "redteam": null
 }
