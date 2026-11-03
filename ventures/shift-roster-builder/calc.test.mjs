@@ -1738,3 +1738,13 @@ test("coverChain: a direct taker is a one-move chain and ranks before any longer
   const c = coverChain(staff, slots, { owner: [0], options: {} }, 0);
   assert.deepEqual(c.chains.map((x) => [x.moves, x.steps[0].to]), [[1, "Cy"], [1, "Ben"]]);
 });
+
+test("parseStaff refuses hours beyond a week and absurd wages (1e9 max hours used to hang the search for about a minute)", () => {
+  const h = "name, wage, max hours, min hours, availability\n";
+  for (const [line, word] of [["Ana, 15, 1e9, 0, Mon 9-17", "168"], ["Ana, 15, 40, 500, Mon 9-17", "168"], ["Ana, 1e9, 40, 0, Mon 9-17", "typo"]]) {
+    const r = parseStaff(h + line);
+    assert.equal(r.staff.length, 0);
+    assert.match(r.errors.join(" "), new RegExp(word));
+  }
+  assert.equal(parseStaff(h + "Ana, 15, 168, 0, any").staff.length, 1);
+});

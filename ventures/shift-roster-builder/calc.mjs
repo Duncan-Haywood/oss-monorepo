@@ -245,6 +245,8 @@ export function parseStaff(text, { weekStart = null } = {}) {
     const minH = (c[3] || "") === "" ? 0 : Number(c[3]);
     if (!Number.isFinite(maxH) || maxH < 0) { errors.push(`${where} (${c[0]}): max hours is not a number`); return; }
     if (!Number.isFinite(minH) || minH < 0) { errors.push(`${where} (${c[0]}): min hours is not a number`); return; }
+    if (maxH > 168 || minH > 168) { errors.push(`${where} (${c[0]}): a week has only 168 hours, so ${maxH > 168 ? "max" : "min"} hours of ${maxH > 168 ? c[2] : c[3]} cannot be right`); return; }
+    if (wage > 10000) { errors.push(`${where} (${c[0]}): an hourly wage over $10,000 is probably a typo`); return; }
     if (staff.some((s) => s.name.toLowerCase() === c[0].toLowerCase())) { errors.push(`${where}: "${c[0]}" is listed twice`); return; }
     const tail = c.slice(4);
     const roles = tail.filter((x) => ROLE_CELL.test(x)).flatMap(parseRoles);
