@@ -8,8 +8,9 @@ import { cueSheet } from './cues.mjs';
 import { suggestFinal } from './voicefit.mjs';
 import { arrange, barsFor, bpmRange, GENRE_NAMES } from './genre.mjs';
 
-const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--json]
+const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--json]
   --genre   add drums, bass and chords in the chant's mode: ${GENRE_NAMES.join(', ')}
+  --fills   with --genre: a snare roll on the last beat of every fourth bar (not the final bar)
   --bpm     tempo; one chant note is an eighth note (default 124, deep house)
   --fit     pad each full bar so the next phrase starts on a downbeat (8 = one 4/4 bar)
   --stretch with --fit: lengthen the phrase's long notes to fill the bar instead of padding silence
@@ -23,7 +24,7 @@ const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULS
   --json    print the summary as JSON`;
 
 export function run(argv) {
-  const args = { bpm: 124, fit: null, stretch: false, halftime: false, repeat: 1, final: null, drone: false, genre: null, json: false, suggest: false, auto: false, cues: null, out: null, file: null };
+  const args = { bpm: 124, fit: null, stretch: false, halftime: false, repeat: 1, final: null, drone: false, genre: null, fills: false, json: false, suggest: false, auto: false, cues: null, out: null, file: null };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '-o') args.out = argv[++i];
@@ -35,6 +36,7 @@ export function run(argv) {
     else if (a === '--final') args.final = Number(argv[++i]);
     else if (a === '--drone') args.drone = true;
     else if (a === '--genre') args.genre = argv[++i];
+    else if (a === '--fills') args.fills = true;
     else if (a === '--cues') args.cues = argv[++i];
     else if (a === '--suggest-final') args.suggest = true;
     else if (a === '--auto-final') args.auto = true;
@@ -65,6 +67,7 @@ export function run(argv) {
     args.final = r.recommended.final;
   }
   if (args.final !== null) events = transposeToFinal(events, args.final);
+  if (args.fills && !args.genre) return { code: 2, text: '--fills needs --genre' };
   if (args.stretch && !args.fit) return { code: 2, text: '--stretch needs --fit' };
   if (args.fit) events = args.stretch ? fitStretch(events, args.fit) : fitToBars(events, args.fit);
   if (args.halftime) events = halfTime(events);
@@ -83,7 +86,7 @@ export function run(argv) {
       const mode = Number(parsed.header.mode);
       if (!mode) return { code: 2, text: '--genre needs a mode header in the GABC file (mode: 1;)' };
       try {
-        backing = arrange({ genre: args.genre, mode, final: fin.midi, bars: barsFor(events) });
+        backing = arrange({ genre: args.genre, mode, final: fin.midi, bars: barsFor(events), fills: args.fills });
       } catch (err) {
         return { code: 2, text: err.message };
       }
