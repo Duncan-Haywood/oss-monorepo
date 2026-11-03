@@ -3,7 +3,7 @@ title: "Baseboard and casing: count the cut pieces, not the lineal feet"
 seo_title: "How much baseboard and door casing for a house: a free calculator"
 date: 2026-11-03
 tags: [construction, trim, calculators, open-source]
-description: "A free baseboard and casing calculator cuts every run and casing leg for a 40 x 30 ft house and packs them into boards: 17 baseboard and 25 casing."
+description: "A free baseboard and casing calculator cuts every run and leg for a 40 x 30 ft house and packs them into boards: 17 baseboard and 25 casing."
 ---
 
 Trim is bought by the board and cut by the piece, so dividing lineal feet by the board length undercounts. A 7 ft casing leg wastes most of an 8 ft board, and a long baseboard run needs a splice.

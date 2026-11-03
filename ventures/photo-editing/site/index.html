@@ -39,6 +39,19 @@
     <h2>What does not exist yet</h2>
     <p>The renderers are dry-run placeholders: ShootFlow does not yet render video or grade images, and there is no app. The direction is a Mac app for human review or editor handoff. Treat this as a design and a tested core, not a finished product.</p>
   </section>
+  <section id="faq">
+    <h2>Questions</h2>
+    <h3>Does ShootFlow delete or change the photos on my memory card?</h3>
+    <p>No. Ingest copies with checksums and writes a manifest, and the source media is never deleted. Keep your own backups regardless: this is early-stage software.</p>
+    <h3>How do I cull a folder of photos offline?</h3>
+    <p>Run <code>shootflow cull FOLDER --out REPORT</code>. It scores each still for sharpness and exposure, groups near-identical burst frames, keeps the best of each group and flags blurred or badly exposed frames as rejects. Your photos are only read, and nothing is uploaded.</p>
+    <h3>Can it write Lightroom or Bridge ratings?</h3>
+    <p>Yes, with <code>--write-xmp</code> it writes sidecar files: keeper 4 stars, alternate 2, reject -1.</p>
+    <h3>Does it render video or grade images yet?</h3>
+    <p>No. The renderers are dry-run placeholders and there is no app yet. Treat it as a design and a tested core.</p>
+    <h3>Has the culling been tested on real shoots?</h3>
+    <p>Not yet on a real wedding or event shoot. Pass <code>--picks FILE</code> with the frames you would keep and the report shows how often its keeper matched yours, so you can check it against your own taste first.</p>
+  </section>
   <section>
     <h2>Run it yourself</h2>
     <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo
