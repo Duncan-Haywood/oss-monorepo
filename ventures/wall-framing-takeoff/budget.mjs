@@ -16,7 +16,7 @@
 // Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
 // (`sheathing.summary.cost`) unless `wallSheet` is typed.
 
-/** @typedef {{ section: string, item: string, qty: number, unit: string, unitPrice: number | null, amount: number | null, source: string }} BudgetLine */
+/** @typedef {{ section: string, item: string, qty: number, unit: string, unitPrice: number | null, amount: number | null, source: string, priceKey: string | null }} BudgetLine */
 
 const r2 = (/** @type {number} */ n) => Math.round(n * 100) / 100;
 
@@ -32,10 +32,13 @@ export function budget(result, prices = {}, allowances = {}) {
   // A typed price or allowance must be a finite number from 0 to MAX_TYPED; anything else (text, negative, NaN, Infinity, 1e300) is refused and listed in refusedValues, never priced.
   const MAX_TYPED = 1e9;
   const okNum = (/** @type {any} */ v) => typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= MAX_TYPED;
-  const P = (/** @type {string} */ k) => { read.add(k); return okNum(prices[k]) ? prices[k] : null; };
+  /** @type {string | null} */
+  let lastKey = null; // the price name read for the line about to be added; `priceKey` on the line, so a page can ask for exactly that price
+  const P = (/** @type {string} */ k) => { read.add(k); lastKey = k; return okNum(prices[k]) ? prices[k] : null; };
   const add = (/** @type {string} */ section, /** @type {string} */ item, /** @type {number} */ qty, /** @type {string} */ unit, /** @type {number | null} */ unitPrice, /** @type {string} */ source) => {
+    const priceKey = lastKey; lastKey = null;
     if (!(qty > 0)) return;
-    lines.push({ section, item, qty: r2(qty), unit, unitPrice, amount: unitPrice == null ? null : r2(qty * unitPrice), source });
+    lines.push({ section, item, qty: r2(qty), unit, unitPrice, amount: unitPrice == null ? null : r2(qty * unitPrice), source, priceKey });
   };
 
   for (const o of result.orders || []) {
@@ -276,4 +279,25 @@ export function budgetCsv(b) {
   rows.push(["", "Materials", "", "", "", b.materials, ""], ["", "Tax", "", "", b.taxRate, b.tax, ""], ["", "Contingency", "", "", b.contingencyRate, b.contingency, ""], ["", "Labor", "", "", "", b.labor, ""], ...(b.allowances ? [["", "Allowances", "", "", "", b.allowances, ""]] : []), ["", "Total", "", "", "", b.total, ""]);
   if (b.overheadRate || b.profitRate) rows.push(["", "Overhead", "", "", b.overheadRate, b.overhead, ""], ["", "Profit", "", "", b.profitRate, b.profit, ""], ["", "Bid price", "", "", "", b.bid, ""]);
   return rows.map((r) => r.map(q).join(",")).join("\n") + "\n";
+}
+
+/**
+ * The prices a person still has to type, one row per price name, from the lines that have no price.
+ * Rows come in budget order; a name that prices several lines is one row with their quantities added.
+ * Lines with no `priceKey` (priced by the plan's own stock prices) never appear. Nothing here is a
+ * price: `price` is only what was typed, or null.
+ * @param {ReturnType<typeof budget>} b
+ * @param {Record<string, number>} [typed]
+ * @returns {{ key: string, items: string[], section: string, unit: string, qty: number, price: number | null }[]}
+ */
+export function priceSheet(b, typed = {}) {
+  /** @type {Map<string, { key: string, items: string[], section: string, unit: string, qty: number, price: number | null }>} */
+  const rows = new Map();
+  for (const l of b.lines) {
+    if (!l.priceKey || (l.unitPrice != null && !(l.priceKey in typed))) continue;
+    const r = rows.get(l.priceKey) || { key: l.priceKey, items: [], section: l.section, unit: l.unit, qty: 0, price: Number.isFinite(typed[l.priceKey]) ? typed[l.priceKey] : null };
+    r.items.push(l.item); r.qty = Math.round((r.qty + l.qty) * 100) / 100;
+    rows.set(l.priceKey, r);
+  }
+  return [...rows.values()];
 }
