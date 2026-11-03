@@ -6,6 +6,9 @@ import { samplePlan, validatePlan } from "./engine.mjs";
 import { sampleDeck, validateDeck } from "./deck.mjs";
 import { sampleDrywall, validateDrywall } from "./drywall.mjs";
 import { sampleFloor, validateFloor } from "./floor.mjs";
+import { sampleFoundation, validateFoundation } from "./foundation.mjs";
+import { sampleRoof, validateRoof } from "./roof.mjs";
+import { sampleStair, validateStair } from "./stairs.mjs";
 
 const clone = (x) => JSON.parse(JSON.stringify(x));
 const leaves = (o, p = []) => (o && typeof o === "object" ? Object.keys(o).flatMap((k) => leaves(o[k], [...p, k])) : typeof o === "number" ? [p] : []);
@@ -16,6 +19,9 @@ for (const [name, sample, check] of [
   ["deck", sampleDeck, (x) => validateDeck(x)],
   ["drywall", sampleDrywall, (x) => validateDrywall(x)],
   ["floor", sampleFloor, (x) => validateFloor(x, samplePlan())],
+  ["foundation", sampleFoundation, (x) => validateFoundation(x)],
+  ["roof", sampleRoof, (x) => validateRoof(x, samplePlan())],
+  ["stair", sampleStair, (x) => validateStair(x)],
 ]) {
   test(`${name}: the sample is valid`, () => assert.ok(!bad(check(clone(sample())))));
   test(`${name}: any numeric field given as text is refused`, () => {
