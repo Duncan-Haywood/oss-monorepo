@@ -97,8 +97,14 @@ moves the staff. NABC alternations are still cut at the first `|`.
 - `examples/dies-irae-incipit.gabc` is the widely quoted opening motif
   (F E F D E C D D), typed from memory. It has not been transcribed from a scan.
   It is a demo input, not a corpus entry.
-- The converter has run on the five corpus files and made-up inputs, not on a
-  batch of real Gregorio files.
+- The converter has run on 64 real GregoBase files (the five corpus pieces and
+  `corpus/gregobase-1908/`, 59 Vatican Graduale 1908 pieces, 2026-11-03;
+  `node eval/batch-check.mjs`, `batch.test.mjs`). Checked: no crash, no warning,
+  pitches 36-84, no markup left in lyrics, valid MIDI, communions, tracts, hymns
+  and sequences end on their mode final. Not checked: the notes against the page
+  scans, or by ear. 11 of the 59 end off the mode final (introits, graduals,
+  alleluias and offertories finish on a psalm-tone differentia or a verse); that
+  is read from the files, not confirmed against the book.
 - `fuzz.test.mjs` throws 2000 random made-up GABC strings at the reader and
   MIDI writer (no crash, pitches in range); it says nothing about real files.
 - Nothing has been arranged, sung, mixed or published.
