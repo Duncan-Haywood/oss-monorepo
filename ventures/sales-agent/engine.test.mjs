@@ -265,3 +265,17 @@ test("referrals: who owns the decision, 'I left', and 'wrong person' in six lang
   // An interested reply is not turned into a referral by the word "owns".
   assert.equal(triage({ body: "Sounds good. Can we set up a call Tuesday? I own this budget." }, T).category, "interested");
 });
+
+test("quoted Outlook/forwarded headers under a reply are not read as second replies (2026-11-03)", () => {
+  const outlook = `From: Dana <dana@x.example>\nSubject: RE: Routing\n\nSounds interesting, can you do Thursday at 3?\n\nFrom: Sam Ortiz <sam@ex.example>\nSent: Monday, November 2, 2026 9:14 AM\nTo: Dana <dana@x.example>\nSubject: Routing\n\nIf you'd rather not hear from me, reply stop and I will unsubscribe you.`;
+  const orig = `From: Dana <dana@x.example>\nSubject: RE: Routing\n\nThanks, send pricing.\n\n-----Original Message-----\nFrom: Sam\nPlease let me know and I'll remove you from my list.`;
+  const under = `From: Dana <dana@x.example>\n\nLet's talk.\n\n________________________________\nFrom: Sam Ortiz\nNo worries if not interested.`;
+  for (const t of [outlook, orig, under]) {
+    const r = parseReplies(t);
+    assert.equal(r.length, 1);
+    assert.equal(r[0].from, "dana@x.example");
+    assert.equal(triage(r[0], "2026-11-03").category, "interested");
+  }
+  // genuinely separate messages still split
+  assert.equal(parseReplies("From: a@x.example\n\nstop\n\nFrom: b@y.example\n\nyes please").length, 2);
+});
