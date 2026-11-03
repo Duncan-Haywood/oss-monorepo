@@ -26,7 +26,7 @@ function meta(type, data) {
 }
 
 function chunk(id, data) {
-  return [...Buffer.from(id, 'ascii'), ...u32(data.length), ...data];
+  return [...new TextEncoder().encode(id), ...u32(data.length), ...data];
 }
 
 // list of [tick, bytes] -> track bytes, sorted (stable) by tick
@@ -52,7 +52,7 @@ export function eventsToMidi(events, { bpm = 124, pulsesPerBeat = 2, title = 'ch
   for (const e of events) {
     const len = Math.round(e.pulses * ticksPerPulse);
     if (e.type === 'note') {
-      if (e.syllable) choir.push([t, meta(0x05, [...Buffer.from(e.syllable, 'utf8')])]);
+      if (e.syllable) choir.push([t, meta(0x05, [...new TextEncoder().encode(e.syllable)])]);
       choir.push([t, [0x90, e.midi, velocity]]);
       choir.push([t + len, [0x80, e.midi, 0]]);
       lastMidi = e.midi;
@@ -62,7 +62,7 @@ export function eventsToMidi(events, { bpm = 124, pulsesPerBeat = 2, title = 'ch
   const end = t;
 
   const conductor = [
-    [0, meta(0x03, [...Buffer.from(title, 'utf8')])],
+    [0, meta(0x03, [...new TextEncoder().encode(title)])],
     [0, meta(0x51, [(usPerBeat >> 16) & 0xff, (usPerBeat >> 8) & 0xff, usPerBeat & 0xff])],
     [0, meta(0x58, [4, 2, 24, 8])],
   ];
