@@ -1,5 +1,24 @@
 # build-data log
 
+## Session 17, 2026-11-03: milestone 17, CatBoost quantile models on all five city/target pairs (test year 2024), session 16's "Next"
+
+Why: three tree libraries (LightGBM, XGBoost, now CatBoost) should agree if the gain over the reference class is a property of the data and not of one library's defaults. CatBoost differs most: ordered boosting and native categorical encoding (`src/catboost_run.py`, depth 6, learning rate 0.15, up to 300 rounds, early stopping 30 on the calibration year, 3 seeds, same split and week-block bootstrap).
+Prediction (written in the session plan before the runs, prior about 65%): CatBoost lands within 3 points of XGBoost at every tau in every pair.
+Data: all three feeds re-pulled today (Chicago 851,902; SF 1,297,749; Austin 2,383,209 rows). Relative change of mean pinball loss against the reference class (negative is better; interval = week-block bootstrap):
+| pair | CatBoost q0.1 | q0.5 | q0.9 | XGBoost q0.1 / 0.5 / 0.9 |
+|---|---|---|---|---|
+| Chicago a2i | +0.4% [+0.3, +0.4] | -7.8% [-8.3, -7.3] | +2.4% [+0.8, +4.0] | +0.3 / -10.5 / +4.9 |
+| SF a2i | -0.4% [-2.0, +1.3] | -4.5% [-6.8, -2.3] | -17.0% [-19.4, -14.8] | -0.7 / -3.8 / -17.7 |
+| Austin a2i | -4.9% [-5.3, -4.4] | -22.9% [-25.0, -20.9] | -31.5% [-34.9, -28.2] | -6.9 / -25.7 / -35.9 |
+| SF i2c | -6.2% [-7.6, -4.9] | -12.8% [-14.4, -11.2] | -1.7% [-4.6, +0.9] | -6.3 / -12.5 / -3.2 |
+| Austin i2c | -6.5% [-7.7, -5.3] | -18.0% [-19.5, -16.8] | -19.7% [-22.3, -17.2] | -6.9 / -18.1 / -20.1 |
+- **The prediction is refuted in one cell of 15.** CatBoost is within 3 points of XGBoost everywhere except Austin a2i q0.9, where it is 4.4 points weaker; the next widest gaps are Austin a2i q0.5 (2.8), Chicago a2i q0.5 (2.7, weaker) and q0.9 (2.5, better).
+- The ordering across pairs is the same in all three libraries: Austin gains the most, SF a2i gains only at q0.9, SF i2c gains at q0.1 and q0.5 but not q0.9, and Chicago a2i is worse than the reference class at q0.9 (+2.4%, interval above zero) for CatBoost and XGBoost alike. The conclusion that boosting helps most where permit-type means hide variance does not depend on the library.
+- CatBoost is not the best tree model in any pair at q0.5; on Austin a2i it is 2.8 points behind XGBoost. Depth 6 and 300 rounds are shared defaults, not tuned per library, so this is a comparison of defaults.
+- Fix found on the way: Austin i2c failed once on a test-year category absent from training (NaN); `prep()` now maps it to its own level. Only Austin i2c hit it and its result comes from the fixed code; the other four ran before the fix and did not fail, so their test sets held no unseen level.
+- Limits: one test year; defaults untuned; LightGBM column omitted from the table (it is in `m3_table.md`); no two-part conformal yet. `manifest.json` not touched (counts match session 16 for SF and Austin; Chicago differs by 124 rows from the 2026-10-31 pull).
+Next: two-part conformal; Chicago H6 with a fuller linear fit; per-library tuning to see whether the Austin a2i gap closes.
+
 ## Session 16, 2026-11-03: milestone 16, XGBoost and linear quantile baselines on SF and Austin i2c (test year 2024), session 15's "Next"
 
 Why: sessions 14 and 15 compared XGBoost and a linear model with LightGBM on a2i only. Does the pattern hold for the second target, issue to completion (i2c)? Chicago has no completion date, so i2c is SF and Austin only.

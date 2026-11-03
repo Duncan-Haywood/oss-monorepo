@@ -19,7 +19,7 @@ CATS = boosted.CATS
 def prep(X):
     x = X.copy()
     for c in CATS:
-        x[c] = x[c].astype(str)
+        x[c] = x[c].astype(object).where(x[c].notna(), "__unseen__").astype(str)  # level absent from training
     return x
 
 
