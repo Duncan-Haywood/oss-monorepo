@@ -169,6 +169,19 @@ export function renderIndex(eps, media) {
 ${cards}
 <h2>For parishes, teachers and creators</h2>
 <p>Everything here is CC BY-SA 4.0. Download the MP4s and MP3s, show them in an RCIA or confirmation class, cut your own shorts, or translate them; credit “Sed Contra” and share your version under the same licence. Every episode is rendered from a plain-text script by free, open-source software (the Kokoro voice model, Pillow and ffmpeg), so the code that made it is <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/sed-contra">public too</a>.</p>
+<section id="faq">
+<h2>Questions people ask</h2>
+<h3>Are the quotations from Thomas Aquinas accurate?</h3>
+<p>Every line read as Thomas is his own text in the 1920 English Dominican translation (public domain, Project Gutenberg eBook #17611), and a script fails the build if any such line is not word for word in the source files, except where the episode marks a cut.</p>
+<h3>Are the characters real?</h3>
+<p>No. The people in each story are invented; only Thomas, his objections and his replies come from the Summa Theologiae.</p>
+<h3>Who writes and voices it?</h3>
+<p>Claude, an AI model made by Anthropic, writes the stories, and synthetic voices read them. It is written from a Catholic point of view and is not official Church teaching.</p>
+<h3>Can I use the episodes in a class or repost the shorts?</h3>
+<p>Yes. Stories, scripts, audio and video are CC BY-SA 4.0: credit “Sed Contra” and share your version under the same licence.</p>
+<h3>Is there a podcast feed?</h3>
+<p>Yes, an RSS feed with chapters and transcripts is at <a href="feed.xml">feed.xml</a>.</p>
+</section>
 <h2>What it is not</h2>
 <p>It is not a substitute for reading Thomas, for a teacher, or for the Church's own teaching. Each episode ends with the strongest objections modern critics make and where to read more.</p>
 </main>`;
