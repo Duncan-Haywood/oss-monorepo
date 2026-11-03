@@ -1,3 +1,8 @@
+---
+kind: brief
+date: 2026-10-20
+tagged: auto
+---
 # How this repository is organised, how it got that way, and what to do about it: brief for an agent reader
 
 **Date:** 2026-10-20. **Reader:** an LLM agent about to add, move or retire a

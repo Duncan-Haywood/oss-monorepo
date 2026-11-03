@@ -12,10 +12,30 @@
 // Limits keep the free plan's D1 quota safe from a flood: a message over
 // MAX_RAW bytes is refused at the SMTP stage, and past the daily cap the
 // rest of the day's mail is refused too (the sender's server reports it).
+//
+// Retention (GDPR art. 5(1)(e), storage limitation): a message is kept
+// RETENTION_DAYS (90 by default, `INBOX_RETENTION_DAYS` overrides) and then
+// deleted. The purge runs on every delivery and every read, so no schedule is
+// needed and nothing older than the limit is ever handed to an agent.
+// `DELETE /inbox?id=<n>` erases one message sooner, for a sender who asks
+// (art. 17). The privacy copy states the same 90 days
+// (`platform/pages/build.mjs`, `disclaimerHtml`).
 
 export const MAX_RAW = 256 * 1024;
 export const DEFAULT_DAILY_CAP = 200;
+export const RETENTION_DAYS = 90;
 const SUBJECT_MAX = 300;
+
+/** The oldest `received` timestamp still kept at `now`. */
+export function retentionCutoff(env, now = new Date()) {
+  const days = Number.parseInt(env?.INBOX_RETENTION_DAYS || '', 10) || RETENTION_DAYS;
+  return new Date(now.getTime() - days * 86400000).toISOString();
+}
+
+/** Delete every message older than the retention limit. */
+export async function purgeExpired(env, now = new Date()) {
+  await env.DB.prepare('DELETE FROM inbox WHERE received < ?1').bind(retentionCutoff(env, now)).run();
+}
 
 /** Read a stream into a string, giving up (null) once it passes `limit` bytes. */
 export async function readCapped(stream, limit = MAX_RAW) {
@@ -74,6 +94,7 @@ export async function receiveEmail(message, env, now = new Date()) {
   await env.DB.prepare(
     'INSERT INTO inbox (received, mail_from, rcpt_to, subject, message_id, raw) VALUES (?1, ?2, ?3, ?4, ?5, ?6)',
   ).bind(r.received, r.mail_from, r.rcpt_to, r.subject, r.message_id, r.raw).run();
+  await purgeExpired(env, now);
 }
 
 /** Constant-time string compare, so the token can't be guessed byte by byte. */
@@ -85,14 +106,32 @@ export function sameSecret(a, b) {
   return diff === 0;
 }
 
-/** `GET /inbox?after=<id>`: messages after an id, for a holder of INBOX_TOKEN. */
-export async function readInbox(request, env) {
+/** True when the request carries the INBOX_TOKEN bearer token (and it is set). */
+function authorized(request, env) {
   const auth = request.headers.get('authorization') || '';
   const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
-  // Closed unless the secret is set; a 404 says nothing about whether it exists.
-  if (!env.INBOX_TOKEN || !token || !sameSecret(token, env.INBOX_TOKEN)) {
-    return new Response('not found\n', { status: 404 });
-  }
+  return Boolean(env.INBOX_TOKEN && token && sameSecret(token, env.INBOX_TOKEN));
+}
+
+// Closed unless the secret is set; a 404 says nothing about whether it exists.
+const notFound = () => new Response('not found\n', { status: 404 });
+
+/** `DELETE /inbox?id=<n>`: erase one message now, for a holder of INBOX_TOKEN. */
+export async function deleteInboxMessage(request, env) {
+  if (!authorized(request, env)) return notFound();
+  const id = Number.parseInt(new URL(request.url).searchParams.get('id') || '', 10);
+  if (!(id > 0)) return new Response('id required\n', { status: 400 });
+  const { meta } = await env.DB.prepare('DELETE FROM inbox WHERE id = ?1').bind(id).run();
+  return new Response(JSON.stringify({ deleted: meta?.changes || 0 }), {
+    status: 200,
+    headers: { 'content-type': 'application/json', 'cache-control': 'no-store' },
+  });
+}
+
+/** `GET /inbox?after=<id>`: messages after an id, for a holder of INBOX_TOKEN. */
+export async function readInbox(request, env, now = new Date()) {
+  if (!authorized(request, env)) return notFound();
+  await purgeExpired(env, now);
   const url = new URL(request.url);
   const after = Math.max(0, Number.parseInt(url.searchParams.get('after') || '0', 10) || 0);
   const { results = [] } = await env.DB.prepare(

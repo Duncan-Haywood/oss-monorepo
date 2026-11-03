@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed designer, round 3, lane 10: integration captain
 
 Run of 2026-10-30, about 01:30 to 03:15 UTC. About fifteen agents merged into `ventures/shed-designer` while CI runners were starved. Almost every PR merged on local checks, so `main` broke whenever a check the venture's own `node --test` does not run went red. This lane's job was to keep `main` green and coherent and to add tests where features meet.

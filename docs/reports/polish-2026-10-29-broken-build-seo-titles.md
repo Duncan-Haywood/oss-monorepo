@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [hosting, seo]
+date: 2026-10-29
+tagged: auto
+---
 # Polish 2026-10-29: the site build was failing on post front matter
 
 **What happened.** Starting a polish run, `node platform/pages/build.mjs` on `main` stopped at

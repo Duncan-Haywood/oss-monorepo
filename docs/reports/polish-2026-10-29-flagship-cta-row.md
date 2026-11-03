@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [depth]
+date: 2026-10-29
+tagged: auto
+---
 # Polish 2026-10-29: first-screen buttons on three more flagship pages
 
 **Weak spot.** The 2026-10-29 scan found AI Bookkeeper's first screen at 390 px had no action. A Playwright

@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [parish-office]
+tagged: auto
+---
 # Parish and religious-organisation tools: direction notes for the next run
 
 Owner, 2026-11-03: "it'd be nice to build tools for catholic orgs. parishes.

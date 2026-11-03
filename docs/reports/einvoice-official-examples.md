@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [einvoice-preflight]
+tagged: auto
+---
 # einvoice-preflight on the official EN 16931 examples (2026-10-24)
 
 For the next run on this flagship.

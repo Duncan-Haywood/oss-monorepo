@@ -1,3 +1,4 @@
+import { parseIsdocInvoice } from "./isdoc.mjs";
 import { checkInvoice, flagDuplicateInvoiceNumbers } from "./checks.mjs";
 import { inspectCreditLinks } from "./creditlink.mjs";
 import { inspectXrechnungProfile, inspectPeppolProfile, inspectFrenchProfile } from "./profile.mjs";
@@ -79,7 +80,13 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       const peek = typeof source === "string" ? source : new TextDecoder().decode(source);
       if (!looksLikePdf(name, source) && looksLikeIsdoc(peek)) {
         // Czech ISDOC is its own schema; reading it as UBL gives a misleading "TaxAmount is missing".
-        readErrors.push({ file: name, error: ISDOC_MESSAGE });
+        // Best-effort read (unverified element names, see isdoc.mjs): format-neutral checks only.
+        try {
+          const czech = checkInvoice(parseIsdocInvoice(peek));
+          reports.push({ file: name, errors: czech, envelope: "Read as Czech ISDOC (best-effort, unverified; EN 16931 arithmetic and VAT checks only, no Czech rules)" });
+        } catch (e) {
+          readErrors.push({ file: name, error: ISDOC_MESSAGE + " (best-effort read failed: " + e.message + ")" });
+        }
         continue;
       }
       if (!looksLikePdf(name, source) && looksLikeFatturaPa(peek)) {

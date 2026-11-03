@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [sim2real-inference]
+tagged: auto
+---
 # sim2real-inference m7i: for the next run
 
 - Result: with a finite twin pool (union bound, alpha split 0.025/0.025) the twin-assisted betting interval beats real-only betting on 8/21 pendulum pairs at n = 960 with N = 4,000 twin runs (best ratio 0.80, median 1.05), on 0/21 with N = 500, and on 0/21 cart-pole pairs. 7h's exact-mean win (20/21) was mostly the exact-mean assumption. H7i-i (at least 10 pairs) refuted narrowly.

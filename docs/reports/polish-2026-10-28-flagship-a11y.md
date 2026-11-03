@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [depth]
+date: 2026-10-28
+tagged: auto
+---
 # Polish 2026-10-28: accessibility sweep of the flagships and Stories
 
 **Weak surface.** The polish track's visual list (venture header, nav hint, Stories colours) was

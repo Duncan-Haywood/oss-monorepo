@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed designer, round 4, lane 1: structure and anchorage
 
 Session: https://claude.ai/code/session_01XpHqyfWBmo8mgepzkdVK3S, 2026-10-30. Built from `shed-designer-round2-structure.md` ("Open") and `shed-designer-round3-lane3.md` ("Open").

@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-10-29
+tagged: auto
+---
 # Polish 2026-10-29: one-line breadcrumb on phones
 
 **Weak spot** (from `polish-2026-10-29-site-scan.md`): on venture pages at 390 px the breadcrumb wrapped to

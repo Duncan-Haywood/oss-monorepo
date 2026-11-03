@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-20
+tagged: auto
+---
 # How work gets allocated here, and what a better system would change
 
 **Date:** 2026-10-20. **Asked by:** the owner ("i think it makes sense to have

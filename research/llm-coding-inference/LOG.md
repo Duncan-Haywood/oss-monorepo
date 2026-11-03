@@ -2,6 +2,17 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-03 · Milestone 7n: do coder cells beat pooled when the category is rare? (a 20-draw smoke run of the script preceded this entry, to check it executes; the prediction below was written from 7l, before the 1,000-draw run)
+- Why: 7m's open item. `experiments/h7m_rare_cells.py` re-weights the NaijaSenti test set to 2%, 5% and 10% prevalence (6,000-item corpus, positives subsampled), nb-in-language coder, n = 1000, pilot share 0.3, 1,000 draws, cells vs pooled at lambda 0 and fitted.
+- **Prediction:** with few pilot positives the fitted pooled lambda is noisy, so cells/pooled at fitted lambda falls below 7l's 0.995 (under 0.95 at 2%), with coverage within 94 to 96%. Refuted if the ratio is 0.97 or more at every prevalence, or if coverage leaves that band.
+
+### Outcome (`experiments/h7m_rare_cells.txt`)
+- **Half-width half supported, coverage half refuted.** Cells/pooled ratio at fitted lambda: 0.889 (2%), 0.917 (5%), 0.936 (10%); at lambda 0 about 0.88 to 0.89 throughout (near the 7i ceiling). So the rarer the category, the more the fitted pooled lambda costs and the more cells gain.
+- **But cells undercover at 2%:** 91.1% (pooled 96.5%), with about 6 pilot positives per draw. At 5% cells 95.8% (pooled 96.3%), at 10% 94.2% (pooled 95.6%). The narrower interval at the rarest prevalence is partly bought by too few positives in a cell to estimate its variance.
+- Reading: cells' extra gain below 10% prevalence is real in width but unsafe below roughly 5% at this n; a guard on minimum pilot positives per cell (the `guard` argument, set to 0 here) is the natural remedy, untested.
+- Limits: one coder, one corpus, one n and pilot share; positives subsampled (the coder's error structure is unchanged by construction); coverage +/- 1.4 points at 1,000 draws.
+- Next: rerun 2% with `guard` > 0 and a larger pilot share; check the screened rule (`plan_audit` defaults) at 2%.
+
 ## 2026-11-03 · Milestone 7m: `ceiling` docstring reworded (no experiment)
 - 7l's "Next" first item. `cell_ceiling` and `plan_audit` now say the ceiling is the gain over a pooled audit at lambda = 0 and an upper bound, not a forecast, citing 7l's measured 0.995 against the fitted-lambda pooled path. Behaviour unchanged; 22 tests pass.
 - Still open: a rare-category corpus where the fitted lambda is noisy (cells might win there).

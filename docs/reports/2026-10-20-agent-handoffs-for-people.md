@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-20
+tagged: auto
+---
 # How AI agents read what other agents write, and what to change
 
 **Date:** 2026-10-20. **Asked by:** the owner: "how do llm agents like having
