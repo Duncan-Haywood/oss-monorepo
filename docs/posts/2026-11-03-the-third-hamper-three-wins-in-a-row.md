@@ -1,6 +1,6 @@
 ---
 title: "The Third Hamper: when the same family wins the raffle three years running"
-seo_title: "The Third Hamper: raffle odds for three wins in a row, and what they can't prove"
+seo_title: "The Third Hamper: raffle odds for three wins in a row"
 date: 2026-11-03
 tags: [fiction, hearth-and-horizon, statistics]
 description: "A new short story: 1 in 79,507 for one family, 1 in 570 for any family, 1 in 34 over twenty years. What the odds can and cannot show."
