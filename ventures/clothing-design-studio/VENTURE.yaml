@@ -1,0 +1,60 @@
+name: clothing-design-studio
+description: Free browser studio for independent clothing designers - design a tee, long-sleeve, sweatshirt or hoodie by voice, typing or dragging, compare three versions, cost each piece from the manufacturer's own prices (landed cost, margin after VAT and fees, break-even), and export a tech pack, quote request and launch kit. Optional own-key or local AI for freer speech.
+stage: prototype
+
+owner: duncan
+
+# Built from an owner request (R-0005, portfolio/requests/requests.json):
+# the owner interviewed a clothing designer about "AI agent assisted, software
+# assisted clothing design" where the software handles as much as it can of
+# manufacturing, marketing and distribution and the designer works by voice
+# and by hand. The interview named: voice plus point-and-click design, fabric
+# choice tied to what manufacturers offer, knowing fabric and per-shirt costs,
+# raised "3D" prints of classical and devotional paintings, unisex lines,
+# done-for-you marketing, EU and US markets, a multi-brand shop with a
+# 10-15% commission, and VR as a later interface.
+#
+# Who exactly? Independent designers launching a small graphic-led clothing
+#   line (tees, sweatshirts, hoodies) with their own manufacturer, not print
+#   on demand: runs of 50 to 1,000.
+# What do they type into a search box? "how much does it cost to make a
+#   t-shirt", "tech pack template t-shirt", "free clothing design software",
+#   "how to price my clothing brand", "puff print vs embroidery".
+# What does the problem cost them? Pricing from the factory's per-shirt
+#   number without VAT, fees, setup and freight: on the worked example a 45
+#   EUR shirt that looks like 53% margin keeps 38.9%, and break-even is 74 of
+#   the 90 expected to sell.
+# Why hasn't a big vendor solved it? 3D garment suites sell pattern and fit
+#   tools to professionals; print-on-demand tools price their own blanks; no
+#   free tool joins design, a supplier-sheet cost model and a tech pack.
+#
+# Duplicate check: apparel-decoration-price-calculator prices a decorator's
+# job (screens, stitches, blanks) for a print shop; this is the brand side
+# (fabric, cut and sew, the full landed cost, the selling side and the
+# design itself). Cross-link, not merge.
+hypotheses:
+  - claim: A designer who says or types a change sees it applied correctly at least 9 times in 10 with the built-in parser, measured on sentences from real designers added to commands.test.mjs.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The designer who asked for it uses the studio to send at least one quote request to a real manufacturer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - The requesting designer, after trying it with their own artwork and a real quote, says it does not help them get a garment made, and no other designer engages within 90 days of being reachable from the published site.
+
+links:
+  production: https://marisstella.app/clothing-design-studio/
+  analytics: null
