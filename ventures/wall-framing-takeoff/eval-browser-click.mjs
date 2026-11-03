@@ -468,6 +468,17 @@ const [sv6] = await Promise.all([page.waitForEvent("download"), page.click("#sav
 const saved6 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv6.path(), "utf8"));
 const slabOk = !/NaN|undefined/.test(inTxt) && /slab edge/i.test(inTxt) && saved6.insulation?.assembly?.slabEdgeF === 0.54 && saved6.insulation?.assembly?.windowU === 0.3;
 console.log(slabOk ? "ok: insulation slab edge F-factor, card and saved plan" : "FAIL: slab edge: " + (await page.textContent("#errors")).slice(0, 300) + inTxt.slice(0, 400));
+// ceiling under the attic on the insulation card (2026-11-03: page controls for ceilingR / ceilingFromAttic, engine-only before)
+await page.fill("#inAtticR", "38");
+await page.fill("#inDeltaF", "60");
+await page.fill("#inCeilR", "40");
+await page.click("#run");
+await page.waitForFunction(() => /Ceiling under the attic/.test(document.querySelector("#insulationOut")?.textContent || ""), null, { timeout: 30000 }).catch(() => {});
+const ceTxt = await page.textContent("#insulationOut");
+const [sv8] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved8 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv8.path(), "utf8"));
+const ceilOk = !/NaN|undefined/.test(ceTxt) && /Ceiling under the attic: .* at R-40\.0/.test(ceTxt) && saved8.insulation?.assembly?.ceilingR === 40;
+console.log(ceilOk ? "ok: insulation ceiling under the attic, card and saved plan" : "FAIL: ceiling: " + (await page.textContent("#errors")).slice(0, 300) + ceTxt.slice(0, 500));
 // allowances on the price box and the customer proposal card (2026-11-01)
 await page.fill("#priceText", "wallSheet, 20\nlaborWallFoot, 10\noverhead, 0.1\nprofit, 0.1\nallowance Permit, 1200");
 await page.fill("#propClient", "Test Client"); await page.fill("#propExcl", "Painting");
@@ -487,4 +498,4 @@ if (popup) { await popup.waitForLoadState("load").catch(() => {}); printTxt = aw
 console.log(printOk ? "ok: proposal printable page opens, has client, allowance, exclusion, no script" : "FAIL: printable page: " + (popup ? printTxt.slice(0, 400) : "no popup"));
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || !sdOk || !sd2Ok || !slabOk || !propOk || !printOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || !sdOk || !sd2Ok || !slabOk || !ceilOk || !propOk || !printOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
