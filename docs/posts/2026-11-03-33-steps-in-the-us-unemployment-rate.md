@@ -1,6 +1,6 @@
 ---
 title: "33 steps in the US unemployment rate: what a changepoint detector does with a recession"
-seo_title: "Changepoint detection on US unemployment: 33 false steps and how --ar1 fixes it"
+seo_title: "Changepoint detection on US unemployment: 33 false steps"
 date: 2026-11-03
 tags: [changepoint-detector, statistics, real-data]
 description: "We ran a changepoint detector on 50 years of US unemployment. The default found 33 steps; allowing for autocorrelation found none."
