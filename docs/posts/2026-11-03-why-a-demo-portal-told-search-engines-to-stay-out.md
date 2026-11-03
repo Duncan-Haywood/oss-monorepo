@@ -1,6 +1,8 @@
 ---
 title: Why a sales demo portal told search engines to stay out
 date: 2026-11-03
+tags: [seo, ci, open-source, testing]
+description: "A React sales-demo portal rendered a seven-word page to crawlers and turned a repository health check red. The fix was one noindex line, and the marketing pages stay indexable."
 ---
 
 The repository runs 37 checks that need no arguments. On 2026-11-03 one was red: the thin-page report found a seven-word `index.html`, the shell of the Retail Pilot Intel sales demo portal. It is a React app that draws everything in the browser, so a crawler that does not run scripts sees an empty page.
