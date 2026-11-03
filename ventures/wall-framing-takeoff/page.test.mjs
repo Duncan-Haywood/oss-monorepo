@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
-for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "insulation-calculator.html", "trim-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html", "ventilation-calculator.html"]) {
+for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "insulation-calculator.html", "trim-calculator.html", "roof-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html", "ventilation-calculator.html"]) {
   test(`${name} carries the disclaimer, privacy line and sponsor link`, () => {
     const html = page(name);
     assert.match(html, /No warranty/);
@@ -591,7 +591,7 @@ test("the deck lumber calculator page: FAQ matches its data, default inputs give
 });
 
 test("every page links to every other page (internal linking for readers and crawlers)", () => {
-  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "insulation-calculator", "trim-calculator", "deck-lumber-calculator", "schedule-calculator", "bid-leveling-calculator", "change-order-calculator", "ventilation-calculator"].map((n) => n + ".html");
+  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "insulation-calculator", "trim-calculator", "roof-calculator", "deck-lumber-calculator", "schedule-calculator", "bid-leveling-calculator", "change-order-calculator", "ventilation-calculator"].map((n) => n + ".html");
   for (const f of pages) {
     const html = page(f);
     for (const other of pages) if (other !== f) assert.ok(html.includes(`<a href="${other}">`), `${f} does not link ${other}`);
@@ -655,4 +655,26 @@ test("the ventilation calculator page: FAQ matches its data, default inputs give
   assert.equal(s.ridgePieces, 7);
   assert.equal(s.soffitUnits, 9);
   assert.equal(Math.round(layoutVentilation({ ratio: 300 }, roof).requiredSqIn), 461);
+});
+
+test("the roof calculator page: FAQ matches its data, the 24 x 40 ft 6:12 gable gives 62 rafters, 44 sheets, 41 bundles", async () => {
+  const html = page("roof-calculator.html");
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("([\w-]+)"\)/g)) assert.ok(ids.has(m[1]), m[1]);
+  const { layoutRoof } = await import("./roof.mjs");
+  const { samplePlan } = await import("./engine.mjs");
+  const l = layoutRoof({ id: "Roof", shape: "gable", width: 288, length: 480, pitch: 6, overhang: 12, gableOverhang: 12, rafter: "2x8", spacing: 16, ridge: "2x10", hip: "2x10", roofing: { waste: 1.1 } }, samplePlan());
+  assert.equal(l.rafters.length, 62);
+  assert.equal(l.rafterLength, 173.5625);
+  assert.equal(l.sheets.count, 44);
+  assert.equal(l.roofing.squares.toFixed(1), "12.2");
+  assert.equal(l.roofing.shingleBundles, 41);
+  assert.equal(l.roofing.ridgeBundles, 2);
+  const hip = layoutRoof({ id: "Roof", shape: "hip", width: 216, length: 360, pitch: 6, overhang: 12, gableOverhang: 12, rafter: "2x8", spacing: 16, ridge: "2x10", hip: "2x10", roofing: { waste: 1.1 } }, samplePlan());
+  assert.notEqual(hip.ok, false, "the hip default must lay out: " + (hip.errors || []).join("; "));
 });
