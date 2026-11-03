@@ -83,6 +83,13 @@ Ticked items are on `main`.
       emit the plan JSON (corners and tees detected from geometry).
 - [x] DXF floor plans landed 2026-10-27 (`dxf.mjs`, CLI and page; centre lines, tees, openings from lines; hand-built files only, no real plan yet). Still open: IFC
       `IfcWall` / `IfcOpeningElement`, both parsed in the browser.
+- [x] (2026-11-03, `ifc-engine/`, Rust CLI) IFC walls joined by
+      `IfcRelConnectsPathElements`, openings hosted by `IfcRelVoidsElement` /
+      `IfcRelFillsElement` and placed by their own body, material layers,
+      straight runs merged. Checked against IfcOpenShell on two real models
+      (Revit Duplex, ArchiCAD Schependomlaan; 0.0000 m on every extent).
+      Still open: the WASM build behind the page's IFC upload (ifc-engine
+      plan, milestone 2), clipping, and a real US wood-framed model.
 
 ### 3. The rest of the shell
 
