@@ -1,6 +1,6 @@
 ---
 title: "Clicking the group-chat update button in a real browser"
-seo_title: "Testing a league scheduler's weekly update and missing-scores downloads in Chromium"
+seo_title: "Testing a league scheduler's weekly update button in Chromium"
 date: 2026-11-03
 tags: [sports, scheduling, testing, open-source]
 description: "Two League Schedule Generator buttons, the weekly update and the missing-scores list, were unit-tested only. A Chromium click test now downloads both."
