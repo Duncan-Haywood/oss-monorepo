@@ -1,0 +1,19 @@
+group,religion,cohort,outcome,estimate,se,lo,hi,n
+NH white,Catholic,Born 1925-44,childs_f,3.0424,0.0728,2.8998,3.1851,971
+NH white,Catholic,Born 1945-64,childs_f,2.1326,0.0371,2.0599,2.2053,1895
+NH white,Catholic,Born 1965-80,childs_f,1.9162,0.0728,1.7735,2.0588,372
+NH white,Protestant,Born 1925-44,childs_f,2.8324,0.0392,2.7557,2.9092,2535
+NH white,Protestant,Born 1945-64,childs_f,2.0890,0.0291,2.0319,2.1460,4469
+NH white,Protestant,Born 1965-80,childs_f,2.2000,0.0660,2.0706,2.3294,868
+NH white,None,Born 1925-44,childs_f,2.2277,0.0855,2.0601,2.3953,383
+NH white,None,Born 1945-64,childs_f,1.5848,0.0417,1.5031,1.6664,1486
+NH white,None,Born 1965-80,childs_f,1.7823,0.0792,1.6270,1.9376,507
+Hispanic,Catholic,Born 1925-44,childs_f,4.0561,0.2539,3.5584,4.5538,162
+Hispanic,Catholic,Born 1945-64,childs_f,2.8541,0.0975,2.6631,3.0452,517
+Hispanic,Catholic,Born 1965-80,childs_f,2.6783,0.1614,2.3620,2.9947,217
+Hispanic,Protestant,Born 1925-44,childs_f,4.2953,0.4251,3.4621,5.1285,53
+Hispanic,Protestant,Born 1945-64,childs_f,2.6726,0.1504,2.3778,2.9675,212
+Hispanic,Protestant,Born 1965-80,childs_f,2.7788,0.2167,2.3541,3.2035,86
+Hispanic,None,Born 1925-44,childs_f,3.2474,0.6547,1.9642,4.5306,12
+Hispanic,None,Born 1945-64,childs_f,2.0234,0.1480,1.7334,2.3135,109
+Hispanic,None,Born 1965-80,childs_f,1.9085,0.2131,1.4908,2.3262,66
