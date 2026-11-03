@@ -556,6 +556,20 @@ def structure_kg(p: Feeder, mass_g: float) -> float:
     return mass_g / 1000
 
 
+def hose_end_line(p: Feeder) -> str:
+    """Hose check that honours the end directions (outlet straight down, socket along the tilted column)."""
+    r = p.hose_pose_ranges()
+    bad = [f"{e:+.0f} deg" for e, x in r if x is None]
+    if bad:
+        return (f"hose with end directions: NO curve at {', '.join(bad)} stays above {p.hose_min_bend:g} mm bend radius "
+                f"and {p.feed_min_slope_deg:g} deg fall (known gap: the chord check above ignores this)")
+    take = p.hose_take_up_mm()
+    fit = "; ".join(f"{e:+.0f} deg {x[0]:.0f}-{x[1]:.0f} mm" for e, x in r)
+    return (f"hose with end directions: fits {fit}; "
+            + ("one cut length fits every pose" if take <= 0 else
+               f"no one cut length fits every pose: needs {take:.0f} mm of take-up (known gap)"))
+
+
 def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_g: float = 0.0):
     ballast = p.ballast_kg(structure_kg(p, mass_g - hopper_g))
     width = 2 * (p.wheel_y + p.wheel_w / 2)
@@ -575,6 +589,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
         f"hose: {p.hose_len:g} mm; chord {min(c for _, c, _ in chords):.0f} to {max(c for _, c, _ in chords):.0f} mm and "
         f"falls at least {min(s for _, _, s in chords):.0f} deg over the elevation range; "
         f"bows to a {p.hose_bow_radius():.0f} mm radius at its closest pose (hose allows {p.hose_min_bend:g})",
+        hose_end_line(p),
         f"hopper frame: full tub {p.hopper_load_n:.0f} N; sway load {p.hopper_side_load_n:.0f} N; braces carry "
         f"{p.brace_force_n('x'):.0f} N (x) and {p.brace_force_n('y'):.0f} N (y) against buckling loads of "
         f"{p.brace_buckling_n('x'):.0f} and {p.brace_buckling_n('y'):.0f} N; a post alone buckles at {p.post_buckling_n():.0f} N "
@@ -587,5 +602,5 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
     derived = {"wheel_gap_mm": p.wheel_gap, "ball_squeeze_mm": round(p.ball_d - p.wheel_gap, 1),
                "base_width_mm": round(width), "net_w_mm": p.net_w, "wind_force_n": round(p.wind_force_n, 1),
                "ballast_kg": round(ballast, 1), "hose_len_mm": p.hose_len,
-               "hose_bow_radius_mm": round(p.hose_bow_radius()), "tub_capacity_balls": p.tub_capacity(), "hopper_load_n": round(p.hopper_load_n), "brace_x_n": round(p.brace_force_n("x")), "brace_y_n": round(p.brace_force_n("y")), "retain_pass_n": round(p.retain_pass_n, 1), "made_part_mass_kg": round(mass_g / 1000, 2)}
+               "hose_bow_radius_mm": round(p.hose_bow_radius()), "hose_take_up_mm": None if p.hose_take_up_mm() is None else round(p.hose_take_up_mm()), "tub_capacity_balls": p.tub_capacity(), "hopper_load_n": round(p.hopper_load_n), "brace_x_n": round(p.brace_force_n("x")), "brace_y_n": round(p.brace_force_n("y")), "retain_pass_n": round(p.retain_pass_n, 1), "made_part_mass_kg": round(mass_g / 1000, 2)}
     return checks, derived

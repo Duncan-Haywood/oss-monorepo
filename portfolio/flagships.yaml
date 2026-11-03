@@ -258,8 +258,7 @@ flagships:
       capacity, hose slope and bend radius, shuttle clear when advanced;
       cad/README.md "Feed"); a printed front retainer (two flexure arms, strain,
       hold and pull-through forces checked) landed 2026-10-22. Hopper post bracing landed 2026-11-03 (two
-      x diagonals and one y diagonal, buckling-checked; cad/README.md). Next: close the hose end
-      swinging about 450 mm, then the
+      x diagonals and one y diagonal, buckling-checked; cad/README.md). Hose with end directions landed 2026-11-03 (no valid curve at -15 and +45 deg at the shipped outlet height; raised to 1700 mm each pose fits but one cut length needs ~258 mm of take-up). Next: add the hose take-up (reel, telescoping or pulley) and raise the outlet to 1700 mm with the posts re-checked, then the
       actuator brackets (shuttle and elevation) and azimuth drive, then the netting
       trough that rolls balls to the hopper inlet; then check the head's
       wheel-to-wheel gap and plate clearance against the ball path with the

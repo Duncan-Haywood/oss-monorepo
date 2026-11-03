@@ -11,8 +11,53 @@ of what you actually buy before cutting metal.
 
 from __future__ import annotations
 
+import functools
 import math
 from dataclasses import dataclass, field
+
+
+def _bezier_stats(pts: tuple, n: int = 24) -> tuple[float, float, float]:
+    """(length mm, peak curvature 1/mm, flattest slope deg) of a planar cubic Bezier through control points `pts`."""
+    def at(t):
+        u = 1 - t
+        return tuple(u**3 * pts[0][i] + 3 * u * u * t * pts[1][i] + 3 * u * t * t * pts[2][i] + t**3 * pts[3][i] for i in (0, 1))
+
+    length, prev = 0.0, at(0.0)
+    for k in range(1, n + 1):
+        q = at(k / n)
+        length += math.dist(prev, q)
+        prev = q
+    kmax, smin = 0.0, 90.0
+    for k in range(n + 1):
+        t = k / n
+        u = 1 - t
+        a = tuple(3 * u * u * (pts[1][i] - pts[0][i]) + 6 * u * t * (pts[2][i] - pts[1][i]) + 3 * t * t * (pts[3][i] - pts[2][i]) for i in (0, 1))
+        b = tuple(6 * u * (pts[2][i] - 2 * pts[1][i] + pts[0][i]) + 6 * t * (pts[3][i] - 2 * pts[2][i] + pts[1][i]) for i in (0, 1))
+        sp = math.hypot(*a)
+        if sp > 1e-9:
+            kmax = max(kmax, abs(a[0] * b[1] - a[1] * b[0]) / sp ** 3)
+            smin = min(smin, math.degrees(math.atan2(abs(a[1]), abs(a[0]))))
+    return length, kmax, smin
+
+
+@functools.lru_cache(maxsize=4096)
+def _hose_curve_range(ox: float, oz: float, mx: float, mz: float, tilt_rad: float,
+                      r_min: float, slope_min: float, step: float = 25.0) -> tuple[float, float] | None:
+    """Shortest and longest hose (mm) that leaves the outlet straight down and enters the socket mouth along
+    the column axis (tilted `tilt_rad` with the head), as a cubic Bezier with handle lengths from `step` to 900 mm,
+    never bending tighter than `r_min` and never flatter than `slope_min` degrees. None if no such curve exists."""
+    lo = hi = None
+    n = int(900 / step)
+    for i in range(1, n + 1):
+        l0 = i * step
+        for j in range(1, n + 1):
+            l1 = j * step
+            pts = ((ox, oz), (ox, oz - l0), (mx - l1 * math.sin(tilt_rad), mz + l1 * math.cos(tilt_rad)), (mx, mz))
+            length, kmax, smin = _bezier_stats(pts)
+            if kmax <= 1 / r_min and smin >= slope_min:
+                lo = length if lo is None else min(lo, length)
+                hi = length if hi is None else max(hi, length)
+    return None if lo is None else (lo, hi)
 
 
 @dataclass(frozen=True)
@@ -541,6 +586,26 @@ class Feeder:
             dx, dz = self.hopper_out_x - mx, self.hopper_out_z - mz
             out.append((e, math.hypot(dx, dz), math.degrees(math.atan2(dz, abs(dx)))))
         return out
+
+    def hose_pose_ranges(self, steps: int = 4) -> list[tuple[float, tuple[float, float] | None]]:
+        """(elevation, (shortest, longest) hose mm that fits that pose, or None) with the hose leaving the outlet
+        straight down and entering the socket along the column axis, never tighter than `hose_min_bend` and
+        never flatter than `feed_min_slope_deg` (`_hose_curve_range`). Unlike `hose_chords` this uses the end directions."""
+        out = []
+        for i in range(steps + 1):
+            e = self.elev_min + (self.elev_max - self.elev_min) * i / steps
+            mx, mz = self.mouth_world(e)
+            out.append((e, _hose_curve_range(self.hopper_out_x, self.hopper_out_z, mx, mz, math.radians(e),
+                                             self.hose_min_bend, self.feed_min_slope_deg)))
+        return out
+
+    def hose_take_up_mm(self) -> float | None:
+        """Hose length a fixed cut cannot absorb over the elevation range: the longest shortest-fit minus the
+        shortest longest-fit. 0 or less means one cut length fits every pose; None if some pose has no fit at all."""
+        r = [x for _, x in self.hose_pose_ranges()]
+        if any(x is None for x in r):
+            return None
+        return max(lo for lo, _ in r) - min(hi for _, hi in r)
 
     @property
     def hose_len(self) -> float:
