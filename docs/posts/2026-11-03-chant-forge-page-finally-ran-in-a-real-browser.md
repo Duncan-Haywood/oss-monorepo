@@ -1,6 +1,9 @@
 ---
 title: "The chant studio page had never run in a browser. Now it has."
+seo_title: "Testing a Gregorian chant to MIDI web page in headless Chromium"
 date: 2026-11-03
+tags: [music, gregorian-chant, midi, testing]
+description: "Chant Forge's studio page had only a source-text test. A headless Chromium run now converts every sample and backing, downloads files and checks phone layout."
 ---
 
 Chant Forge's studio page turns pasted Gregorian chant (GABC) into a MIDI file
