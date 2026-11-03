@@ -1,3 +1,9 @@
+---
+kind: brief
+topics: [languages]
+date: 2026-10-21
+tagged: auto
+---
 # Default languages: brief for an agent reader
 
 **Date:** 2026-10-21. **Reader:** an LLM agent choosing which programming or

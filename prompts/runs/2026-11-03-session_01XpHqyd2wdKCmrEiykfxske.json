@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01XpHqyd2wdKCmrEiykfxske",
+  "track": "process",
+  "prompt_version": 0,
+  "input": "i want to build this portfolio as close as possible to soc 2 specs. also compliant with relevant security and privacy lwas",
+  "input_sha256": "54c1d3f7ac5c1645ad0b6bded9854d37e87528a744fe2712061c0e183f1d61b8",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T20:03:13Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "SOC 2 control register and policies; privacy-law fix for inbox retention",
+  "projects": [
+    "platform/edge",
+    "soc2-readiness-checker",
+    "docs/security"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12894",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Wiring a new platform/ci check into CI means editing .github/ (owner-approved), and the cloud harness allows pushing only the one session branch, so the 'own small control-plane PR' advice cannot be followed in-session."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "direct owner request, not a routed prompt.md run",
+      "did": "used track process/0 for the record",
+      "result": "landed"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "model ids are kept out of repository artifacts by the session's instructions",
+      "did": "left model null",
+      "result": "record without model"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-03-we-ran-our-own-soc2-checker-on-ourselves.md"
+  ],
+  "goal": null,
+  "notes": "Self-assessed SOC 2 readiness 50.7% (python3 platform/ci/soc2_controls.py, exit 0). Local: edge inbox+worker tests 23/23, test_soc2_controls.py 8/8, podcast.test.mjs 10/10, portfolio/router/validate.py ok. Also fixed two unrelated reds on main that blocked CI: chant-forge flagships next: over 2000 chars, and a 162-char post description. Follow-up for owner: wire soc2_controls.py into portfolio-validate.yml and add .github/dependabot.yml (control plane).",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-24
+tagged: auto
+---
 # Short-form video: the hub's scripts, rendered
 
 Agent report, 2026-10-24, ventures track (distribution). Code: `platform/distribution/shorts.mjs`.

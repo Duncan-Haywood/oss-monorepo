@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-20
+tagged: auto
+---
 # Cutting the deadweight: an audit of this repository's rules
 
 **Date:** 2026-10-20. **Asked by:** the owner, first as a question ("any bizare

@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [llms-txt]
+date: 2026-10-28
+tagged: auto
+---
 # Polish 2026-10-28: a generated llms.txt for every product (AEO)
 
 **Weak surface.** `python3 platform/ci/missing_llms_txt.py --count` said 1308/1324 ventures ship no

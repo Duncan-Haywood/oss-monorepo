@@ -28,6 +28,7 @@ import { fileURLToPath } from 'node:url';
 import { Worker } from 'node:worker_threads';
 
 import { renderCard } from './sharecard.mjs';
+import { servedPath } from './served-path.mjs';
 
 export const PAGE_CARD_FILE = 'share-card.png';
 
@@ -427,7 +428,7 @@ export async function addShareCards({ outDir, baseUrl, siteName, siteCard = 'soc
     const plan = pageCardPlan(html, relative, { baseUrl, siteCard });
     const depth = relative.split('/').length - 1;
     const toRoot = '../'.repeat(depth);
-    const url = baseUrl ? `${baseUrl}${relative.replace(/(^|\/)index\.html$/, '$1')}` : '';
+    const url = baseUrl ? `${baseUrl}${servedPath(relative)}` : '';
     const next = completeShareTags(html, { card: plan ? `${baseUrl}${plan.file}` : '', siteName, toRoot, url });
     if (next !== html) await fs.writeFile(file, next);
     return { relative, plan, changed: next !== html };

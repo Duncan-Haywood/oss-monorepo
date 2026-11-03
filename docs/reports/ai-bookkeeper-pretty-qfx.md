@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [ai-bookkeeper]
+tagged: auto
+---
 # ai-bookkeeper: pretty-printed OFX (2026-10-27)
 
 `ofxTag` in `bank.mjs` now allows whitespace between a tag and its value. Found by sweeping

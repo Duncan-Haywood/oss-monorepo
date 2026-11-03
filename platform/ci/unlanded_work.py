@@ -188,8 +188,14 @@ def landed_by_content(probe, tip_ref, base_ref):
     other commit ids (a squash merge, or a cherry-pick). Conservative: an
     added path counts if base has it, a modified path only if base's copy is
     byte-identical, a deleted path only if base lacks it."""
-    out = git(["diff", "--name-status", "--no-renames", f"{base_ref}...{tip_ref}"],
-              probe, check=False)
+    proc = subprocess.run(
+        ["git", "diff", "--name-status", "--no-renames", f"{base_ref}...{tip_ref}"],
+        cwd=probe, capture_output=True, text=True,
+        env=dict(os.environ, GIT_TERMINAL_PROMPT="0"),
+    )
+    if proc.returncode != 0:  # e.g. no merge base (an orphan branch): not provably landed
+        return False
+    out = proc.stdout
     changes = [line.split("\t", 1) for line in out.splitlines() if "\t" in line]
     if not changes:
         return True

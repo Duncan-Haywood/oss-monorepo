@@ -318,7 +318,6 @@ export const HOME_SECTIONS_CSS = `
               grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
     .rcard a { display: flex; flex-direction: column; gap: 8px; height: 100%; padding: 18px 18px 20px; border-radius: 16px;
                border: 1px solid var(--line); background: var(--panel); color: var(--ink); text-decoration: none;
-               -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
                transition: transform .25s, border-color .25s, box-shadow .25s; }
     .rcard a:hover, .rcard a:focus-visible { transform: translateY(-4px); border-color: var(--theme);
                                              box-shadow: 0 24px 50px -28px var(--theme); }

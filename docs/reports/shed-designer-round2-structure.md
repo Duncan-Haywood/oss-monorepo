@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed designer, round 2, lane 1: structure
 
 Session: https://claude.ai/code/session_01XpHqyfVgGHrV4NLW2yWU3a, 2026-10-30. Built from round 1's lane 1 and lane 5 reports, "Open" and "What the next run should do".

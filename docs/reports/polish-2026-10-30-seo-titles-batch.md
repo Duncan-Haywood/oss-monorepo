@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-10-30
+tagged: auto
+---
 # Polish 2026-10-30: `seo_title:` for the 25 newest long headlines, and a red test fixed
 
 **Weak surface.** 489 posts in `docs/posts/` had a headline over the 70-character title budget and no

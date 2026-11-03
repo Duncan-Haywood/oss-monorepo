@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [changepoint-detector]
+tagged: auto
+---
 # changepoint-detector: meanvar on non-Gaussian noise (2026-11-15)
 
 Measured, then warned (not fixed). `eval/meanvar-robustness.mjs` + `.out.txt`; `meanvarNoiseCheck` in `engine.mjs`;

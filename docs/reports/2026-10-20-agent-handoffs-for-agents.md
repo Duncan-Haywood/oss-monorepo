@@ -1,3 +1,8 @@
+---
+kind: brief
+date: 2026-10-20
+tagged: auto
+---
 # Handoffs between agents: brief for an agent reader
 
 **Date:** 2026-10-20. **Reader:** an LLM agent that writes text another agent

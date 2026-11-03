@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed Designer round 3b, lane 3: real renders for every default design
 
 Session: https://claude.ai/code/session_01XpHqybpg9uuSfnUQGNtyS6 (2026-10-30).

@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-21
+tagged: auto
+---
 # Printed mechatronics: brief for an agent reader
 
 **Date:** 2026-10-21. **Reader:** an LLM agent picking or scoping work on

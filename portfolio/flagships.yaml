@@ -271,18 +271,5 @@ flagships:
       men's-choir lines with Latin lyrics, then genre templates, voices,
       mastering checks and a release kit for streaming distribution.
     next: >-
-      Landed work, with dates and how each was checked, is in
-      ventures/chant-forge/README.md, ROADMAP.md and git (browser studio,
-      master-cli LUFS/true-peak checks, release kit, GABC/NABC reader fixes,
-      --fit/--stretch, --repeat, --halftime, --fills, --lrc, --cues,
-      --suggest-final/--auto-final, render-cli previews and --stems, --limit,
-      --intro, --markers). Open checks that need a person: listen to the
-      browser studio and the --stretch, --repeat, --halftime, --fills, --intro
-      and --limit output by ear; try --cues and RECORDING-GUIDE.md and the
-      E2-E4 range with real singers; check --markers locators and stems in a
-      DAW; check the release kit against a distributor's real upload form;
-      verify the per-service playback targets against the services' own pages;
-      run master-cli on EBU test files and a real mix. Next: compare a sample
-      of the files against a pre-1929 scan (notes, not just parse), source the
-      Te Deum and Salve Regina from a pre-1929 book, and read the 11 off-final
-      endings against the book (ROADMAP.md).
+      Browser studio page (index.html, client-side; headless-Chromium e2e, 38 checks) and the CLI options named below landed 2026-11-03 with tests; details are in git and the README. Open checks that need a person: listen to the studio page and to --stretch, --repeat, --halftime, --fills, --intro, --limit (pumping) and the stems; try --lrc in a real player and --markers/--stems in a DAW; try --cues, RECORDING-GUIDE.md and the --suggest-final E2-E4 range with real singers; check the release kit against a distributor's real upload form; check master-cli against EBU test files and a real mix; verify the per-service playback targets (written from memory) against the services' pages.
+      Next: compare a sample of the files against a pre-1929 scan (notes, not just parse), source the Te Deum and Salve Regina from a pre-1929 book, and read the 11 off-final endings against the book (ROADMAP.md).

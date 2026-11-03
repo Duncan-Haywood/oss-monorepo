@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-01
+tagged: auto
+---
 # Polish 2026-11-01: three more over-budget post titles
 
 **Weak surface.** `propose_seo_titles.py` showed 3 posts from today over the 70-character title budget (1 cuttable, 2 with no clean cut). `python3 platform/ci/missing_llms_txt.py` reported no gaps.
