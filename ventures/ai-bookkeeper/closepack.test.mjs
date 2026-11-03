@@ -29,7 +29,7 @@ test("typed text is escaped; no script rides in on logo or colour", () => {
 });
 
 test("licence: dark by default, only an explicit live key unlocks, offline never throws", async () => {
-  assert.equal(buyLink(CHECKOUT_URL), null);
+  assert.equal(buyLink(CHECKOUT_URL), CHECKOUT_URL || null); // dark when empty, live when golive.py set a link
   assert.equal(cleanKey("short"), null);
   assert.equal(interpret({ valid: true, license_key: { status: "disabled" } }).valid, false);
   const off = await checkLicence("ABCD-1234-EFGH", { url: "https://example.com/v", fetch: async () => { throw new Error("offline"); } });

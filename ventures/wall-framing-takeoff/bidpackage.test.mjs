@@ -54,7 +54,7 @@ test("licence: link, key and answer handling", async () => {
   assert.equal((await checkLicence("ABCD-1234-EFGH", { fetch: ok, url: "" })).valid, false);
 });
 test("dark by default: no checkout link ships and the page gates the button on it", () => {
-  assert.equal(CHECKOUT_URL, "");
+  assert.match(CHECKOUT_URL, /^(https:\/\/\S+)?$/); // empty (dark) or an https link (live)
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
   assert.match(html, /buyLink\(CHECKOUT_URL\)/);
 });

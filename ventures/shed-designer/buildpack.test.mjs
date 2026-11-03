@@ -41,7 +41,7 @@ test('prices can be left off, so a seller shows quantities only', () => {
 });
 
 test('licence: dark by default, only an explicit valid live key unlocks, offline never throws', async () => {
-  assert.equal(buyLink(CHECKOUT_URL), null);
+  assert.equal(buyLink(CHECKOUT_URL), CHECKOUT_URL || null); // dark when empty, live when golive.py set a link
   assert.equal(cleanKey('short'), null);
   assert.equal(interpret({ valid: true, license_key: { status: 'active' } }).valid, true);
   assert.equal(interpret({ valid: true, license_key: { status: 'disabled' } }).valid, false);

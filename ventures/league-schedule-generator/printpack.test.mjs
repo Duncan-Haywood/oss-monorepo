@@ -42,8 +42,7 @@ test("a valid logo and colour reach the page", () => {
 });
 
 test("the pack stays dark until a checkout link is set, and unlock never throws", async () => {
-  assert.equal(CHECKOUT_URL, "");
-  assert.equal(buyLink(CHECKOUT_URL), null);
+  assert.equal(buyLink(CHECKOUT_URL), CHECKOUT_URL || null); // dark when empty, live when golive.py set a link
   assert.equal(buyLink("http://x.test"), null);
   assert.equal(cleanKey("short"), null);
   assert.equal(interpret({ valid: true, license_key: { status: "active" } }).valid, true);
