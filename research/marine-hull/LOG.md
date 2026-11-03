@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-03 · Milestone 7l: fold 3k into the paper draft (no experiment run)
+- Why: the draft stopped at 3j. Added the Michell-wave, tank-bound-k cross-check (7 of 729 wins, 0 of 243 at equal length) to the claim list, numbers copied from `results_michell_lowk.txt`.
+- Limits: wording only; nothing re-run.
+- Next: a keel-less, fuller survey-hull tank table; the 1981/1982 papers if a host opens.
+
 ## 2026-11-02 · Milestone 3k: Michell wave term with tank-bound form factors (H2 cross-check)
 - Why: 3j reran the H2 box at k 0.03 to 0.15 but kept the placeholder wave term; milestone 2 used Michell thin-ship theory but k 0.10 to 0.40. Neither crossed the two. Prediction (before running): 0 equal-length catamaran wins, and an overall win share below milestone 2's 3.3%.
 - Outcome (`experiments/run_michell_lowk.py`, `results_michell_lowk.txt`, 729 cases, deterministic, about 1 min): the catamaran out-ranges the monohull in 7 cases (1.0%), 0 of 243 at equal length; range ratio cat/mono min 0.73, median 0.86, max 1.02; monohull best range 783 to 888 km, best speed median 1.05 m/s. All 7 wins have the 3 m monohull against a 4 or 5 m catamaran, zero interference and the heaviest form-factor gap. Prediction held.
