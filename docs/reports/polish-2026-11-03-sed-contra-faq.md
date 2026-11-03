@@ -1,3 +1,9 @@
+---
+kind: polish
+subjects: [sed-contra]
+date: 2026-11-03
+tagged: auto
+---
 # Polish 2026-11-03: visible FAQ for Sed Contra
 
 **Weak surface.** `node platform/pages/faq-coverage.mjs` listed `sed-contra` as the last entry page with no question-shaped heading, so no `FAQPage` schema was derived for it.

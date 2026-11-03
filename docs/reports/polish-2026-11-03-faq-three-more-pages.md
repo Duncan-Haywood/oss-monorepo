@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-03
+tagged: auto
+---
 # Polish 2026-11-03: visible FAQs for ShootFlow, the Garmin world-time face and Quick Pick
 
 **Weak surface.** `node platform/pages/faq-coverage.mjs` listed four entry pages with no question-shaped heading, so `build.mjs` derived no `FAQPage` schema for them.

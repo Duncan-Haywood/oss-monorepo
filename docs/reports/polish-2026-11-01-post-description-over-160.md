@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-01
+tagged: auto
+---
 # Polish 2026-11-01: a post description over the 160-character build limit
 
 **Weak surface.** `platform/pages/writing.mjs` throws when a post `description` is over 160 characters, so one over-long description stops the whole site deploy. A scan of all 1,707 posts found one: `2026-11-01-dominican-republic-costa-rica-kazakhstan-e-invoicing.md` at 183.

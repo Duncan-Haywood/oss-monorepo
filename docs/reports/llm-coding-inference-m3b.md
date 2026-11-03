@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [llm-coding-inference]
+tagged: auto
+---
 # llm-coding-inference milestone 3b (2026-10-25)
 
 Second-corpus replicate of H1: `research/llm-coding-inference/experiments/group_shift_reddit.py`

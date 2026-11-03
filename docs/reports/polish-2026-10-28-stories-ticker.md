@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-10-28
+tagged: auto
+---
 # Polish 2026-10-28: stories card titles and hero ticker gap
 
 **Weak surface.** Phone screenshots (390 px, built `dist/`) of the hub and `/stories/`, the two items the

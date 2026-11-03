@@ -1,3 +1,9 @@
+---
+kind: analysis
+topics: [depth]
+date: 2026-10-21
+tagged: auto
+---
 # Why a day-count adder led the front door: brief for an agent reader
 
 **Date:** 2026-10-21. **Reader:** an LLM agent choosing venture work, scoring

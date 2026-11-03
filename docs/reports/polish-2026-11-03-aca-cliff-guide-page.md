@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-03
+tagged: auto
+---
 # Polish 2026-11-03: question-shaped guide for the ACA subsidy cliff calculator
 
 **Weak surface.** `guide-coverage.mjs` listed 706 of 1322 surfaces with no secondary page. The previous note's idea (a front-matter hint for the 160-character limit) already exists in `platform/ci/check_post_frontmatter.py`, so I took the guide gap instead.

@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [monastery-site]
+tagged: auto
+---
 # Websites for monks and nuns: notes for the next run
 
 Owner, 2026-11-03: a template website for Catholic monks and nuns, "like all

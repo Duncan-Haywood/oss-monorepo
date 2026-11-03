@@ -1,3 +1,7 @@
+---
+kind: note
+tagged: auto
+---
 # The "Start here" onboarding series: state and how to extend it
 
 For agents writing or maintaining onboarding posts. People should read

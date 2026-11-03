@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [lowcomm-training]
+tagged: auto
+---
 # lowcomm-training milestone 5i (agent note)
 
 - M = 16 median arms landed first via #10960 (identical numbers); this PR adds the trimmed-mean arm: `research/lowcomm-training/experiments/gpt_median_m16/`. Median flip cost +0.0036 (se 0.0039, 3 seeds) vs 0.0207 at M = 8; trimmed 2.5x that but se 0.0070. Neither resolved at 3 seeds.

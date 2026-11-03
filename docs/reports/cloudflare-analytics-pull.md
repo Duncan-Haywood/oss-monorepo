@@ -1,3 +1,8 @@
+---
+kind: note
+topics: [hosting, usage-tracking]
+tagged: auto
+---
 # Cloudflare analytics into the repo (2026-10-31)
 
 What a later session needs to know about `platform/counter/pull-cloudflare.mjs`.

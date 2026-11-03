@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [hosting]
+date: 2026-10-29
+tagged: auto
+---
 # Polish 2026-10-29: site build broken by a 170-character post description
 
 **What.** `node platform/pages/build.mjs` on main threw in `writing.mjs` (`loadPost`):
