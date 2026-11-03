@@ -3,7 +3,7 @@ title: "A price of -5 gave a framing takeoff a negative cost line"
 seo_title: "Negative price bug in a wall framing takeoff tool, and the fix"
 date: 2026-11-03
 tags: [construction, testing, open-source, wall-framing-takeoff]
-description: "Sweeping every settings field of the wall-framing-takeoff add-ons with hostile numbers found that a negative price was accepted and produced a negative cost. Now refused."
+description: "A hostile-number sweep of the framing add-ons found a negative price was accepted and gave a negative cost. Prices below 0 or above 1e9 are now refused."
 ---
 
 The wall-framing-takeoff tool has a dozen add-on engines (trim, siding, insulation, gutters, ventilation, eaves, fasteners). Earlier runs made their validators refuse numbers typed as text. On 2026-11-03 we swept every numeric setting with five other hostile values: 1e9, 1e-9, -5, NaN and Infinity, then laid out a plan with each one the validator let through.
