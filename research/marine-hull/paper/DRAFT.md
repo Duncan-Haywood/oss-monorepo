@@ -15,6 +15,7 @@ is robust to the unsourced inputs, and the absolute range is not**:
   (`results_swath.txt`); planing hull 0 of 48 (`results_planing.txt`); hydrofoil 0 of 2,916
   (`results_foil.txt`).
 - Form-factor check: with k_form and k_cat from the Delft yacht tank bound (0.03 to 0.15) the catamaran wins 0 of 6,561 cases (median range ratio 0.85, max 0.97; `results_lowk.txt`); the earlier 27 wins came from a k = 0.4 monohull against a k = 0.1 catamaran.
+- Wave-model cross-check: replacing the placeholder wave term by Michell thin-ship theory with the same tank-bound k (729 cases) gives 7 catamaran wins (1.0%), 0 of 243 at equal length (range ratio median 0.86, max 1.02; `results_michell_lowk.txt`, milestone 3k). All 7 pair a 3 m monohull with a 4 or 5 m catamaran, so they are a length effect, not a hull-type effect. H2's verdict survives both swaps.
 - Glider against propeller AUV: the glider wins on energy per metre only through hotel load. At
   equal hotel load it wins 0 of 2,430 cases with Slocum coefficients (`results_slocum.txt`); against
   a REMUS-100-class AUV whose non-propulsion load is read from vendor endurance (104 to 175 W) it
@@ -61,6 +62,7 @@ insolation at five sites. All coefficients that are not sourced are swept on a g
 | Rung compared with the 4 m Wigley monohull | Cases | Wins over monohull | Source |
 |---|---|---|---|
 | Catamaran (Michell + Havelock) | 6,561 | 216 (3.3%); 0 of 729 equal-length | `results_michell.txt` |
+| Catamaran (Michell + Havelock), tank-bound k 0.03 to 0.15 | 729 | 7 (1.0%); 0 of 243 equal-length | `results_michell_lowk.txt` |
 | SWATH | 4,374 | 0 | `results_swath.txt` |
 | Planing (Savitsky) | 48 | 0 | `results_planing.txt` |
 | Hydrofoil | 2,916 | 0 (foil/mono range ratio 0.064 to 0.248 where foilborne) | `results_foil.txt` |
