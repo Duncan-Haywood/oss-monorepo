@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed designer, round 3, lane 2: ready-design gallery
 
 2026-10-30. Session: https://claude.ai/code/session_01XpHqyehoVoym5ZoQnhyYgb

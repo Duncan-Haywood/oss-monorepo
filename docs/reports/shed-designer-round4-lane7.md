@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed designer, round 4, lane 7: cross-reference and UX polish (2026-10-30)
 
 The brief came from the "Open" sections of `shed-designer-round2-lane3.md`, `shed-designer-round3b-lane4.md` and `shed-designer-round3-looks.md`, plus a fresh first-time-user pass on desktop and a phone. Two PRs: #11855 (cross-reference and polish) and the first-time-user PR that carries this report.

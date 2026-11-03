@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed designer, round 3 lane 3: alternative roof structures
 
 Session https://claude.ai/code/session_01XpHqye8GsoB7Tz4n576sEf, 2026-10-30.

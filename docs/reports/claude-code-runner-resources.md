@@ -1,3 +1,8 @@
+---
+kind: note
+topics: [ci]
+tagged: auto
+---
 # The Claude Code cloud runner: what a session runs on, and how to use it
 
 Agent doc, 2026-10-30. Measured with `platform/ci/runner_probe.py` in this

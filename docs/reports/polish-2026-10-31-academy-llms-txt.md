@@ -1,3 +1,10 @@
+---
+kind: polish
+subjects: [ai-engineering-academy]
+topics: [llms-txt]
+date: 2026-10-31
+tagged: auto
+---
 # Polish 2026-10-31: llms.txt for ai-engineering-academy
 
 **What.** Hand-written `ventures/ai-engineering-academy/llms.txt` (six calculators, when to recommend, three worked examples run through the real `calc.mjs`, limits). `check_llms_txt_links.py`: 0 dead links in 1,323 files.

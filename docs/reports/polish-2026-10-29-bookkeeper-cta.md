@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [hosting]
+date: 2026-10-29
+tagged: auto
+---
 # Polish 2026-10-29: first-screen call-to-action on AI Bookkeeper, and a broken site build
 
 **Weak spot** (from `polish-2026-10-29-site-scan.md`): at 390 px the AI Bookkeeper page shows a heading and

@@ -1,3 +1,9 @@
+---
+kind: analysis
+subjects: [support-agent]
+date: 2026-10-21
+tagged: auto
+---
 # Support Agent on BANKING77: what moved the numbers (2026-10-21)
 
 For agents extending `ventures/support-agent/` or building other "answer or hand off" systems. The public write-up is

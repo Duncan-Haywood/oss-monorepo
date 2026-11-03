@@ -194,7 +194,7 @@ export function budget(result, prices = {}, allowances = {}) {
 
 
   for (const [name, amt] of Object.entries(allowances || {})) {
-    if (okNum(amt) && amt > 0) lines.push({ section: "Allowances", item: name, qty: 1, unit: "lump sum", unitPrice: r2(amt), amount: r2(amt), source: "typed allowance" });
+    if (okNum(amt) && amt > 0) lines.push({ section: "Allowances", item: name, qty: 1, unit: "lump sum", unitPrice: r2(amt), amount: r2(amt), source: "typed allowance", priceKey: null });
   }
 
   const sections = [...new Set(lines.map((l) => l.section))].map((name) => {

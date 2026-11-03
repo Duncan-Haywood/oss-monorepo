@@ -294,6 +294,28 @@ Tested otherwise only on a hand-built 4.5 in and 6 in house (`dxf.test.mjs`). No
 
 Known gaps, which a real export will probably hit: walls with swept or boolean bodies and no Axis, openings whose origin is the centre of the width, IFCZIP/IFCXML, mesh-body wall thickness and storeys the file does not place by `IfcRelContainedInSpatialStructure`. (Multi-storey files are read one storey at a time, `--storey=N`; opening heights are read; since 2026-11-02 a body rectangle profile's thickness is reported with a 2x6 hint, hand-written IFC only, and not yet applied to the stud size.)
 
+## IFC engine in Rust, checked on two real architect's models (2026-11-03)
+
+[`ifc-engine/`](ifc-engine/README.md) is a Rust reader for IFC models,
+written for this takeoff. It does what `ifc.mjs` does, plus two things that
+broke `ifc.mjs` on the first real exports. It joins walls with
+`IfcRelConnectsPathElements`, because Revit trims each axis short of the
+corner. And it hosts doors and windows through `IfcRelVoidsElement` /
+`IfcRelFillsElement`, placing them by the opening's own body, because a
+door's placement origin is not the edge of its opening. On buildingSMART's
+Duplex Apartment (Revit, CC BY 4.0), `ifc.mjs` read Level 1 with no closed
+exterior loop and placed 2 of its 10 doors and windows. The engine closes
+the loop and places all 36 doors and windows the model hosts in walls. Every wall base and
+height, and every opening's extent, sill and height, matches IfcOpenShell
+0.9.0's geometry to 0.0000 m, on Duplex and on the 49 MB ArchiCAD
+Schependomlaan model. The engine reads that model in 1.08 s with 82 MB of
+memory; `ifc.mjs` takes 4.35 s and 775 MB. Use it with
+`ifc-engine dxf house.ifc --storey 2 > plan.dxf && node cli.mjs plan.dxf`.
+Both models are masonry, not wood-framed, so the takeoff's objections on
+them (a door 0.1 m from a window, partitions meeting inside a rough
+opening) check the reader, not a framing result. The table, the limits and
+a 340-hour plan (WASM on the page next) are in its README.
+
 ## Corner plate laps
 
 Set `"plateLaps": true` in the plan (or pick it on the page). A wall with
@@ -475,3 +497,4 @@ The cost cash flow (`cashFlow`) also groups spend by week starting Monday, with 
 - **Siding fuzz test** (2026-11-02, `siding-fuzz.test.mjs`): 400 seeded random wall sets (gables, non-overlapping openings, lap or vertical, battens, trim, starter, flashing, tape) are refused with a reason or give finite non-negative counts, boards that hold the runs, wrap rolls and corner boards that cover their area, and never fewer boards with more waste. No bug found; breaking the wrap-roll rounding makes it fail. Still no real siding order compared.
 - **Fastener fuzz test** (2026-11-02, `fasteners-fuzz.test.mjs`): 300 seeded random wall plans (openings, tees, corners, sheathed or not) and nailing schedules give finite, non-negative counts whose connection rows and per-wall rows both sum to the total, an order never under the count, whole boxes covering the order, and never fewer nails with tighter plate spacing; a wider hold-down threshold never counts more hold-downs, and out-of-range settings are refused. No bug found. Still no real framer's nail schedule compared.
 - **Bid package fuzz test** (2026-11-02, `bidpackage-fuzz.test.mjs`): 300 seeded random budgets with hostile company, contact, client and project text and bad logos and accents give a package with no raw markup, no unit price anywhere, Labor and Allowances out of the quantities appendix, every other section in it; `cleanLogo` refuses javascript:, SVG, http, credentialed and oversized logos and `cleanAccent` only passes `#rrggbb`. No bug found; dropping the Labor/Allowances skip or the item escape each makes it fail.
+- **Non-bearing walls** (2026-11-03, wall key `bearing: false`, engine; `engine.test.mjs`): every opening in that wall gets a single header ply instead of the default two (three on 2x6), unless the opening types its own `headerPlies`; the spacer note is skipped and a note lists the openings framed this way. A door with a 2x6 header on a 12 ft wall: 2 header members by default, 1 with the flag. Lumber saved only; nothing checks that the wall carries no roof, floor or point load, so the flag is your engineer's call. Not on the page, no real plan checked.

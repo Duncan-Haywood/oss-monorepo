@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-10-29
+tagged: auto
+---
 # Polish 2026-10-29: the floating mic no longer sits on the text
 
 **Weak spot.** Two earlier polish reports noted that the floating "Speak or type" button (bottom right on every

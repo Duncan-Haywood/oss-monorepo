@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [depth]
+date: 2026-10-29
+tagged: auto
+---
 # Polish 2026-10-29: first-screen buttons on four flagship tool pages
 
 **Weak surface.** `polish-2026-10-29-site-scan.md` found the AI Bookkeeper page opened with a dense paragraph and

@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed designer, round 4 lane 2: saltbox, plus gambrel and lean-to depth
 
 Session 2026-10-30. Built from the "Open" and "Next step" sections of `shed-designer-round3b-lane1.md` (the lean-to) and `shed-designer-round3b-gambrel.md`.

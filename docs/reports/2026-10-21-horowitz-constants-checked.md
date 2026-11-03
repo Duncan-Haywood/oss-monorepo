@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-21
+tagged: auto
+---
 # Checking the energy constants behind the accelerator projects
 
 **Date:** 2026-10-21. **Task:** research track, track 8 (`accel`), following up `free-citeaudit`, which counted Horowitz (2014) among the most-repeated "not re-checked" citations. Code and numbers: `research/accel-horowitzcheck/`.

@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-31
+tagged: auto
+---
 # Pivot to industrial, energy and construction (agent note, 2026-10-31)
 
 Owner, 2026-10-31: "let's pivot some of the big directions to deep tech industrial, energy real

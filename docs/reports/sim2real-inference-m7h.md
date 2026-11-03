@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [sim2real-inference]
+tagged: auto
+---
 # sim2real-inference m7h: for the next run
 
 - Result: with a bet cap of 0.99/m, the twin-assisted betting interval (exact twin mean) beats real-only betting on 20/21 pendulum pairs at n = 240 and 960. Reverses the "never tighter" claim of m3c to m7g, which holds only for empirical Bernstein and the capped bet.

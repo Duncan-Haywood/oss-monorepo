@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-21
+tagged: auto
+---
 # `typeof localStorage` throws when a visitor blocks site data
 
 **Date:** 2026-10-21. **Track:** explore (free choice). **Method:** a node

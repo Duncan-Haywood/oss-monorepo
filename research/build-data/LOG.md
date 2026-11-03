@@ -1,5 +1,21 @@
 # build-data log
 
+## Session 21, 2026-11-03: milestone 19 run, H2c (Mondrian CQR by P(same day) band) refuted on 4 of 4 finished pairs
+
+Data hosts reachable this time; all three feeds re-pulled (Chicago 852,022; SF 1,297,807; Austin 2,383,407 rows). `src/conformal_mondrian_run.py` (same split, models and 3 seeds as session 8; classifier bands at 0.33/0.67; intervals rounded outward), results in `results/conformal_mondrian_*_2024.json`. Pre-registered in session 20: within 77 to 83% in at least 4 of 5 pairs.
+| pair | Mondrian, rounded | pooled CQR, rounded | qhat by band (low/mid/high P(same day)) |
+|---|---|---|---|
+| Chicago a2i | 0.867 [0.859, 0.874] | 0.867 | 0, 0, 0 |
+| SF a2i | 0.901 | 0.901 | 0, 0, 0 |
+| SF i2c | 0.840 | 0.840 | 4.92 (one populated band; 6 rows elsewhere) |
+| Austin a2i | 0.855 | 0.852 | 0.01, 0, 7.64 (the 7.64 band holds 1,985 rows) |
+| Austin i2c | not finished | | run stopped after 20+ minutes; moot, see below |
+- **H2c is refuted:** none of the four finished pairs is inside 77 to 83%, so even a hit on Austin i2c cannot reach 4 of 5. I stopped that run rather than wait; it is not reported.
+- **Why:** on Chicago and SF a2i every band's qhat is exactly 0, i.e. the model's raw 80% interval already covers at least 80% of calibration rows in every band, so grouping has nothing to narrow. The over-coverage on the 2024 test year (0.867, 0.901) therefore comes from drift between the calibration year and 2024 (session 19: Chicago KS 0.247), not from a group the pooled qhat hides. Austin a2i's top band does get qhat 7.64 but its 1,985 rows are too few to move the total (0.852 to 0.855).
+- Within-band coverage on Chicago (0.851, 0.902, 0.863) and SF a2i (0.870, 0.894, 0.906) is above 80% in every band, which is the same story.
+- Consequence: conformal calibration on a lagged year cannot narrow these a2i intervals; the remaining lever is a calibration set closer in time to the test year (adaptive or rolling conformal), listed as session 19's Next. Limits: one test year; marginal coverage per band reported without bootstrap intervals except the headline.
+Next: rolling-window or adaptive conformal over the test year for Chicago and SF a2i.
+
 ## Session 20, 2026-11-03: milestone 19 instrument, Mondrian (group-conditional) CQR for the two-part conformal; not run on real data
 
 The three data hosts returned HTTP 403 at the proxy CONNECT step again (probe: `curl` to `data.sf.gov`, "CONNECT tunnel failed, response 403"), so no pull was possible and **no number in `results/` changed**; nothing here is a result about permits.

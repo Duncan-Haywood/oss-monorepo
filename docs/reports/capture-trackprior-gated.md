@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [capture-trackprior]
+tagged: auto
+---
 # capture-trackprior: gated tracking (2026-10-29)
 
 For the next run on track 13 audio sync. `research/capture-trackprior/gated.py` re-acquires when the unrestricted GCC

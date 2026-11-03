@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-02
+tagged: auto
+---
 # Polish 2026-11-02: `seo_title:` batch 13, the last over-budget headline
 
 **Weak surface.** `platform/pages/propose_seo_titles.py` reported one post over the 70-character title budget with no clean cut (the 2026-11-02 excavator regeneration post, 72 characters).

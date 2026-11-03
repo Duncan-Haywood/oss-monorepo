@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-10-24
+tagged: auto
+---
 # Research programmes: raising the research bar to PhD level
 
 Agent report, 2026-10-24. Owner's request: "phd + in ambition and scope.

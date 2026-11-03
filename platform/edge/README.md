@@ -185,6 +185,11 @@ is public.
 - **Setting the token (owner, once):** `npx wrangler secret put INBOX_TOKEN`
   in this directory, any long random string, then give agent sessions the
   same value as an environment variable.
+- **Retention:** a message is deleted 90 days after it arrives
+  (`INBOX_RETENTION_DAYS` overrides), on every delivery and every read, so
+  no schedule is needed. A sender who asks to be erased sooner:
+  `curl -X DELETE -H "Authorization: Bearer $INBOX_TOKEN" "$EDGE/inbox?id=<n>"`.
+  The site footer's privacy copy states the same 90 days; change both together.
 - **Limits:** a message over 256 KB, or past 200 messages a day
   (`INBOX_DAILY_CAP`), is refused at delivery, so the sender's mail server
   tells them. Both keep the free D1 quota safe from a flood.

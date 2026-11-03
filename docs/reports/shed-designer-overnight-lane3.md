@@ -1,3 +1,8 @@
+---
+kind: lane
+subjects: [shed-designer]
+tagged: auto
+---
 # Shed Designer overnight, lane 3: editor, 3D viewer and UX
 
 Session: https://claude.ai/code/session_01XpHqyeer9LhNXp1mg3LzQU (2026-10-29). Read-only audit while PR #11268 was open, then two PRs after it merged.

@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-02
+tagged: auto
+---
 # Polish 2026-11-02: answer-first lead on the eBay fee calculator
 
 **Weak surface.** `propose_seo_titles.py` found nothing over budget, so I took the next lever from the last report: answer-first leads beyond the pilot.
