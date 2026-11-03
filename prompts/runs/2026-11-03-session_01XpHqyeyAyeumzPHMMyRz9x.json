@@ -24,16 +24,22 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 1,
   "outcome": "success",
   "errors": [
-    "first build failed: new post's description was 192 chars (limit 160); shortened"
+    "first build failed: new post's description was 192 chars (limit 160); shortened",
+    "framerate.mjs first ignored the ONLY_SLUGS filter (only-slugs.test.mjs caught it); fixed"
   ],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Merge when it is verified' was not followed by several same-day sessions: main went red five times in two hours (duplicate <title> twice, a 162-char post description, a 2638-char flagships next:, two pages without a tab icon), and every open PR inherited each break plus a merge conflict. This PR ported all five fixes; main later fixed three itself. A pre-merge gate that waits for green CI on the merge commit would stop it."
+    }
+  ],
   "deviations": [
     {
       "file": "prompts/explore/prompt-0.md",
@@ -47,7 +53,13 @@
     "docs/reports/2026-11-03-homepage-frame-rate.md"
   ],
   "goal": null,
-  "notes": "Ablation, headless Chromium, 4x CPU: baseline 5.3 fps, no aurora 15, no canvas 7.7, neither 56.7. After the fix: 52 fps idle and 48 scrolling (laptop), 50 and 46 (phone). framerate.mjs against production fails / and passes research/ and three tools. Wiring framerate into browser_checks nightly touches .github (control plane): separate PR.",
-  "corrections": [],
+  "notes": "Ablation, headless Chromium, 4x CPU: baseline 5.3 fps, no aurora 15, no canvas 7.7, neither 56.7. After the fix: 52 fps idle and 48 scrolling (laptop), 50 and 46 (phone). framerate.mjs against production fails / and passes research/ and three tools. Wiring framerate into browser_checks nightly touches .github (control plane): separate PR. Merge took ~1 h past verification: five main breakages from other sessions and four merge conflicts (flagships.yaml chant-forge next:) had to be resolved first. build-determinism.test.mjs fails on a clean origin/main checkout too (two builds give different cache names); not this PR's, not fixed here.",
+  "corrections": [
+    {
+      "date": "2026-11-03",
+      "field": "merged, errors, doc_friction, notes",
+      "why": "PR #12888 merged as 8977b507; added what the merge ran into, in the nightly-wiring PR"
+    }
+  ],
   "redteam": null
 }
