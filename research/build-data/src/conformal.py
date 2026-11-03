@@ -29,6 +29,16 @@ def cqr_scores(lo, hi, y):
     return [max(l - v, v - h) for l, h, v in zip(lo, hi, y)]
 
 
+def cqr_scores_dequantised(lo, hi, y, seed=0):
+    """CQR scores on y + U[0,1) jitter (dequantisation). Integer-day targets with a clipped lower
+    end tie at one value (same-day permits, y = 0, lo = 0), which pins the conformal quantile at 0
+    so an over-covering interval cannot narrow. Jitter breaks the ties; coverage is then
+    evaluated on the true integer y (see LOG.md, session 19)."""
+    import random
+    rng = random.Random(seed)
+    return cqr_scores(lo, hi, [v + rng.random() for v in y])
+
+
 def cqr_interval(lo, hi, qhat, floor=0.0):
     return [max(floor, l - qhat) for l in lo], [h + qhat for h in hi]
 
