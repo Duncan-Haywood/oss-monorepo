@@ -33,11 +33,11 @@
   "doc_friction": [
     {
       "file": "platform/pages/build.test.mjs",
-      "what": "The relative-link test skipped mailto: and data: but not tel:, unlike check.mjs and check_pages_links.py; fixed here."
+      "issue": "The relative-link test skipped mailto: and data: but not tel:, unlike check.mjs and check_pages_links.py; fixed here."
     },
     {
       "file": "platform/ci/run_workflow_locally.py",
-      "what": "--for-changes against the whole diff spends its 300 s budget in portfolio-pages before reaching validate; running portfolio-validate.yml by name was the useful local check."
+      "issue": "--for-changes against the whole diff spends its 300 s budget in portfolio-pages before reaching validate; running portfolio-validate.yml by name was the useful local check."
     }
   ],
   "date": "2026-11-03"
