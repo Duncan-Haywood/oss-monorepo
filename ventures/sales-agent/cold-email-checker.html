@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23637e1b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free cold email checker: opt-out, address, spam signals</title>
+  <meta name="description" content="Paste a cold email and the recipient's country. Get a list of what to fix before sending: opt-out line, postal address, deceptive subject, spam phrases, consent rules. Runs in your browser.">
+  <link rel="canonical" href="./cold-email-checker.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a cold email need under CAN-SPAM?","acceptedAnswer":{"@type":"Answer","text":"An honest from line and subject, a clear way to opt out that you honour within 10 business days, and a valid physical postal address. B2B cold email is allowed without prior consent in the US, but the message must still say who sent it."}},{"@type":"Question","name":"Is cold email legal in Germany or Canada?","acceptedAnswer":{"@type":"Answer","text":"Germany generally requires prior consent even for business recipients, and Canada's CASL requires consent with narrow implied-consent exceptions. This checker flags both and does not decide your case; ask a qualified professional."}},{"@type":"Question","name":"Does this tool send or store my email?","acceptedAnswer":{"@type":"Answer","text":"No. The check runs in your browser and nothing is uploaded."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; } h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #4b6215; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea, select { width: 100%; box-sizing: border-box; padding: 8px; font: inherit; border: 1px solid #aab4c0; border-radius: 6px; background: #fff; color: inherit; }
+    textarea { min-height: 200px; }
+    button { margin-top: 12px; padding: 10px 14px; border: 0; border-radius: 8px; background: #4b6215; color: #fff; font: inherit; font-weight: 650; cursor: pointer; }
+    #out ul { padding-left: 1.2em; } .err { color: #9b1c1c; } .warn { color: #7a5200; } .rule { font-size: .8rem; color: #4c5a68; }
+    #score { font-size: 2rem; font-weight: 700; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Sales Agent</a></p>
+  <h1>Free cold email checker</h1>
+  <p>Paste your first-touch email before it goes out. You get a list of what to fix: the opt-out line, the postal address, a deceptive subject, spam phrases and, for the recipient's country, the consent rule to look up. Nothing is uploaded or sent.</p>
+  <label for="subject">Subject</label><input id="subject" autocomplete="off">
+  <label for="body">Body</label><textarea id="body"></textarea>
+  <label for="country">Recipient country (2-letter code, optional: US, GB, CA, DE, FR…)</label><input id="country" maxlength="2" autocomplete="off">
+  <label for="from">Your name (optional)</label><input id="from" autocomplete="off">
+  <button id="go" type="button">Check this email</button>
+  <div id="out" aria-live="polite"></div>
+  <h2>What it checks</h2>
+  <ul>
+    <li>A working opt-out line, and a postal address (required in the US).</li>
+    <li>First-touch subjects that start with Re: or Fwd:, or pose as an invoice or alert.</li>
+    <li>Spam phrases, fake urgency, absolute claims, all-caps subjects, link shorteners, too many links.</li>
+    <li>Unfilled placeholders such as [Company], which are the most common embarrassing mistake.</li>
+    <li>No ask, too many asks, a generic greeting, no mention of the reader.</li>
+    <li>The broad consent rule for the recipient's country: US, UK, Canada, Germany, Austria and the other EU states.</li>
+  </ul>
+  <p>After you send, the <a href="./how-to-handle-replies-to-cold-outreach.html">inbox agent</a> handles the replies: unsubscribes become a suppression record, out-of-office replies pause the prospect.</p>
+  <h2>Questions</h2>
+  <h3>What does a cold email need under CAN-SPAM?</h3>
+  <p>An honest from line and subject, a clear way to opt out that you honour within 10 business days, and a valid physical postal address. B2B cold email is allowed without prior consent in the US, but the message must still say who sent it.</p>
+  <h3>Is cold email legal in Germany or Canada?</h3>
+  <p>Germany generally requires prior consent even for business recipients, and Canada's CASL requires consent with narrow implied-consent exceptions. This checker flags both and does not decide your case; ask a qualified professional.</p>
+  <h3>Does this tool send or store my email?</h3>
+  <p>No. The check runs in your browser and nothing is uploaded.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This is a checklist of common requirements and habits, not legal advice, and a clean result does not mean your email is lawful. Rules vary by country and change; check current guidance or ask a qualified professional.</p>
+    <p>Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional. Related: <a href="../sales-cadence-builder/">sales cadence builder</a>, <a href="../deal-keeper/">deal keeper</a>.</p>
+  </footer>
+  <script type="module">
+    import { presend } from "./presend.mjs";
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("go").addEventListener("click", () => {
+      const r = presend({ subject: $("subject").value, body: $("body").value, country: $("country").value, fromName: $("from").value });
+      const li = (cls, x) => `<li class="${cls}">${esc(x.text)} <span class="rule">[${esc(x.rule)}]</span></li>`;
+      $("out").innerHTML = `<h2>Result</h2><p><span id="score">${r.score}</span> / 100 &middot; ${r.ok ? "no blocking problems" : r.errors.length + " to fix before sending"} &middot; ${r.words} words</p>`
+        + (r.errors.length ? `<h3>Fix</h3><ul>${r.errors.map((x) => li("err", x)).join("")}</ul>` : "")
+        + (r.warnings.length ? `<h3>Consider</h3><ul>${r.warnings.map((x) => li("warn", x)).join("")}</ul>` : "")
+        + `<p class="rule">${esc(r.regime.text)}</p>`;
+    });
+  </script>
+</body>
+</html>
