@@ -15,9 +15,13 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
+  "task": "Add hypotheses to three checker ventures",
+  "projects": [
+    "amazon-inventory-loader-check",
+    "bigcommerce-product-csv-check",
+    "brevo-contacts-csv-check"
+  ],
+  "pr": 12730,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +30,14 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Small slice: main_health 35/35 ok; promptctl validate ok. Full run_workflow_locally --for-changes did not finish in-session. Paid paths for flagships are dark and owner-gated, so no revenue step was agent-doable.",
   "corrections": [],
   "redteam": null
 }
