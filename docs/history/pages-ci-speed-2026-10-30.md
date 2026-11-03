@@ -143,5 +143,5 @@ The owner added `marisstella.app` to the Cloudflare account; it is delegated
 to `chelsea`/`darwin.ns.cloudflare.com`. `marisstella.dev` is still
 registered but delegated to Hetzner DNS servers that refuse queries for it
 (the zone went with the servers on 2026-10-01), so it resolves to nothing and
-the released-IP takeover risk is closed. PR #11849 attaches `marisstella.app`
-to the site Worker.
+the released-IP takeover risk is closed. The owner attached `marisstella.app`
+to the site Worker in the dashboard, and PR #11849 made the build name it.
