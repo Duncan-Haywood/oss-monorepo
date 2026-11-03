@@ -93,3 +93,18 @@ test('rejects non-MIDI and truncated input with a clear error', () => {
   const good = eventsToMidi([{ type: 'note', midi: 60, pulses: 2 }], {});
   assert.doesNotThrow(() => parseMidi(good.subarray(0, good.length - 3)));
 });
+
+test('--lufs brings a quiet deep-house preview to the target within 0.3 LU, peak under -1 dBFS', () => {
+  const { p, events } = piece();
+  const fin = [...events].reverse().find((e) => e.type === 'note');
+  const backing = arrange({ genre: 'deep-house', mode: Number(p.header.mode), final: fin.midi, bars: barsFor(events) });
+  const midi = eventsToMidi(events, { bpm: 124, drone: true, backing });
+  const r = renderMidi(midi, { targetLufs: -14 });
+  const back = readWav(encodeWav(r));
+  const res = analyze(back);
+  const peak = Math.max(...back.channels.map((c) => c.reduce((m, v) => Math.max(m, Math.abs(v)), 0)));
+  assert.ok(peak <= 0.8901, `peak ${peak}`);
+  assert.ok(Math.abs(r.lufs - res.lufs) < 0.3, `reported ${r.lufs} measured ${res.lufs}`);
+  assert.ok(Math.abs(res.lufs + 14) < 1.5 || peak > 0.88, `lufs ${res.lufs} peak ${peak}`);
+  assert.equal(run(['x.mid', '--lufs', '5']).code, 2);
+});

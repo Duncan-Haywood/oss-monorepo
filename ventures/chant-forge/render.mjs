@@ -6,7 +6,7 @@
 // pad, and synthesised GM drums. It is a PREVIEW, not a release master: the real
 // voices are recorded singers (RECORDING-GUIDE.md). Deterministic: a seeded noise
 // source, so the same MIDI gives the same bytes.
-import { readWav } from './master.mjs';
+import { readWav, integratedLufs } from './master.mjs';
 export { readWav };
 
 // ---- MIDI reading (format 0/1, running status, tempo map, channel programs) ----
@@ -168,7 +168,7 @@ function voiceFor(ch, program) {
   return 'chords';
 }
 
-export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0.8 } = {}) {
+export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0.8, targetLufs = null, ceiling = 0.89 } = {}) {
   const m = parseMidi(midiBytes);
   const sec = (t) => tickToSeconds(t, m.division, m.tempos);
   const progAt = (ch) => (m.programs.get(ch) || [[0, 0]])[0][1];
@@ -203,7 +203,21 @@ export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0
   for (let i = 0; i < total; i++) peak = Math.max(peak, Math.abs(L[i]), Math.abs(R[i]));
   const k = peak > 0 ? targetPeak / peak : 1;
   for (let i = 0; i < total; i++) { L[i] *= k; R[i] *= k; }
-  return { rate, channels: [L, R], seconds: total / rate, notes: m.notes.length };
+  // optional loudness target: gain to the target, then capped so the sample peak stays under
+  // `ceiling` (0.89 = -1 dBFS); a quiet mix that would clip reports the LUFS it reached instead
+  let lufs = null;
+  if (targetLufs !== null) {
+    const before = integratedLufs([L, R], rate).lufs;
+    if (Number.isFinite(before)) {
+      let g = 10 ** ((targetLufs - before) / 20);
+      let pk = 0;
+      for (let i = 0; i < total; i++) pk = Math.max(pk, Math.abs(L[i]), Math.abs(R[i]));
+      if (pk * g > ceiling) g = ceiling / pk;
+      for (let i = 0; i < total; i++) { L[i] *= g; R[i] *= g; }
+      lufs = before + 20 * Math.log10(g);
+    }
+  }
+  return { rate, channels: [L, R], seconds: total / rate, notes: m.notes.length, lufs };
 }
 
 export function encodeWav({ rate, channels }) {
