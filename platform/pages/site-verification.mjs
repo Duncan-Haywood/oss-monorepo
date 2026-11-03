@@ -8,7 +8,7 @@
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-export const VERIFICATION_FILE = fileURLToPath(new URL('./site-verification.json', import.meta.url));
+export const VERIFICATION_FILE = fileURLToPath(new URL('../seo/site-verification.json', import.meta.url));
 
 const META_NAME = {
   google: 'google-site-verification',

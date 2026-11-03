@@ -51,7 +51,7 @@ python3 platform/seo/probe.py record <query-id> <url1> <url2> ...   # results in
 python3 platform/seo/probe.py record <query-id> --empty             # search returned nothing
 python3 platform/seo/probe.py audit                # weekly is plenty
 python3 platform/seo/probe.py report --write       # refresh STATUS.md
-python3 platform/seo/test_probe.py                 # tests, no network
+python3 platform/ci/test_seo_probe.py                 # tests, no network
 ```
 
 Record every URL the search shows, in order, not just ours. A list without our
@@ -71,7 +71,7 @@ These are the only parts an agent can't do. The full text is the
 1. **Google Search Console:** add the URL-prefix property
    `https://marisstella.app/` and choose "HTML tag". Paste the `content` value
    into `google` in [`site-verification.json`](site-verification.json) and
-   merge; the build adds the tag to the home page (`verification.mjs`). Then
+   merge; the build adds the tag to the home page (`platform/pages/site-verification.mjs`). Then
    press Verify and submit `sitemap.xml`.
 2. **Bing Webmaster Tools:** import from Search Console, or add a meta tag
    under `bing` the same way.

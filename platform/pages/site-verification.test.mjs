@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { verificationTags, loadVerificationTags, verificationHead, VERIFICATION_FILE } from './verification.mjs';
+import { verificationTags, loadVerificationTags, verificationHead, VERIFICATION_FILE } from './site-verification.mjs';
 
 test('the committed config parses and yields valid tags', () => {
   const tags = loadVerificationTags(VERIFICATION_FILE);

@@ -1,6 +1,7 @@
 """Tests for the search-ranking feedback loop (platform/seo/probe.py).
 
-Run: python3 -m pytest platform/seo/test_probe.py  (or python3 -m unittest)
+Lives in platform/ci/ so the merge checklist's platform/ci line runs it.
+Run: python3 platform/ci/test_seo_probe.py  (or cd platform/ci && python3 -m pytest test_seo_probe.py)
 No network: every test feeds fixtures.
 """
 
@@ -13,7 +14,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "seo"))
 import probe  # noqa: E402
 
 SITE = "https://marisstella.app/"
@@ -204,7 +205,7 @@ class Misc(unittest.TestCase):
 
     def test_verification_tags_match_the_build_module(self):
         conf = {"google": ["abcDEF123_-xyz"], "bing": ["0123456789ABCDEF"]}
-        script = ("import { verificationTags } from './platform/seo/verification.mjs';"
+        script = ("import { verificationTags } from './platform/pages/site-verification.mjs';"
                   f"console.log(JSON.stringify(verificationTags({json.dumps(conf)})))")
         root = Path(__file__).resolve().parents[2]
         if not shutil.which("node"):

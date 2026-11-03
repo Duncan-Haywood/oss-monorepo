@@ -466,7 +466,8 @@ def load_verification(path: Path | None = None) -> dict:
 
 
 def verification_tags(conf: dict) -> list[str]:
-    """The tags ``verification.mjs`` writes into the home page; test_probe.py
+    """The tags ``platform/pages/site-verification.mjs`` writes into the home page;
+    platform/ci/test_seo_probe.py
     keeps the two in step."""
     return [f'<meta name="{name}" content="{tok}">'
             for engine, name in META_NAME.items() for tok in conf.get(engine, [])]

@@ -20,7 +20,7 @@
 // point is published on the next push, and `EXCLUDED_SLUGS` is the deliberate
 // opt-out.
 
-import { verificationHead } from '../seo/verification.mjs';
+import { verificationHead } from './site-verification.mjs';
 import { promises as fs, existsSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { loadLastChanged } from './lastmod.mjs';
