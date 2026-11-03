@@ -191,6 +191,16 @@ class FeederParamsTest(unittest.TestCase):
         self.assertLess(p.mouth_world(45.0)[0], p.mouth_world(-15.0)[0])
         self.assertAlmostEqual(p.mouth_world(0.0)[0], p.head_x + p.feed_col_x, places=6)
 
+    def test_hose_end_directions_show_the_gap_the_chord_check_hides(self):
+        # Outlet straight down, socket along the tilted column: at the shipped outlet height some pose has no
+        # curve within the bend and fall limits; raised, every pose fits but not with one cut length.
+        self.assertIsNone(Feeder().hose_take_up_mm())
+        raised = Feeder(hopper_out_z=1700.0)
+        self.assertTrue(all(x is not None for _, x in raised.hose_pose_ranges()))
+        self.assertGreater(raised.hose_take_up_mm(), 200.0)
+        # A gentler hose (tighter bends allowed) can only widen the fit.
+        self.assertTrue(all(x is not None for _, x in Feeder(hose_min_bend=100.0).hose_pose_ranges()[1:4]))
+
     def test_bow_radius_is_the_circular_arc_bound(self):
         import math
         p = Feeder()

@@ -90,6 +90,13 @@ the part you actually buy before cutting metal.
   are assumptions: print one and pull a ball through with a scale.
   **Known gap, found by this model:** the hose end swings about 450 mm as the
   head tilts (`mouth_world`), which the 600 mm cut length only just absorbs.
+  **Hose with end directions (added 2026-11-03, `Feeder.hose_pose_ranges`, `hose_take_up_mm`):** the chord check
+  above ignores that the hose leaves the spigot straight down and enters the socket along the tilted column. Modelled
+  as a cubic Bezier (handles 25-900 mm) held to the 150 mm bend limit and the 30 deg fall, the result is worse than the
+  chord check said: at the shipped outlet height (1560 mm) there is no valid curve at -15 or +45 deg at all; raised to 1700 mm
+  every pose fits (518-541 mm at -15 deg, 745-853 mm at +45 deg), but no single cut length fits all, so about 258 mm
+  of take-up (spring reel, telescoping section or a pulley) is needed. Slack cannot simply loop because the 30 deg
+  fall rules out flat sections. The model is a 2-D smooth-curve proxy for a real hose: hang a hose and check.
   **Hopper bracing (added 2026-11-03, `Feeder.check_hopper_frame`):** the four
   1.4 m posts were free-standing on M5 joints, which carry no useful moment. Two 2020 diagonals
   (`hopper_brace_x`, one each side, rear foot to front head) and one (`hopper_brace_y`, behind the
