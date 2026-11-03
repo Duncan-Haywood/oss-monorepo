@@ -41,7 +41,7 @@ REPORT_FIELDS = ("kind", "subjects", "topics", "date", "status", "superseded_by"
 STATUSES = ("current", "superseded")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 # Aliases too common in report titles to tag one on their own; `find` still resolves them.
-GENERIC = {"search", "merge", "merging", "posts", "writing", "rules", "owner", "issues", "market",
+_GENERIC_WORDS = {"search", "merge", "merging", "posts", "writing", "rules", "owner", "issues", "market",
            "audience", "product", "venture", "ventures", "pages", "deploy", "fetch", "network",
            "github", "usage", "metrics", "score", "legal", "license", "progress", "research",
            "papers", "statistics", "defaults", "guidelines", "prompts", "layers", "instructions",
@@ -50,13 +50,15 @@ GENERIC = {"search", "merge", "merging", "posts", "writing", "rules", "owner", "
            "conflicts", "background", "timeout", "timeouts", "python", "overlap", "duplicates",
            "accounts", "honesty", "safety", "ethics", "audit", "progress", "frontmatter", "tags",
            "counter", "measurement", "routes", "tracks", "fabrication", "deployment", "typescript"}
-GENERIC = {re.sub(r"[^a-z0-9]", "", g)[:-1] if g.endswith("s") and len(g) > 4 else g for g in GENERIC}
 
 
 def tag_key(tag: str) -> str:
     """Spelling-insensitive form of a tag (same rule as check_post_frontmatter.tag_key)."""
     k = re.sub(r"[^a-z0-9]", "", tag.lower())
     return k[:-1] if k.endswith("s") and len(k) > 3 else k
+
+
+GENERIC = {tag_key(w) for w in _GENERIC_WORDS}
 
 
 # --------------------------------------------------------------------------
