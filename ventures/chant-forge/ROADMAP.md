@@ -10,17 +10,17 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   clefs, accidentals, mora, bars, a downbeat fit, transposition to a final, a
   mode/final check and a drone. 8 unit tests; output read back with Python `mido`.
 
+- 2026-11-03: corpus of five pieces (Dies irae, Pange lingua, Veni Creator,
+  Te Deum, Salve Regina) from GregoBase (CC0 per its FAQ), each naming its
+  book and page; a test parses all of them and checks the mode final. Not
+  compared against page scans; Te Deum and Salve Regina come from post-1929
+  books (`corpus/README.md`).
+
 ## Next
 
-1. **Corpus, first five pieces:**
-   - transcribe *Dies irae*, *Pange lingua*, *Veni Creator Spiritus*,
-     *Te Deum* (opening) and *Salve Regina* (simple tone) into `corpus/` from a
-     cited public-domain scan (the 1908 Graduale or Liber Usualis);
-   - each file names its page;
-   - the mode/final check must pass on every piece.
-
-   Before taking anything from GregoBase, record its licence in
-   `corpus/README.md`. It was not checked on 2026-11-03.
+1. **Corpus hardening:** compare the five files against a pre-1929 scan,
+   find a pre-1929 source for the Te Deum and Salve Regina, and add the
+   remaining verses of Pange lingua and Veni Creator.
 2. **Real-file robustness:** run the converter over a batch of Gregorio files
    and fix whatever it misreads:
    - multi-clef pieces;
