@@ -1,6 +1,6 @@
 ---
 title: "Why jittering the target did not fix permit interval coverage"
-seo_title: "Conformal prediction on integer-day permit durations: a negative result"
+seo_title: "Conformal prediction on integer-day permit lags: a negative result"
 date: 2026-11-03
 tags: [research, conformal-prediction, building-permits, negative-result]
 description: "Conformal intervals for permit lags over-covered in two cities. We tested the tie-at-zero explanation by dequantising the target. It was mostly wrong."
