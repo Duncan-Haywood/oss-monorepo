@@ -23,6 +23,7 @@ const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULS
   --lrc     write timed lyrics (LRC, one line per phrase) to this file
   --suggest-final  print the finals that keep the whole chant in E2-E4 (a men's unison range) and exit
   --auto-final  transpose to the recommended final from --suggest-final (a chant wider than E2-E4 is refused)
+  --intro   N bars of silence before the chant (the backing plays under them; cues, lyrics and markers shift to match)
   --markers add a MIDI marker at the start of each phrase (DAW locators)
   --json    print the summary as JSON`;
 
@@ -45,6 +46,7 @@ export function run(argv) {
     else if (a === '--lrc') args.lrc = argv[++i];
     else if (a === '--suggest-final') args.suggest = true;
     else if (a === '--auto-final') args.auto = true;
+    else if (a === '--intro') args.intro = Number(argv[++i]);
     else if (a === '--json') args.json = true;
     else if (a === '-h' || a === '--help') return { code: 0, text: USAGE };
     else if (!args.file) args.file = a;
@@ -54,6 +56,8 @@ export function run(argv) {
   if (!(args.bpm > 0)) return { code: 2, text: '--bpm must be a positive number' };
 
   if (!Number.isInteger(args.repeat) || args.repeat < 1 || args.repeat > 64) return { code: 2, text: '--repeat must be a whole number from 1 to 64' };
+
+  if (args.intro !== undefined && (!Number.isInteger(args.intro) || args.intro < 1 || args.intro > 16)) return { code: 2, text: '--intro must be a whole number of bars from 1 to 16' };
 
   const parsed = parseGabc(readFileSync(args.file, 'utf8'));
   let events = parsed.events;
@@ -77,6 +81,7 @@ export function run(argv) {
   if (args.fit) events = args.stretch ? fitStretch(events, args.fit) : fitToBars(events, args.fit);
   if (args.halftime) events = halfTime(events);
   if (args.repeat > 1) events = Array.from({ length: args.repeat }, () => events).flat().map((e) => ({ ...e }));
+  if (args.intro) events = [{ type: 'bar', kind: 'full', pulses: 8 * args.intro }, ...events];
   const summary = summarize({ ...parsed, events }, { bpm: args.bpm, pulsesPerBar: args.fit || 8 });
   if (args.cues) {
     writeFileSync(args.cues, cueSheet(events, { bpm: args.bpm, pulsesPerBar: args.fit || 8 }));
