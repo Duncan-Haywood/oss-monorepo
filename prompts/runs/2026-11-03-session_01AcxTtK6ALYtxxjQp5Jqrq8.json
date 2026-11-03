@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01AcxTtK6ALYtxxjQp5Jqrq8",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T20:11:17Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "did not rewrite sales-agent next: ; the landed slice (agent-written opt-out set) is not one of its real-input items",
+      "did": "recorded in README and eval/README",
+      "result": "ok"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-03-the-sales-agent-missed-10-of-24-opt-outs-on-a-fresh-set.md"
+  ],
+  "goal": null,
+  "notes": "Sales-agent flagship 3 (flagship 1 needs real inputs). New agent-written opt-out set scored 16/30 before (10/24 opt-outs missed), 26/30 after, 0 opt-outs missed. Full sales-agent suite 169/169 pass. Security-alerts branch absent; IDEAS and requests empty.",
+  "corrections": [],
+  "redteam": null
+}
