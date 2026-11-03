@@ -3,7 +3,7 @@ title: "Hearing Gregorian chant over deep house without a DAW"
 seo_title: "Render MIDI to WAV in plain JavaScript: a no-dependency preview synth"
 date: 2026-11-03
 tags: [music, gregorian-chant, midi, open-source]
-description: "Chant Forge now renders its MIDI to audio with a small synthesiser, which showed a metal arrangement passing streaming loudness checks and a deep house one missing by 2.8 LU."
+description: "Chant Forge now renders MIDI to audio with a small synthesiser: a metal arrangement passes streaming loudness checks and a deep house one misses by 2.8 LU."
 ---
 
 Chant Forge turns public-domain Gregorian chant into MIDI choir lines and builds drums, bass and chords around them in the chant's mode. Until now nobody could hear the result without opening a DAW, and the mix check needed a WAV that did not exist.
