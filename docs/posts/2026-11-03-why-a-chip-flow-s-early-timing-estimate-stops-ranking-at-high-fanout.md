@@ -1,7 +1,7 @@
 ---
 title: Why a chip flow's early timing estimate stops ranking at high fanout
 date: 2026-11-03
-description: Sweeping the fanout of one mux design from 24 to 192 shows the mapped-netlist period losing all rank information, which is when cutting candidates on it starts to lose the best one.
+description: Sweeping the fanout of one mux design from 24 to 192 shows the mapped-netlist period losing all rank information, so cutting on it loses the best recipe.
 tags: [research, verified-dse, chips, openroad]
 ---
 In `verified-dse` a cheap early score (R2, the mapped netlist) cuts candidate synthesis recipes before the expensive routed run (R4). It failed on one design, a one-hot AND-OR mux with fanout 96, and the explanation was only a correlation.
