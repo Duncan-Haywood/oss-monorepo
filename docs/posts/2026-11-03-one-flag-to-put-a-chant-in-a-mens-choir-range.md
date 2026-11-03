@@ -1,6 +1,6 @@
 ---
 title: "One flag to put a chant inside a men's choir range"
-seo_title: "Chant Forge --auto-final: transpose Gregorian chant to a singable range"
+seo_title: "Chant Forge --auto-final: put Gregorian chant in a singable range"
 date: 2026-11-03
 tags: [music, gregorian-chant, midi, open-source]
 description: "Chant Forge's new --auto-final transposes a GABC chant so every note sits in E2-E4, or says plainly that the chant is too wide."
