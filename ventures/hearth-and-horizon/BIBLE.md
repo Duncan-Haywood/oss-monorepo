@@ -259,6 +259,8 @@ numbers worked out before drafting.
 
 **Hearth & Horizon**
 
+- *(Done: The Freezer That Keeps a Day, Saint Ninian's hall (invented), near Elgin, Moray, 2 to 4 Jan 2053; text only.)* Power cut, 200 kg frozen food: 200 x 2 kJ/kg/K x 17 K = 6,800 kJ (1.9 kWh); at ~1 kWh/day heat leak that is ~45 h; thermometer -18 to -9 in 16 h is 0.56 K/h, so -1 at ~46 h; both routes agree to the guess; thaw plateau makes temperature a poor guide near 0; half moved to a generator freezer, half handed out; refreezing/thaw-hour guidance quoted from memory (all figures illustrative).
+
 - *(Done: The Apples Off the Ground, Saint Kenelm's orchard (invented), near Ledbury, Herefordshire, Sat 14 Oct 2048; text only.)* Parish cider: 20 L is ~21 kg at 3.9 kJ/kg/K, 12 to 71 C is 4,830 kJ (1.34 kWh); a 2 kW ring at 70% gives ~57 min a batch; 240 kg x 0.65 L/kg is ~156 L (8 batches, ~7.5 h) so only 40 L heated for the children's table, the rest sold labelled raw; 71 C (160 F) quoted from memory; ice-water check, reading 2 means 69 in the pot; patulin survives heat, so rot is binned (all figures illustrative).
 
 - *(Done: The Last Light on the Hill Road, Saint Aidan's chapel (invented), above the Breamish valley, Northumberland, Sat 9 Dec 2051; text only.)* Winter pilgrimage timing: slowest walker 22 min/km (2.7 km/h), 4.5 km and 300 m up; Naismith (from memory) adds 10 min per 100 m, so up 99+30 = 129 min, down 99; a 15:00 Mass ends 15:45 and reaches the gate 17:24, about an hour after the end of civil twilight (~16:20); sunset ~15:40 and twilight length quoted from memory, look up the date; Mass at 12:30 with a 10:20 start gives the gate at 14:54, about 40 min before sunset; half-way turn-back by 11:45; Mr Teague's choice is his own (all figures illustrative).
