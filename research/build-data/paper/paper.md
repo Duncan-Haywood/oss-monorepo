@@ -83,8 +83,12 @@ bootstrap interval excludes zero in every cell listed.
 | SF i2c | -5.9% | -12.7% | -3.0% |
 
 Table source: `../results/m3_table.md`. Caveat: a boosted model beating the
-weakest fixed reference class is a low bar; a linear quantile regression, XGBoost,
-CatBoost and a neural net, all in the proposal, are not run.
+weakest fixed reference class is a low bar. Milestone 14 adds two baselines on the
+Chicago a2i pair only (`../results/baselines_chicago_a2i_2024.json`, feed re-pulled
+2026-11-03): XGBoost gives +0.3%, -10.5%, +4.9% at q0.1, q0.5, q0.9 (LightGBM: +0.3,
+-9.7, +6.5), so the q0.9 loss to the reference class is not specific to LightGBM; a
+linear quantile regression fitted on 20,000 training rows gives +0.0%, -2.3%, +72.9%.
+CatBoost, a neural net and the other pairs are not run.
 
 ### 4.2 Coverage (H2 refuted)
 
@@ -143,8 +147,8 @@ same-day indicator separately first.
 
 ## 7 To do before submission
 
-1. Linear quantile regression, XGBoost/CatBoost and a neural net baseline (H1 is
-   currently against the weakest bar).
+1. CatBoost and a neural net baseline, and XGBoost / linear quantile on the other
+   four pairs (Chicago a2i done, milestone 14).
 2. Two-part conformal (same-day indicator, then tail) to repair 4.2.
 3. Spread over draws and i2c for 4.5; first-n-rows ordering instead of random draws.
 4. Multiple test years for H1; a fourth city after a licence check.
