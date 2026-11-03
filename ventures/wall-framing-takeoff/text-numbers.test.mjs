@@ -80,3 +80,16 @@ test("slab: numbers given as text are refused (a text waste of \"0.1\" used to o
   }
   assert.equal(slabConcrete({ shape: "pier", diameter: "12", depth: 36 }).ok, false);
 });
+test("sheathing: text, negative and huge settings are refused, not coerced", async () => {
+  const { sheathe, defaultSheathing } = await import("./sheathing.mjs");
+  const { takeoff } = await import("./engine.mjs");
+  const plan = samplePlan();
+  const r = takeoff(plan);
+  const base = defaultSheathing();
+  assert.notEqual(sheathe({ ...plan, sheathing: base }, r).ok, false);
+  for (const [k, v] of [["minStrip", "12"], ["minStrip", -5], ["minCourse", "x"], ["minCourse", 1e9], ["rimLap", "9"], ["rimLap", -5], ["coverHeight", "96"]]) {
+    assert.equal(sheathe({ ...plan, sheathing: { ...base, [k]: v } }, r).ok, false, `${k}=${v}`);
+  }
+  const s0 = base.sheets[0];
+  assert.equal(sheathe({ ...plan, sheathing: { ...base, sheets: [{ ...s0, width: "48" }] } }, r).ok, false);
+});
