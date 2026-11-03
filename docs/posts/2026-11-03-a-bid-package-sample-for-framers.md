@@ -3,7 +3,7 @@ title: "A sample bid package for framers, generated from the real code"
 seo_title: "Branded bid package for framers: sample proposal from a takeoff"
 date: 2026-11-03
 tags: [construction, estimating, open-source, pricing]
-description: "Wall Framing Takeoff can print a proposal on a framer's letterhead with a quantities appendix and no unit prices. Here is a sample, and why it is not on sale yet."
+description: "Wall Framing Takeoff can print a proposal on a framer's letterhead with a quantities appendix and no unit prices. Here is a sample, and why it is not on sale."
 ---
 
 Small framing contractors usually have the numbers (studs, headers, sheets, labor) and then retype them into a Word document to send a customer. Wall Framing Takeoff already turned a plan and the contractor's own prices into a proposal letter. The branded bid package, built dark on 2026-11-02, puts the company name, logo and colour on that letter and adds an appendix of quantities counted from the plans.
