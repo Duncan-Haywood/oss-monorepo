@@ -1004,3 +1004,14 @@ test("a non-numeric headerHeight or tee is refused with a reason (headerHeight '
   assert.match(r2.errors.join(" "), /tee must be a number/);
   assert.equal(takeoff(samplePlan()).ok, true);
 });
+
+test("a wall id that is not non-empty text is refused (an object id used to pass and print [object Object])", () => {
+  for (const bad of [{ a: 1 }, 7, true, "  ", ["x"]]) {
+    const p = samplePlan();
+    p.walls[0].id = bad;
+    const r = takeoff(p);
+    assert.equal(r.ok, false, JSON.stringify(bad));
+    assert.match(r.errors.join(" "), /needs a name/);
+  }
+  assert.equal(takeoff(samplePlan()).ok, true);
+});
