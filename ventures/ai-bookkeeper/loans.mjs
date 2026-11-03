@@ -9,7 +9,7 @@
 // Pure functions. Only fixed-rate, monthly, equal-payment loans: no balloon,
 // interest-only period, variable rate or day-count interest.
 
-import { parseCents, parseDate } from "./bank.mjs";
+import { parseCents, parseDate, MAX_CENTS } from "./bank.mjs";
 import { confirm } from "./engine.mjs";
 
 export const LOAN_ACCOUNT = "2200", INTEREST_ACCOUNT = "6040";
@@ -55,9 +55,11 @@ export function addLoan(booksIn, { name, amount, rate, months, first, payment } 
   const books = clone(booksIn);
   const cents = typeof amount === "number" ? Math.round(amount * 100) : parseCents(String(amount ?? ""));
   if (!name?.trim()) throw new Error("A loan needs a name.");
-  if (!Number.isFinite(cents) || cents <= 0) throw new Error("Amount must be a positive amount.");
+  if (!Number.isFinite(cents) || cents <= 0 || cents > MAX_CENTS) throw new Error("Amount must be a positive amount of at most 100 billion.");
+  if (typeof rate === "boolean" || rate === null || rate === undefined || String(rate).trim() === "") throw new Error("Rate is an annual percentage, 0 to 100.");
   const pct = Number(rate);
   if (!Number.isFinite(pct) || pct < 0 || pct > 100) throw new Error("Rate is an annual percentage, 0 to 100.");
+  if (typeof months === "boolean" || months === null || String(months).trim() === "") throw new Error("Months must be a whole number, 1 to 600.");
   months = Number(months);
   if (!Number.isInteger(months) || months < 1 || months > 600) throw new Error("Months must be a whole number, 1 to 600.");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(first ?? "") || !parseDate(first)) throw new Error(`First payment date ${first} is not a YYYY-MM-DD date.`);
@@ -65,7 +67,7 @@ export function addLoan(booksIn, { name, amount, rate, months, first, payment } 
   let pay = levelPayment(cents, rateBp, months);
   if (payment !== undefined && payment !== null) {
     pay = typeof payment === "number" ? Math.round(payment * 100) : parseCents(String(payment));
-    if (!Number.isFinite(pay) || pay <= 0) throw new Error("Payment must be a positive amount.");
+    if (!Number.isFinite(pay) || pay <= 0 || pay > MAX_CENTS) throw new Error("Payment must be a positive amount.");
   }
   books.loans ??= [];
   const loan = { id: `LN-${books.loans.length + 1}`, name: name.trim(), cents, rateBp, months, first, payment: pay };
@@ -83,7 +85,7 @@ export function addLoanExtra(booksIn, loanId, { amount, date } = {}) {
   const books = clone(booksIn), loan = (books.loans ?? []).find((l) => l.id === loanId);
   if (!loan) throw new Error(`No loan ${loanId}.`);
   const cents = typeof amount === "number" ? Math.round(amount * 100) : parseCents(String(amount ?? ""));
-  if (!Number.isFinite(cents) || cents <= 0) throw new Error("Extra payment must be a positive amount.");
+  if (!Number.isFinite(cents) || cents <= 0 || cents > MAX_CENTS) throw new Error("Extra payment must be a positive amount of at most 100 billion.");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? "") || !parseDate(date)) throw new Error(`Date ${date} is not a YYYY-MM-DD date.`);
   loan.extras = [...(loan.extras ?? []), { date, cents }];
   return { books, loan };
