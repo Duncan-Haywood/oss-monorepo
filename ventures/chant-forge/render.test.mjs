@@ -109,6 +109,23 @@ test('--lufs brings a quiet deep-house preview to the target within 0.3 LU, peak
   assert.equal(run(['x.mid', '--lufs', '5']).code, 2);
 });
 
+test('--limit reaches -14 LUFS on deep house with true peak under -1 dBTP, and stems still sum', () => {
+  const { p, events } = piece();
+  const fin = [...events].reverse().find((e) => e.type === 'note');
+  const backing = arrange({ genre: 'deep-house', mode: Number(p.header.mode), final: fin.midi, bars: barsFor(events) });
+  const midi = eventsToMidi(events, { bpm: 124, drone: true, backing });
+  const r = renderMidi(midi, { targetLufs: -14, limit: true, stems: true });
+  const res = analyze(readWav(encodeWav(r)));
+  assert.ok(Math.abs(res.lufs + 14) < 0.5, `lufs ${res.lufs}`);
+  assert.ok(res.truePeakDb <= -1, `true peak ${res.truePeakDb}`);
+  const L = r.channels[0];
+  for (const i of [20000, 50000, 90000, 150000]) {
+    let s = 0; for (const st of Object.values(r.stems)) s += st.channels[0][i];
+    assert.ok(Math.abs(s - L[i]) < 1e-9);
+  }
+  assert.equal(run(['x.mid', '--limit']).code, 2);
+});
+
 test('stems sum to the mix and cover each voice', () => {
   const { p, events } = piece();
   const backing = arrange({ genre: 'metal', mode: Number(p.header.mode), final: 50, bars: 4 });
