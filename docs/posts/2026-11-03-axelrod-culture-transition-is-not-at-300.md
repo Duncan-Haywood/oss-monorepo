@@ -1,9 +1,9 @@
 ---
 title: "Axelrod's culture model flips at q of about 55, not 300"
-seo_title: "Axelrod culture model order-disorder transition: q_c by lattice size, F = 10"
+seo_title: "Axelrod culture model: where the F = 10 transition sits"
 date: 2026-11-03
 tags: [research, civ, simulation, reproducibility]
-description: "A compiled Axelrod model on lattices to 80 by 80 puts the F = 10 transition at q of 43 to 55, rising slowly with size, against the q_c of about 300 in Castellano, Marsili and Vespignani (2000)."
+description: "A compiled Axelrod model on lattices to 80 by 80 puts the F = 10 transition at q of 43 to 55, not the q of about 300 published in 2000."
 ---
 
 Axelrod's 1997 model gives each site on a lattice F cultural features with q possible traits. Neighbours copy one trait from each other with probability equal to their share of matching features. Castellano, Marsili and Vespignani (2000) found a sharp transition in q: below it one culture takes over, above it the lattice fragments. For F = 10 they report it at q of about 300.
