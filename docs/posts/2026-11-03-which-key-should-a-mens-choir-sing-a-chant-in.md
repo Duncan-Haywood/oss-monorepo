@@ -1,6 +1,6 @@
 ---
 title: "Which key should a men's choir sing a chant in?"
-seo_title: "Transposing Gregorian chant for a men's choir: finding the key that fits"
+seo_title: "Transposing Gregorian chant for a men's choir: the key that fits"
 date: 2026-11-03
 tags: [music, gregorian-chant, midi, open-source]
 description: "Chant Forge now lists the finals that keep a whole GABC chant inside a men's unison range, and picks the one that centres it."
