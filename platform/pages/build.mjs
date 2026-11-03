@@ -3819,6 +3819,17 @@ const CATEGORY_RULES = [
     blurb: 'Things you can build, change and sell: MIT-licensed robot CAD with laser-cut and 3D-print files, firmware, bills of materials and a browser simulator for each (a robot vacuum and mop, a robotic lawn mower, tennis ball robots), and a generator of public-domain house plans with drawings, IFC and DXF.',
     test: (slug) => ['open-floor-robots', 'open-robot-mower', 'open-tennis-robots', 'open-house-plans'].includes(slug),
   },
+  {
+    // Added 2026-11-03 when `chant-forge` took the catch-all to 6 (bound 5):
+    // chant to MIDI, mastering checks and a release kit. Making music is a
+    // different job from every named section, and the next audio tool has a
+    // home instead of another argument about the catch-all.
+    id: 'music',
+    title: 'Music & audio',
+    accent: '#8a3b5a',
+    blurb: 'Make and check music in your browser: turn public-domain Gregorian chant into MIDI choir lines with genre backing, check a mix for loudness and true peak, and build a release kit for streaming.',
+    test: (slug) => ['chant-forge'].includes(slug),
+  },
 ];
 
 const FALLBACK_CATEGORY = {

@@ -9,7 +9,7 @@
   <meta property="og:description" content="Paste GABC, get a men's-range MIDI choir line with lyrics and a drums, bass and chords backing. Free, MIT, private.">
   <link rel="canonical" href="./index.html">
   <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2333302a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20text-anchor='middle'%20fill='%23f3f1ec'%3E%E2%99%AF%3C/text%3E%3C/svg%3E">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I turn Gregorian chant into MIDI?","acceptedAnswer":{"@type":"Answer","text":"Chant is published as GABC text (the notation Gregorio and GregoBase use). Paste the GABC into Chant Forge, choose a tempo and a final note for your singers, and download the MIDI file. Each syllable becomes a lyric event on its note."}},{"@type":"Question","name":"Is the chant free to use?","acceptedAnswer":{"@type":"Answer","text":"Chant melodies from editions published before 1929 are in the public domain in the United States, but a modern transcription or recording can carry its own rights. Check the licence of every source you paste. The tool does not decide that for you."}},{"@type":"Question","name":"Does the preview sound like a real choir?","acceptedAnswer":{"@type":"Answer","text":"No. The preview is a plain synthesiser so you can judge the arrangement. It is for checking tempo, range and fit, not a release master."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I turn Gregorian chant into MIDI?","acceptedAnswer":{"@type":"Answer","text":"Chant is published as GABC text. Paste it above, pick a tempo and a final note for your singers, and download the MIDI file. Each syllable becomes a lyric event on its note, so a DAW or notation program shows the Latin under the melody."}},{"@type":"Question","name":"Is the chant free to use?","acceptedAnswer":{"@type":"Answer","text":"Melodies from editions published before 1929 are in the public domain in the United States, but a modern transcription or recording can carry its own rights. Check the licence of every source you paste. The tool does not decide that for you."}},{"@type":"Question","name":"Does the preview sound like a real choir?","acceptedAnswer":{"@type":"Answer","text":"No. It is a plain synthesiser so you can judge the arrangement. For a real sound, take the MIDI and cue sheet to singers; the recording guide has a protocol."}}]}</script>
   <style>
     :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
     body { max-width: 820px; margin: auto; padding: 24px 16px; }
@@ -31,6 +31,7 @@
   <main>
   <h1>Chant Forge: Gregorian chant to MIDI, with a gym-genre preview</h1>
   <p>Paste chant in GABC (the text format used by Gregorio and GregoBase). You get a MIDI choir line with one Latin lyric per note, moved into a men's-voice range, optionally over drums, bass and chords in the chant's own mode. Everything runs in your browser; nothing is uploaded.</p>
+  <p><a class="cta" href="README.md">Read the project plan and command-line tools</a></p>
   <form id="f" onsubmit="return false">
     <label for="src">Chant (GABC)</label>
     <textarea id="src" spellcheck="false"></textarea>
@@ -68,7 +69,6 @@
   <p>Melodies from editions published before 1929 are in the public domain in the United States, but a modern transcription or recording can carry its own rights. Check the licence of every source you paste. The tool does not decide that for you.</p>
   <h3>Does the preview sound like a real choir?</h3>
   <p>No. It is a plain synthesiser so you can judge the arrangement. For a real sound, take the MIDI and cue sheet to singers; the <a href="RECORDING-GUIDE.md">recording guide</a> has a protocol.</p>
-  <p><a class="cta" href="README.md">Read the project plan and command-line tools</a></p>
 
   </main>
   <footer>
