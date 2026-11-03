@@ -839,6 +839,23 @@ URL:https://example.invalid/einvoice-preflight/denmark-e-invoice-mandate.
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:85f6fd47e84fc26a@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:New Zealand: large suppliers to government reported to be require
+ d to send from 1 Jan 2027\, though M...
+DESCRIPTION:New Zealand (B2G in force; B2B voluntary). large suppliers to
+  government reported to be required to send from 1 Jan 2027\, though MBI
+ E reportedly applies it through new and renewed contracts (vendor and co
+ mpliance guides\, not MBIE or the law). Detail and sources: https://exam
+ ple.invalid/einvoice-preflight/new-zealand-e-invoice-mandate.html. Not l
+ egal or tax advice.
+URL:https://example.invalid/einvoice-preflight/new-zealand-e-invoice-mand
+ ate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:fcc4f8299c2f79a7@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20270101
