@@ -1,9 +1,9 @@
 {
- "generated_for": "2026-11-02",
- "data_through": "2026-11-02",
+ "generated_for": "2026-11-03",
+ "data_through": "2026-11-03",
  "latest_day": {
-  "day": "2026-11-02",
-  "page_loads": 15
+  "day": "2026-11-03",
+  "page_loads": 10
  },
  "weeks": [
   {
@@ -31,13 +31,13 @@
   {
    "week": "2026-W45",
    "monday": "2026-11-02",
-   "days": 1,
-   "page_loads": 15,
-   "tool_loads": 5,
-   "tools": 1,
+   "days": 2,
+   "page_loads": 32,
+   "tool_loads": 7,
+   "tools": 2,
    "top_tool": "shed-designer",
    "feedback": 0,
-   "crawler_beacons": 14963
+   "crawler_beacons": 27937
   }
  ]
 }
