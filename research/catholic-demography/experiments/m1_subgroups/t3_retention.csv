@@ -1,0 +1,25 @@
+group,cohort,outcome,estimate,se,lo,hi,n
+All,Born 1925-44,still_catholic,0.7842,0.0135,0.7577,0.8106,1302
+All,Born 1945-64,still_catholic,0.6766,0.0092,0.6586,0.6947,4016
+All,Born 1965-80,still_catholic,0.6832,0.0103,0.6629,0.7034,3304
+All,Born 1981-96,still_catholic,0.6191,0.0140,0.5918,0.6465,2068
+NH white,Born 1925-44,still_catholic,0.7821,0.0147,0.7533,0.8109,1042
+NH white,Born 1945-64,still_catholic,0.6614,0.0106,0.6406,0.6822,2925
+NH white,Born 1965-80,still_catholic,0.6334,0.0145,0.6050,0.6618,1802
+NH white,Born 1981-96,still_catholic,0.5478,0.0204,0.5078,0.5878,1036
+Hispanic,Born 1925-44,still_catholic,0.7970,0.0337,0.7309,0.8631,196
+Hispanic,Born 1945-64,still_catholic,0.7364,0.0192,0.6988,0.7739,809
+Hispanic,Born 1965-80,still_catholic,0.7569,0.0152,0.7271,0.7867,1185
+Hispanic,Born 1981-96,still_catholic,0.7116,0.0203,0.6718,0.7513,831
+"All, by survey period",1972-79,still_catholic,0.8376,0.0084,0.8211,0.8540,2432
+"All, by survey period",1980-89,still_catholic,0.8174,0.0076,0.8025,0.8324,3827
+"All, by survey period",1990-99,still_catholic,0.7769,0.0085,0.7604,0.7935,3787
+"All, by survey period",2000-09,still_catholic,0.7386,0.0082,0.7225,0.7547,4084
+"All, by survey period",2010-18,still_catholic,0.6677,0.0097,0.6486,0.6867,3819
+"All, by survey period",2021-24,still_catholic,0.6172,0.0117,0.5942,0.6402,3428
+Converts among current Catholics,1972-79,convert,0.0930,0.0067,0.0798,0.1062,2273
+Converts among current Catholics,1980-89,convert,0.0992,0.0062,0.0870,0.1114,3488
+Converts among current Catholics,1990-99,convert,0.0954,0.0055,0.0846,0.1062,3211
+Converts among current Catholics,2000-09,convert,0.0817,0.0056,0.0708,0.0927,3213
+Converts among current Catholics,2010-18,convert,0.0782,0.0065,0.0655,0.0909,2673
+Converts among current Catholics,2021-24,convert,0.0695,0.0065,0.0567,0.0823,2214
