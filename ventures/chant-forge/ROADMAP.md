@@ -23,6 +23,10 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   notes stay inside the mode scale, a kick in every bar, four on the floor, half
   time metal. Not yet listened to through a synthesiser: ear check pending.
 
+- 2026-11-03: release kit (`release.mjs`, `release-cli.mjs`): ISRC and UPC/EAN check
+  digits, cover art size, WAV format, the master checks, per-track source edition and
+  rights, AI-disclosure level. 7 tests. Not run against a distributor's real form.
+
 ## Next
 
 1. **Corpus hardening:** compare the five files against a pre-1929 scan,

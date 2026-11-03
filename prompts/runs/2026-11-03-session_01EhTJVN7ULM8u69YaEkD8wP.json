@@ -33,7 +33,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Every R-0004 monetization row was built-dark or parked awaiting the owner's checkout link, so landed golive.py (status/set/unset across six checkout.mjs) with 9 passing pytest cases, README section and a post. No sale possible yet.",
+  "notes": "chant-forge release kit: release.mjs + CLI, 7 tests; 26 chant-forge tests pass locally. Checked against no real distributor form.",
   "corrections": [],
   "redteam": null
 }

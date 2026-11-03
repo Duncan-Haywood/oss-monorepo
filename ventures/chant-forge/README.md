@@ -17,7 +17,7 @@ released track:
    the line. Not built.
 4. **Voice:** a real men's choir (recorded) or a singing synthesiser. Not built.
 5. **Release:** loudness (done, `master-cli.mjs`), metadata, credits and AI-disclosure checks before a
-   distributor upload. Not built.
+   distributor upload (done: `node release-cli.mjs release.json`, 7 tests, 2026-11-03).
 
 ## What works now
 
