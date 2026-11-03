@@ -1424,6 +1424,20 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   return problems;
 }
 
+/**
+ * Whether search hygiene (unique titles, one h1, title length) fails the run.
+ * It does on a pull request and on a local run, where the author can fix it.
+ * It does not on a deploy of `main` (push, schedule, manual run): there a
+ * duplicate title blocked every deploy for over an hour on 2026-11-03 while
+ * the site went stale. Disclaimers, leaked files, dead links and the product
+ * count stay fatal everywhere. PAGES_HYGIENE=fatal|warn overrides.
+ */
+export function hygieneIsFatal(env = process.env) {
+  if (env.PAGES_HYGIENE === 'fatal') return true;
+  if (env.PAGES_HYGIENE === 'warn') return false;
+  return !['push', 'schedule', 'workflow_dispatch'].includes(env.GITHUB_EVENT_NAME);
+}
+
 const invokedDirectly = process.argv[1] && import.meta.url.endsWith(path.basename(process.argv[1]));
 if (invokedDirectly) {
   const positional = process.argv.slice(2).find((a) => !a.startsWith('--'));
@@ -1434,10 +1448,15 @@ if (invokedDirectly) {
   // does not require touching this number, while a collapse still fails.
   // Real-site search hygiene (unique titles, one h1). Kept out of checkSite
   // so the minimal fixtures in check.test.mjs need no <title>/<h1>.
-  const problems = [
-    ...(await checkSite(site, { minProducts: 20 })),
-    ...(await exists(site) ? checkPageIdentity(await loadPages(site)) : []),
-  ];
+  const problems = await checkSite(site, { minProducts: 20 });
+  const hygiene = await exists(site) ? checkPageIdentity(await loadPages(site)) : [];
+  if (hygieneIsFatal()) problems.push(...hygiene);
+  else if (hygiene.length > 0) {
+    // A deploy of main: the PR that caused this should have been stopped by
+    // its own run. Blocking here only freezes the live site (2026-11-03).
+    console.warn(`${hygiene.length} search-hygiene warning(s), not blocking this deploy (fix them in a PR):`);
+    for (const problem of hygiene) console.warn(`::warning title=page identity::${problem}`);
+  }
 
   if (problems.length > 0) {
     console.error(`${problems.length} problem(s) in ${site}:`);
