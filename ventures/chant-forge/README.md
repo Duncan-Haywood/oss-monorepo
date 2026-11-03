@@ -19,6 +19,18 @@ released track:
 5. **Release:** loudness (done, `master-cli.mjs`), metadata, credits and AI-disclosure checks before a
    distributor upload (done: `node release-cli.mjs release.json`, 7 tests, 2026-11-03).
 
+## Hear it without a DAW
+
+```sh
+node ventures/chant-forge/render-cli.mjs dies-irae.mid -o dies-irae.wav
+node ventures/chant-forge/master-cli.mjs dies-irae.wav
+```
+
+`render-cli.mjs` is a plain preview synthesiser (choir pad, organ drone, bass,
+chord pad, synthesised drums; no dependencies, deterministic, about 2 s for a 3-minute
+piece). It is for the ear check and for running the master check on real audio. It is not a
+release master and the choir is not a real choir (`RECORDING-GUIDE.md`).
+
 ## What works now
 
 ```sh

@@ -42,6 +42,7 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
 - 2026-11-03: `nabc.test.mjs`: NABC alternation (`(fg|vi|ls)`), neumes split across groups, `!`, `/`, `z`/`Z`, `;2`, backtick and `[ob:...]` markers all keep exactly the GABC pitches. Made-up strings; the real-file batch is still open.
 - 2026-11-03: `--halftime` (`halfTime` in `gabc.mjs`): chant durations doubled against an unchanged backing tempo. 3 tests; bar and second counts checked on Dies irae. Not listened to.
 - 2026-11-03: `RECORDING-GUIDE.md` (5a): make the guide and cue sheet, learn the line, record, run `master-cli.mjs`. Not tried with real singers.
+- 2026-11-03: preview renderer (`render.mjs`, `render-cli.mjs`, `render.test.mjs`, 6 tests): MIDI to stereo WAV with an additive choir pad, organ drone, bass, chord pad and synthesised GM drums. Checked: a D3 note measures 146.8 Hz by autocorrelation, length follows the tempo map, output is deterministic. First reading through `master-cli.mjs` on Dies irae (`--fit 8 --final 50`): deep house at 124 BPM -16.8 LUFS (2.8 LU too quiet), true peak -1.12 dBTP; metal at 170 BPM half-time -14.0 LUFS, -1.67 dBTP, all four checks pass. Mono correlation reads 1.00 (everything is centred; no stereo image yet). Sound quality not judged by a person.
 
 ## Next
 
