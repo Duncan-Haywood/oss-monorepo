@@ -734,6 +734,22 @@ URL:https://example.invalid/einvoice-preflight/oman-fawtara-e-invoice-man
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:c95fd4c5faa18e39@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20260902
+SUMMARY:Côte d'Ivoire: sources give start dates from June 2025 to June 2
+ 026 and DGI controls from 1 September ...
+DESCRIPTION:Côte d'Ivoire (In force; dates conflict between sources). so
+ urces give start dates from June 2025 to June 2026 and DGI controls from
+  1 September 2026. Detail and sources: https://example.invalid/einvoice-
+ preflight/cote-divoire-fne-e-invoice-mandate.html. Not legal or tax advi
+ ce.
+URL:https://example.invalid/einvoice-preflight/cote-divoire-fne-e-invoice
+ -mandate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:7be27b89af58059f@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20260901

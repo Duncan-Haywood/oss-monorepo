@@ -347,6 +347,13 @@
   },
   {
    "date": "2026-09-01",
+   "country": "Côte d'Ivoire",
+   "page": "cote-divoire-fne-e-invoice-mandate.html",
+   "note": "sources give start dates from June 2025 to June 2026 and DGI controls from 1 September 2026",
+   "status": "In force; dates conflict between sources"
+  },
+  {
+   "date": "2026-09-01",
    "country": "France",
    "page": "france-e-invoice-mandate.html",
    "note": "Receive: all businesses 1 Sep 2026",
