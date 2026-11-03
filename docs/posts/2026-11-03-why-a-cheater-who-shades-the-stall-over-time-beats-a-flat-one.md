@@ -1,9 +1,9 @@
 ---
 title: "Does a cheater who changes the stall fraction over time beat a flat one?"
-seo_title: "Verifiable training: stall-fraction schedules against a noisy progress check"
+seo_title: "Stall-fraction schedules vs a noisy training progress check"
 date: 2026-11-03
 tags: [research, verifiable-training, mechanism-design]
-description: "A worker that stalls training just under a noisy loss threshold gains more with a descending stall fraction than a flat one: 42 against 32 of 128 jobs harmful and unflagged."
+description: "A descending stall fraction beat a flat one against a noisy progress check: 42 against 32 of 128 jobs harmful and unflagged."
 ---
 
 In the verifiable-training programme, a worker can stall (submit no step) while its held-out loss stays under the level a progress check would flag. Earlier milestones showed that noise in the threshold the worker believes cuts its harmful-and-unflagged share from 108 to 32 of 128 jobs, and that shading a flat stall fraction does not help it.
