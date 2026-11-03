@@ -47,6 +47,10 @@ export function validateStair(s) {
   for (const k of ["treadThickness", "floorThickness", "treadGap", "openingLength"]) {
     if (isNum(s[k]) && s[k] < 0) errors.push(`${k} ${s[k]} in cannot be negative.`);
   }
+  // A 1e9 in tread thickness gave ok: true. Guard limits for sanity, not code values.
+  for (const [k, max] of [["treadThickness", 6], ["floorThickness", 48], ["treadGap", 12], ["openingLength", 600], ["nosing", 6]]) {
+    if (isNum(s[k]) && s[k] > max) errors.push(`${k} ${s[k]} in is over ${max} in, outside what this layout checks.`);
+  }
   if (isNum(s.stringerSpacing) && s.stringerSpacing > 0 && s.stringerSpacing < 2) errors.push(`Stringer spacing ${s.stringerSpacing} in is under 2 in; it would need thousands of stringers.`);
   if (errors.length) return errors;
   if (!(s.totalRise >= 12)) errors.push("Total rise (finished floor to finished floor) must be at least 1 ft.");
@@ -407,7 +411,10 @@ export function layoutStairWithLanding(input, plan) {
  * depth and an assumed 1-1/2 in of decking, so it is the post's length above the footing, not the footing depth.
  */
 export function layoutLandingPosts(width, depth, height, spacing = 96) {
-  if (!(width > 0 && depth > 0 && spacing > 0)) throw new RangeError("Landing width, depth and post spacing must be positive numbers.");
+  const num = (v) => typeof v === "number" && Number.isFinite(v);
+  if (!(num(width) && num(depth) && num(spacing) && width > 0 && depth > 0 && spacing > 0)) throw new RangeError("Landing width, depth and post spacing must be positive numbers.");
+  // 1e-9 in spacing gave 192 billion posts; 1e9 in a width gave 20 million. Guard limits, not code values.
+  if (spacing < 12 || width > 1200 || depth > 1200) throw new RangeError("Landing post spacing must be at least 12 in and the landing no wider or deeper than 100 ft.");
   const bays = (len) => Math.max(1, Math.ceil(len / spacing - 1e-9));
   const along = bays(width), across = bays(depth);
   const count = 2 * (along + across);
@@ -425,6 +432,7 @@ export const POST_SLENDERNESS_LIMIT = 50; // unbraced length over least face for
 export function checkPostSlenderness(height, postSize = "4x4") {
   const face = POST_FACE[postSize];
   if (!face) return { ok: false, postSize, warnings: [`Unknown landing post size ${postSize}; use 4x4 or 6x6.`] };
+  if (typeof height !== "number" || !Number.isFinite(height) || height <= 0) return { ok: false, postSize, warnings: ["Post height must be a number of inches over 0."] };
   const slenderness = height / face, maxHeight = POST_SLENDERNESS_LIMIT * face;
   const warnings = slenderness > POST_SLENDERNESS_LIMIT ? [`A ${postSize} post ${formatInches(height)} long is ${slenderness.toFixed(1)} times its face, over the limit of ${POST_SLENDERNESS_LIMIT}; use a 6x6 or brace it (a ${postSize} reaches ${formatInches(maxHeight)}).`] : [];
   return { ok: warnings.length === 0, postSize, face, height, slenderness, limit: POST_SLENDERNESS_LIMIT, maxHeight, warnings };
@@ -457,8 +465,12 @@ export function checkLandingPostColumn(height, postSize, load, { fc, emin } = /*
  * post's load and `postOk` says whether it holds. Returns the load, the area it needs, and a round and a square footing rounded up to the inch.
  */
 export function sizeLandingFootings(width, depth, spacing, { soilBearing, liveLoad = 40, deadLoad = 10, postCapacity, extraLoad = 0 } = /** @type {{soilBearing?: number, liveLoad?: number, deadLoad?: number, postCapacity?: number, extraLoad?: number}} */ ({})) {
-  if (!(soilBearing > 0)) return { ok: false, errors: ["soilBearing must be a positive figure in psf."] };
-  if (!(width > 0 && depth > 0 && spacing > 0)) return { ok: false, errors: ["Landing width, depth and post spacing must be positive numbers."] };
+  const num = (v) => typeof v === "number" && Number.isFinite(v);
+  if (!(num(soilBearing) && soilBearing > 0)) return { ok: false, errors: ["soilBearing must be a positive figure in psf."] };
+  if (!(num(width) && num(depth) && num(spacing) && width > 0 && depth > 0 && spacing > 0)) return { ok: false, errors: ["Landing width, depth and post spacing must be positive numbers."] };
+  if (spacing < 12 || width > 1200 || depth > 1200) return { ok: false, errors: ["Post spacing must be at least 12 in and the landing no wider or deeper than 100 ft."] };
+  for (const [k, v] of [["liveLoad", liveLoad], ["deadLoad", deadLoad], ["extraLoad", extraLoad]]) if (!num(v) || v < 0) return { ok: false, errors: [`${k} must be a number of pounds or psf, zero or more.`] };
+  if (postCapacity != null && !(num(postCapacity) && postCapacity > 0)) return { ok: false, errors: ["postCapacity must be a positive number of pounds."] };
   const bays = (len) => Math.max(1, Math.ceil(len / spacing - 1e-9));
   const along = bays(width), across = bays(depth);
   const bay = (width / along) * (depth / across) / 144; // sq ft
