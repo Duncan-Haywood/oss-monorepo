@@ -1,6 +1,6 @@
 ---
 title: "How much current does a church hearing loop need? A story with the sums"
-seo_title: "Hearing loop current for a church: 400 mA/m, 4.55 A, and the leak next door"
+seo_title: "Church hearing loop current: 400 mA/m needs 4.55 A, and it leaks"
 date: 2026-11-03
 tags: [fiction, hearth-and-horizon, hearing-loops, science]
 description: "A new Hearth & Horizon story works out one wire round an 18 by 10 m nave: 0.088 A/m per amp, 4.55 A for 400 mA/m, and a leak into the hall."
