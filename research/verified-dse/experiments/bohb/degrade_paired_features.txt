@@ -1,0 +1,6 @@
+sigma 0.3 part features B 15: bohb minus random = -0.99 points [-1.73, -0.31] bootstrap over 40 cells; bohb lower in 26, higher in 10, sign test p 0.011
+sigma 0.3 part features B 25: bohb minus random = +0.30 points [-0.57, +1.25] bootstrap over 40 cells; bohb lower in 25, higher in 11, sign test p 0.029
+sigma 0.3 part features B 40: bohb minus random = +1.00 points [+0.20, +2.04] bootstrap over 40 cells; bohb lower in 22, higher in 14, sign test p 0.243
+sigma 1.0 part features B 15: bohb minus random = -0.63 points [-1.24, -0.04] bootstrap over 40 cells; bohb lower in 23, higher in 13, sign test p 0.132
+sigma 1.0 part features B 25: bohb minus random = +0.43 points [-0.36, +1.29] bootstrap over 40 cells; bohb lower in 22, higher in 14, sign test p 0.243
+sigma 1.0 part features B 40: bohb minus random = +1.03 points [+0.25, +2.07] bootstrap over 40 cells; bohb lower in 21, higher in 15, sign test p 0.405
