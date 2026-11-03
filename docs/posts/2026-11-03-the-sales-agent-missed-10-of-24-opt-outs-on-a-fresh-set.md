@@ -1,9 +1,9 @@
 ---
 title: "The sales agent missed 10 of 24 opt-outs on a fresh set"
-seo_title: "Detecting unsubscribe requests in cold email replies: a measured miss rate"
+seo_title: "Detecting unsubscribe requests in cold email replies: miss rate"
 date: 2026-11-03
 tags: [sales, email, compliance, evaluation, open-source]
-description: "A fresh set of 24 agent-written opt-out replies went through the sales agent's rules before any change: 10 were missed. Here is what slipped through and the patch."
+description: "A fresh set of 24 agent-written opt-out replies went through the sales agent rules before any change: 10 were missed. What slipped through, and the patch."
 ---
 
 An unsubscribe that the reply reader does not catch is the expensive mistake in cold outreach: the person asked to stop and the next touch goes out anyway. So after each patch the sales agent gets a fresh set it was not tuned on.
