@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-03 · Milestone 8d: the four unchecked bibliography entries checked by web search (a check, not an experiment)
+- Why: 8c's "Next". Crossref and the UIUC host were blocked again this session (HTTP 403 / proxy refusal), so the entries were checked with web search against library and catalogue records.
+- Outcome: **correction**: Sharpe's AeroSandbox thesis is an MIT **S.M.** thesis (DSpace 1721.1/140023, September 2021, advisor R. J. Hansman), not a PhD thesis; `references.bib` now uses `mastersthesis`, PROPOSAL.md says S.M. Drela 1989 gets its DOI (10.1007/978-3-642-84010-4_1). Selig's entry is now *Summary of Low-Speed Airfoil Data, Volume 1* (Selig, Guglielmo, Broeren, Giguère; SoarTech, 1995). Raymer 6th ed. gets ISBN 978-1-62410-490-9 (a bundled printing has 978-1-62410-574-6).
+- Limits: search-result records, not the documents; Drela's chapter and Raymer's book not opened; Selig volume/year come from one catalogue entry. No number in the paper changed.
+- Next: thrust law from the UIUC propeller database when the host answers; Allan-variance parameters; AIAA template.
+
 ## 2026-11-03 · Milestone 8c: bibliography checked against the registries (a check, not an experiment)
 - Why: 8b left four entries unchecked because Crossref and doi.org returned 403; both answered today (HTTP 200, with a 429 on two DOIs through `cite_check.py`, so Crossref was read directly).
 - Outcome: `paper/references.bib` now has full author lists for Stolaroff et al. (six) and Rodrigues et al. (six), the Brandt and Selig venue (49th AIAA ASM, Orlando, 4 Jan 2011), and a **correction**: Jordan et al. appeared at AUVSI's Unmanned Systems North America 2004 (Anaheim, 3 to 5 Aug 2004), not "Unmanned Unlimited" as the proposal and first bib wrote from memory. PROPOSAL.md fixed. `cite_check.py` re-run: 5 of 7 DOIs ok, 2 got HTTP 429 (not a verdict); Rodrigues was confirmed by direct Crossref read. Still unchecked: Drela 1989 (no DOI), Raymer 6th ed., Sharpe 2021 title and year, Selig LSAT volume and year. `check_numbers.py` passes. Science unchanged.

@@ -46,7 +46,7 @@ Delivery-drone energy, cost and operations:
 - Murray and Chu, "The flying sidekick traveling salesman problem", *Transportation Research Part C* 54, 2015, doi:10.1016/j.trc.2015.03.005. Operations side, for the later fleet milestone.
 
 Design tools and full-size concepts:
-- Sharpe, AeroSandbox (MIT thesis, 2021), https://github.com/peterdsharpe/AeroSandbox. Differentiable aircraft design tool (MIT licence); the intended engine for full-size and model sizing.
+- Sharpe, AeroSandbox (MIT S.M. thesis, 2021), https://github.com/peterdsharpe/AeroSandbox. Differentiable aircraft design tool (MIT licence); the intended engine for full-size and model sizing.
 - Johnson, Silva and Solis, "Concept vehicles for VTOL air taxi operations", AHS Technical Conference, 2018, https://ntrs.nasa.gov/citations/20180003381. Open full-size VTOL sizing method that transfers to cargo.
 - Raymer, *Aircraft Design: A Conceptual Approach*, AIAA, 6th ed. 2018. Weight and drag build-up relations for the full-size side.
 - Hoekstra and Ellerbroek, "BlueSky ATC simulator project", ICRAT 2016, https://github.com/TUDelft-CNS-ATM/bluesky. For the later airspace milestone.
