@@ -316,6 +316,8 @@ them (a door 0.1 m from a window, partitions meeting inside a rough
 opening) check the reader, not a framing result. The table, the limits and
 a 340-hour plan (WASM on the page next) are in its README.
 
+**IFC upload on the page (2026-11-03).** The page's "Open plan file" now takes `.ifc`. The Rust engine is built to WebAssembly (`ifc-engine.wasm`, 273 KB, no imports, no wasm-bindgen; `ifc-engine/src/wasm.rs`), loaded by `ifcwasm.mjs`, and the file is read in the browser: nothing is uploaded. The page takes the engine's DXF for the lowest storey into the existing DXF reader and shows a storey picker when the file has more than one. Checked (`ifcwasm.test.mjs`): the DXF and JSON from the wasm are byte-identical to the native binary's on the three committed buildingSMART files, 200 garbage inputs return an error rather than trap, and headless Chromium opens the wall-with-window file with 1 wall and 1 opening and no console errors. Not yet run in the browser on the Duplex or Schependomlaan models (not committed); the wasm is the same code as the native binary that matched IfcOpenShell on them. Rebuild: `cd ifc-engine && cargo build --release --target wasm32-unknown-unknown --lib && cp target/wasm32-unknown-unknown/release/ifc_engine.wasm ../`.
+
 ## Corner plate laps
 
 Set `"plateLaps": true` in the plan (or pick it on the page). A wall with

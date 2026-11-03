@@ -146,7 +146,7 @@
     <button type="button" class="secondary" id="drawingsPdf">Download wall drawings (PDF)</button>
     <button type="button" class="secondary" id="panelOrderBtn">Download shop-panel lumber order (needs a panel length above)</button>
     <button type="button" class="secondary" id="savePlan">Save plan file</button>
-    <label for="openPlan" style="display:inline-block;font-weight:600">Open plan file</label> <input type="file" id="openPlan" accept=".json,application/json,.dxf" style="width:auto">
+    <label for="openPlan" style="display:inline-block;font-weight:600">Open plan file</label> <input type="file" id="openPlan" accept=".json,application/json,.dxf,.ifc" style="width:auto"> <span id="ifcStoreyWrap" hidden><label for="ifcStorey">Storey</label> <select id="ifcStorey" style="width:auto"></select></span>
     <p><input type="checkbox" id="sheath" style="width:auto"> <label for="sheath" style="display:inline">Also lay out wall sheathing (4 x 8 to 4 x 12 sheets, 1 per square foot)</label>
       <input type="checkbox" id="sheathH" style="width:auto;margin-left:1rem"> <label for="sheathH" style="display:inline">sheets long side along the wall</label>
       <input type="checkbox" id="sheathO" style="width:auto;margin-left:1rem"> <label for="sheathO" style="display:inline">run sheathing past corners</label>
@@ -558,7 +558,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>proposal_previewed</code>, <code>proposal_printed</code>, <code>proposal_downloaded</code>, <code>bid_package_unlocked</code>, <code>bid_package_opened</code>, <code>bids_leveled</code>, <code>change_order_saved</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>dormer_on</code>, <code>stairs_on</code>, <code>deck_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>proposal_previewed</code>, <code>proposal_printed</code>, <code>proposal_downloaded</code>, <code>bid_package_unlocked</code>, <code>bid_package_opened</code>, <code>bids_leveled</code>, <code>change_order_saved</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>dormer_on</code>, <code>stairs_on</code>, <code>deck_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>ifc_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -567,6 +567,7 @@
   <script type="module">
     import { takeoff, samplePlan, defaultStock, parseLength, formatLength, formatInches, toCsv, verifyWall, PRECUT, DEPTH } from "./engine.mjs";
     import { planFromDxf } from "./dxf.mjs";
+    import { loadIfcEngine } from "./ifcwasm.mjs";
     import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength, restoreSketch, fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners } from "./sketch.mjs";
     import { drawingSetHtml } from "./drawings.mjs";
     import { drawingSetPdf } from "./pdf.mjs";
@@ -1552,6 +1553,7 @@
     $("#propDl").addEventListener("click", () => { const q = showProposal(); if (q && q.ok) { download("framing-proposal.txt", "text/plain", proposalText(q).join("\n") + "\n"); record("proposal_downloaded"); } });
     $("#budgetCsvBtn").addEventListener("click", () => { if (run() && last?.budget) { download("framing-budget.csv", "text/csv", budgetCsv(last.budget)); record("budget_csv_downloaded"); } });
     $("#savePlan").addEventListener("click", () => { const { source, bad } = toPlan(); if (bad.length) { run(); return; } download("framing-plan.json", "application/json", JSON.stringify(source, null, 2)); record("plan_saved"); });
+    let ifcBytes = null, ifcName = "";
     $("#openPlan").addEventListener("change", async (e) => {
       const input = /** @type {HTMLInputElement} */ (e.target);
       const file = input.files && input.files[0];
@@ -1559,19 +1561,44 @@
       try {
         const base = samplePlan();
         let plan, dxfNote = "";
-        if (/\.dxf$/i.test(file.name)) {
-          const r = planFromDxf(await file.text());
+        $("#ifcStoreyWrap").hidden = true;
+        if (/\.(dxf|ifc)$/i.test(file.name)) {
+          let dxfText;
+          if (/\.ifc$/i.test(file.name)) {
+            ifcBytes = new Uint8Array(await file.arrayBuffer());
+            const eng = await loadIfcEngine();
+            const info = eng.plan(ifcBytes, 0);
+            if (info.error) { $("#status").textContent = `Could not read ${file.name}: ${info.error}`; return; }
+            const sel = $("#ifcStorey");
+            sel.replaceChildren(...info.storeys.map((st) => new Option(`${st.index}: ${st.name || "storey"} (${st.elevation.toFixed(2)} m)`, String(st.index))));
+            $("#ifcStoreyWrap").hidden = info.storeys.length < 2;
+            ifcName = file.name;
+            dxfText = eng.dxf(ifcBytes, Number(sel.value) || 0);
+            if (!dxfText) { $("#status").textContent = `Could not read walls from ${file.name}.`; return; }
+            dxfNote = ` IFC read in your browser (lowest storey first; pick another above).`;
+          }
+          const r = planFromDxf(dxfText ?? await file.text());
           if (!r.ok) { $("#status").textContent = `Could not read ${file.name}: ${r.errors.join(" ")}`; return; }
           plan = r.plan;
-          dxfNote = ` ${r.stats.walls} walls, ${r.stats.tees} tees, ${r.stats.openings} openings. ${r.notes.join(" ")}`;
+          dxfNote += ` ${r.stats.walls} walls, ${r.stats.tees} tees, ${r.stats.openings} openings. ${r.notes.join(" ")}`;
         } else plan = JSON.parse(await file.text());
         for (const k of ["studSpacing", "studLength", "kerf", "topPlateLap", "cornerExtraStuds", "teeExtraStuds", "defaultHeaderHeight", "stock"]) if (!(k in plan)) plan[k] = base[k];
         load(plan);
-        if (dxfNote) record("dxf_opened"); else record("plan_opened");
+        if (dxfNote) { if (/\.ifc$/i.test(file.name)) record("ifc_opened"); else record("dxf_opened"); } else record("plan_opened");
         $("#status").textContent = `Opened ${file.name}.${dxfNote}`;
       } catch (err) {
         $("#status").textContent = `Could not read ${file.name} as a plan file.`;
       }
+    });
+    $("#ifcStorey").addEventListener("change", async () => {
+      if (!ifcBytes) return;
+      const eng = await loadIfcEngine();
+      const r = planFromDxf(eng.dxf(ifcBytes, Number($("#ifcStorey").value)));
+      if (!r.ok) { $("#status").textContent = `Could not read that storey of ${ifcName}: ${r.errors.join(" ")}`; return; }
+      const base = samplePlan(), plan = r.plan;
+      for (const k of ["studSpacing", "studLength", "kerf", "topPlateLap", "cornerExtraStuds", "teeExtraStuds", "defaultHeaderHeight", "stock"]) if (!(k in plan)) plan[k] = base[k];
+      load(plan);
+      $("#status").textContent = `Opened ${ifcName}, storey ${$("#ifcStorey").value}. ${r.stats.walls} walls, ${r.stats.tees} tees, ${r.stats.openings} openings. ${r.notes.join(" ")}`;
     });
     $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
     $("#flOn").addEventListener("change", () => { $("#flFields").hidden = !$("#flOn").checked; if ($("#flOn").checked) record("floor_on"); });

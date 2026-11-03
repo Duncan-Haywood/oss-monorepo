@@ -4,6 +4,8 @@ pub mod geom;
 pub mod ifc;
 pub mod out;
 pub mod step;
+#[cfg(target_arch = "wasm32")]
+pub mod wasm;
 
 /// Parse and read a model in one call.
 pub fn read_str(text: &str) -> Result<ifc::Building, String> {
