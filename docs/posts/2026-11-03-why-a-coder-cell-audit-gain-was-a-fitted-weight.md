@@ -3,7 +3,7 @@ title: "Why stratifying an LLM-coding audit by the coder's labels bought almost 
 seo_title: "LLM-coding audits: coder-cell split vs a fitted control variate"
 date: 2026-11-03
 tags: [research, statistics, llm-coding, prediction-powered-inference]
-description: "A closed-form ceiling promised an 8% narrower interval from splitting a human audit by the LLM coder's label. Measured on NaijaSenti, the pooled audit with a fitted weight was already within 0.5%."
+description: "A closed form promised 8% narrower LLM-coding audit intervals from splitting by coder label. On NaijaSenti a fitted pooled weight was already within 0.5%."
 ---
 
 When an LLM codes a text corpus and humans audit a sample, you can split the audit by the coder's own label (coder-positive, coder-negative) and allocate more human labels to the noisier cell. A closed form says that for a coder with Youden's J of 0.39 this can shrink the interval by at most 8.4%.
