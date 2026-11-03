@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Design Your Own Sunglasses Brand: Logo, Frame Size, Case, Cost and Factory Quote</title>
+  <meta name="description" content="Free tool to start a sunglasses line: pick a stock frame shape, set lens, bridge and temple size, put your logo on the temple, lens and case, cost each pair from your factory's prices, and get a quote request with the EU and US test reports to ask for.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Ccircle%20cx='10'%20cy='17'%20r='5'%20fill='%23efe4cc'/%3E%3Ccircle%20cx='22'%20cy='17'%20r='5'%20fill='%23efe4cc'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Start a sunglasses line: frame, size, logo, case, cost">
+  <meta property="og:description" content="Brand a stock frame, size it, cost it from your factory's prices, and ask for the right test reports. Free, in your browser.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Sunglasses designer (Clothing Design Studio)","applicationCategory":"DesignApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"frame style, lens width, bridge and temple size, frame material and colour, lens tint and polarisation, logo on temple, lens, case and cloth, landed cost per pair, margin after VAT and fees, break-even, quote request with EN ISO 12312-1 and FDA drop-ball test requests"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does 52□18-145 on sunglasses mean?","acceptedAnswer":{"@type":"Answer","text":"Lens width 52 mm, bridge 18 mm, temple (arm) length 145 mm. The total frame width is about two lens widths plus the bridge plus a few millimetres of rim and hinge each side."}},{"@type":"Question","name":"What do I need to sell my own sunglasses in the EU?","acceptedAnswer":{"@type":"Answer","text":"In the EU and UK sunglasses are personal protective equipment, category I. Ask the factory for an EN ISO 12312-1 test report, the filter category to mark on the temple, and a declaration of conformity. In the US, sunglasses need the FDA impact-resistance (drop-ball) test. Check the current rules for your market; this is not legal advice."}}]}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    input, select, button { font: inherit; }
+    input[type=text], input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .views svg { width: 100%; height: auto; background: radial-gradient(circle at 50% 40%, #fff, #eee6da); border-radius: 12px; border: 1px solid var(--line); margin-bottom: 8px; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin: 8px 0; }
+    .kpi { background: #faf6ef; border-radius: 10px; padding: 8px 10px; } .kpi span { display: block; font-size: .78rem; color: var(--muted); } .kpi b { font-size: 1.3rem; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    pre { white-space: pre-wrap; background: #faf6ef; padding: 8px; border-radius: 8px; font-size: .85rem; }
+    .btn { cursor: pointer; padding: 6px 12px; border-radius: 999px; border: 1px solid #2a2320; background: var(--card); font-weight: 650; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <p><a href="./">Clothing Design Studio</a> · <a href="wardrobe.html">Wardrobe planner</a></p>
+  <h1>Start a sunglasses line: your logo on a frame a factory already makes.</h1>
+  <p>Most small eyewear brands start by branding a stock frame: choose the shape and size, the frame and lens colours, put the logo on the temple and the case, and order a first run. This page does that plan with you: it draws the frame to scale, costs each pair from your factory's prices, and drafts the quote request, including the safety test reports to ask for.</p>
+
+  <div class="grid">
+    <div>
+      <section>
+        <h2>Frame</h2>
+        <div class="views" id="views" aria-live="polite"></div>
+        <div class="notes" id="notes"></div>
+      </section>
+    </div>
+    <div>
+      <section>
+        <h2>Shape, size and colour</h2>
+        <label for="name">Model name</label><input id="name" type="text" maxlength="60" value="Model 01">
+        <div class="row">
+          <div><label for="style">Frame style</label><select id="style"></select></div>
+          <div><label for="material">Frame material</label><select id="material"></select></div>
+        </div>
+        <div class="row3">
+          <div><label for="lensWidth">Lens width (mm)</label><input id="lensWidth" type="number" min="38" max="70" step="1"></div>
+          <div><label for="bridge">Bridge (mm)</label><input id="bridge" type="number" min="10" max="28" step="1"></div>
+          <div><label for="temple">Temple (mm)</label><input id="temple" type="number" min="120" max="160" step="5"></div>
+        </div>
+        <div class="row3">
+          <div><label for="frameColour">Frame colour</label><input id="frameColour" type="color" style="height:36px;padding:2px;width:100%"></div>
+          <div><label for="lens">Lens</label><select id="lens"></select></div>
+          <div><label for="polarised">Polarised</label><select id="polarised"><option value="1">Yes</option><option value="0">No</option></select></div>
+        </div>
+      </section>
+      <section>
+        <h2>Branding</h2>
+        <div class="row">
+          <div><label for="logo-temple">Logo on the temple</label><input id="logo-temple" type="text" maxlength="24"></div>
+          <div><label for="logo-temple-method">Temple method</label><select id="logo-temple-method"></select></div>
+        </div>
+        <div class="row">
+          <div><label for="logo-lens">Small mark on the lens (optional)</label><input id="logo-lens" type="text" maxlength="12"></div>
+          <div><label for="logo-case">Logo on the case</label><input id="logo-case" type="text" maxlength="24"></div>
+        </div>
+        <div class="row3">
+          <div><label for="logo-case-method">Case method</label><select id="logo-case-method"></select></div>
+          <div><label for="caseType">Case</label><select id="caseType"></select></div>
+          <div><label for="caseColour">Case colour</label><input id="caseColour" type="color" style="height:36px;padding:2px;width:100%"></div>
+        </div>
+      </section>
+      <section>
+        <h2>Cost and price</h2>
+        <p class="placeholder" id="example-warning">Costs use an example sheet of placeholder numbers, not a quote. Replace the landed cost with your factory's figure.</p>
+        <div class="row3">
+          <div><label for="quantity">Pairs</label><input id="quantity" type="number" min="1" step="10"></div>
+          <div><label for="price">Selling price (incl. VAT)</label><input id="price" type="number" min="1" step="1"></div>
+          <div><label for="override">Your landed cost per pair (optional)</label><input id="override" type="number" min="0" step="0.5" placeholder="from the sheet"></div>
+        </div>
+        <div class="row3">
+          <div><label for="tax">VAT in price (%)</label><input id="tax" type="number" min="0" max="30" step="0.5" value="22"></div>
+          <div><label for="channel">Shop commission (%)</label><input id="channel" type="number" min="0" max="60" step="0.5" value="0"></div>
+          <div><label for="marketing">Launch budget</label><input id="marketing" type="number" min="0" step="50" value="500"></div>
+        </div>
+        <output id="results" aria-live="polite"></output>
+      </section>
+      <section>
+        <h2>Quote request</h2>
+        <pre id="quote"></pre>
+        <button class="btn" type="button" id="copy">Copy</button>
+      </section>
+    </div>
+  </div>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, regulatory, tax, financial or manufacturing advice, and it does not replace a qualified professional. The notes on EU, UK and US requirements are prompts for questions to ask, not a compliance check. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including trademark and design rights in any frame shape or logo. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; nothing is uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="../custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+
+  <script type="module">
+    import { FRAME_STYLES, FRAME_MATERIALS, LENSES, LOGO_METHODS, CASES, newEyewear, eyewearNotes, eyewearCost, eyewearQuoteRequest, renderEyewear, sizeLabel, EXAMPLE_EYEWEAR_SUPPLIER } from "./eyewear.mjs";
+    import { sellingSide, money } from "./costing.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const fill = (id, obj) => { $(id).innerHTML = Object.values(obj).map(o => `<option value="${o.id}">${o.label}</option>`).join(""); };
+    fill("#style", FRAME_STYLES); fill("#material", FRAME_MATERIALS); fill("#lens", LENSES); fill("#caseType", CASES);
+    $("#logo-temple-method").innerHTML = Object.values(LOGO_METHODS).filter(m => m.where.includes("temple")).map(m => `<option value="${m.id}">${m.label}</option>`).join("");
+    $("#logo-case-method").innerHTML = Object.values(LOGO_METHODS).filter(m => m.where.includes("case")).map(m => `<option value="${m.id}">${m.label}</option>`).join("");
+    const KEY = "clothing-design-studio-eyewear";
+    let e;
+    try { e = { ...newEyewear(), ...(JSON.parse(localStorage.getItem(KEY) || "null") || {}) }; } catch { e = newEyewear(); }
+    const read = () => {
+      const logos = [];
+      if ($("#logo-temple").value.trim()) logos.push({ where: "temple", text: $("#logo-temple").value.trim(), method: $("#logo-temple-method").value });
+      if ($("#logo-lens").value.trim()) logos.push({ where: "lens", text: $("#logo-lens").value.trim(), method: "laser-engrave" });
+      if ($("#logo-case").value.trim()) logos.push({ where: "case", text: $("#logo-case").value.trim(), method: $("#logo-case-method").value });
+      e = { ...e, name: $("#name").value || "Model 01", style: $("#style").value, material: $("#material").value, lensWidth: +$("#lensWidth").value, bridge: +$("#bridge").value, temple: +$("#temple").value,
+        frameColour: $("#frameColour").value, lens: $("#lens").value, polarised: $("#polarised").value === "1", logos, caseType: $("#caseType").value, caseColour: $("#caseColour").value,
+        quantity: Math.max(1, +$("#quantity").value || 1), price: Math.max(1, +$("#price").value || 1) };
+    };
+    const write = () => {
+      for (const k of ["name", "style", "material", "lensWidth", "bridge", "temple", "frameColour", "lens", "caseType", "caseColour", "quantity", "price"]) $("#" + k).value = e[k];
+      $("#polarised").value = e.polarised ? "1" : "0";
+      const by = w => e.logos.find(l => l.where === w);
+      $("#logo-temple").value = by("temple")?.text ?? ""; if (by("temple")) $("#logo-temple-method").value = by("temple").method;
+      $("#logo-lens").value = by("lens")?.text ?? "";
+      $("#logo-case").value = by("case")?.text ?? ""; if (by("case")) $("#logo-case-method").value = by("case").method;
+    };
+    function render() {
+      $("#views").innerHTML = renderEyewear(e, { view: "front" }) + renderEyewear(e, { view: "side" });
+      $("#notes").innerHTML = eyewearNotes(e).map(esc).join("<br>");
+      let html = "";
+      try {
+        const c = eyewearCost(e, EXAMPLE_EYEWEAR_SUPPLIER);
+        const override = +$("#override").value;
+        const landed = override > 0 ? override : c.landed;
+        $("#example-warning").hidden = override > 0;
+        const s = sellingSide({ landed, price: e.price, quantity: e.quantity, moq: EXAMPLE_EYEWEAR_SUPPLIER.moq, currency: c.currency },
+          { salesTaxPct: +$("#tax").value || 0, channelFeePct: +$("#channel").value || 0, paymentFeePct: 3, paymentFixed: 0.3, unsoldPct: 10, marketingBudget: +$("#marketing").value || 0, targetMarginPct: 60 });
+        html += `<div class="kpis"><div class="kpi"><span>Landed per pair</span><b>${money(landed, c.currency)}</b></div><div class="kpi"><span>Left per sale</span><b>${money(s.profitPerSale, c.currency)}</b></div><div class="kpi"><span>Margin</span><b>${s.marginPct}%</b></div><div class="kpi"><span>Break-even</span><b>${s.breakEvenUnits ?? "never"} pairs</b></div><div class="kpi"><span>Cash up front</span><b>${money(s.cashUpFront, c.currency)}</b></div><div class="kpi"><span>Price for 60% margin</span><b>${money(s.priceForTargetMargin, c.currency)}</b></div></div>`;
+        if (s.notes.length) html += `<p class="notes">${s.notes.map(esc).join("<br>")}</p>`;
+        if (!(override > 0)) html += `<table>${c.lines.map(l => `<tr><td>${esc(l.label)}</td><td class="num">${l.value.toFixed(2)}</td></tr>`).join("")}<tr><th>Landed</th><th class="num">${c.landed.toFixed(2)}</th></tr></table>`;
+      } catch (err) { html = `<p class="notes">${esc(err.message)}</p>`; }
+      $("#results").innerHTML = html;
+      $("#quote").textContent = eyewearQuoteRequest(e);
+      try { localStorage.setItem(KEY, JSON.stringify(e)); } catch {}
+    }
+    write(); render();
+    document.querySelectorAll("input, select").forEach(el => el.addEventListener("input", () => { read(); render(); recordUsage("eyewear_edit"); }));
+    $("#copy").addEventListener("click", () => navigator.clipboard?.writeText($("#quote").textContent).then(() => recordUsage("eyewear_quote_copy")));
+    recordUsage("eyewear_open");
+  </script>
+</body>
+</html>

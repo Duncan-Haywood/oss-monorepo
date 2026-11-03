@@ -79,29 +79,29 @@ export function unitCost(design, sheet) {
   };
 }
 
-/** The selling side: margin, break-even, cash needed, and the price a target margin needs. */
-export function economics(design, sheet, plan = DEFAULT_PLAN) {
+/**
+ * The selling side for any product with a landed cost: margin, break-even,
+ * cash needed and the price a target margin needs. Shared by garments,
+ * sunglasses and wardrobe drops.
+ */
+export function sellingSide({ landed, price, quantity, moq = 0, currency = "EUR" }, plan = DEFAULT_PLAN) {
   const p = { ...DEFAULT_PLAN, ...plan };
-  const cost = unitCost(design, sheet);
-  const price = design.price;
   const net = price / (1 + p.salesTaxPct / 100);
   const fees = price * (p.channelFeePct + p.paymentFeePct) / 100 + p.paymentFixed;
   const perSale = net - fees;
-  const profitPerSale = perSale - cost.landed;
-  const qty = design.quantity;
-  const sellable = Math.floor(qty * (1 - p.unsoldPct / 100));
-  const cashUpFront = cost.landed * qty + p.marketingBudget;
+  const profitPerSale = perSale - landed;
+  const sellable = Math.floor(quantity * (1 - p.unsoldPct / 100));
+  const cashUpFront = landed * quantity + p.marketingBudget;
   const breakEven = perSale > 0 ? Math.ceil(cashUpFront / perSale) : null;
   const denom = (1 - p.targetMarginPct / 100) / (1 + p.salesTaxPct / 100) - (p.channelFeePct + p.paymentFeePct) / 100;
-  const priceForTarget = denom > 0 ? round2((cost.landed + p.paymentFixed) / denom) : null;
+  const priceForTarget = denom > 0 ? round2((landed + p.paymentFixed) / denom) : null;
   const notes = [];
-  if (sheet.moq && qty < sheet.moq) notes.push(`This run of ${qty} is below the supplier's minimum order of ${sheet.moq}.`);
+  if (moq && quantity < moq) notes.push(`This run of ${quantity} is below the supplier's minimum order of ${moq}.`);
   if (breakEven != null && breakEven > sellable) notes.push(`Break-even needs ${breakEven} sales, more than the ${sellable} you expect to sell from this run: raise the price, cut the cost or the launch budget, or make more.`);
-  if (breakEven == null) notes.push("Each sale loses money before the garment is even paid for: the price is below fees and tax.");
+  if (breakEven == null) notes.push("Each sale loses money before the product is even paid for: the price is below fees and tax.");
   if (priceForTarget == null) notes.push("No price reaches the target margin once tax and fees are taken from it; lower the target.");
   return {
-    currency: sheet.currency,
-    cost,
+    currency,
     price: round2(price),
     netOfTax: round2(net),
     feesPerSale: round2(fees),
@@ -114,6 +114,12 @@ export function economics(design, sheet, plan = DEFAULT_PLAN) {
     priceForTargetMargin: priceForTarget,
     notes,
   };
+}
+
+/** The selling side of a garment design. */
+export function economics(design, sheet, plan = DEFAULT_PLAN) {
+  const cost = unitCost(design, sheet);
+  return { cost, ...sellingSide({ landed: cost.landed, price: design.price, quantity: design.quantity, moq: sheet.moq, currency: sheet.currency }, plan) };
 }
 
 /** The same design costed at several run sizes, to see where setup stops mattering. */

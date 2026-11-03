@@ -205,7 +205,7 @@ export function luminance(hex) {
 export const COLOURS = Object.freeze({
   white: "#f7f7f4", "off white": "#efe9dc", cream: "#efe4cc", ivory: "#f2ecdc", bone: "#e6dccb", ecru: "#e3d8bf",
   black: "#1b1b1d", charcoal: "#3a3b3e", grey: "#9a9b9e", gray: "#9a9b9e", "heather grey": "#b4b5b8", "heather gray": "#b4b5b8", silver: "#c3c5c8",
-  navy: "#1f2a44", blue: "#2f5ea8", "royal blue": "#2648a6", "sky blue": "#9cc6e8", "light blue": "#a9c8e6", teal: "#1f6f73",
+  navy: "#1f2a44", indigo: "#28344f", "light wash": "#7d93b2", blue: "#2f5ea8", "royal blue": "#2648a6", "sky blue": "#9cc6e8", "light blue": "#a9c8e6", teal: "#1f6f73",
   red: "#b3262e", burgundy: "#6b1e2c", maroon: "#5e1a24", wine: "#5a1a2a", crimson: "#9b1b30", pink: "#e9a7b8", "dusty pink": "#d4a5a5", rose: "#c9727f",
   orange: "#d9692a", rust: "#9c4a25", terracotta: "#b8603e", yellow: "#e9c548", gold: "#c9a24a", mustard: "#c79a2b",
   green: "#3b7d4a", "forest green": "#24412f", olive: "#5b5e33", sage: "#a3ad8f", khaki: "#b3a67e", mint: "#b5dcc4",

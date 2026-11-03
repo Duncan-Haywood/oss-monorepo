@@ -6,7 +6,7 @@ import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
 import { economics, quantityBreaks } from "./costing.mjs";
 
 const read = f => readFileSync(new URL(`./${f}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "for-independent-clothing-designers.html", "how-much-does-it-cost-to-make-a-t-shirt.html"];
+const PAGES = ["index.html", "for-independent-clothing-designers.html", "how-much-does-it-cost-to-make-a-t-shirt.html", "sunglasses.html", "wardrobe.html"];
 
 test("every page carries the no-warranty clause, a sponsor link and its own title and description", () => {
   for (const f of PAGES) {
@@ -19,14 +19,16 @@ test("every page carries the no-warranty clause, a sponsor link and its own titl
   }
 });
 
-test("the studio's controls have labels the assistant and agents can read", () => {
-  const html = read("index.html");
+test("the tools' controls have labels the assistant and agents can read", () => {
+  for (const page of ["index.html", "sunglasses.html", "wardrobe.html"]) {
+  const html = read(page);
   const ids = [...html.matchAll(/<(?:input|select)[^>]*\bid="([^"]+)"/g)].map(m => m[1]);
   for (const id of ids) {
     const labelled = new RegExp(`for="${id}"`).test(html) || new RegExp(`id="${id}"[^>]*aria-label=`).test(html) || new RegExp(`<label[^>]*>[^<]*<input id="${id}"`).test(html) || new RegExp(`<label[^>]*><input id="${id}"`).test(html);
-    assert.ok(labelled, `${id} has no label`);
+    assert.ok(labelled, `${page}: ${id} has no label`);
   }
   assert.match(html, /<output id="results" aria-live="polite">/);
+  }
 });
 
 test("the worked example page matches what the costing code computes", () => {

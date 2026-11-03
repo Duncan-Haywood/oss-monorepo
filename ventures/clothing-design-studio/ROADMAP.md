@@ -16,14 +16,18 @@ many-session project. Each milestone below lands as a working slice.
 - Costing from a supplier sheet (CSV in and out): landed cost, margin after VAT and fees, break-even, cash up front, price for a target margin, quantity breaks.
 - Tech pack (printable, JSON) and quote request; launch kit (description, captions, hashtags, store CSV).
 
+- Sunglasses designer (second interview): stock frame styles, 52□18-145 sizing with range checks, logos on temple, lens, case and cloth, landed cost, quote request with EN ISO 12312-1 and FDA drop-ball asks.
+- Wardrobe planner (second interview): capsule from age band, fit, style, climate, season, occasions and quality tier; outfit count by a stated colour rule; in-house vs partner-brand pieces; first drop within a budget, most-worn pieces first.
+
 ## Next
 
 1. **Test with the designer who asked for it.** Their artwork and a real quote from a manufacturer through the studio; fold what breaks into the command vocabulary (`commands.test.mjs` gets each real sentence as a case) and the costing.
 2. **Real painting workflow.** Crop, mask and colour-reduce an uploaded painting for screen print (n-colour quantisation with a separation preview), and a raised-outline layer generated from the image edges for high-density ink, so "3D paintings" become a printable separation, not just a preview.
-3. **3D preview.** A WebGL garment with the artwork mapped on, then WebXR so the same scene opens in a VR headset with voice commands, as the interview asked.
+3. **3D preview and try-on.** A WebGL garment with the artwork mapped on, then WebXR so the same scene opens in a VR headset with voice commands; and a try-on on the shopper (their measurements on a body model first, a camera-based AR view later, on device), as both interviews asked.
 4. **Manufacturer directory as data.** Fabric and method offers per manufacturer from their published catalogues (with source links and dates), so a designer can compare who can make a design and at what MOQ before asking for quotes.
 5. **Store.** A self-deployable storefront (static site plus the deployer's own payment keys, off by default) generated from the launch kit; later a multi-brand marketplace with a commission setting, as the interview suggested.
-6. **Marketing.** A content calendar and ad-budget planner from the break-even (how many sales the launch budget must buy), drafts only, never auto-posting.
+6. **Wardrobe as a service.** A short guided conversation (voice or chat) that fills the wardrobe profile, then a lookbook page per wardrobe with each outfit drawn, linking each piece to the brand's own product or a partner's.
+7. **Marketing.** A content calendar and ad-budget planner from the break-even (how many sales the launch budget must buy), drafts only, never auto-posting.
 
 ## Not planned
 
