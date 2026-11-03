@@ -1,6 +1,6 @@
 ---
 title: "Why a chip-search result flipped when only the Yosys version changed"
-seo_title: "Yosys 0.33 vs 0.70: does the synthesis tool version change design-space search results?"
+seo_title: "Does the Yosys version change chip design-space search results?"
 date: 2026-11-03
 tags: [research, chips, yosys, openroad, reproducibility]
 description: "Same 60 ABC sequences, same OpenROAD, two Yosys versions: the cheap-rung pick regret went from 0 percent to 16 to 109 percent."
