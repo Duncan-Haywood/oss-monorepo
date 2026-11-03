@@ -22,7 +22,7 @@
 //
 //   BASE_URL=https://marisstella.app node platform/pages/framerate.mjs  # production
 //   PAGES=,research/ node platform/pages/framerate.mjs                   # chosen pages
-//   ONLY=ebay-fee-calculator node platform/pages/framerate.mjs           # one venture
+//   ONLY_SLUGS=ebay-fee-calculator node platform/pages/framerate.mjs     # one venture
 //
 // Exit codes follow the other browser checks: 0 every page within budget,
 // 1 a page over budget, 2 nothing could be measured (no Playwright, or no
@@ -36,7 +36,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { onlySlugs, describeFilter } from './only-slugs.mjs';
+import { onlySlugs, keepPagePath, describeFilter } from './only-slugs.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -82,7 +82,11 @@ function defaultPages() {
 const only = onlySlugs();
 let pages = process.env.PAGES !== undefined ? process.env.PAGES.split(',').map((p) => p.trim()) : defaultPages();
 if (only) {
-  pages = [...only].map((slug) => `${slug}/`);
+  // A run scoped to ventures measures those ventures' entry pages; the hub
+  // pages belong to no venture and keepPagePath drops them, as it does for
+  // every other per-venture check.
+  pages = [...new Set([...pages, ...[...only].map((slug) => `${slug}/`)])]
+    .filter((rel) => keepPagePath(`${rel}index.html`, only));
   console.log(describeFilter(only));
 }
 if (fs.existsSync(DIST)) {
