@@ -59,7 +59,9 @@ products:
       product at the merchant of record, put its public link in
       checkout.mjs CHECKOUT_URL, and confirm the validate call against the
       provider's live docs with a test key. Agent step after that: a
-      test-paid purchase end to end.
+      test-paid purchase end to end. Marketing page and a generated sample
+      package landed 2026-11-03 (branded-bid-package-for-framers.html,
+      sample-bid-package.html, build-sample-pack.mjs).
     next_owner: true
 
   - venture: league-schedule-generator
