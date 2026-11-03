@@ -3,7 +3,7 @@ title: "A voice-first VR room for the coding agents working on this repo"
 seo_title: "WebXR task board for Claude Code agents, driven by voice"
 date: 2026-11-03
 tags: [webxr, vr, voice, claude-code, agents, open-source]
-description: "Agent Workroom now has a WebXR mode: pull requests on the wall, agents at desks with CI on their monitors, push-to-talk commands, and confirmed @claude comments."
+description: "Agent Workroom now has a WebXR mode: pull requests on the wall, agents at desks with CI on their monitors, push-to-talk commands and confirmed @claude comments."
 ---
 
 This repository gets dozens of pull requests a day from coding agents. Agent Workroom started as a small CSS 3D office that shows them: one desk per agent, every task as a sticky note. The owner asked for the next step: "a meta vr app to interact with claude code agents and work with this repo ... mainly voice controlled but also like normal vr controls."
