@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Baseboard and casing calculator: trim boards for a house, packed into stock lengths</title>
+  <meta name="description" content="Free baseboard and door casing calculator: type a house's size, doors and windows, interior wall length and the board lengths you buy, and get the cut pieces packed into boards, not a lineal-foot guess. Runs in your browser.">
+  <meta property="og:title" content="Baseboard and casing calculator">
+  <meta property="og:description" content="House size, doors, windows and stock lengths in, baseboard and casing boards out. Pieces are cut and packed into boards. Private, free, in your browser.">
+  <link rel="canonical" href="./trim-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much baseboard do I need for a 40 x 30 ft house?", "acceptedAnswer": {"@type": "Answer", "text": "For a 40 x 30 ft rectangle with one 3 ft exterior door and two 3 ft windows, plus a 20 ft interior wall with three 30 in doors, baseboard runs 162 ft: 137 ft along the outside walls (the door width is left out, windows do not break it) and 25 ft on the two faces of the interior wall. In 12 ft boards with 10% waste, that is 17 boards."}}, {"@type": "Question", "name": "How much door and window casing do I need?", "acceptedAnswer": {"@type": "Answer", "text": "Casing goes on the interior face of every opening and on both faces of an interior wall's openings: two legs and a head for a door, two legs, a head and a sill piece for a window. The same house has 7 door faces and 2 window faces, which is 143 ft of 2.25 in casing with a 3/16 in reveal. Cut and packed into 8 ft boards with 10% waste, that is 25 boards."}}, {"@type": "Question", "name": "Why not just add up lineal feet and divide by the board length?", "acceptedAnswer": {"@type": "Answer", "text": "Because pieces are cut, not poured. A 7 ft casing leg wastes most of an 8 ft board, and a 17 ft wall run needs a splice. The calculator packs each piece into boards (longest first) so the count reflects the offcuts you can reuse, then adds your waste percentage on top."}}, {"@type": "Question", "name": "What is not counted?", "acceptedAnswer": {"@type": "Answer", "text": "Corner mitres, scarf joints unless you type an overlap, door stops, closet shelving, exterior trim, crown and chair rail. Stock lengths, casing width and reveal are what you type from the trim you buy. It is an estimate to check against your supplier."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Baseboard and casing calculator</h1>
+  <p>Type the house, its openings and the boards you buy. The framing engine's trim module cuts every baseboard run and every casing leg, head and sill, then packs the pieces into stock lengths. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <div class="grid">
+      <div><label for="len">House length (in or 40' 0")</label><input id="len" value="480"></div>
+      <div><label for="wid">House width (in or 30' 0")</label><input id="wid" value="360"></div>
+      <div><label for="doors">Exterior doors (3 ft wide)</label><input id="doors" type="number" min="0" value="1"></div>
+      <div><label for="wins">Windows (3 ft wide)</label><input id="wins" type="number" min="0" value="2"></div>
+      <div><label for="iwall">Interior wall length (in or 20' 0")</label><input id="iwall" value="240"></div>
+      <div><label for="idoors">Interior doors (30 in wide)</label><input id="idoors" type="number" min="0" value="3"></div>
+      <div><label for="bstock">Baseboard board length (ft)</label><input id="bstock" type="number" value="12"></div>
+      <div><label for="cstock">Casing board length (ft)</label><input id="cstock" type="number" value="8"></div>
+      <div><label for="cw">Casing width (in)</label><input id="cw" type="number" step="0.25" value="2.25"></div>
+      <div><label for="reveal">Reveal (in)</label><input id="reveal" type="number" step="0.0625" value="0.1875"></div>
+      <div><label for="waste">Waste (%)</label><input id="waste" type="number" value="10"></div>
+      <div><label for="shoe">Shoe moulding</label><select id="shoe"><option value="0">No</option><option value="1">Yes, along the baseboard</option></select></div>
+    </div>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Add trim to a whole-house framing takeoff</a></p>
+
+  <h2>The method</h2>
+  <ol>
+    <li><strong>Baseboard runs.</strong> Each wall's length less its door widths, split into the runs the doors leave. Outside walls get one face, interior walls two. Windows do not break a run.</li>
+    <li><strong>Casing pieces.</strong> Two legs (door height plus the reveal) and a head for every door face; two legs, a head and a sill piece for every window face.</li>
+    <li><strong>Pack.</strong> Pieces go into boards longest first; a run longer than a board is split.</li>
+    <li><strong>Waste.</strong> Your percentage is added to the board count, rounded up.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How much baseboard do I need for a 40 x 30 ft house?</h3>
+  <p>For a 40 x 30 ft rectangle with one 3 ft exterior door and two 3 ft windows, plus a 20 ft interior wall with three 30 in doors, baseboard runs 162 ft: 137 ft along the outside walls (the door width is left out, windows do not break it) and 25 ft on the two faces of the interior wall. In 12 ft boards with 10% waste, that is 17 boards.</p>
+  <h3>How much door and window casing do I need?</h3>
+  <p>Casing goes on the interior face of every opening and on both faces of an interior wall's openings: two legs and a head for a door, two legs, a head and a sill piece for a window. The same house has 7 door faces and 2 window faces, which is 143 ft of 2.25 in casing with a 3/16 in reveal. Cut and packed into 8 ft boards with 10% waste, that is 25 boards.</p>
+  <h3>Why not just add up lineal feet and divide by the board length?</h3>
+  <p>Because pieces are cut, not poured. A 7 ft casing leg wastes most of an 8 ft board, and a 17 ft wall run needs a splice. The calculator packs each piece into boards (longest first) so the count reflects the offcuts you can reuse, then adds your waste percentage on top.</p>
+  <h3>What is not counted?</h3>
+  <p>Corner mitres, scarf joints unless you type an overlap, door stops, closet shelving, exterior trim, crown and chair rail. Stock lengths, casing width and reveal are what you type from the trim you buy. It is an estimate to check against your supplier.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. House and opening sizes are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Piece lengths follow the layout stated above; board lengths, casing width, reveal and waste are figures you type, and your trim supplier's catalogue governs.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { layoutTrim, trimText } from "./trim.mjs";
+    import { parseLength } from "./engine.mjs";
+    const $ = (id) => document.getElementById(id);
+    const run = () => {
+      const L = parseLength($("len").value), W = parseLength($("wid").value), I = parseLength($("iwall").value || "0");
+      const cnt = (id) => Math.max(0, Math.floor(+$(id).value || 0));
+      const doors = cnt("doors"), wins = cnt("wins"), idoors = cnt("idoors");
+      const op = (kind, n, width, height) => Array.from({ length: n }, () => ({ kind, width, height }));
+      const walls = [
+        { id: "A", length: L, openings: [...op("door", doors, 36, 80), ...op("window", wins, 36, 48)] },
+        { id: "B", length: W, openings: [] }, { id: "C", length: L, openings: [] }, { id: "D", length: W, openings: [] },
+      ];
+      if (I > 0 || idoors) walls.push({ id: "I", length: I, sheathed: false, openings: op("door", idoors, 30, 80) });
+      const settings = { baseStock: +$("bstock").value * 12, casingStock: +$("cstock").value * 12, casingWidth: +$("cw").value, reveal: +$("reveal").value, waste: (+$("waste").value || 0) / 100, shoe: $("shoe").value === "1" };
+      const ok = L >= 96 && W >= 96 && I >= 0 && (doors + wins) * 40 + 80 <= L && idoors * 36 <= Math.max(I, 0);
+      if (!ok) { $("out").textContent = "Check the numbers: sides of at least 8 ft, the doors and windows have to fit along the first wall, and the interior doors along the interior wall."; return; }
+      try {
+        const t = layoutTrim(settings, { walls });
+        $("out").textContent = t.ok === false ? t.errors.join("\n") : trimText(t).join("\n");
+      } catch (e) { $("out").textContent = String(e && e.message || e); }
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>
