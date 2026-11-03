@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01XpHqydhEjdfVFQTSexSRmA",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "work more on onboarding docs for smbs and developers and all sorts of professionals. this is one seo thing to get people contributing.",
+  "input_sha256": "39adf3a0db5da160467affaf7c078548df037cb591081011c3230d7ae74dcad9",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T05:13:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Onboarding guides by profession (SEO, contributor acquisition)",
+  "projects": [
+    "docs/posts",
+    "docs/contributing",
+    "ventures/einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12731",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/e-invoicing-mandates-by-country.html",
+      "issue": "Hub page said 'Seventy-two countries' in the lede and '14 countries' in its meta descriptions while the table has 73 rows; the count is hand-written in three places with no test. Fixed to 73 here."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Direct owner request (onboarding docs by profession), so the routed track was not followed; recorded under polish.",
+      "did": "Wrote five start-here guides and wired them into the hub, the reader map and CONTRIBUTING.md",
+      "result": "check_start_here, frontmatter and md-link checks pass"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "New start-here guides: business owners, accountants/bookkeepers, e-invoicing/compliance, developers by stack, designers/accessibility. Every figure taken from the tree (commands in the posts or verified in-session: 991 calc tools, 25 check.py, 14 package.json apps, 1064 research dirs, 73 mandate pages, 4 with a dated source read). Fixed on the way: einvoice-preflight hub counts (72/14 -> 73) and the Hungary page missing its New Zealand link, which failed on main (hungary-e-invoice-mandate.test.mjs). einvoice-preflight node --test: 1142 pass, 0 fail (1 fail before). Python unittest in that venture could not import einvoice_preflight in this container (package not installed); only HTML changed. Also shortened the NZ post description to 160 chars. Checks: check_post_frontmatter rc 0, check_start_here ok (43 posts), check_md_links ok. Follow-up for a later run: platform/ci/check_link_names.py exists but no workflow runs it (control-plane path, needs its own PR).",
+  "corrections": [],
+  "redteam": null
+}
