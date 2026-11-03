@@ -290,6 +290,14 @@ test("sixth set (2026-11-03b): non-opt-out replies, scored once at 37/50 before 
   assert.equal(s.overreach, 0);
 });
 
+test("seventh set (2026-11-03c): 24 opt-outs scored once at 10 missed before the change; all caught after; a tuned set, 4 non-opt-outs wrong in the safe direction", () => {
+  const rows = load("fresh-2026-11-03c.jsonl");
+  const s = score(rows);
+  assert.equal(s.n, 30);
+  assert.equal(s.unsubMissed, 0);
+  assert.equal(s.right, 26);
+});
+
 test("\"not interested in switching unless you integrate\" is an objection, not a decline", () => {
   const t = triage({ subject: "Re: hi", body: "Not interested in switching unless you integrate with Xero." }, "2026-11-03");
   assert.equal(t.category, "objection");

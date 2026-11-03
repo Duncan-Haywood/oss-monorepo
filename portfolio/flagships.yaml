@@ -277,8 +277,8 @@ flagships:
       per-service playback gain), release kit (release.mjs),
       GABC reader fixes and NABC, a 59-file Graduale 1908 batch with no crash,
       preview renderer with --stems and --limit, and the --fit/--stretch, --repeat,
-      --halftime, --fills, --lrc, --cues, --markers, --suggest-final and --auto-final options.
-      Open, all needing a person: listen by ear to --stretch, --repeat, --halftime,
+      --halftime, --fills, --lrc, --cues, --markers, --intro, --suggest-final and --auto-final options.
+      Open, all needing a person: listen by ear to --stretch, --repeat, --halftime, --intro,
       --fills, --limit (pumping) and the stems in a DAW; deep house previews 2.8 LU
       quiet; verify the per-service playback targets (written from
       memory) against the services' pages; check --markers locators in a DAW;

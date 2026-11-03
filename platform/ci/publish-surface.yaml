@@ -431,6 +431,9 @@ workflows:
 - workflow: ventures-tests.yml
   classification: none
   publishes: []
+- workflow: workflow-self-audit.yml
+  classification: none
+  publishes: []
 - workflow: world-clock-widget-ci.yml
   classification: none
   publishes: []
