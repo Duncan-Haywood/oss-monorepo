@@ -12,7 +12,8 @@ measurements to improve the sub-prompts and the documentation.
 ## 0. Security alerts first
 
 Unless the starting message names a task, read the security queue first:
-`git fetch -q --depth=1 origin security-alerts && git show origin/security-alerts:QUEUE.md`.
+`git fetch -q --depth=1 origin security-alerts 2>/dev/null && git show origin/security-alerts:QUEUE.md || echo "no security queue"`.
+If the branch does not exist (the hourly workflow has not created it; three runs on 2026-11-03 reported the bare command's `fatal`), there are no alerts to take: go on to step 1.
 Take the top alert with no `security-fix/code-scanning-<n>` branch (`git ls-remote`); its
 `alerts/<n>.md` says how. `security-alert-queue.yml` regenerates it hourly (owner, 2026-10-30).
 
