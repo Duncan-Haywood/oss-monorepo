@@ -102,6 +102,8 @@ range is reported with how far over it is, not forced. Corpus results: Dies
 irae and Salve Regina A2-E3 (recommended C#3), Pange lingua F#2-F#3, Te Deum
 Ab2-Ab3 (D3), Veni Creator F#2-G3. The range is a guess, not checked with
 singers (`voicefit.test.mjs`, 4 tests).
+`--auto-final` (2026-11-03) does both steps: it transposes to the recommended
+final, and refuses a chant wider than the range (`autofinal.test.mjs`, 3 tests).
 
 ## Not checked yet
 
