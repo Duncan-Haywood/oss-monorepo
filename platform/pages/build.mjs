@@ -3803,7 +3803,7 @@ const CATEGORY_RULES = [
     // saints' stories, the same read-and-listen axis as `hearth-and-horizon`.
     // `sed-contra` joined 2026-11-03 on its first commit: Aquinas's Summa as
     // stories, podcast and video, the same watch-and-listen axis.
-    test: (slug) => ['ai-engineering-academy', 'hands-free-language-coach', 'listen-and-learn-audio', 'hearth-and-horizon', 'saints-by-candlelight', 'sed-contra'].includes(slug),
+    test: (slug) => ['ai-engineering-academy', 'hands-free-language-coach', 'listen-and-learn-audio', 'hearth-and-horizon', 'saints-by-candlelight', 'sed-contra', 'catholic-shorts'].includes(slug),
   },
   {
     // Added 2026-10-21 when `open-floor-robots` and `open-robot-mower` took

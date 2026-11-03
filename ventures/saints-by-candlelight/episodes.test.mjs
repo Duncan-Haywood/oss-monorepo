@@ -95,3 +95,8 @@ test('every page links Sed Contra, the Aquinas series (platform/pages/siblings.m
     if (rel.endsWith('.html')) assert.match(contents, /href="\.\.\/sed-contra\/"/, rel);
   }
 });
+
+test('the footer links its sibling Catholic Shorts', async () => {
+  const { renderIndex } = await import('./episodes.mjs');
+  assert.match(renderIndex([], {}), /href="\.\.\/catholic-shorts\/"/);
+});

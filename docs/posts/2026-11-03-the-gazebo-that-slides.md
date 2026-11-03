@@ -1,5 +1,6 @@
 ---
 title: "The Gazebo That Slides: a new Hearth & Horizon story about wind and sandbags"
+seo_title: "The Gazebo That Slides: wind, sandbags and a Hearth & Horizon story"
 date: 2026-11-03
 tags: [fiction, hearth-and-horizon, physics]
 description: "A new short story: a fair gazebo with 25 kg on each foot tips at 60 km/h but slides at about 35. Wind sums you can check."
