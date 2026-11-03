@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { parseGabc, fitToBars, fitStretch, halfTime, transposeToFinal, summarize } from './gabc.mjs';
 import { eventsToMidi } from './midi.mjs';
+import { cueSheet } from './cues.mjs';
 import { arrange, barsFor, bpmRange, GENRE_NAMES } from './genre.mjs';
 
 const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--final MIDI] [--drone] [--genre NAME] [--json]
@@ -14,10 +15,11 @@ const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULS
   --halftime  chant at half speed over full-time backing (every duration doubled; for metal)
   --final   transpose so the last note is this MIDI number (50 = D3, a low men's choir final)
   --drone   add a held drone on the final, an octave below
+  --cues    write a singer's cue sheet (bar, beat, seconds, note, syllable) to this file
   --json    print the summary as JSON`;
 
 export function run(argv) {
-  const args = { bpm: 124, fit: null, stretch: false, halftime: false, final: null, drone: false, genre: null, json: false, out: null, file: null };
+  const args = { bpm: 124, fit: null, stretch: false, halftime: false, final: null, drone: false, genre: null, json: false, cues: null, out: null, file: null };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '-o') args.out = argv[++i];
@@ -28,6 +30,7 @@ export function run(argv) {
     else if (a === '--final') args.final = Number(argv[++i]);
     else if (a === '--drone') args.drone = true;
     else if (a === '--genre') args.genre = argv[++i];
+    else if (a === '--cues') args.cues = argv[++i];
     else if (a === '--json') args.json = true;
     else if (a === '-h' || a === '--help') return { code: 0, text: USAGE };
     else if (!args.file) args.file = a;
@@ -43,6 +46,10 @@ export function run(argv) {
   if (args.fit) events = args.stretch ? fitStretch(events, args.fit) : fitToBars(events, args.fit);
   if (args.halftime) events = halfTime(events);
   const summary = summarize({ ...parsed, events }, { bpm: args.bpm, pulsesPerBar: args.fit || 8 });
+  if (args.cues) {
+    writeFileSync(args.cues, cueSheet(events, { bpm: args.bpm, pulsesPerBar: args.fit || 8 }));
+    summary.cues = args.cues;
+  }
   if (args.out) {
     const title = parsed.header.name || basename(args.file, '.gabc');
     let backing = null;
