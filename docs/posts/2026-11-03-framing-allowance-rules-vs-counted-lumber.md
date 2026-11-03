@@ -1,9 +1,9 @@
 ---
 title: "How far off are the lumber allowance rules framers use? Three houses, counted"
-seo_title: "Stud wall lumber allowance vs a counted order: per-foot and on-centre rules compared"
+seo_title: "Stud wall lumber: allowance rules vs a counted order"
 date: 2026-11-03
 tags: [construction, framing, estimating, measurement]
-description: "On three modelled houses a per-foot stud rule over-ordered 2 to 10% of 2x4 and 2x6 lumber and an on-centre rule 18 to 29%, against a counted cutting-stock order."
+description: "On three modelled houses a per-foot stud rule over-ordered 2x4 and 2x6 lumber by 2 to 10% and an on-centre rule by 18 to 29%, against a counted order."
 ---
 
 Two rules of thumb size a wall-framing lumber order. The per-foot rule is one stud per foot of wall plus three plates. The on-centre rule is a stud at the plan spacing plus one, four more per opening, two per corner and tee end, plus three plates. Both add 10% waste. We set them against an order counted from the placed members of each wall and cut from stock lengths by a cutting-stock solver (`ventures/wall-framing-takeoff/allowance-bench.mjs`).
