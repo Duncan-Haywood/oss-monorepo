@@ -1,6 +1,6 @@
 ---
 title: "Why the sales agent got an SPF, DKIM and DMARC checker"
-seo_title: "Why we built an SPF, DKIM and DMARC checker for cold email"
+seo_title: "SPF, DKIM and DMARC for cold email: why Sales Agent checks them"
 date: 2026-11-03
 tags: [sales, email, deliverability, open-source]
 description: "Cold email with broken SPF, DKIM or DMARC goes to spam before anyone reads it. A free checker reads pasted records and names the mistakes."

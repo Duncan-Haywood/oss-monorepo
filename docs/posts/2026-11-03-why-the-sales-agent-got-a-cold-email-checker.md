@@ -1,6 +1,6 @@
 ---
 title: "Why the sales agent got a free cold email checker"
-seo_title: "Why we built a cold email checker for opt-out and spam signals"
+seo_title: "Why Sales Agent got a free cold email checker"
 date: 2026-11-03
 tags: [sales, email, compliance, open-source]
 description: "Sales Agent handled replies to cold email but nothing before the send. A browser checker now lists the missing opt-out, address and spam signals, by country."
