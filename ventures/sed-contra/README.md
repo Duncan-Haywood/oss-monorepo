@@ -7,7 +7,7 @@ night shift, a hospice), and every line read as Thomas is his own text in the
 public-domain 1920 English Dominican translation, **checked word for word by a
 script**. The objections get their full strength, the way Thomas wrote them.
 
-**Watch, listen and read:** https://marisstella.app/sed-contra/
+**Watch, listen and read:** https://marisstella.app/sed-contra/ (also https://duncan-haywood.github.io/oss-monorepo/sed-contra/, which forwards there)
 **Podcast feed:** `https://marisstella.app/sed-contra/feed.xml`
 
 ## Episodes

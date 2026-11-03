@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01XpHqyeQPVwT4eTtMiYaPN1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "i think one thing to work on is catholic evangelical and apologetic works written. adaptations of thomistic ideas into fiction podcasts short form video etc. / long form video as well. using ai to create but also potentially programatically creating.",
+  "input_sha256": "a96fdfdb271093bd31c4c6b9947b400e1986a5e0f18de64d34de9dbbdd727908",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T07:47:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "New venture sed-contra: Thomistic apologetics as fiction, podcast, long-form video and shorts, rendered programmatically from one script; episode 1 (ST I q.2 a.3).",
+  "projects": [
+    "sed-contra"
+  ],
+  "pr": 12767,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Duplicate-PR guidance found open PR #12741 (catholic-shorts) from a session the same morning on an overlapping idea; its make_video.py (Playwright frames) is not on main, so this venture carries its own Pillow renderer. Two video renderers now exist; a shared platform/video module would serve both once #12741 lands."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-03-aquinas-first-way-is-not-a-first-domino.md"
+  ],
+  "goal": "Ship a depth project the owner asked for: Catholic apologetic works adapting Thomistic ideas into fiction, podcasts and short- and long-form video, AI-written and programmatically rendered.",
+  "notes": "Render: render.py the-first-mover took 6m39s wall on 4 cores (Kokoro, 4 voices, about 250 sentences, then Pillow cards and x264). Outputs: 15:11 1920x1080 MP4 at 13.7 MB with 9 chapters, 5.5 MB MP3, SRT/VTT, Podcasting 2.0 chapters, shorts 52.6 s and 39.6 s. Quote checker caught 3 non-verbatim quotes in the first draft (one capitalisation, two added full stops). Local: generate.mjs --check ok; node --test 9/9; run_venture_tests.py sed-contra ok; check_post_frontmatter ok after the push hook caught a 194-character description. Audio pronunciation not listened to (no audio playback here). Thomas quotes come from Project Gutenberg #17611, lines 1178-1304 and 22549-22718.",
+  "corrections": [],
+  "redteam": null
+}
