@@ -27,11 +27,11 @@ const ALIASES = {
     // Korean, Chinese
     "거래일자", "거래일시", "거래일", "기준일자", "交易日期", "记账日期", "記帳日期", "交易时间", "交易時間",
     // value dates last: German Valuta/Wertstellung are not the booking date
-    "order date", "created (utc)", "created", "created date (utc)", "created at", "timestamp", "paid at", "transferred at",
+    "transaction date (utc)", "order date", "created (utc)", "created", "created date (utc)", "created at", "timestamp", "paid at", "transferred at",
     "wertstellung", "valuta", "date de valeur", "date valeur", "value date",
     // Indonesian
     "tanggal", "tgl", "التاريخ", "تاريخ العملية"],
-  desc: ["transaktionsbeschreibung", "title", "zpráva", "název protiúčtu", "item1", "описание", "назначение платежа", "наименование операции", "תיאור", "תיאור פעולה", "פרטים", "περιγραφή", "αιτιολογία", "nội dung", "mô tả", "diễn giải", "description", "transaction description", "transactions", "payee", "merchant", "name", "label", "details", "original description", "memo", "posting details", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "partnername", "note",
+  desc: ["transaktionsbeschreibung", "transaction information", "counterparty name", "title", "zpráva", "název protiúčtu", "item1", "описание", "назначение платежа", "наименование операции", "תיאור", "תיאור פעולה", "פרטים", "περιγραφή", "αιτιολογία", "nội dung", "mô tả", "diễn giải", "description", "transaction description", "transactions", "payee", "merchant", "name", "label", "details", "original description", "memo", "posting details", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "partnername", "note",
     "beschreibung", "umsatzbeschreibung", "buchungsinformationen", "avisierungstext",  "notification text", "texte de notification", "testo di avviso", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "dettagli", "beneficiario", "bénéficiaire", "beneficiaire", "causale", "omschrijving", "naam / omschrijving", "naam tegenpartij", "naam tegenpartij bevat", "tegenpartij", "mededeling", "mededelingen", "vrije mededeling", "paaiškinimai", "partner neve", "partner név", "közlemény", "remarque", "remarques", "bemerkung", "opmerking",
     "text", "tekst", "rubrik", "referens", "skýring", "skyring", "รายการ", "รายละเอียด", "beskrivelse", "forklaring", "meddelande", "meddelelse",
     "opis transakcji", "dane kontrahenta", "tytuł przelewu", "saaja/maksaja", "descrição", "descricao", "histórico", "historico", "opis", "tytuł", "tytul", "nadawca/odbiorca", "selitys", "saaja/maksaja", "açıklama", "aciklama", "popis", "zpráva pro příjemce", "opis operacji", "keterangan", "uraian", "الوصف", "البيان", "التفاصيل",
@@ -388,6 +388,9 @@ export function sniffBank(rows) {
     if (/^transaction date\|posted date\|description\|amount\|status\|memo\|card last four/.test(h)) return "brex";
     if (/^transaction date\|description\|type\|amount\|net amount\|settled date/.test(h)) return "chime";
     if (/^date\|description\|debit\|credit\|balance\|type/.test(h)) return "bluevine";
+    if (/^status\|transaction date \(utc\)\|settlement date \(utc\)\|counterparty name\|amount/.test(h)) return "qonto";
+    if (/^transaction id\|transaction date\|transaction type\|transaction information\|paid in\|paid out\|balance/.test(h)) return "tide";
+    if (/^date\|description\|amount\|status\|check number\|category/.test(h)) return "novo";
     if (/^date\|description\|(card member\|account #\|)?amount/.test(h)) return "amex";
     // Swisscard's cashback export (columns from the tariochbctools importer): charges are positive.
     if (/^transaction date\|description\|amount\|currency\|(status\|)?merchant category\|registered category/.test(h)) return "swisscard";
@@ -841,7 +844,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   }
   // Wise writes DD-MM-YYYY. Revolut lists pending, declined and reverted rows
   // beside completed ones and keeps the fee in its own column.
-  if (bank === "lloyds" || bank === "barclays" || bank === "wise" || bank === "monzo" || bank === "starling" || bank === "westpac" || bank === "nab") dayFirst = true;
+  if (bank === "lloyds" || bank === "barclays" || bank === "wise" || bank === "monzo" || bank === "starling" || bank === "westpac" || bank === "nab" || bank === "qonto" || bank === "tide") dayFirst = true;
   const hdr = headerAt === -1 ? [] : rows[headerAt].map(norm);
   if (bank === "nab") columns.desc = hdr.indexOf("transaction details");
   const rbc2 = bank === "rbc" ? hdr.indexOf("description 2") : -1;
