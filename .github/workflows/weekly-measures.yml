@@ -1,0 +1,138 @@
+name: Weekly measures
+
+# Routine measuring that runs kept doing by hand, done by software once a week
+# (prompts/goals.md, "Direction: software for the routine, agents for
+# judgment"). Report-only: it reads the tree, re-runs code in a throwaway
+# checkout, and writes the step summary and an artifact. It pushes nothing,
+# opens nothing and calls no paid API, so its only cost is runner minutes.
+#
+#   friction      platform/ci/friction_rank.py: doc friction runs keep reporting,
+#                 ranked by distinct sessions (the process track's queue)
+#   doc-counts    platform/ci/check_doc_counts.py: marked numbers in docs that
+#                 have drifted from the tree
+#   usage         portfolio/usage/flagship_usage.py: page loads per flagship
+#                 against the non-flagship tools people open most
+#   repro         research/_shared/repro_watch.py: re-run a rotating weekly
+#                 sample of research projects (plus recently changed ones) and
+#                 flag any that no longer give their committed results.txt
+#   mutation      prompts/redteam.py: one seeded campaign on a flagship's engine,
+#                 so the catch rate is measured weekly without an agent run
+#
+# A red `repro` job means a project ran to the end and gave different numbers:
+# a research-integrity question for the next research run. A red `doc-counts`
+# job means a doc quotes a stale count: `check_doc_counts.py --fix` in a PR.
+# Neither blocks any merge. Turn the whole file off with the repository
+# variable WEEKLY_MEASURES=false.
+
+on:
+  schedule:
+    - cron: "37 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: weekly-measures
+  cancel-in-progress: false
+
+jobs:
+  tree:
+    if: vars.WEEKLY_MEASURES != 'false'
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: Fetch the usage-data branch
+        # --depth only on a shallow clone: on a full one it would truncate the
+        # whole repository (validate_workflows.py; run_workflow_locally.py runs
+        # these steps against a full clone).
+        run: |
+          if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+            git fetch -q --depth=1 origin usage-data:refs/remotes/origin/usage-data || echo "no usage-data branch"
+          else
+            git fetch -q origin usage-data:refs/remotes/origin/usage-data || echo "no usage-data branch"
+          fi
+      - name: Friction, doc counts and flagship usage
+        run: |
+          rc=0
+          out="$RUNNER_TEMP/measures.md"
+          {
+            echo '## Repeated doc friction (14 days)'; echo '```'
+            python3 platform/ci/friction_rank.py --days 14 --top 15
+            echo '```'; echo '## Doc counts'; echo '```'
+            python3 platform/ci/check_doc_counts.py || rc=$?
+            echo '```'; echo '## Flagship usage'
+            python3 portfolio/usage/flagship_usage.py --days 14
+          } > "$out"  # a redirect, not a pipe, so `rc` survives the braces
+          cat "$out" | tee -a "$GITHUB_STEP_SUMMARY"
+          exit $rc
+
+  repro:
+    if: vars.WEEKLY_MEASURES != 'false'
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 200 # recently changed projects come from git log
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: Install the tools research projects use
+        # The swe-audit runs found every non-reproduction to be a missing tool
+        # (yosys, scipy, mujoco); without them the watch mostly reports
+        # tool-missing, which says nothing about the results.
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends yosys iverilog
+          python -m pip install -q numpy scipy matplotlib networkx pandas scikit-learn sympy
+      - name: Re-run this week's sample
+        run: |
+          rc=0
+          python research/_shared/repro_watch.py --n 12 --timeout 600 --workers 2 --out "$RUNNER_TEMP/repro" || rc=$?
+          cat "$RUNNER_TEMP/repro/repro-watch.md" >> "$GITHUB_STEP_SUMMARY"
+          exit $rc
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: repro-watch
+          path: ${{ runner.temp }}/repro
+          retention-days: 90
+
+  mutation:
+    if: vars.WEEKLY_MEASURES != 'false'
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+      - name: One campaign on a platform or flagship file
+        # Seeded by ISO week so each week mutates a different file; the
+        # campaign restores the file byte for byte and the checkout is thrown
+        # away, so nothing reaches the repository.
+        run: |
+          seed=$(date -u +%G%V)
+          python3 prompts/redteam.py campaign --under platform --mutants 8 --seed "$seed" --timeout 300 > "$RUNNER_TEMP/campaign.json"
+          {
+            echo "## Mutation campaign, seed $seed"; echo '```json'
+            python3 -c "import json,sys; c=json.load(open(sys.argv[1])); print(json.dumps({k: c[k] for k in ('target','test','sites','baseline_seconds')}, indent=1)); [print(('caught ' if m['caught'] else 'ESCAPED'), m['line'], m['operator'], m['after'][:80]) for m in c['mutants']]" "$RUNNER_TEMP/campaign.json"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: mutation-campaign
+          path: ${{ runner.temp }}/campaign.json
+          retention-days: 90
