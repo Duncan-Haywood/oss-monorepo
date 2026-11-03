@@ -130,6 +130,14 @@ singers (`voicefit.test.mjs`, 4 tests).
 `--auto-final` (2026-11-03) does both steps: it transposes to the recommended
 final, and refuses a chant wider than the range (`autofinal.test.mjs`, 3 tests).
 
+## Browser check
+
+`node eval/browser-e2e.mjs` (2026-11-03) drives `index.html` in headless
+Chromium through Playwright: all 6 samples times all 5 backings convert, the MIDI
+(`MThd`) and WAV (`RIFF/WAVE`, not silent) downloads work, Play and Stop toggle,
+bad input and a zero tempo give messages, and there is no sideways scroll at 375 px.
+38 checks, no page error. It cannot hear anything: a person still has to listen.
+
 ## Not checked yet
 
 - `examples/dies-irae-incipit.gabc` is the widely quoted opening motif
