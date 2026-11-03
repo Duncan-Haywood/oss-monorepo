@@ -18,6 +18,16 @@ LARGE = {
     "mult20": ("mult_op", "mult_op", {"W": 20}, ""),
     "mult28": ("mult_op", "mult_op", {"W": 28}, ""),
 }
+
+def set_widths(ws):
+    """Milestone 69: other widths of the multiplier family (e.g. 36, 40) under the same protocol."""
+    LARGE.clear()
+    for w in ws:
+        LARGE[f"mult{w}"] = ("mult_op", "mult_op", {"W": w}, "")
+    flow.DESIGNS.clear()
+    flow.DESIGNS.update(LARGE)
+
+
 flow.DESIGNS.clear()
 flow.DESIGNS.update(LARGE)
 
@@ -49,7 +59,12 @@ def main():
     ap.add_argument("--out", default="/tmp/verified-dse-work")
     ap.add_argument("--n", type=int, default=60)
     ap.add_argument("--jobs", type=int, default=4)
+    ap.add_argument("--widths", type=int, nargs="*", help="multiplier widths (default 20 28)")
+    ap.add_argument("--results", default="results.jsonl")
+    ap.add_argument("--meta", default="meta.json")
     a = ap.parse_args()
+    if a.widths:
+        set_widths(a.widths)
     out, pdk = Path(a.out), Path(a.pdk)
     out.mkdir(parents=True, exist_ok=True)
     lib = out / "lib.lib"
@@ -65,7 +80,7 @@ def main():
             period = round(base[d] * f, 3)
             for i, s in enumerate(seqs):
                 tasks.append((d, s, tag, period, out / d / f"{tag}_{i}", lib, pdk, a.openroad))
-    resf = HERE / "results.jsonl"  # resume: skip points already written (a killed run leaves a partial file)
+    resf = HERE / a.results  # resume: skip points already written (a killed run leaves a partial file)
     done = set()
     if resf.exists():
         for line in resf.read_text().splitlines():
@@ -82,7 +97,7 @@ def main():
             fh.flush()
             if i % 50 == 0:
                 print(i, len(tasks), flush=True)
-    (HERE / "meta.json").write_text(json.dumps({"base_period_ns": base, "n_sequences": len(seqs)}, indent=1))
+    (HERE / a.meta).write_text(json.dumps({"base_period_ns": base, "n_sequences": len(seqs)}, indent=1))
 
 
 if __name__ == "__main__":
