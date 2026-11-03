@@ -39,6 +39,7 @@ tasks:
     hours: 8
     status: done
     added: 2026-11-03
+    pr: 12929
     notes: This file's first task, landed with the registry itself.
 
   - id: work-registry-routing
