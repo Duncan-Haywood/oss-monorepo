@@ -27,7 +27,7 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 14,
+  "tests_added": 6,
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
@@ -35,6 +35,10 @@
     {
       "file": "prompt.md",
       "issue": "security-alerts branch named in step 0 does not exist on origin; fetch fails"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Duplicate-PR check covers PRs, but concurrent scheduled runs on the same flagship still collide; flagship rows have no claim marker."
     }
   ],
   "deviations": [
@@ -46,10 +50,10 @@
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-03-a-pre-flight-check-for-a-chant-release.md"
+    "docs/posts/2026-11-03-why-crlf-made-a-chant-reader-sing-its-comments.md"
   ],
   "goal": null,
-  "notes": "Chose chant-forge (newest flagship, least saturated) over wall-framing-takeoff/ai-bookkeeper whose open items all need real inputs. Release-check limits are from memory. Not run: venture-preflight (not a new venture), full CI locally; ran chant-forge node tests (33 pass).",
+  "notes": "Chose chant-forge (newest flagship, least saturated) over wall-framing-takeoff/ai-bookkeeper whose open items all need real inputs. Release-check limits are from memory. Not run: venture-preflight (not a new venture), full CI locally; ran chant-forge node tests (33 pass). Another session landed a release kit (PR #12769) while this run built an overlapping one; conflicts resolved by keeping main's release kit and dropping mine, keeping the GABC reader fixes. Duplicate-PR search was skipped before building: lesson, check recent main commits for the same venture first.",
   "corrections": [],
   "redteam": null
 }

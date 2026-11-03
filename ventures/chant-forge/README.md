@@ -16,8 +16,8 @@ released track:
 3. **Arrange:** genre templates (drums, bass, synths, guitars) built around
    the line. Not built.
 4. **Voice:** a real men's choir (recorded) or a singing synthesiser. Not built.
-5. **Release:** loudness (done, `master-cli.mjs`) and a release-readiness check (done,
-   `release-cli.mjs`: sources, AI disclosure, credits, cover art, ISRCs). The upload is the owner's.
+5. **Release:** loudness (done, `master-cli.mjs`), metadata, credits and AI-disclosure checks before a
+   distributor upload (done: `node release-cli.mjs release.json`, 7 tests, 2026-11-03).
 
 ## What works now
 
@@ -75,24 +75,6 @@ over-driven files (6 tests). Not checked against a reference meter (EBU
 test files, ffmpeg `ebur128`) or a real mix; the true-peak filter is a
 windowed sinc, not the Annex 2 coefficients. Distributor targets change: read
 theirs before release.
-
-## Release check
-
-```sh
-node ventures/chant-forge/release-cli.mjs ventures/chant-forge/examples/release-example.json   # exit 0 ready, 1 problems, 2 unreadable
-```
-
-`release.mjs` reads a JSON description of a single or EP and reports errors and
-warnings before anyone uploads: a chant source that is not cited (book, page,
-year) or is from 1929 or later; a modern translation; synthesised voices with
-no AI disclosure, or credits that say monks or a monastery sang them; real
-singers not named; any sample; a cover that is not square, under 3000 px, in an
-odd format, carrying a web address or without a stated origin; malformed or
-repeated ISRCs; tracks under 30 s; a track with no passing `master-cli.mjs
---json` report. It uploads nothing. 8 tests (2026-11-03). The distributor
-limits (3000 px, 30 s, ISRC shape) are from memory and not checked against any
-distributor's current page; they are the `limits` argument so they can be
-changed. The example is invented.
 
 ## Real Gregorio files (2026-11-03)
 

@@ -1,98 +1,114 @@
-// Release-readiness check for a chant-forge release (one single or EP), run before anyone uploads
-// to a distributor. It reads a plain JSON description of the release and reports what would be
-// wrong or dishonest. It uploads nothing and needs no account.
-//
-// The limits below are common distributor requirements written from memory and NOT checked against
-// any distributor's current rules this session: read the distributor's page before upload and
-// override them with `limits`.
+// Release kit: checks a release.json (and the files it names) before a distributor upload.
+// Rules here are the common distributor/DSP ones; each check says what it tests. Not legal advice.
+import { readFileSync, existsSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { readWav, analyze } from './master.mjs';
 
-export const DEFAULT_LIMITS = {
-  publicDomainBefore: 1929, // the sources this project keeps: pre-1929 printings (README, "Rules")
-  coverMinPx: 3000,
-  coverFormats: ['jpg', 'jpeg', 'png'],
-  minTrackSeconds: 30, // a stream is usually counted after 30 s
-  masterTargets: true, // require each track's master report (master.mjs analyze output) to pass
-};
-
-const ISRC = /^[A-Z]{2}[A-Z0-9]{3}\d{2}\d{5}$/;
-const UPC = /^\d{12,13}$/;
-// Words that say a real religious community sang it.
-const REAL_CHOIR = /\b(monks?|monastery|monastic|abbey|benedictines?|cistercians?|trappists?|seminar(?:y|ians?)|schola|friars?|brothers)\b/i;
-const SYNTH_WORDS = /synth|ai|generated|virtual|sampled library|vocal model/i;
-
-function mark(list, level, where, msg) {
-  list.push({ level, where, msg });
+// ISRC: 12 chars, CC (country, letters) + XXX (registrant, alnum) + YY (year) + NNNNN (digits); hyphens are display only.
+export function isrcOk(s) { return /^[A-Z]{2}[A-Z0-9]{3}\d{7}$/.test(String(s || '').replace(/-/g, '').toUpperCase()); }
+// UPC-A (12) / EAN-13 (13): GS1 mod-10 check digit, weights 3,1 from the right of the data digits.
+export function gtinOk(s) {
+  s = String(s || ''); if (!/^\d{12}$|^\d{13}$/.test(s)) return false;
+  const d = s.split('').map(Number), c = d.pop();
+  const sum = d.reverse().reduce((a, v, i) => a + v * (i % 2 === 0 ? 3 : 1), 0);
+  return (10 - (sum % 10)) % 10 === c;
 }
-
-export function checkRelease(rel, limits = {}) {
-  const L = { ...DEFAULT_LIMITS, ...limits };
-  const f = [];
-  const r = rel || {};
-
-  for (const k of ['title', 'artist', 'releaseDate', 'language']) {
-    if (!r[k] || typeof r[k] !== 'string') mark(f, 'error', k, `missing ${k}`);
+// Image size from PNG or JPEG bytes, no dependencies.
+export function imageSize(b) {
+  if (b.length > 24 && b.readUInt32BE(0) === 0x89504e47) return { type: 'png', w: b.readUInt32BE(16), h: b.readUInt32BE(20) };
+  if (b[0] === 0xff && b[1] === 0xd8) {
+    let i = 2;
+    while (i + 9 < b.length) {
+      if (b[i] !== 0xff) { i++; continue; }
+      const m = b[i + 1], len = b.readUInt16BE(i + 2);
+      if (m >= 0xc0 && m <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(m)) return { type: 'jpeg', w: b.readUInt16BE(i + 7), h: b.readUInt16BE(i + 5) };
+      i += 2 + len;
+    }
   }
-  if (r.releaseDate && !/^\d{4}-\d{2}-\d{2}$/.test(r.releaseDate)) mark(f, 'error', 'releaseDate', 'use YYYY-MM-DD');
-  if (r.upc != null && !UPC.test(String(r.upc))) mark(f, 'error', 'upc', 'a UPC/EAN is 12 or 13 digits (the distributor can assign one: leave it out)');
+  return null;
+}
+const AI_LEVELS = ['none', 'assisted', 'generated'];
+const PD_OK = /public.?domain|pd\b|cc0/i;
 
-  // Cover art
-  const c = r.cover;
-  if (!c) mark(f, 'error', 'cover', 'no cover art described');
+export function checkRelease(rel, baseDir = '.', opts = {}) {
+  const out = [];
+  const add = (ok, name, note, level = 'FAIL') => out.push({ ok, level: ok ? 'PASS' : level, name, note });
+  const t = (rel.title || '').trim();
+  add(!!t, 'title', t || 'missing');
+  add(!!(rel.artist || '').trim(), 'artist', rel.artist || 'missing');
+  add(!/\b(feat\.?|ft\.?)\b/i.test(t), 'title has no featured-artist text', 'put featured artists in the artist field, not the title', 'WARN');
+  add(!!rel.type && ['single', 'ep', 'album'].includes(rel.type), 'release type', rel.type || 'missing (single, ep or album)');
+  const n = (rel.tracks || []).length;
+  const lim = { single: [1, 3], ep: [4, 6], album: [7, 99] }[rel.type];
+  if (lim) add(n >= lim[0] && n <= lim[1], 'track count fits type', `${n} tracks as ${rel.type}`, 'WARN');
+  add(/^\d{4}-\d{2}-\d{2}$/.test(rel.releaseDate || ''), 'release date', rel.releaseDate || 'missing (YYYY-MM-DD)');
+  if (/^\d{4}-\d{2}-\d{2}$/.test(rel.releaseDate || '') && opts.today) {
+    const days = (Date.parse(rel.releaseDate) - Date.parse(opts.today)) / 864e5;
+    add(days >= 7, 'release date at least 7 days out', `${days} days (distributors ask for lead time for playlist pitching)`, 'WARN');
+  }
+  add(/^(℗|\(P\)|P) ?\d{4} .+/.test(rel.pLine || ''), 'p-line', rel.pLine || 'missing, e.g. "℗ 2026 Name"');
+  add(/^(©|\(C\)|C) ?\d{4} .+/.test(rel.cLine || ''), 'c-line', rel.cLine || 'missing, e.g. "© 2026 Name"');
+  add(!!rel.label || true, 'label', rel.label || 'none (distributor default)', 'WARN');
+  if (rel.upc) add(gtinOk(rel.upc), 'UPC/EAN check digit', rel.upc); else add(true, 'UPC/EAN', 'none given; the distributor assigns one');
+
+  // cover art
+  if (!rel.cover) add(false, 'cover art', 'missing');
   else {
-    if (!(c.width > 0 && c.height > 0)) mark(f, 'error', 'cover', 'give width and height in pixels');
+    const p = resolve(baseDir, rel.cover);
+    if (!existsSync(p)) add(false, 'cover art file', `${rel.cover} not found`);
     else {
-      if (c.width !== c.height) mark(f, 'error', 'cover', `cover is ${c.width}x${c.height}: it must be square`);
-      if (Math.min(c.width, c.height) < L.coverMinPx) mark(f, 'error', 'cover', `cover is under ${L.coverMinPx} px (${c.width}x${c.height})`);
+      const s = imageSize(readFileSync(p));
+      if (!s) add(false, 'cover art format', 'not a PNG or JPEG');
+      else {
+        add(s.w === s.h, 'cover is square', `${s.w}x${s.h}`);
+        add(s.w >= 3000, 'cover at least 3000 px', `${s.w} px (3000x3000 is what the big stores ask for; 1400 is the floor some accept)`, s.w >= 1400 ? 'WARN' : 'FAIL');
+      }
     }
-    const fmt = String(c.format || '').toLowerCase();
-    if (!L.coverFormats.includes(fmt)) mark(f, 'error', 'cover', `format "${c.format}" is not one of ${L.coverFormats.join(', ')}`);
-    if (c.hasText && /https?:|www\.|\.com\b/i.test(String(c.text || ''))) mark(f, 'error', 'cover', 'no web addresses on the cover');
-    if (!c.origin) mark(f, 'error', 'cover', 'say where the artwork came from (made by us, or a public-domain work with its source): never a scraped image');
   }
 
-  // Voices and honesty
-  const v = r.voices || {};
-  if (typeof v.synthesised !== 'boolean') mark(f, 'error', 'voices', 'say whether the voices are synthesised (voices.synthesised true or false)');
-  const creditText = [r.title, r.artist, r.description, r.credits, ...(r.tracks || []).map((t) => t.title)].filter(Boolean).join(' \n ');
-  if (v.synthesised === true) {
-    if (!r.aiDisclosure || !String(r.aiDisclosure).trim()) mark(f, 'error', 'aiDisclosure', 'synthesised voices need a written AI disclosure for the distributor field');
-    else if (!SYNTH_WORDS.test(r.aiDisclosure)) mark(f, 'warn', 'aiDisclosure', 'the disclosure never says "synthesised", "AI" or "generated"');
-    if (REAL_CHOIR.test(creditText)) mark(f, 'error', 'credits', 'credits mention monks, a monastery or similar over synthesised voices: that implies a real community sang it');
-  }
-  if (v.synthesised === false && !v.singers) mark(f, 'error', 'voices', 'real singers: name them (voices.singers) and keep their written consent on file');
-  if (r.samples && (!Array.isArray(r.samples) || r.samples.length)) mark(f, 'error', 'samples', 'this project never samples an existing recording: samples must be empty');
+  // AI disclosure
+  const ai = rel.aiDisclosure || {};
+  add(AI_LEVELS.includes(ai.level), 'AI disclosure level', ai.level || `missing (${AI_LEVELS.join(' | ')})`);
+  if (ai.level && ai.level !== 'none') add(!!(ai.tools || '').trim() && !!(ai.parts || '').trim(), 'AI disclosure names tools and parts', 'say which tools and which parts (vocals, instruments, arrangement, artwork)');
+  if (ai.level === 'none' && /synth|vocal model|ai/i.test(JSON.stringify(rel.credits || []))) add(false, 'AI level matches credits', 'credits mention AI or a voice model but the level is "none"');
 
-  // Tracks
-  const tracks = Array.isArray(r.tracks) ? r.tracks : [];
-  if (!tracks.length) mark(f, 'error', 'tracks', 'no tracks');
+  // tracks
   const seenIsrc = new Set();
-  tracks.forEach((t, i) => {
-    const w = `tracks[${i}]${t.title ? ` "${t.title}"` : ''}`;
-    if (!t.title) mark(f, 'error', w, 'missing title');
-    if (t.isrc != null) {
-      if (!ISRC.test(String(t.isrc))) mark(f, 'error', w, `ISRC "${t.isrc}" is malformed (CC-XXX-YY-NNNNN, no dashes)`);
-      else if (seenIsrc.has(t.isrc)) mark(f, 'error', w, `ISRC ${t.isrc} used twice`);
-      seenIsrc.add(t.isrc);
+  (rel.tracks || []).forEach((tr, i) => {
+    const k = `track ${i + 1}`;
+    add(!!(tr.title || '').trim(), `${k} title`, tr.title || 'missing');
+    add(isrcOk(tr.isrc), `${k} ISRC`, tr.isrc || 'missing (the distributor can issue one; then leave a placeholder out and fill it in here)', 'FAIL');
+    if (tr.isrc) { const u = tr.isrc.replace(/-/g, '').toUpperCase(); add(!seenIsrc.has(u), `${k} ISRC unique`, u); seenIsrc.add(u); }
+    add(['la', 'en', 'zxx'].includes(tr.language), `${k} language`, tr.language || 'missing (la, en or zxx for instrumental)', 'WARN');
+    add(typeof tr.explicit === 'boolean', `${k} explicit flag`, String(tr.explicit), 'FAIL');
+    // composition source
+    const src = tr.source || {};
+    add(!!src.edition && !!src.year, `${k} source edition named`, src.edition ? `${src.edition} (${src.year})` : 'missing: name the edition and year');
+    add(src.year && Number(src.year) <= 1929, `${k} source edition pre-1929`, src.year ? `${src.year}` : 'unknown', 'WARN');
+    add(PD_OK.test(src.rights || ''), `${k} composition rights stated`, src.rights || 'missing: say public domain and why');
+    add(!!src.gabcFile, `${k} GABC file`, src.gabcFile || 'missing');
+    if (src.gabcFile) add(existsSync(resolve(baseDir, src.gabcFile)), `${k} GABC file exists`, src.gabcFile);
+    // audio
+    if (!tr.audio) add(false, `${k} audio`, 'missing');
+    else {
+      const p = resolve(baseDir, tr.audio);
+      if (!existsSync(p)) add(false, `${k} audio file`, `${tr.audio} not found`);
+      else {
+        try {
+          const w = readWav(readFileSync(p));
+          add([44100, 48000, 88200, 96000].includes(w.rate), `${k} sample rate`, `${w.rate} Hz`);
+          add(w.channels.length === 2, `${k} stereo`, `${w.channels.length} ch`, 'WARN');
+          if (!opts.skipMaster) {
+            const a = analyze(w);
+            for (const c of a.checks) add(c.ok, `${k} ${c.name}`, c.note, 'FAIL');
+          }
+        } catch (e) { add(false, `${k} audio file`, `${tr.audio}: ${e.message}`); }
+      }
     }
-    if (!(t.seconds >= L.minTrackSeconds)) mark(f, 'warn', w, `under ${L.minTrackSeconds} s: it may not count as a stream`);
-    const s = t.source;
-    if (!s || !s.book || !s.page || !s.year) mark(f, 'error', w, 'cite the chant source: book, page and year of the printing the notation was taken from');
-    else if (!(Number(s.year) < L.publicDomainBefore)) mark(f, 'error', w, `source "${s.book}" is from ${s.year}: use a printing before ${L.publicDomainBefore}, as the project's rules say`);
-    if (!t.textSource) mark(f, 'warn', w, 'name the source of the Latin text (it can differ from the notation)');
-    if (t.translationUsed) mark(f, 'error', w, 'a modern translation can be under copyright: use the Latin or a pre-1929 translation with its source');
-    if (t.gabcFile && !/\.gabc$/.test(t.gabcFile)) mark(f, 'warn', w, 'gabcFile does not end in .gabc');
-    if (L.masterTargets) {
-      if (!t.master) mark(f, 'error', w, 'no master report: run master-cli.mjs --json on the final file and attach it as `master`');
-      else if (t.master.pass !== true) mark(f, 'error', w, 'master report did not pass: ' + (t.master.checks || []).filter((x) => !x.ok).map((x) => x.name).join(', '));
-    }
-    if (t.explicit) mark(f, 'warn', w, 'explicit flag set on a liturgical text: check it is right');
   });
-
-  // Composer credit: chant is traditional; the arrangement is ours.
-  if (!r.credits || !/traditional|public domain|plainchant|plainsong|gregorian/i.test(r.credits)) {
-    mark(f, 'warn', 'credits', 'credit the chant as traditional / public domain and the arrangement to its maker');
-  }
-
-  const errors = f.filter((x) => x.level === 'error').length;
-  return { ok: errors === 0, errors, warnings: f.length - errors, findings: f };
+  // credits
+  add(Array.isArray(rel.credits) && rel.credits.length > 0, 'credits listed', `${(rel.credits || []).length} entries`);
+  const fail = out.filter((c) => c.level === 'FAIL').length, warn = out.filter((c) => c.level === 'WARN').length;
+  return { checks: out, fail, warn, pass: fail === 0 };
 }
+export function loadRelease(file) { return { rel: JSON.parse(readFileSync(file, 'utf8')), dir: dirname(resolve(file)) }; }
