@@ -3,6 +3,10 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-11-03 · Milestone 72: carry milestones 68 to 71 into the paper (no flow run, no new numbers)
+- Added a PAPER.md paragraph on the four multiplier widths where R2 is unfaithful at the relaxed clock (BOHB stuck at 6.5 to 8.5% in three of four cells) and the two negative gates (R4 probes, R2-versus-R3 placed probes), quoting the logged figures. The practical rule it ends on: with 25 or more routed-run equivalents do not cut on R2 first.
+- Next: detail routing on mult24 and mult32; a causal fanout test on `fanao96`.
+
 ## 2026-11-03 · Milestone 71: a gate that costs no routing, R2 against R3 on six placed probes (predictions held in my notes before the run, not written to this log first; no flow)
 - Why: milestone 70's "Next" asked for a gate cheaper than six routed probes. `experiments/bohb/gate3.py` (a copy of `gate.py`) places m = 6 random points to R3 (charged R2 + R3 each, not eligible as answers, not fed to the KDE), takes Kendall tau-b between their R2 and R3 scores, and falls back to BOHB-R4-first on the remaining budget if tau < 0.4, else BOHB. Same 48 cells, 100 paired seeds, same settings; m and threshold not tuned.
 - Predictions (made before running, recorded here after): the gate does not beat plain BOHB at 40 equivalents by 0.5 points, and it falls back on fewer than half the seeds in the failing multiplier cells.
