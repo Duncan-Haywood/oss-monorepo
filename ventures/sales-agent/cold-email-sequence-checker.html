@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23637e1b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free cold email sequence checker: spacing, bumps, opt-outs</title>
+  <meta name="description" content="Paste a whole cold outreach sequence. Checks every follow-up for an opt-out and address, spacing between touches, bare bumps, repeated text and touch count. Runs in your browser.">
+  <link rel="canonical" href="./cold-email-sequence-checker.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many follow-ups should a cold email sequence have?","acceptedAnswer":{"@type":"Answer","text":"A common rule of thumb is four touches in total, spaced several days apart, each adding something new. More than that tends to raise complaints. This is a heuristic, not a measured threshold."}},{"@type":"Question","name":"Does every follow-up need an unsubscribe line?","acceptedAnswer":{"@type":"Answer","text":"Under CAN-SPAM each commercial message needs a way to opt out and a postal address, so this checker requires them on every step, not only the first."}},{"@type":"Question","name":"Is my sequence uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The check runs in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; } h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #4b6215; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea, select { width: 100%; box-sizing: border-box; padding: 8px; font: inherit; border: 1px solid #aab4c0; border-radius: 6px; background: #fff; color: inherit; }
+    textarea { min-height: 200px; }
+    button { margin-top: 12px; padding: 10px 14px; border: 0; border-radius: 8px; background: #4b6215; color: #fff; font: inherit; font-weight: 650; cursor: pointer; }
+    #out ul { padding-left: 1.2em; } .err { color: #9b1c1c; } .warn { color: #7a5200; } .rule { font-size: .8rem; color: #4c5a68; }
+    #score { font-size: 2rem; font-weight: 700; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Sales Agent</a></p>
+  <h1>Free cold email sequence checker</h1>
+  <p>Paste the whole cadence, not just the first email. Start each step with a line like <code>--- day 4</code> (days after the first touch), then an optional <code>Subject:</code> line, then the body. You get what to fix on each step. Nothing is uploaded or sent.</p>
+  <label for="seq">Sequence</label><textarea id="seq" style="min-height:300px" placeholder="--- day 0&#10;Subject: Quick question&#10;Hi Dana, ...&#10;--- day 4&#10;Subject: A smaller ask&#10;..."></textarea>
+  <label for="country">Recipient country (2-letter code, optional)</label><input id="country" maxlength="2" autocomplete="off">
+  <label for="from">Your name (optional)</label><input id="from" autocomplete="off">
+  <button id="go" type="button">Check this sequence</button>
+  <div id="out" aria-live="polite"></div>
+  <h2>What it checks</h2>
+  <ul>
+    <li>Every step on its own: opt-out line and postal address on each follow-up, spam phrases, placeholders.</li>
+    <li>Spacing: days must increase; under 2 days apart or over 21 warns.</li>
+    <li>Bare bumps ("just following up") and follow-ups that mostly repeat the last email.</li>
+    <li>The same subject twice, and more than four touches.</li>
+  </ul>
+  <p>Related: the <a href="./cold-email-checker.html">single email checker</a>, the <a href="./cold-email-warmup-planner.html">warm-up planner</a>, the <a href="./cold-email-auth-checker.html">authentication checker</a>.</p>
+  <h2>Questions</h2>
+  <h3>How many follow-ups should a cold email sequence have?</h3>
+  <p>A common rule of thumb is four touches in total, spaced several days apart, each adding something new. More than that tends to raise complaints. This is a heuristic, not a measured threshold.</p>
+  <h3>Does every follow-up need an unsubscribe line?</h3>
+  <p>Under CAN-SPAM each commercial message needs a way to opt out and a postal address, so this checker requires them on every step, not only the first.</p>
+  <h3>Is my sequence uploaded?</h3>
+  <p>No. The check runs in your browser and nothing is sent.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. A checklist of common requirements and habits, not legal advice; thresholds are rules of thumb not measured on replies, and a clean result does not mean your emails are lawful.</p>
+    <p>Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional. Related: <a href="../sales-cadence-builder/">sales cadence builder</a>, <a href="../deal-keeper/">deal keeper</a>.</p>
+  </footer>
+  <script type="module">
+    import { checkSequence, parseSequence } from "./sequence.mjs";
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("go").addEventListener("click", () => {
+      const steps = parseSequence($("seq").value);
+      const r = checkSequence(steps, { country: $("country").value, fromName: $("from").value });
+      const li = (cls, x) => `<li class="${cls}"><strong>${x.step ? "Step " + x.step : "Whole sequence"}:</strong> ${esc(x.text)} <span class="rule">[${esc(x.rule)}]</span></li>`;
+      $("out").innerHTML = `<h2>Result</h2><p>${r.ok ? "No blocking problems" : r.errors.length + " to fix before sending"} &middot; ${r.touches} touch${r.touches === 1 ? "" : "es"} over ${r.spanDays} days</p>`
+        + (r.errors.length ? `<h3>Fix</h3><ul>${r.errors.map((x) => li("err", x)).join("")}</ul>` : "")
+        + (r.warnings.length ? `<h3>Consider</h3><ul>${r.warnings.map((x) => li("warn", x)).join("")}</ul>` : "");
+    });
+  </script>
+</body>
+</html>

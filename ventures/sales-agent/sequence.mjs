@@ -51,3 +51,20 @@ export function checkSequence(steps = [], opts = {}) {
   const last = list.length ? Number(list[list.length - 1].day) : 0;
   return { ok: errors.length === 0, errors, warnings, steps: per, touches: list.length, spanDays: Number.isFinite(last) ? last : 0 };
 }
+
+/**
+ * Parses pasted text into steps. Each step starts with a line "--- day N" (N optional; the first defaults to 0),
+ * then an optional "Subject: ..." line, then the body.
+ */
+export function parseSequence(text = "") {
+  const steps = [];
+  let cur = null;
+  for (const line of String(text).replace(/\r/g, "").split("\n")) {
+    const m = /^\s*-{3,}\s*(?:day\s*(-?\d+(?:\.\d+)?))?\s*-*\s*$/i.exec(line);
+    if (m) { cur = { day: m[1] === undefined ? (steps.length ? undefined : 0) : Number(m[1]), subject: "", body: [] }; steps.push(cur); continue; }
+    if (!cur) { if (!line.trim()) continue; cur = { day: 0, subject: "", body: [] }; steps.push(cur); }
+    const s = /^subject:\s*(.*)$/i.exec(line);
+    if (s && !cur.subject && !cur.body.some((b) => b.trim())) cur.subject = s[1].trim(); else cur.body.push(line);
+  }
+  return steps.map((s) => ({ ...s, body: s.body.join("\n").trim() }));
+}

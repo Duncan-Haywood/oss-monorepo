@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { checkSequence, newWordShare } from "./sequence.mjs";
+import { checkSequence, newWordShare, parseSequence } from "./sequence.mjs";
 
 const foot = "\n\nIf this is not for you, reply stop and I won't write again.\nSam Lee, Brightline Ltd, 221 Baker Street, Springfield 62704";
 const s1 = { day: 0, subject: "Quick question about Acme's onboarding", body: "Hi Dana,\n\nI'm Sam at Brightline. Your team hires field staff; how do you track onboarding paperwork?" + foot };
@@ -49,4 +49,19 @@ test("newWordShare", () => {
   assert.equal(newWordShare("alpha beta gamma", "alpha beta gamma"), 0);
   assert.equal(newWordShare("alpha", "delta epsilon"), 1);
   assert.equal(newWordShare("x", ""), 0);
+});
+
+test("parseSequence reads day markers, subjects and bodies", () => {
+  const steps = parseSequence("Subject: Hello\nHi Dana,\nline two\n--- day 4\nSubject: Next\nBody two\n--- day 9\nno subject here");
+  assert.equal(steps.length, 3);
+  assert.deepEqual(steps.map((s) => s.day), [0, 4, 9]);
+  assert.equal(steps[0].subject, "Hello");
+  assert.equal(steps[0].body, "Hi Dana,\nline two");
+  assert.equal(steps[2].subject, "");
+});
+test("parseSequence: leading marker, missing day, empty input", () => {
+  const a = parseSequence("--- day 0\nfirst\n---\nsecond");
+  assert.equal(a.length, 2); assert.equal(a[1].day, undefined);
+  assert.deepEqual(parseSequence(""), []);
+  assert.ok(checkSequence(a, {}).warnings.some((x) => x.rule === "timing"));
 });
