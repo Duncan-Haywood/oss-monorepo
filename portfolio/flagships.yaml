@@ -238,7 +238,7 @@ flagships:
       suggestFairnessWeight (CLI --suggest-weight and a page button), play-
       off race and odds; thousands of random leagues through the validator
       with 0 invalid, and the page checkboxes clicked in Chromium
-      (eval/browser-click.mjs). Travel-table warnings (missing pair, triangle typo) landed 2026-10-30, on the CLI and the multi-division page (a notice above the schedule). Season grid CSV for multi-division leagues landed 2026-10-30 (CLI --grid and a page button, clicked in Chromium 2026-10-30: eval/browser-click.mjs). Team unavailable dates on the multi-division page landed 2026-10-30 (browser-clicked). Printable score sheets for multi-division leagues landed 2026-10-30 (page button). Standings from results on the page and CLI landed 2026-11-02 (browser-clicked). Cross-division play-off seeding with wildcards from those standings landed 2026-11-02 (page, CLI --playoffs, browser-clicked). The play-off race was checked against full goal-difference and head-to-head tables on 45,000 random finals (2026-11-02, 0 failures). Tie-break notes (why a team is above the next) landed 2026-11-02 (tiebreak.test.mjs) and show on the multi-division page from 2026-11-02 (browser-clicked). Weekly group-chat update for every division landed 2026-11-03 (divisionsWeeklyUpdate, page button; unit-tested on the made-up example league only; CLI `--results r.txt --weekly` landed 2026-11-03). Next: a real league's travel times and a real league's unavailable-date requests.
+      (eval/browser-click.mjs). Travel-table warnings (missing pair, triangle typo) landed 2026-10-30, on the CLI and the multi-division page (a notice above the schedule). Season grid CSV for multi-division leagues landed 2026-10-30 (CLI --grid and a page button, clicked in Chromium 2026-10-30: eval/browser-click.mjs). Team unavailable dates on the multi-division page landed 2026-10-30 (browser-clicked). Printable score sheets for multi-division leagues landed 2026-10-30 (page button). Standings from results on the page and CLI landed 2026-11-02 (browser-clicked). Cross-division play-off seeding with wildcards from those standings landed 2026-11-02 (page, CLI --playoffs, browser-clicked). The play-off race was checked against full goal-difference and head-to-head tables on 45,000 random finals (2026-11-02, 0 failures). Tie-break notes (why a team is above the next) landed 2026-11-02 (tiebreak.test.mjs) and show on the multi-division page from 2026-11-02 (browser-clicked). Weekly group-chat update for every division landed 2026-11-03 (divisionsWeeklyUpdate, page button; unit-tested on the made-up example league only; CLI `--results r.txt --weekly` landed 2026-11-03). Missing-scores chase list for multi-division leagues landed 2026-11-03 (divisionsOverdue, CLI --overdue, page button; unit-tested, not browser-clicked). Next: a real league's travel times and a real league's unavailable-date requests.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
@@ -260,3 +260,21 @@ flagships:
       trough that rolls balls to the hopper inlet; then check the head's
       wheel-to-wheel gap and plate clearance against the ball path with the
       flight model's launch speeds.
+  # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
+  # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
+  # "would be fun to make as a long term project. also being able to publish to
+  # spotify etc." Placed last so it does not displace the construction programme.
+  - venture: chant-forge
+    why: >-
+      Long-term music production programme: public-domain chant (GABC) to MIDI
+      men's-choir lines with Latin lyrics, then genre templates, voices,
+      mastering checks and a release kit for streaming distribution.
+    next: >-
+      GABC to MIDI converter landed 2026-11-03 (8 tests), then a five-piece
+      corpus from GregoBase (CC0 per its FAQ; test checks each mode final),
+      then genre templates (genre.mjs: deep house, EDM, hard rock, metal;
+      drums, bass, chords in the chant's mode, 13 tests). Mix/master check
+      (master-cli.mjs: LUFS, true peak, mono, clipping, 6 tests) landed 2026-11-03;
+      check it against ffmpeg ebur128 or EBU test files. Next: a release kit, compare the files against a pre-1929 scan, source the Te Deum and
+      Salve Regina from a pre-1929 book, then run the converter over a batch
+      of real Gregorio files and fix what it misreads (ROADMAP.md).

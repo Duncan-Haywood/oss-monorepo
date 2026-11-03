@@ -1,5 +1,16 @@
 # build-data log
 
+## Session 14, 2026-11-03: milestone 14, XGBoost and linear quantile baselines for H1 (Chicago a2i, test year 2024), predictions written before the run
+
+Why: the paper draft's to-do item 1 says H1 is still only against the weakest bar (reference class) plus LightGBM. Add two more: XGBoost quantile (`reg:quantileerror`) and a linear quantile regression on one-hot features (fitted on a 20,000-row random subsample, since the exact LP does not scale; disclosed). Same features, split and week-block bootstrap as `boosted.py`; `src/baselines.py`. Feed re-pulled today (not the 2026-11-01 copy).
+Predictions (before running): (1) XGBoost lands within 3 points of LightGBM's relative change at each tau (M3: q0.1 +0.3%, q0.5 -9.7%, q0.9 +6.5%), so the q0.9 failure of boosting against the reference class is not a LightGBM quirk. Prior 70%. (2) The linear quantile model is worse than both trees at q0.5 and does not beat the reference class at q0.9. Prior 75%.
+
+Outcome (`results/baselines_chicago_a2i_2024.json`; n_train 727,114, calibration 34,782, test 33,062; 3 seeds; relative change of mean pinball loss against the reference class, week-block bootstrap interval; the feed re-pull has 851,902 rows against 851,889 on 2026-11-01, so the data moved slightly): **both predictions held.**
+- XGBoost: q0.1 +0.3% [+0.2, +0.3], q0.5 -10.5% [-11.2, -9.9], q0.9 +4.9% [+3.5, +6.2]. LightGBM (M3): +0.3, -9.7, +6.5. Gaps 0.0, 0.8 and 1.6 points, all inside the 3-point line. The Chicago q0.9 loss to the reference class is therefore not a LightGBM quirk: a second tree library with a different split rule agrees.
+- Linear quantile regression (20,000-row subsample, one-hot features): q0.1 +0.0%, q0.5 -2.3% [-2.6, -2.0], q0.9 +72.9% [+65.6, +81.1]. It captures about a fifth of the trees' q0.5 gain and is far worse than the reference class at q0.9, so permit type interacts with the other fields in a way a linear model cannot represent.
+- Limits: one city, one target, one test year. XGBoost's early stopping on the calibration year stopped after 3, 135 and 15 rounds for q0.1, q0.5, q0.9 (the calibration year may not resemble the test year for the tails). The linear model saw 20,000 of 727,114 training rows, so part of its gap may be sample size, not form. CatBoost and a neural net remain unrun. `enable_categorical` printed a harmless xgboost warning (the setting belongs to the DMatrix, which does set it).
+Next: the same two baselines on SF and Austin; CatBoost; then two-part conformal.
+
 ## Session 13, 2026-11-01: paper draft 0 (no new compute)
 
 Why: sessions 5 to 12 produced five hypotheses' worth of results spread over the log; the programme had no `paper/`. Done: `paper/paper.md`, a draft that assembles the logged numbers (H1 to H5) with limits and a to-do list. Every figure is copied from this log or `results/`; no experiment ran, so no result changed. Hypothesis: none (writing step). Not done and listed in the draft's section 7: the proposal's other baselines (linear quantile, XGBoost, CatBoost, neural net) are unrun, so H1 is still against the weakest bar; conformal for same-day mass; spread over draws.

@@ -1,0 +1,25 @@
+{
+  "_note": "Made-up parish. Names and amounts are placeholders, not a real book.",
+  "settings": { "localOfferingCents": 1000, "warnDays": 30, "intentionMassesPerWeek": 6 },
+  "intentions": [
+    { "id": "2025-118", "received": "2025-10-20", "donor": "Placeholder family A", "intention": "+ Departed father", "offeringCents": 1000 },
+    { "id": "2025-131", "received": "2025-11-25", "donor": "Placeholder donor B", "intention": "Health of a friend", "offeringCents": 1000 },
+    { "id": "2026-004", "received": "2026-01-08", "donor": "Placeholder donor C", "intention": "+ Grandmother", "offeringCents": 2500 },
+    { "id": "2026-077", "received": "2026-06-14", "donor": "Placeholder donor D", "intention": "Thanksgiving, 25th anniversary", "offeringCents": 1000, "requestedDate": "2026-11-08", "forbidTransfer": true },
+    { "id": "2026-090", "received": "2026-07-02", "donor": "Placeholder donor E", "intention": "+ Brother", "offeringCents": 1000 },
+    { "id": "2026-091", "received": "2026-07-02", "donor": "Placeholder donor E", "intention": "+ Sister", "offeringCents": 1000 },
+    { "id": "2026-102", "received": "2026-08-30", "donor": "Placeholder donor F", "intention": "Special intention", "offeringCents": 2000 }
+  ],
+  "masses": [
+    { "id": "2026-10-31 08:00", "date": "2026-10-31", "time": "08:00", "celebrant": "Fr. Pastor", "intentionIds": ["2026-004"], "celebrated": true },
+    { "id": "2026-11-07 08:00", "date": "2026-11-07", "time": "08:00", "celebrant": "Fr. Pastor", "intentionIds": ["2026-090", "2026-091"] },
+    { "id": "2026-11-07 17:00", "date": "2026-11-07", "time": "17:00", "celebrant": "Fr. Pastor", "intentionIds": [] },
+    { "id": "2026-11-08 08:00", "date": "2026-11-08", "time": "08:00", "celebrant": "Fr. Pastor", "intentionIds": [] },
+    { "id": "2026-11-08 10:30", "date": "2026-11-08", "time": "10:30", "celebrant": "Fr. Pastor", "intentionIds": [], "noIntention": true },
+    { "id": "2026-11-09 08:00", "date": "2026-11-09", "time": "08:00", "celebrant": "Fr. Pastor", "intentionIds": [] },
+    { "id": "2026-11-10 08:00", "date": "2026-11-10", "time": "08:00", "celebrant": "Fr. Pastor", "intentionIds": [] }
+  ],
+  "transfers": [
+    { "intentionId": "2026-102", "date": "2026-09-05", "toPriest": "Fr. Missionary", "amountCents": 1000 }
+  ]
+}
