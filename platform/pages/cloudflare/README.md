@@ -90,17 +90,19 @@ Mail to the domain is Cloudflare Email Routing (free), kept as code like the
 rest of this directory: `email-routing.json` lists the addresses,
 `email-routing.mjs` makes Cloudflare match it (dry run unless `APPLY=1`),
 and `.github/workflows/cloudflare-email.yml` runs it on demand. Every address
-forwards to one inbox held in the `EMAIL_FORWARD_TO` secret, so the
-repository names it but never contains it.
+is delivered to the edge Worker's agent-managed inbox
+(`platform/edge/inbox.mjs`), not forwarded to anyone (owner, 2026-11-03:
+"agent managed inbox not mine", "no forwarding"). The mail stays in the
+Worker's D1 database and is never committed, because the repository is public.
 `accounts@` is the sign-up address for the portfolio's platform accounts
 (Bluesky, Mastodon, dev.to, npm, ...); the list of those accounts and their
 setup steps is `portfolio/distribution/SETUP.md`.
 
-Owner setup, once: add the `EMAIL_FORWARD_TO` secret to the `cloudflare`
-environment, give the deploy token the Email Routing permissions the
+Owner setup, once: give the deploy token the Email Routing permissions the
 script's header lists (or add a second token), run the workflow with
-"apply" ticked, and click the verification link Cloudflare sends that inbox.
-Until then `marisstella.app` has no MX record and mail to it bounces
-(checked 2026-10-31). Sending (`noreply@`) is not part of this: a product
+"apply" ticked, and set the Worker's `INBOX_TOKEN` secret
+(`platform/edge/README.md`, "Inbox"). There is no verification link: a
+Worker destination needs none. Until then `marisstella.app` has no MX record
+and mail to it bounces (checked 2026-10-31). Sending (`noreply@`) is not part of this: a product
 that sends mail uses its own provider key (`ventures/local-site-studio`,
 `EMAIL_FROM`).

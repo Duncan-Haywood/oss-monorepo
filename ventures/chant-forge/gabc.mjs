@@ -47,8 +47,24 @@ export function pitchToMidi(letter, clef, accidental = null, refC = DEFAULTS.ref
   return refC + 12 * octave + DEGREE_SEMITONES[degree] + acc;
 }
 
-function stripMarkup(text) {
-  return text.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+const SP = { 'V/': '\u2123', 'R/': '\u211F', "'ae": '\u01FD', "'\u00E6": '\u01FD', "'oe": '\u0153\u0301', "'\u0153": '\u0153\u0301' };
+
+// Lyric text for one GABC syllable. <v> (raw TeX) and <alt> (text above the
+// staff) are not sung; <sp> is Gregorio's special-character tag (V/ and R/ are
+// the versicle and response signs); other tags only style the text. Centre
+// braces, the non-breaking space, and the intonation marks * and the cross
+// are not sung either.
+export function lyricText(text) {
+  return text
+    .replace(/<v>[\s\S]*?<\/v>/g, '')
+    .replace(/<alt>[\s\S]*?<\/alt>/g, '')
+    .replace(/<sp>([\s\S]*?)<\/sp>/g, (_, k) => SP[k.trim()] ?? k.replace(/\//g, ''))
+    .replace(/<[^>]*>/g, '')
+    .replace(/[{}]/g, '')
+    .replace(/~/g, ' ')
+    .replace(/[*\u2020\u2021]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 export function parseGabc(src, opts = {}) {
@@ -57,7 +73,7 @@ export function parseGabc(src, opts = {}) {
   const header = sep >= 0 ? parseHeader(src.slice(0, sep)) : {};
   let body = sep >= 0 ? src.slice(sep + 2) : src;
   body = body
-    .split('\n')
+    .split(/\r?\n/)
     .map((l) => l.replace(/%.*$/, ''))
     .join('\n');
 
@@ -82,7 +98,7 @@ export function parseGabc(src, opts = {}) {
       continue;
     }
 
-    let syllable = stripMarkup(rawText);
+    let syllable = lyricText(rawText);
     let lyricPending = syllable.length > 0;
     let i = 0;
     let lastNote = null;
@@ -92,6 +108,17 @@ export function parseGabc(src, opts = {}) {
         const close = neumes.indexOf(ch === '[' ? ']' : '}', i);
         i = close < 0 ? neumes.length : close + 1;
         continue;
+      }
+      if (ch === 'c' || ch === 'f') {
+        // A clef change inside a group, as in (::c3) or (z c3): digits follow a pitch
+        // letter nowhere else (episema and bar digits are eaten with their sign).
+        const cm = /^[cf]b?[1-4]/.exec(neumes.slice(i));
+        if (cm) {
+          clef = parseClef(cm[0]);
+          accidentals = {};
+          i += cm[0].length;
+          continue;
+        }
       }
       if (PITCHES.includes(ch.toLowerCase())) {
         const next = neumes[i + 1];
