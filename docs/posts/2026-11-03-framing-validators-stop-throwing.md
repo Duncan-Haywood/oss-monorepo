@@ -1,6 +1,6 @@
 ---
 title: "Three framing validators that threw on bad input now answer with an error"
-seo_title: "Wall framing takeoff: floor, roof and stair validators handle wrong-shaped input"
+seo_title: "Framing takeoff floor, roof and stair validators fixed"
 date: 2026-11-03
 tags: [wall-framing-takeoff, construction, testing]
 description: "validateFloor, validateRoof and validateStair threw a TypeError on null or a string; they now return an error list like the other validators."
