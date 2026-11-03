@@ -12,7 +12,12 @@ export { readWav };
 // ---- MIDI reading (format 0/1, running status, tempo map, channel programs) ----
 
 export function parseMidi(bytes) {
-  const b = Buffer.from(bytes);
+  // plain Uint8Array plus big-endian readers, so this runs in a browser (no Buffer)
+  const b = Uint8Array.from(bytes);
+  const dv = new DataView(b.buffer);
+  b.readUInt16BE = (o) => dv.getUint16(o);
+  b.readUInt32BE = (o) => dv.getUint32(o);
+  b.toString = (_enc, a, z) => String.fromCharCode(...b.subarray(a, z));
   if (b.length < 14 || b.toString('latin1', 0, 4) !== 'MThd') throw new Error('not a MIDI file');
   const ntrk = b.readUInt16BE(10);
   const division = b.readUInt16BE(12);

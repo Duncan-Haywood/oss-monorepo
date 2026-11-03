@@ -19,6 +19,16 @@ released track:
 5. **Release:** loudness (done, `master-cli.mjs`), metadata, credits and AI-disclosure checks before a
    distributor upload (done: `node release-cli.mjs release.json`, 7 tests, 2026-11-03).
 
+## Try it in the browser
+
+[`index.html`](index.html) ([live](https://duncan-haywood.github.io/oss-monorepo/chant-forge/)) is a studio page over the same modules: paste GABC (or load one of the five corpus
+pieces), pick tempo, genre, bar fitting, half-time and a drone, then press Convert, play the preview and download
+the MIDI or a preview WAV. It runs entirely client-side (2026-11-03). To make that possible `midi.mjs` and
+`render.mjs` no longer use Node's `Buffer` (`browser-safe.test.mjs` runs the pipeline with `Buffer` deleted).
+Checked in headless Chromium on Dies irae and Pange lingua with the metal backing; nobody has listened yet.
+Alternatives people use today: Gregorio plus LilyPond/MuseScore by hand (print, not MIDI with a genre backing), and
+Gregorio's own web editors (notation only). This one's niche is chant as a source for gym-genre tracks.
+
 ## Hear it without a DAW
 
 ```sh
