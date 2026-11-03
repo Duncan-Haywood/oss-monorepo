@@ -1,0 +1,44 @@
+{
+  "session": "https://claude.ai/code/session_01XpHqyfmews1y8XdYktCBYe",
+  "prompt_version": 0,
+  "input": "i want one direction to be to create a template website for catholic monks and nuns for their communities. like all the features of the best ones but customizable for their personal community. well supported set up for receiving donations vocations inquiry about section etc.",
+  "follow_up_inputs": [
+    "outreach for the project is porbably by email to social media management or vocations at the existing monasteries.",
+    "really high quality",
+    "maybe highly opinionated wesite builder for catholic monks and nuns communities."
+  ],
+  "model": null,
+  "task": "new direction and venture monastery-site: opinionated website builder for monks' and nuns' communities (engine, builder page, CLI, demos, outreach kit)",
+  "projects": ["monastery-site", "parish-office"],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12766",
+  "tests_added": 45,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "CI found what local venture tests did not: a sibling-link orphan, blog tags spelled differently from existing ones, no <main> on the builder page, skipped heading levels and a header-less table in generated pages, demo 404 pages unreachable from the catalogue, and tel: links read as relative paths by build.test.mjs. All fixed in this PR; the heading and table fixes are in the engine, so every generated site gets them."
+  ],
+  "integrity_issues": [],
+  "notes": "Venture: node --test site.test.mjs zip.test.mjs page.test.mjs cli.test.mjs usage.test.mjs: 41 pass (plus parish-office page.test.mjs sibling test). Builder driven in headless Chromium: preview follows edits, http giving link raises a high finding, preview links navigate (via the phone-width Menu button), .zip downloads and unzips (system unzip) to the full site plus community.json, state persists across reload, list edits keep fields the form does not show; no console errors. Local: portfolio-validate.yml 105/105 run steps pass (5 need Actions context); node platform/pages/build.mjs then check.mjs: publishable, 1323 products, no dead links; build.test.mjs 'relative links inside each tool resolve' and 'every page the site serves is listed in some sitemap' pass; siblings.mjs --check 0 orphans. Ported a fix red on main: seo_title on the chant-forge post from PR #12750 (writing.test.mjs title budget). The first local --for-changes sweep was void (HEAD moved during it; 300 s budget). Example communities are fictional, use example.org and 555 numbers, and say so on every page. No email sent; OUTREACH.md is for the owner.",
+  "track": "ventures",
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "The direction is recorded in portfolio/DIRECTION.md, not prompts/goals.md, to keep this PR out of the control-plane review gate; the parish direction is recorded the same way and its goals.md entry has not landed."
+    },
+    {
+      "file": "prompt.md",
+      "why": "Worked the owner's new direction directly rather than the routed queue (website requests, then flagships): the owner asked for it in this session."
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "platform/pages/build.test.mjs",
+      "what": "The relative-link test skipped mailto: and data: but not tel:, unlike check.mjs and check_pages_links.py; fixed here."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "what": "--for-changes against the whole diff spends its 300 s budget in portfolio-pages before reaching validate; running portfolio-validate.yml by name was the useful local check."
+    }
+  ],
+  "date": "2026-11-03"
+}
