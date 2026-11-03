@@ -1,9 +1,9 @@
 ---
 title: "Two real building models broke our IFC reader, so we wrote one in Rust"
-seo_title: "Reading walls, joins and doors from a real IFC model for a framing takeoff"
+seo_title: "Reading walls, joins and doors from real IFC models for framing"
 date: 2026-11-03
 tags: [construction, ifc, bim, rust, open-source]
-description: "On a real Revit export our framing takeoff's IFC reader found no closed outline and placed 2 of 10 doors and windows. A Rust reader that uses the model's own join and opening relationships closes the outline, places all of them, and matches IfcOpenShell to the millimetre."
+description: "On a real Revit model our IFC reader found no closed outline and placed 2 of 10 doors and windows. A Rust reader fixes both and matches IfcOpenShell."
 ---
 
 The wall framing takeoff could already read an IFC file, the open format architects' tools export. It had only been tested on files we wrote by hand. This week it got two real models from buildingSMART's public sample set (CC BY 4.0): the Duplex Apartment, exported from Revit, and the Schependomlaan design model, a 49 MB ArchiCAD model of a Dutch housing block.
