@@ -70,6 +70,22 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          # Only what siblings.mjs and the build.mjs it imports read: pages,
+          # code and config, not the ~900 MB of audio and images. Output is
+          # identical on the sparse tree (docs/history/ci-perf-2026-11-03-sibling-links-sparse.md).
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /platform/
+            /portfolio/
+            /package.json
+            /ventures/**/*.html
+            /ventures/**/*.mjs
+            /ventures/**/*.cjs
+            /ventures/**/*.js
+            /ventures/**/*.json
+            /ventures/**/*.yaml
+            /ventures/**/*.yml
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
