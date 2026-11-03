@@ -1,6 +1,6 @@
 ---
 title: "Do building-permit time forecasts need gradient boosting? Chicago, three models"
-seo_title: "Predicting building permit approval time: XGBoost vs LightGBM vs linear quantile regression"
+seo_title: "Permit approval time: XGBoost vs LightGBM vs linear quantiles"
 date: 2026-11-03
 tags: [research, construction, permits, data]
 description: "On 727,000 Chicago permits, XGBoost and LightGBM agree on how well they predict permit wait times; a linear quantile model does not. Open code and data."
