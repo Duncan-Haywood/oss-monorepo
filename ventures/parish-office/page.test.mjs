@@ -45,3 +45,10 @@ test("quoted canon text on the rules page matches the engine's quotes", async ()
   const html = page("mass-intention-rules.html");
   for (const k of [948, 953, "955.2"]) assert.ok(html.includes(CANONS[k]), String(k));
 });
+
+// Closest sibling in the religious-organisations direction: the monastery
+// website builder. Without a one-hop link a crawler may never reach it.
+test("index links one hop to the monastery-site sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/monastery-site\/"/);
+  assert.match(page("index.html"), /website builder for monks and nuns/);
+});

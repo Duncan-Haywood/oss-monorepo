@@ -2,7 +2,7 @@
 title: "An opinionated website builder for monasteries and convents"
 seo_title: "Free website builder for Catholic monasteries, convents and abbeys"
 date: 2026-11-03
-tags: [catholic, monastery, websites, open-source, nonprofit]
+tags: [catholic, monastery, website, open-source, nonprofits]
 description: "A free builder that turns one form into a complete monastery website: horarium, vocations with an inquiry form, giving, prayer requests and retreats."
 ---
 

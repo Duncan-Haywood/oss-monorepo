@@ -50,3 +50,7 @@ test("the page links to both demos and they exist", () => {
     assert.ok(readFileSync(new URL(`./${d}`, import.meta.url), "utf8").includes("<!doctype html>"));
   }
 });
+
+test("the builder links one hop to the parish-office sibling", () => {
+  assert.match(page, /href="\.\.\/parish-office\/"/);
+});
