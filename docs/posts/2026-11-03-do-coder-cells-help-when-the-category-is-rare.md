@@ -1,6 +1,6 @@
 ---
 title: "Do coder cells help when the category is rare?"
-seo_title: "Auditing LLM-coded qualitative data for rare categories: stratified vs pooled intervals"
+seo_title: "Auditing LLM-coded data for rare categories: cells vs pooled"
 date: 2026-11-03
 tags: [research, llm-coding, statistics, inference]
 description: "Splitting an audit by the LLM's own code makes intervals 6 to 11% narrower for rare categories, but at 2% prevalence coverage drops to 91%."
