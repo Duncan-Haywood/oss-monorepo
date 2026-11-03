@@ -1,8 +1,8 @@
 ---
 title: "A fitted slope repairs ramp drift in a scaled-drone model fit, but not a random walk on a long record"
-seo_title: "Gyro random-walk drift and system identification of a scaled aircraft model"
+seo_title: "Random-walk gyro drift in scaled-aircraft model identification"
 date: 2026-11-03
-description: "aerolog-scaling milestone 9y: a random-walk sensor drift of 20% of rms hurts the output-error fit more than a linear ramp, and fitting a slope repairs it only on the short record."
+description: "aerolog-scaling 9y: random-walk sensor drift hurts the output-error fit more than a ramp, and a fitted slope repairs it only on the short record."
 tags: [research, aerolog-scaling, system-identification, uav]
 ---
 
