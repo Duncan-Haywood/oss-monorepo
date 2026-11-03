@@ -76,13 +76,23 @@ test files, ffmpeg `ebur128`) or a real mix; the true-peak filter is a
 windowed sinc, not the Annex 2 coefficients. Distributor targets change: read
 theirs before release.
 
+## Real Gregorio files (2026-11-03)
+
+Fixed after reading the format, tested on made-up strings shaped like real files
+(`real-files.test.mjs`, 6 tests), not yet run on a batch of GregoBase files:
+CRLF line endings no longer defeat `%` comment stripping (a comment's text was
+being sung as a lyric); `<sp>R/</sp>`, `<sp>V/</sp>` and `<sp>'ae</sp>` keep their
+signs; `<v>` (raw TeX) and `<alt>` text, `{}` centre braces, `*` and the cross
+are not lyrics; a clef change inside a group, as in `(::c3)` or `(z c3)`, now
+moves the staff. NABC alternations are still cut at the first `|`.
+
 ## Not checked yet
 
 - `examples/dies-irae-incipit.gabc` is the widely quoted opening motif
   (F E F D E C D D), typed from memory. It has not been transcribed from a scan.
   It is a demo input, not a corpus entry.
-- The converter has only run on the small inputs in the tests. It has not been
-  tried on a real GregoBase or Gregorio file.
+- The converter has run on the five corpus files and made-up inputs, not on a
+  batch of real Gregorio files.
 - Nothing has been arranged, sung, mixed or published.
 
 ## Rules this project keeps
