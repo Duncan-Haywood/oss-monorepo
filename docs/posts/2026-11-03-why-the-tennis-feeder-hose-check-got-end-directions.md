@@ -1,9 +1,9 @@
 ---
 title: "Why the tennis feeder's hose check got end directions"
-seo_title: "Checking a flexible ball-feed hose on a tilting head: bend radius and fall"
+seo_title: "Checking a flexible ball-feed hose on a tilting head"
 date: 2026-11-03
 tags: [cad, hardware, open-source, tennis]
-description: "The feeder's hose passed a straight-chord check. Once the hose leaves the spigot straight down and enters a tilting column, the same design has no valid curve at two poses."
+description: "The feeder hose passed a straight-chord check. With real end directions, the same design has no valid curve at two head angles."
 ---
 
 The open-tennis-robots feeder joins a ball tub to the launcher head with a hose. The head tilts from -15 to +45 degrees, so the hose socket moves about 450 mm. The old check took the straight chord from outlet to socket and a circular-arc bend bound, and passed.
