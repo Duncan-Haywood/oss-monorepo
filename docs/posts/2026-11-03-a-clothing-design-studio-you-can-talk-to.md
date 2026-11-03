@@ -1,9 +1,9 @@
 ---
 title: "A clothing design studio you can talk to, and what a 45 euro shirt really leaves you"
-seo_title: "Free clothing design software with voice commands, costing and tech packs"
+seo_title: "Free clothing design software: voice commands, costing, tech packs"
 date: 2026-11-03
 tags: [ventures, fashion, voice, design, costing]
-description: "A designer asked for software that turns spoken ideas into garments a factory can make. The first version is live: voice and drag design, three versions to compare, costing from your own supplier's prices, and a tech pack."
+description: "A free browser studio: design a shirt by voice or drag, compare three versions, cost it from your own supplier's prices, and export a tech pack."
 ---
 
 The owner interviewed a designer who wants to start a unisex clothing line: shirts carrying classical and devotional paintings, saints and angels, printed so they stand off the fabric "like 3D paintings", on fabric that looks expensive even when it isn't. The designer asked for two things above the rest: to describe changes out loud and by pointing, and to know what every shirt costs. "I'm not good at marketing" came up too.
