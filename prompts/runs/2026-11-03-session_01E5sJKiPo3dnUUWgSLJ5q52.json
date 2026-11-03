@@ -38,7 +38,10 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-11-03-aerolog-random-walk-drift.md; LOG.md 9y; paper/draft.md",
+  "writeups": [
+    "docs/posts/2026-11-03-aerolog-random-walk-drift.md",
+    "research/aerolog-scaling/LOG.md"
+  ],
   "goal": null,
   "notes": "Programme aerolog-scaling, milestone 9y. Ran with /usr/bin/python3.13 (aerosandbox present). Run took ~20 min. Security queue branch absent; IDEAS and requests empty. No agent doc written.",
   "corrections": [],
