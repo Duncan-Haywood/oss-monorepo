@@ -901,3 +901,7 @@ provider's docs and not run against a live product. Checked 2026-11-03:
 a headless-browser run with a stubbed checkout link and licence answer: card
 shown, key accepted, pack opened with the typed title escaped, no console
 errors. Marketing page: `audit-pack-for-accountants.html`.
+
+## ISDOC detection (2026-11-03)
+
+`looksLikeIsdoc` (`report.mjs`) matches the `http://isdoc.cz/namespace/2013` namespace; `preflightDocuments` then gives a read error naming the format and the fix instead of "UBL field TaxAmount is missing". `isdoc.test.mjs`, 3 tests, on a made-up stub; `report.test.mjs` and `page.test.mjs` still pass. The namespace string is from memory of the public ISDOC schema, not read here (cz hosts unreachable from the cloud runner). Open: an ISDOC reader and a real file.
