@@ -99,6 +99,7 @@
 
   <script type="module">
     import { AGE_BANDS, FITS, STYLES, CLIMATES, SEASONS, OCCASIONS, TIERS, defaultProfile, planWardrobe, firstDrop } from "./wardrobe.mjs";
+    import { lookbook } from "./lookbook.mjs";
     import { newDesign, applyOp, encodeDesign } from "./design.mjs";
     import { unitCost, money } from "./costing.mjs";
     import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
@@ -139,8 +140,15 @@
         html += `<h3>${label}</h3><div class="pieces">${its.map(it => `<div class="piece"><span class="dot" style="background:${it.colour}"></span><b>${esc(it.colourName)} ${esc(it.label.toLowerCase())}</b>${it.accent ? " (accent)" : ""}<div class="tag">${esc(it.material)}</div><div class="tag">${esc(it.source)}${it.studio && it.studio !== "sunglasses" ? ` · <a href="./#d=${encodeDesign(studioDesign(it))}">design it</a>` : it.studio === "sunglasses" ? ' · <a href="sunglasses.html">design it</a>' : ""}</div></div>`).join("")}</div>`;
       }
       html += `<h3>Outfits to start with</h3><ul>${plan.outfits.map(o => `<li><b>${esc(OCCASIONS[o.occasion] ?? o.occasion)}:</b> ${esc(o.text)}</li>`).join("")}</ul>`;
-      html += `<p class="notes">${plan.notes.map(esc).join("<br>")}</p>`;
+      html += `<p class="notes">${plan.notes.map(esc).join("<br>")}</p><p><button type="button" id="lookbook">Download lookbook (HTML, every outfit drawn)</button></p>`;
       $("#results").innerHTML = html;
+      $("#lookbook").addEventListener("click", () => {
+        const { html: page } = lookbook(plan, { brand: "My brand", max: 24 });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([page], { type: "text/html" }));
+        a.download = "lookbook.html"; a.click(); URL.revokeObjectURL(a.href);
+        recordUsage("lookbook_download");
+      });
       renderDrop();
     }
 
