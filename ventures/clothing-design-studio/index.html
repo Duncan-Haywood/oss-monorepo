@@ -198,6 +198,11 @@
           <div><label for="sep-width">Printed width (cm)</label><input id="sep-width" type="number" min="5" max="50" step="1" value="25"></div>
           <div><label for="sep-line">Raised line (mm)</label><input id="sep-line" type="number" min="0.3" max="3" step="0.1" value="0.8"></div>
         </div>
+        <div class="row3">
+          <div><label for="sep-bg">Paper around the art</label><select id="sep-bg"><option value="auto">Remove the surround</option><option value="all">Remove it inside holes too</option><option value="none">Keep everything</option></select></div>
+          <div><label for="sep-crop">Trim edges (%: left, top, right, bottom)</label><input id="sep-crop" value="0,0,0,0" inputmode="decimal"></div>
+          <div><label for="sep-knock">Leave unprinted (hex colours, comma separated)</label><input id="sep-knock" placeholder="#969696" autocomplete="off"></div>
+        </div>
         <div class="bar">
           <label class="btn small" style="margin:0">Choose a painting<input id="sep-file" type="file" accept="image/png,image/jpeg,image/webp" class="sr"></label>
           <button class="btn small" type="button" id="sep-brief" disabled>Download printer brief</button>
@@ -716,10 +721,17 @@
 
     // ---- colour separation ----
     let lastSep = null, lastPixels = null;
+    function sepExtras() {
+      const p = $("#sep-crop").value.split(/[ ,]+/).filter(Boolean).map(Number);
+      if (p.length && (p.length !== 4 || p.some(v => !(v >= 0 && v <= 90)))) throw new Error("Trim edges needs four percentages from 0 to 90, e.g. 0,0,10,0.");
+      const [left, top, right, bottom] = p.length ? p.map(v => v / 100) : [0, 0, 0, 0];
+      const knockOut = $("#sep-knock").value.split(/[ ,]+/).filter(Boolean);
+      return { background: $("#sep-bg").value, crop: { left, top, right, bottom }, knockOut };
+    }
     function runSeparation() {
       if (!lastPixels) return;
       try {
-        lastSep = separate(lastPixels, { colours: $("#sep-colours").value, widthCm: $("#sep-width").value, raisedLineMm: $("#sep-line").value, garment: d().colour });
+        lastSep = separate(lastPixels, { colours: $("#sep-colours").value, widthCm: $("#sep-width").value, raisedLineMm: $("#sep-line").value, garment: d().colour, ...sepExtras() });
       } catch (e) { $("#sep-out").innerHTML = `<p class="miss">${esc(e.message)}</p>`; return; }
       const sp = lastSep, c = document.createElement("canvas");
       c.width = sp.width; c.height = sp.height;
@@ -747,7 +759,7 @@
       img.onerror = () => { $("#sep-out").innerHTML = `<p class="miss">That image could not be read.</p>`; };
       img.src = URL.createObjectURL(file);
     });
-    for (const id of ["#sep-colours", "#sep-width", "#sep-line"]) $(id).addEventListener("change", runSeparation);
+    for (const id of ["#sep-colours", "#sep-width", "#sep-line", "#sep-bg", "#sep-crop", "#sep-knock"]) $(id).addEventListener("change", runSeparation);
     $("#sep-brief").addEventListener("click", () => { if (lastSep) { download("separation-brief.txt", separationBrief(lastSep), "text/plain"); recordUsage("separation_brief"); } });
     $("#sep-films").addEventListener("click", () => {
       if (!lastSep) return;

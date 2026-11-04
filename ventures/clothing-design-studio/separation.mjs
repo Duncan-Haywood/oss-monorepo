@@ -33,6 +33,18 @@ function rng(seed) {
   return () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
 }
 
+/** Cut a fractional box out of the image. crop = {left, top, right, bottom}, each 0 to 0.9 of the side trimmed; refuses a box under 8 px. */
+export function cropImage(image, crop) {
+  const f = k => { const v = Number(crop?.[k] ?? 0); if (!(v >= 0 && v <= 0.9)) throw new Error(`separate: crop.${k} must be a fraction from 0 to 0.9`); return v; };
+  const l = f("left"), t = f("top"), r = f("right"), b = f("bottom");
+  const x0 = Math.round(l * image.width), y0 = Math.round(t * image.height);
+  const w = Math.round((1 - r) * image.width) - x0, h = Math.round((1 - b) * image.height) - y0;
+  if (w < 8 || h < 8) throw new Error("separate: the crop leaves under 8 pixels");
+  const out = new Uint8ClampedArray(w * h * 4);
+  for (let y = 0; y < h; y++) out.set(image.data.subarray(((y0 + y) * image.width + x0) * 4, ((y0 + y) * image.width + x0 + w) * 4), y * w * 4);
+  return { data: out, width: w, height: h };
+}
+
 /** Box-average down to at most MAX_SIDE on the long side. */
 function shrink({ data, width, height }) {
   const k = Math.max(1, Math.ceil(Math.max(width, height) / MAX_SIDE));
@@ -53,7 +65,7 @@ function shrink({ data, width, height }) {
 }
 
 /** Flood from the border over pixels close to the border's median colour: a plain paper or canvas surround. */
-function floodBackground(px, w, h, tol) {
+function floodBackground(px, w, h, tol, everywhere = false) {
   const edge = [];
   for (let x = 0; x < w; x++) { edge.push(x, (h - 1) * w + x); }
   for (let y = 0; y < h; y++) { edge.push(y * w, y * w + w - 1); }
@@ -65,6 +77,10 @@ function floodBackground(px, w, h, tol) {
     return Math.hypot(l[0] - refLab[0], l[1] - refLab[1], l[2] - refLab[2]) <= tol;
   };
   const bg = new Uint8Array(w * h);
+  if (everywhere) { // every pixel near the surround colour, including paper showing through holes
+    for (let i = 0; i < w * h; i++) if (close(i)) bg[i] = 1;
+    return bg;
+  }
   const stack = [];
   for (const i of edge) if (!bg[i] && close(i)) { bg[i] = 1; stack.push(i); }
   while (stack.length) {
@@ -171,7 +187,11 @@ const count = m => { let c = 0; for (let i = 0; i < m.length; i++) c += m[i] ? 1
  *   colours       inks to reduce to, 2 to 8 (default 4)
  *   widthCm       printed width, for converting pixels to millimetres (default 25)
  *   garment       garment colour hex; decides whether a white underbase is advised (default #ffffff)
- *   background    "auto" removes a plain surround connected to the border; "none" keeps all (default "auto")
+ *   background    "auto" removes a plain surround connected to the border; "all" also removes that colour inside holes
+ *                 (paper showing through a ring or letter); "none" keeps all (default "auto")
+ *   backgroundTol how far from the surround colour still counts as surround, CIE76 (default 14, 1 to 60)
+ *   knockOut      list of hex colours to leave unprinted wherever they appear (a stray scan-bed grey, a signature), within knockOutTol (default 12)
+ *   crop          {left, top, right, bottom}: fraction of each side to trim before separating
  *   smooth        speckle-removal passes (default 1)
  *   minFeatureMm  finest line or dot the mesh holds (default 0.3 for fine screens)
  *   raisedLineMm  width of the raised outline (default 0.8)
@@ -183,10 +203,23 @@ export function separate(image, o = {}) {
   const minFeatureMm = Math.max(0.05, Number(o.minFeatureMm) || 0.3);
   const raisedLineMm = Math.max(0.3, Number(o.raisedLineMm) || 0.8);
   if (!image || !image.data || !(image.width > 0) || !(image.height > 0) || image.data.length < image.width * image.height * 4) throw new Error("separate: need RGBA pixels with width and height");
+  if (o.crop) image = cropImage(image, o.crop);
   const { data, width: w, height: h } = shrink(image);
   const n = w * h;
-
-  const bg = (o.background ?? "auto") === "auto" ? floodBackground(data, w, h, 14) : new Uint8Array(n);
+  const mode = o.background ?? "auto";
+  if (!["auto", "all", "none"].includes(mode)) throw new Error('separate: background must be "auto", "all" or "none"');
+  const bgTol = Math.max(1, Math.min(60, Number(o.backgroundTol) || 14));
+  const bg = mode === "none" ? new Uint8Array(n) : floodBackground(data, w, h, bgTol, mode === "all");
+  const knock = (Array.isArray(o.knockOut) ? o.knockOut : []).map(c => {
+    if (!/^#[0-9a-f]{6}$/i.test(c)) throw new Error("separate: knockOut colours must be #rrggbb");
+    return toLab(parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16));
+  });
+  const knockTol = Math.max(1, Math.min(60, Number(o.knockOutTol) || 12));
+  if (knock.length) for (let i = 0; i < n; i++) {
+    if (bg[i]) continue;
+    const l = toLab(data[i * 4], data[i * 4 + 1], data[i * 4 + 2]);
+    if (knock.some(q => Math.hypot(l[0] - q[0], l[1] - q[1], l[2] - q[2]) <= knockTol)) bg[i] = 1;
+  }
   const inked = new Uint8Array(n);
   const pts = [], idx = [];
   for (let i = 0; i < n; i++) {
