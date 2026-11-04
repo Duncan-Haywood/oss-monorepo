@@ -47,6 +47,10 @@
   <div class="grid">
     <section>
       <h2>Who is it for?</h2>
+      <label for="say">Describe it in a sentence</label>
+      <textarea id="say" rows="2" placeholder="e.g. unisex line for women and men around 30, hot summers, art and sacred motifs, casual and evenings out, premium, 10 pieces"></textarea>
+      <p><button type="button" id="hear">Fill in the questions</button></p>
+      <p class="tag" id="heard" aria-live="polite"></p>
       <div class="row">
         <div><label for="ageBand">Age band</label><select id="ageBand"></select></div>
         <div><label for="fit">Fit</label><select id="fit"></select></div>
@@ -99,6 +103,7 @@
 
   <script type="module">
     import { AGE_BANDS, FITS, STYLES, CLIMATES, SEASONS, OCCASIONS, TIERS, defaultProfile, planWardrobe, firstDrop } from "./wardrobe.mjs";
+    import { listen } from "./guide.mjs";
     import { lookbook } from "./lookbook.mjs";
     import { newDesign, applyOp, encodeDesign } from "./design.mjs";
     import { unitCost, money } from "./costing.mjs";
@@ -171,6 +176,11 @@
       $("#drop").querySelectorAll("input[data-key]").forEach(i => i.addEventListener("change", ev => { const v = +ev.target.value; if (v > 0) costOverrides[ev.target.dataset.key] = v; else delete costOverrides[ev.target.dataset.key]; renderDrop(); }));
     }
 
+    $("#hear").addEventListener("click", () => {
+      const r = listen($("#say").value, p);
+      p = r.profile; write(); render(); recordUsage("wardrobe_guide");
+      $("#heard").textContent = (r.heard.length ? "Heard: " + r.heard.map(h => `${h.field} = ${Array.isArray(h.value) ? h.value.join("+") : h.value} (from "${h.from}")`).join("; ") + ". " : "Nothing recognised. ") + (r.asks.length ? "Still to say: " + r.asks.join(" ") : "Check each answer below.");
+    });
     write(); render();
     document.querySelectorAll("section select, section input:not([data-key]), #occasions input").forEach(el => el.addEventListener("change", () => { read(); render(); recordUsage("wardrobe_plan"); }));
     recordUsage("wardrobe_open");
