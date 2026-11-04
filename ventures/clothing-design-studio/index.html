@@ -114,6 +114,16 @@
           <span class="engine" id="engine-label">Commands: built-in (no AI, nothing sent)</span>
         </div>
         <div id="stage" tabindex="0" aria-label="Garment preview. Drag artwork to move it, the corner handle to resize, the top dot to rotate. With the preview focused: arrow keys move, plus and minus resize, Delete removes."></div>
+        <details id="turn-panel">
+          <summary>Turn the garment (preview)</summary>
+          <p class="muted">Approximate: the drawing is turned and shaded, with no drape, seams or sleeves, so it shows how artwork sits as the garment turns, not fit.</p>
+          <div class="bar">
+            <label for="turn-angle" class="sr">Turn angle in degrees</label>
+            <input id="turn-angle" type="range" min="0" max="359" step="1" value="0" style="flex:1">
+            <button class="btn small" type="button" id="turn-spin" aria-pressed="false">Spin</button>
+          </div>
+          <div id="turn-view"></div>
+        </details>
         <div class="notes" id="compat" aria-live="polite"></div>
         <ul class="log" id="log" aria-live="polite" aria-label="Changes made from commands"></ul>
       </section>
@@ -323,6 +333,7 @@
     import { EXAMPLES } from "./commands.mjs";
     import { interpret } from "./ai.mjs";
     import { renderDesign, placementBox, esc } from "./render.mjs";
+    import { renderTurntable } from "./turntable.mjs";
     import { EXAMPLE_SUPPLIER, supplierToCsv, supplierFromCsv } from "./suppliers.mjs";
     import { economics, quantityBreaks, money, DEFAULT_PLAN } from "./costing.mjs";
     import { techPack, techPackHtml, quoteRequest } from "./techpack.mjs";
@@ -716,7 +727,22 @@
 
     function renderStage() {
       stage.innerHTML = renderDesign(d(), { guides: true, interactive: true, uid: "stage" });
+      renderTurn();
     }
+
+    let spin = null;
+    function renderTurn() {
+      if (!$("#turn-panel").open) return;
+      $("#turn-view").innerHTML = renderTurntable(d(), Number($("#turn-angle").value), { uid: "turn" });
+    }
+    $("#turn-panel").addEventListener("toggle", renderTurn);
+    $("#turn-angle").addEventListener("input", renderTurn);
+    $("#turn-spin").addEventListener("click", () => {
+      const btn = $("#turn-spin");
+      if (spin) { clearInterval(spin); spin = null; btn.setAttribute("aria-pressed", "false"); btn.textContent = "Spin"; return; }
+      btn.setAttribute("aria-pressed", "true"); btn.textContent = "Stop";
+      spin = setInterval(() => { $("#turn-angle").value = (Number($("#turn-angle").value) + 4) % 360; renderTurn(); }, 60);
+    });
 
     function renderCost() {
       const design = d();

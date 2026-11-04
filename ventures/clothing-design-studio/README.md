@@ -96,3 +96,8 @@ use this as a system of record. If a tool needs to survive, export your inputs
 and run it yourself.
 
 MIT licence: [`LICENSE`](LICENSE). Sponsor: https://github.com/sponsors/Duncan-Haywood
+
+
+## Turntable preview (2026-11-04)
+
+`turntable.mjs` turns the design about its vertical axis on the studio page ("Turn the garment": a slider and a spin button). It is an approximation, the drawing squeezed by cos(angle) and shaded across its width, showing the back artwork past 90 degrees; it has no drape, seams or sleeves, so it is not a fit check. Checked by `turntable.test.mjs` (side switching, wrap-around, escaping) and a headless-browser run of the page with no console errors. The WebGL/WebXR garment is still the next step in `ROADMAP.md`.
