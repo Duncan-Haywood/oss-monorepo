@@ -17,6 +17,10 @@
  * Needs a database: `scripts/test-db.sh start`. NOISY_OUT=file appends the line.
  * NOISY_ITEMS, NOISY_ANSWERS and NOISY_RESPONDENTS override 60, 200 and 3;
  * NOISY_TIMEOUT_MS overrides the 15-minute test timeout (3000 answers needs more).
+ * NOISY_CONDITIONS (comma list of condition names) runs only those, and
+ * NOISY_CHECKPOINTS (comma list of answer counts, default none) also reports
+ * Spearman and the number of rated items along each respondent's own run
+ * (2026-11-04, to explain why 3000 answers scored below 1000: docs).
  */
 import { appendFileSync } from "fs";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
@@ -63,7 +67,9 @@ function pearson(xs: number[], ys: number[]) {
     Math.sqrt(xs.reduce((s, x) => s + (x - mx) ** 2, 0) * ys.reduce((s, y) => s + (y - my) ** 2, 0));
 }
 
-const CONDITIONS = [
+const ONLY = process.env.NOISY_CONDITIONS?.split(",");
+const CHECKPOINTS = (process.env.NOISY_CHECKPOINTS ?? "").split(",").filter(Boolean).map(Number);
+const ALL_CONDITIONS = [
   { name: "clean", lapse: 0, bias: 0, off: false },
   { name: "lapse20", lapse: 0.2, bias: 0, off: false },
   { name: "bias50", lapse: 0, bias: 0.5, off: false },
@@ -72,6 +78,7 @@ const CONDITIONS = [
   { name: "bias50-nofallback", lapse: 0, bias: 0.5, off: true },
   { name: "bias80-nofallback", lapse: 0, bias: 0.8, off: true },
 ];
+const CONDITIONS = ONLY ? ALL_CONDITIONS.filter((c) => ONLY.includes(c.name)) : ALL_CONDITIONS;
 
 describe("noisy and biased respondents through the route", () => {
   beforeAll(async () => {
@@ -96,6 +103,12 @@ describe("noisy and biased respondents through the route", () => {
     const order = new Map((await prisma.item.findMany({ where: { surveyId: survey.id } })).map((it) => [it.id, it.sortOrder]));
     const lines: string[] = [];
     const out: Record<string, { rho: number; share: number }> = {};
+    const spearmanNow = async (participantId: string) => {
+      const rows = await prisma.participantItemRating.findMany({ where: { participantId } });
+      const xs = rows.map((r) => order.get(r.itemId)!);
+      const ys = rows.map((r) => -(r as unknown as { rating: number }).rating);
+      return { rho: pearson(ranks(xs), ranks(ys)), rated: rows.length };
+    };
 
     for (const c of CONDITIONS) {
       fallbackOff.on = c.off;
@@ -110,6 +123,10 @@ describe("noisy and biased respondents through the route", () => {
           const result = rand() < c.bias ? "A" : rand() < c.lapse ? (rand() < 0.5 ? "A" : "B") : truth;
           if (result === "A") topPicks++;
           await answer(jsonRequest("http://localhost/api/trials/answer", { trialId: q.trialId, result }));
+          if (CHECKPOINTS.includes(i + 1)) {
+            const c2 = await spearmanNow(p.id);
+            lines.push(`${c.name} respondent ${k} @${i + 1}: Spearman ${c2.rho.toFixed(3)}, rated ${c2.rated}`);
+          }
         }
         const rows = await prisma.participantItemRating.findMany({ where: { participantId: p.id } });
         const xs = rows.map((r) => order.get(r.itemId)!);
@@ -124,9 +141,11 @@ describe("noisy and biased respondents through the route", () => {
     if (process.env.NOISY_OUT) appendFileSync(process.env.NOISY_OUT, line + "\n");
     console.log(line);
     // Floors set well under the measured values; they catch a broken route, not a ranking-quality claim.
-    expect(out.clean.rho).toBeGreaterThan(0.5);
-    expect(out.clean.share).toBeGreaterThan(0.4);
-    expect(out.clean.share).toBeLessThan(0.6);
-    expect(out.bias80.share).toBeGreaterThan(0.8);
+    if (out.clean) {
+      expect(out.clean.rho).toBeGreaterThan(0.5);
+      expect(out.clean.share).toBeGreaterThan(0.4);
+      expect(out.clean.share).toBeLessThan(0.6);
+    }
+    if (out.bias80) expect(out.bias80.share).toBeGreaterThan(0.8);
   }, Number(process.env.NOISY_TIMEOUT_MS ?? 900_000));
 });
