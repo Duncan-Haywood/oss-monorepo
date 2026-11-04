@@ -3,15 +3,15 @@
   "title": "perf: three Pages test files each run their own full site build, in separate processes",
   "status": "open",
   "owner": "agent",
-  "effect": 2,
+  "effect": 1,
   "cost": 2,
-  "problem": "In platform/pages, build.test.mjs (298 s), build-determinism.test.mjs (292 s; two sequential buildSite calls) and custom-domain.test.mjs (120 s) each build the site themselves; every other file is under 10 s. Files run in parallel, so wall time is the max, but all three occupy cores at once and the Pages test step is the heaviest in the runner pool.",
+  "problem": "In platform/pages, build.test.mjs (298 s), build-determinism.test.mjs (292 s; two sequential buildSite calls) and custom-domain.test.mjs (120 s) each build the site themselves; every other file is under 10 s. Files run in parallel, so wall time is the max, but all three occupy cores at once and the Pages test step is the heaviest in the runner pool. CORRECTION 2026-11-04 (perf run): the per-file timings above were taken with no PAGES_CARD_CACHE, i.e. cold share-card drawing (~60% idle main thread waiting on the card worker pool). CI sets PAGES_CARD_CACHE for this step, so custom-domain is ~28 s warm (65 s on the first run that fills the cache, 120 s before), not 120 s. Part 2 as written (sharing one build between custom-domain and build.test) is not viable: custom-domain builds a fixture ventures dir with a different baseUrl.",
   "evidence": [
     "per-file timing, 4-core sandbox, 2026-11-04: for f in *.test.mjs cloudflare/*.test.mjs; do node --test $f; done -> 64 files, all pass, sum 776 s; build 297.8, build-determinism 292.5, custom-domain 120.2, next largest surface-budget 8.8",
     "python3 platform/ci/ci_profile.py --runs 100 --top 15, 2026-11-04: Portfolio Pages, Test the site builder 17.5 of 77.2 job-min",
     "docs/history/pages-test-perf-2026-11-03-red-suite-reading.md ranked item 1 (shared ~10 s build) as next"
   ],
-  "change": "Measure on a runner first (the sandbox is several times slower). Then: run build-determinism's two builds with Promise.all (halves that file); have custom-domain and build.test share one build output via an env-pointed directory built once by a pre-step, keeping assertions identical; compare job minutes with ci_profile.py.",
+  "change": "Part 1 landed (#13023). Part 2 dropped as written. Remaining option: re-measure build.test.mjs and build-determinism warm, with PAGES_CARD_CACHE set, before touching anything; the real CI figure is ci_profile.py 'Test the site builder' minutes.",
   "touches": [
     "platform/pages/build-determinism.test.mjs",
     "platform/pages/custom-domain.test.mjs",
