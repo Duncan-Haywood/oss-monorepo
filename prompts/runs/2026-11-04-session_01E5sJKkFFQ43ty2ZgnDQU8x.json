@@ -39,10 +39,10 @@
     }
   ],
   "writeups": [
-    "docs/reports/polish-2026-11-04-llms-stale-host-check.md (no blog post: tiny tooling change)"
+    "docs/reports/polish-2026-11-04-llms-stale-host-check.md"
   ],
   "goal": null,
-  "notes": "",
+  "notes": "No blog post: tiny tooling change.",
   "corrections": [],
   "redteam": null
 }
