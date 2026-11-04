@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining, restGaps, divisionsChangeNotices, divisionsBookings } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining, restGaps, divisionsChangeNotices, divisionsBookings, applyDivisionWithdrawals } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -945,4 +945,34 @@ test("CLI --bookings prints the booking request", () => {
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stdout, /Park: \d+ nights?/);
   assert.match(r.stdout, /School: \d+ nights?/);
+});
+
+test("applyDivisionWithdrawals removes a team's remaining matches, keeps the rest and names who is short", () => {
+  const s = build();
+  const total = s.stats.matches;
+  const hawks = s.nights.flatMap((n) => n.matches).filter((m) => m.division === "U10" && (m.homeName === "Hawks" || m.awayName === "Hawks"));
+  assert.ok(hawks.length > 2);
+  const r = applyDivisionWithdrawals(s, "U10/hawks");
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.withdrawals[0].removed, hawks.length);
+  assert.equal(r.schedule.stats.matches, total - hawks.length);
+  assert.equal(r.withdrawals[0].opponentsShort.reduce((a, o) => a + o.fixtures, 0), hawks.length);
+  assert.ok(!r.schedule.nights.flatMap((n) => n.matches).some((m) => m.division === "U10" && (m.homeName === "Hawks" || m.awayName === "Hawks")));
+  assert.ok(r.schedule.nights.flatMap((n) => n.matches).some((m) => m.division === "U12" && m.homeName === "Hawks"), "same name in another division stays");
+  assert.ok(!r.schedule.divisions[0].rounds.flatMap((x) => x.matches).some((m) => m.homeName === "Hawks" || m.awayName === "Hawks"));
+  assert.equal(validateDivisions(r.schedule).ok, true);
+  assert.equal(s.stats.matches, total, "input not mutated");
+  assert.match(r.notices[0], /U10\/Hawks withdrew: \d+ fixture/);
+});
+
+test("applyDivisionWithdrawals from a date keeps earlier matches; bad lines are named", () => {
+  const s = build();
+  const days = s.nights.map((n) => n.day);
+  const cut = days[2];
+  const r = applyDivisionWithdrawals(s, `${dayIso(cut)} U10/Hawks\nU10/Nobody\n2026-02-30 U10/Owls\nU10/Hawks`);
+  assert.equal(r.errors.length, 3);
+  const left = r.schedule.nights.filter((n) => n.day < cut).flatMap((n) => n.matches);
+  const before = s.nights.filter((n) => n.day < cut).flatMap((n) => n.matches);
+  assert.equal(left.length, before.length);
+  assert.ok(!r.schedule.nights.filter((n) => n.day >= cut).flatMap((n) => n.matches).some((m) => m.division === "U10" && (m.homeName === "Hawks" || m.awayName === "Hawks")));
 });
