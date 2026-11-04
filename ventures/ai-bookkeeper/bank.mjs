@@ -215,6 +215,9 @@ export function detectColumns(header) {
     cols.amount = h.indexOf("net");
     if (h.includes("title")) cols.desc = h.indexOf("title");
   }
+  // bunq's CSV (Date, Interest Date, Amount, Account, Counterparty, Name, Description): Name is
+  // who was paid, Description is the sender's free text, so the payee is the Name.
+  if (h.includes("interest date") && h.includes("counterparty") && h.includes("name") && h.includes("description")) cols.desc = h.indexOf("name");
   // SumUp's transactions report (Transaction date, Payout date, Gross amount, Fee, Net amount):
   // the net amount is what reached the bank, the gross is before SumUp's fee.
   if (cols.amount === -1 && cols.debit === -1 && cols.credit === -1 && h.includes("gross amount") && h.includes("fee") && h.includes("net amount")) cols.amount = h.indexOf("net amount");
@@ -396,6 +399,7 @@ export function sniffBank(rows) {
     if (/^status\|transaction date \(utc\)\|settlement date \(utc\)\|counterparty name\|amount/.test(h)) return "qonto";
     if (/^transaction id\|transaction date\|transaction type\|transaction information\|paid in\|paid out\|balance/.test(h)) return "tide";
     if (/^date\|description\|amount\|status\|check number\|category/.test(h)) return "novo";
+    if (/^date\|interest date\|amount\|account\|counterparty\|name\|description/.test(h)) return "bunq";
     if (/^date\|description\|(card member\|account #\|)?amount/.test(h)) return "amex";
     // Swisscard's cashback export (columns from the tariochbctools importer): charges are positive.
     if (/^transaction date\|description\|amount\|currency\|(status\|)?merchant category\|registered category/.test(h)) return "swisscard";
