@@ -148,3 +148,18 @@ camera, so it is not a promise of fit. Checked by `tryon.test.mjs` (ellipse
 width, ease, hem word by height, assumed inputs, refusals, SVG sanity) and a
 headless-Chromium run with no console errors. Next: arms and sleeve length
 from arm measurements, a side view, then WebXR and a camera-based view on device.
+
+## Halftone film for screen print (2026-11-04)
+
+`halftone.mjs` turns the tone of one ink layer into round dots on a rotated grid,
+as an SVG film in millimetres. Tone comes from luminance between the ink and the
+garment colour; each dot's area is the mean tone under its grid cell (a dot stops
+growing at 78.5% of a cell, where circles touch). `screenAngles(n)` gives
+moire-safe angles (15/75/0/45 for four inks, even spacing otherwise).
+`checkScreen` applies two rules of thumb: mesh about 4 to 5 times the lpi (230 mesh
+holds about 51 lpi), and dots under about 10% or over about 90% usually do not hold.
+Highlights under `minDotPct` (default 5%) are cut and counted. Rules of thumb,
+not a printer's word: strike a test first. Checked by `halftone.test.mjs`
+(flat 50% grey covers 50% +- 6, gradient grows dots toward dark, cut-off, bounds
+on a 30 degree grid, determinism, escaping). Not yet wired into the studio page or
+fed from `separate()` layers. Next: that wiring, then a real painting through a real printer.
