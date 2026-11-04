@@ -290,6 +290,12 @@ const RULES = {
     P("\\b(cancellatemi|rimuovetemi|toglietemi|disiscriv)"), P("non (voglio|vogliamo) pi[uù] ricevere"),
     P("n[ãa]o (me )?(envie|mande|escreva|contate)n? mais"), P("remov(a|am|er) (meu|minha|o meu)\\b"), P("cancelar (a )?inscri"),
     P("\\b(schrijf|schrijven) (mij|me|ons) uit\\b"), P("\\buitschrijven\\b"), P("verwijder (mij|me|mijn|ons)\\b"), P("mail (mij|ons) (niet|nooit) meer"),
+    // Added 2026-11-04 after a probe of 24 more phrasings in SV, DA, NO, PL, TR, FI, CS, RO missed 13 (agent-written, unscored on real mail):
+    // cancel/unsubscribe verbs, "no more mails", "stop sending", "remove me from the list", "don't write to me again".
+    P("avsluta (min|mitt) (prenumeration|abonnemang)"), P("\\b(afmeld|afmelde) (mig|os)\\b"), P("(stop|hold op) med at (sende|skrive)"), P("(ikke|ingen) (have |få |ønske )?(flere|mere) (mails?|e-?mails?|mejl)"),
+    P("slutt (å|med å) (sende|skrive)"), P("fjern meg\\b"), P("(ønsker|vil) ikke (ha )?flere (e-?poster|eposter|meldinger)"),
+    P("nie chc[eę] (otrzymywa[ćc]|dostawa[ćc]) wi[eę]cej"), P("zaprzesta(nia|nie|ć|j) (wysy[łl]ania|pisania)"), P("\\bwypisz (mnie|nas)\\b"), P("\\bpoista(kaa|a) (minut|meid[äa]t)\\b"),
+    P("(už|již) mi (nepi[šs]te|nevolejte|nepos[ií]lejte)"), P("(să|sa) m[ăa] scoate[țt]i"), P("nu mai (trimite[țt]i|scrie[țt]i)"),
     // Added 2026-11-03 after eval/fresh-2026-11-03.jsonl missed 5 of 16 opt-outs: "remove it immediately" (address), "ne m'écrivez plus",
     // "non contattarmi più", a GDPR Article 21 objection, and "I don't want to hear from you again".
     P("\\bremove (it|this|that)( (address|email))? (immediately|now|asap)\\b"), P("\\bne m.[ée]crivez plus\\b"), P("\\bnon contattarmi\\b"), P("\\b(cease|stop) processing my (personal )?data\\b"), P("\\bgdpr\\b.*\\b(article 21|object|erasure|delete)"), P("\\b(i )?(don'?t|do not|never) want to (hear|receive|get)\\b.*\\b(from you|again|more)\\b"),
