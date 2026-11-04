@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 66: is the descending-schedule gap in milestone 64 real? (finer grid, n = 256; planned before running)
+- Why: milestone 64's "Next". It found 32 harmful-and-unflagged for flat 0.99 against 42 and 40 for descending schedules and 27 for ascending, at n = 128 (each count has a binomial standard error near 5), and said so was suggestive only. `experiments/progress_frac_schedule_grid/run.py` is milestone 64's code with 8 schedules (flat 0.99, flat 0.97, down 0.99 to 0.97, 0.99 to 0.95, 0.99 to 0.90, up 0.97 to 0.99, 0.95 to 0.99, 0.90 to 0.99) and n = 256 draws; the first 128 draws are milestone 64's (same RNG stream), so the first half should reproduce its counts exactly. Same sigma = 0.05, linear noise, R = 1.01, T = 200.
+- **Predictions, before running:** (1) flat 0.99 over all 256 draws gives harmful-and-unflagged between 54 and 74 (milestone 64's 32 of the first 128, doubled, plus or minus sampling). (2) The best schedule's harmful-and-unflagged count exceeds flat 0.99's by no more than 6 (no schedule meaningfully beats the flat one; the earlier 42 versus 32 was noise or a small effect). Refuted (2) if any descending schedule exceeds flat 0.99 by 7 or more, or if the best ascending one falls 7 or more below it. Prior 55% for (2).
+- Limits known in advance: one sigma, one R, one tiny model; schedules are open-loop; the 16 seeds are shared across draws so draws are not independent (the interval below treats the 256 as exchangeable, which overstates precision).
+
 ## 2026-11-04 · Milestone 65: paper gains the stall-fraction schedule result (milestone 64)
 - Why: milestone 64's "Next" listed the paper paragraph. Extended the progress-check paragraph in `paper/main.tex` (heading now milestones 53 to 64) with one sentence: flat 0.99 leaves 32 of 128 harmful and unflagged; descending schedules 42 and 40; ascending 27; stated as suggestive, not established. Numbers copied from milestone 64.
 - No new experiment; no prediction to test. LaTeX not compiled (no TeX here).
