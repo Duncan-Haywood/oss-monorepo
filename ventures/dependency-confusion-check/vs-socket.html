@@ -29,6 +29,7 @@
   </style>
 </head>
 <body>
+<main>
   <p class="note"><a href="./">&larr; Dependency Confusion Check</a></p>
   <h1>This checker vs. Socket</h1>
   <p class="note">Two different layers: Socket watches your dependency graph and the public registries on an ongoing basis for 70+ risk types, dependency confusion among them. This tool reads the pip/npm configuration you already have, once, locally, for the two specific shapes that make a confusion attack possible &mdash; no account, no registry calls, nothing installed.</p>
@@ -106,7 +107,9 @@
     <p class="note">Open the <a href="./">Dependency Confusion Check</a> to scan your own config, or read <a href="./what-is-dependency-confusion.html">what is dependency confusion?</a> for the full mechanism and a worked incident.</p>
   </section>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee against dependency confusion, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record.</p>
     <p class="muted">Local-only privacy: nothing you paste on the linked tool is ever uploaded, and it makes no network calls of its own. We count only anonymous feature events in localStorage, with an opt-out. This page makes no live comparison against Socket &mdash; it is a static page describing publicly documented facts. <a href="LICENSE">License</a></p>

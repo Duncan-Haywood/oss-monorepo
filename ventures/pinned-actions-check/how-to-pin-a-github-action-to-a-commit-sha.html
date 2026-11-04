@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Pinned Actions Check</a></p>
   <h1>How to pin a GitHub Action to a commit SHA</h1>
   <p>Most workflow steps look like this:</p>
@@ -42,7 +43,9 @@
   <p class="note">That exits with a nonzero status if any third-party action is still referenced by a tag or branch instead of a commit SHA — wire it into your own CI to block a newly-added unpinned action before it merges.</p>
   <h2>Why this matters: it has already happened</h2>
   <p>In March 2025, the widely used <code>tj-actions/changed-files</code> action had its version tags repointed at a malicious commit that dumped CI secrets into workflow logs. Any workflow referencing it by tag (<code>@v35</code>, and similar) ran that malicious code the next time it triggered. A workflow that had pinned to a commit SHA was never affected by the retag, because its reference could not be moved.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. Confirm any commit SHA yourself before pinning to it, and verify before relying on the output. This is not a security audit or a compliance attestation, and it does not tell you whether the code at that commit is itself safe to run — only which commit a tag currently resolves to.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
     <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>

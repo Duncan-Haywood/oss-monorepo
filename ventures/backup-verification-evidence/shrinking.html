@@ -19,6 +19,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./index.html">← Backup trend checker</a></p>
   <h1>Why is my backup smaller than yesterday?</h1>
   <p>Because the job that wrote it can fail quietly. <code>pg_dump … | gzip</code> without <code>pipefail</code> reports gzip's exit code. The destination can fill up mid-write and still leave a file that looks "big enough." Incremental tools can finish a short night and still exit 0. In every one of those cases, last night's file exists, is recent, and is smaller than Tuesday's.</p>
@@ -38,7 +39,9 @@
   <h3>Does a smaller backup mean data was lost?</h3>
   <p>No. Retention pruning, incremental repositories, and a genuinely smaller dataset can shrink an artifact on purpose. A size drop is an observation. Test a restore before treating any night as safe.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page is provided free and as-is. It is not engineering advice and it does not replace a test restore. <strong>Best-effort hosting, no SLA.</strong> These tools may move or go offline without notice. Everything in the checker runs in your browser.</p>
   </footer>
 </body>

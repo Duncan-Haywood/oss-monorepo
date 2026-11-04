@@ -29,6 +29,7 @@
   </style>
 </head>
 <body>
+<main>
   <p class="note"><a href="./">&larr; package.json Exports Drift Check</a></p>
   <h1>This checker vs. publint</h1>
   <p class="note">Different scope and a different moment: publint is a broad packaging linter that audits a package you already have installed, packed, or published, against a wide set of publish-readiness rules. This tool does one narrow thing, from two pasted text blocks alone: name every literal <code>exports</code> target that doesn't exist &mdash; no install, no publish, no network call.</p>
@@ -105,7 +106,9 @@
     <p>No. This page is not affiliated with, endorsed by, or sponsored by publint or its author. publint is named here only to describe what this tool is and is not, based on publint's own publicly documented product.</p>
   </section>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering advice, and it does not replace a qualified professional or actually running <code>npm publish --dry-run</code> and testing the tarball yourself. It reports whether a literal path named in "exports" exists on disk against the file list you provided &mdash; nothing more, and it is not a guarantee that your package will install or import cleanly. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p>publint is a product of its own author and maintainers, referenced here under nominative fair use to describe what this tool is and is not.</p>
     <p class="note">More: <a href="./why-package-json-exports-fields-drift-from-what-you-actually-publish.html">why exports maps drift from what actually publishes, and how to wire this into CI</a>.</p>

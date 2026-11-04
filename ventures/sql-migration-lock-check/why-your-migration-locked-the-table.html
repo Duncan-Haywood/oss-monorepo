@@ -26,6 +26,7 @@
   </style>
 </head>
 <body>
+<main>
   <p class="note"><a href="./">SQL Migration Lock Check</a> · guide</p>
   <h1>Why your migration locked the table</h1>
   <p>The post-mortem that produced this page reads the same way every time: a one-line <code>ALTER TABLE</code> shipped on a Tuesday afternoon, the site returned errors for four minutes, and the statement itself ran in three milliseconds. Nobody was careless, and the migration was correct. What went wrong is a property of how PostgreSQL grants locks, and it is almost invisible until you have seen it once.</p>
@@ -105,7 +106,9 @@ ALTER TABLE users ALTER COLUMN email SET NOT NULL;
   <p>Every pattern above is visible in the SQL text, which means it can be checked in a pull request rather than discovered in production. That is what <a href="./">this tool</a> does — paste a migration, or wire the CLI into CI with <code>--fail-on-risk</code>. It reads the file and nothing else: no connection string, no credentials, no network calls.</p>
   <p><a class="cta" href="./">Check a migration</a></p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the linked tool are provided free and as-is, without warranty of any kind, express or implied. This is general information about PostgreSQL behaviour, not advice about your database, and it does not replace a qualified professional. Lock behaviour and fast paths vary by PostgreSQL version — verify against the version you actually run, on a copy of your data, before relying on any of it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
     <p class="support">Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is optional and never changes what the tool does.</p>

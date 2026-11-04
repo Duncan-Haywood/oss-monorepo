@@ -56,6 +56,7 @@
 </style>
 </head>
 <body>
+<main>
 <p><a href="./">← Back to .env.example Drift Check</a></p>
 <h1>.env.example Drift Check vs. grepping the codebase by hand</h1>
 <p>
@@ -118,7 +119,7 @@
 <p>A real codebase's process.env reads run into the dozens once every file that touches configuration is counted, most of them already declared. The task is a manual set-difference: read down a list of hits, hold the .env.example file's declared names in your head, and notice the one name that is not on both sides. That kind of exhaustive comparison against a mental list is exactly the class of check people get wrong under time pressure, and a clean-looking grep pass gives no signal about whether it was done right.</p>
 <h3>Does this tool replace checking the codebase by hand entirely?</h3>
 <p>No. It scans for a fixed list of call-shape patterns in text and knows nothing about shell scripts, YAML, or Docker Compose files reading a variable through some other mechanism, and it never evaluates code -- a name built dynamically at runtime (process.env[someVariable]) is invisible to it the same as it would be to a grep. Confirming a variable name it did not catch, or one read through a mechanism outside its pattern list, is still a job for reading the code yourself.</p>
-
+</main>
 <footer>
   <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
   kind, express or implied. It is not security, legal, or engineering advice, and it does not

@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to License Drift Check</a></p>
   <h1>How a dependency's license change reaches your lockfile</h1>
 
@@ -105,7 +106,9 @@
   <h3>Can I use this if my project isn't on npm?</h3>
   <p>Yes. The diff engine reads a generic JSON array of {name, version, license} objects, or CSV with a name/version/license header, so pip-licenses, go-licenses, and cargo-license output all work with the commands above — only the snapshot command that scans node_modules directly is npm-specific.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it documents report
     a factual difference between two snapshots you supply. Nothing here is
     legal advice about any license, and the family labels are an informational

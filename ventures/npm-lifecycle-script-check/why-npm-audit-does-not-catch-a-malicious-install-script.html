@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to npm Lifecycle Script Check</a></p>
   <h1>Why npm audit doesn't catch a malicious install script</h1>
 
@@ -93,7 +94,9 @@
   <h3>Why compare two lockfiles instead of just scanning packages against a malware database?</h3>
   <p>A malware database needs someone to have found and reported the specific malicious version first — by which point it already ran on everyone who installed it in between. Comparing what a package declares now against what it declared before needs no database and no delay: a previously-clean package that suddenly carries an install script is worth a look regardless of whether anyone has flagged that exact version yet.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it documents report
     which packages declare an install-time script and flag a small set of
     keyword patterns in that script's text. Nothing here is a malware scanner,

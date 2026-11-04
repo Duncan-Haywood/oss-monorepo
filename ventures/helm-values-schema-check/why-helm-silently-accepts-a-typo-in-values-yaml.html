@@ -25,6 +25,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">&larr; Back to Helm Values Schema Check</a></p>
   <h1>Why Helm silently accepts a typo in values.yaml</h1>
 
@@ -67,7 +68,9 @@
     <p>It helps with a different half of the same problem. <code>required</code> catches a key the schema expects that <code>values.yaml</code> never sets at all. It does not catch the reverse: a key <code>values.yaml</code> does set, under a name the schema does not recognize, sitting right next to the correctly-named one it was supposed to override. Both are worth checking, and this tool checks both.</p>
   </div>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This is not infrastructure or compliance advice. See the disclaimer on <a href="./">the checker itself</a> for the full text.</p>
     <p>Everything here runs client-side; nothing is uploaded. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
   </footer>

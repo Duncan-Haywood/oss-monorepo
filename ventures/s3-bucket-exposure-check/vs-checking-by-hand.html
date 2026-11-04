@@ -41,6 +41,7 @@
 </style>
 </head>
 <body>
+<main>
 <p><a href="index.html">← Back to the S3 Bucket Exposure Checker</a></p>
 <h1>S3 Bucket Exposure Checker vs. checking by hand</h1>
 <p>
@@ -76,7 +77,7 @@
 <p>Three ways this scripted check catches and a quick manual look easily misses: (1) It only checks listing, not the ACL -- a bucket can block anonymous listing while its ACL still grants AllUsers read or write access to individual objects by direct URL. (2) A grant to AuthenticatedUsers looks, at a glance, like it might mean 'my own team' -- this tool names it explicitly as 'any AWS account holder' so it is never mistaken for a scoped grant. (3) A bucket outside us-east-1 commonly needs a region-specific endpoint; a browser hitting the wrong one can get a confusing redirect or error that looks like 'blocked' when it isn't actually confirmed either way.</p>
 <h3>Why does this matter for a recurring audit, not just a one-time check?</h3>
 <p>A manual check is a point-in-time look at one bucket. A new bucket created from a script, a Block Public Access setting toggled off for a one-time migration and never reverted, or an ACL widened by a later object upload can reintroduce this exposure at any point. The CLI here returns a real exit code, so it can be wired into a nightly audit or a deploy pipeline, catching a regression the day it happens rather than the next time someone thinks to check by hand.</p>
-
+</main>
 <footer>
   <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
   kind, express or implied. It is not security advice, and it does not replace a qualified

@@ -29,6 +29,7 @@
   </style>
 </head>
 <body>
+<main>
   <p class="note"><a href="./">&larr; Slopsquatting Check</a></p>
   <h1>This checker vs. Socket</h1>
   <p class="note">Two different layers: Socket watches your dependency graph and the public registries on an ongoing basis for 70+ risk types, typosquatting among them. This tool makes one on-demand, read-only registry request per dependency to answer one narrow question &mdash; does this exact name exist, and does it look freshly squatted &mdash; no account, no ongoing service.</p>
@@ -100,7 +101,9 @@
     <p class="note">Open <a href="./">Slopsquatting Check</a> to scan your own package.json, or read <a href="./what-is-slopsquatting.html">what slopsquatting is and why a lockfile doesn't already protect you</a> for the full mechanism.</p>
   </section>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It flags npm dependency names that resemble a hallucinated or typosquatted variant of a well-known package, or that fail a live registry existence/freshness check &mdash; it is not a malware scanner, not a security audit, and not a guarantee that an unflagged name is safe or a flagged one is malicious. It does not replace verifying a package yourself or a qualified security review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p class="muted">Local-only privacy: the browser page makes no network calls of its own and nothing you paste is ever uploaded. The CLI sends only each dependency's name, one read-only request at a time, to the public npm registry. We count only anonymous feature events in localStorage, with an opt-out. This page makes no live comparison against Socket &mdash; it is a static page describing publicly documented facts. <a href="LICENSE">License</a></p>

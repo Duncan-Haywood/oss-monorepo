@@ -20,6 +20,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">&larr; back to PyPI Provenance Check</a></p>
   <h1>Why not just <code>pypi-attestations verify</code>?</h1>
 
@@ -56,7 +57,9 @@ pypi-attestations verify pypi --repository https://pypi.org <artifact-url-or-pat
 
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does pypi-attestations verify already do this?","acceptedAnswer":{"@type":"Answer","text":"It verifies the same underlying attestation this tool reports on, and it does the full cryptographic check this tool does not. What it does not do is work from a requirements file or pyproject.toml before you have downloaded anything, produce a report across more than one project, or emit JSON another tool can consume in bulk. Those three gaps are what this tool adds."}},{"@type":"Question","name":"Do pypi-attestations verify and this tool ever disagree about presence/absence?","acceptedAnswer":{"@type":"Answer","text":"No. Both read from PyPI's own PEP 740 integrity API for the exact same release file. There is no separate provenance database for either tool to disagree about."}},{"@type":"Question","name":"When should I use pypi-attestations verify instead?","acceptedAnswer":{"@type":"Answer","text":"When you already have a specific artifact (a URL or a downloaded file) and need the full cryptographic verification -- certificate chain, Sigstore bundle, Trusted Publisher identity match -- not just a presence/absence report across a dependency list."}}]}</script>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. It is not security advice. <strong>You are responsible for reviewing and verifying anything you rely on.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><a href="./">Run the checker</a> — free, no account, MIT licensed.</p>
   </footer>

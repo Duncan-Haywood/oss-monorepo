@@ -31,6 +31,7 @@
   </style>
 </head>
 <body>
+<main>
   <p class="note"><a href="./">&larr; package.json Exports Drift Check</a></p>
   <h1>This checker vs. manually checking each exports target by eye</h1>
   <p class="note">Names no specific product or company &mdash; the comparison is against reading an exports map yourself, a habit every package.json author already has. <strong>Manually checking</strong> needs no tool: open the exports map, and for each subpath and condition, confirm the file it names actually exists. It works for a map with one or two subpaths. It stops working at the scale a real package's exports field actually reaches, because a present target and a missing one read identically as JSON &mdash; nothing about the text says whether the file is there.</p>
@@ -126,7 +127,9 @@
     <p>No. It replaces the step of manually re-reading the exports map to decide whether every target it names is present on disk. A clean result means every literal target you pasted a file listing for exists at that path &mdash; it is not a guarantee the package installs or imports cleanly, and it does not resolve wildcard targets or bare-specifier re-exports at all. Verify with npm publish --dry-run and a real install, exactly as this tool's own front page and footer already say.</p>
   </section>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering advice, and it does not replace a qualified professional or actually running <code>npm publish --dry-run</code> and testing the tarball yourself. It reports whether a literal path named in "exports" exists on disk against the file list you provided &mdash; nothing more, and it is not a guarantee that your package will install or import cleanly. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p class="note">More: <a href="./why-package-json-exports-fields-drift-from-what-you-actually-publish.html">why exports maps drift from what actually publishes, and how to wire this into CI</a> &middot; <a href="./vs-publint.html">this checker vs. publint</a>, for the broader publish-readiness audit.</p>
     <p class="support">Free and open source. If this saved you a broken publish, the <a href="./LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>

@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Required Checks Drift Check</a></p>
   <h1>How a required status check goes stale, and how to fix it</h1>
   <p>Branch protection's "Require status checks to pass" list is a list of <strong>names</strong>. GitHub never re-derives it from your workflow files — it just waits for something to report a status under each name. Three ordinary changes leave a name nothing will ever satisfy again:</p>
@@ -44,7 +45,9 @@
   <pre><code>gh api repos/:owner/:repo/branches/:branch/protection &gt; protection.json
 python3 check.py --required-checks protection.json --fail-on-stale</code></pre>
   <p class="note">That exits with a nonzero status if any required check is stale — wire it into your own CI, or run it once after any branch-protection or workflow change.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. Confirm in GitHub's own UI before changing branch protection settings, and verify before relying on the output. This is not a security audit or a compliance attestation.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
     <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>

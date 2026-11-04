@@ -10,6 +10,7 @@
   <style>:root{font:16px system-ui,sans-serif;color:#1b1f2a;background:#f2f4f7}body{max-width:760px;margin:auto;padding:28px}h1,h2{color:#17324a}p{line-height:1.55}footer{margin-top:28px;border-top:1px solid #d5dbe3;padding-top:16px;font-size:.86rem;color:#55606f}a{color:#17324a}</style>
 </head>
 <body>
+<main>
   <p><a href="./">&larr; SMS Segment Cost Calculator</a></p>
   <h1>Why does my text bill as multiple SMS segments?</h1>
   <p>Providers charge per segment, not per message. A one-line reminder can bill as three segments because of a single curly apostrophe. <a href="./">Paste your message into the calculator</a> to see its encoding, segment count and the exact characters responsible.</p>
@@ -21,7 +22,9 @@
   <p>The characters ^ { } \ [ ] ~ | and the euro sign are in the GSM-7 extension table and each counts as two characters, though the message stays GSM-7.</p>
   <h2>How do I stop my phone or editor adding curly quotes?</h2>
   <p>Compose the template in a plain-text editor, turn off smart punctuation in your word processor, and run the final text through this calculator before sending it to a provider.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not telecom-compliance or financial advice, and provider billing rules can change; verify against your provider's documentation. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, and may be slow, moved, or taken offline without notice.</p>
   </footer>

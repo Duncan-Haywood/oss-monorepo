@@ -56,6 +56,7 @@
 </style>
 </head>
 <body>
+<main>
 <p><a href="index.html">← Back to Actions Injection Check</a></p>
 <h1>Actions Injection Check vs. reading a workflow by hand</h1>
 <p>
@@ -119,7 +120,7 @@
 <p>A run: step written as a YAML block scalar (run: |) can run many lines of shell, and an untrusted expression on line eight of a twelve-line script is easy to miss once a reviewer's attention has settled after the first few, ordinary-looking lines. This tool scans every line inside the block at the block's own indentation, not just its first line, so a path buried on the last line is caught the same as one on the first.</p>
 <h3>Does this replace understanding why a workflow needs pull_request_target at all?</h3>
 <p>No. pull_request_target has legitimate uses -- commenting on a PR with a label based on the base branch, for instance -- and this tool has no opinion on whether a given workflow should use it. It only flags the specific combination of that trigger with an untrusted checkout ref, or an untrusted value spliced into a shell command. Deciding whether the trigger itself is warranted, and catching variants this tool does not attempt (a hand-rolled git checkout instead of actions/checkout, an expression built by unusual string concatenation), is still a job for reading the workflow yourself.</p>
-
+</main>
 <footer>
   <p><strong>Evidence, not a determination.</strong> This checks two specific, well-documented
   injection patterns. A clean report describes what those two checks found, not a guarantee your

@@ -29,6 +29,7 @@
 </style>
 </head>
 <body>
+<main>
 <p class="note"><a href="./">&larr; back to the tool</a></p>
 <h1>This tool vs. manually reading the spec diff</h1>
 <p class="lede">The obvious first move when reviewing a new API version is <code>diff old-spec.json new-spec.json</code>, or scanning a pull request that touches the OpenAPI file. Both work, and both bury the one change that would actually break a client under everything else that changed for reasons nobody needs to review twice.</p>
@@ -60,7 +61,7 @@
 <h3>Does either approach tell me if the change is actually safe to ship?</h3>
 <p>No. Neither a raw diff nor this tool's structural comparison understands your clients' actual behavior — a client that never sends the removed parameter is unaffected by its removal, and this tool has no way to know that. Both only tell you what the contract itself declares differently; deciding whether that is safe to ship is a judgment call the two documents alone cannot make for you.</p>
 </section>
-
+</main>
 <footer>
 <p><strong>No warranty.</strong> This page and the linked tool apply a structural comparison to files you supply. They are provided free and as-is, without warranty of any kind, express or implied, and they are not a full compatibility audit. <strong>You are responsible for verifying anything here before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
 <p><strong>This page names no specific product.</strong> "Manually reading the spec diff" describes a method, not any one company's product.</p>

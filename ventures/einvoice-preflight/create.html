@@ -39,6 +39,7 @@
   </style>
 </head>
 <body>
+<main>
   <p class="eyebrow">E-INVOICING · FREE · NO ACCOUNT</p>
   <h1>Create an XRechnung or Peppol e-invoice</h1>
   <p>Germany already requires businesses to <em>receive</em> structured e-invoices, and sending becomes mandatory from 2027 (2028 for smaller firms); Belgium, Poland and France follow. A PDF is no longer enough. Fill in the form, get a UBL or CII XML file, and see it checked against <a href="index.html">the preflight rules</a> before you download it. Totals and the per-rate VAT breakdown are worked out for you. Nothing is uploaded.</p>
@@ -114,7 +115,9 @@
     <pre id="xml" hidden></pre>
   </section>
 
-  <footer>
+  
+</main>
+<footer>
     <p>Want to check an invoice you received or exported from your ERP? Use the <a href="index.html">E-invoice Preflight checker</a>. Self-hosting an API? See the README in the repository.</p>
     <p><strong>No warranty.</strong> Provided free and as-is. Not legal, tax or accounting advice, not a certified invoicing system, and it neither signs, archives nor transmits invoices. It does not look up Leitweg-IDs or Peppol participants. Review the output and use your network's own validator before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss arising from its use.</p>
     <p>Everything runs in your browser; invoice contents are never uploaded and there are no accounts, cookies or analytics vendors. Optional anonymous local counters record only the event name and day. <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep them</label></p>

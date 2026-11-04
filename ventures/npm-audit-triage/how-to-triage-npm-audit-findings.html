@@ -18,6 +18,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← npm Audit Triage</a></p>
   <h1>How to triage npm audit findings without ignoring real risk</h1>
   <p>A fresh <code>npm audit</code> on a mid-sized project routinely lists dozens of advisories. Most teams respond in one of two bad ways: fix none of them because the list is overwhelming, or run <code>npm audit fix --force</code> and break the build. A better first step is to sort the list by whether your code can reach the vulnerable package.</p>
@@ -42,7 +43,9 @@
   <h2>What this ranking cannot tell you</h2>
   <p>It reads import statements as text. It cannot see a <code>require</code> built from a variable, code loaded by a framework by naming convention, or whether the specific vulnerable function is ever called. Not imported is a reason to lower the urgency, not a certificate of safety. It is a heuristic, not a security audit.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> Provided free and as-is. It is not security advice. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Run the triage</a>.</p>
   </footer>
 </body>

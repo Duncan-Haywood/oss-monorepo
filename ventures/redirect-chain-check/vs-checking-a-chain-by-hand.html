@@ -31,6 +31,7 @@
 </style>
 </head>
 <body>
+<main>
 <p class="note"><a href="./">&larr; back to the checker</a></p>
 <h1>This checker vs. checking a redirect chain by hand</h1>
 <p class="lede">The usual way to look at a redirect chain is <code>curl -sI -L</code> against the URL, or opening DevTools' Network panel and reading the Status and Name columns row by row. Both show you the hops. Neither one tells you whether any of what you're looking at is actually wrong -- a loop, a chain that's grown too long, a downgrade back to HTTP, or a permanent move that used a temporary status code. That reading is still yours, by eye, on every URL, every time.</p>
@@ -63,7 +64,7 @@
 <h3>Can I wire this into CI so nobody has to check by hand again?</h3>
 <p>Yes -- that's the difference a script has over a habit. <code>node check.mjs &lt;url&gt;</code> makes the same real HTTP requests curl would, from your own machine, and exits non-zero the moment a danger-severity finding is produced, a hop's request fails, or the chain runs out of hops while still redirecting. Add it as an ordinary step in your own CI and a new loop or downgrade fails the build instead of waiting for someone to notice it in a manual curl trace.</p>
 </section>
-
+</main>
 <footer>
 <p><strong>No warranty.</strong> This page and the linked checker are provided free and as-is, without warranty of any kind, express or implied. They are not SEO, legal, or marketing advice, and they do not replace testing your own migration's real behavior. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
 <p><strong>This page names no specific product.</strong> "Checking a redirect chain by hand" describes curl and browser DevTools, tools every developer already has, not any company's product or service.</p>

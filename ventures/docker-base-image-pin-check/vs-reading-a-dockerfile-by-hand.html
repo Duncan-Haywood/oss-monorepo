@@ -56,6 +56,7 @@
 </style>
 </head>
 <body>
+<main>
 <p><a href="index.html">← Back to Docker Base Image Pin Check</a></p>
 <h1>Docker Base Image Pin Check vs. reading a Dockerfile by hand</h1>
 <p>
@@ -116,7 +117,7 @@
 <p>A reference like myregistry.local:5000/node:18 contains two colons, and naively splitting on the first one reads :5000/node as the tag -- nonsense that hides the real tag, 18. The actual grammar is that a colon only starts a tag inside the last slash-separated path segment; the colon in registry:5000/ is part of the host, not a tag delimiter. Getting this right by eye on an unfamiliar private-registry reference is easy to get backwards. This tool's splitNameAndRef always locates the tag inside the last path segment only, so a registry port is never misread as one.</p>
 <h3>Does this replace checking every Dockerfile in a repository?</h3>
 <p>No, but it removes the tedium of doing so by hand. A repository can carry a Dockerfile, a Dockerfile.prod, and a worker.dockerfile, each with its own FROM lines, and a manual review has to remember to open every one, every time a new file is added. The CLI (python3 check.py) discovers Dockerfile, Dockerfile.*, and *.dockerfile anywhere under a given directory on its own, so coverage does not depend on a reviewer's memory of which files exist.</p>
-
+</main>
 <footer>
   <p><strong>Evidence, not a determination.</strong> This checks one specific, well-documented
   thing -- whether a FROM line is pinned to a content digest. A clean report describes what that

@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to VS Code Extension Drift Check</a></p>
   <h1>Why VS Code doesn't warn you when an extension is delisted</h1>
 
@@ -84,7 +85,9 @@
   <h3>Why check the Marketplace instead of scanning the extension's code?</h3>
   <p>Scanning bundled, often-minified JavaScript for malicious intent is a much harder, much less certain problem, and other free tools already attempt it. Checking whether an id still resolves needs no code analysis and no database: it is a direct factual question the Marketplace itself answers, and it is exactly the question a pulled-extension incident makes worth asking first.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it documents report
     a structural difference between two snapshots of an extension's declared
     manifest fields, and whether an id currently resolves on the VS Code

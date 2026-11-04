@@ -22,6 +22,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">&larr; Sales Agent</a></p>
   <h1>SPF, DKIM and DMARC record checker for cold email</h1>
   <p>Bad email authentication sends cold email to spam before anyone reads it. Paste your records, one per line, and see what is wrong in plain English. It only reads the text you paste: no DNS lookups, nothing uploaded.</p>
@@ -37,7 +38,9 @@ v=DMARC1; p=none; rua=mailto:dmarc@example.com</textarea>
   <p>No. It means the text parses and avoids common mistakes. Placement also depends on list quality, content and sending volume; see the <a href="./cold-email-warmup-planner.html">warm-up planner</a> and the <a href="./cold-email-checker.html">cold email checker</a>.</p>
   <h3>Why does SPF stop at 10 lookups?</h3>
   <p>RFC 7208 caps DNS-lookup terms (include, a, mx, ptr, exists, redirect) at 10 per check. Included records count too, and this tool cannot see inside them, so treat 8 or more as close to the limit.</p>
-  <footer><p><strong>No warranty.</strong> Free and as-is, from the author's reading of the RFCs and recalled provider rules, not legal or deliverability advice. Key size is estimated from the pasted key's length.</p></footer>
+  
+</main>
+<footer><p><strong>No warranty.</strong> Free and as-is, from the author's reading of the RFCs and recalled provider rules, not legal or deliverability advice. Key size is estimated from the pasted key's length.</p></footer>
   <script type="module">
     import { checkAll, bulkSenderGaps } from "./authcheck.mjs";
     const $ = (id) => document.getElementById(id);

@@ -47,6 +47,7 @@
 </style>
 </head>
 <body>
+<main>
 <p><a href="index.html">← Back to the Git Exposure Checker</a></p>
 <h1>Git Exposure Checker vs. checking the URL by hand</h1>
 <p>
@@ -106,7 +107,7 @@
 <p>When the repository's .git/HEAD is a detached HEAD -- a bare 40-character hex commit SHA such as <code>4b825dc642cb6eb9a060e54bf8d69288fbee4904</code>, rather than the familiar "ref: refs/heads/main" line most people know to look for. A person expecting the ref: line can glance at a bare hex string, not recognise it as anything in particular, and move on -- missing a real, exposed .git directory. This checker's classification treats a bare 40-character hex string as real git-internal content on its own, the same as the ref: form, so a detached-HEAD exposure is still reported as a finding.</p>
 <h3>Why does this matter for CI, not just a one-time check?</h3>
 <p>A browser check is a point-in-time, manual look at one URL. A deploy pipeline, a new static-site host, or a webserver config change can expose (or stop exposing) a .git directory at any point after the last time someone happened to check. The CLI here returns a real exit code from the same body classification, so it can gate a deploy the same way a linter or test suite does, rather than depending on someone remembering to look again.</p>
-
+</main>
 <footer>
   <p><strong>Evidence, not a determination.</strong> This checks one specific, well-documented
   exposure class -- a publicly readable <code>.git</code> directory at the one path you give it.

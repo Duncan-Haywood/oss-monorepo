@@ -40,6 +40,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to Lambda vs Fargate Cost Break-Even</a></p>
   <h1>Lambda vs Fargate vs Cloud Run: what each actually costs</h1>
   <p>All four platforms run the same code. They differ in <strong>what you pay for</strong>: Lambda and Cloud Run (request-billed) charge for the time requests are in flight, while Fargate and EC2 charge for capacity that is up whether or not anyone calls it. That one difference decides most cost comparisons. This page gives an estimate, not a bill.</p>
@@ -80,7 +81,9 @@ node cli.mjs breakeven --duration-ms 300 --memory 1 --concurrency 1</pre>
   <h3>What does this leave out?</h3>
   <p>Free tiers, committed-use and Savings Plans discounts, data transfer, load balancer and NAT costs, cold starts and latency, provisioned concurrency, autoscaling lag, ops time and region differences. Treat the result as a first filter, then check your own bill.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, security or engineering advice. It does arithmetic on numbers you type and list prices that change; it is an estimate, not a bill, and not a guarantee of what any cloud will charge. Free tiers, discounts, data transfer, latency and cold starts are not modelled, and you are responsible for checking its output against your own bill before moving a workload. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. AWS, Lambda, Fargate, EC2, Google Cloud and Cloud Run are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
   </footer>

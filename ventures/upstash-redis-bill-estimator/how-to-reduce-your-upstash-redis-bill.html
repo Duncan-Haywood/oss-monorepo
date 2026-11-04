@@ -19,6 +19,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to Upstash Redis Bill Estimator</a></p>
   <h1>How to reduce your Upstash Redis bill: levers ranked by dollar impact</h1>
   <p>A pay-as-you-go Upstash Redis bill is three separately metered lines: commands (billed per million), storage (per GB-month) and bandwidth (per GB), each with a free allowance. The useful question is not "how do I spend less" but "which line, changed by how much, saves the most, and would a flat fixed plan be cheaper". That is arithmetic you can do before the invoice, from the usage numbers in the console. Prices in this page are approximate and dated in the estimator; verify them on the vendor site.</p>
@@ -56,7 +57,9 @@
   <h3>Do the savings add up?</h3>
   <p>No. Pipelining and caching act on the same commands, so each lever is calculated alone and the list is a ranking, not a plan total.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not financial, engineering or operational advice, and you are responsible for verifying its output. Upstash and Redis are trademarks of their owners; this project is not affiliated with or endorsed by Upstash or Redis Ltd.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
     <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>

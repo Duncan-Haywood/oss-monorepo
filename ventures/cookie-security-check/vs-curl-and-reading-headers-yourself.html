@@ -48,6 +48,7 @@
 </style>
 </head>
 <body>
+<main>
 <p><a href="index.html">&larr; Cookie Security Checker</a></p>
 
 <h1>This checker vs. curl -I and reading the headers yourself</h1>
@@ -139,7 +140,7 @@
   <p>No. The CLI (check.mjs) sends its one request straight from your machine to the URL you name -- never through this site. The browser page only parses JSON you paste into it yourself, locally. The only thing stored is an anonymous local count of which features were used and the day, with no target URLs and no Set-Cookie values in it.</p>
   <p class="note">Want the fuller explanation of why the SameSite/prefix rejections read as functional bugs before they read as security ones? Read <a href="samesite-none-cookie-rejected.html">why a SameSite=None cookie disappears instead of just weakening</a>.</p>
 </section>
-
+</main>
 <footer>
   <p><strong>Evidence, not a determination.</strong> This checker looks at a specific,
   well-documented set of Set-Cookie attribute patterns from one response. It is not a full

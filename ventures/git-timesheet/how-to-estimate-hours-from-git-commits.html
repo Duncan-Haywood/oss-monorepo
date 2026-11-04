@@ -10,6 +10,7 @@
   <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
 </head>
 <body>
+<main>
   <p><a href="./">← Git Timesheet</a></p>
   <h1>How to estimate hours worked from git commits</h1>
   <p>Paste your history into <a href="./">Git Timesheet</a> to get hours per day and a client-ready summary. This is the method behind the number, and where it is weak.</p>
@@ -23,7 +24,9 @@
   <p>git log --pretty=format:'%H|%an|%aI|%s'. The copy button gives you the exact command.</p>
   <h2>How should I present estimated hours to a client?</h2>
   <p>Say they are estimated from commit activity, add the time you know git cannot see (calls, planning, review), and attach the day-by-day summary so each line of work is visible. Agree the method before the first invoice, not after.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not legal, tax or accounting advice; check your contract and local rules before billing on estimated time. <strong>Best-effort hosting, no SLA.</strong></p>
     <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
   </footer>

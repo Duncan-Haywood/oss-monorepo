@@ -20,6 +20,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">&larr; back to npm Provenance Check</a></p>
   <h1>Why not just <code>npm audit signatures</code>?</h1>
 
@@ -55,7 +56,9 @@
 
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does npm audit signatures already do this?","acceptedAnswer":{"@type":"Answer","text":"Yes -- npm audit signatures reports the same registry provenance field this tool does. What it does not do is work from a lockfile before you have installed the project, produce a report across more than one repository, or emit JSON another tool can consume. Those three gaps are what this tool adds."}},{"@type":"Question","name":"Do npm audit signatures and this tool ever disagree?","acceptedAnswer":{"@type":"Answer","text":"No. Both read the exact same registry field, dist.attestations.provenance, on the exact same published version. There is no separate provenance database for either tool to disagree about."}},{"@type":"Question","name":"When should I use npm audit signatures instead?","acceptedAnswer":{"@type":"Answer","text":"When you already have the project installed locally and only need a one-time answer for that one project -- it needs no separate tool and no network request beyond what npm already made during install."}}]}</script>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. It is not security advice. <strong>You are responsible for reviewing and verifying anything you rely on.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><a href="./">Run the checker</a> — free, no account, MIT licensed.</p>
   </footer>

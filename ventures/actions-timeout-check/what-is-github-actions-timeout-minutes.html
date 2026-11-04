@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Actions timeout-minutes Check</a></p>
   <h1>GitHub Actions <code>timeout-minutes</code>: the default, the cost, and what to set</h1>
   <p>Every job in a workflow can carry a <code>timeout-minutes</code> value. Leave it out and GitHub applies its default: the job is cancelled after <strong>360 minutes</strong>, six hours.</p>
@@ -47,7 +48,9 @@
   <p><a href="./">Paste your workflow YAML into Actions timeout-minutes Check</a> to find every job without a job-level limit across all your workflow files at once, or run the CLI in your own repository:</p>
   <pre><code>python3 check.py --fail-on-risk</code></pre>
   <p class="note">That exits with a nonzero status if any job has no timeout or restates the default — wire it into your own CI to block a new one before it merges.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is not a security audit or a cost audit, and a clean scan does not mean a workflow is safe or cheap — only that this one pattern was not found. Minute figures are upper bounds, not predictions.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
     <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>

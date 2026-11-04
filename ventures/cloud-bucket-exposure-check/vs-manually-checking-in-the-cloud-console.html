@@ -42,6 +42,7 @@
 </style>
 </head>
 <body>
+<main>
 <h1>Cloud Bucket Exposure Checker vs. Manually Checking in the Cloud Console</h1>
 <p>Names no specific company or product — this compares against clicking through your own
 provider's console, a manual habit every bucket owner already has, not a company or product this
@@ -67,7 +68,7 @@ could be mistaken for.</p>
 <p>A console check is a point-in-time, manual look. A new bucket policy statement, a fresh IaC deploy, or a teammate widening an ACL for a one-off debugging session can reopen a bucket at any point after the last time someone happened to look. The CLI here returns a real exit code, so it can gate a deploy the same way a linter or test suite does -- catching a regression the day it ships rather than the next time someone thinks to open the console.</p>
 
 <p><a href="index.html">&larr; Back to the checker</a></p>
-
+</main>
 <footer>
   <p><strong>Evidence, not a determination.</strong> This checks one specific, well-documented
   exposure class — anonymous public listing at the one bucket or container you give it. A clean

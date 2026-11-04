@@ -24,6 +24,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">&larr; Customer lifetime value predictor</a></p>
   <h1>How to predict customer lifetime value: why "orders per year" overshoots by 68%</h1>
   <p>The usual shortcut is <strong>average order value &times; orders per year &times; years</strong>. It treats every customer as still buying. In a shop where customers come and go without telling you, many of them have already left, so the shortcut is too high, and it cannot tell your best customers from your quiet ones. A published model, <strong>BG/NBD</strong>, estimates the chance each customer is still active from just three numbers per customer.</p>
@@ -59,7 +60,9 @@
   <p>Enough that a good share of customers have bought more than once. A few hundred customers and a year or more of orders is a reasonable floor; the tool back-tests itself on your recent weeks so you can see how far to trust the result.</p>
   <h3>Does this work for subscriptions?</h3>
   <p>No. BG/NBD assumes customers can buy on any day and quietly stop. A subscription with fixed billing needs a churn or retention calculation instead.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or financial advice, and it does not tell you what to spend on acquiring customers. The example is invented and the numbers come from running this tool's own engine on it. Not affiliated with any retention or analytics vendor.</p>
     <p>Everything the predictor does runs in your browser; your order file is never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional. Related: <a href="../ad-spend-saturation-optimizer/">ad spend saturation optimizer</a>, <a href="../saas-cac-payback-calculator/">SaaS CAC payback calculator</a>.</p>
   </footer>

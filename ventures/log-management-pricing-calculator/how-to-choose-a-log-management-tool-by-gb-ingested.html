@@ -10,6 +10,7 @@
   <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
 </head>
 <body>
+<main>
   <p><a href="./">← Log Management Pricing Calculator</a></p>
   <h1>How to choose a log management tool by GB ingested</h1>
   <p>Put your GB of logs per month and growth rate into the <a href="./">calculator</a> to price Datadog Logs, Grafana Cloud Logs, Axiom, Better Stack and Papertrail side by side. These are the questions to settle before you trust the answer.</p>
@@ -19,7 +20,9 @@
   <p>GB you do not send. Dropping debug logs in production, sampling noisy health checks, trimming verbose payloads and routing cold logs to cheap archive storage usually cut a logging bill more than switching vendor. Also check retention and search speed: a cheap tool that cannot answer a query during an incident costs more than it saves.</p>
   <h2>When should I switch log-management vendors?</h2>
   <p>When the 12-month spend under your growth rate differs enough to pay for the migration, which means re-pointing shippers or agents, rebuilding dashboards and alerts and re-learning a query language. Run the calculator with your growth rate before deciding, and remember retention and indexing fees can change the real figure.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
     <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
   </footer>

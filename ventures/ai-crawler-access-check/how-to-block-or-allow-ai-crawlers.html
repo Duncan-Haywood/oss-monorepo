@@ -23,6 +23,7 @@
   </style>
 </head>
 <body>
+<main>
   <a class="back" href="./">&larr; Back to AI Crawler Access Check</a>
   <h1>Exact robots.txt lines for each named AI crawler</h1>
   <p>Each block below is a complete, self-contained <code>robots.txt</code> group. Stack as many as you need in the same file. A crawler that matches a named group ignores your wildcard (<code>User-agent: *</code>) group entirely — the most specific matching group wins, groups are never combined.</p>
@@ -90,7 +91,9 @@ Allow: /</code></pre>
   <h3>Do I need an llms.txt file?</h3>
   <p>No — it's an optional, emerging convention (see llmstxt.org), not a standard any crawler is documented to require. It's a plain-text file at /llms.txt giving an AI assistant a short map of your key pages: an H1 title, an optional one-line summary, and Markdown link sections.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page is informational, provided free and as-is, without warranty of any kind. Crawler tokens, stated purposes, and behavior change over time — verify anything load-bearing directly with the operator's own current documentation before relying on it.</p>
     <p><a href="./">&larr; Back to the tool</a> · <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support on GitHub Sponsors</a> (optional)</p>
   </footer>

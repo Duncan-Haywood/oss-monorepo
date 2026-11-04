@@ -19,6 +19,7 @@
   </style>
 </head>
 <body>
+<main>
   <p class="note"><a href="./">RDS Instance Cost Advisor</a> · guide</p>
   <h1>RDS instance cost: Multi-AZ, io1 IOPS, Graviton and idle instances</h1>
   <p>Short answer: <strong>an RDS instance bills for every hour it exists, doubled if it is Multi-AZ, plus storage and any provisioned IOPS</strong>. Most avoidable spend is a standby nobody needs, per-IOPS charges a cheaper volume type includes, an older instance family, and databases that serve nobody.</p>
@@ -55,7 +56,9 @@
   <h3>Is a Graviton RDS instance really cheaper?</h3>
   <p>For the same size, the Graviton families (t4g, m6g, r6g) list below their x86 twins (t3, m5, r5) for MySQL, MariaDB and PostgreSQL. Changing the class restarts the instance and needs an engine version that supports it, so test on a restored copy first.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not engineering, financial, legal or compliance advice, and you are responsible for verifying prices and features against the current AWS documentation and for the availability and performance effect of any instance change. Vendor and product names are trademarks of their owners and are used only to describe what the tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
     <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>

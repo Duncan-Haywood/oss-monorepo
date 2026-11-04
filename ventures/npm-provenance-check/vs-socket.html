@@ -29,6 +29,7 @@
   </style>
 </head>
 <body>
+<main>
   <p class="note"><a href="./">&larr; npm Provenance Check</a></p>
   <h1>This checker vs. Socket</h1>
   <p class="note">Two different layers: Socket watches a connected dependency graph and the public registries on an ongoing basis across 70+ risk categories. This tool answers one narrower, one-time question from a pasted lockfile or the CLI &mdash; does this exact package version carry npm's own <code>dist.attestations.provenance</code> field &mdash; with no account and nothing installed.</p>
@@ -105,7 +106,9 @@
     <p class="note">Open <a href="./">npm Provenance Check</a> to check your own lockfile, or read <a href="./why-not-just-npm-audit-signatures.html">why this exists alongside npm audit signatures</a>.</p>
   </section>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security advice, and it does not replace a qualified security review. It reports one factual field the npm registry publishes about each version you asked about &mdash; nothing more. The absence of a provenance attestation is not evidence of compromise, and its presence is not a guarantee of safety. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p class="muted">Local-only privacy: nothing you paste on the linked tool is ever uploaded; only a package name and version leave your browser, to the public npm registry. This page makes no live comparison against Socket &mdash; it is a static page describing publicly documented facts. <a href="LICENSE">License</a></p>

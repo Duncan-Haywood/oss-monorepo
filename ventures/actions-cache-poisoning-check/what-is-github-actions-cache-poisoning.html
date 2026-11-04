@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Actions Cache Poisoning Check</a></p>
   <h1>What is GitHub Actions cache poisoning?</h1>
   <p>GitHub Actions caches are scoped to the whole repository, not to a branch, a workflow, or a trust level. <code>pull_request</code>, the ordinary PR trigger, runs with a read-only token and no secrets — a cache it writes is not especially dangerous, because nothing valuable trusts it either. <code>pull_request_target</code> and <code>workflow_run</code> exist for jobs that need more: commenting on a PR, or building it with real credentials. They run in the context of the <em>base</em> repository, with the base repository's secrets — but the event that triggers them is still raised by whoever opened the pull request, who might be a stranger.</p>
@@ -48,7 +49,9 @@ jobs:
   <p><a href="./">Paste your workflow YAML into Actions Cache Poisoning Check</a> to find every fork-writable cache step and unscoped <code>restore-keys</code> fallback across every workflow file at once, or run the CLI in your own repository:</p>
   <pre><code>python3 check.py --fail-on-risk</code></pre>
   <p class="note">That exits with a nonzero status if any workflow has either pattern — wire it into your own CI to block a newly-added one before it merges.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is not a security audit or a compliance attestation, and a clean scan does not mean a workflow is safe — only that these two documented patterns were not found.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
     <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>
