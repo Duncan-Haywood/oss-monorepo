@@ -6,7 +6,7 @@
 // the site builds fine and the visitor simply cannot get there.
 
 import { loadRequests } from '../../portfolio/requests/requests.mjs';
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import { servedPath } from './served-path.mjs';
 import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
@@ -5464,90 +5464,75 @@ test('the hub sitemap lists every product page the build writes', () => {
   assert.ok(xml.includes('<loc>https://example.test/compare/housecall-pro/</loc>'));
 });
 
-test('the built site publishes /compare/, links it, and lists it in the sitemap', async () => {
-  const out = await fs.mkdtemp(path.join(os.tmpdir(), 'compare-'));
-  const ventures = path.join(out, 'ventures');
-  const mk = async (slug, files) => {
-    await fs.mkdir(path.join(ventures, slug), { recursive: true });
-    for (const [name, body] of Object.entries(files)) {
-      await fs.writeFile(path.join(ventures, slug, name), body);
-    }
-  };
-  const page = (title, body) =>
-    `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${title}</title>` +
-    `<meta name="description" content="A free calculator that does arithmetic in your browser."></head>` +
-    `<body>${body}<p>No warranty: this is an estimate, not advice.</p></body></html>`;
-  await mk('alpha-calculator', {
-    'index.html': page('Alpha Calculator', '<h1>Alpha Calculator</h1>'),
-    'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
-  });
-  await mk('beta-calculator', {
-    'index.html': page('Beta Calculator', '<h1>Beta Calculator</h1>'),
-    'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
-  });
+// One fixture build serves both the /compare/ and /guides/ end-to-end tests:
+// buildSite does the same fixed, expensive work whatever the ventures
+// directory holds (about 60 s and 28 s as two builds, 2026-11-04), so a second
+// build for a second assertion about the hub is pure cost.
+let hubFixture;
+function hubFixtureSite() {
+  hubFixture ??= (async () => {
+    const out = await fs.mkdtemp(path.join(os.tmpdir(), 'hub-fixture-'));
+    const ventures = path.join(out, 'ventures');
+    const mk = async (slug, files) => {
+      await fs.mkdir(path.join(ventures, slug), { recursive: true });
+      for (const [name, body] of Object.entries(files)) {
+        await fs.writeFile(path.join(ventures, slug, name), body);
+      }
+    };
+    const page = (title, body) =>
+      `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${title}</title>` +
+      `<meta name="description" content="A free calculator that does arithmetic in your browser."></head>` +
+      `<body>${body}<p>No warranty: this is an estimate, not advice.</p></body></html>`;
+    await mk('alpha-calculator', {
+      'index.html': page(
+        'Alpha Calculator',
+        '<h1>Alpha Calculator</h1><a href="how-much-to-charge.html">How much to charge</a>',
+      ),
+      'how-much-to-charge.html': page('How much to charge', '<h1>How much to charge</h1>'),
+      // A comparison page belongs to /compare/, not /guides/.
+      'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
+    });
+    await mk('beta-calculator', {
+      'index.html': page('Beta Calculator', '<h1>Beta Calculator</h1>'),
+      'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
+    });
+    const dist = path.join(out, 'dist');
+    const result = await buildSite({
+      venturesDir: ventures,
+      outDir: dist,
+      baseUrl: 'https://example.test/',
+      log: () => {},
+      disableWorker: true,
+    });
+    return { out, dist, result };
+  })();
+  return hubFixture;
+}
 
-  const result = await buildSite({
-    venturesDir: ventures,
-    outDir: path.join(out, 'dist'),
-    baseUrl: 'https://example.test/',
-    log: () => {},
-    disableWorker: true,
-  });
+test('the built site publishes /compare/, links it, and lists it in the sitemap', async () => {
+  const { dist, result } = await hubFixtureSite();
   assert.equal(result.comparisons.length, 1, 'both tools compare with one product');
   assert.equal(result.comparisons[0].subject, 'Jobber');
 
-  const compare = await fs.readFile(path.join(out, 'dist', COMPARE_PATH, 'index.html'), 'utf8');
+  const compare = await fs.readFile(path.join(dist, COMPARE_PATH, 'index.html'), 'utf8');
   assert.ok(compare.includes('href="../alpha-calculator/vs-jobber.html"'));
   assert.ok(compare.includes('href="../beta-calculator/vs-jobber.html"'));
 
-  const hub = await fs.readFile(path.join(out, 'dist', 'index.html'), 'utf8');
+  const hub = await fs.readFile(path.join(dist, 'index.html'), 'utf8');
   assert.ok(hub.includes(`href="${COMPARE_PATH}"`), 'the hub must link /compare/');
 
-  const hubSitemap = await fs.readFile(path.join(out, 'dist', 'sitemap-hub.xml'), 'utf8');
+  const hubSitemap = await fs.readFile(path.join(dist, 'sitemap-hub.xml'), 'utf8');
   assert.ok(hubSitemap.includes(`<loc>https://example.test/${COMPARE_PATH}</loc>`));
 
-  const llms = await fs.readFile(path.join(out, 'dist', 'llms.txt'), 'utf8');
+  const llms = await fs.readFile(path.join(dist, 'llms.txt'), 'utf8');
   assert.ok(llms.includes(`https://example.test/${COMPARE_PATH}`), 'llms.txt must name /compare/');
-
-  await fs.rm(out, { recursive: true, force: true });
 });
 
 test('the built site publishes /guides/, links it, and lists it in the sitemap', async () => {
   // The end-to-end half of the guides index: the three places a page has to
   // appear before anyone reaches it — a link a visitor can click, a sitemap
-  // entry a crawler follows, and an llms.txt line an assistant reads. Before
-  // this page existed the guide pages had none of the three, only their own
-  // tool's entry page.
-  const out = await fs.mkdtemp(path.join(os.tmpdir(), 'guides-'));
-  const ventures = path.join(out, 'ventures');
-  const mk = async (slug, files) => {
-    await fs.mkdir(path.join(ventures, slug), { recursive: true });
-    for (const [name, body] of Object.entries(files)) {
-      await fs.writeFile(path.join(ventures, slug, name), body);
-    }
-  };
-  const page = (title, body) =>
-    `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${title}</title>` +
-    `<meta name="description" content="A free calculator that does arithmetic in your browser."></head>` +
-    `<body>${body}<p>No warranty: this is an estimate, not advice.</p></body></html>`;
-  await mk('alpha-calculator', {
-    'index.html': page(
-      'Alpha Calculator',
-      '<h1>Alpha Calculator</h1><a href="how-much-to-charge.html">How much to charge</a>',
-    ),
-    'how-much-to-charge.html': page('How much to charge', '<h1>How much to charge</h1>'),
-    // A comparison page belongs to /compare/, not here.
-    'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
-  });
-
-  const dist = path.join(out, 'dist');
-  await buildSite({
-    venturesDir: ventures,
-    outDir: dist,
-    baseUrl: 'https://example.test/',
-    log: () => {},
-    disableWorker: true,
-  });
+  // entry a crawler follows, and an llms.txt line an assistant reads.
+  const { dist } = await hubFixtureSite();
 
   const guides = await fs.readFile(path.join(dist, GUIDES_PATH, 'index.html'), 'utf8');
   assert.ok(guides.includes('href="../alpha-calculator/how-much-to-charge.html"'));
@@ -5565,8 +5550,10 @@ test('the built site publishes /guides/, links it, and lists it in the sitemap',
 
   const llms = await fs.readFile(path.join(dist, 'llms.txt'), 'utf8');
   assert.ok(llms.includes(`https://example.test/${GUIDES_PATH}`), 'llms.txt must name /guides/');
+});
 
-  await fs.rm(out, { recursive: true, force: true });
+after(async () => {
+  if (hubFixture) await fs.rm((await hubFixture).out, { recursive: true, force: true });
 });
 
 // The hub pages are where a stranger from a search query lands first, and until
