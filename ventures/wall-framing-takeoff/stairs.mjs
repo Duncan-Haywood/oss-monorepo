@@ -5,7 +5,7 @@
 // Rules are the model residential code's usual limits, held as typed limits
 // (`limits`) because the edition in force is the user's to confirm: riser at
 // most 7-3/4 in, tread at least 10 in, no more than 3/8 in between the tallest
-// and shortest riser, 6 ft 8 in of headroom, 36 in clear width, 147 in of rise
+// and shortest riser, 6 ft 8 in of headroom, 36 in clear width, 151 in (12 ft 7 in, IRC R311.7.3) of rise
 // between landings, and 3-1/2 in of board left under each notch. The risers are
 // cut equal: total rise divided by the fewest risers that fit under the limit.
 //
@@ -16,7 +16,7 @@
 // the finished first step matches the rest once the tread is on.
 import { THICK, DEPTH, formatLength, formatInches } from "./engine.mjs";
 
-export const STAIR_LIMITS = { maxRiser: 7.75, minTread: 10, riserVariance: 0.375, headroom: 80, minWidth: 36, maxRise: 147, minThroat: 3.5, openRiserGap: 4 };
+export const STAIR_LIMITS = { maxRiser: 7.75, minTread: 10, riserVariance: 0.375, headroom: 80, minWidth: 36, maxRise: 151, minThroat: 3.5, openRiserGap: 4 };
 
 /** Longest span a stair tread board may run between stringers, by board thickness (typed, model-code-style figures: under 1-1/4 in 12 in, under 1-1/2 in 16 in, 1-1/2 in and thicker 24 in; the local book rules). */
 export function maxTreadSpan(thickness) { return thickness < 1.25 ? 12 : thickness < 1.5 ? 16 : 24; }
@@ -356,7 +356,7 @@ export function stairText(l) {
 }
 
 /**
- * A stair that rises more than one flight may (147 in by default) is split at a landing into two flights.
+ * A stair that rises more than one flight may (151 in by default) is split at a landing into two flights.
  * `landing` is `true` or `{ depth, landingRise, joist, spacing, deckBoard, openEdges }` (`openEdges`: "side" edges run the landing depth, "end" the width; each gets a guard). The landing is as deep as the
  * stair is wide (36 in at least), the usual code rule for a straight run or a turn; the rise is split in half
  * unless `landingRise` (finished floor to the landing surface) is typed. The stairwell opening applies to the

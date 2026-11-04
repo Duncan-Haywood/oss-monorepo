@@ -46,8 +46,8 @@ test("stairwell opening: headroom at the edge is x*R/T minus the floor above", (
   assert.ok(ok.opening.ok);
 });
 
-test("a rise over 147 in needs a landing; a narrow or shallow-tread stair is refused", () => {
-  assert.match(layoutStair({ totalRise: 150 }, plan()).errors[0], /landing/);
+test("a rise over 151 in needs a landing; a narrow or shallow-tread stair is refused", () => {
+  assert.match(layoutStair({ totalRise: 152 }, plan()).errors[0], /landing/);
   assert.match(layoutStair({ totalRise: 100, tread: 9 }, plan()).errors[0], /minimum/);
   assert.match(validateStair({ totalRise: 100, width: 30 })[0], /minimum/);
 });
@@ -77,9 +77,9 @@ test("stair lumber joins the cutting-stock order", () => {
   assert.match(stairText(l).join("\n"), /risers of/);
 });
 
-test("a rise of exactly 147 in is one flight; 147-1/8 in needs a landing", () => {
-  assert.deepEqual(validateStair({ totalRise: 147 }), []);
-  assert.match(validateStair({ totalRise: 147.125 })[0], /landing/);
+test("a rise of exactly 151 in is one flight; 151-1/8 in needs a landing", () => {
+  assert.deepEqual(validateStair({ totalRise: 151 }), []);
+  assert.match(validateStair({ totalRise: 151.125 })[0], /landing/);
 });
 
 test("the stringer angle is atan(riser/tread) in degrees", () => {
