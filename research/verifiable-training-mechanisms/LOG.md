@@ -7,6 +7,13 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - **Predictions, before running:** (1) flat 0.99 gives a harmful-and-unflagged share of 25% +/- 7 points (64 of 256, range 46 to 82). (2) Each descending schedule exceeds flat 0.99 by at least 4 points of share (10 jobs of 256). Refuted if either descending schedule is within 4 points of, or below, flat. (3) Flags fall for both descending schedules relative to flat (as in 64).
 - Limits known in advance: one sigma, one R, one tiny model, shared seeds, open-loop schedules.
 
+### Outcome of 66 (`experiments/progress_frac_schedule_n256/`: `run.py`, `results.txt`, `results.json`, `run.out`; n = 256 fresh draws, sigma = 0.05, R = 1.01, about 2.5 h incl. a 45 min torch install)
+- Flagged / harmful / harmful-and-unflagged of 256, median stalled steps of 200: flat 0.99: 70 / 143 / 74, 43; 0.99 to 0.95: 48 / 128 / 80, 23; 0.99 to 0.90: 29 / 105 / 77, 16.
+- **(1) held**: flat 0.99 is 74 of 256 (28.9%), inside 25% +/- 7 points. **(2) refuted**: the descending schedules exceed flat by 6 and 3 jobs of 256 (2.3 and 1.2 points), below my 10-job line. **(3) held**: flags fall from 70 to 48 and 29.
+- Reading: the 8 to 10 job gain of milestone 64 (at n = 128) does not replicate; at n = 256 harmful-and-unflagged is 29%, 31%, 30% for the three schedules, indistinguishable. What does replicate is that descending schedules cut flags (27% to 19% to 11%) and cut harm by the same amount, so the cheater's payoff is flat. The threshold-noise defence of milestones 58 to 61 is not weakened by scheduling, on this model; the "weaker than milestone 61 suggested" consequence stated in milestone 64 is withdrawn. No test beyond the counts was run.
+- Limits: one sigma, one R, one tiny model, 16 shared seeds, open-loop schedules; the up-schedule was not rerun.
+- Next: paper sentence correction (done in this entry's commit); a direction-aware check priced against the accumulation attack.
+
 ## 2026-11-04 · Milestone 65: paper gains the stall-fraction schedule result (milestone 64)
 - Why: milestone 64's "Next" listed the paper paragraph. Extended the progress-check paragraph in `paper/main.tex` (heading now milestones 53 to 64) with one sentence: flat 0.99 leaves 32 of 128 harmful and unflagged; descending schedules 42 and 40; ascending 27; stated as suggestive, not established. Numbers copied from milestone 64.
 - No new experiment; no prediction to test. LaTeX not compiled (no TeX here).
