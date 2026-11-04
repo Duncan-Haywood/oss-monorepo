@@ -1777,3 +1777,25 @@ test("a week near the shift cap stops improving on a time budget and says so", (
   const small = buildRoster(staffOf("a,15,40\nb,15,40"), slotsOf("Mon, 9, 17, 1"));
   assert.ok(!small.budgetHit);
 });
+
+import { restPremium } from "./calc.mjs";
+
+test("restPremium finds short turnarounds, prices them and skips exempt people", () => {
+  const csv = [
+    "day,start,end,hours,label,assigned_to,role",
+    "Mon,5:00 PM,11:00 PM,6.00,close,Ana,",
+    "Tue,7:00 AM,3:00 PM,8.00,open,Ana,",
+    "Wed,5:00 PM,11:00 PM,6.00,close,Ben,",
+    "Thu,7:00 AM,3:00 PM,8.00,open,Ben,",
+    "Fri,9:00 AM,5:00 PM,8.00,mid,Ana,",
+  ].join("\n") + "\n";
+  const r = restPremium(csv, { restHours: 11, premiumHours: 1, wages: { Ana: 20, Ben: 15 } });
+  assert.equal(r.turnarounds.length, 2);
+  assert.equal(r.turnarounds[0].restHours, 8);
+  assert.equal(r.owed, 35);
+  const ex = restPremium(csv, { restHours: 11, wages: { Ana: 20, Ben: 15 }, exempt: ["ben"] });
+  assert.equal(ex.owed, 20);
+  assert.equal(ex.count, 1);
+  assert.equal(restPremium(csv, { restHours: 8 }).turnarounds.length, 0, "exactly the window is not short");
+  assert.equal(restPremium(csv, { restHours: 11 }).turnarounds[0].premiumUnpriced, true);
+});

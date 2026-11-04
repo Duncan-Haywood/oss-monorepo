@@ -2094,6 +2094,33 @@ export function scheduleChanges(postedCsv, revisedCsv, { changedAt = null, notic
   return { changes, owed: Math.round(owed * 100) / 100, shortNotice: changes.filter((c) => c.shortNotice && !c.exempt).length, noticeKnown: known };
 }
 
+// Short turnarounds in a roster CSV: every pair of one person's consecutive shifts with less than `restHours` between
+// the end of one and the start of the next (a "clopen" when the first closes and the second opens). Each short
+// turnaround owes `premiumHours` of the person's wage unless the person is in `exempt` (they asked for it). Within one
+// week only; Sunday night to Monday morning is not seen, use --last-week for that. Whether a rule applies, its rest
+// window and its premium are the operator's to enter: arithmetic on their numbers, not a statement of any law.
+export function restPremium(rosterCsv, { restHours = 11, premiumHours = 1, wages = {}, exempt = [] } = {}) {
+  const rows = parseRosterCsv(rosterCsv);
+  const skip = new Set((exempt || []).map((n) => String(n).trim().toLowerCase()).filter(Boolean));
+  const wageOf = new Map(Object.entries(wages || {}).map(([k, v]) => [k.toLowerCase(), String(v ?? "").trim() === "" ? NaN : Number(v)]));
+  const found = [];
+  let owed = 0;
+  for (const who of [...new Set(rows.map((x) => x.person))]) {
+    const mine = rows.filter((x) => x.person === who).sort((a, b) => a.start - b.start);
+    for (let i = 1; i < mine.length; i++) {
+      const gap = (mine[i].start - mine[i - 1].end) / 60;
+      if (gap >= restHours) continue;
+      const wage = wageOf.get(who.toLowerCase());
+      const isExempt = skip.has(who.toLowerCase());
+      const premium = !isExempt && wage > 0 ? Math.round(premiumHours * wage * 100) / 100 : 0;
+      owed += premium;
+      found.push({ person: who, first: mine[i - 1], second: mine[i], restHours: Math.round(gap * 100) / 100, exempt: isExempt, premium, premiumUnpriced: !isExempt && !(wage > 0) });
+    }
+  }
+  found.sort((x, y) => x.second.start - y.second.start || x.person.localeCompare(y.person));
+  return { turnarounds: found, owed: Math.round(owed * 100) / 100, count: found.filter((f) => !f.exempt).length };
+}
+
 // Sets "prev:" on every staff line whose person worked last week, replacing any old one. Other lines are untouched.
 // Tough shifts (weekend, closing, opening: the same test as the search and fairnessReport) per person in a roster CSV.
 export function toughCounts(csv) {

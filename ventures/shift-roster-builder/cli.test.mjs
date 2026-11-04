@@ -205,3 +205,13 @@ test("--cover lists direct takers, else a hand-over chain, and says when the shi
   const direct = run("Ana, 10, 40, 0, Mon 8-16\nBen, 20, 40, 0, Mon 8-16\nCy, 15, 40, 0, Mon 8-16\n", "Mon, 8, 16, 1, open\n", { cover: "Mon 8:00" });
   assert.match(direct.out, /Can take it outright/);
 });
+
+test("--rest-under lists short turnarounds with a premium on the operator's numbers", () => {
+  const r = run(sampleStaff(), sampleShifts(), { restUnder: 11, premiumHours: 1 });
+  assert.equal(r.code, 0);
+  assert.match(r.out, /turnaround\(s\) under 11 h/);
+  assert.match(r.out, /Not legal advice/);
+  assert.match(run(sampleStaff(), sampleShifts(), { restUnder: 0.5 }).out, /No turnaround under 0\.5 h/);
+  assert.equal(parseArgs(["--rest-under", "10"]).restUnder, 10);
+  assert.throws(() => parseArgs(["--rest-under", "x"]), /between 0 and 48/);
+});
