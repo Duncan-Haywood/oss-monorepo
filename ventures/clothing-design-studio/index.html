@@ -278,6 +278,23 @@
         </details>
       </section>
 
+      <section aria-labelledby="h-shop">
+        <h2 id="h-shop">Storefront: one file you can put on any web host</h2>
+        <p class="muted">Makes a single shop page for this design. Checkout is off until you add your own payment link (an https link from Stripe, PayPal, Lemon Squeezy or similar); until then buyers get an order-by-email button. You handle payment, tax, delivery and returns; we hold no keys and see nothing. The page states only the shipping and returns text you type here.</p>
+        <div class="row">
+          <div><label for="sh-brand">Brand name</label><input id="sh-brand" type="text" maxlength="60"></div>
+          <div><label for="sh-email">Contact email</label><input id="sh-email" type="email"></div>
+          <div><label for="sh-cur">Currency</label><select id="sh-cur"><option>EUR</option><option>USD</option><option>GBP</option></select></div>
+          <div><label for="sh-link">Your payment link (https)</label><input id="sh-link" type="url" placeholder="https://buy.stripe.com/..."></div>
+        </div>
+        <div class="row">
+          <div><label for="sh-ship">Shipping terms</label><input id="sh-ship" type="text" placeholder="Where from, cost, how long"></div>
+          <div><label for="sh-ret">Returns terms</label><input id="sh-ret" type="text" placeholder="Your returns and cancellation terms"></div>
+        </div>
+        <output id="sh-out" aria-live="polite"></output>
+        <div class="bar"><button class="btn small" type="button" id="sh-dl">Download storefront (HTML)</button></div>
+      </section>
+
       <section aria-labelledby="h-mkt">
         <h2 id="h-mkt">Launch marketing: what ads can afford, and a week-by-week calendar</h2>
         <p class="muted">Works back from your break-even. The click price and conversion rate are placeholders until you run a small test: replace them. Drafts only; nothing is posted or bought for you.</p>
@@ -338,6 +355,7 @@
     import { economics, quantityBreaks, money, DEFAULT_PLAN } from "./costing.mjs";
     import { techPack, techPackHtml, quoteRequest } from "./techpack.mjs";
     import { launchKit } from "./launchkit.mjs";
+    import { storefront } from "./storefront.mjs";
     import { marketingPlan, calendarCsv, DEFAULT_ASSUMPTIONS } from "./marketing.mjs";
     import { separate, films, previewRgba, separationBrief } from "./separation.mjs";
     import { recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -624,6 +642,16 @@
       try { history.replace(sanitizeDesign(JSON.parse(await f.text()))); render(); } catch { log('<span class="miss">That file is not a design saved by this studio.</span>'); }
     });
     $("#copy-quote").addEventListener("click", () => navigator.clipboard?.writeText($("#quote").textContent).then(() => recordUsage("quote_copy")));
+    const SHOP_KEY = "clothing-design-studio-shop";
+    const shopFields = { brand: "#sh-brand", email: "#sh-email", currency: "#sh-cur", link: "#sh-link", shipping: "#sh-ship", returns: "#sh-ret" };
+    const shopState = () => Object.fromEntries(Object.entries(shopFields).map(([k, sel]) => [k, $(sel).value]));
+    const buildShop = () => {
+      const o = shopState();
+      return storefront([d()], { brand: o.brand, email: o.email, currency: o.currency, shipping: o.shipping, returns: o.returns, paymentLinks: o.link ? { [d().name]: o.link } : {} });
+    };
+    const showShop = () => { const r = buildShop(); $("#sh-out").textContent = r.warnings.length ? "Before you publish: " + r.warnings.join(" ") : "Ready to download."; store.set(SHOP_KEY, shopState()); };
+    { const saved = store.get(SHOP_KEY) ?? {}; for (const [k, sel] of Object.entries(shopFields)) { if (saved[k]) $(sel).value = saved[k]; $(sel).addEventListener("input", showShop); } showShop(); }
+    $("#sh-dl").addEventListener("click", () => { download(`${slugify(d().name)}-store.html`, buildShop().html, "text/html"); recordUsage("storefront_download"); });
     $("#lk-csv").addEventListener("click", () => { download(`${slugify(d().name)}-products.csv`, launchKit(d()).storeCsv, "text/csv"); recordUsage("store_csv"); });
     $("#share").addEventListener("click", () => {
       const url = `${location.href.split("#")[0]}#d=${encodeDesign(d())}`;
