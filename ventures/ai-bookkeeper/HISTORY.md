@@ -417,3 +417,4 @@ These are dated records of slices that landed (probes, trade fixtures, property 
 - Ramp and SumUp exports read correctly 2026-11-04 (bank.mjs, ramp-sumup.test.mjs; headers from memory, no real export).
 - bunq export read by Name (the payee) not Description, 2026-11-04 (bank.mjs, bunq.test.mjs; header from memory, no real export).
 - Mint and Monarch Money exports labelled (were bank null; rows already right), 2026-11-04 (bank.mjs, aggregators.test.mjs; headers from memory, no real export).
+- M-Pesa, GCash and BCA-style exports read correctly 2026-11-04 (bank.mjs, mobile-money-headers.test.mjs; headers from memory, made-up rows, no real export): M-Pesa Paid In/Withdrawn was read with the signs flipped (headerless guess), GCash "Date and Time" with a 12-hour clock and Indonesian "Jumlah" with DB/CR suffixes failed or booked day-first dates month-first.
