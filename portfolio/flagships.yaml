@@ -102,7 +102,7 @@ flagships:
       Landed work, with every measurement, is in the README, eval/README and
       git (inbox agent, daily run, self-host server with TLS and XOAUTH2,
       research agent, call prep, follow-ups, CRM write-back to
-      Pipedrive/HubSpot against fake servers only). All reply and note sets
+      Pipedrive/HubSpot against fake servers only; ninth reply set 2026-11-04, 23/30 before patching, 0 overreach). All reply and note sets
       other than the 117 real bounces, 11 + 12 real mail-client emails and
       the 1,857-reply label mix are agent-written. Next: (1) real human
       replies and a real rep's call notes to check the reply rules, prep
@@ -122,7 +122,7 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      History and numbers: README and git. Open: (0) smooth low-noise series over-cut: `--noise-floor k` is uncalibrated and no k isolates GDP's 1970s break; the slope-break test (`--slope-breaks`, 2026-11-04, README) dates it at 1971Q2 but not significantly: US labour productivity (n=318) is dated 1973Q1, the documented slowdown, but W 5.8 < 11 (README); annual means fail too and the bar is 12 to 19 at n=44-79 with rho .3-.5 (README); a bar by n and rho landed 2026-11-04 (`critical: 'auto'`, README; 3.8 to 7.0% false reports on fresh nulls); wanted: the annual productivity series against it, a real break that clears it, the page box; cycles and drift: an exact
+      History and numbers: README and git. Open: (0) smooth low-noise series over-cut: `--noise-floor k` is uncalibrated and no k isolates GDP's 1970s break; the slope-break test (`--slope-breaks`, 2026-11-04, README) dates it at 1971Q2 but not significantly: US labour productivity (n=318) is dated 1973Q1, the documented slowdown, but W 5.8 < 11 (README); annual means fail too and the bar is 12 to 19 at n=44-79 with rho .3-.5 (README); a bar by n and rho landed 2026-11-04 (`critical: 'auto'`, README; 3.8 to 7.0% false reports on fresh nulls); the annual productivity series against it is in (2026-11-04: W 6.5 < bar 9.6, p 0.14, README); wanted: a real break that clears it, the page box; cycles and drift: an exact
       AR(2) likelihood inside PELT was no better than AR(1) (README); a real documented step inside a cycle; a cycle
       check not tied to rho (treering: drift not told from a cycle);
       a documented real run of 5+ steps to test the block-variance warning
