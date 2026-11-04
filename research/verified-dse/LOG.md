@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 80: 4 mult32 points (relaxed clock) spread over R4 rank, detail-routed (predictions written before the run; outcome below once finished)
+- Why: milestone 79's "Next". `run.py --large --points ../large/results.jsonl --designs mult32 --tag relaxed --rank-subsample 4`: best, worst and two between in R4 score. Four rather than twelve because a mult32 point is expected to cost over an hour and twelve would need three sequential batches on 4 cores. Yosys 0.51, OpenROAD 2025-03, four jobs, one batch.
+- Predictions: (1) the R5-best of the four is R4's best or second best; (2) the worst-R4 point is the worst R5 point; (3) zero DRC violations; (4) median detail-route time above 1800 s (mult24 median was 1210 s).
+- Analysis: `analyse_sub4.py` -> `results_mult32_sub4.txt`. Four points give an ordering check at the extremes only, no tau interval.
+
 ## 2026-11-04 · Milestone 79: 12 mult24 points (relaxed clock) spread evenly over R4 rank, detail-routed (predictions written before the run; outcome below once finished)
 - Why: milestone 78's "Next". `run.py --rank-subsample 12` picks 12 of the 50 usable mult24 relaxed points evenly spaced in R4 score (best, worst and ten between). Yosys 0.51, OpenROAD 2025-03, four jobs.
 - Predictions: (1) tau-b(R4, R5) >= 0.7 over the 12; (2) the R5-best point is among R4's best three; (3) zero DRC violations; (4) median detail-route time above 600 s.
