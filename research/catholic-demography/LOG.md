@@ -3,6 +3,30 @@
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
 
+## 2026-11-04 · Milestone 5b (GSS-only part): how much of the rise in the raised-Catholic share is immigrants?
+
+Run: `experiments/m5b_nativity/run.py` (output `results.txt`, tables `t13`, `t14`; same PSU bootstrap, 500 draws,
+seed 1, as 5a). **Order of events, honestly:** the script ran before this entry was written, so there is no
+pre-registered prediction; the prior I held was that immigration would account for most of the 1990s-to-2010s rise
+(H4's direction). Identity R = f Rf + (1-f) Ru (f foreign-born share of adults; Rf, Ru the shares raised Catholic
+among foreign-born and US-born); the midpoint split gives immigrant composition, the rate among the foreign-born,
+and the rate among the US-born, summing exactly to the change (asserted).
+
+- **Levels.** Foreign-born share of adults 12.2% (1990-99), 16.1%, 17.7% (2010-18), 16.3% (2021-24). Raised Catholic:
+  foreign-born 51.1%, 56.7%, 53.4%, 45.6%; US-born 27.8%, 29.0%, 30.4%, 31.5%.
+- **1990-99 to 2010-18** (R 30.7% to 34.5%, +3.8 points [+2.4, +5.3]): immigrant composition **+1.3 [+1.0, +1.5]**,
+  rate among foreign-born +0.3 [-0.2, +0.9], rate among US-born **+2.2 [+1.0, +3.4]**. Immigration (first two terms)
+  is +1.6 [+1.0, +2.2], about 42% of the rise; the US-born term is the larger one. **My prior is not supported on
+  this split:** the larger part is not first-generation arrivals.
+- **To 2021-24:** immigration terms net to 0.0 [-0.6, +0.6] against the 1990s, and between 2010-18 and 2021-24 they
+  are -1.6 [-2.3, -0.9] (fewer of the foreign-born raised Catholic, -1.3), the first sign of the inflow term turning.
+- **Limit that matters for H4:** "US-born" includes the second generation, whose parents are immigrants, so the +2.2
+  is not all fertility of long-settled families; the rising US-born raised-Catholic share is plausibly partly the
+  children of the 1980s-90s immigrants. This split therefore gives a lower bound on immigration's role, not a
+  fertility share. Raised-Catholic is also self-reported at an age 16 recall. H4 is still not decided.
+- **Next.** Split the US-born term by `parborn` (second vs third-plus generation), already coded in `recode.py`; then
+  the outside NCHS birth and ACS series for 5b proper.
+
 ## 2026-11-04 · Milestone 5a results: the inflow of people raised Catholic held the share up; falling retention pulled it down
 
 Run: `experiments/m5a_decomp/run.py` (output `results.txt`, tables `t11`, `t12`; run under a Python with
