@@ -24,8 +24,8 @@ export function validateHeaderTable(table) {
   const errors = [];
   table.forEach((r, i) => {
     const at = `headerTable row ${i + 1}`;
-    if (!(r && r.upTo > 0)) errors.push(`${at}: upTo (the longest clear span, inches) must be more than zero.`);
-    if (!(r && r.header in DEPTH)) errors.push(`${at}: header must be one of ${Object.keys(DEPTH).join(", ")}.`);
+    if (!(r && typeof r.upTo === "number" && Number.isFinite(r.upTo) && r.upTo > 0 && r.upTo <= 12000)) errors.push(`${at}: upTo (the longest clear span, inches) must be more than zero.`);
+    if (!(r && typeof r.header === "string" && Object.hasOwn(DEPTH, r.header))) errors.push(`${at}: header must be one of ${Object.keys(DEPTH).join(", ")}.`);
     if (r && r.plies !== undefined && !(Number.isInteger(r.plies) && r.plies >= 1 && r.plies <= 4)) errors.push(`${at}: plies must be a whole number from 1 to 4.`);
   });
   if (errors.length) return errors;
@@ -48,6 +48,9 @@ export function validateHeaderTable(table) {
  * @returns {{ ok: boolean, plan: any, errors: string[], rows: { wall: string, opening: string, span: number, required: string, chosen: string, status: "set"|"ok"|"under" }[], notes: string[] }}
  */
 export function resolveHeaders(plan) {
+  if (!plan || typeof plan !== "object" || (plan.walls != null && !Array.isArray(plan.walls)) || (plan.walls || []).some((w) => !w || typeof w !== "object" || (w.openings != null && !Array.isArray(w.openings)) || (w.openings || []).some((o) => !o || typeof o !== "object"))) {
+    return { ok: false, plan, errors: ["plan must be an object whose walls are objects with openings that are objects."], rows: [], notes: [] };
+  }
   const out = structuredClone(plan);
   const byStud = plan.headerTables && typeof plan.headerTables === "object" ? plan.headerTables : {};
   const anyTable = plan.headerTable || Object.keys(byStud).length || (plan.walls || []).some((w) => w.headerTable);
@@ -73,6 +76,10 @@ export function resolveHeaders(plan) {
     if (!t) continue;
     const table = [...t[1]].sort((a, b) => a.upTo - b.upTo);
     for (const op of wall.openings || []) {
+      if (typeof op.width !== "number" || !Number.isFinite(op.width) || op.width <= 0) {
+        errors.push(`${wall.id}, ${op.label || op.kind}: width must be a number of inches above zero.`);
+        continue;
+      }
       const name = `${wall.id}, ${op.label || op.kind} at ${formatLength(op.offset)}`;
       const row = table.find((r) => r.upTo + EPS >= op.width);
       if (!row) {
@@ -89,7 +96,7 @@ export function resolveHeaders(plan) {
       }
       const have = op.headerPlies ?? defaultPlies(wall);
       const chosen = `${have} x ${op.header}`;
-      const under = !(op.header in DEPTH) ? false : DEPTH[op.header] < DEPTH[row.header] - EPS || have < plies;
+      const under = !(typeof op.header === "string" && Object.hasOwn(DEPTH, op.header)) ? false : DEPTH[op.header] < DEPTH[row.header] - EPS || have < plies;
       rows.push({ wall: wall.id, opening: name, span: op.width, required, chosen, status: under ? "under" : "ok" });
     }
   }

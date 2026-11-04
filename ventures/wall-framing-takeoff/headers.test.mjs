@@ -108,3 +108,20 @@ test("a bad per-wall table is reported with its wall", () => {
   assert.equal(r.ok, false);
   assert.match(r.errors[0], /^wall /);
 });
+
+test("hostile header tables and plans are refused with a reason, never thrown", () => {
+  for (const upTo of ["48", Infinity, 1e9, NaN, null]) {
+    assert.ok(validateHeaderTable([{ upTo, header: "2x6" }]).length, `upTo ${upTo}`);
+  }
+  for (const header of ["constructor", "toString", "__proto__", 7, null]) {
+    assert.ok(validateHeaderTable([{ upTo: 48, header }]).length, `header ${header}`);
+  }
+  const table = [{ upTo: 48, header: "2x6" }];
+  for (const plan of [null, "x", { walls: "x", headerTable: table }, { walls: [null], headerTable: table }, { walls: [{ id: "a", openings: [null] }], headerTable: table }]) {
+    const r = resolveHeaders(plan);
+    assert.equal(r.ok, false);
+    assert.ok(r.errors.length);
+  }
+  const r = resolveHeaders({ walls: [{ id: "a", openings: [{ kind: "door", offset: 10, width: "36", height: 80 }] }], headerTable: table });
+  assert.equal(r.ok, false);
+});
