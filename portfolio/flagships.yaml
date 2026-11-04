@@ -125,11 +125,10 @@ flagships:
     next: >-
       History and numbers: README and git. Open: (0) cycles and drift: an exact
       AR(2) likelihood inside PELT was no better than AR(1) (README); a real documented step inside a cycle; a cycle
-      check not tied to rho (done 2026-11-04: treering gets the slow-drift
-      hint; it does not tell drift from a cycle);
-      a documented real run
-      of 5+ steps to test the block-variance warning, which does not yet
-      separate drift from steps; (1) range95: a closure series quiet outside
+      check not tied to rho (2026-11-04: treering gets the slow-drift
+      hint; not told from a cycle);
+      a documented real run of 5+ steps to test the block-variance warning
+      (it cannot yet tell drift from steps); (1) range95: a closure series quiet outside
       the closure (none of 30 Ansett route/class series is; nor is Peace Bridge
       traffic around the 2009 passport rule, 2026-11-01: step on the month, 13
       other changes). (2) The steep-
