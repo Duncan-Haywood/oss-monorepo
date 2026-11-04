@@ -3,7 +3,7 @@ title: "A propeller's thrust-speed slope: -2.25, and no sign it changes with Rey
 seo_title: "Propeller thrust vs airspeed slope from UIUC wind-tunnel data"
 date: 2026-11-04
 tags: [research, aerolog-scaling, propellers, scaling]
-description: "From 137 measured APC propeller curves, thrust at fixed RPM falls with speed as V^-2.25 near cruise, and the slope shows no detectable Reynolds-number dependence."
+description: "From 137 measured APC propeller curves, thrust at fixed RPM falls with speed as V^-2.25 near cruise, with no detectable Reynolds-number dependence."
 ---
 
 Our scaling study of a cargo UAV had no thrust term in its phugoid model, and
