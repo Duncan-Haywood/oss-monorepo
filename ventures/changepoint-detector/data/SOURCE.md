@@ -368,3 +368,11 @@ annualised CPI inflation, %), 202 quarters (first quarter dropped: 0 by construc
   <https://raw.githubusercontent.com/jakevdp/PythonDataScienceHandbook/master/notebooks/data/births.csv>
   (CDC / NCHS birth counts; US government statistics, public domain).
 - **Used by:** `eval/holiday-births.mjs`, `holiday-births.test.mjs`.
+
+# Example data: Australian residents, quarterly 1971-1993
+
+`austres.csv`: quarterly Australian resident population (thousands), R's `datasets::austres` (89 rows).
+
+- **Retrieved:** 2026-11-04 from <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/austres.csv>.
+- **Licence:** R datasets (GPL-2 | GPL-3 package; the numbers are Australian Bureau of Statistics counts, facts). Used as a test fixture only.
+- **Cite:** Australian Bureau of Statistics, via R `datasets::austres`.
