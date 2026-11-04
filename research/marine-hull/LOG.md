@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 7n: citations for 4c to 4g added to the proposal (no experiment run)
+- Why: 7m's "Next": the sources behind 4c to 4g were in the log and scripts but not in the citation list.
+- What: added Bellingham et al. (Tethys, AUV 2010, doi:10.1109/AUV.2010.5779645; `cite_check.py` ok) and Bonjean and Lagerloef 2002 (JPO, doi:10.1175/1520-0485(2002)032<2938:DMAAOT>2.0.CO;2; found in Crossref by direct lookup, since `cite_check.py` truncates this DOI at `<`) to `PROPOSAL.md` Related work, and listed the three sources with no DOI (Steinberg et al., Ocean Science os-2019-36, MARTECH 2025 paper 17) as still to be finalised.
+- Limits: the OSCAR product itself is not described by Bonjean and Lagerloef alone (it adds later development); I cite the method, not the dataset DOI. No numbers changed.
+- Next: finalise the three non-DOI sources; shelf currents from a tide model or ADCP.
+
 ## 2026-11-04 · Milestone 7m: fold 4c to 4g into the paper draft (no experiment run)
 - Why: 4c to 4g (Slocum bench dive energy, Seaglider budget, sourced AUV hotel loads, mission days, OSCAR-weighted currents) were logged but absent from `paper/DRAFT.md`, whose glider paragraph still ended at 7g's unsourced overhead.
 - What: one paragraph added after the 7g sentence in section 2.3; every number copied from the LOG entries and the `results_*.txt` files it names. No new numbers, no experiment, no citations added.
