@@ -63,6 +63,9 @@ class CullItem:
     exposure: float
     eyes_open: float | None
     dhash: str
+    # Same-name files folded into this frame (a RAW beside its JPEG), so one
+    # shot is one decision and one sidecar.
+    companions: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -97,6 +100,29 @@ def scan_photos(folder: Path, *, recursive: bool = False) -> list[Path]:
     return found
 
 
+def collapse_pairs(photos: Sequence[Path], root: Path) -> tuple[list[Path], dict[Path, tuple[str, ...]]]:
+    """Fold RAW+JPEG pairs (same folder, same stem) into one shot.
+
+    Cameras shooting RAW+JPEG write IMG_1.CR2 and IMG_1.JPG. Scored apart they
+    land in one burst group, one is demoted to alternate, and both would fight
+    over the single IMG_1.xmp sidecar Lightroom reads for the pair. The JPEG
+    (full size, no preview extraction) stands for the shot; the others are
+    listed as its companions.
+    """
+
+    by_stem: dict[tuple[Path, str], list[Path]] = {}
+    for path in photos:
+        by_stem.setdefault((path.parent, path.stem.lower()), []).append(path)
+    kept: list[Path] = []
+    companions: dict[Path, tuple[str, ...]] = {}
+    for members in by_stem.values():
+        members.sort(key=lambda p: (is_raw_path(p), str(p)))
+        kept.append(members[0])
+        if len(members) > 1:
+            companions[members[0]] = tuple(_rel(p, root) for p in members[1:])
+    return sorted(kept), companions
+
+
 def default_analyzer(tools: FfmpegTools) -> Analyzer:
     def analyze(path: Path) -> tuple[FrameMetrics, FaceReport | None]:
         return analyze_media(tools, path, media_type="photo"), detect_faces(path)
@@ -112,6 +138,7 @@ def cull_folder(
 ) -> CullResult:
     root = Path(folder)
     photos = scan_photos(root, recursive=recursive)
+    photos, companion_map = collapse_pairs(photos, root)
     if not photos:
         raise CullError(f"no photos found in {root}")
     analyze = analyzer or default_analyzer(find_ffmpeg_tools())
@@ -148,6 +175,7 @@ def cull_folder(
                     exposure=round(metrics.exposure, 4),
                     eyes_open=faces.worst_eyes_open if faces else None,
                     dhash=metrics.dhash,
+                    companions=companion_map.get(path, ()),
                 )
             )
     items.sort(key=lambda item: (item.group, item.path))
@@ -244,6 +272,10 @@ def _group(
     return [grouped[key] for key in sorted(grouped)]
 
 
+def _label(item: CullItem) -> str:
+    return item.path + (" + " + ", ".join(item.companions) if item.companions else "")
+
+
 def _rel(path: Path, root: Path) -> str:
     return path.relative_to(root).as_posix()
 
@@ -318,9 +350,13 @@ def score_against_picks(result: CullResult, picks: Sequence[str]) -> PickScore:
     by_path = {i.path.lower(): i for i in result.items}
     by_name: dict[str, list[CullItem]] = {}
     for item in result.items:
-        name = item.path.lower().rsplit("/", 1)[-1]
-        by_name.setdefault(name, []).append(item)
-        by_name.setdefault(name.rsplit(".", 1)[0], []).append(item)
+        for member in (item.path, *item.companions):
+            name = member.lower().rsplit("/", 1)[-1]
+            by_name.setdefault(name, []).append(item)
+            stem = name.rsplit(".", 1)[0]
+            if item not in by_name.get(stem, []):
+                by_name.setdefault(stem, []).append(item)
+            by_path.setdefault(member.lower(), item)
     matched: dict[str, CullItem] = {}
     unmatched: list[str] = []
     for pick in picks:
@@ -377,7 +413,7 @@ def result_to_dict(result: CullResult, score: PickScore | None = None) -> dict[s
             {
                 "path": i.path, "group": i.group, "role": i.role, "score": i.score,
                 "reasons": list(i.reasons), "sharpness": i.sharpness, "exposure": i.exposure,
-                "eyes_open": i.eyes_open, "dhash": i.dhash,
+                "eyes_open": i.eyes_open, "dhash": i.dhash, "companions": list(i.companions),
             }
             for i in result.items
         ],
@@ -400,7 +436,7 @@ def render_html(
     for item in result.items:
         reasons = ", ".join(item.reasons) or ""
         rows.append(
-            f'<tr class="{item.role}"><td>{item.group}</td><td>{html.escape(item.path)}</td>'
+            f'<tr class="{item.role}"><td>{item.group}</td><td>{html.escape(_label(item))}</td>'
             f"<td>{item.role}</td><td>{item.score:.2f}</td><td>{item.sharpness:.2f}</td>"
             f"<td>{item.exposure:.2f}</td><td>{html.escape(reasons)}</td></tr>"
         )

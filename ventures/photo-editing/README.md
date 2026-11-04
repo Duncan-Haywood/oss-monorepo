@@ -344,6 +344,7 @@ This repo currently contains the first testable core utilities:
   contract. Write-capable next actions are command-free descriptors so JSON
   payloads cannot double as executable workflow plans.
 - `shootflow.cull` (`shootflow cull FOLDER --out REPORT_DIR [--recursive] [--write-xmp] [--picks FILE] [--thumbs]`)
+  RAW+JPEG pairs (same folder and stem) count as one shot: the JPEG is scored, the RAW is listed as a companion, one sidecar covers both (2026-11-04, made-up files only).
   is the standalone culling pass: it scores each still (JPEG, PNG, TIFF, or a
   RAW file's embedded preview), groups near-identical frames by dHash (Hamming
   distance 8 or less, single linkage), keeps the best frame per group as the
