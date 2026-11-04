@@ -35,8 +35,11 @@
  *    "other fibres", and the dealer's name and postal address or a CA number
  *    from the Competition Bureau. Care labels are voluntary; when used they
  *    follow the CAN/CGSB-86.1 symbols.
- * Not covered: wool, fur or leather special rules, flammability, children's
- * garments, state or provincial rules.
+ * Special materials (materialNotes): wool and cashmere (US Wool Products
+ * Labeling Act, a separate law from the textile rules), and non-textile parts
+ * of animal origin, leather and fur on a garment. These are pointers to the
+ * law to read, never a ruling.
+ * Not covered: flammability, children's garments, state or provincial rules.
  */
 
 export const SOURCES = Object.freeze({
@@ -175,6 +178,29 @@ export function requirements(market, info = {}) {
   return rows;
 }
 
+/**
+ * Extra rules a fibre list or a trim list brings in. `trims` is free text
+ * ("leather patch, down fill, rabbit fur collar"). Returns plain notes that
+ * name the law to check; nothing here decides compliance.
+ */
+export function materialNotes(parts, market = "eu", trims = "") {
+  const notes = [];
+  const keys = new Set((parts ?? []).map(p => p.key));
+  const t = String(trims ?? "").toLowerCase();
+  const leather = /\bleather|suede|nubuck\b/.test(t);
+  const fur = /\bfur\b|\bshearling\b|\bsheepskin\b/.test(t);
+  const feather = /\bdown\b|\bfeather/.test(t);
+  if ((keys.has("wool") || keys.has("cashmere")) && market === "us") notes.push("Wool and cashmere garments fall under the Wool Products Labeling Act (15 U.S.C. 68), not only the textile rules: the label must say how much is new wool, recycled wool or other fibre. Read 16 CFR Part 300 before printing, and do not call a blend \"cashmere\" unless it meets the Act's definition.");
+  if ((keys.has("wool") || keys.has("cashmere")) && market !== "us") notes.push("Wool and cashmere names are protected terms. Keep them for fibre that meets the definition in the law of your market, and have the mill's certificate on file.");
+  if (leather || fur) {
+    if (market === "eu" || market === "uk") notes.push("A garment with non-textile parts of animal origin (leather, fur, feather trims) must say so on the label, for example \"Contains non-textile parts of animal origin\" (Regulation 1007/2011, Article 12; carried into UK law). Cat and dog fur is banned from sale in the EU (Regulation 1523/2007).");
+    if (market === "us") notes.push(fur ? "Real fur is under the Fur Products Labeling Act (16 CFR Part 301): name of the animal, country of origin and other required items on the label. Check it before you sell." : "Leather trim is covered by the FTC Guides for Select Leather and Imitation Leather Products (16 CFR Part 24): do not call a coated or bonded material \"leather\".");
+    if (market === "ca") notes.push("Fur products in Canada fall under the Textile Labelling Act's fur provisions and the Fur Regulations; read them before selling a garment with fur.");
+  }
+  if (feather) notes.push("Down and feather filling is labelled under rules for filled articles (state laws in the US, EN standards in the EU); state the fill, its share and its origin claim only with a supplier's test report.");
+  return notes;
+}
+
 /** Whole check for one composition, market and set of items. */
 export function checkLabel(composition, { market = "eu", lang = "en", ...info } = {}) {
   const p = parseComposition(composition);
@@ -187,6 +213,7 @@ export function checkLabel(composition, { market = "eu", lang = "en", ...info } 
   if (label && market === "ca") notes.push("Canadian generic names (spandex, rayon) differ from the EU ones; confirm both languages against the Regulations' schedule before printing.");
   if (label && market === "uk") notes.push("This is for Great Britain. Northern Ireland follows the EU rules: choose EU there.");
   if (label && p.parts.some(x => x.key === "polyester") && /recycled/i.test(String(composition))) notes.push("\"Recycled\" is a claim, not a fibre name. Keep it off the fibre line unless you can document it, and check the green-claims rules of the market.");
+  if (label || p.parts.length) notes.push(...materialNotes(p.parts, market, info.trims));
   const req = requirements(market, info);
   return { market, lang, ok: p.problems.length === 0, label, parts: p.parts, problems: p.problems, requirements: req, missing: req.filter(r => !r.given).map(r => r.item), notes, sources: SOURCES[market] ?? SOURCES.eu };
 }

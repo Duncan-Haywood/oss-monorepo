@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseComposition, compositionLabel, checkLabel, requirements, suggestCare } from "./labels.mjs";
+import { parseComposition, compositionLabel, checkLabel, requirements, suggestCare, materialNotes } from "./labels.mjs";
 
 test("parses shares in either order and sorts descending", () => {
   const p = parseComposition("5% elastane, cotton 95%");
@@ -91,4 +91,17 @@ test("UK and Canada list their own items and sources", () => {
   assert.match(checkLabel("100% cotton", { market: "uk" }).sources, /2012/);
   assert.match(checkLabel("100% cotton", { market: "ca" }).sources, /Canada/);
   assert.ok(checkLabel("100% cotton", { market: "uk" }).notes.some(n => /Northern Ireland/.test(n)));
+});
+
+test("wool in the US points to the Wool Products Labeling Act; cotton does not", () => {
+  assert.ok(checkLabel("100% wool", { market: "us" }).notes.some(n => /Wool Products Labeling Act/.test(n)));
+  assert.ok(!checkLabel("100% cotton", { market: "us" }).notes.some(n => /Wool/.test(n)));
+});
+test("leather, fur and down trims bring their own notes by market", () => {
+  const p = parseComposition("100% cotton").parts;
+  assert.ok(materialNotes(p, "eu", "leather patch").some(n => /non-textile parts of animal origin/.test(n)));
+  assert.ok(materialNotes(p, "us", "leather patch").some(n => /16 CFR Part 24/.test(n)));
+  assert.ok(materialNotes(p, "us", "rabbit fur collar").some(n => /Fur Products/.test(n)));
+  assert.ok(materialNotes(p, "eu", "down fill").some(n => /Down and feather/.test(n)));
+  assert.deepEqual(materialNotes(p, "eu", ""), []);
 });

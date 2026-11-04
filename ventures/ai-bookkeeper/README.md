@@ -513,6 +513,10 @@ Amount is `--` on fee rows, so a file with `Fees & Taxes` and `Net` columns uses
 
 These already read through the generic column matcher; this slice names them in `sniffBank` (Relay's `Date, Description, Amount, Balance, Account Name` was mislabelled Amex) and pins them with `fixtures/relay-checking.csv`, `brex-card.csv`, `chime-checking.csv`, `bluevine-checking.csv` and tests in `neobank.test.mjs` (Brex pending rows skipped, balance chains on Relay and Bluevine). Layouts are hand-written from remembered headings with made-up rows; no real export tried.
 
+### US bank layouts pinned (2026-11-04)
+
+`us-banks.test.mjs` pins six layouts that already read with no code change: US Bank (`Transaction, Name, Memo, Amount`), Navy Federal and Truist and TD (`Debit`/`Credit` plus `Balance`, the balance chain holds), Citi card (`Status`, `Debit`/`Credit`) and Bank of America (summary block above the header skipped, `Running Bal.`). Rows are made up and headers are from memory of each layout; no real download was tried. Navy Federal, Truist and TD read but are not named by `sniffBank` (bank is null).
+
 ### PNC CSV (2026-10-22)
 
 `bank.mjs` labels a `Date, Description, Withdrawals, Deposits, Balance` export as PNC. The columns already read through the generic Debit/Credit matching; the fixture `pnc-checking.csv` (made-up rows, header from memory of PNC's layout, no real download tried) is tested in `neobank.test.mjs` with the running-balance chain.

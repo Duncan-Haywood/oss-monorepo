@@ -157,6 +157,13 @@
    "status": "In force"
   },
   {
+   "date": "2024-12-01",
+   "country": "China",
+   "page": "china-fapiao-e-invoice-mandate.html",
+   "note": "STA fully digitalised e-fapiao on the national platform, launched nationwide 1 December 2024 as reported",
+   "status": "In force (scope disputed; 2026 regional steps reported)"
+  },
+  {
    "date": "2025-01-01",
    "country": "Germany",
    "page": "germany-e-invoice-mandate.html",
@@ -407,6 +414,13 @@
    "page": "dominican-republic-dgii-e-invoice-mandate.html",
    "note": "large local and medium taxpayers electronic-only from November 2026 (paper sequences to 31 October 2026)",
    "status": "Phased by taxpayer size (November 2026 waves)"
+  },
+  {
+   "date": "2026-11-01",
+   "country": "China",
+   "page": "china-fapiao-e-invoice-mandate.html",
+   "note": "whether mandatory everywhere is disputed, and 2026 brings regional paper withdrawals and a fuel-station deadline of 1 November 2026 (secondary guides, STA notices unread)",
+   "status": "In force (scope disputed; 2026 regional steps reported)"
   },
   {
    "date": "2026-11-01",

@@ -70,7 +70,7 @@ flagships:
       fill-only mode on real bank descriptions, more seeds, a bigger model
       (synthetic so far; README Next); (2) the bank readers on real exports
       from Chase, Bank of America, Wells Fargo, Amex, Capital One and
-      others; (3) a real Stripe PayPal eBay or Amazon settlement export for
+      others (six US layouts pinned on made-up rows 2026-11-04); (3) a real Stripe PayPal eBay or Amazon settlement export for
       the payment-processor import (`form1099k`: try a real 1099-K; Adyen:
       wanted a real settlement file); (4) a real supplier's terms letter
       checked against the fee and discount rules, and one named lender's own
