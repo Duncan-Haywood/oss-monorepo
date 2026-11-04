@@ -1,0 +1,3 @@
+user_transaction_time,merchant,amount,card_name,memo
+2026-10-03 10:00:00,AWS,120.40,Ops card,cloud
+2026-10-05 11:00:00,Notion,32.00,Ops card,

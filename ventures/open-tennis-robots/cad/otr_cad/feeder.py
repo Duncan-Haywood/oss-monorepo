@@ -567,7 +567,9 @@ def hose_end_line(p: Feeder) -> str:
     fit = "; ".join(f"{e:+.0f} deg {x[0]:.0f}-{x[1]:.0f} mm" for e, x in r)
     return (f"hose with end directions: fits {fit}; "
             + ("one cut length fits every pose" if take <= 0 else
-               f"no one cut length fits every pose: needs {take:.0f} mm of take-up (known gap)"))
+               f"no one cut length fits every pose: needs {take:.0f} mm of take-up ({p.take_up_stroke_mm():.0f} mm of "
+               f"travel on a floating-pulley reel; limiting nose-up to +30 deg would need "
+               f"{dict(p.hose_take_up_by_elev_max())[30.0]:.0f} mm; known gap, no reel modelled yet)"))
 
 
 def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_g: float = 0.0):

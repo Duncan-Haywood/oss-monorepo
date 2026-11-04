@@ -2,14 +2,14 @@
 //   node eval/run.mjs            -> summary + every miss
 //   node eval/run.mjs --json     -> machine-readable result
 import { readFileSync } from "node:fs";
-import { triage, CATEGORIES } from "../engine.mjs";
+import { triage, CATEGORIES, stripQuoted } from "../engine.mjs";
 import { guess } from "../learn.mjs";
 
 export function score(rows, { fn = triage, today = "2026-10-21", useGuess = true } = {}) {
   const misses = [], confusion = {};
   let right = 0, sub = 0, subRight = 0, overreach = 0, unsubMissed = 0, acted = 0, actedRight = 0, guessed = 0, guessRight = 0, guessOverreach = 0;
   for (const r of rows) {
-    const t = fn({ from: r.from || "prospect@example.com", name: "", subject: r.subject, body: r.body }, today);
+    const t = fn({ from: r.from || "prospect@example.com", name: "", subject: r.subject, body: stripQuoted(r.body) }, today); // the real path (parseReplies) strips quoted history and signatures first
     confusion[r.label] ??= {};
     confusion[r.label][t.category] = (confusion[r.label][t.category] || 0) + 1;
     // The rules "act" when they name a category; otherwise the reply goes to a person with the word model's guess.

@@ -124,6 +124,7 @@ check(/^ ?1\. /m.test(po) && /Final/.test(po) && /place 1/.test(po), "play-off: 
 
 for (const [btn, name, test, what] of [
   ["#dl-weekly", "weekly-update.txt", (t) => /Hawks/.test(t) && t.length > 20, "names a team from the results"],
+  ["#dl-remaining", "remaining-schedule.txt", (t) => /left/.test(t) && /pts\/game/.test(t), "lists games left and opponents' points per game"],
   ["#dl-overdue", "missing-scores.txt", (t) => t.length > 0, "is not empty (a list, or the no-scores-overdue line)"],
 ]) {
   const [dl] = await Promise.all([page.waitForEvent("download", { timeout: 10000 }), page.click(btn)]);

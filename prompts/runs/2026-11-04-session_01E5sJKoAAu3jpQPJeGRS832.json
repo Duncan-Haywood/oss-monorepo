@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-04",
+  "session": "https://claude.ai/code/session_01E5sJKoAAu3jpQPJeGRS832",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-04T00:24:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12960",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "pyenv hint did not cover build123d; pip installed into python3.13 while python3 is 3.11"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-04-tennis-feeder-hose-take-up-cost-of-nose-up.md"
+  ],
+  "goal": null,
+  "notes": "Flagship 10: outlet to 1700 mm, take-up by tilt. CAD suite 31 passed under python3.13 (build123d pip-installed there; bare python3 is 3.11). Only CAD tests run, not full CI.",
+  "corrections": [],
+  "redteam": null
+}

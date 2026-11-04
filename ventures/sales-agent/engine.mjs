@@ -296,7 +296,7 @@ const RULES = {
     // Added 2026-11-03 after eval/fresh-2026-11-03c.jsonl (agent-written, 24 opt-outs) missed 10: "add this address to your do-not-contact list",
     // "refrain from further correspondence", "no-solicitation policy", "rather you didn't contact me", "leave our company out", "don't ever contact",
     // "don't send me anything else", and ES/FR/IT phrasings. Unscored on real mail.
-    P("\\bdo[- ]not[- ](contact|call|email|mail)\\b"), P("\\brefrain from (any )?(further|more|future)? ?(correspondence|contact|communication|emails?|messages?)"), P("\\bno[- ]solicitation\\b"),
+    P("\\bdo[- ]not[- ](contact|call|email|mail)\\b"), P("\\b(i'?d|i would|i'?ll|we'?d) (much )?(rather|prefer to) not (get|receive|hear|have)\\b"), P("\\bnot (to )?(get|receive) any more\\b"), P("\\brefrain from (any )?(further|more|future)? ?(correspondence|contact|communication|emails?|messages?)"), P("\\bno[- ]solicitation\\b"),
     P("\\b(rather|prefer) (that )?you (didn'?t|did not|not|wouldn'?t|would not) (contact|email|write|message|call)"), P("\\bleave (me|us|our \\w+|my \\w+) out of\\b"), P("\\b(don'?t|do not|never) ever (contact|email|write|message|call)"),
     P("\\b(don'?t|dont|do not) send (me|us) (anything|any ?more|more)\\b"), P("\\b(contact|email|write to|message) (me|us) (anymore|any more|again)\\b.*\\b(don'?t|do not|please don)"),
     P("supprimiez (mon|mes|notre|nos)\\b"), P("deja de (enviar|mandar|escribir)(me|nos)?\\b"), P("\\bnon (scrivetemi|scrivermi|inviatemi|mandatemi)\\b"),
@@ -402,7 +402,11 @@ export function triage(reply, today) {
   if (!signal && /\b(mail delivery warning|has been postponed|continue to try to deliver)\b/i.test(all.join("\n")) && /^(mailer-daemon|postmaster)@|delivery/i.test(from + subject)) return res("out_of_office", { s: all.find((x) => /postponed|delivery warning|continue to try/i.test(x)) || subject, m: "delivery delayed" }, { subtype: "delivery_delayed", why: "delivery delayed, not failed; no address change" });
   if (signal === "auto-reply" && !find("bounce") && !/^(mailer-daemon|postmaster)@/i.test(from)) { const d = (() => { for (const s of all) { const f = findDate(s, today); if (f && /\b(back|return|until|till|away|leave|office)\b/i.test(s)) return f; } return null; })(); return res("out_of_office", { s: "Auto-Submitted header", m: "auto-replied" }, { date: d?.date || null, dateText: d?.text || null, why: "sent by an auto-responder (header), not a person" }); }
   if ((ev = find("bounce")) || /^(mailer-daemon|postmaster)@/i.test(from)) return res("bounce", ev || { s: from, m: from }, { why: "a delivery failure, not a person" });
-  if ((ev = find("unsubscribe"))) return res("unsubscribe", ev, { why: "asked not to be contacted" });
+  // Footer boilerplate ("To stop these messages unsubscribe in settings", "To unsubscribe click here") inside an auto-reply is
+  // the sender's mail system talking, not an opt-out; with no first-person ask it does not outrank the away notice (2026-11-04).
+  const boiler = (e) => e && /\b(to|how to) (stop|unsubscribe)\b|\bunsubscribe (in|from|via|using|at|here|link)\b|\bclick (here|the link)\b/i.test(e.s) && !/\bunsubscribe (me|us)\b|\b(remove|take|delete) (me|us|my|our)\b|\bplease (stop|unsubscribe|remove)\b/i.test(e.s);
+  ev = find("unsubscribe");
+  if (ev && !(boiler(ev) && find("out_of_office"))) return res("unsubscribe", ev, { why: "asked not to be contacted" });
 
   const referral = (() => {
     for (const s of sentences(body)) {

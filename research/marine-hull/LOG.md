@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 4g: 4f's cross-current sweep weighted by a sourced global surface-current distribution (OSCAR)
+- Why: 4f swept the cross-current 0 to 0.5 m/s with no source, and 4f-days ended with "a current model, since 0.2 m/s is below typical ocean currents". Source: OSCAR 1/3 degree, 5-day, 15 m surface velocity (NASA/JPL, via NOAA CoastWatch ERDDAP `jplOscar`), 13 dates of 2013, every 4th degree, 60S to 60N, ocean points, weighted by cos(latitude). Raw samples kept in `experiments/data/oscar_{u,v}.csv`.
+- Prediction (written before the run): the share of ocean where the glider cannot hold a track is between 20% and 40% in the worst case (whole current cross-track), and the glider keeps lower energy per ground metre than the AUV in a clear majority of triples at a random heading.
+- Outcome (`experiments/run_current_oscar.py`, `results_current_oscar.txt`, deterministic, under 2 min): weighted speed median 0.126 m/s, 90th 0.389, 95th 0.533; 30.1% of the ocean above 0.2 m/s and 16.3% above 0.3. Worst case: glider stalls in 29.6%, wins energy per ground metre in 69.0% of triples. Random heading: stalls 16.5%, wins 82.5%. Prediction held.
+- Reading: with a sourced current climatology the glider's energy advantage over the AUV survives in most of the open ocean, but a quarter to a third of the ocean (the strong boundary currents and equatorial belt) is out of reach for a 0.2 m/s glider on a transect that crosses the flow. 4f's "stalling, not gradual loss" result now has a map-weighted frequency.
+- Limits: OSCAR is smoothed (1/3 degree, 5-day, geostrophic plus Ekman), so it understates eddy and tidal currents, especially on shelves and near coasts, where survey work happens; 13 dates of a single year and a 4 degree subsample, so seasonal and interannual spread is not resolved; no heading data for a real mission, hence the two bounds; no tests added (reuses tested functions, and the 4f table is reproduced at matching speeds).
+- Next: coastal currents (ADCP or tide-model speeds) for shelf surveys; a per-basin split; fold into `paper/DRAFT.md`.
+
 ## 2026-11-03 · Milestone 4f: mission days on one 1.5 kWh battery, glider against AUV at sourced hotel loads
 - Why: 4e's "Next" asked for a time-weighted comparison, since the glider wins on energy per metre but moves at 0.2 m/s. Plan (`experiments/run_endurance_days.py`): same 1.5 kWh battery (REMUS 100 vendor figure, 4c) for both; glider as 4e (hotel 0.0954 W, dive electronics 0 or 1351 J, cd0/B/pump swept, 90 cases); AUV at 8 W (Tethys design estimate), 104 and 175 W (REMUS implied), three hulls, best-range speed. Outputs: range, days to empty.
 - Prediction (written before the run): the glider has the longer range in every case but needs more than 10 times the AUV's days at 104 W and above, so the choice is a deadline question, not a range one.

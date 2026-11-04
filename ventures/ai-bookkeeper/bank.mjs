@@ -27,7 +27,7 @@ const ALIASES = {
     // Korean, Chinese
     "거래일자", "거래일시", "거래일", "기준일자", "交易日期", "记账日期", "記帳日期", "交易时间", "交易時間",
     // value dates last: German Valuta/Wertstellung are not the booking date
-    "transaction date (utc)", "order date", "created (utc)", "created", "created date (utc)", "created at", "timestamp", "paid at", "transferred at",
+    "transaction date (utc)", "user transaction time", "order date", "created (utc)", "created", "created date (utc)", "created at", "timestamp", "paid at", "transferred at",
     "wertstellung", "valuta", "date de valeur", "date valeur", "value date",
     // Indonesian
     "tanggal", "tgl", "التاريخ", "تاريخ العملية"],
@@ -215,6 +215,9 @@ export function detectColumns(header) {
     cols.amount = h.indexOf("net");
     if (h.includes("title")) cols.desc = h.indexOf("title");
   }
+  // SumUp's transactions report (Transaction date, Payout date, Gross amount, Fee, Net amount):
+  // the net amount is what reached the bank, the gross is before SumUp's fee.
+  if (cols.amount === -1 && cols.debit === -1 && cols.credit === -1 && h.includes("gross amount") && h.includes("fee") && h.includes("net amount")) cols.amount = h.indexOf("net amount");
   // Stripe's balance-transactions export (Amount, Fee, Net, Created (UTC)):
   // Net is what moved the Stripe balance; Amount is the gross before the fee.
   if (h.includes("fee") && h.includes("net") && h.includes("created (utc)") && cols.amount !== -1 && h[cols.amount] === "amount") cols.amount = h.indexOf("net");
@@ -369,6 +372,8 @@ export function sniffBank(rows) {
     if (/^transaction date\|posted date\|card no\.\|description\|category\|debit\|credit/.test(h)) return "capital-one";
     if (/^trans\. date\|post date\|description\|amount\|category/.test(h)) return "discover";
     if (/^status\|date\|description\|debit\|credit/.test(h)) return "citi";
+    // Ramp lists card spend as positive amounts, under a "user transaction time" column.
+    if (/^(id\|)?user transaction time\|/.test(h)) return "ramp";
     if (/^date\|transaction\|name\|memo\|amount/.test(h)) return "us-bank";
     if (/^date\|time\|amount\|type\|description/.test(h)) return "ally";
     if (/^transaction date\|clearing date\|description\|merchant\|category\|type\|amount \(usd\)/.test(h)) return "apple-card";
@@ -1028,7 +1033,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   if (invert === undefined && out.every((r) => r.balance === null) && columns.amount !== -1) {
     // Discover's header is distinctive and its export always lists charges as positive, so a
     // file with no recognisable payment row (a month of purchases only) still flips.
-    const pos = chargesArePositive(out) ?? (bank === "discover" || bank === "apple-card" || bank === "swisscard" ? true : null);
+    const pos = chargesArePositive(out) ?? (bank === "discover" || bank === "ramp" || bank === "apple-card" || bank === "swisscard" ? true : null);
     if (pos) { flip = true; inferred = "Charges were positive (the payment rows are negative), so signs were flipped."; }
   }
   // A trade list (ticker, qty, price, amount; Maybe's import shape) states the value bought as

@@ -97,6 +97,7 @@ the part you actually buy before cutting metal.
   every pose fits (518-541 mm at -15 deg, 745-853 mm at +45 deg), but no single cut length fits all, so about 258 mm
   of take-up (spring reel, telescoping section or a pulley) is needed. Slack cannot simply loop because the 30 deg
   fall rules out flat sections. The model is a 2-D smooth-curve proxy for a real hose: hang a hose and check.
+  **Outlet raised (2026-11-04):** `hopper_out_z` now defaults to 1700 mm; the build has no collisions, braces still pass (x 149 N vs 2472 N, y 186 N vs 2120 N). Take-up still 258 mm (`take_up_stroke_mm`: 129 mm of travel on one floating pulley). `hose_take_up_by_elev_max` gives take-up by top tilt: 31 mm at +15, 86 at +25, 119 at +30, 162 at +35, 209 at +40, 258 at +45 deg.
   **Hopper bracing (added 2026-11-03, `Feeder.check_hopper_frame`):** the four
   1.4 m posts were free-standing on M5 joints, which carry no useful moment. Two 2020 diagonals
   (`hopper_brace_x`, one each side, rear foot to front head) and one (`hopper_brace_y`, behind the
