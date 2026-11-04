@@ -216,6 +216,14 @@ export function separate(image, o = {}) {
   const acc = cent.map(() => [0, 0, 0, 0]);
   for (let i = 0; i < n; i++) { const l = labels[i]; if (l === NONE) continue; const a = acc[l]; a[0] += data[i * 4]; a[1] += data[i * 4 + 1]; a[2] += data[i * 4 + 2]; a[3]++; }
   const inkedCount = count(inked);
+  // Fidelity: mean CIE76 distance between each inked pixel and the flat ink that replaces it (lower is closer).
+  let dESum = 0;
+  for (let i = 0; i < n; i++) {
+    const l = labels[i]; if (l === NONE || !acc[l][3]) continue;
+    const a = acc[l], p = toLab(data[i * 4], data[i * 4 + 1], data[i * 4 + 2]), q = toLab(a[0] / a[3], a[1] / a[3], a[2] / a[3]);
+    dESum += Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]);
+  }
+  const meanDeltaE = +(dESum / Math.max(1, inkedCount)).toFixed(2);
   const pxMm = (widthCm * 10) / w;
   const rThin = Math.max(1, Math.round(minFeatureMm / pxMm / 2));
   const gl = lum([parseInt(garment.slice(1, 3), 16), parseInt(garment.slice(3, 5), 16), parseInt(garment.slice(5, 7), 16)]);
@@ -258,7 +266,7 @@ export function separate(image, o = {}) {
   if (raisedCoveragePct > 35) notes.push(`The outline covers ${raisedCoveragePct}% of the artwork: this image is too busy for a clean raised line. Use fewer colours or a larger print.`);
   notes.push("Rendered from the pixels you gave it. Photographs of paintings are shaded, so expect the printer to adjust curves and registration on a proof; this is a starting separation, not a final film.");
 
-  return { width: w, height: h, widthCm, heightCm: +(widthCm * h / w).toFixed(1), garment, inkedPct: +(100 * inkedCount / n).toFixed(1), labels, inks, raised: { mask: raisedMask, lineMm: raisedLineMm, coveragePct: raisedCoveragePct }, underbase, screens, minFeatureMm, notes };
+  return { width: w, height: h, widthCm, heightCm: +(widthCm * h / w).toFixed(1), garment, inkedPct: +(100 * inkedCount / n).toFixed(1), meanDeltaE, labels, inks, raised: { mask: raisedMask, lineMm: raisedLineMm, coveragePct: raisedCoveragePct }, underbase, screens, minFeatureMm, notes };
 }
 
 /** Run-length SVG film for a mask, sized in cm so it prints 1:1 (black = ink). */
