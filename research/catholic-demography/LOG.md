@@ -2,6 +2,50 @@
 
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
+## 2026-11-04 · Milestone 4 results: the cohort fall is real for white Catholics, and Hispanic retention diverges significantly
+
+Run: `experiments/m4_retention/run.py` (output `results.txt`, tables `t8`-`t10`; estimator `survey.logit`
+with tests). Sample: raised Catholic, non-Hispanic white or Hispanic, age 30+, interviewed 2000-2024,
+born 1945-96 (n = 7,155). The plan above (reference group) said "white"; the first run had the
+reference as all non-Hispanics, which a fitted-vs-cell-share check caught (0.6107 vs 0.6086); the
+domain now excludes NH Black and NH other and the check matches exactly.
+
+- **H2' supported for white Catholics.** Retention by cohort 66.1% / 60.9% / 47.7% (1945-64 /
+  1965-80 / 1981-96; 1981-96 interval [42.0, 53.4]). Logit coefficients -0.23 [-0.39, -0.07] and
+  -0.76 [-1.01, -0.52]; Wald test of both cohort terms p < 0.0001. Both negative, so not refuted.
+- **Hispanics differ.** Retention 73.6% / 75.5% / 69.5%. Cohort x Hispanic interaction: Wald chi2 =
+  8.3, df 2, p = 0.015. Hispanic cohort effect is flat then a small, wide-interval fall.
+  (Hispanic 1981-96 interval [63.3, 75.6] excludes the white 1945-64 level 66% only barely.)
+- **H2'' supported.** With sex, BA, survey period added: first-generation (foreign-born) Catholics
+  retain more than third-plus generation, +0.34 log-odds [0.14, 0.54] (OR 1.41); second generation
+  +0.14 [-0.07, 0.35]. Standardised retention 71.6% / 67.4% / 64.3% (1st / 2nd / 3rd+). BA+ is
+  -0.17 [-0.31, -0.04]; the 2021-24 surveys are -0.22 [-0.36, -0.08], which is the mode caveat of
+  milestone 3 acting on retention too, not necessarily a fall.
+- **Generation absorbs the Hispanic main effect** (0.36 [0.14, 0.57] in A, 0.11 [-0.12, 0.34] in B)
+  but not the cohort interaction (1981-96: +0.51 [0.09, 0.94]). So much of the Hispanic retention
+  advantage is an immigrant effect; the slower decline across cohorts is not explained by it.
+- **Limits.** Cohort 1981-96 is observed only at ages 30-43, so its final retention may differ
+  (returners and later leavers); the 1981-96 Hispanic cell has 385 respondents. Inference is
+  design-based but the model is not weighted for GSS nonresponse beyond `wtssps`.
+- **Next.** Milestone 5 (cohort-component accounting, H4, H5) needs outside fertility and
+  immigration series, which is a data-access step; milestone 2 (Hout reproduction, Pew subgroups)
+  is still open.
+
+## 2026-11-04 · Milestone 4 plan (written before running)
+
+- Sample: raised Catholic (`relig16`), age 30+ at interview, surveys 2000-2024 (ethnicity exists from
+  2000; age 30+ so the main switching ages are behind everyone). Outcome: still Catholic. Weight
+  `wtssps`; sandwich variance by stratum/PSU, subpopulation kept in the design.
+- **H2' (refines H2).** Model A: logit of retention on birth cohort (1945-64 ref, 1965-80, 1981-96),
+  Hispanic, and cohort x Hispanic. Refuted (for white Catholics) if the 1965-80 and 1981-96 cohort
+  coefficients are not both negative; for Hispanics, the interaction Wald test says whether the
+  cohort pattern differs from whites (no prior; p reported).
+- **H2'' (generation).** Model B adds immigrant generation, sex, BA and survey period. Prior: first-
+  generation Catholics retain more than third-plus generation at equal cohort and ethnicity. Refuted
+  if the 1st-gen coefficient interval includes zero or is negative.
+- **Checks.** The logit is tested against the weighted mean (intercept-only) and a simulated
+  recovery; the Model A cohort contrasts are compared with the milestone 1 weighted shares.
+
 ## 2026-11-04 · Milestone 3b: the randomised `modesequence` contrast (the item left "not done" above)
 
 Run: `experiments/m3b_randomised/run.py` (tables `t5`-`t7`). The 2022 and 2024 GSS randomly assigned

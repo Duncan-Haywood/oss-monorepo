@@ -107,3 +107,30 @@ def test_wls_cluster_intercept_matches_domain_mean_se():
     b, se = m3.wls_cluster(np.ones((n, 1)), y, w, strat.astype(float), psu.astype(float))
     m, se2, _ = survey.domain_mean(y, w, np.ones(n, bool), strat.astype(float), psu.astype(float))
     assert math.isclose(b[0], m, rel_tol=1e-9) and math.isclose(se[0], se2, rel_tol=1e-9)
+
+
+def test_logit_intercept_only_matches_weighted_mean():
+    rng = np.random.default_rng(3)
+    y = (rng.random(400) < 0.3).astype(float)
+    w = rng.uniform(0.5, 2, 400)
+    b, cov, n = survey.logit(np.ones((400, 1)), y, w, np.ones(400, bool), np.zeros(400), np.arange(400))
+    p = (w * y).sum() / w.sum()
+    assert n == 400 and math.isclose(b[0], math.log(p / (1 - p)), abs_tol=1e-8)
+    # delta method: se(logit p) = se(p) / (p (1 - p))
+    _, se, _ = survey.domain_mean(y, w, np.ones(400, bool), np.zeros(400), np.arange(400))
+    assert math.isclose(math.sqrt(cov[0, 0]), se / (p * (1 - p)), rel_tol=1e-6)
+
+
+def test_logit_recovers_coefficients_and_ignores_outside_domain():
+    rng = np.random.default_rng(4)
+    n = 20000
+    x = rng.normal(size=n)
+    y = (rng.random(n) < 1 / (1 + np.exp(-(-0.5 + 0.8 * x)))).astype(float)
+    X = np.column_stack([np.ones(n), x])
+    dom = np.arange(n) < n // 2
+    y2 = np.where(dom, y, 1 - y)  # garbage outside the domain must not matter
+    b, cov, _ = survey.logit(X, y2, np.ones(n), dom, np.zeros(n), np.arange(n))
+    se = np.sqrt(np.diag(cov))
+    assert np.all(np.abs(b - [-0.5, 0.8]) < 4 * se)
+    stat, df, p = survey.wald(b, cov, [1])
+    assert df == 1 and p < 1e-6
