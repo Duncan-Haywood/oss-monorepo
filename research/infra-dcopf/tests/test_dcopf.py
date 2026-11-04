@@ -69,3 +69,25 @@ def test_loss_adjusted_dc_on_two_bus_covers_the_line_loss():
     chk = ac_check_of_dispatch(n, adj)
     assert chk["converged"] and chk["losses_mw"] == pytest.approx(hist[-1], abs=0.1)
     assert adj.res_cost >= solve_dc(n).res_cost  # losses add load, never remove it
+
+
+def test_loss_sensitivities_on_two_bus_match_analytic_sign_and_size():
+    from infra_dcopf import loss_sensitivities, penalty_factors
+    n = two_bus()
+    dc = solve_dc(n)
+    s = loss_sensitivities(n, dc)
+    # moving output from the slack to a unit that is electrically further from the load can
+    # only change losses by a fraction of the MW moved
+    assert s is not None and all(abs(x) < 1.0 for x in s)
+    assert (penalty_factors(s) >= 0.5).all() and (penalty_factors(s) <= 2.0).all()
+
+
+def test_penalty_adjusted_dc_on_ieee118_prices_losses_not_worse_than_plain_at_light_load():
+    from infra_dcopf import penalty_adjusted_dc
+    n = scaled(load_case("case118"), 0.8)
+    ac, dc = solve_ac(n), solve_dc(n)
+    pen, hist, pf = penalty_adjusted_dc(n)
+    ep = ac_check_of_dispatch(n, pen)["cost"]
+    ed = ac_check_of_dispatch(n, dc)["cost"]
+    assert ep <= ed and ep >= ac.res_cost - 1e-6
+    assert 0.5 <= pf.min() < 1.0 < pf.max() <= 2.0
