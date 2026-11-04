@@ -350,3 +350,15 @@ test("--electrical adds receptacle and switch boxes; a bad setting is refused; -
   const j = main(["plan.json", "--electrical", "--json"], () => plan);
   assert.ok(JSON.parse(j.out).electrical.boxes > 0);
 });
+
+test("--drilling checks runs against stud limits; a bad run is refused; --json carries it", () => {
+  const id = JSON.parse(JSON.stringify(samplePlan())).walls[0].id;
+  const plan = JSON.stringify({ ...samplePlan(), drilling: { runs: [{ wall: id, kind: "bore", pipe: "3", label: "stack" }] } });
+  const a = main(["plan.json", "--drilling"], () => plan);
+  assert.equal(a.code, 0);
+  assert.match(a.out, /STUD DRILLING AND NOTCHING\n  1 runs checked, 1 over the limit/);
+  const bad = main(["plan.json", "--drilling"], () => JSON.stringify({ ...samplePlan(), drilling: { runs: [{ wall: "nope", kind: "bore", size: 1 }] } }));
+  assert.equal(bad.code, 1);
+  assert.match(bad.out, /not a wall/);
+  assert.equal(JSON.parse(main(["plan.json", "--drilling", "--json"], () => plan).out).drilling.failing, 1);
+});

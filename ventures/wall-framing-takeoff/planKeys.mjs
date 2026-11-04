@@ -4,7 +4,7 @@
 // an unknown key far from every known one is left alone, since plans carry notes and extra fields.
 export const KNOWN_PLAN_KEYS = [
   "studSpacing", "studLength", "kerf", "topPlateLap", "cornerExtraStuds", "teeExtraStuds", "defaultHeaderHeight", "stock", "walls",
-  "advanced", "allowances", "bids", "blocking", "deck", "dormer", "drywall", "eaves", "electrical", "fasteners", "floor", "foundation", "gutters",
+  "advanced", "allowances", "bids", "blocking", "deck", "dormer", "drilling", "drywall", "eaves", "electrical", "fasteners", "floor", "foundation", "gutters",
   "headerTable", "insulation", "plateLaps", "prices", "proposal", "roof", "schedule", "sheathing", "siding", "stairs", "trim", "ventilation",
 ];
 
