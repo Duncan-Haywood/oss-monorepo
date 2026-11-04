@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-04",
+  "session": "https://claude.ai/code/session_01E5sJKj5J6LPcuQcG2t8SJS",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-04T23:19:40Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Said docs/podcast exists as a path; cwd drift made the du/ls checks confusing; audio cap figure was 423 MB so text-only."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-04-the-six-percent-that-was-eleven.md"
+  ],
+  "goal": null,
+  "notes": "creative: hearth-and-horizon, the-six-percent-that-was-eleven (text only, audio over 400 MB cap). generate --check and stories tests pass.",
+  "corrections": [],
+  "redteam": null
+}
