@@ -1,6 +1,8 @@
 ---
 title: A slope-break test that finds nothing on ten real series
 date: 2026-11-04
+tags: [changepoint-detector, time-series, negative-result]
+description: The changepoint detector's slope-break test reports no break on any of ten real series we hold, so it still lacks a real positive control.
 ---
 
 The changepoint detector's new slope-break test looks at the growth rate of a
