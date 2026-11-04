@@ -89,3 +89,49 @@ def dp_clairvoyant(p, c, dt, corr, tau, dy=25.0):
             new[sg] = np.maximum(stay, sw)
         V = new
     return float(max(V[0][len(grid) // 2], V[1][len(grid) // 2]))
+
+
+def sim_mpc(p, c, dt, corr, tau, horizon, fcfun, step=5, dy=50.0, margin=0.0):
+    """Receding-horizon tack control on a forecast. Every `step` minutes the controller gets the forecast rates for the next
+    `horizon` minutes, fcfun(k) -> (pf, cf) arrays of shape (2, horizon) on the 1-minute grid, plans the best tack sequence on
+    `step`-minute blocks by value iteration over (tack, y), and executes only its first decision on the true rates p, c. The
+    corridor edge forces a tack as in sim_corridor. A voluntary tack also needs the plan to beat staying by `margin` times
+    the block's best forecast progress (hysteresis against chattering on forecast noise). Returns (progress m, number of tacks)."""
+    grid = np.arange(-corr, corr + dy / 2, dy)
+    nb = max(1, horizon // step)
+    f = 1.0 - min(1.0, tau / (step * dt))      # share of a block left after a tack
+    x, y, sg, n_t, pen = 0.0, 0.0, 0, 0, 0.0
+    n = p.shape[1]
+    for k0 in range(0, n, step):
+        pf, cf = fcfun(k0)
+        m = pf.shape[1] // step
+        # forecast block means (progress, cross) per tack, in metres per block
+        pb = pf[:, :m * step].reshape(2, m, step).mean(axis=2) * step * dt
+        cb = cf[:, :m * step].reshape(2, m, step).mean(axis=2) * step * dt
+        V = np.zeros((2, len(grid)))
+        for j in range(m - 1, 0, -1):
+            new = np.empty_like(V)
+            for s_ in (0, 1):
+                o = 1 - s_
+                stay = pb[s_, j] + np.interp(np.clip(grid + cb[s_, j], -corr, corr), grid, V[s_])
+                sw = pb[o, j] * f + np.interp(np.clip(grid + cb[o, j] * f, -corr, corr), grid, V[o])
+                new[s_] = np.maximum(stay, sw)
+            V = new
+        if m >= 1:
+            stay = pb[sg, 0] + np.interp(np.clip(y + cb[sg, 0], -corr, corr), grid, V[sg])
+            o = 1 - sg
+            sw = pb[o, 0] * f + np.interp(np.clip(y + cb[o, 0] * f, -corr, corr), grid, V[o])
+            tack_now = sw > stay + margin * max(pb[0, 0], pb[1, 0])
+        else:
+            tack_now = False
+        if tack_now:
+            sg ^= 1; n_t += 1; pen = min(1.0, tau / dt)
+        for k in range(k0, min(k0 + step, n)):
+            fac = 1.0 - pen
+            pen = 0.0
+            x += p[sg, k] * dt * fac
+            y += c[sg, k] * dt * fac
+            if (y >= corr and c[sg, k] > 0) or (y <= -corr and c[sg, k] < 0):
+                y = max(-corr, min(corr, y))
+                sg ^= 1; n_t += 1; pen = min(1.0, tau / dt)
+    return x, n_t
