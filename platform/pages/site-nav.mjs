@@ -251,7 +251,7 @@ export function renderSiteMenu(toRoot = '') {
         .map(([href, label]) => `<a data-pfs-menu href="${esc(/^https?:/.test(href) ? href : `${toRoot}${href}`)}">${label}</a>`)
         .join('')}</div>`,
   ).join('');
-  return `<details class="pfs-menu"><summary><span class="pfs-burger" aria-hidden="true"></span>Menu</summary><div class="pfs-menu-panel">${groups}</div></details><script>${MENU_JS}</script>`;
+  return `<details class="pfs-menu"><summary><span class="pfs-burger" aria-hidden="true"></span>Menu</summary><div class="pfs-menu-panel">${groups}</div></details><script data-pfs-menu-js>${MENU_JS}</script>`;
 }
 
 /**
