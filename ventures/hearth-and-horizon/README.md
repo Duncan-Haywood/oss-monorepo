@@ -275,3 +275,4 @@ be slow, moved or taken offline without notice. Every story is in this
 repository, so it can always be copied and re-hosted under its licence.
 
 [Sponsor on GitHub](https://github.com/sponsors/Duncan-Haywood).
+- [The Roof Fund That Fell Behind](stories/the-roof-fund-that-fell-behind.md) (Hearth & Horizon; Saint Hild's hall, invented, near Whitby, North Yorkshire, 15 Feb 2048). A 40,000 roof fund at 3% while the roof's price rises 4%: in 8 years 33,011 against 54,743, so about 5,444 a year is needed, not 3,000. Fiction, text only.
