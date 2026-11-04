@@ -63,9 +63,9 @@ export function validateSiding(d) {
 function gableOf(/** @type {any} */ w, /** @type {number} */ eave) {
   if (!w.gable || !(w.gable.pitch > 0)) return null;
   const peak = w.gable.peak ?? w.length / 2;
-  if (!(peak > 0 && peak < w.length)) return null;
+  if (!(peak > 0 && peak <= w.length)) return null;
   const s1 = w.gable.pitch / 12, rise = peak * s1;
-  return { rise, s1, s2: rise / (w.length - peak), eave };
+  return { rise, s1, s2: w.length - peak < 1e-9 ? 0 : rise / (w.length - peak), eave };
 }
 
 /**
