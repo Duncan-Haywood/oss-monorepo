@@ -1,9 +1,9 @@
 ---
 title: "Booking a whole season of fields in one message"
-seo_title: "League schedule to facility booking request: dates, courts and times per venue"
+seo_title: "League schedule to a per-venue facility booking request"
 date: 2026-11-04
 tags: [league-scheduling, sports, open-source]
-description: "League Schedule Generator can now turn a multi-division schedule into a per-venue booking request, listing every night, court and time span a park or school needs to reserve."
+description: "League Schedule Generator now turns a multi-division schedule into a per-venue booking request: every night, court and time span a park or school must hold."
 ---
 
 A league organiser who has a finished schedule still has one chore left: telling each park or school which nights and courts to hold. Until now that meant reading the season grid and writing it out by hand for every venue.
