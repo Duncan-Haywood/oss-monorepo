@@ -55,12 +55,12 @@ def task(a):
     flow.PNR = pnr
     try:
         r = flow.run_point(design, seq, period, wd, lib, pdk, orb)
-    except RuntimeError as e:
+    except (RuntimeError, AttributeError) as e:
         return {"design": design, "seq": list(seq), "tag": tag, "period_ns": period, "status": "fail", "error": str(e)[-200:]}
     log = (Path(wd) / "openroad.log").read_text()
     r["gr4_wns4"] = float(re.search(r"worst slack (?:max )?(-?[\d.]+)", re.split(r"^STAGE gr4\n", log, flags=re.M)[1]).group(1))
     blk = re.split(r"^STAGE droute\n", log, flags=re.M)[1]
-    r["droute_area"] = float(re.search(r"Design area ([\d.]+) um\^2", blk).group(1))
+    r["droute_area"] = float(re.search(r"Design area ([\d.]+) u?m?\^2", blk).group(1))
     r["droute_wns"] = float(re.search(r"worst slack (?:max )?(-?[\d.]+)", blk).group(1))
     t = {m.group(1): int(m.group(2)) / 1000 for m in re.finditer(r"^TIME (\w+) (\d+)$", log, flags=re.M)}
     r["t_droute"] = t["droute_route"] - t["pre_droute"]
@@ -83,6 +83,7 @@ def main():
     ap.add_argument("--results", default=str(HERE / "results.jsonl"))
     ap.add_argument("--points", default=str(HERE.parent / "rung_bias/results.jsonl"), help="cached table whose points (design, sequence, clock) are re-measured")
     ap.add_argument("--per-design", type=int, default=0, help="keep only the first N ok points per design (and tag)")
+    ap.add_argument("--rank-subsample", type=int, default=0, help="per (design, tag) keep N points evenly spaced in R4 rank (final_area * final_period_ns, best first), ends included")
     ap.add_argument("--large", action="store_true", help="register the milestone-9 larger designs (use with --points ../large/results.jsonl)")
     a = ap.parse_args()
     if a.large:
@@ -102,6 +103,12 @@ def main():
             seen[key] = seen.get(key, 0) + 1
             if seen[key] <= a.per_design:
                 k2.append(r)
+        keep = k2
+    if a.rank_subsample:
+        n, k2 = a.rank_subsample, []
+        for key in sorted({(r["design"], r["tag"]) for r in keep}):
+            g = sorted((r for r in keep if (r["design"], r["tag"]) == key), key=lambda r: r["final_area"] * r["final_period_ns"])
+            k2 += [g[round(j * (len(g) - 1) / (n - 1))] for j in range(n)]
         keep = k2
     if a.limit:
         keep = keep[: a.limit]

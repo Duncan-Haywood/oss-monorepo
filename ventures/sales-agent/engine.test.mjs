@@ -332,3 +332,12 @@ test("opt-outs in SV, DA, NO, PL, FI, CS, RO probed 2026-11-04 (second batch) ar
   for (const body of optOuts) assert.equal(triage({ body }, T).category, "unsubscribe", body);
   for (const body of ["Kan du skicka en offert?", "Prześlij proszę cennik.", "Jeg vil gerne have flere detaljer.", "Vil du sende flere eksempler?"]) assert.notEqual(triage({ body }, T).category, "unsubscribe", body);
 });
+
+test("threats, \"stop mailing\" and Italian stop asks are opt-outs; a forward to a colleague is a handover, not interest (probe 2026-11-04)", () => {
+  for (const body of ["My lawyer will be in touch if I hear from you again.", "Stop mailing me or I'll block your domain.", "Smettete di contattarmi.", "I will report you to my provider.", "Stop texting me."])
+    assert.equal(triage({ subject: "Re: hi", body }, "2026-11-04").category, "unsubscribe", body);
+  const fwd = triage({ subject: "Re: hi", body: "Forwarding this to our head of logistics, cc'd here." }, "2026-11-04");
+  assert.equal(fwd.category, "left_company");
+  for (const body of ["Our lawyer already approved the contract, send the invoice.", "We should block time next week to talk.", "Happy to forward this to our team, can you send pricing?"])
+    assert.notEqual(triage({ subject: "Re: hi", body }, "2026-11-04").category, "unsubscribe", body);
+});

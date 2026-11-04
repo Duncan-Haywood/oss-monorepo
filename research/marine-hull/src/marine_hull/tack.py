@@ -135,3 +135,105 @@ def sim_mpc(p, c, dt, corr, tau, horizon, fcfun, step=5, dy=50.0, margin=0.0):
                 y = max(-corr, min(corr, y))
                 sg ^= 1; n_t += 1; pen = min(1.0, tau / dt)
     return x, n_t
+
+
+def dp_values(p, c, dt, corr, tau, dy=25.0, edge_tack=True):
+    """Backward value iteration as in dp_clairvoyant, but keeping V[k] for every step k (shape (n+1, 2, G)) so the result
+    can be used as a feedback policy. Returns (grid, V).
+
+    dp_clairvoyant lets the boat sit on the corridor edge and keep its full progress with no tack (y is only clamped), while
+    sim_corridor, sim_header and sim_policy force a tack at the edge. With edge_tack=True (default) the DP obeys the same rule:
+    a step whose raw cross-line motion leaves the corridor is followed by a tack at the next step (the value of the other
+    tack, at the clamped y, with the tack loss). edge_tack=False reproduces dp_clairvoyant exactly."""
+    grid = np.arange(-corr, corr + dy / 2, dy)
+    n = p.shape[1]
+    V = np.zeros((n + 1, 2, len(grid)))
+    SW = np.zeros((n + 1, 2, len(grid)))   # value of tacking at the start of step k, by current tack sg
+    f = 1.0 - min(1.0, tau / dt)
+    for k in range(n - 1, -1, -1):
+        for sg in (0, 1):
+            o = 1 - sg
+            raw = grid + c[sg, k] * dt
+            stay = p[sg, k] * dt + np.interp(np.clip(raw, -corr, corr), grid, V[k + 1, sg])
+            if edge_tack:
+                hit = ((raw >= corr) & (c[sg, k] > 0)) | ((raw <= -corr) & (c[sg, k] < 0))
+                forced = p[sg, k] * dt + np.interp(np.clip(raw, -corr, corr), grid, SW[k + 1, sg])
+                stay = np.where(hit, forced, stay)
+            sw = p[o, k] * dt * f + np.interp(np.clip(grid + c[o, k] * dt * f, -corr, corr), grid, V[k + 1, o])
+            SW[k, sg] = sw
+            V[k, sg] = np.maximum(stay, sw)
+    return grid, V
+
+
+def sim_policy(p, c, ps, cs, dt, corr, tau, grid, V, margin=0.0):
+    """Execute, on the TRUE rates (p, c), the tack policy that is optimal for the model rates (ps, cs) whose value table is V
+    (dp_values on ps, cs). Each minute the boat observes its own state (tack, y) and tacks when switching beats staying in the
+    model by `margin` times the model's best progress that step. The corridor edge forces a tack as in sim_corridor. With
+    (ps, cs) = (p, c) this is the clairvoyant policy; with a smoothed (ps, cs) it is a controller that knows the wind's slow
+    behaviour for the whole day exactly and nothing faster. Returns (progress m, number of tacks)."""
+    f = 1.0 - min(1.0, tau / dt)
+    x, y, sg, n_t, pen = 0.0, 0.0, 0, 0, 0.0
+    for k in range(p.shape[1]):
+        o = 1 - sg
+        stay = ps[sg, k] * dt + np.interp(np.clip(y + cs[sg, k] * dt, -corr, corr), grid, V[k + 1, sg])
+        sw = ps[o, k] * dt * f + np.interp(np.clip(y + cs[o, k] * dt * f, -corr, corr), grid, V[k + 1, o])
+        if sw > stay + margin * max(ps[0, k], ps[1, k]) * dt:
+            sg = o; n_t += 1; pen = min(1.0, tau / dt)
+        fac = 1.0 - pen
+        pen = 0.0
+        x += p[sg, k] * dt * fac
+        y += c[sg, k] * dt * fac
+        if (y >= corr and c[sg, k] > 0) or (y <= -corr and c[sg, k] < 0):
+            y = max(-corr, min(corr, y))
+            sg ^= 1; n_t += 1; pen = min(1.0, tau / dt)
+    return x, n_t
+
+
+def smooth(a, width):
+    """Centred moving average of each row of a (shape (2, n)) over `width` minutes, edges handled by shrinking the window."""
+    if width <= 1:
+        return a
+    k = np.ones(width)
+    num = np.array([np.convolve(r, k, mode="same") for r in a])
+    den = np.convolve(np.ones(a.shape[1]), k, mode="same")
+    return num / den
+
+
+def sim_replan(p, c, dt, corr, tau, forecast, every=60):
+    """Receding full-day controller. At step k0 (every `every` steps) call forecast(k0) -> (ps, cs), model rates for steps
+    k0..n-1 (shape (2, n-k0)); solve dp_values on them and follow that policy on the TRUE rates until the next replan.
+    The boat's own tack and y carry over. Returns (progress m, number of tacks)."""
+    f = 1.0 - min(1.0, tau / dt)
+    n = p.shape[1]
+    x, y, sg, n_t, pen = 0.0, 0.0, 0, 0, 0.0
+    for k0 in range(0, n, every):
+        ps, cs = forecast(k0)
+        grid, V = dp_values(ps, cs, dt, corr, tau)
+        for k in range(k0, min(n, k0 + every)):
+            j, o = k - k0, 1 - sg
+            stay = ps[sg, j] * dt + np.interp(np.clip(y + cs[sg, j] * dt, -corr, corr), grid, V[j + 1, sg])
+            sw = ps[o, j] * dt * f + np.interp(np.clip(y + cs[o, j] * dt * f, -corr, corr), grid, V[j + 1, o])
+            if sw > stay:
+                sg = o; n_t += 1; pen = min(1.0, tau / dt)
+            fac = 1.0 - pen
+            pen = 0.0
+            x += p[sg, k] * dt * fac
+            y += c[sg, k] * dt * fac
+            if (y >= corr and c[sg, k] > 0) or (y <= -corr and c[sg, k] < 0):
+                y = max(-corr, min(corr, y))
+                sg ^= 1; n_t += 1; pen = min(1.0, tau / dt)
+    return x, n_t
+
+
+def lead_forecast(p, c, k0, T, smooth_min=15, trail=60):
+    """Model rates for steps k0.. : weight a(L) = exp(-L/T) on the truth smoothed to `smooth_min` minutes plus (1-a) on the
+    trailing `trail`-minute mean of that smoothed truth up to k0 (persistence). T=inf is a perfect smoothed forecast, T=0
+    persistence. Only data before k0 enter the persistence term."""
+    out = []
+    for r in (p, c):
+        sm = smooth(r, smooth_min)[:, k0:]
+        past = smooth(r, smooth_min)[:, max(0, k0 - trail):k0 + 1].mean(axis=1, keepdims=True)
+        L = np.arange(sm.shape[1])[None, :]
+        a = np.ones_like(L, dtype=float) if np.isinf(T) else (np.exp(-L / T) if T > 0 else (L == 0) * 1.0)
+        out.append(a * sm + (1 - a) * past)
+    return out[0], out[1]

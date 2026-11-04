@@ -384,3 +384,9 @@ annualised CPI inflation, %), 202 quarters (first quarter dropped: 0 by construc
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/AER/USMacroG.csv>. Quarter labels (`1950Q1` onward) were added from row order.
 - **Licence:** underlying US government statistics are public domain; the R package AER is GPL-2/GPL-3 and its copy of the table is used here as data only.
 - **Used by:** `eval/noise-floor-gdp.mjs`, `noise-floor-gdp.test.mjs`.
+
+`us-labor-productivity.csv`: US nonfarm business sector real output per hour, index 2017=100, seasonally adjusted, quarterly 1947Q1 to 2026Q2 (318 rows), FRED series `OPHNFB` (US Bureau of Labor Statistics).
+
+- **Retrieved:** 2026-11-04 from <https://fred.stlouisfed.org/graph/fredgraph.csv?id=OPHNFB>. Quarter labels (`1947Q1` onward) were made from the date column.
+- **Licence:** US government statistics, public domain. Revisions after the retrieval date will change later values slightly.
+- **Used by:** `eval/slope-productivity.mjs`, `slope-productivity.test.mjs`.

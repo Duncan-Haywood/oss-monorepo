@@ -72,10 +72,20 @@ export function travelWarnings(travel, venues) {
 export function parseTravel(text, venues) {
   const errors = [];
   const travel = {};
+  const coords = new Map();
   const known = new Map((venues || []).map((v) => [v.toLowerCase(), v]));
   for (const raw of String(text || "").split(/\r?\n/)) {
     const line = raw.trim();
     if (!line) continue;
+    // "Park @ 40.7128, -74.0060": a venue's coordinates; pairs with no time of their own are estimated from them (below)
+    const c = line.match(/^(.+?)\s*@\s*(-?\d+(?:\.\d+)?)\s*[,;\s]\s*(-?\d+(?:\.\d+)?)$/);
+    if (c) {
+      const v = known.get(c[1].trim().toLowerCase()), lat = Number(c[2]), lon = Number(c[3]);
+      if (!v) errors.push(`"${line}": ${c[1].trim()} is not a venue in the courts box (write a court as "Field 1 @ Park").`);
+      else if (!(Math.abs(lat) <= 90 && Math.abs(lon) <= 180)) errors.push(`"${line}": latitude is -90 to 90 and longitude -180 to 180.`);
+      else coords.set(v, [lat, lon]);
+      continue;
+    }
     const m = line.match(/^(.+?)\s*:\s*(\d+(?:\.\d+)?)\s*(?:min\w*)?$/i);
     if (!m) { errors.push(`"${line}": write travel as "Park - School: 25" (minutes).`); continue; }
     // a venue name may hold a hyphen ("North-Park"), so try every separator and keep the split where both sides are venues
@@ -91,7 +101,28 @@ export function parseTravel(text, venues) {
     if (!(mins > 0)) { errors.push(`"${line}": minutes must be above zero.`); continue; }
     travel[[a, b].sort().join("|")] = mins;
   }
-  return { travel, errors };
+  // estimate every pair that has coordinates on both sides and no time given
+  const estimated = [];
+  const names = [...coords.keys()];
+  for (let i = 0; i < names.length; i++) for (let j = i + 1; j < names.length; j++) {
+    const k = [names[i], names[j]].sort().join("|");
+    if (travel[k] !== undefined) continue;
+    travel[k] = estimateDriveMinutes(coords.get(names[i]), coords.get(names[j]));
+    estimated.push(k.replace("|", " - ") + `: ${travel[k]}`);
+  }
+  return { travel, errors, estimated };
+}
+
+/**
+ * Rough drive minutes between two [lat, lon] points: great-circle km x 1.3 (roads are not straight) at 40 km/h
+ * (town driving with lights), rounded up to a whole minute, at least 3. An estimate for pricing venue changes, not
+ * directions: a time you type for a pair always wins over it.
+ */
+export function estimateDriveMinutes([la1, lo1], [la2, lo2]) {
+  const r = Math.PI / 180, dLa = (la2 - la1) * r, dLo = (lo2 - lo1) * r;
+  const h = Math.sin(dLa / 2) ** 2 + Math.cos(la1 * r) * Math.cos(la2 * r) * Math.sin(dLo / 2) ** 2;
+  const km = 2 * 6371 * Math.asin(Math.min(1, Math.sqrt(h)));
+  return Math.max(3, Math.ceil((km * 1.3 / 40) * 60));
 }
 
 /** Links, one group per line: "U10/Hawks, U12/Hawks" (teams that share a coach or players). */
@@ -1324,6 +1355,65 @@ export function divisionsBookings(schedule, { minutes = 60 } = {}) {
     lines.push("");
   }
   return { venues, text: lines.join("\n") };
+}
+
+/**
+ * Season facility cost and a fee per team. `rates` is text, one venue per line: "Riverside Park: 45/court-hour"
+ * (also "45", "$45/hr", "45 per court hour"); a venue with no rate is listed as unpriced and left out of the total.
+ * Cost = court-hours booked (each night's courts used x its first-start to last-end span, from `divisionsBookings`)
+ * x rate. Untimed nights use `minutes` per game, rounded per court. The fee is the total split over every team
+ * (`split: "team"`) or by games hosted per division (`split: "games"`, a division's cost over its teams); `extra`
+ * adds fixed costs (insurance, trophies) before the split. Arithmetic on the organiser's own rates, nothing more.
+ * Returns { venues: [{ venue, courtHours, rate, cost }], unpriced, total, teams, perTeam, divisions, text }.
+ */
+export function divisionsFacilityCost(schedule, rates, { minutes = 60, extra = 0, split = "team" } = {}) {
+  const num = (v) => { const n = Number(String(v).replace(/[$,]/g, "")); return Number.isFinite(n) && n >= 0 ? n : null; };
+  const rateOf = new Map();
+  for (const line of String(rates || "").split(/\r?\n/)) {
+    const m = line.match(/^\s*(.+?)\s*[:=]\s*\$?\s*([\d,]+(?:\.\d+)?)/);
+    if (m && num(m[2]) !== null) rateOf.set(m[1].trim().toLowerCase(), num(m[2]));
+  }
+  if (!Number.isFinite(extra) || extra < 0) throw new Error("Extra costs must be zero or more.");
+  const hhmm = (t) => { const [h, mi] = t.split(":").map(Number); return h * 60 + mi; };
+  const { venues: booked } = divisionsBookings(schedule, { minutes });
+  const hostedBy = new Map();
+  for (const night of schedule.nights) for (const m of night.matches) {
+    const k = m.venue + "\u0000" + (m.division ?? "");
+    hostedBy.set(k, (hostedBy.get(k) || 0) + 1);
+  }
+  const venues = [], unpriced = [];
+  for (const v of booked) {
+    let courtMin = 0;
+    for (const d of v.dates) {
+      const span = d.from ? hhmm(d.to) - hhmm(d.from) : Math.ceil(d.games / Math.max(1, d.courts.length)) * minutes;
+      courtMin += span * d.courts.length;
+    }
+    const rate = rateOf.has(v.venue.toLowerCase()) ? rateOf.get(v.venue.toLowerCase()) : null;
+    const courtHours = Math.round(courtMin / 60 * 100) / 100;
+    if (rate === null) { unpriced.push(v.venue); venues.push({ venue: v.venue, courtHours, rate: null, cost: null }); }
+    else venues.push({ venue: v.venue, courtHours, rate, cost: Math.round(courtHours * rate * 100) / 100 });
+  }
+  const priced = venues.reduce((n, v) => n + (v.cost || 0), 0);
+  const total = Math.round((priced + extra) * 100) / 100;
+  const divs = (schedule.divisions || []).map((d) => ({ name: d.name ?? d.division ?? String(d), teams: (d.teams || []).length }));
+  const teams = divs.reduce((n, d) => n + d.teams, 0);
+  const perTeam = teams ? Math.round(total / teams * 100) / 100 : null;
+  let divisions = divs.map((d) => ({ division: d.name, teams: d.teams, perTeam }));
+  if (split === "games" && teams) {
+    const games = new Map();
+    for (const [k, n] of hostedBy) { const dv = k.split("\u0000")[1]; games.set(dv, (games.get(dv) || 0) + n); }
+    const all = [...games.values()].reduce((a, b) => a + b, 0) || 1;
+    divisions = divs.map((d) => ({ division: d.name, teams: d.teams, perTeam: d.teams ? Math.round(total * ((games.get(d.name) || 0) / all) / d.teams * 100) / 100 : null }));
+  }
+  const money = (n) => n.toFixed(2);
+  const lines = venues.map((v) => v.cost === null ? `${v.venue}: ${v.courtHours} court-hours, no rate given` : `${v.venue}: ${v.courtHours} court-hours x ${money(v.rate)} = ${money(v.cost)}`);
+  if (extra) lines.push(`Other costs: ${money(extra)}`);
+  lines.push(`Total: ${money(total)}${unpriced.length ? ` (without ${unpriced.join(", ")}: no rate)` : ""}`);
+  if (perTeam !== null) {
+    if (split === "games") for (const d of divisions) lines.push(`${d.division}: ${d.perTeam === null ? "no teams" : money(d.perTeam)} per team (${d.teams} teams)`);
+    else lines.push(`Fee per team: ${money(perTeam)} (${teams} teams)`);
+  }
+  return { venues, unpriced, total, teams, perTeam, divisions, text: lines.join("\n") + "\n" };
 }
 
 /**

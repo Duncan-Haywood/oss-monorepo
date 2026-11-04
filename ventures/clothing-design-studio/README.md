@@ -131,3 +131,20 @@ Checked by `garment3d.test.mjs` (edge distance, profile, mesh closes at the edge
 normals, mirrored back, camera maths) and a headless-Chromium run (swiftshader)
 that drew the tee with its artwork, turned it by dragging, and logged no console
 errors. Next: a body model for fit and try-on, WebXR, cloth drape.
+
+## Try-on from tape measurements (2026-11-04)
+
+`tryon.mjs` draws the recommended size over a body built from the shopper's
+chest, waist, hip and height, as a front-view SVG on `fit.html` ("Try it on").
+Each level is an ellipse of the measured circumference (Ramanujan's formula
+turns it into a front-view width, so the drawing is to scale across); vertical
+landmarks are average proportions of standing height (about +-3 cm on a real
+body). It reports ease at the chest, the waist and the hem against the hips
+(a hem narrower than the hips is flagged as riding up) and where the hem lands
+(cropped, at the hip, covers the hips, long). The cut is assumed straight; a
+ribbed or tapered hem is replaced by the factory's hem width. Missing waist,
+hip or height are assumed and listed. Geometry only: no drape, stretch or
+camera, so it is not a promise of fit. Checked by `tryon.test.mjs` (ellipse
+width, ease, hem word by height, assumed inputs, refusals, SVG sanity) and a
+headless-Chromium run with no console errors. Next: arms and sleeve length
+from arm measurements, a side view, then WebXR and a camera-based view on device.

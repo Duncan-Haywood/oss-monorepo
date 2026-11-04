@@ -72,6 +72,22 @@ export function validateFloor(f, plan) {
     }
     if (!(f.openings || []).length && !f.cantilever) errors.push("headerCheck needs at least one opening (a stairwell) or a cantilever.");
   }
+  if (f.headerCheck && typeof f.headerCheck === "object") for (const k of ["liveLoad", "deadLoad", "Fb", "Fv", "E", "hangerCapacity", "bearingCapacity", "tieForce", "tieCapacity", "cantDeflLimit", "deflLimit", "stairReaction", "stairReactionLive"]) if (f.headerCheck[k] != null && typeof f.headerCheck[k] !== "number") errors.push(`headerCheck.${k} must be a number, not text.`);
+  if (f.penetrations != null) {
+    if (!Array.isArray(f.penetrations) || f.penetrations.length > 200) errors.push("penetrations is a list of at most 200 holes and notches.");
+    else {
+      const span = f.beam != null ? Math.max(f.beam, f.depth - f.beam) : f.depth, d = DEPTH[f.joist];
+      for (const [i, p] of f.penetrations.entries()) {
+        const n = `Penetration ${i + 1}`;
+        if (p == null || typeof p !== "object" || Array.isArray(p)) { errors.push(`${n} must be an object with type, size and at.`); continue; }
+        if (p.type !== "hole" && p.type !== "notch") errors.push(`${n}: type must be "hole" or "notch".`);
+        const num = (k, lo, hi, req) => { if (p[k] == null) { if (req) errors.push(`${n}: ${k} is needed, in inches.`); } else if (typeof p[k] !== "number" || !(p[k] >= lo && p[k] <= hi)) errors.push(`${n}: ${k} must be a number of inches from ${lo} to ${hi}.`); };
+        num("size", 0.01, d ?? 24, true); num("at", 0, span, true); num("length", 0.01, span); num("fromEdge", 0, d ?? 24);
+        if (p.end != null && typeof p.end !== "boolean") errors.push(`${n}: end must be true or false.`);
+      }
+    }
+  }
+  if (f.limits != null) { if (typeof f.limits !== "object" || Array.isArray(f.limits)) errors.push("limits is an object of numbers."); else for (const [k, v] of Object.entries(f.limits)) if (typeof v !== "number" || !(v >= 0 && v <= 100)) errors.push(`limits.${k} must be a number from 0 to 100.`); }
   if (f.cantilever != null && !(f.cantilever > 0 && f.cantilever <= 96)) errors.push("The cantilever must be between 0 and 8 ft.");
   if (f.beam != null && !(f.beam > 12 && f.beam < f.depth - 12)) errors.push("The beam must sit between 1 ft and 1 ft short of the far edge.");
   const longest = Math.max(0, ...plan.stock.filter((s) => s.size === f.joist).map((s) => s.length));

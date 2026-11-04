@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan } from "./engine.mjs";
 import { budget } from "./budget.mjs";
-import { checkPenetrations, layoutFloor, floorCuts, joistCentres, sampleFloor, floorText } from "./floor.mjs";
+import { checkPenetrations, validateFloor, layoutFloor, floorCuts, joistCentres, sampleFloor, floorText } from "./floor.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
 
@@ -378,4 +378,19 @@ test("no cantilever check without typed loads, and cantDeflLimit is range-checke
   const hc = { liveLoad: 40, deadLoad: 10, Fb: 1200, Fv: 150, E: 1600000, cantDeflLimit: 10 };
   const l = layoutFloor({ ...sampleFloor(), cantilever: 24, headerCheck: hc }, plan());
   assert.equal(l.ok, false);
+});
+
+test("validateFloor refuses hostile penetrations, limits and text loads (2026-11-04)", () => {
+  const bad = (patch) => validateFloor({ ...sampleFloor(), ...patch }, samplePlan());
+  assert.deepEqual(bad({ penetrations: [{ type: "hole", at: 60, size: 2 }] }), []);
+  // before: a hole with no size passed every comparison and read "ok"
+  assert.ok(bad({ penetrations: [{ type: "hole", at: 60 }] }).length);
+  assert.ok(bad({ penetrations: [{ type: "hole", at: 60, size: "2" }] }).length);
+  assert.ok(bad({ penetrations: [{ type: "hole", at: 60, size: NaN }] }).length);
+  assert.ok(bad({ penetrations: [{ type: "slot", at: 60, size: 2 }] }).length);
+  assert.ok(bad({ penetrations: [null] }).length); // before: raw TypeError
+  assert.ok(bad({ penetrations: "x" }).length);
+  assert.ok(bad({ penetrations: [{ type: "hole", at: 9999, size: 2 }] }).length);
+  assert.ok(bad({ limits: { hole: "0.9" } }).length);
+  assert.ok(bad({ headerCheck: { liveLoad: "40", deadLoad: 10, Fb: 1000, Fv: 150, E: 1.4e6 }, cantilever: 24 }).length);
 });

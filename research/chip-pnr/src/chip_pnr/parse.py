@@ -12,8 +12,8 @@ def parse_log(text, period_ns):
     out = {}
     for name in ("synth_netlist", "global_place", "detail_place", "final"):
         blk = st[name]
-        out[f"{name}_area"] = float(re.search(r"Design area ([\d.]+) um\^2", blk).group(1))
-        out[f"{name}_wns"] = float(re.search(r"worst slack max (-?[\d.]+)", blk).group(1))
+        out[f"{name}_area"] = float(re.search(r"Design area ([\d.]+) u?m?\^2", blk).group(1))
+        out[f"{name}_wns"] = float(re.search(r"worst slack (?:max )?(-?[\d.]+)", blk).group(1))
     usage = st["usage"]
     rows = {}
     for m in re.finditer(r"^\s{2}([A-Za-z][\w \-]*?)\s+(\d+)\s+([\d.]+)\s*$", usage, flags=re.M):
