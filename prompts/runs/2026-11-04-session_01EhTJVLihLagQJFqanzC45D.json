@@ -17,7 +17,7 @@
  "tool_calls": null,
  "task": null,
  "projects": [],
- "pr": null,
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13146",
  "repo": null,
  "commits": [],
  "lines_added": null,
@@ -193,7 +193,7 @@
     "file": "ventures/*/proposal.mjs",
     "issue": "issuedOn accepted when impossible (2026-02-30 rolled to 7 March) or malformed with no validDays; expiry past year 9999 printed +010009-12; price 1e308 gave Infinity deposit. 121 copies.",
     "patched": true,
-    "patched_in": "this PR"
+    "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13146"
    }
   ]
  }
