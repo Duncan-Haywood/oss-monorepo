@@ -1,7 +1,7 @@
 ---
 title: "A switch margin does not rescue a poor wind forecast"
 date: 2026-11-04
-description: "A sailing drone that replans its tacks from a forecast with no skill beyond now still loses to simply following the wind headers, and a damping margin does not change that."
+description: "A sailing drone replanning tacks from a forecast with no skill beyond now still loses to following wind headers; a damping margin does not help."
 tags: [marine-hull, sailing, negative-result]
 ---
 

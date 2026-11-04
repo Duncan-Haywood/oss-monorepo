@@ -40,7 +40,7 @@
   "deviations": [],
   "writeups": [
     "docs/posts/2026-11-04-a-switch-margin-does-not-rescue-a-poor-wind-forecast.md",
-    "research/marine-hull/LOG.md milestone 5e"
+    "research/marine-hull/LOG.md"
   ],
   "goal": null,
   "notes": "Milestone 5e of marine-hull: predictions M2 and M3 refuted, M1 and M4 held. 82 tests pass; homepage build ok.",
