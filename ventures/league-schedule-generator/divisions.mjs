@@ -1358,6 +1358,65 @@ export function divisionsBookings(schedule, { minutes = 60 } = {}) {
 }
 
 /**
+ * Season facility cost and a fee per team. `rates` is text, one venue per line: "Riverside Park: 45/court-hour"
+ * (also "45", "$45/hr", "45 per court hour"); a venue with no rate is listed as unpriced and left out of the total.
+ * Cost = court-hours booked (each night's courts used x its first-start to last-end span, from `divisionsBookings`)
+ * x rate. Untimed nights use `minutes` per game, rounded per court. The fee is the total split over every team
+ * (`split: "team"`) or by games hosted per division (`split: "games"`, a division's cost over its teams); `extra`
+ * adds fixed costs (insurance, trophies) before the split. Arithmetic on the organiser's own rates, nothing more.
+ * Returns { venues: [{ venue, courtHours, rate, cost }], unpriced, total, teams, perTeam, divisions, text }.
+ */
+export function divisionsFacilityCost(schedule, rates, { minutes = 60, extra = 0, split = "team" } = {}) {
+  const num = (v) => { const n = Number(String(v).replace(/[$,]/g, "")); return Number.isFinite(n) && n >= 0 ? n : null; };
+  const rateOf = new Map();
+  for (const line of String(rates || "").split(/\r?\n/)) {
+    const m = line.match(/^\s*(.+?)\s*[:=]\s*\$?\s*([\d,]+(?:\.\d+)?)/);
+    if (m && num(m[2]) !== null) rateOf.set(m[1].trim().toLowerCase(), num(m[2]));
+  }
+  if (!Number.isFinite(extra) || extra < 0) throw new Error("Extra costs must be zero or more.");
+  const hhmm = (t) => { const [h, mi] = t.split(":").map(Number); return h * 60 + mi; };
+  const { venues: booked } = divisionsBookings(schedule, { minutes });
+  const hostedBy = new Map();
+  for (const night of schedule.nights) for (const m of night.matches) {
+    const k = m.venue + "\u0000" + (m.division ?? "");
+    hostedBy.set(k, (hostedBy.get(k) || 0) + 1);
+  }
+  const venues = [], unpriced = [];
+  for (const v of booked) {
+    let courtMin = 0;
+    for (const d of v.dates) {
+      const span = d.from ? hhmm(d.to) - hhmm(d.from) : Math.ceil(d.games / Math.max(1, d.courts.length)) * minutes;
+      courtMin += span * d.courts.length;
+    }
+    const rate = rateOf.has(v.venue.toLowerCase()) ? rateOf.get(v.venue.toLowerCase()) : null;
+    const courtHours = Math.round(courtMin / 60 * 100) / 100;
+    if (rate === null) { unpriced.push(v.venue); venues.push({ venue: v.venue, courtHours, rate: null, cost: null }); }
+    else venues.push({ venue: v.venue, courtHours, rate, cost: Math.round(courtHours * rate * 100) / 100 });
+  }
+  const priced = venues.reduce((n, v) => n + (v.cost || 0), 0);
+  const total = Math.round((priced + extra) * 100) / 100;
+  const divs = (schedule.divisions || []).map((d) => ({ name: d.name ?? d.division ?? String(d), teams: (d.teams || []).length }));
+  const teams = divs.reduce((n, d) => n + d.teams, 0);
+  const perTeam = teams ? Math.round(total / teams * 100) / 100 : null;
+  let divisions = divs.map((d) => ({ division: d.name, teams: d.teams, perTeam }));
+  if (split === "games" && teams) {
+    const games = new Map();
+    for (const [k, n] of hostedBy) { const dv = k.split("\u0000")[1]; games.set(dv, (games.get(dv) || 0) + n); }
+    const all = [...games.values()].reduce((a, b) => a + b, 0) || 1;
+    divisions = divs.map((d) => ({ division: d.name, teams: d.teams, perTeam: d.teams ? Math.round(total * ((games.get(d.name) || 0) / all) / d.teams * 100) / 100 : null }));
+  }
+  const money = (n) => n.toFixed(2);
+  const lines = venues.map((v) => v.cost === null ? `${v.venue}: ${v.courtHours} court-hours, no rate given` : `${v.venue}: ${v.courtHours} court-hours x ${money(v.rate)} = ${money(v.cost)}`);
+  if (extra) lines.push(`Other costs: ${money(extra)}`);
+  lines.push(`Total: ${money(total)}${unpriced.length ? ` (without ${unpriced.join(", ")}: no rate)` : ""}`);
+  if (perTeam !== null) {
+    if (split === "games") for (const d of divisions) lines.push(`${d.division}: ${d.perTeam === null ? "no teams" : money(d.perTeam)} per team (${d.teams} teams)`);
+    else lines.push(`Fee per team: ${money(perTeam)} (${teams} teams)`);
+  }
+  return { venues, unpriced, total, teams, perTeam, divisions, text: lines.join("\n") + "\n" };
+}
+
+/**
  * One ready-to-paste note per team on a multi-division schedule: every match in date order with time, court,
  * venue and opponent, plus the division. Teams that share a name in two divisions get one note each.
  * Returns [{ division, team, matches, text }] in division order.
