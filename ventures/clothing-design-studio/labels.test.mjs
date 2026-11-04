@@ -48,3 +48,29 @@ test("care starts from the most delicate fibre", () => {
 test("unknown EU language is reported", () => {
   assert.ok(checkLabel("100% cotton", { lang: "xx" }).problems.length);
 });
+
+// Red-team 2026-11-04: guards for mutants that escaped.
+test("EU names a 3% fibre but groups anything lower; US needs 5%", () => {
+  const p = parseComposition("94% cotton, 3% silk, 3% linen").parts;
+  assert.equal(compositionLabel(p, "eu"), "94% cotton, 3% silk, 3% linen");
+  assert.equal(compositionLabel(parseComposition("94% cotton, 3% silk, 2% linen, 1% hemp").parts, "eu"), "94% cotton, 3% silk, 3% other fibres");
+  assert.equal(compositionLabel(p, "us"), "94% cotton, 6% other fiber");
+});
+test("language error only for the EU market and unknown languages", () => {
+  assert.equal(checkLabel("100% cotton").ok, true);
+  assert.equal(checkLabel("100% cotton", { market: "us" }).ok, true);
+  assert.equal(checkLabel("100% cotton", { market: "us", lang: "xx" }).ok, true);
+  assert.equal(checkLabel("100% cotton", { market: "eu", lang: "xx" }).ok, false);
+});
+test("the Recycled note needs a valid label, polyester and the word", () => {
+  const has = r => r.notes.some(n => /Recycled/.test(n));
+  assert.equal(has(checkLabel("100% polyester, recycled")), true);
+  assert.equal(has(checkLabel("100% polyester")), false);
+  assert.equal(has(checkLabel("100% cotton, recycled")), false);
+  assert.equal(has(checkLabel("100% recycled polyester")), true);
+  assert.equal(has(checkLabel("50% recycled polyester")), false); // shares do not add up: no label, no note
+});
+test("care ties between equally delicate fibres go to the larger share", () => {
+  assert.equal(suggestCare(parseComposition("60% modal, 40% lyocell").parts).drivenBy, "modal");
+  assert.equal(suggestCare(parseComposition("60% lyocell, 40% modal").parts).drivenBy, "lyocell");
+});
