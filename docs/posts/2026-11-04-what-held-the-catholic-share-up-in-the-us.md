@@ -2,7 +2,7 @@
 title: "What held the US Catholic share up while retention fell?"
 date: 2026-11-04
 description: "A GSS decomposition: since the 1990s, more children raised Catholic offset falling retention, until about 2018."
-tags: [catholic-demography, demography, gss]
+tags: [catholic-demography, demography, GSS]
 ---
 
 # What held the US Catholic share up while retention fell?
