@@ -99,6 +99,14 @@ export function budget(result, prices = {}, allowances = {}) {
     if (tr.shoeBoards) add("Interior", "Shoe moulding boards", tr.shoeBoards, "boards", P("shoeMoulding") ?? tr.shoePrice, `${tr.shoeFeet.toFixed(0)} ft in ${tr.shoeStock / 12} ft boards`);
     add("Interior", "Casing boards", tr.casingBoards, "boards", P("casing") ?? tr.casingPrice, `${tr.doorFaces} door and ${tr.windowFaces} window faces`);
   }
+  const el = result.electrical;
+  if (el?.ok) {
+    // Prices come from the electrical settings (receptaclePrice, switchPrice, boxPrice, cablePrice) unless a budget price key overrides them.
+    if (el.receptacles) add("Electrical", "Receptacles", el.receptacles, "each", P("receptacle") ?? el.prices.receptacle, "one per wall-space stretch of up to maxSpacing (NEC 210.52(A) as typed)");
+    if (el.switches) add("Electrical", "Switches", el.switches, "each", P("electricalSwitch") ?? el.prices.switch, "one per door by default");
+    add("Electrical", "Device boxes", el.boxes, "each", P("electricalBox") ?? el.prices.box, `${el.receptacles} receptacle + ${el.switches} switch boxes`);
+    if (el.cableRolls) add("Electrical", "Cable rolls", el.cableRolls, "rolls", P("cableRoll") ?? el.prices.cableRoll, `${el.cableFt.toFixed(0)} ft estimate plus ${(100 * el.waste).toFixed(0)}% waste, ${el.cableRoll} ft rolls`);
+  }
   const sd = result.siding;
   if (sd?.ok) {
     add("Exterior", "Siding boards", sd.boards, "boards", P("sidingBoard") ?? sd.boardPrice, `${sd.courses} courses at ${sd.exposure} in exposure in ${sd.stock / 12} ft boards`);
