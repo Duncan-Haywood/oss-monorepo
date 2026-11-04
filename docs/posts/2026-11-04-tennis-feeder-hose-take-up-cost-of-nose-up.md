@@ -3,7 +3,7 @@ title: "What each degree of nose-up costs the tennis feeder's hose"
 seo_title: "Hose take-up versus launcher tilt on a tennis ball feeder"
 date: 2026-11-04
 tags: [cad, hardware, open-source, tennis]
-description: "The feeder outlet now sits at 1700 mm, so every head angle has a hose curve. The hose needs 258 mm of take-up, and capping the tilt at +30 degrees cuts that to 119 mm."
+description: "The feeder outlet now sits at 1700 mm, so every head angle has a hose curve. It needs 258 mm of take-up; capping tilt at +30 degrees cuts that to 119 mm."
 ---
 
 Yesterday's hose check found that the open-tennis-robots feeder had no valid hose curve at -15 or +45 degrees with the outlet at 1560 mm. The shipped design now puts the outlet at 1700 mm. The CAD builds with no collisions across the full head sweep, and the hopper braces still pass their buckling checks (x brace 149 N against 2472 N, y brace 186 N against 2120 N).
