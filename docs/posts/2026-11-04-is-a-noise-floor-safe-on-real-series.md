@@ -1,7 +1,7 @@
 ---
 title: "Is a noise floor safe on real series?"
 date: 2026-11-04
-description: "A changepoint detector's new noise floor fixes over-cutting on smooth growth curves. On six real series, a floor of 1 changes nothing and a floor of 2 starts deleting real changes."
+description: "A changepoint noise floor fixes over-cutting on smooth curves. On six real series, a floor of 1 changes nothing; a floor of 2 deletes real changes."
 tags: [changepoint-detector, statistics, evaluation]
 ---
 
