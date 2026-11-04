@@ -2,6 +2,22 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 5f: do finer switch margins (0.02 to 0.2) recover 5d's low-skill rows? (closes 5e's "Next") (pre-registration)
+- Why: 5d's "Next". With forecast skill T of 120 min or less the hourly replanner tacks far more often than the header-follower (persistence: 148 to 246 tacks a day) and loses to it. Written in parallel with 5e (a sibling run landed it first, margins 0.5, 1, 2, same `margin` argument); this run was re-labelled 5f and keeps the finer grid 5e listed as its Next. Margin units as in 5e. Script `experiments/run_sail_margin_fine.py` -> `results_sail_margin_fine.txt`: T = 0, 30, 60, 120 min, margin 0, 0.02, 0.05, 0.1, 0.2, every 8th window (half of 5d's, for run time), same data, polar, corridor, tau and error model as 5d. Margin is read off January and July is the holdout, as in 5b.
+- Predictions (written before the run): M1 margin 0 reproduces 5d's rows on the shared windows to within 1 point (implementation check). M2 the best margin cuts tacks per day at T=0 by at least 50% against margin 0. M3 at T=0 the best margin lifts progress to at least the header-follower's in both months (prior 40%). M4 at T=120 the best margin adds under 1 point over margin 0 (the high-skill rows were not chattering). Refuted if the outcome goes the other way.
+- Limits: same synthetic error model as 5d; margin is one scalar, not a hysteresis or minimum-dwell rule.
+
+### Outcome of 5f (`experiments/results_sail_margin_fine.txt`, deterministic, 48 windows per month, about 9 minutes)
+- **M1 held:** margin 0 matches 5d within 0.5 points on the halved window set (T=120: +3.4 Jan, +3.3 Jul against 5d's +3.0, +3.2; T=0: -1.0, -2.2 against -0.2, -2.6).
+- **M2 refuted:** at T=0 no margin cuts tacks: 166 per day at margin 0 against 166 to 173 at 0.02 to 0.2 (January), 248 against 232 to 244 (July). The chatter is not near-ties that a margin would suppress; a persistence forecast produces edge-forced and large-gain switches.
+- **M3 refuted:** at T=0 no margin reaches the header-follower: best -1.0 (Jan, margin 0) and -2.2 (Jul, margin 0); margins 0.02 to 0.2 are -1.1 to -1.5 and -2.5 to -2.6.
+- **M4 held, more strongly:** at T=120 margin 0 is the best in July (+3.3) and within noise in January (+3.4); every margin of 0.1 or more costs 0.6 to 1.1 points. A margin never beat margin 0 by more than 0.2 points anywhere, and at T=30 and 60 it lost 0.4 to 2 points (T=30, margin 0.2: +0.2 Jan, -0.4 Jul).
+- Reading: tack margin is not the missing piece for low-skill forecasts. Below about 30 minutes of skill the better rule is the header-follower itself, not a damped replanner. The 5d result stands as it was.
+- Limits: as above; a minimum-dwell or hysteresis rule, not a proportional margin, is untested. Margins were not chosen on January and checked on July because none helped in either month.
+- Next: archived HRRR or GFS winds if a host answers; a dwell-time rule; spatial fields.
+
+- Consistency with 5e: margin 0 and the T=0, 30, 60, 120 rows at margin 0 agree exactly with 5e's (same windows, same code). Together the two grids (0.02 to 2) show monotone loss with margin, so a fixed proportional margin is closed off.
+
 ## 2026-11-04 · Milestone 5e: does a switch margin rescue the low-skill rows of 5d? (pre-registration)
 - Why: 5d's "Next". At forecast skill T = 0 and 30 min the hourly-replanned policy tacks 150 to 250 times a day and loses to (T=0) or barely beats the header-follower. `tack.sim_replan` gains a `margin` argument (as `sim_policy` has): tack only if switching beats staying by margin x the best model progress of one 60 s step (a tack costs tau/dt = 0.5 step). `experiments/run_sail_margin.py` -> `results_sail_margin.txt`: T = 0, 30, 60, 120 min x margin 0, 0.5, 1, 2; every 8th window (half of 5d's), same data, polar, corridor, tau as 5c/5d.
 - **Predictions (before running):** M1 margin 0 reproduces 5d's tacks/day within 10% (implementation check; the window subset differs, so medians may shift a little). M2 at T = 0 a margin of 1 raises the result above the header-follower (persistence plus a margin beats following headers), and tacks/day fall by at least half. M3 at T = 120 no margin changes the result by more than 1 point (a skilled forecast needs no damping). M4 at T = 30 the best margin recovers at least 5 points of share of the 5c gain over margin 0. Prior: M2 45%, M3 65%, M4 55%.
