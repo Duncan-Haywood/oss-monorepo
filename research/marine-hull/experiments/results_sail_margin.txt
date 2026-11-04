@@ -1,0 +1,37 @@
+every 8th window; hourly replan; shares of the no-corridor no-tack-cost bound
+
+January: 48 windows; header 0.875; 5c one-shot (15-min smoothed, whole day) 0.915
+  T=   0 margin=0.0: 0.825; minus header -1.0 pts (boot 95% -1.8..-0.0); share of 5c gain kept -125%; tacks/day 166
+  T=   0 margin=0.5: 0.828; minus header -1.7 pts (boot 95% -3.2..-0.4); share of 5c gain kept -118%; tacks/day 176
+  T=   0 margin=1.0: 0.815; minus header -2.6 pts (boot 95% -4.2..-1.7); share of 5c gain kept -151%; tacks/day 110
+  T=   0 margin=2.0: 0.817; minus header -2.6 pts (boot 95% -4.6..-1.6); share of 5c gain kept -146%; tacks/day 110
+  T=  30 margin=0.0: 0.885; minus header +1.5 pts (boot 95% +0.9..+3.1); share of 5c gain kept 25%; tacks/day 178
+  T=  30 margin=0.5: 0.844; minus header -0.7 pts (boot 95% -1.9..+0.2); share of 5c gain kept -78%; tacks/day 148
+  T=  30 margin=1.0: 0.829; minus header -2.0 pts (boot 95% -3.2..-1.2); share of 5c gain kept -114%; tacks/day 116
+  T=  30 margin=2.0: 0.817; minus header -2.5 pts (boot 95% -4.6..-1.4); share of 5c gain kept -146%; tacks/day 116
+  T=  60 margin=0.0: 0.897; minus header +2.5 pts (boot 95% +1.7..+4.1); share of 5c gain kept 55%; tacks/day 197
+  T=  60 margin=0.5: 0.851; minus header -0.4 pts (boot 95% -1.8..+0.3); share of 5c gain kept -60%; tacks/day 136
+  T=  60 margin=1.0: 0.828; minus header -2.2 pts (boot 95% -3.3..-1.1); share of 5c gain kept -117%; tacks/day 98
+  T=  60 margin=2.0: 0.813; minus header -2.6 pts (boot 95% -5.0..-1.5); share of 5c gain kept -154%; tacks/day 116
+  T= 120 margin=0.0: 0.899; minus header +3.4 pts (boot 95% +2.3..+4.6); share of 5c gain kept 61%; tacks/day 159
+  T= 120 margin=0.5: 0.864; minus header -0.3 pts (boot 95% -1.0..+0.5); share of 5c gain kept -28%; tacks/day 106
+  T= 120 margin=1.0: 0.842; minus header -1.9 pts (boot 95% -2.7..-0.4); share of 5c gain kept -82%; tacks/day 96
+  T= 120 margin=2.0: 0.833; minus header -2.5 pts (boot 95% -4.5..-1.6); share of 5c gain kept -106%; tacks/day 116
+
+July: 48 windows; header 0.873; 5c one-shot (15-min smoothed, whole day) 0.929
+  T=   0 margin=0.0: 0.842; minus header -2.2 pts (boot 95% -3.2..-1.5); share of 5c gain kept -56%; tacks/day 248
+  T=   0 margin=0.5: 0.847; minus header -2.7 pts (boot 95% -4.1..-2.1); share of 5c gain kept -47%; tacks/day 226
+  T=   0 margin=1.0: 0.828; minus header -3.9 pts (boot 95% -5.2..-2.5); share of 5c gain kept -80%; tacks/day 138
+  T=   0 margin=2.0: 0.830; minus header -3.8 pts (boot 95% -5.1..-2.3); share of 5c gain kept -77%; tacks/day 136
+  T=  30 margin=0.0: 0.883; minus header +2.3 pts (boot 95% +1.1..+3.1); share of 5c gain kept 18%; tacks/day 298
+  T=  30 margin=0.5: 0.856; minus header -1.3 pts (boot 95% -2.1..-0.1); share of 5c gain kept -31%; tacks/day 200
+  T=  30 margin=1.0: 0.850; minus header -2.5 pts (boot 95% -4.0..-1.9); share of 5c gain kept -41%; tacks/day 128
+  T=  30 margin=2.0: 0.852; minus header -2.7 pts (boot 95% -4.1..-2.0); share of 5c gain kept -39%; tacks/day 138
+  T=  60 margin=0.0: 0.894; minus header +2.9 pts (boot 95% +2.3..+3.9); share of 5c gain kept 38%; tacks/day 318
+  T=  60 margin=0.5: 0.862; minus header -0.6 pts (boot 95% -1.7..+0.2); share of 5c gain kept -20%; tacks/day 170
+  T=  60 margin=1.0: 0.853; minus header -2.4 pts (boot 95% -3.5..-2.0); share of 5c gain kept -35%; tacks/day 158
+  T=  60 margin=2.0: 0.850; minus header -2.6 pts (boot 95% -4.3..-2.2); share of 5c gain kept -41%; tacks/day 162
+  T= 120 margin=0.0: 0.900; minus header +3.3 pts (boot 95% +3.0..+4.8); share of 5c gain kept 49%; tacks/day 298
+  T= 120 margin=0.5: 0.863; minus header -0.1 pts (boot 95% -1.8..+0.1); share of 5c gain kept -18%; tacks/day 162
+  T= 120 margin=1.0: 0.855; minus header -2.0 pts (boot 95% -3.0..-1.4); share of 5c gain kept -33%; tacks/day 153
+  T= 120 margin=2.0: 0.849; minus header -2.9 pts (boot 95% -4.1..-2.1); share of 5c gain kept -42%; tacks/day 162
