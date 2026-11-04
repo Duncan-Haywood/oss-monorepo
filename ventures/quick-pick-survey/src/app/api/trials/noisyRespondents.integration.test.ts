@@ -20,7 +20,8 @@
  * NOISY_CONDITIONS (comma list of condition names) runs only those, and
  * NOISY_CHECKPOINTS (comma list of answer counts, default none) also reports
  * Spearman and the number of rated items along each respondent's own run
- * (2026-11-04, to explain why 3000 answers scored below 1000: docs).
+ * (2026-11-04, to explain why 3000 answers scored below 1000: docs), plus the
+ * Spearman over the items rated at the first checkpoint (the fixed set).
  */
 import { appendFileSync } from "fs";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
@@ -109,6 +110,14 @@ describe("noisy and biased respondents through the route", () => {
       const ys = rows.map((r) => -(r as unknown as { rating: number }).rating);
       return { rho: pearson(ranks(xs), ranks(ys)), rated: rows.length };
     };
+    // Fixed-set score (2026-11-04): the items rated at the first checkpoint,
+    // scored again at every later one, so the set does not widen underneath.
+    const fixedNow = async (participantId: string, fixed: Set<string>) => {
+      const rows = (await prisma.participantItemRating.findMany({ where: { participantId } })).filter((r) => fixed.has(r.itemId));
+      const xs = rows.map((r) => order.get(r.itemId)!);
+      const ys = rows.map((r) => -(r as unknown as { rating: number }).rating);
+      return pearson(ranks(xs), ranks(ys));
+    };
 
     for (const c of CONDITIONS) {
       fallbackOff.on = c.off;
@@ -117,6 +126,7 @@ describe("noisy and biased respondents through the route", () => {
         const rand = rng(1000 + k * 17 + c.name.replace("-nofallback", "").length);
         const p = await prisma.participant.create({ data: { surveyId: survey.id, firstName: `${c.name}${k}`, perspective: "PARTNER" } });
         let topPicks = 0;
+        let fixedSet: Set<string> | null = null;
         for (let i = 0; i < ANSWERS; i++) {
           const q = await (await nextQuestion(jsonRequest("http://localhost/api/trials/next", { participantId: p.id }))).json();
           const truth = order.get(q.itemA.id)! < order.get(q.itemB.id)! ? "A" : "B";
@@ -125,7 +135,11 @@ describe("noisy and biased respondents through the route", () => {
           await answer(jsonRequest("http://localhost/api/trials/answer", { trialId: q.trialId, result }));
           if (CHECKPOINTS.includes(i + 1)) {
             const c2 = await spearmanNow(p.id);
-            lines.push(`${c.name} respondent ${k} @${i + 1}: Spearman ${c2.rho.toFixed(3)}, rated ${c2.rated}`);
+            if (!fixedSet) {
+              fixedSet = new Set((await prisma.participantItemRating.findMany({ where: { participantId: p.id } })).map((r) => r.itemId));
+            }
+            const fx = await fixedNow(p.id, fixedSet);
+            lines.push(`${c.name} respondent ${k} @${i + 1}: Spearman ${c2.rho.toFixed(3)}, rated ${c2.rated}, fixed-set (${fixedSet.size}) ${fx.toFixed(3)}`);
           }
         }
         const rows = await prisma.participantItemRating.findMany({ where: { participantId: p.id } });
