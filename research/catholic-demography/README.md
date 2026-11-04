@@ -34,6 +34,17 @@ Full tables: [`experiments/m1_subgroups/`](experiments/m1_subgroups) (`t1` compo
 fertility, `t3` retention, `t4` practice, belief and politics by subgroup). Plan and hypotheses:
 [`PROPOSAL.md`](PROPOSAL.md). Research log: [`LOG.md`](LOG.md).
 
+## Milestone 3 (2026-11-04): is the post-2020 attendance drop real or the survey mode?
+
+Weekly Mass attendance of Catholics fell 5.5 points [-9.3, -1.6] between 2016-18 and 2021-24, but
+non-Catholics fell as much (-5.7), and the 2022 and 2024 web respondents attend 9 points less than
+in-person respondents in the same year (-9.1 [-15.9, -2.4]; unchanged after adjusting for age, sex,
+ethnicity and degree). Among in-person respondents only, the change from 2016-18 is -2.2 [-8.9, +4.5]:
+not distinguishable from zero, but the samples are small enough that a real fall of up to about 9 points
+is not ruled out. So hypothesis H3 is refuted as worded, and the honest reading is "mostly mode, residual
+unknown". Selection (web respondents are partly in-person nonrespondents) is not separated from mode.
+Code `experiments/m3_mode/run.py`, results `results.txt`.
+
 ## Limits
 
 Descriptive, not causal: attendance is measured at the interview, after the births. Ethnicity is
@@ -48,6 +59,7 @@ pools men and women. Related-work notes are from abstracts, not a full re-read.
 sh data/download.sh                          # GSS 1972-2024 R3a from NORC, about 600 MB, checksummed
 python3 experiments/m1_subgroups/run.py      # needs pandas and numpy; about 60 s
 python3 experiments/m1_subgroups/figure.py   # stdlib only
+python3 experiments/m3_mode/run.py           # mode effect on 2021-24 attendance; about 30 s
 python3 -m pytest -q test_cathdem.py         # estimator and recode tests, no download needed
 ```
 
