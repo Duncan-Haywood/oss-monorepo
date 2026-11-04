@@ -1,6 +1,7 @@
 ---
 title: "How much paint to buy: the tin's coverage is for one coat on a smooth wall"
 date: 2026-11-04
+seo_title: "How much paint to buy for a room"
 description: "A short story and the sum behind it: 114.8 m2 of wall, two coats and a test patch at 10 m2 per litre means 23 litres, not the 12 a tin's label suggests."
 tags: [hearth-and-horizon, fiction, practical]
 ---
