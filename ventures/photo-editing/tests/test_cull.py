@@ -40,6 +40,19 @@ class CullTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.tmp.cleanup()
 
+    def test_raw_jpeg_pair_is_one_shot_with_one_sidecar_and_raw_pick_matches(self) -> None:
+        (self.root / "a2.cr2").write_bytes(b"x")
+        result = cull_folder(self.root, analyzer=self.analyzer)
+        paths = [i.path for i in result.items]
+        self.assertEqual(paths.count("a2.jpg"), 1)
+        self.assertNotIn("a2.cr2", paths)
+        item = next(i for i in result.items if i.path == "a2.jpg")
+        self.assertEqual(item.companions, ("a2.cr2",))
+        score = score_against_picks(result, ["a2.cr2"])
+        self.assertEqual(score.matched, 1)
+        self.assertEqual(score.unmatched, ())
+        self.assertEqual(len(write_sidecars(result).sidecars_written), 5)
+
     def test_picks_sharpest_keeper_and_flags_rejects(self) -> None:
         result = cull_folder(self.root, analyzer=self.analyzer)
         roles = {i.path: i.role for i in result.items}
