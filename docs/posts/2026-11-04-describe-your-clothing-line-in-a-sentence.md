@@ -3,7 +3,7 @@ title: "Describe a clothing line in one sentence and get its starter wardrobe"
 seo_title: "Capsule wardrobe planner that reads a plain-language brief"
 date: 2026-11-04
 tags: [clothing-design-studio, wardrobe, independent-brands]
-description: "The wardrobe planner in the Clothing Design Studio now fills in its questions from one typed or spoken sentence, shows which words set each answer, and asks only what is missing."
+description: "The Clothing Design Studio wardrobe planner now fills in its questions from one sentence, shows which words set each answer, and asks only what is missing."
 ---
 
 The wardrobe planner had six dropdowns. The designers who asked for it
