@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-04",
+  "session": "https://claude.ai/code/session_01AcxTtKpUoAWnbEXAQ6ahaP",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-04T23:13:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13193",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/ledger/supersede_check.py",
+      "issue": "did not finish in 4+ minutes from a cloud container, so the documented pre-close check cannot be run"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post or product feature: critique run whose only deliverable is a backlog item; closing the 3 duplicate PRs left undone because the required supersede check hung",
+      "did": "filed P063",
+      "result": "PR open for merge"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Backlog P063 filed. Backlog had no unblocked agent item besides perf rows under active work (P061 #12592).",
+  "corrections": [],
+  "redteam": null
+}
