@@ -29,6 +29,9 @@ CHECKS = [
     ("experiments/propeller_power_slope/results.txt", "1.1   -1.33", "5e: median s_P -1.33 at k 1.1"),
     ("experiments/propeller_power_slope/results.txt", "0.8   -0.67", "5e: median s_P -0.67 at k 0.8"),
     ("experiments/propeller_power_slope/results.txt", "1.2   -1.54", "5e: median s_P -1.54 at k 1.2"),
+    ("experiments/imu_allan_scale/results.txt", "median 1409 deg/hr (min 1298)", "9z: BI for 10% of q rms ~1,300 to 1,400 deg/hr"),
+    ("experiments/imu_allan_scale/results.txt", "median 0.1203 deg/s/sqrt(Hz)", "9z: noise density for 10% of q rms 0.12"),
+    ("experiments/imu_allan_scale/results.txt", "max 6.8e-04", "9z: largest drift fraction 6.8e-4"),
     ("experiments/rodrigues_energy/results_days.txt", "1.539", "day-cluster exponent"),
     ("experiments/rodrigues_energy/results_days.txt", "1.529", "date fixed effect exponent"),
 ]
