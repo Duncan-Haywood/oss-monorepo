@@ -117,6 +117,15 @@ cases. Results: [`experiments/results_time.txt`](experiments/results_time.txt).
 - Deck-solar sensitivity (milestone 5k, `experiments/run_solar_sensitivity.py`): one-at-a-time swings of six inputs over ranges I chose, not measured. Hotel load (19 to 50% of km/day), panel efficiency (16 to 30%) and derate (12 to 23%) move km/day 2 to 5 times more than the hull constants c_s and k_form (8 to 9%); the wave scale moves it 0.3 to 1.2%. Every input shifts the best speed by only 0.0 to 0.2 m/s. Source the hotel load and panel yield before the hull.
 - Deck-solar joint interval (milestone 5m, `experiments/run_solar_mc.py`): drawing hotel load (5 to 20 W), panel efficiency (0.17 to 0.22) and three derate factors jointly (500 seeded draws, ranges partly my choices) gives 5 m km/day of about 133 / 125 / 97 / 77 / 69 (Equator, Florida, Gulf of Maine, North Sea, Gulf of Alaska), each within about -10/+9% (5% to 95%); the site ordering holds in 500 of 500 draws. It excludes the hull-constant uncertainty (5j, about +-10% more).
 
+## Wing-sail drone (milestone 5a, `marine-sail`)
+
+Does tack control matter for an autonomous sailing drone beating to windward? A first-order force-balance polar
+(`src/marine_hull/sail.py`) plus three tack controllers on 24 h NOAA CO-OPS wind series (`src/marine_hull/tack.py`,
+`experiments/run_sail_tack.py`). Headline (July holdout, 30 s tack loss, share of the ideal upwind progress): tacking at the
+corridor edge reaches 83.7%, tacking when headed 87.6% (+3.2 points, positive at all 12 stations), a clairvoyant 99.7%. The
+gap to the clairvoyant is about information, not the tack cost. Spatial wind fields and isochrone routing are not done. Full
+numbers, limits and the predictions that failed: `LOG.md` (2026-11-04, milestone 5a).
+
 ## Limitations
 
 Seawater properties, efficiencies, form factors and wave term are unsourced or swept; no published

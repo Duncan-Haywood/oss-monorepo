@@ -1,0 +1,24 @@
+files 24, windows used: Jan 358, Jul 360 (24 h, bound >= 5 km); corridor +-1500 m; dt 60 s; dwell 10 min
+bound progress per window: median 116.5 km (10th..90th 56.1..201.4)
+header margin chosen on January at tau 30 s: 0.3
+  Jan median share, B margin 0.02: tau 0: 0.904, tau 30: 0.870, tau 60: 0.842
+  Jan median share, B margin 0.05: tau 0: 0.905, tau 30: 0.873, tau 60: 0.845
+  Jan median share, B margin 0.1: tau 0: 0.906, tau 30: 0.875, tau 60: 0.844
+  Jan median share, B margin 0.2: tau 0: 0.906, tau 30: 0.877, tau 60: 0.849
+  Jan median share, B margin 0.3: tau 0: 0.904, tau 30: 0.879, tau 60: 0.856
+  Jan median share, B margin 0.5: tau 0: 0.896, tau 30: 0.874, tau 60: 0.858
+
+January: median share of the bound (10th..90th), n=358
+  tau   0 s: corridor 0.852 (0.692..0.921); header 0.904 (0.747..0.942); clairvoyant 1.000 (1.000..1.000); header minus corridor +3.1 pts; clairvoyant minus header +9.6 pts; corridor tacks/day median 92
+  tau  30 s: corridor 0.825 (0.545..0.905); header 0.879 (0.617..0.925); clairvoyant 0.997 (0.993..1.000); header minus corridor +3.1 pts; clairvoyant minus header +11.7 pts; corridor tacks/day median 95
+  tau  60 s: corridor 0.804 (0.403..0.895); header 0.856 (0.506..0.910); clairvoyant 0.996 (0.988..0.999); header minus corridor +2.7 pts; clairvoyant minus header +13.9 pts; corridor tacks/day median 97
+
+July (holdout): median share of the bound (10th..90th), n=360
+  tau   0 s: corridor 0.857 (0.669..0.910); header 0.900 (0.768..0.936); clairvoyant 1.000 (1.000..1.000); header minus corridor +3.7 pts; clairvoyant minus header +10.0 pts; corridor tacks/day median 86
+  tau  30 s: corridor 0.837 (0.564..0.899); header 0.876 (0.651..0.922); clairvoyant 0.997 (0.990..0.999); header minus corridor +3.2 pts; clairvoyant minus header +12.1 pts; corridor tacks/day median 88
+  tau  60 s: corridor 0.817 (0.433..0.886); header 0.852 (0.534..0.907); clairvoyant 0.995 (0.985..0.999); header minus corridor +2.6 pts; clairvoyant minus header +14.2 pts; corridor tacks/day median 81
+
+July header-minus-corridor gain at tau 30 s by station file (pts): 8454000:+3.5, 8516945:+1.9, 8557380:+4.2, 8575512:+2.5, 8670870:+3.5, 8723214:+2.8, 8729840:+7.0, 8735180:+3.8, 8771450:+4.3, 9414290:+2.9, 9414750:+2.1, 9419750:+4.9
+stations with a positive median gain: 12 of 12
+July windows where header beats corridor at tau 30 s: 327 of 360
+July median gain, bootstrap 95% interval over windows (treats windows as independent): 2.73..3.65 pts
