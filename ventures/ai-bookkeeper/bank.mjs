@@ -56,7 +56,9 @@ function pickDelimiter(s) {
     const freq = new Map();
     for (const l of lines) { const n = l.replace(/"[^"]*"/g, "").split(d).length; if (n > 1) freq.set(n, (freq.get(n) ?? 0) + 1); }
     let score = 0;
-    for (const [n, f] of freq) score = Math.max(score, f * 1000 + n);
+    // lines x (fields - 1): decimal commas and "Total;1,000.00" footers split into 2 fields
+    // and must not outvote a table that splits the same lines into many more.
+    for (const [n, f] of freq) score = Math.max(score, f * (n - 1) * 1000 + n);
     if (score > bestScore) { best = d; bestScore = score; }
   }
   return best;
