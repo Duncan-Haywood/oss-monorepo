@@ -224,11 +224,23 @@ class Registry(unittest.TestCase):
         and missing from CHECKS is a check nobody runs.
         """
         registered = set(bc.CHECKS)
+        # Checks written but waiting for the control-plane PR that registers
+        # them (it edits .github/workflows/browser-checks-ci.yml, which needs
+        # the owner's approval). Each entry says what is missing; an entry
+        # goes stale the moment the check joins CHECKS, and the assertion at
+        # the bottom fails then so the exemption cannot outlive its reason.
+        pending = {
+            "framerate": "docs/reports/2026-11-03-homepage-frame-rate.md: add it "
+                         "to both CHECKS tuples and the two lists in "
+                         "browser-checks-ci.yml in one control-plane PR",
+        }
+        stale = sorted(set(pending) & registered)
+        self.assertFalse(stale, f"{stale} is in CHECKS now: delete it from `pending`.")
         for path in sorted(os.listdir(bc.PAGES)):
             if not path.endswith(".mjs") or path.endswith(".test.mjs"):
                 continue
             name = path[: -len(".mjs")]
-            if name in registered:
+            if name in registered or name in pending:
                 continue
             with open(os.path.join(bc.PAGES, path), encoding="utf-8") as fh:
                 source = fh.read()
