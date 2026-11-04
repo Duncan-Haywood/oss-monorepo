@@ -8405,7 +8405,7 @@ export function renderHub(
   <title>${escapeHtml(SITE_NAME)} | Free Tools, Self-Hostable Apps &amp; Research</title>
   <meta name="description" content="${escapeHtml(
     snippetize(
-      `${surfaces.length} free, open-source products: browser tools, self-hostable business apps and command-line checks, plus ${researchCount} research projects. Browser tools run on your device; apps deploy to your own cloud.`,
+      `Free bid calculators, fee checkers and pricing tools for small businesses: ${browserCount} open-source tools that run in your browser, plus self-hostable apps. No sign-up.`,
     ),
   )}">
   <link rel="canonical" href="${escapeHtml(baseUrl)}">${verificationHead()}
@@ -8416,7 +8416,7 @@ export function renderHub(
   <link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — new tools`)}" href="${escapeHtml(FEED_FILE)}">
   <meta property="og:type" content="website">
   <meta property="og:title" content="${escapeHtml(SITE_NAME)}">
-  <meta property="og:description" content="Free, open-source tools, self-hostable business apps and research: use them in your browser or run your own copy.">
+  <meta property="og:description" content="Free tools to price the job, check the fees and run your business. No sign-up, open source, and the numbers stay in your browser.">
   <meta property="og:url" content="${escapeHtml(baseUrl)}">
   <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
   <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
@@ -8671,18 +8671,20 @@ ${HOME_SECTIONS_CSS}
   <header class="hero">
 ${HERO_BACKDROP_HTML}
     <div class="hero-inner">
-      <p class="eyebrow">Open source · MIT licensed · Built in public</p>
-      <h1>Software and research that anyone can <span class="grad">use, inspect, and run</span> themselves.</h1>
+      <p class="eyebrow">Free · No sign-up · Open source</p>
+      <h1>Free tools to <span class="grad">price the job, check the fees</span> and run your business.</h1>
 ${
   audienceWords.length
     ? `      <p class="ticker">Built for <b data-words="${escapeHtml(JSON.stringify(audienceWords))}">${escapeHtml(audienceWords[0])}</b> and anyone with numbers to run.</p>\n`
     : ''
 }
       <p class="lede">
-        ${escapeHtml(SITE_NAME)} is an open portfolio of business software and research:
-        focused tools that run entirely in your browser, self-hostable apps a small
-        business can deploy into its own cloud account, and reproducible research
-        with its code and tests. No accounts, no paywalls, and no data leaving your hands.
+        Bid calculators for the trades, fee checkers for marketplace sellers, and
+        pricing, tax and back-office tools for service businesses. Open one, type
+        your numbers and get an answer: no account, no paywall, and the arithmetic
+        happens on your device. Every formula is open source, so you can check how
+        a number was reached, and the apps can run in your own cloud account.
+        ${escapeHtml(SITE_NAME)} publishes open research the same way, code and tests included.
       </p>
 
       <!-- The search runs over a JSON index of every tool and research project
@@ -8822,8 +8824,8 @@ ${renderShowcaseSection(showcase, (slug) => titles.get(slug) ?? slug)}
 
     <section class="band" id="featured" aria-labelledby="featured-h">
       <p class="section-eyebrow">Featured</p>
-      <h2 id="featured-h">The projects with the most engineering in them</h2>
-      <p class="band-lede">Flagships first: the projects most runs go deeper on, picked for the engineering in them rather than the number of pages beside them.</p>
+      <h2 id="featured-h">The deepest projects here</h2>
+      <p class="band-lede">When you need more than one calculation: the larger products, each built up over many sessions and still being extended, listed first.</p>
       <ul class="featured">
 ${featured
   .map(

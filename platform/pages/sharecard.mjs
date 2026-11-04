@@ -660,7 +660,7 @@ export function renderCard({
   }
 
   // `highlight` is a phrase of the headline: its words, in order, are painted
-  // in the hero's gradient, as the homepage paints "use, inspect, and run".
+  // in the hero's gradient, as the homepage paints "price the job, check the fees".
   const norm = (word) => word.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
   const phrase = String(highlight).split(/\s+/).map(norm).filter(Boolean);
   const all = head.lines.flatMap((l) => l.split(' '));
@@ -714,9 +714,9 @@ export function renderCard({
 export function renderSiteCard({ address = '', subtitle = '', footer = '', site } = {}) {
   return renderCard({
     accent: '#d4ac58',
-    headline: 'Software and research that anyone can use, inspect, and run themselves.',
-    highlight: 'use, inspect, and run',
-    kicker: 'Open source · MIT licensed · Built in public',
+    headline: 'Free tools to price the job, check the fees and run your business.',
+    highlight: 'price the job, check the fees',
+    kicker: 'Free · No sign-up · Open source',
     subtitle,
     footer,
     site,
