@@ -376,3 +376,11 @@ annualised CPI inflation, %), 202 quarters (first quarter dropped: 0 by construc
 - **Retrieved:** 2026-11-04 from <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/austres.csv>.
 - **Licence:** R datasets (GPL-2 | GPL-3 package; the numbers are Australian Bureau of Statistics counts, facts). Used as a test fixture only.
 - **Cite:** Australian Bureau of Statistics, via R `datasets::austres`.
+
+`us-real-gdp.csv`: real GDP in billions of chained 1996 dollars, quarterly 1950Q1 to 2000Q4 (204 rows), the `gdp` column of R's
+`AER::USMacroG` (data from Greene's *Econometric Analysis*, US BEA figures).
+
+- **Retrieved:** 2026-11-04 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/AER/USMacroG.csv>. Quarter labels (`1950Q1` onward) were added from row order.
+- **Licence:** underlying US government statistics are public domain; the R package AER is GPL-2/GPL-3 and its copy of the table is used here as data only.
+- **Used by:** `eval/noise-floor-gdp.mjs`, `noise-floor-gdp.test.mjs`.
