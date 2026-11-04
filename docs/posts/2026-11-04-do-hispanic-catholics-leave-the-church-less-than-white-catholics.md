@@ -1,7 +1,7 @@
 ---
 title: "Do Hispanic Catholics leave the Church less than white Catholics?"
 date: 2026-11-04
-description: "Design-based logistic models on the General Social Survey: white Catholic retention falls from 66% to 48% across cohorts, Hispanic retention does not, and immigrant generation explains the level but not the trend."
+description: "GSS models: white Catholic retention falls from 66% to 48% across cohorts, Hispanic retention does not; immigrant generation explains the level, not the trend."
 tags: [catholic-demography, research, demography, GSS]
 ---
 
