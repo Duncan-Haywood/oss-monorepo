@@ -305,6 +305,69 @@ export function parseDivisionBlackouts(text, divisions) {
   return { blackouts, errors };
 }
 
+/** Splits CSV text into rows of cells (quotes, doubled quotes, commas and newlines inside quotes; a BOM is dropped). */
+export function csvRows(text) {
+  const rows = []; let row = [], cell = "", q = false;
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    if (q) { if (c === '"') { if (src[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; }
+    else if (c === '"') q = true;
+    else if (c === ",") { row.push(cell); cell = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && src[i + 1] === "\n") i++; row.push(cell); rows.push(row); row = []; cell = ""; }
+    else cell += c;
+  }
+  if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter((r) => r.some((x) => x.trim() !== ""));
+}
+
+/**
+ * A coach sign-up form's export (Google Forms, Typeform, a spreadsheet saved as CSV) turned into the blackout box text
+ * that `parseDivisionBlackouts` reads. Columns are found by header: a team column ("Team", "Team name"), an optional
+ * division column ("Division", "Age group"; or "Division/Team" in the team cell, or a team name unique across the league)
+ * and any columns whose header mentions "date", "unavailable", "cannot", "can't" or "blackout". Dates in those cells may
+ * be separated by commas, semicolons or newlines and written as ranges ("2026-11-05 to 2026-11-12"). A team that answers
+ * twice has its dates merged. Returns { text, errors[] }; rows that name no known team are reported, never guessed.
+ */
+export function blackoutsFromCsv(csv, divisions) {
+  const rows = csvRows(csv), errors = [];
+  if (rows.length < 2) return { text: "", errors: ["The CSV needs a header row and at least one answer."] };
+  const head = rows[0].map((h) => h.trim().toLowerCase());
+  const teamCol = head.findIndex((h) => /^(team|team name|club team)\b/.test(h));
+  const divCol = head.findIndex((h) => /^(division|age group|age|group|league)\b/.test(h));
+  const dateCols = head.map((h, i) => (/(date|unavailab|cannot|can't|cant|blackout|bye)/.test(h) ? i : -1)).filter((i) => i >= 0 && i !== teamCol && i !== divCol);
+  if (teamCol < 0) return { text: "", errors: ['No team column: name one header "Team".'] };
+  if (!dateCols.length) return { text: "", errors: ['No date column: name one header "Dates unavailable" (or one containing "date", "cannot" or "blackout").'] };
+  const merged = new Map();
+  for (const [ri, r] of rows.slice(1).entries()) {
+    const line = ri + 2;
+    const tname = (r[teamCol] || "").trim();
+    const dname = divCol >= 0 ? (r[divCol] || "").trim() : "";
+    let key = null;
+    if (tname.includes("/")) {
+      const [d, ...t] = tname.split("/");
+      const di = divisions.findIndex((x) => x.name.toLowerCase() === d.trim().toLowerCase());
+      const ti = di < 0 ? -1 : divisions[di].teams.findIndex((x) => x.toLowerCase() === t.join("/").trim().toLowerCase());
+      if (ti >= 0) key = `${divisions[di].name}/${divisions[di].teams[ti]}`;
+    } else {
+      const hits = [];
+      divisions.forEach((d) => {
+        if (dname && d.name.toLowerCase() !== dname.toLowerCase()) return;
+        d.teams.forEach((t) => { if (t.toLowerCase() === tname.toLowerCase()) hits.push(`${d.name}/${t}`); });
+      });
+      if (hits.length === 1) key = hits[0];
+      else if (hits.length > 1) { errors.push(`Row ${line}: "${tname}" is in more than one division; add a Division column.`); continue; }
+    }
+    if (!key) { errors.push(`Row ${line}: "${dname ? dname + "/" : ""}${tname}" is not a team in this league.`); continue; }
+    const cells = dateCols.map((c) => (r[c] || "").trim()).filter((x) => x && !/^(none|n\/a|na|no|-|nil)$/i.test(x));
+    if (!cells.length) continue;
+    const parts = cells.join(",").split(/[;,\n]+/).map((x) => x.trim()).filter(Boolean);
+    merged.set(key, [...(merged.get(key) || []), ...parts]);
+  }
+  const text = [...merged].map(([k, v]) => `${k}: ${v.join(", ")}`).join("\n");
+  return { text, errors };
+}
+
 /**
  * Moves every match that falls on a night one of its teams cannot play to the earliest later night both teams are free
  * (the rainout mover, which also keeps every moved match off the teams' unavailable dates). Takes the rainout options.
@@ -1379,6 +1442,14 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
   let s = buildDivisions(spec);
   const allMoves = [];
   const raw = JSON.parse(readFileSync(file, "utf8"));
+  const csvIdx = process.argv.indexOf("--blackouts-csv");
+  if (csvIdx > 0) {
+    const f = process.argv[csvIdx + 1];
+    if (!f) { console.error("usage: node divisions.mjs spec.json --blackouts-csv form-export.csv"); process.exit(2); }
+    const c = blackoutsFromCsv(readFileSync(f, "utf8"), spec.divisions);
+    if (c.errors.length) console.error(c.errors.join("\n"));
+    raw.blackouts = [raw.blackouts, c.text].filter(Boolean).join("\n");
+  }
   if (raw.blackouts) {
     const pb = parseDivisionBlackouts(raw.blackouts, spec.divisions);
     if (pb.errors.length) { console.error(pb.errors.join("\n")); process.exit(1); }
