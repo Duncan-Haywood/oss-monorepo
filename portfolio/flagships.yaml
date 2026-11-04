@@ -122,7 +122,7 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      History and numbers: README and git. Open: (0) smooth low-noise series over-cut: `--noise-floor k` is uncalibrated and no k isolates GDP's 1970s break; the slope-break test (`--slope-breaks`, 2026-11-04, README) dates it at 1971Q2 but not significantly: wanted a deseasonalised real series (n >= 200) with a large documented slope change as a positive control: none of ten real series fires the test (eval/slope-real.mjs, 2026-11-04), and the page box; cycles and drift: an exact
+      History and numbers: README and git. Open: (0) smooth low-noise series over-cut: `--noise-floor k` is uncalibrated and no k isolates GDP's 1970s break; the slope-break test (`--slope-breaks`, 2026-11-04, README) dates it at 1971Q2 but not significantly: a deseasonalised real positive control now exists (US labour productivity, n=318: dated 1973Q1, the documented slowdown, but W 5.8 against the bar 11, so not significant; eval/slope-productivity.mjs, 2026-11-04); wanted: one that clears the bar (annual means? a power fix), and the page box; cycles and drift: an exact
       AR(2) likelihood inside PELT was no better than AR(1) (README); a real documented step inside a cycle; a cycle
       check not tied to rho (treering: drift not told from a cycle);
       a documented real run of 5+ steps to test the block-variance warning
