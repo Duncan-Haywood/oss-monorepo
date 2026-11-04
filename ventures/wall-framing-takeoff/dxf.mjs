@@ -689,9 +689,9 @@ export function planFromDxf(text, opt = {}) {
     if (cHi - cLo < hi - lo - 1e-6) { width = r16(cHi - cLo); trimmed++; }
     if (width > Lr) { width = Lr; trimmed++; }
     const off = Math.min(r16(order[n].flip ? Lr - cHi : cLo), Math.max(0, Lr - width));
-    const kind = o.kind ?? kindOf(mid);
-    counts[kind]++;
     const own = opt.openingSize?.(mid);
+    const kind = own?.kind ?? o.kind ?? kindOf(mid);
+    counts[kind]++;
     if (!own) defaulted++;
     const height = own?.height ?? (kind === "door" ? (opt.doorHeight ?? 82.5) : (opt.windowHeight ?? 48));
     (out[n].openings ||= []).push({ kind, label: `${kind === "door" ? "Door" : "Window"} ${counts[kind]}`, offset: Math.max(0, off), width, height, ...(own ? { headerHeight: own.headerHeight } : {}), header: opt.header ?? "2x10" });
