@@ -1,0 +1,24 @@
+{
+  "id": "P063",
+  "title": "Runs that find a prompt.md friction each open their own unmergeable control-plane PR; three duplicates of one fix stalled",
+  "status": "open",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "prompt.md is a CODEOWNERS path, so a PR that edits it waits for the owner. Three process runs on 2026-11-03/04 each found the same friction (step 0 fetches a security-alerts branch that does not exist), each opened its own PR (#12885, #12939, #12975) and ended 'partial', unmerged. The fix has since landed on main by another route (git show origin/main:prompt.md contains \"couldn't find remote ref\"), so all three prompt.md edits are now redundant and the PRs only carry run records.",
+  "evidence": [
+    "open PR list 2026-11-04: #12885, #12939, #12975 all titled 'process: prompt.md step 0 ... missing security-alerts branch'",
+    "mcp get_files on each: each changes only prompt.md plus its own run record; main's prompt.md already has the same edit",
+    "run records in those PRs: outcome partial, deviation 'could not merge: CODEOWNERS'",
+    "portfolio/ledger/supersede_check.py <pr> did not finish within 4 minutes from a cloud container, so the close was left undone"
+  ],
+  "change": "(1) Close #12885, #12939 and #12975 as superseded once supersede_check passes (run it from a session where git fetch is fast; land their run records on main separately if wanted). (2) Add a line to the process prompt: before opening a control-plane PR, search open PRs for the same file and extend that one rather than opening another. (3) Consider a check that lists open PRs touching the same CODEOWNERS path.",
+  "touches": ["prompts/process/prompt-1.md"],
+  "metric": "open PRs touching prompt.md at once",
+  "baseline": "3 redundant open PRs, 2026-11-04",
+  "opened": "2026-11-04",
+  "source": "process run 2026-11-04 critique",
+  "pr": null,
+  "result": null,
+  "history": []
+}
