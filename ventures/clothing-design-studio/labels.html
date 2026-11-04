@@ -102,6 +102,7 @@
   <script type="module">
     import { checkLabel, suggestCare, parseComposition, EU_LANGS } from "./labels.mjs";
     import { recordUsage } from "./usage.mjs";
+    import { careCodes, careStrip, careFiles } from "./caresymbols.mjs";
     const $ = s => document.querySelector(s);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
     $("#lang").innerHTML = Object.entries(EU_LANGS).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("");
@@ -112,8 +113,15 @@
       $("#result").innerHTML = (r.label ? `<p class="big">${esc(r.label)}</p>` : "") + (r.problems.length ? `<p class="notes">${r.problems.map(esc).join("<br>")}</p>` : "") + (r.notes.length ? `<p class="tag">${r.notes.map(esc).join("<br>")}</p>` : "") + `<p class="tag">Sources: ${esc(r.sources)}.</p>`;
       $("#reqs").innerHTML = `<table><tr><th></th><th>Item</th><th>Why</th></tr>${r.requirements.map(x => `<tr><td>${x.given ? "&#10003;" : "<b>missing</b>"}</td><td>${esc(x.item)}</td><td class="tag">${esc(x.why)}</td></tr>`).join("")}</table>`;
       const c = suggestCare(parseComposition($("#comp").value).parts);
-      $("#care-out").innerHTML = c ? `<p>${esc(c.text)}</p><p class="tag">Symbols (ISO 3758 / GINETEX): ${esc(c.symbols)}. ${esc(c.note)}</p>` : `<p class="tag">Type a fibre content to get a starting point.</p>`;
+      $("#care-out").innerHTML = c ? `<p>${esc(c.text)}</p>${careStrip(careCodes(c))}<p class="tag"><a href="#" id="care-dl">Download the symbols as SVG files</a> (one per position, to place on your label artwork).</p><p class="tag">Symbols (ISO 3758 / GINETEX): ${esc(c.symbols)}. ${esc(c.note)}</p>` : `<p class="tag">Type a fibre content to get a starting point.</p>`;
     }
+    $("#care-out").addEventListener("click", e => {
+      if (e.target.id !== "care-dl") return;
+      e.preventDefault();
+      const c = suggestCare(parseComposition($("#comp").value).parts);
+      for (const f of careFiles(careCodes(c))) { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([f.svg], { type: "image/svg+xml" })); a.download = f.name; a.click(); }
+      recordUsage("labels_care_svg");
+    });
     document.querySelectorAll("section select, section input").forEach(el => el.addEventListener("input", () => { render(); recordUsage("labels_check"); }));
     render(); recordUsage("labels_open");
   </script>
