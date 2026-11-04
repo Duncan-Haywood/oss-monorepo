@@ -1,6 +1,6 @@
 ---
 title: "The ball hose on our tennis robot has to move backwards as the head tilts"
-seo_title: "Hose take-up for a tilting tennis ball launcher: sizing a floating pulley"
+seo_title: "Hose take-up for a tilting tennis ball launcher: sizing a pulley"
 date: 2026-11-04
 tags: [open-tennis-robots, cad, engineering]
 description: "Sizing a floating-pulley take-up for the ball hose of an open-source tennis ball feeder, and a surprise: the pulley must reverse at level."
