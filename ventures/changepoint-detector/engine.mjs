@@ -16,6 +16,7 @@
 // gives the same output, in the browser, the CLI and `platform/agents/tools.mjs`.
 
 import { NILE_CSV } from './example-data.mjs';
+import { slopeBreaks } from './slope-breaks.mjs';
 
 export const PAPERS = [
   {
@@ -2006,6 +2007,7 @@ export function analyze(input = {}) {
     ...(burstInfo ? { bursts: burstInfo } : {}),
     ...(o.episodes ? { episodes: findEpisodes(changes, values.length, typeof o.episodes === 'number' ? { maxLen: o.episodes } : {}).map((e) => ({ ...e, from: labels[e.startIndex], to: labels[e.endIndex] })) } : {}),
     ...(excursions.length ? { excursions } : {}),
+    ...(o.slopeBreaks ? { slopeBreaks: slopeBreakReport(values, labels, o.slopeBreaks) } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
       hazardLambda: Number(o.hazardLambda) || 100,
@@ -2020,6 +2022,22 @@ export function analyze(input = {}) {
     values: o.log ? original0 : rawCounts,
     ...(period || o.trend || holidayFit ? { adjusted: values.map((v, t) => round(exposure ? v / exposure[t] : v)) } : {}),
     summary,
+  };
+}
+
+/**
+ * Significance-tested slope breaks (slope-breaks.mjs): a sup-Wald test on the differences, so a bend in a drifting
+ * series is dated and tested, not only fitted. `values` are the logged values when --log is set. `opt` is true or the
+ * most breaks to report (1 to 3). Needs 40 or more points: below that the bar (calibrated for n >= 100) is not honest.
+ */
+export function slopeBreakReport(values, labels, opt) {
+  const maxKnots = typeof opt === 'number' ? Math.max(1, Math.min(3, Math.floor(opt))) : 3;
+  if (values.length < 40) throw new Error(`The slope-break test needs at least 40 points; got ${values.length}.`);
+  const r = slopeBreaks(values, { maxKnots });
+  return {
+    critical: r.critical,
+    note: 'Sup-Wald test on the differences; the bar is calibrated for 100 or more points, so on fewer it is only a guide. Weak by construction: a miss is not evidence of no break.',
+    breaks: r.knots.map((k) => ({ index: k.index + 1, label: labels[k.index + 1] ?? String(k.index + 1), wald: Number(k.wald.toFixed(2)), slopeBefore: Number(k.before.toPrecision(4)), slopeAfter: Number(k.after.toPrecision(4)) })),
   };
 }
 
