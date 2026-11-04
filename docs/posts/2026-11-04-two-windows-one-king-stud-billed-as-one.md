@@ -1,7 +1,7 @@
 ---
 title: "Two windows, one king stud, billed as one"
 date: 2026-11-04
-description: "A bug in the wall-framing budget: labour for setting windows counted king studs divided by two, so windows that share a king were undercounted. Fixed by counting header spans."
+description: "A wall-framing budget bug: window setting labour counted king studs divided by two, so windows sharing a king were undercounted. Now it counts header spans."
 tags: [wall-framing-takeoff, construction, budget]
 ---
 
