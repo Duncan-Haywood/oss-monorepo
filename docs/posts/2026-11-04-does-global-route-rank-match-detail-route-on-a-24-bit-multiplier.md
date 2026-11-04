@@ -1,5 +1,6 @@
 ---
 title: "Does the cheap routing estimate rank a 24-bit multiplier the way detail routing does?"
+seo_title: "Does cheap routing rank a 24-bit multiplier right?"
 date: 2026-11-04
 description: "Twelve 24-bit multiplier variants, spread best to worst by global-route score, were detail-routed: the ordering held, at 20 minutes of routing per point."
 tags: [verified-dse, openroad, eda, search]
