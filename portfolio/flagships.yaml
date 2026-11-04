@@ -124,9 +124,7 @@ flagships:
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
       History and numbers: README and git. Open: (0) cycles and drift: an exact
-      AR(2) likelihood inside PELT was built and measured 2026-10-30 (README:
-      no better than the AR(1) profile; a log or sqrt of the series matters
-      more); a real documented step inside a cycle; a cycle
+      AR(2) likelihood inside PELT was no better than AR(1) (README); a real documented step inside a cycle; a cycle
       check not tied to rho (treering, rho 0.16, gets no hint);
       a documented real run
       of 5+ steps to test the block-variance warning, which does not yet
@@ -225,7 +223,7 @@ flagships:
       `pairSelector`; an INFO_POOL_CAP of 400 (3000 items 1983 -> 36 ms;
       capped equals uncapped on 600 and 1000 items at 600 answers,
       poolCap.simulation.test.ts); and a live-Postgres ranking integration
-      test (ranking.integration.test.ts, 2026-10-22). Pool-cap accuracy, budgets past the list length and lapse rates 0.05-0.5 measured 2026-10-22 to 10-27 (docs). First-option bias measured 2026-10-28 (hybrid +0.02 at bias 0.1-0.3, -0.04 at 0.5, 300 answers; docs). First-option fallback landed 2026-10-27 (share >= 0.7 uses shipped; bias 0.5 hybrid 0.592 to 0.651, docs). Second-option fallback landed 2026-10-27 (share <= 0.3 too; bias 0.5 hybrid 0.574 to 0.666, docs). 1000 items through the route with Postgres landed 2026-10-30 (one respondent, 1000 answers: next() p50 22 ms, max 60 ms; docs). Several respondents with lapse and slot bias through the route landed 2026-11-01 (60 items, Spearman 0.77 clean, 0.71 at 20% lapse, 0.53 and 0.07 at 50% and 80% bias; docs). Fallback switched off as a control landed 2026-11-02 (at 80% bias it keeps Spearman 0.266 vs 0.096 without; at 50% no measurable difference; docs). Same at 1000 items landed 2026-11-02 (3 respondents x 1000 answers: fallback +0.06 at 50% bias, +0.15 at 80%; docs). 3000 answers on 1000 items landed 2026-11-04 (fallback +0.17 at 50% bias, +0.10 at 80%; but clean Spearman 0.545 is below the 1000-answer 0.619, unexplained; docs). Next: explain that drop (same seeds at 1000 and 3000 answers, report rated-item count, check the staged selector's late phase), then more respondents per cell.
+      test (ranking.integration.test.ts, 2026-10-22). Pool-cap accuracy, long budgets, lapse rates, first-option bias and the first- and second-option fallbacks (share >= 0.7 or <= 0.3 uses shipped) measured and landed 2026-10-22 to 10-28 (docs). 1000 items through the route with Postgres landed 2026-10-30 (one respondent, 1000 answers: next() p50 22 ms, max 60 ms; docs). Several respondents with lapse and slot bias through the route landed 2026-11-01 (60 items, Spearman 0.77 clean, 0.71 at 20% lapse, 0.53 and 0.07 at 50% and 80% bias; docs). Fallback switched off as a control landed 2026-11-02 (at 80% bias it keeps Spearman 0.266 vs 0.096 without; at 50% no measurable difference; docs). Same at 1000 items landed 2026-11-02 (3 respondents x 1000 answers: fallback +0.06 at 50% bias, +0.15 at 80%; docs). 3000 answers on 1000 items landed 2026-11-04 (fallback +0.17 at 50% bias, +0.10 at 80%; but clean Spearman 0.545 is below the 1000-answer 0.619, unexplained; docs). Next: explain that drop (same seeds at 1000 and 3000 answers, report rated-item count, check the staged selector's late phase), then more respondents per cell.
 
   - venture: league-schedule-generator
     why: >-
