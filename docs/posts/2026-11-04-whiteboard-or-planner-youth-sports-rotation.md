@@ -1,5 +1,6 @@
 ---
 title: "Whiteboard or planner: when a hand-made youth sports rotation stops working"
+seo_title: "Whiteboard or planner for a youth sports rotation"
 date: 2026-11-04
 description: "A whiteboard rotation works when the roster divides evenly. Where it breaks (odd rosters, late arrivals, goalkeeper turns) and what the free planner does."
 tags: [youth-lineup-rotator, sports, seo]

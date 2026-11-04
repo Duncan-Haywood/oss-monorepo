@@ -1,5 +1,6 @@
 ---
 title: "Why a changepoint detector over-cuts a smooth curve, and a floor that helps"
+seo_title: "Why a changepoint detector over-cuts smooth curves"
 date: 2026-11-04
 description: "Australia's population grew steadily for 22 years and the detector found ten changes. A noise floor tied to the series' own step size cuts that to three."
 tags: [changepoint-detector, time-series, statistics]
