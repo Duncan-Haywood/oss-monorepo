@@ -63,6 +63,7 @@ only in this browser's local storage. `byok.mjs` is a synced copy of
 | `launchkit.mjs` | Description, captions, hashtags, store CSV |
 | `eyewear.mjs`, `sunglasses.html` | Sunglasses: stock frame, size, logos, case, cost, quote request |
 | `wardrobe.mjs`, `wardrobe.html` | Capsule wardrobe from a profile, outfit count, first drop within a budget |
+| `marketing.mjs` | Ad affordability (break-even cost per sale and ROAS) and a launch calendar of drafts from the break-even |
 | `usage.mjs` | Anonymous local usage counts |
 
 Roadmap: [`ROADMAP.md`](ROADMAP.md).

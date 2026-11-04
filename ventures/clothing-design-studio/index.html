@@ -268,6 +268,19 @@
         </details>
       </section>
 
+      <section aria-labelledby="h-mkt">
+        <h2 id="h-mkt">Launch marketing: what ads can afford, and a week-by-week calendar</h2>
+        <p class="muted">Works back from your break-even. The click price and conversion rate are placeholders until you run a small test: replace them. Drafts only; nothing is posted or bought for you.</p>
+        <div class="row">
+          <div><label for="m-cpc">Cost per click</label><input id="m-cpc" type="number" min="0.01" step="any"></div>
+          <div><label for="m-conv">Clicks that buy (%)</label><input id="m-conv" type="number" min="0.1" max="30" step="0.1"></div>
+          <div><label for="m-weeks">Launch weeks</label><input id="m-weeks" type="number" min="2" max="12" step="1"></div>
+          <div><label for="m-posts">Posts per week</label><input id="m-posts" type="number" min="1" max="14" step="1"></div>
+        </div>
+        <output id="mkt-out" aria-live="polite"></output>
+        <div class="bar"><button class="btn small" type="button" id="mkt-csv">Download calendar (CSV)</button></div>
+      </section>
+
       <section aria-labelledby="h-ai">
         <h2 id="h-ai">Optional: a model for freer speech</h2>
         <p class="muted">Off by default. The built-in commands need no AI. With your own key, or a model on your own computer (Ollama, LM Studio, llama.cpp), the model rewrites what you say into the same commands, so it can only do what a typed command could, and every change is listed with an Undo. Your words and a one-line description of the design go to the provider you pick; nothing goes to us.</p>
@@ -314,6 +327,7 @@
     import { economics, quantityBreaks, money, DEFAULT_PLAN } from "./costing.mjs";
     import { techPack, techPackHtml, quoteRequest } from "./techpack.mjs";
     import { launchKit } from "./launchkit.mjs";
+    import { marketingPlan, calendarCsv, DEFAULT_ASSUMPTIONS } from "./marketing.mjs";
     import { separate, films, previewRgba, separationBrief } from "./separation.mjs";
     import { recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -547,7 +561,7 @@
     const planFields = { target: "targetMarginPct", tax: "salesTaxPct", channel: "channelFeePct", payfee: "paymentFeePct", payfixed: "paymentFixed", unsold: "unsoldPct", marketing: "marketingBudget" };
     for (const [id, key] of Object.entries(planFields)) {
       $("#" + id).value = plan[key];
-      $("#" + id).addEventListener("input", e => { const v = Number(e.target.value); if (Number.isFinite(v) && v >= 0) { plan[key] = v; store.set(PLAN_KEY, plan); renderCost(); } });
+      $("#" + id).addEventListener("input", e => { const v = Number(e.target.value); if (Number.isFinite(v) && v >= 0) { plan[key] = v; store.set(PLAN_KEY, plan); renderCost(); renderMarketing(); } });
     }
     $("#quantity").addEventListener("change", e => commit({ op: "quantity", value: e.target.value }));
     $("#price").addEventListener("change", e => commit({ op: "price", value: e.target.value }));
@@ -778,6 +792,7 @@
       $("#s-freight").value = sheet.freightPerUnit ?? 0;
       $("#s-duty").value = sheet.dutyPct ?? 0;
       renderCost();
+      renderMarketing();
       $("#quote").textContent = quoteRequest(design);
       const kit = launchKit(design);
       $("#lk-desc").textContent = kit.description;
@@ -787,6 +802,45 @@
         store.set(DESIGN_KEY, { ...design, placements: design.placements.filter(q => q.kind !== "image") });
       }
     }
+
+
+    // ---- launch marketing ----
+    const MKT_KEY = "clothing-design-studio-marketing";
+    let mkt = { ...DEFAULT_ASSUMPTIONS, ...(store.get(MKT_KEY) || {}) };
+    let lastMkt = null;
+    const mktFields = { "m-cpc": "cpc", "m-conv": "conversionPct", "m-weeks": "weeks", "m-posts": "postsPerWeek" };
+    for (const [id, key] of Object.entries(mktFields)) {
+      $("#" + id).value = mkt[key];
+      $("#" + id).addEventListener("input", e => { const v = Number(e.target.value); if (Number.isFinite(v) && v > 0) { mkt[key] = v; store.set(MKT_KEY, mkt); renderMarketing(); } });
+    }
+    function renderMarketing() {
+      let html = "";
+      lastMkt = null;
+      try {
+        const e = economics(d(), sheet, plan);
+        const m = marketingPlan({ design: d(), econ: e, adBudget: plan.marketingBudget, assumptions: mkt });
+        lastMkt = m;
+        const c = e.currency, a = m.ads;
+        html += `<div class="kpis">
+          <div class="kpi"><span>Cost per sale from ads</span><div class="big">${a.cac == null ? "n/a" : money(a.cac, c)}</div></div>
+          <div class="kpi"><span>Most an ad-driven sale can cost</span><div class="big">${money(a.breakEvenCac, c)}</div></div>
+          <div class="kpi"><span>Revenue per ${c} of ads to break even</span><div class="big">${a.breakEvenRoas ?? "n/a"}</div></div>
+          <div class="kpi"><span>Sales the ad budget buys</span><div class="big">${a.paidSales ?? "n/a"}</div></div>
+        </div>`;
+        html += `<div class="notes">${esc(a.verdict)}<br>${m.notes.length ? m.notes.map(esc).join("<br>") : ""}</div>`;
+        html += `<table><caption class="sr">Launch calendar</caption><tr><th>Week</th><th>Phase</th><th class="num">Ad spend</th><th class="num">Sales target</th><th>Tasks (drafts)</th></tr>${m.calendar.map(w => `<tr><td>${w.week}</td><td>${esc(w.phase)}<br><span class="muted">${esc(w.goal)}</span></td><td class="num">${w.adSpend.toFixed(2)}</td><td class="num">${w.salesTarget}</td><td><ul>${w.tasks.map(t => `<li>${esc(t)}</li>`).join("")}</ul></td></tr>`).join("")}</table>`;
+      } catch (err) {
+        html = `<p class="notes">${esc(err.message)}</p>`;
+      }
+      $("#mkt-out").innerHTML = html;
+      $("#mkt-csv").disabled = !lastMkt;
+    }
+    $("#mkt-csv").addEventListener("click", () => {
+      if (!lastMkt) return;
+      const url = URL.createObjectURL(new Blob([calendarCsv(lastMkt)], { type: "text/csv" }));
+      const a = document.createElement("a"); a.href = url; a.download = "launch-calendar.csv"; a.click(); URL.revokeObjectURL(url);
+      recordUsage("marketing_csv");
+    });
 
     render();
     recordUsage("open");
