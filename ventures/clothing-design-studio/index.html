@@ -203,6 +203,7 @@
           <button class="btn small" type="button" id="sep-brief" disabled>Download printer brief</button>
           <button class="btn small" type="button" id="sep-films" disabled>Download films (printable page)</button>
           <button class="btn small" type="button" id="sep-apply" disabled>Use this screen count on the selected artwork</button>
+          <button class="btn small" type="button" id="sep-tradeoff" disabled>How many inks is it worth?</button>
         </div>
         <div id="sep-out" aria-live="polite"></div>
       </section>
@@ -377,6 +378,7 @@
     import { storefront } from "./storefront.mjs";
     import { addToShelf, removeFromShelf, shelfToShop, loadShelf } from "./shelf.mjs";
     import { marketingPlan, calendarCsv, learnFromTest, DEFAULT_ASSUMPTIONS } from "./marketing.mjs";
+    import { inkTradeoff } from "./inktradeoff.mjs";
     import { separate, films, previewRgba, separationBrief } from "./separation.mjs";
     import { recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -720,7 +722,7 @@
         <p><strong>${sp.screens} screens</strong> (${sp.inks.length} inks${sp.underbase ? " + white underbase" : ""}) at ${sp.widthCm} x ${sp.heightCm} cm. Raised outline covers ${sp.raised.coveragePct}%.</p>
         <ol>${sp.inks.map(i => `<li><span style="display:inline-block;width:1em;height:1em;background:${i.hex};border:1px solid #888;vertical-align:-2px"></span> ${i.hex}: ${i.coveragePct}% of the artwork${i.thinSharePct >= 10 ? `, ${i.thinSharePct}% too fine` : ""}</li>`).join("")}</ol>
         <ul class="muted">${sp.notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>`;
-      for (const id of ["#sep-brief", "#sep-films", "#sep-apply"]) $(id).disabled = false;
+      for (const id of ["#sep-brief", "#sep-films", "#sep-apply", "#sep-tradeoff"]) $(id).disabled = false;
     }
     $("#sep-file").addEventListener("change", e => {
       const file = e.target.files[0];
@@ -751,6 +753,15 @@
       if (!lastSep) return;
       const err = commit({ op: "inkColours", value: lastSep.screens }, "separation_apply");
       log(err ? `<span class="miss">${esc(err)}</span>` : `Selected artwork set to ${lastSep.screens} screens.`);
+    });
+
+    $("#sep-tradeoff").addEventListener("click", () => {
+      if (!lastPixels) return;
+      try {
+        const r = inkTradeoff(lastPixels, d(), sheet, { widthCm: $("#sep-width").value, raisedLineMm: $("#sep-line").value });
+        $("#sep-out").insertAdjacentHTML("beforeend", `<table><caption>Inks against cost per garment (your supplier sheet, ${esc(r.currency)})</caption><tr><th>Inks</th><th>Screens</th><th>Landed</th><th>Extra</th><th>Distance from painting</th></tr>${r.table.map(t => `<tr${t.inks === r.recommended ? ' style="font-weight:bold"' : ""}><td>${t.inks}</td><td>${t.screens}</td><td>${t.landed.toFixed(2)}</td><td>${t.extraCost ? "+" + t.extraCost.toFixed(2) : ""}</td><td>${t.meanDeltaE}</td></tr>`).join("")}</table><p class="muted">${esc(r.note)}</p>`);
+        recordUsage("separation_tradeoff");
+      } catch (e) { $("#sep-out").insertAdjacentHTML("beforeend", `<p class="miss">${esc(e.message)}</p>`); }
     });
 
     // variants
