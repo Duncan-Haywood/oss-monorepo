@@ -5752,7 +5752,7 @@
   "2026-11-03": {
    "about": 2,
    "ask": 2,
-   "bot:headless": 12972,
+   "bot:headless": 12998,
    "botpage:1099-k-threshold-checker": 13,
    "botpage:1099-vendor-csv-checker": 6,
    "botpage:1099-vendor-tracker": 14,
@@ -5859,7 +5859,7 @@
    "botpage:bail-bond-agency-exposure-calculator": 6,
    "botpage:bakery-production-scheduler": 6,
    "botpage:ball-python-morph-pairing-planner": 7,
-   "botpage:band-tour-profit-planner": 8,
+   "botpage:band-tour-profit-planner": 16,
    "botpage:bandcamp-sales-report-analyzer": 5,
    "botpage:bank-csv-to-qbo-converter": 6,
    "botpage:bank-statement-pdf-to-csv": 5,
@@ -6091,7 +6091,7 @@
    "botpage:construction-delay-claim-calculator": 5,
    "botpage:construction-evidence-log": 9,
    "botpage:container-demurrage-detention-calculator": 5,
-   "botpage:container-load-planner": 8,
+   "botpage:container-load-planner": 16,
    "botpage:contract-vs-fte-rate-calculator": 5,
    "botpage:contractor-bid-readiness": 11,
    "botpage:contractor-wip-schedule": 5,
@@ -6183,7 +6183,7 @@
    "botpage:dynamodb-capacity-mode-advisor": 7,
    "botpage:eaa-accessibility-act-checker": 8,
    "botpage:early-pay-discount-picker": 5,
-   "botpage:ebay-fee-calculator": 80,
+   "botpage:ebay-fee-calculator": 83,
    "botpage:ebay-file-exchange-check": 5,
    "botpage:ebay-payout-to-journal": 4,
    "botpage:ebay-promoted-listings-roi-analyzer": 5,
@@ -6485,7 +6485,7 @@
    "botpage:lawn-care-bid-calculator": 13,
    "botpage:lcl-vs-fcl-container-calculator": 5,
    "botpage:lead-response-time-analyzer": 5,
-   "botpage:league-schedule-generator": 65,
+   "botpage:league-schedule-generator": 72,
    "botpage:lemonsqueezy-payout-to-journal": 5,
    "botpage:liability-audit": 7,
    "botpage:license-compat-check": 7,
@@ -7175,6 +7175,16 @@
    "dev:desktop": 10,
    "geo:SG": 1,
    "geo:US": 9
+  },
+  "2026-11-04": {
+   "about": 3,
+   "ask": 1,
+   "custom-development": 6,
+   "dev:desktop": 9,
+   "dev:mobile": 3,
+   "fence-bid-calculator": 2,
+   "geo:RS": 2,
+   "geo:US": 10
   }
  }
 }
