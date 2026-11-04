@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 65: paper gains the stall-fraction schedule result (milestone 64)
+- Why: milestone 64's "Next" listed the paper paragraph. Extended the progress-check paragraph in `paper/main.tex` (heading now milestones 53 to 64) with one sentence: flat 0.99 leaves 32 of 128 harmful and unflagged; descending schedules 42 and 40; ascending 27; stated as suggestive, not established. Numbers copied from milestone 64.
+- No new experiment; no prediction to test. LaTeX not compiled (no TeX here).
+- Next: the finer grid of descending schedules at n = 256 (about 2 h, needs torch) to separate the gap from noise.
+
 ## 2026-11-03 · Milestone 64: does a stall fraction that changes over the window beat the best fixed one? (H4/H3 link, planned before running)
 - Why: milestone 63's "Next" (online-adaptive fraction). The cheater gets no feedback about the true threshold during a job, so a literal online learner has no new information; the testable part is whether a fraction *schedule* over the 200-step window (stall hard early, shade later, or the reverse) beats the flat 0.99. Design (`experiments/progress_frac_schedule/run.py`, milestone 61 code): sigma = 0.05, linear noise, R = 1.01, n = 128; schedules flat 0.99, 0.99 to 0.95, 0.95 to 0.99, 0.99 to 0.90 (linear in the step within the window).
 - **Predictions, before running:** (1) flat 0.99 reproduces 35 / 67 / 32 (flagged / harmful / harmful-and-unflagged). (2) No schedule exceeds 38 harmful-and-unflagged (the milestone 61 line), since the belief error is fixed per job and a schedule adds no information about it. Refuted (2) if any schedule exceeds 38.
