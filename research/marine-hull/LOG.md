@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 7m: fold 4c to 4g into the paper draft (no experiment run)
+- Why: 4c to 4g (Slocum bench dive energy, Seaglider budget, sourced AUV hotel loads, mission days, OSCAR-weighted currents) were logged but absent from `paper/DRAFT.md`, whose glider paragraph still ended at 7g's unsourced overhead.
+- What: one paragraph added after the 7g sentence in section 2.3; every number copied from the LOG entries and the `results_*.txt` files it names. No new numbers, no experiment, no citations added.
+- Limits: prose only; the draft still cites sources as the LOG describes them (Bellingham et al., Ocean Science preprint, MARTECH 2025 paper), none yet in the BibTeX/`PROPOSAL.md` citation list.
+- Next: add those sources to the citation list and run the open-and-read pass; coastal currents (tide model or ADCP) for shelf surveys.
+
 ## 2026-11-04 · Milestone 4g: 4f's cross-current sweep weighted by a sourced global surface-current distribution (OSCAR)
 - Why: 4f swept the cross-current 0 to 0.5 m/s with no source, and 4f-days ended with "a current model, since 0.2 m/s is below typical ocean currents". Source: OSCAR 1/3 degree, 5-day, 15 m surface velocity (NASA/JPL, via NOAA CoastWatch ERDDAP `jplOscar`), 13 dates of 2013, every 4th degree, 60S to 60N, ocean points, weighted by cos(latitude). Raw samples kept in `experiments/data/oscar_{u,v}.csv`.
 - Prediction (written before the run): the share of ocean where the glider cannot hold a track is between 20% and 40% in the worst case (whole current cross-track), and the glider keeps lower energy per ground metre than the AUV in a clear majority of triples at a random heading.
