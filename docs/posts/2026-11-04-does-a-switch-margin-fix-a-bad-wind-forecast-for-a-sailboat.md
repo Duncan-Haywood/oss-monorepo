@@ -1,7 +1,7 @@
 ---
 title: "Does a tack margin fix a bad wind forecast for a sailboat?"
 date: 2026-11-04
-description: "A pre-registered negative result from the marine-hull programme: damping tacks with a fixed margin made a replanning sailboat controller worse at every forecast skill."
+description: "A pre-registered negative result: damping tacks with a fixed margin made a replanning sailboat controller worse at every forecast skill."
 tags: [marine-hull, sailing, negative-result]
 ---
 

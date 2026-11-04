@@ -38,7 +38,7 @@
   "deviations": [],
   "writeups": [
     "docs/posts/2026-11-04-does-a-switch-margin-fix-a-bad-wind-forecast-for-a-sailboat.md",
-    "research/marine-hull/LOG.md 5e"
+    "research/marine-hull/LOG.md"
   ],
   "goal": null,
   "notes": "marine-hull 5e: pre-registered margin sweep, negative result. CI had no check runs at merge time; local: 82 tests pass, homepage build ok.",
