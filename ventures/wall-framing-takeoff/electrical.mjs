@@ -39,6 +39,31 @@ export function validateElectrical(d, plan) {
 }
 
 /**
+ * The walls this module reads: a wall needs a positive length, and each opening a kind, an offset
+ * from the wall start of zero or more and a positive width that ends on the wall. Before, a wall
+ * of length 0 or -5 or a door 1000 in along a 300 in wall put boxes off the wall.
+ * @param {any} plan
+ */
+export function validateElectricalWalls(plan) {
+  if (plan == null || !Array.isArray(plan.walls)) return ["The plan needs a walls list."];
+  /** @type {string[]} */ const e = [];
+  plan.walls.forEach((/** @type {any} */ w, i) => {
+    if (w == null || typeof w !== "object") { e.push(`walls[${i + 1}] is an object.`); return; }
+    const n = `Wall ${w.id ?? i + 1}`;
+    if (!(typeof w.length === "number" && Number.isFinite(w.length) && w.length > 0)) { e.push(`${n} needs a length above 0.`); return; }
+    if (w.openings != null && !Array.isArray(w.openings)) { e.push(`${n}: openings is a list.`); return; }
+    (w.openings || []).forEach((/** @type {any} */ o, j) => {
+      const m = `${n} opening ${j + 1}`;
+      if (o == null || typeof o !== "object" || typeof o.kind !== "string") { e.push(`${m} needs a kind.`); return; }
+      if (!(Number.isFinite(o.offset) && o.offset >= 0)) e.push(`${m} needs an offset of 0 or more.`);
+      else if (!(Number.isFinite(o.width) && o.width > 0)) e.push(`${m} needs a width above 0.`);
+      else if (o.offset + o.width > w.length + 1e-9) e.push(`${m} runs past the end of the wall (${o.offset} + ${o.width} in on ${w.length} in).`);
+    });
+  });
+  return e;
+}
+
+/**
  * Wall spaces along one face: the stretches between doors.
  * @param {number} length @param {{ kind: string, offset: number, width: number }[]} ops
  * @returns {{ start: number, end: number }[]}
@@ -80,7 +105,7 @@ export function snapToStuds(ideal, start, end, studs, maxSp) {
  * @param {Record<string, { members: { kind: string, orient: string, x: number, w: number }[] }>} [layouts] wall layouts by id; with them, boxes snap to studs
  */
 export function layoutElectrical(d, plan, layouts) {
-  const errors = validateElectrical(d, plan);
+  const errors = [...validateElectricalWalls(plan), ...validateElectrical(d, plan)];
   if (errors.length) return { ok: false, errors };
   const maxSp = d.maxSpacing ?? 144, minSp = d.minSpace ?? 24, perDoor = d.switchPerDoor ?? 1;
   const skip = new Set(d.skipWalls || []);
