@@ -68,7 +68,7 @@ Usage:
   node cli.mjs plan.json --ventilation  size attic vents (IRC R806 net free area, 1/150 or 1/300) and count the ridge vent and soffit vents (needs a roof; plan ventilation: ratio, atticSqFt, ridgeVent, upperShare, ridgeNfaPerFt, soffitUnitNfa, soffitUnitWidth, ridgePrice, soffitPrice)
   node cli.mjs plan.json --gutters    add gutters, downspouts, hangers, caps and elbows along the roof's eaves (needs a roof; plan gutters: gutterStock, downspoutStock, eaveHeight, hangerSpacing, maxRunFeet, sqFtPerDownspout, strapSpacing, waste, and a price for each part)
   node cli.mjs plan.json --dormer     frame a gable dormer from plan.dormer: width, eaveHeight, pitch, mainPitch (defaults to the roof pitch), spacing, studSize, rafterSize, valleySize, ridgeSize, window {width, height, sill}
-  node cli.mjs plan.json --eaves       add soffit panels, fascia boards and J-channel under the roof overhangs (needs a roof; plan eaves: panelWidth, panelStock, fasciaStock, channelStock, waste, rakeSoffit, panelPrice, fasciaPrice, channelPrice)
+  node cli.mjs plan.json --eaves       add soffit panels, fascia boards and J-channel under the roof overhangs (needs a roof; plan eaves: panelWidth, panelStock, fasciaStock, channelStock, waste, rakeSoffit, ventedPanelNfa, panelPrice, fasciaPrice, channelPrice)
   node cli.mjs plan.json --siding      add exterior lap siding courses, house wrap and corner boards (plan siding: exposure, stock, waste, wrapRollSqFt, wrapLap, corners, cornerStock, height, boardPrice, wrapPrice, cornerPrice, style, boardWidth, openingTrim, trimWidth, trimStock, trimPrice)
   node cli.mjs plan.json --trim        add baseboard and door and window casing boards (plan trim: scarf, shoe, shoeStock, shoePrice, baseSides, baseStock, casingStock, casingWidth, reveal, waste, basePrice, casingPrice)
   node cli.mjs plan.json --openings    print the door and window schedule: marks, counts, rough and unit sizes, header, sill height, where each sits (plan openingSchedule: unitAllowance, doorPrefix, windowPrefix)
@@ -263,7 +263,7 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   }
   let eaved = null;
   if (r.ok && (flags.has("--eaves") || plan.eaves)) {
-    const eaves = layoutEaves(plan.eaves || {}, roof);
+    const eaves = layoutEaves(plan.eaves || {}, roof, plan.ventilation || flags.has("--ventilation") ? layoutVentilation(plan.ventilation || {}, roof) : undefined);
     if (!eaves.ok) return { code: 1, out: `The eaves have problems:\n${eaves.errors.map((e) => `  - ${e}`).join("\n")}` };
     r.eaves = eaved = eaves;
   }
