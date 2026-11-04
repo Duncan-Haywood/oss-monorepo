@@ -90,3 +90,20 @@ def test_recode_groups_and_indicators():
 def test_partyid_other_party_is_missing():
     d = recode.recode(frame())
     assert math.isnan(d['republican'].iloc[2])
+
+
+def test_wls_cluster_intercept_matches_domain_mean_se():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        'm3run', Path(__file__).resolve().parent / 'experiments' / 'm3_mode' / 'run.py')
+    m3 = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m3)
+    rng = np.random.default_rng(5)
+    n = 600
+    psu = np.repeat(np.arange(60), 10)
+    strat = np.repeat(np.arange(6), 100)
+    y = rng.normal(size=60)[psu] + rng.normal(size=n)
+    w = rng.uniform(0.5, 2.0, size=n)
+    b, se = m3.wls_cluster(np.ones((n, 1)), y, w, strat.astype(float), psu.astype(float))
+    m, se2, _ = survey.domain_mean(y, w, np.ones(n, bool), strat.astype(float), psu.astype(float))
+    assert math.isclose(b[0], m, rel_tol=1e-9) and math.isclose(se[0], se2, rel_tol=1e-9)
