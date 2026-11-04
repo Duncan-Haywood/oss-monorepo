@@ -215,3 +215,16 @@ test("--rest-under lists short turnarounds with a premium on the operator's numb
   assert.equal(parseArgs(["--rest-under", "10"]).restUnder, 10);
   assert.throws(() => parseArgs(["--rest-under", "x"]), /between 0 and 48/);
 });
+
+test("--split-shifts lists same-day gaps and parses its optional hours", () => {
+  const staff = "Ana, 20, 40, 0, Mon 8-22\n";
+  const shifts = "Mon, 11, 14, 1, lunch\nMon, 17, 21, 1, dinner\n";
+  const r = run(staff, shifts, { splitShifts: 1, premiumHours: 1, options: { minRestHours: 2 } });
+  assert.match(r.out, /1 split shift\(s\)/);
+  assert.match(r.out, /3 h gap/);
+  assert.match(r.out, /Not legal advice/);
+  assert.match(run(staff, shifts, { splitShifts: 4, options: { minRestHours: 2 } }).out, /No split shift/);
+  assert.equal(parseArgs(["--split-shifts"]).splitShifts, 1);
+  assert.equal(parseArgs(["--split-shifts", "2.5", "--csv"]).splitShifts, 2.5);
+  assert.throws(() => parseArgs(["--split-shifts", "20"]), /between 0 and 12/);
+});

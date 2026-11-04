@@ -1799,3 +1799,24 @@ test("restPremium finds short turnarounds, prices them and skips exempt people",
   assert.equal(restPremium(csv, { restHours: 8 }).turnarounds.length, 0, "exactly the window is not short");
   assert.equal(restPremium(csv, { restHours: 11 }).turnarounds[0].premiumUnpriced, true);
 });
+
+import { splitShifts } from "./calc.mjs";
+
+test("splitShifts finds same-day pairs with a gap, prices them and skips exempt people", () => {
+  const csv = [
+    "day,start,end,hours,label,assigned_to,role",
+    "Mon,11:00 AM,2:00 PM,3.00,lunch,Ana,",
+    "Mon,5:00 PM,9:00 PM,4.00,dinner,Ana,",
+    "Tue,11:00 AM,2:00 PM,3.00,lunch,Ben,",
+    "Tue,2:30 PM,6:00 PM,3.50,mid,Ben,",
+    "Wed,8:00 AM,12:00 PM,4.00,a,Ben,",
+    "Thu,8:00 AM,12:00 PM,4.00,a,Ben,",
+  ].join("\n") + "\n";
+  const r = splitShifts(csv, { minGapHours: 1, premiumHours: 1, wages: { Ana: 20, Ben: 15 } });
+  assert.equal(r.splits.length, 1, "a 30 minute gap and shifts on different days are not splits");
+  assert.equal(r.splits[0].gapHours, 3);
+  assert.equal(r.owed, 20);
+  assert.equal(splitShifts(csv, { minGapHours: 0.5, wages: { Ana: 20, Ben: 15 } }).splits.length, 2);
+  assert.equal(splitShifts(csv, { wages: { Ana: 20 }, exempt: ["ana"] }).owed, 0);
+  assert.equal(splitShifts(csv, {}).splits[0].premiumUnpriced, true);
+});
