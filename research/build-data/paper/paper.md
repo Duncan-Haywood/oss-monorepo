@@ -20,7 +20,8 @@ baseline on pinball loss in 13 of 15 city/target/quantile cells, by 2 to 36%; in
 Chicago a2i it loses at the 0.1 and 0.9 quantiles. (3) Split-conformal intervals do
 not hold the nominal 80% in 2024 in three of five pairs (0.86 to 0.89 against 0.80),
 because same-day permits tie the conformity scores at zero and the method cannot
-narrow the interval. (4) A model trained on the other cities is worse than the
+narrow the interval; dequantising, Mondrian grouping and rolling calibration do not fix
+it, and choosing tighter quantile levels does on SF but not on Chicago (4.2a). (4) A model trained on the other cities is worse than the
 held-out city's own baseline in 13 of 15 cells (+2 to +137%). (5) A model pooled with
 the other cities plus n rows of the new city needs more than 1000 local rows to
 match the city's full-history baseline in Chicago and San Francisco a2i, and a
@@ -125,6 +126,30 @@ permits tie the scores. Where the raw interval under-covers, conformal widens it
 3.5 to 22 days and gains 4 to 11 points. The two-sample KS statistic of calibration
 against test scores is 0.02 to 0.07 except Chicago a2i 2024 (0.246).
 
+### 4.2a Can the over-coverage be repaired? Four attempts, one partial success (H2b to H2e)
+
+Chicago and SF a2i over-cover (0.860 and 0.891 in 4.2) and conformal calibration cannot
+narrow them. We tried four fixes, each pre-registered in `LOG.md` before the run (2024 test
+year, 3 seeds, fresh pulls; results in `results/conformal_*_2024.json`). Target band: 77 to 83%.
+
+| attempt | what it changes | outcome |
+|---|---|---|
+| H2b dequantised CQR (uniform jitter on integer days) | breaks the score ties at 0 | in the band in 3 of 5 pairs (plain CQR 2 of 5); Chicago a2i 0.556, SF a2i 0.344 before rounding the interval outward, 0.866 and 0.901 after |
+| H2c Mondrian CQR by predicted P(same day) band | one qhat per band | in the band in 0 of 4 finished pairs; every Chicago and SF a2i band has qhat 0 |
+| H2d rolling and adaptive calibration over 2024 | calibration set closer in time | no-op: weekly qhat is 0 for every window and for adaptive conformal (gamma 0.02); coverage stays 0.867 and 0.901 |
+| H2e choose the quantile pair (tau_lo, tau_hi) by calibration width | tighter base interval | SF a2i in the band (0.828) with a 57% narrower interval (27.2 vs 63.3 days); Chicago a2i out (0.748, width 24.5 vs 67.9 days) |
+
+Why the first three fail: the same-day share is a point mass at score 0. In Chicago it fell
+from 0.520 (2023) to 0.304 (2024); in SF it was 0.515 and 0.554. While that mass exceeds the
+20% allowed, the 80th-percentile score sits on it and qhat is 0, so no calibration window or
+grouping can move it. Coverage above 80% comes from the base interval (63 to 68 days wide)
+containing the long tail. The lever is the base quantile pair, not the calibration.
+
+H2e shows narrowing is available and safe on SF, but on Chicago the calibration-width rule
+picks the tightest pair, whose calibration coverage (0.808) falls to 0.748 in 2024: the
+same-day drift now acts on a nonzero qhat. In the grid only Chicago (0.2, 0.85) lands in the
+band (0.805, width 39.1), a post-hoc observation, not a result. One test year for H2e.
+
 ### 4.3 Which fields (H3, as worded)
 
 Permutation importance: the smallest number of fields reaching 80% of the total
@@ -160,20 +185,20 @@ configuration per library (defaults, untuned); the neural net in the proposal is
 harmonised class map is a keyword rule not validated against hand labels; Chicago
 is survivorship-biased and has no i2c; "completed" is a status date; the spread over
 draws in 4.5 is not reported; i2c is not rerun for H5b; no fourth city (NYC DOB NOW
-licence unchecked). Drift years 2022 and 2023 exist only for conformal coverage.
+licence unchecked). Drift years 2022 and 2023 exist only for conformal coverage; 4.2a uses 2024 only and does not run Austin or i2c for H2d and H2e.
 
 ## 6 What a practitioner can take
 
 For a new city, start with the per-type empirical quantile of its own recent
 permits; a few hundred rows already come close to the full-history version. Do not
 rely on a model trained elsewhere, and do not trust the nominal coverage of a
-conformal interval where a large share of lags are exactly zero: model the
-same-day indicator separately first.
+conformal interval where a large share of lags are exactly zero: check the same-day share first;
+tighter quantile levels (4.2a) can halve the width, but pick them with drift in mind.
 
 ## 7 To do before submission
 
 1. A neural net baseline; per-library tuning (Austin a2i CatBoost gap).
-2. Two-part conformal (same-day indicator, then tail) to repair 4.2.
+2. A drift-aware choice of the quantile pair (4.2a), tested on test years 2022 to 2024; Austin and i2c for H2e.
 3. Spread over draws and i2c for 4.5; first-n-rows ordering instead of random draws.
 4. Multiple test years for H1; a fourth city after a licence check.
 5. Publish the permit-duration prior data file for `ventures/` (milestone 7).
