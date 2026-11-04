@@ -301,6 +301,9 @@ const RULES = {
     P("\\b(don'?t|dont|do not) send (me|us) (anything|any ?more|more)\\b"), P("\\b(contact|email|write to|message) (me|us) (anymore|any more|again)\\b.*\\b(don'?t|do not|please don)"),
     P("supprimiez (mon|mes|notre|nos)\\b"), P("deja de (enviar|mandar|escribir)(me|nos)?\\b"), P("\\bnon (scrivetemi|scrivermi|inviatemi|mandatemi)\\b"),
     P("\\bcease and desist\\b"), P("\\bcease (all )?(further )?(email|e-mail|communication|contact)"),
+    // Added 2026-11-04: a probe found "delete all my personal data under GDPR Article 17" went to unclear; erasure asks with "all (of)" or
+    // "personal" before the noun, and "right to erasure / be forgotten", now stop contact. Agent-written, unscored on real mail.
+    P("\\b(delete|remove|erase|purge) (all )?(of )?(my|our) (personal |contact |stored )*(details|data|info|information|records?|profile)\\b"), P("\\bright to (erasure|be forgotten)\\b"),
     // Other languages (added after the third eval set; unverified beyond one example each): FR, DE, ES, IT opt-out phrasings.
     P("\\bne (me )?contactez plus\\b"), P("\\b(retirer|supprimer) (de|mon|mes|mon adresse)\\b.*\\b(liste|diffusion|donn[ée]es)"), P("\\b(kontaktieren|anschreiben|schreiben)( sie)? mich nicht mehr\\b"), P("\\bnicht mehr (kontaktieren|anschreiben|schreiben)\\b"), P("\\bsc?hreiben sie mir nicht mehr\\b"), P("\\bno me (vuelvan a )?(escrib|contact)"), P("\\bnon (mi |ci )?contatt\\w* pi[uù]\\b"), P("\\bnon contattatemi\\b"),
     // Added 2026-11-02 (second probe): SV, DA, NO, PL, FI, TR, CS, HU, RO, RU, JA, ZH and DE/EN gaps; 27 of 37 short phrasings went to "unclear". Agent-written, unscored on real mail.

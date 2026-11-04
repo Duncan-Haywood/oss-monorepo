@@ -316,3 +316,9 @@ test("\"not interested in switching unless you integrate\" is an objection, not 
   const t = triage({ subject: "Re: hi", body: "Not interested in switching unless you integrate with Xero." }, "2026-11-03");
   assert.equal(t.category, "objection");
 });
+
+test("GDPR erasure asks stop contact (found as unclear in a 2026-11-04 probe)", () => {
+  for (const body of ["Please delete all my personal data under GDPR Article 17.", "I invoke my right to erasure.", "Erase all of my contact details from your systems."])
+    assert.equal(triage({ subject: "Re: hi", body }, "2026-11-04").category, "unsubscribe", body);
+  assert.notEqual(triage({ subject: "Re: hi", body: "Can you send the data processing details for your product?" }, "2026-11-04").category, "unsubscribe");
+});
