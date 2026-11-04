@@ -20,6 +20,20 @@ Track 21 (`infra`), grid first. Grid dispatch is routinely planned and priced wi
 - On case30 and case39 the dispatch differences are within 0.1 % of cost and change sign, so the "recovered" percentage there is not meaningful. The load 1.1 rows of case30 and case39 returned no solution from the AC OPF.
 - **Reading:** loss feedback is the right fix for the *price level* and the wrong one for the *merit order*. Fixing the order needs losses charged at the margin where they occur (penalty factors).
 
+## Nodal loss penalty factors (added 2026-11-04, `experiments/run_penalty.py`, `results_penalty.txt`)
+`penalty_adjusted_dc` adds to the uniform loss share each generator's penalty factor 1/(1 - dLoss/dP), from a finite-difference AC loss sensitivity (+1 MW at the generator, the external grid absorbing), applied as a multiplier on the generator's cost curve, with the factors updated each pass (damped 0.5; undamped it oscillated at full load). Dispatches are priced with the original costs under AC power flow. AC cost of the dispatch above the AC optimum, case118:
+
+| load | plain DC | uniform loss share | penalty factors |
+|---|---|---|---|
+| 0.6 | 0.728 % | 0.635 % | 0.559 % |
+| 0.8 | 0.750 % | 0.577 % | 0.461 % |
+| 1.0 | 1.479 % | 1.179 % | 1.345 % |
+| 1.1 | 1.678 % | 1.149 % | 2.236 % |
+
+- **Mixed result, one solver, one dispatch point per cell.** Penalty factors repair the merit order further at light load (at 0.8 they recover about 39 % of plain DC's excess against 23 % for the uniform share), but at the case's full load and above they are *worse* than the uniform share and, at 1.1, than plain DC. A first undamped run was far worse (3.5 and 20.8 %), so the damping matters and I have not shown the damped iteration converges; the sensitivities are taken at the DC dispatch, not the AC optimum, and an operating point where the slack's own loss sensitivity differs from the marginal one may make the factors wrong.
+- On case30 and case39 differences are within 0.1 % and change sign, as before; not interpretable. Load 1.1 has no AC solution on those two.
+- So step 2 is not "done": penalty factors are not a safe fix at high load here. Next: take sensitivities at the AC optimum (one-shot), or use a distributed slack.
+
 ## Method (`src/infra_dcopf/dcopf.py`)
 - **Cases.** `case30`, `case39` and `case118` from `pandapower.networks` (MATPOWER cases), with their quadratic generator costs (`poly_cost`).
 - **Two OPFs per condition.** `runopp` (AC, PIPS interior point, voltage and branch loading limits) and `rundcopp` (DC), on the same network with load scaled by 0.6, 0.8, 1.0 and 1.1 (P and Q together).
@@ -53,14 +67,14 @@ Findings (one case, one load level, preliminary):
 
 ## Next steps
 1. Repeat the LMP comparison on a case whose published ratings bind (MATPOWER `case300`, or case118 with ratings from a real source) and separate the loss and congestion components of the price.
-2. Nodal loss penalty factors (from the AC solution's loss sensitivities) instead of a uniform load share, to see whether the merit order, not just the price level, is repaired.
+2. Penalty factors were tried (above) with mixed results; next, take sensitivities at the AC optimum or use a distributed slack.
 3. Reactive-aware fix: add voltage-band constraints to the LP and see whether case39's violations go away.
 
 ## Reproduce
 ```bash
 pip install pytest numpy pandapower
 cd research/infra-dcopf
-python -m pytest -q tests                     # 8 tests, about 15 s
+python -m pytest -q tests                     # 10 tests, about 15 s
 PYTHONPATH=src python experiments/run.py      # about 1 min; writes experiments/results.txt
 PYTHONPATH=src python experiments/run_lossadj.py  # loss-adjusted DC, about 1 min; writes results_lossadj.txt
 python experiments/run_lmp.py                 # LMP comparison, about 1 min; writes experiments/results_lmp.txt
