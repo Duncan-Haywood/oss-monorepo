@@ -36,7 +36,10 @@
       "why": "No runcost attach or venture-preflight: change is an eval script, data file and test only."
     }
   ],
-  "writeups": "docs/posts/2026-11-04-does-the-1973-productivity-slowdown-show-up-in-a-changepoint-test.md; README slope-breaks paragraph",
+  "writeups": [
+    "docs/posts/2026-11-04-does-the-1973-productivity-slowdown-show-up-in-a-changepoint-test.md",
+    "ventures/changepoint-detector/README.md"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],
