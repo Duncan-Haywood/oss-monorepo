@@ -1,5 +1,6 @@
 ---
 title: "Gap probe 22: 23 bank descriptors for five trades, 9 filed before the rules"
+seo_title: "Gap probe 22: five trades, 23 bank descriptors, 9 filed"
 date: 2026-11-03
 description: "ai-bookkeeper filed 9 of 23 made-up descriptors for mobile notaries, piano tuners, florists, tattoo artists and pool installers. New rules file all 23."
 tags: [ai-bookkeeper, small-business, bookkeeping]
