@@ -233,7 +233,7 @@ flagships:
       assignment under rest constraints, blackouts, play-offs, ladders and
       Swiss formats, with a self-hosted league page.
     next: >-
-      Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/ (multi-division scheduling on shared venues, travel, rainouts and change notices, standings, play-offs, weekly update, clinch watch, overdue scores, remaining-schedule strength, officials, and a per-venue facility booking request via divisionsBookings / CLI --bookings, 2026-11-04; all unit-tested and browser-clicked on made-up leagues only). Next: a page button for the booking request; a real league's travel times and a real league's unavailable-date requests.
+      Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/ (multi-division scheduling on shared venues, travel, rainouts and change notices, standings, play-offs, weekly update, clinch watch, overdue scores, remaining-schedule strength, officials, and a per-venue facility booking request via divisionsBookings / CLI --bookings, 2026-11-04, now with a page button; all unit-tested and browser-clicked on made-up leagues only). Next: a real league's travel times and a real league's unavailable-date requests.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
