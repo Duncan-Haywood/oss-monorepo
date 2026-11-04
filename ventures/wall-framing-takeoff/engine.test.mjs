@@ -1071,3 +1071,22 @@ test("a wall marked bearing:false frames one header ply per opening, and says so
   assert.ok(nb.notes.some((n) => /single-ply headers/.test(n) && /D/.test(n)));
   assert.ok(!mk(undefined).notes.some((n) => /single-ply/.test(n)));
 });
+
+test("a single-slope (shed) wall: peak at the wall end, one sloped plate run, studs rise to 4:12 x 192 in = 64 in, layout verifies", () => {
+  const plan = { ...base(), walls: [{ id: "S", length: 192, gable: { pitch: 4, peak: 192 } }] };
+  assert.deepEqual(validatePlan(plan), []);
+  const w = layoutWall(plan, plan.walls[0]);
+  assert.deepEqual(verifyWall(w, plan.walls[0]), []);
+  assert.equal(w.gable.peakRise, 64);
+  const tall = Math.max(...w.members.filter((m) => m.kind === "stud").map((m) => m.h));
+  assert.equal(tall, plan.studLength + 64); // end stud at the high end reaches the full rise
+  // top plate lies along one slope: total length = run x sqrt(1 + (4/12)^2) = 192 x 1.0540
+  const top = w.members.filter((m) => m.kind === "plate" && m.label === "top plate").reduce((s, m) => s + m.length, 0);
+  assert.ok(Math.abs(top - 192 * Math.sqrt(1 + 1 / 9)) < 1e-6);
+  assert.ok(w.members.every((m) => Number.isFinite(m.x + m.y + m.w + m.h + m.length)));
+});
+
+test("a gable peak between 'clear of the end studs' and the wall end is still refused", () => {
+  const plan = { ...base(), walls: [{ id: "S", length: 192, gable: { pitch: 4, peak: 190 } }] };
+  assert.ok(validatePlan(plan).length > 0);
+});

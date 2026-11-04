@@ -261,7 +261,7 @@ export function validatePlan(plan) {
     if (wall.gable) {
       const g = wall.gable;
       if (!(g.pitch > 0 && g.pitch <= 24)) errors.push(`${name}: a gable pitch is the rise per 12 inches of run, more than 0 and at most 24.`);
-      if (g.peak !== undefined && !(g.peak >= 2 * THICK + EPS && g.peak <= wall.length - 2 * THICK - EPS)) errors.push(`${name}: a gable peak is the distance from the wall start, clear of both end studs.`);
+      if (g.peak !== undefined && !(g.peak >= 2 * THICK + EPS && (g.peak <= wall.length - 2 * THICK - EPS || Math.abs(g.peak - wall.length) < EPS))) errors.push(`${name}: a gable peak is the distance from the wall start, clear of both end studs (or equal to the wall length for a single slope).`);
     }
     const ops = [...(wall.openings || [])].sort((a, b) => a.offset - b.offset);
     let prevEnd = -Infinity;
@@ -319,7 +319,7 @@ function gableRiseAt(wall) {
   const L = wall.length;
   const mid = wall.gable.peak ?? L / 2;
   const slopeL = wall.gable.pitch / 12;
-  const slopeR = (slopeL * mid) / (L - mid);
+  const slopeR = L - mid < EPS ? 0 : (slopeL * mid) / (L - mid);
   return (x) => (x <= mid ? slopeL * x : slopeR * (L - x));
 }
 
@@ -641,7 +641,7 @@ function layoutGable(plan, wall) {
   const s = plan.studSpacing;
   const mid = wall.gable.peak ?? L / 2;
   const slopeL = wall.gable.pitch / 12;
-  const slopeR = (slopeL * mid) / (L - mid);
+  const slopeR = L - mid < EPS ? 0 : (slopeL * mid) / (L - mid);
   const secL = Math.sqrt(1 + slopeL * slopeL);
   const secR = Math.sqrt(1 + slopeR * slopeR);
   const rise = (x) => (x <= mid ? slopeL * x : slopeR * (L - x));
@@ -767,12 +767,14 @@ function layoutGable(plan, wall) {
   const capJoints = [];
   const forbidden = [];
   for (const { a, b, flat } of [side(0, mid, flatL), side(mid, L, flatR)]) {
+    if (b - a < EPS) continue;
     const j = splitPlate(a, b, centres, flat, []);
     if (!j) { notes.push("Top plate: no way to splice it over studs with the boards listed; shown as one piece per slope."); continue; }
     topJoints.push(...j);
     forbidden.push(...j.map((x) => [x - plan.topPlateLap, x + plan.topPlateLap]));
   }
   for (const { a, b, flat } of [side(0, mid, flatL), side(mid, L, flatR)]) {
+    if (b - a < EPS) continue;
     const j = splitPlate(a, b, centres, flat, forbidden);
     if (!j) { notes.push(`Cap plate: no way to splice it over studs with joints ${formatInches(plan.topPlateLap)} from the top plate's; shown as one piece per slope.`); continue; }
     capJoints.push(...j);
@@ -781,6 +783,7 @@ function layoutGable(plan, wall) {
   const vtR = THICK * secR;
   for (const [label, offL, offR, joints] of /** @type {[string, number, number, number[]][]} */ ([["top plate", 0, 0, topJoints], ["cap plate", vtL, vtR, capJoints]])) {
     for (const [a, b, sec, vt, off] of [[0, mid, secL, vtL, offL], [mid, L, secR, vtR, offR]]) {
+      if (b - a < EPS) continue;
       const js = joints.filter((x) => x > a + EPS && x < b - EPS).sort((x, y) => x - y);
       let q = a;
       for (const j of [...js, b]) {
