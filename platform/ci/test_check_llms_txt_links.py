@@ -19,6 +19,15 @@ class DeadLinks(unittest.TestCase):
             )
             self.assertEqual([u for _, u, _ in c.dead_links(root)], ["https://example.invalid/foo/other.html"])
 
+    def test_retired_host_is_flagged(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            v = root / "ventures" / "foo"
+            v.mkdir(parents=True)
+            (v / "guide.html").write_text("x")
+            (v / "llms.txt").write_text("- [old](https://duncan-haywood.github.io/monorepo-projects/foo/guide.html)\n")
+            self.assertEqual([w for _, _, w in c.dead_links(root)], ["retired address (use github.io/oss-monorepo/)"])
+
     def test_finds_only_dead_links(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)

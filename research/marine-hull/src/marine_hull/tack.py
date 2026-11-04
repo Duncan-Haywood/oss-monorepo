@@ -202,7 +202,7 @@ def smooth(a, width):
 def sim_replan(p, c, dt, corr, tau, forecast, every=60, margin=0.0):
     """Receding full-day controller. At step k0 (every `every` steps) call forecast(k0) -> (ps, cs), model rates for steps
     k0..n-1 (shape (2, n-k0)); solve dp_values on them and follow that policy on the TRUE rates until the next replan.
-    The boat's own tack and y carry over. `margin` as in sim_policy (switch only if the model gain exceeds margin x best step progress). Returns (progress m, number of tacks)."""
+    The boat tacks only when switching beats staying by `margin` times the best model progress of that step (0 = 5d). The boat's own tack and y carry over. Returns (progress m, number of tacks)."""
     f = 1.0 - min(1.0, tau / dt)
     n = p.shape[1]
     x, y, sg, n_t, pen = 0.0, 0.0, 0, 0, 0.0

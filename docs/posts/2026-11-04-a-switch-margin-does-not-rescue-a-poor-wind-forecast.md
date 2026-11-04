@@ -24,4 +24,4 @@ best; margins of 0.1 or more cost 0.6 to 1.1 points.
 So the chatter is not near-ties. Below about 30 minutes of forecast skill, use the
 header-follower. Data: 6-minute NOAA CO-OPS harbour winds, 48 windows per month,
 synthetic forecast-error model (not an archived forecast). Untested: a minimum-dwell
-rule. Log, code and numbers: `research/marine-hull/LOG.md`, milestone 5e.
+rule. Log, code and numbers: `research/marine-hull/LOG.md`, milestone 5f.
