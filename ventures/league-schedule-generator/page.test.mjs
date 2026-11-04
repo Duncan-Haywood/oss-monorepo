@@ -837,3 +837,11 @@ test("multi-division page: facility booking button feeds divisionsBookings with 
   assert.match(html, /import \{[^}]*divisionsBookings[^}]*\} from "\.\/divisions\.mjs"/);
   assert.match(html, /divisionsBookings\(last, \{ minutes:/);
 });
+
+test("single-league page shows why tied teams are ranked as they are", async () => {
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /import \{ tieBreakNotes,/);
+  assert.match(html, /id="tiebreaks"/);
+  assert.match(html, /tieBreakNotes\(extra\.table\)/);
+});

@@ -172,6 +172,7 @@
     <div id="standings-wrap" hidden>
       <h2 style="margin-top:22px">Standings</h2>
       <div class="scroll"><table id="standings"><thead><tr><th class="n">#</th><th>Team</th><th class="n">P</th><th class="n">W</th><th class="n">D</th><th class="n">L</th><th class="n">GD</th><th class="n">Pts</th><th class="n">Left</th><th class="n" title="Average points per game so far of the opponents still to play">Opp. pts/g</th><th>Form</th><th class="n" title="Current run of wins (W), draws (D) or losses (L)">Streak</th></tr></thead><tbody></tbody></table></div>
+      <ul id="tiebreaks" class="muted" aria-label="Why teams are ranked where they are"></ul>
       <h3 style="margin-top:14px">Results grid</h3>
       <p class="note">Each row is a team's score against the team in the column (its own goals first), in table order.</p>
       <div class="scroll"><table id="crosstable"></table></div>
@@ -353,7 +354,7 @@
   </footer>
 
   <script type="module">
-    import { doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
+    import { tieBreakNotes, doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { printPackHtml } from "./printpack.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
@@ -509,6 +510,7 @@
         const ct = crossTable(s.teams, extra.results, extra.table.map((r) => r.index));
         $("#crosstable").innerHTML = `<thead><tr><th>Team</th>${ct.heads.map((h) => `<th class="n">${esc(h)}</th>`).join("")}</tr></thead><tbody>${ct.rows.map((r) => `<tr><td>${esc(r.name)}</td>${r.cells.map((c) => `<td class="n">${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody>`;
       }
+      $("#tiebreaks").innerHTML = extra.table ? tieBreakNotes(extra.table).map((n) => `<li>${esc(n.text)}</li>`).join("") : "";
       const rec = extra.table ? seasonRecords(s.teams, extra.results) : null;
       $("#records").textContent = rec ? `Season so far: ${rec.biggestWin ? "biggest win " + rec.biggestWin + "; " : ""}highest-scoring game ${rec.highestScoring}; best attack ${rec.bestAttack.team} (${rec.bestAttack.perGame.toFixed(2)} a game); best defence ${rec.bestDefence.team} (${rec.bestDefence.perGame.toFixed(2)} conceded a game).` : "";
       $("#bracket-wrap").hidden = !extra.bracketText;
