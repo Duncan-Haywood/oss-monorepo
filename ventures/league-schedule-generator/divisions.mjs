@@ -355,6 +355,18 @@ export function blackoutsFromCsv(csv, divisions) {
 }
 
 /**
+ * The sheet to send coaches before the schedule is built: one row per team (Division, Team, empty "Dates unavailable"),
+ * as CSV. Coaches fill the last column (commas, semicolons, "2026-11-05 to 2026-11-12"); the saved file loads straight
+ * back into `blackoutsFromCsv`. Returns the CSV text with CRLF line ends.
+ */
+export function availabilitySheetCsv(divisions) {
+  const q = (v) => (/[",\r\n]/.test(v) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+  const rows = [["Division", "Team", "Dates unavailable"]];
+  for (const d of divisions) for (const t of d.teams) rows.push([d.name, t, ""]);
+  return rows.map((r) => r.map(q).join(",")).join("\r\n") + "\r\n";
+}
+
+/**
  * Moves every match that falls on a night one of its teams cannot play to the earliest later night both teams are free
  * (the rainout mover, which also keeps every moved match off the teams' unavailable dates). Takes the rainout options.
  * Returns what `applyDivisionRainouts` does.

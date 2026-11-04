@@ -103,6 +103,7 @@
     <h2 style="margin-top:18px">5. Team unavailable dates (optional)</h2>
     <label for="blackouts">One team per line, written Division/Team: dates (a range works: <code>2026-11-05 to 2026-11-19</code>). A match on one of these nights moves to the next night both teams are free</label>
     <textarea id="blackouts" rows="2" placeholder="U10/Hawks: 2026-11-05, 2026-12-22 to 2026-12-30"></textarea>
+    <p class="note"><button type="button" class="secondary" id="dl-avail">Download a sign-up sheet for coaches (CSV, one row per team)</button> Send it out, then load the filled copy below.</p>
     <p class="note"><label for="blackoutsCsv">Or load a coach sign-up form export (CSV with a Team column, an optional Division column and a column of dates they cannot play; read in your browser, nothing is uploaded):</label> <input type="file" id="blackoutsCsv" accept=".csv,text/csv"> <span id="blackoutsCsvMsg" role="status"></span></p>
     <h2 style="margin-top:18px">6. Rainouts (optional)</h2>
     <label for="rainouts">One per line: a date alone cancels the night; add a division or Division/Team to cancel just those matches; end with <code>-&gt; 2026-12-01</code> to name the make-up night</label>
@@ -185,10 +186,11 @@
   </footer>
 
   <script type="module">
-    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, parseDivisionBlackouts, applyDivisionBlackouts, blackoutsFromCsv, parseDivisions as parseDivisionsText, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsScoreSheetsHtml, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages, divisionsChangeNotices, divisionsBookings, divisionsStandings, divisionsTieBreakNotes, divisionsStandingsCsv, divisionsPlayoffs, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining } from "./divisions.mjs";
+    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, parseDivisionBlackouts, applyDivisionBlackouts, blackoutsFromCsv, parseDivisions as parseDivisionsText, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsScoreSheetsHtml, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages, divisionsChangeNotices, divisionsBookings, availabilitySheetCsv, divisionsStandings, divisionsTieBreakNotes, divisionsStandingsCsv, divisionsPlayoffs, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining } from "./divisions.mjs";
     import { dayIso, parseDate } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
+    $("#dl-avail").addEventListener("click", () => { const d = parseDivisionsText($("#divisions").value).divisions; if (!d.length) return; download("coach-availability-sheet.csv", availabilitySheetCsv(d), "text/csv"); record("availability_sheet_downloaded"); });
     $("#blackoutsCsv").addEventListener("change", async (ev) => {
       const f = ev.target.files[0], msg = $("#blackoutsCsvMsg");
       if (!f) return;
