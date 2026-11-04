@@ -24,3 +24,19 @@ test('eval/slope-real.mjs output is current; the test reports a slope break on n
   assert.equal(out, readFileSync(new URL('./eval/slope-real.out.txt', import.meta.url), 'utf8'));
   assert.equal((out.match(/reported: yes/g) || []).length, 0);
 });
+test('barFor reads the calibrated grid and interpolates; critical: auto widens the bar for short sticky series', async () => {
+  const { barFor, BAR_N, BAR_RHO, BAR_TABLE } = await import('./slope-breaks.mjs');
+  assert.equal(barFor(100, 0.4), 10.8);
+  assert.equal(barFor(30, 0.6), 21.6);
+  assert.equal(barFor(1000, 0.9), 9.7);
+  assert.ok(Math.abs(barFor(90, 0.4) - (11.4 + 10.8) / 2) < 1e-9);
+  assert.ok(barFor(44, 0.5) > barFor(44, 0.1) && barFor(44, 0.5) > barFor(400, 0.5));
+  assert.equal(BAR_TABLE.length, BAR_N.length); assert.equal(BAR_TABLE[0].length, BAR_RHO.length);
+  const r = slopeBreaks(Array.from({ length: 50 }, (_, t) => 0.01 * t), { critical: 'auto' });
+  assert.ok(r.critical > 8 && r.critical < 12);
+});
+test('eval/slope-bar-check.mjs output is current; the auto bar stays under 8% false reports in every cell', () => {
+  const out = execFileSync('node', [new URL('./eval/slope-bar-check.mjs', import.meta.url).pathname], { encoding: 'utf8' });
+  assert.equal(out, readFileSync(new URL('./eval/slope-bar-check.out.txt', import.meta.url), 'utf8'));
+  for (const l of out.split('\n').slice(3)) if (l.trim()) assert.ok(Number(l.trim().split(/\s+/)[3]) < 80, l);
+});

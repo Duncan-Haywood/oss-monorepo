@@ -14,6 +14,30 @@
 // 10.9, 9.8, 8.8 at rho 0.3; 12.0, 10.0, 8.9 at rho 0.5 (eval/slope-calibrate.mjs). 11 holds 95% in all nine cells; it is a bar for n >= 100.
 export const CRITICAL = { 0.15: 11 };
 
+// Bar by series length and serial correlation: the null 95th percentile of the largest W (eval/slope-bar-table.mjs, 3000 seeded
+// series per cell, 15% trimming). Interpolated linearly in n and rho; clamped outside the grid (rho > 0.6 uses 0.6's bar, so
+// treat strongly sticky growth with care). `slopeBreaks(x, { critical: 'auto' })` uses it with the lag-1 autocorrelation of the differences.
+export const BAR_N = [30, 44, 60, 80, 100, 150, 200, 400];
+export const BAR_RHO = [0, 0.2, 0.4, 0.6];
+export const BAR_TABLE = [[9.2, 12.1, 15.6, 21.6], [8.5, 10.9, 13.5, 17.3], [8.3, 10.3, 11.7, 14.4], [8.5, 10.2, 11.4, 13.1],
+  [8.2, 9.8, 10.8, 12.4], [8.4, 9.4, 9.8, 10.7], [8.5, 9.4, 9.7, 10.2], [8.5, 9.1, 9.2, 9.7]];
+function interp(xs, x) { // index pair and weight
+  if (x <= xs[0]) return [0, 0, 0];
+  if (x >= xs[xs.length - 1]) return [xs.length - 1, xs.length - 1, 0];
+  let i = 0; while (xs[i + 1] < x) i++;
+  return [i, i + 1, (x - xs[i]) / (xs[i + 1] - xs[i])];
+}
+export function barFor(n, rho) {
+  const [a, b, wn] = interp(BAR_N, n), [c, d, wr] = interp(BAR_RHO, Math.max(0, rho));
+  const at = (i) => BAR_TABLE[i][c] * (1 - wr) + BAR_TABLE[i][d] * wr;
+  return at(a) * (1 - wn) + at(b) * wn;
+}
+function lag1(d) {
+  const m = d.reduce((s, v) => s + v, 0) / d.length; let num = 0, den = 0;
+  for (let i = 0; i < d.length; i++) { den += (d[i] - m) ** 2; if (i) num += (d[i] - m) * (d[i - 1] - m); }
+  return den > 0 ? num / den : 0;
+}
+
 function wald(d, lo, hi, j, rhoCap) {
   // segment d[lo..j-1] and d[j..hi-1]
   const n1 = j - lo, n2 = hi - j;
@@ -39,7 +63,7 @@ function wald(d, lo, hi, j, rhoCap) {
  */
 export function slopeBreaks(x, { maxKnots = 3, margin = 0.15, critical = null, rhoCap = 0.9 } = {}) {
   const d = x.slice(1).map((v, i) => v - x[i]);
-  const crit = critical ?? CRITICAL[margin] ?? 11;
+  const crit = critical === 'auto' ? barFor(x.length, lag1(d)) : (critical ?? CRITICAL[margin] ?? 11);
   const found = [];
   const rec = (lo, hi) => {
     if (found.length >= maxKnots) return;
