@@ -520,6 +520,19 @@ class MissingToken(unittest.TestCase):
         self.assertIn("boom", err.getvalue())
 
 
+class BuildInputPatternsNonDictTest(unittest.TestCase):
+    def test_non_mapping_workflow_gives_none_not_a_crash(self):
+        import os
+        import tempfile
+        for text in ("", "- a\n- b\n", "just a string\n"):
+            with tempfile.NamedTemporaryFile("w", suffix=".yml", delete=False) as f:
+                f.write(text)
+            try:
+                self.assertIsNone(ps.build_input_patterns(f.name), text)
+            finally:
+                os.unlink(f.name)
+
+
 if __name__ == "__main__":
     unittest.main()
 
