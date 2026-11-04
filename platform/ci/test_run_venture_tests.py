@@ -83,6 +83,22 @@ class Selection(unittest.TestCase):
             rvt.main(["--since", ""])
         since.assert_not_called()
 
+    def test_the_biggest_suite_starts_first(self):
+        # A fixed worker pool finishes sooner when the longest suite is not
+        # the last one submitted (backlog P062 follow-up).
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            for slug, size in (("a-small", 10), ("b-big", 5000), ("c-mid", 500)):
+                (root / slug).mkdir()
+                (root / slug / "x.test.mjs").write_text("x" * size)
+            order = []
+            with mock.patch.object(rvt, "VENTURES", root), \
+                    mock.patch.object(rvt, "run", side_effect=lambda s: (order.append(s), (s, True, "", 0.0))[1]), \
+                    mock.patch("sys.stdout"):
+                rvt.main(["--jobs", "1", "a-small", "b-big", "c-mid"])
+        self.assertEqual(order, ["b-big", "c-mid", "a-small"])
+
 
 if __name__ == "__main__":
     unittest.main()
