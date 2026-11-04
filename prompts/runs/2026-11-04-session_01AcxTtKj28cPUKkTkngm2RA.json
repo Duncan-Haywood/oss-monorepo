@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13149",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,17 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-04-how-long-a-series-before-a-slope-change-counts.md",
+    "ventures/changepoint-detector/README.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Flagship 4 slice: barFor(n,rho) and critical:auto. slope-breaks tests 8/8 pass locally. No agent doc written; the README entry carries the numbers.",
   "corrections": [],
   "redteam": null
 }
