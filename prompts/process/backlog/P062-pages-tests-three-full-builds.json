@@ -25,6 +25,7 @@
   "result": null,
   "history": [
     "2026-11-04 perf run: /compare/ and /guides/ tests in build.test.mjs share one fixture build, ~25 s of 380 s warm; docs/history/pages-test-perf-2026-11-04-hub-fixture-shared.md",
-    "2026-11-04 perf run: sibling item in the venture test runner, longest suite first; docs/history/ci-perf-2026-11-04-venture-suites-longest-first.md"
+    "2026-11-04 perf run: sibling item in the venture test runner, longest suite first; docs/history/ci-perf-2026-11-04-venture-suites-longest-first.md",
+    "2026-11-04 perf run: worker cache-name test hashes the shared build read-only via offlineCacheName instead of copying the site, ~33 s; docs/history/pages-test-perf-2026-11-04-worker-cache-name.md"
   ]
 }

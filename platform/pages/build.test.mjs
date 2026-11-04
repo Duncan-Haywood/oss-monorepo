@@ -22,6 +22,7 @@ import {
   exampleTools,
   researchHighlights,
   addOfflineSupport,
+  offlineCacheName,
   annotateNumberInputs,
   stepAllowsDecimals,
   buildSite,
@@ -3520,19 +3521,34 @@ test('changing the worker itself changes the cache name', async () => {
   // no old cache is deleted, and every existing visitor keeps being served the
   // previous behaviour from cache indefinitely.
   //
-  // addOfflineSupport rewrites every page in place, so it runs on a copy of
-  // the shared build rather than on the build the other tests read.
+  // Only the name is under test, so it is computed by the same function
+  // addOfflineSupport calls, over the shared build, read-only. (This used to
+  // copy the whole site and rewrite the copy, about 33 s for one inequality.)
   const built = await site();
-  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-version-'));
-  await fs.cp(built.outDir, outDir, { recursive: true });
-  const rebuilt = await addOfflineSupport({
-    outDir,
-    base: BASE,
-    surfaces: built.surfaces,
-    codeVersion: 'pretend the worker was edited',
-  });
-  assert.notEqual(rebuilt.cacheName, built.offline.cacheName);
-  await fs.rm(outDir, { recursive: true, force: true });
+  const edited = await offlineCacheName(built.outDir, 'pretend the worker was edited');
+  const again = await offlineCacheName(built.outDir, 'pretend the worker was edited');
+  const other = await offlineCacheName(built.outDir, 'pretend the worker was edited twice');
+  assert.equal(edited, again, 'the cache name must be a pure function of the build');
+  assert.notEqual(edited, other);
+  assert.notEqual(edited, built.offline.cacheName);
+
+  // And addOfflineSupport really passes codeVersion through, on a tiny tree.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-version-'));
+  try {
+    const names = [];
+    await fs.writeFile(path.join(dir, 'index.html'), '<!doctype html><title>x</title><body></body>');
+    for (const file of (await collectOfflineBundle(dir, [])).shared) {
+      await fs.mkdir(path.dirname(path.join(dir, file)), { recursive: true });
+      await fs.writeFile(path.join(dir, file), '');
+    }
+    for (const codeVersion of ['one', 'two']) {
+      await fs.writeFile(path.join(dir, 'index.html'), '<!doctype html><html><head></head><body>x</body></html>');
+      names.push((await addOfflineSupport({ outDir: dir, base: BASE, surfaces: [], codeVersion })).cacheName);
+    }
+    assert.notEqual(names[0], names[1]);
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
 });
 
 // ---------------------------------------------------------------------------
