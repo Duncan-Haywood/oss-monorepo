@@ -174,6 +174,8 @@ export function parseDate(v, dayFirst = false) {
     const t = x[1].length === 13 ? +x[1] : +x[1] * 1000;
     if (t >= 9.46e11 && t < 4.1e12) return new Date(t).toISOString().slice(0, 10);
   }
+  // Excel serial day numbers (a CSV re-saved from a spreadsheet with General format): 1900 system, 25569 = 1970-01-01, to 2064.
+  if (!y && (x = s.match(/^(\d{5})(?:\.\d+)?$/)) && +x[1] >= 25569 && +x[1] <= 60000) return new Date((+x[1] - 25569) * 86400000).toISOString().slice(0, 10);
   if (!y && (x = s.match(/^(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日?/))) [y, m, d] = [+x[1], +x[2], +x[3]];
   if (!y || !m || !d || m > 12 || d > 31) return null;
   const dt = new Date(Date.UTC(y, m - 1, d));

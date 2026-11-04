@@ -975,3 +975,7 @@ one per customer, part-payments, the `--min` cut); on the page (2026-10-22): und
 ### Time/Timestamp date headers and HELD rows (2026-11-04)
 
 A bank CSV whose date column is headed `Time`, `Timestamp`, `Date/Time` or `Date Time` (the layout neobanks such as Up use, from memory, not a real export) was not recognised: the header was skipped as a preamble and the Status word became the payee. These are now date headers, and `HELD` joins the not-booked statuses (pending, declined and so on) so card holds are skipped and listed in problems. Test: `held-status.test.mjs` (made-up rows). Full ai-bookkeeper suite: 2,229 pass.
+
+### Excel day-number dates (2026-11-04)
+
+`parseDate` reads a five-digit number from 25569 to 60000 as an Excel day number (1900 system), which is what a bank CSV re-saved from Excel with General format holds. The 1904 system is not detected. Test: `excel-serial-dates.test.mjs` (made-up rows).

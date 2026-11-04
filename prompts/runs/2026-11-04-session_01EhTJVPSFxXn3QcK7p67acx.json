@@ -1,0 +1,18 @@
+{
+  "date": "2026-11-04",
+  "session": "https://claude.ai/code/session_01EhTJVPSFxXn3QcK7p67acx",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "model": "claude-sonnet-5-5",
+  "projects": ["ventures/ai-bookkeeper"],
+  "outcome": "success",
+  "tests_added": 2,
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": ["Routed to the process track but shipped a product fix: main_health.py was 42/42 green, so there was no live fault to fix."],
+  "writeups": ["docs/posts/2026-11-04-bank-csv-dates-that-excel-turned-into-numbers.md"],
+  "notes": "Probed readStatement with ten odd CSV shapes; only Excel serial dates failed. Fixed in parseDate. Ventures sat saturated with from-memory bank layouts, so no more were added.",
+  "corrections": []
+}
