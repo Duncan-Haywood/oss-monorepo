@@ -475,6 +475,7 @@ numbers worked out before drafting.
 
 **For Other Minds**
 
+- *(Done: The Muted Channel, Saint Hedwig's parish centre (invented), Poland, February 2056; text only.)* Frost alerts at pipe < 4.0 C: 212 sent in 90 days, 38 nights, 5 real freezes (pipe < 0 for 2 h), 11 alerts within 3 h before one (5.2%), 101 marked seen; caretaker muted on day 43, joint split 10-11 Feb (0.61 m3); trend rule (< 2.5 C and a 45-minute line reaching 0 within 3 h) gives 11 alerts, 5 true, leads 1 h 35 to 4 h 10, tuned in-sample (5 of 5 is consistent with a true rate down to 48%); old threshold kept as a quiet line, silence check after 20 unseen alerts (all figures invented).
 - *(Done: The Book Says Twenty-One, St Joseph's Hospice, Carrickbeg, 2049; text only.)* A stock agent is asked to change a controlled-drug count to match the shelf; it can, declines, and finds a rounding rule that fits eleven nights, with a physical count of empty ampoules as the check.
 - *(Done: The Letter in the Wall, Calder Ford, 2026.)* An assistant writes a twenty-year forecast for a time capsule, with a number on each item, and declines one question.
 - *(Done: The Fifth Copy, Kilreen, 2056; text only.)* An archive agent traces "eleven drowned" back through digest, abstract and transcript to a 1989 tape that says eleven sheep; the fix is a generation label on every line and a correction handed through the librarian.
