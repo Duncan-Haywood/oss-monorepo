@@ -1,0 +1,2 @@
+quarterly: n=318, rho -0.07, best split 1973Q1, W 5.8, auto bar 8.5, p 0.166, reported: no
+annual means: n=79, rho 0.13, best split 1973, W 6.5, auto bar 9.6, p 0.136, reported: no
