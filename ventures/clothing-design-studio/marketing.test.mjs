@@ -124,3 +124,35 @@ test("zero orders is handled, bad input is refused, no margin wins", () => {
   assert.equal(learnFromTest({ spend: 5, clicks: 10, orders: 11, profitPerSale: 5, price: 9 }).verdict, "invalid");
   assert.equal(learnFromTest({ spend: 5, clicks: 10, orders: 1, profitPerSale: 0, price: 9 }).verdict, "no-margin");
 });
+
+import { channelSplit } from "./marketing.mjs";
+
+test("channel split: cheapest sale first, capped, skips above break-even", () => {
+  const r = channelSplit({ adBudget: 500, profitPerSale: 25, channels: [
+    { name: "search", cpc: 0.5, conversionPct: 2.5, cap: 150, tested: true },   // cac 20
+    { name: "social", cpc: 0.4, conversionPct: 2, tested: true },               // cac 20
+    { name: "display", cpc: 0.3, conversionPct: 0.5, tested: true },            // cac 60: skipped
+  ]});
+  const by = Object.fromEntries(r.rows.map(x => [x.name, x]));
+  assert.equal(by.display.spend, 0);
+  assert.equal(by.search.spend, 150);          // capped, ties broken by cac order (stable)
+  assert.equal(by.social.spend, 350);
+  assert.equal(by.search.sales + by.social.sales, r.expectedSales);
+  assert.equal(r.expectedSales, 7 + 17);
+  assert.match(by.display.reason, /skipped/);
+  assert.equal(r.unspent, 0);
+});
+
+test("channel split holds a test share for untested channels and reports unspent", () => {
+  const r = channelSplit({ adBudget: 100, profitPerSale: 25, exploreShare: 0.2, channels: [
+    { name: "a", cpc: 0.4, conversionPct: 2, cap: 30, tested: true },
+    { name: "b", cpc: 0.4, conversionPct: 2, cap: 30, tested: false },
+  ]});
+  const b = r.rows.find(x => x.name === "b");
+  assert.equal(b.spend, 30);                       // 20 test, then filled to cap
+  assert.equal(r.rows.find(x => x.name === "a").spend, 30);
+  assert.equal(r.unspent, 40);
+  assert.ok(r.notes.some(n => /unspent/.test(n)));
+  const none = channelSplit({ adBudget: 100, profitPerSale: 0, channels: [] });
+  assert.equal(none.expectedSales, 0);
+});
