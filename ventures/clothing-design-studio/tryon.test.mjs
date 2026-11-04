@@ -82,3 +82,13 @@ test("sleeve: tee sleeves read as upper arm, grow a cm per size", () => {
   assert.match(sleeveCheck("tee", "M", 175).word, /upper arm|elbow/);
   assert.equal(sleeveCheck("tee", "L", 175).sleeveCm - sleeveCheck("tee", "M", 175).sleeveCm, 1);
 });
+
+test("side view: garment is deeper than the body by the ease; svg is clean", () => {
+  const r = tryOn({ chest: 100, waist: 88, hip: 100, height: 178 });
+  assert.equal(r.side.depths.length, 3);
+  assert.ok(r.side.depths[0].extra > 0);
+  const slim = tryOn({ chest: 100, waist: 88, hip: 100, height: 178 }, { fit: "slim" });
+  assert.ok(slim.side.depths[0].extra < r.side.depths[0].extra);
+  assert.ok(!/NaN|undefined|<script/.test(r.side.svg));
+  assert.match(r.side.svg, /^<svg[^>]*viewBox="0 0 120 /);
+});

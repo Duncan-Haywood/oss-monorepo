@@ -92,7 +92,7 @@ export function tryOn(body, { garment = "tee", fit = "regular", size = "M", size
   if (checks[2].ease < 0) notes.push("The hem circumference is below the hip measurement. Ask the factory for the hem width, and consider the next size up.");
   if (assumed.length) notes.push(`Not given, so assumed: ${assumed.join(", ")}. Enter them for a truer picture.`);
   notes.push("A straight cut is assumed (hem as wide as the chest). Drape, stretch and sleeve shape are not simulated; the sleeve length is a typical figure.");
-  return { ok: true, size, garment, fit, height: H, body: { chest, waist, hip, height: H }, bodyWidths: mapR(bodyW), garmentWidths: { chest: r1(gChestW), hem: r1(gHemW) }, checks, length, sleeve, notes, assumed, svg: drawSvg({ H, bodyW, gChestW, gHemW, hpsH, hemH, garment, checks }) };
+  return { ok: true, size, garment, fit, height: H, body: { chest, waist, hip, height: H }, bodyWidths: mapR(bodyW), garmentWidths: { chest: r1(gChestW), hem: r1(gHemW) }, checks, length, sleeve, notes, assumed, svg: drawSvg({ H, bodyW, gChestW, gHemW, hpsH, hemH, garment, checks }), side: sideView({ H, chest, waist, hip, gChest: gm.chest, hpsH, hemH }) };
 }
 
 /**
@@ -151,4 +151,33 @@ function drawSvg({ H, bodyW, gChestW, gHemW, hpsH, hemH, garment }) {
     `<path d="${sleeve(-1)}" fill="#3d6fb4" fill-opacity="0.55" stroke="#274c80" stroke-width="0.4"/><path d="${sleeve(1)}" fill="#3d6fb4" fill-opacity="0.55" stroke="#274c80" stroke-width="0.4"/>` +
     `<path d="${garmentPath}" fill="#3d6fb4" fill-opacity="0.55" stroke="#274c80" stroke-width="0.4"/>` +
     line(H * L.waist, "waist") + line(H * L.hip, "hip") + `</svg>`;
+}
+
+/**
+ * Side view: the garment's depth against the body's at chest, waist and hem.
+ * Depth of each level is the ellipse depth (ratio x front width) for the
+ * body circumference; the garment uses the same ellipse shape at its own
+ * circumference, so ease shows as extra front-to-back room. The body depth
+ * ratios are assumed averages; belly, bust and posture change them.
+ * Geometry only: no drape, no cloth.
+ * @returns {{depths:{where:string,body:number,garment:number,extra:number}[], svg:string}}
+ */
+export function sideView({ H, chest, waist, hip, gChest, hpsH, hemH }) {
+  const L = LANDMARKS;
+  const d = (circ, ratio) => ratio * frontWidth(circ, ratio);
+  const lv = [
+    { where: "chest", h: H * L.chest, b: d(chest, DEPTH.chest), g: d(gChest, DEPTH.chest) },
+    { where: "waist", h: H * L.waist, b: d(waist, DEPTH.waist), g: d(gChest, DEPTH.waist) },
+    { where: "hip (hem)", h: Math.min(hemH, H * L.hip), b: d(hip, DEPTH.hip), g: d(gChest, DEPTH.hip) },
+  ];
+  const W = 120, pad = 6, cx = W / 2, top = H + pad, bottom = H * 0.2;
+  const Y = h => r1(top - h), X = x => r1(cx + x);
+  const poly = (pts) => pts.map((p, i) => `${i ? "L" : "M"} ${X(p[0])} ${Y(p[1])}`).join(" ") + " Z";
+  const bodyPts = [[-lv[0].b / 2, H * L.shoulder], ...lv.map(l => [-l.b / 2, H * (l === lv[2] ? L.hip : l.h / H)]), [-lv[2].b / 2 * 0.9, bottom], [lv[2].b / 2 * 0.9, bottom], ...[...lv].reverse().map(l => [l.b / 2, H * (l === lv[2] ? L.hip : l.h / H)]), [lv[0].b / 2, H * L.shoulder]];
+  const gPts = [[-lv[0].g / 2 * 0.9, hpsH], [-lv[0].g / 2, H * L.chest], [-lv[2].g / 2, hemH], [lv[2].g / 2, hemH], [lv[0].g / 2, H * L.chest], [lv[0].g / 2 * 0.9, hpsH]];
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${r1(top - bottom + pad)}" role="img" aria-label="Side view: garment depth against the body">` +
+    `<circle cx="${cx}" cy="${Y(H - H * 0.065)}" r="${r1(H * 0.065)}" fill="#d9d2c8"/>` +
+    `<path d="${poly(bodyPts)}" fill="#d9d2c8"/>` +
+    `<path d="${poly(gPts)}" fill="#3d6fb4" fill-opacity="0.55" stroke="#274c80" stroke-width="0.4"/></svg>`;
+  return { depths: lv.map(l => ({ where: l.where, body: r1(l.b), garment: r1(l.g), extra: r1(l.g - l.b) })), svg };
 }
