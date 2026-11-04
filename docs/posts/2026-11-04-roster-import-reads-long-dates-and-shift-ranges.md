@@ -1,5 +1,6 @@
 ---
 title: "Switching schedulers: the shift importer now reads long dates and one-column shift times"
+seo_title: "Shift importer reads long dates and shift times"
 date: 2026-11-04
 description: "Probing the roster builder's published-schedule import with the date and time layouts spreadsheets really produce found five that failed. All now read."
 tags: [shift-roster-builder, scheduling, import]
