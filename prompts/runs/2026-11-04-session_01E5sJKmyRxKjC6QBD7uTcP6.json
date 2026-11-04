@@ -43,7 +43,10 @@
       "result": "fine"
     }
   ],
-  "writeups": "docs/posts/2026-11-04-a-pitot-gain-error-does-not-hide-an-aircrafts-dynamics.md; research/aerolog-scaling/LOG.md 9ac",
+  "writeups": [
+    "docs/posts/2026-11-04-a-pitot-gain-error-does-not-hide-an-aircrafts-dynamics.md",
+    "research/aerolog-scaling/LOG.md"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],
