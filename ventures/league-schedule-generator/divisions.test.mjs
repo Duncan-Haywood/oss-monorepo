@@ -692,6 +692,23 @@ test("team unavailable dates: no match is left on a blackout night, moved matche
   assert.equal(bad.errors.length, 2);
 });
 
+test("team unavailable dates: a team blocked on every night is refused and reported, the match stays put", () => {
+  const s = build();
+  const first = s.nights[0].matches[0];
+  const key = `${first.div}/${first.home}`;
+  // the home team is unavailable on every night of the season
+  const blackouts = { [key]: s.nights.map((n) => n.day) };
+  // plus every night the mover would look at (120 play nights, under 800 days) so "later night" has nothing free either
+  const last = s.nights[s.nights.length - 1].day;
+  for (let d = last + 1; d <= last + 800; d++) blackouts[key].push(d);
+  const r = applyDivisionBlackouts(s, blackouts);
+  assert.ok(r.errors.length >= 1, "a refusal is reported");
+  assert.equal(r.schedule.stats.matches, s.stats.matches, "no match is lost");
+  assert.deepEqual(validateDivisions(r.schedule).errors, [], "the schedule still validates");
+  const stays = r.schedule.nights[0].matches.some((m) => m.div === first.div && m.home === first.home && m.away === first.away);
+  assert.ok(stays, "the refused match stays where it was");
+});
+
 test("division score sheets: a page per night, every match once, names escaped", async () => {
   const { divisionsScoreSheetsHtml } = await import("./divisions.mjs");
   const s = build();
