@@ -5,6 +5,22 @@
 Session 23's calibration-width rule picked Chicago a2i's tightest pair and under-covered 2024 (0.748). `src/conformal_tau_drift_run.py` adds a guard: the calibration weeks (even weeks of Y-1) are split into the first and second half of the year, and a pair is eligible only if its coverage (with the pooled CQR qhat) is at least 0.78 in BOTH halves; the narrowest eligible pair is chosen (calibration rows only). Compared with the session 23 rule and the fixed (0.1, 0.9) pair on Chicago and SF a2i, test years 2022, 2023, 2024, 3 seeds, same split and LightGBM settings.
 - **H2f (pre-registered):** the drift-guarded rule lands test coverage in 77 to 83% in at least 5 of the 6 city-year cells, and its mean width is at least 15% below (0.1, 0.9)'s in at least 5 of 6. The session 23 rule lands inside in at most 4 of 6. Refuted if the guarded rule is inside in 4 or fewer, or if it is not narrower by 15% in 5 of 6. Prior 35%: half-year coverage is a noisy drift signal and Chicago's same-day mass moved within 2024 itself.
 
+Outcome (3 seeds, fresh pulls: Chicago 852,143, SF 1,297,870 rows; `results/conformal_tau_drift_{chicago,sf}_a2i_{2022,2023,2024}.json`, full grids). Test coverage / mean width in days, chosen pair in brackets:
+| city, year | guarded rule | session 23 rule | fixed (0.1, 0.9) |
+|---|---|---|---|
+| Chicago 2022 | 0.817 / 17.6 (0.05, 0.65) | same pair | 0.853 / 52.7 |
+| Chicago 2023 | 0.729 / 16.2 (0.05, 0.65) | same pair | 0.838 / 56.4 |
+| Chicago 2024 | 0.762 / 31.0 (0.2, 0.8) | 0.748 / 24.5 (0.05, 0.65) | 0.867 / 67.9 |
+| SF 2022 | 0.861 / 84.0 (0.1, 0.9) | 0.847 / 61.8 (0.2, 0.65) | 0.861 / 84.0 |
+| SF 2023 | 0.842 / 39.4 (0.2, 0.65) | same pair | 0.850 / 64.8 |
+| SF 2024 | 0.828 / 27.2 (0.2, 0.65) | same pair | 0.900 / 63.4 |
+- **H2f is refuted.** The guarded rule is inside 77 to 83% in 2 of 6 cells (Chicago 2022, SF 2024), the session 23 rule also in 2 of 6, so the guard did not help. Width was at least 15% below the fixed pair in 5 of 6 (SF 2022 is the exception: the guard fell back to (0.1, 0.9)), so the width half held.
+- The guard changed the pick in only 2 of 6 cells (Chicago 2024, SF 2022). Chicago 2023 under-covers by 5 points (0.729) with a calibration coverage of 0.81 in both halves, so the two-halves check sees no drift that the test year then has: the shortfall is year-to-year, not within-year. Narrowing the Chicago interval to 16 to 31 days under-covers in 2 of 3 years; only the wide fixed pair is safe there (0.84 to 0.87, over-covering).
+- Reading: tightening the quantile pair gives 2 to 4 times narrower intervals in SF at nominal-ish coverage (0.83 to 0.84 in 2023 and 2024), but for Chicago no rule using the calibration year alone chooses safely; a Chicago user should keep (0.1, 0.9).
+- Limits: three test years in two cities, 3 seeds, a coarse grid, a hand-set 0.78 threshold; the guarded rule is one of many possible drift checks. Operational note: running four LightGBM jobs in parallel on four cores stalled for 2.5 CPU-hours each; one job at a time takes about 20 s per seed.
+Next: a year-ahead (Y-2 versus Y-1) calibration check, or accept a stated Chicago limit in the paper.
+
+
 ## Session 23, 2026-11-04: milestone 21, H2e: choose the quantile-level pair by conformal calibration (planned before running)
 
 Session 22 showed no calibration window can narrow the Chicago and SF a2i intervals (qhat is 0 because the same-day mass sits on the score), and located the lever in the quantile model's tau pair. `src/conformal_tau_run.py`: grid tau_lo in {0.05, 0.1, 0.2} x tau_hi in {0.65, 0.7, 0.75, 0.8, 0.85, 0.9}; for each pair CQR qhat on the even weeks of Y-1, intervals rounded outward, the pair chosen by smallest mean width on the CALIBRATION rows among pairs with calibration coverage >= 0.78 (the test year is never used to choose). Same split, features, LightGBM settings and 3 seeds as session 22; Chicago and SF a2i, test year 2024.
