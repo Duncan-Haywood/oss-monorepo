@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Actions runner starvation check</a></p>
   <h1>Why is my GitHub Actions check red in 3 seconds with no output?</h1>
   <p>You push a commit or open a PR. Every check goes red within a handful of seconds. There is no log to open, no failing assertion, no stack trace — the output body is empty. It happens on a change that could not plausibly break six different workflows at once, including ones that touch files you never edited.</p>
@@ -34,7 +35,9 @@
   <p class="note">Paste that same JSON into the <a href="./">Actions Runner Starvation Check</a> page for a plain verdict instead of reading the fields by eye, or run the zero-dependency <a href="check.py" rel="noopener">check.py</a> CLI in a script so it can decide for you: <code>python3 check.py --run RUN_ID</code> exits 1 the moment any job was starved.</p>
   <h2>What this does not tell you</h2>
   <p>Only that a runner was or was not assigned — not why your account stopped getting them. GitHub's own run-timing endpoint reports zero billable milliseconds for private repositories regardless of what actually ran, so it is no help attributing the cause either. Exhausted minutes, a spending limit, a payment problem, and Actions being disabled all look identical from the Actions API; that distinction is on your GitHub billing page, not something any tool reading the jobs API can recover.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. They are not a substitute for reading GitHub's own billing and Actions usage pages. Verify before relying on the output.</p>
     <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded.</p>
   </footer>

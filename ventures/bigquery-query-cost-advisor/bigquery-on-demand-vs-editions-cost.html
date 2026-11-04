@@ -19,6 +19,7 @@
   </style>
 </head>
 <body>
+<main>
   <p class="note"><a href="./">BigQuery Query Cost Advisor</a> · guide</p>
   <h1>BigQuery on-demand vs Editions: which is cheaper</h1>
   <p>Short answer: <strong>on-demand bills bytes scanned, Editions bills slot-hours, and the cheaper one depends on how much compute each scanned byte needs</strong>. Either way, the biggest savings usually come from scanning less.</p>
@@ -52,7 +53,9 @@
   <h3>How do I stop one query from costing a fortune?</h3>
   <p>Set maximum bytes billed on the job or in the client. A query that would exceed it fails without charge. Pair it with a custom daily query quota per project or user.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not engineering, financial, legal or compliance advice, and you are responsible for verifying prices and features against the current Google Cloud documentation and for the effect of any billing change on your workloads. Vendor and product names are trademarks of their owners and are used only to describe what the tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
     <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>

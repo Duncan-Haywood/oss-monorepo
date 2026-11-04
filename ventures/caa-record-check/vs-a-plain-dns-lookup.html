@@ -36,6 +36,7 @@
 </script>
 </head>
 <body style="max-width:820px;margin:0 auto;padding:1.5rem;font:16px/1.6 system-ui,sans-serif;">
+<main>
 <p><a href="index.html">&larr; Back to the CAA Record Checker</a></p>
 <h1>CAA Record Checker vs. a Plain DNS Lookup</h1>
 <p>
@@ -70,7 +71,7 @@
 <p>Because RFC 8659 does not evaluate CAA at only the exact name. A certificate authority walks up the DNS tree to the first ancestor domain that publishes a CAA record set, applies the issuewild-overrides-issue fallback for wildcard certificates, and must refuse issuance entirely if any record carries the critical flag on a tag it doesn't recognize. A raw record dump tells you what's published; it doesn't tell you what those rules mean for a specific certificate authority you're trying to use.</p>
 <h3>Does this tool replace dig or a plain lookup?</h3>
 <p>No — both are useful, for different questions. A plain lookup answers "what CAA record is published at this exact name?" quickly, with no interpretation. This tool answers the question that actually matters when a certificate fails to issue: "which certificate authorities are authorized, once the real tree-walk and fallback rules are applied?" It is still the right tool for simply confirming a record you just added is visible. See <a href="how-caa-blocks-certificate-issuance.html">why a CAA record blocks issuance</a> for the full walkthrough of all four causes.</p>
-
+</main>
 <footer style="margin-top:2.5rem;padding-top:1rem;border-top:1px solid #8886;font-size:0.85rem;opacity:0.85;">
   <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
   kind, express or implied. It is not security or compliance advice, and it does not replace a

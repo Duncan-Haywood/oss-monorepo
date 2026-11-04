@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to Docker Cache Order Check</a></p>
   <h1>Why Docker build cache gets busted</h1>
 
@@ -112,7 +113,9 @@ RUN apt-get install -y curl</pre>
   <h3>Will this tell me whether my build cache is actually being reused?</h3>
   <p>No, and it does not try to. Measuring actual cache hit rate requires running real builds and reading BuildKit's own build output. This tool is a static check of the Dockerfile text: it reports an instruction order that is a documented cause of cache invalidation, before you have run a single build, so you can fix it in review instead of noticing it from a slow CI pipeline.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it documents report whether a Dockerfile's instruction order matches one of three documented cache-busting patterns — nothing more. It is not engineering advice and does not know whether a flagged pattern was deliberate in your case. Verify against your own build's measured cache behavior before relying on it.
     <a href="./">Back to the tool</a>.</p>
   </footer>

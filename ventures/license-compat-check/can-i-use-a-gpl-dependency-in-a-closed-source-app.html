@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to License Compatibility Check</a></p>
   <h1>Can I use a GPL dependency in a closed-source app?</h1>
   <p>It depends on how you ship, not only on what you depend on. The same library can be fine in a hosted service, a problem in a downloadable app, and impossible in an MIT-licensed library. This page is the short version; the tool checks a whole dependency tree against your situation.</p>
@@ -63,7 +64,9 @@ node cli.mjs check deps.json --project proprietary-distributed</pre>
   <h3>Is Apache-2.0 compatible with GPL?</h3>
   <p>With GPL-3.0 and GPL-2.0-or-later, yes. The FSF treats Apache-2.0 as incompatible with GPL-2.0-only because of its patent terms.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it documents apply a rules table of widely published license-compatibility positions to the license strings you supply. Nothing here is legal advice, and a verdict is a skim aid, not a legal opinion about your specific use. Verify with counsel before relying on it. <a href="./">Back to the tool</a>.</p>
   </footer>
 </body>

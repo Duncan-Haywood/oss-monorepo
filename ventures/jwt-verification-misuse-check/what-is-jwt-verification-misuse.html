@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← JWT Verification Misuse Check</a></p>
   <h1>JWT verification misuse: <code>decode</code> vs <code>verify</code>, <code>alg: none</code> and how to fix each</h1>
   <p>A JSON Web Token is only worth trusting if your server proved that someone holding the key signed it. Most JWT vulnerabilities in application code are not clever cryptography attacks. They are a line that reads the token without ever checking that proof.</p>
@@ -53,7 +54,9 @@ const claims = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256']
   <p><a href="./">Paste your source into JWT Verification Misuse Check</a> to see every finding with its file, line, risk and fix, or run the CLI in your own repository:</p>
   <pre><code>python3 check.py --fail-on-risk</code></pre>
   <p class="note">That exits with a nonzero status if any pattern is found, so you can wire it into your own CI. Expect some findings to be deliberate (decoding a token to display a name); review each one.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is a heuristic line scan and not a security audit; a clean scan does not mean your authentication is safe, only that these patterns were not found. Have a qualified person review code that protects anything valuable.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
     <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>

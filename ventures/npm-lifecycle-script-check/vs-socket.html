@@ -29,6 +29,7 @@
   </style>
 </head>
 <body>
+<main>
   <p class="note"><a href="./">&larr; npm Lifecycle Script Check</a></p>
   <h1>This checker vs. Socket</h1>
   <p class="note">Two different layers: Socket watches your dependency graph and the public registries on an ongoing basis for 70+ risk types, risky install scripts among them. This tool reads two point-in-time copies of your own <code>package-lock.json</code> (or your local <code>node_modules</code>), once, locally, and names exactly which packages run a lifecycle script and which ones gained one since your last check &mdash; no account, no registry calls, nothing installed.</p>
@@ -107,7 +108,9 @@
     <p class="note">Open the <a href="./">npm Lifecycle Script Check</a> to scan your own lockfile, or read <a href="./why-npm-audit-does-not-catch-a-malicious-install-script.html">why npm audit doesn't catch this</a> for the full mechanism and how to wire the CLI into CI.</p>
   </section>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reports which packages declare an install-time script and flags a small set of keyword patterns in that script's text &mdash; it is not a malware scanner, not a security audit, and not a guarantee that an unflagged script is safe or a flagged one is dangerous. It does not replace reading the script yourself or a qualified security review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p class="muted">Local-only privacy: nothing you paste on the linked tool is ever uploaded, and it makes no network calls of its own. We count only anonymous feature events in localStorage, with an opt-out. This page makes no live comparison against Socket &mdash; it is a static page describing publicly documented facts. <a href="LICENSE">License</a></p>

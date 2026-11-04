@@ -19,6 +19,7 @@
   </style>
 </head>
 <body>
+<main>
   <p class="note"><a href="./">Databricks Cluster Cost Advisor</a> · guide</p>
   <h1>Databricks cost: autotermination, Jobs compute and DBU rates</h1>
   <p>Short answer: <strong>a cluster bills DBUs for every hour it runs, busy or not, and the rate depends on the kind of compute</strong>. Most avoidable spend is scheduled work on all-purpose clusters, clusters nobody stopped, and long autotermination tails.</p>
@@ -53,7 +54,9 @@
   <h3>Does Jobs compute change what my job does?</h3>
   <p>The code is the same; the cluster is created for the run and terminated after, so there is a startup wait and no shared state between runs.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not engineering, financial, legal or compliance advice, and you are responsible for verifying prices and features against the current Databricks documentation and for the effect of any cluster change. Vendor and product names are trademarks of their owners and are used only to describe what the tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
     <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>

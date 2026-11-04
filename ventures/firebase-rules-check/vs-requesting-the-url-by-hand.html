@@ -41,6 +41,7 @@
 </style>
 </head>
 <body>
+<main>
 <p><a href="index.html">← Back to the Firebase Security Rules Exposure Checker</a></p>
 <h1>Firebase Rules Checker vs. requesting the URL by hand</h1>
 <p>
@@ -80,7 +81,7 @@
 <p>Three ways this scripted check catches and a by-hand request easily misses. (1) A plain .json request on an open Realtime Database pulls every field value under that path, not just key names -- proving the exposure this way means already doing the thing you were checking for; the shallow=true flag most people don't know to add avoids that. (2) A response of null or an empty object looks identical whether the path is genuinely empty or the rule is correctly blocking it, unless you also read the HTTP status code -- easy to skip when eyeballing a browser tab. (3) The Firestore REST endpoint's shape (documents<wbr>/(default)<wbr>/documents<wbr>/&lt;collection&gt;) and its pagination field are not obvious from the console UI, so a first attempt at a manual request often gets the URL wrong before it gets an answer at all.</p>
 <h3>Why does this matter for CI, not just a one-time check?</h3>
 <p>A by-hand request is a point-in-time, manual look at one path or collection you remembered to try. Adding a new Firestore collection, or a rules change that is correct everywhere except the newest path, can reopen this exposure at any point after the last time someone thought to check. The CLI here returns a real exit code, so it can gate a deploy the same way a linter or test suite does -- catching the regression the day it ships rather than the next time someone happens to paste a URL into a browser.</p>
-
+</main>
 <footer>
   <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
   kind, express or implied. It is not security advice, and it does not replace a qualified

@@ -19,6 +19,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to Prometheus Cardinality Cost</a></p>
   <h1>Why Prometheus metrics bills explode, and which labels to drop</h1>
   <p>Hosted metrics plans bill by <strong>active series</strong>: every distinct combination of a metric name and its label values. The metric count barely matters; the label values do. A team adds <code>path</code> to a request counter in a hurry, and a quiet 40-series metric becomes 40,000 on the next deploy.</p>
@@ -53,7 +54,9 @@
   <h3>Why do histograms cost so much?</h3>
   <p>A classic histogram emits one series per bucket plus a sum and a count for every label combination, so 12 buckets over 100 label combinations is 1,400 series from one metric.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not financial, engineering or operational advice, and you are responsible for verifying its output. Vendor and product names are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
     <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>

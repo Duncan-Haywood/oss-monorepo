@@ -60,6 +60,7 @@
 </style>
 </head>
 <body>
+<main>
 <p><a href="./">&larr; Back to npm Lifecycle Script Check</a></p>
 
 <h1>This checker vs. diffing package-lock.json by hand</h1>
@@ -138,7 +139,7 @@
 <p>Once this tool flags a package, reading its actual script text yourself is still the right next step -- a keyword match for a shell pipe, a network call, or obfuscated code means "read this one," not "this is malware." The tool narrows several hundred packages down to the handful that changed; deciding whether a specific flagged script is a real problem is still a human judgment.</p>
 
 <p><a href="./">&larr; Back to the checker</a></p>
-
+</main>
 <footer>
   <p><strong>No warranty.</strong> This is not a malware scanner or a security audit. It reports which packages declare an install-time script and flags a small set of keyword patterns in that script's text against known attacker mechanisms -- it cannot prove any specific script is safe or malicious, only report what it found. You are responsible for reviewing and verifying its output before relying on it. See the disclaimer on <a href="./">the checker itself</a> for the full text.</p>
   <p>Everything on the checker runs client-side; nothing is uploaded. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>

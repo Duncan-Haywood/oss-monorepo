@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Actions Schedule Cron Check</a></p>
   <h1>GitHub Actions <code>schedule</code> cron: why runs are late, and which minute to pick</h1>
   <p>A workflow with <code>on: schedule:</code> runs from a five-field cron expression, evaluated in UTC, on the default branch.</p>
@@ -42,7 +43,9 @@
   <p><a href="./">Paste your workflow YAML into Actions Schedule Cron Check</a> to find every invalid, too-frequent or minute-0 cron across all your workflow files at once, or run the CLI in your own repository:</p>
   <pre><code>python3 check.py --fail-on-risk</code></pre>
   <p class="note">That exits with a nonzero status if any cron is flagged, so a bad one can be blocked in your own CI before it merges. GitHub's own documentation for the <code>schedule</code> event is the authority on current limits.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is not a security audit, and a clean scan does not mean a schedule will fire on time, only that this one pattern was not found.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
     <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>

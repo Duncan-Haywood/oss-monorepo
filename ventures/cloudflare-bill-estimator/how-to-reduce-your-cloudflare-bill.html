@@ -19,6 +19,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Back to Cloudflare Bill Estimator</a></p>
   <h1>How to reduce your Cloudflare Workers, KV and R2 bill: levers ranked by dollar impact</h1>
   <p>A Workers Paid invoice is a monthly minimum plus separately metered usage: Worker requests, CPU time, KV reads and writes, and R2 storage and operations. R2 egress is free, so the money moves to operation counts. The useful question is not "how do I spend less" but "which line, changed by how much, saves the most". That is arithmetic you can do before the invoice, from the numbers in your dashboard.</p>
@@ -56,7 +57,9 @@
   <h3>Do the savings add up?</h3>
   <p>No. Edge caching and CPU trimming act on the same Worker CPU time, so each lever is calculated alone and the list is a ranking, not a plan total.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not financial, engineering or operational advice, and you are responsible for verifying its output. Cloudflare is a trademark of its owner; this project is not affiliated with or endorsed by Cloudflare.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
     <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>

@@ -25,6 +25,7 @@
   </style>
 </head>
 <body>
+<main>
   <h1>kube-score vs a rollout safety check</h1>
   <p class="note">A comparison · <a href="./">back to the rollout safety checker</a></p>
 
@@ -72,7 +73,9 @@
     <p><strong>Try it on one manifest.</strong> <a href="./">Paste a Deployment</a> and see whether its rollout can drop requests. Nothing is uploaded, no cluster access is needed, and <code>--list-checks</code> shows the complete rule list before you trust any of it.</p>
   </div>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page is free and as-is, without warranty of any kind, express or implied. It describes other tools from their published behaviour and is not affiliated with or endorsed by any of them; it is not a benchmark, and their capabilities change over time — check their current documentation before choosing. Nothing here is a production-readiness audit or a guarantee about your deploy.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These pages are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
     <p><a href="./">Kubernetes Rollout Safety Check</a> · <a href="why-your-kubernetes-rollout-drops-requests.html">why rollouts drop requests</a> · <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is optional and changes nothing about the tool.</p>

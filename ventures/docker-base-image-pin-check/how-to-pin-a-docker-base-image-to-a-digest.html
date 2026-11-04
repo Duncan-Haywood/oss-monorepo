@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">&larr; Docker Base Image Pin Check</a></p>
   <h1>How to pin a Docker base image to a digest</h1>
   <p>Short answer: the <code>Digest:</code> line from <code>docker buildx imagetools inspect</code> is the value to use — replace the tag with <code>@&lt;that digest&gt;</code>, keeping the original tag as a trailing comment so a human reading the Dockerfile still knows which version it is.</p>
@@ -45,7 +46,9 @@ Digest:    sha256:7e2895622100fa27781b8d926d4c7d719f26061ba1e78facbf3f6352a64079
   <p class="note">That exits with a nonzero status if any base image is still referenced by a tag instead of a digest — wire it into your own CI to block a newly-added unpinned base image before it merges.</p>
   <h2>Why a version-looking tag is not enough</h2>
   <p><code>node:18</code> is a moving target for the entire support lifetime of Node 18: the maintainers push new patch and security builds to that same tag routinely, which is the point of the tag — you want those updates when you rebuild deliberately. The risk this addresses is the same update landing <em>silently</em>, on someone else's <code>docker build</code>, with nothing in your own commit history to say the base image changed. A digest reference removes that ambiguity: the same digest always means the same bytes, so a change of base image is a change you make on purpose, in a diff you can review.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. Confirm any digest yourself before pinning to it, and verify before relying on the output. This is not a security audit or a compliance attestation, and it does not tell you whether the code inside that image is itself safe to run — only which content digest a tag currently resolves to.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
     <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>

@@ -19,6 +19,7 @@
   </style>
 </head>
 <body>
+<main>
   <p class="note"><a href="./">DynamoDB Capacity Mode Advisor</a> · guide</p>
   <h1>DynamoDB on-demand vs provisioned: which is cheaper?</h1>
   <p>Short answer: provisioned wins for steady tables, on-demand wins for idle or spiky ones, and the crossover is about <strong>29% average utilisation</strong>. The rest of this page shows where that number comes from and how to check your own table in ten minutes.</p>
@@ -53,7 +54,9 @@
   <h3>Does provisioned throttle where on-demand would not?</h3>
   <p>It can. Provisioned tables throttle requests above their capacity after burst credit runs out, and autoscaling takes minutes to react. On-demand scales to previously reached peaks quickly but has its own limits on a sudden jump of more than double the previous peak.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not engineering, financial or operational advice, and you are responsible for verifying prices and limits against the current AWS documentation. Vendor and product names are trademarks of their owners and are used only to describe what the tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
     <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>

@@ -56,6 +56,7 @@
 </style>
 </head>
 <body>
+<main>
 <p><a href="index.html">← Back to Docker Build Secrets Check</a></p>
 <h1>Docker Build Secrets Check vs. reading a Dockerfile by hand</h1>
 <p>
@@ -119,7 +120,7 @@
 <p>A Dockerfile can carry a dozen ordinary COPY instructions -- package.json, source directories, config files -- and a COPY .env /app/.env or COPY id_rsa /root/.ssh/id_rsa reads the same at a glance as any of them unless a reviewer is specifically checking each source path against a list of well-known credential filenames (.env, id_rsa, .npmrc, .aws/credentials, and others). That list is easy to not have fully in mind while reading past several ordinary-looking COPY lines in a row. This tool checks every COPY and ADD source's basename and path against that fixed list every time, regardless of how many other COPY lines surround it.</p>
 <h3>Does this replace understanding whether a flagged name actually holds a secret?</h3>
 <p>No. This is a name-pattern heuristic over Dockerfile text, not a value scanner -- it never sees what a build actually resolves ARG or ENV to, so a name like API_KEY is flagged because it looks like a secret even if the value behind it is not sensitive. Deciding whether a specific flagged instruction is a real exposure, and catching a secret under a name this tool's pattern list does not recognise, is still a job for reading the Dockerfile yourself.</p>
-
+</main>
 <footer>
   <p><strong>Evidence, not a determination.</strong> This checks Dockerfile instructions by name
   pattern. A clean report describes what that check found, not a guarantee your build has no secret

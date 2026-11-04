@@ -47,6 +47,7 @@
 </style>
 </head>
 <body>
+<main>
 <p><a href="index.html">&larr; Supabase RLS exposure checker</a></p>
 
 <h1>This checker vs. checking RLS in the Supabase dashboard by hand</h1>
@@ -122,7 +123,7 @@
 <p>Table Editor and Advisor both need a project member session -- they are dashboard features. This checker, and its CLI, need only what your own app's client already has: the project URL and the anon key. No account, no login, and the CLI's exit code <code>1</code> on any exposed table means it can gate a CI pipeline unattended without holding a dashboard session or a service-role key.</p>
 
 <p><a href="index.html">&larr; Back to the Supabase RLS exposure checker</a></p>
-
+</main>
 <footer>
   <p><strong>Evidence, not a determination.</strong> This checker looks at one specific,
   well-documented exposure -- can the anon key read real rows from a table -- using a capped,

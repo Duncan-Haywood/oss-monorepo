@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Actions Self-Hosted Exposure Check</a></p>
   <h1>Self-hosted GitHub Actions runners and public repositories don't mix</h1>
   <p class="lede">A workflow triggered by <code>pull_request</code> runs the workflow file as it exists on the pull request's own branch, not your base branch. If a job in that workflow runs on a <code>self-hosted</code> label, the pull request's author controls the steps that execute on your runner machine.</p>
@@ -56,7 +57,9 @@ jobs:
   <p class="note">That exits with a nonzero status if any job is fork-exposed by this tool's definition — wire it into your own CI to block a newly-added exposed job before it merges.</p>
   <h2>What this does not tell you</h2>
   <p>This tool cannot see whether your repository is actually public, whether required-approval settings are already on, or whether a named runner group (<code>runs-on: {group: ...}</code>) is self-hosted — it flags only the literal <code>self-hosted</code> label. A clean scan is not a claim that your self-hosted infrastructure is otherwise hardened.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. Verify before relying on the output. This is not a security audit or a compliance attestation.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
     <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>

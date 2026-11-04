@@ -18,6 +18,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← npm Lockfile Duplicates Check</a></p>
   <h1>How to remove duplicate packages from node_modules</h1>
   <p>npm installs one copy of a package when every dependant accepts the same version. When two dependants need versions that cannot be the same, it nests a second copy under one of them. A large app can end up with dozens of these.</p>
@@ -40,7 +41,9 @@
   <h2>What this does not tell you</h2>
   <p>A lockfile records versions, not sizes, so the count of extra copies is not a byte count. Some duplicates are harmless and some, such as two copies of a library with global state, matter a lot. The list is for review; it is not a finding that anything is broken.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> Provided free and as-is. It is not engineering advice of record. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Run the check</a>.</p>
   </footer>
 </body>

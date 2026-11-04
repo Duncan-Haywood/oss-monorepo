@@ -29,6 +29,7 @@
   </style>
 </head>
 <body>
+<main>
   <p class="note"><a href="./">&larr; GitHub Actions OIDC Trust Policy Checker</a></p>
   <h1>This checker vs. Wiz</h1>
   <p class="note">Two different layers: Wiz continuously inventories a whole cloud account's IAM roles and trust relationships, alongside dozens of other cloud risk categories, as part of a paid platform. This tool reads one pasted trust policy's GitHub Actions OIDC conditions, once, locally &mdash; no account, no cloud connection, nothing installed.</p>
@@ -103,7 +104,9 @@
     <p class="note">Open the <a href="./">GitHub Actions OIDC Trust Policy Checker</a> to check your own policy, or read <a href="sub-claim-and-wildcard-traps.html">sub-claim and wildcard traps</a> for the full mechanism.</p>
   </section>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>Evidence, not a determination.</strong> This checks a specific set of documented conditions on one trust policy. It is not a full security assessment, cannot see the permissions the role grants once assumed, and cannot see a pattern it does not check for. A clean report describes what these conditions say, not a guarantee that the setup is secure.</p>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security advice, and it does not replace a qualified security review or penetration test. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for having authorisation to review any policy you paste into it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>

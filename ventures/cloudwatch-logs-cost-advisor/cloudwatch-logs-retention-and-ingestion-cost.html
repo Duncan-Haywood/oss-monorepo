@@ -19,6 +19,7 @@
   </style>
 </head>
 <body>
+<main>
   <p class="note"><a href="./">CloudWatch Logs Cost Advisor</a> · guide</p>
   <h1>CloudWatch Logs cost: retention, ingestion and Infrequent Access</h1>
   <p>Short answer: <strong>the bill is mostly ingestion</strong>. Retention policies are worth setting everywhere, but they trim the small line; the large saving comes from logging less.</p>
@@ -53,7 +54,9 @@
   <h3>What is the Infrequent Access log class?</h3>
   <p>A class priced at $0.25 per GB ingested, half of Standard. It lacks metric filters, subscription filters, Live Tail and export, and the class can only be chosen when the log group is created.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not engineering, financial, legal or compliance advice, and you are responsible for verifying prices and features against the current AWS documentation and for your own retention obligations. Vendor and product names are trademarks of their owners and are used only to describe what the tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
     <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>

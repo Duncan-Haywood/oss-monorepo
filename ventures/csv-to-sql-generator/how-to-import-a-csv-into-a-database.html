@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← CSV to SQL Generator</a></p>
   <h1>How to import a CSV into a database</h1>
   <p>There are two jobs hiding in “import a CSV”: <strong>make a table whose column types fit the data</strong>, and <strong>load the rows</strong>. Bulk loaders do the second well and the first badly. INSERT scripts do both, slowly. Use the right one for the size.</p>
@@ -60,7 +61,9 @@ bq load --source_format=CSV --skip_leading_rows=1 mydataset.imported_data data.c
   <h2>Using the generator</h2>
   <p>Paste the CSV into <a href="./">the tool</a>, pick your database, read the notes it prints about anything it had to guess, and run the script against a copy first. From a terminal: <code>node cli.mjs data.csv --dialect mysql</code>.</p>
 
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> Provided free and as-is. This is general technical information, not professional advice; test on a copy of your data. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Convert a CSV to SQL</a>.</p>
   </footer>
 </body>

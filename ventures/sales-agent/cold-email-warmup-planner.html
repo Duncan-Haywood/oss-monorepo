@@ -20,6 +20,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">&larr; Sales Agent</a></p>
   <h1>Cold email warm-up and sending ramp planner</h1>
   <p>New mailboxes that jump straight to volume land in spam. Enter how many mailboxes you have and the daily volume you want; get the day-by-day ramp and a warning if you need more mailboxes. Nothing is uploaded.</p>
@@ -37,7 +38,9 @@
   <h3>Does this guarantee inbox placement?</h3>
   <p>No. Placement depends on your list quality, content, domain reputation and authentication (SPF, DKIM, DMARC). This only plans the volume.</p>
   <p>Before you send, run the <a href="./cold-email-checker.html">cold email checker</a>; after, the <a href="./how-to-handle-replies-to-cold-outreach.html">inbox agent</a> sorts replies.</p>
-  <footer><p><strong>No warranty.</strong> Free and as-is. The ramp numbers are rules of thumb, not provider guarantees or legal advice. Cold email rules vary by country; see the checker.</p></footer>
+  
+</main>
+<footer><p><strong>No warranty.</strong> Free and as-is. The ramp numbers are rules of thumb, not provider guarantees or legal advice. Cold email rules vary by country; see the checker.</p></footer>
   <script type="module">
     import { plan, toCsv } from "./sendramp.mjs";
     const $ = (id) => document.getElementById(id);

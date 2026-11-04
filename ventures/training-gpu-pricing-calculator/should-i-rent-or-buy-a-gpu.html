@@ -10,6 +10,7 @@
   <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
 </head>
 <body>
+<main>
   <p><a href="./">← GPU Training Pricing Calculator</a></p>
   <h1>Should I rent or buy a GPU?</h1>
   <p>Put your GPU, busy hours a month and utilisation into the <a href="./">calculator</a> to price RunPod, Lambda, Vast.ai, CoreWeave, AWS, Google Cloud and Modal side by side and see the buy-versus-rent breakeven. These are the questions to settle before you trust the answer.</p>
@@ -19,7 +20,9 @@
   <p>Instances bill while they are up, not while the GPU is busy. If you launch a pod, run for an hour, and leave it up for two, you paid for two. Enter your real utilisation: at 50% every hourly rate effectively doubles, and a per-second serverless provider with a higher rate can win. Interruptible marketplace capacity adds re-run hours when work is reclaimed.</p>
   <h2>What should I check before moving a workload?</h2>
   <p>Whether the GPU you need is offered where you can get capacity, how fast an instance starts and whether your data and checkpoints sit on persistent storage that is billed even when the GPU is off, and whether egress or minimum commitments apply. Run the calculator with your own hours, utilisation and storage, then confirm against each provider's pricing page.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
     <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
   </footer>

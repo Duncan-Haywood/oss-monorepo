@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">← Actions Permissions Check</a></p>
   <h1>How to set least-privilege permissions for GitHub Actions</h1>
   <p class="lede">Set <code>permissions: contents: read</code> at the workflow level, then add the one extra scope a specific job needs directly on that job — for example <code>pull-requests: write</code> only on the job that comments on a PR — rather than granting every job the broader set.</p>
@@ -62,7 +63,9 @@ jobs:
   <p class="note">That exits with a nonzero status if any workflow or job has no explicit permissions grant, or grants <code>write-all</code> — wire it into your own CI to block a newly-added unscoped workflow before it merges.</p>
   <h2>What this does not tell you</h2>
   <p>This tool cannot see your repository's or organization's actual default token setting — there is no public API for it — so an "unspecified" finding means the <em>file</em> doesn't say, not that your account is definitely misconfigured. And it never judges whether the scopes a workflow does declare are the minimum a job needs; deciding that is still yours to do.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. Verify before relying on the output. This is not a security audit or a compliance attestation, and it does not tell you your repository's actual default token permissions — only what a given workflow file does or does not make explicit.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
     <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>

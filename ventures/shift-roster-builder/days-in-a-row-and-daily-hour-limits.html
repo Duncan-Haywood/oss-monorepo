@@ -24,6 +24,7 @@
   </style>
 </head>
 <body>
+<main>
   <p><a href="./">&larr; Shift roster builder</a></p>
   <h1>Days in a row and daily hour limits: what each one costs your schedule</h1>
   <p>Two limits show up in almost every scheduling policy: the most hours one person works in a day, and the most days they work in a row. Both protect people, and both take away options. We measured how much on one cafe, changing one limit at a time.</p>
@@ -63,7 +64,9 @@
   <p>It depends on where you operate and on your own policy; some places require a day of rest in a set period for some workers. Check the rules that apply to you. The roster builder lets you set the most days in a row and will not schedule past it.</p>
   <h3>How do I cap daily hours in a schedule?</h3>
   <p>Set the daily hour cap before you build. The roster builder then refuses to give anyone more than that many hours in a day, so a person cannot take a lunch shift and a closing shift that together pass the cap, and it reports any shift that goes open as a result.</p>
-  <footer>
+  
+</main>
+<footer>
     <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or financial advice, and it does not tell you what scheduling law requires of you. The example is invented and the numbers come from running this tool's own engine on it (<code>node cli.mjs --example --daily 9</code>, <code>--consec 5</code>).</p>
     <p>Everything the roster builder does runs in your browser; your staff list is never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional. See also <a href="how-to-avoid-clopening.html">avoiding clopening</a> and <a href="how-to-reduce-overtime-in-a-schedule.html">reducing overtime</a>.</p>
   </footer>
