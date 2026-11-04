@@ -1621,6 +1621,7 @@ export function buildRoster(staff, slots, options = {}) {
     if (p.avoidHours > 0.01) warnings.push(`${p.name} works ${num(p.avoidHours)} hours inside the times they asked to avoid; avoiding them would have left a shift open or cost more.`);
   });
   const capHours = staff.reduce((t, p) => t + p.maxHours, 0);
+  if (budgetHit) warnings.push(`This week is large (${ctx.S} shifts), so the search stopped after ${Math.round(budgetMs / 1000)} seconds and kept the best roster found so far. More improvement may exist; split the week or raise timeBudgetMs (0 for no limit) to search longer.`);
   if (capHours < ctx.totalHours) warnings.push(`The shifts add up to ${num(ctx.totalHours)} hours but everyone's weekly limits together are ${num(capHours)}, so some shifts cannot be filled.`);
   res.people.forEach((p) => {
     if (p.short > 0.01) warnings.push(`${p.name} gets ${num(p.hours)} hours, ${num(p.short)} under their minimum of ${num(p.minHours)}.`);

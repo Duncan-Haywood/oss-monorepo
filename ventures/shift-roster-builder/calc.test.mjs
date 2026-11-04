@@ -1770,6 +1770,7 @@ test("a week near the shift cap stops improving on a time budget and says so", (
   const t = Date.now();
   const r = buildRoster(staff, slots, { timeBudgetMs: 1500, exact: false });
   assert.equal(r.budgetHit, true);
+  assert.ok(r.warnings.some((w) => /search stopped after/.test(w)));
   assert.ok(r.assignments && r.assignments.length > 0, "the roster so far is kept");
   assert.ok(Date.now() - t < 60000);
   // a small week is not budgeted by default
