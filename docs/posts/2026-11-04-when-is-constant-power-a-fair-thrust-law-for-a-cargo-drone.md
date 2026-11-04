@@ -1,7 +1,7 @@
 ---
 title: "When is constant power a fair thrust law for a cargo drone?"
 date: 2026-11-04
-description: "On 104 measured propeller curves, the constant-power thrust slope of -1 holds within about 10% of the efficiency-peak advance ratio and drifts to -1.54 at 20% above it."
+description: "On 104 measured propeller curves the constant-power thrust slope of -1 holds within about 10% of the peak-efficiency advance ratio, and is -1.54 at 20% above."
 tags: [aerolog-scaling, drones, propellers, research]
 ---
 
