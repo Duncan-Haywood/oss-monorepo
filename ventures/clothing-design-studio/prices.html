@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clothing Price by Market: Shelf Price with VAT for the EU, UK and US</title>
+  <meta name="description" content="Free price calculator for new clothing brands: from your landed cost and target margin, the shelf price in Italy, France, Germany, Spain, the Netherlands, the UK and the US, with VAT included where shoppers see it, and the real margin at a rounded price.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Clothing price by market: shelf price with VAT">
+  <meta property="og:description" content="One margin target, the right shelf price in each market. Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Clothing price by market (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"shelf price per market from one margin target; VAT included for EU and UK, sales tax excluded for US; price endings; margin at the rounded price"}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="fit.html">Size finder</a> · <a href="quotes.html">Compare quotes</a> · <a href="labels.html">Label checker</a> · <a href="wardrobe.html">Wardrobe planner</a></p>
+  <h1>One margin target. The right shelf price in each market.</h1>
+  <p>EU and UK shoppers see prices with VAT; US shoppers see them before sales tax. Type your landed cost per garment and the margin you want, and get the shelf price in each market, rounded to a price ending, with the margin that price really gives.</p>
+  <p class="placeholder">VAT rates are standard rates typed in by hand and not checked against the official table when this page was built: confirm them (link below) and edit any that are wrong. Reduced rates, thresholds, OSS registration and US state sales tax are not applied.</p>
+  <div class="grid">
+    <section>
+      <h2>Your numbers (in your supplier's currency)</h2>
+      <div class="row"><div><label for="landed">Landed cost per garment</label><input id="landed" type="number" min="0" step="0.01" value="18"></div><div><label for="qty">Run size</label><input id="qty" type="number" min="1" step="1" value="100"></div></div>
+      <div class="row"><div><label for="target">Target margin %</label><input id="target" type="number" min="1" max="95" value="60"></div><div><label for="fees">Marketplace commission %</label><input id="fees" type="number" min="0" max="40" value="0"></div></div>
+      <div class="row"><div><label for="ending">Price ending</label><select id="ending"><option value="0.95">.95</option><option value="0.99">.99</option><option value="0">whole number</option></select></div><div><label for="cur">Your sheet currency</label><select id="cur"><option>EUR</option><option>GBP</option><option>USD</option></select></div></div>
+      <h2>Exchange rates</h2>
+      <p class="tag">Units of the market's currency per one of yours. Only needed when it differs.</p>
+      <div class="row"><div><label for="gbp">to GBP</label><input id="gbp" type="number" min="0" step="0.001" value="0.85"></div><div><label for="usd">to USD</label><input id="usd" type="number" min="0" step="0.001" value="1.08"></div></div>
+      <p class="tag">Check the rates yourself; these are placeholders, not today's.</p>
+    </section>
+    <div>
+      <section><h2>Shelf price by market</h2><output id="result" aria-live="polite"></output></section>
+      <p class="tag">VAT source to confirm rates: <a href="https://taxation-customs.ec.europa.eu/taxation/vat/vat-rates_en">European Commission VAT rates</a>.</p>
+    </div>
+  </div>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional styling advice, and it does not replace a qualified professional. Tax rates and exchange rates are typed by you or are editable placeholders; they change, and this is not tax advice. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+
+  <script type="module">
+    import { marketPrices, MARKETS } from "./markets.mjs";
+    import { DEFAULT_PLAN, money } from "./costing.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const vat = {};
+    function render() {
+      const cur = $("#cur").value;
+      const rates = { GBP: +$("#gbp").value, USD: +$("#usd").value };
+      const plan = { ...DEFAULT_PLAN, targetMarginPct: +$("#target").value, channelFeePct: +$("#fees").value };
+      const rows = marketPrices({ landed: +$("#landed").value, quantity: Math.max(1, +$("#qty").value), currencyRates: rates, vat, ending: +$("#ending").value }, plan, cur);
+      $("#result").innerHTML = `<table><tr><th>Market</th><th>VAT %</th><th>Shelf price</th><th>Net of tax</th><th>Profit / sale</th><th>Margin</th></tr>${rows.map(r => r.error
+        ? `<tr><td>${esc(r.label || r.market)}</td><td colspan="5" class="placeholder">${esc(r.error)}</td></tr>`
+        : `<tr><td>${esc(r.label)}</td><td><input data-m="${r.market}" type="number" min="0" max="40" step="0.5" value="${r.vatPct}" ${MARKETS[r.market].tax === "excluded" ? "disabled" : ""}></td><td class="num"><b>${esc(money(r.shelfPrice, r.currency))}</b></td><td class="num">${esc(money(r.netOfTax, r.currency))}</td><td class="num">${esc(money(r.profitPerSale, r.currency))}</td><td class="num">${r.marginPct}%</td></tr>`).join("")}</table>`;
+      $("#result").querySelectorAll("input[data-m]").forEach(i => i.addEventListener("change", () => { vat[i.dataset.m] = +i.value; render(); }));
+    }
+    document.querySelectorAll("section select, section input").forEach(el => el.addEventListener("input", () => { render(); recordUsage("prices_check"); }));
+    render(); recordUsage("prices_open");
+  </script>
+</body>
+</html>
