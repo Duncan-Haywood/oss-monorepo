@@ -130,6 +130,8 @@ Milestone 5b (negative): giving a receding-horizon controller a persistence, smo
 
 Milestone 5c (corrects 5a and 5b): the clairvoyant of 5a let the boat ride the corridor edge without tacking while every simulated controller had to tack there; with the same rule (`tack.dp_values`) the clairvoyant is 92.7% (July) rather than 99.7%, so about 7 of the 12 headroom points were an artefact. A full-day tack policy computed on wind smoothed to 15 minutes and executed on the true wind closes 93 to 95% of the rest (+5 points over the header-follower, 4.7 to 6.1 bootstrap), 60-minute smoothing keeps about 38%, 120-minute smoothing about 0 to 11%. It assumes a perfect day-long forecast of the slow wind; forecast error and lead are not modelled. `LOG.md` (2026-11-04, milestone 5c), `experiments/results_sail_policy.txt`, `experiments/run_sail_policy.py`.
 
+Milestone 5d: 5c's gain needs forecast skill. Replanning hourly with a forecast that blends the 15-minute-smoothed truth with persistence (error e-folding time T), the policy keeps 16 to 20% of the +5 points at T = 30 min, 38 to 45% at 60, 51 to 58% at 120 and 62 to 68% at 240; pure persistence is below the header-follower (-0.2 Jan, -2.6 Jul points) and tacks 150 to 250 times a day. Synthetic error model, not an archived NWP forecast. `LOG.md` (milestone 5d), `experiments/results_sail_lead.txt`, `experiments/run_sail_lead.py`.
+
 ## Limitations
 
 Seawater properties, efficiencies, form factors and wave term are unsourced or swept; no published

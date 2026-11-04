@@ -39,3 +39,14 @@ def test_policy_beats_edge_tacking_on_synthetic_shifts():
     p, c = synth(480, 3)
     grid, V = dp_values(p, c, 60.0, 1500.0, 30.0)
     assert sim_policy(p, c, p, c, 60.0, 1500.0, 30.0, grid, V)[0] >= sim_corridor(p, c, 60.0, 1500.0, 30.0)[0]
+
+
+def test_replan_perfect_forecast_close_to_policy_and_persistence_runs():
+    from marine_hull.tack import sim_replan, lead_forecast
+    p, c = synth(480, 5)
+    g, V = dp_values(p, c, 60.0, 1500.0, 30.0)
+    x_full, _ = sim_policy(p, c, p, c, 60.0, 1500.0, 30.0, g, V)
+    x_inf, _ = sim_replan(p, c, 60.0, 1500.0, 30.0, lambda k0: lead_forecast(p, c, k0, float("inf"), smooth_min=1), every=120)
+    assert abs(x_inf - x_full) < 0.03 * x_full  # same model every replan; state carries over
+    x_0, _ = sim_replan(p, c, 60.0, 1500.0, 30.0, lambda k0: lead_forecast(p, c, k0, 0.0), every=120)
+    assert x_0 > 0
