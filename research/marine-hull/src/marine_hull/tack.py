@@ -199,10 +199,10 @@ def smooth(a, width):
     return num / den
 
 
-def sim_replan(p, c, dt, corr, tau, forecast, every=60):
+def sim_replan(p, c, dt, corr, tau, forecast, every=60, margin=0.0):
     """Receding full-day controller. At step k0 (every `every` steps) call forecast(k0) -> (ps, cs), model rates for steps
     k0..n-1 (shape (2, n-k0)); solve dp_values on them and follow that policy on the TRUE rates until the next replan.
-    The boat's own tack and y carry over. Returns (progress m, number of tacks)."""
+    The boat's own tack and y carry over. `margin` as in sim_policy (switch only if the model gain exceeds margin x best step progress). Returns (progress m, number of tacks)."""
     f = 1.0 - min(1.0, tau / dt)
     n = p.shape[1]
     x, y, sg, n_t, pen = 0.0, 0.0, 0, 0, 0.0
@@ -213,7 +213,7 @@ def sim_replan(p, c, dt, corr, tau, forecast, every=60):
             j, o = k - k0, 1 - sg
             stay = ps[sg, j] * dt + np.interp(np.clip(y + cs[sg, j] * dt, -corr, corr), grid, V[j + 1, sg])
             sw = ps[o, j] * dt * f + np.interp(np.clip(y + cs[o, j] * dt * f, -corr, corr), grid, V[j + 1, o])
-            if sw > stay:
+            if sw > stay + margin * max(ps[0, j], ps[1, j]) * dt:
                 sg = o; n_t += 1; pen = min(1.0, tau / dt)
             fac = 1.0 - pen
             pen = 0.0
