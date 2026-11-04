@@ -235,3 +235,13 @@ test("pay flags reach the solver and match the library", () => {
   const plain = buildRoster(parseStaff(sampleStaff()).staff, parseShifts(sampleShifts()).slots, {});
   assert.ok(lib.cost > plain.cost, "burden and differentials raise the bill");
 });
+
+test("--hours-watch lists people at or near a weekly hours line", () => {
+  const r = run("Ana, 20, 40, 0, any\nBo, 20, 40, 0, any\n", "Mon, 8, 16, 1, open\nTue, 8, 16, 1, open\nWed, 8, 16, 1, open\n", { hoursWatch: 8, watchWithin: 0 });
+  assert.equal(r.code, 0);
+  assert.match(r.out, /at or over 8 h/);
+  assert.match(r.out, /not legal advice|Not legal advice/);
+  assert.match(run(sampleStaff(), sampleShifts(), { hoursWatch: 80, watchWithin: 0 }).out, /No one is at or within 0 h of 80 h/);
+  assert.equal(parseArgs(["--hours-watch", "30", "--watch-within", "3", "a", "b"]).watchWithin, 3);
+  assert.throws(() => parseArgs(["--hours-watch", "0"]), /between 0 and 80/);
+});
