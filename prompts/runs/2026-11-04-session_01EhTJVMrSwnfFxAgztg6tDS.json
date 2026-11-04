@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-04",
+  "session": "https://claude.ai/code/session_01EhTJVMrSwnfFxAgztg6tDS",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-04T09:59:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13061",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Router drew the perf track but the scheduled task asked for revenue venture work; shipped a venture slice instead.",
+      "did": "venture work",
+      "result": "quote comparison page landed"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "node --test in ventures/clothing-design-studio: 145 pass. Chromium load over http: no console errors. First push hit GitHub 500s, succeeded on retry.",
+  "corrections": [],
+  "redteam": null
+}

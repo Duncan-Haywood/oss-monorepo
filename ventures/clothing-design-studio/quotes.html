@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Compare Clothing Manufacturer Quotes Side by Side: Landed Cost, MOQ, Margin</title>
+  <meta name="description" content="Free tool to compare quotes from several clothing manufacturers for the same t-shirt or hoodie: landed cost per garment, setup, cash up front, margin after VAT and fees, break-even, minimum order and lead time, and the run size where each factory becomes cheapest. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Compare clothing manufacturer quotes side by side">
+  <meta property="og:description" content="Same design, every factory: landed cost, setup, minimum order, margin and break-even. Free, in your browser.">
+        <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Manufacturer quote comparison (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"same design costed on several supplier sheets; landed cost, setup, cash up front, margin, break-even, minimum order and lead time side by side; cheapest factory by run size; CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I compare quotes from different clothing manufacturers?","acceptedAnswer":{"@type":"Answer","text":"Cost the same garment on each quote with the same quantity, then compare landed cost per garment (fabric, cut and sew, decoration with setup spread over the run, trims, duty and freight), cash needed up front, minimum order and lead time. The lowest unit price is often not the cheapest factory once setup and minimum order are counted."}},{"@type":"Question","name":"Why does the cheapest factory change with the order size?","acceptedAnswer":{"@type":"Answer","text":"Setup fees such as screens and embroidery digitising are paid once per run. A factory with a low unit price and a high setup loses on small runs and wins on large ones. The run-size table shows where it flips."}}]}</script>
+
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sheets .piece { display:flex; justify-content:space-between; gap:8px; align-items:center; }
+    tr.win td { background:#f3e3c4; } .bad { color:#9a3412; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="fit.html">Size finder</a> · <a href="wardrobe.html">Wardrobe planner</a></p>
+  <h1>Same design, every factory: who is really cheapest?</h1>
+  <p>Asked three factories for a quote and cannot compare them? Import each as a sheet (CSV), describe one garment, and see landed cost, setup, cash up front, margin, break-even, minimum order and lead time side by side, then the run size where each factory becomes the cheapest.</p>
+  <p class="placeholder">This page ships no prices. Sheets are your own quotes; the example sheet is round placeholder numbers, not a quote from anyone.</p>
+  <div class="grid">
+    <section>
+      <h2>The garment</h2>
+      <div class="row">
+        <div><label for="garment">Garment</label><select id="garment"><option value="tee">T-shirt</option><option value="longsleeve">Long-sleeve tee</option><option value="crewneck">Crewneck</option><option value="hoodie">Hoodie</option></select></div>
+        <div><label for="fabric">Fabric</label><select id="fabric"></select></div>
+      </div>
+      <div class="row">
+        <div><label for="method">Decoration (one print)</label><select id="method"></select></div>
+        <div><label for="colours">Colours in it</label><input id="colours" type="number" min="1" max="12" value="2"></div>
+      </div>
+      <div class="row">
+        <div><label for="qty">Run size</label><input id="qty" type="number" min="1" value="100"></div>
+        <div><label for="price">Selling price (incl. tax)</label><input id="price" type="number" min="0" step="0.5" value="45"></div>
+      </div>
+      <h2>Sheets (one per factory)</h2>
+      <p class="tag">Use the CSV format of the studio's cost sheet: <a id="tpl" href="#">download a template</a>, fill it from a quote.</p>
+      <label class="btn small" for="imp">Import quote sheet(s) (CSV)</label><input id="imp" type="file" accept=".csv,text/csv" multiple>
+      <p><button type="button" id="ex">Add the placeholder example</button> <button type="button" id="clr">Clear</button></p>
+      <div id="sheets" class="sheets"></div>
+    </section>
+    <section>
+      <h2>Side by side</h2>
+      <div id="out"><p class="tag">Add two or more sheets.</p></div>
+      <h2>Cheapest by run size</h2>
+      <div id="runs"></div>
+      <p><button type="button" id="csv">Download comparison (CSV)</button></p>
+    </section>
+  </div>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or legal advice, and it does not replace a qualified professional. Its suggestions follow simple published rules (neutrals with one accent, pieces chosen by style, season and occasion), not anyone's taste. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+  <script type="module">
+    import { compareQuotes, cheapestByQuantity, comparisonCsv } from "./quotes.mjs";
+    import { EXAMPLE_SUPPLIER, supplierToCsv, supplierFromCsv } from "./suppliers.mjs";
+    import { newDesign } from "./design.mjs";
+    import { FABRICS, METHODS } from "./catalogue.mjs";
+    import { money } from "./costing.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    let sheets = [];
+    $("#fabric").innerHTML = Object.entries(FABRICS).map(([k, v]) => `<option value="${esc(k)}"${k === "heavyweight-cotton" ? " selected" : ""}>${esc(v.label ?? k)}</option>`).join("");
+    $("#method").innerHTML = Object.entries(METHODS).map(([k, v]) => `<option value="${esc(k)}"${k === "screen" ? " selected" : ""}>${esc(v.label ?? k)}</option>`).join("");
+    function design() {
+      const d = newDesign({ garment: $("#garment").value, fabric: $("#fabric").value, quantity: Math.max(1, +$("#qty").value || 1), price: +$("#price").value || 0 });
+      d.placements = [{ id: 1, kind: "text", label: "print", method: $("#method").value, colours: Math.max(1, +$("#colours").value || 1), area: 100 }];
+      return d;
+    }
+    function render() {
+      $("#sheets").innerHTML = sheets.map((s, i) => `<div class="piece"><span>${esc(s.name)}${s.example ? " (placeholder)" : ""}</span><button type="button" data-rm="${i}">Remove</button></div>`).join("");
+      if (sheets.length < 1) { $("#out").innerHTML = '<p class="tag">Add two or more sheets.</p>'; $("#runs").innerHTML = ""; return; }
+      const d = design(), c = compareQuotes(d, sheets), cur = c.rows[0].currency;
+      const mark = (k, i) => c.best[k] === i ? ' class="win"' : "";
+      $("#out").innerHTML = `<table><tr><th>Factory</th><th class="num">Landed</th><th class="num">Setup</th><th class="num">Cash up front</th><th class="num">Margin</th><th class="num">Break-even</th><th class="num">MOQ</th><th class="num">Lead</th></tr>` +
+        c.rows.map(r => r.ok ? `<tr${mark("landed", r.index)}><td>${esc(r.name)}</td><td class="num">${money(r.landed, r.currency)}</td><td class="num">${money(r.setupTotal, r.currency)}</td><td class="num">${money(r.cashUpFront, r.currency)}</td><td class="num">${r.marginPct ?? "n/a"}%</td><td class="num">${r.breakEvenUnits ?? "n/a"}</td><td class="num${r.belowMoq ? " bad" : ""}">${r.moq ?? ""}</td><td class="num">${r.leadTimeDays != null ? r.leadTimeDays + " d" : ""}</td></tr>` : `<tr><td>${esc(r.name)}</td><td colspan="7" class="bad">cannot price this design</td></tr>`).join("") + "</table>" +
+        (c.comparable && c.best.landed != null ? `<p>Lowest landed cost: <strong>${esc(c.rows[c.best.landed].name)}</strong>${c.best.fastest != null ? `; fastest: <strong>${esc(c.rows[c.best.fastest].name)}</strong>` : ""}. Highlighted row = lowest landed cost among those that meet your run size.</p>` : "") +
+        (c.warnings.length ? `<p class="notes">${c.warnings.map(esc).join("<br>")}</p>` : "");
+      const runs = cheapestByQuantity(d, sheets);
+      $("#runs").innerHTML = `<table><tr><th>Run</th>${sheets.map(s => `<th class="num">${esc(s.name)}</th>`).join("")}<th>Cheapest</th></tr>` +
+        runs.map(r => `<tr><td>${r.quantity}</td>${r.costs.map(x => `<td class="num">${x.landed != null ? money(x.landed, cur) : x.belowMoq ? '<span class="tag">below MOQ</span>' : "n/a"}</td>`).join("")}<td>${r.cheapest != null ? esc(sheets[r.cheapest].name) : ""}${r.saving ? ` <span class="tag">by ${money(r.saving, cur)}</span>` : ""}</td></tr>`).join("") + "</table>";
+    }
+    $("#imp").addEventListener("change", async e => {
+      for (const f of e.target.files) {
+        try { const s = supplierFromCsv(await f.text()); if (s.name === "Imported sheet") s.name = f.name.replace(/\.csv$/i, ""); sheets.push(s); recordUsage("quotes_import"); }
+        catch (err) { $("#out").innerHTML = `<p class="notes">${esc(f.name)}: ${esc(err.message)}</p>`; return; }
+      }
+      e.target.value = ""; render();
+    });
+    $("#ex").addEventListener("click", () => { sheets.push(structuredClone(EXAMPLE_SUPPLIER)); render(); });
+    $("#clr").addEventListener("click", () => { sheets = []; render(); });
+    $("#sheets").addEventListener("click", e => { const i = e.target.dataset?.rm; if (i != null) { sheets.splice(+i, 1); render(); } });
+    $("#tpl").addEventListener("click", e => { e.preventDefault(); const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([supplierToCsv(EXAMPLE_SUPPLIER)], { type: "text/csv" })); a.download = "quote-sheet-template.csv"; a.click(); });
+    $("#csv").addEventListener("click", () => { if (!sheets.length) return; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([comparisonCsv(compareQuotes(design(), sheets))], { type: "text/csv" })); a.download = "quote-comparison.csv"; a.click(); recordUsage("quotes_csv"); });
+    document.querySelectorAll("section select, section input[type=number]").forEach(el => el.addEventListener("input", () => { render(); }));
+    render(); recordUsage("quotes_open");
+  </script>
+</body>
+</html>
