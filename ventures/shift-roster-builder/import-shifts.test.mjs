@@ -24,3 +24,23 @@ test("bad rows are skipped, missing columns reported", () => {
   assert.equal(r.skipped.length, 2);
   assert.match(importShiftsCsv("Date,Role\n2026-11-02,x").notes[0], /No start and end/);
 });
+
+test("long dates and a weekday prefix are read (2026-11-04)", () => {
+  for (const d of ['"Nov 2, 2026"', "2 Nov 2026", "Mon 11/2/2026", '"Mon, 11/2/2026"', "November 2nd 2026"]) {
+    const r = importShiftsCsv(`Date,Start,End,Position\n${d},7:00 AM,3:00 PM,Cook\n`);
+    assert.equal(r.rows, 1, d);
+    assert.match(r.shiftsText, /Mon, 7:00, 15:00, 1, , cook/, d);
+  }
+  assert.equal(importShiftsCsv("Date,Start,End\nFeb 30 2026,7:00,15:00\n").rows, 0);
+});
+
+test("one shift-range column is split into start and end (2026-11-04)", () => {
+  for (const r of ["7:00 AM - 3:00 PM", "7:00 AM to 3:00 PM", "7:00 AM – 3:00 PM", "07:00-15:00"]) {
+    const out = importShiftsCsv(`Date,Shift,Position\n2026-11-02,${r},Cook\n`);
+    assert.equal(out.rows, 1, r);
+    assert.match(out.shiftsText, /Mon, 7:00, 15:00/, r);
+  }
+  const bad = importShiftsCsv("Date,Shift\n2026-11-02,8.0\n");
+  assert.equal(bad.rows, 0);
+  assert.match(bad.skipped[0], /could not split/);
+});

@@ -12,6 +12,7 @@ const SYN = {
   date: ["date", "shift date", "day", "start date", "scheduled date", "work date"],
   start: ["start", "start time", "shift start", "begin", "from", "starts", "clock in", "scheduled start"],
   end: ["end", "end time", "shift end", "finish", "to", "ends", "clock out", "scheduled end"],
+  range: ["shift", "shift time", "shift times", "hours", "time", "times", "scheduled time"],
   role: ["position", "role", "job", "job title", "department", "station", "location position"],
   who: ["employee", "name", "employee name", "team member", "staff", "assigned to", "user"],
 };
@@ -19,14 +20,21 @@ const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").tr
 const clean = (s) => String(s || "").replace(/[,;\t]/g, " ").replace(/\s+/g, " ").trim();
 
 // Returns {y,m,d} or null. ISO, then d/m/y or m/d/y (a first part above 12 means day first; otherwise US order).
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+const monthOf = (w) => MONTHS.indexOf(String(w).slice(0, 3).toLowerCase());
 function parseDate(tok) {
-  const s = String(tok || "").trim();
+  // A leading weekday ("Mon, 11/2/2026", "Monday Nov 2 2026") is dropped; the date itself decides the day.
+  let s = String(tok || "").trim().replace(/^(mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?,?\s+(?=\d|[a-z]{3})/i, "");
   let m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(s);
   let y, mo, d;
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; }
   else if ((m = /^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2}|\d{4})/.exec(s))) {
     y = +m[3] < 100 ? 2000 + +m[3] : +m[3];
     if (+m[1] > 12) { d = +m[1]; mo = +m[2]; } else { mo = +m[1]; d = +m[2]; }
+  } else if ((m = /^([a-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})/i.exec(s)) && monthOf(m[1]) >= 0) {
+    y = +m[3]; mo = monthOf(m[1]) + 1; d = +m[2]; // Nov 2, 2026
+  } else if ((m = /^(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]{3,9})\.?,?\s+(\d{4})/i.exec(s)) && monthOf(m[2]) >= 0) {
+    y = +m[3]; mo = monthOf(m[2]) + 1; d = +m[1]; // 2 Nov 2026
   } else return null;
   const t = new Date(Date.UTC(y, mo - 1, d));
   if (t.getUTCFullYear() !== y || t.getUTCMonth() !== mo - 1 || t.getUTCDate() !== d) return null;
@@ -50,7 +58,7 @@ export function importShiftsCsv(text) {
   const head = splitCsvRow(lines[0], sep).map(norm);
   const find = (key) => head.findIndex((h) => SYN[key].includes(h));
   const ix = Object.fromEntries(Object.keys(SYN).map((k) => [k, find(k)]));
-  if (ix.start < 0 || ix.end < 0) return fail("No start and end time columns found (looked for Start, Start time, End, End time).", head);
+  if ((ix.start < 0 || ix.end < 0) && ix.range < 0) return fail("No start and end time columns found (looked for Start, Start time, End, End time).", head);
   const used = new Set(Object.values(ix).filter((i) => i >= 0));
   const unknown = head.filter((h, i) => h && !used.has(i));
   const counts = new Map(); // key -> Map(week -> n)
@@ -58,7 +66,13 @@ export function importShiftsCsv(text) {
   lines.slice(1).forEach((line, n) => {
     const c = splitCsvRow(line, sep), at = (i) => (i >= 0 ? c[i] || "" : "");
     const where = `Row ${n + 2}`;
-    const a = splitStamp(at(ix.start)), b = splitStamp(at(ix.end));
+    let startTok = at(ix.start), endTok = at(ix.end);
+    if (ix.start < 0 || ix.end < 0) { // one column such as "7:00 AM - 3:00 PM" or "7am to 3pm"
+      const parts = at(ix.range).split(/\s+(?:-|–|—|to)\s+|\s*[–—]\s*|(?<=[ap]m|\d)-(?=\d)/i);
+      if (parts.length !== 2) return skipped.push(`${where}: could not split the shift "${at(ix.range)}" into a start and an end`);
+      [startTok, endTok] = parts;
+    }
+    const a = splitStamp(startTok), b = splitStamp(endTok);
     const dateTok = at(ix.date) || a.date;
     const dt = parseDate(dateTok);
     let day, week = 0;
@@ -66,7 +80,7 @@ export function importShiftsCsv(text) {
     else if (dayIndex(dateTok) >= 0) day = dayIndex(dateTok);
     else return skipped.push(`${where}: could not read the date "${dateTok}"`);
     const s = parseTime(a.time), e = parseTime(b.time);
-    if (Number.isNaN(s) || Number.isNaN(e)) return skipped.push(`${where}: could not read the times "${at(ix.start)}" and "${at(ix.end)}"`);
+    if (Number.isNaN(s) || Number.isNaN(e)) return skipped.push(`${where}: could not read the times "${startTok}" and "${endTok}"`);
     if (s === e) return skipped.push(`${where}: start and end are the same`);
     const role = clean(at(ix.role)).toLowerCase();
     const key = [day, s, e, role].join("|");
