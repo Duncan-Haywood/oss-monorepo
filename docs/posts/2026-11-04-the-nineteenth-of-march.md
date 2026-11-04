@@ -1,7 +1,7 @@
 ---
 title: "Why a shared birthday in a class of 28 is more likely than not"
 date: 2026-11-04
-description: "New Hearth & Horizon story: two children share a birthday, and the school assistant counts 378 pairs, not 28 people. About 65 per cent for the room, 7 per cent for you."
+description: "New Hearth & Horizon story: two children share a birthday, and the school assistant counts 378 pairs, not 28 people: about 65% for the room, 7% for you."
 tags: [hearth-and-horizon, fiction, probability]
 ---
 
