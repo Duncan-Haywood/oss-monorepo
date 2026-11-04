@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-11-03
+tagged: auto
+---
 # Homepage frame rate (2026-11-03)
 
 Owner report: "tons of lag on the site". Cause: client-side rendering on the

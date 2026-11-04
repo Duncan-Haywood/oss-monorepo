@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [llm-coding-inference]
+tagged: auto
+---
 # llm-coding-inference milestone 7p
 
 Run on 2026-11-04. Extends 7o to two weaker coders (`nb-english`, `lexicon-en`) with `experiments/h7p_rare_guard_coders.py <coder> [reps]` (needs numpy: use `/usr/bin/python3.13` in the cloud container; data hosts were reachable).

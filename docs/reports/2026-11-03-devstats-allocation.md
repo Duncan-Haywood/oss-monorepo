@@ -1,3 +1,9 @@
+---
+kind: analysis
+subjects: [devstats]
+date: 2026-11-03
+tagged: auto
+---
 # Dev dashboard: where runs go, and where the next ones go (2026-11-03)
 
 Owner ask: "more work on the dashboard to see where dev resources/runs are

@@ -1,0 +1,251 @@
+{
+  "date": "2026-11-04",
+  "session": "https://claude.ai/code/session_01E5sJKme5d2HagYtXvPhZ96",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-11-04T13:21:07Z",
+  "ended": "2026-11-04T13:22:40Z",
+  "wall_minutes": 2.51,
+  "tokens_in": 1363469,
+  "tokens_out": 6330,
+  "cost_usd": 0.5137,
+  "tool_calls": 23,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13096",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Open list item (browser_checks framerate) is control-plane; skipped as the prompt allows."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-04-the-docs-check-was-red-and-nobody-noticed.md"
+  ],
+  "goal": null,
+  "notes": "Red baseline on doc_index suite fixed (13 reports backfilled, bad topics fixed). Campaign on doc_index.py: 2/8 caught, 6 gaps (glob helper, CLI exit codes, topic_counts) closed with 3 tests, catch rate after fix 1.0. No new guard workflow; a CI guard for report front matter already exists as the RealTree test, which was red on main, so landing sessions evidently skipped it.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/doc_index.py",
+        "test": "/usr/local/bin/python3 -m unittest test_doc_index  (in platform/ci)",
+        "seed": 339734099,
+        "commit": "fd08272d",
+        "sites": 139,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 146,
+            "col": 76,
+            "operator": "const-plus-one",
+            "before": "for i, line in enumerate(path.read_text(errors=\"replace\").splitlines(), 1):",
+            "after": "for i, line in enumerate(path.read_text(errors=\"replace\").splitlines(), 2):",
+            "line_text": "    for i, line in enumerate(path.read_text(errors=\"replace\").splitlines(), 1):",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 172,
+            "col": 13,
+            "operator": "div-to-times",
+            "before": "p = root / \"prompts\" / \"system.json\"",
+            "after": "p = root * \"prompts\" / \"system.json\"",
+            "line_text": "    p = root / \"prompts\" / \"system.json\"",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 183,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "out, i = out + \"(?:.*/)?\", i + 3",
+            "after": "out, i = out + \"(?:.*/)?\", i + 4",
+            "line_text": "            out, i = out + \"(?:.*/)?\", i + 3",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "GlobAndCli / topic_counts tests added in test_doc_index.py"
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 186,
+            "col": 24,
+            "operator": "eq-flip",
+            "before": "elif pattern[i] == \"*\":",
+            "after": "elif pattern[i] != \"*\":",
+            "line_text": "        elif pattern[i] == \"*\":",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "GlobAndCli / topic_counts tests added in test_doc_index.py"
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 189,
+            "col": 54,
+            "operator": "const-plus-one",
+            "before": "out, i = out + re.escape(pattern[i]), i + 1",
+            "after": "out, i = out + re.escape(pattern[i]), i + 2",
+            "line_text": "            out, i = out + re.escape(pattern[i]), i + 1",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "GlobAndCli / topic_counts tests added in test_doc_index.py"
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 461,
+            "col": 31,
+            "operator": "or-to-and",
+            "before": "for t in as_list((meta or {}).get(\"topics\")):",
+            "after": "for t in as_list((meta and {}).get(\"topics\")):",
+            "line_text": "        for t in as_list((meta or {}).get(\"topics\")):",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "GlobAndCli / topic_counts tests added in test_doc_index.py"
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 499,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "return 1 if errs else 0",
+            "after": "return 1 if errs else 1",
+            "line_text": "        return 1 if errs else 0",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "GlobAndCli / topic_counts tests added in test_doc_index.py"
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 500,
+            "col": 13,
+            "operator": "eq-flip",
+            "before": "if a.cmd == \"backfill\":",
+            "after": "if a.cmd != \"backfill\":",
+            "line_text": "    if a.cmd == \"backfill\":",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "GlobAndCli / topic_counts tests added in test_doc_index.py"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "docs/reports (13 files) + polish-2026-11-03-ucr-2027-fees.md",
+        "issue": "Reports landed without front matter and with topics (aeo, accuracy) not in docs/taxonomy.json, so test_doc_index.RealTree and `doc_index.py check` were red on main (redteam targets showed doc_index.py as red).",
+        "patched": true,
+        "patched_in": "this PR (doc_index.py backfill --write; topics fixed to seo)"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "874fe5a4-b9ea-58a0-b1ed-f099bdbfd668",
+    "transcripts": 1,
+    "first": "2026-11-04T13:21:07Z",
+    "last": "2026-11-04T13:23:38Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 21,
+        "input": 42,
+        "output": 6330,
+        "thinking": 255,
+        "cache_read": 1316688,
+        "cache_write_5m": 0,
+        "cache_write_1h": 46739,
+        "api_equivalent_usd": 0.5137,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 21,
+      "input": 42,
+      "output": 6330,
+      "thinking": 255,
+      "cache_read": 1316688,
+      "cache_write_5m": 0,
+      "cache_write_1h": 46739,
+      "api_equivalent_usd": 0.5137,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.966,
+    "tool_calls": 23,
+    "tools": {
+      "Bash": 20,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.51,
+      "active_minutes": 2.51,
+      "model_minutes": 1.55,
+      "tool_minutes": 0.96,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

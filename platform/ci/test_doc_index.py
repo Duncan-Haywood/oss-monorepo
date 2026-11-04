@@ -122,6 +122,42 @@ class Find(unittest.TestCase):
                 self.assertEqual(di.main(["--root", str(root), "find", "zzz-nothing"]), 1)
 
 
+class GlobAndCli(unittest.TestCase):
+    def test_glob_semantics(self):
+        m = lambda pat, s: bool(di._glob_re(pat).match(s))
+        self.assertTrue(m("a/**/b.md", "a/b.md"))
+        self.assertTrue(m("a/**/b.md", "a/x/y/b.md"))
+        self.assertTrue(m("a/**", "a/x/y"))
+        self.assertTrue(m("a/*.md", "a/b.md"))
+        self.assertFalse(m("a/*.md", "a/x/b.md"))  # * stops at a slash
+        self.assertTrue(m("a.md", "a.md"))
+        self.assertFalse(m("a.md", "aXmd"))  # . is literal
+        self.assertTrue(m("ab", "ab"))  # every literal char consumed once
+
+    def test_cli_exit_codes_and_backfill(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = tree(Path(d))
+            (root / "docs" / "reports" / "2026-10-01-pytest-notes.md").write_text("# no front matter\n")
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(di.main(["--root", str(root), "check"]), 1)  # untagged report fails
+                self.assertEqual(di.main(["--root", str(root), "backfill"]), 0)
+                self.assertIn("2026-10-01-pytest-notes.md", out.getvalue())
+                f = root / "docs" / "reports" / "2026-10-01-pytest-notes.md"
+                self.assertNotIn("kind:", f.read_text())  # dry run writes nothing
+                self.assertEqual(di.main(["--root", str(root), "backfill", "--write"]), 0)
+                self.assertIn("kind:", f.read_text())
+                self.assertEqual(di.main(["--root", str(root), "check"]), 0)
+
+    def test_topic_counts_reads_report_topics(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = tree(Path(d))
+            (root / "docs" / "reports" / "r.md").write_text("---\nkind: note\ntopics: [python-env]\n---\n# r\n")
+            counts = {t[0]: t[2] for t in di.topic_counts(root)}
+            self.assertEqual(counts["python-env"], 1)
+            self.assertEqual(counts["money"], 0)
+
+
 class RealTree(unittest.TestCase):
     def test_repository_taxonomy_and_reports_check(self):
         self.assertEqual(di.check(di.ROOT), [])
