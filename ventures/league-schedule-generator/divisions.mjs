@@ -1182,6 +1182,35 @@ export function divisionsTeamMessages(schedule) {
   return out;
 }
 
+/**
+ * Ready-to-paste notices for the matches the rainout or unavailable-date movers shifted (their `moves`).
+ * `{ group, divisions, teams }`: `group` is one post for the whole league chat grouped by division,
+ * `divisions` has one post per division, and `teams` has one short note per affected team with only its
+ * own changes (a team name used in two divisions gets a note for each, labelled with the division).
+ * Teams with no moved match get no note; empty `moves` give an empty result.
+ */
+export function divisionsChangeNotices(moves) {
+  const list = (Array.isArray(moves) ? moves : []).slice().sort((a, b) => a.division.localeCompare(b.division) || a.from - b.from || a.to - b.to);
+  if (!list.length) return { group: "", divisions: [], teams: [] };
+  const where = (m) => `${dayLabel(m.to)}${m.time ? " " + m.time : ""}${m.court ? ", " + m.court : ""}`;
+  const line = (m) => `${m.home} v ${m.away}: was ${dayLabel(m.from)}, now ${where(m)}`;
+  const byDiv = new Map();
+  for (const m of list) { if (!byDiv.has(m.division)) byDiv.set(m.division, []); byDiv.get(m.division).push(m); }
+  const divisions = [...byDiv].map(([division, ms]) => ({ division, text: [`${division} schedule change:`, ...ms.map((m) => "- " + line(m)), `Every other ${division} fixture is unchanged.`].join("\n") }));
+  const group = ["Schedule change:", ...[...byDiv].flatMap(([d, ms]) => [d + ":", ...ms.map((m) => "- " + line(m))]), "Every other fixture is unchanged."].join("\n");
+  const byTeam = new Map();
+  for (const m of list) for (const t of [m.home, m.away]) {
+    const k = m.division + "\u0000" + t;
+    if (!byTeam.has(k)) byTeam.set(k, { division: m.division, team: t, ms: [] });
+    byTeam.get(k).ms.push(m);
+  }
+  const teams = [...byTeam.values()].map(({ division, team, ms }) => ({
+    division, team,
+    text: [`Hi ${team} (${division}), a change to your fixtures:`, ...ms.map((m) => `- ${m.home === team ? "vs " + m.away : "at " + m.home} (${m.home === team ? "home" : "away"}): was ${dayLabel(m.from)}, now ${where(m)}`), "Your other fixtures are unchanged."].join("\n"),
+  }));
+  return { group, divisions, teams };
+}
+
 /** One note per official (set by assignDivisionOfficials), in date order; officials with no match are left out. */
 export function divisionsOfficialMessages(schedule) {
   const by = new Map();
@@ -1254,7 +1283,7 @@ export function rainoutOptions(f) {
   return { balance: on(f.balance), flip: on(f.flip), relocate: on(f.relocate), swapNights: on(f.swapNights) };
 }
 
-// node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, --results results.txt --weekly for the group-chat update, --grid for the season grid CSV, --history for next season's venueHistory, or --suggest-weight to pick fairnessWeight). spec.json holds the form fields.
+// node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, --notices for the rainout change notices, --results results.txt --weekly for the group-chat update, --grid for the season grid CSV, --history for next season's venueHistory, or --suggest-weight to pick fairnessWeight). spec.json holds the form fields.
 if (typeof process !== "undefined" && process.argv && import.meta.url === `file://${process.argv[1]}`) {
   const { readFileSync } = await import("node:fs");
   const file = process.argv[2];
@@ -1268,6 +1297,7 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
     process.exit(0);
   }
   let s = buildDivisions(spec);
+  const allMoves = [];
   const raw = JSON.parse(readFileSync(file, "utf8"));
   if (raw.blackouts) {
     const pb = parseDivisionBlackouts(raw.blackouts, spec.divisions);
@@ -1275,12 +1305,19 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
     const r = applyDivisionBlackouts(s, pb.blackouts, rainoutOptions(raw));
     for (const e of r.errors) console.error(`Unavailable: ${e}`);
     s = r.schedule;
+    allMoves.push(...r.moves);
   }
   const rainouts = raw.rainouts;
   if (rainouts) {
     const r = applyDivisionRainouts(s, rainouts, rainoutOptions(raw));
     for (const e of r.errors) console.error(`Rainout: ${e}`);
     s = r.schedule;
+    allMoves.push(...r.moves);
+  }
+  if (process.argv.includes("--notices")) {
+    const n = divisionsChangeNotices(allMoves);
+    process.stdout.write(n.group ? [n.group, ...n.teams.map((t) => t.text)].join("\n\n----\n\n") + "\n" : "No matches were moved.\n");
+    process.exit(0);
   }
   const v = validateDivisions(s);
   if (!v.ok) { console.error(v.errors.join("\n")); process.exit(1); }
