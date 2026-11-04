@@ -7,8 +7,23 @@
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [{"file": "prompts/promptctl.py route", "issue": "Routed to research although the scheduled task asked for revenue ventures; followed the task text."}],
-  "deviations": ["Scheduled prompt asked for ventures; the router said research."],
-  "writeups": ["docs/posts/2026-11-04-bunq-export-payee.md", "docs/reports/2026-11-04-ai-bookkeeper-bunq.md"],
-  "notes": "ai-bookkeeper suite 2230 pass. Header from memory; no real export. Small slice; no new venture started this run."
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py route",
+      "issue": "Routed to research although the scheduled task asked for revenue ventures; followed the task text."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Scheduled prompt asked for ventures; the router said research. Followed the task text.",
+      "outcome": "worked"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-04-bunq-export-payee.md",
+    "docs/reports/2026-11-04-ai-bookkeeper-bunq.md"
+  ],
+  "notes": "ai-bookkeeper suite 2230 pass. Header from memory; no real export. Small slice; no new venture started this run.",
+  "pr": "https://github.com/duncan-haywood/oss-monorepo/pull/12962"
 }
