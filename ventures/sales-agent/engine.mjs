@@ -310,6 +310,10 @@ const RULES = {
     // Added 2026-11-04: a probe found "delete all my personal data under GDPR Article 17" went to unclear; erasure asks with "all (of)" or
     // "personal" before the noun, and "right to erasure / be forgotten", now stop contact. Agent-written, unscored on real mail.
     P("\\b(delete|remove|erase|purge) (all )?(of )?(my|our) (personal |contact |stored )*(details|data|info|information|records?|profile)\\b"), P("\\bright to (erasure|be forgotten)\\b"),
+    // Added 2026-11-04 (second probe): threats and "stop mailing me" went to unclear or past the rules; a legal threat or a block/report
+    // threat is an opt-out, never a reason to draft. Agent-written, unscored on real mail.
+    P("\\b(my|our) (lawyer|attorney|solicitor|legal (team|counsel|department)) (will|is going to|are going to|shall|has been (told|notified|informed))\\b"), P("\\b(involve|involving|call|calling|contact|contacting|notify|notifying|inform|informing) (my|our) (lawyer|attorney|solicitor|legal (team|counsel|department))\\b"), P("\\b(legal action|sue you|take (legal|further) action|report you to)\\b"), P("\\b(block|blacklist|blocklist|ban) (you|your (domain|address|emails?|messages))\\b"),
+    P("\\bstop (mailing|calling|texting|pinging|bugging|harassing)\\b"), P("\\bsmettete di (contattarmi|scrivermi|mandarmi)\\b"), P("\\bsmetti di (contattarmi|scrivermi)\\b"),
     // Other languages (added after the third eval set; unverified beyond one example each): FR, DE, ES, IT opt-out phrasings.
     P("\\bne (me )?contactez plus\\b"), P("\\b(retirer|supprimer) (de|mon|mes|mon adresse)\\b.*\\b(liste|diffusion|donn[ée]es)"), P("\\b(kontaktieren|anschreiben|schreiben)( sie)? mich nicht mehr\\b"), P("\\bnicht mehr (kontaktieren|anschreiben|schreiben)\\b"), P("\\bsc?hreiben sie mir nicht mehr\\b"), P("\\bno me (vuelvan a )?(escrib|contact)"), P("\\bnon (mi |ci )?contatt\\w* pi[uù]\\b"), P("\\bnon contattatemi\\b"),
     // Added 2026-11-02 (second probe): SV, DA, NO, PL, FI, TR, CS, HU, RO, RU, JA, ZH and DE/EN gaps; 27 of 37 short phrasings went to "unclear". Agent-written, unscored on real mail.
@@ -348,6 +352,8 @@ const RULES = {
     // 2026-11-02: referrals phrased around who owns the decision, and the same "wrong person" in six languages.
     P("\\b(i|we)('ve| have)? (left|quit|resigned from)\\b"), P("\\bwho (owns|runs|decides|handles|manages|is responsible for) (this|that|these|it)\\b"), P("\\b(direct|send|route|address) (all |any )?(inquiries|enquiries|requests|questions) to\\b"), P("\\b(speak|talk) (to|with) our (head|director|vp|manager|owner|cfo|cto|ceo|coo|procurement|ops)\\b"),
     P("\\btook over (from me|for me|this|my)\\b"), P("\\b(this|that) goes to\\b"), P("\\b(passed|handed|delegated) (this|your (note|email|message)|it) (on |over )?to\\b"),
+    // 2026-11-04: "forwarding this to our head of logistics" reads as interest to the rules; it is a handover, so a person decides.
+    P("\\b(forward(ed|ing)?|pass(ed|ing)?|send(ing)?|sent|hand(ed|ing)?) (this|it|your (note|email|message|mail))( on| along| over)? to (our|my|the) (head|director|vp|manager|owner|cfo|cto|ceo|coo|team|colleague|boss|procurement|ops|\\w+ lead)\\b"),
     P("no soy (la persona|el contacto|el responsable)"), P("je ne suis pas (la bonne personne|le bon contact|la personne)"), P("ich bin (nicht zust[äa]ndig|nicht der richtige|nicht die richtige)"), P("non sono (la persona giusta|il referente|io il responsabile)"), P("n[ãa]o sou (a pessoa|o respons[áa]vel|o contato)"), P("ik ben niet de juiste (persoon|contactpersoon)"),
   ],
   not_now: [
