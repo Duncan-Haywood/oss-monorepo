@@ -52,6 +52,18 @@ await page.fill("#dl", "2000-01-03");
 check(/Deadline 2000-01-03: \d+ working day\(s\) late/.test(await page.textContent("#out")), "deadline field: past date shows days late");
 await page.fill("#dl", "");
 check(!/Deadline/.test(await page.textContent("#out")), "deadline field: cleared removes the line");
+// the crew-days-off field: the concrete crew off on the sample's first working days pushes the finish out; a bad entry is named
+await page.fill("#dl", "");
+await page.fill("#co", "");
+const finishOf = (t) => (t.match(/\d{4}-\d{2}-\d{2}/g) || []).sort().pop();
+const base = finishOf(await page.textContent("#out"));
+await page.fill("#co", "concrete=2026-03-02 2026-03-03 2026-03-04");
+const off = await page.textContent("#out");
+check(finishOf(off) > base && !/NaN|undefined/.test(off), `crew days off: concrete away 3 days moves the last date ${base} -> ${finishOf(off)}`);
+await page.fill("#co", "concrete=soon");
+check(/Crew days off: write each as/.test(await page.textContent("#out")), "crew days off: bad entry is named");
+await page.fill("#co", "");
+check(finishOf(await page.textContent("#out")) === base, "crew days off: cleared restores the finish");
 // the activity-costs field: typed dollars by id give spend by month; a bad id or entry is named
 await page.fill("#ac", "roof=9500, walls=$18000");
 check(/Spend by month[^\n]*total \$27,500/.test(await page.textContent("#out")), "activity costs field: spend by month totals the typed costs");
