@@ -322,3 +322,13 @@ test("GDPR erasure asks stop contact (found as unclear in a 2026-11-04 probe)", 
     assert.equal(triage({ subject: "Re: hi", body }, "2026-11-04").category, "unsubscribe", body);
   assert.notEqual(triage({ subject: "Re: hi", body: "Can you send the data processing details for your product?" }, "2026-11-04").category, "unsubscribe");
 });
+
+test("opt-outs in SV, DA, NO, PL, FI, CS, RO probed 2026-11-04 (second batch) are unsubscribes, and ordinary replies are not", () => {
+  const optOuts = [
+    "Avsluta min prenumeration, tack.", "Stop med at sende mig mails.", "Jeg vil ikke have flere mails.", "Afmeld mig venligst.",
+    "Slutt å sende meg e-post.", "Fjern meg fra listen deres.", "Jeg ønsker ikke flere e-poster.", "Nie chcę otrzymywać więcej wiadomości.",
+    "Proszę o zaprzestanie wysyłania maili.", "Wypisz mnie.", "Poistakaa minut postituslistaltanne.", "Už mi nepište.", "Vă rog să mă scoateți din listă.",
+  ];
+  for (const body of optOuts) assert.equal(triage({ body }, T).category, "unsubscribe", body);
+  for (const body of ["Kan du skicka en offert?", "Prześlij proszę cennik.", "Jeg vil gerne have flere detaljer.", "Vil du sende flere eksempler?"]) assert.notEqual(triage({ body }, T).category, "unsubscribe", body);
+});

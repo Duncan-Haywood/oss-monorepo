@@ -220,7 +220,9 @@ the quote. Notes are agent-written, not real calls.
 
 **Stop is sticky (2026-11-02).** A contact who asked to stop or bounced (in this batch, the table or the suppression list) is not un-stopped by a later out-of-office, and a later interested/question/objection reply gets no draft, only a task to read both messages (`engine.test.mjs`, four tests).
 
-**Limits.** English only. Reads one reply at a time (a stop in the same batch is remembered, but not a full thread). Dates are
+**Non-English opt-outs (2026-11-04).** A second probe of 24 phrasings in SV, DA, NO, PL, TR, FI, CS and RO missed 13; all 24 are now unsubscribes (`engine.test.mjs`). Agent-written, unscored on real mail; unreadable replies still go to a person.
+
+**Limits.** Rules are tuned for English (opt-outs in about fifteen other languages are probed, not scored). Reads one reply at a time (a stop in the same batch is remembered, but not a full thread). Dates are
 read in US order for `3/4`. It does not connect to a mailbox yet (ROADMAP M4),
 so replies are pasted or exported.
 
