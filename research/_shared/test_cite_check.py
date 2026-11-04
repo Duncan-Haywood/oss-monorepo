@@ -21,6 +21,11 @@ class Extract(unittest.TestCase):
         self.assertEqual(dois, ["10.1016/0021-9991(79)90145-1", "10.1038/nature14539", "10.1109/5.771073"])
         self.assertEqual(arxivs, ["2510.04354"])
 
+    def test_angle_bracket_doi(self):
+        text = "See 10.1175/1520-0485(1999)029<0000:TEOTAO>2.0.CO;2; and 10.1000/abc;"
+        dois, _ = cite_check.extract(text)
+        self.assertEqual(dois, ["10.1175/1520-0485(1999)029<0000:TEOTAO>2.0.CO;2", "10.1000/abc"])
+
     def test_none(self):
         self.assertEqual(cite_check.extract("no refs, version 10.5 here"), ([], []))
 
