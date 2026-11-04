@@ -19,3 +19,8 @@ test('eval/slope-breaks.mjs and slope-calibrate.mjs output is current; GDP shows
   }
   assert.match(readFileSync(new URL('./eval/slope-breaks.out.txt', import.meta.url), 'utf8'), /: 0 slope break/);
 });
+test('eval/slope-real.mjs output is current; the test reports a slope break on none of the ten real series', () => {
+  const out = execFileSync('node', [new URL('./eval/slope-real.mjs', import.meta.url).pathname], { encoding: 'utf8' });
+  assert.equal(out, readFileSync(new URL('./eval/slope-real.out.txt', import.meta.url), 'utf8'));
+  assert.equal((out.match(/reported: yes/g) || []).length, 0);
+});
