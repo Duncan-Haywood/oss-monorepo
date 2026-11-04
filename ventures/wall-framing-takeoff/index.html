@@ -1083,7 +1083,7 @@
     function renderEaves(ea) {
       $("#eavesCard").hidden = !ea;
       if (!ea) return;
-      $("#eavesOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(eavesText(ea).join("\n"))}</pre><p class="note">Runs come from the roof's eave and rake overhangs; each course is packed first fit decreasing into the stock length you typed. Not counted: corner mitres, vented-panel mix, frieze, drip edge, nails, caulk and paint. Not checked against a real soffit order.</p>`;
+      $("#eavesOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(eavesText(ea).join("\n"))}</pre><p class="note">Runs come from the roof's eave and rake overhangs; each course is packed first fit decreasing into the stock length you typed. Not counted: corner mitres, frieze, drip edge, nails, caulk and paint. Not checked against a real soffit order.</p>`;
     }
     function renderTrim(tr) {
       $("#trimCard").hidden = !tr;
