@@ -211,6 +211,18 @@ class FeederParamsTest(unittest.TestCase):
         # A gentler hose (tighter bends allowed) can only widen the fit.
         self.assertTrue(all(x is not None for _, x in Feeder(hose_min_bend=100.0).hose_pose_ranges()[1:4]))
 
+    def test_take_up_design_reaches_every_pose_with_the_stroke(self):
+        p = Feeder()
+        t = p.take_up_design()
+        self.assertTrue(t["ok"])
+        self.assertAlmostEqual(t["stroke_mm"], p.take_up_stroke_mm(), places=6)
+        self.assertEqual(t["pulley_d_mm"], 2 * p.hose_min_bend)
+        self.assertAlmostEqual(t["track_mm"], t["stroke_mm"] + t["pulley_d_mm"] + 60)
+        for e, xlo, xhi in t["poses"]:       # the pulley can reach a position inside every pose's window
+            self.assertLessEqual(xlo, t["stroke_mm"] + 1e-9)
+            self.assertLessEqual(xlo, xhi)
+        self.assertIsNone(Feeder(hopper_out_z=1560.0).take_up_design())
+
     def test_bow_radius_is_the_circular_arc_bound(self):
         import math
         p = Feeder()

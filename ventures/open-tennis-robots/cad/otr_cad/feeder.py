@@ -569,7 +569,18 @@ def hose_end_line(p: Feeder) -> str:
             + ("one cut length fits every pose" if take <= 0 else
                f"no one cut length fits every pose: needs {take:.0f} mm of take-up ({p.take_up_stroke_mm():.0f} mm of "
                f"travel on a floating-pulley reel; limiting nose-up to +30 deg would need "
-               f"{dict(p.hose_take_up_by_elev_max())[30.0]:.0f} mm; known gap, no reel modelled yet)"))
+               f"{dict(p.hose_take_up_by_elev_max())[30.0]:.0f} mm; see take_up_design)"))
+
+
+def take_up_line(p: Feeder) -> str:
+    t = p.take_up_design()
+    if t is None:
+        return "take-up: not sized (some pose has no hose fit)"
+    ps = "; ".join(f"{e:+.0f} deg {a:.0f}-{b:.0f}" for e, a, b in t["poses"])
+    return (f"take-up: floating pulley {t['pulley_d_mm']:g} mm across (twice the {p.hose_min_bend:g} mm bend radius) on a "
+            f"{t['track_mm']:.0f} mm track, {t['stroke_mm']:.0f} mm stroke, hose {t['fixed_mm']:.0f} mm fixed plus twice the travel; "
+            f"travel allowed per pose {ps} mm; spring {t['spring_n']:g} N (assumed); "
+            f"{'every pose reachable' if t['ok'] else 'POSE WINDOW EMPTY'}")
 
 
 def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_g: float = 0.0):
@@ -592,6 +603,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
         f"falls at least {min(s for _, _, s in chords):.0f} deg over the elevation range; "
         f"bows to a {p.hose_bow_radius():.0f} mm radius at its closest pose (hose allows {p.hose_min_bend:g})",
         hose_end_line(p),
+        take_up_line(p),
         f"hopper frame: full tub {p.hopper_load_n:.0f} N; sway load {p.hopper_side_load_n:.0f} N; braces carry "
         f"{p.brace_force_n('x'):.0f} N (x) and {p.brace_force_n('y'):.0f} N (y) against buckling loads of "
         f"{p.brace_buckling_n('x'):.0f} and {p.brace_buckling_n('y'):.0f} N; a post alone buckles at {p.post_buckling_n():.0f} N "

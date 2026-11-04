@@ -613,6 +613,29 @@ class Feeder:
         t = self.hose_take_up_mm()
         return None if t is None else max(t, 0.0) / ratio
 
+    def take_up_design(self, tension_n: float = 5.0, margin_mm: float = 30.0) -> dict | None:
+        """A floating-pulley take-up sized from the pose ranges (2026-11-04). The hose runs fixed length `fixed_mm` plus
+        twice the pulley's travel x (ratio 2). Fixed length is the shortest longest-fit, so x never goes below 0; each
+        pose needs x in [(lo - fixed)/2, (hi - fixed)/2]. Pulley diameter is twice the hose's minimum bend radius; the
+        track is the stroke plus one pulley diameter plus a margin at each end. The spring pulls the pulley with twice the
+        hose tension `tension_n` (an assumption: enough to keep the hose taut without dragging the head). Returns None if
+        some pose has no fit; `ok` is False if the same x cannot be chosen monotonically (never in practice) or a pose
+        window is empty."""
+        r = self.hose_pose_ranges()
+        if any(x is None for _, x in r):
+            return None
+        fixed = min(hi for _, (lo, hi) in r)
+        poses = []
+        for e, (lo, hi) in r:
+            xlo, xhi = max(0.0, (lo - fixed) / 2), (hi - fixed) / 2
+            poses.append((e, xlo, xhi))
+        stroke = max(xlo for _, xlo, _ in poses)
+        # park the pulley at the lowest x each pose allows; it must stay inside the stroke
+        ok = all(xlo <= xhi + 1e-9 and xlo <= stroke + 1e-9 for _, xlo, xhi in poses)
+        d = 2 * self.hose_min_bend
+        return {"fixed_mm": fixed, "stroke_mm": stroke, "pulley_d_mm": d, "track_mm": stroke + d + 2 * margin_mm,
+                "spring_n": 2 * tension_n, "poses": poses, "ok": ok}
+
     def hose_take_up_by_elev_max(self, maxes=(15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0)):
         """(top elevation, take-up mm or None) with the hose fitted over elev_min..that top elevation instead of the
         full range, to show what each extra degree of nose-up costs the hose. Same bend and fall limits."""
