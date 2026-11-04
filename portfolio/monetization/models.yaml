@@ -177,6 +177,29 @@ products:
       build-sample-pack.mjs, sample-pack.test.mjs).
     next_owner: true
 
+  - venture: quick-pick-survey
+    buyer: researchers, product teams, clubs and consultants who run a ranking survey and hand the result to a client or committee
+    liability: low
+    model: >-
+      Pairwise ranking is the free engine: self-hosted, the admin sees the
+      pooled ranking, 95% intervals, rank ranges and CSV. The charge, if any,
+      is presentation for someone who must hand the result on: a branded
+      one-file results report (logo, colours, ties shown as ranges, thin
+      options flagged, estimate disclaimer) behind the same licence-key check
+      as the other dark paths. No server holds a secret; the report is a pure
+      function of the ranking.
+    first_offer: Branded results report (resultsReport.ts, built 2026-11-04), one-off per survey pack.
+    price_hypothesis: "$9 to $29 one-off; unvalidated, far below hosted survey suites' monthly plans, which this does not replace"
+    comparables: []
+    stage: built-dark
+    next: >-
+      Built 2026-11-04 and dark: src/lib/resultsReport.ts, licence.ts,
+      checkout.ts with tests (22 pass with groupRanking). Not yet wired to an
+      admin button or an API route, and no comparable prices read yet. Agent
+      step: wire an admin download behind the key check and add a sample
+      report and marketing page. Owner step: the shared checkout link.
+    next_owner: false
+
   - venture: einvoice-preflight
     buyer: developers and finance teams sending EN 16931 / Peppol / national e-invoices
     liability: medium
