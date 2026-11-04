@@ -32,10 +32,15 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 VENTURES = REPO_ROOT / "ventures"
 
+# Each pattern carries a literal every match must contain. A plain bytes
+# `in` test on the raw file is far cheaper than decoding it and running the
+# regex, and almost no file holds any of the three literals, so the regex runs
+# on a handful of files instead of all ~25,000 (docs/history/
+# ci-perf-2026-11-04-payment-keys-literal-prefilter.md).
 PATTERNS = (
-    ("live Stripe key", re.compile(r"(?<![A-Za-z0-9])[sr]k_live_[A-Za-z0-9]{16,}")),
-    ("Stripe payment link", re.compile(r"\b(?:buy|donate)\.stripe\.com/(?:test_)?[A-Za-z0-9]{10,}")),
-    ("PayPal hosted button", re.compile(r"""hosted_button_id(?:["']?\s*[:=]\s*["']?|["']\s+value=["'])[A-Z0-9]{8,}""")),
+    ("live Stripe key", b"k_live_", re.compile(r"(?<![A-Za-z0-9])[sr]k_live_[A-Za-z0-9]{16,}")),
+    ("Stripe payment link", b"stripe.com/", re.compile(r"\b(?:buy|donate)\.stripe\.com/(?:test_)?[A-Za-z0-9]{10,}")),
+    ("PayPal hosted button", b"hosted_button_id", re.compile(r"""hosted_button_id(?:["']?\s*[:=]\s*["']?|["']\s+value=["'])[A-Z0-9]{8,}""")),
 )
 
 # Anything text is scanned (a key in a .sh, .vue or .txt file is as public as
@@ -64,8 +69,11 @@ def findings_in(root: Path):
             continue
         if b"\0" in data[:8192]:
             continue
+        candidates = [(kind, pattern) for kind, needle, pattern in PATTERNS if needle in data]
+        if not candidates:
+            continue
         text = data.decode("utf-8", errors="ignore")
-        for kind, pattern in PATTERNS:
+        for kind, pattern in candidates:
             if pattern.search(text):
                 yield path, kind
 
