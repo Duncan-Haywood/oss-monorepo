@@ -75,6 +75,7 @@ export function pointAtLength(from, toward, length, ortho) {
  * @returns {SketchWall | null}
  */
 export function addWall(sk, a, b) {
+  if (!goodPt(a) || !goodPt(b)) return null;
   if (Math.hypot(b.x - a.x, b.y - a.y) < 1) return null;
   for (const w of sk.walls) {
     if ((same(w.a, a) && same(w.b, b)) || (same(w.a, b) && same(w.b, a))) return null;
@@ -89,6 +90,8 @@ const snapOffset = (off, L, width) => {
   const r = Math.round(off * 16) / 16;
   return r + width > L ? Math.max(0, Math.floor((L - width) * 16) / 16) : r;
 };
+// A point whose x and y are real numbers within a guard limit (1,000,000 in); text, NaN and Infinity are refused.
+const goodPt = (p) => !!p && Number.isFinite(p.x) && Number.isFinite(p.y) && Math.abs(p.x) <= 1e6 && Math.abs(p.y) <= 1e6;
 const same = (p, q) => Math.abs(p.x - q.x) < 0.01 && Math.abs(p.y - q.y) < 0.01;
 
 /**
@@ -143,6 +146,7 @@ export function addOpening(sk, wallId, kind, along, width) {
  * @returns {{ ok: true } | { ok: false, error: string }}
  */
 export function moveEnds(sk, moves) {
+  if (!Array.isArray(moves) || moves.some((m) => !m || !goodPt(m.to))) return { ok: false, error: "That position is not a real point." };
   const next = sk.walls.map((w) => {
     const mv = (p) => { const m = moves.find((x) => same(x.from, p)); return m ? { x: m.to.x, y: m.to.y } : { x: p.x, y: p.y }; };
     return { id: w.id, a: mv(w.a), b: mv(w.b) };
