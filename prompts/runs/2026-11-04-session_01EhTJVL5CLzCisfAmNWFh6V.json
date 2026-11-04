@@ -9,16 +9,14 @@
   "model": "claude-sonnet-5-5",
   "models_seen": [],
   "started": null,
-  "ended": "2026-11-04T12:00:00Z",
+  "ended": "2026-11-04T01:59:20Z",
   "wall_minutes": null,
   "tokens_in": null,
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
   "task": null,
-  "projects": [
-    "ventures/wall-framing-takeoff"
-  ],
+  "projects": [],
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12972",
   "repo": null,
   "commits": [],
@@ -33,12 +31,9 @@
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [
-    "docs/posts/2026-11-04-how-wrong-is-one-stud-per-foot.md",
-    "docs/reports/polish-2026-11-04-framing-takeoff-vs-page.md"
-  ],
+  "writeups": [],
   "goal": null,
-  "notes": "Ran venture node --test page.test.mjs (67 pass). Skipped site build and platform/pages checks.",
+  "notes": "wall-framing-takeoff: gable peak-straddling course now nests (nestedHeight takes a polyline top). Sweep of 537 invented gables: cheaper in 229 vs 169. engine.test.mjs + sheathing-fuzz pass (70). Full venture-preflight not run.",
   "corrections": [],
   "redteam": null
 }
