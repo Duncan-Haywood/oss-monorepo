@@ -1,8 +1,8 @@
 ---
 title: "Is the Catholic share of America held up by immigrants?"
 date: 2026-11-04
-description: "A split of the General Social Survey: immigrants explain about 42% of the 1990s-to-2010s rise in adults raised Catholic. The larger part is US-born, which includes the children of immigrants."
-tags: [catholic-demography, research, gss]
+description: "GSS split: immigrants explain about 42% of the 1990s-to-2010s rise in adults raised Catholic; the larger US-born part includes immigrants' children."
+tags: [catholic-demography, research, GSS]
 ---
 
 # Is the Catholic share of America held up by immigrants?
