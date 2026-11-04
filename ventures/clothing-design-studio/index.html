@@ -324,6 +324,12 @@
           <output id="test-out" aria-live="polite"></output>
           <div class="bar"><button class="btn small" type="button" id="t-apply" disabled>Use these numbers in the plan</button></div>
         </details>
+        <details id="split-box">
+          <summary>Split the ad budget over channels</summary>
+          <p class="muted">One channel per line: name, cost per click, % of clicks that buy, optional cap (most it can absorb), and "tested" if the numbers came from a test. Cheapest sale first; channels above break-even get nothing; untested ones get a small test share first.</p>
+          <textarea id="split-in" rows="4" spellcheck="false" placeholder="search, 0.60, 2.0, 200, tested&#10;social, 0.40, 1.2, , guess"></textarea>
+          <output id="split-out" aria-live="polite"></output>
+        </details>
         <output id="mkt-out" aria-live="polite"></output>
         <div class="bar"><button class="btn small" type="button" id="mkt-csv">Download calendar (CSV)</button></div>
       </section>
@@ -377,7 +383,7 @@
     import { launchKit } from "./launchkit.mjs";
     import { storefront } from "./storefront.mjs";
     import { addToShelf, removeFromShelf, shelfToShop, loadShelf } from "./shelf.mjs";
-    import { marketingPlan, calendarCsv, learnFromTest, DEFAULT_ASSUMPTIONS } from "./marketing.mjs";
+    import { marketingPlan, calendarCsv, learnFromTest, channelSplit, DEFAULT_ASSUMPTIONS } from "./marketing.mjs";
     import { inkTradeoff } from "./inktradeoff.mjs";
     import { separate, films, previewRgba, separationBrief } from "./separation.mjs";
     import { recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -956,7 +962,22 @@
       }
       $("#mkt-out").innerHTML = html;
       $("#mkt-csv").disabled = !lastMkt;
+      if (typeof renderSplit === "function") renderSplit();
     }
+    function renderSplit() {
+      let html = "";
+      const lines = $("#split-in").value.split("\n").map(l => l.trim()).filter(Boolean);
+      if (lines.length) {
+        try {
+          const e = economics(d(), sheet, plan);
+          const channels = lines.map(l => { const p = l.split(",").map(x => x.trim()); return { name: p[0], cpc: Number(p[1]), conversionPct: Number(p[2]), cap: Number(p[3]) || 0, tested: /^tested$/i.test(p[4] || "") }; });
+          const r = channelSplit({ channels, adBudget: plan.marketingBudget, profitPerSale: e.profitPerSale });
+          html = `<table><caption class="sr">Budget by channel</caption><tr><th>Channel</th><th class="num">Cost per sale</th><th class="num">Spend</th><th class="num">Sales</th><th>Why</th></tr>${r.rows.map(x => `<tr><td>${esc(x.name)}</td><td class="num">${x.cac ?? "n/a"}</td><td class="num">${x.spend.toFixed(2)}</td><td class="num">${x.sales}</td><td>${esc(x.reason)}</td></tr>`).join("")}</table><div class="notes">${r.notes.map(esc).join("<br>")}</div>`;
+        } catch (err) { html = `<p class="notes">${esc(err.message)}</p>`; }
+      }
+      $("#split-out").innerHTML = html;
+    }
+    $("#split-in").addEventListener("input", renderSplit);
     let lastTest = null;
     function renderTest() {
       const v = id => Number($("#" + id).value);

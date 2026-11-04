@@ -200,3 +200,52 @@ export function learnFromTest({ spend, clicks, orders, profitPerSale, price, rem
   if (out.cac != null && remainingBudget > 0) out.remainingSales = Math.floor(remainingBudget / out.cac);
   return out;
 }
+
+/**
+ * Split the ad budget over channels the designer has priced. Each channel is
+ * { name, cpc, conversionPct, cap?, tested? }: `cap` is the most the channel
+ * can usefully absorb (its audience), `tested` says the numbers came from a
+ * test, not a guess. Rules, all stated in `notes`:
+ *  - a channel whose cost per sale is above break-even gets nothing;
+ *  - the rest are filled cheapest cost per sale first, up to their cap;
+ *  - while some channel is untested, `exploreShare` of the budget is held for
+ *    a small test on each untested channel that is under break-even on its
+ *    guess, instead of going to the cheapest one on the strength of a guess.
+ * Arithmetic on typed numbers, not a forecast.
+ */
+export function channelSplit({ channels, adBudget, profitPerSale, exploreShare = 0.2 }) {
+  const notes = [];
+  const rows = (channels || []).filter(c => c && c.name).map(c => {
+    const conv = c.conversionPct / 100;
+    const cac = c.cpc > 0 && conv > 0 ? c.cpc / conv : null;
+    return { name: c.name, cpc: c.cpc, conversionPct: c.conversionPct, cap: c.cap > 0 ? c.cap : Infinity,
+             tested: !!c.tested, cac: cac == null ? null : round2(cac), _cac: cac, spend: 0, sales: 0, reason: "" };
+  });
+  if (!(adBudget > 0) || !(profitPerSale > 0)) {
+    notes.push(!(profitPerSale > 0) ? "Each sale leaves nothing after cost, tax and fees: no channel can pay for itself." : "No ad budget to split.");
+    return { rows: rows.map(r => ({ ...r, cap: r.cap === Infinity ? null : r.cap, _cac: undefined })), unspent: Math.max(0, adBudget || 0), notes, expectedSales: 0 };
+  }
+  const ok = rows.filter(r => r._cac != null && r._cac <= profitPerSale);
+  for (const r of rows) {
+    if (r._cac == null) r.reason = "Needs a click price and a conversion rate.";
+    else if (r._cac > profitPerSale) r.reason = `Costs ${r.cac} per sale against ${round2(profitPerSale)} left: skipped.`;
+  }
+  let budget = adBudget;
+  const untested = ok.filter(r => !r.tested);
+  if (untested.length && ok.some(r => r.tested)) {
+    const pot = adBudget * exploreShare, each = Math.min(pot / untested.length, ...untested.map(r => r.cap));
+    for (const r of untested) { r.spend = round2(each); r.reason = "Test spend: the numbers are a guess."; budget -= r.spend; }
+    notes.push(`${Math.round(exploreShare * 100)}% of the budget is held to test untested channels before they get more.`);
+  }
+  for (const r of [...ok].sort((a, b) => a._cac - b._cac)) {
+    const room = Math.max(0, r.cap - r.spend), put = Math.min(room, budget);
+    if (put > 0) { r.spend = round2(r.spend + put); budget -= put; }
+    if (!r.reason) r.reason = r.spend >= r.cap ? "Filled to its cap." : r.spend > 0 ? "Cheapest sale first." : "";
+  }
+  for (const r of rows) r.sales = r._cac ? Math.floor(r.spend / r._cac) : 0;
+  const unspent = round2(Math.max(0, budget));
+  if (unspent > 0) notes.push(`${unspent} is unspent: every channel under break-even is at its cap. Hold it, or add a channel.`);
+  if (!ok.length) notes.push("No channel is under break-even at these numbers.");
+  return { rows: rows.map(r => ({ ...r, cap: r.cap === Infinity ? null : r.cap, _cac: undefined })), unspent, notes,
+           expectedSales: rows.reduce((a, r) => a + r.sales, 0) };
+}
