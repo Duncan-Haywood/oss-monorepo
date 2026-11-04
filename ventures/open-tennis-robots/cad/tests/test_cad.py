@@ -194,10 +194,20 @@ class FeederParamsTest(unittest.TestCase):
     def test_hose_end_directions_show_the_gap_the_chord_check_hides(self):
         # Outlet straight down, socket along the tilted column: at the shipped outlet height some pose has no
         # curve within the bend and fall limits; raised, every pose fits but not with one cut length.
-        self.assertIsNone(Feeder().hose_take_up_mm())
-        raised = Feeder(hopper_out_z=1700.0)
+        self.assertIsNone(Feeder(hopper_out_z=1560.0).hose_take_up_mm())
+        raised = Feeder()
+        self.assertEqual(raised.hopper_out_z, 1700.0)
         self.assertTrue(all(x is not None for _, x in raised.hose_pose_ranges()))
         self.assertGreater(raised.hose_take_up_mm(), 200.0)
+        # A single floating pulley moves half the hose it pays out.
+        self.assertAlmostEqual(raised.take_up_stroke_mm(), raised.hose_take_up_mm() / 2)
+        self.assertIsNone(Feeder(hopper_out_z=1560.0).take_up_stroke_mm())
+
+    def test_every_extra_degree_of_nose_up_costs_the_hose_take_up(self):
+        r = Feeder().hose_take_up_by_elev_max()
+        vals = [t for _, t in r]
+        self.assertTrue(all(v is not None for v in vals))
+        self.assertEqual(vals, sorted(vals))   # more tilt never needs less take-up
         # A gentler hose (tighter bends allowed) can only widen the fit.
         self.assertTrue(all(x is not None for _, x in Feeder(hose_min_bend=100.0).hose_pose_ranges()[1:4]))
 

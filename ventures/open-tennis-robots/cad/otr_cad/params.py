@@ -322,7 +322,7 @@ class Feeder:
     want_balls: int = 120
     shelf_slope_deg: float = 12.0  # falls toward the net, to the outlet
     hopper_out_x: float = -330.0
-    hopper_out_z: float = 1560.0   # underside of the shelf at the outlet
+    hopper_out_z: float = 1700.0   # underside of the shelf at the outlet (1560 left no hose curve at -15 or +45 deg, 2026-11-03)
     post_front_x: float = -380.0
     post_rear_x: float = -640.0
     shelf_post_y: float = 225.0
@@ -606,6 +606,18 @@ class Feeder:
         if any(x is None for x in r):
             return None
         return max(lo for lo, _ in r) - min(hi for _, hi in r)
+
+    def take_up_stroke_mm(self, ratio: float = 2.0) -> float | None:
+        """Travel of a take-up that absorbs `hose_take_up_mm`: a spring-loaded pulley the hose loops round moves
+        1/ratio of the hose length it pays out (ratio 2 for a single floating pulley). None if some pose has no fit."""
+        t = self.hose_take_up_mm()
+        return None if t is None else max(t, 0.0) / ratio
+
+    def hose_take_up_by_elev_max(self, maxes=(15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0)):
+        """(top elevation, take-up mm or None) with the hose fitted over elev_min..that top elevation instead of the
+        full range, to show what each extra degree of nose-up costs the hose. Same bend and fall limits."""
+        from dataclasses import replace
+        return [(m, replace(self, elev_max=float(m)).hose_take_up_mm()) for m in maxes]
 
     @property
     def hose_len(self) -> float:
