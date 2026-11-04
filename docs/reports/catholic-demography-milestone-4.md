@@ -1,3 +1,8 @@
+---
+kind: milestone
+subjects: [catholic-demography]
+tagged: auto
+---
 # catholic-demography milestone 4 (2026-11-04)
 
 Landed: `survey.logit` (weighted logit, PSU-clustered sandwich, subpopulation kept in the design)

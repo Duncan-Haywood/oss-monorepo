@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-03
+tagged: auto
+---
 # Polish 2026-11-03: site-wide SEO baseline audit (nothing to fix)
 
 **Method.** Full `node platform/pages/build.mjs` then `node platform/pages/check.mjs` (clean: 1326 products, 45 category pages, 6685 pages, no dead links). A script then walked every built `.html` file, skipping meta-refresh redirect stubs.

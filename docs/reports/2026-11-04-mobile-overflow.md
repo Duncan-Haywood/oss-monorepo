@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-11-04
+tagged: auto
+---
 # Mobile overflow sweep, 2026-11-04
 
 Tool: `node platform/ci/check_mobile_overflow.mjs [--only a,b]` (375px, exit 1 on overflow).

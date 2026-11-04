@@ -1,3 +1,9 @@
+---
+kind: note
+subjects: [seo]
+topics: [seo]
+tagged: auto
+---
 # SEO feedback loop (agent note, 2026-11-03)
 
 - Ongoing owner goal: rank on Google and in AI agents' web search. Tooling is in `platform/seo/` (README, `probe.py`, `queries.json`, `EXPERIMENTS.md`, `STATUS.md`).

@@ -1,3 +1,9 @@
+---
+kind: analysis
+topics: [review, seo]
+date: 2026-11-01
+tagged: auto
+---
 # Usage, SEO and AI-search review, 2026-11-01
 
 Owner request (2026-11-01): "look at the usage stats from cloudflare and also

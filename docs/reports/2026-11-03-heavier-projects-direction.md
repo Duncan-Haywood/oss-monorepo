@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-11-03
+tagged: auto
+---
 # Heavier projects: the owner's 2026-11-03 direction, and the first run on it
 
 The owner, 2026-11-03, starting a session: "again I think it makes sense to
