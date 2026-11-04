@@ -1,5 +1,6 @@
 ---
 title: "What a bookkeeper's keyword list misses for drone pilots, bakers and beekeepers"
+seo_title: "Bookkeeper keyword gaps: drone pilots, bakers, beekeepers"
 date: 2026-11-04
 description: "ai-bookkeeper's built-in categoriser got 22 of 26 invented descriptors right for five new trades; four small rules fixed the rest."
 tags: [ai-bookkeeper, bookkeeping, categorization]

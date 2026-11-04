@@ -2,6 +2,18 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 7p: does 7o's cells-versus-pooled result at 2% prevalence hold for weaker coders? (the script ran before this entry was written, so the prediction below was not committed ahead of the run; the nb-in-language rerun is a control)
+- Why: 7o's open item (a second coder). `experiments/h7p_rare_guard_coders.py <coder>`: h7o's recipe (6,000 NaijaSenti negative items, 2% positives, n = 1000, pilot share 0.5, fitted-lambda interval, 1,000 draws, same pilots across rules) with `nb-english` and `lexicon-en`. 7o only had a coder with corpus J = 0.34; the stated worry was that a higher-J coder would do better, so this is the other direction.
+- Prediction I held before looking (stated here, not timestamped): forced cells beat pooled in width only if J is high; at low J they add nothing and may cost width, because the allocation and the per-cell lambdas are estimated from about 10 pilot positives.
+
+### Outcome (`experiments/h7p_*.txt`, 1,000 draws)
+- Control `nb-in-language` (J 0.342) reproduces 7o exactly: pooled 0.798 pts / 93.4%, cells g0 0.733 / 93.3%.
+- `nb-english` (J 0.112): pooled 0.803 / 93.5%; cells g0 0.889 / 95.8% (82% of draws use cells), g5 0.882 / 95.3%, g10 0.868 / 95.1%. Cells are **8 to 11% wider** than pooled.
+- `lexicon-en` (J 0.024): pooled 0.804 / 92.8%; cells g0 0.805 / 94.8% (cells in only 29% of draws), g5 0.805 / 95.0%, g10 0.806 / 93.9%. No width gain.
+- Reading: the sign of the cells effect follows J. At J = 0.34 cells are 8% narrower, at 0.11 they are about 10% wider, at 0.02 they are the same. Wider intervals come with higher coverage (95 to 96%), so cells at low J are conservative rather than wrong. This is the reason the library screens on a pilot J estimate (`TAU`): forcing cells (tau 0) is what loses width, and the screen, not the guard, is what protects against it. Coverage differences between rules of about 1 point are inside +/- 1.4 points of binomial noise and are not claimed.
+- Limits: three coders on one corpus and one prevalence (J and coder confounded with whichever errors that coder makes); no coder with J above 0.34 (the Qwen scores are not on this 6,000-item subsample path); not a test of the library default, which was pooled in every draw here at 2%.
+- Next: a coder with J above 0.5; a guard scaled by positives per cell; whether `TAU` 0.3 is right at J between 0.1 and 0.3 (the 7n/7o forced-cell width crosses zero somewhere in that range).
+
 ## 2026-11-04 · Milestone 7o: does a minimum-pilot-positives guard repair cells' undercoverage at 2% prevalence? (a 20-draw smoke run of the script preceded this entry, to check it executes; prediction written before the 1,000-draw run)
 - Why: 7n's open item. `experiments/h7o_rare_guard.py`: the 7m corpus at 2% prevalence (6,000 items, n = 1000, nb-in-language coder), pilot share 0.3 and 0.5, rules pooled, forced cells (guard 0), guard 5, guard 10 and the library default (tau 0.3, guard 20), fitted-lambda intervals, 1,000 draws, the same pilots for every rule within a share.
 - **Prediction:** guard 5 and 10 lift cells coverage to 94% or more at share 0.5 (about 10 pilot positives), keeping a half-width at least 3% under pooled; at share 0.3 (about 6 positives) a guard of 10 sends nearly every draw to pooled and so matches pooled coverage with no gain. The default (guard 20) is pooled in nearly all draws at both shares. Refuted if any guard rule that uses cells in over 30% of draws still covers under 93%, or if guard 5 or 10 at share 0.5 is within 1% of pooled width.
