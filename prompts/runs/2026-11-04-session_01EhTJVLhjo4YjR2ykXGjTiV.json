@@ -15,9 +15,11 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
+  "task": "R-0005 clothing design studio: WebGL 3D garment preview",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": 13027,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +27,15 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 8,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Venture suite 128 pass in Node; headless Chromium (swiftshader) drew the tee with artwork and orbit by drag, no console errors. Venture-preflight not run (over 5 min); pages CI covers it.",
   "corrections": [],
   "redteam": null
 }
