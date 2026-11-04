@@ -93,7 +93,7 @@ Ticked items are on `main`.
       teaching IFC (Swiss repo, licence unstated, not committed) read exactly
       2026-11-04, and showed the page dropping opening heights and sills (a
       sill-32 window framed as an 82.5 in door); fixed with `openingSizes`
-      (`ifcwasm.mjs`, test in `ifcwasm.test.mjs`). Still open: clipping
+      (`ifcwasm.mjs`, test in `ifcwasm.test.mjs`; property test on invented plans in `ifcwasm-fuzz.test.mjs`, 2026-11-04). Still open: clipping
       (ifc-engine plan, milestone 3) and a real US wood-framed model.
 
 ### 3. The rest of the shell
