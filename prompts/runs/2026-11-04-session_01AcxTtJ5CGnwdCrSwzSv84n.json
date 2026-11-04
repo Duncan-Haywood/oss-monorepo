@@ -19,7 +19,7 @@
   "projects": [
     "research/marine-hull"
   ],
-  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12966",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12978",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -28,22 +28,25 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "step 0 says fetch origin security-alerts; that branch does not exist on the remote"
+    }
+  ],
   "deviations": [
     {
-      "file": "prompts/research/prompt-0.md",
-      "why": "Chose a paper-fold step rather than new experiment; low-risk given limited time",
-      "did": "folded logged results into draft",
-      "result": "landed"
+      "file": "CLAUDE.md",
+      "why": "full CAD tests not run (build123d install too slow); ran the pure-params logic directly",
+      "did": "hand-edited manufacturing README.txt",
+      "result": "unverified against a real build"
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-04-glider-vs-auv-range-days-and-currents.md",
-    "research/marine-hull/LOG.md (7m)",
-    "research/marine-hull/paper/DRAFT.md"
+    "docs/posts/2026-11-04-the-hose-on-a-tennis-ball-feeder-has-to-move-backwards.md"
   ],
   "goal": null,
   "notes": "Prose-only milestone 7m: folded 4c-4g into paper draft. Build ok. Modest step; no experiment run. Runcost not attached.",
