@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12967",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,22 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Flagship next: items all need real inputs; a scheduled run with no real data can only land small labelling slices."
+    }
+  ],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-04-mint-monarch-exports.md",
+    "docs/reports/2026-11-04-ai-bookkeeper-aggregators.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Small slice: Mint/Monarch sniff labels; full suite 2228 pass. Did not rewrite flagship next (no item replaced). Headers from memory.",
   "corrections": [],
   "redteam": null
 }
