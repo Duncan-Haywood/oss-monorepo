@@ -41,6 +41,7 @@ const PILOTS = {
   ],
   'ucr-fee-calculator': async (m) => m.parseFees(m.DEFAULT_FEES_TEXT).brackets.map((b) => b.fee),
   'amazon-fba-calculator': async (m) => [m.SELLER_PLAN_DEFAULTS.individualPerUnit, m.SELLER_PLAN_DEFAULTS.professionalMonthly],
+  'card-processing-fee-audit': async (m) => [m.STRIPE_STANDARD_PUBLISHED.perTransaction],
   'poshmark-fee-calculator': async (m) => [m.FLAT_FEE, m.COMMISSION_THRESHOLD, m.BREAK_EVEN_PRICE],
 };
 
