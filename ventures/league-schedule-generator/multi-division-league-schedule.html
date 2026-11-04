@@ -152,6 +152,12 @@
     <label for="book-min">Game length for the facility booking (minutes)</label>
     <input type="number" id="book-min" min="10" max="480" step="5" placeholder="60" style="width:6em">
     <button type="button" class="secondary" id="dl-bookings">Download facility booking request (text)</button>
+    <label for="cost-rates">Venue rates for the season cost (one per line, e.g. Riverside Park: 45/court-hour)</label>
+    <textarea id="cost-rates" rows="3" placeholder="Riverside Park: 45/court-hour"></textarea>
+    <label for="cost-extra">Other costs (insurance, trophies)</label>
+    <input type="number" id="cost-extra" min="0" step="1" placeholder="0" style="width:6em">
+    <label><input type="checkbox" id="cost-split"> Split by each division's share of games</label>
+    <button type="button" class="secondary" id="dl-cost">Download season cost and fee per team (text)</button>
     <button type="button" class="secondary" id="dl-notices" hidden>Download rainout change notices (text)</button>
     <button type="button" class="secondary" id="dl-off-msgs" hidden>Download a message per official (.txt)</button>
     <button type="button" class="secondary" id="copy-text">Copy as plain text</button>
@@ -186,7 +192,7 @@
   </footer>
 
   <script type="module">
-    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, parseDivisionBlackouts, applyDivisionBlackouts, blackoutsFromCsv, parseDivisions as parseDivisionsText, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsScoreSheetsHtml, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages, divisionsChangeNotices, divisionsBookings, availabilitySheetCsv, divisionsStandings, divisionsTieBreakNotes, divisionsStandingsCsv, divisionsPlayoffs, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining } from "./divisions.mjs";
+    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, parseDivisionBlackouts, applyDivisionBlackouts, blackoutsFromCsv, parseDivisions as parseDivisionsText, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsScoreSheetsHtml, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages, divisionsChangeNotices, divisionsBookings, divisionsFacilityCost, availabilitySheetCsv, divisionsStandings, divisionsTieBreakNotes, divisionsStandingsCsv, divisionsPlayoffs, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining } from "./divisions.mjs";
     import { dayIso, parseDate } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
@@ -283,6 +289,7 @@
     $("#dl-csv").addEventListener("click", () => { if (!last) return; download("division-schedule.csv", divisionsCsv(last), "text/csv"); record("divisions_csv_downloaded"); });
     $("#dl-ics").addEventListener("click", () => { if (!last) return; download("division-schedule.ics", divisionsIcs(last, { alarmMinutes: Number($("#ics-alarm").value) || null }), "text/calendar"); record("divisions_ics_downloaded"); });
     $("#dl-team-msgs").addEventListener("click", () => { if (!last) return; download("team-messages.txt", divisionsTeamMessages(last).map((m) => m.text).join("\n\n----\n\n"), "text/plain"); record("divisions_text_shared"); });
+    $("#dl-cost").addEventListener("click", () => { if (!last) return; const x = Number($("#cost-extra").value || 0); const m = Number($("#book-min").value); const c = divisionsFacilityCost(last, $("#cost-rates").value, { minutes: m >= 10 && m <= 480 ? m : 60, extra: Number.isFinite(x) && x >= 0 ? x : 0, split: $("#cost-split").checked ? "games" : "team" }); download("season-cost.txt", "Season facility cost (arithmetic on the rates you typed; check against the venue's invoice)\n\n" + c.text, "text/plain"); record("divisions_cost_downloaded"); });
     $("#dl-bookings").addEventListener("click", () => { if (!last) return; const m = Number($("#book-min").value); const b = divisionsBookings(last, { minutes: m >= 10 && m <= 480 ? m : 60 }); if (!b.venues.length) return; download("facility-booking-request.txt", `Facility booking request (${b.venues.length} venue${b.venues.length === 1 ? "" : "s"}). Please confirm or tell us which nights you cannot give.\n\n` + b.text, "text/plain"); record("divisions_bookings_downloaded"); });
     $("#dl-notices").addEventListener("click", () => { const n = divisionsChangeNotices(lastMoves); if (!n.group) return; download("rainout-change-notices.txt", [n.group, ...n.teams.map((x) => x.text)].join("\n\n----\n\n") + "\n", "text/plain"); record("divisions_notices_downloaded"); });
     $("#dl-off-msgs").addEventListener("click", () => { if (!last) return; download("official-messages.txt", divisionsOfficialMessages(last).map((m) => m.text).join("\n\n----\n\n"), "text/plain"); record("divisions_text_shared"); });

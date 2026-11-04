@@ -947,6 +947,23 @@ test("CLI --bookings prints the booking request", () => {
   assert.match(r.stdout, /School: \d+ nights?/);
 });
 
+test("CLI --cost prices the season from a rates file, exit 2 when a venue has no rate", () => {
+  const dir = mkdtempSync(join(tmpdir(), "cost-"));
+  const ex = new URL("./example-divisions.json", import.meta.url).pathname, cli = new URL("./divisions.mjs", import.meta.url).pathname;
+  writeFileSync(join(dir, "none.txt"), "Nowhere: 10\n");
+  const bad = spawnSync("node", [cli, ex, "--cost", join(dir, "none.txt")], { encoding: "utf8" });
+  assert.equal(bad.status, 2, bad.stderr);
+  assert.match(bad.stdout, /no rate given/);
+  const venues = [...new Set(divisionsBookings(build()).venues.map((v) => v.venue))];
+  writeFileSync(join(dir, "r.txt"), venues.map((v) => `${v}: 10`).join("\n"));
+  const ok = spawnSync("node", [cli, ex, "--cost", join(dir, "r.txt"), "--extra", "100"], { encoding: "utf8" });
+  assert.equal(ok.status, 0, ok.stderr);
+  const want = divisionsFacilityCost(build(), venues.map((v) => `${v}: 10`).join("\n"), { extra: 100 });
+  assert.match(ok.stdout, new RegExp(`Total: ${want.total.toFixed(2)}`));
+  assert.match(ok.stdout, /Fee per team/);
+  assert.equal(spawnSync("node", [cli, ex, "--cost"], { encoding: "utf8" }).status, 1);
+});
+
 test("applyDivisionWithdrawals removes a team's remaining matches, keeps the rest and names who is short", () => {
   const s = build();
   const total = s.stats.matches;

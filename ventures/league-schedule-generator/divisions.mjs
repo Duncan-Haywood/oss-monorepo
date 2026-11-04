@@ -1540,7 +1540,7 @@ export function rainoutOptions(f) {
   return { balance: on(f.balance), flip: on(f.flip), relocate: on(f.relocate), swapNights: on(f.swapNights) };
 }
 
-// node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, --notices for the rainout change notices, --deadline DATE for whether the season ends in time (exit 2 if not), --bookings for a per-venue facility booking request, --results results.txt --weekly for the group-chat update, --grid for the season grid CSV, --history for next season's venueHistory, or --suggest-weight to pick fairnessWeight). spec.json holds the form fields.
+// node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, --notices for the rainout change notices, --deadline DATE for whether the season ends in time (exit 2 if not), --bookings for a per-venue facility booking request, --cost rates.txt [--extra N] [--split games] for the season facility cost and a fee per team (exit 2 if a venue has no rate), --results results.txt --weekly for the group-chat update, --grid for the season grid CSV, --history for next season's venueHistory, or --suggest-weight to pick fairnessWeight). spec.json holds the form fields.
 if (typeof process !== "undefined" && process.argv && import.meta.url === `file://${process.argv[1]}`) {
   const { readFileSync } = await import("node:fs");
   const file = process.argv[2];
@@ -1592,6 +1592,15 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
     if (!r) { console.error("--deadline needs a real date, e.g. --deadline 2026-12-15"); process.exit(1); }
     process.stdout.write(r.text);
     process.exit(r.fits ? 0 : 2);
+  }
+  if (process.argv.includes("--cost")) {
+    const arg = (f) => { const i = process.argv.indexOf(f); return i >= 0 ? process.argv[i + 1] : undefined; };
+    const file = arg("--cost");
+    if (!file || file.startsWith("--")) { console.error("--cost needs a rates file: one line per venue, e.g. Riverside Park: 45/court-hour"); process.exit(1); }
+    const extra = arg("--extra") === undefined ? 0 : Number(arg("--extra"));
+    const r = divisionsFacilityCost(s, readFileSync(file, "utf8"), { extra, split: arg("--split") === "games" ? "games" : "team" });
+    process.stdout.write(r.text);
+    process.exit(r.unpriced.length ? 2 : 0);
   }
   if (process.argv.includes("--bookings")) {
     process.stdout.write(divisionsBookings(s).text);
