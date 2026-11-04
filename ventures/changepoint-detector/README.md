@@ -1519,3 +1519,18 @@ so the Poisson model rejects them.
 
 Not done: no model with a slow return (an AR(1) around a level, with steps) is fitted jointly; `--ar1` removes steps rather than finding the ones that are real. That is flagship item 0 and 4 again, on a series with no documented step to test it against.
 
+
+## Presidential approval (2026-11-04)
+
+`data/presidents.csv` is Gallup's quarterly approval of the US president, 1945Q1 to 1974Q4 (R's `presidents`; 6 missing quarters dropped, 114 rows; `presidents.test.mjs`, 3 tests). Documented events exist (a new president, Vietnam, Watergate), and lag-1 rho is about 0.56. Run 2026-11-04, no tuning:
+
+| Setup | Cuts |
+|---|---|
+| Defaults | 8: 1946Q1, 1950Q4, 1953Q1, 1957Q2, 1961Q1, 1966Q2, 1969Q1, 1973Q3 |
+| `--bootstrap` | 5: 1946Q1, 1950Q4, 1953Q1, 1966Q2, 1973Q4 |
+| `--ar1` | 2: 1953Q1, 1966Q2 |
+
+- The default finds the Watergate collapse (68 to 44 to 27, cut 1973Q3) and the January 1953 change of president; the rho warning fires.
+- `--ar1` is the same trade as the Australian arrivals: it drops the false alarms and also the real 1973 shock.
+- Nothing cuts 1964Q1, the jump from 57 to 80 after the Kennedy assassination: the rally decays within a year, so it reads as a spike, not a step (flagship item 4 again).
+- Wanted: the approval series at monthly resolution, where the 1964 rally is longer.
