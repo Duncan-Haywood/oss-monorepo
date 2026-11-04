@@ -1,7 +1,7 @@
 ---
 title: "Does a pitot-tube error break a model aircraft's system-identification fit?"
 date: 2026-11-04
-description: "A 1% pitot sensor offset can exceed the whole airspeed perturbation and make an ordinary output-error fit fail in every draw; fitting one bias per channel repairs it."
+description: "A 1% pitot offset can exceed the whole airspeed perturbation and break an output-error fit in every draw; one fitted bias per channel repairs it."
 tags: [aerolog-scaling, system-identification, uav]
 ---
 
