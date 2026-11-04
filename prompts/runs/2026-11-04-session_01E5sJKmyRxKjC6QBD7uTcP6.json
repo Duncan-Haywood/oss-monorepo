@@ -32,13 +32,13 @@
   "doc_friction": [
     {
       "file": "research/CLAUDE.md",
-      "issue": "The 9ac experiment takes about 30 min and wait_for.py only waits 100 s per call, so waiting cost many tool calls."
+      "issue": "The 9ad experiment takes about 30 min and wait_for.py only waits 100 s per call, so waiting cost many tool calls."
     }
   ],
   "deviations": [
     {
       "file": "research/aerolog-scaling/LOG.md",
-      "why": "Paper catch-up for 9aa to 9ac left for the next milestone to keep the PR small.",
+      "why": "Paper catch-up for 9aa to 9ad left for the next milestone to keep the PR small.",
       "did": "log entry and blog post only",
       "result": "fine"
     }

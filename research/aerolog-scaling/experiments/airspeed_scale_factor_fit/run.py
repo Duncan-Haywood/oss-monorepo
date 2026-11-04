@@ -1,4 +1,4 @@
-"""Milestone 9ac: 9ab's fit with the speed-dependent part of a constant pitot pressure offset added (a gain on the u channel)
+"""Milestone 9ad: 9ab's fit with the speed-dependent part of a constant pitot pressure offset added (a gain on the u channel)
 
     PY experiments/airspeed_scale_factor_fit/run.py > experiments/airspeed_scale_factor_fit/results.txt     (run from research/aerolog-scaling)
 

@@ -26,4 +26,4 @@ two phugoid periods.
   160 of 160 draws at the 1% size; one extra fitted bias per channel fixed that.
 
 Details, caveats and the 160-draw tables are in the
-[project log](../../research/aerolog-scaling/LOG.md) (milestone 9ac).
+[project log](../../research/aerolog-scaling/LOG.md) (milestone 9ad).
