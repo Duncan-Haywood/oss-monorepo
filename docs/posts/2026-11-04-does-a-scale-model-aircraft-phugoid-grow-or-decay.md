@@ -1,6 +1,6 @@
 ---
 title: "Does a scale-model aircraft's phugoid grow or decay? It depends on the thrust law"
-seo_title: "Phugoid damping of a Froude-scaled UAV model: constant thrust, constant power or fixed RPM"
+seo_title: "Phugoid damping of a scaled UAV model vs thrust law"
 date: 2026-11-04
 tags: [research, aerospace, uav, scaling, flight-dynamics]
 description: "In a four-state longitudinal model, the sign of the full-size phugoid depends on the thrust law, while the trend with scale does not."
