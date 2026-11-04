@@ -1,9 +1,9 @@
 ---
 title: "An unsubscribe link in an away notice is not an opt-out"
-seo_title: "Why a sales reply agent must not read footer boilerplate as an unsubscribe"
+seo_title: "Why a reply agent must not read footer boilerplate as an opt-out"
 date: 2026-11-04
 tags: [sales-agent, email, evaluation, open-source]
-description: "A fresh 20-reply test of our sales reply sorter found it filing an out-of-office footer as an unsubscribe and missing a polite opt-out. Both are fixed and pinned by tests."
+description: "A fresh 20-reply test found our sales reply sorter filing an away-notice footer as an unsubscribe and missing a polite opt-out. Both fixed."
 ---
 
 Our sales agent sorts replies to cold outreach, and a person approves everything it drafts. Its rules have been tuned on many agent-written sets, so on 2026-11-04 we wrote one more of 20 replies aimed at a different weakness: quoted history, signatures and auto-replies.
