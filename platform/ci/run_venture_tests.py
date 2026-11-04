@@ -53,6 +53,12 @@ def has_tests(slug):
         "node_modules" not in p.parts for p in venture.rglob("*.test.mjs"))
 
 
+def suite_weight(slug):
+    """Bytes of test code: a cheap stand-in for how long the suite runs."""
+    return sum(p.stat().st_size for p in (VENTURES / slug).rglob("*.test.mjs")
+               if "node_modules" not in p.parts)
+
+
 def slugs_in(paths):
     return sorted({p.split("/")[1] for p in paths if p.startswith("ventures/") and p.count("/") >= 2})
 
@@ -143,7 +149,9 @@ def main(argv):
         slugs = args.slugs
     else:
         slugs = sorted(d.name for d in VENTURES.iterdir() if d.is_dir())
-    slugs = [s for s in slugs if has_tests(s)]
+    # Longest suites first: with a fixed worker pool, starting the biggest
+    # suite last leaves one worker running it alone after the others finish.
+    slugs = sorted((s for s in slugs if has_tests(s)), key=lambda s: (-suite_weight(s), s))
 
     failed = []
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:

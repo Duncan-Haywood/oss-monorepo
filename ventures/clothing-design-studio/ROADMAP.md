@@ -29,6 +29,8 @@ many-session project. Each milestone below lands as a working slice.
 6. **Wardrobe as a service.** (First slice done 2026-11-04: `lookbook.mjs`, one static page with every outfit drawn as flat silhouettes and a download button on the wardrobe page; optional https links per piece. Also done 2026-11-04: `guide.mjs`, a sentence typed or dictated fills the wardrobe questions, shows the words behind each answer and asks what is missing; keyword rules, English only. Still to do: a back-and-forth chat and a real designer's wording.) A short guided conversation (voice or chat) that fills the wardrobe profile, then a lookbook page per wardrobe with each outfit drawn, linking each piece to the brand's own product or a partner's.
 7. **Marketing.** (First slice done 2026-11-04: `marketing.mjs`, break-even cost per sale and ROAS, ad sales the budget buys, a week-by-week calendar with sales and spend targets that sum to the break-even and the budget, CSV. Also done 2026-11-04: `learnFromTest`, a first small ad test read with a Wilson 95% range and a go/stop/unclear verdict that feeds the plan. Still to do: per-channel splits; a real designer's test.) A content calendar and ad-budget planner from the break-even (how many sales the launch budget must buy), drafts only, never auto-posting.
 
+8. **Compliance labels.** (First slice done 2026-11-04: `labels.mjs` + `labels.html`, fibre content and care for the EU and US; rules summarised, not legal advice. Still to do: UK and Canada, wool/fur/leather special rules, a real factory's label through it.)
+
 ## Not planned
 
 - Sewing patterns and grading: professional pattern software does this well.

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clothing Label Checker: Fibre Content and Care Label for the EU and US</title>
+  <meta name="description" content="Free label checker for new clothing brands: type your fibre content and get the label wording for the EU (in 8 languages) or the US, with the other items each market wants, such as country of origin, RN number, maker address and care instructions.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Clothing label checker: fibre content and care for EU and US">
+  <meta property="og:description" content="What must be on the label, in the right words. Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Clothing label checker (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"fibre content wording for the EU and US; fibre names in eight languages; list of other required label items; starting care instruction"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What must be on a clothing label in the US?","acceptedAnswer":{"@type":"Answer","text":"Fibre content by generic name in descending order of weight (spandex, not Lycra), the country of origin, the maker's name or an RN number from the FTC, and a permanent care label. See 16 CFR 303 and 16 CFR 423."}},{"@type":"Question","name":"What must be on a clothing label in the EU?","acceptedAnswer":{"@type":"Answer","text":"Fibre content in the language of the country of sale, with the approved fibre names (Regulation 1007/2011). The general product safety regulation (2023/988) also asks for the maker's name and postal address and a product identifier, plus an EU responsible person when the maker is outside the EU."}},{"@type":"Question","name":"Can I write \"Lycra\" or \"bamboo\"?","acceptedAnswer":{"@type":"Answer","text":"Not as the fibre name. Lycra is a brand of elastane (spandex in the US). Bamboo fabric is usually viscose or lyocell, and the label carries that name."}},{"@type":"Question","name":"How exact must the percentages be?","acceptedAnswer":{"@type":"Answer","text":"Both markets allow about 3 percentage points between the stated and tested share. More than that is a wrong label, so state what the fabric supplier's test says."}}]}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="fit.html">Size finder</a> · <a href="quotes.html">Compare quotes</a> · <a href="wardrobe.html">Wardrobe planner</a></p>
+  <h1>What goes on the label, in the right words.</h1>
+  <p>Type your fibre content. Pick where you sell. Get the label wording, the fibre names in the language of sale, and a list of the other items that market wants, with what you have not given yet.</p>
+  <p class="placeholder">A summary of published rules, not legal advice. Your factory or a compliance adviser confirms the final label before printing.</p>
+  <div class="grid">
+    <section>
+      <h2>Your garment</h2>
+      <label for="comp">Fibre content (from the fabric spec)</label>
+      <input id="comp" type="text" value="95% cotton, 5% elastane" style="width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid var(--line);border-radius:8px">
+      <div class="row">
+        <div><label for="market">Where you sell</label><select id="market"><option value="eu">European Union</option><option value="us">United States</option></select></div>
+        <div><label for="lang">Label language (EU)</label><select id="lang"></select></div>
+      </div>
+      <h2>Items you have</h2>
+      <label for="mname">Maker or brand name</label><input id="mname" type="text" style="width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid var(--line);border-radius:8px">
+      <label for="maddr">Postal address (EU)</label><input id="maddr" type="text" style="width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid var(--line);border-radius:8px">
+      <div class="row">
+        <div><label for="origin">Country of origin (US)</label><input id="origin" type="text" placeholder="Portugal" style="width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid var(--line);border-radius:8px"></div>
+        <div><label for="rn">RN number (US, optional)</label><input id="rn" type="text" style="width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid var(--line);border-radius:8px"></div>
+      </div>
+      <div class="row">
+        <div><label for="pid">Product identifier (EU)</label><input id="pid" type="text" placeholder="SKU or batch" style="width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid var(--line);border-radius:8px"></div>
+        <div><label for="rep">EU responsible person</label><input id="rep" type="text" style="width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid var(--line);border-radius:8px"></div>
+      </div>
+      <label style="font-weight:400"><input id="outside" type="checkbox"> The maker is outside the EU</label>
+      <label for="care">Care text you have (optional)</label><input id="care" type="text" style="width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid var(--line);border-radius:8px">
+    </section>
+    <div>
+      <section><h2>Label wording</h2><output id="result" aria-live="polite"></output></section>
+      <section><h2>What this market wants</h2><div id="reqs" aria-live="polite"></div></section>
+      <section><h2>Starting care text</h2><div id="care-out" aria-live="polite"></div></section>
+    </div>
+  </div>
+  <section id="faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <h3>What must be on a clothing label in the US?</h3>
+    <p>Fibre content by generic name in descending order of weight (spandex, not Lycra), the country of origin, the maker&#x27;s name or an RN number from the FTC, and a permanent care label. See 16 CFR 303 and 16 CFR 423.</p>
+    <h3>What must be on a clothing label in the EU?</h3>
+    <p>Fibre content in the language of the country of sale, with the approved fibre names (Regulation 1007/2011). The general product safety regulation (2023/988) also asks for the maker&#x27;s name and postal address and a product identifier, plus an EU responsible person when the maker is outside the EU.</p>
+    <h3>Can I write &quot;Lycra&quot; or &quot;bamboo&quot;?</h3>
+    <p>Not as the fibre name. Lycra is a brand of elastane (spandex in the US). Bamboo fabric is usually viscose or lyocell, and the label carries that name.</p>
+    <h3>How exact must the percentages be?</h3>
+    <p>Both markets allow about 3 percentage points between the stated and tested share. More than that is a wrong label, so state what the fabric supplier&#x27;s test says.</p>
+  </section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional styling advice, and it does not replace a qualified professional. Labelling rules are summarised from the sources named on the page; they change, and they are not legal advice. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+
+  <script type="module">
+    import { checkLabel, suggestCare, parseComposition, EU_LANGS } from "./labels.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    $("#lang").innerHTML = Object.entries(EU_LANGS).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("");
+    function render() {
+      const market = $("#market").value;
+      $("#lang").disabled = market !== "eu";
+      const r = checkLabel($("#comp").value, { market, lang: $("#lang").value, makerName: $("#mname").value, makerAddress: $("#maddr").value, origin: $("#origin").value, rn: $("#rn").value, productId: $("#pid").value, euRepresentative: $("#rep").value, makerOutsideEu: $("#outside").checked, care: $("#care").value });
+      $("#result").innerHTML = (r.label ? `<p class="big">${esc(r.label)}</p>` : "") + (r.problems.length ? `<p class="notes">${r.problems.map(esc).join("<br>")}</p>` : "") + (r.notes.length ? `<p class="tag">${r.notes.map(esc).join("<br>")}</p>` : "") + `<p class="tag">Sources: ${esc(r.sources)}.</p>`;
+      $("#reqs").innerHTML = `<table><tr><th></th><th>Item</th><th>Why</th></tr>${r.requirements.map(x => `<tr><td>${x.given ? "&#10003;" : "<b>missing</b>"}</td><td>${esc(x.item)}</td><td class="tag">${esc(x.why)}</td></tr>`).join("")}</table>`;
+      const c = suggestCare(parseComposition($("#comp").value).parts);
+      $("#care-out").innerHTML = c ? `<p>${esc(c.text)}</p><p class="tag">Symbols (ISO 3758 / GINETEX): ${esc(c.symbols)}. ${esc(c.note)}</p>` : `<p class="tag">Type a fibre content to get a starting point.</p>`;
+    }
+    document.querySelectorAll("section select, section input").forEach(el => el.addEventListener("input", () => { render(); recordUsage("labels_check"); }));
+    render(); recordUsage("labels_open");
+  </script>
+</body>
+</html>
