@@ -124,6 +124,12 @@
           </div>
           <div id="turn-view"></div>
         </details>
+        <details id="gl-panel">
+          <summary>3D garment (preview)</summary>
+          <p class="muted">A solid shape built from the drawing's outline, with your front and back artwork mapped on. Drag to turn it, scroll to zoom. It has no drape, seams or real sleeves, so it shows how artwork sits on a rounded body, not fit. Runs in your browser; nothing is sent.</p>
+          <div class="bar"><button class="btn small" type="button" id="gl-spin" aria-pressed="false">Spin</button></div>
+          <div id="gl-view"></div>
+        </details>
         <div class="notes" id="compat" aria-live="polite"></div>
         <ul class="log" id="log" aria-live="polite" aria-label="Changes made from commands"></ul>
       </section>
@@ -788,7 +794,26 @@
     function renderStage() {
       stage.innerHTML = renderDesign(d(), { guides: true, interactive: true, uid: "stage" });
       renderTurn();
+      scheduleGl();
     }
+
+    // 3D preview: loaded on first open, redrawn (debounced) after edits while open
+    let glView = null, glTimer = null;
+    async function renderGl() {
+      if (!$("#gl-panel").open) return;
+      if (!glView) {
+        const { mountViewer } = await import("./viewer3d.mjs");
+        glView = mountViewer($("#gl-view"));
+      }
+      glView.setDesign(d());
+    }
+    function scheduleGl() { clearTimeout(glTimer); glTimer = setTimeout(renderGl, 250); }
+    $("#gl-panel").addEventListener("toggle", renderGl);
+    $("#gl-spin").addEventListener("click", () => {
+      const btn = $("#gl-spin"), on = btn.getAttribute("aria-pressed") !== "true";
+      btn.setAttribute("aria-pressed", String(on)); btn.textContent = on ? "Stop" : "Spin";
+      glView?.spin(on);
+    });
 
     let spin = null;
     function renderTurn() {

@@ -113,3 +113,19 @@ as `warnings`, never invented. Payment, tax, delivery and consumer-law
 obligations stay with the seller. Tested in `storefront.test.mjs` (escaping,
 `javascript:` links dropped, JSON-LD cannot close its script) and checked in a
 real browser. Next: several designs per shop, a real deploy by a real designer.
+
+
+## 3D garment preview (2026-11-04)
+
+`garment3d.mjs` (pure geometry, tested in Node) and `viewer3d.mjs` (WebGL1, no
+libraries) add a "3D garment (preview)" panel to the studio. The flat outline is
+laid over with a grid; cells inside become a front and a back surface that meet
+at the outline, pushed out by a quarter-ellipse of the distance from the edge
+(58 units thick over 105) and smoothed. The front drawing maps on the front and
+the back drawing on the back, so artwork turns with the garment. Drag to turn,
+scroll to zoom, arrow keys, optional spin. Honest limits: it is a rounded solid,
+not cloth: no drape, seams, gathers or true sleeve tubes, so it is not a fit check.
+Checked by `garment3d.test.mjs` (edge distance, profile, mesh closes at the edge,
+normals, mirrored back, camera maths) and a headless-Chromium run (swiftshader)
+that drew the tee with its artwork, turned it by dragging, and logged no console
+errors. Next: a body model for fit and try-on, WebXR, cloth drape.
