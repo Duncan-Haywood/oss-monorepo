@@ -2,8 +2,8 @@
 title: "A negative quantity in a bid won the bid leveling"
 seo_title: "Bid leveling bug: a negative quantity ranked as the lowest bid"
 date: 2026-11-04
-tags: [construction, wall-framing-takeoff, bid-leveling, bug]
-description: "Probing our bid-leveling code with hand-typed bad numbers found that a negative quantity, NaN or a repeated bidder name could quietly change which subcontractor looked cheapest."
+tags: [construction, wall-framing-takeoff, bid-leveling, bugs]
+description: "Probing our bid-leveling code with bad hand-typed numbers found that a negative quantity or a repeated bidder name could change who looked cheapest."
 ---
 
 Bid leveling lines up each subcontractor's bid against the quantities in a
