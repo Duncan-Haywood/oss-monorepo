@@ -1,6 +1,7 @@
 ---
 title: "Why your tyres read higher after a drive, and why you should not let air out"
 date: 2026-11-04
+seo_title: "Why tyres read higher after a drive"
 description: "A short story and the arithmetic behind it: warm tyres read about 0.4 bar above the door plate, and bleeding them to the plate leaves them 16% low cold."
 tags: [hearth-and-horizon, fiction, safety]
 ---
