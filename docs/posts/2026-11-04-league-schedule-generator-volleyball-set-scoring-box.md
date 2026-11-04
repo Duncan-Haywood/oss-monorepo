@@ -1,7 +1,7 @@
 ---
 title: "Volleyball set scoring is now a checkbox on the league page"
 date: 2026-11-04
-description: "The league schedule generator could already score volleyball by sets in code; a tick box on the single-league page now turns it on for the standings and the download."
+description: "The league schedule generator could score volleyball by sets in code; a tick box on the single-league page now turns it on for the standings and download."
 tags: [league-schedule-generator, volleyball, standings]
 ---
 
