@@ -11517,6 +11517,21 @@ export async function collectOfflineBundle(outDir, surfaces) {
   return { shared, categories };
 }
 
+// The service worker's cache name: a digest of the generator (`codeVersion`,
+// default offline.mjs) and of every file's path and bytes under `outDir`.
+export async function offlineCacheName(outDir, codeVersion) {
+  const hash = crypto.createHash('sha256');
+  hash.update(codeVersion ?? (await fs.readFile(path.join(HERE, 'offline.mjs'))));
+  // Each file hashed on its own, many at once, then the digests in path order:
+  // the same guarantee (any byte or name changes the cache) without reading
+  // the site one file at a time.
+  const files = (await listFiles(outDir)).sort();
+  const digests = await mapLimit(files, 32, async (file) =>
+    crypto.createHash('sha256').update(await fs.readFile(file)).digest());
+  files.forEach((file, i) => hash.update(path.relative(outDir, file)).update(digests[i]));
+  return `portfolio-${hash.digest('hex').slice(0, 12)}`;
+}
+
 /**
  * Emits the worker, the manifest, the icons and the offline fallback, then
  * wires every published page to them.
@@ -11540,16 +11555,7 @@ export async function addOfflineSupport({
 } = {}) {
   const { shared, categories } = await collectOfflineBundle(outDir, surfaces);
 
-  const hash = crypto.createHash('sha256');
-  hash.update(codeVersion ?? (await fs.readFile(path.join(HERE, 'offline.mjs'))));
-  // Each file hashed on its own, many at once, then the digests in path order:
-  // the same guarantee (any byte or name changes the cache) without reading
-  // the site one file at a time.
-  const files = (await listFiles(outDir)).sort();
-  const digests = await mapLimit(files, 32, async (file) =>
-    crypto.createHash('sha256').update(await fs.readFile(file)).digest());
-  files.forEach((file, i) => hash.update(path.relative(outDir, file)).update(digests[i]));
-  const cacheName = `portfolio-${hash.digest('hex').slice(0, 12)}`;
+  const cacheName = await offlineCacheName(outDir, codeVersion);
 
   await fs.writeFile(path.join(outDir, 'offline.html'), renderOfflinePage(base));
   await fs.writeFile(
