@@ -456,3 +456,37 @@ change in what is measured, not a worse selector. Not done: a fixed-set score
 within-set gain directly; and the 3000 vs 1000 comparison of the staged
 selector against the shipped one at equal rated count. Reproduce: the command
 above, with `NOISY_OUT` set.
+
+### Correction: the fixed set does not improve either (2026-11-04)
+
+The "Not done" item above, run: the same test now also scores the items rated
+at the first checkpoint (113 items at 500 answers, a fixed set) at every later
+checkpoint (`NOISY_CHECKPOINTS` output gains `fixed-set (n)`). Clean, 1000
+items, 3 respondents, 588 s, same seeds, through the real routes and local
+Postgres 16. Mean of the 3 respondents:
+
+| answers | rated items | Spearman, all rated | Spearman, fixed 113 items |
+|---|---|---|---|
+| 500 | 113 | 0.799 | 0.799 |
+| 1000 | 213 | 0.615 | 0.719 |
+| 1500 | 313 | 0.492 | 0.665 |
+| 2000 | 413 | 0.403 | 0.616 |
+| 3000 | 613 | 0.538 | 0.715 |
+
+Reading: **the coverage explanation above was only half right.** Widening the
+set does explain part of the fall (the all-rated column falls further than the
+fixed one), but the fixed set itself scores *lower* at 1000 to 2000 answers
+than at 500, by 0.08 to 0.18, with no lapse in the respondent (a noiseless
+answerer). More answers about the same 113 items should not make their order
+worse. Per respondent the pattern repeats (e.g. 0.818, 0.739, 0.690, 0.611,
+0.713), so it is not seed noise. Candidate causes, not tested: the staged
+selector spends later answers pairing the fixed items with new, high-RD items,
+and the Glicko update moves well-placed items on comparisons against
+poorly-placed ones; or the pair choice, once the set is "settled", prefers
+near ties whose noiseless answers are decided by tiny true gaps. Next: the
+same fixed-set score with `pairSelector` set to the shipped selector, to see
+whether the dip belongs to the staged selector or to the rating update.
+Reproduce: `NOISY_ITEMS=1000 NOISY_ANSWERS=3000 NOISY_RESPONDENTS=3
+NOISY_CONDITIONS=clean NOISY_CHECKPOINTS=500,1000,1500,2000,3000
+NOISY_TIMEOUT_MS=7000000 NOISY_OUT=/tmp/o.txt npx vitest run -c
+vitest.integration.config.ts src/app/api/trials/noisyRespondents`.
