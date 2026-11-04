@@ -1,7 +1,7 @@
 ---
 title: "What will the league season cost per team?"
 date: 2026-11-04
-description: "The multi-division league scheduler now turns a season's court bookings and your venue rates into a total and a fee per team, on the page and from the command line."
+description: "The multi-division league scheduler now turns court bookings and your venue rates into a season total and a fee per team, on the page and from the CLI."
 tags: [league-schedule-generator, fees]
 ---
 
