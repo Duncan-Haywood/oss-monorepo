@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 7o: Steinberg et al. citation finalised (no experiment run)
+- Why: 7n's "Next": three sources had no DOI.
+- What: Crossref lookup found Steinberg et al., MTS Journal 44(2), 46-55, 2010, doi:10.4031/mtsj.44.2.3 (author list checked against the record); added to `PROPOSAL.md` Related work. Two sources remain without a final DOI or URL (Ocean Science os-2019-36 author response; MARTECH 2025 paper 17).
+- Limits: the paper was read in 4e from the PDF; this entry only fixes the reference. No numbers changed.
+- Next: the two remaining sources; shelf currents from a tide model or ADCP.
+
 ## 2026-11-04 · Milestone 7n: citations for 4c to 4g added to the proposal (no experiment run)
 - Why: 7m's "Next": the sources behind 4c to 4g were in the log and scripts but not in the citation list.
 - What: added Bellingham et al. (Tethys, AUV 2010, doi:10.1109/AUV.2010.5779645; `cite_check.py` ok) and Bonjean and Lagerloef 2002 (JPO, doi:10.1175/1520-0485(2002)032<2938:DMAAOT>2.0.CO;2; found in Crossref by direct lookup, since `cite_check.py` truncates this DOI at `<`) to `PROPOSAL.md` Related work, and listed the three sources with no DOI (Steinberg et al., Ocean Science os-2019-36, MARTECH 2025 paper 17) as still to be finalised.
