@@ -43,7 +43,7 @@ ethnicity and degree). Among in-person respondents only, the change from 2016-18
 not distinguishable from zero, but the samples are small enough that a real fall of up to about 9 points
 is not ruled out. So hypothesis H3 is refuted as worded, and the honest reading is "mostly mode, residual
 unknown". Selection (web respondents are partly in-person nonrespondents) is not separated from mode.
-Code `experiments/m3_mode/run.py`, results `results.txt`.
+Code `experiments/m3_mode/run.py`, results `results.txt`. The randomised-arm contrast (`modesequence`) is in `experiments/m3b_randomised/`: Catholic weekly attendance 19.4% (face-to-face first) vs 17.1% (web first), +2.2 points [-3.1, 7.5], so the experiment neither shows nor excludes a mode effect.
 
 ## Limits
 
@@ -60,6 +60,7 @@ sh data/download.sh                          # GSS 1972-2024 R3a from NORC, abou
 python3 experiments/m1_subgroups/run.py      # needs pandas and numpy; about 60 s
 python3 experiments/m1_subgroups/figure.py   # stdlib only
 python3 experiments/m3_mode/run.py           # mode effect on 2021-24 attendance; about 30 s
+python3 experiments/m3b_randomised/run.py     # randomised mode arms, 2022 and 2024; about 60 s
 python3 -m pytest -q test_cathdem.py         # estimator and recode tests, no download needed
 ```
 
