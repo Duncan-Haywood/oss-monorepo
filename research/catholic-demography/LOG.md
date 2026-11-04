@@ -2,6 +2,32 @@
 
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
+
+## 2026-11-04 · Milestone 5a results: the inflow of people raised Catholic held the share up; falling retention pulled it down
+
+Run: `experiments/m5a_decomp/run.py` (output `results.txt`, tables `t11`, `t12`; run under a Python with
+numpy and pandas, data per `data/download.sh`). Adults 18+, weights `wtssps`, intervals from a 500-draw
+stratified PSU bootstrap (seed 1). Identity S = R r + (1-R) c (share Catholic = share raised Catholic x
+retention + share not raised Catholic x conversion in), changes split by the midpoint rule; the three terms
+sum to the change exactly (asserted in the code). The plan was fixed before running: no directional prior,
+except that H4's "immigration holds the share up" implies the raised-Catholic term is positive.
+
+- **Levels.** Raised Catholic 30.7% (1990-99), 33.4%, 34.5% (2010-18), 33.7% (2021-24). Retention 77.7%,
+  73.8%, 66.7%, 61.3%. Conversion in 3.6%, 3.3%, 3.0%, 2.3%.
+- **1990-99 to 2010-18** (share 26.4% to 25.0%, -1.4 points [-2.7, -0.0]): inflow of those raised Catholic
+  **+2.6 [+1.6, +3.6]**, retention **-3.6 [-4.2, -3.0]**, conversion in -0.4 [-0.7, -0.1]. The Catholic share
+  was roughly stable only because a larger share of children were raised Catholic offset a steady loss of
+  them. 
+- **To 2021-24** (22.2%): retention -5.3 [-5.9, -4.6] and conversion -0.9; inflow +2.0. Between 2010-18 and
+  2021-24 the inflow term is -0.5 [-1.4, +0.4], so the offset has stopped. Caveat from milestone 3: web-mode
+  2021-24 data may understate retention (the Model B period term, -0.22 log-odds), so the last step is the
+  least firm.
+- **Immigration, descriptively.** Foreign-born share of Catholics 19.8% (1990s), 27.6%, 28.7% (2010-18),
+  23.8% (2021-24). Consistent with an immigrant contribution to the inflow term, but this decomposition
+  cannot split inflow into fertility and immigration, so **H4 stays untested**.
+- **Next.** Milestone 5b: split the inflow term with NCHS births by ethnicity and ACS/Census immigration
+  (both hosts answered 200 through the proxy this session), then the H5 projection score.
+
 ## 2026-11-04 · Milestone 4 results: the cohort fall is real for white Catholics, and Hispanic retention diverges significantly
 
 Run: `experiments/m4_retention/run.py` (output `results.txt`, tables `t8`-`t10`; estimator `survey.logit`

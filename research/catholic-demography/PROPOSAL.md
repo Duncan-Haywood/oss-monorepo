@@ -152,7 +152,7 @@ and the mode checks for 2021-2024. Ablations: each channel switched off in the a
    subgroup tables.
 3. Mode-effect analysis for 2021-2024 attendance (H3) (2026-11-04, done: `experiments/m3_mode/`; refuted as worded but underpowered).
 4. Retention models by cohort, ethnicity and generation, ages 30+, with design-based inference (2026-11-04, done: `experiments/m4_retention/`).
-5. Cohort-component accounting 1990-2024 (H4) and the projection score (H5).
+5. Cohort-component accounting 1990-2024 (H4) and the projection score (H5). 5a (2026-11-04, done: `experiments/m5a_decomp/`): GSS-only decomposition into raised-Catholic inflow, retention and conversion; 5b (open): split inflow with outside fertility and immigration series.
 6. Cross-national comparison: European and Latin American Catholics (ESS, WVS/EVS).
 7. Paper draft in `paper/`.
 
