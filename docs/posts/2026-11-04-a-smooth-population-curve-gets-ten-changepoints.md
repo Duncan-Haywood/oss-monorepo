@@ -2,7 +2,7 @@
 title: A smooth population curve gets ten changepoints
 date: 2026-11-04
 tags: [changepoint-detection, negative-result, time-series]
-description: "Our changepoint detector found 10 to 43 changes in 89 quarters of smooth Australian population data where nothing broke. Why a low-noise curve fools it, and what we try next."
+description: "Our changepoint detector found 10 to 43 changes in 89 quarters of smooth Australian population data where nothing broke. Why a low-noise curve fools it."
 ---
 
 We ran our changepoint detector on 89 quarters of Australian resident population (1971 to 1993), in logs. Nothing documented broke in that curve. The trend model still reports 10 changes, the level-only model 43, and the autocorrelation-corrected one 9.
