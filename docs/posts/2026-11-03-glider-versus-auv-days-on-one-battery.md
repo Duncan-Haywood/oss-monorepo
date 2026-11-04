@@ -1,5 +1,6 @@
 ---
 title: "A glider goes roughly 7 to 70 times further on a battery, and takes 30 to 550 times longer"
+seo_title: "A glider goes 7 to 70 times further per battery than an AUV"
 date: 2026-11-03
 description: On one 1.5 kWh battery a buoyancy glider out-ranges a propeller AUV in every case we ran, but takes tens to hundreds of times longer.
 tags: [research, marine-hull, glider, auv]
