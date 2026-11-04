@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13029",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,19 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route picked research for a venture-work task; used the ventures track by hand"
+    }
+  ],
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Danish regulator hosts (erhvervsstyrelsen.dk, retsinformation.dk) blocked, so the einvoice primary-source check could not run. Landed multi-division team withdrawals instead; divisions.test.mjs + page.test.mjs 127 pass.",
   "corrections": [],
   "redteam": null
 }
