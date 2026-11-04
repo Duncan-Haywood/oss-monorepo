@@ -248,7 +248,7 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   }
   let wired = null;
   if (r.ok && (flags.has("--electrical") || plan.electrical)) {
-    const el = layoutElectrical(plan.electrical || {}, plan);
+    const el = layoutElectrical(plan.electrical || {}, plan, Object.fromEntries((r.walls || []).map((/** @type {any} */ w) => [w.id, w])));
     if (!el.ok) return { code: 1, out: `The electrical settings have problems:\n${el.errors.map((e) => `  - ${e}`).join("\n")}` };
     r.electrical = wired = el;
   }

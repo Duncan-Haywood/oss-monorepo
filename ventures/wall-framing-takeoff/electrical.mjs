@@ -52,16 +52,40 @@ export function wallSpaces(length, ops) {
   return out;
 }
 
+const BOX = 2.25; // a single-gang new-work box is about 2.25 in wide; it nails to the side of a stud
+
+/**
+ * Move receptacle positions onto the studs: each box nails to the face of a
+ * full-height stud, king or jack, so it goes to the nearest stud side that is
+ * inside the wall space, keeping the 6 ft rule. Returns the new positions and
+ * the largest gap and end distance left.
+ * @param {number[]} ideal @param {number} start @param {number} end @param {{ x: number, w: number }[]} studs @param {number} maxSp
+ */
+export function snapToStuds(ideal, start, end, studs, maxSp) {
+  const lo = start + BOX / 2, hi = end - BOX / 2;
+  /** @type {number[]} */ const cands = [];
+  for (const s of studs) for (const c of [s.x - BOX / 2, s.x + s.w + BOX / 2]) if (c >= lo - 1e-9 && c <= hi + 1e-9 && !studs.some((t) => c + BOX / 2 > t.x + 1e-9 && c - BOX / 2 < t.x + t.w - 1e-9)) cands.push(+c.toFixed(3));
+  if (!cands.length) return { at: ideal, snapped: false, worst: Math.max(...ideal.map((a, i) => i ? a - ideal[i - 1] : 0), start === end ? 0 : ideal[0] - start, end - ideal[ideal.length - 1]) };
+  const at = ideal.map((x) => cands.reduce((b, c) => Math.abs(c - x) < Math.abs(b - x) ? c : b, cands[0]));
+  const pts = [start, ...at, end];
+  let worst = 0;
+  for (let i = 1; i < pts.length; i++) worst = Math.max(worst, i === 1 || i === pts.length - 1 ? 2 * (pts[i] - pts[i - 1]) : pts[i] - pts[i - 1]);
+  // the rule: no point more than maxSp/2 from a box, so gaps up to maxSp and wall-space ends up to maxSp/2
+  return { at, snapped: true, worst };
+}
+
 /**
  * @param {Electrical} d
  * @param {{ walls: { id: string, length: number, sheathed?: boolean, openings?: { kind: string, offset: number, width: number }[] }[] }} plan
+ * @param {Record<string, { members: { kind: string, orient: string, x: number, w: number }[] }>} [layouts] wall layouts by id; with them, boxes snap to studs
  */
-export function layoutElectrical(d, plan) {
+export function layoutElectrical(d, plan, layouts) {
   const errors = validateElectrical(d, plan);
   if (errors.length) return { ok: false, errors };
   const maxSp = d.maxSpacing ?? 144, minSp = d.minSpace ?? 24, perDoor = d.switchPerDoor ?? 1;
   const skip = new Set(d.skipWalls || []);
-  /** @type {{ wall: string, face: number, receptacles: number[], space: number }[]} */ const spaces = [];
+  /** @type {{ wall: string, face: number, receptacles: number[], space: number, snapped: boolean, overRule: boolean }[]} */ const spaces = [];
+  /** @type {string[]} */ const notes = [];
   const perWall = [];
   let receptacles = 0, switches = 0;
   for (const w of plan.walls) {
@@ -73,8 +97,16 @@ export function layoutElectrical(d, plan) {
       const len = sp.end - sp.start;
       if (len < minSp - 1e-9) continue;
       const n = Math.ceil(len / maxSp - 1e-9);
-      const at = Array.from({ length: n }, (_, i) => +(sp.start + (i + 0.5) * len / n).toFixed(2));
-      for (let f = 1; f <= faces; f++) spaces.push({ wall: w.id, face: f, receptacles: at, space: len });
+      let at = Array.from({ length: n }, (_, i) => +(sp.start + (i + 0.5) * len / n).toFixed(2));
+      let snapped = false, overRule = false;
+      const lay = layouts && layouts[w.id];
+      if (lay) {
+        const studs = lay.members.filter((m) => m.orient === "v" && (m.kind === "stud" || m.kind === "king" || m.kind === "jack")).map((m) => ({ x: m.x, w: m.w }));
+        const sn = snapToStuds(at, sp.start, sp.end, studs, maxSp);
+        at = sn.at; snapped = sn.snapped; overRule = sn.snapped && sn.worst > maxSp + 1e-9;
+        if (overRule) notes.push(`${w.id}: the stud-side positions leave a point more than ${maxSp / 24} ft from a box in the wall space starting at ${sp.start.toFixed(0)} in; add a box or set the box by hand.`);
+      }
+      for (let f = 1; f <= faces; f++) spaces.push({ wall: w.id, face: f, receptacles: at, space: len, snapped, overRule });
       r += n * faces;
     }
     const doors = ops.filter((o) => o.kind === "door").length;
@@ -87,7 +119,7 @@ export function layoutElectrical(d, plan) {
   const cableRolls = boxes ? Math.ceil(cableFt * (1 + waste) / roll - 1e-9) : 0;
   const priced = ["receptaclePrice", "switchPrice", "boxPrice", "cablePrice"].some((k) => /** @type {any} */ (d)[k] != null);
   const cost = priced ? receptacles * (d.receptaclePrice ?? 0) + switches * (d.switchPrice ?? 0) + boxes * (d.boxPrice ?? 0) + cableRolls * (d.cablePrice ?? 0) : null;
-  return { ok: true, errors: [], maxSpacing: maxSp, minSpace: minSp, receptacles, switches, boxes, cableFt, waste, cableRoll: roll, cableRolls, perWall, spaces, cost, prices: { receptacle: d.receptaclePrice ?? null, switch: d.switchPrice ?? null, box: d.boxPrice ?? null, cableRoll: d.cablePrice ?? null } };
+  return { ok: true, errors: [], maxSpacing: maxSp, minSpace: minSp, receptacles, switches, boxes, cableFt, waste, cableRoll: roll, cableRolls, perWall, spaces, notes, cost, prices: { receptacle: d.receptaclePrice ?? null, switch: d.switchPrice ?? null, box: d.boxPrice ?? null, cableRoll: d.cablePrice ?? null } };
 }
 
 /** @param {any} t */
@@ -96,6 +128,8 @@ export function electricalText(t) {
   l.push(`  ${t.receptacles} receptacle boxes (no point on a wall space of ${t.minSpace} in or more is over ${t.maxSpacing / 2 / 12} ft from one), ${t.switches} switch boxes: ${t.boxes} boxes in all.`);
   for (const w of t.perWall) if (w.receptacles || w.switches) l.push(`    ${w.id}: ${w.receptacles} receptacles, ${w.switches} switches`);
   l.push(`  Cable estimate: ${t.cableFt.toFixed(0)} ft plus ${(100 * t.waste).toFixed(0)}% waste -> ${t.cableRolls} rolls of ${t.cableRoll} ft${t.cost != null ? `; cost ${t.cost.toFixed(2)}` : ""}.`);
+  if (t.spaces.some((/** @type {any} */ s) => s.snapped)) l.push("  Receptacle positions are the nearest stud side (boxes nail to a full-height stud, king or jack); inches from the wall start are in the JSON result.");
+  for (const n of t.notes || []) l.push(`  Note: ${n}`);
   l.push("  Kitchens, baths, garages, hallways, closets, stairs, alarms, fixtures, the panel and local code amendments are not counted; the cable length per box is a typed estimate.");
   return l;
 }
