@@ -287,6 +287,17 @@
           <div><label for="m-weeks">Launch weeks</label><input id="m-weeks" type="number" min="2" max="12" step="1"></div>
           <div><label for="m-posts">Posts per week</label><input id="m-posts" type="number" min="1" max="14" step="1"></div>
         </div>
+        <details id="test-box">
+          <summary>Read a first small ad test</summary>
+          <p class="muted">Spent a little on one ad? Type what happened. The numbers stay in this browser. You get your real click price and conversion rate, a 95% range (small tests are noisy), and whether the test already settles it.</p>
+          <div class="row">
+            <div><label for="t-spend">Spent on the test</label><input id="t-spend" type="number" min="0" step="any"></div>
+            <div><label for="t-clicks">Clicks it bought</label><input id="t-clicks" type="number" min="0" step="1"></div>
+            <div><label for="t-orders">Orders from those clicks</label><input id="t-orders" type="number" min="0" step="1"></div>
+          </div>
+          <output id="test-out" aria-live="polite"></output>
+          <div class="bar"><button class="btn small" type="button" id="t-apply" disabled>Use these numbers in the plan</button></div>
+        </details>
         <output id="mkt-out" aria-live="polite"></output>
         <div class="bar"><button class="btn small" type="button" id="mkt-csv">Download calendar (CSV)</button></div>
       </section>
@@ -338,7 +349,7 @@
     import { economics, quantityBreaks, money, DEFAULT_PLAN } from "./costing.mjs";
     import { techPack, techPackHtml, quoteRequest } from "./techpack.mjs";
     import { launchKit } from "./launchkit.mjs";
-    import { marketingPlan, calendarCsv, DEFAULT_ASSUMPTIONS } from "./marketing.mjs";
+    import { marketingPlan, calendarCsv, learnFromTest, DEFAULT_ASSUMPTIONS } from "./marketing.mjs";
     import { separate, films, previewRgba, separationBrief } from "./separation.mjs";
     import { recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -861,6 +872,38 @@
       $("#mkt-out").innerHTML = html;
       $("#mkt-csv").disabled = !lastMkt;
     }
+    let lastTest = null;
+    function renderTest() {
+      const v = id => Number($("#" + id).value);
+      let html = "";
+      lastTest = null;
+      if ($("#t-spend").value && $("#t-clicks").value) {
+        try {
+          const e = economics(d(), sheet, plan);
+          const r = learnFromTest({ spend: v("t-spend"), clicks: v("t-clicks"), orders: v("t-orders") || 0, profitPerSale: e.profitPerSale, price: e.price, remainingBudget: Math.max(0, plan.marketingBudget - v("t-spend")) });
+          if (r.assumptions) {
+            lastTest = r;
+            html = `<div class="kpis">
+              <div class="kpi"><span>Click price</span><div class="big">${money(r.cpc, e.currency)}</div></div>
+              <div class="kpi"><span>Clicks that buy</span><div class="big">${r.conversionPct}%</div><span class="muted">95% range ${r.range.conversionPct[0]} to ${r.range.conversionPct[1]}%</span></div>
+              <div class="kpi"><span>Cost per sale</span><div class="big">${r.cac == null ? "no sale yet" : money(r.cac, e.currency)}</div></div>
+            </div>`;
+          }
+          html += `<div class="notes">${esc(r.message)}</div>`;
+        } catch (err) { html = `<p class="notes">${esc(err.message)}</p>`; }
+      }
+      $("#test-out").innerHTML = html;
+      $("#t-apply").disabled = !lastTest;
+    }
+    for (const id of ["t-spend", "t-clicks", "t-orders"]) $("#" + id).addEventListener("input", renderTest);
+    $("#t-apply").addEventListener("click", () => {
+      if (!lastTest) return;
+      mkt = { ...mkt, ...lastTest.assumptions };
+      store.set(MKT_KEY, mkt);
+      $("#m-cpc").value = mkt.cpc; $("#m-conv").value = mkt.conversionPct;
+      renderMarketing();
+      recordUsage("ad_test_applied");
+    });
     $("#mkt-csv").addEventListener("click", () => {
       if (!lastMkt) return;
       const url = URL.createObjectURL(new Blob([calendarCsv(lastMkt)], { type: "text/csv" }));
