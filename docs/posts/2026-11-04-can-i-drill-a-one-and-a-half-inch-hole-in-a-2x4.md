@@ -1,7 +1,7 @@
 ---
 title: "Can I drill a 1.5 inch hole in a 2x4 stud?"
 date: 2026-11-04
-description: "A free page that checks a bored hole, a notch or a drain pipe against the common stud limits. A 1.5 inch hole fails in a bearing 2x4 and passes in a non-bearing one."
+description: "A free page that checks a bored hole, notch or drain pipe against common stud limits. A 1.5 inch hole fails in a bearing 2x4 and passes in a non-bearing one."
 tags: [wall-framing-takeoff, construction, plumbing]
 ---
 
