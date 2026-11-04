@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 7o: Steinberg et al. citation finalised (no experiment run)
+- Why: 7n's "Next": three sources had no DOI.
+- What: Crossref lookup found Steinberg et al., MTS Journal 44(2), 46-55, 2010, doi:10.4031/mtsj.44.2.3 (author list checked against the record); added to `PROPOSAL.md` Related work. Two sources remain without a final DOI or URL (Ocean Science os-2019-36 author response; MARTECH 2025 paper 17).
+- Limits: the paper was read in 4e from the PDF; this entry only fixes the reference. No numbers changed.
+- Next: the two remaining sources; shelf currents from a tide model or ADCP.
 ## 2026-11-04 · Milestone 4h: 4g's current test on observed coastal currents (NOAA CO-OPS), where OSCAR understates them
 - Why: 4g's "Next" and limit: OSCAR is smoothed and understates shelf and tidal currents, where survey work happens. Source: NOAA CO-OPS PORTS observed currents (`datagetter?product=currents`), 31 days of 6-minute readings (Jan 2024) at 64 of the 85 stations in the `currents` list that returned at least 1,000 readings (the rest returned nothing for that month); the speed is the median over depth bins at each reading. The 35 MB raw series is not kept; `experiments/data/coops_currents.csv` holds each station's speed at percentiles 0 to 100 step 5, rebuilt by `fetch_coops_currents.py`.
 - Prediction: not written before the run (I looked at the station list and the data format first); from the 4g result I expected the glider to stall in well over half the readings, since many stations are tidal channels.
