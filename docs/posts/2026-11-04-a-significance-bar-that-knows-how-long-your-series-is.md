@@ -1,7 +1,7 @@
 ---
 title: "A significance bar that knows how long your series is"
 date: 2026-11-04
-description: "The slope-break test used one fixed threshold. It now simulates a bar from the series length and serial correlation; the US productivity slowdown is still not significant."
+description: "The slope-break test now simulates its threshold from series length and serial correlation; the US productivity slowdown is still not significant."
 tags: [changepoint-detector, statistics]
 ---
 
