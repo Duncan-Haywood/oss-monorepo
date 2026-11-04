@@ -123,7 +123,7 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      History and numbers: README and git. Open: (0) smooth low-noise series over-cut: `--noise-floor k` landed 2026-11-04 (austres trend 10 -> 3 at k=1, README) but no k is calibrated: a drifting real series (log US real GDP, 1970s slowdown) was run 2026-11-04 and no k in 0, 1, 2 isolates the break (README), differencing first (eval/gdp-growth.mjs, 2026-11-04) found the 1984Q3 volatility break alone with `--model meanvar` but not the 1970s slowdown, so wanted now is a trend-slope-change model that isolates a growth slowdown, not a bigger k; cycles and drift: an exact
+      History and numbers: README and git. Open: (0) smooth low-noise series over-cut: `--noise-floor k` landed 2026-11-04 (austres trend 10 -> 3 at k=1, README) but no k is calibrated: a drifting real series (log US real GDP, 1970s slowdown) was run 2026-11-04 and no k in 0, 1, 2 isolates the break (README), differencing first (eval/gdp-growth.mjs, 2026-11-04) found the 1984Q3 volatility break alone with `--model meanvar` but not the 1970s slowdown, a difference-based slope-break test landed 2026-11-04 (slope-breaks.mjs, README: dates GDP's slowdown at 1971Q2 but finds it not significant), so wanted now is a real series with a large slope change to check its power, and the CLI and page flag, not a bigger k; cycles and drift: an exact
       AR(2) likelihood inside PELT was no better than AR(1) (README); a real documented step inside a cycle; a cycle
       check not tied to rho (treering: drift not told from a cycle);
       a documented real run of 5+ steps to test the block-variance warning
