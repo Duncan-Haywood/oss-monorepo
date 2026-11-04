@@ -2,7 +2,7 @@
 title: "A real wood-framed IFC wall showed our takeoff framing a window as a door"
 seo_title: "IFC wall framing takeoff: window read as a door"
 date: 2026-11-04
-tags: [wall-framing-takeoff, ifc, construction, bug]
+tags: [wall-framing-takeoff, ifc, construction, bugs]
 description: "We ran a small wood-framed IFC wall through our framing takeoff. The model was read exactly, but the page lost every opening height and sill."
 ---
 
