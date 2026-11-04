@@ -5,10 +5,34 @@
 const r2 = (/** @type {number} */ n) => Math.round(n * 100) / 100;
 
 /**
+ * Why a budget cannot be compared, or null. Lines must be objects with text section and item, and
+ * numeric qty; amount is a number or null; totals, when present, are finite numbers.
+ * @param {any} b
+ * @param {string} name
+ * @returns {string | null}
+ */
+export function budgetShapeError(b, name) {
+  if (!b || typeof b !== "object" || Array.isArray(b)) return `${name} budget must be an object`;
+  if (!Array.isArray(b.lines)) return `${name} budget needs a list of lines`;
+  for (const [i, l] of b.lines.entries()) {
+    if (!l || typeof l !== "object") return `${name} budget line ${i + 1} must be an object`;
+    if (typeof l.section !== "string" || typeof l.item !== "string") return `${name} budget line ${i + 1} needs a text section and item`;
+    if (l.qty != null && !Number.isFinite(l.qty)) return `${name} budget line ${i + 1} (${l.item}) has a quantity that is not a number`;
+    if (l.amount != null && !Number.isFinite(l.amount)) return `${name} budget line ${i + 1} (${l.item}) has an amount that is not a number`;
+  }
+  for (const f of ["materials", "tax", "contingency", "labor", "allowances", "total", "overhead", "profit", "bid"]) {
+    if (b[f] != null && !Number.isFinite(b[f])) return `${name} budget ${f} is not a number`;
+  }
+  return null;
+}
+
+/**
  * @param {any} base budget() of the original plan
  * @param {any} revised budget() of the changed plan
  */
 export function budgetDiff(base, revised) {
+  const bad = budgetShapeError(base, "base") || budgetShapeError(revised, "revised");
+  if (bad) throw new Error(bad);
   const key = (/** @type {any} */ l) => `${l.section}\u0000${l.item}`;
   const bm = new Map(base.lines.map((/** @type {any} */ l) => [key(l), l]));
   const rm = new Map(revised.lines.map((/** @type {any} */ l) => [key(l), l]));
@@ -50,6 +74,7 @@ export function budgetDiff(base, revised) {
 
 /** @param {ReturnType<typeof budgetDiff>} d */
 export function diffText(d) {
+  if (!d || !Array.isArray(d.lines) || !d.totals) throw new Error("diffText needs the result of budgetDiff");
   const sg = (/** @type {number} */ n) => (n >= 0 ? "+" : "") + n.toFixed(2);
   const out = [];
   let sec = "";

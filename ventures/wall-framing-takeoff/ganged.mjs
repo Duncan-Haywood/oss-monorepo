@@ -12,10 +12,32 @@
 import { THICK } from "./engine.mjs";
 
 /**
+ * Why a plan cannot be ganged, or null: walls and openings must be objects, and each opening's
+ * offset and width real numbers (text coerced in the sort and NaN became null on save).
+ * @param {any} plan
+ * @returns {string | null}
+ */
+export function gangPlanError(plan) {
+  if (!plan || typeof plan !== "object") return "plan must be an object";
+  if (plan.walls != null && !Array.isArray(plan.walls)) return "walls must be a list";
+  for (const [i, w] of (plan.walls || []).entries()) {
+    if (!w || typeof w !== "object") return `wall ${i + 1} must be an object`;
+    if (w.openings != null && !Array.isArray(w.openings)) return `wall ${w.id ?? i + 1}: openings must be a list`;
+    for (const [j, o] of (w.openings || []).entries()) {
+      if (!o || typeof o !== "object") return `wall ${w.id ?? i + 1}: opening ${j + 1} must be an object`;
+      if (!Number.isFinite(o.offset) || !Number.isFinite(o.width)) return `wall ${w.id ?? i + 1}: opening ${j + 1} needs a numeric offset and width`;
+    }
+  }
+  return null;
+}
+
+/**
  * @param {any} plan
  * @returns {{ plan: any, notes: string[] }} a copy of the plan with close openings merged
  */
 export function gangOpenings(plan) {
+  const bad = gangPlanError(plan);
+  if (bad) throw new Error(bad);
   const out = structuredClone(plan);
   const notes = [];
   for (const wall of out.walls || []) {
