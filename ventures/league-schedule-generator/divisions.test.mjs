@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining, restGaps, divisionsChangeNotices } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining, restGaps, divisionsChangeNotices, divisionsBookings } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -904,4 +904,28 @@ test("change notices keep a team name used in two divisions apart", () => {
   const n = divisionsChangeNotices([mv("U10", 20000, 20007), mv("U12", 20001, 20008)]);
   assert.equal(n.teams.filter((t) => t.team === "Hawks").length, 2);
   assert.ok(n.teams.every((t) => t.text.includes(`(${t.division})`)));
+});
+
+test("divisionsBookings lists each venue's nights, courts and span, and counts every game once", () => {
+  const s = build();
+  const b = divisionsBookings(s);
+  assert.equal(b.venues.reduce((n, v) => n + v.games, 0), s.nights.reduce((n, x) => n + x.matches.length, 0));
+  for (const v of b.venues) for (const d of v.dates) {
+    assert.match(d.from, /^\d\d:\d\d$/);
+    assert.ok(d.from < d.to);
+    assert.ok(d.courts.length >= 1 && d.games >= d.courts.length);
+  }
+  assert.deepEqual(b.venues.map((v) => v.venue), [...b.venues.map((v) => v.venue)].sort());
+  assert.match(b.text, /^Park: \d+ nights?, \d+ games/m);
+  // 18:00 and 19:30 slots at 60 minutes -> a night using both runs 18:00-20:30
+  assert.ok(b.venues.some((v) => v.dates.some((d) => d.from === "18:00" && d.to === "20:30")));
+  assert.equal(divisionsBookings(s, { minutes: 90 }).venues.flatMap((v) => v.dates).some((d) => d.to === "21:00"), true);
+  assert.deepEqual(divisionsBookings({ nights: [] }), { venues: [], text: "" });
+});
+
+test("CLI --bookings prints the booking request", () => {
+  const r = spawnSync("node", [new URL("./divisions.mjs", import.meta.url).pathname, new URL("./example-divisions.json", import.meta.url).pathname, "--bookings"], { encoding: "utf8" });
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /Park: \d+ nights?/);
+  assert.match(r.stdout, /School: \d+ nights?/);
 });

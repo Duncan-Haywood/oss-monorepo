@@ -1160,6 +1160,38 @@ export function divisionsIcs(schedule, { division = null, team = null, stamp = n
 }
 
 /**
+ * Facility booking requests: for each venue, the dates it is needed, which courts, and the earliest start
+ * to the latest finish (each game is `minutes` long, default 60). An organiser sends the text to the
+ * facility to reserve the whole season at once. Only nights with a game at the venue are listed.
+ * Returns { venues: [{ venue, dates: [{ date, courts, from, to, games }], nights, games }], text }.
+ */
+export function divisionsBookings(schedule, { minutes = 60 } = {}) {
+  const hhmm = (min) => `${String(Math.floor(min / 60)).padStart(2, "0")}:${String(min % 60).padStart(2, "0")}`;
+  const by = new Map();
+  for (const night of schedule.nights) {
+    const per = new Map();
+    for (const m of night.matches) {
+      const e = per.get(m.venue) || { courts: new Set(), start: Infinity, end: -Infinity, games: 0, untimed: false };
+      e.courts.add(m.court); e.games++;
+      if (m.time) { const [h, mi] = m.time.split(":").map(Number); e.start = Math.min(e.start, h * 60 + mi); e.end = Math.max(e.end, h * 60 + mi + minutes); } else e.untimed = true;
+      per.set(m.venue, e);
+    }
+    for (const [venue, e] of per) {
+      if (!by.has(venue)) by.set(venue, []);
+      by.get(venue).push({ date: dayIso(night.day), courts: [...e.courts].sort(), from: e.untimed || e.start === Infinity ? null : hhmm(e.start), to: e.untimed || e.end === -Infinity ? null : hhmm(e.end), games: e.games });
+    }
+  }
+  const venues = [...by].sort((a, b) => a[0].localeCompare(b[0])).map(([venue, dates]) => ({ venue, dates, nights: dates.length, games: dates.reduce((n, d) => n + d.games, 0) }));
+  const lines = [];
+  for (const v of venues) {
+    lines.push(`${v.venue}: ${v.nights} night${v.nights === 1 ? "" : "s"}, ${v.games} games`);
+    for (const d of v.dates) lines.push(`  ${d.date}  ${d.from ? `${d.from}-${d.to}` : "times to be set"}  ${d.courts.join(", ")}`);
+    lines.push("");
+  }
+  return { venues, text: lines.join("\n") };
+}
+
+/**
  * One ready-to-paste note per team on a multi-division schedule: every match in date order with time, court,
  * venue and opponent, plus the division. Teams that share a name in two divisions get one note each.
  * Returns [{ division, team, matches, text }] in division order.
@@ -1283,7 +1315,7 @@ export function rainoutOptions(f) {
   return { balance: on(f.balance), flip: on(f.flip), relocate: on(f.relocate), swapNights: on(f.swapNights) };
 }
 
-// node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, --notices for the rainout change notices, --results results.txt --weekly for the group-chat update, --grid for the season grid CSV, --history for next season's venueHistory, or --suggest-weight to pick fairnessWeight). spec.json holds the form fields.
+// node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, --notices for the rainout change notices, --bookings for a per-venue facility booking request, --results results.txt --weekly for the group-chat update, --grid for the season grid CSV, --history for next season's venueHistory, or --suggest-weight to pick fairnessWeight). spec.json holds the form fields.
 if (typeof process !== "undefined" && process.argv && import.meta.url === `file://${process.argv[1]}`) {
   const { readFileSync } = await import("node:fs");
   const file = process.argv[2];
@@ -1313,6 +1345,10 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
     for (const e of r.errors) console.error(`Rainout: ${e}`);
     s = r.schedule;
     allMoves.push(...r.moves);
+  }
+  if (process.argv.includes("--bookings")) {
+    process.stdout.write(divisionsBookings(s).text);
+    process.exit(0);
   }
   if (process.argv.includes("--notices")) {
     const n = divisionsChangeNotices(allMoves);
