@@ -146,3 +146,57 @@ export function calendarCsv(plan) {
   for (const w of plan.calendar) rows.push([w.week, w.phase, w.goal, w.adSpend.toFixed(2), w.salesTarget, w.cumulativeSalesTarget, w.tasks.join(" | ")].map(csvCell).join(","));
   return rows.join("\n") + "\n";
 }
+
+/** Wilson 95% interval for k successes in n trials (fine for small n and k = 0). */
+export function wilson(k, n, z = 1.96) {
+  if (!(n > 0)) return null;
+  const p = k / n, z2 = z * z, d = 1 + z2 / n;
+  const centre = (p + z2 / (2 * n)) / d;
+  const half = (z * Math.sqrt((p * (1 - p)) / n + z2 / (4 * n * n))) / d;
+  return { low: Math.max(0, centre - half), high: Math.min(1, centre + half) };
+}
+
+/**
+ * Read a first small ad test. The designer types what they spent, how many
+ * clicks it bought and how many orders came from them; this returns the real
+ * click price, conversion rate and cost per sale, a 95% range on the rate
+ * (small tests are noisy), and whether the test already settles the question
+ * against the break-even `profitPerSale`. The result's `assumptions` can
+ * replace the placeholders in `marketingPlan`.
+ */
+export function learnFromTest({ spend, clicks, orders, profitPerSale, price, remainingBudget = 0 }) {
+  const out = { cpc: null, conversionPct: null, cac: null, range: null, verdict: "unclear", message: "", assumptions: null, remainingSales: null };
+  if (!(spend > 0) || !(clicks > 0) || !(orders >= 0) || orders > clicks) {
+    out.verdict = "invalid";
+    out.message = "Enter what the test spent, the clicks it bought, and the orders that came from those clicks (no more orders than clicks).";
+    return out;
+  }
+  const cpc = spend / clicks, conv = orders / clicks, w = wilson(orders, clicks);
+  out.cpc = round2(cpc);
+  out.conversionPct = Math.round(conv * 1000) / 10;
+  out.cac = orders > 0 ? round2(spend / orders) : null;
+  out.range = {
+    conversionPct: [Math.round(w.low * 1000) / 10, Math.round(w.high * 1000) / 10],
+    cac: [w.high > 0 ? round2(cpc / w.high) : null, w.low > 0 ? round2(cpc / w.low) : null], // best case, worst case
+  };
+  out.assumptions = { cpc: out.cpc, conversionPct: Math.max(0.1, out.conversionPct) };
+  const best = out.range.cac[0], worst = out.range.cac[1];
+  if (!(profitPerSale > 0)) {
+    out.verdict = "no-margin";
+    out.message = "Each sale leaves nothing after cost, tax and fees, so no result from ads can make this pay. Fix the price or the cost first.";
+  } else if (best != null && best > profitPerSale) {
+    out.verdict = "stop";
+    out.message = `Even at the best end of the range, a sale costs ${best} in ads against the ${round2(profitPerSale)} each leaves. Stop these ads; change the page, the price or the audience before spending more.`;
+  } else if (worst != null && worst <= profitPerSale) {
+    out.verdict = "go";
+    out.message = `Even at the worst end of the range, a sale costs ${worst} in ads against the ${round2(profitPerSale)} each leaves. Raise spending in steps and re-read the numbers at each step.`;
+  } else {
+    // Clicks at which a rate equal to the break-even rate would no longer fit inside the interval, roughly.
+    const be = cpc / profitPerSale;
+    const need = be > 0 && be < 1 ? Math.ceil((1.96 * 1.96 * be * (1 - be)) / Math.pow(Math.max(Math.abs(conv - be), 0.005), 2)) : null;
+    out.verdict = "unclear";
+    out.message = `The test is too small to tell: the true cost per sale could be anywhere from ${best ?? "n/a"} to ${worst ?? "unbounded"}, and each sale leaves ${round2(profitPerSale)}.${need && need > clicks ? ` Roughly ${need - clicks} more clicks would settle it at this rate.` : ""} Spend a little more on the same ad before deciding.`;
+  }
+  if (out.cac != null && remainingBudget > 0) out.remainingSales = Math.floor(remainingBudget / out.cac);
+  return out;
+}

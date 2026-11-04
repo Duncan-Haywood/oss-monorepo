@@ -86,3 +86,41 @@ test("calendar CSV has a header and a row per week", () => {
   assert.equal(lines.length, 1 + p.calendar.length);
   assert.match(lines[0], /^Week,Phase/);
 });
+
+import { wilson, learnFromTest } from "./marketing.mjs";
+
+test("wilson interval matches known values", () => {
+  const w = wilson(0, 100); // rule of three: upper about 3.7%
+  assert.equal(w.low, 0);
+  assert.ok(Math.abs(w.high - 0.037) < 0.001);
+  const h = wilson(10, 100);
+  assert.ok(Math.abs(h.low - 0.0552) < 0.001 && Math.abs(h.high - 0.1744) < 0.001);
+  assert.equal(wilson(1, 0), null);
+});
+
+test("learning from a test: real numbers replace the placeholders", () => {
+  const r = learnFromTest({ spend: 50, clicks: 100, orders: 2, profitPerSale: 25, price: 60, remainingBudget: 300 });
+  assert.equal(r.cpc, 0.5);
+  assert.equal(r.conversionPct, 2);
+  assert.equal(r.cac, 25);
+  assert.equal(r.remainingSales, 12);
+  assert.deepEqual(r.assumptions, { cpc: 0.5, conversionPct: 2 });
+  assert.equal(r.verdict, "unclear"); // 2 orders cannot settle it
+  assert.match(r.message, /too small/);
+});
+
+test("a big losing test says stop; a big winning test says go", () => {
+  const lose = learnFromTest({ spend: 400, clicks: 500, orders: 2, profitPerSale: 25, price: 60 });
+  assert.equal(lose.verdict, "stop");
+  const win = learnFromTest({ spend: 300, clicks: 1000, orders: 100, profitPerSale: 25, price: 60 });
+  assert.equal(win.verdict, "go"); // cac 3, worst case still far below 25
+});
+
+test("zero orders is handled, bad input is refused, no margin wins", () => {
+  const z = learnFromTest({ spend: 40, clicks: 50, orders: 0, profitPerSale: 25, price: 60 });
+  assert.equal(z.cac, null);
+  assert.equal(z.range.cac[0] > 0, true);
+  assert.equal(learnFromTest({ spend: 0, clicks: 10, orders: 1, profitPerSale: 5, price: 9 }).verdict, "invalid");
+  assert.equal(learnFromTest({ spend: 5, clicks: 10, orders: 11, profitPerSale: 5, price: 9 }).verdict, "invalid");
+  assert.equal(learnFromTest({ spend: 5, clicks: 10, orders: 1, profitPerSale: 0, price: 9 }).verdict, "no-margin");
+});
