@@ -2,7 +2,7 @@
 title: "A browser check that nothing ran"
 seo_title: "A browser check nobody ran: catching unregistered checks in CI"
 date: 2026-11-04
-tags: [testing, ci, red-team, open-source]
+tags: [testing, ci, redteam, open-source]
 description: "A frame-rate check was written but never added to the nightly registry. A guard test caught it, and its exemption now expires on its own."
 ---
 
