@@ -27,11 +27,26 @@ export function levelBids(bud, bids, opts = {}) {
   const tol = opts.tolerance ?? 0.05;
   const byKey = new Map(bud.lines.map((l) => [norm(l.item), l]));
   const errors = [];
+  // Shape and range guards: hostile or hand-typed bids never throw, and a bad
+  // number is refused with a reason instead of flowing into a total.
+  const LIMIT = 1e9;
+  const okNum = (/** @type {unknown} */ x, lo = 0) => typeof x === "number" && Number.isFinite(x) && x >= lo && x <= LIMIT;
+  const seen = new Set();
+  bids = (Array.isArray(bids) ? bids : []).filter((b, i) => {
+    if (!b || typeof b !== "object" || typeof b.bidder !== "string" || !b.bidder.trim()) { errors.push(`bid ${i + 1}: needs a bidder name; ignored`); return false; }
+    if (seen.has(b.bidder)) { errors.push(`${b.bidder}: bidder listed twice; the second is ignored`); return false; }
+    seen.add(b.bidder);
+    return true;
+  });
   /** @type {Map<string, Map<string, { qty: number | null, amount: number, unitPrice: number | null }>>} */
   const got = new Map();
   for (const b of bids) {
     const m = new Map();
-    for (const l of b.lines || []) {
+    if (b.lines != null && !Array.isArray(b.lines)) errors.push(`${b.bidder}: lines must be a list; ignored`);
+    for (const l of Array.isArray(b.lines) ? b.lines : []) {
+      if (!l || typeof l !== "object" || typeof l.item !== "string") { errors.push(`${b.bidder}: a line without an item name is ignored`); continue; }
+      const bad = ["qty", "unitPrice", "amount"].find((f) => /** @type {any} */ (l)[f] != null && !okNum(/** @type {any} */ (l)[f]));
+      if (bad) { errors.push(`${b.bidder}: "${l.item}" ${bad} must be a number from 0 to 1,000,000,000; line ignored`); continue; }
       const k = norm(l.item);
       if (!byKey.has(k)) { errors.push(`${b.bidder}: "${l.item}" matches no takeoff line (lines: ${bud.lines.map((x) => x.item).join("; ")})`); continue; }
       const qty = typeof l.qty === "number" ? l.qty : null;
