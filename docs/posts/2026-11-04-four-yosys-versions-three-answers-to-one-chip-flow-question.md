@@ -1,7 +1,7 @@
 ---
 title: "Four Yosys versions, three answers to one chip-flow question"
 date: 2026-11-04
-description: "Rerunning a chip-flow ranking test under Yosys 0.33, 0.47, 0.51 and 0.70 gives pick regret of 109%, 1% and 16% at the widest fanout; only the period collapse is stable."
+description: "A chip-flow ranking test under four Yosys versions gives pick regret of 109%, 16% and 1% at the widest fanout; only the collapse of period ranking is stable."
 tags: [verified-dse, yosys, openroad, reproducibility, chip-design]
 ---
 
