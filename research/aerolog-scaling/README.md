@@ -63,6 +63,8 @@ the n = 0.1 gap there (19 to 25 points from the fits, 31 from a straight line) i
 Re is confounded with RPM within a propeller (advance ratio at peak and tip Mach move too).
 Data: Brandt and Selig, "Propeller Performance Data at Low Reynolds Numbers", AIAA 2011-1255; UIUC Propeller Data Site, https://m-selig.ae.illinois.edu/props/propDB.html.
 
+**Propeller thrust law (milestone 5b, `experiments/propeller_thrust_slope/`).** At fixed RPM the thrust-speed slope is dlnCT/dlnJ; from 137 measured APC curves it is -2.25 at peak efficiency (5th/95th percentile -2.86 / -1.54) and shows no detectable Reynolds dependence within propellers (+0.23 per decade, 95% interval [-0.24, 0.73]). Preliminary: not yet in the mode model.
+
 **Measured electrical power against mass (milestone 6a, `experiments/rodrigues_energy/`).** On 134 cruise
 flights of a DJI Matrice 100 (Rodrigues et al., *Patterns* 2022; data CC BY 4.0, Figshare
 10.1184/R1/12683453.v1), electrical power scales with takeoff mass to the power **1.54** (95% bootstrap interval
