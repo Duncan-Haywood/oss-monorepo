@@ -46,7 +46,7 @@ flagships:
       wood-framed IFC (the Rust IFC reader, ifc-engine/, is on the page's
       IFC upload as WASM since 2026-11-03 and run in Chromium on the Duplex and
       Schependomlaan models 2026-11-04; a one-wall wood-framed file ran 2026-11-04 and fixed the lost opening sizes; run a whole wood-framed house) to map its
-      stud layer to stud sizes; a
+      stud layer to stud sizes;
       a plumber's real drain runs for `--drilling` (stud hole limits, 2026-11-04); a real foundation plan; ceiling steps against a real soffit; trim,
       drywall and siding against real orders and hangs; bid leveling on real
       bids and a real sub's labor rates; gable sheathing nested on real sheets;
