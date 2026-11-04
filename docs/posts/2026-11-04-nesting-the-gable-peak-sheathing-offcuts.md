@@ -1,6 +1,6 @@
 ---
 title: "Nesting the peak: cheaper gable sheathing orders from one more cut"
-seo_title: "Gable end sheathing: nesting offcuts across the peak to buy fewer sheets"
+seo_title: "Gable end sheathing: nesting offcuts across the peak"
 date: 2026-11-04
 tags: [wall-framing-takeoff, construction, algorithms]
 description: "Our framing takeoff already nested the sloped top courses of gable end sheathing on shared sheet pieces. It now handles the course that straddles the peak."
