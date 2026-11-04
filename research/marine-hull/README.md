@@ -126,6 +126,8 @@ corridor edge reaches 83.7%, tacking when headed 87.6% (+3.2 points, positive at
 gap to the clairvoyant is about information, not the tack cost. Spatial wind fields and isochrone routing are not done. Full
 numbers, limits and the predictions that failed: `LOG.md` (2026-11-04, milestone 5a).
 
+Milestone 5b (negative): giving a receding-horizon controller a persistence, smoothed or even perfect forecast of the wind (up to the whole day, 5 to 15 minute planning blocks) recovers none of the roughly 12-point gap between the header-follower and the clairvoyant; the gap is minute-scale gust information. Caveat: the planner is not optimal. `LOG.md` (2026-11-04, milestone 5b), `experiments/results_sail_forecast*.txt`.
+
 ## Limitations
 
 Seawater properties, efficiencies, form factors and wave term are unsourced or swept; no published

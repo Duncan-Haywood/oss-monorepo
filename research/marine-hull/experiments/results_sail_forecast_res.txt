@@ -1,0 +1,19 @@
+every 3rd window: Jan 119, Jul 120; tau 30 s; perfect 1-min forecast for 30 min; planning block = step minutes
+
+January: median share of the bound (10th..90th)
+  corridor-edge tacking              0.800 (0.542..0.900)
+  header-following (margin 0.3)      0.852 (0.646..0.919)
+  clairvoyant DP                     0.998 (0.993..1.000)
+  mpc step  1 min, margin 0.3 (Jan): 0.779 (0.673..0.903); minus header -5.1 pts (boot 95% -6.7..-2.9); share of the 14.6-pt gap closed -50%
+  mpc step  3 min, margin 0.3 (Jan): 0.824 (0.676..0.913); minus header -1.1 pts (boot 95% -1.7..-0.1); share of the 14.6-pt gap closed -19%
+  mpc step 10 min, margin 0.3 (Jan): 0.853 (0.640..0.918); minus header -0.3 pts (boot 95% -0.5..-0.1); share of the 14.6-pt gap closed 1%
+  mpc step 30 min, margin 0.0 (Jan): 0.833 (0.619..0.903); minus header -1.1 pts (boot 95% -1.6..-0.8); share of the 14.6-pt gap closed -13%
+
+July: median share of the bound (10th..90th)
+  corridor-edge tacking              0.845 (0.569..0.900)
+  header-following (margin 0.3)      0.887 (0.663..0.923)
+  clairvoyant DP                     0.996 (0.990..0.999)
+  mpc step  1 min, margin 0.3 (Jan): 0.815 (0.698..0.904); minus header -3.5 pts (boot 95% -6.2..-1.7); share of the 11.0-pt gap closed -66%
+  mpc step  3 min, margin 0.3 (Jan): 0.859 (0.694..0.919); minus header -1.0 pts (boot 95% -1.6..-0.2); share of the 11.0-pt gap closed -25%
+  mpc step 10 min, margin 0.3 (Jan): 0.880 (0.651..0.918); minus header -0.2 pts (boot 95% -0.5..+0.0); share of the 11.0-pt gap closed -6%
+  mpc step 30 min, margin 0.0 (Jan): 0.864 (0.645..0.906); minus header -1.4 pts (boot 95% -1.8..-0.9); share of the 11.0-pt gap closed -21%
