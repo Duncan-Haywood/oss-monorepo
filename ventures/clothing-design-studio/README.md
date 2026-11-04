@@ -101,3 +101,15 @@ MIT licence: [`LICENSE`](LICENSE). Sponsor: https://github.com/sponsors/Duncan-H
 ## Turntable preview (2026-11-04)
 
 `turntable.mjs` turns the design about its vertical axis on the studio page ("Turn the garment": a slider and a spin button). It is an approximation, the drawing squeezed by cos(angle) and shaded across its width, showing the back artwork past 90 degrees; it has no drape, seams or sleeves, so it is not a fit check. Checked by `turntable.test.mjs` (side switching, wrap-around, escaping) and a headless-browser run of the page with no console errors. The WebGL/WebXR garment is still the next step in `ROADMAP.md`.
+
+## Storefront (2026-11-04)
+
+`storefront.mjs` turns a design into one static HTML shop page: front and back
+drawings, size picker, schema.org Product data with price and pre-order
+availability, no scripts from other sites, no trackers. Checkout is off by
+default (order-by-email); the deployer's own https payment link becomes the Buy
+button. Shipping and returns text appear only if typed; missing terms come back
+as `warnings`, never invented. Payment, tax, delivery and consumer-law
+obligations stay with the seller. Tested in `storefront.test.mjs` (escaping,
+`javascript:` links dropped, JSON-LD cannot close its script) and checked in a
+real browser. Next: several designs per shop, a real deploy by a real designer.
