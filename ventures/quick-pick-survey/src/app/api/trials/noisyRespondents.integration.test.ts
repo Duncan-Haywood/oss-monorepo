@@ -15,7 +15,8 @@
  * Hidden order: lower sortOrder wins. Rank quality is Spearman between the
  * order and the stored rating over every item the respondent rated.
  * Needs a database: `scripts/test-db.sh start`. NOISY_OUT=file appends the line.
- * NOISY_ITEMS, NOISY_ANSWERS and NOISY_RESPONDENTS override 60, 200 and 3.
+ * NOISY_ITEMS, NOISY_ANSWERS and NOISY_RESPONDENTS override 60, 200 and 3;
+ * NOISY_TIMEOUT_MS overrides the 15-minute test timeout (3000 answers needs more).
  */
 import { appendFileSync } from "fs";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
@@ -127,5 +128,5 @@ describe("noisy and biased respondents through the route", () => {
     expect(out.clean.share).toBeGreaterThan(0.4);
     expect(out.clean.share).toBeLessThan(0.6);
     expect(out.bias80.share).toBeGreaterThan(0.8);
-  }, 900_000);
+  }, Number(process.env.NOISY_TIMEOUT_MS ?? 900_000));
 });
