@@ -43,7 +43,10 @@
       "result": "no pre-registration claimed"
     }
   ],
-  "writeups": "docs/posts/2026-11-04-were-the-new-catholics-immigrants.md; research/catholic-demography/LOG.md",
+  "writeups": [
+    "docs/posts/2026-11-04-were-the-new-catholics-immigrants.md",
+    "research/catholic-demography/LOG.md"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],
