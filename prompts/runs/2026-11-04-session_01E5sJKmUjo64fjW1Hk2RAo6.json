@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13047",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -170,7 +170,7 @@
         "file": "platform/ci/test_browser_checks.py",
         "issue": "Registry.test_no_check_module_in_pages_is_left_out_of_the_registry was red on main: platform/pages/framerate.mjs (added 2026-11-03) is a browser check missing from CHECKS. Baseline red made browser_checks.py a failing target. Fixed by a self-expiring `pending` exemption naming the reason.",
         "patched": true,
-        "patched_in": "this run's PR"
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13047"
       },
       {
         "file": "platform/ci/browser_checks.py",
