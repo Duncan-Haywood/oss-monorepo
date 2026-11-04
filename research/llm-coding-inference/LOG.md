@@ -2,6 +2,20 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 7r: a guard on pilot positives in the coder-negative cell (the script ran before this entry was written; the prediction below was written after seeing 7q's results, not before the run)
+- Why: 7q's open item. 7q found forced cells undercover at high J because the coder-negative cell holds few human positives. `experiments/h7r_negcell_guard.py` is 7q's script with rules "use cells (tau 0) only if the pilot holds at least k human positives among coder-negative items, else pooled", k in {3, 5, 8}, plus pooled, forced cells and g10 for reference. Same corpus (6,000 NaijaSenti items, 2% positives, n 1000, pilot share 0.5, fitted lambda), dialled `nb-in-language` coder (item-independent synthetic errors), 500 draws (+/- 1.9 points on coverage), s in {0, 0.3, 0.6}.
+- Prediction held (not timestamped): a small k (3 to 5) restores coverage to about 93% or more at J 0.74 while keeping a larger share of the width gain than g10.
+
+### Outcome (`experiments/h7r_*.txt`)
+- Coverage / half-width in points (pooled; g10; k3; k5; k8):
+  - J 0.34: 94.2/0.802; 94.6/0.766; 95.6/0.753; 94.8/0.778; 93.0/0.798.
+  - J 0.59: 95.4/0.783; 94.6/0.670; 96.2/0.700; 93.4/0.762; 94.4/0.784.
+  - J 0.74: 94.2/0.748; 91.4/0.569; 96.0/0.675; 93.8/0.741; 94.8/0.749.
+- k = 3 covers 95.6 to 96.2% at all three J and is 6%, 11% and 10% narrower than pooled (cells used in 87%, 58%, 36% of draws). k = 5 and 8 are nearly pooled at high J (cells in 16% / 4% and 0% of draws), because a high-J coder leaves few positives in its negative cell. Prediction supported for k = 3; forced cells (g0) undercover (84.8 to 92.0%, from 7q).
+- Not explained: g10 at J 0.74 covers 91.4% here against 93.0% in 7q with the same seeds and rule; both are inside +/- 1.9 points of 95% only loosely, so I treat g10's high-J coverage as 91 to 93%, not as a stable number. The k = 3 coverage of 96.0% is above nominal, so the rule looks conservative rather than exact.
+- Limits: synthetic item-independent errors, one corpus and prevalence, 500 draws, pilot of 500 only, k chosen from this sweep on the same data (no held-out check), no library change made. A candidate for `llmci.audit_design`, pending a real high-J coder.
+- Next: a real coder with J above 0.5 (a Qwen score on this subsample); k = 3 on a second prevalence (1% and 5%).
+
 ## 2026-11-04 · Milestone 7q: where does the cells-versus-pooled width crossover sit between J = 0.1 and 0.7? (planned before running; the script is 7p's with a dial on coder quality)
 - Why: 7p's open items: a coder with J above 0.5, and whether `TAU` 0.3 is right at J 0.1 to 0.3. No real coder exists in this subsample above J 0.34, so `experiments/h7q_j_dial.py` takes the `nb-in-language` coder and either sets each label to the human label with probability s (s > 0, J rises) or replaces it with a base-rate coin flip with probability |s| (s < 0, J falls). The dialled coder is synthetic (its errors are independent of the item); it dials J, not realism, and the write-up says so. Same corpus as 7o/7p (6,000 items, 2% positives, n 1000, pilot share 0.5, fitted lambda), s in {-0.5, 0, 0.3, 0.6}, 500 draws. Rules: pooled, forced cells (g0), g5, and tau 0.3 with guard 5 (the library TAU with a lower guard).
 - **Prediction:** the forced-cells half-width ratio to pooled falls monotonically with J: wider than pooled (ratio above 1.03) at J near 0.17 (s = -0.5), about 0.92 at 0.34, below 0.85 at J near 0.55 and below 0.8 at 0.74. The tau 0.3 / g5 rule is never more than 2% wider than pooled at any J and keeps most of the cells gain at J 0.55 or above. Refuted if forced cells are narrower than pooled by over 3% at s = -0.5, or if cells are not at least 15% narrower at s = 0.6.
