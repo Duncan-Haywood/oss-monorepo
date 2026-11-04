@@ -23,5 +23,7 @@
   "source": "docs/history/pages-test-perf-2026-11-04-per-file-reading.md",
   "pr": null,
   "result": null,
-  "history": []
+  "history": [
+    "2026-11-04 perf run: /compare/ and /guides/ tests in build.test.mjs share one fixture build, ~25 s of 380 s warm; docs/history/pages-test-perf-2026-11-04-hub-fixture-shared.md"
+  ]
 }
