@@ -1,7 +1,7 @@
 ---
 title: "A better significance bar still cannot see the productivity slowdown"
 date: 2026-11-04
-description: "The changepoint detector dates the 1973 US productivity slowdown correctly on quarterly and annual data, and still refuses to call it significant. That is the honest answer."
+description: "The changepoint detector dates the 1973 US productivity slowdown right on quarterly and annual data, yet will not call it significant. That is the honest answer."
 tags: [changepoint-detector, negative-result]
 ---
 
