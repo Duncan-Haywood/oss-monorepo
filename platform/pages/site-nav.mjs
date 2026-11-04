@@ -132,8 +132,10 @@ const esc = (value) =>
  *   hub's search, or nothing (default: the form, except on the hub itself)
  * @param {Array<{href?: string, label: string}>} [o.crumbs] breadcrumb trail after "Home"
  * @param {string} [o.extraClass] extra classes (the venture chrome adds its marker)
+ * @param {boolean} [o.menu] the "Menu" disclosure with every secondary page
+ *   (default: on, except on venture pages; see SITE_MENU)
  */
-export function renderSiteHeader({ toRoot = '', current = '', search, crumbs = [], extraClass = '' } = {}) {
+export function renderSiteHeader({ toRoot = '', current = '', search, crumbs = [], extraClass = '', menu } = {}) {
   const root = toRoot || './';
   const mode = search ?? (current === 'home' ? false : true);
   const items = SITE_NAV.map(
@@ -164,43 +166,115 @@ export function renderSiteHeader({ toRoot = '', current = '', search, crumbs = [
   // jobs.mjs find the venture chrome by its exact opening tag,
   // `<nav class="pf-chrome pf-chrome-top"`, so a venture page's header carries
   // that class attribute and nothing added to it.
-  return `<nav class="${extraClass || 'pfs-head'}" aria-label="Site" ${HEADER_MARKER}><span class="pfs-bar"><a class="pfs-brand" href="${esc(root)}" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>${esc(SITE_NAME)}</a><span class="pfs-nav">${items}</span>${searchHtml}</span>${crumbHtml}</nav>`;
+  return `<nav class="${extraClass || 'pfs-head'}" aria-label="Site" ${HEADER_MARKER}><span class="pfs-bar"><a class="pfs-brand" href="${esc(root)}" data-pf-to="hub"><span class="pfs-mark" aria-hidden="true"></span>${esc(SITE_NAME)}</a><span class="pfs-nav">${items}</span>${searchHtml}${
+    (menu ?? !extraClass) ? renderSiteMenu(toRoot) : ''
+  }</span>${crumbHtml}</nav>`;
 }
 
 /**
- * The shared footer link row for site-owned pages. Each page keeps its own
- * disclaimer above it; this is the "where else can I go" half, plus the
- * support line, so every page that carries the row carries that too.
+ * Every secondary page, grouped, for the header's "Menu".
+ *
+ * These 24 links used to be the footer: one grid at the bottom of every
+ * site-owned page (owner, 2026-11-04: "the material at the bottom gets moved
+ * to a real menu"). A visitor had to scroll past the whole page to find the
+ * blog's feed, the work queue or the deploy page, and pages without the
+ * footer (deploy/, dev/) had no way to them at all. Now they sit in the
+ * header, which every site-owned page carries, under five headings.
+ *
+ * Venture pages leave it out (`menu` defaults off there): two venture scripts
+ * select the page's first `details`, and the venture footer already carries
+ * the links a tool's visitor needs.
+ */
+export const SITE_MENU = Object.freeze([
+  Object.freeze({
+    heading: 'Tools',
+    links: [
+      ['c/', 'All tools by category'],
+      ['guides/', 'Guides'],
+      ['compare/', 'Comparisons'],
+      ['lab/', 'Lab'],
+      ['deploy/', 'Deploy your own copy'],
+    ],
+  }),
+  Object.freeze({
+    heading: 'Read and listen',
+    links: [
+      ['research/', 'Research'],
+      ['writing/', 'Blog'],
+      ['writing/podcast/', 'Podcast'],
+      ['stories/', 'Stories'],
+      ['updates/', 'Updates &amp; roadmap'],
+      ['changelog/', 'Changelog'],
+    ],
+  }),
+  Object.freeze({
+    heading: 'Work with us',
+    links: [
+      ['custom-development/', 'Request custom development'],
+      ['feedback/', 'Report a problem or suggest a feature'],
+      ['ask/', 'Ask a question'],
+      ['about/', 'About &amp; press kit'],
+    ],
+  }),
+  Object.freeze({
+    heading: 'Behind the scenes',
+    links: [
+      ['queue/', 'Work queue'],
+      ['engineering/', 'Engineering status'],
+      ['dev/', 'Development dashboard'],
+      ['dev/daily/', 'Daily brief &amp; The Merge Report'],
+      [REPO_URL, 'Source on GitHub'],
+    ],
+  }),
+  Object.freeze({
+    heading: 'For machines',
+    links: [
+      ['catalog.json', 'Machine-readable catalog'],
+      ['llms.txt', 'llms.txt'],
+      ['sitemap.xml', 'Sitemap'],
+      ['feed.xml', 'New tools feed'],
+      ['changelog/feed.xml', 'Changelog feed'],
+    ],
+  }),
+]);
+
+/**
+ * The header's "Menu": a `<details>` disclosure, so it opens and closes with
+ * no script, from the keyboard, and with the page's scripts blocked. Links
+ * carry `data-pfs-menu`, not `data-pfs-nav`, so the primary nav stays exactly
+ * `SITE_NAV`.
+ */
+export function renderSiteMenu(toRoot = '') {
+  const groups = SITE_MENU.map(
+    (group) =>
+      `<div class="pfs-menu-group" role="group" aria-label="${esc(group.heading)}"><span class="pfs-menu-h" aria-hidden="true">${esc(group.heading)}</span>${group.links
+        .map(([href, label]) => `<a data-pfs-menu href="${esc(/^https?:/.test(href) ? href : `${toRoot}${href}`)}">${label}</a>`)
+        .join('')}</div>`,
+  ).join('');
+  return `<details class="pfs-menu"><summary><span class="pfs-burger" aria-hidden="true"></span>Menu</summary><div class="pfs-menu-panel">${groups}</div></details><script>${MENU_JS}</script>`;
+}
+
+/**
+ * The one behaviour `<details>` lacks: closing on Escape (focus back on the
+ * button) and on a click outside the menu. Without it the menu still works;
+ * it just stays open until its own button is pressed.
+ */
+const MENU_JS = `(function(){var m=document.currentScript&&document.currentScript.previousElementSibling;if(!m||!m.matches||!m.matches('details.pfs-menu'))return;function shut(f){if(!m.open)return;m.open=false;if(f)m.querySelector('summary').focus();}document.addEventListener('keydown',function(e){if(e.key==='Escape')shut(m.contains(document.activeElement));});document.addEventListener('click',function(e){if(!m.contains(e.target))shut(false);});})();`;
+
+/**
+ * The shared footer for site-owned pages. Each page keeps its own disclaimer
+ * above it; this adds the support line and one short line of essentials. The
+ * full link index that used to live here is the header's "Menu" (SITE_MENU).
  */
 export function renderSiteFooterNav({ toRoot = '' } = {}) {
   const links = [
-    ['c/', 'All tools by category'],
-    ['research/', 'Research'],
-    ['writing/', 'Blog'],
-    ['writing/podcast/', 'Podcast'],
-    ['stories/', 'Stories'],
-    ['updates/', 'Updates &amp; roadmap'],
-    ['changelog/', 'Changelog'],
-    ['queue/', 'Work queue'],
-    ['guides/', 'Guides'],
-    ['compare/', 'Comparisons'],
-    ['deploy/', 'Deploy your own copy'],
-    ['about/', 'About &amp; press kit'],
-    ['lab/', 'Lab'],
-    ['feedback/', 'Report a problem or suggest a feature'],
+    ['feedback/', 'Report a problem'],
     ['custom-development/', 'Request custom development'],
-    ['engineering/', 'Engineering status'],
-    ['dev/', 'Development dashboard'],
-    ['dev/daily/', 'Daily brief &amp; The Merge Report'],
-    ['catalog.json', 'Machine-readable catalog'],
-    ['llms.txt', 'llms.txt'],
-    ['sitemap.xml', 'Sitemap'],
-    ['feed.xml', 'New tools feed'],
-    ['changelog/feed.xml', 'Changelog feed'],
+    ['about/', 'About &amp; privacy'],
   ];
   return `<p class="pfs-support">${sponsorsNote()}</p><p class="pfs-foot">${links
     .map(([href, label]) => `<a href="${esc(`${toRoot}${href}`)}">${label}</a>`)
-    .join('<span aria-hidden="true"> · </span>')}<span aria-hidden="true"> · </span><a href="${REPO_URL}">Source on GitHub</a></p><p class="pfs-foot">A ${esc(SITE_NAME)} project, MIT licensed.</p>`;
+    .join('<span aria-hidden="true"> · </span>')}<span aria-hidden="true"> · </span><a href="${REPO_URL}">Source on GitHub</a><span aria-hidden="true"> · </span>A ${esc(SITE_NAME)} project, MIT licensed.</p>`;
 }
 
 /**
@@ -241,6 +315,26 @@ export const SITE_HEADER_CSS = `
 .pfs-search{--pfs-glass:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 21 21'/%3E%3C/svg%3E")}
 [data-pfs-head] .pfs-searchlink{display:none;font-weight:600}
 [data-pfs-head] .pfs-searchlink.pfs-always{display:inline-block}
+.pfs-bar{position:relative}
+.pfs-menu{position:static;margin:0;padding:0;border:0;flex:none}
+.pfs-menu>summary{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border:1px solid var(--pfs-line,rgba(128,128,128,.5));
+  border-radius:999px;font-weight:600;cursor:pointer;list-style:none;user-select:none;white-space:nowrap}
+.pfs-menu>summary::-webkit-details-marker{display:none}
+.pfs-menu>summary:hover{border-color:var(--pfs-accent,currentColor)}
+.pfs-menu[open]>summary{border-color:var(--pfs-accent,currentColor);color:var(--pfs-ink,inherit)}
+.pfs-burger{position:relative;display:inline-block;width:14px;height:2px;background:currentColor;border-radius:2px}
+.pfs-burger::before,.pfs-burger::after{content:"";position:absolute;left:0;width:14px;height:2px;background:currentColor;border-radius:2px}
+.pfs-burger::before{top:-5px}.pfs-burger::after{top:5px}
+.pfs-menu[open] .pfs-burger{background:transparent}
+.pfs-menu[open] .pfs-burger::before{top:0;transform:rotate(45deg)}
+.pfs-menu[open] .pfs-burger::after{top:0;transform:rotate(-45deg)}
+.pfs-menu-panel{position:absolute;z-index:60;top:calc(100% + 1px);right:16px;width:min(860px,calc(100% - 32px));
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:18px 24px;padding:20px 22px;
+  background:var(--pfs-panel,Canvas);color:var(--pfs-ink,CanvasText);border:1px solid var(--pfs-line,rgba(128,128,128,.4));
+  border-radius:14px;box-shadow:0 18px 40px rgba(10,20,40,.18)}
+.pfs-menu-group{display:flex;flex-direction:column;gap:7px;min-width:0}
+.pfs-menu-h{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--pfs-muted,inherit)}
+[data-pfs-head] .pfs-menu-group a{font-size:14px;line-height:1.35;overflow-wrap:anywhere}
 .pfs-vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .pfs-crumbs{display:block;max-width:1120px;margin:0 auto;padding:0 16px 9px;font-size:13px;color:var(--pfs-muted,inherit);
   overflow-wrap:anywhere}
@@ -261,6 +355,9 @@ export const SITE_HEADER_CSS = `
 @media (max-width:720px){
   .pfs-bar{gap:6px 14px;padding:9px 16px}
   [data-pfs-head] .pfs-brand{flex:1 1 auto}
+  .pfs-menu>summary{padding:4px 10px}
+  .pfs-menu-panel{left:16px;right:16px;width:auto;top:44px;max-height:calc(100vh - 90px);overflow-y:auto;
+    grid-template-columns:repeat(auto-fill,minmax(140px,1fr));padding:16px 18px}
   .pfs-search{display:none}
   [data-pfs-head] .pfs-searchlink{display:inline-block}
   .pfs-nav{order:3;flex-basis:100%;gap:2px 18px;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;
@@ -418,8 +515,8 @@ const SITE_TOKENS_CSS = `
 
 /**
  * The footer: a dark full-width band closing every site-owned page, the
- * homepage hero's field mirrored at the bottom, with the link row laid out as
- * a grid rather than one run-on dotted line.
+ * homepage hero's field mirrored at the bottom, closing on one short line of
+ * essentials (the full link index is the header's Menu).
  *
  * It selects the footer that holds `renderSiteFooterNav`'s row, so every
  * renderer gets it without a class of its own. Like `.pf-hero` it is dark in
@@ -441,9 +538,7 @@ footer:has(.pfs-foot) h2,footer:has(.pfs-foot) strong{color:#eef2f8}
 .pfs-foot{margin:18px 0 0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.9}
 .pfs-foot a,.pfs-support a{color:var(--pfs-accent)}
 .pfs-support{margin:18px 0 0;font-size:14px;line-height:1.6}
-footer .pfs-foot{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:4px 24px;
-  margin-top:26px;padding-top:22px;border-top:1px solid rgba(148,170,210,.24);line-height:1.6}
-footer .pfs-foot>span{display:none}
+footer .pfs-foot{margin-top:26px;padding-top:22px;border-top:1px solid rgba(148,170,210,.24);line-height:1.8;color:var(--soft)}
 footer .pfs-foot+*{margin-top:16px}
 footer .pfs-foot a{text-decoration:none}
 footer .pfs-foot a:hover,footer .pfs-foot a:focus-visible{text-decoration:underline;text-underline-offset:3px}
