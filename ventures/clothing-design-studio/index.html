@@ -291,8 +291,10 @@
           <div><label for="sh-ship">Shipping terms</label><input id="sh-ship" type="text" placeholder="Where from, cost, how long"></div>
           <div><label for="sh-ret">Returns terms</label><input id="sh-ret" type="text" placeholder="Your returns and cancellation terms"></div>
         </div>
+        <p class="muted">The shop holds the designs on its shelf. Put the current design on the shelf (with the payment link above for this product), change the design, add the next one. Same name replaces. With an empty shelf the download holds the current design alone. The shelf stays in this browser.</p>
+        <ul id="sh-shelf" class="muted"></ul>
         <output id="sh-out" aria-live="polite"></output>
-        <div class="bar"><button class="btn small" type="button" id="sh-dl">Download storefront (HTML)</button></div>
+        <div class="bar"><button class="btn small" type="button" id="sh-add">Put this design on the shelf</button> <button class="btn small" type="button" id="sh-dl">Download storefront (HTML)</button></div>
       </section>
 
       <section aria-labelledby="h-mkt">
@@ -367,6 +369,7 @@
     import { techPack, techPackHtml, quoteRequest } from "./techpack.mjs";
     import { launchKit } from "./launchkit.mjs";
     import { storefront } from "./storefront.mjs";
+    import { addToShelf, removeFromShelf, shelfToShop, loadShelf } from "./shelf.mjs";
     import { marketingPlan, calendarCsv, learnFromTest, DEFAULT_ASSUMPTIONS } from "./marketing.mjs";
     import { separate, films, previewRgba, separationBrief } from "./separation.mjs";
     import { recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -656,13 +659,31 @@
     const SHOP_KEY = "clothing-design-studio-shop";
     const shopFields = { brand: "#sh-brand", email: "#sh-email", currency: "#sh-cur", link: "#sh-link", shipping: "#sh-ship", returns: "#sh-ret" };
     const shopState = () => Object.fromEntries(Object.entries(shopFields).map(([k, sel]) => [k, $(sel).value]));
+    const SHELF_KEY = "clothing-design-studio-shelf";
+    let shelf = loadShelf(store.get(SHELF_KEY), sanitizeDesign);
     const buildShop = () => {
       const o = shopState();
-      return storefront([d()], { brand: o.brand, email: o.email, currency: o.currency, shipping: o.shipping, returns: o.returns, paymentLinks: o.link ? { [d().name]: o.link } : {} });
+      const { designs, paymentLinks } = shelf.length ? shelfToShop(shelf) : { designs: [d()], paymentLinks: o.link ? { [d().name]: o.link } : {} };
+      return storefront(designs, { brand: o.brand, email: o.email, currency: o.currency, shipping: o.shipping, returns: o.returns, paymentLinks });
     };
-    const showShop = () => { const r = buildShop(); $("#sh-out").textContent = r.warnings.length ? "Before you publish: " + r.warnings.join(" ") : "Ready to download."; store.set(SHOP_KEY, shopState()); };
-    { const saved = store.get(SHOP_KEY) ?? {}; for (const [k, sel] of Object.entries(shopFields)) { if (saved[k]) $(sel).value = saved[k]; $(sel).addEventListener("input", showShop); } showShop(); }
-    $("#sh-dl").addEventListener("click", () => { download(`${slugify(d().name)}-store.html`, buildShop().html, "text/html"); recordUsage("storefront_download"); });
+    const showShelf = () => {
+      const ul = $("#sh-shelf"); ul.textContent = "";
+      for (const e of shelf) {
+        const li = document.createElement("li");
+        li.textContent = `${e.design.name} (${e.design.price}) ${e.link ? "· payment link set " : "· order by email "}`;
+        const b = document.createElement("button"); b.type = "button"; b.className = "btn small"; b.textContent = "Remove";
+        b.addEventListener("click", () => { shelf = removeFromShelf(shelf, e.design.name); store.set(SHELF_KEY, shelf); showShelf(); showShop(); });
+        li.append(b); ul.append(li);
+      }
+    };
+    const showShop = () => { const r = buildShop(); $("#sh-out").textContent = (r.warnings.length ? "Before you publish: " + r.warnings.join(" ") : "Ready to download.") + ` (${r.products.length} ${r.products.length === 1 ? "product" : "products"})`; store.set(SHOP_KEY, shopState()); };
+    { const saved = store.get(SHOP_KEY) ?? {}; for (const [k, sel] of Object.entries(shopFields)) { if (saved[k]) $(sel).value = saved[k]; $(sel).addEventListener("input", showShop); } showShelf(); showShop(); }
+    $("#sh-add").addEventListener("click", () => {
+      const r = addToShelf(shelf, d(), $("#sh-link").value);
+      if (r.full) { $("#sh-out").textContent = "The shelf is full (24 designs). Remove one first."; return; }
+      shelf = r.shelf; store.set(SHELF_KEY, shelf); showShelf(); showShop(); recordUsage("storefront_shelf_add");
+    });
+    $("#sh-dl").addEventListener("click", () => { download(`${shelf.length > 1 ? "shop" : slugify(d().name)}-store.html`, buildShop().html, "text/html"); recordUsage("storefront_download"); });
     $("#lk-csv").addEventListener("click", () => { download(`${slugify(d().name)}-products.csv`, launchKit(d()).storeCsv, "text/csv"); recordUsage("store_csv"); });
     $("#share").addEventListener("click", () => {
       const url = `${location.href.split("#")[0]}#d=${encodeDesign(d())}`;
