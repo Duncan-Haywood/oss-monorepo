@@ -16,8 +16,10 @@
   "cost_usd": null,
   "tool_calls": null,
   "task": null,
-  "projects": [],
-  "pr": null,
+  "projects": [
+    "research/marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12966",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +28,25 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Chose a paper-fold step rather than new experiment; low-risk given limited time",
+      "did": "folded logged results into draft",
+      "result": "landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-04-glider-vs-auv-range-days-and-currents.md",
+    "research/marine-hull/LOG.md (7m)",
+    "research/marine-hull/paper/DRAFT.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Prose-only milestone 7m: folded 4c-4g into paper draft. Build ok. Modest step; no experiment run. Runcost not attached.",
   "corrections": [],
   "redteam": null
 }
