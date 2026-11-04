@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b7e5c'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EY%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Youth lineup planner vs. a whiteboard or spreadsheet rotation</title>
+  <meta name="description" content="Whiteboard, spreadsheet or free lineup planner? Where a hand-made rotation works for youth sports and where counting bench turns, late arrivals and goalkeeper turns is easier done for you.">
+  <link rel="canonical" href="./vs-a-whiteboard-or-spreadsheet-rotation.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is a hand-written rotation on a whiteboard good enough?", "acceptedAnswer": {"@type": "Answer", "text": "For a roster that divides evenly into the field spots it often is. It gets error-prone when the numbers do not divide (for example 11 players for 7 spots), when a child arrives late or leaves early, or when you also want to share the goalkeeper job and avoid benching anyone twice in a row. Those are the cases where a counted plan beats a remembered one."}}, {"@type": "Question", "name": "What does the planner add over a spreadsheet?", "acceptedAnswer": {"@type": "Answer", "text": "It does the counting for you: it spreads bench turns so nobody plays more than one period more than anybody else (when nobody is absent or restricted), avoids back-to-back benching where the numbers allow, limits goalkeeper turns, and names any child it could not help. A spreadsheet can hold the same plan, but you build the rules yourself."}}, {"@type": "Question", "name": "Can I still print it for the sideline?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The page has a printable sideline sheet, a copy-as-text option for the team chat, a CSV export, and a short note per family."}}, {"@type": "Question", "name": "Does it remember last week so the same kids are not benched again?", "acceptedAnswer": {"@type": "Answer", "text": "Only if you paste it in. The Copy next game's roster button writes a sat: count for each child who sat, and pasting that into the next game's roster puts those children first in line to play. Nothing is stored on a server."}}, {"@type": "Question", "name": "Is anything uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The planner runs in your browser with no account, no upload and no network request for your roster."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b2a20; background: #f3f8f4; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #1f6b3a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #134a29; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #134a29; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46584b; }
+    .card { background: #fff; border: 1px solid #cfe2d4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #134a2912; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=text], input[type=date], select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5f7a67; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 96px; resize: vertical; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f6b3a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #deeee3; color: #134a29; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .bad { background: #fbe0e0; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #6b1212; }
+    .reveal { text-align: center; }
+    .reveal .who { font-size: clamp(2rem, 7vw, 3.2rem); font-weight: 800; color: #1f6b3a; margin: 10px 0; overflow-wrap: anywhere; }
+    .names { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .names button { margin: 0; }
+    .names button.done { text-decoration: line-through; opacity: .5; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #deeee3; }
+    .grid th, .grid td { font-size: .88rem; }
+    .bench { color: #5a6b5f; }
+    .pill { display:inline-block; padding:1px 8px; border-radius:99px; background:#deeee3; font-size:.8rem; }
+    @media print { .noprint, button, footer, .card.setup { display: none !important; } body { padding: 0; background: #fff; } }
+    footer { margin-top: 28px; border-top: 1px solid #cfe2d4; padding-top: 16px; }
+    code { background: #e8f2eb; padding: 1px 5px; border-radius: 4px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="./index.html">Youth Lineup Rotator</a> · comparison</p>
+  <h1>Youth lineup planner vs. a whiteboard or spreadsheet rotation</h1>
+  <p>Most volunteer coaches plan rotations by hand: a whiteboard, a notes app or a spreadsheet. That works well when the numbers are tidy. This page says where it stops working and what the free planner does instead.</p>
+  <section class="card">
+  <h2>Where each one fits</h2>
+  <table>
+    <thead><tr><th>Situation</th><th>Hand-made rotation</th><th>This planner</th></tr></thead>
+    <tbody>
+      <tr><td>Roster divides evenly into field spots</td><td>Easy and quick.</td><td>Works, but you gain little.</td></tr>
+      <tr><td>Roster does not divide evenly (11 players, 7 spots)</td><td>You count player-periods and track who has had extra time.</td><td>Spreads bench turns so nobody plays more than one period more than anyone else, when nobody is absent or restricted.</td></tr>
+      <tr><td>Nobody benched twice in a row</td><td>You check each child by eye.</td><td>Avoids it where the numbers allow.</td></tr>
+      <tr><td>Late arrival or early leaver</td><td>Redo the plan on the sideline.</td><td>Type <code>late: 1</code> or <code>leaves: 3</code>; only the periods they are there are counted.</td></tr>
+      <tr><td>Goalkeeper turns</td><td>Easy to leave one child in goal.</td><td>At most one period per child by default; says who must repeat if too few are allowed in goal.</td></tr>
+      <tr><td>Fair across the season</td><td>Rely on memory.</td><td>Copy next game's roster writes <code>sat:</code> counts; paste them in and those children play first.</td></tr>
+      <tr><td>Sideline printout and team chat message</td><td>Photograph the board.</td><td>Printable sheet, copy as text, CSV and a note per family.</td></tr>
+      <tr><td>Fully custom rules your league invented</td><td>Flexible: you can do anything.</td><td>Covers positions, skill, restrictions and minimum play; anything else you adjust by hand.</td></tr>
+    </tbody>
+  </table>
+  </section>
+  <p>New to the arithmetic? Read <a href="./how-to-give-every-kid-equal-playing-time.html">how to give every kid equal playing time</a>, or go straight to the <a href="./index.html">planner</a>.</p>
+  <h2>Common questions</h2>
+  <h3>Is a hand-written rotation on a whiteboard good enough?</h3>
+  <p>For a roster that divides evenly into the field spots it often is. It gets error-prone when the numbers do not divide (for example 11 players for 7 spots), when a child arrives late or leaves early, or when you also want to share the goalkeeper job and avoid benching anyone twice in a row. Those are the cases where a counted plan beats a remembered one.</p>
+  <h3>What does the planner add over a spreadsheet?</h3>
+  <p>It does the counting for you: it spreads bench turns so nobody plays more than one period more than anybody else (when nobody is absent or restricted), avoids back-to-back benching where the numbers allow, limits goalkeeper turns, and names any child it could not help. A spreadsheet can hold the same plan, but you build the rules yourself.</p>
+  <h3>Can I still print it for the sideline?</h3>
+  <p>Yes. The page has a printable sideline sheet, a copy-as-text option for the team chat, a CSV export, and a short note per family.</p>
+  <h3>Does it remember last week so the same kids are not benched again?</h3>
+  <p>Only if you paste it in. The Copy next game's roster button writes a sat: count for each child who sat, and pasting that into the next game's roster puts those children first in line to play. Nothing is stored on a server.</p>
+  <h3>Is anything uploaded?</h3>
+  <p>No. The planner runs in your browser with no account, no upload and no network request for your roster.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. This is general guidance for volunteer coaches, not league-rules, safety or legal advice; follow your league's own minimum-play rules. <strong>You are responsible for reviewing the plan before relying on it.</strong></p>
+    <p><strong>Nothing leaves your browser.</strong> The planner runs client-side, with no account and no upload.</p>
+    <p class="support">Free and open source under an MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional.</p>
+  </footer>
+</main>
+</body>
+</html>
