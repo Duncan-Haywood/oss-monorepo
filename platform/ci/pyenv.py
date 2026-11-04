@@ -246,8 +246,8 @@ def main(argv=None):
         return 1
     default = shutil.which("python3")
     if default and os.path.realpath(default) == os.path.realpath(py):
-        print(f"pyenv: {py} is the default python3; plain python3 imports them too",
-              file=sys.stderr)
+        print(f"pyenv: interpreter {py} (also the default python3, so plain python3 imports them too); "
+              "stdout carries this path, capture it with PY=$(...)", file=sys.stderr)
     print(py)
     return 0
 
