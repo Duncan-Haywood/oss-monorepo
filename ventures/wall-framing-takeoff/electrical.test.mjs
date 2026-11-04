@@ -68,3 +68,17 @@ test("layoutElectrical with layouts snaps and reports it", () => {
   assert.ok(electricalText(r).some((l) => /stud side/.test(l)));
   assert.equal(layoutElectrical({}, plan).spaces[0].snapped, false);
 });
+
+test("cable holes by hand: studs between neighbouring receptacle boxes, per face", () => {
+  // 300 in wall -> 3 boxes at 50, 150, 250 (ideal); studs 16 in o.c. every 16 in. Layout given by hand: studs at x=0,100,200 (1.5 wide).
+  const plan = { walls: [{ id: "A", length: 300, sheathed: true }] };
+  const studs = [0, 100, 200, 298.5].map((x) => ({ kind: "stud", orient: "v", x, w: 1.5 }));
+  const r = layoutElectrical({ maxSpacing: 144 }, plan, { A: { members: studs } });
+  assert.equal(r.ok, true);
+  const at = r.spaces[0].receptacles;
+  const expect = studs.filter((m) => at.some((a, i) => i && m.x + 0.75 > at[i - 1] + 1.125 && m.x + 0.75 < a - 1.125)).length;
+  assert.equal(r.cableHoles, expect);
+  assert.ok(r.cableHoles >= 1);
+  assert.equal(layoutElectrical({}, plan).cableHoles, null);
+  assert.match(electricalText(r).join("\n"), /Cable holes: about \d+ studs bored/);
+});

@@ -112,7 +112,7 @@ export function layoutElectrical(d, plan, layouts) {
   /** @type {{ wall: string, face: number, receptacles: number[], space: number, snapped: boolean, overRule: boolean }[]} */ const spaces = [];
   /** @type {string[]} */ const notes = [];
   const perWall = [];
-  let receptacles = 0, switches = 0;
+  let receptacles = 0, switches = 0, holes = 0;
   for (const w of plan.walls) {
     if (skip.has(w.id)) continue;
     const faces = w.sheathed === false ? 2 : 1;
@@ -131,6 +131,11 @@ export function layoutElectrical(d, plan, layouts) {
         at = sn.at; snapped = sn.snapped; overRule = sn.snapped && sn.worst > maxSp + 1e-9;
         if (overRule) notes.push(`${w.id}: the stud-side positions leave a point more than ${maxSp / 24} ft from a box in the wall space starting at ${sp.start.toFixed(0)} in; add a box or set the box by hand.`);
       }
+      if (lay && at.length > 1) {
+        // A cable run between neighbouring boxes bores each full-height stud between them (one 3/4 in hole at mid-height).
+        const studs = lay.members.filter((m) => m.orient === "v" && (m.kind === "stud" || m.kind === "king" || m.kind === "jack"));
+        for (let i = 1; i < at.length; i++) holes += studs.filter((m) => m.x + m.w / 2 > at[i - 1] + BOX / 2 && m.x + m.w / 2 < at[i] - BOX / 2).length * faces;
+      }
       for (let f = 1; f <= faces; f++) spaces.push({ wall: w.id, face: f, receptacles: at, space: len, snapped, overRule });
       r += n * faces;
     }
@@ -144,7 +149,7 @@ export function layoutElectrical(d, plan, layouts) {
   const cableRolls = boxes ? Math.ceil(cableFt * (1 + waste) / roll - 1e-9) : 0;
   const priced = ["receptaclePrice", "switchPrice", "boxPrice", "cablePrice"].some((k) => /** @type {any} */ (d)[k] != null);
   const cost = priced ? receptacles * (d.receptaclePrice ?? 0) + switches * (d.switchPrice ?? 0) + boxes * (d.boxPrice ?? 0) + cableRolls * (d.cablePrice ?? 0) : null;
-  return { ok: true, errors: [], maxSpacing: maxSp, minSpace: minSp, receptacles, switches, boxes, cableFt, waste, cableRoll: roll, cableRolls, perWall, spaces, notes, cost, prices: { receptacle: d.receptaclePrice ?? null, switch: d.switchPrice ?? null, box: d.boxPrice ?? null, cableRoll: d.cablePrice ?? null } };
+  return { ok: true, errors: [], maxSpacing: maxSp, minSpace: minSp, receptacles, switches, boxes, cableFt, waste, cableRoll: roll, cableRolls, cableHoles: layouts ? holes : null, perWall, spaces, notes, cost, prices: { receptacle: d.receptaclePrice ?? null, switch: d.switchPrice ?? null, box: d.boxPrice ?? null, cableRoll: d.cablePrice ?? null } };
 }
 
 /** @param {any} t */
@@ -153,6 +158,7 @@ export function electricalText(t) {
   l.push(`  ${t.receptacles} receptacle boxes (no point on a wall space of ${t.minSpace} in or more is over ${t.maxSpacing / 2 / 12} ft from one), ${t.switches} switch boxes: ${t.boxes} boxes in all.`);
   for (const w of t.perWall) if (w.receptacles || w.switches) l.push(`    ${w.id}: ${w.receptacles} receptacles, ${w.switches} switches`);
   l.push(`  Cable estimate: ${t.cableFt.toFixed(0)} ft plus ${(100 * t.waste).toFixed(0)}% waste -> ${t.cableRolls} rolls of ${t.cableRoll} ft${t.cost != null ? `; cost ${t.cost.toFixed(2)}` : ""}.`);
+  if (t.cableHoles != null) l.push(`  Cable holes: about ${t.cableHoles} studs bored (3/4 in, between neighbouring receptacle boxes; switch runs not counted); a 3/4 in hole is inside the 2x4 bearing limit (--drilling checks other sizes).`);
   if (t.spaces.some((/** @type {any} */ s) => s.snapped)) l.push("  Receptacle positions are the nearest stud side (boxes nail to a full-height stud, king or jack); inches from the wall start are in the JSON result.");
   for (const n of t.notes || []) l.push(`  Note: ${n}`);
   l.push("  Kitchens, baths, garages, hallways, closets, stairs, alarms, fixtures, the panel and local code amendments are not counted; the cable length per box is a typed estimate.");
