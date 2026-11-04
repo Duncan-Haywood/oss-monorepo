@@ -211,6 +211,19 @@
           <button class="btn small" type="button" id="sep-tradeoff" disabled>How many inks is it worth?</button>
         </div>
         <div id="sep-out" aria-live="polite"></div>
+        <h3 id="h-halftone">Or keep the shading: halftone one ink</h3>
+        <p class="muted">Dots instead of flat colour, for a photo or shaded painting printed in one ink. Uses the painting chosen above.</p>
+        <div class="row3">
+          <div><label for="ht-lpi">Lines per inch (35 to 55 is usual)</label><input id="ht-lpi" type="number" min="15" max="85" step="1" value="45"></div>
+          <div><label for="ht-angle">Screen angle (degrees)</label><input id="ht-angle" type="number" min="0" max="89" step="1" value="45"></div>
+          <div><label for="ht-mesh">Mesh count (blank = suggested)</label><input id="ht-mesh" type="number" min="60" max="400" step="10" placeholder="auto"></div>
+        </div>
+        <div class="bar">
+          <select id="ht-tone" aria-label="Which pixels get big dots"><option value="dark">Dark ink on a light garment</option><option value="light">Light ink on a dark garment</option></select>
+          <button class="btn small" type="button" id="ht-run" disabled>Make halftone film</button>
+          <button class="btn small" type="button" id="ht-film" disabled>Download film (SVG)</button>
+        </div>
+        <div id="ht-out" aria-live="polite"></div>
       </section>
 
       <section aria-labelledby="h-cost">
@@ -391,6 +404,7 @@
     import { marketingPlan, calendarCsv, learnFromTest, channelSplit, DEFAULT_ASSUMPTIONS } from "./marketing.mjs";
     import { inkTradeoff } from "./inktradeoff.mjs";
     import { separate, films, previewRgba, separationBrief } from "./separation.mjs";
+    import { halftone, halftoneSvg, halftoneBrief } from "./halftone.mjs";
     import { recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = s => document.querySelector(s);
@@ -740,7 +754,7 @@
         <p><strong>${sp.screens} screens</strong> (${sp.inks.length} inks${sp.underbase ? " + white underbase" : ""}) at ${sp.widthCm} x ${sp.heightCm} cm. Raised outline covers ${sp.raised.coveragePct}%.</p>
         <ol>${sp.inks.map(i => `<li><span style="display:inline-block;width:1em;height:1em;background:${i.hex};border:1px solid #888;vertical-align:-2px"></span> ${i.hex}: ${i.coveragePct}% of the artwork${i.thinSharePct >= 10 ? `, ${i.thinSharePct}% too fine` : ""}</li>`).join("")}</ol>
         <ul class="muted">${sp.notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>`;
-      for (const id of ["#sep-brief", "#sep-films", "#sep-apply", "#sep-tradeoff"]) $(id).disabled = false;
+      for (const id of ["#sep-brief", "#sep-films", "#sep-apply", "#sep-tradeoff", "#ht-run"]) $(id).disabled = false;
     }
     $("#sep-file").addEventListener("change", e => {
       const file = e.target.files[0];
@@ -781,6 +795,24 @@
         recordUsage("separation_tradeoff");
       } catch (e) { $("#sep-out").insertAdjacentHTML("beforeend", `<p class="miss">${esc(e.message)}</p>`); }
     });
+
+    // ---- halftone ----
+    let lastHt = null;
+    $("#ht-run").addEventListener("click", () => {
+      if (!lastPixels) return;
+      try {
+        lastHt = halftone(lastPixels, { widthCm: $("#sep-width").value, lpi: $("#ht-lpi").value, angle: $("#ht-angle").value, mesh: $("#ht-mesh").value, tone: $("#ht-tone").value, dpi: 400, maxPixels: 1500000 });
+      } catch (e) { $("#ht-out").innerHTML = `<p class="miss">${esc(e.message)}</p>`; return; }
+      const h = lastHt, c = document.createElement("canvas");
+      c.width = h.width; c.height = h.height;
+      const px = new Uint8ClampedArray(h.width * h.height * 4);
+      for (let i = 0; i < h.mask.length; i++) { const v = h.mask[i] ? 0 : 255; px[i * 4] = px[i * 4 + 1] = px[i * 4 + 2] = v; px[i * 4 + 3] = 255; }
+      c.getContext("2d").putImageData(new ImageData(px, h.width, h.height), 0, 0);
+      $("#ht-out").innerHTML = `<img alt="Halftone film preview, black dots are ink" src="${c.toDataURL()}" style="max-width:100%;border:1px solid #888"><pre class="muted" style="white-space:pre-wrap">${esc(halftoneBrief(h))}</pre>`;
+      $("#ht-film").disabled = false;
+      recordUsage("halftone_film");
+    });
+    $("#ht-film").addEventListener("click", () => { if (lastHt) { download("halftone-film.svg", halftoneSvg(lastHt), "image/svg+xml"); recordUsage("halftone_download"); } });
 
     // variants
     function showVariants() {
