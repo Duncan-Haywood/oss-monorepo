@@ -559,10 +559,12 @@ function sheatheGables(plan, result, cfg, sheets, notes) {
       cutOut += area(open, 1);
       panels.push({ id: `${w.id}-${i + 1}`, x0: a, x1: b, width: b - a, height, bandHeights: courses.map((c) => c.y1 - c.y0), cutouts: ops.filter((op) => Math.min(b, op.offset + op.width) - Math.max(a, op.offset) > EPS).map((op) => op.label || op.kind), sheets: courses.map((c) => c.sheet.label || `${formatInches(c.sheet.width)} x ${formatInches(c.sheet.length)}`) });
       courses.forEach((c, ci) => {
-        // The top course is a trapezoid; two of them can nest when neither straddles the peak and the roof line stays above the course's bottom.
+        // The top course is a trapezoid; two of them can nest when it may straddle the peak (a three-point top) and the roof line stays above the course's bottom.
         const e1 = topAt(a) - c.y0, e2 = topAt(b) - c.y0;
-        const nestable = ci === courses.length - 1 && !(mid > a && mid < b) && Math.min(e1, e2) > EPS;
-        units.push({ panel: panels[panels.length - 1], ci, sheet: c.sheet, per: c.perSheet, height: c.y1 - c.y0, width: b - a, ref: `${w.id}-${i + 1}${ci ? "U" : ""}`, ...(nestable ? { e: [Math.min(e1, e2), Math.max(e1, e2)] } : {}) });
+        const straddle = mid > a && mid < b;
+        const eMid = topAt(mid) - c.y0;
+        const nestable = ci === courses.length - 1 && Math.min(e1, e2) > EPS;
+        units.push({ panel: panels[panels.length - 1], ci, sheet: c.sheet, per: c.perSheet, height: c.y1 - c.y0, width: b - a, ref: `${w.id}-${i + 1}${ci ? "U" : ""}`, ...(nestable ? { e: [Math.min(e1, e2), Math.max(straddle ? eMid : Math.max(e1, e2), e1, e2)], ...(straddle ? { prof: [[0, e1], [mid - a, eMid], [b - a, e2]] } : {}) } : {}) });
       });
     });
     if (bad) { notes.push(`${w.id}: a gable panel is taller than the listed sheets can cover; sheathe it by hand or list a longer sheet.`); continue; }
@@ -601,14 +603,28 @@ function sheatheGables(plan, result, cfg, sheets, notes) {
  * Returns `{height, width}`, the saw kerf included.
  */
 export function nestedHeight(p, q, kerf = 0.125) {
-  const at = (u, x, mirror) => u.e[0] + ((u.e[1] - u.e[0]) * (mirror ? u.width - x : x)) / u.width;
+  // A course's top is a polyline `prof` of [distance from the left edge, height]; a plain `e` is a straight top.
+  const profOf = (u) => u.prof || [[0, u.e[0]], [u.width, u.e[1]]];
+  const val = (pts, x) => {
+    if (x <= pts[0][0]) return pts[0][1];
+    for (let k = 1; k < pts.length; k++) {
+      if (x <= pts[k][0]) { const [x0, y0] = pts[k - 1], [x1, y1] = pts[k]; return x1 > x0 ? y0 + ((y1 - y0) * (x - x0)) / (x1 - x0) : y1; }
+    }
+    return pts[pts.length - 1][1];
+  };
+  const top = (u) => Math.max(...profOf(u).map((pt) => pt[1]));
   let best = Infinity;
   for (const [fixed, turned] of [[p, q], [q, p]]) {
+    const fp = profOf(fixed), tp = profOf(turned);
     for (const mirror of [false, true]) {
       for (const d of [0, fixed.width - turned.width]) { // the turned course's left edge, from the fixed one's
         const lo = Math.max(0, d), hi = Math.min(fixed.width, d + turned.width);
-        let need = Math.max(p.e[1], q.e[1]);
-        if (hi > lo) for (const x of [lo, hi]) need = Math.max(need, at(fixed, x, false) + at(turned, d + turned.width - x, mirror));
+        let need = Math.max(top(p), top(q));
+        if (hi > lo) {
+          // The sum of two straight pieces is straight between breakpoints, so the worst case is at one.
+          const xs = [lo, hi, ...fp.map((pt) => pt[0]), ...tp.map((pt) => (mirror ? d + pt[0] : d + turned.width - pt[0]))].filter((x) => x >= lo - 1e-9 && x <= hi + 1e-9);
+          for (const x of xs) need = Math.max(need, val(fp, x) + val(tp, mirror ? x - d : d + turned.width - x));
+        }
         best = Math.min(best, need);
       }
     }
