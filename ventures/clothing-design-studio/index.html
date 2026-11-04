@@ -210,6 +210,12 @@
           <button class="btn small" type="button" id="sep-apply" disabled>Use this screen count on the selected artwork</button>
           <button class="btn small" type="button" id="sep-tradeoff" disabled>How many inks is it worth?</button>
         </div>
+        <div class="row3">
+          <div><label for="ht-lpi">Halftone lines per inch</label><input id="ht-lpi" type="number" min="15" max="85" step="1" value="45"></div>
+          <div><label for="ht-mesh">Screen mesh (0 = unknown)</label><input id="ht-mesh" type="number" min="0" max="500" step="10" value="230"></div>
+          <div><label for="ht-ink">Single ink colour</label><input id="ht-ink" type="color" value="#000000"></div>
+        </div>
+        <div class="bar"><button class="btn small" type="button" id="sep-halftone" disabled>Download one-ink halftone film</button></div>
         <div id="sep-out" aria-live="polite"></div>
       </section>
 
@@ -390,6 +396,7 @@
     import { addToShelf, removeFromShelf, shelfToShop, loadShelf } from "./shelf.mjs";
     import { marketingPlan, calendarCsv, learnFromTest, channelSplit, DEFAULT_ASSUMPTIONS } from "./marketing.mjs";
     import { inkTradeoff } from "./inktradeoff.mjs";
+    import { singleInkFilm, contrastInk, halftoneSvg, halftoneBrief } from "./halftone.mjs";
     import { separate, films, previewRgba, separationBrief } from "./separation.mjs";
     import { recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -740,7 +747,7 @@
         <p><strong>${sp.screens} screens</strong> (${sp.inks.length} inks${sp.underbase ? " + white underbase" : ""}) at ${sp.widthCm} x ${sp.heightCm} cm. Raised outline covers ${sp.raised.coveragePct}%.</p>
         <ol>${sp.inks.map(i => `<li><span style="display:inline-block;width:1em;height:1em;background:${i.hex};border:1px solid #888;vertical-align:-2px"></span> ${i.hex}: ${i.coveragePct}% of the artwork${i.thinSharePct >= 10 ? `, ${i.thinSharePct}% too fine` : ""}</li>`).join("")}</ol>
         <ul class="muted">${sp.notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>`;
-      for (const id of ["#sep-brief", "#sep-films", "#sep-apply", "#sep-tradeoff"]) $(id).disabled = false;
+      for (const id of ["#sep-brief", "#sep-films", "#sep-apply", "#sep-tradeoff", "#sep-halftone"]) $(id).disabled = false;
     }
     $("#sep-file").addEventListener("change", e => {
       const file = e.target.files[0];
@@ -766,6 +773,18 @@
       const pages = films(lastSep).map(f => `<section style="page-break-after:always"><h2>${esc(f.name)} (${esc(f.ink)})</h2>${f.svg}</section>`).join("");
       download("films.html", `<!doctype html><meta charset="utf-8"><title>Films</title><body style="font-family:sans-serif">${pages}</body>`, "text/html");
       recordUsage("separation_films");
+    });
+    $("#ht-ink").addEventListener("input", e => { e.target.dataset.set = "1"; });
+    $("#sep-halftone").addEventListener("click", () => {
+      if (!lastSep) return;
+      try {
+        if (!$("#ht-ink").dataset.set) $("#ht-ink").value = contrastInk(lastSep.garment);
+        const h = singleInkFilm(lastSep, { ink: $("#ht-ink").value, lpi: Number($("#ht-lpi").value) || 45, mesh: Number($("#ht-mesh").value) || 0 });
+        const brief = halftoneBrief(h, { name: "One-ink halftone" });
+        download("halftone-film.html", `<!doctype html><meta charset="utf-8"><title>Halftone film</title><body style="font-family:sans-serif">${halftoneSvg(h)}<pre>${esc(brief)}</pre></body>`, "text/html");
+        $("#sep-out").insertAdjacentHTML("beforeend", `<pre class="muted">${esc(brief)}</pre>`);
+        recordUsage("separation_halftone");
+      } catch (e) { $("#sep-out").insertAdjacentHTML("beforeend", `<p class="miss">${esc(e.message)}</p>`); }
     });
     $("#sep-apply").addEventListener("click", () => {
       if (!lastSep) return;

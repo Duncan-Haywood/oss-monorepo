@@ -161,5 +161,4 @@ holds about 51 lpi), and dots under about 10% or over about 90% usually do not h
 Highlights under `minDotPct` (default 5%) are cut and counted. Rules of thumb,
 not a printer's word: strike a test first. Checked by `halftone.test.mjs`
 (flat 50% grey covers 50% +- 6, gradient grows dots toward dark, cut-off, bounds
-on a 30 degree grid, determinism, escaping). Not yet wired into the studio page or
-fed from `separate()` layers. Next: that wiring, then a real painting through a real printer.
+on a 30 degree grid, determinism, escaping). Wired into the studio page 2026-11-04 as `singleInkFilm(sep, ...)`: the separation's palette lightness against the garment sets each region's dot size, so a painting prints as one ink in several tones on one screen ("Download one-ink halftone film", with lpi, mesh and ink fields; a contrasting ink is picked until you choose one, and ink too close to the garment warns). Checked by `halftone.test.mjs` and a headless-Chromium download (3,068 dots from a test card, no console errors). Per-ink halftones of separated spot colours are not offered: a flat ink has one tone. Next: a real painting through a real printer.
