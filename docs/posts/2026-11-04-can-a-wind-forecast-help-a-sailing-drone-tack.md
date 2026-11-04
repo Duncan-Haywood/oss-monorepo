@@ -1,9 +1,9 @@
 ---
 title: "Can a wind forecast help a sailing drone tack? Not by the 12 points we hoped"
-seo_title: "Wind forecast and tack control for autonomous sailing drones (NOAA CO-OPS test)"
+seo_title: "Wind forecast and tack control for sailing drones (NOAA test)"
 date: 2026-11-04
 tags: [research, marine, sailing, autonomy, forecasting]
-description: "On two months of real NOAA wind records, a controller given a perfect forecast of the wind's slow shifts recovers none of the 12 points a clairvoyant gains over a simple header-following rule."
+description: "On two months of NOAA wind, a controller given a perfect forecast of slow wind shifts recovers none of the 12-point gap to a clairvoyant tacker."
 ---
 
 In the previous `marine-hull` step, a simple rule that tacks when the other tack
