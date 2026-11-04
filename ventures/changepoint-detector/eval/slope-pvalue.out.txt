@@ -1,0 +1,13 @@
+null n=44 rho=0: fixed bar 11 rejects 3.0%, n-rho bar 3.7%
+null n=44 rho=0.3: fixed bar 11 rejects 8.0%, n-rho bar 8.0%
+null n=44 rho=0.5: fixed bar 11 rejects 11.7%, n-rho bar 7.7%
+null n=79 rho=0: fixed bar 11 rejects 2.0%, n-rho bar 3.7%
+null n=79 rho=0.3: fixed bar 11 rejects 5.3%, n-rho bar 4.7%
+null n=79 rho=0.5: fixed bar 11 rejects 7.7%, n-rho bar 5.0%
+null n=200 rho=0: fixed bar 11 rejects 2.0%, n-rho bar 5.3%
+null n=200 rho=0.3: fixed bar 11 rejects 2.3%, n-rho bar 5.0%
+null n=200 rho=0.5: fixed bar 11 rejects 2.0%, n-rho bar 4.0%
+power 1.0->0.2 at midpoint, n=79, rho=0.3: fixed 50.3%, n-rho bar 46.0%
+power 1.0->0.2 at midpoint, n=200, rho=0.3: fixed 88.3%, n-rho bar 91.7%
+US productivity quarterly n=317: W 5.8, rho 0.00, 95% bar 8.3, p 0.171
+US productivity annual means n=78: W 6.5, rho 0.13, 95% bar 9.8, p 0.154
