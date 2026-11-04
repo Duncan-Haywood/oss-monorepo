@@ -1,0 +1,18 @@
+registered
+  2011-01-01..2011-03-25 holidays 2: changes 9 -> 9, factor 0.987
+  2011-03-26..2011-06-17 holidays 2: changes 5 -> 7, factor 0.825
+  2011-06-18..2011-09-09 holidays 2: changes 9 -> 12, factor 0.917
+  2011-09-10..2011-12-02 holidays 3: changes 8 -> 7, factor 0.859
+  2011-12-03..2012-02-24 holidays 4: changes 8 -> 8, factor 0.917
+  2012-05-19..2012-08-10 holidays 2: changes 7 -> 7, factor 0.953
+  2012-08-11..2012-11-02 holidays 2: changes 9 -> 10, factor 1.214
+  windows 7: total changes 55 -> 60
+casual
+  2011-01-01..2011-03-25 holidays 2: changes 9 -> 9, factor 0.841
+  2011-03-26..2011-06-17 holidays 2: changes 6 -> 4, factor 2.706
+  2011-06-18..2011-09-09 holidays 2: changes 8 -> 8, factor 1.679
+  2011-09-10..2011-12-02 holidays 3: changes 11 -> 11, factor 1.225
+  2011-12-03..2012-02-24 holidays 4: changes 4 -> 5, factor 2.660
+  2012-05-19..2012-08-10 holidays 2: changes 9 -> 14, factor 1.751
+  2012-08-11..2012-11-02 holidays 2: changes 5 -> 7, factor 1.773
+  windows 7: total changes 52 -> 58
