@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 4i: 4h's coastal-current test split by each station's own median speed
+- Why: 4h's "Next": the pooled 61% stall figure mixes calm bay stations with tidal channels. Groups come from the data (station median speed: calm <= 0.2 m/s, moderate 0.2 to 0.5, strong > 0.5), not from hand labels of the stations.
+- Prediction (written before the run): glider stalling is under 35% worst case in the calm group, over 60% in the moderate group, and over 80% in the strong group; the glider keeps a majority of energy wins only in the calm group.
+- Outcome (`experiments/run_current_coops_regimes.py`, `results_current_coops_regimes.txt`, deterministic, about 1 min). Calm, 18 stations: stalls 31.6% worst case, wins 67.1% (random heading: 17.9% and 81.1%). Moderate, 30 stations: stalls 66.6%, wins 32.5% (43.5% and 55.4%). Strong, 16 stations: stalls 84.0%, wins 15.6% (64.6% and 34.6%). Station-weighted, the three groups reproduce 4h's pooled 61.1% worst-case stall. Prediction held, including the one-sided claim: the glider wins a majority at random heading in calm and moderate groups but not in the strong group, and in worst case only in the calm group.
+- Reading: the glider's energy advantage is conditional on the site, and a buyer can read the site class off one number, the local median current, against the glider's 0.2 m/s. Only the 18 calm stations (28%) leave the 4e/4f advantage mostly intact.
+- Limits: grouping by the same data it is then evaluated on; thresholds 0.2 and 0.5 chosen for the glider speed and round numbers, not tuned, but not sensitivity-checked; one month, US ports only (see 4h); no tests added (reuses 4h's tested functions; the pooled figure is reproduced by hand above, not by a test).
+- Next: persistence of stalling from the raw series; a shelf product outside ports; fold 4h and 4i into `paper/DRAFT.md`.
+
 ## 2026-11-04 · Milestone 7o: Steinberg et al. citation finalised (no experiment run)
 - Why: 7n's "Next": three sources had no DOI.
 - What: Crossref lookup found Steinberg et al., MTS Journal 44(2), 46-55, 2010, doi:10.4031/mtsj.44.2.3 (author list checked against the record); added to `PROPOSAL.md` Related work. Two sources remain without a final DOI or URL (Ocean Science os-2019-36 author response; MARTECH 2025 paper 17).
