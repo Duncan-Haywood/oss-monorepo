@@ -44,7 +44,11 @@ def script_text(seq):
 
 
 def _yosys(script, log):
-    p = subprocess.run(["yosys", "-q", "-l", str(log), "-p", script], capture_output=True, text=True)
+    # Milestone 77: a script file (-s), one command per line, instead of -p. Yosys 0.47 and 0.51 split a -p string at
+    # the commas of `abc -g AND,NAND,...`; a script file keeps them, and 0.33 and 0.70 read it the same way.
+    sf = Path(str(log)).with_suffix(".ys")
+    sf.write_text(script.replace("; ", "\n") + "\n")
+    p = subprocess.run(["yosys", "-q", "-l", str(log), "-s", str(sf)], capture_output=True, text=True)
     if p.returncode:
         raise RuntimeError((p.stderr.strip() or p.stdout)[-300:])
 
