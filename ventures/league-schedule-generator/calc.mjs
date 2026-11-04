@@ -157,6 +157,50 @@ export function parseBlackouts(text, teams) {
   return { blackouts, errors };
 }
 
+/** Splits CSV text into rows of cells (quotes, doubled quotes, commas and newlines inside quotes; a BOM is dropped). */
+export function csvRows(text) {
+  const rows = []; let row = [], cell = "", q = false;
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    if (q) { if (c === '"') { if (src[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; }
+    else if (c === '"') q = true;
+    else if (c === ",") { row.push(cell); cell = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && src[i + 1] === "\n") i++; row.push(cell); rows.push(row); row = []; cell = ""; }
+    else cell += c;
+  }
+  if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter((r) => r.some((x) => x.trim() !== ""));
+}
+
+/**
+ * A coach sign-up form's export (Google Forms, Typeform, a spreadsheet saved as CSV) turned into the blackout box text
+ * `parseBlackouts` reads, for a one-division league. The team column is found by header ("Team", "Team name"); date
+ * columns are any header mentioning "date", "unavailable", "cannot", "can't", "blackout" or "bye". Cells may hold
+ * several dates or ranges split by commas, semicolons or newlines; "none"/"n/a" cells are skipped; a team that answers
+ * twice has its dates merged. Returns { text, errors[] }; a row naming no known team is reported, never guessed.
+ */
+export function blackoutsFromCsv(csv, teams) {
+  const rows = csvRows(csv), errors = [];
+  if (rows.length < 2) return { text: "", errors: ["The CSV needs a header row and at least one answer."] };
+  const head = rows[0].map((h) => h.trim().toLowerCase());
+  const teamCol = head.findIndex((h) => /^(team|team name|club team)\b/.test(h));
+  const dateCols = head.map((h, i) => (/(date|unavailab|cannot|can't|cant|blackout|bye)/.test(h) ? i : -1)).filter((i) => i >= 0 && i !== teamCol);
+  if (teamCol < 0) return { text: "", errors: ['No team column: name one header "Team".'] };
+  if (!dateCols.length) return { text: "", errors: ['No date column: name one header "Dates unavailable" (or one containing "date", "cannot" or "blackout").'] };
+  const merged = new Map();
+  for (const [ri, r] of rows.slice(1).entries()) {
+    const tname = (r[teamCol] || "").trim();
+    const idx = teamIndex(teams, tname);
+    if (idx < 0) { errors.push(`Row ${ri + 2}: "${tname}" is not one of the teams.`); continue; }
+    const cells = dateCols.map((c) => (r[c] || "").trim()).filter((x) => x && !/^(none|n\/a|na|no|-|nil)$/i.test(x));
+    if (!cells.length) continue;
+    const parts = cells.join(",").split(/[;,\n]+/).map((x) => x.trim()).filter(Boolean);
+    merged.set(teams[idx], [...(merged.get(teams[idx]) || []), ...parts]);
+  }
+  return { text: [...merged].map(([k, v]) => `${k}: ${v.join(", ")}`).join("\n"), errors };
+}
+
 /** Lines like "Cubs: 17:00, 18:00" or "Cubs can only play 5pm": the only times that team may be given. */
 export function parseTimeLimits(text, teams) {
   const limits = {};
