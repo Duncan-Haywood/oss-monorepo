@@ -81,8 +81,7 @@ flagships:
       named filing service's import layout, from its own spec; (8) `salestax
       return` (page card; no-sales-tax states warn): due dates read from the
       state's own page only for WA, TX, FL, NY, VA, MN, MO, IL, SC, OH and
-      UT monthly (OH quarterly: guides disagree on who files it; OH 0.75%
-      discount capped $750 a month from excerpts); TX, FL and GA discounts
+      UT monthly (OH quarterly: guides disagree on who files it; OH discount from excerpts); TX, FL and GA discounts
       preset from search excerpts, 1.25% prepayment not modelled; the rest
       from excerpts or memory; open: a real return layout; (8b) `annualized`
       (Schedule AI): percentages matched to the 2024 form by excerpt
