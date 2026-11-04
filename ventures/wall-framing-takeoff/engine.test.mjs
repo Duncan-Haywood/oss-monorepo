@@ -741,6 +741,19 @@ test("nested gable courses: two like trapezoids turned against each other fill a
   assert.ok(Math.abs(nestedHeight(r, r).height - 60.125) < 1e-9);
 });
 
+test("nested gable courses: a peaked top (three points) nests by its breakpoints, hand heights", async () => {
+  const { nestedHeight } = await import("./sheathing.mjs");
+  // 48 wide, 20 at both ends and 44 at the middle peak (x = 24). Turned over itself the peak meets the peak:
+  // 44 + 44 = 88 at x = 24 when mirrored onto itself; shifted halves can't help at equal width, so 88.
+  const peaked = { width: 48, e: [20, 44], prof: [[0, 20], [24, 44], [48, 20]] };
+  assert.ok(Math.abs(nestedHeight(peaked, peaked).height - 88.125) < 1e-9);
+  // against a flat 30 in rectangle: the peak (44) plus 30 = 74
+  const flat = { width: 48, e: [30, 30] };
+  assert.ok(Math.abs(nestedHeight(peaked, flat).height - 74.125) < 1e-9);
+  // a straight 2-point top with the same ends gives the old answer (no prof): unchanged API
+  assert.ok(Math.abs(nestedHeight({ width: 48, e: [20, 44] }, { width: 48, e: [20, 44] }).height - 64.125) < 1e-9);
+});
+
 test("gable wall sheathing: sloped top courses nest on one sheet when the full order is cheaper, never dearer", () => {
   const plan = { ...base(), walls: [{ id: "G", length: 240, gable: { pitch: 6 } }] };
   const { s } = sheathed(plan);
