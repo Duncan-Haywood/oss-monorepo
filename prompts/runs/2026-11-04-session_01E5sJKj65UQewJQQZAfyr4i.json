@@ -30,8 +30,17 @@
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
-  "writeups": "research/verified-dse/LOG.md milestone 80 and PAPER.md sentence; no new blog post (small measurement step)",
+  "deviations": [
+    {
+      "file": "goals.md",
+      "did": "No new blog post",
+      "why": "small measurement step, recorded in LOG.md milestone 80 and a PAPER.md sentence"
+    }
+  ],
+  "writeups": [
+    "research/verified-dse/LOG.md",
+    "research/verified-dse/PAPER.md"
+  ],
   "goal": null,
   "notes": "Four mult32 points rather than twelve because of expected per-point cost. Two of four predictions refuted, reported as such.",
   "corrections": [],
