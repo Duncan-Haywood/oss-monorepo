@@ -1,5 +1,21 @@
 # build-data log
 
+## Session 22, 2026-11-04: milestone 20, H2d: rolling and adaptive conformal calibration on the test year (planned before running)
+
+Session 21 showed Mondrian grouping cannot narrow the Chicago and SF a2i intervals because the over-coverage (0.867, 0.901) is drift between the calibration year (even weeks of 2023) and 2024. The lever left is a calibration set closer in time. `src/conformal_rolling_run.py`: for each 2024 week starting at t0 the pool is every row (static calibration + 2024) whose outcome was already known before t0 (start + y < t0, so no peeking at unissued permits), kept to the last W days for W = 60, 120, 365 or all known; under 200 known rows falls back to the static qhat. Also a weekly-batch adaptive conformal (Gibbs and Candes 2021, gamma 0.02). Same models, split and 3 seeds as session 8; intervals rounded outward.
+- **H2d (pre-registered):** rolling calibration with W = 120 brings 2024 coverage into 77 to 83% on both Chicago a2i and SF a2i (static: 0.867, 0.901), and the interval gets narrower than the static one. Refuted if either city stays outside 77 to 83% for W = 120. My expectation: Chicago lands near 0.83 to 0.85 (drift is partly seasonal, the pool is still biased toward fast permits because slow permits are not yet known, so rolling coverage may even fall below 80%; that selection effect is the main way this can fail).
+
+Outcome (3 seeds, test year 2024, fresh pulls of Chicago 852,022 and SF rows; `results/conformal_rolling_{chicago,sf}_a2i_2024.json`):
+| pair | raw | static | rolling W=60 / 120 / 365 / all | adaptive (gamma 0.02) | mean width (days) |
+|---|---|---|---|---|---|
+| Chicago a2i | 0.867 | 0.867 | 0.867 / 0.867 / 0.867 / 0.867 | 0.867 | 67.93 in every column |
+| SF a2i | 0.901 | 0.901 | 0.901 in all four | 0.901 | 63.40 in every column |
+- **H2d is refuted, and degenerately so:** the weekly qhat is exactly 0 in every week, for every window and for the adaptive level (Chicago's alpha_t climbs from 0.20 to 0.27 over 2024 and still lands on 0). Rolling calibration is a no-op here. Austin and the i2c targets were not rerun (a2i over-coverage was the question).
+- **Why (checked on the raw feeds):** the share of same-day permits (y = 0) is a point mass of the score distribution. In Chicago it fell from 0.520 (2023, n = 34,784) to 0.304 (2024, n = 33,063); in SF it was 0.515 and 0.554. A same-day permit has lower end 0, so its CQR score is exactly 0, and while that tie mass exceeds the 20% needed the 80th-percentile score sits on it. Widening or narrowing by a conformal shift of 0 days is all the score space offers; coverage above 80% comes from the base interval (63 to 68 days wide) containing the long tail, not from calibration. Session 19's dequantised shift of -0.07 days agrees.
+- **A finding worth keeping:** Chicago's drift is real and large (same-day mass 52% to 30%), SF's is not, yet both over-cover and both are immovable by conformal shifting. So drift in the zero-mass is not what keeps the intervals wide; the quantile model's upper tail (tau 0.9) is. The calibration lever for a2i is the tau pair itself (train tau 0.8/0.2 style tighter quantiles, or conformalise on a different score such as the interval's log-width), not any calibration window.
+- Limits: one test year, three seeds, two cities; the no-peeking pool uses start + y < t0 only, which is what a live system would know; MIN_N 200 fallback never mattered (qhat is 0 either way).
+Next: choose the tau pair by conformal calibration (tau 0.05/0.65 grid on the even weeks of Y-1), a two-parameter family scored by width at 80% coverage.
+
 ## Session 21, 2026-11-03: milestone 19 run, H2c (Mondrian CQR by P(same day) band) refuted on 4 of 4 finished pairs
 
 Data hosts reachable this time; all three feeds re-pulled (Chicago 852,022; SF 1,297,807; Austin 2,383,407 rows). `src/conformal_mondrian_run.py` (same split, models and 3 seeds as session 8; classifier bands at 0.33/0.67; intervals rounded outward), results in `results/conformal_mondrian_*_2024.json`. Pre-registered in session 20: within 77 to 83% in at least 4 of 5 pairs.

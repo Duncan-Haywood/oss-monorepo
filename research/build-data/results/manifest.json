@@ -1,5 +1,5 @@
 {
- "pulled": "2026-11-03",
+ "pulled": "2026-11-04",
  "max_rows": null,
  "cities": {
   "chicago": {
@@ -25,18 +25,6 @@
    "both_applied_issued": 1232888,
    "negative_issue_lag": 2257,
    "negative_build_time": 736
-  },
-  "austin": {
-   "dataset": "3syk-w9eu",
-   "host": "data.austintexas.gov",
-   "rows": 2383407,
-   "applied": 2383378,
-   "issued": 2383407,
-   "completed": 2184588,
-   "cost": 1190304,
-   "both_applied_issued": 2383378,
-   "negative_issue_lag": 860,
-   "negative_build_time": 3532
   }
  }
 }
