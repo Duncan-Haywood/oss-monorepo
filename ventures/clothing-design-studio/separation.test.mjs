@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { separate, films, maskSvg, previewRgba, separationBrief, toLab } from "./separation.mjs";
+import { separate, cropImage, films, maskSvg, previewRgba, separationBrief, toLab } from "./separation.mjs";
 
 /** A 60x40 "painting": cream surround, red disc, blue band, thin 1px gold line, soft noise. */
 function painting({ noise = 0, surround = [245, 240, 225] } = {}) {
@@ -96,4 +96,50 @@ test("films are 1:1 SVGs in cm, one per ink plus the outline, and the preview/br
 test("Lab conversion: white is L 100, black is L 0", () => {
   assert.ok(Math.abs(toLab(255, 255, 255)[0] - 100) < 0.1);
   assert.ok(Math.abs(toLab(0, 0, 0)[0]) < 0.1);
+});
+
+/** Cream card, a red ring (cream inside), a grey scan-bed strip down the right edge. */
+function ring() {
+  const w = 60, h = 40, data = new Uint8ClampedArray(w * h * 4);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    let c = [245, 240, 225];
+    const d2 = (x - 25) ** 2 + (y - 20) ** 2;
+    if (d2 < 225 && d2 > 64) c = [200, 30, 30];
+    if (x >= 52) c = [150, 150, 150];
+    const i = (y * w + x) * 4; data[i] = c[0]; data[i + 1] = c[1]; data[i + 2] = c[2]; data[i + 3] = 255;
+  }
+  return { data, width: w, height: h };
+}
+
+test("crop trims the scan strip; a bad box is refused", () => {
+  const img = ring();
+  const c = cropImage(img, { right: 0.15 });
+  assert.equal(c.width, 51);
+  assert.equal(c.height, 40);
+  assert.equal(c.data[(0 * 51 + 50) * 4], 245, "last column is card, not grey");
+  assert.throws(() => cropImage(img, { left: 0.6, right: 0.6 }), /under 8|0 to 0.9/);
+  assert.throws(() => cropImage(img, { top: -1 }), /fraction/);
+  const sep = separate(img, { colours: 2, crop: { right: 0.15 }, smooth: 0 });
+  assert.equal(sep.width, 51);
+  assert.ok(sep.inks.every(i => i.hex !== "#969696"), "grey strip is gone");
+});
+
+test("background 'all' removes paper inside the ring; 'auto' keeps it", () => {
+  const img = ring();
+  const auto = separate(img, { colours: 2, crop: { right: 0.15 }, background: "auto", smooth: 0 });
+  const all = separate(img, { colours: 2, crop: { right: 0.15 }, background: "all", smooth: 0 });
+  assert.ok(all.inkedPct < auto.inkedPct - 5, `${all.inkedPct} vs ${auto.inkedPct}`);
+  assert.equal(all.inks.length, 1);
+  assert.equal(all.inks[0].hex, "#c81e1e");
+  assert.throws(() => separate(img, { background: "paper" }), /background must be/);
+});
+
+test("knockOut drops a named colour and refuses a bad hex; tolerance widens the surround", () => {
+  const img = ring();
+  const k = separate(img, { colours: 2, knockOut: ["#969696"], smooth: 0 });
+  assert.ok(k.inks.every(i => i.hex !== "#969696"));
+  assert.throws(() => separate(img, { knockOut: ["grey"] }), /#rrggbb/);
+  // a wide tolerance treats the red as surround too only when it is near: 245,240,225 vs 200,30,30 is far
+  const wide = separate(img, { colours: 2, backgroundTol: 60, background: "all", crop: { right: 0.15 }, smooth: 0 });
+  assert.equal(wide.inks.length, 1);
 });
