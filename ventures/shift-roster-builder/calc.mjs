@@ -2097,10 +2097,12 @@ export function scheduleChanges(postedCsv, revisedCsv, { changedAt = null, notic
 // Short turnarounds in a roster CSV: every pair of one person's consecutive shifts with less than `restHours` between
 // the end of one and the start of the next (a "clopen" when the first closes and the second opens). Each short
 // turnaround owes `premiumHours` of the person's wage unless the person is in `exempt` (they asked for it). Within one
-// week only; Sunday night to Monday morning is not seen, use --last-week for that. Whether a rule applies, its rest
+// week only unless `previousCsv` (last week's roster) is given, which adds the Sunday-to-Monday turnaround. Whether a rule applies, its rest
 // window and its premium are the operator's to enter: arithmetic on their numbers, not a statement of any law.
-export function restPremium(rosterCsv, { restHours = 11, premiumHours = 1, wages = {}, exempt = [] } = {}) {
-  const rows = parseRosterCsv(rosterCsv);
+export function restPremium(rosterCsv, { restHours = 11, premiumHours = 1, wages = {}, exempt = [], previousCsv = null } = {}) {
+  // previousCsv (last week's roster) is shifted back seven days so Sunday night to Monday morning is seen.
+  const before = previousCsv ? parseRosterCsv(previousCsv).map((x) => ({ ...x, start: x.start - 10080, end: x.end - 10080, day: x.day - 7, prevWeek: true })) : [];
+  const rows = [...before, ...parseRosterCsv(rosterCsv)];
   const skip = new Set((exempt || []).map((n) => String(n).trim().toLowerCase()).filter(Boolean));
   const wageOf = new Map(Object.entries(wages || {}).map(([k, v]) => [k.toLowerCase(), String(v ?? "").trim() === "" ? NaN : Number(v)]));
   const found = [];
@@ -2110,6 +2112,7 @@ export function restPremium(rosterCsv, { restHours = 11, premiumHours = 1, wages
     for (let i = 1; i < mine.length; i++) {
       const gap = (mine[i].start - mine[i - 1].end) / 60;
       if (gap >= restHours) continue;
+      if (mine[i].prevWeek) continue; // both shifts last week: that week's own business
       const wage = wageOf.get(who.toLowerCase());
       const isExempt = skip.has(who.toLowerCase());
       const premium = !isExempt && wage > 0 ? Math.round(premiumHours * wage * 100) / 100 : 0;

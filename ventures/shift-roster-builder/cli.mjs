@@ -165,19 +165,21 @@ function changesReport(staff, opts, revisedCsv) {
     : `${r.changes.length} change(s). Give --week-start and --changed-at to see notice and premium.`;
   return [head, ...lines, "", "Arithmetic on the window and premium you entered, not a statement of what any scheduling law requires. Not legal advice.", ""].join("\n");
 }
+const dayName = (d) => DAYS[((d % 7) + 7) % 7] + (d < 0 ? " (last week)" : "");
+const clockMod = (m) => ((m % 1440) + 1440) % 1440;
 function restReport(staff, opts, csv) {
   const wages = Object.fromEntries(staff.map((p) => [p.name, p.wage]));
-  const r = restPremium(csv, { restHours: opts.restUnder, premiumHours: opts.premiumHours ?? 1, wages, exempt: String(opts.exempt || "").split(",") });
+  const r = restPremium(csv, { restHours: opts.restUnder, premiumHours: opts.premiumHours ?? 1, wages, exempt: String(opts.exempt || "").split(","), previousCsv: opts.lastWeekCsv || null });
   const lines = r.turnarounds.map((t) => {
     const note = t.exempt ? "  requested, no premium" : t.premiumUnpriced ? "  no wage on file" : `  premium ${money(t.premium)}`;
-    return `${t.person.padEnd(12)} ${DAYS[t.first.day]} ${clockOf(t.first)} then ${DAYS[t.second.day]} ${clockOf(t.second)}: ${num(t.restHours)} h rest${note}`;
+    return `${t.person.padEnd(12)} ${dayName(t.first.day)} ${clockOf(t.first)} then ${DAYS[t.second.day]} ${clockOf(t.second)}: ${num(t.restHours)} h rest${note}`;
   });
   const head = r.turnarounds.length
     ? `${r.turnarounds.length} turnaround(s) under ${num(opts.restUnder)} h. Premium on your numbers (${num(opts.premiumHours ?? 1)} h of pay each): ${money(r.owed)}.`
     : `No turnaround under ${num(opts.restUnder)} h.`;
   return [head, ...lines, "", "Arithmetic on the rest window and premium you entered, not a statement of what any scheduling law requires. Not legal advice.", ""].join("\n");
 }
-const clockOf = (x) => `${fmtClock(x.start % 1440)}-${fmtClock(x.end % 1440 || 1440)}`;
+const clockOf = (x) => `${fmtClock(clockMod(x.start))}-${fmtClock(clockMod(x.end) || 1440)}`;
 
 /** Pure core: returns { code, out } so tests need no process. */
 export function run(staffText, shiftsText, opts = {}) {
