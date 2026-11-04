@@ -70,3 +70,25 @@ test("rotated grid keeps every dot inside the film", () => {
   assert.ok(h.dots.length > 50);
   assert.ok(h.dots.every(d => d.x >= 0 && d.x <= h.widthMm && d.y >= 0 && d.y <= h.heightMm));
 });
+
+test("singleInkFilm: darker regions get bigger dots, unprinted pixels none, width follows the separation", async () => {
+  const { singleInkFilm } = await import("./halftone.mjs");
+  const w = 40, h = 20, labels = new Uint8Array(w * h).fill(255);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) labels[y * w + x] = x < 15 ? 0 : x < 30 ? 1 : 255;
+  const sep = { width: w, height: h, widthCm: 10, heightCm: 5, garment: "#ffffff", labels, inks: [{ label: 0, hex: "#202020" }, { label: 1, hex: "#a0a0a0" }] };
+  const f = singleInkFilm(sep, { lpi: 40, angle: 0, minDotPct: 1 });
+  assert.equal(f.widthMm, 100);
+  const left = f.dots.filter(d => d.x < 36), mid = f.dots.filter(d => d.x >= 40 && d.x < 72), right = f.dots.filter(d => d.x > 80);
+  assert.ok(left.length && mid.length);
+  const mean = a => a.reduce((s, d) => s + d.r, 0) / a.length;
+  assert.ok(mean(left) > mean(mid) * 1.3, "dark region should carry bigger dots");
+  assert.equal(right.length, 0, "unprinted region carries no dots");
+});
+
+test("singleInkFilm warns when ink and garment match; contrastInk flips on dark cloth", async () => {
+  const { singleInkFilm, contrastInk } = await import("./halftone.mjs");
+  const sep = { width: 4, height: 4, widthCm: 5, heightCm: 5, garment: "#1b1b1d", labels: new Uint8Array(16), inks: [{ label: 0, hex: "#c81e1e" }] };
+  const f = singleInkFilm(sep, { ink: "#000000" });
+  assert.equal(f.ok, false); assert.match(f.warnings[0], /too close/);
+  assert.equal(contrastInk("#1b1b1d"), "#f2f2f2"); assert.equal(contrastInk("#f7f7f4"), "#111111");
+});

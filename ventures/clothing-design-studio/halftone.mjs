@@ -117,3 +117,31 @@ export function halftoneBrief(h, { name = "ink" } = {}) {
   lines.push("Rules of thumb only; strike a test with your printer's mesh and ink before the run.");
   return lines.join("\n");
 }
+
+/** One-ink tonal film from a colour separation (see separation.mjs): each region's
+ * lightness in its palette colour sets how dense the dots are, so a painting reduced
+ * to a few flat inks prints as one ink in several tones on one screen. Unprinted
+ * (background or knocked-out) pixels carry no ink. `ink` is the single ink's colour;
+ * `garment` defaults to the separation's garment colour. Returns the halftone() result
+ * sized to the separation's printed width. */
+export function singleInkFilm(sep, { ink = "#000000", lpi = 45, angle = 45, mesh = 0, minDotPct = 5 } = {}) {
+  const garment = sep.garment || "#ffffff";
+  const n = sep.width * sep.height, data = new Uint8ClampedArray(n * 4);
+  const rgb = new Map(sep.inks.map(i => [i.label, [1, 3, 5].map(k => parseInt(i.hex.slice(k, k + 2), 16))]));
+  for (let i = 0; i < n; i++) {
+    const c = rgb.get(sep.labels[i]);
+    if (!c) continue; // alpha stays 0: no ink
+    data[i * 4] = c[0]; data[i * 4 + 1] = c[1]; data[i * 4 + 2] = c[2]; data[i * 4 + 3] = 255;
+  }
+  const t = toneMap({ data, width: sep.width, height: sep.height }, { ink, garment });
+  const f = halftone(t, { lpi, angle, widthMm: sep.widthCm * 10, mesh, ink, minDotPct });
+  const lum = hex => { const v = parseInt(hex.slice(1), 16); return (0.2126 * (v >> 16) + 0.7152 * ((v >> 8) & 255) + 0.0722 * (v & 255)) / 255; };
+  if (Math.abs(lum(ink) - lum(garment)) < 0.35) { f.warnings.unshift(`ink ${ink} and garment ${garment} are too close in lightness to show a tone; pick a lighter or darker ink`); f.ok = false; }
+  return f;
+}
+
+/** A readable single ink for a garment colour: near-white on dark cloth, near-black on light. */
+export function contrastInk(garment) {
+  const v = parseInt(String(garment).slice(1), 16);
+  return (0.2126 * (v >> 16) + 0.7152 * ((v >> 8) & 255) + 0.0722 * (v & 255)) / 255 < 0.5 ? "#f2f2f2" : "#111111";
+}
