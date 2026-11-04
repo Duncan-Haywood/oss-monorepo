@@ -55,7 +55,7 @@ def task(a):
     flow.PNR = pnr
     try:
         r = flow.run_point(design, seq, period, wd, lib, pdk, orb)
-    except RuntimeError as e:
+    except (RuntimeError, AttributeError) as e:
         return {"design": design, "seq": list(seq), "tag": tag, "period_ns": period, "status": "fail", "error": str(e)[-200:]}
     log = (Path(wd) / "openroad.log").read_text()
     r["gr4_wns4"] = float(re.search(r"worst slack (?:max )?(-?[\d.]+)", re.split(r"^STAGE gr4\n", log, flags=re.M)[1]).group(1))
