@@ -522,7 +522,7 @@ function sheatheGables(plan, result, cfg, sheets, notes) {
     const mid = w.gable.peak;
     const base = THICK + plan.studLength;
     const slopeL = w.gable.pitch / 12;
-    const slopeR = (slopeL * mid) / (L - mid);
+    const slopeR = L - mid < EPS ? 0 : (slopeL * mid) / (L - mid);
     const topAt = (x) => {
       const slope = x <= mid ? slopeL : slopeR;
       return base + (x <= mid ? slopeL * x : slopeR * (L - x)) + 2 * THICK * Math.sqrt(1 + slope * slope);
