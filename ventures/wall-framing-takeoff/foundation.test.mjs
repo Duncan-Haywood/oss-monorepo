@@ -199,3 +199,10 @@ test("validateFoundation refuses numbers given as text (a text waste made the or
   }
   assert.deepEqual(validateFoundation(s), []);
 });
+
+test("validateFoundation bounds the slab gravel base (1e9 in once ordered a billion cubic yards)", () => {
+  const s = sampleFoundation();
+  for (const v of [1e9, -1, 25]) assert.ok(validateFoundation({ ...s, slab: { ...s.slab, baseThickness: v } }).some((x) => /base/.test(x)), String(v));
+  assert.deepEqual(validateFoundation({ ...s, slab: { ...s.slab, baseThickness: 0 } }), []);
+  assert.deepEqual(validateFoundation(s), []);
+});
