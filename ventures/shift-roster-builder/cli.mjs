@@ -23,7 +23,7 @@ import process from "node:process";
 import { importStaffCsv } from "./import-staff.mjs";
 import { importShiftsCsv } from "./import-shifts.mjs";
 import {
-  parseStaff, parseShifts, buildRoster, coverOptions, coverChain, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, sampleStaff, sampleShifts,
+  parseStaff, parseShifts, buildRoster, coverOptions, coverChain, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
 } from "./calc.mjs";
 
@@ -55,6 +55,8 @@ Options:
   --changes <csv>     compare the roster you posted (CSV) with this build: every shift added, cancelled or moved, its notice and the premium
                       on your numbers. Needs --week-start and --changed-at "YYYY-MM-DD HH:MM" for notice; --notice-hours (default 336),
                       --premium-hours (default 1) and --exempt "Ben,Cleo" (employee-requested changes) are yours to set, not a statement of any law
+  --rest-under <h>    list every pair of one person's shifts with less than <h> hours between them (a close then an open) and the premium
+                      on your numbers: --premium-hours (default 1 hour of pay each) and --exempt "Ben" (they asked for it). Arithmetic, not a statement of any law
   --import-shifts <csv> convert a published-schedule export (date, start, end, position rows) to shift lines on stdout; notes on stderr
   --import-staff <csv>  convert a staff export from another scheduler (name, hourly rate, hours, position columns) to staff lines on stdout; notes on stderr
   --cover "<Day HH:MM>" a call-out or open shift that starts then (add -HH:MM to tell two apart): who could take it outright, else the
@@ -97,6 +99,11 @@ export function parseArgs(argv) {
     else if (a === "--changed-at") {
       o.changedAt = argv[++i];
       if (!/^\d{4}-\d{2}-\d{2}[ T]\d{1,2}:\d{2}$/.test(o.changedAt || "")) throw new Error('--changed-at needs a date and time like "2026-10-30 14:00"');
+    }
+    else if (a === "--rest-under") {
+      const v = Number(argv[++i]);
+      if (!(v > 0 && v <= 48)) throw new Error("--rest-under needs hours between 0 and 48");
+      o.restUnder = v;
     }
     else if (a === "--exempt") { o.exempt = argv[++i]; if (o.exempt === undefined) throw new Error("--exempt needs names, comma separated"); }
     else if (a === "--notice-hours" || a === "--premium-hours") {
@@ -158,6 +165,18 @@ function changesReport(staff, opts, revisedCsv) {
     : `${r.changes.length} change(s). Give --week-start and --changed-at to see notice and premium.`;
   return [head, ...lines, "", "Arithmetic on the window and premium you entered, not a statement of what any scheduling law requires. Not legal advice.", ""].join("\n");
 }
+function restReport(staff, opts, csv) {
+  const wages = Object.fromEntries(staff.map((p) => [p.name, p.wage]));
+  const r = restPremium(csv, { restHours: opts.restUnder, premiumHours: opts.premiumHours ?? 1, wages, exempt: String(opts.exempt || "").split(",") });
+  const lines = r.turnarounds.map((t) => {
+    const note = t.exempt ? "  requested, no premium" : t.premiumUnpriced ? "  no wage on file" : `  premium ${money(t.premium)}`;
+    return `${t.person.padEnd(12)} ${DAYS[t.first.day]} ${clockOf(t.first)} then ${DAYS[t.second.day]} ${clockOf(t.second)}: ${num(t.restHours)} h rest${note}`;
+  });
+  const head = r.turnarounds.length
+    ? `${r.turnarounds.length} turnaround(s) under ${num(opts.restUnder)} h. Premium on your numbers (${num(opts.premiumHours ?? 1)} h of pay each): ${money(r.owed)}.`
+    : `No turnaround under ${num(opts.restUnder)} h.`;
+  return [head, ...lines, "", "Arithmetic on the rest window and premium you entered, not a statement of what any scheduling law requires. Not legal advice.", ""].join("\n");
+}
 const clockOf = (x) => `${fmtClock(x.start % 1440)}-${fmtClock(x.end % 1440 || 1440)}`;
 
 /** Pure core: returns { code, out } so tests need no process. */
@@ -184,6 +203,7 @@ export function run(staffText, shiftsText, opts = {}) {
     try { return { code, out: rosterMessages(r, opts.weekStart || null).map((m) => m.text).join("\n\n") + "\n" }; } catch (e) { return { code: 2, out: e.message + "\n" }; }
   }
   if (opts.cover) return { code: 0, out: coverReport(st.staff, sh.slots, r, opts) };
+  if (opts.restUnder) return { code, out: restReport(st.staff, opts, rosterCsv(r)) };
   if (opts.postedCsv) return { code, out: changesReport(st.staff, opts, rosterCsv(r)) };
   if (opts.mode === "hours") return { code, out: hoursCsv(r) };
   if (opts.mode === "json") {
