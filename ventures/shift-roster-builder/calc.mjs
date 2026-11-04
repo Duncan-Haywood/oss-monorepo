@@ -13,6 +13,7 @@ const ALIASES = {
 const BIG = 100000; // dollars per uncovered hour: covering a shift always beats saving money
 const MAX_SLOTS = 400;
 const MAX_STAFF = 60;
+const BIG_WEEK = 150; // shifts; above this the improvement passes run on a time budget
 
 export function dayIndex(tok) {
   const v = ALIASES[String(tok).trim().toLowerCase()];
@@ -1504,37 +1505,44 @@ export function buildRoster(staff, slots, options = {}) {
   if (!ctx.S) return { error: "Add at least one shift to cover." };
   const o = ctx.o;
   const iterations = o.iterations > 0 ? o.iterations : Math.max(9000, ctx.S * 70);
+  // Wall-clock budget for the improvement passes. A week near the 400-shift cap with 60 people ran past two minutes with no output
+  // (measured 2026-11-04), so big weeks stop improving after `timeBudgetMs` (default 20 s above BIG_WEEK shifts, none below, so the
+  // seeded small weeks and the guide pages are unchanged). Pass 0 for no budget. The roster so far is kept and `budgetHit` says so.
+  const budgetMs = o.timeBudgetMs !== undefined ? o.timeBudgetMs : ctx.S > BIG_WEEK ? 20000 : 0;
+  const tStart = Date.now();
+  let budgetHit = false;
+  const over = () => { if (budgetMs > 0 && Date.now() - tStart > budgetMs) { budgetHit = true; return true; } return false; };
   let best = search(ctx, o.restarts, iterations);
   // Covering shifts outranks everything else, so while any shift is open spend as many extra restarts again on finding a roster that
   // covers more. A balance of 50 on the sample week left 8 coverable hours open after four restarts; twelve found them.
-  if (scoreOwner(ctx, best.owner).unfilled > 0) {
+  if (scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
     const more = search(ctx, o.restarts * 6, iterations, o.restarts);
     if (more.score < best.score - 1e-9) best = more;
   }
   // Still open: the annealer's short runs stop too soon on weeks of about twenty shifts or more (eval/effort-bench.mjs), so give
   // a few restarts five times the iterations before the ejection passes.
-  if (o.longPass !== false && scoreOwner(ctx, best.owner).unfilled > 0) {
+  if (o.longPass !== false && scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
     const long = search(ctx, o.restarts, iterations * 5, o.restarts * 7);
     if (long.score < best.score - 1e-9) best = long;
   }
   if (scoreOwner(ctx, best.owner).unfilled > 0) {
     // A few seeds, each from the best so far: one chain of moves rarely finds the best way to free the hours.
-    for (let k = 0; k < 4; k++) {
+    for (let k = 0; k < 4 && !over(); k++) {
       const eo = ejectPass(ctx, best.owner, o.seed + 104729 * (k + 1), Math.max(20000, ctx.S * 1500));
       const es = scoreOwner(ctx, eo).total;
       if (es < best.score - 1e-9) best = { owner: eo, score: es };
     }
   }
   // Still open: walk the coverage plateau (open hours only), then polish pay. Kept only if it covers more.
-  if (o.coverPass !== false && scoreOwner(ctx, best.owner).unfilled > 0) {
-    for (let k = 0; k < (o.coverPassRuns ?? 12); k++) {
+  if (o.coverPass !== false && scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
+    for (let k = 0; k < (o.coverPassRuns ?? 12) && !over(); k++) {
       const cp = coverPass(ctx, best.owner, o.seed + 15485863 * (k + 1), Math.max(60000, ctx.S * 4000) * (o.coverPassScale ?? 4));
       if (cp.open >= scoreOwner(ctx, best.owner).unfilled - 1e-9) continue;
       const po = polishPay(ctx, cp.owner, o.seed + k, Math.max(20000, ctx.S * 1000));
       const ps = scoreOwner(ctx, po).total;
       if (ps < best.score - 1e-9) best = { owner: po, score: ps };
     }
-    if ((o.coverRepair ?? (o.exact === true || o.openShiftWeight !== undefined)) && scoreOwner(ctx, best.owner).unfilled > 0) {
+    if ((o.coverRepair ?? (o.exact === true || o.openShiftWeight !== undefined)) && scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
       const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: o.coverRepairMs ?? 60000, shiftWeight: o.openShiftWeight ?? 1e-6 });
       const cur = best.owner.reduce((t, p) => t + (p < 0 ? 1 : 0), 0);
       const w = o.openShiftWeight ?? 1e-6;
@@ -1548,7 +1556,7 @@ export function buildRoster(staff, slots, options = {}) {
   }
   // Optional proof: for small problems search exhaustively (with pruning) and say how far the annealed roster is from the best possible.
   let optimality = null;
-  if (o.exact === true || (o.exact === "auto" && ctx.S <= EXACT_AUTO_SLOTS)) {
+  if ((o.exact === true || (o.exact === "auto" && ctx.S <= EXACT_AUTO_SLOTS)) && !over()) {
     const ex = exactSearch(ctx, best.score, { nodeLimit: o.exactNodes, timeLimitMs: o.exactMs, tolerance: o.exactTolerance });
     const annealScore = best.score;
     if (ex.owner && ex.score < best.score - 1e-9) best = { owner: ex.owner, score: ex.score };
@@ -1631,7 +1639,7 @@ export function buildRoster(staff, slots, options = {}) {
     cost: res.cost, hours: res.hours, otHours: res.otHours, unfilledHours: res.unfilledHours, unfilledSlots: res.unfilled.length,
     people: res.people, assignments, grid, unfilled, onlyOne, critical, hireTest, warnings,
     listed: { cost: base.cost, otHours: base.otHours, unfilledHours: base.unfilledHours, unfilledSlots: base.unfilled.length },
-    savingVsListed, score: best.score, owner: res.owner, optimality,
+    savingVsListed, score: best.score, owner: res.owner, optimality, budgetHit,
     filledAll: res.unfilled.length === 0,
   };
 }
