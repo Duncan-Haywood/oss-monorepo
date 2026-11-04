@@ -2,7 +2,7 @@
 title: "Saints by Candlelight, episode 71: Hagar and the well in the wilderness of Beersheba"
 date: 2026-11-04
 tags: [saints-by-candlelight, fiction, podcast]
-description: A bedtime retelling of Genesis 16 and 21, the Egyptian servant who is found twice in the desert by the God who sees, with what is Scripture and what we invented marked.
+description: A bedtime retelling of Genesis 16 and 21: an Egyptian servant found twice in the desert by the God who sees. Scripture and invention are marked.
 ---
 
 Episode 71 of Saints by Candlelight is up, as text: Genesis chapters sixteen and
