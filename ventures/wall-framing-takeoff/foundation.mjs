@@ -76,6 +76,7 @@ export function validateFoundation(f) {
   const sl = { thickness: 4, spacing: 18, ...f.slab };
   if (!(sl.thickness >= 3 && sl.thickness <= 12)) e.push("Slab thickness must be between 3 and 12 in.");
   if (!(sl.spacing >= 6 && sl.spacing <= 48)) e.push("Slab bar spacing must be between 6 and 48 in.");
+  if (f.slab?.baseThickness != null && !(f.slab.baseThickness >= 0 && f.slab.baseThickness <= 24)) e.push("Slab base (gravel) thickness must be between 0 and 24 in.");
   if ((f.type ?? "stem") === "monolithic" && !(ft.depth > sl.thickness)) e.push("A monolithic thickened edge must be deeper than the slab.");
   for (const [i, s] of (f.interior || []).entries()) {
     if (!(s.length > 0 && s.length <= Math.max(f.width, f.depth))) e.push(`Interior footing ${i + 1} must be longer than 0 and no longer than the house.`);
