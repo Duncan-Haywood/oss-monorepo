@@ -16,8 +16,10 @@
   "cost_usd": null,
   "tool_calls": null,
   "task": null,
-  "projects": [],
-  "pr": null,
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13001",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +27,26 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 2,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Flagship next: texts are very long and mostly need real inputs or blocked hosts; hard to find a feasible slice."
+    },
+    {
+      "file": "ventures/einvoice-preflight/README.md",
+      "issue": "Notes a failing Hungary link test on clean checkout; it passes now, stale."
+    }
+  ],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-04-booking-a-whole-season-of-fields-in-one-message.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Probed gov/tax hosts from cloud: all unreachable, so chose league-schedule-generator slice needing no outside data. Page button for bookings not built.",
   "corrections": [],
   "redteam": null
 }
