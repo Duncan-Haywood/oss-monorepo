@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 66: does the descending-schedule gain of milestone 64 replicate at n = 256 on fresh draws? (H4/H3 link, planned before running)
+- Why: milestone 65's "Next". Milestone 64 found descending schedules at 42 and 40 harmful-and-unflagged of 128 against flat 0.99's 32, a gap of 8 to 10 that I called suggestive. Design (`experiments/progress_frac_schedule_n256/run.py`, milestone 64 code): sigma = 0.05, linear noise, R = 1.01, **n = 256 on fresh draws (prng seed 58, not the milestone 56/64 draws)**, schedules flat 0.99, 0.99 to 0.95, 0.99 to 0.90. The up-schedule is dropped to fit the budget. The 16 seeds are still shared, so draws are not fully independent.
+- **Predictions, before running:** (1) flat 0.99 gives a harmful-and-unflagged share of 25% +/- 7 points (64 of 256, range 46 to 82). (2) Each descending schedule exceeds flat 0.99 by at least 4 points of share (10 jobs of 256). Refuted if either descending schedule is within 4 points of, or below, flat. (3) Flags fall for both descending schedules relative to flat (as in 64).
+- Limits known in advance: one sigma, one R, one tiny model, shared seeds, open-loop schedules.
+
 ## 2026-11-04 · Milestone 65: paper gains the stall-fraction schedule result (milestone 64)
 - Why: milestone 64's "Next" listed the paper paragraph. Extended the progress-check paragraph in `paper/main.tex` (heading now milestones 53 to 64) with one sentence: flat 0.99 leaves 32 of 128 harmful and unflagged; descending schedules 42 and 40; ascending 27; stated as suggestive, not established. Numbers copied from milestone 64.
 - No new experiment; no prediction to test. LaTeX not compiled (no TeX here).
