@@ -1,6 +1,6 @@
 /**
  * Fibre-content and care labels: what must be sewn in before a garment is sold
- * in the EU or the US, and the label text for it.
+ * in the EU, UK, US or Canada, and the label text for it.
  *
  * A new brand's first compliance surprise is the label: wrong fibre names
  * ("Lycra", "nylon" in Europe), percentages that do not add to 100, minor
@@ -25,13 +25,32 @@
  *  - EU General Product Safety Regulation 2023/988: maker name, postal
  *    address and a product identifier on the product; an EU-based
  *    responsible person when the maker is outside the EU.
+ *  - UK (Great Britain): Textile Products (Labelling and Fibre Composition)
+ *    Regulations 2012, which carry over the EU fibre names, order and
+ *    tolerance; General Product Safety Regulations 2005 for the maker's or
+ *    importer's name and address and a product reference. Northern Ireland
+ *    follows the EU rules, so choose "EU" for it.
+ *  - Canada: Textile Labelling Act and Regulations: generic fibre names, shares
+ *    in descending order, English and French both, a fibre under 5% may be
+ *    "other fibres", and the dealer's name and postal address or a CA number
+ *    from the Competition Bureau. Care labels are voluntary; when used they
+ *    follow the CAN/CGSB-86.1 symbols.
  * Not covered: wool, fur or leather special rules, flammability, children's
- * garments, state or country-specific rules (e.g. UK, Canada).
+ * garments, state or provincial rules.
  */
 
 export const SOURCES = Object.freeze({
   eu: "Regulation (EU) No 1007/2011 on textile fibre names and labelling; Regulation (EU) 2023/988 (general product safety)",
   us: "16 CFR Part 303 (Textile Fiber Products Identification Act rules); 16 CFR Part 423 (Care Labeling Rule)",
+  uk: "Textile Products (Labelling and Fibre Composition) Regulations 2012 (SI 2012/1102); General Product Safety Regulations 2005",
+  ca: "Textile Labelling Act and Textile Labelling Regulations (Canada); Competition Bureau guidance on textile labelling",
+});
+
+/** Canadian generic names, English and French. Confirm against the Regulations' schedule before printing. */
+const CA_NAMES = Object.freeze({
+  cotton: ["cotton", "coton"], polyester: ["polyester", "polyester"], elastane: ["spandex", "élasthanne"], wool: ["wool", "laine"],
+  viscose: ["rayon", "rayonne"], polyamide: ["nylon", "nylon"], acrylic: ["acrylic", "acrylique"], linen: ["linen", "lin"], silk: ["silk", "soie"],
+  modal: ["modal", "modal"], lyocell: ["lyocell", "lyocell"], hemp: ["hemp", "chanvre"], cashmere: ["cashmere", "cachemire"],
 });
 
 /** Fibre catalogue: canonical key, EU approved name, US generic name, and EU names by language. */
@@ -65,6 +84,7 @@ export const EU_LANGS = Object.freeze({ en: "English", de: "German", fr: "French
 const OTHER = {
   eu: { en: "other fibres", de: "andere Fasern", fr: "autres fibres", es: "otras fibras", it: "altre fibre", nl: "overige vezels", pt: "outras fibras", pl: "inne włókna" },
   us: "other fiber",
+  ca: ["other fibres", "autres fibres"],
 };
 const round1 = v => Math.round(v * 10) / 10;
 
@@ -95,17 +115,23 @@ export function parseComposition(text) {
 /** Label wording for one market: fibre order, grouping of minor fibres, names. */
 export function compositionLabel(parts, market = "eu", lang = "en") {
   if (!parts.length) return "";
-  const name = key => (market === "us" ? FIBRES[key].us : lang === "en" ? FIBRES[key].eu : FIBRES[key].tr[lang]);
+  if (market === "ca") return [0, 1].map(i => oneLine(parts, market, lang, i)).join(" / ");
+  return oneLine(parts, market, lang, 0);
+}
+
+function oneLine(parts, market, lang, ci) {
+  const name = key => (market === "us" ? FIBRES[key].us : market === "ca" ? CA_NAMES[key][ci] : lang === "en" || market === "uk" ? FIBRES[key].eu : FIBRES[key].tr[lang]);
+  const other = market === "us" ? OTHER.us : market === "ca" ? OTHER.ca[ci] : market === "uk" ? OTHER.eu.en : OTHER.eu[lang] ?? OTHER.eu.en;
   if (parts.length === 1) return `100% ${name(parts[0].key)}`;
-  const limit = market === "us" ? 5 : 3;
-  const functional = key => market === "us" && key === "elastane"; // spandex keeps its own line in the US
+  const strict = market === "us" || market === "ca"; // 5% rule, spandex keeps its own line
+  const limit = strict ? 5 : 3;
+  const functional = key => strict && key === "elastane";
   const main = parts.filter(p => p.pct >= limit || functional(p.key));
   const minor = parts.filter(p => !(p.pct >= limit || functional(p.key)));
-  // Grouping is optional in the EU; done here because it is the short, common form. Keep a single minor fibre named.
-  const group = minor.length > 1 || (minor.length === 1 && market === "us");
-  const items = [...main];
-  const out = items.map(p => `${p.pct}% ${name(p.key)}`);
-  if (group) out.push(`${round1(minor.reduce((s, p) => s + p.pct, 0))}% ${market === "us" ? OTHER.us : OTHER.eu[lang] ?? OTHER.eu.en}`);
+  // Grouping is optional in the EU and UK; done here because it is the short, common form. Keep a single minor fibre named there.
+  const group = minor.length > 1 || (minor.length === 1 && strict);
+  const out = main.map(p => `${p.pct}% ${name(p.key)}`);
+  if (group) out.push(`${round1(minor.reduce((s, p) => s + p.pct, 0))}% ${other}`);
   else minor.forEach(p => out.push(`${p.pct}% ${name(p.key)}`));
   return out.join(", ");
 }
@@ -121,6 +147,22 @@ export function requirements(market, info = {}) {
       { item: "Country of origin", given: yes(i.origin), why: "16 CFR 303: \"Made in USA\" or \"Made in <country>\" on the label." },
       { item: "Maker's name or RN number", given: yes(i.name) || yes(i.rn), why: "16 CFR 303: the company's name, or a registered identification number (RN) from the FTC." },
       { item: "Care instructions", given: yes(i.care), why: "16 CFR 423: a permanent care label, legible for the life of the garment." },
+    ];
+  }
+  if (market === "uk") {
+    const rows = [
+      { item: "Fibre content in English", given: true, why: "Textile Products Regulations 2012: approved fibre names, descending order, on a durable label." },
+      { item: "Maker's name and address", given: yes(i.name) && yes(i.address), why: "General Product Safety Regulations 2005: the producer's name and address on the product or packaging; the importer's when the maker is outside the UK." },
+      { item: "Product reference (type, batch or serial)", given: yes(i.product), why: "General Product Safety Regulations 2005: lets a buyer and an authority trace the item." },
+    ];
+    rows.push({ item: "Care instructions", given: yes(i.care), why: "Not required by UK law, but expected by buyers and by many retailers." });
+    return rows;
+  }
+  if (market === "ca") {
+    return [
+      { item: "Fibre content in English and French", given: true, why: "Textile Labelling Regulations: generic names, descending order, both official languages." },
+      { item: "Dealer's name and postal address, or CA number", given: (yes(i.name) && yes(i.address)) || yes(i.rn), why: "Textile Labelling Act: the business that makes, imports or sells the goods; a CA identification number from the Competition Bureau can stand in." },
+      { item: "Care instructions", given: yes(i.care), why: "Voluntary in Canada; if given, the symbols follow CAN/CGSB-86.1." },
     ];
   }
   const rows = [
@@ -141,10 +183,12 @@ export function checkLabel(composition, { market = "eu", lang = "en", ...info } 
   if (market === "eu" && !EU_LANGS[lang]) p.problems.push(`No fibre names for "${lang}" here; type them from Annex I of Regulation 1007/2011.`);
   const label = p.problems.some(x => /add to|valid share/.test(x)) || !p.parts.length ? "" : compositionLabel(p.parts, market, lang);
   if (label && market === "eu" && lang !== "en") notes.push("Fibre names in this language come from the Annex I tables; have the factory or a native reader confirm them before printing.");
-  if (label) notes.push(market === "eu" ? "Stated shares may differ from the lab result by up to 3 percentage points (Regulation 1007/2011 tolerance); more than that is a wrong label." : "Stated shares may differ from the lab result by up to 3 percentage points (16 CFR 303); more than that is a wrong label.");
+  if (label) notes.push(market === "us" ? "Stated shares may differ from the lab result by up to 3 percentage points (16 CFR 303); more than that is a wrong label." : market === "ca" ? "Canada also allows only a small gap between stated and tested shares; check the tolerance in the Regulations and state what the fabric supplier's test says." : "Stated shares may differ from the lab result by up to 3 percentage points (Regulation 1007/2011 tolerance, carried into UK law); more than that is a wrong label.");
+  if (label && market === "ca") notes.push("Canadian generic names (spandex, rayon) differ from the EU ones; confirm both languages against the Regulations' schedule before printing.");
+  if (label && market === "uk") notes.push("This is for Great Britain. Northern Ireland follows the EU rules: choose EU there.");
   if (label && p.parts.some(x => x.key === "polyester") && /recycled/i.test(String(composition))) notes.push("\"Recycled\" is a claim, not a fibre name. Keep it off the fibre line unless you can document it, and check the green-claims rules of the market.");
   const req = requirements(market, info);
-  return { market, lang, ok: p.problems.length === 0, label, parts: p.parts, problems: p.problems, requirements: req, missing: req.filter(r => !r.given).map(r => r.item), notes, sources: SOURCES[market] };
+  return { market, lang, ok: p.problems.length === 0, label, parts: p.parts, problems: p.problems, requirements: req, missing: req.filter(r => !r.given).map(r => r.item), notes, sources: SOURCES[market] ?? SOURCES.eu };
 }
 
 /** Most delicate fibre sets the starting care advice. A starting point; swatch-test the fabric. */

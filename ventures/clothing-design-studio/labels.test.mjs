@@ -74,3 +74,21 @@ test("care ties between equally delicate fibres go to the larger share", () => {
   assert.equal(suggestCare(parseComposition("60% modal, 40% lyocell").parts).drivenBy, "modal");
   assert.equal(suggestCare(parseComposition("60% lyocell, 40% modal").parts).drivenBy, "lyocell");
 });
+
+// 2026-11-04: UK and Canada.
+test("UK uses the EU names in English; Canada is bilingual with the 5% rule and its own names", () => {
+  const p = parseComposition("92% cotton, 5% elastane, 3% viscose").parts;
+  assert.equal(compositionLabel(p, "uk"), "92% cotton, 5% elastane, 3% viscose");
+  assert.equal(compositionLabel(p, "uk", "de"), "92% cotton, 5% elastane, 3% viscose"); // language is an EU choice
+  assert.equal(compositionLabel(p, "ca"), "92% cotton, 5% spandex, 3% other fibres / 92% coton, 5% élasthanne, 3% autres fibres");
+  assert.equal(compositionLabel(parseComposition("100% nylon").parts, "ca"), "100% nylon / 100% nylon");
+});
+test("UK and Canada list their own items and sources", () => {
+  assert.deepEqual(checkLabel("100% cotton", { market: "uk" }).missing, ["Maker's name and address", "Product reference (type, batch or serial)", "Care instructions"]);
+  assert.deepEqual(checkLabel("100% cotton", { market: "ca", rn: "CA12345" }).missing, ["Care instructions"]);
+  assert.deepEqual(checkLabel("100% cotton", { market: "ca" }).missing, ["Dealer's name and postal address, or CA number", "Care instructions"]);
+  assert.deepEqual(checkLabel("100% cotton", { market: "ca", makerName: "A", makerAddress: "1 Main St", care: "x" }).missing, []);
+  assert.match(checkLabel("100% cotton", { market: "uk" }).sources, /2012/);
+  assert.match(checkLabel("100% cotton", { market: "ca" }).sources, /Canada/);
+  assert.ok(checkLabel("100% cotton", { market: "uk" }).notes.some(n => /Northern Ireland/.test(n)));
+});
