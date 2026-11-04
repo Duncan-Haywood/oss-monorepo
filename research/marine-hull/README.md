@@ -126,7 +126,9 @@ corridor edge reaches 83.7%, tacking when headed 87.6% (+3.2 points, positive at
 gap to the clairvoyant is about information, not the tack cost. Spatial wind fields and isochrone routing are not done. Full
 numbers, limits and the predictions that failed: `LOG.md` (2026-11-04, milestone 5a).
 
-Milestone 5b (negative): giving a receding-horizon controller a persistence, smoothed or even perfect forecast of the wind (up to the whole day, 5 to 15 minute planning blocks) recovers none of the roughly 12-point gap between the header-follower and the clairvoyant; the gap is minute-scale gust information. Caveat: the planner is not optimal. `LOG.md` (2026-11-04, milestone 5b), `experiments/results_sail_forecast*.txt`.
+Milestone 5b (negative): giving a receding-horizon controller a persistence, smoothed or even perfect forecast of the wind (up to the whole day, 5 to 15 minute planning blocks) recovers none of the roughly 12-point gap between the header-follower and the clairvoyant; the gap is minute-scale gust information. Caveat: the planner is not optimal. **Superseded by 5c below: the planner was the limit.** `LOG.md` (2026-11-04, milestone 5b), `experiments/results_sail_forecast*.txt`.
+
+Milestone 5c (corrects 5a and 5b): the clairvoyant of 5a let the boat ride the corridor edge without tacking while every simulated controller had to tack there; with the same rule (`tack.dp_values`) the clairvoyant is 92.7% (July) rather than 99.7%, so about 7 of the 12 headroom points were an artefact. A full-day tack policy computed on wind smoothed to 15 minutes and executed on the true wind closes 93 to 95% of the rest (+5 points over the header-follower, 4.7 to 6.1 bootstrap), 60-minute smoothing keeps about 38%, 120-minute smoothing about 0 to 11%. It assumes a perfect day-long forecast of the slow wind; forecast error and lead are not modelled. `LOG.md` (2026-11-04, milestone 5c), `experiments/results_sail_policy.txt`, `experiments/run_sail_policy.py`.
 
 ## Limitations
 
