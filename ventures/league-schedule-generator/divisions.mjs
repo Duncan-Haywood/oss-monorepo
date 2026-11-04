@@ -441,6 +441,52 @@ export function applyDivisionRainouts(schedule, text, { balance = false, flip = 
 }
 
 /**
+ * A team drops out mid-season, one per line: "U10/Hawks" (all its remaining matches) or "2026-11-03 U10/Hawks"
+ * (its matches on or after that night). Those matches are removed, matches already played stay, nothing else
+ * moves. Returns { schedule, withdrawals[{division, team, from, removed, opponentsShort[{team, fixtures}]}], notices[], errors[] }
+ * (the input is not mutated). A league decides for itself whether earlier results against the team still count,
+ * so each notice names who is left with fewer games.
+ */
+export function applyDivisionWithdrawals(schedule, text) {
+  const s = JSON.parse(JSON.stringify(schedule));
+  const withdrawals = [], notices = [], errors = [], done = new Set();
+  for (const raw of String(text ?? "").split(/\r?\n/)) {
+    let line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^(\d{4}-\d{1,2}-\d{1,2})\s*[:,-]?\s*(.*)$/);
+    const from = m ? parseDate(m[1]) : null;
+    if (m && from === null) { errors.push(`"${line}": that is not a real date.`); continue; }
+    const name = (m ? m[2] : line).trim();
+    const [dn, ...tn] = name.split("/");
+    const di = s.divisions.findIndex((d) => d.name.toLowerCase() === dn.trim().toLowerCase());
+    const ti = di < 0 || !tn.length ? -1 : s.divisions[di].teams.findIndex((t) => t.toLowerCase() === tn.join("/").trim().toLowerCase());
+    if (ti < 0) { errors.push(`"${name}" is not a Division/Team in this league.`); continue; }
+    const key = `${di}/${ti}`;
+    if (done.has(key)) { errors.push(`${s.divisions[di].name}/${s.divisions[di].teams[ti]} has already withdrawn.`); continue; }
+    done.add(key);
+    const gone = (day, x) => x.division === s.divisions[di].name && (x.home === ti || x.away === ti) && (from === null || day >= from);
+    const left = {};
+    let removed = 0;
+    for (const n of s.nights) {
+      for (const x of n.matches) if (gone(n.day, x)) { removed++; const o = x.home === ti ? x.awayName : x.homeName; left[o] = (left[o] || 0) + 1; }
+      n.matches = n.matches.filter((x) => !gone(n.day, x));
+    }
+    for (const r of s.divisions[di].rounds) r.matches = r.matches.filter((x) => !gone(r.day, x));
+    const team = s.divisions[di].teams[ti];
+    const opponentsShort = Object.entries(left).map(([o, fixtures]) => ({ team: o, fixtures }));
+    const w = { division: s.divisions[di].name, team, from, removed, opponentsShort };
+    withdrawals.push(w);
+    s.withdrawn = [...(s.withdrawn || []), { div: di, team: ti, from }];
+    notices.push(`${w.division}/${team} withdrew${from === null ? "" : " from " + dayIso(from)}: ${removed} fixture(s) removed${opponentsShort.length ? ", " + opponentsShort.map((o) => `${o.team} loses ${o.fixtures}`).join(", ") : ""}. Decide in your league rules whether results already played against ${team} still count.`);
+  }
+  for (const dv of s.divisions) dv.rounds = dv.rounds.filter((r) => r.matches.length);
+  s.nights = s.nights.filter((n) => n.matches.length);
+  s.conflicts = linkConflicts(s);
+  s.stats = divisionStats(s);
+  return { schedule: s, withdrawals, notices, errors };
+}
+
+/**
  * After the moves, tries each make-up on every earlier night that is already on the calendar (after its rainout,
  * with both teams free, an open court and no new linked-team clash) and keeps the move that most lowers the
  * schedule's home/away breaks, repeating until none helps. A make-up with a date you agreed stays put.
@@ -973,6 +1019,7 @@ export function validateDivisions(schedule) {
   for (const d of schedule.divisions) {
     const n = d.teams.length, want = d.double ? 2 : 1;
     const pair = new Map(), home = Array(n).fill(0), away = Array(n).fill(0);
+    const out = new Set((schedule.withdrawn || []).filter((w) => w.div === schedule.divisions.indexOf(d)).map((w) => w.team));
     let prev = -Infinity;
     for (const r of d.rounds) {
       if (r.day <= prev) errors.push(`${d.name}: ${r.label} is not after the round before it.`);
@@ -986,10 +1033,11 @@ export function validateDivisions(schedule) {
     }
     for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) {
       const rec = pair.get(`${a}-${b}`);
-      if (!rec || rec.c !== want) errors.push(`${d.name}: ${d.teams[a]} and ${d.teams[b]} meet ${rec ? rec.c : 0} time(s), expected ${want}.`);
+      if (out.has(a) || out.has(b)) { if (rec && rec.c > want) errors.push(`${d.name}: ${d.teams[a]} and ${d.teams[b]} meet ${rec.c} time(s), expected at most ${want}.`); }
+      else if (!rec || rec.c !== want) errors.push(`${d.name}: ${d.teams[a]} and ${d.teams[b]} meet ${rec ? rec.c : 0} time(s), expected ${want}.`);
       else if (want === 2 && (rec.lo !== 1 || rec.hi !== 1)) errors.push(`${d.name}: ${d.teams[a]} and ${d.teams[b]} do not each host once.`);
     }
-    for (let t = 0; t < n; t++) if (Math.abs(home[t] - away[t]) > (want === 2 ? 0 : 1)) errors.push(`${d.name}: ${d.teams[t]} has ${home[t]} home and ${away[t]} away games.`);
+    if (!out.size) for (let t = 0; t < n; t++) if (Math.abs(home[t] - away[t]) > (want === 2 ? 0 : 1)) errors.push(`${d.name}: ${d.teams[t]} has ${home[t]} home and ${away[t]} away games.`);
   }
   const recount = linkConflicts(schedule);
   if (recount.length !== schedule.conflicts.length) errors.push(`The conflict list (${schedule.conflicts.length}) does not match a recount (${recount.length}).`);
@@ -1345,6 +1393,13 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
     for (const e of r.errors) console.error(`Rainout: ${e}`);
     s = r.schedule;
     allMoves.push(...r.moves);
+  }
+  const withdrawText = raw.withdrawals;
+  if (withdrawText) {
+    const r = applyDivisionWithdrawals(s, withdrawText);
+    for (const e of r.errors) console.error(`Withdrawal: ${e}`);
+    for (const n of r.notices) console.error(`Notice: ${n}`);
+    s = r.schedule;
   }
   if (process.argv.includes("--bookings")) {
     process.stdout.write(divisionsBookings(s).text);
