@@ -359,3 +359,12 @@ annualised CPI inflation, %), 202 quarters (first quarter dropped: 0 by construc
   <https://raw.githubusercontent.com/statsmodels/statsmodels/main/statsmodels/datasets/macrodata/macrodata.csv>.
 - **Licence:** public domain (statsmodels dataset module, `COPYRIGHT`); underlying figures are US BLS data via FRED.
 - **Used by:** `eval/us-unemployment.mjs`, `us-unemployment.test.mjs`.
+
+# Example data: US daily births, 1978-1988
+
+`us-births-daily.csv`: births per day (both sexes summed), 4,018 days, with a `holiday` column for six US federal holidays computed by rule.
+
+- **Retrieved:** 2026-11-04 from
+  <https://raw.githubusercontent.com/jakevdp/PythonDataScienceHandbook/master/notebooks/data/births.csv>
+  (CDC / NCHS birth counts; US government statistics, public domain).
+- **Used by:** `eval/holiday-births.mjs`, `holiday-births.test.mjs`.

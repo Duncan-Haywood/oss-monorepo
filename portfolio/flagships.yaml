@@ -44,8 +44,9 @@ flagships:
       only); stair stringer and landing post tables, winder radial supports,
       connector and anchor sizes; a real architect's DXF; a real US
       wood-framed IFC (the Rust IFC reader, ifc-engine/, is on the page's
-      IFC upload as WASM since 2026-11-03; run it in the browser on the
-      Duplex model, and on a wood-framed one) to map its stud layer to stud sizes; a
+      IFC upload as WASM since 2026-11-03 and run in Chromium on the Duplex and
+      Schependomlaan models 2026-11-04; run it on a wood-framed one) to map its
+      stud layer to stud sizes; a
       real foundation plan; ceiling steps against a real soffit; trim,
       drywall and siding against real orders and hangs; bid leveling on real
       bids and a real sub's labor rates; gable sheathing nested on real sheets;
@@ -146,7 +147,7 @@ flagships:
       null but loses UK gas). (4b) Australian arrivals and UK lung deaths: `--ar1` loses the real shocks, the default keeps them and over-cuts; wanted: a setup that keeps both. (5) Bootstrap swept on 33 real series 2026-10-31
       holiday false-alarm cuts: two real daily series tried
       (Payroll pageviews; Capital Bikeshare 2026-11-02, README) and the list added changes on the bikes and cut two of 47 on the pageviews;
-      bikes in 12-week windows 2026-11-04 (README): list adds changes again; wanted: a daily series without a strong yearly swing and with a deep holiday dip (a shop's or office's counts), or a yearly term.
+      bikes in 12-week windows 2026-11-04 (README): list adds changes again; US daily births 1978-1988 (README, 2026-11-04) is the first real series where the list helps (239 to 205 changes over 11 single years, never more); wanted: a shop's or office's counts to confirm, or a yearly term.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
@@ -240,7 +241,7 @@ flagships:
       suggestFairnessWeight (CLI --suggest-weight and a page button), play-
       off race and odds; thousands of random leagues through the validator
       with 0 invalid, and the page checkboxes clicked in Chromium
-      (eval/browser-click.mjs). Travel-table warnings, the multi-division season grid CSV and team unavailable dates landed 2026-10-30 (browser-clicked; details in the README). Standings from results on the page and CLI landed 2026-11-02 (browser-clicked). Cross-division play-off seeding with wildcards from those standings landed 2026-11-02 (page, CLI --playoffs, browser-clicked). Tie-break notes (why a team is above the next) landed 2026-11-02 (tiebreak.test.mjs) and show on the multi-division page from 2026-11-02 (browser-clicked). Weekly group-chat update for every division landed 2026-11-03 (divisionsWeeklyUpdate, page button; unit-tested on the made-up example league only; CLI `--results r.txt --weekly` landed 2026-11-03). Clinch watch across divisions landed 2026-11-03 (divisionsRace, CLI --clinch, page button; unit-tested on the made-up league only). Missing-scores chase list for multi-division leagues landed 2026-11-03 (divisionsOverdue, CLI --overdue, page button; unit-tested, browser-clicked 2026-11-03 with the weekly-update button: eval/browser-click.mjs). Strength of remaining schedule (divisionsRemaining, CLI --remaining) landed 2026-11-03 (unit-tested; page button and browser click 2026-11-04; made-up league only). Volleyball set scoring box on the single-league page landed 2026-11-04 (wiring test only). Rainout change notices for multi-division leagues landed 2026-11-04 (divisionsChangeNotices, CLI --notices, page button; unit-tested and browser-clicked, made-up league only). Next: a real league's travel times and a real league's unavailable-date requests.
+      (eval/browser-click.mjs). Travel-table warnings, the multi-division season grid CSV and team unavailable dates landed 2026-10-30 (browser-clicked; details in the README). Standings from results on the page and CLI landed 2026-11-02 (browser-clicked). Cross-division play-off seeding with wildcards from those standings landed 2026-11-02 (page, CLI --playoffs, browser-clicked). Tie-break notes (why a team is above the next) landed 2026-11-02 (tiebreak.test.mjs) and show on the multi-division page from 2026-11-02 (browser-clicked). Weekly group-chat update for every division landed 2026-11-03 (divisionsWeeklyUpdate, page button; unit-tested on the made-up example league only; CLI `--results r.txt --weekly` landed 2026-11-03). Clinch watch across divisions landed 2026-11-03 (divisionsRace, CLI --clinch, page button; unit-tested on the made-up league only). Missing-scores chase list for multi-division leagues landed 2026-11-03 (divisionsOverdue, CLI --overdue, page button; unit-tested, browser-clicked 2026-11-03 with the weekly-update button: eval/browser-click.mjs). Strength of remaining schedule (divisionsRemaining, CLI --remaining) landed 2026-11-03 (unit-tested; page button and browser click 2026-11-04; made-up league only). Volleyball set scoring box on the single-league page landed 2026-11-04 (wiring test; browser-clicked 2026-11-04, eval/browser-click-single.mjs). Rainout change notices for multi-division leagues landed 2026-11-04 (divisionsChangeNotices, CLI --notices, page button; unit-tested and browser-clicked, made-up league only). Next: a real league's travel times and a real league's unavailable-date requests.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP

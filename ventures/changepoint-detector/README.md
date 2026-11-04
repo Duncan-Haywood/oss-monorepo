@@ -519,6 +519,17 @@ The last "not tried" item above: fit the holiday factor only inside short window
 
 Negative again. Short windows do not make the list remove changes: it adds five (registered) and six (casual) over the seven windows, and fits are two to four holidays each, so they scatter (the registered factor even goes above 1 once). Holiday dips on this series are real in the pooled data but too few per window to estimate. The feature still has no real series where it earns its place; wanted is a shop's or office's daily counts with many closed days. One dataset, made-up window length (84 days, not tuned).
 
+## Holidays on real daily births: the first real series where the list helps (2026-11-04)
+
+The wanted series was a daily count with deep holiday dips and a mild yearly swing. US births are one: scheduled deliveries and inductions fall on federal holidays, so those days run about 15% under others (mean 8,516 against 10,067 on the other days, 66 holiday days of 4,018). `data/us-births-daily.csv` is CDC daily birth counts, 1978-1988, from the copy in the Python Data Science Handbook repository (see `data/SOURCE.md`). The holiday column is six federal holidays computed by rule (New Year, Memorial Day, July 4, Labor Day, Thanksgiving, Christmas), not taken from the file. `node eval/holiday-births.mjs` (output `eval/holiday-births.out.txt`, test `holiday-births.test.mjs`) runs `--model poisson --period 7 --overdispersion nb` year by year and on all 11 years.
+
+| scope | changes, no list | changes, with list | fitted factor |
+|---|---|---|---|
+| 11 single years | 239 | 205 | 0.84 to 0.92 |
+| 1978-1988 at once | 199 | 164 | 0.875 |
+
+The list removed changes in ten years of eleven and left the eleventh (1987) unchanged; it never added any. This is the opposite of the two bikeshare runs above, where it added changes. Read it with care: there is no ground truth for births, so fewer changes is only evidence that some of the 17 to 22 per year were holiday dips, not that the remainder are real. Most of what remains is the late-summer peak. The fitted factor (0.875) again sits above the raw ratio (0.846) because the weekly term absorbs part of the dip. One dataset, one country, a rule-based holiday list.
+
 ## Burst or two steps? (`excursions`, counts)
 
 With `--model poisson`, the result lists an `excursions` entry (and one sentence in `summary`) when two neighbouring changes enclose a short stretch (at most a quarter of the series) whose rate sits above or below both sides, and the rate before and after it is statistically one rate (Poisson likelihood ratio under 3.84, 1 df). That reads as a temporary burst or dip on a steady baseline, not two level changes. The changes themselves are not altered. Function: `findExcursions`.
