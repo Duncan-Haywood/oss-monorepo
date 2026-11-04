@@ -1,7 +1,7 @@
 ---
 title: "How long a series do you need before a slope change counts?"
 date: 2026-11-04
-description: "A fixed significance bar for growth-rate breaks reports false alarms on one in seven short, sticky series. A bar that depends on length and autocorrelation fixes most of it."
+description: "A fixed bar for growth-rate breaks reports false alarms on one in seven short, sticky series. A bar set by length and autocorrelation fixes most of it."
 tags: [changepoint-detector, statistics]
 ---
 
