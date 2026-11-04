@@ -1,6 +1,6 @@
 ---
 title: "No duplicate ids or dangling labels in 3,422 venture pages"
-seo_title: "HTML id audit: 0 duplicate ids, 0 dangling label targets in 3,422 pages"
+seo_title: "HTML id audit: 0 duplicate ids, 0 dangling labels in 3,422 pages"
 date: 2026-11-04
 tags: [accessibility, quality, tooling]
 description: "A new checker looks for repeated id attributes and for/aria-labelledby targets that name no element. It found nothing across 3,422 pages."
