@@ -1,7 +1,7 @@
 ---
 title: "What shelf price in each country for the same shirt?"
 date: 2026-11-04
-description: "The clothing studio's new price page turns one margin target into a shelf price per market: VAT inside the EU and UK price, none in the US, and the real margin at a .95 ending."
+description: "The clothing studio now turns one margin target into a shelf price per market: VAT inside EU and UK prices, none in the US, and the margin at a .95 ending."
 tags: [clothing-design-studio, pricing]
 ---
 
