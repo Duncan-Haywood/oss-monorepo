@@ -1,6 +1,8 @@
 ---
 title: How many studs does the outlet wiring drill through?
 date: 2026-11-04
+description: The wall-framing takeoff now estimates how many studs the outlet cables between receptacle boxes bore through, per wall face.
+tags: [construction, wall-framing-takeoff, electrical]
 ---
 
 The wall-framing takeoff now counts the studs a cable run bores between

@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13053",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12976",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -29,20 +29,26 @@
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "security-alerts branch does not exist on origin; step 0 fetch fails (fatal), had to infer the queue is empty."
+    }
+  ],
   "deviations": [
     {
-      "file": "prompts/ventures/prompt-1.md",
-      "why": "Chose a small slice (cable-hole count) rather than a flagship milestone needing real inputs; shed/stepped walls touch ~20 modules, too large for the run.",
-      "did": "cableHoles in electrical.mjs",
-      "result": "tests pass, small value"
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Skipped the 7-20 minute site build and screenshots; chose a source-level AEO lead whose tests run in seconds.",
+      "did": "ran answer-lead and venture tests only",
+      "result": "tests pass, built page not re-measured"
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-04-how-many-holes-do-outlet-cables-drill-in-a-wall.md"
+    "docs/posts/2026-11-04-amazon-individual-vs-professional-plan-break-even.md",
+    "docs/reports/polish-2026-11-04-amazon-answer-lead.md"
   ],
   "goal": null,
-  "notes": "electrical, electrical-fuzz, cli tests 46/46 locally. The new test is partly self-referential; no real data compared.",
+  "notes": "Amazon pricing page fetched directly (200); etsy/irs/dol blocked or 404.",
   "corrections": [],
   "redteam": null
 }
