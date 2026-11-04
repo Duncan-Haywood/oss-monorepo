@@ -1,0 +1,10 @@
+curves 137; propellers 34; Re75 1.48e+04 to 1.24e+05
+s = dlnCT/dlnJ at peak-eta J: median -2.25, 5th/95th pct -2.86 / -1.54
+within-propeller d s / d log10 Re75: mean 0.233 [-0.239, 0.731] over 34 propellers, share positive 0.59
+implied change in s for Re75 x 0.0316 (1.5 decades): -0.35 [-1.10, 0.36]  (extrapolation)
+within-propeller d J_peak / d log10 Re75: mean 0.0239 (J at peak efficiency itself moves with Re)
+binned s (all curves):
+  Re75 1e+04..2e+04: n=   3 mean s -2.19 sd 0.19
+  Re75 2e+04..4e+04: n=  13 mean s -2.38 sd 0.44
+  Re75 4e+04..8e+04: n=  93 mean s -2.28 sd 0.35
+  Re75 8e+04..2e+05: n=  28 mean s -2.02 sd 0.39

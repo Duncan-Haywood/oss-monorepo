@@ -2,6 +2,17 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 5b: the propeller thrust law: does the thrust-speed slope depend on Reynolds number? (planned before running)
+- Why: 3a's phugoid has no thrust term and its damping sign is a modelling artefact; the "Next" lists a thrust law, and the UIUC host answers today (it did not on 2026-10-27 to 11-03). At fixed RPM dlnT/dlnV = dlnCT/dlnJ =: s, a Froude-invariant number, so thrust-induced phugoid damping changes with n only if s changes with blade Reynolds number.
+- Plan (`experiments/propeller_thrust_slope/run.py`, reusing 5a's reader): s from a 5-point quadratic fit of CT(J) around each APC curve's efficiency peak; within-propeller slope of s against log10 Re75, bootstrap over propellers. **Predictions (before running):** (1) s is negative, about -2 (thrust falls with speed) (prior 85%). (2) the mean within-propeller slope of s against log10 Re75 has a 95% interval excluding zero (prior 40%; the thin-electric props are mostly in the same Re band). Refuted: (1) median above -1 or below -4; (2) interval contains zero.
+
+### Outcome (`experiments/propeller_thrust_slope/results.txt`)
+- 137 curves, 34 propellers, Re75 1.5e4 to 1.2e5. s median -2.25 (5th/95th percentile -2.86 / -1.54). **(1) held.**
+- Within-propeller slope of s: +0.23 per decade, 95% interval [-0.24, 0.73], 59% of propellers positive. **(2) refuted:** no Reynolds dependence detected. Binned means drift from -2.38 (Re75 2e4 to 4e4) to -2.02 (8e4 to 2e5), but that comparison mixes propellers.
+- Reading: for the phugoid the thrust term can be taken as the Froude-invariant s = -2.25 with a +/-0.7 spread across props; the propeller adds no detectable Re-dependent damping change within the measured band. Extrapolating the (insignificant) mean slope to n = 0.1 gives -0.35 [-1.10, 0.36] in s, not a result.
+- Limits: APC thin-electric and slow-flyer props only; s read at the efficiency peak, whose J itself moves with Re (+0.024 per decade); the fit uses 5 tabulated points per curve (noisy second derivative); fixed-RPM thrust, not a motor-governed or fixed-power law; no integration into the 4-state model yet; one-decade Re span.
+- Next: add T = T0 (V/V0)^s to the 4-state model and recompute the phugoid damping sign at n = 1 and 0.2; Allan-variance parameters; AIAA template.
+
 ## 2026-11-03 · Milestone 8d: the four unchecked bibliography entries checked by web search (a check, not an experiment)
 - Why: 8c's "Next". Crossref and the UIUC host were blocked again this session (HTTP 403 / proxy refusal), so the entries were checked with web search against library and catalogue records.
 - Outcome: **correction**: Sharpe's AeroSandbox thesis is an MIT **S.M.** thesis (DSpace 1721.1/140023, September 2021, advisor R. J. Hansman), not a PhD thesis; `references.bib` now uses `mastersthesis`, PROPOSAL.md says S.M. Drela 1989 gets its DOI (10.1007/978-3-642-84010-4_1). Selig's entry is now *Summary of Low-Speed Airfoil Data, Volume 1* (Selig, Guglielmo, Broeren, Giguère; SoarTech, 1995). Raymer 6th ed. gets ISBN 978-1-62410-490-9 (a bundled printing has 978-1-62410-574-6).
