@@ -1,0 +1,27 @@
+{
+  "id": "P062",
+  "title": "perf: three Pages test files each run their own full site build, in separate processes",
+  "status": "open",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 2,
+  "problem": "In platform/pages, build.test.mjs (298 s), build-determinism.test.mjs (292 s; two sequential buildSite calls) and custom-domain.test.mjs (120 s) each build the site themselves; every other file is under 10 s. Files run in parallel, so wall time is the max, but all three occupy cores at once and the Pages test step is the heaviest in the runner pool.",
+  "evidence": [
+    "per-file timing, 4-core sandbox, 2026-11-04: for f in *.test.mjs cloudflare/*.test.mjs; do node --test $f; done -> 64 files, all pass, sum 776 s; build 297.8, build-determinism 292.5, custom-domain 120.2, next largest surface-budget 8.8",
+    "python3 platform/ci/ci_profile.py --runs 100 --top 15, 2026-11-04: Portfolio Pages, Test the site builder 17.5 of 77.2 job-min",
+    "docs/history/pages-test-perf-2026-11-03-red-suite-reading.md ranked item 1 (shared ~10 s build) as next"
+  ],
+  "change": "Measure on a runner first (the sandbox is several times slower). Then: run build-determinism's two builds with Promise.all (halves that file); have custom-domain and build.test share one build output via an env-pointed directory built once by a pre-step, keeping assertions identical; compare job minutes with ci_profile.py.",
+  "touches": [
+    "platform/pages/build-determinism.test.mjs",
+    "platform/pages/custom-domain.test.mjs",
+    ".github/workflows/portfolio-pages.yml"
+  ],
+  "metric": "Portfolio Pages 'Test the site builder' step minutes per job (ci_profile.py)",
+  "baseline": "17.5 min over 21 jobs, 2026-11-04",
+  "opened": "2026-11-04",
+  "source": "docs/history/pages-test-perf-2026-11-04-per-file-reading.md",
+  "pr": null,
+  "result": null,
+  "history": []
+}
