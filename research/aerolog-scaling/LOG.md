@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 8j: paper draft catches up with milestones 9aa to 9ad (no new simulation)
+- New Section 4.10c carries the pitot-channel sizing (9aa), the constant-offset fit (9ab), the scale-factor fit (9ac) and the gain arm (9ad); `paper/check_numbers.py` ties five of its figures to the results files (all checks pass). The open-items line now lists only the incidence channel.
+- Next: incidence-channel sizing from a published vane or five-hole sensor; AIAA template.
+
 ## 2026-11-04 · Milestone 9ad: does the speed-dependent part of a pitot pressure offset (a gain on the u channel) change 9ab's result? (prediction written before running)
 - Why: 9ab's "Next". A constant pressure offset dp makes the indicated speed sqrt(V^2 + 2 dp/rho), so a perturbation du is read as du x 1/sqrt(1 + dp/q): a gain below 1 on top of the constant offset. At q = 272 Pa (1 psi part): dp/q = 0.063 (0.25% accuracy) gives gain 0.970; 0.253 (1% TEB) gives 0.894.
 - **Prediction (before running):** a gain on one channel is a diagonal similarity transform, which leaves the eigenvalues of x[k+1] = Phi x[k] unchanged; only its signal-to-noise ratio in u changes (noise is fixed in rms units of the unscaled signal). So the OE+b fit's median errors move by under 10% of themselves, and plain OE still fails at offset 1.48 (prior 85%). Refuted if OE+b median short-period error rises by more than 10% or fails rise above 10 of 160 at 1 period.
