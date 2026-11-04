@@ -23,6 +23,12 @@ CHECKS = [
     ("experiments/thrust_phugoid_power/results.txt", "-1.00  1.00  21.2  +0.0062", "s=-1 phugoid +0.0062 tripped"),
     ("experiments/thrust_phugoid/results.txt", "s=-2.25: Re(ph) change n=1 -> 0.2: -0.0083", "phugoid change -0.0083"),
     ("experiments/tail_gust/results.txt", "1.2%", "best design 1.2%"),
+    ("experiments/propeller_power_slope/results.txt", "curves 104; propellers 71", "5e: 104 curves, 71 propellers"),
+    ("experiments/propeller_power_slope/results.txt", "0.9   -0.88", "5e: median s_P -0.88 at k 0.9"),
+    ("experiments/propeller_power_slope/results.txt", "1.0   -1.10", "5e: median s_P -1.10 at the peak"),
+    ("experiments/propeller_power_slope/results.txt", "1.1   -1.33", "5e: median s_P -1.33 at k 1.1"),
+    ("experiments/propeller_power_slope/results.txt", "0.8   -0.67", "5e: median s_P -0.67 at k 0.8"),
+    ("experiments/propeller_power_slope/results.txt", "1.2   -1.54", "5e: median s_P -1.54 at k 1.2"),
     ("experiments/rodrigues_energy/results_days.txt", "1.539", "day-cluster exponent"),
     ("experiments/rodrigues_energy/results_days.txt", "1.529", "date fixed effect exponent"),
 ]
