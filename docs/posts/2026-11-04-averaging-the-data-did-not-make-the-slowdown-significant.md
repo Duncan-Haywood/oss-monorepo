@@ -1,7 +1,7 @@
 ---
 title: "Averaging the data did not make the productivity slowdown significant"
 date: 2026-11-04
-description: "A changepoint tool dates the 1970s US productivity slowdown to 1973 on quarterly and annual data, but cannot call it significant, and the test's bar turns out to be too low for short correlated series."
+description: "Annual means date the 1970s US productivity slowdown to 1973 but are not significant, and the test bar is too low for short correlated series."
 tags: [changepoint-detector, statistics, negative-result]
 ---
 
