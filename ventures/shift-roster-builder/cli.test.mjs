@@ -185,6 +185,9 @@ test("--changes prices what moved since the posted roster, on the operator's num
   assert.match(ex.out, /requested, no premium/);
   assert.match(run(sampleStaff(), sampleShifts(), { postedCsv: cut }).out, /Give --week-start and --changed-at/);
   assert.equal(parseArgs(["--changes", "p.csv", "--changed-at", "2026-11-01 12:00", "--notice-hours", "24"]).noticeHours, 24);
+  assert.equal(parseArgs(["--changes", "p.csv", "--premium-flat", "10"]).premiumFlat, 10);
+  assert.equal(parseArgs(["--changes", "p.csv", "--cancel-hours", "0.5"]).cancelHours, 0.5);
+  assert.throws(() => parseArgs(["--changes", "p.csv", "--premium-flat", "x"]));
   assert.throws(() => parseArgs(["--changed-at", "tuesday"]), /date and time/);
 });
 

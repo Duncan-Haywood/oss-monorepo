@@ -54,7 +54,7 @@ Options:
                       rest gaps and the tough-shift tally carry over; prints a fairness total. With --csv a "week" column is added
   --changes <csv>     compare the roster you posted (CSV) with this build: every shift added, cancelled or moved, its notice and the premium
                       on your numbers. Needs --week-start and --changed-at "YYYY-MM-DD HH:MM" for notice; --notice-hours (default 336),
-                      --premium-hours (default 1) and --exempt "Ben,Cleo" (employee-requested changes) are yours to set, not a statement of any law
+                      --premium-hours (default 1), --cancel-hours (hours of pay for a cancelled shift, default the same), --premium-flat <$> (a fixed dollar amount per short-notice change, no wage needed) and --exempt "Ben,Cleo" (employee-requested changes) are yours to set, not a statement of any law
   --burden <pct>      payroll burden added to wages, in percent (default 0)
   --daily-ot-after <h> / --daily-dt-after <h> / --dt-mult <x>   daily overtime and double-time thresholds and the double-time multiplier (default off, 2)
   --split-premium <$> [--split-gap <h>]   dollars owed on each day a person's shifts have a gap over <h> hours (default gap 1); the search prices it
@@ -125,10 +125,10 @@ export function parseArgs(argv) {
       o.watchWithin = v;
     }
     else if (a === "--exempt") { o.exempt = argv[++i]; if (o.exempt === undefined) throw new Error("--exempt needs names, comma separated"); }
-    else if (a === "--notice-hours" || a === "--premium-hours") {
+    else if (a === "--notice-hours" || a === "--premium-hours" || a === "--cancel-hours" || a === "--premium-flat") {
       const v = Number(argv[++i]);
       if (!Number.isFinite(v) || v < 0) throw new Error(`${a} needs a number`);
-      o[a === "--notice-hours" ? "noticeHours" : "premiumHours"] = v;
+      o[{ "--notice-hours": "noticeHours", "--premium-hours": "premiumHours", "--cancel-hours": "cancelHours", "--premium-flat": "premiumFlat" }[a]] = v;
     }
     else if (a === "--diff-when") { o.options.diffWhen = argv[++i]; if (!o.options.diffWhen) throw new Error('--diff-when needs windows like "Sat-Sun; 10pm-6am"'); }
     else if (a === "--prove") o.options.exact = true;
@@ -172,7 +172,7 @@ function changesReport(staff, opts, revisedCsv) {
   const wages = Object.fromEntries(staff.map((p) => [p.name, p.wage]));
   const r = scheduleChanges(opts.postedCsv, revisedCsv, {
     changedAt: known ? minutesSinceMonday(opts.weekStart, opts.changedAt) : null,
-    noticeHours: opts.noticeHours ?? 336, premiumHours: opts.premiumHours ?? 1, wages, exempt: String(opts.exempt || "").split(","),
+    noticeHours: opts.noticeHours ?? 336, premiumHours: opts.premiumHours ?? 1, cancelHours: opts.cancelHours ?? null, flat: opts.premiumFlat ?? null, wages, exempt: String(opts.exempt || "").split(","),
   });
   const lines = [];
   for (const c of r.changes) {
@@ -181,7 +181,7 @@ function changesReport(staff, opts, revisedCsv) {
     lines.push(`${c.person.padEnd(12)} ${DAYS[(c.to || c.from).day]} ${what} (${c.hoursDelta > 0 ? "+" : ""}${num(c.hoursDelta)} h)${note}`);
   }
   const head = r.noticeKnown
-    ? `${r.changes.length} change(s), ${r.shortNotice} on short notice (under ${num(opts.noticeHours ?? 336)} h). Premium on your numbers (${num(opts.premiumHours ?? 1)} h of pay each): ${money(r.owed)}.`
+    ? `${r.changes.length} change(s), ${r.shortNotice} on short notice (under ${num(opts.noticeHours ?? 336)} h). Premium on your numbers (${opts.premiumFlat != null ? money(opts.premiumFlat) + " flat each" : num(opts.premiumHours ?? 1) + " h of pay each"}${opts.cancelHours != null && opts.premiumFlat == null ? `, ${num(opts.cancelHours)} h for a cancelled shift` : ""}): ${money(r.owed)}.`
     : `${r.changes.length} change(s). Give --week-start and --changed-at to see notice and premium.`;
   return [head, ...lines, "", "Arithmetic on the window and premium you entered, not a statement of what any scheduling law requires. Not legal advice.", ""].join("\n");
 }
