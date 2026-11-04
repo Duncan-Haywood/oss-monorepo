@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
-for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "insulation-calculator.html", "trim-calculator.html", "roof-calculator.html", "gutter-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html", "ventilation-calculator.html"]) {
+for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "insulation-calculator.html", "trim-calculator.html", "roof-calculator.html", "gutter-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html", "ventilation-calculator.html", "stud-drilling-checker.html"]) {
   test(`${name} carries the disclaimer, privacy line and sponsor link`, () => {
     const html = page(name);
     assert.match(html, /No warranty/);
@@ -591,7 +591,7 @@ test("the deck lumber calculator page: FAQ matches its data, default inputs give
 });
 
 test("every page links to every other page (internal linking for readers and crawlers)", () => {
-  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "insulation-calculator", "trim-calculator", "roof-calculator", "gutter-calculator", "deck-lumber-calculator", "schedule-calculator", "bid-leveling-calculator", "change-order-calculator", "ventilation-calculator"].map((n) => n + ".html");
+  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "insulation-calculator", "trim-calculator", "roof-calculator", "gutter-calculator", "deck-lumber-calculator", "schedule-calculator", "bid-leveling-calculator", "change-order-calculator", "ventilation-calculator", "stud-drilling-checker"].map((n) => n + ".html");
   for (const f of pages) {
     const html = page(f);
     for (const other of pages) if (other !== f) assert.ok(html.includes(`<a href="${other}">`), `${f} does not link ${other}`);
@@ -714,4 +714,28 @@ test("the stud-per-foot comparison page is in the sitemap and llms.txt, and its 
     assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
   }
   assert.match(html, /No warranty/);
+});
+
+test("the stud drilling checker page: FAQ matches its data, figures in the answers equal the engine's", async () => {
+  const html = page("stud-drilling-checker.html");
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("([\w-]+)"\)/g)) assert.ok(ids.has(m[1]), m[1]);
+  const { layoutDrilling } = await import("./drilling.mjs");
+  const one = (run, stud, bearing) => layoutDrilling({ runs: [{ wall: "w", ...run }] }, { walls: [{ id: "w", stud, bearing }] }).rows[0];
+  // hand: 40% of 3.5 = 1.4; 60% = 2.1; notch 25% of 3.5 = 0.875, 1 in is 28.6%
+  assert.equal(one({ kind: "bore", size: 1.5 }, "2x4", true).maxSize, 1.4);
+  assert.equal(one({ kind: "bore", size: 1.5 }, "2x4", true).ok, false);
+  assert.equal(one({ kind: "bore", size: 1.5 }, "2x4", false).maxSize, 2.1);
+  assert.equal(one({ kind: "bore", size: 1.5 }, "2x4", false).ok, true);
+  assert.equal(one({ kind: "notch", size: 1 }, "2x4", true).usedPct, 28.6);
+  // 3 in DWV: 3.5 + 0.125 = 3.625 in, 65.9% of 5.5; doubled limit 3.3 in; fix is a 2x8
+  const p = one({ kind: "bore", pipe: "3" }, "2x6", true);
+  assert.equal(p.size, 3.625); assert.equal(p.usedPct, 65.9);
+  const d = one({ kind: "bore", pipe: "3", doubled: true }, "2x6", true);
+  assert.equal(d.maxSize, 3.3); assert.match(d.fix, /2x8/);
 });

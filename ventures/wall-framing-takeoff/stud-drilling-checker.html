@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Can I drill this hole in a stud? Stud hole and notch limit checker</title>
+  <meta name="description" content="Free stud drilling checker: pick the stud, bearing or non-bearing wall, and the hole, notch or DWV pipe size. See the share of the stud used, the limit, and the stud or chase that fixes it. Runs in your browser.">
+  <meta property="og:title" content="Can I drill this hole in a stud?">
+  <meta property="og:description" content="Hole or notch size in, pass or fail against the common 40% / 25% stud limits out. Private, free, in your browser.">
+  <link rel="canonical" href="./stud-drilling-checker.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What size hole can I drill in a 2x4 stud?", "acceptedAnswer": {"@type": "Answer", "text": "In a load-bearing 2x4 wall the commonly stated residential limit is 40% of the stud width: 1.4 in on a 3.5 in stud, with the edge of the hole at least 5/8 in from each face. In a non-bearing wall, or where the bored studs are doubled, the limit is 60%: 2.1 in. A 1.5 in hole in a bearing 2x4 is over the limit by 0.1 in; the same hole in a non-bearing 2x4 passes with 1 in left on each side."}}, {"@type": "Question", "name": "How big a notch can I cut in a stud?", "acceptedAnswer": {"@type": "Answer", "text": "A notch is limited to 25% of the stud width in a bearing or exterior wall (7/8 in on a 2x4, 1.375 in on a 2x6) and 40% in a non-bearing wall (1.4 in on a 2x4). A hole and a notch are never allowed at the same section of a stud. A 1 in notch in a bearing 2x4 is 28.6% and fails; the checker says it needs a 2x6."}}, {"@type": "Question", "name": "Can a 3 inch drain go through a 2x6 stud wall?", "acceptedAnswer": {"@type": "Answer", "text": "Not through a single bearing 2x6. A 3 in DWV drain is 3.5 in outside; with the 1/8 in clearance the checker adds, the hole is 3-5/8 in, 65.9% of a 5.5 in stud. Even doubled (60%, 3.3 in) it fails, so the options are a 2x8 wall, a chase or furred-out wall, or running the drain where it crosses plates and joists instead of studs. Your plumber and inspector decide which."}}, {"@type": "Question", "name": "Where do these drilling limits come from?", "acceptedAnswer": {"@type": "Answer", "text": "They are the limits commonly stated for solid-sawn studs in IRC R602.6: bored holes 40% of the width in a bearing wall (60% in a non-bearing wall or in doubled studs, no more than two doubled studs bored in a row), at least 5/8 in of wood left at each edge, notches 25% bearing and 40% non-bearing. The edition your jurisdiction adopted, local amendments and engineered studs (LVL, I-studs, steel) can differ; the percentages are inputs in the whole-house tool, not hard-wired claims."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Can I drill this hole in a stud?</h1>
+  <p>Pick the stud and the wall, then type the hole, notch or drain pipe. You get the share of the stud it uses, the limit, and the smallest stud that takes it, from the same engine as the whole-house takeoff. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <div class="grid">
+      <div><label for="stud">Stud</label><select id="stud"><option value="2x4">2x4 (3.5 in wide)</option><option value="2x6">2x6 (5.5 in wide)</option><option value="2x8">2x8 (7.25 in wide)</option></select></div>
+      <div><label for="bearing">Wall</label><select id="bearing"><option value="1">Load-bearing or exterior</option><option value="0">Non-bearing</option></select></div>
+      <div><label for="kind">Cut</label><select id="kind"><option value="bore">Bored hole</option><option value="notch">Notch</option></select></div>
+      <div><label for="pipe">DWV pipe (bore only)</label><select id="pipe"><option value="">None: type a size</option><option>1-1/4</option><option>1-1/2</option><option>2</option><option>3</option><option>4</option></select></div>
+      <div><label for="size">Hole diameter or notch depth (in)</label><input id="size" type="number" min="0.05" max="12" step="any" value="1.5"></div>
+      <div><label for="doubled">Bored studs doubled</label><select id="doubled"><option value="0">No</option><option value="1">Yes (up to two in a row)</option></select></div>
+    </div>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Check every run in a whole house: framing, plumbing holes and the order in one takeoff</a></p>
+
+  <h2>How it is counted</h2>
+  <ol>
+    <li><strong>Stud width.</strong> The face the hole is bored across: 3.5 in for a 2x4, 5.5 in for a 2x6, 7.25 in for a 2x8.</li>
+    <li><strong>Limit.</strong> Bore 40% in a bearing wall, 60% if non-bearing or doubled, and 5/8 in of wood left at each edge; notch 25% bearing, 40% non-bearing.</li>
+    <li><strong>Fix.</strong> The smallest listed stud that takes it, or a chase, furred wall or sleeve when none does. A pipe is its outside diameter plus 1/8 in.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>What size hole can I drill in a 2x4 stud?</h3>
+  <p>In a load-bearing 2x4 wall the commonly stated residential limit is 40% of the stud width: 1.4 in on a 3.5 in stud, with the edge of the hole at least 5/8 in from each face. In a non-bearing wall, or where the bored studs are doubled, the limit is 60%: 2.1 in. A 1.5 in hole in a bearing 2x4 is over the limit by 0.1 in; the same hole in a non-bearing 2x4 passes with 1 in left on each side.</p>
+  <h3>How big a notch can I cut in a stud?</h3>
+  <p>A notch is limited to 25% of the stud width in a bearing or exterior wall (7/8 in on a 2x4, 1.375 in on a 2x6) and 40% in a non-bearing wall (1.4 in on a 2x4). A hole and a notch are never allowed at the same section of a stud. A 1 in notch in a bearing 2x4 is 28.6% and fails; the checker says it needs a 2x6.</p>
+  <h3>Can a 3 inch drain go through a 2x6 stud wall?</h3>
+  <p>Not through a single bearing 2x6. A 3 in DWV drain is 3.5 in outside; with the 1/8 in clearance the checker adds, the hole is 3-5/8 in, 65.9% of a 5.5 in stud. Even doubled (60%, 3.3 in) it fails, so the options are a 2x8 wall, a chase or furred-out wall, or running the drain where it crosses plates and joists instead of studs. Your plumber and inspector decide which.</p>
+  <h3>Where do these drilling limits come from?</h3>
+  <p>They are the limits commonly stated for solid-sawn studs in IRC R602.6: bored holes 40% of the width in a bearing wall (60% in a non-bearing wall or in doubled studs, no more than two doubled studs bored in a row), at least 5/8 in of wood left at each edge, notches 25% bearing and 40% non-bearing. The edition your jurisdiction adopted, local amendments and engineered studs (LVL, I-studs, steel) can differ; the percentages are inputs in the whole-house tool, not hard-wired claims.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li></ul></nav>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Stud size, wall type and the cut are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Limits follow IRC R602.6 as commonly stated; the edition and amendments that apply to your house are for you and your inspector, and engineered studs, truss webs, fire-blocking and cutting a plate are not checked.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { layoutDrilling, drillingText } from "./drilling.mjs";
+    const $ = (id) => document.getElementById(id);
+    const run = () => {
+      const bore = $("kind").value === "bore";
+      $("pipe").disabled = !bore;
+      const pipe = bore && $("pipe").value ? $("pipe").value : null;
+      $("size").disabled = !!pipe;
+      const run1 = { wall: "w", kind: $("kind").value, doubled: $("doubled").value === "1" };
+      if (pipe) run1.pipe = pipe; else run1.size = +$("size").value;
+      const t = layoutDrilling({ runs: [run1] }, { walls: [{ id: "w", stud: $("stud").value, bearing: $("bearing").value === "1" }] });
+      $("out").textContent = t.ok === false ? t.errors.join("\n") : drillingText(t).join("\n");
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>
