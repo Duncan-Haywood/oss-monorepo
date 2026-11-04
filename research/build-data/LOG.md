@@ -1,5 +1,10 @@
 # build-data log
 
+## Session 23, 2026-11-04: milestone 21, H2e: choose the quantile-level pair by conformal calibration (planned before running)
+
+Session 22 showed no calibration window can narrow the Chicago and SF a2i intervals (qhat is 0 because the same-day mass sits on the score), and located the lever in the quantile model's tau pair. `src/conformal_tau_run.py`: grid tau_lo in {0.05, 0.1, 0.2} x tau_hi in {0.65, 0.7, 0.75, 0.8, 0.85, 0.9}; for each pair CQR qhat on the even weeks of Y-1, intervals rounded outward, the pair chosen by smallest mean width on the CALIBRATION rows among pairs with calibration coverage >= 0.78 (the test year is never used to choose). Same split, features, LightGBM settings and 3 seeds as session 22; Chicago and SF a2i, test year 2024.
+- **H2e (pre-registered):** the chosen pair gives 2024 coverage within 77 to 83% on both cities and a mean width at least 15% below the (0.1, 0.9) pair's (Chicago 67.9, SF 63.4 days). Refuted if either city stays outside 77 to 83%, or the width gain is under 15%. Prior 40%: a lower tau_hi shrinks the width, but the drift in same-day mass (Chicago 52% to 30%) can push 2024 coverage below 77% for a tighter pair, which would be an honest cost of narrowing.
+
 ## Session 22, 2026-11-04: milestone 20, H2d: rolling and adaptive conformal calibration on the test year (planned before running)
 
 Session 21 showed Mondrian grouping cannot narrow the Chicago and SF a2i intervals because the over-coverage (0.867, 0.901) is drift between the calibration year (even weeks of 2023) and 2024. The lever left is a calibration set closer in time. `src/conformal_rolling_run.py`: for each 2024 week starting at t0 the pool is every row (static calibration + 2024) whose outcome was already known before t0 (start + y < t0, so no peeking at unissued permits), kept to the last W days for W = 60, 120, 365 or all known; under 200 known rows falls back to the static qhat. Also a weekly-batch adaptive conformal (Gibbs and Candes 2021, gamma 0.02). Same models, split and 3 seeds as session 8; intervals rounded outward.
