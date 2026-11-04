@@ -3,7 +3,7 @@ title: "Does a small model of a cargo drone have a safer phugoid than the real o
 seo_title: "Phugoid damping of a Froude-scaled UAV with propeller thrust slope"
 date: 2026-11-04
 tags: [research, uav, scaled-models, flight-dynamics]
-description: "Adding a measured propeller thrust slope to a 4-state longitudinal model: the phugoid is near-neutral at full size and gets slightly more damped as the model shrinks, the opposite of what we guessed."
+description: "A measured propeller thrust slope in a 4-state model: the phugoid is near-neutral at full size and slightly more damped in a small model, opposite to our guess."
 ---
 
 The `aerolog-scaling` programme asks what a 1:N Froude-scaled model of a cargo
