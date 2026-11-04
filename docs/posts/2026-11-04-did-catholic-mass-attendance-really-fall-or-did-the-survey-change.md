@@ -1,9 +1,9 @@
 ---
 title: "Did Catholic Mass attendance really fall after 2020, or did the survey change?"
-seo_title: "Catholic Mass attendance drop in the GSS: real decline or web survey mode effect?"
+seo_title: "Catholic Mass attendance drop in the GSS: real or survey mode?"
 date: 2026-11-04
 tags: [catholic, demographics, research, data, religion]
-description: "Weekly Catholic attendance in the General Social Survey fell 5.5 points after 2020, but web respondents report 9 points less than in-person ones, so the true fall is uncertain."
+description: "Catholic weekly attendance in the GSS fell 5.5 points after 2020, but web respondents report 9 points less than in-person ones."
 ---
 
 In the General Social Survey (GSS), 23% of Catholics said they attend Mass weekly in 2016-18 and about 18% in 2021-24, a fall of 5.5 points (95% interval 1.6 to 9.3). Before reading that as a collapse, note that the GSS changed how it interviews. Before 2020 it was almost all in person. In 2021 it was 87% web.
