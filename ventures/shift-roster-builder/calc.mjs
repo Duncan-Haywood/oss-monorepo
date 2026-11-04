@@ -2121,6 +2121,32 @@ export function restPremium(rosterCsv, { restHours = 11, premiumHours = 1, wages
   return { turnarounds: found, owed: Math.round(owed * 100) / 100, count: found.filter((f) => !f.exempt).length };
 }
 
+// Split shifts: one person working two shifts on the same day with an unworked gap between them (a lunch rush then a
+// dinner rush). Some places owe a premium for it; this only finds them and prices them on the operator's own numbers.
+// Same-day pairs only (by the roster's day), adjacent shifts in start order, gap at least `minGapHours`.
+export function splitShifts(rosterCsv, { minGapHours = 1, premiumHours = 1, wages = {}, exempt = [] } = {}) {
+  const rows = parseRosterCsv(rosterCsv);
+  const skip = new Set((exempt || []).map((n) => String(n).trim().toLowerCase()).filter(Boolean));
+  const wageOf = new Map(Object.entries(wages || {}).map(([k, v]) => [k.toLowerCase(), String(v ?? "").trim() === "" ? NaN : Number(v)]));
+  const found = [];
+  let owed = 0;
+  for (const who of [...new Set(rows.map((x) => x.person))]) {
+    const mine = rows.filter((x) => x.person === who).sort((a, b) => a.start - b.start);
+    for (let i = 1; i < mine.length; i++) {
+      if (mine[i].day !== mine[i - 1].day) continue;
+      const gap = (mine[i].start - mine[i - 1].end) / 60;
+      if (gap < minGapHours) continue;
+      const wage = wageOf.get(who.toLowerCase());
+      const isExempt = skip.has(who.toLowerCase());
+      const premium = !isExempt && wage > 0 ? Math.round(premiumHours * wage * 100) / 100 : 0;
+      owed += premium;
+      found.push({ person: who, first: mine[i - 1], second: mine[i], gapHours: Math.round(gap * 100) / 100, exempt: isExempt, premium, premiumUnpriced: !isExempt && !(wage > 0) });
+    }
+  }
+  found.sort((x, y) => x.second.start - y.second.start || x.person.localeCompare(y.person));
+  return { splits: found, owed: Math.round(owed * 100) / 100, count: found.filter((f) => !f.exempt).length };
+}
+
 // Sets "prev:" on every staff line whose person worked last week, replacing any old one. Other lines are untouched.
 // Tough shifts (weekend, closing, opening: the same test as the search and fairnessReport) per person in a roster CSV.
 export function toughCounts(csv) {
