@@ -55,6 +55,11 @@ Options:
   --changes <csv>     compare the roster you posted (CSV) with this build: every shift added, cancelled or moved, its notice and the premium
                       on your numbers. Needs --week-start and --changed-at "YYYY-MM-DD HH:MM" for notice; --notice-hours (default 336),
                       --premium-hours (default 1) and --exempt "Ben,Cleo" (employee-requested changes) are yours to set, not a statement of any law
+  --burden <pct>      payroll burden added to wages, in percent (default 0)
+  --daily-ot-after <h> / --daily-dt-after <h> / --dt-mult <x>   daily overtime and double-time thresholds and the double-time multiplier (default off, 2)
+  --split-premium <$> [--split-gap <h>]   dollars owed on each day a person's shifts have a gap over <h> hours (default gap 1); the search prices it
+  --diff-when "Sat-Sun; 10pm-6am" with --diff-per-hour <$> and/or --diff-pct <%>   pay differential for hours inside those windows
+  --meal-after <h> [--meal-min <m>]   shifts longer than <h> hours lose <m> unpaid meal minutes (default off, 30)
   --rest-under <h>    list every pair of one person's shifts with less than <h> hours between them (a close then an open) and the premium
                       on your numbers: --premium-hours (default 1 hour of pay each) and --exempt "Ben" (they asked for it). Arithmetic, not a statement of any law
   --import-shifts <csv> convert a published-schedule export (date, start, end, position rows) to shift lines on stdout; notes on stderr
@@ -72,6 +77,9 @@ Planning aid, not legal advice. It does not know your local scheduling-notice, b
 const FLAGS = {
   "--rest": "minRestHours", "--consec": "maxConsecDays", "--daily": "maxDailyHours", "--ot-after": "otAfter",
   "--ot-mult": "otMult", "--balance": "balance", "--tough-balance": "toughBalance", "--open-shift-hours": "openShiftWeight",
+  "--burden": "burdenPct", "--daily-ot-after": "dailyOtAfter", "--daily-dt-after": "dailyDtAfter", "--dt-mult": "dtMult",
+  "--split-premium": "splitPremium", "--split-gap": "splitGap", "--diff-per-hour": "diffPerHour", "--diff-pct": "diffPct",
+  "--meal-after": "mealAfter", "--meal-min": "mealMin",
 };
 
 export function parseArgs(argv) {
@@ -111,6 +119,7 @@ export function parseArgs(argv) {
       if (!Number.isFinite(v) || v < 0) throw new Error(`${a} needs a number`);
       o[a === "--notice-hours" ? "noticeHours" : "premiumHours"] = v;
     }
+    else if (a === "--diff-when") { o.options.diffWhen = argv[++i]; if (!o.options.diffWhen) throw new Error('--diff-when needs windows like "Sat-Sun; 10pm-6am"'); }
     else if (a === "--prove") o.options.exact = true;
     else if (a === "--no-prove") o.options.exact = false;
     else if (a === "--weeks") {

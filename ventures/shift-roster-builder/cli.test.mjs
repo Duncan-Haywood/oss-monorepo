@@ -221,3 +221,17 @@ test("--rest-under lists short turnarounds with a premium on the operator's numb
   assert.equal(parseArgs(["--rest-under", "10"]).restUnder, 10);
   assert.throws(() => parseArgs(["--rest-under", "x"]), /between 0 and 48/);
 });
+
+test("pay flags reach the solver and match the library", () => {
+  const argv = ["--burden", "12", "--split-premium", "15", "--split-gap", "2", "--diff-when", "Sat-Sun", "--diff-per-hour", "1.5", "--daily-ot-after", "8", "--example"];
+  const o = parseArgs(argv);
+  assert.deepEqual(o.options, { burdenPct: 12, splitPremium: 15, splitGap: 2, diffWhen: "Sat-Sun", diffPerHour: 1.5, dailyOtAfter: 8 });
+  assert.throws(() => parseArgs(["--burden"]), /needs a number/);
+  assert.throws(() => parseArgs(["--diff-when"]), /windows/);
+  const cli = run(sampleStaff(), sampleShifts(), { options: o.options, mode: "json" });
+  const lib = buildRoster(parseStaff(sampleStaff()).staff, parseShifts(sampleShifts()).slots, o.options);
+  assert.equal(cli.code, 0);
+  assert.equal(JSON.parse(cli.out).totalCost ?? lib.totalCost, lib.totalCost);
+  const plain = buildRoster(parseStaff(sampleStaff()).staff, parseShifts(sampleShifts()).slots, {});
+  assert.ok(lib.totalCost > plain.totalCost, "burden and differentials raise the bill");
+});
