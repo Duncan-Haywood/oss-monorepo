@@ -338,3 +338,15 @@ test("--panel-max under 6 in or over 100 ft is refused with a reason", () => {
   }
   assert.equal(main(["plan.json", "--panel-max=12ft"], () => JSON.stringify(samplePlan())).code, 0);
 });
+
+test("--electrical adds receptacle and switch boxes; a bad setting is refused; --json carries it", () => {
+  const plan = JSON.stringify({ ...samplePlan(), electrical: { cablePerDevice: 10 } });
+  const a = main(["plan.json", "--electrical"], () => plan);
+  assert.equal(a.code, 0);
+  assert.match(a.out, /ELECTRICAL ROUGH-IN\n  \d+ receptacle boxes/);
+  const bad = main(["plan.json", "--electrical"], () => JSON.stringify({ ...samplePlan(), electrical: { maxSpacing: 3 } }));
+  assert.equal(bad.code, 1);
+  assert.match(bad.out, /maxSpacing/);
+  const j = main(["plan.json", "--electrical", "--json"], () => plan);
+  assert.ok(JSON.parse(j.out).electrical.boxes > 0);
+});
