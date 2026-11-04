@@ -46,6 +46,17 @@ class AriaRefs(unittest.TestCase):
                 self.assertEqual(main(["--root", d]), 1)
             self.assertIn("aria-controls='gone'", out.getvalue())
 
+    def test_root_is_the_repository_root(self):
+        # ROOT must point at the repo, or the clean-tree scan below passes on an empty dir.
+        self.assertTrue((ROOT / "ventures").is_dir())
+
+    def test_help_describes_the_checker(self):
+        import contextlib, io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), self.assertRaises(SystemExit):
+            main(["--help"])
+        self.assertIn("aria", out.getvalue().lower())
+
     def test_repository_is_clean(self):
         self.assertEqual(scan(ROOT), [])
 
