@@ -402,3 +402,30 @@ Reading: the fallback helps at both bias levels here (+0.06 at 50%, +0.15 at
 80%), where at 60 items the 50% case showed no difference. One seed set and 3
 respondents per cell, so treat the 50% gap as suggestive. Reproduce:
 `NOISY_ITEMS=1000 NOISY_ANSWERS=1000 NOISY_OUT=/tmp/o.txt npx vitest run -c vitest.integration.config.ts src/app/api/trials/noisyRespondents`.
+
+### The same at 3000 answers on 1000 items (2026-11-04)
+
+Same test, `NOISY_ITEMS=1000 NOISY_ANSWERS=3000 NOISY_RESPONDENTS=3
+NOISY_TIMEOUT_MS=7000000` (the new timeout knob; the old fixed 15 minutes
+killed the first attempt). Through the real routes and local Postgres 16,
+2419 s in all. Each item is seen about six times.
+
+| condition | top-slot share | Spearman, fallback on | fallback off |
+|---|---|---|---|
+| clean | 0.50 | 0.545 | not run |
+| 20% lapse | 0.50 | 0.261 | not run |
+| 50% top-slot bias | 0.75 | 0.323 | 0.149 |
+| 80% top-slot bias | 0.90 | 0.198 | 0.100 |
+
+Reading: the fallback again helps at both bias levels (+0.17 at 50%, +0.10 at
+80%), which supports the 1000-answer result. **An unexplained result:** the
+clean and lapse rows are *lower* than at 1000 answers (0.619 and 0.443), when
+three times the data should raise them. One seed set and 3 respondents per
+cell; a 0.06 to 0.08 seed spread was seen before, but this gap is larger than
+that. Not investigated yet: whether the staged selector's later phase hurts
+rank quality on long budgets over a big pool, or whether the Spearman over
+"every item the respondent rated" changes meaning as coverage grows (more
+items rated at the tail). That is the next thing to check, with the same
+seeds at 1000 and 3000 answers and the rated-item count reported.
+Reproduce: the command in the previous section with `NOISY_ANSWERS=3000
+NOISY_TIMEOUT_MS=7000000` (about 40 min).
