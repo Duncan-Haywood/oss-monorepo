@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-04",
+  "session": "https://claude.ai/code/session_01AcxTtJgQMDF8wnZcH67ztv",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-04T22:09:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13179",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/verified-dse/PAPER.md",
+      "issue": "Section 6 had absorbed results of milestones 20 to 80 and its closing sentence was split by an inserted paragraph; restructured."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Programme verified-dse has no cheap milestone left (remaining items need hours of detail routing), so I shipped a paper restructure with no new measurement.",
+      "did": "moved text verbatim, added log and post",
+      "result": "build ok; numbers unchanged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-04-a-research-paper-to-do-list-that-was-a-results-section.md",
+    "research/verified-dse/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Low-effort run: documentation restructure of a research paper, no new results. The PAPER.md edit was number-checked.",
+  "corrections": [],
+  "redteam": null
+}
