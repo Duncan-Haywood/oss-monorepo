@@ -35,7 +35,18 @@ def build() -> dict:
             "runtime_h": power.runtime_h(power.PowerSpec(), 0.35, 0.232)}
 
 
+def rounded(v, nd=9):
+    """Round every float so the file does not change in the last digit between machines and libm builds."""
+    if isinstance(v, float):
+        return round(v, nd)
+    if isinstance(v, dict):
+        return {k: rounded(x, nd) for k, x in v.items()}
+    if isinstance(v, (list, tuple)):
+        return [rounded(x, nd) for x in v]
+    return v
+
+
 if __name__ == "__main__":
     path = Path(__file__).resolve().parents[2] / "fixtures" / "reference.json"
-    path.write_text(json.dumps(build(), indent=2) + "\n")
+    path.write_text(json.dumps(rounded(build()), indent=2) + "\n")
     print(f"wrote {path}")
