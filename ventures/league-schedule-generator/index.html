@@ -94,6 +94,7 @@
     <input id="skip" placeholder="2026-11-26, 2026-12-24 to 2027-01-02">
     <label for="blackouts">Team blackout dates, one team per line: <code>Team name: date, date</code></label>
     <textarea id="blackouts" rows="3" placeholder="Dink Dynasty: 2026-10-20&#10;Lob Squad: 2026-11-10 to 2026-11-17"></textarea>
+    <p class="note"><label for="blackoutsCsv">Or load a coach sign-up form export (CSV with a Team column and a column of dates they cannot play; read in your browser, nothing is uploaded):</label> <input type="file" id="blackoutsCsv" accept=".csv,text/csv"> <span id="blackoutsCsvMsg" role="status"></span></p>
 
     <h2 style="margin-top:18px">3. Where</h2>
     <label for="timeLimits">Optional: teams that can only play at certain times, one per line: <code>Team name: 17:00, 18:00</code> (needs two or more time slots below)</label>
@@ -352,13 +353,20 @@
   </footer>
 
   <script type="module">
-    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
+    import { doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { printPackHtml } from "./printpack.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
+    $("#blackoutsCsv").addEventListener("change", async (ev) => {
+      const f = ev.target.files[0], msg = $("#blackoutsCsvMsg");
+      if (!f) return;
+      const r = blackoutsFromCsv(await f.text(), parseTeams($("#teams").value).teams);
+      if (r.text) $("#blackouts").value = [$("#blackouts").value.trim(), r.text].filter(Boolean).join("\n");
+      msg.textContent = (r.text ? `Added ${r.text.split("\n").length} team(s). ` : "") + r.errors.join(" ");
+    });
     const status = $("#form-status");
     let last = null;
     const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));

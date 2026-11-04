@@ -5,6 +5,7 @@ import {
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, scheduleCalendarCsv, seasonGrid, seasonGridCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, officialMessages, leaguePageHtml, scoreSheetsHtml, parseTimeLimits, parseCourtLimits, parseCourtClosures, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
   weeklyUpdate, splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, oneDayTimetable, oneDayText, parseGrounds, groundClashes, applyGroundSharing, parseLinkedTeams, linkedClashes, separateLinkedTeams,
+  blackoutsFromCsv
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -2106,4 +2107,24 @@ test("standings setScoring: 3-0 and 3-1 earn 3 points, a 3-2 win earns 2 and the
   assert.equal(by.Bolt.lost, 1);
   // default scoring is unchanged
   assert.equal(standings(teams, results).find((r) => r.name === "Ace").points, 6);
+});
+
+test("blackoutsFromCsv reads a coach form export for one division, merges repeats and reports unknown teams", () => {
+  const teams = ["Hawks", "Owls", "Rams"];
+  const csv = '\uFEFFTimestamp,Team name,"Dates we cannot play"\r\n' +
+    '1,hawks,"2026-11-05; 2026-12-22 to 2026-12-30"\r\n' +
+    '2,Owls,none\r\n' +
+    '3,Hawks,2026-11-12\r\n' +
+    '4,Rams,"2026-11-10,\n2026-11-17"\r\n' +
+    '5,Nobody,2026-11-10\r\n';
+  const r = blackoutsFromCsv(csv, teams);
+  assert.equal(r.text, "Hawks: 2026-11-05, 2026-12-22 to 2026-12-30, 2026-11-12\nRams: 2026-11-10, 2026-11-17");
+  assert.equal(r.errors.length, 1);
+  assert.match(r.errors[0], /Row 6.*Nobody/);
+  const pb = parseBlackouts(r.text, teams);
+  assert.deepEqual(pb.errors, []);
+  assert.equal(pb.blackouts[0].length, 1 + 9 + 1);
+  assert.match(blackoutsFromCsv("Name,Dates\nx,y\n", teams).errors[0], /No team column/);
+  assert.match(blackoutsFromCsv("Team,Colour\nHawks,red\n", teams).errors[0], /No date column/);
+  assert.match(blackoutsFromCsv("Team,Dates\n", teams).errors[0], /header row/);
 });
