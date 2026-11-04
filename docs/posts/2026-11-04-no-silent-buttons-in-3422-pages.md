@@ -1,6 +1,7 @@
 ---
 title: "No silent buttons in 3,422 pages"
 date: 2026-11-04
+description: "A checker scans every built page for links and buttons with no accessible name: 3,422 pages, no unnamed controls, and why three first hits were false alarms."
 ---
 
 A link or button with no text, label or title is read out by a screen reader as just "link" or "button". We wrote `platform/ci/check_empty_controls.py` to look for them across every HTML page under `ventures/`.
