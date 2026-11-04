@@ -60,7 +60,7 @@ def task(a):
     log = (Path(wd) / "openroad.log").read_text()
     r["gr4_wns4"] = float(re.search(r"worst slack (?:max )?(-?[\d.]+)", re.split(r"^STAGE gr4\n", log, flags=re.M)[1]).group(1))
     blk = re.split(r"^STAGE droute\n", log, flags=re.M)[1]
-    r["droute_area"] = float(re.search(r"Design area ([\d.]+) u?m\^2", blk).group(1))
+    r["droute_area"] = float(re.search(r"Design area ([\d.]+) u?m?\^2", blk).group(1))
     r["droute_wns"] = float(re.search(r"worst slack (?:max )?(-?[\d.]+)", blk).group(1))
     t = {m.group(1): int(m.group(2)) / 1000 for m in re.finditer(r"^TIME (\w+) (\d+)$", log, flags=re.M)}
     r["t_droute"] = t["droute_route"] - t["pre_droute"]
