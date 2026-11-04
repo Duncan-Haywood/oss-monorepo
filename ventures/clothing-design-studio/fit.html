@@ -137,7 +137,7 @@
       else {
         const t = tryOn({ chest: $("#chest").value, waist: $("#waist").value, hip: $("#hip").value, height: $("#height").value }, { garment, fit, size: r.size, sizeChart });
         $("#tryon").innerHTML = !t.ok ? `<p class="notes">${esc(t.error)}</p>` :
-          `<div style="max-width:300px;margin:auto">${t.svg}</div><p>Size <b>${esc(t.size)}</b>: ${esc(t.length.word)}.</p>` +
+          `<div style="max-width:300px;margin:auto">${t.svg}</div><p>Size <b>${esc(t.size)}</b>: ${esc(t.length.word)}. Sleeve (${t.sleeve.sleeveCm} cm from the shoulder): ${esc(t.sleeve.word)}.</p>` +
           `<table><tr><th>Where</th><th class="num">Body</th><th class="num">Garment</th><th class="num">Ease</th><th>Reads as</th></tr>` +
           t.checks.map(c => `<tr><td>${esc(c.where)}</td><td class="num">${c.body} cm</td><td class="num">${c.garment} cm</td><td class="num">${c.ease} cm</td><td>${esc(c.word)}</td></tr>`).join("") + `</table>` +
           `<p class="notes">${t.notes.map(esc).join("<br>")}</p>` +
