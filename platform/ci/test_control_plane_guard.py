@@ -99,5 +99,29 @@ class Audit(unittest.TestCase):
         self.assertTrue(msg.startswith("::warning::"))
 
 
+class TrailingDoubleStar(unittest.TestCase):
+    def test_dir_double_star_matches_nested_depth(self):
+        rules = guard.parse_codeowners("/docs/** @owner\n")
+        self.assertTrue(guard.owners_for("docs/a/b/c.md", rules))
+        self.assertTrue(guard.owners_for("docs/a.md", rules))
+
+
+class PrSummary(unittest.TestCase):
+    def test_pr_mode_lists_touched_control_plane_files(self):
+        import os
+        from unittest import mock
+
+        files = [{"filename": "CLAUDE.md"}, {"filename": "ventures/x/a.mjs"}]
+        out = []
+        with mock.patch.dict(os.environ, {"GITHUB_REPOSITORY": "o/r"}), \
+             mock.patch.object(guard, "gh_pages", return_value=files), \
+             mock.patch.object(guard, "summarize", side_effect=out.append):
+            code = guard.main(["--pr", "5"])
+        self.assertEqual(code, 0)
+        self.assertEqual(len(out), 1)
+        self.assertIn("- `CLAUDE.md`", out[0])
+        self.assertNotIn("ventures/x/a.mjs", out[0])
+
+
 if __name__ == "__main__":
     unittest.main()
