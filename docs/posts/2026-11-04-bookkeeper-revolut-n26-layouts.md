@@ -3,7 +3,7 @@ title: "Checking our bank-statement reader against Revolut and N26 layouts"
 seo_title: "Revolut and N26 CSV import: pending, reverted and fee rows"
 date: 2026-11-04
 tags: [ai-bookkeeper, bank-import, testing]
-description: "ai-bookkeeper reads Revolut and N26 CSV exports correctly, including pending, reverted and fee rows. We probed it against the column layouts in two open-source plugins."
+description: "ai-bookkeeper reads Revolut and N26 CSV exports correctly, pending, reverted and fee rows included. Probed with layouts from two open-source plugins."
 ---
 
 We have no fresh bank downloads to test the ai-bookkeeper statement reader on,
