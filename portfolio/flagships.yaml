@@ -123,7 +123,7 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      History and numbers: README and git. Open: (0) smooth low-noise series over-cut: `--noise-floor k` landed 2026-11-04 (austres trend 10 -> 3 at k=1, README) but no k is calibrated: wanted a drifting real series with a documented break to pick k; cycles and drift: an exact
+      History and numbers: README and git. Open: (0) smooth low-noise series over-cut: `--noise-floor k` landed 2026-11-04 (austres trend 10 -> 3 at k=1, README) k bracketed to 1-2 by austres vs airmiles 1946 (README, 2026-11-04) but one series each side: wanted a second drifting real series with a documented break; cycles and drift: an exact
       AR(2) likelihood inside PELT was no better than AR(1) (README); a real documented step inside a cycle; a cycle
       check not tied to rho (treering: drift not told from a cycle);
       a documented real run of 5+ steps to test the block-variance warning

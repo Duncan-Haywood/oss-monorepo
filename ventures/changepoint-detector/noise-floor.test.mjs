@@ -13,4 +13,8 @@ test('noise floor: output committed; off by default; cuts the austres over-cut; 
   assert.ok(analyze({ values: v, model: 'trend', noiseFloor: 1 }).pelt.changepoints.length <= 3);
   const flat = Array.from({ length: 100 }, (_, i) => Math.sin(i * 12.9898) * 43758.5453 % 1);
   assert.equal(analyze({ values: flat, model: 'mean', noiseFloor: 0.5 }).noiseFloor, undefined);
+  const am = readFileSync(new URL('./data/airmiles.csv', import.meta.url), 'utf8').trim().split('\n').slice(1).map((l) => l.split(','));
+  const av = am.map((r) => Math.log(+r[1]));
+  for (const k of [1, 2]) assert.deepEqual(analyze({ values: av, model: 'trend', noiseFloor: k }).pelt.changepoints.map((c) => am[c.index][0]), ['1946']);
+  assert.equal(analyze({ values: av, model: 'trend', noiseFloor: 3 }).pelt.changepoints.length, 0);
 });

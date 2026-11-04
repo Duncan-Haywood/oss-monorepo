@@ -20,3 +20,9 @@ for (let r = 0; r < 200; r++) {
   if (b.noiseFloor) hit++;
 }
 console.log(`200 synthetic series, one 1.5-sd step at 60: found with k=0 ${base}, with k=1 ${floored}; floor changed the answer on ${differ}; floor bound on ${hit}`);
+// (3) a drifting real series WITH a documented break: US airline passenger miles, 1937-1960, in logs (the 1946 end of
+// the war, eval/airmiles.mjs). Which k keep it? Together with austres above this brackets k.
+const am = readFileSync(new URL('../data/airmiles.csv', import.meta.url), 'utf8').trim().split('\n').slice(1).map((l) => l.split(','));
+const av = am.map((r) => Math.log(+r[1]));
+console.log('airmiles (documented break 1946), trend, changes found by k:');
+console.log('  ' + [0, 0.5, 1, 1.5, 2, 3].map((k) => `k=${k}: ` + (analyze({ values: av, model: 'trend', noiseFloor: k }).pelt.changepoints.map((c) => am[c.index][0]).join('+') || 'none')).join(', '));
