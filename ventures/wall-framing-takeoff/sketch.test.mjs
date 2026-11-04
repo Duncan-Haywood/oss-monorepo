@@ -200,3 +200,17 @@ test("moving and rescaling keep a trace image's turn, about its centre", () => {
   assert.equal(r.a, 10); assert.equal(r.w, 960);
   assert.ok(Math.abs(r.x + r.w / 2 - 240) < 1e-9 && Math.abs(r.y + r.h / 2 - 120) < 1e-9, "scaling about the centre leaves the centre");
 });
+
+test("sketch refuses points that are not real numbers", () => {
+  const sk = emptySketch();
+  for (const bad of [NaN, Infinity, -Infinity, "5", null, undefined, 1e300]) {
+    assert.equal(addWall(sk, { x: bad, y: 0 }, { x: 100, y: 0 }), null);
+  }
+  const w = addWall(sk, { x: 0, y: 0 }, { x: 100, y: 0 });
+  for (const bad of [NaN, Infinity, "5", undefined]) {
+    assert.equal(moveWall(sk, w.id, bad, 0).ok, false);
+    assert.equal(moveCorner(sk, w.id, "a", { x: bad, y: 0 }).ok, false);
+  }
+  assert.deepEqual(sk.walls[0].a, { x: 0, y: 0 });
+  assert.equal(sk.walls.length, 1);
+});
