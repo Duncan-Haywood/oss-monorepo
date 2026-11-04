@@ -471,3 +471,17 @@ test("electrical rough-in counts become budget lines priced from the electrical 
   const none = bud({ ...full(), electrical: {} });
   assert.equal(none.lines.find((l) => l.item === "Receptacles").amount, null);
 });
+
+test("opening labor counts openings that share a king stud (header spans, not kings / 2)", () => {
+  const plan = { ...samplePlan(), prices: { laborOpening: 100 } };
+  plan.walls = [{ id: "W", length: 240, stud: "2x4", openings: [
+    { kind: "window", offset: 40, width: 36, height: 48, header: "2x6" },
+    { kind: "window", offset: 80.5, width: 36, height: 48, header: "2x6" },
+  ] }];
+  const t = takeoff(plan);
+  assert.equal(t.walls[0].members.filter((m) => m.kind === "king").length, 3); // 4-1/2 in apart: one shared king
+  const b = JSON.parse(run(plan, "--budget", "--json").out);
+  const l = b.lines.find((x) => x.item === "Door and window setting");
+  assert.equal(l.qty, 2); // kings / 2 would give 1
+  assert.equal(l.amount, 200);
+});
