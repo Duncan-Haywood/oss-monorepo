@@ -567,7 +567,7 @@
   <script type="module">
     import { takeoff, samplePlan, defaultStock, parseLength, formatLength, formatInches, toCsv, verifyWall, PRECUT, DEPTH } from "./engine.mjs";
     import { planFromDxf } from "./dxf.mjs";
-    import { loadIfcEngine } from "./ifcwasm.mjs";
+    import { loadIfcEngine, openingSizes } from "./ifcwasm.mjs";
     import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength, restoreSketch, fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners } from "./sketch.mjs";
     import { drawingSetHtml } from "./drawings.mjs";
     import { drawingSetPdf } from "./pdf.mjs";
@@ -1563,7 +1563,7 @@
         let plan, dxfNote = "";
         $("#ifcStoreyWrap").hidden = true;
         if (/\.(dxf|ifc)$/i.test(file.name)) {
-          let dxfText;
+          let dxfText, ifcSizes;
           if (/\.ifc$/i.test(file.name)) {
             ifcBytes = new Uint8Array(await file.arrayBuffer());
             const eng = await loadIfcEngine();
@@ -1574,10 +1574,11 @@
             $("#ifcStoreyWrap").hidden = info.storeys.length < 2;
             ifcName = file.name;
             dxfText = eng.dxf(ifcBytes, Number(sel.value) || 0);
+            ifcSizes = openingSizes(eng.plan(ifcBytes, Number(sel.value) || 0));
             if (!dxfText) { $("#status").textContent = `Could not read walls from ${file.name}.`; return; }
             dxfNote = ` IFC read in your browser (lowest storey first; pick another above).`;
           }
-          const r = planFromDxf(dxfText ?? await file.text());
+          const r = planFromDxf(dxfText ?? await file.text(), ifcSizes ? { openingSize: ifcSizes } : {});
           if (!r.ok) { $("#status").textContent = `Could not read ${file.name}: ${r.errors.join(" ")}`; return; }
           plan = r.plan;
           dxfNote += ` ${r.stats.walls} walls, ${r.stats.tees} tees, ${r.stats.openings} openings. ${r.notes.join(" ")}`;
@@ -1593,7 +1594,7 @@
     $("#ifcStorey").addEventListener("change", async () => {
       if (!ifcBytes) return;
       const eng = await loadIfcEngine();
-      const r = planFromDxf(eng.dxf(ifcBytes, Number($("#ifcStorey").value)));
+      const r = planFromDxf(eng.dxf(ifcBytes, Number($("#ifcStorey").value)), { openingSize: openingSizes(eng.plan(ifcBytes, Number($("#ifcStorey").value))) });
       if (!r.ok) { $("#status").textContent = `Could not read that storey of ${ifcName}: ${r.errors.join(" ")}`; return; }
       const base = samplePlan(), plan = r.plan;
       for (const k of ["studSpacing", "studLength", "kerf", "topPlateLap", "cornerExtraStuds", "teeExtraStuds", "defaultHeaderHeight", "stock"]) if (!(k in plan)) plan[k] = base[k];

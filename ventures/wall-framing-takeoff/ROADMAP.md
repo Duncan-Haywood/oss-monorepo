@@ -89,7 +89,11 @@ Ticked items are on `main`.
       straight runs merged. Checked against IfcOpenShell on two real models
       (Revit Duplex, ArchiCAD Schependomlaan; 0.0000 m on every extent).
       The WASM build behind the page's IFC upload landed 2026-11-03 and was
-      run in Chromium on both real models 2026-11-04. Still open: clipping
+      run in Chromium on both real models 2026-11-04. A one-wall wood-framed
+      teaching IFC (Swiss repo, licence unstated, not committed) read exactly
+      2026-11-04, and showed the page dropping opening heights and sills (a
+      sill-32 window framed as an 82.5 in door); fixed with `openingSizes`
+      (`ifcwasm.mjs`, test in `ifcwasm.test.mjs`). Still open: clipping
       (ifc-engine plan, milestone 3) and a real US wood-framed model.
 
 ### 3. The rest of the shell
