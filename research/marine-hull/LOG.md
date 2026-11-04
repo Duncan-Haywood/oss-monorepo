@@ -2,6 +2,16 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 5a: wing-sail drone polar, and what tack control loses on real wind series (pre-registration)
+- Why: PROJECTS.md track 23, milestone 5 (`marine-sail`), as a step inside this programme (the marine-hull draw says "next free: marine-sail"; no `sail`/`polar` project exists on `origin/main`). Question: how much upwind progress does a small wing-sail drone give up to tacking, and does following wind shifts recover it?
+- Model (`src/marine_hull/sail.py`, stdlib): finite-wing lift with a stall roll-off and flat-plate limit, sail trimmed for maximum net force, force balance against a Wigley hull (ITTC 1957 friction x form factor + the Michell wave resistance already in this package) and a keel's induced drag at leeway. Speed capped at Froude 0.5 (displacement-hull validity). Not modelled: heel, reefing, sea-state drag. Every drone parameter is swept (no vendor polar is used).
+- Data: NOAA CO-OPS observed 6-minute wind, Jan and Jul 2024, 15 coastal stations (`experiments/fetch_coops_wind.py`, files kept under `experiments/data/`). Wind is taken as spatially uniform over the 20-odd km a 24 h leg covers, so this is a time-variation (shift) study, not a weather-routing study; isochrone routing on a spatial field is not done here.
+- Predictions (written before any run):
+  - S1: the best upwind true wind angle at 5 m/s lies between 35 and 55 degrees over the whole parameter sweep, and an analytic check holds: with hull drag near zero the apparent wind angle at equilibrium equals atan(D/L) at the sail's best L/D.
+  - S2: on 24 h windows with a +-1.5 km corridor about a mark dead to windward and a 30 s tack loss, corridor-edge tacking reaches at least 85% of the no-corridor, no-tack-cost bound (median); a header-following controller with a margin chosen on January beats it by at least 3 percentage points in the July holdout; the clairvoyant dynamic programme sits within 5 points above the header-follower.
+  - Refuted if: the header-follower's July gain over corridor tacking is under 1 point, or the clairvoyant gap exceeds 10 points, or the best angle leaves 35 to 55 degrees.
+- Outcome: (pending)
+
 ## 2026-11-04 · Milestone 7p: 4h and 4i folded into the paper draft (no experiment run); persistence step blocked
 - Why: 4i's "Next". Added the CO-OPS pooled figures and the calm/moderate/strong split to section 2.3 of `paper/DRAFT.md`, every number copied from `results_current_coops.txt` and `results_current_coops_regimes.txt`, with their limits.
 - Blocked: the stall-persistence step needs the raw 6-minute series; `api.tidesandcurrents.noaa.gov` returned `CONNECT tunnel failed, 403` through this session's egress proxy (it was reachable in the 4h run), so nothing was fetched. Retry from a session where the host answers.
