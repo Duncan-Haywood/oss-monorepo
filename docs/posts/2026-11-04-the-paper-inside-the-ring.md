@@ -1,5 +1,6 @@
 ---
 title: "The paper inside the ring: cleaning up a scanned painting before screen print"
+seo_title: "The paper inside the ring: cleaning a scanned painting"
 date: 2026-11-04
 description: "The clothing studio's separation tool can now trim a scan, remove paper showing through holes, and leave a named colour unprinted."
 tags: [clothing-design-studio, screen-printing]

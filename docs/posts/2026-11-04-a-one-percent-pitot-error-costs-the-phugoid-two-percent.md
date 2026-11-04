@@ -1,5 +1,6 @@
 ---
 title: "A 1% pitot scale error costs the phugoid fit 2%, and one fitted bias removes it"
+seo_title: "A 1% pitot error costs the phugoid fit 2%"
 date: 2026-11-04
 description: "Fitting flight modes from a scaled cargo-UAV model's airspeed channel: 0.25% scale error is harmless, 1% is not, and fitting a bias fixes it."
 tags: [research, aerolog-scaling, system-identification]
