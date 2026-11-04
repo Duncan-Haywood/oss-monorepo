@@ -64,6 +64,7 @@ Options:
                       on your numbers: --premium-hours (default 1 hour of pay each) and --exempt "Ben" (they asked for it). Arithmetic, not a statement of any law
   --import-shifts <csv> convert a published-schedule export (date, start, end, position rows) to shift lines on stdout; notes on stderr
   --import-staff <csv>  convert a staff export from another scheduler (name, hourly rate, hours, position columns) to staff lines on stdout; notes on stderr
+  --hours-watch <h>   list everyone whose planned week reaches <h> hours (a full-time or benefit line you set, e.g. 30) or lands within --watch-within <h> (default 2) of it
   --cover "<Day HH:MM>" a call-out or open shift that starts then (add -HH:MM to tell two apart): who could take it outright, else the
                       shortest chains of hand-overs (one person takes it and gives up a shift a third takes; --max-moves n, default 3) with the pay change
   --max-moves <n>     longest hand-over chain for --cover (1-5, default 3)
@@ -112,6 +113,16 @@ export function parseArgs(argv) {
       const v = Number(argv[++i]);
       if (!(v > 0 && v <= 48)) throw new Error("--rest-under needs hours between 0 and 48");
       o.restUnder = v;
+    }
+    else if (a === "--hours-watch") {
+      const v = Number(argv[++i]);
+      if (!(v > 0 && v <= 80)) throw new Error("--hours-watch needs weekly hours between 0 and 80");
+      o.hoursWatch = v;
+    }
+    else if (a === "--watch-within") {
+      const v = Number(argv[++i]);
+      if (!(v >= 0 && v <= 40)) throw new Error("--watch-within needs hours between 0 and 40");
+      o.watchWithin = v;
     }
     else if (a === "--exempt") { o.exempt = argv[++i]; if (o.exempt === undefined) throw new Error("--exempt needs names, comma separated"); }
     else if (a === "--notice-hours" || a === "--premium-hours") {
@@ -174,6 +185,14 @@ function changesReport(staff, opts, revisedCsv) {
     : `${r.changes.length} change(s). Give --week-start and --changed-at to see notice and premium.`;
   return [head, ...lines, "", "Arithmetic on the window and premium you entered, not a statement of what any scheduling law requires. Not legal advice.", ""].join("\n");
 }
+function hoursWatchReport(r, opts) {
+  const line = opts.hoursWatch, within = opts.watchWithin ?? 2;
+  const rows = r.people.map((p) => ({ name: p.name, hours: p.hours })).filter((p) => p.hours >= line - within - 1e-9).sort((a, b) => b.hours - a.hours || a.name.localeCompare(b.name));
+  const lines = rows.map((p) => `${p.name.padEnd(12)} ${num(p.hours)} h  ${p.hours >= line - 1e-9 ? `at or over ${num(line)} h` : `${num(line - p.hours)} h under ${num(line)} h`}`);
+  const over = rows.filter((p) => p.hours >= line - 1e-9).length;
+  const head = rows.length ? `${over} at or over ${num(line)} h this week, ${rows.length - over} within ${num(within)} h under it.` : `No one is at or within ${num(within)} h of ${num(line)} h this week.`;
+  return [head, ...lines, "", "Planned hours for this one week against a line you typed. Eligibility rules usually count a longer period, so this is not a statement of what any benefit or employer-mandate rule requires. Not legal advice.", ""].join("\n");
+}
 const dayName = (d) => DAYS[((d % 7) + 7) % 7] + (d < 0 ? " (last week)" : "");
 const clockMod = (m) => ((m % 1440) + 1440) % 1440;
 function restReport(staff, opts, csv) {
@@ -214,6 +233,7 @@ export function run(staffText, shiftsText, opts = {}) {
     try { return { code, out: rosterMessages(r, opts.weekStart || null).map((m) => m.text).join("\n\n") + "\n" }; } catch (e) { return { code: 2, out: e.message + "\n" }; }
   }
   if (opts.cover) return { code: 0, out: coverReport(st.staff, sh.slots, r, opts) };
+  if (opts.hoursWatch) return { code, out: hoursWatchReport(r, opts) };
   if (opts.restUnder) return { code, out: restReport(st.staff, opts, rosterCsv(r)) };
   if (opts.postedCsv) return { code, out: changesReport(st.staff, opts, rosterCsv(r)) };
   if (opts.mode === "hours") return { code, out: hoursCsv(r) };
