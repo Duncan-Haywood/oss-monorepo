@@ -95,6 +95,7 @@ check(await page.locator("#venueFairness").isChecked(), "suggest button turns ve
 
 for (const [btn, name, test] of [
   ["#dl-grid", "division-season-grid.csv", (t) => t.split("\n").length > 2 && t.includes(",")],
+  ["#dl-bookings", "facility-booking-request.txt", (t) => t.startsWith("Facility booking request (") && /venue/.test(t) && t.split("\n").length > 3],
 ]) {
   const [dl] = await Promise.all([page.waitForEvent("download", { timeout: 10000 }), page.click(btn)]);
   const path = await dl.path();
