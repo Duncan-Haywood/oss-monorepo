@@ -1760,3 +1760,19 @@ test("an oversized shifts file is refused fast and yields no slots to solve", ()
   assert.deepEqual(ok.errors, []);
   assert.equal(ok.slots.length, 10);
 });
+
+test("a week near the shift cap stops improving on a time budget and says so", () => {
+  const staff = staffOf("name,wage,max\n" + Array.from({ length: 60 }, (_, i) => `P${i},15,40`).join("\n"));
+  const lines = [];
+  for (const d of ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]) for (let k = 0; k < 8; k++) lines.push(`${d}, ${6 + k}, ${14 + k}, 7`);
+  const slots = slotsOf(lines.join("\n"));
+  assert.equal(slots.length, 392);
+  const t = Date.now();
+  const r = buildRoster(staff, slots, { timeBudgetMs: 1500, exact: false });
+  assert.equal(r.budgetHit, true);
+  assert.ok(r.assignments && r.assignments.length > 0, "the roster so far is kept");
+  assert.ok(Date.now() - t < 60000);
+  // a small week is not budgeted by default
+  const small = buildRoster(staffOf("a,15,40\nb,15,40"), slotsOf("Mon, 9, 17, 1"));
+  assert.ok(!small.budgetHit);
+});
