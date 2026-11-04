@@ -83,6 +83,7 @@ def main():
     ap.add_argument("--results", default=str(HERE / "results.jsonl"))
     ap.add_argument("--points", default=str(HERE.parent / "rung_bias/results.jsonl"), help="cached table whose points (design, sequence, clock) are re-measured")
     ap.add_argument("--per-design", type=int, default=0, help="keep only the first N ok points per design (and tag)")
+    ap.add_argument("--rank-subsample", type=int, default=0, help="per (design, tag) keep N points evenly spaced in R4 rank (final_area * final_period_ns, best first), ends included")
     ap.add_argument("--large", action="store_true", help="register the milestone-9 larger designs (use with --points ../large/results.jsonl)")
     a = ap.parse_args()
     if a.large:
@@ -102,6 +103,12 @@ def main():
             seen[key] = seen.get(key, 0) + 1
             if seen[key] <= a.per_design:
                 k2.append(r)
+        keep = k2
+    if a.rank_subsample:
+        n, k2 = a.rank_subsample, []
+        for key in sorted({(r["design"], r["tag"]) for r in keep}):
+            g = sorted((r for r in keep if (r["design"], r["tag"]) == key), key=lambda r: r["final_area"] * r["final_period_ns"])
+            k2 += [g[round(j * (len(g) - 1) / (n - 1))] for j in range(n)]
         keep = k2
     if a.limit:
         keep = keep[: a.limit]

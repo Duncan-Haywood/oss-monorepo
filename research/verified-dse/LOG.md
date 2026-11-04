@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 79: 12 mult24 points (relaxed clock) spread evenly over R4 rank, detail-routed (predictions written before the run; outcome below once finished)
+- Why: milestone 78's "Next". `run.py --rank-subsample 12` picks 12 of the 50 usable mult24 relaxed points evenly spaced in R4 score (best, worst and ten between). Yosys 0.51, OpenROAD 2025-03, four jobs.
+- Predictions: (1) tau-b(R4, R5) >= 0.7 over the 12; (2) the R5-best point is among R4's best three; (3) zero DRC violations; (4) median detail-route time above 600 s.
+- Analysis: `analyse_sub12.py` -> `experiments/detail_route/results_mult24_sub12.txt`. With 12 spread points this tests ordering at the extremes only, not a tau with a usable interval.
+
 ## 2026-11-04 · Milestone 78: what one detail-routed mult24 point costs (a cost measurement, one point; no predictions recorded)
 - Why: the "Next" of milestones 73 to 77 (detail routing on mult24 and mult32, "hours per point"). Before committing hours I ran one point: `experiments/detail_route/run.py --large --designs mult24 --tag relaxed --limit 1`, first usable relaxed-clock sequence of `experiments/large/results.jsonl`, Yosys 0.51 and OpenROAD 2.0-unstable-2025-03-01 (both nixpkgs 25.05; the earlier detail-route tables used OpenROAD 26Q3, so this is a different build), one core.
 - **Outcome.** Global placement to final took 9 s and global route plus repair 0.2 s, but `detailed_route` took 877 s (14.6 min) on a 31,700 um^2 netlist, with 0 DRC violations. Median detail-route time was 20.5 s on the five small designs and 33.9 s on mult16 (milestone 47), so mult24 is about 26x mult16. At that cost one cell of 50 points is about 12 core-hours, and the four mult24/mult32 cells about 50 core-hours or 12 hours on 4 cores before mult32, which is larger still. I did not run the sweep.
