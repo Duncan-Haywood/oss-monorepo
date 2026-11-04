@@ -1,0 +1,46 @@
+{
+ "date": "2026-11-04",
+ "session": "https://claude.ai/code/session_01EhTJVNFQ5CCnZhi9mBhuFT",
+ "track": "ventures",
+ "prompt_version": 0,
+ "input": null,
+ "input_sha256": null,
+ "follow_up_inputs": [],
+ "model": null,
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-04T20:59:37Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [
+  "ventures/wall-framing-takeoff"
+ ],
+ "pr": 13167,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 0,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [],
+ "deviations": [
+  {
+   "file": "prompt.md",
+   "why": "Router drew research; the scheduled brief asked for ventures, so did venture work."
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "Stair one-flight rise default 147 in -> 151 in (IRC R311.7.3, 12 ft 7 in). Venture suite: 784 tests, 783 pass, 0 fail, 1 skipped. Router drew the research track; the brief was venture work, so followed it.",
+ "corrections": [],
+ "redteam": null
+}
