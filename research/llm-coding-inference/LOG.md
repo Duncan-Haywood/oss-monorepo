@@ -2,6 +2,17 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 7s: does 7r's k = 3 negative-cell guard hold at 1% and 5% prevalence? (run after 7r; prediction written before the run: coverage 93% or more at both prevalences, narrower than pooled at 5%)
+- Why: 7r's open item. `experiments/h7s_prevalence.py` is 7r's script with prevalence as an argument and rules pooled, g10, k3, k5. Same NaijaSenti corpus (6,000 items, n 1000, pilot share 0.5, fitted lambda), `nb-in-language` dialled with s in {0.3, 0.6}, 500 draws (+/- 1.9 points on coverage), one run each.
+
+### Outcome (`experiments/h7s_*.txt`; coverage % / half-width pts)
+- 1% (J 0.62, 0.74; about 5 pilot positives): pooled 94.6/0.568, 95.6/0.555; k3 95.2/0.564, 94.2/0.552; k5 94.8/0.572, 93.8/0.559; g10 94.2, 92.4. Cells are used in only 6 to 12% of draws, so every rule is about pooled: no width gain, and nothing to guard.
+- 5% (J 0.58, 0.76; about 25 pilot positives): pooled 95.2/1.161, 94.2/1.046; g10 92.0/0.949, 86.2/0.697; k3 93.8/0.956, 95.0/0.801; k5 95.6/0.989, 96.0/0.935. Cells are used in 80 to 97% of draws under k3.
+- Prediction: coverage at or above 93% holds for k3 and k5 everywhere (lowest k3 93.8, k5 93.8). Narrower than pooled at 5% holds for k3 (18% at J 0.58, 23% at J 0.76), and k5 gains 15% at J 0.58 and 11% at J 0.76. g10 undercovers at 5%/J 0.76 (86.2%), which is outside any Monte Carlo band, so g10 is not safe at higher prevalence either.
+- Reading: with k = 3 the gain grows with prevalence (none at 1%, about 6-11% at 2% from 7r, 18-23% at 5%) and coverage stays near nominal. k = 3 at 5%/J 0.58 is 93.8%, 1.2 points under 95 and within the 1.9-point band.
+- Limits: synthetic item-independent errors, one corpus, 500 draws, k = 3 was chosen on 7r's data and is now checked at two other prevalences only. Still no real coder with J above 0.5. No library change made; k = 3 is a candidate for `llmci.audit_design`.
+- Next: a real coder with J above 0.5 (Qwen score on this subsample); a held-out corpus (not NaijaSenti) for k = 3.
+
 ## 2026-11-04 · Milestone 7r: a guard on pilot positives in the coder-negative cell (the script ran before this entry was written; the prediction below was written after seeing 7q's results, not before the run)
 - Why: 7q's open item. 7q found forced cells undercover at high J because the coder-negative cell holds few human positives. `experiments/h7r_negcell_guard.py` is 7q's script with rules "use cells (tau 0) only if the pilot holds at least k human positives among coder-negative items, else pooled", k in {3, 5, 8}, plus pooled, forced cells and g10 for reference. Same corpus (6,000 NaijaSenti items, 2% positives, n 1000, pilot share 0.5, fitted lambda), dialled `nb-in-language` coder (item-independent synthetic errors), 500 draws (+/- 1.9 points on coverage), s in {0, 0.3, 0.6}.
 - Prediction held (not timestamped): a small k (3 to 5) restores coverage to about 93% or more at J 0.74 while keeping a larger share of the width gain than g10.
