@@ -222,6 +222,8 @@ the quote. Notes are agent-written, not real calls.
 
 **Non-English opt-outs (2026-11-04).** A second probe of 24 phrasings in SV, DA, NO, PL, TR, FI, CS and RO missed 13; all 24 are now unsubscribes (`engine.test.mjs`). Agent-written, unscored on real mail; unreadable replies still go to a person.
 
+**Threats and handovers (2026-11-04).** A 27-phrasing probe found legal threats ("my lawyer will be in touch"), block/report threats, "stop mailing/texting me" and Italian "smettete di contattarmi" in unclear, and "forwarding this to our head of logistics" drafting a reply as interest. The first are now unsubscribes, the last a wrong-person hand-off (`engine.test.mjs`, with look-alikes pinned as not opt-outs). Agent-written, unscored on real mail. Still unclear: "mailbox full" soft bounces (left to a person).
+
 **Limits.** Rules are tuned for English (opt-outs in about fifteen other languages are probed, not scored). Reads one reply at a time (a stop in the same batch is remembered, but not a full thread). Dates are
 read in US order for `3/4`. It does not connect to a mailbox yet (ROADMAP M4),
 so replies are pasted or exported.
