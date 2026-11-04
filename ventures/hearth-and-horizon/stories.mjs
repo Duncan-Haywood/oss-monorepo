@@ -351,11 +351,11 @@ export const FAQ = [
 ];
 
 export function renderIndex(stories, audio = {}) {
-  const shelves = SHELVES.map((shelf) => {
+  const shelves = SHELVES.map((shelf, i) => {
     const own = stories.filter((s) => s.shelf === shelf.id).sort((a, b) => b.published.localeCompare(a.published));
     const cards = own.map((s) => `<a class="card" href="${s.slug}.html"><strong>${escapeHtml(s.title)}</strong><br><span class="small">${escapeHtml(s.setting)} · ${readingMinutes(s.words)} min read${audio[s.slug] ? ` · ${Math.round(audio[s.slug].seconds / 60)} min audio` : ''}</span><br>${escapeHtml(s.summary)}</a>`).join('\n');
     return `<section class="shelf" id="${shelf.id}" style="--shelf:${shelf.accent}">
-<img class="cover" src="${SITE}${coverPath(shelf.id)}" alt="" width="96" height="96">
+<img class="cover" src="${SITE}${coverPath(shelf.id)}" alt="" width="96" height="96"${i ? ' loading="lazy" decoding="async"' : ''}>
 <h2>${escapeHtml(shelf.title)}: ${escapeHtml(shelf.tagline.toLowerCase())}</h2>
 <p class="small">${escapeHtml(shelf.audience)} · <a href="${SITE}${feedPath(shelf.id)}">Podcast / RSS feed</a></p>
 <p>${escapeHtml(shelf.description)}</p>
