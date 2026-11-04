@@ -19,6 +19,9 @@ CHECKS = [
     ("experiments/demonstrator_spec/results.txt", "2078", "span 2,078 mm"),
     ("experiments/tail_gust/results.txt", "within 10% at H = 12.5: 72 of 78", "72 of 78 within 10%"),
     ("experiments/tail_gust/results.txt", "all three H: 24 of 78", "24 of 78 within 5%"),
+    ("experiments/thrust_phugoid_power/results.txt", "-1.00  1.00  25.2  +0.0087", "s=-1 phugoid +0.0087 at n=1 free"),
+    ("experiments/thrust_phugoid_power/results.txt", "-1.00  1.00  21.2  +0.0062", "s=-1 phugoid +0.0062 tripped"),
+    ("experiments/thrust_phugoid/results.txt", "s=-2.25: Re(ph) change n=1 -> 0.2: -0.0083", "phugoid change -0.0083"),
     ("experiments/tail_gust/results.txt", "1.2%", "best design 1.2%"),
     ("experiments/rodrigues_energy/results_days.txt", "1.539", "day-cluster exponent"),
     ("experiments/rodrigues_energy/results_days.txt", "1.529", "date fixed effect exponent"),
@@ -28,7 +31,7 @@ LOGCHECKS = [  # figures that exist in LOG.md outcomes (the results files print 
     "1.29 to 1.45", "0.37 to 0.52", "6.5% faster", "97%",
     "76 at every true slope scale", "67 of the 78 designs keep every gust peak", "84 to 86% at sigma 2%",
     "0.33%, 0.70%, 4.45%", "66 of 78", "63, 51, 0, 0",
-    "19.1% then 0.74%", "144 (LS start) against 9", "0.07, 0.65, 1.38%", "86.4 J/m [81.2, 91.5]", "77.4% [73.8, 80.8]", "153.8 against 60.1", "9.6 kJ [8.9, 10.3]", "384 J per metre", "0.26, 1.51, 2.55", "0.25, 1.21, 1.63", "median 0.878", "0.07, 0.67, 1.51%", "0.16, 1.57, 2.43", "0.21, 1.39, 2.56", "0.20, 1.30, 1.94", "median 0.623", "+28.6%, +24.4%, +25.9%", "Best worst-case over the three L: 14.8%", "0.15, 1.34, 2.36", "phi1 median 1.173", "0.845, 5th to 95th percentile 0.821 to 0.868", "-38.0%, -49.3%, -52.6%", "+34.2%, +9.8%, -9.1%", "+183.5%, +112.6%, +33.5%", "best worst case 51.0%", "0.28 to 0.70 deg/s", "0.096", "median -2.25", "[-0.24, 0.73]"]
+    "19.1% then 0.74%", "144 (LS start) against 9", "0.07, 0.65, 1.38%", "86.4 J/m [81.2, 91.5]", "77.4% [73.8, 80.8]", "153.8 against 60.1", "9.6 kJ [8.9, 10.3]", "384 J per metre", "0.26, 1.51, 2.55", "0.25, 1.21, 1.63", "median 0.878", "0.07, 0.67, 1.51%", "0.16, 1.57, 2.43", "0.21, 1.39, 2.56", "0.20, 1.30, 1.94", "median 0.623", "+28.6%, +24.4%, +25.9%", "Best worst-case over the three L: 14.8%", "0.15, 1.34, 2.36", "phi1 median 1.173", "0.845, 5th to 95th percentile 0.821 to 0.868", "-38.0%, -49.3%, -52.6%", "+34.2%, +9.8%, -9.1%", "+183.5%, +112.6%, +33.5%", "best worst case 51.0%", "0.28 to 0.70 deg/s", "0.096", "median -2.25", "[-0.24, 0.73]", "+0.0087 (free) and +0.0062 (tripped)", "+0.0127 at s = 0", "+0.0037"]
 bad = 0
 for path, needle, claim in CHECKS:
     text = (HERE / path).read_text()
