@@ -257,6 +257,7 @@ test('the page renders every section, marks missing data, and escapes', async ()
   for (const h of ['Merges to main per day', 'Pull requests, reviews and CI', 'Agent runs by model', 'stats.json']) assert.ok(html.includes(h), h);
   assert.match(html, /not measured/);
   assert.ok(!html.includes('<script>'));
+  assert.ok(html.includes('&lt;script&gt;'), 'the injected track name is escaped');
   assert.ok(!/https?:\/\/(?!www\.w3)/.test(html.replace(/<a [^>]*>/g, '')), 'no off-origin requests');
   assert.match(barChart({ '2026-10-16': 3 }), /<title>2026-10-16: 3 merges<\/title>/);
   assert.ok(html.includes('CI runs: passed, failed, cancelled'));

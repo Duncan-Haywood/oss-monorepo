@@ -16,6 +16,8 @@ import {
   HEADER_MARKER,
   VENTURE_CHROME_CSS,
   VENTURE_CHROME_JS,
+  SITE_MENU,
+  renderSiteFooterNav,
   renderSiteHeader,
   renderSiteStyle,
   researchChromeTemplate,
@@ -197,4 +199,27 @@ test('on a phone the breadcrumb stays on one line and cuts the current title', a
   const { SITE_HEADER_CSS } = await import('./site-nav.mjs');
   const m = /@media \(max-width:600px\)\{[^}]*\.pfs-crumbs\{[^}]*white-space:nowrap[\s\S]*?text-overflow:ellipsis/.exec(SITE_HEADER_CSS);
   assert.ok(m, 'phone rule keeps .pfs-crumbs nowrap and ellipsises [aria-current]');
+});
+
+test('the secondary pages live in the header menu, not a link grid in the footer', () => {
+  const html = renderSiteHeader({ toRoot: '../', current: 'about' });
+  const menu = html.match(/<details class="pfs-menu">[\s\S]*?<\/details>/)?.[0] ?? '';
+  assert.ok(menu, 'site pages carry the menu');
+  const hrefs = [...menu.matchAll(/data-pfs-menu href="([^"]+)"/g)].map((m) => m[1]);
+  const expected = SITE_MENU.flatMap((g) => g.links.map(([href]) => (/^https?:/.test(href) ? href : `../${href}`)));
+  assert.deepEqual(hrefs, expected);
+  for (const must of ['../feedback/', '../custom-development/', '../queue/', '../llms.txt', '../sitemap.xml', '../changelog/feed.xml']) {
+    assert.ok(hrefs.includes(must), must);
+  }
+  assert.equal(new Set(hrefs).size, hrefs.length, 'no page listed twice');
+  // The primary nav is still exactly SITE_NAV: menu links never use its attribute.
+  assert.deepEqual(navHrefs(html), SITE_NAV.map((i) => `../${i.href}`));
+  // The menu is inside the bar, after the search, so it sits on the first row on a phone.
+  assert.ok(html.indexOf('pfs-search') < html.indexOf('pfs-menu'));
+  // Venture pages leave it out: a venture script may select the page's first <details>.
+  assert.doesNotMatch(renderSiteHeader({ search: 'link', extraClass: 'pf-chrome pf-chrome-top' }), /pfs-menu/);
+  // The footer keeps a short line, not the old index of two dozen links.
+  const foot = renderSiteFooterNav({ toRoot: '../' });
+  assert.ok([...foot.matchAll(/<a /g)].length <= 6, foot);
+  assert.match(foot, /href="\.\.\/feedback\/"/);
 });
