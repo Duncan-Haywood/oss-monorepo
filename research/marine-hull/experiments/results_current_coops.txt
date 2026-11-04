@@ -1,0 +1,5 @@
+CO-OPS stations 64 (Jan 2024, 6-minute readings, median over depth bins), equal station weight
+speed m/s: median 0.303, 75th 0.593, 90th 0.957, 95th 1.207, share above 0.2: 63.5%, above 0.3: 50.2%, above 0.5: 31.2%
+worst case: whole current cross-track: glider cannot hold the track 61.1% of readings ; glider has lower energy per ground metre than the AUV in 38.0% of (reading, glider, AUV) triples
+random heading: cross component |V| sin(t): glider cannot hold the track 41.6% of readings ; glider has lower energy per ground metre than the AUV in 57.4% of (reading, glider, AUV) triples
+stations whose median speed is at or below 0.2 m/s (a glider could work there most of the time): 18 of 64
