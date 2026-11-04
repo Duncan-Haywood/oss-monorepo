@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining, restGaps, divisionsChangeNotices, divisionsBookings, applyDivisionWithdrawals, blackoutsFromCsv, csvRows } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining, restGaps, divisionsChangeNotices, divisionsBookings, divisionsDeadline, applyDivisionWithdrawals, blackoutsFromCsv, csvRows } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -1015,4 +1015,28 @@ test("--blackouts-csv on the CLI moves matches off the form's dates", () => {
   const base = run([]), withCsv = run(["--blackouts-csv", csv]);
   assert.equal(withCsv.status, 0, withCsv.stderr);
   assert.notEqual(base.stdout, withCsv.stdout);
+});
+
+test("divisionsDeadline reports spare days or late matches per division", () => {
+  const s = build();
+  const last = Math.max(...s.nights.map((n) => n.day));
+  const ok = divisionsDeadline(s, last);
+  assert.equal(ok.fits, true); assert.equal(ok.daysSpare, 0); assert.equal(ok.matchesAfter, 0);
+  assert.ok(ok.divisions.length >= 3 && ok.divisions.some((d) => d.lastDay === last));
+  const late = divisionsDeadline(s, last - 14);
+  assert.equal(late.fits, false);
+  assert.equal(late.daysSpare, -14);
+  const total = s.nights.filter((n) => n.day > last - 14).reduce((a, n) => a + n.matches.length, 0);
+  assert.equal(late.matchesAfter, total);
+  assert.ok(late.matchesAfter > 0 && late.nightsAfter > 0);
+  assert.match(late.text, /past \d{4}-\d\d-\d\d/);
+  assert.equal(divisionsDeadline(s, null), null);
+  assert.equal(divisionsDeadline({ nights: [] }, 20000), null);
+});
+
+test("CLI --deadline exits 0 when the season fits and 2 when it does not", () => {
+  const run = (d) => spawnSync("node", [new URL("./divisions.mjs", import.meta.url).pathname, new URL("./example-divisions.json", import.meta.url).pathname, "--deadline", d], { encoding: "utf8" });
+  const ok = run("2030-01-01"); assert.equal(ok.status, 0, ok.stderr); assert.match(ok.stdout, /Every division finishes/);
+  const late = run("2026-10-20"); assert.equal(late.status, 2); assert.match(late.stdout, /day\(s\) past 2026-10-20/);
+  assert.equal(run("nope").status, 1);
 });
