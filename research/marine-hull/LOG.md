@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 7p: 4h and 4i folded into the paper draft (no experiment run); persistence step blocked
+- Why: 4i's "Next". Added the CO-OPS pooled figures and the calm/moderate/strong split to section 2.3 of `paper/DRAFT.md`, every number copied from `results_current_coops.txt` and `results_current_coops_regimes.txt`, with their limits.
+- Blocked: the stall-persistence step needs the raw 6-minute series; `api.tidesandcurrents.noaa.gov` returned `CONNECT tunnel failed, 403` through this session's egress proxy (it was reachable in the 4h run), so nothing was fetched. Retry from a session where the host answers.
+- Limits: prose only; no new numbers.
+- Next: persistence of stalling from the raw series (needs NOAA host); a shelf product outside ports.
+
 ## 2026-11-04 · Milestone 4i: 4h's coastal-current test split by each station's own median speed
 - Why: 4h's "Next": the pooled 61% stall figure mixes calm bay stations with tidal channels. Groups come from the data (station median speed: calm <= 0.2 m/s, moderate 0.2 to 0.5, strong > 0.5), not from hand labels of the stations.
 - Prediction (written before the run): glider stalling is under 35% worst case in the calm group, over 60% in the moderate group, and over 80% in the strong group; the glider keeps a majority of energy wins only in the calm group.

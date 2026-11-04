@@ -39,3 +39,10 @@ test('treering: rho is only 0.16 but the block-variance check still warns about 
   const dax = readFileSync(new URL('./data/dax-returns.csv', import.meta.url), 'utf8').trim().split('\n').slice(1).map((l) => +l.split(',')[1]);
   assert.equal(analyze({ values: dax }).rangeWarning ?? null, null);
 });
+
+test('treering: the default run carries the slow-drift hint although rho is small (0.16)', () => {
+  const w = analyze({ ...tree }).rangeWarning;
+  assert.match(w, /wanders more than independent noise allows/);
+  assert.match(w, /rho about 0\.1\d/);
+  assert.match(w, /38 steps/);
+});

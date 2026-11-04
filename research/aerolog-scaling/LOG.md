@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 5e: how far from the propeller's efficiency peak can cruise sit before 5d's constant-power s = -1 stops holding? (planned before running)
+- Why: 5d's "Limits": eta was held constant. At constant shaft power, s_P = -1 + (dln eta/dlnJ)/(1 - q/3) with q = dlnCP/dlnJ (rpm adjusts so CP n^3 is fixed), so s_P = -1 only at the efficiency peak.
+- Plan (`experiments/propeller_power_slope/run.py`): cubic fits of ln eta and ln CP against ln J on each UIUC APC curve, evaluated at J = k x J_peak, k = 0.8 to 1.2. **Predictions (before running):** (1) median s_P at k = 1 within 0.1 of -1; (2) at k = 0.9 and 1.1 the median is within 0.35 of -1; (3) at k = 0.8 or 1.2 the 5th to 95th spread leaves -1 +/- 0.5.
+### Outcome (`results.txt`, 104 curves, 71 propellers)
+- Median s_P: -0.67 (k 0.8), -0.88 (0.9), -1.10 (1.0), -1.33 (1.1), -1.54 (1.2). **(1) held, barely** (-0.10; the cubic over the whole curve smooths the peak, max |s_P+1| at k = 1 is 0.67, so the fit, not the physics, sets that error). **(2) held** (0.12 and 0.33). **(3) held** at k = 1.2 (95th pct -2.10, median -1.54), at k = 0.8 the 5th to 95th is -0.89 to -0.33.
+- Reading: s = -1 is a fair stand-in within about +/-10% of J at peak efficiency (68% of curves within 0.25 of -1 at k = 0.9, 27% at 1.1, asymmetric); a cruise point 20% above the peak moves s_P toward the fixed-RPM -2.25 and a point below it toward 0. Since 5d's phugoid real part is linear in s, that range maps to roughly the 5c/5d spread, so the unstable-at-full-size conclusion is as uncertain as the cruise J is.
+- Limits: curves are low-Re APC props (Re75 below 1.3e5); cubic fit smooths; no motor efficiency; the 4-state model was not re-run. Fewer curves than 5b (104 vs 137) because the fit needs 7 points with CT > 0.01.
+- Next: Allan-variance parameters; AIAA template.
+
 ## 2026-11-04 · Milestone 5d: constant-power thrust law (s = -1): is the phugoid then clearly unstable at full size and near neutral at n = 0.2? (planned before running)
 - Why: 5c's "Next". A throttle-fixed motor aircraft has T = P eta / V, so s = dlnT/dlnV = -1 (eta held constant), between constant thrust (0) and the fixed-RPM measured -2.25.
 - Plan (`experiments/thrust_phugoid_power/run.py`, reuses 5c's `modes(..., s_thrust)`): s in {0, -1, -2.25}, n in {1, 0.5, 0.2}, free and tripped transition. Also check that the phugoid real part is linear in s (compare s = -1 with interpolation between s = 0 and -2.25).
