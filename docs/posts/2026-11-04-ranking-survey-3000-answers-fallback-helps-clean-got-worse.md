@@ -1,6 +1,6 @@
 ---
 title: "More answers made our survey ranking worse, and the bias fix held"
-seo_title: "Pairwise survey ranking at 3000 answers: slot-bias fallback and a puzzling drop"
+seo_title: "Pairwise survey ranking at 3000 answers: bias fix holds"
 date: 2026-11-04
 tags: [quick-pick-survey, ranking, simulation, negative-result]
 description: "We tripled the answers per respondent on a 1000-item pairwise survey. The first-option-bias fallback still helped, but clean rank quality fell."
