@@ -45,7 +45,10 @@
       "result": "honest disclosure"
     }
   ],
-  "writeups": "docs/posts/2026-11-04-most-of-the-sailing-drones-12-point-gap-was-a-bookkeeping-error.md; research/marine-hull/LOG.md 5c",
+  "writeups": [
+    "docs/posts/2026-11-04-most-of-the-sailing-drones-12-point-gap-was-a-bookkeeping-error.md",
+    "research/marine-hull/LOG.md"
+  ],
   "goal": null,
   "notes": "marine-hull 5c: edge-rule artefact in 5a clairvoyant; corrects 5a/5b. Suite 81 pass, homepage build ok.",
   "corrections": [],
