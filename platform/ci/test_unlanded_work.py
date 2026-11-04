@@ -6,6 +6,7 @@ github.com -- no mocks of the part that decides.
 """
 import io
 import os
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -23,20 +24,46 @@ def run(cwd, *args, env=None):
     ).stdout.strip()
 
 
+_TEMPLATE = None  # (tempdir, origin, clone): the base repositories, built once per process
+
+
+def _template():
+    """A bare "GitHub" and a clone with one pushed commit on main.
+
+    Building these took about ten git processes per test; they are built once
+    and each test copies them (a copy of a few small files) and points the
+    copy's remote at its own origin (2026-11-04, backlog P062's sibling in
+    the validate job, docs/history/ci-perf-2026-11-04-git-fixture-template.md).
+    """
+    global _TEMPLATE
+    if _TEMPLATE is None:
+        tmp = tempfile.TemporaryDirectory()
+        root = Path(tmp.name)
+        origin, clone = root / "origin.git", root / "clone"
+        run(root, "init", "-q", "--bare", "-b", "main", str(origin))
+        run(origin, "config", "uploadpack.allowFilter", "true")
+        run(root, "clone", "-q", origin.as_uri(), str(clone))
+        for key, value in (("user.name", "t"), ("user.email", "t@example.com"),
+                           ("commit.gpgsign", "false")):
+            run(clone, "config", key, value)
+        (clone / "README.md").write_text("base\n")
+        run(clone, "add", "README.md")
+        run(clone, "commit", "-q", "-m", "base")
+        run(clone, "push", "-q", "origin", "HEAD:main")
+        _TEMPLATE = (tmp, origin, clone)
+    return _TEMPLATE
+
+
 class Fixture(unittest.TestCase):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
         root = Path(self._tmp.name)
+        _, template_origin, template_clone = _template()
         self.origin = root / "origin.git"
         self.clone = root / "clone"
-        run(root, "init", "-q", "--bare", "-b", "main", str(self.origin))
-        run(self.origin, "config", "uploadpack.allowFilter", "true")
-        run(root, "clone", "-q", self.origin.as_uri(), str(self.clone))
-        for key, value in (("user.name", "t"), ("user.email", "t@example.com"),
-                           ("commit.gpgsign", "false")):
-            run(self.clone, "config", key, value)
-        self.commit("README.md", "base\n", "base")
-        run(self.clone, "push", "-q", "origin", "HEAD:main")
+        shutil.copytree(template_origin, self.origin)
+        shutil.copytree(template_clone, self.clone)
+        run(self.clone, "remote", "set-url", "origin", self.origin.as_uri())
         self.probe = root / "probe.git"
 
     def tearDown(self):
