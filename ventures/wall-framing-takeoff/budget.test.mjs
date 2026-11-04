@@ -453,3 +453,21 @@ test("every unpriced line names the price that would fill it, and typing those p
   assert.ok(priceSheet(b1, typed).every((r) => r.price === 2));
   assert.ok(rows.every((r) => r.price === null));
 });
+
+test("electrical rough-in counts become budget lines priced from the electrical settings", () => {
+  const plan = { ...full(), electrical: { receptaclePrice: 2, switchPrice: 3, boxPrice: 1.5, cablePrice: 100 } };
+  const b = bud(plan);
+  const el = JSON.parse(run(plan, "--electrical", "--json").out).electrical;
+  const get = (i) => b.lines.find((l) => l.section === "Electrical" && l.item === i);
+  assert.equal(get("Receptacles").qty, el.receptacles);
+  assert.equal(get("Receptacles").amount, +(el.receptacles * 2).toFixed(2));
+  assert.equal(get("Device boxes").qty, el.boxes);
+  assert.equal(get("Device boxes").amount, +(el.boxes * 1.5).toFixed(2));
+  assert.equal(get("Cable rolls").qty, el.cableRolls);
+  assert.equal(get("Cable rolls").amount, el.cableRolls * 100);
+  // a budget price key overrides the electrical setting; no price anywhere is listed, never guessed
+  const over = bud({ ...plan, prices: { receptacle: 5 } });
+  assert.equal(over.lines.find((l) => l.item === "Receptacles").unitPrice, 5);
+  const none = bud({ ...full(), electrical: {} });
+  assert.equal(none.lines.find((l) => l.item === "Receptacles").amount, null);
+});
