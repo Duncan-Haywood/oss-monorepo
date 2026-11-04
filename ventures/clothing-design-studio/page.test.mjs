@@ -61,3 +61,10 @@ test("llms.txt and sitemap list every page", () => {
     assert.ok(sitemap.includes(f), f);
   }
 });
+
+test("the studio page offers the storefront download and warns before publishing", () => {
+  const html = read("index.html");
+  for (const id of ["sh-brand", "sh-email", "sh-link", "sh-ship", "sh-ret", "sh-dl"]) assert.ok(html.includes(`id="${id}"`), id);
+  assert.match(html, /import \{ storefront \} from "\.\/storefront\.mjs"/);
+  assert.match(html, /we hold no keys/);
+});
