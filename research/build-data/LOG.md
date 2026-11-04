@@ -1,5 +1,10 @@
 # build-data log
 
+## Session 24, 2026-11-04: paper section 4.2a (a writing step; no experiment, no result changed)
+
+The three data hosts returned 403 at the proxy again (probed Chicago, SF, Austin), so nothing was pulled. Added section 4.2a to `paper/paper.md`: the four over-coverage repairs (H2b to H2e) in one table, why the first three fail (same-day point mass at score 0, qhat 0) and the H2e partial success (SF in band, Chicago not), with the limits (one test year; Austin and i2c not run for H2d and H2e). Abstract finding 3, limitations, practitioner advice and to-do updated. Every number is copied from entries above and `results/conformal_*_2024.json`.
+Next: the drift-aware tau-pair rule over test years 2022 to 2024 (session 23's Next), when a data host is reachable.
+
 ## Session 23, 2026-11-04: milestone 21, H2e: choose the quantile-level pair by conformal calibration (planned before running)
 
 Session 22 showed no calibration window can narrow the Chicago and SF a2i intervals (qhat is 0 because the same-day mass sits on the score), and located the lever in the quantile model's tau pair. `src/conformal_tau_run.py`: grid tau_lo in {0.05, 0.1, 0.2} x tau_hi in {0.65, 0.7, 0.75, 0.8, 0.85, 0.9}; for each pair CQR qhat on the even weeks of Y-1, intervals rounded outward, the pair chosen by smallest mean width on the CALIBRATION rows among pairs with calibration coverage >= 0.78 (the test year is never used to choose). Same split, features, LightGBM settings and 3 seeds as session 22; Chicago and SF a2i, test year 2024.
