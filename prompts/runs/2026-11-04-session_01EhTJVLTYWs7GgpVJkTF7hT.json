@@ -19,7 +19,7 @@
   "projects": [
     "ventures/changepoint-detector"
   ],
-  "pr": null,
+  "pr": 13111,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -35,7 +35,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Added engine option slopeBreaks and CLI --slope-breaks [n]; 3 new tests plus slope-breaks.test.mjs and cli.test.mjs pass (9/9). engine.test.mjs was slow and had not finished when the PR opened. Top flagship 1 (wall-framing-takeoff) and its paid path are waiting on owner inputs; ai-bookkeeper items all need real data.",
+  "notes": "Added engine option slopeBreaks and CLI --slope-breaks [n]; 3 new tests plus slope-breaks.test.mjs and cli.test.mjs pass (9/9). engine.test.mjs also passes (94 pass, 0 fail). Top flagship 1 (wall-framing-takeoff) and its paid path are waiting on owner inputs; ai-bookkeeper items all need real data.",
   "corrections": [],
   "redteam": null
 }
