@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import worker from './worker.mjs';
-import { inboxRecord, readCapped, sameSecret, retentionCutoff, receiveEmail, MAX_RAW } from './inbox.mjs';
+import { inboxRecord, readCapped, sameSecret, retentionCutoff, receiveEmail, MAX_RAW, DEFAULT_DAILY_CAP } from './inbox.mjs';
 
 /** An in-memory stand-in for the inbox's D1 statements. */
 function fakeDb() {
@@ -9,6 +9,7 @@ function fakeDb() {
   const daily = new Map();
   return {
     rows,
+    daily,
     prepare(sql) {
       return {
         bind(...args) {
@@ -138,4 +139,33 @@ test('DELETE /inbox erases one message, only for the token holder', async () => 
   const res = await worker.fetch(del('/inbox?id=1', 's3cret'), env);
   assert.deepEqual(await res.json(), { deleted: 1 });
   assert.deepEqual(env.DB.rows.map((r) => r.id), [2]);
+});
+
+test('the default daily cap is 200 and the cap is counted per calendar day', async () => {
+  assert.equal(DEFAULT_DAILY_CAP, 200);
+  const env = { DB: fakeDb() };
+  const now = new Date('2026-11-04T23:59:00Z');
+  for (let i = 0; i < 200; i++) await receiveEmail(message(), env, now);
+  assert.equal(env.DB.rows.length, 200);
+  const extra = message();
+  await receiveEmail(extra, env, now);
+  assert.match(extra.rejected, /daily limit/);
+  assert.deepEqual([...env.DB.daily.keys()], ['2026-11-04']);
+});
+
+test('records keep the whole sender address and cap sender, recipient and message-id lengths', () => {
+  const long = (n) => 'a'.repeat(n);
+  const r = inboxRecord({ from: long(400), to: long(400), headers: new Headers({ 'message-id': long(600) }), raw: 'r', received: 't' });
+  assert.equal(r.mail_from, long(320));
+  assert.equal(r.rcpt_to, long(320));
+  assert.equal(r.message_id, long(500));
+});
+
+test('DELETE /inbox reads the id as base 10', async () => {
+  const env = { DB: fakeDb(), INBOX_TOKEN: 's3cret' };
+  for (let i = 0; i < 11; i++) await worker.email(message(), env);
+  const res = await worker.fetch(del('/inbox?id=10', 's3cret'), env);
+  assert.deepEqual(await res.json(), { deleted: 1 });
+  assert.equal(env.DB.rows.some((r) => r.id === 11), true);
+  assert.equal(env.DB.rows.some((r) => r.id === 10), false);
 });
