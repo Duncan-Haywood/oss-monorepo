@@ -1838,6 +1838,15 @@ export function analyze(input = {}) {
   }
   nbAfterExposure();
   let sigma = robustSd(values);
+  // noiseFloor k: sigma is at least k times the median absolute step between neighbours. A smooth, near-deterministic
+  // curve (a population count) has tiny scatter in its differences but a steady drift per step, so the scatter alone
+  // makes every bend look significant. White noise has median |step| of about 0.95 sigma, so k below 1 never binds there.
+  const noiseFloorK = o.noiseFloor === true ? 1 : Number(o.noiseFloor) || 0;
+  let noiseFloorHit = false;
+  if (noiseFloorK > 0 && values.length > 2) {
+    const fl = noiseFloorK * median(values.slice(1).map((v, i) => Math.abs(v - values[i])));
+    if (fl > sigma) { sigma = fl; noiseFloorHit = true; }
+  }
   let rho = null;
   const joint = o.ar1 === 'joint';
   if (o.ar1) {
@@ -1982,6 +1991,7 @@ export function analyze(input = {}) {
     skipped,
     model,
     noiseSd: round(sigma),
+    ...(noiseFloorHit ? { noiseFloor: noiseFloorK } : {}),
     ...(period ? { seasonal: { period, profile: profile.map((v) => round(v, exposure || seasonMultiplicative ? 3 : undefined)), ...(exposure || seasonMultiplicative ? { multiplicative: true } : {}) } } : {}),
     ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knotRanges ? { slopeChangeRange95: knotRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })) } : {}), ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
     ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4), ...(countRanges ? { growthChangeRange95: countRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })), ...(o.overdispersion === 'nb' ? { growthChangeRangeNote: GROWTH_RANGE_NB_NOTE } : {}) } : {}), ...(countKnots.length > 1 ? { growthChangesAtAll: countKnots, logGrowthAcrossSeriesRates: countRates.map((v) => round(v, 4)) } : {}) } : {}) } } : {}),
