@@ -131,7 +131,7 @@ fraudulent". Its chief executive, Stephan Shakespeare, said YouGov "takes full r
 apologised. YouGov said the Bible Society had reported the data accurately, and the survey is being
 rerun. The Bible Society's chief executive said he was deeply disappointed but pointed to other
 probability surveys showing greater engagement among young adults
-([Christian Post](http://www.christianpost.com/news/yougov-retracts-bible-societys-quiet-revival-study.html)).
+([Christian Post](https://www.christianpost.com/news/yougov-retracts-bible-societys-quiet-revival-study.html)).
 Until the rerun is published, the headline figures should be treated as discredited. The wider
 lesson applies on both sides of the Atlantic. Stories of young men returning to church rest partly on
 opt-in online samples, the method most exposed to fraudulent respondents.
@@ -206,7 +206,7 @@ of secular decline.
 - Berger, P. L. (1967; ed. 1999); Bruce, S. (2002); Casanova, J. (1994); Norris, P. & Inglehart, R. (2004); Stark, R. & Iannaccone, L. (1994); Taylor, C. (2007); Weber, M. (1917/1919) (all bibliographic).
 - CARA Mass attendance estimates, via [CNA (2025)](https://catholicnewsagency.com/amp/news/262131/cara-mass-attendance-ticks-back-up-nationally-after-pandemic-falter-data-suggests)
 - Chaves, M. & Voas, D. (2016). *American Journal of Sociology* 121(5):1517–1556. [Duke](https://scholars.duke.edu/publication/1122832); [Voas on LSE USAPP](https://blogs.lse.ac.uk/usappblog/2016/09/05/religion-is-in-decline-in-the-west-and-america-is-no-exception)
-- Christian Post (2026). YouGov retracts Bible Society's Quiet Revival study. [Link](http://www.christianpost.com/news/yougov-retracts-bible-societys-quiet-revival-study.html)
+- Christian Post (2026). YouGov retracts Bible Society's Quiet Revival study. [Link](https://www.christianpost.com/news/yougov-retracts-bible-societys-quiet-revival-study.html)
 - Christian Today. The Quiet Non-Revival. [Link](https://www.christiantoday.com/news/the-quiet-non-revival)
 - Fides (2025). Catholic Church Statistics 2025. [Agenzia Fides](https://www.fides.org/en/news/76919-VATICAN_Catholic_Church_Statistics_2025)
 - Krindatch 2008 convert survey, via [Christian Century](https://www.christiancentury.org/article/2008-12/us-orthodox-churches-have-more-converts-expected-study-says)
