@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Framing takeoff tool vs. a stud-per-foot rule of thumb: measured on three houses</title>
+  <meta name="description" content="Counting studs and boards with a layout takeoff versus the one-stud-per-foot rule or an on-centre spreadsheet formula, measured on three invented or generated houses at 12, 16, 19.2 and 24 inches on center.">
+  <meta property="og:title" content="Framing takeoff vs. a stud-per-foot rule of thumb">
+  <meta property="og:description" content="The per-foot rule is 2 to 10% high at 16 in, 17 to 27% high at 24 in and 5 to 8% short at 12 in, on three houses.">
+  <link rel="canonical" href="./vs-stud-per-foot-rule.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is the one-stud-per-foot rule accurate?", "acceptedAnswer": {"@type": "Answer", "text": "Only near 16 inches on center. On the three test houses it ordered 1.9 to 10.2% more lumber than a counted order at 16 in, 9.7 to 26.6% more at 19.2 or 24 in because it does not change with spacing, and 4.9 to 8.1% less at 12 in."}}, {"@type": "Question", "name": "Does a spreadsheet formula beat the rule of thumb?", "acceptedAnswer": {"@type": "Answer", "text": "A formula that follows the spacing (studs at the spacing plus one, four more per opening, two per corner and tee, three plates) tracks the spacing but still ordered 16 to 29% more than the counted order on the same houses, mostly from the flat allowance per opening and the plate count."}}, {"@type": "Question", "name": "What does the takeoff tool count that a rule does not?", "acceptedAnswer": {"@type": "Answer", "text": "Every king, jack, header, cripple and rough sill from the opening sizes you type, corner and tee backing, plate splices that land on studs, and a cutting-stock order that cuts short pieces from the offcuts of long boards."}}, {"@type": "Question", "name": "Can I trust these percentages for my own house?", "acceptedAnswer": {"@type": "Answer", "text": "No. They come from two generated plans and one invented house, not from a builder's real order. They show how the rules behave, and a real plan with the builder's actual order would settle it."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    h3 { font-size: 1rem; margin: 18px 0 2px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Wall framing takeoff vs. a stud-per-foot rule of thumb</h1>
+  <p>Two common ways to size a framing order are one stud per linear foot of wall plus plates, and a spreadsheet formula that adds studs at the spacing plus an allowance per opening. This page sets both against a counted order, in lineal feet of 2x4 and 2x6 with 10% waste on every column, from <code>allowance-bench.mjs</code> in the tool's repository (measured 2026-10-28 to 2026-11-02).</p>
+  <p><a class="cta" href="index.html">Lay out your walls in the free takeoff tool</a></p>
+
+  <h2>At 16 inches on center the per-foot rule is close, and high</h2>
+  <table>
+    <thead><tr><th>House</th><th class="n">Counted order, ft</th><th class="n">Per-foot rule</th><th class="n">On-centre formula</th></tr></thead>
+    <tbody>
+      <tr><td>Example house (invented, 212 ft of wall)</td><td class="n">2316</td><td class="n">2494 (+7.7%)</td><td class="n">2727 (+17.8%)</td></tr>
+      <tr><td>Open House Plans 1 (CC0, generated)</td><td class="n">2545</td><td class="n">2594 (+1.9%)</td><td class="n">3171 (+24.6%)</td></tr>
+      <tr><td>Open House Plans 2 (CC0, generated, windows ganged, 24 ft headers)</td><td class="n">4269</td><td class="n">4704 (+10.2%)</td><td class="n">5494 (+28.7%)</td></tr>
+    </tbody>
+  </table>
+
+  <h2>The rule does not know your spacing</h2>
+  <table>
+    <thead><tr><th>Example house</th><th class="n">Counted order, ft</th><th class="n">Per-foot rule</th><th class="n">On-centre formula</th></tr></thead>
+    <tbody>
+      <tr><td>12 in on center</td><td class="n">2623</td><td class="n">2494 (-4.9%)</td><td class="n">3186 (+21.5%)</td></tr>
+      <tr><td>16 in</td><td class="n">2316</td><td class="n">2494 (+7.7%)</td><td class="n">2727 (+17.8%)</td></tr>
+      <tr><td>19.2 in</td><td class="n">2176</td><td class="n">2494 (+14.6%)</td><td class="n">2532 (+16.3%)</td></tr>
+      <tr><td>24 in</td><td class="n">1972</td><td class="n">2494 (+26.5%)</td><td class="n">2286 (+15.9%)</td></tr>
+    </tbody>
+  </table>
+  <p>The per-foot figure is the same at every spacing, so a crew framing at 24 inches over-orders by about a quarter, and one framing at 12 inches (heavy loads, some high-wind designs) comes up 5 to 8% short. The Open House Plans 1 house shows the same pattern: -8.1%, +1.9%, +9.7% and +16.7% at 12, 16, 19.2 and 24 inches.</p>
+
+  <h2>What the tool does that a rule cannot</h2>
+  <ul>
+    <li>Counts every king, jack, header, rough sill and cripple from the opening sizes you type, and refuses openings that do not fit.</li>
+    <li>Adds corner and tee backing from how the walls meet, and puts plate splices over studs.</li>
+    <li>Orders boards with a cutting-stock solution (within 0.02% of its linear-programming bound on whole houses) so short pieces come out of long boards.</li>
+    <li>Prints the cut list and shop drawings, and checks each wall against its own layout.</li>
+  </ul>
+
+  <h2>What this does not show</h2>
+  <p>Two generated plans and one invented house, not a builder's real order or a permit set. The rules are the author's reading of common practice, not a published standard. Header sizes and spacing are your inputs and are not checked against a span table or code. A real plan with the builder's actual order would settle how much over-ordering is typical.</p>
+
+  <h2>Common questions</h2>
+  <h3>Is the one-stud-per-foot rule accurate?</h3>
+  <p>Only near 16 inches on center. On the three test houses it ordered 1.9 to 10.2% more lumber than a counted order at 16 in, 9.7 to 26.6% more at 19.2 or 24 in because it does not change with spacing, and 4.9 to 8.1% less at 12 in.</p>
+  <h3>Does a spreadsheet formula beat the rule of thumb?</h3>
+  <p>A formula that follows the spacing (studs at the spacing plus one, four more per opening, two per corner and tee, three plates) tracks the spacing but still ordered 16 to 29% more than the counted order on the same houses, mostly from the flat allowance per opening and the plate count.</p>
+  <h3>What does the takeoff tool count that a rule does not?</h3>
+  <p>Every king, jack, header, cripple and rough sill from the opening sizes you type, corner and tee backing, plate splices that land on studs, and a cutting-stock order that cuts short pieces from the offcuts of long boards.</p>
+  <h3>Can I trust these percentages for my own house?</h3>
+  <p>No. They come from two generated plans and one invented house, not from a builder's real order. They show how the rules behave, and a real plan with the builder's actual order would settle it.</p>
+
+  <p><a class="cta" href="index.html">Run the takeoff on your own walls</a></p>
+  <p>Related: <a href="how-many-studs-for-a-wall.html">how to count the studs for a wall by hand</a>.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. The example house is invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

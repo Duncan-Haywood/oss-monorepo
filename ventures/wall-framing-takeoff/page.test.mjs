@@ -702,3 +702,16 @@ test("the gutter calculator page: FAQ matches its data, the 24 x 40 ft gable giv
   assert.equal(g.straps, 8);
   assert.equal(g.hangers, 44);
 });
+
+test("the stud-per-foot comparison page is in the sitemap and llms.txt, and its FAQ matches its JSON-LD", () => {
+  assert.match(page("sitemap.xml"), /<loc>\.\/vs-stud-per-foot-rule\.html<\/loc>/);
+  assert.match(page("llms.txt"), /vs-stud-per-foot-rule\.html/);
+  const html = page("vs-stud-per-foot-rule.html");
+  const faq = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1])).find((b) => b["@type"] === "FAQPage");
+  assert.ok(faq && faq.mainEntity.length >= 4);
+  for (const q of faq.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  assert.match(html, /No warranty/);
+});
