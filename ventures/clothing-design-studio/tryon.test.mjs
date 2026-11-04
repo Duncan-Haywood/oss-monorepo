@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { tryOn, frontWidth, LANDMARKS } from "./tryon.mjs";
+import { tryOn, sleeveCheck, frontWidth, LANDMARKS } from "./tryon.mjs";
 
 test("front width: a circle-ish ratio 1 gives circumference / pi", () => {
   assert.ok(Math.abs(frontWidth(100, 1) - 100 / Math.PI) < 1e-9);
@@ -65,4 +65,20 @@ test("fit.html wires the try-on panel", () => {
   const html = readFileSync(new URL("./fit.html", import.meta.url), "utf8");
   assert.match(html, /import \{[^}]*tryOn[^}]*\} from "\.\/tryon\.mjs"/);
   assert.match(html, /id="tryon"/);
+});
+
+test("sleeve: a long-sleeve at M on a 178 cm person ends near the wrist; a short person gets a long sleeve", () => {
+  const avg = tryOn({ chest: 100, height: 178 }, { garment: "longsleeve" });
+  assert.match(avg.sleeve.word, /wrist/);
+  const short = tryOn({ chest: 100, height: 150 }, { garment: "longsleeve" });
+  assert.ok(short.sleeve.pastWrist > 8);
+  assert.match(short.sleeve.word, /over the hand/);
+  assert.ok(short.notes.some(n => /past your wrist/.test(n)));
+  const tall = sleeveCheck("longsleeve", "M", 215);
+  assert.match(tall.word, /short/);
+});
+
+test("sleeve: tee sleeves read as upper arm, grow a cm per size", () => {
+  assert.match(sleeveCheck("tee", "M", 175).word, /upper arm|elbow/);
+  assert.equal(sleeveCheck("tee", "L", 175).sleeveCm - sleeveCheck("tee", "M", 175).sleeveCm, 1);
 });
