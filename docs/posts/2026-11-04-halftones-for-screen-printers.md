@@ -1,6 +1,8 @@
 ---
 title: "Halftone films for screen printers: dots that print the tone you asked for"
 date: 2026-11-04
+tags: [clothing, screen-printing, halftone, open-source]
+description: "A free halftone film generator for screen printers: pick lines per inch, angle and mesh, get a 1:1 SVG film whose dot coverage matches the tone, with warnings for dots a mesh cannot hold."
 ---
 
 Flat-colour separation turns a painting into 2 to 8 inks. It cannot keep a soft shadow or a face. For that, screen printers use halftones: one ink, tiny dots, bigger where the picture is darker.

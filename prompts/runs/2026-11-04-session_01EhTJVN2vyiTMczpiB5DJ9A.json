@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13177",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -38,7 +38,9 @@
       "result": "clothing-design-studio suite passes"
     }
   ],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-04-halftones-for-screen-printers.md"
+  ],
   "goal": null,
   "notes": "Halftone film generator for R-0005 colour separation item: tone-to-coverage via area-CDF ranked spot function (tests within 3 points at 10-90%), min/max dot limits, mesh/lpi advice, SVG film, screenAngles. Not proven on a real printer. Verified: python3 platform/ci/run_venture_tests.py clothing-design-studio ok.",
   "corrections": [],
