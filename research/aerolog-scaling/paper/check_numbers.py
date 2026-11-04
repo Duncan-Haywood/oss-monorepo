@@ -32,6 +32,11 @@ CHECKS = [
     ("experiments/imu_allan_scale/results.txt", "median 1409 deg/hr (min 1298)", "9z: BI for 10% of q rms ~1,300 to 1,400 deg/hr"),
     ("experiments/imu_allan_scale/results.txt", "median 0.1203 deg/s/sqrt(Hz)", "9z: noise density for 10% of q rms 0.12"),
     ("experiments/imu_allan_scale/results.txt", "max 6.8e-04", "9z: largest drift fraction 6.8e-4"),
+    ("experiments/airspeed_sensor_scale/results.txt", "272 Pa = 4.0 %", "9aa: trim dynamic pressure 272 Pa, 4.0% of span"),
+    ("experiments/airspeed_sensor_scale/results.txt", "TEB 1.0 % span | 68.95 | 2.669 | 1.48", "9aa: 1% TEB is 1.48 of u rms"),
+    ("experiments/airspeed_offset_fit/results.txt", "OE | 0.37 | 0.10 | 1 | 0.75 | 0 of 160 | 6.07, 2.76, 4.10", "9ab: plain OE at offset 0.37"),
+    ("experiments/airspeed_offset_fit/results.txt", "OE+b | 1.48 | 0.10 | 1 | 0.75 | 2 of 160 | 0.31, 0.80, 1.26", "9ab: OE+b at offset 1.48"),
+    ("experiments/airspeed_scale_factor_fit/results.txt", "OE+b | 1.48 g0.894 | 0.10 | 2 | 0.75 | 8 of 160", "9ad: 8 of 160 failures at gain 0.894"),
     ("experiments/rodrigues_energy/results_days.txt", "1.539", "day-cluster exponent"),
     ("experiments/rodrigues_energy/results_days.txt", "1.529", "date fixed effect exponent"),
 ]
