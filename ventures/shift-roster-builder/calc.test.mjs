@@ -832,6 +832,27 @@ test("scheduleChanges finds moved, cancelled and added shifts and prices short n
   assert.equal(r.shortNotice, 1);
 });
 
+test("scheduleChanges prices a cancelled shift at its own hours and a flat dollar premium without a wage", () => {
+  const revised = [
+    "day,start,end,hours,label,assigned_to,role",
+    "Mon,9:00 AM,5:00 PM,8.00,open,Ana,",
+    "Tue,11:00 AM,5:00 PM,6.00,open,Ana,",
+    "Thu,9:00 AM,1:00 PM,4.00,open,Cleo,",
+  ].join("\n") + "\n";
+  const base = { changedAt: 8 * 60, noticeHours: 100, wages: { Ana: 20, Ben: 15, Cleo: 12 } };
+  // All three changes are inside 100 h. One hour each: 20 + 15 + 12. Cancelled at half an hour: 20 + 7.5 + 12.
+  assert.equal(scheduleChanges(POSTED, revised, { ...base, premiumHours: 1 }).owed, 47);
+  assert.equal(scheduleChanges(POSTED, revised, { ...base, premiumHours: 1, cancelHours: 0.5 }).owed, 39.5);
+  // A flat $10 per change needs no wage; per-kind amounts are honoured, and a kind left out falls back to wage pay.
+  assert.equal(scheduleChanges(POSTED, revised, { changedAt: 8 * 60, noticeHours: 100, flat: 10 }).owed, 30);
+  const k = scheduleChanges(POSTED, revised, { ...base, flat: { cancelled: 25 } });
+  assert.equal(k.owed, 20 + 25 + 12);
+  const nowage = scheduleChanges(POSTED, revised, { changedAt: 8 * 60, noticeHours: 100, flat: { cancelled: 25 } });
+  assert.equal(nowage.changes.filter((c) => c.premiumUnpriced).length, 2);
+  // Exempt people still owe nothing under a flat premium.
+  assert.equal(scheduleChanges(POSTED, revised, { changedAt: 8 * 60, noticeHours: 100, flat: 10, exempt: ["ana"] }).owed, 20);
+});
+
 test("scheduleChanges leaves out exempt people and says when notice is unknown", () => {
   const revised = POSTED.replace("Ana,\nWed", "Ana,\nWed").replace("Ben", "Cleo");
   const a = scheduleChanges(POSTED, revised, { changedAt: 17 * 60 + 2 * 1440 - 60, noticeHours: 48, wages: { Ben: 15, Cleo: 12 }, exempt: ["ben"] });

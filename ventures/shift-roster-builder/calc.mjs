@@ -2056,7 +2056,11 @@ export function parseRosterCsv(csv) {
 // that is under `noticeHours`, and then owes `premiumHours` of the person's wage unless their name is in `exempt`
 // (swaps and changes the employee asked for). Whether a rule applies, its window and its premium are the operator's
 // to enter: this is arithmetic on their numbers, not a statement of what any ordinance requires.
-export function scheduleChanges(postedCsv, revisedCsv, { changedAt = null, noticeHours = 336, premiumHours = 1, wages = {}, exempt = [] } = {}) {
+// Two more ways to price a short-notice change (2026-11-04): `cancelHours` prices a cancelled shift at that many hours
+// of pay instead of `premiumHours` (some rules charge a cancellation at a fraction, e.g. 0.5), and `flat` charges a fixed
+// dollar amount per short-notice change whatever the wage (some ordinances name a dollar figure per change; a number, or
+// {added, moved, cancelled} for different amounts). With `flat` set no wage is needed.
+export function scheduleChanges(postedCsv, revisedCsv, { changedAt = null, noticeHours = 336, premiumHours = 1, cancelHours = null, flat = null, wages = {}, exempt = [] } = {}) {
   const posted = parseRosterCsv(postedCsv), revised = parseRosterCsv(revisedCsv);
   const skip = new Set((exempt || []).map((n) => String(n).trim().toLowerCase()).filter(Boolean));
   const wageOf = new Map(Object.entries(wages || {}).map(([k, v]) => [k.toLowerCase(), String(v ?? "").trim() === "" ? NaN : Number(v)]));
@@ -2086,8 +2090,11 @@ export function scheduleChanges(postedCsv, revisedCsv, { changedAt = null, notic
     ch.exempt = skip.has(ch.person.toLowerCase());
     ch.shortNotice = known && ch.noticeHours < noticeHours;
     const wage = wageOf.get(ch.person.toLowerCase());
-    ch.premium = ch.shortNotice && !ch.exempt && wage > 0 ? Math.round(premiumHours * wage * 100) / 100 : 0;
-    ch.premiumUnpriced = ch.shortNotice && !ch.exempt && !(wage > 0);
+    const flatAmt = flat === null || flat === undefined ? null : typeof flat === "object" ? (Number.isFinite(Number(flat[ch.kind])) ? Number(flat[ch.kind]) : null) : Number(flat);
+    const hrs = ch.kind === "cancelled" && cancelHours !== null && cancelHours !== undefined ? cancelHours : premiumHours;
+    const due = ch.shortNotice && !ch.exempt;
+    ch.premium = !due ? 0 : flatAmt !== null && flatAmt >= 0 ? Math.round(flatAmt * 100) / 100 : wage > 0 ? Math.round(hrs * wage * 100) / 100 : 0;
+    ch.premiumUnpriced = due && !(flatAmt !== null && flatAmt >= 0) && !(wage > 0);
     owed += ch.premium;
   }
   changes.sort((x, y) => x.touchesFrom - y.touchesFrom || x.person.localeCompare(y.person));
