@@ -3,7 +3,7 @@ title: "Opening two real building models in the browser, with no upload"
 seo_title: "Reading IFC building models in the browser with WebAssembly"
 date: 2026-11-04
 tags: [construction, ifc, webassembly, wall-framing-takeoff]
-description: "A Rust IFC reader compiled to WebAssembly opened a 2.4 MB and a 49 MB real building model in headless Chromium, in 0.25 s and 3.9 s, without sending the file anywhere."
+description: "A Rust IFC reader compiled to WebAssembly opened a 2.4 MB and a 49 MB real building model in Chromium in 0.25 s and 3.9 s, with no upload."
 ---
 
 Yesterday the wall-framing takeoff page gained an IFC upload: a Rust reader
