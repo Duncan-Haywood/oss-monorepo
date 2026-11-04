@@ -33,10 +33,10 @@ nm, gm = ts.nm, load("experiments/gust_response/run.py", "gm")
 HS = gm.HS
 SCALES = (0.75,)
 NOISE = (0.10,)
-OFFSETS = (0.0, 0.37, 1.48, 2.96)   # total drift over the record per channel (end minus start), fraction of channel rms, random sign
+OFFSETS = (0.0, 0.37, 1.48)   # u-channel offset as a multiple of u rms: none, 9aa accuracy-only and 1% TEB cases (2.96 dropped for run time)
 PERIODS = (1, 2)
-DRAWS = 8
-STRIDE = 4                          # every third mode-matched design, for run time
+DRAWS = 3
+STRIDE = 8                          # every eighth mode-matched design, for run time (the 30-minute limit killed the 8-draw, stride-4 run)
 F = np.round(np.arange(0.6, 1.801, 0.05), 2)
 rng = np.random.default_rng(20261103)
 
