@@ -1257,6 +1257,32 @@ export function divisionsIcs(schedule, { division = null, team = null, stamp = n
 }
 
 /**
+ * Does every division finish by a date the organiser must meet (end of term, venue lease, a final
+ * weekend)? `deadline` is a day number as `parseDate` returns. Per division: its last game date, days spare
+ * (negative when late) and the matches dated after the deadline. Returns null for a missing or invalid
+ * deadline or an empty schedule, else { deadline, lastDay, fits, daysSpare, matchesAfter, nightsAfter,
+ * divisions: [{ division, lastDay, fits, daysSpare, matchesAfter }], text }.
+ */
+export function divisionsDeadline(schedule, deadline) {
+  if (!Number.isInteger(deadline) || !schedule.nights?.length) return null;
+  const per = new Map();
+  for (const night of schedule.nights) for (const m of night.matches) {
+    const e = per.get(m.division) || { division: m.division, lastDay: -Infinity, matchesAfter: 0 };
+    e.lastDay = Math.max(e.lastDay, night.day);
+    if (night.day > deadline) e.matchesAfter++;
+    per.set(m.division, e);
+  }
+  const divisions = [...per.values()].map((e) => ({ ...e, fits: e.lastDay <= deadline, daysSpare: deadline - e.lastDay }));
+  const lastDay = Math.max(...divisions.map((d) => d.lastDay));
+  const nightsAfter = schedule.nights.filter((n) => n.day > deadline && n.matches.length).length;
+  const matchesAfter = divisions.reduce((a, d) => a + d.matchesAfter, 0);
+  const fits = lastDay <= deadline;
+  const lines = [fits ? `Every division finishes by ${dayIso(deadline)}; the last game is ${dayIso(lastDay)} (${deadline - lastDay} day(s) spare).` : `The season runs ${lastDay - deadline} day(s) past ${dayIso(deadline)}: ${matchesAfter} match(es) on ${nightsAfter} night(s) fall after it.`];
+  for (const d of divisions) lines.push(`  ${d.division}: last game ${dayIso(d.lastDay)}, ${d.fits ? `${d.daysSpare} day(s) spare` : `${-d.daysSpare} day(s) late, ${d.matchesAfter} match(es) after`}`);
+  return { deadline, lastDay, fits, daysSpare: deadline - lastDay, matchesAfter, nightsAfter, divisions, text: lines.join("\n") + "\n" };
+}
+
+/**
  * Facility booking requests: for each venue, the dates it is needed, which courts, and the earliest start
  * to the latest finish (each game is `minutes` long, default 60). An organiser sends the text to the
  * facility to reserve the whole season at once. Only nights with a game at the venue are listed.
@@ -1412,7 +1438,7 @@ export function rainoutOptions(f) {
   return { balance: on(f.balance), flip: on(f.flip), relocate: on(f.relocate), swapNights: on(f.swapNights) };
 }
 
-// node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, --notices for the rainout change notices, --bookings for a per-venue facility booking request, --results results.txt --weekly for the group-chat update, --grid for the season grid CSV, --history for next season's venueHistory, or --suggest-weight to pick fairnessWeight). spec.json holds the form fields.
+// node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, --notices for the rainout change notices, --deadline DATE for whether the season ends in time (exit 2 if not), --bookings for a per-venue facility booking request, --results results.txt --weekly for the group-chat update, --grid for the season grid CSV, --history for next season's venueHistory, or --suggest-weight to pick fairnessWeight). spec.json holds the form fields.
 if (typeof process !== "undefined" && process.argv && import.meta.url === `file://${process.argv[1]}`) {
   const { readFileSync } = await import("node:fs");
   const file = process.argv[2];
@@ -1457,6 +1483,13 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
     for (const e of r.errors) console.error(`Withdrawal: ${e}`);
     for (const n of r.notices) console.error(`Notice: ${n}`);
     s = r.schedule;
+  }
+  if (process.argv.includes("--deadline")) {
+    const dl = parseDate(process.argv[process.argv.indexOf("--deadline") + 1] || "");
+    const r = divisionsDeadline(s, dl);
+    if (!r) { console.error("--deadline needs a real date, e.g. --deadline 2026-12-15"); process.exit(1); }
+    process.stdout.write(r.text);
+    process.exit(r.fits ? 0 : 2);
   }
   if (process.argv.includes("--bookings")) {
     process.stdout.write(divisionsBookings(s).text);
