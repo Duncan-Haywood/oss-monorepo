@@ -3,7 +3,7 @@ title: "Do you need a minimum-positives guard when auditing an LLM coder for a r
 seo_title: "Auditing LLM-coded data for a 2% category: a guard on pilot positives"
 date: 2026-11-04
 tags: [research, llm-coding, survey-sampling, audit-design]
-description: "At 2% prevalence, a guard of 5 to 10 pilot positives keeps coder-cell audits 4 to 8% narrower than pooled at about 94% coverage. The library default of 20 never uses cells."
+description: "At 2% prevalence, a guard of 5 to 10 pilot positives keeps coder-cell audits 4 to 8% narrower than pooled at about 94% coverage; the default of 20 never uses cells."
 ---
 
 When an LLM codes a rare category (2% of 6,000 NaijaSenti items), a human
