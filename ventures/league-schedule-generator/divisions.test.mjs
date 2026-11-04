@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining, restGaps, divisionsChangeNotices, divisionsBookings, applyDivisionWithdrawals } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining, restGaps, divisionsChangeNotices, divisionsBookings, applyDivisionWithdrawals, blackoutsFromCsv, csvRows } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -975,4 +975,44 @@ test("applyDivisionWithdrawals from a date keeps earlier matches; bad lines are 
   const before = s.nights.filter((n) => n.day < cut).flatMap((n) => n.matches);
   assert.equal(left.length, before.length);
   assert.ok(!r.schedule.nights.filter((n) => n.day >= cut).flatMap((n) => n.matches).some((m) => m.division === "U10" && (m.homeName === "Hawks" || m.awayName === "Hawks")));
+});
+
+test("blackoutsFromCsv turns a coach form export into blackout lines, merges repeats and names what it cannot place", () => {
+  const { divisions } = parseDivisions(example.divisions);
+  const csv = '﻿Timestamp,Division,Team name,"Dates we cannot play"\r\n' +
+    '11/1/2026,U10,Hawks,"2026-11-05; 2026-12-22 to 2026-12-30"\r\n' +
+    '11/2/2026,U12,Hawks,none\r\n' +
+    '11/2/2026,U10,Hawks,2026-11-12\r\n' +
+    '11/3/2026,Adult,Rams,"2026-11-10,\n2026-11-17"\r\n' +
+    '11/3/2026,U10,Nobody,2026-11-10\r\n' +
+    '11/3/2026,,Owls,2026-11-10\r\n';
+  const r = blackoutsFromCsv(csv, divisions);
+  assert.equal(r.text, "U10/Hawks: 2026-11-05, 2026-12-22 to 2026-12-30, 2026-11-12\nAdult/Rams: 2026-11-10, 2026-11-17");
+  assert.equal(r.errors.length, 2);
+  assert.match(r.errors[0], /Row 6.*U10\/Nobody/);
+  assert.match(r.errors[1], /Row 7.*more than one division/);
+  const pb = parseDivisionBlackouts(r.text, divisions);
+  assert.deepEqual(pb.errors, []);
+  assert.equal(Object.keys(pb.blackouts).length, 2);
+});
+
+test("blackoutsFromCsv accepts Division/Team cells and refuses a sheet without the columns it needs", () => {
+  const { divisions } = parseDivisions(example.divisions);
+  assert.equal(blackoutsFromCsv("Team,Blackout dates\nU12/Hawks,2026-11-05\n", divisions).text, "U12/Hawks: 2026-11-05");
+  assert.match(blackoutsFromCsv("Name,Dates\nx,y\n", divisions).errors[0], /No team column/);
+  assert.match(blackoutsFromCsv("Team,Colour\nHawks,red\n", divisions).errors[0], /No date column/);
+  assert.match(blackoutsFromCsv("Team,Dates\n", divisions).errors[0], /header row/);
+  assert.deepEqual(csvRows('a,"b ""q"", c"\n\n1,2'), [["a", 'b "q", c'], ["1", "2"]]);
+});
+
+test("--blackouts-csv on the CLI moves matches off the form's dates", () => {
+  const dir = mkdtempSync(join(tmpdir(), "bcsv-"));
+  const csv = join(dir, "f.csv");
+  writeFileSync(csv, "Division,Team,Dates unavailable\nU10,Owls,2026-10-13\n");
+  const spec = join(dir, "s.json");
+  writeFileSync(spec, JSON.stringify(example));
+  const run = (args) => spawnSync("node", [new URL("./divisions.mjs", import.meta.url).pathname, spec, ...args], { encoding: "utf8" });
+  const base = run([]), withCsv = run(["--blackouts-csv", csv]);
+  assert.equal(withCsv.status, 0, withCsv.stderr);
+  assert.notEqual(base.stdout, withCsv.stdout);
 });
