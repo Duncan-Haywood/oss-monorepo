@@ -4,108 +4,15 @@
  * `pairing.simulation.test.ts`, 10 seeded respondents per cell.
  */
 import { describe, expect, it } from "vitest";
-import { applyComparison, DEFAULT_GLICKO_STATE, type GlickoState } from "@/lib/glicko2";
 import {
   expectedVarianceReduction,
-  pairKey,
   selectNextPair,
   selectNextPairByInformation,
   selectNextPairHybrid,
   type InformationOptions,
   type PairItem,
 } from "@/lib/pairing";
-
-function mulberry32(seed: number): () => number {
-  let s = seed;
-  return () => {
-    s |= 0;
-    s = (s + 0x6d2b79f5) | 0;
-    let t = Math.imul(s ^ (s >>> 15), 1 | s);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-type Policy = typeof selectNextPair;
-
-/**
- * `lapse` is the share of answers given at random (an inconsistent respondent);
- * `positionBias` is the share of answers that take the first option shown whatever
- * the items are (negative: the second option). Both draw nothing extra at 0, so older seeds reproduce.
- */
-export function simulate(policy: Policy, itemCount: number, budget: number, seed: number, lapse = 0, positionBias = 0) {
-  const rand = mulberry32(seed);
-  const truth = new Map<string, number>();
-  const state = new Map<string, GlickoState>();
-  const timesShown = new Map<string, number>();
-  const items: PairItem[] = [];
-  for (let i = 0; i < itemCount; i++) {
-    const id = `item-${String(i).padStart(3, "0")}`;
-    truth.set(id, rand() * 2 - 1);
-    state.set(id, { ...DEFAULT_GLICKO_STATE });
-    items.push({
-      id,
-      rating: DEFAULT_GLICKO_STATE.rating,
-      rd: DEFAULT_GLICKO_STATE.rd,
-      category: `category-${i % 6}`,
-      dimensions: [`dimension-${i % 4}`],
-    });
-  }
-  const recent: string[] = [];
-  let firstPicks = 0;
-  for (let answered = 0; answered < budget; answered++) {
-    const live = items.map((item) => {
-      const s = state.get(item.id)!;
-      return { ...item, rating: s.rating, rd: s.rd };
-    });
-    const [aId, bId] = policy({
-      items: live,
-      timesShown,
-      recentPairKeys: new Set(recent),
-      answeredCount: answered,
-      firstOptionShare: answered > 0 ? firstPicks / answered : undefined,
-      rand,
-    });
-    const pA = 1 / (1 + Math.exp(-2 * (truth.get(aId)! - truth.get(bId)!)));
-    const pickedFirst = positionBias > 0 && rand() < positionBias ? true : positionBias < 0 && rand() < -positionBias ? false : lapse > 0 && rand() < lapse ? rand() < 0.5 : rand() < pA;
-    if (pickedFirst) firstPicks++;
-    const { a, b } = applyComparison(state.get(aId)!, state.get(bId)!, pickedFirst ? "A" : "B");
-    state.set(aId, a);
-    state.set(bId, b);
-    timesShown.set(aId, (timesShown.get(aId) ?? 0) + 1);
-    timesShown.set(bId, (timesShown.get(bId) ?? 0) + 1);
-    recent.push(pairKey(aId, bId));
-    if (recent.length > 10) recent.shift();
-  }
-  const entries = [...state.entries()];
-  const under = (t: number) => entries.filter(([, s]) => s.rd < t).length;
-  // Rank accuracy over every item, so a policy that finishes few items is not flattered.
-  const rankAccuracy = spearman(
-    entries.map(([id]) => truth.get(id)!),
-    entries.map(([, s]) => s.rating)
-  );
-  return { under, rankAccuracy };
-}
-
-function spearman(xs: number[], ys: number[]): number {
-  const rank = (v: number[]) => {
-    const order = v.map((x, i) => [x, i] as const).sort((a, b) => a[0] - b[0]);
-    const r = new Array<number>(v.length);
-    order.forEach(([, i], k) => (r[i] = k));
-    return r;
-  };
-  const rx = rank(xs);
-  const ry = rank(ys);
-  const n = xs.length;
-  const m = (n - 1) / 2;
-  let num = 0, dx = 0, dy = 0;
-  for (let i = 0; i < n; i++) {
-    num += (rx[i] - m) * (ry[i] - m);
-    dx += (rx[i] - m) ** 2;
-    dy += (ry[i] - m) ** 2;
-  }
-  return dx === 0 || dy === 0 ? 0 : num / Math.sqrt(dx * dy);
-}
+import { simulate, type Policy } from "@/lib/infoGainSim";
 
 const median = (v: number[]) => [...v].sort((a, b) => a - b)[Math.floor(v.length / 2)];
 const seeds = (n: number) => Array.from({ length: n }, (_, i) => 1000 + i * 7);

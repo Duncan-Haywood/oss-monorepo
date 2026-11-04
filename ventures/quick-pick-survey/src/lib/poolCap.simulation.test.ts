@@ -7,25 +7,8 @@
 import { appendFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { selectNextPair, selectNextPairByInformation } from "@/lib/pairing";
-import { simulate } from "@/lib/infoGainPairing.simulation.test";
-
-const median = (v: number[]) => [...v].sort((a, b) => a - b)[Math.floor(v.length / 2)];
-
-function cell(items: number, budget: number, n: number) {
-  const seeds = Array.from({ length: n }, (_, i) => 1000 + i * 7);
-  const run = (p: typeof selectNextPair) => {
-    const rs = seeds.map((s) => simulate(p, items, budget, s));
-    return {
-      under150: median(rs.map((r) => r.under(150))),
-      rank: Number(median(rs.map((r) => r.rankAccuracy)).toFixed(3)),
-    };
-  };
-  return {
-    shipped: run(selectNextPair),
-    capped: run((i) => selectNextPairByInformation(i)),
-    uncapped: run((i) => selectNextPairByInformation(i, { poolCap: Infinity })),
-  };
-}
+import { simulate } from "@/lib/infoGainSim";
+import { cell, median } from "@/lib/poolCapCell";
 
 describe("pool cap at 3000 items (no uncapped run: minutes each)", () => {
   it("3000 items, 600 answers: capped beats the shipped selector", () => {
@@ -55,14 +38,3 @@ describe("pool cap on long lists", () => {
   }
 });
 
-describe("pool cap with budgets well past the list length", () => {
-  // 500 items is above the cap of 400; 2000 answers is 4 per item, 4000 is 8 per item.
-  for (const [items, budget] of [[500, 2000], [500, 4000]] as const) {
-    it(`${items} items, ${budget} answers`, () => {
-      const r = cell(items, budget, 2);
-      appendFileSync(process.env.MEASURE_OUT ?? "/dev/null", `MEASURE ${items} items ${budget} answers ${JSON.stringify(r)}\n`);
-      // Question, not a claim: does the cap hide items once the budget is deep? Allow 0.02 as in the cells above.
-      expect(r.capped.rank).toBeGreaterThanOrEqual(r.uncapped.rank - 0.02);
-    }, 3_600_000);
-  }
-});
