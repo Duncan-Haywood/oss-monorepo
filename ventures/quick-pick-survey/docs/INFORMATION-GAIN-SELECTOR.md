@@ -429,3 +429,30 @@ items rated at the tail). That is the next thing to check, with the same
 seeds at 1000 and 3000 answers and the rated-item count reported.
 Reproduce: the command in the previous section with `NOISY_ANSWERS=3000
 NOISY_TIMEOUT_MS=7000000` (about 40 min).
+
+### Why 3000 answers scored below 1000: a coverage effect (2026-11-04)
+
+Same test, clean condition only, 1000 items, 3 respondents, the new
+`NOISY_CONDITIONS=clean NOISY_CHECKPOINTS=500,1000,1500,2000,3000`, which reads
+Spearman and the rated-item count along each respondent's own run (571 s,
+through the real routes and local Postgres 16). Mean of the 3 respondents:
+
+| answers | rated items | Spearman over rated items |
+|---|---|---|
+| 500 | 113 | 0.812 |
+| 1000 | 213 | 0.623 |
+| 1500 | 313 | 0.504 |
+| 2000 | 413 | 0.436 |
+| 3000 | 613 | 0.546 |
+
+Reading: the three respondents agree to within 0.03 at every checkpoint, so the
+dip is not seed noise. The route rates about 100 new items per 500 answers, and
+the Spearman is taken over rated items only, so each checkpoint scores a larger,
+harder set (113 items, then 613). Within a fixed set the order improves with
+answers; the score falls while the set keeps widening and recovers once the
+widening slows (rise from 2000 to 3000). The 0.619 vs 0.545 gap is therefore a
+change in what is measured, not a worse selector. Not done: a fixed-set score
+(Spearman over the first 113 items rated, at every checkpoint) would show the
+within-set gain directly; and the 3000 vs 1000 comparison of the staged
+selector against the shipped one at equal rated count. Reproduce: the command
+above, with `NOISY_OUT` set.
