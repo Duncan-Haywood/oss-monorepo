@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-04",
+  "session": "https://claude.ai/code/session_01E5sJKo7io7WnDfGYsntEXg",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-04T09:21:06Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13057",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "aerolog milestone list says aerolog-energy is next, but its work (2a-2c) already lives inside aerolog-scaling; pick_track output points at a nonexistent slug"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "bare python3 lacks aerosandbox even after pip install; /usr/bin/python3 has it - not obvious"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROJECTS.md",
+      "why": "planned symmetric-section UIUC check blocked (host refused by proxy); did paper catch-up for 5e instead",
+      "did": "paper draft + check_numbers + post",
+      "result": "small step, not a new result"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-04-when-is-constant-power-a-fair-thrust-law-for-a-cargo-drone.md",
+    "research/aerolog-scaling/LOG.md"
+  ],
+  "goal": null,
+  "notes": "UIUC m-selig host and Wayback copy refused by egress proxy; milestone 8h is a paper catch-up, no new simulation.",
+  "corrections": [],
+  "redteam": null
+}
