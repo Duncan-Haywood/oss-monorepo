@@ -120,6 +120,7 @@
     <label for="scoring">Points for a win-draw-loss (blank = 3-1-0; <code>2-1-0</code> for hockey or darts)</label>
     <input id="scoring" placeholder="3-1-0" autocomplete="off">
     <input type="checkbox" id="h2h" style="margin-top:6px"> <label for="h2h" style="display:inline">Break ties on points by head-to-head results first</label>
+    <br><input type="checkbox" id="setscore" style="margin-top:6px"> <label for="setscore" style="display:inline">Volleyball set scoring (type scores as sets won, 3-1; a 3-2 win earns 2 points, the loser 1)</label>
 
     <h2 style="margin-top:18px">4b. Fixed-date matches (optional)</h2>
     <label for="pins">One per line: a derby on opening night, a game the venue booked months ago. <code>Hawks v Owls -&gt; 2026-11-03</code> moves their earliest meeting to that day (any day, earlier or later). It is refused, with the reason, if either team is blacked out or already playing, or no court is free. Write a pair twice to fix both legs of a double round robin.</label>
@@ -591,7 +592,7 @@
         const now = new Date();
         const od = overdueResults(s, pr.results, parseDate(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`));
         if (od.length) warnings.push(`${od.length} match(es) dated before today have no result typed: ${od.slice(0, 5).map((m) => `${s.teams[m.home]} v ${s.teams[m.away]} (${dayLabel(m.day)})`).join("; ")}${od.length > 5 ? "; ..." : ""}.`);
-        table = standings(s.teams, pr.results, { ...pts, headToHead: $("#h2h").checked, adjustments: pr.adjustments });
+        table = standings(s.teams, pr.results, { ...pts, headToHead: $("#h2h").checked, setScoring: $("#setscore").checked, adjustments: pr.adjustments });
         seeds = table.map((r) => r.name);
         const gl = gamesLeft(s.teams.length, remainingFixtures(s, pr.results));
         const rem = remainingFixtures(s, pr.results);
@@ -759,7 +760,7 @@
         parts.push(`${p.name.toUpperCase()}: ${sched.teams.join(", ")}\n${scheduleText(sched)}`);
         if (resText.trim()) {
           const pr = parseResults(resText, sched.teams);
-          tables.push(standings(sched.teams, pr.results, { ...parsePointSystem($("#scoring").value), headToHead: $("#h2h").checked, adjustments: pr.adjustments }));
+          tables.push(standings(sched.teams, pr.results, { ...parsePointSystem($("#scoring").value), headToHead: $("#h2h").checked, setScoring: $("#setscore").checked, adjustments: pr.adjustments }));
         }
       }
       if (tables.length) {
