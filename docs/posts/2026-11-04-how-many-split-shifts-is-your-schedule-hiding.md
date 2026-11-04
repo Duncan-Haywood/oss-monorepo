@@ -1,7 +1,7 @@
 ---
 title: "How many split shifts is your schedule hiding?"
 date: 2026-11-04
-description: "The shift roster builder's command line now lists every day one person works two shifts with a gap between them, and what a split-shift premium would cost on your own numbers."
+description: "The shift roster builder CLI now lists every day one person works two shifts with a gap, and what a split-shift premium costs on your own numbers."
 tags: [shift-roster-builder, scheduling, restaurants]
 ---
 
