@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-04",
+  "session": "https://claude.ai/code/session_01EhTJVNcKui4pyyXLadXEAj",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo (scheduled brief)",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "ended": "2026-11-04T03:00:00Z",
+  "projects": ["shift-roster-builder"],
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Flagship queues are saturated and the open item (branch-and-price) is multi-session research; landed a small user-facing honesty fix instead",
+      "did": "Report, JSON and page now carry a warning when the 20 s time budget stopped the search",
+      "result": "calc.test.mjs budget test asserts the warning"
+    }
+  ],
+  "writeups": ["docs/posts/2026-11-04-roster-builder-says-when-it-stopped-early.md"],
+  "notes": "Small slice only; branch-and-price on the Dantzig-Wolfe LP remains the flagship's next milestone.",
+  "corrections": []
+}
