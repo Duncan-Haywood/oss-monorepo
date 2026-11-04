@@ -1,7 +1,7 @@
 ---
 title: "Where does an underwater glider stop making headway?"
 date: 2026-11-04
-description: "In observed US coastal currents a 0.2 m/s glider cannot hold its track in most readings at tidal stations, but in calm bays it still beats a propeller AUV on energy."
+description: "In observed US coastal currents a 0.2 m/s glider often cannot hold its track at tidal stations, but in calm bays it still beats a propeller AUV on energy."
 tags: [marine-hull, research, autonomy, ocean]
 ---
 
