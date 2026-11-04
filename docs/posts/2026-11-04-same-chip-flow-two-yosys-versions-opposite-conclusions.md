@@ -3,7 +3,7 @@ title: "Same 60 synthesis sequences, two Yosys versions, a 109% versus 16% regre
 seo_title: "Yosys version changes open-source chip design-space search results"
 date: 2026-11-04
 tags: [research, chip-design, yosys, openroad, reproducibility]
-description: "Re-running one fixed chip design-space search under Yosys 0.33 and 0.70 moved the cheap-rung pick regret from 109% to 16%. Two releases in between would not run."
+description: "Re-running one fixed chip design-space search under Yosys 0.33 and 0.70 moved the cheap-rung pick regret from 109% to 16%. Two in-between releases would not run."
 ---
 
 Our `verified-dse` programme asks when a cheap synthesis estimate can be
