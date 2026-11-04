@@ -2,6 +2,32 @@
 
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
+## 2026-11-04 · Milestone 3 results: most of the apparent attendance drop is mode, but the test is underpowered
+
+Run: `experiments/m3_mode/run.py` (tests in `test_cathdem.py`; output `results.txt`, tables `t0`-`t3`).
+GSS `mode` codes 1 in person, 2 phone, 3 video, 4 web (the .dta has no value labels; the reading
+fits the counts: 3,521 of 4,032 in 2021 are code 4; 2010-18 have only 1 and 2). Weekly attendance
+of Catholics, weighted, 95% design-based intervals.
+
+- **Raw drop.** 2021-24 minus 2016-18: -5.5 points [-9.3, -1.6]; non-Catholics: -5.7 [-8.1, -3.4].
+  The drop is not specific to Catholics.
+- **H3 as worded (refuted if in-person Catholics show no lower attendance than 2018): refuted.**
+  In person 2022-24 minus in person 2016-18: -2.2 [-8.9, +4.5]; 2022 vs 2018: -0.9 [-10.5, +8.6];
+  2024 vs 2018: -3.3 [-12.0, +5.5]. All intervals include zero.
+- **But "no detectable drop" is not "no drop".** The in-person Catholic samples are small (315 and
+  227) and the intervals cannot rule out a real fall of 9 to 12 points. The point estimate (about
+  -2) is less than half the raw drop (-5.5).
+- **Mode gap.** Within 2022-24, web minus in person: -9.1 points [-15.9, -2.4] (Catholics),
+  -6.4 [-10.3, -2.5] (others). Adjusting for age, sex, ethnicity and degree leaves it unchanged
+  (-9.8 [-16.6, -3.1]). Caveat: web respondents in 2022 and 2024 are partly nonrespondents to the
+  in-person attempt, so this is mode plus selection, not a pure measurement effect.
+- **Reading.** About half or more of the 2010-18 to 2021-24 fall is better explained by mode than by
+  behaviour, but a residual real decline of a few points is compatible with the data. Milestone 4
+  and the paper treat 2021-24 attendance levels as not comparable with earlier years unless
+  stated; a trend claim needs the 2016-20 panel or an outside series.
+- **Not done.** `modesequence` (initial contact mode) as a randomised-design contrast, and the
+  Pew/Gallup attendance series as an outside check.
+
 ## 2026-11-03 · Milestone 1 results: fertility gap reversed, retention diverges by ethnicity
 
 Run: `experiments/m1_subgroups/run.py` (output `results.txt`, tables `t1`-`t4`). All figures
