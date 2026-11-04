@@ -1,6 +1,5 @@
 ---
-title: "When a weak coder makes a stratified audit worse"
-seo_title: "Stratifying an audit by LLM code: when it widens intervals"
+title: "A weak coder makes a stratified audit worse"
 date: 2026-11-04
 tags: [research, llm-coding, prediction-powered-inference, negative-result]
 description: "At 2% prevalence on NaijaSenti splitting the audit by the coder's labels narrowed intervals 8% for a good coder, widened them 10% for a poor one."
