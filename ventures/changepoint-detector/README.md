@@ -508,6 +508,17 @@ The test the section above asked for: real daily counts with a real holiday flag
 
 Another negative result. The holiday effect is real (commuters stay home, so registered riders fall by a third; leisure riders rise by 41%), but the list does not remove changes: it adds five and seven. The fitted factor is also well short of the raw ratio (0.877 against 0.66), because most of these holidays are Mondays and the weekly factor for Monday already absorbs part of the dip. The series is dominated by weather and season over two years (a yearly cycle with a period of 7 does not model it), so most of the 56 to 77 changes are the seasonal swing, which the holiday factor cannot touch. Not tried: a period-365 term, a temperature covariate, or fitting the holidays only inside a stable stretch. So the feature still has no real series where it earns its place; it works on synthetic data and on none of the two real ones tried. Do not read the factor as a holiday effect size on series with a strong yearly swing.
 
+## Holidays inside 12-week stretches of the bike-share series (2026-11-04)
+
+The last "not tried" item above: fit the holiday factor only inside short windows, so the yearly swing is mostly out of the fit. `node eval/holiday-bikes-windows.mjs` (output `eval/holiday-bikes-windows.out.txt`) cuts the 731 days into 84-day windows, keeps the 7 with at least two of the dataset's holidays, and runs `--model poisson --period 7 --overdispersion nb` with and without the list.
+
+| series | windows | changes, no list | changes, with list | fitted factors |
+|---|---|---|---|---|
+| registered | 7 | 55 | 60 | 0.83 to 1.21 (median 0.92) |
+| casual | 7 | 52 | 58 | 0.84 to 2.71 (median 1.75) |
+
+Negative again. Short windows do not make the list remove changes: it adds five (registered) and six (casual) over the seven windows, and fits are two to four holidays each, so they scatter (the registered factor even goes above 1 once). Holiday dips on this series are real in the pooled data but too few per window to estimate. The feature still has no real series where it earns its place; wanted is a shop's or office's daily counts with many closed days. One dataset, made-up window length (84 days, not tuned).
+
 ## Burst or two steps? (`excursions`, counts)
 
 With `--model poisson`, the result lists an `excursions` entry (and one sentence in `summary`) when two neighbouring changes enclose a short stretch (at most a quarter of the series) whose rate sits above or below both sides, and the rate before and after it is statistically one rate (Poisson likelihood ratio under 3.84, 1 df). That reads as a temporary burst or dip on a steady baseline, not two level changes. The changes themselves are not altered. Function: `findExcursions`.
