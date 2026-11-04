@@ -68,6 +68,7 @@
         <div><label for="rep">EU responsible person</label><input id="rep" type="text" style="width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid var(--line);border-radius:8px"></div>
       </div>
       <label style="font-weight:400"><input id="outside" type="checkbox"> The maker is outside the EU</label>
+      <label for="trims">Trims and fill, if any (optional)</label><input id="trims" type="text" placeholder="leather patch, rabbit fur collar, down fill" style="width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid var(--line);border-radius:8px">
       <label for="care">Care text you have (optional)</label><input id="care" type="text" style="width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid var(--line);border-radius:8px">
     </section>
     <div>
@@ -107,7 +108,7 @@
     function render() {
       const market = $("#market").value;
       $("#lang").disabled = market !== "eu";
-      const r = checkLabel($("#comp").value, { market, lang: $("#lang").value, makerName: $("#mname").value, makerAddress: $("#maddr").value, origin: $("#origin").value, rn: $("#rn").value, productId: $("#pid").value, euRepresentative: $("#rep").value, makerOutsideEu: $("#outside").checked, care: $("#care").value });
+      const r = checkLabel($("#comp").value, { market, lang: $("#lang").value, makerName: $("#mname").value, makerAddress: $("#maddr").value, origin: $("#origin").value, rn: $("#rn").value, productId: $("#pid").value, euRepresentative: $("#rep").value, makerOutsideEu: $("#outside").checked, care: $("#care").value, trims: $("#trims").value });
       $("#result").innerHTML = (r.label ? `<p class="big">${esc(r.label)}</p>` : "") + (r.problems.length ? `<p class="notes">${r.problems.map(esc).join("<br>")}</p>` : "") + (r.notes.length ? `<p class="tag">${r.notes.map(esc).join("<br>")}</p>` : "") + `<p class="tag">Sources: ${esc(r.sources)}.</p>`;
       $("#reqs").innerHTML = `<table><tr><th></th><th>Item</th><th>Why</th></tr>${r.requirements.map(x => `<tr><td>${x.given ? "&#10003;" : "<b>missing</b>"}</td><td>${esc(x.item)}</td><td class="tag">${esc(x.why)}</td></tr>`).join("")}</table>`;
       const c = suggestCare(parseComposition($("#comp").value).parts);
