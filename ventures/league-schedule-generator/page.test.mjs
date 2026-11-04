@@ -830,3 +830,10 @@ test("single-league page: volleyball set-scoring box is passed to both standings
   assert.ok(html.includes('id="setscore"'));
   assert.equal(html.split('setScoring: $("#setscore").checked').length - 1, 2);
 });
+
+test("multi-division page: facility booking button feeds divisionsBookings with the typed game length", () => {
+  const html = page("multi-division-league-schedule.html");
+  for (const id of ["book-min", "dl-bookings"]) assert.ok(html.includes(`id="${id}"`), id);
+  assert.match(html, /import \{[^}]*divisionsBookings[^}]*\} from "\.\/divisions\.mjs"/);
+  assert.match(html, /divisionsBookings\(last, \{ minutes:/);
+});
