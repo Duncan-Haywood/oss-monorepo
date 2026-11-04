@@ -1,0 +1,4 @@
+n 89, 1971.25 to 1993.25, natural logs
+trend: 10 change(s), cycleWarning
+mean (level only): 43 change(s), rangeWarning
+mean, ar1 auto: 9 change(s), cycleWarning
