@@ -3,7 +3,7 @@ title: "A pitot gain error doesn't hide an aircraft's dynamics, but its offset d
 seo_title: "Pitot offset vs gain error in aircraft system identification"
 date: 2026-11-04
 tags: [research, aircraft, system-identification, pitot, sensors]
-description: "Fitting a four-state aircraft model from noisy records: a pitot gain error is invisible to the fitted modes, while a constant offset breaks the fit unless fitted."
+description: "Fitting a four-state aircraft model from noisy records: a pitot gain error is invisible to the fitted modes, while a constant offset breaks it unless fitted."
 ---
 
 We are testing whether a small model aircraft's dynamics can be identified
