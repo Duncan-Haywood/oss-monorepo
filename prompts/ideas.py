@@ -151,8 +151,10 @@ def main(argv: list[str] | None = None) -> int:
               f"{' '.join(str(r.get('message', '')).split())[:300]}")
     if not queue and not site:
         print("  none open in requests.json; untriaged form ideas: none")
-    print(f"  untriaged issues: search_issues {REQUEST_SEARCH}")
-    print(f"                    search_issues {ISSUE_SEARCH}")
+    print("  untriaged issues (search_issues, or in a cloud session where those MCP tools are absent,")
+    print("  gh api -X GET search/issues -f q='<query>' --jq '.items[]|.html_url,.title'; 0 hits can mean unauthenticated):")
+    print(f"    {REQUEST_SEARCH}")
+    print(f"    {ISSUE_SEARCH}")
     return 0
 
 
