@@ -11,6 +11,10 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Limits: error treated as a constant offset in dynamic pressure over the record (TEB includes thermal error, plausibly slow, but a constant offset is not the same as the noise or drift 9x/9y modelled); the fit itself was not re-run with this offset; sensor numbers come from a search extract of the datasheet; a lower-span part would change the answer (TEB is relative to span); pitot installation error and static-port error are not included.
 - Next: re-run the 9y fit with a velocity-channel offset of this size; the symmetric-section check when the UIUC host answers; AIAA template.
 
+## 2026-11-04 · Milestone 8i: paper draft catches up with milestone 9z (no new simulation)
+- New Section 4.10b carries 9z's sizing of real gyro drift and noise (bias instability 2.7e-4 to 6.8e-4 and white noise 2.7e-3 to 9.1e-3 of the q-channel rms; break-evens about 1,300 to 1,400 deg/hr and 0.12 deg/s/sqrt(Hz)); `paper/check_numbers.py` ties three of them to `experiments/imu_allan_scale/results.txt`. The open-items line now lists only airspeed and incidence channel sizes.
+- Next: size the airspeed and incidence channels from published sensor figures; AIAA template.
+
 ## 2026-11-04 · Milestone 9z: do published gyro Allan-variance figures reach the drift and noise sizes 9x and 9y assumed? (a sizing check against sources; the planned prediction was written before running)
 - Why: 9y's "Next". 9x/9y swept drift of 10 and 20% of channel rms and noise of 10%, "not an Allan-derived coefficient". Sources: MPU-6050 measured at 70 Hz for 1 h (Sensors 2020, PMC7506677: ARW 0.009145 to 0.009997 deg/s/sqrt(Hz), BI 0.00128 to 0.00245 deg/s per axis) and the ADIS16488A datasheet Rev F typical (ARW 0.26 deg/sqrt(hr), in-run bias stability 5.1 deg/hr; the web search extract, the PDF host did not answer).
 - **Prediction (before running):** both parts' drift and noise are at least 10x below the smallest size tested (10%), so the drift question is moot for a pitch-rate gyro at these record lengths (prior 85%). Refuted if either exceeds 1% of the q-channel rms.
