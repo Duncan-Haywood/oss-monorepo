@@ -1,5 +1,6 @@
 ---
 title: "Watergate shows up in a changepoint detector; the Kennedy rally doesn't"
+seo_title: "Watergate shows in a changepoint detector; the Kennedy rally doesn't"
 date: 2026-11-04
 description: "We ran the open changepoint detector on 30 years of Gallup presidential approval and recorded what it found and missed."
 tags: [changepoint-detector, real-data]

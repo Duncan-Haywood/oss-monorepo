@@ -1,6 +1,8 @@
 ---
 title: "A thousand secondary pages had no main landmark"
 date: 2026-11-04
+description: "1,031 of 3,445 venture guide and comparison pages had no main landmark, so screen-reader users could not skip to the content; now checked on every page."
+tags: [accessibility, ci]
 ---
 
 The existing `check_main_landmark.py` only looked at each venture's
