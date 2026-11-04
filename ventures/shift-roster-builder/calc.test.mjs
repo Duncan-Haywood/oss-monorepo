@@ -1799,3 +1799,16 @@ test("restPremium finds short turnarounds, prices them and skips exempt people",
   assert.equal(restPremium(csv, { restHours: 8 }).turnarounds.length, 0, "exactly the window is not short");
   assert.equal(restPremium(csv, { restHours: 11 }).turnarounds[0].premiumUnpriced, true);
 });
+
+test("restPremium with last week's roster sees Sunday night to Monday morning, not last week's own pairs", () => {
+  const head = "day,start,end,hours,label,assigned_to,role\n";
+  const prev = head + "Sat,5:00 PM,11:00 PM,6.00,close,Ana,\nSun,5:00 PM,11:00 PM,6.00,close,Ana,\nSun,6:00 PM,11:00 PM,5.00,close,Ben,\n";
+  const cur = head + "Mon,7:00 AM,3:00 PM,8.00,open,Ana,\nMon,9:00 AM,5:00 PM,8.00,mid,Ben,\n";
+  assert.equal(restPremium(cur, { restHours: 11 }).turnarounds.length, 0, "alone, the week boundary is invisible");
+  const r = restPremium(cur, { restHours: 11, wages: { Ana: 20 }, previousCsv: prev });
+  assert.equal(r.turnarounds.length, 2);
+  assert.deepEqual(r.turnarounds.map((t) => [t.person, t.restHours]), [["Ana", 8], ["Ben", 10]]);
+  assert.equal(r.owed, 20, "Ben has no wage on file, so only Ana is priced");
+  assert.equal(r.turnarounds[0].first.prevWeek, true);
+  assert.equal(restPremium(cur, { restHours: 9, previousCsv: prev }).turnarounds.length, 1, "Ben's 10 h clears a 9 h window");
+});

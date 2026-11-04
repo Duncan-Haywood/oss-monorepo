@@ -206,6 +206,12 @@ test("--cover lists direct takers, else a hand-over chain, and says when the shi
   assert.match(direct.out, /Can take it outright/);
 });
 
+test("--rest-under with --last-week names the Sunday-to-Monday turnaround", () => {
+  const prev = "day,start,end,hours,label,assigned_to,role\nSun,5:00 PM,11:00 PM,6.00,close,Ana,\n";
+  const out = run("Ana, 20, 40, 0, any\n", "Mon, 7, 15, 1, open\n", { restUnder: 11, lastWeekCsv: prev, options: { minRestHours: 0 } }).out;
+  assert.match(out, /Sun \(last week\) 5pm-11pm then Mon 7am-3pm: 8 h rest/);
+});
+
 test("--rest-under lists short turnarounds with a premium on the operator's numbers", () => {
   const r = run(sampleStaff(), sampleShifts(), { restUnder: 11, premiumHours: 1 });
   assert.equal(r.code, 0);
