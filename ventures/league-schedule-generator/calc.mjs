@@ -1868,8 +1868,8 @@ export function parseResults(text, teams, { walkover = [3, 0] } = {}) {
   const results = [];
   const errors = [];
   const adjustments = {};
-  for (const [i, raw] of String(text ?? "").split(/\r?\n/).entries()) {
-    const line = raw.trim();
+  for (const [i, raw] of String(text ?? "").split(/\r?\n/).entries()) for (const piece of raw.split(/;/)) {
+    const line = piece.trim();
     if (!line) continue;
     const adj = line.match(/^(.*?)\s+([+-]\d+)\s*(?:pts?|points?)?\s*(?:\(.*\))?$/i);
     if (adj) {
@@ -1887,13 +1887,25 @@ export function parseResults(text, teams, { walkover = [3, 0] } = {}) {
       results.push({ a, b, ga: walkover[0], gb: walkover[1], walkover: true });
       continue;
     }
-    const m = line.match(/^(.*?)\s+(\d+)\s*[-–:]\s*(\d+)\s+(.*)$/);
+    // Tolerate how people really type: a note in brackets ("(OT)", "(forfeit)"), a full stop, a minus sign
+    // for the dash, "v"/"vs", "Hawks vs Owls 3-2", "Hawks beat Owls 3-2", "Owls lost to Hawks 2-3", "Hawks 3 Owls 2".
+    let body = line.replace(/[\u2212\u2012\u2013\u2014]/g, "-").replace(/[.\s]+$/, "");
+    let forfeitNote = false;
+    const note = body.match(/^(.*?)\s*\(([^()]*)\)$/);
+    if (note) { forfeitNote = /forfeit|walkover|w\/o/i.test(note[2]); body = note[1]; }
+    let ga, gb, nameA, nameB;
+    let m = body.match(/^(.*?)\s+(\d+)\s*(?:-|:|\s(?:v|vs|vs\.)\s)\s*(\d+)\s+(.*)$/i);
+    if (m) { [nameA, ga, gb, nameB] = [m[1], m[2], m[3], m[4]]; }
+    else if ((m = body.match(/^(.*?)\s+(?:vs\.?|v|beat|beats|defeated|lost to|lose to|drew with|drew|tied)\s+(.*?)\s+(\d+)\s*[-:]\s*(\d+)$/i))) { [nameA, nameB, ga, gb] = [m[1], m[2], m[3], m[4]]; }
+    else if ((m = body.match(/^(.*?)\s+(\d+)\s+(.*?)\s+(\d+)$/)) && teamIndex(teams, m[1]) >= 0 && teamIndex(teams, m[3]) >= 0) { [nameA, ga, nameB, gb] = [m[1], m[2], m[3], m[4]]; }
+    else m = null;
     if (!m) { errors.push(`Result line ${i + 1}: write it like "Hawks 3 - 2 Owls" (or "Hawks w/o Owls" for a forfeit win).`); continue; }
-    const a = teamIndex(teams, m[1]);
-    const b = teamIndex(teams, m[4]);
-    if (a < 0 || b < 0) { errors.push(`Result line ${i + 1}: "${a < 0 ? m[1] : m[4]}" is not one of the teams.`); continue; }
+    const a = teamIndex(teams, nameA);
+    const b = teamIndex(teams, nameB);
+    if (a < 0 || b < 0) { errors.push(`Result line ${i + 1}: "${a < 0 ? nameA : nameB}" is not one of the teams.`); continue; }
     if (a === b) { errors.push(`Result line ${i + 1}: a team cannot play itself.`); continue; }
-    results.push({ a, b, ga: Number(m[2]), gb: Number(m[3]) });
+    results.push(forfeitNote ? { a, b, ga: Number(ga), gb: Number(gb), walkover: true } : { a, b, ga: Number(ga), gb: Number(gb) });
+    continue;
   }
   return { results, errors, adjustments };
 }
