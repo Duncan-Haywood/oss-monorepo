@@ -38,6 +38,8 @@
   <input id="wr" type="text" placeholder="2026-03=20, 2026-04=12" spellcheck="false" style="max-width:24rem">
   <label for="nb">Hold dates (optional; the earliest an activity may start, by id, like <code>plumb=2026-04-03, roof=2026-04-20</code>: a delivery or a permit, your dates). They replace any <code>notBefore</code> in the JSON for the ids listed.</label>
   <input id="nb" type="text" placeholder="plumb=2026-04-03, roof=2026-04-20" spellcheck="false" style="max-width:28rem">
+  <label for="co">Crew days off (optional; <code>crew=YYYY-MM-DD YYYY-MM-DD</code>, separated by semicolons, like <code>framing=2026-04-06 2026-04-07; roof=2026-04-14</code>: days a crew is on another job, your calendar). That crew's activities pause on those days and the finish moves; other crews are untouched. They replace any <code>crewOff</code> in the JSON for the crews listed.</label>
+  <input id="co" type="text" placeholder="framing=2026-04-06 2026-04-07" spellcheck="false" style="max-width:28rem">
   <label for="ac">Activity costs (optional; dollars by id, like <code>frame=18000, roof=9500</code>: your quotes, none shipped). They replace any <code>cost</code> in the JSON for the ids listed, and the report adds spend by month.</label>
   <input id="ac" type="text" placeholder="frame=18000, roof=9500" spellcheck="false" style="max-width:28rem">
   <label for="dr">Draw terms (optional; needs activity costs above): days the lender or owner pays late, retainage percent, optionally days after the last working day until retainage is released, like <code>14, 10, 30</code>. The report then shows the most cash you float. Your terms; none shipped.</label>
@@ -104,6 +106,16 @@
       }
       const dlRaw = $("dl").value.trim();
       if (dlRaw !== "") input = { ...input, deadline: dlRaw };
+      const coRaw = $("co").value.trim();
+      if (coRaw !== "") {
+        const crewOff = { ...(input.crewOff && typeof input.crewOff === "object" ? input.crewOff : {}) };
+        for (const part of coRaw.split(/;|\n/).map((x) => x.trim()).filter(Boolean)) {
+          const m = part.match(/^([^=\s]+)\s*=\s*(\d{4}-\d{2}-\d{2}(?:[\s,]+\d{4}-\d{2}-\d{2})*)$/);
+          if (!m) { $("out").textContent = "Crew days off: write each as crew=YYYY-MM-DD YYYY-MM-DD, separated by semicolons. Could not read: " + part; $("gantt").innerHTML = ""; return; }
+          crewOff[m[1]] = m[2].split(/[\s,]+/);
+        }
+        input = { ...input, crewOff };
+      }
       const nbRaw = $("nb").value.trim();
       if (nbRaw !== "") {
         const holds = {};
@@ -180,6 +192,7 @@
     $("wl").addEventListener("input", run);
     $("wr").addEventListener("input", run);
     $("cp").addEventListener("input", run);
+    $("co").addEventListener("input", run);
     $("nb").addEventListener("input", run);
     $("ac").addEventListener("input", run);
     $("mk").addEventListener("input", run);
