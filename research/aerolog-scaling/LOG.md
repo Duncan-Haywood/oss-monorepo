@@ -2,6 +2,16 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 9ab: does a constant velocity-channel offset of 9aa's size break the output-error fit, and does a fitted bias repair it? (planned before running; reduced run size)
+- Why: 9aa's "Next". 9aa found a 1 psi pitot's total error band is 1.5 to 3 times the u-channel rms if it is a constant offset. Here the u channel gets a constant offset of 0, 0.37 (the 0.25% accuracy case) or 1.48 (the 1% TEB case) times its rms, random sign, with 10% white noise on all channels, otherwise 9y's fit.
+- **Prediction (before running):** plain OE fails or is badly biased at 1.48 and OE+b (fitted constant bias per channel) restores mode errors to the zero-offset level (within 1 percentage point of the median error). Refuted if OE+b's short-period error exceeds 3% at 1.48.
+### Outcome (`experiments/airspeed_offset_fit/`: `run.py`, `results.txt`; 10 mode-matched designs, 3 draws each, model n = 0.2)
+- Offset 0.37: LS ph/sp/zeta error 2.5/5.2/31%, OE 6.9/4.0/4.8% (1 period), worst gust error 20% for OE against 4.1% at zero offset; OE+b 0.49/0.79/1.39%, back to the zero-offset level (0.57/1.08/1.41%).
+- Offset 1.48: LS and OE fail on all 30 fits at both record lengths (no two complex pairs); OE+b fits all but 1 of 30 with short-period error 1.03% (1 period) and 0.67% (2 periods), gust error 5.3% and 4.2%. **Prediction held.** OE+b+d (adds a ramp) fails 3 of 30 once at 1 period and is no better.
+- Reading: an airspeed offset is the one sensor error here that breaks identification, but it is cheap to fix: estimate a constant bias on the velocity channel. Together with 9aa, this says a model flight should either carry a low-range differential pressure sensor or fit the bias.
+- Limits: only 10 designs and 3 draws per design (the first run, 20 designs and 8 draws, was killed at the 30-minute background limit; a second process that survived the kill interleaved rows in one results file, so the numbers above come from a clean rerun); the offset is exactly constant and known to be in the fitted family, which flatters OE+b (a real offset drifts with temperature: 9y's drift fits cover that only for the gyro); only the velocity channel carries the offset; gust-error medians over 30 draws are coarse; stride 8 is a different subset of designs from 9y.
+- Next: the symmetric-section check when the UIUC host answers; offset plus drift on the velocity channel; paper section; AIAA template.
+
 ## 2026-11-04 · Milestone 9aa: does a published pitot-sensor error fit inside the 10% airspeed noise 9x/9y assumed? (sizing check; prediction set before the run was read, not committed before it)
 - Why: 9z's "Next". 9z showed a hobby gyro is far inside the assumed pitch-rate noise; the airspeed channel was not sized. Source: TE/Measurement Specialties MS4525DO datasheet as quoted by a search extract (PDF not opened): accuracy +/-0.25% of span, total error band (TEB) +/-1.0% of span (+/-2.0% for spans of 4 inH2O and below), 14-bit output. A 1 psi (6894.76 Pa) span is my assumption; the extract did not confirm that variant.
 - **Prediction:** unlike the gyro, the TEB of a 1 psi part exceeds 10% of the u-channel rms (prior 85%). Refuted if it is under 10%.
