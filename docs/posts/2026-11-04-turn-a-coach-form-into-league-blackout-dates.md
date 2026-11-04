@@ -1,6 +1,6 @@
 ---
 title: "Turn a coach sign-up form into league blackout dates"
-seo_title: "Import team unavailable dates from a Google Form CSV into a league schedule"
+seo_title: "Import team unavailable dates from a Google Form CSV into a schedule"
 date: 2026-11-04
 tags: [league-schedule-generator, scheduling, csv]
 description: "Load a Google Forms or spreadsheet export of 'dates we cannot play' straight into a multi-division league schedule, in the browser."
