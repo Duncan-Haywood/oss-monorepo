@@ -1,6 +1,6 @@
 ---
 title: "Rolling conformal calibration changed nothing for permit times, and why"
-seo_title: "Conformal prediction on building permit lags: why a rolling window cannot narrow the interval"
+seo_title: "Rolling conformal on building permit lags: why it cannot narrow"
 date: 2026-11-04
 tags: [research, conformal-prediction, building-permits, negative-result]
 description: "We tried rolling and adaptive conformal calibration on Chicago and San Francisco permit review times. Coverage did not move to the fourth decimal."
