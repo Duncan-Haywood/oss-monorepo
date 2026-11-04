@@ -1,7 +1,7 @@
 ---
 title: "A pitot offset breaks the model-aircraft fit, and one fitted number repairs it"
 date: 2026-11-04
-description: "In the aerolog-scaling programme, a constant airspeed-sensor offset makes output-error system identification fail on a 1:5 model; fitting a bias per channel restores the mode estimates."
+description: "A constant airspeed-sensor offset makes output-error fitting fail on a 1:5 model aircraft; fitting one bias per channel restores the mode estimates."
 tags: [aerolog-scaling, system-identification, uav]
 ---
 
