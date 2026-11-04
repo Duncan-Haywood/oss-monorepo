@@ -81,8 +81,7 @@ flagships:
       named filing service's import layout, from its own spec; (8) `salestax
       return` (page card; no-sales-tax states warn): due dates read from the
       state's own page only for WA, TX, FL, NY, VA, MN, MO, IL, SC, OH and
-      UT monthly (OH quarterly: guides disagree on who files it; OH 0.75%
-      discount capped $750 a month from excerpts); TX, FL and GA discounts
+      UT monthly (OH quarterly: guides disagree on who files it; OH discount from excerpts); TX, FL and GA discounts
       preset from search excerpts, 1.25% prepayment not modelled; the rest
       from excerpts or memory; open: a real return layout; (8b) `annualized`
       (Schedule AI): percentages matched to the 2024 form by excerpt
@@ -123,7 +122,7 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      History and numbers: README and git. Open: (0) smooth low-noise series over-cut: `--noise-floor k` landed 2026-11-04 (austres trend 10 -> 3 at k=1, README) but no k is calibrated: a drifting real series (log US real GDP, 1970s slowdown) was run 2026-11-04 and no k in 0, 1, 2 isolates the break (README), differencing first (eval/gdp-growth.mjs, 2026-11-04) found the 1984Q3 volatility break alone with `--model meanvar` but not the 1970s slowdown, a difference-based slope-break test landed 2026-11-04 (slope-breaks.mjs, README: dates GDP's slowdown at 1971Q2 but finds it not significant), so wanted now is a real series with a large slope change to check its power, and the CLI and page flag, not a bigger k; cycles and drift: an exact
+      History and numbers: README and git. Open: (0) smooth low-noise series over-cut: `--noise-floor k` is uncalibrated and no k isolates GDP's 1970s break; the slope-break test (`--slope-breaks`, 2026-11-04, README) dates it at 1971Q2 but not significantly: wanted a real series with a large slope change to check its power, and the page box; cycles and drift: an exact
       AR(2) likelihood inside PELT was no better than AR(1) (README); a real documented step inside a cycle; a cycle
       check not tied to rho (treering: drift not told from a cycle);
       a documented real run of 5+ steps to test the block-variance warning
@@ -132,16 +131,14 @@ flagships:
       traffic around the 2009 passport rule, 2026-11-01: step on the month, 13
       other changes). (2) The steep-
       bump (0.04) clumpy-count cell is under-covered, 65/79 (82%) over six
-      seeds; the CLI and JSON carry that caveat. (2b) US real rate: 1980Q4 vs cited 1980Q3 (convention unread). (3) GARCH: a filtered
+      seeds; the CLI and JSON carry that caveat.  (3) GARCH: a filtered
       series has 1% false alarms but loses the real sd break (97% to 6%);
       a segment-wise GARCH prune (README, 2026-11-02) keeps it (97% to
       100%) but leaves 48% false alarms at n=200: search cuts jointly. (4) driftWarning fires on real
       shocks and on autocorrelated nulls as well as growing seasons: wanted
       a way to tell a shape from a shock, and to widen the noise scale
       without swallowing a short quarterly shape (--ar1 fixes the rho 0.5
-      null but loses UK gas). (4b) Australian arrivals and UK lung deaths: `--ar1` loses the real shocks, the default keeps them and over-cuts; wanted: a setup that keeps both. (5) Bootstrap swept on 33 real series 2026-10-31
-      holiday false-alarm cuts: two real daily series tried
-      (Payroll pageviews; Capital Bikeshare 2026-11-02, README) and the list added changes on the bikes (README); US daily births 1978-1988 (README, 2026-11-04) is the first real series where the list helps (239 to 205 changes over 11 single years, never more); wanted: a shop's or office's counts to confirm, or a yearly term.
+      null but loses UK gas). (4b) Australian arrivals and UK lung deaths: `--ar1` loses the real shocks, the default keeps them and over-cuts; wanted: a setup that keeps both. (5) Holiday list: helps on US daily births (239 to 205 changes) but added changes on Capital Bikeshare (README); wanted: a shop's or office's counts, or a yearly term.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
@@ -154,7 +151,7 @@ flagships:
       Factur-X export (repaired PDF opens in poppler 2026-10-30; veraPDF and Acrobat unrun); PINT SG and A-NZ rules on the Saxon/server route and on a
       real PINT file; RO_CIUS on a real ANAF file and the Saxon route; NLCIUS
       on a real Dutch file (UBL and CII both landed 2026-10-25, made-up examples); India's INV-01 check on a real IRP payload; mandate
-      dates read from primary sources where pages cite guides (Singapore read against IRAS 2026-11-02, all phases confirmed; Israel from vendor summaries, directive 01/2025 unread; Denmark, Czech, Estonia, Latvia vendor-only; Slovenia and Luxembourg: law texts' implementing rules unread; ato.gov.au (403 from cloud), revenue.ie, CBIC); Nigeria, Thailand, Taiwan, Oman, Pakistan and Jordan pages (search excerpts only; Taiwan B2B and Oman 2026 vs 2027 dates disagree); Ireland read against Revenue's hub 2026-10-31 (no specs yet); Latin American, Spain and Brazil pages from search excerpts (open: CFDI and NF-e XSD readers, NFS-e); refresh the Bulgaria page when its draft
+      dates read from primary sources where pages cite guides (Singapore read against IRAS, confirmed; Israel from vendor summaries, directive 01/2025 unread; Denmark, Czech, Estonia, Latvia vendor-only; Slovenia and Luxembourg: law texts' implementing rules unread; ato.gov.au (403 from cloud), revenue.ie, CBIC); Nigeria, Thailand, Taiwan, Oman, Pakistan and Jordan pages (search excerpts only; Taiwan B2B and Oman 2026 vs 2027 dates disagree); Ireland read against Revenue's hub 2026-10-31 (no specs yet); Latin American, Spain and Brazil pages from search excerpts (open: CFDI and NF-e XSD readers, NFS-e); refresh the Bulgaria page when its draft
       passes or changes (consultation closed 2026-10-23, no outcome found 2026-11-04; the 2026-2030 phase-in is SAF-T, not e-invoicing, page corrected; Ministry draft text unread). A run that lands a slice replaces its item here; keep
       this under 2,000 characters.
   - venture: shift-roster-builder
@@ -219,7 +216,7 @@ flagships:
       `pairSelector`; an INFO_POOL_CAP of 400 (3000 items 1983 -> 36 ms;
       capped equals uncapped on 600 and 1000 items at 600 answers,
       poolCap.simulation.test.ts); and a live-Postgres ranking integration
-      test (ranking.integration.test.ts, 2026-10-22). Pool-cap accuracy, long budgets, lapse rates, first-option bias and the first- and second-option fallbacks (share >= 0.7 or <= 0.3 uses shipped) measured and landed 2026-10-22 to 10-28 (docs). 1000 items through the route with Postgres landed 2026-10-30 (one respondent, 1000 answers: next() p50 22 ms, max 60 ms; docs). Several respondents with lapse and slot bias through the route landed 2026-11-01 (60 items, Spearman 0.77 clean, 0.71 at 20% lapse, 0.53 and 0.07 at 50% and 80% bias; docs). Fallback switched off as a control landed 2026-11-02 (at 80% bias it keeps Spearman 0.266 vs 0.096 without; at 50% no measurable difference; docs). Same at 1000 items landed 2026-11-02 (3 respondents x 1000 answers: fallback +0.06 at 50% bias, +0.15 at 80%; docs). 3000 answers on 1000 items landed 2026-11-04 (fallback +0.17 at 50% bias, +0.10 at 80%; but clean Spearman 0.545 is below the 1000-answer 0.619, unexplained; docs). The 1000 vs 3000 dip explained 2026-11-04: Spearman is over rated items, which grow 113 -> 613 (checkpoints in docs; 0.81, 0.62, 0.50, 0.44, 0.55), so it is a coverage effect. Fixed set (the first 113 items rated) scored at every checkpoint landed 2026-11-04: it also falls (0.80 at 500 answers, 0.62 at 2000, 0.72 at 3000), so the dip is not only coverage (docs). Next: the same fixed-set score with the shipped selector (is the dip the staged selector or the rating update?), then more respondents per cell.
+      test (ranking.integration.test.ts, 2026-10-22). Pool-cap accuracy, long budgets, lapse rates, slot bias and the option fallbacks, 1000 items through the route with Postgres, and several respondents with and without the fallback were measured and landed 2026-10-22 to 11-02 (docs). 3000 answers on 1000 items landed 2026-11-04 (fallback +0.17 at 50% bias, +0.10 at 80%; but clean Spearman 0.545 is below the 1000-answer 0.619, unexplained; docs). The 1000 vs 3000 dip explained 2026-11-04: Spearman is over rated items, which grow 113 -> 613 (checkpoints in docs; 0.81, 0.62, 0.50, 0.44, 0.55), so it is a coverage effect. Fixed set (the first 113 items rated) scored at every checkpoint landed 2026-11-04: it also falls (0.80 at 500 answers, 0.62 at 2000, 0.72 at 3000), so the dip is not only coverage (docs). Next: the same fixed-set score with the shipped selector (is the dip the staged selector or the rating update?), then more respondents per cell.
 
   - venture: league-schedule-generator
     why: >-

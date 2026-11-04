@@ -1,6 +1,7 @@
 ---
 title: "Saints by Candlelight, episode 70: Cornelius and the sheet let down at Joppa"
 date: 2026-11-04
+seo_title: "Saints by Candlelight 70: Cornelius at Joppa"
 tags: [saints-by-candlelight, fiction, podcast]
 description: A bedtime retelling of Acts 10, the Roman officer, the hungry fisherman and the sheet of animals, with what is Scripture and what we invented marked.
 ---

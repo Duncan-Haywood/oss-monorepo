@@ -36,6 +36,7 @@ Options:
   --trend [bend|bends]          fit one linear trend under the steps and remove it (a ramp is not read as many small changes);
                             'bend' lets the slope change once, 'bends' up to three times, chosen by BIC (counts, --model poisson: a change of growth rate, 'bends' up to two);
                             with --model poisson, a common log-linear growth rate (multiplicative, composes with --period)
+  --slope-breaks [n]        test for up to n (default 3) changes of the growth rate on the differences (use with --log for a percentage growth): each break is dated and has a Wald statistic against a calibrated bar of 11; 40 or more points
   --knot-margin f          with --trend bend(s): keep this fraction of the series clear at each end when looking for knots (default 0.1 = knots at 10 to 90%; 0.2 = the old 20 to 80%)
   --joint-knots             with --trend bends: also score every pair of knots, not only the greedy search's (slower, about 2 s per 240 points)
   --bootstrap               with --model meanvar, mean or poisson: set the penalty from block-resampled residuals (much fewer false alarms on heavy tails, clustered volatility or autocorrelated noise; a little less power at n = 100)
@@ -74,6 +75,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--bursts') opt.bursts = argv[i + 1] && /^\d+(\.\d+)?$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--episodes') opt.episodes = argv[i + 1] && /^\d+$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--burst-runs') opt.burstRuns = Number(argv[++i]);
+    else if (a === '--slope-breaks') opt.slopeBreaks = argv[i + 1] && /^[1-3]$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--joint-knots') opt.jointKnots = true;
     else if (a === '--trend') opt.trend = argv[i + 1] === 'bend' || argv[i + 1] === 'bends' ? argv[++i] : true;
     else if (a === '--ar1') opt.ar1 = argv[i + 1] === 'joint' ? (i++, 'joint') : true;
@@ -117,6 +119,13 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   if (r.trend && r.trend.slopeChangeRange95) {
     lines.push('', 'Likely range for each slope change (95%, other bends held fixed):');
     for (const x of r.trend.slopeChangeRange95) lines.push(`  ${x.at}: ${x.from === x.to ? 'that point only' : `${x.from} – ${x.to}`}`);
+  }
+  if (r.slopeBreaks) {
+    const sb = r.slopeBreaks;
+    lines.push('', `Slope-break test on the differences (bar ${sb.critical}):`);
+    if (!sb.breaks.length) lines.push('  No change of slope clears the bar (a weak test: this does not rule one out).');
+    for (const b of sb.breaks) lines.push(`  ${b.label}: slope ${b.slopeBefore} -> ${b.slopeAfter} per step, Wald ${b.wald}`);
+    lines.push(`  (${sb.note})`);
   }
   if (r.episodes && r.episodes.length) {
     lines.push('', 'Episodes (a step and its step back, read as one burst):');
