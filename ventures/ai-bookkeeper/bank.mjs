@@ -370,6 +370,9 @@ export function sniffBank(rows) {
     if (/^(username\|)?id\|datetime\|type\|status\|note\|from\|to\|amount \(total\)/.test(h.replace(/^\|/, ""))) return "venmo";
     if (/^transaction id\|date\|transaction type\|currency\|amount\|fee\|net amount/.test(h)) return "cash-app";
     if (/^date\|description\|original description\|category\|amount\|status/.test(h)) return "usaa";
+    // Aggregator exports (headers from memory): Mint writes Description (cleaned), Original Description, unsigned Amount and a debit/credit Transaction Type; Monarch writes Merchant, Original Statement and a signed Amount.
+    if (/^date\|description\|original description\|amount\|transaction type\|category\|account name/.test(h)) return "mint";
+    if (/^date\|merchant\|category\|account\|original statement\|notes\|amount/.test(h)) return "monarch";
     if (/^date\|description\|type\|amount\|current balance\|status/.test(h)) return "sofi";
     if (/^transferwise id\|date\|(date time\|)?amount\|currency\|description/.test(h)) return "wise";
     if (/^transaction date\|posted date\|card no\.\|description\|category\|debit\|credit/.test(h)) return "capital-one";
