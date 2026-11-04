@@ -38,7 +38,7 @@
       "result": "check_control_labels passes"
     }
   ],
-  "writeups": "none: small fix, no post",
+  "writeups": [],
   "goal": null,
   "notes": "Backlog P061/P062 reviewed, no change. Only a tiny fix shipped.",
   "corrections": [],
