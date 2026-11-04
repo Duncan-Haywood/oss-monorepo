@@ -1,8 +1,8 @@
 ---
 title: "The privacy switch nobody tested, in 180 products"
 date: 2026-11-04
-description: "A red-team run seeded eight faults into a product's usage counter and the tests caught none. 180 products had no test for their opt-out, Do Not Track and blocked-storage behaviour; now they do."
-tags: [red-team, privacy, testing]
+description: "A red-team run seeded eight faults into a usage counter and the tests caught none. 179 products now test their opt-out, Do Not Track and blocked storage."
+tags: [redteam, privacy, testing]
 ---
 
 # The privacy switch nobody tested, in 180 products
