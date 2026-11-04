@@ -1,6 +1,8 @@
 ---
 title: "Clicking the volleyball scoring box until it told the truth"
 date: 2026-11-04
+description: "Browser-clicking the volleyball set-scoring checkbox on the league schedule page: unticked a 3-2 win earns 3 points, ticked it earns 2 and the loser 1."
+tags: [league-schedule-generator, testing]
 ---
 
 A checkbox on the league schedule page switches standings to volleyball set
