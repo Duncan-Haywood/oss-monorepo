@@ -824,3 +824,9 @@ test("multi-division page: results box feeds divisionsStandings and a CSV downlo
   assert.match(html, /divisionsStandings\(last, \$\("#results"\)\.value/);
   assert.match(html, /divisionsStandingsCsv\(lastStandings\)/);
 });
+
+test("single-league page: volleyball set-scoring box is passed to both standings calls", () => {
+  const html = page("index.html");
+  assert.ok(html.includes('id="setscore"'));
+  assert.equal(html.split('setScoring: $("#setscore").checked').length - 1, 2);
+});
