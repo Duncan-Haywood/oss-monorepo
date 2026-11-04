@@ -58,7 +58,8 @@ export function mileageDeduction(books, year, { rate } = {}) {
   if (rate === undefined && MILEAGE_STEPS[year]) {
     const by = new Map();
     for (const t of trips) { const x = rateOn(year, t.date); by.set(x, (by.get(x) ?? 0) + t.miles); }
-    const segments = [...by].sort((a, b) => a[0] - b[0]).map(([rt, mi]) => ({ rate: rt, miles: Math.round(mi * 10) / 10, cents: Math.round((mi * rt) / 10) }));
+    // price from the rounded miles, in whole tenths: a float sum in another trip order can differ in the last bit and flip a half-cent
+    const segments = [...by].sort((a, b) => a[0] - b[0]).map(([rt, mi]) => ({ rate: rt, miles: Math.round(mi * 10) / 10, cents: Math.round((Math.round(mi * 10) * rt) / 100) }));
     const cents = segments.reduce((a, x) => a + x.cents, 0);
     if (segments.length > 1) {
       warnings.push(`${year} has two IRS rates; each trip is priced at the rate for its date (${segments.map((x) => `${x.miles} miles at ${x.rate / 10} cents`).join(", ")}).`);
