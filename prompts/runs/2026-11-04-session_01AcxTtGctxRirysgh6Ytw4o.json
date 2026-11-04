@@ -1,0 +1,177 @@
+{
+  "date": "2026-11-04",
+  "session": "https://claude.ai/code/session_01AcxTtGctxRirysgh6Ytw4o",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-04T12:14:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "targets --probe marks a suite '(red)' when numpy is merely missing from the bare python3; step 1 says a red baseline is a real defect. Run pyenv.py first before concluding."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "No blog post or open-defect fix: the only open defect (framerate nightly) is control plane and needs its own owner-approved PR.",
+      "did": "Campaign on platform/audio/narrate.py only",
+      "result": "4 gaps closed"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": " Campaign narrate.py: 8 mutants, 4 escaped, 4 gap tests added, catch rate 0.5 -> 1.0.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/audio/narrate.py",
+        "test": "/usr/local/bin/python3 -m pytest -q -x -p no:cacheprovider test_narrate.py  (in platform/audio)",
+        "seed": 826459808,
+        "commit": "9749b4b4",
+        "sites": 116,
+        "baseline_seconds": 1.5,
+        "mutants": [
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 116,
+            "col": 48,
+            "operator": "or-to-and",
+            "before": "if units and (len(units[-1]) < MIN_UNIT or len(p) < MIN_UNIT // 2) and len(units[-1]) + len(p) < MAX_UNIT:",
+            "after": "if units and (len(units[-1]) < MIN_UNIT and len(p) < MIN_UNIT // 2) and len(units[-1]) + len(p) < MAX_UNIT:",
+            "line_text": "        if units and (len(units[-1]) < MIN_UNIT or len(p) < MIN_UNIT // 2) and len(units[-1]) + len(p) < MAX_UNIT:",
+            "caught": false,
+            "seconds": 1.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test added in platform/audio/test_narrate.py"
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 130,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "if n <= 0:",
+            "after": "if n <= 1:",
+            "line_text": "    if n <= 0:",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test added in platform/audio/test_narrate.py"
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 140,
+            "col": 20,
+            "operator": "max-to-min",
+            "before": "return np.zeros(max(0, int(round(seconds * RATE))), dtype=np.float32)",
+            "after": "return np.zeros(min(0, int(round(seconds * RATE))), dtype=np.float32)",
+            "line_text": "    return np.zeros(max(0, int(round(seconds * RATE))), dtype=np.float32)",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 140,
+            "col": 45,
+            "operator": "times-to-div",
+            "before": "return np.zeros(max(0, int(round(seconds * RATE))), dtype=np.float32)",
+            "after": "return np.zeros(max(0, int(round(seconds / RATE))), dtype=np.float32)",
+            "line_text": "    return np.zeros(max(0, int(round(seconds * RATE))), dtype=np.float32)",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 207,
+            "col": 85,
+            "operator": "true-to-false",
+            "before": "audio, rate = _KOKORO.create(phonemes, voice=voice, speed=speed, is_phonemes=True, trim=True)",
+            "after": "audio, rate = _KOKORO.create(phonemes, voice=voice, speed=speed, is_phonemes=False, trim=True)",
+            "line_text": "        audio, rate = _KOKORO.create(phonemes, voice=voice, speed=speed, is_phonemes=True, trim=True)",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test added in platform/audio/test_narrate.py"
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 244,
+            "col": 33,
+            "operator": "div-to-times",
+            "before": "f = self.cache / key[:2] / f\"{key}.npy\"",
+            "after": "f = self.cache / key[:2] * f\"{key}.npy\"",
+            "line_text": "        f = self.cache / key[:2] / f\"{key}.npy\"",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 341,
+            "col": 29,
+            "operator": "div-to-times",
+            "before": "limit = 10 ** (TRUE_PEAK / 20)",
+            "after": "limit = 10 ** (TRUE_PEAK * 20)",
+            "line_text": "    limit = 10 ** (TRUE_PEAK / 20)",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 341,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "limit = 10 ** (TRUE_PEAK / 20)",
+            "after": "limit = 10 ** (TRUE_PEAK / 21)",
+            "line_text": "    limit = 10 ** (TRUE_PEAK / 20)",
+            "caught": false,
+            "seconds": 1.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test added in platform/audio/test_narrate.py"
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  }
+}

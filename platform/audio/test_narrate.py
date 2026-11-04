@@ -22,6 +22,12 @@ class Sentences(unittest.TestCase):
         self.assertEqual(N.sentences("No. It was never going to work, not with the storage blocked."),
                          ["No. It was never going to work, not with the storage blocked."])
 
+    def test_long_sentence_absorbs_a_tiny_one(self):
+        # Either condition alone is enough: a long unit followed by a tiny one still merges.
+        long = "This first sentence is comfortably longer than the minimum unit."
+        self.assertGreaterEqual(len(long), N.MIN_UNIT)
+        self.assertEqual(N.sentences(long + " Yes."), [long + " Yes."])
+
     def test_keeps_abbreviations_and_acronyms_whole(self):
         units = N.sentences("We asked Dr. Okafor about it at length, over coffee. The A.I. Agent said nothing useful at all today.")
         self.assertEqual(len(units), 2)
@@ -157,7 +163,59 @@ class Voicing(unittest.TestCase):
         self.assertEqual(out.dtype, np.float32)
 
 
+class Fade(unittest.TestCase):
+    def test_one_sample_fade_still_applies(self):
+        out = N.fade(np.ones(10, dtype=np.float32), seconds=1.5 / N.RATE)
+        self.assertEqual(out[0], 0.0)
+        self.assertEqual(out[-1], 0.0)
+        self.assertTrue(np.all(out[1:-1] == 1.0))
+
+
+class Voice(unittest.TestCase):
+    def test_phoneme_path_flags_phonemes(self):
+        calls = []
+
+        class K:
+            def create(self, text, **kw):
+                calls.append((text, kw))
+                return np.ones(N.RATE // 10, dtype=np.float32), N.RATE
+
+        old = (N._KOKORO, N._G2P)
+        try:
+            N._KOKORO, N._G2P = K(), (lambda t: ("PH", None))
+            N._voice(("hi", "v", 1.0, "en-us"))
+            N._G2P = None
+            N._voice(("hi", "v", 1.0, "en-us"))
+        finally:
+            N._KOKORO, N._G2P = old
+        self.assertEqual(calls[0][0], "PH")
+        self.assertIs(calls[0][1]["is_phonemes"], True)
+        self.assertEqual(calls[1][0], "hi")
+        self.assertNotIn("is_phonemes", calls[1][1])
+
+
 class Master(unittest.TestCase):
+    def test_limiter_ceiling_matches_true_peak(self):
+        seen = []
+        old = N._ffmpeg
+        N._ffmpeg = lambda args, pcm: seen.append(args) or type("R", (), {"stderr": b""})()
+        try:
+            old_measure = N.measure
+            N.measure = lambda pcm, pre="": {"lufs": N.LOUDNESS, "lra": 0.0, "peak": 0.0}
+            try:
+                with tempfile.TemporaryDirectory() as tmp:
+                    try:
+                        N.master(np.zeros(10, dtype=np.float32), Path(tmp) / "x.mp3")
+                    except Exception:
+                        pass  # ffprobe on the unwritten file; the chain was already captured
+            finally:
+                N.measure = old_measure
+        finally:
+            N._ffmpeg = old
+        chain = seen[0][seen[0].index("-af") + 1]
+        self.assertIn(f"alimiter=limit={10 ** (N.TRUE_PEAK / 20):.4f}:", chain)
+
+class MasterEndToEnd(unittest.TestCase):
     def test_lands_on_target_loudness(self):
         t = np.arange(N.RATE * 12) / N.RATE
         # A quiet, speech-like test signal: a 180 Hz buzz with syllable-rate bursts.
