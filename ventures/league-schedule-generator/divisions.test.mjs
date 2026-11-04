@@ -1,10 +1,11 @@
+import { dayLabel } from "./calc.mjs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining, restGaps } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining, restGaps, divisionsChangeNotices } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -881,4 +882,26 @@ test("divisionsRemaining: games left and opponents' points per game, hardest run
   const hawk = u10.find((r) => r.team === m.homeName);
   assert.ok(hawk.oppPpg < 3);
   assert.match(typed.text, /hardest run-in first/);
+});
+
+test("rainout change notices: one group post, one per division, one note per affected team, and nothing for unmoved teams", () => {
+  const s = build();
+  const night = s.nights[1];
+  const r = applyDivisionRainouts(s, `${dayIso(night.day)}`);
+  assert.deepEqual(r.errors, []);
+  assert.ok(r.moves.length > 1);
+  const n = divisionsChangeNotices(r.moves);
+  assert.equal(n.divisions.length, new Set(r.moves.map((m) => m.division)).size);
+  const affected = new Set(r.moves.flatMap((m) => [m.division + "|" + m.home, m.division + "|" + m.away]));
+  assert.equal(n.teams.length, affected.size);
+  for (const t of n.teams) assert.ok(affected.has(t.division + "|" + t.team));
+  for (const m of r.moves) assert.ok(n.group.includes(`${m.home} v ${m.away}: was ${dayLabel(m.from)}, now ${dayLabel(m.to)}`));
+  assert.deepEqual(divisionsChangeNotices([]), { group: "", divisions: [], teams: [] });
+});
+
+test("change notices keep a team name used in two divisions apart", () => {
+  const mv = (division, from, to) => ({ division, home: "Hawks", away: "Owls", from, to, court: "C1", time: "18:00" });
+  const n = divisionsChangeNotices([mv("U10", 20000, 20007), mv("U12", 20001, 20008)]);
+  assert.equal(n.teams.filter((t) => t.team === "Hawks").length, 2);
+  assert.ok(n.teams.every((t) => t.text.includes(`(${t.division})`)));
 });
