@@ -2,6 +2,26 @@
 
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
+## 2026-11-04 · Milestone 3b: the randomised `modesequence` contrast (the item left "not done" above)
+
+Run: `experiments/m3b_randomised/run.py` (tables `t5`-`t7`). The 2022 and 2024 GSS randomly assigned
+cases to face-to-face-first (`modesequence` 1) or mail-push-to-web-first (2); codebook p. 27-28.
+Unlike completed `mode`, this is an experiment, so it measures the effect of the collection system
+without the self-selection caveat. Plan was written before the numbers: no directional prior for the
+arm contrast; arm 1 vs 2018 as the worded H3.
+
+- **Arm contrast (Catholics, weekly, 2022+24).** F2F-first 19.4%, web-first 17.1%: +2.2 points
+  [-3.1, 7.5] (n 630 / 757). 2022 -1.1 [-7.9, 5.8]; 2024 +5.4 [-2.3, 13.1]. Non-Catholics -2.7
+  [-5.3, -0.0]. Arms balanced on Catholic share (+1.0 [-1.9, 3.9]), Hispanic share, age and BA share.
+- **F2F-first arm minus 2018:** -3.4 [-9.3, 2.5]; minus 2014-18: -3.9 [-8.3, 0.5]; minus 2010-18:
+  **-4.6 [-8.9, -0.4]** (of a total -6.3 [-9.9, -2.6], about 73%).
+- **Reading, against the entry above.** The completed-mode gap (-9 points web vs in person) is
+  selection plus mode; the randomised contrast, which removes selection, is much smaller (+2.2 for the
+  face-to-face-first arm, interval -3 to +8) and consistent with zero. So the "about half or more is
+  mode" reading rests on an effect the randomised arms neither show nor exclude. Both are
+  underpowered (about 1,400 Catholics in 2022+24); the honest summary is that mode explains between
+  none and about half of the fall, and a trend claim needs the panel or an outside series.
+
 ## 2026-11-04 · Milestone 3 results: most of the apparent attendance drop is mode, but the test is underpowered
 
 Run: `experiments/m3_mode/run.py` (tests in `test_cathdem.py`; output `results.txt`, tables `t0`-`t3`).
