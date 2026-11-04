@@ -3,7 +3,7 @@ title: "A 392-shift week took over two minutes to roster. Now it stops at 20 sec
 seo_title: "Employee scheduling software time limit for large weekly rosters"
 date: 2026-11-04
 tags: [shift-roster-builder, scheduling, performance]
-description: "Our free shift roster builder ran for more than 110 seconds on a 60-person, 392-shift week with no output. A wall-clock budget fixes that, and we say when it was hit."
+description: "Our free shift roster builder ran over 110 seconds on a 60-person, 392-shift week with no output. A wall-clock budget fixes that and reports when it was hit."
 ---
 
 The free [shift roster builder](https://marisstella.app/) accepts up to 60 people
