@@ -296,7 +296,7 @@ for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
 // spaces padded around every cell, a title block above the header, time-of-day
 // or timezone after ISO dates, and long-month or weekday date spellings
 // (quoted, they hold a comma) must all read the same rows.
-const ISO = /\b(\d{4}-\d\d-\d\d)\b/g;
+const ISO = /"?\b(\d{4}-\d\d-\d\d)\b"?/g; // takes a date's own quotes too, so a quoted column is not quoted twice
 const fmt = (m, o) => `"${new Date(m + "T00:00:00Z").toLocaleDateString(o.l, { ...o.f, timeZone: "UTC" })}"`;
 const PACK = {
   "sep line": (t) => "sep=,\n" + t,
@@ -305,8 +305,8 @@ const PACK = {
   "time after date": (t) => t.replace(ISO, "$1 14:05:00"),
   "ISO timestamp, Z": (t) => t.replace(ISO, "$1T14:05:00Z"),
   "ISO timestamp, offset": (t) => t.replace(ISO, "$1T14:05:00+01:00"),
-  "long month": (t) => t.replace(ISO, (m) => fmt(m, { l: "en-US", f: { month: "long", day: "numeric", year: "numeric" } })),
-  "weekday and short month": (t) => t.replace(ISO, (m) => fmt(m, { l: "en-GB", f: { weekday: "short", day: "2-digit", month: "short", year: "numeric" } })),
+  "long month": (t) => t.replace(ISO, (_, m) => fmt(m, { l: "en-US", f: { month: "long", day: "numeric", year: "numeric" } })),
+  "weekday and short month": (t) => t.replace(ISO, (_, m) => fmt(m, { l: "en-GB", f: { weekday: "short", day: "2-digit", month: "short", year: "numeric" } })),
 };
 for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
   const t = readFileSync(new URL(f, dir), "utf8").replace(/\r\n/g, "\n");
