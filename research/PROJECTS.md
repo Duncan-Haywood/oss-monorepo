@@ -1641,7 +1641,7 @@ Approach*, for the full-size weight and sizing relations.
    it misses (Reynolds-driven drag and stall, battery and motor mass fractions). Reproduce the
    scaling relations of NASA TP-1435 first. The by-product is a scaling calculator both halves
    of the track use.
-2. `aerolog-energy`: energy and cost per delivery. A first-principles multicopter, fixed-wing
+2. `aerolog-energy` (landed in aerolog-scaling, milestones 2a-2c, 2026-10-31): energy and cost per delivery. A first-principles multicopter, fixed-wing
    and lift-plus-cruise model fitted to the measured flights in Rodrigues et al. (2022), checked
    against Stolaroff et al. (2018), then compared with a van per parcel at the same route
    density. Where in payload and distance does each win?
@@ -1736,7 +1736,7 @@ currents, Copernicus Marine and public AIS archives (probe each through the prox
    real encounter geometries replayed from public AIS where reachable), scored on closest point of
    approach, rule compliance and detour length. An LLM or session proposer may tune the cost
    weights against CMA-ES at the same budget.
-4. `marine-glider`: when does a glider beat a propeller AUV? A buoyancy-engine saw-tooth model:
+4. `marine-glider` (landed in marine-hull, milestones 4a-4i, 2026-11): when does a glider beat a propeller AUV? A buoyancy-engine saw-tooth model:
    range against glide angle and dive depth, against a propeller AUV of the same mass and battery,
    reproducing a published glider range figure first.
 5. `marine-sail`: autonomous sailing routes. A polar diagram for a small wing-sail drone,
