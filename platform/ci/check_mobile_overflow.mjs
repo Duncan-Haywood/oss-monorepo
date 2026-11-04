@@ -2,7 +2,7 @@
 // Find venture pages that scroll sideways at phone width (default 375px).
 // Opens ventures/*/index.html from disk in headless Chromium with the network
 // blocked, so only local layout is judged. Needs Playwright (node).
-//   node platform/ci/check_mobile_overflow.mjs [--limit N] [--width 375] [--slack 1]
+//   node platform/ci/check_mobile_overflow.mjs [--only a,b] [--limit N] [--width 375] [--slack 1]
 // Exit 1 when any page overflows by more than --slack pixels.
 import { readdirSync, existsSync } from 'node:fs';
 import { pathToFileURL, fileURLToPath } from 'node:url';
@@ -10,11 +10,13 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
+const only = process.argv.includes("--only") ? process.argv[process.argv.indexOf("--only")+1].split(",") : null;
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i > 0 ? +process.argv[i + 1] : d; };
 const width = arg('width', 375), slack = arg('slack', 1), limit = arg('limit', 0);
 let pages = readdirSync(path.join(root, 'ventures')).sort()
   .map(n => path.join(root, 'ventures', n, 'index.html')).filter(existsSync);
+if (only) pages = pages.filter(f => only.includes(path.basename(path.dirname(f))));
 if (limit) pages = pages.slice(0, limit);
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width, height: 800 } });
