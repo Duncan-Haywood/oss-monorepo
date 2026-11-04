@@ -416,3 +416,4 @@ These are dated records of slices that landed (probes, trade fixtures, property 
 - Qonto, Tide and Novo bank CSV layouts, 2026-11-03 (`bank.mjs`, `neobank.test.mjs`, fixtures `qonto-sample.csv`, `tide-sample.csv`, `novo-sample.csv`): Qonto and Tide were misread (wrong description column, month-first dates) and Novo was labelled Amex; fixed. Made-up rows, headers from memory; Apple Card and Navy Federal already read right.
 - Ramp and SumUp exports read correctly 2026-11-04 (bank.mjs, ramp-sumup.test.mjs; headers from memory, no real export).
 - bunq export read by Name (the payee) not Description, 2026-11-04 (bank.mjs, bunq.test.mjs; header from memory, no real export).
+- Mint and Monarch Money exports labelled (were bank null; rows already right), 2026-11-04 (bank.mjs, aggregators.test.mjs; headers from memory, no real export).
