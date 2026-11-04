@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining, restGaps, divisionsChangeNotices, divisionsBookings, divisionsDeadline, applyDivisionWithdrawals, blackoutsFromCsv, csvRows, availabilitySheetCsv } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, estimateDriveMinutes, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining, restGaps, divisionsChangeNotices, divisionsBookings, divisionsDeadline, applyDivisionWithdrawals, blackoutsFromCsv, csvRows, availabilitySheetCsv } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -1050,4 +1050,18 @@ test("availabilitySheetCsv lists every team and round-trips through blackoutsFro
   const r = blackoutsFromCsv(filled, divs);
   assert.deepEqual(r.errors, []);
   assert.equal(r.text, "U12/Hawks: 2026-11-05 to 2026-11-12");
+});
+
+test("parseTravel estimates a pair from venue coordinates and lets a typed time win", () => {
+  assert.equal(estimateDriveMinutes([40, -74], [40, -74]), 3); // same point: the floor
+  // 0.1 degree of latitude = 11.12 km; x1.3 / 40 km/h = 21.7 min -> 22
+  assert.equal(estimateDriveMinutes([40, -74], [40.1, -74]), 22);
+  const r = parseTravel("Park @ 40.0, -74.0\nSchool @ 40.1 -74.0\nLake @ 40.0, -73.9\nPark - Lake: 50", ["Park", "School", "Lake"]);
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.travel["Park|School"], 22);
+  assert.equal(r.travel["Lake|Park"], 50); // typed, not estimated
+  assert.ok(r.travel["Lake|School"] > 22);
+  assert.equal(r.estimated.length, 2);
+  const bad = parseTravel("Nowhere @ 1, 2\nPark @ 95, 0", ["Park"]);
+  assert.equal(bad.errors.length, 2);
 });

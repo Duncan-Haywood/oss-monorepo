@@ -72,10 +72,20 @@ export function travelWarnings(travel, venues) {
 export function parseTravel(text, venues) {
   const errors = [];
   const travel = {};
+  const coords = new Map();
   const known = new Map((venues || []).map((v) => [v.toLowerCase(), v]));
   for (const raw of String(text || "").split(/\r?\n/)) {
     const line = raw.trim();
     if (!line) continue;
+    // "Park @ 40.7128, -74.0060": a venue's coordinates; pairs with no time of their own are estimated from them (below)
+    const c = line.match(/^(.+?)\s*@\s*(-?\d+(?:\.\d+)?)\s*[,;\s]\s*(-?\d+(?:\.\d+)?)$/);
+    if (c) {
+      const v = known.get(c[1].trim().toLowerCase()), lat = Number(c[2]), lon = Number(c[3]);
+      if (!v) errors.push(`"${line}": ${c[1].trim()} is not a venue in the courts box (write a court as "Field 1 @ Park").`);
+      else if (!(Math.abs(lat) <= 90 && Math.abs(lon) <= 180)) errors.push(`"${line}": latitude is -90 to 90 and longitude -180 to 180.`);
+      else coords.set(v, [lat, lon]);
+      continue;
+    }
     const m = line.match(/^(.+?)\s*:\s*(\d+(?:\.\d+)?)\s*(?:min\w*)?$/i);
     if (!m) { errors.push(`"${line}": write travel as "Park - School: 25" (minutes).`); continue; }
     // a venue name may hold a hyphen ("North-Park"), so try every separator and keep the split where both sides are venues
@@ -91,7 +101,28 @@ export function parseTravel(text, venues) {
     if (!(mins > 0)) { errors.push(`"${line}": minutes must be above zero.`); continue; }
     travel[[a, b].sort().join("|")] = mins;
   }
-  return { travel, errors };
+  // estimate every pair that has coordinates on both sides and no time given
+  const estimated = [];
+  const names = [...coords.keys()];
+  for (let i = 0; i < names.length; i++) for (let j = i + 1; j < names.length; j++) {
+    const k = [names[i], names[j]].sort().join("|");
+    if (travel[k] !== undefined) continue;
+    travel[k] = estimateDriveMinutes(coords.get(names[i]), coords.get(names[j]));
+    estimated.push(k.replace("|", " - ") + `: ${travel[k]}`);
+  }
+  return { travel, errors, estimated };
+}
+
+/**
+ * Rough drive minutes between two [lat, lon] points: great-circle km x 1.3 (roads are not straight) at 40 km/h
+ * (town driving with lights), rounded up to a whole minute, at least 3. An estimate for pricing venue changes, not
+ * directions: a time you type for a pair always wins over it.
+ */
+export function estimateDriveMinutes([la1, lo1], [la2, lo2]) {
+  const r = Math.PI / 180, dLa = (la2 - la1) * r, dLo = (lo2 - lo1) * r;
+  const h = Math.sin(dLa / 2) ** 2 + Math.cos(la1 * r) * Math.cos(la2 * r) * Math.sin(dLo / 2) ** 2;
+  const km = 2 * 6371 * Math.asin(Math.min(1, Math.sqrt(h)));
+  return Math.max(3, Math.ceil((km * 1.3 / 40) * 60));
 }
 
 /** Links, one group per line: "U10/Hawks, U12/Hawks" (teams that share a coach or players). */
