@@ -1,7 +1,7 @@
 ---
 title: "A step of 10 hid every piece count but one"
 date: 2026-11-04
-description: "The clothing studio's size-run form asked for pieces to make with min 1 and step 10, so a browser accepted 1, 11, 21 and never a round number. A repo check caught it."
+description: "The clothing studio size-run form had min 1 and step 10, so browsers accepted 1, 11, 21 and never a round number. A repo check caught it."
 tags: [clothing-design-studio, process, forms]
 ---
 
