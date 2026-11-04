@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 5d: constant-power thrust law (s = -1) against the fixed-RPM slope, phugoid across scale
+- Why: 5c's "Next". 5c used the fixed-RPM slope s = -2.25 (5b); a governed motor holds nearer constant power, where an ideal propeller gives T proportional to 1/V, s = -1. This brackets the phugoid sign between s = 0, -1 and -2.25.
+- **Pre-registration failed:** I ran the sweep (`experiments/power_phugoid/run.py`, the 5c script with `S_VALUES = (0, -1, -2.25)`, 5 s) before writing a prediction, so nothing below is a tested prediction; it is a descriptive bracket.
+- Outcome (`experiments/power_phugoid/results.txt`, deterministic). Phugoid real part at n = 1, same-CL rule: s = 0: +0.0127 (free) / +0.0109 (tripped); s = -1: +0.0087 / +0.0062; s = -2.25: +0.0037 / +0.0002. So at constant power the full-size phugoid is still unstable in both transition cases (zeta -0.032 free, -0.023 tripped), and only the steeper fixed-RPM slope brings it to marginal.
+- Scale: from n = 1 to 0.2 the real part falls by 0.0073 (free) and 0.0034 (tripped) at s = -1, in the same direction as 5c (smaller model, lower L/D, more phugoid damping). At s = -1 the sign is still positive at n = 0.2 (free +0.0014, tripped +0.0028) and flips only in the tripped case at n = 0.1 (-0.0002, zeta 0.0008, i.e. zero within the model). So whether the model phugoid is damped depends on the thrust law, not only on scale; the direction of the scale effect does not.
+- Limits: same as 5c (4-state model, T0 = D at trim, no propeller normal force or thrust-line offset; ideal-propeller s = -1 ignores motor and propeller efficiency changes with V); free n = 0.1 still loses the oscillatory pair; no tests added.
+- Next: add the 5c and 5d numbers to `paper/DRAFT.md` and `check_numbers.py`; Allan-variance parameters; AIAA template.
+
 ## 2026-11-04 · Milestone 5c: thrust slope s in the 4-state model: does the phugoid damping sign survive Froude scaling? (planned before running)
 - Why: 5b's "Next". `longitudinal_modes/run.py` has `xu = -2 D/(m V)`, i.e. constant thrust (s = 0), and its full-size phugoid is slightly unstable (real part +0.013 in omega*sqrt(b/g) units), which 3a flagged as a modelling artefact. 5b measured s = dlnT/dlnV = -2.25 (5th/95th -2.86/-1.54) at fixed RPM. With T = T0 (V/V0)^s and T0 = D at trim, `xu = (s - 2) D/(m V)`.
 - Plan (`experiments/thrust_phugoid/run.py`, imports `modes()` with a new `s_thrust` keyword, default 0 so earlier results do not change): s in {0, -1.54, -2.25, -2.86}, n in {1, 0.5, 0.2, 0.1}, free and tripped transition, "same CL" rule. Report phugoid real part and damping ratio.
