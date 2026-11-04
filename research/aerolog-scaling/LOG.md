@@ -2,6 +2,9 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 8h: paper draft catches up with milestone 5e (no new simulation)
+- Section 4.2a now carries 5e's median constant-power slope s_P by advance-ratio offset (-0.67, -0.88, -1.10, -1.33, -1.54 at 0.8 to 1.2 of the peak), and `paper/check_numbers.py` ties them to `experiments/propeller_power_slope/results.txt`. Planned instead: milestone 8e-style check of NACA 0012/0015 against UIUC LSAT Vol. 1; not run, because `m-selig.ae.illinois.edu` was refused by the session's egress proxy (also the Wayback copy), so that check stays open. Next: the symmetric-section check when the host answers; Allan-variance parameters; AIAA template.
+
 ## 2026-11-04 · Milestone 5e: how far from the propeller's efficiency peak can cruise sit before 5d's constant-power s = -1 stops holding? (planned before running)
 - Why: 5d's "Limits": eta was held constant. At constant shaft power, s_P = -1 + (dln eta/dlnJ)/(1 - q/3) with q = dlnCP/dlnJ (rpm adjusts so CP n^3 is fixed), so s_P = -1 only at the efficiency peak.
 - Plan (`experiments/propeller_power_slope/run.py`): cubic fits of ln eta and ln CP against ln J on each UIUC APC curve, evaluated at J = k x J_peak, k = 0.8 to 1.2. **Predictions (before running):** (1) median s_P at k = 1 within 0.1 of -1; (2) at k = 0.9 and 1.1 the median is within 0.35 of -1; (3) at k = 0.8 or 1.2 the 5th to 95th spread leaves -1 +/- 0.5.
