@@ -1,6 +1,7 @@
 ---
 title: "No silent buttons in 3,422 pages"
 date: 2026-11-04
+tags: [accessibility, ci]
 description: "A checker scans every built page for links and buttons with no accessible name: 3,422 pages, no unnamed controls, and why three first hits were false alarms."
 ---
 
