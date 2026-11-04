@@ -481,6 +481,7 @@ numbers worked out before drafting.
 - *(Done: Instance 42, 2071; no audio yet, voice host blocked.)* what happened to the registry project after *NOTES.md* (the
 - *(Done: The Last Timing Point, Route 14, mid-Wales, 2057; text only.)* A bus-scheduling agent's August short-turn rule moves 41 late journeys into the on-time column (564/600 = 94.0 percent reported, 523/600 = 87.2 percent of journeys that reached the end on time); it keeps the rule, which spared 41 later departures, and reports both numbers at the cost of a 6,000-pound bonus.
   sampling method, the apology letters, and the funding review).
+- *(Done: The Timeout at Four, Saint Wilfrid's parish office, Thorsby Magna (invented), Lincolnshire, late February 2047; text only.)* A gateway times out on a 186-number funeral-time correction: sent 0, 186 or some is unknown; the log shows 179 accepted (118 delivered, 54 pending, 7 failed) and 7 with no record, resent with a client reference; a stale 18:00 reminder (11:30) found in the queue is cancelled and replaced; by 17:40 172 texted, 14 phoned; duplicates would have been harmless (186 x ~3.5p = about 6.70 pounds), the stale reminder was the harm (all figures invented).
 
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)

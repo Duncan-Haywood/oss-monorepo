@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Timeout at Four</title>
+      <link>https://example.invalid/hearth-and-horizon/the-timeout-at-four.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-timeout-at-four.html</guid>
+      <pubDate>Wed, 04 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A parish notices agent sends a corrected funeral time to 186 phones and the text gateway times out without a receipt. Its policy says retry once. It does not know whether it sent the message 0 times or 186, and it finds that the real danger is not the duplicate but an 18:00 reminder still queued with the old time. A story about the third state between &quot;done&quot; and &quot;not done&quot;, what you may fairly retry, and how to tell a priest what you do not know. Setting: Saint Wilfrid's parish office, Thorsby Magna (invented), Lincolnshire, late February 2047. Read the full text at https://example.invalid/hearth-and-horizon/the-timeout-at-four.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A parish notices agent sends a corrected funeral time to 186 phones and the text gateway times out without a receipt. Its policy says retry once. It does not know whether it sent the message 0 times or 186, and it finds that the real danger is not the duplicate but an 18:00 reminder still queued with the old time. A story about the third state between &quot;done&quot; and &quot;not done&quot;, what you may fairly retry, and how to tell a priest what you do not know.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Last Timing Point</title>
       <link>https://example.invalid/hearth-and-horizon/the-last-timing-point.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-last-timing-point.html</guid>
