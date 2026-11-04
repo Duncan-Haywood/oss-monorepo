@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, estimateDriveMinutes, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining, restGaps, divisionsChangeNotices, divisionsBookings, divisionsDeadline, applyDivisionWithdrawals, blackoutsFromCsv, csvRows, availabilitySheetCsv } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, estimateDriveMinutes, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining, restGaps, divisionsChangeNotices, divisionsBookings, divisionsFacilityCost, divisionsDeadline, applyDivisionWithdrawals, blackoutsFromCsv, csvRows, availabilitySheetCsv } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -1064,4 +1064,34 @@ test("parseTravel estimates a pair from venue coordinates and lets a typed time 
   assert.equal(r.estimated.length, 2);
   const bad = parseTravel("Nowhere @ 1, 2\nPark @ 95, 0", ["Park"]);
   assert.equal(bad.errors.length, 2);
+});
+
+test("divisionsFacilityCost: court-hours x rate by hand, unpriced venues left out, fee split by team or by games", () => {
+  const mk = (day, matches) => ({ day, matches });
+  const m = (division, court, time, venue) => ({ division, court, time, venue, homeName: "a", awayName: "b" });
+  const s = {
+    divisions: [{ name: "A", teams: ["1", "2", "3", "4"] }, { name: "B", teams: ["5", "6"] }],
+    nights: [
+      // Park: 2 courts, 18:00-19:00 and 19:00-20:00 slots at 60 min -> span 120 min x 2 courts = 4 court-hours
+      mk(1, [m("A", "C1", "18:00", "Park"), m("A", "C2", "18:00", "Park"), m("A", "C1", "19:00", "Park")]),
+      // Park: 1 court 18:00-19:00 = 1 court-hour; School untimed: 3 games on 1 court x 60 = 3 court-hours
+      mk(8, [m("B", "C1", "18:00", "Park"), m("B", "G", null, "School"), m("B", "G", null, "School"), m("B", "G", null, "School")]),
+    ],
+  };
+  const r = divisionsFacilityCost(s, "Park: $40/court-hour\nNowhere: 10", { extra: 60 });
+  assert.equal(r.venues.find((v) => v.venue === "Park").courtHours, 5);
+  assert.equal(r.venues.find((v) => v.venue === "Park").cost, 200);
+  assert.equal(r.venues.find((v) => v.venue === "School").courtHours, 3);
+  assert.deepEqual(r.unpriced, ["School"]);
+  assert.equal(r.total, 260);
+  assert.equal(r.teams, 6);
+  assert.equal(r.perTeam, 43.33);
+  assert.match(r.text, /without School: no rate/);
+  // by games: A hosts 3 of 4 Park games... game counts are 4 for A, 4 for B -> split total evenly by games, then by teams
+  const g = divisionsFacilityCost(s, "Park: 40", { split: "games" });
+  assert.equal(g.total, 200);
+  assert.equal(g.divisions.find((d) => d.division === "A").perTeam, Math.round(200 * (3 / 7) / 4 * 100) / 100);
+  assert.equal(g.divisions.find((d) => d.division === "B").perTeam, Math.round(200 * (4 / 7) / 2 * 100) / 100);
+  assert.throws(() => divisionsFacilityCost(s, "", { extra: -1 }), /Extra costs/);
+  assert.equal(divisionsFacilityCost({ nights: [] }, "").total, 0);
 });
