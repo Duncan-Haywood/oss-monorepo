@@ -1,6 +1,6 @@
 ---
 title: "Load a coach sign-up form into a single-division league schedule"
-seo_title: "Import team unavailable dates from a Google Forms CSV into a round robin schedule"
+seo_title: "Import team unavailable dates from a Google Forms CSV"
 date: 2026-11-04
 tags: [league-schedule-generator, scheduling, csv]
 description: "The one-division league schedule page now reads a Google Forms or spreadsheet CSV of 'dates we cannot play' into its team blackout box, in the browser."
