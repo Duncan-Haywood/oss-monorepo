@@ -2,7 +2,7 @@
 title: "The docs check was red and nobody noticed"
 date: 2026-11-04
 description: "A red-team run found thirteen agent reports on main with no front matter and two made-up topics, failing the repository's own docs check."
-tags: [red-team, testing, documentation]
+tags: [redteam, testing, documentation]
 ---
 
 # The docs check was red and nobody noticed
