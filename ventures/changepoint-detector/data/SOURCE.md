@@ -390,3 +390,13 @@ annualised CPI inflation, %), 202 quarters (first quarter dropped: 0 by construc
 - **Retrieved:** 2026-11-04 from <https://fred.stlouisfed.org/graph/fredgraph.csv?id=OPHNFB>. Quarter labels (`1947Q1` onward) were made from the date column.
 - **Licence:** US government statistics, public domain. Revisions after the retrieval date will change later values slightly.
 - **Used by:** `eval/slope-productivity.mjs`, `slope-productivity.test.mjs`.
+
+## presidents.csv
+
+`presidents.csv`: Gallup quarterly approval of the US president (percent), 1945Q1 to 1974Q4. Six quarters are missing
+in the source (NA) and are dropped, not filled, leaving 114 rows.
+
+- **Retrieved:** 2026-11-04 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/presidents.csv> (R `datasets::presidents`).
+- **Licence:** distributed in R's datasets package (GPL-2 or later); a short table of facts.
+- **Documented events:** Eisenhower's inauguration (1953Q1), the Vietnam escalation, Watergate (1973).
