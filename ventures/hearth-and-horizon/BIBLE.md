@@ -259,6 +259,8 @@ numbers worked out before drafting.
 
 **Hearth & Horizon**
 
+- *(Done: The Candlemas Air, Saint Elwin's hall (invented), near Alston, Cumbria, Candlemas Sunday 1 Feb 2053; text only.)* Hall CO2: 9x12x4.5 = 486 m3, 60 people x 18 L/h = 1,080 L/h, so ~2,200 ppm/h sealed; at 0.3 air changes/h 3,100 at 1.5 h and 3,800 at 2 h (430 outdoor), meter agreeing is luck; 12 K heat cost 1.95 kW per air change (1.2 kg/m3, 1 kJ/kg/K); one extra change levels off near 2,100, three near 1,200; 5,000 ppm working-day limit quoted from memory; the 91-year-old and the baby decide how far to open (all figures illustrative).
+
 - *(Done: The Freezer That Keeps a Day, Saint Ninian's hall (invented), near Elgin, Moray, 2 to 4 Jan 2053; text only.)* Power cut, 200 kg frozen food: 200 x 2 kJ/kg/K x 17 K = 6,800 kJ (1.9 kWh); at ~1 kWh/day heat leak that is ~45 h; thermometer -18 to -9 in 16 h is 0.56 K/h, so -1 at ~46 h; both routes agree to the guess; thaw plateau makes temperature a poor guide near 0; half moved to a generator freezer, half handed out; refreezing/thaw-hour guidance quoted from memory (all figures illustrative).
 
 - *(Done: The Apples Off the Ground, Saint Kenelm's orchard (invented), near Ledbury, Herefordshire, Sat 14 Oct 2048; text only.)* Parish cider: 20 L is ~21 kg at 3.9 kJ/kg/K, 12 to 71 C is 4,830 kJ (1.34 kWh); a 2 kW ring at 70% gives ~57 min a batch; 240 kg x 0.65 L/kg is ~156 L (8 batches, ~7.5 h) so only 40 L heated for the children's table, the rest sold labelled raw; 71 C (160 F) quoted from memory; ice-water check, reading 2 means 69 in the pot; patulin survives heat, so rot is binned (all figures illustrative).
