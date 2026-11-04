@@ -64,6 +64,7 @@ only in this browser's local storage. `byok.mjs` is a synced copy of
 | `eyewear.mjs`, `sunglasses.html` | Sunglasses: stock frame, size, logos, case, cost, quote request |
 | `wardrobe.mjs`, `wardrobe.html` | Capsule wardrobe from a profile, outfit count, first drop within a budget |
 | `fit.mjs`, `fit.html` | Size from body measurements with ease per size; size run for a quantity from the audience chest curve; typical size chart, replaceable by the factory's |
+| `labels.mjs`, `labels.html` | Fibre-content label wording for the EU (8 languages) and US, checklist of other required label items, starting care text |
 | `marketing.mjs` | Ad affordability (break-even cost per sale and ROAS) and a launch calendar of drafts from the break-even |
 | `usage.mjs` | Anonymous local usage counts |
 
