@@ -335,6 +335,22 @@ URL:https://example.invalid/einvoice-preflight/zambia-smart-invoice-e-inv
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:2902960c32c3e13c@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20241201
+DTEND;VALUE=DATE:20241202
+SUMMARY:China: STA fully digitalised e-fapiao on the national platform\, 
+ launched nationwide 1 December...
+DESCRIPTION:China (In force (scope disputed; 2026 regional steps reported
+ )). STA fully digitalised e-fapiao on the national platform\, launched n
+ ationwide 1 December 2024 as reported. Detail and sources: https://examp
+ le.invalid/einvoice-preflight/china-fapiao-e-invoice-mandate.html. Not l
+ egal or tax advice.
+URL:https://example.invalid/einvoice-preflight/china-fapiao-e-invoice-man
+ date.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:d9b5790408cbf91a@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20250101
@@ -866,6 +882,23 @@ DESCRIPTION:Dominican Republic (Phased by taxpayer size (November 2026 wa
  e.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/dominican-republic-dgii-e-
  invoice-mandate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:3dc34e4dae8d0e95@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20261101
+DTEND;VALUE=DATE:20261102
+SUMMARY:China: whether mandatory everywhere is disputed\, and 2026 brings
+  regional paper withdrawals an...
+DESCRIPTION:China (In force (scope disputed; 2026 regional steps reported
+ )). whether mandatory everywhere is disputed\, and 2026 brings regional 
+ paper withdrawals and a fuel-station deadline of 1 November 2026 (second
+ ary guides\, STA notices unread). Detail and sources: https://example.in
+ valid/einvoice-preflight/china-fapiao-e-invoice-mandate.html. Not legal 
+ or tax advice.
+URL:https://example.invalid/einvoice-preflight/china-fapiao-e-invoice-man
+ date.html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
