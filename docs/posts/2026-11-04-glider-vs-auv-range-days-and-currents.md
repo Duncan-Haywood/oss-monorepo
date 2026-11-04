@@ -3,7 +3,7 @@ title: "A glider out-ranges a propeller AUV, but it costs days and loses in stro
 seo_title: "Buoyancy glider vs propeller AUV: range, days and currents"
 date: 2026-11-04
 tags: [research, marine, glider, auv, negative-result]
-description: "With measured glider energy budgets and OSCAR currents, a glider out-ranges an AUV on one battery but takes 33 to 550 times longer and stalls in 30% of the ocean."
+description: "With measured glider energy budgets and OSCAR currents, a glider out-ranges an AUV on one battery but takes 33 to 550 times longer and stalls in 30% of ocean."
 ---
 
 Which carries a payload further on one battery: a buoyancy glider or a
