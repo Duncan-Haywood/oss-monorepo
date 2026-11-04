@@ -1,9 +1,9 @@
 ---
 title: "How much of the ocean stalls a slow underwater glider?"
-seo_title: "Ocean current speeds vs underwater glider speed: where a glider cannot hold course"
+seo_title: "Ocean currents vs underwater glider speed: where a glider stalls"
 date: 2026-11-04
 tags: [research, marine, autonomy, ocean-currents, open-data]
-description: "Using NASA/JPL OSCAR surface currents, a 0.2 m/s glider cannot hold a crossing track in roughly 17 to 30% of the open ocean, yet beats a propeller AUV on energy elsewhere."
+description: "Using NASA/JPL OSCAR currents, a 0.2 m/s glider cannot hold a crossing track in 17 to 30% of the ocean, yet beats a propeller AUV on energy elsewhere."
 ---
 
 Underwater gliders cover thousands of kilometres on a small battery because they move at about 0.2 m/s. The catch is that the ocean often moves faster. Our marine-hull research programme had compared glider and propeller-AUV energy per metre only with a made-up sweep of cross-currents. This step swaps the sweep for data.
