@@ -170,9 +170,10 @@ test("fourth set (2026-10-25): scored once at 25/42 with 9 of 18 unsubscribes mi
   assert.equal(s.n, 42);
   // 34 before 2026-11-02, when "I left Orchid in August" started counting as a wrong-person reply (one item).
   // 35 before 2026-11-03, when "X left the company" was added as a wrong-person phrasing (one item).
-  assert.equal(s.right, 36);
-  assert.equal(s.acted, 36);
-  assert.equal(s.actedRight, 36);
+  // 37 after 2026-11-04, when "isn't something we'd ever need" became a decline (one item).
+  assert.equal(s.right, 37);
+  assert.equal(s.acted, 37);
+  assert.equal(s.actedRight, 37);
   assert.equal(s.unsubMissed, 0);
 });
 
@@ -303,6 +304,14 @@ test("eighth set (2026-11-04): quoted footers and signatures stripped as in prod
   assert.equal(s.n, 20);
   assert.equal(s.unsubMissed, 0);
   assert.equal(s.right, 20);
+});
+
+test("ninth set (2026-11-04b): 30 mixed replies, scored once before the change at 23/30 (0 overreach, 0 opt-outs missed), 28/30 after; a tuned set. The two left are deliberate: a forward-and-call-ask is a handover, and 'how did you get my email' goes to a person", () => {
+  const s = score(load("fresh-2026-11-04b.jsonl"));
+  assert.equal(s.n, 30);
+  assert.equal(s.unsubMissed, 0);
+  assert.equal(s.overreach, 0);
+  assert.equal(s.right, 28);
 });
 
 test("an unsubscribe link line inside an auto-reply is not an opt-out, but a first-person ask in one still is", () => {
