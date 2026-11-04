@@ -34,6 +34,15 @@ Full tables: [`experiments/m1_subgroups/`](experiments/m1_subgroups) (`t1` compo
 fertility, `t3` retention, `t4` practice, belief and politics by subgroup). Plan and hypotheses:
 [`PROPOSAL.md`](PROPOSAL.md). Research log: [`LOG.md`](LOG.md).
 
+## Retention models (milestone 4, 2026-11-04)
+
+Among Catholic-raised adults aged 30+ (GSS 2000-2024, n = 7,155), design-based logistic models
+find white retention falling by cohort, 66% (born 1945-64), 61% (1965-80), 48% (1981-96), while
+Hispanic retention stays at 74%, 76%, 70% (cohort x Hispanic interaction p = 0.015). First-generation
+immigrants retain more than third-generation Catholics at equal cohort (odds ratio 1.41 [1.15, 1.72]), which
+explains the Hispanic level advantage but not its flatter trend. The youngest cohort is only
+observed to age 43. Details: `experiments/m4_retention/results.txt` and `LOG.md`.
+
 ## Milestone 3 (2026-11-04): is the post-2020 attendance drop real or the survey mode?
 
 Weekly Mass attendance of Catholics fell 5.5 points [-9.3, -1.6] between 2016-18 and 2021-24, but

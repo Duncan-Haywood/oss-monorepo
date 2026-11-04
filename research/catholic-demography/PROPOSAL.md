@@ -151,7 +151,7 @@ and the mode checks for 2021-2024. Ablations: each channel switched off in the a
 2. Re-read the related work in full; reproduce one Hout (2016) table; benchmark against Pew RLS
    subgroup tables.
 3. Mode-effect analysis for 2021-2024 attendance (H3) (2026-11-04, done: `experiments/m3_mode/`; refuted as worded but underpowered).
-4. Retention models by cohort, ethnicity and generation, ages 30+, with design-based inference.
+4. Retention models by cohort, ethnicity and generation, ages 30+, with design-based inference (2026-11-04, done: `experiments/m4_retention/`).
 5. Cohort-component accounting 1990-2024 (H4) and the projection score (H5).
 6. Cross-national comparison: European and Latin American Catholics (ESS, WVS/EVS).
 7. Paper draft in `paper/`.

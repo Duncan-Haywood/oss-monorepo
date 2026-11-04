@@ -1,0 +1,43 @@
+Sample: raised Catholic, non-Hispanic white or Hispanic, age 30+, 2000-2024, born 1945-96: n=7155 with retention observed
+
+A: cohort x Hispanic
+                   term    coef      lo      hi  odds_ratio
+                  const   0.670   0.577   0.763       1.953
+           Born 1965-80  -0.228  -0.388  -0.068       0.796
+           Born 1981-96  -0.761  -1.008  -0.515       0.467
+               Hispanic   0.357   0.144   0.571       1.430
+Hispanic x Born 1965-80   0.327   0.027   0.626       1.386
+Hispanic x Born 1981-96   0.556   0.134   0.978       1.743
+
+B: + generation, sex, BA, period
+                   term    coef      lo      hi  odds_ratio
+                  const   0.699   0.568   0.831       2.013
+           Born 1965-80  -0.197  -0.356  -0.037       0.821
+           Born 1981-96  -0.625  -0.875  -0.376       0.535
+               Hispanic   0.106  -0.124   0.337       1.112
+Hispanic x Born 1965-80   0.298  -0.003   0.599       1.347
+Hispanic x Born 1981-96   0.512   0.085   0.939       1.668
+ 1st gen (foreign-born)   0.342   0.142   0.542       1.408
+                2nd gen   0.142  -0.070   0.354       1.153
+                 Female   0.106  -0.017   0.229       1.112
+                    BA+  -0.174  -0.309  -0.039       0.840
+         Survey 2021-24  -0.216  -0.357  -0.076       0.805
+
+Wald, model A: cohort terms (white) chi2=38.6 df=2 p=0.0000
+Wald, model A: cohort x Hispanic interaction chi2=8.3 df=2 p=0.0154
+
+Retention by cohort x ethnicity (ages 30+, 2000-24)
+     eth       cohort  retention    lo    hi    n
+NH white Born 1945-64      0.661 0.641 0.682 2925
+NH white Born 1965-80      0.609 0.577 0.640 1506
+NH white Born 1981-96      0.477 0.420 0.534  509
+Hispanic Born 1945-64      0.736 0.699 0.774  809
+Hispanic Born 1965-80      0.755 0.725 0.785 1021
+Hispanic Born 1981-96      0.695 0.633 0.756  385
+Check: model A fitted P(white, 1965-80) = 0.6086 vs cell share 0.6086
+
+Model B standardised retention by generation (weighted g-computation, point estimates)
+            generation  standardised_retention
+1st gen (foreign-born)                   0.716
+               2nd gen                   0.674
+              3rd+ gen                   0.643
