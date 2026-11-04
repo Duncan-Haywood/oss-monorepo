@@ -195,7 +195,7 @@ export function renderLatestWriting(posts = [], { writingPath = 'writing/', limi
   return `    <section class="band" id="writing" aria-labelledby="writing-h">
       <p class="section-eyebrow">Writing</p>
       <h2 id="writing-h">Notes from building it in public</h2>
-      <p class="band-lede">Essays drawn from this repository's own history and numbers. <a href="${esc(writingPath)}">Read all ${posts.length} posts →</a></p>
+      <p class="band-lede">What the tools turned up and how they were built, written from the repository's own records and numbers. <a href="${esc(writingPath)}">Read all ${posts.length} posts →</a></p>
       <ul class="posts">
 ${latest
   .map(
