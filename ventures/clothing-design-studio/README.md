@@ -113,3 +113,7 @@ as `warnings`, never invented. Payment, tax, delivery and consumer-law
 obligations stay with the seller. Tested in `storefront.test.mjs` (escaping,
 `javascript:` links dropped, JSON-LD cannot close its script) and checked in a
 real browser. Next: several designs per shop, a real deploy by a real designer.
+
+## Lookbook (2026-11-04)
+
+`lookbook.mjs` turns a capsule wardrobe into one static HTML page: up to 24 of the outfits the wardrobe counts (chosen to spread across as many pieces as possible), each drawn as flat colour blocks (top, bottom, layer) with its pieces named and marked own design or partner brand. Links to products appear only for https URLs the designer typed. Outerwear and accessories are listed, not drawn. No scripts, no trackers; the wardrobe page has a "Download lookbook" button. Colour blocks are not a fit or drape preview. Checked by `lookbook.test.mjs` (enumeration equals the outfit count, escaping, `javascript:` links dropped) and a headless-Chromium download of the page with no console errors. Next: a real brand's lookbook with its partner links.

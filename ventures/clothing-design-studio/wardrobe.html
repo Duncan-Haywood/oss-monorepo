@@ -70,6 +70,8 @@
       <section>
         <h2>The wardrobe</h2>
         <output id="results" aria-live="polite"></output>
+        <p><label for="brand">Brand name (for the lookbook)</label> <input id="brand" type="text" maxlength="60" placeholder="Your brand"> <button type="button" id="lookbook-dl">Download lookbook (HTML)</button></p>
+        <p class="tag">One file with each outfit drawn in flat colour blocks, to host anywhere. Not a fit preview.</p>
       </section>
       <section>
         <h2>First drop</h2>
@@ -104,6 +106,7 @@
     import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
     import { newEyewear, eyewearCost } from "./eyewear.mjs";
     import { recordUsage } from "./usage.mjs";
+    import { lookbook } from "./lookbook.mjs";
     const $ = s => document.querySelector(s);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
     const opts = (id, obj) => { $(id).innerHTML = Object.entries(obj).map(([k, v]) => `<option value="${k}">${typeof v === "string" ? v : v.label}</option>`).join(""); };
@@ -163,6 +166,13 @@
       $("#drop").querySelectorAll("input[data-key]").forEach(i => i.addEventListener("change", ev => { const v = +ev.target.value; if (v > 0) costOverrides[ev.target.dataset.key] = v; else delete costOverrides[ev.target.dataset.key]; renderDrop(); }));
     }
 
+    $("#lookbook-dl").addEventListener("click", () => {
+      const r = lookbook(plan, { brand: $("#brand").value });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([r.html], { type: "text/html" }));
+      a.download = "lookbook.html"; a.click(); URL.revokeObjectURL(a.href);
+      recordUsage("lookbook_download");
+    });
     write(); render();
     document.querySelectorAll("section select, section input:not([data-key]), #occasions input").forEach(el => el.addEventListener("change", () => { read(); render(); recordUsage("wardrobe_plan"); }));
     recordUsage("wardrobe_open");

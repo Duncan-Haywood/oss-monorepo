@@ -197,6 +197,23 @@ export function outfits(items, profile = defaultProfile()) {
 }
 
 /**
+ * Every outfit `outfits()` counts, as { top, bottom, layer }: the same rule
+ * (at most one accent; a layer the colour of the top is skipped).
+ */
+export function enumerateOutfits(items) {
+  const tops = items.filter(i => i.role === "top");
+  const bottoms = items.filter(i => i.role === "bottom");
+  const layers = [null, ...items.filter(i => i.role === "layer")];
+  const list = [];
+  for (const top of tops) for (const bottom of bottoms) for (const layer of layers) {
+    if ([top, bottom, layer].filter(x => x && x.accent).length > 1) continue;
+    if (layer && layer.colourName === top.colourName && layer.id !== "overshirt") continue;
+    list.push({ top, bottom, layer });
+  }
+  return list;
+}
+
+/**
  * A cautious first drop: quantities for the in-house pieces that fit a
  * production budget, starting small. `unitCosts` maps item index to a landed
  * cost (from the studio or the supplier); pieces without one are listed as
