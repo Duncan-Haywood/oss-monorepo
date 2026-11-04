@@ -1,0 +1,4 @@
+"Date","Transaction","Name","Memo","Amount"
+"2026-10-02","CREDIT","ACME CORP PAYROLL","Direct Deposit","3200.00"
+"2026-10-05","DEBIT","SPECTRUM","Web Authorized Pmt","-89.99"
+"2026-10-09","DEBIT","TRADER JOES #123","Debit Purchase","-60.26"
