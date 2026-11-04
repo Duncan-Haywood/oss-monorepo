@@ -2,6 +2,20 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-04 · Milestone 5g: does a minimum-dwell rule rescue the low-skill rows of 5d? (closes 5f's "Next"; pre-registration)
+- Why: 5e and 5f showed no proportional switch margin helps. Untested: forbid a voluntary tack within D minutes of the last tack (`tack.sim_replan(..., dwell=D)`; forced edge tacks still happen and reset the clock). Same windows (every 8th), polar, corridor, tau and forecasts as 5f; D = 0, 10, 20, 40, 80 min at T = 0, 30, 60, 120 min.
+- Predictions (before running): D1 D = 0 reproduces 5f's margin-0 rows exactly (implementation check). D2 at T = 0 the best D cuts tacks per day by at least 40% against D = 0. D3 at T = 0 no D lifts progress to the header-follower's (5f found damping cannot fix persistence forecasts), so the T = 0 gap stays negative. D4 at T = 120 any D of 40 or more costs at least 0.5 points against D = 0.
+- Limits: synthetic forecast error model of 5d; one dwell value for all conditions.
+
+### Outcome of 5g (`experiments/results_sail_dwell.txt`, deterministic, 48 windows per month, about 20 minutes)
+- **D1 held:** D = 0 rows equal 5f's margin-0 rows exactly in both months.
+- **D2 half held:** at T = 0 the best D cuts tacks per day by 55% in January (166 to 74, D = 10) and 39% in July (248 to 152, D = 40), so July misses the 40% line narrowly.
+- **D3 held:** at T = 0 every D loses to the header-follower, and more dwell is worse: January -1.8 to -2.8 points, July -2.6 to -3.9 (D = 0: -1.0, -2.2). Fewer tacks did not buy progress.
+- **D4 held, more strongly:** at T = 120 D = 10 already costs 1.8 points (Jan) and 1.6 (Jul) against D = 0, D = 40 costs 4.3 and 5.5 points; D = 40 falls below the header-follower in both months.
+- Reading: tack count is not the cost driver. Neither a proportional margin (5e, 5f) nor a minimum dwell (5g) rescues hourly replanning from a poor forecast; the better low-skill rule is the header-follower. Together these close off hysteresis-style damping of the replanner.
+- Limits: as above; the tack penalty tau = 30 s is the only cost of a tack here.
+- Next: archived HRRR or GFS winds if a host answers; spatial fields.
+
 ## 2026-11-04 · Milestone 5f: do finer switch margins (0.02 to 0.2) recover 5d's low-skill rows? (closes 5e's "Next") (pre-registration)
 - Why: 5d's "Next". With forecast skill T of 120 min or less the hourly replanner tacks far more often than the header-follower (persistence: 148 to 246 tacks a day) and loses to it. Written in parallel with 5e (a sibling run landed it first, margins 0.5, 1, 2, same `margin` argument); this run was re-labelled 5f and keeps the finer grid 5e listed as its Next. Margin units as in 5e. Script `experiments/run_sail_margin_fine.py` -> `results_sail_margin_fine.txt`: T = 0, 30, 60, 120 min, margin 0, 0.02, 0.05, 0.1, 0.2, every 8th window (half of 5d's, for run time), same data, polar, corridor, tau and error model as 5d. Margin is read off January and July is the holdout, as in 5b.
 - Predictions (written before the run): M1 margin 0 reproduces 5d's rows on the shared windows to within 1 point (implementation check). M2 the best margin cuts tacks per day at T=0 by at least 50% against margin 0. M3 at T=0 the best margin lifts progress to at least the header-follower's in both months (prior 40%). M4 at T=120 the best margin adds under 1 point over margin 0 (the high-skill rows were not chattering). Refuted if the outcome goes the other way.

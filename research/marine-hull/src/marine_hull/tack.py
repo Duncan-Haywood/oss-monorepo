@@ -199,13 +199,14 @@ def smooth(a, width):
     return num / den
 
 
-def sim_replan(p, c, dt, corr, tau, forecast, every=60, margin=0.0):
+def sim_replan(p, c, dt, corr, tau, forecast, every=60, margin=0.0, dwell=0):
     """Receding full-day controller. At step k0 (every `every` steps) call forecast(k0) -> (ps, cs), model rates for steps
     k0..n-1 (shape (2, n-k0)); solve dp_values on them and follow that policy on the TRUE rates until the next replan.
-    The boat tacks only when switching beats staying by `margin` times the best model progress of that step (0 = 5d). The boat's own tack and y carry over. Returns (progress m, number of tacks)."""
+    The boat tacks only when switching beats staying by `margin` times the best model progress of that step (0 = 5d), and only if at least `dwell` steps have passed since the last tack of either kind (0 = 5d). The boat's own tack and y carry over. Returns (progress m, number of tacks)."""
     f = 1.0 - min(1.0, tau / dt)
     n = p.shape[1]
     x, y, sg, n_t, pen = 0.0, 0.0, 0, 0, 0.0
+    last = -10**9
     for k0 in range(0, n, every):
         ps, cs = forecast(k0)
         grid, V = dp_values(ps, cs, dt, corr, tau)
@@ -213,15 +214,15 @@ def sim_replan(p, c, dt, corr, tau, forecast, every=60, margin=0.0):
             j, o = k - k0, 1 - sg
             stay = ps[sg, j] * dt + np.interp(np.clip(y + cs[sg, j] * dt, -corr, corr), grid, V[j + 1, sg])
             sw = ps[o, j] * dt * f + np.interp(np.clip(y + cs[o, j] * dt * f, -corr, corr), grid, V[j + 1, o])
-            if sw > stay + margin * max(ps[0, j], ps[1, j]) * dt:
-                sg = o; n_t += 1; pen = min(1.0, tau / dt)
+            if sw > stay + margin * max(ps[0, j], ps[1, j]) * dt and k - last >= dwell:
+                sg = o; n_t += 1; pen = min(1.0, tau / dt); last = k
             fac = 1.0 - pen
             pen = 0.0
             x += p[sg, k] * dt * fac
             y += c[sg, k] * dt * fac
             if (y >= corr and c[sg, k] > 0) or (y <= -corr and c[sg, k] < 0):
                 y = max(-corr, min(corr, y))
-                sg ^= 1; n_t += 1; pen = min(1.0, tau / dt)
+                sg ^= 1; n_t += 1; pen = min(1.0, tau / dt); last = k
     return x, n_t
 
 

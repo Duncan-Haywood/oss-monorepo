@@ -50,3 +50,14 @@ def test_replan_perfect_forecast_close_to_policy_and_persistence_runs():
     assert abs(x_inf - x_full) < 0.03 * x_full  # same model every replan; state carries over
     x_0, _ = sim_replan(p, c, 60.0, 1500.0, 30.0, lambda k0: lead_forecast(p, c, k0, 0.0), every=120)
     assert x_0 > 0
+
+
+def test_replan_dwell_zero_is_unchanged_and_dwell_cuts_tacks():
+    from marine_hull.tack import sim_replan
+    p, c = synth(240, 5)
+    fc = lambda k0: (p[:, k0:], c[:, k0:])
+    x0, n0 = sim_replan(p, c, 60.0, 1500.0, 30.0, fc, every=60)
+    xd, nd = sim_replan(p, c, 60.0, 1500.0, 30.0, fc, every=60, dwell=0)
+    assert (x0, n0) == (xd, nd)
+    _, n40 = sim_replan(p, c, 60.0, 1500.0, 30.0, fc, every=60, dwell=40)
+    assert n40 <= n0
