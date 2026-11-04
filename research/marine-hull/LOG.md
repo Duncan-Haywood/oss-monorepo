@@ -7,6 +7,15 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Predictions (written before the run): M1 margin 0 reproduces 5d's rows on the shared windows to within 1 point (implementation check). M2 the best margin cuts tacks per day at T=0 by at least 50% against margin 0. M3 at T=0 the best margin lifts progress to at least the header-follower's in both months (prior 40%). M4 at T=120 the best margin adds under 1 point over margin 0 (the high-skill rows were not chattering). Refuted if the outcome goes the other way.
 - Limits: same synthetic error model as 5d; margin is one scalar, not a hysteresis or minimum-dwell rule.
 
+### Outcome of 5e (`experiments/results_sail_margin.txt`, deterministic, 48 windows per month, about 9 minutes)
+- **M1 held:** margin 0 matches 5d within 0.5 points on the halved window set (T=120: +3.4 Jan, +3.3 Jul against 5d's +3.0, +3.2; T=0: -1.0, -2.2 against -0.2, -2.6).
+- **M2 refuted:** at T=0 no margin cuts tacks: 166 per day at margin 0 against 166 to 173 at 0.02 to 0.2 (January), 248 against 232 to 244 (July). The chatter is not near-ties that a margin would suppress; a persistence forecast produces edge-forced and large-gain switches.
+- **M3 refuted:** at T=0 no margin reaches the header-follower: best -1.0 (Jan, margin 0) and -2.2 (Jul, margin 0); margins 0.02 to 0.2 are -1.1 to -1.5 and -2.5 to -2.6.
+- **M4 held, more strongly:** at T=120 margin 0 is the best in July (+3.3) and within noise in January (+3.4); every margin of 0.1 or more costs 0.6 to 1.1 points. A margin never beat margin 0 by more than 0.2 points anywhere, and at T=30 and 60 it lost 0.4 to 2 points (T=30, margin 0.2: +0.2 Jan, -0.4 Jul).
+- Reading: tack margin is not the missing piece for low-skill forecasts. Below about 30 minutes of skill the better rule is the header-follower itself, not a damped replanner. The 5d result stands as it was.
+- Limits: as above; a minimum-dwell or hysteresis rule, not a proportional margin, is untested. Margins were not chosen on January and checked on July because none helped in either month.
+- Next: archived HRRR or GFS winds if a host answers; a dwell-time rule; spatial fields.
+
 ## 2026-11-04 · Milestone 5d: how much of 5c's +5 point gain survives a forecast whose error grows with lead time? (pre-registration)
 - Why: 5c's "Next". `tack.sim_replan` replans hourly with `tack.lead_forecast`: model rate at lead L = a(L) x truth smoothed to 15 min + (1-a(L)) x trailing-hour mean (persistence), a(L)=exp(-L/T), T = 0 (persistence), 30, 60, 120, 240 min, inf (5c's knowledge). Script `experiments/run_sail_lead.py` -> `results_sail_lead.txt`; every 4th window, same data, polar, corridor and tau as 5c. This is a synthetic error model, not an archived NWP forecast (no such host tried yet).
 - Outcome (`results_sail_lead.txt`, deterministic, 96 windows per month, 5 tests in `test_tack_policy.py` pass; run takes about 12 minutes):
