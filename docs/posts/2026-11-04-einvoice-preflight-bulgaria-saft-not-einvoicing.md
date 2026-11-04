@@ -2,7 +2,7 @@
 title: "Bulgaria's \"2026 to 2030 phase-in\" is SAF-T, not e-invoicing"
 date: 2026-11-04
 seo_title: "Bulgaria e-invoicing: the 2026-2030 phase-in is SAF-T"
-description: "Pages disagree on Bulgaria's e-invoicing dates because two obligations get mixed up: SAF-T is phasing in 2026 to 2030, while the e-invoicing draft names 1 January 2028."
+description: "Pages disagree on Bulgaria's e-invoicing dates because two duties get mixed up: SAF-T phases in 2026 to 2030, while the e-invoicing draft names 1 January 2028."
 tags: [einvoice-preflight, e-invoicing, bulgaria]
 ---
 
