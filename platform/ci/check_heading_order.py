@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Report venture pages whose headings skip a level (an h2 followed by an h4).
+"""Fail if a venture page skips a heading level (h1 straight to h3) or has two h1s.
 
-Screen-reader users navigate by heading level; a jump down of more than one
-level (h2 -> h4) reads as missing content. Going back up any distance is fine.
+Screen-reader users navigate by heading; a skipped level reads as missing
+content. Script, style, comment and `<template>` text is ignored. Pages with
+no h1 at all are listed but allowed (client-rendered app shells fill it in).
 
-    python3 platform/ci/check_heading_order.py [--root DIR] [--fail]
+    python3 platform/ci/check_heading_order.py [--root DIR]   # exit 1 if any found
 """
 import argparse
 import re
@@ -13,24 +14,25 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 STRIP = re.compile(r"<script\b.*?</script>|<style\b.*?</style>|<!--.*?-->|<template\b.*?</template>", re.S | re.I)
-HEAD = re.compile(r"<h([1-6])\b", re.I)
+HEADING = re.compile(r"<h([1-6])\b", re.I)
 
 
-def skips(text: str):
-    """Return (from_level, to_level) for each downward jump of more than one."""
+def heading_problems(text: str):
+    """Return problem strings for one page: skipped levels and repeated h1."""
+    levels = [int(x) for x in HEADING.findall(STRIP.sub("", text))]
     out, prev = [], 0
-    for m in HEAD.finditer(STRIP.sub("", text)):
-        lvl = int(m.group(1))
-        if prev and lvl > prev + 1:
-            out.append((prev, lvl))
-        prev = lvl
+    for lv in levels:
+        if prev and lv > prev + 1:
+            out.append(f"h{prev} then h{lv}")
+        prev = lv
+    if levels.count(1) > 1:
+        out.append(f"{levels.count(1)} h1 elements")
     return out
 
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--root", default=str(ROOT / "ventures"))
-    ap.add_argument("--fail", action="store_true", help="exit 1 if any found")
     args = ap.parse_args(argv)
     pages = bad = 0
     for page in sorted(Path(args.root).rglob("*.html")):
@@ -41,12 +43,12 @@ def main(argv=None):
         except (OSError, UnicodeDecodeError):
             continue
         pages += 1
-        found = skips(text)
+        found = heading_problems(text)
         if found:
             bad += 1
-            print(f"{page}: {len(found)} skip(s), first h{found[0][0]} -> h{found[0][1]}")
-    print(f"{pages} pages, {bad} with a skipped heading level")
-    return 1 if (bad and args.fail) else 0
+            print(f"{page}: {'; '.join(found[:3])}")
+    print(f"{pages} pages, {bad} with a heading-order problem")
+    return 1 if bad else 0
 
 
 if __name__ == "__main__":
