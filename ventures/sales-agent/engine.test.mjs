@@ -298,6 +298,20 @@ test("seventh set (2026-11-03c): 24 opt-outs scored once at 10 missed before the
   assert.equal(s.right, 26);
 });
 
+test("eighth set (2026-11-04): quoted footers and signatures stripped as in production; 14/20 before the change (6 misses, 2 of them my label errors), 20/20 after; a tuned set", () => {
+  const s = score(load("fresh-2026-11-04.jsonl"));
+  assert.equal(s.n, 20);
+  assert.equal(s.unsubMissed, 0);
+  assert.equal(s.right, 20);
+});
+
+test("an unsubscribe link line inside an auto-reply is not an opt-out, but a first-person ask in one still is", () => {
+  const away = "I am out of the office until Nov 12. To stop these messages unsubscribe in settings.";
+  assert.equal(triage({ subject: "Automatic reply", body: away }, "2026-11-04").category, "out_of_office");
+  assert.equal(triage({ subject: "Automatic reply", body: "I am out of the office until Nov 12. Please unsubscribe me." }, "2026-11-04").category, "unsubscribe");
+  assert.equal(triage({ subject: "Re: hi", body: "I'd rather not get any more of these." }, "2026-11-04").category, "unsubscribe");
+});
+
 test("\"not interested in switching unless you integrate\" is an objection, not a decline", () => {
   const t = triage({ subject: "Re: hi", body: "Not interested in switching unless you integrate with Xero." }, "2026-11-03");
   assert.equal(t.category, "objection");
