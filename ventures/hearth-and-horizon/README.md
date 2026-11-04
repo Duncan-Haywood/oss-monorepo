@@ -276,3 +276,4 @@ repository, so it can always be copied and re-hosted under its licence.
 
 [Sponsor on GitHub](https://github.com/sponsors/Duncan-Haywood).
 - [The Roof Fund That Fell Behind](stories/the-roof-fund-that-fell-behind.md) (Hearth & Horizon; Saint Hild's hall, invented, near Whitby, North Yorkshire, 15 Feb 2048). A 40,000 roof fund at 3% while the roof's price rises 4%: in 8 years 33,011 against 54,743, so about 5,444 a year is needed, not 3,000. Fiction, text only.
+- [The Soup for Ninety](stories/the-soup-for-ninety.md) (Hearth & Horizon; Saint Ita's hall, invented, near Listowel, Co. Kerry, 12 Nov 2050). A soup for 12 scaled by 7.5 to 31.5 litres in a 40 litre pot: 75 minutes to heat on a 3 kW ring, but the pot cools far slower than shallow trays, so leftovers go into four trays. Fiction, text only.
