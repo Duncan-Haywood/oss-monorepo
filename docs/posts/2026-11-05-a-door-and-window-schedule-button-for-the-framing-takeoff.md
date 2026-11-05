@@ -1,6 +1,6 @@
 ---
 title: "A door and window schedule you can download from the framing takeoff page"
-seo_title: "Door and window schedule CSV from a framing takeoff, free in the browser"
+seo_title: "Door and window schedule CSV from a framing takeoff, in the browser"
 date: 2026-11-05
 tags: [wall-framing-takeoff, construction, estimating]
 description: "The wall framing takeoff page now downloads a door and window schedule as CSV: marks, counts, rough and unit sizes, headers, sill heights and locations."
