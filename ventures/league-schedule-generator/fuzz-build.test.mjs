@@ -55,3 +55,9 @@ test("the multi-division validator notices every seeded fault", () => {
   assert.equal(r.status, 0, r.stdout + r.stderr);
   assert.match(r.stdout, /0 missed/);
 });
+
+test("unavailable dates, withdrawals, calendars, deadlines, bookings and facility cost hold on random multi-division leagues", () => {
+  const r = spawnSync(process.execPath, ["eval/fuzz-division-reports.mjs", "40", "3"], { cwd: new URL(".", import.meta.url).pathname, encoding: "utf8" });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.match(r.stdout, /invalid 0/);
+});
