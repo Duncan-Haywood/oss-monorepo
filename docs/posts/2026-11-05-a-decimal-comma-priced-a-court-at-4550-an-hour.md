@@ -2,7 +2,7 @@
 title: "A decimal comma priced a tennis court at 4,550 an hour"
 seo_title: "League schedule facility cost: decimal commas and per-season rates"
 date: 2026-11-05
-tags: [league-schedule-generator, bug, facility-cost]
+tags: [league-schedule-generator, bugs, facility-cost]
 description: "The league schedule maker's season facility cost read 45,50 as 4550 and treated a per-season quote as hourly. Both fixed, with tests."
 ---
 
