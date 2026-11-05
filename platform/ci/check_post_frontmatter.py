@@ -41,6 +41,11 @@ def problems(name, text, today=None):
     desc = fields.get("description", "").strip("\"'")
     if len(desc) > 160:  # writing.mjs throws on this; PR builds fail, so say so early
         out.append(f"description is {len(desc)} characters; keep it to 160")
+    # Search results cut a title near 60 characters and the longest 14 of 2,299 posts run
+    # 111 to 122; posts from 2026-11-05 on keep to 110 so the part that gets cut is not the point.
+    title = fields.get("title", "").strip("\"'")
+    if prefix and prefix.group(0) >= "2026-11-05" and len(title) > 110:
+        out.append(f"title is {len(title)} characters; keep it to 110")
     if len(desc) < 60:  # a stub ("d", a filename) gives a search result or an answer engine nothing to quote
         out.append(f"description is {len(desc)} characters; write at least 60 so a result says what the post is")
     # writing.mjs throws on this too: three posts on 2026-10-29 broke every site build.
