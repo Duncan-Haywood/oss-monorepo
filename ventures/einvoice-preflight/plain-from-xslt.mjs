@@ -181,6 +181,10 @@ function schematronFromSchxslt(root, file) {
   if (!patterns.size) throw new Error(`${file}: no rules found`);
   const ns = new Map();
   for (const el of root.getElementsByTagNameNS(SVRL, "ns-prefix-in-attribute-values")) ns.set(el.getAttribute("prefix"), el.getAttribute("uri"));
+  // The stylesheet's own xmlns declaration is what an XSLT engine resolves a prefix with, so it wins over the svrl list.
+  // ZATCA's list binds sbc to CommonSignatureComponents-2 (a typo upstream) while the stylesheet binds it to
+  // SignatureBasicComponents-2; trusting the list made BR-KSA-29 fire on every genuine signed invoice.
+  for (const [prefix, uri] of ns) { const declared = root.lookupNamespaceURI(prefix); if (declared && declared !== uri) ns.set(prefix, declared); }
   for (const prefix of ["xs", "xsd"]) if (!ns.has(prefix)) ns.set(prefix, "http://www.w3.org/2001/XMLSchema");
   const parts = [`<schema xmlns="${SCH}" xmlns:xsl="${XSL}">`];
   for (const [prefix, uri] of ns) parts.push(`<ns prefix="${esc(prefix)}" uri="${esc(uri)}"/>`);
