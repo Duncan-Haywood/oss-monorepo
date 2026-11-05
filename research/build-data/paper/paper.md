@@ -173,6 +173,8 @@ Austin application-to-issue, run afterwards with the same rules (1 seed, one job
 
 Austin issue-to-completion, same rules (1 seed; `../results/conformal_tau_drift_austin_i2c_{2021..2024}.json`, `python3 src/conformal_tau_backtest.py austin --i2c`): H2g is refuted on both halves. Test coverage was 0.786 (2022, fixed-pair fallback), 0.842 (2023) and 0.835 (2024), so 1 of 3 years is inside 77 to 83%; width fell by 0%, 6% and 18%, so 1 of 3 clears 15%. Interval widths are 240 to 310 days at 80%, and the fixed pair's coverage drifted 0.731, 0.786, 0.837, 0.819 over 2021 to 2024. Limits: 1 seed, 3 cells, 3,533 negative build times dropped. A narrow quantile pair buys a large width gain only where the target is zero-inflated (Chicago and SF application-to-issue), not in either Austin target.
 
+San Francisco issue-to-completion, same rules (1 seed; `../results/conformal_tau_drift_sf_i2c_{2021..2024}.json`, `python3 src/conformal_tau_backtest.py sf --i2c`; `../LOG.md`, session 32): test coverage was 0.818 [0.810, 0.826] (2022), 0.830 [0.822, 0.837] (2023) and 0.857 [0.846, 0.867] (2024), so 2 of 3 years are inside 77 to 83%; width fell by 12%, 17% and 28%, so 2 of 3 clear 15%. Each half therefore holds when counted separately, unlike Austin i2c, but only 2023 passes both in the same year (2022 is not narrow enough, 2024 over-covers), so the strict joint reading is 1 of 3. Widths are 290 to 370 days at 80%. Limits: 1 seed, 3 cells, SF only (Chicago has no completion date), backtest years only.
+
 ### 4.3 Which fields (H3, as worded)
 
 Permutation importance: the smallest number of fields reaching 80% of the total
@@ -221,7 +223,7 @@ tighter quantile levels (4.2a) can halve the width, but pick them with drift in 
 ## 7 To do before submission
 
 1. A neural net baseline; per-library tuning (Austin a2i CatBoost gap).
-2. A year-ahead (Y-2 versus Y-1) calibration check for the quantile pair (4.2b did not solve Chicago); SF i2c for H2g (Austin a2i and i2c H2g are in 4.2c).
+2. A year-ahead (Y-2 versus Y-1) calibration check for the quantile pair (4.2b did not solve Chicago); (H2g now run for every city and target that has one; see 4.2c).
 3. Spread over draws and i2c for 4.5; first-n-rows ordering instead of random draws.
 4. Multiple test years for H1; a fourth city after a licence check.
 5. Publish the permit-duration prior data file for `ventures/` (milestone 7).
