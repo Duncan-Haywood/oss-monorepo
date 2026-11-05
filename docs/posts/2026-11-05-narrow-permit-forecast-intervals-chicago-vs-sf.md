@@ -1,6 +1,6 @@
 ---
 title: "Can a narrower permit-time forecast stay honest? Chicago says no, San Francisco says yes"
-seo_title: "Permit duration prediction intervals: Chicago vs San Francisco coverage"
+seo_title: "Permit duration prediction intervals: Chicago vs SF coverage"
 date: 2026-11-05
 tags: [construction, permits, forecasting, data]
 description: "A forecast interval for how long a building permit takes can be made 26 to 71% narrower, but only in San Francisco does it keep its promised 80% coverage."
