@@ -68,3 +68,19 @@ test('bibEntry escapes backslash, tilde and caret so titles cannot inject LaTeX'
   const e = bibEntry('a', 'x \\alpha ~ y ^ z');
   assert.match(e, /title = \{x \\textbackslash\{\}alpha \\textasciitilde\{\} y \\textasciicircum\{\} z\}/);
 });
+
+test('run: default mode is a dry run (logs DRY RUN, not the --check wording)', async () => {
+  const root = await fixture();
+  const logs = [];
+  await run({ root, log: (m) => logs.push(m) });
+  assert.match(logs.join('\n'), /^DRY RUN: 2 research projects/);
+});
+
+test('CLI: --check exits 1 on stale files and 0 once current (entrypoint guard runs)', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const script = path.join(import.meta.dirname, 'citation.mjs');
+  const r = spawnSync(process.execPath, [script, '--check'], { encoding: 'utf8' });
+  // Repo-root citation files are kept current by CI; either way the guard must print its verdict.
+  assert.match(r.stdout, /citation files are current|stale:/);
+  assert.equal(r.status, /stale:/.test(r.stdout) ? 1 : 0);
+});
