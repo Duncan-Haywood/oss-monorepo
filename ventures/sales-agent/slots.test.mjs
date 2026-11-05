@@ -100,3 +100,14 @@ test("numeric dates, time before the day, one slot for 'Monday the 9th at 2pm'",
   // 11/12 reads either way: no invented date
   assert.equal(findSlots("11/12", t).length, 0);
 });
+
+test("four-digit times are never guessed; 'morning at 10am', 'Friday the 13th', '10am on the 12th' give one exact slot", () => {
+  const t = "2026-11-05";
+  const f = (s) => findSlots(s, t).map((x) => [x.date, x.time, x.part]);
+  // "1430" used to be read as 14:00, an invented time; now the day stands alone and the draft asks
+  assert.deepEqual(f("Friday at 1430"), [["2026-11-06", null, null]]);
+  assert.deepEqual(f("Friday 14:30"), [["2026-11-06", "14:30", null]]);
+  assert.deepEqual(f("tomorrow morning at 10am"), [["2026-11-06", "10:00", null]]);
+  assert.deepEqual(f("Friday the 13th at 2pm"), [["2026-11-13", "14:00", null]]);
+  assert.deepEqual(f("10am on the 12th"), [["2026-11-12", "10:00", null]]);
+});
