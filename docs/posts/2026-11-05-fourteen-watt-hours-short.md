@@ -1,9 +1,9 @@
 ---
 title: "Fourteen watt-hours short: an e-bike pilgrimage as an energy budget"
-seo_title: "Will an e-bike battery last 64 km and 1,100 m of climbing? A worked energy budget"
+seo_title: "Will an e-bike battery last 64 km and 1,100 m? A worked budget"
 date: 2026-11-05
 tags: [fiction, hearth-and-horizon, ebikes, estimation]
-description: "A new Hearth & Horizon story works out whether a 400 Wh e-bike battery covers 64 km and 1,100 m of climbing. It comes out 14 Wh short, which is inside the error."
+description: "A new Hearth & Horizon story works out if a 400 Wh e-bike battery covers 64 km and 1,100 m of climbing. It is 14 Wh short, inside the error."
 ---
 
 The newest [Hearth & Horizon](/ventures/hearth-and-horizon/) story, *Fourteen Watt-Hours Short*, is a back-of-envelope energy budget for a retired postman who wants to ride a 64 km parish pilgrimage on an e-bike.
