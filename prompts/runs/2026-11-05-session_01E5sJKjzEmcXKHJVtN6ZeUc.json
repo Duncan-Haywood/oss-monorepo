@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13245",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,17 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-05-a-dxf-parser-that-threw-on-null.md",
+    "ventures/wall-framing-takeoff/ROADMAP.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Small slice: hostile-input sweep of dxf/drawings/risk; fixed dxf non-string crash. dxf suites pass (18). No flagship next: rewrite (no milestone completed). Cost attach skipped.",
   "corrections": [],
   "redteam": null
 }
