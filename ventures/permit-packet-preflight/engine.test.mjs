@@ -35,3 +35,10 @@ test('report text', () => {
   assert.match(t, /not a content check/);
   assert.match(report({ ok: false, errors: ['e'] }), /Cannot check/);
 });
+test('near miss is named but not counted as found', () => {
+  const r = preflight('Structural calculations\nSite plan', ['site-plan.pdf', 'calcs-final.pdf'], { threshold: 0.9 });
+  const row = r.rows.find(x => x.item === 'Structural calculations');
+  assert.equal(row.status, 'missing');
+  assert.equal(row.closest, 'calcs-final.pdf');
+  assert.match(report(r), /closest file: calcs-final\.pdf/);
+});
