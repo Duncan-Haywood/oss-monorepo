@@ -425,3 +425,15 @@ labels are added here (the source has row numbers; the series is 30 years of fou
   (the Rdatasets collection; AER is GPL-2/3 as software, the 240 rates are a published statistic).
 - **Cite:** Franses, P. H. (1998). *Time Series Models for Business and Economic Forecasting*. Cambridge UP.
 - **Used by:** `german-unemployment.test.mjs`.
+
+# Example data: Florida frozen orange juice prices, 1950-2000
+
+`frozen-juice.csv`: monthly price index of frozen orange juice concentrate (`price`), the producer price index (`ppi`)
+and `fdd`, the month's freezing degree days in Orlando, 612 months, from `FrozenJuice` in the R package AER (Stock and
+Watson, *Introduction to Econometrics*). Month labels are added here. The big-`fdd` months (19 or more) are the
+measured freeze shocks used as ground truth.
+
+- **Retrieved:** 2026-11-05 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/AER/FrozenJuice.csv>
+  (Rdatasets; AER is GPL-2/3 as software, the values are a published statistic).
+- **Used by:** `frozen-juice.test.mjs`, `eval/frozen-juice.mjs`.
