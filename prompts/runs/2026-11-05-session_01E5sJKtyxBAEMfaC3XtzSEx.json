@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13338",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -172,7 +172,7 @@
         "file": "ventures/babysitting-business-kit/intake.mjs",
         "issue": "meet-and-greet.html had a hand-added <main> landmark the generator lacked, so the page test was red on main; generator now emits <main>, test asserts it",
         "patched": true,
-        "patched_in": "this run's PR"
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13338"
       }
     ]
   }
