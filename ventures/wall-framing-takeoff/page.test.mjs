@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
-for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "insulation-calculator.html", "trim-calculator.html", "roof-calculator.html", "gutter-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html", "ventilation-calculator.html", "stud-drilling-checker.html"]) {
+for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "insulation-calculator.html", "trim-calculator.html", "roof-calculator.html", "gutter-calculator.html", "flooring-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html", "ventilation-calculator.html", "stud-drilling-checker.html"]) {
   test(`${name} carries the disclaimer, privacy line and sponsor link`, () => {
     const html = page(name);
     assert.match(html, /No warranty/);
@@ -593,7 +593,7 @@ test("the deck lumber calculator page: FAQ matches its data, default inputs give
 });
 
 test("every page links to every other page (internal linking for readers and crawlers)", () => {
-  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "insulation-calculator", "trim-calculator", "roof-calculator", "gutter-calculator", "deck-lumber-calculator", "schedule-calculator", "bid-leveling-calculator", "change-order-calculator", "ventilation-calculator", "stud-drilling-checker"].map((n) => n + ".html");
+  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "insulation-calculator", "trim-calculator", "roof-calculator", "gutter-calculator", "flooring-calculator", "deck-lumber-calculator", "schedule-calculator", "bid-leveling-calculator", "change-order-calculator", "ventilation-calculator", "stud-drilling-checker"].map((n) => n + ".html");
   for (const f of pages) {
     const html = page(f);
     for (const other of pages) if (other !== f) assert.ok(html.includes(`<a href="${other}">`), `${f} does not link ${other}`);
@@ -755,4 +755,22 @@ test("the stud drilling checker page: FAQ matches its data, figures in the answe
   assert.equal(p.size, 3.625); assert.equal(p.usedPct, 65.9);
   const d = one({ kind: "bore", pipe: "3", doubled: true }, "2x6", true);
   assert.equal(d.maxSize, 3.3); assert.match(d.fix, /2x8/);
+});
+
+test("the flooring calculator page: FAQ matches its data and the stated figures are what the engine gives", async () => {
+  const html = page("flooring-calculator.html");
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("([\w-]+)"\)/g)) assert.ok(ids.has(m[1]), m[1]);
+  const { layoutFlooring } = await import("./flooring.mjs");
+  const p = layoutFlooring({ rooms: [{ width: 180, depth: 144, kind: "plank" }] }).plank;
+  assert.equal(p.boxes, 10); // 180 x 1.07 = 192.6 sq ft / 20
+  const t = layoutFlooring({ rooms: [{ width: 96, depth: 60, kind: "tile" }] }).tile;
+  assert.equal(t.tiles, 44); assert.equal(t.thinsetBags, 1); assert.equal(t.groutLb.toFixed(1), "2.6");
+  const c = layoutFlooring({ rooms: [{ width: 144, depth: 144, kind: "carpet" }] }).carpet;
+  assert.equal(c.rollLinearFeet, 12.5); assert.equal(c.rollSqYd.toFixed(1), "16.7"); assert.equal(c.padSqYd.toFixed(1), "16.8"); assert.equal(c.tackFeet, 48);
 });
