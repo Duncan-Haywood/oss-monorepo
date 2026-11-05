@@ -53,3 +53,13 @@ test("text and csv render, and csv neutralises formulas", () => {
   assert.match(procurementText(p).join("\n"), /LATE/);
   assert.match(procurementCsv(p), /'=SUM\(A1\)/);
 });
+
+test("a cost that is NaN, infinite, negative or text is refused, not summed", () => {
+  const id = s.rows[0].id;
+  for (const cost of [NaN, Infinity, -500, "900", 1e12]) {
+    const r = procurement(s, [{ item: "Trusses", for: id, leadDays: 20, cost }]);
+    assert.equal(r.ok, false, String(cost));
+    assert.match(r.errors[0], /cost must be a number/);
+  }
+  assert.equal(procurement(s, [{ item: "Trusses", for: id, leadDays: 20, cost: 0 }]).ok, true);
+});

@@ -34,6 +34,7 @@ export function procurement(sched, orders, today) {
     const lead = o.leadDays, buf = o.bufferDays ?? 0;
     if (!(typeof lead === "number" && Number.isFinite(lead) && lead >= 0 && lead <= 3650)) { errors.push(`${tag}: leadDays must be a number from 0 to 3650.`); return; }
     if (!(typeof buf === "number" && Number.isFinite(buf) && buf >= 0 && buf <= 365)) { errors.push(`${tag}: bufferDays must be a number from 0 to 365.`); return; }
+    if (o.cost != null && !(typeof o.cost === "number" && Number.isFinite(o.cost) && o.cost >= 0 && o.cost <= 1e9)) { errors.push(`${tag}: cost must be a number from 0 to 1,000,000,000.`); return; }
     const need = act.startDate;
     const orderBy = weekdayBack(shift(need, -Math.ceil(lead) - Math.ceil(buf)));
     const row = { item: tag, for: act.id, activity: act.name, supplier: o.supplier ?? "", leadDays: lead, bufferDays: buf, needDate: need, orderBy, critical: !!act.critical, cost: typeof o.cost === "number" ? o.cost : null, status: "open", daysToOrder: null, daysLate: 0, earliestStart: null };
