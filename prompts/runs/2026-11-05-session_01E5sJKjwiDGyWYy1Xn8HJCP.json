@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13385",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -172,7 +172,7 @@
         "file": "ventures/stranded-branch-finder/index.html",
         "issue": "Shipped as a crawlable orphan, turning platform/pages/siblings.test.mjs red on main (budget 0, measured 1). Fixed by linking it from repository-branch-hygiene's footer, with a page.test.mjs assertion.",
         "patched": true,
-        "patched_in": "this run's PR"
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13385"
       }
     ]
   }
