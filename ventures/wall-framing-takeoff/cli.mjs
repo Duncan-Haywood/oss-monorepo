@@ -3,6 +3,7 @@
 // Wall framing takeoff from the terminal: a plan JSON in, an order, a cut
 // list and per-wall layout marks out.
 import { readFileSync } from "node:fs";
+import { expandSteppedWalls } from "./stepwall.mjs";
 import { sheathe, defaultSheathing, sheathingText, nailerCuts } from "./sheathing.mjs";
 import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
 import { layoutDeck, deckText } from "./deck.mjs";
@@ -164,7 +165,14 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
       if (flags.has("--plan-only")) return { code: 0, out: JSON.stringify(r.plan, null, 2) + `\n\nNotes (not part of the JSON):\n${note}` };
       plan = normalise({ ...samplePlan(), ...r.plan });
       dxfNotes = `Read ${r.stats.walls} walls (${r.stats.exterior} exterior, ${r.stats.interior} interior), ${r.stats.tees} tees, ${r.stats.openings} openings from ${args[0]}:\n${note}\n\n`;
-    } else { const raw = JSON.parse(readInput(args[0])); keyNote = misspeltPlanKeysNote(misspeltPlanKeys(raw)); plan = normalise(raw); }
+    } else {
+      const raw = JSON.parse(readInput(args[0])); keyNote = misspeltPlanKeysNote(misspeltPlanKeys(raw)); plan = normalise(raw);
+      for (const w of plan.walls || []) if (w && typeof w.studLength === "string") w.studLength = parseLength(w.studLength);
+      for (const w of plan.walls || []) if (w && Array.isArray(w.steps)) for (const st of w.steps) if (st) for (const k of ["at", "studLength"]) if (typeof st[k] === "string") st[k] = parseLength(st[k]);
+      const ex = expandSteppedWalls(plan);
+      if (!ex.ok) return { code: 1, out: `The stepped walls have problems:\n${ex.errors.map((e) => `  - ${e}`).join("\n")}` };
+      plan = ex.plan; keyNote += ex.notes.map((n) => `Note: ${n}\n`).join("");
+    }
   } catch (e) {
     return { code: 2, out: `Could not read the plan: ${e instanceof Error ? e.message : e}` };
   }
