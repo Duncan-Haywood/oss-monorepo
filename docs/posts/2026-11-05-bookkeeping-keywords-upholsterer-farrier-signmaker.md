@@ -1,6 +1,6 @@
 ---
 title: "Bank descriptors for upholsterers, farriers, sign makers, auto-glass techs and soap makers"
-seo_title: "Auto-categorise bank transactions for five more trades"
+seo_title: "Auto-categorise bank transactions: upholsterers, farriers, sign makers"
 date: 2026-11-05
 tags: [ai-bookkeeper, categorization, testing]
 description: "Probe 28: 25 descriptors for five trades. 5 filed right before the fix; 18 had no suggestion and two wrong rows were my own expectations."
