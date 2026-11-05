@@ -2,6 +2,17 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-05 · Milestone 7v: does the k = 3 negative-cell guard hold at 1 to 2% prevalence on GoEmotions? (planned before the 500-draw runs; a 5-draw smoke run only checked the script executes: fear prevalence 1.22%, J 0.34)
+- Why: 7u's open item, a 1 to 2% GoEmotions category. Same script as 7t (`experiments/h7t_goemotions.py`), categories fear (about 1.2%, weak coder) and sadness (about 2%).
+- **Prediction:** k3 covers 93% or more in both (the guard falls back to pooled when the coder-negative cell has under 3 pilot positives, which at 1% and n = 1000 is common). Pooled with fitted lambda may undercover at 1.2% (normal interval, 12 positives in the pilot): if pooled is below 93% then k3 is too, and the finding is that the normal interval, not the guard, fails. Refuted if k3 covers under 93% while pooled covers 93% or more.
+
+### Outcome (`experiments/h7t_fear.txt`, `h7t_sadness.txt`; 500 draws, coverage +/- 1.9 points; one run each)
+- Fear (prevalence 1.22%, real coder J 0.339): pooled 95.2% / 0.609 pts; g10 96.4 / 0.600 (cells in 9%); **k3 94.8 / 0.562** (cells in 70%); k5 96.2 / 0.593.
+- Sadness (2.22%, J 0.412): pooled **92.4** / 0.802; g10 94.2 / 0.753; **k3 95.2 / 0.726** (cells in 94%); k5 94.6 / 0.754.
+- Prediction supported: k3 covers 94.8 and 95.2%, and not refuted (pooled does not cover more than k3 anywhere). k3 is 7.7% (fear) and 9.5% (sadness) narrower than pooled, a smaller gain than at 4 to 5% (10 to 21%), because these coders are weak (J 0.34 to 0.41). Pooled with a fitted lambda sits at 92.4% on sadness, 0.6 points under the 93% bar and inside the +/- 1.9 binomial noise, so I do not call it a failure. Unlike 7t (J 0.77 to 0.87), g10 does not undercover here: with a weak coder the cells are rarely informative enough to hurt.
+- Limits: two categories, one corpus, one non-LLM coder family, 500 draws, one run each. The k = 3 value still comes from NaijaSenti. Not run: a library-level coverage check with `neg_guard=3` on `plan_audit` end to end (the 7t script goes through `plan_audit` with tau set by the k rule, so the screen itself is not exercised).
+- Next: h7g/7h-style rerun with `neg_guard=3` inside `screen`; a 0.3 to 0.5% category (Wilson-type interval problem).
+
 ## 2026-11-05 · Milestone 7u: the k = 3 negative-cell guard becomes library code (`neg_guard`; no experiment)
 - `audit_design.screen` and `plan_audit` take `neg_guard` (default 0, so every earlier check is unchanged); `NEG_GUARD = 3` is the value 7r to 7t supported. With it, a pilot with fewer than 3 human positives among coder-negative items plans a pooled audit. Test `test_neg_guard_pools_when_the_coder_negative_cell_has_no_positives`; 23 tests pass.
 - Not changed: the default is still the tau/guard-20 screen, because k = 3 was chosen on NaijaSenti and confirmed on only two GoEmotions categories with one non-LLM coder. A library-level coverage rerun (h7g/h7h style) with `neg_guard=3` is the open item, as is a 1 to 2% GoEmotions category.
