@@ -139,9 +139,13 @@ export function paramsOf(fn) {
   return '';
 }
 
+let splitCache = { src: null, lines: [] };
+
 /** Comment block directly above `export ... name`, or the module's leading comment for name === null. */
 export function commentFor(src, name) {
-  const lines = src.split('\n');
+  // describe() asks once per export of the same module: split it once.
+  if (splitCache.src !== src) splitCache = { src, lines: src.split('\n') };
+  const lines = splitCache.lines;
   const take = (from, step) => {
     const out = [];
     for (let i = from; i >= 0 && i < lines.length; i += step) {
@@ -157,7 +161,7 @@ export function commentFor(src, name) {
   };
   if (name === null) return take(lines.findIndex((l) => l.trim() !== '' && !l.startsWith('#!')), 1);
   const re = new RegExp(`^\\s*export\\s+(?:async\\s+)?(?:function\\*?|const|let|class)\\s+${name.replace(/\$/g, '\\$')}\\b`);
-  const at = lines.findIndex((l) => re.test(l));
+  const at = lines.findIndex((l) => l.includes(name) && re.test(l));
   return at > 0 ? take(at - 1, -1) : '';
 }
 
