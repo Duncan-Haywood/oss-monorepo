@@ -1,6 +1,6 @@
 ---
 title: "When to order the trusses so the framing crew is not waiting"
-seo_title: "Order-by dates for long-lead building materials from a construction schedule"
+seo_title: "Order-by dates for long-lead materials from a schedule"
 date: 2026-11-05
 tags: [construction, scheduling, open-source]
 description: "wall-framing-takeoff now turns a construction schedule plus your supplier lead times into order-by dates, and flags what is already late and by how many days."
