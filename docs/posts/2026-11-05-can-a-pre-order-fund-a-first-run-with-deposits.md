@@ -1,8 +1,8 @@
 ---
 title: "Can a deposit-only pre-order fund a first clothing run?"
-seo_title: "Pre-order deposits for a clothing brand: the cash gap before the factory is paid"
+seo_title: "Pre-order deposits for a clothing brand: the cash gap"
 date: 2026-11-05
-tags: [clothing-design-studio, preorder, product]
+tags: [clothing-design-studio, pre-orders, product]
 description: "The pre-order planner now models a deposit instead of full payment, and shows the cash you must front before the balances arrive."
 ---
 
