@@ -125,10 +125,26 @@ const escapeAttr = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;
 // The whole tag, tolerating a `>` inside a quoted attribute value.
 const META = /<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi;
 
+// metaContent runs about fifteen times on one page's HTML: scan the tags once
+// per string (a one-slot memo) and compile each attr/key matcher once.
+let metaTagsFor = null;
+let metaTagsOf = [];
+const metaMatchers = new Map();
+
 function metaContent(html, attr, key) {
-  for (const m of html.matchAll(META)) {
-    if (new RegExp(`\\b${attr}\\s*=\\s*["']${key.replace(/[:]/g, '\\:')}["']`, 'i').test(m[0])) {
-      const c = /\bcontent\s*=\s*(["'])([\s\S]*?)\1/i.exec(m[0]);
+  if (metaTagsFor !== html) {
+    metaTagsOf = html.match(META) ?? [];
+    metaTagsFor = html;
+  }
+  const id = `${attr}\0${key}`;
+  let test = metaMatchers.get(id);
+  if (!test) {
+    test = new RegExp(`\\b${attr}\\s*=\\s*["']${key.replace(/[:]/g, '\\:')}["']`, 'i');
+    metaMatchers.set(id, test);
+  }
+  for (const tag of metaTagsOf) {
+    if (test.test(tag)) {
+      const c = /\bcontent\s*=\s*(["'])([\s\S]*?)\1/i.exec(tag);
       return c ? decode(c[2]) : '';
     }
   }
