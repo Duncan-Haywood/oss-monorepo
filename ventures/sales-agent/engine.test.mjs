@@ -92,6 +92,7 @@ test("second fresh set (2026-10-24, written by another session, scored once): nu
   const s = score(load("fresh-2026-10-24.jsonl"));
   assert.equal(s.n, 41);
   // 27 when scored once; 28 after 2026-11-02, when "I left X" counted as a wrong-person reply (one item, no regression).
+  // Row 9 (a full mailbox, first labelled bounce) was relabelled out_of_office on 2026-11-05 when full mailboxes became soft bounces; the count stays 28.
   assert.equal(s.right, 28);
   assert.equal(s.acted, 32);
   assert.equal(s.actedRight, 25);
@@ -369,4 +370,19 @@ test("fresh set 2026-11-06: scored once at 25/30 (0 overreach, 0 opt-outs missed
   const T = "2026-11-06";
   for (const [body, want] of [["Legal won't let us send customer emails through a third-party model.", "objection"], ["Honestly our reps hate anything that adds clicks to their day.", "objection"], ["I've moved to a different role and no longer handle vendor tools. Try Sam Okafor, sam@harborline.example.", "left_company"]])
     assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+});
+
+// Full mailbox (2026-11-05). First tried as a soft bounce; 8 of the 117 real bounces in eval/bounce-corpus are final
+// "returned to sender" notices for a full mailbox, so the category stays bounce. The subtype only changes the task.
+test("a full mailbox stays a bounce, tagged mailbox_full, and the task says the address may be real", () => {
+  for (const body of ["The recipient's mailbox is full and can't accept messages now. 452 4.2.2", "552 5.2.2 Mailbox full: over quota", "Quota exceeded (mailbox for user is full)"]) {
+    const t = triage({ from: "mailer-daemon@x.com", subject: "Undelivered Mail Returned to Sender", body });
+    assert.equal(t.category, "bounce", body);
+    assert.equal(t.subtype, "mailbox_full", body);
+  }
+  const u = triage({ from: "mailer-daemon@x.com", subject: "Delivery Status Notification (Failure)", body: "550 5.1.1 User unknown" });
+  assert.equal(u.category, "bounce");
+  assert.equal(u.subtype, null);
+  const r = runInbox({ replies: "From: MAILER-DAEMON@x.com\nSubject: Mail delivery failed\n\nThe following address failed: mark@oldco.example (mailbox is full / user over quota)", prospects: "email,name,company\nmark@oldco.example,Mark,OldCo\n", offer: SAMPLE_OFFER, today: T });
+  assert.ok(JSON.stringify(r).includes("mailbox is full, so the address is probably still real"), JSON.stringify(r.tasks));
 });
