@@ -169,6 +169,8 @@ The guarded rule is inside 77 to 83% in 2 of 6 cells (the unguarded rule of 4.2a
 
 Choosing the pair among those that also covered at least 77% in the previous test year gives, for Chicago and San Francisco application-to-issue over test years 2022 to 2024 (3 seeds), coverage inside 77 to 83% in 3 of 6 cells and an interval 26 to 71% narrower than the (0.1, 0.9) pair in 6 of 6. Chicago 2024 improves (0.786 against 0.748 and 0.762 for the earlier rules) but Chicago 2023 stays at 0.729; San Francisco sits at 0.83 to 0.85. Chicago's narrow-pair coverage was 0.775, 0.817, 0.729 and 0.786 in 2021 to 2024, so last year's coverage did not predict the next. We therefore report a Chicago limit: a user who needs 80% should keep the wide pair. Numbers are copied from `../LOG.md`, session 27, and `../results/conformal_tau_backtest.txt`; the backtest uses some outcomes not known at the start of the year, a slight flatter.
 
+Austin application-to-issue, run afterwards with the same rules (1 seed, one job at a time; `../results/conformal_tau_drift_austin_a2i_{2021..2024}.json`, `python3 src/conformal_tau_backtest.py austin`), gives coverage 0.781 [0.767, 0.794] in 2022 (fallback to the fixed pair), 0.862 [0.849, 0.874] in 2023 and 0.828 [0.819, 0.836] in 2024: inside 77 to 83% in 2 of 3 years, but at least 15% narrower in only 1 of 3 (widths 170.1, 164.2 and 118.6 days; the fixed pair is about 170). Only 6% of Austin permits are same-day and its tail is long, so a narrower pair buys little: the width gain of 26 to 71% seen in Chicago and San Francisco does not carry over. Austin's coverage under the fixed pair ran 0.749, 0.781, 0.858 and 0.854 for 2021 to 2024, a drift of about 10 points, which again points to year-to-year shift rather than method. Limits: 1 seed so intervals are over weeks only; the loader counts every Austin row as issued (session 5 item); i2c not run.
+
 ### 4.3 Which fields (H3, as worded)
 
 Permutation importance: the smallest number of fields reaching 80% of the total
@@ -217,7 +219,7 @@ tighter quantile levels (4.2a) can halve the width, but pick them with drift in 
 ## 7 To do before submission
 
 1. A neural net baseline; per-library tuning (Austin a2i CatBoost gap).
-2. A year-ahead (Y-2 versus Y-1) calibration check for the quantile pair (4.2b did not solve Chicago); Austin and i2c for H2e.
+2. A year-ahead (Y-2 versus Y-1) calibration check for the quantile pair (4.2b did not solve Chicago); Austin i2c for H2e and H2g (Austin a2i H2g is in 4.2c).
 3. Spread over draws and i2c for 4.5; first-n-rows ordering instead of random draws.
 4. Multiple test years for H1; a fourth city after a licence check.
 5. Publish the permit-duration prior data file for `ventures/` (milestone 7).
