@@ -350,3 +350,13 @@ test("threats, \"stop mailing\" and Italian stop asks are opt-outs; a forward to
   for (const body of ["Our lawyer already approved the contract, send the invoice.", "We should block time next week to talk.", "Happy to forward this to our team, can you send pricing?"])
     assert.notEqual(triage({ subject: "Re: hi", body }, "2026-11-04").category, "unsubscribe", body);
 });
+
+test("fresh set 2026-11-05: terse interest, price, trust and dead-inbox replies land in the right bucket", () => {
+  const T = "2026-11-05";
+  const cases = [
+    ["Intrigued. Send me 2-3 times and I'll pick one.", "interested"], ["yes - call me on 555-0142 after 4", "interested"],
+    ["Sounds expensive. We're a small shop.", "objection"], ["I don't trust AI writing my emails. Customers can tell.", "objection"],
+    ["This inbox is no longer monitored. Contact support@brightline.example.", "left_company"], ["We're not the right company for this - we're a non-profit.", "not_interested"],
+  ];
+  for (const [body, want] of cases) assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+});

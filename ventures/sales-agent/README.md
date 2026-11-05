@@ -222,6 +222,8 @@ the quote. Notes are agent-written, not real calls.
 
 **Non-English opt-outs (2026-11-04).** A second probe of 24 phrasings in SV, DA, NO, PL, TR, FI, CS and RO missed 13; all 24 are now unsubscribes (`engine.test.mjs`). Agent-written, unscored on real mail; unreadable replies still go to a person.
 
+**Terse replies (2026-11-05).** A fresh 30-reply set of mobile-style phrasings went 23/30 after fixing two of my own labels, 0 overreach, 0 opt-outs missed; seven phrasings patched ("call me on", "send me 2-3 times", "sounds expensive", "I don't trust AI", "inbox is no longer monitored", "we're not the right company"), 30/30 on a set I tuned against, no older set fell (`eval/README.md`). Agent-written, unscored on real mail.
+
 **Threats and handovers (2026-11-04).** A 27-phrasing probe found legal threats ("my lawyer will be in touch"), block/report threats, "stop mailing/texting me" and Italian "smettete di contattarmi" in unclear, and "forwarding this to our head of logistics" drafting a reply as interest. The first are now unsubscribes, the last a wrong-person hand-off (`engine.test.mjs`, with look-alikes pinned as not opt-outs). Agent-written, unscored on real mail. Still unclear: "mailbox full" soft bounces (left to a person).
 
 **Limits.** Rules are tuned for English (opt-outs in about fifteen other languages are probed, not scored). Reads one reply at a time (a stop in the same batch is remembered, but not a full thread). Dates are
