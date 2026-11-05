@@ -38,7 +38,7 @@
       "result": "validate passes"
     }
   ],
-  "writeups": "none: one-line fix, no post",
+  "writeups": [],
   "goal": null,
   "notes": "main_health 42/44 -> fixed the 2 red; no backlog ids touched.",
   "corrections": [],
