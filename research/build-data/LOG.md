@@ -1,5 +1,14 @@
 # build-data log
 
+## Session 33, 2026-11-05: milestone 27, neural quantile baseline on all five city/target pairs
+
+Hypothesis: a small embedding MLP is within 3% of the boosted models' pinball at each level, and not better. (Held before the first run but not written in the log until after; Austin's two cells were run after seeing the other three, so the Austin part is not blind.)
+Done: `src/neural.py` (imports `boosted.py`'s frame, features, bootstrap; torch CPU), `tests/test_neural.py` (monotone, non-negative, learns a planted type gap), fresh pulls of all three feeds, 3 seeds, test year 2024, `results/neural_*_2024.json`.
+Outcome (neural pinball relative to committed boosted; positive = worse): Chicago a2i +0.6/0.0/-3.0%; SF a2i +0.9/+1.2/+5.9%; SF i2c +1.8/+2.6/+2.9%; Austin a2i +2.5/+0.1/+1.6%; Austin i2c -0.2/+0.3/-0.1% (q0.1/0.5/0.9). Within 3% in 14 of 15 cells (Chicago q0.9 is -2.97%); the one miss is SF a2i q0.9 (+5.9%). Neural is ahead only at Chicago q0.9, where boosted is itself worse than the baseline; the rest are ties or small losses, so the hypothesis holds except SF a2i q0.9.
+- Caveats: raw neural 80% interval coverage is 0.30 (SF a2i) and 0.53 (Chicago a2i) because softplus outputs are strictly positive and miss every y = 0; same-day Brier slightly worse than boosted.
+Limits: one architecture, untuned, 3 seeds, one test year.
+Next: tune once (width, lr, same-day loss weight) or move to multiple test years for H1.
+
 ## Session 32, 2026-11-05: milestone 26, SF i2c with the H2g backtest rules (planned before running)
 
 Plan: the session 27/29/31 grid and backtest on SF issue-to-completion (i2c), test years 2021 to 2024, one job at a time, 1 seed, then `python3 src/conformal_tau_backtest.py sf --i2c`. Pre-registered (as session 31): coverage in 77 to 83% in at least 2 of 3 test years (2022 to 2024) and width at least 15% below the fixed (0.1, 0.9) pair in at least 2 of 3. Prior 40%: SF i2c has almost no exact zeros, like Austin i2c, which failed both halves.
