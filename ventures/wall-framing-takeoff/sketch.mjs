@@ -264,6 +264,7 @@ export function sketchToDxf(sk) {
  * @param {Parameters<typeof planFromDxf>[1]} [opt]
  */
 export function planFromSketch(sk, opt = {}) {
+  if (!sk || typeof sk !== "object" || !Array.isArray(sk.walls)) return { ok: false, errors: ["No sketch to read."], notes: [] };
   if (!sk.walls.length) return { ok: false, errors: ["Draw at least one wall first."], notes: [] };
   return planFromDxf(sketchToDxf(sk), { units: "in", ...opt });
 }
