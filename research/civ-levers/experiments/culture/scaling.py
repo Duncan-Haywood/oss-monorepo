@@ -19,12 +19,15 @@ TIMEOUT = 900
 
 
 def build():
-    subprocess.run(["gcc", "-O2", "-o", EXE, SRC], check=True)
+    subprocess.run(["gcc", "-O2", "-o", EXE, SRC, "-lm"], check=True)
+
+
+POISSON = "--poisson" in sys.argv
 
 
 def cell(L, F, q, runs, seed):
     try:
-        out = subprocess.run([EXE, str(L), str(F), str(q), str(seed), str(runs)],
+        out = subprocess.run([EXE, str(L), str(F), str(q), str(seed), str(runs)] + (["poisson"] if POISSON else []),
                              capture_output=True, text=True, timeout=TIMEOUT).stdout
     except subprocess.TimeoutExpired:
         return None
@@ -48,7 +51,11 @@ def main():
     runs = 8 if quick else 40
     q3 = [4, 8, 10, 12, 14, 16, 18, 20, 24, 30]
     q10 = [20, 30, 40, 50, 60, 80, 120, 200, 300, 400]
-    plan = {(3, 16): q3, (3, 32): q3, (3, 64): q3,
+    if POISSON:  # traits ~ Poisson(q) as in Castellano et al. (2000); F = 10 only
+        qp = [100, 150, 200, 250, 300, 350, 400, 500]
+        plan = {(10, 20): qp, (10, 40): qp, (10, 80): qp}
+    else:
+      plan = {(3, 16): q3, (3, 32): q3, (3, 64): q3,
             (10, 20): q10, (10, 40): q10, (10, 80): q10}
     build()
     jobs = [(F, L, q) for (F, L), qs in plan.items() for q in qs]
