@@ -54,6 +54,7 @@ export function validateFlooring(d) {
   for (const k of ["thinsetSqFtPerBag", "groutLbPerCuFt", "groutBagLb"]) if (t[k] != null && !(t[k] > 0)) e.push(`${k} must be above 0.`);
   if (c.rollWidth != null && !(c.rollWidth >= 36 && c.rollWidth <= 240)) e.push("rollWidth must be between 36 and 240 in.");
   if (c.trimAllowance != null && !(c.trimAllowance >= 0 && c.trimAllowance <= 48)) e.push("trimAllowance must be between 0 and 48 in.");
+  if (c.tackStripLength != null && !(c.tackStripLength >= 1 && c.tackStripLength <= 20)) e.push("tackStripLength must be between 1 and 20 ft.");
   if (p.underlaymentRollSqFt != null && !(p.underlaymentRollSqFt > 0)) e.push("underlaymentRollSqFt must be above 0.");
   return e;
 }

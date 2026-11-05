@@ -64,3 +64,11 @@ test("text names every kind used", () => {
   const t = flooringText(f).join("\n");
   assert.match(t, /Plank:/); assert.match(t, /Tile:/); assert.match(t, /Carpet:/);
 });
+
+test("tackStripLength of 0 or below is refused, not an infinite or negative cost", () => {
+  for (const v of [0, -1]) {
+    const r = layoutFlooring({ rooms: [{ width: 100, depth: 100, kind: "carpet" }], carpet: { tackPrice: 2, tackStripLength: v } });
+    assert.equal(r.ok, false);
+    assert.match(r.errors.join(" "), /tackStripLength/);
+  }
+});
