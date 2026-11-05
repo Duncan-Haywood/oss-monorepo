@@ -25,7 +25,7 @@ Gradient boosting adds almost nothing over logistic regression (median +0.003 AU
 
 Research programme, AI-assisted (Claude), on the owner's request: [`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md) (hypotheses written before each run, then outcomes), full tables in [`experiments/m1_imputation/results/summary.md`](experiments/m1_imputation/results/summary.md).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/christian-belief-models/
+**Live page:** https://marisstella.app/research/christian-belief-models/
 
 ![AUC by item and tradition](experiments/m1_imputation/results/auc_by_item.svg)
 
