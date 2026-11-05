@@ -1,0 +1,4 @@
+sf i2c 2022 pair 0.2_0.75 cov 0.818 [0.810,0.826] w 370.3 vs ref 419.3 (+12%) inside=True narrower15=False
+sf i2c 2023 pair 0.2_0.75 cov 0.830 [0.822,0.837] w 343.0 vs ref 412.7 (+17%) inside=True narrower15=True
+sf i2c 2024 pair 0.2_0.65 cov 0.857 [0.846,0.867] w 293.6 vs ref 405.8 (+28%) inside=False narrower15=True
+inside 77-83%: 2 of 3 ; narrower by 15%: 2 of 3

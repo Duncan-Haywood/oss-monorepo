@@ -1,5 +1,20 @@
 # build-data log
 
+## Session 32, 2026-11-05: milestone 26, SF i2c with the H2g backtest rules (planned before running)
+
+Plan: the session 27/29/31 grid and backtest on SF issue-to-completion (i2c), test years 2021 to 2024, one job at a time, 1 seed, then `python3 src/conformal_tau_backtest.py sf --i2c`. Pre-registered (as session 31): coverage in 77 to 83% in at least 2 of 3 test years (2022 to 2024) and width at least 15% below the fixed (0.1, 0.9) pair in at least 2 of 3. Prior 40%: SF i2c has almost no exact zeros, like Austin i2c, which failed both halves.
+Done: fresh SF pull (1,297,940 rows per the live count; Chicago and Austin hosts were refused by the proxy this session, so only SF could run), `results/conformal_tau_drift_sf_i2c_{2021..2024}.json`, `results/conformal_tau_backtest_sf_i2c.txt`.
+Outcome (1 seed, intervals over weeks only):
+| year | chosen pair | test coverage [CI] | width (days) | narrower than (0.1, 0.9) |
+|---|---|---|---|---|
+| 2022 | (0.2, 0.75) | 0.818 [0.810, 0.826] | 370.3 | 12% |
+| 2023 | (0.2, 0.75) | 0.830 [0.822, 0.837] | 343.0 | 17% |
+| 2024 | (0.2, 0.65) | 0.857 [0.846, 0.867] | 293.6 | 28% |
+- **Both halves of H2g hold as counted separately for SF i2c** (coverage inside 77 to 83% in 2 of 3 years; width 15% or more narrower in 2 of 3), unlike Austin i2c. Read strictly "in the same years", only 2023 passes both: 2022 is not narrow enough (12%) and 2024 over-covers (0.857), so the joint result is 1 of 3. I report the separate counts as the pre-registered rule and flag the joint one as the stricter reading.
+- The width gain is real but the years that gain most (2024) are the ones that over-cover, i.e. the guard picks a narrow pair whose backtest-year coverage did not carry to the test year. Widths stay near 300 to 370 days at 80%: SF build time is only weakly predictable at the quantile level.
+- Limits: 1 seed, 3 cells, SF only (Chicago has no i2c), the narrower-pair claim rests on the 2022 to 2024 backtest years only.
+Next: paper section 4.2c gets SF i2c and the joint-versus-separate caveat; then the neural baseline.
+
 ## Session 31, 2026-11-05: milestone 25, Austin i2c with the H2g backtest rules (planned before running)
 
 Plan: the same grid and backtest as sessions 27 and 29 on Austin i2c (issue to completion), test years 2021 to 2024, one job at a time, 1 seed, then `python3 src/conformal_tau_backtest.py austin --i2c` (the script now takes `--i2c`). Pre-registered: coverage in 77 to 83% in at least 2 of 3 test years (2022 to 2024) and width at least 15% below (0.1, 0.9) in at least 2 of 3. Prior 35%: i2c has few exact zeros, so a narrow pair should buy less than in Chicago, and the Austin a2i width half failed on the same logic.
