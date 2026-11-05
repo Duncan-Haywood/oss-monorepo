@@ -91,3 +91,12 @@ def test_penalty_adjusted_dc_on_ieee118_prices_losses_not_worse_than_plain_at_li
     ed = ac_check_of_dispatch(n, dc)["cost"]
     assert ep <= ed and ep >= ac.res_cost - 1e-6
     assert 0.5 <= pf.min() < 1.0 < pf.max() <= 2.0
+
+
+def test_case300_is_registered_and_dc_opf_solves_with_flat_price():
+    n = load_case("case300")
+    assert len(n.bus) == 300
+    dc = solve_dc(n)
+    assert dc is not None and dc.res_cost > 0
+    # no branch binds at published ratings, so the lossless DC price is one number
+    assert float(dc.res_bus.lam_p.max() - dc.res_bus.lam_p.min()) < 1e-6

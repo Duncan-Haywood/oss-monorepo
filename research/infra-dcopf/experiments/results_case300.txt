@@ -1,0 +1,19 @@
+load lim  AC_cost    DC_cost   DC-AC%  nbind_dc  AC_lmp_min AC_lmp_max  DC_lmp_min DC_lmp_max  AC_lmp_mean DC_lmp_mean  excess%
+0.50 1.00 no solution (ac=False, dc=True)
+0.50 0.50 no solution (ac=False, dc=True)
+0.50 0.30 no solution (ac=False, dc=True)
+0.60 1.00    376466    363097   -3.55     0   -2953.85     114.59      31.92      31.92     -61.11      31.92    -1.90
+0.60 0.50 no solution (ac=False, dc=True)
+0.60 0.30 no solution (ac=False, dc=True)
+0.70 1.00    453192    441630   -2.55     0      30.52      82.58      33.95      33.95      38.01      33.95    -0.70
+0.70 0.50 no solution (ac=False, dc=True)
+0.70 0.30 no solution (ac=False, dc=True)
+0.80 1.00    546832    525006   -3.99     0     -16.15    1365.65      35.98      35.98     123.88      35.98    -1.96
+0.80 0.50 no solution (ac=False, dc=True)
+0.80 0.30 no solution (ac=False, dc=True)
+0.90 1.00 no solution (ac=False, dc=True)
+0.90 0.50 no solution (ac=False, dc=True)
+0.90 0.30 no solution (ac=False, dc=True)
+1.00 1.00 no solution (ac=False, dc=True)
+1.00 0.50 no solution (ac=False, dc=True)
+1.00 0.30 no solution (ac=False, dc=True)
