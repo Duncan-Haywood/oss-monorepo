@@ -53,9 +53,11 @@ export function poissonAtLeast(k, lambda) {
  * @param {number} [i.cpc=0]           price of a bought visitor; 0 = unpaid traffic
  * @param {number} [i.fixedCosts=0]    samples, photos, set-up paid before the campaign and lost if it fails
  * @param {{visitors:number, orders:number}} [i.test] a small test, to bound the conversion rate
+ * @param {number} [i.depositPct=100]  share of the price charged at order; the rest is charged when the factory order is placed or goods ship
+ * @param {number} [i.balanceDefaultPct=0] orders that paid the deposit but never pay the balance (their pieces are made and unsold)
  */
 export function planPreorder(i) {
-  const o = { taxPct: 0, feePct: 3, feeFixed: 0.3, cancelPct: 5, conversionPct: 1, visitorsPerDay: 100, days: 30, cpc: 0, fixedCosts: 0, ...i };
+  const o = { taxPct: 0, feePct: 3, feeFixed: 0.3, cancelPct: 5, conversionPct: 1, visitorsPerDay: 100, days: 30, cpc: 0, fixedCosts: 0, depositPct: 100, balanceDefaultPct: 0, ...i };
   const errors = [];
   if (!(o.price > 0)) errors.push("Type a price.");
   if (!(o.landed >= 0)) errors.push("Type the landed cost per piece.");
@@ -63,6 +65,8 @@ export function planPreorder(i) {
   if (!(o.cancelPct >= 0 && o.cancelPct < 100)) errors.push("Cancellations must be from 0 to under 100 percent.");
   if (!(o.conversionPct > 0 && o.conversionPct <= 100)) errors.push("Conversion must be above 0 and at most 100 percent.");
   if (!(o.visitorsPerDay >= 0) || !(o.days >= 1)) errors.push("Give the campaign at least one day and a visitor count.");
+  if (!(o.depositPct > 0 && o.depositPct <= 100)) errors.push("The deposit must be above 0 and at most 100 percent of the price.");
+  if (!(o.balanceDefaultPct >= 0 && o.balanceDefaultPct < 100)) errors.push("Unpaid balances must be from 0 to under 100 percent.");
   if (errors.length) return { error: errors.join(" ") };
 
   const keep = 1 - o.cancelPct / 100;
@@ -83,11 +87,21 @@ export function planPreorder(i) {
     };
   }
 
-  const netPerOrder = o.price / (1 + o.taxPct / 100) - (o.price * o.feePct / 100 + o.feeFixed);
+  // A split payment is two charges, so the fixed fee is paid twice.
+  const charges = o.depositPct < 100 ? 2 : 1;
+  const netPerOrder = o.price / (1 + o.taxPct / 100) - (o.price * o.feePct / 100 + o.feeFixed * charges);
   const shippedAtNeed = Math.floor(ordersNeeded * keep + 1e-9); // pieces actually made and sent: at least MOQ
   const made = Math.max(o.moq, shippedAtNeed);
   const adSpendTotal = round2(o.visitorsPerDay * o.days * o.cpc);
-  const profitIfFunded = round2(made * (netPerOrder - o.landed) - o.fixedCosts - (o.cpc ? visitorsNeeded * o.cpc : 0));
+  // Orders that pay in full; pieces for the others are made and left unsold. Any
+  // forfeited deposit is ignored (refund law differs by country), so this is cautious.
+  const paying = o.balanceDefaultPct > 0 ? Math.min(made, Math.floor(shippedAtNeed * (1 - o.balanceDefaultPct / 100) + 1e-9)) : made;
+  const profitIfFunded = round2(paying * netPerOrder - made * o.landed - o.fixedCosts - (o.cpc ? visitorsNeeded * o.cpc : 0));
+  // Cash: what the deposits bring in before the factory is paid, against the factory bill.
+  const depositNet = o.price * (o.depositPct / 100) / (1 + o.taxPct / 100) - (o.price * (o.depositPct / 100) * o.feePct / 100 + o.feeFixed);
+  const cashFromDeposits = round2(shippedAtNeed * depositNet);
+  const factoryBill = round2(made * o.landed);
+  const cashGap = round2(Math.max(0, factoryBill - cashFromDeposits));
 
   const visitorsExpected = o.visitorsPerDay * o.days;
   const ordersExpected = visitorsExpected * conv;
@@ -101,6 +115,8 @@ export function planPreorder(i) {
   const breakEvenPrice = denom > 0 ? round2((o.landed + overhead / made + o.feeFixed) / denom) : null;
 
   const notes = [];
+  if (cashGap > 0) notes.push(`The deposits bring in about ${cashFromDeposits} before the factory is paid ${factoryBill}: you must fund ${cashGap} yourself until the balances arrive.`);
+  if (o.depositPct < 100) notes.push("A deposit is a second payment: shoppers who put down a deposit can still refuse the balance. Check the pre-order and refund rules of each country you sell in.");
   if (netPerOrder <= o.landed) notes.push("Each order brings in less than a piece costs to make: the campaign loses money even when it is funded. Raise the price or cut the cost.");
   if (dayReached != null && dayReached > o.days) notes.push(`At ${o.visitorsPerDay} visitors a day the expected orders pass ${ordersNeeded} on day ${dayReached}, after your ${o.days}-day window: more traffic, a higher conversion or a longer window.`);
   if (range && range.visitorsNeededWorst == null) notes.push("The test had no orders, so it cannot bound the visitors needed: its range runs from zero. Run it longer before committing.");
@@ -117,7 +133,7 @@ export function planPreorder(i) {
   return {
     ordersNeeded, visitorsNeeded, adCost, range,
     netPerOrder: round2(netPerOrder), piecesMade: made,
-    profitIfFunded, lossIfFails,
+    profitIfFunded, lossIfFails, cashFromDeposits, factoryBill, cashGap,
     ordersExpected: Math.round(ordersExpected * 10) / 10, visitorsExpected: Math.round(visitorsExpected),
     pFunded: Math.round(pFunded * 1000) / 1000,
     dayReached, breakEvenPrice, verdict, notes,
