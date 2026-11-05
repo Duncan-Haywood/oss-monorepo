@@ -396,6 +396,13 @@
   },
   {
    "date": "2026-10-01",
+   "country": "Bolivia",
+   "page": "bolivia-sin-e-invoice-mandate.html",
+   "note": "groups 9 to 12 reported due 1 October 2026 after a postponement (RND 102600000007; one source says 30 September, an older guide 31 March) (secondary guides and vendors, SIN resolutions unread)",
+   "status": "Phased (groups 9 to 12 reported 1 Oct 2026)"
+  },
+  {
+   "date": "2026-10-01",
    "country": "Japan",
    "page": "japan-invoice-system-e-invoice-mandate.html",
    "note": "50% from 1 Oct 2026 to 30 Sep 2029 (vendor and advisory guides, 2026 reform revisions unread)",
