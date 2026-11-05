@@ -527,6 +527,19 @@ The last "not tried" item above: fit the holiday factor only inside short window
 
 Negative again. Short windows do not make the list remove changes: it adds five (registered) and six (casual) over the seven windows, and fits are two to four holidays each, so they scatter (the registered factor even goes above 1 once). Holiday dips on this series are real in the pooled data but too few per window to estimate. The feature still has no real series where it earns its place; wanted is a shop's or office's daily counts with many closed days. One dataset, made-up window length (84 days, not tuned).
 
+## A yearly (period 365) term on the bike-share days (2026-11-05, negative result)
+
+The remaining "not tried" item for the bike-share series. `node eval/holiday-bikes-yearly.mjs` (output `eval/holiday-bikes-yearly.out.txt`, test `holiday-bikes-yearly.test.mjs`) runs `--model poisson --overdispersion nb` with `--period 365` instead of 7, with and without the dataset's 21 holidays.
+
+| series | period | changes, no list | changes, with list | holiday factor |
+|---|---|---|---|---|
+| registered | 7 | 56 | 61 | 0.877 |
+| registered | 365 | 134 | 125 | 0.894 |
+| casual | 7 | 70 | 77 | 1.796 |
+| casual | 365 | 129 | 120 | 1.032 |
+
+A period of 365 more than doubles the changes (134 and 129): two years give each day-of-year factor only two observations, so the fit follows noise and PELT cuts around it. With that term the list does remove changes (nine in each series), but only because a factor fitted on two points per day-of-year already absorbs part of a holiday; the casual factor falls to 1.03 against the raw ratio of 1.41. Read it as: a yearly term needs more than two cycles, and the holiday list is still not shown to earn its place on this series. Wanted: a daily series of five or more years with a mild yearly swing and deep holiday dips (US births, 11 years, is the one so far, below).
+
 ## Holidays on real daily births: the first real series where the list helps (2026-11-04)
 
 The wanted series was a daily count with deep holiday dips and a mild yearly swing. US births are one: scheduled deliveries and inductions fall on federal holidays, so those days run about 15% under others (mean 8,516 against 10,067 on the other days, 66 holiday days of 4,018). `data/us-births-daily.csv` is CDC daily birth counts, 1978-1988, from the copy in the Python Data Science Handbook repository (see `data/SOURCE.md`). The holiday column is six federal holidays computed by rule (New Year, Memorial Day, July 4, Labor Day, Thanksgiving, Christmas), not taken from the file. `node eval/holiday-births.mjs` (output `eval/holiday-births.out.txt`, test `holiday-births.test.mjs`) runs `--model poisson --period 7 --overdispersion nb` year by year and on all 11 years.
