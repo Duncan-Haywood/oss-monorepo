@@ -57,6 +57,7 @@ only in this browser's local storage. `byok.mjs` is a synced copy of
 | `commands.mjs` | Spoken or typed sentences to operations, no model |
 | `ai.mjs` | Optional model that rewrites free speech into commands |
 | `render.mjs`, `motifs.mjs` | SVG drawing; original motifs; public-domain image sources |
+| `runcost.mjs` | A whole size run costed: cloth by size, metres to buy, blended cost |
 | `suppliers.mjs` | Supplier sheet, CSV in and out, example placeholder sheet |
 | `costing.mjs` | Landed cost, margin, break-even, target price, quantity breaks |
 | `techpack.mjs` | Tech pack and quote request |
