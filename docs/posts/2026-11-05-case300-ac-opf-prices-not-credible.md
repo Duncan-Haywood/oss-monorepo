@@ -3,7 +3,7 @@ title: "When the AC optimal power flow can't be trusted: 3 of 18 case300 runs co
 seo_title: "pandapower AC OPF on MATPOWER case300: convergence and bus prices"
 date: 2026-11-05
 tags: [research, power-systems, opf, negative-result]
-description: "I tried to compare DC and AC optimal power flow prices on the 300-bus MATPOWER case. pandapower's AC solver converged in 3 of 18 runs, and those prices ranged from -2954 to 1366 per MWh."
+description: "pandapower's AC optimal power flow converged in 3 of 18 runs on MATPOWER case300, with bus prices from -2954 to 1366 per MWh, so no DC-AC price gap is reported."
 ---
 
 The infra-dcopf project asked how wrong the DC approximation of optimal power flow is. The earlier answer on the 118-bus case was a 1 to 3 % loss term, with prices that only separate when limits are tightened to an extreme 4 % of the published ratings. The obvious follow-up was a case whose published ratings really bind, so I ran MATPOWER's 300-bus case at six load levels and three limit factors.
