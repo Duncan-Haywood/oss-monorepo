@@ -37,6 +37,8 @@ many-session project. Each milestone below lands as a working slice.
 
 10. **Pre-order planner.** (First slice done 2026-11-05: `preorder.mjs` + `preorder.html`, orders and visitors needed to reach a factory minimum, chance of funding (Poisson), profit if funded, loss if not, conversion range from a small test; hand tests only. Still to do: a real designer's campaign, lumpy traffic, deposit-only pre-orders, refund timing by country. Deposit-only pre-orders landed 2026-11-05: `depositPct` and `balanceDefaultPct`, two fixed fees, cash from deposits against the factory bill, unpaid balances as unsold stock; hand tests and a Chromium run.)
 
+11. **Production timeline.** (First slice done 2026-11-05: `timeline.mjs` + `timeline.html`, latest start for an on-sale date and earliest on-sale date from a start, over editable stages (sample rounds, pre-production sample, production, freight, customs); factory stages pause in closure windows, delay allowance pads factory and freight; chart and CSV; hand tests and a Chromium load only. Still to do: a real factory's and forwarder's durations, several closures, per-route freight data, a real designer's run.)
+
 ## Not planned
 
 - Sewing patterns and grading: professional pattern software does this well.
