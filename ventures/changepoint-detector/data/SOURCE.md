@@ -400,3 +400,16 @@ in the source (NA) and are dropped, not filled, leaving 114 rows.
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/presidents.csv> (R `datasets::presidents`).
 - **Licence:** distributed in R's datasets package (GPL-2 or later); a short table of facts.
 - **Documented events:** Eisenhower's inauguration (1953Q1), the Vietnam escalation, Watergate (1973).
+
+# Example data: Argentina consumer prices, 1970Q2-1989Q4
+
+`argentina-inflation.csv`: the quarterly log change of Argentina's consumer price index (79 values), computed from
+`ArgentinaCPI` in the R package AER (index, 1969Q4 = 1; online complements to Franses 1998, from De Ruyter van
+Steveninck 1996).
+
+- **Retrieved:** 2026-11-05 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/AER/ArgentinaCPI.csv>
+  (the Rdatasets collection; AER is GPL-2/3 as software, the 80 index values are a published statistic).
+- **Transform:** `log(cpi[t]) - log(cpi[t-1])`, five decimals.
+- **Cite:** Franses, P. H. (1998). *Time Series Models for Business and Economic Forecasting*. Cambridge UP.
+- **Used by:** `argentina-inflation.test.mjs`.
