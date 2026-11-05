@@ -1,7 +1,7 @@
 ---
 title: "We checked 27 EU VAT rates, and could not reach the official table"
 date: 2026-11-05
-description: "The Clothing Design Studio's price-by-market tool had its EU VAT rates typed from memory. Here is what was cross-checked, against what, and what is still unverified."
+description: "The Clothing Design Studio price tool had its EU VAT rates typed from memory. Here is what was cross-checked, against what, and what is still unverified."
 tags: [clothing-design-studio, vat, honesty]
 ---
 
