@@ -20,7 +20,10 @@ function clock(h, m, ap) {
 
 /** @returns {{ text:string, date:string|null, weekday:string|null, time:string|null, part:string|null }[]} */
 export function findSlots(text, today) {
-  const out = [], src = String(text || "").replace(/\s+/g, " ");
+  // "noon" is 12pm; "midday" too. Only the bare word, so "afternoon" is untouched.
+  const out = [], src = String(text || "").replace(/\s+/g, " ").replace(/\b(?:at )?(?:noon|midday)\b/gi, "at 12pm")
+    // "at 3pm on Thursday" reads as "Thursday at 3pm"
+    .replace(new RegExp(`\\b(?:at )?(\\d{1,2}(?::\\d{2})?\\s?(?:am|pm)) on ${DAY_RE}\\b`, "gi"), "$2 at $1");
   const weekdayDate = (w) => {
     if (w === "tomorrow") return add(today, 1);
     const want = DAYS.findIndex((d) => d.startsWith(w.slice(0, 3))), have = new Date(`${today}T00:00:00Z`).getUTCDay();
@@ -57,6 +60,32 @@ export function findSlots(text, today) {
     if (date < today) date = `${y + 1}${date.slice(4)}`;
     if (new Date(`${date}T00:00:00Z`).getUTCDate() !== d) continue;
     const time = m[3] ? clock(m[3], m[4], m[5]) : null;
+    push({ text: m[0].trim(), date, weekday: DAYS[new Date(`${date}T00:00:00Z`).getUTCDay()], time, after: null, ambiguous: false, part: null });
+  }
+  // day first: "12 Nov at 10:30", "the 12th of November"
+  const re3 = new RegExp(`\\b(\\d{1,2})(?:st|nd|rd|th)?(?: of)? ${MON_RE}\\b\\.?(?:,? ?(?:at |@ )${TIME_RE.replace("(?:at |around |about |@ )?", "")})?`, "gi");
+  for (const m of src.matchAll(re3)) {
+    const d = Number(m[1]), mo = MONTHS.indexOf(m[2].slice(0, 3).toLowerCase());
+    if (d < 1 || d > 31) continue;
+    let y = Number(today.slice(0, 4)), date = `${y}-${String(mo + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    if (date < today) date = `${y + 1}${date.slice(4)}`;
+    if (new Date(`${date}T00:00:00Z`).getUTCDate() !== d) continue;
+    const time = m[3] ? clock(m[3], m[4], m[5]) : null;
+    push({ text: m[0].trim(), date, weekday: DAYS[new Date(`${date}T00:00:00Z`).getUTCDay()], time, after: null, ambiguous: false, part: null });
+  }
+  // "the 14th at 3pm": a day of the month with no month names the next such day
+  const re4 = /\b(?:on )?the (\d{1,2})(?:st|nd|rd|th)\b(?:,? ?(?:at |@ )(\d{1,2})(?::(\d{2}))?\s?(am|pm|a\.m\.|p\.m\.)?)?(?! (?:of )?(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec))/gi;
+  for (const m of src.matchAll(re4)) {
+    const d = Number(m[1]);
+    if (d < 1 || d > 31) continue;
+    let [y, mo] = today.split("-").map(Number), date = null;
+    for (let i = 0; i < 13 && !date; i++, mo++) {
+      if (mo > 12) { mo = 1; y++; }
+      const c = `${y}-${String(mo).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      if (c >= today && new Date(`${c}T00:00:00Z`).getUTCDate() === d) date = c;
+    }
+    const time = m[2] ? clock(m[2], m[3], m[4]) : null;
+    if (!date || (m[2] && !time)) continue;
     push({ text: m[0].trim(), date, weekday: DAYS[new Date(`${date}T00:00:00Z`).getUTCDay()], time, after: null, ambiguous: false, part: null });
   }
   return out.slice(0, 3);
