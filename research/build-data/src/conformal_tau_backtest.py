@@ -1,6 +1,6 @@
 """Milestone 23 analysis (H2g): choose the tau pair with a one-year backtest.
 
-  python3 src/conformal_tau_backtest.py [city ...]    (default: chicago sf; session 28 adds austin)
+  python3 src/conformal_tau_backtest.py [city ...] [--i2c]    (default: chicago sf; session 28 adds austin)
 
 Reads results/conformal_tau_drift_{city}_a2i_{Y}.json (written by conformal_tau_drift_run.py, full grids).
 For test year Y a pair is eligible if (a) its calibration coverage in Y is >= 0.78 (the session 23 rule) and
@@ -12,12 +12,13 @@ slightly optimistic about what a user could compute; it is disclosed, not correc
 import json, os
 R = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
 import sys
-CITIES = tuple(sys.argv[1:]) or ("chicago", "sf")
+TARGET = "i2c" if "--i2c" in sys.argv else "a2i"
+CITIES = tuple(a for a in sys.argv[1:] if not a.startswith("--")) or ("chicago", "sf")
 YEARS = (2022, 2023, 2024)
 
 
 def load(c, y):
-    return json.load(open(os.path.join(R, f"conformal_tau_drift_{c}_a2i_{y}.json")))["grid"]
+    return json.load(open(os.path.join(R, f"conformal_tau_drift_{c}_{TARGET}_{y}.json")))["grid"]
 
 
 def choose(G, prev, thr_cal=0.78, thr_prev=0.77):
@@ -35,7 +36,7 @@ if __name__ == "__main__":
             gain = 1 - v["test_width"] / ref["test_width"]
             i, n = 0.77 <= v["test_coverage"] <= 0.83, gain >= 0.15
             inside += i; narrow += n
-            print(f"{c} {y} pair {k}{'' if found else ' (fallback)'} cov {v['test_coverage']:.3f} "
+            print(f"{c} {TARGET} {y} pair {k}{'' if found else ' (fallback)'} cov {v['test_coverage']:.3f} "
                   f"[{v['test_lo']:.3f},{v['test_hi']:.3f}] w {v['test_width']:.1f} vs ref {ref['test_width']:.1f} "
                   f"({gain:+.0%}) inside={i} narrower15={n}")
     print("inside 77-83%:", inside, "of", len(CITIES) * 3, "; narrower by 15%:", narrow, "of", len(CITIES) * 3)
