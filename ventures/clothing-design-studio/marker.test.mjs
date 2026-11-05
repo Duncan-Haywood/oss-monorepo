@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { patternPieces, packStrip, markerFor, cuttingPlan } from "./marker.mjs";
+import { markerSvg, cutTicketCsv, patternPieces, packStrip, markerFor, cuttingPlan } from "./marker.mjs";
 
 test("pieces: a hoodie has more pieces than a tee and a bigger size has bigger panels", () => {
   const n = ps => ps.reduce((a, p) => a + p.qty, 0);
@@ -72,4 +72,40 @@ test("nesting gain lowers cloth; refusals", () => {
   assert.equal(cuttingPlan("tee", { M: 5 }, { nestingGainPct: 60 }).ok, false);
   assert.equal(cuttingPlan("tee", { M: 5 }, { maxPlies: 0 }).ok, false);
   assert.equal(cuttingPlan("tee", { Q: 5 }).ok, false);
+});
+
+test("placed pieces sit inside the cloth and never overlap", () => {
+  const p = cuttingPlan("hoodie", { S: 20, M: 40, L: 20 });
+  for (const g of p.groups) {
+    const usable = g.usableWidthCm;
+    assert.ok(g.placed.length > 0);
+    for (const a of g.placed) assert.ok(a.x >= 0 && a.x + a.w <= usable + 1e-6 && a.y >= 0);
+    for (let i = 0; i < g.placed.length; i++) for (let j = i + 1; j < g.placed.length; j++) {
+      const a = g.placed[i], b = g.placed[j];
+      const apart = a.x + a.w <= b.x + 0.11 || b.x + b.w <= a.x + 0.11 || a.y + a.l <= b.y + 0.11 || b.y + b.l <= a.y + 0.11;
+      assert.ok(apart, `${a.size} ${a.name} overlaps ${b.size} ${b.name}`);
+    }
+    const perMarker = Object.values(g.ratio).reduce((x, y) => x + y, 0);
+    assert.ok(g.placed.length >= perMarker * 4, "every garment contributes its pieces");
+  }
+});
+
+test("markerSvg draws one rect per piece, escapes labels, and is empty without a layout", () => {
+  const g = cuttingPlan("tee", { M: 10 }).groups[0];
+  const svg = markerSvg(g);
+  assert.ok(svg.startsWith("<svg"));
+  assert.equal((svg.match(/<title>/g) || []).length, g.placed.length);
+  assert.ok(!markerSvg({ placed: [{ name: "<b>", size: "M", x: 0, y: 0, w: 50, l: 50 }], ratio: { M: 1 }, fabricWidthCm: 150, edgeCm: 1.5 }).includes("<b>"));
+  assert.equal(markerSvg({}), "");
+});
+
+test("cut ticket CSV: spares and totals reconcile with the plan", () => {
+  const plan = cuttingPlan("hoodie", { XS: 18, S: 47, M: 69, L: 47, XL: 16, XXL: 3 });
+  const rows = cutTicketCsv(plan).trim().split("\n").map(r => r.split(","));
+  const body = rows.slice(1, -1), total = rows.at(-1);
+  assert.equal(body.reduce((a, r) => a + Number(r[6]), 0), plan.pieces);
+  assert.equal(Number(total[6]), plan.pieces);
+  assert.equal(body.reduce((a, r) => a + Number(r[7]), 0), Number(total[7]));
+  assert.equal(Number(total[9]), plan.metresToBuy);
+  assert.equal(cutTicketCsv({ ok: false }), "");
 });
