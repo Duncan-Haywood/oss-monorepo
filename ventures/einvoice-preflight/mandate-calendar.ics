@@ -886,6 +886,23 @@ URL:https://example.invalid/einvoice-preflight/japan-invoice-system-e-inv
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:164e43648218b404@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20261001
+DTEND;VALUE=DATE:20261002
+SUMMARY:Moldova: B2B e-invoicing reported mandatory from 1 October 2026 a
+ fter a January 2026 pilot (Law ...
+DESCRIPTION:Moldova (B2B mandate reported 1 Oct 2026 (unconfirmed)). B2B 
+ e-invoicing reported mandatory from 1 October 2026 after a January 2026 
+ pilot (Law 214/2024)\, B2G already in use (vendor and advisory guides\, 
+ SFS orders and Official Gazette unread; older guides still say B2B is vo
+ luntary). Detail and sources: https://example.invalid/einvoice-preflight
+ /moldova-e-factura-e-invoice-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/moldova-e-factura-e-invoic
+ e-mandate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:bfdd6cd285f14842@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20261005
