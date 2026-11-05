@@ -36,6 +36,17 @@ class T(unittest.TestCase):
         self.assertEqual(self._run(200)[0], 0)
         self.assertEqual(self._run(199)[0], 1)
 
+    def test_thinnest_pages_are_listed_first(self):
+        with tempfile.TemporaryDirectory() as d:
+            for name, n in (("a", 9), ("b", 3), ("c", 6)):
+                Path(d, name).mkdir()
+                Path(d, name, "index.html").write_text("<p>" + "w " * n + "</p>")
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                c.main(["--root", d, "--min", "50"])
+        lines = [ln for ln in out.getvalue().splitlines() if "words  " in ln]
+        self.assertEqual([ln.split()[0] for ln in lines], ["3", "6", "9"])
+
     def test_summary_line_reports_median(self):
         _, out = self._run(7, "--min", "5")
         self.assertIn("1 pages, median 7 words, 0 under 5", out)
