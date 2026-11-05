@@ -24,7 +24,10 @@ export function loadShorts(root = ROOT) {
 
 export function loadMedia(root = ROOT) {
   const file = path.join(root, 'video', 'manifest.json');
-  return existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : {};
+  const media = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : {};
+  // A WebVTT file from make_captions.py next to the video adds a captions track.
+  for (const slug of Object.keys(media)) media[slug].captions = existsSync(path.join(root, 'captions', `${slug}.vtt`));
+  return media;
 }
 
 /** Every generated file, as { relative path: contents }. */
