@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import vm from 'node:vm';
 import { spawnSync } from 'node:child_process';
-import { AGENT_BLOG, BLOG, buildWriting, loadPosts, parseFrontMatter, postPageTitle, relatedPosts, renderFeed, renderIndex, renderPost, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
+import { AGENT_BLOG, autoSeoTitle, BLOG, buildWriting, loadPosts, parseFrontMatter, postPageTitle, relatedPosts, renderFeed, renderIndex, renderPost, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
 
 const BASE = 'https://example.test/site/';
 
@@ -317,4 +317,11 @@ test('a post missing from the list gets no older link (redteam 2026-11-02)', () 
   assert.doesNotMatch(renderPost(stranger, posts, { baseUrl: BASE }), /rel="prev"/);
   // The oldest listed post has none either.
   assert.doesNotMatch(renderPost(posts[1], posts, { baseUrl: BASE }), /rel="prev"/);
+});
+
+test('a long "Claim: detail" headline with no seo_title gets the clean cut automatically', () => {
+  const t = 'Why the flooring budget is wrong by a wide margin: a worked example with real prices';
+  assert.equal(autoSeoTitle(t), 'Why the flooring budget is wrong by a wide margin');
+  assert.equal(autoSeoTitle('A headline that is long and has no colon or question mark anywhere in it at all'), undefined);
+  assert.equal(autoSeoTitle('Short: but the head is under the minimum length floor and the rest is long enough'.replace('Short', 'Tiny')), undefined);
 });
