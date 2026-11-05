@@ -248,3 +248,17 @@ test("--hours-watch lists people at or near a weekly hours line", () => {
   assert.equal(parseArgs(["--hours-watch", "30", "--watch-within", "3", "a", "b"]).watchWithin, 3);
   assert.throws(() => parseArgs(["--hours-watch", "0"]), /between 0 and 80/);
 });
+
+test("--sales prints labor share of sales by day and flags days over a target", () => {
+  const staff = "Ana, 20, 40, 0, any\n";
+  const shifts = "Mon, 8, 16, 1, open\nTue, 8, 12, 1, open\n";
+  const r = run(staff, shifts, { sales: "400,1000", laborTarget: 30, splh: 100 });
+  assert.equal(r.code, 0);
+  assert.match(r.out, /Labor 17.1% of the \$1,400/);
+  assert.match(r.out, /Mon\s+8 h\s+\$160.*40%.*10 points over 30%.*4 h more than \$100\/h/);
+  assert.match(r.out, /Tue\s+4 h\s+\$80.*8%.*6 h fewer/);
+  assert.match(run(staff, shifts, { sales: "0,0" }).out, /No daily sales read/);
+  assert.equal(parseArgs(["--sales", "1,2", "--labor-target", "30", "--splh", "90", "a", "b"]).laborTarget, 30);
+  assert.throws(() => parseArgs(["--labor-target", "0"]), /between 0 and 100/);
+  assert.throws(() => parseArgs(["--splh", "-1"]), /positive/);
+});

@@ -23,7 +23,7 @@ import process from "node:process";
 import { importStaffCsv } from "./import-staff.mjs";
 import { importShiftsCsv } from "./import-shifts.mjs";
 import {
-  parseStaff, parseShifts, buildRoster, coverOptions, coverChain, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, sampleStaff, sampleShifts,
+  parseStaff, parseShifts, buildRoster, coverOptions, coverChain, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, dailyLabor, salesPerLaborHour, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
 } from "./calc.mjs";
 
@@ -65,6 +65,8 @@ Options:
   --import-shifts <csv> convert a published-schedule export (date, start, end, position rows) to shift lines on stdout; notes on stderr
   --import-staff <csv>  convert a staff export from another scheduler (name, hourly rate, hours, position columns) to staff lines on stdout; notes on stderr
   --hours-watch <h>   list everyone whose planned week reaches <h> hours (a full-time or benefit line you set, e.g. 30) or lands within --watch-within <h> (default 2) of it
+  --sales "1200,900,..."  seven daily sales figures, Monday first (0 or blank = unknown): prints each day's labor cost as a share of sales; --labor-target <%> flags days over it,
+                      --splh <$> flags days with more or fewer hours than that sales per labor hour calls for
   --cover "<Day HH:MM>" a call-out or open shift that starts then (add -HH:MM to tell two apart): who could take it outright, else the
                       shortest chains of hand-overs (one person takes it and gives up a shift a third takes; --max-moves n, default 3) with the pay change
   --max-moves <n>     longest hand-over chain for --cover (1-5, default 3)
@@ -118,6 +120,17 @@ export function parseArgs(argv) {
       const v = Number(argv[++i]);
       if (!(v > 0 && v <= 80)) throw new Error("--hours-watch needs weekly hours between 0 and 80");
       o.hoursWatch = v;
+    }
+    else if (a === "--sales") o.sales = argv[++i] || "";
+    else if (a === "--labor-target") {
+      const v = Number(argv[++i]);
+      if (!(v > 0 && v <= 100)) throw new Error("--labor-target needs a percent between 0 and 100");
+      o.laborTarget = v;
+    }
+    else if (a === "--splh") {
+      const v = Number(argv[++i]);
+      if (!(v > 0)) throw new Error("--splh needs a positive sales per labor hour");
+      o.splh = v;
     }
     else if (a === "--watch-within") {
       const v = Number(argv[++i]);
@@ -193,6 +206,23 @@ function hoursWatchReport(r, opts) {
   const head = rows.length ? `${over} at or over ${num(line)} h this week, ${rows.length - over} within ${num(within)} h under it.` : `No one is at or within ${num(within)} h of ${num(line)} h this week.`;
   return [head, ...lines, "", "Planned hours for this one week against a line you typed. Eligibility rules usually count a longer period, so this is not a statement of what any benefit or employer-mandate rule requires. Not legal advice.", ""].join("\n");
 }
+function salesReport(staff, opts, r) {
+  const dl = dailyLabor(r, staff, opts.sales);
+  if (!dl.hasSales) return "No daily sales read: give seven figures, Monday first, e.g. --sales \"1200,900,950,1000,1800,2600,2100\".\n";
+  const t = opts.laborTarget ?? null;
+  const sp = opts.splh ? salesPerLaborHour(r, staff, opts.sales, opts.splh) : null;
+  const lines = dl.days.filter((d) => d.sales).map((d, i) => {
+    const flags = [];
+    if (t && d.pct > t + 1e-9) flags.push(`${num(d.pct - t)} points over ${num(t)}%`);
+    const s = sp && sp.days.find((x) => x.day === d.day);
+    if (s && s.gap > 0.5) flags.push(`${num(s.gap)} h more than ${money(opts.splh)}/h calls for`);
+    if (s && s.gap < -0.5) flags.push(`${num(-s.gap)} h fewer than ${money(opts.splh)}/h calls for`);
+    return `${d.day.padEnd(4)} ${num(d.hours).padStart(5)} h  ${money(d.cost).padStart(8)}  on ${money(d.sales).padStart(8)} sales  ${num(d.pct)}%${flags.length ? "  " + flags.join("; ") : ""}`;
+  });
+  const tot = dl.days.filter((d) => d.sales).reduce((a, d) => ({ c: a.c + d.cost, s: a.s + d.sales }), { c: 0, s: 0 });
+  const head = `Labor ${num((tot.c / tot.s) * 100)}% of the ${money(tot.s)} sales given; highest ${dl.worst.day} at ${num(dl.worst.pct)}%.`;
+  return [head, ...lines, "", "Base wages plus any burden %, before weekly overtime premiums; arithmetic on the sales you typed, not a forecast. Not financial advice.", ""].join("\n");
+}
 const dayName = (d) => DAYS[((d % 7) + 7) % 7] + (d < 0 ? " (last week)" : "");
 const clockMod = (m) => ((m % 1440) + 1440) % 1440;
 function restReport(staff, opts, csv) {
@@ -233,6 +263,7 @@ export function run(staffText, shiftsText, opts = {}) {
     try { return { code, out: rosterMessages(r, opts.weekStart || null).map((m) => m.text).join("\n\n") + "\n" }; } catch (e) { return { code: 2, out: e.message + "\n" }; }
   }
   if (opts.cover) return { code: 0, out: coverReport(st.staff, sh.slots, r, opts) };
+  if (opts.sales) return { code, out: salesReport(st.staff, opts, r) };
   if (opts.hoursWatch) return { code, out: hoursWatchReport(r, opts) };
   if (opts.restUnder) return { code, out: restReport(st.staff, opts, rosterCsv(r)) };
   if (opts.postedCsv) return { code, out: changesReport(st.staff, opts, rosterCsv(r)) };
