@@ -356,6 +356,8 @@ test("roof sheathing nails: 4 x 8 sheet, rafters at 16 in = 48 edge + 2 lines x 
   assert.equal(l.sheets.nails, Math.ceil(64 * l.sheets.count * 1.1 - 1e-9));
   const t = layoutRoof({ ...sampleRoof(), sheet: { edgeNailSpacing: 4, fieldNailSpacing: 8 } }, plan());
   assert.equal(t.sheets.nailsPerSheet, 72 + 2 * 12);
+});
+
 test("ice and water shield: opt-in, 24 in inside the wall, by hand", () => {
   const off = layoutRoof(sampleRoof(), plan());
   assert.equal(off.roofing.iceShieldRolls, undefined);
