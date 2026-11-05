@@ -1,6 +1,8 @@
 ---
 title: "Paint gallons from the same plan that gave you the studs"
 date: 2026-11-05
+tags: [wall-framing-takeoff, construction, product]
+description: "The framing takeoff now turns walls, openings, ceilings and coats into paint gallons."
 ---
 
 The wall-framing takeoff now answers one more question a builder asks before
