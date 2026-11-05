@@ -2,6 +2,17 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-05 · Milestone 7t: does 7r/7s's k = 3 guard hold on a held-out corpus with a real, item-dependent coder? (planned before the 500-draw runs; a 20-draw smoke run only checked the script executes: gratitude J 0.87)
+- Why: 7r/7s's open items: a real coder with J above 0.5, and a corpus other than NaijaSenti (k = 3 was chosen on NaijaSenti with synthetic item-independent errors). `experiments/h7t_goemotions.py <category> <reps>`: GoEmotions parts 1-3, truth = rater majority, coder = the repo's word-presence logistic scorer trained on a seeded 30% part (threshold from the train part, coder-positives about 2x prevalence), 6,000-item corpus from the test part at natural prevalence, n = 1000, pilot share 0.5, fitted lambda, rules pooled / cells g10 / negcell k3 / k5, 500 draws (+/- 1.9 points). Categories: gratitude (about 5%) and amusement.
+- **Prediction:** k3 covers 93% or more and is at least 10% narrower than pooled in both categories (the coder is high-J); g10 undercovers (below 93%) in at least one, as at high J in 7q/7r. Refuted if k3 covers under 93% in either, or is not narrower than pooled by 5%.
+
+### Outcome (`experiments/h7t_gratitude.txt`, `h7t_amusement.txt`; 500 draws, coverage +/- 1.9 points; one run each)
+- Gratitude (prevalence 5.45%, real coder J 0.868): pooled 95.6% / 1.014 pts; g10 83.8 / 0.475; k3 97.0 / 0.908 (cells in 27% of draws); k5 94.4 / 1.005.
+- Amusement (4.12%, J 0.772): pooled 94.0 / 0.938; g10 87.4 / 0.605; k3 96.0 / 0.744 (cells in 71%); k5 96.6 / 0.865.
+- Prediction supported: k3 covers 96.0 and 97.0%, is 10.5% (gratitude) and 20.7% (amusement) narrower than pooled; g10 undercovers in both (83.8, 87.4%), the same signature as 7q/7r. So the k = 3 guard transfers to a second corpus and to a real coder whose errors depend on the item. Gratitude's gain is just over the 10% bar, and k3 is above nominal in both, so the guard is conservative, not exact.
+- Limits: two categories of one corpus, one coder family (logistic scorer, not an LLM), prevalence 4 to 5% only (7s covered 1 to 5% on NaijaSenti), 500 draws, k = 3 still chosen on NaijaSenti data. No library change yet; `llmci.audit_design` still uses its tau/guard 20 screen.
+- Next: put the negative-cell guard (k = 3) into `audit_design` with a test, then rerun h7g/7h-style library checks; a 1 to 2% GoEmotions category.
+
 ## 2026-11-04 · Milestone 7s: does 7r's k = 3 negative-cell guard hold at 1% and 5% prevalence? (run after 7r; prediction written before the run: coverage 93% or more at both prevalences, narrower than pooled at 5%)
 - Why: 7r's open item. `experiments/h7s_prevalence.py` is 7r's script with prevalence as an argument and rules pooled, g10, k3, k5. Same NaijaSenti corpus (6,000 items, n 1000, pilot share 0.5, fitted lambda), `nb-in-language` dialled with s in {0.3, 0.6}, 500 draws (+/- 1.9 points on coverage), one run each.
 
