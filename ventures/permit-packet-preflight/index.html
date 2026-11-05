@@ -1,0 +1,15 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Permit packet preflight</title>
+<meta name="description" content="Paste your city's published permit submittal checklist, add your file names, and see what is missing before you submit. Runs in your browser; nothing is uploaded.">
+<style>body{font:16px/1.5 system-ui;max-width:46rem;margin:0 auto;padding:1rem 16px;color:#1b1b1b;background:#fff}textarea,input{width:100%;box-sizing:border-box;font:inherit}textarea{min-height:9rem}pre{white-space:pre-wrap;background:#f4f4f4;padding:.75rem;border-radius:6px}small{color:#555}@media(prefers-color-scheme:dark){body{background:#151515;color:#eee}pre{background:#222}small{color:#aaa}textarea,input{background:#222;color:#eee}}</style></head><body>
+<h1>Permit packet preflight</h1>
+<p>Cities bounce incomplete residential permit packets, and each bounce costs weeks. Paste your city's published checklist (one item per line), choose the files in your packet, and see which lines have no matching file.</p>
+<label><b>City checklist</b> (copy it from the building department's own page)<textarea id="cl" placeholder="Completed permit application&#10;Site plan showing setbacks&#10;Foundation plan&#10;Structural calculations (if applicable)"></textarea></label>
+<p><label><b>Your packet's files</b> (names only; files never leave your browser)<input id="f" type="file" multiple></label></p>
+<p><label>Or type file names, one per line<textarea id="n"></textarea></label></p>
+<button id="go">Check packet</button><pre id="out" aria-live="polite"></pre>
+<p><small>An estimate from file names, not a plan review and not legal, engineering or professional advice. Only the city decides whether a packet is complete. No checklist is built in because requirements differ by city and change; use the one the city publishes. Free, MIT licensed.</small></p>
+<script type="module">
+import { preflight, report } from './engine.mjs';
+go.onclick = () => { const names = [...f.files].map(x => x.name).concat(n.value.split('\n').map(s => s.trim()).filter(Boolean)); out.textContent = report(preflight(cl.value, names)); };
+</script></body></html>
