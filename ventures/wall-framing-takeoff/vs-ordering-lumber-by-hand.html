@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Framing lumber order: the tool vs. first-fit-decreasing by hand, measured</title>
+  <meta name="description" content="Ordering studs and plates by hand (first-fit-decreasing, or one board per piece) against a cutting-stock optimiser with a lower bound, measured on a sample house and 300 seeded small cases with flat and length-based prices.">
+  <meta property="og:title" content="Framing lumber order: the tool vs. first-fit-decreasing by hand">
+  <meta property="og:description" content="By hand costs 2.8% more on the sample house and matches the cheapest order on 29 to 65% of small cases; one board per piece costs 22% more.">
+  <link rel="canonical" href="./vs-ordering-lumber-by-hand.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is first-fit-decreasing, the usual hand method, good enough for a lumber order?", "acceptedAnswer": {"@type": "Answer", "text": "It is close on a whole house, not exact. On the sample house (253 boards, price 1 per linear foot) it cost 2.8% more than the shipped order, which sits 0.002% above its lower bound. On 150 small flat-priced cases it matched the exact cheapest order 64.7% of the time (mean excess 1.89%); with length-dependent prices it matched 29.3% of the time (mean excess 9.50%)."}}, {"@type": "Question", "name": "What if I cut every piece from its own board?", "acceptedAnswer": {"@type": "Answer", "text": "On the sample house that costs 2915.04 against 2384.16, 22.3% more, because short pieces never come out of the offcuts of long boards."}}, {"@type": "Question", "name": "How is the shipped order checked?", "acceptedAnswer": {"@type": "Answer", "text": "Against an exact solver on 120 seeded small cases it matched the cheapest order every time the solver finished, and on whole houses it is within 0.02% of the linear-programming lower bound. It also prints that bound so you can see the gap."}}, {"@type": "Question", "name": "Can I trust these numbers for my own house?", "acceptedAnswer": {"@type": "Answer", "text": "Only as a guide. They come from seeded random cases and one invented sample house, not from a builder's real order or a lumberyard's real price list. A real plan with the actual order would settle it."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    h3 { font-size: 1rem; margin: 18px 0 2px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Ordering framing lumber by hand vs. the takeoff tool's cutting-stock order</h1>
+  <p>Once the cut list exists, you still have to decide which board lengths to buy and which pieces to cut from each. The usual hand method is first-fit-decreasing: sort the pieces longest first, put each in the first board with room. This page sets that against the tool's order (an exact dynamic program on small jobs, an LP-rounded search with a printed lower bound on whole houses), from <code>bench.mjs</code> in the tool's repository (run 2026-11-05, seeded and reproducible).</p>
+  <p><a class="cta" href="index.html">Get the cheapest order for your walls</a></p>
+
+  <h2>On the sample house the gap is a few percent, and it is real money</h2>
+  <p>The sample house is the invented example in the tool: 345 pieces, priced at 1 per linear foot of board so cost equals lumber bought. Cost is in those units.</p>
+  <table>
+    <thead><tr><th>Copies of the house</th><th class="n">Shipped order</th><th class="n">Lower bound</th><th class="n">First-fit-decreasing</th><th class="n">One board per piece</th></tr></thead>
+    <tbody>
+      <tr><td>1 (253 boards)</td><td class="n">2384.16</td><td class="n">2384.12</td><td class="n">2450.00 (+2.8%)</td><td class="n">2915.04 (+22.3%)</td></tr>
+      <tr><td>2 (504 boards)</td><td class="n">4768.88</td><td class="n">4768.23</td><td class="n">4901.72 (+2.8%)</td><td class="n">5830.08 (+22.3%)</td></tr>
+      <tr><td>4 (1004 boards)</td><td class="n">9532.60</td><td class="n">9531.45</td><td class="n">9786.00 (+2.7%)</td><td class="n">11660.16 (+22.3%)</td></tr>
+    </tbody>
+  </table>
+
+  <h2>When board prices are not proportional to length, the hand method falls behind</h2>
+  <p>Lumber is rarely priced per foot: a 16 ft stud can cost more or less than two 8 footers. On 150 seeded small cases per row, where an exact solver finishes:</p>
+  <table>
+    <thead><tr><th>Prices</th><th class="n">Shipped equals the cheapest</th><th class="n">First-fit-decreasing equals the cheapest</th><th class="n">Mean excess, FFD</th></tr></thead>
+    <tbody>
+      <tr><td>Flat per foot</td><td class="n">100%</td><td class="n">64.7%</td><td class="n">1.89%</td></tr>
+      <tr><td>Priced by length</td><td class="n">100%</td><td class="n">29.3%</td><td class="n">9.50%</td></tr>
+    </tbody>
+  </table>
+  <p>The shipped column is 100% because the tool uses the exact answer whenever the job is small enough for the solver; on whole houses it prints the gap to the lower bound (0.002% to 0.014% above on the table before).</p>
+
+  <h2>What this does not show</h2>
+  <p>One invented house and seeded random cases, not a builder's real order. Prices are the benchmark's, not a lumberyard's quote, and real yards sell only some lengths and bundle by the unit. A framer who eyeballs the offcuts as they go can beat plain first-fit-decreasing, and the order assumes you cut exactly to the list. The tool does not check the lumber against any span table or code.</p>
+
+  <h2>Common questions</h2>
+  <h3>Is first-fit-decreasing, the usual hand method, good enough for a lumber order?</h3>
+  <p>It is close on a whole house, not exact. On the sample house (253 boards, price 1 per linear foot) it cost 2.8% more than the shipped order, which sits 0.002% above its lower bound. On 150 small flat-priced cases it matched the exact cheapest order 64.7% of the time (mean excess 1.89%); with length-dependent prices it matched 29.3% of the time (mean excess 9.50%).</p>
+  <h3>What if I cut every piece from its own board?</h3>
+  <p>On the sample house that costs 2915.04 against 2384.16, 22.3% more, because short pieces never come out of the offcuts of long boards.</p>
+  <h3>How is the shipped order checked?</h3>
+  <p>Against an exact solver on 120 seeded small cases it matched the cheapest order every time the solver finished, and on whole houses it is within 0.02% of the linear-programming lower bound. It also prints that bound so you can see the gap.</p>
+  <h3>Can I trust these numbers for my own house?</h3>
+  <p>Only as a guide. They come from seeded random cases and one invented sample house, not from a builder's real order or a lumberyard's real price list. A real plan with the actual order would settle it.</p>
+
+  <p><a class="cta" href="index.html">Run the takeoff on your own walls</a></p>
+  <p>Related: <a href="vs-stud-per-foot-rule.html">the per-foot rule of thumb, measured</a> and <a href="how-many-studs-for-a-wall.html">how to count the studs for a wall by hand</a>.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. The example house is invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

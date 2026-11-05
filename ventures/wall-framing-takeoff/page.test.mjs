@@ -718,6 +718,21 @@ test("the stud-per-foot comparison page is in the sitemap and llms.txt, and its 
   assert.match(html, /No warranty/);
 });
 
+test("the lumber-order comparison page is wired, its FAQ matches its JSON-LD, and its sample-house figures equal the benchmark's", () => {
+  assert.match(page("sitemap.xml"), /<loc>\.\/vs-ordering-lumber-by-hand\.html<\/loc>/);
+  assert.match(page("llms.txt"), /vs-ordering-lumber-by-hand\.html/);
+  const html = page("vs-ordering-lumber-by-hand.html");
+  const faq = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1])).find((b) => b["@type"] === "FAQPage");
+  assert.ok(faq && faq.mainEntity.length >= 4);
+  for (const q of faq.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  assert.ok(html.includes("2450.00 (+2.8%)") && html.includes("2915.04 (+22.3%)"));
+  assert.ok(Math.abs(2450 / 2384.16 - 1.028) < 0.0005 && Math.abs(2915.04 / 2384.16 - 1.223) < 0.0005);
+  assert.match(html, /No warranty/);
+});
+
 test("the stud drilling checker page: FAQ matches its data, figures in the answers equal the engine's", async () => {
   const html = page("stud-drilling-checker.html");
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
