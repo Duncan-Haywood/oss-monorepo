@@ -53,3 +53,17 @@ test("OSS threshold: under, will-cross, over by this or last year, bad input", (
   assert.equal(ossThreshold({ euCrossBorderSalesEur: 0, priorYearEur: 12000 }).status, "over");
   assert.ok(ossThreshold({ euCrossBorderSalesEur: -1 }).error);
 });
+
+test("children's clothing is zero-rated in the UK and Ireland, so the shelf price falls", () => {
+  const input = { landed: 10, quantity: 100, markets: ["IE", "UK", "FR"], currencyRates: { GBP: 1 } };
+  const adult = marketPrices(input), kids = marketPrices({ ...input, audience: "children" });
+  assert.equal(adult[0].vatPct, 23);
+  assert.equal(kids[0].vatPct, 0); assert.equal(kids[1].vatPct, 0);
+  assert.equal(kids[2].vatPct, 20, "France has no children's zero rate");
+  assert.ok(kids[0].shelfPrice < adult[0].shelfPrice);
+  assert.equal(kids[2].shelfPrice, adult[2].shelfPrice);
+});
+test("an edited VAT beats the children's default", () => {
+  const [r] = marketPrices({ landed: 10, quantity: 100, markets: ["IE"], audience: "children", vat: { IE: 13.5 } });
+  assert.equal(r.vatPct, 13.5);
+});

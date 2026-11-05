@@ -19,13 +19,20 @@ import { sellingSide, DEFAULT_PLAN } from "./costing.mjs";
 export const VAT_SOURCE = "https://taxation-customs.ec.europa.eu/taxation/vat/vat-rates_en";
 
 /** Standard VAT percent by market. `tax: "included"` means the shelf price carries it. */
+/**
+ * `childrenVatPct` is the rate for children's clothing where it differs from the
+ * standard one (UK and Ireland zero-rate it, with sizing and age conditions: UK
+ * for garments designed for under-14s, Ireland for children's clothing and
+ * footwear by size). Typed from memory, unverified: confirm with HMRC or Revenue.
+ */
 export const MARKETS = Object.freeze({
   IT: { label: "Italy", currency: "EUR", vatPct: 22, tax: "included" },
   FR: { label: "France", currency: "EUR", vatPct: 20, tax: "included" },
   DE: { label: "Germany", currency: "EUR", vatPct: 19, tax: "included" },
   ES: { label: "Spain", currency: "EUR", vatPct: 21, tax: "included" },
   NL: { label: "Netherlands", currency: "EUR", vatPct: 21, tax: "included" },
-  UK: { label: "United Kingdom", currency: "GBP", vatPct: 20, tax: "included" },
+  IE: { label: "Ireland", currency: "EUR", vatPct: 23, tax: "included", childrenVatPct: 0 },
+  UK: { label: "United Kingdom", currency: "GBP", vatPct: 20, tax: "included", childrenVatPct: 0 },
   US: { label: "United States (before sales tax)", currency: "USD", vatPct: 0, tax: "excluded" },
 });
 
@@ -40,18 +47,19 @@ export function priceEnding(price, ending = 0.95) {
 }
 
 /**
- * @param {{landed:number, quantity:number, currencyRates?:Record<string,number>, markets?:string[], vat?:Record<string,number>, ending?:number}} input
+ * @param {{audience?:"adult"|"children", landed:number, quantity:number, currencyRates?:Record<string,number>, markets?:string[], vat?:Record<string,number>, ending?:number}} input
  *   landed is in the supplier sheet's currency; currencyRates maps a market currency to units per one of that
  *   currency (for a EUR sheet: {GBP: 0.85, USD: 1.08}). Missing rates stop that market, never guess.
  * @param {object} plan costing.mjs plan (fees, target margin, unsold share). Its salesTaxPct is replaced per market.
  */
 export function marketPrices(input, plan = DEFAULT_PLAN, sheetCurrency = "EUR") {
-  const { landed, quantity, currencyRates = {}, markets = Object.keys(MARKETS), vat = {}, ending = 0.95 } = input;
+  const { landed, quantity, currencyRates = {}, markets = Object.keys(MARKETS), vat = {}, ending = 0.95, audience = "adult" } = input;
   const out = [];
   for (const code of markets) {
     const m = MARKETS[code];
     if (!m) { out.push({ market: code, error: `Unknown market ${code}.` }); continue; }
-    const vatPct = Number.isFinite(vat[code]) ? vat[code] : m.vatPct;
+    const base = audience === "children" && Number.isFinite(m.childrenVatPct) ? m.childrenVatPct : m.vatPct;
+    const vatPct = Number.isFinite(vat[code]) ? vat[code] : base;
     if (vatPct < 0 || vatPct > 40) { out.push({ market: code, error: `VAT ${vatPct}% is outside 0 to 40.` }); continue; }
     const rate = m.currency === sheetCurrency ? 1 : currencyRates[m.currency];
     if (!(rate > 0)) { out.push({ market: code, label: m.label, error: `Needs a ${sheetCurrency} to ${m.currency} rate.` }); continue; }
