@@ -34,6 +34,7 @@ import { proposal, proposalText } from "./bidletter.mjs";
 import { budgetDiff, diffText } from "./compare.mjs";
 import { levelBids, levelText } from "./bidlevel.mjs";
 import { scheduleRisk, riskText } from "./risk.mjs";
+import { procurement, procurementText, procurementCsv } from "./procurement.mjs";
 import { schedule, scheduleText, scheduleCsv, resolveRates, templateSchedule } from "./schedule.mjs";
 import { planFromDxf } from "./dxf.mjs";
 
@@ -90,6 +91,7 @@ Usage:
   node cli.mjs plan.json --budget    price the quantities with the plan's own "prices" (sheets, bundles, concrete, rebar...); lumber uses the stock prices; anything without a price is listed, not guessed (add --csv for a spreadsheet file, --json for the data)
   node cli.mjs --schedule-template   a starter activity list (order and predecessors, every duration 0) to paste into a plan as "schedule"
   node cli.mjs plan.json --risk      Monte Carlo finish dates (P50/P80/P90, chance of the deadline) from min/max days on the schedule activities
+  node cli.mjs plan.json --orders[=YYYY-MM-DD]  order-by dates for long-lead items (plan schedule.orders: item, for, leadDays, bufferDays); with a date, which are already late and what that does to the start; add --csv or --json
   node cli.mjs plan.json --schedule  critical path, crew levelling and slip effects from the plan's own schedule object (activities, durations, predecessors, crews); add --csv for a spreadsheet file
   node cli.mjs plan.json --drawings   printable HTML shop drawings, one sheet per wall (marked members, dimensions, parts table)
   node cli.mjs plan.json --pdf > walls.pdf   the same shop drawings as a PDF file (no browser; add --panel-max=12ft for panel cut lines)
@@ -352,6 +354,12 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   if (flags.has("--pdf")) return { code: 0, out: "", bytes: drawingSetPdf(r, plan, { panelMax }) };
   if (flags.has("--drawings") || panelMax > 0) return { code: 0, out: drawingSetHtml(r, plan, { panelMax, sheathPsf, panelSheets: flags.has("--panel-sheets") }).trimEnd() };
   if (flags.has("--risk")) { const rr = scheduleRisk(resolveRates(plan.schedule, r)); return { code: rr.ok ? 0 : 1, out: flags.has("--json") ? JSON.stringify(rr, null, 2) : riskText(rr).join("\n") }; }
+  if (flags.has("--orders") || argv.some((a) => a.startsWith("--orders="))) {
+    const today = argv.find((a) => a.startsWith("--orders="))?.slice(9);
+    const pr = procurement(schedule(resolveRates(plan.schedule, r)), plan.schedule?.orders, today || undefined);
+    if (!pr.ok) return { code: 1, out: procurementText(pr).join("\n") };
+    return { code: 0, out: flags.has("--json") ? JSON.stringify(pr, null, 2) : flags.has("--csv") ? procurementCsv(pr).trimEnd() : procurementText(pr).join("\n") };
+  }
   if (flags.has("--schedule") && flags.has("--csv")) return { code: 0, out: scheduleCsv(schedule(resolveRates(plan.schedule, r))).trimEnd() };
   if (flags.has("--schedule") && flags.has("--json")) return { code: 0, out: JSON.stringify(schedule(resolveRates(plan.schedule, r)), null, 2) };
   if (flags.has("--level-bids")) {
