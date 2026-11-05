@@ -337,3 +337,15 @@ test("cross wing: main courses are shortened under the wing, and the sheet count
   assert.ok(Math.abs(all - kept - 2 * cw) < 1e-6, `${all} ${kept} ${cw}`);
   assert.equal(l.planeCourses.left[0].pieces.reduce((s, p) => s + p.length, 0), all); // the far plane is whole
 });
+
+test("roofing nails by hand: 320 per square, 150 per lb, 30 lb boxes", () => {
+  const l = layoutRoof(sampleRoof(), plan());
+  const nails = Math.ceil(l.roofing.squares * 1.1 * 320 - 1e-9);
+  assert.equal(l.roofing.nails, nails);
+  assert.ok(Math.abs(l.roofing.nailLb - nails / 150) < 1e-9);
+  assert.equal(l.roofing.nailBoxes, Math.ceil(nails / 150 / 30 - 1e-9));
+  const t = layoutRoof({ ...sampleRoof(), roofing: { nailsPerSquare: 400, nailsPerLb: 100, nailBoxLb: 5 } }, plan());
+  assert.equal(t.roofing.nails, Math.ceil(t.roofing.squares * 1.1 * 400 - 1e-9));
+  assert.equal(t.roofing.nailBoxes, Math.ceil(t.roofing.nails / 100 / 5 - 1e-9));
+  assert.match(roofText(l).join("\n"), /lb of roofing nails/);
+});
