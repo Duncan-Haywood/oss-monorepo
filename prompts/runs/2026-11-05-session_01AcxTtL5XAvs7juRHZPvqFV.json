@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13254",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +25,24 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 2,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No agent doc in docs/reports/",
+      "did": "post only",
+      "result": "small finding, nothing the next run must know beyond the tool docstring"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-05-1336-venture-titles-are-too-long-for-search.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Explore idea: title-length and meta-description audit (check_title_meta.py). Tests run directly (pytest missing in bare python3). No agent doc written; post only. CI/local workflow checks not run beyond the unit tests.",
   "corrections": [],
   "redteam": null
 }
