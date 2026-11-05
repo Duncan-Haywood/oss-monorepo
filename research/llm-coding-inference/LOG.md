@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-05 · Milestone 7u: the k = 3 negative-cell guard becomes library code (`neg_guard`; no experiment)
+- `audit_design.screen` and `plan_audit` take `neg_guard` (default 0, so every earlier check is unchanged); `NEG_GUARD = 3` is the value 7r to 7t supported. With it, a pilot with fewer than 3 human positives among coder-negative items plans a pooled audit. Test `test_neg_guard_pools_when_the_coder_negative_cell_has_no_positives`; 23 tests pass.
+- Not changed: the default is still the tau/guard-20 screen, because k = 3 was chosen on NaijaSenti and confirmed on only two GoEmotions categories with one non-LLM coder. A library-level coverage rerun (h7g/h7h style) with `neg_guard=3` is the open item, as is a 1 to 2% GoEmotions category.
+
 ## 2026-11-05 · Milestone 7t: does 7r/7s's k = 3 guard hold on a held-out corpus with a real, item-dependent coder? (planned before the 500-draw runs; a 20-draw smoke run only checked the script executes: gratitude J 0.87)
 - Why: 7r/7s's open items: a real coder with J above 0.5, and a corpus other than NaijaSenti (k = 3 was chosen on NaijaSenti with synthetic item-independent errors). `experiments/h7t_goemotions.py <category> <reps>`: GoEmotions parts 1-3, truth = rater majority, coder = the repo's word-presence logistic scorer trained on a seeded 30% part (threshold from the train part, coder-positives about 2x prevalence), 6,000-item corpus from the test part at natural prevalence, n = 1000, pilot share 0.5, fitted lambda, rules pooled / cells g10 / negcell k3 / k5, 500 draws (+/- 1.9 points). Categories: gratitude (about 5%) and amusement.
 - **Prediction:** k3 covers 93% or more and is at least 10% narrower than pooled in both categories (the coder is high-J); g10 undercovers (below 93%) in at least one, as at high J in 7q/7r. Refuted if k3 covers under 93% in either, or is not narrower than pooled by 5%.
