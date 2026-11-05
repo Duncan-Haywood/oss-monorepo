@@ -1,5 +1,9 @@
 # build-data log
 
+## Session 31, 2026-11-05: milestone 25, Austin i2c with the H2g backtest rules (planned before running)
+
+Plan: the same grid and backtest as sessions 27 and 29 on Austin i2c (issue to completion), test years 2021 to 2024, one job at a time, 1 seed, then `python3 src/conformal_tau_backtest.py austin --i2c` (the script now takes `--i2c`). Pre-registered: coverage in 77 to 83% in at least 2 of 3 test years (2022 to 2024) and width at least 15% below (0.1, 0.9) in at least 2 of 3. Prior 35%: i2c has few exact zeros, so a narrow pair should buy less than in Chicago, and the Austin a2i width half failed on the same logic.
+
 ## Session 30, 2026-11-05: paper section 4.2c gets Austin a2i (a writing step; no experiment, no result changed)
 
 Re-ran `python3 src/conformal_tau_backtest.py austin` (reproduces session 29: inside 77 to 83% in 2 of 3, narrower by 15% in 1 of 3) and added the Austin paragraph and limits to `paper/paper.md` 4.2c; to-do item 2 now names only Austin i2c. Post: `docs/posts/2026-11-05-permit-intervals-austin-narrow-pairs.md`.
