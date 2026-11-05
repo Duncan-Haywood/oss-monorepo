@@ -67,3 +67,41 @@ test("duplicate names are flagged and a back print shows both sides", () => {
   assert.ok(r.warnings.some(w => /share the name/.test(w)));
   assert.equal((r.html.match(/<svg /g) || []).length >= 3, true);
 });
+
+test("email shops get a basket that totals and builds one order mail; payment-link shops do not", () => {
+  const withBasket = storefront([tee("A", 30), tee("B", 55)], terms).html;
+  assert.equal((withBasket.match(/data-add="/g) || []).length, 2);
+  assert.match(withBasket, /id="basket"/);
+  assert.match(withBasket, /mailto:/);
+  const linked = storefront([tee()], { ...terms, email: "", paymentLinks: { "halo-tee": "https://buy.stripe.com/x" } }).html;
+  assert.ok(!/data-add=/.test(linked) && !/id="basket"/.test(linked));
+  // the inline script must parse
+  const scripts = [...withBasket.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
+  for (const sc of scripts) new Function(sc);
+});
+
+test("the basket script adds, merges lines by size, totals and removes (DOM stub)", () => {
+  const html = storefront([tee("A", 30)], terms).html;
+  const sc = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]).pop();
+  const els = {};
+  const mk = () => ({ children: [], hidden: true, href: "", textContent: "", listeners: {}, attrs: {},
+    addEventListener(t, f) { this.listeners[t] = f; }, appendChild(c) { this.children.push(c); },
+    getAttribute(k) { return this.attrs[k]; }, querySelector(q) { return q === "ul" ? (this._ul ??= Object.defineProperty(mk(), "textContent", { set(v) { this.children = []; }, get() { return ""; } })) : null; } });
+  const basket = mk(), total = mk(), send = mk(), add = mk();
+  Object.assign(add.attrs, { "data-add": "a", "data-name": "A", "data-price": "30.00" });
+  const doc = {
+    getElementById: id => ({ basket, "basket-total": total, "basket-send": send })[id],
+    createElement: () => mk(),
+    querySelectorAll: q => (q === "[data-add]" ? [add] : []),
+    querySelector: () => ({ value: "M" }),
+  };
+  new Function("document", sc)(doc);
+  add.listeners.click(); add.listeners.click();
+  assert.equal(basket.hidden, false);
+  assert.equal(total.textContent, "€60.00");
+  assert.match(send.href, /^mailto:shop@example\.com\?subject=Pre-order%3A%201%20item/);
+  assert.match(decodeURIComponent(send.href), /2 x A, size M/);
+  assert.equal(basket._ul.children.length, 1);
+  basket._ul.children[0].children[0].listeners.click();
+  assert.equal(basket.hidden, true);
+});
