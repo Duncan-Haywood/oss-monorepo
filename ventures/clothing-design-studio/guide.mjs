@@ -22,7 +22,7 @@ const RULES = {
 const OCC = { office: ["office", "work", "business", "smart"], active: ["hands-on", "outdoor", "active", "sport", "gym", "trade", "workwear"], casual: ["casual", "weekend", "everyday", "daily"], evening: ["evening", "dinner", "party", "night out", "going out", "date"] };
 
 /** @returns {{ profile, heard: {field, value, from}[], asks: string[] }} */
-export function listen(text, previous = defaultProfile()) {
+export function listen(text, previous = defaultProfile(), memory = {}) {
   const t = " " + String(text || "").toLowerCase().replace(/[.,;!?]/g, " ") + " ";
   const profile = { ...previous };
   const heard = [];
@@ -50,13 +50,30 @@ export function listen(text, previous = defaultProfile()) {
   const size = t.match(/(\d{1,2})\s*(?:pieces|items|garments)/);
   if (size && +size[1] >= 5 && +size[1] <= 30) set("size", +size[1], size[0].trim());
 
-  const asks = [];
-  const said = new Set(heard.map(h => h.field));
-  if (!said.has("ageBand")) asks.push("About how old are the people it is for?");
-  if (!said.has("fit")) asks.push("Is it for men, women, or everyone (unisex)?");
-  if (!said.has("style")) asks.push("How would you describe the style: classic, streetwear, minimal, or statement (art and motifs)?");
-  if (!said.has("climate") && !said.has("season")) asks.push("What is the climate and season it is for?");
-  if (!said.has("occasions")) asks.push("What do they dress for: office, hands-on work, casual days, evenings out?");
-  if (!said.has("tier")) asks.push("What quality tier: essential, premium or luxury?");
-  return { profile, heard, asks };
+  // A bare reply to the question just asked ("30", "both") has no cue words
+  // around it: read it as the answer to that question.
+  const pending = memory.pending;
+  if (pending === "ageBand" && !heard.some(h => h.field === "ageBand")) {
+    const n = t.trim().match(/^(\d{2})$/);
+    if (n) set("ageBand", +n[1] < 25 ? "18-24" : +n[1] < 35 ? "25-34" : +n[1] < 45 ? "35-44" : "45+", n[1]);
+  }
+  if (pending === "fit" && !heard.some(h => h.field === "fit")) {
+    const w = t.trim();
+    if (/^(both|all|anyone|either)$/.test(w)) set("fit", "unisex", w);
+  }
+
+  // Questions already answered in earlier turns are not asked again.
+  const answered = new Set([...(memory.answered || []), ...heard.map(h => h.field)]);
+  if (answered.has("season")) answered.add("climate");
+  if (answered.has("climate")) answered.add("season");
+  const QUESTIONS = [
+    ["ageBand", "About how old are the people it is for?"],
+    ["fit", "Is it for men, women, or everyone (unisex)?"],
+    ["style", "How would you describe the style: classic, streetwear, minimal, or statement (art and motifs)?"],
+    ["climate", "What is the climate and season it is for?"],
+    ["occasions", "What do they dress for: office, hands-on work, casual days, evenings out?"],
+    ["tier", "What quality tier: essential, premium or luxury?"],
+  ].filter(([f]) => !answered.has(f));
+  const asks = QUESTIONS.map(([, q]) => q);
+  return { profile, heard, asks, askFields: QUESTIONS.map(([f]) => f), answered: [...answered], pending: QUESTIONS.length ? QUESTIONS[0][0] : null };
 }
