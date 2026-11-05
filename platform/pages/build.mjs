@@ -11206,7 +11206,7 @@ ${asOf}`;
 const LLMS_INDEX_DESC_MAX = 140;
 const LLMS_INDEX_TOOLS_PER_CATEGORY = 4;
 
-export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] }, agentPostCount = 0, full = false } = {}) {
+export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] }, agentPostCount = 0, full = false, updated = '' } = {}) {
   const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
   // The index (`llms.txt`) keeps each tool to its first sentence, capped, so
   // the file fits one fetch (539 KB did not: backlog P052); `llms-full.txt`
@@ -11366,7 +11366,7 @@ advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
 ${network}${audienceSection ? `${audienceSection}\n` : ''}${sections.join('\n')}
-${researchSection ? `${researchSection}\n` : ''}${optional}`;
+${researchSection ? `${researchSection}\n` : ''}${optional}${/^\d{4}-\d{2}-\d{2}/.test(updated) ? `\n${llmsAsOfLine(updated)}\n` : ''}`;
 }
 
 export function renderNotFound(baseUrl) {
@@ -12085,7 +12085,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     ),
   );
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
-  const llmsOptions = { audiences: audiencePages, research, agentPostCount: loadPosts(undefined, AGENT_POSTS_DIR).length };
+  const llmsOptions = { audiences: audiencePages, research, agentPostCount: loadPosts(undefined, AGENT_POSTS_DIR).length, updated: [...sourceDates.values()].filter((d) => /^\d{4}-/.test(d)).sort().pop() ?? '' };
   await fs.writeFile(path.join(outDir, 'llms.txt'), renderLlmsTxt(surfaces, base, compareProducts, guides, llmsOptions));
   await fs.writeFile(path.join(outDir, 'llms-full.txt'), renderLlmsTxt(surfaces, base, compareProducts, guides, { ...llmsOptions, full: true }));
   // Read from the committed file, not from `git log`: the in-cluster build

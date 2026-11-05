@@ -5825,3 +5825,9 @@ test('the featured row leads with the flagships, then fills by page count', () =
   assert.ok(row.includes('state-residency-day-counter'), 'room left is filled by page count');
   assert.ok(flagshipSlugs().includes('changepoint-detector'), 'the real file parses');
 });
+
+test('catalogue llms.txt carries a source date line only when given a date', async () => {
+  const { surfaces } = await site();
+  assert.match(renderLlmsTxt(surfaces, BASE, [], [], { updated: '2026-11-04T10:00:00Z' }), /Source last changed: 2026-11-04/);
+  assert.doesNotMatch(renderLlmsTxt(surfaces, BASE), /Source last changed/);
+});
