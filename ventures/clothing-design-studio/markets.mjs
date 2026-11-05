@@ -20,14 +20,45 @@ export const VAT_SOURCE = "https://taxation-customs.ec.europa.eu/taxation/vat/va
 
 /** Standard VAT percent by market. `tax: "included"` means the shelf price carries it. */
 export const MARKETS = Object.freeze({
-  IT: { label: "Italy", currency: "EUR", vatPct: 22, tax: "included" },
+  AT: { label: "Austria", currency: "EUR", vatPct: 20, tax: "included" },
+  BE: { label: "Belgium", currency: "EUR", vatPct: 21, tax: "included" },
+  BG: { label: "Bulgaria", currency: "EUR", vatPct: 20, tax: "included" },
+  HR: { label: "Croatia", currency: "EUR", vatPct: 25, tax: "included" },
+  CY: { label: "Cyprus", currency: "EUR", vatPct: 19, tax: "included" },
+  CZ: { label: "Czechia", currency: "CZK", vatPct: 21, tax: "included" },
+  DK: { label: "Denmark", currency: "DKK", vatPct: 25, tax: "included" },
+  EE: { label: "Estonia", currency: "EUR", vatPct: 24, tax: "included" },
+  FI: { label: "Finland", currency: "EUR", vatPct: 25.5, tax: "included" },
   FR: { label: "France", currency: "EUR", vatPct: 20, tax: "included" },
   DE: { label: "Germany", currency: "EUR", vatPct: 19, tax: "included" },
-  ES: { label: "Spain", currency: "EUR", vatPct: 21, tax: "included" },
+  GR: { label: "Greece", currency: "EUR", vatPct: 24, tax: "included" },
+  HU: { label: "Hungary", currency: "HUF", vatPct: 27, tax: "included" },
+  IE: { label: "Ireland", currency: "EUR", vatPct: 23, tax: "included" },
+  IT: { label: "Italy", currency: "EUR", vatPct: 22, tax: "included" },
+  LV: { label: "Latvia", currency: "EUR", vatPct: 21, tax: "included" },
+  LT: { label: "Lithuania", currency: "EUR", vatPct: 21, tax: "included" },
+  LU: { label: "Luxembourg", currency: "EUR", vatPct: 17, tax: "included" },
+  MT: { label: "Malta", currency: "EUR", vatPct: 18, tax: "included" },
   NL: { label: "Netherlands", currency: "EUR", vatPct: 21, tax: "included" },
+  PL: { label: "Poland", currency: "PLN", vatPct: 23, tax: "included" },
+  PT: { label: "Portugal", currency: "EUR", vatPct: 23, tax: "included" },
+  RO: { label: "Romania", currency: "RON", vatPct: 21, tax: "included" },
+  SK: { label: "Slovakia", currency: "EUR", vatPct: 23, tax: "included" },
+  SI: { label: "Slovenia", currency: "EUR", vatPct: 22, tax: "included" },
+  ES: { label: "Spain", currency: "EUR", vatPct: 21, tax: "included" },
+  SE: { label: "Sweden", currency: "SEK", vatPct: 25, tax: "included" },
   UK: { label: "United Kingdom", currency: "GBP", vatPct: 20, tax: "included" },
   US: { label: "United States (before sales tax)", currency: "USD", vatPct: 0, tax: "excluded" },
 });
+
+/**
+ * Children's clothing rates where they differ from the standard rate, typed by hand from memory of the
+ * national rules and NOT checked against the official table (the host was blocked). Ireland and the UK
+ * zero-rate clothing made for young children (size and age limits apply: check them). Pass `kids: true`
+ * to marketPrices to use these; other markets keep the standard rate.
+ */
+export const KIDS_VAT_PCT = Object.freeze({ IE: 0, UK: 0 });
+
 
 const round2 = v => Math.round(v * 100) / 100;
 
@@ -46,12 +77,12 @@ export function priceEnding(price, ending = 0.95) {
  * @param {object} plan costing.mjs plan (fees, target margin, unsold share). Its salesTaxPct is replaced per market.
  */
 export function marketPrices(input, plan = DEFAULT_PLAN, sheetCurrency = "EUR") {
-  const { landed, quantity, currencyRates = {}, markets = Object.keys(MARKETS), vat = {}, ending = 0.95 } = input;
+  const { landed, quantity, currencyRates = {}, markets = Object.keys(MARKETS), vat = {}, ending = 0.95, kids = false } = input;
   const out = [];
   for (const code of markets) {
     const m = MARKETS[code];
     if (!m) { out.push({ market: code, error: `Unknown market ${code}.` }); continue; }
-    const vatPct = Number.isFinite(vat[code]) ? vat[code] : m.vatPct;
+    const vatPct = Number.isFinite(vat[code]) ? vat[code] : (kids && code in KIDS_VAT_PCT ? KIDS_VAT_PCT[code] : m.vatPct);
     if (vatPct < 0 || vatPct > 40) { out.push({ market: code, error: `VAT ${vatPct}% is outside 0 to 40.` }); continue; }
     const rate = m.currency === sheetCurrency ? 1 : currencyRates[m.currency];
     if (!(rate > 0)) { out.push({ market: code, label: m.label, error: `Needs a ${sheetCurrency} to ${m.currency} rate.` }); continue; }

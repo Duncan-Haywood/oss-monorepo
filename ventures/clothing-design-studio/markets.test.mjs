@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { marketPrices, priceEnding } from "./markets.mjs";
+import { marketPrices, priceEnding, MARKETS, KIDS_VAT_PCT } from "./markets.mjs";
 import { DEFAULT_PLAN, sellingSide } from "./costing.mjs";
 
 test("price endings round up, never down", () => {
@@ -52,4 +52,21 @@ test("OSS threshold: under, will-cross, over by this or last year, bad input", (
   assert.equal(ossThreshold({ euCrossBorderSalesEur: 10001 }).status, "over");
   assert.equal(ossThreshold({ euCrossBorderSalesEur: 0, priorYearEur: 12000 }).status, "over");
   assert.ok(ossThreshold({ euCrossBorderSalesEur: -1 }).error);
+});
+test("all 27 EU states are present, with the euro states needing no rate", () => {
+  const eu = Object.keys(MARKETS).filter(k => k !== "UK" && k !== "US");
+  assert.equal(eu.length, 27);
+  const rows = marketPrices({ landed: 18, quantity: 100, markets: eu });
+  const need = rows.filter(r => r.error).map(r => r.market).sort();
+  assert.deepEqual(need, ["CZ", "DK", "HU", "PL", "RO", "SE"]);
+  assert.ok(rows.find(r => r.market === "HU").error.includes("HUF"));
+});
+test("kids flag zero-rates Ireland and the UK only", () => {
+  const rows = marketPrices({ landed: 18, quantity: 100, currencyRates: { GBP: 0.85 }, markets: ["IE", "UK", "DE"], kids: true });
+  assert.equal(rows.find(r => r.market === "IE").vatPct, 0);
+  assert.equal(rows.find(r => r.market === "UK").vatPct, 0);
+  assert.equal(rows.find(r => r.market === "DE").vatPct, 19);
+  assert.deepEqual(Object.keys(KIDS_VAT_PCT).sort(), ["IE", "UK"]);
+  const std = marketPrices({ landed: 18, quantity: 100, markets: ["IE"] })[0];
+  assert.ok(rows[0].shelfPrice < std.shelfPrice);
 });
