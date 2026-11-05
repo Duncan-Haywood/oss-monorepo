@@ -91,7 +91,7 @@
   <header>
     <p class="eyebrow">Free clothing design studio</p>
     <h1>Say what you want on the shirt. See it, change it, know what it costs.</h1>
-    <p class="lede">For independent designers starting a clothing line: design a tee, long-sleeve, sweatshirt or hoodie by talking, typing or dragging, compare three versions side by side, cost every piece from your manufacturer's prices, and download the tech pack and quote request to send them. <a href="for-independent-clothing-designers.html">Who it is for and what it does</a> · <a href="how-much-does-it-cost-to-make-a-t-shirt.html">What does a t-shirt cost to make?</a> · <a href="sunglasses.html">Sunglasses designer</a> · <a href="wardrobe.html">Wardrobe planner</a> · <a href="fit.html">Size finder and size run</a> · <a href="quotes.html">Compare factory quotes</a> · <a href="labels.html">Label checker</a> · <a href="prices.html">Price by market</a> · <a href="partners.html">Partner-brand commission</a></p>
+    <p class="lede">For independent designers starting a clothing line: design a tee, long-sleeve, sweatshirt or hoodie by talking, typing or dragging, compare three versions side by side, cost every piece from your manufacturer's prices, and download the tech pack and quote request to send them. <a href="for-independent-clothing-designers.html">Who it is for and what it does</a> · <a href="how-much-does-it-cost-to-make-a-t-shirt.html">What does a t-shirt cost to make?</a> · <a href="sunglasses.html">Sunglasses designer</a> · <a href="wardrobe.html">Wardrobe planner</a> · <a href="fit.html">Size finder and size run</a> · <a href="quotes.html">Compare factory quotes</a> · <a href="labels.html">Label checker</a> · <a href="prices.html">Price by market</a> · <a href="preorder.html">Pre-order planner</a> · <a href="partners.html">Partner-brand commission</a></p>
   </header>
 
   <div class="workspace">
@@ -315,6 +315,21 @@
         <div class="bar"><button class="btn small" type="button" id="sh-add">Put this design on the shelf</button> <button class="btn small" type="button" id="sh-dl">Download storefront (HTML)</button></div>
       </section>
 
+      <section aria-labelledby="h-clr">
+        <h2 id="h-clr">Unsold stock: a markdown ladder</h2>
+        <p class="muted">How much of the run sells at full price, what each markdown recovers after tax and fees, and what is left. Weekly sales and how much a discount lifts them are guesses until you have real sales: replace them.</p>
+        <div class="row">
+          <div><label for="c-rate">Sales a week at full price</label><input id="c-rate" type="number" min="0" step="any" value="4"></div>
+          <div><label for="c-weeks">Full-price weeks</label><input id="c-weeks" type="number" min="0" max="520" step="1" value="8"></div>
+          <div><label for="c-el">Discount lift (elasticity)</label><input id="c-el" type="number" min="0" max="6" step="0.1" value="2"></div>
+          <div><label for="c-scrap">Leftover unit fetches</label><input id="c-scrap" type="number" min="0" step="any" value="0"></div>
+        </div>
+        <label for="c-steps">Markdown steps, one per line: percent off, weeks</label>
+        <textarea id="c-steps" rows="3" spellcheck="false">30, 4
+50, 4</textarea>
+        <output id="clr-out" aria-live="polite"></output>
+      </section>
+
       <section aria-labelledby="h-mkt">
         <h2 id="h-mkt">Launch marketing: what ads can afford, and a week-by-week calendar</h2>
         <p class="muted">Works back from your break-even. The click price and conversion rate are placeholders until you run a small test: replace them. Drafts only; nothing is posted or bought for you.</p>
@@ -394,6 +409,7 @@
     import { launchKit } from "./launchkit.mjs";
     import { storefront } from "./storefront.mjs";
     import { addToShelf, removeFromShelf, shelfToShop, loadShelf } from "./shelf.mjs";
+    import { clearancePlan } from "./clearance.mjs";
     import { marketingPlan, calendarCsv, learnFromTest, channelSplit, DEFAULT_ASSUMPTIONS } from "./marketing.mjs";
     import { inkTradeoff } from "./inktradeoff.mjs";
     import { singleInkFilm, contrastInk, halftoneSvg, halftoneBrief } from "./halftone.mjs";
@@ -630,7 +646,7 @@
     const planFields = { target: "targetMarginPct", tax: "salesTaxPct", channel: "channelFeePct", payfee: "paymentFeePct", payfixed: "paymentFixed", unsold: "unsoldPct", marketing: "marketingBudget" };
     for (const [id, key] of Object.entries(planFields)) {
       $("#" + id).value = plan[key];
-      $("#" + id).addEventListener("input", e => { const v = Number(e.target.value); if (Number.isFinite(v) && v >= 0) { plan[key] = v; store.set(PLAN_KEY, plan); renderCost(); renderMarketing(); } });
+      $("#" + id).addEventListener("input", e => { const v = Number(e.target.value); if (Number.isFinite(v) && v >= 0) { plan[key] = v; store.set(PLAN_KEY, plan); renderCost(); renderMarketing(); renderClearance(); } });
     }
     $("#quantity").addEventListener("change", e => commit({ op: "quantity", value: e.target.value }));
     $("#price").addEventListener("change", e => commit({ op: "price", value: e.target.value }));
@@ -951,7 +967,7 @@
       $("#s-freight").value = sheet.freightPerUnit ?? 0;
       $("#s-duty").value = sheet.dutyPct ?? 0;
       renderCost();
-      renderMarketing();
+      renderMarketing(); renderClearance();
       $("#quote").textContent = quoteRequest(design);
       const kit = launchKit(design);
       $("#lk-desc").textContent = kit.description;
@@ -962,6 +978,23 @@
       }
     }
 
+
+    // ---- unsold stock ----
+    function renderClearance() {
+      let html = "";
+      try {
+        const e = economics(d(), sheet, plan);
+        const steps = $("#c-steps").value.split("\n").map(l => l.trim()).filter(Boolean).map(l => { const [o, w] = l.split(/[ ,]+/).map(Number); return { offPct: o, weeks: w }; });
+        const r = clearancePlan({ landed: e.cost.landed, price: d().price, quantity: d().quantity, weeklyRate: Number($("#c-rate").value), fullPriceWeeks: Number($("#c-weeks").value), elasticity: Number($("#c-el").value), scrapPerUnit: Number($("#c-scrap").value), steps, currency: e.currency }, plan);
+        html = `<div class="kpis"><div class="kpi"><span>Sold at full price</span><div class="big">${r.fullPriceSharePct}%</div></div><div class="kpi"><span>Sold in all</span><div class="big">${r.sellThroughPct}%</div></div><div class="kpi"><span>Left unsold</span><div class="big">${r.unsold}</div></div><div class="kpi"><span>Profit after the ladder</span><div class="big">${money(r.totalProfit, r.currency)}</div></div></div>`;
+        html += `<table><caption class="sr">Markdown ladder</caption><tr><th>Stage</th><th class="num">Price</th><th class="num">Weeks</th><th class="num">Sold</th><th class="num">Profit per sale</th><th class="num">Left</th></tr>${r.rows.map(x => `<tr><td>${esc(x.label)}</td><td class="num">${x.price.toFixed(2)}</td><td class="num">${x.weeks}</td><td class="num">${x.sold}</td><td class="num">${x.profitPerSale.toFixed(2)}</td><td class="num">${x.stockLeft}</td></tr>`).join("")}</table>`;
+        if (r.notes.length) html += `<div class="notes">${r.notes.map(esc).join("<br>")}</div>`;
+      } catch (err) {
+        html = `<p class="notes">${esc(err.message)}</p>`;
+      }
+      $("#clr-out").innerHTML = html;
+    }
+    for (const id of ["c-rate", "c-weeks", "c-el", "c-scrap", "c-steps"]) $("#" + id).addEventListener("input", renderClearance);
 
     // ---- launch marketing ----
     const MKT_KEY = "clothing-design-studio-marketing";
@@ -1038,7 +1071,7 @@
       mkt = { ...mkt, ...lastTest.assumptions };
       store.set(MKT_KEY, mkt);
       $("#m-cpc").value = mkt.cpc; $("#m-conv").value = mkt.conversionPct;
-      renderMarketing();
+      renderMarketing(); renderClearance();
       recordUsage("ad_test_applied");
     });
     $("#mkt-csv").addEventListener("click", () => {
