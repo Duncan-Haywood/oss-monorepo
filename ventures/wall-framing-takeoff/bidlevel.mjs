@@ -24,6 +24,8 @@ const median = (/** @type {number[]} */ a) => {
  * @param {{ tolerance?: number }} [opts] fraction of the model quantity a bid may differ by before it is flagged (default 0.05)
  */
 export function levelBids(bud, bids, opts = {}) {
+  if (!bud || typeof bud !== "object" || !Array.isArray(bud.lines)) return { ok: false, errors: ["Bid leveling needs a budget with a list of lines."], bidders: [], lines: [] };
+  opts = opts && typeof opts === "object" ? opts : {};
   const tol = opts.tolerance ?? 0.05;
   const byKey = new Map(bud.lines.map((l) => [norm(l.item), l]));
   const errors = [];

@@ -11,6 +11,7 @@ export const BAG_YIELD = { 40: 0.3, 60: 0.45, 80: 0.6 };
 /** @param {{ shape?: "slab"|"footing"|"pier", length?: number, width?: number, diameter?: number, depth?: number, count?: number, waste?: number, bag?: number }} s inches
  *  @returns {{ ok: true, cuFt: number, cuYd: number, orderYd: number, withWaste: number, bags: number, bag: number, shortLoad: boolean, notes: string[] } | { ok: false, errors: string[] }} */
 export function slabConcrete(s) {
+  if (!s || typeof s !== "object" || Array.isArray(s)) return { ok: false, errors: ["Give the slab, footing or pier as an object with its sizes."] };
   const shape = s.shape ?? "slab", waste = s.waste ?? 0.1, bag = s.bag ?? 80, count = s.count ?? 1, errors = textNumberErrors(s, ["length", "width", "diameter", "depth", "count", "waste", "bag"]);
   if (!["slab", "footing", "pier"].includes(shape)) errors.push('shape is "slab", "footing" or "pier".');
   if (!(s.depth >= 2 && s.depth <= 96)) errors.push("Thickness or depth must be between 2 and 96 in.");
