@@ -54,7 +54,7 @@
       <div class="row"><div><label for="tax">VAT in the shelf price %</label><input id="tax" type="number" min="0" max="40" step="0.5" value="20"></div><div><label for="fee">Payment and platform fee %</label><input id="fee" type="number" min="0" max="40" step="0.1" value="3"></div></div>
       <div class="row"><div><label for="feef">Fixed fee per order</label><input id="feef" type="number" min="0" step="0.01" value="0.3"></div><div><label for="cancel">Cancel or fail payment %</label><input id="cancel" type="number" min="0" max="90" step="0.5" value="5"></div></div>
       <h2>Traffic</h2>
-      <div class="row"><div><label for="conv">Visitors who order %</label><input id="conv" type="number" min="0.01" max="100" step="0.1" value="2"></div><div><label for="vpd">Visitors per day</label><input id="vpd" type="number" min="0" step="1" value="200"></div></div>
+      <div class="row"><div><label for="conv">Visitors who order %</label><input id="conv" type="number" min="0.01" max="100" step="any" value="2"></div><div><label for="vpd">Visitors per day</label><input id="vpd" type="number" min="0" step="1" value="200"></div></div>
       <div class="row"><div><label for="days">Campaign days</label><input id="days" type="number" min="1" step="1" value="30"></div><div><label for="cpc">Price per bought visitor (0 = free)</label><input id="cpc" type="number" min="0" step="0.01" value="0"></div></div>
       <h2>A small test (optional)</h2>
       <p class="tag">If you have already sent some visitors to a page, type what happened. The result then shows a 95% range for the conversion rate.</p>
@@ -84,6 +84,7 @@
       const pct = Math.round(r.pFunded * 100);
       $("#result").innerHTML = `<p class="big">${esc(r.verdict.toUpperCase())}: ${pct}% chance to fund</p><p>${esc(VERDICT_TEXT[r.verdict])}</p>
         <table>
+          <tr><th scope="col">Measure</th><th scope="col" class="num">Value</th></tr>
           <tr><td>Orders to take (after ${n("#cancel")}% cancel)</td><td class="num"><b>${r.ordersNeeded}</b></td></tr>
           <tr><td>Visitors needed at ${n("#conv")}%</td><td class="num"><b>${r.visitorsNeeded}</b></td></tr>
           ${r.adCost ? `<tr><td>Cost of that traffic</td><td class="num">${r.adCost}</td></tr>` : ""}
