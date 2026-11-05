@@ -7,6 +7,23 @@ X-WR-CALNAME:E-invoicing mandate dates
 X-WR-CALDESC:Dated e-invoicing mandate milestones by country. Not legal o
  r tax advice; confirm with the tax authority.
 BEGIN:VEVENT
+UID:835befb0123dfae8@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20120101
+DTEND;VALUE=DATE:20120102
+SUMMARY:Georgia: e-invoice.app gives 1 Jan 2012 for B2B and B2G\, another
+  guide a 2022 to 2024 phase-in\, ...
+DESCRIPTION:Georgia (In force (start date and phases disputed)). e-invoic
+ e.app gives 1 Jan 2012 for B2B and B2G\, another guide a 2022 to 2024 ph
+ ase-in\, and a confirmation duty is reported from October 2026 (vendor a
+ nd advisory guides\, Tax Code and Revenue Service unread). Detail and so
+ urces: https://example.invalid/einvoice-preflight/georgia-rs-e-invoice-m
+ andate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/georgia-rs-e-invoice-manda
+ te.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:7ab605391ebc145f@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20140101
@@ -19,6 +36,22 @@ DESCRIPTION:Austria (B2G only). Federal government suppliers since 1 Jan
  ax advice.
 URL:https://example.invalid/einvoice-preflight/austria-e-invoice-mandate.
  html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:fd3c1c0df419e2c4@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20150101
+DTEND;VALUE=DATE:20150102
+SUMMARY:Armenia: guides date it to 2011 (launch)\, 1 Jan 2015 (B2B and B2
+ G) or 2016\, and disagree on B2C ...
+DESCRIPTION:Armenia (In force (start year disputed)). guides date it to 2
+ 011 (launch)\, 1 Jan 2015 (B2B and B2G) or 2016\, and disagree on B2C (v
+ endor and advisory guides\, Tax Code and SRC unread). Detail and sources
+ : https://example.invalid/einvoice-preflight/armenia-src-e-invoice-manda
+ te.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/armenia-src-e-invoice-mand
+ ate.html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT

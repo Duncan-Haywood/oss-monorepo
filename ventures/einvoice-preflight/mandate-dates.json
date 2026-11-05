@@ -3,11 +3,25 @@
  "note": "Full day-month-year dates only. Not legal or tax advice.",
  "events": [
   {
+   "date": "2012-01-01",
+   "country": "Georgia",
+   "page": "georgia-rs-e-invoice-mandate.html",
+   "note": "e-invoice.app gives 1 Jan 2012 for B2B and B2G, another guide a 2022 to 2024 phase-in, and a confirmation duty is reported from October 2026 (vendor and advisory guides, Tax Code and Revenue Service unread)",
+   "status": "In force (start date and phases disputed)"
+  },
+  {
    "date": "2014-01-01",
    "country": "Austria",
    "page": "austria-e-invoice-mandate.html",
    "note": "Federal government suppliers since 1 Jan 2014 (EN 16931 since 18 Apr 2020)",
    "status": "B2G only"
+  },
+  {
+   "date": "2015-01-01",
+   "country": "Armenia",
+   "page": "armenia-src-e-invoice-mandate.html",
+   "note": "guides date it to 2011 (launch), 1 Jan 2015 (B2B and B2G) or 2016, and disagree on B2C (vendor and advisory guides, Tax Code and SRC unread)",
+   "status": "In force (start year disputed)"
   },
   {
    "date": "2016-10-01",
