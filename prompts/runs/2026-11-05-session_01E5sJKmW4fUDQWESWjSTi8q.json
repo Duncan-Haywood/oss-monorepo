@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-05",
+  "session": "https://claude.ai/code/session_01E5sJKmW4fUDQWESWjSTi8q",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-05T09:25:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13289",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/marine-hull/README.md",
+      "issue": "Run list uses milestone label 5i/5h for solar scripts, clashing with wing-sail 5h/5i labels in LOG.md"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-05-bias-correcting-a-weather-model-for-a-sailing-robot.md",
+    "research/marine-hull/LOG.md (5i)"
+  ],
+  "goal": null,
+  "notes": "NDBC blocked by proxy (403); stayed on archived HRRR. Python tests not rerun (no src change); homepage build ok.",
+  "corrections": [],
+  "redteam": null
+}
