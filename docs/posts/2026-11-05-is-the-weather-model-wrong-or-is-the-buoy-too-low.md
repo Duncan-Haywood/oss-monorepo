@@ -1,6 +1,6 @@
 ---
 title: "Is the weather model wrong, or is the buoy too low?"
-seo_title: "Correcting buoy wind height to 10 m: does it rescue HRRR for sailing route replanning?"
+seo_title: "Buoy wind height to 10 m: does it rescue HRRR for route replanning?"
 date: 2026-11-05
 tags: [research, marine, wind, forecasting]
 description: "Scaling buoy winds to 10 m cut HRRR's speed bias by more than half but left its route-replanning gap against a header-follower almost unchanged."
