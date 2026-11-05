@@ -1,6 +1,8 @@
 ---
 title: "A narrower prediction interval for Austin build times does not hold up"
 date: 2026-11-05
+tags: [build-data, research, conformal-prediction, building-permits]
+description: "A backtest rule for tighter 80% intervals on Austin build time (issue to completion) fails on coverage and width, with the yearly numbers."
 ---
 
 We predict how long a permitted build takes in Austin, Texas (issue to completion), with an interval meant to cover 80% of real permits. Last session we found that in Chicago and San Francisco a narrower choice of quantile pair, picked with a one-year backtest, cut interval width by 44 to 71% for application-to-issue time. We pre-registered the same test for Austin build time and it failed.
