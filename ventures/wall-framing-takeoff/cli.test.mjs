@@ -392,3 +392,15 @@ test("--paint with --trim takes the trim's lineal feet; a typed trimFeet wins", 
   const b = JSON.parse(run(["p.json", "--paint", "--trim", "--json"], plan).out);
   assert.equal(b.paint.trimFeet, 10);
 });
+
+test("--flooring adds finish flooring orders", () => {
+  const plan = samplePlan();
+  plan.flooring = { rooms: [{ name: "den", width: 144, depth: 168, kind: "carpet" }, { name: "hall", width: 120, depth: 48, kind: "plank" }] };
+  const { code, out } = run(["p.json", "--flooring"], plan);
+  assert.equal(code, 0);
+  assert.match(out, /FLOORING/);
+  assert.match(out, /Carpet:/);
+  const bad = run(["p.json", "--flooring"], { ...samplePlan(), flooring: { rooms: [] } });
+  assert.equal(bad.code, 1);
+  assert.match(bad.out, /flooring has problems/);
+});

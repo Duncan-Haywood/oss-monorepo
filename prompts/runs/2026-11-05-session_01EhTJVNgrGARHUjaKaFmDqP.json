@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-05",
+  "session": "https://claude.ai/code/session_01EhTJVNgrGARHUjaKaFmDqP",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-05T07:58:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship wall-framing-takeoff: finish flooring takeoff",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py route",
+      "why": "Router drew the redteam track; the scheduled prompt asks for product work, so I followed it and recorded under ventures/2.",
+      "did": "Built flooring.mjs",
+      "result": "828 wall-framing-takeoff tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-05-flooring-orders-from-room-sizes.md"
+  ],
+  "goal": null,
+  "notes": "Ran node --test '*.test.mjs' in ventures/wall-framing-takeoff: 828 pass, 0 fail. Flooring has hand-arithmetic tests only; not on page or budget.",
+  "corrections": [],
+  "redteam": null
+}
