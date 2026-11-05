@@ -19,12 +19,12 @@
   "projects": [
     "ventures/clothing-design-studio"
   ],
-  "pr": null,
+  "pr": 13264,
   "repo": null,
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 8,
@@ -40,7 +40,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "node --test in clothing-design-studio: 226 pass. Browser smoke of fit.html via Playwright: cutting plan renders, no console errors. portfolio/requests/intake.test.mjs has 1 failure ('the form header in build.mjs changed') that also fails without my changes (checked with git stash); not touched. Estimate uses rectangles, so unproven against a real CAD marker.",
+  "notes": "node --test in clothing-design-studio: 226 pass. Browser smoke of fit.html via Playwright: cutting plan renders, no console errors. portfolio/requests/intake.test.mjs has 1 failure ('the form header in build.mjs changed') that also fails without my changes (checked with git stash); not touched. Estimate uses rectangles, so unproven against a real CAD marker. CI checks were still queued when I merged; the local checks above are what I verified.",
   "corrections": [],
   "redteam": null
 }
