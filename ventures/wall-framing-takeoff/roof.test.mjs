@@ -380,3 +380,11 @@ test("valley flashing rolls: two valleys per wing, 10% waste, 50 ft rolls, by ha
   assert.equal(t.roofing.valleyFlashingRolls, Math.ceil(t.roofing.valleyFeet / 10 - 1e-9));
   assert.equal(layoutRoof(sampleRoof(), plan()).roofing.valleyFlashingRolls, undefined);
 });
+
+test("pipe boots: the typed count plus one spare, nothing when not typed", () => {
+  assert.equal(layoutRoof(sampleRoof(), plan()).roofing.pipeBoots, undefined);
+  assert.equal(layoutRoof({ ...sampleRoof(), roofing: { pipeBoots: 3 } }, plan()).roofing.pipeBoots, 4);
+  assert.equal(layoutRoof({ ...sampleRoof(), roofing: { pipeBoots: 3, pipeBootSpares: 0 } }, plan()).roofing.pipeBoots, 3);
+  assert.equal(layoutRoof(hipRoof({ roofing: { pipeBoots: 2 } }), plan()).roofing.pipeBoots, 3);
+  assert.equal(layoutRoof({ ...sampleRoof(), roofing: { pipeBoots: 2.5 } }, plan()).roofing.pipeBoots, undefined);
+});
