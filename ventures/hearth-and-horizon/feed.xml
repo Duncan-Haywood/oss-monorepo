@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Anthony and the Sermon to the Fishes</title>
+      <link>https://example.invalid/hearth-and-horizon/anthony-and-the-sermon-to-the-fishes.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/anthony-and-the-sermon-to-the-fishes.html</guid>
+      <pubDate>Thu, 05 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Anthony of Padua, a quiet young man from Lisbon who became one of the great preachers of his day, and about the old tale of the morning he went down to the sea to preach because the people of Rimini would not listen, and the fish lifted their heads. Told from what is recorded of his life, with the fish marked as a legend and a note for grown-ups on what is history and what is our own addition. For ages 3 to 8, about eight minutes read aloud. His feast day is the 13th of June. Setting: Rimini, on the Adriatic coast of Italy, about eight hundred years ago. Read the full text at https://example.invalid/hearth-and-horizon/anthony-and-the-sermon-to-the-fishes.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Anthony of Padua, a quiet young man from Lisbon who became one of the great preachers of his day, and about the old tale of the morning he went down to the sea to preach because the people of Rimini would not listen, and the fish lifted their heads. Told from what is recorded of his life, with the fish marked as a legend and a note for grown-ups on what is history and what is our own addition. For ages 3 to 8, about eight minutes read aloud. His feast day is the 13th of June.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Back Row and the Front</title>
       <link>https://example.invalid/hearth-and-horizon/the-back-row-and-the-front.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-back-row-and-the-front.html</guid>
@@ -32,6 +42,16 @@
       <pubDate>Thu, 05 Nov 2026 12:00:00 GMT</pubDate>
       <description>Fifty-six harvest loaves, an oven that holds eight, and dough that cannot wait. The parish assistant shows that the last tray would be seven hours over-proved on the kitchen table, and that five rooms at five temperatures can make every tray ready at the minute its turn comes. Setting: Saint Walstan's hall (invented), near Diss, Norfolk, Saturday 27 September 2053. Read the full text at https://example.invalid/hearth-and-horizon/the-last-tray-in.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
       <itunes:summary>Fifty-six harvest loaves, an oven that holds eight, and dough that cannot wait. The parish assistant shows that the last tray would be seven hours over-proved on the kitchen table, and that five rooms at five temperatures can make every tray ready at the minute its turn comes.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
+      <title>The Pan on the Scale</title>
+      <link>https://example.invalid/hearth-and-horizon/the-pan-on-the-scale.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-pan-on-the-scale.html</guid>
+      <pubDate>Thu, 05 Nov 2026 12:00:00 GMT</pubDate>
+      <description>Last year's strawberry jam ran like syrup. This year the parish assistant turns &quot;boil till it's ready&quot; into a number a kitchen scale can read: how much water a kilo of fruit and 800 grams of sugar must lose to reach 65 per cent sugar, and when to stop. Setting: Saint Finbarr's hall (invented), near Bantry, Co. Cork, Saturday 16 July 2050. Read the full text at https://example.invalid/hearth-and-horizon/the-pan-on-the-scale.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>Last year's strawberry jam ran like syrup. This year the parish assistant turns &quot;boil till it's ready&quot; into a number a kitchen scale can read: how much water a kilo of fruit and 800 grams of sugar must lose to reach 65 per cent sugar, and when to stop.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
     </item>

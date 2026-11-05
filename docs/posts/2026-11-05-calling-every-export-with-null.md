@@ -1,8 +1,8 @@
 ---
 title: Calling every function in a framing tool with null
 date: 2026-11-05
-tags: [wall-framing-takeoff, testing, robustness]
-description: "Calling every exported function of the wall-framing takeoff with null, nothing, a number and a word gave 397 raw TypeErrors; what we fixed and what we left."
+description: "Calling every exported function of the wall-framing takeoff with null and bad input gave 397 TypeErrors; the four taking user input now say what they need"
+tags: [wall-framing-takeoff, robustness, testing]
 ---
 
 We call every exported function of the wall-framing takeoff with `null`,

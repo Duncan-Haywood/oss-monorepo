@@ -30,7 +30,7 @@ export function validatePaint(d) {
   if (d.doorFaces != null && !(d.doorFaces >= 0 && d.doorFaces <= 2)) e.push("Door faces must be 0, 1 or 2.");
   if (d.doorLeafSqFt != null && !(d.doorLeafSqFt > 0 && d.doorLeafSqFt <= 60)) e.push("A door leaf is a figure up to 60 sq ft.");
   if (d.trimFtPerGal != null && !(d.trimFtPerGal > 0)) e.push("Trim feet per gallon must be above 0.");
-  if (Array.isArray(d.ceilings) ? d.ceilings.some((c) => !c || !(c.width > 0 && c.depth > 0)) : d.ceilings != null) e.push("Each ceiling needs a width and a depth above 0.");
+  if (Array.isArray(d.ceilings) ? d.ceilings.some((c) => !c || typeof c.width !== "number" || typeof c.depth !== "number" || !(c.width > 0 && c.depth > 0 && c.width <= 1e5 && c.depth <= 1e5)) : d.ceilings != null) e.push("Each ceiling needs a width and a depth above 0.");
   return e;
 }
 
