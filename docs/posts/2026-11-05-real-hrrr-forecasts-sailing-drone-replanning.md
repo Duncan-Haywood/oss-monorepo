@@ -1,6 +1,6 @@
 ---
 title: "A real weather forecast did not help a sailing drone replan"
-seo_title: "HRRR forecast vs header-following for an autonomous sailboat: real data"
+seo_title: "HRRR forecast vs header-following for a sailing drone: real data"
 date: 2026-11-05
 tags: [research, marine, sailing, forecasts]
 description: "Replacing a synthetic forecast with archived HRRR winds at 12 US stations: raw model winds lose to simply following wind shifts."
