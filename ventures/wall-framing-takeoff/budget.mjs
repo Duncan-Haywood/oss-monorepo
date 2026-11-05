@@ -13,7 +13,7 @@
 // vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, drywallScrewThousand (per 1,000 screws), drywallTapeRoll, drywallCompoundPail, cornerBeadStick, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), laborSidingSqFt (siding and house wrap, per sq ft of wall net of openings), laborTrimFoot (baseboard, shoe and casing, per linear foot), laborEavesFoot (fascia run, eave plus rake, per linear foot; soffit and J-channel included), laborGutterFoot (gutter run, per linear foot; downspouts included), ridgeVent (per ridge vent piece), soffitVent (each), rafterBaffle (each), laborWallSheet (wall sheathing, per sheet hung), stairConnector (top connector or foot anchor, each), stairRiserBoard (solid riser board, when the stair has `riserBoard`), stairBaluster, stairRailPost, handrailBracket (each; stairs with a `rail`), handrailFoot (per linear foot of handrail run), laborDeckSqFt (deck framing, decking and rails, per sq ft of deck), deckConcreteBag, deckScrewBox, laborStairRiser (stairs, per riser, both flights of a landing stair; stringers, treads and risers set), laborDormerSqFt (dormer framing and roofing, per sq ft of dormer roof), laborHoldDown (per hold-down or plate strap set, each), tax (fraction on materials), contingency (fraction), overhead (fraction of cost, builder's office and general conditions), profit (fraction of cost plus overhead; both markups give the bid price, `bid`, and `marginPct`, profit as a share of the bid) }.
 // dormerBoardFoot (price per board foot of dormer framing), dormerRoofSqFt (price per sq ft of dormer roof).
 // nailBox falls back to fasteners.price; insulationBag falls back to the plan's insulation.price; atticFillBag to insulation.attic.price.
-// Flooring (plan `flooring`): plankBox, plankUnderlaymentRoll, floorTile, thinsetBag, groutBag, carpetSqYd, carpetPadSqYd, tackStrip override the flooring settings' own prices; laborFlooringSqFt is per sq ft laid.
+// Flooring (plan `flooring`): plankBox, plankUnderlaymentRoll, floorTile, thinsetBag, groutBag, carpetSqYd, carpetPadSqYd, tackStrip, transitionBar override the flooring settings' own prices; laborFlooringSqFt is per sq ft laid.
 // Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
 // (`sheathing.summary.cost`) unless `wallSheet` is typed.
 
@@ -119,6 +119,7 @@ export function budget(result, prices = {}, allowances = {}) {
       add("Flooring", "Tack strip pieces", Math.ceil(cp.tackFeet / (cp.tackStripLength || 4) - 1e-9), "pieces", P("tackStrip") ?? cp.tackPrice, `${cp.tackFeet.toFixed(0)} ft round the rooms`);
     }
   }
+  if (flr?.ok && flr.transitions) add("Flooring", "Transition bars", flr.transitions.bars, "bars", P("transitionBar") ?? flr.transitions.barPrice, `${flr.transitions.doorways} doorway(s), ${flr.transitions.piecesPerBar} per ${flr.transitions.barLength} in bar`);
   const el = result.electrical;
   if (el?.ok) {
     // Prices come from the electrical settings (receptaclePrice, switchPrice, boxPrice, cablePrice) unless a budget price key overrides them.

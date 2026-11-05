@@ -72,3 +72,21 @@ test("tackStripLength of 0 or below is refused, not an infinite or negative cost
     assert.match(r.errors.join(" "), /tackStripLength/);
   }
 });
+
+test("transitions by hand: 5 doorways of 36 in from 72 in bars, 2 per bar -> 3 bars", () => {
+  const f = layoutFlooring({ rooms: [{ width: 120, depth: 120, kind: "plank", doorways: 3 }, { width: 96, depth: 96, kind: "tile", doorways: 2 }], transition: { barPrice: 20 } });
+  assert.ok(f.ok);
+  assert.equal(f.transitions.doorways, 5);
+  assert.equal(f.transitions.piecesPerBar, 2);
+  assert.equal(f.transitions.bars, 3);
+  assert.equal(f.cost, 60);
+  assert.ok(flooringText(f).some((l) => l.includes("3 bar(s)")));
+});
+
+test("transitions: a 48 in door from a 72 in bar gets one piece per bar; bad values refused", () => {
+  const f = layoutFlooring({ rooms: [{ width: 120, depth: 120, kind: "plank", doorways: 3 }], transition: { doorWidth: 48 } });
+  assert.equal(f.transitions.bars, 3);
+  assert.ok(validateFlooring({ rooms: [{ width: 1, depth: 1, kind: "plank", doorways: 1.5 }] }).length);
+  assert.ok(validateFlooring({ rooms: [{ width: 1, depth: 1, kind: "plank", doorways: 1 }], transition: { doorWidth: 80, barLength: 72 } }).length);
+  assert.equal(layoutFlooring({ rooms: [{ width: 120, depth: 120, kind: "plank" }] }).transitions, null);
+});
