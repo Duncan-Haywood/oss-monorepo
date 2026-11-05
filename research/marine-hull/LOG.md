@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-05 · Milestone 7q: 5a to 5g folded into the paper draft and README (no experiment run)
+- Why: the draft had no wing-sail section and the README stopped at 5d. Added section 2.5 to `paper/DRAFT.md` and a 5e to 5g paragraph to the README; every number is copied from the entries above and their `results_sail_*.txt` files.
+- Limits: prose only; no new numbers. The synthetic forecast-error model of 5d is still the main gap.
+- Next: archived HRRR or GFS winds if a host answers; spatial wind fields.
+
 ## 2026-11-04 · Milestone 5g: does a minimum-dwell rule rescue the low-skill rows of 5d? (closes 5f's "Next"; pre-registration)
 - Why: 5e and 5f showed no proportional switch margin helps. Untested: forbid a voluntary tack within D minutes of the last tack (`tack.sim_replan(..., dwell=D)`; forced edge tacks still happen and reset the clock). Same windows (every 8th), polar, corridor, tau and forecasts as 5f; D = 0, 10, 20, 40, 80 min at T = 0, 30, 60, 120 min.
 - Predictions (before running): D1 D = 0 reproduces 5f's margin-0 rows exactly (implementation check). D2 at T = 0 the best D cuts tacks per day by at least 40% against D = 0. D3 at T = 0 no D lifts progress to the header-follower's (5f found damping cannot fix persistence forecasts), so the T = 0 gap stays negative. D4 at T = 120 any D of 40 or more costs at least 0.5 points against D = 0.
