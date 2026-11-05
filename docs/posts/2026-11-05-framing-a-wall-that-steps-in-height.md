@@ -1,6 +1,6 @@
 ---
 title: "Framing a wall that steps in height"
-seo_title: "Stepped wall framing takeoff: studs, plates and the doubled stud at the step"
+seo_title: "Stepped wall framing takeoff: studs, plates and the step stud"
 date: 2026-11-05
 tags: [wall-framing-takeoff, construction, framing]
 description: "A wall that goes from 8 ft to 10 ft studs part-way along now takes off as level segments, each with its own end studs, plates and cut list."
