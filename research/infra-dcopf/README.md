@@ -34,6 +34,13 @@ Track 21 (`infra`), grid first. Grid dispatch is routinely planned and priced wi
 - On case30 and case39 differences are within 0.1 % and change sign, as before; not interpretable. Load 1.1 has no AC solution on those two.
 - So step 2 is not "done": penalty factors are not a safe fix at high load here. Next: take sensitivities at the AC optimum (one-shot), or use a distributed slack.
 
+## Case300: pandapower's AC OPF does not give usable prices (added 2026-11-05, `experiments/run_case300.py`, `results_case300.txt`)
+Next step 1 asked for a case whose published ratings bind. MATPOWER `case300` (300 buses, 68 generators) was run at loads 0.5 to 1.0 and branch-limit factors 1.0, 0.5, 0.3, with the AC OPF tried from pandapower's default start and then from a flat start.
+- **The AC OPF converged in 3 of 18 cells** (loads 0.6, 0.7, 0.8 at the published limits); nowhere at full load or with tightened limits. The DC OPF solved in all 18.
+- **No DC branch binds** in any converged cell, so DC prices are one flat number (31.9, 34.0, 36.0).
+- **The AC prices are not credible.** Bus prices range from -2954 to 115 per MWh at load 0.6, 31 to 83 at 0.7, and -16 to 1366 at 0.8, against a DC price of about 32 to 36. The AC-optimum cost is 2.6 to 4.0 % *above* the DC cost, and the DC dispatch run through AC power flow costs 0.7 to 2.0 % *less* than the claimed AC optimum, which cannot happen at a true optimum. So these are local or poorly converged points of a non-convex problem, not optima.
+- **Conclusion for this step:** I could not separate the loss and congestion components of price on case300 with this solver. The comparison needs a different AC OPF solver (for example IPOPT through PowerModels.jl or MATPOWER's own MIPS/IPOPT) and a check against MATPOWER's published case300 optimum; both are outside this container. Until then, the case118 LMP result above is the only price comparison here, and case300 AC cost figures should not be quoted.
+
 ## Method (`src/infra_dcopf/dcopf.py`)
 - **Cases.** `case30`, `case39` and `case118` from `pandapower.networks` (MATPOWER cases), with their quadratic generator costs (`poly_cost`).
 - **Two OPFs per condition.** `runopp` (AC, PIPS interior point, voltage and branch loading limits) and `rundcopp` (DC), on the same network with load scaled by 0.6, 0.8, 1.0 and 1.1 (P and Q together).
@@ -66,7 +73,7 @@ Findings (one case, one load level, preliminary):
 - Correlation of bus prices is undefined (nan) while the DC prices are flat, and 0.31 to 0.39 once two lines bind.
 
 ## Next steps
-1. Repeat the LMP comparison on a case whose published ratings bind (MATPOWER `case300`, or case118 with ratings from a real source) and separate the loss and congestion components of the price.
+1. Repeat the LMP comparison on a case whose published ratings bind, with an AC OPF solver that converges on case300 (see the section above: pandapower's does not); check the solver against MATPOWER's published case300 optimum first, then separate the loss and congestion components of the price.
 2. Penalty factors were tried (above) with mixed results; next, take sensitivities at the AC optimum or use a distributed slack.
 3. Reactive-aware fix: add voltage-band constraints to the LP and see whether case39's violations go away.
 
@@ -74,9 +81,10 @@ Findings (one case, one load level, preliminary):
 ```bash
 pip install pytest numpy pandapower
 cd research/infra-dcopf
-python -m pytest -q tests                     # 10 tests, about 15 s
+python -m pytest -q tests                     # 11 tests, about 20 s
 PYTHONPATH=src python experiments/run.py      # about 1 min; writes experiments/results.txt
 PYTHONPATH=src python experiments/run_lossadj.py  # loss-adjusted DC, about 1 min; writes results_lossadj.txt
+PYTHONPATH=src python experiments/run_case300.py  # case300 sweep, about 1.5 min; writes results_case300.txt
 python experiments/run_lmp.py                 # LMP comparison, about 1 min; writes experiments/results_lmp.txt
 python experiments/figure.py                  # experiments/gap_vs_load.svg
 ```

@@ -14,7 +14,8 @@ import pandapower.networks as nw
 
 warnings.filterwarnings("ignore")
 
-CASES = {"case30": nw.case30, "case39": nw.case39, "case118": nw.case118}
+CASES = {"case30": nw.case30, "case39": nw.case39, "case118": nw.case118,
+         "case300": nw.case300}
 
 
 def load_case(name):
@@ -37,13 +38,20 @@ def gen_cost(net, p_gen, p_slack):
     return total
 
 
-def solve_ac(net):
-    n = copy.deepcopy(net)
-    try:
-        pp.runopp(n, verbose=False)
-    except Exception:
-        return None
-    return n
+def solve_ac(net, inits=(None,)):
+    """AC OPF; `inits` lists pandapower start modes to try in order (None = default).
+    The default start is kept for the older cases so their published rows do not move."""
+    for init in inits:
+        n = copy.deepcopy(net)
+        try:
+            if init is None:
+                pp.runopp(n, verbose=False)
+            else:
+                pp.runopp(n, verbose=False, init=init, numba=False)
+            return n
+        except Exception:
+            continue
+    return None
 
 
 def solve_dc(net):
