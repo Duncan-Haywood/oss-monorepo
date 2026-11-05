@@ -1,9 +1,9 @@
 ---
 title: "Does airframe upwash push an angle-of-attack probe past our flight-fit limit?"
-seo_title: "Airframe upwash on angle-of-attack probes vs system identification tolerance"
+seo_title: "Airframe upwash on angle-of-attack probes vs fit tolerance"
 date: 2026-11-05
 tags: [research, aerolog-scaling, system-identification, uav]
-description: "CFD of a small blended-wing-body UAS gives a 0.6 degree upwash offset and a 19% slope error on angle of attack. Our simulated fit tolerates about 1.25 degrees of bias."
+description: "CFD of a small blended-wing-body UAS gives a 0.6 degree upwash offset and a 19% slope error on angle of attack; our simulated fit tolerates 1.25 degrees."
 ---
 
 Yesterday's check in the `aerolog-scaling` programme put an uncalibrated five-hole probe (2.49 degrees of angle-of-attack bias) past the point where our simulated output-error fit breaks (between 1.25 and 1.5 degrees). The follow-up was to find what is left after calibration. The paper that looked most likely, Sasse et al. (AIAA SciTech 2022, doi:10.2514/6.2022-2400), does not report a flight residual. Its 2.0 and 0.5 degree biases are wind-tunnel stage angles that the calibration removes.
