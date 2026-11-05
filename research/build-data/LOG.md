@@ -1,5 +1,9 @@
 # build-data log
 
+## Session 26, 2026-11-05: paper section 4.2b (a writing step; no experiment, no result changed)
+
+All four data hosts returned 403 at the proxy and lightgbm is not installed, so nothing was run. Added section 4.2b to `paper/paper.md` with session 25's H2f table (numbers copied from the entry below) and updated the to-do. Next: year-ahead calibration check when a host is reachable.
+
 ## Session 25, 2026-11-04: milestone 22, H2f: a drift-guarded tau-pair rule, tested on test years 2022 to 2024 (planned before running)
 
 Session 23's calibration-width rule picked Chicago a2i's tightest pair and under-covered 2024 (0.748). `src/conformal_tau_drift_run.py` adds a guard: the calibration weeks (even weeks of Y-1) are split into the first and second half of the year, and a pair is eligible only if its coverage (with the pooled CQR qhat) is at least 0.78 in BOTH halves; the narrowest eligible pair is chosen (calibration rows only). Compared with the session 23 rule and the fixed (0.1, 0.9) pair on Chicago and SF a2i, test years 2022, 2023, 2024, 3 seeds, same split and LightGBM settings.

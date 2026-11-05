@@ -150,6 +150,21 @@ picks the tightest pair, whose calibration coverage (0.808) falls to 0.748 in 20
 same-day drift now acts on a nonzero qhat. In the grid only Chicago (0.2, 0.85) lands in the
 band (0.805, width 39.1), a post-hoc observation, not a result. One test year for H2e.
 
+### 4.2b A drift-guarded quantile-pair rule over three test years (H2f refuted)
+
+Pre-registered in `LOG.md` (session 25): choose the (tau_lo, tau_hi) pair that is narrowest among pairs whose calibration coverage is at least 0.78 in both halves of the calibration year. Chicago and SF a2i, test years 2022 to 2024, 3 seeds; `results/conformal_tau_drift_*`. Coverage / mean width in days:
+
+| city, year | guarded rule | fixed (0.1, 0.9) |
+|---|---|---|
+| Chicago 2022 | 0.817 / 17.6 | 0.853 / 52.7 |
+| Chicago 2023 | 0.729 / 16.2 | 0.838 / 56.4 |
+| Chicago 2024 | 0.762 / 31.0 | 0.867 / 67.9 |
+| SF 2022 | 0.861 / 84.0 | 0.861 / 84.0 |
+| SF 2023 | 0.842 / 39.4 | 0.850 / 64.8 |
+| SF 2024 | 0.828 / 27.2 | 0.900 / 63.4 |
+
+The guarded rule is inside 77 to 83% in 2 of 6 cells (the unguarded rule of 4.2a also 2 of 6), so H2f is refuted; the width half held (at least 15% narrower in 5 of 6; SF 2022 fell back to the fixed pair). Chicago 2023 under-covers by 5 points although calibration coverage was 0.81 in both halves, so the shortfall is year-to-year, not within-year drift. Reading: tighter pairs give 2 to 4 times narrower SF intervals at 0.83 to 0.84 coverage, but for Chicago no rule using the calibration year alone chooses safely; keep (0.1, 0.9) there. Limits: two cities, three years, 3 seeds, a hand-set 0.78 threshold.
+
 ### 4.3 Which fields (H3, as worded)
 
 Permutation importance: the smallest number of fields reaching 80% of the total
@@ -198,7 +213,7 @@ tighter quantile levels (4.2a) can halve the width, but pick them with drift in 
 ## 7 To do before submission
 
 1. A neural net baseline; per-library tuning (Austin a2i CatBoost gap).
-2. A drift-aware choice of the quantile pair (4.2a), tested on test years 2022 to 2024; Austin and i2c for H2e.
+2. A year-ahead (Y-2 versus Y-1) calibration check for the quantile pair (4.2b did not solve Chicago); Austin and i2c for H2e.
 3. Spread over draws and i2c for 4.5; first-n-rows ordering instead of random draws.
 4. Multiple test years for H1; a fourth city after a licence check.
 5. Publish the permit-duration prior data file for `ventures/` (milestone 7).
