@@ -5,7 +5,7 @@ const DAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", 
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 const DAY_RE = "(mon(?:day)?|tue(?:s|sday)?|wed(?:nesday)?|thu(?:r|rs|rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?|tomorrow)";
 const MON_RE = "(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t|tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)";
-const TIME_RE = "(?:at |around |about |@ )?(\\d{1,2})(?::(\\d{2}))?\\s?(am|pm|a\\.m\\.|p\\.m\\.)?";
+const TIME_RE = "(?:at |around |about |@ )?(\\d{1,2})(?!\\d)(?::(\\d{2}))?\\s?(am|pm|a\\.m\\.|p\\.m\\.)?";
 const PART = "(morning|afternoon|evening|first thing|after lunch)";
 const iso = (d) => d.toISOString().slice(0, 10);
 const add = (s, n) => { const d = new Date(`${s}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + n); return iso(d); };
@@ -22,6 +22,12 @@ function clock(h, m, ap) {
 export function findSlots(text, today) {
   // "noon" is 12pm; "midday" too. Only the bare word, so "afternoon" is untouched.
   const out = [], src = String(text || "").replace(/\s+/g, " ").replace(/\b(?:at )?(?:noon|midday)\b/gi, "at 12pm")
+    // "morning at 10am" is 10am: the clock time is the more exact of the two
+    .replace(/\b(?:morning|afternoon|evening),? (?:at |around )?(\d{1,2}(?::\d{2})?\s?(?:am|pm))\b/gi, "at $1")
+    // "Friday the 13th" names the date; the weekday word must not become a second slot
+    .replace(/\b(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?,? (the \d{1,2}(?:st|nd|rd|th))\b/gi, "$1")
+    // "10am on the 12th" reads as "the 12th at 10am"
+    .replace(/\b(\d{1,2}(?::\d{2})?\s?(?:am|pm)) on (the \d{1,2}(?:st|nd|rd|th))\b/gi, "$2 at $1")
     // "at 3pm on Thursday" reads as "Thursday at 3pm"
     .replace(new RegExp(`\\b(?:at )?(\\d{1,2}(?::\\d{2})?\\s?(?:am|pm)) (?:on )?${DAY_RE}\\b`, "gi"), "$2 at $1")
     // "Friday 11/13": a numeric month/day that only reads one way becomes "Nov 13"; 11/12 could be either order, so it is left alone
