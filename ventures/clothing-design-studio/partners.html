@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Partner Brand Commission Calculator for a Multi-Brand Clothing Shop</title>
+  <meta name="description" content="Free calculator for a multi-brand clothing shop: from a shelf price, VAT, your commission and card fees, what each partner brand is paid and what the shop keeps, plus a settlement statement per period with refunds.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Partner brand commission calculator and settlement statement">
+  <meta property="og:description" content="What a partner brand is paid per sale, and a settlement statement with refunds. Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Partner brand commission (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"payout per sale after VAT, commission and card fees; shelf price for a target payout; settlement statement with refunds and per-partner terms; CSV"}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="prices.html">Price by market</a> · <a href="quotes.html">Compare quotes</a> · <a href="wardrobe.html">Wardrobe planner</a></p>
+  <h1>Other brands on your shop? Know what each sale pays them.</h1>
+  <p>Commission is taken on the price without VAT, card fees fall on whoever you choose, and a refund takes its commission back. Type a price to see the split, then paste a period's sales for a statement per partner brand. Nothing is sent anywhere and no money moves here.</p>
+  <p class="placeholder">Who is the seller of record, and so who owes VAT, depends on your contract and country. This page assumes your shop sells and pays the VAT: check with an accountant.</p>
+  <div class="grid">
+    <section>
+      <h2>Terms</h2>
+      <div class="row"><div><label for="comm">Commission %</label><input id="comm" type="number" min="0" max="60" step="0.5" value="20"></div><div><label for="vat">VAT % in the price</label><input id="vat" type="number" min="0" max="40" step="0.5" value="22"></div></div>
+      <div class="row"><div><label for="fee">Card fee %</label><input id="fee" type="number" min="0" max="10" step="0.1" value="3"></div><div><label for="fix">Card fee per order</label><input id="fix" type="number" min="0" max="2" step="0.05" value="0.3"></div></div>
+      <label for="bearer">Card fees carried by</label><select id="bearer"><option value="shop">the shop</option><option value="brand">the partner brand</option><option value="split">half each</option></select>
+      <h2>One sale</h2>
+      <div class="row"><div><label for="price">Shelf price (VAT included)</label><input id="price" type="number" min="0" step="0.5" value="61"></div><div><label for="want">Or: price for a brand payout of</label><input id="want" type="number" min="0" step="0.5" placeholder="blank = off"></div></div>
+      <output id="one" aria-live="polite"></output>
+    </section>
+    <div>
+      <section><h2>Settlement statement</h2>
+        <p class="tag">One row per line: partner, sku, qty, total paid, refunded (optional). Comma separated.</p>
+        <textarea id="rows" rows="7" style="width:100%;box-sizing:border-box;font:inherit;font-size:.85rem;border:1px solid var(--line);border-radius:8px;padding:8px">Aurea,halo tee,2,122,0
+Aurea,saint hoodie,1,90,90
+Nord,wool cap,1,36.6,0</textarea>
+        <div style="margin-top:8px"><button type="button" id="dl" class="btn">Download statement (CSV)</button></div>
+        <output id="stmt" aria-live="polite"></output></section>
+    </div>
+  </div>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not financial, tax or legal advice and does not replace an accountant or a written contract with each brand.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a></p>
+  </footer>
+  <script type="module">
+    import { splitSale, priceForPayout, settle, statementCsv } from "./commission.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const terms = () => ({ commissionPct: +$("#comm").value, vatPct: +$("#vat").value, paymentFeePct: +$("#fee").value, paymentFixed: +$("#fix").value, feeBearer: $("#bearer").value });
+    const parse = () => $("#rows").value.split("\n").map(l => l.trim()).filter(Boolean).map(l => { const c = l.split(",").map(x => x.trim()); return { partner: c[0], sku: c[1], qty: c[2] === undefined ? 1 : +c[2], gross: +c[3], refunded: c[4] ? +c[4] : 0 }; });
+    function render() {
+      const want = +$("#want").value;
+      const r = want > 0 ? priceForPayout(want, terms()) : splitSale(+$("#price").value, terms());
+      $("#one").innerHTML = r.error ? `<p class="placeholder">${esc(r.error)}</p>` : `<table><tr><td>Shelf price</td><td class="num"><b>${r.gross.toFixed(2)}</b></td></tr><tr><td>VAT</td><td class="num">${r.vat.toFixed(2)}</td></tr><tr><td>Net of VAT</td><td class="num">${r.net.toFixed(2)}</td></tr><tr><td>Commission</td><td class="num">${r.commission.toFixed(2)}</td></tr><tr><td>Card fee</td><td class="num">${r.cardFee.toFixed(2)}</td></tr><tr><td>Partner brand is paid</td><td class="num"><b>${r.brandPayout.toFixed(2)}</b></td></tr><tr><td>Shop keeps</td><td class="num"><b>${r.shopKeeps.toFixed(2)}</b></td></tr></table>${r.warnings.map(w => `<p class="notes">${esc(w)}</p>`).join("")}`;
+      const s = settle(parse(), terms());
+      $("#stmt").innerHTML = `<table><tr><th>Partner</th><th>Units</th><th>Gross</th><th>Refunded</th><th>Commission</th><th>Owed to brand</th><th>Shop keeps</th></tr>${s.partners.map(p => `<tr><td>${esc(p.partner)}</td><td>${p.units}</td><td class="num">${p.gross.toFixed(2)}</td><td class="num">${p.refunded.toFixed(2)}</td><td class="num">${p.commission.toFixed(2)}</td><td class="num"><b>${p.brandOwed.toFixed(2)}</b></td><td class="num">${p.shopKeeps.toFixed(2)}</td></tr>`).join("")}<tr><td><b>Total</b></td><td></td><td class="num">${s.totals.gross.toFixed(2)}</td><td></td><td></td><td class="num"><b>${s.totals.brandOwed.toFixed(2)}</b></td><td class="num">${s.totals.shopKeeps.toFixed(2)}</td></tr></table>${[...s.problems, ...s.notes].map(w => `<p class="notes">${esc(w)}</p>`).join("")}`;
+    }
+    document.querySelectorAll("section select, section input, section textarea").forEach(el => el.addEventListener("input", () => { render(); recordUsage("partners_check"); }));
+    $("#dl").addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([statementCsv(settle(parse(), terms()))], { type: "text/csv" }));
+      a.download = "partner-statement.csv"; a.click(); recordUsage("partners_csv");
+    });
+    render(); recordUsage("partners_open");
+  </script>
+</body>
+</html>
