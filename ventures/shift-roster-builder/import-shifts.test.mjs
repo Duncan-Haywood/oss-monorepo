@@ -52,3 +52,12 @@ test("in/out and time in/time out headers are read as start and end", () => {
   const q = importShiftsCsv("Date,Time In,Time Out,Role Name\n2026-11-02,7:00,15:00,Bar\n");
   assert.equal(q.rows, 1);
 });
+
+test("start datetime / ends at style headers are read (2026-11-05)", () => {
+  const r = importShiftsCsv("Start DateTime,End DateTime,Role\n2026-11-02 07:00,2026-11-02 15:00,Cook\n");
+  assert.equal(r.rows, 1);
+  assert.match(r.shiftsText, /Mon, 7:00, 15:00, 1, , cook/);
+  const q = importShiftsCsv("Shift Day,Starts At,Ends At,Position\nTuesday,9:00 AM,5:00 PM,Bar\n");
+  assert.equal(q.rows, 1);
+  assert.match(q.shiftsText, /Tue, 9:00, 17:00, 1, , bar/);
+});
