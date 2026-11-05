@@ -5,7 +5,13 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 ## 2026-11-05 · Milestone 9ah: where between 1 and 2 degrees does the fitted-bias (OE+b) fit stop converging at 2 phugoid periods? (prediction written before the run)
 - Why: 9ag's "Next". 9af/9ag found 0 of 160 OE+b failures at 1 degree and 77 to 80 of 160 at 2 degrees (2 periods). `AEROLOG_OFFSETS=1.25,1.5 AEROLOG_PERIODS=2` re-runs 9af's harness at those two biases (20 designs, scale 0.75, noise 10%, 8 draws; new draws, not 9af's stream). Output: `experiments/incidence_offset_fit/results_bisect.txt`.
 - **Prediction (before running):** the failure count rises monotonically with bias: OE+b at most 10 of 160 at 1.25 degrees and between 20 and 70 of 160 at 1.5 degrees (prior 60%). Refuted if 1.25 deg exceeds 10 failures, or 1.5 deg exceeds 80 (a cliff before 1.5) or is under 20 (the onset sits above 1.5).
-- Outcome: pending (the run takes hours; see below when filled).
+- **Outcome** (`experiments/incidence_offset_fit/results_bisect.txt`, about 1.5 h): at 2 periods OE+b fails **2 of 160 at 1.25 degrees** (median errors 0.08 / 0.70 / 1.28%, 76% of draws within 10% gust) and **86 of 160 at 1.5 degrees** (0.07 / 0.89 / 0.95%, 37% within 10% gust, 0 of 20 designs at 90%). Plain LS and OE fail 160 of 160 at both. OE+b+d fails 79 and 87 of 160.
+- **Prediction: half held, half refuted.** 1.25 deg is under 10 failures (held). 1.5 deg is 86, above the 80 limit: refuted, there is a cliff between 1.25 and 1.5 degrees, not a gradual rise. 1.5 degrees is already as bad as 2 degrees (77 to 80 failures).
+- Reading: for a 2.9 deg release disturbance and 2 periods, the fitted-bias fit tolerates a constant alpha-vane bias of about 1.25 degrees (0.43 of the release amplitude) and fails abruptly by 1.5. Drift (OE+b+d) is worse than bias alone at 1.25 (79 vs 2), so the extra parameter hurts here.
+- Limits: swept not sourced; one scale, noise 10%, 8 draws, one seed, no repeat (the 9ag replicate spread was about 14 of 160 failures, small against the 84-failure step); the onset is bracketed to a 0.25 degree interval, not located; the mechanism is untested.
+- Next: source an alignment residual (Sasse et al., NSF PAR 10354754; arXiv 2001.00672) to say which side of the cliff a real vane is on; paper section 4.10d for 9ae to 9ah; AIAA template.
+
+
 
 ## 2026-11-05 · Milestone 9ag: the missing 2-degree, 2-period rows of 9af (re-run; prediction was 9af's)
 - Why: 9af's "Next". `run.py` now takes `AEROLOG_OFFSETS` and `AEROLOG_PERIODS` to re-run chosen rows; this run used 2.0 and 2. The random stream differs from the full run, so these are new draws, not the lost ones. It took about 3 hours (fits at 2 deg mostly fail, and failed fits are slow).
