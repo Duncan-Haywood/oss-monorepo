@@ -523,6 +523,7 @@ the sources, and mark legend as legend)
 - *(Done: Zita and the Bread in the Oven, 27 April; not in the General Roman Calendar, in the Martyrology; bread baked by angels told as legend; text only.)* Saint Zita, a Lucca servant, work and prayer together.
 - *(Done: Brendan and the Island That Was a Whale, 16 May; not in the General Roman Calendar, in the Martyrology; the Navigatio's voyage (whale, singing birds) told as legend from a ninth/tenth-century text; text only.)* Saint Brendan of Clonfert and the monks' leather boat.
 - *(Done: Anthony and the Sermon to the Fishes, 13 June; the sermon to the fish at Rimini told as legend (Fioretti, later than the earliest Life), life in outline, lost-things devotion as custom; text only.)* Saint Anthony of Padua speaks kindly to people who won't listen.
+- *(Done: Hilda and the Cowherd Who Could Not Sing, 17 November; Caedmon's dream told as Bede's report (Ecclesiastical History IV.24, about 731); text only because audio was over the 400 MB cap.)*
 - *(Done: Frances Cabrini and the Big Water, 13 November; history plus her memoirs and early biographies (fear of water, paper boats, the Pope's redirection) told as remembered, the Pope paraphrased; about thirty crossings kept approximate; text only.)* Saint Frances Cabrini, afraid of deep water, crosses the Atlantic for immigrant children.
 
 ## What not to do

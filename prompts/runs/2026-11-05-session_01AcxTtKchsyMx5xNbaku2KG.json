@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-05",
+  "session": "https://claude.ai/code/session_01AcxTtKchsyMx5xNbaku2KG",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled run: read prompt.md and follow",
+  "input_sha256": "d4b8a6ad486ab43f5bbab0c3e444ed92358131022d33d470100206782a05a513",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-05T08:09:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13279",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio over 400 MB cap, so text only, as the prompt directs.",
+      "did": "Landed text, pages, feeds without audio.",
+      "result": "generate --check and tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-05-a-cowherd-who-could-not-sing.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon, Little Lamps shelf. Piece: hilda-and-the-cowherd-who-could-not-sing (text only).",
+  "corrections": [],
+  "redteam": null
+}

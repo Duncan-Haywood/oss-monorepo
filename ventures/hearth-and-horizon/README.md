@@ -13,6 +13,7 @@ podcast, and share or adapt under **CC BY-SA 4.0**. There are three collections:
 
 ## Stories so far
 
+- [Hilda and the Cowherd Who Could Not Sing](stories/hilda-and-the-cowherd-who-could-not-sing.md) (Little Lamps; Whitby, about 680). Saint Hilda, abbess of Whitby, and the shy cowherd Caedmon who left the feast before the harp came round; Bede's dream told as Bede's report, with a note for grown-ups on what is sourced and what is ours.
 - [Anthony and the Sermon to the Fishes](stories/anthony-and-the-sermon-to-the-fishes.md) (Little Lamps; Rimini, Italy, about 800 years ago). Saint Anthony of Padua, a shy young man from Lisbon, and the legend of the fish that listened when the town would not; the fish sermon told as legend (*Fioretti*), the rest in outline. Text only.
 - [The Pile That Smells of Ammonia](stories/the-pile-that-smells-of-ammonia.md) (Hearth & Horizon; Saint Modwen's community garden, invented, near Burton upon Trent, 11 October 2053). 120 kg of churchyard grass (C:N about 17) goes sour; balancing to 30 takes about 37 kg of dry leaf (43 as weighed), but leaf ratios of 40 to 80 give 34 to 86 kg, so the assistant says to add leaves by the bag and trust nose and thermometer. Fiction, text only.
 - [The Shelf That Smiles](stories/the-shelf-that-smiles.md) (Hearth & Horizon; Saint Brannoc's parish library, invented, near Braunton, Devon, 20 January 2052). A new plywood shelf sags 6 mm under 40 kg; the sum shows it is stiff-limited, not near breaking, and a middle bracket beats a thicker board (text only).
