@@ -167,6 +167,7 @@ test("keepIntakes keeps a family's sheet when the app syncs an older copy", () =
 test("meet-and-greet.html is the generated page (run node intake.mjs --write)", () => {
   const file = readFileSync(new URL("./meet-and-greet.html", import.meta.url), "utf8");
   assert.equal(file, I.meetAndGreetPage());
+  assert.match(file, /<main>[\s\S]*<h1>[\s\S]*<\/main>\s*<footer>/, "keep the <main> landmark in the generator, not only the file");
   assert.match(file, /No warranty/);
   assert.match(file, /not legal, tax, or financial advice/i);
   assert.match(file, /github\.com\/sponsors\/Duncan-Haywood/);
