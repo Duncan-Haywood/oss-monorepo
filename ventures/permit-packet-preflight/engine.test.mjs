@@ -35,11 +35,17 @@ test('report text', () => {
   assert.match(t, /not a content check/);
   assert.match(report({ ok: false, errors: ['e'] }), /Cannot check/);
 });
-test('one file shared by two lines is flagged, not silently double counted', () => {
-  const r = preflight('Site plan\nFloor plans', ['site-plan.pdf']);
-  const sp = r.rows[0], fp = r.rows[1];
-  assert.equal(sp.file, 'site-plan.pdf'); assert.equal(sp.shared, false);
-  assert.equal(fp.status, 'missing');
+test('near miss is named but not counted as found', () => {
+  const r = preflight('Structural calculations\nSite plan', ['site-plan.pdf', 'calcs-final.pdf'], { threshold: 0.9 });
+  const row = r.rows.find(x => x.item === 'Structural calculations');
+  assert.equal(row.status, 'missing');
+  assert.equal(row.closest, 'calcs-final.pdf');
+  assert.match(report(r), /closest file: calcs-final\.pdf/);
+});
+test('a file shared by two lines does not silently satisfy both', () => {
+  const r = preflight('Site plan\nSurvey plot', ['site-plan.pdf']);
+  assert.equal(r.rows[0].shared, false);
+  assert.equal(r.rows[1].shared, true);
 });
 test('combined plan set matches several lines, marked shared', () => {
   const r = preflight('Foundation plan\nFloor plans\nElevations', ['foundation-floor-plans-elevations.pdf']);

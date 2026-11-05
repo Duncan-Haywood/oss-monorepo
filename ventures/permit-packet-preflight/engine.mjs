@@ -36,18 +36,19 @@ export function preflight(checklistText, fileNames, { threshold = 0.4 } = {}) {
   if (!(threshold > 0 && threshold <= 1)) return { ok: false, errors: ['threshold must be above 0 and at most 1'] };
   const files = fileNames.map(f => ({ name: f, tokens: tokens(f) }));
   const used = new Set();
-  // Best file per line, but one file should not silently satisfy two unrelated
-  // lines: assign globally by score, then flag a file reused by a second line.
-  const cand = [];
-  items.forEach((it, i) => files.forEach(f => { const s = score(it, f.tokens); if (s >= threshold) cand.push({ i, f, s }); }));
+  // Assign lines to files globally by score; a file reused by a second line is
+  // flagged (possibly a combined set) rather than silently counted twice.
+  const cand = [], best = new Map();
+  items.forEach((it, i) => files.forEach(f => { const s = score(it, f.tokens); if (s > (best.get(i)?.s || 0)) best.set(i, { f, s }); if (s >= threshold) cand.push({ i, f, s }); }));
   cand.sort((x, y) => y.s - x.s || x.i - y.i);
-  const owner = new Map(), pick = new Map();
-  for (const c of cand) if (!pick.has(c.i) && !owner.has(c.f.name)) { pick.set(c.i, { ...c, shared: false }); owner.set(c.f.name, c.i); }
+  const owner = new Set(), pick = new Map();
+  for (const c of cand) if (!pick.has(c.i) && !owner.has(c.f.name)) { pick.set(c.i, { ...c, shared: false }); owner.add(c.f.name); }
   for (const c of cand) if (!pick.has(c.i)) pick.set(c.i, { ...c, shared: true });
   const rows = items.map((it, i) => {
-    const p = pick.get(i);
+    const p = pick.get(i), b = best.get(i);
     if (p) used.add(p.f.name);
-    return { item: it.text, optional: it.optional, status: p ? 'found' : (it.optional ? 'optional-missing' : 'missing'), file: p ? p.f.name : null, confidence: p ? Math.round(p.s * 100) / 100 : 0, shared: !!(p && p.shared), weak: !!(p && p.s < 0.6) };
+    const closest = !p && b && b.s >= threshold / 2 ? b.f.name : null; // near miss: worth a look, not counted as found
+    return { item: it.text, optional: it.optional, status: p ? 'found' : (it.optional ? 'optional-missing' : 'missing'), file: p ? p.f.name : null, closest, confidence: b ? Math.round((p ? p.s : b.s) * 100) / 100 : 0, shared: !!(p && p.shared), weak: !!(p && p.s < 0.6) };
   });
   const missing = rows.filter(r => r.status === 'missing');
   return { ok: true, rows, missing: missing.map(r => r.item), unmatchedFiles: files.map(f => f.name).filter(n => !used.has(n)), summary: { required: rows.filter(r => !r.optional).length, found: rows.filter(r => r.status === 'found').length, missing: missing.length, shared: rows.filter(r => r.shared).length, weak: rows.filter(r => r.weak).length } };
@@ -55,7 +56,7 @@ export function preflight(checklistText, fileNames, { threshold = 0.4 } = {}) {
 export function report(res) {
   if (!res.ok) return 'Cannot check: ' + res.errors.join('; ');
   const L = [`Permit packet preflight: ${res.summary.missing} required item(s) with no matching file (of ${res.summary.required} required).`];
-  for (const r of res.rows) L.push(`${r.status === 'found' ? '[x]' : r.status === 'missing' ? '[ ]' : '[-]'} ${r.item}${r.file ? '  <- ' + r.file : ''}${r.shared ? '  (same file also matches another line: is it a combined set?)' : ''}${r.weak ? '  (weak name match: check it)' : ''}`);
+  for (const r of res.rows) L.push(`${r.status === 'found' ? '[x]' : r.status === 'missing' ? '[ ]' : '[-]'} ${r.item}${r.file ? '  <- ' + r.file : ''}${r.shared ? '  (same file also matches another line: is it a combined set?)' : ''}${r.weak ? '  (weak name match: check it)' : ''}${r.closest ? '  (closest file: ' + r.closest + ', below the match threshold; rename it if it is the right one)' : ''}`);
   if (res.unmatchedFiles.length) L.push('Files that matched no line: ' + res.unmatchedFiles.join(', '));
   L.push('A name match is not a content check. The city decides completeness.');
   return L.join('\n');
