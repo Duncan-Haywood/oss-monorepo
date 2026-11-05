@@ -43,3 +43,13 @@ test("agrees with sellingSide at the shelf price", () => {
   const s = sellingSide({ landed: 20, price: r.shelfPrice, quantity: 80 }, { ...DEFAULT_PLAN, salesTaxPct: 20 });
   assert.equal(r.profitPerSale, s.profitPerSale);
 });
+import { ossThreshold } from "./markets.mjs";
+test("OSS threshold: under, will-cross, over by this or last year, bad input", () => {
+  assert.equal(ossThreshold({ euCrossBorderSalesEur: 4000 }).status, "under");
+  assert.equal(ossThreshold({ euCrossBorderSalesEur: 4000 }).headroomEur, 6000);
+  assert.equal(ossThreshold({ euCrossBorderSalesEur: 4000, plannedExtraEur: 7000 }).status, "will-cross");
+  assert.equal(ossThreshold({ euCrossBorderSalesEur: 10000 }).status, "under");
+  assert.equal(ossThreshold({ euCrossBorderSalesEur: 10001 }).status, "over");
+  assert.equal(ossThreshold({ euCrossBorderSalesEur: 0, priorYearEur: 12000 }).status, "over");
+  assert.ok(ossThreshold({ euCrossBorderSalesEur: -1 }).error);
+});
