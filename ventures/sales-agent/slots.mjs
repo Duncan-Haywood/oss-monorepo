@@ -37,8 +37,14 @@ export function findSlots(text, today) {
     const timed = m[3] && (m[5] || m[4] || /\b(at|around|about)\b|@/i.test(m[0]));
     const time = timed ? clock(m[3], m[4], m[5]) : null;
     if (timed && !time) continue;
-    const date = weekdayDate(w);
-    push({ text: m[0].trim(), date, weekday: DAYS[new Date(`${date}T00:00:00Z`).getUTCDay()], time, part: m[2] ? m[2].toLowerCase() : null });
+    let date = weekdayDate(w), alt = null;
+    // "next Friday" said on a Wednesday: the nearest Friday is this week's, which many people call "this Friday".
+    // Read it as the following week's and keep the nearer date so the draft can say which one it chose.
+    if (w !== "tomorrow" && /\bnext $/i.test(src.slice(Math.max(0, m.index - 5), m.index) + (m[0].match(/^next /i) ? "next " : "")) || (w !== "tomorrow" && /^next /i.test(m[0]))) {
+      const dow = (new Date(`${today}T00:00:00Z`).getUTCDay() + 6) % 7, ahead = Math.round((Date.parse(date) - Date.parse(today)) / 864e5);
+      if (dow + ahead < 7) { alt = date; date = add(date, 7); }
+    }
+    push({ text: m[0].trim(), date, weekday: DAYS[new Date(`${date}T00:00:00Z`).getUTCDay()], time, part: m[2] ? m[2].toLowerCase() : null, ...(alt ? { alt } : {}) });
   }
   // month day (+ time)
   const re2 = new RegExp(`\\b${MON_RE}\\.? (\\d{1,2})(?:st|nd|rd|th)?\\b(?:,? ?(?:at |@ )${TIME_RE.replace("(?:at |around |about |@ )?", "")})?`, "gi");

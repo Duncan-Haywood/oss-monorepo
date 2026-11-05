@@ -38,3 +38,12 @@ test("without a slot the old draft stands", () => {
   const d = draftReply(t, { first_name: "Dana" }, { subject: "x", body: "" }, SAMPLE_OFFER);
   assert.doesNotMatch(d.body, /time zone/);
 });
+test("next <weekday> inside this week means the following week, and says so", () => {
+  const [s] = findSlots("How about next Friday at 2pm?", T); // Wed 2026-10-21; nearest Friday is the 23rd
+  assert.deepEqual([s.date, s.alt], ["2026-10-30", "2026-10-23"]);
+  assert.equal(findSlots("next Tuesday", T)[0].date, "2026-10-27"); // already next week
+  assert.equal(findSlots("Friday at 2pm", T)[0].date, "2026-10-23"); // plain weekday unchanged
+  const t = triage({ body: "Yes, let's talk next Friday at 2pm.", subject: "Re: x" }, T);
+  const d = draftReply(t, { first_name: "Dana" }, { subject: "x", body: "" }, SAMPLE_OFFER);
+  assert.match(d.body, /Friday 30 October at 2pm.*Friday 23 October/s);
+});
