@@ -42,3 +42,14 @@ test('near miss is named but not counted as found', () => {
   assert.equal(row.closest, 'calcs-final.pdf');
   assert.match(report(r), /closest file: calcs-final\.pdf/);
 });
+test('a file shared by two lines does not silently satisfy both', () => {
+  const r = preflight('Site plan\nSurvey plot', ['site-plan.pdf']);
+  assert.equal(r.rows[0].shared, false);
+  assert.equal(r.rows[1].shared, true);
+});
+test('combined plan set matches several lines, marked shared', () => {
+  const r = preflight('Foundation plan\nFloor plans\nElevations', ['foundation-floor-plans-elevations.pdf']);
+  assert.equal(r.summary.missing, 0);
+  assert.ok(r.summary.shared >= 1);
+  assert.match(report(r), /combined set/);
+});
