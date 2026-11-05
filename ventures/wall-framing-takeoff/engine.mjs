@@ -41,7 +41,7 @@ export const PRECUT = { "8ft": 92.625, "9ft": 104.625, "10ft": 116.625 };
  *   headerHeight?: number, header?: string, headerPlies?: number, jacks?: number,
  *   kings?: number, sillPlies?: number, label?: string }} Opening
  * @typedef {{ id: string, length: number, stud?: "2x4"|"2x6", treatedPlate?: boolean,
- *   bearing?: boolean, corner?: boolean, tees?: number[], tee?: { wall: string, at: number, end?: "start"|"end" }, openings?: Opening[], sheathed?: boolean, freeEnds?: 0|1|2, gable?: { pitch: number, peak?: number } }} Wall
+ *   bearing?: boolean, corner?: boolean, tees?: number[], tee?: { wall: string, at: number, end?: "start"|"end" }, openings?: Opening[], sheathed?: boolean, freeEnds?: 0|1|2, gable?: { pitch: number, peak?: number }, studLength?: number }} Wall
  * @typedef {{ size: string, length: number, price: number, label?: string }} Stock
  * @typedef {{ studSpacing: number, studLength: number, kerf: number, topPlateLap: number,
  *   cornerExtraStuds: number, teeExtraStuds: number, defaultHeaderHeight: number,
@@ -219,6 +219,8 @@ export function validatePlan(plan) {
       if (op.headerHeight !== undefined && !isNum(op.headerHeight)) shape.push(`${at}, ${op.label || op.kind || "opening"}: "headerHeight" must be a number of inches.`);
     });
     if (!isNum(w.length)) shape.push(`${at}: "length" must be a number of inches.`);
+    if (w.studLength !== undefined && !isNum(w.studLength)) shape.push(`${at}: "studLength" must be a number of inches.`);
+    else if (w.studLength !== undefined && !(w.studLength >= 24 && w.studLength <= 240)) errors.push(`${at}: stud length must be between 24 and 240 inches.`);
     if (Array.isArray(w.tees) && !w.tees.every(isNum)) shape.push(`${at}: every tee must be a number of inches from the wall start.`);
   });
   if (Array.isArray(plan.stock)) plan.stock.forEach((st, i) => { if (!isRec(st)) return; for (const k of ["length", "price"]) if (st[k] !== undefined && !isNum(st[k])) shape.push(`Lumber list entry ${i + 1}: "${k}" must be a number.`); });
@@ -379,7 +381,13 @@ function framingZones(ops, length) {
   return zones;
 }
 
+/** The plan as one wall sees it: a wall's own `studLength` (a 9 ft first-floor wall beside 8 ft ones) replaces the plan's. */
+function planFor(plan, wall) {
+  return wall && wall.studLength !== undefined ? { ...plan, studLength: wall.studLength } : plan;
+}
+
 function openingGeometry(plan, wall, op) {
+  plan = planFor(plan, wall);
   const top = THICK + plan.studLength; // underside of the top plate, from the bottom of the bottom plate
   const headerHeight = op.headerHeight ?? plan.defaultHeaderHeight;
   const depth = DEPTH[op.header] ?? DEPTH["2x10"];
@@ -403,6 +411,7 @@ function openingGeometry(plan, wall, op) {
  * @param {Wall} wall
  */
 export function layoutWall(plan, wall) {
+  plan = planFor(plan, wall);
   if (wall.gable) return layoutGable(plan, wall);
   const L = wall.length;
   const stud = wall.stud || "2x4";

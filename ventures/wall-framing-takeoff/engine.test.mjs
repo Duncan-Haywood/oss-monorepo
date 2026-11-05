@@ -1090,3 +1090,25 @@ test("a gable peak between 'clear of the end studs' and the wall end is still re
   const plan = { ...base(), walls: [{ id: "S", length: 192, gable: { pitch: 4, peak: 190 } }] };
   assert.ok(validatePlan(plan).length > 0);
 });
+
+test("a wall's own studLength (9 ft beside 8 ft) sets that wall's studs and height, and the layout self-check stays clean", () => {
+  const plan = samplePlan();
+  const base = takeoff(plan);
+  plan.walls[0].studLength = PRECUT["9ft"];
+  const r = takeoff(plan);
+  assert.equal(r.ok, true);
+  const front = r.walls.find((w) => w.id === "Front");
+  const right = r.walls.find((w) => w.id === "Right");
+  // bottom plate + studs + two top plates: 1.5 + 104.625 + 3
+  assert.equal(front.height, 1.5 + PRECUT["9ft"] + 3);
+  assert.equal(right.height, base.walls.find((w) => w.id === "Right").height);
+  assert.ok(front.members.filter((m) => m.kind === "stud").every((m) => m.h === PRECUT["9ft"]));
+  assert.ok(right.members.filter((m) => m.kind === "stud").every((m) => m.h === PRECUT["8ft"]));
+  // a longer stud on one wall changes the order
+  assert.notEqual(JSON.stringify(r.cuts), JSON.stringify(base.cuts));
+  // out-of-range and non-numeric values are refused with the wall named
+  plan.walls[0].studLength = 10;
+  assert.match(takeoff(plan).errors.join(" "), /Front: stud length must be between 24 and 240/);
+  plan.walls[0].studLength = "9ft";
+  assert.match(takeoff(plan).errors.join(" "), /Front: "studLength" must be a number/);
+});
