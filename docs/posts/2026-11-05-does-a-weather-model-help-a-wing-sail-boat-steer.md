@@ -1,6 +1,7 @@
 ---
 title: "Does a weather model help a wing-sail boat steer? Four negative results"
 date: 2026-11-05
+seo_title: "Does a weather model help a wing-sail boat steer?"
 tags: [research, marine-hull, wing-sail, weather-forecast]
 description: "Archived HRRR forecasts, with bias correction, a trend nowcast and height correction, do not help a simulated wing-sail boat beat following the wind headers."
 ---
