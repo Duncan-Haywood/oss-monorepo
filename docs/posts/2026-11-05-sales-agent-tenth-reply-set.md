@@ -1,7 +1,7 @@
 ---
 title: "Scoring a sales-reply agent on 30 replies it had never seen"
 seo_title: "How accurate is a rule-based sales reply classifier? A 30-reply test"
-date: 2026-11-06
+date: 2026-11-05
 tags: [sales-agent, evaluation, email]
 description: "The open-source sales agent read 30 new corporate-style replies once, before any change: 25 right, none that would have contacted someone who wanted less."
 ---
