@@ -41,7 +41,8 @@ nm, gm = ts.nm, load("experiments/gust_response/run.py", "gm")
 HS = gm.HS
 SCALES = (0.75,)
 NOISE = (0.10,)
-OFFSETS = (0.0, 0.25, 0.5, 1.0, 2.0)  # alpha bias in degrees  # EPS: fractional scale-factor error of the airspeed channel (0.25%, 1% from 9aa; 5% a gross fault)   # total drift over the record per channel (end minus start), fraction of channel rms, random sign
+import os
+OFFSETS = tuple(float(v) for v in os.environ.get('OFFSETS', '0.0,0.25,0.5,1.0,2.0').split(','))  # alpha bias in degrees  # EPS: fractional scale-factor error of the airspeed channel (0.25%, 1% from 9aa; 5% a gross fault)   # total drift over the record per channel (end minus start), fraction of channel rms, random sign
 PERIODS = (1, 2)
 DRAWS = 8
 STRIDE = 4                          # every third mode-matched design, for run time
