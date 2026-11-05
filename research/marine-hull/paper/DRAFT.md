@@ -89,6 +89,8 @@ A first-order wing-sail polar (`src/marine_hull/sail.py`, every drone parameter 
 
 - **5n (latency, negative).** On every hourly HRRR cycle, replanning with a 1 h instead of 3 h delivery latency changes raw HRRR by +0.2 points in January and July (bootstrap intervals include 0.5 only in neither month); bias-corrected 1 h HRRR is +0.1 (Jan) and -0.6 (Jul) points against the header-follower. Forecast hours beyond 18 are held flat (hourly cycles stop there).
 
+- **6h (wind against sun, exploratory).** On 19 buoy-months of NDBC wind the default drone (unsourced parameters) reaches 1 m/s at 1.5 m/s of wind and sails a median 272 (Jan) / 219 (Jul) km/day on a free course, against 86 km/day for the solar boat held at 1 m/s; only calm summer water (buoy 42036, July: 0.83 of days) lets the sun compete. A bound without heel, waves or survey lines; `experiments/results_wind_vs_sun.txt`.
+
 Limits: the error model is synthetic (no archived NWP winds yet), the tack penalty is the only tack cost, wind is spatially uniform, and heel, waves and currents are absent. A reader should take the +5 points as an upper bound that needs roughly 1 to 2 hours of forecast skill.
 
 ## 2.4 Still to write
