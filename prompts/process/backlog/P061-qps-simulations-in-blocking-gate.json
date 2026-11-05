@@ -1,7 +1,7 @@
 {
   "id": "P061",
   "title": "perf: quick-pick-survey's blocking Test step runs multi-minute measurement experiments",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 2,
@@ -22,7 +22,7 @@
   "opened": "2026-11-02",
   "source": "docs/history/ci-perf-2026-11-02-qps-simulations.md",
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12622",
-  "result": "2026-11-03 ci_profile.py --runs 200: quick-pick-survey CI 2 jobs, 15.2 job-min, median 455 s, heaviest step Simulation tests 10.5 min (was 5 jobs, 39.2 job-min, median 582 s, Test 21.2 min). Memoising 'repeated cells' is moot: vitest list shows the same 43 tests before and after moving simulate() out of infoGainPairing.simulation.test.ts, so importing a test file does not re-register its tests.",
+  "result": "2026-11-03 ci_profile.py --runs 200: quick-pick-survey CI 2 jobs, 15.2 job-min, median 455 s, heaviest step Simulation tests 10.5 min (was 5 jobs, 39.2 job-min, median 582 s, Test 21.2 min). Memoising 'repeated cells' is moot: vitest list shows the same 43 tests before and after moving simulate() out of infoGainPairing.simulation.test.ts, so importing a test file does not re-register its tests. 2026-11-05: closed; the remaining floor is the single 500/4000 cell (~456 s), a measurement, not duplication. main_health.py: 43/43 after the future-dated sales-agent post was renamed to 2026-11-05.",
   "history": [
     "2026-11-02: part 2: Test step runs test:fast; simulations run in a parallel job (same assertions). Memoising the repeated 41/220-item cells not done; wall time per job is now the max of the two, not the sum.",
     "2026-11-03: checked the duplicate-cell claim by extracting simulate() into a plain module; test list identical (43), so no saving; reverted. Remaining cost is the poolCap 500/2000 and 500/4000 cells (own cost, not duplication).",
