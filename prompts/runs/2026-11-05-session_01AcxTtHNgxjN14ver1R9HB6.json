@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13355",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,23 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Took a small bug fix on flagship 1 (found by fuzzing) rather than a full milestone; next: unchanged",
+      "did": "fixed stepwall segment minimum",
+      "result": "tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-05-fuzzing-stepped-walls-found-a-confusing-error.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Ran stepwall.test.mjs and cli.test.mjs locally (47 pass). Random check on invented walls only.",
   "corrections": [],
   "redteam": null
 }
