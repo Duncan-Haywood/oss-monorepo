@@ -288,7 +288,7 @@ far, annualise it to the months covered, work out Schedule SE (92.35% net earnin
 12.4% social security up to the wage base, 2.9% Medicare, half deductible) and split
 it across the four federal payment dates (weekend dates move to Monday). Income tax is
 not estimated, and the 0.9% additional Medicare tax, farm and church income are left
-out. The 2024 and 2025 wage bases ($168,600, $176,100) match the IRS Schedule SE instructions for those years (read 2026-10-26, so no warning); 2026 and 2027 ($184,500, $192,300) matched published reports of the SSA announcement on 2026-10-23 (not the SSA page, unreachable here), so those results warn; pass `wageBase`. Node tests only; not on the page yet.
+out. The 2024 and 2025 wage bases ($168,600, $176,100) match the IRS Schedule SE instructions for those years (read 2026-10-26, so no warning); 2026 and 2027 ($184,500, $192,300) match the SSA's Contribution and Benefit Base page (found by search 2026-11-05, so no warning); later years warn; pass `wageBase`. Node tests only; not on the page yet.
 
 ## S-corporation election worksheet (US)
 
