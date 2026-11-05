@@ -9,7 +9,7 @@
   "models_seen": [],
   "task": null,
   "projects": ["ventures/wall-framing-takeoff"],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13217",
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],

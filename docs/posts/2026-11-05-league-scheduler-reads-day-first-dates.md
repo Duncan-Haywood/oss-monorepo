@@ -1,6 +1,6 @@
 ---
 title: "The league scheduler now reads 25/12/2026 and 25 Dec 2026"
-seo_title: "Round robin league scheduler with UK, European and Australian date formats"
+seo_title: "League scheduler with UK, European and Australian date formats"
 date: 2026-11-05
 tags: [league-schedule-generator, dates, locale]
 description: "Blackouts and season dates in the free league schedule generator now accept day-first dates, dotted European dates and month names."
