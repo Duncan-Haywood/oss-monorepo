@@ -127,6 +127,18 @@ test("anchor bolts are budgeted from the foundation count at the typed price", (
   assert.equal(a.amount, 75);
 });
 
+test("sill plate boards and sill seal rolls are budgeted from the anchor-bolt plate count", () => {
+  const plan = full({ sillPlatePiece: 14, sillSealRoll: 20 });
+  plan.foundation = { ...plan.foundation, anchorBolts: {} };
+  const b = bud(plan);
+  const p = b.lines.find((l) => l.item === "Sill plate (pressure treated)");
+  assert.equal(p.qty, 10);
+  assert.equal(p.amount, 140);
+  const r = b.lines.find((l) => l.item === "Sill seal");
+  assert.equal(r.qty, 3);
+  assert.equal(r.amount, 60);
+});
+
 test("insulation bags are budgeted: wall, rim and attic lines, typed price over the plan's own", () => {
   const plan = { ...full({ insulationBag: 20 }), insulation: { price: 99, rim: true, attic: { bagCuFt: 40, price: 30 } } };
   const b = bud(plan);
