@@ -109,6 +109,10 @@ class ClaimScanning(unittest.TestCase):
         hits = self._scan("usage.yaml records zero observed users across 184 products.\n")
         self.assertEqual(len(hits), 1)
 
+    def test_reports_the_whole_matched_phrase(self):
+        hits = self._scan("usage.yaml records zero observed users across 184 products.\n")
+        self.assertEqual(hits[0][2], "records zero observed users")
+
     def test_finds_a_claim_that_wraps_across_a_line(self):
         """CLAUDE.md:1110 split exactly here, and a line scanner called it clean."""
         body = "while `portfolio/usage/usage.yaml` still recorded\nzero observed users across all 184 products.\n"
