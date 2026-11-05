@@ -234,6 +234,25 @@ await page.click("#run");
 await page.waitForFunction(() => /Stringer connection and bearing: write connector lb/.test(document.body.textContent));
 console.log("ok: malformed stringer connector/bearing refused on the page");
 await page.fill("#stCheck2", "");
+// Notched support (#stCheck3): "throat" and inches reach the saved plan; a bad value is refused.
+await page.fill("#stCheck", "40, 12, 900, 180, 1300000, 240");
+await page.fill("#stCheck3", "5");
+await page.click("#run");
+await page.waitForFunction(() => /Stringer check \(/.test(document.querySelector("#stairsOut")?.textContent || ""));
+const [svs3] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const sk3 = JSON.parse(await (await import("node:fs/promises")).readFile(await svs3.path(), "utf8")).stairs?.stringerCheck;
+console.log(sk3 && sk3.notchedSupport === 5 ? "ok: stringer notched support typed on the page, saved in the plan" : "FAIL: notchedSupport " + JSON.stringify(sk3));
+await page.fill("#stCheck3", "throat");
+await page.click("#run");
+await page.waitForFunction(() => /Stringer check \(/.test(document.querySelector("#stairsOut")?.textContent || ""));
+const [svs4] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const sk4 = JSON.parse(await (await import("node:fs/promises")).readFile(await svs4.path(), "utf8")).stairs?.stringerCheck;
+console.log(sk4 && sk4.notchedSupport === true ? "ok: stringer notched support 'throat' saved as true" : "FAIL: notchedSupport throat " + JSON.stringify(sk4));
+await page.fill("#stCheck3", "-2");
+await page.click("#run");
+await page.waitForFunction(() => /Stringer notched at the support: write throat/.test(document.body.textContent));
+console.log("ok: malformed notched support refused on the page");
+await page.fill("#stCheck3", "");
 await page.fill("#stCheck", "");
 // Winders: typed treads, turn and radius reach the stairs card (a zero pivot fails and the smallest radius is solved).
 await page.fill("#stWinders", "3, 90, 0");
