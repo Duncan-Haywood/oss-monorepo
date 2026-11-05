@@ -291,3 +291,8 @@ test("--swap checks one trade and names the rule that stops it", () => {
   assert.match(bad.out, /breaks a rule/);
   assert.match(bad.out, /not available/);
 });
+
+test("--days-off lists people without that many days off in a row", () => {
+  assert.throws(() => parseArgs(["--days-off", "7"]), /1 to 6/);
+  assert.equal(parseArgs(["--days-off", "2"]).daysOff, 2);
+});

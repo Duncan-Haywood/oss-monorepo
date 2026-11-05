@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { placeBreaks, placeRestBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts,
+import { placeBreaks, placeRestBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts, daysOffRuns,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, coverChain, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
   sampleStaff, openFloorByPricing, branchedScoreBound, optimalityText, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -1832,4 +1832,13 @@ test("restPremium with last week's roster sees Sunday night to Monday morning, n
   assert.equal(r.owed, 20, "Ben has no wage on file, so only Ana is priced");
   assert.equal(r.turnarounds[0].first.prevWeek, true);
   assert.equal(restPremium(cur, { restHours: 9, previousCsv: prev }).turnarounds.length, 1, "Ben's 10 h clears a 9 h window");
+});
+
+test("daysOffRuns: longest run of days off, people with none, no wrap", () => {
+  const a = (person, day) => ({ slot: { day, startMin: 540, endMin: 900 }, person });
+  const r = { people: [{ name: "Ana" }, { name: "Ben" }, { name: "Cy" }, { name: "Di" }],
+    assignments: [a("Ana", 0), a("Ana", 1), a("Ana", 2), a("Ana", 3), a("Ana", 4), a("Ben", 0), a("Ben", 2), a("Ben", 4), a("Ben", 6), { slot: { day: 1, startMin: 0, endMin: 60 }, person: null }, a("Cy", 0), a("Cy", 1), a("Cy", 2), a("Cy", 3), a("Cy", 4), a("Cy", 5)] };
+  const d = daysOffRuns(r, 2);
+  assert.deepEqual(d.rows.map((x) => [x.person, x.daysWorked, x.longestOff]), [["Ana", 5, 2], ["Ben", 4, 1], ["Cy", 6, 1], ["Di", 0, 7]]);
+  assert.deepEqual(d.short.map((x) => x.person), ["Ben", "Cy"]);
 });

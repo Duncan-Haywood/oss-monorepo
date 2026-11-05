@@ -2476,6 +2476,25 @@ export function shortShifts(r, minHours = 4) {
   return out;
 }
 
+// Each person's longest run of consecutive days off in the Monday-to-Sunday week, and who has no run of `minRun` days
+// (a "two days off in a row" wish, or a rule some workplaces set). A day counts as worked on the day a shift starts, so
+// a closing shift past midnight does not take the next day. A person with no shift has all seven days off. The week is
+// not wrapped, so Sun plus the next Mon is not counted. A heads-up only; the search does not enforce it.
+export function daysOffRuns(r, minRun = 2) {
+  const worked = new Map((r.people || []).map((p) => [p.name, new Set()]));
+  for (const a of r.assignments || []) {
+    if (!a.person) continue;
+    if (!worked.has(a.person)) worked.set(a.person, new Set());
+    worked.get(a.person).add(a.slot.day % 7);
+  }
+  const rows = [...worked].map(([person, days]) => {
+    let best = 0, cur = 0;
+    for (let d = 0; d < 7; d++) { cur = days.has(d) ? 0 : cur + 1; if (cur > best) best = cur; }
+    return { person, daysWorked: days.size, longestOff: best, short: best < minRun };
+  }).sort((a, b) => a.person.localeCompare(b.person));
+  return { rows, short: rows.filter((x) => x.short) };
+}
+
 // What a seventh-consecutive-day premium would add for each person who works all seven days of the week (the last day
 // is DAYS[6], so this assumes the workweek starts on Monday). California's rule is 1.5x for the first `firstHours` of
 // that day and 2x after; both multipliers are yours to set. Returns only the extra over straight time (burden
