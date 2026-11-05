@@ -36,6 +36,36 @@ URL:https://example.invalid/einvoice-preflight/czech-republic-e-invoice-m
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:60f1756d6ac8f862@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20170101
+DTEND;VALUE=DATE:20170102
+SUMMARY:Azerbaijan: guides date mandatory use to 1 Jan 2017 (VAT-register
+ ed) or 1 Jan 2018 (all taxpayers)
+DESCRIPTION:Azerbaijan (In force (start date disputed)). guides date mand
+ atory use to 1 Jan 2017 (VAT-registered) or 1 Jan 2018 (all taxpayers). 
+ Detail and sources: https://example.invalid/einvoice-preflight/azerbaija
+ n-e-qaime-e-invoice-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/azerbaijan-e-qaime-e-invoi
+ ce-mandate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:0b2b5e4b457059c2@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20180101
+DTEND;VALUE=DATE:20180102
+SUMMARY:Azerbaijan: guides date mandatory use to 1 Jan 2017 (VAT-register
+ ed) or 1 Jan 2018 (all taxpayers)
+DESCRIPTION:Azerbaijan (In force (start date disputed)). guides date mand
+ atory use to 1 Jan 2017 (VAT-registered) or 1 Jan 2018 (all taxpayers). 
+ Detail and sources: https://example.invalid/einvoice-preflight/azerbaija
+ n-e-qaime-e-invoice-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/azerbaijan-e-qaime-e-invoi
+ ce-mandate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:a79c286530f236cd@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20190701
