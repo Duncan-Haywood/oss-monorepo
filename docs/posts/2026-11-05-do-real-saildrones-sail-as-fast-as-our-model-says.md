@@ -1,9 +1,9 @@
 ---
 title: "Do real Saildrones sail as fast as our model says?"
-seo_title: "Saildrone daily distance: 864 fielded drone-days against a wing-sail model"
+seo_title: "Saildrone daily distance: 864 fielded days vs a wing-sail model"
 date: 2026-11-05
 tags: [research, marine-hull, saildrone, sailing-drone]
-description: "NOAA's west-coast Saildrone surveys give a median 75 km/day. Our wing-sail model sailing the same wind and course says 2.5 times that, which erases its edge over a solar boat."
+description: "NOAA's Saildrone surveys give a median 75 km/day. Our wing-sail model, given the same wind and course, says 2.5 times that, erasing its edge over a solar boat."
 ---
 
 The `marine-hull` programme had a model of a 5 m wing-sail drone that, on buoy winds, covered 2 to 3 times the daily distance of a solar boat. Its only check was one press-release figure. This run used 864 drone-days from 13 Saildrones on NOAA's 2018 and 2019 west-coast surveys (public data, each drone's own wind and track).
