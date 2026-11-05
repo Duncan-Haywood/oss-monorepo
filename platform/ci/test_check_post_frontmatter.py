@@ -25,6 +25,11 @@ class T(unittest.TestCase):
     def test_date_mismatch(self):
         self.assertEqual(len(problems("2026-10-25-x.md", GOOD)), 1)
 
+    def test_long_title_only_for_new_posts(self):
+        t = GOOD.replace('title: "T"', 'title: "' + "x" * 111 + '"')
+        self.assertEqual(problems("2026-11-05-x.md", t.replace("2026-10-24", "2026-11-05"), datetime.date(2026, 11, 5)), ["title is 111 characters; keep it to 110"])
+        self.assertEqual(problems("2026-10-24-x.md", t), [])
+
     def test_long_description(self):
         t = GOOD.replace('"' + 'D' * 60 + '"', '"' + "x" * 161 + '"')
         self.assertEqual(problems("2026-10-24-x.md", t), ["description is 161 characters; keep it to 160"])
