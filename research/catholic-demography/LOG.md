@@ -3,6 +3,35 @@
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
 
+## 2026-11-05 · Milestone 5b, second GSS-only step: the rise in the raised-Catholic share sits in the third-plus generation
+
+Run: `experiments/m5c_generation/run.py` (output `results.txt`, tables `t15`, `t16`; same samples, weights and
+500-draw PSU bootstrap, seed 1, as 5a/5b). **Order of events:** the entry above named this split as the next
+step; no directional prediction was written down beforehand. The prior from 5b's caveat was that the US-born
+rise would be partly the second generation (children of 1980s-90s immigrants). Identity R = sum over
+generation of f_g R_g, midpoint split into a composition term and one rate term per generation, summing exactly
+to the change (asserted).
+
+- **Levels (1990-99 to 2021-24).** Second generation is 8.6% to 10.4% of adults and stays about 53% raised
+  Catholic throughout (52.3, 55.1, 52.8, 52.8). Third-plus generation: 79.2% to 73.3% of adults, raised
+  Catholic **25.2%, 26.0%, 27.6%, 28.5%**. Foreign-born: 51.1, 56.7, 53.4, 45.6.
+- **1990-99 to 2010-18** (+3.84 points [+2.37, +5.27]): composition +1.63 [+1.25, +2.00], foreign-born rate
+  +0.34 [-0.22, +0.93], **second-generation rate +0.05 [-0.29, +0.34]**, **third-plus rate +1.83 [+0.70, +2.93]**.
+  Everything tied to immigrant families (composition plus first and second generation rates) is +2.01
+  [+1.16, +2.78], about 52% of the rise.
+- **My second-generation prior is not supported:** the second-generation raised-Catholic rate did not move.
+  The domestic term is the third-plus generation, and the data alone cannot say whether that is higher Catholic
+  fertility among long-settled families, more Hispanic third-plus-generation adults, or an artefact of recall.
+  Since the third-plus group in 2021-24 includes Hispanic adults whose grandparents arrived earlier, I
+  expect the Hispanic share of that group matters; this is a hypothesis for the next step, not a finding.
+- **To 2021-24:** immigrant-family terms are +0.61 [-0.17, +1.38] against the 1990s and -1.37 [-2.38, -0.51]
+  from 2010-18, driven by the foreign-born rate (-1.31 [-1.97, -0.69]).
+- **Limits.** Generation is coded from `born` and `parborn`; `parborn` codes 1, 2 and 8 (one or both parents
+  foreign-born, or unknown) all count as second generation. Raised-Catholic is recalled at age 16. H4 (fertility
+  versus immigration) is still not decided: this is an accounting by generation, not a fertility measure.
+- **Next.** Split the third-plus term by ethnicity (ethnicity exists from 2000 only, so compare 2000-09,
+  2010-18, 2021-24), then NCHS births and ACS immigration series.
+
 ## 2026-11-04 · Milestone 5b (GSS-only part): how much of the rise in the raised-Catholic share is immigrants?
 
 Run: `experiments/m5b_nativity/run.py` (output `results.txt`, tables `t13`, `t14`; same PSU bootstrap, 500 draws,
