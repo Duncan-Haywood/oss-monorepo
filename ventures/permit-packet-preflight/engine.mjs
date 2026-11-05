@@ -41,7 +41,8 @@ export function preflight(checklistText, fileNames, { threshold = 0.4 } = {}) {
     for (const f of files) { const s = score(it, f.tokens); if (s > bs) { bs = s; best = f; } }
     const matched = best && bs >= threshold;
     if (matched) used.add(best.name);
-    return { item: it.text, optional: it.optional, status: matched ? 'found' : (it.optional ? 'optional-missing' : 'missing'), file: matched ? best.name : null, confidence: Math.round(bs * 100) / 100 };
+    const closest = !matched && best && bs >= threshold / 2 ? best.name : null; // near miss: worth a look, not counted as found
+    return { item: it.text, optional: it.optional, status: matched ? 'found' : (it.optional ? 'optional-missing' : 'missing'), file: matched ? best.name : null, closest, confidence: Math.round(bs * 100) / 100 };
   });
   const missing = rows.filter(r => r.status === 'missing');
   return { ok: true, rows, missing: missing.map(r => r.item), unmatchedFiles: files.map(f => f.name).filter(n => !used.has(n)), summary: { required: rows.filter(r => !r.optional).length, found: rows.filter(r => r.status === 'found').length, missing: missing.length } };
@@ -49,7 +50,7 @@ export function preflight(checklistText, fileNames, { threshold = 0.4 } = {}) {
 export function report(res) {
   if (!res.ok) return 'Cannot check: ' + res.errors.join('; ');
   const L = [`Permit packet preflight: ${res.summary.missing} required item(s) with no matching file (of ${res.summary.required} required).`];
-  for (const r of res.rows) L.push(`${r.status === 'found' ? '[x]' : r.status === 'missing' ? '[ ]' : '[-]'} ${r.item}${r.file ? '  <- ' + r.file : ''}`);
+  for (const r of res.rows) L.push(`${r.status === 'found' ? '[x]' : r.status === 'missing' ? '[ ]' : '[-]'} ${r.item}${r.file ? '  <- ' + r.file : ''}${r.closest ? '  (closest file: ' + r.closest + ', below the match threshold; rename it if it is the right one)' : ''}`);
   if (res.unmatchedFiles.length) L.push('Files that matched no line: ' + res.unmatchedFiles.join(', '));
   L.push('A name match is not a content check. The city decides completeness.');
   return L.join('\n');
