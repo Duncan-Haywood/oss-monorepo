@@ -11,7 +11,6 @@ A new clothing brand selling across Europe has one margin target but a different
 You type a landed cost and a target margin. For each market you get the shelf price that reaches the margin after VAT and marketplace fees, the same price rounded to a `.95` or `.99` ending, and the margin that rounded price really gives.
 
 - Euro countries need no exchange rate. Sweden, Denmark, Poland, Czechia, Hungary and Romania ask for one, and the tool refuses to guess a rate you have not typed.
-- A children's-clothing box applies a 0% rate in Ireland and the UK, where clothing for young children is zero-rated within size limits. Other countries keep their standard rate.
 
 **What is not verified.** The official EU rate table was not reachable from the build host, so every standard rate is typed from memory, shown as an editable default, and marked unchecked on the page. The children's rates also need checking against the national rules. Confirm both before you print a price.
 

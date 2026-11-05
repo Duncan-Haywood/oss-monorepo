@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Clothing Price by Market: Shelf Price with VAT for the EU, UK and US</title>
-  <meta name="description" content="Free price calculator for new clothing brands: from your landed cost and target margin, the shelf price in all 27 EU countries, the UK and the US, with VAT included where shoppers see it, and the real margin at a rounded price.">
+  <meta name="description" content="Free price calculator for new clothing brands: from your landed cost and target margin, the shelf price in Italy, France, Germany, Spain, the Netherlands, the UK and the US, with VAT included where shoppers see it, and the real margin at a rounded price.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Clothing price by market: shelf price with VAT">
@@ -45,13 +45,14 @@
   <p><a href="./">Clothing Design Studio</a> · <a href="fit.html">Size finder</a> · <a href="quotes.html">Compare quotes</a> · <a href="labels.html">Label checker</a> · <a href="wardrobe.html">Wardrobe planner</a></p>
   <h1>One margin target. The right shelf price in each market.</h1>
   <p>EU and UK shoppers see prices with VAT; US shoppers see them before sales tax. Type your landed cost per garment and the margin you want, and get the shelf price in each market, rounded to a price ending, with the margin that price really gives.</p>
-  <p class="placeholder">VAT rates are standard rates typed in by hand and not checked against the official table when this page was built: confirm them (link below) and edit any that are wrong. Children's clothing rates for Ireland and the UK are optional; other reduced rates, thresholds, OSS registration and US state sales tax are not applied.</p>
+  <p class="placeholder">VAT rates are standard rates typed in by hand and not checked against the official table when this page was built: confirm them (link below) and edit any that are wrong. Children's clothing is zero-rated in the UK and Ireland only if it meets the age and size conditions (check with HMRC or Revenue); other reduced rates, thresholds, OSS registration and US state sales tax are not applied.</p>
   <div class="grid">
     <section>
       <h2>Your numbers (in your supplier's currency)</h2>
       <div class="row"><div><label for="landed">Landed cost per garment</label><input id="landed" type="number" min="0" step="0.01" value="18"></div><div><label for="qty">Run size</label><input id="qty" type="number" min="1" step="1" value="100"></div></div>
       <div class="row"><div><label for="target">Target margin %</label><input id="target" type="number" min="1" max="95" value="60"></div><div><label for="fees">Marketplace commission %</label><input id="fees" type="number" min="0" max="40" value="0"></div></div>
-      <div class="row"><div><label for="ending">Price ending</label><select id="ending"><option value="0.95">.95</option><option value="0.99">.99</option><option value="0">whole number</option></select></div><div><label for="cur">Your sheet currency</label><select id="cur"><option>EUR</option><option>GBP</option><option>USD</option></select></div></div>
+      <div class="row"><div><label for="ending">Price ending</label><select id="ending"><option value="0.95">.95</option><option value="0.99">.99</option><option value="0">whole number</option></select></div><div><label for="aud">Garments for</label><select id="aud"><option value="adult">adults</option><option value="children">children (UK and Ireland: 0% VAT)</option></select></div></div>
+      <div class="row"><div><label for="cur">Your sheet currency</label><select id="cur"><option>EUR</option><option>GBP</option><option>USD</option></select></div></div>
       <h2>Exchange rates</h2>
       <p class="tag">Units of the market's currency per one of yours. Only needed when it differs.</p>
       <div class="row"><div><label for="gbp">to GBP</label><input id="gbp" type="number" min="0" step="0.001" value="0.85"></div><div><label for="usd">to USD</label><input id="usd" type="number" min="0" step="0.001" value="1.08"></div></div>
@@ -59,7 +60,6 @@
       <div class="row"><div><label for="pln">to PLN</label><input id="pln" type="number" min="0" step="0.001" placeholder="blank = skip"></div><div><label for="czk">to CZK</label><input id="czk" type="number" min="0" step="0.001" placeholder="blank = skip"></div></div>
       <div class="row"><div><label for="huf">to HUF</label><input id="huf" type="number" min="0" step="0.001" placeholder="blank = skip"></div><div><label for="ron">to RON</label><input id="ron" type="number" min="0" step="0.001" placeholder="blank = skip"></div></div>
       <p class="tag">Check the rates yourself; these are placeholders, not today's.</p>
-      <label><input id="kids" type="checkbox"> Children's clothing (Ireland and the UK zero-rate it within size limits; other markets keep the standard rate; check the rule)</label>
     </section>
     <div>
       <section><h2>Shelf price by market</h2><output id="result" aria-live="polite"></output></section>
@@ -89,7 +89,7 @@
       const rates = { GBP: +$("#gbp").value, USD: +$("#usd").value };
       for (const c of ["sek", "dkk", "pln", "czk", "huf", "ron"]) rates[c.toUpperCase()] = +$("#" + c).value;
       const plan = { ...DEFAULT_PLAN, targetMarginPct: +$("#target").value, channelFeePct: +$("#fees").value };
-      const rows = marketPrices({ landed: +$("#landed").value, quantity: Math.max(1, +$("#qty").value), currencyRates: rates, vat, ending: +$("#ending").value, kids: $("#kids").checked }, plan, cur);
+      const rows = marketPrices({ landed: +$("#landed").value, quantity: Math.max(1, +$("#qty").value), currencyRates: rates, vat, ending: +$("#ending").value, audience: $("#aud").value }, plan, cur);
       $("#result").innerHTML = `<table><tr><th>Market</th><th>VAT %</th><th>Shelf price</th><th>Net of tax</th><th>Profit / sale</th><th>Margin</th></tr>${rows.map(r => r.error
         ? `<tr><td>${esc(r.label || r.market)}</td><td colspan="5" class="placeholder">${esc(r.error)}</td></tr>`
         : `<tr><td>${esc(r.label)}</td><td><input data-m="${r.market}" type="number" min="0" max="40" step="0.5" value="${r.vatPct}" ${MARKETS[r.market].tax === "excluded" ? "disabled" : ""}></td><td class="num"><b>${esc(money(r.shelfPrice, r.currency))}</b></td><td class="num">${esc(money(r.netOfTax, r.currency))}</td><td class="num">${esc(money(r.profitPerSale, r.currency))}</td><td class="num">${r.marginPct}%</td></tr>`).join("")}</table>`;
@@ -102,6 +102,7 @@
     ["#oss1", "#oss2", "#oss3"].forEach(i => $(i).addEventListener("input", () => { renderOss(); recordUsage("prices_check"); }));
     renderOss();
     document.querySelectorAll("section select, section input").forEach(el => el.addEventListener("input", () => { render(); recordUsage("prices_check"); }));
+    $("#aud").addEventListener("input", () => { for (const k of Object.keys(vat)) delete vat[k]; render(); });
     render(); recordUsage("prices_open");
   </script>
 </body>
