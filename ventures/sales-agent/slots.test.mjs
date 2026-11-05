@@ -69,3 +69,10 @@ test("day-first dates, noon and 'the 14th'", () => {
   assert.deepEqual(f("this afternoon is bad, 31 Feb no"), []);
   assert.deepEqual(f("Nov 12 at 10:30"), [["2026-11-12", "10:30"]]);
 });
+
+test("'the day after tomorrow' is two days on", () => {
+  const f = (t) => findSlots(t, "2026-11-05").map((s) => [s.date, s.time, s.part]);
+  assert.deepEqual(f("Can we do the day after tomorrow at 3pm?"), [["2026-11-07", "15:00", null]]);
+  assert.deepEqual(f("day after tomorrow morning"), [["2026-11-07", null, "morning"]]);
+  assert.deepEqual(f("can't do the day after tomorrow"), []);
+});
