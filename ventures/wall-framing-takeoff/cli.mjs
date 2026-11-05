@@ -326,7 +326,8 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   if (flags.has("--sheathing") || flags.has("--horizontal") || flags.has("--overhang") || rimLap > 0 || plan.sheathing) {
     const sheathing = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...(plan.sheathing || {}), ...(flags.has("--horizontal") ? { orientation: "horizontal" } : {}), ...(flags.has("--overhang") ? { overhang: true } : {}), ...(rimLap > 0 ? { rimLap } : {}) } }, r);
     const extra = nailerCuts(sheathing);
-    if (extra.length) { r = takeoff(plan, [...extra, ...shell()]); if (floor) r.floor = floor; if (deck) r.deck = deck; if (stairs.length) r.stairs = stairs; if (roof) r.roof = roof; if (foundation) r.foundation = foundation; if (drywall) r.drywall = drywall; if (insulation) r.insulation = insulation; if (trimmed) r.trim = trimmed; if (wired) r.electrical = wired; if (drilled) r.drilling = drilled; if (sided) r.siding = sided; if (eaved) r.eaves = eaved; if (vented) r.ventilation = vented; if (guttered) r.gutters = guttered; if (dormered) r.dormer = dormered; } // nailers join the cut list and the lumber order
+    // nailers join the cut list and the lumber order: rebuild the takeoff, then carry over every module already attached (a hand-kept list had dropped flooring and paint)
+    if (extra.length) { const prev = r; r = takeoff(plan, [...extra, ...shell()]); for (const k of Object.keys(prev)) if (!(k in r)) /** @type {any} */ (r)[k] = /** @type {any} */ (prev)[k]; }
     r.sheathing = sheathing;
   }
   if (r.ok && (flags.has("--fasteners") || plan.fasteners)) {

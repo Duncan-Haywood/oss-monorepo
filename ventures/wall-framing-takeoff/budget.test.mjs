@@ -485,3 +485,25 @@ test("opening labor counts openings that share a king stud (header spans, not ki
   assert.equal(l.qty, 2); // kings / 2 would give 1
   assert.equal(l.amount, 200);
 });
+
+test("flooring orders enter the budget with their own prices, typed keys override, labor per sq ft", async () => {
+  const flooring = {
+    rooms: [{ name: "Den", width: 144, depth: 120, kind: "plank" }, { name: "Bath", width: 96, depth: 60, kind: "tile" }, { name: "Bed", width: 144, depth: 144, kind: "carpet" }],
+    plank: { boxPrice: 50 }, tile: { tilePrice: 2, thinsetPrice: 20 }, carpet: { carpetPrice: 20, padPrice: 5 },
+  };
+  const b = bud({ ...full({ laborFlooringSqFt: 3, plankBox: 60 }), flooring });
+  const { layoutFlooring } = await import("./flooring.mjs");
+  const f = layoutFlooring(flooring);
+  const box = b.lines.find((l) => l.item === "Plank flooring boxes");
+  assert.equal(box.qty, f.plank.boxes);
+  assert.equal(box.unitPrice, 60, "typed plankBox beats the plan's boxPrice");
+  const tile = b.lines.find((l) => l.item === "Tiles");
+  assert.equal(tile.unitPrice, 2);
+  assert.equal(tile.qty, f.tile.tiles);
+  assert.equal(b.lines.find((l) => l.item === "Grout bags").amount, null, "no grout price: unpriced, not guessed");
+  const carpet = b.lines.find((l) => l.item === "Carpet");
+  assert.ok(Math.abs(carpet.qty - f.carpet.rollSqYd) < 0.01);
+  const lab = b.lines.find((l) => l.item === "Finish flooring installation");
+  assert.ok(Math.abs(lab.qty - (120 + 40 + 144)) < 0.01, "10x12 + 8x5 + 12x12 sq ft");
+  assert.ok(Math.abs(lab.amount - lab.qty * 3) < 0.02);
+});

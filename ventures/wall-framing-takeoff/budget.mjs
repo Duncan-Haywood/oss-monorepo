@@ -13,6 +13,7 @@
 // vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, drywallScrewThousand (per 1,000 screws), drywallTapeRoll, drywallCompoundPail, cornerBeadStick, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), laborSidingSqFt (siding and house wrap, per sq ft of wall net of openings), laborTrimFoot (baseboard, shoe and casing, per linear foot), laborEavesFoot (fascia run, eave plus rake, per linear foot; soffit and J-channel included), laborGutterFoot (gutter run, per linear foot; downspouts included), ridgeVent (per ridge vent piece), soffitVent (each), rafterBaffle (each), laborWallSheet (wall sheathing, per sheet hung), stairConnector (top connector or foot anchor, each), stairRiserBoard (solid riser board, when the stair has `riserBoard`), stairBaluster, stairRailPost, handrailBracket (each; stairs with a `rail`), handrailFoot (per linear foot of handrail run), laborDeckSqFt (deck framing, decking and rails, per sq ft of deck), deckConcreteBag, deckScrewBox, laborStairRiser (stairs, per riser, both flights of a landing stair; stringers, treads and risers set), laborDormerSqFt (dormer framing and roofing, per sq ft of dormer roof), laborHoldDown (per hold-down or plate strap set, each), tax (fraction on materials), contingency (fraction), overhead (fraction of cost, builder's office and general conditions), profit (fraction of cost plus overhead; both markups give the bid price, `bid`, and `marginPct`, profit as a share of the bid) }.
 // dormerBoardFoot (price per board foot of dormer framing), dormerRoofSqFt (price per sq ft of dormer roof).
 // nailBox falls back to fasteners.price; insulationBag falls back to the plan's insulation.price; atticFillBag to insulation.attic.price.
+// Flooring (plan `flooring`): plankBox, plankUnderlaymentRoll, floorTile, thinsetBag, groutBag, carpetSqYd, carpetPadSqYd, tackStrip override the flooring settings' own prices; laborFlooringSqFt is per sq ft laid.
 // Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
 // (`sheathing.summary.cost`) unless `wallSheet` is typed.
 
@@ -99,6 +100,25 @@ export function budget(result, prices = {}, allowances = {}) {
     if (tr.shoeBoards) add("Interior", "Shoe moulding boards", tr.shoeBoards, "boards", P("shoeMoulding") ?? tr.shoePrice, `${tr.shoeFeet.toFixed(0)} ft in ${tr.shoeStock / 12} ft boards`);
     add("Interior", "Casing boards", tr.casingBoards, "boards", P("casing") ?? tr.casingPrice, `${tr.doorFaces} door and ${tr.windowFaces} window faces`);
   }
+  const flr = result.flooring;
+  if (flr?.ok) {
+    // Prices come from the flooring settings unless a budget price key overrides them. Carpet and pad are per sq yd.
+    const pk = flr.plank, tl = flr.tile, cp = flr.carpet;
+    if (pk) {
+      add("Flooring", "Plank flooring boxes", pk.boxes, "boxes", P("plankBox") ?? pk.boxPrice, `${pk.sqFt.toFixed(0)} sq ft plus waste, ${pk.boxSqFt} sq ft per box`);
+      if (pk.underlaymentRolls) add("Flooring", "Plank underlayment rolls", pk.underlaymentRolls, "rolls", P("plankUnderlaymentRoll") ?? pk.underlaymentPrice, "flooring.plank.underlaymentRolls");
+    }
+    if (tl) {
+      add("Flooring", "Tiles", tl.tiles, "each", P("floorTile") ?? tl.tilePrice, `${tl.tileWidth} x ${tl.tileLength} in with ${tl.joint} in joints, plus waste`);
+      add("Flooring", "Thinset bags", tl.thinsetBags, "bags", P("thinsetBag") ?? tl.thinsetPrice, "flooring.tile.thinsetBags");
+      add("Flooring", "Grout bags", tl.groutBags, "bags", P("groutBag") ?? tl.groutPrice, `${tl.groutLb.toFixed(0)} lb of grout`);
+    }
+    if (cp) {
+      add("Flooring", "Carpet", cp.rollSqYd, "sq yd", P("carpetSqYd") ?? cp.carpetPrice, `${cp.rollLinearFeet.toFixed(0)} linear ft off a ${cp.rollWidth / 12} ft roll`);
+      add("Flooring", "Carpet pad", cp.padSqYd, "sq yd", P("carpetPadSqYd") ?? cp.padPrice, "flooring.carpet.padSqYd");
+      add("Flooring", "Tack strip pieces", Math.ceil(cp.tackFeet / (cp.tackStripLength || 4) - 1e-9), "pieces", P("tackStrip") ?? cp.tackPrice, `${cp.tackFeet.toFixed(0)} ft round the rooms`);
+    }
+  }
   const el = result.electrical;
   if (el?.ok) {
     // Prices come from the electrical settings (receptaclePrice, switchPrice, boxPrice, cablePrice) unless a budget price key overrides them.
@@ -184,6 +204,8 @@ export function budget(result, prices = {}, allowances = {}) {
   if (laborTyped && sd?.ok && sd.netSqFt > 0) add("Labor", "Siding and house wrap installation", sd.netSqFt, "sq ft", P("laborSidingSqFt"), "siding.netSqFt (wall net of openings) x typed laborSidingSqFt");
   const trimFt = tr?.ok ? (tr.baseFeet || 0) + (tr.shoeFeet || 0) + (tr.casingFeet || 0) : 0;
   if (laborTyped && trimFt > 0) add("Labor", "Trim installation", trimFt, "ft", P("laborTrimFoot"), "baseboard + shoe + casing feet x typed laborTrimFoot");
+  const floorSq = flr?.ok ? (flr.plank?.sqFt || 0) + (flr.tile?.sqFt || 0) + (flr.carpet?.sqFt || 0) : 0;
+  if (laborTyped && floorSq > 0) add("Labor", "Finish flooring installation", floorSq, "sq ft", P("laborFlooringSqFt"), "flooring plank + tile + carpet sq ft x typed laborFlooringSqFt");
   const eavesFt = ea?.ok ? (ea.eaveFeet || 0) + (ea.rakeFeet || 0) : 0;
   if (laborTyped && eavesFt > 0) add("Labor", "Fascia, soffit and J-channel installation", eavesFt, "ft", P("laborEavesFoot"), "eaves.eaveFeet + rakeFeet x typed laborEavesFoot");
   if (laborTyped && gu?.ok && gu.runFeet > 0) add("Labor", "Gutter and downspout installation", gu.runFeet, "ft", P("laborGutterFoot"), "gutters.runFeet x typed laborGutterFoot");
