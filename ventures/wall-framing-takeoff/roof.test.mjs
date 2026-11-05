@@ -349,3 +349,11 @@ test("roofing nails by hand: 320 per square, 150 per lb, 30 lb boxes", () => {
   assert.equal(t.roofing.nailBoxes, Math.ceil(t.roofing.nails / 100 / 5 - 1e-9));
   assert.match(roofText(l).join("\n"), /lb of roofing nails/);
 });
+
+test("roof sheathing nails: 4 x 8 sheet, rafters at 16 in = 48 edge + 2 lines x 8 field = 64 per sheet, plus 10%", () => {
+  const l = layoutRoof(sampleRoof(), plan());
+  assert.equal(l.sheets.nailsPerSheet, 64); // 288 in perimeter / 6 = 48; ceil(48/16) - 1 = 2 lines x 96/12 = 16
+  assert.equal(l.sheets.nails, Math.ceil(64 * l.sheets.count * 1.1 - 1e-9));
+  const t = layoutRoof({ ...sampleRoof(), sheet: { edgeNailSpacing: 4, fieldNailSpacing: 8 } }, plan());
+  assert.equal(t.sheets.nailsPerSheet, 72 + 2 * 12);
+});
