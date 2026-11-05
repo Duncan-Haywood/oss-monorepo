@@ -222,6 +222,7 @@ export function jointBlocking(w, ops, plan, y) {
  * @param {any} result the output of takeoff() (its `walls`)
  */
 export function sheathe(plan, result) {
+  if (!plan || typeof plan !== "object" || !result || !Array.isArray(result.walls)) return { ok: false, errors: ["Sheathing needs a plan and its framing result (with a list of walls)."] };
   const cfg = { ...defaultSheathing(), ...(plan.sheathing || {}) };
   const notes = [];
   const bad = sheathingErrors(cfg);

@@ -49,6 +49,7 @@ function parseArgs(s) {
 
 /** @param {string} text */
 export function parseStep(text) {
+  if (typeof text !== "string") text = "";
   const body = text.replace(/\/\*[\s\S]*?\*\//g, "");
   const data = body.slice(Math.max(0, body.indexOf("DATA;")));
   /** @type {Map<string, { type: string, args: any[] }>} */
@@ -65,6 +66,7 @@ const SI_PREFIX = { MILLI: 0.001, CENTI: 0.01, DECI: 0.1, KILO: 1000 };
 
 export function planFromIfc(text, opt = {}) {
   const notes = [];
+  if (typeof text !== "string") return { ok: false, errors: ["The IFC must be text (a STEP file's contents)."], notes };
   if (!/ISO-10303-21/.test(text.slice(0, 200))) return { ok: false, errors: ["This does not look like an IFC (STEP) file; it should start with ISO-10303-21. IFCZIP and IFCXML are not read."], notes };
   const ents = parseStep(text);
   const get = (r) => (typeof r === "string" ? ents.get(r) : undefined);
