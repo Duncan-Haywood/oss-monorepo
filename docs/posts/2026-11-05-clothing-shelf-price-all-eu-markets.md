@@ -1,9 +1,9 @@
 ---
 title: "One margin target, 29 markets: the clothing price tool now covers the whole EU"
-seo_title: "Clothing shelf price with VAT for all 27 EU countries, the UK and the US"
+seo_title: "Clothing shelf price with VAT for all 27 EU countries and more"
 date: 2026-11-05
 tags: [clothing, pricing, vat, open-source]
-description: "The free Clothing Design Studio price page now returns the shelf price for every EU country, the UK and the US, with an optional children's-clothing zero rate for Ireland and the UK."
+description: "The free Clothing Design Studio price page now gives the shelf price for every EU country, the UK and the US, with an optional children's zero rate."
 ---
 
 A new clothing brand selling across Europe has one margin target but a different VAT rate in every country. The [price-by-market page](https://marisstella.app/) of the Clothing Design Studio used to cover seven markets. It now covers all 27 EU countries, the UK and the US.
