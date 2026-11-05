@@ -1,6 +1,6 @@
 ---
 title: "Narrower permit-time intervals help San Francisco and Chicago, not Austin"
-seo_title: "Building permit time prediction intervals: Chicago, San Francisco and Austin compared"
+seo_title: "Permit time prediction intervals: Chicago, San Francisco, Austin"
 date: 2026-11-05
 tags: [build-data, research, conformal-prediction, building-permits]
 description: "A rule for choosing tighter 80% intervals on permit approval time works in two cities and mostly fails in Austin, with the numbers."
