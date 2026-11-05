@@ -1124,3 +1124,12 @@ test("divisionsFacilityCost: a decimal comma is not a thousand, a per-season or 
   assert.equal(cost("Park: 45/court-hour").cost, 90);
   for (const q of ["Park: $900/season", "Park: 300 per night", "Park: 50 flat", "Park: 20/game"]) assert.equal(cost(q).rate, null, q);
 });
+
+test("divisionsWeeklyUpdate: warns when a team has two walkover losses", () => {
+  const s = build();
+  const [a, b, c] = s.divisions[0].teams;
+  const out = divisionsWeeklyUpdate(s, `U10: ${b} w/o ${a}\nU10: ${c} w/o ${a}`);
+  const none = divisionsWeeklyUpdate(s, `U10: ${b} w/o ${a}`);
+  assert.match(out, new RegExp(`Warning: ${a} has two or more forfeits`));
+  assert.ok(!/forfeits/.test(none));
+});
