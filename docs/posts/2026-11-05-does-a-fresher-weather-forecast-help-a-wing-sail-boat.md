@@ -1,6 +1,6 @@
 ---
 title: "Does a fresher weather forecast help a wing-sail boat?"
-seo_title: "HRRR forecast latency vs wing-sail route replanning: 1 h against 3 h at open-water buoys"
+seo_title: "HRRR forecast latency vs wing-sail replanning: 1 h or 3 h?"
 date: 2026-11-05
 tags: [research, marine-hull, wind-forecast, autonomous-sailing]
 description: "Cutting the delivery delay of NOAA HRRR wind forecasts from 3 hours to 1 hour changed a replanning boat's progress by 0.2 points, not enough to matter."
