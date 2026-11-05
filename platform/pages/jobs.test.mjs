@@ -3012,3 +3012,11 @@ test('a trade that charged only a dollar in total still takes part in the keep r
   assert.match(sentence, /across 2 tools/);
   assert.match(sentence, /Tiny bid calculator kept the most/);
 });
+
+test('a blank bid name falls back to today, and a typed one is kept (trimmed, 60 chars)', () => {
+  // `(box.value || '')` guards a missing value; `&&` would make every name ''.
+  assert.match(
+    module_(),
+    /var name = \(box\.value \|\| ''\)\.replace\(\/\\s\+\/g, ' '\)\.trim\(\)\.slice\(0, 60\) \|\| today\(\);/,
+  );
+});
