@@ -81,6 +81,12 @@ class WaitFor(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(out.splitlines(), [f"l{i}" for i in range(6, 20)] + ["DONE"])
 
+    def test_help_describes_the_tool_in_first_docstring_line(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), self.assertRaises(SystemExit):
+            main(["--help"])
+        self.assertIn("Wait for a background command to finish", out.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main()

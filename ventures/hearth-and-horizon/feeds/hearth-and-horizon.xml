@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Back Row and the Front</title>
+      <link>https://example.invalid/hearth-and-horizon/the-back-row-and-the-front.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-back-row-and-the-front.html</guid>
+      <pubDate>Thu, 05 Nov 2026 12:00:00 GMT</pubDate>
+      <description>The quiz night's speaker can't be heard at the back of the hall, so the man with the amplifier wants it ten decibels louder. The parish assistant works the sums. Sound falls 6 dB for each doubling of distance, so ten more at the front row is a hearing risk of about 24 minutes, while a second, quiet, delayed speaker near the back does the job at 88 dB. Setting: Saint Aidan's hall (invented), near Wooler, Northumberland, Saturday 8 March 2053. Read the full text at https://example.invalid/hearth-and-horizon/the-back-row-and-the-front.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>The quiz night's speaker can't be heard at the back of the hall, so the man with the amplifier wants it ten decibels louder. The parish assistant works the sums. Sound falls 6 dB for each doubling of distance, so ten more at the front row is a hearing risk of about 24 minutes, while a second, quiet, delayed speaker near the back does the job at 88 dB.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Roof That Pays Back in Eight</title>
       <link>https://example.invalid/hearth-and-horizon/the-roof-that-pays-back-in-eight.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-roof-that-pays-back-in-eight.html</guid>

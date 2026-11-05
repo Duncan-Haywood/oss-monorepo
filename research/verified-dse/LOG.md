@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-05 · Milestone 82: programme summary post (no flow run, no new numbers)
+- Why: 81 milestones sit in this log with no programme-wide summary for a reader. Wrote `docs/posts/2026-11-05-verified-dse-what-81-milestones-found.md` from logged outcomes only (H1 to H4 headline results, pilot gate, bound, tool-version caveat).
+- Check: every figure was copied from this log and `PAPER.md`; nothing re-measured.
+- Next: unchanged from milestone 81 (detail-routed mult24/mult32 cells, template typesetting).
+
 ## 2026-11-04 · Milestone 81: restructure PAPER.md so results sit in Sections 3 and 4 and Section 6 lists only what is open (no flow run, no new numbers)
 - Why: Section 6 ("What the paper still needs") had grown to about 40 lines of results from milestones 20 to 80, with its closing sentence split in two by an inserted paragraph. A reader cannot tell what is open. Moved verbatim: the detail-routing, fanout-mechanism, BOHB/BO and pilot-certificate paragraphs now sit in Section 3 (and the certificate in Section 4); the BOHB-unfaithful paragraph moved to Section 3; Section 6 is a five-item list plus the one-sentence headline.
 - Check: a multiset comparison of every number token before and after shows only milestone labels and list numerals added and one "1" lost (the old "(1)" marker). `research/_homepage/build.py` prints ok. Nothing was re-measured.
