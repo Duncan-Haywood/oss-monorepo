@@ -1,7 +1,7 @@
 ---
 title: "A changepoint detector finds Argentina's 1985 inflation plan"
 date: 2026-11-05
-description: "Run on 79 quarters of real Argentine inflation, the mean model dates the Austral Plan drop and the 1989 hyperinflation; the variance model puts the plan a quarter early."
+description: "On 79 quarters of real Argentine inflation the mean model dates the Austral Plan drop and the 1989 hyperinflation; the variance model puts the plan a quarter early."
 tags: [changepoint-detector, inflation, statistics, real-data]
 ---
 
