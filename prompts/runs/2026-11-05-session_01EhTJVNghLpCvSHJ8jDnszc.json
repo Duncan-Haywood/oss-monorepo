@@ -1,0 +1,30 @@
+{
+  "date": "2026-11-05",
+  "session": "https://claude.ai/code/session_01EhTJVNghLpCvSHJ8jDnszc",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo, develop, deploy, market, sell revenue-generating products; merge when done",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "task": null,
+  "projects": ["ventures/wall-framing-takeoff"],
+  "pr": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "did not build/screenshot the site (7-20 min); chose a comparison page for the top flagship",
+      "did": "added one vs page with benchmark-backed figures",
+      "result": "page.test.mjs 70 pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-05-ordering-framing-lumber-by-hand-costs-three-percent-more.md",
+    "docs/reports/polish-2026-11-05-lumber-order-vs-page.md"
+  ],
+  "notes": ""
+}

@@ -81,7 +81,7 @@ export function storefront(designs, options = {}) {
     const action = link
       ? `<a class="buy" href="${esc(link)}" rel="noopener">${preOrder ? "Pre-order" : "Buy"} for ${esc(price)}</a><p class="note">Opens the seller's own checkout. Tell them your size in the order note: <b data-size-for="${handle}">${esc(sizes[0] ?? "")}</b>.</p>`
       : email
-        ? `<a class="buy" data-mail="${handle}" href="${mailto(sizes[0] ?? "")}">${preOrder ? "Pre-order" : "Order"} by email · ${esc(price)}</a>`
+        ? `<a class="buy" data-mail="${handle}" href="${mailto(sizes[0] ?? "")}">${preOrder ? "Pre-order" : "Order"} by email · ${esc(price)}</a><button type="button" class="add" data-add="${handle}" data-name="${esc(design.name)}" data-price="${Number(design.price).toFixed(2)}">Add to basket</button>`
         : `<span class="buy off">Ordering is not set up yet</span>`;
     return `<article class="card" id="${handle}" itemscope itemtype="https://schema.org/Product">
   <div class="art">${renderDesign(design, { side: "front", uid: `${uid}f` })}${hasBack ? renderDesign(design, { side: "back", uid: `${uid}b` }) : ""}</div>
@@ -132,6 +132,8 @@ fieldset{border:0;padding:0;margin:.5rem 0}legend{font-size:.85rem;color:var(--m
 .sz input:checked+span{background:var(--accent);color:var(--bg)}.sz input:focus-visible+span{outline:2px solid #2f7de1}
 .buy{display:block;text-align:center;padding:.7rem;border-radius:8px;background:var(--accent);color:var(--bg);text-decoration:none;font-weight:700}
 .buy.off{opacity:.5}
+.add{display:block;width:100%;margin-top:.5rem;padding:.6rem;border-radius:8px;border:1px solid var(--accent);background:transparent;color:var(--fg);font:inherit;cursor:pointer}
+#basket{border:1px solid var(--line);border-radius:10px;padding:1rem;margin-top:1.25rem}#basket li{margin:.25rem 0}#basket button.rm{margin-left:.5rem;font:inherit;cursor:pointer}
 footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);margin-top:2rem}
 </style>
 </head>
@@ -139,7 +141,8 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);margi
 <header><h1>${esc(brand)}</h1>${about ? `<p>${esc(about)}</p>` : ""}</header>
 <main><div class="grid">
 ${products.map(card).join("\n")}
-</div></main>
+</div>${email ? `
+<section id="basket" hidden aria-live="polite"><h2>Your basket</h2><ul></ul><p><b>Total: <span id="basket-total"></span></b> <span class="muted">(before shipping and tax; the seller confirms the final amount)</span></p><a class="buy" id="basket-send" href="#">${preOrder ? "Pre-order" : "Order"} everything by email</a></section>` : ""}</main>
 <footer>
 ${shipping ? `<h3>Shipping</h3><p>${esc(shipping)}</p>` : ""}
 ${returns ? `<h3>Returns and cancellations</h3><p>${esc(returns)}</p>` : ""}
@@ -151,6 +154,18 @@ document.querySelectorAll('input[type=radio][name^="size-"]').forEach(function(r
 var h=r.name.slice(5),a=document.querySelector('[data-mail="'+h+'"]'),b=document.querySelector('[data-size-for="'+h+'"]');
 if(a)a.href=a.href.replace(/size(%20|\\+| )[^.]*?\\./,'size%20'+encodeURIComponent(r.value)+'.');
 if(b)b.textContent=r.value;});});
+${email ? `(function(){var E=${JSON.stringify(email)},P=${JSON.stringify(preOrder ? "Pre-order" : "Order")},S=${JSON.stringify(CURRENCIES[cur])},L=[],B=document.getElementById('basket');
+function m(n){return S+n.toFixed(2);}
+function draw(){var u=B.querySelector('ul'),t=0,body='';u.textContent='';
+L.forEach(function(l,i){t+=l.p*l.q;body+=l.q+' x '+l.n+', size '+l.s+' ('+m(l.p)+' each)\\n';
+var li=document.createElement('li');li.textContent=l.q+' x '+l.n+', size '+l.s+' · '+m(l.p*l.q);
+var b=document.createElement('button');b.type='button';b.className='rm';b.textContent='Remove';b.addEventListener('click',function(){L.splice(i,1);draw();});li.appendChild(b);u.appendChild(li);});
+B.hidden=!L.length;document.getElementById('basket-total').textContent=m(t);
+document.getElementById('basket-send').href='mailto:'+E+'?subject='+encodeURIComponent(P+': '+L.length+' item(s)')+'&body='+encodeURIComponent('I would like to order:\\n\\n'+body+'\\nTotal before shipping and tax: '+m(t)+'\\n\\nName and delivery address:\\n');}
+document.querySelectorAll('[data-add]').forEach(function(a){a.addEventListener('click',function(){
+var h=a.getAttribute('data-add'),c=document.querySelector('input[name="size-'+h+'"]:checked'),s=c?c.value:'',n=a.getAttribute('data-name'),p=parseFloat(a.getAttribute('data-price'));
+for(var i=0;i<L.length;i++){if(L[i].h===h&&L[i].s===s){L[i].q++;draw();return;}}
+L.push({h:h,n:n,s:s,p:p,q:1});draw();});});})();` : ""}
 </script>
 </body>
 </html>
