@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-05 · Milestone 6k: does the sail-drone model agree with a fielded drone's published distance? (closes 6i/6j's "Next"; exploratory, prediction formed before the run but not logged first)
+- Why: 6h to 6j rank wind over sun using an unsourced 5 m drone model; the open check was a published daily distance. Source: Saildrone's release for SD 1020, a 7 m Explorer, which circled Antarctica 2019-01-19 to 2019-08-03, 11,879 nmi (22,000 km) in 196 days (saildrone.com, "Saildrone Completes First Autonomous Circumnavigation of Antarctica", read 2026-11-05; NOAA PMEL gives the same 22,000 km). `experiments/run_fielded_check.py` -> `results_fielded_check.txt` (instant).
+- Prediction (informal): the fielded mission mean is below the model's buoy medians by a factor of 1.3 or more. Refuted otherwise.
+- Result: held. Fielded mean 112 km/day (1.30 m/s). Model buoy medians were 237 to 272 km/day in January and 179 to 219 in July, so fielded/model is 0.41 to 0.63. At the 10 m/s typical of the Southern Ocean the model sits at its 303 km/day Froude cap, 2.7 times the fielded mean; the model reaches 112 km/day at a steady 2 m/s of wind.
+- Reading: the model is an upper bound, about 2 to 3 times the one fielded figure I could source. The mission mean includes station keeping, surveying a route, 80 mph storms, drift and sail reefing, none of which the model has, and one drone is one data point. The ranking holds in direction: the fielded mean is still 1.3 times the 86 km/day solar ceiling, but that ceiling is itself an upper bound for the solar boat, so the gap between the two is not established to the factor 2 to 3 that 6h suggested.
+- Limits: one vehicle, one mission, a mean over a mission rather than a daily distribution; a press-release figure, not a logged track; the Southern Ocean is not the buoy sites; the 7 m hull is not the 5 m model.
+- Next: a daily-distance distribution from a public Saildrone mission track (NOAA PMEL ERDDAP data) in the buoy regions, then shrink the drone model by the measured factor and re-run 6h to 6j.
+
 ## 2026-11-05 · Milestone 6j: does 6i's wind-over-sun margin survive a tack-time penalty? (closes 6i's tack-penalty "Next"; prediction formed before the run, logged after)
 - Why: 6i tacked instantly. `experiments/run_wind_vs_sun_tack.py` -> `results_wind_vs_sun_tack.txt` (47 s) multiplies the along-line speed of every tacking sample by L/(L+T), T = seconds lost per tack, L = seconds per leg (set by corridor width). Neither is sourced, so both are swept: (T, L) = (30,900), (60,900), (120,900), (60,300), (120,300), (120,120). Same buoy winds, four lines both ways, sail.py default drone, 86 km/day solar ceiling.
 - Prediction (informal): with T = 60 s and L = 15 min the corridor/free ratio stays at 0.70 or more in both months and the January median stays above 2x solar. Refuted otherwise.
