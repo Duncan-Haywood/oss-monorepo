@@ -270,8 +270,16 @@ function sheathingNails(l, r) {
   return { ...l, notes, sheets: { ...l.sheets, nailsPerSheet: perSheet, nails } };
 }
 
+/** Pipe boots (plumbing vent flashings) for the roof's penetrations, opt-in with `roofing.pipeBoots` = a count you type from the plumbing plan, plus `roofing.pipeBootSpares` (default 1) for a miscut or a bad seal. The count is never guessed from the plan. Chimney, skylight and wall flashing are not counted. */
+function pipeBoots(l, r) {
+  const n = r.roofing?.pipeBoots;
+  if (!l || l.ok === false || !l.roofing || !(n > 0) || !Number.isInteger(n)) return l;
+  const spares = r.roofing.pipeBootSpares ?? 1;
+  return { ...l, roofing: { ...l.roofing, pipeBoots: n + (Number.isInteger(spares) && spares >= 0 ? spares : 1) } };
+}
+
 export function layoutRoof(r, plan) {
-  return sheathingNails(layoutRoofCore(r, plan), r);
+  return pipeBoots(sheathingNails(layoutRoofCore(r, plan), r), r);
 }
 
 function layoutRoofCore(r, plan) {
