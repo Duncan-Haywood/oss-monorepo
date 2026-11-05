@@ -1,9 +1,9 @@
 ---
 title: "Bias-correcting a weather model for a sailing robot: it stays level with persistence"
-seo_title: "HRRR wind bias correction for autonomous sailing: does it beat following the wind shifts?"
+seo_title: "HRRR wind bias correction for autonomous sailing"
 date: 2026-11-05
 tags: [research, marine-hull, sailing, forecasting]
-description: "Three ways to bias-correct archived HRRR winds for a hourly-replanning wing-sail boat, scored on 192 real windows at 12 US tide stations: none beats simply following the wind headers."
+description: "Three bias corrections of archived HRRR winds for an hourly-replanning wing-sail boat, scored on real tide-station data: none beats following the headers."
 ---
 
 A wing-sail robot that replans its tacks every hour needs a wind forecast. Last post in this series showed that raw archived HRRR winds (a 3 km model) lose to following the wind headers. This step asks whether a local correction can fix that.
