@@ -490,3 +490,33 @@ Reproduce: `NOISY_ITEMS=1000 NOISY_ANSWERS=3000 NOISY_RESPONDENTS=3
 NOISY_CONDITIONS=clean NOISY_CHECKPOINTS=500,1000,1500,2000,3000
 NOISY_TIMEOUT_MS=7000000 NOISY_OUT=/tmp/o.txt npx vitest run -c
 vitest.integration.config.ts src/app/api/trials/noisyRespondents`.
+
+### The dip belongs to the staged selector (2026-11-05)
+
+The "Next" item above, run: `NOISY_SELECTOR=standard` (new) sets the survey's
+`pairSelector` to the shipped selector, everything else the same (clean
+respondent, 1000 items, 3 respondents x 3000 answers, real routes, local
+Postgres 16, 304 s). The fixed set is the items rated at 500 answers (107 to
+109 here; the shipped selector rates slightly different items). Mean of the 3:
+
+| answers | rated items | Spearman, all rated | Spearman, fixed set |
+|---|---|---|---|
+| 500 | 108 | 0.711 | 0.711 |
+| 1000 | 205 | 0.621 | 0.801 |
+| 1500 | 296 | 0.600 | 0.795 |
+| 2000 | 395 | 0.576 | 0.786 |
+| 3000 | 588 | 0.557 | 0.770 |
+
+Reading: with the shipped selector the fixed set **improves** from 500 to 1000
+answers (0.71 to 0.80) and then holds (0.77 to 0.80); it does not fall the way
+the staged selector's did (0.80, 0.72, 0.67, 0.62, 0.72). So the fixed-set dip
+is a property of the staged selector, not of the rating update. The all-rated
+column falls for both, as the set widens (coverage). Caveats: 3 respondents,
+one seed family; the shipped selector starts lower at 500 answers (0.71 vs
+0.80), so staged is ahead early and behind by 1000; the table does not say
+which is better for a real survey (staged was chosen on settled items kept at
+300 answers, a different measure). Next: find why the staged selector's later
+pairs hurt settled items (candidates above: pairing settled items with new
+high-RD items; near-tie pairs), e.g. log the pair mix per 500 answers, then
+test a variant that stops pairing settled items with unrated ones.
+Reproduce: the command above with `NOISY_SELECTOR=standard`.
