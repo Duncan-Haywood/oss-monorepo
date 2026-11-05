@@ -413,3 +413,15 @@ Steveninck 1996).
 - **Transform:** `log(cpi[t]) - log(cpi[t-1])`, five decimals.
 - **Cite:** Franses, P. H. (1998). *Time Series Models for Business and Economic Forecasting*. Cambridge UP.
 - **Used by:** `argentina-inflation.test.mjs`.
+
+# Example data: West German unemployment rate, 1962Q1-1991Q4
+
+`german-unemployment.csv`: quarterly unemployment rate (% of the labour force), 120 quarters, unadjusted and
+seasonally adjusted, from `GermanUnemployment` in the R package AER (online complements to Franses 1998). The quarter
+labels are added here (the source has row numbers; the series is 30 years of four quarters, with the winter quarter high).
+
+- **Retrieved:** 2026-11-05 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/AER/GermanUnemployment.csv>
+  (the Rdatasets collection; AER is GPL-2/3 as software, the 240 rates are a published statistic).
+- **Cite:** Franses, P. H. (1998). *Time Series Models for Business and Economic Forecasting*. Cambridge UP.
+- **Used by:** `german-unemployment.test.mjs`.
