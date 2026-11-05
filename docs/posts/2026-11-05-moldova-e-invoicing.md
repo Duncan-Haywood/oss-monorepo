@@ -1,6 +1,6 @@
 ---
 title: "E-invoicing page for Moldova"
-seo_title: "Moldova e-Factura: B2B e-invoicing reported mandatory from 1 October 2026"
+seo_title: "Moldova e-Factura: B2B e-invoicing reported mandatory from 1 Oct 2026"
 date: 2026-11-05
 tags: [einvoice-preflight, e-invoicing, moldova]
 description: "E-invoice Preflight now covers 82 countries: Moldova's SFS e-Factura, with B2B use reported mandatory from 1 October 2026 after a January pilot."
