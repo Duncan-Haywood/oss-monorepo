@@ -29,16 +29,24 @@ export function findSlots(text, today) {
   const push = (o) => { if (!out.some((x) => x.date === o.date && x.time === o.time && x.part === o.part)) out.push(o); };
   const bare = /\b(?:no|not|isn'?t|aren'?t|can'?t|cannot|unavailable|out)\b[^.?!]{0,25}$/i;
   // weekday (+ optional time or part of day)
-  const re1 = new RegExp(`\\b(?:next |this )?${DAY_RE}\\b(?:,? ?(?:${PART}|${TIME_RE}))?`, "gi");
+  const re1 = new RegExp(`\\b(next |this )?${DAY_RE}\\b(?:,? ?(?:after |from )?(?:${PART}|${TIME_RE}))?`, "gi");
   for (const m of src.matchAll(re1)) {
     if (bare.test(src.slice(Math.max(0, m.index - 30), m.index))) continue; // "can't do Tuesday"
-    const w = m[1].toLowerCase();
+    const w = m[2].toLowerCase();
     // a bare number after a day ("Friday 2 people") counts only with am/pm, a colon or "at"
-    const timed = m[3] && (m[5] || m[4] || /\b(at|around|about)\b|@/i.test(m[0]));
-    const time = timed ? clock(m[3], m[4], m[5]) : null;
+    const timed = m[4] && (m[6] || m[5] || /\b(at|around|about)\b|@/i.test(m[0]));
+    const time = timed ? clock(m[4], m[5], m[6]) : null;
     if (timed && !time) continue;
-    const date = weekdayDate(w);
-    push({ text: m[0].trim(), date, weekday: DAYS[new Date(`${date}T00:00:00Z`).getUTCDay()], time, part: m[2] ? m[2].toLowerCase() : null });
+    // "after 3" / "from 3" is a lower bound, never an exact time we could confirm
+    const after = time && /\b(after|from)\b/i.test(m[0]) ? time : null;
+    let date = weekdayDate(w), ambiguous = false;
+    // "next Friday" said on a Wednesday could mean this Friday or the one after: take the following
+    // calendar week (Monday start) and say it is a reading, so the draft names the date and a person sees it
+    if (m[1] && m[1].toLowerCase() === "next " && w !== "tomorrow") {
+      const wk = (d) => { const x = new Date(`${d}T00:00:00Z`); return add(d, -((x.getUTCDay() + 6) % 7)); };
+      if (wk(date) === wk(today)) { date = add(date, 7); ambiguous = true; }
+    }
+    push({ text: m[0].trim(), date, weekday: DAYS[new Date(`${date}T00:00:00Z`).getUTCDay()], time: after ? null : time, after, ambiguous, part: m[3] ? m[3].toLowerCase() : null });
   }
   // month day (+ time)
   const re2 = new RegExp(`\\b${MON_RE}\\.? (\\d{1,2})(?:st|nd|rd|th)?\\b(?:,? ?(?:at |@ )${TIME_RE.replace("(?:at |around |about |@ )?", "")})?`, "gi");
@@ -49,7 +57,7 @@ export function findSlots(text, today) {
     if (date < today) date = `${y + 1}${date.slice(4)}`;
     if (new Date(`${date}T00:00:00Z`).getUTCDate() !== d) continue;
     const time = m[3] ? clock(m[3], m[4], m[5]) : null;
-    push({ text: m[0].trim(), date, weekday: DAYS[new Date(`${date}T00:00:00Z`).getUTCDay()], time, part: null });
+    push({ text: m[0].trim(), date, weekday: DAYS[new Date(`${date}T00:00:00Z`).getUTCDay()], time, after: null, ambiguous: false, part: null });
   }
   return out.slice(0, 3);
 }
@@ -60,6 +68,7 @@ export function describeSlot(s) {
   const [y, m, d] = s.date.split("-").map(Number);
   let t = `${cap(s.weekday)} ${d} ${MON_NAME[m - 1]}`;
   if (s.time) { const [h, mi] = s.time.split(":").map(Number); t += ` at ${((h + 11) % 12) + 1}${mi ? ":" + String(mi).padStart(2, "0") : ""}${h < 12 ? "am" : "pm"}`; }
+  else if (s.after) { const [h, mi] = s.after.split(":").map(Number); t += ` after ${((h + 11) % 12) + 1}${mi ? ":" + String(mi).padStart(2, "0") : ""}${h < 12 ? "am" : "pm"}`; }
   else if (s.part) t += ` ${s.part}`;
   void y; return t;
 }
