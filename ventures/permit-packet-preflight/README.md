@@ -1,5 +1,7 @@
 # permit-packet-preflight
 
+Live page: https://marisstella.app/permit-packet-preflight/
+
 Direction: construction-permit tooling (`portfolio/opinions/2026-11-03-requests-for-startups.md`, "AI for City Hall").
 Built 2026-11-05 as a prototype. Matches a checklist the user pastes against the
 file names in their packet (keyword overlap with a few synonyms, threshold 0.4).
