@@ -51,6 +51,7 @@ What still holds:
   Relative links and images in `docs/posts/` are clean too (1,312 checked, 0 broken; `platform/ci/check_post_links.py`, 2026-11-03).
   Duplicate ids and dangling `for`/`aria-*` targets are clean too (3,422 pages, 0; `platform/ci/check_dom_ids.py`, 2026-11-04).
   Links and buttons with no accessible name are clean too (3,422 pages, 0; the three empty buttons are filled by script; `platform/ci/check_empty_controls.py`, 2026-11-04).
+  In-page `href="#frag"` links to a missing id or name are clean too (3,476 pages, 0; `platform/ci/check_fragment_links.py`, 2026-11-05).
   Only sweeps of a kind not listed are open.
 - **Not more admin.** A free-choice run that only writes plans, ledger prose
   or direction documents has wasted the slot. Build something.
