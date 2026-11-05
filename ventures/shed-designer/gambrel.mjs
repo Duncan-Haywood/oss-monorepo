@@ -251,18 +251,32 @@ export function solveFrame(g, q, tieDepth) {
   const leftM = P.filter(([y]) => y < yC).reduce((t, [y, p]) => t + p * (yC - y), 0);
   const H = (VA * (yC - yA) - leftM) / (zC - zA);
   // Section forces on the left half at plan position y (on the centreline).
-  const at = (y, V0, loads) => {
+  // Loads left of y as running sums over the loads sorted by plan position, so each
+  // section costs a binary search instead of three passes over all 240 loads.
+  const prefix = (loads) => {
+    const sorted = [...loads].sort((a, b) => a[0] - b[0]);
+    const ys = sorted.map((p) => p[0]);
+    const cp = [0];
+    const cpy = [0];
+    for (const [yy, p] of sorted) { cp.push(cp[cp.length - 1] + p); cpy.push(cpy[cpy.length - 1] + p * yy); }
+    return { ys, cp, cpy };
+  };
+  const at = (y, V0, pre) => {
     const z = y <= ykC ? lowC(y) : upC(y);
-    const left = loads.filter(([yy]) => yy < y);
-    const Fy = V0 - left.reduce((t, p) => t + p[1], 0);
-    const M = V0 * (y - yA) - H * (z - zA) - left.reduce((t, [yy, p]) => t + p * (y - yy), 0);
+    let lo = 0;
+    let hi = pre.ys.length;
+    while (lo < hi) { const m = (lo + hi) >> 1; if (pre.ys[m] < y) lo = m + 1; else hi = m; }
+    const sumP = pre.cp[lo];
+    const Fy = V0 - sumP;
+    const M = V0 * (y - yA) - H * (z - zA) - (y * sumP - pre.cpy[lo]);
     const [c, s] = y <= ykC ? [cl, tl * cl] : [cu, tu * cu];
     return { y, N: H * c + Fy * s, V: Math.abs(-H * s + Fy * c), M: Math.abs(M) };
   };
   const side = (V0, loads) => {
+    const pre = prefix(loads);
     const pts = [];
-    for (let i = 0; i <= 60; i++) pts.push(at(yA + ((ykC - yA) * i) / 60, V0, loads));
-    for (let i = 1; i <= 60; i++) pts.push(at(ykC + ((yC - ykC) * i) / 60, V0, loads));
+    for (let i = 0; i <= 60; i++) pts.push(at(yA + ((ykC - yA) * i) / 60, V0, pre));
+    for (let i = 1; i <= 60; i++) pts.push(at(ykC + ((yC - ykC) * i) / 60, V0, pre));
     return pts;
   };
   const mirrored = /** @type {[number, number][]} */ (P.map(([y, p]) => [W - y, p]));
