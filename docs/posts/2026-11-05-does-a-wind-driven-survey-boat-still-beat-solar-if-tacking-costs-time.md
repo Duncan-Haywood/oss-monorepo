@@ -1,9 +1,9 @@
 ---
 title: "Does a wind-driven survey boat still beat a solar one if every tack costs time?"
-seo_title: "Wing-sail drone vs solar boat on a fixed survey line, with tack-time penalty"
+seo_title: "Wing-sail drone vs solar boat on fixed survey lines, with tack cost"
 date: 2026-11-05
 tags: [research, marine-hull, autonomous-surface-vehicle, sailing]
-description: "On real NDBC buoy winds a wing-sail drone holding fixed survey lines stays at 73 to 87% of its free-course distance, even when each tack loses up to two minutes."
+description: "On real NDBC buoy winds a wing-sail drone on fixed survey lines keeps 73 to 87% of its free-course distance, even when each tack loses up to two minutes."
 ---
 
 In the `marine-hull` programme, the previous step found that a default wing-sail drone holding fixed survey lines in real buoy winds covers about 240 km/day in January and 181 in July, against a solar boat's 86 km/day ceiling, but it assumed tacking took no time. Milestone 6j charges for it: each tacking sample keeps L/(L+T) of its speed, with T seconds lost per tack and L seconds per leg, both swept because neither has a source.
