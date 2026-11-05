@@ -31,7 +31,7 @@ many-session project. Each milestone below lands as a working slice.
 
 9. **Price by market.** (First slice done 2026-11-04: `markets.mjs` + `prices.html`, shelf price per market from one margin target. VAT rates unverified, exchange rates typed by the designer. Still to do: rates checked against the official tables, reduced VAT rates, OSS thresholds, US state tax, duty by destination.)
 
-8. **Compliance labels.** (First slice done 2026-11-04: `labels.mjs` + `labels.html`, fibre content and care for the EU and US; UK (Great Britain) and Canada (bilingual, CA number) added 2026-11-04; rules summarised, not legal advice. Wool/cashmere, leather, fur and down notes by market landed 2026-11-04 (`materialNotes`, pointers to the law, not rulings). Still to do: a real factory's label through it.)
+8. **Compliance labels.** (First slice done 2026-11-04: `labels.mjs` + `labels.html`, fibre content and care for the EU and US; UK (Great Britain) and Canada (bilingual, CA number) added 2026-11-04; rules summarised, not legal advice. Wool/cashmere, leather, fur and down notes by market landed 2026-11-04 (`materialNotes`, pointers to the law, not rulings). Care symbol artwork landed 2026-11-04 (`caresymbols.mjs`: ISO 3758-style wash, bleach, dry, iron and professional symbols as SVG on the label page, downloadable; drawn by the author from the published shapes, hand-in-tub is crude, check against the standard). Still to do: a real factory's label through it, symbols checked against a licensed copy of the standard.)
 
 ## Not planned
 
