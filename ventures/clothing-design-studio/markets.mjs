@@ -8,8 +8,11 @@
  * price that hits the target, the same price rounded to a price ending, and
  * the margin that rounded price really gives.
  *
- * The VAT rates below are STANDARD RATES typed in by hand and could not be
- * checked against the European Commission's table from the build host. They
+ * The VAT rates below are STANDARD RATES. The European Commission's table
+ * could not be reached from the build host (2026-11-05); the 27 rates were
+ * cross-checked instead against search excerpts of commercial 2026 tables
+ * (Numeral, Eurofiscalis, Vatai, CalculateVAT, Taxenlight) and agree. Those
+ * are secondary sources: confirm with the member state before filing. They
  * are editable defaults, shown as such on the page. Reduced rates, distance
  * selling thresholds, OSS registration and US state sales tax are not applied.
  */

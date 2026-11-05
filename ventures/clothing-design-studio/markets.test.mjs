@@ -73,3 +73,9 @@ test("all 27 EU states are present; only non-euro ones need a rate", () => {
   const need = marketPrices({ landed: 18, quantity: 100, markets: eu }).filter(r => r.error).map(r => r.market).sort();
   assert.deepEqual(need, ["CZ", "DK", "HU", "PL", "RO", "SE"]);
 });
+
+test("EU standard rates pinned to the 2026 cross-check", () => {
+  const want = { AT:20,BE:21,BG:20,HR:25,CY:19,CZ:21,DK:25,EE:24,FI:25.5,FR:20,DE:19,GR:24,HU:27,IE:23,IT:22,LV:21,LT:21,LU:17,MT:18,NL:21,PL:23,PT:23,RO:21,SK:23,SI:22,ES:21,SE:25 };
+  for (const [c, v] of Object.entries(want)) assert.equal(MARKETS[c].vatPct, v, c);
+  assert.equal(Object.keys(want).length, 27);
+});
