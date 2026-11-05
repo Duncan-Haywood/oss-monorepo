@@ -2,8 +2,8 @@
 title: "Eight of ten seeded bugs slipped past our tax-year staleness report"
 seo_title: "Mutation testing a tax-year staleness checker: 20% catch rate"
 date: 2026-11-05
-tags: [process, red-team, testing, tax]
-description: "We seeded ten faults into the script that flags stale tax years in our calculators. Its tests caught two. Here is what was missing and the tests that now catch all ten."
+tags: [process, redteam, testing, tax]
+description: "We seeded ten faults into the script that flags stale tax years. Its tests caught two. Here is what was missing and the tests that now catch all ten."
 ---
 
 `platform/ci/tax_year_staleness.py` lists calculators that cite a tax authority but show no figure for the current year. A red-team run seeded ten small faults into it (changing `>=` to `>`, `and` to `or`, a limit of 40 to 41). The existing tests caught two. Eight escaped.
