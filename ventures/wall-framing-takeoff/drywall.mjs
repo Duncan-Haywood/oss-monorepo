@@ -128,7 +128,9 @@ export function layoutDrywall(d, plan, roof = null) {
   // joist centres the roof placed (inches along its length from the first gable wall's outside face), one per distinct joist position
   const roofCentres = d.ceilingJoistsFromRoof ? [...new Set(roof.ceilingJoists.map((j) => Math.round((j.x + THICK / 2) * 16) / 16))].sort((a, b) => a - b) : null;
   const len = d.sheetLength ?? 96;
-  const height = d.height ?? Math.round((plan.studLength + 3 * THICK) / 12) * 12;
+  // hang height: typed, else the stud length plus plates rounded to the foot; a wall with its own studLength hangs to its own height
+  const hangFor = (/** @type {number} */ sl) => d.height ?? Math.round((sl + 3 * THICK) / 12) * 12;
+  const height = hangFor(plan.studLength);
   const waste = d.waste ?? 0.1;
   /** @type {Map<number, number[]>} band width -> runs */
   const bands = new Map();
@@ -139,6 +141,7 @@ export function layoutDrywall(d, plan, roof = null) {
   const jointStats = { total: 0, offFraming: 0, naiveOffFraming: 0 };
   const walls = [];
   for (const w of plan.walls) {
+    const height = w.studLength !== undefined ? hangFor(w.studLength) : hangFor(plan.studLength);
     const faces = d.faces === "both" ? 2 : w.sheathed === false ? 2 : 1;
     const ops = (w.openings || []).map((/** @type {any} */ o) => {
       const top = o.headerHeight ?? plan.defaultHeaderHeight;
