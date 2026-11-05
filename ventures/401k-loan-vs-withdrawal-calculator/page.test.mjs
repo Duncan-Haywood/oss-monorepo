@@ -47,3 +47,20 @@ test("usage events named on the page are the ones the code records", () => {
 test("page says its defaults are placeholders", () => {
   assert.match(page("index.html"), /placeholders, not/i);
 });
+
+test("comparison page: FAQ matches JSON-LD, disclaimer present, linked from index, sitemap and llms.txt", () => {
+  const name = "vs-working-it-out-by-hand.html";
+  const html = page(name);
+  const faq = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  assert.equal(faq["@type"], "FAQPage");
+  for (const q of faq.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  assert.match(html, /No warranty/);
+  assert.match(html, /<title>[^<]{20,}/);
+  assert.match(html, /<meta name="description" content="[^"]{80,}/);
+  assert.match(page("index.html"), new RegExp(name));
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("llms.txt"), new RegExp(name));
+});
