@@ -3,7 +3,7 @@ title: "Calling every function in a framing calculator with nothing"
 seo_title: "Hardening a wall framing takeoff tool against bad input"
 date: 2026-11-05
 tags: [wall-framing-takeoff, testing, construction]
-description: "A sweep that called every export of the open-source wall framing takeoff with null, 5 and text found one user-facing function that crashed instead of explaining."
+description: "A sweep that called every export of the open-source wall framing takeoff with null, 5 and text found one user-facing function that crashed."
 ---
 
 The wall framing takeoff turns a plan into studs, headers and a cutting-stock order. Its pages and CLI check a plan before the engine sees it, but a saved sketch goes through its own function, `planFromSketch`.
