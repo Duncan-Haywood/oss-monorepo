@@ -362,3 +362,20 @@ test("--drilling checks runs against stud limits; a bad run is refused; --json c
   assert.match(bad.out, /not a wall/);
   assert.equal(JSON.parse(main(["plan.json", "--drilling", "--json"], () => plan).out).drilling.failing, 1);
 });
+
+test("--paint adds interior paint gallons", () => {
+  const plan = samplePlan();
+  plan.paint = { ceilings: [{ width: 240, depth: 240 }], primerCoats: 1 };
+  const { code, out } = run(["p.json", "--paint"], plan);
+  assert.equal(code, 0);
+  assert.match(out, /PAINT/);
+  assert.match(out, /Primer:/);
+});
+
+test("--paint with bad settings exits 1", () => {
+  const plan = samplePlan();
+  plan.paint = { coats: 9 };
+  const { code, out } = run(["p.json", "--paint"], plan);
+  assert.equal(code, 1);
+  assert.match(out, /paint has problems/);
+});

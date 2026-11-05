@@ -10,6 +10,7 @@ import { layoutFoundation, foundationText } from "./foundation.mjs";
 import { layoutDrywall, drywallText } from "./drywall.mjs";
 import { layoutInsulation, insulationText } from "./insulation.mjs";
 import { layoutTrim, trimText } from "./trim.mjs";
+import { layoutPaint, paintText } from "./paint.mjs";
 import { layoutElectrical, electricalText } from "./electrical.mjs";
 import { layoutDrilling, drillingText } from "./drilling.mjs";
 import { layoutOpeningSchedule, openingScheduleText } from "./openingschedule.mjs";
@@ -75,6 +76,7 @@ Usage:
   node cli.mjs plan.json --electrical  add receptacle and switch boxes (NEC 210.52 wall-space rule) and a cable estimate (plan electrical: skipWalls, maxSpacing, minSpace, switchPerDoor, cablePerDevice, cableRoll, waste, receptaclePrice, switchPrice, boxPrice, cablePrice)
   node cli.mjs plan.json --drilling    check pipe and cable holes and notches against stud limits (plan drilling: runs [{wall, kind: bore|notch, size or pipe, count, doubled, label}], clearance, limits)
   node cli.mjs plan.json --trim        add baseboard and door and window casing boards (plan trim: scarf, shoe, shoeStock, shoePrice, baseSides, baseStock, casingStock, casingWidth, reveal, waste, basePrice, casingPrice)
+  node cli.mjs plan.json --paint       add interior paint gallons: walls less openings, doors, ceilings, coats, primer (plan paint: height, faces, coats, primerCoats, coverage, waste, ceilings, trimFeet, gallonPrice, fivePrice)
   node cli.mjs plan.json --openings    print the door and window schedule: marks, counts, rough and unit sizes, header, sill height, where each sits (plan openingSchedule: unitAllowance, doorPrefix, windowPrefix)
   node cli.mjs plan.json --insulation  add wall-cavity insulation bags (measured from the framing placed; plan insulation: bagSqFt, rValue, waste, price)
   node cli.mjs plan.json --drywall     add interior drywall (inside faces, partitions both sides, optional ceilings; plan drywall: sheetLength, ceiling, price)
@@ -266,6 +268,11 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     if (!trim.ok) return { code: 1, out: `The trim has problems:\n${trim.errors.map((e) => `  - ${e}`).join("\n")}` };
     r.trim = trimmed = trim;
   }
+  if (r.ok && (flags.has("--paint") || plan.paint)) {
+    const pt = layoutPaint(plan.paint || {}, plan);
+    if (!pt.ok) return { code: 1, out: `The paint has problems:\n${pt.errors.map((e) => `  - ${e}`).join("\n")}` };
+    r.paint = pt;
+  }
   if (r.ok && (flags.has("--openings") || plan.openingSchedule)) {
     const os = layoutOpeningSchedule(plan.openingSchedule || {}, plan);
     if (!os.ok) return { code: 1, out: `The opening schedule has problems:\n${os.errors.map((e) => `  - ${e}`).join("\n")}` };
@@ -375,6 +382,7 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   if (r.fasteners) lines.push("", "FASTENERS", ...fastenerText(r.fasteners));
   if (r.insulation) lines.push("", "INSULATION", ...insulationText(r.insulation));
   if (r.trim) lines.push("", "TRIM", ...trimText(r.trim));
+  if (r.paint) lines.push("", "PAINT", ...paintText(r.paint));
   if (r.electrical) lines.push("", "ELECTRICAL ROUGH-IN", ...electricalText(r.electrical));
   if (r.drilling) lines.push("", "STUD DRILLING AND NOTCHING", ...drillingText(r.drilling));
   if (r.openingSchedule) lines.push("", "DOOR AND WINDOW SCHEDULE", ...openingScheduleText(r.openingSchedule));
