@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-05 · Milestone 9ae: gain-only arm of 9ac, does a pure airspeed gain move the fitted modes? (prediction written before the run)
+- Why: 9ac's "Next". 9ac's gain (1+eps) came with a constant eps*V0 offset, so its damage could not be assigned to either. `experiments/airspeed_gain_only/run.py` is 9ac's harness with the offset removed (gain on u only, random sign, eps = 0, 0.25%, 1%, 5%, same 20 designs, scale 0.75, noise 10%, 8 draws, same seed).
+- **Prediction (before running):** a gain is a diagonal similarity transform, so the eigenvalues are unchanged; only u's signal-to-noise changes. Plain OE median errors at 1% and 5% stay within 1.5x of eps = 0 (0.23/0.78/1.48% at 1 period, 9ac) and there are no more than 10 failures of 160 (prior 80%). Refuted if any median mode error exceeds 1.5x its eps = 0 value at 5%, which would mean the fit is not invariant to scaling in practice.
+
 ## 2026-11-04 · Milestone 8j: paper draft catches up with milestones 9aa to 9ad (no new simulation)
 - New Section 4.10c carries the pitot-channel sizing (9aa), the constant-offset fit (9ab), the scale-factor fit (9ac) and the gain arm (9ad); `paper/check_numbers.py` ties five of its figures to the results files (all checks pass). The open-items line now lists only the incidence channel.
 - Next: incidence-channel sizing from a published vane or five-hole sensor; AIAA template.
