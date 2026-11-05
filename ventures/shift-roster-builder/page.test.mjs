@@ -249,3 +249,9 @@ test("the open-shift preference select is labelled and feeds buildRoster's openS
   assert.match(html, /<label for="openpref">/);
   assert.match(html, /openShiftWeight: \$\("#openpref"\)\.value === "shifts" \? 100 : 0/);
 });
+
+test("the cover finder offers hand-over chains when nobody can take the shift outright (2026-11-05)", () => {
+  const html = page("index.html");
+  assert.match(html, /coverChain\(lastIn\.staff, lastIn\.slots, last/);
+  assert.match(html, /Or hand shifts over/);
+});

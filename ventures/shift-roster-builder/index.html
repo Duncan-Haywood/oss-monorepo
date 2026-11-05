@@ -284,7 +284,7 @@
     import { staffPackHtml } from "./staffpack.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
-    import { planWeeks, planFairness, parseAvailability, placeBreaks, placeRestBreaks, scheduleChanges, carryOverStaff, scheduleFlags, seniorityClaims, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, splitShiftPay, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { planWeeks, planFairness, parseAvailability, placeBreaks, placeRestBreaks, scheduleChanges, carryOverStaff, scheduleFlags, seniorityClaims, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, coverChain, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, splitShiftPay, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -305,7 +305,14 @@
       const swap = !sw.error && sw.trades.length
         ? `<p class="note"><strong>Or trade shifts</strong> (both weeks stay within every rule):</p><div class="scroll"><table><thead><tr><th>${esc(sw.from)} swaps with</th><th>Takes back</th><th class="n">Payroll change</th></tr></thead><tbody>${sw.trades.slice(0, 8).map((t) => `<tr><td>${esc(t.with)}${t.direct ? "" : ' <span class="pill medium">needs a trade</span>'}</td><td>${DAYS[t.gives.day]} ${fmtClock(t.gives.startMin)}–${fmtClock(t.gives.endMin)}${t.gives.label ? " " + esc(t.gives.label) : ""}</td><td class="n">${t.extraCost >= 0 ? "+" : ""}${money2(t.extraCost)}</td></tr>`).join("")}</tbody></table></div>`
         : "";
-      $("#cover-out").innerHTML = fit + blk + swap;
+      let chain = "";
+      if (!c.fits.length) {
+        const ch = coverChain(lastIn.staff, lastIn.slots, last, Number($("#cover-shift").value), {}, { maxMoves: 3, limit: 5 });
+        if (!ch.error && ch.chains.length) {
+          chain = `<p class="note"><strong>Or hand shifts over</strong> (fewest shifts moved first; every person's week stays within every rule, nobody outside the chain changes):</p><div class="scroll"><table><thead><tr><th>Hand-overs</th><th class="n">Shifts moved</th><th class="n">Payroll change</th></tr></thead><tbody>${ch.chains.map((x) => `<tr><td>${x.steps.map((st) => `${esc(st.to)} takes ${DAYS[st.slot.day]} ${fmtClock(st.slot.startMin)}–${fmtClock(st.slot.endMin)}${st.from ? " (taking it off " + esc(st.from) + ")" : ""}`).join("; then ")}</td><td class="n">${x.moves}</td><td class="n">${x.extraCost >= 0 ? "+" : ""}${money2(x.extraCost)}</td></tr>`).join("")}</tbody></table></div>`;
+        }
+      }
+      $("#cover-out").innerHTML = fit + blk + chain + swap;
     }
     $("#cover-shift").addEventListener("change", showCover);
 
