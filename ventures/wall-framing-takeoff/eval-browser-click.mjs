@@ -293,6 +293,17 @@ await page.click("#run");
 await page.waitForFunction(() => /Deck post check: write dead psf/.test(document.body.textContent));
 console.log("ok: malformed deck post check refused on the page");
 await page.fill("#dkPostCheck", "");
+// Deck joist and beam checks: typed figures reach the deck card; a short entry is refused.
+await page.fill("#dkJoistCheck", "10, 40, 1000, 175, 1400000");
+await page.fill("#dkBeamCheck", "10, 40, 1000, 175, 1400000");
+await page.click("#run");
+await page.waitForFunction(() => /Joist check \(typed figures/.test(document.querySelector("#deckOut")?.textContent || "") && /Beam check \(typed figures/.test(document.querySelector("#deckOut")?.textContent || ""));
+console.log("ok: deck joist and beam checks typed on the page and shown on the deck card");
+await page.fill("#dkBeamCheck", "10, 40");
+await page.click("#run");
+await page.waitForFunction(() => /Deck beam check: write dead psf/.test(document.body.textContent));
+console.log("ok: malformed deck beam check refused on the page");
+await page.fill("#dkJoistCheck", ""); await page.fill("#dkBeamCheck", "");
 // Deck blocking: a typed spacing adds rows to the deck card.
 await page.fill("#dkBlocking", "48");
 await page.click("#run");
