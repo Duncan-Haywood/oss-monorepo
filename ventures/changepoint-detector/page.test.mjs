@@ -154,3 +154,11 @@ test("page shows the range, drift and cycle warnings the engine returns", () => 
   assert.match(html, /id="warnings"/);
   for (const k of ["rangeWarning", "driftWarning", "cycleWarning"]) assert.ok(html.includes(`"${k}"`), k);
 });
+
+test("index page has a growth-rate (slope break) box wired to the engine", () => {
+  const html = page("index.html");
+  assert.match(html, /id="slopeBreaks" type="checkbox"/);
+  assert.match(html, /slopeBreaks: \$\("#slopeBreaks"\)\.checked/);
+  assert.match(html, /id="slopeResult"/);
+  assert.match(html, /for="slopeBreaks"/);
+});
