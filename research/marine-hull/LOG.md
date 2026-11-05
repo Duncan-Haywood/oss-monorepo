@@ -2,7 +2,7 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
-## 2026-11-05 · Milestone 5l: does correcting buoy winds to 10 m close 5k's raw-HRRR gap? (closes 5k's "Next"; exploratory, prediction informal)
+## 2026-11-05 · Milestone 5m: does correcting buoy winds to 10 m close 5k's raw-HRRR gap? (closes 5k's "Next"; exploratory, prediction informal)
 - Why: 5k compared HRRR 10 m winds with buoy anemometers at 4 to 5 m, so part of HRRR's +0.6 to +0.9 m/s speed bias could be height. `run_sail_hrrr_buoy.py` now takes `BUOY_Z` (anemometer height, m) and scales observed speeds by the neutral log law to 10 m (z0 = 1.5e-4 m; factor 1.090 at 4 m, 1.067 at 5 m). Outputs: `experiments/results_sail_hrrr_buoy_z4.txt`, `_z5.txt` (about 3 minutes each). Heights are swept, not sourced per buoy (NDBC pages are not reachable from this session), so this is a bound on the height effect, not a station-exact correction.
 - Expectation held before the run (informal): the speed bias shrinks to near zero and raw HRRR gains at least 0.5 points against the header-follower in July.
 - **Result:** speed bias falls as expected (January +0.24 to +0.25, July +0.14 to +0.29 at 4 m; +0.39 to +0.41 and +0.26 to +0.40 at 5 m; 5k: +0.6 to +0.9). The ranking barely moves. Raw HRRR minus header-follower: -0.8 (Jan) and -1.9 (Jul) at 4 m, -1.0 and -1.7 at 5 m (5k uncorrected: -0.8 and -2.3). Bias-corrected HRRR: -0.1 and -1.0 at 4 m, -0.1 and -0.9 at 5 m (5k: +0.0 and -0.9). The synthetic 120 min forecast stays +2.0 to +2.5. The January gain was not met anywhere; the July gain was 0.4 to 0.6 (expectation half held at best, within bootstrap intervals).
