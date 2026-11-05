@@ -53,6 +53,13 @@ class InlineScripts(unittest.TestCase):
         with mock.patch.object(c.subprocess, "run", return_value=fake):
             self.assertEqual(c.syntax_error("1", False, tempfile.gettempdir()), "y" * 120)
 
+    def test_syntax_error_message_is_cut_at_140_chars(self):
+        from unittest import mock
+        import check_inline_scripts as c
+        fake = mock.Mock(returncode=1, stderr="SyntaxError: " + "z" * 300)
+        with mock.patch.object(c.subprocess, "run", return_value=fake):
+            self.assertEqual(len(c.syntax_error("1", False, tempfile.gettempdir())), 140)
+
 
 if __name__ == "__main__":
     unittest.main()

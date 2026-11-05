@@ -115,6 +115,15 @@ class TrailingDoubleStar(unittest.TestCase):
         self.assertTrue(guard.owners_for("docs/a.md", rules))
 
 
+class Pagination(unittest.TestCase):
+    def test_gh_pages_stops_after_limit_full_pages(self):
+        from unittest import mock
+        with mock.patch.object(guard, "gh_get", return_value=[0] * 100) as get:
+            items = guard.gh_pages("/x", limit=3)
+        self.assertEqual(get.call_count, 3)
+        self.assertEqual(len(items), 300)
+
+
 class PrSummary(unittest.TestCase):
     def test_pr_mode_lists_touched_control_plane_files(self):
         import os
