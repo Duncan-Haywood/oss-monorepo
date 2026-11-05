@@ -161,6 +161,21 @@ export function loadPosts(root = DEFAULT_ROOT, dirName = POSTS_DIR, { skipBad = 
   return posts.sort((a, b) => (a.date === b.date ? a.slug.localeCompare(b.slug) : b.date.localeCompare(a.date)));
 }
 
+/**
+ * The shorter title a long "Claim: detail" or "Question? detail" headline
+ * gives a results page when the post sets no seo_title. Mirrors `cut()` in
+ * propose_seo_titles.py; undefined when there is no clean cut.
+ */
+export function autoSeoTitle(title) {
+  for (const sep of [': ', '? ']) {
+    const i = title.indexOf(sep);
+    if (i < 0) continue;
+    const head = title.slice(0, i + (sep === '? ' ? 1 : 0));
+    if (head.length >= 25 && head.length <= TITLE_BUDGET) return head;
+  }
+  return undefined;
+}
+
 /** One post, validated. Throws on a malformed one. */
 function loadPost(root, POSTS_DIR, name) {
   const dir = path.join(root, POSTS_DIR);
@@ -190,7 +205,7 @@ function loadPost(root, POSTS_DIR, name) {
     slug: fm[2],
     date,
     title: meta.title,
-    seoTitle: meta.seo_title ? String(meta.seo_title) : undefined,
+    seoTitle: meta.seo_title ? String(meta.seo_title) : (String(meta.title).length > TITLE_BUDGET ? autoSeoTitle(String(meta.title)) : undefined),
     description: meta.description,
     tags,
     topic: topicOf(tags, meta.topic),
