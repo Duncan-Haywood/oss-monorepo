@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Roof That Pays Back in Eight</title>
+      <link>https://example.invalid/hearth-and-horizon/the-roof-that-pays-back-in-eight.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-roof-that-pays-back-in-eight.html</guid>
+      <pubDate>Thu, 05 Nov 2026 12:00:00 GMT</pubDate>
+      <description>An installer's brochure says twelve solar panels on the parish hall roof, 7,800 pounds, pay back in five and a half years. That sum assumes the hall uses every kilowatt-hour the roof makes. The hall is empty most weekdays, so about 40 percent is used and the rest is exported at half the price, which makes it eight years. The parish assistant shows the two sums side by side and the one meter reading that would settle it. Setting: Saint Cadoc's hall (invented), near Brecon, Powys, Saturday 21 October 2051. Read the full text at https://example.invalid/hearth-and-horizon/the-roof-that-pays-back-in-eight.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>An installer's brochure says twelve solar panels on the parish hall roof, 7,800 pounds, pay back in five and a half years. That sum assumes the hall uses every kilowatt-hour the roof makes. The hall is empty most weekdays, so about 40 percent is used and the rest is exported at half the price, which makes it eight years. The parish assistant shows the two sums side by side and the one meter reading that would settle it.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>One More Post Than Panels</title>
       <link>https://example.invalid/hearth-and-horizon/one-more-post-than-panels.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/one-more-post-than-panels.html</guid>
