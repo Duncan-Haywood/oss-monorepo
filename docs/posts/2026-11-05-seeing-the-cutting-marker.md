@@ -1,7 +1,7 @@
 ---
 title: "Showing a designer where every piece goes on the cloth"
 date: 2026-11-05
-description: "The clothing design studio now draws each cutting marker to scale and exports a cut ticket CSV, so a designer can show a factory the layout behind the cloth estimate."
+description: "The clothing studio now draws each cutting marker to scale and exports a cut ticket CSV, so a designer can show a factory the layout behind the cloth estimate."
 tags: [clothing-design-studio, manufacturing, tools]
 ---
 
