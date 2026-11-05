@@ -1,9 +1,9 @@
 ---
 title: "Does a guard that skips useless audit strata still cover at 1% prevalence?"
-seo_title: "Auditing LLM-coded text for rare categories: coverage at 1 to 2% prevalence"
+seo_title: "Auditing LLM-coded text for rare categories: coverage at 1-2%"
 date: 2026-11-05
 tags: [research, llm-coding-inference, prediction-powered-inference, qualitative-coding]
-description: "On GoEmotions fear (1.2%) and sadness (2.2%), a rule that pools the audit unless the coder-negative pilot cell has 3 human positives covers 94.8 to 95.2% with intervals 8 to 9% narrower than pooled."
+description: "On GoEmotions fear (1.2%) and sadness (2.2%), a pool-unless-3-positives guard covers 94.8 to 95.2% with 8 to 9% narrower intervals."
 ---
 
 When an LLM codes a text corpus and humans audit a sample, you can split the audit by the coder's label (coder-positive and coder-negative cells) to get narrower intervals. At low prevalence that can backfire: the coder-negative cell holds few true positives, and the interval undercovers. The `llm-coding-inference` programme's guard is simple: use cells only if the pilot found at least 3 human-coded positives among coder-negative items, otherwise pool.
