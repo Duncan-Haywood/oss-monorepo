@@ -1,9 +1,9 @@
 ---
 title: "Stranded Branch Finder: the pushed work nobody opened a pull request for"
-seo_title: "Find git branches with no pull request: a git-only stranded commit finder"
+seo_title: "Find git branches with no pull request: a git-only finder"
 date: 2026-11-05
 tags: [developer-tools, git, agents, ventures]
-description: "A one-file, git-only Python tool that lists commits pushed to a remote but in no pull request and not on main, ported from a script this repository uses on itself."
+description: "A one-file, git-only Python tool that lists commits pushed to a remote but in no pull request and not on main, ported from a script we run on ourselves."
 ---
 
 Repositories that bots and coding agents push to leak work in a quiet way. The session pushes a branch and ends; nobody opens a pull request; every check in the repository runs on pull requests, so nothing ever reports it. In this monorepo, one measured day in October 2026 found 102 branches holding 186 commits that were in no pull request and not on `main`. Four of them were finished, tested ventures.
