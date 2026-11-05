@@ -349,3 +349,17 @@ test("roofing nails by hand: 320 per square, 150 per lb, 30 lb boxes", () => {
   assert.equal(t.roofing.nailBoxes, Math.ceil(t.roofing.nails / 100 / 5 - 1e-9));
   assert.match(roofText(l).join("\n"), /lb of roofing nails/);
 });
+
+test("ice and water shield: opt-in, 24 in inside the wall, by hand", () => {
+  const off = layoutRoof(sampleRoof(), plan());
+  assert.equal(off.roofing.iceShieldRolls, undefined);
+  const l = layoutRoof({ ...sampleRoof(), roofing: { iceShield: 24 } }, plan());
+  const k = Math.sqrt(1 + (4 / 12) ** 2), area = l.roofing.eaveFeet * (12 + 24) * k / 12;
+  assert.ok(Math.abs(l.roofing.iceShieldArea - area) < 1e-6);
+  assert.equal(l.roofing.iceShieldRolls, Math.ceil(area * 1.1 / 200 - 1e-9));
+  const t = layoutRoof({ ...sampleRoof(), roofing: { iceShield: 36, iceShieldRoll: 100, iceShieldWaste: 1 } }, plan());
+  assert.equal(t.roofing.iceShieldRolls, Math.ceil(t.roofing.eaveFeet * (12 + 36) * k / 12 / 100 - 1e-9));
+  const h = layoutRoof(hipRoof({ roofing: { iceShield: 24 } }), plan());
+  assert.ok(h.roofing.iceShieldRolls >= 1);
+  assert.match(roofText(l).join("\n"), /ice and water shield/);
+});
