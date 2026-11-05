@@ -51,7 +51,7 @@ test("every static control has a label, and generated rows label their inputs", 
 
 test("the module script imports only local files, its names exist, and it parses", async () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./bidletter.mjs", "./bidlevel.mjs", "./bidpackage.mjs", "./budget.mjs", "./checkout.mjs", "./compare.mjs", "./deck.mjs", "./dormer.mjs", "./drawings.mjs", "./drywall.mjs", "./dxf.mjs", "./eaves.mjs", "./engine.mjs", "./fasteners.mjs", "./floor.mjs", "./foundation.mjs", "./gutters.mjs", "./headers.mjs", "./ifcwasm.mjs", "./insulation.mjs", "./licence.mjs", "./panels.mjs", "./pdf.mjs", "./roof.mjs", "./schedule.mjs", "./sheathing.mjs", "./siding.mjs", "./sketch.mjs", "./stairs.mjs", "./trim.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./bidletter.mjs", "./bidlevel.mjs", "./bidpackage.mjs", "./budget.mjs", "./checkout.mjs", "./compare.mjs", "./deck.mjs", "./dormer.mjs", "./drawings.mjs", "./drywall.mjs", "./dxf.mjs", "./eaves.mjs", "./engine.mjs", "./fasteners.mjs", "./floor.mjs", "./foundation.mjs", "./gutters.mjs", "./headers.mjs", "./ifcwasm.mjs", "./insulation.mjs", "./licence.mjs", "./openingschedule.mjs", "./panels.mjs", "./pdf.mjs", "./roof.mjs", "./schedule.mjs", "./sheathing.mjs", "./siding.mjs", "./sketch.mjs", "./stairs.mjs", "./trim.mjs", "./usage.mjs"]);
   const names = html.match(/import \{([^}]+)\} from "\.\/engine\.mjs"/)[1].split(",").map((s) => s.trim());
   const engine = await import("./engine.mjs");
   for (const name of names) assert.ok(name in engine, name);
@@ -778,4 +778,11 @@ test("the flooring calculator page: FAQ matches its data and the stated figures 
 test('index links one hop to the permit-packet-preflight sibling', async () => {
   const { readFileSync } = await import('node:fs');
   assert.match(readFileSync(new URL('./index.html', import.meta.url), 'utf8'), /href="\.\.\/permit-packet-preflight\/"/);
+});
+
+test("the door and window schedule button is on the page and writes the schedule CSV", () => {
+  const html = page("index.html");
+  assert.match(html, /id="openingsCsvBtn"/);
+  assert.match(html, /layoutOpeningSchedule\(last\.plan\.openingSchedule \|\| \{\}, last\.plan\)/);
+  assert.match(html, /download\("door-window-schedule\.csv", "text\/csv", openingScheduleCsv\(sch\)\)/);
 });
