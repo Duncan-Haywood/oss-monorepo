@@ -99,6 +99,29 @@ export function findSlots(text, today) {
     const date = add(today, 2);
     push({ text: m[0].trim(), date, weekday: DAYS[new Date(`${date}T00:00:00Z`).getUTCDay()], time, after: null, ambiguous: false, part: m[1] ? m[1].toLowerCase() : null });
   }
+  // "today at 4pm", "later today after lunch": only with a time or part of day, since "how are you today" is not a slot
+  const re6 = new RegExp(`\\b(?:later )?today,? ?(?:${PART}|${TIME_RE})`, "gi");
+  for (const m of src.matchAll(re6)) {
+    if (bare.test(src.slice(Math.max(0, m.index - 30), m.index))) continue;
+    const timed = m[2] && (m[4] || m[3] || /\b(at|around|about)\b|@/i.test(m[0]));
+    const time = timed ? clock(m[2], m[3], m[4]) : null;
+    if (m[2] && !time) continue;
+    if (!m[1] && !time) continue;
+    push({ text: m[0].trim(), date: today, weekday: DAYS[new Date(`${today}T00:00:00Z`).getUTCDay()], time, after: null, ambiguous: false, part: m[1] ? m[1].toLowerCase() : null });
+  }
+  // "in 3 days", "in a week at 2pm"
+  const NUMW = { a: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7 };
+  const re7 = new RegExp(`\\bin (a|one|two|three|four|five|six|seven|\\d{1,2}) (days?|weeks?)\\b(?:,? ?(?:${PART}|${TIME_RE}))?`, "gi");
+  for (const m of src.matchAll(re7)) {
+    if (bare.test(src.slice(Math.max(0, m.index - 30), m.index))) continue;
+    const n = (NUMW[m[1].toLowerCase()] ?? Number(m[1])) * (/^w/i.test(m[2]) ? 7 : 1);
+    if (!n || n > 14) continue;
+    const timed = m[4] && (m[6] || m[5] || /\b(at|around|about)\b|@/i.test(m[0]));
+    const time = timed ? clock(m[4], m[5], m[6]) : null;
+    if (timed && !time) continue;
+    const date = add(today, n);
+    push({ text: m[0].trim(), date, weekday: DAYS[new Date(`${date}T00:00:00Z`).getUTCDay()], time, after: null, ambiguous: false, part: m[3] ? m[3].toLowerCase() : null });
+  }
   return out.slice(0, 3);
 }
 
