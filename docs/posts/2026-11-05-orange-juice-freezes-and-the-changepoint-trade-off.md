@@ -3,7 +3,7 @@ title: "Orange juice freezes: a changepoint test with a known cause"
 seo_title: "Changepoint detection on orange juice prices: freezes as ground truth"
 date: 2026-11-05
 tags: [changepoint, time-series, data]
-description: "Fifty years of Florida orange-juice prices, with a measured freeze count each month, show the trade-off in changepoint detection: find every shock or stop over-cutting."
+description: "Fifty years of Florida orange-juice prices with a measured freeze count each month show the changepoint trade-off: find every shock or stop over-cutting."
 ---
 
 Most changepoint demos check a detector against a break somebody wrote down in a history book. Orange juice prices come with something better: the number of freezing degree days in Orlando for every month from 1950 to 2000. Eight months have 19 or more, and those are the frosts that hurt the crop.
