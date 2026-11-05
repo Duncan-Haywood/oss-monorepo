@@ -1,6 +1,6 @@
 ---
 title: "A pitot gain error is harmless to mode fits; the offset is what hurts"
-seo_title: "Pitot scale-factor error and aircraft mode identification: gain vs offset"
+seo_title: "Pitot scale-factor error and mode identification: gain vs offset"
 date: 2026-11-05
 tags: [research, aerospace, system-identification, flight-dynamics]
 description: "In a simulated output-error mode fit, a 5% gain error on airspeed changed nothing; the constant offset a scale error implies caused all the damage."
