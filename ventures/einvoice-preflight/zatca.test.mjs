@@ -14,8 +14,9 @@ const skip = !ready && "npm i --no-save slimdom fontoxpath (rules are in ./plain
 const read = (name) => readFileSync(new URL(`./examples/${name}`, import.meta.url), "utf8");
 const rules = (r) => r.findings.map((f) => f.rule).sort();
 // BR-KSA-98 reads the clock: any fixed issue date is later than 24 hours ago, so it fires on both files.
-// BR-KSA-29 is explained in the README ("ZATCA / Saudi Arabia").
-const ALWAYS = ["BR-KSA-29", "BR-KSA-98"];
+// BR-KSA-29 used to fire here too: the svrl ns list binds sbc to CommonSignatureComponents-2 (an upstream typo) but
+// the stylesheet binds it to SignatureBasicComponents-2, which ZATCA's samples use. The stylesheet wins now (2026-11-05).
+const ALWAYS = ["BR-KSA-98"];
 
 test("the KSA profile is picked from ProfileID, and only for UBL", () => {
   assert.equal(matchingProfile(read("zatca-simplified-invoice.xml"), "ubl")[0], "zatca");
@@ -35,7 +36,7 @@ test("a made-up simplified invoice passes the KSA rules and the EU base rules do
 
 test("VAT arithmetic, the QR code, the CRN and the VAT number faults are found", { skip }, async () => {
   const r = await runPlain(read("zatca-simplified-invoice-with-defects.xml"));
-  assert.deepEqual(rules(r), [...ALWAYS.filter((id) => id !== "BR-KSA-29"), "BR-CO-14", "BR-CO-15", "BR-CO-17", "BR-KSA-27", "BR-KSA-40", "BR-KSA-F-08", "BR-S-09"].sort());
+  assert.deepEqual(rules(r), [...ALWAYS, "BR-CO-14", "BR-CO-15", "BR-CO-17", "BR-KSA-27", "BR-KSA-40", "BR-KSA-F-08", "BR-S-09"].sort());
   assert.equal(r.findings.find((f) => f.rule === "BR-KSA-40").severity, "fatal", "ZATCA's error flag is a fatal finding");
   assert.equal(r.findings.find((f) => f.rule === "BR-KSA-F-08").severity, "warning");
   assert.equal(r.findings.find((f) => f.rule === "BR-KSA-27").source, "zatca-schematron");
@@ -46,7 +47,7 @@ test("an unsigned simplified invoice is told to carry the cryptographic stamp", 
     .replace(/<ext:UBLExtensions>[\s\S]*?<\/ext:UBLExtensions>/, "")
     .replace(/<cac:Signature>[\s\S]*?<\/cac:Signature>/, "");
   const r = await runPlain(xml);
-  assert.deepEqual(rules(r), [...ALWAYS, "BR-KSA-28", "BR-KSA-30", "BR-KSA-60"].sort());
+  assert.deepEqual(rules(r), [...ALWAYS, "BR-KSA-28", "BR-KSA-29", "BR-KSA-30", "BR-KSA-60"].sort());
 });
 
 test("a standard (B2B) invoice needs a buyer with a name and an address", { skip }, async () => {
