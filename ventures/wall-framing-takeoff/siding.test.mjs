@@ -170,3 +170,18 @@ test("opening tape: sill and jamb runs summed by hand, whole rolls (2026-10-31)"
   assert.equal(layoutSiding({ openingTape: 1 }, p).ok, false);
   assert.equal(layoutSiding({ openingTape: true, tapeRollFeet: 5 }, p).ok, false);
 });
+
+test("siding nails by hand: 12 courses of 144 in at 16 in, 1 row, waste 0", () => {
+  const p = plan([{ id: "A", length: 144 }]);
+  const off = layoutSiding({ waste: 0, exposure: 8, stock: 144 }, p);
+  assert.equal(off.nails, null);
+  const s = layoutSiding({ waste: 0, exposure: 8, stock: 144, nails: true, nailBoxPrice: 30 }, p);
+  assert.equal(s.nails.count, 12 * 144 / 16 + 12); // 108 along the runs, one per board end
+  assert.ok(Math.abs(s.nails.lb - 120 / 200) < 1e-9);
+  assert.equal(s.nails.boxes, 1);
+  assert.match(sidingText(s).join("\n"), /Siding nails: 120/);
+  const v = layoutSiding({ waste: 0, style: "vertical", stock: 96, nails: true, nailSpacing: 12, nailRows: 3, nailsPerLb: 100, nailBoxLb: 1 }, p);
+  assert.equal(v.nails.rows, 3);
+  assert.equal(v.nails.boxes, Math.ceil(v.nails.count / 100 / 1 - 1e-9));
+  assert.ok(validateSiding({ nails: "yes" }).length && validateSiding({ nailRows: 0 }).length);
+});
