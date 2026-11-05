@@ -36,7 +36,9 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-11-05-the-pile-that-smells-of-ammonia.md",
+  "writeups": [
+    "docs/posts/2026-11-05-the-pile-that-smells-of-ammonia.md"
+  ],
   "goal": null,
   "notes": "creative: hearth-and-horizon, slug the-pile-that-smells-of-ammonia; text only, audio 423 MB over cap",
   "corrections": [],
