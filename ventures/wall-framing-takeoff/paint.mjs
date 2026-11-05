@@ -84,7 +84,7 @@ export function layoutPaint(d, plan) {
 /** @param {any} p */
 export function paintText(p) {
   const l = [];
-  l.push(`  Walls: ${p.wallSqFt.toFixed(0)} sq ft at ${p.height / 12} ft, less ${p.openingSqFt.toFixed(0)} sq ft of openings; ${p.ceilingSqFt ? `ceilings ${p.ceilingSqFt.toFixed(0)} sq ft; ` : ""}${p.doorLeaves ? `${p.doorLeaves} doors, ${p.doorSqFt.toFixed(0)} sq ft; ` : ""}${p.trimFeet ? `trim ${p.trimFeet.toFixed(0)} ft.` : ""}`.replace(/; $/, "."));
+  l.push(`  Walls: ${p.wallSqFt.toFixed(0)} sq ft at ${p.height / 12} ft, less ${p.openingSqFt.toFixed(0)} sq ft of openings; ${p.ceilingSqFt ? `ceilings ${p.ceilingSqFt.toFixed(0)} sq ft; ` : ""}${p.doorLeaves ? `${p.doorLeaves} doors, ${p.doorSqFt.toFixed(0)} sq ft; ` : ""}${p.trimFeet ? `trim ${p.trimFeet.toFixed(0)} ft${p.trimFeetFromTrim ? " (from --trim)" : ""}.` : ""}`.replace(/; $/, "."));
   l.push(`  Paint: ${p.coats} coats at ${p.coverage} sq ft per gallon, ${(100 * p.waste).toFixed(0)}% waste -> ${p.paintGallonsExact.toFixed(2)} gal, buy ${p.paintPails ? `${p.paintPails} five-gallon pail${p.paintPails > 1 ? "s" : ""}${p.paintGallons ? ` and ${p.paintGallons} gal` : ""}` : `${p.paintGallons} gal`}.`);
   if (p.primerGallons) l.push(`  Primer: ${p.primerCoats} coat, ${p.primerGallonsExact.toFixed(2)} gal -> buy ${p.primerGallons} gal.`);
   if (p.cost != null) l.push(`  Paint cost: ${p.cost.toFixed(2)}.`);
