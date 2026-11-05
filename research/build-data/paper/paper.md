@@ -171,6 +171,8 @@ Choosing the pair among those that also covered at least 77% in the previous tes
 
 Austin application-to-issue, run afterwards with the same rules (1 seed, one job at a time; `../results/conformal_tau_drift_austin_a2i_{2021..2024}.json`, `python3 src/conformal_tau_backtest.py austin`), gives coverage 0.781 [0.767, 0.794] in 2022 (fallback to the fixed pair), 0.862 [0.849, 0.874] in 2023 and 0.828 [0.819, 0.836] in 2024: inside 77 to 83% in 2 of 3 years, but at least 15% narrower in only 1 of 3 (widths 170.1, 164.2 and 118.6 days; the fixed pair is about 170). Only 6% of Austin permits are same-day and its tail is long, so a narrower pair buys little: the width gain of 26 to 71% seen in Chicago and San Francisco does not carry over. Austin's coverage under the fixed pair ran 0.749, 0.781, 0.858 and 0.854 for 2021 to 2024, a drift of about 10 points, which again points to year-to-year shift rather than method. Limits: 1 seed so intervals are over weeks only; the loader counts every Austin row as issued (session 5 item); i2c not run.
 
+Austin issue-to-completion, same rules (1 seed; `../results/conformal_tau_drift_austin_i2c_{2021..2024}.json`, `python3 src/conformal_tau_backtest.py austin --i2c`): H2g is refuted on both halves. Test coverage was 0.786 (2022, fixed-pair fallback), 0.842 (2023) and 0.835 (2024), so 1 of 3 years is inside 77 to 83%; width fell by 0%, 6% and 18%, so 1 of 3 clears 15%. Interval widths are 240 to 310 days at 80%, and the fixed pair's coverage drifted 0.731, 0.786, 0.837, 0.819 over 2021 to 2024. Limits: 1 seed, 3 cells, 3,533 negative build times dropped. A narrow quantile pair buys a large width gain only where the target is zero-inflated (Chicago and SF application-to-issue), not in either Austin target.
+
 ### 4.3 Which fields (H3, as worded)
 
 Permutation importance: the smallest number of fields reaching 80% of the total
@@ -219,7 +221,7 @@ tighter quantile levels (4.2a) can halve the width, but pick them with drift in 
 ## 7 To do before submission
 
 1. A neural net baseline; per-library tuning (Austin a2i CatBoost gap).
-2. A year-ahead (Y-2 versus Y-1) calibration check for the quantile pair (4.2b did not solve Chicago); Austin i2c for H2e and H2g (Austin a2i H2g is in 4.2c).
+2. A year-ahead (Y-2 versus Y-1) calibration check for the quantile pair (4.2b did not solve Chicago); SF i2c for H2g (Austin a2i and i2c H2g are in 4.2c).
 3. Spread over draws and i2c for 4.5; first-n-rows ordering instead of random draws.
 4. Multiple test years for H1; a fourth city after a licence check.
 5. Publish the permit-duration prior data file for `ventures/` (milestone 7).

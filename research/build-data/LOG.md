@@ -4,6 +4,19 @@
 
 Plan: the same grid and backtest as sessions 27 and 29 on Austin i2c (issue to completion), test years 2021 to 2024, one job at a time, 1 seed, then `python3 src/conformal_tau_backtest.py austin --i2c` (the script now takes `--i2c`). Pre-registered: coverage in 77 to 83% in at least 2 of 3 test years (2022 to 2024) and width at least 15% below (0.1, 0.9) in at least 2 of 3. Prior 35%: i2c has few exact zeros, so a narrow pair should buy less than in Chicago, and the Austin a2i width half failed on the same logic.
 
+Done: fresh Austin pull (2,383,942 rows; 2,185,057 completed; 3,533 negative build times dropped), `conformal_tau_drift_run.py --city austin --target i2c` for 2021 to 2024, one job at a time, 1 seed, `results/conformal_tau_drift_austin_i2c_{2021..2024}.json`; `results/conformal_tau_backtest_austin_i2c.txt`.
+Outcome (1 seed):
+| year | chosen pair | test coverage [CI] | width (days) | vs (0.1, 0.9) |
+|---|---|---|---|---|
+| 2022 | (0.1, 0.9) fallback | 0.786 [0.777, 0.795] | 307.8 | 0% |
+| 2023 | (0.2, 0.75) | 0.842 [0.835, 0.849] | 283.6 | -6% |
+| 2024 | (0.2, 0.65) | 0.835 [0.828, 0.842] | 237.6 | -18% |
+- **H2g is refuted for Austin i2c on both halves**: coverage inside 77 to 83% in 1 of 3 years (2022), width 15% or more below the fixed pair in 1 of 3 (2024). The 2023 and 2024 picks over-cover by 3 to 4 points.
+- Backtest-year coverage under the fixed pair ran 0.731, 0.786, 0.837, 0.819 for 2021 to 2024: 10 points of drift, as for Austin a2i. Widths are 240 to 310 days at 80%, so i2c is barely predictable at the quantile level and a narrower pair buys little.
+- Summary over the three cities and both a2i/i2c cells now run: the width gain of a narrow pair is large only where the target is zero-inflated (Chicago, SF a2i); Austin a2i and i2c are not.
+- Limits: 1 seed, 3 cells, loader still counts every Austin row as issued, 3,533 negative build times dropped; SF i2c not run under H2g.
+Next: SF i2c under H2g, or the neural baseline.
+
 ## Session 30, 2026-11-05: paper section 4.2c gets Austin a2i (a writing step; no experiment, no result changed)
 
 Re-ran `python3 src/conformal_tau_backtest.py austin` (reproduces session 29: inside 77 to 83% in 2 of 3, narrower by 15% in 1 of 3) and added the Austin paragraph and limits to `paper/paper.md` 4.2c; to-do item 2 now names only Austin i2c. Post: `docs/posts/2026-11-05-permit-intervals-austin-narrow-pairs.md`.
