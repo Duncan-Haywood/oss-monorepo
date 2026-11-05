@@ -2,6 +2,19 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-05 · Milestone 5n: how much of HRRR's replanning gap is delivery lag? 1 h against 3 h latency on hourly cycles (closes 5k/5l's "Next"; pre-registration)
+- Why: 5k to 5m left delivery latency untested. 5k used the 00/06/12/18z cycles with a 3 h latency, so the newest forecast at a replan was up to 9 h old. `experiments/fetch_hrrr_hourly.py` fetches every hourly cycle (`data/hrrr_buoyh_*.csv`; hourly cycles run to fhr 18, so forecast hours are 0,1,2,3,4,6,9,12,18 and the last value is held beyond 18 h) and `experiments/run_sail_hrrr_hourly.py` -> `results_sail_hrrr_hourly.txt` replans on the newest cycle issued at least L hours earlier, L = 1 and L = 3, on the same buoys, windows, polar, corridor and tau as 5k. Variants: raw and trailing-hour bias-corrected, at both L, with T0 and the header-follower as references.
+- Predictions (written before the run; prior in brackets): P1 raw HRRR at L = 1 beats raw at L = 3 by at least 0.5 points in both months [45%]. P2 bias-corrected HRRR at L = 1 beats the header-follower by more than 0.5 points in at least one month [20%]. P3 raw at L = 3 on hourly cycles lands within 0.7 points of 5k's raw long-cycle rows (-0.8 Jan, -2.3 Jul) [65%, an implementation check]. Refuted if the outcome goes the other way.
+- Limits (known before running): the 18 h forecast cap changes early-day replans (the tail of the window is held flat); two months, every 4th day; buoy anemometer heights not corrected (the bias-corrected rows absorb it); latency is the assumed delivery time, not a measured one.
+
+### Outcome of 5n (`experiments/results_sail_hrrr_hourly.txt`, deterministic, 72 January and 80 July windows at 9 and 10 buoys, a few minutes; fetch of 3,900 hourly-cycle files took about 8 minutes, none missing)
+- **P1 refuted:** raw HRRR at L = 1 minus L = 3 is +0.2 pts in January (boot 95% -0.1..+0.7) and +0.2 in July (-0.0..+0.4); neither reaches +0.5. Bias-corrected: -0.0 and +0.1.
+- **P2 refuted:** bias-corrected L = 1 minus header-follower is +0.1 (Jan, -0.3..+0.4) and -0.6 (Jul, -1.1..-0.1). Raw L = 1: -0.7 and -1.7. Persistence T0: +0.0 and -0.2; the synthetic T = 120 min forecast stays +2.1 and +2.4.
+- **P3 held:** raw L = 3 on hourly cycles is -1.1 (Jan) and -2.0 (Jul) against 5k's long-cycle -0.8 and -2.3, within 0.7 points.
+- Reading: cutting delivery latency from 3 h to 1 h, and forecast age from up to 9 h to under 2 h, buys about 0.2 points. Delivery lag is not what separates archived HRRR from the 5d forecast; the lack of skill at 15-minute scale is. With 5h to 5m, archived 3 km HRRR at any correction, siting, height or latency tested does not beat following the headers. This closes the archived-NWP branch of the wing-sail sub-programme; the remaining forecast routes (radar or lidar nowcast, onboard sensing) cannot be tested with open data here.
+- Limits: as pre-registered (18 h cap with a flat hold, two months, every 4th day, 1 h and 3 h are assumed latencies).
+- Next: stop the wing-sail sub-programme on archived NWP and return to the milestone 6 fleet comparison.
+
 ## 2026-11-05 · Milestone 7r: 5l and 5m folded into the paper draft and README (no experiment run)
 - Why: `paper/DRAFT.md` and the README stopped at 5k. Added a 5l/5m paragraph to each; every number is copied from the 5l and 5m entries and their result files.
 - Limits: prose only; no new numbers.
