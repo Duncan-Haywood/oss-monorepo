@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-05",
+  "session": "https://claude.ai/code/session_01E5sJKm3wnDCwPBcgioVMm1",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-05T17:31:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13370",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Says to search open PRs for a backlog item id, but promptctl backlog printed no perf: items and the GitHub search_* MCP tools are unavailable; had to use gh api search."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: a measurement-only perf run with no reader-facing finding.",
+      "did": "history doc only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/history/pages-test-perf-2026-11-05-build-test-warm.md"
+  ],
+  "goal": null,
+  "notes": "Metric: build.test.mjs wall time, platform/pages, 4-core sandbox, node --test with PAGES_CARD_CACHE set, run twice back to back. Cold 439.3 s (duration_ms 439305), warm 266.5 s (duration_ms 266493), 304/304 pass both. Measurement only, no code change; ci_profile --runs 200 showed Test the site builder as the largest step (26.0 job-min / 47 jobs). Next: cpu-prof inside build.test.mjs.",
+  "corrections": [],
+  "redteam": null
+}
