@@ -6,6 +6,9 @@
 - H1: at L = 80 the Poisson q_half lies in 200 to 400 (the published q_c is about 300). Refuted if outside.
 - H2 (the mapping, sharper): q_half(Poisson) = q_eff^2 / (4 pi) with q_eff the uniform q_half at the same L (55 at L = 80 gives 240; 50 at L = 40 gives 199; 43 at L = 20 gives 147). Refuted if any of the three measured q_half is outside 0.8 to 1.25 of that.
 - Caveats to carry: Poisson and uniform alphabets differ beyond the collision rate (tails, trait frequencies), so H2 may fail by a modest factor; 8 to 40 runs per cell.
+- Outcome (`experiments/culture/poisson_results.txt`, 40 runs per cell, F = 10): **H1 held**: q_half = 135.2 [129, 146], 179.6 [177, 184], 230.0 [226, 235] at L = 20, 40, 80, rising toward the published 300. **H2 held**: predictions 147, 199, 240 against measured 135, 180, 230, ratios 0.92, 0.90, 0.96, all inside 0.8 to 1.25, with the measured value consistently about 5 to 10% under the mapping.
+- Reading: the "unreproduced q_c" of the last three runs was a parameterisation mismatch (uniform alphabet of q traits against Poisson mean q), not a bug in the C core. Poisson q = 300 is equivalent to about 61 uniform traits, which is where the uniform runs put the transition (55 at L = 80). The remaining gap (230 at L = 80 against about 300 at L up to 150) is consistent with the slow growth in L; L = 150 not run. The q grid is coarse (50 apart) and the bootstrap interval covers run noise only.
+- Caveats: one F; q_half is a 0.5 crossing, not their q_c from the jump; the reading of their text is from the arXiv v1 PDF.
 
 ## 2026-11-03 · Axelrod's transition on lattices to L = 80 (milestone 4, third run)
 

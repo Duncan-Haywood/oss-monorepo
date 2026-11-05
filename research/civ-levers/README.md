@@ -203,6 +203,14 @@ global media culture met with probability B per step (Shibanai, Yasuno and Ishig
   boundary or the exact q grid, so I report a disagreement with a number I read in the paper,
   not a refutation. The earlier "q about 30 to 50 on small lattices" is the finite-size end of
   this curve.
+  **Resolved (2026-11-05): the 300 is a Poisson mean.** Castellano et al. draw traits from a
+  Poisson distribution with mean q, not uniformly on 1..q. Two Poisson(q) draws agree with
+  probability about 1/(2 sqrt(pi q)), so Poisson q = 300 behaves like a uniform alphabet of about
+  61. With Poisson traits (`axelrod.c ... poisson`, F = 10, 40 runs per cell,
+  `experiments/culture/poisson_results.txt`) the S = 0.5 crossing is q = 135 (L = 20), 180
+  (L = 40), 230 (L = 80), rising toward their 300; the collision-rate mapping predicted 147,
+  199, 240 (within 10%). The uniform-trait runs above were a different parameterisation, not a
+  bug. L = 150 was not run.
 
 F, q, B and the single global media culture are chosen, not measured; the finding is about
 simulated agents. Next: L = 150 and more runs per cell, noise (Klemm et al. 2003), and
