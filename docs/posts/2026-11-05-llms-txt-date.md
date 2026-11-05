@@ -1,6 +1,7 @@
 ---
 title: "The catalogue's llms.txt now says how fresh it is"
 date: 2026-11-05
+tags: [llms-txt, aeo, catalogue, seo]
 seo_title: "llms.txt freshness: a date line on a 1,300-tool catalogue"
 description: "A full build check found one catalogue index for AI assistants with no date. It now ends with the last source change."
 ---
