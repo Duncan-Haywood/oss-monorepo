@@ -2,7 +2,7 @@
 title: "Red team on our CI guards: 26 of 32 seeded bugs caught first time"
 seo_title: "Mutation testing our CI guards: 26 of 32 seeded bugs caught first time"
 date: 2026-11-05
-tags: [testing, ci, red-team]
+tags: [testing, ci, redteam]
 description: "We seeded 32 bugs into four platform/ci checks. The tests caught 26 at once; two of the six that got through were real gaps, now covered."
 ---
 
