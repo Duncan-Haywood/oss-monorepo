@@ -104,7 +104,7 @@
     "base_width_mm": 994,
     "net_w_mm": 3000.0,
     "wind_force_n": 69.1,
-    "ballast_kg": 15.0,
+    "ballast_kg": 11.2,
     "hose_len_mm": 750,
     "hose_bow_radius_mm": 239,
     "hose_take_up_mm": 258,
@@ -113,7 +113,7 @@
     "brace_x_n": 149,
     "brace_y_n": 186,
     "retain_pass_n": 16.7,
-    "made_part_mass_kg": 37.02
+    "made_part_mass_kg": 40.79
   },
   "design_rules": [],
   "collisions": [],
@@ -122,12 +122,12 @@
     "levelling_foot": 0.0
   },
   "files": {
-    "README.txt": "f98d68a727e8197d01bb55db0dcb7a530753087c8ae46d90c85432c6a3128943",
-    "bom.csv": "38ea939342c244ad3a51ad4199a007f7f7d71dcad0d8caef6a0c3e6e6e14a853",
-    "cut_list.csv": "9330da3d83d806c387311912f56e38d81d42faf02eb8ab2922cf16aeba05f844",
-    "drawings/assembly_front.svg": "42f724096a661812199dd2607e0df4ea097ef358ce30771e175cce36df23611e",
-    "drawings/assembly_side.svg": "de0efbe5a23db1fff3b3a855746364b0e70e5e41263babdd030537c1d920a242",
-    "drawings/assembly_top.svg": "81b1d97b670f2ec41a608c363ed4c0db9b4f6f8a107b1684220d8cf4c94bd1df",
+    "README.txt": "748b79204fa855e395bd2e42ab33897be790e44ded48619699a9a71d8f8e2bbe",
+    "bom.csv": "d9cf3937bfb9ad147b967d39742988f7d5679fc7cbebc97a6a0855d2365d529b",
+    "cut_list.csv": "603941f16a28ed2d43879d043198ea49659eb8993d3d479b18e4996ef0f81a27",
+    "drawings/assembly_front.svg": "dff523340200d215fc8a9c5b0a52ca0543ac42448510932963897e6a95a09282",
+    "drawings/assembly_side.svg": "ad3962afe82941a911bc8e695ee19a92c19ec599588e32714273c975e1fe334a",
+    "drawings/assembly_top.svg": "798c219bc20074e85f26909cc68fb51795989b35031d4f469382ccc9fe154a8c",
     "laser/base_deck__aluminium_5mm.dxf": "0de7c9128677cdd5292dc2b582d8e9f554029007a7b44f6a655aadaa09d1114a",
     "laser/drive_bracket__aluminium_5mm.dxf": "0f16cea0a86c3d9cea308d510306d589f88a071a4194011d698756a43bfc0bf7",
     "laser/head_guard_plate__aluminium_5mm.dxf": "58270b603d72d0af0401cb416cc0c101933f01b5a0af64f07c1c884b1ed2cb97",
@@ -146,8 +146,10 @@
     "print/hopper_spigot.stl": "3d5c11a24945fdb3b4f5074a8250f7b65fb39ee9ccbf1f7329a850868c7f55b3",
     "print/pole_elbow.stl": "b2f39a249a482f388e79c0c1f5ee738fe4dc03c18b628de11e13cffb526e9ca3",
     "print/pole_foot.stl": "684dcfdc23b862fc88be8f70069c72eee9708b57e8a34d6f5d2ee4637be4b7cc",
-    "print_parts.csv": "b6379fd51c8cf580891ec3ac2eea7b22fc529fd456be71b97c197945e85f542e",
-    "step/assembly.step": "4d4337d715ff7f31ec4cf47e4773ab598b333e86f0ef0169b71b2eb07c4ce617",
+    "print/take_up_carriage.stl": "75d14395387fa371edc0a5e1588330167cb513408739160a72afb7c895ea3edc",
+    "print/take_up_pulley.stl": "9dbc6abbfe48e7663003424f981ca928a9f5a52ec8bb62de4b32ba84714f5307",
+    "print_parts.csv": "becbe320eff3f4d379b442eabcb877ca9e33664339277891cba11310ce14926a",
+    "step/assembly.step": "36b9694df27716310de80085e1ba1182437a7ea57e62cc6540e939a9a84eae8b",
     "step/base_deck.step": "3b3f8858037a8450de678c7a4538430032b14a564497e66357eeae9a74ebe9c8",
     "step/camera_clamp.step": "57352718ae57a8567cd531576fcffb166badf5c0f297df0b36f3421727b677c3",
     "step/cheek_foot.step": "014eb4d283863c762dba2300e5d94f70ef22818e03e2edf273babf581a6761b6",
@@ -163,6 +165,8 @@
     "step/mast_plate.step": "35b5729a3f90761115bca08229a8612586a2750e6ced15c254ca276e19d109e1",
     "step/pole_elbow.step": "d3405ff63f6e87144f59261d15b011437a071a28b451470441c0f9ef51c0ea93",
     "step/pole_foot.step": "b6a2b27042abe90c8e6e8a8fc037a587dd57b3adc229080a0ba247a4df5363d4",
+    "step/take_up_carriage.step": "6cbd5bfbdcbe023c3e7841091f6f33dcd643d8161928b0b51b8ea3e0612616d6",
+    "step/take_up_pulley.step": "3fa283a492e79921585c2196bb882655809e6961a08368b04faee974507ae88d",
     "step/trunnion_cheek.step": "778b84ef1cd1303ce3fc38c86f0f51ff95242ad11badd9d51e1d47c8f7c97869",
     "step/turntable_plate.step": "a18ff1f4c17eae095dee16b1db8eb0e051e4438f2faf3b850b6ed8ceb1baf2c6"
   }

@@ -441,6 +441,51 @@ def feed_hose(p: Feeder) -> Part:
                       "Hose clips at both sockets (hose clamps, 80-90 mm).")
 
 
+def take_up_parts(p: Feeder) -> list[Part]:
+    """The floating-pulley hose take-up sized by `Feeder.take_up_design` (2026-11-05): a 2040 track beside the +y x-brace,
+    a printed pulley (groove at the hose's minimum bend radius) on a printed carriage, and a constant-force spring.
+    Shown mid-stroke. Not modelled: the bracket that ties the track to the hopper frame, the axle and bearings, the
+    hose clips, and the spring's anchor."""
+    t = p.take_up_design()
+    if t is None:
+        return []
+    w, h = p.rail_w, p.rail_h
+    r = t["pulley_d_mm"] / 2                       # groove centre-line radius = hose minimum bend radius
+    hr = p.hose_od / 2
+    rf = r + hr + 6.0                              # flange radius
+    gw = p.hose_od + 4.0
+    core = Cylinder(r - hr, gw).moved(Location((0, 0, 0), ROT_Y_AXIS))
+    fl = [Cylinder(rf, 5.0).moved(Location((0, s * (gw / 2 + 2.5), 0), ROT_Y_AXIS)) for s in (-1, 1)]
+    pulley = core + fl[0] + fl[1]
+    pulley = pulley - Cylinder(8.0, gw + 20).moved(Location((0, 0, 0), ROT_Y_AXIS))      # 16 mm axle bore
+    y_track = -(p.shelf_post_y + 20 + 20 + h / 2 + 15.0 + 5.0)                           # clear of the -y x-brace (to y = -265)
+    z0 = p.rail_top + p.plate_t + 40.0
+    L = t["track_mm"]
+    x_track = p.post_rear_x
+    track = Part("take_up_track", "stock", "aluminium extrusion", 1, Box(w, h, L),
+                 [Location((x_track, y_track, z0 + L / 2))],
+                 spec=f"2040 T-slot, cut {L:.0f} mm, M5 tapped both ends",
+                 notes=f"Vertical, outboard of the -y hopper brace. Carries the take-up carriage over a {t['stroke_mm']:.0f} mm stroke "
+                       f"(one pulley diameter and 30 mm each end besides). The tie to the hopper frame is not modelled.")
+    cw = 60.0
+    carriage = Box(cw, h + 30.0, 80.0) - Box(w + 0.5, h + 0.5, 90.0)
+    mid = z0 + L / 2
+    y_pul = y_track - (h / 2 + 15.0 + gw / 2 + 5.0 + 5.0)
+    out = [track,
+           Part("take_up_carriage", "print", "PETG", 1, carriage.moved(Location((0, 0, 0))),
+                [Location((x_track, y_track, mid))],
+                notes="Slides on the track on the T-slot nuts; the pulley axle (16 mm bolt) goes through its side. 6 walls."),
+           Part("take_up_pulley", "print", "PETG", 1, pulley,
+                [Location((x_track, y_pul, mid))],
+                notes=f"{2 * rf:g} mm flanges: bigger than a common print bed, so print in four quadrants and bolt together. "
+                      f"Groove radius {r:g} mm (the hose's minimum bend), hose OD {p.hose_od:g} mm. 16 mm axle on two 6003 bearings."),
+           Part("take_up_spring", "cots", "", 1, Cylinder(25.0, 40.0),
+                [Location((x_track - 40.0, y_track, z0 + L - 20.0))],
+                spec=f"Constant-force spring, {t['spring_n']:g} N (assumed: twice a {t['spring_n'] / 2:g} N hose tension), "
+                     f"at least {t['stroke_mm']:.0f} mm of travel")]
+    return out
+
+
 def envelopes(p: Feeder) -> list[Part]:
     out = []
     out.append(Part("hopper_tub", "cots", "", 1, Box(p.tub_l, p.tub_w, p.tub_h).moved(Location((0, 0, p.plate_t + p.tub_h / 2))),
@@ -484,7 +529,7 @@ def all_parts(p: Feeder) -> list[Part]:
             base_deck(p), wheel_bracket(p, True), wheel_bracket(p, False),
             cheek_foot(p), pole_foot(p), pole_elbow(p), camera_clamp(p),
             feed_floor(p), feed_roof_column(p), feed_shuttle(p), hopper_shelf(p), hopper_spigot(p), feed_hose(p),
-            *extrusions(p), *poles(p), *envelopes(p)]
+            *take_up_parts(p), *extrusions(p), *poles(p), *envelopes(p)]
 
 
 # ---------------------------------------------------------------- elevation sweep

@@ -223,6 +223,18 @@ class FeederParamsTest(unittest.TestCase):
             self.assertLessEqual(xlo, xhi)
         self.assertIsNone(Feeder(hopper_out_z=1560.0).take_up_design())
 
+    def test_take_up_parts_match_the_design(self):
+        from otr_cad.feeder import take_up_parts
+        p = Feeder()
+        t = p.take_up_design()
+        parts = {x.name: x for x in take_up_parts(p)}
+        self.assertEqual(set(parts), {"take_up_track", "take_up_carriage", "take_up_pulley", "take_up_spring"})
+        bb = parts["take_up_track"].placed()[0].bounding_box()
+        self.assertAlmostEqual(bb.max.Z - bb.min.Z, t["track_mm"], places=3)
+        pb = parts["take_up_pulley"].placed()[0].bounding_box()
+        self.assertGreater(pb.max.X - pb.min.X, t["pulley_d_mm"] + p.hose_od)   # flanges stand proud of the groove
+        self.assertEqual(take_up_parts(Feeder(hopper_out_z=1560.0)), [])
+
     def test_bow_radius_is_the_circular_arc_bound(self):
         import math
         p = Feeder()
