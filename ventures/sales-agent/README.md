@@ -173,6 +173,8 @@ the quote. Notes are agent-written, not real calls.
 
 2026-11-02: referral replies. A probe of 14 invented "wrong person" replies had 10 misfiled (one as interested). Added "I left X", "who owns/runs this", "direct inquiries to", "passed it on to" and the wrong-person phrase in six languages; 13 of 14 now route to `left_company` with the named address. Two replies on the existing fresh sets flipped to right, none to wrong (pinned in `engine.test.mjs`). Invented probes only.
 
+2026-11-05: proposed meeting times (`slots.mjs`). When an interested reply offers a time ("Tuesday at 2pm", "Friday morning", "Nov 12 at 10:30", "tomorrow at 3"), triage returns `slots` with the date resolved from the reply's day, and the draft confirms that time instead of asking for one, with a question about their time zone (it never guesses one). Refused days ("can't do Tuesday") are skipped; a time the reply does not give is not made up. Across the 55 replies the eval sets label interested, it found a time in 19 and the reply categories did not change (rules still 72/72 on the main set). Weak spots: "after 3" and "next Tuesday" (read as the nearest Tuesday) are approximate; the sets are agent-written, no real prospect has used it.
+
 ## Use it
 
 - **Voice (2026-11-01, optional):** the call section can take dictated notes ("next point" starts a new line, "period" and "comma" add marks) and read the brief or draft aloud, using the browser's own speech tools; the buttons appear only where the browser has them. In Chrome and Edge dictation sends audio to the browser maker's speech service; the page records and stores nothing. Tested: text rules by hand (`voice.test.mjs`), buttons by a Chromium click with a stubbed recogniser. Not tested: a real microphone or voice.
