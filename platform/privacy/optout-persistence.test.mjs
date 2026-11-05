@@ -1722,7 +1722,8 @@ const RELATIVE_SELF = relative(
 // +1: `monastery-site` graduated.
 // +1: `sed-contra` graduated.
 // +1: `catholic-shorts` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1298;
+// +1: `stranded-branch-finder` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1299;
 // +1: `open-tennis-robots` graduated.
 // +1: `uk-statutory-residence-test-checker` graduated.
 // +1: `llm-spend-guard` graduated.
