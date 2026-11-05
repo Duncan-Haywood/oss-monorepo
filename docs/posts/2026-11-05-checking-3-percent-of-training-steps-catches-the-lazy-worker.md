@@ -1,6 +1,6 @@
 ---
 title: "Recomputing 3% of training steps catches most workers who stall"
-seo_title: "Verifying outsourced ML training: sampled step recomputation vs a stalling worker"
+seo_title: "Verifying outsourced ML training by sampling steps"
 date: 2026-11-05
 tags: [research, verifiable-training-mechanisms, verification, ml-training]
 description: "A progress check misses 28 of 32 adaptive stalling jobs. Recomputing 20 random steps of 600 (3.3% of compute) is expected to catch 91% of the harmful ones."
