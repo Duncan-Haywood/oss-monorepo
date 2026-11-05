@@ -1,4 +1,4 @@
-# permit-packet-preflight
+# Permit packet preflight
 
 Live page: https://marisstella.app/permit-packet-preflight/
 
