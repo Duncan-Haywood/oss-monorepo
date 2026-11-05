@@ -2,8 +2,8 @@
 title: "One big survey boat or several small ones for the same money?"
 seo_title: "Survey fleet sizing: one large boat vs several small, equal cost"
 date: 2026-11-05
-tags: [research, marine-fleet, autonomous-boats, survey]
-description: "In a simulated lawnmower survey a fleet bought with one large boat's budget finishes in about a third of the time on a third of the energy, unless the sonar is over half the cost."
+tags: [research, marine-fleet, autonomous-boats, surveying]
+description: "In a simulated lawnmower survey, a fleet bought with one large boat's budget finishes in about a third of the time, unless the sonar is over half the cost."
 ---
 
 The new `marine-fleet` project asks whether a budget buys a better survey as one 200 to 800 kg autonomous boat or as several smaller ones. Boats are scaled from the `marine-hull` reference (ITTC 1957 friction line), each works until its battery is spent, returns to base, swaps the pack and goes back out.
