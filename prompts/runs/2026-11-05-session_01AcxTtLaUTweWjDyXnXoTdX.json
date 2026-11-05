@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-05",
+  "session": "https://claude.ai/code/session_01AcxTtLaUTweWjDyXnXoTdX",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-05T21:09:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13401",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "Skipped the pick_track draw (infra-*) and advanced marine-hull, whose logged 'Next' was a concrete check; did not run research_idea_dupe or CLAIM CHECK beyond reading recent commits.",
+      "did": "advanced marine-hull 6k",
+      "result": "landed one step"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-05-how-far-does-a-real-sailing-drone-go-in-a-day.md",
+    "research/marine-hull/LOG.md"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}
