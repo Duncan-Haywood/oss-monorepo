@@ -75,6 +75,17 @@
       <label for="chart">Factory size chart (optional)</label>
       <input id="chart" type="text" placeholder="S=96, M=104, L=112, XL=120 (body chest in cm)">
       <p class="tag" id="chart-note"></p>
+      <h2>Brand: cloth and cost of the run</h2>
+      <div class="row">
+        <div><label for="fprice">Fabric per metre</label><input id="fprice" type="number" min="0" step="0.1" value="5"></div>
+        <div><label for="fm">Metres for a size M</label><input id="fm" type="number" min="0.1" step="0.05" value="1.2"></div>
+      </div>
+      <div class="row">
+        <div><label for="fwaste">Wastage %</label><input id="fwaste" type="number" min="0" max="50" step="1" value="8"></div>
+        <div><label for="fcs">Cut and sew per piece</label><input id="fcs" type="number" min="0" step="0.1" value="4"></div>
+      </div>
+      <label for="fother">Everything else per piece (print, trims, packing, freight)</label><input id="fother" type="number" min="0" step="0.1" value="3">
+      <label for="fplus">Factory surcharge per piece for XL and XXL (optional)</label><input id="fplus" type="number" min="0" step="0.1" value="0">
     </section>
 
     <div>
@@ -89,6 +100,10 @@
       <section>
         <h2>Size run</h2>
         <div id="run" aria-live="polite"></div>
+      </section>
+      <section>
+        <h2>What the run costs</h2>
+        <div id="runcost" aria-live="polite"></div>
       </section>
     </div>
   </div>
@@ -112,6 +127,9 @@
   <script type="module">
     import { recommendSize, sizeRun, fitGap, BODY_CHEST_CM, FIT_LABELS } from "./fit.mjs";
     import { tryOn } from "./tryon.mjs";
+    import { runCost } from "./runcost.mjs";
+    import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
+    import { newDesign } from "./design.mjs";
     import { recordUsage } from "./usage.mjs";
     const $ = s => document.querySelector(s);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -147,6 +165,18 @@
       $("#run").innerHTML = !run.ok ? `<p class="notes">${esc(run.error)}</p>` :
         `<table><tr><th>Size</th>${Object.keys(run.sharePct).map(s => `<th class="num">${esc(s)}</th>`).join("")}</tr><tr><td>Share</td>${Object.values(run.sharePct).map(v => `<td class="num">${v}%</td>`).join("")}</tr><tr><td>Pieces</td>${Object.keys(run.sharePct).map(s => `<td class="num"><b>${run.sizes[s]}</b></td>`).join("")}</tr></table>` +
         `<p class="tag">A normal curve around the audience average chest. It assumes buyers know their size and the people you reach are roughly like your guess; a first order is a bet, so keep the small and large ends near the factory minimum and reorder from real sales.</p>`;
+      if (!run.ok) $("#runcost").innerHTML = "";
+      else {
+        const n = id => Math.max(0, Number($(id).value) || 0);
+        const sheet = { ...EXAMPLE_SUPPLIER, moq: 0, fabrics: { "cotton-jersey": n("#fprice") }, metresPerGarment: { [garment]: n("#fm") || 1 }, wastagePct: n("#fwaste"), cutAndSew: { [garment]: n("#fcs") }, trimsPerUnit: n("#fother"), packagingPerUnit: 0, freightPerUnit: 0, dutyPct: 0, methods: {} };
+        const plus = n("#fplus");
+        const rc = runCost(newDesign({ garment, fabric: "cotton-jersey", placements: [], quantity: Math.max(1, +$("#qty").value || 1) }), sheet, run.sizes, { fit, sizeChart, surcharge: { XL: plus, XXL: plus } });
+        $("#runcost").innerHTML = !rc.ok ? `<p class="notes">${esc(rc.error)}</p>` :
+          `<p>Buy about <span class="big">${rc.fabricMetresToBuy}</span> m of fabric. The run costs <b>${rc.runTotal}</b> in all, <b>${rc.blendedLanded}</b> a piece on average (${rc.differenceVsFlat >= 0 ? "+" : ""}${rc.differenceVsFlat} against pricing every piece as a size M).</p>` +
+          `<table><tr><th>Size</th><th class="num">Pieces</th><th class="num">Metres each</th><th class="num">Cost each</th><th class="num">Total</th></tr>` +
+          rc.rows.map(x => `<tr><td>${esc(x.size)}</td><td class="num">${x.pieces}</td><td class="num">${x.metres}</td><td class="num">${x.landed}</td><td class="num">${x.total}</td></tr>`).join("") + `</table>` +
+          `<p class="notes">${rc.notes.map(esc).join("<br>")}</p><p class="tag">Arithmetic on the prices you typed, in one currency. Not a quote: the factory's own cutting plan decides the real cloth use.</p>`;
+      }
     }
     document.querySelectorAll("section select, section input").forEach(el => el.addEventListener("input", () => { render(); recordUsage("fit_calc"); }));
     render(); recordUsage("fit_open");
