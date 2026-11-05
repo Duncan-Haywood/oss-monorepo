@@ -228,7 +228,9 @@ export function sheathe(plan, result) {
   if (bad.length) return { ok: false, errors: bad };
   const sheets = (cfg.sheets || []).filter((s) => s.width > 0 && s.length > 0 && s.price >= 0 && s.width <= SHEET_WIDTH + EPS);
   if (!sheets.length) return { ok: false, errors: ["List at least one sheet size for sheathing."] };
-  const wallHeight = result.walls.find((w) => !w.gable)?.height ?? (plan.studLength + 3 * THICK); // gable-only plan: the eave height
+  const flat = result.walls.filter((w) => !w.gable).map((w) => w.height);
+  const wallHeight = flat.length ? Math.max(...flat) : (plan.studLength + 3 * THICK); // gable-only plan: the eave height
+  if (flat.length && Math.min(...flat) < wallHeight - EPS) notes.push(`walls differ in height (${formatInches(Math.min(...flat))} to ${formatInches(wallHeight)}): sheets are cut for the tallest wall, so a shorter wall's panels are ordered at that height and trimmed on site.`);
   const cover = cfg.coverHeight > 0 ? cfg.coverHeight : wallHeight;
   if (cfg.orientation === "horizontal" && cfg.overhang) notes.push("Corner overhang is for vertical sheets; the horizontal layout ignores it.");
   if (cfg.orientation === "horizontal") return sheatheHorizontal(plan, result, cfg, sheets, cover);
