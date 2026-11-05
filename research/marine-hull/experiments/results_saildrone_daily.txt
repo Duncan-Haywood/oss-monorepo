@@ -1,0 +1,40 @@
+drone-days with >=90% coverage: 864 (13 drones)
+year drone days mean_wind_m/s obs_km/day model_actual_course model_beam_free  obs/a  obs/b (medians per drone-year)
+2018 1024  120    4.8       74      214      238   0.40   0.35
+2018 1025  115    4.2       60      195      228   0.36   0.29
+2018 1026  101    4.4       76      199      233   0.39   0.35
+2018 1027  101    4.9       78      216      241   0.41   0.35
+2018 1028   98    4.4       66      187      225   0.38   0.32
+2019 1038    6   10.4      165      281      302   0.59   0.55
+2019 1039    8    2.2       38      101      135   0.37   0.28
+2019 1040   28    5.8       80      197      253   0.46   0.38
+2019 1043   45    6.4       84      238      269   0.41   0.35
+2019 1044   79    4.4       59      180      231   0.41   0.32
+2019 1045   29    7.0      105      264      301   0.44   0.37
+2019 1046   59    7.1      120      267      299   0.45   0.40
+2019 1047   75    3.6       62      163      205   0.41   0.32
+
+all drone-days: observed km/day median 75 (10th 35, 90th 156), mean wind median 4.7 m/s
+obs/(a) actual-course model: median 0.40  10th 0.27  90th 0.56  (n=864)
+obs/(b) free beam reach    : median 0.33  10th 0.23  90th 0.53  (n=864)
+
+by daily mean wind (obs/b median, n):
+   0- 4 m/s: obs/b 0.28  obs 44 km/day  n=349
+   4- 6 m/s: obs/b 0.33  obs 82 km/day  n=197
+   6- 8 m/s: obs/b 0.40  obs 113 km/day  n=152
+   8-10 m/s: obs/b 0.49  obs 147 km/day  n=100
+  10-30 m/s: obs/b 0.60  obs 180 km/day  n=66
+
+scaling 6h-6j's buoy medians by f = 0.33 (86 km/day solar ceiling):
+  January: corridor median 237 -> 79, worst buoy-month 207 -> 69; free median 272 -> 91; scaled corridor median / solar 0.92; break-even f vs solar (median) 0.36, (worst buoy) 0.42
+  July: corridor median 179 -> 60, worst buoy-month 114 -> 38; free median 219 -> 73; scaled corridor median / solar 0.69; break-even f vs solar (median) 0.48, (worst buoy) 0.75
+
+per-block SOG / model speed at measured wind and COG, by wind speed (blocks with SOG>0 and model>0.3 m/s):
+  wind  0- 2 m/s: n= 15316  median 0.44  75th 0.66  90th 0.94  99th 1.56
+  wind  2- 4 m/s: n= 32537  median 0.29  75th 0.39  90th 0.51  99th 0.90
+  wind  4- 6 m/s: n= 25883  median 0.33  75th 0.41  90th 0.48  99th 0.70
+  wind  6- 8 m/s: n= 21415  median 0.41  75th 0.47  90th 0.52  99th 0.68
+  wind  8-10 m/s: n= 15764  median 0.50  75th 0.56  90th 0.61  99th 0.74
+  wind 10-12 m/s: n=  9486  median 0.58  75th 0.65  90th 0.71  99th 0.82
+  wind 12-14 m/s: n=  3644  median 0.68  75th 0.76  90th 0.83  99th 0.94
+  wind 14-16 m/s: n=   665  median 0.78  75th 0.86  90th 0.92  99th 1.04
