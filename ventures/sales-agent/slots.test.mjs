@@ -58,3 +58,14 @@ test("an ambiguous 'next Friday' is named in the draft", () => {
   assert.match(d.body, /Friday 30 October at 11am works for me/);
   assert.match(d.body, /I read "next Friday at 11" as Friday 30 October/);
 });
+
+test("day-first dates, noon and 'the 14th'", () => {
+  const f = (t) => findSlots(t, "2026-11-05").map((s) => [s.date, s.time]);
+  assert.deepEqual(f("Can we do 12 Nov at 10:30?"), [["2026-11-12", "10:30"]]);
+  assert.deepEqual(f("the 3rd of December works"), [["2026-12-03", null]]);
+  assert.deepEqual(f("How about noon on Thursday?"), [["2026-11-12", "12:00"]]);
+  assert.deepEqual(f("Let's talk on the 14th at 3pm"), [["2026-11-14", "15:00"]]);
+  assert.deepEqual(f("the 2nd"), [["2026-12-02", null]]);
+  assert.deepEqual(f("this afternoon is bad, 31 Feb no"), []);
+  assert.deepEqual(f("Nov 12 at 10:30"), [["2026-11-12", "10:30"]]);
+});
