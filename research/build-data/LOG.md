@@ -1,5 +1,24 @@
 # build-data log
 
+## Session 27, 2026-11-05: milestone 23, H2g: choose the tau pair with a one-year backtest (planned before running)
+
+Session 25's calibration-only rules failed on Chicago because the shortfall is year-to-year. `src/conformal_tau_backtest.py` adds a backtest: a pair is eligible for test year Y only if its calibration coverage in Y is at least 0.78 AND its realised test coverage in Y-1 (same procedure one year earlier, from the session 25 grids; 2021 newly run for both cities, `results/conformal_tau_drift_{chicago,sf}_a2i_2021.json`) was at least 0.77. The narrowest eligible pair by calibration width wins; none eligible falls back to (0.1, 0.9). Cells: Chicago and SF a2i, test years 2022 to 2024.
+- **H2g (pre-registered):** coverage in 77 to 83% in at least 5 of 6 cells and width at least 15% below (0.1, 0.9) in at least 5 of 6. Refuted if 4 or fewer cells are inside. Prior 30%: one year's miss is a weak predictor of the next.
+
+Outcome (3 seeds for the 2021 runs, fresh pulls; the other years reuse session 25 grids; `results/conformal_tau_backtest.txt`):
+| city, year | chosen pair | test coverage [CI] | width (days) | vs (0.1, 0.9) |
+|---|---|---|---|---|
+| Chicago 2022 | (0.05, 0.65) | 0.817 [0.809, 0.825] | 17.6 | -67% |
+| Chicago 2023 | (0.05, 0.65) | 0.729 [0.709, 0.747] | 16.2 | -71% |
+| Chicago 2024 | (0.05, 0.85) | 0.786 [0.775, 0.797] | 37.8 | -44% |
+| SF 2022 | (0.2, 0.65) | 0.847 [0.836, 0.857] | 61.8 | -26% |
+| SF 2023 | (0.2, 0.65) | 0.842 [0.837, 0.848] | 39.4 | -39% |
+| SF 2024 | (0.2, 0.65) | 0.828 [0.816, 0.837] | 27.2 | -57% |
+- **H2g is refuted** on its coverage half: 3 of 6 cells inside 77 to 83% (the width half held, 6 of 6). The backtest fixed Chicago 2024 (0.786 at 44% narrower, versus 0.748 and 0.762 for the earlier rules) but not Chicago 2023, which stays at 0.729 because 2022 (the backtest year) had been 0.817. SF is 0.84 to 0.85 in two years, which is over-coverage by 2 to 5 points, not a failure.
+- Reading: one year's coverage does not predict the next in Chicago (0.775 in 2021, 0.817, 0.729, 0.786 for the same narrow pair family); a Chicago user needing 80% should still keep (0.1, 0.9) or accept about +-5 points. In SF a narrow pair is safe in all four years run.
+- Limits: 6 cells, a hand-set 0.77 and 0.78, backtest uses outcomes that are not all known at the start of Y (slow permits issued late in Y-1), so it flatters the rule slightly; Austin and i2c not run. An operational note: the pull took about 15 minutes for all three cities.
+Next: accept a stated Chicago limit in the paper (section 4.2c), then Austin a2i with the same rules.
+
 ## Session 26, 2026-11-05: paper section 4.2b (a writing step; no experiment, no result changed)
 
 All four data hosts returned 403 at the proxy and lightgbm is not installed, so nothing was run. Added section 4.2b to `paper/paper.md` with session 25's H2f table (numbers copied from the entry below) and updated the to-do. Next: year-ahead calibration check when a host is reachable.

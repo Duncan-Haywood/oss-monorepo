@@ -165,6 +165,10 @@ Pre-registered in `LOG.md` (session 25): choose the (tau_lo, tau_hi) pair that i
 
 The guarded rule is inside 77 to 83% in 2 of 6 cells (the unguarded rule of 4.2a also 2 of 6), so H2f is refuted; the width half held (at least 15% narrower in 5 of 6; SF 2022 fell back to the fixed pair). Chicago 2023 under-covers by 5 points although calibration coverage was 0.81 in both halves, so the shortfall is year-to-year, not within-year drift. Reading: tighter pairs give 2 to 4 times narrower SF intervals at 0.83 to 0.84 coverage, but for Chicago no rule using the calibration year alone chooses safely; keep (0.1, 0.9) there. Limits: two cities, three years, 3 seeds, a hand-set 0.78 threshold.
 
+### 4.2c A one-year backtest for the quantile-pair rule (H2g refuted)
+
+Choosing the pair among those that also covered at least 77% in the previous test year gives, for Chicago and San Francisco application-to-issue over test years 2022 to 2024 (3 seeds), coverage inside 77 to 83% in 3 of 6 cells and an interval 26 to 71% narrower than the (0.1, 0.9) pair in 6 of 6. Chicago 2024 improves (0.786 against 0.748 and 0.762 for the earlier rules) but Chicago 2023 stays at 0.729; San Francisco sits at 0.83 to 0.85. Chicago's narrow-pair coverage was 0.775, 0.817, 0.729 and 0.786 in 2021 to 2024, so last year's coverage did not predict the next. We therefore report a Chicago limit: a user who needs 80% should keep the wide pair. Numbers are copied from `../LOG.md`, session 27, and `../results/conformal_tau_backtest.txt`; the backtest uses some outcomes not known at the start of the year, a slight flatter.
+
 ### 4.3 Which fields (H3, as worded)
 
 Permutation importance: the smallest number of fields reaching 80% of the total
