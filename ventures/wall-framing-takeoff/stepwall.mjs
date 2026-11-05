@@ -8,6 +8,7 @@
 
 const EPS = 1e-6;
 const THICK = 1.5;
+const MIN_SEG = 12; // the layout engine refuses a wall shorter than this
 
 /**
  * @param {any} plan a normalised plan (lengths in inches)
@@ -31,7 +32,7 @@ export function expandSteppedWalls(plan) {
     for (const s of steps) {
       if (!s || !Number.isFinite(s.at) || !Number.isFinite(s.studLength)) { errors.push(`Wall ${id}: each step needs a number "at" and a number "studLength", in inches.`); bad = true; break; }
       if (!(s.studLength >= 24 && s.studLength <= 240)) { errors.push(`Wall ${id}: step stud length must be between 24 and 240 inches.`); bad = true; break; }
-      if (!(s.at > prev + 4 * THICK && s.at < w.length - 4 * THICK)) { errors.push(`Wall ${id}: steps must rise in order, each at least ${4 * THICK} in from the last one and from both wall ends.`); bad = true; break; }
+      if (!(s.at >= prev + MIN_SEG && s.at <= w.length - MIN_SEG)) { errors.push(`Wall ${id}: steps must rise in order, each at least ${MIN_SEG} in from the last one and from both wall ends (every segment is framed as its own wall).`); bad = true; break; }
       prev = s.at;
     }
     if (bad) continue;
