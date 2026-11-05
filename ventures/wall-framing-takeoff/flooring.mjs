@@ -82,7 +82,7 @@ export function layoutFlooring(d) {
     const rolls = p.underlayment ? up(area / (p.underlaymentRollSqFt ?? 100)) : 0;
     const bc = p.boxPrice != null ? boxes * p.boxPrice : null, uc = rolls && p.underlaymentPrice != null ? rolls * p.underlaymentPrice : null;
     if (bc != null || uc != null) { cost += (bc ?? 0) + (uc ?? 0); priced = true; }
-    out.plank = { rooms: pr.length, sqFt: area, orderSqFt: need, boxSqFt: boxSq, boxes, leftoverSqFt: boxes * boxSq - need, underlaymentRolls: rolls, cost: bc != null || uc != null ? (bc ?? 0) + (uc ?? 0) : null };
+    out.plank = { boxPrice: p.boxPrice ?? null, underlaymentPrice: p.underlaymentPrice ?? null, rooms: pr.length, sqFt: area, orderSqFt: need, boxSqFt: boxSq, boxes, leftoverSqFt: boxes * boxSq - need, underlaymentRolls: rolls, cost: bc != null || uc != null ? (bc ?? 0) + (uc ?? 0) : null };
   }
 
   const tr = of("tile");
@@ -104,7 +104,7 @@ export function layoutFlooring(d) {
     const parts = [tc, t.thinsetPrice != null ? thinsetBags * t.thinsetPrice : null, t.groutPrice != null ? groutBags * t.groutPrice : null];
     const tcost = parts.some((x) => x != null) ? parts.reduce((s, x) => s + (x ?? 0), 0) : null;
     if (tcost != null) { cost += tcost; priced = true; }
-    out.tile = { rooms: tr.length, sqFt: area, orderSqFt: need, tileWidth: w, tileLength: l, joint: j, tiles, thinsetBags, groutLb, groutBags, cost: tcost };
+    out.tile = { tilePrice: t.tilePrice ?? null, thinsetPrice: t.thinsetPrice ?? null, groutPrice: t.groutPrice ?? null, rooms: tr.length, sqFt: area, orderSqFt: need, tileWidth: w, tileLength: l, joint: j, tiles, thinsetBags, groutLb, groutBags, cost: tcost };
   }
 
   const cr = of("carpet");
@@ -125,7 +125,7 @@ export function layoutFlooring(d) {
     const tk = c.tackPrice != null ? up(tack / (c.tackStripLength ?? 4)) * c.tackPrice : null;
     const ccost = [cc, pc, tk].some((x) => x != null) ? (cc ?? 0) + (pc ?? 0) + (tk ?? 0) : null;
     if (ccost != null) { cost += ccost; priced = true; }
-    out.carpet = { rooms: cr.length, sqFt: areaSq, rollWidth: rw, rollSqYd, rollLinearFeet: linIn / 12, seams, padSqYd, tackFeet: tack, perRoom, cost: ccost };
+    out.carpet = { carpetPrice: c.carpetPrice ?? null, padPrice: c.padPrice ?? null, tackPrice: c.tackPrice ?? null, tackStripLength: c.tackStripLength ?? 4, rooms: cr.length, sqFt: areaSq, rollWidth: rw, rollSqYd, rollLinearFeet: linIn / 12, seams, padSqYd, tackFeet: tack, perRoom, cost: ccost };
   }
   out.cost = priced ? cost : null;
   return out;
