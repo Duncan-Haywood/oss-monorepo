@@ -1,9 +1,9 @@
 ---
 title: "How much does a small UAV's own wing bend the air at its angle-of-attack probe?"
-seo_title: "UAV angle-of-attack probe upwash: 1.19 gain and 0.6 degree offset (CFD)"
+seo_title: "UAV angle-of-attack probe upwash: 1.19 gain, 0.6 degree offset"
 date: 2026-11-05
 tags: [research, aerolog-scaling, system-identification, uav]
-description: "A published CFD study of a small blended-wing-body UAV finds perceived angle of attack = 1.19 x true + 0.6 degrees, independent of speed. We compare it with our fit's 1.25 degree tolerance."
+description: "CFD of a small UAV finds perceived angle of attack = 1.19 x true + 0.6 degrees at any speed. We compare it with our fit's 1.25 degree tolerance."
 ---
 
 Our `aerolog-scaling` simulations say an output-error flight-test fit that also estimates a bias tolerates about 1.25 degrees of constant angle-of-attack bias and fails abruptly by 1.5 degrees. Yesterday's post compared that with an uncalibrated probe's 2.49 degree bias. Today's source is different: Sasse et al. (AIAA SciTech 2022, doi:10.2514/6.2022-2400) simulated the airflow around a small blended-wing-body UAS and found that at the probe location the perceived angle of attack is 1.19 times the true angle plus 0.596 degrees, the same at 15 to 25 m/s.
