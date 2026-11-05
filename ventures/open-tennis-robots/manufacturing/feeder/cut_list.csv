@@ -1,5 +1,6 @@
 part,qty,stock,notes
 feed_hose,1,"72 mm ID smooth-bore flexible hose (82 mm OD), cut 750 mm","Hopper outlet to the column socket. Longest chord 705 mm; bows to 239 mm radius at the closest pose; needs 150. Hose clips at both sockets (hose clamps, 80-90 mm)."
+take_up_track,1,"2040 T-slot, cut 489 mm, M5 tapped both ends","Vertical, outboard of the -y hopper brace. Carries the take-up carriage over a 129 mm stroke (one pulley diameter and 30 mm each end besides). The tie to the hopper frame is not modelled."
 net_beam,1,"2040 T-slot, cut 3000 mm",Front member of the base and the foot of the net. Cut square.
 rear_rail,1,"2040 T-slot, cut 900 mm","Cut square, deburr, M5 tap each end where a post or rail meets it."
 side_rail,2,"2040 T-slot, cut 660 mm","Cut square, deburr, M5 tap each end where a post or rail meets it."
