@@ -8,6 +8,7 @@ was checked on GoEmotions and NaijaSenti with zero-shot Qwen2.5 coders (see LOG.
 TAU = 0.3  # minimum pilot informedness J_hat for coder cells; any value in 0.2 to 0.5 gave widths within 1% (6am)
 GUARD = 20  # minimum human positives in the pilot (6al); below it the pilot cannot tell a coder from luck
 PILOT_SHARE = 0.3
+NEG_GUARD = 3  # minimum pilot positives in the coder-negative cell (7r to 7t); opt-in, pass neg_guard=NEG_GUARD
 FLOOR = 0.35  # each coder cell gets at least this share of n (6ai)
 
 
@@ -21,9 +22,14 @@ def informedness(y, f):
     return sum(pos) / len(pos) + sum(1 - b for b in neg) / len(neg) - 1
 
 
-def screen(y, f, tau=TAU, guard=GUARD):
+def screen(y, f, tau=TAU, guard=GUARD, neg_guard=0):
     """'cells' if the pilot shows an informative coder (J_hat >= tau) and holds at least `guard` human positives,
-    else 'pooled'."""
+    else 'pooled'. neg_guard (default 0, off) also requires that many human positives among the pilot items the
+    coder labelled 0: with fewer, the coder-negative cell's variance estimate is near zero and the cells interval
+    undercovers (LOG.md 7r: 84 to 87% at a 5% prevalence with guard 10 alone; neg_guard = NEG_GUARD = 3 restored
+    93%+ on NaijaSenti 7r/7s and on GoEmotions gratitude and amusement 7t, 96 to 97%)."""
+    if sum(1 for a, b in zip(y, f) if a and not b) < neg_guard:
+        return "pooled"
     return "cells" if informedness(y, f) >= tau and sum(y) >= guard else "pooled"
 
 
@@ -67,7 +73,7 @@ def pilot_ceiling(y, f):
     return cell_ceiling(sum(pos) / len(pos), sum(1 - b for b in neg) / len(neg))
 
 
-def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR):
+def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=0):
     """One call from a hand-coded pilot to the rest of the audit. f_all: the coder's 0/1 codes on every corpus item;
     pilot_y: {item index: human 0/1} for a simple random pilot (about PILOT_SHARE * n items); n: total audit budget.
     Returns {"design", "cells", "to_label"}: design is "pooled" or "cells" (`screen`); cells are lists of item
@@ -80,7 +86,7 @@ def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR):
     idx = sorted(pilot_y)
     y = [pilot_y[i] for i in idx]
     f = [f_all[i] for i in idx]
-    if screen(y, f, tau, guard) == "pooled":
+    if screen(y, f, tau, guard, neg_guard) == "pooled":
         return {"design": "pooled", "cells": [list(range(len(f_all)))], "to_label": [max(0, n - len(idx))],
                 "ceiling": pilot_ceiling(y, f)}
     cells = [[i for i, c in enumerate(f_all) if c == k] for k in (0, 1)]
