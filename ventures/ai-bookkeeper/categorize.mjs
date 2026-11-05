@@ -122,6 +122,12 @@ export const BUILT_IN = [
   ["6100", "out", /laguna clay|\bskutt\b|\bamaco\b|stenograph/],
   ["6110", "out", /court reporter licen[cs]e/],
   ["4000", "in", /deposition transcript|transcript fee/],
+  // Gap probe 27 (2026-11-05, eval/probe27.mjs): locksmiths, piano tuners, chimney sweeps, mobile welders, home stagers.
+  // Miller Electric (welders) hit the utilities rule through "electric", so it comes before it. Fourteen rows had no suggestion.
+  ["6100", "out", /miller electric|rotobrush|national chimney supply|rooms to go|cort furniture/],
+  ["6060", "out", /tunelab|roomsketcher/],
+  ["4000", "in", /lockout service|piano tuning|tuning service|regulation fee|weld repair|staging fee/],
+  ["6170", "out", /hearth,? patio|american welding society|staging association/],
   // Gap probe 26 (2026-11-05, eval/probe26.mjs): drone pilots, sign-language interpreters, genealogists, wedding DJs, bike mechanics.
   // Fifteen rows had no suggestion.
   ["6070", "out", /pioneer dj/],
