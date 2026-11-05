@@ -6,6 +6,7 @@
 //
 // No network, no dependencies; the same file runs in a page, in Node and in a server. ai.mjs adds an optional model
 // on the user's own key, under the same rules.
+import { findSlots, describeSlot } from "./slots.mjs";
 import { guess as nbGuess } from "./learn.mjs";
 import { suppressionIndex, emailKey } from "./suppression.mjs";
 
@@ -464,7 +465,7 @@ export function triage(reply, today) {
     const o = find(`objection_${sub}`);
     if (o && !explicitMeeting) return res("objection", o, { subtype: sub, referral, why: `${sub} objection` });
   }
-  if (meet) return res("interested", meet, { confidence: explicitMeeting ? "clear" : "weak", why: explicitMeeting ? "asked to meet or for times" : "positive, no meeting asked for yet" });
+  if (meet) return res("interested", meet, { slots: findSlots(body, today), confidence: explicitMeeting ? "clear" : "weak", why: explicitMeeting ? "asked to meet or for times" : "positive, no meeting asked for yet" });
   const q = sentences(body).find((s) => /\?\s*$/.test(s) && /[a-z]{2,}.*\s.*[a-z]/i.test(s) && !/\b(who (is|are) (this|you)|how did you get)\b/i.test(s));
   if (q) return res("question", { s: q, m: q }, { confidence: "weak", why: "asked a question" });
   return res("unclear", null, { confidence: "weak", why: "no rule matched; read it yourself" });
@@ -492,6 +493,11 @@ export function draftReply(t, prospect, reply, offer = {}) {
   let lines;
   switch (t.category) {
     case "interested":
+      if (t.slots?.length) {
+        const first = describeSlot(t.slots[0]), more = t.slots.slice(1).map(describeSlot);
+        lines = [hi, "", `Thanks for getting back to me. ${first} works for me${more.length ? `, and so would ${more.join(" or ")} if that is easier` : ""}.`, "Which time zone are you in, so I send the invite for the right hour?", offer.booking_link ? `If those change, you can also pick a time here: ${offer.booking_link}` : "", "", offer.value ? `On the call I will show how ${offer.product || "it"} ${offer.value}, and leave plenty of time for your questions.` : "On the call I will keep it short and leave plenty of time for your questions."].filter((x, i, a) => x !== "" || a[i - 1] !== "");
+        break;
+      }
       lines = [hi, "", "Thanks for getting back to me.", book, "", offer.value ? `On the call I will show how ${offer.product || "it"} ${offer.value}, and leave plenty of time for your questions.` : "On the call I will keep it short and leave plenty of time for your questions."];
       break;
     case "question":
