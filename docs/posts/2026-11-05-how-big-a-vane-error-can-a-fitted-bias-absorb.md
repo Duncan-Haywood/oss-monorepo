@@ -1,6 +1,6 @@
 ---
 title: "How big a wind-vane error can a fitted bias absorb? A cliff at 1.25 to 1.5 degrees"
-seo_title: "Angle-of-attack sensor bias and system identification: where the fit breaks"
+seo_title: "Angle-of-attack sensor bias and system ID: where the fit breaks"
 date: 2026-11-05
 tags: [research, aerolog-scaling, system-identification, digital-twin]
 description: "In a Froude-scaled aircraft model, fitting one bias per sensor channel survives a 1.25 degree angle-of-attack error and fails abruptly by 1.5."
