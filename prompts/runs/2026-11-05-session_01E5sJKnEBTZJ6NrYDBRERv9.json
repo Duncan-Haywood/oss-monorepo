@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-05",
+  "session": "https://claude.ai/code/session_01E5sJKnEBTZJ6NrYDBRERv9",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-05T03:10:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13231",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog had only perf rows already mostly landed; main_health.py found the live faults faster than the backlog."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post or agent doc: a three-file lint fix has nothing to report.",
+      "did": "skipped writeups",
+      "result": "fine"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique mode via main_health: fixed seo_title/description lengths in two posts and null pr in run record for #13217. No backlog ids touched.",
+  "corrections": [],
+  "redteam": null
+}
