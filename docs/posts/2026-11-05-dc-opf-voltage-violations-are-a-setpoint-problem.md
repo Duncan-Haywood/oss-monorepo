@@ -1,6 +1,8 @@
 ---
 title: "DC dispatch voltage violations on IEEE 39-bus are a setpoint problem"
 date: 2026-11-05
+description: "On the IEEE 39-bus case, the voltage violations of a DC OPF dispatch come from fixed generator setpoints and reactive limits, not from the real-power dispatch."
+tags: [research, power-systems, opf]
 ---
 When a DC optimal-power-flow dispatch is run through an AC power flow on the IEEE 39-bus case, 15 buses leave their voltage band at 60 % load. I expected that to call for voltage constraints in the dispatch. It doesn't.
 
