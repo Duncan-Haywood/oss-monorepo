@@ -114,7 +114,7 @@ points weaker), so the gain is a property of the data, not one library. The q0.9
 loss to the reference class in Chicago a2i holds for all three trees. The linear
 model trails the trees at q0.5 everywhere and fails badly only in Chicago a2i
 (+72.9% at q0.9), so that failure depends on the city's permit-type structure.
-Defaults are shared, not tuned per library. A neural net is not run.
+Defaults are shared, not tuned per library. A neural net is in 4.6.
 
 ### 4.2 Coverage (H2 refuted)
 
@@ -175,6 +175,20 @@ Austin issue-to-completion, same rules (1 seed; `../results/conformal_tau_drift_
 
 San Francisco issue-to-completion, same rules (1 seed; `../results/conformal_tau_drift_sf_i2c_{2021..2024}.json`, `python3 src/conformal_tau_backtest.py sf --i2c`; `../LOG.md`, session 32): test coverage was 0.818 [0.810, 0.826] (2022), 0.830 [0.822, 0.837] (2023) and 0.857 [0.846, 0.867] (2024), so 2 of 3 years are inside 77 to 83%; width fell by 12%, 17% and 28%, so 2 of 3 clear 15%. Each half therefore holds when counted separately, unlike Austin i2c, but only 2023 passes both in the same year (2022 is not narrow enough, 2024 over-covers), so the strict joint reading is 1 of 3. Widths are 290 to 370 days at 80%. Limits: 1 seed, 3 cells, SF only (Chicago has no completion date), backtest years only.
 
+### 4.6 A neural quantile baseline (milestone 27)
+
+An embedding MLP (two hidden layers of 128, three monotone quantile outputs trained on the summed pinball loss, 3 seeds, early stopping on the calibration year; `../src/neural.py`, `../results/neural_*_2024.json`) was run on the five city/target pairs with the same split, features and test year as 4.1. Test pinball relative to the committed boosted models (positive = neural worse):
+
+| pair | q0.1 | q0.5 | q0.9 |
+|---|---|---|---|
+| Chicago a2i | +0.6% | 0.0% | -3.0% |
+| SF a2i | +0.9% | +1.2% | +5.9% |
+| SF i2c | +1.8% | +2.6% | +2.9% |
+| Austin a2i | +2.5% | +0.1% | +1.6% |
+| Austin i2c | -0.2% | +0.3% | -0.1% |
+
+The neural net is within 3% of the boosted model in 14 of 15 cells (the exception is SF a2i q0.9, +5.9%) and ahead only at Chicago q0.9 (where the boosted model is itself worse than the empirical baseline) and in two Austin i2c cells that are ties. It keeps most of the boosted gain over the baseline (for example Austin a2i q0.9: boosted -36%, neural -35%), so the proposal's comparison closes without changing the H1 reading: gradient boosting is not beaten by a small neural net on these tabular fields. Limits: one architecture and learning rate, no tuning, 3 seeds, one test year; the neural quantile outputs are strictly positive, so its own raw 80% interval misses every same-day permit (coverage 0.30 in SF a2i, 0.53 in Chicago a2i) and is not comparable to the boosted interval without rounding; its same-day Brier is slightly worse than the boosted one (the head is trained at weight 0.1 and is not used to stop). Intervals for the pinball differences against the baseline are in the result files. The hypothesis (neural within 3% of boosted at each level) was held in the author's head, not written to the log, before the first run.
+
 ### 4.3 Which fields (H3, as worded)
 
 Permutation importance: the smallest number of fields reaching 80% of the total
@@ -206,7 +220,7 @@ boosted model on the local rows alone is as good or better than pooling at every
 ## 5 Limitations
 
 One test year (2024) for H1, H3, H4, H5; three seeds (two for conformal); one fixed
-configuration per library (defaults, untuned); the neural net in the proposal is not run; the
+configuration per library (defaults, untuned); the neural net (4.6) is one untuned architecture; the
 harmonised class map is a keyword rule not validated against hand labels; Chicago
 is survivorship-biased and has no i2c; "completed" is a status date; the spread over
 draws in 4.5 is not reported; i2c is not rerun for H5b; no fourth city (NYC DOB NOW
@@ -222,7 +236,7 @@ tighter quantile levels (4.2a) can halve the width, but pick them with drift in 
 
 ## 7 To do before submission
 
-1. A neural net baseline; per-library tuning (Austin a2i CatBoost gap).
+1. Tune the neural net and libraries; per-library tuning (Austin a2i CatBoost gap).
 2. A year-ahead (Y-2 versus Y-1) calibration check for the quantile pair (4.2b did not solve Chicago); (H2g now run for every city and target that has one; see 4.2c).
 3. Spread over draws and i2c for 4.5; first-n-rows ordering instead of random draws.
 4. Multiple test years for H1; a fourth city after a licence check.
