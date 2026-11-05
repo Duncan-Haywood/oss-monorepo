@@ -5,7 +5,7 @@ import {
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, scheduleCalendarCsv, seasonGrid, seasonGridCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, officialMessages, leaguePageHtml, scoreSheetsHtml, parseTimeLimits, parseCourtLimits, parseCourtClosures, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
   weeklyUpdate, splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, oneDayTimetable, oneDayText, parseGrounds, groundClashes, applyGroundSharing, parseLinkedTeams, linkedClashes, separateLinkedTeams,
-  blackoutsFromCsv
+  blackoutsFromCsv, forfeitReport
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -2127,4 +2127,14 @@ test("blackoutsFromCsv reads a coach form export for one division, merges repeat
   assert.match(blackoutsFromCsv("Name,Dates\nx,y\n", teams).errors[0], /No team column/);
   assert.match(blackoutsFromCsv("Team,Colour\nHawks,red\n", teams).errors[0], /No date column/);
   assert.match(blackoutsFromCsv("Team,Dates\n", teams).errors[0], /header row/);
+});
+
+test("forfeitReport: counts walkover losses and flags teams at the limit", () => {
+  const teams = ["Hawks", "Owls", "Fox"];
+  const pr = parseResults("Hawks w/o Owls\nFox w/o Owls\nHawks 2 - 1 Fox\nOwls w/o Fox", teams);
+  const r = forfeitReport(teams, pr.results);
+  assert.deepEqual(r.rows, [{ team: "Owls", forfeits: 2 }, { team: "Fox", forfeits: 1 }]);
+  assert.deepEqual(r.flagged, ["Owls"]);
+  assert.deepEqual(forfeitReport(teams, pr.results, { limit: 1 }).flagged, ["Owls", "Fox"]);
+  assert.deepEqual(forfeitReport(teams, []).rows, []);
 });
