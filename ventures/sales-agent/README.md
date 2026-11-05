@@ -228,7 +228,9 @@ the quote. Notes are agent-written, not real calls.
 
 **Terse replies (2026-11-05).** A fresh 30-reply set of mobile-style phrasings went 23/30 after fixing two of my own labels, 0 overreach, 0 opt-outs missed; seven phrasings patched ("call me on", "send me 2-3 times", "sounds expensive", "I don't trust AI", "inbox is no longer monitored", "we're not the right company"), 30/30 on a set I tuned against, no older set fell (`eval/README.md`). Agent-written, unscored on real mail.
 
-**Threats and handovers (2026-11-04).** A 27-phrasing probe found legal threats ("my lawyer will be in touch"), block/report threats, "stop mailing/texting me" and Italian "smettete di contattarmi" in unclear, and "forwarding this to our head of logistics" drafting a reply as interest. The first are now unsubscribes, the last a wrong-person hand-off (`engine.test.mjs`, with look-alikes pinned as not opt-outs). Agent-written, unscored on real mail. Still unclear: "mailbox full" soft bounces (left to a person).
+**Threats and handovers (2026-11-04).** A 27-phrasing probe found legal threats ("my lawyer will be in touch"), block/report threats, "stop mailing/texting me" and Italian "smettete di contattarmi" in unclear, and "forwarding this to our head of logistics" drafting a reply as interest. The first are now unsubscribes, the last a wrong-person hand-off (`engine.test.mjs`, with look-alikes pinned as not opt-outs). Agent-written, unscored on real mail. 
+
+**Full mailbox (2026-11-05).** A bounce for a full mailbox or quota is tagged `mailbox_full` and its task says the address is probably real: try another channel before dropping the contact. First tried as a soft bounce (not suppressed); 8 of the 117 real bounces in `eval/bounce-corpus` are final notices for a full mailbox, so it stays a bounce. Unit tests plus that corpus; no real campaign.
 
 **Limits.** Rules are tuned for English (opt-outs in about fifteen other languages are probed, not scored). Reads one reply at a time (a stop in the same batch is remembered, but not a full thread). Dates are
 read in US order for `3/4`. It does not connect to a mailbox yet (ROADMAP M4),

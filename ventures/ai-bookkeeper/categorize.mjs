@@ -34,6 +34,14 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 24 (2026-11-05, eval/probe24.mjs): chiropractors, locksmiths, tree services, towing operators, mobile DJs, appliance repair.
+  ["4000", "in", /(blue cross|bcbs|aetna|cigna|unitedhealthcare|humana)\b.*(claim|payment|eft)|autoclub.*(dispatch|tow)|agero|urgent\.ly/],
+  ["6110", "out", /board of chiropractic|locksmith licen[cs]e/],
+  ["6060", "out", /locksmith ledger|arborist software|towbook|serato|jobber|arborgold|chirotouch/],
+  ["6170", "out", /society of arboriculture|\bisa certified arborist/],
+  ["6090", "out", /wood chipper rental/],
+  ["6100", "out", /miller industries|wrecker parts|guitar center|marcone/],
+  ["6000", "out", /gigsalad|gigmasters|thumbtack lead/],
   // Gap probe 23 (2026-11-04, eval/probe23.mjs): drone pilots, cottage bakers, beekeepers, tutors, yoga instructors.
   ["6100", "out", /honey jars?/],
   ["6060", "out", /airmap/],
@@ -107,7 +115,7 @@ export const BUILT_IN = [
   ["6060", "out", /spectora|\btrados\b|\bmemoq\b|\bsmartcat\b|\bdeepl\b/],
   ["6110", "out", /festival vendor/],
   ["4000", "in", /inspection fee|translation payout/],
-  // Gap probe 24 (2026-11-05, eval/probe24.mjs): translators, beekeepers, potters, court reporters, podcasters.
+  // Gap probe 25 (2026-11-05, eval/probe25.mjs): translators, beekeepers, potters, court reporters, podcasters.
   // Seven rows had no suggestion.
   ["6000", "out", /proz\.com/],
   ["6170", "out", /translat\w* (exam|certification)|\bata\b.*exam/],

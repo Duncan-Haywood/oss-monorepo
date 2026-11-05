@@ -425,7 +425,7 @@ export function triage(reply, today) {
   if (signal === "dsn-temporary") return res("out_of_office", { s: "delivery status Status 4.x.x", m: "4.x.x" }, { subtype: "delivery_delayed", why: "delivery delayed, not failed; no address change" });
   if (!signal && /\b(mail delivery warning|has been postponed|continue to try to deliver)\b/i.test(all.join("\n")) && /^(mailer-daemon|postmaster)@|delivery/i.test(from + subject)) return res("out_of_office", { s: all.find((x) => /postponed|delivery warning|continue to try/i.test(x)) || subject, m: "delivery delayed" }, { subtype: "delivery_delayed", why: "delivery delayed, not failed; no address change" });
   if (signal === "auto-reply" && !find("bounce") && !/^(mailer-daemon|postmaster)@/i.test(from)) { const d = (() => { for (const s of all) { const f = findDate(s, today); if (f && /\b(back|return|until|till|away|leave|office)\b/i.test(s)) return f; } return null; })(); return res("out_of_office", { s: "Auto-Submitted header", m: "auto-replied" }, { date: d?.date || null, dateText: d?.text || null, why: "sent by an auto-responder (header), not a person" }); }
-  if ((ev = find("bounce")) || /^(mailer-daemon|postmaster)@/i.test(from)) return res("bounce", ev || { s: from, m: from }, { why: "a delivery failure, not a person" });
+  if ((ev = find("bounce")) || /^(mailer-daemon|postmaster)@/i.test(from)) return res("bounce", ev || { s: from, m: from }, { subtype: /\b(mailbox|inbox|account|disk) (is )?(full|over (its )?quota)|\bquota exceeded\b|\bover quota\b|\btoo much mail\b|\bdisk quota\b/i.test(all.join("\n")) && !/\b(user unknown|no such user|does not exist|address (not found|rejected)|5\.1\.[01])\b/i.test(all.join("\n")) ? "mailbox_full" : null, why: "a delivery failure, not a person" });
   // Footer boilerplate ("To stop these messages unsubscribe in settings", "To unsubscribe click here") inside an auto-reply is
   // the sender's mail system talking, not an opt-out; with no first-person ask it does not outrank the away notice (2026-11-04).
   const boiler = (e) => e && /\b(to|how to) (stop|unsubscribe)\b|\bunsubscribe (in|from|via|using|at|here|link)\b|\bclick (here|the link)\b/i.test(e.s) && !/\bunsubscribe (me|us)\b|\b(remove|take|delete) (me|us|my|our)\b|\bplease (stop|unsubscribe|remove)\b/i.test(e.s);
@@ -602,7 +602,8 @@ export function runInbox(input, { triageFn = triage, guessFn = nbGuess } = {}) {
         break;
       case "bounce":
         set("status", "bounced", "Stopped email to this address");
-        if (reply.failed || (reply.from && !/^(mailer-daemon|postmaster)@/i.test(reply.from))) tasks.push({ email: p.email, task: "Address bounced. Find the right one in your own records; do not guess." });
+        if (t.subtype === "mailbox_full") tasks.push({ email: p.email, task: "Their mailbox is full, so the address is probably still real (a hard bounce, but not a dead address). Email stopped here; try once more in a week through another channel (phone, LinkedIn, a second address from your own records) before dropping this contact." });
+        else if (reply.failed || (reply.from && !/^(mailer-daemon|postmaster)@/i.test(reply.from))) tasks.push({ email: p.email, task: "Address bounced. Find the right one in your own records; do not guess." });
         else tasks.push({ email: "", task: "A delivery failure came back. Match it to the prospect it was sent to and mark that address bounced." });
         break;
       case "not_interested":
