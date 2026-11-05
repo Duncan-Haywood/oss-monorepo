@@ -1,7 +1,7 @@
 ---
 title: "Changepoint Detector's page can now test for a change of growth rate"
 date: 2026-11-05
-description: "A new box on the Changepoint Detector page runs the slope-break test in the browser. On US GDP it matches the CLI: the date is findable, the significance is not."
+description: "A new box on the Changepoint Detector page runs the slope-break test in-browser. On US GDP it matches the CLI: the date is findable, significance is not."
 tags: [changepoint-detector, time-series, slope-breaks]
 ---
 
