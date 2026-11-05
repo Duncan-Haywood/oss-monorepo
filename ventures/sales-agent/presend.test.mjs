@@ -54,3 +54,9 @@ test("empty input fails cleanly", () => {
 test("the word 'short' is not a link shortener", () => {
   assert.ok(!presend({ ...good, body: good.body + " Short note." }).warnings.some((x) => x.rule === "shortener"));
 });
+test("Australia, New Zealand and Switzerland hold for consent; France is a notice; text says from memory", () => {
+  for (const c of ["AU", "NZ", "CH"]) { assert.equal(regime(c).kind, "consent", c); assert.ok(presend({ ...good, country: c }).warnings.some((x) => x.rule === "consent"), c); }
+  assert.equal(regime("fr").kind, "notice");
+  assert.ok(presend({ ...good, country: "FR" }).warnings.some((x) => x.rule === "regime"));
+  for (const c of ["AU", "NZ", "FR", "CH"]) assert.match(regime(c).text, /from memory/);
+});

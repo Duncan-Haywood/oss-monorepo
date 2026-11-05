@@ -13,13 +13,17 @@ export const REGIMES = {
   GB: "PECR: to a company address you may send B2B marketing if you identify yourself and offer an opt-out; to a sole trader or partnership treat it like a consumer.",
   DE: "UWG section 7: unsolicited marketing email needs prior consent, including to businesses. Hold cold email.",
   AT: "TKG section 174: unsolicited marketing email needs prior consent. Hold cold email.",
+  AU: "Spam Act 2003 (from memory, statute unread): commercial email needs consent (express, or inferred from a published work address related to your offer), a clear sender identity and a working unsubscribe. Hold cold email unless the address is published for business contact.",
+  NZ: "Unsolicited Electronic Messages Act 2007 (from memory, statute unread): needs consent (a published work address can imply it), sender identity and an unsubscribe facility.",
+  FR: "CPCE L34-5 and CNIL guidance (from memory, texts unread): B2B email to a professional address is tolerated if the offer relates to the person's role, they were told at collection and can opt out for free. Otherwise hold.",
+  CH: "UWG art. 3(1)(o) (from memory, text unread): mass advertising email needs prior consent, a sender identity and a free opt-out. Hold cold email.",
   EU: "ePrivacy rules differ by country; many want consent or an existing relationship. Check the recipient's country before sending."
 };
 export function regime(country) {
   const c = String(country || "").trim().toUpperCase();
   if (!c) return { code: "", kind: "unknown", text: "No recipient country given, so only the checks that apply everywhere ran." };
   if (c === "UK") return regime("GB");
-  if (REGIMES[c]) return { code: c, kind: c === "DE" || c === "AT" || c === "CA" ? "consent" : "notice", text: REGIMES[c] };
+  if (REGIMES[c]) return { code: c, kind: c === "DE" || c === "AT" || c === "CA" || c === "AU" || c === "NZ" || c === "CH" ? "consent" : "notice", text: REGIMES[c] };
   if (EU_CONSENT.has(c)) return { code: c, kind: "consent", text: REGIMES.EU };
   return { code: c, kind: "unknown", text: `No rule of thumb recorded for ${c}; check local law before sending.` };
 }
