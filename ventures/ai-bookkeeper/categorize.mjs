@@ -107,6 +107,13 @@ export const BUILT_IN = [
   ["6060", "out", /spectora|\btrados\b|\bmemoq\b|\bsmartcat\b|\bdeepl\b/],
   ["6110", "out", /festival vendor/],
   ["4000", "in", /inspection fee|translation payout/],
+  // Gap probe 24 (2026-11-05, eval/probe24.mjs): translators, beekeepers, potters, court reporters, podcasters.
+  // Seven rows had no suggestion.
+  ["6000", "out", /proz\.com/],
+  ["6170", "out", /translat\w* (exam|certification)|\bata\b.*exam/],
+  ["6100", "out", /laguna clay|\bskutt\b|\bamaco\b|stenograph/],
+  ["6110", "out", /court reporter licen[cs]e/],
+  ["4000", "in", /deposition transcript|transcript fee/],
   // Gap probe 11 (2026-10-31, eval/probe11.mjs): pressure washers, jewelry makers, mobile notaries, sign shops, beekeepers.
   // First in the list: a notary bond hit the legal-fees rule and a craft-show booth fee the platform-fee rule.
   ["6030", "out", /notary (public )?bond|notary errors/],
