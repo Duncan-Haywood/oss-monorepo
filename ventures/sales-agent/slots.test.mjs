@@ -76,3 +76,14 @@ test("'the day after tomorrow' is two days on", () => {
   assert.deepEqual(f("day after tomorrow morning"), [["2026-11-07", null, "morning"]]);
   assert.deepEqual(f("can't do the day after tomorrow"), []);
 });
+
+test("'today' needs a time or part of day; 'in N days' counts forward", () => {
+  const f = (t) => findSlots(t, "2026-11-05").map((s) => [s.date, s.time, s.part]);
+  assert.deepEqual(f("Free today at 4pm?"), [["2026-11-05", "16:00", null]]);
+  assert.deepEqual(f("later today afternoon works"), [["2026-11-05", null, "afternoon"]]);
+  assert.deepEqual(f("Thanks for reaching out today, will think"), []);
+  assert.deepEqual(f("can't do today at 4pm"), []);
+  assert.deepEqual(f("in 3 days at 10am"), [["2026-11-08", "10:00", null]]);
+  assert.deepEqual(f("in a week, morning"), [["2026-11-12", null, "morning"]]);
+  assert.deepEqual(f("in 30 days"), []);
+});
