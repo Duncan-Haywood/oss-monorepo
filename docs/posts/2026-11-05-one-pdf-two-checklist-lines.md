@@ -1,6 +1,8 @@
 ---
 title: "One PDF, two checklist lines: what a permit preflight should not count twice"
 date: 2026-11-05
+tags: [construction, permits, permit-packet-preflight]
+description: "A combined plan-set PDF can satisfy several permit checklist lines at once; the preflight now flags a file matched twice and weak name matches instead of counting it clean."
 ---
 
 Permit packets often arrive as one combined plan set. A name matcher that lets
