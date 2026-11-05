@@ -1112,3 +1112,15 @@ test("divisionsFacilityCost: court-hours x rate by hand, unpriced venues left ou
   assert.throws(() => divisionsFacilityCost(s, "", { extra: -1 }), /Extra costs/);
   assert.equal(divisionsFacilityCost({ nights: [] }, "").total, 0);
 });
+
+test("divisionsFacilityCost: a decimal comma is not a thousand, a per-season or per-night quote is left unpriced", () => {
+  const m = (court, time, venue) => ({ division: "A", court, time, venue, homeName: "a", awayName: "b" });
+  const s = { divisions: [{ name: "A", teams: ["1", "2"] }], nights: [{ day: 1, matches: [m("C1", "18:00", "Park"), m("C1", "19:00", "Park")] }] };
+  const cost = (rates) => divisionsFacilityCost(s, rates).venues[0];
+  assert.equal(cost("Park: 45,50/court-hour").rate, 45.5);
+  assert.equal(cost("Park: €45,5 per hour").rate, 45.5);
+  assert.equal(cost("Park: $1,200").rate, 1200);
+  assert.equal(cost("Park: $1,200.50/hr").rate, 1200.5);
+  assert.equal(cost("Park: 45/court-hour").cost, 90);
+  for (const q of ["Park: $900/season", "Park: 300 per night", "Park: 50 flat", "Park: 20/game"]) assert.equal(cost(q).rate, null, q);
+});

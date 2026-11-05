@@ -1367,11 +1367,20 @@ export function divisionsBookings(schedule, { minutes = 60 } = {}) {
  * Returns { venues: [{ venue, courtHours, rate, cost }], unpriced, total, teams, perTeam, divisions, text }.
  */
 export function divisionsFacilityCost(schedule, rates, { minutes = 60, extra = 0, split = "team" } = {}) {
-  const num = (v) => { const n = Number(String(v).replace(/[$,]/g, "")); return Number.isFinite(n) && n >= 0 ? n : null; };
+  // "1,200" is twelve hundred, "45,50" is forty-five and a half (a decimal comma), never 4550.
+  const num = (v) => {
+    let t = String(v).replace(/[$€£\s]/g, "");
+    if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(t)) t = t.replace(/,/g, "");
+    else if (/^\d+,\d{1,2}$/.test(t)) t = t.replace(",", ".");
+    const n = Number(t); return Number.isFinite(n) && n >= 0 ? n : null;
+  };
   const rateOf = new Map();
   for (const line of String(rates || "").split(/\r?\n/)) {
-    const m = line.match(/^\s*(.+?)\s*[:=]\s*\$?\s*([\d,]+(?:\.\d+)?)/);
-    if (m && num(m[2]) !== null) rateOf.set(m[1].trim().toLowerCase(), num(m[2]));
+    const m = line.match(/^\s*(.+?)\s*[:=]\s*[$€£]?\s*(\d[\d,]*(?:\.\d+)?)(.*)$/);
+    if (!m || num(m[2]) === null) continue;
+    // a rate quoted per day, night, game, season or month is not an hourly rate: leave the venue unpriced rather than guess
+    if (/\/\s*(day|night|game|match|season|month|week|team)|per\s+(day|night|game|match|season|month|week|team)|flat/i.test(m[3])) continue;
+    rateOf.set(m[1].trim().toLowerCase(), num(m[2]));
   }
   if (!Number.isFinite(extra) || extra < 0) throw new Error("Extra costs must be zero or more.");
   const hhmm = (t) => { const [h, mi] = t.split(":").map(Number); return h * 60 + mi; };
