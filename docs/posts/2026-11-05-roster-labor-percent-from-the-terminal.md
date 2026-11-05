@@ -3,7 +3,7 @@ title: "Labor cost as a share of sales, from the command line"
 seo_title: "Labor cost percentage by day from a shift roster (free CLI)"
 date: 2026-11-05
 tags: [shift-roster-builder, scheduling, restaurants, cli]
-description: "The shift roster builder's CLI now prints each day's labor cost as a share of sales, flags days over a target, and compares hours with a sales-per-labor-hour line."
+description: "The shift roster builder's CLI now prints each day's labor cost as a share of sales, flags days over a target, and compares hours with sales per labor hour."
 ---
 
 The [shift roster builder](../../ventures/shift-roster-builder/README.md) page has long shown labor cost against sales for each day. The command line could not, so anyone running the Sunday cron or a script had to open the page for the one number a restaurant or shop owner watches.
