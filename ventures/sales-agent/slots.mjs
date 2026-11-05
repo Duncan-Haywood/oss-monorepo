@@ -36,6 +36,7 @@ export function findSlots(text, today) {
   for (const m of src.matchAll(re1)) {
     if (bare.test(src.slice(Math.max(0, m.index - 30), m.index))) continue; // "can't do Tuesday"
     const w = m[2].toLowerCase();
+    if (w === "tomorrow" && /day after $/i.test(src.slice(Math.max(0, m.index - 10), m.index))) continue; // handled below
     // a bare number after a day ("Friday 2 people") counts only with am/pm, a colon or "at"
     const timed = m[4] && (m[6] || m[5] || /\b(at|around|about)\b|@/i.test(m[0]));
     const time = timed ? clock(m[4], m[5], m[6]) : null;
@@ -87,6 +88,16 @@ export function findSlots(text, today) {
     const time = m[2] ? clock(m[2], m[3], m[4]) : null;
     if (!date || (m[2] && !time)) continue;
     push({ text: m[0].trim(), date, weekday: DAYS[new Date(`${date}T00:00:00Z`).getUTCDay()], time, after: null, ambiguous: false, part: null });
+  }
+  // "the day after tomorrow at 3pm": two days on
+  const re5 = new RegExp(`\\b(?:the )?day after tomorrow\\b(?:,? ?(?:${PART}|${TIME_RE}))?`, "gi");
+  for (const m of src.matchAll(re5)) {
+    if (bare.test(src.slice(Math.max(0, m.index - 30), m.index))) continue;
+    const timed = m[2] && (m[4] || m[3] || /\b(at|around|about)\b|@/i.test(m[0]));
+    const time = timed ? clock(m[2], m[3], m[4]) : null;
+    if (timed && !time) continue;
+    const date = add(today, 2);
+    push({ text: m[0].trim(), date, weekday: DAYS[new Date(`${date}T00:00:00Z`).getUTCDay()], time, after: null, ambiguous: false, part: m[1] ? m[1].toLowerCase() : null });
   }
   return out.slice(0, 3);
 }
