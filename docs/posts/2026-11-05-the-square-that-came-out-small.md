@@ -1,5 +1,6 @@
 ---
 title: "The Square That Came Out Small: why a knitting pattern's stitch count isn't its size"
+seo_title: "The Square That Came Out Small"
 date: 2026-11-05
 tags: [fiction, hearth-and-horizon, knitting]
 description: "A new Hearth & Horizon story about gauge: the same 40 stitches make a 16.7, 20 or 22 cm square, depending on the hands."

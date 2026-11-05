@@ -1,5 +1,6 @@
 ---
 title: "A cowherd who could not sing: a new Little Lamps story about Hilda of Whitby"
+seo_title: "A cowherd who could not sing"
 date: 2026-11-05
 tags: [hearth-and-horizon, little-lamps, stories]
 description: "A bedtime story for ages 3 to 8 about Saint Hilda and Caedmon, told from Bede, with the dream marked as his report."

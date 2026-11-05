@@ -1,5 +1,6 @@
 ---
 title: "The Verge That Looked Thin: how many daffodil bulbs a bag label really covers"
+seo_title: "The Verge That Looked Thin"
 date: 2026-11-05
 tags: [fiction, hearth-and-horizon, gardening]
 description: "A new Hearth & Horizon story: a bag of 50 bulbs 'covers 2 m2', which is a drift 20 cm apart, not a carpet. A carpet takes 2.7 times the bulbs."

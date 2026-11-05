@@ -1,5 +1,6 @@
 ---
 title: "Flooring now prices into the framing budget, and a silent drop is fixed"
+seo_title: "Flooring now prices into the framing budget"
 date: 2026-11-05
 tags: [construction, wall-framing-takeoff, budget]
 description: "Plank, tile and carpet orders join the wall-framing-takeoff budget with a labor rate, and a bug that dropped them when sheathing nailers were added is fixed."
