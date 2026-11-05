@@ -534,6 +534,7 @@ the sources, and mark legend as legend)
 - *(Done: Anthony and the Sermon to the Fishes, 13 June; the sermon to the fish at Rimini told as legend (Fioretti, later than the earliest Life), life in outline, lost-things devotion as custom; text only.)* Saint Anthony of Padua speaks kindly to people who won't listen.
 - *(Done: Hilda and the Cowherd Who Could Not Sing, 17 November; Caedmon's dream told as Bede's report (Ecclesiastical History IV.24, about 731); text only because audio was over the 400 MB cap.)*
 - *(Done: Frances Cabrini and the Big Water, 13 November; history plus her memoirs and early biographies (fear of water, paper boats, the Pope's redirection) told as remembered, the Pope paraphrased; about thirty crossings kept approximate; text only.)* Saint Frances Cabrini, afraid of deep water, crosses the Atlantic for immigrant children.
+- *(Done: Thirty-Seven Bags for Twelve Posts, Saint Conan's Close (invented), near Ramsey, Isle of Man, Sat 14 Mar 2048; text only.)* Fence-post concrete: hole 0.3 m across x 0.6 m deep = 0.0424 m3 less 0.006 m3 post = 36.4 L each, x12 = 437 L = 36.4 bags at 12 L per 25 kg bag (from memory), so 37; a 0.4 m hole is 69.4 L each, 833 L, 69.4 bags (area goes with width squared, 1.78x); burial third and bag yield quoted from memory (all figures illustrative).
 
 ## What not to do
 
