@@ -44,3 +44,11 @@ test("one shift-range column is split into start and end (2026-11-04)", () => {
   assert.equal(bad.rows, 0);
   assert.match(bad.skipped[0], /could not split/);
 });
+
+test("in/out and time in/time out headers are read as start and end", () => {
+  const r = importShiftsCsv("Date,In,Out,Position Name\n2026-11-02,7:00 AM,3:00 PM,Cook\n");
+  assert.equal(r.rows, 1);
+  assert.match(r.shiftsText, /Mon, 7:00, 15:00, 1, , cook/);
+  const q = importShiftsCsv("Date,Time In,Time Out,Role Name\n2026-11-02,7:00,15:00,Bar\n");
+  assert.equal(q.rows, 1);
+});
