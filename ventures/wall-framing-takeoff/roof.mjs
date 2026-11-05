@@ -254,7 +254,27 @@ function layoutHip(r, plan) {
  * @param {Roof} r
  * @param {{ stock: { size: string, length: number, price: number }[], kerf?: number }} plan
  */
+/**
+ * Roof sheathing nails: per sheet, edge nails at `sheet.edgeNailSpacing` (default 6 in) round the perimeter plus field nails at
+ * `sheet.fieldNailSpacing` (default 12 in) along each intermediate support (a rafter or truss every `spacing` in across the sheet width),
+ * all rounded up, times the sheet count and 10% waste. Counts nails only: the nail size and the code's nailing schedule are yours.
+ */
+function sheathingNails(l, r) {
+  if (!l || l.ok === false || !l.sheets?.count) return l;
+  const sh = r.sheet || {}, W = sh.width ?? SHEET.width, L = sh.length ?? SHEET.length;
+  const edge = sh.edgeNailSpacing ?? 6, field = sh.fieldNailSpacing ?? 12, sp = r.spacing ?? r.trusses?.spacing ?? 24;
+  const lines = Math.max(0, Math.ceil(W / sp - 1e-9) - 1);
+  const perSheet = Math.ceil(2 * (W + L) / edge - 1e-9) + lines * Math.ceil(L / field - 1e-9);
+  const nails = Math.ceil(perSheet * l.sheets.count * 1.1 - 1e-9);
+  const notes = [...l.notes, `Roof sheathing nails: ${perSheet} per sheet (edges at ${edge} in, ${lines} intermediate support line${lines === 1 ? "" : "s"} at ${field} in), 10% waste; a typed rule, not a code schedule.`];
+  return { ...l, notes, sheets: { ...l.sheets, nailsPerSheet: perSheet, nails } };
+}
+
 export function layoutRoof(r, plan) {
+  return sheathingNails(layoutRoofCore(r, plan), r);
+}
+
+function layoutRoofCore(r, plan) {
   const errors = validateRoof(r, plan);
   if (errors.length) return { ok: false, errors };
   if (r.shape === "hip") return layoutHip(r, plan);
@@ -546,7 +566,7 @@ export function roofText(l) {
   if (l.shape !== "hip" && !l.trusses) out.push(`  ${l.rafters.length} ${l.rafterSize} rafters of ${formatInches(l.rafterLength)} at ${l.spacing} o.c., ${l.ridges.length} ridge board${l.ridges.length === 1 ? "" : "s"}${l.ceilingJoists.length ? `, ${l.ceilingJoists.length} ceiling joists` : ""}${l.collarTies.length ? `, ${l.collarTies.length} collar ties` : ""}`);
   for (const wg of l.wings || []) out.push(`  Cross wing ${formatLength(wg.width)} x ${formatLength(wg.projection)}: ${wg.rafters} wing rafters, ${wg.jacks} valley jacks, ${wg.valleys} ${wg.valleySize} valleys of ${formatInches(wg.valleyLength)}, ridge ${formatInches(wg.ridgeRise)} over its plates and ${formatInches(wg.ridgeBelowMain)} below the main ridge, ${wg.ridges} wing ridge board${wg.ridges === 1 ? "" : "s"}${wg.collarTies ? `, ${wg.collarTies} wing collar ties` : ""}`);
   if (l.wing) out.push(`  ${l.rafters.filter((x) => x.kind).length} main rafters end at a valley`);
-  out.push(`  Roof sheathing: ${l.sheets.count} sheets of ${SHEET.width} x ${SHEET.length} in for ${l.sheets.area.toFixed(0)} sq ft (${(100 * l.sheets.waste).toFixed(1)}% offcut)`);
+  out.push(`  Roof sheathing: ${l.sheets.count} sheets of ${SHEET.width} x ${SHEET.length} in for ${l.sheets.area.toFixed(0)} sq ft (${(100 * l.sheets.waste).toFixed(1)}% offcut)${l.sheets.nails ? `, ${l.sheets.nails} nails` : ""}`);
   for (const c of l.courses) out.push(`    ${c.plane ? `${c.plane} planes, ` : ""}course at ${formatLength(c.y)} up the slope (${formatInches(c.width)} wide): ${c.pieces.map((p) => formatInches(p.length)).join(" + ")}`);
   const g = l.roofing;
   out.push(`  Roofing: ${g.squares.toFixed(1)} squares -> ${g.shingleBundles} bundles of shingles, ${g.underlaymentRolls} rolls of underlayment, ${g.dripEdgePieces} drip edge pieces, ${g.ridgeBundles} ridge cap and ${g.starterBundles} starter bundles, ${g.nailLb.toFixed(0)} lb of roofing nails (${g.nailBoxes} box${g.nailBoxes === 1 ? "" : "es"})${g.iceShieldRolls ? `, ${g.iceShieldRolls} roll${g.iceShieldRolls === 1 ? "" : "s"} of ice and water shield at the eaves (${g.iceShieldArea.toFixed(0)} sq ft)` : ""}`);
