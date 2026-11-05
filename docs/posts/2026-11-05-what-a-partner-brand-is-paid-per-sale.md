@@ -2,7 +2,7 @@
 title: "What a partner brand is paid per sale, and who carries the card fee"
 seo_title: "Multi-brand clothing shop commission: payout per sale and settlement"
 date: 2026-11-05
-tags: [clothing-design-studio, marketplace, product]
+tags: [clothing-design-studio, marketplaces, product]
 description: "A commission calculator and settlement statement for a clothing shop that sells other brands: VAT, commission, card fees and refunds worked through."
 ---
 
