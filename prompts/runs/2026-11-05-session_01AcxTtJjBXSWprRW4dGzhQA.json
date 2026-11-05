@@ -32,7 +32,7 @@
   "doc_friction": [],
   "deviations": [],
   "writeups": [
-    "docs/posts/2026-11-06-flooring-fuzz-found-an-infinite-cost.md"
+    "docs/posts/2026-11-05-flooring-fuzz-found-an-infinite-cost.md"
   ],
   "goal": null,
   "notes": "Flagship 1 slice: flooring fuzz test found unvalidated tackStripLength (0 gave Infinity cost); fixed. node --test on flooring tests 9/9. venture-preflight and full CI not run locally.",

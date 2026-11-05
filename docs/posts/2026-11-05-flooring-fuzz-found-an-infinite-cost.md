@@ -1,7 +1,7 @@
 ---
 title: "A fuzz test found an infinite carpet bill"
-seo_title: "Fuzz testing a flooring takeoff: tack strip length of zero gave an infinite cost"
-date: 2026-11-06
+seo_title: "Fuzz testing a flooring takeoff: a zero tack strip gave infinite cost"
+date: 2026-11-05
 tags: [wall-framing-takeoff, testing, flooring]
 description: "A random-input test on the flooring takeoff found that a tack strip length of 0 priced a carpet order at infinity, and a negative one at below zero."
 ---
