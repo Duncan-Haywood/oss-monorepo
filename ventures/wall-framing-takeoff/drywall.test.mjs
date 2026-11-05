@@ -180,3 +180,16 @@ test("ceiling step: a 10 ft soffit face 12 in deep on an 8 ft-sheet job: 2 runs 
   assert.equal(l.finishing.seamFt - base.finishing.seamFt, 1);
   assert.ok(validateDrywall({ ceiling: [{ width: 192, depth: 96, steps: [{ length: 120, drop: 80 }] }] }).length);
 });
+
+test("a wall with its own studLength hangs to its own height (9 ft wall beside an 8 ft one)", () => {
+  // 104.625 in studs + 3 plates of 1.5 in = 109.125 in, to the foot = 108 in; courses 48 + 48 + 12
+  const l = layoutDrywall({}, plan([{ id: "A", length: 192 }, { id: "B", length: 192, studLength: 104.625 }]));
+  assert.ok(l.ok);
+  assert.equal(l.netSqFt, 192 * 96 / 144 + 192 * 108 / 144); // 128 + 144
+  const rip = l.bandSheets.find((b) => b.band === 12);
+  assert.equal(rip.runs, 1); // only wall B has the 12 in course: one 192 in run
+  assert.equal(l.walls[1].netSqFt, 144);
+  // a typed hang height still wins for every wall
+  const t = layoutDrywall({ height: 96 }, plan([{ id: "B", length: 192, studLength: 104.625 }]));
+  assert.equal(t.netSqFt, 128);
+});
