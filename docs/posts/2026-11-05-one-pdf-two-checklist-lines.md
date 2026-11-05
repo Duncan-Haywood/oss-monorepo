@@ -1,5 +1,6 @@
 ---
 title: "One PDF, two checklist lines: what a permit preflight should not count twice"
+seo_title: "One PDF, two checklist lines"
 date: 2026-11-05
 tags: [construction, permits, permit-packet-preflight]
 description: "One combined plan-set PDF can satisfy several permit checklist lines; the preflight now flags a file matched twice and weak name matches rather than passing it."

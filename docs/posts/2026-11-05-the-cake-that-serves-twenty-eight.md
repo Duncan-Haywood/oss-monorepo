@@ -1,5 +1,6 @@
 ---
 title: "The Cake That Serves Twenty-Eight: why the cut decides how many a cake feeds"
+seo_title: "The Cake That Serves Twenty-Eight"
 date: 2026-11-05
 tags: [fiction, hearth-and-horizon, baking]
 description: "A new Hearth & Horizon story: a 30 cm cake 'serves 28' at 5x5 cm. Cut in rings at half that size it feeds 55; a 20 cm spare brings it to 79."

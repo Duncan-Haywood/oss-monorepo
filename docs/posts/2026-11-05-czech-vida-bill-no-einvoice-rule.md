@@ -1,5 +1,6 @@
 ---
 title: "Czech Republic: the VAT bill moving through parliament has no e-invoicing rule"
+seo_title: "Czech VAT bill has no e-invoicing rule yet"
 date: 2026-11-05
 description: "The Czech ViDA VAT bill (tisk 218) is reported to contain no domestic e-invoicing rule, so B2B e-invoicing there is still unenacted."
 tags: [einvoice-preflight, czech-republic]

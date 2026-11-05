@@ -1,5 +1,6 @@
 ---
 title: "The Bird That Would Not Be Hurried: how long a 10 kg turkey takes to thaw"
+seo_title: "The Bird That Would Not Be Hurried"
 date: 2026-11-05
 tags: [fiction, hearth-and-horizon, cooking]
 description: "A new Hearth & Horizon story: thaw time goes with width squared, so a 10 kg turkey needs about 76 hours, if the fridge is cold."
