@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-05 · Milestone 7r: 5l and 5m folded into the paper draft and README (no experiment run)
+- Why: `paper/DRAFT.md` and the README stopped at 5k. Added a 5l/5m paragraph to each; every number is copied from the 5l and 5m entries and their result files.
+- Limits: prose only; no new numbers.
+- Next: hourly-cycle HRRR fetch (1 h latency); then stop the wing-sail sub-programme on archived NWP and return to the milestone 6 fleet comparison.
 ## 2026-11-05 · Milestone 5m: does correcting buoy winds to 10 m close 5k's raw-HRRR gap? (closes 5k's "Next"; exploratory, prediction informal)
 - Why: 5k compared HRRR 10 m winds with buoy anemometers at 4 to 5 m, so part of HRRR's +0.6 to +0.9 m/s speed bias could be height. `run_sail_hrrr_buoy.py` now takes `BUOY_Z` (anemometer height, m) and scales observed speeds by the neutral log law to 10 m (z0 = 1.5e-4 m; factor 1.090 at 4 m, 1.067 at 5 m). Outputs: `experiments/results_sail_hrrr_buoy_z4.txt`, `_z5.txt` (about 3 minutes each). Heights are swept, not sourced per buoy (NDBC pages are not reachable from this session), so this is a bound on the height effect, not a station-exact correction.
 - Expectation held before the run (informal): the speed bias shrinks to near zero and raw HRRR gains at least 0.5 points against the header-follower in July.
