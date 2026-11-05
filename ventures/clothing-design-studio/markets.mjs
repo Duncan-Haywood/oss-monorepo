@@ -70,3 +70,35 @@ export function marketPrices(input, plan = DEFAULT_PLAN, sheetCurrency = "EUR") 
   }
   return out;
 }
+
+/** The EU-wide cross-border B2C threshold for sellers established in one EU country (Directive (EU) 2017/2455), in EUR. */
+export const EU_DISTANCE_SELLING_THRESHOLD_EUR = 10000;
+
+/**
+ * Where a small EU seller stands against the EUR 10,000 cross-border threshold.
+ * Below it the seller's home VAT may be charged on sales to other EU countries;
+ * above it (the sale that crosses it, and all after) the shopper's own country's
+ * VAT applies, usually reported through the One-Stop Shop. Applies only to sellers
+ * established in a single EU country; UK, US or other sellers are outside it.
+ * Counts net sales (without VAT) to shoppers in OTHER EU countries, in EUR,
+ * this and last calendar year. A summary of the rule, not tax advice.
+ * @param {{euCrossBorderSalesEur:number, priorYearEur?:number, plannedExtraEur?:number}} input
+ */
+export function ossThreshold({ euCrossBorderSalesEur, priorYearEur = 0, plannedExtraEur = 0 }) {
+  const nums = [euCrossBorderSalesEur, priorYearEur, plannedExtraEur];
+  if (nums.some(n => !Number.isFinite(n) || n < 0)) return { error: "Sales must be zero or more." };
+  const projected = euCrossBorderSalesEur + plannedExtraEur;
+  const T = EU_DISTANCE_SELLING_THRESHOLD_EUR;
+  const over = euCrossBorderSalesEur > T || priorYearEur > T;
+  const willCross = !over && projected > T;
+  return {
+    thresholdEur: T, thisYearEur: euCrossBorderSalesEur, priorYearEur, projectedEur: projected,
+    headroomEur: Math.max(0, T - euCrossBorderSalesEur),
+    status: over ? "over" : willCross ? "will-cross" : "under",
+    message: over
+      ? "Over EUR 10,000 (this or last year): charge each shopper's own country's VAT, usually registering for the One-Stop Shop."
+      : willCross
+        ? "Your plan crosses EUR 10,000 this year: the sale that crosses it must carry the shopper's country VAT. Prepare registration before then."
+        : "Under EUR 10,000: your home VAT may apply to other EU sales. You can still opt in to destination VAT.",
+  };
+}
