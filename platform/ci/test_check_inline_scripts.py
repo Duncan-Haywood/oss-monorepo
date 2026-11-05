@@ -63,3 +63,17 @@ class InlineScripts(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Screen(unittest.TestCase):
+    def test_screen_returns_only_failing_indices(self):
+        import check_inline_scripts as c
+        self.assertEqual(c.screen([]), [])
+        self.assertEqual(c.screen([("var a=1;", False), ("function (", False)]), [1])
+
+    def test_screen_falls_back_to_every_item_when_node_fails(self):
+        from unittest import mock
+        import check_inline_scripts as c
+        fake = mock.Mock(returncode=1, stdout="[]")
+        with mock.patch.object(c.subprocess, "run", return_value=fake):
+            self.assertEqual(c.screen([("a", False), ("b", False)]), [0, 1])
