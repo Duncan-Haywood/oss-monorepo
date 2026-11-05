@@ -660,6 +660,21 @@ URL:https://example.invalid/einvoice-preflight/singapore-invoicenow-e-inv
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:3cc5107333621c7e@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20260506
+DTEND;VALUE=DATE:20260507
+SUMMARY:Qatar: Council of Ministers approved a draft e-invoicing law and 
+ executive regulations on 6 Ma...
+DESCRIPTION:Qatar (Draft law approved; not yet in force). Council of Mini
+ sters approved a draft e-invoicing law and executive regulations on 6 Ma
+ y 2026. Detail and sources: https://example.invalid/einvoice-preflight/q
+ atar-e-invoice-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/qatar-e-invoice-mandate.ht
+ ml
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:8bef4679c2e35714@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20260601
