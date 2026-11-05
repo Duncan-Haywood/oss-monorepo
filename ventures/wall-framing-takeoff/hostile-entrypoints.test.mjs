@@ -32,3 +32,12 @@ for (const bad of [null, undefined, 5, {}]) {
     assert.doesNotThrow(() => parseStep(/** @type {any} */ (bad)));
   });
 }
+
+import { planFromSketch } from "./sketch.mjs";
+for (const bad of [null, undefined, 5, "x", {}, { walls: 3 }]) {
+  test(`planFromSketch refuses ${JSON.stringify(bad)}`, () => {
+    const r = planFromSketch(/** @type {any} */ (bad));
+    assert.equal(r.ok, false);
+    assert.ok(r.errors.length);
+  });
+}
