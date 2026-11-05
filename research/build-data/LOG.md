@@ -1,5 +1,12 @@
 # build-data log
 
+## Session 28, 2026-11-05: milestone 24 attempt, Austin a2i with the H2g backtest rules; not finished (compute), no result changed
+
+Plan (before running): the same grid and backtest as session 27 on Austin a2i for test years 2021 to 2024, then `conformal_tau_backtest.py austin`. Pre-registered: coverage in 77 to 83% in at least 2 of 3 test years (2022 to 2024) and width at least 15% below (0.1, 0.9). Prior 40%: Austin's same-day share is only 6%, so its a2i target is far less zero-inflated than Chicago's or SF's and the pair choice matters less.
+Done: fresh Austin pull (2,383,621 rows; 2,184,800 completed; 1,190,329 with cost; 860 negative issue lags; the loader's `issued` column still counts every row, the known item from session 5). `src/conformal_tau_backtest.py` now takes city names (`python3 src/conformal_tau_backtest.py austin`; default unchanged, still prints 3 of 6 inside, 6 of 6 narrower for Chicago and SF).
+Outcome: **no Austin result.** Four parallel `conformal_tau_drift_run.py` jobs (3 seeds) ran 2 hours with no output; a restart with 1 seed ran 78 minutes more on 4 cores (each job sets `num_threads=4`, so 4 jobs oversubscribed 4 cores) and wrote nothing. Both were stopped. Each job fits 9 quantile models and one classifier on 1.5M+ training rows at 300 rounds. `results/` is unchanged.
+Next: run one test year at a time (no oversubscription), or set `n_max` lower and `min_data_in_leaf` higher for Austin and say so in the table; start 2023 and 2024 first, since 2024 needs 2023 for the backtest.
+
 ## Session 27, 2026-11-05: milestone 23, H2g: choose the tau pair with a one-year backtest (planned before running)
 
 Session 25's calibration-only rules failed on Chicago because the shortfall is year-to-year. `src/conformal_tau_backtest.py` adds a backtest: a pair is eligible for test year Y only if its calibration coverage in Y is at least 0.78 AND its realised test coverage in Y-1 (same procedure one year earlier, from the session 25 grids; 2021 newly run for both cities, `results/conformal_tau_drift_{chicago,sf}_a2i_2021.json`) was at least 0.77. The narrowest eligible pair by calibration width wins; none eligible falls back to (0.1, 0.9). Cells: Chicago and SF a2i, test years 2022 to 2024.
