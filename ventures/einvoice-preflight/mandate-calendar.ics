@@ -660,6 +660,21 @@ URL:https://example.invalid/einvoice-preflight/singapore-invoicenow-e-inv
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:3cc5107333621c7e@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20260506
+DTEND;VALUE=DATE:20260507
+SUMMARY:Qatar: Council of Ministers approved a draft e-invoicing law and 
+ executive regulations on 6 Ma...
+DESCRIPTION:Qatar (Draft law approved; not yet in force). Council of Mini
+ sters approved a draft e-invoicing law and executive regulations on 6 Ma
+ y 2026. Detail and sources: https://example.invalid/einvoice-preflight/q
+ atar-e-invoice-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/qatar-e-invoice-mandate.ht
+ ml
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:8bef4679c2e35714@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20260601
@@ -836,6 +851,23 @@ DESCRIPTION:Japan (In force (no clearance)). transitional credit for unre
  ml. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/japan-invoice-system-e-inv
  oice-mandate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:240fa8b354c4f5dd@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20261001
+DTEND;VALUE=DATE:20261002
+SUMMARY:Bolivia: groups 9 to 12 reported due 1 October 2026 after a postp
+ onement (RND 102600000007; one ...
+DESCRIPTION:Bolivia (Phased (groups 9 to 12 reported 1 Oct 2026)). groups
+  9 to 12 reported due 1 October 2026 after a postponement (RND 102600000
+ 007; one source says 30 September\, an older guide 31 March) (secondary 
+ guides and vendors\, SIN resolutions unread). Detail and sources: https:
+ //example.invalid/einvoice-preflight/bolivia-sin-e-invoice-mandate.html.
+  Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/bolivia-sin-e-invoice-mand
+ ate.html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
