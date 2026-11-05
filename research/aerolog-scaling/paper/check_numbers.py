@@ -37,6 +37,12 @@ CHECKS = [
     ("experiments/airspeed_offset_fit/results.txt", "OE | 0.37 | 0.10 | 1 | 0.75 | 0 of 160 | 6.07, 2.76, 4.10", "9ab: plain OE at offset 0.37"),
     ("experiments/airspeed_offset_fit/results.txt", "OE+b | 1.48 | 0.10 | 1 | 0.75 | 2 of 160 | 0.31, 0.80, 1.26", "9ab: OE+b at offset 1.48"),
     ("experiments/airspeed_scale_factor_fit/results.txt", "OE+b | 1.48 g0.894 | 0.10 | 2 | 0.75 | 8 of 160", "9ad: 8 of 160 failures at gain 0.894"),
+    ("experiments/incidence_offset_fit/results_bisect.txt", "OE+b | 1.25 deg | 0.10 | 2 | 0.75 | 2 of 160", "9ah: OE+b 2 of 160 at 1.25 deg"),
+    ("experiments/incidence_offset_fit/results_bisect.txt", "OE+b | 1.50 deg | 0.10 | 2 | 0.75 | 86 of 160", "9ah: OE+b 86 of 160 at 1.5 deg"),
+    ("experiments/incidence_offset_fit/results_bisect.txt", "OE+b+d | 1.25 deg | 0.10 | 2 | 0.75 | 79 of 160", "9ah: OE+b+d 79 of 160 at 1.25 deg"),
+    ("experiments/incidence_offset_fit/results.txt", "OE+b | 1.00 deg | 0.10 | 1 | 0.75 | 0 of 160", "9af: OE+b 0 failures at 1 deg"),
+    ("experiments/incidence_offset_fit/results.txt", "OE+b | 2.00 deg | 0.10 | 1 | 0.75 | 21 of 160", "9af: OE+b 21 of 160 at 2 deg, 1 period"),
+    ("experiments/incidence_offset_fit/results.txt", "OE+b | 2.00 deg | 0.10 | 2 | 0.75 | 80 of 160", "9ag: OE+b 80 of 160 at 2 deg, 2 periods"),
     ("experiments/rodrigues_energy/results_days.txt", "1.539", "day-cluster exponent"),
     ("experiments/rodrigues_energy/results_days.txt", "1.529", "date fixed effect exponent"),
 ]

@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-05 · Milestone 8k: paper draft catches up with milestones 9ae to 9ah (no new simulation)
+- New Section 4.10d carries the gain-only arm (9ae), the incidence-bias fit (9af), the 2-degree re-runs (9ag) and the 1.25/1.5 degree bisection (9ah); `paper/check_numbers.py` ties six of its figures to the results files (all checks pass). The open-items line now lists only a sourced alpha-vane alignment residual.
+- Next: source that residual (Sasse et al., NSF PAR 10354754; arXiv 2001.00672); AIAA template.
+
 ## 2026-11-05 · Milestone 9ah: where between 1 and 2 degrees does the fitted-bias (OE+b) fit stop converging at 2 phugoid periods? (prediction written before the run)
 - Why: 9ag's "Next". 9af/9ag found 0 of 160 OE+b failures at 1 degree and 77 to 80 of 160 at 2 degrees (2 periods). `AEROLOG_OFFSETS=1.25,1.5 AEROLOG_PERIODS=2` re-runs 9af's harness at those two biases (20 designs, scale 0.75, noise 10%, 8 draws; new draws, not 9af's stream). Output: `experiments/incidence_offset_fit/results_bisect.txt`.
 - **Prediction (before running):** the failure count rises monotonically with bias: OE+b at most 10 of 160 at 1.25 degrees and between 20 and 70 of 160 at 1.5 degrees (prior 60%). Refuted if 1.25 deg exceeds 10 failures, or 1.5 deg exceeds 80 (a cliff before 1.5) or is under 20 (the onset sits above 1.5).
