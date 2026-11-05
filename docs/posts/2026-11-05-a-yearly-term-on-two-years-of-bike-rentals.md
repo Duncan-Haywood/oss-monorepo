@@ -3,7 +3,7 @@ title: "A yearly term on two years of bike rentals makes change detection worse"
 seo_title: "Why a period-365 seasonal term over-cuts two years of daily data"
 date: 2026-11-05
 tags: [changepoint-detector, time-series, negative-result]
-description: "Adding a 365-day seasonal term to two years of Capital Bikeshare counts took the change count from 56 to 134. What that says about seasonal terms and short series."
+description: "A 365-day seasonal term on two years of Capital Bikeshare counts took the change count from 56 to 134. What that says about seasonal terms on short series."
 ---
 
 The changepoint detector's holiday list had not helped on real bike-share data, and the README said the next thing to try was a yearly term. We tried it on 731 days of Capital Bikeshare rentals, with and without the dataset's 21 holidays.
