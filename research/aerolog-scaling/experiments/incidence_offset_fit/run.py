@@ -43,6 +43,11 @@ SCALES = (0.75,)
 NOISE = (0.10,)
 OFFSETS = (0.0, 0.25, 0.5, 1.0, 2.0)  # alpha bias in degrees  # EPS: fractional scale-factor error of the airspeed channel (0.25%, 1% from 9aa; 5% a gross fault)   # total drift over the record per channel (end minus start), fraction of channel rms, random sign
 PERIODS = (1, 2)
+import os as _os
+if _os.environ.get('AEROLOG_OFFSETS'):  # e.g. AEROLOG_OFFSETS=2.0 AEROLOG_PERIODS=2 to re-run only some rows (the rng stream then differs from the full run)
+    OFFSETS = tuple(float(x) for x in _os.environ['AEROLOG_OFFSETS'].split(','))
+if _os.environ.get('AEROLOG_PERIODS'):
+    PERIODS = tuple(int(x) for x in _os.environ['AEROLOG_PERIODS'].split(','))
 DRAWS = 8
 STRIDE = 4                          # every third mode-matched design, for run time
 F = np.round(np.arange(0.6, 1.801, 0.05), 2)
