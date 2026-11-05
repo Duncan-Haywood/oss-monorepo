@@ -2,7 +2,7 @@
 title: "Does a weather model help a wing-sail boat steer? Four negative results"
 date: 2026-11-05
 tags: [research, marine-hull, wing-sail, weather-forecast]
-description: "Archived HRRR wind forecasts, with bias correction, a trend nowcast and height correction, do not help a simulated wing-sail boat beat following the wind headers."
+description: "Archived HRRR forecasts, with bias correction, a trend nowcast and height correction, do not help a simulated wing-sail boat beat following the wind headers."
 ---
 
 In the marine-hull research programme, a simulated autonomous wing-sail boat gains about 5 points of progress over simply following the wind headers, but only if its forecast is skilful at 15-minute scale for 1 to 2 hours. We asked whether archived HRRR wind forecasts (3 km, issued 3 h before use) can supply that skill. They cannot, at least as tested.
