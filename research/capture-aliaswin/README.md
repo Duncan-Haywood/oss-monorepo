@@ -24,9 +24,10 @@ Real: the audio, ten LibreOffice gallery clips. Not real: the delay (0.8 s plus 
 ```bash
 pip install pytest numpy
 cd research/capture-aliaswin
-python -m pytest -q tests            # 3 tests
+python -m pytest -q tests            # 4 tests
 python experiments/run.py            # about 3 minutes on 4 cores; writes experiments/results.txt
 python experiments/overlap.py        # about 1 minute; writes experiments/overlap.txt
+python experiments/track.py          # a few minutes; writes experiments/track.txt
 ```
 Needs the LibreOffice gallery sounds (`/usr/lib/libreoffice/share/gallery/sounds`).
 
@@ -45,11 +46,27 @@ Needs the LibreOffice gallery sounds (`/usr/lib/libreoffice/share/gallery/sounds
 - **Gamma is a second-order lever** at 2 s: best is 0.25 on average, but per clip the best differs (`wallewal` wants 0, `soft` wants 0.5 or more), the held-out failure from `capture-syncgate`. At 3 s the best is 0.
 - **Early-start failures (section C, 2 s, gamma 0.25).** `untie` is wrong in 77% of windows starting in the first half second, 11% from 0.5 to 1 s and 0% later; `soft` 59%, 0%, 0%. Because camera B is delayed by 0.8 s, such a window shares clip audio from about 0.5 to 1.2 s into the clip only. `overlap.txt`: median shared-audio SNR in right windows is +1.0 dB for both clips and -3.6 dB (`soft`) / -0.9 dB (`untie`) in wrong ones, so the shared part is somewhat quieter, but none falls below -6 dB, so loudness explains only part; the content of the first second (what it is) may matter more, and I did not isolate it.
 
+## Does a prior taken from the previous windows (no oracle) help? (`experiments/track.txt`)
+Hypothesis, written in `experiments/track.py` before the run: a tracker searching +-20 or +-50 ms about a line fitted to earlier *estimates* (first window searched +-1.5 s) lands between no prior and the oracle, and cannot rescue a series whose first window is wrong. Same 10 clips, 0 dB white noise, gamma 0.25, 36 series of 12 windows per clip and window length.
+
+| window | set | no prior | oracle +-20 ms | tracked +-50 ms | tracked +-20 ms |
+|---|---|---|---|---|---|
+| 2 s | all clips | 0.150 | 0.059 | 0.151 | 0.155 |
+| 2 s | 4 failing | 0.376 | 0.147 | 0.378 | 0.387 |
+| 3 s | all clips | 0.072 | 0.062 | 0.073 | 0.077 |
+| 3 s | 4 failing | 0.163 | 0.141 | 0.163 | 0.172 |
+
+- **Outcome: against the hypothesis' first half.** Tracking is no better than searching every window freely (0.376 vs 0.378 and 0.387 on the failing clips at 2 s); it is marginally worse at +-20 ms. The oracle's gain comes from knowing the truth, which a tracker gets only from its own first estimate.
+- **Errors come as whole series.** For `soft` and `untie` at 2 s, the share of series with any wrong window equals the share with at least 6 wrong and the share whose first window is wrong (0.278 and 0.361): when the first window is right the whole series is right, when wrong it stays wrong. `space2` (period 12.1 ms, less than the 13 ms the delay moves between windows) is wrong in every tracked series at some point.
+- **So the lever is the first sync**, as `capture-syncedit`-style pipelines already suspected: spend a long window (3 s fixes `soft` and `untie` entirely) on the first estimate, then track. This is the next step below; it is not tested here.
+- Limits: same ten clips and one SNR; drift is linear by construction, which favours the line fit; tracking never recovers from an alias, there is no re-acquisition rule.
+
 ## Limitations
 Ten clips from one gallery; white noise only; one SNR (0 dB); 3 s windows start in a range of about 0 to 0.2 s of a 4.2 s clip, so each clip then contributes nearly one distinct window (its 0.000 and 1.000 are not 432 independent trials: treat 3 s per-clip results as one draw of content); the oracle prior is given the true delay; the wrong-window count is the metric, not cut damage (`capture-syncedit`). The shared-segment rule comes from this simulation, which delays a fixed segment by 0.8 s; a real pair of continuous recordings has the same overlap W - tau when windows are cut at the same clock time.
 
 ## Next steps
 - Choose the window as offset + 2 s on the first sync, then run the full edit (`capture-syncedit`) with it and measure cut damage.
+- Take the first estimate from a 3 s window (offset + 2 s), then track with +-20 ms and measure whole-series errors (the tracking test shows series are right or wrong from their first window).
 - Estimate the period from the clip's own autocorrelation and set the prior half-width below it, with the prior taken from the previous window's line fit rather than from the truth.
 - Test the first-second hypothesis for `untie` and `soft` by swapping the shared content between clips at equal SNR.
 
