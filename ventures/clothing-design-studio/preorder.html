@@ -55,6 +55,7 @@
       <div class="row"><div><label for="feef">Fixed fee per order</label><input id="feef" type="number" min="0" step="0.01" value="0.3"></div><div><label for="cancel">Cancel or fail payment %</label><input id="cancel" type="number" min="0" max="90" step="0.5" value="5"></div></div>
       <h2>Traffic</h2>
       <div class="row"><div><label for="conv">Visitors who order %</label><input id="conv" type="number" min="0.01" max="100" step="any" value="2"></div><div><label for="vpd">Visitors per day</label><input id="vpd" type="number" min="0" step="1" value="200"></div></div>
+      <div class="row"><div><label for="dep">Charged at order % (100 = full price; less = deposit)</label><input id="dep" type="number" min="1" max="100" step="1" value="100"></div><div><label for="bdef">Deposit paid, balance never paid %</label><input id="bdef" type="number" min="0" max="90" step="0.5" value="0"></div></div>
       <div class="row"><div><label for="days">Campaign days</label><input id="days" type="number" min="1" step="1" value="30"></div><div><label for="cpc">Price per bought visitor (0 = free)</label><input id="cpc" type="number" min="0" step="0.01" value="0"></div></div>
       <h2>A small test (optional)</h2>
       <p class="tag">If you have already sent some visitors to a page, type what happened. The result then shows a 95% range for the conversion rate.</p>
@@ -79,7 +80,7 @@
     const n = id => +$(id).value;
     function render() {
       const test = $("#tv").value !== "" && $("#to").value !== "" ? { visitors: n("#tv"), orders: n("#to") } : undefined;
-      const r = planPreorder({ price: n("#price"), landed: n("#landed"), moq: n("#moq"), fixedCosts: n("#fixed"), taxPct: n("#tax"), feePct: n("#fee"), feeFixed: n("#feef"), cancelPct: n("#cancel"), conversionPct: n("#conv"), visitorsPerDay: n("#vpd"), days: n("#days"), cpc: n("#cpc"), test });
+      const r = planPreorder({ price: n("#price"), landed: n("#landed"), moq: n("#moq"), fixedCosts: n("#fixed"), taxPct: n("#tax"), feePct: n("#fee"), feeFixed: n("#feef"), cancelPct: n("#cancel"), conversionPct: n("#conv"), visitorsPerDay: n("#vpd"), days: n("#days"), cpc: n("#cpc"), depositPct: n("#dep"), balanceDefaultPct: n("#bdef"), test });
       if (r.error) { $("#result").innerHTML = `<p class="placeholder">${esc(r.error)}</p>`; return; }
       const pct = Math.round(r.pFunded * 100);
       $("#result").innerHTML = `<p class="big">${esc(r.verdict.toUpperCase())}: ${pct}% chance to fund</p><p>${esc(VERDICT_TEXT[r.verdict])}</p>
@@ -93,6 +94,7 @@
           <tr><td>Net per order after tax and fees</td><td class="num">${r.netPerOrder}</td></tr>
           <tr><td>Profit if it funds (${r.piecesMade} pieces)</td><td class="num"><b>${r.profitIfFunded}</b></td></tr>
           <tr><td>Lost if it does not (set-up and traffic)</td><td class="num"><b>${r.lossIfFails}</b></td></tr>
+          ${r.cashGap > 0 ? `<tr><td>Cash you must front before the balances arrive</td><td class="num"><b>${r.cashGap}</b> (factory bill ${r.factoryBill}, deposits ${r.cashFromDeposits})</td></tr>` : ""}
           <tr><td>Lowest price that breaks even if it funds</td><td class="num">${r.breakEvenPrice ?? "n/a"}</td></tr>
         </table>
         ${r.range ? `<h3>What your test supports</h3><p>Conversion between ${r.range.conversionLowPct}% and ${r.range.conversionHighPct}% (95% range). Visitors needed: ${r.range.visitorsNeededBest ?? "n/a"} at the best end, ${r.range.visitorsNeededWorst ?? "unbounded"} at the worst.</p>` : ""}

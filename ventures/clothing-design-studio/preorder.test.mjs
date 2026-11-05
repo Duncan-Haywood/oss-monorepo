@@ -72,3 +72,29 @@ test("bad inputs are refused in words", () => {
   assert.match(planPreorder({ ...base, cancelPct: 100 }).error, /Cancellations/);
   assert.match(planPreorder({ ...base, conversionPct: 0 }).error, /Conversion/);
 });
+
+test("full payment is unchanged and needs no outside cash", () => {
+  const r = planPreorder(base);
+  assert.equal(r.cashGap, 0);
+  assert.equal(r.factoryBill, 1400); // 100 * 14
+  assert.equal(r.cashFromDeposits, 3826); // 100 * 38.26
+});
+
+test("a 30% deposit: two fees, a cash gap, unpaid balances become stock", () => {
+  const r = planPreorder({ ...base, depositPct: 30, balanceDefaultPct: 10 });
+  // net per order: 40 - (1.44 + 0.6) = 37.96
+  assert.equal(r.netPerOrder, 37.96);
+  // deposit net per order: 14.4/1.2 = 12 - (0.432 + 0.3) = 11.268; x 100 shipped
+  assert.equal(r.cashFromDeposits, 1126.8);
+  assert.equal(r.cashGap, 273.2); // 1400 - 1126.8
+  // 90 orders pay in full: 90 * 37.96 - 1400 - 300
+  assert.equal(r.profitIfFunded, round(90 * 37.96 - 1700));
+  assert.ok(r.notes.some(n => n.includes("fund 273.2")));
+  assert.ok(r.notes.some(n => n.includes("second payment")));
+});
+
+test("bad deposit inputs are refused", () => {
+  assert.match(planPreorder({ ...base, depositPct: 0 }).error, /deposit/);
+  assert.match(planPreorder({ ...base, balanceDefaultPct: 100 }).error, /balances/);
+});
+function round(v) { return Math.round(v * 100) / 100; }
