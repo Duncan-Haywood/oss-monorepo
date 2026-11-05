@@ -1,9 +1,9 @@
 ---
 title: "Pricing children's clothing: why the UK and Ireland shelf price drops"
-seo_title: "Children's clothing VAT: zero-rated in the UK and Ireland, and what it does to your price"
+seo_title: "Children's clothing VAT: zero-rated in the UK and Ireland"
 date: 2026-11-05
 tags: [clothing, pricing, vat, tools]
-description: "The same garment costs a brand less to price for children in the UK and Ireland, because children's clothing can be zero-rated. How the price-by-market page now handles it."
+description: "Children's clothing can be zero-rated in the UK and Ireland, so the shelf price drops. How the price-by-market page now handles it."
 ---
 
 A clothing brand that sells in Europe sets one margin target, but the shelf price that reaches it depends on the market's VAT. For adult clothing that is the standard rate: 23% in Ireland, 20% in the UK and France. For children's clothing the UK and Ireland can charge 0%, with conditions on age and size, so the same landed cost and the same margin give a noticeably lower shelf price there.
