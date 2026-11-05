@@ -27,6 +27,7 @@ PYTHONPATH=src python3 experiments/run_solar_policy_bound.py > experiments/resul
 PYTHONPATH=src python3 experiments/run_solar_surge_holdout.py > experiments/results_solar_surge_holdout.txt   # milestone 5i
 PYTHONPATH=src:experiments python3 experiments/run_sail_hrrr_bc.py > experiments/results_sail_hrrr_bc.txt   # wing-sail milestone 5i (HRRR bias correction), 4 min
 PYTHONPATH=src:experiments python3 experiments/run_sail_hrrr_learned.py > experiments/results_sail_hrrr_learned.txt   # wing-sail milestone 5j (learned station bias), 3 min
+PYTHONPATH=src:experiments python3 experiments/run_sail_hrrr_buoy.py > experiments/results_sail_hrrr_buoy.txt   # wing-sail milestone 5k (open-water NDBC buoys; data fetched by fetch_ndbc_buoys.py), 3 min
 PYTHONPATH=src:experiments python3 experiments/run_foil.py > experiments/results_foil.txt   # milestone 5
 PYTHONPATH=src:experiments python3 experiments/run_swath.py > experiments/results_swath.txt   # milestone 5b, 25 s
 PYTHONPATH=src python3 experiments/run_michell.py > experiments/results_michell.txt   # milestone 2, 2 s
@@ -136,7 +137,7 @@ Milestone 5d: 5c's gain needs forecast skill. Replanning hourly with a forecast 
 
 Milestones 5e to 5g (negative): hysteresis does not rescue the low-skill replanner. A proportional switch margin (0.02 to 2) is best at zero or within noise everywhere; a minimum dwell between voluntary tacks cuts tacks per day by 39 to 55% at T = 0 but loses 1.8 to 3.9 points to the header-follower, and at T = 120 even a 10-minute dwell costs 1.6 to 1.8 points. Below about 30 minutes of forecast skill, follow the headers. `LOG.md` (milestones 5e, 5f, 5g), `experiments/results_sail_margin.txt`, `results_sail_margin_fine.txt`, `results_sail_dwell.txt`. The paper draft (`paper/DRAFT.md`, section 2.5) now carries 5a to 5g.
 
-- Wing-sail on archived HRRR (milestones 5h to 5j, `experiments/run_sail_hrrr*.py`): raw 3 km HRRR winds lose to following the headers (-2.9 Jan, -6.5 Jul points) and to persistence; a trailing-hour bias correction recovers about 2 points, and neither a longer window, a fade nor a station bias learned from other days lifts it above the header-follower (best -0.5 Jan / -3.0 Jul). Pier anemometers against 3 km cells; open water untested.
+- Wing-sail on archived HRRR (milestones 5h to 5j, `experiments/run_sail_hrrr*.py`): raw 3 km HRRR winds lose to following the headers (-2.9 Jan, -6.5 Jul points) and to persistence; a trailing-hour bias correction recovers about 2 points, and neither a longer window, a fade nor a station bias learned from other days lifts it above the header-follower (best -0.5 Jan / -3.0 Jul). Pier anemometers against 3 km cells. Milestone 5k repeats it at 9 to 10 open-water NDBC buoys: raw HRRR -0.8 (Jan) / -2.3 (Jul) points, corrected +0.0 / -0.9, so siting explained part of the loss but HRRR still only matches following the headers.
 
 ## Limitations
 

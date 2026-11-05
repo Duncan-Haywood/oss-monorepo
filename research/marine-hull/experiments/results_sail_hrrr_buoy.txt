@@ -1,0 +1,46 @@
+every 4th window; hourly replan; shares of the no-corridor no-tack-cost bound; HRRR newest cycle issued >= 3 h before replan
+
+January: 72 windows from 9 stations; header 0.889
+  T0      : 0.883; minus header +0.0 pts (boot 95% -0.4..+0.3); tacks/day 134
+  hrrr    : 0.850; minus header -0.8 pts (boot 95% -3.8..-0.3); tacks/day 387
+  hrrr_bc : 0.881; minus header +0.0 pts (boot 95% -0.4..+0.4); tacks/day 204
+  T120    : 0.911; minus header +2.1 pts (boot 95% +1.8..+2.9); tacks/day 164
+  hrrr minus T0: -0.6 pts (boot 95% -1.9..-0.3)
+  hrrr_bc minus hrrr: +1.9 pts (boot 95% +0.6..+3.4)
+  hrrr minus T120: -3.2 pts (boot 95% -6.2..-2.6)
+    41009: n=8 hrrr-header -0.3  bc-header +0.3  T0-header +0.5
+    42036: n=8 hrrr-header -1.0  bc-header +0.5  T0-header +0.8
+    42040: n=8 hrrr-header +1.6  bc-header +1.0  T0-header +0.3
+    44009: n=8 hrrr-header -0.2  bc-header +0.1  T0-header +0.0
+    44013: n=8 hrrr-header -0.8  bc-header -0.3  T0-header +0.1
+    46011: n=8 hrrr-header -4.6  bc-header -0.3  T0-header -2.1
+    46013: n=8 hrrr-header -12.5  bc-header -0.9  T0-header -1.3
+    46026: n=8 hrrr-header -0.9  bc-header -1.1  T0-header -0.0
+    46054: n=8 hrrr-header -6.4  bc-header -0.3  T0-header -0.3
+
+July: 80 windows from 10 stations; header 0.898
+  T0      : 0.888; minus header -0.2 pts (boot 95% -0.9..-0.0); tacks/day 96
+  hrrr    : 0.847; minus header -2.3 pts (boot 95% -3.3..-1.0); tacks/day 238
+  hrrr_bc : 0.870; minus header -0.9 pts (boot 95% -1.6..-0.3); tacks/day 180
+  T120    : 0.920; minus header +2.4 pts (boot 95% +2.0..+3.0); tacks/day 74
+  hrrr minus T0: -1.2 pts (boot 95% -1.7..-0.8)
+  hrrr_bc minus hrrr: +0.7 pts (boot 95% +0.1..+1.0)
+  hrrr minus T120: -5.8 pts (boot 95% -6.6..-4.0)
+    41009: n=8 hrrr-header -4.5  bc-header -1.9  T0-header -1.0
+    41010: n=8 hrrr-header -2.9  bc-header -1.2  T0-header -0.7
+    42036: n=8 hrrr-header -6.1  bc-header -4.7  T0-header -2.9
+    42040: n=8 hrrr-header -4.7  bc-header +0.5  T0-header -1.4
+    44009: n=8 hrrr-header -2.9  bc-header -1.1  T0-header -0.4
+    44013: n=8 hrrr-header -0.6  bc-header -2.3  T0-header -0.4
+    44025: n=8 hrrr-header -1.5  bc-header -1.3  T0-header -0.3
+    46011: n=8 hrrr-header -1.4  bc-header -0.4  T0-header -0.3
+    46013: n=8 hrrr-header -1.1  bc-header -0.0  T0-header +0.0
+    46054: n=8 hrrr-header -0.7  bc-header -0.1  T0-header -0.0
+
+HRRR error against observation (mean absolute speed m/s, mean absolute direction deg, mean speed bias m/s), by lead:
+  202401 0-3h: |dspeed| 1.39, |ddir| 25, bias +0.86 (n=288)
+  202401 3-6h: |dspeed| 1.36, |ddir| 24, bias +0.85 (n=288)
+  202401 6-12h: |dspeed| 1.44, |ddir| 26, bias +0.87 (n=216)
+  202407 0-3h: |dspeed| 1.42, |ddir| 29, bias +0.60 (n=320)
+  202407 3-6h: |dspeed| 1.52, |ddir| 28, bias +0.71 (n=320)
+  202407 6-12h: |dspeed| 1.47, |ddir| 30, bias +0.74 (n=240)
