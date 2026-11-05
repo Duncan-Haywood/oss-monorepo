@@ -1,5 +1,10 @@
 # build-data log
 
+## Session 30, 2026-11-05: paper section 4.2c gets Austin a2i (a writing step; no experiment, no result changed)
+
+Re-ran `python3 src/conformal_tau_backtest.py austin` (reproduces session 29: inside 77 to 83% in 2 of 3, narrower by 15% in 1 of 3) and added the Austin paragraph and limits to `paper/paper.md` 4.2c; to-do item 2 now names only Austin i2c. Post: `docs/posts/2026-11-05-permit-intervals-austin-narrow-pairs.md`.
+Next: Austin i2c with the H2g rules (one job at a time), or the neural baseline.
+
 ## Session 29, 2026-11-05: milestone 24, Austin a2i with the H2g backtest rules (one job at a time, 1 seed)
 
 Plan (session 28, pre-registered): coverage in 77 to 83% in at least 2 of 3 test years (2022 to 2024) and width at least 15% below (0.1, 0.9) in the same years. Prior 40%.
