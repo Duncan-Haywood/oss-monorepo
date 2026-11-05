@@ -122,6 +122,13 @@ export const BUILT_IN = [
   ["6100", "out", /laguna clay|\bskutt\b|\bamaco\b|stenograph/],
   ["6110", "out", /court reporter licen[cs]e/],
   ["4000", "in", /deposition transcript|transcript fee/],
+  // Gap probe 26 (2026-11-05, eval/probe26.mjs): drone pilots, sign-language interpreters, genealogists, wedding DJs, bike mechanics.
+  // Fifteen rows had no suggestion.
+  ["6070", "out", /pioneer dj/],
+  ["6060", "out", /altitude angel|ancestry\.com|newspapers\.com|findmypast|dronedeploy/],
+  ["4000", "in", /aerial survey|vrs interpreting|wedding reception|tune.?up service|research report/],
+  ["6170", "out", /registry of interpreters|interpreter certification|professional genealogists|united bicycle institute|\bfaa part 107\b/],
+  ["6100", "out", /county recorder|park tool|quality bicycle products/],
   // Gap probe 11 (2026-10-31, eval/probe11.mjs): pressure washers, jewelry makers, mobile notaries, sign shops, beekeepers.
   // First in the list: a notary bond hit the legal-fees rule and a craft-show booth fee the platform-fee rule.
   ["6030", "out", /notary (public )?bond|notary errors/],
