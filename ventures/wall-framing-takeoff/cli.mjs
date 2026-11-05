@@ -204,7 +204,10 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   const deckStair = deck && plan.deck.stairs ? [{ id: "Deck stair", tread: 10, stringer: "2x12", width: 36, ...plan.deck.stairs, totalRise: plan.deck.height }] : [];
   if (flags.has("--stairs") || plan.stairs || deckStair.length) {
     if (!plan.stairs && !deckStair.length) return { code: 2, out: "The plan has no `stairs` object (totalRise, tread, stringer, width)." };
-    for (const [i, st] of [...(plan.stairs ? (Array.isArray(plan.stairs) ? plan.stairs : [plan.stairs]) : []), ...deckStair].entries()) {
+    const stairList = [...(plan.stairs ? (Array.isArray(plan.stairs) ? plan.stairs : [plan.stairs]) : []), ...deckStair];
+    const badStair = stairList.findIndex((st) => st == null || typeof st !== "object" || Array.isArray(st));
+    if (badStair >= 0) return { code: 1, out: `The stairs have problems:\n  - Stair ${badStair + 1} must be an object (totalRise, tread, stringer, width).` };
+    for (const [i, st] of stairList.entries()) {
       for (const k of ["totalRise", "tread", "width", "openingLength", "floorThickness"]) if (typeof st[k] === "string") st[k] = parseLength(st[k]);
       if (typeof st.landing === "object" && st.landing) for (const k of ["depth", "landingRise"]) if (typeof st.landing[k] === "string") st.landing[k] = parseLength(st.landing[k]);
       const withLanding = st.landing || st.totalRise > (st.limits?.maxRise ?? STAIR_LIMITS.maxRise);

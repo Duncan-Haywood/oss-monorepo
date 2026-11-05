@@ -257,6 +257,21 @@ test("--stairs prints the stair layout and pools its lumber", () => {
   assert.match(run(["p.json", "--stairs"], plan).out, /STAIRS/);
 });
 
+test("--stairs with a null or non-object entry says so instead of crashing", () => {
+  for (const bad of [[null], [5], ["x"], [[]], null]) {
+    const r = run(["p.json", "--stairs"], { ...samplePlan(), stairs: bad });
+    assert.equal(r.code, bad === null ? 2 : 1);
+    assert.doesNotMatch(r.out, /TypeError|undefined/);
+  }
+});
+
+test("--floor without a joist size names the missing field", () => {
+  const r = run(["p.json", "--floor"], { ...samplePlan(), floor: { width: 240, depth: 240 } });
+  assert.equal(r.code, 1);
+  assert.match(r.out, /joist size is missing/);
+  assert.doesNotMatch(r.out, /undefined/);
+});
+
 test("--deck adds the deck report with its own lumber order", async () => {
   const { sampleDeck } = await import("./deck.mjs");
   const plan = { ...samplePlan(), deck: sampleDeck() };

@@ -29,7 +29,7 @@ export function validateFloor(f, plan) {
   for (const k of ["width", "depth", "beam"]) if (f[k] != null && typeof f[k] !== "number") errors.push(`Floor ${k} must be a number of inches.`);
   if (!(f.width >= 24 && f.width <= 1200)) errors.push("Floor width must be between 2 ft and 100 ft.");
   if (!(f.depth >= 24 && f.depth <= 1200)) errors.push("Floor depth (the joist direction) must be between 2 ft and 100 ft.");
-  if (!(f.joist in DEPTH)) errors.push(`Unknown joist size ${f.joist}.`);
+  if (!(f.joist in DEPTH)) errors.push(f.joist == null ? "Floor joist size is missing (for example \"2x10\")." : `Unknown joist size ${f.joist}.`);
   if (!(typeof f.spacing === "number" && f.spacing >= 4 && f.spacing <= 48)) errors.push("Joist spacing must be a number between 4 and 48 inches.");
   if (f.blockingRows != null && !(Number.isInteger(f.blockingRows) && f.blockingRows >= 0 && f.blockingRows <= 20)) errors.push("blockingRows must be a whole number from 0 to 20.");
   if (f.hangerNails != null) for (const k of ["single", "double"]) if (f.hangerNails[k] != null && !(Number.isInteger(f.hangerNails[k]) && f.hangerNails[k] >= 0 && f.hangerNails[k] <= 100)) errors.push(`hangerNails.${k} must be a whole number of nails from 0 to 100.`);
@@ -91,7 +91,7 @@ export function validateFloor(f, plan) {
   if (f.cantilever != null && !(f.cantilever > 0 && f.cantilever <= 96)) errors.push("The cantilever must be between 0 and 8 ft.");
   if (f.beam != null && !(f.beam > 12 && f.beam < f.depth - 12)) errors.push("The beam must sit between 1 ft and 1 ft short of the far edge.");
   const longest = Math.max(0, ...plan.stock.filter((s) => s.size === f.joist).map((s) => s.length));
-  if (!longest) errors.push(`No ${f.joist} boards listed in the stock.`);
+  if (!longest && f.joist != null) errors.push(`No ${f.joist} boards listed in the stock.`);
   return errors;
 }
 
