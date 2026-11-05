@@ -1,5 +1,20 @@
 # build-data log
 
+## Session 29, 2026-11-05: milestone 24, Austin a2i with the H2g backtest rules (one job at a time, 1 seed)
+
+Plan (session 28, pre-registered): coverage in 77 to 83% in at least 2 of 3 test years (2022 to 2024) and width at least 15% below (0.1, 0.9) in the same years. Prior 40%.
+Done: fresh Austin pull (2,383,621 rows, about 9 minutes), then `conformal_tau_drift_run.py` for 2021 to 2024, one job at a time, 1 seed, about 5 minutes each (session 28's four parallel jobs had oversubscribed 4 cores). `results/conformal_tau_drift_austin_a2i_{2021..2024}.json`; `python3 src/conformal_tau_backtest.py austin`.
+Outcome (1 seed, so intervals are over weeks only):
+| year | chosen pair | test coverage [CI] | width (days) | vs (0.1, 0.9) |
+|---|---|---|---|---|
+| 2022 | (0.1, 0.9) fallback | 0.781 [0.767, 0.794] | 170.1 | 0% |
+| 2023 | (0.2, 0.8) | 0.862 [0.849, 0.874] | 164.2 | -3% |
+| 2024 | (0.2, 0.75) | 0.828 [0.819, 0.836] | 118.6 | -30% |
+- **H2g is refuted for Austin on its width half**: coverage is inside 77 to 83% in 2 of 3 years (2022, 2024), but width is 15% or more below the fixed pair in only 1 of 3. Austin's a2i tail is long (about 170 days at 80%) and only 6% of permits are same-day, so a narrower quantile pair buys little: the width gain seen in Chicago and SF (44 to 71%) does not carry over.
+- 2021 (backtest year only): the chosen pair covered 0.728 and the fixed pair 0.749, so the 2021 under-coverage made 2022 fall back. Austin's test coverage under the fixed pair ran 0.749, 0.781, 0.858, 0.854 for 2021 to 2024, i.e. drift of 10 points across years, consistent with the Chicago finding that year-to-year shift, not method, limits calibration.
+- Limits: 1 seed (earlier cities used 3), 3 cells, the loader still counts every Austin row as issued (session 5 item, unchanged), 860 negative issue lags dropped. Austin i2c not run.
+Next: paper section 4.2c with the three-city H2g table and the stated Chicago/Austin limit; Austin i2c.
+
 ## Session 28, 2026-11-05: milestone 24 attempt, Austin a2i with the H2g backtest rules; not finished (compute), no result changed
 
 Plan (before running): the same grid and backtest as session 27 on Austin a2i for test years 2021 to 2024, then `conformal_tau_backtest.py austin`. Pre-registered: coverage in 77 to 83% in at least 2 of 3 test years (2022 to 2024) and width at least 15% below (0.1, 0.9). Prior 40%: Austin's same-day share is only 6%, so its a2i target is far less zero-inflated than Chicago's or SF's and the pair choice matters less.
