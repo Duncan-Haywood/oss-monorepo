@@ -1,6 +1,7 @@
 ---
 title: "A 240-load filter inside a loop made one shed test take a minute"
 date: 2026-11-05
+tags: [performance, ci, shed-designer, profiling]
 description: "Profiling the slowest shed-designer test found the gambrel truss solver rescanning every load for every section. Prefix sums cut the search from 63 s to 27 s."
 ---
 
