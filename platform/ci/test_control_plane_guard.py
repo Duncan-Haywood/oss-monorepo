@@ -76,6 +76,13 @@ def review(login, state="APPROVED"):
     return {"user": {"login": login}, "state": state}
 
 
+class Star(unittest.TestCase):
+    def test_star_consumes_one_token_then_literal_follows(self):
+        rules = guard.parse_codeowners("*.pem @owner\n")
+        self.assertTrue(guard.owners_for("a.pem", rules))
+        self.assertFalse(guard.owners_for("apem", rules))
+
+
 class Audit(unittest.TestCase):
     pr = {"number": 7, "user": {"login": "kilo-code-bot[bot]"}}
 
@@ -139,6 +146,33 @@ class PrSummary(unittest.TestCase):
         self.assertEqual(len(out), 1)
         self.assertIn("- `CLAUDE.md`", out[0])
         self.assertNotIn("ventures/x/a.mjs", out[0])
+
+
+class AuditCommitPicksFirstMergedPr(unittest.TestCase):
+    def test_reviews_are_read_for_the_first_merged_pr(self):
+        import os
+        from unittest import mock
+
+        prs = [
+            {"number": 1, "merged_at": "t", "user": {"login": "a"}},
+            {"number": 2, "merged_at": "t", "user": {"login": "b"}},
+        ]
+
+        def fake_get(path):
+            return prs if path.endswith("/pulls") else {"files": [{"filename": "CLAUDE.md"}]}
+
+        seen = []
+
+        def fake_pages(path):
+            seen.append(path)
+            return []
+
+        with mock.patch.dict(os.environ, {"GITHUB_REPOSITORY": "o/r"}), \
+             mock.patch.object(guard, "gh_get", side_effect=fake_get), \
+             mock.patch.object(guard, "gh_pages", side_effect=fake_pages), \
+             mock.patch.object(guard, "summarize"):
+            guard.main(["--audit-commit", "abc"])
+        self.assertEqual(seen, ["/repos/o/r/pulls/1/reviews"])
 
 
 if __name__ == "__main__":
