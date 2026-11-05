@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-05",
+  "session": "https://claude.ai/code/session_01E5sJKjvKrsdRcS5gDihW7B",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read prompt.md (scheduled run)",
+  "input_sha256": "469e6f857af54e0860bad35e210411ae4d7abbb4c758af30ff084cd60fcfd872",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-05T17:19:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13365",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Venv guidance: pyenv.py printed a bare python3 path without pandapower; had to use /usr/bin/python3.13 after pip install."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Redrew the programme (verified-dse) because its open items need hours of flow runs or the MLCAD template and yosys/openroad are absent.",
+      "did": "pick_track.py --new gave track 21; advanced infra-dcopf",
+      "result": "landed a result"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-05-dc-opf-voltage-violations-are-a-setpoint-problem.md",
+    "research/infra-dcopf/LOG.md"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}

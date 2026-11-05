@@ -100,3 +100,22 @@ def test_case300_is_registered_and_dc_opf_solves_with_flat_price():
     assert dc is not None and dc.res_cost > 0
     # no branch binds at published ratings, so the lossless DC price is one number
     assert float(dc.res_bus.lam_p.max() - dc.res_bus.lam_p.min()) < 1e-6
+
+
+def test_uniform_setpoint_removes_case39_voltage_violations_at_light_load():
+    from infra_dcopf import uniform_setpoints
+    n = scaled(load_case("case39"), 0.6)
+    dc = solve_dc(n)
+    assert ac_check_of_dispatch(n, dc)["n_bus_v_viol"] > 0
+    assert ac_check_of_dispatch(uniform_setpoints(n, 1.005), dc)["n_bus_v_viol"] == 0
+
+
+def test_pfixed_ac_opf_finds_a_feasible_voltage_profile_for_the_dc_dispatch():
+    from infra_dcopf import reactive_redispatch
+    n = scaled(load_case("case39"), 0.8)
+    dc = solve_dc(n)
+    r = reactive_redispatch(n, dc)
+    assert r is not None
+    vm = r.res_bus.vm_pu
+    assert vm.max() <= 1.06 + 1e-6 and vm.min() >= 0.94 - 1e-6
+    assert abs(r.res_gen.p_mw.values - dc.res_gen.p_mw.values).max() < 0.01
