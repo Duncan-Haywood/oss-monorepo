@@ -35,3 +35,15 @@ test('report text', () => {
   assert.match(t, /not a content check/);
   assert.match(report({ ok: false, errors: ['e'] }), /Cannot check/);
 });
+test('one file shared by two lines is flagged, not silently double counted', () => {
+  const r = preflight('Site plan\nFloor plans', ['site-plan.pdf']);
+  const sp = r.rows[0], fp = r.rows[1];
+  assert.equal(sp.file, 'site-plan.pdf'); assert.equal(sp.shared, false);
+  assert.equal(fp.status, 'missing');
+});
+test('combined plan set matches several lines, marked shared', () => {
+  const r = preflight('Foundation plan\nFloor plans\nElevations', ['foundation-floor-plans-elevations.pdf']);
+  assert.equal(r.summary.missing, 0);
+  assert.ok(r.summary.shared >= 1);
+  assert.match(report(r), /combined set/);
+});

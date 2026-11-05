@@ -36,20 +36,26 @@ export function preflight(checklistText, fileNames, { threshold = 0.4 } = {}) {
   if (!(threshold > 0 && threshold <= 1)) return { ok: false, errors: ['threshold must be above 0 and at most 1'] };
   const files = fileNames.map(f => ({ name: f, tokens: tokens(f) }));
   const used = new Set();
-  const rows = items.map(it => {
-    let best = null, bs = 0;
-    for (const f of files) { const s = score(it, f.tokens); if (s > bs) { bs = s; best = f; } }
-    const matched = best && bs >= threshold;
-    if (matched) used.add(best.name);
-    return { item: it.text, optional: it.optional, status: matched ? 'found' : (it.optional ? 'optional-missing' : 'missing'), file: matched ? best.name : null, confidence: Math.round(bs * 100) / 100 };
+  // Best file per line, but one file should not silently satisfy two unrelated
+  // lines: assign globally by score, then flag a file reused by a second line.
+  const cand = [];
+  items.forEach((it, i) => files.forEach(f => { const s = score(it, f.tokens); if (s >= threshold) cand.push({ i, f, s }); }));
+  cand.sort((x, y) => y.s - x.s || x.i - y.i);
+  const owner = new Map(), pick = new Map();
+  for (const c of cand) if (!pick.has(c.i) && !owner.has(c.f.name)) { pick.set(c.i, { ...c, shared: false }); owner.set(c.f.name, c.i); }
+  for (const c of cand) if (!pick.has(c.i)) pick.set(c.i, { ...c, shared: true });
+  const rows = items.map((it, i) => {
+    const p = pick.get(i);
+    if (p) used.add(p.f.name);
+    return { item: it.text, optional: it.optional, status: p ? 'found' : (it.optional ? 'optional-missing' : 'missing'), file: p ? p.f.name : null, confidence: p ? Math.round(p.s * 100) / 100 : 0, shared: !!(p && p.shared), weak: !!(p && p.s < 0.6) };
   });
   const missing = rows.filter(r => r.status === 'missing');
-  return { ok: true, rows, missing: missing.map(r => r.item), unmatchedFiles: files.map(f => f.name).filter(n => !used.has(n)), summary: { required: rows.filter(r => !r.optional).length, found: rows.filter(r => r.status === 'found').length, missing: missing.length } };
+  return { ok: true, rows, missing: missing.map(r => r.item), unmatchedFiles: files.map(f => f.name).filter(n => !used.has(n)), summary: { required: rows.filter(r => !r.optional).length, found: rows.filter(r => r.status === 'found').length, missing: missing.length, shared: rows.filter(r => r.shared).length, weak: rows.filter(r => r.weak).length } };
 }
 export function report(res) {
   if (!res.ok) return 'Cannot check: ' + res.errors.join('; ');
   const L = [`Permit packet preflight: ${res.summary.missing} required item(s) with no matching file (of ${res.summary.required} required).`];
-  for (const r of res.rows) L.push(`${r.status === 'found' ? '[x]' : r.status === 'missing' ? '[ ]' : '[-]'} ${r.item}${r.file ? '  <- ' + r.file : ''}`);
+  for (const r of res.rows) L.push(`${r.status === 'found' ? '[x]' : r.status === 'missing' ? '[ ]' : '[-]'} ${r.item}${r.file ? '  <- ' + r.file : ''}${r.shared ? '  (same file also matches another line: is it a combined set?)' : ''}${r.weak ? '  (weak name match: check it)' : ''}`);
   if (res.unmatchedFiles.length) L.push('Files that matched no line: ' + res.unmatchedFiles.join(', '));
   L.push('A name match is not a content check. The city decides completeness.');
   return L.join('\n');
