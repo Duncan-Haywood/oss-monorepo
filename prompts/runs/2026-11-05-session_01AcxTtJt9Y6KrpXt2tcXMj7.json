@@ -40,7 +40,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Critique mode via main_health: 41/43 passed; fixed 5 posts with bad front matter. No backlog ids touched. No post written (small fix).",
+  "notes": "Critique mode via main_health: 41/43 passed; fixed 5 posts with bad front matter. No backlog ids touched. No post written (small fix). Another run fixed the same posts on main first; merged theirs, so this PR carries only the record.",
   "corrections": [],
   "redteam": null
 }
