@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { marketPrices, priceEnding } from "./markets.mjs";
+import { MARKETS, marketPrices, priceEnding } from "./markets.mjs";
 import { DEFAULT_PLAN, sellingSide } from "./costing.mjs";
 
 test("price endings round up, never down", () => {
@@ -66,4 +66,10 @@ test("children's clothing is zero-rated in the UK and Ireland, so the shelf pric
 test("an edited VAT beats the children's default", () => {
   const [r] = marketPrices({ landed: 10, quantity: 100, markets: ["IE"], audience: "children", vat: { IE: 13.5 } });
   assert.equal(r.vatPct, 13.5);
+});
+test("all 27 EU states are present; only non-euro ones need a rate", () => {
+  const eu = Object.keys(MARKETS).filter(k => k !== "UK" && k !== "US");
+  assert.equal(eu.length, 27);
+  const need = marketPrices({ landed: 18, quantity: 100, markets: eu }).filter(r => r.error).map(r => r.market).sort();
+  assert.deepEqual(need, ["CZ", "DK", "HU", "PL", "RO", "SE"]);
 });

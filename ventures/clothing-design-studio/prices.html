@@ -56,6 +56,9 @@
       <h2>Exchange rates</h2>
       <p class="tag">Units of the market's currency per one of yours. Only needed when it differs.</p>
       <div class="row"><div><label for="gbp">to GBP</label><input id="gbp" type="number" min="0" step="0.001" value="0.85"></div><div><label for="usd">to USD</label><input id="usd" type="number" min="0" step="0.001" value="1.08"></div></div>
+      <div class="row"><div><label for="sek">to SEK</label><input id="sek" type="number" min="0" step="0.001" placeholder="blank = skip"></div><div><label for="dkk">to DKK</label><input id="dkk" type="number" min="0" step="0.001" placeholder="blank = skip"></div></div>
+      <div class="row"><div><label for="pln">to PLN</label><input id="pln" type="number" min="0" step="0.001" placeholder="blank = skip"></div><div><label for="czk">to CZK</label><input id="czk" type="number" min="0" step="0.001" placeholder="blank = skip"></div></div>
+      <div class="row"><div><label for="huf">to HUF</label><input id="huf" type="number" min="0" step="0.001" placeholder="blank = skip"></div><div><label for="ron">to RON</label><input id="ron" type="number" min="0" step="0.001" placeholder="blank = skip"></div></div>
       <p class="tag">Check the rates yourself; these are placeholders, not today's.</p>
     </section>
     <div>
@@ -84,6 +87,7 @@
     function render() {
       const cur = $("#cur").value;
       const rates = { GBP: +$("#gbp").value, USD: +$("#usd").value };
+      for (const c of ["sek", "dkk", "pln", "czk", "huf", "ron"]) rates[c.toUpperCase()] = +$("#" + c).value;
       const plan = { ...DEFAULT_PLAN, targetMarginPct: +$("#target").value, channelFeePct: +$("#fees").value };
       const rows = marketPrices({ landed: +$("#landed").value, quantity: Math.max(1, +$("#qty").value), currencyRates: rates, vat, ending: +$("#ending").value, audience: $("#aud").value }, plan, cur);
       $("#result").innerHTML = `<table><tr><th>Market</th><th>VAT %</th><th>Shelf price</th><th>Net of tax</th><th>Profit / sale</th><th>Margin</th></tr>${rows.map(r => r.error
