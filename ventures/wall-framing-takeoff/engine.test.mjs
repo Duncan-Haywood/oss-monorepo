@@ -1112,3 +1112,35 @@ test("a wall's own studLength (9 ft beside 8 ft) sets that wall's studs and heig
   plan.walls[0].studLength = "9ft";
   assert.match(takeoff(plan).errors.join(" "), /Front: "studLength" must be a number/);
 });
+
+test("typed cull allowance adds whole spare boards per order line, apart from the layout order", () => {
+  const plan = samplePlan();
+  const none = takeoff(plan);
+  assert.deepEqual(none.culls, []);
+  assert.equal(none.summary.cullBoards, undefined);
+  const r = takeoff({ ...plan, culls: { pct: 0.05, bySize: { "2x6": 0.1 } } });
+  assert.ok(r.ok);
+  assert.equal(r.summary.cost, none.summary.cost, "layout order cost is unchanged");
+  assert.equal(r.summary.bound, none.summary.bound);
+  let boards = 0, cost = 0;
+  for (const o of r.orders) for (const l of o.lines) {
+    const pct = o.size === "2x6" ? 0.1 : 0.05;
+    const want = Math.ceil(l.qty * pct - 1e-9);
+    const got = r.culls.find((c) => c.size === o.size && c.length === l.length && c.label === l.label);
+    assert.equal(got ? got.qty : 0, want);
+    boards += want; cost += want * l.price;
+  }
+  assert.equal(r.summary.cullBoards, boards);
+  assert.ok(Math.abs(r.summary.cullCost - cost) < 1e-9);
+  assert.ok(Math.abs(r.summary.costWithCulls - (none.summary.cost + cost)) < 1e-9);
+  assert.match(toCsv(r), /^cull,/m);
+  assert.doesNotMatch(toCsv(none), /^cull,/m);
+});
+
+test("cull allowance refuses rates outside 0 to 50% and non-objects", () => {
+  for (const culls of [{ pct: 0.6 }, { pct: -0.1 }, { pct: "5" }, { bySize: { "2x4": 2 } }, [], 5]) {
+    const r = takeoff({ ...samplePlan(), culls });
+    assert.equal(r.ok, false, JSON.stringify(culls));
+  }
+  assert.ok(takeoff({ ...samplePlan(), culls: { pct: 0 } }).ok);
+});

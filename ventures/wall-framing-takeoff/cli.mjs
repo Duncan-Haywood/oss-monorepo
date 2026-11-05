@@ -395,6 +395,11 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     for (const l of o.lines) lines.push(`  ${String(l.qty).padStart(4)}  ${o.size.padEnd(7)} ${formatLength(l.length).padEnd(10)} ${l.label}`);
     lines.push(`        ${o.size}: ${o.method}, cost ${o.cost.toFixed(2)}${o.proven ? ", proven cheapest" : ""}`);
   }
+  if (r.culls && r.culls.length) {
+    lines.push("", "CULL ALLOWANCE (spare boards, typed rate)");
+    for (const l of r.culls) lines.push(`  ${String(l.qty).padStart(4)}  ${l.size.padEnd(7)} ${formatLength(l.length).padEnd(10)} ${(100 * l.pct).toFixed(1)}%  ${l.cost.toFixed(2)}`);
+    lines.push(`  ${r.summary.cullBoards} boards, ${r.summary.cullCost.toFixed(2)}; order with culls ${r.summary.costWithCulls.toFixed(2)}`);
+  }
   lines.push("", "CUT LIST");
   for (const c of r.cuts) lines.push(`  ${String(c.qty).padStart(4)}  ${c.size.padEnd(7)} ${formatInches(c.length).padEnd(10)} ${c.kind}`);
   lines.push("", "LAYOUT MARKS (left edge of each member, from the wall start)");
