@@ -419,3 +419,13 @@ test("--flooring adds finish flooring orders", () => {
   assert.equal(bad.code, 1);
   assert.match(bad.out, /flooring has problems/);
 });
+
+test("--orders prints order-by dates and flags late items against a given day", () => {
+  const plan = { ...samplePlan(), schedule: { start: "2026-03-02", activities: [{ id: "a", name: "Slab", days: 3 }, { id: "b", name: "Framing", days: 5, after: ["a"] }], orders: [{ item: "Trusses", for: "b", leadDays: 28 }] } };
+  const ok = run(["plan.json", "--orders=2026-03-01"], plan);
+  assert.equal(ok.code, 0);
+  assert.match(ok.out, /Trusses.*LATE by/);
+  assert.match(run(["plan.json", "--orders", "--csv"], plan).out, /^order_by,item/);
+  const bad = run(["plan.json", "--orders"], { ...plan, schedule: { ...plan.schedule, orders: undefined } });
+  assert.equal(bad.code, 1);
+});
