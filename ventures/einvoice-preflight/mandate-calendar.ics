@@ -503,6 +503,21 @@ URL:https://example.invalid/einvoice-preflight/estonia-e-invoice-mandate.
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:da8362c70d65ee08@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20250701
+DTEND;VALUE=DATE:20250702
+SUMMARY:Tunisia: penalty regime reported from 1 Jul 2025 (vendor and advi
+ sory guides\, Finance Laws and D...
+DESCRIPTION:Tunisia (In force (services from 1 Jan 2026)). penalty regime
+  reported from 1 Jul 2025 (vendor and advisory guides\, Finance Laws and
+  DGI unread). Detail and sources: https://example.invalid/einvoice-prefl
+ ight/tunisia-el-fatoora-e-invoice-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/tunisia-el-fatoora-e-invoi
+ ce-mandate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:594aae6c59ffacd9@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20250729
@@ -649,6 +664,21 @@ DESCRIPTION:Panama (In force (PAC duties from 2026)). Resolution 201-6299
  te.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/panama-dgi-sfep-e-invoice-
  mandate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:683d68e2bea4466f@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20260101
+DTEND;VALUE=DATE:20260102
+SUMMARY:Tunisia: VAT-liable services added from 1 Jan 2026 under the 2026
+  Finance Law
+DESCRIPTION:Tunisia (In force (services from 1 Jan 2026)). VAT-liable ser
+ vices added from 1 Jan 2026 under the 2026 Finance Law. Detail and sourc
+ es: https://example.invalid/einvoice-preflight/tunisia-el-fatoora-e-invo
+ ice-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/tunisia-el-fatoora-e-invoi
+ ce-mandate.html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
