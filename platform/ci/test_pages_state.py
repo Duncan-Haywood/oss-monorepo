@@ -269,6 +269,10 @@ class ReadPublishBranch(unittest.TestCase):
         api = fake_api(branches={"gh-pages": branch()})
         self.assertEqual(ps.read_publish_branch(api)["built_from"], "b" * 40)
 
+    def test_reports_the_commit_date(self):
+        api = fake_api(branches={"gh-pages": branch(date="2026-01-02T03:04:05Z")})
+        self.assertEqual(ps.read_publish_branch(api)["date"], "2026-01-02T03:04:05Z")
+
 
 class Collect(unittest.TestCase):
     def test_end_to_end_current_snapshot(self):
