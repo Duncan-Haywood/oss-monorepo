@@ -41,6 +41,14 @@ Next step 1 asked for a case whose published ratings bind. MATPOWER `case300` (3
 - **The AC prices are not credible.** Bus prices range from -2954 to 115 per MWh at load 0.6, 31 to 83 at 0.7, and -16 to 1366 at 0.8, against a DC price of about 32 to 36. The AC-optimum cost is 2.6 to 4.0 % *above* the DC cost, and the DC dispatch run through AC power flow costs 0.7 to 2.0 % *less* than the claimed AC optimum, which cannot happen at a true optimum. So these are local or poorly converged points of a non-convex problem, not optima.
 - **Conclusion for this step:** I could not separate the loss and congestion components of price on case300 with this solver. The comparison needs a different AC OPF solver (for example IPOPT through PowerModels.jl or MATPOWER's own MIPS/IPOPT) and a check against MATPOWER's published case300 optimum; both are outside this container. Until then, the case118 LMP result above is the only price comparison here, and case300 AC cost figures should not be quoted.
 
+## Voltage violations: a setpoint and reactive problem, not a dispatch one (added 2026-11-05, `experiments/run_voltage.py`, `results_voltage.txt`)
+Next step 3 asked whether voltage-band constraints in the LP would remove case39's violations. Before building that LP I held the *same* DC dispatch under AC with different voltage controls (case39, loads 0.6, 0.8, 1.0; pandapower, one solver):
+- **Setpoints matter, not P.** As shipped, the PV buses are held at the case's `vm_pu` (up to 1.064, above the 1.06 band), giving 15, 5 and 1 buses out of band. Clamping setpoints into the band alone fixes almost nothing (14, 5, 1; the last is 1.0600 by rounding). A single uniform setpoint (1.005, 1.010, 1.015) gives **0 voltage violations** at 0.02 to 0.07 % cost difference from the AC optimum.
+- **But that breaks reactive limits.** pandapower does not enforce generator Q limits in a power flow; checking them, the uniform setpoint leaves 5, 3 and 3 generators outside their Qmin/Qmax, and no uniform setpoint on a 0.005 grid satisfies both voltage and Q at any of the three loads.
+- **A simple per-generator rule fails too:** nudging each generator's setpoint against its own Q violation (`q_balancing_setpoints`) found a feasible profile at load 1.0 only, not at 0.6 or 0.8 (a heuristic, not an optimiser).
+- **The DC dispatch itself is fine.** An AC OPF with real power pinned to the DC dispatch (`reactive_redispatch`, only voltages, Q and slack free) finds a feasible profile at 0.6 and 0.8 on case39 (vmax 1.06, cost **0.023 and 0.039 %** above the AC optimum) and on case30 (0.078, 0.069 %). At load 1.0 pandapower returned no solution on either case, which is not proof of infeasibility.
+- **Reading:** the violations come from fixed voltage setpoints and reactive capability, which the DC model (and a plain power flow) leave uncontrolled. A voltage-aware *P* dispatch is not what is missing; a voltage/Q stage after the DC dispatch is. Not shown: that this holds on other cases, with N-1, or at full load. No LP with voltage-band constraints was built, so step 3 as written is answered by a different route.
+
 ## Method (`src/infra_dcopf/dcopf.py`)
 - **Cases.** `case30`, `case39` and `case118` from `pandapower.networks` (MATPOWER cases), with their quadratic generator costs (`poly_cost`).
 - **Two OPFs per condition.** `runopp` (AC, PIPS interior point, voltage and branch loading limits) and `rundcopp` (DC), on the same network with load scaled by 0.6, 0.8, 1.0 and 1.1 (P and Q together).
@@ -75,7 +83,7 @@ Findings (one case, one load level, preliminary):
 ## Next steps
 1. Repeat the LMP comparison on a case whose published ratings bind, with an AC OPF solver that converges on case300 (see the section above: pandapower's does not); check the solver against MATPOWER's published case300 optimum first, then separate the loss and congestion components of the price.
 2. Penalty factors were tried (above) with mixed results; next, take sensitivities at the AC optimum or use a distributed slack.
-3. Reactive-aware fix: add voltage-band constraints to the LP and see whether case39's violations go away.
+3. Done by another route (see "Voltage violations" above). Next: a voltage/Q stage that is not a full AC OPF, and full-load feasibility with a solver that converges.
 
 ## Reproduce
 ```bash
@@ -86,6 +94,7 @@ PYTHONPATH=src python experiments/run.py      # about 1 min; writes experiments/
 PYTHONPATH=src python experiments/run_lossadj.py  # loss-adjusted DC, about 1 min; writes results_lossadj.txt
 PYTHONPATH=src python experiments/run_case300.py  # case300 sweep, about 1.5 min; writes results_case300.txt
 python experiments/run_lmp.py                 # LMP comparison, about 1 min; writes experiments/results_lmp.txt
+PYTHONPATH=src python experiments/run_voltage.py  # voltage setpoint study, about 1 min; writes results_voltage.txt
 python experiments/figure.py                  # experiments/gap_vs_load.svg
 ```
 
