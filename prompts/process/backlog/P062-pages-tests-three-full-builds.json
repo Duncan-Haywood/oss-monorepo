@@ -1,7 +1,7 @@
 {
   "id": "P062",
   "title": "perf: three Pages test files each run their own full site build, in separate processes",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 1,
   "cost": 2,
@@ -21,12 +21,13 @@
   "baseline": "17.5 min over 21 jobs, 2026-11-04",
   "opened": "2026-11-04",
   "source": "docs/history/pages-test-perf-2026-11-04-per-file-reading.md",
-  "pr": null,
-  "result": null,
+  "pr": "this",
+  "result": "2026-11-05 process run: remaining option (re-measure warm) was done by the 11-05 perf run: build-determinism 85 s warm (cold 262 s), off the critical path behind build.test.mjs; custom-domain ~28 s warm. Wall time is bounded by build.test.mjs, so no further split pays. main_health.py 42/42 green. Live ci_profile figure not read (no network to Actions history from this run).",
   "history": [
     "2026-11-04 perf run: /compare/ and /guides/ tests in build.test.mjs share one fixture build, ~25 s of 380 s warm; docs/history/pages-test-perf-2026-11-04-hub-fixture-shared.md",
     "2026-11-04 perf run: sibling item in the venture test runner, longest suite first; docs/history/ci-perf-2026-11-04-venture-suites-longest-first.md",
     "2026-11-04 perf run: worker cache-name test hashes the shared build read-only via offlineCacheName instead of copying the site, ~33 s; docs/history/pages-test-perf-2026-11-04-worker-cache-name.md",
-    "2026-11-05 perf run: build-determinism warm is 85 s (cold 262 s), off the critical path behind build.test.mjs; docs/history/pages-test-perf-2026-11-05-determinism-warm.md"
+    "2026-11-05 perf run: build-determinism warm is 85 s (cold 262 s), off the critical path behind build.test.mjs; docs/history/pages-test-perf-2026-11-05-determinism-warm.md",
+    "2026-11-05 process run: closed as done; nothing left that shortens the critical path."
   ]
 }
