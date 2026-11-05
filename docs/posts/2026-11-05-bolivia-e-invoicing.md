@@ -1,9 +1,9 @@
 ---
 title: "E-invoicing page for Bolivia"
-seo_title: "Bolivia e-invoicing: SIN Sistema de Facturación Virtual and the groups 9 to 12 deadline"
+seo_title: "Bolivia e-invoicing: SIN virtual invoicing, groups 9 to 12 deadline"
 date: 2026-11-05
 tags: [einvoice-preflight, e-invoicing, bolivia]
-description: "E-invoice Preflight now covers 81 countries: Bolivia's SIN assigns online invoicing modalities by taxpayer group, with groups 9 to 12 reported due 1 October 2026."
+description: "E-invoice Preflight now covers 81 countries: Bolivia's SIN assigns online invoicing modes by taxpayer group; groups 9 to 12 are reported due 1 October 2026."
 ---
 
 The mandates-by-country table grows from 80 to 81 rows.
