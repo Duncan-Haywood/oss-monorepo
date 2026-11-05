@@ -10,10 +10,10 @@ import { parseTime, DAYS, dayIndex } from "./calc.mjs";
 
 const SYN = {
   date: ["date", "shift date", "day", "start date", "scheduled date", "work date"],
-  start: ["start", "start time", "shift start", "begin", "from", "starts", "clock in", "scheduled start"],
-  end: ["end", "end time", "shift end", "finish", "to", "ends", "clock out", "scheduled end"],
+  start: ["start", "start time", "shift start", "begin", "from", "starts", "clock in", "scheduled start", "shift start time", "time in", "scheduled in", "in"],
+  end: ["end", "end time", "shift end", "finish", "to", "ends", "clock out", "scheduled end", "shift end time", "time out", "scheduled out", "out"],
   range: ["shift", "shift time", "shift times", "hours", "time", "times", "scheduled time"],
-  role: ["position", "role", "job", "job title", "department", "station", "location position"],
+  role: ["position", "role", "job", "job title", "department", "station", "location position", "position name", "role name", "job name"],
   who: ["employee", "name", "employee name", "team member", "staff", "assigned to", "user"],
 };
 const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();

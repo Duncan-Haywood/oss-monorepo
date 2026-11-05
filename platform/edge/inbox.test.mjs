@@ -169,3 +169,12 @@ test('DELETE /inbox reads the id as base 10', async () => {
   assert.equal(env.DB.rows.some((r) => r.id === 11), true);
   assert.equal(env.DB.rows.some((r) => r.id === 10), false);
 });
+
+test('the size limit is 256 KB and a message of exactly that size is accepted', async () => {
+  assert.equal(MAX_RAW, 262144);
+  const env = { DB: fakeDb() };
+  const edge = message({ raw: 'x'.repeat(MAX_RAW) });
+  await worker.email(edge, env);
+  assert.ok(!edge.rejected);
+  assert.equal(env.DB.rows.length, 1);
+});

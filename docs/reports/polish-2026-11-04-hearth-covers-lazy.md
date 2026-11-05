@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [performance]
+subjects: [hearth-and-horizon]
 date: 2026-11-04
 tagged: auto
 ---

@@ -1,3 +1,8 @@
+---
+kind: milestone
+date: 2026-11-04
+subjects: [verified-dse]
+---
 # verified-dse milestone 79 (agent notes)
 
 - Result: `research/verified-dse/experiments/detail_route/results_mult24_sub12.txt` (12 points, tau(R4,R5) 0.73).

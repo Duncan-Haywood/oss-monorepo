@@ -1,0 +1,188 @@
+{
+  "date": "2026-11-05",
+  "session": "https://claude.ai/code/session_01AcxTtLo8i7WAZoL5bLTy2E",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md",
+  "input_sha256": "94a6b2a74a2fe72d09d7042291a4072d20b259b937e79b5deda0279ae57c7410",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-05T10:09:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13296",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 open entry needs a control-plane PR with owner approval; left open. Only one 8-mutant campaign on check_jsonld.py (8/8 caught).",
+      "did": "fixed three red tests on main instead",
+      "result": "tests green"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Red baselines found via targets --probe: doc_index, podcast, shorts. Fixed content. No post: small fix run.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/check_jsonld.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_jsonld  (in platform/ci)",
+        "seed": 180978662,
+        "commit": "15de010d0",
+        "sites": 13,
+        "baseline_seconds": 0.0,
+        "mutants": [
+          {
+            "file": "platform/ci/check_jsonld.py",
+            "line": 19,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "ROOT = Path(__file__).resolve().parents[2]",
+            "after": "ROOT = Path(__file__).resolve().parents[3]",
+            "line_text": "ROOT = Path(__file__).resolve().parents[2]",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_jsonld.py",
+            "line": 32,
+            "col": 23,
+            "operator": "and-to-or",
+            "before": "if path == \"$\" and not {\"@graph\", \"@type\"} & node.keys():",
+            "after": "if path == \"$\" or not {\"@graph\", \"@type\"} & node.keys():",
+            "line_text": "        if path == \"$\" and not {\"@graph\", \"@type\"} & node.keys():",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_jsonld.py",
+            "line": 41,
+            "col": 17,
+            "operator": "neq-flip",
+            "before": "if k != \"@context\":",
+            "after": "if k == \"@context\":",
+            "line_text": "            if k != \"@context\":",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_jsonld.py",
+            "line": 62,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "bad, pages = 0, 0",
+            "after": "bad, pages = 0, 1",
+            "line_text": "    bad, pages = 0, 0",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_jsonld.py",
+            "line": 67,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "pages += 1",
+            "after": "pages += 2",
+            "line_text": "        pages += 1",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_jsonld.py",
+            "line": 69,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "bad += 1",
+            "after": "bad += 2",
+            "line_text": "            bad += 1",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_jsonld.py",
+            "line": 72,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 1 if bad else 0",
+            "after": "return 2 if bad else 0",
+            "line_text": "    return 1 if bad else 0",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_jsonld.py",
+            "line": 72,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "return 1 if bad else 0",
+            "after": "return 1 if bad else 1",
+            "line_text": "    return 1 if bad else 0",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "docs/posts/2026-11-05-czech-vida-bill-no-einvoice-rule.md",
+        "issue": "post lacked `description` front matter; broke podcast.test.mjs and shorts.test.mjs on main",
+        "patched": true
+      },
+      {
+        "file": "docs/reports/polish-2026-11-04-hearth-covers-lazy.md",
+        "issue": "topic 'performance' not in taxonomy; broke test_doc_index",
+        "patched": true
+      },
+      {
+        "file": "docs/reports/verified-dse-milestone-79.md",
+        "issue": "no front matter; broke test_doc_index",
+        "patched": true
+      }
+    ]
+  }
+}

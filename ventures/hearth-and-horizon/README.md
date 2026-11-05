@@ -13,6 +13,7 @@ podcast, and share or adapt under **CC BY-SA 4.0**. There are three collections:
 
 ## Stories so far
 
+- [The Square That Came Out Small](stories/the-square-that-came-out-small.md) (Hearth & Horizon; Saint Ebba's hall, invented, near Coldingham, Berwickshire, 12 November 2050). Six knitters follow one pattern for a hospice blanket and get three square sizes; gauge, not stitch count, sets the size, and the assistant works out cast-ons and 780 g of yarn. Fiction, text only.
 - [The Lamp Before Dawn](stories/the-lamp-before-dawn.md) (Hearth & Horizon; Saint Ita's glebe, invented, near Abbeyfeale, Co. Limerick, 18 November 2050). Foodbank hens fall from 26 eggs to 4 as the day shrinks to about 8.5 hours; a lamp to 14 hours is 76 Wh a day at 12 W, but the assistant asks whether to push the flock at all, and they settle on 13 hours until February and a count on the door. Fiction, text only.
 - [Hilda and the Cowherd Who Could Not Sing](stories/hilda-and-the-cowherd-who-could-not-sing.md) (Little Lamps; Whitby, about 680). Saint Hilda, abbess of Whitby, and the shy cowherd Caedmon who left the feast before the harp came round; Bede's dream told as Bede's report, with a note for grown-ups on what is sourced and what is ours.
 - [Anthony and the Sermon to the Fishes](stories/anthony-and-the-sermon-to-the-fishes.md) (Little Lamps; Rimini, Italy, about 800 years ago). Saint Anthony of Padua, a shy young man from Lisbon, and the legend of the fish that listened when the town would not; the fish sermon told as legend (*Fioretti*), the rest in outline. Text only.

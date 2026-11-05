@@ -234,6 +234,13 @@
    "status": "Partly in force"
   },
   {
+   "date": "2025-07-01",
+   "country": "Tunisia",
+   "page": "tunisia-el-fatoora-e-invoice-mandate.html",
+   "note": "penalty regime reported from 1 Jul 2025 (vendor and advisory guides, Finance Laws and DGI unread)",
+   "status": "In force (services from 1 Jan 2026)"
+  },
+  {
    "date": "2025-07-29",
    "country": "Panama",
    "page": "panama-dgi-sfep-e-invoice-mandate.html",
@@ -302,6 +309,13 @@
    "page": "panama-dgi-sfep-e-invoice-mandate.html",
    "note": "Resolution 201-6299 (29 July 2025) reported in force 1 January 2026",
    "status": "In force (PAC duties from 2026)"
+  },
+  {
+   "date": "2026-01-01",
+   "country": "Tunisia",
+   "page": "tunisia-el-fatoora-e-invoice-mandate.html",
+   "note": "VAT-liable services added from 1 Jan 2026 under the 2026 Finance Law",
+   "status": "In force (services from 1 Jan 2026)"
   },
   {
    "date": "2026-01-01",
