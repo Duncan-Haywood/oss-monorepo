@@ -35,6 +35,8 @@ many-session project. Each milestone below lands as a working slice.
 
 8. **Compliance labels.** (First slice done 2026-11-04: `labels.mjs` + `labels.html`, fibre content and care for the EU and US; UK (Great Britain) and Canada (bilingual, CA number) added 2026-11-04; rules summarised, not legal advice. Wool/cashmere, leather, fur and down notes by market landed 2026-11-04 (`materialNotes`, pointers to the law, not rulings). Care symbol artwork landed 2026-11-04 (`caresymbols.mjs`: ISO 3758-style wash, bleach, dry, iron and professional symbols as SVG on the label page, downloadable; drawn by the author from the published shapes, hand-in-tub is crude, check against the standard). Still to do: a real factory's label through it, symbols checked against a licensed copy of the standard.)
 
+10. **Pre-order planner.** (First slice done 2026-11-05: `preorder.mjs` + `preorder.html`, orders and visitors needed to reach a factory minimum, chance of funding (Poisson), profit if funded, loss if not, conversion range from a small test; hand tests only. Still to do: a real designer's campaign, lumpy traffic, deposit-only pre-orders, refund timing by country.)
+
 ## Not planned
 
 - Sewing patterns and grading: professional pattern software does this well.
