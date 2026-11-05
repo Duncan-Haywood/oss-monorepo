@@ -51,6 +51,15 @@ class Patterns(unittest.TestCase):
         self.assertEqual(guard.owner_logins(RULES), {"owner"})
 
 
+class QuestionMark(unittest.TestCase):
+    def test_question_mark_is_exactly_one_non_slash_character(self):
+        rules = guard.parse_codeowners("/key-?.pem @owner\n")
+        self.assertTrue(guard.owners_for("key-1.pem", rules))
+        self.assertFalse(guard.owners_for("key-12.pem", rules))
+        self.assertFalse(guard.owners_for("key-.pem", rules))
+        self.assertFalse(guard.owners_for("key-/.pem", rules))
+
+
 class RepoCodeowners(unittest.TestCase):
     def test_real_file_covers_every_sample(self):
         rules = guard.parse_codeowners(guard.CODEOWNERS.read_text(encoding="utf-8"))
