@@ -1,9 +1,9 @@
 ---
 title: "Cheap estimates in chip-flow search: what 81 logged experiments found"
-seo_title: "Multi-fidelity chip design search on SKY130: does a cheap estimate pay? Summary of verified-dse"
+seo_title: "Cheap estimates in chip-flow search on SKY130: a summary"
 date: 2026-11-05
 tags: [research, chip-design, optimisation, negative-result, summary]
-description: "A summary of the verified-dse programme: on small SKY130 designs, ranking synthesis settings with a cheap pre-routing estimate did not beat routing at random, and what a pilot can and cannot certify."
+description: "Summary of the verified-dse programme: on small SKY130 designs a cheap pre-routing estimate did not beat random routing."
 ---
 
 The question behind the `verified-dse` programme: when you search synthesis pass sequences for a chip design, can a cheap estimate (generic gates, or mapped cells with no wires) decide which candidates deserve a full place-and-route run? This is a summary of what 81 logged milestones found. Every number below is quoted from `research/verified-dse/LOG.md` and `PAPER.md`; none is new.
