@@ -379,3 +379,16 @@ test("--paint with bad settings exits 1", () => {
   assert.equal(code, 1);
   assert.match(out, /paint has problems/);
 });
+
+test("--paint with --trim takes the trim's lineal feet; a typed trimFeet wins", () => {
+  const plan = samplePlan();
+  const a = JSON.parse(run(["p.json", "--paint", "--trim", "--json"], plan).out);
+  const t = a.trim, feet = t.baseFeet + t.casingFeet + t.shoeFeet;
+  assert.ok(feet > 0);
+  assert.equal(a.paint.trimFeet, feet);
+  const without = JSON.parse(run(["p.json", "--paint", "--json"], plan).out);
+  assert.ok(a.paint.paintGallonsExact > without.paint.paintGallonsExact);
+  plan.paint = { trimFeet: 10 };
+  const b = JSON.parse(run(["p.json", "--paint", "--trim", "--json"], plan).out);
+  assert.equal(b.paint.trimFeet, 10);
+});

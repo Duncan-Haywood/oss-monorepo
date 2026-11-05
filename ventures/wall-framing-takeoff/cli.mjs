@@ -269,7 +269,10 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     r.trim = trimmed = trim;
   }
   if (r.ok && (flags.has("--paint") || plan.paint)) {
-    const pt = layoutPaint(plan.paint || {}, plan);
+    // with --trim also on, the baseboard, casing and shoe feet become the paint's trim feet unless the plan types its own
+    const fromTrim = trimmed && (plan.paint || {}).trimFeet == null ? trimmed.baseFeet + trimmed.casingFeet + trimmed.shoeFeet : null;
+    const pt = layoutPaint(fromTrim != null ? { ...(plan.paint || {}), trimFeet: fromTrim } : (plan.paint || {}), plan);
+    if (pt.ok && fromTrim != null) pt.trimFeetFromTrim = true;
     if (!pt.ok) return { code: 1, out: `The paint has problems:\n${pt.errors.map((e) => `  - ${e}`).join("\n")}` };
     r.paint = pt;
   }
