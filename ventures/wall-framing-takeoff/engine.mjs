@@ -1365,6 +1365,8 @@ export function takeoff(plan, extraCuts = []) {
     const needed = pieces.reduce((s, p) => s + p.length * p.qty, 0);
     orders.push({ size, ...res, lines: [...lines.values()].sort((a, b) => b.length - a.length), bought, needed, naive: naiveCost(pieces, stock) });
   }
+  const cull = cullAllowance(plan.culls, orders);
+  if (cull.errors.length) return { ok: false, errors: cull.errors };
   const cost = orders.reduce((s, o) => s + o.cost, 0);
   const bound = orders.reduce((s, o) => s + o.bound, 0);
   const bought = orders.reduce((s, o) => s + o.bought, 0);
@@ -1377,6 +1379,7 @@ export function takeoff(plan, extraCuts = []) {
     walls,
     cuts,
     orders,
+    culls: cull.lines,
     summary: {
       walls: walls.length,
       wallFeet: lf,
@@ -1387,12 +1390,43 @@ export function takeoff(plan, extraCuts = []) {
       bound,
       gap: bound > 0 ? (cost - bound) / bound : 0,
       naiveCost: naive,
+      ...(cull.lines.length ? { cullBoards: cull.boards, cullCost: cull.cost, costWithCulls: cost + cull.cost } : {}),
       waste: bought > 0 ? (bought - needed) / bought : 0,
       boughtFeet: bought / 12,
       neededFeet: needed / 12,
     },
     notes: walls.flatMap((w) => w.notes.map((n) => `${w.id}: ${n}`)),
   };
+}
+
+/**
+ * Spare boards for crooked, twisted or split lumber a framer sets aside at the yard or on site.
+ * Typed, never assumed: plan `culls: {pct, bySize?: {"2x4": pct}}` adds ceil(boards x pct) of each ordered
+ * line (same length and price) and reports them apart, so the cut-list order and its LP bound stay the
+ * pure layout. Whole boards only; the rate is the builder's own experience, no industry figure is shipped.
+ * @param {any} culls @param {any[]} orders
+ */
+function cullAllowance(culls, orders) {
+  const out = { errors: /** @type {string[]} */ ([]), lines: /** @type {any[]} */ ([]), boards: 0, cost: 0 };
+  if (culls == null) return out;
+  if (typeof culls !== "object" || Array.isArray(culls)) { out.errors.push("culls must be an object: {pct, bySize}."); return out; }
+  const ok = (v) => typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 0.5;
+  if (culls.pct != null && !ok(culls.pct)) out.errors.push("culls.pct must be a fraction from 0 to 0.5 (0.05 = 5%).");
+  const by = culls.bySize || {};
+  for (const [k, v] of Object.entries(by)) if (!ok(v)) out.errors.push(`culls.bySize["${k}"] must be a fraction from 0 to 0.5.`);
+  if (out.errors.length) return out;
+  for (const o of orders) {
+    const pct = by[o.size] ?? culls.pct ?? 0;
+    if (!(pct > 0)) continue;
+    for (const l of o.lines) {
+      const qty = Math.ceil(l.qty * pct - 1e-9);
+      if (qty < 1) continue;
+      out.lines.push({ size: o.size, length: l.length, label: l.label, price: l.price, qty, pct, cost: qty * l.price });
+      out.boards += qty;
+      out.cost += qty * l.price;
+    }
+  }
+  return out;
 }
 
 /** Buying every piece on its own cheapest board that fits: the no-planning baseline. */
@@ -1412,6 +1446,7 @@ export function toCsv(result) {
   const q = (v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
   const rows = [["section", "size", "length_in", "length", "qty", "detail"]];
   for (const o of result.orders) for (const l of o.lines) rows.push(["order", o.size, String(l.length), formatLength(l.length), String(l.qty), l.label || `price ${l.price}`]);
+  for (const l of result.culls || []) rows.push(["cull", l.size, String(l.length), formatLength(l.length), String(l.qty), `spare for culls (${(100 * l.pct).toFixed(1)}%)`]);
   for (const c of result.cuts) rows.push(["cut", c.size, String(c.length), formatInches(c.length), String(c.qty), `${c.kind} (${c.walls.join("; ")})`]);
   for (const o of result.orders) {
     o.bars.forEach((b, i) => rows.push(["board", o.size, String(b.length), formatLength(b.length), "1", `#${i + 1}: ${b.cuts.map((c) => `${formatInches(c.length)} ${c.ref}`).join(" + ")}; offcut ${formatInches(b.offcut)}`]));
