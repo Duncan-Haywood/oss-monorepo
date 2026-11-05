@@ -87,3 +87,16 @@ test("'today' needs a time or part of day; 'in N days' counts forward", () => {
   assert.deepEqual(f("in a week, morning"), [["2026-11-12", null, "morning"]]);
   assert.deepEqual(f("in 30 days"), []);
 });
+
+test("numeric dates, time before the day, one slot for 'Monday the 9th at 2pm'", () => {
+  const t = "2026-11-05";
+  const one = (s) => { const r = findSlots(s, t); assert.equal(r.length, 1, s); return r[0]; };
+  assert.deepEqual([one("Friday 11/13 at 2").date, one("Friday 11/13 at 2").time], ["2026-11-13", "14:00"]);
+  assert.equal(one("Thursday 13/11").date, "2026-11-13");
+  assert.equal(one("Monday the 9th at 2pm").time, "14:00");
+  assert.deepEqual([one("at noon tomorrow").date, one("at noon tomorrow").time], ["2026-11-06", "12:00"]);
+  assert.equal(one("2pm Thursday").time, "14:00");
+  assert.deepEqual([one("Tue 10 Nov, 9am").date, one("Tue 10 Nov, 9am").time], ["2026-11-10", "09:00"]);
+  // 11/12 reads either way: no invented date
+  assert.equal(findSlots("11/12", t).length, 0);
+});

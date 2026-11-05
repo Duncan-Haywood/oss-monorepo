@@ -23,13 +23,27 @@ export function findSlots(text, today) {
   // "noon" is 12pm; "midday" too. Only the bare word, so "afternoon" is untouched.
   const out = [], src = String(text || "").replace(/\s+/g, " ").replace(/\b(?:at )?(?:noon|midday)\b/gi, "at 12pm")
     // "at 3pm on Thursday" reads as "Thursday at 3pm"
-    .replace(new RegExp(`\\b(?:at )?(\\d{1,2}(?::\\d{2})?\\s?(?:am|pm)) on ${DAY_RE}\\b`, "gi"), "$2 at $1");
+    .replace(new RegExp(`\\b(?:at )?(\\d{1,2}(?::\\d{2})?\\s?(?:am|pm)) (?:on )?${DAY_RE}\\b`, "gi"), "$2 at $1")
+    // "Friday 11/13": a numeric month/day that only reads one way becomes "Nov 13"; 11/12 could be either order, so it is left alone
+    .replace(/\b(?:(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?,? )?(\d{1,2})\/(\d{1,2})\b(?!\/)/gi, (all, a, b) => {
+      a = Number(a); b = Number(b);
+      if (a >= 1 && a <= 12 && b > 12 && b <= 31) return `${MON_NAME[a - 1]} ${b}`;
+      if (b >= 1 && b <= 12 && a > 12 && a <= 31) return `${MON_NAME[b - 1]} ${a}`;
+      return all;
+    })
+    // "12 Nov, 9am" and "Nov 12, 9am" read as "... at 9am"
+    .replace(new RegExp(`\\b((?:${MON_RE}\\.? \\d{1,2}|\\d{1,2}(?:st|nd|rd|th)?(?: of)? ${MON_RE})(?:st|nd|rd|th)?),? (\\d{1,2}(?::\\d{2})?\\s?(?:am|pm))\\b`, "gi"), "$1 at $4");
   const weekdayDate = (w) => {
     if (w === "tomorrow") return add(today, 1);
     const want = DAYS.findIndex((d) => d.startsWith(w.slice(0, 3))), have = new Date(`${today}T00:00:00Z`).getUTCDay();
     return add(today, ((want - have + 7) % 7) || 7);
   };
-  const push = (o) => { if (!out.some((x) => x.date === o.date && x.time === o.time && x.part === o.part)) out.push(o); };
+  const push = (o) => {
+    if (out.some((x) => x.date === o.date && x.time === o.time && x.part === o.part)) return;
+    // "Monday the 9th at 2pm" is one slot: the bare day it began with gives way to the timed one
+    const i = out.findIndex((x) => x.date === o.date && !x.time && !x.after && !x.part && (o.time || o.part));
+    if (i >= 0) out[i] = o; else out.push(o);
+  };
   const bare = /\b(?:no|not|isn'?t|aren'?t|can'?t|cannot|unavailable|out)\b[^.?!]{0,25}$/i;
   // weekday (+ optional time or part of day)
   const re1 = new RegExp(`\\b(next |this )?${DAY_RE}\\b(?:,? ?(?:after |from )?(?:${PART}|${TIME_RE}))?`, "gi");
