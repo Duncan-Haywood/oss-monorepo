@@ -22,6 +22,8 @@
  * Spearman and the number of rated items along each respondent's own run
  * (2026-11-04, to explain why 3000 answers scored below 1000: docs), plus the
  * Spearman over the items rated at the first checkpoint (the fixed set).
+ * NOISY_SELECTOR=standard runs the shipped selector instead of the staged one
+ * (2026-11-05, to tell the selector from the rating update: docs).
  */
 import { appendFileSync } from "fs";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
@@ -89,7 +91,7 @@ describe("noisy and biased respondents through the route", () => {
       data: {
         slug: SLUG,
         title: "Noisy respondents",
-        pairSelector: "staged",
+        pairSelector: process.env.NOISY_SELECTOR === "standard" ? "standard" : "staged",
         items: { create: Array.from({ length: ITEMS }, (_, i) => ({ slug: `i${i}`, label: `Item ${i}`, sortOrder: i })) },
       },
     });
