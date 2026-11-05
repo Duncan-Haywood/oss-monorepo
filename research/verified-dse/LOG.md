@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-05 · Milestone 84: can a pilot observe the optimum's rank displacement? (predictions written before the run)
+- Why: PAPER.md Section 6 item 4 (pilot-side certificate). Milestone 44's zero-regret condition rho_j(x*) < k_j needs the unrouted optimum's rank; rung scores are known for the whole pool, so rho_j(p) is exact for every routed pilot point. `experiments/theory/pilot_rho.py`: statistic T = ratio of the pilot's best routed point, T3 = smallest ratio among its best three; coverage = share of pilots with T >= ratio(x*); a "certificate" is T < 1. m = 8, 16, 24; 300 pilots per cell; 40 cells; no flow run.
+- Predictions: (1) median coverage of T below 0.8 at m = 16 (a best routed point is not the optimum and the optimum is often displaced less); (2) T3 covers more than T; (3) in cells where the optimum is not guaranteed (ratio >= 1) a nonzero share of pilots still gets T < 1 (false certificates).
+- **Outcome** (`experiments/theory/pilot_rho_results.txt`). Median coverage P(T >= ratio(x*)) over 40 cells: T 0.89 / 0.97 / 0.99 and T3 0.72 / 0.70 / 0.84 at m = 8 / 16 / 24; cells with coverage >= 0.8: T 27 / 27 / 28, T3 17 / 14 / 20. Using T < 1 as a certificate: in the 11 cells where the optimum satisfies the zero-regret condition, T < 1 for 0.49 / 0.70 / 0.85 of pilots; in the 29 cells where it does not, a false certificate in 0.041 / 0.039 / 0.033 of pilots (T3: 0.09 / 0.10 / 0.10).
+- Predictions: (1) **refuted** (median coverage 0.968 at m = 16, not below 0.8); (2) **refuted** (T3 covers less, as taking a minimum can only lower the statistic); (3) held (3 to 4% false certificates for T, about 10% for T3).
+- Reading: the pilot's best routed point is usually at least as displaced by the rung as the pool optimum, so its observable ratio dominates the optimum's in most cells, but 13 of 40 cells at m = 16 have coverage under 0.8 and the empirical false-certificate share is about 4%. Like the top-3-vs-all statistic it is evidence on this table (coverage over pilots within a fixed cell, not over designs), not a theorem. Its advantage over milestones 38 to 43 is that it needs no excess estimate, only exact rung ranks and a routed pilot.
+- Next: unchanged (detail-routed mult24/mult32 cells, template typesetting).
+
+
 ## 2026-11-05 · Milestone 83: reproduce.sh now covers 23 cached-table analyses it omitted (no flow run, no new numbers)
 - Why: `reproduce.sh` claims to re-derive every number in PAPER.md, but 23 analysis scripts that produce tables the paper cites (theory/optimum_rank, disjoint_check, with_replacement, quantile_counterexample; tail_risk; corner_replay; hostile, unseen, util65, large, detail_route and rung_bias_26q3 replays; and others) had no line in it.
 - Prediction (written before running): all 23 exit 0 and leave `git status -- experiments` empty, i.e. reproduce committed output exactly, since they are seeded. If any changed a committed table, that table's PAPER.md figure would need checking.
