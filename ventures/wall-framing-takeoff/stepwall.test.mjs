@@ -57,3 +57,31 @@ test("a step that leaves a segment under 12 in is refused here, with the step na
   }
   assert.equal(expandSteppedWalls(plan({ id: "A", length: 240, steps: [{ at: 12, studLength: 116.625 }, { at: 228, studLength: 92.625 }], openings: [] })).ok, true);
 });
+
+test("hostile stepped walls are refused with a reason, not a raw TypeError or coercion", () => {
+  const cases = {
+    "text length": (w) => { w.length = "240"; },
+    "openings not a list": (w) => { w.openings = { a: 1 }; },
+    "null opening": (w) => { w.openings = [null]; },
+    "text opening offset": (w) => { w.openings = [{ kind: "door", offset: "20", width: 36 }]; },
+    "tees not a list": (w) => { w.tees = 5; },
+    "text tee": (w) => { w.tees = ["50"]; },
+    "null id": (w) => { w.id = null; },
+    "object id": (w) => { w.id = { a: 1 }; },
+  };
+  for (const [name, mutate] of Object.entries(cases)) {
+    const w = { id: "A", length: 240, steps: [{ at: 100, studLength: 120 }], openings: [], tees: [] };
+    mutate(w);
+    let r;
+    assert.doesNotThrow(() => { r = expandSteppedWalls(plan(w)); }, name);
+    assert.equal(r.ok, false, name);
+  }
+});
+
+test("a segment name that collides with another wall is refused", () => {
+  const p = plan({ id: "A", length: 240, steps: [{ at: 100, studLength: 120 }], openings: [] });
+  p.walls.push({ id: "A (a)", length: 50 });
+  const r = expandSteppedWalls(p);
+  assert.equal(r.ok, false);
+  assert.match(r.errors[0], /Two walls are named "A \(a\)"/);
+});
