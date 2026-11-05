@@ -1,9 +1,9 @@
 ---
 title: "Why did our pair picker get worse at ranking items it had already settled?"
-seo_title: "Pairwise ranking: the staged pair selector lost accuracy on settled items"
+seo_title: "Pairwise ranking: the staged selector lost accuracy on settled items"
 date: 2026-11-05
 tags: [quick-pick-survey, ranking, simulation, glicko]
-description: "A simulated noiseless respondent ranked 1000 items. With the staged selector the first 113 items got worse with more answers; with the shipped selector they did not."
+description: "A noiseless simulated respondent ranked 1000 items. With the staged selector the first 113 items got worse with more answers; with the shipped one they did not."
 ---
 
 `quick-pick-survey` ranks items from pairwise "which do you prefer" answers. Its staged pair selector chooses which pair to ask next. On 4 November we found something odd: a simulated respondent who never makes a mistake ranked the first 113 items it rated *worse* after 1000 to 2000 answers than after 500 (Spearman 0.80 down to 0.62).
