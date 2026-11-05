@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-05 · Milestone 9ah: where between 1 and 2 degrees does the fitted-bias (OE+b) fit stop converging at 2 phugoid periods? (prediction written before the run)
+- Why: 9ag's "Next". 9af/9ag found 0 of 160 OE+b failures at 1 degree and 77 to 80 of 160 at 2 degrees (2 periods). `AEROLOG_OFFSETS=1.25,1.5 AEROLOG_PERIODS=2` re-runs 9af's harness at those two biases (20 designs, scale 0.75, noise 10%, 8 draws; new draws, not 9af's stream). Output: `experiments/incidence_offset_fit/results_bisect.txt`.
+- **Prediction (before running):** the failure count rises monotonically with bias: OE+b at most 10 of 160 at 1.25 degrees and between 20 and 70 of 160 at 1.5 degrees (prior 60%). Refuted if 1.25 deg exceeds 10 failures, or 1.5 deg exceeds 80 (a cliff before 1.5) or is under 20 (the onset sits above 1.5).
+- Outcome: pending (the run takes hours; see below when filled).
+
 ## 2026-11-05 · Milestone 9ag: the missing 2-degree, 2-period rows of 9af (re-run; prediction was 9af's)
 - Why: 9af's "Next". `run.py` now takes `AEROLOG_OFFSETS` and `AEROLOG_PERIODS` to re-run chosen rows; this run used 2.0 and 2. The random stream differs from the full run, so these are new draws, not the lost ones. It took about 3 hours (fits at 2 deg mostly fail, and failed fits are slow).
 - Outcome (`experiments/incidence_offset_fit/results.txt`, appended): plain LS and OE fail 160 of 160. **OE+b fails 80 of 160** (median errors of the successful fits 0.08 / 0.73 / 1.25%, share of draws within 10% gust 41%, 0 of 20 designs at 90%). OE+b+d (with drift) fails 156 of 160.
