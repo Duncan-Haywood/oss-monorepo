@@ -1,5 +1,6 @@
 ---
 title: When nobody can cover the shift, the roster page now shows who can hand over
+seo_title: "Shift roster page now shows who can hand over a shift"
 date: 2026-11-05
 description: "Shift Roster Builder's cover finder lists chains of hand-overs when no one is free to take a called-out shift outright."
 tags: [shift-roster-builder, scheduling]

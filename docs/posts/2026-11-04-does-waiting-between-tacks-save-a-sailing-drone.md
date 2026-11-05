@@ -1,5 +1,6 @@
 ---
 title: "Does forbidding quick re-tacks save a sailing drone with a bad forecast?"
+seo_title: "Does forbidding quick re-tacks save a sailing drone?"
 date: 2026-11-04
 description: "A minimum-dwell rule cuts a replanning sail drone's tacks by up to 55% yet loses progress in every case tested; the header-follower wins on poor forecasts."
 tags: [marine-hull, sailing, research]

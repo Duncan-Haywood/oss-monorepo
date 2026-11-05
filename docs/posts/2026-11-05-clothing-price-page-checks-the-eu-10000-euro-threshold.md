@@ -1,5 +1,6 @@
 ---
 title: "Clothing price page now checks the EU EUR 10,000 cross-border threshold"
+seo_title: "Clothing price page checks the EU EUR 10,000 threshold"
 date: 2026-11-05
 description: "A small addition to the Clothing Design Studio price-by-market page: type your EU cross-border sales and see whether destination VAT applies."
 tags: [clothing-design-studio]

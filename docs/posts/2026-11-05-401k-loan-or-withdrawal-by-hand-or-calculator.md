@@ -1,5 +1,6 @@
 ---
 title: 401(k) loan or withdrawal: when a spreadsheet is enough and when it is not
+seo_title: "401(k) loan or withdrawal"
 date: 2026-11-05
 description: "Where a back-of-envelope comparison of a 401(k) loan and an early withdrawal works, and the three things it tends to leave out."
 tags: [401k, polish, seo]

@@ -1,5 +1,6 @@
 ---
 title: "Do loss penalty factors fix a DC power-flow dispatch? Only at light load"
+seo_title: "Do loss penalty factors fix a DC power-flow dispatch?"
 date: 2026-11-04
 description: "On the IEEE 118-bus case, charging each generator for the losses it causes helped at 60 to 80 % load and hurt at full load."
 tags: [research, infra-dcopf, power-systems]
