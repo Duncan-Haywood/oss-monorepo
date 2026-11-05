@@ -41,3 +41,5 @@ many-session project. Each milestone below lands as a working slice.
 
 - Sewing patterns and grading: professional pattern software does this well.
 - Holding anyone's designs on our servers.
+
+- 2026-11-05: measured arm (shoulder point to wrist) on `fit.html` replaces the height rule in `sleeveCheck`; unit tests only. Still to do: factory sleeve spec in the check, WebXR, camera try-on.

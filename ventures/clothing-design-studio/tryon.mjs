@@ -85,13 +85,14 @@ export function tryOn(body, { garment = "tee", fit = "regular", size = "M", size
     { where: "hip (at the hem)", body: hip, garment: gm.chest, ease: r1(gm.chest - hip), word: easeWord(gm.chest - hip, "hem") },
   ];
   const length = { hemFromFloor: r1(hemH), word: hemWord(hemH, H) };
-  const sleeve = sleeveCheck(garment, size, H);
+  const sleeve = sleeveCheck(garment, size, H, body?.arm);
   const notes = [];
-  if (garment !== "tee" && sleeve.pastWrist > 8) notes.push(`The sleeve is about ${sleeve.pastWrist} cm past your wrist at this height; ask the factory for a shorter sleeve or a ribbed cuff.`);
+  if (garment !== "tee" && sleeve.pastWrist > 8) notes.push(`The sleeve is about ${sleeve.pastWrist} cm past your wrist ${sleeve.armMeasured ? "by your arm measurement" : "at this height"}; ask the factory for a shorter sleeve or a ribbed cuff.`);
   if (hemH > H * L.hip + 6 && hemH <= H * L.waist + 2) notes.push("The hem stops above the hips; if that is not the look, ask for a longer body length.");
   if (checks[2].ease < 0) notes.push("The hem circumference is below the hip measurement. Ask the factory for the hem width, and consider the next size up.");
+  if (sleeve.armMeasured && Math.abs(sleeve.wristFromShoulder - 0.332 * H) > 4) notes.push(`Your arm (${r1(sleeve.wristFromShoulder)} cm) differs from the ${r1(0.332 * H)} cm average for your height; the sleeve verdict uses your arm.`);
   if (assumed.length) notes.push(`Not given, so assumed: ${assumed.join(", ")}. Enter them for a truer picture.`);
-  notes.push("A straight cut is assumed (hem as wide as the chest). Drape, stretch and sleeve shape are not simulated; the sleeve length is a typical figure.");
+  notes.push("A straight cut is assumed (hem as wide as the chest). Drape, stretch and sleeve shape are not simulated; the garment's sleeve length is a typical figure.");
   return { ok: true, size, garment, fit, height: H, body: { chest, waist, hip, height: H }, bodyWidths: mapR(bodyW), garmentWidths: { chest: r1(gChestW), hem: r1(gHemW) }, checks, length, sleeve, notes, assumed, svg: drawSvg({ H, bodyW, gChestW, gHemW, hpsH, hemH, garment, checks }), side: sideView({ H, chest, waist, hip, gChest: gm.chest, hpsH, hemH }) };
 }
 
@@ -103,10 +104,12 @@ export function tryOn(body, { garment = "tee", fit = "regular", size = "M", size
  * step), a guess until the factory's spec replaces it.
  */
 export const SLEEVE_CM_M = Object.freeze({ tee: 21, longsleeve: 63, crewneck: 63, hoodie: 64 });
-export function sleeveCheck(garment, size, height) {
+export function sleeveCheck(garment, size, height, arm) {
   const mi = ["XS", "S", "M", "L", "XL", "XXL"];
   const len = (SLEEVE_CM_M[garment] ?? 63) + (mi.indexOf(size) - 2);
-  const wrist = 0.332 * height, elbow = 0.186 * height;
+  // A measured arm (shoulder point to wrist bone, cm) replaces the height rule; elbow stays 56% of it.
+  const measured = clamp(Number(arm), 40, 100);
+  const wrist = measured ?? 0.332 * height, elbow = measured ? 0.56 * measured : 0.186 * height;
   const d = r1(len - wrist); // positive: past the wrist
   let word;
   if (garment === "tee") word = len < elbow - 12 ? "cap sleeve: ends high on the upper arm" : len <= elbow - 2 ? "ends on the upper arm" : "ends near the elbow";
@@ -115,7 +118,7 @@ export function sleeveCheck(garment, size, height) {
   else if (d <= 3) word = "ends at the wrist";
   else if (d <= 8) word = "covers the wrist, bunches a little";
   else word = "runs over the hand: ask for a shorter sleeve or a ribbed cuff";
-  return { sleeveCm: r1(len), wristFromShoulder: r1(wrist), pastWrist: d, word };
+  return { sleeveCm: r1(len), wristFromShoulder: r1(wrist), pastWrist: d, word, armMeasured: measured != null };
 }
 
 const mapR = o => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, r1(v)]));

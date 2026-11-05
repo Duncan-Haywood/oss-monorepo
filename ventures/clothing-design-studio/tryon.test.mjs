@@ -92,3 +92,22 @@ test("side view: garment is deeper than the body by the ease; svg is clean", () 
   assert.ok(!/NaN|undefined|<script/.test(r.side.svg));
   assert.match(r.side.svg, /^<svg[^>]*viewBox="0 0 120 /);
 });
+
+test("a measured arm replaces the height rule for the sleeve verdict", () => {
+  const avg = sleeveCheck("longsleeve", "M", 175);
+  assert.equal(avg.armMeasured, false);
+  const long = sleeveCheck("longsleeve", "M", 175, 70); // long arms: sleeve 63 ends well short
+  assert.equal(long.armMeasured, true);
+  assert.equal(long.wristFromShoulder, 70);
+  assert.equal(long.pastWrist, -7);
+  assert.match(long.word, /short/);
+  const short = sleeveCheck("longsleeve", "M", 175, 50);
+  assert.match(short.word, /hand/);
+  assert.equal(sleeveCheck("longsleeve", "M", 175, 12).armMeasured, false); // out of range ignored
+});
+
+test("tryOn uses body.arm and says when it differs from the height average", () => {
+  const r = tryOn({ chest: 100, height: 175, arm: 70 }, { garment: "longsleeve" });
+  assert.equal(r.sleeve.armMeasured, true);
+  assert.ok(r.notes.some(n => /Your arm/.test(n)));
+});
