@@ -1,6 +1,6 @@
 ---
 title: "The 2027 Social Security wage base is $192,300, now checked against SSA"
-seo_title: "2027 Social Security wage base $192,300 and the self-employment tax worksheet"
+seo_title: "2027 Social Security wage base $192,300 and SE tax"
 date: 2026-11-05
 tags: [tax, self-employment, bookkeeping]
 description: "The 2026 and 2027 wage bases in the AI Bookkeeper's self-employment tax worksheet now match SSA's own pages, so the unchecked warning is gone."
