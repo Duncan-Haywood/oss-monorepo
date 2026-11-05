@@ -276,3 +276,18 @@ test("--tips splits a pot to the cent and --short-under lists short shifts", () 
   assert.match(s.out, /shift\(s\) under 6 h/);
   assert.match(run(staff, shifts, { shortUnder: 0.5 }).out, /No assigned shift/);
 });
+
+test("--swap checks one trade and names the rule that stops it", () => {
+  const staff = "Ana, 10, 40, 0, Mon 8-16; Tue 8-16\nBen, 12, 40, 0, Mon 8-16; Tue 8-16\n";
+  const shifts = "Mon, 8, 16, 1, a\nTue, 8, 16, 1, b\n";
+  assert.equal(parseArgs(["--swap", "Mon 08:00,Tue 08:00", "a", "b"]).swap, "Mon 08:00,Tue 08:00");
+  assert.throws(() => parseArgs(["--swap"]), /needs two shifts/);
+  const r = run(staff, shifts, { swap: "Mon 08:00,Tue 08:00" });
+  assert.equal(r.code, 0);
+  assert.match(r.out, /This trade (keeps both weeks inside every hard rule|breaks a rule)/);
+  assert.match(run(staff, shifts, { swap: "Mon 08:00" }).out, /needs two shifts/);
+  assert.match(run(staff, shifts, { swap: "Mon 08:00,Wed 09:00" }).out, /No shift starts Wed/);
+  const bad = run("Ana, 10, 40, 0, Mon 8-16\nBen, 12, 40, 0, Tue 8-16\n", shifts, { swap: "Mon 08:00,Tue 08:00" });
+  assert.match(bad.out, /breaks a rule/);
+  assert.match(bad.out, /not available/);
+});

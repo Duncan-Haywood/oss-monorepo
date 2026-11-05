@@ -23,7 +23,7 @@ import process from "node:process";
 import { importStaffCsv } from "./import-staff.mjs";
 import { importShiftsCsv } from "./import-shifts.mjs";
 import {
-  parseStaff, parseShifts, buildRoster, coverOptions, coverChain, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, carryOverStaff, dailyLabor, salesPerLaborHour, sampleStaff, sampleShifts,
+  parseStaff, parseShifts, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, carryOverStaff, dailyLabor, salesPerLaborHour, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
 } from "./calc.mjs";
 
@@ -71,6 +71,8 @@ Options:
   --short-under <h>   list every assigned shift shorter than <h> hours (a commute for little pay; some cities owe reporting-time pay)
   --cover "<Day HH:MM>" a call-out or open shift that starts then (add -HH:MM to tell two apart): who could take it outright, else the
                       shortest chains of hand-overs (one person takes it and gives up a shift a third takes; --max-moves n, default 3) with the pay change
+  --swap "<Day HH:MM>,<Day HH:MM>"  check one trade: the owners of those two shifts exchange them. Says whether both weeks stay inside
+                      every hard rule (rest, hour limits, availability, role), the rule that stops each person if not, and the pay change
   --max-moves <n>     longest hand-over chain for --cover (1-5, default 3)
   --check             print the report; exit 1 if any shift is left open
   --example           use the built-in invented week
@@ -102,6 +104,7 @@ export function parseArgs(argv) {
     else if (a === "--import-shifts") { o.importShifts = argv[++i]; if (!o.importShifts) throw new Error("--import-shifts needs a CSV file"); }
     else if (a === "--import-staff") { o.importStaff = argv[++i]; if (!o.importStaff) throw new Error("--import-staff needs a CSV file"); }
     else if (a === "--check") o.check = true;
+    else if (a === "--swap") { o.swap = argv[++i]; if (!o.swap) throw new Error('--swap needs two shifts like "Tue 17:00,Sat 09:00"'); }
     else if (a === "--cover") { o.cover = argv[++i]; if (!o.cover) throw new Error('--cover needs a shift like "Tue 17:00"'); }
     else if (a === "--max-moves") {
       const v = Number(argv[++i]);
@@ -287,6 +290,7 @@ export function run(staffText, shiftsText, opts = {}) {
   if (opts.mode === "messages") {
     try { return { code, out: rosterMessages(r, opts.weekStart || null).map((m) => m.text).join("\n\n") + "\n" }; } catch (e) { return { code: 2, out: e.message + "\n" }; }
   }
+  if (opts.swap) return { code: 0, out: swapReport(st.staff, sh.slots, r, opts) };
   if (opts.cover) return { code: 0, out: coverReport(st.staff, sh.slots, r, opts) };
   if (opts.sales) return { code, out: salesReport(st.staff, opts, r) };
   if (opts.tips) return { code, out: tipsReport(r, opts) };
@@ -428,4 +432,29 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     (r.code === 2 ? process.stderr : process.stdout).write(r.out);
     process.exit(r.code);
   } catch (e) { process.stderr.write(`${e.message}\n`); process.exit(2); }
+}
+
+// --swap "Tue 17:00,Sat 09:00": find both shifts (same matching as --cover), then checkTrade.
+function swapReport(staff, slots, r, opts) {
+  const parts = opts.swap.split(",");
+  if (parts.length !== 2) return '--swap needs two shifts like "Tue 17:00,Sat 09:00"\n';
+  const found = [];
+  for (const part of parts) {
+    const m = /^\s*(mon|tue|wed|thu|fri|sat|sun)[a-z]*\s+(\d{1,2}):(\d{2})(?:\s*-\s*(\d{1,2}):(\d{2}))?\s*$/i.exec(part);
+    if (!m) return '--swap needs two shifts like "Tue 17:00,Sat 09:00"\n';
+    const day = DAYS.findIndex((d) => d.toLowerCase() === m[1].toLowerCase());
+    const start = +m[2] * 60 + +m[3], end = m[4] === undefined ? null : +m[4] * 60 + +m[5];
+    const hits = slots.map((x, i) => i).filter((i) => slots[i].day === day && slots[i].startMin === start && (end === null || slots[i].endMin % 1440 === end % 1440));
+    if (!hits.length) return `No shift starts ${DAYS[day]} ${fmtClock(start)}. Shifts that day: ${slots.filter((x) => x.day === day).map(clock).join(", ") || "none"}\n`;
+    if (hits.length > 1) return `${hits.length} shifts start ${DAYS[day]} ${fmtClock(start)}; add the end, like "${DAYS[day]} ${hm(start)}-${hm(slots[hits[0]].endMin % 1440)}"\n`;
+    found.push(hits[0]);
+  }
+  const t = checkTrade(staff, slots, r, found[0], found[1]);
+  if (t.error) return t.error + "\n";
+  const side = (x) => `${x.name} gives ${DAYS[x.gives.day]} ${clock(x.gives)} and takes ${DAYS[x.gets.day]} ${clock(x.gets)} (${num(x.hoursAfter)} h that week)`;
+  const lines = [t.ok ? "This trade keeps both weeks inside every hard rule." : "This trade breaks a rule.", "  " + side(t.a), "  " + side(t.b)];
+  if (t.ok) lines.push(`Payroll change for the pair: ${t.extraCost >= 0 ? "+" : "-"}${money(Math.abs(t.extraCost))}`);
+  else for (const p of t.problems) lines.push(`  ${p.name} ${p.reason}`);
+  lines.push("", "Everyone else keeps their shifts. Planning aid, not legal advice.");
+  return lines.join("\n") + "\n";
 }
