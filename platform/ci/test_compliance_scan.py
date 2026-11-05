@@ -101,6 +101,10 @@ class Scan(unittest.TestCase):
         self.assertEqual(scan.main(["--root", root, "--json"]), 0)
         self.assertEqual(scan.main(["--root", root, "--strict", "--json"]), 1)
 
+    def test_default_root_is_the_repository_root(self):
+        # The scan defaults to the checkout it lives in: platform/ci/ is two levels down.
+        self.assertTrue((scan.REPO_ROOT / "platform" / "ci" / "compliance_scan.py").is_file())
+
 
 if __name__ == "__main__":
     unittest.main()
