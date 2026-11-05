@@ -89,6 +89,21 @@ test('each video in the manifest exists and is a short', () => {
   }
 });
 
+test('every video has a captions track whose cues stay inside the video', () => {
+  const stamp = (t) => { const [h, m, sec] = t.split(':'); return +h * 3600 + +m * 60 + +sec; };
+  for (const [slug, m] of Object.entries(loadMedia())) {
+    assert.ok(m.captions, `${slug} has no captions/${slug}.vtt (python3 make_captions.py ${slug})`);
+    const vtt = readFileSync(path.join(ROOT, 'captions', `${slug}.vtt`), 'utf8');
+    assert.match(vtt, /^WEBVTT\n/);
+    const times = [...vtt.matchAll(/(\S+) --> (\S+)/g)].map((x) => [stamp(x[1]), stamp(x[2])]);
+    assert.ok(times.length >= 8, slug);
+    let prev = 0;
+    for (const [a, b] of times) { assert.ok(a >= prev - 1e-6 && b > a, `${slug} cue order`); prev = b; }
+    assert.ok(prev <= m.seconds, `${slug} captions run past the video`);
+    assert.match(readFileSync(path.join(ROOT, `${slug}.html`), 'utf8'), /<track kind="captions"/, slug);
+  }
+});
+
 test('cards escape text and wrap long titles', () => {
   assert.deepEqual(wrap('one two three four', 9), ['one two', 'three', 'four']);
   const svg = renderCard({ title: 'A & B', kind: 'story', hook: '<x>' });

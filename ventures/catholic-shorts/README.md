@@ -33,6 +33,9 @@ honesty rules, tone, the steps, and a "next up" list. In short:
   `cards/<slug>.svg` (1080x1920) and `sitemap.xml`; `--check` fails on a stale
   file or a short that breaks the rules (length, sources, Catechism paragraph
   range, fiction label).
+- `make_captions.py [slug]`: writes `captions/<slug>.vtt` (WebVTT) for each video; the
+  speech window is measured from the MP4 with ffmpeg `silencedetect` and cue times are each
+  sentence's share of it, so they are close, not frame exact. `generate.mjs` adds the `<track>`.
 - `make_video.py <slug>`: renders `video/<slug>.mp4` offline (Kokoro voice via
   `platform/audio/narrate.py`, frames via Playwright, joined by ffmpeg) and
   records it in `video/manifest.json`. $0 per viewer, no API.

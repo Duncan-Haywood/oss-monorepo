@@ -171,7 +171,7 @@ ${usageScript(event)}
 function videoBlock(s, media) {
   const m = media[s.slug];
   if (!m) return '';
-  return `<video controls preload="none" playsinline poster="cards/${s.slug}.svg" src="video/${s.slug}.mp4"></video>
+  return `<video controls preload="none" playsinline poster="cards/${s.slug}.svg" src="video/${s.slug}.mp4">${m.captions ? `<track kind="captions" srclang="en" label="English" src="captions/${s.slug}.vtt">` : ''}</video>
 <p style="text-align:center"><a href="video/${s.slug}.mp4" download data-count="video_downloaded">Download the video</a> (${Math.round(m.seconds)} s, vertical 720x1280, ${LICENSE_NAME}) · <a href="cards/${s.slug}.svg" download data-count="card_downloaded">Download the card</a></p>`;
 }
 
