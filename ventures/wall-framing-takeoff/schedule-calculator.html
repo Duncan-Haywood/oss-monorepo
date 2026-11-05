@@ -52,6 +52,10 @@
   <input id="dl" type="date" style="max-width:12rem">
   <label for="rg">Day ranges for risk (optional; <code>id=min-max</code> working days around the activity's <code>days</code>, your guesses, like <code>walls=6-14, roof=4-9</code>). Adds a Monte Carlo finish: P50, P80 and P90 dates, the chance of the contract date and which activities are most often critical.</label>
   <input id="rg" type="text" placeholder="walls=6-14, roof=4-9" spellcheck="false" style="max-width:28rem">
+  <label for="lo">Long-lead orders (optional; <code>item=activityId/leadDays</code> or <code>item=activityId/leadDays/bufferDays</code>, calendar days from your supplier, like <code>windows=walls/42, trusses=roof/28/5</code>). Adds order-by dates: the weekday to order so each item is on site when its activity starts. Your lead times; none shipped.</label>
+  <input id="lo" type="text" placeholder="windows=walls/42, trusses=roof/28/5" spellcheck="false" style="max-width:28rem">
+  <label for="td">Today (optional; with long-lead orders it flags items already too late to order, and when they would arrive)</label>
+  <input id="td" type="date" style="max-width:12rem">
   <pre id="out" aria-live="polite"></pre>
   <p><button id="csv" type="button">Download CSV</button></p>
   <div id="gantt" aria-label="Bar chart of activities by date"></div>
@@ -82,6 +86,7 @@
   <script type="module">
     import { schedule, scheduleText, scheduleCsv, sampleSchedule } from "./schedule.mjs";
     import { scheduleRisk, riskText } from "./risk.mjs";
+    import { procurement, procurementText } from "./procurement.mjs";
     const $ = (id) => document.getElementById(id);
     const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
     $("src").value = JSON.stringify(sampleSchedule(), null, 1);
@@ -170,6 +175,16 @@
         const acts = input.activities.map((a) => (a && ranges[a.id] ? { ...a, min: ranges[a.id][0], max: ranges[a.id][1] } : a));
         $("out").textContent += "\n\n" + riskText(scheduleRisk({ ...input, activities: acts })).join("\n");
       }
+      const loRaw = $("lo").value.trim();
+      if (loRaw !== "" && s.ok) {
+        const orders = [];
+        for (const part of loRaw.split(/[,;\n]+/).map((x) => x.trim()).filter(Boolean)) {
+          const m = part.match(/^([^=]+?)\s*=\s*([^\s/]+)\s*\/\s*(\d+(?:\.\d+)?)(?:\s*\/\s*(\d+(?:\.\d+)?))?$/);
+          if (!m) { $("out").textContent += "\n\nLong-lead orders: write each as item=activityId/leadDays, e.g. windows=walls/42. Could not read: " + part; orders.length = 0; break; }
+          orders.push({ item: m[1], for: m[2], leadDays: Number(m[3]), ...(m[4] != null ? { bufferDays: Number(m[4]) } : {}) });
+        }
+        if (orders.length) $("out").textContent += "\n\n" + procurementText(procurement(s, orders, $("td").value.trim() || undefined)).join("\n");
+      }
       if (!s.ok) { $("gantt").innerHTML = ""; return; }
       const rows = s.rows.slice().sort((a, b) => a.leveledStart - b.leveledStart);
       const total = Math.max(1, s.leveledDays), W = 700, lab = 110, rh = 22;
@@ -198,6 +213,8 @@
     $("mk").addEventListener("input", run);
     $("dr").addEventListener("input", run);
     $("dl").addEventListener("input", run);
+    $("lo").addEventListener("input", run);
+    $("td").addEventListener("input", run);
     $("rg").addEventListener("input", run);
     run();
   </script>
