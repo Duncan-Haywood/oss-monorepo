@@ -1,0 +1,7 @@
+chicago 2022 pair 0.05_0.65 cov 0.817 [0.809,0.825] w 17.6 vs ref 52.7 (+67%) inside=True narrower15=True
+chicago 2023 pair 0.05_0.65 cov 0.729 [0.709,0.747] w 16.2 vs ref 56.4 (+71%) inside=False narrower15=True
+chicago 2024 pair 0.05_0.85 cov 0.786 [0.775,0.797] w 37.8 vs ref 67.9 (+44%) inside=True narrower15=True
+sf 2022 pair 0.2_0.65 cov 0.847 [0.836,0.857] w 61.8 vs ref 84.0 (+26%) inside=False narrower15=True
+sf 2023 pair 0.2_0.65 cov 0.842 [0.837,0.848] w 39.4 vs ref 64.8 (+39%) inside=False narrower15=True
+sf 2024 pair 0.2_0.65 cov 0.828 [0.816,0.837] w 27.2 vs ref 63.4 (+57%) inside=True narrower15=True
+inside 77-83%: 3 of 6; narrower by 15%: 6 of 6
