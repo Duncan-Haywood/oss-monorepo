@@ -38,3 +38,23 @@ test("without a slot the old draft stands", () => {
   const d = draftReply(t, { first_name: "Dana" }, { subject: "x", body: "" }, SAMPLE_OFFER);
   assert.doesNotMatch(d.body, /time zone/);
 });
+test("next <weekday> takes the following week and is flagged", () => {
+  // T is Wednesday 2026-10-21: "next Friday" is ambiguous, read as the 30th; "next Tuesday" is the 27th either way
+  const [f] = findSlots("How about next Friday at 11?", T);
+  assert.deepEqual([f.date, f.time, f.ambiguous], ["2026-10-30", "11:00", true]);
+  assert.equal(findSlots("next Tuesday at 2pm", T)[0].date, "2026-10-27");
+  assert.equal(findSlots("Friday at 11", T)[0].date, "2026-10-23");
+  assert.equal(findSlots("Friday at 11", T)[0].ambiguous, false);
+});
+test("after 3 is a lower bound, not a time", () => {
+  const [s] = findSlots("Thursday after 3pm works", T);
+  assert.deepEqual([s.date, s.time, s.after], ["2026-10-22", null, "15:00"]);
+  assert.equal(describeSlot(s), "Thursday 22 October after 3pm");
+});
+test("an ambiguous 'next Friday' is named in the draft", () => {
+  const body = "Happy to talk, how about next Friday at 11?";
+  const t = triage({ body, subject: "" }, T);
+  const d = draftReply(t, { first_name: "Dana" }, { subject: "x", body }, SAMPLE_OFFER);
+  assert.match(d.body, /Friday 30 October at 11am works for me/);
+  assert.match(d.body, /I read "next Friday at 11" as Friday 30 October/);
+});

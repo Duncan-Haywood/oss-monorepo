@@ -238,3 +238,5 @@ for CAN-SPAM, GDPR/PECR, CASL and TCPA in your own outreach.
 
 **Privacy.** The page runs in your browser and uploads nothing. With a model
 key, each reply and draft goes from your browser to the provider you chose.
+
+2026-11-05 (later): the two weak spots above are handled. "next Friday" said mid-week resolves to the following calendar week and is flagged `ambiguous`; the draft then says how it read the phrase ("I read 'next Friday at 11' as Friday 30 October") so a person sees it before sending. "Thursday after 3pm" is kept as a lower bound (`after`), not an exact time. Unit tests only; agent-written phrases, no real prospect.
