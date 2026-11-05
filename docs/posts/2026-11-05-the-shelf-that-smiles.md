@@ -2,7 +2,7 @@
 title: "The shelf that smiles"
 date: 2026-11-05
 description: "A new Hearth & Horizon story: a parish library shelf sags 6 mm under 40 kg, is nowhere near breaking, and a middle bracket beats a thicker board."
-tags: [hearth-and-horizon, fiction, structures, arithmetic]
+tags: [hearth-and-horizon, fiction, structure, arithmetic]
 ---
 
 # The shelf that smiles
