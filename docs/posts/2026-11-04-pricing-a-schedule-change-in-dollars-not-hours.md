@@ -1,5 +1,6 @@
 ---
 title: "Pricing a schedule change in flat dollars, or a cancellation at half pay"
+seo_title: "Pricing a schedule change in flat dollars"
 date: 2026-11-04
 description: "shift-roster-builder's changes report can now charge a fixed dollar amount per short-notice change, or price a cancelled shift at a fraction of an hour's pay."
 tags: [shift-roster-builder, scheduling, cli]

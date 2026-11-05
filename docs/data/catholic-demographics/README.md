@@ -17,3 +17,8 @@ Known gaps (for a later run): no representative demographics of TLM attendees ex
 Cranney's *Trads*, OUP 2026, may have them); FOCUS publishes no missionary sex/age/tenure data and no
 Form 990 since FY2014; the CARA/CVN 2013 volunteer alumni study PDF (nrvc.net) returned 503; there is
 no online series of US Catholic missionaries overseas (the printed U.S. Catholic Mission Handbook is the next step).
+
+`lay_groups_charts.py` (2026-11-05 post on who serves in FOCUS and other lay groups): SEEK attendance,
+US missionaries overseas 1968 vs about 2011, vocations per 100 alumni, and a printed estimate of
+FOCUS mean tenure (about 3 to 4 years; FOCUS publishes none). Still missing: any programme's median
+tenure, alumni careers, and the CARA/CVN 2013 study tables (the nrvc.net PDF still would not load).

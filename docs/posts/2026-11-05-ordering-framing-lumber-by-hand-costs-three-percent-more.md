@@ -1,5 +1,6 @@
 ---
 title: "Ordering framing lumber by hand costs about 3% more, or 22% if every piece gets its own board"
+seo_title: "Ordering framing lumber by hand costs about 3% more"
 date: 2026-11-05
 description: "A measured comparison of first-fit-decreasing, the usual hand method, against a cutting-stock order with a printed lower bound."
 tags: [wall-framing-takeoff, construction, site]
