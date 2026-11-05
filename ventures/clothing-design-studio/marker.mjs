@@ -55,7 +55,7 @@ export function patternPieces(garment, size, fit = "regular", sizeChart = BODY_C
  */
 export function packStrip(rects, width) {
   const items = [];
-  for (const r of rects) for (let i = 0; i < r.qty; i++) items.push({ name: r.name, w: r.w, l: r.l });
+  for (const r of rects) for (let i = 0; i < r.qty; i++) items.push({ name: r.name, size: r.size, w: r.w, l: r.l });
   const tooWide = items.find(it => it.w > width);
   if (tooWide) return { ok: false, error: `A ${tooWide.name} piece is ${tooWide.w} cm wide, wider than the ${width} cm of usable cloth.` };
   items.sort((x, y) => y.l - x.l || y.w - x.w);
@@ -66,7 +66,14 @@ export function packStrip(rects, width) {
   }
   const length = shelves.reduce((a, s) => a + s.l, 0);
   const area = items.reduce((a, it) => a + it.w * it.l, 0);
-  return { ok: true, length: round1(length), pieces: items.length, shelves: shelves.length, coveredArea: area };
+  const placed = [];
+  let y = 0;
+  for (const sh of shelves) {
+    let x = 0;
+    for (const it of sh.items) { placed.push({ name: it.name, size: it.size, x: round1(x), y: round1(y), w: it.w, l: it.l }); x += it.w; }
+    y += sh.l;
+  }
+  return { ok: true, length: round1(length), pieces: items.length, shelves: shelves.length, coveredArea: area, placed };
 }
 
 /**
@@ -80,12 +87,12 @@ export function markerFor(garment, ratio, { fit = "regular", sizeChart = BODY_CH
     if (!(n > 0)) continue;
     const ps = patternPieces(garment, size, fit, sizeChart, seam);
     if (!ps) return { ok: false, error: `No pattern for ${garment} in size ${size}.` };
-    for (const p of ps) rects.push({ ...p, qty: p.qty * n });
+    for (const p of ps) rects.push({ ...p, size, qty: p.qty * n });
   }
   const packed = packStrip(rects, usable);
   if (!packed.ok) return packed;
   const utilisation = packed.coveredArea / (packed.length * fabricWidthCm);
-  return { ok: true, markerLengthCm: packed.length, usableWidthCm: usable, utilisationPct: round1(utilisation * 100), pieces: packed.pieces };
+  return { ok: true, markerLengthCm: packed.length, usableWidthCm: usable, utilisationPct: round1(utilisation * 100), pieces: packed.pieces, edgeCm, placed: packed.placed };
 }
 
 /**
@@ -153,6 +160,7 @@ export function cuttingPlan(garment, counts, { fit = "regular", sizeChart = BODY
   }
   const groups = chosen.solved.map(g => ({
     sizes: g.sizes, lays: g.lays, plies: g.plies, ratio: g.ratio,
+    placed: g.m.placed, edgeCm: g.m.edgeCm, usableWidthCm: g.m.usableWidthCm, fabricWidthCm, nestingGainPct,
     markerLengthCm: round1(g.m.markerLengthCm * gain), utilisationPct: g.m.utilisationPct,
     metres: round2(g.metres), extraPieces: Object.fromEntries(Object.entries(g.ratio).map(([s, r]) => [s, r * g.lays * g.plies - want[s]]).filter(([, v]) => v > 0)),
   }));
@@ -172,4 +180,44 @@ export function cuttingPlan(garment, counts, { fit = "regular", sizeChart = BODY
     extraPieces: over,
     notes,
   };
+}
+
+const escXml = v => String(v).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/**
+ * One group's marker drawn to scale as SVG: the cloth, its selvedge margins and
+ * every rectangle where the packer put it, labelled with size and piece.
+ * The drawing is the rectangle packing; a nesting gain shortens the quoted
+ * length but not the drawing, and the caption says so.
+ */
+export function markerSvg(group, { pxPerCm = 3 } = {}) {
+  if (!group || !Array.isArray(group.placed)) return "";
+  const W = group.fabricWidthCm, edge = group.edgeCm ?? 0;
+  const L = Math.max(...group.placed.map(p => p.y + p.l), 0);
+  const palette = ["#e8d5b5", "#c9d8c5", "#d6c4de", "#f0c9c0", "#bcd4e6", "#e9e1a8", "#d9d9d9", "#f3d3a2"];
+  const sizes = Object.keys(group.ratio || {});
+  const fill = s => palette[Math.max(0, sizes.indexOf(s)) % palette.length];
+  const rects = group.placed.map(p => {
+    const w = p.w * pxPerCm, h = p.l * pxPerCm;
+    const label = w > 38 && h > 14 ? `<text x="${(edge + p.x) * pxPerCm + w / 2}" y="${p.y * pxPerCm + h / 2 + 3}" font-size="9" text-anchor="middle" fill="#333">${escXml(p.size)} ${escXml(p.name)}</text>` : "";
+    return `<rect x="${(edge + p.x) * pxPerCm}" y="${p.y * pxPerCm}" width="${w}" height="${h}" fill="${fill(p.size)}" stroke="#555" stroke-width="0.6"><title>${escXml(p.size)} ${escXml(p.name)}: ${p.w} x ${p.l} cm</title></rect>${label}`;
+  }).join("");
+  const pw = W * pxPerCm, ph = L * pxPerCm;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${pw} ${ph}" width="${pw}" height="${ph}" role="img" aria-label="Cutting marker, ${W} cm cloth, ${round1(L)} cm long, rectangles on the grain"><rect width="${pw}" height="${ph}" fill="#fbf8f1" stroke="#999"/><rect x="0" width="${edge * pxPerCm}" height="${ph}" fill="#e5e0d4"/><rect x="${(W - edge) * pxPerCm}" width="${edge * pxPerCm}" height="${ph}" fill="#e5e0d4"/>${rects}</svg>`;
+}
+
+const csvCell = v => { const t = String(v); return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
+
+/** A cut ticket for the factory: one row per lay group, one per size in its ratio. */
+export function cutTicketCsv(plan) {
+  if (!plan || !plan.ok) return "";
+  const rows = [["group", "size", "pieces_per_marker", "lays", "plies", "garments_cut", "wanted", "spares", "marker_cm", "cloth_m"]];
+  plan.groups.forEach((g, i) => {
+    for (const [size, r] of Object.entries(g.ratio)) {
+      const cut = r * g.lays * g.plies, spare = g.extraPieces[size] || 0;
+      rows.push([i + 1, size, r, g.lays, g.plies, cut, cut - spare, spare, g.markerLengthCm, g.metres]);
+    }
+  });
+  rows.push(["total", "", "", "", "", "", plan.pieces, Object.values(plan.extraPieces).reduce((a, b) => a + b, 0), "", plan.metresToBuy]);
+  return rows.map(r => r.map(csvCell).join(",")).join("\n") + "\n";
 }
