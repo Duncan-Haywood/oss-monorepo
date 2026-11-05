@@ -360,3 +360,13 @@ test("fresh set 2026-11-05: terse interest, price, trust and dead-inbox replies 
   ];
   for (const [body, want] of cases) assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
 });
+
+test("fresh set 2026-11-06: scored once at 25/30 (0 overreach, 0 opt-outs missed), 28/30 after three narrow patches; a tuned set. Left on purpose: a forward with a demo ask reads as a handover, and a frozen budget reads as not-now", () => {
+  const s = score(load("fresh-2026-11-06.jsonl"));
+  assert.equal(s.right, 28);
+  assert.equal(s.overreach, 0);
+  assert.equal(s.unsubMissed, 0);
+  const T = "2026-11-06";
+  for (const [body, want] of [["Legal won't let us send customer emails through a third-party model.", "objection"], ["Honestly our reps hate anything that adds clicks to their day.", "objection"], ["I've moved to a different role and no longer handle vendor tools. Try Sam Okafor, sam@harborline.example.", "left_company"]])
+    assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+});
