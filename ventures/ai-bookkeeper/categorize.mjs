@@ -122,6 +122,13 @@ export const BUILT_IN = [
   ["6100", "out", /laguna clay|\bskutt\b|\bamaco\b|stenograph/],
   ["6110", "out", /court reporter licen[cs]e/],
   ["4000", "in", /deposition transcript|transcript fee/],
+  // Gap probe 28 (2026-11-05, eval/probe28.mjs): upholsterers, farriers, sign makers, auto-glass repair, soap makers.
+  // Eighteen rows had no suggestion.
+  ["6100", "out", /britex|upholstery supply|farrier products|mustad|urethane adhesive|bramble berry|wholesale supplies plus/],
+  ["6070", "out", /sailrite|brooke forge/],
+  ["6060", "out", /flexi ?sign|soapcalc/],
+  ["4000", "in", /reupholstery|horse shoeing|sign installation|windshield repair|soap sales/],
+  ["6170", "out", /upholstery association|farriers association|sign association|glass association|glass technician cert|soap guild/],
   // Gap probe 27 (2026-11-05, eval/probe27.mjs): locksmiths, piano tuners, chimney sweeps, mobile welders, home stagers.
   // Miller Electric (welders) hit the utilities rule through "electric", so it comes before it. Fourteen rows had no suggestion.
   ["6100", "out", /miller electric|rotobrush|national chimney supply|rooms to go|cort furniture/],
