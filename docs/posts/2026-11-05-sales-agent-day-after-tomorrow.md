@@ -1,6 +1,6 @@
 ---
 title: "The sales agent now reads \"the day after tomorrow\""
-seo_title: "Sales reply agent now reads 'the day after tomorrow' in meeting replies"
+seo_title: "Sales reply agent now reads 'the day after tomorrow' in replies"
 date: 2026-11-05
 tags: [sales-agent, email, scheduling]
 description: "A small rule-based addition to the open-source sales reply agent: 'the day after tomorrow at 3pm' resolves to a date, with no guessing."
