@@ -23,7 +23,7 @@ import process from "node:process";
 import { importStaffCsv } from "./import-staff.mjs";
 import { importShiftsCsv } from "./import-shifts.mjs";
 import {
-  parseStaff, parseShifts, buildRoster, coverOptions, coverChain, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, dailyLabor, salesPerLaborHour, sampleStaff, sampleShifts,
+  parseStaff, parseShifts, buildRoster, coverOptions, coverChain, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, carryOverStaff, dailyLabor, salesPerLaborHour, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
 } from "./calc.mjs";
 
@@ -67,6 +67,8 @@ Options:
   --hours-watch <h>   list everyone whose planned week reaches <h> hours (a full-time or benefit line you set, e.g. 30) or lands within --watch-within <h> (default 2) of it
   --sales "1200,900,..."  seven daily sales figures, Monday first (0 or blank = unknown): prints each day's labor cost as a share of sales; --labor-target <%> flags days over it,
                       --splh <$> flags days with more or fewer hours than that sales per labor hour calls for
+  --tips <$>          split a tip pot over the planned hours, in whole cents that add back to the pot
+  --short-under <h>   list every assigned shift shorter than <h> hours (a commute for little pay; some cities owe reporting-time pay)
   --cover "<Day HH:MM>" a call-out or open shift that starts then (add -HH:MM to tell two apart): who could take it outright, else the
                       shortest chains of hand-overs (one person takes it and gives up a shift a third takes; --max-moves n, default 3) with the pay change
   --max-moves <n>     longest hand-over chain for --cover (1-5, default 3)
@@ -120,6 +122,16 @@ export function parseArgs(argv) {
       const v = Number(argv[++i]);
       if (!(v > 0 && v <= 80)) throw new Error("--hours-watch needs weekly hours between 0 and 80");
       o.hoursWatch = v;
+    }
+    else if (a === "--tips") {
+      const v = Number(argv[++i]);
+      if (!(v > 0)) throw new Error("--tips needs a positive dollar amount");
+      o.tips = v;
+    }
+    else if (a === "--short-under") {
+      const v = Number(argv[++i]);
+      if (!(v > 0 && v <= 24)) throw new Error("--short-under needs hours between 0 and 24");
+      o.shortUnder = v;
     }
     else if (a === "--sales") o.sales = argv[++i] || "";
     else if (a === "--labor-target") {
@@ -206,6 +218,19 @@ function hoursWatchReport(r, opts) {
   const head = rows.length ? `${over} at or over ${num(line)} h this week, ${rows.length - over} within ${num(within)} h under it.` : `No one is at or within ${num(within)} h of ${num(line)} h this week.`;
   return [head, ...lines, "", "Planned hours for this one week against a line you typed. Eligibility rules usually count a longer period, so this is not a statement of what any benefit or employer-mandate rule requires. Not legal advice.", ""].join("\n");
 }
+const usd = (x) => "$" + x.toFixed(2);
+function tipsReport(r, opts) {
+  const t = tipPool(r, opts.tips);
+  if (!t.rows.length) return "No tip split: nobody is scheduled for any hours.\n";
+  const lines = t.rows.map((x) => `${x.name.padEnd(12)} ${num(x.hours).padStart(5)} h  ${usd(x.share).padStart(8)}  ${usd(x.perHour)}/h`);
+  return [`${usd(t.pot)} split over ${num(t.hours)} scheduled hours:`, ...lines, "", "Shares in proportion to scheduled hours, rounded to whole cents that sum to the pot. Who may share in a pool is the employer's to decide; not legal advice.", ""].join("\n");
+}
+function shortReport(r, opts) {
+  const rows = shortShifts(r, opts.shortUnder);
+  const lines = rows.map((x) => `${x.person.padEnd(12)} ${x.day} ${fmtClock(x.startMin)}-${fmtClock(x.endMin)}  ${num(x.hours)} h`);
+  const head = rows.length ? `${rows.length} shift(s) under ${num(opts.shortUnder)} h.` : `No assigned shift is under ${num(opts.shortUnder)} h.`;
+  return [head, ...lines, ""].join("\n");
+}
 function salesReport(staff, opts, r) {
   const dl = dailyLabor(r, staff, opts.sales);
   if (!dl.hasSales) return "No daily sales read: give seven figures, Monday first, e.g. --sales \"1200,900,950,1000,1800,2600,2100\".\n";
@@ -264,6 +289,8 @@ export function run(staffText, shiftsText, opts = {}) {
   }
   if (opts.cover) return { code: 0, out: coverReport(st.staff, sh.slots, r, opts) };
   if (opts.sales) return { code, out: salesReport(st.staff, opts, r) };
+  if (opts.tips) return { code, out: tipsReport(r, opts) };
+  if (opts.shortUnder) return { code, out: shortReport(r, opts) };
   if (opts.hoursWatch) return { code, out: hoursWatchReport(r, opts) };
   if (opts.restUnder) return { code, out: restReport(st.staff, opts, rosterCsv(r)) };
   if (opts.postedCsv) return { code, out: changesReport(st.staff, opts, rosterCsv(r)) };

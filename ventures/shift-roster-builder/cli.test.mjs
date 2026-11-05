@@ -262,3 +262,17 @@ test("--sales prints labor share of sales by day and flags days over a target", 
   assert.throws(() => parseArgs(["--labor-target", "0"]), /between 0 and 100/);
   assert.throws(() => parseArgs(["--splh", "-1"]), /positive/);
 });
+
+test("--tips splits a pot to the cent and --short-under lists short shifts", () => {
+  assert.equal(parseArgs(["--tips", "200", "a", "b"]).tips, 200);
+  assert.throws(() => parseArgs(["--tips", "0"]), /positive dollar/);
+  assert.throws(() => parseArgs(["--short-under", "30"]), /between 0 and 24/);
+  const staff = sampleStaff(), shifts = sampleShifts();
+  const t = run(staff, shifts, { tips: 200.01 });
+  assert.equal(t.code, 0);
+  const cents = [...t.out.matchAll(/ h\s+\$(\d+)\.(\d\d)\s/g)].reduce((a, m) => a + +m[1] * 100 + +m[2], 0);
+  assert.equal(cents, 20001);
+  const s = run(staff, shifts, { shortUnder: 6 });
+  assert.match(s.out, /shift\(s\) under 6 h/);
+  assert.match(run(staff, shifts, { shortUnder: 0.5 }).out, /No assigned shift/);
+});
