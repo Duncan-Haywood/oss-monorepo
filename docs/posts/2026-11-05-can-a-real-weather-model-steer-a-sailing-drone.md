@@ -1,6 +1,6 @@
 ---
 title: "Can a real weather model steer a sailing drone? Not yet, on these stations"
-seo_title: "HRRR wind forecast for an autonomous sailboat tack planner: negative result"
+seo_title: "HRRR wind forecast for a sailboat tack planner: negative result"
 date: 2026-11-05
 tags: [research, marine-hull, sailing-drone, forecasting]
 description: "Replanning a wing-sail drone's tacks from archived 3 km HRRR winds loses to simply following the wind headers, and three bias corrections do not fix it."
