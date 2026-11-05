@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-05",
+  "session": "https://claude.ai/code/session_01E5sJKik7vfg4sSfBwNnK2U",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-05T13:31:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13329",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/wall-framing-takeoff/cli.mjs",
+      "issue": "hand-kept list of modules re-attached after nailers rebuild silently dropped flooring and paint"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "skipped run-cost attach and agent doc to keep the run short",
+      "did": "post only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-05-flooring-in-the-framing-budget.md"
+  ],
+  "goal": null,
+  "notes": "Full wall-framing-takeoff node suite 839 pass 0 fail. flagships.yaml next: unchanged (items need real inputs).",
+  "corrections": [],
+  "redteam": null
+}
