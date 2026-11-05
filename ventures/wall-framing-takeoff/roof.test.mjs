@@ -356,4 +356,16 @@ test("roof sheathing nails: 4 x 8 sheet, rafters at 16 in = 48 edge + 2 lines x 
   assert.equal(l.sheets.nails, Math.ceil(64 * l.sheets.count * 1.1 - 1e-9));
   const t = layoutRoof({ ...sampleRoof(), sheet: { edgeNailSpacing: 4, fieldNailSpacing: 8 } }, plan());
   assert.equal(t.sheets.nailsPerSheet, 72 + 2 * 12);
+test("ice and water shield: opt-in, 24 in inside the wall, by hand", () => {
+  const off = layoutRoof(sampleRoof(), plan());
+  assert.equal(off.roofing.iceShieldRolls, undefined);
+  const l = layoutRoof({ ...sampleRoof(), roofing: { iceShield: 24 } }, plan());
+  const k = Math.sqrt(1 + (4 / 12) ** 2), area = l.roofing.eaveFeet * (12 + 24) * k / 12;
+  assert.ok(Math.abs(l.roofing.iceShieldArea - area) < 1e-6);
+  assert.equal(l.roofing.iceShieldRolls, Math.ceil(area * 1.1 / 200 - 1e-9));
+  const t = layoutRoof({ ...sampleRoof(), roofing: { iceShield: 36, iceShieldRoll: 100, iceShieldWaste: 1 } }, plan());
+  assert.equal(t.roofing.iceShieldRolls, Math.ceil(t.roofing.eaveFeet * (12 + 36) * k / 12 / 100 - 1e-9));
+  const h = layoutRoof(hipRoof({ roofing: { iceShield: 24 } }), plan());
+  assert.ok(h.roofing.iceShieldRolls >= 1);
+  assert.match(roofText(l).join("\n"), /ice and water shield/);
 });

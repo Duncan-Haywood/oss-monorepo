@@ -774,3 +774,8 @@ test("the flooring calculator page: FAQ matches its data and the stated figures 
   const c = layoutFlooring({ rooms: [{ width: 144, depth: 144, kind: "carpet" }] }).carpet;
   assert.equal(c.rollLinearFeet, 12.5); assert.equal(c.rollSqYd.toFixed(1), "16.7"); assert.equal(c.padSqYd.toFixed(1), "16.8"); assert.equal(c.tackFeet, 48);
 });
+
+test('index links one hop to the permit-packet-preflight sibling', async () => {
+  const { readFileSync } = await import('node:fs');
+  assert.match(readFileSync(new URL('./index.html', import.meta.url), 'utf8'), /href="\.\.\/permit-packet-preflight\/"/);
+});
