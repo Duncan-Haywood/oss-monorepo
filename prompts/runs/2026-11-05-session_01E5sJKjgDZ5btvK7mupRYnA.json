@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-05",
+  "session": "https://claude.ai/code/session_01E5sJKjgDZ5btvK7mupRYnA",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-05T06:33:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13261",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "worker restart killed the 9af run before its last 3 rows printed"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Lists no way to source a number when arxiv.org and data hosts do not resolve; had to fall back to a swept range."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post or agent doc written: a partial one-step run, nothing the next run needs beyond LOG.md.",
+      "did": "LOG.md entry only",
+      "result": "ok"
+    }
+  ],
+  "writeups": [
+    "research/aerolog-scaling/LOG.md 9af"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}
