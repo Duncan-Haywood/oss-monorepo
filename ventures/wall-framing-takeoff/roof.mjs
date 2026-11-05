@@ -17,6 +17,13 @@ import { THICK, EPS, DEPTH, optimizeStock, formatLength, formatInches } from "./
 
 export const SHEET = { width: 48, length: 96 };
 
+/** Ice and water shield along the eaves, opt-in with `roofing.iceShield` = inches the membrane runs inside the exterior wall (code is commonly 24 in; cold climates only). Depth up the slope is (overhang + that) x slope factor; rolls cover `iceShieldRoll` sq ft (default 200, a 36 in x 66 ft roll) with `iceShieldWaste` (default 1.1) for the side laps. Rakes, valleys and penetrations are not counted. */
+function iceShield(g, eaveFeet, overhang, k) {
+  if (!(g.iceShield > 0)) return {};
+  const depth = (overhang + g.iceShield) * k, iceShieldArea = eaveFeet * depth / 12;
+  return { iceShieldArea, iceShieldRolls: Math.ceil(iceShieldArea * (g.iceShieldWaste ?? 1.1) / (g.iceShieldRoll ?? 200) - 1e-9) };
+}
+
 /** @typedef {{ width: number, projection: number, pitch?: number, at?: number, side?: "left" | "right", valley?: string }} Wing */
 /** Roofing nails for the shingle field: nails per square x squares x waste, in pounds and boxes. Starter, ridge cap and underlayment fasteners are not counted. */
 function roofingNails(squares, g) {
@@ -24,7 +31,7 @@ function roofingNails(squares, g) {
   return { nails, nailLb, nailBoxes: Math.ceil(nailLb / g.nailBoxLb - 1e-9) };
 }
 
-/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, wing?: Wing, wing2?: Wing, plateWidth?: number, maxNotchFraction?: number, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, valleyBacking?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number }, roofing?: { waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number, nailsPerSquare?: number, nailsPerLb?: number, nailBoxLb?: number } }} Roof */
+/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, wing?: Wing, wing2?: Wing, plateWidth?: number, maxNotchFraction?: number, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, valleyBacking?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number }, roofing?: { waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number, nailsPerSquare?: number, nailsPerLb?: number, nailBoxLb?: number, iceShield?: number, iceShieldRoll?: number, iceShieldWaste?: number } }} Roof */
 
 export function sampleRoof() {
   return { id: "Main roof", width: 336, length: 480, pitch: 4, overhang: 12, gableOverhang: 12, rafter: "2x8", spacing: 16, ridge: "2x10", ceilingJoist: "2x6", collarTies: true };
@@ -226,6 +233,7 @@ function layoutHip(r, plan) {
     dripEdgePieces: Math.ceil(eaveFeet * 12 / g.dripEdgePiece - 1e-9),
     ridgeBundles: Math.ceil(ridgeFeet / g.ridgeBundleFeet - 1e-9),
     starterBundles: Math.ceil(eaveFeet / g.starterBundleFeet - 1e-9),
+    ...iceShield(g, eaveFeet, overhang, k),
     eaveFeet, rakeFeet: 0, ridgeFeet, hipFeet, assumptions: g,
   };
   if (rest > EPS) notes.push(`The top course of each plane is ${formatInches(rest)} wide, ripped from ${ripped} sheet${ripped === 1 ? "" : "s"}.`);
@@ -338,6 +346,7 @@ export function layoutRoof(r, plan) {
     dripEdgePieces: Math.ceil((eaveFeet + rakeFeet) * 12 / g.dripEdgePiece - 1e-9),
     ridgeBundles: Math.ceil(ridgeFeet / g.ridgeBundleFeet - 1e-9),
     starterBundles: Math.ceil(eaveFeet / g.starterBundleFeet - 1e-9),
+    ...iceShield(g, eaveFeet, overhang, k),
     eaveFeet, rakeFeet, ridgeFeet, assumptions: g,
   };
   if (rest > EPS) notes.push(`The top course of each plane is ${formatInches(rest)} wide, ripped from ${ripped} sheet${ripped === 1 ? "" : "s"}; its offcut is not carried to the other plane.`);
@@ -491,6 +500,7 @@ function addWing(base, r, plan, w) {
     dripEdgePieces: Math.ceil((eaveFeet + rakeFeet) * 12 / g.dripEdgePiece - 1e-9),
     ridgeBundles: Math.ceil(ridgeFeet / g.ridgeBundleFeet - 1e-9),
     starterBundles: Math.ceil(eaveFeet / g.starterBundleFeet - 1e-9),
+    ...iceShield(g, eaveFeet, overhang, k),
     eaveFeet, rakeFeet, ridgeFeet, valleyFeet, assumptions: g,
   };
   const notes = base.notes.filter((n) => !/ignore valleys, hips/.test(n) && !/^Wing sheathing counts/.test(n));
@@ -539,7 +549,7 @@ export function roofText(l) {
   out.push(`  Roof sheathing: ${l.sheets.count} sheets of ${SHEET.width} x ${SHEET.length} in for ${l.sheets.area.toFixed(0)} sq ft (${(100 * l.sheets.waste).toFixed(1)}% offcut)`);
   for (const c of l.courses) out.push(`    ${c.plane ? `${c.plane} planes, ` : ""}course at ${formatLength(c.y)} up the slope (${formatInches(c.width)} wide): ${c.pieces.map((p) => formatInches(p.length)).join(" + ")}`);
   const g = l.roofing;
-  out.push(`  Roofing: ${g.squares.toFixed(1)} squares -> ${g.shingleBundles} bundles of shingles, ${g.underlaymentRolls} rolls of underlayment, ${g.dripEdgePieces} drip edge pieces, ${g.ridgeBundles} ridge cap and ${g.starterBundles} starter bundles, ${g.nailLb.toFixed(0)} lb of roofing nails (${g.nailBoxes} box${g.nailBoxes === 1 ? "" : "es"})`);
+  out.push(`  Roofing: ${g.squares.toFixed(1)} squares -> ${g.shingleBundles} bundles of shingles, ${g.underlaymentRolls} rolls of underlayment, ${g.dripEdgePieces} drip edge pieces, ${g.ridgeBundles} ridge cap and ${g.starterBundles} starter bundles, ${g.nailLb.toFixed(0)} lb of roofing nails (${g.nailBoxes} box${g.nailBoxes === 1 ? "" : "es"})${g.iceShieldRolls ? `, ${g.iceShieldRolls} roll${g.iceShieldRolls === 1 ? "" : "s"} of ice and water shield at the eaves (${g.iceShieldArea.toFixed(0)} sq ft)` : ""}`);
   for (const n of l.notes) out.push(`  - ${n}`);
   return out;
 }
