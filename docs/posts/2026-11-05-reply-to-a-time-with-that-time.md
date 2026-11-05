@@ -1,6 +1,6 @@
 ---
 title: "When a prospect offers a time, the draft should say yes to it"
-seo_title: "AI sales reply drafts that confirm the meeting time a prospect proposed"
+seo_title: "AI sales reply drafts that confirm the time a prospect proposed"
 date: 2026-11-05
 tags: [sales-agent, cold-email, product]
 description: "The sales agent now reads 'Tuesday at 2pm' in an interested reply and drafts a confirmation of that exact time, instead of asking for times again."
