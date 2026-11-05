@@ -15,7 +15,9 @@
 //    thickness x grout density), in whole bags.
 //  - "carpet": cut from a roll of `rollWidth` (default 144 in). Per room the
 //    roll runs along the longer side, one strip per roll width across the
-//    shorter side, each strip the long side plus a trim allowance; seams =
+//    shorter side, each strip the long side plus a trim allowance (with
+//    `carpet.rollDirection: "best"` the roll may run the other way when that
+//    uses less carpet); seams =
 //    strips - 1; pad is the room area plus waste; tack strip is the perimeter.
 //
 //  - transitions: each room may carry `doorways` (a whole number); every doorway
@@ -59,6 +61,7 @@ export function validateFlooring(d) {
   if (t.joint != null && !(t.joint >= 0 && t.joint <= 2)) e.push("joint must be between 0 and 2 in.");
   if (t.thickness != null && !(t.thickness > 0 && t.thickness <= 2)) e.push("thickness must be above 0 and at most 2 in.");
   for (const k of ["thinsetSqFtPerBag", "groutLbPerCuFt", "groutBagLb"]) if (t[k] != null && !(t[k] > 0)) e.push(`${k} must be above 0.`);
+  if (c.rollDirection != null && c.rollDirection !== "best" && c.rollDirection !== "long") e.push('rollDirection must be "long" (default) or "best".');
   if (c.rollWidth != null && !(c.rollWidth >= 36 && c.rollWidth <= 240)) e.push("rollWidth must be between 36 and 240 in.");
   if (c.trimAllowance != null && !(c.trimAllowance >= 0 && c.trimAllowance <= 48)) e.push("trimAllowance must be between 0 and 48 in.");
   if (c.tackStripLength != null && !(c.tackStripLength >= 1 && c.tackStripLength <= 20)) e.push("tackStripLength must be between 1 and 20 ft.");
@@ -124,10 +127,14 @@ export function layoutFlooring(d) {
     let linIn = 0, seams = 0, areaSq = 0, perim = 0;
     const perRoom = cr.map((/** @type {any} */ r) => {
       const long = Math.max(r.width, r.depth), short = Math.min(r.width, r.depth);
-      const strips = up(short / rw);
-      const len = long + allow;
+      let strips = up(short / rw), len = long + allow, turned = false;
+      // `rollDirection: "best"` also tries the roll across the long side and keeps whichever uses fewer linear inches (fewer seams on a tie)
+      if (c.rollDirection === "best") {
+        const s2 = up(long / rw), l2 = short + allow;
+        if (s2 * l2 < strips * len - 1e-9 || (Math.abs(s2 * l2 - strips * len) <= 1e-9 && s2 < strips)) { strips = s2; len = l2; turned = true; }
+      }
       linIn += strips * len; seams += strips - 1; areaSq += sq(r); perim += 2 * (r.width + r.depth) / 12;
-      return { name: r.name ?? null, strips, stripLength: len, seams: strips - 1 };
+      return { name: r.name ?? null, strips, stripLength: len, seams: strips - 1, acrossLongSide: turned };
     });
     const rollSqYd = linIn * rw / 1296;
     const padSqYd = areaSq / 9 * (1 + (c.padWaste ?? 0.05));
