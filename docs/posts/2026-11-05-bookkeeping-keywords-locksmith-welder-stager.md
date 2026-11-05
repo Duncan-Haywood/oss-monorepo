@@ -1,6 +1,6 @@
 ---
 title: "Bank descriptors for locksmiths, piano tuners, chimney sweeps, welders and home stagers"
-seo_title: "Auto-categorise bank transactions for five more trades"
+seo_title: "Bank descriptors for locksmiths, welders and home stagers"
 date: 2026-11-05
 tags: [ai-bookkeeper, categorization, testing]
 description: "Probe 27: 25 descriptors for five trades. 8 filed right before the fix; one wrong answer was a real bug, Miller Electric filed as a utility bill."
