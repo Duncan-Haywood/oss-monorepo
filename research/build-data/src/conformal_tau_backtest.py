@@ -1,6 +1,6 @@
 """Milestone 23 analysis (H2g): choose the tau pair with a one-year backtest.
 
-  python3 src/conformal_tau_backtest.py
+  python3 src/conformal_tau_backtest.py [city ...]    (default: chicago sf; session 28 adds austin)
 
 Reads results/conformal_tau_drift_{city}_a2i_{Y}.json (written by conformal_tau_drift_run.py, full grids).
 For test year Y a pair is eligible if (a) its calibration coverage in Y is >= 0.78 (the session 23 rule) and
@@ -11,7 +11,9 @@ slightly optimistic about what a user could compute; it is disclosed, not correc
 """
 import json, os
 R = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
-CITIES, YEARS = ("chicago", "sf"), (2022, 2023, 2024)
+import sys
+CITIES = tuple(sys.argv[1:]) or ("chicago", "sf")
+YEARS = (2022, 2023, 2024)
 
 
 def load(c, y):
@@ -36,4 +38,4 @@ if __name__ == "__main__":
             print(f"{c} {y} pair {k}{'' if found else ' (fallback)'} cov {v['test_coverage']:.3f} "
                   f"[{v['test_lo']:.3f},{v['test_hi']:.3f}] w {v['test_width']:.1f} vs ref {ref['test_width']:.1f} "
                   f"({gain:+.0%}) inside={i} narrower15={n}")
-    print("inside 77-83%:", inside, "of 6; narrower by 15%:", narrow, "of 6")
+    print("inside 77-83%:", inside, "of", len(CITIES) * 3, "; narrower by 15%:", narrow, "of", len(CITIES) * 3)

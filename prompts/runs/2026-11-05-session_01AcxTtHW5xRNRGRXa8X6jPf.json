@@ -1,0 +1,53 @@
+{
+ "date": "2026-11-05",
+ "session": "https://claude.ai/code/session_01AcxTtHW5xRNRGRXa8X6jPf",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there (scheduled)",
+ "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-05T08:29:34Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13281",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "partial",
+ "errors": [
+  "Austin a2i conformal tau grid never finished: 3-seed and 1-seed runs of 4 parallel jobs (num_threads=4 each on 4 cores) produced no output after 2h and 78min"
+ ],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "Warns about OMP_NUM_THREADS=1 oversubscription, but boosted.py hardcodes num_threads=4, so the env var does not help; found only after the first 2h run."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "research/build-data/PROPOSAL.md",
+   "why": "Pushed no new result; wrote negative compute outcome plus script change as a log entry rather than fabricating or shrinking the experiment silently.",
+   "did": "logged plan, outcome and next steps",
+   "result": "log-only run; weak deliverable, no blog post"
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "Austin pull row counts in LOG session 28. No post written: no result to report.",
+ "corrections": [],
+ "redteam": null
+}
