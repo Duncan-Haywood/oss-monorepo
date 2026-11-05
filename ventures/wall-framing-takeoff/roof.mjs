@@ -31,7 +31,7 @@ function roofingNails(squares, g) {
   return { nails, nailLb, nailBoxes: Math.ceil(nailLb / g.nailBoxLb - 1e-9) };
 }
 
-/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, wing?: Wing, wing2?: Wing, plateWidth?: number, maxNotchFraction?: number, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, valleyBacking?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number }, roofing?: { waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number, nailsPerSquare?: number, nailsPerLb?: number, nailBoxLb?: number, iceShield?: number, iceShieldRoll?: number, iceShieldWaste?: number } }} Roof */
+/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, wing?: Wing, wing2?: Wing, plateWidth?: number, maxNotchFraction?: number, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, valleyBacking?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number }, roofing?: { waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number, nailsPerSquare?: number, nailsPerLb?: number, nailBoxLb?: number, iceShield?: number, iceShieldRoll?: number, iceShieldWaste?: number, valleyFeet?: number, valleyRollFeet?: number, valleyWaste?: number } }} Roof */
 
 export function sampleRoof() {
   return { id: "Main roof", width: 336, length: 480, pitch: 4, overhang: 12, gableOverhang: 12, rafter: "2x8", spacing: 16, ridge: "2x10", ceilingJoist: "2x6", collarTies: true };
@@ -521,6 +521,8 @@ function addWing(base, r, plan, w) {
     ridgeBundles: Math.ceil(ridgeFeet / g.ridgeBundleFeet - 1e-9),
     starterBundles: Math.ceil(eaveFeet / g.starterBundleFeet - 1e-9),
     ...iceShield(g, eaveFeet, overhang, k),
+    // Valley flashing: metal roll (default 50 ft, a 20 in x 50 ft roll), 10% waste for laps and end cuts.
+    valleyFlashingRolls: Math.ceil(valleyFeet * (g.valleyWaste ?? 1.1) / (g.valleyRollFeet ?? 50) - 1e-9),
     eaveFeet, rakeFeet, ridgeFeet, valleyFeet, assumptions: g,
   };
   const notes = base.notes.filter((n) => !/ignore valleys, hips/.test(n) && !/^Wing sheathing counts/.test(n));
@@ -569,7 +571,7 @@ export function roofText(l) {
   out.push(`  Roof sheathing: ${l.sheets.count} sheets of ${SHEET.width} x ${SHEET.length} in for ${l.sheets.area.toFixed(0)} sq ft (${(100 * l.sheets.waste).toFixed(1)}% offcut)${l.sheets.nails ? `, ${l.sheets.nails} nails` : ""}`);
   for (const c of l.courses) out.push(`    ${c.plane ? `${c.plane} planes, ` : ""}course at ${formatLength(c.y)} up the slope (${formatInches(c.width)} wide): ${c.pieces.map((p) => formatInches(p.length)).join(" + ")}`);
   const g = l.roofing;
-  out.push(`  Roofing: ${g.squares.toFixed(1)} squares -> ${g.shingleBundles} bundles of shingles, ${g.underlaymentRolls} rolls of underlayment, ${g.dripEdgePieces} drip edge pieces, ${g.ridgeBundles} ridge cap and ${g.starterBundles} starter bundles, ${g.nailLb.toFixed(0)} lb of roofing nails (${g.nailBoxes} box${g.nailBoxes === 1 ? "" : "es"})${g.iceShieldRolls ? `, ${g.iceShieldRolls} roll${g.iceShieldRolls === 1 ? "" : "s"} of ice and water shield at the eaves (${g.iceShieldArea.toFixed(0)} sq ft)` : ""}`);
+  out.push(`  Roofing: ${g.squares.toFixed(1)} squares -> ${g.shingleBundles} bundles of shingles, ${g.underlaymentRolls} rolls of underlayment, ${g.dripEdgePieces} drip edge pieces, ${g.ridgeBundles} ridge cap and ${g.starterBundles} starter bundles, ${g.nailLb.toFixed(0)} lb of roofing nails (${g.nailBoxes} box${g.nailBoxes === 1 ? "" : "es"})${g.valleyFlashingRolls ? `, ${g.valleyFlashingRolls} valley flashing roll${g.valleyFlashingRolls === 1 ? "" : "s"} (${g.valleyFeet.toFixed(0)} ft)` : ""}${g.iceShieldRolls ? `, ${g.iceShieldRolls} roll${g.iceShieldRolls === 1 ? "" : "s"} of ice and water shield at the eaves (${g.iceShieldArea.toFixed(0)} sq ft)` : ""}`);
   for (const n of l.notes) out.push(`  - ${n}`);
   return out;
 }
