@@ -248,6 +248,22 @@ def test_screen_needs_both_informedness_and_enough_positives():
     assert S.screen(rare, rare, guard=10) == "cells"
 
 
+def test_neg_guard_pools_when_the_coder_negative_cell_has_no_positives():
+    from llmci import audit_design as S
+    y = [1] * 12 + [0] * 108
+    f_miss = [1] * 12 + [0] * 108  # perfect: no positive in the coder-negative cell
+    f_some = [1] * 9 + [0] * 3 + [0] * 108  # three positives coded 0
+    assert S.screen(y, f_miss, guard=10) == "cells" and S.screen(y, f_miss, guard=10, neg_guard=S.NEG_GUARD) == "pooled"
+    assert S.screen(y, f_some, guard=10, neg_guard=S.NEG_GUARD) == "cells"
+    assert S.screen(y, f_some, guard=10, neg_guard=4) == "pooled"
+    rng = random.Random(9)
+    yy, ff = corpus(2000, 0.05, 0.99, 0.95, rng)
+    pil = {i: yy[i] for i in rng.sample(range(2000), 100)}
+    k = sum(1 for i, v in pil.items() if v and not ff[i])
+    d = S.plan_audit(ff, pil, 200, tau=0.0, guard=0, neg_guard=S.NEG_GUARD)["design"]
+    assert d == ("cells" if k >= S.NEG_GUARD else "pooled")
+
+
 def test_cell_allocation_sums_to_budget_respects_floor_and_caps():
     from llmci import audit_design as S
     a = S.cell_allocation(400, [900, 300], [0.01, 0.20])

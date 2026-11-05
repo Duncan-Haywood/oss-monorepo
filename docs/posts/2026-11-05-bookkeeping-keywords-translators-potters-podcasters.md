@@ -1,6 +1,6 @@
 ---
 title: "Bank descriptors for translators, potters and podcasters, tested before they met a real statement"
-seo_title: "Bank transaction categories for translators, potters, podcasters"
+seo_title: "Auto-categorise bank transactions for five small trades"
 date: 2026-11-05
 tags: [ai-bookkeeper, categorization, testing]
 description: "A 25-descriptor gap probe for five small trades: 16 filed right before the fix, 25 after, and two of my own expectations were the errors."

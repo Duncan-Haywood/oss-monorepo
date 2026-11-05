@@ -1,9 +1,8 @@
 ---
 title: "Six more trades the bookkeeper now reads from a bank line"
 date: 2026-11-05
-seo_title: "Bank transaction categories for six more trades"
 tags: [ai-bookkeeper, categorization, testing]
-description: "A 31-descriptor gap probe for chiropractors, locksmiths, tree services, towing, DJs and appliance repair: 19 filed right, 12 gaps now covered by rules."
+description: "A gap probe of 31 bank descriptors for six trades: 19 filed right, 12 had no rule, and a small new rule block now files all 31."
 ---
 
 AI Bookkeeper files bank lines to accounts by rule before any model is involved. Today's gap probe wrote 31 realistic descriptors for chiropractors, locksmiths, tree services, towing operators, mobile DJs and appliance-repair techs. Nineteen already filed correctly; twelve had no suggestion (an insurer's claim payment, a tow-dispatch deposit, Towbook, Serato, wrecker parts, GigSalad fees and similar). A small new rule block now files all 31.
