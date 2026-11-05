@@ -386,12 +386,14 @@ export function meetAndGreetPage(profile = null, family = null) {
 <html lang="en">
 <head><meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236f1b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EB%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width,initial-scale=1">${head}<style>${STYLE}</style></head>
 <body>
+<main>
 <h1>${esc(title)}</h1>
 <p>${personal ? `For ${esc(profile.name)}'s meet-and-greet${family && family.name ? ` with the ${esc(family.name.replace(/ family$/i, ""))} family` : ""}. Tick each question as you cover it and write the answers on the family's info sheet.` : `A meet-and-greet is the short visit before the first sit where the babysitter and the parents check each other out. These are the questions worth asking, grouped so you can tick them off, and a list of red flags that are about <strong>safety and payment only</strong>. A family's religion, background or income is never a red flag.`} <button type="button" onclick="print()">Print</button></p>
 ${sections}
 ${flags}
 <p class="note">One red flag is a question to ask, not a verdict. Two, or one the family will not discuss, is a good reason to decline politely.</p>
 ${personal ? "" : `<p class="noprint"><a href="./index.html">Open the Babysitting Business Kit</a>: it sends each family a one-time info sheet (kids, allergies, medications, bedtimes, emergency contacts, doctor) that fills in their record, and shows which channel (church, school, Nextdoor, referrals, your website) brings the families who book.</p>`}
+</main>
 <footer><p>${NO_WARRANTY}</p><p>Not affiliated with any church, school, Nextdoor or the FTC. Free and open source under the MIT licence: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/babysitting-business-kit">source</a>. ${SPONSOR}</p></footer>
 </body>
 </html>
