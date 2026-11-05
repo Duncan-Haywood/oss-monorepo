@@ -48,3 +48,12 @@ test("a tee from another wall onto a stepped wall lands on the segment under it"
   const r = expandSteppedWalls(p);
   assert.deepEqual(r.plan.walls[2].tee, { wall: "H (b)", at: 30 });
 });
+
+test("a step that leaves a segment under 12 in is refused here, with the step named", () => {
+  for (const at of [6, 11.9, 229, 235]) {
+    const r = expandSteppedWalls(plan({ id: "A", length: 240, steps: [{ at, studLength: 116.625 }], openings: [] }));
+    assert.equal(r.ok, false, `at ${at}`);
+    assert.match(r.errors[0], /Wall A: steps must rise in order/);
+  }
+  assert.equal(expandSteppedWalls(plan({ id: "A", length: 240, steps: [{ at: 12, studLength: 116.625 }, { at: 228, studLength: 92.625 }], openings: [] })).ok, true);
+});
