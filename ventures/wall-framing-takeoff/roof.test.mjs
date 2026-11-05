@@ -371,3 +371,12 @@ test("ice and water shield: opt-in, 24 in inside the wall, by hand", () => {
   assert.ok(h.roofing.iceShieldRolls >= 1);
   assert.match(roofText(l).join("\n"), /ice and water shield/);
 });
+
+test("valley flashing rolls: two valleys per wing, 10% waste, 50 ft rolls, by hand", () => {
+  const l = layoutRoof(wingRoof(), plan());
+  assert.equal(l.roofing.valleyFlashingRolls, Math.ceil(l.roofing.valleyFeet * 1.1 / 50 - 1e-9));
+  assert.ok(Math.abs(l.roofing.valleyFeet - 2 * l.wing.valleyLength / 12) < 1e-9);
+  const t = layoutRoof({ ...wingRoof(), roofing: { valleyRollFeet: 10, valleyWaste: 1 } }, plan());
+  assert.equal(t.roofing.valleyFlashingRolls, Math.ceil(t.roofing.valleyFeet / 10 - 1e-9));
+  assert.equal(layoutRoof(sampleRoof(), plan()).roofing.valleyFlashingRolls, undefined);
+});
