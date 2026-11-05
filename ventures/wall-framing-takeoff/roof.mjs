@@ -18,7 +18,13 @@ import { THICK, EPS, DEPTH, optimizeStock, formatLength, formatInches } from "./
 export const SHEET = { width: 48, length: 96 };
 
 /** @typedef {{ width: number, projection: number, pitch?: number, at?: number, side?: "left" | "right", valley?: string }} Wing */
-/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, wing?: Wing, wing2?: Wing, plateWidth?: number, maxNotchFraction?: number, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, valleyBacking?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number }, roofing?: { waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number } }} Roof */
+/** Roofing nails for the shingle field: nails per square x squares x waste, in pounds and boxes. Starter, ridge cap and underlayment fasteners are not counted. */
+function roofingNails(squares, g) {
+  const nails = Math.ceil(squares * g.waste * g.nailsPerSquare - 1e-9), nailLb = nails / g.nailsPerLb;
+  return { nails, nailLb, nailBoxes: Math.ceil(nailLb / g.nailBoxLb - 1e-9) };
+}
+
+/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, wing?: Wing, wing2?: Wing, plateWidth?: number, maxNotchFraction?: number, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, valleyBacking?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number }, roofing?: { waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number, nailsPerSquare?: number, nailsPerLb?: number, nailBoxLb?: number } }} Roof */
 
 export function sampleRoof() {
   return { id: "Main roof", width: 336, length: 480, pitch: 4, overhang: 12, gableOverhang: 12, rafter: "2x8", spacing: 16, ridge: "2x10", ceilingJoist: "2x6", collarTies: true };
@@ -209,13 +215,13 @@ function layoutHip(r, plan) {
   const trapezoid = (eave, ridge) => (eave + ridge) / 2 * slope;
   const area = (2 * trapezoid(L + 2 * overhang, L - W) + 2 * trapezoid(W + 2 * overhang, 0)) / 144; // sq ft; each plane's ridge edge is the span L-W (long) or a point (end)
   const sheetArea = (sheet.width * sheet.length) / 144;
-  const g = { waste: 1.15, bundlesPerSquare: 3, underlaymentRoll: 400, ridgeBundleFeet: 33, starterBundleFeet: 100, dripEdgePiece: 120, ...(r.roofing || {}) };
+  const g = { waste: 1.15, bundlesPerSquare: 3, underlaymentRoll: 400, ridgeBundleFeet: 33, starterBundleFeet: 100, dripEdgePiece: 120, nailsPerSquare: 320, nailsPerLb: 150, nailBoxLb: 30, ...(r.roofing || {}) };
   const squares = area / 100;
   const eaveFeet = (2 * L + 2 * W + 8 * overhang) / 12;
   const hipFeet = 4 * hipLen / 12;
   const ridgeFeet = ridgeRun / 12 + hipFeet;
   const roofing = {
-    squares, shingleBundles: Math.ceil(squares * g.waste * g.bundlesPerSquare - 1e-9),
+    squares, shingleBundles: Math.ceil(squares * g.waste * g.bundlesPerSquare - 1e-9), ...roofingNails(squares, g),
     underlaymentRolls: Math.ceil(area * g.waste / g.underlaymentRoll - 1e-9),
     dripEdgePieces: Math.ceil(eaveFeet * 12 / g.dripEdgePiece - 1e-9),
     ridgeBundles: Math.ceil(ridgeFeet / g.ridgeBundleFeet - 1e-9),
@@ -321,13 +327,13 @@ export function layoutRoof(r, plan) {
   const sheetArea = (sheet.width * sheet.length) / 144;
 
   // Roofing: squares of 100 sq ft; the waste factor, bundles per square, felt roll and trim coverage are inputs.
-  const g = { waste: 1.1, bundlesPerSquare: 3, underlaymentRoll: 400, ridgeBundleFeet: 33, starterBundleFeet: 100, dripEdgePiece: 120, ...(r.roofing || {}) };
+  const g = { waste: 1.1, bundlesPerSquare: 3, underlaymentRoll: 400, ridgeBundleFeet: 33, starterBundleFeet: 100, dripEdgePiece: 120, nailsPerSquare: 320, nailsPerLb: 150, nailBoxLb: 30, ...(r.roofing || {}) };
   const squares = area / 100;
   const eaveFeet = 2 * planeLength / 12;
   const rakeFeet = 4 * slope / 12;
   const ridgeFeet = planeLength / 12;
   const roofing = {
-    squares, shingleBundles: Math.ceil(squares * g.waste * g.bundlesPerSquare - 1e-9),
+    squares, shingleBundles: Math.ceil(squares * g.waste * g.bundlesPerSquare - 1e-9), ...roofingNails(squares, g),
     underlaymentRolls: Math.ceil(area * g.waste / g.underlaymentRoll - 1e-9),
     dripEdgePieces: Math.ceil((eaveFeet + rakeFeet) * 12 / g.dripEdgePiece - 1e-9),
     ridgeBundles: Math.ceil(ridgeFeet / g.ridgeBundleFeet - 1e-9),
@@ -480,7 +486,7 @@ function addWing(base, r, plan, w) {
   const valleyFeet = (base.roofing.valleyFeet ?? 0) + 2 * valleyLen / 12;
   const ridgeFeet = base.roofing.ridgeFeet + (P + e + rake) / 12;
   const roofing = {
-    squares, shingleBundles: Math.ceil(squares * g.waste * g.bundlesPerSquare - 1e-9),
+    squares, shingleBundles: Math.ceil(squares * g.waste * g.bundlesPerSquare - 1e-9), ...roofingNails(squares, g),
     underlaymentRolls: Math.ceil(area * g.waste / g.underlaymentRoll - 1e-9),
     dripEdgePieces: Math.ceil((eaveFeet + rakeFeet) * 12 / g.dripEdgePiece - 1e-9),
     ridgeBundles: Math.ceil(ridgeFeet / g.ridgeBundleFeet - 1e-9),
@@ -533,7 +539,7 @@ export function roofText(l) {
   out.push(`  Roof sheathing: ${l.sheets.count} sheets of ${SHEET.width} x ${SHEET.length} in for ${l.sheets.area.toFixed(0)} sq ft (${(100 * l.sheets.waste).toFixed(1)}% offcut)`);
   for (const c of l.courses) out.push(`    ${c.plane ? `${c.plane} planes, ` : ""}course at ${formatLength(c.y)} up the slope (${formatInches(c.width)} wide): ${c.pieces.map((p) => formatInches(p.length)).join(" + ")}`);
   const g = l.roofing;
-  out.push(`  Roofing: ${g.squares.toFixed(1)} squares -> ${g.shingleBundles} bundles of shingles, ${g.underlaymentRolls} rolls of underlayment, ${g.dripEdgePieces} drip edge pieces, ${g.ridgeBundles} ridge cap and ${g.starterBundles} starter bundles`);
+  out.push(`  Roofing: ${g.squares.toFixed(1)} squares -> ${g.shingleBundles} bundles of shingles, ${g.underlaymentRolls} rolls of underlayment, ${g.dripEdgePieces} drip edge pieces, ${g.ridgeBundles} ridge cap and ${g.starterBundles} starter bundles, ${g.nailLb.toFixed(0)} lb of roofing nails (${g.nailBoxes} box${g.nailBoxes === 1 ? "" : "es"})`);
   for (const n of l.notes) out.push(`  - ${n}`);
   return out;
 }
