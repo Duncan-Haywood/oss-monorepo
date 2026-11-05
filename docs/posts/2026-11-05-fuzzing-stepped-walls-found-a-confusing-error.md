@@ -3,7 +3,7 @@ title: "Fuzzing the stepped-wall framer found a confusing error, not a wrong cou
 seo_title: "Stepped wall framing takeoff: validating step segments"
 date: 2026-11-05
 tags: [wall-framing-takeoff, testing, construction]
-description: "A 3,000-plan random check of stepped walls showed that a step 6 to 12 inches from a wall end passed validation and then failed with an error about a segment the user never typed."
+description: "A random check of stepped walls showed a step 6 to 12 inches from an end passed validation, then failed with an error naming a segment the user never typed."
 ---
 
 `wall-framing-takeoff` frames a wall whose studs change height by splitting it into level segments, each framed as its own wall. I ran 3,000 random stepped walls through the splitter and the takeoff, looking for crashes or bad counts.
