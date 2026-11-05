@@ -416,6 +416,13 @@
    "status": "In force (no clearance)"
   },
   {
+   "date": "2026-10-01",
+   "country": "Moldova",
+   "page": "moldova-e-factura-e-invoice-mandate.html",
+   "note": "B2B e-invoicing reported mandatory from 1 October 2026 after a January 2026 pilot (Law 214/2024), B2G already in use (vendor and advisory guides, SFS orders and Official Gazette unread; older guides still say B2B is voluntary)",
+   "status": "B2B mandate reported 1 Oct 2026 (unconfirmed)"
+  },
+  {
    "date": "2026-10-05",
    "country": "Spain",
    "page": "spain-verifactu-e-invoice-mandate.html",
