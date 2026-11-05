@@ -866,6 +866,23 @@ export function restReport(schedule) {
 }
 
 /**
+ * Forfeit report: how many games each team has lost by walkover (the results box's
+ * "Hawks w/o Owls"), so an organiser sees who keeps not turning up. A team with `limit`
+ * or more (default 2) is flagged, since many leagues drop a side after two forfeits.
+ * Returns { rows: [{ team, forfeits }] (most first, only teams with one or more), flagged: [team names] }.
+ */
+export function forfeitReport(teams, results, { limit = 2 } = {}) {
+  const n = teams.map(() => 0);
+  for (const r of results) {
+    if (!r.walkover) continue;
+    const loser = r.ga > r.gb ? r.b : r.gb > r.ga ? r.a : null;
+    if (loser !== null && loser !== undefined && n[loser] !== undefined) n[loser]++;
+  }
+  const rows = teams.map((team, i) => ({ team, forfeits: n[i] })).filter((x) => x.forfeits > 0).sort((x, y) => y.forfeits - x.forfeits);
+  return { rows, flagged: rows.filter((x) => x.forfeits >= limit).map((x) => x.team) };
+}
+
+/**
  * Byes per team in an odd league: the dated rounds each team sits out, so an organiser sees
  * who is idle in the opening or closing week and whether a double round robin gives anyone
  * two byes in consecutive rounds (the end of one leg and the start of the next). Makeup
