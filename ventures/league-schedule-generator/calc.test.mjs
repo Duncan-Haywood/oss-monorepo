@@ -2138,3 +2138,23 @@ test("forfeitReport: counts walkover losses and flags teams at the limit", () =>
   assert.deepEqual(forfeitReport(teams, pr.results, { limit: 1 }).flagged, ["Owls", "Fox"]);
   assert.deepEqual(forfeitReport(teams, []).rows, []);
 });
+
+import { parseDate as _pd, parseDateList as _pdl, dayIso as _di } from "./calc.mjs";
+import _test from "node:test";
+import _assert from "node:assert/strict";
+_test("dates: day-first forms are read when unambiguous, US month-first kept otherwise", () => {
+  const iso = (t) => { const d = _pd(t); return d === null ? null : _di(d); };
+  _assert.equal(iso("25/12/2026"), "2026-12-25");
+  _assert.equal(iso("12/25/2026"), "2026-12-25");
+  _assert.equal(iso("5/6/2026"), "2026-05-06"); // ambiguous: month first, unchanged
+  _assert.equal(iso("31/04/2026"), null);       // April has 30 days
+  _assert.equal(iso("25.12.2026"), "2026-12-25");
+  _assert.equal(iso("05.06.2026"), "2026-06-05"); // dotted is always day first
+  _assert.equal(iso("25 Dec 2026"), "2026-12-25");
+  _assert.equal(iso("1st September 2026"), "2026-09-01");
+  _assert.equal(iso("Dec 25, 2026"), "2026-12-25");
+  _assert.equal(iso("Foo 25 2026"), null);
+  const r = _pdl("24 Dec 2026 to 26 Dec 2026, 31/12/2026");
+  _assert.equal(r.errors.length, 0);
+  _assert.deepEqual(r.days.map(_di), ["2026-12-24", "2026-12-25", "2026-12-26", "2026-12-31"]);
+});

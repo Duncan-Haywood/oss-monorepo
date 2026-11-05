@@ -42,9 +42,23 @@ export function parseDate(text) {
   let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
   if (m) return toDay(Number(m[1]), Number(m[2]), Number(m[3]));
   m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (m) return toDay(Number(m[3]), Number(m[1]), Number(m[2]));
+  if (m) {
+    const a = Number(m[1]), b = Number(m[2]);
+    // 25/12/2026 can only be day/month; 5/6/2026 stays month/day (US), as before.
+    return a > 12 && b <= 12 ? toDay(Number(m[3]), b, a) : toDay(Number(m[3]), a, b);
+  }
+  // 25.12.2026 (day.month.year, used across Europe): never month-first.
+  m = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if (m) return toDay(Number(m[3]), Number(m[2]), Number(m[1]));
+  // "25 Dec 2026", "25 December 2026", "Dec 25, 2026", "December 25 2026"
+  const mon = (t) => { const i = MONTH_WORDS.findIndex((n) => t.toLowerCase() === n || (t.length >= 3 && n.startsWith(t.toLowerCase()))); return i < 0 ? 0 : i + 1; };
+  m = s.match(/^(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]{3,9})\.?,?\s+(\d{4})$/);
+  if (m && mon(m[2])) return toDay(Number(m[3]), mon(m[2]), Number(m[1]));
+  m = s.match(/^([A-Za-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})$/);
+  if (m && mon(m[1])) return toDay(Number(m[3]), mon(m[1]), Number(m[2]));
   return null;
 }
+const MONTH_WORDS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
 
 const RANGE_SPLIT = /\s+(?:to|through|thru|until)\s+|\s+[–—-]\s+|\.\./i;
 
@@ -58,7 +72,7 @@ export function parseDateList(text) {
     const parts = token.split(RANGE_SPLIT).map((p) => p.trim()).filter(Boolean);
     if (parts.length === 1) {
       const d = parseDate(parts[0]);
-      if (d === null) errors.push(`"${token}" is not a date. Use YYYY-MM-DD.`);
+      if (d === null) errors.push(`"${token}" is not a date. Use YYYY-MM-DD (or 25/12/2026, 25 Dec 2026).`);
       else days.push(d);
     } else if (parts.length === 2) {
       const a = parseDate(parts[0]);
