@@ -1,9 +1,9 @@
 ---
 title: "Fuzzing the league scheduler's calendars, deadlines and cost split"
-seo_title: "Fuzz test results: league schedule calendar, deadline and facility cost"
+seo_title: "Fuzz results: league schedule calendar, deadline, facility cost"
 date: 2026-11-05
 tags: [league-schedule-generator, testing, fuzzing]
-description: "A random-league check of the multi-division scheduler's unavailable-date moves, withdrawals, calendar export, deadline, bookings and facility cost split found no fault."
+description: "A random-league check of the multi-division scheduler's date moves, withdrawals, calendar export, deadline, bookings and facility cost split found no fault."
 ---
 
 The multi-division league scheduler had random-league checks for its builder, rainouts, standings and officials, but eight of its functions had none: unavailable-date moves, withdrawals, the calendar export, the deadline check, facility bookings, the facility cost and fee split, play-off seeding and score sheets.
