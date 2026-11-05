@@ -7,7 +7,7 @@
 //   3. a team plays at the same venue as on its previous night where it can (fewer trips).
 // Each division keeps the circle-method round robin of calc.mjs (home/away balance and byes), so only
 // the dates, courts and times are decided here.
-import { csvRows, roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, tieBreakNotes, standingsCsv, parsePointSystem, playoffBracket, bracketText, weeklyUpdate, playoffRace, remainingFixtures, raceText } from "./calc.mjs";
+import { csvRows, roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, tieBreakNotes, standingsCsv, parsePointSystem, playoffBracket, bracketText, weeklyUpdate, playoffRace, remainingFixtures, raceText, forfeitReport } from "./calc.mjs";
 
 const MAX_NIGHTS = 800;
 const W_CLASH = 1000;
@@ -986,7 +986,9 @@ export function divisionsWeeklyUpdate(schedule, text, { points = "3-1-0", headTo
       kept.push(x);
     }
     const body = weeklyUpdate({ teams: div.teams, rounds: div.rounds }, kept, { adjustments: r.adjustments, points: ps.error ? {} : { win: ps.win, draw: ps.draw, loss: ps.loss }, headToHead, maxRows });
-    if (body) blocks.push(`== ${div.name} ==\n${body}`);
+    const fr = forfeitReport(div.teams, kept);
+    const fw = fr.flagged.length ? `\nWarning: ${fr.flagged.join(", ")} ${fr.flagged.length === 1 ? "has" : "have"} two or more forfeits.` : "";
+    if (body) blocks.push(`== ${div.name} ==\n${body}${fw}`);
   });
   for (const e of std.errors) blocks.push(`Warning: ${e}`);
   return blocks.join("\n\n");
