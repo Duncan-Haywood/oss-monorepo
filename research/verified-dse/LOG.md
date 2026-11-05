@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-05 · Milestone 83: reproduce.sh now covers 23 cached-table analyses it omitted (no flow run, no new numbers)
+- Why: `reproduce.sh` claims to re-derive every number in PAPER.md, but 23 analysis scripts that produce tables the paper cites (theory/optimum_rank, disjoint_check, with_replacement, quantile_counterexample; tail_risk; corner_replay; hostile, unseen, util65, large, detail_route and rung_bias_26q3 replays; and others) had no line in it.
+- Prediction (written before running): all 23 exit 0 and leave `git status -- experiments` empty, i.e. reproduce committed output exactly, since they are seeded. If any changed a committed table, that table's PAPER.md figure would need checking.
+- **Outcome:** all 23 exit 0 (slowest `rung_bias_26q3/replay.py`, 180 s; the rest 0 to 60 s) and no committed file changed. Prediction held. Appended them to `reproduce.sh` with a second `git diff --stat` check. `tests/` pass (18 passed, 1 skipped).
+- Limits: this shows determinism on this container (Python 3, numpy as installed), not across library versions; scripts that need the flow (`run.py` files) are still outside it.
+- Next: unchanged (detail-routed mult24/mult32 cells, template typesetting).
+
 ## 2026-11-05 · Milestone 82: programme summary post (no flow run, no new numbers)
 - Why: 81 milestones sit in this log with no programme-wide summary for a reader. Wrote `docs/posts/2026-11-05-verified-dse-what-81-milestones-found.md` from logged outcomes only (H1 to H4 headline results, pilot gate, bound, tool-version caveat).
 - Check: every figure was copied from this log and `PAPER.md`; nothing re-measured.

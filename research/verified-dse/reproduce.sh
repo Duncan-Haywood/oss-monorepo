@@ -30,3 +30,6 @@ git diff --stat -- experiments   # empty when the committed tables are reproduce
 $PY experiments/bohb/bohb.py       # milestone 54 (about 80 s)
 $PY experiments/bohb/gate.py main; $PY experiments/bohb/gate.py unfaithful; $PY experiments/bohb/gate.py unfaithful2   # milestone 70 (about 3 min)
 $PY experiments/fanout_sweep/analyse.py; $PY experiments/fanout_sweep/analyse.py results_y033.jsonl results_y033.txt   # milestones 73, 74 (no flow)
+# Milestone 83: cached-table analyses that had no line here (no flow; about 7 min in all, of which rung_bias_26q3/replay.py is 3).
+for s in theory/anchored theory/optimum_rank theory/optimum_rank_n theory/disjoint_check theory/with_replacement theory/quantile_counterexample theory/quantile_g_pilot tail_risk/tail corner_replay/replay corner_ss/compare r2_area_arm/replay r2_harsh_cut/replay unseen/replay hostile/replay util65/analyse large/analyse large/halving_replay detail_route/analyse detail_route/analyse_sub12 detail_route/analyse_sub4 fanao_mech/analyse rung_bias_26q3/compare rung_bias_26q3/replay proof_success/compare_y070; do $PY experiments/$s.py; done
+git diff --stat -- experiments   # empty again when all of the above reproduce exactly
