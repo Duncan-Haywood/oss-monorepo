@@ -1,6 +1,6 @@
 ---
 title: "How much angle-of-attack bias can UAV system identification take?"
-seo_title: "Angle-of-attack vane bias and UAV system identification: where the fit breaks"
+seo_title: "Angle-of-attack bias and UAV system identification: where it breaks"
 date: 2026-11-05
 tags: [aerolog-scaling, system-identification, uav, research]
 description: "A fitted bias repairs a constant angle-of-attack error up to 1 degree in a gust-response fit for a cargo aircraft model, and breaks between 1 and 2 degrees."
