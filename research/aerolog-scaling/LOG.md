@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-05 · Milestone 9ai: source a real alpha-probe bias to say which side of the 9ah cliff it sits on (a sourcing step, no new simulation)
+- Why: 9ah's "Next". 9ah bracketed the OE+b failure onset at a constant alpha bias of 1.25 to 1.5 degrees against a 2.9 degree release disturbance; the open item was a sourced figure.
+- Source (read this session from the arXiv PDF 2001.00672, Table 6; DOI confirmed by Crossref): Sun and Gebre-Egziabher, "A Two-Stage Batch Algorithm for Nonlinear Static Parameter Estimation", *J. Guidance, Control, and Dynamics* 43(5), 901-914, 2020, doi:10.2514/1.G004713. Their 5-hole probe calibration on small-UAV flight data (airspeed 10 to 25 m/s) estimates an angle-of-attack **bias of -2.49 deg (standard deviation 0.56)**, sideslip bias -1.30 deg (0.52), airspeed bias 4.36 m/s (1.27), and an installation misalignment of -0.138 rad (0.27); the estimate lies inside its [-5, 5] deg constraint.
+- Reading (arithmetic only): 2.49 deg is 0.86 of 2.9 deg, about twice the 1.25 deg that OE+b tolerates, and one standard deviation below it (1.93 deg) is still above the 1.5 deg cliff. So an **uncalibrated** probe of that kind would sit on the failing side of 9ah's cliff; a probe calibrated before flight leaves a smaller residual that this source does not give.
+- Limits: one probe on one airframe and one flight; the figure is itself an estimate with a 0.56 deg standard deviation and is the bias of an uncalibrated probe, not a post-calibration residual; the cliff is in units of the release amplitude at scale 0.75, noise 10%, so an absolute-degree comparison transfers only if the real release disturbance is also about 3 degrees (not checked). Their sign is arbitrary against our random-sign bias.
+- Next: a post-calibration alignment residual (the NSF PAR 10354754 record); AIAA template.
+
 ## 2026-11-05 · Milestone 8k: paper draft catches up with milestones 9ae to 9ah (no new simulation)
 - New Section 4.10d carries the gain-only arm (9ae), the incidence-bias fit (9af), the 2-degree re-runs (9ag) and the 1.25/1.5 degree bisection (9ah); `paper/check_numbers.py` ties six of its figures to the results files (all checks pass). The open-items line now lists only a sourced alpha-vane alignment residual.
 - Next: source that residual (Sasse et al., NSF PAR 10354754; arXiv 2001.00672); AIAA template.
