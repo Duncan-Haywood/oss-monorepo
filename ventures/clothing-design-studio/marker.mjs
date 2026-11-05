@@ -1,0 +1,175 @@
+/**
+ * A cutting marker estimate: the pattern pieces of a garment packed onto the
+ * fabric width, so the metres to buy come from a layout instead of the
+ * supplier's per-garment figure scaled by area (runcost.mjs).
+ *
+ * What it does: builds the pieces of a tee, long-sleeve, crewneck or hoodie
+ * per size as bounding rectangles (body front and back, sleeves, ribbing,
+ * hood, pocket) from fit.mjs's finished measurements plus a seam allowance,
+ * keeps every piece on the grain (length runs along the cloth, no rotation),
+ * and packs them with first-fit-decreasing shelves across the usable width.
+ * A lay is one marker spread many plies deep; the run is cut in as few lays
+ * as the ply limit allows, with one marker holding a ratio of sizes.
+ *
+ * What it is not: real CAD nesting. Pieces are rectangles, so the armhole,
+ * neck and sleeve-cap curves are not nested into each other; that wastes some
+ * cloth the factory's marker would save, so this estimate is on the cautious
+ * side (more cloth). A `nestingGain` percentage can be set to the saving the
+ * factory quotes. The factory's own marker consumption always wins.
+ */
+import { garmentMeasurements, BODY_CHEST_CM } from "./fit.mjs";
+
+const round1 = v => Math.round(v * 10) / 10;
+const round2 = v => Math.round(v * 100) / 100;
+
+export const SEAM_ALLOWANCE_CM = 1.5;
+export const SLEEVE_LENGTH_CM = Object.freeze({ tee: 22, longsleeve: 62, crewneck: 62, hoodie: 62 });
+
+/** Pattern pieces for one garment in one size: [{name, w, l, qty}] in cm, seam allowance included. */
+export function patternPieces(garment, size, fit = "regular", sizeChart = BODY_CHEST_CM, seam = SEAM_ALLOWANCE_CM) {
+  const g = garmentMeasurements(garment, fit, sizeChart)[size];
+  if (!g) return null;
+  if (!(garment in SLEEVE_LENGTH_CM)) return null;
+  const a = 2 * seam;
+  const P = (name, w, l, qty) => ({ name, w: round1(w + a), l: round1(l + a), qty });
+  const out = [
+    P("front", g.flatWidth, g.length, 1),
+    P("back", g.flatWidth, g.length, 1),
+    P("sleeve", 0.34 * g.chest, SLEEVE_LENGTH_CM[garment], 2),
+    P("neck band", 4.5, 0.45 * g.bodyChest, 1),
+  ];
+  if (garment === "crewneck" || garment === "hoodie") {
+    out.push(P("cuff", 8, 0.2 * g.chest, 2));
+    out.push(P("waistband", 9, g.flatWidth, 2));
+  }
+  if (garment === "hoodie") {
+    out.push(P("hood", 34, 30 + (g.bodyChest - 100) * 0.1, 2));
+    out.push(P("pocket", 32, 22, 1));
+  }
+  return out;
+}
+
+/**
+ * Pack rectangles onto a strip `width` wide, first-fit-decreasing by length.
+ * Returns the marker length and the cloth the pieces cover.
+ */
+export function packStrip(rects, width) {
+  const items = [];
+  for (const r of rects) for (let i = 0; i < r.qty; i++) items.push({ name: r.name, w: r.w, l: r.l });
+  const tooWide = items.find(it => it.w > width);
+  if (tooWide) return { ok: false, error: `A ${tooWide.name} piece is ${tooWide.w} cm wide, wider than the ${width} cm of usable cloth.` };
+  items.sort((x, y) => y.l - x.l || y.w - x.w);
+  const shelves = [];
+  for (const it of items) {
+    const s = shelves.find(sh => sh.used + it.w <= width + 1e-9);
+    if (s) { s.used += it.w; s.items.push(it); } else shelves.push({ l: it.l, used: it.w, items: [it] });
+  }
+  const length = shelves.reduce((a, s) => a + s.l, 0);
+  const area = items.reduce((a, it) => a + it.w * it.l, 0);
+  return { ok: true, length: round1(length), pieces: items.length, shelves: shelves.length, coveredArea: area };
+}
+
+/**
+ * One marker for a ratio of sizes, e.g. { S: 1, M: 2, L: 1 }.
+ * Pieces of all sizes in the ratio are packed together.
+ */
+export function markerFor(garment, ratio, { fit = "regular", sizeChart = BODY_CHEST_CM, fabricWidthCm = 150, edgeCm = 1.5, seam = SEAM_ALLOWANCE_CM } = {}) {
+  const usable = fabricWidthCm - 2 * edgeCm;
+  const rects = [];
+  for (const [size, n] of Object.entries(ratio)) {
+    if (!(n > 0)) continue;
+    const ps = patternPieces(garment, size, fit, sizeChart, seam);
+    if (!ps) return { ok: false, error: `No pattern for ${garment} in size ${size}.` };
+    for (const p of ps) rects.push({ ...p, qty: p.qty * n });
+  }
+  const packed = packStrip(rects, usable);
+  if (!packed.ok) return packed;
+  const utilisation = packed.coveredArea / (packed.length * fabricWidthCm);
+  return { ok: true, markerLengthCm: packed.length, usableWidthCm: usable, utilisationPct: round1(utilisation * 100), pieces: packed.pieces };
+}
+
+/**
+ * Cutting plan for a run. A lay is one marker (a ratio of sizes) spread `plies`
+ * deep; a group is `lays` identical lays. Sizes are split into at most two
+ * groups, the thinly-ordered sizes cut apart from the bulk, because one ratio
+ * for all sizes would cut piles of spares for an XXL order of three. Within a
+ * group every combination of lays and plies that covers the order is tried;
+ * the marker must fit the cutting table, and the cheapest in cloth wins among
+ * those whose spare pieces (from rounding the ratio up) stay within
+ * `maxSparePct` of the group, at least 2; if none does, the fewest spares
+ * wins. Spares are cloth, so they are paid for.
+ * @param {string} garment
+ * @param {Record<string, number>} counts  pieces wanted per size
+ * @param {{fit?:string, sizeChart?:object, fabricWidthCm?:number, maxPlies?:number, maxMarkerCm?:number, endLossCm?:number, nestingGainPct?:number, maxSparePct?:number}} [opts]
+ */
+export function cuttingPlan(garment, counts, { fit = "regular", sizeChart = BODY_CHEST_CM, fabricWidthCm = 150, maxPlies = 60, maxMarkerCm = 1000, endLossCm = 6, nestingGainPct = 0, maxSparePct = 5, seam = SEAM_ALLOWANCE_CM } = {}) {
+  const want = Object.fromEntries(Object.entries(counts || {}).map(([k, v]) => [k, Math.max(0, Math.round(Number(v) || 0))]).filter(([, v]) => v > 0));
+  const total = Object.values(want).reduce((a, b) => a + b, 0);
+  if (!total) return { ok: false, error: "Give at least one piece." };
+  if (!(fabricWidthCm >= 60 && fabricWidthCm <= 300)) return { ok: false, error: "Fabric width should be between 60 and 300 cm." };
+  if (!(maxPlies >= 1 && maxPlies <= 200)) return { ok: false, error: "The ply limit must be between 1 and 200." };
+  if (!(maxMarkerCm >= 100)) return { ok: false, error: "The cutting table must take a marker of at least 100 cm." };
+  if (!(nestingGainPct >= 0 && nestingGainPct <= 30)) return { ok: false, error: "A nesting gain above 30% is not credible; use the factory's figure." };
+  const gain = 1 - nestingGainPct / 100;
+  const cache = new Map();
+  const solve = sub => {
+    const subTotal = Object.values(sub).reduce((a, b) => a + b, 0);
+    const allowed = Math.max(2, Math.ceil(subTotal * maxSparePct / 100));
+    const biggest = Math.max(...Object.values(sub));
+    let best = null;
+    for (let lays = 1; lays <= Math.min(24, biggest); lays++) {
+      for (let plies = 1; plies <= maxPlies; plies++) {
+        const ratio = Object.fromEntries(Object.entries(sub).map(([s, n]) => [s, Math.ceil(n / (lays * plies))]));
+        const key = JSON.stringify(ratio);
+        let m = cache.get(key);
+        if (!m) { m = markerFor(garment, ratio, { fit, sizeChart, fabricWidthCm, seam }); cache.set(key, m); }
+        if (!m.ok) return m;
+        if (m.markerLengthCm * gain > maxMarkerCm) continue;
+        const metres = lays * plies * (m.markerLengthCm * gain + endLossCm) / 100;
+        const spares = Object.entries(ratio).reduce((a, [s, r]) => a + r * lays * plies - sub[s], 0);
+        const ok = spares <= allowed;
+        const better = !best ? true : ok !== best.ok ? ok : ok ? metres < best.metres - 1e-9 : (spares < best.spares || (spares === best.spares && metres < best.metres - 1e-9));
+        if (better) best = { ok, lays, plies, ratio, m, metres, spares };
+      }
+    }
+    return best ? { ok: true, best } : { ok: false, error: `No marker fits a ${maxMarkerCm} cm table within ${maxPlies} plies and 24 lays; raise the table length or the ply limit.` };
+  };
+  const bySmall = Object.keys(want).sort((x, y) => want[x] - want[y]);
+  let chosen = null;
+  for (let k = 0; k < bySmall.length; k++) {
+    const groups = k === 0 ? [bySmall] : [bySmall.slice(0, k), bySmall.slice(k)];
+    const solved = [];
+    for (const sizes of groups) {
+      const r = solve(Object.fromEntries(sizes.map(s => [s, want[s]])));
+      if (!r.ok) { if (k === 0) return r; solved.length = 0; break; }
+      solved.push({ sizes, ...r.best });
+    }
+    if (!solved.length) continue;
+    const metres = solved.reduce((a, g) => a + g.metres, 0);
+    const spares = solved.reduce((a, g) => a + g.spares, 0);
+    const cand = { solved, metres, spares, ok: solved.every(g => g.ok) };
+    const better = !chosen ? true : cand.ok !== chosen.ok ? cand.ok : cand.ok ? cand.metres < chosen.metres - 1e-9 : (cand.spares < chosen.spares || (cand.spares === chosen.spares && cand.metres < chosen.metres - 1e-9));
+    if (better) chosen = cand;
+  }
+  const groups = chosen.solved.map(g => ({
+    sizes: g.sizes, lays: g.lays, plies: g.plies, ratio: g.ratio,
+    markerLengthCm: round1(g.m.markerLengthCm * gain), utilisationPct: g.m.utilisationPct,
+    metres: round2(g.metres), extraPieces: Object.fromEntries(Object.entries(g.ratio).map(([s, r]) => [s, r * g.lays * g.plies - want[s]]).filter(([, v]) => v > 0)),
+  }));
+  const over = Object.assign({}, ...groups.map(g => g.extraPieces));
+  const area = chosen.solved.reduce((a, g) => a + g.m.utilisationPct * g.lays * g.plies * g.m.markerLengthCm, 0) / chosen.solved.reduce((a, g) => a + g.lays * g.plies * g.m.markerLengthCm, 0);
+  const notes = [];
+  if (Object.keys(over).length) notes.push(`Rounding a ratio up cuts spares: ${Object.entries(over).map(([s, v]) => `${v} ${s}`).join(", ")}. They are in the cloth to buy; keep them as stock or trim the order.`);
+  if (area < 75) notes.push(`Only ${round1(area)}% of the cloth is covered by pattern pieces; a CAD marker nests the curves and usually does better.`);
+  notes.push("Pieces are rectangles on the grain, so this errs towards more cloth than a CAD marker. It is not the factory's cutting plan.");
+  return {
+    ok: true,
+    pieces: total,
+    groups,
+    utilisationPct: round1(area),
+    metresToBuy: round2(chosen.metres),
+    metresPerPiece: round2(chosen.metres / total),
+    extraPieces: over,
+    notes,
+  };
+}

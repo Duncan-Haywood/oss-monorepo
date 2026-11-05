@@ -85,6 +85,9 @@
         <div><label for="fcs">Cut and sew per piece</label><input id="fcs" type="number" min="0" step="0.1" value="4"></div>
       </div>
       <label for="fother">Everything else per piece (print, trims, packing, freight)</label><input id="fother" type="number" min="0" step="0.1" value="3">
+      <div class="row"><div><label for="fwidth">Fabric width, usable, cm</label><input id="fwidth" type="number" min="60" max="300" step="1" value="150"></div>
+        <div><label for="fplies">Most plies per lay</label><input id="fplies" type="number" min="1" max="200" step="1" value="60"></div>
+        <div><label for="ftable">Cutting table, cm</label><input id="ftable" type="number" min="100" step="10" value="1000"></div></div>
       <label for="fplus">Factory surcharge per piece for XL and XXL (optional)</label><input id="fplus" type="number" min="0" step="0.1" value="0">
     </section>
 
@@ -128,6 +131,7 @@
     import { recommendSize, sizeRun, fitGap, BODY_CHEST_CM, FIT_LABELS } from "./fit.mjs";
     import { tryOn } from "./tryon.mjs";
     import { runCost } from "./runcost.mjs";
+    import { cuttingPlan } from "./marker.mjs";
     import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
     import { newDesign } from "./design.mjs";
     import { recordUsage } from "./usage.mjs";
@@ -175,8 +179,16 @@
           `<p>Buy about <span class="big">${rc.fabricMetresToBuy}</span> m of fabric. The run costs <b>${rc.runTotal}</b> in all, <b>${rc.blendedLanded}</b> a piece on average (${rc.differenceVsFlat >= 0 ? "+" : ""}${rc.differenceVsFlat} against pricing every piece as a size M).</p>` +
           `<table><tr><th>Size</th><th class="num">Pieces</th><th class="num">Metres each</th><th class="num">Cost each</th><th class="num">Total</th></tr>` +
           rc.rows.map(x => `<tr><td>${esc(x.size)}</td><td class="num">${x.pieces}</td><td class="num">${x.metres}</td><td class="num">${x.landed}</td><td class="num">${x.total}</td></tr>`).join("") + `</table>` +
-          `<p class="notes">${rc.notes.map(esc).join("<br>")}</p><p class="tag">Arithmetic on the prices you typed, in one currency. Not a quote: the factory's own cutting plan decides the real cloth use.</p>`;
+          `<p class="notes">${rc.notes.map(esc).join("<br>")}</p><p class="tag">Arithmetic on the prices you typed, in one currency. Not a quote: the factory's own cutting plan decides the real cloth use.</p>` + markerHtml(garment, run.sizes, fit, sizeChart, rc);
       }
+    }
+    function markerHtml(garment, sizes, fit, sizeChart, rc) {
+      const mp = cuttingPlan(garment, sizes, { fit, sizeChart, fabricWidthCm: Math.max(60, Number($("#fwidth").value) || 150), maxPlies: Math.min(200, Math.max(1, Math.round(Number($("#fplies").value) || 60))), maxMarkerCm: Math.max(100, Number($("#ftable").value) || 1000) });
+      if (!mp.ok) return `<h3>Cutting plan</h3><p class="notes">${esc(mp.error)}</p>`;
+      return `<h3>Cutting plan from the pattern pieces</h3><p>Packing the pieces of each size onto ${esc($("#fwidth").value)} cm cloth needs about <span class="big">${mp.metresToBuy}</span> m (${mp.metresPerPiece} m a piece, ${mp.utilisationPct}% of the cloth covered), against ${rc.fabricMetresToBuy} m from the area rule above.</p>` +
+        `<table><tr><th>Lay</th><th>Sizes (pieces per size in the marker)</th><th class="num">Lays x plies</th><th class="num">Marker</th><th class="num">Cloth</th></tr>` +
+        mp.groups.map((g, i) => `<tr><td>${i + 1}</td><td>${Object.entries(g.ratio).map(([s, r]) => `${esc(s)} x${r}`).join(", ")}</td><td class="num">${g.lays} x ${g.plies}</td><td class="num">${g.markerLengthCm} cm</td><td class="num">${g.metres} m</td></tr>`).join("") + `</table>` +
+        `<p class="notes">${mp.notes.map(esc).join("<br>")}</p><p class="tag">Pieces are drawn as rectangles on the grain with 1.5 cm seam allowance. A factory's CAD marker nests the curves and will differ; type its figure into "metres per garment" when you have it.</p>`;
     }
     document.querySelectorAll("section select, section input").forEach(el => el.addEventListener("input", () => { render(); recordUsage("fit_calc"); }));
     render(); recordUsage("fit_open");
