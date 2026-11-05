@@ -386,3 +386,14 @@ test("a full mailbox stays a bounce, tagged mailbox_full, and the task says the 
   const r = runInbox({ replies: "From: MAILER-DAEMON@x.com\nSubject: Mail delivery failed\n\nThe following address failed: mark@oldco.example (mailbox is full / user over quota)", prospects: "email,name,company\nmark@oldco.example,Mark,OldCo\n", offer: SAMPLE_OFFER, today: T });
   assert.ok(JSON.stringify(r).includes("mailbox is full, so the address is probably still real"), JSON.stringify(r.tasks));
 });
+
+// 2026-11-05: probed with fresh agent-written replies; both fell to "unclear" before.
+test("a bare 'not the right person' with a referral is a handover, 'just signed with' a rival is a competitor objection", async () => {
+  const { triage } = await import("./engine.mjs");
+  const a = triage("Not the right person, try our head of ops, Mike Lin (mike@acme.io).", "2026-11-05");
+  assert.equal(a.category, "left_company");
+  assert.equal(a.referral.email, "mike@acme.io");
+  const b = triage("Thanks but we just signed with a competitor last week. Good luck!", "2026-11-05");
+  assert.equal(b.category, "objection");
+  assert.equal(b.subtype, "competitor");
+});
