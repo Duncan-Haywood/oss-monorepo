@@ -43,9 +43,11 @@
    "result": "6 project tests, pick_track 22 tests, homepage build, programme_check, md links pass"
   }
  ],
- "writeups": "No new post: the PR carries the existing 2026-11-03 post from #12912. Run added no new findings.",
+ "writeups": [
+  "docs/posts/2026-11-03-can-survey-answers-predict-catholic-beliefs-gss.md"
+ ],
  "goal": null,
- "notes": "Stranded #13208 (milestone 66 pre-registration) found superseded by main's milestone 66 (n=256 run); not run. A PR comment on #12912 proposed a test fixture patch; test passed on current main without it.",
+ "notes": "Stranded #13208 (milestone 66 pre-registration) found superseded by main's milestone 66 (n=256 run); not run. A PR comment on #12912 proposed a test fixture patch; test passed on current main without it. No new post written this run; the landed one is from #12912.",
  "corrections": [],
  "redteam": null
 }
