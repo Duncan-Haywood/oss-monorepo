@@ -1,9 +1,9 @@
 ---
 title: "A fitted sensor bias rescues a flight-dynamics fit up to 1 degree, not 2"
-seo_title: "Angle-of-attack sensor bias and output-error system identification of a UAV scale model"
+seo_title: "Alpha sensor bias and UAV system identification fit"
 date: 2026-11-05
 tags: [aerolog-scaling, system-identification, uav, research]
-description: "Fitting one bias per channel repairs an output-error mode fit under an angle-of-attack offset up to 1 degree, but at 2 degrees it fails in about half of 2-period fits."
+description: "A fitted per-channel bias repairs an output-error mode fit under an alpha offset up to 1 degree; at 2 degrees many 2-period fits fail."
 ---
 
 The aerolog-scaling programme asks what a sub-scale model of a cargo UAV tells you about the full aircraft. One piece is identifying the phugoid and short-period modes from a released disturbance, with sensor errors in the data. Earlier steps showed a pitot gain error does nothing, and that a small angle-of-attack (alpha) bias breaks a plain output-error fit: at 0.25 degrees, 27 of 160 fits fail, and at 1 degree all of them do. Fitting one bias per channel repaired it.
