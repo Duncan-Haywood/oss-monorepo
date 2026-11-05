@@ -25,6 +25,7 @@
  * @returns {{ segs: Seg[], polys: { id: number, layer: string, pts: Pt[] }[], insunits: number, inserts: number, arcs: number, binary: boolean, blocks: Record<string, any>, insertList: any[], arcList: any[] }}
  */
 export function parseDxf(text) {
+  if (typeof text !== "string") text = "";
   if (text.startsWith("AutoCAD Binary DXF")) return { segs: [], polys: [], insunits: 0, inserts: 0, arcs: 0, binary: true, blocks: {}, insertList: [], arcList: [] };
   const lines = text.split(/\r?\n/);
   /** @type {[number, string][]} */
@@ -476,6 +477,7 @@ export function planFromDxf(text, opt = {}) {
   const wallLayer = opt.wallLayer ?? /wall/i, doorLayer = opt.doorLayer ?? /door/i, windowLayer = opt.windowLayer ?? /window|glaz/i;
   const snap = opt.snap ?? 3, mergeGap = opt.mergeGap ?? 1;
   const notes = [];
+  if (typeof text !== "string") return { ok: false, errors: ["The DXF must be text (an ASCII DXF file's contents)."], notes };
   const parsed = parseDxf(text);
   if (parsed.binary) return { ok: false, errors: ["This is a binary DXF; save it as ASCII DXF (R12 to 2018) and try again."], notes };
   let scale;

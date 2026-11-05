@@ -233,3 +233,12 @@ test("nested block symbols: a door made of a leaf block inside a frame block, mi
   assert.ok(r.ok, r.errors.join());
   assert.deepEqual(r.plan.walls[0].openings.map((o) => [o.kind, o.offset, o.width]), [["door", 204, 36]]);
 });
+
+test("planFromDxf and parseDxf refuse a DXF that is not text instead of throwing (2026-11-05)", () => {
+  for (const v of [null, undefined, 5, {}, [], true]) {
+    const r = planFromDxf(v);
+    assert.equal(r.ok, false);
+    assert.match(r.errors[0], /must be text/);
+    assert.deepEqual(parseDxf(v).segs, []);
+  }
+});
