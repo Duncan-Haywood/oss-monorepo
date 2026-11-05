@@ -27,6 +27,10 @@ export function expandSteppedWalls(plan) {
     const steps = w.steps;
     if (!Array.isArray(steps) || !steps.length) { errors.push(`Wall ${id}: "steps" must be a list of { at, studLength }.`); continue; }
     if (w.gable) { errors.push(`Wall ${id}: a gable wall cannot also have steps.`); continue; }
+    if (typeof id !== "string" || !id.trim()) { errors.push(`A stepped wall needs an "id" that is non-empty text.`); continue; }
+    if (typeof w.length !== "number" || !Number.isFinite(w.length)) { errors.push(`Wall ${id}: "length" must be a number, in inches.`); continue; }
+    if (w.openings !== undefined && (!Array.isArray(w.openings) || w.openings.some((o) => !o || typeof o !== "object" || !Number.isFinite(o.offset) || !Number.isFinite(o.width)))) { errors.push(`Wall ${id}: "openings" must be a list of objects with a number "offset" and "width".`); continue; }
+    if (w.tees !== undefined && (!Array.isArray(w.tees) || w.tees.some((t) => !Number.isFinite(t)))) { errors.push(`Wall ${id}: "tees" must be a list of numbers, in inches.`); continue; }
     let bad = false;
     let prev = 0;
     for (const s of steps) {
@@ -57,6 +61,12 @@ export function expandSteppedWalls(plan) {
       walls.push(seg);
     }
     notes.push(`Wall ${id} is stepped: ${segs.map((s) => `${s.id} ${s.to - s.from} in with ${s.studLength} in studs`).join(", ")}. Each segment has its own end studs, so there is a doubled stud at every step; tie the two heights together by hand.`);
+  }
+  const seen = new Set();
+  for (const w of walls) {
+    if (!w || typeof w.id !== "string") continue;
+    if (seen.has(w.id)) errors.push(`Two walls are named "${w.id}" once the steps are split out; rename one.`);
+    seen.add(w.id);
   }
   if (errors.length) return { ok: false, errors };
   // A tee that lands on a stepped host wall goes to the segment under it.
