@@ -32,3 +32,21 @@ test("empty input changes nothing", () => {
   const r = listen("");
   assert.equal(r.heard.length, 0); assert.equal(r.asks.length, 6);
 });
+test("a conversation: answered questions are not asked again and bare replies are read", () => {
+  let r = listen("luxury minimal");
+  assert.ok(r.askFields.includes("ageBand") && !r.askFields.includes("tier"));
+  assert.equal(r.pending, "ageBand");
+  r = listen("30", r.profile, r);
+  assert.equal(r.profile.ageBand, "25-34");
+  assert.ok(!r.askFields.includes("ageBand") && !r.askFields.includes("tier") && !r.askFields.includes("style"));
+  assert.equal(r.pending, "fit");
+  r = listen("both", r.profile, r);
+  assert.equal(r.profile.fit, "unisex");
+  r = listen("hot summers", r.profile, r);
+  assert.ok(!r.askFields.includes("climate"));
+  r = listen("office and weekend", r.profile, r);
+  assert.deepEqual(r.asks, []); assert.equal(r.pending, null);
+});
+test("a bare number is not an age unless age was the question", () => {
+  assert.equal(listen("30").heard.length, 0);
+});
