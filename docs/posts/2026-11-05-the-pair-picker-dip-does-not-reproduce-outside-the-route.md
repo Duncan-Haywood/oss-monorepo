@@ -1,6 +1,6 @@
 ---
 title: "The pair-picker dip does not reproduce outside the route"
-seo_title: "Adaptive pairwise ranking: a staged pair selector's dip is not in the selector"
+seo_title: "Adaptive pairwise ranking: the pair selector is not the dip"
 date: 2026-11-05
 tags: [quick-pick-survey, ranking, glicko-2, measurement]
 description: "A staged pair selector scored worse on items it had already settled in end-to-end runs. Re-run in process, it does not, which narrows where the bug can be."
