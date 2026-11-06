@@ -227,6 +227,10 @@ tasks:
     hours: 10
     status: open
     added: 2026-11-06
+    notes: >-
+      /writing/ done 2026-11-06 (2,325 kB to 113 kB: newest 50 posts, 49 numbered
+      pages of 58 kB, posts.json read by the finder on demand; writing.mjs,
+      PAGE_SIZE). /research/ (1,441 kB) is still one page: same approach.
 
   - id: site-perf-one-worker
     direction: site-performance
