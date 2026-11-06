@@ -38,7 +38,7 @@
       "why": "Small fix only; no new blog post or backlog item (no agent-owned backlog rows open)."
     }
   ],
-  "writeups": null,
+  "writeups": [],
   "goal": null,
   "notes": "Critique mode: main_health.py found 2 red checks from one post's front matter; fixed. Backlog ids: none touched.",
   "corrections": [],
