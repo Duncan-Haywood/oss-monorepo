@@ -31,7 +31,7 @@ function roofingNails(squares, g) {
   return { nails, nailLb, nailBoxes: Math.ceil(nailLb / g.nailBoxLb - 1e-9) };
 }
 
-/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, wing?: Wing, wing2?: Wing, plateWidth?: number, maxNotchFraction?: number, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, valleyBacking?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number }, roofing?: { waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number, nailsPerSquare?: number, nailsPerLb?: number, nailBoxLb?: number, iceShield?: number, iceShieldRoll?: number, iceShieldWaste?: number, valleyFeet?: number, valleyRollFeet?: number, valleyWaste?: number } }} Roof */
+/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, wing?: Wing, wing2?: Wing, plateWidth?: number, maxNotchFraction?: number, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, valleyBacking?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number, edgeNailSpacing?: number, fieldNailSpacing?: number, clips?: boolean, clipPrice?: number }, roofing?: { waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number, nailsPerSquare?: number, nailsPerLb?: number, nailBoxLb?: number, iceShield?: number, iceShieldRoll?: number, iceShieldWaste?: number, valleyFeet?: number, valleyRollFeet?: number, valleyWaste?: number } }} Roof */
 
 export function sampleRoof() {
   return { id: "Main roof", width: 336, length: 480, pitch: 4, overhang: 12, gableOverhang: 12, rafter: "2x8", spacing: 16, ridge: "2x10", ceilingJoist: "2x6", collarTies: true };
@@ -267,7 +267,17 @@ function sheathingNails(l, r) {
   const perSheet = Math.ceil(2 * (W + L) / edge - 1e-9) + lines * Math.ceil(L / field - 1e-9);
   const nails = Math.ceil(perSheet * l.sheets.count * 1.1 - 1e-9);
   const notes = [...l.notes, `Roof sheathing nails: ${perSheet} per sheet (edges at ${edge} in, ${lines} intermediate support line${lines === 1 ? "" : "s"} at ${field} in), 10% waste; a typed rule, not a code schedule.`];
-  return { ...l, notes, sheets: { ...l.sheets, nailsPerSheet: perSheet, nails } };
+  const out = { ...l, notes, sheets: { ...l.sheets, nailsPerSheet: perSheet, nails } };
+  if (sh.clips) {
+    // H-clips (panel edge clips): one at mid-span in each support bay along one long edge per sheet (the neighbour's edge is the same joint),
+    // times the sheet count and 10% waste. Whether clips are needed, and at what span, is the sheathing maker's and the engineer's call.
+    const perClipSheet = Math.ceil(L / sp - 1e-9), clips = Math.ceil(perClipSheet * l.sheets.count * 1.1 - 1e-9);
+    out.sheets.clipsPerSheet = perClipSheet;
+    out.sheets.clips = clips;
+    out.sheets.clipCost = sh.clipPrice != null ? clips * sh.clipPrice : null;
+    out.notes = [...notes, `Sheathing H-clips: ${perClipSheet} per sheet (one per ${sp} in support bay along one ${L} in edge), 10% waste, ${clips} to buy; a typed rule, not a manufacturer's span table.`];
+  }
+  return out;
 }
 
 /** Pipe boots (plumbing vent flashings) for the roof's penetrations, opt-in with `roofing.pipeBoots` = a count you type from the plumbing plan, plus `roofing.pipeBootSpares` (default 1) for a miscut or a bad seal. The count is never guessed from the plan. Chimney, skylight and wall flashing are not counted. */
@@ -576,7 +586,7 @@ export function roofText(l) {
   if (l.shape !== "hip" && !l.trusses) out.push(`  ${l.rafters.length} ${l.rafterSize} rafters of ${formatInches(l.rafterLength)} at ${l.spacing} o.c., ${l.ridges.length} ridge board${l.ridges.length === 1 ? "" : "s"}${l.ceilingJoists.length ? `, ${l.ceilingJoists.length} ceiling joists` : ""}${l.collarTies.length ? `, ${l.collarTies.length} collar ties` : ""}`);
   for (const wg of l.wings || []) out.push(`  Cross wing ${formatLength(wg.width)} x ${formatLength(wg.projection)}: ${wg.rafters} wing rafters, ${wg.jacks} valley jacks, ${wg.valleys} ${wg.valleySize} valleys of ${formatInches(wg.valleyLength)}, ridge ${formatInches(wg.ridgeRise)} over its plates and ${formatInches(wg.ridgeBelowMain)} below the main ridge, ${wg.ridges} wing ridge board${wg.ridges === 1 ? "" : "s"}${wg.collarTies ? `, ${wg.collarTies} wing collar ties` : ""}`);
   if (l.wing) out.push(`  ${l.rafters.filter((x) => x.kind).length} main rafters end at a valley`);
-  out.push(`  Roof sheathing: ${l.sheets.count} sheets of ${SHEET.width} x ${SHEET.length} in for ${l.sheets.area.toFixed(0)} sq ft (${(100 * l.sheets.waste).toFixed(1)}% offcut)${l.sheets.nails ? `, ${l.sheets.nails} nails` : ""}`);
+  out.push(`  Roof sheathing: ${l.sheets.count} sheets of ${SHEET.width} x ${SHEET.length} in for ${l.sheets.area.toFixed(0)} sq ft (${(100 * l.sheets.waste).toFixed(1)}% offcut)${l.sheets.nails ? `, ${l.sheets.nails} nails` : ""}${l.sheets.clips ? `, ${l.sheets.clips} H-clips${l.sheets.clipCost != null ? ` (${l.sheets.clipCost.toFixed(2)})` : ""}` : ""}`);
   for (const c of l.courses) out.push(`    ${c.plane ? `${c.plane} planes, ` : ""}course at ${formatLength(c.y)} up the slope (${formatInches(c.width)} wide): ${c.pieces.map((p) => formatInches(p.length)).join(" + ")}`);
   const g = l.roofing;
   out.push(`  Roofing: ${g.squares.toFixed(1)} squares -> ${g.shingleBundles} bundles of shingles, ${g.underlaymentRolls} rolls of underlayment, ${g.dripEdgePieces} drip edge pieces, ${g.ridgeBundles} ridge cap and ${g.starterBundles} starter bundles, ${g.nailLb.toFixed(0)} lb of roofing nails (${g.nailBoxes} box${g.nailBoxes === 1 ? "" : "es"})${g.valleyFlashingRolls ? `, ${g.valleyFlashingRolls} valley flashing roll${g.valleyFlashingRolls === 1 ? "" : "s"} (${g.valleyFeet.toFixed(0)} ft)` : ""}${g.iceShieldRolls ? `, ${g.iceShieldRolls} roll${g.iceShieldRolls === 1 ? "" : "s"} of ice and water shield at the eaves (${g.iceShieldArea.toFixed(0)} sq ft)` : ""}`);
