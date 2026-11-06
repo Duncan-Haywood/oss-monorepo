@@ -84,3 +84,14 @@ test("splash blocks: none by default, one per downspout when asked, priced", () 
   assert.ok(validateGutters({ splashBlocks: "yes" }).length > 0);
   assert.ok(validateGutters({ splashBlockPrice: -1 }).length > 0);
 });
+
+test("leaf guards: none by default, one section per gutter section when asked, priced", () => {
+  assert.equal(layoutGutters({ waste: 0 }, gable()).leafGuards, 0);
+  const base = layoutGutters({ waste: 0 }, gable());
+  const g = layoutGutters({ waste: 0, leafGuards: true, leafGuardPrice: 5 }, gable());
+  assert.equal(g.leafGuards, base.gutters);
+  assert.equal(g.cost, 5 * base.gutters);
+  assert.ok(guttersText(g).join("\n").includes("leaf guard sections"));
+  assert.ok(validateGutters({ leafGuards: 1 }).length > 0);
+  assert.ok(validateGutters({ leafGuardPrice: -1 }).length > 0);
+});
