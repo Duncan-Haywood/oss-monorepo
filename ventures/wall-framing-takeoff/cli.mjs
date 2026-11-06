@@ -13,6 +13,7 @@ import { layoutInsulation, insulationText } from "./insulation.mjs";
 import { layoutTrim, trimText } from "./trim.mjs";
 import { layoutPaint, paintText } from "./paint.mjs";
 import { layoutWallTile, wallTileText } from "./walltile.mjs";
+import { layoutFireblock, fireblockText } from "./fireblock.mjs";
 import { layoutFlooring, flooringText } from "./flooring.mjs";
 import { layoutElectrical, electricalText } from "./electrical.mjs";
 import { layoutPlumbing, plumbingText } from "./plumbing.mjs";
@@ -87,6 +88,7 @@ Usage:
   node cli.mjs plan.json --trim        add baseboard and door and window casing boards (plan trim: scarf, shoe, shoeStock, shoePrice, baseSides, baseStock, casingStock, casingWidth, reveal, waste, basePrice, casingPrice)
   node cli.mjs plan.json --wall-tile   add wall tile orders (shower, tub, backsplash) from typed surfaces: tiles, thinset, grout, cement backer board, screws, membrane (plan wallTile: surfaces [{name, width, height, openings}], tile, backer, membrane)
   node cli.mjs plan.json --flooring    add finish flooring orders from typed rooms: plank boxes, tile with thinset and grout, carpet strips from a roll with pad and tack strip (plan flooring: rooms [{name, width, depth, kind}], plank, tile, carpet)
+  node cli.mjs plan.json --fireblock   add fireblocking rows for walls taller than the typed cavity limit (plan fireblock: intervalFt, boardFt, rows, waste, boardPrice)
   node cli.mjs plan.json --paint       add interior paint gallons: walls less openings, doors, ceilings, coats, primer (plan paint: height, faces, coats, primerCoats, coverage, waste, ceilings, trimFeet, gallonPrice, fivePrice)
   node cli.mjs plan.json --openings    print the door and window schedule: marks, counts, rough and unit sizes, header, sill height, where each sits (plan openingSchedule: unitAllowance, doorPrefix, windowPrefix)
   node cli.mjs plan.json --insulation  add wall-cavity insulation bags (measured from the framing placed; plan insulation: bagSqFt, rValue, waste, price)
@@ -301,6 +303,11 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     if (!trim.ok) return { code: 1, out: `The trim has problems:\n${trim.errors.map((e) => `  - ${e}`).join("\n")}` };
     r.trim = trimmed = trim;
   }
+  if (r.ok && (flags.has("--fireblock") || plan.fireblock)) {
+    const fb = layoutFireblock(plan.fireblock || {}, r);
+    if (!fb.ok) return { code: 1, out: `The fireblocking has problems:\n${fb.errors.map((e) => `  - ${e}`).join("\n")}` };
+    r.fireblock = fb;
+  }
   if (r.ok && (flags.has("--paint") || plan.paint)) {
     // with --trim also on, the baseboard, casing and shoe feet become the paint's trim feet unless the plan types its own
     const fromTrim = trimmed && (plan.paint || {}).trimFeet == null ? trimmed.baseFeet + trimmed.casingFeet + trimmed.shoeFeet : null;
@@ -447,6 +454,7 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   if (r.fasteners) lines.push("", "FASTENERS", ...fastenerText(r.fasteners));
   if (r.insulation) lines.push("", "INSULATION", ...insulationText(r.insulation));
   if (r.trim) lines.push("", "TRIM", ...trimText(r.trim));
+  if (r.fireblock) lines.push("", "FIREBLOCKING", ...fireblockText(r.fireblock));
   if (r.paint) lines.push("", "PAINT", ...paintText(r.paint));
   if (r.flooring) lines.push("", "FLOORING", ...flooringText(r.flooring));
   if (r.wallTile) lines.push("", "WALL TILE", ...wallTileText(r.wallTile));
