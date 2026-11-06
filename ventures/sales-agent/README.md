@@ -220,6 +220,7 @@ the quote. Notes are agent-written, not real calls.
   the real cadence builder.
 - `eval/`: the labelled sets, `run.mjs` (rules and guesses) and `model.mjs`
   (a model, on your key).
+- `invite.mjs`: a tentative `.ics` file for an exact time a prospect proposed (2026-11-06; `cli.mjs` writes `invites/`). Floating time, no zone guessed; none for "Friday morning" or "after 3pm". Nothing is sent; `invite.test.mjs`.
 - `cli.mjs`, `index.html`, `usage.mjs` (local-only counters with an opt-out).
 
 `node --test` runs the suite.

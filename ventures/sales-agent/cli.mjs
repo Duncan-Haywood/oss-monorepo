@@ -22,6 +22,7 @@ import { runDaily, csvQueue, csvLeftOut } from "./daily.mjs";
 import { runResearch, briefOf, csvAccounts, csvLeftOutResearch } from "./research.mjs";
 import { runInboxWithModel } from "./ai.mjs";
 import { runPrep } from "./prep.mjs";
+import { buildInvite } from "./invite.mjs";
 import { runFollowUp } from "./followup.mjs";
 import { enrich, liveFetch } from "./webfacts.mjs";
 import { configFromEnv } from "./byok.mjs";
@@ -66,7 +67,18 @@ writeFileSync(join(out, "prospects.csv"), csv.prospects(r));
 writeFileSync(join(out, "suppression-add.csv"), csv.suppression(r));
 writeFileSync(join(out, "deals.csv"), csv.deals(r));
 writeFileSync(join(out, "tasks.csv"), csv.tasks(r));
+// Calendar files for exact times prospects proposed (invite.mjs): tentative, no time zone, nothing sent.
+const invites = [], noInvite = [];
+for (const it of r.items) {
+  if (it.triage.category !== "interested" || !it.triage.slots?.length) continue;
+  const k = r.prospects?.find?.((x) => x.email?.toLowerCase() === String(it.from).toLowerCase());
+  const v = buildInvite({ email: it.from, name: it.name, company: k?.company, slot: it.triage.slots[0], today: r.today, offer: input.offer });
+  if (v.ok) invites.push(v); else noInvite.push(`${it.from}: ${v.why}`);
+}
+if (invites.length) { mkdirSync(join(out, "invites"), { recursive: true }); for (const v of invites) writeFileSync(join(out, "invites", v.filename), v.ics); }
 const s = r.summary;
+if (invites.length) console.log(`${invites.length} calendar file(s) in ${out}/invites/ (tentative, no time zone: confirm theirs, then send the invite yourself).`);
+for (const n of noInvite) console.log(`no calendar file for ${n}`);
 console.log(`${s.replies} replies (${r.source}): ${s.drafts} drafts, ${s.readyToApprove} pass the checks, ${s.suppressed} added to suppression, ${s.paused} paused, ${s.tasks} tasks for you. Nothing was sent. Output in ${out}/`);
 for (const e of r.errors) console.error(`note: ${e}`);
 if (opt("tasks")) {
