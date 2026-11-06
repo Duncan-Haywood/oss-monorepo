@@ -1,5 +1,9 @@
 # Research log
 
+## 2026-11-06 · Penalty factors at the AC optimum
+- Prediction (before running): factors from sensitivities at the AC optimum fix the high-load failure of the iterated version. Supported: case118 excess 0.367 % (load 1.0) and 0.339 % (1.1) against 1.345 and 2.236 %; unchanged at 0.6 and 0.8.
+- Caveat: it uses the AC optimum, so it is a bound on what factors can do, not a deployable scheme. Next: factors from a previous-interval estimate.
+
 ## 2026-11-06 · Case300: a converging AC solver, and loss versus congestion
 - Prediction (before running): with caps on the most loaded branches, the DC price spread would match the AC congestion part and the loss-only spread would be small. Half refuted: DC tracks AC congestion with 3 caps (5.60 vs 5.57), but the loss-only AC spread (7 to 10 $/MWh) exceeds the congestion spread with 3 caps, and DC understates congestion with 10 caps (6.75 vs 25.63).
 - Solver check first: PYPOWER's PIPS gives 719,725.08 on case300, equal to MATPOWER's published value.

@@ -285,3 +285,25 @@ def reactive_redispatch(net, dc_solved, tol_mw=1e-3):
     except Exception:
         return None
     return n
+
+
+def ac_optimum_penalty_dc(net, ac=None):
+    """One-shot penalty-factor DC OPF with the loss sensitivities taken at the AC
+    optimum instead of at a DC dispatch, and the loss level set to the AC optimum's
+    own losses (no iteration, so nothing to damp). Returns (DC solution on the
+    penalised costs, factors) or (None, None) if the AC OPF or the sensitivities fail."""
+    ac = ac if ac is not None else solve_ac(net)
+    if ac is None:
+        return None, None
+    sens = loss_sensitivities(net, ac)
+    if sens is None:
+        return None, None
+    pf = penalty_factors(sens)
+    loss = _losses(ac)
+    n = copy.deepcopy(net)
+    n.load["p_mw"] = net.load.p_mw * (1.0 + loss / float(net.load.p_mw.sum()))
+    rows = n.poly_cost.index[n.poly_cost.et == "gen"]
+    elem = n.poly_cost.loc[rows, "element"].astype(int).values
+    cols = ["cp1_eur_per_mw", "cp2_eur_per_mw2"]
+    n.poly_cost.loc[rows, cols] = n.poly_cost.loc[rows, cols].values * pf[elem][:, None]
+    return solve_dc(n), pf
