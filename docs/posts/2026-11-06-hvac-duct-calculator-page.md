@@ -1,6 +1,6 @@
 ---
 title: "A free HVAC duct rough-in calculator: trunk sticks, flex rolls, boots and registers"
-seo_title: "HVAC duct rough-in calculator: how many duct sticks, flex rolls and registers"
+seo_title: "HVAC duct calculator: duct sticks, flex rolls and registers"
 date: 2026-11-06
 tags: [wall-framing-takeoff, hvac, construction]
 description: "A browser page for the wall framing takeoff's HVAC engine: type each room's supply and return runs, get trunk sticks, flex rolls, boots, registers and grilles."
