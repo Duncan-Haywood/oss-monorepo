@@ -1,9 +1,9 @@
 ---
 title: "Why a fast battery model gave up on thick electrodes: its electrolyte went negative"
-seo_title: "SPMe vs DFN battery model: negative electrolyte concentration at 5 A charge"
+seo_title: "SPMe vs DFN battery model: negative electrolyte at 5 A charge"
 date: 2026-11-06
 tags: [energy-cell-dfn, research, batteries]
-description: "In PyBaMM, the single-particle model with electrolyte predicts a negative salt concentration (-37 mol/m3) while charging a low-porosity cell at 5 A; the full DFN model stays positive."
+description: "PyBaMM's SPMe predicts a negative salt concentration (-37 mol/m3) charging a low-porosity cell at 5 A; the full DFN model stays positive."
 ---
 
 An earlier search for lithium-ion cell designs treated thick, low-porosity electrodes as dead ends: the fast SPMe model scored them at zero. Re-scoring with the full DFN model showed DFN cycles them fine, so the zeros were an SPMe artefact. The open question was why.
