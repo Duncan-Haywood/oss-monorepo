@@ -8,6 +8,7 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/3pl-invoice-audit-checker/)
 - [3PL Invoice Audit Checker vs. reviewing 3PL invoices in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/3pl-invoice-audit-checker/vs-reviewing-3pl-invoices-in-a-spreadsheet.html)
+- [How do I check a 3PL invoice for overcharges?](https://duncan-haywood.github.io/oss-monorepo/3pl-invoice-audit-checker/how-do-i-check-a-3pl-invoice-for-overcharges.html)
 
 ## Source
 
