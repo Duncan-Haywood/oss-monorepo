@@ -21,6 +21,7 @@ many-session project. Each milestone below lands as a working slice.
 
 ## Next
 
+- 2026-11-06: launch cash-flow planner (`cashflow.mjs` + `cashflow.html`): deposit, balance, freight, duty and pre-orders against sales by week, lowest balance, funding gap, payback week, and a half-rate case. Hand-worked tests (`cashflow.test.mjs`); no real designer's order or factory terms.
 - 2026-11-05: unsold-stock markdown ladder (`clearance.mjs`, section on the studio page): full-price share, sell-through, profit after the ladder; demand lift is an assumed elasticity, not data. Hand tests and a Chromium load only; no real sales.
 
 1. **Test with the designer who asked for it.** Their artwork and a real quote from a manufacturer through the studio; fold what breaks into the command vocabulary (`commands.test.mjs` gets each real sentence as a case) and the costing.
