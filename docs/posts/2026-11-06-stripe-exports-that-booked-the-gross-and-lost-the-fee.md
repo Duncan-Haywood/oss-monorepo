@@ -3,7 +3,7 @@ title: "Stripe exports that booked the gross and lost the fee"
 seo_title: "Stripe balance CSV import: Amount vs Net in bookkeeping software"
 date: 2026-11-06
 tags: [ventures, ai-bookkeeper, stripe, bookkeeping]
-description: "A Stripe balance CSV with created_utc headers was imported at gross, so processing fees vanished and payouts stopped matching. A one-line fix and what was not tested."
+description: "A Stripe balance CSV with created_utc headers was imported at gross, so fees vanished and payouts stopped matching. A one-line fix, and what was not tested."
 ---
 
 Stripe's balance export has Amount, Fee and Net columns. A bank deposit equals the net, so the bookkeeper in `ai-bookkeeper` reads Net. Or it did, but only when the date column was headed `Created (UTC)`.
