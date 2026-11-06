@@ -28,6 +28,9 @@ const SETTLED_RD = 150;
 const N = Number(process.env.MIX_ITEMS ?? 1000);
 const BUDGET = Number(process.env.MIX_ANSWERS ?? 3000);
 const STEP = 500;
+// MIX_ANSWERER=noiseless: the higher true value always wins, as in the route tests
+// (noisyRespondents / deepBudget); default is the logistic answerer.
+const NOISELESS = process.env.MIX_ANSWERER === "noiseless";
 
 type Policy = typeof selectNextPair;
 
@@ -59,7 +62,7 @@ function run(policy: Policy, seed: number) {
     w.gap += Math.abs(truth[a] - truth[b]);
     w.n++;
     const pA = 1 / (1 + Math.exp(-2 * (truth[a] - truth[b])));
-    const pickedFirst = rand() < pA;
+    const pickedFirst = NOISELESS ? truth[a] > truth[b] : rand() < pA;
     if (pickedFirst) firstPicks++;
     const r = applyComparison(state[a], state[b], pickedFirst ? "A" : "B");
     state[a] = r.a; state[b] = r.b;
