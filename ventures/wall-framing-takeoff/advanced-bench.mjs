@@ -10,6 +10,7 @@
 import { readFileSync } from "node:fs";
 import { samplePlan, takeoff } from "./engine.mjs";
 import { planFromDxf } from "./dxf.mjs";
+import { gangOpenings } from "./ganged.mjs";
 
 export const VARIANTS = [
   ["standard 16 in", {}, 16],
@@ -20,16 +21,24 @@ export const VARIANTS = [
   ["all three details + 24 in", { twoStudCorners: true, ladderTees: true, singleTopPlate: true }, 24],
 ];
 
-/** @param {any} plan */
-export function measure(plan) {
+/**
+ * @param {any} plan
+ * @param {{ gang?: boolean }} [opts] gang: frame windows too close for their own kings as one
+ *   opening (the opt-in `--gang` step), so a plan that otherwise does not lay out is measured.
+ *   The gang is applied identically to every variant; `ganged` lists its notes.
+ */
+export function measure(plan, opts = {}) {
   const rows = [];
+  /** @type {string[]} */
+  let ganged = [];
+  if (opts.gang) { const g = gangOpenings(plan); plan = g.plan; ganged = g.notes; }
   for (const [name, advanced, spacing] of VARIANTS) {
     const r = takeoff({ ...plan, studSpacing: spacing, advanced });
     if (!r.ok) return { ok: false, errors: r.errors };
     const s = r.summary;
     rows.push({ name, pieces: s.pieces, boards: s.boards, cost: s.cost, feet: s.boughtFeet });
   }
-  return { ok: true, rows };
+  return { ok: true, rows, ganged };
 }
 
 const cases = [["example house (invented)", samplePlan()]];
@@ -40,9 +49,21 @@ for (const n of [1, 2]) {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   for (const [name, plan] of cases) {
-    const m = measure(plan);
+    let m = measure(plan);
     console.log(`\n${name}`);
-    if (!m.ok) { console.log(`does not lay out: ${m.errors[0]}`); continue; }
+    if (!m.ok) {
+      const asDrawn = m.errors[0];
+      const g = measure(plan, { gang: true });
+      if (g.ok) {
+        m = g;
+        console.log(`does not lay out as drawn (${asDrawn}); measured with --gang:`);
+        for (const n of g.ganged) console.log(`  ${n}`);
+      } else {
+        console.log(`does not lay out as drawn: ${asDrawn}`);
+        console.log(`with --gang it still does not: ${g.errors[0]}`);
+        continue;
+      }
+    }
     console.log("option | pieces | boards | bought ft | order cost | vs standard");
     const base = m.rows[0].cost;
     for (const r of m.rows) console.log(`${r.name} | ${r.pieces} | ${r.boards} | ${r.feet.toFixed(0)} | $${r.cost.toFixed(2)} | ${r === m.rows[0] ? "-" : ((r.cost - base) / base * 100).toFixed(1) + "%"}`);

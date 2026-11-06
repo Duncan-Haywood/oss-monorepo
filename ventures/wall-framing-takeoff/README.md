@@ -228,7 +228,7 @@ something this tool checks; the options are off by default.
 | all three details, 16 in | -13.6% | -13.5% |
 | all three details + 24 in | -25.5% | -23.9% |
 
-Standard totals: $2,384.16 (253 boards) and $2,678.80 (276 boards). Open House Plans 2 does not lay out (two windows 3 in apart). The savings are in lumber only: 24 in spacing needs a stress check on the studs and sheathing, single top plate needs framing in line, and both need the engineer's say; the tool does not check either. Two generated or invented houses, no permit set, no builder's real order. `advanced-bench.test.mjs` checks ordering and a hand-counted 20 ft wall (5 fewer studs at 24 in).
+Standard totals: $2,384.16 (253 boards) and $2,678.80 (276 boards). Open House Plans 2 does not lay out (two windows 3 in apart). 2026-11-06: the bench now retries a plan that fails with the opt-in `--gang` step (`measure(plan, {gang: true})`); Open House Plans 2 still fails, because the ganged Window 4 + 5 header is 195 in and the bench's longest 2x10 is 192 in, so it needs a beam or LVL line in stock (a real finding, not measured). Hand-made test in `advanced-bench.test.mjs`. The savings are in lumber only: 24 in spacing needs a stress check on the studs and sheathing, single top plate needs framing in line, and both need the engineer's say; the tool does not check either. Two generated or invented houses, no permit set, no builder's real order. `advanced-bench.test.mjs` checks ordering and a hand-counted 20 ft wall (5 fewer studs at 24 in).
 
 ## Panelised vs stick, from piece counts (2026-10-29)
 
