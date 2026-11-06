@@ -14,6 +14,7 @@ import { layoutTrim, trimText } from "./trim.mjs";
 import { layoutPaint, paintText } from "./paint.mjs";
 import { layoutFlooring, flooringText } from "./flooring.mjs";
 import { layoutElectrical, electricalText } from "./electrical.mjs";
+import { layoutPlumbing, plumbingText } from "./plumbing.mjs";
 import { layoutDrilling, drillingText } from "./drilling.mjs";
 import { layoutOpeningSchedule, openingScheduleText } from "./openingschedule.mjs";
 import { layoutSiding, sidingText } from "./siding.mjs";
@@ -78,6 +79,7 @@ Usage:
   node cli.mjs plan.json --eaves       add soffit panels, fascia boards and J-channel under the roof overhangs (needs a roof; plan eaves: panelWidth, panelStock, fasciaStock, channelStock, waste, rakeSoffit, ventedPanelNfa, panelPrice, fasciaPrice, channelPrice)
   node cli.mjs plan.json --siding      add exterior lap siding courses, house wrap and corner boards (plan siding: exposure, stock, waste, wrapRollSqFt, wrapLap, corners, cornerStock, height, boardPrice, wrapPrice, cornerPrice, style, boardWidth, openingTrim, trimWidth, trimStock, trimPrice)
   node cli.mjs plan.json --electrical  add receptacle and switch boxes (NEC 210.52 wall-space rule) and a cable estimate (plan electrical: skipWalls, maxSpacing, minSpace, switchPerDoor, cablePerDevice, cableRoll, waste, receptaclePrice, switchPrice, boxPrice, cablePrice)
+  node cli.mjs plan.json --plumbing    add plumbing rough-in quantities from plan.plumbing.fixtures (typed drain, vent, hot and cold runs per fixture): pipe sticks, PEX coils, traps, stops, fittings
   node cli.mjs plan.json --drilling    check pipe and cable holes and notches against stud limits (plan drilling: runs [{wall, kind: bore|notch, size or pipe, count, doubled, label}], clearance, limits)
   node cli.mjs plan.json --trim        add baseboard and door and window casing boards (plan trim: scarf, shoe, shoeStock, shoePrice, baseSides, baseStock, casingStock, casingWidth, reveal, waste, basePrice, casingPrice)
   node cli.mjs plan.json --flooring    add finish flooring orders from typed rooms: plank boxes, tile with thinset and grout, carpet strips from a roll with pad and tack strip (plan flooring: rooms [{name, width, depth, kind}], plank, tile, carpet)
@@ -273,6 +275,11 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     if (!el.ok) return { code: 1, out: `The electrical settings have problems:\n${el.errors.map((e) => `  - ${e}`).join("\n")}` };
     r.electrical = wired = el;
   }
+  if (r.ok && (flags.has("--plumbing") || plan.plumbing)) {
+    const pl = layoutPlumbing(plan.plumbing || {});
+    if (!pl.ok) return { code: 1, out: `The plumbing settings have problems:\n${pl.errors.map((e) => `  - ${e}`).join("\n")}` };
+    r.plumbing = pl;
+  }
   let drilled = null;
   if (r.ok && (flags.has("--drilling") || plan.drilling)) {
     const dr = layoutDrilling(plan.drilling || {}, plan);
@@ -429,6 +436,7 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   if (r.paint) lines.push("", "PAINT", ...paintText(r.paint));
   if (r.flooring) lines.push("", "FLOORING", ...flooringText(r.flooring));
   if (r.electrical) lines.push("", "ELECTRICAL ROUGH-IN", ...electricalText(r.electrical));
+  if (r.plumbing) lines.push("", "PLUMBING ROUGH-IN", ...plumbingText(r.plumbing));
   if (r.drilling) lines.push("", "STUD DRILLING AND NOTCHING", ...drillingText(r.drilling));
   if (r.openingSchedule) lines.push("", "DOOR AND WINDOW SCHEDULE", ...openingScheduleText(r.openingSchedule));
   if (r.siding) lines.push("", "SIDING", ...sidingText(r.siding));
