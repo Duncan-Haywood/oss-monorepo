@@ -315,3 +315,11 @@ test("dates outside 1990 to 2100 are refused (notBefore 9999-12-31 took 21 s)", 
     assert.ok(Date.now() - t < 500);
   }
 });
+
+test("resolveRates hands back a malformed schedule for schedule() to report instead of throwing", async () => {
+  const { resolveRates, schedule } = await import("./schedule.mjs");
+  for (const bad of [{ activities: "x" }, { activities: 5 }, { activities: {} }, { activities: [null] }, { activities: [5, "x"] }]) {
+    const out = resolveRates(bad, {});
+    assert.equal(schedule(out).ok, false, JSON.stringify(bad));
+  }
+});
