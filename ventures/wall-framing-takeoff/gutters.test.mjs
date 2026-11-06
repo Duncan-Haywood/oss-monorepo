@@ -95,3 +95,18 @@ test("leaf guards: none by default, one section per gutter section when asked, p
   assert.ok(validateGutters({ leafGuards: 1 }).length > 0);
   assert.ok(validateGutters({ leafGuardPrice: -1 }).length > 0);
 });
+
+test("sealant: none by default, tubes from joints when asked, priced", () => {
+  assert.equal(layoutGutters({ waste: 0 }, gable()).sealantTubes, 0);
+  const b = layoutGutters({ waste: 0 }, gable());
+  const g = layoutGutters({ waste: 0, sealant: true, jointsPerTube: 5, sealantPrice: 7 }, gable());
+  const splices = Math.max(0, b.gutters - b.runs);
+  const joints = splices + b.endCaps + 2 * b.outsideCorners + b.downspouts;
+  assert.equal(g.joints, joints);
+  assert.equal(g.sealantTubes, Math.ceil(joints / 5));
+  assert.equal(g.cost, 7 * g.sealantTubes);
+  assert.ok(guttersText(g).join("\n").includes("sealant tubes"));
+  assert.ok(validateGutters({ sealant: 1 }).length > 0);
+  assert.ok(validateGutters({ jointsPerTube: 0 }).length > 0);
+  assert.ok(validateGutters({ sealantPrice: -1 }).length > 0);
+});
