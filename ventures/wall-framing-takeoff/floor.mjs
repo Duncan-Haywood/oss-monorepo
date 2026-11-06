@@ -16,7 +16,7 @@ import { THICK, EPS, DEPTH, optimizeStock, formatLength, formatInches } from "./
 const DOUBLE = 2 * THICK;
 export const SHEET = { width: 48, length: 96 };
 
-/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, cantilever?: number, headerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, hangerCapacity?: number, bearingCapacity?: number, stairReaction?: number, stairReactionLive?: number, stairSide?: "front"|"back", tieForce?: number, tieCapacity?: number, cantDeflLimit?: number }, blockingRows?: number, hangerNails?: { single?: number, double?: number }, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], penetrations?: { type: "hole"|"notch", at: number, size: number, length?: number, fromEdge?: number, end?: boolean }[], limits?: { hole?: number, holeEdge?: number, notch?: number, endNotch?: number, notchLength?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
+/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, cantilever?: number, headerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, hangerCapacity?: number, bearingCapacity?: number, stairReaction?: number, stairReactionLive?: number, stairSide?: "front"|"back", tieForce?: number, tieCapacity?: number, cantDeflLimit?: number }, blockingRows?: number, adhesive?: boolean, adhesiveTubeOz?: number, adhesiveBead?: number, adhesiveWaste?: number, adhesivePrice?: number, hangerNails?: { single?: number, double?: number }, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], penetrations?: { type: "hole"|"notch", at: number, size: number, length?: number, fromEdge?: number, end?: boolean }[], limits?: { hole?: number, holeEdge?: number, notch?: number, endNotch?: number, notchLength?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
 
 export function sampleFloor() {
   return { id: "Main floor", width: 480, depth: 336, joist: "2x10", spacing: 16, rim: true, beam: 168, blockingRows: 0 };
@@ -32,6 +32,10 @@ export function validateFloor(f, plan) {
   if (!(f.joist in DEPTH)) errors.push(f.joist == null ? "Floor joist size is missing (for example \"2x10\")." : `Unknown joist size ${f.joist}.`);
   if (!(typeof f.spacing === "number" && f.spacing >= 4 && f.spacing <= 48)) errors.push("Joist spacing must be a number between 4 and 48 inches.");
   if (f.blockingRows != null && !(Number.isInteger(f.blockingRows) && f.blockingRows >= 0 && f.blockingRows <= 20)) errors.push("blockingRows must be a whole number from 0 to 20.");
+  if (f.adhesive != null && typeof f.adhesive !== "boolean") errors.push("Subfloor adhesive must be true or false.");
+  if (f.adhesiveTubeOz != null && !(f.adhesiveTubeOz >= 10 && f.adhesiveTubeOz <= 40)) errors.push("Adhesive tube size must be between 10 and 40 fluid oz.");
+  if (f.adhesiveBead != null && !(f.adhesiveBead >= 0.125 && f.adhesiveBead <= 1)) errors.push("Adhesive bead diameter must be between 1/8 and 1 inch.");
+  if (f.adhesiveWaste != null && !(f.adhesiveWaste >= 1 && f.adhesiveWaste <= 2)) errors.push("Adhesive waste factor must be between 1 and 2.");
   if (f.hangerNails != null) for (const k of ["single", "double"]) if (f.hangerNails[k] != null && !(Number.isInteger(f.hangerNails[k]) && f.hangerNails[k] >= 0 && f.hangerNails[k] <= 100)) errors.push(`hangerNails.${k} must be a whole number of nails from 0 to 100.`);
   for (const x of f.doubleUnder || []) if (!(x > 0 && x < f.width)) errors.push(`A wall at ${x} in for doubled joists must sit inside the floor's ${f.width} in width.`);
   for (const [i, o] of (f.openings || []).entries()) {
@@ -415,8 +419,19 @@ export function layoutFloor(f, plan) {
   const pen = f.penetrations?.length ? checkPenetrations(f.joist, f.beam != null ? Math.max(f.beam, f.depth - f.beam) : f.depth, f.penetrations, f.limits) : [];
   for (const h of pen) if (!h.ok) notes.push(`Joist ${h.type} ${h.n}: ${h.why.join("; ")}. Move it, sleeve it or ask the engineer.`);
   notes.push("Joist size and spacing are your inputs and are not checked against a span table or code; bearing, other hangers and fasteners are not in the takeoff.");
+  // Subfloor adhesive (opt-in): one round bead down every joist piece and rim board the sheets sit on. A tube holds
+  // oz x 1.8047 cubic inches; a bead of diameter d is pi/4 x d^2 per inch. Doubled joists get one bead, not two; tubes round up.
+  /** @type {null | { feet: number, bead: number, tubeOz: number, tubes: number, price?: number }} */
+  let adhesive = null;
+  if (f.adhesive) {
+    const bead = f.adhesiveBead ?? 0.375, tubeOz = f.adhesiveTubeOz ?? 28, waste = f.adhesiveWaste ?? 1.1;
+    const inches = joists.reduce((t, j) => t + j.length, 0) + rims.reduce((t, r) => t + r.length, 0);
+    const tubes = inches ? Math.ceil((inches * Math.PI / 4 * bead * bead * waste) / (tubeOz * 1.8047) - 1e-9) : 0;
+    adhesive = { feet: inches / 12, bead, tubeOz, tubes, ...(f.adhesivePrice != null ? { price: f.adhesivePrice } : {}) };
+    notes.push(`Subfloor adhesive: ${(inches / 12).toFixed(0)} ft of ${bead} in bead, ${tubes} tube${tubes === 1 ? "" : "s"} of ${tubeOz} oz with ${Math.round((waste - 1) * 100)}% waste; the product's own coverage, tongue-and-groove seams and squeeze-out are the installer's.`);
+  }
   return {
-    ok: true, penetrations: pen, hangers, headerChecks, trimmerChecks, cantileverCheck, openings, trimmers, id, width: f.width, depth: total, supportedDepth: f.depth, cantilever: cant, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
+    ok: true, adhesive, penetrations: pen, hangers, headerChecks, trimmerChecks, cantileverCheck, openings, trimmers, id, width: f.width, depth: total, supportedDepth: f.depth, cantilever: cant, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
     sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 },
     notes,
   };
@@ -445,6 +460,7 @@ export function floorText(l) {
   out.push(`  ${l.centres.length} joist lines (${l.joists.length} pieces), ${l.rims.length} rim board${l.rims.length === 1 ? "" : "s"}, ${l.blocks.length} blocks${l.doubled.length ? `, ${l.doubled.length} doubled under walls` : ""}${l.hangers.count ? `, ${l.hangers.count} hangers` : ""}${l.openings.length ? `, ${l.openings.length} opening${l.openings.length === 1 ? "" : "s"} (${l.openings.map((o) => formatInches(o.clearWidth) + " clear").join(", ")})` : ""}`);
   out.push(`  Joist centres: ${l.centres.map((c) => formatInches(c)).join(", ")}`);
   out.push(`  Subfloor: ${l.sheets.count} sheets of ${SHEET.width} x ${SHEET.length} in for ${l.sheets.area.toFixed(0)} sq ft (${(100 * l.sheets.waste).toFixed(1)}% offcut)`);
+  if (l.adhesive) out.push(`  Adhesive: ${l.adhesive.tubes} tubes (${l.adhesive.feet.toFixed(0)} ft of ${l.adhesive.bead} in bead)`);
   for (const c of l.courses) out.push(`    course at ${formatLength(c.y)} (${formatInches(c.width)} wide): ${c.pieces.map((p) => formatInches(p.length) + (p.notches ? ` (notch ${p.notches.map((n) => `${formatInches(n.width)} x ${formatInches(n.depth)}`).join(", ")})` : "")).join(" + ")}`);
   for (const n of l.notes) out.push(`  - ${n}`);
   return out;

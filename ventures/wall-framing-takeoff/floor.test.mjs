@@ -394,3 +394,24 @@ test("validateFloor refuses hostile penetrations, limits and text loads (2026-11
   assert.ok(bad({ limits: { hole: "0.9" } }).length);
   assert.ok(bad({ headerCheck: { liveLoad: "40", deadLoad: 10, Fb: 1000, Fv: 150, E: 1.4e6 }, cantilever: 24 }).length);
 });
+
+test("subfloor adhesive: tubes from joist and rim feet, hand-counted, off by default", () => {
+  const base = layoutFloor(sampleFloor(), plan());
+  assert.equal(base.adhesive, null);
+  const l = layoutFloor({ ...sampleFloor(), adhesive: true, adhesivePrice: 6 }, plan());
+  const inches = l.joists.reduce((t, j) => t + j.length, 0) + l.rims.reduce((t, r) => t + r.length, 0);
+  // 3/8 in bead: pi/4 x 0.375^2 = 0.11045 cu in per inch; 28 oz tube = 50.53 cu in; 10% waste
+  const want = Math.ceil((inches * 0.110447 * 1.1) / (28 * 1.8047) - 1e-9);
+  assert.equal(l.adhesive.tubes, want);
+  assert.ok(want >= 10 && want < 60);
+  const b = budget({ floor: l }, {});
+  const line = b.lines.find((x) => x.item === "Subfloor adhesive tubes");
+  assert.equal(line.qty, want);
+  assert.equal(line.unitPrice, 6);
+  assert.ok(floorText(l).some((t) => t.includes("Adhesive")));
+});
+
+test("subfloor adhesive settings are validated", () => {
+  for (const bad of [{ adhesive: "yes" }, { adhesiveTubeOz: 2 }, { adhesiveBead: 3 }, { adhesiveWaste: 0.5 }])
+    assert.ok(validateFloor({ ...sampleFloor(), ...bad }, plan()).length > 0, JSON.stringify(bad));
+});
