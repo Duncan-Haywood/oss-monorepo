@@ -3,7 +3,7 @@ title: "What does a boutique pay for your shirt, and what do you keep?"
 seo_title: "Wholesale price calculator for clothing brands selling to boutiques"
 date: 2026-11-06
 tags: [clothing-design-studio, pricing, wholesale]
-description: "A free calculator turns a retail price and landed cost into the wholesale price, what the brand keeps per piece, and the retail price that makes stockists worth it."
+description: "A free calculator turns a retail price and landed cost into the wholesale price, what the brand keeps per piece, and the retail price that suits stockists."
 ---
 
 A new clothing brand with a 60 EUR shirt and a 10 EUR landed cost looks well fed on paper. Sell it through a boutique and the picture changes: the shop expects about half of the price without tax, then payment fees, a returns allowance, a fixed cost per order and weeks of waiting for the invoice to be paid all come off.
