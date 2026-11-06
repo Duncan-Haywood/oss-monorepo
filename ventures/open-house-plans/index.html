@@ -249,7 +249,7 @@ node ventures/open-house-plans/cli.mjs design --beds 4 --baths 2.5 --garage 2 --
       $("#lotDepth").value = b.lot?.depth ?? "";
     }
 
-    const fit = (svg) => svg.replace(/<svg([^>]*?) width="[^"]*" height="[^"]*"/, "<svg$1").replace("<svg ", '<svg role="img" ');
+    const fit = (svg) => svg.replace(/<svg([^>]*?) width="[^"]*" height="[^"]*"/, "<svg$1").replace("<svg ", '<svg role="img" aria-label="Plan drawing" ');
 
     function show() {
       if (!current) return;
