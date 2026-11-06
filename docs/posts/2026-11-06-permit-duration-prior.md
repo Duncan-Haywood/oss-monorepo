@@ -1,5 +1,6 @@
 ---
 title: "How long do city permits really take? A published prior from Chicago and San Francisco"
+seo_title: How long do city permits really take?
 date: 2026-11-06
 tags: [build-data, permits, open-data]
 description: "Half of Chicago and SF permits are issued the day they are filed; the 90th percentile is 68 and 95 days. Per-type quantiles are now published as data."
