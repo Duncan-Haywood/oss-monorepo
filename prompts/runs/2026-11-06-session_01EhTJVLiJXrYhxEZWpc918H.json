@@ -19,7 +19,7 @@
   "projects": [
     "wall-framing-takeoff"
   ],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13619",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -31,7 +31,12 @@
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "ventures/wall-framing-takeoff/ROADMAP.md",
+      "issue": "New calculator pages need a nav link added to every sibling page and entries in two page.test.mjs lists; no doc says so (same as the fireblock run)."
+    }
+  ],
   "deviations": [],
   "writeups": [
     "docs/posts/2026-11-06-framing-nail-calculator.md",
