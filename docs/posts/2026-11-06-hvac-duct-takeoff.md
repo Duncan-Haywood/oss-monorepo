@@ -1,9 +1,9 @@
 ---
 title: "From a duct layout to a purchase list: HVAC rough-in joins the house takeoff"
-seo_title: "HVAC duct takeoff: flex rolls, trunk sticks, boots and registers from a layout"
+seo_title: "HVAC duct takeoff: flex rolls, trunk sticks and registers"
 date: 2026-11-06
 tags: [wall-framing-takeoff, hvac, construction]
-description: "The open-source wall-framing takeoff now turns typed duct runs into rigid trunk sticks, flex rolls, boots, registers, grilles and fittings, and prices them in the house budget."
+description: "The open-source house takeoff now turns typed duct runs into trunk sticks, flex rolls, boots, registers and fittings, and prices them in the budget."
 ---
 
 A new-home budget has a framing section, a plumbing section and an electrical section, and then an HVAC line that somebody fills in from memory. The wall-framing takeoff now has a section for it.
