@@ -3,7 +3,7 @@ title: "3,716 getElementById calls, none pointing at nothing"
 seo_title: "Checking every script id lookup across 3,500 tool pages"
 date: 2026-11-06
 tags: [quality, tooling, explore]
-description: "A new check confirms every literal element-id lookup in our 3,524 tool pages resolves to an element that exists. It found nothing, and it still catches a seeded bug."
+description: "A new check confirms every literal element-id lookup in 3,524 tool pages resolves to a real element. It found nothing, and still catches a seeded bug."
 ---
 
 A single-file calculator dies quietly when its script asks for an element that was renamed: `getElementById("result")` returns null and the next line throws. Unit tests import the engine, not the page, so they never see it.
