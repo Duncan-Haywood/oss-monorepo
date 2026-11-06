@@ -40,3 +40,15 @@ test("bad inputs are refused", () => {
   assert.ok(validateFireblock({ intervalFt: "10" }).length);
   assert.equal(layoutFireblock({ waste: 2 }, { walls: [wall] }).ok, false);
 });
+
+test("hostile layouts are refused with a reason, not a raw error or a hang (2026-11-06)", () => {
+  const v = (h) => [{ orient: "v", x: 0, y: 0, w: 1.5, h }, { orient: "v", x: 10, y: 0, w: 1.5, h }];
+  for (const bad of [null, 5, "x", {}, { walls: "x" }, { walls: [null] }, { walls: [{ id: "a", members: [null] }] },
+    { walls: [{ id: "a", members: [{ orient: "v", x: 0, y: 0, w: 1.5, h: NaN }] }] },
+    { walls: [{ id: "a", members: v(1e9) }] }]) {
+    const r = layoutFireblock({}, bad);
+    assert.equal(r.ok, false);
+    assert.ok(r.errors.length);
+  }
+  assert.equal(layoutFireblock({}, { walls: [{ id: "a", members: v(142.5) }] }).ok, true);
+});
