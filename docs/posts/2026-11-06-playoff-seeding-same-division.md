@@ -1,6 +1,8 @@
 ---
 title: Keeping teams from the same division apart in round one
 date: 2026-11-06
+tags: [league-schedule-generator, scheduling, playoffs]
+description: "Play-off seeding now keeps teams from one division out of each other's first-round game: 601 same-division clashes became 0 across 2,000 random made-up fields."
 ---
 
 A cross-division play-off seeds every division winner first, then the runners-up. With two divisions that often puts two teams from one division in the same first-round game, which makes the league's own rivalry decide a bracket slot.
