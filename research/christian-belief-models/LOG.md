@@ -1,5 +1,11 @@
 # Research log: christian-belief-models
 
+## 2026-11-06 · Milestone 2 (part): CV-seed stability and a politics ablation, Catholics (plan and predictions written before the run)
+
+- Why: milestone 1 used one fold seed, so its AUCs carry no split-to-split spread, and the permutation-importance table suggests politics matter but never removes them. `experiments/m2_seeds_ablation/run.py`: Catholic respondents, 14 targets, logit and hgb, 5-fold weighted CV with seeds 0 to 2, on the full feature set and with `polviews` and `partyid` removed.
+- Predictions: (1) the seed-to-seed range of AUC is under 0.01 for every target (samples are 2,000 to 18,000); (2) removing politics lowers hgb AUC by under 0.02 on the sexual-morality items (the other answers already carry the ideology); (3) the largest loss is on abortion or same-sex marriage items, not on attendance; (4) the logit-vs-hgb gap of milestone 1 (+0.003 median) stays under 0.01 across seeds.
+- Not done here: Hispanic split, the check of weighted shares against NORC's Data Explorer and `research/catholic-demography`, calibration plots, design-based variance.
+
 ## 2026-11-03 · Milestone 1 results: other answers predict unasked items well; associations transfer, levels do not
 
 - Ran `experiments/m1_imputation/run.py` on the GSS 1972–2024 R3a (fit and test about 30 min on 2 cores). Tables are in `experiments/m1_imputation/results/summary.md`, and `summarise.py` rebuilds them from the committed CSVs.
