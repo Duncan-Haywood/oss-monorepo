@@ -46,6 +46,13 @@ export function budget(result, prices = {}, allowances = {}) {
     const boards = o.lines.reduce((/** @type {number} */ s, /** @type {any} */ l) => s + l.qty, 0);
     add("Lumber", `${o.size} boards (${o.lines.length} lengths)`, boards, "boards", boards ? o.cost / boards : null, `order: ${o.method}${o.proven ? ", proven cheapest" : ""}; plan stock prices`);
   }
+  // Typed cull allowance (plan `culls`): spare whole boards per size, priced at that size's order prices, a separate line so the layout order stays exact.
+  const cullBySize = new Map();
+  for (const l of result.culls || []) {
+    const c = cullBySize.get(l.size) || { qty: 0, cost: 0 };
+    c.qty += l.qty; c.cost += l.cost; cullBySize.set(l.size, c);
+  }
+  for (const [size, c] of cullBySize) add("Lumber", `${size} cull allowance`, c.qty, "boards", c.qty ? c.cost / c.qty : null, "plan culls: typed rate, whole spare boards at the order's stock prices");
   if (result.sheathing?.summary) {
     const s = result.sheathing.summary, wp = P("wallSheet");
     if (wp != null) add("Sheathing", "Wall sheathing sheets", s.sheets, "sheets", wp, "sheathing order sheet count x typed wallSheet");
