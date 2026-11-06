@@ -41,3 +41,15 @@ for (const bad of [null, undefined, 5, "x", {}, { walls: 3 }]) {
     assert.ok(r.errors.length);
   });
 }
+
+import { layoutDrywall } from "./drywall.mjs";
+for (const bad of [null, undefined, {}, { walls: 3 }, { walls: [null] }]) {
+  test(`layoutDrywall refuses a plan of ${JSON.stringify(bad)}`, () => {
+    const r = layoutDrywall({}, /** @type {any} */ (bad));
+    assert.equal(r.ok, false);
+    assert.ok(r.errors.length);
+  });
+}
+test("layoutDrywall refuses non-object settings", () => {
+  assert.equal(layoutDrywall(/** @type {any} */ (null), { studLength: 92.625, defaultHeaderHeight: 80, walls: [{ id: "A", length: 120, openings: [] }] }).ok, false);
+});
