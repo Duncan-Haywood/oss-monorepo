@@ -1,6 +1,6 @@
 ---
 title: "Roof sheathing H-clips: counting the little clips between rafters"
-seo_title: "How many H-clips does a roof need? Roof sheathing clip count in a takeoff"
+seo_title: "How many H-clips does a roof need? Roof sheathing clip count"
 date: 2026-11-06
 tags: [wall-framing-takeoff, roofing, construction]
 description: "The open-source wall framing takeoff can now count roof sheathing H-clips from rafter spacing and sheet count, with an optional price."
