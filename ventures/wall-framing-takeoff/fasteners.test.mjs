@@ -98,3 +98,24 @@ test("plate straps: joints and single-top-plate ties by hand", () => {
   assert.ok(validateFasteners({ plateStraps: { perJoint: 3 } }).length === 1);
   assert.match(fastenerText(l).join("\n"), /7 plate strap\(s\)/);
 });
+
+test("wall bracing: count per wall and brace length by hand, off by default", () => {
+  const r = { walls: [
+    { id: "A", length: 480, height: 97.125, members: [] }, // ceil(480/300) = 2
+    { id: "B", length: 300, height: 97.125, members: [] }, // exactly 1
+    { id: "C", length: 36, height: 97.125, members: [] },  // under 48 in: skipped
+  ] };
+  assert.equal(layoutFasteners({}, {}, r).wallBracing, null);
+  const l = layoutFasteners({ wallBracing: { price: 20 } }, {}, r).wallBracing;
+  assert.equal(l.count, 3);
+  assert.equal(l.walls, 2);
+  assert.ok(Math.abs(l.feet - (3 * 97.125 * Math.SQRT2) / 12) < 1e-9); // 45 degrees: height x sqrt 2
+  assert.equal(l.cost, 60);
+  const steep = layoutFasteners({ wallBracing: { angle: 60, spacing: 120 } }, {}, r).wallBracing;
+  assert.equal(steep.count, 4 + 3); // 480/120 = 4, 300/120 -> 3
+  assert.ok(Math.abs(steep.feet - (7 * 97.125) / Math.sin(Math.PI / 3) / 12) < 1e-9);
+  assert.ok(fastenerText(layoutFasteners({ wallBracing: true }, {}, r)).some((t) => t.includes("wall brace")));
+  for (const bad of [{ spacing: 5 }, { angle: 80 }, { minWallLength: 1 }, { price: -1 }])
+    assert.ok(validateFasteners({ wallBracing: bad }).length > 0, JSON.stringify(bad));
+  assert.ok(validateFasteners({ wallBracing: "yes" }).length > 0);
+});
