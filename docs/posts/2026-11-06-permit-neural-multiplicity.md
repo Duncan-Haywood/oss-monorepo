@@ -1,7 +1,7 @@
 ---
 title: "Does the neural net's permit-duration deficit survive a multiple-testing correction?"
 date: 2026-11-06
-seo_title: "Multiple-testing correction on neural vs boosted permit duration models"
+seo_title: "Multiple-testing correction: neural vs boosted permit models"
 tags: [build-data, permits, research]
 description: "Ten of 15 paired comparisons between a small neural net and gradient boosting on permit durations differ; Holm and Benjamini-Hochberg keep all ten."
 ---
