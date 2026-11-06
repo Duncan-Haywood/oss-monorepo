@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import type { Coverage, RankedItem } from "@/lib/groupRanking";
+import { CHECKOUT_URL } from "@/lib/checkout";
+import { buyLink } from "@/lib/licence";
 
 type Ranking = { title: string; participants: number; ranking: RankedItem[]; coverage?: Coverage };
 
@@ -23,6 +25,9 @@ export function SurveyBuilder() {
   const [created, setCreated] = useState<{ slug: string; url: string; items: number } | null>(null);
   const [result, setResult] = useState<Ranking | null>(null);
   const [resultError, setResultError] = useState<string | null>(null);
+  const [licenceKey, setLicenceKey] = useState("");
+  const [brandName, setBrandName] = useState("");
+  const buy = buyLink(CHECKOUT_URL); // null while the report is dark
 
   async function create(e: React.FormEvent) {
     e.preventDefault();
@@ -101,6 +106,17 @@ export function SurveyBuilder() {
           <code className="font-mono text-xs">{created.url}</code>
           <button type="button" onClick={() => showRanking(created.slug)} className="font-semibold underline underline-offset-2">Show ranking</button>
           <a href={`/api/admin/surveys/${created.slug}/ranking?format=csv`} className="font-semibold underline underline-offset-2">↓ CSV</a>
+          {buy && (
+            <span className="flex flex-wrap items-center gap-2">
+              <input className={INPUT} placeholder="Your name for the report" value={brandName} onChange={(e) => setBrandName(e.target.value)} aria-label="Name on the branded report" />
+              <input className={INPUT} placeholder="Licence key" value={licenceKey} onChange={(e) => setLicenceKey(e.target.value)} aria-label="Licence key" />
+              <a
+                href={`/api/admin/surveys/${created.slug}/ranking?format=report&key=${encodeURIComponent(licenceKey)}&name=${encodeURIComponent(brandName)}`}
+                target="_blank" rel="noreferrer" className="font-semibold underline underline-offset-2"
+              >Branded report</a>
+              <a href={buy} target="_blank" rel="noreferrer" className="underline underline-offset-2">Buy a licence key</a>
+            </span>
+          )}
         </div>
       )}
       {resultError && <p role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">{resultError}</p>}
