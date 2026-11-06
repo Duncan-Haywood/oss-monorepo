@@ -1,6 +1,6 @@
 ---
 title: "A bid what-if that returned null totals: fixing the price sensitivity check"
-seo_title: "Hardening a construction bid price-sensitivity calculator against bad numbers"
+seo_title: "Hardening a bid price-sensitivity check against bad numbers"
 date: 2026-11-06
 tags: [wall-framing-takeoff, bidding, testing]
 description: "The open-source framing takeoff's price sensitivity report gave null totals for NaN or infinite budget figures. It now refuses them with a reason."
