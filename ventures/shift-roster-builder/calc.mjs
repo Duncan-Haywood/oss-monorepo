@@ -1890,8 +1890,17 @@ export function absencePlan(staff, slots, roster, name, days = null, options = {
   return { ok: true, person: staff[who].name, moves, open, extraCost, owner };
 }
 
+// One CSV cell. A name or label that starts with = + - @ (or a tab or CR) would run as a formula when the file is
+// opened in a spreadsheet, so it gets a leading apostrophe; parseRosterCsv strips that again on the way back in.
+export function csvCell(v) {
+  let s = String(v ?? "");
+  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+const unDefuse = (t) => (/^'[=+\-@\t\r]/.test(t) ? t.slice(1) : t);
+
 export function rosterCsv(r) {
-  const q = (s) => (/[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
+  const q = csvCell;
   const rows = ["day,start,end,hours,label,assigned_to,role"];
   for (const a of r.assignments) {
     const s = a.slot;
@@ -2007,7 +2016,7 @@ export function lastShiftEnds(csv) {
       else if (ch === '"') inQ = true; else if (ch === ",") { c.push(cur); cur = ""; } else cur += ch;
     }
     c.push(cur);
-    const who = (c[5] || "").trim();
+    const who = unDefuse((c[5] || "").trim());
     if (!who || who === "UNFILLED") continue;
     const d = dayIndex((c[0] || "").replace(/\s*\(overnight\)/i, "").trim());
     const start = parseTime(c[1]);
@@ -2037,14 +2046,14 @@ export function parseRosterCsv(csv) {
       else if (ch === '"') inQ = true; else if (ch === ",") { c.push(cur); cur = ""; } else cur += ch;
     }
     c.push(cur);
-    const person = (c[5] || "").trim();
+    const person = unDefuse((c[5] || "").trim());
     if (!person || person === "UNFILLED") continue;
     const day = dayIndex((c[0] || "").replace(/\s*\(overnight\)/i, "").trim());
     const start = parseTime(c[1]);
     let end = parseTime(c[2]);
     if (day < 0 || Number.isNaN(start) || Number.isNaN(end)) continue;
     if (end <= start) end += 1440;
-    out.push({ person, day, start: day * 1440 + start, end: day * 1440 + end, label: (c[4] || "").trim() });
+    out.push({ person, day, start: day * 1440 + start, end: day * 1440 + end, label: unDefuse((c[4] || "").trim()) });
   }
   return out;
 }
@@ -2715,7 +2724,7 @@ export function tipPool(r, pot) {
 
 export function hoursCsv(r) {
   const rows = ["person,shifts,hours,overtime_hours,estimated_payroll,minimum_hours,hours_under_minimum"];
-  for (const p of r.people) rows.push([p.name.includes(",") ? `"${p.name}"` : p.name, p.shifts, p.hours.toFixed(2), p.otHours.toFixed(2), p.cost.toFixed(2), p.minHours, p.short.toFixed(2)].join(","));
+  for (const p of r.people) rows.push([csvCell(p.name), p.shifts, p.hours.toFixed(2), p.otHours.toFixed(2), p.cost.toFixed(2), p.minHours, p.short.toFixed(2)].join(","));
   return rows.join("\n") + "\n";
 }
 

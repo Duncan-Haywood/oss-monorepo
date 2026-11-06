@@ -1842,3 +1842,18 @@ test("daysOffRuns: longest run of days off, people with none, no wrap", () => {
   assert.deepEqual(d.rows.map((x) => [x.person, x.daysWorked, x.longestOff]), [["Ana", 5, 2], ["Ben", 4, 1], ["Cy", 6, 1], ["Di", 0, 7]]);
   assert.deepEqual(d.short.map((x) => x.person), ["Ben", "Cy"]);
 });
+
+test("CSV exports defuse spreadsheet formulas and still read back", async () => {
+  const { parseRosterCsv, lastShiftEnds } = await import("./calc.mjs");
+  const staff = staffOf("=HYPERLINK(\"http://x\"),20,40,0,Mon 9-17\n+Bob,15,40,0,Mon 9-17");
+  const slots = slotsOf("Mon,9,17,2,front desk");
+  const r = buildRoster(staff, slots);
+  const csv = rosterCsv(r);
+  assert.ok(!/(^|,)[=+\-@]/m.test(csv.split("\n").slice(1).join("\n")), csv);
+  assert.match(csv, /'[=+]/);
+  const who = parseRosterCsv(csv).map((x) => x.person);
+  assert.ok(who.every((n) => !n.startsWith("'")), who.join("|"));
+  for (const k of lastShiftEnds(csv).values()) assert.ok(!k.name.startsWith("'"));
+  assert.ok(!/(^|\n)[=+\-@]/.test(hoursCsv(r)));
+  assert.match(hoursCsv(r), /^person,/);
+});
