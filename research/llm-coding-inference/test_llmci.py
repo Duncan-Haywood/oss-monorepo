@@ -245,7 +245,7 @@ def test_screen_needs_both_informedness_and_enough_positives():
     assert S.screen(y, [rng.randint(0, 1) for _ in y]) == "pooled"  # empty coder
     rare = [1] * 10 + [0] * 110
     assert S.screen(rare, rare) == "pooled"  # perfect coder but 10 < 20 positives
-    assert S.screen(rare, rare, guard=10) == "cells"
+    assert S.screen(rare, rare, guard=10, neg_guard=0) == "cells"
 
 
 def test_neg_guard_pools_when_the_coder_negative_cell_has_no_positives():
@@ -253,7 +253,7 @@ def test_neg_guard_pools_when_the_coder_negative_cell_has_no_positives():
     y = [1] * 12 + [0] * 108
     f_miss = [1] * 12 + [0] * 108  # perfect: no positive in the coder-negative cell
     f_some = [1] * 9 + [0] * 3 + [0] * 108  # three positives coded 0
-    assert S.screen(y, f_miss, guard=10) == "cells" and S.screen(y, f_miss, guard=10, neg_guard=S.NEG_GUARD) == "pooled"
+    assert S.screen(y, f_miss, guard=10, neg_guard=0) == "cells" and S.screen(y, f_miss, guard=10) == "pooled" and S.screen(y, f_miss, guard=10, neg_guard=S.NEG_GUARD) == "pooled"
     assert S.screen(y, f_some, guard=10, neg_guard=S.NEG_GUARD) == "cells"
     assert S.screen(y, f_some, guard=10, neg_guard=4) == "pooled"
     rng = random.Random(9)
