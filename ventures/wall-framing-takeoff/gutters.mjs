@@ -12,21 +12,23 @@
 // area drained (default 600, a 2x3 in downspout on 5 in gutter; plan area shared
 // by eave length). These are sizing habits, not a drainage design: local rainfall
 // and the manufacturer's tables decide the real count.
-// Not counted: slope pitch, leaf guards, fascia brackets, sealant,
+// Leaf guards (`leafGuards: true`) are one section per gutter section. Not counted: slope pitch, fascia brackets, sealant,
 // screws, downspout straps beyond the one per `strapSpacing` inches, and a cross
 // wing of a different pitch than the main roof (noted). Equal-pitch wings are counted.
 import { packPieces } from "./trim.mjs";
 
 import { textNumberErrors } from "./numfields.mjs";
-/** @typedef {{ gutterStock?: number, downspoutStock?: number, eaveHeight?: number, hangerSpacing?: number, maxRunFeet?: number, sqFtPerDownspout?: number, strapSpacing?: number, waste?: number, gutterPrice?: number, downspoutPrice?: number, hangerPrice?: number, capPrice?: number, elbowPrice?: number, cornerPrice?: number, strapPrice?: number, splashBlocks?: boolean, splashBlockPrice?: number }} Gutters */
+/** @typedef {{ gutterStock?: number, downspoutStock?: number, eaveHeight?: number, hangerSpacing?: number, maxRunFeet?: number, sqFtPerDownspout?: number, strapSpacing?: number, waste?: number, gutterPrice?: number, downspoutPrice?: number, hangerPrice?: number, capPrice?: number, elbowPrice?: number, cornerPrice?: number, strapPrice?: number, splashBlocks?: boolean, splashBlockPrice?: number, leafGuards?: boolean, leafGuardPrice?: number }} Gutters */
 
 /** @param {Gutters} d */
 export function validateGutters(d) {
   const e = [];
   if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Gutter settings are an object."];
-  e.push(...textNumberErrors(d, ['capPrice', 'cornerPrice', 'downspoutPrice', 'downspoutStock', 'eaveHeight', 'elbowPrice', 'gutterPrice', 'gutterStock', 'hangerPrice', 'hangerSpacing', 'maxRunFeet', 'sqFtPerDownspout', 'strapPrice', 'strapSpacing', 'waste', 'splashBlockPrice']));
+  e.push(...textNumberErrors(d, ['capPrice', 'cornerPrice', 'downspoutPrice', 'downspoutStock', 'eaveHeight', 'elbowPrice', 'gutterPrice', 'gutterStock', 'hangerPrice', 'hangerSpacing', 'maxRunFeet', 'sqFtPerDownspout', 'strapPrice', 'strapSpacing', 'waste', 'splashBlockPrice', 'leafGuardPrice']));
   if (d.splashBlocks != null && typeof d.splashBlocks !== "boolean") e.push("Splash blocks is true or false.");
   if (d.splashBlockPrice != null && !(d.splashBlockPrice >= 0)) e.push("Splash block price cannot be negative.");
+  if (d.leafGuards != null && typeof d.leafGuards !== "boolean") e.push("Leaf guards is true or false.");
+  if (d.leafGuardPrice != null && !(d.leafGuardPrice >= 0)) e.push("Leaf guard price cannot be negative.");
   if (e.length) return e;
   for (const [k, n, lo, hi] of /** @type {const} */ ([
     ["gutterStock", "Gutter length", 48, 288], ["downspoutStock", "Downspout length", 48, 240],
@@ -86,23 +88,24 @@ export function layoutGutters(d, roof) {
   const straps = downspouts * (Math.floor(height / strap) + 1);
   const splashBlocks = d.splashBlocks ? downspouts : 0; // one under each downspout kick-out, when asked for
   const gutters = up(gp.boards);
-  const priced = ["gutterPrice", "downspoutPrice", "hangerPrice", "capPrice", "elbowPrice", "cornerPrice", "strapPrice", "splashBlockPrice"].some((k) => /** @type {any} */ (d)[k] != null);
+  const leafGuards = d.leafGuards ? gutters : 0; // one guard section per gutter section (same stock length and waste), when asked for
+  const priced = ["gutterPrice", "downspoutPrice", "hangerPrice", "capPrice", "elbowPrice", "cornerPrice", "strapPrice", "splashBlockPrice", "leafGuardPrice"].some((k) => /** @type {any} */ (d)[k] != null);
   const m = (/** @type {number | undefined} */ p, /** @type {number} */ q) => (p != null ? q * p : 0);
   return {
     ok: true, errors: [], shape: hip ? "hip" : "gable", waste, gutterStock: stock, downspoutStock: dsStock, eaveHeight: height, hangerSpacing: hanger,
-    wings: wingCount, wingNotes, runFeet: total / 12, runs: runs.length, planSqFt, gutters, downspouts, downspoutPieces: dsPieces, hangers, endCaps: caps, outsideCorners: corners, elbows, straps, splashBlocks,
-    cost: priced ? m(d.gutterPrice, gutters) + m(d.downspoutPrice, dsPieces) + m(d.hangerPrice, hangers) + m(d.capPrice, caps) + m(d.elbowPrice, elbows) + m(d.cornerPrice, corners) + m(d.strapPrice, straps) + m(d.splashBlockPrice, splashBlocks) : null,
+    wings: wingCount, wingNotes, runFeet: total / 12, runs: runs.length, planSqFt, gutters, downspouts, downspoutPieces: dsPieces, hangers, endCaps: caps, outsideCorners: corners, elbows, straps, splashBlocks, leafGuards,
+    cost: priced ? m(d.gutterPrice, gutters) + m(d.downspoutPrice, dsPieces) + m(d.hangerPrice, hangers) + m(d.capPrice, caps) + m(d.elbowPrice, elbows) + m(d.cornerPrice, corners) + m(d.strapPrice, straps) + m(d.splashBlockPrice, splashBlocks) + m(d.leafGuardPrice, leafGuards) : null,
   };
 }
 
 /** @param {any} g */
 export function guttersText(g) {
   const l = [];
-  l.push(`  Gutter: ${g.runFeet.toFixed(0)} ft in ${g.runs} run(s) -> ${g.gutters} sections of ${g.gutterStock / 12} ft (${(100 * g.waste).toFixed(0)}% waste added)`);
+  l.push(`  Gutter: ${g.runFeet.toFixed(0)} ft in ${g.runs} run(s) -> ${g.gutters} sections of ${g.gutterStock / 12} ft (${(100 * g.waste).toFixed(0)}% waste added)${g.leafGuards ? `, ${g.leafGuards} leaf guard sections` : ""}`);
   l.push(`  Downspouts: ${g.downspouts} (roof plan area ${g.planSqFt.toFixed(0)} sq ft), ${g.eaveHeight / 12} ft drop -> ${g.downspoutPieces} pieces of ${g.downspoutStock / 12} ft, ${g.elbows} elbows, ${g.straps} straps${g.splashBlocks ? `, ${g.splashBlocks} splash blocks` : ""}`);
   l.push(`  Hangers: ${g.hangers} (every ${g.hangerSpacing} in), end caps: ${g.endCaps}${g.outsideCorners ? `, outside corners: ${g.outsideCorners}` : ""}`);
   if (g.cost != null) l.push(`  Priced parts: ${g.cost.toFixed(2)}`);
-  l.push("  Downspout count is a rule of thumb (one per run length and per roof area), not a drainage design; leaf guards, sealant and screws are not counted.");
+  l.push("  Downspout count is a rule of thumb (one per run length and per roof area), not a drainage design; sealant and screws are not counted (leaf guards only when asked for).");
   for (const n of g.wingNotes || []) l.push("  " + n);
   return l;
 }
