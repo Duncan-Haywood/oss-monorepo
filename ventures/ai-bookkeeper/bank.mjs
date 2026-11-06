@@ -395,7 +395,7 @@ export function sniffBank(rows) {
     if (/^bank account\|date\|narrative\|debit amount\|credit amount\|balance/.test(h)) return "westpac";
     if (/^date\|amount\|account number\|\|transaction type\|transaction details\|balance/.test(h)) return "nab";
     if (/^date\|description\|amount\|running bal/.test(h)) return "bank-of-america";
-    if (/^type\|product\|started date\|completed date\|description\|amount\|fee\|currency\|state\|balance/.test(h)) return "revolut";
+    if (/^type\|product\|started date\|completed date\|description\|amount\|fee\|currency\|state(\||$)/.test(h)) return "revolut";
     if (/^transaction id\|date\|time\|type\|name\|emoji\|category\|amount\|currency/.test(h)) return "monzo";
     if (/^date\|counter party\|reference\|type\|amount \((gbp|eur|usd)\)\|balance/.test(h)) return "starling";
     if (/^date \(utc\)\|description\|amount\|status\|source account/.test(h)) return "mercury";
