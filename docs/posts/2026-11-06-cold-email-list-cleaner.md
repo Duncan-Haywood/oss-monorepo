@@ -1,6 +1,6 @@
 ---
 title: "Clean your cold email list before the first send"
-seo_title: "Free cold email list cleaner: invalid, disposable, role and duplicate addresses"
+seo_title: "Free cold email list cleaner: invalid, role and duplicate emails"
 date: 2026-11-06
 tags: [sales-agent, cold-email, deliverability]
 description: "A free, offline checker that sorts a prospect list into send, review and drop before you email anyone."

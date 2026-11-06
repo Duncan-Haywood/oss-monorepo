@@ -1,6 +1,6 @@
 ---
 title: "When do I have to order trusses? A free order-by date calculator"
-seo_title: "Order-by date calculator: when to order trusses, windows and long-lead items"
+seo_title: "Order-by date calculator for trusses, windows and long-lead items"
 date: 2026-11-06
 tags: [wall-framing-takeoff, procurement, calculators]
 description: "A free calculator: type each item's lead time, buffer and the date you need it on site, and get the weekday to order by and what is already late."
