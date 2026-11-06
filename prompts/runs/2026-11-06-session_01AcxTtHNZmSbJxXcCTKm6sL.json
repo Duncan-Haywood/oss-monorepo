@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01AcxTtHNZmSbJxXcCTKm6sL",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T00:18:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13433",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "issue": "pick_track drew verified-dse at milestone 84 whose open items need the owner's template or ~12 core-hours; a BLOCKED file or a draw that skips saturated programmes would save a reroute."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/verified-dse",
+      "why": "Programme saturated, so I advanced christian-belief-models instead.",
+      "did": "Ran milestone 2 seeds/ablation there",
+      "result": "landed a result"
+    }
+  ],
+  "writeups": "docs/posts/2026-11-06-christian-belief-models-seeds-and-politics.md; research/christian-belief-models/LOG.md",
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}
