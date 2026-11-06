@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { reorderPlan } from "./reorder.mjs";
+import { reorderPlan, reorderBySize } from "./reorder.mjs";
 
 const base = { weeklyRate: 20, weeklySd: 8, leadWeeks: 9, onHand: 400, landed: 12, profitPerUnit: 15, moq: 100 };
 
@@ -52,4 +52,35 @@ test("refuses hostile input with a reason", () => {
     const r = reorderPlan(bad);
     assert.ok(r.error && !r.ok, JSON.stringify(bad));
   }
+});
+
+const sz = { weeklyRate: 20, weeklySd: 8, leadWeeks: 9, landed: 12, mix: { S: 20, M: 50, L: 30 }, onHand: { S: 30, M: 100, L: 60 } };
+
+test("by size, hand worked: M spread sqrt(.25*64+.25*20), safety 23, point 113, order 66", () => {
+  const r = reorderBySize({ ...sz, moq: 1 });
+  const by = Object.fromEntries(r.lines.map(l => [l.size, l]));
+  assert.equal(by.M.safetyStock, 23);
+  assert.equal(by.M.reorderPoint, 113);
+  assert.equal(by.M.order, 66);
+  assert.equal(by.S.safetyStock, 12); assert.equal(by.S.reorderPoint, 48); assert.equal(by.S.order, 42);
+  assert.equal(by.L.safetyStock, 16); assert.equal(by.L.reorderPoint, 70); assert.equal(by.L.order, 44);
+  assert.equal(r.orderTotal, 152);
+  assert.equal(r.cashTiedUp, 1824);
+});
+
+test("by size, minimum lifts the order in proportion and totals exactly", () => {
+  const r = reorderBySize({ ...sz, moq: 200 });
+  assert.equal(r.orderTotal, 200);
+  assert.deepEqual(r.lines.map(l => l.order), [55, 88, 57]);
+});
+
+test("by size, a size not at its point is left out", () => {
+  const r = reorderBySize({ ...sz, onHand: { S: 30, M: 100, L: 500 }, moq: 1 });
+  assert.equal(r.lines.find(l => l.size === "L").order, 0);
+  assert.equal(r.orderTotal, 108);
+});
+
+test("by size, bad input is an error", () => {
+  assert.ok(reorderBySize({}).error);
+  assert.ok(reorderBySize({ ...sz, mix: { S: 0 } }).error);
 });
