@@ -86,7 +86,7 @@ export function validateFoundation(f) {
     const a = { spacing: 72, endDistance: 12, plateStock: 192, ...f.anchorBolts };
     if (!(a.spacing >= 12 && a.spacing <= 120)) e.push("Anchor bolt spacing must be between 12 and 120 in.");
     if (!(a.endDistance >= 4 && a.endDistance <= 24)) e.push("Anchor bolt end distance must be between 4 and 24 in.");
-    if (a.sealRoll != null && !(a.sealRoll >= 10 && a.sealRoll <= 500)) e.push("Sill seal roll length must be between 10 and 500 ft.");
+    if (/** @type {any} */ (a).sealRoll != null && !(/** @type {any} */ (a).sealRoll >= 10 && /** @type {any} */ (a).sealRoll <= 500)) e.push("Sill seal roll length must be between 10 and 500 ft.");
     if (!(a.plateStock >= 96 && a.plateStock <= 240)) e.push("Sill plate stock must be between 8 and 20 ft.");
     if (a.plateStock < 4 * a.endDistance) e.push("Sill plate stock is too short for the end distance.");
   }
@@ -253,7 +253,7 @@ export function layoutFoundation(f) {
       bolts += n * Math.max(2, Math.ceil((p - 2 * a.endDistance) / a.spacing - 1e-9) + 1);
     }
     // Sill seal (foam gasket) runs under every plate piece; a typed roll length (default 50 ft) sets the rolls, 5% added for laps and cuts.
-    const sealRollFt = a.sealRoll ?? 50;
+    const sealRollFt = /** @type {any} */ (a).sealRoll ?? 50;
     const plateFeet = plateIn / 12;
     anchors = { bolts, pieces, plateFeet: Math.round(plateFeet * 100) / 100, sealRolls: Math.ceil(plateFeet * 1.05 / sealRollFt - 1e-9), sealRollFt, diameter: a.diameter, embed: a.embed, spacing: a.spacing, endDistance: a.endDistance, plateStock: a.plateStock };
   }

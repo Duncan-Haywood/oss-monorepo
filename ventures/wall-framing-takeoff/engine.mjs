@@ -1365,7 +1365,7 @@ export function takeoff(plan, extraCuts = []) {
     const needed = pieces.reduce((s, p) => s + p.length * p.qty, 0);
     orders.push({ size, ...res, lines: [...lines.values()].sort((a, b) => b.length - a.length), bought, needed, naive: naiveCost(pieces, stock) });
   }
-  const cull = cullAllowance(plan.culls, orders);
+  const cull = cullAllowance(/** @type {any} */ (plan).culls, orders);
   if (cull.errors.length) return { ok: false, errors: cull.errors };
   const cost = orders.reduce((s, o) => s + o.cost, 0);
   const bound = orders.reduce((s, o) => s + o.bound, 0);
