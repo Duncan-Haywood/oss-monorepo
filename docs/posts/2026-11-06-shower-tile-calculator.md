@@ -1,8 +1,8 @@
 ---
 title: "How many tiles does a shower need? A free calculator that shows its sums"
-seo_title: "Shower and wall tile calculator: tiles, thinset, grout, backer board and membrane"
+seo_title: "Shower and wall tile calculator: tiles, backer board, membrane"
 date: 2026-11-06
-tags: [wall-framing-takeoff, tile, calculator]
+tags: [wall-framing-takeoff, tile, calculators]
 description: "A free shower and wall tile calculator: type each wall and its niche, get tiles with waste, thinset, grout, cement board, screws and membrane."
 ---
 
