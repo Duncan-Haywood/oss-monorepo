@@ -440,6 +440,13 @@
     <p class="note">An estimate from the prices you typed, not a contract or a legal document. Have it checked against your licence, local law and your customer's agreement before you send it.</p>
   </section>
 
+  <section class="card" aria-labelledby="h-sens" id="sensCard" hidden>
+    <h2 id="h-sens">Price sensitivity: what if a section's price moves?</h2>
+    <p class="note">Moves each budget section alone by the swing below and shows what it does to your cost and bid price (tax, contingency, overhead and profit restack as in the budget), and how far a section can rise before a fixed bid has no profit left. A what-if over the prices you typed, not a forecast. Nothing is uploaded.</p>
+    <p><label for="sensPct">Swing (percent, 1 to 100)</label> <input type="number" id="sensPct" min="1" max="100" step="1" value="10" style="width:5em"></p>
+    <div id="sensOut"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-co" id="coCard" hidden>
     <h2 id="h-co">Change order: what the change costs</h2>
     <p class="note">Save the budget above as the original, change the plan or the prices, and this lists every line that moved, by section, with the effect on cost and on the bid price (overhead and profit follow at the rates you typed). A line priced on one side only is named, not netted. Nothing is uploaded; the saved original lives in this tab only.</p>
@@ -565,7 +572,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>proposal_previewed</code>, <code>proposal_printed</code>, <code>proposal_downloaded</code>, <code>bid_package_unlocked</code>, <code>bid_package_opened</code>, <code>bids_leveled</code>, <code>change_order_saved</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>openings_csv_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>dormer_on</code>, <code>stairs_on</code>, <code>deck_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>ifc_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>proposal_previewed</code>, <code>proposal_printed</code>, <code>proposal_downloaded</code>, <code>bid_package_unlocked</code>, <code>bid_package_opened</code>, <code>bids_leveled</code>, <code>change_order_saved</code>, <code>sensitivity_run</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>openings_csv_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>dormer_on</code>, <code>stairs_on</code>, <code>deck_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>ifc_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Before you submit a building permit packet, the <a href="../permit-packet-preflight/">permit packet preflight</a> checks your files against the city's own checklist. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -601,6 +608,7 @@
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { levelBids } from "./bidlevel.mjs";
     import { budgetDiff } from "./compare.mjs";
+    import { sensitivity } from "./sensitivity.mjs";
     import { schedule, scheduleText, sampleSchedule, resolveRates } from "./schedule.mjs";
     import { resolveHeaders } from "./headers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -1197,7 +1205,21 @@
       $("#pkgCard").hidden = false;
       renderBids();
       renderChange();
+      renderSens();
     }
+    function renderSens() {
+      const card = $("#sensCard");
+      if (!last?.budget) { card.hidden = true; return; }
+      card.hidden = false;
+      const m = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      const sg = (v) => (v >= 0 ? "+" : "") + m(v);
+      let sv;
+      try { sv = sensitivity(last.budget, Number($("#sensPct").value)); } catch (e) { $("#sensOut").innerHTML = `<div class="err">${esc(e.message)}</div>`; return; }
+      $("#sensOut").innerHTML = `<table><thead><tr><th>Section</th><th class="n">Subtotal</th><th class="n">Bid if +${sv.pct}%</th><th class="n">Bid if -${sv.pct}%</th><th class="n">Bid change</th><th class="n">Profit gone after</th></tr></thead><tbody>${sv.rows.map((r) => `<tr><td>${esc(r.section)}</td><td class="n">${m(r.subtotal)}</td><td class="n">${sg(r.bidUp)}</td><td class="n">${sg(r.bidDown)}</td><td class="n">${r.bidUpPct}%</td><td class="n">${r.profitAbsorbsPct == null ? "" : r.profitAbsorbsPct + "% rise"}</td></tr>`).join("")}</tbody></table>`
+        + `<p>Everything +${sv.pct}% together: cost ${m(sv.allUp.total)}, bid ${m(sv.allUp.bid)} (now ${m(sv.total)} and ${m(sv.bid)}).</p>`
+        + (sv.unpriced.length ? `<p class="note">${sv.unpriced.length} unpriced line(s) are left out, as in the budget.</p>` : "");
+    }
+    $("#sensPct").addEventListener("input", () => { if (last?.budget) { renderSens(); record("sensitivity_run"); } });
     let coBase = null;
     function renderChange() {
       const card = $("#coCard");

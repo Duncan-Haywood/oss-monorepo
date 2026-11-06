@@ -51,7 +51,7 @@ test("every static control has a label, and generated rows label their inputs", 
 
 test("the module script imports only local files, its names exist, and it parses", async () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./bidletter.mjs", "./bidlevel.mjs", "./bidpackage.mjs", "./budget.mjs", "./checkout.mjs", "./compare.mjs", "./deck.mjs", "./dormer.mjs", "./drawings.mjs", "./drywall.mjs", "./dxf.mjs", "./eaves.mjs", "./engine.mjs", "./fasteners.mjs", "./floor.mjs", "./foundation.mjs", "./gutters.mjs", "./headers.mjs", "./ifcwasm.mjs", "./insulation.mjs", "./licence.mjs", "./openingschedule.mjs", "./panels.mjs", "./pdf.mjs", "./roof.mjs", "./schedule.mjs", "./sheathing.mjs", "./siding.mjs", "./sketch.mjs", "./stairs.mjs", "./trim.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./bidletter.mjs", "./bidlevel.mjs", "./bidpackage.mjs", "./budget.mjs", "./checkout.mjs", "./compare.mjs", "./deck.mjs", "./dormer.mjs", "./drawings.mjs", "./drywall.mjs", "./dxf.mjs", "./eaves.mjs", "./engine.mjs", "./fasteners.mjs", "./floor.mjs", "./foundation.mjs", "./gutters.mjs", "./headers.mjs", "./ifcwasm.mjs", "./insulation.mjs", "./licence.mjs", "./openingschedule.mjs", "./panels.mjs", "./pdf.mjs", "./roof.mjs", "./schedule.mjs", "./sensitivity.mjs", "./sheathing.mjs", "./siding.mjs", "./sketch.mjs", "./stairs.mjs", "./trim.mjs", "./usage.mjs"]);
   const names = html.match(/import \{([^}]+)\} from "\.\/engine\.mjs"/)[1].split(",").map((s) => s.trim());
   const engine = await import("./engine.mjs");
   for (const name of names) assert.ok(name in engine, name);
@@ -796,4 +796,12 @@ test("the plan form has a cull allowance field wired to plan.culls and the order
   assert.match(html, /culls: \{ pct: Math\.min\(50, Number\(\$\("#cullPct"\)\.value\)\) \/ 100 \}/);
   assert.match(html, /\$\("#cullPct"\)\.value = String\(s\.cullPct \|\| 0\)/);
   assert.match(html, /Cull allowance \(\$\{result\.summary\.cullBoards\} spare boards/);
+});
+
+test("the price sensitivity card is wired to sensitivity.mjs and its event is declared", () => {
+  const html = page("index.html");
+  assert.match(html, /id="sensCard"/);
+  assert.match(html, /import \{ sensitivity \} from "\.\/sensitivity\.mjs"/);
+  assert.match(html, /record\("sensitivity_run"\)/);
+  assert.match(html, /<code>sensitivity_run<\/code>/);
 });
