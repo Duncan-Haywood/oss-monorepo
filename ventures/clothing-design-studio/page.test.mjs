@@ -6,7 +6,7 @@ import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
 import { economics, quantityBreaks } from "./costing.mjs";
 
 const read = f => readFileSync(new URL(`./${f}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "for-independent-clothing-designers.html", "how-much-does-it-cost-to-make-a-t-shirt.html", "sunglasses.html", "wardrobe.html", "fit.html", "quotes.html", "labels.html", "prices.html", "preorder.html", "duty.html", "wholesale.html", "reorder.html", "cashflow.html", "tna.html"];
+const PAGES = ["index.html", "for-independent-clothing-designers.html", "how-much-does-it-cost-to-make-a-t-shirt.html", "sunglasses.html", "wardrobe.html", "fit.html", "quotes.html", "labels.html", "prices.html", "preorder.html", "duty.html", "import-duty-on-clothing.html", "wholesale.html", "reorder.html", "cashflow.html", "tna.html"];
 
 test("every page carries the no-warranty clause, a sponsor link and its own title and description", () => {
   for (const f of PAGES) {
@@ -67,4 +67,21 @@ test("the studio page offers the storefront download and warns before publishing
   for (const id of ["sh-brand", "sh-email", "sh-link", "sh-ship", "sh-ret", "sh-dl", "sh-add", "sh-shelf"]) assert.ok(html.includes(`id="${id}"`), id);
   assert.match(html, /import \{ storefront \} from "\.\/storefront\.mjs"/);
   assert.match(html, /we hold no keys/);
+});
+
+test("the import-duty guide matches what duty.mjs computes", async () => {
+  const { compareDestinations, landedByDestination } = await import("./duty.mjs");
+  const i = { product: "tee-cotton", quantity: 500, factoryPrice: 5, freightTotal: 600, insuranceTotal: 0 };
+  const html = read("import-duty-on-clothing.html");
+  for (const r of compareDestinations(i)) {
+    assert.ok(html.includes(r.landedPerGarment.toFixed(2)), `landed ${r.destination}`);
+    assert.ok(html.includes(r.duty.toFixed(2)), `duty ${r.destination}`);
+    assert.ok(html.includes(r.customsValue.toLocaleString("en", { minimumFractionDigits: 2 })), `value ${r.destination}`);
+  }
+  const eu = compareDestinations(i)[1];
+  assert.ok(html.includes(eu.importVat.toFixed(2)));
+  const bd = landedByDestination({ ...i, destination: "EU", origin: "Bangladesh", haveOriginProof: true });
+  assert.ok(html.includes(bd.landedPerGarment.toFixed(2)));
+  assert.match(html, /placeholders and unchecked defaults/);
+  assert.match(html, /No warranty/);
 });
