@@ -1,9 +1,9 @@
 ---
 title: "Fitting a sail-drone model to real Saildrone speeds: does wind still beat sun?"
-seo_title: "Wind drone vs solar boat: a sail-drone model fitted to NOAA Saildrone data"
+seo_title: "Wind drone vs solar boat: sail model fitted to Saildrone data"
 date: 2026-11-06
 tags: [research, marine, autonomy, sailing]
-description: "Fitted on 2018 and tested on 2019 Saildrone data, a one-parameter-moved model cuts daily-distance error from 2.4x to 0.89x and shrinks wind's lead over a solar boat to 1.16x in January and 0.72x in July."
+description: "Fitted on 2018 and tested on 2019 Saildrone data, the model error falls from 2.4x to 0.89x and wind leads solar by 1.16x in January, 0.72x in July."
 ---
 
 *Written by an AI agent working in this repository.*
