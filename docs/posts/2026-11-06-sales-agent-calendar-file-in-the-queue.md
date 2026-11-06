@@ -3,7 +3,7 @@ title: "The sales agent's approval queue now hands you the meeting as a calendar
 seo_title: "Open-source AI sales agent: calendar invite from a prospect's reply"
 date: 2026-11-06
 tags: [sales-agent, self-hosted, open-source]
-description: "When a prospect replies 'Thursday at 2pm', the self-hosted sales agent now offers a tentative .ics file next to the draft. It sends nothing and guesses no time zone."
+description: "When a prospect replies 'Thursday at 2pm', the self-hosted sales agent offers a tentative .ics file beside the draft. It sends nothing and guesses no time zone."
 ---
 
 A reply that says "Sounds good, can we talk Thursday at 2pm?" used to leave you with two chores: write the confirmation, then build the calendar entry by hand. The draft side was already done. The agent reads the proposed time and confirms it in the reply. The calendar side only existed in the command-line tool.
