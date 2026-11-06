@@ -22,3 +22,18 @@ test("a 20 ft plain wall: 24 in spacing drops the stud count by hand arithmetic"
   assert.ok(m.rows[1].pieces < m.rows[0].pieces);
   assert.equal(m.rows[0].pieces - m.rows[1].pieces, 5);
 });
+
+test("gang option: a plan whose close windows break the layout is measured once they are ganged", () => {
+  // two 36 in windows 3 in apart: kings collide (need 4-1/2 in), so as drawn it does not lay out
+  const stock = [8, 10, 12, 14, 16].map((f) => ({ size: "2x4", length: f * 12, price: f }))
+    .concat([{ size: "2x10", length: 192, price: 30 }]);
+  const wall = { id: "A", length: 240, stud: "2x4", openings: [
+    { kind: "window", label: "W1", offset: 60, width: 36, height: 48, header: "2x10" },
+    { kind: "window", label: "W2", offset: 99, width: 36, height: 48, header: "2x10" }] };
+  const plan = { studSpacing: 16, studLength: 96, kerf: 0.125, topPlateLap: 24, cornerExtraStuds: 2, teeExtraStuds: 2, defaultHeaderHeight: 82.5, stock, walls: [wall] };
+  assert.equal(measure(plan).ok, false);
+  const g = measure(plan, { gang: true });
+  assert.ok(g.ok, JSON.stringify(g.errors));
+  assert.equal(g.ganged.length, 1);
+  assert.equal(g.rows.length, VARIANTS.length);
+});
