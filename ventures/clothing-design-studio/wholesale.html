@@ -68,6 +68,7 @@
   <script type="module">
     import { planWholesale, VERDICT_TEXT } from "./wholesale.mjs";
     import { recordUsage } from "./usage.mjs";
+    import { applyBrief } from "./launchbrief.mjs";
     const $ = s => document.querySelector(s);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
     const n = id => $(id).value;
@@ -86,6 +87,7 @@
         <tr><td>Retail price for the 2x rule</td><td class="num">${r.retailForMultiple}</td></tr></table>
         ${r.notes.map(t => `<p class="notes">${esc(t)}</p>`).join("")}`;
     }
+    { const note = applyBrief("wholesale"); if (note) { const el = document.createElement("p"); el.className = "tag"; el.id = "brief-note"; el.textContent = note; document.querySelector("section").prepend(el); } }
     document.querySelectorAll("section input").forEach(el => el.addEventListener("input", () => { render(); recordUsage("wholesale_check"); }));
     render(); recordUsage("wholesale_open");
   </script>

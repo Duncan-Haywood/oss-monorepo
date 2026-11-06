@@ -75,6 +75,7 @@
   <script type="module">
     import { planPreorder, VERDICT_TEXT } from "./preorder.mjs";
     import { recordUsage } from "./usage.mjs";
+    import { applyBrief } from "./launchbrief.mjs";
     const $ = s => document.querySelector(s);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
     const n = id => +$(id).value;
@@ -100,6 +101,7 @@
         ${r.range ? `<h3>What your test supports</h3><p>Conversion between ${r.range.conversionLowPct}% and ${r.range.conversionHighPct}% (95% range). Visitors needed: ${r.range.visitorsNeededBest ?? "n/a"} at the best end, ${r.range.visitorsNeededWorst ?? "unbounded"} at the worst.</p>` : ""}
         ${r.notes.map(t => `<p class="notes">${esc(t)}</p>`).join("")}`;
     }
+    { const note = applyBrief("preorder"); if (note) { const el = document.createElement("p"); el.className = "tag"; el.id = "brief-note"; el.textContent = note; document.querySelector("section").prepend(el); } }
     document.querySelectorAll("section input").forEach(el => el.addEventListener("input", () => { render(); recordUsage("preorder_check"); }));
     render(); recordUsage("preorder_open");
   </script>

@@ -72,6 +72,7 @@
   <script type="module">
     import { reorderPlan, reorderBySize } from "./reorder.mjs";
     import { recordUsage } from "./usage.mjs";
+    import { applyBrief } from "./launchbrief.mjs";
     const $ = s => document.querySelector(s);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
     const n = id => +$(id).value;
@@ -105,6 +106,7 @@
         ${r.lines.map(l => `<tr><td>${esc(l.size)}</td><td class="num">${l.weeklySales}</td><td class="num">${l.reorderPoint}</td><td class="num">${l.position}</td><td class="num"><b>${l.order}</b>${l.orderNow ? "" : ` <span class="tag">in ${l.weeksUntilReorder} wk</span>`}</td></tr>`).join("")}</table>
         <p><b>Order total ${r.orderTotal}</b>, cash tied up ${r.cashTiedUp}</p>${r.notes.map(t => `<p class="notes">${esc(t)}</p>`).join("")}`;
     }
+    { const note = applyBrief("reorder"); if (note) { const el = document.createElement("p"); el.className = "tag"; el.id = "brief-note"; el.textContent = note; document.querySelector("section").prepend(el); } }
     document.querySelectorAll("section input, section select").forEach(el => el.addEventListener("input", () => { render(); renderSizes(); recordUsage("reorder_check"); }));
     render(); renderSizes(); recordUsage("reorder_open");
   </script>
