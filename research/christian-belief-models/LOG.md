@@ -1,5 +1,14 @@
 # Research log: christian-belief-models
 
+## 2026-11-06 · Milestone 2 (part): CV-seed stability and a politics ablation, Catholics (predictions written before the run; outcome below)
+
+- Why: milestone 1 used one fold seed, so its AUCs carry no split-to-split spread, and the permutation-importance table suggests politics matter but never removes them. `experiments/m2_seeds_ablation/run.py`: Catholic respondents, 14 targets, logit and hgb, 5-fold weighted CV with seeds 0 to 2, on the full feature set and with `polviews` and `partyid` removed.
+- Predictions: (1) the seed-to-seed range of AUC is under 0.01 for every target (samples are 2,000 to 18,000); (2) removing politics lowers hgb AUC by under 0.02 on the sexual-morality items (the other answers already carry the ideology); (3) the largest loss is on abortion or same-sex marriage items, not on attendance; (4) the logit-vs-hgb gap of milestone 1 (+0.003 median) stays under 0.01 across seeds.
+- **Outcome** (`experiments/m2_seeds_ablation/results/seeds_ablation.csv`; 13 targets, 3 fold seeds, about 25 min on 4 cores; the 14th target, afterlife-vs-other, was not defined for Catholics). Mean AUC over seeds, full vs no-politics hgb: attendance 0.861 / 0.861, premarital sex 0.852 / 0.851, same-sex relations 0.837 / 0.833, same-sex marriage 0.883 / 0.873, abortion 0.750 / 0.746, ever-divorced 0.710 / 0.709.
+- Predictions: (1) **refuted narrowly**: the largest seed range is 0.013 (cohabitation, no-politics hgb), 0.0095 with politics; all other cells are under 0.01. (2) held: the largest politics loss on any item is 0.010 (hgb) and 0.013 (logit), both on same-sex marriage. (3) held: that item has the largest loss, attendance has none. (4) mostly held: the median hgb minus logit gap is +0.002, under 0.01 on 10 of 13 items; the exceptions are ever-divorced (+0.035), cohabitation (+0.018) and adultery (+0.010), the same nonlinear-age items as milestone 1.
+- Reading: milestone 1's AUCs are stable to within about 0.01 across fold seeds, and politics (self-placement and party) carry almost nothing beyond the other answers except on same-sex marriage. This is Catholics only, 3 seeds, and seed ranges are from CV splits of one sample, not sampling error of the survey.
+- Not done here: Hispanic split, the check of weighted shares against NORC's Data Explorer and `research/catholic-demography`, calibration plots, design-based variance.
+
 ## 2026-11-03 · Milestone 1 results: other answers predict unasked items well; associations transfer, levels do not
 
 - Ran `experiments/m1_imputation/run.py` on the GSS 1972–2024 R3a (fit and test about 30 min on 2 cores). Tables are in `experiments/m1_imputation/results/summary.md`, and `summarise.py` rebuilds them from the committed CSVs.
