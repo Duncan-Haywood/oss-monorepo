@@ -1,6 +1,6 @@
 # Draft: which hull carries a small survey boat furthest per kWh, and how much of the answer is the drag model?
 
-Status: **milestone 7b: introduction, model and results-table drafted, not submittable.** Every number below is copied from
+Status: **milestone 7b/7f: introduction, model, results-table and wind-against-sun section drafted, not submittable.** Every number below is copied from
 [`../LOG.md`](../LOG.md) and the `experiments/results_*.txt` file named beside it. Nothing is new
 in this file. Target: OCEANS (IEEE/MTS), 6 to 10 pages. The hull constants are unvalidated against
 tank data (milestone 3 is open), and that gap decides what the paper can claim, as section 5 says.
@@ -92,6 +92,17 @@ A first-order wing-sail polar (`src/marine_hull/sail.py`, every drone parameter 
 - **6h (wind against sun, exploratory).** On 19 buoy-months of NDBC wind the default drone (unsourced parameters) reaches 1 m/s at 1.5 m/s of wind and sails a median 272 (Jan) / 219 (Jul) km/day on a free course, against 86 km/day for the solar boat held at 1 m/s; only calm summer water (buoy 42036, July: 0.83 of days) lets the sun compete. A bound without heel, waves or survey lines; `experiments/results_wind_vs_sun.txt`.
 
 Limits: the error model is synthetic (no archived NWP winds yet), the tack penalty is the only tack cost, wind is spatially uniform, and heel, waves and currents are absent. A reader should take the +5 points as an upper bound that needs roughly 1 to 2 hours of forecast skill.
+
+### 2.6 Wind against sun, checked on fielded drones (milestones 6l to 6o; numbers copied from `../LOG.md` and the files named)
+
+Milestone 6h's "wind beats sun 2 to 3 times" used an unsourced drone. 6l to 6o replace it with a drone fitted to NOAA PMEL ERDDAP Saildrone tracks (CC0; 2018: five drones, 2019: eight; 131,535 ten-minute blocks) and re-run the comparison on 19 NDBC buoy-months. Fit on 2018, test on 2019, throughout.
+
+- **6l (the default drone is too fast).** 864 drone-days: observed median 75 km/day (10th 35, 90th 156) at a median daily wind of 4.7 m/s. Observed over model-default is 0.33 (0.23 to 0.53), rising from 0.28 below 4 m/s to 0.60 above 10 m/s. `results_saildrone_daily.txt`.
+- **6m (mission drone).** Two parameters (sail area, hull-drag multiplier) fitted to cell-mean SOG: sail area 0.45 m2, hull scale 1.0. On 2019 the model over observed daily distance is 0.89 (10th to 90th 0.68 to 1.18), flat across winds; the default was 2.39. Area and hull drag lie in a valley and are not separately identified. On buoy winds: corridor median 100 km/day (Jan) and 62 (Jul), against the 86 km/day solar ceiling (1.16 and 0.72 times). `results_saildrone_fit.txt`, `results_wind_vs_sun_corridor_fitted.txt`.
+- **6n (capability drone).** Fitted to the 90th-percentile SOG per cell: sail area 0.90 m2, hull scale 1.20. It is not a true bound: it covers 68% of 2019 blocks (54% below 4 m/s, 75 to 76% above) where 90% was predicted, so the light-air coverage prediction held and the overall one was refuted. An independent second implementation (6n-b) lands in the same valley and finds 31% of blocks above the curve where 10% should be. `results_saildrone_capability.txt`, `results_saildrone_cap.txt`.
+- **6o (ranking).** Capability drone on the buoy winds: corridor median 126 km/day (Jan, min 104) and 80 (Jul, min 45), 1.47 and 0.93 times solar; 0 of 19 buoy-months reach 2 times solar (the unfitted drone reached it in 15). `results_wind_vs_sun_capability.txt`.
+
+Reading: the wind drone beats the solar ceiling by 1.2 to 1.5 times in winter and is level with it or behind in July. Limits: SOG includes current (the model ignores it, and it dominates below 4 m/s); buoy anemometer heights are uncorrected; tack cost is zero; the 86 km/day ceiling is itself an upper bound; the fit is Explorer-class drones on the US West Coast in two summers applied to Atlantic, Gulf and Pacific buoys in January and July. The result ranks the two sources as close; it does not settle which is better.
 
 ## 2.4 Still to write
 

@@ -2,6 +2,9 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-06 · Milestone 7f: paper section 2.6 (wind against sun, 6l to 6o) drafted
+- Folded 6l to 6o into `paper/DRAFT.md` section 2.6, as 6o's "Next" asked. No experiment run; every number is copied from the entries above and the `results_*.txt` files named. Not done: light-air-specific fit (wind below 4 m/s, finer bins).
+
 ## 2026-11-06 · Milestone 6o: does the wind-over-sun ranking survive the capability drone? (replaces 6n's arithmetic with a run; exploratory, no prediction logged first)
 - Why: 6n ended with "a 1.14x model on 6m's medians would be ~140 and ~90 km/day; not re-run". `experiments/run_wind_vs_sun_capability.py` -> `results_wind_vs_sun_capability.txt` (36 s) re-runs 6h/6i (same NDBC buoy winds, four lines both ways, zero tack cost) with the 6n capability drone (sail_area 0.90 m2, hull_scale 1.20).
 - Result: corridor median 126 km/day in January (min 104; 1.47 times the 86 km/day solar ceiling) and 80 in July (min 45; 0.93 times). Free beam reach median 158 (min 130) and 102 (min 58). Corridor/free 0.80 and 0.79. Share of days at or above 86 km/day: median 0.81 (min 0.63) January, 0.40 (min 0.07) July. No buoy-month reaches 2x solar (0 of 19; 6i's unfitted drone reached it in 15).
