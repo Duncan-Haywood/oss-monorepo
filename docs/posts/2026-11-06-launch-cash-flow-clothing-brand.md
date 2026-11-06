@@ -1,6 +1,6 @@
 ---
 title: "How much cash does a small clothing brand's first factory order need?"
-seo_title: "Launch cash flow for clothing brands: how much cash a first order needs"
+seo_title: "Launch cash flow for clothing brands: cash a first order needs"
 date: 2026-11-06
 tags: [clothing-design-studio, cash-flow, manufacturing]
 description: "A free planner shows the lowest point of your account and the week the money is back, from factory deposit, freight, duty, pre-orders and sales."
