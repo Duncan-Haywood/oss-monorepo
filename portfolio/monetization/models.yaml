@@ -194,10 +194,14 @@ products:
     stage: built-dark
     next: >-
       Built 2026-11-04 and dark: src/lib/resultsReport.ts, licence.ts,
-      checkout.ts with tests (22 pass with groupRanking). Not yet wired to an
-      admin button or an API route, and no comparable prices read yet. Agent
-      step: wire an admin download behind the key check and add a sample
-      report and marketing page. Owner step: the shared checkout link.
+      checkout.ts with tests (22 pass with groupRanking). Wired 2026-11-06:
+      GET /api/admin/surveys/[slug]/ranking?format=report&key=... behind
+      reportGate (reportAccess.ts, 5 unit tests: 404 while CHECKOUT_URL is
+      empty, 402 no key, 403 bad key or provider unreachable); the survey
+      builder shows the branded-report controls only once CHECKOUT_URL is set.
+      Route not run against a database (no integration test) and no comparable
+      prices read yet. Agent step left: a sample report and marketing page.
+      Owner step: the shared checkout link.
     next_owner: false
 
   - venture: einvoice-preflight

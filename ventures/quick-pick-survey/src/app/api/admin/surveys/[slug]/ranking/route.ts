@@ -3,6 +3,9 @@ import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
 import { coverage, groupRanking, rankingCsv } from "@/lib/groupRanking";
+import { CHECKOUT_URL, VALIDATE_URL } from "@/lib/checkout";
+import { reportGate } from "@/lib/reportAccess";
+import { resultsReportHtml } from "@/lib/resultsReport";
 
 /** A survey's pooled ranking with 95% intervals and rank ranges. `?format=csv` downloads it. */
 export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
@@ -42,6 +45,16 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
           "content-disposition": `attachment; filename="${slug.replace(/[^a-z0-9-]/g, "")}-ranking.csv"`,
         },
       });
+    }
+    if (req.nextUrl.searchParams.get("format") === "report") {
+      // Paid, dark until CHECKOUT_URL is set. Branding comes from query parameters the owner types.
+      const gate = await reportGate(req.nextUrl.searchParams.get("key"), { checkoutUrl: CHECKOUT_URL, validateUrl: VALIDATE_URL });
+      if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status });
+      const q = req.nextUrl.searchParams;
+      const html = resultsReportHtml(survey.title, ranked, coverage(ranked, survey._count.participants, medianAnswers), survey._count.participants, {
+        name: q.get("name") ?? undefined, logo: q.get("logo") ?? undefined, colour: q.get("colour") ?? undefined, note: q.get("note") ?? undefined,
+      });
+      return new NextResponse(html, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
     }
     return NextResponse.json({ title: survey.title, participants: survey._count.participants, ranking: ranked, coverage: coverage(ranked, survey._count.participants, medianAnswers) });
   } catch (err) {
