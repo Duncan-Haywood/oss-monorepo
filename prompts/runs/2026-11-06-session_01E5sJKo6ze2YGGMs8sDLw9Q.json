@@ -1,0 +1,156 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01E5sJKo6ze2YGGMs8sDLw9Q",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T01:19:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "python3 -m unittest platform.ci.test_x fails ('platform' shadows stdlib); the suite must be run from platform/ci."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Skipped the one open item (control-plane workflow edit needing owner approval) and ran one 6-mutant campaign, not 8, on check_payment_keys.py.",
+      "did": "fixed red doc_index baseline instead",
+      "result": "6/6 mutants caught"
+    }
+  ],
+  "writeups": null,
+  "goal": null,
+  "notes": "Real defect: doc_index.py check red on main (2 marine-hull reports without front matter, 3 polish reports with topics not in taxonomy). Fixed by adding front matter and mapping topics to seo/llms-txt. test_doc_index passes. Catch rate 6/6 on check_payment_keys.py.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/check_payment_keys.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_payment_keys  (in platform/ci)",
+        "seed": 1035946787,
+        "commit": "30e54c737",
+        "sites": 6,
+        "baseline_seconds": 1.2,
+        "mutants": [
+          {
+            "file": "platform/ci/check_payment_keys.py",
+            "line": 32,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "REPO_ROOT = Path(__file__).resolve().parents[2]",
+            "after": "REPO_ROOT = Path(__file__).resolve().parents[3]",
+            "line_text": "REPO_ROOT = Path(__file__).resolve().parents[2]",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_payment_keys.py",
+            "line": 33,
+            "col": 21,
+            "operator": "div-to-times",
+            "before": "VENTURES = REPO_ROOT / \"ventures\"",
+            "after": "VENTURES = REPO_ROOT * \"ventures\"",
+            "line_text": "VENTURES = REPO_ROOT / \"ventures\"",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_payment_keys.py",
+            "line": 60,
+            "col": 30,
+            "operator": "or-to-and",
+            "before": "if not path.is_file() or path.name in SKIP_NAMES:",
+            "after": "if not path.is_file() and path.name in SKIP_NAMES:",
+            "line_text": "        if not path.is_file() or path.name in SKIP_NAMES:",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_payment_keys.py",
+            "line": 70,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "if b\"\\0\" in data[:8192]:",
+            "after": "if b\"\\0\" in data[:8193]:",
+            "line_text": "        if b\"\\0\" in data[:8192]:",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_payment_keys.py",
+            "line": 98,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "return 0",
+            "after": "return 1",
+            "line_text": "        return 0",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_payment_keys.py",
+            "line": 109,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 1",
+            "after": "return 2",
+            "line_text": "    return 1",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "docs/reports",
+        "issue": "doc_index check red: missing front matter and unknown topics",
+        "patched": true,
+        "patched_in": "this PR"
+      }
+    ]
+  }
+}
