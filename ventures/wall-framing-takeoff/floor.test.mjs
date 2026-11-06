@@ -431,6 +431,29 @@ test("subfloor fasteners: count from joist and rim feet, hand-counted, off by de
     assert.ok(validateFloor({ ...sampleFloor(), ...bad }, plan()).length > 0, JSON.stringify(bad));
 });
 
+test("subfloor fasteners: edge and field schedule on a plain floor, hand-counted", () => {
+  // 20 x 8 ft floor, 2x8 at 16 in, no rim: 96 in of joist length is covered by two 48 in courses of 240 in each.
+  const f = { id: "t", width: 240, depth: 96, joist: "2x8", spacing: 16, rim: false, subfloorFasteners: true, fastenerEdgeSpacing: 6, fastenerFieldSpacing: 12, fastenerWaste: 1 };
+  const l = layoutFloor(f, plan());
+  assert.ok(l.ok, JSON.stringify(l.errors));
+  const pieces = l.courses.reduce((n, c) => n + c.pieces.length, 0);
+  const interior = l.centres.filter((x) => x > 0 && x < 240).length; // joist lines strictly inside the floor
+  assert.equal(l.courses.length, 2);
+  assert.equal(pieces, 2 * 3); // 240 in = 96 + 96 + 48
+  // ends: 6 pieces x 2 x 48 in; field: 16 interior joists less none on a piece end... count independently below
+  let field = 0;
+  for (const c of l.courses) for (const p of c.pieces) field += 48 * l.centres.filter((x) => x > p.x + 1e-6 && x < p.x + p.length - 1e-6).length;
+  const want = Math.ceil((6 * 2 * 48) / 6 + field / 12 - 1e-9);
+  assert.equal(l.fasteners.count, want);
+  assert.equal(l.fasteners.schedule.edgeFeet, (6 * 2 * 48) / 12);
+  assert.ok(interior > 0 && l.fasteners.schedule.fieldFeet > 0);
+  // a rim adds the long edges of the first and last course
+  const r = layoutFloor({ ...f, rim: true }, plan());
+  assert.equal(r.fasteners.schedule.edgeFeet, (6 * 2 * 48 + 240 + 240) / 12);
+  for (const bad of [{ fastenerEdgeSpacing: 1 }, { fastenerFieldSpacing: 40 }])
+    assert.ok(validateFloor({ ...f, ...bad }, plan()).length > 0, JSON.stringify(bad));
+});
+
 test("framing nails: joist-end and rim counts hand-counted on a plain floor, off unless typed", () => {
   assert.equal(layoutFloor(sampleFloor(), plan()).framingNails, null);
   const l = layoutFloor({ ...sampleFloor(), joistEndNails: 3, rimNailSpacing: 16, joistNailPrice: 12 }, plan());
