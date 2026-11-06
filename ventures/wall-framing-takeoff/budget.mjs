@@ -157,6 +157,18 @@ export function budget(result, prices = {}, allowances = {}) {
     if (pl.hangers) add("Plumbing", "Drain and vent hangers", pl.hangers, "each", pl.prices.hanger, `one per ${pl.drainHangerSpacingFt} ft of the typed drain and vent runs`);
     if (pl.straps) add("Plumbing", "Supply straps", pl.straps, "each", pl.prices.strap, `one per ${pl.supplyStrapSpacingFt} ft of the typed hot and cold runs`);
   }
+  const hv = result.hvac;
+  if (hv?.ok) {
+    // Prices come from the hvac settings (trunkPrice, flexRollPrice, bootPrice, registerPrice, returnGrillePrice, fittingPrice, supportPrice, tapeRollPrice).
+    if (hv.trunkSticks) add("HVAC", "Rigid trunk duct sticks", hv.trunkSticks, "sticks", hv.prices.trunk, `${hv.trunkFt} ft plus ${(100 * hv.waste).toFixed(0)}% waste, ${hv.trunkStickFt} ft sticks`);
+    if (hv.flexRolls) add("HVAC", "Flex duct rolls", hv.flexRolls, "rolls", hv.prices.flexRoll, `${hv.supplyFt} ft supply + ${hv.returnFt} ft return, ${hv.flexRollFt} ft rolls`);
+    if (hv.boots) add("HVAC", "Register boots", hv.boots, "each", hv.prices.boot, "typed per room, else one per register");
+    if (hv.registers) add("HVAC", "Supply registers", hv.registers, "each", hv.prices.register, "typed per room, else one per supply run");
+    if (hv.returnGrilles) add("HVAC", "Return grilles", hv.returnGrilles, "each", hv.prices.returnGrille, "typed per room, else one per return run");
+    if (hv.fittings) add("HVAC", "Duct fittings", hv.fittings, "each", hv.prices.fitting, "typed counts per room and trunk");
+    if (hv.supports) add("HVAC", "Duct supports", hv.supports, "each", hv.prices.support, `one per ${hv.supportSpacingFt} ft of the typed duct runs`);
+    if (hv.tapeRolls) add("HVAC", "Sealing tape rolls", hv.tapeRolls, "rolls", hv.prices.tapeRoll, `${hv.tapeFt.toFixed(0)} ft at the typed tape-per-duct-foot ratio, ${hv.tapeRollFt} ft rolls`);
+  }
   const sd = result.siding;
   if (sd?.ok) {
     add("Exterior", "Siding boards", sd.boards, "boards", P("sidingBoard") ?? sd.boardPrice, `${sd.courses} courses at ${sd.exposure} in exposure in ${sd.stock / 12} ft boards`);
