@@ -49,6 +49,20 @@ Next step 3 asked whether voltage-band constraints in the LP would remove case39
 - **The DC dispatch itself is fine.** An AC OPF with real power pinned to the DC dispatch (`reactive_redispatch`, only voltages, Q and slack free) finds a feasible profile at 0.6 and 0.8 on case39 (vmax 1.06, cost **0.023 and 0.039 %** above the AC optimum) and on case30 (0.078, 0.069 %). At load 1.0 pandapower returned no solution on either case, which is not proof of infeasibility.
 - **Reading:** the violations come from fixed voltage setpoints and reactive capability, which the DC model (and a plain power flow) leave uncontrolled. A voltage-aware *P* dispatch is not what is missing; a voltage/Q stage after the DC dispatch is. Not shown: that this holds on other cases, with N-1, or at full load. No LP with voltage-band constraints was built, so step 3 as written is answered by a different route.
 
+## Penalty factors taken at the AC optimum (added 2026-11-06, `experiments/run_penalty_acopt.py`, `results_penalty_acopt.txt`)
+Next step 2 asked for loss sensitivities at the AC optimum instead of at a DC dispatch. `ac_optimum_penalty_dc` solves the AC OPF, takes the finite-difference loss sensitivities there (same `loss_sensitivities`, slack as reference), sets the loss level to the AC optimum's own losses, and solves the DC OPF once on penalty-scaled costs (no iteration, nothing to damp). AC cost of the resulting dispatch above the AC optimum, case118:
+
+| load | plain DC | uniform loss share | iterated penalty factors | factors at AC optimum |
+|---|---|---|---|---|
+| 0.6 | 0.728 % | 0.635 % | 0.559 % | 0.563 % |
+| 0.8 | 0.750 % | 0.577 % | 0.461 % | 0.464 % |
+| 1.0 | 1.479 % | 1.179 % | 1.345 % | **0.367 %** |
+| 1.1 | 1.678 % | 1.149 % | 2.236 % | **0.339 %** |
+
+- **The failure at high load was the sensitivity point, not the idea.** With sensitivities at the AC optimum the penalty-factor dispatch recovers about 75 % (load 1.0) and 80 % (1.1) of plain DC's excess, against 9 % and -33 % for the iterated version; at 0.6 and 0.8 the two versions agree (within 0.004 points).
+- **This is a diagnostic bound, not a method.** It uses the AC optimum, which a DC planner does not have; it shows what factors evaluated at the right operating point can do. A practical scheme needs factors from a good estimate of that point (for example a previous interval's AC solution).
+- Case30 and case39: differences are within 0.1 % and change sign, as before, so not interpretable; load 1.1 has no AC solution there. One solver, one dispatch point per cell.
+
 ## Method (`src/infra_dcopf/dcopf.py`)
 - **Cases.** `case30`, `case39` and `case118` from `pandapower.networks` (MATPOWER cases), with their quadratic generator costs (`poly_cost`).
 - **Two OPFs per condition.** `runopp` (AC, PIPS interior point, voltage and branch loading limits) and `rundcopp` (DC), on the same network with load scaled by 0.6, 0.8, 1.0 and 1.1 (P and Q together).
@@ -99,7 +113,7 @@ Findings (this one case, 12 converged cells of 18 attempted; 6 were infeasible f
 
 ## Next steps
 1. Solver validated and loss/congestion split done with synthetic caps (section above). Next: a case whose published ratings bind (e.g. a PGLib-OPF congested case) and an exact decomposition from the AC duals instead of differencing.
-2. Penalty factors were tried (above) with mixed results; next, take sensitivities at the AC optimum or use a distributed slack.
+2. Penalty factors at the AC optimum recover 75 to 80 % of the excess at full load (above); next, factors from a *previous-interval* or DC-based estimate of that point (a usable scheme), or a distributed slack.
 3. Done by another route (see "Voltage violations" above). Next: a voltage/Q stage that is not a full AC OPF, and full-load feasibility with a solver that converges.
 
 ## Reproduce
@@ -108,6 +122,7 @@ pip install pytest numpy pandapower
 cd research/infra-dcopf
 python -m pytest -q tests                     # 11 tests, about 20 s
 PYTHONPATH=src python experiments/run.py      # about 1 min; writes experiments/results.txt
+PYTHONPATH=src python experiments/run_penalty_acopt.py  # about 3 min; writes results_penalty_acopt.txt
 PYTHONPATH=src python experiments/run_lossadj.py  # loss-adjusted DC, about 1 min; writes results_lossadj.txt
 PYTHONPATH=src python experiments/run_case300_pypower.py  # about 2 min; needs pypower; writes results_case300_pypower.txt
 PYTHONPATH=src python experiments/run_case300.py  # case300 sweep, about 1.5 min; writes results_case300.txt

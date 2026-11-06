@@ -119,3 +119,11 @@ def test_pfixed_ac_opf_finds_a_feasible_voltage_profile_for_the_dc_dispatch():
     vm = r.res_bus.vm_pu
     assert vm.max() <= 1.06 + 1e-6 and vm.min() >= 0.94 - 1e-6
     assert abs(r.res_gen.p_mw.values - dc.res_gen.p_mw.values).max() < 0.01
+
+
+def test_ac_optimum_penalty_dc_case30():
+    from infra_dcopf import ac_optimum_penalty_dc
+    net = load_case("case30")
+    sol, pf = ac_optimum_penalty_dc(net)
+    assert sol is not None and len(pf) == len(net.gen)
+    assert ((pf >= 0.5) & (pf <= 2.0)).all()
