@@ -26,13 +26,17 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "research/PROGRAMMES.md",
       "issue": "pick_track.py drew a sensing-* track with no programme; I chose marine-hull by hand. 'pick_track.py --programme' is not a valid flag."
+    },
+    {
+      "file": "research/PROGRAMMES.md",
+      "issue": "Claim check missed a sibling run folding the same paper section minutes earlier; re-run pick_track CLAIM CHECK before drafting."
     }
   ],
   "deviations": [
@@ -43,11 +47,9 @@
       "result": "landed small step, no new run"
     }
   ],
-  "writeups": [
-    "research/marine-hull/paper/DRAFT.md"
-  ],
+  "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Drafted marine-hull paper section 2.6 (6l-6o); a parallel run landed the same fold (6p, #13508) first, so my paper/LOG edits were dropped at merge. Landed only the fix of a null pr in the Patreon reader run record that turned validate red on main.",
   "corrections": [],
   "redteam": null
 }
