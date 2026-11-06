@@ -236,6 +236,16 @@ export function detectColumns(header) {
     if (cols.amount !== -1 && h[cols.amount] === "amount") cols.amount = h.indexOf("net");
     cols.desc = h.indexOf("order");
   }
+  // Square's transactions export (Gross Sales, Discounts, Net Sales, Tax, Tip, Total Collected, Fees,
+  // Net Total, Transaction ID, Event Type): Net Total is what Square pays out after its fee; the
+  // description is the item or note, falling back to the event type (Payment, Refund).
+  if (h.includes("net total") && h.includes("gross sales") && h.includes("fees") && h.includes("transaction id")) {
+    cols.amount = h.indexOf("net total");
+    cols.debit = -1;
+    cols.credit = -1;
+    cols.balance = -1;
+    cols.desc = h.includes("description") ? h.indexOf("description") : h.includes("event type") ? h.indexOf("event type") : cols.desc;
+  }
   // Gumroad's sales CSV (Item Name, Buyer Name, Item Price, Sale Price, Gumroad Fee, Net Total,
   // Date): Net Total is what Gumroad pays out after its fee; the item sold is the description,
   // never the buyer's name or email. Layout from memory of its help page; made-up rows only.
