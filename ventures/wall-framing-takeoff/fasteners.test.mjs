@@ -119,3 +119,14 @@ test("wall bracing: count per wall and brace length by hand, off by default", ()
     assert.ok(validateFasteners({ wallBracing: bad }).length > 0, JSON.stringify(bad));
   assert.ok(validateFasteners({ wallBracing: "yes" }).length > 0);
 });
+
+test("wall bracing nails: typed per brace, joins the nail total, off by default", () => {
+  const r = { walls: [{ id: "A", length: 480, height: 97.125, members: [] }] };
+  const off = layoutFasteners({ wallBracing: true }, {}, r);
+  assert.equal(off.total, 0);
+  const on = layoutFasteners({ wallBracing: { nailsPerBrace: 12 } }, {}, r);
+  assert.equal(on.total, 24); // 2 braces x 12
+  assert.equal(on.walls.find((w) => w.id === "A").nails, 24);
+  assert.equal(on.connections.find((c) => c.name === "Wall braces").nails, 24);
+  for (const bad of [-1, 1.5, 500]) assert.ok(validateFasteners({ wallBracing: { nailsPerBrace: bad } }).length > 0);
+});
