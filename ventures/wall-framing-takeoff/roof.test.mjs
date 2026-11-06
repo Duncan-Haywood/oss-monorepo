@@ -358,6 +358,16 @@ test("roof sheathing nails: 4 x 8 sheet, rafters at 16 in = 48 edge + 2 lines x 
   assert.equal(t.sheets.nailsPerSheet, 72 + 2 * 12);
 });
 
+test("roof sheathing H-clips: opt-in, one per 16 in bay along a 96 in edge = 6 per sheet, plus 10%", () => {
+  const off = layoutRoof(sampleRoof(), plan());
+  assert.equal(off.sheets.clips, undefined);
+  const l = layoutRoof({ ...sampleRoof(), sheet: { clips: true, clipPrice: 0.5 } }, plan());
+  assert.equal(l.sheets.clipsPerSheet, 6);
+  assert.equal(l.sheets.clips, Math.ceil(6 * l.sheets.count * 1.1 - 1e-9));
+  assert.equal(l.sheets.clipCost, l.sheets.clips * 0.5);
+  assert.equal(layoutRoof({ ...sampleRoof(), spacing: 24, sheet: { clips: true } }, plan()).sheets.clipsPerSheet, 4);
+});
+
 test("ice and water shield: opt-in, 24 in inside the wall, by hand", () => {
   const off = layoutRoof(sampleRoof(), plan());
   assert.equal(off.roofing.iceShieldRolls, undefined);
