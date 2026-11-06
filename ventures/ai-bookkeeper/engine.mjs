@@ -557,7 +557,7 @@ export function exportJournal(books, format = "csv") {
   }
   if (format === "ledger" || format === "beancount") return plainText(books, entries, map, format === "beancount");
   const rows = [csvRow(["entry", "date", "account_code", "account_name", "debit", "credit", "memo", "posted_by"])];
-  for (const e of entries) for (const l of e.lines) rows.push(csvRow([e.id, e.date, l.account, safeText(name(l.account)), l.debit ? dollars(l.debit) : "", l.credit ? dollars(l.credit) : "", safeText(e.memo), e.source]));
+  for (const e of entries) for (const l of e.lines) rows.push(csvRow([e.id, e.date, l.account, safeText(name(l.account)), l.debit ? dollars(l.debit) : "", l.credit ? dollars(l.credit) : "", safeText(e.memo), safeText(e.source)]));
   return rows.join("\n") + "\n";
 }
 
@@ -610,7 +610,7 @@ export function exportLines(books) {
   const rows = [csvRow(["date", "bank_account", "description", "amount", "status", "account_code", "account_name", "suggested", "confidence", "source", "reason"])];
   for (const t of [...books.transactions].sort((a, b) => a.date.localeCompare(b.date))) {
     const s = t.suggestion ?? {};
-    rows.push(csvRow([t.date, safeText(map.get(t.account)?.name ?? t.account), safeText(t.desc), dollars(t.cents), t.status, t.split ? "split" : t.posted ?? "", t.split ? t.split.map((p) => `${map.get(p.account)?.name ?? p.account} ${dollars(p.cents)}`).join("; ") : map.get(t.posted)?.name ?? "", s.account ?? "", s.confidence !== undefined ? s.confidence.toFixed(2) : "", s.source ?? "", safeText(s.reason ?? (t.status === "transfer" ? "paired with an equal and opposite line in another account" : ""))]));
+    rows.push(csvRow([t.date, safeText(map.get(t.account)?.name ?? t.account), safeText(t.desc), dollars(t.cents), t.status, t.split ? "split" : t.posted ?? "", safeText(t.split ? t.split.map((p) => `${map.get(p.account)?.name ?? p.account} ${dollars(p.cents)}`).join("; ") : map.get(t.posted)?.name ?? ""), s.account ?? "", s.confidence !== undefined ? s.confidence.toFixed(2) : "", safeText(s.source ?? ""), safeText(s.reason ?? (t.status === "transfer" ? "paired with an equal and opposite line in another account" : ""))]));
   }
   return rows.join("\n") + "\n";
 }
