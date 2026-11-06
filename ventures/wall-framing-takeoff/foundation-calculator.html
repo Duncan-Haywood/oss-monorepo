@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Foundation calculator: footing, stem wall and slab concrete, rebar, forms</title>
+  <meta name="description" content="Free foundation takeoff: type a footprint, footing and stem wall sizes and get cubic yards by pour, ready-mix trucks, rebar with laps, forms, gravel and vapor barrier. Runs in your browser.">
+  <meta property="og:title" content="Foundation calculator: concrete, rebar and forms">
+  <meta property="og:description" content="A footprint and wall sizes in, concrete by pour, trucks, rebar, forms and gravel out. Private, free, in your browser.">
+  <link rel="canonical" href="./foundation-calculator.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much concrete and rebar does a 40 by 28 ft foundation need?","acceptedAnswer":{"@type":"Answer","text":"A 40 ft by 28 ft footing, stem wall and slab foundation (20 by 10 in footings, an 8 in stem wall 32 in high, a 4 in slab on 4 in of gravel, plus one interior footing run) takes 29.18 cu yd of concrete before waste: 6.65 in the footing, 8.52 in the stem wall, 11.94 in the slab and 2.07 in the interior footing. With 5% waste the order is 30.64 cu yd, or 4 trucks of 10 yd where the last carries only 0.64 yd, with about 1099 lb of rebar."}},{"@type":"Question","name":"What happens if the footing is 24 by 12 in instead of 20 by 10?","acceptedAnswer":{"@type":"Answer","text":"The order rises from 30.64 to 33.24 cu yd (still 4 trucks, but the last now carries 3.24 yd) while the rebar stays about the same, 1099 to 1096 lb, because bars are counted by run and not by footing size. Footing size, frost depth and bar schedules are your inputs: this page does not check them against a code or an engineer's design."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Foundation calculator: footing, stem wall and slab</h1>
+  <p>Type the outside width and depth of a foundation in inches, the footing and stem wall sizes, the slab thickness and the rebar you plan, and whether it is a stem-wall foundation or a monolithic slab. You get concrete by pour in cubic yards, the ready-mix order with trucks and a short-load warning, rebar by bar and lap, form contact area and plywood, gravel under the slab and vapor barrier. The same foundation engine as the whole-house takeoff. Every size and bar schedule is your input; nothing here checks frost depth, soil bearing or reinforcement against a code or an engineer, and it does not design a foundation.</p>
+  <form id="f" onsubmit="return false">
+    <label for="json">Foundation (JSON: type "stem" or "monolithic", width and depth in inches, footing, stem, slab, interior footings, optional anchorBolts, piers, waste, truck, price)</label>
+    <textarea id="json" rows="12" spellcheck="false" style="width:100%;box-sizing:border-box;font:.9rem ui-monospace,monospace;padding:8px">{
+  "id": "Foundation",
+  "type": "stem",
+  "width": 480,
+  "depth": 336,
+  "footing": { "width": 20, "depth": 10, "bars": 2, "bar": 4 },
+  "stem": { "height": 32, "thickness": 8, "bar": 4, "spacing": 32 },
+  "slab": { "thickness": 4, "bar": 3, "spacing": 18, "baseThickness": 4 },
+  "interior": [{ "length": 336, "width": 24, "depth": 12 }]
+}</textarea>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Do the whole house: framing, sheathing, plumbing and more in one takeoff</a></p>
+
+  <h2>How it is counted</h2>
+  <ol>
+    <li><strong>Concrete.</strong> Each pour is a closed-form volume: footing width times depth around the centreline, stem wall thickness times height, slab area times thickness, and any interior footing runs. Waste (5% by default) is added to the order, which is rounded up to whole trucks, and a last load under about 3 yd is flagged.</li>
+    <li><strong>Rebar.</strong> Footing and stem bars run continuous around the perimeter, stem verticals at the spacing you type, slab mats both ways. Splices lap 40 bar diameters in 20 ft stock, and the weight is length times the standard pounds per foot.</li>
+    <li><strong>Forms and base.</strong> Stem wall faces and any formed footing sides give contact area and 4x8 plywood sheets with 10% spare; gravel and a vapor barrier with laps go under the slab.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How much concrete and rebar does a 40 by 28 ft foundation need?</h3>
+  <p>A 40 ft by 28 ft footing, stem wall and slab foundation (20 by 10 in footings, an 8 in stem wall 32 in high, a 4 in slab on 4 in of gravel, plus one interior footing run) takes 29.18 cu yd of concrete before waste: 6.65 in the footing, 8.52 in the stem wall, 11.94 in the slab and 2.07 in the interior footing. With 5% waste the order is 30.64 cu yd, or 4 trucks of 10 yd where the last carries only 0.64 yd, with about 1099 lb of rebar.</p>
+  <h3>What happens if the footing is 24 by 12 in instead of 20 by 10?</h3>
+  <p>The order rises from 30.64 to 33.24 cu yd (still 4 trucks, but the last now carries 3.24 yd) while the rebar stays about the same, 1099 to 1096 lb, because bars are counted by run and not by footing size. Footing size, frost depth and bar schedules are your inputs: this page does not check them against a code or an engineer's design.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="floor-calculator.html">Floor joist and subfloor calculator (joists, rim, blocking, sheets)</a></li><li><a href="foundation-calculator.html">Foundation calculator (footing, stem wall and slab concrete, rebar)</a></li><li><a href="nail-calculator.html">Framing nail calculator (nails and boxes by connection)</a></li><li><a href="fireblock-calculator.html">Fireblocking calculator (blocks and boards for tall wall cavities)</a></li><li><a href="paint-calculator.html">Paint calculator (gallons of paint and primer)</a></li><li><a href="order-by-date-calculator.html">Order-by date calculator (when to order long-lead items)</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator (receptacle and switch boxes, cable)</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator (tiles, backer board, membrane)</a></li><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity (what a lumber or labor swing does to the bid)</a></li><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li><li><a href="drywall-calculator.html">Drywall calculator (sheets, tape, compound)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, carpet)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Footing and wall sizes, bar schedules, frost depth and soil bearing are the figures you typed, and the output is not checked against any span table or code, a real house or an inspector.<strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder or software company. Footing size, frost depth, soil bearing and reinforcement are not decided here. Ask your engineer or building department.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { layoutFoundation, foundationText } from "./foundation.mjs";
+    const $ = (id) => document.getElementById(id);
+    const run = () => {
+      let d;
+      try { d = JSON.parse($("json").value); } catch (e) { $("out").textContent = "That is not valid JSON: " + e.message; return; }
+      if (d == null || typeof d !== "object" || Array.isArray(d)) { $("out").textContent = "The foundation is a JSON object."; return; }
+      let l;
+      try { l = layoutFoundation(d); } catch (e) { $("out").textContent = "Could not lay out that foundation: " + e.message; return; }
+      $("out").textContent = l.ok === false ? l.errors.join("\n") : foundationText(l).join("\n");
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>
