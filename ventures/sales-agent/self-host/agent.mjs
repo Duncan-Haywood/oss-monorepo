@@ -23,6 +23,7 @@ import { runResearch } from "../research.mjs";
 import { runPrep } from "../prep.mjs";
 import { runFollowUp } from "../followup.mjs";
 import { crmFromEnv } from "./crm.mjs";
+import { buildInvite } from "../invite.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const safeEq = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
@@ -143,6 +144,19 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
     return { ok: true, results };
   }
 
+  /** A tentative .ics for the exact time an interested reply proposed (invite.mjs). Nothing is sent; audited. */
+  function invite(id) {
+    const it = state.items.find((x) => x.id === id);
+    if (!it) return null;
+    if (it.triage.category !== "interested" || !it.triage.slots?.length) return { error: "no proposed time in this reply" };
+    const addr = (it.from.match(/[\w.+'-]+@[\w.-]+/) || [""])[0].toLowerCase();
+    if (state.suppression.some((s) => s.email === addr)) return { error: "that address is on your suppression list" };
+    const k = state.prospects.find((x) => String(x.email || "").toLowerCase() === addr);
+    const v = buildInvite({ email: addr, name: it.name, company: k?.company, slot: it.triage.slots[0], today: iso(now()), offer });
+    if (v.ok) audit("invite", { id, to: addr, file: v.filename });
+    return v.ok ? v : { error: v.why };
+  }
+
   async function send(id) {
     const it = state.items.find((x) => x.id === id);
     if (!it || !it.draft) return null;
@@ -201,6 +215,13 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
       const r = url.pathname === "/api/prep" ? prep(b.email, b.notes) : followUp(b.email, b.notes);
       return json(res, r.error ? 422 : 200, r);
     }
+    if (req.method === "GET" && url.pathname === "/api/invite") {
+      const r = invite(url.searchParams.get("id") || "");
+      if (!r) return json(res, 404, { error: "no such reply" });
+      if (r.error) return json(res, 422, r);
+      res.writeHead(200, { "content-type": "text/calendar; charset=utf-8", "content-disposition": `attachment; filename="${r.filename}"`, "cache-control": "no-store" });
+      return res.end(r.ics);
+    }
     if (req.method === "POST" && url.pathname === "/api/crm-stage") {
       let raw = ""; for await (const ch of req) { raw += ch; if (raw.length > 10000) return json(res, 413, { error: "too large" }); }
       let b; try { b = JSON.parse(raw); } catch { return json(res, 400, { error: "bad json" }); }
@@ -215,7 +236,7 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
     }
     json(res, 404, { error: "not found" });
   });
-  return { server, state, poll, ingest, queueResearch, prep, followUp, decide, send, moveDeal, audit };
+  return { server, state, poll, ingest, queueResearch, prep, followUp, decide, send, moveDeal, invite, audit };
 }
 
 function page(state, token, canSend, canMove) {
@@ -225,6 +246,7 @@ function page(state, token, canSend, canMove) {
     const mailto = d ? `mailto:${encodeURIComponent(it.from)}?subject=${encodeURIComponent(it.outbound || /^re:/i.test(it.subject) ? it.subject : "Re: " + it.subject)}&body=${encodeURIComponent(d.body)}` : "";
     return `<article data-id="${esc(it.id)}"><h3>${esc(it.name || it.from)} <small>&lt;${esc(it.from)}&gt;</small> <span class="tag">${esc(it.triage.category)}</span></h3>
 <p class="re">${esc(it.subject)}</p><blockquote>${esc(it.body).replace(/\n/g, "<br>")}</blockquote>
+${it.triage.category === "interested" && it.triage.slots?.some((x) => x.time && !x.after) ? `<p><a href="/api/invite?id=${encodeURIComponent(it.id)}&amp;token=${t}">Calendar file for the time they proposed (${esc(it.triage.slots[0].text)})</a> <small>tentative, no time zone: confirm theirs first</small></p>` : ""}
 ${canMove && it.triage.category === "interested" && !it.dealMovedAt ? `<button data-move="1">Move their open deal to the meeting stage</button>` : it.dealMovedAt ? `<p>Deal moved ${esc(it.dealMovedAt)}.</p>` : ""}
 <ul>${it.applied.map((a) => `<li>${esc(a)}</li>`).join("")}</ul>
 ${d ? `<textarea rows="7" ${it.decision !== "pending" ? "disabled" : ""}>${esc(d.body)}</textarea>

@@ -212,3 +212,19 @@ test("heating cost: seasonal heat / (efficiency x BTU per unit) x typed price, b
   const bad = layoutInsulation({ assembly: { heatingSystems: [{ efficiency: 0, unitBtu: 1, pricePerUnit: 1 }] } }, p, r);
   assert.equal(bad.ok, false);
 });
+
+test("ventilation: ASHRAE 62.2 rate by hand, heat recovery cuts its load, partial input refused", () => {
+  const r = { walls: [wall([m(0, 0, 96, 1.5), m(0, 94.5, 96, 1.5), m(0, 1.5, 1.5, 93)])] };
+  const p = { defaultHeaderHeight: 82.5, walls: [{ id: "A", length: 96, openings: [] }] };
+  const base = layoutInsulation({ assembly: {} }, p, r).assembly.heat.ua;
+  const v = layoutInsulation({ assembly: { ventFloorSqFt: 2000, ventBedrooms: 3 } }, p, r).assembly.heat;
+  assert.ok(Math.abs(v.ventCfm - 90) < 1e-9); // 60 + 30
+  assert.ok(Math.abs(v.ventilationUA - 97.2) < 1e-9); // 1.08 x 90
+  assert.ok(Math.abs(v.ua - (base + 97.2)) < 1e-9);
+  const h = layoutInsulation({ assembly: { ventFloorSqFt: 2000, ventBedrooms: 3, ventRecoveryEff: 0.75 } }, p, r).assembly.heat;
+  assert.ok(Math.abs(h.ventilationUA - 24.3) < 1e-9);
+  assert.match(insulationText(layoutInsulation({ assembly: { ventFloorSqFt: 2000, ventBedrooms: 3 } }, p, r)).join("\n"), /Ventilation: ASHRAE 62.2 rate 90.0 cfm/);
+  assert.equal(layoutInsulation({ assembly: {} }, p, r).assembly.heat.ventilationUA, null);
+  assert.equal(validateInsulation({ assembly: { ventFloorSqFt: 2000 } }).length, 1);
+  assert.equal(validateInsulation({ assembly: { ventBedrooms: 2, ventFloorSqFt: 1500, ventRecoveryEff: 0.99 } }).length, 1);
+});

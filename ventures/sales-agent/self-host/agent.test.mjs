@@ -348,3 +348,34 @@ test("M7d call prep and follow-up from the agent's own thread; a person who aske
   assert.equal(vm.status, 200); assert.match(await vm.text(), /export function appendDictation/);
   a.server.close(); await f.close();
 });
+
+test("calendar file for a proposed exact time: served behind the token, tentative, audited, refused when there is none", async () => {
+  const env = { ADMIN_TOKEN: "i".repeat(16), DATA_DIR: mkdtempSync(join(tmpdir(), "sa-")), OFFER_JSON: "" };
+  const a = createAgent(env, { now: () => Date.parse("2026-11-02T10:00:00Z") });
+  await a.ingest([
+    { id: "<c1@x>", block: "From: Dana Ruiz <dana@bright.example>\nSubject: Re: routes\n\nSounds good. Can we talk Thursday at 2pm?" },
+    { id: "<c2@x>", block: "From: Lee <lee@corp.example>\nSubject: Re: routes\n\nYes, let's set up a call." },
+    { id: "<c3@x>", block: "From: Zed <zed@nobody.example>\nSubject: Re: routes\n\nUnsubscribe me please, stop emailing." },
+  ]);
+  const withSlot = a.state.items[0];
+  assert.equal(withSlot.triage.category, "interested");
+  assert.ok(withSlot.triage.slots?.[0]?.time, "the reply carries an exact time");
+  const v = a.invite("<c1@x>");
+  assert.match(v.ics, /STATUS:TENTATIVE/); assert.match(v.ics, /DTSTART:20261105T140000/); assert.match(v.ics.replace(/\r\n /g, ""), /mailto:dana@bright\.example/);
+  assert.match(a.invite("<c2@x>").error, /no proposed time/);
+  assert.match(a.invite("<c3@x>").error, /no proposed time/);
+  assert.equal(a.invite("<nope>"), null);
+  await new Promise((r) => a.server.listen(0, "127.0.0.1", r));
+  const base = `http://127.0.0.1:${a.server.address().port}`;
+  assert.equal((await fetch(base + "/api/invite?id=" + encodeURIComponent("<c1@x>"))).status, 401);
+  const res = await fetch(base + "/api/invite?id=" + encodeURIComponent("<c1@x>") + "&token=" + env.ADMIN_TOKEN);
+  assert.equal(res.status, 200);
+  assert.match(res.headers.get("content-type"), /text\/calendar/);
+  assert.match(res.headers.get("content-disposition"), /attachment; filename="dana@bright.example-2026-11-05\.ics"/);
+  assert.equal((await fetch(base + "/api/invite?id=" + encodeURIComponent("<c2@x>") + "&token=" + env.ADMIN_TOKEN)).status, 422);
+  const page = await (await fetch(base + `/?token=${env.ADMIN_TOKEN}`)).text();
+  assert.match(page, /Calendar file for the time they proposed/);
+  assert.equal((page.match(/Calendar file for the time/g) || []).length, 1, "only the reply with an exact time gets the link");
+  a.server.close();
+  assert.match(readFileSync(join(env.DATA_DIR, "audit.jsonl"), "utf8"), /"invite"/);
+});

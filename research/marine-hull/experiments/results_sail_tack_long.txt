@@ -1,0 +1,19 @@
+files 24, windows used: Jan 358, Jul 360; corridor +-1500 m; dt 60 s; dwell 10 min
+  Jan median share, B margin 0.3: tau 120: 0.820, tau 240: 0.740, tau 360: 0.666
+  Jan median share, B margin 0.5: tau 120: 0.829, tau 240: 0.781, tau 360: 0.728
+  Jan median share, B margin 1.0: tau 120: 0.788, tau 240: 0.756, tau 360: 0.731
+  Jan median share, B margin 2.0: tau 120: 0.788, tau 240: 0.756, tau 360: 0.731
+header margin chosen on January at tau 240 s: 0.5
+
+January: median share of the bound (10th..90th), n=358
+  tau 120 s: corridor 0.788 (0.387..0.871); header 0.829 (0.473..0.885); clairvoyant 0.995 (0.983..0.999); header minus corridor +2.2 pts; clairvoyant minus header +16.3 pts; tacks/day median corridor 103, header 101
+  tau 240 s: corridor 0.756 (0.385..0.831); header 0.781 (0.466..0.840); clairvoyant 0.992 (0.975..0.999); header minus corridor +1.2 pts; clairvoyant minus header +21.0 pts; tacks/day median corridor 103, header 92
+  tau 360 s: corridor 0.731 (0.357..0.793); header 0.728 (0.441..0.799); clairvoyant 0.989 (0.970..0.999); header minus corridor +0.3 pts; clairvoyant minus header +25.5 pts; tacks/day median corridor 94, header 94
+
+July (holdout): median share of the bound (10th..90th), n=360
+  tau 120 s: corridor 0.799 (0.429..0.866); header 0.827 (0.520..0.881); clairvoyant 0.992 (0.978..0.998); header minus corridor +2.3 pts; clairvoyant minus header +16.2 pts; tacks/day median corridor 84, header 76
+  tau 240 s: corridor 0.768 (0.404..0.825); header 0.773 (0.501..0.836); clairvoyant 0.988 (0.971..0.997); header minus corridor +0.8 pts; clairvoyant minus header +21.0 pts; tacks/day median corridor 89, header 76
+  tau 360 s: corridor 0.735 (0.384..0.794); header 0.716 (0.474..0.791); clairvoyant 0.985 (0.965..0.997); header minus corridor +0.0 pts; clairvoyant minus header +26.2 pts; tacks/day median corridor 92, header 78
+July tau 120 s: header beats corridor in 274 of 360 windows; median gain 95% bootstrap (windows independent) 1.73..2.98 pts; stations with positive median gain 12 of 12
+July tau 240 s: header beats corridor in 218 of 360 windows; median gain 95% bootstrap (windows independent) 0.36..1.40 pts; stations with positive median gain 10 of 12
+July tau 360 s: header beats corridor in 177 of 360 windows; median gain 95% bootstrap (windows independent) -0.45..0.64 pts; stations with positive median gain 7 of 12

@@ -36,19 +36,22 @@ flagships:
       CLI and agent engine. First tool of the new-home construction program.
     next: >-
       Landed work, with dates and how each was checked, is in
-      ventures/wall-framing-takeoff/README.md and ROADMAP.md. Wanted, all needing real inputs: a
-      real builder's activity list and draw schedule for `--schedule` (payment lag, retainage); a
-      real permitted deck plan (deck framing, guards and stairs are hand arithmetic only); stair
-      stringer and landing post tables, winder radial supports, connector and anchor sizes; a real
-      architect's DXF; a real US wood-framed IFC (the Rust IFC reader, ifc-engine/, is on the page's
-      IFC upload as WASM since 2026-11-03 and run in Chromium on the Duplex and Schependomlaan
-      models 2026-11-04; a one-wall wood-framed file ran 2026-11-04 and fixed the lost opening
-      sizes; run a whole wood-framed house) to map its stud layer to stud sizes; a plumber's real
-      drain runs for `--drilling` (stud hole limits, 2026-11-04); a real foundation plan; ceiling
-      steps against a real soffit; trim, drywall and siding against real orders and hangs; bid
-      leveling on real bids and a real sub's labor rates; gable sheathing nested on real sheets;
-      insulation against a real order. When a slice lands, replace its item here and put its history
-      in the README.
+      ventures/wall-framing-takeoff/README.md and ROADMAP.md (recent, all 2026-11-05/06, mostly hand tests only: dormer, foundation, floor joist, nail, order-by date, paint, electrical, wall tile, HVAC, price sensitivity, fireblocking and plumbing pages, roof nails, wall braces, stepped walls, bench retry with `--gang`; schedule: crews,
+      weather, holds, deadline, CSV, risk, and cost-loaded cash flow by week and
+      month). Wanted, all needing real inputs: a real builder's activity list
+      and draw schedule for `--schedule` (payment lag, retainage); a real
+      permitted deck plan (deck framing, guards and stairs are hand arithmetic
+      only); stair stringer and landing post tables, winder radial supports,
+      connector and anchor sizes; a real architect's DXF; a real US
+      wood-framed IFC (the Rust IFC reader, ifc-engine/, is on the page's
+      IFC upload as WASM since 2026-11-03 and run in Chromium on the Duplex and
+      Schependomlaan models 2026-11-04; a one-wall wood-framed file ran 2026-11-04 and fixed the lost opening sizes; run a whole wood-framed house) to map its
+      stud layer to stud sizes;
+      a plumber's real drain runs for `--drilling` (stud hole limits, 2026-11-04); a real foundation plan; ceiling steps against a real soffit; trim,
+      drywall and siding against real orders and hangs; bid leveling on real
+      bids and a real sub's labor rates; gable sheathing nested on real sheets;
+      insulation against a real order. When a slice lands, replace its item
+      here and put its history in the README.
   - venture: ai-bookkeeper
     why: >-
       A double-entry ledger in integer cents with a four-layer categorizer that
@@ -99,7 +102,7 @@ flagships:
       Landed work, with every measurement, is in the README, eval/README and
       git (inbox agent, daily run, self-host server with TLS and XOAUTH2,
       research agent, call prep, follow-ups, CRM write-back to
-      Pipedrive/HubSpot against fake servers only; ninth reply set 2026-11-04, 23/30 before patching, 0 overreach); 2026-11-05 proposed meeting times read from interested replies and confirmed in the draft (slots.mjs). 2026-11-06 an exact proposed time becomes a tentative zone-less .ics file (invite.mjs, unit tests only). Tenth reply set 2026-11-06: 25/30 before patching, 28/30 after, 0 overreach. Eleventh 2026-11-07: 26/30 before, 29/30 after (one overreach left on purpose, a forward-to-CFO one-pager). All reply and note sets
+      Pipedrive/HubSpot against fake servers only; ninth reply set 2026-11-04, 23/30 before patching, 0 overreach); 2026-11-05 proposed meeting times read from interested replies and confirmed in the draft (slots.mjs). 2026-11-06 an exact proposed time becomes a tentative zone-less .ics file (invite.mjs); 2026-11-06 the self-host queue serves it behind the token (GET /api/invite, fake mailbox only). Tenth reply set 2026-11-06: 25/30 before patching, 28/30 after, 0 overreach. Eleventh 2026-11-07: 26/30 before, 29/30 after (one overreach left on purpose, a forward-to-CFO one-pager). All reply and note sets
       other than the 117 real bounces, 11 + 12 real mail-client emails and
       the 1,857-reply label mix are agent-written. Next: (1) real human
       replies and a real rep's call notes to check the reply rules, prep
@@ -119,56 +122,36 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      History: README. Open: (0) smooth low-noise series over-cut: `--noise-floor k` is uncalibrated
-      and no k isolates GDP's 1970s break; the slope-break test (`--slope-breaks`, README) dates it
-      at 1971Q2 but not significantly; a bar by n and rho landed 2026-11-04 (W 6.5 < bar 9.6,
-      README); wanted: a real break that clears it; cycles and drift: an exact AR(2) likelihood
-      inside PELT was no better than AR(1); a real documented step inside a cycle; a cycle check not
-      tied to rho (treering: drift not told from a cycle); a documented real run of 5+ steps to test
-      the block-variance warning (it cannot yet tell drift from steps); BJsales, uspop, US saving
-      rate and US unemployment duration (a 2009 ramp cut 2 to 3 times by every setup; README,
-      2026-11-06); (1) range95: a closure series quiet outside the closure (none of 30 Ansett series
-      is, nor Peace Bridge 2009; README). (2) The steep- bump (0.04) clumpy-count cell is
-      under-covered, 65/79 (82%) over six seeds (caveat in CLI and JSON). (3) GARCH: a filtered
-      series has 1% false alarms but loses the real sd break (97% to 6%); a segment-wise GARCH prune
-      keeps it (97% to 100%) but leaves 48% false alarms at n=200: search cuts jointly. (4)
-      driftWarning fires on real shocks and on autocorrelated nulls as well as growing seasons:
-      wanted a way to tell a shape from a shock, and to widen the noise scale without swallowing a
-      short quarterly shape (--ar1 fixes the rho 0.5 null but loses UK gas). (4a) Florida juice
-      1950-2000: `--ar1` keeps 3 of 8 freezes, default 8 of 8 inside 148 changes; wanted: more than
-      3 without the 148; (4b) Gallup approval 1945-74: default finds Watergate, `--ar1` loses it, no
-      setup cuts the 1964Q1 rally. (4c) Argentine inflation 1970-89: mean and `--ar1` date the
-      Austral Plan (1985Q3) and the 1989 hyperinflation; wanted: an over-cut test. (5) Holiday list:
-      helps US births (239 to 205 changes), adds changes on Capital Bikeshare; wanted: a shop's
-      counts, or a yearly term.
+      History: README and git. Open: (0) smooth low-noise series over-cut: `--noise-floor k` is uncalibrated and no k isolates GDP's 1970s break; the slope-break test (`--slope-breaks`, README) dates it at 1971Q2 but not significantly; a bar by n and rho landed 2026-11-04 (W 6.5 < bar 9.6, README); wanted: a real break that clears it; cycles and drift: an exact
+      AR(2) likelihood inside PELT was no better than AR(1) (README); a real documented step inside a cycle; a cycle
+      check not tied to rho (treering: drift not told from a cycle);
+      a documented real run of 5+ steps to test the block-variance warning
+      (it cannot yet tell drift from steps); BJsales, uspop, US saving rate and US unemployment duration (a 2009 ramp cut 2 to 3 times by every setup; README, 2026-11-06); (1) range95: a closure series quiet outside
+      the closure (none of 30 Ansett series is, nor Peace Bridge 2009; README). (2) The steep-
+      bump (0.04) clumpy-count cell is under-covered, 65/79 (82%) over six
+      seeds (caveat in CLI and JSON). (3) GARCH: a filtered
+      series has 1% false alarms but loses the real sd break (97% to 6%);
+      a segment-wise GARCH prune (README) keeps it (97% to
+      100%) but leaves 48% false alarms at n=200: search cuts jointly. (4) driftWarning fires on real
+      shocks and on autocorrelated nulls as well as growing seasons: wanted
+      a way to tell a shape from a shock, and to widen the noise scale
+      without swallowing a short quarterly shape (--ar1 fixes the rho 0.5
+      null but loses UK gas). (4a-4c) Florida juice, Gallup approval and Argentine inflation cases (README): wanted more freezes kept without 148 changes, an over-cut test. (5) Holiday list: helps US births (239 to 205 changes), adds changes on Capital Bikeshare (README); wanted: a shop's counts, or a yearly term.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README. Open: ZATCA rules on a real sandbox invoice, a real ZATCA credit or debit
-      note (both made up), the Saxon route; FatturaPA code lists (TD29, RF20 from vendor summaries)
-      and tolerances against the primary spec 1.9 text and any later structure change; Portugal's
-      CIUS-PT add-on (made-up invoice; AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's rules admit
-      them: which validator does AT run?); Poland's FA(3) (PL-001..017; XSD gate history in the
-      README) on an issued invoice or KSeF test-environment file, a real correction, advance or
-      settlement file (hand-built seeds for KOR and ROZ with an attachment landed 2026-11-06, 6,520
-      of 6,520 agree with xmllint; transport branch unseeded); the rules and a repair on a real ERP
-      or Factur-X export (repaired PDF opens in poppler 2026-10-30; veraPDF and Acrobat unrun); PINT
-      SG and A-NZ rules on the Saxon/server route and on a real PINT file; RO_CIUS on a real ANAF
-      file and the Saxon route; NLCIUS on a real Dutch file (UBL and CII both landed 2026-10-25,
-      made-up examples); India's INV-01 check on a real IRP payload; mandate dates read from primary
-      sources where pages cite guides (Singapore read against IRAS, confirmed; Israel from vendor
-      summaries, directive 01/2025 unread; Denmark, Czech, Estonia, Latvia vendor-only; Slovenia and
-      Luxembourg: law texts' implementing rules unread; ato.gov.au (403 from cloud), revenue.ie,
-      CBIC); Nigeria, Thailand, Taiwan, Oman, Pakistan and Jordan pages (search excerpts only;
-      Taiwan B2B and Oman 2026 vs 2027 dates disagree); Ireland read against Revenue's hub
-      2026-10-31 (no specs yet); Latin American, Spain and Brazil pages from search excerpts (open:
-      CFDI and NF-e XSD readers, NFS-e); refresh the Bulgaria page when its draft passes or changes
-      (consultation closed 2026-10-23, no outcome found 2026-11-04; the 2026-2030 phase-in is SAF-T,
-      not e-invoicing, page corrected; Ministry draft text unread). A run that lands a slice
-      replaces its item here; keep this under 2,000 characters.
+      History: README and git (UK page read against gov.uk 2026-10-30, consultation spring 2027 next; South Korea from memory, NTS unread). Open: ZATCA rules on a real sandbox invoice, a real ZATCA credit or debit note (both made up), the Saxon route; FatturaPA
+      code lists (TD29, RF20 from vendor summaries) and tolerances against the primary spec 1.9 text and any later structure change; Portugal's CIUS-PT add-on (made-up invoice; AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's rules admit them: which validator does AT run?); Poland's FA(3) (PL-001..017; XSD gate history in the README) on an issued invoice or KSeF test-environment file, a real correction, advance or settlement file (hand-built seeds for KOR and ROZ with an attachment landed 2026-11-06, 6,520 of 6,520 agree with xmllint; transport branch unseeded);
+      the rules and a repair on a real ERP or
+      Factur-X export (repaired PDF opens in poppler 2026-10-30; veraPDF and Acrobat unrun); PINT SG and A-NZ rules on the Saxon/server route and on a
+      real PINT file; RO_CIUS on a real ANAF file and the Saxon route; NLCIUS
+      on a real Dutch file (UBL and CII both landed 2026-10-25, made-up examples); India's INV-01 check on a real IRP payload; mandate
+      dates read from primary sources where pages cite guides (Israel, Denmark, Czech, Estonia, Latvia vendor-only; Slovenia and Luxembourg rules unread; ato.gov.au 403 from cloud; see README); Nigeria, Thailand, Taiwan, Oman, Pakistan and Jordan pages (search excerpts only; Taiwan and Oman dates disagree);  Latin American, Spain and Brazil pages from search excerpts (open: CFDI and NF-e XSD readers, NFS-e); refresh the Bulgaria page when its draft
+      passes or changes (consultation closed 2026-10-23, no outcome found 2026-11-04; the 2026-2030 phase-in is SAF-T, not e-invoicing, page corrected; Ministry draft text unread). A run that lands a slice replaces its item here; keep
+      this under 2,000 characters.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
