@@ -130,3 +130,11 @@ test("wall bracing nails: typed per brace, joins the nail total, off by default"
   assert.equal(on.connections.find((c) => c.name === "Wall braces").nails, 24);
   for (const bad of [-1, 1.5, 500]) assert.ok(validateFasteners({ wallBracing: { nailsPerBrace: bad } }).length > 0);
 });
+
+test("blocking pieces are end-nailed: two ends, typed nails per end, by hand", () => {
+  const r = { walls: [wall(Array.from({ length: 5 }, () => m("blocking", "fire blocking")))] };
+  const l = layoutFasteners({ waste: 0 }, {}, r);
+  assert.equal(l.connections.find((c) => c.name === "Blocking ends").nails, 5 * 2 * 2);
+  assert.equal(layoutFasteners({ waste: 0, blockingEndNails: 3 }, {}, r).total, 5 * 2 * 3);
+  assert.ok(validateFasteners({ blockingEndNails: 9 }).length > 0);
+});
