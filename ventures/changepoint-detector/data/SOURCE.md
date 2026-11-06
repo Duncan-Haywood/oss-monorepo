@@ -447,3 +447,13 @@ Yearly average level of Lakes Michigan-Huron (one lake hydraulically), 1918 to 2
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/DAAG/greatLakes.csv>.
 - **Licence:** a published series of 92 numbers; only those are used here.
 - **Used by:** `michigan-huron.test.mjs`.
+
+# Example data: US personal saving rate, monthly 1967-2015
+
+`us-saving-rate.csv`: personal saving as a percentage of disposable income
+(FRED series PSAVERT), 574 months from 1967-07 to 2015-04.
+
+- **Retrieved:** 2026-11-06 from the `psavert` column of ggplot2's `economics`
+  data, <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/ggplot2/economics.csv>.
+- **Licence:** US Bureau of Economic Analysis data via FRED, a US government
+  work in the public domain; the Rdatasets copy is as published by ggplot2 (MIT).
