@@ -79,5 +79,41 @@ class DataCiteFallback(unittest.TestCase):
             self.lookup(404)
 
 
+class Retry(unittest.TestCase):
+    def run_get(self, codes):
+        import io
+        import urllib.error
+        import urllib.request
+        calls = []
+        class R:
+            def __enter__(s): return s
+            def __exit__(s, *a): return False
+            def read(s): return b"ok"
+        def fake(req, timeout=0):
+            calls.append(1)
+            if len(calls) <= len(codes):
+                raise urllib.error.HTTPError("u", codes[len(calls) - 1], "x", {}, io.BytesIO())
+            return R()
+        old = (urllib.request.urlopen, cite_check.time.sleep)
+        urllib.request.urlopen, cite_check.time.sleep = fake, lambda s: None
+        try:
+            return cite_check._get("http://x"), len(calls)
+        finally:
+            urllib.request.urlopen, cite_check.time.sleep = old
+
+    def test_429_then_ok_is_retried(self):
+        self.assertEqual(self.run_get([429, 429]), ("ok", 3))
+
+    def test_persistent_429_raises_after_all_retries(self):
+        import urllib.error
+        with self.assertRaises(urllib.error.HTTPError):
+            self.run_get([429] * 10)
+
+    def test_403_not_retried(self):
+        import urllib.error
+        with self.assertRaises(urllib.error.HTTPError):
+            self.run_get([403, 403])
+
+
 if __name__ == "__main__":
     unittest.main()
