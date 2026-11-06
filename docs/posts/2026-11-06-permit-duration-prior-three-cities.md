@@ -1,6 +1,6 @@
 ---
 title: "How long do building permits take? A published prior for Chicago, San Francisco and Austin"
-seo_title: "Building permit processing time by city and permit type: open data quantiles"
+seo_title: "Building permit processing time by city and type: open data"
 date: 2026-11-06
 tags: [build-data, research, permits, construction]
 description: "Empirical q10/q50/q90 permit durations for three US cities from their open data feeds, 2022 to 2024, with the same-day share and the per-type spread."
