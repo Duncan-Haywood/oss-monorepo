@@ -77,6 +77,7 @@ export function layoutPaint(d, plan) {
     wallSqFt: wallSq, openingSqFt: openIn / 144, ceilingSqFt: ceilSq, doorSqFt: doorSq, doorLeaves: doors, trimFeet: d.trimFeet ?? 0,
     paintGallonsExact: paintGal, primerGallonsExact: primerGal,
     paintGallons: paint.gallons, paintPails: paint.pails, primerGallons: primer.gallons,
+    gallonPrice: d.gallonPrice ?? null, fivePrice: d.fivePrice ?? null, primerPrice: d.primerPrice ?? null,
     cost: paint.cost != null || primer.cost != null ? (paint.cost ?? 0) + (primer.cost ?? 0) : null,
   };
 }
