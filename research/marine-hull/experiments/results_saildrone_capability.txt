@@ -1,0 +1,4 @@
+blocks 131536; 2018 fit cells (>= 30 blocks): 158 of 204, covering 77911 blocks
+
+fit grid: weighted mean-square error (m/s)^2 on 2018 cell means (sail_area rows, hull_scale columns)
+area\hs       1     1.5       2       3       4       6       8
