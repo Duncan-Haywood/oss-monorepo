@@ -1,6 +1,6 @@
 ---
 title: "Does a permit-duration model keep beating the city average in other years?"
-seo_title: "Building permit duration forecast: boosted quantile model vs per-type averages, 2022 to 2024"
+seo_title: "Permit duration forecast: boosted model vs city averages"
 date: 2026-11-06
 tags: [build-data, permits, forecasting]
 description: "A boosted quantile model for how long a building permit takes beat each city's per-type average in 42 of 45 cells over three test years."
