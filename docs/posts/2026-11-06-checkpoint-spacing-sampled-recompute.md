@@ -1,9 +1,9 @@
 ---
 title: "How many checkpoints must a training verifier store?"
-seo_title: "Sampled recomputation to verify outsourced ML training: checkpoint spacing vs catch rate"
+seo_title: "Verifying outsourced ML training: checkpoint spacing vs catch rate"
 date: 2026-11-06
 tags: [verifiable-training-mechanisms, research, verification]
-description: "Verifying outsourced training by replaying random steps catches a lazy worker, but needs stored checkpoints. Committing fewer of them costs catch rate; here is by how much."
+description: "Replaying random training steps catches a lazy worker but needs stored checkpoints. Committing fewer of them costs catch rate; here is how much."
 ---
 
 If you pay someone to train a model and check their work by replaying a few random steps, you need their checkpoints. Storing every step is expensive, so how much does committing only every s-th checkpoint cost in detection?
