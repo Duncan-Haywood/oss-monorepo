@@ -1,6 +1,8 @@
 ---
 title: "Counting the nails nobody counts: ridge cap and starter courses"
 date: 2026-11-06
+tags: [wall-framing-takeoff, roofing, construction]
+description: "The open-source wall framing takeoff can now count ridge cap and starter course nails from feet of ridge and eave, folded into the roofing nail total."
 ---
 
 The wall-framing takeoff's roofing nail count covered only the shingle field.
