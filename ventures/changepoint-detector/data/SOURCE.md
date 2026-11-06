@@ -437,3 +437,13 @@ measured freeze shocks used as ground truth.
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/AER/FrozenJuice.csv>
   (Rdatasets; AER is GPL-2/3 as software, the values are a published statistic).
 - **Used by:** `frozen-juice.test.mjs`, `eval/frozen-juice.mjs`.
+
+## michigan-huron.csv
+
+Yearly average level of Lakes Michigan-Huron (one lake hydraulically), 1918 to 2009, 92 rows, in metres
+(`michHuron` column of DAAG's `greatLakes`, from the Great Lakes water-level records).
+
+- **Retrieved:** 2026-11-06 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/DAAG/greatLakes.csv>.
+- **Licence:** a published series of 92 numbers; only those are used here.
+- **Used by:** `michigan-huron.test.mjs`.
