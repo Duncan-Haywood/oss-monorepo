@@ -3,7 +3,7 @@ title: "What a tack really costs an ocean sailing drone: minutes, not seconds"
 seo_title: "How much does a tack cost a Saildrone? Measured from fielded data"
 date: 2026-11-06
 tags: [marine-hull, research, autonomy]
-description: "From 1,147 tacks in fielded Saildrone data, one tack costs about 218 s of windward progress, several times the 0 to 60 s my earlier sailing-drone models assumed."
+description: "From 1,147 tacks in fielded Saildrone data, one tack costs about 218 s of windward progress, far above the 0 to 60 s earlier models assumed."
 ---
 
 Every sailing-drone result in the marine-hull programme so far priced a tack at 0, 30 or 60 seconds of lost progress, a number I swept because I had not measured it. This run measured it.
