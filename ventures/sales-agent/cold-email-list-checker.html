@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23637e1b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <title>Free cold email list cleaner and hygiene checker</title>
+  <meta name="description" content="Paste a prospect list and sort it into send, review and drop before your first cold email: invalid addresses, mistyped domains, disposable mail, role accounts, duplicates and your suppression list. Runs in your browser; nothing is uploaded.">
+  <link rel="canonical" href="./cold-email-list-checker.html">
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    a { color: #4b6215; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea, input { width: 100%; box-sizing: border-box; padding: 8px; font: inherit; border: 1px solid #aab4c0; border-radius: 6px; background: #fff; color: inherit; }
+    button { margin: 12px 8px 0 0; padding: 10px 14px; border: 0; border-radius: 8px; background: #4b6215; color: #fff; font: inherit; font-weight: 650; cursor: pointer; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { border-bottom: 1px solid #ccd3db; padding: 4px 6px; text-align: right; }
+    .drop{color:#9b1c1c}.rev{color:#7a5200}.ok{color:#2f6b1f} .warn { color: #7a5200; } footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; Sales Agent</a></p>
+  <h1>Cold email list cleaner</h1>
+  <p>Bounces hurt your sender reputation. Paste one address per line (or a CSV with an <code>email</code> column) and see which to send, which to look at and which to drop. Nothing is uploaded and no mail server is contacted.</p>
+  <label for="list">Your list</label><textarea id="list" rows="9" placeholder="dana@example.com&#10;info@example.com&#10;sam@gmial.com"></textarea>
+  <label for="sup">Your suppression list (optional: addresses, or @domain)</label><textarea id="sup" rows="3"></textarea>
+  <button id="go" type="button">Check the list</button><button id="csv" type="button">Download the clean list (CSV)</button>
+  <div id="out" aria-live="polite"></div>
+  <h2>What it cannot do</h2>
+  <p>It cannot tell whether a mailbox exists. Only a mail server can, and verifying without sending is something paid verifiers do with their own reputation at stake. Treat this as the free first pass that removes the obvious problems.</p>
+  <h2>Questions</h2>
+  <h3>Why are role accounts such as info@ flagged?</h3>
+  <p>They are shared inboxes, are filtered more often and rarely reach the person who decides. They go to "review", not "drop"; keep one if you know it is the right door.</p>
+  <h3>Is the disposable-domain list complete?</h3>
+  <p>No. It holds the common services only. Treat a clean result as "no obvious problem".</p>
+  <p>Next: the <a href="./cold-email-checker.html">cold email checker</a> for the message, the <a href="./cold-email-warmup-planner.html">warm-up planner</a> for volume.</p>
+</main>
+<footer><p><strong>No warranty.</strong> Free and as-is; rules of thumb, not legal advice. Whether you may email someone depends on their country; see the checker.</p></footer>
+  <script type="module">
+    import { checkList, toCsv } from "./listcheck.mjs";
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last;
+    const run = () => {
+      last = checkList($("list").value, { suppression: $("sup").value });
+      if (!last.total) { $("out").innerHTML = ""; return; }
+      const bad = last.rows.filter((r) => r.verdict !== "send").map((r) => `<tr><td>${r.line}</td><td>${esc(r.address)}</td><td class="${r.verdict === "drop" ? "drop" : "rev"}">${r.verdict}</td><td style="text-align:left">${esc(r.reasons.join("; "))}</td></tr>`).join("");
+      $("out").innerHTML = `<h2>Result</h2><p><span class="ok">${last.send} send</span>, <span class="rev">${last.review} review</span>, <span class="drop">${last.drop} drop</span> of ${last.total}.</p>` + (bad ? `<table><tr><th>Line</th><th>Address</th><th>Verdict</th><th>Why</th></tr>${bad}</table>` : "");
+    };
+    $("go").addEventListener("click", run);
+    $("csv").addEventListener("click", () => { run(); if (!last) return; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" })); a.download = "clean-list.csv"; a.click(); });
+  </script>
+</body>
+</html>
