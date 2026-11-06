@@ -15,6 +15,9 @@ except ImportError:
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 VENTURES_DIR = REPO_ROOT / "ventures"
+# libyaml's parser when this PyYAML has it (CI's wheel does): the pure-Python
+# SafeLoader was ~11 s of this script's run over ~1,300 files.
+_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
 FLAGSHIPS_PATH = REPO_ROOT / "portfolio" / "flagships.yaml"
 FLAGSHIP_NEXT_MAX = 2000
 
@@ -128,7 +131,7 @@ def check_flagships(errors, path=FLAGSHIPS_PATH):
     if not path.is_file():
         return
     try:
-        data = yaml.safe_load(path.read_text()) or {}
+        data = yaml.load(path.read_text(), Loader=_LOADER) or {}
     except yaml.YAMLError as e:
         errors.append(f"flagships.yaml: not valid YAML: {e}")
         return
@@ -163,7 +166,7 @@ def main():
             continue
         try:
             with open(yaml_path) as f:
-                data = yaml.safe_load(f)
+                data = yaml.load(f, Loader=_LOADER)
         except yaml.YAMLError as e:
             errors.append(f"{venture_dir.name}/VENTURE.yaml: not valid YAML: {e}")
             continue
