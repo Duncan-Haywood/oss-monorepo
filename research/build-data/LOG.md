@@ -6,6 +6,12 @@ Why: session 40 found a 2024 neural deficit (mean +1.14%, sign p 0.035) from cel
 Plan: `src/paired_neural_boosted.py` refits boosted (3 seeds) and the MLP (3 seeds) on the same split, keeps per-row seed-averaged pinball loss, and bootstraps the paired difference by test week, for the five city/target pairs in test year 2024, then 2023 if time allows.
 **Prediction (before running):** the paired intervals for neural minus boosted include 0 in at least 10 of 15 cells (2024), but the point estimate is positive (neural worse) in at least 10 of 15; no cell has neural significantly better.
 
+### Outcome (`results/paired_summary_2024.txt`; 2024 only, 15 cells, feeds pulled today)
+- **Prediction mostly failed.** Intervals include 0 in only 5 of 15 cells (predicted at least 10); the point estimate has neural worse in 11 of 15 (predicted at least 10: held); neural is significantly better in 2 cells (Chicago q0.5 -0.46%, q0.9 -3.30%), where I predicted none.
+- Neural is significantly worse in 8 cells, mostly SF (q0.9 +5.77%, SF i2c all three quantiles +1.3 to +2.1%) and Austin a2i q0.1 (+2.73%) and i2c q0.9 (+1.36%). So "tie" from the cell-level view hides city-specific differences: the net near-zero mean comes from Chicago's gain offsetting SF and Austin losses.
+- Limits: 2024 only; one untuned MLP and a boosted model with fixed settings; 3 seeds each averaged per row; week-block bootstrap treats weeks as exchangeable; 15 intervals with no multiplicity correction, so a few of the 8 could be chance; the feeds were re-pulled (counts in `results/manifest.json`), so boosted numbers differ slightly from earlier committed ones.
+- Next: the same for 2022 and 2023; publish boosted quantile tables for `ventures/`.
+
 ## Session 41, 2026-11-06: paper housekeeping (no data run: all three feed hosts refused by the proxy)
 
 Probed data.cityofchicago.org, data.sf.gov, data.sfgov.org and data.austintexas.gov: every one returned CONNECT 403, so no pull and **no number changed**.
