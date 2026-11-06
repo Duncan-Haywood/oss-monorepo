@@ -20,13 +20,13 @@
 // and any cathedral or unvented (spray foam) assembly, which this does not model.
 
 import { textNumberErrors } from "./numfields.mjs";
-/** @typedef {{ ratio?: 150 | 300, atticSqFt?: number, ridgeVent?: boolean, upperShare?: number, ridgeNfaPerFt?: number, ridgeEndGap?: number, soffitUnitNfa?: number, soffitUnitWidth?: number, soffitFill?: number, ridgePiece?: number, ridgePrice?: number, soffitPrice?: number }} Ventilation */
+/** @typedef {{ ratio?: 150 | 300, atticSqFt?: number, ridgeVent?: boolean, upperShare?: number, ridgeNfaPerFt?: number, ridgeEndGap?: number, soffitUnitNfa?: number, soffitUnitWidth?: number, soffitFill?: number, ridgePiece?: number, ridgeNailSpacing?: number, ridgeNailBox?: number, ridgePrice?: number, soffitPrice?: number }} Ventilation */
 
 /** @param {Ventilation} v */
 export function validateVentilation(v) {
   const e = [];
   if (v == null || typeof v !== "object" || Array.isArray(v)) return ["Ventilation settings are an object."];
-  e.push(...textNumberErrors(v, ['atticSqFt', 'ridgeEndGap', 'ridgeNfaPerFt', 'ridgePiece', 'ridgePrice', 'soffitFill', 'soffitPrice', 'soffitUnitNfa', 'soffitUnitWidth', 'upperShare']));
+  e.push(...textNumberErrors(v, ['atticSqFt', 'ridgeEndGap', 'ridgeNfaPerFt', 'ridgeNailBox', 'ridgeNailSpacing', 'ridgePiece', 'ridgePrice', 'soffitFill', 'soffitPrice', 'soffitUnitNfa', 'soffitUnitWidth', 'upperShare']));
   if (e.length) return e;
   if (v.ratio != null && v.ratio !== 150 && v.ratio !== 300) e.push("Ventilation ratio must be 150 or 300 (1 sq ft of net free area per that many sq ft of attic).");
   if (v.atticSqFt != null && !(v.atticSqFt > 0 && v.atticSqFt <= 20000)) e.push("Attic floor area must be between 0 and 20,000 sq ft.");
@@ -37,6 +37,8 @@ export function validateVentilation(v) {
   if (v.ridgeEndGap != null && !(v.ridgeEndGap >= 0 && v.ridgeEndGap <= 120)) e.push("Ridge vent end gap must be between 0 and 120 inches.");
   if (v.soffitFill != null && !(v.soffitFill > 0 && v.soffitFill <= 1)) e.push("Soffit fill (share of the eave length that can take vents) must be above 0 and at most 1.");
   if (v.ridgePiece != null && !(v.ridgePiece >= 12 && v.ridgePiece <= 240)) e.push("Ridge vent piece length must be between 1 and 20 ft.");
+  if (v.ridgeNailSpacing != null && !(v.ridgeNailSpacing >= 2 && v.ridgeNailSpacing <= 48)) e.push("Ridge vent nail spacing must be between 2 and 48 inches on centre.");
+  if (v.ridgeNailBox != null && !(v.ridgeNailBox >= 1 && v.ridgeNailBox <= 100000)) e.push("Ridge vent nail box must hold between 1 and 100,000 nails.");
   return e;
 }
 
@@ -72,6 +74,11 @@ export function layoutVentilation(v, roof) {
   const ridgeSqIn = ridgeFeetNeeded * ridgeNfa;
   const ridgePiece = v.ridgePiece ?? 48;
   const ridgePieces = useRidge ? Math.ceil((ridgeFeetNeeded * 12) / ridgePiece - 1e-9) : 0;
+  // Ridge vent nails, opt-in: a spacing in inches on centre you type from the vent maker's instructions (never assumed), down both flanges, rounded up per flange; boxes only when a box size is typed.
+  const nSp = v.ridgeNailSpacing;
+  const ridgeNails = useRidge && nSp ? 2 * Math.ceil((ridgeFeetNeeded * 12) / nSp - 1e-9) : 0;
+  const ridgeNailBoxes = ridgeNails && v.ridgeNailBox ? Math.ceil(ridgeNails / v.ridgeNailBox - 1e-9) : 0;
+  if (ridgeNails) notes.push(`Ridge vent nails: ${ridgeFeetNeeded.toFixed(1)} ft x 2 flanges at ${nSp} in on centre = ${ridgeNails}${ridgeNailBoxes ? `, ${ridgeNailBoxes} box${ridgeNailBoxes === 1 ? "" : "es"} of ${v.ridgeNailBox}` : ""}; a typed spacing, not the maker's schedule, and the nail length is the maker's.`);
   const lowerSqIn = requiredSqIn - ridgeSqIn;
   const unitNfa = v.soffitUnitNfa ?? 56;
   const unitWidth = v.soffitUnitWidth ?? 16;
@@ -88,7 +95,7 @@ export function layoutVentilation(v, roof) {
   notes.push("Ratio, upper share, label NFA and unit sizes are your inputs; the 1/150 or 1/300 choice is for you and the inspector. Gable and box vents, power vents and cathedral or spray-foam assemblies are not counted.");
   return {
     ok: true, shape: hip ? "hip" : "gable", ratio, atticSqFt, requiredSqIn, upperShare,
-    ridgeVentFeet, ridgeFeetUsed: ridgeFeetNeeded, ridgeNfaPerFt: ridgeNfa, ridgeSqIn, ridgePieces, ridgePiece,
+    ridgeVentFeet, ridgeFeetUsed: ridgeFeetNeeded, ridgeNfaPerFt: ridgeNfa, ridgeSqIn, ridgePieces, ridgePiece, ridgeNails, ridgeNailBoxes,
     lowerSqIn, soffitUnits, soffitUnitNfa: unitNfa, soffitUnitWidth: unitWidth, maxSoffitUnits: maxUnits, soffitFits: fits,
     providedSqIn: ridgeSqIn + soffitUnits * unitNfa, baffles,
     cost: priced ? money(v.ridgePrice, ridgePieces) + money(v.soffitPrice, soffitUnits) : null,
