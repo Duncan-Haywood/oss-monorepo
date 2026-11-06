@@ -1,6 +1,7 @@
 ---
 title: "A bench that quietly stopped running: the allowance comparison"
 date: 2026-11-06
+tags: [wall-framing-takeoff, benchmarks]
 description: "A framing benchmark matched an error message that had since been reworded, so one of its three houses silently dropped out. Found, fixed and pinned with a test."
 ---
 
