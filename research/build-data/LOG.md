@@ -1,5 +1,11 @@
 # build-data log
 
+## Session 36, 2026-11-06: milestone 7 (part), prior written up in the paper
+
+Data hosts (Chicago, SF, Austin) were refused by the proxy this session, so no new pull. Done from committed results only: `src/summarise_prior.py` writes `results/permit_prior_table.md` from `results/permit_prior.json`; paper section 4.7 reports the table, the per-type spread (per-type a2i medians 0 to 24 days Chicago, 0 to 533 SF, 15 to 182 Austin) and the two sessions' pre-registered hypotheses; to-do item 5 updated (Austin is in).
+Limits: no new measurement; descriptive quantiles only.
+Next: publish boosted quantile tables; multiple test years for H1 (needs the data hosts).
+
 ## Session 35, 2026-11-06: milestone 7 (part), Austin added to the permit-duration prior
 
 Hypothesis (written before the pull): over 2022 to 2024 Austin's application-to-issue same-day share is below 20% (session 5 found 6% in 2024) and its issue-to-completion median is above 60 days (session 5: 2024 baseline median about 55 to 57 days, so this one could fail).
