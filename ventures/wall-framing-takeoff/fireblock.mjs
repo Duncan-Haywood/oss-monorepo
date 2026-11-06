@@ -38,6 +38,13 @@ export function validateFireblock(d) {
 export function layoutFireblock(d, result) {
   const errors = validateFireblock(d);
   if (errors.length) return { ok: false, errors };
+  if (result == null || typeof result !== "object" || !Array.isArray(result.walls)) return { ok: false, errors: ["Fireblocking needs a wall layout with a list of walls."] };
+  for (const w of result.walls) {
+    if (w == null || typeof w !== "object" || (w.members != null && !Array.isArray(w.members))) return { ok: false, errors: ["Each wall needs a list of members."] };
+    for (const m of w.members || []) {
+      if (m == null || typeof m !== "object" || ![m.x, m.y, m.w, m.h].every((n) => Number.isFinite(n) && Math.abs(n) <= 1e6)) return { ok: false, errors: [`Wall ${w.id}: a member has a position or size that is not a real number within 1,000,000 in.`] };
+    }
+  }
   const interval = (d.intervalFt ?? 10) * 12, boardIn = (d.boardFt ?? 8) * 12, kerf = d.kerf ?? 0.125, waste = d.waste ?? 0.05;
   /** @type {{ id: string, size: string, rows: number, bays: number, pieces: number, lengthIn: number }[]} */
   const walls = [];
@@ -47,6 +54,7 @@ export function layoutFireblock(d, result) {
     let top = 0;
     for (const m of w.members || []) top = Math.max(top, m.y + m.h);
     const rows = d.rows ?? Math.max(0, Math.ceil(top / interval - 1e-9) - 1);
+    if (rows > 10) return { ok: false, errors: [`Wall ${w.id}: ${rows} block rows (height ${(top / 12).toFixed(0)} ft over a ${interval / 12} ft limit) is past the 10-row guard; check the wall height or the interval.`] };
     // full-height vertical members, left to right; a bay is the clear gap between neighbours
     const verts = (w.members || []).filter((m) => m.orient === "v" && m.h >= 0.9 * (top - 3)).sort((a, b) => a.x - b.x);
     const gaps = [];
