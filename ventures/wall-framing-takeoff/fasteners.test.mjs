@@ -150,5 +150,12 @@ test("roof nails: plate toenails, ridge nails and collar tie ends, by hand", () 
   assert.equal(z.total - base, 32);
   assert.equal(layoutFasteners({ roofNails: true }, {}, { walls: [wall([])], roof: { trusses: { count: 5 }, rafters: [] } }).roofNails, null);
   assert.equal(layoutFasteners({ roofNails: { rafterToPlate: 1.5 } }, {}, r).ok, false);
+  // trusses: 5 trusses x 2 bearings x 2 toenails = 20, only when typed
+  const tr = { walls: [wall([])], roof: { trusses: { count: 5 }, rafters: [] } };
+  const tb = layoutFasteners({}, {}, tr).total;
+  const tl = layoutFasteners({ roofNails: { trussToPlate: 2 } }, {}, tr);
+  assert.equal(tl.total - tb, 20);
+  assert.deepEqual(tl.roofNails, { trusses: 5, trussBearings: 10, trussToPlate: 2, count: 20 });
+  assert.equal(layoutFasteners({ roofNails: { trussToPlate: 21 } }, {}, tr).ok, false);
   assert.equal(layoutFasteners({}, {}, r).roofNails, null);
 });

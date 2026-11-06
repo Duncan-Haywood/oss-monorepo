@@ -41,9 +41,9 @@ const DEFAULTS = {
  * @typedef {{ spacing?: number, minWallLength?: number, angle?: number, price?: number, nailsPerBrace?: number }} WallBracing
  * roofNails (opt-in, `true` or an object) adds the roof framing nails to the nail total from typed counts: `rafterToPlate` toenails where each rafter or jack
  * rafter (main roof and wings) bears on the wall plate (default 3), `rafterToRidge` nails where each common rafter meets the ridge (default 3) and
- * `collarTieEnd` nails at each end of a collar tie (default 4). Trusses are a purchased line and carry their own connections, so they add none.
+ * `collarTieEnd` nails at each end of a collar tie (default 4). Trusses are a purchased line and carry their own internal connections; their bearing toenails are counted only when you type `trussToPlate` (default 0, off): that many nails at each of a truss's two bearings (hand arithmetic, 2026-11-06).
  * The engineer's nailing schedule decides the real counts.
- * @typedef {{ rafterToPlate?: number, rafterToRidge?: number, collarTieEnd?: number }} RoofNails
+ * @typedef {{ rafterToPlate?: number, rafterToRidge?: number, collarTieEnd?: number, trussToPlate?: number }} RoofNails
  * @typedef {Partial<typeof DEFAULTS> & { nailsPerBox?: number, roofNails?: RoofNails | boolean, price?: number, sheathing?: boolean, wallBracing?: WallBracing | boolean, holdDowns?: HoldDowns, rafterTies?: RafterTies | boolean, plateStraps?: PlateStraps | boolean }} Fasteners
  */
 
@@ -82,11 +82,11 @@ export function validateFasteners(d) {
   } else if (wb != null && typeof wb !== "boolean") e.push("wallBracing must be true or an object with spacing, minWallLength, angle and price.");
   const rn = d.roofNails;
   if (rn != null && typeof rn === "object") {
-    for (const [k, w] of [["rafterToPlate", "Nails per rafter at the plate"], ["rafterToRidge", "Nails per rafter at the ridge"], ["collarTieEnd", "Nails per collar tie end"]]) {
+    for (const [k, w] of [["rafterToPlate", "Nails per rafter at the plate"], ["rafterToRidge", "Nails per rafter at the ridge"], ["collarTieEnd", "Nails per collar tie end"], ["trussToPlate", "Nails per truss bearing"]]) {
       const v = /** @type {any} */ (rn)[k];
       if (v != null && !(Number.isInteger(v) && v >= 0 && v <= 20)) e.push(`${w} must be a whole number from 0 to 20.`);
     }
-  } else if (rn != null && typeof rn !== "boolean") e.push("roofNails must be true or an object with rafterToPlate, rafterToRidge and collarTieEnd.");
+  } else if (rn != null && typeof rn !== "boolean") e.push("roofNails must be true or an object with rafterToPlate, rafterToRidge, collarTieEnd and trussToPlate.");
   const rt = d.rafterTies;
   if (rt != null && typeof rt === "object") {
     if (rt.perBearing != null && ![1, 2].includes(rt.perBearing)) e.push("Ties per bearing must be 1 or 2.");
@@ -188,7 +188,13 @@ export function layoutFasteners(d, plan, result) {
   /** @type {any} */
   let roofNails = null;
   const rfr = /** @type {any} */ (result).roof;
-  if (d.roofNails && rfr && rfr.ok !== false && !rfr.trusses) {
+  if (d.roofNails && rfr && rfr.ok !== false && rfr.trusses) {
+    const tp = typeof d.roofNails === "object" ? d.roofNails.trussToPlate ?? 0 : 0, trusses = rfr.trusses.count ?? 0;
+    if (tp && trusses) {
+      add("Trusses to plate", trusses * 2 * tp, `${tp} toenails at each of ${trusses * 2} truss bearings`);
+      roofNails = { trusses, trussBearings: trusses * 2, trussToPlate: tp, count: trusses * 2 * tp };
+    }
+  } else if (d.roofNails && rfr && rfr.ok !== false) {
     const rn = typeof d.roofNails === "object" ? d.roofNails : {};
     const plate = rn.rafterToPlate ?? 3, ridge = rn.rafterToRidge ?? 3, collar = rn.collarTieEnd ?? 4;
     const n = (a) => (Array.isArray(a) ? a.length : 0);
@@ -243,7 +249,8 @@ export function fastenerText(d) {
   for (const x of d.connections) l.push(`    ${String(x.nails).padStart(6)}  ${x.name} (${x.rule})`);
   if (d.holdDowns) l.push(`  ${d.holdDowns.count} hold-down(s): ${d.holdDowns.wallEnds} at wall ends, ${d.holdDowns.openingSides} beside wide openings${d.holdDowns.cost != null ? `, ${d.holdDowns.cost.toFixed(2)} at ${d.holdDowns.price} each` : ""}`);
   if (d.wallBracing) l.push(`  ${d.wallBracing.count} wall brace(s) at ${d.wallBracing.angle} degrees (${d.wallBracing.feet.toFixed(0)} ft of brace) on ${d.wallBracing.walls} wall(s) at least ${d.wallBracing.minWallLength} in long, one per ${d.wallBracing.spacing} in${d.wallBracing.cost != null ? `, ${d.wallBracing.cost.toFixed(2)} at ${d.wallBracing.price} each` : ""}`);
-  if (d.roofNails) l.push(`  Roof framing nails: ${d.roofNails.count} (${d.roofNails.rafterToPlate} toenails at ${d.roofNails.commons + d.roofNails.jacks} rafter bearings, ${d.roofNails.rafterToRidge} at ${d.roofNails.commons} ridge ends, ${d.roofNails.collarTieEnd} at each end of ${d.roofNails.collarTies} collar tie(s)); in the nail total.`);
+  if (d.roofNails?.trusses) l.push(`  Truss bearing nails: ${d.roofNails.count} (${d.roofNails.trussToPlate} toenails at each of ${d.roofNails.trussBearings} bearings of ${d.roofNails.trusses} trusses); in the nail total.`);
+  else if (d.roofNails) l.push(`  Roof framing nails: ${d.roofNails.count} (${d.roofNails.rafterToPlate} toenails at ${d.roofNails.commons + d.roofNails.jacks} rafter bearings, ${d.roofNails.rafterToRidge} at ${d.roofNails.commons} ridge ends, ${d.roofNails.collarTieEnd} at each end of ${d.roofNails.collarTies} collar tie(s)); in the nail total.`);
   if (d.rafterTies) l.push(`  ${d.rafterTies.count} rafter tie(s): ${d.rafterTies.perBearing} on each of ${d.rafterTies.bearings} bearing(s) (${d.rafterTies.trusses ? `${d.rafterTies.trusses} trusses, 2 bearings each` : `${d.rafterTies.rafters} rafters, 1 eave bearing each`})${d.rafterTies.cost != null ? `, ${d.rafterTies.cost.toFixed(2)} at ${d.rafterTies.price} each` : ""}`);
   if (d.plateStraps) l.push(`  ${d.plateStraps.count} plate strap(s): ${d.plateStraps.perJoint} on each of ${d.plateStraps.topJoints} top-plate and ${d.plateStraps.capJoints} cap-plate joint(s)${d.plateStraps.plateTies ? `, plus ${d.plateStraps.plateTies} single-top-plate tie(s)` : ""}${d.plateStraps.cost != null ? `, ${d.plateStraps.cost.toFixed(2)} at ${d.plateStraps.price} each` : ""}`);
   if (!d.sheathingCounted) l.push("  Sheathing nails are left out: add --sheathing to count them.");

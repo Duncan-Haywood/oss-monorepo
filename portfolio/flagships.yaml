@@ -36,7 +36,7 @@ flagships:
       CLI and agent engine. First tool of the new-home construction program.
     next: >-
       Landed work, with dates and how each was checked, is in
-      ventures/wall-framing-takeoff/README.md and ROADMAP.md (wall braces, 2026-11-06, hand tests only; advanced bench retries a plan with `--gang`, 2026-11-06; stepped walls, 2026-11-05, hand tests only; valley flashing rolls, 2026-11-05; sill plate boards and sill seal rolls, 2026-11-05, hand tests only; order-by dates for long-lead items, `--orders`, 2026-11-05, hand tests only; schedule: crews,
+      ventures/wall-framing-takeoff/README.md and ROADMAP.md (truss bearing nails `roofNails.trussToPlate`, 2026-11-06, hand tests only; wall braces, 2026-11-06, hand tests only; advanced bench retries a plan with `--gang`, 2026-11-06; stepped walls, 2026-11-05, hand tests only; valley flashing rolls, 2026-11-05; sill plate boards and sill seal rolls, 2026-11-05, hand tests only; order-by dates for long-lead items, `--orders`, 2026-11-05, hand tests only; schedule: crews,
       weather, holds, deadline, CSV, risk, and cost-loaded cash flow by week and
       month). Wanted, all needing real inputs: a real builder's activity list
       and draw schedule for `--schedule` (payment lag, retainage); a real
