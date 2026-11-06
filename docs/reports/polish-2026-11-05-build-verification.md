@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [llms-txt, seo, build-check]
+topics: [llms-txt, seo]
 date: 2026-11-05
 tagged: auto
 ---

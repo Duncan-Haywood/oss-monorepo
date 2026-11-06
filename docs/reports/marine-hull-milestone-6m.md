@@ -1,3 +1,8 @@
+---
+kind: milestone
+date: 2026-11-05
+subjects: [marine-hull]
+---
 # marine-hull milestone 6m: handover
 
 - Done: `run_saildrone_fit.py` fits `sail.Drone(sail_area, hull_scale)` to 2018 Saildrone cell-mean SOG, tests on 2019 (`results_saildrone_fit.txt`); `run_wind_vs_sun_fitted.py` and `run_wind_vs_sun_corridor_fitted.py` rerun 6h/6i with `sail_area=0.45`.
