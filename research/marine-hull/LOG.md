@@ -2,6 +2,16 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-06 · Milestone 6t: a drift-aware central estimate between 6r's floor and ceiling (closes 6s's "Next"; prediction written before the run)
+- Why: 6r credited light-air (< 4 m/s) blocks either fully (6n drone, a ceiling) or not at all (floor). 6s showed the drift c = 0.48 m/s explains most light-air SOG, and that a drone refitted with c in the model (sail_area 0.68 m2, hull_scale 4.05) predicts sail-driven speed there with the drift kept out of the credited distance. `experiments/run_wind_vs_sun_drift.py` uses 6n's drone at >= 4 m/s and the 6s-fitted sail-only drone below 4 m/s, same buoys, corridors and solar ceiling as 6r.
+- **Prediction:** July median ratio to the 86 km/day solar ceiling lies between 6r's floor (0.71) and ceiling (0.93), and below 0.82 (closer to the floor, because hull_scale 4 makes light-air thrust small); January median stays at or above 1.35. Prior 65%. Refuted if July is >= 0.82 or January < 1.35.
+
+### Outcome of 6t (`experiments/results_wind_vs_sun_drift.txt`; 19 buoy-months, under 1 minute)
+- **Prediction held.** July median 68 km/day = **0.79 x solar** (ceiling 0.93, floor 0.71); drift-aware reaches the solar ceiling at 1 of 10 buoys (same as the ceiling). January median 123 km/day = 1.43 x solar (ceiling 1.47, floor 1.40), at or above solar at 9 of 9.
+- Reading: the winter edge is robust to any light-air treatment (1.40 to 1.47 x). July is a band, 0.71 to 0.93 x, with 0.79 x as the central value under a drone whose light-air drag is fitted to fielded speeds with drift kept out. The paper can say "wind is below sun in July (0.7 to 0.9 x), ahead of it in January (1.4 to 1.5 x)".
+- Limits: the light-air drone (hull_scale 4.05) is a curve fit to p90 SOG with a scalar drift, not a physical hull; same two months and 19 buoy-months; zero tack cost; no sea state; the 86 km/day solar ceiling is itself a bound.
+- Next: a heading-aware current vector from the OSCAR/CO-OPS data in `experiments/data/`; or fold 6r to 6t into paper section 2.5's table.
+
 ## 2026-11-06 · Milestone 6s: does a current term fix the light-air coverage 6q could not? (closes 6r's "Next"; exploratory, no prediction logged first)
 - `experiments/run_saildrone_current.py` -> `results_saildrone_current.txt` (under 1 minute): model p90 SOG = drone speed + c, with c the 90th-percentile SOG of near-calm 2018 blocks (true wind < 1 m/s; 3,224 blocks), read from the data and not fitted. Drone parameters refitted on 2018 light-air cells (96 cells, 33,680 blocks) with c included; coverage judged on 2019 light-air blocks (18,921).
 - Result: c = 0.478 m/s (2019 calm blocks: 0.499, so c transfers across years). 6n's drone with c added covers **0.962** of 2019 light-air blocks (0.545 without): 0.935 at 0-2 m/s (0.245 before), 0.979 at 2-3, 0.975 at 3-4. A bound that is right covers about 0.90, so it is slightly conservative, not short. Refitting sail_area and hull_scale with c gives 0.68 m2 and 4.05 (MSE 0.0047 against 0.053 in 6q) but covers only 0.829: it chases the cell means and loses the bound; hull_scale 4.05 is at the top of the search grid and not physical.

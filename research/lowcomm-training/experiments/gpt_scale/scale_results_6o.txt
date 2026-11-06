@@ -1,0 +1,4 @@
+6o: size 2 (914,880 params), H=64, keep 1/8 (omega 7), seeds 0-3, paired with uncompressed seeds 0-3
+paired differences (keep 1/8 minus uncompressed): -0.0056 -0.0100 +0.0068 +0.0023
+mean -0.0016 sd 0.0076 se 0.0038 (4 seeds)
+for comparison (6n, 6 seeds): omega 3 -0.0068 (se 0.0044); omega 15 +0.0440 (se 0.0041)

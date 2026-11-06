@@ -53,6 +53,7 @@ export function validateWallTile(d) {
     const w = `Surface ${i + 1}`;
     if (s && s.trimEdges != null && (!Array.isArray(s.trimEdges) || s.trimEdges.some((/** @type {any} */ x) => !["top", "bottom", "left", "right"].includes(x)))) { e.push(`${w}: trimEdges is a list of "top", "bottom", "left" or "right".`); return; }
     if (!s || typeof s !== "object" || Array.isArray(s)) { e.push(`${w} is an object.`); return; }
+    if (s.name != null && (typeof s.name !== "string" || s.name.length > 80)) { e.push(`${w}: name is text up to 80 characters.`); return; }
     const te = textNumberErrors(s, ["width", "height"]);
     if (te.length) { e.push(...te.map((x) => `${w}: ${x}`)); return; }
     if (!(s.width > 0 && s.width <= 1000 && s.height > 0 && s.height <= 400)) { e.push(`${w} needs a width up to 1000 in and a height up to 400 in, both above 0.`); return; }

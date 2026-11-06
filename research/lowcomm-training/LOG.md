@@ -2,6 +2,20 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-06 · Milestone 6o (H6 scale-up): where between omega 3 and 15 does the size-2 cost switch on? Keep 1/8 (omega 7) at H = 64, four seeds (planned before running)
+
+- Why: 6n's "Next". At H = 64 the paired excess is -0.0068 (omega 3) and +0.0440 (omega 15); omega-linearity was refuted. Keep 1/8 (omega 7) sits between them.
+- Setup (`scale.py run keep8`): size 2, H = 64, keep 1/8, seeds 0 to 3, paired with the uncompressed H = 64 seeds 0 to 3. Four seeds (not six) to fit one 4-core batch; the 1/32 level is left for a later step.
+- **H6o-i** (prior 50%): the excess at omega 7 is below the omega-linear interpolation between the two measured levels (a convex or threshold form), i.e. below -0.0068 + (7-3)/(15-3) x 0.0508 = +0.0101. **H6o-ii** (prior 35%): the excess at omega 7 is within 2 se of zero (the switch lies above omega 7). Refuted if the paired excess exceeds +0.0101 (H6o-i) or is more than 2 se from zero (H6o-ii).
+
+### Outcome of 6o (`experiments/gpt_scale/scale_results_6o.txt`; 4 runs, about 18 min each on 4 cores)
+- Paired excess at H = 64, keep 1/8 (omega 7): **-0.0016** (sd 0.0076, se 0.0038), per-seed -0.0056, -0.0100, +0.0068, +0.0023. Indistinguishable from zero.
+- **H6o-i held** (excess below the +0.0101 interpolation; the observation is 3.1 se below it). **H6o-ii held** (0.4 se from zero). Prior 50% and 35%.
+- Reading: with 6n, three keep levels at H = 64 give omega 3: -0.007, omega 7: -0.002, omega 15: +0.044. The cost is nil up to omega 7 and appears only between omega 7 and 15 (keep 1/8 to 1/16). A threshold or sharply convex form fits; a product of omega and a smooth function does not. This is one H, one width.
+- Limits: four seeds; standard errors treat cells as independent; the threshold location is bracketed, not found (keep 1/12 is untested); other H not checked.
+- Next: keep 1/12 or 1/32 at H = 64 to place the threshold, then refit with a threshold form and score it leave-one-out; add to `paper/section_compression.md`.
+
+
 ## 2026-10-31 · Milestone 6n (H6 scale-up): is the size-2 excess linear in omega? Keep 1/4 at H = 64, six seeds (planned before running)
 
 - Why: 6m's "Next". Keep-level dependence was one cell (1/4 at H = 16, two seeds). The rule says excess is proportional to omega = 1/keep - 1 (3 at keep 1/4, 15 at 1/16).
