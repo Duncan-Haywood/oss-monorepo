@@ -116,6 +116,16 @@ model trails the trees at q0.5 everywhere and fails badly only in Chicago a2i
 (+72.9% at q0.9), so that failure depends on the city's permit-type structure.
 Defaults are shared, not tuned per library. A neural net is in 4.6.
 
+### 4.1a H1 in two earlier test years
+
+Same split rule and model, test years 2022 and 2023, 3 seeds (`../LOG.md`, session 37;
+`../results/boosted_*_2022.json`, `*_2023.json`). Boosted beats the baseline on pinball in
+15 of 15 cells in 2022 and 14 of 15 in 2023 (the miss is Chicago a2i q0.1, +0.1%, a tie);
+the q0.5 gain is 10 to 21% and the q0.9 gain 6 to 36% in every pair. Chicago a2i q0.9 in
+2024 (+6.5%) is the only q0.9 loss in three years. The raw 80% interval coverage of the
+boosted quantiles is 0.67 to 0.83 in these years, so the quantile models under-cover
+(Austin i2c lowest); that is a calibration gap, not a ranking one.
+
 ### 4.2 Coverage (H2 refuted)
 
 Conformal 80% coverage, 2024: Austin a2i 0.816, Austin i2c 0.813, Chicago a2i
