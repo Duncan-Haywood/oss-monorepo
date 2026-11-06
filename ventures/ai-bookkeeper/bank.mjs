@@ -236,6 +236,16 @@ export function detectColumns(header) {
     if (cols.amount !== -1 && h[cols.amount] === "amount") cols.amount = h.indexOf("net");
     cols.desc = h.indexOf("order");
   }
+  // Square's transactions export (Gross Sales, Discounts, Net Sales, Tax, Tip, Total Collected, Fees,
+  // Net Total, Transaction ID, Event Type): Net Total is what Square pays out after its fee; the
+  // description is the item or note, falling back to the event type (Payment, Refund).
+  if (h.includes("net total") && h.includes("gross sales") && h.includes("fees") && h.includes("transaction id")) {
+    cols.amount = h.indexOf("net total");
+    cols.debit = -1;
+    cols.credit = -1;
+    cols.balance = -1;
+    cols.desc = h.includes("description") ? h.indexOf("description") : h.includes("event type") ? h.indexOf("event type") : cols.desc;
+  }
   // Paytm's wallet statement (Date, Activity, Source/Destination, Wallet Txn ID,
   // Comment, Debit, Credit, ..., Status): the activity is the description.
   if (cols.desc === -1 && h.includes("activity") && h.includes("wallet txn id")) cols.desc = h.indexOf("activity");

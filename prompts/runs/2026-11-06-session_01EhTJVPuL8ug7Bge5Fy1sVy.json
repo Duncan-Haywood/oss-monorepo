@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01EhTJVPuL8ug7Bge5Fy1sVy",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo (ventures brief)",
+  "model": "claude-sonnet-5-5",
+  "projects": ["ai-bookkeeper"],
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Flagship 1 had 20 commits this week; took ai-bookkeeper",
+      "did": "reader fix for Square transactions export, with test",
+      "result": "bank*, engine and neobank suites pass (130)"
+    }
+  ],
+  "writeups": ["docs/posts/2026-11-06-square-export-books-net-total.md"],
+  "notes": "Square export read zero rows before; rows are made up from public column names. Flagship next: not rewritten.",
+  "corrections": [],
+  "redteam": null
+}
