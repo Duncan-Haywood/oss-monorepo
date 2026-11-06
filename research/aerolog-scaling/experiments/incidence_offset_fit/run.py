@@ -48,6 +48,7 @@ if _os.environ.get('AEROLOG_OFFSETS'):  # e.g. AEROLOG_OFFSETS=2.0 AEROLOG_PERIO
     OFFSETS = tuple(float(x) for x in _os.environ['AEROLOG_OFFSETS'].split(','))
 if _os.environ.get('AEROLOG_PERIODS'):
     PERIODS = tuple(int(x) for x in _os.environ['AEROLOG_PERIODS'].split(','))
+GAIN = float(_os.environ.get('AEROLOG_GAIN', '0'))  # 9ak: fractional gain error on the alpha channel (0.19 = Sasse et al. CFD upwash slope 1.19); the offset in OFFSETS is in sensor degrees
 DRAWS = 8
 STRIDE = 4                          # every third mode-matched design, for run time
 F = np.round(np.arange(0.6, 1.801, 0.05), 2)
@@ -143,7 +144,7 @@ def main():
         true = np.array([abs(cp[0]), abs(cp[1]), -cp[1].real / abs(cp[1])])
         out = np.full((DRAWS, 4, 3), np.nan)
         from scipy.optimize import least_squares
-        x0 = xn[0]
+        x0 = xn[0] * np.array([1.0, 1.0 + GAIN, 1.0, 1.0])  # the model's initial state is in the gain-scaled channel units (9ak; found when the first run left it unscaled)
         Aref = np.linalg.inv(np.diag(rms)) @ A @ np.diag(rms)  # state matrix of the normalised states (start of the OE search is the LS fit, not this)
 
         def modes_of(lam):
@@ -174,7 +175,7 @@ def main():
             walk = np.zeros((steps + 1, 4))
             sg = rng.choice([-1.0, 1.0])
             xg = xn.copy()
-            xg[:, 1] = xn[:, 1] + sg * np.deg2rad(off) / rms[1]
+            xg[:, 1] = (1 + GAIN) * xn[:, 1] + sg * np.deg2rad(off) / rms[1]
             # 9ae: offset removed on purpose (gain-only arm)
             y = xg + walk + noise * rng.standard_normal(xn.shape)
             beta, *_ = np.linalg.lstsq(y[:-1], y[1:], rcond=None)
