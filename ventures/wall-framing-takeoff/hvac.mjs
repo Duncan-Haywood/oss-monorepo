@@ -36,6 +36,7 @@ export function validateHvac(d) {
   if (Array.isArray(d.rooms)) d.rooms.forEach((/** @type {any} */ f, i) => {
     const n = `Room ${f && (f.id || f.name) ? f.id || f.name : i + 1}`;
     if (f == null || typeof f !== "object" || Array.isArray(f)) { e.push(`${n} is an object.`); return; }
+    for (const k of ["id", "name"]) if (f[k] != null && (typeof f[k] !== "string" || f[k].length > 80)) { e.push(`${n}: ${k} is text up to 80 characters.`); return; }
     const t = textNumberErrors(f, ROOM_NUM);
     if (t.length) { e.push(...t.map((x) => `${n}: ${x}`)); return; }
     if (f.count != null && !(Number.isInteger(f.count) && f.count >= 1 && f.count <= 100)) e.push(`${n}: count must be a whole number 1 to 100.`);
