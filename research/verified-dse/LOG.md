@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-06 · Milestone 89: overfull boxes in the LaTeX build removed (no flow run, no new numbers)
+- Why: milestone 88's next item. `build.sh` now sets `\emergencystretch`, a 2 pt `\tabcolsep` and footnote-size longtables, and `paper/breakpaths.py` lets LaTeX break `\texttt{}` file paths after `/` and `_`.
+- Check: TeX Live reinstalled in this container; `pdflatex`, `bibtex`, `pdflatex` twice give 6 pages, 0 overfull boxes (was 8, largest 48 pt), no errors, no undefined citations; `pdftotext` 5,926 words (5,892 before; the difference is hyphenation and break points splitting tokens, no text was added or removed). Nothing re-measured. `pytest` is not installed in this container so `tests/` was not rerun.
+- Limits: official MLCAD style and page limit unchecked; `references.bib` author lists still end "and others" (arxiv.org and doi.org returned 403 through the egress proxy again, so ids could not be re-verified and I did not fill authors from memory).
+- Next: full author lists once a host is reachable; detail-routed mult24/mult32 cells.
+
 ## 2026-11-06 · Milestone 88: LaTeX build compiled with BibTeX, PDF rebuilt (no flow run, no new numbers)
 - Why: milestone 87's next item. TeX Live (latex-base, recommended, publishers, science) installed from apt; `build.sh` then `pdflatex`, `bibtex`, `pdflatex` twice.
 - Check: compiles with no errors and no undefined citations or references; 6 pages; `pdftotext` gives 5,892 words (PAPER.md body plus the bibliography now typeset by BibTeX). 8 overfull-box warnings remain, all wide tables or long inline paragraphs (largest 48 pt). `paper/main.pdf` is the rebuilt file, replacing the stale one with inline references.
