@@ -16,8 +16,10 @@
   "cost_usd": null,
   "tool_calls": null,
   "task": null,
-  "projects": [],
-  "pr": null,
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13610",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +28,19 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Skipped venture-preflight (5+ min) for a test/eval/doc-only change"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Flagship 5 slice: KOR and ROZ seeds in eval/fa3-xsd-diff.mjs, 6,520/6,520 agree with xmllint; fa3.test.mjs 14 pass locally. Small slice; einvoice-preflight is heavily mined and the real-input items need outside data. Venture-preflight and CI not run locally.",
   "corrections": [],
   "redteam": null
 }
