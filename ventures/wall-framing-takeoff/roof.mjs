@@ -34,7 +34,7 @@ function roofingNails(squares, g, ridgeFeet = 0, eaveFeet = 0) {
   return { nails, nailLb, nailBoxes: Math.ceil(nailLb / g.nailBoxLb - 1e-9), ...(capNails || starterNails ? { capNails, starterNails } : {}) };
 }
 
-/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, wing?: Wing, wing2?: Wing, plateWidth?: number, maxNotchFraction?: number, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, valleyBacking?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number, edgeNailSpacing?: number, fieldNailSpacing?: number, clips?: boolean, clipPrice?: number }, roofing?: { capNailsPerFoot?: number, starterNailsPerFoot?: number, waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number, nailsPerSquare?: number, nailsPerLb?: number, nailBoxLb?: number, iceShield?: number, iceShieldRoll?: number, iceShieldWaste?: number, valleyFeet?: number, valleyRollFeet?: number, valleyWaste?: number, underlaymentNailsPerSquare?: number, underlaymentNailBox?: number } }} Roof */
+/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, wing?: Wing, wing2?: Wing, plateWidth?: number, maxNotchFraction?: number, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, valleyBacking?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number, edgeNailSpacing?: number, fieldNailSpacing?: number, clips?: boolean, clipPrice?: number }, roofing?: { capNailsPerFoot?: number, starterNailsPerFoot?: number, waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number, nailsPerSquare?: number, nailsPerLb?: number, nailBoxLb?: number, iceShield?: number, iceShieldRoll?: number, iceShieldWaste?: number, valleyFeet?: number, valleyRollFeet?: number, valleyWaste?: number, underlaymentNailsPerSquare?: number, underlaymentNailBox?: number, dripEdgeNailSpacing?: number } }} Roof */
 
 export function sampleRoof() {
   return { id: "Main roof", width: 336, length: 480, pitch: 4, overhang: 12, gableOverhang: 12, rafter: "2x8", spacing: 16, ridge: "2x10", ceilingJoist: "2x6", collarTies: true };
@@ -300,8 +300,17 @@ function underlaymentNails(l, r) {
   return { ...l, roofing: { ...g, underlaymentNails: un, underlaymentNailBoxes: Math.ceil(un / box - 1e-9) }, notes: [...l.notes, `Underlayment cap nails: ${n} per square x ${g.squares.toFixed(1)} squares x ${g.waste} waste = ${un}, ${Math.ceil(un / box - 1e-9)} box${Math.ceil(un / box - 1e-9) === 1 ? "" : "es"} of ${box}; a typed rate, not the maker's schedule.`] };
 }
 
+/** Drip edge nails, opt-in with `roofing.dripEdgeNailSpacing` = inches on centre you type from the drip edge maker's instructions (never assumed). Eave plus rake feet x 12 / spacing, rounded up, plus one per piece for the end of each run (dripEdgePieces). Counted apart from the shingle nails; the nail type and the lap rules are the maker's. */
+function dripEdgeNails(l, r) {
+  const sp = r.roofing?.dripEdgeNailSpacing;
+  if (!l || l.ok === false || !l.roofing || !(sp > 0)) return l;
+  const g = l.roofing, feet = g.eaveFeet + (g.rakeFeet || 0);
+  const n = Math.ceil(feet * 12 / sp - 1e-9) + g.dripEdgePieces;
+  return { ...l, roofing: { ...g, dripEdgeNails: n }, notes: [...l.notes, `Drip edge nails: ${feet.toFixed(1)} ft of eave and rake at ${sp} in on centre plus ${g.dripEdgePieces} end nails = ${n}; a typed spacing, not the maker's schedule.`] };
+}
+
 export function layoutRoof(r, plan) {
-  return underlaymentNails(pipeBoots(sheathingNails(layoutRoofCore(r, plan), r), r), r);
+  return dripEdgeNails(underlaymentNails(pipeBoots(sheathingNails(layoutRoofCore(r, plan), r), r), r), r);
 }
 
 function layoutRoofCore(r, plan) {
