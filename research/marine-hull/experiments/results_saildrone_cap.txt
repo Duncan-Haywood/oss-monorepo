@@ -1,0 +1,25 @@
+blocks 131536; 2018 cells (>= 30 blocks) 158; target = 90th percentile SOG per cell
+
+grid MSE (m/s)^2 on 2018 p90 targets; rows sail_area, columns hull_scale
+area\hs       1     1.5       2       3       4       6
+   0.5    0.102   0.232   0.361   0.555   0.695   0.909
+  0.75    0.056   0.105   0.190   0.366   0.503   0.702
+     1    0.091   0.059   0.106   0.241   0.372   0.568
+   1.5    0.277   0.091   0.059   0.116   0.203   0.379
+     2    0.505   0.205   0.095   0.071   0.120   0.256
+     3    0.941   0.506   0.282   0.105   0.072   0.128
+     5    1.624   1.070   0.715   0.355   0.186   0.081
+
+refined: sail_area 0.45 m2, hull_scale 0.60, MSE 0.055; 6m mean fit (0.45, 1.0) gives MSE 0.129; default (5,1) 1.624
+
+2019 test, by wind band: share of blocks with SOG above the capability model; capability/mean-fit speed
+  0- 4 m/s [ 18921] share above model 0.456  median cap/mean-fit 1.31
+  4- 6 m/s [  9456] share above model 0.231  median cap/mean-fit 1.29
+  6- 8 m/s [  9542] share above model 0.230  median cap/mean-fit 1.26
+  8-10 m/s [  8040] share above model 0.234  median cap/mean-fit 1.24
+ 10-30 m/s [  7188] share above model 0.243  median cap/mean-fit 1.28
+ all     [ 53147] share above model 0.313
+ 2018 in-sample share above model 0.252 (target 0.10; cells under 30 blocks included)
+
+FITTED CAPABILITY PARAMS: sail_area=0.450 hull_scale=0.600
+DONE
