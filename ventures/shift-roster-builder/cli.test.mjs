@@ -277,6 +277,18 @@ test("--tips splits a pot to the cent and --short-under lists short shifts", () 
   assert.match(run(staff, shifts, { shortUnder: 0.5 }).out, /No assigned shift/);
 });
 
+test("--long-over lists shifts longer than the limit and not those equal to it", () => {
+  assert.throws(() => parseArgs(["--long-over", "24"]), /between 0 and 24/);
+  assert.equal(parseArgs(["--long-over", "10", "a", "b"]).longOver, 10);
+  const staff = "Ana, 10, 60, 0, Mon 6-22; Tue 6-22\n";
+  const shifts = "Mon, 8, 20, 1, long\nTue, 8, 16, 1, even\n";
+  const l = run(staff, shifts, { longOver: 8 });
+  assert.match(l.out, /1 shift\(s\) over 8 h/);
+  assert.match(l.out, /Ana\s+Mon .*12 h/);
+  assert.doesNotMatch(l.out, /Tue/);
+  assert.match(run(staff, shifts, { longOver: 12 }).out, /No assigned shift is over 12 h/);
+});
+
 test("--swap checks one trade and names the rule that stops it", () => {
   const staff = "Ana, 10, 40, 0, Mon 8-16; Tue 8-16\nBen, 12, 40, 0, Mon 8-16; Tue 8-16\n";
   const shifts = "Mon, 8, 16, 1, a\nTue, 8, 16, 1, b\n";
