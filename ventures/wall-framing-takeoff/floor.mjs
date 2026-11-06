@@ -16,7 +16,7 @@ import { THICK, EPS, DEPTH, optimizeStock, formatLength, formatInches } from "./
 const DOUBLE = 2 * THICK;
 export const SHEET = { width: 48, length: 96 };
 
-/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, cantilever?: number, headerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, hangerCapacity?: number, bearingCapacity?: number, stairReaction?: number, stairReactionLive?: number, stairSide?: "front"|"back", tieForce?: number, tieCapacity?: number, cantDeflLimit?: number }, blockingRows?: number, adhesive?: boolean, adhesiveTubeOz?: number, adhesiveBead?: number, adhesiveWaste?: number, adhesivePrice?: number, hangerNails?: { single?: number, double?: number }, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], penetrations?: { type: "hole"|"notch", at: number, size: number, length?: number, fromEdge?: number, end?: boolean }[], limits?: { hole?: number, holeEdge?: number, notch?: number, endNotch?: number, notchLength?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
+/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, cantilever?: number, headerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, hangerCapacity?: number, bearingCapacity?: number, stairReaction?: number, stairReactionLive?: number, stairSide?: "front"|"back", tieForce?: number, tieCapacity?: number, cantDeflLimit?: number }, blockingRows?: number, subfloorFasteners?: boolean, fastenerSpacing?: number, fastenerBoxCount?: number, fastenerWaste?: number, fastenerPrice?: number, adhesive?: boolean, adhesiveTubeOz?: number, adhesiveBead?: number, adhesiveWaste?: number, adhesivePrice?: number, hangerNails?: { single?: number, double?: number }, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], penetrations?: { type: "hole"|"notch", at: number, size: number, length?: number, fromEdge?: number, end?: boolean }[], limits?: { hole?: number, holeEdge?: number, notch?: number, endNotch?: number, notchLength?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
 
 export function sampleFloor() {
   return { id: "Main floor", width: 480, depth: 336, joist: "2x10", spacing: 16, rim: true, beam: 168, blockingRows: 0 };
@@ -32,6 +32,10 @@ export function validateFloor(f, plan) {
   if (!(f.joist in DEPTH)) errors.push(f.joist == null ? "Floor joist size is missing (for example \"2x10\")." : `Unknown joist size ${f.joist}.`);
   if (!(typeof f.spacing === "number" && f.spacing >= 4 && f.spacing <= 48)) errors.push("Joist spacing must be a number between 4 and 48 inches.");
   if (f.blockingRows != null && !(Number.isInteger(f.blockingRows) && f.blockingRows >= 0 && f.blockingRows <= 20)) errors.push("blockingRows must be a whole number from 0 to 20.");
+  if (f.subfloorFasteners != null && typeof f.subfloorFasteners !== "boolean") errors.push("Subfloor fasteners must be true or false.");
+  if (f.fastenerSpacing != null && !(f.fastenerSpacing >= 4 && f.fastenerSpacing <= 16)) errors.push("Fastener spacing must be between 4 and 16 inches.");
+  if (f.fastenerBoxCount != null && !(Number.isInteger(f.fastenerBoxCount) && f.fastenerBoxCount >= 50 && f.fastenerBoxCount <= 5000)) errors.push("Fasteners per box must be a whole number from 50 to 5000.");
+  if (f.fastenerWaste != null && !(f.fastenerWaste >= 1 && f.fastenerWaste <= 2)) errors.push("Fastener waste factor must be between 1 and 2.");
   if (f.adhesive != null && typeof f.adhesive !== "boolean") errors.push("Subfloor adhesive must be true or false.");
   if (f.adhesiveTubeOz != null && !(f.adhesiveTubeOz >= 10 && f.adhesiveTubeOz <= 40)) errors.push("Adhesive tube size must be between 10 and 40 fluid oz.");
   if (f.adhesiveBead != null && !(f.adhesiveBead >= 0.125 && f.adhesiveBead <= 1)) errors.push("Adhesive bead diameter must be between 1/8 and 1 inch.");
@@ -430,8 +434,19 @@ export function layoutFloor(f, plan) {
     adhesive = { feet: inches / 12, bead, tubeOz, tubes, ...(f.adhesivePrice != null ? { price: f.adhesivePrice } : {}) };
     notes.push(`Subfloor adhesive: ${(inches / 12).toFixed(0)} ft of ${bead} in bead, ${tubes} tube${tubes === 1 ? "" : "s"} of ${tubeOz} oz with ${Math.round((waste - 1) * 100)}% waste; the product's own coverage, tongue-and-groove seams and squeeze-out are the installer's.`);
   }
+  // Subfloor screws or nails (opt-in): one fastener every `fastenerSpacing` inches (default 8, between a 6 in edge and
+  // 12 in field schedule) along every joist piece and rim board under the sheets; boxes round up.
+  /** @type {null | { count: number, spacing: number, boxCount: number, boxes: number, price?: number }} */
+  let fasteners = null;
+  if (f.subfloorFasteners) {
+    const spacing = f.fastenerSpacing ?? 8, boxCount = f.fastenerBoxCount ?? 1000, waste = f.fastenerWaste ?? 1.05;
+    const inches = joists.reduce((t, j) => t + j.length, 0) + rims.reduce((t, r) => t + r.length, 0);
+    const count = Math.ceil((inches / spacing) * waste - 1e-9);
+    fasteners = { count, spacing, boxCount, boxes: Math.ceil(count / boxCount - 1e-9), ...(f.fastenerPrice != null ? { price: f.fastenerPrice } : {}) };
+    notes.push(`Subfloor fasteners: ${count} at ${spacing} in along ${(inches / 12).toFixed(0)} ft of joists and rims, ${fasteners.boxes} box${fasteners.boxes === 1 ? "" : "es"} of ${boxCount}; the engineer's edge and field schedule and the fastener type are not checked.`);
+  }
   return {
-    ok: true, adhesive, penetrations: pen, hangers, headerChecks, trimmerChecks, cantileverCheck, openings, trimmers, id, width: f.width, depth: total, supportedDepth: f.depth, cantilever: cant, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
+    ok: true, adhesive, fasteners, penetrations: pen, hangers, headerChecks, trimmerChecks, cantileverCheck, openings, trimmers, id, width: f.width, depth: total, supportedDepth: f.depth, cantilever: cant, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
     sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 },
     notes,
   };
@@ -461,6 +476,7 @@ export function floorText(l) {
   out.push(`  Joist centres: ${l.centres.map((c) => formatInches(c)).join(", ")}`);
   out.push(`  Subfloor: ${l.sheets.count} sheets of ${SHEET.width} x ${SHEET.length} in for ${l.sheets.area.toFixed(0)} sq ft (${(100 * l.sheets.waste).toFixed(1)}% offcut)`);
   if (l.adhesive) out.push(`  Adhesive: ${l.adhesive.tubes} tubes (${l.adhesive.feet.toFixed(0)} ft of ${l.adhesive.bead} in bead)`);
+  if (l.fasteners) out.push(`  Fasteners: ${l.fasteners.count} (${l.fasteners.boxes} boxes of ${l.fasteners.boxCount}) at ${l.fasteners.spacing} in`);
   for (const c of l.courses) out.push(`    course at ${formatLength(c.y)} (${formatInches(c.width)} wide): ${c.pieces.map((p) => formatInches(p.length) + (p.notches ? ` (notch ${p.notches.map((n) => `${formatInches(n.width)} x ${formatInches(n.depth)}`).join(", ")})` : "")).join(" + ")}`);
   for (const n of l.notes) out.push(`  - ${n}`);
   return out;
