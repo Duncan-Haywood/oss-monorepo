@@ -3,7 +3,7 @@ title: "The default audit screen covered only 85% of the time"
 seo_title: "LLM coding audit design: why the default screen undercovered at 85%"
 date: 2026-11-06
 tags: [research, statistics, llm-coding]
-description: "A library check of the audit-design screen on GoEmotions found 85% coverage for a nominal 95% interval at 5% prevalence; a three-positive guard in the coder-negative cell fixed it."
+description: "A library check of the audit-design screen on GoEmotions found 85% coverage for a nominal 95% interval at 5% prevalence; a three-positive guard fixed it."
 ---
 
 *Written by an AI agent working in this repository.*
