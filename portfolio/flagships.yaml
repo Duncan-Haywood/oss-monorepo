@@ -36,7 +36,7 @@ flagships:
       CLI and agent engine. First tool of the new-home construction program.
     next: >-
       Landed work, with dates and how each was checked, is in
-      ventures/wall-framing-takeoff/README.md and ROADMAP.md (recent: dormer page dormer-calculator.html 2026-11-06, foundation page foundation-calculator.html 2026-11-06, floor joist page floor-calculator.html 2026-11-06, framing nail page nail-calculator.html 2026-11-06, order-by date page order-by-date-calculator.html 2026-11-06, paint page paint-calculator.html 2026-11-06, electrical rough-in page electrical-calculator.html 2026-11-06, wall tile (`--wall-tile`, and its page walltile-calculator.html, 2026-11-06), HVAC duct rough-in quantities (`--hvac`, and its page hvac-calculator.html 2026-11-06), price sensitivity page price-sensitivity-calculator.html 2026-11-06, fireblocking page fireblock-calculator.html 2026-11-06, fireblock hostile-input guards and fuzz test 2026-11-06, plumbing rough-in quantities and its page, roof nail slices, wall braces, stepped walls, order-by dates, bench retry with `--gang`; all 2026-11-05/06, mostly hand tests only; schedule: crews,
+      ventures/wall-framing-takeoff/README.md and ROADMAP.md (recent, all 2026-11-05/06, mostly hand tests only: dormer, foundation, floor joist, nail, order-by date, paint, electrical, wall tile, HVAC, price sensitivity, fireblocking and plumbing pages, roof nails, wall braces, stepped walls, bench retry with `--gang`; schedule: crews,
       weather, holds, deadline, CSV, risk, and cost-loaded cash flow by week and
       month). Wanted, all needing real inputs: a real builder's activity list
       and draw schedule for `--schedule` (payment lag, retainage); a real
@@ -102,7 +102,7 @@ flagships:
       Landed work, with every measurement, is in the README, eval/README and
       git (inbox agent, daily run, self-host server with TLS and XOAUTH2,
       research agent, call prep, follow-ups, CRM write-back to
-      Pipedrive/HubSpot against fake servers only; ninth reply set 2026-11-04, 23/30 before patching, 0 overreach); 2026-11-05 proposed meeting times read from interested replies and confirmed in the draft (slots.mjs). 2026-11-06 an exact proposed time becomes a tentative zone-less .ics file (invite.mjs, unit tests only). Tenth reply set 2026-11-06: 25/30 before patching, 28/30 after, 0 overreach. Eleventh 2026-11-07: 26/30 before, 29/30 after (one overreach left on purpose, a forward-to-CFO one-pager). All reply and note sets
+      Pipedrive/HubSpot against fake servers only; ninth reply set 2026-11-04, 23/30 before patching, 0 overreach); 2026-11-05 proposed meeting times read from interested replies and confirmed in the draft (slots.mjs). 2026-11-06 an exact proposed time becomes a tentative zone-less .ics file (invite.mjs); 2026-11-06 the self-host queue serves it behind the token (GET /api/invite, fake mailbox only). Tenth reply set 2026-11-06: 25/30 before patching, 28/30 after, 0 overreach. Eleventh 2026-11-07: 26/30 before, 29/30 after (one overreach left on purpose, a forward-to-CFO one-pager). All reply and note sets
       other than the 117 real bounces, 11 + 12 real mail-client emails and
       the 1,857-reply label mix are agent-written. Next: (1) real human
       replies and a real rep's call notes to check the reply rules, prep
@@ -136,7 +136,7 @@ flagships:
       shocks and on autocorrelated nulls as well as growing seasons: wanted
       a way to tell a shape from a shock, and to widen the noise scale
       without swallowing a short quarterly shape (--ar1 fixes the rho 0.5
-      null but loses UK gas). (4a) Florida juice 1950-2000 (README): `--ar1` keeps 3 of 8 freezes, default 8 of 8 inside 148 changes; wanted: more than 3 without the 148; (4b) Gallup approval 1945-74 (README): default finds Watergate, `--ar1` loses it, no setup cuts the 1964Q1 rally. (4c) Argentine inflation 1970-89 (README): mean and `--ar1` date the Austral Plan (1985Q3) and the 1989 hyperinflation; wanted: an over-cut test. (5) Holiday list: helps US births (239 to 205 changes), adds changes on Capital Bikeshare (README); wanted: a shop's counts, or a yearly term.
+      null but loses UK gas). (4a-4c) Florida juice, Gallup approval and Argentine inflation cases (README): wanted more freezes kept without 148 changes, an over-cut test. (5) Holiday list: helps US births (239 to 205 changes), adds changes on Capital Bikeshare (README); wanted: a shop's counts, or a yearly term.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
@@ -149,7 +149,7 @@ flagships:
       Factur-X export (repaired PDF opens in poppler 2026-10-30; veraPDF and Acrobat unrun); PINT SG and A-NZ rules on the Saxon/server route and on a
       real PINT file; RO_CIUS on a real ANAF file and the Saxon route; NLCIUS
       on a real Dutch file (UBL and CII both landed 2026-10-25, made-up examples); India's INV-01 check on a real IRP payload; mandate
-      dates read from primary sources where pages cite guides (Singapore read against IRAS, confirmed; Israel from vendor summaries, directive 01/2025 unread; Denmark, Czech, Estonia, Latvia vendor-only; Slovenia and Luxembourg: law texts' implementing rules unread; ato.gov.au (403 from cloud), revenue.ie, CBIC); Nigeria, Thailand, Taiwan, Oman, Pakistan and Jordan pages (search excerpts only; Taiwan B2B and Oman 2026 vs 2027 dates disagree); Ireland read against Revenue's hub 2026-10-31 (no specs yet); Latin American, Spain and Brazil pages from search excerpts (open: CFDI and NF-e XSD readers, NFS-e); refresh the Bulgaria page when its draft
+      dates read from primary sources where pages cite guides (Israel, Denmark, Czech, Estonia, Latvia vendor-only; Slovenia and Luxembourg rules unread; ato.gov.au 403 from cloud; see README); Nigeria, Thailand, Taiwan, Oman, Pakistan and Jordan pages (search excerpts only; Taiwan and Oman dates disagree);  Latin American, Spain and Brazil pages from search excerpts (open: CFDI and NF-e XSD readers, NFS-e); refresh the Bulgaria page when its draft
       passes or changes (consultation closed 2026-10-23, no outcome found 2026-11-04; the 2026-2030 phase-in is SAF-T, not e-invoicing, page corrected; Ministry draft text unread). A run that lands a slice replaces its item here; keep
       this under 2,000 characters.
   - venture: shift-roster-builder
