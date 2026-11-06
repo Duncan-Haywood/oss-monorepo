@@ -150,7 +150,7 @@
       $("#notes").innerHTML = [...r.notes, ...r.errors].map((n) => `<p>${esc(n)}</p>`).join("");
       report.hidden = false;
       status.textContent = `${r.rows.length} row${r.rows.length === 1 ? "" : "s"} calculated.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

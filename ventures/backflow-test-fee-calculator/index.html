@@ -244,7 +244,7 @@
       els.report.hidden = false;
       els.status.textContent = "";
       record("quote_calculated");
-      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     const COPY_HINT = "Copies every device, its test fee, filing fee and retest fee, the subtotals, and the total as plain text to paste into an invoice or work order. The jurisdiction caveat is copied with it.";

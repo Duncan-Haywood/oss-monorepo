@@ -849,7 +849,7 @@
       }
       el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
       count('proposal_printed');
-      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el('proposalDoc').scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: 'start' });
       // This page prints two sheets, so the stylesheet is told which one is
       // going out. Cleared on `afterprint` below.
       document.body.classList.add('printing-proposal');

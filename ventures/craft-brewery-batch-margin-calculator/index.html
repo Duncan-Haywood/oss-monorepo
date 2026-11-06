@@ -171,7 +171,7 @@
       $("#rows").innerHTML = r.beers.flatMap((b) => b.parts.map((p) => `<tr><td>${esc(b.name)}</td><td>${esc(p.channel)}</td><td class="n">${p.bbl.toFixed(1)}</td><td class="n">${money(p.revenue)}</td><td class="n">${money(p.profit)}</td><td class="n">${money(p.profitPerBbl)}</td><td class="n">${money2(p.breakEvenPrice)}</td></tr>`)).join("");
       report.hidden = false;
       status.textContent = `${s.beers} beers costed.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

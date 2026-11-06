@@ -157,7 +157,7 @@
       $("#drought").innerHTML = droughtTable(input).map((d) => d.error ? "" : `<tr><th scope="row">${Math.round(d.fraction * 100)}%</th><td class="n">${Math.round(d.aums)}</td><td class="n">${Math.round(d.head)}</td><td class="n">${money(d.rentTotal)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${Math.round(r.aums)} AUMs, ${Math.round(r.head)} head; rent between ${money(r.ownerBreakEvenRent)} and ${money(r.rancherBreakEvenRent)} per AUM works for both.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

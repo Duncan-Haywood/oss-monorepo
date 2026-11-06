@@ -161,7 +161,7 @@ node cli.mjs compare --hours 500 --prices prices.json --json</pre>
       $("#estimate").textContent = `${PRICES_AS_OF}. Volume grows from ${hours.toLocaleString("en-US")} to ${proj.endHours.toLocaleString("en-US")} hours per month over 12 months. Your numbers and editable prices; not a quote.`;
       $("#report-card").hidden = false;
       record("compare_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     $("#calc").addEventListener("click", render);
 

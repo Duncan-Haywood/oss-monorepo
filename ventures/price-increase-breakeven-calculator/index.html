@@ -168,7 +168,7 @@ node cli.mjs analyze items.csv --increase 8 --json --fail-on warn</pre>
       els.estimate.textContent = report.count ? `${MODEL_NOTE}. Test a raise on a few items and compare units sold before rolling it out.` : "";
       els.reportCard.hidden = false;
       record("analyze_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#analyze").addEventListener("click", renderReport);

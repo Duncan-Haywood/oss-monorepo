@@ -162,7 +162,7 @@ node cli.mjs compare --monitors 60 --interval-sec 60 --prices prices.json --json
       $("#estimate").textContent = `${PRICES_AS_OF}. Monitors grow from ${monitors.toLocaleString("en-US")} to ${proj.endMonitors.toLocaleString("en-US")} over 12 months. Your numbers and editable prices; not a quote.`;
       $("#report-card").hidden = false;
       record("compare_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     $("#calc").addEventListener("click", render);
 

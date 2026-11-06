@@ -330,7 +330,7 @@
         ? `Added ${total} ${total === 1 ? "row" : "rows"} from the rate calculator. Edit them below like anything else.`
         : "Those rows were already in your media kit, so nothing changed.";
       record("handoff_accepted");
-      $("#platforms-input").scrollIntoView({ behavior: "smooth", block: "center" });
+      $("#platforms-input").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
     });
 
     $("#handoff-dismiss").addEventListener("click", () => {
@@ -377,7 +377,7 @@
       if (!check.valid) {
         outputBody.hidden = true;
         outputCard.hidden = false;
-        outputCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        outputCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
         return;
       }
       lastHtml = buildMediaKitHtml(data);
@@ -387,7 +387,7 @@
       outputHeading.textContent = `${data.creatorName}'s media kit`;
       outputCard.hidden = false;
       record("kit_built");
-      outputCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      outputCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     });
 
     const EXAMPLE = {

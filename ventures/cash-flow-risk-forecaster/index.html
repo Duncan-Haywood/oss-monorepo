@@ -156,7 +156,7 @@
       $("#levers").innerHTML = r.levers.length ? r.levers.slice(0, 8).map((l) => `<tr><td>${esc(l.action)}</td><td class="n">${Math.round(l.pShort * 100)}%</td><td class="n">${dollars(l.cushion90)}</td></tr>`).join("") : `<tr><td colspan="3">No shortfall in the simulation, so nothing to fix.</td></tr>`;
       report.hidden = false;
       status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

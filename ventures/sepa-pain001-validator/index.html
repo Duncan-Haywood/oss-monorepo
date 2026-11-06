@@ -182,7 +182,7 @@
       $("#fix-list").innerHTML = fix.changes.map((c) => `<li>Line ${c.line}: ${esc(c.what)}</li>`).join("") + fix.skipped.map((c) => `<li>Not rebuilt: ${esc(c)}</li>`).join("");
       report.hidden = false;
       status.textContent = errs ? `Found ${errs} error(s).` : `No errors found.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

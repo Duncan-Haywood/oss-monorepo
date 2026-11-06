@@ -152,7 +152,7 @@ node cli.mjs analyze volumes.csv --headroom 1.5 --json --prices my-prices.json</
       els.estimate.textContent = report.count ? `${PRICES_AS_OF}. Peaks are as supplied; change one non-critical volume first.` : "";
       els.reportCard.hidden = false;
       record("analyze_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#analyze").addEventListener("click", renderReport);

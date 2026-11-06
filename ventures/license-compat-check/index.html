@@ -161,7 +161,7 @@ node cli.mjs notices deps.json > THIRD_PARTY_NOTICES.txt</pre>
       els.notices.hidden = true;
       els.card.hidden = false;
       record("check_run");
-      els.card.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.card.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#check").addEventListener("click", renderReport);

@@ -171,7 +171,7 @@ node cli.mjs ics renewals.csv &gt; renewals.ics</pre>
       showEmail();
       $("#report-card").hidden = false;
       record("plan_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#analyze").addEventListener("click", renderReport);

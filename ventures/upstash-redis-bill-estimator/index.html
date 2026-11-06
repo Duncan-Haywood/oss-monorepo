@@ -177,7 +177,7 @@ node cli.mjs estimate usage.csv --prices prices.json --assume assumptions.json</
       $("#estimate").textContent = `${PRICES_AS_OF}. Your usage numbers and editable prices; not a measurement of any invoice.`;
       $("#report-card").hidden = false;
       record("estimate_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     $("#calc").addEventListener("click", render);
     $("#load-csv").addEventListener("click", () => {

@@ -143,7 +143,7 @@
       $("#rows").innerHTML = r.rows.map((x) => `<tr><th scope="row">${esc(x.name)}</th><td>${esc(x.type)}</td><td>${x.n}</td><td>${x.bracket.min}${x.bracket.max === Infinity ? "+" : "–" + x.bracket.max}</td><td>${usd(x.fee)}</td><td>${x.perVehicle === null ? "—" : usd(x.perVehicle)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Estimated UCR fee ${usd(r.total)}.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

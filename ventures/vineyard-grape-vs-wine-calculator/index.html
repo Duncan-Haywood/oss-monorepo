@@ -168,7 +168,7 @@
       $("#sens-note").textContent = "Compare each cell with the grape-sale net of " + money(r.grapes.net) + ".";
       report.hidden = false;
       status.textContent = r.winner === "wine" ? `Wine ahead by ${money(r.gap)} a year.` : `Selling grapes ahead by ${money(-r.gap)} a year.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

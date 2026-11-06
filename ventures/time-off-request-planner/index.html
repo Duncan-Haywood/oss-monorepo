@@ -180,7 +180,7 @@
       $("#cal tbody").innerHTML = r.calendar.length ? r.calendar.map((c) => `<tr${c.perRole.some((x) => x.tight) ? ' style="background:#fdf0d5"' : ""}><td>${esc(c.label)}</td><td>${esc(c.names.join(", "))}</td><td>${c.perRole.map((x) => `${esc(x.role)} ${x.onDuty} (min ${x.min})`).join(" · ")}</td></tr>`).join("") : '<tr><td colspan="3">Nobody is off on a working day.</td></tr>';
       report.hidden = false;
       status.textContent = "Done. Scroll down for the decisions.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -148,7 +148,7 @@
       $("#rows").innerHTML = line("Pay counted for NMW", r.nmwPay) + line(`Minimum for ${r.hours} hours at ${gbp(r.min)}`, r.required) + line("Shortfall", r.shortfall, "total") + (r.periods && !r.ok ? line(`Arrears over ${r.periods} periods`, r.arrears) + line("Penalty up to 200% (cap £20,000)", r.penaltyFull) : "");
       report.hidden = false;
       status.textContent = "Done. Verify the rates on GOV.UK before you rely on this.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

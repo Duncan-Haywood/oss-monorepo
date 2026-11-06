@@ -147,7 +147,7 @@
       $("#levers tbody").innerHTML = r.levers.length ? r.levers.map((l) => `<tr><td>${esc(l.label)}</td><td>${esc(l.note)}</td><td class="n">+${l.multipleGain.toFixed(1)}x</td><td class="n">${esc(money(l.valueGain))}</td></tr>`).join("") : `<tr><td colspan="4">No factor is currently pulling your multiple down.</td></tr>`;
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

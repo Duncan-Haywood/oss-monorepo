@@ -133,7 +133,7 @@ node cli.mjs --repo . --since 2026-09-01 --max-hours 40   # exit 1 over the cap<
       csv = toCsv(sum);
       $("#report-card").hidden = false;
       record("report_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     $("#calc").addEventListener("click", render);
 

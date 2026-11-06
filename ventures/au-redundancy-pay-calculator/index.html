@@ -146,7 +146,7 @@
       $("#rows").innerHTML = `<tr><td>Redundancy pay (${r.weeks} weeks)</td><td class="n">${aud(r.redundancy)}</td></tr><tr><td>Unworked notice (${r.unworked} weeks)</td><td class="n">${aud(r.noticePay)}</td></tr><tr><td>Accrued annual leave</td><td class="n">${aud(r.leavePay)}</td></tr><tr class="total"><td>Total</td><td class="n">${aud(r.total)}</td></tr>`;
       report.hidden = false;
       status.textContent = "Done. Verify with the Fair Work Ombudsman before paying.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

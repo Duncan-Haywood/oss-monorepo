@@ -147,7 +147,7 @@
       $("#sens").innerHTML = sensitivity(input).map((x) => `<tr><th scope="row">${usd(x.lumper)}</th><td>${usd(x.refunded)}</td><td>${usd(x.net)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Best route: ${r.best.name}, leaving you out ${usd(r.best.net)}.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

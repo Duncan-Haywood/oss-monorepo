@@ -493,7 +493,7 @@
       el('proposalDoc').hidden = false;
       el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
       count('proposal_printed');
-      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el('proposalDoc').scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: 'start' });
       requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
     }
     function sendToHub() {
@@ -553,7 +553,7 @@
             s.className = 'start';
             s.textContent = 'Price it here';
             s.setAttribute('aria-label', `Price a ${preset.name.toLowerCase()} job in the studio`);
-            s.addEventListener('click', () => setTimeout(() => el('start').scrollIntoView({ behavior: 'smooth' }), 0));
+            s.addEventListener('click', () => setTimeout(() => el('start').scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }), 0));
             li.append(s);
           }
           const p = document.createElement('p');

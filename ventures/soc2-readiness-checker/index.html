@@ -179,7 +179,7 @@
       $("#warnings").textContent = r.unanswered.length ? `${r.unanswered.length} controls had no answer.` : "";
       report.hidden = false;
       status.textContent = `Scored ${r.summary.controls} controls: ${r.summary.done} done, ${r.summary.partial} partial, ${r.summary.missing} missing.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     renderControls();

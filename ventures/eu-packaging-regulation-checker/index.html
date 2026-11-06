@@ -160,7 +160,7 @@
       $("#timeline-rows").innerHTML = r.timeline.map((t) => "<tr><td>" + t.from + "</td><td>" + ST[t.state] + (t.done ? " · done" : "") + "</td><td>" + esc(t.label) + "</td><td>" + esc(t.article) + "</td></tr>").join("");
       report.hidden = false;
       status.textContent = "Done. Check implementing acts and your national authority before relying on this.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

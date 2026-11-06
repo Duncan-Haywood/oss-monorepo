@@ -206,7 +206,7 @@ node cli.mjs --check ./llms.txt</code></pre>
       outputReport.innerHTML = renderReportList(report);
       outputCard.hidden = false;
       record(eventName);
-      outputCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      outputCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     function showError(message) {
@@ -301,7 +301,7 @@ node cli.mjs --check ./llms.txt</code></pre>
       checkReport.innerHTML = renderReportList(report);
       outputCard.hidden = false;
       record("check_run");
-      outputCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      outputCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     });
 
     const EXAMPLE_CHECK = `# Example Site

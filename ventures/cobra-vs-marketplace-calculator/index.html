@@ -140,7 +140,7 @@ node cli.mjs compare --cobra-premium 780 --market-premium 210 --cobra-oop-max 80
       $("#estimate").textContent = RULES_AS_OF + ". Your numbers; not insurance or legal advice.";
       $("#report-card").hidden = false;
       record("compare_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     $("#calc").addEventListener("click", render);
 

@@ -148,7 +148,7 @@
       $("#size-table tbody").innerHTML = a.scenarios.map((s) => `<tr class="${s.label === "The value you expect" ? "best" : ""}"><td>${esc(s.label)}</td><td class="n">$${s.saleFmv.toFixed(4).replace(/\.?0+$/, "")}</td><td class="n">${usd(s.elTotal)}</td><td class="n">${usd(s.noTotal)}</td><td class="n">${usd(s.saving)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

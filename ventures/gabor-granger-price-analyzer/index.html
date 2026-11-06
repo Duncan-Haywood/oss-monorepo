@@ -157,7 +157,7 @@
       $("#points tbody").innerHTML = a.rows.map((x) => `<tr><td class="n">${money(x.price)}</td><td class="n">${x.buyers}</td><td class="n">${pct(x.demand)}</td><td class="n">${money(x.revenue)}</td><td class="n">${money(x.profit)}</td><td class="n">${x.elasticity == null ? "n/a" : x.elasticity.toFixed(2)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

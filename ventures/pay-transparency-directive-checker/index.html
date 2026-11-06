@@ -150,7 +150,7 @@
       $("#gap-rows").innerHTML = r.table.map((t) => `<tr><td>${esc(t.category)}</td><td class="n">${t.women}</td><td class="n">${t.men}</td><td class="n">${t.gap}</td><td>${t.over ? "5% or more" : "below 5%"}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Check your national law before relying on this.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

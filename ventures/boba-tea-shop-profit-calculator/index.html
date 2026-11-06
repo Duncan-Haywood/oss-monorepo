@@ -180,7 +180,7 @@
       $("#ramp").innerHTML = r.ramp.slice(0, 24).map((m) => `<tr><th scope="row">${m.month}</th><td>${m.volumePct.toFixed(0)}%</td><td>${usd(m.cash)}</td><td>${usd(m.cumulative)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -167,7 +167,7 @@
       $("#bt tbody").innerHTML = r.backtest.length ? r.backtest.map((b) => `<tr><td>${esc(b.label)}</td><td class="n">${n0(b.leads)}</td><td class="n">${b.median.toFixed(0)} (${b.lo.toFixed(0)} to ${b.hi.toFixed(0)})</td><td class="n">${b.actual}</td><td>${b.actual >= b.lo && b.actual <= b.hi ? "inside" : "outside"}</td></tr>`).join("") : `<tr><td colspan="5">Not enough periods to back-test.</td></tr>`;
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

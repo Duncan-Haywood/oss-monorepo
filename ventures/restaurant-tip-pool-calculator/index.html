@@ -158,7 +158,7 @@
       $("#report-findings").innerHTML = r.warnings.map((w) => `<div class="finding"><h4><span class="pill medium">check</span></h4><p>${esc(w)}</p></div>`).join("");
       report.hidden = false;
       status.textContent = `${s.people} people paid.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#validate").addEventListener("click", async () => {

@@ -169,7 +169,7 @@
       $("#econ").innerHTML = r.economics.map((x) => `<tr><td>${esc(x.crop)}</td><td class="n">${money(x.margin)}</td><td class="n">${money(x.perSqftWeek)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${s.crops} crops planned.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#validate").addEventListener("click", async () => {

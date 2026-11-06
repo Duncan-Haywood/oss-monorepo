@@ -195,7 +195,7 @@
       $("#bt-note").textContent = r.holdout ? `Share of conversions after day ${r.holdout.probeDay}: ${pct(r.holdout.fitLate, 0)} in the first 75% of trials (${r.holdout.fitConversions} conversions), ${pct(r.holdout.testLate, 0)} in the last 25% (${r.holdout.testConversions}). Gap: ${(r.holdout.gap * 100).toFixed(0)} points; over 15 is called unstable.` : "Too few conversions in one half to run the back-test.";
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -303,7 +303,7 @@
       clearForm();
       $("#t-date").value = d.date; $("#t-cat").value = d.category; $("#t-from").value = d.from; $("#t-to").value = d.to; $("#t-purpose").value = d.purpose; $("#t-client").value = d.client; $("#t-vehicle").value = d.vehicle; $("#t-miles").value = d.miles || "";
       $("#form-status").textContent = `Filled from your usual ${d.to} trip. Check the miles (or enter odometer readings), then save.`;
-      $("#form-title").scrollIntoView({ behavior: "smooth" });
+      $("#form-title").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
     });
 
     function readForm() {
@@ -337,7 +337,7 @@
         editing = t.id; $("#t-date").value = t.date; $("#t-cat").value = t.category; $("#t-from").value = t.from; $("#t-to").value = t.to; $("#t-purpose").value = t.purpose; $("#t-client").value = t.client; $("#t-vehicle").value = t.vehicle || "";
         $("#t-odo-start").value = t.odoStart; $("#t-odo-end").value = t.odoEnd; $("#t-miles").value = t.miles || ""; $("#t-tolls").value = t.tolls || ""; $("#t-parking").value = t.parking || "";
         $("#form-title").textContent = "2. Edit trip"; $("#save-trip").textContent = "Update trip"; $("#cancel-edit").hidden = false;
-        $("#form-title").scrollIntoView({ behavior: "smooth" });
+        $("#form-title").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
       } else if (del) {
         state.trips = state.trips.filter((t) => t.id !== del.dataset.del); save(); render();
       }

@@ -190,7 +190,7 @@ node cli.mjs yourdomain.com --json</code></pre>
 
     els.scopeNote.textContent = report.scopeNote;
     els.reportCard.hidden = false;
-    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: 'start' });
   }
 
   async function runCheck(domain, event) {

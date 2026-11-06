@@ -335,7 +335,7 @@
       invoiceEls.report.hidden = false;
       invoiceEls.status.textContent = "";
       record("invoice_calculated");
-      invoiceEls.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      invoiceEls.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     const COPY_HINT = 'Copies the line items, the total, and the "arithmetic only" note as plain text to paste into an invoice or email.';
@@ -436,7 +436,7 @@
       agencyEls.report.hidden = false;
       agencyEls.status.textContent = "";
       record("agency_offer_checked");
-      agencyEls.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      agencyEls.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#check-agency-offer").addEventListener("click", () => {

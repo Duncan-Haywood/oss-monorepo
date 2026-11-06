@@ -180,7 +180,7 @@
       $("#rows").innerHTML = r.table.map((x) => `<tr><th scope="row">${x.pct}%</th><td>${x.booked}</td><td>${x.hours}</td><td>${usd(x.private)}</td><td>${usd(x.school)}</td><td>${usd(x.room)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Teaching privately: ${usd(r.season.effectiveHourly)} an hour across ${r.season.hoursPerWeek} working hours a week.`;
-      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

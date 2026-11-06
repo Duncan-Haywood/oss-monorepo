@@ -138,7 +138,7 @@
       $("#rows").innerHTML = r.rows.map((x) => `<tr><th scope="row">${esc(x.name)}</th><td>${x.lb.toLocaleString("en-US")}</td><td>${x.category ?? "—"}</td><td>${usd(x.annual)}</td><td>${x.month} (${x.monthsLeft}/12)</td><td>${usd(x.owed)}</td><td>${x.taxable ? x.due : "—"}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Estimated tax ${usd(r.total)}.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

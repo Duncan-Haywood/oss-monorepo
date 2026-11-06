@@ -147,7 +147,7 @@
         : `<tr><td colspan="2">Add a planned entry date to see your longest trip.</td></tr>`;
       report.hidden = false;
       status.textContent = "Done. Verify with the official calculator named in the summary.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

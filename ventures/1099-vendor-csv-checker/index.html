@@ -156,7 +156,7 @@
       $("#download-ready").hidden = !s.needing1099;
       report.hidden = false;
       status.textContent = errs ? `Found ${errs} error(s) across ${s.rows} row(s).` : `No errors across ${s.rows} row(s).`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#check").addEventListener("click", async () => {

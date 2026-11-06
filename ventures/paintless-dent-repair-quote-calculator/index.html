@@ -169,7 +169,7 @@
       $("#sens").innerHTML = r.severity.map((x) => `<tr class="${x.scale === 1 ? "drive" : ""}"><th scope="row">${x.scale}x${x.scale === 1 ? " (your input)" : ""}</th><td>${x.dents}</td><td>${x.workDays}</td><td>${usd(x.cost)}</td><td>${x.matrix ? usd(x.matrix) : "n/a"}</td><td>${usd(x.price)}</td><td>${usd(x.profitPerTechDay)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Quote ${usd(r.job.price)}.`;
-      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

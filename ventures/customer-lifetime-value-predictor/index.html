@@ -197,7 +197,7 @@
       $("#params").textContent = `Purchase model (weeks): r ${p.r.toFixed(3)}, alpha ${p.alpha.toFixed(2)}, a ${p.a.toFixed(3)}, b ${p.b.toFixed(3)}. ` + (g ? `Spend model: p ${g.p.toFixed(2)}, q ${g.q.toFixed(2)}, gamma ${g.gamma.toFixed(2)}. ` : "Spend model: too few repeat buyers, observed averages used. ") + `Data: ${s.orders.toLocaleString("en-US")} orders, ${dayToIso(s.firstDay)} to ${dayToIso(s.lastDay)}` + (parsed.skipped || parsed.refunds ? `; ${parsed.skipped} unreadable rows skipped, ${parsed.refunds} refunds or zero amounts ignored.` : ".");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -145,7 +145,7 @@ node cli.mjs rules                        # every rule and the law behind it</pr
         ...report.findings.map((x) => `- **${x.severity}** ${x.title} (${x.evidence.slice(0, 3).map((e) => `${e.file}${e.line ? `:${e.line}` : ""}`).join(", ")})`),
         "", "Observations from an automated scan, not legal advice."].join("\n");
       $("#report").hidden = false;
-      $("#report").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#scan").addEventListener("click", async () => {

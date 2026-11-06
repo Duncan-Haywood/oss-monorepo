@@ -175,7 +175,7 @@
       $("#ct tbody").innerHTML = [["Wages and burden (cleaning and paid drive time)", f0.wages], ["Supplies", f0.supplies], ["Mileage", f0.mileage], ["Payment fee", f0.cardFee], ["Profit", f0.profit]].map(([k, v]) => `<tr><td>${k}</td><td class="n">${money2(v)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

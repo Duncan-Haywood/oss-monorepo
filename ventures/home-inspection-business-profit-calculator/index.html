@@ -191,7 +191,7 @@
       $("#rows").innerHTML = r.table.map((x) => `<tr><th scope="row">${x.extra}</th><td>${x.completed}</td><td>${usd(x.associatePay)}</td><td>${x.reviewHours}</td><td>${usd(x.added)}</td><td>${usd(x.totalAfterPay)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Weekly result working solo: ${usd(r.season.afterPay)} after your pay.`;
-      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

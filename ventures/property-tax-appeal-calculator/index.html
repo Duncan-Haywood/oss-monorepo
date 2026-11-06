@@ -176,7 +176,7 @@
       $("#summary").value = summaryText(a);
       report.hidden = false;
       status.textContent = "Done.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

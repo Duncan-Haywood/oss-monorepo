@@ -144,7 +144,7 @@
         r.sensitivity.map((s) => `<tr><th scope="row">${usd(s.ticket)}</th>${s.rates.map((c) => `<td>${c.effective}%</td>`).join("")}</tr>`).join("") + "</tbody>";
       report.hidden = false;
       status.textContent = `Cheapest: ${r.best.name} at ${usd(r.best.total)} a month.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -176,7 +176,7 @@
       $("#st tbody").innerHTML = r.stress.map((row) => `<tr><td>+${row.overrunPct}% repairs</td>${row.cells.map((c) => `<td class="n">${c.maxBid === null ? "no bid works" : money(c.maxBid)}</td>`).join("")}</tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

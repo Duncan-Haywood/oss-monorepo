@@ -160,7 +160,7 @@
       $("#curve").textContent = `Each step up in ln(1 + minutes) changes the log-odds of winning by ${num(r.fit.b, 2)} (90% range ${num(r.slopeLo, 2)} to ${num(r.slopeHi, 2)}). At ${num(r.target, 0)} minutes the curve puts your win chance at ${pct(r.rateAtTarget, 0)}. ${r.slopeSignificant ? "The trend is clearly different from zero." : "The trend is not clearly different from zero, so read the gain as a ceiling."}`;
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

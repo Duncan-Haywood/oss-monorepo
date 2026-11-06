@@ -190,7 +190,7 @@
       costs = c.costs;
       if (!render()) return false;
       status.textContent = `Read ${rows.length} statement rows` + (items.length ? ` and ${items.length} order items.` : ".") + (c.bad.length ? ` Ignored cost line(s): ${c.bad.join(", ")}.` : "");
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

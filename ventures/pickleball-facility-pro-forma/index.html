@@ -235,7 +235,7 @@
       $("#lv tbody").innerHTML = r.levers.map((l) => `<tr><td>${esc(l.label)}</td><td class="n">${sgn(l.up)}</td><td class="n">${sgn(l.down)}</td><td class="n">${l.elasticity === null ? "n/a" : l.elasticity.toFixed(2)}</td><td><span class="bar" style="width:${Math.round((l.swing / top) * 120)}px"></span></td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

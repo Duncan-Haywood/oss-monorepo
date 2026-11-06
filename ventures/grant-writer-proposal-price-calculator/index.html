@@ -175,7 +175,7 @@
       els.table.innerHTML = r.rows.map((p) => `<tr><td>${esc(p.name)}</td><td>${p.paddedHours}</td><td>${money(p.fee)}</td><td>${p.quoted ? money(p.quoted) : "—"}</td><td>${p.quoted ? money(p.takeHomeHourly) : "—"}</td></tr>`).join("");
       els.status.textContent = "";
       record("fee_calculated");
-      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#calculate").addEventListener("click", runCalculate);

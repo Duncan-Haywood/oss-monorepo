@@ -202,7 +202,7 @@
       $("#size-table tbody").innerHTML = a.results.map((r) => `<tr class="${r === b ? "best" : ""}"><td>${esc(r.offer.label)}</td><td class="n">${usd(r.year1)}</td><td class="n">${usd(r.avg)}</td><td class="n">${usd(r.afterTax4)}</td><td class="n">$${r.hourly.toFixed(0)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

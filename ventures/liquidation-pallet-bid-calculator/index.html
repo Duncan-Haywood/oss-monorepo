@@ -251,7 +251,7 @@
       $("#run-note").textContent = `${s.lines.toLocaleString("en-US")} lines, ${Math.round(s.units).toLocaleString("en-US")} units, ${money(s.totalRetail)} retail value; ${s.trials.toLocaleString("en-US")} simulated outcomes, seed ${s.seed}.` + (parsed.skipped ? ` ${parsed.skipped} unreadable rows skipped.` : "") + (parsed.defaultedQty ? ` ${parsed.defaultedQty} rows had no quantity and count as 1.` : "");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

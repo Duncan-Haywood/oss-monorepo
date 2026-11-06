@@ -153,7 +153,7 @@
       $("#rows").innerHTML = r.table.map((x) => `<tr><th scope="row">${x.pct}%</th><td>${x.classes}</td><td>${x.poolHours}</td><td>${x.utilizationPct}%</td><td>${usd(x.net)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Weekly result: ${usd(r.week.net)} after pool, instructor pay, fees and fixed cost.`;
-      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 
