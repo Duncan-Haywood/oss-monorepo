@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%230b5d4b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EM%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Missed call text-back for contractors: a free guide</title>
+  <meta name="description" content="Why contractors lose jobs to unanswered calls, what a missed-call text should say, the texting rules to check first (US carrier registration, STOP, quiet hours) and how to run an open-source text-back agent on your own Twilio account.">
+  <link rel="canonical" href="./missed-call-text-back-for-contractors.html">
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b2430; background: #f2f5f4; }
+    body { max-width: 980px; margin: auto; padding: 28px 18px 60px; }
+    a { color: #0b5d4b; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 12px; color: #0d3a30; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0d3a30; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #475550; }
+    .card { background: #fff; border: 1px solid #d3dcd8; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aab8b2; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    textarea { min-height: 90px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    button { margin-top: 14px; padding: 10px 16px; border: 0; border-radius: 8px; background: #0b5d4b; color: #fff; font: 600 15px system-ui, sans-serif; cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid #e0a100; outline-offset: 2px; }
+    .big { font-size: 1.7rem; font-weight: 700; color: #0d3a30; }
+    .bad { color: #9b1c1c; } .ok { color: #1c6b3a; }
+    .sms { background: #e6efec; border-radius: 14px; padding: 12px 14px; max-width: 420px; white-space: pre-wrap; }
+    @media (prefers-color-scheme: dark) { :root { color: #e3ece8; background: #101815; } .card { background: #17211d; border-color: #2a3a34; } h1,h2,.big { color: #bfe8d9; } a { color: #7fd3b8; } .note, footer { color: #a4b5ae; } input, select, textarea { background: #101815; border-color: #3a4d45; } .sms { background: #22332d; } .bad { color: #ff9b9b; } .ok { color: #8fe0ad; } }
+  </style>
+</head>
+<body>
+  <main>
+  <p><a href="./">&larr; Missed Call Text-Back (calculator and message check)</a></p>
+  <h1>Missed call text-back for contractors</h1>
+  <p>You are under a sink or on a roof; the phone rings; you cannot pick up. The caller has a problem now. If there is no voicemail and no reply, the next plumber, roofer or electrician in the search results gets the job. A text sent within seconds says you saw the call and keeps the caller waiting for you instead of dialling someone else.</p>
+  <section class="card"><h2>Who this is for</h2>
+    <p>Owner-operators and small crews who answer their own phone and have no receptionist: trades, cleaners, mobile groomers, locksmiths, towing, pest control. Not for large call centres, and not for anyone who would use it to send marketing to people who did not call.</p></section>
+  <section class="card"><h2>What the text should say</h2>
+    <p>Short, from a person, with your business name, and one clear way to reply. Example (made up): <em>"Hi, this is Acme Plumbing. Sorry we missed your call. How can we help? Reply here and we will get back to you shortly. Reply STOP to opt out."</em> That is one billable segment. Add a booking link only if you have one that works on a phone. <a href="./">Check your own wording</a>.</p></section>
+  <section class="card"><h2>Rules to check before turning it on</h2>
+    <ul>
+      <li><strong>Register your number.</strong> In the US, carriers expect business texting numbers to be registered (10DLC campaign or toll-free verification); unregistered traffic is filtered. This takes days; start first.</li>
+      <li><strong>Say who you are, and honour STOP.</strong> Name the business in the first text; stop texting anyone who replies STOP, and do not text them again until they reply START.</li>
+      <li><strong>Reply, do not market.</strong> A text answering a call the person made is a different thing from a promotion. Do not use the same number for blasts without consent.</li>
+      <li><strong>Mind the hour.</strong> This agent holds night calls until 08:00 local time instead of texting at midnight.</li>
+      <li><strong>Outside the US</strong> (Canada's CASL, UK PECR and GDPR, EU member states) the rules differ. Ask a local lawyer.</li>
+    </ul>
+    <p class="note">These are common requirements written from general knowledge, not legal advice, and the statutes were not re-read for this page.</p></section>
+  <section class="card"><h2>Run it yourself, or use a hosted service</h2>
+    <p>Hosted services for this exist and charge monthly per location. This one is different in one way only: the code is open and MIT licensed, so you run it on your own Twilio account and pay Twilio's per-text price rather than a subscription. If you do not want to run a server, a hosted service is the better choice, and so is the answering service your phone provider already offers. When you run it yourself you also own the setup: the number, its registration, the server and its upkeep.</p>
+    <p>Steps are on the <a href="./">main page</a>; the source and the exact rules are in the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/missed-call-textback">repository</a>. It has been tested against a fake Twilio only; no real call has gone through it yet, so run it in dry-run mode first and read the log.</p></section>
+  <section class="card"><h2>Is it worth it? Do the sum</h2>
+    <p>Missed calls a week, times the share who would reply, times the share who become jobs, times your average job. <a href="./">The calculator</a> does it from your own numbers, and shows how many extra jobs a month pay for the cost. If the answer is under one job a month, it is not worth the setup.</p></section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Texting rules (US TCPA and carrier registration, CASL in Canada, PECR and GDPR in the UK and EU) depend on who you text, why and where; the checks here are a list of common requirements, not a ruling, so ask a lawyer before you turn automatic texting on.</p>
+    <p><strong>Your numbers.</strong> The calculator and the message builder run in your browser and send nothing anywhere. The self-host agent is separate: it runs on your own server with your own Twilio account, and the portfolio never receives a phone number or a message.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this page as a system of record.</p>
+    <p>Anonymous feature events (<code>roi_calculated</code>, <code>message_checked</code>, <code>example_loaded</code>) are counted only in local storage on your device and never sent. Do Not Track and Global Privacy Control are respected.</p>
+    <p><button type="button" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../lead-response-time-analyzer/">lead response time analyzer</a>, <a href="../sms-segment-cost-calculator/">SMS segment cost calculator</a>, <a href="../home-service-lead-roi-analyzer/">home service lead ROI analyzer</a>.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const c = document.getElementById("optout");
+    c.addEventListener("click", () => { setUsageOptOut(true); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>

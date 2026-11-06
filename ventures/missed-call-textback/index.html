@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%230b5d4b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EM%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Missed Call Text-Back</title>
+  <meta name="description" content="Free missed-call text-back for contractors and local service businesses: work out what unanswered calls cost you, preview and check the automatic text, then self-host the open-source Twilio agent. One text per caller, quiet hours, STOP handled. No monthly fee from us.">
+  <meta property="og:title" content="Missed-call text-back for trades — free, open source">
+  <meta property="og:description" content="Every unanswered call gets one polite text within seconds. Calculate what you are losing, check the message, self-host the agent on your own Twilio account.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Missed Call Text-Back", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser; self-host server needs Node 20+)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is missed-call text-back?", "acceptedAnswer": {"@type": "Answer", "text": "When a call to your business number goes unanswered, your phone system sends the caller one text within seconds, such as \"Sorry we missed your call, how can we help?\" The caller can reply, and you answer from your own phone when you are free. It is aimed at plumbers, electricians, HVAC, roofers, cleaners and other trades whose phone rings while their hands are busy."}}, {"@type": "Question", "name": "Does it cost per month?", "acceptedAnswer": {"@type": "Answer", "text": "The code is free and MIT licensed. You run it on your own server with your own Twilio account, so you pay Twilio's per-text fee (see smsSegments in the calculator for how many segments a message uses) and a small server, or nothing if you run it on a free tier. There is no per-seat price from us."}}, {"@type": "Question", "name": "Is automatic texting legal?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on where you and the caller are. In the US, carriers require business texting numbers to be registered (10DLC or toll-free verification), every text must say who you are and how to stop, and STOP must be honoured at once. This page lists the common requirements. It is not legal advice; ask a lawyer before you turn it on."}}, {"@type": "Question", "name": "Does it ever text someone twice or at night?", "acceptedAnswer": {"@type": "Answer", "text": "No by default: one text per number per 24 hours, nothing outside 08:00 to 21:00 in your time zone (night calls wait until morning), STOP and START are handled, and there is a daily cap that stops a runaway loop."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b2430; background: #f2f5f4; }
+    body { max-width: 980px; margin: auto; padding: 28px 18px 60px; }
+    a { color: #0b5d4b; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 12px; color: #0d3a30; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0d3a30; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #475550; }
+    .card { background: #fff; border: 1px solid #d3dcd8; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aab8b2; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    textarea { min-height: 90px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    button { margin-top: 14px; padding: 10px 16px; border: 0; border-radius: 8px; background: #0b5d4b; color: #fff; font: 600 15px system-ui, sans-serif; cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid #e0a100; outline-offset: 2px; }
+    .big { font-size: 1.7rem; font-weight: 700; color: #0d3a30; }
+    .bad { color: #9b1c1c; } .ok { color: #1c6b3a; }
+    .sms { background: #e6efec; border-radius: 14px; padding: 12px 14px; max-width: 420px; white-space: pre-wrap; }
+    @media (prefers-color-scheme: dark) { :root { color: #e3ece8; background: #101815; } .card { background: #17211d; border-color: #2a3a34; } h1,h2,.big { color: #bfe8d9; } a { color: #7fd3b8; } .note, footer { color: #a4b5ae; } input, select, textarea { background: #101815; border-color: #3a4d45; } .sms { background: #22332d; } .bad { color: #ff9b9b; } .ok { color: #8fe0ad; } }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Missed a call? Text them back before they call someone else.</h1>
+  <p>Trades miss calls because their hands are busy. Many callers do not leave a voicemail; they ring the next name on the list. This tool works out what that costs <em>you</em> from your own numbers, checks the automatic text for the rules that matter, and gives you an open-source agent that sends it from your own Twilio number. See also the <a href="missed-call-text-back-for-contractors.html">guide for contractors</a>.</p>
+
+  <section class="card" aria-labelledby="roi-h">
+    <h2 id="roi-h">1. What do missed calls cost you?</h2>
+    <p class="note">Type your own numbers. Nothing is assumed: we do not know your reply rate, and an industry average would be a guess. Track a month of calls first if you can.</p>
+    <div class="grid">
+      <div><label for="missed">Missed calls per week</label><input id="missed" type="number" min="0" step="1" inputmode="numeric"></div>
+      <div><label for="already">Share you already call back the same day (%)</label><input id="already" type="number" min="0" max="100" step="1" inputmode="numeric" value="0"></div>
+      <div><label for="reply">Share of callers who would reply to a text (%)</label><input id="reply" type="number" min="0" max="100" step="1" inputmode="numeric"></div>
+      <div><label for="close">Share of repliers who become a job (%)</label><input id="close" type="number" min="0" max="100" step="1" inputmode="numeric"></div>
+      <div><label for="job">Average job value ($)</label><input id="job" type="number" min="0" step="1" inputmode="numeric"></div>
+      <div><label for="cost">Your monthly cost for this ($)</label><input id="cost" type="number" min="0" step="1" inputmode="numeric" value="0"></div>
+    </div>
+    <button type="button" id="calc">Work it out</button> <button type="button" id="example">Load a made-up example</button>
+    <p id="roi-status" role="status" class="note">Fill the boxes, then click Work it out.</p>
+    <div id="roi-out" hidden>
+      <p class="big" id="roi-net"></p>
+      <p id="roi-detail"></p>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="msg-h">
+    <h2 id="msg-h">2. Preview and check the text</h2>
+    <div class="grid">
+      <div><label for="biz">Business name</label><input id="biz" autocomplete="organization"></div>
+      <div><label for="link">Booking link (optional)</label><input id="link" type="url" placeholder="https://"></div>
+      <div><label for="tz">Time zone</label><input id="tz" value="America/New_York"></div>
+      <div><label for="when">If the call was missed</label><select id="when"><option value="open">during opening hours</option><option value="closed">after hours</option></select></div>
+    </div>
+    <label for="tmpl">Message ({business} and {link} are filled in)</label>
+    <textarea id="tmpl"></textarea>
+    <button type="button" id="check">Check the message</button>
+    <p id="msg-status" role="status" class="note">Add your business name, then click Check the message.</p>
+    <div id="msg-out" hidden>
+      <div class="sms" id="preview"></div>
+      <p id="segs"></p>
+      <ul id="issues"></ul>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="how-h">
+    <h2 id="how-h">3. Run it on your own Twilio number</h2>
+    <ol>
+      <li>Get a Twilio number and register it for business texting (US: 10DLC or toll-free verification; this takes days and is the slow part).</li>
+      <li>Deploy <code>server.mjs</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/missed-call-textback">source</a> anywhere Node 20 runs. Set <code>BUSINESS_NAME</code>, <code>TIMEZONE</code>, <code>TWILIO_ACCOUNT_SID</code>, <code>TWILIO_AUTH_TOKEN</code>, <code>TWILIO_FROM</code>, <code>PUBLIC_URL</code>.</li>
+      <li>Point the number's call status callback at <code>/voice</code> and incoming messages at <code>/sms</code>. Without keys it runs as a dry run and only logs what it would send.</li>
+    </ol>
+    <p class="note">Rules built in: one text per number per 24 hours; nothing from 21:00 to 08:00 local (night calls wait); STOP, START and HELP answered; replies other than keywords are forwarded to your phone; a daily cap; every webhook checked against Twilio's signature. Tested with a fake Twilio only: no real call has been through it yet.</p>
+  </section>
+
+  <section class="card"><h2>Questions</h2><h3>What is missed-call text-back?</h3><p>When a call to your business number goes unanswered, your phone system sends the caller one text within seconds, such as "Sorry we missed your call, how can we help?" The caller can reply, and you answer from your own phone when you are free. It is aimed at plumbers, electricians, HVAC, roofers, cleaners and other trades whose phone rings while their hands are busy.</p><h3>Does it cost per month?</h3><p>The code is free and MIT licensed. You run it on your own server with your own Twilio account, so you pay Twilio's per-text fee (see smsSegments in the calculator for how many segments a message uses) and a small server, or nothing if you run it on a free tier. There is no per-seat price from us.</p><h3>Is automatic texting legal?</h3><p>It depends on where you and the caller are. In the US, carriers require business texting numbers to be registered (10DLC or toll-free verification), every text must say who you are and how to stop, and STOP must be honoured at once. This page lists the common requirements. It is not legal advice; ask a lawyer before you turn it on.</p><h3>Does it ever text someone twice or at night?</h3><p>No by default: one text per number per 24 hours, nothing outside 08:00 to 21:00 in your time zone (night calls wait until morning), STOP and START are handled, and there is a daily cap that stops a runaway loop.</p></section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Texting rules (US TCPA and carrier registration, CASL in Canada, PECR and GDPR in the UK and EU) depend on who you text, why and where; the checks here are a list of common requirements, not a ruling, so ask a lawyer before you turn automatic texting on.</p>
+    <p><strong>Your numbers.</strong> The calculator and the message builder run in your browser and send nothing anywhere. The self-host agent is separate: it runs on your own server with your own Twilio account, and the portfolio never receives a phone number or a message.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this page as a system of record.</p>
+    <p>Anonymous feature events (<code>roi_calculated</code>, <code>message_checked</code>, <code>example_loaded</code>) are counted only in local storage on your device and never sent. Do Not Track and Global Privacy Control are respected.</p>
+    <p><button type="button" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../lead-response-time-analyzer/">lead response time analyzer</a>, <a href="../sms-segment-cost-calculator/">SMS segment cost calculator</a>, <a href="../home-service-lead-roi-analyzer/">home service lead ROI analyzer</a>.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { roi, render, checkConfig, smsSegments, DEFAULTS } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const money = (n) => "$" + Math.round(n).toLocaleString("en-US");
+    $("#tmpl").value = DEFAULTS.openMessage;
+    $("#when").addEventListener("change", () => { $("#tmpl").value = $("#when").value === "open" ? DEFAULTS.openMessage : DEFAULTS.afterHoursMessage; });
+    function calc() {
+      const r = roi({ missedPerWeek: $("#missed").value, alreadyCalledBackPct: $("#already").value, replyPct: $("#reply").value, closePct: $("#close").value, jobValue: $("#job").value, monthlyCost: $("#cost").value });
+      if (r.error) { $("#roi-out").hidden = true; $("#roi-status").textContent = r.error; return; }
+      $("#roi-out").hidden = false;
+      $("#roi-net").textContent = (r.net >= 0 ? "About " + money(r.net) + " a month more" : "About " + money(-r.net) + " a month less") + " than doing nothing, on your numbers";
+      $("#roi-detail").textContent = `${r.uncoveredPerWeek.toFixed(1)} unreturned calls a week, ${r.repliesPerWeek.toFixed(2)} replies, ${r.jobsPerWeek.toFixed(2)} jobs a week, about ${money(r.revenueMonth)} of work a month. It pays for itself after ${r.breakEvenJobsPerMonth === null ? "n/a" : r.breakEvenJobsPerMonth.toFixed(2)} extra jobs a month.`;
+      $("#roi-status").textContent = "Done. Change any number to see how sensitive the answer is.";
+      record("roi_calculated");
+    }
+    $("#calc").addEventListener("click", calc);
+    $("#example").addEventListener("click", () => {
+      Object.entries({ missed: 10, already: 0, reply: 30, close: 25, job: 400, cost: 30 }).forEach(([k, v]) => { $("#" + k).value = v; });
+      calc(); $("#roi-status").textContent = "Made-up example, not a benchmark: replace every number with your own."; record("example_loaded");
+    });
+    $("#check").addEventListener("click", () => {
+      const c = { ...DEFAULTS, businessName: $("#biz").value.trim(), timeZone: $("#tz").value.trim(), bookingLink: $("#link").value.trim(), openMessage: $("#tmpl").value, afterHoursMessage: $("#tmpl").value };
+      const issues = checkConfig(c), text = render($("#tmpl").value, c, true), s = smsSegments(text);
+      $("#msg-out").hidden = false; $("#preview").textContent = text;
+      $("#segs").textContent = `${s.units} characters, ${s.segments} segment${s.segments === 1 ? "" : "s"} (${s.encoding}). Each segment is billed.`;
+      $("#issues").innerHTML = "";
+      for (const i of issues.length ? issues : ["Nothing flagged: it names you, offers a way to stop and fits in two segments or fewer."]) { const li = document.createElement("li"); li.textContent = i; li.className = issues.length ? "bad" : "ok"; $("#issues").appendChild(li); }
+      $("#msg-status").textContent = issues.length ? issues.length + " thing(s) to fix." : "Looks fine by these rules.";
+      record("message_checked");
+    });
+    $("#optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>
