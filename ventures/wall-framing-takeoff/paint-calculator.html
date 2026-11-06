@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Paint calculator: gallons of paint and primer for walls, ceilings and doors</title>
+  <meta name="description" content="Free paint takeoff: type your walls, doors and ceilings and get gallons of paint and primer after openings, coats and waste, and a cost. Runs in your browser.">
+  <meta property="og:title" content="Paint calculator">
+  <meta property="og:description" content="Walls, doors and ceilings in, gallons of paint and primer out. Private, free, in your browser.">
+  <link rel="canonical" href="./paint-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much paint and primer does a front wall, a hall and a ceiling need?", "acceptedAnswer": {"@type": "Answer", "text": "The 20 ft front wall at 8 ft is 160 sq ft less a 3 ft door (20 sq ft) and a 4 ft window (16 sq ft), 124 sq ft on its one painted face. The 12 ft interior hall wall is 96 sq ft less its door (17.8 sq ft), 78.2 sq ft on each of two faces. Together with the 120 sq ft ceiling and 2 door leaves of 21 sq ft on both sides (84 sq ft), two coats at 350 sq ft per gallon with 10% waste come to 3.05 gal, so buy 4 gal. One primer coat on walls and ceiling is 1.47 gal, so buy 2 gal."}}, {"@type": "Question", "name": "What does that cost, and how do I change the coverage?", "acceptedAnswer": {"@type": "Answer", "text": "With the typed prices (38.00 per gallon of paint and 28.00 per gallon of primer) that is 4 x 38 + 2 x 28 = 208.00. A five-gallon pail price, if you type one, replaces gallons only when it is cheaper. The 350 sq ft per gallon figure is a typical label number: textured walls, new drywall and dark-to-light changes cover less, so type your can's figure as coverage."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Paint calculator</h1>
+  <p>Type your walls (length in inches, doors and windows with width and height) and the paint follows: wall area less openings on each painted face, door leaves, ceiling rectangles, coats, coverage and waste, rounded up to whole gallons, with a separate primer coat and a cost if you type prices. The same paint engine as the whole-house takeoff. Cutting in, rollers, tape, drop cloths and texture are not counted. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <label for="json">Plan (JSON: walls with id, length, sheathed, openings with width and height; paint with height, coats, primerCoats, coverage, waste, ceilings, prices)</label>
+    <textarea id="json" rows="16" spellcheck="false" style="width:100%;box-sizing:border-box;font:.9rem ui-monospace,monospace;padding:8px">{
+  "walls": [
+    { "id": "front", "length": 240, "openings": [ { "kind": "door", "offset": 100, "width": 36, "height": 80 }, { "kind": "window", "offset": 170, "width": 48, "height": 48 } ] },
+    { "id": "hall", "length": 144, "sheathed": false, "openings": [ { "kind": "door", "offset": 48, "width": 32, "height": 80 } ] }
+  ],
+  "paint": { "height": 96, "coats": 2, "primerCoats": 1, "ceilings": [ { "width": 144, "depth": 120 } ], "gallonPrice": 38, "fivePrice": 160, "primerPrice": 28 }
+}</textarea>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Do the whole house: framing, sheathing, plumbing and more in one takeoff</a></p>
+
+  <h2>How it is counted</h2>
+  <ol>
+    <li><strong>Wall area.</strong> Length times paint height, less each opening at its full size (window glass is not painted), on every painted face: one for an exterior wall, two for an interior wall (<code>"sheathed": false</code>).</li>
+    <li><strong>Doors and ceilings.</strong> Each door leaf is 21 sq ft a side by default, two sides; ceilings are width by depth rectangles you type.</li>
+    <li><strong>Gallons.</strong> Area times coats over coverage (350 sq ft per gallon), plus waste, rounded up to whole gallons; primer is counted on its own coverage (300).</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How much paint and primer does a front wall, a hall and a ceiling need?</h3>
+  <p>The 20 ft front wall at 8 ft is 160 sq ft less a 3 ft door (20 sq ft) and a 4 ft window (16 sq ft), 124 sq ft on its one painted face. The 12 ft interior hall wall is 96 sq ft less its door (17.8 sq ft), 78.2 sq ft on each of two faces. Together with the 120 sq ft ceiling and 2 door leaves of 21 sq ft on both sides (84 sq ft), two coats at 350 sq ft per gallon with 10% waste come to 3.05 gal, so buy 4 gal. One primer coat on walls and ceiling is 1.47 gal, so buy 2 gal.</p>
+  <h3>What does that cost, and how do I change the coverage?</h3>
+  <p>With the typed prices (38.00 per gallon of paint and 28.00 per gallon of primer) that is 4 x 38 + 2 x 28 = 208.00. A five-gallon pail price, if you type one, replaces gallons only when it is cheaper. The 350 sq ft per gallon figure is a typical label number: textured walls, new drywall and dark-to-light changes cover less, so type your can's figure as coverage.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="electrical-calculator.html">Electrical rough-in calculator (receptacle and switch boxes, cable)</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator (tiles, backer board, membrane)</a></li><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity (what a lumber or labor swing does to the bid)</a></li><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li><li><a href="drywall-calculator.html">Drywall calculator (sheets, tape, compound)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, carpet)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Coverage is a typical label figure, not your product's, and the output is not checked against any span table or code, or against a plan. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, paint maker, builder or software company. Cutting in, rollers, tape, drop cloths, texture, stain, and the coverage of your actual can are not counted. Read the label and ask a painter.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { layoutPaint, paintText } from "./paint.mjs";
+    const $ = (id) => document.getElementById(id);
+    const run = () => {
+      let d;
+      try { d = JSON.parse($("json").value); } catch (e) { $("out").textContent = "That is not valid JSON: " + e.message; return; }
+      const p = layoutPaint(d.paint || {}, d);
+      $("out").textContent = p.ok === false ? p.errors.join("\n") : paintText(p).join("\n");
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>

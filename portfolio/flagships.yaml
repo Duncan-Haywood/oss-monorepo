@@ -36,7 +36,7 @@ flagships:
       CLI and agent engine. First tool of the new-home construction program.
     next: >-
       Landed work, with dates and how each was checked, is in
-      ventures/wall-framing-takeoff/README.md and ROADMAP.md (recent: electrical rough-in page electrical-calculator.html 2026-11-06, wall tile (`--wall-tile`, and its page walltile-calculator.html, 2026-11-06), HVAC duct rough-in quantities (`--hvac`, and its page hvac-calculator.html 2026-11-06), price sensitivity page price-sensitivity-calculator.html 2026-11-06, fireblock hostile-input guards and fuzz test 2026-11-06, plumbing rough-in quantities and its page, roof nail slices, wall braces, stepped walls, order-by dates, bench retry with `--gang`; all 2026-11-05/06, mostly hand tests only; schedule: crews,
+      ventures/wall-framing-takeoff/README.md and ROADMAP.md (recent: paint page paint-calculator.html 2026-11-06, electrical rough-in page electrical-calculator.html 2026-11-06, wall tile (`--wall-tile`, and its page walltile-calculator.html, 2026-11-06), HVAC duct rough-in quantities (`--hvac`, and its page hvac-calculator.html 2026-11-06), price sensitivity page price-sensitivity-calculator.html 2026-11-06, fireblock hostile-input guards and fuzz test 2026-11-06, plumbing rough-in quantities and its page, roof nail slices, wall braces, stepped walls, order-by dates, bench retry with `--gang`; all 2026-11-05/06, mostly hand tests only; schedule: crews,
       weather, holds, deadline, CSV, risk, and cost-loaded cash flow by week and
       month). Wanted, all needing real inputs: a real builder's activity list
       and draw schedule for `--schedule` (payment lag, retainage); a real
