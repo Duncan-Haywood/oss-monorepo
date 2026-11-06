@@ -22,6 +22,32 @@ export function eagerLaterImages(html) {
   return imgs.filter((t, i) => i > 0 && !/\bloading\s*=/.test(t));
 }
 
+// An <img> with a src and no width and height lets the page jump as it loads.
+// Images with no src are filled in by script at run time and are exempt.
+export function undimensionedImages(html) {
+  const text = html
+    .replace(/<(script|style|pre|code|template)\b[\s\S]*?<\/\1>/gi, '')
+    .replace(/<!--[\s\S]*?-->/g, '');
+  return [...text.matchAll(/<img\b[^>]*>/gi)]
+    .map((m) => m[0])
+    .filter((t) => /\bsrc\s*=/.test(t) && !(/\bwidth\s*=/.test(t) && /\bheight\s*=/.test(t)));
+}
+
+test('the dimension scanner flags a src image without width and height only', () => {
+  const html = '<img src="a.png" width="1" height="2"><img src="b.png"><img id="x" alt=""><img src="c.png" width="1">';
+  assert.deepEqual(undimensionedImages(html), ['<img src="b.png">', '<img src="c.png" width="1">']);
+});
+
+test('no venture index.html has an <img src> without width and height', () => {
+  const bad = [];
+  for (const d of readdirSync(VENTURES)) {
+    const f = join(VENTURES, d, 'index.html');
+    if (!existsSync(f)) continue;
+    for (const t of undimensionedImages(readFileSync(f, 'utf8'))) bad.push(`${d}: ${t.slice(0, 90)}`);
+  }
+  assert.deepEqual(bad, [], 'add width and height attributes so the layout does not shift');
+});
+
 test('the scanner flags a later img without loading and spares the first', () => {
   const html = '<img src="a.png"><img src="b.png"><img src="c.png" loading="lazy"><pre><img src="d.png"></pre>';
   assert.deepEqual(eagerLaterImages(html), ['<img src="b.png">']);
