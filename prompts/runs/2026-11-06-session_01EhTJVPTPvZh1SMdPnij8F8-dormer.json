@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01EhTJVPTPvZh1SMdPnij8F8",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled run: continue work on the repo (ventures, revenue products)",
+  "input_sha256": "eacca7109fcd1d56f02e49f33eff367087227f07e9fea631a39163e15c4cda21",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "task": "Deepen flagship 1: wall-framing-takeoff dormer calculator page",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/wall-framing-takeoff/ROADMAP.md",
+      "issue": "Same as the foundation run: a new calculator page needs a nav link on every sibling page, two page.test.mjs lists, sitemap and llms.txt; no doc says so."
+    }
+  ],
+  "deviations": [
+    "Router drew the research track but the scheduled prompt asked for revenue ventures; shipped flagship venture work."
+  ],
+  "writeups": [
+    "docs/posts/2026-11-06-dormer-framing-calculator.md",
+    "ventures/wall-framing-takeoff/ROADMAP.md"
+  ],
+  "notes": "wall-framing-takeoff suites: 990 tests, 989 pass, 0 fail (1 skipped). Page loaded in headless Chromium over http, gable and shed, no console errors. Free lead-magnet page toward the takeoff tool; no revenue path until the owner's checkout link."
+}
