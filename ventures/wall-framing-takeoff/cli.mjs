@@ -12,6 +12,7 @@ import { layoutDrywall, drywallText } from "./drywall.mjs";
 import { layoutInsulation, insulationText } from "./insulation.mjs";
 import { layoutTrim, trimText } from "./trim.mjs";
 import { layoutPaint, paintText } from "./paint.mjs";
+import { layoutWallTile, wallTileText } from "./walltile.mjs";
 import { layoutFireblock, fireblockText } from "./fireblock.mjs";
 import { layoutFlooring, flooringText } from "./flooring.mjs";
 import { layoutElectrical, electricalText } from "./electrical.mjs";
@@ -85,6 +86,7 @@ Usage:
   node cli.mjs plan.json --plumbing    add plumbing rough-in quantities from plan.plumbing.fixtures (typed drain, vent, hot and cold runs per fixture): pipe sticks, PEX coils, traps, stops, fittings
   node cli.mjs plan.json --drilling    check pipe and cable holes and notches against stud limits (plan drilling: runs [{wall, kind: bore|notch, size or pipe, count, doubled, label}], clearance, limits)
   node cli.mjs plan.json --trim        add baseboard and door and window casing boards (plan trim: scarf, shoe, shoeStock, shoePrice, baseSides, baseStock, casingStock, casingWidth, reveal, waste, basePrice, casingPrice)
+  node cli.mjs plan.json --wall-tile   add wall tile orders (shower, tub, backsplash) from typed surfaces: tiles, thinset, grout, cement backer board, screws, membrane (plan wallTile: surfaces [{name, width, height, openings}], tile, backer, membrane)
   node cli.mjs plan.json --flooring    add finish flooring orders from typed rooms: plank boxes, tile with thinset and grout, carpet strips from a roll with pad and tack strip (plan flooring: rooms [{name, width, depth, kind}], plank, tile, carpet)
   node cli.mjs plan.json --fireblock   add fireblocking rows for walls taller than the typed cavity limit (plan fireblock: intervalFt, boardFt, rows, waste, boardPrice)
   node cli.mjs plan.json --paint       add interior paint gallons: walls less openings, doors, ceilings, coats, primer (plan paint: height, faces, coats, primerCoats, coverage, waste, ceilings, trimFeet, gallonPrice, fivePrice)
@@ -319,6 +321,11 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     if (!fl.ok) return { code: 1, out: `The flooring has problems:\n${fl.errors.map((e) => `  - ${e}`).join("\n")}` };
     r.flooring = fl;
   }
+  if (r.ok && (flags.has("--wall-tile") || plan.wallTile)) {
+    const wt = layoutWallTile(plan.wallTile || {});
+    if (!wt.ok) return { code: 1, out: `The wall tile has problems:\n${wt.errors.map((e) => `  - ${e}`).join("\n")}` };
+    r.wallTile = wt;
+  }
   if (r.ok && (flags.has("--openings") || plan.openingSchedule)) {
     const os = layoutOpeningSchedule(plan.openingSchedule || {}, plan);
     if (!os.ok) return { code: 1, out: `The opening schedule has problems:\n${os.errors.map((e) => `  - ${e}`).join("\n")}` };
@@ -450,6 +457,7 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   if (r.fireblock) lines.push("", "FIREBLOCKING", ...fireblockText(r.fireblock));
   if (r.paint) lines.push("", "PAINT", ...paintText(r.paint));
   if (r.flooring) lines.push("", "FLOORING", ...flooringText(r.flooring));
+  if (r.wallTile) lines.push("", "WALL TILE", ...wallTileText(r.wallTile));
   if (r.electrical) lines.push("", "ELECTRICAL ROUGH-IN", ...electricalText(r.electrical));
   if (r.hvac) lines.push("", "HVAC DUCT ROUGH-IN", ...hvacText(r.hvac));
   if (r.plumbing) lines.push("", "PLUMBING ROUGH-IN", ...plumbingText(r.plumbing));

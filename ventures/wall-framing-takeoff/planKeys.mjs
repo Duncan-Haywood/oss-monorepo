@@ -5,7 +5,7 @@
 export const KNOWN_PLAN_KEYS = [
   "studSpacing", "studLength", "kerf", "topPlateLap", "cornerExtraStuds", "teeExtraStuds", "defaultHeaderHeight", "stock", "walls",
   "advanced", "allowances", "bids", "blocking", "culls", "deck", "dormer", "drilling", "drywall", "eaves", "electrical", "fasteners", "floor", "foundation", "gutters",
-  "headerTable", "hvac", "insulation", "plateLaps", "plumbing", "prices", "proposal", "roof", "schedule", "sheathing", "siding", "stairs", "trim", "ventilation",
+  "headerTable", "hvac", "insulation", "plateLaps", "plumbing", "prices", "proposal", "roof", "schedule", "sheathing", "siding", "stairs", "trim", "ventilation", "wallTile",
 ];
 
 /** @param {string} a @param {string} b */
