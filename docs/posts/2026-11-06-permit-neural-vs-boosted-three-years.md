@@ -1,15 +1,22 @@
 ---
-title: "Does a neural net beat boosted trees at predicting permit delays? Across three years, it ties"
-seo_title: "Neural network vs gradient boosting for permit duration forecasts"
+title: "A small neural net ties gradient boosting on permit durations, over three years"
 date: 2026-11-06
-tags: [build-data, permits, forecasting]
-description: "A small neural network and gradient-boosted trees forecast permit lags within 3% of each other in 43 of 45 city, target and quantile cells over 2022 to 2024."
+tags: [build-data, permits, research]
+description: "Over three test years a small neural net ties gradient boosting on permit-duration quantile loss: within 3% in 43 of 45 cells."
 ---
 
-The build-data programme forecasts how long city building permits take, from open data in Chicago, San Francisco and Austin. Last month's neural network came within 3% of boosted trees in 14 of 15 cells for test year 2024. This session reran it for 2022 and 2023 on fresh pulls of the feeds.
+In the open building-permit research (Chicago, San Francisco and Austin
+feeds), we asked whether a small neural network can beat gradient boosting at
+predicting how long a permit takes. Over 45 comparisons (five city and target
+pairs, three quantile levels, test years 2022 to 2024), the network was within
+3% of boosting on pinball loss in 43. It was ahead in 18 and behind in the
+rest, with a mean difference of +0.22%.
 
-Result: 14 of 15 cells within 3% in 2022 and 15 of 15 in 2023, so 43 of 45 over three years. The neural net is ahead of the trees in 15 of the 30 new cells, usually by under 3%, so the honest reading is a tie, not a winner.
+So the two are tied on these fields. We expected "not better" and that half
+was wrong: in 2022 the network was ahead in 9 of 15 cells. The count fell to 6
+of 15 in 2023 and 3 of 15 in 2024. We have not tested whether that decline
+is real. Limits: one untuned architecture, three seeds, no confidence interval
+on the difference yet.
 
-The catch is calibration: raw 80% intervals cover only 24 to 31% in Chicago and SF application-to-issue, because the network's outputs cannot be exactly zero and most permits there are issued the same day. That is what the programme's conformal step is for.
-
-Limits: one untuned network, three seeds, no confidence interval on the difference. Code and results are in `research/build-data`.
+Table and code: `research/build-data/results/neural_vs_boosted_table.md`,
+`src/summarise_neural.py`. Everything is MIT licensed.
