@@ -1,5 +1,11 @@
 # build-data log
 
+## Session 42, 2026-11-06: milestone 27 (part), per-permit paired bootstrap on neural minus boosted (planned before running)
+
+Why: session 40 found a 2024 neural deficit (mean +1.14%, sign p 0.035) from cell-level numbers only; cells share data, so that p is descriptive. The feeds are reachable again (Chicago, SF, Austin all HTTP 200 this session), so the per-permit paired test is possible.
+Plan: `src/paired_neural_boosted.py` refits boosted (3 seeds) and the MLP (3 seeds) on the same split, keeps per-row seed-averaged pinball loss, and bootstraps the paired difference by test week, for the five city/target pairs in test year 2024, then 2023 if time allows.
+**Prediction (before running):** the paired intervals for neural minus boosted include 0 in at least 10 of 15 cells (2024), but the point estimate is positive (neural worse) in at least 10 of 15; no cell has neural significantly better.
+
 ## Session 41, 2026-11-06: paper housekeeping (no data run: all three feed hosts refused by the proxy)
 
 Probed data.cityofchicago.org, data.sf.gov, data.sfgov.org and data.austintexas.gov: every one returned CONNECT 403, so no pull and **no number changed**.
