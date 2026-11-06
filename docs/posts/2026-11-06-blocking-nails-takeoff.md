@@ -1,6 +1,6 @@
 ---
 title: "Nailing the blocking: a gap in a framing nail count"
-seo_title: "Counting nails for wall blocking and fire blocking in a framing takeoff"
+seo_title: "Counting nails for wall blocking and fire blocking in a takeoff"
 date: 2026-11-06
 tags: [wall-framing-takeoff, fasteners, construction]
 description: "The open-source wall framing takeoff placed blocking and fire blocking but never counted its nails. It now does, at a typed count per end."
