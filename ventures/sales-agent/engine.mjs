@@ -389,7 +389,9 @@ const RULES = {
     P("\\bunless you\\b"),
     P("\\bwhy would (we|i) need\\b"), P("\\b(already )?know (their|our|the) routes\\b"),P("\\b(don'?t|do not) see (the|how|why)\\b"), P("\\bwhat makes (you|this|it) different\\b"), P("\\bsounds like (every|all the) other\\b"), P("\\bhow is (this|it) different\\b"), P("\\bnot convinced\\b"), P("\\b(don'?t|do not) trust (ai|automat|a robot|a bot|machines?)\\b"), P("\\b(customers|clients|people|prospects) can (tell|smell)\\b"), P("\\bskeptical\\b"),
     // Added 2026-11-04 after eval/fresh-2026-11-04b.jsonl (agent-written, 30 mixed replies) went 23/30 with 0 overreach: "won't adopt another app, we tried that".
-    P("\\b(drivers|reps|staff|team|people|users|crew)\\b.{0,30}\\bwon'?t (adopt|use|switch)\\b"), P("\\b(reps|staff|team|people|users|crew|drivers)\\b.{0,15}\\b(hate|dislike|resent)\\b.{0,30}\\b(click|extra|another|app|tool|step)"), P("\\bwe tried (that|this|something (like|similar))\\b.*\\b(fail|didn'?t work|flopped)")],
+    P("\\b(drivers|reps|staff|team|people|users|crew)\\b.{0,30}\\bwon'?t (adopt|use|switch)\\b"), P("\\b(reps|staff|team|people|users|crew|drivers)\\b.{0,15}\\b(hate|dislike|resent)\\b.{0,30}\\b(click|extra|another|app|tool|step)"), P("\\bwe tried (that|this|something (like|similar))\\b.*\\b(fail|didn'?t work|flopped)"), 
+    // Added 2026-11-07: a deliverability worry ("spam our prospects", "hurt our domain reputation") is an objection, not a reply to read.
+    P("\\b(spam|annoy|irritate) (our|my|the) (prospects|customers|clients|leads)\\b"), P("\\b(hurt|damage|harm|ruin) (our|my|the) (domain|sender|email|brand) (reputation|score)\\b")],
   meeting: [
     // 2026-11-03: "are you free next Tuesday", "set up 20 minutes", "book something with me", "walk me through", "curious to learn".
     P("\\bare you (free|available)\\b"), P("\\b(set up|schedule|book|grab) (\\d+ (min|minutes)|something|some time|time)\\b"), P("\\bcan we (set up|schedule|book)\\b"), P("\\bwalk me through\\b"), P("\\b(curious|keen|eager) to (learn|hear|know|see)\\b"), P("\\bplease (book|schedule|set up)\\b"), P("\\bsee a demo\\b"),
@@ -400,6 +402,8 @@ const RULES = {
     P("\\bsounds (interesting|good|great|promising|useful)\\b"), P("^\\s*intrigued\\b"), P("\\bcall me (on|at)\\b"), P("\\b(send|share|give) (me )?(\\d|two|three|a few|some)\\S*( or \\d| to \\d)?\\s*(times|slots|options)\\b"), P("\\b(let'?s|lets) (talk|chat|connect)\\b"), P("\\bcan we (talk|chat|meet|speak|connect|jump on|hop on)\\b"), P("\\bwhen (are|is) (you|a good time)\\b"), P("\\bloop(ing)? in\\b"),
     // Added 2026-11-04 after eval/fresh-2026-11-04b.jsonl (agent-written, 30 mixed replies) went 23/30 with 0 overreach: "book me in", "open to a quick intro call", "Does Friday morning work?".
     P("\\b(book|sign|put) (me|us) (in|up|down)\\b"), P("\\bopen to (a|an) (quick |short )?(intro |introductory )?(call|chat|demo|meeting)\\b"), P("\\bdoes (monday|tuesday|wednesday|thursday|friday|tomorrow|next week)( \\w+)? work\\b"),
+    // Added 2026-11-07 after eval/fresh-2026-11-07.jsonl (agent-written) missed these: "a quick call tomorrow", "who should I talk to to get started".
+    P("\\b(can|could|shall) we (do|have|get) (a |an )?(quick |short |brief )?(call|chat|catch[- ]?up)\\b"), P("\\bwho (should|do|can) (i|we) (talk|speak) (to|with)\\b.{0,25}\\b(start|started|begin)\\b"), P("\\bwant to see (this|it|a demo)\\b|\\bwould like to see (this|it|a demo)\\b|\\bi'?d like to see (this|it)\\b"),
   ],
 };
 
