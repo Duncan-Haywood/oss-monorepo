@@ -515,6 +515,13 @@
   },
   {
    "date": "2027-01-01",
+   "country": "Germany",
+   "page": "germany-e-invoice-mandate.html",
+   "note": "issue from 1 Jan 2027 (prior-year turnover above EUR 800,000)",
+   "status": "In force (receiving)"
+  },
+  {
+   "date": "2027-01-01",
    "country": "New Zealand",
    "page": "new-zealand-e-invoice-mandate.html",
    "note": "large suppliers to government reported to be required to send from 1 Jan 2027, though MBIE reportedly applies it through new and renewed contracts (vendor and compliance guides, not MBIE or the law)",
@@ -631,6 +638,13 @@
    "page": "bulgaria-e-invoice-mandate.html",
    "note": "a draft proposes NISSEF invoices mostly from 1 Jan 2028",
    "status": "Proposal only"
+  },
+  {
+   "date": "2028-01-01",
+   "country": "Germany",
+   "page": "germany-e-invoice-mandate.html",
+   "note": "1 Jan 2028 (everyone)",
+   "status": "In force (receiving)"
   },
   {
    "date": "2028-01-01",
