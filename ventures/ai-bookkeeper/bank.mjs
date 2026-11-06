@@ -236,6 +236,16 @@ export function detectColumns(header) {
     if (cols.amount !== -1 && h[cols.amount] === "amount") cols.amount = h.indexOf("net");
     cols.desc = h.indexOf("order");
   }
+  // Ko-fi's transactions CSV (DateTime (UTC), From, Message, Item, Received, Given, Currency,
+  // TransactionType, TransactionId): Received is money in and Given money out (a tip or
+  // purchase the creator made), so they read as credit and debit; the type is the description.
+  if (h.includes("received") && h.includes("given") && h.includes("transactiontype")) {
+    cols.credit = h.indexOf("received");
+    cols.debit = h.indexOf("given");
+    cols.amount = -1;
+    cols.desc = h.indexOf("transactiontype");
+    if (cols.date === -1) cols.date = Math.max(h.indexOf("datetime (utc)"), h.findIndex((x) => x.startsWith("datetime")));
+  }
   // Square's transactions export (Gross Sales, Discounts, Net Sales, Tax, Tip, Total Collected, Fees,
   // Net Total, Transaction ID, Event Type): Net Total is what Square pays out after its fee; the
   // description is the item or note, falling back to the event type (Payment, Refund).
