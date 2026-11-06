@@ -13,13 +13,26 @@ const TOL = 1 / 16;
 
 /** World-space bounding box of a geometry. @param {import('./model.mjs').Geom} g */
 export function bbox(g) {
-  const pts = [];
-  for (const [p, q] of g.profile) for (const t of [0, g.thickness]) pts.push([0, 1, 2].map((i) => g.origin[i] + p * g.u[i] + q * g.v[i] + t * g.w[i]));
-  return { lo: [0, 1, 2].map((i) => Math.min(...pts.map((x) => x[i]))), hi: [0, 1, 2].map((i) => Math.max(...pts.map((x) => x[i]))) };
+  // Plain loops: this runs for every member of every design the searches
+  // price (gallery, designsearch), and the map/spread form dominated them.
+  const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+  const o = g.origin, u = g.u, v = g.v, w = g.w, th = g.thickness;
+  for (let k = 0; k < g.profile.length; k++) {
+    const p = g.profile[k][0], q = g.profile[k][1];
+    for (let t = 0; t < 2; t++) {
+      const tt = t === 0 ? 0 : th;
+      for (let i = 0; i < 3; i++) {
+        const x = o[i] + p * u[i] + q * v[i] + tt * w[i];
+        if (x < lo[i]) lo[i] = x;
+        if (x > hi[i]) hi[i] = x;
+      }
+    }
+  }
+  return { lo, hi };
 }
 
-const touches = (a, b) => [0, 1, 2].every((i) => a.lo[i] <= b.hi[i] + TOL && b.lo[i] <= a.hi[i] + TOL);
-const overlap = (a, b) => [0, 1, 2].every((i) => Math.min(a.hi[i], b.hi[i]) - Math.max(a.lo[i], b.lo[i]) > TOL);
+const touches = (a, b) => a.lo[0] <= b.hi[0] + TOL && b.lo[0] <= a.hi[0] + TOL && a.lo[1] <= b.hi[1] + TOL && b.lo[1] <= a.hi[1] + TOL && a.lo[2] <= b.hi[2] + TOL && b.lo[2] <= a.hi[2] + TOL;
+const overlap = (a, b) => Math.min(a.hi[0], b.hi[0]) - Math.max(a.lo[0], b.lo[0]) > TOL && Math.min(a.hi[1], b.hi[1]) - Math.max(a.lo[1], b.lo[1]) > TOL && Math.min(a.hi[2], b.hi[2]) - Math.max(a.lo[2], b.lo[2]) > TOL;
 // A four-point profile is only a box when every edge runs along p or q: a
 // rafter with no tail or notch, or a stud with its top cut to the roof, has
 // four points too, and its bounding box holds wood it does not have.
