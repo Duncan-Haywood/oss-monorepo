@@ -427,6 +427,19 @@ test("attic ventilation is priced from the ventilation counts: typed prices, han
   assert.equal(none.find((x) => x.item === "Ridge vent").amount, null, "no price typed: listed unpriced, not guessed");
 });
 
+test("ridge vent nail boxes are a budget line only when spacing and box size are typed (hand check)", () => {
+  const mk = (vent, prices) => ({ ...full({ ridgeVent: 14, ...prices }), ventilation: vent });
+  const get = (p) => JSON.parse(run(p, "--sheathing", "--budget", "--ventilation", "--json").out);
+  const line = (r) => r.lines.find((x) => x.item === "Ridge vent nail boxes");
+  assert.equal(line(get(mk({}))), undefined);
+  const p = mk({ ridgeNailSpacing: 12, ridgeNailBox: 100 }, { ridgeNailBox: 6 });
+  const v = JSON.parse(run(p, "--sheathing", "--ventilation", "--json").out).ventilation;
+  const l = line(get(p));
+  assert.ok(v.ridgeNailBoxes > 0 && l.qty === v.ridgeNailBoxes && l.unitPrice === 6);
+  assert.ok(Math.abs(l.amount - 6 * v.ridgeNailBoxes) < 0.005);
+  assert.equal(line(get(mk({ ridgeNailSpacing: 12, ridgeNailBox: 100 }))).amount, null);
+});
+
 test("a misspelt price name is reported as ignored, with the nearest name it reads", () => {
   const b = bud(full({ laborWallFoo: 12, laborOpening: 85 }));
   const ig = b.ignoredPrices.find((x) => x.name === "laborWallFoo");
