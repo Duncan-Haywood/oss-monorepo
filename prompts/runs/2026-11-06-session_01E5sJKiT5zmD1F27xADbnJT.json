@@ -43,7 +43,9 @@
       "result": "landed small step, no new run"
     }
   ],
-  "writeups": "Post 2026-11-06-marine-hull-wind-drone-vs-sun.md already existed for 6o; no new post (paper section only)",
+  "writeups": [
+    "research/marine-hull/paper/DRAFT.md"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],
