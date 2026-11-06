@@ -274,7 +274,7 @@ async function runFinder(search, { selectedIndex = 0 } = {}) {
   const li = (slug, text) => ({ dataset: { slug, text, tags: 'a b', topic: 't', date: '2026-01-01', mins: '1' }, hidden: false });
   const items = [li('x', 'alpha'), li('y', 'beta')];
   const el = () => ({ value: '', hidden: true, textContent: '', dataset: {}, addEventListener() {}, setAttribute() {}, focus() {} });
-  const els = { posts: { children: items, replaceChildren() {} }, more: el(), q: el(), tag: { ...el(), selectedIndex }, sort: el(), count: el(), none: el(), clear: el(), finder: el() };
+  const els = { posts: { children: items, appendChild() {} }, q: el(), tag: { ...el(), selectedIndex }, sort: el(), count: el(), none: el(), clear: el(), finder: el() };
   const ctx = {
     document: { getElementById: (id) => els[id], querySelectorAll: () => [] },
     location: { search, pathname: '/writing/' },
@@ -326,44 +326,71 @@ test('a long "Claim: detail" headline with no seo_title gets the clean cut autom
   assert.equal(autoSeoTitle('Short: but the head is under the minimum length floor and the rest is long enough'.replace('Short', 'Tiny')), undefined);
 });
 
-test('past 60 posts the index is numbered pages: each under budget, linked both ways, every post on exactly one', async () => {
+// Paging: one index page of every post was 2.3 MB (site-perf-paginate-indexes).
+import { PAGE_SIZE, renderPostRows } from './writing.mjs';
+
+function manyPosts(n) {
   const files = {};
-  for (let i = 1; i <= 130; i++) {
+  for (let i = 0; i < n; i++) {
     const day = String(1 + (i % 28)).padStart(2, '0');
-    files[`2026-09-${day}-post-${i}.md`] = post(`Post ${i}`, `2026-09-${day}`);
+    const month = String(1 + Math.floor(i / 28)).padStart(2, '0');
+    files[`2026-${month}-${day}-p${i}.md`] = post(`Post ${i}`, `2026-${month}-${day}`);
   }
-  const root = repoWith(files);
+  return repoWith(files);
+}
+
+test('an index over PAGE_SIZE posts lists the newest page, pages the rest, and every post is on exactly one page', async () => {
+  const n = PAGE_SIZE * 2 + 7;
+  const root = manyPosts(n);
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-paged-'));
-  const slugs = await buildWriting(out, BASE, { root });
-  const pages = slugs.filter((s) => s.startsWith('page/'));
-  assert.deepEqual(pages, ['page/2', 'page/3']);
+  await buildWriting(out, BASE, { root });
+  const dir = path.join(out, WRITING_PATH);
   const seen = new Map();
-  for (const rel of ['index.html', 'page/2/index.html', 'page/3/index.html']) {
-    const html = await fs.readFile(path.join(out, WRITING_PATH, rel), 'utf8');
-    assert.ok(html.length < 150_000, rel);
-    for (const m of html.matchAll(/<li data-slug="([^"]+)"/g)) seen.set(m[1], (seen.get(m[1]) || 0) + 1);
-    // Every page number is a link from every page (two clicks to any post).
-    assert.match(html, /<ol>/);
-    assert.match(html, /name="viewport"/);
+  const read = async (rel) => fs.readFile(path.join(dir, rel, 'index.html'), 'utf8');
+  for (const [rel, up] of [['', ''], ['page/2', '../../'], ['page/3', '../../']]) {
+    const html = await read(rel);
+    const slugs = [...html.matchAll(new RegExp(`<h2><a href="${up.replace(/\./g, '\\.')}([^"/]+)/">`, 'g'))].map((m) => m[1]);
+    assert.ok(slugs.length <= PAGE_SIZE, `${rel || 'index'} has ${slugs.length} cards`);
+    for (const s of slugs) seen.set(s, (seen.get(s) || 0) + 1);
+    assert.match(html, /class="pager"/);
   }
-  assert.equal(seen.size, 130);
-  assert.ok([...seen.values()].every((n) => n === 1));
-  const two = await fs.readFile(path.join(out, WRITING_PATH, 'page/2/index.html'), 'utf8');
-  assert.match(two, /<link rel="canonical" href="https:\/\/[^"]*writing\/page\/2\/">/);
-  assert.match(two, /rel="prev" href="[^"]*writing\/"/);
-  assert.match(two, /rel="next" href="[^"]*writing\/page\/3\/"/);
-  assert.match(two, /href="\.\.\/\.\.\/post-\d+\/"/, 'post links climb out of page/2/');
-  const cards = JSON.parse(await fs.readFile(path.join(out, WRITING_PATH, 'cards.json'), 'utf8'));
-  assert.equal(cards.length, 130);
-  const feed = await fs.readFile(path.join(out, WRITING_PATH, 'feed.xml'), 'utf8');
-  assert.equal((feed.match(/<entry>/g) || []).length, 100);
+  assert.equal(seen.size, n);
+  assert.ok([...seen.values()].every((c) => c === 1));
+  // Page 1 carries the finder and names posts.json; later pages are plain, noindex lists that link back.
+  const first = await read('');
+  assert.match(first, new RegExp(`data-all="posts.json" data-total="${n}"`));
+  assert.match(first, /id="finder"/);
+  const second = await read('page/2');
+  assert.match(second, /<meta name="robots" content="noindex">/);
+  assert.match(second, /<link rel="canonical" href="https:\/\/[^"]*writing\/page\/2\/">/);
+  assert.doesNotMatch(second, /id="finder"/);
+  assert.match(second, /rel="prev" href="\.\.\/\.\.\/"/);
+  assert.match(second, /rel="next" href="\.\.\/\.\.\/page\/3\/"/);
+  const rows = JSON.parse(await fs.readFile(path.join(dir, 'posts.json'), 'utf8'));
+  assert.equal(rows.length, n);
+  assert.equal(rows[0].length, 9);
+  assert.ok(first.length < 150_000);
 });
 
-test('a short blog stays one page with no pager and no cards file', async () => {
-  const root = repoWith({ '2026-10-16-hello.md': post('Hello', '2026-10-16') });
-  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-short-'));
+test('an index of one page of posts has no pager, no posts.json and no page directory', async () => {
+  const root = manyPosts(PAGE_SIZE);
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-onepage-'));
   await buildWriting(out, BASE, { root });
   const html = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
-  assert.doesNotMatch(html, /id="pager"/);
-  await assert.rejects(fs.access(path.join(out, WRITING_PATH, 'cards.json')));
+  assert.doesNotMatch(html, /class="pager"|data-all=/);
+  await assert.rejects(fs.stat(path.join(out, WRITING_PATH, 'posts.json')));
+  await assert.rejects(fs.stat(path.join(out, WRITING_PATH, 'page')));
+});
+
+test('a post may not take the slug "page", which holds the numbered index pages', () => {
+  const root = repoWith({ '2026-10-01-page.md': post('Page', '2026-10-01') });
+  assert.throws(() => loadPosts(root), /page/);
+});
+
+test('posts.json rows are the finder cards: slug, title, description, date, minutes, topic, label, tags, text', () => {
+  const rows = JSON.parse(renderPostRows(loadPosts(repoWith({ '2026-10-01-a.md': post('A', '2026-10-01') }))));
+  assert.equal(rows[0][0], 'a');
+  assert.equal(rows[0][1], 'A');
+  assert.equal(rows[0][3], '2026-10-01');
+  assert.match(rows[0][7], /agents/);
 });

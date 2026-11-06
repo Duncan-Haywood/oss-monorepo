@@ -1,4 +1,6 @@
-# Index pagination (task `site-perf-paginate-indexes`, 2026-11-06)
+# Research index lazy-load (task `site-perf-paginate-indexes`, 2026-11-06)
+
+`/writing/` was paged by a sibling run in PR #13480 and is not covered here.
 
 Follow-up to `2026-11-06-site-performance-baseline.md`, finding 1.
 

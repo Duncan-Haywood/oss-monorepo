@@ -108,3 +108,22 @@ export function freightBreakQty(factoryPrice, freightTotal, targetPct = 5) {
   if (!(p > 0) || !(f >= 0) || !(targetPct > 0)) return null;
   return Math.ceil(f / (p * targetPct / 100));
 }
+
+/** Map a studio design (garment id, fabric polyester share 0..1) to a duty product key. Crewnecks and hoodies use the sweatshirt heading; tees and long-sleeves the tee heading. Man-made when polyester is over 50% (the heading goes by the fibre that predominates by weight). */
+export function productForDesign(garmentId, polyesterShare = 0) {
+  const synthetic = num(polyesterShare) > 0.5;
+  const sweat = garmentId === "hoodie" || garmentId === "crewneck";
+  return (sweat ? "hoodie-" : "tee-") + (synthetic ? "synthetic" : "cotton");
+}
+
+/** One duty percent for the studio's cost sheet: duty + any extra tariff, as a share of the factory price. EU/UK duty is on CIF value, so it is scaled up by (1 + freight share); pass `freightPerGarment` to include that. Returns null when the inputs do not make sense. */
+export function dutyPctFor({ garmentId, polyesterShare, destination, origin, haveOriginProof, extraTariffPct, factoryPrice, freightPerGarment }) {
+  const price = num(factoryPrice, NaN);
+  if (!(price > 0)) return null;
+  const r = landedByDestination({
+    product: productForDesign(garmentId, polyesterShare), destination, quantity: 1, factoryPrice: price,
+    freightTotal: num(freightPerGarment), insuranceTotal: 0, origin, haveOriginProof, extraTariffPct,
+  });
+  if (r.error) return null;
+  return Math.round(r.customsValue * (r.ratePct + r.extraTariffPct) / price * 10) / 10;
+}
