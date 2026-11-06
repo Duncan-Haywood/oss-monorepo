@@ -46,3 +46,18 @@ test("CLI: 0-shock identity on a real priced plan, and a bad --swing exits 1", (
   assert.equal(s.bid, bj.bid);
   assert.equal(run("--sensitivity", "--swing=0").code, 1);
 });
+
+test("sensitivity refuses hostile budgets and swings with a reason", async () => {
+  const { sensitivity } = await import("./sensitivity.mjs");
+  const good = () => ({ sections: [{ name: "Lumber", subtotal: 1000 }, { name: "Labor", subtotal: 500 }], taxRate: 0.1, contingencyRate: 0.05, overheadRate: 0.1, profitRate: 0.1, profit: 100 });
+  assert.equal(sensitivity(good(), 10).pct, 10);
+  assert.throws(() => sensitivity(good(), "10"), /between 1 and 100/);
+  for (const bad of [NaN, Infinity, "1000", -5, 1e12, null]) {
+    const b = good(); b.sections[0].subtotal = bad;
+    assert.throws(() => sensitivity(b), /subtotal/, String(bad));
+  }
+  const n = good(); n.sections = [null];
+  assert.throws(() => sensitivity(n), /needs a name/);
+  assert.throws(() => sensitivity({ ...good(), taxRate: "0.1" }), /taxRate/);
+  assert.throws(() => sensitivity({ ...good(), profit: NaN }), /profit/);
+});

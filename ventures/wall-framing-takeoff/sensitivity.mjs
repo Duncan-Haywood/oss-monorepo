@@ -31,7 +31,17 @@ export function restack(b, factors = {}) {
  */
 export function sensitivity(b, pct = 10) {
   if (!b || !Array.isArray(b.sections)) throw new Error("sensitivity needs a budget() result");
-  if (!(pct >= 1 && pct <= 100)) throw new Error("The price swing must be between 1 and 100 percent.");
+  if (typeof pct !== "number" || !(pct >= 1 && pct <= 100)) throw new Error("The price swing must be between 1 and 100 percent.");
+  for (const s of b.sections) {
+    if (!s || typeof s !== "object" || typeof s.name !== "string") throw new Error("sensitivity: every budget section needs a name.");
+    if (typeof s.subtotal !== "number" || !Number.isFinite(s.subtotal) || s.subtotal < 0 || s.subtotal > 1e9)
+      throw new Error(`sensitivity: section "${s.name}" has a subtotal that is not a number from 0 to 1,000,000,000.`);
+  }
+  for (const k of ["taxRate", "contingencyRate", "overheadRate", "profitRate"])
+    if (b[k] != null && (typeof b[k] !== "number" || !Number.isFinite(b[k]) || b[k] < 0 || b[k] > 10))
+      throw new Error(`sensitivity: ${k} must be a number from 0 to 10.`);
+  if (b.profit != null && (typeof b.profit !== "number" || !Number.isFinite(b.profit)))
+    throw new Error("sensitivity: profit must be a number.");
   const base = restack(b);
   const rows = b.sections.filter((/** @type {any} */ s) => s.subtotal > 0).map((/** @type {any} */ s) => {
     const up = restack(b, { [s.name]: 1 + pct / 100 }), down = restack(b, { [s.name]: 1 - pct / 100 });
