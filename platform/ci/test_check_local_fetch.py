@@ -12,6 +12,16 @@ class LocalFetch(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             self.assertEqual(missing('x\nfetch("./rates.json")', Path(d)), [(2, "./rates.json")])
 
+    def test_leading_newline_counts_toward_line_number(self):
+        with tempfile.TemporaryDirectory() as d:
+            self.assertEqual(missing('\nfetch("./a.json")', Path(d)), [(2, "./a.json")])
+
+    def test_help_shows_first_docstring_line(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), self.assertRaises(SystemExit):
+            main(["--help"])
+        self.assertIn("Fail if a venture page or script fetches", out.getvalue())
+
     def test_existing_file_passes(self):
         with tempfile.TemporaryDirectory() as d:
             (Path(d) / "rates.json").write_text("{}")
