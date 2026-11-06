@@ -125,11 +125,12 @@ export function quantities(result) {
  * @param {any} result the takeoff result
  */
 export function resolveRates(input, result) {
-  if (!input?.activities) return input;
+  // Not a list: hand it back so schedule() names the problem (a text `activities` threw `.map is not a function`).
+  if (!Array.isArray(input?.activities)) return input;
   const q = quantities(result);
   /** @type {string[]} */ const errors = [];
   const activities = input.activities.map((/** @type {any} */ a) => {
-    if (a.per == null) return a;
+    if (!a || typeof a !== "object" || a.per == null) return a; // a null entry: schedule() reports it
     if (!(a.rate > 0)) { errors.push(`${a.id}: "per" needs a positive "rate" (units per crew-day, your figure).`); return a; }
     if (!(a.per in q)) { errors.push(`${a.id}: the takeoff has no quantity "${a.per}" here (have: ${Object.keys(q).join(", ") || "none"}).`); return a; }
     const days = Math.max(a.minDays || 0, Math.ceil(q[a.per] / a.rate - 1e-9));
