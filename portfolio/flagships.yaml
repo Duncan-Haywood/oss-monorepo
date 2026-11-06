@@ -126,7 +126,7 @@ flagships:
       AR(2) likelihood inside PELT was no better than AR(1) (README); a real documented step inside a cycle; a cycle
       check not tied to rho (treering: drift not told from a cycle);
       a documented real run of 5+ steps to test the block-variance warning
-      (it cannot yet tell drift from steps); US saving rate 1967-2015 (README, 2026-11-06): default 56 steps in a drift, `--ar1` 7, driftWarning silent; (1) range95: a closure series quiet outside
+      (it cannot yet tell drift from steps); BJsales and uspop smooth series (README, 2026-11-06: AR(1) tames the over-cut, 12 to 1); US saving rate 1967-2015 (README, 2026-11-06): default 56 steps in a drift, `--ar1` 7, driftWarning silent; (1) range95: a closure series quiet outside
       the closure (none of 30 Ansett series is, nor Peace Bridge 2009; README). (2) The steep-
       bump (0.04) clumpy-count cell is under-covered, 65/79 (82%) over six
       seeds (caveat in CLI and JSON). (3) GARCH: a filtered
