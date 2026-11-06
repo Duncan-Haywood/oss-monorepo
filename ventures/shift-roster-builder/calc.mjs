@@ -2476,6 +2476,19 @@ export function shortShifts(r, minHours = 4) {
   return out;
 }
 
+// Every assigned shift longer than `maxHours` (a double, or a stretch some rules call for extra pay or a break on).
+// A heads-up only; the search does not enforce it. A shift of exactly `maxHours` is not listed.
+export function longShifts(r, maxHours = 10) {
+  const out = [];
+  for (const a of r.assignments || []) {
+    if (!a.person) continue;
+    const { day, startMin, endMin } = a.slot;
+    const hours = ((endMin <= startMin ? endMin + 1440 : endMin) - startMin) / 60;
+    if (hours > maxHours) out.push({ person: a.person, day: DAYS[day % 7], startMin, endMin, hours });
+  }
+  return out;
+}
+
 // Each person's longest run of consecutive days off in the Monday-to-Sunday week, and who has no run of `minRun` days
 // (a "two days off in a row" wish, or a rule some workplaces set). A day counts as worked on the day a shift starts, so
 // a closing shift past midnight does not take the next day. A person with no shift has all seven days off. The week is

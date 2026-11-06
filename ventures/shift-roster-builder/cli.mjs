@@ -23,7 +23,7 @@ import process from "node:process";
 import { importStaffCsv } from "./import-staff.mjs";
 import { importShiftsCsv } from "./import-shifts.mjs";
 import {
-  parseStaff, parseShifts, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, daysOffRuns, carryOverStaff, dailyLabor, salesPerLaborHour, sampleStaff, sampleShifts,
+  parseStaff, parseShifts, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, longShifts, daysOffRuns, carryOverStaff, dailyLabor, salesPerLaborHour, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
 } from "./calc.mjs";
 
@@ -69,6 +69,7 @@ Options:
                       --splh <$> flags days with more or fewer hours than that sales per labor hour calls for
   --tips <$>          split a tip pot over the planned hours, in whole cents that add back to the pot
   --short-under <h>   list every assigned shift shorter than <h> hours (a commute for little pay; some cities owe reporting-time pay)
+  --long-over <h>     list every assigned shift longer than <h> hours (a double or long stretch; some places owe a premium or a break)
   --days-off <n>      list everyone without <n> days off in a row this week (a day counts on the day a shift starts; the week is not wrapped)
   --cover "<Day HH:MM>" a call-out or open shift that starts then (add -HH:MM to tell two apart): who could take it outright, else the
                       shortest chains of hand-overs (one person takes it and gives up a shift a third takes; --max-moves n, default 3) with the pay change
@@ -136,6 +137,11 @@ export function parseArgs(argv) {
       const v = Number(argv[++i]);
       if (!(v > 0 && v <= 24)) throw new Error("--short-under needs hours between 0 and 24");
       o.shortUnder = v;
+    }
+    else if (a === "--long-over") {
+      const v = Number(argv[++i]);
+      if (!(v > 0 && v < 24)) throw new Error("--long-over needs hours between 0 and 24");
+      o.longOver = v;
     }
     else if (a === "--days-off") {
       const v = Number(argv[++i]);
@@ -240,6 +246,12 @@ function shortReport(r, opts) {
   const head = rows.length ? `${rows.length} shift(s) under ${num(opts.shortUnder)} h.` : `No assigned shift is under ${num(opts.shortUnder)} h.`;
   return [head, ...lines, ""].join("\n");
 }
+function longReport(r, opts) {
+  const rows = longShifts(r, opts.longOver);
+  const lines = rows.map((x) => `${x.person.padEnd(12)} ${x.day} ${fmtClock(x.startMin)}-${fmtClock(x.endMin)}  ${num(x.hours)} h`);
+  const head = rows.length ? `${rows.length} shift(s) over ${num(opts.longOver)} h.` : `No assigned shift is over ${num(opts.longOver)} h.`;
+  return [head, ...lines, ""].join("\n");
+}
 function daysOffReport(r, opts) {
   const d = daysOffRuns(r, opts.daysOff);
   const lines = d.short.map((x) => `${x.person.padEnd(12)} works ${x.daysWorked} day(s), longest run off ${x.longestOff}`);
@@ -308,6 +320,7 @@ export function run(staffText, shiftsText, opts = {}) {
   if (opts.tips) return { code, out: tipsReport(r, opts) };
   if (opts.daysOff) return { code, out: daysOffReport(r, opts) };
   if (opts.shortUnder) return { code, out: shortReport(r, opts) };
+  if (opts.longOver) return { code, out: longReport(r, opts) };
   if (opts.hoursWatch) return { code, out: hoursWatchReport(r, opts) };
   if (opts.restUnder) return { code, out: restReport(st.staff, opts, rosterCsv(r)) };
   if (opts.postedCsv) return { code, out: changesReport(st.staff, opts, rosterCsv(r)) };
