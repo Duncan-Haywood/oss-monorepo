@@ -346,7 +346,7 @@
       const btn = e.target.closest("button[data-a]"); if (!btn) return;
       const id = btn.closest("tr").dataset.id; const est = data.estimates.find((i) => i.id === id); if (!est) return;
       const a = btn.dataset.a;
-      if (a === "edit") { fill(est); window.scrollTo({ top: $("#form-title").offsetTop - 20, behavior: "smooth" }); return; }
+      if (a === "edit") { fill(est); window.scrollTo({ top: $("#form-title").offsetTop - 20, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); return; }
       if (a === "sent") { est.sent = true; est.sentOn = today(); }
       if (a === "lost") est.outcome = "declined";
       if (a === "won") {

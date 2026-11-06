@@ -232,7 +232,7 @@
       renderHandoff({ subscribers, openRate, niche }, result);
       els.reportCard.hidden = false;
       els.status.textContent = "";
-      if (scroll) els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#calculate").addEventListener("click", () => {

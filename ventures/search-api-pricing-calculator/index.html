@@ -152,7 +152,7 @@ node cli.mjs compare --records-k 500 --searches-k 2000 --prices prices.json --js
       $("#estimate").textContent = `${PRICES_AS_OF}. Records grow from ${stored.toLocaleString("en-US")}K to ${proj.endRecords.toLocaleString("en-US")}K and searches from ${egress.toLocaleString("en-US")}K to ${proj.endSearches.toLocaleString("en-US")}K a month over 12 months. Your numbers and editable prices; not a quote.`;
       $("#report-card").hidden = false;
       record("compare_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     $("#calc").addEventListener("click", render);
 

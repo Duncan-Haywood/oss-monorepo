@@ -186,7 +186,7 @@
       renderOutput();
       report.hidden = false;
       status.textContent = s.errors ? `Found ${s.errors} error(s) in ${s.chapters} chapter(s).` : `No errors in ${s.chapters} chapter(s).`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

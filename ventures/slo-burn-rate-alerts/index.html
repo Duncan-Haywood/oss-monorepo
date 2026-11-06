@@ -150,7 +150,7 @@ node cli.mjs rules --slo 99.9 --name api \
       record("generate_run");
     }
 
-    $("#generate").addEventListener("click", () => { render(); $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" }); });
+    $("#generate").addEventListener("click", () => { render(); $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); });
     $("#load-example").addEventListener("click", () => { $("#slo").value = 90; $("#rps").value = ""; render(); record("example_loaded"); });
     $("#copy").addEventListener("click", async () => { try { await navigator.clipboard.writeText(lastRules); $("#copy").textContent = "Copied"; } catch { $("#copy").textContent = "Select and copy manually"; } });
     $("#download").addEventListener("click", () => {

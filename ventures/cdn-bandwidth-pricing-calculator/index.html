@@ -150,7 +150,7 @@ node cli.mjs compare --gb 3000 --prices prices.json --json</pre>
       $("#estimate").textContent = `${PRICES_AS_OF}. Volume grows from ${vol.toLocaleString("en-US")} to ${proj.endVolume.toLocaleString("en-US")} over 12 months. Your numbers and editable prices; not a quote.`;
       $("#report-card").hidden = false;
       record("compare_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     $("#calc").addEventListener("click", render);
 

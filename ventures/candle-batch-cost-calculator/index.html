@@ -176,7 +176,7 @@
       $("#st tbody").innerHTML = [["Contribution after materials, labor and fees", money(m.contribution)], ["Fixed costs (booths and overhead)", money(-m.fixed)], ["Net", money(m.net)], ["Net per year", money(m.annual)], ["Units per month", String(Math.round(m.units))], ["Hours making per month", m.hours.toFixed(1)], ["Monthly cost of the wax price rise", money(-m.waxLoss)]].map(([k, v]) => `<tr><td>${k}</td><td class="n">${v}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

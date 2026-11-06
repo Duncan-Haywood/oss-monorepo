@@ -168,7 +168,7 @@
       $("#sens").innerHTML = r.sensitivity.map((x) => `<tr><th scope="row">${usd(x.pricePerLb)}</th><td>${usd(x.powderCost)}</td><td>${usd(x.perPiece)}</td><td>${usd(x.price)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Quote ${usd(r.best.perPiece)} per piece in ${r.best.powder}.`;
-      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

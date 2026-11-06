@@ -179,7 +179,7 @@
       $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Check the rates and your eligibility on GOV.UK before relying on it.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     for (const [id, v] of Object.entries(DEFAULTS)) $("#" + id).value = v;

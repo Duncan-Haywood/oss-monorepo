@@ -160,7 +160,7 @@
       $("#skipped").textContent = n.skipped.length ? `${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : "") : "";
       report.hidden = false;
       status.textContent = `Read ${n.indexes.length} indexes.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

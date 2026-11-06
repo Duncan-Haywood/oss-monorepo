@@ -198,7 +198,7 @@
       $("#year tbody").innerHTML = best.rows.map((x) => `<tr><td class="n">${x.age}</td><td class="n">${money(x.ss)}</td><td class="n">${money(x.tradWithdrawn)}</td><td class="n">${money(x.convert)}</td><td class="n">${money(x.taxableDraw)}</td><td class="n">${money(x.rothDraw)}</td><td class="n">${money(x.tax)}</td><td class="n">${num(x.rate * 100, 0)}%</td><td class="n">${money(x.taxableEnd + x.tradEnd + x.rothEnd)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the comparison.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -194,7 +194,7 @@
       $("#demrows tbody").innerHTML = r.demandRows.map((m) => `<tr><td>${m.change === 0 ? "as given" : (m.change > 0 ? "+" : "") + Math.round(m.change * 100) + "%"}</td><td class="n">${m.shifts}</td><td class="n">${num(m.paidHours)}</td><td class="n">${money(m.cost)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

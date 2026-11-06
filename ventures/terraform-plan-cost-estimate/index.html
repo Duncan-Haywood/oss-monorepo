@@ -246,7 +246,7 @@ node cli.mjs estimate plan.json --region eu-west-1 --json</pre>
 
       els.reportCard.hidden = false;
       record("estimate_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#estimate").addEventListener("click", renderReport);

@@ -183,7 +183,7 @@
       $("#summary").value = summaryText(r);
       report.hidden = false;
       status.textContent = "Done. Nothing left this page.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

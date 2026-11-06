@@ -183,7 +183,7 @@ python3 check.py baseline.xml current.xml --json</code></pre>
       els.reportCard.hidden = false;
       els.status.textContent = "";
       record("check_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     const EXAMPLE_BASE = `<?xml version="1.0"?><coverage line-rate="0.92" lines-covered="92" lines-valid="100">

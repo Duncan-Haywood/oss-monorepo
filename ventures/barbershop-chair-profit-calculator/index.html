@@ -168,7 +168,7 @@
       $("#rows").innerHTML = r.table.map((x) => `<tr><th scope="row">${x.pct}%</th><td>${x.booked}</td><td>${x.hours}</td><td>${x.utilizationPct}%</td><td>${usd(x.owner)}</td><td>${usd(x.employ)}</td><td>${usd(x.rent)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Weekly result with you cutting: ${usd(r.season.ownerAfterPay)} after your pay.`;
-      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

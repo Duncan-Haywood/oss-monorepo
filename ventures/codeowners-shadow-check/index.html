@@ -243,7 +243,7 @@
     }
 
     els.reportCard.hidden = false;
-    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: 'start' });
   }
 
   function runCheck(codeownersText, pathsText, event) {

@@ -164,7 +164,7 @@
       $("#sens").innerHTML = sensitivity(input, r.best).map((row) => `<tr><th scope="row">${Math.round(row.yieldFactor * 100)}%</th>${row.cells.map((c) => `<td class="n">${money(c.net)}</td>`).join("")}</tr>`).join("");
       report.hidden = false;
       status.textContent = `Best: ${r.channels.find((c) => c.key === r.best).label}, net ${money(r.channels.find((c) => c.key === r.best).net)}.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -362,7 +362,7 @@ node ventures/open-house-plans/cli.mjs design --beds 4 --baths 2.5 --garage 2 --
       const open = e.target.dataset?.open, z = e.target.dataset?.zip;
       const c = CATALOGUE_DATA.find((x) => x.id === (open || z));
       if (!c) return;
-      if (open) { variant = 0; $("#text").value = ""; run({ ...c.brief }); record("catalogue_opened"); window.scrollTo({ top: 0, behavior: "smooth" }); }
+      if (open) { variant = 0; $("#text").value = ""; run({ ...c.brief }); record("catalogue_opened"); window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }
       if (z) {
         e.target.disabled = true;
         e.target.textContent = "Building...";

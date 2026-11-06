@@ -187,7 +187,7 @@ node cli.mjs analyze invoices.csv --warn-top1 20 --json --fail-on warn</pre>
       els.estimate.textContent = report.count ? `${MODEL_NOTE}.` : "";
       els.reportCard.hidden = false;
       record("analyze_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#analyze").addEventListener("click", renderReport);

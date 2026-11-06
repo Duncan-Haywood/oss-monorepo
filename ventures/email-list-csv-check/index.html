@@ -189,7 +189,7 @@
       $("#fix-list").innerHTML = fix.changes.slice(0, 100).map((x) => `<li>${esc(x)}</li>`).join("");
       report.hidden = false;
       status.textContent = errs ? `Found ${errs} error(s) in ${s.rows} row(s).` : `No errors in ${s.rows} row(s).`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

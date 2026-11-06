@@ -202,7 +202,7 @@
       $("#bt-note").textContent = r.holdout ? `Fitted on the first ${r.holdout.train} projects, scored on the last ${r.holdout.test}. ${pct(r.holdout.coverage80, 0)} of those came in at or under the predicted 80% level (80% is the target). Average log error ${r.holdout.maeModel.toFixed(3)} with the model, ${r.holdout.maeNaive.toFixed(3)} assuming actual equals estimate (lower is better). ${r.holdout.helps ? "The model helped." : "The model did not beat the plain estimate on these, so the shift is small."}` : "Not enough projects to hold out a test period.";
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

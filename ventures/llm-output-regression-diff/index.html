@@ -127,7 +127,7 @@ node cli.mjs diff baseline.jsonl candidate.jsonl --json</pre>
       $("#extra").textContent = r.extraIds.length ? `In candidate only (ignored): ${r.extraIds.join(", ")}` : "";
       $("#report-card").hidden = false;
       record("compare_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     $("#run").addEventListener("click", render);
 

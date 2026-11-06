@@ -240,7 +240,7 @@
       els.status.textContent = "";
       renderDraft();
       record("irmaa_calculated");
-      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     els.event.innerHTML = LIFE_EVENTS.map((e) => `<option value="${e.id}">${esc(e.label)}</option>`).join("");

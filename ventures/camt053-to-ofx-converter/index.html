@@ -174,7 +174,7 @@
       $("#which").innerHTML = r.statements.map((st, i) => `<option value="${i}">${esc(st.id || "(no id)")} · ${esc(maskAccount(st.account))} · ${esc(st.currency)} · ${st.entries.length} entries</option>`).join("");
       report.hidden = false;
       status.textContent = errs ? `Found ${errs} error(s).` : `No errors in ${s.entries} entr${s.entries === 1 ? "y" : "ies"}.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#validate").addEventListener("click", async () => {

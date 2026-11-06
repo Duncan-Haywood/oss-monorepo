@@ -224,7 +224,7 @@
       singleEls.report.hidden = false;
       singleEls.status.textContent = "";
       record("overtime_calculated");
-      singleEls.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      singleEls.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#calculate-single").addEventListener("click", () => {
@@ -306,7 +306,7 @@
       blendedEls.report.hidden = false;
       blendedEls.status.textContent = "";
       record("blended_calculated");
-      blendedEls.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      blendedEls.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     const COPY_HINT = "Copies every pay rate and its hours, the blended regular rate, the overtime premium, and the total as plain text to paste into a payroll record or a pay question. The “arithmetic only” note is copied with it.";

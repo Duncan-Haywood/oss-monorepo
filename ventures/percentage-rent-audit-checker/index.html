@@ -196,7 +196,7 @@
         out.hidden = false;
         $("#form-status").textContent = "";
         record("statement_checked");
-        out.scrollIntoView({ behavior: "smooth", block: "start" });
+        out.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       } catch (e) {
         out.hidden = true;
         $("#form-status").textContent = e.message;

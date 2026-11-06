@@ -416,7 +416,7 @@
       ), -48, -175, -20, 12),
       place(h("div", { class: "d-front" }, agent.name,
         h("small", {}, `${agent.counts.doing} doing · ${agent.counts.review} review · ${agent.counts.todo} queued · ${agent.counts.done} done`)), 0, -45, 60),
-      place(h("button", { type: "button", class: "desk-hit", "aria-label": `Show ${agent.name}'s tasks`, onclick: () => { $("filter").value = agent.name; drawTable(); $("rows").scrollIntoView({ behavior: "smooth", block: "center" }); } }), 0, -130, 62),
+      place(h("button", { type: "button", class: "desk-hit", "aria-label": `Show ${agent.name}'s tasks`, onclick: () => { $("filter").value = agent.name; drawTable(); $("rows").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" }); } }), 0, -130, 62),
     );
     desk.style.transform = `translate3d(${spot.x}px,0,${spot.z}px) rotateY(${spot.rotateY}deg)`;
     return desk;
@@ -466,7 +466,7 @@
   function select(id, scroll) {
     selected = id;
     render();
-    if (scroll) $(`row-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (scroll) $(`row-${id}`)?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
   }
 
   function render() { drawRoom(); drawTable(); }

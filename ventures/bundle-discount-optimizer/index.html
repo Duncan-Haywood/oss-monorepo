@@ -178,7 +178,7 @@
       $("#grid tbody").innerHTML = r.bundles.map((b) => `<tr><td>${esc(b.a)} + ${esc(b.b)}</td>${b.grid.map((g) => `<td class="n">${money(g.profit)}<br><span class="note">(${be(g.breakEven)})</span></td>`).join("")}</tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

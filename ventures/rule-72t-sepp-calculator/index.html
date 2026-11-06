@@ -160,7 +160,7 @@
       $("#rows tbody").innerHTML = r.rows.map((x) => { const e = modificationExposure(r, x.year); return `<tr><td>${x.year}</td><td>${x.age}</td><td class="n">${money(x.rmd)}</td><td class="n">${money(x.amort)}</td><td class="n">${money(x.rmdBalance)}</td><td class="n">${money(x.amortBalance)}</td><td class="n">${money(e.amort)}</td></tr>`; }).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -148,7 +148,7 @@
       $("#points tbody").innerHTML = [["pmc", "Marginal cheapness"], ["opp", "Optimal price point"], ["ipp", "Indifference price"], ["pme", "Marginal expensiveness"]].map(([k, l]) => `<tr><td>${l}</td><td class="n">${f(p[k])}</td><td class="n">${a.bands[k] ? money(a.bands[k].low) : "n/a"}</td><td class="n">${a.bands[k] ? money(a.bands[k].high) : "n/a"}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

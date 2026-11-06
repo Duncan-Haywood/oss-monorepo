@@ -306,7 +306,7 @@
       const btn = e.target.closest("button[data-a]"); if (!btn) return;
       const id = btn.closest("tr").dataset.id; const inv = data.invoices.find((i) => i.id === id); if (!inv) return;
       const a = btn.dataset.a;
-      if (a === "edit") { fill(inv); window.scrollTo({ top: $("#form-title").offsetTop - 20, behavior: "smooth" }); return; }
+      if (a === "edit") { fill(inv); window.scrollTo({ top: $("#form-title").offsetTop - 20, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); return; }
       if (a === "sent") inv.sent = true;
       if (a === "paid") inv.paid = (computeTotals(inv).total / 100).toFixed(2);
       if (a === "del") { if (!confirm(`Delete invoice ${inv.number}?`)) return; data.invoices = data.invoices.filter((i) => i.id !== id); if (editingId === id) fill(blank()); }

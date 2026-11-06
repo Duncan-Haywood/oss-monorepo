@@ -166,7 +166,7 @@
       letter();
       report.hidden = false;
       status.textContent = `Read ${n.records.length} line item(s).`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

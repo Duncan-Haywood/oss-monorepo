@@ -191,7 +191,7 @@
       if (tp) $("#target-text").textContent = `Your target is ${usd(tp.target)} a year against ${usd(r.annual.collected)} now (a gap of ${usd(tp.gap)}). At today's effective rate that takes about ${Math.round(tp.hoursNeededAtCurrentYield).toLocaleString("en-US")} recorded hours a year (now ${Math.round(r.annual.hours).toLocaleString("en-US")}); at today's hours it takes a ${pct(tp.yieldNeededAtCurrentHours)} yield (now ${pct(tp.currentYield)}).`;
       $("#report").hidden = false;
       $("#form-status").textContent = `Yield ${pct(f.yield)} across ${r.timekeepers.length} timekeeper(s).`;
-      $("#report").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

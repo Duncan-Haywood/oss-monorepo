@@ -175,7 +175,7 @@
       $("#summary").value = summaryText(a);
       report.hidden = false;
       status.textContent = `Read ${n.items.length} SKU row(s).`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

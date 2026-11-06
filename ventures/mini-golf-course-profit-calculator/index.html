@@ -185,7 +185,7 @@
       $("#rain-rows").innerHTML = r.rainSweep.map((x) => `<tr><td class="n">${x.rain}%</td><td class="n">${x.openDays.toFixed(0)}</td><td class="n">${Math.round(x.rounds)}</td><td class="n">${whole(x.noi)}</td><td class="n">${cov(x.dscr)}</td><td class="n">${whole(x.cashFlow)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

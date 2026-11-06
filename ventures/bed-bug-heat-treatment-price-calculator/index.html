@@ -165,7 +165,7 @@
       $("#sens").innerHTML = r.callbacks.map((x) => `<tr><th scope="row">${x.callbackPct}%</th><td>${usd(x.cost)}</td><td>${usd(x.price)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Quote ${usd(r.job.price)}.`;
-      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

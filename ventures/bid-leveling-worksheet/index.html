@@ -151,7 +151,7 @@
       $("#warnings").textContent = r.warnings.join(" ");
       report.hidden = false;
       status.textContent = `Leveled ${r.ranked.length} bidders across ${r.itemCoverage.length} scope items.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

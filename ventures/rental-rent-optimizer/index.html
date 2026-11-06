@@ -221,7 +221,7 @@
       $("#bt-note").textContent = h ? `Fitted on the first ${h.train} listings, scored on the last ${h.test}. Average negative log-likelihood ${h.nllModel.toFixed(3)} with rent, ${h.nllBase.toFixed(3)} ignoring rent (lower is better). ${h.leasedTest ? `Typical error on the ${h.leasedTest} that leased: ${num(h.maeDays, 0)} days with rent, ${num(h.maeDaysBase, 0)} days ignoring it. ` : ""}${h.helps ? "Knowing the rent helped." : "Knowing the rent did not help, so do not read much into the slope."}` : "Fewer than 8 listings, so there is no back-test.";
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

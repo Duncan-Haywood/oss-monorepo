@@ -158,7 +158,7 @@
       $("#seats tbody").innerHTML = r.assignments.map((a) => `<tr><td>${esc(a.name)}</td><td class="n">${money(a.price)}</td><td>${esc(a.slot || "not placed")}</td><td>${esc(a.slot ? "" : why.get(a.name) || "")}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

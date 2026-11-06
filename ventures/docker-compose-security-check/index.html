@@ -213,7 +213,7 @@ python3 check.py --fail-on-risk        # exit 2 on any medium or high finding</c
       els.reportCard.hidden = false;
       els.status.textContent = "";
       record("check_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#add-file").addEventListener("click", () => addFile());

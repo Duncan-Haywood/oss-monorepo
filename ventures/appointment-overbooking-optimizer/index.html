@@ -205,7 +205,7 @@
       $("#bt-note").textContent = h ? `Fitted on the first ${h.trainDays} days, asked for the central 80% range of show-ups on the last ${h.testDays}: ${pct(h.coverage80, 0)} of days landed inside (target about 80%). Average log score ${h.meanLogScoreClustered.toFixed(3)} with clustering, ${h.meanLogScoreIndependent.toFixed(3)} assuming independent patients. ${h.clusteringHelps ? "Allowing for clustered days predicted better." : "Clustering did not improve the forecast on these days."}` : (r.mode === "history" ? "Not enough days to hold out a check period." : "No history supplied, so there is nothing to check the forecast against.");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

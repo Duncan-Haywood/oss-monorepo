@@ -188,7 +188,7 @@
       $("#skipped").textContent = notes.join(" ");
       report.hidden = false;
       status.textContent = `Read ${orders.length} orders.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

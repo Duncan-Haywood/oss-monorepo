@@ -212,7 +212,7 @@
       record(kind);
       const spread = result.spread;
       $("#status").textContent = result.unfilled.length ? "Some positions could not be filled; see the notes above the lineup." : `Done. Playing time differs by ${spread} period${spread === 1 ? "" : "s"} at most.`;
-      $("#out").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#out").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     $("#make").addEventListener("click", () => { seed = 1; make("lineup_made"); });
     $("#again").addEventListener("click", () => { seed = newSeed(); make("reshuffled"); });

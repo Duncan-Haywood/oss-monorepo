@@ -841,7 +841,7 @@
       }
       el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
       count('proposal_printed');
-      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el('proposalDoc').scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: 'start' });
       // After paint, so the browser renders the document before the sheet is
       // captured; without it an empty page can go to the printer.
       requestAnimationFrame(() => requestAnimationFrame(() => window.print()));

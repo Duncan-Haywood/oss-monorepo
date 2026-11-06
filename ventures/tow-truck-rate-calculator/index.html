@@ -252,7 +252,7 @@
       report.hidden = false;
       status.textContent = "";
       record("price_calculated");
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#calculate").addEventListener("click", runCalculate);

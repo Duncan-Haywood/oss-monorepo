@@ -147,7 +147,7 @@
       $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
       report.hidden = false;
       status.textContent = "Done. Verify against the source named in the summary.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

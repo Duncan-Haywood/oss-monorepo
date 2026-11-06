@@ -275,7 +275,7 @@
       depositEls.report.hidden = false;
       depositEls.status.textContent = "";
       record("deposit_calculated");
-      depositEls.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      depositEls.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     const COPY_HINT = "Copies the deposit, each named deduction, the total, and the refund or balance as plain text to paste into an email or a dispute. The “arithmetic only, not a legal determination” note is copied with it.";
@@ -360,7 +360,7 @@
       prorationEls.report.hidden = false;
       prorationEls.status.textContent = "";
       record("proration_calculated");
-      prorationEls.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      prorationEls.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#calculate-proration").addEventListener("click", () => {

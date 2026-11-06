@@ -142,7 +142,7 @@
       }).join("") || "<p>No flagged wording found.</p>";
       report.hidden = false;
       status.textContent = "Done. This is a keyword scan, not clearance.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

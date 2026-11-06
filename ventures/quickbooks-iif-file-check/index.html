@@ -165,7 +165,7 @@
       $("#fixed-out").value = cleaned.text;
       report.hidden = false;
       status.textContent = s.errors ? `Found ${s.errors} error(s) in ${s.transactions} transaction(s).` : `No errors in ${s.transactions} transaction(s).`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

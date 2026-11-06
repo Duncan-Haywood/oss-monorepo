@@ -161,7 +161,7 @@
       $("#rows").innerHTML = r.table.map((x) => `<tr class="${x.current ? "drive" : ""}"><th scope="row">${x.days}${x.current ? " (planned)" : ""}</th><td>${x.billedDays}</td><td>${usd(x.bill)}</td><td>${usd(x.cost)}</td><td>${usd(x.profit)}</td><td>${x.marginPct}%</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${r.eq.movers} air movers, ${r.eq.dehus} dehumidifiers, ${r.job.marginPct}% margin.`;
-      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

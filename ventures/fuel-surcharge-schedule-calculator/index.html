@@ -145,7 +145,7 @@
       $("#sens").innerHTML = sensitivity(input, 0).map((x) => `<tr><th scope="row">$${x.price.toFixed(2)}</th><td>${usd(x.surcharge)}</td><td>${usd(x.extraFuel)}</td><td>${usd(x.gap)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Highest surcharge: ${r.best.name} at ${usd(r.best.total)} for this trip.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -152,7 +152,7 @@
       $("#grid").innerHTML = `<thead><tr><th>Vacancy \\ cap rate</th>${g.caps.map((c) => `<th class="n">${c}%</th>`).join("")}</tr></thead><tbody>` + g.rows.map((row) => `<tr><td>${row.vacancy}%</td>${row.values.map((v) => `<td class="n">${money(v)}</td>`).join("")}</tr>`).join("") + "</tbody>";
       report.hidden = false;
       status.textContent = "Done. Verify against the sources named in the summary.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

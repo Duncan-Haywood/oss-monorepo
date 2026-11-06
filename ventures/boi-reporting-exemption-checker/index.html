@@ -202,7 +202,7 @@
       els.report.hidden = false;
       els.status.textContent = "";
       record("exemption_checked");
-      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     els.formed.addEventListener("change", syncVisibility);

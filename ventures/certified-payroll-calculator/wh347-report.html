@@ -163,7 +163,7 @@ function run() {
   $("#outFoot").innerHTML = `<tr><th scope="row" colspan="9">Totals</th><td></td><td class="num">${r.totals.projectHours}</td><td class="num">${r.totals.overtimeHours}</td><td></td><td class="num">${usd(r.totals.gross)}</td><td class="num">${usd(r.totals.deductions)}</td><td class="num">${usd(r.totals.net)}</td><td class="${r.totals.underpayment > 0 ? "bad" : "ok"}">${r.totals.underpayment > 0 ? "Underpaid " + usd(r.totals.underpayment) : "No underpayment"}</td></tr>`;
   report.hidden = false;
   status.textContent = r.ready ? "Report built. Nothing flagged." : "Report built. Read the flags before you sign.";
-  report.scrollIntoView({ behavior: "smooth", block: "start" });
+  report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
   return true;
 }
 const track = (e) => { try { recordUsage(localStorage, false, e); } catch { /* optional */ } };

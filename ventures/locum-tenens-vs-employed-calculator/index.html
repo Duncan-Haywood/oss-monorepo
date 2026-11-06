@@ -206,7 +206,7 @@
       $("#rows tbody").innerHTML = r.rows.map((x) => `<tr><td class="n">${x.weeks}</td><td class="n">${x.gap}</td><td class="n">${money(x.takeHome)}</td><td class="n">${money(x.total)}</td><td class="n">${x.delta >= 0 ? "+" : ""}${money(x.delta)}</td><td class="n">${x.breakEven == null ? "n/a" : money(x.breakEven) + "/h"}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

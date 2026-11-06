@@ -150,7 +150,7 @@
       $("#fill").innerHTML = fillSensitivity(input).map((s) => `<tr><th scope="row">${s.fillPct}%</th><td class="n">${money(s.net)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Best at your inputs: ${c.results.find((r) => r.model === c.best).label}.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

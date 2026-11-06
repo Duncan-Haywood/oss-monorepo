@@ -186,7 +186,7 @@
       $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.donor ? esc(f.donor) + ": " : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || "<p>No findings.</p>";
       report.hidden = false;
       status.textContent = `${s.letters} letter${s.letters === 1 ? "" : "s"} required.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#validate").addEventListener("click", async () => {

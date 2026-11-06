@@ -197,7 +197,7 @@ node cli.mjs log sales.csv --min-roi 10</pre>
       $("#estimate").textContent = report.count ? MODEL_NOTE + (report.skipped ? `; ${report.skipped} unreadable row(s) skipped` : "") + "." : "";
       $("#report-card").hidden = false;
       record("analyze_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     $("#analyze").addEventListener("click", renderReport);
 

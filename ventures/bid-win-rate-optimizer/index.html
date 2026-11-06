@@ -199,7 +199,7 @@
       $("#bt-note").textContent = r.holdout ? `Fitted on the first ${r.n - r.holdout.test} bids, scored on the last ${r.holdout.test}. Average log-loss ${r.holdout.logLossModel.toFixed(3)} with price, ${r.holdout.logLossBase.toFixed(3)} assuming only your overall win rate (lower is better). ${r.holdout.helps ? "Knowing the price helped." : "Knowing the price did not help, so do not read much into the curve."}` : "Not enough bids to hold out a test period.";
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -195,7 +195,7 @@
       ].map(([k, v]) => `<tr><th scope="row">${k}</th><td>${v}</td></tr>`).join("");
       els.status.textContent = "";
       record("rate_calculated");
-      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#calculate").addEventListener("click", runCalculate);

@@ -270,7 +270,7 @@
       if (!check.valid) {
         outputBody.hidden = true;
         outputCard.hidden = false;
-        outputCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        outputCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
         return;
       }
       lastHtml = buildEpkHtml(data);
@@ -280,7 +280,7 @@
       outputHeading.textContent = `${data.artistName}'s press kit`;
       outputCard.hidden = false;
       record("kit_built");
-      outputCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      outputCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     });
 
     const EXAMPLE = {

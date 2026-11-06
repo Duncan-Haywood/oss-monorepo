@@ -193,7 +193,7 @@
         : `${c.name}: saturating, ceiling ${money(c.fit.p[0])} a week, scale ${money(c.fit.p[1])}, R2 ${c.fit.r2.toFixed(2)}`).join(". ") + `. Data: ${s.rows.toLocaleString("en-US")} rows, ${dayToIso(s.firstWeek)} to ${dayToIso(s.lastWeek + 6)}, ${Math.round(s.weeks)} weeks.`;
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result." + (s.skippedWeeks ? ` ${s.skippedWeeks} channel-weeks you listed were left out of the fit.` : "") + (s.skipBad.length ? ` Could not read: ${s.skipBad.join(", ")}.` : "");
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

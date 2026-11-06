@@ -148,7 +148,7 @@
       $("#letter").textContent = lastLetter || "No letter needed: the deadline has not passed and no statement has arrived. Check again after " + (r.deadline ? isoDay(r.deadline) : "you send your forwarding address") + ".";
       $("#result").hidden = false;
       $("#status").textContent = "Done. Review the dates and the letter before sending.";
-      $("#result").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#result").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     $("#go").addEventListener("click", () => { run(); record("deadline_checked"); });
     $("#example").addEventListener("click", () => { write(SAMPLE); run(); record("example_loaded"); });

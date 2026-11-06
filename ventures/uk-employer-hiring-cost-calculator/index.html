@@ -167,7 +167,7 @@
       $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Verify against the source named in the summary.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

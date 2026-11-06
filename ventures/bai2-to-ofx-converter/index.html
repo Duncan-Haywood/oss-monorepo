@@ -173,7 +173,7 @@
       $("#skipped-note").textContent = skipped ? `${skipped} transaction${skipped === 1 ? "" : "s"} with a code outside the credit and debit ranges (for example loan activity) ${skipped === 1 ? "is" : "are"} left out of the converted files.` : "";
       report.hidden = false;
       status.textContent = errs ? `Found ${errs} error(s).` : `No errors in ${n} transaction${n === 1 ? "" : "s"}.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#validate").addEventListener("click", async () => {

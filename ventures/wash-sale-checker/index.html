@@ -151,7 +151,7 @@
       $("#notes").innerHTML = [...r.notes, ...r.errors].map((n) => `<p>${esc(n)}</p>`).join("");
       report.hidden = false;
       status.textContent = `${r.sales.length} sale${r.sales.length === 1 ? "" : "s"} checked.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#validate").addEventListener("click", async () => {

@@ -191,7 +191,7 @@ python3 sbom_diff.py old.json new.json --fail-on-change  # exit 2 if anything di
       els.reportCard.hidden = false;
       els.status.textContent = "";
       record("diff_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#check").addEventListener("click", () => runDiff(els.oldSbom.value, els.newSbom.value));

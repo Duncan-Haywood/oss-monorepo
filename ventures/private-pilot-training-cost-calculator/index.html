@@ -152,7 +152,7 @@
       $("#rows").innerHTML = r.scenarios.map((x) => `<tr><td class="n">${x.hours}</td><td class="n">${dollars(x.total)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Worked out. Change a figure and run it again to compare.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

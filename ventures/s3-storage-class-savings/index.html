@@ -185,7 +185,7 @@ node cli.mjs analyze inventory.csv --json --prices my-prices.json</pre>
       els.estimate.textContent = report.count ? `${PRICES_AS_OF}. Retrieval and early deletion are assumptions you set, not measurements; an inventory lists what exists, not what is read.` : "";
       els.reportCard.hidden = false;
       record("analyze_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#analyze").addEventListener("click", renderReport);

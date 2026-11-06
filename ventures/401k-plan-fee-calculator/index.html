@@ -155,7 +155,7 @@
       $("#rows").innerHTML = r.lines.map((x) => `<tr><th scope="row">${esc(x.label)}</th><td>${usd(x.amount)}</td><td>${(x.amount / r.assets * 100).toFixed(2)}%</td></tr>`).join("") + `<tr><th scope="row">Total</th><td>${usd(r.total)}</td><td>${r.totalPct.toFixed(2)}%</td></tr>`;
       report.hidden = false;
       status.textContent = `All-in plan cost ${usd(r.total)} a year, ${r.totalPct.toFixed(2)}% of assets.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

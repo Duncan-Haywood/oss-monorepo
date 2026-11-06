@@ -135,7 +135,7 @@ node cli.mjs leads.csv &gt; ranked.json  // same thing from a terminal, CSV in, 
     }
     let chosen = null;
     let writeButton = null;
-    function choose(p) { chosen = p; $("who").textContent = `Drafting for: ${p.name}`; $("draft").value = ""; $("issues").replaceChildren(); $("draftnote").textContent = "Press Write draft below."; writeButton?.remove(); const b = el("button", "Write draft", ""); writeButton = b; b.type = "button"; b.addEventListener("click", write); $("draftnote").before(b); $("s2").scrollIntoView({ behavior: "smooth" }); }
+    function choose(p) { chosen = p; $("who").textContent = `Drafting for: ${p.name}`; $("draft").value = ""; $("issues").replaceChildren(); $("draftnote").textContent = "Press Write draft below."; writeButton?.remove(); const b = el("button", "Write draft", ""); writeButton = b; b.type = "button"; b.addEventListener("click", write); $("draftnote").before(b); $("s2").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }
     const sender = () => ({ name: $("sname").value.trim(), company: $("scompany").value.trim(), offer: $("soffer").value.trim(), address: $("saddr").value.trim() });
     function llm() {
       const provider = $("prov").value; if (!provider) return {};  // a local server needs no key; normalise() checks the rest

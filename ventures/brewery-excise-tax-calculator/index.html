@@ -156,7 +156,7 @@
       $("#growth").innerHTML = r.growth.map((g) => `<tr><th scope="row">${g.multiple === 1 ? "Today" : "+" + Math.round((g.multiple - 1) * 100) + "%"}</th><td>${n0(g.barrels)}</td><td>${usd(g.tax)}</td><td>${usd(g.effective)}</td><td>${usd(g.marginal)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Estimated tax ${usd(r.tax)} on ${n0(r.barrels)} barrels.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

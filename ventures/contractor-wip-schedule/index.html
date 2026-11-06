@@ -167,7 +167,7 @@
       $("#stressbox").innerHTML = `<div class="warn">If every estimate grows ${pct(r.stress.growth, 0)}, expected profit falls from ${money(r.estGross)} to ${money(r.stress.estGross)}${r.stress.newLosses.length ? "; new losses: " + esc(r.stress.newLosses.join(", ")) : ""}.</div>`;
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

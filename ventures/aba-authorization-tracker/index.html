@@ -158,7 +158,7 @@
       $("#report-findings").innerHTML = r.rows.filter((x) => x.flags.length).map((x) => `<div class="finding"><h4>${esc(x.client)} · ${esc(x.code)}</h4>${x.flags.map((f) => `<p><span class="pill ${f.level === "info" ? "low" : f.level}">${f.level === "high" ? "act" : f.level === "medium" ? "watch" : "note"}</span>${esc(f.text)}</p>`).join("")}</div>`).join("");
       report.hidden = false;
       status.textContent = `${s.count} authorizations checked as of ${fmtDate(asOf)}.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#validate").addEventListener("click", async () => {

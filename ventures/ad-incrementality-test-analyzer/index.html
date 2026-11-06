@@ -218,7 +218,7 @@
       $("#wt tbody").innerHTML = r.weights.map((x) => `<tr><td>${esc(x.unit)}</td><td class="n">${x.weight.toFixed(3)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 
@@ -255,7 +255,7 @@
         : `None of the lengths tried could detect a ${pct(p.target)} lift on this history. Use more or steadier comparison regions, run the campaign longer, or aim for a bigger effect.`;
       $("#plan-report").hidden = false;
       status.textContent = "Test plan ready.";
-      $("#plan-report").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#plan-report").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#plan").addEventListener("click", () => { if (plan()) record("plan_run"); });

@@ -153,7 +153,7 @@ node cli.mjs analyze queries.csv --json --prices my-prices.json</pre>
       els.estimate.textContent = report.count ? `${PRICES_AS_OF}. Numbers as supplied; Editions is a floor and billing changes affect every query.` : "";
       els.reportCard.hidden = false;
       record("analyze_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#analyze").addEventListener("click", renderReport);

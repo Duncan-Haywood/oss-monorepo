@@ -158,7 +158,7 @@ import pytest_mock`;
       els.reportCard.hidden = false;
       els.status.textContent = "";
       record("check_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

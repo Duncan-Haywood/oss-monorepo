@@ -210,7 +210,7 @@
       $("#split-list").onclick = (e) => { const i = e.target.dataset && e.target.dataset.part; if (i !== undefined && split.parts[i]) { record("file_split"); download(split.parts[i].name, split.parts[i].text, "text/csv"); } };
       report.hidden = false;
       status.textContent = errs ? `Found ${errs} error(s) in ${s.lines} line(s).` : `No errors in ${s.lines} line(s).`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

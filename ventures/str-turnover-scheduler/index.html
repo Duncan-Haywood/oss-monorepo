@@ -167,7 +167,7 @@
       $("#econ").innerHTML = r.economics.map((x) => `<tr><td>${esc(x.property)}</td><td class="n">${x.cleans}</td><td class="n">${money(x.fees)}</td><td class="n">${money(x.cost)}</td><td class="n">${money(x.margin)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${s.cleans} cleans scheduled.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#validate").addEventListener("click", async () => {
