@@ -1,0 +1,182 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01E5sJKnrdCZgYGxRfi7QeJG",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T07:11:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "redteam campaign on a 0.2s suite exceeded the 120s tool timeout (likely per-mutant overhead); prompt-0 does not mention it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Campaign on platform/ci/doc_index.py: 6/8 caught, 2 gaps closed, catch rate after fix 1.0. Red baseline of test_doc_index fixed.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/doc_index.py",
+        "test": "/usr/local/bin/python3 -m unittest test_doc_index  (in platform/ci)",
+        "seed": 993317939,
+        "commit": "f22ce5663",
+        "sites": 139,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 58,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "return k[:-1] if k.endswith(\"s\") and len(k) > 3 else k",
+            "after": "return k[:-2] if k.endswith(\"s\") and len(k) > 3 else k",
+            "line_text": "    return k[:-1] if k.endswith(\"s\") and len(k) > 3 else k",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 96,
+            "col": 26,
+            "operator": "and-to-or",
+            "before": "if d.is_dir() and not d.name.startswith((\".\", \"_\")):",
+            "after": "if d.is_dir() or not d.name.startswith((\".\", \"_\")):",
+            "line_text": "            if d.is_dir() and not d.name.startswith((\".\", \"_\")):",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Added Parsing tests in test_doc_index.py"
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 109,
+            "col": 19,
+            "operator": "or-to-and",
+            "before": "if not sep or line.startswith((\" \", \"#\")):",
+            "after": "if not sep and line.startswith((\" \", \"#\")):",
+            "line_text": "        if not sep or line.startswith((\" \", \"#\")):",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Added Parsing tests in test_doc_index.py"
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 126,
+            "col": 27,
+            "operator": "plus-to-minus",
+            "before": "return \"\\n\".join(lines + [\"---\", \"\"])",
+            "after": "return \"\\n\".join(lines - [\"---\", \"\"])",
+            "line_text": "    return \"\\n\".join(lines + [\"---\", \"\"])",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 187,
+            "col": 38,
+            "operator": "plus-to-minus",
+            "before": "out, i = out + \"[^/]*\", i + 1",
+            "after": "out, i = out + \"[^/]*\", i - 1",
+            "line_text": "            out, i = out + \"[^/]*\", i + 1",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 317,
+            "col": 24,
+            "operator": "and-to-or",
+            "before": "if meta.get(\"date\") and not DATE_RE.match(meta[\"date\"]):",
+            "after": "if meta.get(\"date\") or not DATE_RE.match(meta[\"date\"]):",
+            "line_text": "    if meta.get(\"date\") and not DATE_RE.match(meta[\"date\"]):",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 407,
+            "col": 17,
+            "operator": "or-to-and",
+            "before": "if hit_t or hit_s:",
+            "after": "if hit_t and hit_s:",
+            "line_text": "        if hit_t or hit_s:",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 411,
+            "col": 84,
+            "operator": "true-to-false",
+            "before": "reports.sort(key=lambda r: (r[\"status\"] == \"current\", r[\"date\"] or \"\"), reverse=True)  # current, newest first",
+            "after": "reports.sort(key=lambda r: (r[\"status\"] == \"current\", r[\"date\"] or \"\"), reverse=False)  # current, newest first",
+            "line_text": "    reports.sort(key=lambda r: (r[\"status\"] == \"current\", r[\"date\"] or \"\"), reverse=True)  # current, newest first",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "docs/reports/*.md",
+        "issue": "Three reports merged on main on 2026-11-06 with no front matter / an invalid subject ('platform-pages'), turning test_doc_index.RealTree red; fixed here (backfill + subject 'pages').",
+        "patched": true,
+        "patched_in": "this PR"
+      },
+      {
+        "file": ".github/workflows",
+        "issue": "No PR workflow runs platform/ci/test_doc_index.py or `doc_index.py check`, so report-taxonomy breakage reaches main unseen. Fix: add a step to portfolio-validate.yml (control plane, own PR, owner approval).",
+        "patched": false
+      }
+    ]
+  }
+}

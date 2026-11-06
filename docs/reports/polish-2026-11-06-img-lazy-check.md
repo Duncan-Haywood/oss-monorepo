@@ -1,6 +1,6 @@
 ---
 kind: polish
-subjects: [platform-pages]
+subjects: [pages]
 date: 2026-11-06
 tagged: auto
 ---

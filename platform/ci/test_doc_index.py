@@ -158,6 +158,23 @@ class GlobAndCli(unittest.TestCase):
             self.assertEqual(counts["money"], 0)
 
 
+class Parsing(unittest.TestCase):
+    def test_frontmatter_skips_indented_comment_and_colonless_lines(self):
+        text = "---\nkind: note\n  nested: x\n# c: y\nno colon here\ndate: 2026-01-02\n---\nbody\n"
+        meta, body = di.parse_frontmatter(text)
+        self.assertEqual(meta, {"kind": "note", "date": "2026-01-02"})
+        self.assertEqual(body, "body\n")
+
+    def test_project_slugs_ignore_files_and_hidden_dirs(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "ventures" / "real").mkdir(parents=True)
+            (root / "ventures" / ".hidden").mkdir()
+            (root / "ventures" / "_private").mkdir()
+            (root / "ventures" / "afile").write_text("x")
+            self.assertEqual(di.project_slugs(root), {"real": "ventures/real"})
+
+
 class RealTree(unittest.TestCase):
     def test_repository_taxonomy_and_reports_check(self):
         self.assertEqual(di.check(di.ROOT), [])
