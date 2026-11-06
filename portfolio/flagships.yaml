@@ -144,7 +144,7 @@ flagships:
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
       History: README and git (UK page read against gov.uk 2026-10-30, consultation spring 2027 next; South Korea from memory, NTS unread). Open: ZATCA rules on a real sandbox invoice, a real ZATCA credit or debit note (both made up), the Saxon route; FatturaPA
-      code lists (TD29, RF20 from vendor summaries) and tolerances against the primary spec 1.9 text and any later structure change; Portugal's CIUS-PT add-on (made-up invoice; AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's rules admit them: which validator does AT run?); Poland's FA(3) (PL-001..017; XSD gate history in the README) on an issued invoice or KSeF test-environment file, more seeds covering the correction, advance and attachment branches;
+      code lists (TD29, RF20 from vendor summaries) and tolerances against the primary spec 1.9 text and any later structure change; Portugal's CIUS-PT add-on (made-up invoice; AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's rules admit them: which validator does AT run?); Poland's FA(3) (PL-001..017; XSD gate history in the README) on an issued invoice or KSeF test-environment file, a real correction, advance or settlement file (hand-built seeds for KOR and ROZ with an attachment landed 2026-11-06, 6,520 of 6,520 agree with xmllint; transport branch unseeded);
       the rules and a repair on a real ERP or
       Factur-X export (repaired PDF opens in poppler 2026-10-30; veraPDF and Acrobat unrun); PINT SG and A-NZ rules on the Saxon/server route and on a
       real PINT file; RO_CIUS on a real ANAF file and the Saxon route; NLCIUS

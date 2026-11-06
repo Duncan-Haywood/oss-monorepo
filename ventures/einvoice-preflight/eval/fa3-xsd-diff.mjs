@@ -1,5 +1,5 @@
 // Differential test of fa3-xsd.mjs against xmllint on the real FA(3) XSD.
-// Seeds are FA(3) files the XSD accepts (examples/fa3-invoice.xml and fa3-invoice-rich.xml, and any
+// Seeds are FA(3) files the XSD accepts (examples/fa3-invoice.xml, fa3-invoice-rich.xml, fa3-correction.xml and fa3-settlement.xml, and any
 // directory of your own given as the third argument); each is mutated (an element
 // deleted, duplicated or swapped with its neighbour, an unknown element added, a
 // value emptied, lengthened, made text, negative or given a euro sign) and both
@@ -37,7 +37,7 @@ const ours = (xml) => {
 
 function* walk(d) { for (const n of readdirSync(d)) { const p = join(d, n); if (statSync(p).isDirectory()) yield* walk(p); else if (n.endsWith(".xml")) yield p; } }
 const seeds = [];
-const files = ["fa3-invoice.xml", "fa3-invoice-rich.xml"].map((f) => new URL(`../examples/${f}`, import.meta.url).pathname).concat(seedDir ? [...walk(seedDir)] : []);
+const files = ["fa3-invoice.xml", "fa3-invoice-rich.xml", "fa3-correction.xml", "fa3-settlement.xml"].map((f) => new URL(`../examples/${f}`, import.meta.url).pathname).concat(seedDir ? [...walk(seedDir)] : []);
 for (const p of files) {
   const xml = readFileSync(p, "utf8").replace(/^\uFEFF/, "");
   if (xmllintOk(xml)) seeds.push([p.split("/").pop(), xml]);
