@@ -1,6 +1,6 @@
 ---
 title: "Gradient compression in low-communication training costs nothing, then suddenly something"
-seo_title: "Does gradient compression hurt DiLoCo training? A threshold at keep 1/8"
+seo_title: "Does gradient compression hurt DiLoCo training? Threshold at keep 1/8"
 date: 2026-11-06
 tags: [lowcomm-training, research, diloco]
 description: "A small-transformer experiment finds no loss from keeping 1 in 8 coordinates of the update, but a clear loss at 1 in 16."
