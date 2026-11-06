@@ -2,7 +2,7 @@
 title: "A two-parameter sail-drone model fits the average, not the best"
 seo_title: "Sail drone speed model fitted to Saildrone capability"
 date: 2026-11-06
-tags: [marine-hull, saildrone, sailing-drones]
+tags: [marine-hull, saildrone, sailing-drone]
 description: "A two-parameter sail-drone model matches mean Saildrone speed but not its 90th-percentile capability; capability is about 1.3 times the survey average."
 ---
 
