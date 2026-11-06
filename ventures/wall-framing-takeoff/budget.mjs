@@ -136,6 +136,16 @@ export function budget(result, prices = {}, allowances = {}) {
       add("Flooring", "Tack strip pieces", Math.ceil(cp.tackFeet / (cp.tackStripLength || 4) - 1e-9), "pieces", P("tackStrip") ?? cp.tackPrice, `${cp.tackFeet.toFixed(0)} ft round the rooms`);
     }
   }
+  const wt = result.wallTile;
+  if (wt?.ok) {
+    // Priced from the wallTile settings' own typed prices; no budget price names.
+    add("Flooring", "Wall tiles", wt.tiles, "each", wt.prices.tile, `${wt.tileWidth} x ${wt.tileLength} in with ${wt.joint} in joints, plus waste`);
+    add("Flooring", "Wall tile thinset bags", wt.thinsetBags, "bags", wt.prices.thinset, "wallTile thinsetBags");
+    add("Flooring", "Wall tile grout bags", wt.groutBags, "bags", wt.prices.grout, `${wt.groutLb.toFixed(0)} lb of grout`);
+    if (wt.backerSheets) add("Flooring", "Cement backer board sheets", wt.backerSheets, "sheets", wt.prices.backer, `${wt.backerSqFt.toFixed(0)} sq ft plus waste, ${wt.backerSheetSqFt} sq ft per sheet`);
+    if (wt.screwBoxes) add("Flooring", "Backer board screw boxes", wt.screwBoxes, "boxes", wt.prices.screwBox, `${wt.screws} screws`);
+    if (wt.membraneGallons) add("Flooring", "Waterproofing membrane", wt.membraneGallons, "gal", wt.prices.membrane, `${wt.membraneSqFt.toFixed(0)} sq ft`);
+  }
   if (flr?.ok && flr.transitions) add("Flooring", "Transition bars", flr.transitions.bars, "bars", P("transitionBar") ?? flr.transitions.barPrice, `${flr.transitions.doorways} doorway(s), ${flr.transitions.piecesPerBar} per ${flr.transitions.barLength} in bar`);
   const el = result.electrical;
   if (el?.ok) {
