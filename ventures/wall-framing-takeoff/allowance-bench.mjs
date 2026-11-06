@@ -31,7 +31,7 @@ export function compare(plan, { gang = false } = {}) {
   }
   // A garage-door-wide header is longer than the longest listed board: retry with 24 ft header stock at 1.6x the 16 ft price (bench assumption).
   let longHeaders = false;
-  if (!r.ok && gang && r.errors.some((e) => /longer than every board/.test(e))) {
+  if (!r.ok && gang && r.errors.some((e) => /longer than (every board|the longest)/.test(e))) {
     const longer = { ...plan, stock: [...plan.stock, ...["2x4", "2x6", "2x8", "2x10", "2x12"].map((size) => ({ size, length: 288, price: 1.6 * (plan.stock.find((x) => x.size === size && x.length === 192)?.price ?? 10) }))] };
     r = run(longer);
     if (r.ok) { plan = longer; longHeaders = true; ganged = ganged || plan !== original; }
