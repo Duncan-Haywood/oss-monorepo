@@ -68,3 +68,8 @@ test("gate fails over limits", () => {
   assert.equal(gate(s, { maxHours: 1 }).ok, false);
   assert.equal(gate(s, { maxAmount: 100 }).ok, false);
 });
+
+test("toCsv defuses a commit subject that starts like a formula", () => {
+  const csv = toCsv(summarize(parseLog("a1b2c3|X|2026-01-01T10:00:00Z|=cmd|' /C calc'!A0").commits));
+  assert.doesNotMatch(csv, /,"=/);
+});
