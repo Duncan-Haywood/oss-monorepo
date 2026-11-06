@@ -159,3 +159,12 @@ test("roof nails: plate toenails, ridge nails and collar tie ends, by hand", () 
   assert.equal(layoutFasteners({ roofNails: { trussToPlate: 21 } }, {}, tr).ok, false);
   assert.equal(layoutFasteners({}, {}, r).roofNails, null);
 });
+
+test("wall brace price per foot: feet x price, price each wins, bounds checked (hand arithmetic)", () => {
+  const r = { walls: [{ id: "A", length: 480, height: 97.125, members: [] }] };
+  const feet = (2 * 97.125 * Math.SQRT2) / 12;
+  const l = layoutFasteners({ wallBracing: { pricePerFoot: 1.5 } }, {}, r).wallBracing;
+  assert.ok(Math.abs(l.cost - feet * 1.5) < 1e-9);
+  assert.equal(layoutFasteners({ wallBracing: { price: 20, pricePerFoot: 1.5 } }, {}, r).wallBracing.cost, 40);
+  for (const bad of [-1, 1e5]) assert.ok(validateFasteners({ wallBracing: { pricePerFoot: bad } }).length > 0);
+});
