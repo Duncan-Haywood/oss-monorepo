@@ -466,3 +466,13 @@ Yearly average level of Lakes Michigan-Huron (one lake hydraulically), 1918 to 2
 - **Retrieved:** 2026-11-06 from <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/BJsales.csv> and `.../uspop.csv`.
 - **Licence:** R datasets (GPL-2 | GPL-3 package); the numbers are published sales figures and census counts. Used as a test fixture only.
 - **Used by:** `eval/smooth-pair.mjs`, `smooth-pair.test.mjs`.
+
+# Example data: US median duration of unemployment, monthly 1967-2015
+
+`us-unemployment-duration.csv`: median weeks unemployed (FRED series UEMPMED), 574 months from 1967-07 to 2015-04.
+
+- **Retrieved:** 2026-11-06 from the `uempmed` column of ggplot2's `economics`
+  data, <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/ggplot2/economics.csv>.
+- **Licence:** US Bureau of Labor Statistics data via FRED, a US government
+  work in the public domain; the Rdatasets copy is as published by ggplot2 (MIT).
+- **Used by:** `us-unemployment-duration.test.mjs`.
