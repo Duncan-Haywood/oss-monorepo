@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13667",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,21 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says the flagship next: must be rewritten, but flagship 1's next: is a list of landed work; I added to ROADMAP instead."
+    }
+  ],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-06-ventilation-in-the-heat-loss-total.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Flagship 1 slice: ASHRAE 62.2 ventilation in insulation heat loss. Insulation tests 17/17; full venture suite passed pre-change (105s). Hand tests only; flagships.yaml next: not rewritten (it points at README/ROADMAP for landed work).",
   "corrections": [],
   "redteam": null
 }
