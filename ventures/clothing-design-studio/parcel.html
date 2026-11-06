@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Duty on a Single Clothing Parcel: EU €3 Flat Duty, US and UK Rules for Online Orders</title>
+  <meta name="description" content="Free calculator for the border cost of one online clothing order shipped to a customer in the EU (flat 3 euro duty per item type under 150 euro from July 2026), the US (no duty-free threshold) or the UK. Editable figures; nothing uploaded.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Duty on one clothing parcel to the EU, US or UK">
+  <meta property="og:description" content="What the border adds to a single online order. Free, in your browser.">
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="duty.html">Bulk import duty</a> · <a href="returns.html">Returns</a> · <a href="prices.html">Price by market</a></p>
+  <h1>What the border adds to one online order.</h1>
+  <p>Selling to customers abroad means one small parcel at a time, and the rules for parcels differ from those for a factory shipment. Since 1 July 2026 the EU charges a flat 3 euro customs duty for each item category in a parcel worth under 150 euro (until July 2028, starting with sellers registered for IOSS). The US duty-free threshold is suspended for all countries, so every parcel pays duty. The UK threshold below is typed from memory.</p>
+  <p class="placeholder">Checked 2026-11-06 by web search of secondary sources only; the official pages could not be opened from the build host. Change any figure, and confirm with your carrier or a customs broker before you promise customers "duties paid".</p>
+  <div class="grid">
+    <section>
+      <h2>One parcel</h2>
+      <label for="dest">Customer in</label><select id="dest"><option value="EU">European Union</option><option value="US">United States</option><option value="UK">United Kingdom</option></select>
+      <label for="prod">Garment</label><select id="prod"></select>
+      <div class="row"><div><label for="val">Goods in the parcel (customer's currency)</label><input id="val" type="number" min="0" step="0.01" value="45"></div><div><label for="ship">Parcel shipping paid</label><input id="ship" type="number" min="0" step="0.01" value="9"></div></div>
+      <div class="row"><div><label for="cats">Different item types in it</label><input id="cats" type="number" min="1" step="1" value="1"></div><div><label for="broker">Carrier clearance fee</label><input id="broker" type="number" min="0" step="0.01" value="0"></div></div>
+      <label><input id="ioss" type="checkbox" checked> EU: I am registered for IOSS</label>
+      <div class="row"><div><label for="extra">Extra US tariff % (type today's)</label><input id="extra" type="number" min="0" step="0.5" value="0"></div><div><label for="bulk">Duty per garment in a bulk shipment (compare)</label><input id="bulk" type="number" min="0" step="0.01" value="0.8"></div></div>
+    </section>
+    <div>
+      <section><h2>At the border</h2><output id="result" aria-live="polite"></output></section>
+      <section><h2>Basket size</h2><output id="basket" aria-live="polite"></output></section>
+    </div>
+  </div>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional styling advice, and it does not replace a qualified professional. Duty rates and thresholds are typed by hand, unchecked against any official tariff, and change often; this is not customs, tax or legal advice, and a licensed customs broker decides the classification. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+
+
+
+  <script type="module">
+    import { parcelVsBulk, euBasketForShare } from "./parcel.mjs";
+    import { PRODUCTS } from "./duty.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    $("#prod").innerHTML = Object.entries(PRODUCTS).map(([k, p]) => `<option value="${k}">${esc(p.label)}</option>`).join("");
+    const f2 = v => v.toFixed(2);
+    function render() {
+      const r = parcelVsBulk({ destination: $("#dest").value, product: $("#prod").value, parcelValue: $("#val").value, shipping: $("#ship").value, categories: $("#cats").value,
+        brokerFee: $("#broker").value, ioss: $("#ioss").checked, extraTariffPct: $("#extra").value }, $("#bulk").value);
+      if (r.error) { $("#result").innerHTML = `<p class="placeholder">${esc(r.error)}</p>`; return; }
+      $("#result").innerHTML = `<p class="big">${f2(r.totalAtBorder)}</p><p>Duty ${f2(r.duty)} (${esc(r.method)}) plus clearance fee ${f2(r.brokerFee)}, which is <b>${r.shareOfGoodsPct}%</b> of the goods. Code ${esc(r.code)}.</p>
+        <p>The same garment in a bulk shipment carries about ${f2(r.bulkDutyPerGarment)} of duty, so this parcel carries <b>${f2(r.extraPerParcel)}</b> ${r.extraPerParcel >= 0 ? "more" : "less"}.</p>` + r.notes.map(n => `<p class="notes">${esc(n)}</p>`).join("");
+      const b = euBasketForShare(3, +$("#cats").value, 5);
+      $("#basket").innerHTML = `<p>In the EU, one flat 3 euro duty falls under 5% of the goods from a basket of about <b>${b === null ? "-" : f2(b)}</b> per item type. Bundles and free-shipping thresholds make the flat duty smaller per piece.</p>`;
+    }
+    document.querySelectorAll("section select, section input").forEach(el => el.addEventListener("input", () => { render(); recordUsage("parcel_check"); }));
+    render(); recordUsage("parcel_open");
+  </script>
+</body>
+</html>

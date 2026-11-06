@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01EhTJVNgVweyCkCmKa6CqrT",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T22:57:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "R-0005 clothing-design-studio: single-parcel duty (EU flat 3 euro under 150 from 1 Jul 2026, US no threshold, UK)",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": 13661,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route drew research; a revenue-products task needed --track ventures to be chosen by hand, and `record` rejects 'venture' (track is 'ventures')"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Pre-existing failure in portfolio/requests/intake.test.mjs (form header in build.mjs changed) left alone; fails identically on main."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-06-duty-on-one-clothing-parcel-eu-us-uk.md"
+  ],
+  "goal": null,
+  "notes": "parcel.mjs + parcel.html; 328 studio tests pass; headless Chromium load of EU and US cases clean. Rules from secondary web search only, flagged on the page. UK threshold from memory.",
+  "corrections": [],
+  "redteam": null
+}
