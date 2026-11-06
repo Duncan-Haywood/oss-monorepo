@@ -1,6 +1,6 @@
 ---
 title: "Does a neural net beat boosted trees at predicting permit delays? Across three years, it ties"
-seo_title: "Neural network vs gradient boosting for building permit duration forecasts"
+seo_title: "Neural network vs gradient boosting for permit duration forecasts"
 date: 2026-11-06
 tags: [build-data, permits, forecasting]
 description: "A small neural network and gradient-boosted trees forecast permit lags within 3% of each other in 43 of 45 city, target and quantile cells over 2022 to 2024."
