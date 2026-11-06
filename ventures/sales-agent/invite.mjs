@@ -5,7 +5,7 @@
 // day ("Friday morning"), a lower bound ("after 3pm") or a time with no clock hour yields no file, never an invented hour.
 import { createHash } from "node:crypto";
 
-const esc = (s) => String(s ?? "").replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+const esc = (s) => String(s ?? "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
 // RFC 5545 section 3.1: lines folded at 75 octets, continuation starts with one space; fold on character edges.
 function fold(line) {
   const out = []; let cur = "", n = 0;

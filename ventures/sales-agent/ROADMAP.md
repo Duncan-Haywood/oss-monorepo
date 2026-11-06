@@ -57,3 +57,5 @@ and each is measured before the next one leans on it.
 - `eval/fresh-2026-10-21.jsonl` is now spent for rule work, because a test pins
   its numbers so they cannot drift silently. Use it to compare models, not to
   tune rules.
+
+- 2026-11-06: `invite.mjs` escaped semicolons wrongly (`"\;"` in JavaScript is just `;`), so a prospect named "Ruiz; Dana" or a company "A;B" broke the SUMMARY line of the calendar file. Now `\;` per RFC 5545 section 3.3.11; regression test in `invite.test.mjs`; sales-agent suite passes (202). Found by reading the code. Invented names only.
