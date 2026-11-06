@@ -3,7 +3,7 @@ title: "Advanced framing saves about a quarter of the lumber on a third house, a
 seo_title: "Advanced framing lumber savings measured on three house plans"
 date: 2026-11-06
 tags: [wall-framing-takeoff, advanced-framing, construction]
-description: "Advanced framing (24 in studs, two-stud corners, single top plate) cuts the lumber order by 26 to 28% on three house layouts, measured with the open-source wall framing takeoff."
+description: "Advanced framing cuts the lumber order 26 to 28% on three house layouts, measured with the open-source wall framing takeoff."
 ---
 
 We measure advanced framing the same way each time: lay out one house with the standard 16 in wall, then again with each detail, and compare the priced lumber order. Until today one of the two public plans (Open House Plans 2, CC0) could not be measured, because two windows drawn 3 in apart need ganging into one opening, and the 195 in header that makes was longer than the longest 2x10 in the bench's stock.
