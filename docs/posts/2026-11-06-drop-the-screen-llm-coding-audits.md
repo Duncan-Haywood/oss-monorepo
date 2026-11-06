@@ -1,7 +1,7 @@
 ---
 title: "Does a pilot screen cost width when an LLM codes the text? Only when the audit is big"
-seo_title: "LLM-coded text prevalence: audit size, pilot screens and confidence interval width"
-date: 2026-11-07
+seo_title: "LLM-coded text audits: does a pilot screen cost interval width?"
+date: 2026-11-06
 tags: [llm-coding-inference, research, statistics]
 description: "On 6,683 GoEmotions comments coded by a 1.5B zero-shot LLM, a pilot screen cost 17 to 29% interval width at 2,000 audited items and nothing at 500."
 ---
