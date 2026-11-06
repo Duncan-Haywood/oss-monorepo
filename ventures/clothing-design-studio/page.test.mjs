@@ -6,7 +6,7 @@ import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
 import { economics, quantityBreaks } from "./costing.mjs";
 
 const read = f => readFileSync(new URL(`./${f}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "for-independent-clothing-designers.html", "how-much-does-it-cost-to-make-a-t-shirt.html", "sunglasses.html", "wardrobe.html", "fit.html", "quotes.html", "labels.html", "prices.html", "preorder.html", "duty.html", "import-duty-on-clothing.html", "wholesale.html", "reorder.html", "returns.html", "cashflow.html", "tna.html"];
+const PAGES = ["index.html", "for-independent-clothing-designers.html", "how-much-does-it-cost-to-make-a-t-shirt.html", "sunglasses.html", "wardrobe.html", "fit.html", "quotes.html", "labels.html", "prices.html", "preorder.html", "duty.html", "import-duty-on-clothing.html", "wholesale.html", "reorder.html", "returns.html", "cashflow.html", "tna.html", "salestax.html"];
 
 test("every page carries the no-warranty clause, a sponsor link and its own title and description", () => {
   for (const f of PAGES) {
