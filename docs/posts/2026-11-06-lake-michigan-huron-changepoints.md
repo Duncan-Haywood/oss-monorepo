@@ -1,9 +1,9 @@
 ---
 title: "Did Lake Michigan-Huron really drop in 1999?"
-seo_title: "Changepoint detection on Great Lakes water levels: what works and what does not"
+seo_title: "Changepoint detection on Great Lakes water levels"
 date: 2026-11-06
 tags: [changepoint-detector, time-series, real-data]
-description: "We ran the open-source changepoint detector on 92 years of Lakes Michigan-Huron levels. It finds the 1999 fall, but also 11 other cuts, and the autocorrelation-safe mode finds none."
+description: "Our open-source changepoint detector on 92 years of Lakes Michigan-Huron levels finds the 1999 fall plus 11 other cuts; the AR(1) mode finds none."
 ---
 
 Lakes Michigan-Huron fell about a metre between 1997 and 2001 and stayed low. We ran our open-source changepoint detector on the 1918-2009 yearly levels, with no tuning.
