@@ -539,3 +539,14 @@ test("wall braces priced by the foot become a feet line; price each wins (hand c
   const each = bud({ ...full({ wallBrace: 10 }), fasteners: { wallBracing: { pricePerFoot: 2 } } });
   assert.ok(each.lines.some((x) => x.item === "Wall braces") && !each.lines.some((x) => x.item === "Wall braces (by the foot)"));
 });
+
+test("drip edge nail boxes are priced only when spacing and box size are typed", () => {
+  const withRoof = (roofing, prices) => { const p = full(prices); p.roof = { ...p.roof, roofing }; return bud(p); };
+  const line = (b) => b.lines.find((l) => l.item === "Drip edge nail boxes");
+  assert.equal(line(withRoof({ dripEdgeNailSpacing: 12 })), undefined);
+  const b = withRoof({ dripEdgeNailSpacing: 12, dripEdgeNailBox: 100 }, { dripEdgeNailBox: 7 });
+  assert.ok(line(b).qty > 0);
+  assert.equal(line(b).unitPrice, 7);
+  assert.ok(Math.abs(line(b).amount - 7 * line(b).qty) < 0.005);
+  assert.equal(line(withRoof({ dripEdgeNailSpacing: 12, dripEdgeNailBox: 100 })).amount, null);
+});
