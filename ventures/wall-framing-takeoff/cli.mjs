@@ -32,6 +32,7 @@ import { panelMaxError, panelOrder, panelOrderText, panelPullText } from "./pane
 import { budget, budgetText, budgetCsv } from "./budget.mjs";
 import { proposal, proposalText } from "./bidletter.mjs";
 import { budgetDiff, diffText } from "./compare.mjs";
+import { sensitivity, sensitivityText } from "./sensitivity.mjs";
 import { levelBids, levelText } from "./bidlevel.mjs";
 import { scheduleRisk, riskText } from "./risk.mjs";
 import { procurement, procurementText, procurementCsv } from "./procurement.mjs";
@@ -88,6 +89,7 @@ Usage:
   node cli.mjs plan.json --level-bids  line up the plan's "bids" (bidder, lines of item, qty, unitPrice or amount) against the budget lines: short quantities and left-out scope are priced at the bid's own, the plan's or the other bids' median price, else listed (add --json)
   node cli.mjs plan.json --compare=revised.json  change order: each plan priced with its own "prices", then the budget difference line by line (add --json); pass the same flags the budget needs (--sheathing...)
   node cli.mjs plan.json --proposal  customer letter from the budget: section prices with markup spread pro rata, plan "proposal" {client, project, date, validDays, inclusions, exclusions, terms, partial, payments [{name, pct}] adding to 100}; refused while any line is unpriced (add --json)
+  node cli.mjs plan.json --sensitivity [--swing=10]  what a price swing in each budget section does to the cost and the bid, and the rise a fixed bid absorbs (add --json)
   node cli.mjs plan.json --budget    price the quantities with the plan's own "prices" (sheets, bundles, concrete, rebar...); lumber uses the stock prices; anything without a price is listed, not guessed (add --csv for a spreadsheet file, --json for the data)
   node cli.mjs --schedule-template   a starter activity list (order and predecessors, every duration 0) to paste into a plan as "schedule"
   node cli.mjs plan.json --risk      Monte Carlo finish dates (P50/P80/P90, chance of the deadline) from min/max days on the schedule activities
@@ -376,6 +378,13 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     const b2 = JSON.parse(other.out);
     const d = budgetDiff(budget(r, plan.prices || {}, plan.allowances || {}), b2);
     return { code: 0, out: flags.has("--json") ? JSON.stringify(d, null, 2) : ["CHANGE ORDER (revised minus original)", ...diffText(d)].join("\n") };
+  }
+  if (flags.has("--sensitivity")) {
+    const sp = argv.find((a) => a.startsWith("--swing="))?.slice(8);
+    const pct = sp == null ? 10 : Number(sp);
+    if (!Number.isFinite(pct) || pct < 1 || pct > 100) return { code: 1, out: "--swing= is a percent from 1 to 100." };
+    const sv = sensitivity(budget(r, plan.prices || {}, plan.allowances || {}), pct);
+    return { code: 0, out: flags.has("--json") ? JSON.stringify(sv, null, 2) : ["PRICE SENSITIVITY", ...sensitivityText(sv)].join("\n") };
   }
   if (flags.has("--proposal")) {
     const q = proposal(budget(r, plan.prices || {}, plan.allowances || {}), plan.proposal || {});
