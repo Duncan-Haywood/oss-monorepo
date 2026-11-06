@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M11%207l-6%204%203%205%203-2v12h10V14l3%202%203-5-6-4q-5%204-10%200z'%20fill='%23efe4cc'/%3E%3C/svg%3E">
+  <title>Import Duty on T-Shirts and Hoodies: A Worked Example for a Small Clothing Brand</title>
+  <meta name="description" content="How customs duty changes the landed cost of 500 cotton t-shirts into the US, EU and UK, why US duty ignores freight and EU/UK duty does not, and what zero-duty origin proof is worth. Worked line by line; rates are unchecked defaults.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Import duty on t-shirts: US vs EU vs UK, worked">
+  <meta property="og:description" content="500 tees at 5 each: 7.03 landed into the US, 6.94 into the EU or UK, 6.20 with a least-developed-country origin proof.">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is import duty charged on freight?", "acceptedAnswer": {"@type": "Answer", "text": "In the United States duty is charged on the price paid to the factory (FOB) and international freight and insurance are not dutiable. In the EU and UK the customs value is CIF: factory price plus freight and insurance, so freight is taxed too."}}, {"@type": "Question", "name": "What is the duty rate on a cotton t-shirt?", "acceptedAnswer": {"@type": "Answer", "text": "The studio's default is 16.5% into the US and 12% into the EU and UK for knitted cotton tees (heading 6109.10). These defaults are typed from memory and not checked against the official tariffs; confirm them with a customs broker and the tariff sites before relying on them."}}, {"@type": "Question", "name": "Can a small brand pay no duty?", "acceptedAnswer": {"@type": "Answer", "text": "Some least-developed countries, such as Bangladesh and Cambodia, can enter the EU and UK at 0% if the garment meets the scheme's rules of origin and you hold the origin proof. Without the proof the full rate applies."}}]}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 780px; margin: auto; padding: 24px 16px 48px; background: var(--paper); line-height: 1.6; }
+    h1 { font: 700 clamp(1.7rem, 4vw, 2.5rem)/1.15 Georgia, serif; }
+    a { color: var(--accent); }
+    table { border-collapse: collapse; width: 100%; background: var(--card); }
+    td, th { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: var(--accent); color: #fff; padding: 10px 18px; border-radius: 999px; text-decoration: none; font-weight: 700; }
+    .note { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 12px; }
+    footer { font-size: .88rem; color: var(--muted); margin-top: 32px; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a></p>
+  <h1>How much import duty will you pay on a t-shirt order?</h1>
+  <p>Ordering shirts from a factory abroad adds a line the factory's quote leaves out: customs duty. It is a small share of the cost of a tee, about a tenth, but it is built differently in each market, and for a hoodie in man-made fibre into the US it is much larger. Here is the sum for one example.</p>
+  <p class="note">The factory price, freight and rates below are <strong>placeholders and unchecked defaults</strong>, typed from memory because the official tariff sites could not be reached when this was written. They are not a quote and not customs advice. Check the rate for your exact garment with the tariff site of your destination and a licensed customs broker. The <a href="duty.html">duty calculator</a> lets you type your own rates.</p>
+
+  <h2>The example</h2>
+  <p>500 knitted cotton t-shirts at 5.00 each from the factory, 600 for freight to your door, no insurance. Same figures in each market, to compare how the rules differ (not currency conversions).</p>
+
+  <h2>Landed cost by destination</h2>
+  <table>
+    <tr><th>Destination</th><th class="num">Customs value</th><th class="num">Rate</th><th class="num">Duty</th><th class="num">Landed per shirt</th></tr>
+    <tr><td>United States</td><td class="num">2,500.00</td><td class="num">16.5%</td><td class="num">412.50</td><td class="num">7.03</td></tr>
+    <tr><td>European Union</td><td class="num">3,100.00</td><td class="num">12%</td><td class="num">372.00</td><td class="num">6.94</td></tr>
+    <tr><td>United Kingdom</td><td class="num">3,100.00</td><td class="num">12%</td><td class="num">372.00</td><td class="num">6.94</td></tr>
+  </table>
+  <p>The US rate is higher, but the US charges it on 2,500 (the factory price alone) while the EU and UK charge 12% on 3,100 because freight is added. That is why the higher US rate ends up only about 0.09 a shirt dearer here. Duty is <strong>11.7%</strong> of the landed cost into the US and <strong>10.7%</strong> into the EU or UK.</p>
+
+  <h2>Import VAT is not a cost, if you can reclaim it</h2>
+  <p>The EU and UK also charge VAT at the border on customs value plus duty: 729.12 into the EU at a 21% example rate, 694.40 into the UK at 20%. A VAT-registered business gets this back on its next return, so it is cash tied up for a few weeks, not part of the cost per shirt. A seller who is not registered pays it for good. The calculator shows it apart for that reason.</p>
+
+  <h2>What a zero-duty origin is worth</h2>
+  <p>If the same order is made in Bangladesh and you hold the origin proof, the scheme for least-developed countries brings EU duty to 0%: landed cost falls from 6.94 to <strong>6.20</strong> a shirt, a saving of 372 on the order. It only applies if the garment meets the scheme's rules of origin and the paperwork is in order; a shirt made from fabric imported from elsewhere may not qualify. The calculator applies the zero only when you say the proof is in hand.</p>
+
+  <h2>Extra tariffs</h2>
+  <p>US additional tariffs by country of origin have changed several times since 2025. The calculator defaults them to 0 and asks you to type today's figure for your origin; a shirt at 5.00 with an extra 20% adds 1.00 a shirt, more than the base duty.</p>
+
+  <h2>What to do with this</h2>
+  <ul>
+    <li>Ask the factory for the price on the terms you will use (FOB, CIF) so you know what the customs value will be.</li>
+    <li>Get the tariff code for your exact garment from a customs broker before you commit to a fabric: cotton and man-made fibre are classed and charged differently.</li>
+    <li>Put the duty into the same cost sheet as everything else, so the price you set leaves the margin you meant. See the <a href="how-much-does-it-cost-to-make-a-t-shirt.html">full cost of a t-shirt</a>.</li>
+  </ul>
+  <p><a class="cta" href="duty.html">Work out duty for your order</a></p>
+
+  <section id="faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <h3>Is import duty charged on freight?</h3>
+    <p>In the United States duty is charged on the price paid to the factory (FOB) and international freight and insurance are not dutiable. In the EU and UK the customs value is CIF: factory price plus freight and insurance, so freight is taxed too.</p>
+    <h3>What is the duty rate on a cotton t-shirt?</h3>
+    <p>The studio's default is 16.5% into the US and 12% into the EU and UK for knitted cotton tees (heading 6109.10). These defaults are typed from memory and not checked against the official tariffs; confirm them with a customs broker and the tariff sites before relying on them.</p>
+    <h3>Can a small brand pay no duty?</h3>
+    <p>Some least-developed countries, such as Bangladesh and Cambodia, can enter the EU and UK at 0% if the garment meets the scheme's rules of origin and you hold the origin proof. Without the proof the full rate applies.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the studio are provided free and as-is, without warranty of any kind, express or implied. They are not legal, tax, financial or manufacturing advice, and do not replace a qualified professional. <strong>You are responsible for reviewing and verifying any figure before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+</main>
+</body>
+</html>
