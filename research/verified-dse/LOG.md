@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-06 · Milestone 88: LaTeX build compiled with BibTeX, PDF rebuilt (no flow run, no new numbers)
+- Why: milestone 87's next item. TeX Live (latex-base, recommended, publishers, science) installed from apt; `build.sh` then `pdflatex`, `bibtex`, `pdflatex` twice.
+- Check: compiles with no errors and no undefined citations or references; 6 pages; `pdftotext` gives 5,892 words (PAPER.md body plus the bibliography now typeset by BibTeX). 8 overfull-box warnings remain, all wide tables or long inline paragraphs (largest 48 pt). `paper/main.pdf` is the rebuilt file, replacing the stale one with inline references.
+- Limits: official MLCAD template and page limit still unchecked; author lists in `references.bib` still end "and others" for some entries; arxiv/doi not re-verified this session.
+- Next: fix the overfull tables; full author lists; detail-routed mult24/mult32 cells.
+
 ## 2026-11-06 · Milestone 87: citations wired to BibTeX in the LaTeX build (no flow run, no new numbers)
 - Why: milestone 86's next item. `paper/wirecite.py` (called by `build.sh`) rewrites each `arXiv:ID` / `doi:ID` in `main.tex` to `\cite{key}` using `references.bib` and appends `\bibliographystyle{IEEEtran}` / `\bibliography{references}`. `tests/test_bib.py` gained a test of the rewrite.
 - Check: `main.tex` now has 11 `\cite{}` (one per id in PAPER.md) and no bare `arXiv:`/`doi:`; `tests/` 20 passed, 1 skipped. `pdflatex`/`bibtex` are not installed here, so the PDF was **not rebuilt** and `main.pdf` is stale (still inline references); the LaTeX has not been compiled.
