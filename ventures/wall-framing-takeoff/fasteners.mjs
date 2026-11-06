@@ -36,7 +36,8 @@ const DEFAULTS = {
  * wallBracing counts diagonal wall braces (let-in 1x4 or metal T-braces) as a typed rule: every wall at least `minWallLength` in long (default 48)
  * gets ceil(length / `spacing`) braces (default 300 in, so a 40 ft wall gets 2), each running from plate to plate at `angle` degrees from
  * horizontal (default 45), so a brace is wall height / sin(angle) long. Which walls are braced wall lines and the bracing method are the engineer's call.
- * @typedef {{ spacing?: number, minWallLength?: number, angle?: number, price?: number }} WallBracing
+ * `nailsPerBrace` (default 0, off) adds the nails driven through each brace into the framing nail total, as a typed count per brace.
+ * @typedef {{ spacing?: number, minWallLength?: number, angle?: number, price?: number, nailsPerBrace?: number }} WallBracing
  * @typedef {Partial<typeof DEFAULTS> & { nailsPerBox?: number, price?: number, sheathing?: boolean, wallBracing?: WallBracing | boolean, holdDowns?: HoldDowns, rafterTies?: RafterTies | boolean, plateStraps?: PlateStraps | boolean }} Fasteners
  */
 
@@ -69,6 +70,7 @@ export function validateFasteners(d) {
     if (wb.spacing != null && !(wb.spacing >= 24 && wb.spacing <= 1200)) e.push("Brace spacing must be between 24 and 1200 inches.");
     if (wb.minWallLength != null && !(wb.minWallLength >= 12 && wb.minWallLength <= 1200)) e.push("Shortest braced wall must be between 12 and 1200 inches.");
     if (wb.angle != null && !(wb.angle >= 30 && wb.angle <= 60)) e.push("Brace angle must be between 30 and 60 degrees.");
+    if (wb.nailsPerBrace != null && !(Number.isInteger(wb.nailsPerBrace) && wb.nailsPerBrace >= 0 && wb.nailsPerBrace <= 200)) e.push("Nails per brace must be a whole number from 0 to 200.");
     if (wb.price != null && !(wb.price >= 0 && wb.price <= 1e6)) e.push("Brace price must be between 0 and 1000000.");
   } else if (wb != null && typeof wb !== "boolean") e.push("wallBracing must be true or an object with spacing, minWallLength, angle and price.");
   const rt = d.rafterTies;
@@ -158,14 +160,15 @@ export function layoutFasteners(d, plan, result) {
   let wallBracing = null;
   if (d.wallBracing) {
     const wb = typeof d.wallBracing === "object" ? d.wallBracing : {};
-    const spacing = wb.spacing ?? 300, minLen = wb.minWallLength ?? 48, angle = wb.angle ?? 45;
-    let count = 0, inches = 0, walls = 0;
+    const nb = wb.nailsPerBrace ?? 0, spacing = wb.spacing ?? 300, minLen = wb.minWallLength ?? 48, angle = wb.angle ?? 45;
+    let count = 0, inches = 0, braced = 0;
     for (const w of result.walls) {
       if (!(w.length >= minLen - 1e-9)) continue;
       const n = Math.ceil(w.length / spacing - 1e-9), len = w.height / Math.sin((angle * Math.PI) / 180);
-      count += n; inches += n * len; walls++;
+      count += n; inches += n * len; braced++;
+      if (nb > 0) { add("Wall braces", n * nb, `${nb} nails per brace`); const row = walls.find((x) => x.id === w.id); if (row) row.nails += n * nb; }
     }
-    wallBracing = { walls, spacing, minWallLength: minLen, angle, count, feet: inches / 12, price: wb.price ?? null, cost: wb.price != null ? count * wb.price : null };
+    wallBracing = { walls: braced, spacing, minWallLength: minLen, angle, count, feet: inches / 12, price: wb.price ?? null, cost: wb.price != null ? count * wb.price : null };
   }
   /** @type {any} */
   let rafterTies = null;
