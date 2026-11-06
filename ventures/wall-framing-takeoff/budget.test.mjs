@@ -573,3 +573,15 @@ test("roof sheathing nail boxes are a budget line only when the box size is type
   assert.ok(Math.abs(line(b).amount - 9 * line(b).qty) < 0.005);
   assert.equal(line(withRoof({ nailBox: 500 })).amount, null);
 });
+
+test("fireblocking boards are a budget line; a budget price overrides fireblock.boardPrice (hand check)", () => {
+  const plan = { ...full(), fireblock: { intervalFt: 4, boardPrice: 5, waste: 0 } };
+  const fb = JSON.parse(run(plan, "--json").out).fireblock;
+  assert.ok(fb && fb.boards > 0, "a 4 ft cavity limit needs rows on the sample walls");
+  const line = (p) => JSON.parse(run(p, "--budget", "--json").out).lines.find((x) => x.item === "Fireblocking boards");
+  const l = line(plan);
+  assert.ok(l && l.qty === fb.boards && Math.abs(l.amount - fb.boards * 5) < 0.01, JSON.stringify(l));
+  const o = line({ ...plan, prices: { fireblockBoard: 9 } });
+  assert.ok(Math.abs(o.amount - fb.boards * 9) < 0.01);
+  assert.equal(line({ ...plan, fireblock: { intervalFt: 30 } }), undefined);
+});
