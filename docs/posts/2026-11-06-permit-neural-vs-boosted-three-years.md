@@ -1,6 +1,7 @@
 ---
 title: "A small neural net ties gradient boosting on permit durations, over three years"
 date: 2026-11-06
+seo_title: "Small neural net vs gradient boosting on permit durations"
 tags: [build-data, permits, research]
 description: "Over three test years a small neural net ties gradient boosting on permit-duration quantile loss: within 3% in 43 of 45 cells."
 ---
