@@ -70,6 +70,22 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          # The gate reads HTML, YAML and JSON only. Blob-less, minus the binary
+          # formats (419 tracked files, the MP3s alone half the tree's bytes),
+          # as conflict-markers-ci.yml does; the tests and the check pass on
+          # such a tree (docs/history/ci-perf-2026-11-06-sibling-links-sparse.md).
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !*.mp3
+            !*.png
+            !*.zip
+            !*.webp
+            !*.woff2
+            !*.ttf
+            !*.ico
+            !*.gif
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
