@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01EhTJVMNLWAFGmKu15VTJRf",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo to develop, deploy, market, sell revenue software",
+  "input_sha256": "189dd80de3ddd9d388c13e21d4a5df63293843e451d669721ddd7d490fbfbc2c",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T08:58:13Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ai-bookkeeper: read Lemon Squeezy orders export",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "scheduled task asked for revenue product work; did ai-bookkeeper instead",
+      "did": "product slice",
+      "result": "landed with tests"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Routed to redteam by the draw but the scheduled prompt asked for product work, so deviated. Lemon Squeezy orders CSV was unreadable (no lines found); now read with minor-unit scaling, refunded orders skipped. Header from memory, made-up rows. ai-bookkeeper suite: ok, 0 failed (31.9s).",
+  "corrections": [],
+  "redteam": null,
+  "build_ok": true
+}
