@@ -117,3 +117,46 @@ test("fuzz: truss bearing nails add exactly 2 x trusses x nails, and nothing whe
     assert.equal(layoutFasteners(/** @type {any} */ ({ roofNails: { trussToPlate: bad } }), plan, { ...base, roof: { trusses: { count: 3 }, rafters: [] } }).ok, false, String(bad));
   }
 });
+
+// Wall braces (fasteners.wallBracing, 2026-11-06) were hand-tested only.
+// Property: the count equals the sum of ceil(length / spacing) over walls at
+// least minWallLength long, brace feet equal count x height / sin(angle), cost
+// is count x price, nails per brace add exactly count x nails to the total,
+// a tighter spacing never gives fewer braces, and bad settings are refused.
+test("fuzz: wall braces count ceil(length / spacing) per long-enough wall, and nails add count x nails", () => {
+  const failures = [];
+  for (let seed = 1; seed <= 300; seed++) {
+    const rand = rng(seed);
+    const walls = Array.from({ length: 1 + Math.floor(rand() * 6) }, (_, i) => ({
+      id: `W${i}`, length: 12 + Math.floor(rand() * 700), height: pick(rand, [96, 97.125, 108, 120]), members: [],
+    }));
+    const r = { walls };
+    const spacing = pick(rand, [24, 100, 120, 300, 600]);
+    const minWallLength = pick(rand, [12, 48, 96, 240]);
+    const angle = pick(rand, [30, 45, 60]);
+    const price = pick(rand, [undefined, 0, 20]);
+    const nailsPerBrace = pick(rand, [undefined, 0, 4, 12]);
+    const wb = { spacing, minWallLength, angle, price, nailsPerBrace };
+    const off = layoutFasteners({ waste: 0 }, {}, r);
+    const l = layoutFasteners({ waste: 0, wallBracing: wb }, {}, r);
+    if (!l.ok) { failures.push(`seed ${seed}: refused valid ${JSON.stringify(wb)}`); continue; }
+    const braced = walls.filter((w) => w.length >= minWallLength);
+    const count = braced.reduce((s, w) => s + Math.ceil(w.length / spacing - 1e-9), 0);
+    const feet = braced.reduce((s, w) => s + (Math.ceil(w.length / spacing - 1e-9) * w.height) / Math.sin((angle * Math.PI) / 180), 0) / 12;
+    const b = l.wallBracing;
+    if (b.count !== count) failures.push(`seed ${seed}: count ${b.count}, want ${count}`);
+    if (b.walls !== braced.length) failures.push(`seed ${seed}: walls ${b.walls}, want ${braced.length}`);
+    if (Math.abs(b.feet - feet) > 1e-6) failures.push(`seed ${seed}: feet ${b.feet}, want ${feet}`);
+    if (price != null && b.cost !== count * price) failures.push(`seed ${seed}: cost`);
+    if (price == null && b.cost != null) failures.push(`seed ${seed}: cost without price`);
+    if (l.total - off.total !== count * (nailsPerBrace ?? 0)) failures.push(`seed ${seed}: nails rose ${l.total - off.total}, want ${count * (nailsPerBrace ?? 0)}`);
+    if (l.walls.reduce((s, w) => s + w.nails, 0) !== l.total) failures.push(`seed ${seed}: wall rows != total`);
+    if (l.connections.reduce((s, c) => s + c.nails, 0) !== l.total) failures.push(`seed ${seed}: connection rows != total`);
+    const tight = layoutFasteners({ waste: 0, wallBracing: { ...wb, spacing: Math.max(24, spacing / 2) } }, {}, r);
+    if (tight.wallBracing.count < count) failures.push(`seed ${seed}: tighter spacing gave fewer braces`);
+  }
+  assert.deepEqual(failures.slice(0, 10), []);
+  const r = { walls: [{ id: "A", length: 200, height: 97.125, members: [] }] };
+  for (const bad of [{ spacing: 5 }, { spacing: 2000 }, { angle: 29 }, { angle: 61 }, { minWallLength: 1 }, { nailsPerBrace: 1.5 }, { nailsPerBrace: -1 }, { price: -1 }])
+    assert.equal(layoutFasteners(/** @type {any} */ ({ wallBracing: bad }), {}, r).ok, false, JSON.stringify(bad));
+});
