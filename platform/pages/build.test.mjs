@@ -306,7 +306,7 @@ test('LICENSE files are kept', async () => {
 
 test('no page still points at the placeholder origin', async () => {
   const { outDir } = await site();
-  const textFiles = (await walk(outDir)).filter((f) => /\.(html|xml|txt|mjs|json)$/.test(f));
+  const textFiles = (await walk(outDir)).filter((f) => /\.(html|xml|txt|mjs|json|ics)$/.test(f));
 
   const stale = [];
   for (const file of textFiles) {
@@ -5830,4 +5830,15 @@ test('catalogue llms.txt carries a source date line only when given a date', asy
   const { surfaces } = await site();
   assert.match(renderLlmsTxt(surfaces, BASE, [], [], { updated: '2026-11-04T10:00:00Z' }), /Source last changed: 2026-11-04/);
   assert.doesNotMatch(renderLlmsTxt(surfaces, BASE), /Source last changed/);
+});
+
+test('copyTree rewrites the placeholder in .ics files, even across a folded line', async () => {
+  const src = await fs.mkdtemp(path.join(os.tmpdir(), 'ics-src-'));
+  const dst = await fs.mkdtemp(path.join(os.tmpdir(), 'ics-dst-'));
+  await fs.writeFile(path.join(src, 'cal.ics'),
+    'BEGIN:VCALENDAR\r\nURL:https://example.inv\r\n alid/tool/page.html\r\nEND:VCALENDAR\r\n');
+  await copyTree(src, dst, 'https://real.test/');
+  const out = await fs.readFile(path.join(dst, 'cal.ics'), 'utf8');
+  assert.match(out, /URL:https:\/\/real\.test\/tool\/page\.html/);
+  assert.ok(!out.includes('example.invalid'));
 });
