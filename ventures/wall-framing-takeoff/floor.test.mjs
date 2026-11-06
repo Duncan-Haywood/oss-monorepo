@@ -470,6 +470,16 @@ test("framing nails: joist-end and rim counts hand-counted on a plain floor, off
     assert.ok(validateFloor({ ...sampleFloor(), ...bad }, plan()).length > 0, JSON.stringify(bad));
 });
 
+test("framing nails: blocking end nails are two ends per piece, off unless typed", () => {
+  const f = { ...sampleFloor(), blockingRows: 1 };
+  const l = layoutFloor({ ...f, blockEndNails: 2 }, plan());
+  assert.ok(l.blocks.length > 0);
+  assert.equal(l.framingNails.blockNails, 4 * l.blocks.length);
+  assert.equal(l.framingNails.count, l.framingNails.blockNails);
+  assert.equal(layoutFloor(f, plan()).framingNails, null);
+  for (const bad of [2.5, -1, 21]) assert.ok(validateFloor({ ...f, blockEndNails: bad }, plan()).length > 0, String(bad));
+});
+
 test("framing nails: tail joist ends in hangers are not counted as bearing ends", () => {
   const f = { ...sampleFloor(), openings: [{ x: 96, y: 96, width: 48, depth: 48 }], joistEndNails: 3 };
   const l = layoutFloor(f, plan());

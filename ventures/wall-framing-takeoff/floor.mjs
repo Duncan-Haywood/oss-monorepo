@@ -16,7 +16,7 @@ import { THICK, EPS, DEPTH, optimizeStock, formatLength, formatInches } from "./
 const DOUBLE = 2 * THICK;
 export const SHEET = { width: 48, length: 96 };
 
-/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, cantilever?: number, headerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, hangerCapacity?: number, bearingCapacity?: number, stairReaction?: number, stairReactionLive?: number, stairSide?: "front"|"back", tieForce?: number, tieCapacity?: number, cantDeflLimit?: number }, blockingRows?: number, subfloorFasteners?: boolean, fastenerSpacing?: number, fastenerEdgeSpacing?: number, fastenerFieldSpacing?: number, fastenerBoxCount?: number, fastenerWaste?: number, fastenerPrice?: number, adhesive?: boolean, adhesiveTubeOz?: number, adhesiveBead?: number, adhesiveWaste?: number, adhesivePrice?: number, joistEndNails?: number, rimNailSpacing?: number, joistNailBoxCount?: number, joistNailPrice?: number, hangerNails?: { single?: number, double?: number }, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], penetrations?: { type: "hole"|"notch", at: number, size: number, length?: number, fromEdge?: number, end?: boolean }[], limits?: { hole?: number, holeEdge?: number, notch?: number, endNotch?: number, notchLength?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
+/** @typedef {{ id?: string, width: number, depth: number, joist?: string, spacing?: number, rim?: boolean, beam?: number, cantilever?: number, headerCheck?: { liveLoad: number, deadLoad: number, Fb: number, Fv: number, E: number, deflLimit?: number, hangerCapacity?: number, bearingCapacity?: number, stairReaction?: number, stairReactionLive?: number, stairSide?: "front"|"back", tieForce?: number, tieCapacity?: number, cantDeflLimit?: number }, blockingRows?: number, subfloorFasteners?: boolean, fastenerSpacing?: number, fastenerEdgeSpacing?: number, fastenerFieldSpacing?: number, fastenerBoxCount?: number, fastenerWaste?: number, fastenerPrice?: number, adhesive?: boolean, adhesiveTubeOz?: number, adhesiveBead?: number, adhesiveWaste?: number, adhesivePrice?: number, joistEndNails?: number, blockEndNails?: number, rimNailSpacing?: number, joistNailBoxCount?: number, joistNailPrice?: number, hangerNails?: { single?: number, double?: number }, doubleUnder?: number[], openings?: { x: number, y: number, width: number, depth: number }[], penetrations?: { type: "hole"|"notch", at: number, size: number, length?: number, fromEdge?: number, end?: boolean }[], limits?: { hole?: number, holeEdge?: number, notch?: number, endNotch?: number, notchLength?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number } }} Floor */
 
 export function sampleFloor() {
   return { id: "Main floor", width: 480, depth: 336, joist: "2x10", spacing: 16, rim: true, beam: 168, blockingRows: 0 };
@@ -42,6 +42,7 @@ export function validateFloor(f, plan) {
   if (f.adhesiveBead != null && !(f.adhesiveBead >= 0.125 && f.adhesiveBead <= 1)) errors.push("Adhesive bead diameter must be between 1/8 and 1 inch.");
   if (f.adhesiveWaste != null && !(f.adhesiveWaste >= 1 && f.adhesiveWaste <= 2)) errors.push("Adhesive waste factor must be between 1 and 2.");
   if (f.joistEndNails != null && !(Number.isInteger(f.joistEndNails) && f.joistEndNails >= 0 && f.joistEndNails <= 20)) errors.push("joistEndNails must be a whole number of nails per joist end from 0 to 20.");
+  if (f.blockEndNails != null && !(Number.isInteger(f.blockEndNails) && f.blockEndNails >= 0 && f.blockEndNails <= 20)) errors.push("blockEndNails must be a whole number of nails per blocking piece end from 0 to 20.");
   if (f.rimNailSpacing != null && !(typeof f.rimNailSpacing === "number" && f.rimNailSpacing >= 4 && f.rimNailSpacing <= 24)) errors.push("Rim nail spacing must be between 4 and 24 inches.");
   if (f.joistNailBoxCount != null && !(Number.isInteger(f.joistNailBoxCount) && f.joistNailBoxCount >= 50 && f.joistNailBoxCount <= 5000)) errors.push("Nails per box must be a whole number from 50 to 5000.");
   if (f.hangerNails != null) for (const k of ["single", "double"]) if (f.hangerNails[k] != null && !(Number.isInteger(f.hangerNails[k]) && f.hangerNails[k] >= 0 && f.hangerNails[k] <= 100)) errors.push(`hangerNails.${k} must be a whole number of nails from 0 to 100.`);
@@ -472,15 +473,16 @@ export function layoutFloor(f, plan) {
   // Framing nails (opt-in, both figures typed from the nailing schedule you build to; none shipped): `joistEndNails` per
   // joist end that bears on a rim, beam or wall (two per joist piece, none for a header and none for an end that hangs
   // in a hanger), and one rim nail every `rimNailSpacing` inches along every rim board. Boxes round up.
-  /** @type {null | { endNails: number, rimNails: number, count: number, bearingEnds: number, boxCount: number, boxes: number, price?: number }} */
+  /** @type {null | { endNails: number, rimNails: number, blockNails: number, count: number, bearingEnds: number, boxCount: number, boxes: number, price?: number }} */
   let framingNails = null;
-  if (f.joistEndNails != null || f.rimNailSpacing != null) {
+  if (f.joistEndNails != null || f.rimNailSpacing != null || f.blockEndNails != null) {
     const bearingEnds = Math.max(0, 2 * joists.filter((j) => !j.header).length - tailEnds);
     const endNails = bearingEnds * (f.joistEndNails || 0);
     const rimNails = f.rimNailSpacing ? rims.reduce((t, r) => t + Math.ceil(r.length / f.rimNailSpacing - 1e-9), 0) : 0;
-    const boxCount = f.joistNailBoxCount ?? 1000, count = endNails + rimNails;
-    framingNails = { endNails, rimNails, count, bearingEnds, boxCount, boxes: Math.ceil(count / boxCount - 1e-9), ...(f.joistNailPrice != null ? { price: f.joistNailPrice } : {}) };
-    notes.push(`Framing nails: ${count} counted (${endNails} at ${f.joistEndNails || 0} per bearing joist end x ${bearingEnds}, ${rimNails} along the rims${f.rimNailSpacing ? ` at ${f.rimNailSpacing} in` : ""}), ${framingNails.boxes} box${framingNails.boxes === 1 ? "" : "es"} of ${boxCount}; the counts are yours, not a code table, and nail size and type are not checked.`);
+    const blockNails = 2 * blocks.length * (f.blockEndNails || 0);
+    const boxCount = f.joistNailBoxCount ?? 1000, count = endNails + rimNails + blockNails;
+    framingNails = { endNails, rimNails, blockNails, count, bearingEnds, boxCount, boxes: Math.ceil(count / boxCount - 1e-9), ...(f.joistNailPrice != null ? { price: f.joistNailPrice } : {}) };
+    notes.push(`Framing nails: ${count} counted (${endNails} at ${f.joistEndNails || 0} per bearing joist end x ${bearingEnds}, ${rimNails} along the rims${f.rimNailSpacing ? ` at ${f.rimNailSpacing} in` : ""}${f.blockEndNails != null ? `, ${blockNails} at ${f.blockEndNails} per end of ${blocks.length} blocking pieces` : ""}), ${framingNails.boxes} box${framingNails.boxes === 1 ? "" : "es"} of ${boxCount}; the counts are yours, not a code table, and nail size and type are not checked.`);
   }
   return {
     ok: true, adhesive, fasteners, framingNails, penetrations: pen, hangers, headerChecks, trimmerChecks, cantileverCheck, openings, trimmers, id, width: f.width, depth: total, supportedDepth: f.depth, cantilever: cant, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
