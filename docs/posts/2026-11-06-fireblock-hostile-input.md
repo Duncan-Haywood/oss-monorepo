@@ -1,6 +1,8 @@
 ---
 date: 2026-11-06
 title: "Fireblocking quantities: three ways a bad wall broke the counter"
+tags: [wall-framing-takeoff, fireblocking, construction]
+description: "The wall framing takeoff fireblocking counter used to crash, return NaN or hang on a bad wall; it now refuses bad input with a reason and has a fuzz test."
 ---
 
 The fireblocking counter in the wall-framing takeoff, added earlier today,
