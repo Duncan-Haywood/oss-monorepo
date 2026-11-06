@@ -333,6 +333,9 @@
       <div><label for="faHdPrice">Price per hold-down (blank: none)</label><input id="faHdPrice" type="number" min="0" step="0.01" placeholder="e.g. 14"></div>
       <div><label for="faPsOn">Plate straps across plate joints</label><select id="faPsOn"><option value="" selected>none</option><option value="1">1 per top- and cap-plate joint (and single-top-plate tie)</option><option value="2">2 per joint</option></select></div>
       <div><label for="faPsPrice">Price per plate strap (blank: none)</label><input id="faPsPrice" type="number" min="0" step="0.01" placeholder="e.g. 3.5"></div>
+      <div><label for="faWbOn">Diagonal wall braces</label><select id="faWbOn"><option value="" selected>none</option><option value="1">one per 300 in of wall (walls 48 in or longer)</option></select></div>
+      <div><label for="faWbSpacing">Brace spacing, in (blank: 300)</label><input id="faWbSpacing" type="number" min="1" step="1" placeholder="300"></div>
+      <div><label for="faWbPrice">Price per brace (blank: none)</label><input id="faWbPrice" type="number" min="0" step="0.01" placeholder="e.g. 12"></div>
       <div><label for="faRtOn">Rafter ties (needs the roof option)</label><select id="faRtOn"><option value="" selected>none</option><option value="1">1 per rafter bearing (2 per truss)</option><option value="2">2 per rafter bearing (4 per truss)</option></select></div>
       <div><label for="faRtPrice">Price per rafter tie (blank: none)</label><input id="faRtPrice" type="number" min="0" step="0.01" placeholder="e.g. 1.5"></div>
     </div>
@@ -887,6 +890,7 @@
         if (hd.wallEnds || hd.openingMinWidth != null) fa.holdDowns = hd;
         if ($("#faRtOn").value) { fa.rafterTies = { perBearing: Number($("#faRtOn").value) }; if ($("#faRtPrice").value.trim()) fa.rafterTies.price = Number($("#faRtPrice").value); }
         if ($("#faPsOn").value) { fa.plateStraps = { perJoint: Number($("#faPsOn").value) }; if ($("#faPsPrice").value.trim()) fa.plateStraps.price = Number($("#faPsPrice").value); }
+        if ($("#faWbOn").value) { const wb = {}; if ($("#faWbSpacing").value.trim()) wb.spacing = Number($("#faWbSpacing").value); if ($("#faWbPrice").value.trim()) wb.price = Number($("#faWbPrice").value); fa.wallBracing = Object.keys(wb).length ? wb : true; }
         plan.fasteners = fa;
       }
       if ($("#fnOn").checked) {
@@ -1442,6 +1446,7 @@
       $("#faHdEnds").value = fa?.holdDowns?.wallEnds ? "true" : ""; $("#faHdOpen").value = fa?.holdDowns?.openingMinWidth != null ? String(fa.holdDowns.openingMinWidth) : ""; $("#faHdPrice").value = fa?.holdDowns?.price != null ? String(fa.holdDowns.price) : "";
       $("#faRtOn").value = fa?.rafterTies ? String(fa.rafterTies.perBearing ?? 1) : ""; $("#faRtPrice").value = fa?.rafterTies?.price != null ? String(fa.rafterTies.price) : "";
       $("#faPsOn").value = fa?.plateStraps ? String(fa.plateStraps.perJoint ?? 1) : ""; $("#faPsPrice").value = fa?.plateStraps?.price != null ? String(fa.plateStraps.price) : "";
+      { const wb = fa?.wallBracing; $("#faWbOn").value = wb ? "1" : ""; $("#faWbSpacing").value = wb && wb.spacing != null ? String(wb.spacing) : ""; $("#faWbPrice").value = wb && wb.price != null ? String(wb.price) : ""; }
       const fn = plan.foundation;
       $("#fnOn").checked = Boolean(fn); $("#fnFields").hidden = !fn;
       if (fn) {

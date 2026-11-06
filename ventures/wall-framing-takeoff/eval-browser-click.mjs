@@ -68,6 +68,11 @@ await page.waitForFunction(() => document.querySelector("#fastenersOut")?.textCo
 const nailTxt = await page.textContent("#fastenersOut");
 const nailOk = /Sheathing nails/.test(nailTxt) && !/NaN|undefined/.test(nailTxt) && (await page.textContent("#budgetOut")).includes("Framing nails");
 console.log(nailOk ? "ok: nails by connection with sheathing, box count and budget line" : "FAIL: nails card\n" + nailTxt.slice(0, 400));
+// Wall braces: the select and a price reach the fasteners card and the budget line.
+await page.selectOption("#faWbOn", "1"); await page.fill("#faWbPrice", "12");
+await page.waitForFunction(() => /wall brace\(s\)/.test(document.querySelector("#fastenersOut")?.textContent || ""));
+const wbTxt = await page.textContent("#fastenersOut");
+console.log(/\d+ wall brace\(s\) at 45 degrees/.test(wbTxt) && !/NaN|undefined/.test(wbTxt) ? "ok: wall braces from the page controls" : "FAIL: wall braces\n" + wbTxt.slice(0, 400));
 // Piers: a typed group reaches the foundation card with its name, concrete and rebar.
 await page.check("#fnOn");
 await page.fill("#fnPiers", "6, 24, 12, 8, 30, 4, 4, deck posts");
