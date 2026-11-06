@@ -138,3 +138,17 @@ test("blocking pieces are end-nailed: two ends, typed nails per end, by hand", (
   assert.equal(layoutFasteners({ waste: 0, blockingEndNails: 3 }, {}, r).total, 5 * 2 * 3);
   assert.ok(validateFasteners({ blockingEndNails: 9 }).length > 0);
 });
+
+test("roof nails: plate toenails, ridge nails and collar tie ends, by hand", () => {
+  const r = { walls: [wall([])], roof: { rafters: new Array(10).fill({}), jacks: new Array(4).fill({}), collarTies: new Array(3).fill({}), wingRafters: new Array(2).fill({}) } };
+  const base = layoutFasteners({}, {}, r).total;
+  const l = layoutFasteners({ roofNails: true }, {}, r);
+  // bearings 12 commons + 4 jacks = 16 x 3; ridge 12 x 3; collar 3 ties x 2 ends x 4
+  assert.equal(l.total - base, 48 + 36 + 24);
+  assert.deepEqual(l.roofNails, { commons: 12, jacks: 4, collarTies: 3, rafterToPlate: 3, rafterToRidge: 3, collarTieEnd: 4, count: 108 });
+  const z = layoutFasteners({ roofNails: { rafterToPlate: 2, rafterToRidge: 0, collarTieEnd: 0 } }, {}, r);
+  assert.equal(z.total - base, 32);
+  assert.equal(layoutFasteners({ roofNails: true }, {}, { walls: [wall([])], roof: { trusses: { count: 5 }, rafters: [] } }).roofNails, null);
+  assert.equal(layoutFasteners({ roofNails: { rafterToPlate: 1.5 } }, {}, r).ok, false);
+  assert.equal(layoutFasteners({}, {}, r).roofNails, null);
+});
