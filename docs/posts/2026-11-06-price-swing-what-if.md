@@ -1,9 +1,9 @@
 ---
 title: "What a lumber price swing does to a framing bid"
-seo_title: "Lumber price sensitivity for a framing bid: how much profit does a rise absorb"
+seo_title: "Lumber price swing and your framing bid: how much can it absorb"
 date: 2026-11-06
 tags: [wall-framing-takeoff, estimating, budget]
-description: "The open-source framing takeoff has a price what-if: move each budget section by a percent and see the bid change, and how big a rise a fixed bid can absorb before profit is gone."
+description: "The open-source framing takeoff has a price what-if: move a budget section by a percent, see the bid change, and how big a rise a fixed bid absorbs."
 ---
 
 A framing bid is mostly a lumber price that can move between the quote and the order. The takeoff's `--sensitivity` flag (`node cli.mjs plan.json --sensitivity --swing=10`) takes the plan's budget and moves each section alone, up and down by the swing you pick, restacking tax, contingency, overhead and profit the way the budget does. A 0% swing reproduces the budget exactly, and the test checks that.
