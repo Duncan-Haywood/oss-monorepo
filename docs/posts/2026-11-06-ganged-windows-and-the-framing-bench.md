@@ -1,6 +1,6 @@
 ---
 title: "Two windows 3 inches apart: what a framing takeoff does with them"
-seo_title: "Ganged windows in a wall framing takeoff: kings, headers and stock length"
+seo_title: "Ganged windows in a wall framing takeoff: kings and headers"
 date: 2026-11-06
 tags: [wall-framing-takeoff, advanced-framing, construction]
 description: "A CC0 house plan with two windows 3 in apart cannot be framed as drawn; ganging them works until the merged header outgrows the lumber list."
