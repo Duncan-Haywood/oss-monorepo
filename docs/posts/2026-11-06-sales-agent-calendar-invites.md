@@ -1,9 +1,9 @@
 ---
 title: "From a cold-email reply to a calendar file, with no time zone guessed"
-seo_title: "Turn a prospect's reply into an .ics calendar invite file, open source sales agent"
+seo_title: "Turn a prospect's reply into an .ics calendar invite file"
 date: 2026-11-06
 tags: [sales-agent, calendar, outbound]
-description: "The open-source sales agent now writes a tentative .ics file for an exact meeting time a prospect proposes, and refuses when the reply gives only a part of the day."
+description: "The open-source sales agent writes a tentative .ics file for an exact meeting time a prospect proposes, and refuses on a part of the day."
 ---
 
 When a prospect writes "Tuesday at 2pm works", the sales agent already reads the time and drafts a reply. It now also writes `invites/<address>-<date>.ics` for you to open in your calendar.
