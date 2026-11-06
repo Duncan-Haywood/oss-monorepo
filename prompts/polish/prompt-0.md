@@ -18,7 +18,7 @@ Steps: [`.github/prompts/land-your-work.md`](../../.github/prompts/land-your-wor
 ## The three jobs
 
 1. **Impressive.** A first-time visitor to
-   https://duncan-haywood.github.io/oss-monorepo/ (or to any product, research
+   https://marisstella.app/ (or to any product, research
    or story page) should think "this is well made" in the first five seconds:
    confident type and spacing, a clear hierarchy, real screenshots and worked
    examples rather than filler, consistent components across pages, motion
@@ -42,7 +42,7 @@ Steps: [`.github/prompts/land-your-work.md`](../../.github/prompts/land-your-wor
 
 Look before you choose. Build the site locally
 (`node platform/pages/build.mjs`, which writes a dist folder beside it and
-takes 7 to 20 minutes in a cloud session (run friction 2026-10-28/29): start it as
+takes about 3 to 20 minutes in a cloud session (runs 2026-10-28 to 11-06 reported 3 to 20): start it as
 `node platform/pages/build.mjs > build.log 2>&1; echo DONE >> build.log` in `run_in_background`
 (the build prints no DONE marker itself), re-run `platform/ci/wait_for.py build.log` until it
 returns, and look at the repo while it runs; then
