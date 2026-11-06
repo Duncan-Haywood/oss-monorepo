@@ -531,3 +531,11 @@ test("a typed cull allowance is its own lumber line, at the order's prices", () 
   assert.ok(Math.abs(b.sections.find((s) => s.name === "Lumber").subtotal - r.summary.costWithCulls) < 0.05 * (lines.length + 3));
   assert.equal(bud(full()).lines.filter((l) => /cull allowance$/.test(l.item)).length, 0);
 });
+
+test("wall braces priced by the foot become a feet line; price each wins (hand check)", () => {
+  const b = bud({ ...full(), fasteners: { wallBracing: { pricePerFoot: 2 } } });
+  const l = b.lines.find((x) => x.item === "Wall braces (by the foot)");
+  assert.ok(l && l.unit === "ft" && Math.abs(l.amount - l.qty * 2) < 0.01, JSON.stringify(l));
+  const each = bud({ ...full({ wallBrace: 10 }), fasteners: { wallBracing: { pricePerFoot: 2 } } });
+  assert.ok(each.lines.some((x) => x.item === "Wall braces") && !each.lines.some((x) => x.item === "Wall braces (by the foot)"));
+});

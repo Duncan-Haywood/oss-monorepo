@@ -179,7 +179,8 @@ export function budget(result, prices = {}, allowances = {}) {
   const fa = result.fasteners;
   if (fa?.ok && fa.boxes != null) add("Fasteners", "Framing nails (boxes)", fa.boxes, "boxes", P("nailBox") ?? fa.price, `${fa.order} nails incl. ${(100 * fa.waste).toFixed(0)}% waste, ${fa.nailsPerBox} per box`);
   if (fa?.ok && fa.holdDowns?.count) add("Fasteners", "Hold-downs", fa.holdDowns.count, "each", P("holdDown") ?? fa.holdDowns.price, `${fa.holdDowns.wallEnds} at wall ends, ${fa.holdDowns.openingSides} beside openings`);
-  if (fa?.ok && fa.wallBracing?.count) add("Fasteners", "Wall braces", fa.wallBracing.count, "each", P("wallBrace") ?? fa.wallBracing.price, `${fa.wallBracing.feet.toFixed(0)} ft at ${fa.wallBracing.angle} degrees, one per ${fa.wallBracing.spacing} in of wall`);
+  if (fa?.ok && fa.wallBracing?.count && P("wallBrace") == null && fa.wallBracing.price == null && fa.wallBracing.pricePerFoot != null) add("Fasteners", "Wall braces (by the foot)", fa.wallBracing.feet, "ft", fa.wallBracing.pricePerFoot, `${fa.wallBracing.count} brace(s) at ${fa.wallBracing.angle} degrees, one per ${fa.wallBracing.spacing} in of wall`);
+  else if (fa?.ok && fa.wallBracing?.count) add("Fasteners", "Wall braces", fa.wallBracing.count, "each", P("wallBrace") ?? fa.wallBracing.price, `${fa.wallBracing.feet.toFixed(0)} ft at ${fa.wallBracing.angle} degrees, one per ${fa.wallBracing.spacing} in of wall`);
   if (fa?.ok && fa.plateStraps?.count) add("Fasteners", "Plate straps", fa.plateStraps.count, "each", P("plateStrap") ?? fa.plateStraps.price, `${fa.plateStraps.topJoints} top-plate and ${fa.plateStraps.capJoints} cap-plate joints, ${fa.plateStraps.plateTies} single-top-plate ties`);
   const dk = result.deck;
   if (dk?.ok) {

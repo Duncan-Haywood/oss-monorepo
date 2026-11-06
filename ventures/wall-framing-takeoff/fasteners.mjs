@@ -38,7 +38,8 @@ const DEFAULTS = {
  * gets ceil(length / `spacing`) braces (default 300 in, so a 40 ft wall gets 2), each running from plate to plate at `angle` degrees from
  * horizontal (default 45), so a brace is wall height / sin(angle) long. Which walls are braced wall lines and the bracing method are the engineer's call.
  * `nailsPerBrace` (default 0, off) adds the nails driven through each brace into the framing nail total, as a typed count per brace.
- * @typedef {{ spacing?: number, minWallLength?: number, angle?: number, price?: number, nailsPerBrace?: number }} WallBracing
+ * `pricePerFoot` prices let-in lumber braces by the linear foot instead of `price` each (`price` wins if both are typed).
+ * @typedef {{ spacing?: number, minWallLength?: number, angle?: number, price?: number, pricePerFoot?: number, nailsPerBrace?: number }} WallBracing
  * roofNails (opt-in, `true` or an object) adds the roof framing nails to the nail total from typed counts: `rafterToPlate` toenails where each rafter or jack
  * rafter (main roof and wings) bears on the wall plate (default 3), `rafterToRidge` nails where each common rafter meets the ridge (default 3) and
  * `collarTieEnd` nails at each end of a collar tie (default 4). Trusses are a purchased line and carry their own internal connections; their bearing toenails are counted only when you type `trussToPlate` (default 0, off): that many nails at each of a truss's two bearings (hand arithmetic, 2026-11-06).
@@ -79,6 +80,7 @@ export function validateFasteners(d) {
     if (wb.angle != null && !(wb.angle >= 30 && wb.angle <= 60)) e.push("Brace angle must be between 30 and 60 degrees.");
     if (wb.nailsPerBrace != null && !(Number.isInteger(wb.nailsPerBrace) && wb.nailsPerBrace >= 0 && wb.nailsPerBrace <= 200)) e.push("Nails per brace must be a whole number from 0 to 200.");
     if (wb.price != null && !(wb.price >= 0 && wb.price <= 1e6)) e.push("Brace price must be between 0 and 1000000.");
+    if (wb.pricePerFoot != null && !(wb.pricePerFoot >= 0 && wb.pricePerFoot <= 1e4)) e.push("Brace price per foot must be between 0 and 10000.");
   } else if (wb != null && typeof wb !== "boolean") e.push("wallBracing must be true or an object with spacing, minWallLength, angle and price.");
   const rn = d.roofNails;
   if (rn != null && typeof rn === "object") {
@@ -183,7 +185,7 @@ export function layoutFasteners(d, plan, result) {
       count += n; inches += n * len; braced++;
       if (nb > 0) { add("Wall braces", n * nb, `${nb} nails per brace`); const row = walls.find((x) => x.id === w.id); if (row) row.nails += n * nb; }
     }
-    wallBracing = { walls: braced, spacing, minWallLength: minLen, angle, count, feet: inches / 12, price: wb.price ?? null, cost: wb.price != null ? count * wb.price : null };
+    wallBracing = { walls: braced, spacing, minWallLength: minLen, angle, count, feet: inches / 12, price: wb.price ?? null, pricePerFoot: wb.pricePerFoot ?? null, cost: wb.price != null ? count * wb.price : wb.pricePerFoot != null ? (inches / 12) * wb.pricePerFoot : null };
   }
   /** @type {any} */
   let roofNails = null;
