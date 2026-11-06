@@ -49,3 +49,21 @@ test("compareDestinations returns the three markets and freightBreakQty rounds u
   assert.equal(freightBreakQty(5, 200, 5), 800); // 200 / (5 x 0.05)
   assert.equal(freightBreakQty(0, 200), null);
 });
+
+import { productForDesign, dutyPctFor } from "./duty.mjs";
+test("garment and fibre pick the duty heading", () => {
+  assert.equal(productForDesign("tee", 0), "tee-cotton");
+  assert.equal(productForDesign("longsleeve", 0.6), "tee-synthetic");
+  assert.equal(productForDesign("hoodie", 0), "hoodie-cotton");
+  assert.equal(productForDesign("crewneck", 1), "hoodie-synthetic");
+  assert.equal(productForDesign("tee", 0.5), "tee-cotton"); // exactly half is not over half
+});
+test("studio duty percent: US is the rate; EU scales with freight (hand: (500+100)x12%/500 = 14.4%)", () => {
+  assert.equal(dutyPctFor({ garmentId: "tee", polyesterShare: 0, destination: "US", factoryPrice: 5, freightPerGarment: 1 }), 16.5);
+  assert.equal(dutyPctFor({ garmentId: "tee", polyesterShare: 0, destination: "EU", factoryPrice: 5, freightPerGarment: 1 }), 14.4);
+});
+test("studio duty percent: proved Bangladesh origin is 0 in the EU; extra US tariff adds on", () => {
+  assert.equal(dutyPctFor({ garmentId: "tee", destination: "EU", origin: "Bangladesh", haveOriginProof: true, factoryPrice: 5 }), 0);
+  assert.equal(dutyPctFor({ garmentId: "tee", destination: "US", extraTariffPct: 10, factoryPrice: 5 }), 26.5);
+  assert.equal(dutyPctFor({ garmentId: "tee", destination: "US", factoryPrice: 0 }), null);
+});

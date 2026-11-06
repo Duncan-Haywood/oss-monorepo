@@ -45,3 +45,5 @@ many-session project. Each milestone below lands as a working slice.
 - 2026-11-05: measured arm (shoulder point to wrist) on `fit.html` replaces the height rule in `sleeveCheck`; unit tests only. Still to do: factory sleeve spec in the check, WebXR, camera try-on.
 
 - 2026-11-06: `duty.mjs` + `duty.html`, landed cost by destination (US/EU/UK customs value, duty, extra tariff, least-developed-country zero duty with proof, import VAT apart). Rates typed from memory, not checked against any tariff; hand tests only. Still to do: rates read from the official tariffs, more garment codes, de minimis and postal rules for direct-to-consumer parcels, a broker-confirmed classification.
+
+- 2026-11-06: the cost sheet on the studio page can fill its import-duty percent from a market (US/EU/UK) and country of manufacture (`dutyPctFor` in `duty.mjs`): the heading follows the garment and fibre, EU/UK duty is scaled for freight (CIF). Unit tests recompute by hand; page smoke-tested in headless Chromium (EU example sheet gives 13.3%). Rates are still typed from memory, unchecked; origin proof is not applied from the sheet.
