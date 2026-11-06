@@ -25,13 +25,16 @@ function iceShield(g, eaveFeet, overhang, k) {
 }
 
 /** @typedef {{ width: number, projection: number, pitch?: number, at?: number, side?: "left" | "right", valley?: string }} Wing */
-/** Roofing nails for the shingle field: nails per square x squares x waste, in pounds and boxes. Starter, ridge cap and underlayment fasteners are not counted. */
-function roofingNails(squares, g) {
-  const nails = Math.ceil(squares * g.waste * g.nailsPerSquare - 1e-9), nailLb = nails / g.nailsPerLb;
-  return { nails, nailLb, nailBoxes: Math.ceil(nailLb / g.nailBoxLb - 1e-9) };
+/** Roofing nails for the shingle field: nails per square x squares x waste, in pounds and boxes. Opt-in `roofing.capNailsPerFoot` (nails per foot of ridge and hip cap) and `roofing.starterNailsPerFoot` (nails per foot of eave) add those, with the same waste; typed rules, not a manufacturer's schedule. Underlayment fasteners are not counted. */
+function roofingNails(squares, g, ridgeFeet = 0, eaveFeet = 0) {
+  const field = Math.ceil(squares * g.waste * g.nailsPerSquare - 1e-9);
+  const capNails = g.capNailsPerFoot > 0 ? Math.ceil(ridgeFeet * g.capNailsPerFoot * g.waste - 1e-9) : 0;
+  const starterNails = g.starterNailsPerFoot > 0 ? Math.ceil(eaveFeet * g.starterNailsPerFoot * g.waste - 1e-9) : 0;
+  const nails = field + capNails + starterNails, nailLb = nails / g.nailsPerLb;
+  return { nails, nailLb, nailBoxes: Math.ceil(nailLb / g.nailBoxLb - 1e-9), ...(capNails || starterNails ? { capNails, starterNails } : {}) };
 }
 
-/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, wing?: Wing, wing2?: Wing, plateWidth?: number, maxNotchFraction?: number, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, valleyBacking?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number, edgeNailSpacing?: number, fieldNailSpacing?: number, clips?: boolean, clipPrice?: number }, roofing?: { waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number, nailsPerSquare?: number, nailsPerLb?: number, nailBoxLb?: number, iceShield?: number, iceShieldRoll?: number, iceShieldWaste?: number, valleyFeet?: number, valleyRollFeet?: number, valleyWaste?: number, capNailsPerSquare?: number, capNailBox?: number } }} Roof */
+/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, wing?: Wing, wing2?: Wing, plateWidth?: number, maxNotchFraction?: number, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, valleyBacking?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number, edgeNailSpacing?: number, fieldNailSpacing?: number, clips?: boolean, clipPrice?: number }, roofing?: { capNailsPerFoot?: number, starterNailsPerFoot?: number, waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number, nailsPerSquare?: number, nailsPerLb?: number, nailBoxLb?: number, iceShield?: number, iceShieldRoll?: number, iceShieldWaste?: number, valleyFeet?: number, valleyRollFeet?: number, valleyWaste?: number, underlaymentNailsPerSquare?: number, underlaymentNailBox?: number } }} Roof */
 
 export function sampleRoof() {
   return { id: "Main roof", width: 336, length: 480, pitch: 4, overhang: 12, gableOverhang: 12, rafter: "2x8", spacing: 16, ridge: "2x10", ceilingJoist: "2x6", collarTies: true };
@@ -228,7 +231,7 @@ function layoutHip(r, plan) {
   const hipFeet = 4 * hipLen / 12;
   const ridgeFeet = ridgeRun / 12 + hipFeet;
   const roofing = {
-    squares, shingleBundles: Math.ceil(squares * g.waste * g.bundlesPerSquare - 1e-9), ...roofingNails(squares, g),
+    squares, shingleBundles: Math.ceil(squares * g.waste * g.bundlesPerSquare - 1e-9), ...roofingNails(squares, g, ridgeFeet, eaveFeet),
     underlaymentRolls: Math.ceil(area * g.waste / g.underlaymentRoll - 1e-9),
     dripEdgePieces: Math.ceil(eaveFeet * 12 / g.dripEdgePiece - 1e-9),
     ridgeBundles: Math.ceil(ridgeFeet / g.ridgeBundleFeet - 1e-9),
@@ -288,17 +291,17 @@ function pipeBoots(l, r) {
   return { ...l, roofing: { ...l.roofing, pipeBoots: n + (Number.isInteger(spares) && spares >= 0 ? spares : 1) } };
 }
 
-/** Underlayment cap nails (plastic-cap fasteners), opt-in with `roofing.capNailsPerSquare` = the count per roofing square you type from the underlayment maker's schedule (never assumed). Squares x the roofing waste factor x that figure, rounded up, in boxes of `roofing.capNailBox` (default 2,000). Counts fasteners only; the schedule, the cap size and the nail length are the maker's. */
-function capNails(l, r) {
-  const n = r.roofing?.capNailsPerSquare;
+/** Underlayment cap nails (plastic-cap fasteners), opt-in with `roofing.underlaymentNailsPerSquare` = the count per roofing square you type from the underlayment maker's schedule (never assumed). Squares x the roofing waste factor x that figure, rounded up, in boxes of `roofing.underlaymentNailBox` (default 2,000). Counts fasteners only; the schedule, the cap size and the nail length are the maker's. */
+function underlaymentNails(l, r) {
+  const n = r.roofing?.underlaymentNailsPerSquare;
   if (!l || l.ok === false || !l.roofing || !(n > 0)) return l;
-  const box = r.roofing.capNailBox > 0 ? r.roofing.capNailBox : 2000, g = l.roofing;
-  const capNails = Math.ceil(g.squares * g.waste * n - 1e-9);
-  return { ...l, roofing: { ...g, capNails, capNailBoxes: Math.ceil(capNails / box - 1e-9) }, notes: [...l.notes, `Underlayment cap nails: ${n} per square x ${g.squares.toFixed(1)} squares x ${g.waste} waste = ${capNails}, ${Math.ceil(capNails / box - 1e-9)} box${Math.ceil(capNails / box - 1e-9) === 1 ? "" : "es"} of ${box}; a typed rate, not the maker's schedule.`] };
+  const box = r.roofing.underlaymentNailBox > 0 ? r.roofing.underlaymentNailBox : 2000, g = l.roofing;
+  const un = Math.ceil(g.squares * g.waste * n - 1e-9);
+  return { ...l, roofing: { ...g, underlaymentNails: un, underlaymentNailBoxes: Math.ceil(un / box - 1e-9) }, notes: [...l.notes, `Underlayment cap nails: ${n} per square x ${g.squares.toFixed(1)} squares x ${g.waste} waste = ${un}, ${Math.ceil(un / box - 1e-9)} box${Math.ceil(un / box - 1e-9) === 1 ? "" : "es"} of ${box}; a typed rate, not the maker's schedule.`] };
 }
 
 export function layoutRoof(r, plan) {
-  return capNails(pipeBoots(sheathingNails(layoutRoofCore(r, plan), r), r), r);
+  return underlaymentNails(pipeBoots(sheathingNails(layoutRoofCore(r, plan), r), r), r);
 }
 
 function layoutRoofCore(r, plan) {
@@ -388,7 +391,7 @@ function layoutRoofCore(r, plan) {
   const rakeFeet = 4 * slope / 12;
   const ridgeFeet = planeLength / 12;
   const roofing = {
-    squares, shingleBundles: Math.ceil(squares * g.waste * g.bundlesPerSquare - 1e-9), ...roofingNails(squares, g),
+    squares, shingleBundles: Math.ceil(squares * g.waste * g.bundlesPerSquare - 1e-9), ...roofingNails(squares, g, ridgeFeet, eaveFeet),
     underlaymentRolls: Math.ceil(area * g.waste / g.underlaymentRoll - 1e-9),
     dripEdgePieces: Math.ceil((eaveFeet + rakeFeet) * 12 / g.dripEdgePiece - 1e-9),
     ridgeBundles: Math.ceil(ridgeFeet / g.ridgeBundleFeet - 1e-9),
@@ -542,7 +545,7 @@ function addWing(base, r, plan, w) {
   const valleyFeet = (base.roofing.valleyFeet ?? 0) + 2 * valleyLen / 12;
   const ridgeFeet = base.roofing.ridgeFeet + (P + e + rake) / 12;
   const roofing = {
-    squares, shingleBundles: Math.ceil(squares * g.waste * g.bundlesPerSquare - 1e-9), ...roofingNails(squares, g),
+    squares, shingleBundles: Math.ceil(squares * g.waste * g.bundlesPerSquare - 1e-9), ...roofingNails(squares, g, ridgeFeet, eaveFeet),
     underlaymentRolls: Math.ceil(area * g.waste / g.underlaymentRoll - 1e-9),
     dripEdgePieces: Math.ceil((eaveFeet + rakeFeet) * 12 / g.dripEdgePiece - 1e-9),
     ridgeBundles: Math.ceil(ridgeFeet / g.ridgeBundleFeet - 1e-9),

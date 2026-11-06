@@ -369,12 +369,12 @@ test("roof sheathing H-clips: opt-in, one per 16 in bay along a 96 in edge = 6 p
 });
 
 test("underlayment cap nails: opt-in, typed per-square rate x squares x waste, boxes of 2000", () => {
-  assert.equal(layoutRoof(sampleRoof(), plan()).roofing.capNails, undefined);
-  const g = layoutRoof({ ...sampleRoof(), roofing: { capNailsPerSquare: 100 } }, plan()).roofing;
-  assert.equal(g.capNails, Math.ceil(g.squares * g.waste * 100 - 1e-9));
-  assert.equal(g.capNailBoxes, Math.ceil(g.capNails / 2000 - 1e-9));
-  assert.equal(layoutRoof({ ...sampleRoof(), roofing: { capNailsPerSquare: 100, capNailBox: 500 } }, plan()).roofing.capNailBoxes, Math.ceil(g.capNails / 500 - 1e-9));
-  assert.equal(layoutRoof({ ...sampleRoof(), roofing: { capNailsPerSquare: -1 } }, plan()).roofing.capNails, undefined);
+  assert.equal(layoutRoof(sampleRoof(), plan()).roofing.underlaymentNails, undefined);
+  const g = layoutRoof({ ...sampleRoof(), roofing: { underlaymentNailsPerSquare: 100 } }, plan()).roofing;
+  assert.equal(g.underlaymentNails, Math.ceil(g.squares * g.waste * 100 - 1e-9));
+  assert.equal(g.underlaymentNailBoxes, Math.ceil(g.underlaymentNails / 2000 - 1e-9));
+  assert.equal(layoutRoof({ ...sampleRoof(), roofing: { underlaymentNailsPerSquare: 100, underlaymentNailBox: 500 } }, plan()).roofing.underlaymentNailBoxes, Math.ceil(g.underlaymentNails / 500 - 1e-9));
+  assert.equal(layoutRoof({ ...sampleRoof(), roofing: { underlaymentNailsPerSquare: -1 } }, plan()).roofing.underlaymentNails, undefined);
 });
 
 test("ice and water shield: opt-in, 24 in inside the wall, by hand", () => {
@@ -406,4 +406,15 @@ test("pipe boots: the typed count plus one spare, nothing when not typed", () =>
   assert.equal(layoutRoof({ ...sampleRoof(), roofing: { pipeBoots: 3, pipeBootSpares: 0 } }, plan()).roofing.pipeBoots, 3);
   assert.equal(layoutRoof(hipRoof({ roofing: { pipeBoots: 2 } }), plan()).roofing.pipeBoots, 3);
   assert.equal(layoutRoof({ ...sampleRoof(), roofing: { pipeBoots: 2.5 } }, plan()).roofing.pipeBoots, undefined);
+});
+
+test("ridge cap and starter nails by hand, opt-in", () => {
+  const base = layoutRoof(sampleRoof(), plan());
+  const l = layoutRoof({ ...sampleRoof(), roofing: { capNailsPerFoot: 4, starterNailsPerFoot: 2 } }, plan());
+  const r = base.roofing, w = r.nails === base.roofing.nails ? 1.1 : 1.1;
+  const cap = Math.ceil(r.ridgeFeet * 4 * w - 1e-9), st = Math.ceil(r.eaveFeet * 2 * w - 1e-9);
+  assert.equal(l.roofing.capNails, cap);
+  assert.equal(l.roofing.starterNails, st);
+  assert.equal(l.roofing.nails, r.nails + cap + st);
+  assert.equal(base.roofing.underlaymentNails, undefined);
 });
