@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-06 · Milestone 6p (H6 scale-up): is the size-2 cost switch between omega 7 and 15 sharp? Keep 1/12 (omega 11) at H = 64, four seeds (planned before running)
+
+- Why: 6o's "Next". At H = 64 the paired excess is -0.0068 (omega 3), -0.0016 (omega 7), +0.0440 (omega 15). Keep 1/12 (omega 11) sits inside the bracket where the cost switches on.
+- Setup (`scale.py run keep12`): size 2, H = 64, keep 1/12, seeds 0 to 3, paired with the uncompressed H = 64 seeds 0 to 3. Same four-seed batch as 6o.
+- **H6p-i** (prior 45%): a threshold or sharply convex form. The excess at omega 11 is below the omega-linear interpolation between omega 7 and 15, -0.0016 + (11-7)/(15-7) x 0.0456 = +0.0212. **H6p-ii** (prior 30%): the excess at omega 11 is within 2 se of zero (the switch lies above omega 11, so the step is between 1/12 and 1/16). Refuted if the paired excess exceeds +0.0212 (H6p-i) or is more than 2 se from zero (H6p-ii).
+- Analysis: paired mean, sd and se over the four seeds, compared with the 6n/6o levels. Four seeds, so a verdict on the threshold's place only if the result is clear of both neighbours by 2 se.
+
 ## 2026-11-06 · Milestone 6o (H6 scale-up): where between omega 3 and 15 does the size-2 cost switch on? Keep 1/8 (omega 7) at H = 64, four seeds (planned before running)
 
 - Why: 6n's "Next". At H = 64 the paired excess is -0.0068 (omega 3) and +0.0440 (omega 15); omega-linearity was refuted. Keep 1/8 (omega 7) sits between them.
