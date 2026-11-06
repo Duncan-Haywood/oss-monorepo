@@ -520,3 +520,46 @@ pairs hurt settled items (candidates above: pairing settled items with new
 high-RD items; near-tie pairs), e.g. log the pair mix per 500 answers, then
 test a variant that stops pairing settled items with unrated ones.
 Reproduce: the command above with `NOISY_SELECTOR=standard`.
+
+### Pair mix of the staged selector, in process: no dip reproduced (2026-11-05)
+
+The "Next" item above, first half: `src/lib/pairMix.simulation.test.ts` (new; no
+database, 1000 items, 3000 answers, clean respondent, seeds 11 to 13, mean of
+3, about 170 s) logs, per 500 answers, the share of served pairs that are
+settled+settled (`ss`, both rd < 150), settled+open (`so`), open+open (`oo`),
+the share touching an unseen item, the mean true gap of the pair, and the
+Spearman over the items rated at 500 answers (fixed set).
+
+| selector | answers | rated | all rated | fixed set | ss | so | oo | unseen | gap |
+|---|---|---|---|---|---|---|---|---|---|
+| staged | 500 | 113 | 0.788 | 0.788 | 0.00 | 0.46 | 0.54 | 0.22 | 0.51 |
+| staged | 1000 | 213 | 0.807 | 0.804 | 0.00 | 0.80 | 0.20 | 0.20 | 0.48 |
+| staged | 2000 | 413 | 0.816 | 0.809 | 0.00 | 0.80 | 0.20 | 0.20 | 0.49 |
+| staged | 3000 | 613 | 0.818 | 0.811 | 0.00 | 0.80 | 0.20 | 0.20 | 0.51 |
+| shipped | 500 | 108 | 0.741 | 0.741 | 0.08 | 0.39 | 0.54 | 0.20 | 0.59 |
+| shipped | 1000 | 206 | 0.769 | 0.832 | 0.10 | 0.51 | 0.39 | 0.18 | 0.62 |
+| shipped | 2000 | 393 | 0.773 | 0.870 | 0.12 | 0.49 | 0.39 | 0.17 | 0.62 |
+| shipped | 3000 | 587 | 0.769 | 0.880 | 0.11 | 0.48 | 0.41 | 0.18 | 0.61 |
+
+Reading: (1) **the dip does not appear here.** The staged fixed set holds at
+0.79 to 0.81 and the all-rated score at 0.81 to 0.82, where the route runs gave
+0.80, 0.72, 0.67, 0.62, 0.72 and 0.62 to 0.50. So the dip is not a property of
+the pair-picking function with a plain Glicko-2 loop on one respondent; look
+at what the route adds (several respondents pooled, stored ratings and RD
+drift between sessions, repeat-pair and recency rules, how `rd` reaches the
+selector). (2) What the staged selector does serve: **never** two settled items
+(0.00 against the shipped 0.08 to 0.12), 80% settled-with-open after 500
+answers, steady 20% pairs with an unseen item, and a smaller true gap (0.48 to
+0.51 against 0.61), i.e. closer matches. The shipped selector keeps more
+settled+settled pairs and its fixed set climbs to 0.88; staged is higher on all
+rated items (0.82 against 0.77) because it widens coverage faster. (3) The
+route's absolute numbers are below this loop's for both selectors (shipped
+fixed set 0.77 to 0.80 against 0.83 to 0.88), so the gap between route and
+simulation exists for the shipped selector too. Caveats: 3 seeds, the sim's
+`rd` is the in-memory Glicko state, one respondent. Next: run the same
+selector inside the route's per-respondent loop with pooled ratings (no
+Postgres needed if the pooling function is called directly) to find which
+route step adds the dip; the settled+settled-free mix is the first suspect
+only if the route's settled items lose pairs they would have had.
+Reproduce: `MEASURE_OUT=out.txt npx vitest run -c vitest.simulations.config.ts
+src/lib/pairMix.simulation.test.ts`.
