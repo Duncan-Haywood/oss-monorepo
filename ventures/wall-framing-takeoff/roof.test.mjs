@@ -428,3 +428,13 @@ test("drip edge nails: opt-in, typed spacing along eave and rake plus one per pi
   assert.equal(h.dripEdgeNails, Math.ceil(h.eaveFeet * 12 / 10 - 1e-9) + h.dripEdgePieces);
   assert.equal(layoutRoof({ ...sampleRoof(), roofing: { dripEdgeNailSpacing: 0 } }, plan()).roofing.dripEdgeNails, undefined);
 });
+
+test("drip edge nail boxes: only when a box size is typed, boxes round up, by hand", () => {
+  const r = (roofing) => layoutRoof({ ...sampleRoof(), roofing }, plan()).roofing;
+  assert.equal(r({ dripEdgeNailSpacing: 12 }).dripEdgeNailBoxes, undefined);
+  const g = r({ dripEdgeNailSpacing: 12, dripEdgeNailBox: 100 });
+  assert.equal(g.dripEdgeNailBoxes, Math.ceil(g.dripEdgeNails / 100 - 1e-9));
+  assert.equal(r({ dripEdgeNailSpacing: 12, dripEdgeNailBox: g.dripEdgeNails }).dripEdgeNailBoxes, 1);
+  assert.equal(r({ dripEdgeNailSpacing: 12, dripEdgeNailBox: g.dripEdgeNails - 1 }).dripEdgeNailBoxes, 2);
+  assert.equal(r({ dripEdgeNailBox: 100 }).dripEdgeNailBoxes, undefined);
+});
