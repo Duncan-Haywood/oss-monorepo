@@ -41,7 +41,9 @@
       "why": "No blog post or paper-section edit; small exploratory milestone with a negative result, predictions not logged before the run (disclosed in LOG)."
     }
   ],
-  "writeups": "research/marine-hull/LOG.md milestone 6q",
+  "writeups": [
+    "research/marine-hull/LOG.md"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],
