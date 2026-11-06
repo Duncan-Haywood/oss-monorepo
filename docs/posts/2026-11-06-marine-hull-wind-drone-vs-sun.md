@@ -1,6 +1,6 @@
 ---
 title: "Does a wind-driven survey drone beat a solar boat? Only in winter, by 1.2 to 1.5 times"
-seo_title: "Wind-driven survey drone vs solar boat: daily distance on real buoy winds"
+seo_title: "Wind-driven survey drone vs solar boat on real buoy winds"
 date: 2026-11-06
 tags: [research, marine, saildrone, autonomy]
 description: "A sail drone fitted to 864 Saildrone-days sails 126 km/day in January and 80 in July at 19 NDBC buoy-months, against an 86 km/day solar ceiling."
