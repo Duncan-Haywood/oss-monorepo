@@ -2,7 +2,7 @@
 title: "Do political views explain what Catholics say about marriage? Not once you know their other answers"
 date: 2026-11-06
 description: "Fold-seed stability and a politics ablation for predicting Catholic survey answers."
-tags: [research, survey, religion]
+tags: [research, surveys, religion]
 ---
 
 In `research/christian-belief-models` we predict a Catholic survey respondent's answer to a General Social Survey item they were not asked, from the items they were. Milestone 1 used one cross-validation split. This step reran it on three splits and again with political self-placement and party removed.
