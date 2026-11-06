@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-06 · Milestone 90: a theorem bounding false pilot certificates of the rank-displacement statistic (no flow run)
+- Why: PAPER.md Section 6 item 4. Milestone 84 measured false certificates at about 4% but gave no reason. Predictions written before running: (1) |G| <= k_last in all 40 cells, where G = candidates with ratio < 1; (2) the empirical false-certificate share is at most 1 - C(n-g,m)/C(n,m) in every cell; (3) the bound is loose (median empirical/bound under 0.5).
+- Proof sketch: ratio < 1 forces rho_last < k_last, and at most k_last candidates have that; a false certificate needs the pilot to hit G while x* is outside it. `experiments/theory/pilot_rho_bound.py`, `pilot_rho_bound_results.txt`, `tests/test_pilot_rho_bound.py` (random instances with ties).
+- **Outcome:** (1) held in 40 of 40 cells. (2) held: 0 violations at m = 8, 16, 24. (3) held where measurable. In the 29 non-guaranteed cells, g = 0 in 22, so no false certificate is possible there; in the other 7 the largest empirical/bound is 0.71, 0.63, 0.48 (median 0.26, 0.09, 0.04). The 4% mean of milestone 84 is those 7 cells.
+- Limits: bounds false certificates only (not regret when T >= 1, not certificate power); assumes a uniform pilot of distinct points; same cached table, one tool build.
+- Next: unchanged (detail-routed mult24/mult32 full cells; full BibTeX author lists when a host is reachable).
+
 ## 2026-11-06 · Milestone 89: overfull boxes in the LaTeX build removed (no flow run, no new numbers)
 - Why: milestone 88's next item. `build.sh` now sets `\emergencystretch`, a 2 pt `\tabcolsep` and footnote-size longtables, and `paper/breakpaths.py` lets LaTeX break `\texttt{}` file paths after `/` and `_`.
 - Check: TeX Live reinstalled in this container; `pdflatex`, `bibtex`, `pdflatex` twice give 6 pages, 0 overfull boxes (was 8, largest 48 pt), no errors, no undefined citations; `pdftotext` 5,926 words (5,892 before; the difference is hyphenation and break points splitting tokens, no text was added or removed). Nothing re-measured. `pytest` is not installed in this container so `tests/` was not rerun.
