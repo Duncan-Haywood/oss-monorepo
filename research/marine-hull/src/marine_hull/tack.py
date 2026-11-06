@@ -41,13 +41,14 @@ def sim_corridor(p, c, dt, corr, tau):
     x, y, sg, n_t = 0.0, 0.0, 0, 0
     pen = 0.0
     for k in range(p.shape[1]):
-        f = 1.0 - pen
-        pen = 0.0
+        used = min(1.0, pen)      # a tack longer than one step carries its dead time into the next steps
+        f = 1.0 - used
+        pen -= used
         x += p[sg, k] * dt * f
         y += c[sg, k] * dt * f
         if y >= corr and c[sg, k] > 0 or y <= -corr and c[sg, k] < 0:
             y = max(-corr, min(corr, y))
-            sg ^= 1; n_t += 1; pen = min(1.0, tau / dt)
+            sg ^= 1; n_t += 1; pen = tau / dt
     return x, n_t
 
 
@@ -55,8 +56,9 @@ def sim_header(p, c, dt, corr, tau, margin, dwell_steps):
     x, y, sg, n_t, since = 0.0, 0.0, 0, 0, 10 ** 9
     pen = 0.0
     for k in range(p.shape[1]):
-        f = 1.0 - pen
-        pen = 0.0
+        used = min(1.0, pen)      # a tack longer than one step carries its dead time into the next steps
+        f = 1.0 - used
+        pen -= used
         x += p[sg, k] * dt * f
         y += c[sg, k] * dt * f
         since += 1
@@ -66,7 +68,7 @@ def sim_header(p, c, dt, corr, tau, margin, dwell_steps):
         out = (y >= corr and c[1 - sg, k] > 0) or (y <= -corr and c[1 - sg, k] < 0)
         if edge or (headed and not out):
             y = max(-corr, min(corr, y))
-            sg ^= 1; n_t += 1; pen = min(1.0, tau / dt); since = 0
+            sg ^= 1; n_t += 1; pen = tau / dt; since = 0
     return x, n_t
 
 
@@ -89,6 +91,21 @@ def dp_clairvoyant(p, c, dt, corr, tau, dy=25.0):
             new[sg] = np.maximum(stay, sw)
         V = new
     return float(max(V[0][len(grid) // 2], V[1][len(grid) // 2]))
+
+
+def dp_clairvoyant_dead(p, c, dt, corr, m, dy=25.0):
+    """Clairvoyant optimum when a tack is m whole steps of dead time (no progress, no cross movement; tau = m*dt).
+    m = 1 equals dp_clairvoyant with tau = dt. Tacking at step k jumps to step k + m on the other tack at the same y."""
+    grid = np.arange(-corr, corr + dy / 2, dy)
+    n = p.shape[1]
+    Vs = np.zeros((n + 1, 2, len(grid)))
+    for k in range(n - 1, -1, -1):
+        for sg in (0, 1):
+            y2 = np.clip(grid + c[sg, k] * dt, -corr, corr)
+            stay = p[sg, k] * dt + np.interp(y2, grid, Vs[k + 1, sg])
+            sw = Vs[min(k + m, n), 1 - sg]
+            Vs[k, sg] = np.maximum(stay, sw)
+    return float(max(Vs[0, 0][len(grid) // 2], Vs[0, 1][len(grid) // 2]))
 
 
 def sim_mpc(p, c, dt, corr, tau, horizon, fcfun, step=5, dy=50.0, margin=0.0):
@@ -133,7 +150,7 @@ def sim_mpc(p, c, dt, corr, tau, horizon, fcfun, step=5, dy=50.0, margin=0.0):
             y += c[sg, k] * dt * fac
             if (y >= corr and c[sg, k] > 0) or (y <= -corr and c[sg, k] < 0):
                 y = max(-corr, min(corr, y))
-                sg ^= 1; n_t += 1; pen = min(1.0, tau / dt)
+                sg ^= 1; n_t += 1; pen = tau / dt
     return x, n_t
 
 
@@ -185,7 +202,7 @@ def sim_policy(p, c, ps, cs, dt, corr, tau, grid, V, margin=0.0):
         y += c[sg, k] * dt * fac
         if (y >= corr and c[sg, k] > 0) or (y <= -corr and c[sg, k] < 0):
             y = max(-corr, min(corr, y))
-            sg ^= 1; n_t += 1; pen = min(1.0, tau / dt)
+            sg ^= 1; n_t += 1; pen = tau / dt
     return x, n_t
 
 
