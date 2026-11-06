@@ -1,5 +1,16 @@
 # build-data log
 
+## Session 38, 2026-11-06: milestone 27 (part), neural baseline over test years 2022 and 2023
+
+Hypothesis (stated in the session 33 next-step, written into the log only after the run): the small embedding MLP stays within 3% of the boosted pinball in every cell in 2022 and 2023, as in 14 of 15 cells in 2024, and is not better than boosted.
+Done: fresh pulls of all three feeds (Chicago 852,332, SF 1,297,940, Austin 2,383,942 rows; `results/manifest.json` refreshed), `src/neural.py` unchanged, 3 seeds, all five city/target pairs, Y = 2022 and 2023: `results/neural_*_2022.json`, `results/neural_*_2023.json`.
+Outcome (neural pinball relative to boosted, % at q0.1/0.5/0.9; negative = neural better): 2022 Chicago a2i +0.4/+1.5/-1.0; SF a2i -1.3/-0.1/-0.9; SF i2c +0.7/+0.7/+0.2; Austin a2i -0.1/-2.9/-1.2; Austin i2c +2.7/-0.9/-4.3. 2023 Chicago a2i -0.3/+0.6/-1.3; SF a2i -2.1/+0.3/+1.2; SF i2c +1.2/+1.3/+2.0; Austin a2i +0.2/-2.0/-2.9; Austin i2c +1.4/+0.1/-0.8.
+- Within 3%: 14 of 15 in 2022 (miss: Austin i2c q0.9, neural 4.3% better) and 15 of 15 in 2023. Over three years, 43 of 45 cells. The "within 3%" half holds.
+- The "not better" half fails: neural is ahead in 15 of 30 cells here, mostly by under 3%. Read as a tie with boosted, not a loss; no claim that either family wins.
+- Raw 80% coverage stays poor for the neural net where the target has many zeros (Chicago a2i 0.24 and 0.29, SF a2i 0.30 and 0.31; softplus outputs cannot hit y = 0) and 0.67 to 0.76 elsewhere.
+Limits: one untuned architecture, 3 seeds, no bootstrap interval on the neural-versus-boosted difference, the within-3% band is a convention.
+Next: publish boosted quantile tables for `ventures/`; paper section on the three-year neural comparison.
+
 ## Session 37, 2026-11-06: milestone 3 (part), H1 over test years 2022 and 2023
 
 Hypothesis (written before the run): the boosted quantile model beats the per-city, per-type empirical-quantile baseline on pinball loss in at least 11 of the 15 city/target/quantile cells in each of test years 2022 and 2023, as it did in 13 of 15 in 2024 (Chicago a2i at q0.1 and q0.9 being the cells most likely to fail).
