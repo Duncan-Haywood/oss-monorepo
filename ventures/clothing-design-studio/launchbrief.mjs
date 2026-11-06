@@ -59,6 +59,24 @@ export function briefFromStudio(design, sheet, plan, cost) {
   };
 }
 
+/**
+ * The same brief for a pair of sunglasses. The eyewear sheet names its extras
+ * differently (cleaning cloth instead of trims) and has no lead time unless the
+ * designer's quote gives one, so map them across and reuse briefFromStudio.
+ * `landed` is the figure the designer is using: the sheet's, or their own
+ * factory's when typed over it.
+ * @param {{quantity:number, price:number}} eyewear
+ * @param {object} sheet eyewear supplier sheet (moq, dutyPct, freightPerUnit, clothPerUnit, packagingPerUnit, leadTimeDays?)
+ * @param {object} plan  selling plan (salesTaxPct, channelFeePct, paymentFeePct, paymentFixed)
+ * @param {{landed:number, currency?:string}} cost
+ */
+export function briefFromEyewear(eyewear, sheet, plan, cost) {
+  const mapped = { ...sheet, trimsPerUnit: sheet.clothPerUnit || 0, packagingPerUnit: sheet.packagingPerUnit || 0 };
+  const b = briefFromStudio(eyewear, mapped, plan, cost);
+  if (b) b.kind = "sunglasses";
+  return b;
+}
+
 /** Box ids and values for each page. Only boxes the brief can honestly fill. */
 export function prefillFor(page, b) {
   if (!b || b.version !== 1) return {};
@@ -111,5 +129,5 @@ export function applyBrief(page, doc = globalThis.document, storage = globalThis
   if (!ids.length) return "";
   for (const id of ids) { const el = doc.getElementById(id); if (el) el.value = String(values[id]); }
   const when = b.savedAt ? b.savedAt.slice(0, 10) : "earlier";
-  return `Filled ${ids.length} ${ids.length === 1 ? "box" : "boxes"} from your studio design (${b.quantity} pieces at ${b.price} ${b.currency}, saved ${when})${b.example ? ", which still uses the placeholder example supplier sheet" : ""}. Change any box; the studio is not touched.`;
+  return `Filled ${ids.length} ${ids.length === 1 ? "box" : "boxes"} from your ${b.kind === "sunglasses" ? "sunglasses design" : "studio design"} (${b.quantity} ${b.kind === "sunglasses" ? "pairs" : "pieces"} at ${b.price} ${b.currency}, saved ${when})${b.example ? ", which still uses the placeholder example supplier sheet" : ""}. Change any box; the studio is not touched.`;
 }
