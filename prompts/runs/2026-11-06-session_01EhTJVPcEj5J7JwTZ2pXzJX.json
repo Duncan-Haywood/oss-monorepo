@@ -10,7 +10,7 @@
   "ended": "2026-11-06T13:15:00Z",
   "task": "ai-bookkeeper: supporter exports keep names out of the ledger, refunds skipped",
   "projects": ["ai-bookkeeper"],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13560",
   "commits": [],
   "tests_added": 1,
   "outcome": "success",
