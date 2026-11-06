@@ -1,8 +1,8 @@
 ---
 title: "How much drain pipe and PEX does a bathroom rough-in need?"
-seo_title: "Plumbing rough-in calculator: drain and vent sticks, PEX coils, traps and stops"
+seo_title: "Plumbing rough-in calculator: drain pipe, PEX coils, traps"
 date: 2026-11-06
-tags: [wall-framing-takeoff, plumbing, calculator]
+tags: [wall-framing-takeoff, plumbing, calculators]
 description: "A free browser page adds your fixture pipe runs into drain and vent sticks, PEX coils, traps and stops, with waste."
 ---
 
