@@ -1,6 +1,6 @@
 # Draft: which hull carries a small survey boat furthest per kWh, and how much of the answer is the drag model?
 
-Status: **milestone 7b: introduction, model and results-table drafted, not submittable.** Every number below is copied from
+Status: **milestone 7b (section 2.5 updated by 6p): introduction, model and results-table drafted, not submittable.** Every number below is copied from
 [`../LOG.md`](../LOG.md) and the `experiments/results_*.txt` file named beside it. Nothing is new
 in this file. Target: OCEANS (IEEE/MTS), 6 to 10 pages. The hull constants are unvalidated against
 tank data (milestone 3 is open), and that gap decides what the paper can claim, as section 5 says.
@@ -89,7 +89,19 @@ A first-order wing-sail polar (`src/marine_hull/sail.py`, every drone parameter 
 
 - **5n (latency, negative).** On every hourly HRRR cycle, replanning with a 1 h instead of 3 h delivery latency changes raw HRRR by +0.2 points in January and July (bootstrap intervals include 0.5 only in neither month); bias-corrected 1 h HRRR is +0.1 (Jan) and -0.6 (Jul) points against the header-follower. Forecast hours beyond 18 are held flat (hourly cycles stop there).
 
-- **6h (wind against sun, exploratory).** On 19 buoy-months of NDBC wind the default drone (unsourced parameters) reaches 1 m/s at 1.5 m/s of wind and sails a median 272 (Jan) / 219 (Jul) km/day on a free course, against 86 km/day for the solar boat held at 1 m/s; only calm summer water (buoy 42036, July: 0.83 of days) lets the sun compete. A bound without heel, waves or survey lines; `experiments/results_wind_vs_sun.txt`.
+- **6h to 6o (wind against sun: a claim that shrank as it was checked; exploratory, 6j to 6l predictions logged).** The question is whether, for a survey boat, the energy source decides the ranking more than the hull. The comparator is the solar boat held at its best-range 1.0 m/s, 86 km/day, itself an upper bound. The wind side is the `sail.py` drone on 10-minute NDBC buoy winds (19 buoy-months, January and July 2024) and was re-run as each check landed:
+
+| Step | Drone model | Wind-drone median km/day (Jan / Jul) | Against the 86 km/day ceiling | Source |
+|---|---|---|---|---|
+| 6h | default 5 m, free course, unsourced | 272 / 219 | 2 to 3 times | `results_wind_vs_sun.txt` |
+| 6i | default, fixed survey line, instant tacks | 240 / 181 (corridor/free 0.88 / 0.81) | 2x or more in 15 of 19 buoy-months | `results_wind_vs_sun_corridor.txt` |
+| 6j | default, tack loss swept (T 30 to 120 s, leg 2 to 15 min) | 237 / 179 at 60 s, 15 min; 220 / 164 harshest | tack cost moves medians 1 to 9% | `results_wind_vs_sun_tack.txt` |
+| 6k | fielded check: SD 1020 Antarctic circumnavigation, 112 km/day | model 2 to 3 times the fielded mean | one press-release figure | `results_fielded_check.txt` |
+| 6l | 864 fielded NOAA PMEL drone-days (13 drones): observed median 75 km/day | observed/model 0.40 (0.33 vs a free beam reach) | scaled corridor 79 / 60 | `results_saildrone_daily.txt` |
+| 6m | two parameters fitted to 2018 cell means, tested on 2019 | corridor 100 / 62 (free 125 / 79) | 1.16 / 0.72 times | `results_saildrone_fit.txt` |
+| 6n, 6o | capability drone: fit to 2018 90th-percentile SOG per cell (0.90 m2, hull drag x1.2) | corridor 126 / 80 (free 158 / 102) | 1.47 / 0.93 times; 0 of 19 reach 2x | `results_saildrone_capability.txt`, `results_wind_vs_sun_capability.txt` |
+
+The default drone is 2.4 times optimistic on the 2019 held-out days (model/observed median 2.39); the fitted mission drone is 0.89 (0.68 to 1.18) and the capability drone 1.14 (0.90 to 1.51). The 6n capability fit is not a true bound: 2019 blocks fall at or below its speed 68% of the time against the 90% intended (54% below 4 m/s of wind), and an independent second implementation (6n-b) found the same valley in sail area and hull drag, which are not separately identified. So the paper can say: *with a drone model that reproduces fielded survey and capability speeds, wind beats sun by 1.2 to 1.5 times in January and is level with or below it in July (0.72 to 0.93 times); the "2 to 3 times" of the unsourced model does not survive.* It cannot say which energy source is better, because the solar ceiling is also a bound and both sides lack sea state.
 
 Limits: the error model is synthetic (no archived NWP winds yet), the tack penalty is the only tack cost, wind is spatially uniform, and heel, waves and currents are absent. A reader should take the +5 points as an upper bound that needs roughly 1 to 2 hours of forecast skill.
 

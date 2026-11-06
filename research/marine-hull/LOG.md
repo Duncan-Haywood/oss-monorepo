@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-06 · Milestone 6p: 6h to 6o folded into one paper section (a writing step, no experiment)
+- Replaced the single 6h bullet in `paper/DRAFT.md` section 2.5 with a table of the seven steps (default drone, corridor, tack loss, one fielded mean, 864 fielded drone-days, fitted mission drone, capability drone) and the sentence the paper can support: with a drone model that reproduces fielded speeds, wind beats sun by 1.2 to 1.5 times in January and is level or below in July (0.72 to 0.93 times). Every figure is copied from 6h to 6o above and the result files named; nothing was re-run.
+- Limits carried over: the capability fit covers 68% of 2019 blocks, not 90%; area and hull drag unidentified separately; solar ceiling is itself a bound; no sea state; two months; Explorer 7 m data against a 5 m model.
+- Next: light-air-specific fit (wind below 4 m/s, finer bins), where 6n's coverage fails and the July buoys sit.
+
 ## 2026-11-06 · Milestone 6o: does the wind-over-sun ranking survive the capability drone? (replaces 6n's arithmetic with a run; exploratory, no prediction logged first)
 - Why: 6n ended with "a 1.14x model on 6m's medians would be ~140 and ~90 km/day; not re-run". `experiments/run_wind_vs_sun_capability.py` -> `results_wind_vs_sun_capability.txt` (36 s) re-runs 6h/6i (same NDBC buoy winds, four lines both ways, zero tack cost) with the 6n capability drone (sail_area 0.90 m2, hull_scale 1.20).
 - Result: corridor median 126 km/day in January (min 104; 1.47 times the 86 km/day solar ceiling) and 80 in July (min 45; 0.93 times). Free beam reach median 158 (min 130) and 102 (min 58). Corridor/free 0.80 and 0.79. Share of days at or above 86 km/day: median 0.81 (min 0.63) January, 0.40 (min 0.07) July. No buoy-month reaches 2x solar (0 of 19; 6i's unfitted drone reached it in 15).
