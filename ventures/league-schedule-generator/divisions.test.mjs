@@ -1142,3 +1142,39 @@ test("division CSV exports defuse spreadsheet formulas in names", () => {
   }
   assert.ok(divisionsCsv(r).includes("'=HYPERLINK"));
 });
+
+test("divisionsPlayoffs separate: keeps same-division teams apart in round one", () => {
+  const row = (name, points) => ({ name, played: 3, points, gd: 0, gf: 0 });
+  // Two divisions, top two each: plain seeding is A1, B1, B2, A2, so 1v4 and 2v3 are same-division games.
+  const r = { tables: [{ division: "A", rows: [row("A1", 9), row("A2", 3)] }, { division: "B", rows: [row("B1", 8), row("B2", 4)] }] };
+  const plain = divisionsPlayoffs(r, { perDivision: 2 });
+  assert.equal(plain.moves.length, 0);
+  const firstRound = (po) => po.bracket.rounds[0].matches.map((m) => [m.a.name, m.b.name]);
+  const clashes = (po) => firstRound(po).filter(([a, b]) => a.match(/\((.*)\)/)[1] === b.match(/\((.*)\)/)[1]).length;
+  assert.equal(clashes(plain), 2);
+  const sep = divisionsPlayoffs(r, { perDivision: 2, separate: true });
+  assert.equal(clashes(sep), 0);
+  assert.equal(sep.moves.length, 1);
+  assert.deepEqual(sep.seeds.map((x) => x.seed), [1, 2, 3, 4]);
+  assert.deepEqual(sep.seeds.map((x) => x.name).sort(), ["A1", "A2", "B1", "B2"]);
+  assert.match(sep.text, /swapped/);
+  // One division only: nothing can be fixed, so nothing moves and nothing breaks.
+  const one = divisionsPlayoffs({ tables: [{ division: "A", rows: [row("a", 9), row("b", 6), row("c", 3), row("d", 0)] }] }, { perDivision: 4, separate: true });
+  assert.equal(one.moves.length, 0);
+  assert.deepEqual(one.seeds.map((x) => x.name), ["a", "b", "c", "d"]);
+});
+
+test("divisionsPlayoffs separate: random fields never gain a clash and keep every team", () => {
+  let seed = 7;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+  for (let n = 0; n < 300; n++) {
+    const nd = 2 + Math.floor(rnd() * 5), per = 1 + Math.floor(rnd() * 3);
+    const tables = [];
+    for (let d = 0; d < nd; d++) tables.push({ division: "D" + d, rows: Array.from({ length: per + 1 }, (_, i) => ({ name: `D${d}T${i}`, played: 4, points: Math.floor(rnd() * 12), gd: 0, gf: 0 })).sort((a, b) => b.points - a.points) });
+    const clashes = (po) => po.bracket.rounds[0].matches.filter((m) => m.a && m.b && m.a.name.split("T")[0] === m.b.name.split("T")[0]).length;
+    const a = divisionsPlayoffs({ tables }, { perDivision: per, wildcards: Math.floor(rnd() * 3) });
+    const b = divisionsPlayoffs({ tables }, { perDivision: per, wildcards: 0 + (a.seeds.length - nd * per), separate: true });
+    assert.deepEqual(b.seeds.map((x) => x.name).sort(), a.seeds.map((x) => x.name).sort());
+    assert.ok(clashes(b) <= clashes(a));
+  }
+});

@@ -7,7 +7,7 @@
 //   3. a team plays at the same venue as on its previous night where it can (fewer trips).
 // Each division keeps the circle-method round robin of calc.mjs (home/away balance and byes), so only
 // the dates, courts and times are decided here.
-import { csvCell, csvRows, roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, tieBreakNotes, standingsCsv, parsePointSystem, playoffBracket, bracketText, weeklyUpdate, playoffRace, remainingFixtures, raceText, forfeitReport } from "./calc.mjs";
+import { csvCell, csvRows, roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, tieBreakNotes, standingsCsv, parsePointSystem, playoffBracket, seedOrder, bracketText, weeklyUpdate, playoffRace, remainingFixtures, raceText, forfeitReport } from "./calc.mjs";
 
 const MAX_NIGHTS = 800;
 const W_CLASH = 1000;
@@ -927,13 +927,49 @@ export function divisionsRace(schedule, text, { spots = 2, points = "3-1-0" } = 
 }
 
 /**
+ * Keep same-division teams out of each other's first-round game. Walks the round-one pairs of the
+ * standard bracket; for a pair from one division it swaps the lower seed with the closest-seeded team
+ * in another pair, provided neither pair then clashes. Changes `seeds` in place (the seed number stays
+ * with the slot) and returns a line per swap. A pair that cannot be fixed (one division holds most of
+ * the field) is left alone.
+ */
+function separateDivisions(seeds) {
+  const k = seeds.length;
+  const order = seedOrder(2 ** Math.ceil(Math.log2(k)));
+  const partner = new Map();
+  const pairs = [];
+  for (let i = 0; i < order.length; i += 2) {
+    const a = order[i] - 1, b = order[i + 1] - 1;
+    if (a < k && b < k) { pairs.push([a, b]); partner.set(a, b); partner.set(b, a); }
+  }
+  const moves = [];
+  const clash = (i) => seeds[i].division === seeds[partner.get(i)].division;
+  for (const [a, b] of pairs) {
+    if (!clash(a)) continue;
+    const lo = Math.max(a, b);
+    const cands = [...partner.keys()].filter((j) => j !== a && j !== b).sort((x, y) => Math.abs(x - lo) - Math.abs(y - lo) || x - y);
+    for (const j of cands) {
+      const moved = seeds[lo].name, other = seeds[j].name;
+      [seeds[lo], seeds[j]] = [seeds[j], seeds[lo]];
+      if (!clash(lo) && !clash(j)) {
+        moves.push(`Seeds ${lo + 1} and ${j + 1} swapped (${other} is now seed ${lo + 1}, ${moved} seed ${j + 1}) so no round-one game is between teams of one division.`);
+        break;
+      }
+      [seeds[lo], seeds[j]] = [seeds[j], seeds[lo]];
+    }
+  }
+  seeds.forEach((x, i) => { x.seed = i + 1; });
+  return moves;
+}
+
+/**
  * A cross-division play-off field from `divisionsStandings(...)`: the top `perDivision` teams of every
  * division, plus the best `wildcards` of the rest. Seeding is by finishing place first (all division
  * winners, then all runners-up, ...), and within a place by points per game, goal difference, goals
  * for, then name, so divisions that played different numbers of games compare fairly. Wildcards seed
  * after the automatic places. Returns { seeds: [{seed, name, division, rank, ppg}], bracket, text, errors }.
  */
-export function divisionsPlayoffs(result, { perDivision = 2, wildcards = 0 } = {}) {
+export function divisionsPlayoffs(result, { perDivision = 2, wildcards = 0, separate = false } = {}) {
   const errors = [];
   const per = Math.max(1, Math.trunc(Number(perDivision)) || 1);
   const wc = Math.max(0, Math.trunc(Number(wildcards)) || 0);
@@ -949,10 +985,11 @@ export function divisionsPlayoffs(result, { perDivision = 2, wildcards = 0 } = {
   field.push(...rest.sort(cmp).slice(0, wc));
   const seeds = field.map((x, i) => ({ seed: i + 1, name: x.name, division: x.division, rank: x.place, ppg: Math.round(x.ppg * 100) / 100 }));
   if (seeds.length < 2) { errors.push("A play-off needs at least two teams."); return { seeds, bracket: null, text: "", errors }; }
+  const moves = separate ? separateDivisions(seeds) : [];
   const names = seeds.map((x) => `${x.name} (${x.division})`);
   const bracket = playoffBracket(names);
-  const text = seeds.map((x) => `${String(x.seed).padStart(2)}. ${x.name} (${x.division}, place ${x.rank}, ${x.ppg.toFixed(2)} pts/game)`).join("\n") + "\n\n" + bracketText(bracket);
-  return { seeds, bracket, text, errors };
+  const text = (moves.length ? moves.join("\n") + "\n\n" : "") + seeds.map((x) => `${String(x.seed).padStart(2)}. ${x.name} (${x.division}, place ${x.rank}, ${x.ppg.toFixed(2)} pts/game)`).join("\n") + "\n\n" + bracketText(bracket);
+  return { seeds, bracket, text, errors, moves };
 }
 
 /**
@@ -1667,7 +1704,7 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
     const pi = process.argv.indexOf("--playoffs");
     if (pi > 0) {
       const wi = process.argv.indexOf("--wildcards");
-      const po = divisionsPlayoffs(r, { perDivision: process.argv[pi + 1], wildcards: wi > 0 ? process.argv[wi + 1] : 0 });
+      const po = divisionsPlayoffs(r, { perDivision: process.argv[pi + 1], wildcards: wi > 0 ? process.argv[wi + 1] : 0, separate: process.argv.includes("--separate") });
       for (const e of po.errors) console.error(`Playoffs: ${e}`);
       process.stdout.write(po.text + "\n");
       process.exit(po.bracket ? 0 : 1);
