@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Shower and wall tile calculator: tiles, thinset, grout, backer board and membrane</title>
+  <meta name="description" content="Free wall tile takeoff for showers, tub walls and backsplashes: type each surface and its niches and get tiles with waste, thinset, grout, cement backer board, screws and membrane. Runs in your browser.">
+  <meta property="og:title" content="Shower and wall tile calculator">
+  <meta property="og:description" content="Wall sizes and niches in, tiles, thinset, grout and backer board out. Private, free, in your browser.">
+  <link rel="canonical" href="./walltile-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many 3 x 6 inch tiles do I need for a 5 ft wide shower with two 3 ft side walls?", "acceptedAnswer": {"@type": "Answer", "text": "A 60 x 80 in back wall with a 12 x 24 in niche and two 36 x 80 in side walls is 73.3 sq ft before the niche and 71.3 sq ft tiled. With 10% waste that is 78.5 sq ft, and a 3 x 6 in tile with a 1/8 in joint covers 0.133 sq ft, so you need 591 tiles. The sizes are the ones you type; the calculator only adds them."}}, {"@type": "Question", "name": "How much backer board, membrane, thinset and grout does that shower need?", "acceptedAnswer": {"@type": "Answer", "text": "The backer board covers the 73.3 sq ft gross area (the niche is cut out, not saved) plus 10% waste, which is 6 sheets of 15 sq ft, held with 108 screws (2 boxes of 100). The membrane at 50 sq ft per gallon is 2 gallons. The tiled area takes 1 bag of thinset at 80 sq ft per bag, and about 11.2 lb of grout, which is 1 bag of 25 lb."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Shower and wall tile calculator</h1>
+  <p>Type each tiled surface in inches, with its niches or windows as openings. You get tiles with waste, thinset bags, grout, cement backer board with screws and waterproofing membrane, and a cost if you type prices. The same wall tile engine as the whole-house takeoff. Every default (tile size, coverage per bag) is a figure to replace with your product's own. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <label for="json">Wall tile settings (JSON: surfaces with width, height in inches, openings, diagonal, trimEdges; tile sizes, joint, waste, coverage and prices)</label>
+    <textarea id="json" rows="16" spellcheck="false" style="width:100%;box-sizing:border-box;font:.9rem ui-monospace,monospace;padding:8px">{
+  "backer": true,
+  "membrane": true,
+  "tile": {
+    "tileWidth": 3,
+    "tileLength": 6,
+    "joint": 0.125,
+    "thickness": 0.3125
+  },
+  "surfaces": [
+    {
+      "name": "back wall",
+      "width": 60,
+      "height": 80,
+      "openings": [
+        {
+          "width": 12,
+          "height": 24
+        }
+      ]
+    },
+    {
+      "name": "left wall",
+      "width": 36,
+      "height": 80
+    },
+    {
+      "name": "right wall",
+      "width": 36,
+      "height": 80
+    }
+  ]
+}</textarea>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Do the whole house: framing, sheathing, plumbing and more in one takeoff</a></p>
+
+  <h2>How it is counted</h2>
+  <ol>
+    <li><strong>Tiles.</strong> Net area (width x height less openings) plus waste, divided by one tile plus its joint, rounded up.</li>
+    <li><strong>Thinset and grout.</strong> Whole bags at a coverage you can change; grout from the joint volume.</li>
+    <li><strong>Backer board and membrane.</strong> Gross area, because openings are cut out and not saved; whole sheets and whole gallons.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How many 3 x 6 inch tiles do I need for a 5 ft wide shower with two 3 ft side walls?</h3>
+  <p>A 60 x 80 in back wall with a 12 x 24 in niche and two 36 x 80 in side walls is 73.3 sq ft before the niche and 71.3 sq ft tiled. With 10% waste that is 78.5 sq ft, and a 3 x 6 in tile with a 1/8 in joint covers 0.133 sq ft, so you need 591 tiles. The sizes are the ones you type; the calculator only adds them.</p>
+  <h3>How much backer board, membrane, thinset and grout does that shower need?</h3>
+  <p>The backer board covers the 73.3 sq ft gross area (the niche is cut out, not saved) plus 10% waste, which is 6 sheets of 15 sq ft, held with 108 screws (2 boxes of 100). The membrane at 50 sq ft per gallon is 2 gallons. The tiled area takes 1 bag of thinset at 80 sq ft per bag, and about 11.2 lb of grout, which is 1 bag of 25 lb.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="hvac-calculator.html">HVAC duct rough-in calculator (trunk, flex, boots, registers)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, carpet)</a></li><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity (what a lumber or labor swing does to the bid)</a></li><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li><li><a href="drywall-calculator.html">Drywall calculator (sheets, tape, compound)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, carpet)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Surface sizes, openings and tile figures are your inputs and are not checked against any span table or code, nor against any tile-setting standard. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Counts add the sizes you type; wall flatness, substrate and framing, slope and the pan liner, waterproofing method and tile-maker instructions are not checked. Follow your tile, board and membrane makers' instructions and your local code.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { layoutWallTile, wallTileText } from "./walltile.mjs";
+    const $ = (id) => document.getElementById(id);
+    const run = () => {
+      let d;
+      try { d = JSON.parse($("json").value); } catch (e) { $("out").textContent = "That is not valid JSON: " + e.message; return; }
+      const p = layoutWallTile(d);
+      $("out").textContent = p.ok === false ? p.errors.join("\n") : wallTileText(p).join("\n");
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>
