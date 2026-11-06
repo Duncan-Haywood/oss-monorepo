@@ -27,3 +27,13 @@ unrolled over three axes. No behaviour change.
 2. The remaining profile is spread thin (optimize.mjs, model.mjs); `integrity`'s
    BFS still uses `queue.shift()` and an O(n^2) scan.
 3. Conflict markers and Page integrity checkouts: sparse-checkout PRs already open.
+
+## Follow-up: grounded flood shrinks its scan (2026-11-06, later run)
+
+`integrity.mjs` tested every item against every reached item (`queue.shift()`
+plus a full `items` scan). It now keeps only unreached items in the scan, which
+shrinks as the flood spreads; `floating` still reads `items`, so order is
+unchanged. `make-gallery.mjs` (no stamp): 27.6 s -> 25.4 s, `gallery-data.mjs`
+byte-identical (`cmp`), `integrity.test.mjs` 3 pass 0 fail. A fresh self-time
+profile is flat (GC 3.3 s, `optimize.mjs` dfs 2.0 s, `plan` 1.6 s): the next
+real gain is caching the gallery in CI keyed on the stamp hash (workflow edit).

@@ -49,9 +49,13 @@ export function integrity(shed) {
   // Grounded: the gravel, and anything whose underside is on the ground itself (blocks on tamped soil).
   const reached = new Set(items.filter((x) => x.kind === 'gravel' || Math.abs(x.b.lo[2]) < 0.01));
   const queue = [...reached];
-  while (queue.length) {
-    const a = /** @type {any} */ (queue.shift());
-    for (const b of items) if (!reached.has(b) && touches(a.b, b.b)) { reached.add(b); queue.push(b); }
+  // Only unreached items need testing; the list shrinks as the flood spreads.
+  let rest = items.filter((x) => !reached.has(x));
+  for (let qi = 0; qi < queue.length && rest.length; qi++) {
+    const a = /** @type {any} */ (queue[qi]);
+    const next = [];
+    for (const b of rest) { if (touches(a.b, b.b)) { reached.add(b); queue.push(b); } else next.push(b); }
+    rest = next;
   }
   const floating = items.filter((x) => !reached.has(x)).map((x) => `${x.kind} ${x.id}`);
   const rects = items.filter((x) => x.member && x.rect);
