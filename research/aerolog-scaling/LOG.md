@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-06 · Milestone 8l: paper draft catches up with milestone 9ak (no new simulation)
+- Section 4.10d now reports the sourced alpha error (gain 1.19 plus 0.596 degrees) run through the 9af harness: OE+b 4 of 160 failures at two periods, 76% within 10% gust; the LS/OE wrong-answer failure mode; the x0 harness bug. `paper/check_numbers.py` gains three checks tied to `results_gain_offset.txt`; the open-items line no longer lists the alpha-gain arm.
+- Next: a sourced in-flight vane residual; AIAA template (needs `pdflatex`).
+
 ## 2026-11-06 · Milestone 9ak: alpha gain 1.19 plus offset 0.596 degrees together, the sourced upwash error, through the 9af harness (prediction written before the run)
 - Why: 9aj's "Next". Sasse et al. (doi:10.2514/6.2022-2400, Table 4) give perceived alpha = 1.19 x true alpha + 0.596 deg (CFD, one blended-wing-body sUAS). `AEROLOG_GAIN=0.19 AEROLOG_OFFSETS=0.596 AEROLOG_PERIODS=1,2` runs 9af's harness (20 designs, scale 0.75, noise 10% of the true channel rms, 8 draws, sign of the offset random) with the alpha channel multiplied by 1.19 before the offset is added. Output: `experiments/incidence_offset_fit/results_gain_offset.txt`. New draws, so not paired with 9af's stream.
 - Reasoning for the prediction: a gain on one state is a diagonal similarity and cannot move eigenvalues; with the noise fixed in absolute units the gain only raises the alpha signal-to-noise ratio by 19%, and the offset in the fitted (gain-scaled) units is 0.596/1.19 = 0.50 deg, below the 1.25 deg that OE+b tolerates.

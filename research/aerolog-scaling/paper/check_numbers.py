@@ -43,6 +43,9 @@ CHECKS = [
     ("experiments/incidence_offset_fit/results.txt", "OE+b | 1.00 deg | 0.10 | 1 | 0.75 | 0 of 160", "9af: OE+b 0 failures at 1 deg"),
     ("experiments/incidence_offset_fit/results.txt", "OE+b | 2.00 deg | 0.10 | 1 | 0.75 | 21 of 160", "9af: OE+b 21 of 160 at 2 deg, 1 period"),
     ("experiments/incidence_offset_fit/results.txt", "OE+b | 2.00 deg | 0.10 | 2 | 0.75 | 80 of 160", "9ag: OE+b 80 of 160 at 2 deg, 2 periods"),
+    ("experiments/incidence_offset_fit/results_gain_offset.txt", "OE+b | 0.60 deg | 0.10 | 2 | 0.75 | 4 of 160", "9ak: OE+b 4 of 160 at gain 1.19 + 0.596 deg, 2 periods"),
+    ("experiments/incidence_offset_fit/results_gain_offset.txt", "OE+b | 0.60 deg | 0.10 | 1 | 0.75 | 0 of 160", "9ak: OE+b 0 of 160 at 1 period"),
+    ("experiments/incidence_offset_fit/results_gain_offset.txt", "LS | 0.60 deg | 0.10 | 2 | 0.75 | 87 of 160", "9ak: LS 87 of 160 at 2 periods"),
     ("experiments/rodrigues_energy/results_days.txt", "1.539", "day-cluster exponent"),
     ("experiments/rodrigues_energy/results_days.txt", "1.529", "date fixed effect exponent"),
 ]
