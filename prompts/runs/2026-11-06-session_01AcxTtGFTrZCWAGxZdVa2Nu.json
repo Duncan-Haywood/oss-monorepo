@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01AcxTtGFTrZCWAGxZdVa2Nu",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T19:09:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13621",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "says to run tests with pytest but neither python3 nor python3.13 had it; I ran the test functions directly."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Added a milestone inside aerolog-scaling instead of a new aerolog-sizing slug, since steps go inside the programme.",
+      "did": "milestone 10a",
+      "result": "landed in one PR"
+    },
+    {
+      "file": "prompt.md",
+      "why": "No new blog post this run; one small research step.",
+      "did": "LOG.md and README entries",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "research/aerolog-scaling/LOG.md",
+    "research/aerolog-scaling/README.md"
+  ],
+  "goal": null,
+  "notes": "Two of three predictions missed; hybrid result is model-limited and disclosed. Not run: cite_check (no new citations), CI. No blog post: kept to one research step.",
+  "corrections": [],
+  "redteam": null
+}
