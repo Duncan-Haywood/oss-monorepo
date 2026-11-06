@@ -1,9 +1,9 @@
 ---
 title: "A vendor named =HYPERLINK() in your 1099 file"
-seo_title: "CSV formula injection in bookkeeping exports: the 1099 and tax-pack gap"
+seo_title: "CSV formula injection in bookkeeping exports: the 1099 gap"
 date: 2026-11-06
 tags: [ai-bookkeeper, security]
-description: "ai-bookkeeper's journal export already defused spreadsheet formulas, but its 1099, Schedule C, rental, project and depreciation CSVs did not. Now they share one cell writer."
+description: "ai-bookkeeper's journal export defused spreadsheet formulas, but its 1099, Schedule C, rental, project and depreciation CSVs did not. They now share one writer."
 ---
 
 Payee names in ai-bookkeeper come straight from bank files, and a bank file is text anyone who can pay you controls. A payee called `=HYPERLINK("http://example.test","click")` would open in Excel as a live link in the 1099 contractor list.
