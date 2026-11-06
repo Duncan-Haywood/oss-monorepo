@@ -1,6 +1,6 @@
 ---
 title: "How much of a power price gap is losses, not congestion?"
-seo_title: "DC vs AC optimal power flow on case300: loss and congestion in nodal prices"
+seo_title: "DC vs AC OPF on case300: loss and congestion in nodal prices"
 date: 2026-11-06
 tags: [infra-dcopf, power-systems, opf]
 description: "On the 300-bus test case, losses alone spread nodal prices by 7 to 10 $/MWh, more than three binding line limits do. A DC model sees only the second."

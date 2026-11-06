@@ -36,7 +36,10 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-11-06-how-much-of-a-power-price-gap-is-losses-not-congestion.md; research/infra-dcopf/LOG.md",
+  "writeups": [
+    "docs/posts/2026-11-06-how-much-of-a-power-price-gap-is-losses-not-congestion.md",
+    "research/infra-dcopf/LOG.md"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],
