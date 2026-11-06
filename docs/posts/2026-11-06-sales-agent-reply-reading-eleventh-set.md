@@ -1,7 +1,7 @@
 ---
 title: "Teaching a sales agent to read replies: eleventh test set, 26 of 30 to 29 of 30"
 seo_title: "How accurately can an AI sales agent classify cold-email replies?"
-date: 2026-11-07
+date: 2026-11-06
 tags: [sales-agent, evaluation, cold-email]
 description: "A fresh set of 30 cold-email replies: the rules got 26 right before patching and 29 after, with no opt-out missed and no older set worse."
 ---

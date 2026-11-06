@@ -49,7 +49,7 @@
       "result": "landed one real step"
     }
   ],
-  "writeups": "LOG.md session 42 and paper section 4.6a extended; no new blog post this run (a small programme step), said here as the deviation.",
+  "writeups": ["research/build-data/LOG.md"],
   "goal": null,
   "notes": "Paired bootstrap, 5 pairs, 2024, 3 seeds. Prediction failed on 2 of 3 counts. Chicago a2i etc in results/paired_summary_2024.txt. Tests not added for the script beyond imports of tested functions.",
   "corrections": [],
