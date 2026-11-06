@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-06 · Milestone 6o: does the wind-over-sun ranking survive the capability drone? (replaces 6n's arithmetic with a run; exploratory, no prediction logged first)
+- Why: 6n ended with "a 1.14x model on 6m's medians would be ~140 and ~90 km/day; not re-run". `experiments/run_wind_vs_sun_capability.py` -> `results_wind_vs_sun_capability.txt` (36 s) re-runs 6h/6i (same NDBC buoy winds, four lines both ways, zero tack cost) with the 6n capability drone (sail_area 0.90 m2, hull_scale 1.20).
+- Result: corridor median 126 km/day in January (min 104; 1.47 times the 86 km/day solar ceiling) and 80 in July (min 45; 0.93 times). Free beam reach median 158 (min 130) and 102 (min 58). Corridor/free 0.80 and 0.79. Share of days at or above 86 km/day: median 0.81 (min 0.63) January, 0.40 (min 0.07) July. No buoy-month reaches 2x solar (0 of 19; 6i's unfitted drone reached it in 15).
+- Reading: against 6m's mission drone (100 and 62) the capability drone is 1.26 and 1.29 times faster, more than 6n's rough 1.14 (the buoy winds are lighter than the Saildrone cells where 1.14 was measured). Even a drone allowed its top-decile speed beats the solar ceiling clearly only in winter; in July it is level with it (0.93 times) and below it on 60% of days. Direction of the 6m ranking holds; the size of the winter edge is 1.2 to 1.5 times, bracketed by the two drones.
+- Limits: the capability drone covers only 68% of 2019 blocks (6n) so is not a true bound in light air, which is where July buoys sit; zero tack cost; SOG includes current; buoy anemometer heights uncorrected; the solar ceiling is itself an upper bound; two months.
+- Next: fold 6l to 6o into one paper section; light-air-specific fit (wind below 4 m/s, finer bins).
+
 ## 2026-11-06 · Milestone 6n-b: independent replication of 6n's capability fit, with an in-sample coverage check (exploratory)
 - A parallel session landed 6n first. `experiments/run_saildrone_cap.py` -> `results_saildrone_cap.txt` is a second implementation of the same fit (p90 SOG per cell, 2018; two parameters). It lands in the same valley (area and hull drag trade off; best grid point sail_area 0.45 m2, hull_scale 0.60, MSE 0.055 against 1.62 for the default). Both agree that the fit cannot be a capability bound: 31% of 2019 blocks (46% below 4 m/s, 23% at 4 m/s and above) exceed the curve where 10% should, and the in-sample 2018 share is 25%, so the shortfall is the model's shape, not a year effect. Capability is about 1.24 to 1.31 times the 6m mean-fit speed in every wind band.
 - Limits as in 6n; SOG includes current, which dominates below 4 m/s.
