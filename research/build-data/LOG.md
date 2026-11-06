@@ -1,5 +1,17 @@
 # build-data log
 
+## Session 43, 2026-11-06: milestone 27 (part), per-permit paired bootstrap on neural minus boosted for test year 2023 (planned before running)
+
+Why: session 42 ran the paired test for 2024 only (neural significantly worse in 8 of 15 cells, better in 2). Cell-level numbers for 2023 (session 38) showed neural within a few percent either side. Feeds are reachable again, so 2023 can be tested per permit.
+Plan: `src/paired_neural_boosted.py --test-year 2023`, 3 seeds, five city/target pairs, same code as session 42, fresh pulls.
+**Prediction (before running):** the 2024 pattern is not stable: neural is significantly worse in at least 2 but at most 6 of 15 cells, SF i2c is again worse at all three quantiles (session 38 had +0.7 to +2.0% there), and Chicago q0.9 is again significantly better for neural.
+
+### Outcome (`results/paired_summary_2023.txt`; 2023, 15 cells, feeds pulled today: Chicago 852,489 rows, SF 1,298,001, Austin 2,384,199)
+- **Prediction held.** Neural significantly worse in 6 of 15 (inside the 2 to 6 band, at its edge), significantly better in 5, indistinguishable in 4. SF i2c is worse at all three quantiles (+1.87, +2.03, +1.67%); Chicago a2i q0.9 is significantly better for neural (-1.27%).
+- Cross-year: only SF i2c (worse) and Chicago q0.9 (better) repeat from 2024. The 2024 SF a2i q0.9 (+5.77%) and Austin a2i q0.1 (+2.73%) deficits do not persist in 2023 (+1.06% and +0.02%, intervals include 0). Austin a2i q0.5 and q0.9 favour neural in 2023 (-1.86, -3.85%) but not in 2024. So most neural-versus-boosted differences are year-specific.
+- Limits: 15 uncorrected intervals; one untuned MLP; Austin a2i q0.9 interval is wide (-8.5 to -1.0) so its size is uncertain; 2022 not rerun; the week-block bootstrap assumes exchangeable weeks.
+- Next: 2022 for the same test; publish boosted quantile tables for `ventures/`.
+
 ## Session 42, 2026-11-06: milestone 27 (part), per-permit paired bootstrap on neural minus boosted (planned before running)
 
 Why: session 40 found a 2024 neural deficit (mean +1.14%, sign p 0.035) from cell-level numbers only; cells share data, so that p is descriptive. The feeds are reachable again (Chicago, SF, Austin all HTTP 200 this session), so the per-permit paired test is possible.
