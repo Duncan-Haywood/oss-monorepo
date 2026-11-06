@@ -1,9 +1,9 @@
 ---
 title: "Type the sunglasses numbers once: from frame cost to cash flow and reorder"
-seo_title: "Sunglasses brand launch planning: landed cost to cash flow and reorder, free"
+seo_title: "Sunglasses brand planning: landed cost to cash flow and reorder"
 date: 2026-11-06
 tags: [clothing-design-studio, sunglasses, launch-planning]
-description: "The free sunglasses designer now hands its landed cost and price to the cash-flow, pre-order, wholesale, reorder and calendar pages, so a founder types them once."
+description: "The free sunglasses designer now hands its landed cost and price to the cash-flow, pre-order, wholesale, reorder and calendar pages, so you type them once."
 ---
 
 A designer planning own-brand sunglasses (an interviewee's guess: about 20 euros to make, 60 to 70 to sell) has to repeat the same few numbers across a dozen planning questions: how much cash goes out before the first sale, how many pre-orders cover the factory minimum, what a boutique pays, when to reorder.
