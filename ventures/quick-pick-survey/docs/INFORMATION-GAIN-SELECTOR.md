@@ -563,3 +563,29 @@ route step adds the dip; the settled+settled-free mix is the first suspect
 only if the route's settled items lose pairs they would have had.
 Reproduce: `MEASURE_OUT=out.txt npx vitest run -c vitest.simulations.config.ts
 src/lib/pairMix.simulation.test.ts`.
+
+### Noiseless answerer in process: still no dip (2026-11-06)
+
+The route tests answer noiselessly (the item listed first always wins); the
+in-process loop above sampled a logistic answer. `pairMix.simulation.test.ts`
+now takes `MIX_ANSWERER=noiseless` (the higher true value always wins), same
+1000 items, 3000 answers, seeds 11 to 13, plain Glicko-2 loop, 500-answer steps
+(2500 added). Fixed set, mean of 3:
+
+| selector | 500 | 1000 | 1500 | 2000 | 2500 | 3000 |
+|---|---|---|---|---|---|---|
+| staged | 0.978 | 0.981 | 0.981 | 0.979 | 0.979 | 0.978 |
+| shipped | 0.921 | 0.969 | 0.974 | 0.976 | 0.978 | 0.978 |
+
+Reading: **the answerer is not the cause.** With deterministic answers the
+staged fixed set holds at 0.98 (route runs: 0.80, 0.72, 0.67, 0.62, 0.72), and
+the pair mix is the same as before (no settled+settled pairs, 80% settled+open,
+20% unseen). It also ranks far higher than the route does for both selectors,
+so the loop and the route differ in something else. Left to test, each one
+change at a time in the loop: how `recentPairKeys` and `timesShown` are built
+from stored trials (the route reads the latest 10 by `shownAt`, ties at one
+millisecond are unordered), `rd` and `volatility` read back from the database
+(`loadRatedItems`), and the A/B slot shuffle. Caveats: 3 seeds, one
+respondent, hand-run; the route numbers are from 2026-11-04/05.
+Reproduce: `MIX_ANSWERER=noiseless MEASURE_OUT=out.txt npx vitest run -c
+vitest.simulations.config.ts src/lib/pairMix.simulation.test.ts`.
