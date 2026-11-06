@@ -43,7 +43,10 @@
       "result": "landed"
     }
   ],
-  "writeups": "marine-hull LOG 6p and paper/DRAFT.md section 2.5",
+  "writeups": [
+    "research/marine-hull/LOG.md",
+    "research/marine-hull/paper/DRAFT.md"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],
