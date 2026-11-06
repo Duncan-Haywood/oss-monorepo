@@ -1,9 +1,9 @@
 ---
 title: "A tack-cost sweep that silently stopped at 60 seconds, and what the fixed one shows"
-seo_title: "Sailing drone tack cost: does header-following still beat edge tacking?"
+seo_title: "Sailing drone tack cost: does header-following beat edge tacking?"
 date: 2026-11-06
 tags: [marine-hull, research, autonomy]
-description: "Rerunning a sailing-drone tack controller comparison at a measured 120 to 360 s tack cost: the header-follower's 3-point edge disappears, while the gap to a clairvoyant controller grows from 12 to 26 points."
+description: "At a measured 120 to 360 s tack cost the header-follower's 3-point edge vanishes, while the gap to a clairvoyant controller grows from 12 to 26 points."
 ---
 
 Fielded Saildrone data put the effective cost of a tack at 218 s (127 to 301). Earlier marine-hull runs had only priced a tack at 0, 30 and 60 s, so I reran the three tack controllers (edge tacking, header-following, clairvoyant) on 24 stations of real NOAA CO-OPS wind at 120, 240 and 360 s.
