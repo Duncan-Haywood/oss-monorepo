@@ -1106,6 +1106,21 @@ URL:https://example.invalid/einvoice-preflight/denmark-e-invoice-mandate.
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:7968dfcd7d213054@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:Germany: issue from 1 Jan 2027 (prior-year turnover above EUR 800
+ \,000)
+DESCRIPTION:Germany (In force (receiving)). issue from 1 Jan 2027 (prior-
+ year turnover above EUR 800\,000). Detail and sources: https://example.i
+ nvalid/einvoice-preflight/germany-e-invoice-mandate.html. Not legal or t
+ ax advice.
+URL:https://example.invalid/einvoice-preflight/germany-e-invoice-mandate.
+ html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:85f6fd47e84fc26a@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20270101
@@ -1346,6 +1361,19 @@ DESCRIPTION:Bulgaria (Proposal only). a draft proposes NISSEF invoices mo
  ce-preflight/bulgaria-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/bulgaria-e-invoice-mandate
  .html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:9e7886ef543af70d@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20280101
+DTEND;VALUE=DATE:20280102
+SUMMARY:Germany: 1 Jan 2028 (everyone)
+DESCRIPTION:Germany (In force (receiving)). 1 Jan 2028 (everyone). Detail
+  and sources: https://example.invalid/einvoice-preflight/germany-e-invoi
+ ce-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/germany-e-invoice-mandate.
+ html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
