@@ -263,6 +263,17 @@ export function detectColumns(header) {
     cols.amount = h.indexOf("net total");
     cols.desc = h.indexOf("item name");
   }
+  // Patreon's earnings report (Date, Event Type, Creator Share, Creator Platform Fee, Creator
+  // Payment Processing Fee ...): Creator Share is what the creator keeps after Patreon's fees, so it
+  // is the amount; the event type is the description, never the patron's name. Column names from a
+  // third-party importer's notes (Patreon's own docs list none); made-up rows only, no real export.
+  if (h.includes("creator share") && h.includes("event type")) {
+    cols.amount = h.indexOf("creator share");
+    cols.debit = -1;
+    cols.credit = -1;
+    cols.balance = -1;
+    cols.desc = h.indexOf("event type");
+  }
   // Paytm's wallet statement (Date, Activity, Source/Destination, Wallet Txn ID,
   // Comment, Debit, Credit, ..., Status): the activity is the description.
   if (cols.desc === -1 && h.includes("activity") && h.includes("wallet txn id")) cols.desc = h.indexOf("activity");
