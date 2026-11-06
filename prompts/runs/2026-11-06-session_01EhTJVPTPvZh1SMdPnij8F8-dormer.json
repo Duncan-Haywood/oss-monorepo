@@ -21,11 +21,15 @@
     }
   ],
   "deviations": [
-    "Router drew the research track but the scheduled prompt asked for revenue ventures; shipped flagship venture work."
+    {
+      "file": "prompt.md",
+      "why": "Router drew the research track but the scheduled prompt asked for revenue ventures; shipped flagship venture work."
+    }
   ],
   "writeups": [
     "docs/posts/2026-11-06-dormer-framing-calculator.md",
     "ventures/wall-framing-takeoff/ROADMAP.md"
   ],
-  "notes": "wall-framing-takeoff suites: 990 tests, 989 pass, 0 fail (1 skipped). Page loaded in headless Chromium over http, gable and shed, no console errors. Free lead-magnet page toward the takeoff tool; no revenue path until the owner's checkout link."
+  "notes": "wall-framing-takeoff suites: 990 tests, 989 pass, 0 fail (1 skipped). Page loaded in headless Chromium over http, gable and shed, no console errors. Free lead-magnet page toward the takeoff tool; no revenue path until the owner's checkout link.",
+  "pr": "https://github.com/duncan-haywood/oss-monorepo/pull/13651"
 }

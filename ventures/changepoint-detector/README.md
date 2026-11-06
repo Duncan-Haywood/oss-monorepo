@@ -1583,3 +1583,21 @@ Not done: no model with a slow return (an AR(1) around a level, with steps) is f
 So this is another case where the default over-cuts a drift, and `--ar1` is the setup that reads it sensibly, though its
 seven cuts are a staircase down the decline and only 2008-10 is a documented event. The drift warning (`driftWarning`) did not fire
 here. One series, no truth labels besides 2008, no tuning, so it is a case study and not a calibration.
+
+## US median unemployment duration: a documented level shift among recession cycles (2026-11-06)
+
+`data/us-unemployment-duration.csv` is the median number of weeks unemployed, monthly 1967-07 to 2015-04, 574 rows (FRED
+UEMPMED via ggplot2 `economics`; `us-unemployment-duration.test.mjs`, 3 tests). It swings 4 to 12 weeks with each recession,
+then climbs to about 25 weeks in 2009-10 and stays high until 2015: the largest and best documented shift in the series.
+Run 2026-11-06, no tuning, rho about 0.69:
+
+| setup | changes | notes |
+|---|---|---|
+| default `mean` | 53 | cuts every recession and recovery; the rho range warning fires |
+| `--bootstrap` | 48 | barely helps |
+| `--ar1` | 15 | includes 2009-02, 2009-06, 2009-11 (the rise is cut three times, not once) |
+| `meanvar` | 27 | has 2008-07 and 2009-05; the leftover-autocorrelation warning fires |
+
+So all four setups find the 2009 rise, but none reports it as one step: a ramp from 10 to 25 weeks over a year is cut into
+two or three, and the default adds recession cycles on top. One series, no truth labels besides the 2009 rise, so it is a case
+study and not a calibration. Wanted: a way to merge adjacent cuts that belong to one ramp (flagship item 0).

@@ -1,8 +1,8 @@
 ---
 title: "A free dormer framing calculator: every stud, rafter and valley from four numbers"
-seo_title: "Dormer framing calculator: gable and shed dormer rafters, valleys, studs"
+seo_title: "Dormer framing calculator: rafters, valleys and studs"
 date: 2026-11-06
-tags: [wall-framing-takeoff, construction, calculator]
+tags: [wall-framing-takeoff, construction, calculators]
 description: "Width, eave height and two roof pitches give a dormer's studs, rafters, valleys and the hole in the main roof. Free, in your browser, MIT licensed."
 ---
 

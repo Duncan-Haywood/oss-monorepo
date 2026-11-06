@@ -1,6 +1,6 @@
 # build-data log
 
-## Session 43, 2026-11-06: milestone 27 (part), per-permit paired bootstrap on neural minus boosted for test year 2023 (planned before running)
+## Session 44, 2026-11-06: milestone 27 (part), per-permit paired bootstrap on neural minus boosted for test year 2023 (planned before running)
 
 Why: session 42 ran the paired test for 2024 only (neural significantly worse in 8 of 15 cells, better in 2). Cell-level numbers for 2023 (session 38) showed neural within a few percent either side. Feeds are reachable again, so 2023 can be tested per permit.
 Plan: `src/paired_neural_boosted.py --test-year 2023`, 3 seeds, five city/target pairs, same code as session 42, fresh pulls.
@@ -11,6 +11,14 @@ Plan: `src/paired_neural_boosted.py --test-year 2023`, 3 seeds, five city/target
 - Cross-year: only SF i2c (worse) and Chicago q0.9 (better) repeat from 2024. The 2024 SF a2i q0.9 (+5.77%) and Austin a2i q0.1 (+2.73%) deficits do not persist in 2023 (+1.06% and +0.02%, intervals include 0). Austin a2i q0.5 and q0.9 favour neural in 2023 (-1.86, -3.85%) but not in 2024. So most neural-versus-boosted differences are year-specific.
 - Limits: 15 uncorrected intervals; one untuned MLP; Austin a2i q0.9 interval is wide (-8.5 to -1.0) so its size is uncertain; 2022 not rerun; the week-block bootstrap assumes exchangeable weeks.
 - Next: 2022 for the same test; publish boosted quantile tables for `ventures/`.
+
+## Session 43, 2026-11-06: milestone 27 (part), multiplicity correction on the paired cells (committed results only; all three feed hosts refused again, CONNECT 403)
+
+Hypothesis (written before computing): after Holm correction at 0.05 over the 15 paired cells, at most 6 of session 42's 8 "significantly worse" cells survive, because several intervals sit near 0 (SF a2i q0.1 and q0.5, Austin i2c q0.5).
+Done: `src/paired_multiplicity.py` (+ tests with hand counts for Holm and BH), `results/paired_multiplicity_2024.txt`, paper 4.6a. Approximate p from a normal approximation to each stored interval, since bootstrap draws were not saved.
+Outcome: **hypothesis refuted.** Holm and BH both keep all 10 cells whose interval excludes 0 (8 worse, 2 better). The nearest to the line is SF a2i q0.5 (p about 0.006). The near-zero cells I expected to fail (SF a2i q0.1, p about 0.08; Austin i2c q0.5) were already non-significant, not borderline-significant.
+Limits: p-values are approximate (normal approximation, small p's like 1e-58 are not literal); 2024 only; does not address dependence between weeks or between quantile levels of one city.
+Next: rerun the paired bootstrap for 2022 and 2023 on a network that reaches the feeds, saving the draws so p-values come from the bootstrap itself.
 
 ## Session 42, 2026-11-06: milestone 27 (part), per-permit paired bootstrap on neural minus boosted (planned before running)
 

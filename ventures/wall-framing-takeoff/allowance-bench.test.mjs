@@ -44,3 +44,11 @@ test("at 12 in o.c. the per-foot rule under-orders; at 16 in and wider it over-o
   assert.ok(s12.perFootOff < 0);
   assert.ok(s16.perFootOff > 0 && s192.perFootOff > s16.perFootOff && s24.perFootOff > s192.perFootOff);
 });
+
+test("a 16 ft opening in a 20 ft wall: refused as drawn, laid out with the bench's 24 ft stock retry", () => {
+  const plan = { ...samplePlan(), walls: [{ id: "A", length: 240, stud: "2x4", openings: [
+    { kind: "door", offset: 24, width: 192, height: 82, header: "2x10" }] }] };
+  assert.equal(compare(plan).ok, false);
+  const g = compare(plan, { gang: true });
+  assert.ok(g.ok && g.longHeaders, JSON.stringify(g.errors));
+});

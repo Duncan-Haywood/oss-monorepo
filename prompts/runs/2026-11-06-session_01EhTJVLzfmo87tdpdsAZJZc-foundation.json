@@ -19,7 +19,7 @@
   "projects": [
     "wall-framing-takeoff"
   ],
-  "pr": null,
+  "pr": "https://github.com/duncan-haywood/oss-monorepo/pull/13640",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -38,7 +38,10 @@
     }
   ],
   "deviations": [
-    "Routed to the creative track, but the scheduled prompt asked for revenue ventures; shipped flagship venture work instead."
+    {
+      "file": "prompt.md",
+      "why": "Routed to the creative track, but the scheduled prompt asked for revenue ventures; shipped flagship venture work instead."
+    }
   ],
   "writeups": [
     "docs/posts/2026-11-06-foundation-concrete-rebar-calculator.md",
