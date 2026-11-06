@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { briefFromStudio, prefillFor, saveBrief, loadBrief, applyBrief, BRIEF_KEY } from "./launchbrief.mjs";
+import { briefFromEyewear, briefFromStudio, prefillFor, saveBrief, loadBrief, applyBrief, BRIEF_KEY } from "./launchbrief.mjs";
 import { unitCost, DEFAULT_PLAN } from "./costing.mjs";
 import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
 
@@ -63,3 +63,23 @@ test("save, load, bad data, and applyBrief writes boxes and reports", () => {
   assert.match(note, /Filled 7 boxes/);
   assert.equal(applyBrief("cashflow", doc, mem()), "");
 });
+
+test("sunglasses brief: cloth counts as an extra, duty and freight are worked back by hand", () => {
+  // By hand: goods 10 + 10% duty = 11, freight 1 -> landed 12. Extras: cloth 0.4 + packaging 0.6 = 1.
+  const eyeSheet = { currency: "EUR", moq: 100, dutyPct: 10, freightPerUnit: 1, clothPerUnit: 0.4, packagingPerUnit: 0.6, example: true };
+  const b = briefFromEyewear({ quantity: 150, price: 65 }, eyeSheet, { salesTaxPct: 22, channelFeePct: 0, paymentFeePct: 3, paymentFixed: 0.3 }, { landed: 12, currency: "EUR" });
+  assert.equal(b.kind, "sunglasses");
+  assert.equal(b.extrasPerUnit, 1);
+  assert.equal(b.factoryPerUnit, 9);        // (12 - 1) / 1.1 = 10 goods, minus 1 extras
+  assert.equal(b.freightTotal, 150);
+  assert.equal(b.netPerSale, 51.03);        // 65/1.22 = 53.28, minus 3% of 65 = 1.95, minus 0.3
+  assert.equal(b.leadTimeDays, null);
+  assert.equal(b.profitPerSale, 39.03);     // 51.03 - 12
+  assert.match(applyFor(b), /sunglasses design \(150 pairs/);
+});
+
+function applyFor(b) {
+  const store = mem(); saveBrief(b, store);
+  const doc = { getElementById: () => ({ value: "" }) };
+  return applyBrief("reorder", doc, store);
+}
