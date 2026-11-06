@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-06 · Milestone 6v: is 6s's scalar drift c = 0.48 m/s a coherent current? (closes 6t's "Next"; exploratory, no prediction logged first)
+- `experiments/run_saildrone_current_vector.py` -> `results_saildrone_current_vector.txt` (under 10 s): in near-calm blocks (true wind < 1 m/s: 3,224 in 2018, 1,735 in 2019) the sail gives no thrust, so SOG east/north is current plus wave drift. A coherent current would show as a large mean vector; random drift as a mean near zero beside the spread.
+- Result: the year-level mean vector is 0.011 m/s (2018) and 0.042 m/s (2019) against a p90 SOG of 0.48 and 0.50: the coherent share of squared SOG is 0.1% and 1.2%. By drone-day (>= 6 calm blocks; 170 and 89 days) the median daily mean has magnitude 0.18 to 0.20 m/s and a median coherent share of 0.35 to 0.37, so a part is a slowly varying current. Removing each drone-day's own mean vector only lowers the p90 from 0.47 to 0.40 (2018) and 0.50 to 0.44 (2019). Along-heading mean +0.09 and +0.15 m/s (cross-heading -0.03): a small forward creep.
+- Reading: 6s's c is mostly zero-mean scatter (direction changes block to block), not a steady current. A heading-aware current from OSCAR or CO-OPS would explain at most the daily-coherent third, and even a perfect daily current only trims the p90 by about 15%. So 6t's July band (0.71 to 0.93 times solar, 0.79 central) stands, and the planned OSCAR vector step is of small value for this question; it is closed rather than done.
+- Limits: calm blocks are a selected state (the drone may be station-keeping or drifting under towing/rudder motion); 10-minute SOG from GPS carries noise of its own that I did not separate from drift; two summers, US West Coast; wind below 1 m/s taken from the drone's own anemometer.
+- Next: paper section 2.5 note; the remaining open item for H-wind is a measured tack cost, or a different corridor than the US West Coast.
+
 ## 2026-11-06 · Milestone 6u: paper section 2.5 gains 6s and 6t (a writing step, no experiment)
 - Added the 6s drift calibration (c = 0.48 m/s; light-air coverage 0.545 -> 0.962) and 6t drift-aware estimate (July 0.79, January 1.43 times solar) to `paper/DRAFT.md` rows and the quotable band (July 0.71 to 0.93, January 1.40 to 1.47). Numbers copied from the 6s/6t entries; no new run.
 - Next: heading-aware current vector from OSCAR/CO-OPS data in `experiments/data/`.

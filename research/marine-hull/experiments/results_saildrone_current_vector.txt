@@ -1,0 +1,7 @@
+near-calm blocks (wind < 1 m/s); coherent share = |mean vector|^2 / mean(SOG^2)
+2018: n=3224 mean E +0.011 N +0.003 |mean| 0.011 m/s; p90 SOG 0.478; coherent share 0.001; along-heading mean +0.088, cross-heading -0.032
+2019: n=1735 mean E -0.006 N -0.041 |mean| 0.042 m/s; p90 SOG 0.499; coherent share 0.012; along-heading mean +0.149, cross-heading -0.031
+2018 drone-days (>= 6 calm blocks): 170; median |daily mean| 0.180 (p90 0.375); median coherent share 0.346
+2019 drone-days (>= 6 calm blocks): 89; median |daily mean| 0.196 (p90 0.388); median coherent share 0.374
+2018: p90 SOG 0.471 -> p90 residual after removing the drone-day mean vector 0.396 m/s (n=2971)
+2019: p90 SOG 0.501 -> p90 residual after removing the drone-day mean vector 0.443 m/s (n=1621)
