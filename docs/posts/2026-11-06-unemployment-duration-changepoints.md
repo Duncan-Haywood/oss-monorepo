@@ -1,6 +1,6 @@
 ---
 title: "Every changepoint setup finds the 2009 jump in joblessness, and none calls it one step"
-seo_title: "Changepoint detection on US unemployment duration: four setups compared"
+seo_title: "Changepoint detection on US unemployment duration, four setups"
 date: 2026-11-06
 tags: [changepoint-detector, time-series, case-study]
 description: "On 574 months of US median unemployment duration, four changepoint setups cut the 2009 rise two or three times, and the default adds 50 recession cuts."
