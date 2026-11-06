@@ -27,5 +27,6 @@ HDR
 cat body.tex
 printf '%s\n' '\end{document}'
 } > main.tex
+python3 wirecite.py main.tex references.bib
 rm -f body.md body2.md body.tex
 echo wrote main.tex

@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-06 · Milestone 87: citations wired to BibTeX in the LaTeX build (no flow run, no new numbers)
+- Why: milestone 86's next item. `paper/wirecite.py` (called by `build.sh`) rewrites each `arXiv:ID` / `doi:ID` in `main.tex` to `\cite{key}` using `references.bib` and appends `\bibliographystyle{IEEEtran}` / `\bibliography{references}`. `tests/test_bib.py` gained a test of the rewrite.
+- Check: `main.tex` now has 11 `\cite{}` (one per id in PAPER.md) and no bare `arXiv:`/`doi:`; `tests/` 20 passed, 1 skipped. `pdflatex`/`bibtex` are not installed here, so the PDF was **not rebuilt** and `main.pdf` is stale (still inline references); the LaTeX has not been compiled.
+- Next: compile on a machine with TeX, fix overfull tables; detail-routed mult24/mult32 full cells.
+
 ## 2026-11-06 · Milestone 85: IEEEtran LaTeX draft of the paper, built from PAPER.md (no flow run, no new numbers)
 - Why: Section 6 item 5 (typesetting). `paper/build.sh` converts `PAPER.md` with pandoc into `paper/main.tex` (IEEEtran conference class) so the markdown stays the single source; `pdflatex` twice gives `paper/main.pdf`.
 - Check: the PDF compiles to 6 pages and `pdftotext` gives 5,710 words against 5,709 in `PAPER.md` (nothing dropped); 8 overfull-box warnings remain (wide tables). Nothing was re-measured.

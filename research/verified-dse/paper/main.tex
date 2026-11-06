@@ -43,17 +43,17 @@ Submission is an owner step.
 work}\label{introduction-and-related-work}}
 
 Multi-fidelity search is mature for hyperparameters: GP bandits with
-known maximum bias (Kandasamy et al., 2016, arXiv:1603.06288), max-value
-entropy search over fidelities (Takeno et al., 2019, arXiv:1901.08275),
-successive halving (Jamieson \& Talwalkar, 2015, arXiv:1502.07943),
-Hyperband and BOHB (arXiv:1603.06560, arXiv:1807.01774), with BoTorch as
-software (arXiv:1910.06403). Chip-flow search papers mostly use one
+known maximum bias (Kandasamy et al., 2016, \cite{kandasamy2016mfgp}), max-value
+entropy search over fidelities (Takeno et al., 2019, \cite{takeno2019mfmes}),
+successive halving (Jamieson \& Talwalkar, 2015, \cite{jamieson2015sh}),
+Hyperband and BOHB (\cite{li2017hyperband}, \cite{falkner2018bohb}), with BoTorch as
+software (\cite{balandat2020botorch}). Chip-flow search papers mostly use one
 fidelity: ABC pass-sequence learning (Yu, Xiao \& De Micheli, 2018,
-arXiv:1804.05714), surveyed in Huang et al.~(2021, arXiv:2102.03357).
-Mirhoseini et al. (2021, doi:10.1038/s41586-021-03544-w) and its
-reassessment (arXiv:2302.11014) are the reason we use equal-budget
+\cite{yu2018synthesis}), surveyed in Huang et al.~(2021, \cite{huang2021mleda}).
+Mirhoseini et al. (2021, \cite{mirhoseini2021graph}) and its
+reassessment (\cite{updated2023rl}) are the reason we use equal-budget
 baselines. Conformal prediction (Angelopoulos \& Bates, 2021,
-arXiv:2107.07511) supplies the distribution-free tool for shortlists.
+\cite{angelopoulos2021conformal}) supplies the distribution-free tool for shortlists.
 The related-work claims rest on titles and abstracts returned by
 \texttt{research/\_shared/cite\_check.py}, not on a full reading of
 every paper (\texttt{PROPOSAL.md}). The inversion bound of Section 4 may
@@ -568,11 +568,17 @@ far). 2. A causal fanout result that does not depend on the Yosys
 version (Section 5). 3. BO/BOHB baselines on larger pools and with
 structurally unfaithful R2 beyond the multiplier family. 4. A pilot-side
 regret certificate (a proof or counterexample for the top-vs-all
-coverage; Section 4 says what is excluded). 5. Typesetting to the MLCAD
-template.
+coverage; Section 4 says what is excluded). 5. Final typesetting to the
+MLCAD template. \texttt{paper/main.tex} (IEEEtran conference class,
+generated from this file by \texttt{paper/build.sh};
+\texttt{paper/main.pdf}, 6 pages) is a working draft in that class; the
+official MLCAD style file and page limit still need checking against the
+call for papers.
 
 Until (1) to (3) land, the honest headline is the negative one: on small
 designs, cheap rungs did not pay, and a pilot gate that detects when
 they will not has not been shown to pay for itself on the 30 designs it
 was replayed on (20 in milestone 16, five each in milestones 27 and 28).
+\bibliographystyle{IEEEtran}
+\bibliography{references}
 \end{document}
