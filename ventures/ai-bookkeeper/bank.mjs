@@ -286,6 +286,20 @@ export function detectColumns(header) {
     cols.date = h.indexOf("billed at");
     cols.desc = h.includes("product") ? h.indexOf("product") : h.indexOf("status");
   }
+  // Lemon Squeezy's orders export (order_number, user_email, currency, subtotal, discount_total, tax, total,
+  // status, created_at, ...): totals are whole minor units (2900 = $29.00, as in its API), so the reader
+  // divides by 100; the customer's name and email are never the description. No fee column: this books
+  // gross sales, and the payout's fee line comes from the bank. Header from memory; made-up rows only.
+  if (h.includes("order number") && h.includes("user email") && h.includes("total") && h.includes("created at")) {
+    cols.amount = h.indexOf("total");
+    cols.debit = -1;
+    cols.credit = -1;
+    cols.balance = -1;
+    cols.date = h.indexOf("created at");
+    cols.minor = true;
+    const p = ["product name", "product", "variant name", "identifier"].find((k) => h.includes(k));
+    cols.desc = p ? h.indexOf(p) : h.indexOf("order number");
+  }
   // Paytm's wallet statement (Date, Activity, Source/Destination, Wallet Txn ID,
   // Comment, Debit, Credit, ..., Status): the activity is the description.
   if (cols.desc === -1 && h.includes("activity") && h.includes("wallet txn id")) cols.desc = h.indexOf("activity");
@@ -995,6 +1009,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       if (/^(you (bought|sold)|reinvestment)\b/i.test(String(r[actionCol] ?? "").trim())) { tradesSkipped++; continue; }
     }
     if (stateCol !== -1 && !okState.test(String(r[stateCol] ?? "").trim())) { problems.push(`Line ${i + 1}: state ${String(r[stateCol] ?? "").trim() || "blank"}, not a completed transaction, skipped.`); continue; }
+    if (columns.minor && anyState !== -1 && /^(refunded|partial refund|partially refunded)$/i.test(String(r[anyState] ?? "").trim())) { problems.push(`Line ${i + 1}: order ${String(r[anyState]).trim()}; book the refund from the payout, row skipped.`); continue; }
     if (anyState !== -1 && NOT_BOOKED.test(String(r[anyState] ?? "").trim())) { problems.push(`Line ${i + 1}: status ${String(r[anyState]).trim()}, not a booked transaction, skipped.`); continue; }
     // German and Italian "Valuta" is often the value date; only a three-letter code counts as a currency.
     if (curCol !== -1 && /^[a-z]{3}$/i.test(String(r[curCol] ?? "").trim())) currencies.add(r[curCol].trim().toUpperCase());
@@ -1020,6 +1035,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       const side = (k) => { if (k === -1) return 0; const c = parseCents(r[k], decimalComma); return Number.isNaN(c) ? NaN : Math.abs(c || 0); };
       cents = side(columns.credit) - side(columns.debit);
     }
+    if (columns.minor && Number.isFinite(cents)) cents = Math.round(cents / 100);
     if (!Number.isFinite(cents)) { problems.push(`Line ${i + 1}: unreadable amount, skipped.`); continue; }
     if (drcrCol !== -1) {
       const m = String(r[drcrCol] ?? "").trim().toLowerCase();
