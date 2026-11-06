@@ -1,6 +1,6 @@
 ---
 title: "An open-source missed-call text-back you run on your own Twilio account"
-seo_title: "Missed call text back for contractors: free calculator and open-source agent"
+seo_title: "Missed call text back for contractors: free calculator, open agent"
 date: 2026-11-06
 tags: [missed-call-textback, contractors, twilio, sms]
 description: "A new venture: a calculator for what unanswered calls cost a trade business, a message checker, and a self-host agent that texts each missed caller once."
