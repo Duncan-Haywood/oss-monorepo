@@ -4,6 +4,7 @@
 Checks, on real tags (not text inside scripts, comments or JSON-LD):
 `<html lang>`, a viewport meta, a charset, `<img alt>`, `target="_blank"`
 links with `rel` containing noopener or noreferrer, no positive `tabindex`,
+no `<iframe>` without a title, no `javascript:` href,
 and no `http://` subresource or link (mixed content, except localhost).
 
     python3 platform/ci/check_markup_basics.py [--root DIR]   # exit 1 if any
@@ -36,10 +37,14 @@ class Scan(HTMLParser):
                 self.seen.add("charset")
         elif tag == "img" and "alt" not in a:
             self.found.add("<img> without alt")
+        elif tag == "iframe" and not (a.get("title") or a.get("aria-label") or "").strip():
+            self.found.add("<iframe> without title")
         if tag == "a" and (a.get("target") or "").lower() == "_blank":
             rel = (a.get("rel") or "").lower()
             if "noopener" not in rel and "noreferrer" not in rel:
                 self.found.add('target="_blank" without rel=noopener')
+        if tag == "a" and (a.get("href") or "").strip().lower().startswith("javascript:"):
+            self.found.add("javascript: href")
         ti = a.get("tabindex")
         m = re.match(r"[+-]?[0-9]+", (ti or "").strip())  # HTML integer parsing: "+2" is 2
         if m and int(m.group()) > 0:

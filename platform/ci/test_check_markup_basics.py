@@ -18,6 +18,11 @@ class MarkupBasics(unittest.TestCase):
         html = OK.format('<script>x="<img>"</script><script type="application/ld+json">{"a":"<img>"}</script>')
         self.assertEqual(c.problems(html), [])
 
+    def test_iframe_title_and_javascript_href(self):
+        self.assertEqual(c.problems(OK.format('<iframe src="/a" title="Map"></iframe>')), [])
+        self.assertEqual(c.problems(OK.format('<iframe src="/a"></iframe>')), ['<iframe> without title'])
+        self.assertEqual(c.problems(OK.format('<a href=" JavaScript:void(0)">x</a>')), ['javascript: href'])
+
     def test_missing_head_bits(self):
         self.assertEqual(c.problems('<html><body></body></html>'),
                          ['no <html lang>', 'no charset', 'no viewport meta'])
