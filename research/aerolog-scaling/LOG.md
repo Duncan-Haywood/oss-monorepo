@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-06 · Milestone 10a: where does a battery cargo VTOL stop closing? (predictions fixed before the run)
+- Why: PROJECTS track 22 item 3 (`aerolog-sizing`) was unstarted; milestone 2b showed battery energy binds a small multicopter, so how far does a sized lift-plus-cruise aircraft get per Wh/kg?
+- Plan (`experiments/vtol_sizing/run.py`, stdlib): mass fractions of MTOW; sweep L/D, disk loading, structure fraction, cell energy; hybrid with jet fuel (43 MJ/kg) and a generator. Predictions: (1) 80 to 200 km at 250 Wh/kg; (2) range linear in cell energy; (3) hybrid beats battery only beyond 150 km.
+### Outcome (`experiments/vtol_sizing/results.txt`)
+- (1) narrowly missed: 203 km for 100 kg. (2) held: steps of 88 km per 100 Wh/kg. (3) wrong: hybrid is lighter from 20 km because fuel is ~40x denser than a pack; the model caps at 1,500 km, so it does not locate a hybrid limit.
+- Limits: no size effect on structure (so payload barely matters), no climb or forward-flight lift-rotor drag penalty, assumed airframe constants, no fitting to a published cargo VTOL, cell energy swept not sourced (energy-density gives only ceilings, 380 Wh/kg for Li-ion).
+- Next: fit structure fraction to a published VTOL weight set (Johnson et al. 2018 / Raymer) so payload size matters; add a tank and engine mass law to the hybrid.
+
 ## 2026-11-06 · Milestone 8l: paper draft catches up with milestone 9ak (no new simulation)
 - Section 4.10d now reports the sourced alpha error (gain 1.19 plus 0.596 degrees) run through the 9af harness: OE+b 4 of 160 failures at two periods, 76% within 10% gust; the LS/OE wrong-answer failure mode; the x0 harness bug. `paper/check_numbers.py` gains three checks tied to `results_gain_offset.txt`; the open-items line no longer lists the alpha-gain arm.
 - Next: a sourced in-flight vane residual; AIAA template (needs `pdflatex`).
