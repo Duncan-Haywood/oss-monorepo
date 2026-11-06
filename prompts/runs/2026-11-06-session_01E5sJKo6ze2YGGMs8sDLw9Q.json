@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13447",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -41,9 +41,15 @@
       "why": "Skipped the one open item (control-plane workflow edit needing owner approval) and ran one 6-mutant campaign, not 8, on check_payment_keys.py.",
       "did": "fixed red doc_index baseline instead",
       "result": "6/6 mutants caught"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post: small purple-team fix run.",
+      "did": "none",
+      "result": "n/a"
     }
   ],
-  "writeups": null,
+  "writeups": [],
   "goal": null,
   "notes": "Real defect: doc_index.py check red on main (2 marine-hull reports without front matter, 3 polish reports with topics not in taxonomy). Fixed by adding front matter and mapping topics to seo/llms-txt. test_doc_index passes. Catch rate 6/6 on check_payment_keys.py.",
   "corrections": [],
