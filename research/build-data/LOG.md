@@ -1,5 +1,14 @@
 # build-data log
 
+## Session 35, 2026-11-06: milestone 7 (part), Austin added to the permit-duration prior
+
+Hypothesis (written before the pull): over 2022 to 2024 Austin's application-to-issue same-day share is below 20% (session 5 found 6% in 2024) and its issue-to-completion median is above 60 days (session 5: 2024 baseline median about 55 to 57 days, so this one could fail).
+Plan: fresh Austin pull (host reachable this session), rerun `src/prior.py` over the three feeds' CSVs, extend `results/permit_prior.json`.
+Done: fresh Austin pull (8 minutes, 221 MB CSV outside git), `src/prior.py` on Austin alone over 2022 to 2024, its two entries merged into `results/permit_prior.json` (Chicago and SF entries from session 34 unchanged).
+Outcome: Austin a2i n=172,780, same-day 4.8%, q10/q50/q90 = 1/25/320 days (5 types, nothing folded); Austin i2c n=163,246, same-day 0.45%, 7/111/467 days (5 types). Both hypotheses hold (same-day 4.8% < 20%; i2c median 111 > 60).
+Limits: descriptive empirical quantiles, no model; Austin's a2i q90 of 320 days is long-tailed and includes applications that were slow to be issued after review; Austin rows without an issue date are excluded from a2i; i2c window keyed on issue year.
+Next: publish boosted quantile tables; multiple test years for H1.
+
 ## Session 34, 2026-11-06: milestone 7 (part), permit-duration prior data file
 
 Hypothesis (before the run): over 2022 to 2024 the pooled median application-to-issue lag is 0 or 1 day in Chicago and SF and the SF issue-to-completion median is above 90 days.
