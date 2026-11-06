@@ -153,6 +153,8 @@ export function budget(result, prices = {}, allowances = {}) {
     if (pl.stops) add("Plumbing", "Supply stops", pl.stops, "each", pl.prices.stop, "typed per fixture, else one per hot or cold supply");
     if (pl.drainFittings) add("Plumbing", "Drain fittings", pl.drainFittings, "each", pl.prices.drainFitting, "typed counts per fixture");
     if (pl.supplyFittings) add("Plumbing", "Supply fittings", pl.supplyFittings, "each", pl.prices.supplyFitting, "typed counts per fixture");
+    if (pl.hangers) add("Plumbing", "Drain and vent hangers", pl.hangers, "each", pl.prices.hanger, `one per ${pl.drainHangerSpacingFt} ft of the typed drain and vent runs`);
+    if (pl.straps) add("Plumbing", "Supply straps", pl.straps, "each", pl.prices.strap, `one per ${pl.supplyStrapSpacingFt} ft of the typed hot and cold runs`);
   }
   const sd = result.siding;
   if (sd?.ok) {
