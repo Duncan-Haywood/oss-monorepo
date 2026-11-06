@@ -78,6 +78,7 @@
       <div><label for="blockRows">Rows of blocking between studs</label><input id="blockRows" type="number" min="0" max="6" step="1" value="0"></div>
       <div><label for="plateLaps">Plates at corners</label><select id="plateLaps"><option value="">Every plate ends at the wall end</option><option value="lap">Lap plates at corners (top plate runs through, cap laps the other way)</option></select></div>
       <div><label for="advFrame">Advanced framing</label><select id="advFrame"><option value="">Standard (3-stud corners, 2 backing studs at tees)</option><option value="corners">Two-stud corners (drywall clips; engineer's call)</option><option value="tees">Ladder blocking at tees instead of backing studs</option><option value="both">Both</option><option value="single">Single top plate (framing stacks over studs; engineer's call)</option></select></div>
+      <div><label for="cullPct">Spare boards for culls (% of each size)</label><input id="cullPct" type="number" min="0" max="50" step="0.5" value="0"></div>
       <div><label for="fireBlock">Fire blocking</label><select id="fireBlock"><option value="">Only the rows above</option><option value="fire">Add rows so no stud run passes 10 ft</option></select></div>
     </div>
   </section>
@@ -633,7 +634,7 @@
         walls: plan.walls.map((w) => ({ id: w.id, length: len(w.length), stud: w.stud || "2x4", treatedPlate: Boolean(w.treatedPlate), corner: Boolean(w.corner), tees: (w.tees || []).map(len).join(", "), tee: w.tee ? `${w.tee.wall} @ ${len(w.tee.at)}${w.tee.end === "end" ? " end" : ""}` : "", gable: w.gable ? String(w.gable.pitch) : "", peak: w.gable?.peak !== undefined ? len(w.gable.peak) : "", partition: w.sheathed === false, freeEnds: String(w.freeEnds || 0) })),
         openings: plan.walls.flatMap((w) => (w.openings || []).map((o) => ({ wall: w.id, kind: o.kind, label: o.label || "", offset: len(o.offset), width: len(o.width), height: len(o.height), headerHeight: o.headerHeight ? len(o.headerHeight) : "", header: o.header || "2x10", plies: o.headerPlies ?? "", jacks: o.jacks ?? 1, sillPlies: o.sillPlies }))),
         stock: plan.stock.map((s) => ({ size: s.size, length: len(s.length), price: s.price, label: s.label || "" })),
-        settings: { studLength: plan.studLength, spacing: plan.studSpacing, headerHeight: plan.defaultHeaderHeight, lap: plan.topPlateLap, kerf: plan.kerf, cornerStuds: plan.cornerExtraStuds, teeStuds: plan.teeExtraStuds, blockRows: plan.blocking?.rows || 0, fire: Boolean(plan.blocking?.fire), plateLaps: Boolean(plan.plateLaps), advFrame: plan.advanced ? (plan.advanced.singleTopPlate ? "single" : plan.advanced.twoStudCorners && plan.advanced.ladderTees ? "both" : plan.advanced.twoStudCorners ? "corners" : plan.advanced.ladderTees ? "tees" : "") : "" },
+        settings: { studLength: plan.studLength, spacing: plan.studSpacing, headerHeight: plan.defaultHeaderHeight, lap: plan.topPlateLap, kerf: plan.kerf, cornerStuds: plan.cornerExtraStuds, teeStuds: plan.teeExtraStuds, blockRows: plan.blocking?.rows || 0, fire: Boolean(plan.blocking?.fire), plateLaps: Boolean(plan.plateLaps), cullPct: plan.culls?.pct ? Math.round(plan.culls.pct * 1000) / 10 : 0, advFrame: plan.advanced ? (plan.advanced.singleTopPlate ? "single" : plan.advanced.twoStudCorners && plan.advanced.ladderTees ? "both" : plan.advanced.twoStudCorners ? "corners" : plan.advanced.ladderTees ? "tees" : "") : "" },
       };
     }
 
@@ -650,6 +651,7 @@
       $("#blockRows").value = String(s.blockRows || 0);
       $("#fireBlock").value = s.fire ? "fire" : "";
       $("#plateLaps").value = s.plateLaps ? "lap" : "";
+      $("#cullPct").value = String(s.cullPct || 0);
       $("#advFrame").value = s.advFrame || "";
     }
 
@@ -670,6 +672,7 @@
         cornerExtraStuds: Math.max(0, Math.round(Number($("#cornerStuds").value) || 0)),
         teeExtraStuds: Math.max(0, Math.round(Number($("#teeStuds").value) || 0)),
         plateLaps: $("#plateLaps").value === "lap",
+        ...(Number($("#cullPct").value) > 0 ? { culls: { pct: Math.min(50, Number($("#cullPct").value)) / 100 } } : {}),
         advanced: { twoStudCorners: ["corners", "both"].includes($("#advFrame").value), ladderTees: ["tees", "both"].includes($("#advFrame").value), singleTopPlate: $("#advFrame").value === "single" },
         blocking: { rows: Math.max(0, Math.min(6, Math.round(Number($("#blockRows").value) || 0))), fire: $("#fireBlock").value === "fire" },
         stock: ui.stock.map((s) => ({ size: s.size, length: L(s.length, `${s.size} board`), price: Number(s.price), ...(s.label ? { label: s.label } : {}) })),
@@ -1319,6 +1322,7 @@
         <div><strong>${money(s.naiveCost)}</strong>if every piece were bought on its own board</div>
       </div><p class="note">${s.walls} walls, ${s.wallFeet.toFixed(1)} ft of wall; ${s.fullHeightMembers} full-height studs, kings and backing. Bought ${s.boughtFeet.toFixed(1)} ft of board for ${s.neededFeet.toFixed(1)} ft of pieces.</p>`;
       $("#order").innerHTML = `<table><thead><tr><th class="n">Qty</th><th>Size</th><th>Length</th><th>Note</th><th class="n">Price each</th><th class="n">Total</th></tr></thead><tbody>${result.orders.flatMap((o) => o.lines.map((l) => `<tr><td class="n">${l.qty}</td><td>${esc(o.size)}</td><td>${formatLength(l.length)}</td><td>${esc(l.label)}</td><td class="n">${money(l.price)}</td><td class="n">${money(l.price * l.qty)}</td></tr>`)).join("")}</tbody></table>
+        ${result.culls && result.culls.length ? `<p class="note">Cull allowance (${result.summary.cullBoards} spare boards, ${money(result.summary.cullCost)}, kept apart from the exact order above): ${result.culls.map((l) => `${l.qty} x ${esc(l.size)} ${formatLength(l.length)} (${(100 * l.pct).toFixed(1)}%)`).join(", ")}. Order with culls: ${money(result.summary.costWithCulls)}.</p>` : ""}
         <p class="note">${result.orders.map((o) => `${esc(o.size)}: ${esc(o.method)}${o.proven ? ", proven cheapest" : `, within ${money(o.cost - o.bound)} of the bound`}; first fit decreasing would cost ${money(o.ffdCost)}.`).join(" ")}</p>`;
       $("#notes").innerHTML = result.notes.length ? `<h3>Notes</h3><ul>${result.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : "";
       $("#cuts").innerHTML = `<table><thead><tr><th class="n">Qty</th><th>Size</th><th class="n">Length</th><th>Piece</th><th>Walls</th></tr></thead><tbody>${result.cuts.map((c) => `<tr><td class="n">${c.qty}</td><td>${esc(c.size)}</td><td class="n">${formatInches(c.length)}</td><td>${esc(c.kind)}</td><td>${esc(c.walls.join(", "))}</td></tr>`).join("")}</tbody></table>`;
