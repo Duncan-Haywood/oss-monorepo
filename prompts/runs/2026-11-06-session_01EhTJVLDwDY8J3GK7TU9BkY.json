@@ -16,8 +16,10 @@
   "cost_usd": null,
   "tool_calls": null,
   "task": null,
-  "projects": [],
-  "pr": null,
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13543",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +27,17 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 6,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-06-launch-cash-flow-clothing-brand.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Launch cash-flow planner for R-0005. Ran node --test on the venture (288 pass). Not clicked in Chromium; page logic mirrors reorder.html. Took clothing studio rather than top flagship (wall-framing already had 14 commits in 7d and an owner-open request R-0005 was building).",
   "corrections": [],
   "redteam": null
 }
