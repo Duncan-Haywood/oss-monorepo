@@ -1565,3 +1565,20 @@ Not done: no model with a slow return (an AR(1) around a level, with steps) is f
 - The same trade as Lake Huron: the default finds the real fall but also cuts the slow swings, `--ar1` removes all of it including the real fall, and the rho warning fires.
 - `meanvar` is the tidiest here, but its own warning says the leftover has autocorrelation (lag 1: 0.61) and clustered volatility, so 1969 is a candidate, not a finding.
 - Wanted: a lake-level series with a documented step that `--ar1` keeps (flagship item 0, 4b).
+
+## US personal saving rate: a slow decline cut into steps (2026-11-06)
+
+`data/us-saving-rate.csv` is the US personal saving rate, monthly 1967-07 to 2015-04, 574 rows (FRED PSAVERT via ggplot2
+`economics`; `us-saving-rate.test.mjs`, 3 tests). It falls gradually from about 12% to about 2% by 2005 and then jumps in
+2008-09: mostly drift, with one documented shock. Run 2026-11-06, no tuning, rho about 0.75:
+
+| setup | changes | notes |
+|---|---|---|
+| default `mean` | 56 | a step every ten months or so; the range warning fires |
+| `--bootstrap` | 49 | barely helps |
+| `--ar1` | 7 | 1970-03, 1975-12, 1985-02, 1993-07, 1999-03, 2005-01, 2008-10 |
+| `meanvar` | 24 | |
+
+So this is another case where the default over-cuts a drift, and `--ar1` is the setup that reads it sensibly, though its
+seven cuts are a staircase down the decline and only 2008-10 is a documented event. The drift warning (`driftWarning`) did not fire
+here. One series, no truth labels besides 2008, no tuning, so it is a case study and not a calibration.
