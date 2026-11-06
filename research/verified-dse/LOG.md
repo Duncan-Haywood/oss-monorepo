@@ -8,6 +8,11 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Limits: the author block is anonymous, the references stay inline as in `PAPER.md` (no BibTeX file yet), and the official MLCAD style and page limit are unchecked.
 - Next: BibTeX bibliography and fixing the overfull tables; detail-routed mult24/mult32 cells.
 
+## 2026-11-06 · Milestone 86: BibTeX file for the paper's 11 cited sources (no flow run, no new numbers)
+- Why: milestone 85's next item. `paper/references.bib` holds the 12 sources PROPOSAL.md lists (11 cited in PAPER.md, plus ABC); `tests/test_bib.py` checks every arXiv id and DOI in PAPER.md has an entry.
+- Limits: authors and titles are copied from PROPOSAL.md, which looked them up when the programme opened; entries where it names only lead authors end "and others" and need full author lists before submission. The egress proxy returned 403 for arxiv.org and doi.org this session, so `cite_check.py` could not re-verify. `pdflatex` is not installed here, so `build.sh` was not changed to emit `\bibliography` and the PDF was not rebuilt; PAPER.md still cites inline.
+- Next: wire `\cite` keys and `\bibliography{references}` into the build, fix overfull tables, detail-routed mult24/mult32 cells.
+
 ## 2026-11-05 · Milestone 84: can a pilot observe the optimum's rank displacement? (predictions written before the run)
 - Why: PAPER.md Section 6 item 4 (pilot-side certificate). Milestone 44's zero-regret condition rho_j(x*) < k_j needs the unrouted optimum's rank; rung scores are known for the whole pool, so rho_j(p) is exact for every routed pilot point. `experiments/theory/pilot_rho.py`: statistic T = ratio of the pilot's best routed point, T3 = smallest ratio among its best three; coverage = share of pilots with T >= ratio(x*); a "certificate" is T < 1. m = 8, 16, 24; 300 pilots per cell; 40 cells; no flow run.
 - Predictions: (1) median coverage of T below 0.8 at m = 16 (a best routed point is not the optimum and the optimum is often displaced less); (2) T3 covers more than T; (3) in cells where the optimum is not guaranteed (ratio >= 1) a nonzero share of pilots still gets T < 1 (false certificates).
