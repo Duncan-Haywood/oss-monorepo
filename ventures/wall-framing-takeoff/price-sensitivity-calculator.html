@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bid price sensitivity calculator: what a lumber or labor swing does to your bid</title>
+  <meta name="description" content="Free construction bid sensitivity calculator: type each section's subtotal and your tax, contingency, overhead and profit rates, then see what a lumber, labor or roofing price swing does to cost and bid, and when a fixed bid loses its profit. Runs in your browser.">
+  <meta property="og:title" content="Bid price sensitivity calculator">
+  <meta property="og:description" content="Section subtotals and markups in, bid swing per section out. Private, free, in your browser.">
+  <link rel="canonical" href="./price-sensitivity-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "If lumber goes up 15%, what happens to my bid?", "acceptedAnswer": {"@type": "Answer", "text": "With lumber 18,000, sheathing 6,500, roofing 5,200 and labor 22,000, 7% tax and 5% contingency on materials, 10% overhead and 10% profit, the cost is 55,367.95 and the bid 66,995.22. Lumber alone up 15% adds 3,033.45 to cost and 3,670.47 to the bid, which is 5.48%. The prices are the ones you type; the calculator only restacks them."}}, {"@type": "Question", "name": "How much can a section rise before a fixed bid loses its profit?", "acceptedAnswer": {"@type": "Answer", "text": "Holding the bid at 66,995.22 and overhead and profit in dollars, lumber can rise 30.12% before the 6,090.47 of profit is gone, labor 27.68%, sheathing 83.4% and roofing 104.25%. Everything up 15% together takes the bid to 77,044.50."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Bid price sensitivity calculator</h1>
+  <p>Type each cost section's subtotal (lumber, sheathing, labor...) and your markup rates. You get what a price swing in each section does to your cost and bid, ranked, and how far a section can rise before a bid you already gave loses its profit. The same engine as <code>--sensitivity</code> in the whole-house takeoff. A what-if, not a forecast. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <label for="json">Sections and rates (JSON: sections with name and subtotal; "Labor" and "Allowances" skip tax and contingency; taxRate, contingencyRate, overheadRate, profitRate as decimals, 0.07 is 7%; swing in percent, 1 to 100)</label>
+    <textarea id="json" rows="16" spellcheck="false" style="width:100%;box-sizing:border-box;font:.9rem ui-monospace,monospace;padding:8px">{
+  "sections": [
+    {
+      "name": "Lumber",
+      "subtotal": 18000
+    },
+    {
+      "name": "Sheathing",
+      "subtotal": 6500
+    },
+    {
+      "name": "Roofing",
+      "subtotal": 5200
+    },
+    {
+      "name": "Labor",
+      "subtotal": 22000
+    }
+  ],
+  "taxRate": 0.07,
+  "contingencyRate": 0.05,
+  "overheadRate": 0.1,
+  "profitRate": 0.1,
+  "swing": 15
+}</textarea>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Do the whole house: framing, sheathing, budget and more in one takeoff</a></p>
+
+  <h2>How it is counted</h2>
+  <ol>
+    <li><strong>Stack.</strong> Materials carry tax, then contingency on materials plus tax. Labor and allowances are added after. Overhead is a percentage of that total, profit a percentage of total plus overhead.</li>
+    <li><strong>Swing.</strong> One section is scaled by the swing and the stack is redone, so tax, contingency, overhead and profit move with it. A 0% swing gives your own bid back.</li>
+    <li><strong>Break-even.</strong> Overhead and profit are held at today's dollars; the rise in one section that uses up all the profit is the profit divided by the cost each 1% adds.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>If lumber goes up 15%, what happens to my bid?</h3>
+  <p>With lumber 18,000, sheathing 6,500, roofing 5,200 and labor 22,000, 7% tax and 5% contingency on materials, 10% overhead and 10% profit, the cost is 55,367.95 and the bid 66,995.22. Lumber alone up 15% adds 3,033.45 to cost and 3,670.47 to the bid, which is 5.48%. The prices are the ones you type; the calculator only restacks them.</p>
+  <h3>How much can a section rise before a fixed bid loses its profit?</h3>
+  <p>Holding the bid at 66,995.22 and overhead and profit in dollars, lumber can rise 30.12% before the 6,090.47 of profit is gone, labor 27.68%, sheathing 83.4% and roofing 104.25%. Everything up 15% together takes the bid to 77,044.50.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="hvac-calculator.html">HVAC duct rough-in calculator (trunk, flex, boots, registers)</a></li><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li><li><a href="drywall-calculator.html">Drywall calculator (sheets, tape, compound)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, carpet)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Every price, rate and swing is your input and is not checked against any span table or code, a market price, a tax rule or a forecast. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No price or rate is stated or implied; the figures are what you type. A what-if over your own numbers, not a forecast of any material price.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { sensitivity, sensitivityText, budgetFromSections } from "./sensitivity.mjs";
+    const $ = (id) => document.getElementById(id);
+    const run = () => {
+      let d;
+      try { d = JSON.parse($("json").value); } catch (e) { $("out").textContent = "That is not valid JSON: " + e.message; return; }
+      try {
+        const s = sensitivity(budgetFromSections(d), d.swing ?? 10);
+        $("out").textContent = sensitivityText(s).join("\n");
+      } catch (e) { $("out").textContent = e.message; }
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>

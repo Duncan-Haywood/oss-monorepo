@@ -65,3 +65,27 @@ export function sensitivityText(s) {
   out.push("  A what-if over your own prices, not a forecast; the profit break-even holds overhead and profit in dollars.");
   return out;
 }
+
+/**
+ * A budget()-shaped object from typed section subtotals and rates, for the sensitivity page.
+ * Section names "Labor" and "Allowances" are stacked as in the budget; every other section is
+ * a material that carries tax and contingency. Profit in dollars is worked out from the rates.
+ * @param {any} d { sections: [{name, subtotal}], taxRate, contingencyRate, overheadRate, profitRate }
+ */
+export function budgetFromSections(d) {
+  if (!d || typeof d !== "object" || Array.isArray(d)) throw new Error("Give an object with a sections list.");
+  if (!Array.isArray(d.sections) || !d.sections.length) throw new Error("Give at least one section with a name and a subtotal.");
+  const sections = d.sections.map((/** @type {any} */ s) => {
+    if (!s || typeof s !== "object" || typeof s.name !== "string" || !s.name.trim()) throw new Error("Every section needs a name.");
+    return { name: s.name.trim(), subtotal: s.subtotal };
+  });
+  const b = { sections, taxRate: d.taxRate ?? 0, contingencyRate: d.contingencyRate ?? 0, overheadRate: d.overheadRate ?? 0, profitRate: d.profitRate ?? 0, profit: 0, unpriced: [] };
+  for (const k of ["taxRate", "contingencyRate", "overheadRate", "profitRate"])
+    if (typeof b[k] !== "number" || !Number.isFinite(b[k]) || b[k] < 0 || b[k] > 10) throw new Error(`${k} must be a number from 0 to 10 (0.08 is 8%).`);
+  for (const s of sections)
+    if (typeof s.subtotal !== "number" || !Number.isFinite(s.subtotal) || s.subtotal < 0 || s.subtotal > 1e9)
+      throw new Error(`Section "${s.name}": the subtotal must be a number from 0 to 1,000,000,000.`);
+  const base = restack(b);
+  b.profit = r2((base.total + base.total * b.overheadRate) * b.profitRate);
+  return b;
+}
