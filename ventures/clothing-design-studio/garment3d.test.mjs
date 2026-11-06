@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { maskGrid, edgeDistance, height, smooth, buildGarmentMesh, orbitMatrix, project, multiply, rotationY, identity } from "./garment3d.mjs";
+import { sleeveTubes, maskGrid, edgeDistance, height, smooth, buildGarmentMesh, orbitMatrix, project, multiply, rotationY, identity } from "./garment3d.mjs";
 import { VIEWBOX } from "./catalogue.mjs";
 
 const disc = (cx, cy, r) => (x, y) => (x - cx) ** 2 + (y - cy) ** 2 <= r * r;
@@ -113,4 +113,23 @@ test("a long-sleeve mesh with dropped arms stays valid, uvs unchanged, and keeps
   }
   assert.ok(moved > 100 && torsoMoved === 0, `${moved} moved, ${torsoMoved} torso`);
   for (let k = 0; k < hung.normals.length; k += 3) assert.ok(Math.abs(Math.hypot(hung.normals[k], hung.normals[k + 1], hung.normals[k + 2]) - 1) < 1e-4);
+});
+
+test("sleeve tubes: a flat band beyond the body gets a round section as deep as it is wide", () => {
+  const band = (x, y) => Math.abs(y - cy) <= 30 && Math.abs(x - ARM.centre) <= 240;
+  const g = maskGrid(band, { cell: 3 });
+  const d = edgeDistance(g);
+  const zs = new Float32Array(g.v.length);
+  const deepest = sleeveTubes(zs, d, g);
+  assert.ok(deepest > 26 && deepest < 34, `sleeve depth ${deepest} for a 30-unit half-width`);
+  const mid = Math.round((cy - VIEWBOX.y) / 3) * g.vcols + Math.round((ARM.centre - VIEWBOX.x) / 3);
+  assert.equal(zs[mid], 0);
+});
+
+test("buildGarmentMesh works with tubes off and on", () => {
+  for (const tubes of [false, true]) {
+    const m = buildGarmentMesh(disc(cx, cy, 200), { cell: 8, tubes, armDrop: 0.3 });
+    for (const i of m.indices) assert.ok(i < m.vertexCount);
+    for (const x of m.positions) assert.ok(Number.isFinite(x));
+  }
 });
