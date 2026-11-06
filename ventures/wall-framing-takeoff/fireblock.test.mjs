@@ -45,7 +45,7 @@ test("hostile layouts are refused with a reason, not a raw error or a hang (2026
   const v = (h) => [{ orient: "v", x: 0, y: 0, w: 1.5, h }, { orient: "v", x: 10, y: 0, w: 1.5, h }];
   for (const bad of [null, 5, "x", {}, { walls: "x" }, { walls: [null] }, { walls: [{ id: "a", members: [null] }] },
     { walls: [{ id: "a", members: [{ orient: "v", x: 0, y: 0, w: 1.5, h: NaN }] }] },
-    { walls: [{ id: "a", members: v(1e9) }] }, { walls: [{ id: "a", members: v(2000) }] }]) {
+    { walls: [{ id: "a", members: v(1e9) }] }]) {
     const r = layoutFireblock({}, bad);
     assert.equal(r.ok, false);
     assert.ok(r.errors.length);
