@@ -1,5 +1,13 @@
 # build-data log
 
+## Session 43, 2026-11-06: milestone 27 (part), multiplicity correction on the paired cells (committed results only; all three feed hosts refused again, CONNECT 403)
+
+Hypothesis (written before computing): after Holm correction at 0.05 over the 15 paired cells, at most 6 of session 42's 8 "significantly worse" cells survive, because several intervals sit near 0 (SF a2i q0.1 and q0.5, Austin i2c q0.5).
+Done: `src/paired_multiplicity.py` (+ tests with hand counts for Holm and BH), `results/paired_multiplicity_2024.txt`, paper 4.6a. Approximate p from a normal approximation to each stored interval, since bootstrap draws were not saved.
+Outcome: **hypothesis refuted.** Holm and BH both keep all 10 cells whose interval excludes 0 (8 worse, 2 better). The nearest to the line is SF a2i q0.5 (p about 0.006). The near-zero cells I expected to fail (SF a2i q0.1, p about 0.08; Austin i2c q0.5) were already non-significant, not borderline-significant.
+Limits: p-values are approximate (normal approximation, small p's like 1e-58 are not literal); 2024 only; does not address dependence between weeks or between quantile levels of one city.
+Next: rerun the paired bootstrap for 2022 and 2023 on a network that reaches the feeds, saving the draws so p-values come from the bootstrap itself.
+
 ## Session 42, 2026-11-06: milestone 27 (part), per-permit paired bootstrap on neural minus boosted (planned before running)
 
 Why: session 40 found a 2024 neural deficit (mean +1.14%, sign p 0.035) from cell-level numbers only; cells share data, so that p is descriptive. The feeds are reachable again (Chicago, SF, Austin all HTTP 200 this session), so the per-permit paired test is possible.
