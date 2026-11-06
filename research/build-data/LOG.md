@@ -1,5 +1,14 @@
 # build-data log
 
+## Session 37, 2026-11-06: milestone 3 (part), H1 over test years 2022 and 2023
+
+Hypothesis (written before the run): the boosted quantile model beats the per-city, per-type empirical-quantile baseline on pinball loss in at least 11 of the 15 city/target/quantile cells in each of test years 2022 and 2023, as it did in 13 of 15 in 2024 (Chicago a2i at q0.1 and q0.9 being the cells most likely to fail).
+Done: fresh pulls of all three feeds (hosts reachable; Chicago 852,332 rows, SF 1,297,940, Austin 2,383,942), `src/boosted.py` with the harness split (train <= Y-2, calibrate Y-1, test Y), 3 seeds, for all five city/target pairs and Y = 2022, 2023: `results/boosted_*_2022.json`, `results/boosted_*_2023.json`.
+Outcome: 15 of 15 cells in 2022, 14 of 15 in 2023 (the miss: Chicago a2i q0.1, +0.1%, a tie). Hypothesis holds. Pinball change against the baseline (negative = better) at q0.1/0.5/0.9: Chicago a2i 2022 -0.0/-10.0/-8.6, 2023 +0.1/-11.2/-5.9; SF a2i 2022 -2.4/-14.8/-30.8, 2023 -2.8/-13.8/-22.5; SF i2c 2022 -7.2/-13.6/-15.5, 2023 -6.4/-12.7/-13.0; Austin a2i 2022 -3.1/-20.3/-36.4, 2023 -3.5/-20.6/-32.8; Austin i2c 2022 -11.2/-20.0/-25.7, 2023 -9.2/-20.0/-26.1. The 2024 miss at Chicago a2i q0.9 (+6.5%) is the only q0.9 loss in three years, so it looks year-specific, not structural.
+- Caveat: raw 80% interval coverage is 0.67 to 0.83 in 2022 and 0.73 to 0.83 in 2023 (Austin i2c lowest), under-covering where 2024 over-covered in Chicago and SF; the quantile models are not calibrated, which is what the conformal sections address.
+Limits: 3 seeds (2024 files use their earlier seed count); one model family; Chicago is issued-only (survivorship); the gain over the baseline is on pinball, not on any decision.
+Next: publish boosted quantile tables for `ventures/`; repeat the neural baseline over 2022 and 2023.
+
 ## Session 36, 2026-11-06: milestone 7 (part), prior written up in the paper
 
 Data hosts (Chicago, SF, Austin) were refused by the proxy this session, so no new pull. Done from committed results only: `src/summarise_prior.py` writes `results/permit_prior_table.md` from `results/permit_prior.json`; paper section 4.7 reports the table, the per-type spread (per-type a2i medians 0 to 24 days Chicago, 0 to 533 SF, 15 to 182 Austin) and the two sessions' pre-registered hypotheses; to-do item 5 updated (Austin is in).
