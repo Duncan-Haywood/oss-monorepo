@@ -74,3 +74,13 @@ test("a wing at a different pitch is noted, not counted, in gutters", () => {
   assert.equal(g.runs, 2);
   assert.match(g.wingNotes[0], /own pitch/);
 });
+
+test("splash blocks: none by default, one per downspout when asked, priced", () => {
+  assert.equal(layoutGutters({ waste: 0 }, gable()).splashBlocks, 0);
+  const g = layoutGutters({ waste: 0, splashBlocks: true, splashBlockPrice: 6 }, gable());
+  assert.equal(g.splashBlocks, 4); // same 4 downspouts as the first test
+  assert.equal(g.cost, 24);
+  assert.ok(guttersText(g).join("\n").includes("4 splash blocks"));
+  assert.ok(validateGutters({ splashBlocks: "yes" }).length > 0);
+  assert.ok(validateGutters({ splashBlockPrice: -1 }).length > 0);
+});
