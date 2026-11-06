@@ -438,3 +438,13 @@ test("drip edge nail boxes: only when a box size is typed, boxes round up, by ha
   assert.equal(r({ dripEdgeNailSpacing: 12, dripEdgeNailBox: g.dripEdgeNails - 1 }).dripEdgeNailBoxes, 2);
   assert.equal(r({ dripEdgeNailBox: 100 }).dripEdgeNailBoxes, undefined);
 });
+
+test("roof sheathing nail boxes: typed box size only, whole boxes (hand check)", () => {
+  assert.equal(layoutRoof(sampleRoof(), plan()).sheets.nailBoxes, undefined);
+  const l = layoutRoof({ ...sampleRoof(), sheet: { nailBox: 500 } }, plan());
+  assert.equal(l.sheets.nailBoxes, Math.ceil(l.sheets.nails / 500 - 1e-9));
+  assert.ok(l.notes.some((n) => /nail boxes: \d+ nails in boxes of 500/.test(n)));
+  assert.equal(layoutRoof({ ...sampleRoof(), sheet: { nailBox: 0 } }, plan()).sheets.nailBoxes, undefined);
+  const c = layoutRoof({ ...sampleRoof(), sheet: { nailBox: 500, clips: true } }, plan());
+  assert.ok(c.notes.some((n) => /H-clips/.test(n)) && c.notes.some((n) => /nail boxes/.test(n)));
+});
