@@ -415,3 +415,18 @@ test("subfloor adhesive settings are validated", () => {
   for (const bad of [{ adhesive: "yes" }, { adhesiveTubeOz: 2 }, { adhesiveBead: 3 }, { adhesiveWaste: 0.5 }])
     assert.ok(validateFloor({ ...sampleFloor(), ...bad }, plan()).length > 0, JSON.stringify(bad));
 });
+
+test("subfloor fasteners: count from joist and rim feet, hand-counted, off by default", () => {
+  assert.equal(layoutFloor(sampleFloor(), plan()).fasteners, null);
+  const l = layoutFloor({ ...sampleFloor(), subfloorFasteners: true, fastenerPrice: 30 }, plan());
+  const inches = l.joists.reduce((t, j) => t + j.length, 0) + l.rims.reduce((t, r) => t + r.length, 0);
+  const want = Math.ceil((inches / 8) * 1.05 - 1e-9);
+  assert.equal(l.fasteners.count, want);
+  assert.equal(l.fasteners.boxes, Math.ceil(want / 1000));
+  const line = budget({ floor: l }, {}).lines.find((x) => x.item === "Subfloor fastener boxes");
+  assert.equal(line.qty, l.fasteners.boxes);
+  assert.equal(line.unitPrice, 30);
+  assert.ok(floorText(l).some((t) => t.includes("Fasteners")));
+  for (const bad of [{ subfloorFasteners: 1 }, { fastenerSpacing: 1 }, { fastenerBoxCount: 5 }, { fastenerWaste: 3 }])
+    assert.ok(validateFloor({ ...sampleFloor(), ...bad }, plan()).length > 0, JSON.stringify(bad));
+});
