@@ -14,6 +14,7 @@
 // dormerBoardFoot (price per board foot of dormer framing), dormerRoofSqFt (price per sq ft of dormer roof).
 // nailBox falls back to fasteners.price; insulationBag falls back to the plan's insulation.price; atticFillBag to insulation.attic.price.
 // Flooring (plan `flooring`): plankBox, plankUnderlaymentRoll, floorTile, thinsetBag, groutBag, carpetSqYd, carpetPadSqYd, tackStrip, transitionBar override the flooring settings' own prices; laborFlooringSqFt is per sq ft laid.
+// Paint (plan `paint`): paintGallon, paintPail, primerGallon override the paint settings' own gallonPrice / fivePrice / primerPrice. Fireblocking (plan `fireblock`): fireblockBoard overrides fireblock.boardPrice.
 // Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
 // (`sheathing.summary.cost`) unless `wallSheet` is typed.
 
@@ -117,6 +118,15 @@ export function budget(result, prices = {}, allowances = {}) {
     if (tr.shoeBoards) add("Interior", "Shoe moulding boards", tr.shoeBoards, "boards", P("shoeMoulding") ?? tr.shoePrice, `${tr.shoeFeet.toFixed(0)} ft in ${tr.shoeStock / 12} ft boards`);
     add("Interior", "Casing boards", tr.casingBoards, "boards", P("casing") ?? tr.casingPrice, `${tr.doorFaces} door and ${tr.windowFaces} window faces`);
   }
+  const pt = result.paint;
+  if (pt?.ok) {
+    // Priced from budget names paintGallon / paintPail / primerGallon, else the paint settings' own gallonPrice / fivePrice / primerPrice.
+    if (pt.paintPails) add("Interior", "Paint five-gallon pails", pt.paintPails, "pails", P("paintPail") ?? pt.fivePrice, `${pt.paintGallonsExact.toFixed(2)} gal exact, ${pt.coats} coats at ${pt.coverage} sq ft per gal`);
+    add("Interior", "Paint gallons", pt.paintGallons, "gal", P("paintGallon") ?? pt.gallonPrice, `${pt.paintGallonsExact.toFixed(2)} gal exact for walls${pt.ceilingSqFt ? ", ceilings" : ""}${pt.trimFeet ? " and trim" : ""}`);
+    add("Interior", "Primer gallons", pt.primerGallons, "gal", P("primerGallon") ?? pt.primerPrice, `${pt.primerGallonsExact.toFixed(2)} gal exact, ${pt.primerCoats} coat`);
+  }
+  const fb = result.fireblock;
+  if (fb?.ok && fb.boards) add("Lumber", "Fireblocking boards", fb.boards, "boards", P("fireblockBoard") ?? fb.boardPrice, `${fb.pieces} blocks in ${fb.rowsTotal} rows, ${fb.boardFt}-ft boards packed plus ${(100 * fb.waste).toFixed(0)}% waste`);
   const flr = result.flooring;
   if (flr?.ok) {
     // Prices come from the flooring settings unless a budget price key overrides them. Carpet and pad are per sq yd.
