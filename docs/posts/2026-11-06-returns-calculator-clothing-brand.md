@@ -1,9 +1,9 @@
 ---
 title: "What a clothing order earns after returns: a free calculator for small brands"
-seo_title: "Clothing returns calculator: profit per order after refunds and size swaps"
+seo_title: "Clothing returns calculator: profit per order after refunds"
 date: 2026-11-06
-tags: [clothing-design-studio, ecommerce, calculator]
-description: "Type a price, cost and return rate and see what an online clothing order really earns, the return rate where you stop making money, and the price that holds your profit."
+tags: [clothing-design-studio, ecommerce, calculators]
+description: "Type a price, cost and return rate to see what a clothing order really earns, the break-even return rate, and the price that holds your profit."
 ---
 
 A 50 tee that costs 15 to make, ships for 5 and pays 3% in card fees earns 28.20 an order if nobody sends it back. At a 20% return rate, refunding every return and paying 6 for the label and 2 for handling, it earns 19.60. At 25% returns with a third swapped for another size, the answer changes again, and nobody has the number in their head.
