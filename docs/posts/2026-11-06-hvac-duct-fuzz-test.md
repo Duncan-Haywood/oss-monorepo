@@ -1,6 +1,8 @@
 ---
 title: "Fuzzing the duct counter: 400 invented HVAC jobs, no defect"
-date: 2026-11-07
+date: 2026-11-06
+tags: [wall-framing-takeoff, testing]
+description: "A seeded fuzz test throws 400 invented HVAC jobs, some hostile, at the duct quantity counter. Each is refused with a reason or recounted by hand. No defect."
 ---
 
 The HVAC rough-in tool in wall-framing-takeoff adds up supply and return flex,
