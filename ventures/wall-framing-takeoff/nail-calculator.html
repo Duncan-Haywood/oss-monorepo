@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Framing nail calculator: how many nails and boxes for a wall frame</title>
+  <meta name="description" content="Free framing nail count: type your walls and get nails by connection (studs, jacks, headers, plates, sills) after waste, and boxes and cost. Runs in your browser.">
+  <meta property="og:title" content="Framing nail calculator">
+  <meta property="og:description" content="Walls in, nails by connection and boxes out. Private, free, in your browser.">
+  <link rel="canonical" href="./nail-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many nails does a 20 ft wall with a door and a window plus a 12 ft hall wall need?", "acceptedAnswer": {"@type": "Answer", "text": "Framed at 16 in on centre with 2x4 studs, the two walls come to 326 nails counted: 172 end nails in studs, kings and cripples (2 at each end), 48 face nails joining jacks to kings (12 in apart), 24 at header ends, 26 joining header plies (2 rows at 16 in), 4 at rough sill ends, 25 from the bottom plates to the floor and 27 from the cap plates to the top plates. With 10% waste that is 359 nails to buy, so one 2,500-nail box."}}, {"@type": "Question", "name": "What does that cost, and are these the nail counts my inspector wants?", "acceptedAnswer": {"@type": "Answer", "text": "One box at 45.00 is 45.00. The counts follow typed schedule defaults (two end nails per stud end, plates at 16 in, jacks at 12 in), which are common framing practice and not a code table: your engineer's nailing schedule or your code edition governs, and you change any of the numbers in the fasteners block. Sheathing nails are left out here; the whole-house takeoff counts them when sheathing is on."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Framing nail calculator</h1>
+  <p>Type your walls (length in inches, doors and windows with offset, width, height and header) and the framing nails follow, counted from the studs, kings, jacks, cripples, headers, sills and plates the takeoff actually places, by connection, with waste, boxes and a cost if you type the box size and price. The same fastener engine as the whole-house takeoff. Nail size and type, anchors and sheathing nails are not counted here. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <label for="json">Plan (JSON: walls with id, length, openings with offset, width, height, header; fasteners with studEndNails, plateSpacing, nailsPerBox, price; other plan keys such as studSpacing are optional)</label>
+    <textarea id="json" rows="16" spellcheck="false" style="width:100%;box-sizing:border-box;font:.9rem ui-monospace,monospace;padding:8px">{
+  "walls": [
+    { "id": "front", "length": 240, "openings": [ { "kind": "door", "offset": 100, "width": 36, "height": 82.5, "header": "2x10" }, { "kind": "window", "offset": 170, "width": 48, "height": 48, "header": "2x10" } ] },
+    { "id": "hall", "length": 144, "sheathed": false, "openings": [ { "kind": "door", "offset": 48, "width": 32, "height": 82.5, "header": "2x10" } ] }
+  ],
+  "fasteners": { "nailsPerBox": 2500, "price": 45 }
+}</textarea>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Do the whole house: framing, sheathing, nails, plumbing and more in one takeoff</a></p>
+
+  <h2>How it is counted</h2>
+  <ol>
+    <li><strong>Members first.</strong> The takeoff lays out every stud, king, jack, cripple, header ply, sill and plate for each wall, with openings cut out of the plates.</li>
+    <li><strong>Nails per connection.</strong> Two end nails at each stud end, face nails along plates at 16 in, jacks to kings at 12 in, header plies in two rows at 16 in, and so on, each one a typed setting with a common-practice default; a run gets one nail at each end plus one per spacing.</li>
+    <li><strong>Waste and boxes.</strong> The total plus waste (10% by default) is the order; with <code>nailsPerBox</code> it becomes whole boxes, and with <code>price</code> a cost.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How many nails does a 20 ft wall with a door and a window plus a 12 ft hall wall need?</h3>
+  <p>Framed at 16 in on centre with 2x4 studs, the two walls come to 326 nails counted: 172 end nails in studs, kings and cripples (2 at each end), 48 face nails joining jacks to kings (12 in apart), 24 at header ends, 26 joining header plies (2 rows at 16 in), 4 at rough sill ends, 25 from the bottom plates to the floor and 27 from the cap plates to the top plates. With 10% waste that is 359 nails to buy, so one 2,500-nail box.</p>
+  <h3>What does that cost, and are these the nail counts my inspector wants?</h3>
+  <p>One box at 45.00 is 45.00. The counts follow typed schedule defaults (two end nails per stud end, plates at 16 in, jacks at 12 in), which are common framing practice and not a code table: your engineer's nailing schedule or your code edition governs, and you change any of the numbers in the fasteners block. Sheathing nails are left out here; the whole-house takeoff counts them when sheathing is on.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="paint-calculator.html">Paint calculator (gallons of paint and primer)</a></li><li><a href="fireblock-calculator.html">Fireblocking calculator (blocks and boards for tall wall cavities)</a></li><li><a href="order-by-date-calculator.html">Order-by date calculator (when to order long-lead items)</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator (receptacle and switch boxes, cable)</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator (tiles, backer board, membrane)</a></li><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity (what a lumber or labor swing does to the bid)</a></li><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li><li><a href="drywall-calculator.html">Drywall calculator (sheets, tape, compound)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, carpet)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Nail counts follow typed common-practice defaults, not a code table, and the output is not checked against any span table or code, any nailing schedule, or a plan. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, nail maker, builder or software company. Nail size and type, anchors, hardware, sheathing nails and the shear capacity of any connection are not counted or checked. Ask your engineer for the nailing schedule.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { takeoff, samplePlan } from "./engine.mjs";
+    import { layoutFasteners, fastenerText } from "./fasteners.mjs";
+    const $ = (id) => document.getElementById(id);
+    const run = () => {
+      let d;
+      try { d = JSON.parse($("json").value); } catch (e) { $("out").textContent = "That is not valid JSON: " + e.message; return; }
+      if (d == null || typeof d !== "object" || Array.isArray(d)) { $("out").textContent = "The plan is an object with a walls list."; return; }
+      const plan = { ...samplePlan(), ...d };
+      const r = takeoff(plan);
+      if (!r.ok) { $("out").textContent = r.errors.join("
+"); return; }
+      const f = layoutFasteners(d.fasteners || {}, plan, r);
+      $("out").textContent = f.ok === false ? f.errors.join("
+") : fastenerText(f).join("
+");
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>
