@@ -1,6 +1,8 @@
 ---
 title: "Fuzzing the HVAC, plumbing and wall-tile takeoffs"
 date: 2026-11-06
+tags: [wall-framing-takeoff, testing, construction]
+description: "Random-input property tests now cover the HVAC, plumbing and wall-tile takeoffs, which had only hand-counted tests until today."
 ---
 
 The three newest rough-in modules in wall-framing-takeoff had only hand-counted
