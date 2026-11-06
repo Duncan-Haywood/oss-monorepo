@@ -300,6 +300,15 @@ export function detectColumns(header) {
     const p = ["product name", "product", "variant name", "identifier"].find((k) => h.includes(k));
     cols.desc = p ? h.indexOf(p) : h.indexOf("order number");
   }
+  // Creator-support exports (Buy Me a Coffee style: Transaction ID, Date, Supporter Name, Supporter Email,
+  // Item, Amount, Currency, Fee, Net, Status): the supporter's name and email are personal data, so the
+  // description is the item or type, never the person; refunded rows are skipped, not booked as income.
+  // Header from memory; made-up rows only.
+  if (h.includes("supporter name") && h.includes("amount") && (h.includes("date") || h.includes("created at"))) {
+    const p = ["item", "type", "product", "membership", "tier"].find((k) => h.includes(k));
+    cols.desc = p ? h.indexOf(p) : -1;
+    cols.skipRefunds = true;
+  }
   // Paytm's wallet statement (Date, Activity, Source/Destination, Wallet Txn ID,
   // Comment, Debit, Credit, ..., Status): the activity is the description.
   if (cols.desc === -1 && h.includes("activity") && h.includes("wallet txn id")) cols.desc = h.indexOf("activity");
@@ -1009,7 +1018,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       if (/^(you (bought|sold)|reinvestment)\b/i.test(String(r[actionCol] ?? "").trim())) { tradesSkipped++; continue; }
     }
     if (stateCol !== -1 && !okState.test(String(r[stateCol] ?? "").trim())) { problems.push(`Line ${i + 1}: state ${String(r[stateCol] ?? "").trim() || "blank"}, not a completed transaction, skipped.`); continue; }
-    if (columns.minor && anyState !== -1 && /^(refunded|partial refund|partially refunded)$/i.test(String(r[anyState] ?? "").trim())) { problems.push(`Line ${i + 1}: order ${String(r[anyState]).trim()}; book the refund from the payout, row skipped.`); continue; }
+    if ((columns.minor || columns.skipRefunds) && anyState !== -1 && /^(refunded|partial refund|partially refunded)$/i.test(String(r[anyState] ?? "").trim())) { problems.push(`Line ${i + 1}: order ${String(r[anyState]).trim()}; book the refund from the payout, row skipped.`); continue; }
     if (anyState !== -1 && NOT_BOOKED.test(String(r[anyState] ?? "").trim())) { problems.push(`Line ${i + 1}: status ${String(r[anyState]).trim()}, not a booked transaction, skipped.`); continue; }
     // German and Italian "Valuta" is often the value date; only a three-letter code counts as a currency.
     if (curCol !== -1 && /^[a-z]{3}$/i.test(String(r[curCol] ?? "").trim())) currencies.add(r[curCol].trim().toUpperCase());
