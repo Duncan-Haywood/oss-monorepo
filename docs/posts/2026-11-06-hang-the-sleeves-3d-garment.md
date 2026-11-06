@@ -1,6 +1,6 @@
 ---
 title: "Letting the sleeves hang: a 3D garment preview that looks like a shirt"
-seo_title: "3D clothing preview in the browser: hanging sleeves on a flat garment mesh"
+seo_title: "3D clothing preview in the browser with hanging sleeves"
 date: 2026-11-06
 tags: [clothing-design-studio, webgl, 3d]
 description: "How the free Clothing Design Studio turns a flat garment drawing into a 3D preview with sleeves that hang, without moving the artwork."
