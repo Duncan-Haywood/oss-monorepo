@@ -5,12 +5,12 @@
   "chicago": {
    "dataset": "ydr8-5enu",
    "host": "data.cityofchicago.org",
-   "rows": 852332,
-   "applied": 851983,
-   "issued": 852332,
+   "rows": 852489,
+   "applied": 852140,
+   "issued": 852489,
    "completed": 0,
-   "cost": 813789,
-   "both_applied_issued": 851983,
+   "cost": 813926,
+   "both_applied_issued": 852140,
    "negative_issue_lag": 81,
    "negative_build_time": 0
   },
@@ -29,12 +29,12 @@
   "austin": {
    "dataset": "3syk-w9eu",
    "host": "data.austintexas.gov",
-   "rows": 2383942,
-   "applied": 2383913,
-   "issued": 2383942,
-   "completed": 2185057,
-   "cost": 1190347,
-   "both_applied_issued": 2383913,
+   "rows": 2384199,
+   "applied": 2384170,
+   "issued": 2384199,
+   "completed": 2185245,
+   "cost": 1190388,
+   "both_applied_issued": 2384170,
    "negative_issue_lag": 860,
    "negative_build_time": 3533
   }
