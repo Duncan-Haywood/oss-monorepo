@@ -1,5 +1,13 @@
 # build-data log
 
+## Session 39, 2026-11-06: milestone 27 (part), three-year neural comparison written up from committed results
+
+Hypothesis (before the aggregation): across all 45 cells (5 pairs x 3 quantiles x 2022-2024) the neural net is within 3% of boosted in at least 42, and the mean relative difference is within +/-1%.
+Done: no new pull (no data run needed). `src/summarise_neural.py` + `tests/test_summarise_neural.py`, `results/neural_vs_boosted_table.md`, paper section 4.6a, limitations line updated.
+Outcome: 43 of 45 within 3%, neural ahead in 18, mean +0.22%. Hypothesis holds. Per year within 3%: 14, 15, 14 of 15; neural ahead: 9, 6, 3 of 15 (2022 to 2024), a decline that is not tested and may be noise.
+Limits: aggregation only, no bootstrap interval on the difference; one untuned architecture.
+Next: publish boosted quantile tables for `ventures/`; a paired bootstrap on neural minus boosted.
+
 ## Session 38, 2026-11-06: milestone 27 (part), neural baseline over test years 2022 and 2023
 
 Hypothesis (stated in the session 33 next-step, written into the log only after the run): the small embedding MLP stays within 3% of the boosted pinball in every cell in 2022 and 2023, as in 14 of 15 cells in 2024, and is not better than boosted.

@@ -199,6 +199,10 @@ An embedding MLP (two hidden layers of 128, three monotone quantile outputs trai
 
 The neural net is within 3% of the boosted model in 14 of 15 cells (the exception is SF a2i q0.9, +5.9%) and ahead only at Chicago q0.9 (where the boosted model is itself worse than the empirical baseline) and in two Austin i2c cells that are ties. It keeps most of the boosted gain over the baseline (for example Austin a2i q0.9: boosted -36%, neural -35%), so the proposal's comparison closes without changing the H1 reading: gradient boosting is not beaten by a small neural net on these tabular fields. Limits: one architecture and learning rate, no tuning, 3 seeds, one test year; the neural quantile outputs are strictly positive, so its own raw 80% interval misses every same-day permit (coverage 0.30 in SF a2i, 0.53 in Chicago a2i) and is not comparable to the boosted interval without rounding; its same-day Brier is slightly worse than the boosted one (the head is trained at weight 0.1 and is not used to stop). Intervals for the pinball differences against the baseline are in the result files. The hypothesis (neural within 3% of boosted at each level) was held in the author's head, not written to the log, before the first run.
 
+### 4.6a The neural comparison over three test years
+
+The same MLP and split were rerun for test years 2022 and 2023 (`LOG.md`, session 38; `../results/neural_*_2022.json`, `*_2023.json`; the table is `../results/neural_vs_boosted_table.md`, made by `python3 src/summarise_neural.py`). Neural pinball relative to boosted, over all 45 city/target/quantile/year cells: within 3% in 43 (14 of 15 in 2022, 15 of 15 in 2023, 14 of 15 in 2024), neural ahead in 18, mean difference +0.22%. The two misses are Austin i2c q0.9 in 2022 (neural 4.3% better) and SF a2i q0.9 in 2024 (neural 5.9% worse). The pre-stated "not better than boosted" half failed in 2022 (neural ahead in 9 of 15), so we read the two families as tied on these fields, not boosting as ahead; the 4.6 sentence that boosting is "not beaten" holds only in that sense. Limits: one untuned architecture, 3 seeds, no bootstrap interval on the neural-minus-boosted difference, and "within 3%" is a convention.
+
 ### 4.7 The published permit-duration prior (milestone 7)
 
 The descriptive reference class behind the baseline is published as a data file for downstream tools (`../results/permit_prior.json`, `../results/permit_prior_table.md`; `python3 src/prior.py DIR --years 2022 2023 2024`, `python3 src/summarise_prior.py`; `../LOG.md`, sessions 34 and 35). It holds, per city, target and permit type, the type-7 q10/q50/q90 and the same-day share over 2022 to 2024 (start year is the application date for a2i, the issue date for i2c); types under 30 rows are folded into the all-types row, not dropped.
@@ -243,7 +247,7 @@ boosted model on the local rows alone is as good or better than pooling at every
 
 ## 5 Limitations
 
-One test year (2024) for H1, H3, H4, H5; three seeds (two for conformal); one fixed
+One test year (2024) for H3, H4, H5 (H1 and the neural comparison also run for 2022 and 2023); three seeds (two for conformal); one fixed
 configuration per library (defaults, untuned); the neural net (4.6) is one untuned architecture; the
 harmonised class map is a keyword rule not validated against hand labels; Chicago
 is survivorship-biased and has no i2c; "completed" is a status date; the spread over
