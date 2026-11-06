@@ -8,7 +8,7 @@
  * pushed out of the plane by a rounded profile of its distance from the edge,
  * z = sqrt(d (2R - d)). The front drawing is mapped on the front surface and the
  * back drawing on the back, so artwork sits where the designer put it and turns
- * with the garment. It has no drape, seams, gathers or true sleeve tubes, and it
+ * with the garment. It has no drape, seams or gathers (sleeves are round tubes, `sleeveTubes`), and it
  * is not a fit check or a pattern. Real cloth simulation and body models are the
  * next step in ROADMAP.md.
  */
@@ -93,6 +93,36 @@ export function dropArm(x, y, drop) {
 }
 
 /**
+ * Sleeve tubes: beyond the body columns a sleeve is a cylinder, not a pillow.
+ * In each column the deepest inside distance is the sleeve's half-width h (in
+ * cells); the profile there becomes a circle of radius h, z = sqrt(d (2h - d)),
+ * so the cross-section is round and as deep as the sleeve is wide. It is blended
+ * in with the same band as the arm swing, so the body keeps its pillow and no seam
+ * tears. Changes `zs` in place; returns the largest sleeve depth in drawing units.
+ */
+export function sleeveTubes(zs, dist, g, box = VIEWBOX) {
+  const { vcols: W, vrows: H, v, cell } = g;
+  let deepest = 0;
+  for (let i = 0; i < W; i++) {
+    const dx0 = box.x + i * cell - ARM.centre;
+    const w = smoothstep((Math.abs(dx0) - ARM.bodyHalf) / ARM.blend);
+    if (!w) continue;
+    let h = 0;
+    for (let j = 0; j < H; j++) if (v[j * W + i]) h = Math.max(h, dist[j * W + i]);
+    if (!h) continue;
+    for (let j = 0; j < H; j++) {
+      const k = j * W + i;
+      if (!v[k]) continue;
+      const d = Math.min(dist[k], h);
+      const tube = cell * Math.sqrt(Math.max(0, d * (2 * h - d)));
+      zs[k] = zs[k] * (1 - w) + tube * w;
+      if (w === 1) deepest = Math.max(deepest, zs[k]);
+    }
+  }
+  return deepest;
+}
+
+/**
  * Build the mesh. Returns flat typed arrays:
  *   positions (x, y, z) centred on the drawing's middle, y up, z toward the viewer
  *   uvs, normals, indices (Uint32), and the counts.
@@ -103,12 +133,13 @@ export function dropArm(x, y, drop) {
  * Front vertices come first, then back. The back's u is mirrored so the back
  * drawing reads correctly seen from behind.
  */
-export function buildGarmentMesh(inside, { cell = 4, radius = 105, thickness = 58, box = VIEWBOX, armDrop = 0 } = {}) {
+export function buildGarmentMesh(inside, { cell = 4, radius = 105, thickness = 58, box = VIEWBOX, armDrop = 0, tubes = true } = {}) {
   const g = maskGrid(inside, { cell, box });
   const { vcols: W, vrows: H, v } = g;
   const dist = edgeDistance(g);
   let zs = new Float32Array(W * H);
   for (let k = 0; k < zs.length; k++) zs[k] = v[k] ? height(dist[k], cell, radius, thickness) : 0;
+  if (tubes) sleeveTubes(zs, dist, g, box);
   zs = smooth(zs, W, H, v);
   const n = W * H;
   const positions = new Float32Array(n * 6);
