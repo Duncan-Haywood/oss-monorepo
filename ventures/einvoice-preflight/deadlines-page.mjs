@@ -64,7 +64,7 @@ ${style}
 <h1>E-invoicing deadlines to the end of 2027</h1>
 <p class="lede">${list.length} dated milestones in ${countries.size} countries, from ${human(FROM)} on, in date order. Pulled from the same table as the <a href="e-invoicing-mandates-by-country.html">mandates hub</a>, so the two cannot disagree.</p>
 </header>
-<p class="fine">Track them: <a href="mandate-calendar.ics">subscribe to the calendar (.ics)</a> or read the <a href="mandate-dates.json">JSON</a>. Only full day-month-year dates are listed. Rules that start in a month or a year without a day (Germany's 2027 and 2028 issuing steps, for one) are in the <a href="e-invoicing-mandates-by-country.html">hub table</a> and on each country page.</p>
+<p class="fine">Track them: <a href="mandate-calendar.ics">subscribe to the calendar (.ics)</a> or read the <a href="mandate-dates.json">JSON</a>. Only full day-month-year dates are listed. Rules that start in a month or a year without a day are in the <a href="e-invoicing-mandates-by-country.html">hub table</a> and on each country page.</p>
 ${sections}
 <section>
 <h2>Test a file before your date arrives</h2>
