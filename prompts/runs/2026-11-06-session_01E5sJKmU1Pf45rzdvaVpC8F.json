@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13647",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,21 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post or flagship next: rewrite: run was a small test-only slice.",
+      "did": "README line only",
+      "result": "landed small"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Added orderby-fuzz.test.mjs; passes locally. CI not awaited.",
   "corrections": [],
   "redteam": null
 }
