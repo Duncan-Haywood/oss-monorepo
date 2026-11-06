@@ -1550,3 +1550,18 @@ Not done: no model with a slow return (an AR(1) around a level, with steps) is f
 - `--ar1` is the same trade as the Australian arrivals: it drops the false alarms and also the real 1973 shock.
 - Nothing cuts 1964Q1, the jump from 57 to 80 after the Kennedy assassination: the rally decays within a year, so it reads as a spike, not a step (flagship item 4 again).
 - Wanted: the approval series at monthly resolution, where the 1964 rally is longer.
+
+## Lakes Michigan-Huron: a fall to a new, lower level (2026-11-06)
+
+`data/michigan-huron.csv` is the yearly mean level of Lakes Michigan-Huron, 1918-2009, 92 rows, metres (DAAG `greatLakes`; `michigan-huron.test.mjs`, 3 tests). The lake fell from 176.98 m in 1997 to 175.95 m in 2001 and has stayed low since, a documented drop. The series is nearly a random walk (lag-1 rho about 0.9). Run 2026-11-06, no tuning:
+
+| Setup | Cuts |
+|---|---|
+| Defaults | 12, including 1999 (the others: 1923, 1928, 1931, 1942, 1951, 1956, 1963, 1966, 1969, 1985, 1988) |
+| `--bootstrap` | 9, including 1999 |
+| `--ar1` | none |
+| `--model meanvar` | 2: 1969, 1999 (range for 1999: 1999 to 2000) |
+
+- The same trade as Lake Huron: the default finds the real fall but also cuts the slow swings, `--ar1` removes all of it including the real fall, and the rho warning fires.
+- `meanvar` is the tidiest here, but its own warning says the leftover has autocorrelation (lag 1: 0.61) and clustered volatility, so 1969 is a candidate, not a finding.
+- Wanted: a lake-level series with a documented step that `--ar1` keeps (flagship item 0, 4b).
