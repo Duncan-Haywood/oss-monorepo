@@ -77,14 +77,33 @@ export function smooth(zs, W, H, v, passes = 2) {
   return a;
 }
 
+/** Body half-width, shoulder point and blend band of the drawn garments (drawing units). */
+export const ARM = Object.freeze({ bodyHalf: 153, blend: 55, shoulderX: 138, shoulderY: 62, centre: 250 });
+const smoothstep = t => { const c = Math.max(0, Math.min(1, t)); return c * c * (3 - 2 * c); };
+
+/** Where a drawing point goes when the arms drop by `drop` radians; returns [x, y, angle, side]. */
+export function dropArm(x, y, drop) {
+  const dx0 = x - ARM.centre, side = dx0 < 0 ? -1 : 1;
+  const w = smoothstep((Math.abs(dx0) - ARM.bodyHalf) / ARM.blend);
+  const a = drop * w;
+  if (!a) return [x, y, 0, side];
+  const dx = side * dx0 - ARM.shoulderX, dy = y - ARM.shoulderY;
+  const c = Math.cos(a), s = Math.sin(a);
+  return [ARM.centre + side * (ARM.shoulderX + dx * c - dy * s), ARM.shoulderY + dx * s + dy * c, a, side];
+}
+
 /**
  * Build the mesh. Returns flat typed arrays:
  *   positions (x, y, z) centred on the drawing's middle, y up, z toward the viewer
  *   uvs, normals, indices (Uint32), and the counts.
+ * `armDrop` (radians, 0 = flat T as drawn) lets the sleeves hang: vertices
+ * beyond the body columns swing down and in about the shoulder point, with the
+ * angle fading in over `ARM_BLEND` so the armpit seam never tears. Only
+ * positions and normals move; uvs keep the drawing, so artwork stays put.
  * Front vertices come first, then back. The back's u is mirrored so the back
  * drawing reads correctly seen from behind.
  */
-export function buildGarmentMesh(inside, { cell = 4, radius = 105, thickness = 58, box = VIEWBOX } = {}) {
+export function buildGarmentMesh(inside, { cell = 4, radius = 105, thickness = 58, box = VIEWBOX, armDrop = 0 } = {}) {
   const g = maskGrid(inside, { cell, box });
   const { vcols: W, vrows: H, v } = g;
   const dist = edgeDistance(g);
@@ -99,8 +118,9 @@ export function buildGarmentMesh(inside, { cell = 4, radius = 105, thickness = 5
   const zAt = (i, j) => (i < 0 || j < 0 || i >= W || j >= H ? 0 : zs[j * W + i]);
   for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
     const k = j * W + i;
-    const x = box.x + i * cell, y = box.y + j * cell;
-    const u = (x - box.x) / box.width, vv = (y - box.y) / box.height;
+    const x0 = box.x + i * cell, y0 = box.y + j * cell;
+    const [x, y, ang, sd] = armDrop ? dropArm(x0, y0, armDrop) : [x0, y0, 0, 1];
+    const u = (x0 - box.x) / box.width, vv = (y0 - box.y) / box.height;
     // normal from the height field: (-dz/dx, -dz/dy, 1) with y flipped to y-up
     const dzdx = (zAt(i + 1, j) - zAt(i - 1, j)) / (2 * cell);
     const dzdy = (zAt(i, j + 1) - zAt(i, j - 1)) / (2 * cell);
@@ -110,7 +130,12 @@ export function buildGarmentMesh(inside, { cell = 4, radius = 105, thickness = 5
       positions[o * 3] = x - cx;
       positions[o * 3 + 1] = -(y - cy);
       positions[o * 3 + 2] = s * zs[k];
-      const nx = -dzdx * s, ny = dzdy * s, nz = s;  // y-up flips dzdy's sign
+      let nx = -dzdx * s, ny = dzdy * s;
+      const nz = s;  // y-up flips dzdy's sign
+      if (ang) {  // the same swing as the position (y-up: the drawing's clockwise is anticlockwise here)
+        const c = Math.cos(ang), sn = Math.sin(ang), mx = nx * sd;
+        nx = sd * (mx * c + ny * sn); ny = -mx * sn + ny * c;
+      }
       const len = Math.hypot(nx, ny, nz) || 1;
       normals[o * 3] = nx / len; normals[o * 3 + 1] = ny / len; normals[o * 3 + 2] = nz / len;
       uvs[o * 2] = side ? 1 - u : u;

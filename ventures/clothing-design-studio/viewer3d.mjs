@@ -73,7 +73,7 @@ export function mountViewer(host, { size = 1024 } = {}) {
     if (meshKey === garmentId) return;
     meshKey = garmentId;
     const path = new Path2D(GARMENTS[garmentId].outline.front);
-    const m = buildGarmentMesh((x, y) => mask.isPointInPath(path, x, y));
+    const m = buildGarmentMesh((x, y) => mask.isPointInPath(path, x, y), { armDrop: 0.3 });
     upload("p", m.positions); upload("n", m.normals); upload("t", m.uvs);
     upload("i", m.indices, gl.ELEMENT_ARRAY_BUFFER);
     count = m.indices.length; frontCount = m.frontCount; state.triangles = m.triangleCount;
