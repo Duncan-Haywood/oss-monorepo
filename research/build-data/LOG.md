@@ -1,5 +1,11 @@
 # build-data log
 
+## Session 41, 2026-11-06: paper housekeeping (no data run: all three feed hosts refused by the proxy)
+
+Probed data.cityofchicago.org, data.sf.gov, data.sfgov.org and data.austintexas.gov: every one returned CONNECT 403, so no pull and **no number changed**.
+Done: section 4.7 moved after 4.5 so the results sections run in order; to-do item 4 was stale (H1 already runs over 2022 to 2024) and now names the open item, the per-permit paired bootstrap on neural minus boosted, which needs saved predictions and fresh pulls.
+Next: that bootstrap on a network that reaches the feeds; boosted quantile tables for `ventures/`.
+
 ## Session 40, 2026-11-06: milestone 27 (part), sign test and bootstrap on the neural-versus-boosted cells
 
 Hypothesis (before running): the mean difference over 45 cells has a 95% bootstrap interval containing 0, and the 2024 deficit (neural ahead in 3 of 15) is not separable from chance at p < 0.05.
