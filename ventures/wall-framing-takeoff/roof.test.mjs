@@ -398,3 +398,14 @@ test("pipe boots: the typed count plus one spare, nothing when not typed", () =>
   assert.equal(layoutRoof(hipRoof({ roofing: { pipeBoots: 2 } }), plan()).roofing.pipeBoots, 3);
   assert.equal(layoutRoof({ ...sampleRoof(), roofing: { pipeBoots: 2.5 } }, plan()).roofing.pipeBoots, undefined);
 });
+
+test("ridge cap and starter nails by hand, opt-in", () => {
+  const base = layoutRoof(sampleRoof(), plan());
+  const l = layoutRoof({ ...sampleRoof(), roofing: { capNailsPerFoot: 4, starterNailsPerFoot: 2 } }, plan());
+  const r = base.roofing, w = r.nails === base.roofing.nails ? 1.1 : 1.1;
+  const cap = Math.ceil(r.ridgeFeet * 4 * w - 1e-9), st = Math.ceil(r.eaveFeet * 2 * w - 1e-9);
+  assert.equal(l.roofing.capNails, cap);
+  assert.equal(l.roofing.starterNails, st);
+  assert.equal(l.roofing.nails, r.nails + cap + st);
+  assert.equal(base.roofing.capNails, undefined);
+});
