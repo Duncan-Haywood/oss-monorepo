@@ -25,6 +25,18 @@
    "both_applied_issued": 1233017,
    "negative_issue_lag": 2257,
    "negative_build_time": 736
+  },
+  "austin": {
+   "dataset": "3syk-w9eu",
+   "host": "data.austintexas.gov",
+   "rows": 2383942,
+   "applied": 2383913,
+   "issued": 2383942,
+   "completed": 2185057,
+   "cost": 1190347,
+   "both_applied_issued": 2383913,
+   "negative_issue_lag": 860,
+   "negative_build_time": 3533
   }
  }
 }

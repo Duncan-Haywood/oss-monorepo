@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01AcxTtKJhuEUZ7FUzu2rKHC",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T10:38:32Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13541",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/build-data/LOG.md",
+      "issue": "Session 33 hypothesis was not written to the log before the run, so session 38 repeats it as a retroactive statement."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-06-permit-neural-vs-boosted-three-years.md",
+    "research/build-data/LOG.md session 38"
+  ],
+  "goal": null,
+  "notes": "Neural baseline for 2022 and 2023 on fresh pulls, 3 seeds. Not run: unit tests (src/neural.py unchanged); homepage build.py not run.",
+  "corrections": [],
+  "redteam": null
+}
