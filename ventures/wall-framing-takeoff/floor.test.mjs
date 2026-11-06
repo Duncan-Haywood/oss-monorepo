@@ -430,3 +430,27 @@ test("subfloor fasteners: count from joist and rim feet, hand-counted, off by de
   for (const bad of [{ subfloorFasteners: 1 }, { fastenerSpacing: 1 }, { fastenerBoxCount: 5 }, { fastenerWaste: 3 }])
     assert.ok(validateFloor({ ...sampleFloor(), ...bad }, plan()).length > 0, JSON.stringify(bad));
 });
+
+test("framing nails: joist-end and rim counts hand-counted on a plain floor, off unless typed", () => {
+  assert.equal(layoutFloor(sampleFloor(), plan()).framingNails, null);
+  const l = layoutFloor({ ...sampleFloor(), joistEndNails: 3, rimNailSpacing: 16, joistNailPrice: 12 }, plan());
+  const pieces = l.joists.filter((j) => !j.header).length;
+  assert.equal(l.hangers.count, 0);
+  assert.equal(l.framingNails.bearingEnds, 2 * pieces);
+  assert.equal(l.framingNails.endNails, 6 * pieces);
+  assert.equal(l.framingNails.rimNails, l.rims.reduce((t, r) => t + Math.ceil(r.length / 16 - 1e-9), 0));
+  assert.equal(l.framingNails.boxes, Math.ceil(l.framingNails.count / 1000));
+  const line = budget({ floor: l }, {}).lines.find((x) => x.item === "Joist and rim nail boxes");
+  assert.equal(line.qty, l.framingNails.boxes);
+  assert.equal(line.unitPrice, 12);
+  for (const bad of [{ joistEndNails: 2.5 }, { joistEndNails: 40 }, { rimNailSpacing: 1 }, { joistNailBoxCount: 5 }])
+    assert.ok(validateFloor({ ...sampleFloor(), ...bad }, plan()).length > 0, JSON.stringify(bad));
+});
+
+test("framing nails: tail joist ends in hangers are not counted as bearing ends", () => {
+  const f = { ...sampleFloor(), openings: [{ x: 96, y: 96, width: 48, depth: 48 }], joistEndNails: 3 };
+  const l = layoutFloor(f, plan());
+  assert.ok(l.ok, JSON.stringify(l.errors));
+  assert.ok(l.hangers.tail > 0);
+  assert.equal(l.framingNails.bearingEnds, 2 * l.joists.filter((j) => !j.header).length - l.hangers.tail);
+});
