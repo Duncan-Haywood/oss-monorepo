@@ -46,3 +46,15 @@ test("bad input is refused with a reason", () => {
   assert.ok(validatePlumbing({ fixtures: [null] }).length);
   assert.equal(layoutPlumbing(null).ok, false);
 });
+
+test("supports: opt-in, typed spacing, round up, priced", () => {
+  const f = [{ id: "x", drainFt: 10, ventFt: 5, hotFt: 7, coldFt: 8 }];
+  const off = layoutPlumbing({ fixtures: f });
+  assert.equal(off.hangers, 0); assert.equal(off.straps, 0);
+  // 15 ft / 4 ft = 3.75 -> 4 hangers; 15 ft / 2.5 ft = 6 straps exactly
+  const r = layoutPlumbing({ fixtures: f, drainHangerSpacingFt: 4, supplyStrapSpacingFt: 2.5, hangerPrice: 2, strapPrice: 0.5 });
+  assert.equal(r.hangers, 4); assert.equal(r.straps, 6);
+  assert.ok(r.cost >= 4 * 2 + 6 * 0.5);
+  assert.ok(plumbingText(r).join("\n").includes("4 drain hangers"));
+  assert.ok(validatePlumbing({ fixtures: f, drainHangerSpacingFt: 0.1 }).length);
+});
