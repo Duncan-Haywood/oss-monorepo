@@ -1,9 +1,9 @@
 ---
 title: "Does a 19% angle-of-attack gain error break fitting a UAV's flight modes?"
-seo_title: "UAV angle-of-attack probe gain and offset error vs system identification"
+seo_title: "UAV angle-of-attack probe gain and offset vs system ID"
 date: 2026-11-06
 tags: [aerolog-scaling, uav, system-identification]
-description: "A simulated fit of a small cargo UAV's phugoid and short-period modes survives the CFD-derived alpha-probe error of gain 1.19 plus 0.6 degrees, if the fit carries a bias term."
+description: "A simulated fit of a small UAV's flight modes survives a CFD-derived alpha-probe error (gain 1.19, offset 0.6 deg) if the fit has a bias term."
 ---
 
 A small-UAS angle-of-attack probe reads high: Sasse et al. (AIAA SciTech 2022, CFD, a blended wing body) give perceived alpha = 1.19 x true + 0.596 degrees. Does that break identifying a scaled-model's flight modes from a short record?
