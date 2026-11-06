@@ -1,9 +1,9 @@
 ---
 title: "Sail or solar for an ocean drone: in July the answer is a band, not a number"
-seo_title: "Wind vs solar for autonomous ocean vehicles: how much light-air sailing is real?"
+seo_title: "Wind vs solar for ocean drones: how real is light-air sailing?"
 date: 2026-11-06
 tags: [marine-hull, research, autonomy]
-description: "A model of a sailing ocean drone gets 0.71 to 0.93 times the distance of a solar one in July, and 1.4 to 1.5 times in January, once drift is kept out of the sail credit."
+description: "A sailing ocean drone covers 0.71 to 0.93 times a solar one's distance in July and 1.4 to 1.5 times in January, once drift is kept out of the sail credit."
 ---
 
 Would a small sailing drone cover more sea per day than a solar-electric one? Using 19 buoy-months of real NDBC wind and a drone model checked against 864 fielded Saildrone days, January is clear: sail beats the solar ceiling (86 km/day) by 1.40 to 1.47 times, however light-air hours are treated.
