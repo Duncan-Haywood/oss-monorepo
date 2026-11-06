@@ -1,6 +1,6 @@
 ---
 title: "Type your clothing costs once, not five times"
-seo_title: "Clothing brand launch planner: one cost sheet feeds cash flow, pre-orders and wholesale"
+seo_title: "Clothing launch planner: one cost sheet feeds every planner"
 date: 2026-11-06
 tags: [clothing-design-studio, launch-planning, cash-flow]
 description: "The free Clothing Design Studio now passes a design's landed cost, price and lead time to its cash-flow, pre-order, wholesale, reorder and schedule planners."
