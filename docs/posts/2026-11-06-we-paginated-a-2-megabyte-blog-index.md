@@ -2,7 +2,7 @@
 title: "We split a 2.3 MB blog index into 41 pages of 75 kB"
 seo_title: "How to paginate a huge static blog index without losing search"
 date: 2026-11-06
-tags: [performance, site, static-sites]
+tags: [performance, site, static-site]
 description: "The writing index listed 2,484 posts on one page. Numbered pages cut it to 75 kB, and search still covers every post by fetching one JSON file on demand."
 ---
 
