@@ -15,6 +15,7 @@ are not checked here: open them.
 import json
 import re
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -33,10 +34,20 @@ def extract(text):
     return uniq(DOI.findall(text)), uniq(ARXIV.findall(text))
 
 
+RETRY_CODES = (429, 503)
+BACKOFF = (2, 5, 12)  # seconds before each retry; Crossref 429s clear within a few seconds
+
+
 def _get(url):
     req = urllib.request.Request(url, headers={"User-Agent": "oss-monorepo-cite-check (research)"})
-    with urllib.request.urlopen(req, timeout=20) as r:
-        return r.read().decode("utf-8", "replace")
+    for delay in (*BACKOFF, None):
+        try:
+            with urllib.request.urlopen(req, timeout=20) as r:
+                return r.read().decode("utf-8", "replace")
+        except urllib.error.HTTPError as e:
+            if e.code not in RETRY_CODES or delay is None:
+                raise
+            time.sleep(delay)
 
 
 def lookup_datacite(doi):
