@@ -274,7 +274,7 @@ async function runFinder(search, { selectedIndex = 0 } = {}) {
   const li = (slug, text) => ({ dataset: { slug, text, tags: 'a b', topic: 't', date: '2026-01-01', mins: '1' }, hidden: false });
   const items = [li('x', 'alpha'), li('y', 'beta')];
   const el = () => ({ value: '', hidden: true, textContent: '', dataset: {}, addEventListener() {}, setAttribute() {}, focus() {} });
-  const els = { posts: { children: items, appendChild() {} }, q: el(), tag: { ...el(), selectedIndex }, sort: el(), count: el(), none: el(), clear: el(), finder: el() };
+  const els = { posts: { children: items, replaceChildren() {} }, more: el(), q: el(), tag: { ...el(), selectedIndex }, sort: el(), count: el(), none: el(), clear: el(), finder: el() };
   const ctx = {
     document: { getElementById: (id) => els[id], querySelectorAll: () => [] },
     location: { search, pathname: '/writing/' },
@@ -324,4 +324,46 @@ test('a long "Claim: detail" headline with no seo_title gets the clean cut autom
   assert.equal(autoSeoTitle(t), 'Why the flooring budget is wrong by a wide margin');
   assert.equal(autoSeoTitle('A headline that is long and has no colon or question mark anywhere in it at all'), undefined);
   assert.equal(autoSeoTitle('Short: but the head is under the minimum length floor and the rest is long enough'.replace('Short', 'Tiny')), undefined);
+});
+
+test('past 60 posts the index is numbered pages: each under budget, linked both ways, every post on exactly one', async () => {
+  const files = {};
+  for (let i = 1; i <= 130; i++) {
+    const day = String(1 + (i % 28)).padStart(2, '0');
+    files[`2026-09-${day}-post-${i}.md`] = post(`Post ${i}`, `2026-09-${day}`);
+  }
+  const root = repoWith(files);
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-paged-'));
+  const slugs = await buildWriting(out, BASE, { root });
+  const pages = slugs.filter((s) => s.startsWith('page/'));
+  assert.deepEqual(pages, ['page/2', 'page/3']);
+  const seen = new Map();
+  for (const rel of ['index.html', 'page/2/index.html', 'page/3/index.html']) {
+    const html = await fs.readFile(path.join(out, WRITING_PATH, rel), 'utf8');
+    assert.ok(html.length < 150_000, rel);
+    for (const m of html.matchAll(/<li data-slug="([^"]+)"/g)) seen.set(m[1], (seen.get(m[1]) || 0) + 1);
+    // Every page number is a link from every page (two clicks to any post).
+    assert.match(html, /<ol>/);
+    assert.match(html, /name="viewport"/);
+  }
+  assert.equal(seen.size, 130);
+  assert.ok([...seen.values()].every((n) => n === 1));
+  const two = await fs.readFile(path.join(out, WRITING_PATH, 'page/2/index.html'), 'utf8');
+  assert.match(two, /<link rel="canonical" href="https:\/\/[^"]*writing\/page\/2\/">/);
+  assert.match(two, /rel="prev" href="[^"]*writing\/"/);
+  assert.match(two, /rel="next" href="[^"]*writing\/page\/3\/"/);
+  assert.match(two, /href="\.\.\/\.\.\/post-\d+\/"/, 'post links climb out of page/2/');
+  const cards = JSON.parse(await fs.readFile(path.join(out, WRITING_PATH, 'cards.json'), 'utf8'));
+  assert.equal(cards.length, 130);
+  const feed = await fs.readFile(path.join(out, WRITING_PATH, 'feed.xml'), 'utf8');
+  assert.equal((feed.match(/<entry>/g) || []).length, 100);
+});
+
+test('a short blog stays one page with no pager and no cards file', async () => {
+  const root = repoWith({ '2026-10-16-hello.md': post('Hello', '2026-10-16') });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-short-'));
+  await buildWriting(out, BASE, { root });
+  const html = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
+  assert.doesNotMatch(html, /id="pager"/);
+  await assert.rejects(fs.access(path.join(out, WRITING_PATH, 'cards.json')));
 });

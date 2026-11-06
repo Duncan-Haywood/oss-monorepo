@@ -467,6 +467,10 @@ def topic_page(theme, themes, ledes, tests, tokens, theme_vars, tmpl, out, base_
     (d / "index.html").write_text(page)
 
 
+# Cards per theme on the index page itself; the rest load on demand.
+INDEX_CARDS = 2
+
+
 def card(p, theme, lede, tests):
     url = f"{REPO_URL}/tree/main/research/{p['slug']}"
     # The index carries a card per project, 800+ of them, so each card is the
@@ -560,15 +564,25 @@ def build(out, base_url=None, chrome=None):
 {log_items}
   </div>
 </div></section>''' if logs else "")
-    sections = "\n".join(
-        f"""<section class="theme t-{t['id']}" id="{t['id']}">
+    # The index shows the first INDEX_CARDS projects of each theme; the rest are
+    # in more-cards.json, which the page fetches when someone searches or asks
+    # for them (and each theme's topic page lists them all, no script needed).
+    # 1,065 cards in one document made this page 1.4 MB.
+    extra = {}
+    def theme_section(i, t):
+        shown, rest = t["projects"][:INDEX_CARDS], t["projects"][INDEX_CARDS:]
+        if rest:
+            extra[t["id"]] = [card(p, t, ledes[p["slug"]], tests[p["slug"]]) for p in rest]
+        more = (f'<p class="showall"><button type="button" class="btn" data-showall>Show all {len(t["projects"])} in this theme</button> '
+                f'<a href="{TOPICS_DIR}/{t["id"]}/">or open the topic page →</a></p>') if rest else ""
+        return f"""<section class="theme t-{t['id']}" id="{t['id']}">
   <div class="theme-head"><span class="theme-num">{i:02d}</span><h2><a href="{TOPICS_DIR}/{t['id']}/">{t['name']}</a></h2><p>{t['blurb']} <a href="{TOPICS_DIR}/{t['id']}/">Topic page →</a></p></div>
   <div class="grid">
-{chr(10).join(card(p, t, ledes[p['slug']], tests[p['slug']]) for p in t['projects'])}
+{chr(10).join(card(p, t, ledes[p['slug']], tests[p['slug']]) for p in shown)}
   </div>
+  {more}
 </section>"""
-        for i, t in enumerate(data["themes"], 1)
-    )
+    sections = "\n".join(theme_section(i, t) for i, t in enumerate(data["themes"], 1))
 
     page = (HERE / "template.html").read_text()
     for key, val in {
@@ -593,6 +607,7 @@ def build(out, base_url=None, chrome=None):
         page = with_site_chrome(page, chrome, "../", replace_topbar=True)
     out.mkdir(parents=True, exist_ok=True)
     (out / "index.html").write_text(page)
+    (out / "more-cards.json").write_text(json.dumps(extra, separators=(",", ":")))
     (out / "fonts").mkdir(exist_ok=True)
     for name in FONT_FILES:
         shutil.copyfile(HERE / "fonts" / name, out / "fonts" / name)

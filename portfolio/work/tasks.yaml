@@ -225,7 +225,14 @@ tasks:
       post and project is still reachable in at most two clicks; sitemaps
       and check.mjs pass; page-weight.mjs numbers before and after in the PR.
     hours: 10
-    status: open
+    status: done
+    done: 2026-11-06
+    note: >-
+      /writing/ 2,325 kB -> 75 kB (60 posts a page, 41 numbered pages, cards.json
+      fetched on first search); /research/ 1,441 kB -> 142 kB standalone (2 cards a
+      theme, more-cards.json on search or "Show all"); feed.xml 1.4 MB -> 54 kB.
+      Topic pages for the largest themes (research/topics/twins/ 307 kB) are still
+      over budget: next slice.
     added: 2026-11-06
 
   - id: site-perf-one-worker

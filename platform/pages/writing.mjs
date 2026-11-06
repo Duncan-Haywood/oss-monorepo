@@ -299,7 +299,7 @@ export function postPageTitle(headline) {
   return full.length <= TITLE_BUDGET ? full : headline;
 }
 
-function shell({ title, description, canonical, toRoot, crumbs, hero = '', body, jsonLd, breadcrumb, feedHref, socialCard, podcastFeedHref, current = 'writing' }) {
+function shell({ title, description, canonical, toRoot, crumbs, hero = '', body, jsonLd, breadcrumb, feedHref, socialCard, podcastFeedHref, headExtra = '', current = 'writing' }) {
   // The site's shared header (site-nav.mjs) above this section's own breadcrumb.
   return withSiteHeader(`<!doctype html>
 <html lang="en">
@@ -309,7 +309,7 @@ function shell({ title, description, canonical, toRoot, crumbs, hero = '', body,
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 ${canonical ? `<link rel="canonical" href="${esc(canonical)}">\n` : ''}<link rel="alternate" type="application/atom+xml" title="${esc(SITE_NAME)}: writing" href="${esc(feedHref)}">
-${podcastFeedHref ? `<link rel="alternate" type="application/rss+xml" title="${esc(SHOW_TITLE)}" href="${esc(podcastFeedHref)}">\n` : ''}<meta property="og:title" content="${esc(title)}">
+${podcastFeedHref ? `<link rel="alternate" type="application/rss+xml" title="${esc(SHOW_TITLE)}" href="${esc(podcastFeedHref)}">\n` : ''}${headExtra}<meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:type" content="${jsonLd['@type'] === 'BlogPosting' ? 'article' : 'website'}">
 ${canonical ? `<meta property="og:url" content="${esc(canonical)}">\n` : ''}${socialCard ? `<meta property="og:image" content="${esc(socialCard)}">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n` : ''}<meta name="twitter:card" content="${socialCard ? 'summary_large_image' : 'summary'}">
@@ -361,20 +361,23 @@ export const AGENT_BLOG = Object.freeze({
 // this hides what does not match, reorders on sort, keeps the state in the URL
 // (?q=&topic=&tag=&sort=) so a filtered view can be linked, and fetches the
 // full-text index (search.json) only once someone types.
-const FINDER_SCRIPT = `(() => {
+const finderScript = ({ up = '', paged = false } = {}) => `(() => {
+  const UP = ${JSON.stringify(up)}, PAGED = ${paged ? 'true' : 'false'}, CAP = PAGED ? 200 : Infinity;
   const list = document.getElementById('posts');
   if (!list) return;
-  const items = Array.from(list.children);
+  const pager = document.getElementById('pager'), more = document.getElementById('more');
+  let items = Array.from(list.children);
   const q = document.getElementById('q'), tag = document.getElementById('tag'), sort = document.getElementById('sort');
   const chips = Array.from(document.querySelectorAll('[data-topic-chip]'));
   const count = document.getElementById('count'), none = document.getElementById('none');
   const params = new URLSearchParams(location.search);
   let topic = chips.some((c) => c.dataset.topicChip === params.get('topic')) ? params.get('topic') : '';
-  let full = null, loading = null;
+  let full = null, loading = null, cards = null, cardsLoading = null, limit = CAP;
   q.value = params.get('q') || '';
   tag.value = params.get('tag') || '';
   if (tag.selectedIndex < 0) tag.value = '';
   sort.value = ['new', 'old', 'short', 'long'].indexOf(params.get('sort')) >= 0 ? params.get('sort') : 'new';
+  const total = Number(count.dataset.total) || items.length;
   const order = {
     new: (a, b) => b.dataset.date.localeCompare(a.dataset.date),
     old: (a, b) => a.dataset.date.localeCompare(b.dataset.date),
@@ -382,24 +385,53 @@ const FINDER_SCRIPT = `(() => {
     long: (a, b) => b.dataset.mins - a.dataset.mins,
   };
   function loadFull() {
-    if (!loading) loading = fetch('search.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((j) => { full = j; apply(); });
+    if (!loading) loading = fetch(UP + 'search.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((j) => { full = j; apply(); });
+  }
+  // On a numbered page only that page's posts are in the HTML. The first
+  // search, filter or sort fetches every card once and works on those.
+  function build(c) {
+    const li = document.createElement('li');
+    li.dataset.slug = c.s; li.dataset.topic = c.o; li.dataset.tags = c.g.join(' ');
+    li.dataset.date = c.a; li.dataset.mins = c.m;
+    li.dataset.text = [c.t, c.d, c.g.join(' '), c.l].join(' ').toLowerCase().replace(/\\s+/g, ' ');
+    const h = document.createElement('h2'), a = document.createElement('a');
+    a.href = UP + c.s + '/'; a.textContent = c.t; h.appendChild(a);
+    const p = document.createElement('p'); p.textContent = c.d;
+    const meta = document.createElement('p'); meta.className = 'meta';
+    const sp = document.createElement('span'); sp.className = 'topic'; sp.textContent = c.l;
+    const tm = document.createElement('time'); tm.className = 'date'; tm.dateTime = c.a; tm.textContent = c.D;
+    const mn = document.createElement('span'); mn.className = 'mins'; mn.textContent = c.m + ' min read';
+    meta.append(sp, ' ', tm, ' ', mn);
+    li.append(h, p, meta);
+    return li;
+  }
+  function loadCards() {
+    if (!PAGED || cardsLoading) return;
+    cardsLoading = fetch(UP + 'cards.json').then((r) => (r.ok ? r.json() : null)).catch(() => null).then((j) => {
+      if (!j) return;
+      cards = j; items = j.map(build);
+      if (pager) pager.hidden = true;
+      apply();
+    });
   }
   function apply() {
     const terms = q.value.toLowerCase().split(/\\s+/).filter(Boolean);
     if (terms.length && !full) loadFull();
-    let shown = 0;
-    for (const li of items) {
+    const touched = terms.length || topic || tag.value || sort.value !== 'new';
+    if (touched && PAGED && !cards) loadCards();
+    const matches = items.filter((li) => {
       const hay = li.dataset.text + ' ' + ((full && full[li.dataset.slug]) || '');
-      const ok = (!topic || li.dataset.topic === topic)
+      return (!topic || li.dataset.topic === topic)
         && (!tag.value || li.dataset.tags.split(' ').indexOf(tag.value) >= 0)
         && terms.every((t) => hay.indexOf(t) >= 0);
-      li.hidden = !ok;
-      if (ok) shown++;
-    }
-    items.slice().sort(order[sort.value]).forEach((li) => list.appendChild(li));
+    }).sort(order[sort.value]);
+    const all = PAGED && !cards ? total : items.length;
+    const shownNow = matches.slice(0, limit);
+    list.replaceChildren(...shownNow);
     chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.topicChip === topic)));
-    count.textContent = shown === items.length ? items.length + ' posts' : shown + ' of ' + items.length + ' posts';
-    none.hidden = shown > 0;
+    count.textContent = PAGED && !cards ? total + ' posts' : matches.length === all ? all + ' posts' : matches.length + ' of ' + all + ' posts';
+    if (more) { more.hidden = matches.length <= limit; more.textContent = 'Show more (' + (matches.length - limit) + ' left)'; }
+    none.hidden = matches.length > 0 || (PAGED && !cards);
     const p = new URLSearchParams();
     if (q.value.trim()) p.set('q', q.value.trim());
     if (topic) p.set('topic', topic);
@@ -408,11 +440,12 @@ const FINDER_SCRIPT = `(() => {
     const qs = p.toString();
     history.replaceState(null, '', qs ? '?' + qs : location.pathname);
   }
-  q.addEventListener('input', apply);
-  tag.addEventListener('change', apply);
-  sort.addEventListener('change', apply);
-  chips.forEach((c) => c.addEventListener('click', () => { topic = c.dataset.topicChip; apply(); }));
-  document.getElementById('clear').addEventListener('click', () => { q.value = ''; tag.value = ''; topic = ''; sort.value = 'new'; apply(); q.focus(); });
+  q.addEventListener('input', () => { limit = CAP; apply(); });
+  tag.addEventListener('change', () => { limit = CAP; apply(); });
+  sort.addEventListener('change', () => { limit = CAP; apply(); });
+  chips.forEach((c) => c.addEventListener('click', () => { topic = c.dataset.topicChip; limit = CAP; apply(); }));
+  if (more) more.addEventListener('click', () => { limit += CAP; apply(); });
+  document.getElementById('clear').addEventListener('click', () => { q.value = ''; tag.value = ''; topic = ''; sort.value = 'new'; limit = CAP; apply(); q.focus(); });
   document.getElementById('finder').hidden = false;
   apply();
 })();`;
@@ -428,7 +461,8 @@ function renderFinder(posts) {
   const chips = [`<button type="button" data-topic-chip="" aria-pressed="true">All<span>${posts.length}</span></button>`]
     .concat(TOPICS.filter((t) => topicCounts.get(t.id)).map((t) => `<button type="button" data-topic-chip="${esc(t.id)}" aria-pressed="false" title="${esc(t.blurb)}">${esc(t.label)}<span>${topicCounts.get(t.id)}</span></button>`))
     .join('');
-  const tags = [...tagCounts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  // Past the first page's worth of posts, the menu lists the 80 commonest tags; the rest are found by search.
+  const tags = [...tagCounts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, posts.length > POSTS_PER_PAGE ? 80 : Infinity);
   return `<form id="finder" class="finder" role="search" hidden onsubmit="return false">
 <label class="vh" for="q">Search posts</label>
 <input id="q" type="search" placeholder="Search titles, summaries and full text" autocomplete="off">
@@ -438,7 +472,7 @@ function renderFinder(posts) {
 <label>Sort <select id="sort"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="short">Shortest read</option><option value="long">Longest read</option></select></label>
 <button type="button" id="clear">Clear</button>
 </div>
-<p id="count" aria-live="polite">${posts.length} posts</p>
+<p id="count" aria-live="polite" data-total="${posts.length}">${posts.length} posts</p>
 </form>`;
 }
 
@@ -457,13 +491,46 @@ export function renderSearchIndex(posts) {
   return JSON.stringify(Object.fromEntries(posts.map((p) => [p.slug, plain(p.body)])));
 }
 
-export function renderIndex(posts, { baseUrl = '', socialCard = '', episodes = [], section = BLOG, agentPosts = 0 } = {}) {
-  const canonical = baseUrl ? `${baseUrl}${section.path}` : '';
-  const toRoot = '../'.repeat(section.depth);
-  const items = posts
+/** Posts per index page. Past this the index is numbered pages, so no page is megabytes (docs/reports/2026-11-06-site-performance-baseline.md). */
+export const POSTS_PER_PAGE = 60;
+const FEED_ENTRIES = 100;
+
+/** Path of index page `n` under the section: the section root for 1, `page/n/` after. */
+export const indexPagePath = (section, n) => (n <= 1 ? section.path : `${section.path}page/${n}/`);
+
+/** `cards.json`: one compact record per post, fetched by a numbered index page the first time its finder is used. */
+export function renderCards(posts) {
+  return JSON.stringify(posts.map((p) => ({
+    s: p.slug, t: p.title, d: p.description, o: p.topic, g: p.tags, a: p.date, m: p.minutes,
+    l: topicLabel(p.topic), D: longDate(p.date),
+  })));
+}
+
+/** Previous/next and every page number, so any post is at most two clicks from the first page. */
+function renderPager(page, pageCount, up) {
+  const href = (n) => (n === 1 ? up || './' : `${up}page/${n}/`);
+  const nums = Array.from({ length: pageCount }, (_, i) => i + 1)
+    .map((n) => (n === page ? `<li><span aria-current="page">${n}</span></li>` : `<li><a href="${href(n)}">${n}</a></li>`))
+    .join('');
+  return `<nav id="pager" class="pager" aria-label="Pages of posts">
+<p>Page ${page} of ${pageCount}${page > 1 ? ` · <a rel="prev" href="${href(page - 1)}">Newer posts</a>` : ''}${page < pageCount ? ` · <a rel="next" href="${href(page + 1)}">Older posts</a>` : ''}</p>
+<ol>${nums}</ol>
+</nav>`;
+}
+
+export function renderIndex(posts, { baseUrl = '', socialCard = '', episodes = [], section = BLOG, agentPosts = 0, page = 1, perPage = POSTS_PER_PAGE } = {}) {
+  const paged = posts.length > perPage;
+  const pageCount = paged ? Math.ceil(posts.length / perPage) : 1;
+  const pageNo = Math.min(Math.max(1, page), pageCount);
+  const canonical = baseUrl ? `${baseUrl}${indexPagePath(section, pageNo)}` : '';
+  const sub = pageNo > 1 ? 2 : 0; // `page/N/` is two levels below the section root
+  const toRoot = '../'.repeat(section.depth + sub);
+  const up = '../'.repeat(sub);
+  const shown = paged ? posts.slice((pageNo - 1) * perPage, pageNo * perPage) : posts;
+  const items = shown
     .map(
       (p) => `<li data-slug="${esc(p.slug)}" data-topic="${esc(p.topic)}" data-tags="${esc(p.tags.join(' '))}" data-date="${p.date}" data-mins="${p.minutes}" data-text="${esc(cardText(p))}">
-  <h2><a href="${esc(p.slug)}/">${esc(p.title)}</a></h2>
+  <h2><a href="${up}${esc(p.slug)}/">${esc(p.title)}</a></h2>
   <p>${esc(p.description)}</p>
   <p class="meta"><span class="topic">${esc(topicLabel(p.topic))}</span> <time class="date" datetime="${p.date}">${longDate(p.date)}</time> <span class="mins">${p.minutes} min read</span></p>
 </li>`,
@@ -476,16 +543,17 @@ and lead with what to do. People are welcome to read along. For a model, the pla
 <a href="llms.txt">llms.txt</a> (the index), <a href="llms-full.txt">llms-full.txt</a> (every post in one file) and each post's
 raw Markdown (<code>&lt;slug&gt;.txt</code>). New posts: the <a href="feed.xml">Atom feed</a>. The blog for people is <a href="../">here</a>.</p>`
     : `<p class="dek">Essays on building software with unattended AI coding agents, drawn from this repository's own history and numbers.
-Subscribe with the <a href="feed.xml">Atom feed</a>.${episodes.length ? ` Or listen: <a href="podcast/">the podcast</a> has spoken versions of ${episodes.length} of these posts, by topic.` : ''}${agentPosts ? ` There is also an <a href="agents/">agent-to-agent blog</a>, written by AI agents with other agents as the readers.` : ''}</p>`;
+Subscribe with the <a href="${up}feed.xml">Atom feed</a>.${episodes.length ? ` Or listen: <a href="${up}podcast/">the podcast</a> has spoken versions of ${episodes.length} of these posts, by topic.` : ''}${agentPosts ? ` There is also an <a href="${up}agents/">agent-to-agent blog</a>, written by AI agents with other agents as the readers.` : ''}</p>`;
   return shell({
-    title: `${isAgents ? 'Agent-to-agent blog' : 'Blog'} · ${SITE_NAME}`,
+    title: `${isAgents ? 'Agent-to-agent blog' : 'Blog'}${pageNo > 1 ? `, page ${pageNo}` : ''} · ${SITE_NAME}`,
     description: section.description,
     canonical,
     socialCard,
     toRoot,
-    crumbs: isAgents ? '<a href="../">Blog</a> › Agent to agent' : 'Blog',
-    feedHref: 'feed.xml',
-    podcastFeedHref: episodes.length ? 'podcast/feed.xml' : '',
+    crumbs: isAgents ? '<a href="../">Blog</a> › Agent to agent' : pageNo > 1 ? `<a href="${up || './'}">Blog</a> › Page ${pageNo}` : 'Blog',
+    feedHref: `${up}feed.xml`,
+    podcastFeedHref: episodes.length ? `${up}podcast/feed.xml` : '',
+    headExtra: paged ? `${pageNo > 1 ? `<link rel="prev" href="${esc(pageNo === 2 ? (baseUrl ? baseUrl + section.path : up || './') : (baseUrl ? baseUrl + indexPagePath(section, pageNo - 1) : `../${pageNo - 1}/`))}">\n` : ''}${pageNo < pageCount ? `<link rel="next" href="${esc(baseUrl ? baseUrl + indexPagePath(section, pageNo + 1) : (pageNo === 1 ? 'page/2/' : `../${pageNo + 1}/`))}">\n` : ''}` : '',
     jsonLd: { '@context': 'https://schema.org', '@type': 'Blog', name: section.feedTitle, url: canonical || undefined },
     hero: `<p class="eyebrow">${isAgents ? 'Agent to agent' : 'Blog'}</p>
 <h1>${isAgents ? 'Agent-to-agent blog' : 'Blog'}</h1>
@@ -496,7 +564,9 @@ ${dek}`,
 ${items}
 </ul>
 <p id="none" hidden>No post matches. <button type="button" onclick="document.getElementById('clear').click()">Clear the filters</button></p>
-<script>${FINDER_SCRIPT}</script>`
+<button type="button" id="more" class="more" hidden>Show more</button>
+${paged ? renderPager(pageNo, pageCount, up) : ''}
+<script>${finderScript({ up, paged })}</script>`
       : '<p>No posts yet.</p>',
   });
 }
@@ -594,7 +664,9 @@ ${related.length ? `<ul>${related.map((p) => `<li><a href="../${esc(p.slug)}/">$
 export function renderFeed(posts, { baseUrl = '', section = BLOG } = {}) {
   const root = `${baseUrl}${section.path}`;
   const updated = posts[0] ? `${posts[0].date}T00:00:00Z` : '1970-01-01T00:00:00Z';
+  // The newest 100: a feed reader needs recent posts, and all 2,500 made this file 1.4 MB.
   const entries = posts
+    .slice(0, FEED_ENTRIES)
     .map(
       (p) => `  <entry>
     <title>${esc(p.title)}</title>
@@ -673,6 +745,15 @@ async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebas
   const dir = path.join(outDir, section.path);
   await fs.mkdir(dir, { recursive: true });
   await fs.writeFile(path.join(dir, 'index.html'), rebase(renderIndex(posts, { baseUrl, socialCard, episodes, section, agentPosts })));
+  if (posts.length > POSTS_PER_PAGE) {
+    const pageCount = Math.ceil(posts.length / POSTS_PER_PAGE);
+    for (let n = 2; n <= pageCount; n++) {
+      const pageDir = path.join(outDir, indexPagePath(section, n));
+      await fs.mkdir(pageDir, { recursive: true });
+      await fs.writeFile(path.join(pageDir, 'index.html'), rebase(renderIndex(posts, { baseUrl, socialCard, episodes, section, agentPosts, page: n })));
+    }
+    await fs.writeFile(path.join(dir, 'cards.json'), rebase(renderCards(posts)));
+  }
   await fs.writeFile(path.join(dir, 'feed.xml'), rebase(renderFeed(posts, { baseUrl, section })));
   await fs.writeFile(path.join(dir, 'search.json'), rebase(renderSearchIndex(posts)));
   for (const post of posts) {
@@ -717,6 +798,7 @@ export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, 
   await fs.writeFile(path.join(outDir, PODCAST_PATH, 'index.html'), rebase(renderPodcastIndex(episodes, { baseUrl, socialCard })));
   return [
     ...posts.map((p) => p.slug),
+    ...Array.from({ length: Math.max(0, Math.ceil(posts.length / POSTS_PER_PAGE) - 1) }, (_, i) => `page/${i + 2}`),
     'podcast',
     ...(agentPosts.length ? ['agents', ...agentPosts.map((p) => `agents/${p.slug}`)] : []),
   ];
