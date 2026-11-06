@@ -418,3 +418,13 @@ test("ridge cap and starter nails by hand, opt-in", () => {
   assert.equal(l.roofing.nails, r.nails + cap + st);
   assert.equal(base.roofing.underlaymentNails, undefined);
 });
+
+test("drip edge nails: opt-in, typed spacing along eave and rake plus one per piece, by hand", () => {
+  assert.equal(layoutRoof(sampleRoof(), plan()).roofing.dripEdgeNails, undefined);
+  const g = layoutRoof({ ...sampleRoof(), roofing: { dripEdgeNailSpacing: 12 } }, plan()).roofing;
+  assert.equal(g.dripEdgeNails, Math.ceil((g.eaveFeet + g.rakeFeet) * 12 / 12 - 1e-9) + g.dripEdgePieces);
+  assert.ok(g.dripEdgeNails > 0);
+  const h = layoutRoof(hipRoof({ roofing: { dripEdgeNailSpacing: 10 } }), plan()).roofing;
+  assert.equal(h.dripEdgeNails, Math.ceil(h.eaveFeet * 12 / 10 - 1e-9) + h.dripEdgePieces);
+  assert.equal(layoutRoof({ ...sampleRoof(), roofing: { dripEdgeNailSpacing: 0 } }, plan()).roofing.dripEdgeNails, undefined);
+});
