@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-06 · Milestone 6u: paper section 2.5 gains 6s and 6t (a writing step, no experiment)
+- Added the 6s drift calibration (c = 0.48 m/s; light-air coverage 0.545 -> 0.962) and 6t drift-aware estimate (July 0.79, January 1.43 times solar) to `paper/DRAFT.md` rows and the quotable band (July 0.71 to 0.93, January 1.40 to 1.47). Numbers copied from the 6s/6t entries; no new run.
+- Next: heading-aware current vector from OSCAR/CO-OPS data in `experiments/data/`.
+
 ## 2026-11-06 · Milestone 6t: a drift-aware central estimate between 6r's floor and ceiling (closes 6s's "Next"; prediction written before the run)
 - Why: 6r credited light-air (< 4 m/s) blocks either fully (6n drone, a ceiling) or not at all (floor). 6s showed the drift c = 0.48 m/s explains most light-air SOG, and that a drone refitted with c in the model (sail_area 0.68 m2, hull_scale 4.05) predicts sail-driven speed there with the drift kept out of the credited distance. `experiments/run_wind_vs_sun_drift.py` uses 6n's drone at >= 4 m/s and the 6s-fitted sail-only drone below 4 m/s, same buoys, corridors and solar ceiling as 6r.
 - **Prediction:** July median ratio to the 86 km/day solar ceiling lies between 6r's floor (0.71) and ceiling (0.93), and below 0.82 (closer to the floor, because hull_scale 4 makes light-air thrust small); January median stays at or above 1.35. Prior 65%. Refuted if July is >= 0.82 or January < 1.35.
