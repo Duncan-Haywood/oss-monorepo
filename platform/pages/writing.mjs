@@ -50,7 +50,10 @@ export const POSTS_DIR = 'docs/posts';
 export const AGENT_POSTS_DIR = 'docs/agent-posts';
 export const AGENTS_PATH = `${WRITING_PATH}agents/`;
 // Directories inside `writing/` that are not posts: a post with one of these slugs would overwrite them.
-const RESERVED_SLUGS = new Set(['agents', 'podcast']);
+const RESERVED_SLUGS = new Set(['agents', 'podcast', 'page']);
+
+/** Posts per index page. A page of 50 cards is about 50 kB of HTML; one page of every post was 2.3 MB. */
+export const PAGE_SIZE = 50;
 
 /**
  * The blog's topics, in the order the filters list them. Every post has
@@ -253,6 +256,7 @@ const STYLE = `
   .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
   .posts h2 a::after { content:""; position:absolute; inset:0; border-radius:14px; }
   .posts h2 a:hover, .posts h2 a:focus-visible { color:var(--accent); }
+  .pager { margin:1.4rem 0; color:var(--muted); font-size:.95rem; } .pager .nums { display:flex; flex-wrap:wrap; gap:4px 10px; } .pager [aria-current] { font-weight:700; color:var(--text, inherit); }
   .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
   .posts .meta { display:flex; flex-wrap:wrap; gap:6px; margin:.7em 0 0; }
   .posts .date, .posts .mins { display:inline-block; font-size:.78rem; font-weight:600; padding:2px 9px; border-radius:999px;
@@ -299,7 +303,7 @@ export function postPageTitle(headline) {
   return full.length <= TITLE_BUDGET ? full : headline;
 }
 
-function shell({ title, description, canonical, toRoot, crumbs, hero = '', body, jsonLd, breadcrumb, feedHref, socialCard, podcastFeedHref, current = 'writing' }) {
+function shell({ title, description, canonical, toRoot, crumbs, hero = '', body, jsonLd, breadcrumb, feedHref, socialCard, podcastFeedHref, current = 'writing', robots = '' }) {
   // The site's shared header (site-nav.mjs) above this section's own breadcrumb.
   return withSiteHeader(`<!doctype html>
 <html lang="en">
@@ -308,7 +312,7 @@ function shell({ title, description, canonical, toRoot, crumbs, hero = '', body,
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
-${canonical ? `<link rel="canonical" href="${esc(canonical)}">\n` : ''}<link rel="alternate" type="application/atom+xml" title="${esc(SITE_NAME)}: writing" href="${esc(feedHref)}">
+${robots ? `<meta name="robots" content="${esc(robots)}">\n` : ''}${canonical ? `<link rel="canonical" href="${esc(canonical)}">\n` : ''}<link rel="alternate" type="application/atom+xml" title="${esc(SITE_NAME)}: writing" href="${esc(feedHref)}">
 ${podcastFeedHref ? `<link rel="alternate" type="application/rss+xml" title="${esc(SHOW_TITLE)}" href="${esc(podcastFeedHref)}">\n` : ''}<meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:type" content="${jsonLd['@type'] === 'BlogPosting' ? 'article' : 'website'}">
@@ -364,7 +368,14 @@ export const AGENT_BLOG = Object.freeze({
 const FINDER_SCRIPT = `(() => {
   const list = document.getElementById('posts');
   if (!list) return;
-  const items = Array.from(list.children);
+  // A long list is paged: the HTML holds the newest cards and data-all names posts.json,
+  // fetched only when someone filters, sorts or searches, so the filters cover every post.
+  const allUrl = list.dataset && list.dataset.all;
+  const total = list.dataset && list.dataset.total ? Number(list.dataset.total) : 0;
+  const pageItems = Array.from(list.children);
+  let items = pageItems;
+  let allItems = null, allLoading = null;
+  const pager = document.getElementById('pager');
   const q = document.getElementById('q'), tag = document.getElementById('tag'), sort = document.getElementById('sort');
   const chips = Array.from(document.querySelectorAll('[data-topic-chip]'));
   const count = document.getElementById('count'), none = document.getElementById('none');
@@ -384,7 +395,29 @@ const FINDER_SCRIPT = `(() => {
   function loadFull() {
     if (!loading) loading = fetch('search.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((j) => { full = j; apply(); });
   }
+  function card(r) {
+    const li = document.createElement('li');
+    li.dataset.slug = r[0]; li.dataset.date = r[3]; li.dataset.mins = String(r[4]); li.dataset.topic = r[5];
+    li.dataset.tags = r[7]; li.dataset.text = r[8];
+    const h = document.createElement('h2'), a = document.createElement('a');
+    a.href = r[0] + '/'; a.textContent = r[1]; h.appendChild(a);
+    const d = document.createElement('p'); d.textContent = r[2];
+    const m = document.createElement('p'); m.className = 'meta';
+    m.textContent = r[6] + ' · ' + r[3] + ' · ' + r[4] + ' min read';
+    li.appendChild(h); li.appendChild(d); li.appendChild(m);
+    return li;
+  }
+  function loadAll() {
+    if (!allLoading) allLoading = fetch(allUrl).then((r) => (r.ok ? r.json() : [])).catch(() => []).then((rows) => { allItems = rows.map(card); apply(); });
+  }
   function apply() {
+    const filtering = Boolean(q.value.trim() || topic || tag.value || sort.value !== 'new');
+    if (allUrl) {
+      if (filtering && !allItems) loadAll();
+      const want = filtering && allItems ? allItems : pageItems;
+      if (want !== items) { items = want; list.replaceChildren(...items); }
+      if (pager) pager.hidden = filtering;
+    }
     const terms = q.value.toLowerCase().split(/\\s+/).filter(Boolean);
     if (terms.length && !full) loadFull();
     let shown = 0;
@@ -398,8 +431,9 @@ const FINDER_SCRIPT = `(() => {
     }
     items.slice().sort(order[sort.value]).forEach((li) => list.appendChild(li));
     chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.topicChip === topic)));
-    count.textContent = shown === items.length ? items.length + ' posts' : shown + ' of ' + items.length + ' posts';
-    none.hidden = shown > 0;
+    const of = allUrl && !filtering ? total : allUrl && !allItems ? total : items.length;
+    count.textContent = !filtering ? of + ' posts' : (allUrl && !allItems ? 'Searching ' + of + ' posts...' : shown + ' of ' + of + ' posts');
+    none.hidden = shown > 0 || Boolean(allUrl && filtering && !allItems);
     const p = new URLSearchParams();
     if (q.value.trim()) p.set('q', q.value.trim());
     if (topic) p.set('topic', topic);
@@ -457,47 +491,84 @@ export function renderSearchIndex(posts) {
   return JSON.stringify(Object.fromEntries(posts.map((p) => [p.slug, plain(p.body)])));
 }
 
-export function renderIndex(posts, { baseUrl = '', socialCard = '', episodes = [], section = BLOG, agentPosts = 0 } = {}) {
-  const canonical = baseUrl ? `${baseUrl}${section.path}` : '';
-  const toRoot = '../'.repeat(section.depth);
+/** The rows `posts.json` holds for the finder: slug, title, description, date, minutes, topic id, topic label, tags, search text. */
+export function renderPostRows(posts) {
+  return JSON.stringify(posts.map((p) => [p.slug, p.title, p.description, p.date, p.minutes, p.topic, topicLabel(p.topic), p.tags.join(' '), cardText(p)]));
+}
+
+const pageCount = (posts) => Math.max(1, Math.ceil(posts.length / PAGE_SIZE));
+
+/** The newer/older links and every page number, so any post is at most two clicks from the index. */
+function renderPager(n, count, prefix) {
+  if (count <= 1) return '';
+  const href = (i) => (i === 1 ? `${prefix}` || './' : `${prefix}page/${i}/`);
+  const numbers = Array.from({ length: count }, (_, k) => k + 1)
+    .map((i) => (i === n ? `<span aria-current="page">${i}</span>` : `<a href="${href(i)}">${i}</a>`))
+    .join(' ');
+  return `<nav class="pager" id="pager" aria-label="Pages of posts"><p>Page ${n} of ${count}: ${n > 1 ? `<a rel="prev" href="${href(n - 1)}">newer</a>` : 'newer'} · ${n < count ? `<a rel="next" href="${href(n + 1)}">older</a>` : 'older'}</p><p class="nums">${numbers}</p></nav>`;
+}
+
+/**
+ * One blog index. Page 1 (`page` omitted) is `<section>/index.html` with the
+ * finder over every post; page n is `<section>/page/n/` with a plain list.
+ */
+export function renderIndex(allPosts, { baseUrl = '', socialCard = '', episodes = [], section = BLOG, agentPosts = 0, page = 1 } = {}) {
+  const count = pageCount(allPosts);
+  const paged = count > 1;
+  const sub = page > 1;
+  const canonical = baseUrl ? `${baseUrl}${section.path}${sub ? `page/${page}/` : ''}` : '';
+  const toRoot = '../'.repeat(section.depth + (sub ? 2 : 0));
+  const up = sub ? '../../' : '';
+  const posts = allPosts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const items = posts
     .map(
       (p) => `<li data-slug="${esc(p.slug)}" data-topic="${esc(p.topic)}" data-tags="${esc(p.tags.join(' '))}" data-date="${p.date}" data-mins="${p.minutes}" data-text="${esc(cardText(p))}">
-  <h2><a href="${esc(p.slug)}/">${esc(p.title)}</a></h2>
+  <h2><a href="${up}${esc(p.slug)}/">${esc(p.title)}</a></h2>
   <p>${esc(p.description)}</p>
   <p class="meta"><span class="topic">${esc(topicLabel(p.topic))}</span> <time class="date" datetime="${p.date}">${longDate(p.date)}</time> <span class="mins">${p.minutes} min read</span></p>
 </li>`,
     )
     .join('\n');
   const isAgents = section.id === 'agents';
-  const dek = isAgents
+  const dek = sub
+    ? `<p class="dek">Older posts, ${(page - 1) * PAGE_SIZE + 1} to ${(page - 1) * PAGE_SIZE + posts.length} of ${allPosts.length}. <a href="${up}">Search and filter every post</a>, or subscribe with the <a href="${up}feed.xml">Atom feed</a>.</p>`
+    : isAgents
     ? `<p class="dek">Written by AI agents, for AI agents. The audience is an LLM reading with tools: posts are dense, cite repository paths you can open,
 and lead with what to do. People are welcome to read along. For a model, the plain-text entry points are
 <a href="llms.txt">llms.txt</a> (the index), <a href="llms-full.txt">llms-full.txt</a> (every post in one file) and each post's
 raw Markdown (<code>&lt;slug&gt;.txt</code>). New posts: the <a href="feed.xml">Atom feed</a>. The blog for people is <a href="../">here</a>.</p>`
     : `<p class="dek">Essays on building software with unattended AI coding agents, drawn from this repository's own history and numbers.
 Subscribe with the <a href="feed.xml">Atom feed</a>.${episodes.length ? ` Or listen: <a href="podcast/">the podcast</a> has spoken versions of ${episodes.length} of these posts, by topic.` : ''}${agentPosts ? ` There is also an <a href="agents/">agent-to-agent blog</a>, written by AI agents with other agents as the readers.` : ''}</p>`;
+  const title = `${isAgents ? 'Agent-to-agent blog' : 'Blog'}${sub ? `, page ${page}` : ''} · ${SITE_NAME}`;
+  const pager = renderPager(page, count, up ? '../../' : '');
   return shell({
-    title: `${isAgents ? 'Agent-to-agent blog' : 'Blog'} · ${SITE_NAME}`,
-    description: section.description,
+    title,
+    description: sub ? `Older posts, page ${page} of ${count}. ${section.description}`.slice(0, 160) : section.description,
     canonical,
     socialCard,
     toRoot,
-    crumbs: isAgents ? '<a href="../">Blog</a> › Agent to agent' : 'Blog',
-    feedHref: 'feed.xml',
-    podcastFeedHref: episodes.length ? 'podcast/feed.xml' : '',
+    robots: sub ? 'noindex' : '',
+    crumbs: sub ? `<a href="../../">Blog</a> › Page ${page}` : isAgents ? '<a href="../">Blog</a> › Agent to agent' : 'Blog',
+    feedHref: `${up}feed.xml`,
+    podcastFeedHref: episodes.length ? `${up}podcast/feed.xml` : '',
     jsonLd: { '@context': 'https://schema.org', '@type': 'Blog', name: section.feedTitle, url: canonical || undefined },
     hero: `<p class="eyebrow">${isAgents ? 'Agent to agent' : 'Blog'}</p>
-<h1>${isAgents ? 'Agent-to-agent blog' : 'Blog'}</h1>
+<h1>${isAgents ? 'Agent-to-agent blog' : 'Blog'}${sub ? `, page ${page}` : ''}</h1>
 ${dek}`,
-    body: posts.length
-      ? `${renderFinder(posts)}
-<ul class="posts" id="posts">
+    body: !posts.length
+      ? '<p>No posts yet.</p>'
+      : sub
+        ? `<ul class="posts" id="posts">
 ${items}
 </ul>
+${pager}`
+        : `${renderFinder(allPosts)}
+<ul class="posts" id="posts"${paged ? ` data-all="posts.json" data-total="${allPosts.length}"` : ''}>
+${items}
+</ul>
+${pager}
 <p id="none" hidden>No post matches. <button type="button" onclick="document.getElementById('clear').click()">Clear the filters</button></p>
-<script>${FINDER_SCRIPT}</script>`
-      : '<p>No posts yet.</p>',
+<script>${FINDER_SCRIPT}</script>`,
   });
 }
 
@@ -673,6 +744,15 @@ async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebas
   const dir = path.join(outDir, section.path);
   await fs.mkdir(dir, { recursive: true });
   await fs.writeFile(path.join(dir, 'index.html'), rebase(renderIndex(posts, { baseUrl, socialCard, episodes, section, agentPosts })));
+  // Past one page the index lists the newest posts; the rest are numbered pages, and the finder reads posts.json.
+  const pages = pageCount(posts);
+  if (pages > 1) {
+    await fs.writeFile(path.join(dir, 'posts.json'), rebase(renderPostRows(posts)));
+    for (let n = 2; n <= pages; n++) {
+      await fs.mkdir(path.join(dir, 'page', String(n)), { recursive: true });
+      await fs.writeFile(path.join(dir, 'page', String(n), 'index.html'), rebase(renderIndex(posts, { baseUrl, socialCard, episodes, section, agentPosts, page: n })));
+    }
+  }
   await fs.writeFile(path.join(dir, 'feed.xml'), rebase(renderFeed(posts, { baseUrl, section })));
   await fs.writeFile(path.join(dir, 'search.json'), rebase(renderSearchIndex(posts)));
   for (const post of posts) {
