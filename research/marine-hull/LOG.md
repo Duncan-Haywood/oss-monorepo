@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-06 · Milestone 6q: does a light-air-only capability fit cover 2019 blocks below 4 m/s? (closes 6o's "Next"; exploratory, predictions not logged before the run)
+- `experiments/run_saildrone_lightair.py` -> `results_saildrone_lightair.txt` (under 1 s): fit sail_area and hull_scale to the 2018 90th-percentile SOG in 0.5 m/s x 15 deg cells (>= 20 blocks, 96 cells, 33,680 blocks, true wind < 4 m/s only); test coverage on 18,921 light-air 2019 blocks.
+- Result: the fit goes to sail_area 0.30 m2, hull_scale 0.30 (MSE 0.053 against 0.059 for 6n's drone): hull drag at 0.3 of the still-water model is not physical, and the gain is small. Coverage (a bound that is right covers ~0.90): 0.645 overall against 0.545 for 6n's drone; by wind 0-2 m/s 0.34 (0.25), 2-3 m/s 0.77 (0.67), 3-4 m/s 0.84 (0.75).
+- Reading: refitting does not rescue the model in light air. Below 2 m/s two thirds of 2019 blocks go faster than even the light-air fit, so SOG there is mostly current and drift (the model has no current), not sail thrust. Do not read the 6o July result (0.93 times solar) as a drone bound for light-air buoys; it is an upper-end sail estimate on a regime where speed over ground is not sail-driven. This weakens, not strengthens, any claim about July.
+- Limits: SOG not speed through water; the 90th percentile is a choice; two years of US West Coast data; the fit hit the edge of a hand-chosen grid's physical range, so the parameters are a curve fit, not a drone.
+- Next: add a current term (the cells' drift speed from near-zero-wind blocks) to the model and refit; or restrict the paper's July claim to winds >= 4 m/s.
+
 ## 2026-11-06 · Milestone 6p: 6h to 6o folded into one paper section (a writing step, no experiment)
 - Replaced the single 6h bullet in `paper/DRAFT.md` section 2.5 with a table of the seven steps (default drone, corridor, tack loss, one fielded mean, 864 fielded drone-days, fitted mission drone, capability drone) and the sentence the paper can support: with a drone model that reproduces fielded speeds, wind beats sun by 1.2 to 1.5 times in January and is level or below in July (0.72 to 0.93 times). Every figure is copied from 6h to 6o above and the result files named; nothing was re-run.
 - Limits carried over: the capability fit covers 68% of 2019 blocks, not 90%; area and hull drag unidentified separately; solar ceiling is itself a bound; no sea state; two months; Explorer 7 m data against a 5 m model.
