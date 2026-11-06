@@ -786,3 +786,11 @@ test("the door and window schedule button is on the page and writes the schedule
   assert.match(html, /layoutOpeningSchedule\(last\.plan\.openingSchedule \|\| \{\}, last\.plan\)/);
   assert.match(html, /download\("door-window-schedule\.csv", "text\/csv", openingScheduleCsv\(sch\)\)/);
 });
+
+test("the plan form has a cull allowance field wired to plan.culls and the order note", () => {
+  const html = page("index.html");
+  assert.match(html, /<input id="cullPct"[^>]*max="50"/);
+  assert.match(html, /culls: \{ pct: Math\.min\(50, Number\(\$\("#cullPct"\)\.value\)\) \/ 100 \}/);
+  assert.match(html, /\$\("#cullPct"\)\.value = String\(s\.cullPct \|\| 0\)/);
+  assert.match(html, /Cull allowance \(\$\{result\.summary\.cullBoards\} spare boards/);
+});
