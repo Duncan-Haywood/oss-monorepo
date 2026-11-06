@@ -46,8 +46,9 @@ const NUM_WORDS = { a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six
 // The next date on or after `today` with this month and day (year rolls forward if it has passed).
 function nextMonthDay(today, m, d) {
   const y = new Date(toDay(today)).getUTCFullYear();
-  for (const yr of [y, y + 1]) { const t = Date.UTC(yr, m, d); if (t >= toDay(today)) return iso(t); }
-  return iso(Date.UTC(y + 1, m, d));
+  // A day the month does not have ("31 February") is not a date: Date.UTC would roll it into March. Leap days wait for a leap year.
+  for (const yr of [y, y + 1, y + 2, y + 3, y + 4]) { const t = Date.UTC(yr, m, d); if (new Date(t).getUTCMonth() === m && t >= toDay(today)) return iso(t); }
+  return null;
 }
 
 /**
@@ -77,7 +78,7 @@ export function findDate(text, today) {
   const orig = String(text);
   text = foreignToEnglish(text);
   const r = findDateLower(text, today);
-  if (!r) return null;
+  if (!r || !r.date) return null;
   const at = String(text).toLowerCase().indexOf(r.text); // report the words as the person wrote them ("Q1", "March 3")
   return text !== orig ? { ...r, text: r.text } : at < 0 ? r : { ...r, text: String(text).slice(at, at + r.text.length) };
 }
@@ -133,7 +134,7 @@ function findDateLower(text, today) {
     const mo = MONTHS.indexOf(m[1].slice(0, 3)), after = /^(after|until|till)/.test(m[0]);
     return { date: nextMonthDay(today, after ? (mo + 1) % 12 : mo, 1), text: m[0] };
   }
-  if ((m = s.match(/\b(?:on|until|till|back|returning)\s+(?:next\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday|sun|mon|tues?|wed|thu(?:rs?)?|fri|sat)\b/))) {
+  if ((m = s.match(/\b(?:on|until|till|back|returning|next|this)\s+(?:next\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday|sun|mon|tues?|wed|thu(?:rs?)?|fri|sat)\b/))) {
     const want = WEEKDAYS.findIndex((d) => d.startsWith(m[1].slice(0, 3))), w = new Date(toDay(today)).getUTCDay();
     return { date: addDays(today, ((want - w + 7) % 7) || 7), text: m[0] };
   }

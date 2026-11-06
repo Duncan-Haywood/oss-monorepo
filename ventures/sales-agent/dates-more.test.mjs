@@ -37,3 +37,12 @@ test("findDate reads month names in other languages", async () => {
   ];
   for (const [t, d] of cases) assert.equal(findDate(t, "2026-11-02")?.date, d, t);
 });
+
+test("findDate: a day the month does not have is not read as a date (2026-11-06)", () => {
+  for (const t of ["back 31 February", "away until Feb 30", "out until 31 Nov"]) assert.equal(findDate(t, "2026-11-06"), null, t);
+  assert.equal(findDate("back Feb 29", "2026-11-06")?.date, "2028-02-29", "a leap day waits for a leap year");
+});
+test("findDate: next and this plus a weekday (2026-11-06)", () => {
+  assert.equal(findDate("let's talk next Tuesday", "2026-11-06")?.date, "2026-11-10");
+  assert.equal(findDate("free this Thursday", "2026-11-06")?.date, "2026-11-12");
+});
