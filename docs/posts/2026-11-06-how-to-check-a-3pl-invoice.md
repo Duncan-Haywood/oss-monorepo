@@ -3,7 +3,7 @@ title: "How do you check a 3PL invoice for overcharges?"
 seo_title: "How to check a 3PL invoice for overcharges: five steps"
 date: 2026-11-06
 tags: [3pl-invoice-audit-checker, seo, logistics]
-description: "Five steps for checking a 3PL bill: match the rate card, compare quantities with your own records, find repeats, test the minimum and surcharges, dispute in writing."
+description: "Five steps for checking a 3PL bill: match the rate card, compare quantities with your records, find repeats, test minimums and surcharges, dispute in writing."
 ---
 
 The 3PL Invoice Audit Checker had one page besides the tool, a comparison with doing it in a spreadsheet. Nobody searches for that. They search for how to check a 3PL invoice.
