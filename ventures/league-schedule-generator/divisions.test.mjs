@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, estimateDriveMinutes, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining, restGaps, divisionsChangeNotices, divisionsBookings, divisionsFacilityCost, divisionsDeadline, applyDivisionWithdrawals, blackoutsFromCsv, csvRows, availabilitySheetCsv } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, estimateDriveMinutes, encodeDivisionFields, decodeDivisionFields, divisionsStandings, divisionsTieBreakNotes, divisionsPlayoffs, divisionsStandingsText, divisionsStandingsCsv, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining, restGaps, divisionsChangeNotices, divisionsBookings, divisionsFacilityCost, divisionsDeadline, applyDivisionWithdrawals, blackoutsFromCsv, csvRows, availabilitySheetCsv, divisionsSeasonGridCsv } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -1132,4 +1132,13 @@ test("divisionsWeeklyUpdate: warns when a team has two walkover losses", () => {
   const none = divisionsWeeklyUpdate(s, `U10: ${b} w/o ${a}`);
   assert.match(out, new RegExp(`Warning: ${a} has two or more forfeits`));
   assert.ok(!/forfeits/.test(none));
+});
+
+test("division CSV exports defuse spreadsheet formulas in names", () => {
+  const { spec } = readDivisionsSpec({ ...example, divisions: "=U10: =HYPERLINK(\"x\"), +Owls, @Lynx, Bears" });
+  const r = buildDivisions(spec);
+  for (const csv of [divisionsCsv(r), divisionsSeasonGridCsv(r)]) {
+    for (const line of csv.split(/\r?\n/)) for (const cell of line.split(",")) assert.ok(!/^"?[=+@]/.test(cell), `cell runs as formula: ${cell}`);
+  }
+  assert.ok(divisionsCsv(r).includes("'=HYPERLINK"));
 });

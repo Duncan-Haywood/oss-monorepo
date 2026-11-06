@@ -7,7 +7,7 @@
 //   3. a team plays at the same venue as on its previous night where it can (fewer trips).
 // Each division keeps the circle-method round robin of calc.mjs (home/away balance and byes), so only
 // the dates, courts and times are decided here.
-import { csvRows, roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, tieBreakNotes, standingsCsv, parsePointSystem, playoffBracket, bracketText, weeklyUpdate, playoffRace, remainingFixtures, raceText, forfeitReport } from "./calc.mjs";
+import { csvCell, csvRows, roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, tieBreakNotes, standingsCsv, parsePointSystem, playoffBracket, bracketText, weeklyUpdate, playoffRace, remainingFixtures, raceText, forfeitReport } from "./calc.mjs";
 
 const MAX_NIGHTS = 800;
 const W_CLASH = 1000;
@@ -1081,7 +1081,7 @@ export function divisionsStandingsCsv(result) {
   for (const t of result.tables) {
     const rows = standingsCsv(t.rows).trim().split(/\r?\n/);
     if (!lines.length) lines.push(`Division,${rows[0]}`);
-    for (const r of rows.slice(1)) lines.push(`"${t.division.replace(/"/g, '""')}",${r}`);
+    for (const r of rows.slice(1)) lines.push(`"${(/^[=+\-@\t\r]/.test(t.division) ? "'" + t.division : t.division).replace(/"/g, '""')}",${r}`);
   }
   return lines.join("\r\n") + "\r\n";
 }
@@ -1209,7 +1209,7 @@ export function validateDivisionOfficials(schedule, officials) {
 }
 
 export function divisionsCsv(schedule) {
-  const q = (s) => (/[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
+  const q = csvCell; // defuses =, +, -, @ at the start of a cell
   const withOfficial = schedule.nights.some((n) => n.matches.some((m) => m.official !== undefined));
   const rows = [["Date", "Time", "Court", "Venue", "Division", "Round", "Home", "Away", ...(withOfficial ? ["Official"] : [])]];
   for (const night of schedule.nights) for (const m of night.matches) rows.push([dayIso(night.day), m.time, m.court, m.venue, m.division, m.round + 1, m.homeName, m.awayName, ...(withOfficial ? [m.official || ""] : [])]);
@@ -1238,7 +1238,7 @@ export function divisionsSeasonGrid(schedule) {
 }
 
 export function divisionsSeasonGridCsv(schedule) {
-  const q = (s) => (/[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
+  const q = csvCell; // defuses =, +, -, @ at the start of a cell
   const { header, rows } = divisionsSeasonGrid(schedule);
   return [header, ...rows].map((r) => r.map(q).join(",")).join("\r\n") + "\r\n";
 }
