@@ -2,7 +2,7 @@
 title: "Checking a cantilevered floor joist from your own figures"
 seo_title: "Cantilever floor joist check: bending, shear, deflection and uplift"
 date: 2026-10-31
-tags: [construction, floors, wall-framing-takeoff]
+tags: [construction, floor, wall-framing-takeoff]
 description: "The wall-framing takeoff now checks the joist behind a floor overhang: bending, shear, tip deflection and uplift at the near support."
 ---
 
