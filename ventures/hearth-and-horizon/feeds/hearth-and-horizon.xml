@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Seven Rolls for a Vestry</title>
+      <link>https://example.invalid/hearth-and-horizon/seven-rolls-for-a-vestry.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/seven-rolls-for-a-vestry.html</guid>
+      <pubDate>Fri, 06 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A parish papers its vestry and the area sum says seven rolls. The assistant counts drops instead, and shows how a pattern repeat turns seven rolls into ten, and why the spare one must come from the same batch. Setting: Saint Edburga's vestry (invented), near Bicester, Oxfordshire, Saturday 18 October 2053. Read the full text at https://example.invalid/hearth-and-horizon/seven-rolls-for-a-vestry.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A parish papers its vestry and the area sum says seven rolls. The assistant counts drops instead, and shows how a pattern repeat turns seven rolls into ten, and why the spare one must come from the same batch.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Fourteen Watt-Hours Short</title>
       <link>https://example.invalid/hearth-and-horizon/fourteen-watt-hours-short.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/fourteen-watt-hours-short.html</guid>
