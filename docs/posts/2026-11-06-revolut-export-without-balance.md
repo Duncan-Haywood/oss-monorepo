@@ -1,6 +1,6 @@
 ---
 title: "A Revolut export with no Balance column lost its fees"
-seo_title: "Importing a Revolut CSV without a Balance column into double-entry books"
+seo_title: "Importing a Revolut CSV with no Balance column into double-entry books"
 date: 2026-11-06
 tags: [ai-bookkeeper, bank-import, revolut]
 description: "The open-source AI Bookkeeper recognised a Revolut export only when it had a Balance column, so without one the fee column was ignored. Fixed, with a test."
