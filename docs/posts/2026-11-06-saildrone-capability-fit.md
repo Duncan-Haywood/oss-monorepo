@@ -1,6 +1,6 @@
 ---
 title: "How fast can a wind-driven survey drone really go? Fitting a model to 131,000 Saildrone blocks"
-seo_title: "Saildrone speed versus wind: fitting a sail-drone model to NOAA PMEL data"
+seo_title: "Saildrone speed versus wind: fitting a sail-drone model to data"
 date: 2026-11-06
 tags: [marine-hull, saildrone, research]
 description: "Fitting a simple wing-sail drone model to the 90th-percentile speed of public Saildrone tracks, trained on 2018 and tested on 2019."
