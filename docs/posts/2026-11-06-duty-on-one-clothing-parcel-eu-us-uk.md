@@ -1,6 +1,6 @@
 ---
 title: "The border now charges a flat 3 euro on every small clothing parcel to the EU"
-seo_title: "EU 3 euro customs duty on small parcels: what it means for a clothing brand"
+seo_title: "EU 3 euro duty on small parcels: what it means for clothing brands"
 date: 2026-11-06
 tags: [clothing-design-studio, duty, ecommerce]
 description: "A free calculator for the border cost of one online clothing order to the EU, US or UK, with the EU flat duty on parcels under 150 euro from July 2026."
