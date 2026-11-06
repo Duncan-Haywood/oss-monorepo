@@ -236,6 +236,13 @@ export function detectColumns(header) {
     if (cols.amount !== -1 && h[cols.amount] === "amount") cols.amount = h.indexOf("net");
     cols.desc = h.indexOf("order");
   }
+  // Gumroad's sales CSV (Item Name, Buyer Name, Item Price, Sale Price, Gumroad Fee, Net Total,
+  // Date): Net Total is what Gumroad pays out after its fee; the item sold is the description,
+  // never the buyer's name or email. Layout from memory of its help page; made-up rows only.
+  if (h.includes("net total") && h.includes("item name") && (h.includes("gumroad fee") || h.includes("sale price"))) {
+    cols.amount = h.indexOf("net total");
+    cols.desc = h.indexOf("item name");
+  }
   // Paytm's wallet statement (Date, Activity, Source/Destination, Wallet Txn ID,
   // Comment, Debit, Credit, ..., Status): the activity is the description.
   if (cols.desc === -1 && h.includes("activity") && h.includes("wallet txn id")) cols.desc = h.indexOf("activity");
