@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-06 · Milestone 91: full BibTeX author lists checked against arXiv and Crossref (no flow run, no new numbers)
+- Why: milestones 86 to 89 left `references.bib` with "and others" in six entries because arxiv.org and doi.org were blocked. Both hosts answered this session. Prediction (written first): the lists copied from PROPOSAL.md are correct for the lead authors and only truncated.
+- **Outcome:** six truncated entries filled from the arXiv API (Takeno 7 authors, Li 5, Balandat 7, Huang 16, Cheng et al. 5, the entry that had no author at all) and Crossref (Mirhoseini 20). Prediction **refuted in one case**: Kandasamy et al. 2016 (1603.06288) omitted Junier B. Oliva, now added. The other four complete entries (Jamieson, Falkner, Yu, Angelopoulos) match. `tests/test_bib.py` 2 passed.
+- Limits: titles were not diffed beyond a visual check; `main.pdf` not rebuilt (no TeX in this container), the bib change only adds authors.
+- Next: detail-routed mult24/mult32 cells; official MLCAD style and page limit.
+
 ## 2026-11-06 · Milestone 90: a theorem bounding false pilot certificates of the rank-displacement statistic (no flow run)
 - Why: PAPER.md Section 6 item 4. Milestone 84 measured false certificates at about 4% but gave no reason. Predictions written before running: (1) |G| <= k_last in all 40 cells, where G = candidates with ratio < 1; (2) the empirical false-certificate share is at most 1 - C(n-g,m)/C(n,m) in every cell; (3) the bound is loose (median empirical/bound under 0.5).
 - Proof sketch: ratio < 1 forces rho_last < k_last, and at most k_last candidates have that; a false certificate needs the pilot to hit G while x* is outside it. `experiments/theory/pilot_rho_bound.py`, `pilot_rho_bound_results.txt`, `tests/test_pilot_rho_bound.py` (random instances with ties).
