@@ -171,7 +171,7 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
       const raw = JSON.parse(readInput(args[0])); keyNote = misspeltPlanKeysNote(misspeltPlanKeys(raw)); plan = normalise(raw);
       for (const w of plan.walls || []) if (w && typeof w.studLength === "string") w.studLength = parseLength(w.studLength);
       for (const w of plan.walls || []) if (w && Array.isArray(w.steps)) for (const st of w.steps) if (st) for (const k of ["at", "studLength"]) if (typeof st[k] === "string") st[k] = parseLength(st[k]);
-      const ex = expandSteppedWalls(plan);
+      const ex = /** @type {any} */ (expandSteppedWalls(plan));
       if (!ex.ok) return { code: 1, out: `The stepped walls have problems:\n${ex.errors.map((e) => `  - ${e}`).join("\n")}` };
       plan = ex.plan; keyNote += ex.notes.map((n) => `Note: ${n}\n`).join("");
     }
