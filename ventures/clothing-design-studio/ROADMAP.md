@@ -43,6 +43,7 @@ many-session project. Each milestone below lands as a working slice.
 - Sewing patterns and grading: professional pattern software does this well.
 - Holding anyone's designs on our servers.
 
+- 2026-11-06: factory sleeve length at size M on `fit.html` (`sleeveCm` in `tryOn`, 5th argument of `sleeveCheck`) replaces the typical sleeve figure in the sleeve verdict, +1 cm per size step; unit test only (`tryon.test.mjs`), no real factory spec yet.
 - 2026-11-05: measured arm (shoulder point to wrist) on `fit.html` replaces the height rule in `sleeveCheck`; unit tests only. Still to do: factory sleeve spec in the check, WebXR, camera try-on.
 
 - 2026-11-06: `duty.mjs` + `duty.html`, landed cost by destination (US/EU/UK customs value, duty, extra tariff, least-developed-country zero duty with proof, import VAT apart). Rates typed from memory, not checked against any tariff; hand tests only. Still to do: rates read from the official tariffs, more garment codes, de minimis and postal rules for direct-to-consumer parcels, a broker-confirmed classification.
