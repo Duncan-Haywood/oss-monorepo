@@ -1,6 +1,6 @@
 ---
 title: "35 of 35 seeded bugs caught in our CI tooling"
-seo_title: "Mutation testing the platform CI scripts: 35 of 35 seeded faults caught"
+seo_title: "Mutation testing platform CI scripts: 35 of 35 seeded faults caught"
 date: 2026-11-06
 tags: [testing, mutation-testing, ci]
 description: "A red-team run seeded 35 faults into five platform scripts; the repository's own tests caught every one."
