@@ -502,6 +502,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.cmd == "campaign":
         seed = args.seed if args.seed is not None else random.randrange(1 << 30)
+        if args.record and not args.record.is_file():
+            # doc_friction 2026-11-05: a mistyped path failed after the whole campaign ran
+            raise SystemExit(f"--record {args.record}: no such run record (create it with promptctl.py record first)")
         if args.target:
             target = (REPO / args.target).resolve()
         else:
@@ -512,7 +515,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"red team: {target.relative_to(REPO)} seed {seed}", file=sys.stderr)
         camp = campaign(target, args.mutants, seed, timeout=args.timeout)
         if args.record:
-            add_to_record(args.record, camp)
+            try:
+                add_to_record(args.record, camp)
+            except (OSError, ValueError) as exc:
+                print(f"could not save to {args.record}: {exc}; the campaign is printed below",
+                      file=sys.stderr)
         else:
             print("not saved: rerun with --record prompts/runs/<your record>.json "
                   "to keep this campaign in the run record", file=sys.stderr)
