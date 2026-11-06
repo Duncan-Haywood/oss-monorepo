@@ -1,6 +1,8 @@
 ---
 title: "Does a changepoint detector cry wolf on smooth data? Two more real series"
 date: 2026-11-06
+tags: [changepoint-detector, time-series, evaluation]
+description: "Two more real smooth series run through the changepoint detector: sales over-cut by 12 changes, one with AR(1) errors, and a census slowdown found."
 ---
 
 A step detector that reports a dozen "changes" in a series where nothing happened is worse than none. We ran the changepoint-detector on two more real series with no documented step: 150 Box-Jenkins sales values and 19 US census counts, 1790 to 1970.
