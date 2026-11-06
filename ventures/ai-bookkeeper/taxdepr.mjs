@@ -10,6 +10,7 @@
 // Rates: IRS Publication 946, Table A-1 (half-year). Pure functions.
 
 import { schedule, booksThrough } from "./assets.mjs";
+import { q } from "./csvq.mjs";
 
 // Percent of the depreciable basis per recovery year, in thousandths of a percent.
 const T = (a) => a.map((p) => Math.round(p * 1000));
@@ -226,7 +227,7 @@ const a_bonus = (books, id) => (books.assets ?? []).find((a) => a.id === id)?.ta
 // The worksheet as CSV for a preparer: one row per asset, then totals, then the notes.
 export function taxDepreciationCsv(w) {
   const d = (c) => (c / 100).toFixed(2);
-  const q = (s) => (/[",\n]/.test(s) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
+
   const rows = [`Asset,Name,Placed in service,MACRS class,Cost,Section 179,Bonus,MACRS ${w.year},Tax depreciation ${w.year},Book depreciation ${w.year},Difference`];
   for (const r of w.rows) rows.push([r.id, q(r.name), r.placed, r.class, d(r.cost), d(r.s179), d(r.bonus), d(r.macrs), d(r.total), d(r.book), d(r.difference)].join(","));
   const t = w.totals;
