@@ -18,6 +18,7 @@ const DEFAULTS = {
   headerRows: 2, // rows of face nails joining header plies
   headerSpacing: 16, // in
   sillEndNails: 2, // per rough sill end
+  blockingEndNails: 2, // per blocking piece end (blocking and fire blocking between studs, ladder blocking at tees)
   edgeSpacing: 6, // in: sheathing nails on panel edges
   fieldSpacing: 12, // in: sheathing nails on intermediate studs
   waste: 0.1,
@@ -44,12 +45,13 @@ const DEFAULTS = {
 /** @param {Fasteners} d */
 export function validateFasteners(d) {
   if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Fastener settings are an object."];
-  const e = textNumberErrors(d, ["studEndNails", "headerEndNails", "sillEndNails", "headerRows", "plateSpacing", "jackSpacing", "backingSpacing", "headerSpacing", "fieldSpacing", "edgeSpacing", "waste", "nailsPerBox", "price"]);
+  const e = textNumberErrors(d, ["studEndNails", "headerEndNails", "sillEndNails", "blockingEndNails", "headerRows", "plateSpacing", "jackSpacing", "backingSpacing", "headerSpacing", "fieldSpacing", "edgeSpacing", "waste", "nailsPerBox", "price"]);
   /** @param {string} k @param {number} lo @param {number} hi @param {string} what */
   const rng = (k, lo, hi, what) => { const v = /** @type {any} */ (d)[k]; if (v != null && !(v >= lo && v <= hi)) e.push(`${what} must be between ${lo} and ${hi}.`); };
   rng("studEndNails", 1, 6, "Nails per stud end");
   rng("headerEndNails", 1, 6, "Nails per header ply end");
   rng("sillEndNails", 1, 6, "Nails per sill end");
+  rng("blockingEndNails", 1, 6, "Nails per blocking end");
   rng("headerRows", 1, 4, "Header nail rows");
   for (const k of ["plateSpacing", "jackSpacing", "backingSpacing", "headerSpacing", "fieldSpacing"]) rng(k, 3, 48, `Spacing ${k}`);
   rng("edgeSpacing", 2, 12, "Sheathing edge spacing");
@@ -115,6 +117,7 @@ export function layoutFasteners(d, plan, result) {
         total += add("Stud, king and cripple ends", 2 * c.studEndNails, `${c.studEndNails} end nails at each end`);
         total += add("Jack to king", along(len, c.jackSpacing), `face nails at ${c.jackSpacing} in, one row`);
       } else if (m.kind === "corner" || m.kind === "tee") total += add("Corner and tee backing", along(len, c.backingSpacing), `face nails at ${c.backingSpacing} in`);
+      else if (m.kind === "blocking") total += add("Blocking ends", 2 * c.blockingEndNails, `${c.blockingEndNails} nails at each end, between studs`);
       else if (m.kind === "sill") total += add("Rough sills", 2 * c.sillEndNails, `${c.sillEndNails} end nails at each end`);
       else if (m.kind === "header") {
         total += add("Header ends", 2 * c.headerEndNails, `${c.headerEndNails} nails per ply end, through the king`);
