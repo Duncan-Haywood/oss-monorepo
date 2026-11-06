@@ -100,7 +100,9 @@ export function toMarkdown(sum, { title = "Work report", client = "", showAuthor
 }
 
 export function toCsv(sum) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+// Formula guard: text starting = + - @ (or tab/CR) would run as a formula in a spreadsheet; prefix an apostrophe (plain numbers such as -12.50 stay numbers).
+const defuse = (s) => (/^[=+\-@\t\r]/.test(s) && !/^[+-]?\d[\d.,]*$/.test(s) ? "'" + s : s);
+  const q = (s) => `"${defuse(String(s)).replace(/"/g, '""')}"`;
   const rows = ["date,hours,commits,summary"];
   for (const d of sum.days) rows.push([d.day, d.hours, d.commits.length, q(d.commits.filter((c) => !isNoise(c.subject)).map((c) => describe(c.subject).text).join("; "))].join(","));
   return rows.join("\n") + "\n";

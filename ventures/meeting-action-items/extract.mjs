@@ -242,7 +242,9 @@ export function extract(notes, { date = null, attendees = [] } = {}) {
   };
 }
 
-const csvCell = (v) => { const s = v == null ? "" : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+// Formula guard: text starting = + - @ (or tab/CR) would run as a formula in a spreadsheet; prefix an apostrophe (plain numbers such as -12.50 stay numbers).
+const defuse = (s) => (/^[=+\-@\t\r]/.test(s) && !/^[+-]?\d[\d.,]*$/.test(s) ? "'" + s : s);
+const csvCell = (v) => { const s = defuse(v == null ? "" : String(v)); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export function actionsCsv(r) {
   const rows = [["Task", "Owner", "Due", "Confidence", "Source line"]];
   for (const a of r.actions) rows.push([a.task, a.owner || "", a.due || "", a.confidence, a.line]);
