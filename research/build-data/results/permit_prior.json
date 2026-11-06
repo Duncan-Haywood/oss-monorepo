@@ -1,0 +1,217 @@
+{
+ "units": "days",
+ "note": "Descriptive empirical quantiles from public city feeds, not advice or a promise of any permit's timing. Start year is the application date (a2i) or issue date (i2c).",
+ "prior": [
+  {
+   "city": "chicago",
+   "target": "a2i",
+   "window": [
+    2022,
+    2024
+   ],
+   "negative_dropped": 81,
+   "all_types": {
+    "n": 106195,
+    "same_day_share": 0.4804,
+    "q10": 0.0,
+    "q50": 1.0,
+    "q90": 68.0
+   },
+   "types": {
+    "permit - easy permit process": {
+     "n": 21110,
+     "same_day_share": 0.7315,
+     "q10": 0.0,
+     "q50": 0.0,
+     "q90": 13.0
+    },
+    "permit - elevator equipment": {
+     "n": 3515,
+     "same_day_share": 0.8265,
+     "q10": 0.0,
+     "q50": 0.0,
+     "q90": 5.0
+    },
+    "permit - new construction": {
+     "n": 4153,
+     "same_day_share": 0.3024,
+     "q10": 0.0,
+     "q50": 21.0,
+     "q90": 219.0
+    },
+    "permit - reinstate revoked pmt": {
+     "n": 787,
+     "same_day_share": 0.8767,
+     "q10": 0.0,
+     "q50": 0.0,
+     "q90": 1.0
+    },
+    "permit - renovation/alteration": {
+     "n": 20668,
+     "same_day_share": 0.257,
+     "q10": 0.0,
+     "q50": 24.0,
+     "q90": 175.0
+    },
+    "permit - scaffolding": {
+     "n": 665,
+     "same_day_share": 0.8707,
+     "q10": 0.0,
+     "q50": 0.0,
+     "q90": 1.0
+    },
+    "permit - signs": {
+     "n": 7188,
+     "same_day_share": 0.0273,
+     "q10": 1.0,
+     "q50": 16.0,
+     "q90": 118.0
+    },
+    "permit - wrecking/demolition": {
+     "n": 1836,
+     "same_day_share": 0.9014,
+     "q10": 0.0,
+     "q50": 0.0,
+     "q90": 0.0
+    },
+    "permit \u2013 express permit program": {
+     "n": 46273,
+     "same_day_share": 0.4966,
+     "q10": 0.0,
+     "q50": 1.0,
+     "q90": 30.0
+    }
+   },
+   "folded_small_types": 0
+  },
+  {
+   "city": "sf",
+   "target": "a2i",
+   "window": [
+    2022,
+    2024
+   ],
+   "negative_dropped": 2257,
+   "all_types": {
+    "n": 69869,
+    "same_day_share": 0.5243,
+    "q10": 0.0,
+    "q50": 0.0,
+    "q90": 95.0
+   },
+   "types": {
+    "additions alterations or repairs": {
+     "n": 3295,
+     "same_day_share": 0.0003,
+     "q10": 46.0,
+     "q50": 237.0,
+     "q90": 685.0
+    },
+    "demolitions": {
+     "n": 86,
+     "same_day_share": 0.0233,
+     "q10": 48.0,
+     "q50": 216.5,
+     "q90": 907.0
+    },
+    "new construction": {
+     "n": 31,
+     "same_day_share": 0.0,
+     "q10": 254.0,
+     "q50": 449.0,
+     "q90": 1299.0
+    },
+    "new construction wood frame": {
+     "n": 106,
+     "same_day_share": 0.0,
+     "q10": 206.0,
+     "q50": 533.0,
+     "q90": 1079.5
+    },
+    "otc alterations permit": {
+     "n": 65050,
+     "same_day_share": 0.5579,
+     "q10": 0.0,
+     "q50": 0.0,
+     "q90": 55.0
+    },
+    "sign - erect": {
+     "n": 1122,
+     "same_day_share": 0.254,
+     "q10": 0.0,
+     "q50": 10.0,
+     "q90": 95.8
+    },
+    "wall or painted sign": {
+     "n": 169,
+     "same_day_share": 0.3018,
+     "q10": 0.0,
+     "q50": 6.0,
+     "q90": 57.4
+    }
+   },
+   "folded_small_types": 10
+  },
+  {
+   "city": "sf",
+   "target": "i2c",
+   "window": [
+    2022,
+    2024
+   ],
+   "negative_dropped": 736,
+   "all_types": {
+    "n": 55307,
+    "same_day_share": 0.0013,
+    "q10": 14.0,
+    "q50": 119.0,
+    "q90": 481.0
+   },
+   "types": {
+    "additions alterations or repairs": {
+     "n": 2581,
+     "same_day_share": 0.0,
+     "q10": 84.0,
+     "q50": 384.0,
+     "q90": 860.0
+    },
+    "demolitions": {
+     "n": 96,
+     "same_day_share": 0.0,
+     "q10": 94.0,
+     "q50": 411.0,
+     "q90": 781.0
+    },
+    "new construction wood frame": {
+     "n": 71,
+     "same_day_share": 0.0,
+     "q10": 298.0,
+     "q50": 731.0,
+     "q90": 1085.0
+    },
+    "otc alterations permit": {
+     "n": 51739,
+     "same_day_share": 0.0014,
+     "q10": 14.0,
+     "q50": 112.0,
+     "q90": 441.0
+    },
+    "sign - erect": {
+     "n": 703,
+     "same_day_share": 0.0014,
+     "q10": 6.0,
+     "q50": 120.0,
+     "q90": 400.6
+    },
+    "wall or painted sign": {
+     "n": 85,
+     "same_day_share": 0.0,
+     "q10": 8.0,
+     "q50": 73.0,
+     "q90": 385.0
+    }
+   },
+   "folded_small_types": 32
+  }
+ ]
+}

@@ -240,5 +240,5 @@ tighter quantile levels (4.2a) can halve the width, but pick them with drift in 
 2. A year-ahead (Y-2 versus Y-1) calibration check for the quantile pair (4.2b did not solve Chicago); (H2g now run for every city and target that has one; see 4.2c).
 3. Spread over draws and i2c for 4.5; first-n-rows ordering instead of random draws.
 4. Multiple test years for H1; a fourth city after a licence check.
-5. Publish the permit-duration prior data file for `ventures/` (milestone 7).
+5. Empirical permit-duration prior published for Chicago and SF (`results/permit_prior.json`, `src/prior.py`, LOG session 34); still to do: Austin, and a model-based version for `ventures/`.
 6. Re-run `research/_shared/cite_check.py` at submission and re-check novelty.
