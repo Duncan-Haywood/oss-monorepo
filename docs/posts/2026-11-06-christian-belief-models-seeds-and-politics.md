@@ -1,5 +1,6 @@
 ---
 title: "Do political views explain what Catholics say about marriage? Not once you know their other answers"
+seo_title: "Do political views explain what Catholics say about marriage?"
 date: 2026-11-06
 description: "Fold-seed stability and a politics ablation for predicting Catholic survey answers."
 tags: [research, surveys, religion]
