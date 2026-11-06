@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13449",
+  "pr": "https://github.com/duncan-haywood/oss-monorepo/pull/13449",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -32,7 +32,7 @@
   "doc_friction": [],
   "deviations": [
     {
-      "file": "prompts/creative/prompt-0.md",
+      "file": "prompt.md",
       "why": "Routed to creative track; chose the top flagship (wall-framing-takeoff) because the scheduled prompt asked for revenue-product work."
     }
   ],
