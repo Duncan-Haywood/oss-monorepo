@@ -1,9 +1,9 @@
 ---
 title: "Does a small LLM coder let you audit a rare category with fewer hand-labels?"
-seo_title: "Audit design for LLM-coded text with rare categories: coverage and width on GoEmotions"
+seo_title: "Auditing LLM-coded text for rare categories: GoEmotions check"
 date: 2026-11-06
 tags: [llm-coding-inference, prediction-powered-inference, research]
-description: "A 500-draw check of the llm-coding-inference audit planner with a real zero-shot LLM coder on three GoEmotions categories: valid everywhere, narrower only where the category is not rare."
+description: "Audit planner with a real LLM coder on three GoEmotions categories: valid everywhere, narrower only where the category is not rare."
 ---
 
 When an LLM labels a corpus of text and people hand-check a sample, how wide is the interval on a category's share, and how often does it cover the truth? This run tested the repository's audit planner with a cached zero-shot Qwen2.5-1.5B-Instruct coder on three GoEmotions categories (fear 1.15%, sadness 2.30%, admiration 8.1%), 500 simulated audits of 1,000 items each.
