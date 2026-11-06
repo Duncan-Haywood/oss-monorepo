@@ -1,6 +1,6 @@
 ---
 title: "When must a new clothing brand start to have stock by launch day?"
-seo_title: "Time and action calendar for a small clothing brand: free launch date planner"
+seo_title: "Time and action calendar for a small clothing brand (free)"
 date: 2026-11-06
 tags: [clothing-design-studio, production, planning]
 description: "A free calendar works back from the day you want stock to the latest start for every step: tech pack, samples, fabric, production, freight, customs."
