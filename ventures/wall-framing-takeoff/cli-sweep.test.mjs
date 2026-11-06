@@ -23,7 +23,8 @@ const shapes = {
 const flags = ["--floor", "--deck", "--stairs", "--roof", "--fasteners", "--ventilation", "--gutters", "--dormer",
   "--eaves", "--siding", "--electrical", "--drilling", "--trim", "--flooring", "--paint", "--openings",
   "--insulation", "--drywall", "--foundation", "--sheathing", "--budget", "--gang", "--headers", "--schedule",
-  "--risk", "--drawings", "--proposal", "--panel-max=12ft"];
+  "--risk", "--drawings", "--proposal", "--panel-max=12ft", "--hvac", "--plumbing", "--wall-tile",
+  "--fireblock", "--sensitivity", "--pull-lists", "--orders", "--compare"];
 
 for (const [name, plan] of Object.entries(shapes)) {
   const file = join(dir, `${name}.json`);
