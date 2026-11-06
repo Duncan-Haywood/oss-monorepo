@@ -1,9 +1,9 @@
 ---
 title: "Tiling a shower: how many tiles, bags and backer boards?"
-seo_title: "Wall tile takeoff for a shower or tub surround: tiles, thinset, grout and backer board"
+seo_title: "Wall tile takeoff for a shower: tiles, thinset, grout, backer"
 date: 2026-11-06
 tags: [wall-framing-takeoff, tile, construction]
-description: "The open-source wall framing takeoff now orders wall tile for showers, tub surrounds and backsplashes: tiles with waste, thinset, grout, cement board, screws and membrane."
+description: "The open-source framing takeoff now orders wall tile for showers, tub surrounds and backsplashes: tiles, thinset, grout, cement board and membrane."
 ---
 
 Floor tile was already in the takeoff. A shower is different: the walls are tiled, a niche takes tile out but not board, and the wall behind needs cement backer board and often a membrane.
