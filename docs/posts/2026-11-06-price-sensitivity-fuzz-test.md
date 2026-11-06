@@ -1,6 +1,6 @@
 ---
 title: "Does the price what-if add up? 300 random budgets say yes"
-seo_title: "Testing a construction bid price sensitivity calculator with random budgets"
+seo_title: "Testing a bid price sensitivity calculator with random budgets"
 date: 2026-11-06
 tags: [wall-framing-takeoff, testing, estimating]
 description: "The wall framing tool's price sensitivity report now has a seeded test that recomputes every figure by hand on 300 random budgets."
