@@ -38,6 +38,18 @@ export function validateFireblock(d) {
 export function layoutFireblock(d, result) {
   const errors = validateFireblock(d);
   if (errors.length) return { ok: false, errors };
+  if (result == null || typeof result !== "object" || !Array.isArray(result.walls)) return { ok: false, errors: ["Fireblocking needs a takeoff with a list of walls."] };
+  const MAX_IN = 12000; // guard limit, not a code value: a wall or member beyond 1,000 ft is a typo
+  const num = (/** @type {any} */ v) => typeof v === "number" && Number.isFinite(v) && Math.abs(v) <= MAX_IN;
+  for (const [i, w] of result.walls.entries()) {
+    if (w == null || typeof w !== "object" || Array.isArray(w)) return { ok: false, errors: [`Wall ${i + 1} is not an object.`] };
+    if (w.members != null && !Array.isArray(w.members)) return { ok: false, errors: [`Wall ${w.id ?? i + 1}: members is not a list.`] };
+    for (const m of w.members || []) {
+      if (m == null || typeof m !== "object" || !num(m.x) || !num(m.y) || !num(m.w) || !num(m.h) || m.w < 0 || m.h < 0) {
+        return { ok: false, errors: [`Wall ${w.id ?? i + 1}: every member needs numeric x, y, w and h from 0 to ${MAX_IN} in.`] };
+      }
+    }
+  }
   const interval = (d.intervalFt ?? 10) * 12, boardIn = (d.boardFt ?? 8) * 12, kerf = d.kerf ?? 0.125, waste = d.waste ?? 0.05;
   /** @type {{ id: string, size: string, rows: number, bays: number, pieces: number, lengthIn: number }[]} */
   const walls = [];
