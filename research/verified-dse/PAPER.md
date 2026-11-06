@@ -161,6 +161,6 @@ Findings that used to be listed here now sit in Sections 3 and 4. What is open:
 2. A causal fanout result that does not depend on the Yosys version (Section 5).
 3. BO/BOHB baselines on larger pools and with structurally unfaithful R2 beyond the multiplier family.
 4. A pilot-side regret certificate (a proof or counterexample for the top-vs-all coverage; Section 4 says what is excluded).
-5. Typesetting to the MLCAD template.
+5. Final typesetting to the MLCAD template. `paper/main.tex` (IEEEtran conference class, generated from this file by `paper/build.sh`; `paper/main.pdf`, 6 pages) is a working draft in that class; the official MLCAD style file and page limit still need checking against the call for papers.
 
 Until (1) to (3) land, the honest headline is the negative one: on small designs, cheap rungs did not pay, and a pilot gate that detects when they will not has not been shown to pay for itself on the 30 designs it was replayed on (20 in milestone 16, five each in milestones 27 and 28).

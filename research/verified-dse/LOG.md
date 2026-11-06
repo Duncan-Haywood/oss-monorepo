@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-06 · Milestone 85: IEEEtran LaTeX draft of the paper, built from PAPER.md (no flow run, no new numbers)
+- Why: Section 6 item 5 (typesetting). `paper/build.sh` converts `PAPER.md` with pandoc into `paper/main.tex` (IEEEtran conference class) so the markdown stays the single source; `pdflatex` twice gives `paper/main.pdf`.
+- Check: the PDF compiles to 6 pages and `pdftotext` gives 5,710 words against 5,709 in `PAPER.md` (nothing dropped); 8 overfull-box warnings remain (wide tables). Nothing was re-measured.
+- Limits: the author block is anonymous, the references stay inline as in `PAPER.md` (no BibTeX file yet), and the official MLCAD style and page limit are unchecked.
+- Next: BibTeX bibliography and fixing the overfull tables; detail-routed mult24/mult32 cells.
+
 ## 2026-11-05 · Milestone 84: can a pilot observe the optimum's rank displacement? (predictions written before the run)
 - Why: PAPER.md Section 6 item 4 (pilot-side certificate). Milestone 44's zero-regret condition rho_j(x*) < k_j needs the unrouted optimum's rank; rung scores are known for the whole pool, so rho_j(p) is exact for every routed pilot point. `experiments/theory/pilot_rho.py`: statistic T = ratio of the pilot's best routed point, T3 = smallest ratio among its best three; coverage = share of pilots with T >= ratio(x*); a "certificate" is T < 1. m = 8, 16, 24; 300 pilots per cell; 40 cells; no flow run.
 - Predictions: (1) median coverage of T below 0.8 at m = 16 (a best routed point is not the optimum and the optimum is often displaced less); (2) T3 covers more than T; (3) in cells where the optimum is not guaranteed (ratio >= 1) a nonzero share of pilots still gets T < 1 (false certificates).
