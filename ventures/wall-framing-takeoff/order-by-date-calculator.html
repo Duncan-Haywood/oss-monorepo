@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Order-by date calculator: when to order trusses, windows and other long-lead items</title>
+  <meta name="description" content="Free order-by date calculator: type each item's supplier lead time, buffer and the date you need it on site, and get the weekday to order by, and what is already late. Runs in your browser.">
+  <meta property="og:title" content="Order-by date calculator">
+  <meta property="og:description" content="Lead time and need date in, order-by date out. Private, free, in your browser.">
+  <link rel="canonical" href="./order-by-date-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Trusses take 28 days to build and 3 days to ship; I need them on site Monday 1 June 2026. When do I order?", "acceptedAnswer": {"@type": "Answer", "text": "The need date less 28 days of lead and a 3-day buffer is 31 calendar days earlier: Friday 1 May 2026. Windows with a 42-day lead for the same date come to Monday 20 April 2026. If a result falls on a weekend the date rolls back to the Friday before, since nobody takes an order on a Sunday."}}, {"@type": "Question", "name": "What if I am already past the order-by date?", "acceptedAnswer": {"@type": "Answer", "text": "Type today's date. An item that should already have been ordered is marked late, with the earliest date it can arrive if you order today (today plus its lead time) and how many days after the need date that is. The buffer is a margin, so a late item only delays work once arrival passes the need date itself."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Order-by date calculator</h1>
+  <p>Trusses, windows, a steel beam and cabinets arrive weeks after you order them. Type one line per item (name, supplier lead time in calendar days, a delivery buffer in days, the date you need it on site, and optionally the supplier) and get the weekday to order by. Add today's date and it flags what is already late and when it would arrive if ordered now. The same date engine as the whole-house takeoff. Lead times are yours; nothing here forecasts a supplier. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <label for="src">Items (one per line: item, lead days, buffer days, need date YYYY-MM-DD, supplier optional; lines starting with # are skipped)</label>
+    <textarea id="src" rows="8" spellcheck="false" style="width:100%;box-sizing:border-box;font:.9rem ui-monospace,monospace;padding:8px">Trusses, 28, 3, 2026-06-01, Acme Truss
+Windows, 42, 0, 2026-06-01
+Steel beam, 21, 2, 2026-05-18
+Cabinets, 56, 5, 2026-08-03</textarea>
+    <label for="td">Today (optional; flags items already too late to order)</label>
+    <input id="td" type="date" style="max-width:12rem">
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="schedule-calculator.html">Tie the dates to a construction schedule (critical path, crews, weather)</a></p>
+
+  <h2>How it is counted</h2>
+  <ol>
+    <li><strong>Order by.</strong> The need date less the lead time and the buffer, in calendar days (partial days round up), rolled back to the previous weekday.</li>
+    <li><strong>Late.</strong> With today's date, an order-by date in the past is late; the item arrives today plus its lead time at the earliest.</li>
+    <li><strong>Delay.</strong> Days between that arrival and the need date, if any. The buffer is a margin, so a late item only delays work once arrival passes the need date.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>Trusses take 28 days to build and 3 days to ship; I need them on site Monday 1 June 2026. When do I order?</h3>
+  <p>The need date less 28 days of lead and a 3-day buffer is 31 calendar days earlier: Friday 1 May 2026. Windows with a 42-day lead for the same date come to Monday 20 April 2026. If a result falls on a weekend the date rolls back to the Friday before, since nobody takes an order on a Sunday.</p>
+  <h3>What if I am already past the order-by date?</h3>
+  <p>Type today's date. An item that should already have been ordered is marked late, with the earliest date it can arrive if you order today (today plus its lead time) and how many days after the need date that is. The buffer is a margin, so a late item only delays work once arrival passes the need date itself.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="paint-calculator.html">Paint calculator (gallons of paint and primer)</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator (receptacle and switch boxes, cable)</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator (tiles, backer board, membrane)</a></li><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity (what a lumber or labor swing does to the bid)</a></li><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li><li><a href="drywall-calculator.html">Drywall calculator (sheets, tape, compound)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, carpet)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Lead times are the ones you type, not a supplier's promise, and the output is not checked against any span table or code, or against a plan. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, paint maker, builder or software company. Holidays, supplier shutdowns, shipping delays and freight days are not modelled. Ask your supplier for a written lead time.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { orderByFromLines } from "./orderby.mjs";
+    import { procurementText } from "./procurement.mjs";
+    const $ = (id) => document.getElementById(id);
+    const run = () => {
+      const p = orderByFromLines($("src").value, $("td").value);
+      $("out").textContent = procurementText(p).join("\n");
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>
