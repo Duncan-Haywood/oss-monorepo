@@ -1,6 +1,7 @@
 import os, tempfile, unittest
 import contextlib, io
-from wait_for import main, wait, wait_until
+import subprocess
+from wait_for import main, wait, wait_until, wait_pid
 
 
 class WaitFor(unittest.TestCase):
@@ -86,6 +87,16 @@ class WaitFor(unittest.TestCase):
         with contextlib.redirect_stdout(out), self.assertRaises(SystemExit):
             main(["--help"])
         self.assertIn("Wait for a background command to finish", out.getvalue())
+
+    def test_pid(self):
+        p = subprocess.Popen(["sleep", "30"])
+        try:
+            self.assertEqual(main(["--pid", str(p.pid), "--timeout", "0"]), 1)
+        finally:
+            p.kill()
+            p.wait()
+        self.assertEqual(main(["--pid", str(p.pid), "--timeout", "1"]), 0)
+        self.assertTrue(wait_pid(2**22 + 7, timeout=1))
 
 
 if __name__ == "__main__":
