@@ -409,6 +409,7 @@
     import { EXAMPLE_SUPPLIER, supplierToCsv, supplierFromCsv } from "./suppliers.mjs";
     import { dutyPctFor } from "./duty.mjs";
     import { economics, quantityBreaks, money, DEFAULT_PLAN } from "./costing.mjs";
+    import { briefFromStudio, saveBrief } from "./launchbrief.mjs";
     import { techPack, techPackHtml, quoteRequest } from "./techpack.mjs";
     import { launchKit } from "./launchkit.mjs";
     import { storefront } from "./storefront.mjs";
@@ -924,6 +925,8 @@
           <div class="kpi"><span>Cash needed up front</span><div class="big">${money(e.cashUpFront, c)}</div></div>
           <div class="kpi"><span>Price for a ${plan.targetMarginPct}% margin</span><div class="big">${money(e.priceForTargetMargin, c)}</div></div>
         </div>`;
+        const briefSaved = !e.cost.landed ? false : saveBrief(briefFromStudio(design, sheet, plan, e.cost));
+        if (briefSaved) html += `<p class="muted">These numbers now start the launch tools: <a href="cashflow.html">cash flow</a>, <a href="preorder.html">pre-order</a>, <a href="wholesale.html">wholesale</a>, <a href="reorder.html">reorder</a> and <a href="tna.html">time and action</a>. They stay in this browser.</p>`;
         html += `<p class="muted">If ${e.sellableUnits} of ${design.quantity} sell at ${money(e.price, c)}: ${e.profitIfSellable >= 0 ? "profit" : "loss"} of ${money(Math.abs(e.profitIfSellable), c)} after the run and the launch budget.</p>`;
         if (e.notes.length) html += `<div class="notes">${e.notes.map(esc).join("<br>")}</div>`;
         html += `<table><caption class="sr">Cost per garment</caption><tr><th>Cost per garment</th><th class="num">${c}</th><th>How</th></tr>${e.cost.lines.map(l => `<tr><td>${esc(l.label)}</td><td class="num">${l.value.toFixed(2)}</td><td class="muted">${esc(l.detail)}</td></tr>`).join("")}<tr><th>Landed</th><th class="num">${e.cost.landed.toFixed(2)}</th><td></td></tr></table>`;

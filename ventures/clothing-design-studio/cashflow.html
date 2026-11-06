@@ -70,6 +70,7 @@
   <script type="module">
     import { launchCash } from "./cashflow.mjs";
     import { recordUsage } from "./usage.mjs";
+    import { applyBrief } from "./launchbrief.mjs";
     const $ = s => document.querySelector(s);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
     const n = id => +$(id).value;
@@ -97,6 +98,7 @@
         ${chart(b.weeks, b.lowest)}
         ${r.notes.map(t => `<p class="notes">${esc(t)}</p>`).join("")}`;
     }
+    { const note = applyBrief("cashflow"); if (note) { const el = document.createElement("p"); el.className = "tag"; el.id = "brief-note"; el.textContent = note; document.querySelector("section").prepend(el); } }
     document.querySelectorAll("section input").forEach(el => el.addEventListener("input", () => { render(); recordUsage("cashflow_check"); }));
     render(); recordUsage("cashflow_open");
   </script>

@@ -70,6 +70,7 @@
   <script type="module">
     import { tnaPlan } from "./tna.mjs";
     import { recordUsage } from "./usage.mjs";
+    import { applyBrief } from "./launchbrief.mjs";
     const $ = s => document.querySelector(s);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
     $("#today").value = new Date().toISOString().slice(0, 10);
@@ -89,6 +90,7 @@
         <p class="tag">* On the longest chain: a week lost here is a week lost at the shelf. Steps without a star run beside the chain and can slip by their spare days.</p>
         ${r.notes.map(t => `<p class="notes">${esc(t)}</p>`).join("")}`;
     }
+    { const note = applyBrief("tna"); if (note) { const el = document.createElement("p"); el.className = "tag"; el.id = "brief-note"; el.textContent = note; document.querySelector("section").prepend(el); } }
     document.querySelectorAll("section input").forEach(el => el.addEventListener("input", () => { render(); recordUsage("tna_check"); }));
     render(); recordUsage("tna_open");
   </script>
