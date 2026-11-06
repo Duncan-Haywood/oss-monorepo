@@ -1,6 +1,6 @@
 ---
 title: "How many gallons of paint does a room need? A free calculator that shows its sums"
-seo_title: "Paint calculator: gallons of paint and primer for walls, ceilings, doors"
+seo_title: "Paint calculator: gallons of paint and primer for a room"
 date: 2026-11-06
 tags: [wall-framing-takeoff, paint, calculators]
 description: "A free paint calculator: type walls, doors and ceilings, get gallons of paint and primer after openings, coats and waste, and a cost."
