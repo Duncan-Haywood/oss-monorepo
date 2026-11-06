@@ -43,7 +43,10 @@
       "result": "landed a result"
     }
   ],
-  "writeups": "docs/posts/2026-11-06-christian-belief-models-seeds-and-politics.md; research/christian-belief-models/LOG.md",
+  "writeups": [
+    "docs/posts/2026-11-06-christian-belief-models-seeds-and-politics.md",
+    "research/christian-belief-models/LOG.md"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],
