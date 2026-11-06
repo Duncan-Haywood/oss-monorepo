@@ -274,6 +274,18 @@ export function detectColumns(header) {
     cols.balance = -1;
     cols.desc = h.indexOf("event type");
   }
+  // Paddle's transactions CSV (Transaction ID, Status, Billed At, Product, Total, Fee, Earnings ...):
+  // Earnings is what Paddle, as merchant of record, leaves for the seller after tax and its fee, so it
+  // is the amount; the product is the description, never the customer. Header from memory of the
+  // Paddle Billing export; made-up rows only, no real export.
+  if (h.includes("earnings") && h.includes("transaction id") && h.includes("billed at")) {
+    cols.amount = h.indexOf("earnings");
+    cols.debit = -1;
+    cols.credit = -1;
+    cols.balance = -1;
+    cols.date = h.indexOf("billed at");
+    cols.desc = h.includes("product") ? h.indexOf("product") : h.indexOf("status");
+  }
   // Paytm's wallet statement (Date, Activity, Source/Destination, Wallet Txn ID,
   // Comment, Debit, Credit, ..., Status): the activity is the description.
   if (cols.desc === -1 && h.includes("activity") && h.includes("wallet txn id")) cols.desc = h.indexOf("activity");
