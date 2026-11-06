@@ -463,7 +463,7 @@ const NON_WEB_EXTENSIONS = new Set([
 ]);
 
 // Files whose contents get the placeholder origin swapped for the real one.
-const REWRITABLE = new Set(['.html', '.xml', '.txt', '.json', '.mjs', '.js', '.webmanifest']);
+const REWRITABLE = new Set(['.html', '.xml', '.txt', '.json', '.mjs', '.js', '.webmanifest', '.ics']);
 
 // Ordered: the first rule whose test matches wins.
 // `categoryFor` runs for every slug on every page and link the build writes,
@@ -5585,7 +5585,10 @@ export async function copyTree(from, to, baseUrl) {
     if (!entry.isFile() || !isPublishable(entry.name)) continue;
 
     if (REWRITABLE.has(path.extname(entry.name))) {
-      const contents = await fs.readFile(src, 'utf8');
+      let contents = await fs.readFile(src, 'utf8');
+      // iCalendar folds lines at 75 octets, which can split the placeholder
+      // across a fold; unfold first so the swap sees whole URLs (RFC 5545 3.1).
+      if (path.extname(entry.name) === '.ics') contents = contents.replace(/\r?\n[ \t]/g, '');
       const rewritten = rewriteOrigin(contents, baseUrl);
       await fs.writeFile(
         dest,
