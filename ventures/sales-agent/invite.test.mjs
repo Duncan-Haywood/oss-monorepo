@@ -54,3 +54,10 @@ test("works on a triaged reply from the inbox agent", () => {
   assert.equal(it.triage.category, "interested");
   assert.ok(base(it.triage.slots[0]).ok);
 });
+
+test("semicolons and commas in a name or company are escaped (RFC 5545 section 3.3.11)", () => {
+  const r = unfold(buildInvite({ email: "dana@acme.example", name: "Ruiz; Dana, PhD", company: "A;B", slot: { date: "2026-11-10", time: "14:00", text: "Tuesday at 2pm" }, today }));
+  assert.ok(r.ok);
+  assert.match(r.ics, /SUMMARY:Call with Ruiz\\; Dana\\, PhD \(A\\;B\)/);
+  assert.doesNotMatch(r.ics, /SUMMARY:[^\r\n]*[^\\];/);
+});
