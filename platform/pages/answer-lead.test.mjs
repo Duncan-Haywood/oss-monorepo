@@ -43,6 +43,7 @@ const PILOTS = {
   'amazon-fba-calculator': async (m) => [m.SELLER_PLAN_DEFAULTS.individualPerUnit, m.SELLER_PLAN_DEFAULTS.professionalMonthly],
   'card-processing-fee-audit': async (m) => [m.STRIPE_STANDARD_PUBLISHED.perTransaction],
   'freelance-platform-fee-calculator': async (m) => [100, 100 - m.FIVERR_FEE_PERCENT], // 100: the worked example order in the lead
+  'course-platform-fee-calculator': async (m) => [m.PRESETS[0].txFlat, m.PRESETS[2].monthlyFee], // Gumroad flat per-sale fee, Podia paid plan
   'poshmark-fee-calculator': async (m) => [m.FLAT_FEE, m.COMMISSION_THRESHOLD, m.BREAK_EVEN_PRICE],
 };
 
