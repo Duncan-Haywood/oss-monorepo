@@ -16,16 +16,6 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
-      <title>The Cut Tiles at the Wall</title>
-      <link>https://example.invalid/hearth-and-horizon/the-cut-tiles-at-the-wall.html</link>
-      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-cut-tiles-at-the-wall.html</guid>
-      <pubDate>Sat, 07 Nov 2026 12:00:00 GMT</pubDate>
-      <description>A parish is retiling a vestry floor of 3.45 by 2.62 metres with 300 mm tiles. The assistant counts rows and columns instead of dividing areas, centres the pattern so no cut is a sliver, and finds that ten boxes cover the area on paper and are three tiles short in practice. Setting: Saint Colman's vestry (invented), near Gort, Co. Galway, Saturday 6 September 2051. Read the full text at https://example.invalid/hearth-and-horizon/the-cut-tiles-at-the-wall.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
-      <itunes:summary>A parish is retiling a vestry floor of 3.45 by 2.62 metres with 300 mm tiles. The assistant counts rows and columns instead of dividing areas, centres the pattern so no cut is a sliver, and finds that ten boxes cover the area on paper and are three tiles short in practice.</itunes:summary>
-      <itunes:episodeType>full</itunes:episodeType>
-      <itunes:explicit>false</itunes:explicit>
-    </item>
-    <item>
       <title>Seven Rolls for a Vestry</title>
       <link>https://example.invalid/hearth-and-horizon/seven-rolls-for-a-vestry.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/seven-rolls-for-a-vestry.html</guid>
@@ -62,6 +52,16 @@
       <pubDate>Fri, 06 Nov 2026 12:00:00 GMT</pubDate>
       <description>On a spinning habitat with Mars-like weight, the thurible swings in 2.5 seconds instead of 1.6, the dropped snuffer lands sixteen centimetres behind where it fell, and the incense must get past a smoke detector and a fire officer who will not switch it off. The Easter Vigil needs all three answered by dark. Setting: Chapel of Saint Hedwig (invented), Ring Two of Calder Habitat (invented), Earth–Moon L5, Holy Saturday 9 April 2191. Read the full text at https://example.invalid/hearth-and-horizon/the-censer-that-swings-slow.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
       <itunes:summary>On a spinning habitat with Mars-like weight, the thurible swings in 2.5 seconds instead of 1.6, the dropped snuffer lands sixteen centimetres behind where it fell, and the incense must get past a smoke detector and a fire officer who will not switch it off. The Easter Vigil needs all three answered by dark.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
+      <title>The Cut Tiles at the Wall</title>
+      <link>https://example.invalid/hearth-and-horizon/the-cut-tiles-at-the-wall.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-cut-tiles-at-the-wall.html</guid>
+      <pubDate>Fri, 06 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A parish is retiling a vestry floor of 3.45 by 2.62 metres with 300 mm tiles. The assistant counts rows and columns instead of dividing areas, centres the pattern so no cut is a sliver, and finds that ten boxes cover the area on paper and are three tiles short in practice. Setting: Saint Colman's vestry (invented), near Gort, Co. Galway, Saturday 6 September 2051. Read the full text at https://example.invalid/hearth-and-horizon/the-cut-tiles-at-the-wall.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A parish is retiling a vestry floor of 3.45 by 2.62 metres with 300 mm tiles. The assistant counts rows and columns instead of dividing areas, centres the pattern so no cut is a sliver, and finds that ten boxes cover the area on paper and are three tiles short in practice.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
     </item>
