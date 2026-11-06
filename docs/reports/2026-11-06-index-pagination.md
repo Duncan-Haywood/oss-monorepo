@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-11-06
+tagged: auto
+---
 # Research index lazy-load (task `site-perf-paginate-indexes`, 2026-11-06)
 
 `/writing/` was paged by a sibling run in PR #13480 and is not covered here.

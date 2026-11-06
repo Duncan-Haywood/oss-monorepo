@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-11-06
+tagged: auto
+---
 # Site performance: baseline and leads (2026-11-06)
 
 The owner, 2026-11-06, in a session: "Let's add to the tasks performance
