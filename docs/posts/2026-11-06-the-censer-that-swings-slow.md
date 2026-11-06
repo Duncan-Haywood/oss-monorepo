@@ -1,6 +1,6 @@
 ---
 title: "How a thurible behaves on a spinning habitat"
-seo_title: "Spin gravity arithmetic: pendulum period and Coriolis drop on a 0.38 g habitat"
+seo_title: "Spin gravity maths: thurible swing and Coriolis drop at 0.38 g"
 date: 2026-11-06
 tags: [hearth-and-horizon, fiction, physics]
 description: "A new Hearth & Horizon story sets an Easter Vigil on a 200 m spinning habitat, where a censer swings in 2.5 s and a dropped snuffer lands 16 cm off."
