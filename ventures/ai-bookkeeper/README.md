@@ -979,3 +979,7 @@ A bank CSV whose date column is headed `Time`, `Timestamp`, `Date/Time` or `Date
 ### Excel day-number dates (2026-11-04)
 
 `parseDate` reads a five-digit number from 25569 to 60000 as an Excel day number (1900 system), which is what a bank CSV re-saved from Excel with General format holds. The 1904 system is not detected. Test: `excel-serial-dates.test.mjs` (made-up rows).
+
+### Gumroad sales export (2026-11-06)
+
+`readStatement` read a Gumroad sales CSV (Item Name, Sale Price, Gumroad Fee, Net Total, Date) as zero rows. It now books Net Total under the item name. Layout from memory; made-up rows only (`gumroad-sales.test.mjs`). A real export is wanted.
