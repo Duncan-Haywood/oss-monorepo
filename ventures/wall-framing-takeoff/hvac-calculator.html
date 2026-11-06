@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>HVAC duct rough-in calculator: trunk sticks, flex rolls, boots and registers</title>
+  <meta name="description" content="Free HVAC duct rough-in takeoff: list each room with its supply and return runs and get rigid trunk sticks, flex rolls, boots, registers, return grilles and fittings with waste. Runs in your browser.">
+  <meta property="og:title" content="HVAC duct rough-in calculator">
+  <meta property="og:description" content="Rooms and duct runs in, sticks, rolls, boots and registers out. Private, free, in your browser.">
+  <link rel="canonical" href="./hvac-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much duct do I need for a small house with three bedrooms, a living room and a hall?", "acceptedAnswer": {"@type": "Answer", "text": "With a 30 ft rigid trunk, three bedrooms of 12 ft supply flex each, a living room with 20 ft supply and 10 ft return, and a hall with 8 ft return, the flex runs total 74 ft (56 ft supply and 18 ft return). With 10% waste that is 81.4 ft, which is 4 rolls of 25 ft flex, and the trunk is 33 ft with waste, which is 7 sticks of 5 ft rigid duct. The lengths are the ones you type from your own layout; the calculator only adds them."}}, {"@type": "Question", "name": "How many registers, boots and return grilles does that layout need?", "acceptedAnswer": {"@type": "Answer", "text": "Each supply run gets one register and one boot unless you type the count, so the three bedrooms and the living room's 2 typed registers make 5 registers and 5 boots. The living room's return and the hall's 2 typed grilles make 3 return grilles. The 3 trunk fittings you typed are carried through as 3 fittings."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>HVAC duct rough-in calculator</h1>
+  <p>List each room with the supply and return runs you took from your own duct layout. You get rigid trunk sticks, flex rolls, boots, registers, return grilles and fittings, with waste, and a cost if you type prices. The same HVAC engine as the whole-house takeoff. It sizes nothing: loads, duct sizes and airflow are not checked. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <label for="json">HVAC settings (JSON: rooms with supplyFt, returnFt, registers, boots, returnGrilles, fittings, count; trunkFt and trunkFittings; stick and roll lengths, waste, optional supports, tape and prices)</label>
+    <textarea id="json" rows="16" spellcheck="false" style="width:100%;box-sizing:border-box;font:.9rem ui-monospace,monospace;padding:8px">{
+  "trunkFt": 30,
+  "trunkFittings": 3,
+  "rooms": [
+    {
+      "id": "bedroom",
+      "count": 3,
+      "supplyFt": 12,
+      "registers": 1
+    },
+    {
+      "id": "living",
+      "supplyFt": 20,
+      "registers": 2,
+      "returnFt": 10
+    },
+    {
+      "id": "hall",
+      "returnFt": 8,
+      "returnGrilles": 2
+    }
+  ],
+  "trunkStickFt": 5,
+  "flexRollFt": 25,
+  "waste": 0.1
+}</textarea>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Do the whole house: framing, sheathing, plumbing and more in one takeoff</a></p>
+
+  <h2>How it is counted</h2>
+  <ol>
+    <li><strong>Rigid trunk.</strong> Trunk feet times (1 + waste), divided by the stick length and rounded up.</li>
+    <li><strong>Flex.</strong> Supply plus return feet of every room (times its count), with waste, in whole rolls.</li>
+    <li><strong>Outlets.</strong> One register and one boot per supply run, one grille per return run, unless you type the counts. Fittings are the ones you type.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How much duct do I need for a small house with three bedrooms, a living room and a hall?</h3>
+  <p>With a 30 ft rigid trunk, three bedrooms of 12 ft supply flex each, a living room with 20 ft supply and 10 ft return, and a hall with 8 ft return, the flex runs total 74 ft (56 ft supply and 18 ft return). With 10% waste that is 81.4 ft, which is 4 rolls of 25 ft flex, and the trunk is 33 ft with waste, which is 7 sticks of 5 ft rigid duct. The lengths are the ones you type from your own layout; the calculator only adds them.</p>
+  <h3>How many registers, boots and return grilles does that layout need?</h3>
+  <p>Each supply run gets one register and one boot unless you type the count, so the three bedrooms and the living room's 2 typed registers make 5 registers and 5 boots. The living room's return and the hall's 2 typed grilles make 3 return grilles. The 3 trunk fittings you typed are carried through as 3 fittings.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li><li><a href="drywall-calculator.html">Drywall calculator (sheets, tape, compound)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, carpet)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Duct lengths, outlet counts and fitting counts are your inputs and are not checked against any span table or code, nor against any load or duct-sizing table. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Counts add the lengths and fittings you type; heating and cooling loads, equipment size, duct sizing, static pressure, airflow balance, leakage limits, the air handler, condenser and line set are not checked. Have a licensed HVAC contractor design, size and permit the system.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { layoutHvac, hvacText } from "./hvac.mjs";
+    const $ = (id) => document.getElementById(id);
+    const run = () => {
+      let d;
+      try { d = JSON.parse($("json").value); } catch (e) { $("out").textContent = "That is not valid JSON: " + e.message; return; }
+      const p = layoutHvac(d);
+      $("out").textContent = p.ok === false ? p.errors.join("\n") : hvacText(p).join("\n");
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>
