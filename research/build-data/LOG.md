@@ -1,5 +1,13 @@
 # build-data log
 
+## Session 40, 2026-11-06: milestone 27 (part), sign test and bootstrap on the neural-versus-boosted cells
+
+Hypothesis (before running): the mean difference over 45 cells has a 95% bootstrap interval containing 0, and the 2024 deficit (neural ahead in 3 of 15) is not separable from chance at p < 0.05.
+Done: `src/neural_sign_test.py`, `tests/test_neural_sign_test.py`, `results/neural_sign_test.txt` (committed results only, no pull).
+Outcome: all years mean +0.22% (95% bootstrap -0.30 to +0.75; sign p 0.23), so the overall tie holds. 2022 mean -0.42%, 2023 -0.06% (both intervals contain 0). **Second half of the hypothesis failed:** 2024 mean +1.14% (interval +0.21 to +2.13), neural ahead in 3 of 15, sign p 0.035. Neural is slightly but consistently worse in 2024.
+Limits: cells share data across quantiles and years, so they are not independent and the p-values are descriptive; four looks, no multiplicity correction (0.035 would not survive one); this is not the per-permit paired bootstrap, which needs the saved predictions.
+Next: per-permit paired bootstrap (needs numpy and fresh pulls); publish boosted tables for `ventures/`.
+
 ## Session 39, 2026-11-06: milestone 27 (part), three-year neural comparison written up from committed results
 
 Hypothesis (before the aggregation): across all 45 cells (5 pairs x 3 quantiles x 2022-2024) the neural net is within 3% of boosted in at least 42, and the mean relative difference is within +/-1%.
