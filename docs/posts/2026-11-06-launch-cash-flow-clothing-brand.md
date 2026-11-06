@@ -1,9 +1,9 @@
 ---
 title: "How much cash does a small clothing brand's first factory order need?"
-seo_title: "Launch cash-flow planner for clothing brands: deposit, freight, duty and the week the money is back"
+seo_title: "Launch cash flow for clothing brands: how much cash a first order needs"
 date: 2026-11-06
 tags: [clothing-design-studio, cash-flow, manufacturing]
-description: "A free planner puts the factory deposit, balance, freight, duty, pre-orders and sales on a weekly line and shows the lowest point of your account and the week the money is back."
+description: "A free planner shows the lowest point of your account and the week the money is back, from factory deposit, freight, duty, pre-orders and sales."
 ---
 
 A first order of 300 shirts at 9 each is 2,700 at the factory. The brand keeps 24 per piece after VAT and fees, and expects to sell 12 a week, 40 of them as pre-orders. On paper the order earns about 3,000. In the bank it looks different.
