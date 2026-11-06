@@ -1,5 +1,6 @@
 ---
 title: "Red team on two CI checkers: 15 of 16 seeded bugs caught, one equivalent"
+seo_title: Red team on two CI checkers
 date: 2026-11-06
 tags: [redteam, testing, ci]
 description: "We seeded 16 faults into the blog front matter checker and the thin-page checker; the tests caught 15 and the 16th could not change any output."
