@@ -1,9 +1,9 @@
 ---
 title: "Counting plumbing rough-in pipe, traps and stops from a fixture list"
-seo_title: "Plumbing rough-in takeoff: drain, vent and PEX quantities from fixture runs"
+seo_title: "Plumbing rough-in takeoff: drain, vent and PEX from fixture runs"
 date: 2026-11-06
 tags: [wall-framing-takeoff, plumbing, construction]
-description: "The open-source framing takeoff now turns a fixture list with typed pipe runs into drain and vent sticks, PEX coils, traps, stops and fittings, and a budget section."
+description: "The open-source framing takeoff now turns a fixture list with typed pipe runs into drain and vent sticks, PEX coils, traps, stops, fittings and a budget."
 ---
 
 The wall framing takeoff covered lumber, sheathing, roofing, electrical and finishes, but not plumbing. It now has a `--plumbing` option.
