@@ -574,14 +574,21 @@ test("roof sheathing nail boxes are a budget line only when the box size is type
   assert.equal(line(withRoof({ nailBox: 500 })).amount, null);
 });
 
-test("fireblocking boards are a budget line; a budget price overrides fireblock.boardPrice (hand check)", () => {
-  const plan = { ...full(), fireblock: { intervalFt: 4, boardPrice: 5, waste: 0 } };
-  const fb = JSON.parse(run(plan, "--json").out).fireblock;
-  assert.ok(fb && fb.boards > 0, "a 4 ft cavity limit needs rows on the sample walls");
-  const line = (p) => JSON.parse(run(p, "--budget", "--json").out).lines.find((x) => x.item === "Fireblocking boards");
-  const l = line(plan);
-  assert.ok(l && l.qty === fb.boards && Math.abs(l.amount - fb.boards * 5) < 0.01, JSON.stringify(l));
-  const o = line({ ...plan, prices: { fireblockBoard: 9 } });
-  assert.ok(Math.abs(o.amount - fb.boards * 9) < 0.01);
-  assert.equal(line({ ...plan, fireblock: { intervalFt: 30 } }), undefined);
+test("paint and fireblocking reach the budget: quantities from the takeoff, typed prices multiply them", () => {
+  const plan = { ...full(), studLength: 144, paint: { coats: 2, primerCoats: 1, gallonPrice: 30, fivePrice: 120, primerPrice: 25 }, fireblock: { intervalFt: 8, boardPrice: 4 } };
+  const r = JSON.parse(run(plan, "--sheathing", "--json").out);
+  const b = bud(plan);
+  const gal = b.lines.find((l) => l.item === "Paint gallons");
+  assert.equal(gal.qty, r.paint.paintGallons);
+  assert.equal(gal.unitPrice, 30);
+  assert.equal(b.lines.find((l) => l.item === "Primer gallons").amount, Math.round(r.paint.primerGallons * 25 * 100) / 100);
+  const fb = b.lines.find((l) => l.item === "Fireblocking boards");
+  assert.equal(fb.qty, r.fireblock.boards);
+  assert.equal(fb.amount, r.fireblock.boards * 4);
+  // a budget price overrides the setting, and with no price at all the line is listed unpriced
+  const over = bud({ ...plan, prices: { fireblockBoard: 5, paintGallon: 40 } });
+  assert.equal(over.lines.find((l) => l.item === "Fireblocking boards").unitPrice, 5);
+  assert.equal(over.lines.find((l) => l.item === "Paint gallons").unitPrice, 40);
+  const none = bud({ ...plan, paint: { coats: 2 }, fireblock: { intervalFt: 8 } });
+  assert.equal(none.lines.find((l) => l.item === "Fireblocking boards").amount, null);
 });

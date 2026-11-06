@@ -57,3 +57,8 @@ test("fuzz: hostile inputs never throw", () => {
     assert.equal(typeof misspeltPlanKeysNote(out), "string");
   }
 });
+
+test("fireblock, flooring, paint and openingSchedule are known keys, so a typo of them is flagged", () => {
+  for (const k of ["fireblock", "flooring", "paint", "openingSchedule"]) assert.ok(KNOWN_PLAN_KEYS.includes(k), k);
+  assert.equal(misspeltPlanKeys({ fireblok: {} })[0]?.didYouMean, "fireblock");
+});

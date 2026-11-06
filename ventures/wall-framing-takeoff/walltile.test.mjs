@@ -56,3 +56,13 @@ test("text names the parts and the limits", () => {
   assert.match(t, /membrane/);
   assert.match(t, /not counted/);
 });
+
+test("edge trim from typed edges, whole pieces with waste", () => {
+  const p = layoutWallTile({ surfaces: [{ width: 60, height: 72, trimEdges: ["top", "left", "left"] }], tile: { trimPrice: 12 } });
+  assert.equal(p.trimInches, 132); // 60 + 72, duplicate ignored
+  assert.equal(p.trimPieces, Math.ceil(132 * 1.1 / 96 - 1e-9)); // 2
+  assert.equal(p.cost, 24); // 2 pieces x 12
+  assert.equal(layoutWallTile({ surfaces: [{ width: 60, height: 72 }] }).trimPieces, 0);
+  assert.ok(validateWallTile({ surfaces: [{ width: 10, height: 10, trimEdges: ["roof"] }] }).length);
+  assert.match(wallTileText(p).join("\n"), /Edge trim/);
+});

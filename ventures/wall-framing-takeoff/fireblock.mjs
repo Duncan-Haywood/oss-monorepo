@@ -78,7 +78,8 @@ export function layoutFireblock(d, result) {
   return {
     ok: true, errors: [], intervalFt: interval / 12, boardFt: boardIn / 12, waste, walls, sizes,
     rowsTotal: walls.reduce((s, w) => s + w.rows, 0), pieces: walls.reduce((s, w) => s + w.pieces, 0), boards,
-    boardPrice: d.boardPrice ?? null, cost: d.boardPrice != null ? boards * d.boardPrice : null,
+    boardPrice: d.boardPrice ?? null,
+    cost: d.boardPrice != null ? boards * d.boardPrice : null,
   };
 }
 
