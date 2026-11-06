@@ -1,5 +1,13 @@
 # build-data log
 
+## Session 34, 2026-11-06: milestone 7 (part), permit-duration prior data file
+
+Hypothesis (before the run): over 2022 to 2024 the pooled median application-to-issue lag is 0 or 1 day in Chicago and SF and the SF issue-to-completion median is above 90 days.
+Done: `src/prior.py` + `tests/test_prior.py` (hand-counted type-7 quantiles, small types folded, window filter); fresh Chicago and SF pulls; `results/permit_prior.json`. Austin's host was unreachable this session, so Austin is not in the file.
+Outcome: Chicago a2i n=106,195, same-day 48%, q10/q50/q90 = 0/1/68 days (9 types); SF a2i n=69,869, same-day 52%, 0/0/95 (7 types, 10 rows in small types folded); SF i2c n=55,307, same-day 0.1%, 14/119/481 (6 types, 32 small-type rows). Hypothesis holds.
+Limits: descriptive empirical quantiles, no model; Chicago is issued-only (survivorship); i2c window keyed on issue year; no Austin; the model-based prior (boosted) is not published yet.
+Next: add Austin when reachable; publish the boosted quantile tables; multiple test years for H1.
+
 ## Session 33, 2026-11-05: milestone 27, neural quantile baseline on all five city/target pairs
 
 Hypothesis: a small embedding MLP is within 3% of the boosted models' pinball at each level, and not better. (Held before the first run but not written in the log until after; Austin's two cells were run after seeing the other three, so the Austin part is not blind.)
