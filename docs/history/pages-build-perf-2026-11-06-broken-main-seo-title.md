@@ -14,7 +14,7 @@ every site build and test that builds the site fails.
 
 ## Change
 
-Shortened the title to 67 characters. After: 3 pass, 0 fail (before: 2 pass, 1 fail).
+Shortened the title to 67 characters; another run landed an equivalent shorter title on main first, so the merge kept main's version. After: 3 pass, 0 fail (before: 2 pass, 1 fail).
 
 ## Not changed (ranked)
 
