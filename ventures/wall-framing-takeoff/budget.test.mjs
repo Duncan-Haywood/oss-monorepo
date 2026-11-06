@@ -563,3 +563,13 @@ test("drip edge nail boxes are priced only when spacing and box size are typed",
   assert.ok(Math.abs(line(b).amount - 7 * line(b).qty) < 0.005);
   assert.equal(line(withRoof({ dripEdgeNailSpacing: 12, dripEdgeNailBox: 100 })).amount, null);
 });
+
+test("roof sheathing nail boxes are a budget line only when the box size is typed", () => {
+  const withRoof = (sheet, prices) => { const p = full(prices); p.roof = { ...p.roof, sheet }; return bud(p); };
+  const line = (b) => b.lines.find((l) => l.item === "Roof sheathing nail boxes");
+  assert.equal(line(withRoof({})), undefined);
+  const b = withRoof({ nailBox: 500 }, { sheathingNailBox: 9 });
+  assert.ok(line(b).qty > 0 && line(b).unitPrice === 9);
+  assert.ok(Math.abs(line(b).amount - 9 * line(b).qty) < 0.005);
+  assert.equal(line(withRoof({ nailBox: 500 })).amount, null);
+});

@@ -34,7 +34,7 @@ function roofingNails(squares, g, ridgeFeet = 0, eaveFeet = 0) {
   return { nails, nailLb, nailBoxes: Math.ceil(nailLb / g.nailBoxLb - 1e-9), ...(capNails || starterNails ? { capNails, starterNails } : {}) };
 }
 
-/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, wing?: Wing, wing2?: Wing, plateWidth?: number, maxNotchFraction?: number, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, valleyBacking?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number, edgeNailSpacing?: number, fieldNailSpacing?: number, clips?: boolean, clipPrice?: number }, roofing?: { capNailsPerFoot?: number, starterNailsPerFoot?: number, waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number, nailsPerSquare?: number, nailsPerLb?: number, nailBoxLb?: number, iceShield?: number, iceShieldRoll?: number, iceShieldWaste?: number, valleyFeet?: number, valleyRollFeet?: number, valleyWaste?: number, underlaymentNailsPerSquare?: number, underlaymentNailBox?: number, dripEdgeNailSpacing?: number, dripEdgeNailBox?: number } }} Roof */
+/** @typedef {{ id?: string, shape?: "gable" | "hip", hip?: string, wing?: Wing, wing2?: Wing, plateWidth?: number, maxNotchFraction?: number, width: number, length: number, pitch: number, overhang?: number, gableOverhang?: number, rafter?: string, spacing?: number, ridge?: string | null, ceilingJoist?: string, ceilingBearing?: number, collarTies?: boolean, valleyBacking?: boolean, collarDrop?: number, trusses?: { spacing?: number, price?: number }, sheet?: { length?: number, width?: number, price?: number, kerf?: number, edgeNailSpacing?: number, fieldNailSpacing?: number, clips?: boolean, clipPrice?: number, nailBox?: number }, roofing?: { capNailsPerFoot?: number, starterNailsPerFoot?: number, waste?: number, bundlesPerSquare?: number, underlaymentRoll?: number, ridgeBundleFeet?: number, starterBundleFeet?: number, dripEdgePiece?: number, nailsPerSquare?: number, nailsPerLb?: number, nailBoxLb?: number, iceShield?: number, iceShieldRoll?: number, iceShieldWaste?: number, valleyFeet?: number, valleyRollFeet?: number, valleyWaste?: number, underlaymentNailsPerSquare?: number, underlaymentNailBox?: number, dripEdgeNailSpacing?: number, dripEdgeNailBox?: number } }} Roof */
 
 export function sampleRoof() {
   return { id: "Main roof", width: 336, length: 480, pitch: 4, overhang: 12, gableOverhang: 12, rafter: "2x8", spacing: 16, ridge: "2x10", ceilingJoist: "2x6", collarTies: true };
@@ -271,6 +271,8 @@ function sheathingNails(l, r) {
   const nails = Math.ceil(perSheet * l.sheets.count * 1.1 - 1e-9);
   const notes = [...l.notes, `Roof sheathing nails: ${perSheet} per sheet (edges at ${edge} in, ${lines} intermediate support line${lines === 1 ? "" : "s"} at ${field} in), 10% waste; a typed rule, not a code schedule.`];
   const out = { ...l, notes, sheets: { ...l.sheets, nailsPerSheet: perSheet, nails } };
+  // Opt-in `sheet.nailBox` = nails per box, typed from the box label: whole boxes to buy (never assumed).
+  if (sh.nailBox > 0) { out.sheets.nailBoxes = Math.ceil(nails / sh.nailBox - 1e-9); out.notes = [...notes, `Roof sheathing nail boxes: ${nails} nails in boxes of ${sh.nailBox} = ${out.sheets.nailBoxes}; a typed box size.`]; }
   if (sh.clips) {
     // H-clips (panel edge clips): one at mid-span in each support bay along one long edge per sheet (the neighbour's edge is the same joint),
     // times the sheet count and 10% waste. Whether clips are needed, and at what span, is the sheathing maker's and the engineer's call.
@@ -278,7 +280,7 @@ function sheathingNails(l, r) {
     out.sheets.clipsPerSheet = perClipSheet;
     out.sheets.clips = clips;
     out.sheets.clipCost = sh.clipPrice != null ? clips * sh.clipPrice : null;
-    out.notes = [...notes, `Sheathing H-clips: ${perClipSheet} per sheet (one per ${sp} in support bay along one ${L} in edge), 10% waste, ${clips} to buy; a typed rule, not a manufacturer's span table.`];
+    out.notes = [...out.notes, `Sheathing H-clips: ${perClipSheet} per sheet (one per ${sp} in support bay along one ${L} in edge), 10% waste, ${clips} to buy; a typed rule, not a manufacturer's span table.`];
   }
   return out;
 }
