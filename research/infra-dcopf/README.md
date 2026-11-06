@@ -80,8 +80,25 @@ Findings (one case, one load level, preliminary):
 - The load-weighted "rent" column is a proxy (sum of (LMP minus system mean) times load), not settlement-grade congestion rent. The AC proxy includes losses, so the DC-AC rent difference mixes both effects. Separating them needs nodal loss factors (next step 2).
 - Correlation of bus prices is undefined (nan) while the DC prices are flat, and 0.31 to 0.39 once two lines bind.
 
+## Case300 with a converging AC solver (loss versus congestion), 2026-11-06
+Next step 1 above, done. `experiments/run_case300_pypower.py` uses PYPOWER's primal-dual interior-point AC OPF (`pip install pypower`, a port of MATPOWER's PIPS). **Validation first:** on unmodified case300 it returns 719,725.08 $/h, equal to MATPOWER's published optimum (719,725.08) to the cent, where pandapower's solver failed in 15 of 18 cells (above).
+Loss and congestion are separated by differencing two AC solves: with no branch limits, the bus-price spread is losses (and voltage effects) only; adding limits and subtracting leaves the congestion part. Case300's own ratings do not bind, so the n most loaded branches are capped at a fraction f of their free-flow value (binding by construction; capping all branches is infeasible and the solver says so). Full table: `experiments/results_case300_pypower.txt`.
+
+| load | f | n capped | AC cost rise from limits | AC loss-only price spread ($/MWh) | AC congestion part (max abs shift) | DC price spread |
+|---|---|---|---|---|---|---|
+| 0.8 | 0.90 | 3 | 0.025 % | 7.15 | 1.53 | 1.93 |
+| 0.8 | 0.90 | 10 | 0.179 % | 7.15 | 25.63 | 6.75 |
+| 1.0 | 0.90 | 3 | 0.067 % | 9.57 | 2.45 | 3.13 |
+| 1.0 | 0.80 | 3 | 0.275 % | 9.57 | 5.57 | 5.60 |
+
+Findings (this one case, 12 converged cells of 18 attempted; 6 were infeasible for AC or both):
+- Losses alone spread bus prices by 7 to 10 $/MWh, larger than the congestion spread when only 3 branches bind. A DC model, whose spread is congestion only, therefore misses the larger part of the price gap in that regime; with 10 caps the congestion part (25.6) dominates.
+- DC's congestion spread tracks the AC congestion shift within about 0.2 to 1.0 $/MWh when 3 branches bind (5.60 vs 5.57 at load 1.0, f 0.8) and understates it badly with 10 (6.75 vs 25.63): once many limits bind, the DC price is a poor guide.
+- DC cost is 1.4 to 1.9 % below AC cost in every cell, because DC drops losses; this is not DC "being cheaper".
+- Limitation: caps are synthetic, not published ratings. The loss/congestion split by differencing is an approximation (the two solves can also differ through voltage-limit effects).
+
 ## Next steps
-1. Repeat the LMP comparison on a case whose published ratings bind, with an AC OPF solver that converges on case300 (see the section above: pandapower's does not); check the solver against MATPOWER's published case300 optimum first, then separate the loss and congestion components of the price.
+1. Solver validated and loss/congestion split done with synthetic caps (section above). Next: a case whose published ratings bind (e.g. a PGLib-OPF congested case) and an exact decomposition from the AC duals instead of differencing.
 2. Penalty factors were tried (above) with mixed results; next, take sensitivities at the AC optimum or use a distributed slack.
 3. Done by another route (see "Voltage violations" above). Next: a voltage/Q stage that is not a full AC OPF, and full-load feasibility with a solver that converges.
 
@@ -92,6 +109,7 @@ cd research/infra-dcopf
 python -m pytest -q tests                     # 11 tests, about 20 s
 PYTHONPATH=src python experiments/run.py      # about 1 min; writes experiments/results.txt
 PYTHONPATH=src python experiments/run_lossadj.py  # loss-adjusted DC, about 1 min; writes results_lossadj.txt
+PYTHONPATH=src python experiments/run_case300_pypower.py  # about 2 min; needs pypower; writes results_case300_pypower.txt
 PYTHONPATH=src python experiments/run_case300.py  # case300 sweep, about 1.5 min; writes results_case300.txt
 python experiments/run_lmp.py                 # LMP comparison, about 1 min; writes experiments/results_lmp.txt
 PYTHONPATH=src python experiments/run_voltage.py  # voltage setpoint study, about 1 min; writes results_voltage.txt

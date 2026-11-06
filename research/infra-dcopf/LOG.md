@@ -1,5 +1,10 @@
 # Research log
 
+## 2026-11-06 · Case300: a converging AC solver, and loss versus congestion
+- Prediction (before running): with caps on the most loaded branches, the DC price spread would match the AC congestion part and the loss-only spread would be small. Half refuted: DC tracks AC congestion with 3 caps (5.60 vs 5.57), but the loss-only AC spread (7 to 10 $/MWh) exceeds the congestion spread with 3 caps, and DC understates congestion with 10 caps (6.75 vs 25.63).
+- Solver check first: PYPOWER's PIPS gives 719,725.08 on case300, equal to MATPOWER's published value.
+- Capping every branch is infeasible; synthetic caps are a limitation. Next: published congested case and dual-based decomposition.
+
 ## 2026-11-05 · Voltage violations on case39: setpoints and Q, not dispatch
 - Prediction (before running): clamping the generator setpoints into the bus band removes most violations. Refuted: 14, 5, 1 buses remain. A uniform setpoint removes all of them (held in the second form of the idea) but leaves 3 to 5 generators outside Q limits; no uniform setpoint satisfies both.
 - An AC OPF with P pinned at the DC dispatch is feasible at loads 0.6 and 0.8 (case39 and case30), 0.02 to 0.08 % above the AC optimum; no solution at load 1.0 (not proof of infeasibility).
