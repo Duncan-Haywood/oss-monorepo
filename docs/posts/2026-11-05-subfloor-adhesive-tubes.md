@@ -2,7 +2,7 @@
 title: "How many tubes of subfloor adhesive does a floor need?"
 seo_title: "Estimating subfloor construction adhesive tubes from joist length"
 date: 2026-11-05
-tags: [wall-framing-takeoff, floor, construction]
+tags: [wall-framing-takeoff, floor-framing, construction]
 description: "The open-source wall framing takeoff now counts subfloor adhesive tubes from the joist and rim board lengths, with the bead size and tube you type."
 ---
 
