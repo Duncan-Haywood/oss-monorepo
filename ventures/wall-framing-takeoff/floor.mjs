@@ -476,7 +476,7 @@ export function layoutFloor(f, plan) {
   /** @type {null | { endNails: number, rimNails: number, blockNails: number, count: number, bearingEnds: number, boxCount: number, boxes: number, price?: number }} */
   let framingNails = null;
   if (f.joistEndNails != null || f.rimNailSpacing != null || f.blockEndNails != null) {
-    const bearingEnds = Math.max(0, 2 * joists.filter((j) => !j.header).length - tailEnds);
+    const bearingEnds = Math.max(0, 2 * joists.filter((/** @type {any} */ j) => !j.header).length - tailEnds);
     const endNails = bearingEnds * (f.joistEndNails || 0);
     const rimNails = f.rimNailSpacing ? rims.reduce((t, r) => t + Math.ceil(r.length / f.rimNailSpacing - 1e-9), 0) : 0;
     const blockNails = 2 * blocks.length * (f.blockEndNails || 0);

@@ -97,3 +97,9 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: lead-response-time-analyzer$/m);
 });
+
+// Sibling: a business that answers leads slowly is the one losing missed calls. The
+// related-tool strip rotates, so link the pair explicitly for a one-hop crawl.
+test("index links one hop to the missed-call-textback sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/missed-call-textback\/"/);
+});

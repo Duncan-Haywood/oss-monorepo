@@ -144,6 +144,16 @@ export function budget(result, prices = {}, allowances = {}) {
     add("Electrical", "Device boxes", el.boxes, "each", P("electricalBox") ?? el.prices.box, `${el.receptacles} receptacle + ${el.switches} switch boxes`);
     if (el.cableRolls) add("Electrical", "Cable rolls", el.cableRolls, "rolls", P("cableRoll") ?? el.prices.cableRoll, `${el.cableFt.toFixed(0)} ft estimate plus ${(100 * el.waste).toFixed(0)}% waste, ${el.cableRoll} ft rolls`);
   }
+  const pl = result.plumbing;
+  if (pl?.ok) {
+    // Prices come from the plumbing settings (drainPipePrice, pexCoilPrice, trapPrice, stopPrice, drainFittingPrice, supplyFittingPrice).
+    if (pl.drainSticks) add("Plumbing", "Drain and vent pipe sticks", pl.drainSticks, "sticks", pl.prices.drainPipe, `${pl.drainFt} ft drain + ${pl.ventFt} ft vent plus ${(100 * pl.waste).toFixed(0)}% waste, ${pl.drainStickFt} ft sticks`);
+    if (pl.hotCoils + pl.coldCoils) add("Plumbing", "PEX coils", pl.hotCoils + pl.coldCoils, "coils", pl.prices.pexCoil, `${pl.hotFt} ft hot, ${pl.coldFt} ft cold, ${pl.pexCoilFt} ft coils`);
+    if (pl.traps) add("Plumbing", "Traps", pl.traps, "each", pl.prices.trap, "one per fixture with a drain");
+    if (pl.stops) add("Plumbing", "Supply stops", pl.stops, "each", pl.prices.stop, "typed per fixture, else one per hot or cold supply");
+    if (pl.drainFittings) add("Plumbing", "Drain fittings", pl.drainFittings, "each", pl.prices.drainFitting, "typed counts per fixture");
+    if (pl.supplyFittings) add("Plumbing", "Supply fittings", pl.supplyFittings, "each", pl.prices.supplyFitting, "typed counts per fixture");
+  }
   const sd = result.siding;
   if (sd?.ok) {
     add("Exterior", "Siding boards", sd.boards, "boards", P("sidingBoard") ?? sd.boardPrice, `${sd.courses} courses at ${sd.exposure} in exposure in ${sd.stock / 12} ft boards`);
