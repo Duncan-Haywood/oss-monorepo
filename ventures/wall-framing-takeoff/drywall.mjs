@@ -122,6 +122,8 @@ function joistCentres(/** @type {number} */ width, /** @type {number} */ spacing
  * @param {{ studLength: number, defaultHeaderHeight: number, walls: any[] }} plan
  */
 export function layoutDrywall(d, plan, roof = null) {
+  if (!d || typeof d !== "object" || Array.isArray(d)) return { ok: false, errors: ["The drywall settings must be an object."] };
+  if (!plan || !Array.isArray(plan.walls) || !plan.walls.every((w) => w && typeof w === "object")) return { ok: false, errors: ["Drywall needs a plan with a list of walls."] };
   const errors = validateDrywall(d);
   if (d.ceilingJoistsFromRoof && !roof?.ceilingJoists?.length) errors.push("ceilingJoistsFromRoof needs a roof with a ceilingJoist size (plan roof.ceilingJoist); the joists are read from its layout.");
   if (errors.length) return { ok: false, errors };
