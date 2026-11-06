@@ -111,3 +111,16 @@ test("tryOn uses body.arm and says when it differs from the height average", () 
   assert.equal(r.sleeve.armMeasured, true);
   assert.ok(r.notes.some(n => /Your arm/.test(n)));
 });
+
+test("a factory sleeve length at M replaces the typical figure", () => {
+  const typ = sleeveCheck("longsleeve", "M", 175);
+  assert.equal(typ.fromFactory, false);
+  const f = sleeveCheck("longsleeve", "M", 175, undefined, 58.5);
+  assert.equal(f.fromFactory, true);
+  assert.equal(f.sleeveCm, 58.5);
+  assert.equal(sleeveCheck("longsleeve", "L", 175, undefined, 58.5).sleeveCm, 59.5);
+  assert.equal(sleeveCheck("longsleeve", "M", 175, undefined, 5).fromFactory, false); // out of range ignored
+  const r = tryOn({ chest: 100, height: 175 }, { garment: "longsleeve", sleeveCm: 58.5 });
+  assert.equal(r.sleeve.sleeveCm, 58.5);
+  assert.ok(r.notes.some(n => /factory's figure/.test(n)));
+});
