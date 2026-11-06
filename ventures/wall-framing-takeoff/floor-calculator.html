@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Floor joist and subfloor calculator: joists, blocking, sheets</title>
+  <meta name="description" content="Free floor framing takeoff: type a floor's size, joist size and spacing and get joist count and centres, rim boards, blocking and subfloor sheets with offcut waste. Runs in your browser.">
+  <meta property="og:title" content="Floor joist and subfloor calculator">
+  <meta property="og:description" content="A floor's size, joist size and spacing in, joists, rim, blocking and sheets out. Private, free, in your browser.">
+  <link rel="canonical" href="./floor-calculator.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many joists and subfloor sheets does a 24 by 14 ft floor need?","acceptedAnswer":{"@type":"Answer","text":"A 24 ft by 14 ft floor (288 by 168 in) with 2x10 joists at 16 in on centre, a rim board all round and one row of blocking needs 19 joist lines, 4 rim boards and 18 blocks, plus 14 sheets of 4x8 subfloor for 336 sq ft, a 25.0% offcut because the last course is only 24 in wide and is ripped from 4 sheets."}},{"@type":"Question","name":"What changes at 24 in on centre?","acceptedAnswer":{"@type":"Answer","text":"Type spacing 24 and the joist lines drop from 19 to 13 and the blocks from 18 to 12, while the sheets stay at 14 because they depend on the floor area, not the joists. Joist size and spacing are your inputs: this page does not check them against a span table or code."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Floor joist and subfloor calculator</h1>
+  <p>Type a floor's width and depth in inches, the joist size and spacing, and whether it has a rim board, a beam and rows of blocking. You get the joist lines and their centres (laid so a 4 ft sheet edge lands on a joist at 16 or 24 in), rim boards, blocking, and the subfloor sheets course by course with end joints on joists and the offcut waste. The same floor engine as the whole-house takeoff. Joist size and spacing are your inputs; they are not checked against a span table or code, and hangers, fasteners and bearing are not decided here.</p>
+  <form id="f" onsubmit="return false">
+    <label for="json">Floor (JSON: id, width and depth in inches, joist such as "2x10", spacing, rim, beam, blockingRows)</label>
+    <textarea id="json" rows="9" spellcheck="false" style="width:100%;box-sizing:border-box;font:.9rem ui-monospace,monospace;padding:8px">{
+  "id": "Main floor",
+  "width": 288,
+  "depth": 168,
+  "joist": "2x10",
+  "spacing": 16,
+  "rim": true,
+  "blockingRows": 1
+}</textarea>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Do the whole house: framing, sheathing, plumbing and more in one takeoff</a></p>
+
+  <h2>How it is counted</h2>
+  <ol>
+    <li><strong>Joists.</strong> They run the depth between two rim boards. The first and last sit at the floor's edges and the rest are centred on multiples of the spacing. A beam position splits each joist in two so shorter boards can be used.</li>
+    <li><strong>Rim and blocking.</strong> Rim boards close the four edges; each blocking row adds a block between every pair of joists.</li>
+    <li><strong>Subfloor.</strong> Sheets run across the joists in courses, alternate courses start on a different joist, and every end joint lands on a joist centre. Offcut waste is the sheet area bought less the floor area.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How many joists and subfloor sheets does a 24 by 14 ft floor need?</h3>
+  <p>A 24 ft by 14 ft floor (288 by 168 in) with 2x10 joists at 16 in on centre, a rim board all round and one row of blocking needs 19 joist lines, 4 rim boards and 18 blocks, plus 14 sheets of 4x8 subfloor for 336 sq ft, a 25.0% offcut because the last course is only 24 in wide and is ripped from 4 sheets.</p>
+  <h3>What changes at 24 in on centre?</h3>
+  <p>Type spacing 24 and the joist lines drop from 19 to 13 and the blocks from 18 to 12, while the sheets stay at 14 because they depend on the floor area, not the joists. Joist size and spacing are your inputs: this page does not check them against a span table or code.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="nail-calculator.html">Framing nail calculator (nails and boxes by connection)</a></li><li><a href="fireblock-calculator.html">Fireblocking calculator (blocks and boards for tall wall cavities)</a></li><li><a href="paint-calculator.html">Paint calculator (gallons of paint and primer)</a></li><li><a href="order-by-date-calculator.html">Order-by date calculator (when to order long-lead items)</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator (receptacle and switch boxes, cable)</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator (tiles, backer board, membrane)</a></li><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity (what a lumber or labor swing does to the bid)</a></li><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li><li><a href="drywall-calculator.html">Drywall calculator (sheets, tape, compound)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, carpet)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Joist size and spacing are the figures you typed, not a span table lookup, and the output is not checked against any span table or code, a real house or an inspector.<strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder or software company. Joist spans, bearing, hangers, fasteners and subfloor thickness are not decided here. Ask your engineer or building department.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { layoutFloor, floorText } from "./floor.mjs";
+    import { samplePlan } from "./engine.mjs";
+    const $ = (id) => document.getElementById(id);
+    const run = () => {
+      let d;
+      try { d = JSON.parse($("json").value); } catch (e) { $("out").textContent = "That is not valid JSON: " + e.message; return; }
+      if (d == null || typeof d !== "object" || Array.isArray(d)) { $("out").textContent = "The floor is a JSON object."; return; }
+      let l;
+      try { l = layoutFloor(d, samplePlan()); } catch (e) { $("out").textContent = "Could not lay out that floor: " + e.message; return; }
+      $("out").textContent = l.ok === false ? l.errors.join("\n") : floorText(l).join("\n");
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>
