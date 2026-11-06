@@ -86,3 +86,72 @@ export function reorderPlan(o) {
     return { error: e.message };
   }
 }
+
+/**
+ * Reorder per size. Total weekly sales split by a size mix (shares of sales,
+ * which fit.mjs's size run or your own sell-through gives). For a size with
+ * share p of a total with mean m and spread s, the size's weekly spread is
+ * sqrt(p^2 s^2 + p(1-p) m): the total's wobble scaled down, plus the random
+ * choice of size per buyer (multinomial). Each size is planned alone with
+ * reorderPlan (no minimum), then the factory minimum is applied to the whole
+ * order: if the sizes needing stock add up to less, the extra is spread over
+ * them in proportion. Sizes not yet at their reorder point are left out of
+ * the order (listed with their weeks to go) unless `all` is true.
+ * Assumes sizes sell independently of each other, which overstates the
+ * pooling a little; real size curves also shift with the audience.
+ *
+ * @param {{mix:Record<string,number>, onHand:Record<string,number>, onOrder?:Record<string,number>,
+ *   all?:boolean} & Parameters<typeof reorderPlan>[0]} o  mix values are percents or counts (normalised).
+ */
+export function reorderBySize(o) {
+  if (!o || typeof o !== "object" || !o.mix || typeof o.mix !== "object") return { error: "Give the size mix, e.g. {S: 15, M: 35, L: 30, XL: 20}." };
+  try {
+    const sizes = Object.keys(o.mix);
+    if (sizes.length < 1 || sizes.length > 20) throw new Error("Give 1 to 20 sizes.");
+    let total = 0;
+    for (const s of sizes) total += num(o.mix[s], `Share for ${s}`, 0, 1e9);
+    if (total <= 0) throw new Error("The size shares add to zero.");
+    const m = num(o.weeklyRate, "Weekly sales", 0.01, 1e6);
+    const sd = num(o.weeklySd ?? m * 0.5, "Weekly sales spread", 0, 1e6);
+    const rows = [];
+    for (const s of sizes) {
+      const p = o.mix[s] / total;
+      if (p === 0) continue;
+      const sdS = Math.sqrt(p * p * sd * sd + p * (1 - p) * m);
+      const hand = num(o.onHand?.[s] ?? 0, `Stock on hand (${s})`, 0, 1e7);
+      const ord = num(o.onOrder?.[s] ?? 0, `On order (${s})`, 0, 1e7);
+      const r = reorderPlan({ ...o, weeklyRate: m * p, weeklySd: sdS, onHand: hand, onOrder: ord, moq: 1, today: o.today });
+      if (r.error) throw new Error(`${s}: ${r.error}`);
+      rows.push({ size: s, share: round1(p * 100), ...r });
+    }
+    const include = rows.filter(r => r.orderNow || o.all);
+    let sum = include.reduce((a, r) => a + r.quantity, 0);
+    const moq = num(o.moq ?? 1, "Factory minimum", 1, 1e7);
+    const notes = [];
+    const finalQty = new Map(include.map(r => [r.size, r.quantity]));
+    if (sum > 0 && sum < moq) {
+      let left = moq - sum;
+      const base = sum;
+      for (const r of include) {
+        const add = Math.floor((moq - base) * r.quantity / base);
+        finalQty.set(r.size, r.quantity + add); left -= add;
+      }
+      const big = include.reduce((a, b) => (b.quantity > a.quantity ? b : a));
+      finalQty.set(big.size, finalQty.get(big.size) + left);
+      notes.push(`The sizes at their reorder point add up to ${base}, under the factory minimum of ${moq}: the extra ${moq - base} is spread in proportion.`);
+    }
+    sum = [...finalQty.values()].reduce((a, b) => a + b, 0);
+    if (!include.length) notes.push("No size is at its reorder point yet.");
+    const lost = rows.reduce((a, r) => a + r.lostUnits, 0);
+    if (lost > 0) notes.push(`Sizes already short lose about ${lost} sales before an order lands.`);
+    notes.push("Sizes are planned independently from a typed mix; use your own sell-through by size once you have it.");
+    const lines = rows.map(r => ({
+      size: r.size, sharePercent: r.share, weeklySales: round1(m * r.share / 100),
+      safetyStock: r.safetyStock, reorderPoint: r.reorderPoint, position: r.position, orderNow: r.orderNow,
+      weeksUntilReorder: r.weeksUntilReorder, lostUnits: r.lostUnits, order: finalQty.get(r.size) ?? 0,
+    }));
+    return { ok: true, lines, orderTotal: sum, cashTiedUp: round2(sum * num(o.landed, "Landed cost per piece", 0, 1e6)), notes };
+  } catch (e) {
+    return { error: e.message };
+  }
+}
