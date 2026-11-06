@@ -48,3 +48,14 @@ test("bad inputs and no roof are refused; prices total", () => {
   assert.equal(v.cost, 20 * v.ridgePieces + 3 * v.soffitUnits);
   assert.ok(ventilationText(v).join("\n").includes("Required:"));
 });
+
+test("ridge vent nails by hand: 29.8667 ft x 12 / 6 in = 60 per flange, 120 in all, 2 boxes of 100", () => {
+  const v = layoutVentilation({ ridgeNailSpacing: 6, ridgeNailBox: 100 }, gable());
+  assert.equal(v.ridgeNails, 2 * Math.ceil(29.8667 * 12 / 6 - 1e-9)); // 2 x 60
+  assert.equal(v.ridgeNails, 120);
+  assert.equal(v.ridgeNailBoxes, 2);
+  assert.match(v.notes.join(" "), /Ridge vent nails/);
+  assert.equal(layoutVentilation({}, gable()).ridgeNails, 0); // opt-in
+  assert.equal(layoutVentilation({ ridgeVent: false, ridgeNailSpacing: 6 }, gable()).ridgeNails, 0);
+  assert.ok(validateVentilation({ ridgeNailSpacing: 1 }).length > 0);
+});
