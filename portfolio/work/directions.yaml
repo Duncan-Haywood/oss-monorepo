@@ -260,6 +260,23 @@ directions:
     paths:
       - platform/pages/**
 
+  - id: site-performance
+    title: Site performance and uptime (marisstella.app)
+    kind: area
+    set: 2026-11-06
+    source: docs/reports/2026-11-06-site-performance-baseline.md
+    section: "Site performance: baseline and leads (2026-11-06)"
+    status: active
+    # Weight 2: the owner raised it as a live problem ("lots of downtimes and
+    # painfully slow load speeds"), and it affects every product on the site.
+    weight: 2
+    paths:
+      - platform/pages/cloudflare/**
+      - platform/pages/page-weight*.mjs
+      - platform/pages/verify-live.sh
+      - platform/ci/check_site_fresh.py
+      - platform/ci/site_probe*.py
+
   # --- principles (how to work; no tasks) ----------------------------------
   - id: depth-over-calculators
     title: Depth over calculators
