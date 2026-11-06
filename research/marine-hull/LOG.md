@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-06 · Milestone 6r: how much of 6o's wind-over-sun ranking rests on light-air hours? (closes 6q's "Next"; exploratory, no prediction logged first)
+- `experiments/run_wind_vs_sun_lightair_share.py` -> `results_wind_vs_sun_lightair_share.txt` (under 2 minutes): 6o's capability drone and buoy winds again (reproduces 6o's 126 and 80 km/day medians), reporting per buoy-month the share of blocks below 4 m/s, the share of modelled distance they supply, and the corridor mean with those blocks credited zero distance (a floor for the case that light-air speed over ground is current, not sail thrust, as 6q found).
+- Result: January: median 17% of blocks below 4 m/s supply 6% of distance; zeroing them leaves 120 km/day (1.40 times the 86 km/day solar ceiling), above solar in 9 of 9 buoys. July: median 44% of blocks below 4 m/s supply 24% of distance; modelled 80 km/day (0.93 times) falls to 61 (0.71 times) when zeroed, above solar in 1 of 10 buoys.
+- Reading: the winter edge does not depend on light air. The July "level with solar" figure does: it is a ceiling for the sail side, and with light-air thrust removed wind is below sun at 9 of 10 buoys. So the paper's July claim is "wind is at most level with sun, and below it if light-air speed is current-driven". The direction of the ranking is unchanged; the July number moves down, not up.
+- Limits: zeroing is a deliberately pessimistic floor (some light-air sail thrust is real); same two months, 19 buoy-months, zero tack cost, SOG-fitted drone, no sea state.
+- Next: a current term in the drone model, refit on 2018 and tested on 2019 light-air blocks.
+
 ## 2026-11-06 · Milestone 6q: does a light-air-only capability fit cover 2019 blocks below 4 m/s? (closes 6o's "Next"; exploratory, predictions not logged before the run)
 - `experiments/run_saildrone_lightair.py` -> `results_saildrone_lightair.txt` (under 1 s): fit sail_area and hull_scale to the 2018 90th-percentile SOG in 0.5 m/s x 15 deg cells (>= 20 blocks, 96 cells, 33,680 blocks, true wind < 4 m/s only); test coverage on 18,921 light-air 2019 blocks.
 - Result: the fit goes to sail_area 0.30 m2, hull_scale 0.30 (MSE 0.053 against 0.059 for 6n's drone): hull drag at 0.3 of the still-water model is not physical, and the gain is small. Coverage (a bound that is right covers ~0.90): 0.645 overall against 0.545 for 6n's drone; by wind 0-2 m/s 0.34 (0.25), 2-3 m/s 0.77 (0.67), 3-4 m/s 0.84 (0.75).
