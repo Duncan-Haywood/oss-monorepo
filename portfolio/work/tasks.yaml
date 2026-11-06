@@ -170,3 +170,98 @@ tasks:
     hours: 40
     status: open
     added: 2026-11-03
+
+  # --- site-performance (owner, 2026-11-06) --------------------------------
+  # Baseline and reasoning: docs/reports/2026-11-06-site-performance-baseline.md.
+  - id: site-perf-baseline
+    direction: site-performance
+    title: Measure page weight across the built site and write the baseline
+    done_when: >-
+      platform/pages/page-weight.mjs with tests reports HTML size, gzip,
+      inline script and style per page and the share of files that run
+      Worker code; a report with the numbers from a build of main.
+    hours: 4
+    status: done
+    added: 2026-11-06
+    notes: Landed with this direction. No live numbers; the session's proxy blocks marisstella.app.
+
+  - id: site-perf-uptime-probe
+    direction: site-performance
+    title: Probe the live site on a schedule with no retries and keep the history in a file
+    done_when: >-
+      A script times status, time to first byte and total time for the front
+      page, /writing/, /research/, a tool page and a post, with no retries,
+      from a GitHub runner, every hour or so; it appends results to a file
+      (an artifact or a data branch, not main) and a reader prints uptime and
+      p50/p95 per path over a day and a week.
+    hours: 8
+    status: open
+    added: 2026-11-06
+    notes: >-
+      The scheduled workflow lives under .github/ (control plane), so it is its
+      own small PR that waits for the owner's approval. The script and its
+      tests can land first. It must not push commits to main.
+
+  - id: site-perf-worker-budget
+    direction: site-performance
+    title: Confirm or rule out the free plan's 100,000 Worker requests a day as the downtime
+    done_when: >-
+      Per-day invocations and errors for both Workers over at least a week,
+      read from Cloudflare's analytics (GraphQL API or the dashboard), are
+      recorded in docs/reports/ with what they show.
+    hours: 3
+    status: open
+    added: 2026-11-06
+    blocked_on: >-
+      Analytics read access: the deploy token may lack it. The owner can read
+      Workers & Pages > the two Workers > Metrics instead.
+
+  - id: site-perf-paginate-indexes
+    direction: site-performance
+    title: Split /writing/ and /research/ into pages under 150 kB
+    done_when: >-
+      /writing/ (2,325 kB) and /research/ (1,441 kB) render a first page
+      under 150 kB with links to numbered pages or per-topic pages; every
+      post and project is still reachable in at most two clicks; sitemaps
+      and check.mjs pass; page-weight.mjs numbers before and after in the PR.
+    hours: 10
+    status: open
+    added: 2026-11-06
+
+  - id: site-perf-one-worker
+    direction: site-performance
+    title: Get the site under 20,000 files so one Worker serves it all as static assets
+    done_when: >-
+      The deployed site is under about 18,000 files (22,812 on 2026-11-06;
+      5,127 are share-card.png, 4,234 are .mjs), the shard Worker and the
+      run_worker_first paths are retired, and no page request runs code.
+    hours: 16
+    status: open
+    added: 2026-11-06
+    notes: >-
+      Options to weigh: one share card per section instead of per page, or
+      shared engine modules instead of per-venture .mjs copies. The
+      wrangler.toml and workflow parts may touch the control plane.
+
+  - id: site-perf-inline-script
+    direction: site-performance
+    title: Move large inline scripts on /guides/, /compare/ and the front page into cached files
+    done_when: >-
+      Inline script on /guides/ (285 kB), /compare/ (162 kB) and the front
+      page (89 kB) is under 20 kB each, the rest served as cacheable .js
+      files; the pages still work (Playwright load, no console errors).
+    hours: 6
+    status: open
+    added: 2026-11-06
+
+  - id: site-perf-budget-check
+    direction: site-performance
+    title: Fail a PR run that adds an HTML page over the weight budget
+    done_when: >-
+      After the heavy pages are fixed, the Portfolio Pages PR run runs
+      page-weight.mjs --strict (a hygiene check: fatal on PRs, warn on
+      deploys, as check.mjs does), with a short allowlist for exceptions.
+    hours: 3
+    status: open
+    added: 2026-11-06
+    blocked_on: site-perf-paginate-indexes and site-perf-inline-script
