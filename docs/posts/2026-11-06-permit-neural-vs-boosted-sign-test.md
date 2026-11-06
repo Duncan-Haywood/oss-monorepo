@@ -1,6 +1,6 @@
 ---
 title: "Is a neural net as good as boosted trees at predicting permit times?"
-seo_title: "Neural network versus gradient boosting for building permit duration quantiles"
+seo_title: "Neural network vs gradient boosting for permit duration quantiles"
 date: 2026-11-06
 tags: [build-data, permits, research]
 description: "Across 45 city, target and quantile cells, a small neural net ties boosted trees on pinball loss overall, but is slightly worse in 2024."
