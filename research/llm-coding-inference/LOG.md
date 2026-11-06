@@ -2,6 +2,18 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-07 · Milestone 7y: does dropping the tau/guard-20 screen (keeping `neg_guard=3`) hold at other audit sizes? (planned before the 500-draw runs; `experiments/h7y_drop_screen.py <category> 500 <n>`, pilot = n/2; same cached Qwen2.5-1.5B scores, corpus and cut as 7x)
+- Why: 7x's open item. n = 500 and 2,000 for fear (1.15%), sadness (2.30%), admiration (8.1%); rules: pooled, shipped default, `neg_guard=3` alone. 500 draws (+/- 1.9 points). One run each.
+- **Prediction:** `neg_guard=3` alone covers 93% or more in all 6 cells and is at least as narrow as pooled everywhere; the shipped default gives away width at rare prevalence. Refuted if any cell of `neg_guard=3` alone is under 93%.
+
+### Outcome (`experiments/h7y_*_n500.txt`, `h7y_*_n2000.txt`)
+- Coverage of `neg_guard=3` alone: 93.6 to 96.2% in all 6 cells (lowest: sadness n = 2000, 93.6%), so the prediction's coverage half holds. Pooled: 93.4 to 95.6%. Shipped default: 93.4 to 95.4%.
+- Half-width (points), `neg_guard=3` alone vs pooled: fear 0.892 vs 0.887 (n 500), 0.309 vs 0.373 (n 2000, 17% narrower); sadness 1.164 vs 1.201 (3%), 0.367 vs 0.516 (29%); admiration 1.911 vs 2.093 (9%), 0.678 vs 0.914 (26%). At n = 500 it is within 3% of pooled for the two rare categories (cells used in 12% and 26% of draws); wider than pooled in one cell by 0.6% (fear n = 500, inside noise).
+- Shipped default vs `neg_guard=3` alone: the same at n = 500 for fear and sadness (screen sends 100% of draws to pooled), 20% wider at fear n = 2000 (cells in 1% of draws), 8% wider at sadness n = 2000, equal at admiration.
+- Reading: the screen costs width only when the audit is large enough to buy a gain (about 2,000 items in a 6,683-item corpus, so a third of the corpus), and nothing at n = 500, where no rule gains. Prediction supported, with one qualification: "at least as narrow as pooled everywhere" fails by 0.6% in one cell, within noise.
+- Limits: one LLM (1.5B, zero-shot), one corpus, three categories, 500 draws, n = 2,000 is a third of the corpus (finite-population effects). The three categories are those the library default was already tuned on. I did not change the library default: one coder is not enough to remove a safeguard, and the 7w failure (85%) came from the screen's guard being too lax, not from it being too strict.
+- Next: a second LLM coder or a second corpus before dropping tau; a Wilson-type interval for pooled under 0.5%.
+
 ## 2026-11-06 · Milestone 7x: does the shipped default (`neg_guard = 3`) hold with a real zero-shot LLM coder at 1 to 5% prevalence? (planned before the 500-draw runs; a 5-draw smoke run only checked the script executes: fear prevalence 1.15%, J 0.46)
 - Why: 7w's open item, an LLM coder rather than the word-presence scorer. `experiments/h7x_llm_coder.py <category> <reps>`: GoEmotions, the cached Qwen2.5-1.5B-Instruct zero-shot scores (`gollm_*.tsv`, from `llm_code_goemotions.py`), label-free cut so coder-positives are 3x the train prevalence (as 6ab), whole 70% test part as the corpus (6,683 items), n = 1000, pilot 500, fitted lambda, 500 draws (+/- 1.9 points). Rules: pooled; old default (neg_guard 0); shipped default (neg_guard 3); neg_guard=3 alone. Categories fear, sadness, admiration (the three with cached scores and prevalence under about 6%).
 - **Prediction:** the shipped default covers 93% or more in all three and is no wider than pooled; it is at least 5% narrower than pooled where coder J is 0.4 or more. The old default may undercover in the highest-J category. Refuted if the shipped default covers under 93% in any category.
