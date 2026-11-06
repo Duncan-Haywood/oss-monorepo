@@ -212,6 +212,114 @@
     }
    },
    "folded_small_types": 32
+  },
+  {
+   "city": "austin",
+   "target": "a2i",
+   "window": [
+    2022,
+    2024
+   ],
+   "negative_dropped": 860,
+   "all_types": {
+    "n": 172780,
+    "same_day_share": 0.0477,
+    "q10": 1.0,
+    "q50": 25.0,
+    "q90": 320.0
+   },
+   "types": {
+    "building permit": {
+     "n": 35436,
+     "same_day_share": 0.074,
+     "q10": 1.0,
+     "q50": 48.0,
+     "q90": 321.0
+    },
+    "driveway / sidewalks": {
+     "n": 4478,
+     "same_day_share": 0.0013,
+     "q10": 26.0,
+     "q50": 182.0,
+     "q90": 580.3
+    },
+    "electrical permit": {
+     "n": 54077,
+     "same_day_share": 0.0535,
+     "q10": 1.0,
+     "q50": 15.0,
+     "q90": 252.0
+    },
+    "mechanical permit": {
+     "n": 32211,
+     "same_day_share": 0.0169,
+     "q10": 2.0,
+     "q50": 19.0,
+     "q90": 356.0
+    },
+    "plumbing permit": {
+     "n": 46578,
+     "same_day_share": 0.0467,
+     "q10": 1.0,
+     "q50": 16.0,
+     "q90": 317.0
+    }
+   },
+   "folded_small_types": 0
+  },
+  {
+   "city": "austin",
+   "target": "i2c",
+   "window": [
+    2022,
+    2024
+   ],
+   "negative_dropped": 3533,
+   "all_types": {
+    "n": 163246,
+    "same_day_share": 0.0045,
+    "q10": 7.0,
+    "q50": 111.0,
+    "q90": 467.0
+   },
+   "types": {
+    "building permit": {
+     "n": 30599,
+     "same_day_share": 0.0028,
+     "q10": 24.0,
+     "q50": 197.0,
+     "q90": 680.0
+    },
+    "driveway / sidewalks": {
+     "n": 5279,
+     "same_day_share": 0.0023,
+     "q10": 14.0,
+     "q50": 82.0,
+     "q90": 257.0
+    },
+    "electrical permit": {
+     "n": 50995,
+     "same_day_share": 0.0078,
+     "q10": 4.0,
+     "q50": 96.0,
+     "q90": 413.0
+    },
+    "mechanical permit": {
+     "n": 31106,
+     "same_day_share": 0.0017,
+     "q10": 12.0,
+     "q50": 115.0,
+     "q90": 381.5
+    },
+    "plumbing permit": {
+     "n": 45267,
+     "same_day_share": 0.0041,
+     "q10": 5.0,
+     "q50": 72.0,
+     "q90": 447.0
+    }
+   },
+   "folded_small_types": 0
   }
  ]
 }
