@@ -457,3 +457,12 @@ Yearly average level of Lakes Michigan-Huron (one lake hydraulically), 1918 to 2
   data, <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/ggplot2/economics.csv>.
 - **Licence:** US Bureau of Economic Analysis data via FRED, a US government
   work in the public domain; the Rdatasets copy is as published by ggplot2 (MIT).
+
+# Example data: Box-Jenkins sales and US census population
+
+`bjsales.csv`: 150 company sales values (Box and Jenkins, *Time Series Analysis*, series M), R's `datasets::BJsales`.
+`uspop.csv`: US census population in millions, 1790 to 1970 (19 rows), R's `datasets::uspop`.
+
+- **Retrieved:** 2026-11-06 from <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/BJsales.csv> and `.../uspop.csv`.
+- **Licence:** R datasets (GPL-2 | GPL-3 package); the numbers are published sales figures and census counts. Used as a test fixture only.
+- **Used by:** `eval/smooth-pair.mjs`, `smooth-pair.test.mjs`.
