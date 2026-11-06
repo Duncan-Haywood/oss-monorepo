@@ -66,7 +66,8 @@ test("the fresh set is reported, not tuned: numbers recorded in README stay as m
   // update the README; do not tune on this file.
   assert.equal(s.n, 40);
   // Scored 15/22/11 on 2026-10-21; the 2026-10-24 "cease ..." patterns moved it to 16/23/10 (see eval/README.md); the 2026-10-25 opt-out patterns to 17/24/9.
-  assert.equal(s.right, 17);
+  // 2026-11-07: the "quick call" and "who do I talk to" patterns moved it to 18 (see eval/README.md).
+  assert.equal(s.right, 18);
   assert.equal(s.acted, 24);
   assert.equal(s.guessRight, 9);
 });
@@ -369,6 +370,15 @@ test("fresh set 2026-11-06: scored once at 25/30 (0 overreach, 0 opt-outs missed
   assert.equal(s.unsubMissed, 0);
   const T = "2026-11-06";
   for (const [body, want] of [["Legal won't let us send customer emails through a third-party model.", "objection"], ["Honestly our reps hate anything that adds clicks to their day.", "objection"], ["I've moved to a different role and no longer handle vendor tools. Try Sam Okafor, sam@harborline.example.", "left_company"]])
+    assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+});
+
+test("fresh set 2026-11-07: scored once at 26/30 (1 overreach), 29/30 after three narrow patches; a tuned set. Left on purpose: a one-pager to forward to a CFO reads as a forward", () => {
+  const s = score(load("fresh-2026-11-07.jsonl"));
+  assert.equal(s.right, 29);
+  assert.equal(s.unsubMissed, 0);
+  const T = "2026-11-07";
+  for (const [body, want] of [["I'd like to see this. Can we do a quick call tomorrow?", "interested"], ["This is exactly what we need. Who should I talk to to get started?", "interested"], ["Honestly it looks like another tool that will spam our prospects and hurt our domain reputation.", "objection"]])
     assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
 });
 
