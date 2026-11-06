@@ -519,3 +519,15 @@ test("flooring orders enter the budget with their own prices, typed keys overrid
   assert.ok(Math.abs(lab.qty - (120 + 40 + 144)) < 0.01, "10x12 + 8x5 + 12x12 sq ft");
   assert.ok(Math.abs(lab.amount - lab.qty * 3) < 0.02);
 });
+
+test("a typed cull allowance is its own lumber line, at the order's prices", () => {
+  const plan = { ...full(), culls: { pct: 0.05, bySize: { "2x6": 0.1 } } };
+  const b = bud(plan);
+  const r = JSON.parse(run(plan, "--sheathing", "--json").out);
+  const lines = b.lines.filter((l) => /cull allowance$/.test(l.item));
+  assert.ok(lines.length > 0);
+  assert.equal(lines.reduce((t, l) => t + l.qty, 0), r.summary.cullBoards);
+  assert.ok(Math.abs(lines.reduce((t, l) => t + l.amount, 0) - r.summary.cullCost) < 0.05 * lines.length);
+  assert.ok(Math.abs(b.sections.find((s) => s.name === "Lumber").subtotal - r.summary.costWithCulls) < 0.05 * (lines.length + 3));
+  assert.equal(bud(full()).lines.filter((l) => /cull allowance$/.test(l.item)).length, 0);
+});
