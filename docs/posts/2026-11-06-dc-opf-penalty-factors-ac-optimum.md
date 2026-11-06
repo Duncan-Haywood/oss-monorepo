@@ -1,6 +1,6 @@
 ---
 title: "Loss penalty factors in DC optimal power flow work at full load, if you take them at the right point"
-seo_title: "DC OPF loss penalty factors: IEEE 118-bus, sensitivities at the AC optimum"
+seo_title: "DC OPF loss penalty factors at the AC optimum, IEEE 118-bus"
 date: 2026-11-06
 tags: [infra-dcopf, research, power-systems]
 description: "On the IEEE 118-bus case, loss penalty factors evaluated at the AC optimum cut the DC dispatch's cost excess from 1.5 to 0.37 percent at full load."
