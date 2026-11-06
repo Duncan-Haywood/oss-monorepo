@@ -205,20 +205,6 @@ The same MLP and split were rerun for test years 2022 and 2023 (`LOG.md`, sessio
 
 Sign test and cell bootstrap (`../src/neural_sign_test.py`, `../results/neural_sign_test.txt`; descriptive, since cells share data): over all 45 cells the mean difference is +0.22% (95% bootstrap -0.30 to +0.75); in 2022 and 2023 the intervals contain 0; in 2024 the mean is +1.14% (+0.21 to +2.13) with the neural net ahead in 3 of 15 cells (sign p 0.035, uncorrected for the four groupings). The per-permit paired bootstrap is not yet done.
 
-### 4.7 The published permit-duration prior (milestone 7)
-
-The descriptive reference class behind the baseline is published as a data file for downstream tools (`../results/permit_prior.json`, `../results/permit_prior_table.md`; `python3 src/prior.py DIR --years 2022 2023 2024`, `python3 src/summarise_prior.py`; `../LOG.md`, sessions 34 and 35). It holds, per city, target and permit type, the type-7 q10/q50/q90 and the same-day share over 2022 to 2024 (start year is the application date for a2i, the issue date for i2c); types under 30 rows are folded into the all-types row, not dropped.
-
-| city | target | n | same-day | q10 / q50 / q90 (days) | types kept | rows folded |
-|---|---|---|---|---|---|---|
-| Chicago | a2i | 106,195 | 48.0% | 0 / 1 / 68 | 9 | 0 |
-| San Francisco | a2i | 69,869 | 52.4% | 0 / 0 / 95 | 7 | 10 |
-| San Francisco | i2c | 55,307 | 0.1% | 14 / 119 / 481 | 6 | 32 |
-| Austin | a2i | 172,780 | 4.8% | 1 / 25 / 320 | 5 | 0 |
-| Austin | i2c | 163,246 | 0.4% | 7 / 111 / 467 | 5 | 0 |
-
-The spread across permit types is as large as the spread across cities: the per-type median application-to-issue lag runs 0 to 24 days in Chicago, 0 to 533 in San Francisco and 15 to 182 in Austin, so a city-level number alone is a poor prior. The two pre-registered hypotheses (LOG sessions 34 and 35) held: Chicago and SF median application-to-issue is 0 or 1 day, Austin same-day share is 4.8% (below 20%), and the Austin and SF issue-to-completion medians are 111 and 119 days (above 60 and 90). Limits: descriptive quantiles with no model; Chicago is issued-only, so its application-to-issue lags are survivorship-biased; a three-year window; the model-based (boosted) version is not published.
-
 ### 4.3 Which fields (H3, as worded)
 
 Permutation importance: the smallest number of fields reaching 80% of the total
@@ -247,6 +233,20 @@ Chicago +14.1%, SF +5.9%, Austin -8.8%. The pooled model beat a baseline built f
 the same n local rows in 8 of 24 pair/n/weight cells (6 in Austin). In Austin a
 boosted model on the local rows alone is as good or better than pooling at every n.
 
+### 4.7 The published permit-duration prior (milestone 7)
+
+The descriptive reference class behind the baseline is published as a data file for downstream tools (`../results/permit_prior.json`, `../results/permit_prior_table.md`; `python3 src/prior.py DIR --years 2022 2023 2024`, `python3 src/summarise_prior.py`; `../LOG.md`, sessions 34 and 35). It holds, per city, target and permit type, the type-7 q10/q50/q90 and the same-day share over 2022 to 2024 (start year is the application date for a2i, the issue date for i2c); types under 30 rows are folded into the all-types row, not dropped.
+
+| city | target | n | same-day | q10 / q50 / q90 (days) | types kept | rows folded |
+|---|---|---|---|---|---|---|
+| Chicago | a2i | 106,195 | 48.0% | 0 / 1 / 68 | 9 | 0 |
+| San Francisco | a2i | 69,869 | 52.4% | 0 / 0 / 95 | 7 | 10 |
+| San Francisco | i2c | 55,307 | 0.1% | 14 / 119 / 481 | 6 | 32 |
+| Austin | a2i | 172,780 | 4.8% | 1 / 25 / 320 | 5 | 0 |
+| Austin | i2c | 163,246 | 0.4% | 7 / 111 / 467 | 5 | 0 |
+
+The spread across permit types is as large as the spread across cities: the per-type median application-to-issue lag runs 0 to 24 days in Chicago, 0 to 533 in San Francisco and 15 to 182 in Austin, so a city-level number alone is a poor prior. The two pre-registered hypotheses (LOG sessions 34 and 35) held: Chicago and SF median application-to-issue is 0 or 1 day, Austin same-day share is 4.8% (below 20%), and the Austin and SF issue-to-completion medians are 111 and 119 days (above 60 and 90). Limits: descriptive quantiles with no model; Chicago is issued-only, so its application-to-issue lags are survivorship-biased; a three-year window; the model-based (boosted) version is not published.
+
 ## 5 Limitations
 
 One test year (2024) for H3, H4, H5 (H1 and the neural comparison also run for 2022 and 2023); three seeds (two for conformal); one fixed
@@ -269,6 +269,6 @@ tighter quantile levels (4.2a) can halve the width, but pick them with drift in 
 1. Tune the neural net and libraries; per-library tuning (Austin a2i CatBoost gap).
 2. A year-ahead (Y-2 versus Y-1) calibration check for the quantile pair (4.2b did not solve Chicago); (H2g now run for every city and target that has one; see 4.2c).
 3. Spread over draws and i2c for 4.5; first-n-rows ordering instead of random draws.
-4. Multiple test years for H1; a fourth city after a licence check.
+4. A fourth city after a licence check (H1 now runs over test years 2022 to 2024, see 4.1a); the per-permit paired bootstrap on neural minus boosted, which needs saved predictions and fresh pulls (4.6a gives only the cell-level sign test).
 5. Empirical permit-duration prior published for all three cities (4.7); still to do: a model-based (boosted quantile) version for `ventures/`.
 6. Re-run `research/_shared/cite_check.py` at submission and re-check novelty.
