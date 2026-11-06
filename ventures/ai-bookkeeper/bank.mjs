@@ -230,6 +230,12 @@ export function detectColumns(header) {
   // Stripe's balance-transactions export (Amount, Fee, Net, Created (UTC)):
   // Net is what moved the Stripe balance; Amount is the gross before the fee.
   if (h.includes("fee") && h.includes("net") && ["created (utc)", "created utc", "balance transaction id", "reporting category"].some((k) => h.includes(k)) && cols.amount !== -1 && h[cols.amount] === "amount") cols.amount = h.indexOf("net");
+  // Shopify Payments' transactions export (Transaction Date, Type, Order, Payout Status, Payout ID,
+  // Amount, Fee, Net): Net is what reaches the bank; the description is "type order", not the card brand.
+  if (h.includes("payout status") && h.includes("payout id") && h.includes("fee") && h.includes("net") && h.includes("order") && h.includes("type")) {
+    if (cols.amount !== -1 && h[cols.amount] === "amount") cols.amount = h.indexOf("net");
+    cols.desc = h.indexOf("order");
+  }
   // Paytm's wallet statement (Date, Activity, Source/Destination, Wallet Txn ID,
   // Comment, Debit, Credit, ..., Status): the activity is the description.
   if (cols.desc === -1 && h.includes("activity") && h.includes("wallet txn id")) cols.desc = h.indexOf("activity");
