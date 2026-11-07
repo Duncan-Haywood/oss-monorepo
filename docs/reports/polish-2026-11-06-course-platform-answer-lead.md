@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [aeo]
+topics: [seo]
 date: 2026-11-06
 tagged: auto
 ---

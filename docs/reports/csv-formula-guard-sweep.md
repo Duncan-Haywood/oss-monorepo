@@ -1,3 +1,7 @@
+---
+kind: note
+tagged: auto
+---
 # CSV formula guard sweep (2026-11-06)
 
 Method: files under `ventures/` (not tests, not node_modules) containing the quote-doubling idiom
