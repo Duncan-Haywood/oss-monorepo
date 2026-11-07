@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { briefToFile, briefFromFile, briefFromEyewear, briefFromWardrobe, briefFromStudio, prefillFor, saveBrief, loadBrief, applyBrief, BRIEF_KEY } from "./launchbrief.mjs";
+import { briefToFile, briefFromFile, briefFromEyewear, briefFromWardrobe, briefFromStudio, briefWithFreight, prefillFor, saveBrief, loadBrief, applyBrief, BRIEF_KEY } from "./launchbrief.mjs";
 import { unitCost, DEFAULT_PLAN } from "./costing.mjs";
 import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
 
@@ -116,4 +116,18 @@ test("wardrobe drop brief: quantity-weighted landed cost, one shelf price, no do
   assert.equal(b.moq, 50);
   assert.equal(briefFromWardrobe({ lines: [] }, { price: 50 }, {}), null);
   assert.equal(briefFromWardrobe({ lines: [{ quantity: 5, unitCost: 3 }] }, {}, {}), null);
+});
+
+test("freight page figure replaces the sheet's freight in the brief", () => {
+  // By hand: 100 pieces, sheet freight 1.00 each (100 total), landed 10.00, profit 20.00.
+  // A sea quote of 2.50 a piece: +1.50 each, so landed 11.50, freight 250, profit 18.50.
+  const b = { version: 1, quantity: 100, freightTotal: 100, landed: 10, profitPerSale: 20 };
+  const n = briefWithFreight(b, { perPiece: 2.5, mode: "sea LCL" });
+  assert.equal(n.freightTotal, 250); assert.equal(n.landed, 11.5); assert.equal(n.profitPerSale, 18.5);
+  assert.equal(n.freightMode, "sea LCL");
+  assert.equal(b.landed, 10);                       // input untouched
+  assert.equal(prefillFor("cashflow", { ...n, factoryPerUnit: 8, extrasPerUnit: 1, dutyPct: 0, netPerSale: 30 }).frt, 250);
+  assert.equal(briefWithFreight(b, { perPiece: -1 }), null);
+  assert.equal(briefWithFreight(b, {}), null);
+  assert.equal(briefWithFreight(null, { perPiece: 1 }), null);
 });
