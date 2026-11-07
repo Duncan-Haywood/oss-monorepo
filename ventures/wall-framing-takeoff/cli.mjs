@@ -67,6 +67,7 @@ Usage:
   node cli.mjs plan.json --overhang   run sheathing past corners to cover the next wall's end stud (vertical sheets)
   node cli.mjs plan.json --rim-lap=9.25  run sheathing that many inches below the bottom plate to cover the rim board (vertical sheets)
   node cli.mjs plan.json --horizontal sheets long side along the wall (implies --sheathing)
+  node cli.mjs plan.json --add-board=2x4:20ft[:price]  add a longer board to the lumber list (repeatable; a DXF or IFC read has the 16 ft default only; unpriced boards cost per foot like the longest of that size)
   node cli.mjs plan.json --panel-max=12ft  shop drawings with each wall split into panels no longer than that
   node cli.mjs plan.json --panel-max=12ft --panel-order --pull-lists  boards and cuts each panel is built from (add to --panel-order)
   node cli.mjs plan.json --panel-max=12ft --panel-order  lumber order for the shop panels (plates cut at panel breaks) against the whole-wall order
@@ -190,6 +191,24 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   } catch (e) {
     return { code: 2, out: `Could not read the plan: ${e instanceof Error ? e.message : e}` };
   }
+  // --add-board=SIZE:LENGTH[:PRICE] (repeatable) puts a longer board on the lumber list, for a DXF or IFC read (which carries no stock) or a plan that lacks one.
+  const boardNotes = [];
+  for (const a of argv.filter((x) => x.startsWith("--add-board="))) {
+    const [size, len, price, ...extra] = a.slice(12).split(":");
+    const length = parseLength(len ?? "");
+    const given = price === undefined ? undefined : /^\s*\d+(\.\d+)?\s*$/.test(price) ? Number(price) : NaN;
+    if (!size || extra.length || !(length > 0) || length > 1200 || Number.isNaN(given)) return { code: 1, out: `${a} is not SIZE:LENGTH[:PRICE], such as --add-board=2x4:20ft or --add-board=2x4:240in:31.5 (length 1200 in or less).` };
+    const same = (plan.stock || []).filter((st) => st.size === size && st.length > 0 && !st.label);
+    if (!same.length && given === undefined) return { code: 1, out: `${a}: no ${size} on the lumber list to price from, so give a price: --add-board=${size}:${len}:PRICE.` };
+    let cost = given;
+    if (cost === undefined) {
+      const ref = same.reduce((m, st) => (st.length > m.length ? st : m));
+      cost = Math.round((ref.price / ref.length) * length * 100) / 100;
+      boardNotes.push(`Added a ${size} ${formatLength(length)} board at ${cost}, priced per foot like the ${formatLength(ref.length)} ${size} (${ref.price}); set a real price with --add-board=${size}:${len}:PRICE.`);
+    } else boardNotes.push(`Added a ${size} ${formatLength(length)} board at ${cost}.`);
+    plan.stock = [...(plan.stock || []), { size, length, price: cost }];
+  }
+  if (boardNotes.length) dxfNotes += boardNotes.map((n) => `Note: ${n}`).join("\n") + "\n\n";
   let gangNotes = [];
   if (flags.has("--gang")) {
     const g = gangOpenings(plan);
