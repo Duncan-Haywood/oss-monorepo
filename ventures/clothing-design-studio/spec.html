@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Garment Measurement Spec and Sample Check for Clothing Brands</title>
+  <meta name="description" content="Free measurement spec sheet for a clothing sample: points of measure by size with tolerances, then type what you measured on the factory sample to get pass or fail per point and comments to send back. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Garment spec and sample check">
+  <meta property="og:description" content="Points of measure with tolerances, and a pass/fail check of your factory sample. Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Garment spec and sample check (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="fit.html">Size finder</a> · <a href="quotes.html">Compare factory quotes</a> · <a href="labels.html">Label checker</a></p>
+  <h1>Does the sample match the spec?</h1>
+  <p>A factory sews to a table of measurements with a tolerance on each. Pick the garment and cut, get the table for every size (the same one goes in the printable tech pack), then type what you measured on the sample, laid flat, to see which points pass and what to tell the factory.</p>
+  <p class="placeholder">Tolerances and the shoulder and neck figures are typical, not a standard or your buyer's table. Agree them with the factory in writing; replace the sleeve with theirs.</p>
+  <div class="grid">
+    <section>
+      <h2>Garment</h2>
+      <label for="garment">Garment</label><select id="garment"><option value="tee">T-shirt</option><option value="longsleeve">Long-sleeve tee</option><option value="crewneck">Sweatshirt</option><option value="hoodie">Hoodie</option></select>
+      <label for="fit">Cut</label><select id="fit"><option value="slim">Slim</option><option value="regular" selected>Regular</option><option value="relaxed">Relaxed</option><option value="oversized">Oversized</option></select>
+      <label for="sleeveCm">Factory sleeve length at M, cm (optional)</label><input id="sleeveCm" type="number" min="5" max="100" step="any" placeholder="typical">
+      <h2 style="margin-top:14px">Your sample</h2>
+      <label for="size">Size measured</label><select id="size"></select>
+      <div id="meas"></div>
+    </section>
+    <section><h2>Spec by size</h2><div id="spec"></div><h2 style="margin-top:14px">Check</h2><output id="result" aria-live="polite"></output></section>
+  </div>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional advice, and it does not replace a qualified professional. Conversion and traffic are your estimates; the result is a forecast, not a promise. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+
+
+  <script type="module">
+    import { specSheet, sampleCheck, sampleComments } from "./spec.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    let spec;
+    function build() {
+      const sl = $("#sleeveCm").value;
+      try { spec = specSheet({ garment: $("#garment").value, fit: $("#fit").value, sleeveCm: sl === "" ? undefined : +sl }); }
+      catch (e) { $("#spec").innerHTML = `<p class="placeholder">${esc(e.message)}</p>`; return false; }
+      const sizes = Object.keys(spec.sizes), keep = $("#size").value;
+      $("#size").innerHTML = sizes.map(s => `<option${s === (keep || "M") ? " selected" : ""}>${s}</option>`).join("");
+      if (!$("#meas").children.length) $("#meas").innerHTML = spec.points.map(p => `<label for="m-${p.id}">${esc(p.label)} (cm)</label><input id="m-${p.id}" type="number" min="0" step="any">`).join("");
+      $("#spec").innerHTML = `<table><tr><th scope="col">Point</th><th scope="col">Tol.</th>${sizes.map(s => `<th scope="col" class="num">${s}</th>`).join("")}</tr>${spec.points.map(p => `<tr><td>${esc(p.label)}</td><td>±${p.tolCm}</td>${sizes.map(s => `<td class="num${s === $("#size").value ? " hit" : ""}">${spec.sizes[s][p.id]}</td>`).join("")}</tr>`).join("")}</table>${spec.notes.map(n => `<p class="notes">${esc(n)}</p>`).join("")}`;
+      return true;
+    }
+    function check() {
+      if (!build()) return;
+      const m = {};
+      for (const p of spec.points) { const v = $("#m-" + p.id).value; if (v !== "") m[p.id] = +v; }
+      if (!Object.keys(m).length) { $("#result").innerHTML = '<p class="muted">Type at least one measurement from your sample.</p>'; return; }
+      try {
+        const c = sampleCheck(spec, $("#size").value, m);
+        $("#result").innerHTML = `<p class="big">${esc(c.summary)}</p><table><tr><th scope="col">Point</th><th scope="col" class="num">Spec</th><th scope="col" class="num">Sample</th><th scope="col" class="num">Diff</th><th scope="col">Verdict</th></tr>${c.rows.map(r => `<tr><td>${esc(r.label)}</td><td class="num">${r.spec}</td><td class="num">${r.measured}</td><td class="num">${r.diff > 0 ? "+" : ""}${r.diff}</td><td>${r.verdict === "pass" ? "pass" : "<b>" + r.verdict + "</b>"}</td></tr>`).join("")}</table><h3>Comments for the factory</h3><pre style="white-space:pre-wrap">${esc(sampleComments(c, "the sample"))}</pre>`;
+      } catch (e) { $("#result").innerHTML = `<p class="placeholder">${esc(e.message)}</p>`; }
+    }
+    document.addEventListener("input", () => { check(); recordUsage("spec_check"); });
+    check(); recordUsage("spec_open");
+  </script>
+</body>
+</html>

@@ -21,6 +21,7 @@ many-session project. Each milestone below lands as a working slice.
 
 ## Next
 
+- 2026-11-07: measurement spec and sample check (`spec.mjs`, `spec.html`, and a table in the printable tech pack): points of measure (half chest, hem, length, sleeve, shoulder, neck) by size with tolerances, and a pass/over/under check of a sample's measurements with comments for the factory. Hand-computed tests (`spec.test.mjs`) and a Chromium click; tolerances, shoulder and neck are typical figures, not a standard; no real sample through it.
 - 2026-11-06: launch cash-flow planner (`cashflow.mjs` + `cashflow.html`): deposit, balance, freight, duty and pre-orders against sales by week, lowest balance, funding gap, payback week, and a half-rate case. Hand-worked tests (`cashflow.test.mjs`); no real designer's order or factory terms.
 - 2026-11-05: unsold-stock markdown ladder (`clearance.mjs`, section on the studio page): full-price share, sell-through, profit after the ladder; demand lift is an assumed elasticity, not data. Hand tests and a Chromium load only; no real sales.
 
