@@ -34,6 +34,13 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 29 (2026-11-07, eval/probe29.mjs): court reporters, window-film installers, bike repair, solar installers, interpreters.
+  // Placed first: "energy", "permit" and "membership" otherwise hit utilities (6140) and marketing (6000).
+  ["6110", "out", /(electrical|solar|building) permit|court reporter licen[cs]e/],
+  ["6170", "out", /certified energy practitioners|\bnabcep\b|window film association|translators association|interpreters for the deaf/],
+  ["6060", "out", /expressscribe|opensolar|aurora solar|plotter cut|trados|memoq/],
+  ["6100", "out", /enphase|solaredge|llumar|\bxpel\b|jenson usa|window film\b|tint film/],
+  ["4000", "in", /bike tune.?up|solar install.*(deposit|customer)|translation agency|veritext|esquire deposition/],
   // Gap probe 24 (2026-11-05, eval/probe24.mjs): chiropractors, locksmiths, tree services, towing operators, mobile DJs, appliance repair.
   ["4000", "in", /(blue cross|bcbs|aetna|cigna|unitedhealthcare|humana)\b.*(claim|payment|eft)|autoclub.*(dispatch|tow)|agero|urgent\.ly/],
   ["6110", "out", /board of chiropractic|locksmith licen[cs]e/],
