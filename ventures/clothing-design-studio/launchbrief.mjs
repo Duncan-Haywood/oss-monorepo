@@ -77,6 +77,28 @@ export function briefFromEyewear(eyewear, sheet, plan, cost) {
   return b;
 }
 
+/**
+ * The brief for a wardrobe first drop: the whole drop as one run. Quantity is
+ * the pieces across every line, landed is the quantity-weighted average of the
+ * lines' landed costs, and the price is one typed shelf price for all of them.
+ * Each line's landed cost already holds its duty and freight, so the brief
+ * carries none separately (the factory share is the landed figure). Lines with
+ * no quote are not in the drop and so not in the average.
+ * @param {{lines:{quantity:number, unitCost:number}[]}} drop result of firstDrop()
+ * @param {{price:number, moq?:number, leadTimeDays?:number, currency?:string}} opts
+ * @param {object} plan selling plan (salesTaxPct, channelFeePct, paymentFeePct, paymentFixed)
+ */
+export function briefFromWardrobe(drop, opts, plan) {
+  const lines = (drop?.lines || []).filter(l => l.quantity > 0 && l.unitCost > 0);
+  const quantity = lines.reduce((a, l) => a + l.quantity, 0);
+  if (!quantity || !(opts?.price >= 0)) return null;
+  const landed = lines.reduce((a, l) => a + l.quantity * l.unitCost, 0) / quantity;
+  const sheet = { currency: opts.currency, moq: opts.moq || 0, leadTimeDays: opts.leadTimeDays, example: !!opts.example };
+  const b = briefFromStudio({ quantity, price: opts.price }, sheet, plan || {}, { landed, currency: opts.currency });
+  if (b) b.kind = "wardrobe-drop";
+  return b;
+}
+
 /** Box ids and values for each page. Only boxes the brief can honestly fill. */
 export function prefillFor(page, b) {
   if (!b || b.version !== 1) return {};
