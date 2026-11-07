@@ -1,5 +1,6 @@
 ---
 title: "A broken PWA icon or precache entry fails quietly, so we now check for one"
+seo_title: "A broken PWA icon fails quietly, so CI now checks for one"
 date: 2026-11-07
 tags: [engineering, quality, pwa]
 description: "A new CI check confirms every installable venture app's manifest icons and service-worker precache files exist. It found 0 missing across 22 files."
