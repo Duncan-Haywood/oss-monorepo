@@ -41,3 +41,7 @@ test("the FAQ in the page matches its structured data", () => {
   assert.equal(faq.mainEntity.length, 6);
   for (const q of faq.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
 });
+
+test("links back to the recipe costing calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/recipe-costing-calculator\/"/);
+});
