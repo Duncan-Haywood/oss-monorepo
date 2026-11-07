@@ -31,7 +31,7 @@ export function validateBulk(d) {
   if (typeof m !== "object" || Array.isArray(m)) e.push("`material` is an object.");
   else {
     if (m.name != null && !(m.name in PRESETS)) e.push(`material.name is one of: ${Object.keys(PRESETS).join(", ")} (or type tonsPerYard yourself).`);
-    e.push(...textNumberErrors(m, NUMS, "material"));
+    e.push(...textNumberErrors(m, NUMS));
     for (const k of NUMS) if (m[k] != null && (!Number.isFinite(m[k]) || m[k] < 0)) e.push(`material.${k} must be zero or more.`);
     if (m.compaction != null && m.compaction < 1) e.push("material.compaction is 1 or more (1 = none).");
     if (m.waste != null && m.waste > 1) e.push("material.waste is a fraction, 0.05 for 5%.");
@@ -41,7 +41,7 @@ export function validateBulk(d) {
     const w = `Area ${i + 1}`;
     if (a == null || typeof a !== "object") { e.push(`${w} is an object.`); return; }
     const dims = ["length", "width", "diameter", "areaSqFt", "depth"];
-    e.push(...textNumberErrors(a, dims, w));
+    e.push(...textNumberErrors(a, dims));
     for (const k of dims) if (a[k] != null && (!Number.isFinite(a[k]) || a[k] <= 0 || a[k] > 100000)) e.push(`${w}: ${k} must be above zero and at most 100,000.`);
     const shapes = [a.length != null && a.width != null, a.diameter != null, a.areaSqFt != null].filter(Boolean).length;
     if (shapes !== 1) e.push(`${w}: type exactly one of length and width, diameter, or areaSqFt.`);
