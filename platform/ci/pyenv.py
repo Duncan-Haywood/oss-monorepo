@@ -3,6 +3,7 @@
 them into that same interpreter if none can.
 
     PY=$(python3 platform/ci/pyenv.py pytest numpy) && "$PY" -m pytest ...
+    PY=$(python3 platform/ci/pyenv.py pytest -r requirements.txt)   # a project's whole list
 
 When the pip name and the import name differ and are not in PIP_NAMES, pass
 `pip-name:module` (e.g. `OpenDSSDirect.py:opendssdirect`).
@@ -25,6 +26,7 @@ was tried.
 import fcntl
 import glob
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -220,8 +222,36 @@ def install(modules, cands, run, log, venv_dir):
     return None
 
 
+def read_requirements(path):
+    """Distribution names in a requirements file (versions, extras, markers,
+    comments, and pip option lines dropped), so `-r requirements.txt` works.
+    Doc friction 2026-11-06/07: the hint named numpy and pytest, then runs
+    hand-installed pandas, scipy, lightgbm, xgboost."""
+    names = []
+    with open(path) as f:
+        for line in f:
+            line = line.split("#", 1)[0].split(";", 1)[0].strip()
+            if not line or line.startswith("-"):
+                continue
+            name = re.split(r"[<>=!~\[ @]", line, 1)[0]
+            if name:
+                names.append(name)
+    return names
+
+
+def expand_args(args):
+    """Replace `-r FILE` pairs with the file's names; other `-` args stay."""
+    out, it = [], iter(args)
+    for a in it:
+        if a == "-r":
+            out += read_requirements(next(it, os.devnull))
+        else:
+            out.append(a)
+    return out
+
+
 def main(argv=None):
-    modules = (argv if argv is not None else sys.argv[1:]) or ["pytest"]
+    modules = expand_args(argv if argv is not None else sys.argv[1:]) or ["pytest"]
     if any(m.startswith("-") for m in modules):
         print(__doc__, file=sys.stderr)
         return 2
