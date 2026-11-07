@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-07 · Milestone 8e: does NeuralFoil's too-steep slope at Re 1e5 to 2e5 hold for a symmetric section other than NACA 0009? (predictions in `uiuc_naca64a010/run.py`'s docstring, fixed before the run)
+- Why: 8c/8d's "symmetric 0012 and 0015 remain". Volumes 4 and 5 of the UIUC summary returned 404 from the session (volumes 1 to 3 hold no NACA 0012/0015), so the nearest symmetric section with measured polars across Re 2e4 to 3e5 is the NACA 64A010 (Vol. 1, Champine, clean). Not the tail's section.
+### Outcome (`experiments/uiuc_naca64a010/results.txt`)
+- **P1 held (two runs only):** NF/UIUC slope ratio 1.27 at Re 101,000 and 1.23 at 204,000 (3 deg window; mean 1.25; 1.12 at 305,400), the same 1.2 to 1.3 excess as 0009, 2414 and 2415. **P2 held, more strongly than expected:** at Re 22,100 to 40,600 NeuralFoil's slope is 0.36 to 0.58 of measured (1.2 to 1.7 per rad against 3.0 to 3.3), and at 50,600 and 60,900 it is 0.24 and 0.33 (w3). **P3 held trivially:** the ratio spans 0.24 to 1.27.
+- Reading: a third data set puts NeuralFoil's section slope 20 to 30% high at the Re of the 0.2-scale tail, so 7d's tail re-search should use a slope cut of 20 to 25% as already planned; below Re 6e4 NeuralFoil is not usable for this section (a laminar-separation regime). Measured slopes at Re under 6e4 (3 to 4 per rad) are themselves far below 2 pi, which is real physics, not a data artefact.
+- Limits: one section, one builder, nine runs, two in the band that matters; window-dependent (ratios in `results.txt`); not NACA 0015.
+- Next: find NACA 0012/0015 low-Re lift data elsewhere (host permitting), then the tail re-search with the slope cut.
+
 ## 2026-11-07 · Milestone 8m: paper draft catches up with milestones 10e to 10i (no new simulation)
 - Section 4.12 of `paper/draft.md` now reports the Wingcopter 198 check: 10a's model gives 167 km against 94 published; implied L/D x eta_c 5.7; with the sourced 1.98 m span the CD0 needed is 0.105 / 0.075 / 0.053 at S 0.5 / 0.7 / 1.0 against 0.035 clean; equivalent flat-plate area 0.035 / 0.028 / 0.018 m2; about 4 stopped 2-blade rotors fit, 8 overshoot. `paper/check_numbers.py` gains 12 checks tied to the results files (103 pass). The open-items line points to 4.12.
 - Next: wing area and rotor tilt/fold split from a datasheet; AIAA template (needs `pdflatex`).

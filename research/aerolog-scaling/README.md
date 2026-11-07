@@ -136,6 +136,8 @@ only as a topic; no affiliation is implied. Written with AI assistance (Claude C
 
 ## Next
 
+**Milestone 8e** (`experiments/uiuc_naca64a010`): against the measured NACA 64A010 (UIUC Vol. 1) NeuralFoil's section lift slope is 1.27 and 1.23 times measured at Re 101,000 and 204,000 (3 deg window), the same 20 to 30% excess as for NACA 0009, 2414 and 2415, and 0.24 to 0.58 of measured below Re 6e4 (unusable there). One section, two runs in the band; not the tail's NACA 0015 (not in the hosted volumes).
+
 **Milestone 9d** (`experiments/adjustable_tail`): a tail whose area is adjustable by about 0.85 to 1.3 times nominal recovers the three longitudinal modes within 5% for 76 of the 78 mode-matched designs at every tail-slope scale 0.75 to 1.0 (fixed tails recover none, 8e). Gust metrics with the adjustable tail are open.
 
 **Milestone 9e** (`experiments/adjustable_gust`): with the tail area set from the modes alone, 67 of the 78 designs keep every gust peak (H = 5, 12.5, 25 chords) within 10% at every slope scale 0.75 to 1.0, and 43 within 5% (median worst gust error 4.7% at scale 0.75, against 21.5% for a fixed tail and none within 10% in 9c). Assumes the short-period is identified exactly; identification noise is open.
