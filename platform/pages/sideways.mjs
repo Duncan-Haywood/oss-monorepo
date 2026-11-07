@@ -23,6 +23,7 @@
 //   node platform/pages/sideways.mjs
 //
 //   WIDTH=320 node platform/pages/sideways.mjs   # the WCAG reflow width
+//   SAMPLE=300 node platform/pages/sideways.mjs  # 300 pages spread over the site
 //
 //   # or against production once the owner flip lands:
 //   BASE_URL=https://duncan-haywood.github.io/oss-monorepo node platform/pages/sideways.mjs
@@ -96,9 +97,16 @@ if (!fs.existsSync(DIST)) {
 // The 404 page is served for paths that do not exist, so it has no URL of its
 // own to ask for; everything else is reachable.
 const only = onlySlugs();
-const pages = publishedPages(DIST)
+let pages = publishedPages(DIST)
   .filter((rel) => !rel.startsWith('404'))
   .filter((rel) => keepPagePath(rel, only));
+// SAMPLE=N probes N pages spread evenly over the site (a few minutes instead
+// of the whole catalogue). Found two real overflows in 374 pages on 2026-11-07.
+const SAMPLE = Number(process.env.SAMPLE || 0);
+if (SAMPLE > 0 && pages.length > SAMPLE) {
+  const step = pages.length / SAMPLE;
+  pages = Array.from({ length: SAMPLE }, (_, i) => pages[Math.floor(i * step)]);
+}
 if (only) console.log(describeFilter(only));
 requireNonEmpty(pages, only, 'built pages');
 
@@ -123,6 +131,12 @@ for (const rel of pages) {
         if (!box.width && !box.height) continue;
         if (box.right <= width + 1) continue;
         if (getComputedStyle(el).position === 'fixed') continue;
+        // Inside a scroller (a nav strip, a table wrapper) it is clipped, so it is not the cause.
+        let clipped = false;
+        for (let c = el.parentElement; c && c !== document.body; c = c.parentElement) {
+          if (getComputedStyle(c).overflowX !== 'visible') { clipped = true; break; }
+        }
+        if (clipped) continue;
         if (!widest || box.right > widest.right) {
           widest = {
             right: Math.round(box.right),
