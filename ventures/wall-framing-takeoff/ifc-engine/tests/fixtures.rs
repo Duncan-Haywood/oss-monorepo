@@ -258,3 +258,17 @@ fn voids_behind_fills_and_small_penetrations_are_not_framed_openings() {
     assert_eq!(m.stats.voids_small_dropped, 1);
     assert!(m.warnings.iter().any(|w| w.contains("2 unfilled void(s) were dropped")), "{:?}", m.warnings);
 }
+
+#[test]
+fn floating_low_voids_are_stair_cutouts_not_doors() {
+    let mut b = wall(100, (2.0, 1.0), (0.0, 1.0), (0.0, 0.0), (6.0, 0.0), 2.7, 0.2);
+    b += &opening(700, 104, (0.0, 0.0, 0.3), 0.8, 0.4, 0.5); // floating, 0.8 m top: a cutout
+    b += "#740=IFCRELVOIDSELEMENT('v',$,$,$,#100,#700);\n";
+    b += &opening(2000, 104, (3.0, 0.0, 0.0), 0.9, 0.4, 2.1); // cased passage to the floor: kept
+    b += "#2040=IFCRELVOIDSELEMENT('v2',$,$,$,#100,#2000);\n";
+    let m = read_str(&file("m", 0.0, &b)).unwrap();
+    let o = &m.walls[0].openings;
+    assert_eq!(o.len(), 1, "{o:?}");
+    assert!((o[0].from - 3.0).abs() < 1e-9);
+    assert_eq!(m.stats.voids_floating_dropped, 1);
+}

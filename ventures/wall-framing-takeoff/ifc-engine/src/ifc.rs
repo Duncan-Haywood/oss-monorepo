@@ -148,6 +148,8 @@ pub struct Stats {
     pub voids_covered_by_fills: usize,
     /// Unfilled voids under 12 in tall, treated as penetrations (pipe, vent, box), not framed openings.
     pub voids_small_dropped: usize,
+    /// Unfilled voids floating above the floor and under 1.5 m (stair or sloped-top cutouts).
+    pub voids_floating_dropped: usize,
 }
 
 struct Ctx<'m, 'a> {
@@ -366,6 +368,9 @@ pub fn read(m: &Model) -> Building {
     if b.stats.walls_without_geometry > 0 {
         b.warnings.push(format!("{} wall(s) had no axis and no readable body and were skipped.", b.stats.walls_without_geometry));
     }
+    if b.stats.voids_floating_dropped > 0 {
+        b.warnings.push(format!("{} unfilled void(s) that start above the floor and stay under 1.5 m were dropped as cutouts (a stair or sloped-top profile), not doors; frame those by hand.", b.stats.voids_floating_dropped));
+    }
     if b.stats.voids_covered_by_fills + b.stats.voids_small_dropped > 0 {
         b.warnings.push(format!("{} unfilled void(s) were dropped as not framed openings: {} mostly covered by a door or window in the same wall, {} under 12 in tall (pipe, vent or box penetrations).", b.stats.voids_covered_by_fills + b.stats.voids_small_dropped, b.stats.voids_covered_by_fills, b.stats.voids_small_dropped));
     }
@@ -395,6 +400,7 @@ pub fn drop_redundant_voids(w: &mut Wall, st: &mut Stats) {
     w.openings.retain(|o| {
         if o.kind != OpeningKind::Void { return true; }
         if o.height < 0.3048 { st.voids_small_dropped += 1; return false; }
+        if o.sill > 0.1 && o.sill + o.height < 1.5 { st.voids_floating_dropped += 1; return false; }
         let width = o.to - o.from;
         if width <= 0.0 { return true; }
         let mut spans: Vec<(f64, f64)> = fills.iter().map(|&(a, b)| (a.max(o.from), b.min(o.to))).filter(|&(a, b)| b > a).collect();
