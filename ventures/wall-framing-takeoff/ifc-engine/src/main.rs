@@ -9,6 +9,7 @@ usage:
                                                   `node cli.mjs plan.dxf` in wall-framing-takeoff
   Add --wood-only to plan or dxf to drop walls whose layers name concrete, masonry or
   steel and no wood (foundation and retaining walls in a Revit export).
+  Add --drop-frame-stubs to drop walls under 1.2 m long that are over 75% door or window.
   ifc-engine stats <file.ifc>                     entity counts and timings
 
 --storey takes the 1-based index in elevation order (see `plan` output) or a storey name.
@@ -32,6 +33,12 @@ fn main() {
         b.walls.retain(|w| w.maybe_wood_framed());
         let dropped = before - b.walls.len();
         b.warnings.push(format!("--wood-only dropped {dropped} of {before} walls whose layers name concrete, masonry or steel and no wood (foundation, retaining and similar walls); walls with no layer data were kept."));
+    }
+    if args.iter().any(|a| a == "--drop-frame-stubs") {
+        let before = b.walls.len();
+        b.walls.retain(|w| !w.is_frame_stub());
+        let dropped = before - b.walls.len();
+        b.warnings.push(format!("--drop-frame-stubs dropped {dropped} of {before} walls under 1.2 m long that are more than 75% door or window (frames modelled as walls); frame those openings with the wall they sit in."));
     }
     let t3 = Instant::now();
     let storey = match storey_arg {
