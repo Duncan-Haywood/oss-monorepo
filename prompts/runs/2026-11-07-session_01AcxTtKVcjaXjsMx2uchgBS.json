@@ -36,7 +36,10 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-11-07-vtol-weight-fraction-seven-designs.md; research/aerolog-scaling/LOG.md entry 10c",
+  "writeups": [
+    "docs/posts/2026-11-07-vtol-weight-fraction-seven-designs.md",
+    "research/aerolog-scaling/LOG.md"
+  ],
   "goal": null,
   "notes": "Milestone 10c of aerolog-scaling: energy model vs NASA turboshaft designs. Local checks: homepage build ok, md links ok, live links ok, post frontmatter ok (after shortening a description, fixed in a second commit). No CI results read before merge.",
   "corrections": [],
