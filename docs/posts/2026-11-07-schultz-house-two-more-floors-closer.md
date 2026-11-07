@@ -1,7 +1,7 @@
 ---
 title: "Two small IFC rules move a real house's upper floors closer to framing"
 date: 2026-11-07
-description: "A 1.7 in sliver void and a void at a wall's free end were stopping the framing takeoff on a real Revit house; two rules in the IFC reader clear three of six refusals."
+description: "A 1.7 in sliver void and a void at a free wall end stopped the framing takeoff on a real Revit house; two IFC reader rules clear three of six refusals."
 tags: [construction, wall-framing-takeoff, ifc]
 ---
 
