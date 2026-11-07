@@ -38,7 +38,7 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-11-07-tail-redesign-survives-slope-error.md; LOG.md 8f",
+  "writeups": ["docs/posts/2026-11-07-tail-redesign-survives-slope-error.md", "LOG.md"],
   "goal": null,
   "notes": "Milestone 8f aerolog-scaling: tail slope cut 0-25%, P1 and P3 held, P2 refuted.",
   "corrections": [],

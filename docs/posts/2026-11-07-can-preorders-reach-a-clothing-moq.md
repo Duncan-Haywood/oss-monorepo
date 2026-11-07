@@ -3,7 +3,7 @@ title: "Can pre-orders reach a clothing factory's minimum order quantity?"
 seo_title: "Can pre-orders reach a clothing MOQ?"
 date: 2026-11-07
 description: "A worked 300-piece MOQ example: 316 orders, 15,800 visitors at 2% conversion, and why bought traffic can lose money even when the run is funded."
-tags: [clothing-design-studio, preorders]
+tags: [clothing-design-studio, pre-orders]
 ---
 
 A new clothing brand with no cash can take pre-orders and only place the factory order if the minimum order quantity (MOQ) is reached. We added a worked example to the Clothing Design Studio, with every figure recomputed by a test from the pre-order planner.
