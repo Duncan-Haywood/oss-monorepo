@@ -1245,7 +1245,11 @@ export function optimizeStock(pieces, stock, kerf = 0.125) {
   const ffd = firstFitDecreasing(items, boards);
   const lpCost = costOf(lpBars, boards);
   const ffdCost = costOf(ffd, boards);
-  const exact = exactStock(items, boards);
+  // The LP bound is a floor on any order, so a cover that already meets it is optimal and
+  // the exact search cannot improve it (it would only restate the cost as the bound).
+  const lpFloor = boards.every((b) => Number.isInteger(b.price)) ? Math.ceil(first.bound - 1e-6) : first.bound;
+  const atBound = Math.min(lpCost, ffdCost) <= lpFloor + 1e-9;
+  const exact = atBound ? null : exactStock(items, boards);
   let bars = lpCost <= ffdCost + 1e-9 ? lpBars : ffd;
   let method = lpCost <= ffdCost + 1e-9 ? "column generation" : "first fit decreasing";
   if (exact && exact.cost < costOf(bars, boards) - 1e-9) {
