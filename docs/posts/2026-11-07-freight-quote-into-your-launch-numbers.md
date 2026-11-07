@@ -3,7 +3,7 @@ title: "Put the freight quote into your launch numbers, once"
 seo_title: "Clothing launch cost: carry freight into cash flow and pricing"
 date: 2026-11-07
 tags: [clothing-design-studio, manufacturing, logistics, tools]
-description: "The Clothing Design Studio's freight page can now write the sea, air or express figure you pick into your saved design, so landed cost, profit per sale and cash flow follow."
+description: "The Clothing Design Studio freight page can now write the sea, air or express figure you pick into your saved design, so landed cost and cash flow follow."
 ---
 
 A supplier sheet carries one freight number per piece, usually a guess. The [freight page](https://marisstella.app/clothing-design-studio/freight.html) works it out from cartons and a forwarder's rates, but until now you had to retype the answer into every other tool.
