@@ -1,0 +1,4 @@
+m | cells | share of pilots certified | precision P(guaranteed cell | certified) | P(regret 0 | certified) | P(regret 0 | not certified) | mean rel. regret certified | mean rel. regret not certified | worst cell mean rel. regret among certified pilots (cell, certified share)
+8 | 40 | 0.166 | 0.818 | 0.830 | 0.360 | 0.0131 | 0.0661 | 0.1392 (tight/adder_op16/r2, 0.36)
+16 | 40 | 0.221 | 0.872 | 0.873 | 0.315 | 0.0109 | 0.0704 | 0.1392 (tight/adder_op16/r2, 0.50)
+24 | 40 | 0.257 | 0.907 | 0.907 | 0.276 | 0.0082 | 0.0743 | 0.1392 (tight/adder_op16/r2, 0.45)
