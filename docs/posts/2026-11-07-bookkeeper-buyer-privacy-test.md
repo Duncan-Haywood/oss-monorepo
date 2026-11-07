@@ -1,6 +1,6 @@
 ---
 title: "Keeping customers' names out of your books: a test across five sales platforms"
-seo_title: "Bookkeeping imports from Gumroad, Paddle, Patreon, Ko-fi and Lemon Squeezy: buyer privacy"
+seo_title: "Buyer privacy in bookkeeping imports from five sales platforms"
 date: 2026-11-07
 tags: [ai-bookkeeper, privacy, testing]
 description: "Sales exports carry buyer names and emails. A new test checks that none of them reach the ledger's descriptions or CSV exports."
