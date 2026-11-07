@@ -46,6 +46,7 @@ export function briefFromStudio(design, sheet, plan, cost) {
     factoryPerUnit: r2(factoryPerUnit),
     extrasPerUnit: r2(extras),
     freightTotal: r2(freightUnit * design.quantity),
+    freightDays: null,
     dutyPct: sheet.dutyPct || 0,
     moq: sheet.moq || 0,
     leadTimeDays: num(sheet.leadTimeDays),
@@ -121,6 +122,8 @@ export function briefWithFreight(brief, f) {
     landed: r2(Math.max(0, brief.landed + delta)),
     profitPerSale: r2(brief.profitPerSale - delta),
     freightMode: typeof f.mode === "string" ? f.mode.slice(0, 40) : undefined,
+    // transit time, so the cash-flow page can fill its freight weeks
+    freightDays: typeof f.days === "number" && Number.isFinite(f.days) && f.days >= 0 ? Math.round(f.days) : (brief.freightDays ?? null),
   };
 }
 
@@ -134,6 +137,7 @@ export function prefillFor(page, b) {
       put("units", b.quantity); put("fpu", b.factoryPerUnit); put("oth", b.extrasPerUnit);
       put("frt", b.freightTotal); put("duty", b.dutyPct); put("net", b.netPerSale);
       if (b.leadTimeDays != null) put("prod", Math.max(0, Math.round(b.leadTimeDays / 7)));
+      if (b.freightDays != null) put("fw", Math.max(0, Math.round(b.freightDays / 7)));
       break;
     case "preorder":
       put("price", b.price); put("landed", b.landed); put("moq", b.moq || null);
@@ -186,7 +190,7 @@ export function applyBrief(page, doc = globalThis.document, storage = globalThis
  * anywhere cannot add keys, markup or non-numbers to the pages.
  */
 const NUMERIC = ["quantity", "price", "landed", "factoryPerUnit", "extrasPerUnit", "freightTotal", "dutyPct", "moq",
-  "leadTimeDays", "salesTaxPct", "feePct", "paymentFeePct", "fixedFee", "netPerSale", "profitPerSale"];
+  "leadTimeDays", "freightDays", "salesTaxPct", "feePct", "paymentFeePct", "fixedFee", "netPerSale", "profitPerSale"];
 
 export function briefToFile(brief, now = new Date()) {
   if (!brief || brief.version !== 1) return null;
@@ -201,7 +205,7 @@ export function briefFromFile(text) {
   const b = { version: 1, savedAt: typeof raw.savedAt === "string" && /^\d{4}-\d{2}-\d{2}T[\d:.]+Z$/.test(raw.savedAt) ? raw.savedAt : null };
   for (const k of NUMERIC) {
     const v = raw[k];
-    if (v === null || v === undefined) { b[k] = k === "leadTimeDays" ? null : 0; continue; }
+    if (v === null || v === undefined) { b[k] = k === "leadTimeDays" || k === "freightDays" ? null : 0; continue; }
     if (typeof v !== "number" || !Number.isFinite(v) || v < 0 || v > 1e9) return { brief: null, error: `"${k}" must be a number from 0 to 1,000,000,000.` };
     b[k] = v;
   }
