@@ -36,7 +36,9 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-11-07-the-duplicate-windows-that-were-not.md; README/ROADMAP notes",
+  "writeups": [
+    "docs/posts/2026-11-07-the-duplicate-windows-that-were-not.md"
+  ],
   "goal": null,
   "notes": "cargo test --release 11 pass; real Schultz IFC rerun per floor in README. CI not awaited; local checks only.",
   "corrections": [],

@@ -1,7 +1,7 @@
 ---
 title: "The duplicate windows in a real house plan were not duplicates"
 date: 2026-11-07
-description: "A framing takeoff refused a real Revit house because of apparent duplicate windows; the actual cause was an unfilled cut behind them, now dropped by the IFC reader."
+description: "A framing takeoff refused a real Revit house over apparent duplicate windows; the cause was an unfilled cut behind them, now dropped."
 tags: [wall-framing-takeoff, ifc, construction]
 ---
 
