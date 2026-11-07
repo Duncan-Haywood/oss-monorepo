@@ -1,5 +1,11 @@
 # build-data log
 
+## Session 48, 2026-11-07: paper catch-up (no data run: all three feed hosts refused by the proxy, CONNECT 403)
+
+Why: session 47 added bootstrap p-values for 2024 but left the paper without them. No hypothesis (a writing step); no number in `results/` changed.
+Done: paper 4.6a now reports the 2024 bootstrap-p multiplicity result (10 of 15 under uncorrected, Holm and BH, same cells as the normal approximation; SF a2i q0.5 closest at p 0.006) and the floor of 0.001. Fixed a stale "multiplicity covers 2024 only" limit.
+Next: rerun 2022 and 2023 with `p_boot` when a network reaches the feeds, then pool the 45 cells on bootstrap p; publish boosted quantile tables for `ventures/`.
+
 ## Session 47, 2026-11-07: milestone 27 (part), bootstrap p-values saved for the 2024 paired cells (planned before running)
 
 Why: sessions 43 and 46 corrected for multiplicity with a normal approximation to each interval. This replaces it for 2024 with p computed from the week-block bootstrap draws themselves.
