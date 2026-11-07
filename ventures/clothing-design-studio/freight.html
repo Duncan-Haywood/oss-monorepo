@@ -67,7 +67,11 @@
       <label for="ship">Fixed fee per shipment (customs filing, pickup, handling)</label><input id="ship" type="number" min="0" step="any" value="0">
       <label for="ppw">Profit per week once on sale (for the air decision)</label><input id="ppw" type="number" min="0" step="any" value="500">
     </section>
-    <section><h2>Cartons</h2><output id="pack" aria-live="polite"></output><h2 style="margin-top:14px">Freight by mode</h2><div id="modes"></div><h2 style="margin-top:14px">Is the faster mode worth it?</h2><output id="decide" aria-live="polite"></output></section>
+    <section><h2>Cartons</h2><output id="pack" aria-live="polite"></output><h2 style="margin-top:14px">Freight by mode</h2><div id="modes"></div><h2 style="margin-top:14px">Is the faster mode worth it?</h2><output id="decide" aria-live="polite"></output>
+      <h2 style="margin-top:14px">Use a quote in the launch tools</h2>
+      <p class="muted">Pick a mode: its cost and transit days replace the freight in your saved launch brief, and the cash-flow, pre-order, wholesale and reorder pages fill from it. Needs a brief saved from the studio.</p>
+      <div class="row"><div><select id="useMode" aria-label="Mode to use"></select></div><div><button id="useFreight" type="button">Use this freight</button></div></div>
+      <output id="useNote" aria-live="polite"></output></section>
   </div>
 </main>
 
@@ -81,6 +85,8 @@
   <script type="module">
     import { packCarton, cartons, quoteModes, airVsSea } from "./freight.mjs";
     import { recordUsage } from "./usage.mjs";
+    import { loadBrief, saveBrief, withFreight } from "./launchbrief.mjs";
+    let lastModes = [];
     const $ = s => document.querySelector(s);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
     const num = id => { const v = $(id).value; return v === "" ? null : +v; };
@@ -99,6 +105,8 @@
         if (num("#expKg")) rates.express = { perKg: num("#expKg"), days: num("#expDays"), perShipment: fee };
         if (num("#fclCost")) rates.fcl = { container: $("#fclSize").value, perContainer: num("#fclCost"), days: num("#fclDays"), perShipment: fee };
         const modes = quoteModes({ qty, grossKg: c.grossKg, cbm: c.cbm, rates });
+        lastModes = modes;
+        { const sel = $("#useMode"), keep = sel.value; sel.innerHTML = modes.map(m => `<option value="${esc(m.mode)}">${esc(m.mode)}: ${m.cost.toFixed(2)}</option>`).join(""); if (modes.some(m => m.mode === keep)) sel.value = keep; }
         $("#modes").innerHTML = modes.length ? `<table><tr><th scope="col">Mode</th><th scope="col" class="num">Total</th><th scope="col" class="num">Per piece</th><th scope="col" class="num">Days</th><th scope="col">Billed on</th></tr>${modes.map(m => `<tr><td>${esc(m.mode)}</td><td class="num">${m.cost.toFixed(2)}</td><td class="num">${m.perPiece.toFixed(2)}</td><td class="num">${m.days ?? ""}</td><td>${esc(m.basis)}</td></tr>`).join("")}</table>` : '<p class="muted">Type at least one rate.</p>';
         const timed = modes.filter(m => m.days != null).sort((a, b) => b.days - a.days);
         if (timed.length < 2) { $("#decide").innerHTML = '<p class="muted">Needs two modes with transit days.</p>'; return; }
@@ -108,6 +116,15 @@
         $("#decide").innerHTML = `<p class="big">${a.worthIt ? "Yes" : "No"}: ${esc(fast.mode)} over ${esc(slow.mode)}</p><p>It costs ${a.premium.toFixed(2)} more (${(a.premium / qty).toFixed(2)} a piece) and lands ${a.daysSaved} days (${a.weeksSaved} weeks) sooner. At ${(num("#ppw") ?? 0).toFixed(0)} profit a week on sale those weeks are worth ${a.valueOfTimeSaved.toFixed(2)}. It pays once a week of selling earns more than ${a.breakEvenProfitPerWeek.toFixed(2)}. This counts lost sales only, not cash tied up, a missed season or a stock-out.</p>`;
       } catch (e) { $("#pack").innerHTML = `<p class="placeholder">${esc(e.message)}</p>`; $("#modes").innerHTML = $("#decide").innerHTML = ""; }
     }
+    $("#useFreight").addEventListener("click", () => {
+      const m = lastModes.find(x => x.mode === $("#useMode").value), b = loadBrief();
+      if (!m) { $("#useNote").textContent = "Type at least one rate first."; return; }
+      if (!b) { $("#useNote").textContent = "No saved launch brief in this browser. Cost a design in the studio first (or load a brief file there)."; return; }
+      const nb = withFreight(b, { total: m.cost, days: m.days });
+      if (!nb || !saveBrief(nb)) { $("#useNote").textContent = "Could not save the brief."; return; }
+      $("#useNote").textContent = `Saved: freight ${nb.freightTotal} ${nb.currency}${nb.freightDays != null ? `, ${nb.freightDays} days` : ""}; landed cost now ${nb.landed} (was ${b.landed}). Open the cash-flow page to see it. The brief covers ${b.quantity} pieces; this page has ${num("#qty")}${num("#qty") === b.quantity ? "" : ", so check the freight is for the same run"}.`;
+      recordUsage("freight_use_in_brief");
+    });
     document.addEventListener("input", () => { run(); recordUsage("freight_plan"); });
     run(); recordUsage("freight_open");
   </script>

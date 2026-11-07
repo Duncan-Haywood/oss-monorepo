@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { briefToFile, briefFromFile, briefFromEyewear, briefFromWardrobe, briefFromStudio, prefillFor, saveBrief, loadBrief, applyBrief, BRIEF_KEY } from "./launchbrief.mjs";
+import { briefToFile, briefFromFile, briefFromEyewear, briefFromWardrobe, briefFromStudio, withFreight, prefillFor, saveBrief, loadBrief, applyBrief, BRIEF_KEY } from "./launchbrief.mjs";
 import { unitCost, DEFAULT_PLAN } from "./costing.mjs";
 import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
 
@@ -116,4 +116,24 @@ test("wardrobe drop brief: quantity-weighted landed cost, one shelf price, no do
   assert.equal(b.moq, 50);
   assert.equal(briefFromWardrobe({ lines: [] }, { price: 50 }, {}), null);
   assert.equal(briefFromWardrobe({ lines: [{ quantity: 5, unitCost: 3 }] }, {}, {}), null);
+});
+
+test("withFreight swaps the freight figure, moves landed and profit by the per-piece change, keeps the original", () => {
+  // By hand: 100 pieces, landed 12.00 with freight 100 (1.00 a piece), profit 8.00.
+  // Quote 350 freight: +2.50 a piece, landed 14.50, profit 5.50. 21 days is 3 weeks.
+  const b = { version: 1, quantity: 100, landed: 12, profitPerSale: 8, freightTotal: 100, currency: "EUR" };
+  const nb = withFreight(b, { total: 350, days: 21 });
+  assert.equal(nb.freightTotal, 350); assert.equal(nb.freightDays, 21);
+  assert.equal(nb.landed, 14.5); assert.equal(nb.profitPerSale, 5.5);
+  assert.equal(b.landed, 12);                      // input untouched
+  assert.equal(prefillFor("cashflow", nb).fw, 3);
+  assert.equal(prefillFor("cashflow", nb).frt, 350);
+  assert.equal(prefillFor("reorder", nb).landed, 14.5);
+  assert.equal(withFreight(b, { total: -1 }), null);
+  assert.equal(withFreight(null, { total: 5 }), null);
+  assert.equal(withFreight(b, { total: 50 }).freightDays, null);  // no days typed
+  // a brief file keeps freightDays and rejects a text value
+  const f = briefFromFile(briefToFile({ ...nb, example: false }));
+  assert.equal(f.brief.freightDays, 21);
+  assert.match(briefFromFile(JSON.stringify({ ...nb, freightDays: "9" })).error, /"freightDays" must be a number/);
 });

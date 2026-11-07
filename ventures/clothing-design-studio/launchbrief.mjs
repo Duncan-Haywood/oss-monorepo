@@ -46,6 +46,7 @@ export function briefFromStudio(design, sheet, plan, cost) {
     factoryPerUnit: r2(factoryPerUnit),
     extrasPerUnit: r2(extras),
     freightTotal: r2(freightUnit * design.quantity),
+    freightDays: null,
     dutyPct: sheet.dutyPct || 0,
     moq: sheet.moq || 0,
     leadTimeDays: num(sheet.leadTimeDays),
@@ -99,6 +100,27 @@ export function briefFromWardrobe(drop, opts, plan) {
   return b;
 }
 
+/**
+ * Replace the brief's freight with a quoted figure (from the freight page).
+ * `total` is what the forwarder charges for the whole run, `days` the transit
+ * time. Landed cost and profit per sale move by the change in freight per
+ * piece; duty is not recomputed (the brief holds the duty percent on goods
+ * only), so a customs value that includes freight is not modelled here.
+ * @returns {object|null} a new brief, or null when there is nothing to change
+ */
+export function withFreight(brief, { total, days = null } = {}) {
+  if (!brief || brief.version !== 1 || !(brief.quantity > 0)) return null;
+  if (typeof total !== "number" || !Number.isFinite(total) || total < 0) return null;
+  const delta = (total - (brief.freightTotal || 0)) / brief.quantity;
+  return {
+    ...brief,
+    freightTotal: r2(total),
+    freightDays: num(days) != null && days >= 0 ? Math.round(days) : null,
+    landed: r2(brief.landed + delta),
+    profitPerSale: r2(brief.profitPerSale - delta),
+  };
+}
+
 /** Box ids and values for each page. Only boxes the brief can honestly fill. */
 export function prefillFor(page, b) {
   if (!b || b.version !== 1) return {};
@@ -109,6 +131,7 @@ export function prefillFor(page, b) {
       put("units", b.quantity); put("fpu", b.factoryPerUnit); put("oth", b.extrasPerUnit);
       put("frt", b.freightTotal); put("duty", b.dutyPct); put("net", b.netPerSale);
       if (b.leadTimeDays != null) put("prod", Math.max(0, Math.round(b.leadTimeDays / 7)));
+      if (b.freightDays != null) put("fw", Math.max(0, Math.round(b.freightDays / 7)));
       break;
     case "preorder":
       put("price", b.price); put("landed", b.landed); put("moq", b.moq || null);
@@ -161,7 +184,7 @@ export function applyBrief(page, doc = globalThis.document, storage = globalThis
  * anywhere cannot add keys, markup or non-numbers to the pages.
  */
 const NUMERIC = ["quantity", "price", "landed", "factoryPerUnit", "extrasPerUnit", "freightTotal", "dutyPct", "moq",
-  "leadTimeDays", "salesTaxPct", "feePct", "paymentFeePct", "fixedFee", "netPerSale", "profitPerSale"];
+  "leadTimeDays", "freightDays", "salesTaxPct", "feePct", "paymentFeePct", "fixedFee", "netPerSale", "profitPerSale"];
 
 export function briefToFile(brief, now = new Date()) {
   if (!brief || brief.version !== 1) return null;
@@ -176,7 +199,7 @@ export function briefFromFile(text) {
   const b = { version: 1, savedAt: typeof raw.savedAt === "string" && /^\d{4}-\d{2}-\d{2}T[\d:.]+Z$/.test(raw.savedAt) ? raw.savedAt : null };
   for (const k of NUMERIC) {
     const v = raw[k];
-    if (v === null || v === undefined) { b[k] = k === "leadTimeDays" ? null : 0; continue; }
+    if (v === null || v === undefined) { b[k] = k === "leadTimeDays" || k === "freightDays" ? null : 0; continue; }
     if (typeof v !== "number" || !Number.isFinite(v) || v < 0 || v > 1e9) return { brief: null, error: `"${k}" must be a number from 0 to 1,000,000,000.` };
     b[k] = v;
   }
