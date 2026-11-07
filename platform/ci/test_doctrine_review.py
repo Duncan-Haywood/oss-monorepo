@@ -1,10 +1,10 @@
-"""Tests for doctrine_review.py. Run: python3 -m unittest docs/doctrine-review/test_doctrine_review.py"""
+"""Tests for docs/doctrine-review/doctrine_review.py (kept here so the platform/ci suite runs them)."""
 import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "docs" / "doctrine-review"))
 import doctrine_review as dr  # noqa: E402
 
 

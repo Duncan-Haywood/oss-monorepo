@@ -23,7 +23,7 @@ The write-ups are blog posts tagged `doctrine-review` in `docs/posts/`.
 4. `python3 docs/doctrine-review/doctrine_review.py check` must exit 0.
 5. Write part N as a post with the new `status` table. Say what changed since the last part, including fixes that landed.
 
-Tests: `python3 -m unittest docs/doctrine-review/test_doctrine_review.py`.
+Tests: `cd platform/ci && python3 -m unittest test_doctrine_review` (they live in `platform/ci/` so the CI suite runs them).
 
 Do the fixes in a separate change from the review. A reviewer who also edits a
 story should leave the old review's sha256 in place, so that the story shows up
