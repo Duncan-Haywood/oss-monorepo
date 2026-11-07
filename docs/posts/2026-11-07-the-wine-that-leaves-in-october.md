@@ -1,5 +1,6 @@
 ---
 title: "The Wine That Leaves in October: why a Mars cargo takes 259 days and the next window is 26 months later"
+seo_title: "The Wine That Leaves in October"
 date: 2026-11-07
 tags: [hearth-and-horizon, fiction, science]
 description: "New Hearth & Horizon story: a Mars station has four bottles of altar wine, and the arithmetic of the 259-day transfer decides how many Masses."

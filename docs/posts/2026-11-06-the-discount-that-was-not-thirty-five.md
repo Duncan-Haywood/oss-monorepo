@@ -1,5 +1,6 @@
 ---
 title: "The discount that was not thirty-five: a story about stacked percentages"
+seo_title: "The discount that was not thirty-five"
 date: 2026-11-06
 tags: [hearth-and-horizon, fiction, percentages]
 description: "A new Hearth & Horizon story: 15% off then 20% off is 32%, not 35%, and the gap decides whether a choir trip fits its budget."

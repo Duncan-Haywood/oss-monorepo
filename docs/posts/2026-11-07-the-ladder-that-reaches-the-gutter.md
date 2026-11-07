@@ -1,5 +1,6 @@
 ---
 title: "Why leaning a ladder steeper can't make it reach: a 4.6 m ladder and a 4.8 m gutter"
+seo_title: "Why leaning a ladder steeper can't make it reach"
 date: 2026-11-07
 tags: [hearth-and-horizon, fiction, maths]
 description: "A new Hearth & Horizon story: a 4.6 m ladder reaches 4.46 m at the safe four-to-one angle, and no lean ever reaches 4.8 m."

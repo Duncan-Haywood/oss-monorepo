@@ -839,7 +839,7 @@ export function houseSheathingPlan(o) {
   const side = (v) => typeof v === "number" && v >= 96 && v <= 1200;
   if (!side(o.length) || !side(o.width)) return { ok: false, errors: ["House sides must be numbers from 8 ft to 100 ft (96 to 1200 in)."] };
   if (o.orientation !== undefined && o.orientation !== "vertical" && o.orientation !== "horizontal") return { ok: false, errors: ['Orientation must be "vertical" or "horizontal".'] };
-  if (o.sheetLength !== undefined && o.sheetLength !== null && o.sheetLength !== "" && o.sheetLength !== 0 && !(typeof o.sheetLength === "number" && o.sheetLength >= 48 && o.sheetLength <= 240)) return { ok: false, errors: ["Sheet length must be a number from 48 to 240 in."] };
+  if (o.sheetLength !== undefined && o.sheetLength !== null && /** @type {any} */ (o.sheetLength) !== "" && o.sheetLength !== 0 && !(typeof o.sheetLength === "number" && o.sheetLength >= 48 && o.sheetLength <= 240)) return { ok: false, errors: ["Sheet length must be a number from 48 to 240 in."] };
   // Each opening takes 36 in plus 12 in of wall either side, on its own wall.
   const perWall = [0, 0, 0, 0];
   for (let i = 0; i < o.doors; i++) perWall[i % 2 ? 2 : 0]++;
@@ -851,7 +851,7 @@ export function houseSheathingPlan(o) {
   const plan = samplePlan();
   plan.studLength = pre;
   plan.stock = defaultStock(pre);
-  const walls = [["Front", o.length], ["Right", o.width], ["Back", o.length], ["Left", o.width]].map(([id, length]) => ({ id, length, stud: "2x4", corner: true, openings: [] }));
+  const walls = /** @type {any[]} */ ([["Front", o.length], ["Right", o.width], ["Back", o.length], ["Left", o.width]]).map(([id, length]) => ({ id, length, stud: "2x4", corner: true, openings: [] }));
   const place = [[], [], [], []];
   for (let i = 0; i < o.doors; i++) place[i % 2 ? 2 : 0].push("door");
   for (let i = 0; i < o.windows; i++) place[i % 4].push("window");
@@ -861,7 +861,7 @@ export function houseSheathingPlan(o) {
       walls[wi].openings.push({ kind, label: `${kind} ${wi + 1}.${k + 1}`, offset: Math.round(centre - width / 2), width, height: kind === "door" ? 82.5 : 48, header: "2x10" });
     });
   });
-  plan.walls = walls;
-  plan.sheathing = { ...defaultSheathing(), ...(o.orientation === "horizontal" ? { orientation: "horizontal" } : {}), ...(o.sheetLength ? { sheets: [{ label: `4x${o.sheetLength / 12}`, width: SHEET_WIDTH, length: o.sheetLength, price: (SHEET_WIDTH * o.sheetLength) / 144 }] } : {}) };
+  plan.walls = /** @type {any} */ (walls);
+  /** @type {any} */ (plan).sheathing = { ...defaultSheathing(), ...(o.orientation === "horizontal" ? { orientation: "horizontal" } : {}), ...(o.sheetLength ? { sheets: [{ label: `4x${o.sheetLength / 12}`, width: SHEET_WIDTH, length: o.sheetLength, price: (SHEET_WIDTH * o.sheetLength) / 144 }] } : {}) };
   return { ok: true, plan };
 }

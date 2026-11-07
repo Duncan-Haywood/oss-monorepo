@@ -36,7 +36,7 @@ flagships:
       CLI and agent engine. First tool of the new-home construction program.
     next: >-
       Landed work, with dates and how each was checked, is in
-      ventures/wall-framing-takeoff/README.md and ROADMAP.md (recent, all 2026-11-05/06, mostly hand tests only: dormer, foundation, floor joist, nail, order-by date, paint, electrical, wall tile, HVAC, price sensitivity, fireblocking and plumbing pages, roof nails, wall braces, stepped walls, bench retry with `--gang`; stepped walls on the page 2026-11-07; door and window schedule page 2026-11-07; wall panel page 2026-11-07; schedule: crews,
+      ventures/wall-framing-takeoff/README.md and ROADMAP.md (recent, all 2026-11-05/06, dormer, foundation, floor joist, nail, order-by date, paint, electrical, wall tile, HVAC, price sensitivity, fireblocking and plumbing pages, roof nails, wall braces, stepped walls, bench retry with `--gang`; stepped walls, door and window schedule and wall panel pages 2026-11-07; schedule: crews,
       weather, holds, deadline, CSV, risk, and cost-loaded cash flow by week and
       month). Wanted, all needing real inputs: a real builder's activity list
       and draw schedule for `--schedule` (payment lag, retainage); a real
@@ -65,8 +65,7 @@ flagships:
       Tested on fixtures; next are real inputs. Open items, most valuable
       first: (0) built-in keywords measured on one real makerspace's bank
       export (72.7% suggested, 96% right, tuned on itself) and one real Chase card (78.4% right of all before tuning, 2026-11-07) and on synthetic
-      sets (README Next): HCB card feed and Actual Budget samples held out
-      (README Next, no labels); wanted: labelled books; (1) the AI layer in
+      sets (README Next): HCB card feed and Actual Budget samples held out; wanted: labelled books; (1) the AI layer in
       fill-only mode on real bank descriptions, more seeds, a bigger model
       (synthetic so far; README Next); (2) the bank readers on real exports
       from Chase, Bank of America, Wells Fargo, Amex, Capital One and
@@ -81,9 +80,7 @@ flagships:
       named filing service's import layout, from its own spec; (8) `salestax
       return` (page card; no-sales-tax states warn): due dates read from the
       state's own page only for WA, TX, FL, NY, VA, MN, MO, IL, SC, OH and
-      UT monthly (OH quarterly: guides disagree on who files it; OH discount from excerpts); TX, FL and GA discounts
-      preset from search excerpts, 1.25% prepayment not modelled; the rest
-      from excerpts or memory; open: a real return layout; (8b) `annualized`
+      UT monthly (OH quarterly: guides disagree on who files it; OH discount from excerpts); other states from excerpts or memory; open: a real return layout; (8b) `annualized`
       (Schedule AI): percentages matched to the 2024 form by excerpt
       2026-10-30, factors to state forms, federal text unread (irs.gov
       blocked); (9) EITC: built-in 2025 and 2026 schedules (Schedule EIC

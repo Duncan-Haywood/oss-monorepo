@@ -1,5 +1,6 @@
 ---
 title: "Two more takeoff engines get a randomized check: plumbing rough-in and wall tile"
+seo_title: "Two more takeoff engines get a randomized check"
 date: 2026-11-06
 tags: [wall-framing-takeoff, testing, construction]
 description: "800 seeded random inputs now recount the plumbing and wall tile material engines by hand; neither turned up a defect."
