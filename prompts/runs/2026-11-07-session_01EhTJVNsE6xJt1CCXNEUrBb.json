@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01EhTJVNsE6xJt1CCXNEUrBb",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "ced6d68aa0854d5a90c02cadc79b29ae3c8b1525090aea6e0559fb21cd4e8e7b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T16:59:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "ventures/wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13842",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Router drew perf, but the scheduled prompt asked for venture work; shipped a venture slice.",
+      "did": "stucco takeoff (stucco.mjs, CLI --stucco)",
+      "result": "stucco, cli, cli-sweep and siding tests 71/71 pass locally"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Stucco module checked by hand arithmetic; no calculator page (ventures/CLAUDE.md: calculators are a poor use of a run). No real stucco order to compare with.",
+  "corrections": [],
+  "redteam": null
+}
