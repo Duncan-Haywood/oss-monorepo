@@ -94,9 +94,10 @@ test("second fresh set (2026-10-24, written by another session, scored once): nu
   assert.equal(s.n, 41);
   // 27 when scored once; 28 after 2026-11-02, when "I left X" counted as a wrong-person reply (one item, no regression).
   // Row 9 (a full mailbox, first labelled bounce) was relabelled out_of_office on 2026-11-05 when full mailboxes became soft bounces; the count stays 28.
-  assert.equal(s.right, 28);
-  assert.equal(s.acted, 32);
-  assert.equal(s.actedRight, 25);
+  // 29 after 2026-11-09 ("this isn't for us" style declines, one item, no regression).
+  assert.equal(s.right, 29);
+  assert.equal(s.acted, 33);
+  assert.equal(s.actedRight, 26);
   assert.equal(s.unsubMissed, 2);
   assert.equal(s.guessRight, 3);
 });
@@ -388,6 +389,16 @@ test("fresh set 2026-11-08: scored once at 25/30 (1 overreach, 1 opt-out missed)
   assert.equal(s.unsubMissed, 0);
   const T = "2026-11-08";
   for (const [body, want] of [["Haal me van je lijst af alstublieft. Geen mails meer.", "unsubscribe"], ["Come back to me once we close our funding round, probably spring.", "not_now"], ["Sounds like another tool that sends spam under our name. We got burned by that before.", "objection"]])
+    assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+});
+
+test("fresh set 2026-11-09: scored once at 18/30 (1 overreach, 2 opt-outs missed), 30/30 after narrow patches; a tuned set", () => {
+  const s = score(load("fresh-2026-11-09.jsonl"));
+  assert.equal(s.n, 30);
+  assert.equal(s.right, 30);
+  assert.equal(s.unsubMissed, 0);
+  const T = "2026-11-09";
+  for (const [body, want] of [["Proszę usunąć mój adres z waszej listy mailingowej.", "unsubscribe"], ["How many times do I need to say it? Out. Of. Your. Database.", "unsubscribe"], ["Appreciate the persistence but this isn't for us. Best of luck.", "not_interested"], ["Reach out again once that's done, likely end of Q2.", "not_now"], ["Tack för ditt mejl. Jag är på semester till och med 24 november.", "out_of_office"], ["Can you send me a time that works for a 20 minute demo next week?", "interested"]])
     assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
 });
 
