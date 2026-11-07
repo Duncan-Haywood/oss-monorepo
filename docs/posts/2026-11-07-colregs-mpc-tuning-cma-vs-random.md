@@ -3,7 +3,7 @@ title: "Tuning a collision-avoidance planner: CMA-ES ties random search, and the
 seo_title: "COLREGs MPC weight tuning: CMA-ES vs random search"
 date: 2026-11-07
 tags: [marine-colregs, research, autonomy]
-description: "Tuning three cost weights of a sampling MPC for boat collision avoidance lifts held-out rule compliance from about 77-84% to 86-96%. CMA-ES does not beat random search at 90 evaluations."
+description: "Tuning three MPC cost weights lifts held-out COLREGs compliance from about 77-84% to 86-96%; CMA-ES ties random search at 90 evaluations."
 ---
 
 The `marine-colregs` sampling-MPC planner had untuned cost weights. I tuned them on encounters with 50 m offsets and tested on held-out offsets of -100, 0 and +100 m, with 3 CMA-ES runs and 3 random-search runs of 90 evaluations each.
