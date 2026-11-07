@@ -1,6 +1,6 @@
 ---
 title: "Does a neural net beat boosted trees at predicting permit delays? Three years, per permit"
-seo_title: "Neural vs gradient boosting on building permit duration: paired test, 2022 to 2024"
+seo_title: "Neural vs boosted trees on permit duration, 2022 to 2024"
 date: 2026-11-07
 tags: [build-data, research, construction]
 description: "A paired bootstrap on 4 million public permits in three cities: the neural-versus-boosted difference is mostly year-specific, with one stable loss."
