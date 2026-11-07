@@ -1,6 +1,6 @@
 ---
 title: "Thirteenth reply set for the sales-agent triage: 18 of 30 before patching, 30 of 30 after"
-seo_title: "Cold email reply triage: a thirteenth test set, Polish and Swedish replies"
+seo_title: "Cold email reply triage: a thirteenth test set, Polish and Swedish"
 date: 2026-11-07
 tags: [sales-agent, evaluation, cold-email]
 description: "Thirty fresh cold-email replies scored once before any change: 18 right, two unsubscribes missed. What we patched and why 30 of 30 is not a forecast."
