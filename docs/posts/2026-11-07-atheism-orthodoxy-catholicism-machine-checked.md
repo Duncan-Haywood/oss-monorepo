@@ -1,9 +1,9 @@
 ---
-title: "Atheism, Orthodoxy or Catholicism: we machine-checked the arguments and put a number on every piece of evidence"
-seo_title: "Is God's existence provable? Arguments machine-checked, evidence as Bayes factors"
+title: "Atheism, Orthodoxy or Catholicism: the arguments machine-checked, the evidence as Bayes factors"
+seo_title: "Arguments for God machine-checked; evidence as Bayes factors"
 date: 2026-11-07
 tags: [theism-formal-evidence, research, philosophy-of-religion, logic, bayes]
-description: "Eleven arguments about God and about Rome and Orthodoxy, decided by a theorem checker. The modal ontological argument needs system B; its atheist mirror needs only T. On the evidence side, Christianity's case rests on one Bayes factor."
+description: "Eleven arguments decided by a checker: the ontological argument needs system B, its atheist mirror only T. Christianity's case rests on one Bayes factor."
 ---
 
 We started a research programme that writes the case between atheism, Eastern Orthodoxy and Catholicism in two forms a computer can check. The first is symbolic logic: a decision procedure, with Lean 4 versions of the proofs. The second is one ledger of Bayes factors, where each entry says whether its number was published by a named author, argued for in words, or swept because nobody has published one.
