@@ -133,3 +133,20 @@ test("buildGarmentMesh works with tubes off and on", () => {
     for (const x of m.positions) assert.ok(Number.isFinite(x));
   }
 });
+
+test("xrModelMatrix puts the garment's middle in front of the wearer at height", async () => {
+  const { xrModelMatrix, multiply, identity } = await import("./garment3d.mjs");
+  const m = xrModelMatrix({ yaw: 0, scale: 0.001, height: 1.3, distance: 1 });
+  const at = (mm, [x, y, z]) => [0, 1, 2].map(r => mm[r] * x + mm[4 + r] * y + mm[8 + r] * z + mm[12 + r]);
+  const [cx, cy, cz] = at(m, [0, 0, 0]);
+  assert.ok(Math.abs(cx) < 1e-6 && Math.abs(cy - 1.3) < 1e-6 && Math.abs(cz + 1) < 1e-6);
+  // a point 260 units (about half a chest) to the right is 0.26 m right of centre
+  const [rx] = at(m, [260, 0, 0]);
+  assert.ok(Math.abs(rx - 0.26) < 1e-6);
+  // a quarter turn swings that point from x to depth
+  const q = xrModelMatrix({ yaw: Math.PI / 2, scale: 0.001, height: 0, distance: 0 });
+  const [qx, , qz] = at(q, [1000, 0, 0]);
+  assert.ok(Math.abs(qx) < 1e-5 && Math.abs(Math.abs(qz) - 1) < 1e-5);
+  // an identity view and projection leave the model matrix as is
+  assert.deepEqual(Array.from(multiply(identity(), m)), Array.from(m));
+});

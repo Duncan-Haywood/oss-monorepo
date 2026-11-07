@@ -229,3 +229,15 @@ export function project(m, [x, y, z]) {
   const W = m[3] * x + m[7] * y + m[11] * z + m[15];
   return [X / W, Y / W, W];
 }
+
+/**
+ * Model matrix for a headset: the garment is drawn in drawing units (about 1 mm
+ * each, so a size-M chest is roughly 520), so scale by `scale` (metres per unit),
+ * turn it by `yaw`, and hang it `distance` m in front of the floor origin with
+ * its middle `height` m up. Combine with the headset's own view and projection:
+ * mvp = projection * view * model.
+ */
+export function xrModelMatrix({ yaw = 0, scale = 0.001, height = 1.3, distance = 1.0 } = {}) {
+  const s = new Float32Array([scale, 0, 0, 0, 0, scale, 0, 0, 0, 0, scale, 0, 0, 0, 0, 1]);
+  return multiply(translation(0, height, -distance), multiply(rotationY(yaw), s));
+}
