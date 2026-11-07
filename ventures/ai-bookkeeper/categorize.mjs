@@ -476,6 +476,10 @@ export const BUILT_IN = [
   ["6130", "out", /restaurant|eating out|cafe|coffee|starbucks|doordash|uber eats|grubhub|chipotle|panera|mcdonald|pizza|bistro|diner|taqueria|sushi|ihop|applebee|jack in the box|\bsonic\b|tim hortons|wingstop|tgi friday|panda express|dunkin|wendy|burger king|\bkfc\b|taco bell|popeyes|domino|chick-fil-a|\bramen\b|dim sum|bakery|\bgrill\b|steakhouse|noodle|\bbbq\b|\bdeli\b|kebab|burrito|wings/],
   ["6140", "out", /verizon|at&t|\batt\*|\batt (?:bill|wireless|internet|mobility|u-verse)|t-mobile|tmobile|comcast|xfinity|spectrum|cox comm|google fi|mint mobile|electric|pg&e|pgande|pg ?and ?e\b|pacific gas|national grid|duke energy|monkeybrains|sonic\.net|google fiber|webpass|starry|frontier comm|centurylink|\blumen\b|astound|con ?ed|water bill|utility|\bwater\b|\bpower\b(?! (manager|supply|module|adapter|bank|strip|cable|board|tool|button|switch|led))|\benergy\b|ebill|edison|dominion|entergy|eversource|cricket|visible|optimum|us mobile|\bting\b|telekom|vodafone|\bo2 (uk|germany)|orange (s\.?a|france)|\bbt group|sky broadband|virgin media|\bee limited|rogers comm|bell canada|telus|optus|telstra|stadtwerke/],
   ["6150", "out", /net pay|payroll(?! tax)|wages/],
+  // Written after scoring two real Apple Card exports (eval/applecard.mjs, 109 purchases, Apple's own category labels; tuned on that data, README Next): a grocer's fuel pumps are fuel, not meals, so this sits ahead of the H-E-B meals rule.
+  ["6160", "out", /\bgas\/car ?wash|\bgas (station|mart)\b|\bcar ?wash\b|\bgarage\b|passport p(ar)?k(in)?g|\bpkg\d/],
+  ["6120", "out", /\bcruise\b|royal caribbean|carnival cruise|norwegian cruise/],
+  ["6060", "out", /youtube ?(premium|music|tv)/],
   ["6160", "out", /shell oil|chevron|exxon|mobil\b|\bbp\b|sunoco|valero|\barco\b|phillips 66|quiktrip|speedway|casey's|firestone|safelite|gas station|fuel|jiffy lube|car wash|autozone|parking|toll/],
   ["6170", "out", /udemy|coursera|chegg|datacamp|skillshare|linkedin learning|masterclass|pearson|mcgraw|tuition|conference|membership dues|association dues|chamber of commerce/],
   ["6180", "out", /fedex|\bups\b|dhl|pirate ship|shipstation|shippo/],

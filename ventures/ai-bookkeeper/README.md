@@ -871,7 +871,7 @@ is often fine.
 
 ## Next
 
-Landed slices (gap probes, trade fixtures, property tests, sources read) moved to [HISTORY.md](HISTORY.md), 2026-11-01; every item there says what was tested and what was not. Open work is in `portfolio/flagships.yaml` (`ai-bookkeeper`, `next:`): real bank exports, labelled books, a real processor settlement file, a real supplier terms letter, real OCR photos and payroll reports. No new keyword probe is needed until a real export shows a gap.
+Landed slices (gap probes, trade fixtures, property tests, sources read) moved to [HISTORY.md](HISTORY.md), 2026-11-01; every item there says what was tested and what was not. Open work is in `portfolio/flagships.yaml` (`ai-bookkeeper`, `next:`): real bank exports, labelled books, a real processor settlement file, a real supplier terms letter, real OCR photos and payroll reports. Two real Apple Card exports (2026-11-07) showed gaps and are fixed ([HISTORY.md](HISTORY.md)); a business card or bank export is still wanted.
 
 ## Disclaimer
 

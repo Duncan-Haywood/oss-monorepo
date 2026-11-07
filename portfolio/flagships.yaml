@@ -64,7 +64,7 @@ flagships:
     next: >-
       Tested on fixtures; next are real inputs. Open items, most valuable
       first: (0) built-in keywords measured on one real makerspace's bank
-      export (72.7% suggested, 96% right, tuned on itself) and one real Chase card (78.4% right before tuning), a Canadian Capital One card (51.9% right before tuning, 80.0% after) and synthetic
+      export (72.7% suggested, 96% right, tuned on itself) and a real Chase card (78.4%), two Apple Cards (56.9% to 63.8%), a Canadian Capital One card (51.9% to 80.0%) and synthetic
       sets (README Next): HCB card feed and Actual Budget samples held out; wanted: labelled books; (1) the AI layer in
       fill-only mode on real bank descriptions, more seeds, a bigger model
       (synthetic so far; README Next); (2) the bank readers on real exports
