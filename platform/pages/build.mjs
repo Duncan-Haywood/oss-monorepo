@@ -38,6 +38,7 @@ import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES 
 import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, loadPosts, WRITING_PATH } from './writing.mjs';
 import { fixPostTitleClashes } from './page-identity.mjs';
+import { addModulePreloads } from './preload.mjs';
 import { buildStories, STORIES_PATH } from './stories.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
@@ -12183,6 +12184,12 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     ? await moveAudioToCdn({ outDir, base, repoRoot: REPO_ROOT, log })
     : { moved: 0, kept: 0, bytes: 0 };
 
+  // After every pass that writes HTML or module scripts, before the offline
+  // layer, which hashes the finished pages: tool pages list their whole
+  // static import graph as modulepreload links, so the browser fetches it in
+  // one round instead of one round per import level (preload.mjs).
+  const preloads = await addModulePreloads(outDir, { listFiles });
+
   // After the chrome pass, not before: the offline layer hashes the finished
   // site to name its cache, and injects into pages the chrome has already
   // rewritten. Reversed, every deploy would cache a page missing its nav.
@@ -12196,6 +12203,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   return {
     outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
     highlighted, narrowed, embedded, sponsored, offline, comparisons, shareCards, audio, retitled,
+    preloads,
   };
 }
 
@@ -12311,4 +12319,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`Added an embed offer to ${result.embedded.length} tool entry page(s).`);
   console.log(`Made the sponsor link countable on ${result.sponsored.length} page(s).`);
   console.log(`Drew ${result.shareCards.cards.length} page share card(s); completed share tags on ${result.shareCards.changed.length} page(s).`);
+  console.log(`Module preload: ${result.preloads.links} link(s) on ${result.preloads.pages} page(s); deepest import chain ${result.preloads.deepest}.`);
 }
