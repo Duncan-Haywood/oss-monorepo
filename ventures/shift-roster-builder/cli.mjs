@@ -67,7 +67,8 @@ Options:
   --from-sales <csv>  build the shift lines from an hourly sales export (date-time and sales columns) at --splh <$> sales per labor hour (required):
                       the average of each weekday-hour sets the heads needed (at least --min-staff, default 1), cut into shifts of --min-shift to
                       --max-shift hours (default 4 to 8), inside the hours with sales or --open/--close (0-24). Shift lines on stdout, summary on stderr;
-                      the average of what you sold, not a forecast
+                      the average of what you sold, not a forecast. --skip-dates 2026-11-26,2026-12-25 leaves those days out (holiday, storm);
+                      --half-life <weeks> weights recent weeks more (a day's weight halves every that many weeks back from the newest date)
   --import-staff <csv>  convert a staff export from another scheduler (name, hourly rate, hours, position columns) to staff lines on stdout; notes on stderr
   --hours-watch <h>   list everyone whose planned week reaches <h> hours (a full-time or benefit line you set, e.g. 30) or lands within --watch-within <h> (default 2) of it
   --sales "1200,900,..."  seven daily sales figures, Monday first (0 or blank = unknown): prints each day's labor cost as a share of sales; --labor-target <%> flags days over it,
@@ -111,6 +112,8 @@ export function parseArgs(argv) {
     else if (a === "--person") { o.person = argv[++i]; if (!o.person) throw new Error("--person needs a name"); }
     else if (a === "--import-shifts") { o.importShifts = argv[++i]; if (!o.importShifts) throw new Error("--import-shifts needs a CSV file"); }
     else if (a === "--from-sales") { o.fromSales = argv[++i]; if (!o.fromSales) throw new Error("--from-sales needs a CSV file"); }
+    else if (a === "--skip-dates") { o.demand = { ...o.demand, skipDates: String(argv[++i] || "").split(/[,\s]+/).filter(Boolean) }; if (!o.demand.skipDates.length) throw new Error("--skip-dates needs dates like 2026-11-26,2026-12-25"); }
+    else if (a === "--half-life") { const v = Number(argv[++i]); if (!(v > 0)) throw new Error("--half-life needs a positive number of weeks"); o.demand = { ...o.demand, halfLife: v }; }
     else if (a === "--min-staff" || a === "--min-shift" || a === "--max-shift" || a === "--open" || a === "--close") {
       const v = Number(argv[++i]);
       if (!Number.isFinite(v) || v < 0) throw new Error(`${a} needs a number`);

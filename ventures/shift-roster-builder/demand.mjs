@@ -21,6 +21,7 @@ const SYN = {
   day: ["day", "weekday", "day of week", "dow"],
   sales: ["sales", "net sales", "gross sales", "amount", "total", "revenue", "net revenue", "net amount", "sales amount", "total sales", "net sale", "gross"],
 };
+const isoKey = (k) => String(k).trim().replace(/^(\d{4})-(\d{1,2})-(\d{1,2})$/, (_, y, m, d) => `${y}-${+m}-${+d}`);
 const DAYNAMES = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 const dayOfName = (s) => DAYNAMES.indexOf(String(s).trim().toLowerCase().slice(0, 3));
 
@@ -49,7 +50,13 @@ function readStamp(tok, dayTok) {
 }
 
 // Parse the export. Returns { avg: [7][24] average sales, observed: [7] days seen per weekday, rows, skipped, notes }.
-export function hourlySales(text) {
+// o.skipDates: ISO dates (YYYY-MM-DD) left out entirely (a holiday, a storm, a private event).
+// o.halfLife: weeks; a day's weight halves for every that many weeks it is older than the newest date in the file
+// (a trend: recent weeks count more). Both are plain arithmetic on the average, not a forecast model.
+export function hourlySales(text, o = {}) {
+  const skip = new Set((o.skipDates || []).map(isoKey));
+  const halfLife = o.halfLife === undefined ? 0 : Number(o.halfLife);
+  if (o.halfLife !== undefined && !(halfLife > 0)) throw new Error("half-life must be a positive number of weeks");
   const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim());
   const out = { avg: DAYS.map(() => new Array(24).fill(0)), observed: new Array(7).fill(0), rows: 0, skipped: [], notes: [] };
   if (lines.length < 2) { out.notes.push("Needs a header row and at least one row of sales."); return out; }
@@ -59,9 +66,8 @@ export function hourlySales(text) {
   const ix = { stamp: find("stamp"), day: find("day"), sales: find("sales") };
   if (ix.sales < 0) { out.notes.push("No sales column found (looked for: " + SYN.sales.join(", ") + ")."); return out; }
   if (ix.stamp < 0) { out.notes.push("No date-time or hour column found."); return out; }
-  const sum = DAYS.map(() => new Array(24).fill(0));
-  const dates = DAYS.map(() => new Set());
-  let undated = 0;
+  const entries = []; // {day, hour, key, amount}
+  let undated = 0, skippedDays = new Set();
   lines.slice(1).forEach((line, i) => {
     const c = splitCsvRow(line, sep);
     const amount = Number(String(c[ix.sales] || "").replace(/[$£€,\s]/g, ""));
@@ -69,15 +75,30 @@ export function hourlySales(text) {
     if (!st) { out.skipped.push(`row ${i + 2}: could not read the date and hour "${c[ix.stamp] || ""}"`); return; }
     if (!Number.isFinite(amount) || String(c[ix.sales] || "").trim() === "") { out.skipped.push(`row ${i + 2}: could not read the sales "${c[ix.sales] || ""}"`); return; }
     if (amount < 0) { out.skipped.push(`row ${i + 2}: negative sales (a refund?) skipped`); return; }
-    sum[st.day][st.hour] += amount;
-    if (st.key) dates[st.day].add(st.key); else undated++;
+    if (st.key && skip.has(isoKey(st.key))) { skippedDays.add(st.key); return; }
+    entries.push({ ...st, amount });
+    if (!st.key) undated++;
     out.rows++;
   });
+  const keyMs = (k) => { const [y, m, d] = k.split("-").map(Number); return Date.UTC(y, m - 1, d); };
+  const newest = Math.max(0, ...entries.filter((e) => e.key).map((e) => keyMs(e.key)));
+  const weightOf = (k) => (halfLife && k ? Math.pow(0.5, (newest - keyMs(k)) / 86400000 / 7 / halfLife) : 1);
+  const sum = DAYS.map(() => new Array(24).fill(0));
+  const dates = DAYS.map(() => new Map()); // date -> weight
+  for (const e of entries) {
+    const w = weightOf(e.key);
+    sum[e.day][e.hour] += e.amount * w;
+    if (e.key) dates[e.day].set(e.key, w);
+  }
   for (let d = 0; d < 7; d++) {
     // An undated "Mon,11,300" row is already an average for that weekday-hour, so it counts one observed day.
+    const wsum = [...dates[d].values()].reduce((a, b) => a + b, 0);
     out.observed[d] = dates[d].size || (sum[d].some((v) => v > 0) ? 1 : 0);
-    for (let h = 0; h < 24; h++) out.avg[d][h] = out.observed[d] ? sum[d][h] / out.observed[d] : 0;
+    const div = dates[d].size ? wsum : out.observed[d];
+    for (let h = 0; h < 24; h++) out.avg[d][h] = div ? sum[d][h] / div : 0;
   }
+  if (skippedDays.size) out.notes.push(`${skippedDays.size} day${skippedDays.size === 1 ? "" : "s"} left out (--skip-dates): ${[...skippedDays].sort().join(", ")}.`);
+  if (halfLife) out.notes.push(`Recent weeks weigh more: a day's weight halves every ${halfLife} week${halfLife === 1 ? "" : "s"} back from the newest date.`);
   if (undated) out.notes.push(`${undated} rows had a weekday name instead of a date: each weekday-hour is taken as already one day's figure.`);
   const weeks = Math.max(...out.observed);
   out.notes.push(`${out.rows} rows read, up to ${weeks} day${weeks === 1 ? "" : "s"} per weekday averaged.`);
@@ -134,7 +155,7 @@ const clock = (h) => `${h === 24 ? "0" : h}:00`.replace(/^(\d):/, "$1:");
 
 // Everything at once. Returns { shiftsText, days: [{day, needed, scheduled, shifts}], needed, scheduled, extra, sales, notes, skipped }.
 export function demandShifts(text, o = {}) {
-  const s = hourlySales(text);
+  const s = hourlySales(text, o);
   if (!s.rows) return { shiftsText: "", rows: 0, needed: 0, scheduled: 0, extra: 0, sales: 0, days: [], notes: s.notes, skipped: s.skipped };
   const prof = headcount(s.avg, s.observed, o);
   const minShift = o.minShift === undefined ? 4 : Number(o.minShift), maxShift = o.maxShift === undefined ? 8 : Number(o.maxShift);
