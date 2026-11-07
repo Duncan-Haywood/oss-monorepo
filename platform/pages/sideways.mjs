@@ -111,6 +111,15 @@ if (only) console.log(describeFilter(only));
 requireNonEmpty(pages, only, 'built pages');
 
 const browser = await playwright.chromium.launch(LAUNCH);
+// Fail fast when nothing answers: with no server every page "fails" and the
+// report is hundreds of identical connection errors (seen 2026-11-07).
+try {
+  await fetch(`${BASE}/`, { signal: AbortSignal.timeout(5000) });
+} catch (e) {
+  console.error(`Nothing answers at ${BASE} (${e.cause?.code || e.message}). Serve the build first: python3 -m http.server 8793 --directory ${DIST} &`);
+  await browser.close();
+  process.exit(2);
+}
 const page = await browser.newPage({ viewport: { width: WIDTH, height: HEIGHT } });
 const failures = [];
 
