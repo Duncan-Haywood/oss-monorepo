@@ -180,3 +180,6 @@ Here the repository can say something real, if it measures itself. The day
 `live_url_visitors` holds a number and `agent_spend_usd` holds a dollar
 figure, this model becomes a measurement: what one person's budget actually
 buys in use, not just in output. That is the next instalment worth writing.
+
+*Next: [part 2, on graduates, resistant fields, small firms and the job
+market](2026-11-07-if-the-line-keeps-going-who-works.md).*

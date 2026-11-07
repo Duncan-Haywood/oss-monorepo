@@ -70,3 +70,24 @@ reading; the first real `agent_spend_usd`; whether the AA open-weight gap
 closes again under v5; a primary-source read of METR's current horizon (ask for
 `artificialanalysis.ai` and `metr.org` to be allowed in the environment, or
 read them from a session that can reach them).
+
+## Part 2 figures (gathered 2026-11-07)
+
+For [`docs/posts/2026-11-07-if-the-line-keeps-going-who-works.md`](../posts/2026-11-07-if-the-line-keeps-going-who-works.md).
+Same limits as above: `digitaleconomy.stanford.edu` and `artificialanalysis.ai`
+don't resolve from the session network, so these come from search summaries.
+Check the primary page before relying on any of them.
+
+| Figure | Value as reported | Source |
+|---|---|---|
+| Employment of ages 22 to 25 in most AI-exposed jobs relative to less-exposed peers | 19% below trend (ADP data through June 2026); earlier specifications 13% (Aug 2025) and 16% (Nov 2025), so these aren't comparable; decline where AI automates, not where it augments; no economy-wide displacement | Brynjolfsson et al., "Canaries in the Coal Mine?", Stanford Digital Economy Lab, August 2026 version |
+| Recent college graduates' unemployment | 7.3% in summer 2026, no significant rise compared with older graduates or young non-graduates | Fairlie and Wu, NBER working paper w35796 |
+| Occupational mix | changing slightly faster than in the past, a shift that began in 2021; low-hire, low-fire market; gap between recent grads (20 to 24) and older grads (25 to 34) at the high end of its historical range | Yale Budget Lab AI labor market tracker, updated 2026-04-16 with March 2026 CPS data |
+| Jobs with AI used in at least 25% of tasks | 49%, up from 36% in early 2025 | Anthropic Economic Index, January 2026 report |
+| Claude.ai conversations, augment against automate | about 52% against 45% (November 2025 data); automation dominant in API traffic | same |
+| US businesses using AI (Census BTOS, past two weeks) | 17.7% at the start of 2026, 23.8% in a later release; firms with 1 to 19 employees about 19 to 20%, firms with 250 or more about 38% (spring 2026) | Census BTOS, via secondary trackers |
+| Occupation automation-risk rankings | emergency responders, skilled trades and direct-care health at the low end; administrative health roles at the high end | secondary reports (Planera, April 2026; Hamilton Group, September 2026); the post uses these for order only, not their percentages |
+
+Repository figures used in part 2: 294 red-team runs, 3,437 seeded bugs,
+fresh files miss 3 in 10 (`docs/posts/2026-10-29-red-team-fifteen-days-damage-and-repairs.md`);
+merges a day 55 to 280 (`docs/parallel-agents.md`).

@@ -45,10 +45,11 @@
   ],
   "writeups": [
     "docs/posts/2026-11-07-if-the-line-keeps-going.md",
+    "docs/posts/2026-11-07-if-the-line-keeps-going-who-works.md",
     "docs/reports/2026-11-07-ai-trend-reflection-sources.md"
   ],
   "goal": null,
-  "notes": "artificialanalysis.ai does not resolve from the session network; AA figures come from search summaries and are labelled as reported. check_post_frontmatter and check_post_links pass.",
+  "notes": "artificialanalysis.ai does not resolve from the session network; AA figures come from search summaries and are labelled as reported. check_post_frontmatter and check_post_links pass. Part 2 added at the owner's follow-up (graduates, resistant fields, SMBs, job market). digitaleconomy.stanford.edu also does not resolve; labour-market figures are from search summaries and labelled so.",
   "corrections": [],
   "redteam": null
 }
