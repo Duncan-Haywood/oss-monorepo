@@ -110,6 +110,7 @@
     import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
     import { newEyewear, eyewearCost } from "./eyewear.mjs";
     import { recordUsage } from "./usage.mjs";
+    import { briefFromWardrobe, saveBrief } from "./launchbrief.mjs";
     const $ = s => document.querySelector(s);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
     const opts = (id, obj) => { $(id).innerHTML = Object.entries(obj).map(([k, v]) => `<option value="${k}">${typeof v === "string" ? v : v.label}</option>`).join(""); };
@@ -157,6 +158,7 @@
       renderDrop();
     }
 
+    let shelfPrice = 60;
     function renderDrop() {
       const moq = Math.max(1, +$("#moq").value || 50);
       const unitCosts = {};
@@ -172,7 +174,16 @@
       if (drop.dropped.length) html += `<p class="notes">Held for a second drop (the budget covers the minimum order of the pieces in the most outfits first): ${drop.dropped.map(esc).join(", ")}.</p>`;
       if (drop.needQuote.length) html += `<p class="notes">Need a factory quote before they can be planned: ${drop.needQuote.map(esc).join(", ")}.</p>`;
       if (plan.items.some(it => it.source === "partner brand")) html += `<p class="tag">Partner-brand pieces carry no stock: you list them and take a commission on each sale.</p>`;
+      html += `<p><label for="shelf">Shelf price per piece (one price for the whole drop)</label><input id="shelf" type="number" min="1" step="1" value="${shelfPrice}"></p><p><button type="button" id="to-launch">Use this drop in the launch tools</button> <span id="to-launch-note" role="status"></span></p>`;
       $("#drop").innerHTML = html;
+      $("#shelf").addEventListener("change", ev => { shelfPrice = Math.max(1, +ev.target.value || shelfPrice); });
+      $("#to-launch").addEventListener("click", () => {
+        shelfPrice = Math.max(1, +$("#shelf").value || shelfPrice);
+        const brief = briefFromWardrobe(drop, { price: shelfPrice, moq, currency: "USD", example: Object.keys(costOverrides).length === 0 }, { salesTaxPct: 0, channelFeePct: 0, paymentFeePct: 3, paymentFixed: 0.3 });
+        const ok = saveBrief(brief);
+        $("#to-launch-note").textContent = ok ? "Saved. Open any launch tool and its boxes fill from this drop." : "Nothing to save yet (no piece has a cost inside the budget) or browser storage is blocked.";
+        if (ok) recordUsage("wardrobe_launch_brief");
+      });
       $("#drop").querySelectorAll("input[data-key]").forEach(i => i.addEventListener("change", ev => { const v = +ev.target.value; if (v > 0) costOverrides[ev.target.dataset.key] = v; else delete costOverrides[ev.target.dataset.key]; renderDrop(); }));
     }
 

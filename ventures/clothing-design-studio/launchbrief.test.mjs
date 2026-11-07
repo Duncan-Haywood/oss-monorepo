@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { briefToFile, briefFromFile, briefFromEyewear, briefFromStudio, prefillFor, saveBrief, loadBrief, applyBrief, BRIEF_KEY } from "./launchbrief.mjs";
+import { briefToFile, briefFromFile, briefFromEyewear, briefFromWardrobe, briefFromStudio, prefillFor, saveBrief, loadBrief, applyBrief, BRIEF_KEY } from "./launchbrief.mjs";
 import { unitCost, DEFAULT_PLAN } from "./costing.mjs";
 import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
 
@@ -100,4 +100,20 @@ test("brief file: round trip keeps every number, and a hostile file is cut down 
   assert.match(briefFromFile(JSON.stringify({ version: 2 })).error, /version 1/);
   // a file saved here fills a page's boxes the same as the in-browser copy
   assert.deepEqual(prefillFor("preorder", back.brief), prefillFor("preorder", b));
+});
+
+test("wardrobe drop brief: quantity-weighted landed cost, one shelf price, no double-counted duty", () => {
+  // By hand: 60 x 10 + 40 x 15 = 1200 over 100 pieces = 12.00 landed.
+  const drop = { lines: [{ quantity: 60, unitCost: 10 }, { quantity: 40, unitCost: 15 }, { quantity: 20, unitCost: 0 }] };
+  const b = briefFromWardrobe(drop, { price: 50, moq: 50, currency: "EUR", example: true }, { salesTaxPct: 20, channelFeePct: 0, paymentFeePct: 3, paymentFixed: 0.3 });
+  assert.equal(b.kind, "wardrobe-drop");
+  assert.equal(b.quantity, 100);            // the unquoted line is left out
+  assert.equal(b.landed, 12);
+  assert.equal(b.factoryPerUnit, 12);
+  assert.equal(b.freightTotal, 0);
+  assert.equal(b.netPerSale, 39.87);        // 50/1.2 = 41.67, minus 1.50, minus 0.30
+  assert.equal(b.profitPerSale, 27.87);
+  assert.equal(b.moq, 50);
+  assert.equal(briefFromWardrobe({ lines: [] }, { price: 50 }, {}), null);
+  assert.equal(briefFromWardrobe({ lines: [{ quantity: 5, unitCost: 3 }] }, {}, {}), null);
 });
