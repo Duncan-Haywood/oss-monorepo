@@ -3,7 +3,7 @@ title: "Two more e-invoicing deadlines: El Salvador's DTE 2.0 and Mauritania's p
 seo_title: "El Salvador DTE 2.0 (1 Dec 2026) and Mauritania STT (1 Nov 2026)"
 date: 2026-11-07
 tags: [einvoice-preflight, e-invoicing, compliance]
-description: "El Salvador's DTE 2.0 rules are reported due 1 Dec 2026; Mauritania's STT declaration for public suppliers from 1 Nov 2026. What guides say and where they differ."
+description: "El Salvador's DTE 2.0 rules are reported due 1 Dec 2026; Mauritania's STT declaration for public suppliers from 1 Nov 2026. What guides say, where they differ"
 ---
 
 E-invoice Preflight's mandate hub now has pages for El Salvador and Mauritania, taking it to 88 countries.
