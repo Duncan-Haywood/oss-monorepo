@@ -1,3 +1,9 @@
+---
+kind: analysis
+subjects: [clothing-design-studio]
+date: 2026-11-06
+tagged: auto
+---
 # Launch cash-flow planner, clothing-design-studio (2026-11-06)
 
 R-0005 slice. `ventures/clothing-design-studio/cashflow.mjs` + `cashflow.html` + `cashflow.test.mjs` (6 tests, hand-worked order of 100 pieces: lowest -1100 in week 4, payback week 10). Page wired into index, sitemap, llms.txt and `page.test.mjs` (12 pass).

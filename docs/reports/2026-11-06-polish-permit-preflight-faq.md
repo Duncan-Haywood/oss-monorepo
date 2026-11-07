@@ -1,3 +1,9 @@
+---
+kind: analysis
+subjects: [permit-packet-preflight]
+date: 2026-11-06
+tagged: auto
+---
 # Polish run 2026-11-06: permit-packet-preflight FAQ
 
 `node platform/pages/faq-coverage.mjs` listed one entry page with no question-shaped
