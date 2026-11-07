@@ -1,0 +1,4 @@
+m | guaranteed cells | violations emp>hit | median emp P(T<1) | median hit prob | median gap | max gap | median |G| | median m for hit>=0.9
+8 | 11 | 0 | 0.490 | 0.599 | 0.089 | 0.189 | 5.0 | 18.0
+16 | 11 | 0 | 0.717 | 0.869 | 0.095 | 0.372 | 5.0 | 18.0
+24 | 11 | 0 | 0.877 | 0.969 | 0.062 | 0.262 | 5.0 | 18.0
