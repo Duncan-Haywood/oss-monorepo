@@ -1,9 +1,9 @@
 ---
 title: "Does a neural net beat boosted trees at predicting permit timing? 45 paired tests, corrected"
-seo_title: "Neural net vs LightGBM for building-permit duration: 45 paired bootstrap tests"
+seo_title: "Neural net vs LightGBM for permit duration: 45 bootstrap tests"
 date: 2026-11-07
 tags: [build-data, research, construction, statistics]
-description: "Week-block bootstrap p-values for neural minus boosted quantile loss on Chicago, San Francisco and Austin permits, 2022 to 2024, with Holm and Benjamini-Hochberg correction."
+description: "Bootstrap p-values for neural minus boosted quantile loss on Chicago, San Francisco and Austin permits, 2022 to 2024, with Holm and BH correction."
 ---
 
 In the build-data programme we compare an untuned MLP with LightGBM for predicting how long a building permit takes, in three cities, two targets and three quantile levels, for three test years: 45 cells. Each cell is a paired test on the same permits, resampling test weeks 2,000 times.
