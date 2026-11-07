@@ -267,3 +267,55 @@ def lead_forecast(p, c, k0, T, smooth_min=15, trail=60):
         a = np.ones_like(L, dtype=float) if np.isinf(T) else (np.exp(-L / T) if T > 0 else (L == 0) * 1.0)
         out.append(a * sm + (1 - a) * past)
     return out[0], out[1]
+
+
+def dp_values_dead(p, c, dt, corr, m, dy=25.0):
+    """Like dp_values, but a tack is m whole steps of dead time (tau = m*dt, no progress, no cross movement), so it can
+    exceed one step. V[k, sg, y] is the value of being on tack sg at step k with no tack in progress; tacking at step k
+    gives V[k+m, other, y]. A step whose raw motion leaves the corridor is followed by a forced tack (as sim_header does).
+    m = 1 is NOT identical to dp_values (which shortens one step rather than skipping it), but equals dp_clairvoyant_dead
+    when the forced edge tack is switched off in hindsight; tested against it on a window without edge hits."""
+    grid = np.arange(-corr, corr + dy / 2, dy)
+    n = p.shape[1]
+    V = np.zeros((n + 1, 2, len(grid)))
+    for k in range(n - 1, -1, -1):
+        kk = min(k + m, n)
+        for sg in (0, 1):
+            raw = grid + c[sg, k] * dt
+            clipped = np.clip(raw, -corr, corr)
+            stay = p[sg, k] * dt + np.interp(clipped, grid, V[k + 1, sg])
+            hit = ((raw >= corr) & (c[sg, k] > 0)) | ((raw <= -corr) & (c[sg, k] < 0))
+            if hit.any():
+                k1 = min(k + 1 + m, n)
+                forced = p[sg, k] * dt + np.interp(clipped, grid, V[k1, 1 - sg])
+                stay = np.where(hit, forced, stay)
+            V[k, sg] = np.maximum(stay, V[kk, 1 - sg])
+    return grid, V
+
+
+def sim_replan_dead(p, c, dt, corr, m, forecast, every=60, margin=0.0):
+    """sim_replan with dead time: a tack (chosen or forced at the corridor edge) costs m whole steps with no progress and
+    no cross movement. At each replan step k0, forecast(k0) -> (ps, cs) for steps k0..n-1 feeds dp_values_dead; the boat
+    follows that policy on the TRUE rates until the next replan. While a tack is in progress it cannot tack again.
+    Returns (progress m, number of tacks)."""
+    n = p.shape[1]
+    x, y, sg, n_t, dead = 0.0, 0.0, 0, 0, 0
+    for k0 in range(0, n, every):
+        ps, cs = forecast(k0)
+        grid, V = dp_values_dead(ps, cs, dt, corr, m)
+        for k in range(k0, min(n, k0 + every)):
+            if dead > 0:
+                dead -= 1
+                continue
+            j, o = k - k0, 1 - sg
+            stay = ps[sg, j] * dt + np.interp(np.clip(y + cs[sg, j] * dt, -corr, corr), grid, V[j + 1, sg])
+            sw = np.interp(y, grid, V[min(j + m, ps.shape[1]), o])
+            if sw > stay + margin * max(ps[0, j], ps[1, j]) * dt:
+                sg = o; n_t += 1; dead = m - 1
+                continue
+            x += p[sg, k] * dt
+            y += c[sg, k] * dt
+            if (y >= corr and c[sg, k] > 0) or (y <= -corr and c[sg, k] < 0):
+                y = max(-corr, min(corr, y))
+                sg ^= 1; n_t += 1; dead = m
+    return x, n_t
