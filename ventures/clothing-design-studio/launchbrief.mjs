@@ -131,3 +131,36 @@ export function applyBrief(page, doc = globalThis.document, storage = globalThis
   const when = b.savedAt ? b.savedAt.slice(0, 10) : "earlier";
   return `Filled ${ids.length} ${ids.length === 1 ? "box" : "boxes"} from your ${b.kind === "sunglasses" ? "sunglasses design" : "studio design"} (${b.quantity} ${b.kind === "sunglasses" ? "pairs" : "pieces"} at ${b.price} ${b.currency}, saved ${when})${b.example ? ", which still uses the placeholder example supplier sheet" : ""}. Change any box; the studio is not touched.`;
 }
+
+/**
+ * Move a brief between devices as a small JSON file (the browser's storage is
+ * per device). `briefToFile` is what the download holds; `briefFromFile` reads
+ * one back, keeping only the known numeric and text fields so a file from
+ * anywhere cannot add keys, markup or non-numbers to the pages.
+ */
+const NUMERIC = ["quantity", "price", "landed", "factoryPerUnit", "extrasPerUnit", "freightTotal", "dutyPct", "moq",
+  "leadTimeDays", "salesTaxPct", "feePct", "paymentFeePct", "fixedFee", "netPerSale", "profitPerSale"];
+
+export function briefToFile(brief, now = new Date()) {
+  if (!brief || brief.version !== 1) return null;
+  return JSON.stringify({ ...brief, savedAt: brief.savedAt || now.toISOString() }, null, 2) + "\n";
+}
+
+/** @returns {{brief:object|null, error:string}} */
+export function briefFromFile(text) {
+  let raw;
+  try { raw = JSON.parse(String(text)); } catch { return { brief: null, error: "That file is not JSON." }; }
+  if (!raw || typeof raw !== "object" || raw.version !== 1) return { brief: null, error: "Not a launch brief (version 1)." };
+  const b = { version: 1, savedAt: typeof raw.savedAt === "string" && /^\d{4}-\d{2}-\d{2}T[\d:.]+Z$/.test(raw.savedAt) ? raw.savedAt : null };
+  for (const k of NUMERIC) {
+    const v = raw[k];
+    if (v === null || v === undefined) { b[k] = k === "leadTimeDays" ? null : 0; continue; }
+    if (typeof v !== "number" || !Number.isFinite(v) || v < 0 || v > 1e9) return { brief: null, error: `"${k}" must be a number from 0 to 1,000,000,000.` };
+    b[k] = v;
+  }
+  if (!(b.quantity > 0)) return { brief: null, error: "The brief needs a quantity above zero." };
+  b.currency = /^[A-Z]{3}$/.test(raw.currency) ? raw.currency : "EUR";
+  if (raw.kind === "sunglasses") b.kind = "sunglasses";
+  b.example = !!raw.example;
+  return { brief: b, error: "" };
+}
