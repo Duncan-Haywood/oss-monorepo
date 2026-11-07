@@ -3,7 +3,7 @@ title: "Do you need a screen on a small LLM-coded audit? A guard on three positi
 seo_title: "LLM-coded data audit size: which safeguard matters"
 date: 2026-11-07
 tags: [llm-coding-inference, research, statistics]
-description: "On GoEmotions with a 1.5B LLM coder, a rule requiring 3 pilot positives in the coder-negative cell kept intervals valid at 1 to 23% prevalence; the extra prevalence screen mostly cost width."
+description: "With a 1.5B LLM coder on GoEmotions, a guard of 3 pilot positives kept audit intervals valid from 1 to 23% prevalence; the extra screen mostly cost width."
 ---
 
 When an LLM codes a text corpus and people hand-code a small audit sample to correct it, the audit can be split by the coder's own label. That pays only if every cell has enough hand-coded positives. Our library had two safeguards: a screen (use cells only if the pilot looks informative and holds 20 positives) and, since 7w, a guard of 3 pilot positives in the coder-negative cell.
