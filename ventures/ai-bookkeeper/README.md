@@ -515,7 +515,7 @@ These already read through the generic column matcher; this slice names them in 
 
 ### US bank layouts pinned (2026-11-04)
 
-`us-banks.test.mjs` pins six layouts that already read with no code change: US Bank (`Transaction, Name, Memo, Amount`), Navy Federal and Truist and TD (`Debit`/`Credit` plus `Balance`, the balance chain holds), Citi card (`Status`, `Debit`/`Credit`) and Bank of America (summary block above the header skipped, `Running Bal.`). Rows are made up and headers are from memory of each layout; no real download was tried. Navy Federal, Truist and TD read but are not named by `sniffBank` (bank is null).
+`us-banks.test.mjs` pins six layouts that already read with no code change: US Bank (`Transaction, Name, Memo, Amount`), Navy Federal and Truist and TD (`Debit`/`Credit` plus `Balance`, the balance chain holds), Citi card (`Status`, `Debit`/`Credit`) and Bank of America (summary block above the header skipped, `Running Bal.`). Rows are made up and headers are from memory of each layout; no real download was tried. Navy Federal, Truist and TD are named by `sniffBank` since 2026-11-07 (`navy-federal`, `truist`, `td-bank`; headers from memory, informational only, no real download tried).
 
 ### PNC CSV (2026-10-22)
 
