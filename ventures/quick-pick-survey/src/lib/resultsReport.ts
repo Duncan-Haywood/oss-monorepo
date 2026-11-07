@@ -62,6 +62,6 @@ h1{font-size:24px;margin:0;color:${colour}}table{border-collapse:collapse;width:
 <header>${logo ? `<img src="${esc(logo)}" alt="">` : ""}<div><h1>${esc(title)}</h1><div>${esc(brand.name ?? "")} · ${esc(today)} · ${esc(participants)} respondents</div></div></header>
 ${brand.note ? `<p>${esc(brand.note)}</p>` : ""}${thin}
 <table><thead><tr><th>Place</th><th>Option</th><th>Score with 95% range</th><th>Score</th><th>Raters</th></tr></thead><tbody>${rows}</tbody></table>
-<p class="fine">How to read this: a place shown as a range (for example 2–4) means the picks cannot separate those options; treat them as tied. The bar is the 95% interval for the group score. This is an estimate from a limited number of pairwise picks, not a fact about any person, and not a basis for a decision about anyone. Made with Quick pick (MIT licensed, open source).</p>
+<p class="fine">How to read this: a place shown as a range (for example 2–4) means the picks cannot separate those options; treat them as tied. The bar is the 95% interval for the group score. This is an estimate from a limited number of pairwise picks, not a fact about any person, and not a basis for a decision about anyone. Provided as-is without warranty; the authors accept no liability for its use. Made with Quick pick (MIT licensed, open source).</p>
 </main></body></html>`;
 }
