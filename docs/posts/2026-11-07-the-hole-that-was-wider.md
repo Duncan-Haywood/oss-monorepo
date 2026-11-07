@@ -1,5 +1,6 @@
 ---
 title: "The Hole That Was Wider: a hand's width of digging is half again as much concrete"
+seo_title: "The Hole That Was Wider: 55% more concrete"
 date: 2026-11-07
 tags: [hearth-and-horizon, fiction, everyday-maths]
 description: "New Hearth & Horizon story: digging fence-post holes 30 cm wide instead of 25 needs 55% more concrete, not 20%."

@@ -1,5 +1,6 @@
 ---
 title: "Why a jar of coins can't be valued by its weight, and how four piles can"
+seo_title: "A jar of coins: weight alone can't give its value"
 date: 2026-11-07
 tags: [hearth-and-horizon, fiction, maths]
 description: "A new Hearth & Horizon story: 6.4 kg of coins is worth £18 to £1,000 until you sort it; then pennies, twopences, fives and tens each reduce to one rate."
