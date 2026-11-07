@@ -77,3 +77,19 @@ def test_down_milling_low_immersion_zero_order_empty_but_semi_discretisation_uns
     with pytest.raises(ValueError):
         zoa_lobes(T, 0.1, False)
     assert any(sd_limit(T, r, 0.1, False, 0.02, nw=30) < 0.02 for r in np.arange(5000, 20001, 1000.0))
+
+
+def test_process_damping_zero_is_baseline_and_helps():
+    from dataclasses import replace
+    t0, t1 = Tool(), replace(Tool(), cp=3e4)
+    for rpm in (3000.0, 8000.0):
+        a = sd_limit(t0, rpm, 1.0, True, 0.02, nw=40)
+        assert abs(a - sd_limit(replace(t0, cp=0.0), rpm, 1.0, True, 0.02, nw=40)) < 1e-12
+        assert sd_limit(t1, rpm, 1.0, True, 0.02, nw=40) > a
+
+
+def test_process_damping_gain_falls_with_cutting_speed():
+    from dataclasses import replace
+    t0, t1 = Tool(), replace(Tool(), cp=1e4)
+    g = lambda r: sd_limit(t1, r, 1.0, True, 0.05, nw=50) / sd_limit(t0, r, 1.0, True, 0.05, nw=50)
+    assert g(3000.0) > g(20000.0)

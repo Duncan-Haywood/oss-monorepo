@@ -26,7 +26,7 @@ The depth limit scales as k/K<sub>t</sub> and speed with f<sub>n</sub>, so other
 ```bash
 pip install pytest numpy scipy
 cd research/infra-chatter
-python -m pytest -q tests                        # 9 tests
+python -m pytest -q tests                        # 11 tests
 PYTHONPATH=src python experiments/run.py         # about 35 s; writes experiments/results.txt
 python experiments/figure.py                     # experiments/chart.svg
 ```
@@ -37,6 +37,8 @@ python experiments/figure.py                     # experiments/chart.svg
 - **C. Time domain.** 30 of 30 stable/unstable classifications agree with the Floquet multiplier. The growth factors differ by up to 0.03 per period (SD 1.043 against 1.071 in one case; at 10% down-milling and 14000 rpm 1.303 against 1.391): the zeroth-order SD scheme with 40 steps is good for the boundary, not for the growth rate.
 - **D. Spindle speed.** Removal rate &prop; depth &times; speed. The best stable speed beats running at the minimum depth by 9.1 (slotting), 13.3 (up-50%), 17.9 (up-10%), 5.2 (down-50%) and 8.3 times (down-10%), capped at 20 mm depth. At the ZOA's own best speed for slotting (13 750 rpm) the ZOA promises 3.96 mm and SD allows 3.61, 9% less; SD's best speed is 18 750 rpm.
 
+- **E. Process damping sweep** (`experiments/process_damping.py`, slotting, SD, D = 16 mm, force = &minus;c<sub>p</sub> w v/V per engaged tooth; c<sub>p</sub> swept 10<sup>3</sup> to 3&times;10<sup>5</sup> N/m<sup>2</sup> because no measured coefficient was reachable). At c<sub>p</sub> = 3&times;10<sup>4</sup> the depth limit rises 2.3 and 3.7 times at 2000 and 3000 rpm but only 1.1 to 1.2 times above 12 000 rpm; at 10<sup>5</sup> the gain is 13 to 41 times below 4000 rpm, 1.4 to 2.3 times above 12 000. Because the damping force scales as w/V, it is a low-speed effect: the minimum of the lobe envelope at high speed (0.34 mm at 16 000 rpm) barely moves unless c<sub>p</sub> is very large. Values of 50 mm are the sweep cap, not predictions.
+
 ## Limitations
 - **No measured FRF.** The milestone asks for a tool-tip FRF from a public dataset; none was reachable here, so one benchmark mode stands in. The conclusions about where the ZOA fails (short cuts, down-milling) do not depend on the values, but the millimetres and rpm do.
 - One mode in one direction; real tools have two orthogonal directions and several modes, which add lobes.
@@ -46,7 +48,7 @@ python experiments/figure.py                     # experiments/chart.svg
 
 ## Next steps
 - Replace the benchmark mode with a measured FRF (a public impact-test dataset) and two directions; check the ZOA failure map against published cutting tests.
-- Add process damping and a helical edge; test whether the speed gain survives.
+- Process damping is in as a linear term with a swept coefficient (result E); next: identify c<sub>p</sub> from published low-speed cutting tests, add a helical edge, and test whether the speed gain in D survives it.
 - Pick speeds with a measured chatter-frequency feedback loop in simulation.
 
 ## Outside dependencies

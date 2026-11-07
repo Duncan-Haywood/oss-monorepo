@@ -20,6 +20,8 @@ class Tool:
     kt: float = 6e8        # tangential cutting stiffness, N/m^2
     kn: float = 2e8        # normal cutting stiffness, N/m^2
     teeth: int = 2
+    cp: float = 0.0        # process damping: force = -cp * w * v_tool / V_cut  (cp in N/m^2, i.e. a contact stiffness; 0 = none)
+    diam: float = 0.016    # cutter diameter, m (sets the cutting speed V = pi D rpm / 60)
 
     @property
     def wn(self):
@@ -96,6 +98,15 @@ def _tooth_h(tool, rpm, ae_over_d, up, t):
     return h
 
 
+def _engaged(tool, ae_over_d, up, t, rpm):
+    a, b = cut_window(ae_over_d, up)
+    n = 0
+    for j in range(tool.teeth):
+        phi = (2 * math.pi * rpm / 60.0 * t + 2 * math.pi * j / tool.teeth) % (2 * math.pi)
+        n += a <= phi <= b
+    return n
+
+
 def floquet_radius(tool, rpm, w, ae_over_d, up, steps=40):
     """Zeroth-order semi-discretisation: largest Floquet multiplier modulus (stable if < 1)."""
     tau = 60.0 / (tool.teeth * rpm)
@@ -108,6 +119,9 @@ def floquet_radius(tool, rpm, w, ae_over_d, up, steps=40):
         c = w * _tooth_h(tool, rpm, ae_over_d, up, (i + 0.5) * dt) / tool.m
         A = A0.copy()
         A[1, 0] -= c
+        if tool.cp:
+            vcut = math.pi * tool.diam * rpm / 60.0
+            A[1, 1] -= tool.cp * w / vcut / tool.m * _engaged(tool, ae_over_d, up, (i + 0.5) * dt, rpm)
         E = expm(A * dt)
         Bu = np.linalg.solve(A, (E - np.eye(2)) @ np.array([0.0, c]))   # response to the delayed input
         M = np.zeros((n, n))
