@@ -22,6 +22,9 @@ function addMinutes(date, time, mins) {
   const d = new Date(`${date}T${time}:00Z`); d.setUTCMinutes(d.getUTCMinutes() + mins);
   return stamp(d.toISOString().slice(0, 10), d.toISOString().slice(11, 16));
 }
+// RFC 5545 section 3.2: a parameter value (CN) takes no backslash escapes; one holding ; : or , is wrapped in double
+// quotes, and a double quote or a control character cannot appear in it at all.
+const cn = (s) => { const v = String(s ?? "").replace(/[\u0000-\u001f\u007f"]/g, " ").replace(/\s+/g, " ").trim(); return /[;:,]/.test(v) ? `"${v}"` : v; };
 const safeAddr = (e) => /^[^\s@<>;,"]+@[^\s@<>;,"]+\.[^\s@<>;,"]+$/.test(e || "") ? e : null;
 
 /**
@@ -50,8 +53,8 @@ export function buildInvite({ email, name, company, slot, today, offer = {} }) {
     "BEGIN:VEVENT", `UID:${uid}`, `DTSTAMP:${stamp(today, "00:00")}Z`,
     `DTSTART:${stamp(slot.date, slot.time)}`, `DTEND:${addMinutes(slot.date, slot.time, dur)}`,
     `SUMMARY:${esc(summary)}`, `DESCRIPTION:${esc(desc)}`, "STATUS:TENTATIVE", "TRANSP:OPAQUE",
-    sender ? `ORGANIZER;CN=${esc(offer.sender_name || sender).replace(/[":]/g, "")}:mailto:${sender}` : "",
-    `ATTENDEE;CN=${esc(who).replace(/[":]/g, "")};ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION:mailto:${to}`,
+    sender ? `ORGANIZER;CN=${cn(offer.sender_name) || sender}:mailto:${sender}` : "",
+    `ATTENDEE;CN=${cn(who) || to};ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION:mailto:${to}`,
     "END:VEVENT", "END:VCALENDAR",
   ].filter(Boolean);
   return { ok: true, filename: `${to.replace(/[^a-z0-9@.+-]/gi, "_")}-${slot.date}.ics`, ics: lines.map(fold).join("\r\n") + "\r\n", summary };

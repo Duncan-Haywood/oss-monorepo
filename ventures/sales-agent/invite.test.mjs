@@ -61,3 +61,11 @@ test("semicolons and commas in a name or company are escaped (RFC 5545 section 3
   assert.match(r.ics, /SUMMARY:Call with Ruiz\\; Dana\\, PhD \(A\\;B\)/);
   assert.doesNotMatch(r.ics, /SUMMARY:[^\r\n]*[^\\];/);
 });
+test("a name with a comma, semicolon, quote or newline makes a valid CN parameter (quoted, no backslash escapes)", () => {
+  const [s] = findSlots("Tuesday at 2pm", today);
+  const r = base(s, { name: 'Ruiz, Dana; "DJ"\nOps', offer: { sender_email: "me@us.example", sender_name: "Me, Inc" } });
+  assert.match(r.ics, /ATTENDEE;CN="Ruiz, Dana; DJ Ops";ROLE=REQ-PARTICIPANT/);
+  assert.match(r.ics, /ORGANIZER;CN="Me, Inc":mailto:me@us.example/);
+  assert.ok(!/CN=[^:]*\\/.test(r.ics));
+  assert.match(base(s, { name: '""' }).ics, /ATTENDEE;CN=dana@acme.example;/);
+});
