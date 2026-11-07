@@ -1,7 +1,7 @@
 ---
 title: "A real Revit house, one floor further: the Schultz 2nd Floor frames"
 date: 2026-11-07
-description: "Two drawing quirks from a real wood-frame IFC, tees 1/8 in apart and a door 1.4 in from a wall end, were stopping the wall framing tool. Now the 2nd Floor frames."
+description: "Two drawing quirks in a real wood-frame IFC, tees 1/8 in apart and a door 1.4 in from a wall end, stopped the framing tool. Now the 2nd Floor frames."
 tags: [construction, wall-framing-takeoff, ifc]
 ---
 
