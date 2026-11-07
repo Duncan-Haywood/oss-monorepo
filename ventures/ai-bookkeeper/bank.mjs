@@ -1144,6 +1144,15 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // One unsigned-looking amount column, nothing says which way: a card export that lists only purchases (PC Financial's) reads as income.
   else if (invert === undefined && bank !== "schwab-brokerage" && columns.amount !== -1 && columns.debit === -1 && columns.credit === -1 && dirCol === -1 && out.length >= 2 && out.every((r) => r.cents > 0))
     problems.push(`Every amount is positive, so all ${out.length} lines were booked as money in. If this is a card or spending export, they are charges: import with the signs flipped (invert).`);
+  if (bank === "bank-of-america") {
+    // BofA's file opens with a summary block (beginning balance, total credits, total debits, ending balance): check it against the rows read.
+    const num = (re) => { const m = text.match(re); if (!m) return null; const v = Number(m[1].replace(/[,\s]/g, "")); return Number.isFinite(v) ? Math.round(v * 100) : null; };
+    const cr = num(/^\s*"?Total credits"?\s*,[^,\n]*,\s*"?(-?[\d,.]+)"?/im), db = num(/^\s*"?Total debits"?\s*,[^,\n]*,\s*"?(-?[\d,.]+)"?/im);
+    if (cr !== null && db !== null && out.length) {
+      const rc = out.filter((r) => r.cents > 0).reduce((a, r) => a + r.cents, 0), rd = out.filter((r) => r.cents < 0).reduce((a, r) => a + r.cents, 0);
+      if (rc !== cr || rd !== -Math.abs(db)) problems.push(`The statement summary says credits ${(cr / 100).toFixed(2)} and debits ${(db / 100).toFixed(2)}, but the rows read add to credits ${(rc / 100).toFixed(2)} and debits ${(rd / 100).toFixed(2)}. A row may be missing, duplicated or mis-signed; check the file against the bank's statement.`);
+    }
+  }
   if (ambiguousNote) inferred = [inferred, ambiguousNote + "."].filter(Boolean).join(" ");
   if (localeNote) inferred = [inferred, localeNote + " (inferred from the file; pass dayFirst / decimalComma to override)."].filter(Boolean).join(" ");
   return { rows: out, problems, columns, bank, inferred, ...(accountNames.size > 1 ? { accountNames: [...accountNames] } : {}) };
