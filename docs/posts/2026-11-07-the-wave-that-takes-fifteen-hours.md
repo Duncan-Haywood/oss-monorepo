@@ -1,5 +1,6 @@
 ---
 title: "The Wave That Takes Fifteen Hours: how fast a tsunami crosses the Pacific, and why the first wave is not last"
+seo_title: "The Wave That Takes Fifteen Hours"
 date: 2026-11-07
 tags: [hearth-and-horizon, fiction, science]
 description: "New Hearth & Horizon story: a Chilean quake, a Hawaiian parish and a tsunami that takes 14.7 hours to arrive, worked out from the square root of g times depth."

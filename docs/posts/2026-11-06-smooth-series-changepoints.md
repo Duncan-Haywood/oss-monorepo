@@ -1,5 +1,6 @@
 ---
 title: "Does a changepoint detector cry wolf on smooth data? Two more real series"
+seo_title: "Does a changepoint detector cry wolf on smooth data?"
 date: 2026-11-06
 tags: [changepoint-detector, time-series, evaluation]
 description: "Two more real smooth series run through the changepoint detector: sales over-cut by 12 changes, one with AR(1) errors, and a census slowdown found."

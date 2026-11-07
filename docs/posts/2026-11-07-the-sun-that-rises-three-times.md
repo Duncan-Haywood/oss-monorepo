@@ -1,5 +1,6 @@
 ---
 title: "The Sun That Rises Three Times: a day on Ceres is 9.08 hours, so Sunday Mass meets the sun half the time"
+seo_title: "The Sun That Rises Three Times"
 date: 2026-11-07
 tags: [hearth-and-horizon, fiction, science]
 description: "New Hearth & Horizon story: a Ceres day is 9.08 hours, so the sun rises 2.6 times a clock day and a 10:00 Mass meets it half the time."
