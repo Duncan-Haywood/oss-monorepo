@@ -9,6 +9,7 @@ import { GARMENTS, FABRICS, METHODS, PX_PER_CM, compatibilityNotes } from "./cat
 import { MOTIFS } from "./motifs.mjs";
 import { SIZES } from "./design.mjs";
 import { renderDesign, esc } from "./render.mjs";
+import { specSheet } from "./spec.mjs";
 
 /** Shoulder high point in drawing pixels; the neck seam meets the shoulder at y = 60. */
 const HPS_Y = 52;
@@ -42,6 +43,7 @@ export function techPack(design, { supplier = null } = {}) {
     sizes: Object.fromEntries(SIZES.map(s => [s, design.sizes[s] || 0])),
     quantity: design.quantity,
     placements,
+    spec: specSheet({ garment: design.garment }),
     labels: "Neck label and care label: designer to supply artwork and the fibre content and care symbols required where the garment is sold.",
     packaging: "Individually folded and bagged unless agreed otherwise.",
     supplier: supplier && !supplier.example ? supplier.name : null,
@@ -75,6 +77,11 @@ export function quoteRequest(design, pack = techPack(design)) {
   return lines.join("\n");
 }
 
+function specTable(spec) {
+  const sizes = Object.keys(spec.sizes);
+  return `<table><tr><th>Point of measure</th><th>Tol.</th>${sizes.map(s => `<th>${s}</th>`).join("")}</tr>${spec.points.map(p => `<tr><td>${esc(p.label)}</td><td>+/-${p.tolCm}</td>${sizes.map(s => `<td>${spec.sizes[s][p.id]}</td>`).join("")}</tr>`).join("")}</table><p class="muted">${spec.notes.map(esc).join(" ")}</p>`;
+}
+
 /** A printable tech pack page (HTML string), with both sides drawn. */
 export function techPackHtml(design, pack = techPack(design)) {
   const rows = pack.placements.map(p => `<tr><td>${p.ref}</td><td>${esc(p.artwork)}</td><td>${esc(p.location)}</td><td>${esc(p.method)}${p.inkColours ? ` (${p.inkColours} col.)` : ""}</td><td>${p.widthCm} x ${p.heightCm}</td><td>${p.fromHpsCm ?? "sleeve"}</td><td>${p.fromCentreCm}</td><td>${p.rotationDeg}</td></tr>${p.notes.length ? `<tr><td></td><td colspan="7" class="note">${p.notes.map(esc).join("<br>")}</td></tr>` : ""}`).join("");
@@ -83,6 +90,7 @@ export function techPackHtml(design, pack = techPack(design)) {
 <h1>${esc(pack.style)}</h1><p class="muted">Tech pack drafted with the Clothing Design Studio. Check every measurement against a physical sample before production.</p>
 <div class="views">${renderDesign(design, { side: "front", uid: "tpf" })}${renderDesign(design, { side: "back", uid: "tpb" })}</div>
 <table><tr><th>Garment</th><td>${esc(pack.garment)}</td></tr><tr><th>Fabric</th><td>${esc(pack.fabric.type)}, ${esc(pack.fabric.composition)}, ${pack.fabric.weightGsm} gsm</td></tr><tr><th>Colour</th><td>${esc(pack.colour.name)} (${esc(pack.colour.screenHex)}). ${esc(pack.colour.note)}</td></tr><tr><th>Quantity</th><td>${pack.quantity}: ${Object.entries(pack.sizes).filter(([, n]) => n).map(([s, n]) => `${s} ${n}`).join(", ")}</td></tr><tr><th>Labels</th><td>${esc(pack.labels)}</td></tr><tr><th>Packaging</th><td>${esc(pack.packaging)}</td></tr></table>
+<h2>Measurements (finished garment, flat, cm)</h2>${specTable(pack.spec)}
 <h2>Decoration</h2><table><tr><th>Ref</th><th>Artwork</th><th>Location</th><th>Method</th><th>Size (cm)</th><th>Top from HPS (cm)</th><th>From centre (cm)</th><th>Rotation</th></tr>${rows || '<tr><td colspan="8">No decoration.</td></tr>'}</table>
 <p class="muted">No warranty. This tech pack is a draft from the studio's drawing, not a production specification, and it is not legal, tax, financial or professional advice. You are responsible for reviewing and verifying it before relying on it. Free and open source (MIT).</p>
 </body></html>`;
