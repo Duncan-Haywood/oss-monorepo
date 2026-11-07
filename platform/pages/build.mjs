@@ -843,6 +843,9 @@ const CATEGORY_RULES = [
       'menu-engineering-calculator',
       'food-truck-event-margin-calculator',
       'pour-cost-calculator',
+      // `allergen-label-maker` joined 2026-11-07 on its first commit: allergen matrix and pre-packed food labels for the cafes,
+      // bakeries and caterers served here, one hop from `recipe-costing-calculator`.
+      'allergen-label-maker',
       // `catering-quote-calculator` joined 2026-10-02 on its first commit: per-guest event pricing for the
       // operator who sells food, one hop from `food-truck-event-margin-calculator`.
       'catering-quote-calculator',
