@@ -127,7 +127,7 @@
         <details id="gl-panel">
           <summary>3D garment (preview)</summary>
           <p class="muted">A solid shape built from the drawing's outline, with your front and back artwork mapped on. Drag to turn it, scroll to zoom. It has no drape, seams or real sleeves, so it shows how artwork sits on a rounded body, not fit. Runs in your browser; nothing is sent.</p>
-          <div class="bar"><button class="btn small" type="button" id="gl-spin" aria-pressed="false">Spin</button></div>
+          <div class="bar"><button class="btn small" type="button" id="gl-spin" aria-pressed="false">Spin</button> <button class="btn small" type="button" id="gl-vr" hidden title="Needs a headset with WebXR, such as Quest Browser">View in VR</button></div>
           <div id="gl-view"></div>
         </details>
         <div class="notes" id="compat" aria-live="polite"></div>
@@ -901,7 +901,12 @@
         glView = mountViewer($("#gl-view"));
       }
       glView.setDesign(d());
+      if (glView.vrSupported && await glView.vrSupported()) $("#gl-vr").hidden = false;
     }
+    $("#gl-vr").addEventListener("click", async () => {
+      try { if (!(await glView?.enterVR?.())) alert("VR is not available here, or the preview is not ready yet."); }
+      catch (e) { alert("Could not start VR: " + (e.message || e)); }
+    });
     function scheduleGl() { clearTimeout(glTimer); glTimer = setTimeout(renderGl, 250); }
     $("#gl-panel").addEventListener("toggle", renderGl);
     $("#gl-spin").addEventListener("click", () => {
