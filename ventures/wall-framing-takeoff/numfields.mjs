@@ -3,6 +3,8 @@
 /** @param {any} d @param {string[]} keys @returns {string[]} */
 export function textNumberErrors(d, keys) {
   const e = [];
+  // A missing or non-object settings value has no fields to check; callers refuse it themselves.
+  if (d === null || typeof d !== "object") return e;
   for (const k of keys) {
     if (d[k] == null) continue;
     if (typeof d[k] !== "number" || !Number.isFinite(d[k])) e.push(`${k} must be a number.`);
