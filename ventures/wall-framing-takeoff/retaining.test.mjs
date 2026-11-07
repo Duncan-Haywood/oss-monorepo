@@ -34,3 +34,13 @@ test("refusals, notes and text", () => {
   assert.ok(tall.notes.some((n) => /geogrid/.test(n))); assert.ok(tall.notes.some((n) => /permit/.test(n)));
   assert.match(retainingText(layoutRetaining(w30)).join("\n"), /170 blocks/);
 });
+
+test("geogridEvery is whole courses: a fraction gave absurd geogrid areas", () => {
+  const w = [{ length: 30, height: 3 }];
+  for (const v of [2.5, 1e-9, 0.5]) {
+    const r = layoutRetaining({ walls: w, block: { geogridEvery: v } });
+    assert.equal(r.ok, false); assert.match(r.errors.join(" "), /whole number of courses/);
+  }
+  const ok = layoutRetaining({ walls: w, block: { geogridEvery: 2 } });
+  assert.equal(ok.ok, true); assert.equal(ok.geogridSqFt, 240); // 6 courses, floor(5/2)=2 layers x 30 ft x 4 ft
+});

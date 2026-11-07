@@ -41,6 +41,7 @@ export function validateRetaining(d) {
   rng("blockLength", 4, 48); rng("blockHeight", 2, 24); rng("blockDepth", 4, 36); rng("capLength", 4, 48); rng("buryIn", 0, 36); rng("waste", 0, 0.5);
   rng("baseDepth", 0, 24); rng("baseOverhang", 0, 24); rng("drainWidth", 0, 48); rng("compaction", 1, 2); rng("baseTonsPerCuYd", 0.5, 2.5); rng("drainTonsPerCuYd", 0.5, 2.5);
   rng("geogridEvery", 0, 20); rng("geogridLength", 0, 30); rng("capAdhesiveFtPerTube", 1, 100); rng("pipeFeet", 0, 5000);
+  if (b.geogridEvery != null && b.geogridEvery >= 0 && !Number.isInteger(b.geogridEvery)) e.push("geogridEvery is a whole number of courses between geogrid layers (0 for none).");
   return e;
 }
 
