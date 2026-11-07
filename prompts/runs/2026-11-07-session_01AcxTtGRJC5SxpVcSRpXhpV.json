@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13857",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -170,7 +170,7 @@
         "file": "docs/posts/2026-11-07-a-survey-result-that-admits-its-ties.md",
         "issue": "post from #13852 had no description front matter; writing.test.mjs red on main and the site build would fail",
         "patched": true,
-        "patched_in": "this PR"
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13857"
       }
     ]
   }
