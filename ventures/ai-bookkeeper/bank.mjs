@@ -463,6 +463,10 @@ export function sniffBank(rows) {
     if (/^transaction date\|posted date\|card no\.\|description\|category\|debit\|credit/.test(h)) return "capital-one";
     if (/^trans\. date\|post date\|description\|amount\|category/.test(h)) return "discover";
     if (/^status\|date\|description\|debit\|credit/.test(h)) return "citi";
+    // Debit/Credit/Balance layouts, headers from memory (no real export tried): Navy Federal, Truist, TD Bank.
+    if (/^transaction date\|posting date\|description\|debit\|credit\|balance/.test(h)) return "navy-federal";
+    if (/^date\|description\|check number\|debit\|credit\|balance/.test(h)) return "truist";
+    if (/^date\|check no\|description\|debit\|credit\|balance/.test(h)) return "td-bank";
     // Ramp lists card spend as positive amounts, under a "user transaction time" column.
     if (/^(id\|)?user transaction time\|/.test(h)) return "ramp";
     if (/^date\|transaction\|name\|memo\|amount/.test(h)) return "us-bank";
