@@ -437,6 +437,13 @@
    "status": "In force (2026 order reported, unconfirmed)"
   },
   {
+   "date": "2026-09-29",
+   "country": "Mauritania",
+   "page": "mauritania-stt-e-invoice-mandate.html",
+   "note": "STT platform: public entities reported to require supplier invoice declaration before payment from 1 November 2026 (circular of 29 September 2026; secondary guides, circular unread)",
+   "status": "Public suppliers (reported 1 Nov 2026)"
+  },
+  {
    "date": "2026-09-30",
    "country": "Japan",
    "page": "japan-invoice-system-e-invoice-mandate.html",
@@ -493,11 +500,25 @@
    "status": "Phased (2026 expansion reported, unconfirmed)"
   },
   {
+   "date": "2026-11-01",
+   "country": "Mauritania",
+   "page": "mauritania-stt-e-invoice-mandate.html",
+   "note": "STT platform: public entities reported to require supplier invoice declaration before payment from 1 November 2026 (circular of 29 September 2026; secondary guides, circular unread)",
+   "status": "Public suppliers (reported 1 Nov 2026)"
+  },
+  {
    "date": "2026-11-15",
    "country": "Dominican Republic",
    "page": "dominican-republic-dgii-e-invoice-mandate.html",
    "note": "small and micro taxpayers 15 November 2026 after a reported final extension (secondary sources, DGII notices unread)",
    "status": "Phased by taxpayer size (November 2026 waves)"
+  },
+  {
+   "date": "2026-12-01",
+   "country": "El Salvador",
+   "page": "el-salvador-dte-e-invoice-mandate.html",
+   "note": "version 2.0 of the compliance rules reported mandatory from 1 December 2026 (secondary guides and trackers, Hacienda texts unread)",
+   "status": "In force (v2.0 reported 1 Dec 2026)"
   },
   {
    "date": "2026-12-31",

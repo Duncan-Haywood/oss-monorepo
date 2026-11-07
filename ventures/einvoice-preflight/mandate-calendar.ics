@@ -932,6 +932,23 @@ URL:https://example.invalid/einvoice-preflight/rwanda-eis-e-invoice-manda
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:2a06ebefbaee60ac@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20260929
+DTEND;VALUE=DATE:20260930
+SUMMARY:Mauritania: STT platform: public entities reported to require sup
+ plier invoice declaration before p...
+DESCRIPTION:Mauritania (Public suppliers (reported 1 Nov 2026)). STT plat
+ form: public entities reported to require supplier invoice declaration b
+ efore payment from 1 November 2026 (circular of 29 September 2026; secon
+ dary guides\, circular unread). Detail and sources: https://example.inva
+ lid/einvoice-preflight/mauritania-stt-e-invoice-mandate.html. Not legal 
+ or tax advice.
+URL:https://example.invalid/einvoice-preflight/mauritania-stt-e-invoice-m
+ andate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:e71601f8996ac128@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20260930
@@ -1060,6 +1077,23 @@ URL:https://example.invalid/einvoice-preflight/ghana-e-vat-e-invoice-mand
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:59ac688c41a5ee45@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20261101
+DTEND;VALUE=DATE:20261102
+SUMMARY:Mauritania: STT platform: public entities reported to require sup
+ plier invoice declaration before p...
+DESCRIPTION:Mauritania (Public suppliers (reported 1 Nov 2026)). STT plat
+ form: public entities reported to require supplier invoice declaration b
+ efore payment from 1 November 2026 (circular of 29 September 2026; secon
+ dary guides\, circular unread). Detail and sources: https://example.inva
+ lid/einvoice-preflight/mauritania-stt-e-invoice-mandate.html. Not legal 
+ or tax advice.
+URL:https://example.invalid/einvoice-preflight/mauritania-stt-e-invoice-m
+ andate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:538e3fb1aa2ac5c0@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20261115
@@ -1073,6 +1107,22 @@ DESCRIPTION:Dominican Republic (Phased by taxpayer size (November 2026 wa
  nvoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/dominican-republic-dgii-e-
  invoice-mandate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:2853dd0acb1738d6@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20261201
+DTEND;VALUE=DATE:20261202
+SUMMARY:El Salvador: version 2.0 of the compliance rules reported mandato
+ ry from 1 December 2026 (secondary ...
+DESCRIPTION:El Salvador (In force (v2.0 reported 1 Dec 2026)). version 2.
+ 0 of the compliance rules reported mandatory from 1 December 2026 (secon
+ dary guides and trackers\, Hacienda texts unread). Detail and sources: h
+ ttps://example.invalid/einvoice-preflight/el-salvador-dte-e-invoice-mand
+ ate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/el-salvador-dte-e-invoice-
+ mandate.html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
