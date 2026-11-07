@@ -3,7 +3,7 @@ title: "The concrete calculator now plans the saw cuts, not just the truck"
 seo_title: "Slab control joint spacing calculator: panels and saw-cut length"
 date: 2026-11-07
 tags: [wall-framing-takeoff, concrete, construction]
-description: "A slab order says how much concrete to buy. The free calculator now also prints control-joint panels, saw-cut feet and cut depth, from a rule of thumb you can check."
+description: "A slab order says how much concrete to buy. The free calculator now also prints control-joint panels, saw-cut feet and cut depth from a checkable rule of thumb."
 ---
 
 Ordering concrete is half the job. A slab that is poured without control joints cracks where it likes. The wall-framing-takeoff concrete calculator now prints a joint plan under the order for a slab.
