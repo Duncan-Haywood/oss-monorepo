@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Stucco calculator: lath, plaster bags, barrier and trim for a house</title>
+  <meta name="description" content="Free stucco takeoff: house size, openings and coat thickness in; paper-backed lath sheets, plaster bags with rebound, weather barrier, weep screed, casing and corner bead and control joints out. Runs in your browser.">
+  <meta property="og:title" content="Stucco calculator">
+  <meta property="og:description" content="House and openings in; lath, plaster bags, barrier and trim out. Private, free, in your browser.">
+  <link rel="canonical" href="./stucco-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many bags of stucco do I need for a 40 x 30 ft house?", "acceptedAnswer": {"@type": "Answer", "text": "For a 40 x 30 ft rectangle with 8 ft walls, one 3 ft door and two 3 x 4 ft windows, the wall area net of openings is 1,076 sq ft. At a typical 7/8 in over three coats that is 78.5 cu ft of wet plaster; with 15% rebound and 0.6 cu ft per 80 lb bag it is 151 bags. The coat thicknesses, yield and rebound are figures you type from your plaster maker."}}, {"@type": "Question", "name": "How much lath and trim does that house need?", "acceptedAnswer": {"@type": "Answer", "text": "The same house takes 73 sheets of 18 sq ft lath with laps and 10% waste, 1,953 fasteners (2 boxes of 1,000), 2 rolls of barrier at two layers, 16 pieces of weep screed, 6 of casing bead, 5 of corner bead and 7 of control joint, all in 10 ft stock."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Stucco calculator</h1>
+  <p>Type the house and its openings. You get the weather barrier, metal lath and fasteners, bags of plaster for three coats with rebound, and the metal trim (weep screed, casing bead, corner bead, control joints) packed into stock lengths, from the same stucco engine as the whole-house takeoff. Every default is a typical figure to replace with your product's own. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <div class="grid">
+      <div><label for="len">House length (in or 40' 0")</label><input id="len" value="480"></div>
+      <div><label for="wid">House width (in or 30' 0")</label><input id="wid" value="360"></div>
+      <div><label for="hgt">Wall height (in or 8' 0")</label><input id="hgt" value="96"></div>
+      <div><label for="coats">Coats total (in): scratch + brown + finish</label><select id="coats"><option value="0.875">7/8 (3/8 + 3/8 + 1/8)</option><option value="0.75">3/4 (3/8 + 1/4 + 1/8)</option><option value="0.5">1/2 (one-coat)</option></select></div>
+      <div><label for="reb">Rebound and mixing loss (%)</label><input id="reb" value="15"></div>
+      <div><label for="stock">Trim length</label><select id="stock"><option value="120">10 ft</option><option value="144">12 ft</option></select></div>
+      <div><label for="waste">Waste (%)</label><input id="waste" value="10"></div>
+      <div><label for="doors">Doors (3 x 6 ft 8 in)</label><input id="doors" type="number" min="0" value="1"></div>
+      <div><label for="wins">Windows (3 x 4 ft)</label><input id="wins" type="number" min="0" value="2"></div>
+    </div>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Add stucco to a whole-house framing takeoff</a></p>
+
+  <h2>The method</h2>
+  <ol>
+    <li><strong>Area.</strong> Exterior wall area net of doors and windows, from the same siding layout the takeoff uses, so the two trades agree.</li>
+    <li><strong>Barrier and lath.</strong> Area plus laps; two barrier layers by default (confirm with your code), lath in 18 sq ft sheets with waste, fasteners every 6 in along studs 16 in apart.</li>
+    <li><strong>Plaster.</strong> Area times total coat thickness gives wet volume; rebound is added and the result divided by what one bag yields (0.6 cu ft for 80 lb by default), rounded up.</li>
+    <li><strong>Trim.</strong> Weep screed along every wall base, casing bead round each opening, corner bead at each outside corner, and control joints so no panel runs past 18 ft or 144 sq ft, packed into stock lengths.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How many bags of stucco do I need for a 40 x 30 ft house?</h3>
+  <p>For a 40 x 30 ft rectangle with 8 ft walls, one 3 ft door and two 3 x 4 ft windows, the wall area net of openings is 1,076 sq ft. At a typical 7/8 in over three coats that is 78.5 cu ft of wet plaster; with 15% rebound and 0.6 cu ft per 80 lb bag it is 151 bags. The coat thicknesses, yield and rebound are figures you type from your plaster maker.</p>
+  <h3>How much lath and trim does that house need?</h3>
+  <p>The same house takes 73 sheets of 18 sq ft lath with laps and 10% waste, 1,953 fasteners (2 boxes of 1,000), 2 rolls of barrier at two layers, 16 pieces of weep screed, 6 of casing bead, 5 of corner bead and 7 of control joint, all in 10 ft stock.</p>
+  <h3>What is not counted?</h3>
+  <p>Window and door flashing, floor-line expansion joints, color coat, sealer, scaffolding, labor, and double lath where soffits or ceilings need it. Thickness, lath type and barrier layers depend on your code and your plaster maker, so treat the result as an estimate to check against your supplier's own takeoff.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="siding-calculator.html">Siding calculator (courses, boards, house wrap)</a></li><li><a href="sheathing-calculator.html">Wall sheathing calculator (sheets, cut-outs, cheapest length)</a></li><li><a href="soffit-fascia-calculator.html">Soffit and fascia calculator (soffit panels, fascia, J-channel, frieze)</a></li><li><a href="retaining-wall-calculator.html">Retaining wall block calculator (blocks, caps, gravel, fabric, geogrid)</a></li><li><a href="paver-calculator.html">Paver patio calculator (pavers, base, sand, edge restraint)</a></li><li><a href="dormer-calculator.html">Dormer framing calculator (gable and shed: cheek studs, rafters, valleys, roof opening)</a></li><li><a href="cmu-calculator.html">Concrete block (CMU) wall calculator (blocks, mortar, grout, rebar)</a></li><li><a href="foundation-calculator.html">Foundation calculator (footing, stem wall and slab concrete, rebar)</a></li><li><a href="floor-calculator.html">Floor joist and subfloor calculator (joists, rim, blocking, sheets)</a></li><li><a href="nail-calculator.html">Framing nail calculator (nails and boxes by connection)</a></li><li><a href="opening-schedule-calculator.html">Door and window schedule (marks, rough openings, headers)</a></li><li><a href="header-calculator.html">Header size checker (windows and doors against your own span table)</a></li><li><a href="paint-calculator.html">Paint calculator (gallons of paint and primer)</a></li><li><a href="fireblock-calculator.html">Fireblocking calculator (blocks and boards for tall wall cavities)</a></li><li><a href="order-by-date-calculator.html">Order-by date calculator (when to order long-lead items)</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator (receptacle and switch boxes, cable)</a></li><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, grout, carpet)</a></li><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator (tiles, backer board, membrane)</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator (trunk, flex, boots, registers)</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity (what a lumber or labor swing does to the bid)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li><li><a href="fence-calculator.html">Fence calculator (posts, rails, pickets, concrete)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. House and opening sizes, coat thicknesses and yields are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Counts follow the method stated above; your plaster maker's data sheet, your code and your installer govern thickness, lath, barrier and trim.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { layoutStucco, stuccoText } from "./stucco.mjs";
+    import { parseLength } from "./engine.mjs";
+    const $ = (id) => document.getElementById(id);
+    const run = () => {
+      const L = parseLength($("len").value), W = parseLength($("wid").value), H = parseLength($("hgt").value);
+      const doors = Math.max(0, Math.floor(+$("doors").value || 0)), wins = Math.max(0, Math.floor(+$("wins").value || 0));
+      const ops = [];
+      for (let i = 0; i < doors; i++) ops.push({ kind: "door", offset: 60 + i * 48, width: 36, height: 80 });
+      for (let i = 0; i < wins; i++) ops.push({ kind: "window", offset: 200 + i * 100, width: 36, height: 48, headerHeight: 80 });
+      const wall = (id, length, openings = []) => ({ id, length, openings, sheathed: true });
+      const plan = { studLength: H - 4.5, defaultHeaderHeight: 80, walls: [wall("A", L, ops), wall("B", W), wall("C", L), wall("D", W)] };
+      const ok = L >= 96 && W >= 96 && H >= 72 && H <= 192 && ops.length * 100 + 160 <= L;
+      if (!ok) { $("out").textContent = "Check the numbers: sides of at least 8 ft, walls 6 to 16 ft high, and the doors and windows have to fit along the first wall."; return; }
+      const t = +$("coats").value, scratch = t === 0.5 ? 0.25 : 0.375, finish = t === 0.5 ? 0.25 : 0.125, brown = t - scratch - finish;
+      const d = layoutStucco({ height: H, trimStock: +$("stock").value, waste: (+$("waste").value || 0) / 100, rebound: (+$("reb").value || 0) / 100, scratch, brown, finish }, plan);
+      $("out").textContent = d.ok === false ? d.errors.join("\n") : stuccoText(d).join("\n");
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>
