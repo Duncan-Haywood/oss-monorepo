@@ -1,0 +1,6 @@
+W kg | hover Wh | 10a endurance (L/D*eta 10.2) | implied L/D*eta_c for 59 min | for 54 min
+ 3.7 |   15.9 |    140 min |  4.31 |  3.94
+ 4.0 |   17.2 |    128 min |  4.70 |  4.30
+ 4.4 |   18.9 |    115 min |  5.24 |  4.79
+ 4.8 |   20.6 |    104 min |  5.79 |  5.30
+range-equivalent 59 min x 16 m/s = 56.6 km (cruise only, no transitions counted)
