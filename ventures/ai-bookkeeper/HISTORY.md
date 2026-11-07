@@ -1,4 +1,5 @@
 # ai-bookkeeper: what has landed
+- Neobank layout tests 2026-11-07 (neobank-layouts.test.mjs, 5 tests): Monzo, N26, Mercury, Cash App and Chime hand-written layouts pinned; a probe of 12 awkward shapes found no misread (hand fixtures, no real export).
 
 Moved out of `portfolio/flagships.yaml` (its `next:` had grown to ~18 KB with repeated passages). Duplicate passages are dropped; the rest is verbatim, newest items not in order. Each item says what was tested and what was not.
 
