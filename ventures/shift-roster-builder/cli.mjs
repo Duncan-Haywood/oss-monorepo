@@ -22,6 +22,7 @@ import { readFile } from "node:fs/promises";
 import process from "node:process";
 import { importStaffCsv } from "./import-staff.mjs";
 import { importShiftsCsv } from "./import-shifts.mjs";
+import { demandShifts } from "./demand.mjs";
 import {
   parseStaff, parseShifts, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, longShifts, daysOffRuns, carryOverStaff, dailyLabor, salesPerLaborHour, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
@@ -63,6 +64,10 @@ Options:
   --rest-under <h>    list every pair of one person's shifts with less than <h> hours between them (a close then an open) and the premium
                       on your numbers: --premium-hours (default 1 hour of pay each) and --exempt "Ben" (they asked for it). Arithmetic, not a statement of any law
   --import-shifts <csv> convert a published-schedule export (date, start, end, position rows) to shift lines on stdout; notes on stderr
+  --from-sales <csv>  build the shift lines from an hourly sales export (date-time and sales columns) at --splh <$> sales per labor hour (required):
+                      the average of each weekday-hour sets the heads needed (at least --min-staff, default 1), cut into shifts of --min-shift to
+                      --max-shift hours (default 4 to 8), inside the hours with sales or --open/--close (0-24). Shift lines on stdout, summary on stderr;
+                      the average of what you sold, not a forecast
   --import-staff <csv>  convert a staff export from another scheduler (name, hourly rate, hours, position columns) to staff lines on stdout; notes on stderr
   --hours-watch <h>   list everyone whose planned week reaches <h> hours (a full-time or benefit line you set, e.g. 30) or lands within --watch-within <h> (default 2) of it
   --sales "1200,900,..."  seven daily sales figures, Monday first (0 or blank = unknown): prints each day's labor cost as a share of sales; --labor-target <%> flags days over it,
@@ -105,6 +110,12 @@ export function parseArgs(argv) {
     else if (a === "--open-post") o.mode = "open-post";
     else if (a === "--person") { o.person = argv[++i]; if (!o.person) throw new Error("--person needs a name"); }
     else if (a === "--import-shifts") { o.importShifts = argv[++i]; if (!o.importShifts) throw new Error("--import-shifts needs a CSV file"); }
+    else if (a === "--from-sales") { o.fromSales = argv[++i]; if (!o.fromSales) throw new Error("--from-sales needs a CSV file"); }
+    else if (a === "--min-staff" || a === "--min-shift" || a === "--max-shift" || a === "--open" || a === "--close") {
+      const v = Number(argv[++i]);
+      if (!Number.isFinite(v) || v < 0) throw new Error(`${a} needs a number`);
+      (o.demand ||= {})[{ "--min-staff": "minStaff", "--min-shift": "minShift", "--max-shift": "maxShift", "--open": "open", "--close": "close" }[a]] = v;
+    }
     else if (a === "--import-staff") { o.importStaff = argv[++i]; if (!o.importStaff) throw new Error("--import-staff needs a CSV file"); }
     else if (a === "--check") o.check = true;
     else if (a === "--swap") { o.swap = argv[++i]; if (!o.swap) throw new Error('--swap needs two shifts like "Tue 17:00,Sat 09:00"'); }
@@ -447,6 +458,14 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       const r = importShiftsCsv(await readFile(o.importShifts, "utf8"));
       for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
       if (!r.rows) process.exit(1);
+      process.stdout.write(r.shiftsText + "\n"); process.exit(0);
+    }
+    if (o.fromSales) {
+      if (!(o.splh > 0)) throw new Error("--from-sales needs --splh <sales per labor hour>");
+      const r = demandShifts(await readFile(o.fromSales, "utf8"), { ...o.demand, splh: o.splh });
+      for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
+      if (!r.shiftsText) process.exit(1);
+      process.stderr.write(`${r.needed} person-hours needed, ${r.scheduled} scheduled (${r.extra} extra from the shortest-shift rule); average week sales ${Math.round(r.sales)}, ${Math.round(r.sales / r.scheduled)} per scheduled hour.\n`);
       process.stdout.write(r.shiftsText + "\n"); process.exit(0);
     }
     if (o.importStaff) {

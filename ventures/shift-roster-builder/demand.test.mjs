@@ -1,0 +1,77 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { hourlySales, headcount, cutShifts, demandShifts } from "./demand.mjs";
+import { parseShifts } from "./calc.mjs";
+
+// Invented hand-built sales; no real POS export has been tested.
+const CSV = "Date Time,Net Sales\n2026-11-02 09:00,100\n2026-11-02 10:00,250\n2026-11-02 11:00,100\n2026-11-09 09:00,300\n2026-11-09 10:00,250\n2026-11-09 11:00,100\n";
+
+test("averages each weekday-hour over the days seen", () => {
+  const s = hourlySales(CSV);
+  assert.equal(s.rows, 6);
+  assert.equal(s.observed[0], 2);
+  assert.deepEqual([s.avg[0][9], s.avg[0][10], s.avg[0][11], s.avg[0][12]], [200, 250, 100, 0]);
+  assert.equal(s.observed[1], 0);
+});
+test("heads = ceil(avg / splh), at least the minimum, only in trading hours", () => {
+  const s = hourlySales(CSV);
+  const p = headcount(s.avg, s.observed, { splh: 100, minStaff: 1 });
+  assert.deepEqual(p[0].slice(8, 13), [0, 2, 3, 1, 0]);
+  assert.equal(p[1].every((x) => x === 0), true);
+  const q = headcount(s.avg, s.observed, { splh: 100, minStaff: 2, open: 8, close: 13 });
+  assert.deepEqual(q[0].slice(7, 14), [0, 2, 2, 3, 2, 2, 0]);
+  assert.throws(() => headcount(s.avg, s.observed, { splh: 0 }), /positive/);
+});
+test("cutShifts covers every hour's need, within the length limits except stretched ones", () => {
+  for (const prof of [[0, 0, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 0], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]) {
+    const p = [...prof, ...new Array(24 - prof.length).fill(0)];
+    const sh = cutShifts(p, 3, 6);
+    for (let h = 0; h < 24; h++) assert.ok(sh.filter(([a, b]) => a <= h && h < b).length >= p[h], `hour ${h}`);
+    for (const [a, b] of sh) assert.ok(b - a >= 3 && b - a <= 6 && a >= 0 && b <= 24, `${a}-${b}`);
+  }
+  assert.deepEqual(cutShifts(new Array(24).fill(1), 4, 8), [[0, 8], [8, 16], [16, 24]]);
+});
+test("a short peak is stretched to the shortest shift and counted as extra", () => {
+  const p = new Array(24).fill(0); p[12] = 1;
+  assert.deepEqual(cutShifts(p, 4, 8), [[12, 16]]);
+  p[23] = 1; // stretches backwards at the end of the day
+  assert.deepEqual(cutShifts(p.map((v, h) => (h === 12 ? 0 : v)), 4, 8), [[20, 24]]);
+});
+test("shift lines round-trip through parseShifts and group days with the same shape", () => {
+  const two = CSV + "2026-11-03 09:00,100\n2026-11-03 10:00,250\n2026-11-03 11:00,100\n2026-11-10 09:00,300\n2026-11-10 10:00,250\n2026-11-10 11:00,100\n";
+  const r = demandShifts(two, { splh: 100, minShift: 3, maxShift: 8 });
+  assert.match(r.shiftsText, /^Mon\/Tue, 9:00, 12:00, 2\nMon\/Tue, 10:00, 13:00, 1/);
+  const p = parseShifts(r.shiftsText);
+  assert.deepEqual(p.errors, []);
+  assert.equal(p.slots.length, r.days.reduce((a, d) => a + d.shifts.length, 0));
+  assert.equal(r.needed, 2 * (2 + 3 + 1));
+  assert.equal(r.extra, r.scheduled - r.needed);
+});
+test("bad rows are skipped with a reason; missing columns are reported", () => {
+  const r = hourlySales("Date Time,Sales\nsoon,10\n2026-11-02 09:00,abc\n2026-11-02 09:00,-5\n2026-11-02 09:00,40");
+  assert.equal(r.rows, 1);
+  assert.equal(r.skipped.length, 3);
+  assert.match(hourlySales("Date,Qty\n2026-11-02 09:00,1").notes[0], /No sales column/);
+  assert.match(hourlySales("Foo,Sales\nx,1").notes[0], /No date-time/);
+});
+test("weekday-name rows and US 12-hour stamps", () => {
+  const r = hourlySales("Day,Hour,Sales\nMon,9am,120\nMon,2pm,300\nSat,10,80".replace("Day,Hour", "Day,Time"));
+  assert.equal(r.avg[0][9], 120); assert.equal(r.avg[0][14], 300); assert.equal(r.avg[5][10], 80);
+  const u = hourlySales("Timestamp,Amount\n11/02/2026 2:00 PM,50\n11/02/2026 12:30 AM,5");
+  assert.equal(u.avg[0][14], 50); assert.equal(u.avg[0][0], 5);
+});
+test("CLI: --from-sales writes shift lines the scheduler reads, summary on stderr", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const { writeFileSync, mkdtempSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const dir = mkdtempSync(tmpdir() + "/dem-");
+  writeFileSync(dir + "/s.csv", CSV);
+  const cli = new URL("./cli.mjs", import.meta.url).pathname;
+  const r = spawnSync("node", [cli, "--from-sales", dir + "/s.csv", "--splh", "100", "--min-shift", "3"], { encoding: "utf8" });
+  assert.equal(r.status, 0);
+  assert.deepEqual(parseShifts(r.stdout).errors, []);
+  assert.match(r.stderr, /person-hours needed/);
+  const bad = spawnSync("node", [cli, "--from-sales", dir + "/s.csv"], { encoding: "utf8" });
+  assert.equal(bad.status, 2);
+  assert.match(bad.stderr, /--splh/);
+});
