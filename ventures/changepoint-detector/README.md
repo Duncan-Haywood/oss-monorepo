@@ -1650,3 +1650,14 @@ Reading: long ramps (24 to 48 points) are now found in 33 to 40 of 40 instead of
 (a small step pair next to noise looks like a bent line). Short ramps and close steps are genuinely alike in the data; this rule only claims
 that a long one is a line. The real 2009 US unemployment-duration rise is still one ramp (test `ramps.test.mjs`). Still synthetic with one noise
 model, no `--ar1`; no labelled real ramps tested. Next: sticky noise (`--ar1`), and real documented ramps.
+
+## A real series that rises, then flattens and falls: Australian beer (2026-11-07)
+
+`data/ausbeer.csv` is quarterly Australian beer production, 1956Q1 to 2010Q2 (218 points, fpp2's `ausbeer`, source in `data/SOURCE.md`). Production grew to the mid-1970s and drifted down afterwards (recalled, not checked against a paper: a plausibility check, not a labelled test). `eval/ausbeer.mjs` (output `eval/ausbeer.out.txt`, test `ausbeer.test.mjs`) runs it with `--period 4`.
+
+- **Level only (`mean`):** 10 steps raw, 11 on the log. A slow rise and fall is read as a staircase.
+- **`--trend bend`, log series:** one slope change at **1976Q2**, range **1975Q2 to 1978Q1**, with the slope falling afterwards.
+- **`--trend bend`, raw series:** 1977Q3, but the range runs from **1974Q3 to 1989Q1**, 15 years wide. The same bend is dated, but the raw scale cannot place it.
+- **`--trend bends`:** an early bend at 1961Q4 and the mid-1970s one on both scales; the log run adds one at 1990Q3 (range 1988Q3 to 1994Q2). Steps left over include 1983Q1, 1988Q2 and 1992Q1 in most runs; what happened in those quarters was not checked.
+
+Read plainly: here the log scale gives a much tighter range than raw, the opposite of UK gas (README, above), where the log lost the bend. One series, no claim about rates.

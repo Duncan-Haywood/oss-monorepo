@@ -476,3 +476,15 @@ Yearly average level of Lakes Michigan-Huron (one lake hydraulically), 1918 to 2
 - **Licence:** US Bureau of Labor Statistics data via FRED, a US government
   work in the public domain; the Rdatasets copy is as published by ggplot2 (MIT).
 - **Used by:** `us-unemployment-duration.test.mjs`.
+
+# Example data: Australian beer production, 1956-2010
+
+`ausbeer.csv`: quarterly beer production in Australia, 218 quarters, 1956Q1 to
+2010Q2 (megalitres; `ausbeer` from the R package fpp2, Hyndman). The `quarter`
+column is built from the `time` column of the source.
+
+- **Retrieved:** 2026-11-07 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/ausbeer.csv>.
+- **Licence:** fpp2 is GPL-3; the numbers are the Australian Bureau of Statistics'
+  published series. Only the 218 numbers are used here.
+- **Used by:** `eval/ausbeer.mjs`, `ausbeer.test.mjs`.
