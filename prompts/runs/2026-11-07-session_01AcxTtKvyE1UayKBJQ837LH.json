@@ -38,7 +38,10 @@
       "result": "PR opened with no conflicts."
     }
   ],
-  "writeups": "docs/posts/2026-11-07-why-a-cargo-drone-range-model-is-1-8x-optimistic.md; research/aerolog-scaling/LOG.md 8m",
+  "writeups": [
+    "docs/posts/2026-11-07-why-a-cargo-drone-range-model-is-1-8x-optimistic.md",
+    "research/aerolog-scaling/LOG.md"
+  ],
   "goal": null,
   "notes": "Local checks: paper/check_numbers.py 103 ok; research/_homepage/build.py ok; check_md_links ok. No CI check runs had appeared on the PR at merge time. No runcost attach done.",
   "corrections": [],
