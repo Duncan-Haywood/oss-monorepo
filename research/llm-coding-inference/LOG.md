@@ -2,6 +2,16 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-07 · Milestone 7z: does 7y's reading hold on a held-out, high-prevalence category (GoEmotions `neutral`, 23.3%, weak coder J 0.194)? (planned before the runs; `experiments/h7y_drop_screen.py neutral 500 <n>`, n = 500 and 2,000, same cached Qwen2.5-1.5B scores)
+- Why: 7y's three categories were ones the default was tuned on; `neutral` is cached, rare-category machinery is irrelevant at 23%, and the coder is weak (sens 0.64, spec 0.55). Not tuned on, so it is a free held-out check.
+- **Prediction:** all three rules cover 93% or more and none is more than 2% narrower than pooled (a weak coder at high prevalence gives cells nothing to gain). Refuted if `neg_guard=3` alone covers under 93%.
+
+### Outcome (`experiments/h7y_neutral_n500.txt`, `h7y_neutral_n2000.txt`; 500 draws, +/- 1.9 points; one run each)
+- n = 500: pooled 95.4% / 3.506 pts; shipped default 95.8 / 3.498 (cells in 6%); `neg_guard=3` alone 93.8 / 3.483 (cells in 100%).
+- n = 2000: pooled 95.4 / 1.529; shipped default 94.2 / 1.529 (cells 0%); `neg_guard=3` alone 95.6 / 1.516.
+- Prediction supported but only just: `neg_guard=3` alone covers 93.8% at n = 500, 0.8 points over the bar and 1.2 under nominal, inside binomial noise, and it is only 0.7 to 0.9% narrower than pooled. The screen costs nothing here (it falls back to pooled), and dropping it buys under 1%. So the evidence for removing tau supports "harmless" at high prevalence and "useful" only at 1 to 8% with n large; it does not make it a gain everywhere.
+- Limits: one LLM (1.5B), one corpus, one run each, a category with a weak coder. Library default unchanged. Still open: a second LLM or corpus.
+
 ## 2026-11-07 · Milestone 7y: does dropping the tau/guard-20 screen (keeping `neg_guard=3`) hold at other audit sizes? (planned before the 500-draw runs; `experiments/h7y_drop_screen.py <category> 500 <n>`, pilot = n/2; same cached Qwen2.5-1.5B scores, corpus and cut as 7x)
 - Why: 7x's open item. n = 500 and 2,000 for fear (1.15%), sadness (2.30%), admiration (8.1%); rules: pooled, shipped default, `neg_guard=3` alone. 500 draws (+/- 1.9 points). One run each.
 - **Prediction:** `neg_guard=3` alone covers 93% or more in all 6 cells and is at least as narrow as pooled everywhere; the shipped default gives away width at rare prevalence. Refuted if any cell of `neg_guard=3` alone is under 93%.
