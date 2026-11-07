@@ -705,8 +705,7 @@ def _expand_prompt_path(
 
     if "*" in normalised:
         if index is not None and _glob_regex(normalised) is not None:
-            rx = _glob_regex(normalised)
-            return sorted(f for f in index if rx.fullmatch(f))
+            return list(_glob_over_index(index, normalised))
         return sorted(
             str(p.relative_to(repo_root))
             for p in repo_root.glob(normalised)
@@ -742,6 +741,30 @@ def _expand_prompt_path(
             if p.is_file() and not _pruned(p, repo_root)
         )
     return []
+
+
+_GLOB_MEMO: dict[int, tuple[Sequence[str], dict[str, list[str]]]] = {}
+
+
+def _glob_over_index(index: Sequence[str], normalised: str) -> list[str]:
+    """Files of `index` matching a wildcard spec, memoised per index object.
+
+    The closure resolves the same wildcard specs from many documents, and each
+    resolution was a full regex scan of the index (20 million `fullmatch`
+    calls per test run). The memo holds the index itself, as `_by_basename`
+    does, so a reused `id()` cannot return another list's answers. Callers get
+    a copy via `list(...)`.
+    """
+    hit = _GLOB_MEMO.get(id(index))
+    if hit is None or hit[0] is not index:
+        _GLOB_MEMO.clear()
+        hit = _GLOB_MEMO[id(index)] = (index, {})
+    table = hit[1]
+    found = table.get(normalised)
+    if found is None:
+        rx = _glob_regex(normalised)
+        found = table[normalised] = sorted(f for f in index if rx.fullmatch(f))
+    return found
 
 
 _BASENAME_MEMO: dict[int, tuple[Sequence[str], dict[str, list[str]]]] = {}
