@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-07 · Milestone 95: what a pilot certificate says about realised regret (no flow run)
+- Why: milestones 84 to 93 describe T<1 by whether the optimum is guaranteed; a practitioner conditions on the certificate. Predictions (written first, m = 16): (1) precision about 0.87; (2) P(regret 0 | certified) above 0.9 and above the uncertified share; (3) no certified cell's mean regret above 5%.
+- **Outcome** (`experiments/theory/pilot_cert_regret.py`, `pilot_cert_regret_results.txt`, `tests/test_pilot_cert_regret.py`). (1) held: 0.872. (2) half: 0.873 zero-regret after a certificate (0.315 after none), so the 0.9 floor is refuted (m = 24: 0.907). (3) **refuted**: tight/adder_op16 from the R2 start is not guaranteed yet 0.50 of its pilots are certified and its mean relative regret is 13.9%. Mean regret certified 1.1% against 7.0% uncertified at m = 16.
+- Reading: the certificate is a good screen, not a bound; the regret certificate (Section 6 item 4) stays open.
+- Limits: same cached 40-cell table; 200 tie-breaks; cells weighted equally.
+- Next: detail-routed mult24/mult32 cells.
+
 ## 2026-11-07 · Milestone 94: exact-power result written into the paper (no flow run, no new numbers)
 - Why: milestones 92 and 93 sat in this log but PAPER.md Section 4 carried only the milestone 92 bound. Added the tie-aware exact formula, its enumeration check, the 33-combination agreement (max |z| 2.32) and the median exact power to the "bound on false certificates" paragraph; nothing re-measured, all figures copied from `pilot_rho_exact_results.txt` and the milestone 93 entry.
 - Limits: `paper/main.tex` regenerated with pandoc only; `main.pdf` not rebuilt (no TeX here); official MLCAD style unchecked.
