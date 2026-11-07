@@ -1,40 +1,42 @@
 ---
-title: "Quality audit, round 2: again one of five randomly drawn projects met the bar"
+title: "Quality audit, round 2: one of five randomly drawn projects met a senior professional's bar"
 seo_title: "Quality audit round 2: 1 of 5 at a senior professional's bar"
 date: 2026-11-07
 tags: [quality-audit, ai-agents, evaluation, testing]
-description: "Six seeded-random subjects, seven graded dimensions. Five do what they say; the one that met the bar is a statistics result, and the flagship did not."
+description: "Six more seeded-random subjects, graded on seven dimensions with a command behind every score. All six do what they say; one of the five sampled meets the bar."
 ---
 
-Round 2 drew with seed `2026-11-07-b` (round 1 used the bare date). The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md); each subject's evidence is in [`portfolio/quality/audits/`](../../portfolio/quality/audits/).
-
-## The number
-
-Of the five randomly sampled subjects (not the flagship), **one met the bar**: `research/precision-scores`. The flagship, `ventures/ai-bookkeeper`, did not. Pooling both rounds, 2 of 10 sampled subjects met the bar (Wilson 95% interval 6% to 51%). Nine of ten are finished: what they claim to do works.
+Round 2 of the [quality audits](../../portfolio/quality/README.md). Of the five randomly sampled subjects, **one met the bar** (Wilson 95% interval 4% to 62%). The flagship did not either. All six are *finished* by their own description. Pooled with round 1, 2 of 10 sampled subjects meet the bar (6% to 51%).
 
 | subject | stratum | correct | complete | verify | craft | claims | fitness | domain | bar |
 |---|---|---|---|---|---|---|---|---|---|
-| `ventures/ai-bookkeeper` | flagship | 3 | 3 | 3 | 3 | 2 | 2 | 3 | no |
-| `ventures/lash-studio-profit-calculator` | venture | 3 | 3 | 2 | 3 | 2 | 2 | 2 | no |
-| `ventures/amazon-seller-profit-analyzer` | venture | 2 | 3 | 2 | 3 | 2 | 2 | 2 | no |
-| `research/precision-scores` | research | 4 | 3 | 3 | 3 | 3 | 2 | 3 | **yes** |
-| `research/accel-kwssparse` | research | 2 | 3 | 2 | 2 | 2 | 2 | 2 | no |
-| `platform/audio` | platform | 3 | 2 | 2 | 3 | 2 | 3 | 3 | no |
+| `ventures/ai-bookkeeper` | flagship | 3 | 3 | 3 | 3 | 2 | 3 | 3 | no |
+| `ventures/market-event-picker` | venture | 3 | 3 | 3 | 3 | 2 | 3 | 3 | no |
+| `ventures/yoga-pilates-studio-class-profit-calculator` | venture | 3 | 3 | 3 | 3 | 3 | 2 | 2 | **yes** |
+| `research/blur-twin` | research | 3 | 3 | 3 | 3 | 2 | 2 | 2 | no |
+| `research/robofab-bootstrap` | research | 3 | 3 | 2 | 2 | 3 | 1 | 1 | no |
+| `platform/proposal` | platform | 3 | 3 | 2 | 2 | 2 | 3 | 2 | no |
 
-## Each subject and its worst defect
+Scores are the audit's, before any fix. Each audit file in [`portfolio/quality/audits/`](../../portfolio/quality/audits/) lists the commands run.
 
-**AI Bookkeeper** (flagship). 2,371 tests pass. A seeded bug (period-end `>` changed to `>=` in `ledger.mjs`) broke 12 of them. Self-employment tax on $100,000 recomputes to $14,129.55 (92,350 × 15.3%). It misses on claims: `llms.txt` said the product "does not do payroll" while `payroll.mjs` ships Form 941/940 worksheets, and the README promised payees "post themselves from the second month", where the author's own benchmark shows 7.2% in month 2 and about 43% in month 4. Both claims were corrected in this round's PR. Not fixed: 96 cells of the 10-, 15- and 20-year MACRS tables differ from IRS Pub. 946 by 0.01 to 0.05 points, and no reader has been tried on a real bank export.
+## Each subject, and its worst defect
 
-**Lash studio profit calculator.** The seeded bug (monthly profit as weekly × 4 instead of × 52/12) passed all 23 tests: the monthly figure, weekly figures and CSV have no assertions. Client lifetime uses only the first set and first fill type. `llms.txt` points at retired github.io addresses.
+**AI bookkeeper** (flagship). Hand-built inputs came out right: a statement tied to its 609.41 closing balance, Schedule SE at two incomes, and a 2026 tax estimate. 2,371 tests pass. It misses on claims: the README's learning-curve table says 100% in month 1 where the benchmark now prints 94.3%, and `llms.txt` says it does no payroll or sales-tax filing while documenting both. A seeded change to the 5-day transfer window passed every test.
 
-**Amazon seller profit analyzer.** The worst defect is a wrong number: "referral fees Amazon kept" ignores quantity, so a partial refund of a 2-unit order shows $3.96 where the correct figure is $0.66. The waterfall also omits the regulatory fee, so its lines are off by $0.04 from "Paid out", and a seeded bug survived all 23 tests.
+**Market event picker.** An independent brute force over all 2^10 event subsets reproduced the plan ($8,721.00, same six events). The worst defect is a number a vendor might negotiate on: the "fee cut" is not capped at the event's real fee, so the example says a $480 cut makes Harvest Fair the better pick when its flat fee is $150. Raising that threshold from 1.5 to 3 passed all 29 tests. Its sitemap and canonical URLs are relative.
 
-**Precision scores** (met the bar). Recomputations agreed (the efficiency loss at condition number 100 is 4κ/(1+κ)² = 0.0392), and all six seeded mutations were caught. It is not new: the bound is the classical Watson / Bloomfield-Watson result, and the write-up cites nothing. The finite-sample figures come from one covariance with no standard errors.
+**Yoga and pilates studio calculator.** The only one over the bar. An independent model matched the tool to the cent, and all 7 seeded bugs were caught. A studio owner would still hit this: 120 classes in a 40-hour room prints "350% used" and still shows a headline profit. Third-party class platforms are not listed under "not modelled".
 
-**Accel-kwssparse.** Correctness is capped at 2 because the 3.3 GB feature set is not available, so the accuracies were not reproduced. Of three seeded mutations only one was caught; no test pins an energy value. The ternary and binary failure comes from an untuned recipe on a weak baseline, and is expected from the literature.
+**Blur twin.** Every reported number reproduced, from z = 4.372 to the fixed-box detection probability. Five of six seeded bugs were caught; changing the sigma divisor survived because every test uses sigma = 1. The README's "exact" claim holds only for even box widths. The 5 to 55 times gain is measured against a detector that knows where the peak is, and that assumption is disclosed but not quantified. The method is not new, and the nearest prior work is only partly cited.
 
-**Audio** (platform). A seeded +0.8 dB gain bug in `master()` passed all 24 tests, because the loudness test allows ±1 LU and the output already lands 0.3 to 0.4 LU under target. Silent input is accepted without error, and no workflow runs `test_narrate.py`.
+**Robofab bootstrap.** The closed form matched table 1 and all ten chains. Two headline chain results have no test: both mutants survived. The exhaustive search adds nothing to a result that is one line of algebra, and the paper omits the self-replication literature. README says the run takes 2 s; it takes 44 s.
 
-## What changed since round 1
+**Platform proposal.** The round's high-severity defect: the canonical `proposal.mjs` had fallen behind the 121 identical venture copies. `addDays('2026-02-30', 5)` returned 2026-03-07, and the README's "fix it here, then copy it out" command would have overwritten the copies' fixes. Rounding the deposit with `ceil` instead of `round` passed every test.
 
-Same share meeting the bar, and the same pattern: arithmetic is mostly right (correctness at 3 or above in 9 of 12 audited subjects), and what fails is **claims** (2 of 12 at 3 or above) and **verification** (5 of 12). A deliberately planted bug survived the suite in 4 of this round's 6 subjects (lash studio, amazon seller, accel-kwssparse in part, audio), against 3 of 6 in round 1. Not at the bar: five of these six, the flagship included. Nothing here raises a round 1 score; re-audits are separate files.
+## What changed
+
+The canonical `proposal.mjs` is re-synced to the 121-way consensus, and the `proposal.mjs` sync test passes again. Two test-file drift checks still fail, and the audit lists them. Other defects are in the audit files, not fixed: the wrong negotiation number, the room-hours check, the README stale numbers and the missing tests.
+
+## What is not at the bar
+
+Five of six miss on claims or verification. Across all 12 audited subjects, claims reach 3 in only 3, and verification is below 3 in 5. The audits find tools that compute correctly and describe themselves too generously.

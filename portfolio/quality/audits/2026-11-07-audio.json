@@ -3,7 +3,7 @@
  "subject": "platform/audio",
  "stratum": "platform",
  "seed": "2026-11-07-b",
- "auditor": "agent session (Claude), 2026-11-07 round 2",
+ "auditor": "agent session (Claude), 2026-11-07 round 3",
  "status": "audited",
  "professional": "a podcast / audiobook mastering engineer who ships to Apple Podcasts and Spotify (-16 LUFS integrated, true peak ceiling, constant-bitrate MP3) and would first ask: does the delivered file measure what the code says it targets, and what happens on silent or degenerate input?",
  "scores": {

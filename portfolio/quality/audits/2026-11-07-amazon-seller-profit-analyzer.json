@@ -3,7 +3,7 @@
  "subject": "ventures/amazon-seller-profit-analyzer",
  "stratum": "venture",
  "seed": "2026-11-07-b",
- "auditor": "agent session (Claude), 2026-11-07 round 2",
+ "auditor": "agent session (Claude), 2026-11-07 round 3",
  "status": "audited",
  "professional": "an Amazon FBA seller's bookkeeper / accountant (someone who reconciles the Seller Central Transaction report to the payout and to the books). First checks: does 'paid out' foot to the file's total column, are tax and fee columns handled, are refunds and partial refunds netted correctly, and is cost of goods applied to the right units.",
  "scores": {

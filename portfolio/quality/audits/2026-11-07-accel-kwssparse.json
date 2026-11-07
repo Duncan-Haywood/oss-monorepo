@@ -3,7 +3,7 @@
  "subject": "research/accel-kwssparse",
  "stratum": "research",
  "seed": "2026-11-07-b",
- "auditor": "agent session (Claude), 2026-11-07 round 2",
+ "auditor": "agent session (Claude), 2026-11-07 round 3",
  "status": "audited",
  "professional": "a computer-architecture / efficient-ML researcher who has refereed low-precision and pruned-network hardware papers (TWN, BinaryConnect, Hello Edge style). They would check first that the baseline is strong enough for a 'ternary fails' claim to mean anything, that the energy model counts every operation a 'multiplier-free' design needs, and that the numbers reproduce from the committed raw results.",
  "scores": {"correctness": 2, "completeness": 3, "verification": 2, "craft": 2, "claims": 2, "fitness": 2, "domain": 2},

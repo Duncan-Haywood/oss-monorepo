@@ -805,14 +805,29 @@ def _file_index(repo_root: Path) -> list[str]:
 
     Walked once per closure, so a tree changed between two closures is seen.
     Like `Path.rglob` here, it does not descend into symlinked directories.
+    `os.scandir` entries answer `is_dir`/`is_file` from the directory read, so
+    a regular file costs no `stat` of its own (a symlink is followed, as
+    `os.path.isfile` did).
     """
-    files = []
-    for dirpath, dirnames, filenames in os.walk(repo_root):
-        dirnames[:] = [d for d in dirnames if d not in PRUNED_DIRS]
-        rel = Path(dirpath).relative_to(repo_root).as_posix()
-        for name in filenames:
-            if os.path.isfile(os.path.join(dirpath, name)):
-                files.append(name if rel == "." else f"{rel}/{name}")
+    files: list[str] = []
+    stack = [(str(repo_root), "")]
+    while stack:
+        top, rel = stack.pop()
+        try:
+            it = os.scandir(top)
+        except OSError:
+            continue
+        with it:
+            for entry in it:
+                name = entry.name
+                try:
+                    if entry.is_dir():
+                        if name not in PRUNED_DIRS and not entry.is_symlink():
+                            stack.append((entry.path, f"{rel}/{name}" if rel else name))
+                    elif entry.is_file():
+                        files.append(f"{rel}/{name}" if rel else name)
+                except OSError:
+                    continue
     return sorted(files)
 
 

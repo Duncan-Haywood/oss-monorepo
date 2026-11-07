@@ -3,7 +3,7 @@
  "subject": "research/precision-scores",
  "stratum": "research",
  "seed": "2026-11-07-b",
- "auditor": "agent session (Claude), 2026-11-07 round 2",
+ "auditor": "agent session (Claude), 2026-11-07 round 3",
  "status": "audited",
  "professional": "a mathematical statistician who refereed multivariate-testing and proper-scoring-rule papers (Gneiting and Raftery style). They would check first whether the Cauchy-Schwarz optimality and the Kantorovich efficiency bound are right, then whether they are new (generalised least squares efficiency, Hotelling T-squared and Neyman-Pearson weighting are the obvious prior art), then whether the finite-sample estimated-covariance results are calibrated.",
  "scores": {

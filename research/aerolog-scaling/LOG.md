@@ -3,6 +3,15 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-11-07 · Milestone 10g: does fixing the Wingcopter 198's sourced 1.98 m span tighten 10f's drag-polar answer? (predictions in `span_polar.py`'s docstring, fixed before the run)
+- Why: 10f's "Next". 10f swept AR 8 to 12 independently of wing area, which is not physical. The manufacturer page (https://wingcopter.com/wingcopter-198, fetched this session) lists dimensions 198 x 152 x 65 cm and Wikipedia's infobox gives span 1.98 m for the 198, so AR = b^2/S. Wing area is still not published, so S 0.3 to 1.0 m2 is swept.
+- **Predictions:** (P1) CD0 needed for L/D 6.8 is about 0.105 / 0.075 / 0.052 (+-0.005) at S 0.5 / 0.7 / 1.0; (P2) a clean CD0 of 0.035 gives L/D 9 to 11 at S 0.7 and under 12 for all S in 0.3-1.0; (P3) no S reaches L/D 6.8 with CD0 under 0.04.
+### Outcome (`experiments/wingcopter_check/span_polar_results.txt`)
+- **P1 held:** 0.105, 0.075, 0.053. **P2 half refuted:** 9.7 at S 0.7 (held), but S 0.3 (chord 0.15 m, CL 2.1, not credible for a 25 kg aircraft) gives 12.3. **P3 held:** the least CD0 that gives 6.8 is 0.053, at S 1.0.
+- Reading: with the span fixed, the CD0 needed falls as S rises (0.175 at 0.3 to 0.053 at 1.0), so 10f's "two to four times a clean airframe" shrinks to about 1.5 to 3 times for S 0.5 to 1.0, and a clean 0.035 airframe at S 0.7 reaches L/D 9.7, not 13.4. The 94 km claim still needs either extra zero-lift drag (idle lift rotors, booms) or a larger reserve than 10e assumed; wing area would separate them.
+- Limits: e = 0.8 assumed; wing area, CD0 and mass breakdown unpublished; the span is one source plus the product's name; level sea-level cruise.
+- Next: wing area (datasheet is request-only); a rotor-drag term for the idle lift rotors.
+
 ## 2026-11-07 · Milestone 10f: can a drag polar explain the Wingcopter 198's implied cruise L/D of 6.8? (predictions in `polar.py`'s docstring, fixed before the run)
 - Why: 10e's "Next". `experiments/wingcopter_check/polar.py` (stdlib) puts the published 25 kg and 90 km/h through L/D = CL/(CD0 + CL^2/(pi e AR)), e 0.8 assumed. Wing area and span are not sourced, so S 0.5 to 1.0 m2, AR 8 to 12 and CD0 are swept.
 - **Predictions:** (P1) the CD0 needed for L/D 6.8 exceeds 0.07 everywhere on the grid; (P2) a clean CD0 of 0.035 gives L/D above 12; (P3) L/D varies under 20% across S at CD0 0.07.
