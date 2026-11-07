@@ -1,5 +1,17 @@
 # build-data log
 
+## Session 45, 2026-11-07: milestone 27 (part), per-permit paired bootstrap on neural minus boosted for test year 2022 (planned before running)
+
+Why: sessions 42 and 44 ran the paired test for 2024 and 2023; 2022 was the open year. Feeds reachable (Chicago 852,489 rows, SF 1,298,001, Austin 2,384,199, pulled today).
+Plan: `src/paired_neural_boosted.py --test-year 2022`, 3 seeds, five city/target pairs, same code; new `src/summarise_paired.py` (+ test) writes the summary file (it reproduces the 2023 summary byte for byte).
+**Prediction (before reading any 2022 cell):** 2022 follows the 2023 and 2024 pattern at the edges but favours neural more, since session 38 had neural ahead in 9 of 15 cells in 2022 (mean -0.42%): neural significantly better in at least 4 of 15 cells and significantly worse in at most 5; SF i2c worse at all three quantiles for the third year running; Chicago a2i q0.9 significantly better for neural for the third year running.
+
+### Outcome (`results/paired_summary_2022.txt`; 15 cells)
+- **Prediction half-failed.** Neural significantly better in 5 of 15 (predicted at least 4: held), significantly worse in 6 (predicted at most 5: failed), indistinguishable in 4. SF i2c is worse at all three quantiles (+0.43, +0.89, +0.81%): held. Chicago a2i q0.9 is better by point estimate (-0.96%) but its interval (-2.44 to +0.77) includes 0: failed.
+- Three-year view: SF i2c is worse at all three quantiles in 2022, 2023 and 2024 (9 of 9 cells), the only stable loss. Significantly worse / better counts by year: 2022 6/5, 2023 6/5, 2024 8/2. Chicago q0.9 is better by point estimate in all three years but significant in two. Austin i2c flips sign by quantile in 2022 (q0.1 +2.31%, q0.9 -5.57%).
+- Limits: 15 uncorrected intervals (multiplicity check exists only for 2024); one untuned MLP; week-block bootstrap treats weeks as exchangeable; `results/manifest.json` refreshed by today's pull, so boosted numbers differ slightly from older committed runs.
+- Next: Holm/BH for 2022 and 2023 once draws are saved; publish boosted quantile tables for `ventures/`.
+
 ## Session 44, 2026-11-06: milestone 27 (part), per-permit paired bootstrap on neural minus boosted for test year 2023 (planned before running)
 
 Why: session 42 ran the paired test for 2024 only (neural significantly worse in 8 of 15 cells, better in 2). Cell-level numbers for 2023 (session 38) showed neural within a few percent either side. Feeds are reachable again, so 2023 can be tested per permit.
