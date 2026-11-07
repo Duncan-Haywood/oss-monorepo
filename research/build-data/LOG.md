@@ -6,6 +6,11 @@ Why: session 47 saved bootstrap p for 2024 only; the pooled 45-cell Holm of sess
 Plan: rerun `paired_neural_boosted.py` for 2022 and 2023 (3 seeds, ten city/target runs, fresh pulls; now carrying `p_boot`), then `paired_boot_table.py` for each year and `all`.
 **Prediction (before running):** pooled over 45 cells, bootstrap Holm keeps within +-3 of the normal-approximation count of 24 (BH within +-3 of 29); the cells lost in session 46 (SF a2i q0.5 2024 etc.) stay lost or borderline.
 
+**Outcome: prediction held.** Pooled over 45 cells: uncorrected 33, Holm(boot) 22, BH(boot) 31 (normal approximation on the same files: 33, 24, 29), within the +-3 band. Per year (`results/paired_boot_p_<year>.txt`): 2022 10 uncorrected, Holm 8; 2023 13 uncorrected, Holm 9; 2024 10 and 10. SF a2i q0.5 2024 loses significance under pooled Holm (p_boot 0.006). One run-environment lesson: running several runs at once on 4 cores took over 40 CPU-minutes without finishing; one at a time takes 1 to 3 minutes each.
+Caveat: the refit on fresh pulls changed the 2022 and 2023 splits (2022 now 5 worse / 5 better / 5 tie; 2023 now 7 / 6 / 2, against 6/5/4 and 6/5/4 before), so single-cell significance is not stable under refit; the earlier session summaries describe earlier fits.
+Limits: percentile-bootstrap sign p; cells share data; one untuned MLP.
+Next: publish boosted quantile tables for `ventures/`.
+
 ## Session 47, 2026-11-07: milestone 27 (part), bootstrap p-values saved for the 2024 paired cells (planned before running)
 
 Why: sessions 43 and 46 corrected for multiplicity with a normal approximation to each interval. This replaces it for 2024 with p computed from the week-block bootstrap draws themselves.
