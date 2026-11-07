@@ -65,9 +65,12 @@ test("every other country page links to the Slovenia page", () => {
   }
 });
 
-test("names the statute and gazette issue, and says the articles are unread", () => {
+test("names the statute and gazette issue, and the read transitional articles", () => {
   assert.match(html, /Uradni list RS 85\/2025/);
   assert.match(html, /ZIERDED/);
   assert.match(html, /in force from 6 Dec 2025/);
-  assert.match(html, /transitional articles are unread/);
+  assert.match(html, /gazette PDF itself on 2026-11-07/);
+  assert.match(html, /Chapter 4/);
+  assert.match(html, /1,000 to 3,000 euros/);
+  assert.doesNotMatch(html, /articles are unread/);
 });

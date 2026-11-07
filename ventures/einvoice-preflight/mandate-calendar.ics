@@ -563,21 +563,6 @@ URL:https://example.invalid/einvoice-preflight/costa-rica-hacienda-e-invo
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:805b6bad36accf84@einvoice-preflight
-DTSTAMP:20260101T000000Z
-DTSTART;VALUE=DATE:20251023
-DTEND;VALUE=DATE:20251024
-SUMMARY:Slovenia: 1 Jan 2028 for domestic B2B (law adopted 23 Oct 2025; v
- endor guides)
-DESCRIPTION:Slovenia (Upcoming). 1 Jan 2028 for domestic B2B (law adopted
-  23 Oct 2025; vendor guides). Detail and sources: https://example.invali
- d/einvoice-preflight/slovenia-e-invoice-mandate.html. Not legal or tax a
- dvice.
-URL:https://example.invalid/einvoice-preflight/slovenia-e-invoice-mandate
- .html
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
 UID:b7bb738b9034ab9f@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20251101
@@ -1455,16 +1440,16 @@ URL:https://example.invalid/einvoice-preflight/luxembourg-e-invoice-manda
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:c464bd7fcd55d84b@einvoice-preflight
+UID:f15489e059cd67bf@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20280101
 DTEND;VALUE=DATE:20280102
-SUMMARY:Slovenia: 1 Jan 2028 for domestic B2B (law adopted 23 Oct 2025; v
- endor guides)
-DESCRIPTION:Slovenia (Upcoming). 1 Jan 2028 for domestic B2B (law adopted
-  23 Oct 2025; vendor guides). Detail and sources: https://example.invali
- d/einvoice-preflight/slovenia-e-invoice-mandate.html. Not legal or tax a
- dvice.
+SUMMARY:Slovenia: 1 Jan 2028 for domestic B2B (ZIERDED\, gazette text rea
+ d 2026-11-07; provider rules appl...
+DESCRIPTION:Slovenia (Upcoming). 1 Jan 2028 for domestic B2B (ZIERDED\, g
+ azette text read 2026-11-07; provider rules apply earlier). Detail and s
+ ources: https://example.invalid/einvoice-preflight/slovenia-e-invoice-ma
+ ndate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/slovenia-e-invoice-mandate
  .html
 TRANSP:TRANSPARENT
