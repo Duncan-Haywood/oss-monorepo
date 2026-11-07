@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [changepoint-detector]
+tagged: auto
+---
 # changepoint-detector: ramps by fit (2026-11-08)
 
 `ramps.mjs` `groupRamps(..., {values})` (engine passes values) keeps a run of same-direction cuts (inner gaps <= n/5) only if a 4-parameter flat-line-flat fit beats the steps by BIC (2k+1 params). Output: `ventures/changepoint-detector/eval/ramp-gap-fit.out.txt`; README "Ramps by fit".

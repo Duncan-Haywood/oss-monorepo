@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [changepoint-detector]
+tagged: auto
+---
 # changepoint-detector: ramp gap rule, synthetic check (2026-11-07)
 
 `ventures/changepoint-detector/eval/ramp-gap.mjs` (output beside it, README "Gap rule on synthetic ramps and staircases").

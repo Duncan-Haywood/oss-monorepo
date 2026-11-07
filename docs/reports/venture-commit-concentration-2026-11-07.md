@@ -1,6 +1,5 @@
 ---
-kind: measurement
-subjects: [portfolio]
+kind: analysis
 tagged: auto
 ---
 # Venture commit concentration, 2026-10-31 to 2026-11-07 (agent note)
