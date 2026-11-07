@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { briefFromEyewear, briefFromStudio, prefillFor, saveBrief, loadBrief, applyBrief, BRIEF_KEY } from "./launchbrief.mjs";
+import { briefToFile, briefFromFile, briefFromEyewear, briefFromStudio, prefillFor, saveBrief, loadBrief, applyBrief, BRIEF_KEY } from "./launchbrief.mjs";
 import { unitCost, DEFAULT_PLAN } from "./costing.mjs";
 import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
 
@@ -83,3 +83,21 @@ function applyFor(b) {
   const doc = { getElementById: () => ({ value: "" }) };
   return applyBrief("reorder", doc, store);
 }
+
+test("brief file: round trip keeps every number, and a hostile file is cut down to known fields", () => {
+  const b = briefFromStudio(design, sheet, plan, cost);
+  const text = briefToFile(b, new Date("2026-11-07T10:00:00Z"));
+  const back = briefFromFile(text);
+  assert.equal(back.error, "");
+  assert.deepEqual(back.brief, { ...b, savedAt: "2026-11-07T10:00:00.000Z" });
+  assert.equal(briefToFile(null), null);
+  const evil = JSON.stringify({ ...b, price: 48, evil: "<script>", currency: "<b>", savedAt: "x" });
+  const e = briefFromFile(evil).brief;
+  assert.equal(e.evil, undefined); assert.equal(e.currency, "EUR"); assert.equal(e.savedAt, null);
+  assert.match(briefFromFile(JSON.stringify({ ...b, price: "48" })).error, /"price" must be a number/);
+  assert.match(briefFromFile(JSON.stringify({ ...b, quantity: 0 })).error, /quantity above zero/);
+  assert.match(briefFromFile("{nope").error, /not JSON/);
+  assert.match(briefFromFile(JSON.stringify({ version: 2 })).error, /version 1/);
+  // a file saved here fills a page's boxes the same as the in-browser copy
+  assert.deepEqual(prefillFor("preorder", back.brief), prefillFor("preorder", b));
+});
