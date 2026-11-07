@@ -282,6 +282,8 @@ const RULES = {
     P("\\btake (this|my|our) (address|email|name|number) off\\b"), P("\\bcease (all )?(correspondence|communication|contact)\\b"), P("\\bstruck (my|our) (name|email|address)\\b"), P("\\bccpa\\b.*\\b(delete|do not sell|opt)"), P("\\bdo not sell\\b"),
     // Added 2026-10-26: non-English opt-outs and auto-replies fell to "unclear" in a probe (DE, FR, ES, IT, PT, NL). Written by the
     // agent from common phrasings, not scored on real mail. No \\b around accented letters: JS \\b is ASCII-only.
+    // Added 2026-11-08 (eval/fresh-2026-11-08.jsonl): Dutch "haal me van je lijst af", "geen mails meer".
+    P("\\bhaal (me|mij|ons) (van|uit) (je|uw|jullie|de) (lijst|mailinglijst|verzendlijst)"), P("\\bgeen (mails|e-?mails|berichten) meer\\b"),
     P("entfernen sie mich"), P("aus (ihrem|dem|ihrer) (e-?mail-?)?(verteiler|liste|datenbank)"), P("\\b(abmelden|austragen|abbestellen)\\b"), P("\\bnicht mehr (per )?(e-?mail )?(zu)?(kontaktier|anschreib|belästig|beläst)"), P("l[öo]schen sie (meine|unsere) (daten|e-?mail|adresse)"),
     P("ne m'?envoyez plus"), P("d[ée]sabonn"), P("d[ée]sinscri"), P("ne plus recevoir"), P("retirez[- ]moi"), P("supprimez (mon|mes|notre|nos)\\b"),
     P("darme de baja"), P("no me (env[ií]en?|manden?|escriban?|contacten?) m[aá]s"), P("elimin(e|en|ar) (mi|mis|nuestro)\\b.*(correo|datos|lista|direcci)"), P("cancelar (la |mi )?suscripci"), P("\\bdarse de baja\\b"),
@@ -364,6 +366,8 @@ const RULES = {
     P("\\bnot (a|the) (top )?priority (right now|at the moment|this (quarter|year))\\b"), P("\\b(maybe|perhaps|possibly) (in|next|after|later)\\b"), P("\\bbudget (is |has been )?(frozen|locked|spent|set)\\b"), P("\\b(timing|the timing) (isn'?t|is not) (right|great|good)\\b"),
     P("\\b(revisit|reconsider|look at (this|it)) (in|next|after|later)\\b"), P("\\b(too busy|swamped|slammed) (right now|at the moment|this (month|quarter))\\b"), P("\\bnext (quarter|year|fiscal year)\\b"), P("\\b(later|end of) (this|the) year\\b"), P("\\bafter (the )?(holidays|new year)\\b"),
     // Added 2026-11-04 after eval/fresh-2026-11-04b.jsonl (agent-written, 30 mixed replies) went 23/30 with 0 overreach: "check in again in six months", "not a priority this half".
+    // Added 2026-11-08: "once we close our funding round, probably spring" (a condition, then a season).
+    P("\\bonce (we|i|the) (close|finish|complete|wrap|launch|ship)\\b.{0,40}\\b(spring|summer|fall|autumn|winter|q[1-4]|january|february|march|april|may|june|july|august|september|october|november|december)\\b"),
     P("\\bcheck in (again )?(in|after|next|around)\\b"), P("\\bnot a (top )?priority (this|for the|for this) (half|period|stretch)\\b"),
   ],
   not_interested: [
@@ -392,6 +396,8 @@ const RULES = {
     // Added 2026-11-04 after eval/fresh-2026-11-04b.jsonl (agent-written, 30 mixed replies) went 23/30 with 0 overreach: "won't adopt another app, we tried that".
     P("\\b(drivers|reps|staff|team|people|users|crew)\\b.{0,30}\\bwon'?t (adopt|use|switch)\\b"), P("\\b(reps|staff|team|people|users|crew|drivers)\\b.{0,15}\\b(hate|dislike|resent)\\b.{0,30}\\b(click|extra|another|app|tool|step)"), P("\\bwe tried (that|this|something (like|similar))\\b.*\\b(fail|didn'?t work|flopped)"), 
     // Added 2026-11-07: a deliverability worry ("spam our prospects", "hurt our domain reputation") is an objection, not a reply to read.
+    // Added 2026-11-08: "sends spam under our name", "we got burned by that before".
+    P("\\bspam\\b.{0,30}\\bunder (our|my) name\\b"), P("\\b(we|i)('ve| have)? (got|been|were|was) burned\\b"),
     P("\\b(spam|annoy|irritate) (our|my|the) (prospects|customers|clients|leads)\\b"), P("\\b(hurt|damage|harm|ruin) (our|my|the) (domain|sender|email|brand) (reputation|score)\\b")],
   meeting: [
     // 2026-11-03: "are you free next Tuesday", "set up 20 minutes", "book something with me", "walk me through", "curious to learn".
