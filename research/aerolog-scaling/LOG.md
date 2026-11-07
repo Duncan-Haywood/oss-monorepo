@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-07 · Milestone 10h: how much idle lift-rotor drag would close 10g's gap? (predictions in `rotor_drag.py`'s docstring, fixed before the run)
+- Why: 10g's "Next". With span fixed, a clean airframe (CD0 0.035) gives L/D 8.4 to 12.3 against the 6.8 the 94 km claim needs, so the shortfall is extra zero-lift drag. `experiments/wingcopter_check/rotor_drag.py` converts it to an equivalent flat-plate area f = (CD0 needed - 0.035) S and to a count of stopped blades.
+### Outcome (`experiments/wingcopter_check/rotor_drag_results.txt`)
+- **P1 held:** f is 0.035 / 0.028 / 0.018 m2 at S 0.5 / 0.7 / 1.0 (0.039 at S 0.4), i.e. 7 to 13 N of the 36 N total drag at 25 m/s. **P2 half refuted:** 8 blades of 0.003 m2 (Cd 1, 0.024 m2) give L/D 7.7 / 7.1 / 6.4 at S 0.5 / 0.7 / 1.0, so they close most of the gap at S 0.7 and fall short at S 0.5; they overshoot only at S 1.0. **P3 held** (max 0.035 for S >= 0.5; 0.039 at S 0.4).
+- Reading: about 6 to 12 stopped blades of 0.003 m2 each (or 14 to 18 of 0.002 m2) explain the claim without any other drag, so idle-rotor drag alone is a plausible, not a demonstrated, cause; it also predicts the claim is sensitive to whether the blades fold.
+- Limits: blade frontal area, count and Cd are assumed (not sourced; the 198's rotor count and prop size were not looked up this session); stopped-prop drag depends on blade pitch and on the wing/boom interference; e = 0.8 assumed; level flight at sea level.
+- Next: source the 198's rotor count and propeller diameter and fold behaviour; wing area.
+
 
 ## 2026-11-07 · Milestone 10g: does fixing the Wingcopter 198's sourced 1.98 m span tighten 10f's drag-polar answer? (predictions in `span_polar.py`'s docstring, fixed before the run)
 - Why: 10f's "Next". 10f swept AR 8 to 12 independently of wing area, which is not physical. The manufacturer page (https://wingcopter.com/wingcopter-198, fetched this session) lists dimensions 198 x 152 x 65 cm and Wikipedia's infobox gives span 1.98 m for the 198, so AR = b^2/S. Wing area is still not published, so S 0.3 to 1.0 m2 is swept.
