@@ -1,7 +1,7 @@
 ---
 title: "A sub-scale tail redesign survives a 25% lift-slope error"
 date: 2026-11-07
-description: "Cutting the tail lift slope by up to 25%, the error measured in NeuralFoil against UIUC wind-tunnel data, leaves the same 6 of 17 wings with a tail that restores the full-size flight modes to within 5%."
+description: "Cutting the tail lift slope by up to 25%, NeuralFoil's measured error, leaves the same 6 of 17 wings with a tail that restores the full-size flight modes."
 tags: [research, uav, aerolog-scaling]
 ---
 
