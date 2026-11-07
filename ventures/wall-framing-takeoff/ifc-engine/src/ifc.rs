@@ -354,6 +354,13 @@ pub fn read(m: &Model) -> Building {
             }
         }
     }
+    let (covered, cutouts) = tidy_openings(&mut walls);
+    if covered > 0 {
+        b.warnings.push(format!("{covered} unfilled opening void(s) were dropped because a door or window in the same wall already fills at least half of their width (Revit often cuts a wide void and then a second one for each fill)."));
+    }
+    if cutouts > 0 {
+        b.warnings.push(format!("{cutouts} unfilled opening void(s) that start above the floor and stay under 1.5 m were dropped as cutouts (a stair or sloped-top profile), not doors; frame those by hand."));
+    }
     for w in &mut walls { w.openings.sort_by(|p, q| p.from.total_cmp(&q.from)); }
     let _ = wall_frames;
     if b.stats.walls_without_geometry > 0 {
@@ -407,6 +414,34 @@ fn proximity(w: &Wall, pts: &[V3]) -> Option<(f64, f64)> {
     let half = w.thickness.unwrap_or(0.3) / 2.0;
     let gap = (lo - half).max(-half - hi).max(0.0);
     (gap <= 0.15 && along > -0.05 && along < len + 0.05).then_some((gap, perp))
+}
+
+/// Drops unfilled voids that a fill already covers (at least half the void's
+/// width lies under doors or windows) and unfilled voids that float above the
+/// floor and stay low (sill over 0.1 m, top under 1.5 m: a stair cutout, not a
+/// door). Returns (covered, cutouts).
+fn tidy_openings(walls: &mut [Wall]) -> (usize, usize) {
+    let (mut covered, mut cutouts) = (0, 0);
+    for w in walls.iter_mut() {
+        let fills: Vec<(f64, f64)> = w.openings.iter().filter(|o| o.kind != OpeningKind::Void).map(|o| (o.from, o.to)).collect();
+        let before = w.openings.len();
+        w.openings.retain(|o| {
+            if o.kind != OpeningKind::Void { return true; }
+            let width = o.to - o.from;
+            let mut iv: Vec<(f64, f64)> = fills.iter().map(|&(a, b)| (a.max(o.from), b.min(o.to))).filter(|(a, b)| b > a).collect();
+            iv.sort_by(|p, q| p.0.total_cmp(&q.0));
+            let (mut under, mut end) = (0.0, f64::MIN);
+            for (a, b) in iv {
+                let a = a.max(end);
+                if b > a { under += b - a; end = b; }
+            }
+            if width > 0.0 && under >= 0.5 * width { covered += 1; return false; }
+            if o.sill > 0.1 && o.sill + o.height < 1.5 { cutouts += 1; return false; }
+            true
+        });
+        let _ = before;
+    }
+    (covered, cutouts)
 }
 
 fn place_opening(cx: &Ctx, w: &Wall, id: u32, kind: OpeningKind, pts: &[V3], hosted_by: &'static str, _st: Option<Option<usize>>) -> Option<Opening> {

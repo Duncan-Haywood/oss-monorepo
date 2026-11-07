@@ -234,3 +234,28 @@ fn wood_only_filter_keeps_wood_and_unknown_and_drops_concrete() {
     w.layers = vec![l("Gypsum Wall Board"), l("Paint")];
     assert!(w.maybe_wood_framed(), "a finish-only wall is not called masonry");
 }
+
+#[test]
+fn voids_covered_by_fills_and_floating_cutouts_are_dropped() {
+    let mut b = wall(100, (2.0, 1.0), (0.0, 1.0), (0.0, 0.0), (6.0, 0.0), 2.7, 0.2);
+    // a wide void 0..2 m, then a window filling 0.2..1.8 of it (80% covered): the void goes
+    b += &opening(700, 104, (0.0, 0.0, 0.0), 2.0, 0.4, 1.0);
+    b += &opening(710, 104, (0.2, 0.0, 0.9), 1.6, 0.4, 1.2);
+    b += "#720=IFCCARTESIANPOINT((9.,9.,9.));#721=IFCAXIS2PLACEMENT3D(#720,$,$);#722=IFCLOCALPLACEMENT(#907,#721);\n\
+#730=IFCWINDOW('win',$,'W1',$,$,#722,$,$,1.2,1.6);\n\
+#740=IFCRELVOIDSELEMENT('v',$,$,$,#100,#700);#741=IFCRELVOIDSELEMENT('v1',$,$,$,#100,#710);#742=IFCRELFILLSELEMENT('f',$,$,$,#710,#730);\n";
+    // an unfilled void floating at sill 0.3 m, 0.5 m high (a stair cutout): dropped
+    b += &opening(800, 104, (3.0, 0.0, 0.3), 0.8, 0.4, 0.5);
+    b += "#840=IFCRELVOIDSELEMENT('v2',$,$,$,#100,#800);\n";
+    // an unfilled void to the floor (a cased passage): kept
+    b += &opening(2000, 104, (4.5, 0.0, 0.0), 0.9, 0.4, 2.1);
+    b += "#2040=IFCRELVOIDSELEMENT('v3',$,$,$,#100,#2000);\n";
+    let m = read_str(&file("m", 0.0, &b)).unwrap();
+    let o = &m.walls[0].openings;
+    assert_eq!(o.len(), 2, "{o:?} {:?} {:?}", m.warnings, m.stats);
+    assert_eq!(o[0].kind, OpeningKind::Window);
+    assert_eq!(o[1].kind, OpeningKind::Void);
+    assert!((o[1].from - 4.5).abs() < 1e-9);
+    assert!(m.warnings.iter().any(|w| w.contains("already fills")));
+    assert!(m.warnings.iter().any(|w| w.contains("cutouts")));
+}
