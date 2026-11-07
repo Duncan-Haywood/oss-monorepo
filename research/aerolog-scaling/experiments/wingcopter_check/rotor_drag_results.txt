@@ -1,0 +1,15 @@
+A. equivalent flat-plate area f for L/D 6.8 beyond a clean 0.035
+   S 0.4: dCD0 +0.096  f 0.0386 m2  drag 14.8 N (of 36.1 N total)
+   S 0.5: dCD0 +0.070  f 0.0351 m2  drag 13.4 N (of 36.1 N total)
+   S 0.6: dCD0 +0.053  f 0.0316 m2  drag 12.1 N (of 36.1 N total)
+   S 0.7: dCD0 +0.040  f 0.0281 m2  drag 10.7 N (of 36.1 N total)
+   S 0.8: dCD0 +0.031  f 0.0246 m2  drag 9.4 N (of 36.1 N total)
+   S 1.0: dCD0 +0.018  f 0.0176 m2  drag 6.7 N (of 36.1 N total)
+B. stopped blades (Cd 1, frontal area a each) needed
+   a 0.002 m2: S0.4: 19.3  S0.5: 17.5  S0.6: 15.8  S0.7: 14.0  S0.8: 12.3  S1.0: 8.8
+   a 0.003 m2: S0.4: 12.9  S0.5: 11.7  S0.6: 10.5  S0.7: 9.4  S0.8: 8.2  S1.0: 5.9
+   a 0.005 m2: S0.4: 7.7  S0.5: 7.0  S0.6: 6.3  S0.7: 5.6  S0.8: 4.9  S1.0: 3.5
+C. 8 blades x 0.003 m2 x Cd 1 = 0.024 m2 -> L/D at each S
+   S 0.5: 7.7
+   S 0.7: 7.1
+   S 1.0: 6.4
