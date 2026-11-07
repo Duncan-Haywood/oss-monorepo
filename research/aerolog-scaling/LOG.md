@@ -2,6 +2,16 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-07 · Milestone 8g: does 7d's tail redesign survive a NeuralFoil slope error on the wing as well as the tail? (predictions in `wing_tail_slope_cut/run.py`'s docstring, fixed before the run)
+- Why: 8f's "Next". 8f cut only the tail slope. `experiments/wing_tail_slope_cut/run.py` runs 7d's search with the wing slope cut by 0/10/20/25% and the tail slope by 0/20/20/20/25%.
+### Outcome (`experiments/wing_tail_slope_cut/results.txt`)
+- **Check:** cut 0 reproduces 7d (6 of 17 wings, 78 tails within 5%).
+- Wings with a tail within 5%, tails passing: wing 10%/tail 20%: 7 wings, 104 tails; wing 20%/tail 20%: 5 wings, 65 tails; wing 25%/tail 20%: 3 wings, 43; wing 25%/tail 25%: 3 wings, 39.
+- **P1 held** (5 of 17 at 20/20). **P2 refuted:** the k = 1.0, AR 12 wings keep 23 passing tails at no cut on the wing but 4 to 6 at wing 10% (worst 3.1 to 3.4%) and none at wing 20% (best worst-deviation 8.9%). **P3 refuted:** the set changes, not just shrinks: at wing 20%/tail 20% the passing wings are NACA 4412 k 1.1 and 1.2 and 1.3 (29 tails, best worst-deviation 1.5%) and NACA 5406 k 1.2 and 1.5, none of them k = 1.0.
+- Reading: 8f's "does not depend on the slope error" was true for the tail alone and does not extend to the wing. A wing-slope error of 20% moves which wing (which wing-loading factor k) the tail can match, so the claim that k = 1.0 wings are the matching ones is conditional on the wing slope. A practitioner should measure the wing's own slope before choosing a tail.
+- Limits: uniform multiplicative cut on the wing, as in 8f; the wing excess measured in 8c to 8e (1.12 to 1.3) is for sections at their own Re; wing drag not corrected; same point-mass four-state model.
+- Next: use the measured Re-dependent slope ratio in place of a uniform cut for both surfaces.
+
 ## 2026-11-07 · Milestone 8f: does 7d's tail redesign survive NeuralFoil's too-steep tail lift slope? (predictions in `tail_slope_cut/run.py`'s docstring, fixed before the run)
 - Why: 8c to 8e's "Next". NeuralFoil's section slope was 1.2 to 1.3 times the UIUC measurement at Re 1e5 to 2e5 in three data sets, and 7d's tail search used the NeuralFoil slope uncorrected. `experiments/tail_slope_cut/run.py` runs 7d's search unchanged (imported by path) with every tail lift-curve slope multiplied by 1 - cut, cut = 0, 10, 15, 20, 25%.
 ### Outcome (`experiments/tail_slope_cut/results.txt`)
