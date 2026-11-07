@@ -1,7 +1,7 @@
 ---
 title: "Ramp or two steps? Letting the data pick, on simulated series"
 seo_title: "Changepoint detection: a line-fit test for ramps versus steps"
-date: 2026-11-08
+date: 2026-11-07
 tags: [changepoint-detector, evaluation]
 description: "Replacing a fixed gap rule with a BIC comparison of a straight ramp against steps finds long ramps in 33 to 40 of 40 simulated series instead of 0 to 8."
 ---
