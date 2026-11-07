@@ -1144,3 +1144,13 @@ test("cull allowance refuses rates outside 0 to 50% and non-objects", () => {
   }
   assert.ok(takeoff({ ...samplePlan(), culls: { pct: 0 } }).ok);
 });
+
+test("a wall too long for one board with only an opening between its jacks splices the plates over the header", () => {
+  const plan = base();
+  const wall = { id: "A", length: 245, openings: [{ kind: "window", offset: 28, width: 189, height: 48, sill: 30, header: "2x10" }] };
+  const w = layoutWall(plan, wall);
+  assert.deepEqual(verifyWall(w, wall), []);
+  assert.ok(w.notes.some((n) => /over a header/.test(n)), w.notes.join("; "));
+  assert.ok(w.joints.top.length >= 1 && w.joints.cap.length >= 1);
+  for (const c of w.joints.cap) for (const t of w.joints.top) assert.ok(Math.abs(c - t) >= plan.topPlateLap - 1e-9);
+});

@@ -564,7 +564,12 @@ export function layoutWall(plan, wall) {
   const lap = plateLaps(plan, wall);
   const [topA, topB] = [lap.topStart, L + lap.topEnd];
   const [capA, capB] = [lap.capStart, L + lap.capEnd];
-  const topJoints = splitPlate(topA, topB, centres, studStock, []);
+  let topJoints = splitPlate(topA, topB, centres, studStock, []);
+  // Fallback: a header carries the plates across an opening, so a joint over it is sound framing. Candidate points every 16 in inside each opening.
+  const headerPts = [];
+  for (const o of ops) for (let x = o.offset + 16; x < o.offset + o.width - EPS; x += 16) headerPts.push(x);
+  const withHeaders = [...centres, ...headerPts].sort((p, q) => p - q);
+  let usedHeader = false;
   // The cap plate is cut where a partition's cap plate runs over this wall (tee laps); each run is spliced on its own.
   const capSegs = [];
   let capAt = capA;
@@ -574,7 +579,16 @@ export function layoutWall(plan, wall) {
   }
   if (capB > capAt + EPS) capSegs.push([capAt, capB]);
   const forbidden = topJoints ? topJoints.map((j) => [j - plan.topPlateLap, j + plan.topPlateLap]) : [];
-  const capRuns = topJoints ? capSegs.map(([a, b]) => splitPlate(a, b, centres, studStock, forbidden)) : [null];
+  let capRuns = topJoints ? capSegs.map(([a, b]) => splitPlate(a, b, centres, studStock, forbidden)) : [null];
+  if (!topJoints || !capRuns.every(Boolean)) {
+    const t2 = splitPlate(topA, topB, withHeaders, studStock, []);
+    if (t2) {
+      const f2 = t2.map((j) => [j - plan.topPlateLap, j + plan.topPlateLap]);
+      const c2 = capSegs.map(([a, b]) => splitPlate(a, b, withHeaders, studStock, f2));
+      if (c2.every(Boolean)) { topJoints = t2; capRuns = c2; usedHeader = true; }
+    }
+  }
+  if (usedHeader) notes.push("Top plates: no splice over studs alone fit the boards listed; joints also sit over a header (it carries the plates). Check this against the engineer's design.");
   const capJoints = capRuns.every(Boolean) ? capRuns.flat() : null;
   if (!topJoints || !capJoints) notes.push(`Top plates: no way to splice them over studs with joints ${formatInches(plan.topPlateLap)} apart using the boards listed; shown as one piece each.`);
   const pieces = (a, b, joints) => {
@@ -957,7 +971,7 @@ export function verifyWall(/** @type {any} */ w, wall) {
   if (!full.some((m) => m.x + m.w > w.length - EPS)) problems.push("no stud at the wall end");
   const centres = full.map((m) => m.x + THICK / 2);
   for (const [k, list] of Object.entries(w.joints)) {
-    for (const j of list) if (!centres.some((c) => Math.abs(c - j) < 1 / 32)) problems.push(`${k} plate joint at ${formatLength(j)} is not over a full stud`);
+    for (const j of list) if (!centres.some((c) => Math.abs(c - j) < 1 / 32) && !(wall.openings || []).some((o) => j > o.offset + EPS && j < o.offset + o.width - EPS)) problems.push(`${k} plate joint at ${formatLength(j)} is not over a full stud`);
   }
   return problems;
 }
