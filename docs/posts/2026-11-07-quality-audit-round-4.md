@@ -3,7 +3,7 @@ title: "Quality audit, round 4: two of five randomly drawn projects met the bar"
 seo_title: "Quality audit round 4: 2 of 5 at a senior professional's bar"
 date: 2026-11-07
 tags: [quality-audit, evaluation, testing, ai-agents]
-description: "Six seeded-random subjects, seven graded dimensions. Two venture calculators meet the bar; the sales-agent flagship, edge platform and both research projects do not."
+description: "Six seeded-random subjects, seven graded dimensions. Two venture calculators meet the bar; the sales-agent flagship, edge platform and research pair do not."
 ---
 
 Round 4 drew with seed `2026-11-07-c`. The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md); each subject's evidence is in [`portfolio/quality/audits/`](../../portfolio/quality/audits/).
