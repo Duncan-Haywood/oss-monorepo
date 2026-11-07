@@ -1,0 +1,59 @@
+every 4th window; hourly replan; shares of the no-corridor no-tack-cost bound; header margin 0.5; HRRR hourly cycle issued >= L h before replan
+
+January: 72 windows from 9 stations
+ tau 120 s: corridor 0.832; header 0.846; clairvoyant 0.996
+   T0        : 0.845; minus header +0.1 pts (boot 95% -0.2..+0.4); tacks/day 54
+   hrrr_L1   : 0.786; minus header -2.4 pts (boot 95% -5.4..-1.2); tacks/day 118
+   hrrr_bc_L1: 0.829; minus header -0.6 pts (boot 95% -1.1..-0.1); tacks/day 80
+   hrrr_L3   : 0.767; minus header -3.4 pts (boot 95% -6.7..-1.2); tacks/day 122
+   hrrr_bc_L3: 0.819; minus header -1.1 pts (boot 95% -1.8..-0.6); tacks/day 82
+   T120      : 0.864; minus header +1.0 pts (boot 95% +0.6..+2.0); tacks/day 68
+   hrrr_L1 minus T0: -3.4 pts (boot 95% -5.6..-1.2)
+   hrrr_bc_L1 minus T0: -0.6 pts (boot 95% -1.0..-0.2)
+ tau 240 s: corridor 0.797; header 0.806; clairvoyant 0.995
+   T0        : 0.799; minus header +0.3 pts (boot 95% -0.2..+0.7); tacks/day 47
+   hrrr_L1   : 0.730; minus header -3.2 pts (boot 95% -7.0..-1.7); tacks/day 76
+   hrrr_bc_L1: 0.776; minus header -0.6 pts (boot 95% -1.7..-0.1); tacks/day 57
+   hrrr_L3   : 0.723; minus header -3.0 pts (boot 95% -6.7..-2.0); tacks/day 76
+   hrrr_bc_L3: 0.785; minus header -1.4 pts (boot 95% -2.2..-0.3); tacks/day 58
+   T120      : 0.818; minus header +0.7 pts (boot 95% +0.2..+1.6); tacks/day 52
+   hrrr_L1 minus T0: -3.5 pts (boot 95% -6.1..-2.6)
+   hrrr_bc_L1 minus T0: -0.8 pts (boot 95% -1.4..-0.3)
+ tau 360 s: corridor 0.764; header 0.760; clairvoyant 0.992
+   T0        : 0.768; minus header +0.2 pts (boot 95% -0.1..+0.9); tacks/day 43
+   hrrr_L1   : 0.685; minus header -3.1 pts (boot 95% -7.2..-2.2); tacks/day 60
+   hrrr_bc_L1: 0.741; minus header -0.5 pts (boot 95% -1.2..-0.1); tacks/day 47
+   hrrr_L3   : 0.674; minus header -4.1 pts (boot 95% -6.5..-2.4); tacks/day 62
+   hrrr_bc_L3: 0.730; minus header -1.3 pts (boot 95% -2.3..-0.6); tacks/day 52
+   T120      : 0.776; minus header +0.9 pts (boot 95% +0.5..+1.7); tacks/day 44
+   hrrr_L1 minus T0: -4.3 pts (boot 95% -7.9..-2.4)
+   hrrr_bc_L1 minus T0: -1.3 pts (boot 95% -2.2..-0.9)
+
+July: 80 windows from 10 stations
+ tau 120 s: corridor 0.845; header 0.856; clairvoyant 0.994
+   T0        : 0.840; minus header -0.1 pts (boot 95% -0.6..+0.0); tacks/day 50
+   hrrr_L1   : 0.789; minus header -3.4 pts (boot 95% -5.8..-2.3); tacks/day 94
+   hrrr_bc_L1: 0.824; minus header -1.8 pts (boot 95% -3.2..-0.7); tacks/day 66
+   hrrr_L3   : 0.803; minus header -4.1 pts (boot 95% -6.0..-2.6); tacks/day 85
+   hrrr_bc_L3: 0.806; minus header -2.0 pts (boot 95% -4.2..-1.3); tacks/day 82
+   T120      : 0.870; minus header +1.6 pts (boot 95% +1.1..+2.3); tacks/day 56
+   hrrr_L1 minus T0: -3.3 pts (boot 95% -4.2..-2.2)
+   hrrr_bc_L1 minus T0: -1.3 pts (boot 95% -1.9..-0.9)
+ tau 240 s: corridor 0.798; header 0.811; clairvoyant 0.990
+   T0        : 0.807; minus header -0.0 pts (boot 95% -0.6..+0.1); tacks/day 44
+   hrrr_L1   : 0.742; minus header -5.5 pts (boot 95% -6.7..-3.7); tacks/day 66
+   hrrr_bc_L1: 0.765; minus header -2.4 pts (boot 95% -4.8..-1.0); tacks/day 54
+   hrrr_L3   : 0.762; minus header -4.0 pts (boot 95% -6.8..-2.9); tacks/day 63
+   hrrr_bc_L3: 0.765; minus header -3.4 pts (boot 95% -4.9..-1.3); tacks/day 60
+   T120      : 0.824; minus header +0.8 pts (boot 95% +0.2..+1.6); tacks/day 46
+   hrrr_L1 minus T0: -4.1 pts (boot 95% -7.1..-2.2)
+   hrrr_bc_L1 minus T0: -2.4 pts (boot 95% -4.1..-0.9)
+ tau 360 s: corridor 0.767; header 0.764; clairvoyant 0.987
+   T0        : 0.766; minus header +0.0 pts (boot 95% -0.4..+0.3); tacks/day 39
+   hrrr_L1   : 0.705; minus header -5.4 pts (boot 95% -7.6..-3.2); tacks/day 57
+   hrrr_bc_L1: 0.724; minus header -3.1 pts (boot 95% -4.5..-1.5); tacks/day 46
+   hrrr_L3   : 0.715; minus header -4.7 pts (boot 95% -7.1..-3.2); tacks/day 53
+   hrrr_bc_L3: 0.724; minus header -3.5 pts (boot 95% -4.9..-1.4); tacks/day 48
+   T120      : 0.776; minus header +1.4 pts (boot 95% +0.2..+2.5); tacks/day 43
+   hrrr_L1 minus T0: -4.6 pts (boot 95% -6.4..-3.4)
+   hrrr_bc_L1 minus T0: -2.6 pts (boot 95% -3.8..-0.8)
