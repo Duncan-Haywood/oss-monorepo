@@ -126,7 +126,7 @@ flagships:
       AR(2) likelihood inside PELT was no better than AR(1) (README); a real documented step inside a cycle; a cycle
       check not tied to rho (treering: drift not told from a cycle);
       a documented real run of 5+ steps to test the block-variance warning
-      (it cannot yet tell drift from steps); BJsales, uspop, US saving rate and US unemployment duration (a 2009 ramp cut 2 to 3 times by every setup; README, 2026-11-06; `ramps` groups those cuts as one rise since 2026-11-07, ungated by any labelled ramp; ramps are kept by a BIC line-fit against the steps since 2026-11-08, README: synthetic, long ramps 33 to 40/40 (was 0 to 8), close H=8 step pairs 1/40 (was 38); untested with `--ar1`/sticky noise and on real documented ramps and close steps: wanted); (1) range95: a closure series quiet outside
+      (it cannot yet tell drift from steps); BJsales, uspop, US saving rate and US unemployment duration (a 2009 ramp cut 2 to 3 times by every setup; `ramps` and a BIC line-fit keep ramps apart from steps since 2026-11-08, README: synthetic only; untested on real documented ramps, close steps, `--ar1`: wanted); (1) range95: a closure series quiet outside
       the closure (none of 30 Ansett series is, nor Peace Bridge 2009; README). (2) The steep-
       bump (0.04) clumpy-count cell is under-covered, 65/79 (82%) over six
       seeds (caveat in CLI and JSON). (3) GARCH: a filtered
@@ -167,10 +167,7 @@ flagships:
       Floors reach the optimum on 10 of 12 weeks; 10x the branching nodes leaves
       them unchanged, so the open gaps are 12x30 week 1 (72 vs 75) and 10x28 week 4
       (77 vs 78): only a stronger relaxation closes them (no LP relaxation tried
-      does; eval/relaxation-check.py). 2026-11-04: `--cancel-hours` and `--premium-flat` price `--changes` per kind or in flat dollars. 2026-11-04: `--rest-under` short-turnaround premium report (also across the week boundary with `--last-week`, 2026-11-04). 2026-11-04: weeks over 150 shifts stop on a 20 s time budget (`timeBudgetMs`, `budgetHit`); a 60x392 week took over 110 s before. 2026-11-05: the page's cover finder shows hand-over chains (`coverChain`) when nobody can take a shift outright. 2026-11-05: the CLI gains `--tips` and `--short-under`; 2026-11-06 `--long-over`. 2026-11-04: the CLI takes the page's pay flags (`--burden`, `--split-premium`, `--diff-when`, daily overtime, meal). Landed 2026-10-27 to 2026-11-01 (history in
-      the README): open-shift weighting, 14-day-notice page, `--import-shifts`,
-      `planStreaks`, `streak:` carry-over, `placeRestBreaks`, `seniorityClaims`.
-      Measured: carry-over costs 0 open hours, so a joint multi-week solve is
+      does; eval/relaxation-check.py). Later pay, rest, tips and sales flags are listed in the README. Measured: carry-over costs 0 open hours, so a joint multi-week solve is
       dropped; with coverage proven pay is within 0.7% of the bound.
       2026-11-07: `--from-sales` builds shift lines from an hourly sales export at a sales-per-labor-hour target (`demand.mjs`, hand-built sales only); `--skip-dates` and `--half-life` leave out event days and weight recent weeks (hand-built). Next: branch-and-price on the Dantzig-Wolfe LP (the coverage search gap, the one unproven 8x22 week); a real published-schedule export for --import-shifts. 
 
