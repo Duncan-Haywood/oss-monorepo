@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-07",
+  "stratum": "venture",
+  "seed": "2026-11-07-c",
+  "auditor": "agent session (Claude), subagent audit",
+  "status": "audited",
+  "fix_prs": [],
+  "subject": "ventures/moving-bid-calculator",
+  "professional": "an owner-operator of a local moving company who prices jobs hourly (crew-hours with a minimum, plus truck, fuel, valuation coverage), checking first that hours x crew x loaded wage ties to a bid and that margin is on price",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran calculateBid via node on a hand-built job (1 row 1100 cu ft/5h; 3 dest flights @8min; 80ft carry @6min/50ft; 2 drive h; crew 3; $25 wage +20% burden; truck 150, fuel 60, materials 40; overhead 10%; margin 20%). Hand arithmetic: factor 5.5; stairs 3*(8/60)*5.5=2.2h; carry 1.6*0.1*5.5=0.88h; clock 10.08h (tool 10.08); person-h 30.24 x $30 = $907.20 (tool 907.2); direct 1157.20, +10% = 1272.92 (tool 1272.92); price 1272.92/0.8 = $1591.15 (tool 1591.15). Proposed $1200: profit -72.92, margin -6.08% (hand: (1200-1272.92)/1200 = -6.077%) and belowBreakEven true. Also checked margin-on-price identity (price*(1-m)=cost) and the 200 cu ft basis scaling. Inputs are the author's own assumptions, not an external standard; the formulas match the cost-plus identities in standard small-business pricing (margin = profit/price).",
+    "completeness": "Claimed and exercised through module/tests: inventory hours, volume-scaled stairs/carry, flat elevator wait, packing, drive, loaded labour, overhead, margin-on-price, walk-away price, bedroom-count quote check, share link, proposal, SEO pages (how-much-to-charge, vs-*), usage opt-out. Tests cover all of these (116 pass). I did not render index.html in a browser; page.test.mjs checks the markup and scripts as text.",
+    "verification": "cd ventures/moving-bid-calculator && node --test calc.test.mjs proposal.test.mjs share.test.mjs usage.test.mjs page.test.mjs (and plain node --test): 116 pass, 0 fail. Seeded mutation: calc.mjs price = totalCost / (1 - m/100) changed to totalCost * (1 + m/100): 3 tests failed (caught). Reverted with git checkout.",
+    "craft": "Read calc.mjs (194 lines), llms.txt, README, index.html head/FAQ. Pure, DOM-free, validated inputs with named errors, frozen presets, no silent fallbacks except documented defaults. Defects: input.name?.trim() fallback to 'Item N' fine; llms.txt still points to the old github.io address; proposedPrice===0 margin silently 0; no rounding of price to cents/dollars.",
+    "claims": "README formula steps 1-7 match calc.mjs:112-139 line by line; 'walk-away price' = totalCost (calc.mjs:176); disclaimer present in README and page; 'not an industry standard' on presets stated. Weakness: llms.txt lists duncan-haywood.github.io URLs while README says marisstella.app (stale but redirected per CLAUDE.md).",
+    "fitness": "A mover can price a job and test a competitor quote. Gaps in the first hour: local moves are usually billed as an hourly rate with a 2-3 hour minimum, and the tool outputs only a lump sum plus effective hourly per mover, not a billable crew rate; no line for cargo valuation/liability coverage, no per-mile travel charge, no tax; drive hours are charged at the full crew rate.",
+    "domain": "A mover would compare against hourly crew-rate quoting with minimums, and the industry-standard weight-based (7 lb/cu ft) tariff for long distance (out of scope, stated). The access-by-volume idea is sound; margin-on-price is correct. Preset hours are unsourced ballparks, labelled as such. Departs by not producing the billable hourly rate/minimum or valuation cost."
+  },
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Output is a lump-sum price only; no billable crew hourly rate or minimum-hours output, and no valuation/liability coverage cost line, which is how local moves are quoted and where they lose money",
+      "where": "ventures/moving-bid-calculator/calc.mjs:136"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt links the old github.io address, not marisstella.app",
+      "where": "ventures/moving-bid-calculator/llms.txt:8"
+    },
+    {
+      "severity": "low",
+      "what": "Preset clock hours and cubic feet are unsourced ballparks (labelled as such)",
+      "where": "ventures/moving-bid-calculator/calc.mjs:22"
+    }
+  ],
+  "verdict": "Arithmetic is correct (four outputs recomputed by hand match), tests are strong (116 pass; a margin-formula mutation failed 3 tests) and claims match the code. It stops at a lump-sum cost-plus number: an owner would still need to convert it to an hourly rate with minimum and add valuation coverage, so it is a sound worksheet short of senior-practitioner fitness and domain fit. Meets the bar by the computed rule; the median of seven is 3."
+}

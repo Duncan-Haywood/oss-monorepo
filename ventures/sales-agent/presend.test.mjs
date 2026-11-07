@@ -60,3 +60,10 @@ test("Australia, New Zealand and Switzerland hold for consent; France is a notic
   assert.ok(presend({ ...good, country: "FR" }).warnings.some((x) => x.rule === "regime"));
   for (const c of ["AU", "NZ", "FR", "CH"]) assert.match(regime(c).text, /from memory/);
 });
+
+test("a bare five-digit number is not a postal address (quality audit 2026-11-07-c)", () => {
+  const body = "Hi Dana, we help 20000 firms track onboarding. If this is not for you, reply stop.";
+  assert.ok(presend({ ...good, body }).errors.some((x) => x.rule === "postal-address"));
+  const withZip = body + " Brightline, Austin, TX 78701";
+  assert.ok(!presend({ ...good, body: withZip }).errors.some((x) => x.rule === "postal-address"));
+});
