@@ -1,7 +1,7 @@
 ---
 title: "Why a decent LLM coder barely shrinks the audit, and the guard that keeps it honest"
 date: 2026-11-07
-description: "A closed form caps what splitting a hand-coding audit by an LLM coder's label can buy, a fitted control variate already captures it, and a three-positive guard keeps the rare cases valid."
+description: "A closed form caps what splitting a hand-coding audit by an LLM coder can buy, a fitted control variate already captures it, and a three-positive guard keeps rare cases valid."
 tags: [research, llm-coding-inference]
 ---
 
