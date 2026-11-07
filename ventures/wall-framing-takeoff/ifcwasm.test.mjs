@@ -83,3 +83,15 @@ test("wallHeights, a sunken door sill and header fit: the model's own heights re
   // without the option nothing changes
   assert.equal(planFromDxf(text).plan.walls[0].studLength, undefined);
 });
+
+test("openingSizes: stacked units at one offset are told apart by width, then by lowest sill", async () => {
+  const { openingSizes } = await import("./ifcwasm.mjs");
+  const k = 1 / 0.0254;
+  const info = { walls: [{ start: [0, 1], end: [6, 1], openings: [
+    { kind: "void", from: 1, to: 2.5, sill: 0, height: 2.032 },        // French door, 59 in wide
+    { kind: "void", from: 1.2, to: 2.3, sill: 1.0, height: 0.6 }] }] }; // awning over it, 43 in wide, same centre
+  const f = openingSizes(info), mid = { x: 1.75 * k, y: 1 * k };
+  assert.equal(f(mid, 1.5 * k).kind, "door");
+  assert.equal(f(mid, 1.1 * k).kind, "window");
+  assert.equal(f(mid).kind, "door"); // no width: the lowest sill
+});
