@@ -43,7 +43,7 @@
    "result": "landed E5 with tests"
   }
  ],
- "writeups": "README and LOG of research/theism-formal-evidence; no blog post (short run)",
+ "writeups": ["research/theism-formal-evidence/LOG.md", "research/theism-formal-evidence/README.md"],
  "goal": null,
  "notes": "",
  "corrections": [],
