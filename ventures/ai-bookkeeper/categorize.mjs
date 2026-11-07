@@ -34,6 +34,12 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 31 (2026-11-07, eval/probe31.mjs): mobile notaries, pool cleaners, piano tuners, dog trainers, home inspectors.
+  // Software first: "piano" alone otherwise files a tuning app as supplies.
+  ["6060", "out", /piano tuning app|tuning app subscription/],
+  ["6170", "out", /pool and hot tub alliance|certification council|association of certified home inspectors/],
+  ["6100", "out", /poolcorp|scp distributors|tuning lever|muting felt/],
+  ["4000", "in", /pool cleaning.*(customer|payment)/],
   // Gap probe 30 (2026-11-07, eval/probe30.mjs): 3D-print sellers, chimney sweeps, appliance repair, arborists, professional organizers.
   ["6170", "out", /fireplace institute/],
   ["6060", "out", /ultimaker cura|chimney inspection software|cura cloud/],
