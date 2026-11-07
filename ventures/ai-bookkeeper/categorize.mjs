@@ -151,6 +151,10 @@ export const BUILT_IN = [
   ["6060", "out", /flexisign/],
   ["6000", "out", /nextdoor ads/],
   ["4000", "in", /signing service fee|honey sales/],
+  // Pest control operators (2026-11-07, pest.test.mjs): chemical distributors as supplies, route software, recurring-plan deposits as sales.
+  ["6100", "out", /\bbasf\b.*pest|pest.*(supply|control products)|univar pest|\bsyngenta\b|bell labs|control solutions/],
+  ["6060", "out", /pestroutes|fieldroutes|pestpac|\bworkwave\b/],
+  ["4000", "in", /pest (plan|control|service)|termite (bond|inspection)|mosquito (plan|program)|quarterly pest/],
   // Gap probe 10 (2026-10-30, eval/probe10.mjs): cottage bakers, drone pilots, locksmiths, streamers, locum clinicians.
   // First in the list: Elgato and B&H were filed as postage, a farmers-market booth fee as platform fees.
   ["6100", "out", /sugar art supply|costco business center|\bdji\b|battery barn|hillman group|southern lock|keyless entry/],
