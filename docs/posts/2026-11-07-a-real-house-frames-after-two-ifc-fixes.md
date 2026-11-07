@@ -1,7 +1,7 @@
 ---
 title: "A real wood-frame house now frames, after two fixes to its IFC"
 date: 2026-11-07
-description: "Dropping voids that doors already fill and floating stair cutouts lets the wall-framing takeoff frame the Schultz Residence's first floor: 9 walls, 213 pieces, 0.19% over the cutting-stock bound."
+description: "Dropping voids that doors already fill, and floating stair cutouts, lets the takeoff frame the Schultz Residence first floor: 213 pieces, 0.19% over the bound."
 tags: [construction, ifc, wall-framing-takeoff]
 ---
 
