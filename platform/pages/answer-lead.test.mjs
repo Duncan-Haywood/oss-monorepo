@@ -83,3 +83,18 @@ test('patent-maintenance-fee-planner: lead is sourced, dated and matches the mod
     assert.equal(s.graceMonths - s.dueMonths, 6);
   }
 });
+
+// TFSA lead: the stated 2026 limit must be the one the checker's table holds, and the 1% rate its text names.
+test('tfsa-over-contribution-checker: lead is sourced, dated and matches the limits table', async () => {
+  const slug = 'tfsa-over-contribution-checker';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { LIMITS } = await import(new URL(`${slug}/calc.mjs`, root));
+  const stated = [...text.matchAll(/\$([\d,]+)/g)].map((x) => Number(x[1].replace(/,/g, '')));
+  assert.deepEqual(stated, [LIMITS[2026]]);
+  assert.match(text, /1%/);
+});
