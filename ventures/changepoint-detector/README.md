@@ -1601,3 +1601,13 @@ Run 2026-11-06, no tuning, rho about 0.69:
 So all four setups find the 2009 rise, but none reports it as one step: a ramp from 10 to 25 weeks over a year is cut into
 two or three, and the default adds recession cycles on top. One series, no truth labels besides the 2009 rise, so it is a case
 study and not a calibration. Wanted: a way to merge adjacent cuts that belong to one ramp (flagship item 0).
+
+## Ramps: adjacent same-direction cuts reported as one (2026-11-07)
+
+`ramps.mjs` (`groupRamps`, `ramps.test.mjs`, 3 tests) is a post-process on the changes already found. Two or more
+consecutive changes that move the level the same way, with every segment between them at most a fiftieth of the series
+long (at least 3 points), are listed once as a `ramp` in the JSON and in the CLI. The changes themselves are unchanged.
+On the unemployment-duration series with `--ar1` the three 2009 cuts become one rise, 2009-02 to 2009-11, 9.19 to 21.32
+weeks (+12.13); 2012-02 to 2012-12 shows as a two-cut fall. It is a grouping rule, not a test: a run of real steps
+close together also groups, and there is no calibration on labelled ramps. Wanted: a series with documented ramps and
+documented close steps, to see which way it errs.
