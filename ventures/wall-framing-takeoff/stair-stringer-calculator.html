@@ -55,6 +55,19 @@
   <pre id="out" aria-live="polite"></pre>
   <p><a class="cta" href="index.html">Add the stair to a whole-house framing takeoff</a></p>
 
+  <h2 id="spiral">Spiral stair check</h2>
+  <p>A spiral stair has its own, looser rules in the model residential code: 26 in clear width, a tread at least 6-3/4 in deep measured 12 in from the narrow edge, risers up to 9-1/2 in and 6 ft 6 in of headroom. Type your diameter, pole and treads per turn to see which rule you fail and the most treads per turn that still pass. The limits are typed from the model code; confirm your edition.</p>
+  <form id="sf" onsubmit="return false">
+    <div class="grid">
+      <div><label for="srise">Total rise (in or 9' 0")</label><input id="srise" value="108"></div>
+      <div><label for="sdia">Outer diameter (in)</label><input id="sdia" value="60"></div>
+      <div><label for="spole">Pole diameter (in)</label><input id="spole" value="4"></div>
+      <div><label for="sper">Treads per turn</label><input id="sper" value="12"></div>
+      <div><label for="srail">Handrail intrusion (in)</label><input id="srail" value="0"></div>
+    </div>
+  </form>
+  <pre id="sout" aria-live="polite"></pre>
+
   <h2>The method</h2>
   <ol>
     <li><strong>Risers.</strong> Total rise divided by 7-3/4 in, rounded up. Divide the rise by that count: every riser is equal (the code allows 3/8 in between the tallest and shortest).</li>
@@ -85,7 +98,7 @@
 </html>
 
   <script type="module">
-    import { layoutStair, stairText } from "./stairs.mjs";
+    import { layoutStair, stairText, checkSpiral, spiralText } from "./stairs.mjs";
     import { parseLength } from "./engine.mjs";
     const $ = (id) => document.getElementById(id);
     const run = () => {
@@ -98,6 +111,13 @@
     };
     $("f").addEventListener("input", run);
     run();
+    const srun = () => {
+      const n = (id) => $(id).value.trim() === "" ? NaN : parseLength($(id).value);
+      const c = checkSpiral({ totalRise: n("srise"), outerDiameter: n("sdia"), poleDiameter: n("spole"), treadsPerTurn: Number($("sper").value), handrailIntrusion: n("srail") });
+      $("sout").textContent = spiralText(c).join("\n");
+    };
+    $("sf").addEventListener("input", srun);
+    srun();
   </script>
 </body>
 </html>

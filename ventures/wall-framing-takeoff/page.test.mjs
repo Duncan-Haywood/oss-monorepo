@@ -1209,3 +1209,10 @@ test("the soffit and fascia page: FAQ matches its data and the stated figures ar
   const h = layoutEaves({}, roof("hip", 18));
   assert.equal(h.eaveFeet, 140); assert.equal(h.eaveCourses, 2); assert.equal(h.soffitSqFt, 210); assert.equal(h.panels, 27); assert.equal(h.fascia, 11); assert.equal(h.channel, 14);
 });
+
+test("the stair page has a spiral stair check wired to checkSpiral", () => {
+  const html = readFileSync(new URL("./stair-stringer-calculator.html", import.meta.url), "utf8");
+  for (const id of ["srise", "sdia", "spole", "sper", "srail", "sout"]) assert.match(html, new RegExp(`id="${id}"`));
+  assert.match(html, /checkSpiral\(/);
+  assert.match(html, /spiralText\(/);
+});
