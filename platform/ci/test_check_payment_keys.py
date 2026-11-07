@@ -38,6 +38,10 @@ class FindingsIn(unittest.TestCase):
                    'const url = "https://checkout.stripe.com/pay/cs_test_1";\n')
         self.assertEqual(self.kinds(), [])
 
+    def test_mixed_case_payment_link_host_fails(self):
+        self.write("src/pay.html", '<a href="https://BUY.Stripe.com/aBcDeFgHiJkL">Pay</a>\n')
+        self.assertEqual(self.kinds(), ["Stripe payment link"])
+
     def test_live_key_fails(self):
         self.write("src/stripe.ts", f'const stripe = new Stripe("{LIVE}");\n')
         self.assertEqual(self.kinds(), ["live Stripe key"])

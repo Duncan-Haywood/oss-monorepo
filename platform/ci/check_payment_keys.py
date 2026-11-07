@@ -39,7 +39,7 @@ VENTURES = REPO_ROOT / "ventures"
 # ci-perf-2026-11-04-payment-keys-literal-prefilter.md).
 PATTERNS = (
     ("live Stripe key", b"k_live_", re.compile(r"(?<![A-Za-z0-9])[sr]k_live_[A-Za-z0-9]{16,}")),
-    ("Stripe payment link", b"stripe.com/", re.compile(r"\b(?:buy|donate)\.stripe\.com/(?:test_)?[A-Za-z0-9]{10,}")),
+    ("Stripe payment link", b"stripe.com/", re.compile(r"\b(?i:(?:buy|donate)\.stripe\.com)/(?:test_)?[A-Za-z0-9]{10,}")),
     ("PayPal hosted button", b"hosted_button_id", re.compile(r"""hosted_button_id(?:["']?\s*[:=]\s*["']?|["']\s+value=["'])[A-Z0-9]{8,}""")),
 )
 
@@ -69,7 +69,8 @@ def findings_in(root: Path):
             continue
         if b"\0" in data[:8192]:
             continue
-        candidates = [(kind, pattern) for kind, needle, pattern in PATTERNS if needle in data]
+        lowered = data.lower()  # hostnames are case-insensitive: BUY.Stripe.com is the same link
+        candidates = [(kind, pattern) for kind, needle, pattern in PATTERNS if needle in lowered]
         if not candidates:
             continue
         text = data.decode("utf-8", errors="ignore")
