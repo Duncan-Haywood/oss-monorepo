@@ -492,7 +492,7 @@ export function sniffBank(rows) {
     if (/^transaction id\|transaction date\|transaction type\|transaction information\|paid in\|paid out\|balance/.test(h)) return "tide";
     if (/^date\|description\|amount\|status\|check number\|category/.test(h)) return "novo";
     if (/^date\|interest date\|amount\|account\|counterparty\|name\|description/.test(h)) return "bunq";
-    if (/^date\|description\|(card member\|account #\|)?amount/.test(h)) return "amex";
+    if (/^date\|(date processed\|)?description\|(card member\|account #\|)?amount/.test(h)) return "amex";
     // Swisscard's cashback export (columns from the tariochbctools importer): charges are positive.
     if (/^transaction date\|description\|amount\|currency\|(status\|)?merchant category\|registered category/.test(h)) return "swisscard";
   }
@@ -1131,7 +1131,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   if (invert === undefined && out.every((r) => r.balance === null) && columns.amount !== -1) {
     // Discover's header is distinctive and its export always lists charges as positive, so a
     // file with no recognisable payment row (a month of purchases only) still flips.
-    const pos = chargesArePositive(out) ?? (bank === "discover" || bank === "ramp" || bank === "apple-card" || bank === "swisscard" ? true : null);
+    const pos = chargesArePositive(out) ?? (bank === "discover" || (bank === "amex" && hdr.includes("card member")) || bank === "ramp" || bank === "apple-card" || bank === "swisscard" ? true : null);
     if (pos) { flip = true; inferred = "Charges were positive (the payment rows are negative), so signs were flipped."; }
   }
   // A trade list (ticker, qty, price, amount; Maybe's import shape) states the value bought as
