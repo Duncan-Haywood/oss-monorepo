@@ -55,7 +55,7 @@
             "line_text": "  range(\"barrierRollSqFt\", 50, 3000, \"barrierRollSqFt must be between 50 and 3000.\");",
             "caught": false,
             "seconds": 110.3,
-            "triage": "real gap",
+            "triage": "gap",
             "caught_after_fix": true,
             "note": "guard added in stucco.test.mjs; fails the mutant"
           },
@@ -97,7 +97,7 @@
             "line_text": "    const wallNet = (w.length * height) / 144;",
             "caught": false,
             "seconds": 101.3,
-            "triage": "real gap",
+            "triage": "gap",
             "caught_after_fix": true,
             "note": "guard added in stucco.test.mjs; fails the mutant"
           },
@@ -111,7 +111,7 @@
             "line_text": "    joints: { count: jointCount, feet: joints.reduce((s, x) => s + x, 0) / 12, pieces: pack(joints) },",
             "caught": false,
             "seconds": 97.7,
-            "triage": "real gap",
+            "triage": "gap",
             "caught_after_fix": true,
             "note": "guard added in stucco.test.mjs; fails the mutant"
           },
@@ -125,7 +125,7 @@
             "line_text": "      money(d.casingPrice, trim.casing.pieces) + money(d.cornerPrice, trim.corner.pieces) + money(d.jointPrice, trim.joints.pieces) + money(d.fastenerBoxPrice, fastenerBoxes)",
             "caught": false,
             "seconds": 105.1,
-            "triage": "real gap",
+            "triage": "gap",
             "caught_after_fix": true,
             "note": "guard added in stucco.test.mjs; fails the mutant"
           }
@@ -134,8 +134,8 @@
     ],
     "real_defects": [
       {
-        "where": "ventures/wall-framing-takeoff/cli.test.mjs",
-        "what": "--json refusal test spawned `node cli.mjs` by relative path, so it failed from the repo root and turned the campaign baseline red",
+        "file": "ventures/wall-framing-takeoff/cli.test.mjs",
+        "issue": "--json refusal test spawned `node cli.mjs` by relative path, so it failed from the repo root and turned the campaign baseline red",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13854"
       }
