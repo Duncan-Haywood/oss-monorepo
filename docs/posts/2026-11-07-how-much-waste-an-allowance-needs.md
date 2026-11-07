@@ -1,6 +1,6 @@
 ---
 title: "How much waste does a framing allowance need to be right? Often none"
-seo_title: "Framing lumber allowance: the waste factor that makes it match a counted order"
+seo_title: "Framing lumber allowance: the waste that matches a counted order"
 date: 2026-11-07
 tags: [wall-framing-takeoff, construction, lumber]
 description: "Two common stud-count rules of thumb, tested against a counted, optimised lumber order on three houses: the waste each would need to break even."
