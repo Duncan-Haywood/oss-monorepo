@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01AcxTtJJeAFoyKFB8BQbtf8",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T10:36:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "research/build-data"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13784",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/build-data/LOG.md",
+      "issue": "Session 46 says to save draws; storing only p was enough, so the note should say p is the deliverable."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "pip on PATH belongs to a different Python than python3; torch needed `python3 -m pip install`, cost two 5-minute installs."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Full 2022/2023 reruns and the one-line 'blog post' default skipped: the feed pull plus refits took ~40 min, so only 2024 was redone.",
+      "did": "2024 only; 2022 and 2023 listed as next",
+      "result": "scope held to one verifiable step"
+    }
+  ],
+  "writeups": [
+    "research/build-data/LOG.md session 47"
+  ],
+  "goal": null,
+  "notes": "Tests: 7 related build-data tests pass; full-suite collection fails on missing xgboost in this container (unrelated). research/_homepage/build.py printed ok.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,5 +1,14 @@
 # build-data log
 
+## Session 47, 2026-11-07: milestone 27 (part), bootstrap p-values saved for the 2024 paired cells (planned before running)
+
+Why: sessions 43 and 46 corrected for multiplicity with a normal approximation to each interval. This replaces it for 2024 with p computed from the week-block bootstrap draws themselves.
+**Prediction (before running):** Holm on the bootstrap p keeps the same 10 of 15 cells as the normal approximation; the cell nearest the line stays SF a2i q0.5.
+Done: `boot_pvalue` in `src/paired_neural_boosted.py` (same seed and resampling as the stored interval; p = 2 min(tail) with +1 smoothing, so resolution is 0.001 at 2000 draws), test `tests/test_paired_boot.py`, `src/paired_boot_table.py`, `results/paired_boot_p_2024.txt`. Fresh pulls today; `paired_*_2024.json` re-run (3 seeds, same code), now carrying `p_boot`.
+Outcome: **prediction held.** Uncorrected 10, Holm 10, BH 10 of 15, identical cells to the normal approximation. SF a2i q0.5 has p_boot 0.006 (normal 0.0023), the closest to the line; SF a2i q0.1 stays non-significant (0.085). The normal approximation's tiny values (1e-58) were not literal; the bootstrap floors at 0.001. Point estimates match session 42's (e.g. SF a2i q0.9 +5.74% vs +5.77%) within refit noise.
+Limits: 2024 only (2022 and 2023 not rerun); percentile-bootstrap sign p, not studentised; floor 0.001 limits Holm resolution only if more than 50 cells are pooled; draws themselves are not stored, only p.
+Next: rerun 2022 and 2023 with p_boot and replace the pooled 45-cell Holm; publish boosted quantile tables for `ventures/`.
+
 ## Session 46, 2026-11-07: milestone 27 (part), Holm/BH on 2022 and 2023 and on all 45 paired cells (committed results only, no pull)
 
 Why: session 45 left 2022 and 2023 with uncorrected intervals. No hypothesis was logged before computing (the script change was small and I ran it straight away); stated here so the record is honest, not as a pre-registration. The expectation I held was that correction would remove a few cells in the weaker years.
