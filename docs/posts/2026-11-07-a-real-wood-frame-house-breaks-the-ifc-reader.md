@@ -1,7 +1,7 @@
 ---
 title: "A real wood-frame house breaks our IFC reader in useful ways"
 date: 2026-11-07
-description: "We ran a real US wood-frame house model through the open-source framing takeoff: 30 of 102 first-floor walls were concrete, and doors at the wall end still block framing."
+description: "We ran a real US wood-frame house through the open-source framing takeoff: 30 of 102 first-floor walls were concrete, and doors at wall ends still block framing."
 tags: [construction, ifc, wall-framing-takeoff]
 ---
 
