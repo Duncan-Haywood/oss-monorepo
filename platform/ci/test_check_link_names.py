@@ -1,6 +1,6 @@
 import unittest
 
-from check_link_names import problems
+from check_link_names import problems, scan, main
 
 
 class LinkNames(unittest.TestCase):
@@ -30,6 +30,21 @@ class LinkNames(unittest.TestCase):
     def test_iframe_needs_title(self):
         self.assertEqual(problems('<iframe src="x"></iframe>'), [(1, "iframe has no title")])
         self.assertEqual(problems('<iframe src="x" title="T"></iframe>'), [])
+
+
+    def test_scan_walks_venture_pages_and_main_exits_nonzero(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "ventures" / "v").mkdir(parents=True)
+            (root / "ventures" / "v" / "index.html").write_text('<a href="/x"><img src="i.png"></a>')
+            (root / "ventures" / "top.html").write_text('<a href="/x"><img src="i.png"></a>')
+            bad = scan(root)
+            self.assertEqual([str(b[0]) for b in bad], ["ventures/v/index.html"])
+            self.assertEqual(main(["--root", str(root)]), 1)
+            (root / "ventures" / "v" / "index.html").write_text('<a href="/x">Home</a>')
+            self.assertEqual(main(["--root", str(root)]), 0)
 
 
 if __name__ == "__main__":
