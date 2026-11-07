@@ -59,3 +59,5 @@ and each is measured before the next one leans on it.
   tune rules.
 
 - 2026-11-06: `invite.mjs` escaped semicolons wrongly (`"\;"` in JavaScript is just `;`), so a prospect named "Ruiz; Dana" or a company "A;B" broke the SUMMARY line of the calendar file. Now `\;` per RFC 5545 section 3.3.11; regression test in `invite.test.mjs`; sales-agent suite passes (202). Found by reading the code. Invented names only.
+
+- 2026-11-07: the same file wrote the ATTENDEE and ORGANIZER `CN` with backslash escapes, which RFC 5545 section 3.2 does not allow in a parameter value, so "Ruiz, Dana" came out as `CN=Ruiz\, Dana` and a calendar could cut the name at the comma. Now a value holding `;` `:` or `,` is double-quoted, quotes and control characters become spaces, and an empty name falls back to the address; regression test in `invite.test.mjs`. Found by reading the code. Invented names only.
