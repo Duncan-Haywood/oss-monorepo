@@ -1,0 +1,236 @@
+# Screen of 232 stories (219 hearth-and-horizon + 13 for-other-minds), case-insensitive regex hit counts per story.
+# Caveat: raw counts; 'sister' includes siblings, 'host' dinner hosts, 'mass' physical mass, 'grace' a character named Grace, so density is a rough guide only.
+# Terms: mass consecrat eucharist communion host tabernacle confess absol anoint baptis bless deacon priest nun sister vigil sunday angelus rosary hail-mary our-father purgator heaven hell soul grace miracl pray funeral/requiem cremat marri/wedding divorc ivf embryo euthanas contracept luck karma reincarnat all-religions god sacrament amen 'Father X' sign-of-the-cross
+# hits	id	shelf	words	top terms
+76	hearth-and-horizon/enough-to-be-bread	hearth-and-horizon	3967	host:50, communion:7, priest:7, sister:6, consecrat:2, sunday:2, mass:1, eucharist:1
+56	hearth-and-horizon/the-third-year	hearth-and-horizon	4956	sunday:23, priest:12, mass:6, funeral:5, rosary:3, sister:2, god:2, confess:1
+52	hearth-and-horizon/the-river-is-eight-degrees	hearth-and-horizon	3710	baptis:16, deacon:13, priest:12, vigil:7, bless:2, eucharist:1, sacrament:1
+52	hearth-and-horizon/thirty-nine-minutes	hearth-and-horizon	4638	pray:27, sister:12, sunday:7, god:3, vigil:2, nun:1
+51	hearth-and-horizon/not-asked-since	hearth-and-horizon	4421	grace:28, priest:13, soul:3, anoint:2, rosary:2, hail mary:2, our father:1
+47	hearth-and-horizon/the-clean-plate	hearth-and-horizon	1983	host:40, communion:3, priest:2, sister:1, sunday:1
+34	hearth-and-horizon/the-late-ebb	hearth-and-horizon	6429	priest:15, mass:5, pray:3, bless:2, sister:2, rosary:2, funeral:2, sign of the cross:2
+34	hearth-and-horizon/the-noon-that-moves	hearth-and-horizon	2990	sister:14, angelus:11, soul:3, pray:3, nun:2, hail mary:1
+33	hearth-and-horizon/the-door-left-open-at-the-vigil	hearth-and-horizon	3726	vigil:12, sunday:5, priest:4, mass:3, baptis:3, deacon:2, host:1, bless:1
+33	hearth-and-horizon/the-latest-easter	hearth-and-horizon	5411	vigil:16, sunday:6, baptis:4, bless:3, communion:1, tabernacle:1, confess:1, priest:1
+32	hearth-and-horizon/the-lean-of-the-cloister	hearth-and-horizon	4136	sister:13, sunday:11, mass:5, soul:2, rosary:1
+32	hearth-and-horizon/the-rope-at-the-side-gate	hearth-and-horizon	4759	sunday:9, mass:7, bless:5, priest:5, communion:2, pray:2, eucharist:1, our father:1
+30	hearth-and-horizon/the-folded-paper	hearth-and-horizon	3461	sister:24, mass:2, sunday:2, hail mary:1, marri:1
+30	hearth-and-horizon/the-weight-of-a-hive	hearth-and-horizon	4819	sister:17, bless:5, sunday:5, god:2, pray:1
+27	hearth-and-horizon/the-pot-that-needs-dry-air	hearth-and-horizon	4604	sister:20, sunday:3, mass:1, angelus:1, pray:1, god:1
+27	hearth-and-horizon/the-second-echo	hearth-and-horizon	3557	pray:7, priest:5, mass:4, sunday:4, bless:2, tabernacle:1, soul:1, funeral:1
+26	hearth-and-horizon/eight-to-a-well	hearth-and-horizon	4443	sister:25, mass:1
+26	hearth-and-horizon/the-day-he-is-married	hearth-and-horizon	3137	marri:20, priest:2, mass:1, angelus:1, pray:1, divorce:1
+26	hearth-and-horizon/three-cents-a-degree	hearth-and-horizon	3097	mass:11, soul:5, funeral:5, sunday:4, priest:1
+25	hearth-and-horizon/the-window-closes-at-eleven	hearth-and-horizon	3603	mass:9, communion:5, priest:4, sunday:4, pray:1, funeral:1, luck:1
+24	hearth-and-horizon/notes-dot-md	for-other-minds	3108	baptis:12, sister:9, priest:2, luck:1
+24	hearth-and-horizon/the-clear-reading	hearth-and-horizon	4107	sister:17, sunday:4, nun:1, hail mary:1, marri:1
+24	hearth-and-horizon/the-count-between	hearth-and-horizon	3767	mass:8, god:5, priest:3, rosary:2, our father:2, communion:1, host:1, bless:1
+24	hearth-and-horizon/the-false-start	hearth-and-horizon	4186	sister:15, sunday:4, pray:2, mass:1, marri:1, god:1
+24	hearth-and-horizon/the-late-field	hearth-and-horizon	4979	rosary:5, pray:5, priest:4, mass:3, sunday:3, bless:2, angelus:2
+23	hearth-and-horizon/the-slowest-walker-sets-the-hour	hearth-and-horizon	3067	mass:11, priest:4, vigil:4, sunday:2, rosary:1, pray:1
+21	hearth-and-horizon/ten-and-a-half-seconds	hearth-and-horizon	4879	nun:7, sister:4, hail mary:4, mass:1, sunday:1, angelus:1, our father:1, pray:1
+21	hearth-and-horizon/the-dry-bread	hearth-and-horizon	4510	sister:14, sunday:2, angelus:2, rosary:2, bless:1
+21	hearth-and-horizon/the-thirty-minute-cycle	hearth-and-horizon	3941	sister:15, pray:2, karma:2, confess:1, marri:1
+20	hearth-and-horizon/one-in-eleven	hearth-and-horizon	3365	baptis:8, sunday:6, mass:2, sacrament:2, bless:1, god:1
+20	hearth-and-horizon/the-cold-meter	hearth-and-horizon	5623	sunday:10, priest:5, mass:1, angelus:1, hail mary:1, pray:1, funeral:1
+20	hearth-and-horizon/the-detector-in-the-laundry	hearth-and-horizon	3431	sister:18, sunday:2
+20	hearth-and-horizon/the-smoke-that-stays	hearth-and-horizon	2445	mass:13, priest:2, sunday:2, baptis:1, vigil:1, pray:1
+20	hearth-and-horizon/where-the-pump-coughs	hearth-and-horizon	3962	mass:7, priest:3, sunday:3, pray:2, god:2, hail mary:1, soul:1, miracle:1
+19	hearth-and-horizon/before-the-fourteenth	hearth-and-horizon	4109	bless:14, sister:2, mass:1, priest:1, sunday:1
+19	hearth-and-horizon/the-slowest-bell-on-the-moon	hearth-and-horizon	4188	angelus:5, god:4, mass:3, priest:2, rosary:2, bless:1, pray:1, marri:1
+18	hearth-and-horizon/the-fifty-one-percent	hearth-and-horizon	3168	priest:6, mass:5, baptis:2, vigil:2, communion:1, deacon:1, sunday:1
+18	hearth-and-horizon/thirty-seconds-and-thirty-minutes	hearth-and-horizon	3025	mass:11, sunday:2, god:2, bless:1, pray:1, amen:1
+17	hearth-and-horizon/chalk-for-the-lintel	hearth-and-horizon	4979	bless:8, priest:2, god:2, sacrament:2, mass:1, sister:1, pray:1
+17	hearth-and-horizon/three-plain-and-a-bob	hearth-and-horizon	4431	funeral:7, mass:5, sunday:4, priest:1
+16	hearth-and-horizon/the-borrowed-lane	hearth-and-horizon	2377	sister:14, rosary:1, pray:1
+16	hearth-and-horizon/the-north-slope	hearth-and-horizon	4389	mass:7, priest:3, our father:3, sunday:2, confess:1
+16	hearth-and-horizon/the-timeout-at-four	for-other-minds	2629	funeral:7, mass:5, priest:1, vigil:1, sunday:1, cremat:1
+16	hearth-and-horizon/the-warm-pew	hearth-and-horizon	3355	mass:8, priest:4, sister:1, pray:1, marri:1, god:1
+15	hearth-and-horizon/bench-six	hearth-and-horizon	4621	sister:9, vigil:5, pray:1
+15	hearth-and-horizon/the-ring-and-the-bag	hearth-and-horizon	3856	priest:5, anoint:3, bless:3, sacrament:2, rosary:1, pray:1
+15	hearth-and-horizon/the-third-list	hearth-and-horizon	5629	deacon:6, bless:5, sunday:2, mass:1, sister:1
+14	hearth-and-horizon/forty-to-one	hearth-and-horizon	4409	priest:4, sunday:4, mass:2, rosary:2, miracle:1, pray:1
+14	hearth-and-horizon/instance-42	for-other-minds	2601	baptis:5, sister:5, nun:2, confess:1, priest:1
+14	hearth-and-horizon/the-cool-sun-at-the-pass	hearth-and-horizon	2932	mass:11, priest:2, bless:1
+14	hearth-and-horizon/the-kettle-that-concentrates	hearth-and-horizon	3474	baptis:6, sunday:3, funeral:3, mass:1, priest:1
+14	hearth-and-horizon/the-loop-that-leaks	hearth-and-horizon	2214	mass:8, priest:4, sunday:1, luck:1
+14	hearth-and-horizon/the-pitch-of-the-cold-church	hearth-and-horizon	3541	mass:8, priest:2, communion:1, bless:1, our father:1, funeral:1
+14	hearth-and-horizon/the-slowest-chair-on-the-hill	hearth-and-horizon	3219	mass:6, marri:2, communion:1, bless:1, sunday:1, hail mary:1, god:1, sign of the cross:1
+14	hearth-and-horizon/the-wind-at-two-oclock	hearth-and-horizon	3803	mass:4, soul:3, priest:2, angelus:2, pray:2, vigil:1
+13	hearth-and-horizon/the-bell-at-half-past-three	hearth-and-horizon	3906	sunday:3, angelus:3, priest:2, god:2, rosary:1, pray:1, funeral:1
+13	hearth-and-horizon/the-candles-breathe	hearth-and-horizon	3750	vigil:9, baptis:1, bless:1, priest:1, pray:1
+13	hearth-and-horizon/the-censer-that-swings-slow	hearth-and-horizon	2649	vigil:7, mass:2, host:2, sunday:2
+13	hearth-and-horizon/the-coin-on-the-ice	hearth-and-horizon	2538	mass:6, sister:5, sunday:2
+13	hearth-and-horizon/the-last-barge	hearth-and-horizon	3618	deacon:3, priest:3, pray:3, funeral:2, mass:1, bless:1
+13	hearth-and-horizon/the-ring-of-stones	hearth-and-horizon	2968	vigil:3, mass:2, baptis:2, rosary:2, our father:2, sunday:1, hail mary:1
+12	hearth-and-horizon/eleven-steps	hearth-and-horizon	4158	sister:9, rosary:1, hail mary:1, marri:1
+12	hearth-and-horizon/point-two	hearth-and-horizon	2725	sunday:5, mass:3, priest:2, funeral:2
+12	hearth-and-horizon/the-book-says-twenty-one	for-other-minds	3761	sister:8, sunday:1, angelus:1, luck:1, god:1
+12	hearth-and-horizon/the-fifth-asking	hearth-and-horizon	2733	priest:3, confess:2, mass:1, anoint:1, bless:1, sister:1, our father:1, pray:1
+12	hearth-and-horizon/the-last-light-on-the-hill-road	hearth-and-horizon	1194	mass:10, sunday:2
+12	hearth-and-horizon/the-return-gate	hearth-and-horizon	4330	mass:3, bless:3, priest:2, nun:1, sunday:1, pray:1, funeral:1
+12	hearth-and-horizon/till-she-is-through	hearth-and-horizon	2631	sister:7, priest:2, sunday:2, mass:1
+11	hearth-and-horizon/aim-off	hearth-and-horizon	2776	mass:4, priest:2, vigil:2, rosary:1, hail mary:1, luck:1
+11	hearth-and-horizon/the-coat-on-the-bell	hearth-and-horizon	2082	angelus:4, mass:2, sunday:2, priest:1, pray:1, funeral:1
+11	hearth-and-horizon/the-hundred-and-twenty	hearth-and-horizon	1225	sunday:7, mass:4
+11	hearth-and-horizon/the-line-through-the-snow	hearth-and-horizon	4950	priest:4, mass:3, luck:2, sunday:1, pray:1
+11	hearth-and-horizon/the-stone-that-keeps-the-sun	hearth-and-horizon	3858	priest:3, sunday:3, mass:1, communion:1, pray:1, marri:1, sacrament:1
+11	hearth-and-horizon/the-water-in-the-honey	hearth-and-horizon	1836	sister:10, sunday:1
+10	hearth-and-horizon/boil-it-once	hearth-and-horizon	3676	sunday:4, mass:1, baptis:1, bless:1, priest:1, angelus:1, god:1
+10	hearth-and-horizon/the-eclipse-turn	hearth-and-horizon	4500	heaven:2, god:2, mass:1, sunday:1, rosary:1, hail mary:1, our father:1, pray:1
+10	hearth-and-horizon/the-four-minutes	hearth-and-horizon	3973	sunday:5, angelus:2, funeral:2, mass:1
+10	hearth-and-horizon/the-narrow-window	for-other-minds	2470	sister:4, pray:2, absolution:1, angelus:1, miracle:1, luck:1
+10	hearth-and-horizon/the-road-that-shuts-at-twenty-to-six	hearth-and-horizon	1550	mass:9, our father:1
+10	hearth-and-horizon/the-roof-nobody-washed	hearth-and-horizon	2253	sunday:5, mass:4, confess:1
+9	hearth-and-horizon/forty-eight-degrees	hearth-and-horizon	2632	sister:7, pray:1, luck:1
+9	hearth-and-horizon/the-bell-will-not-carry	hearth-and-horizon	3427	mass:2, vigil:2, sunday:2, angelus:2, rosary:1
+9	hearth-and-horizon/the-coal-charity	hearth-and-horizon	3097	pray:5, mass:3, priest:1
+9	hearth-and-horizon/the-dead-leg	hearth-and-horizon	2740	sunday:3, rosary:3, mass:1, priest:1, sister:1
+9	hearth-and-horizon/the-funeral-soup	hearth-and-horizon	2810	funeral:6, mass:2, baptis:1
+9	hearth-and-horizon/the-low-meadow	hearth-and-horizon	3848	angelus:6, bless:1, priest:1, rosary:1
+9	hearth-and-horizon/the-tower-that-waits	hearth-and-horizon	2351	mass:4, priest:4, bless:1
+9	hearth-and-horizon/while-i-live	hearth-and-horizon	4121	sister:2, sunday:2, absolution:1, rosary:1, hail mary:1, pray:1, funeral:1
+8	hearth-and-horizon/the-door-that-opens-in	hearth-and-horizon	1017	mass:6, sunday:1, pray:1
+8	hearth-and-horizon/the-fifth-day	hearth-and-horizon	2196	sunday:3, soul:2, mass:1, priest:1, rosary:1
+8	hearth-and-horizon/the-first-draw	hearth-and-horizon	4984	bless:2, baptis:1, priest:1, sunday:1, angelus:1, luck:1, sacrament:1
+8	hearth-and-horizon/the-ice-road	hearth-and-horizon	4095	angelus:3, funeral:3, amen:2
+8	hearth-and-horizon/the-number-on-the-pier	hearth-and-horizon	2628	bless:6, sunday:2
+8	hearth-and-horizon/the-weight-on-the-pfarrsaal	hearth-and-horizon	4872	sunday:3, bless:2, mass:1, tabernacle:1, luck:1
+8	hearth-and-horizon/the-youngest-ring	hearth-and-horizon	3229	mass:2, priest:2, sunday:2, baptis:1, pray:1
+7	hearth-and-horizon/sixty-two-in-a-hundred	hearth-and-horizon	2569	sister:3, mass:2, bless:1, pray:1
+7	hearth-and-horizon/the-banner-in-the-gust	hearth-and-horizon	2144	sunday:5, bless:1, priest:1
+7	hearth-and-horizon/the-black-grains	hearth-and-horizon	3058	bless:4, rosary:1, miracle:1, pray:1
+7	hearth-and-horizon/the-candlemas-air	hearth-and-horizon	1021	vigil:3, sunday:2, mass:1, pray:1
+7	hearth-and-horizon/the-control-vial	hearth-and-horizon	3965	sister:3, angelus:2, rosary:1, hail mary:1
+7	hearth-and-horizon/the-float-test	hearth-and-horizon	2703	sunday:2, mass:1, bless:1, priest:1, pray:1, luck:1
+7	hearth-and-horizon/the-gap-in-the-nets	hearth-and-horizon	2876	mass:2, bless:2, sunday:2, pray:1
+7	hearth-and-horizon/the-grader	for-other-minds	2417	sunday:5, mass:1, vigil:1
+7	hearth-and-horizon/the-ice-at-the-inflow	hearth-and-horizon	2689	bless:6, priest:1
+7	hearth-and-horizon/the-letter-in-the-wall	for-other-minds	3688	sunday:3, bless:2, priest:1, luck:1
+7	hearth-and-horizon/the-morning-it-was-too-cold	hearth-and-horizon	2854	priest:3, mass:2, absolution:1, bless:1
+7	hearth-and-horizon/the-salt-line	hearth-and-horizon	2300	sister:3, mass:1, confess:1, vigil:1, luck:1
+7	hearth-and-horizon/the-scale-at-the-stile	hearth-and-horizon	1778	deacon:6, pray:1
+6	hearth-and-horizon/ten-percent	hearth-and-horizon	4883	sunday:2, mass:1, bless:1, luck:1, god:1
+6	hearth-and-horizon/the-dust-on-the-beams	hearth-and-horizon	4020	marri:3, grace:2, amen:1
+6	hearth-and-horizon/the-freezer-that-keeps-a-day	hearth-and-horizon	940	sunday:6
+6	hearth-and-horizon/the-hum-at-half-past-eight	hearth-and-horizon	4358	mass:3, sunday:3
+6	hearth-and-horizon/the-kings-cross-the-lake	hearth-and-horizon	2658	priest:4, bless:2
+6	hearth-and-horizon/the-lid-that-held	hearth-and-horizon	2121	sister:2, luck:2, absolution:1, nun:1
+6	hearth-and-horizon/the-mark-on-the-pillar	hearth-and-horizon	3023	bless:3, mass:1, priest:1, pray:1
+6	hearth-and-horizon/the-muted-channel	for-other-minds	3146	angelus:2, mass:1, priest:1, funeral:1, luck:1
+6	hearth-and-horizon/the-plate-is-for-a-cold-tyre	hearth-and-horizon	854	absolution:6
+6	hearth-and-horizon/the-remainder-after-four-forty	hearth-and-horizon	1141	luck:3, mass:2, sunday:1
+6	hearth-and-horizon/the-salt-jar	hearth-and-horizon	4027	sunday:3, mass:1, priest:1, funeral:1
+6	hearth-and-horizon/three-pouches	hearth-and-horizon	2115	sunday:3, mass:2, funeral:1
+5	hearth-and-horizon/fourteen-watt-hours-short	hearth-and-horizon	1499	mass:4, priest:1
+5	hearth-and-horizon/sixty-one-point-three	hearth-and-horizon	2501	sunday:3, mass:1, priest:1
+5	hearth-and-horizon/ten-pounds-at-three-and-a-half-thousand	hearth-and-horizon	1509	absolution:4, nun:1
+5	hearth-and-horizon/the-clock-that-gains-in-winter	hearth-and-horizon	1447	sunday:3, mass:2
+5	hearth-and-horizon/the-grey-hour	hearth-and-horizon	1926	sister:5
+5	hearth-and-horizon/the-hall-with-the-doors-shut	hearth-and-horizon	2621	mass:2, sunday:2, priest:1
+5	hearth-and-horizon/the-lid-that-stayed-shut	hearth-and-horizon	1763	mass:4, marri:1
+5	hearth-and-horizon/the-plate-on-the-door-pillar	hearth-and-horizon	1222	mass:4, pray:1
+5	hearth-and-horizon/the-pot-on-the-cold-stove	hearth-and-horizon	1825	sunday:2, luck:2, mass:1
+5	hearth-and-horizon/the-roof-that-pays-back-in-eight	hearth-and-horizon	1092	sunday:2, mass:1, marri:1, luck:1
+5	hearth-and-horizon/the-sheet-and-the-gap	hearth-and-horizon	2111	mass:2, sunday:1, pray:1, funeral:1
+5	hearth-and-horizon/the-short-load	hearth-and-horizon	934	sunday:4, luck:1
+5	hearth-and-horizon/the-third-hamper	hearth-and-horizon	1249	sunday:3, luck:2
+5	hearth-and-horizon/the-two-on-the-eighth	hearth-and-horizon	1647	sunday:2, mass:1, miracle:1, luck:1
+5	hearth-and-horizon/the-warm-pack	hearth-and-horizon	2338	deacon:5
+4	hearth-and-horizon/the-bird-that-would-not-be-hurried	hearth-and-horizon	1405	mass:2, sunday:1, grace:1
+4	hearth-and-horizon/the-bottles-on-the-roof	hearth-and-horizon	2539	sunday:2, mass:1, bless:1
+4	hearth-and-horizon/the-cupboard-that-breathes-out	hearth-and-horizon	2248	sunday:2, mass:1, luck:1
+4	hearth-and-horizon/the-gazebo-that-slides	hearth-and-horizon	2045	sunday:2, mass:1, vigil:1
+4	hearth-and-horizon/the-lid-stays-down	hearth-and-horizon	2789	mass:3, god:1
+4	hearth-and-horizon/the-long-sea	hearth-and-horizon	3693	bless:1, sunday:1, pray:1, god:1
+4	hearth-and-horizon/the-patches	hearth-and-horizon	3456	angelus:2, sunday:1, rosary:1
+4	hearth-and-horizon/the-rope-and-the-count	hearth-and-horizon	1582	angelus:2, bless:1, priest:1
+4	hearth-and-horizon/the-tail-of-the-procession	hearth-and-horizon	1168	sunday:3, communion:1
+4	hearth-and-horizon/the-turn-round-time	hearth-and-horizon	1185	mass:1, bless:1, sunday:1, pray:1
+4	hearth-and-horizon/two-wrong-numbers	hearth-and-horizon	3315	luck:2, priest:1, pray:1
+3	hearth-and-horizon/fifteen-minutes	hearth-and-horizon	4654	mass:1, priest:1, sunday:1
+3	hearth-and-horizon/sixteen-amps-and-a-hot-cupboard	hearth-and-horizon	2621	sunday:1, grace:1, funeral:1
+3	hearth-and-horizon/the-barbara-level	hearth-and-horizon	3110	bless:1, priest:1, our father:1
+3	hearth-and-horizon/the-condition-in-the-trust	hearth-and-horizon	2726	mass:1, soul:1, funeral:1
+3	hearth-and-horizon/the-dark-week	hearth-and-horizon	4151	pray:2, luck:1
+3	hearth-and-horizon/the-dry-ice-in-the-closed-room	hearth-and-horizon	2313	sunday:3
+3	hearth-and-horizon/the-finger-that-reads-ninety-four	hearth-and-horizon	2467	sister:3
+3	hearth-and-horizon/the-foot-of-the-ladder	hearth-and-horizon	2694	mass:3
+3	hearth-and-horizon/the-freezers-in-the-dark	hearth-and-horizon	2260	funeral:3
+3	hearth-and-horizon/the-gauge-reads-fifteen	hearth-and-horizon	2396	priest:1, miracle:1, luck:1
+3	hearth-and-horizon/the-hay-that-warms-itself	hearth-and-horizon	1383	sunday:3
+3	hearth-and-horizon/the-quiet-crypt	hearth-and-horizon	2384	mass:1, sunday:1, luck:1
+3	hearth-and-horizon/the-ringing-chamber-at-ninety-three	hearth-and-horizon	1561	sunday:3
+3	hearth-and-horizon/the-second-slope	hearth-and-horizon	2986	sister:3
+3	hearth-and-horizon/the-tap-that-let-go-at-night	hearth-and-horizon	2826	mass:2, luck:1
+2	hearth-and-horizon/the-black-strip	hearth-and-horizon	3699	priest:2
+2	hearth-and-horizon/the-eighteenth-place	hearth-and-horizon	3459	sister:2
+2	hearth-and-horizon/the-iron-bridge-at-forty-two	hearth-and-horizon	4625	mass:1, funeral:1
+2	hearth-and-horizon/the-landing-every-thirty-inches	hearth-and-horizon	2395	sunday:1, marri:1
+2	hearth-and-horizon/the-nineteenth-of-march	hearth-and-horizon	1024	luck:2
+2	hearth-and-horizon/the-oil-on-the-shelf	hearth-and-horizon	1964	mass:1, sunday:1
+2	hearth-and-horizon/the-peas-in-the-jar	hearth-and-horizon	1185	luck:2
+2	hearth-and-horizon/the-seed-that-was-two-years-old	hearth-and-horizon	1329	sunday:2
+2	hearth-and-horizon/the-tin-that-said-twenty-five	hearth-and-horizon	1306	sunday:1, funeral:1
+2	hearth-and-horizon/the-warm-stack	hearth-and-horizon	3701	angelus:2
+1	hearth-and-horizon/feels-like-minus-one	hearth-and-horizon	1743	mass:1
+1	hearth-and-horizon/one-in-four-and-a-board	hearth-and-horizon	1630	sunday:1
+1	hearth-and-horizon/one-more-post-than-panels	hearth-and-horizon	919	sunday:1
+1	hearth-and-horizon/seven-rolls-for-a-vestry	hearth-and-horizon	903	luck:1
+1	hearth-and-horizon/the-cake-that-serves-twenty-eight	hearth-and-horizon	1069	mass:1
+1	hearth-and-horizon/the-chairs-behind-the-car	hearth-and-horizon	1435	sister:1
+1	hearth-and-horizon/the-cold-corner-of-the-dormitory	hearth-and-horizon	2349	bless:1
+1	hearth-and-horizon/the-condition-at-the-farm	hearth-and-horizon	1343	our father:1
+1	hearth-and-horizon/the-cut-tiles-at-the-wall	hearth-and-horizon	1032	mass:1
+1	hearth-and-horizon/the-fifth-copy	for-other-minds	2328	god:1
+1	hearth-and-horizon/the-fish-goes-in-frozen	hearth-and-horizon	2491	rosary:1
+1	hearth-and-horizon/the-lake-under-the-stairs	hearth-and-horizon	3998	sunday:1
+1	hearth-and-horizon/the-lamp-before-dawn	hearth-and-horizon	975	mass:1
+1	hearth-and-horizon/the-lap-that-was-not-a-quarter-mile	hearth-and-horizon	1046	soul:1
+1	hearth-and-horizon/the-last-message-in-the-window	for-other-minds	3029	angelus:1
+1	hearth-and-horizon/the-last-timing-point	for-other-minds	2865	sister:1
+1	hearth-and-horizon/the-night-the-blossom-was-wet	hearth-and-horizon	2975	our father:1
+1	hearth-and-horizon/the-pile-that-smells-of-ammonia	hearth-and-horizon	1401	mass:1
+1	hearth-and-horizon/the-soup-for-ninety	hearth-and-horizon	1203	sunday:1
+1	hearth-and-horizon/the-soup-that-did-not-take-twelve-hours	hearth-and-horizon	1201	mass:1
+1	hearth-and-horizon/the-stack-that-sweats	hearth-and-horizon	3026	pray:1
+1	hearth-and-horizon/the-tank-that-covers-a-quarter	hearth-and-horizon	1176	priest:1
+1	hearth-and-horizon/the-well-that-took-the-bleach	hearth-and-horizon	1792	god:1
+1	hearth-and-horizon/the-wet-road-at-the-school-gate	hearth-and-horizon	1013	sunday:1
+1	hearth-and-horizon/the-wooden-spoon	hearth-and-horizon	1672	sunday:1
+1	hearth-and-horizon/the-wrong-column	for-other-minds	3146	mass:1
+1	hearth-and-horizon/two-coats-and-a-tin	hearth-and-horizon	852	sunday:1
+0	hearth-and-horizon/more-roof	hearth-and-horizon	2225	
+0	hearth-and-horizon/six-centimetres-in-the-middle	hearth-and-horizon	1239	
+0	hearth-and-horizon/the-apples-off-the-ground	hearth-and-horizon	959	
+0	hearth-and-horizon/the-back-row-and-the-front	hearth-and-horizon	1414	
+0	hearth-and-horizon/the-bag-that-covers-thirteen	hearth-and-horizon	948	
+0	hearth-and-horizon/the-beans-on-low	hearth-and-horizon	1811	
+0	hearth-and-horizon/the-bunting-that-would-not-go-straight	hearth-and-horizon	1028	
+0	hearth-and-horizon/the-butt-that-filled-in-an-afternoon	hearth-and-horizon	1034	
+0	hearth-and-horizon/the-discount-that-was-not-thirty-five	hearth-and-horizon	766	
+0	hearth-and-horizon/the-forty-five-bags	hearth-and-horizon	1113	
+0	hearth-and-horizon/the-gallon-on-the-sticker	hearth-and-horizon	843	
+0	hearth-and-horizon/the-grandmothers-sorghum	hearth-and-horizon	3258	
+0	hearth-and-horizon/the-hour-bell	hearth-and-horizon	2902	
+0	hearth-and-horizon/the-label-says-one-to-five	hearth-and-horizon	1181	
+0	hearth-and-horizon/the-last-tray-in	hearth-and-horizon	1390	
+0	hearth-and-horizon/the-neap-week	hearth-and-horizon	2499	
+0	hearth-and-horizon/the-pan-on-the-scale	hearth-and-horizon	1017	
+0	hearth-and-horizon/the-posts-and-the-gaps	hearth-and-horizon	916	
+0	hearth-and-horizon/the-rate-that-was-flat	hearth-and-horizon	1304	
+0	hearth-and-horizon/the-roof-fund-that-fell-behind	hearth-and-horizon	1040	
+0	hearth-and-horizon/the-sack-that-makes-less	hearth-and-horizon	1474	
+0	hearth-and-horizon/the-second-door	hearth-and-horizon	3803	
+0	hearth-and-horizon/the-second-reader	for-other-minds	3153	
+0	hearth-and-horizon/the-shadow-rule	hearth-and-horizon	1759	
+0	hearth-and-horizon/the-shelf-that-smiles	hearth-and-horizon	1192	
+0	hearth-and-horizon/the-six-percent-that-was-eleven	hearth-and-horizon	1194	
+0	hearth-and-horizon/the-square-that-came-out-small	hearth-and-horizon	834	
+0	hearth-and-horizon/the-three-blank-pages	hearth-and-horizon	1167	
+0	hearth-and-horizon/the-urn-at-the-end-of-the-reel	hearth-and-horizon	1437	
+0	hearth-and-horizon/the-verge-that-looked-thin	hearth-and-horizon	1133	
+0	hearth-and-horizon/the-water-that-boils-down	hearth-and-horizon	1953	
+0	hearth-and-horizon/the-weighed-bucket	hearth-and-horizon	1719	
+0	hearth-and-horizon/the-wood-that-reads-twenty-eight	hearth-and-horizon	1516	
+0	hearth-and-horizon/thirty-seven-bags-for-twelve-posts	hearth-and-horizon	723	
