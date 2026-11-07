@@ -45,7 +45,7 @@ advice we can't frame safely is declined with a reason. Everything built stays
 MIT licensed under the repository owner's copyright.
 
 If the message that started the session names a specific task, pass its track:
-`route --track ventures|research|process|explore|redteam|creative|polish|perf|review` (otherwise
+`route --track ventures|research|process|explore|redteam|creative|polish|perf|quality|review` (otherwise
 the draw can send you elsewhere).
 A direct request ([`human-requests.md`](.github/prompts/human-requests.md))
 that fits no track takes the closest one by the work's nature (`process` for repo or
@@ -79,7 +79,9 @@ the last review (`review_when_due`). If an open pull request titled `prompts: re
 exists, another run has claimed that review; route again with `--skip-review`.
 
 `explore` (free choice), `creative` (stories, podcasts), `polish` (design, SEO
-and AEO, until a set date) and `perf` (performance) each get a share of runs.
+and AEO, until a set date), `perf` (performance) and `quality` (seeded-random
+audits of finished work against a senior professional's bar, `portfolio/quality/`)
+each get a share of runs.
 
 ## 2. Work, and land it
 
