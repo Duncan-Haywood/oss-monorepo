@@ -2,7 +2,7 @@
 title: "Gödel's God proof only works in a world where nothing could have been otherwise"
 seo_title: "Gödel's ontological argument: modal collapse checked by computer"
 date: 2026-11-07
-description: "An exhaustive model search shows Scott's version of Gödel's ontological argument has models only when there is one possible world, and a leave-one-out shows which evidence items a Bayesian ledger on God really leans on."
+description: "A model search shows Scott's version of Gödel's ontological argument has models only with one possible world, plus what a Bayesian ledger on God leans on."
 tags: [research, philosophy-of-religion, logic, godel, bayes]
 ---
 
