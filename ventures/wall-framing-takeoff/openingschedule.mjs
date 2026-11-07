@@ -57,6 +57,11 @@ export function layoutOpeningSchedule(d, plan) {
   const errors = [...validateOpeningSchedule(d), ...validateSchedulePlan(plan)];
   const dh = plan && plan.defaultHeaderHeight;
   if (dh != null && !(typeof dh === "number" && Number.isFinite(dh) && dh > 0)) errors.push("defaultHeaderHeight must be a positive number of inches.");
+  if (!errors.length && typeof dh === "number") {
+    plan.walls.forEach((/** @type {any} */ w, /** @type {number} */ i) => (w.openings || []).forEach((/** @type {any} */ op, /** @type {number} */ j) => {
+      if (op.headerHeight == null && op.kind !== "door" && op.height > dh) errors.push(`Wall ${w.id ?? i + 1}, opening ${j + 1}: defaultHeaderHeight (${dh}) is below the opening's height (${op.height}), so the sill would be negative.`);
+    }));
+  }
   if (errors.length) return { ok: false, errors };
   const allow = d.unitAllowance ?? 0.5, dp = d.doorPrefix ?? "D", wp = d.windowPrefix ?? "W";
   /** @type {Map<string, any>} */ const groups = new Map();

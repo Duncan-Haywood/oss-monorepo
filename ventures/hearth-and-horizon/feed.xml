@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Candle That Says Four Hours</title>
+      <link>https://example.invalid/hearth-and-horizon/the-candle-that-says-four-hours.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-candle-that-says-four-hours.html</guid>
+      <pubDate>Sat, 07 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A parish night vigil needs forty-eight tealights alight from nine at night until seven, and the box says four hours. The parish assistant has them burn two test lights, one in the aisle and one by the door, and the draught turns the sum from 120 candles into 152, with a spare. Setting: Saint Senan's church, an invented parish near Kilrush, Co. Clare, the night of Saturday 14 March 2054. Read the full text at https://example.invalid/hearth-and-horizon/the-candle-that-says-four-hours.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A parish night vigil needs forty-eight tealights alight from nine at night until seven, and the box says four hours. The parish assistant has them burn two test lights, one in the aisle and one by the door, and the draught turns the sum from 120 candles into 152, with a spare.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Forty Tickets</title>
       <link>https://example.invalid/hearth-and-horizon/the-forty-tickets.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-forty-tickets.html</guid>
