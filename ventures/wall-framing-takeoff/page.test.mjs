@@ -1250,3 +1250,11 @@ test("the stair page has a spiral stair check wired to checkSpiral", () => {
   assert.match(html, /checkSpiral\(/);
   assert.match(html, /spiralText\(/);
 });
+
+test("panel calculator page is linked from the sitemap and llms.txt and imports the report", () => {
+  const html = page("panel-calculator.html");
+  assert.match(html, /wallPanelReport/);
+  assert.match(html, /No warranty/);
+  assert.match(page("sitemap.xml"), /panel-calculator\.html/);
+  assert.match(page("llms.txt"), /panel-calculator\.html/);
+});
