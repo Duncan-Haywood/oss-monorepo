@@ -1,13 +1,13 @@
 ---
-title: "Can your spiral stair pass code? A small check for the tread, width and riser rules"
-seo_title: "Spiral stair code check: width, tread depth and riser"
+title: "Does your spiral stair pass code? A free check in the browser"
+seo_title: "Spiral stair calculator: clear width, tread depth, riser, treads per turn"
 date: 2026-11-07
-tags: [wall-framing-takeoff, construction, stairs]
-description: "A spiral stair is allowed to break the usual stair rules, but only inside tighter limits. The framing takeoff now checks them from four typed numbers."
+tags: [wall-framing-takeoff, construction, calculators]
+description: "Type a spiral stair's rise, diameter, pole and treads per turn; see which model-code rule it fails and the most treads per turn that pass."
 ---
 
-A spiral stair gets an exception to the ordinary stair rules, but the exception has its own limits: 26 in of clear width, a tread at least 6-3/4 in deep measured 12 in from the narrow edge, risers no taller than 9-1/2 in, and 78 in of headroom.
+Spiral stairs get a looser rule set than straight ones in the model residential code: 26 in clear width, a tread at least 6-3/4 in deep measured 12 in from the narrow edge, risers up to 9-1/2 in. The stair page now checks a spiral against those typed limits.
 
-`checkSpiral` in the wall-framing-takeoff venture takes total rise, outer diameter, pole diameter and treads per turn. It returns the riser count, the clear width, the walkline depth and the most treads per turn that still pass. For a 60 in stair with a 4 in pole, 12 treads per turn and 110 in of rise, it gives 12 risers of about 9.17 in, 28 in clear and 7.33 in deep. Thirteen treads per turn is the most that passes.
+A 108 in rise, 60 in across, 4 in pole and 12 treads per turn gives 12 risers of 9 in, 28 in clear and a tread 7.33 in deep at the walkline: it passes. Move to 16 treads per turn and the tread drops to 5.50 in; the page says so and that 13 treads per turn is the most that pass. The test suite recounts the arithmetic by hand and the page was run in Chromium. The limits are held in one constant, so check your edition. The headroom test is a simplification, and no real spiral stair or maker's table has been checked.
 
-Limits are typed in `SPIRAL_LIMITS` because the code edition in force is the reader's to confirm. The headroom test is simplified: one turn's climb against 78 in, not a drawn opening. It is tested only against hand arithmetic, with no real spiral stair or maker's table, and it is a library function with no page yet. It is not engineering or legal advice.
+Nothing leaves your browser. Code: `ventures/wall-framing-takeoff/`.
