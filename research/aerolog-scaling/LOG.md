@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-07 · Milestone 10i: how many stopped rotors does the Wingcopter 198's 94 km claim need? (predictions in `rotor_count.py`'s docstring, fixed before the run)
+- Why: 10h's "Next". A web search this session (summaries of Wikipedia's infobox and trade press; wingcopter.com did not resolve from the session) gives **8 electric motors** for the 198. Propeller diameter, blades per rotor, which rotors tilt or fold, and wing area were not found.
+### Outcome (`experiments/wingcopter_check/rotor_count_results.txt`)
+- **P1 held:** 4 stopped rotors (8 blades, a 0.003 m2) give L/D 7.7 / 7.1 / 6.4 at S 0.5 / 0.7 / 1.0, bracketing 6.8. **P2 borderline:** 8 stopped rotors give 6.0 / 5.6 / 5.1, so all-rotors-stopped overshoots at S 0.7 and 1.0 and only touches 6.0 at S 0.5. **P3 held:** 2 stopped rotors give 8.2 at S 0.7.
+- Reading: if about half of the 8 rotors sit idle in cruise (the others tilt to push), idle-blade drag explains the 94 km at the assumed blade size; if all 8 stay stopped, the claim is overshot unless the blades are slimmer (a 0.002 m2: 6.5 at S 0.7). The rotor count is sourced; the split between tilting and fixed rotors is not, so this stays a plausibility range, not a demonstration.
+- Limits: blades per rotor (2), blade area and Cd are assumed; secondary-source count; level sea-level cruise; e 0.8.
+- Next: tilt/fixed split and propeller diameter from a datasheet (host must be allowed); wing area.
+
 ## 2026-11-07 · Milestone 10h: how much idle lift-rotor drag would close 10g's gap? (predictions in `rotor_drag.py`'s docstring, fixed before the run)
 - Why: 10g's "Next". With span fixed, a clean airframe (CD0 0.035) gives L/D 8.4 to 12.3 against the 6.8 the 94 km claim needs, so the shortfall is extra zero-lift drag. `experiments/wingcopter_check/rotor_drag.py` converts it to an equivalent flat-plate area f = (CD0 needed - 0.035) S and to a count of stopped blades.
 ### Outcome (`experiments/wingcopter_check/rotor_drag_results.txt`)
