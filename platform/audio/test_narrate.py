@@ -163,6 +163,18 @@ class Voicing(unittest.TestCase):
         self.assertEqual(out.dtype, np.float32)
 
 
+class DefaultWorkers(unittest.TestCase):
+    def test_one_process_per_usable_core_single_threaded(self):
+        from unittest import mock
+        with mock.patch.object(N.os, "sched_getaffinity", create=True, side_effect=lambda pid: {0, 1, 2} if pid == 0 else {9}):
+            self.assertEqual(N.default_workers(), (3, 1))
+
+    def test_never_fewer_than_one_process(self):
+        from unittest import mock
+        with mock.patch.object(N.os, "sched_getaffinity", create=True, return_value=set()):
+            self.assertEqual(N.default_workers(), (1, 1))
+
+
 class Fade(unittest.TestCase):
     def test_one_sample_fade_still_applies(self):
         out = N.fade(np.ones(10, dtype=np.float32), seconds=1.5 / N.RATE)
