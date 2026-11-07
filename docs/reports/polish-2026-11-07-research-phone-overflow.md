@@ -1,6 +1,5 @@
 ---
 kind: polish
-topics: [mobile, research, layout]
 date: 2026-11-07
 tagged: auto
 ---

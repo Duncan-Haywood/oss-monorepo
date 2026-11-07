@@ -1,5 +1,5 @@
 ---
-kind: agent-note
+kind: note
 subjects: [wall-framing-takeoff]
 tagged: manual
 ---
