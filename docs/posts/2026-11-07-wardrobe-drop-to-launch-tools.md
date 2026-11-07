@@ -1,9 +1,9 @@
 ---
 title: "A clothing brand's first drop now flows into the launch calculators"
-seo_title: "Capsule wardrobe first drop to cash flow, reorder and pre-order planner"
-date: 2026-11-08
+seo_title: "Capsule wardrobe first drop to cash flow, reorder and pre-order tools"
+date: 2026-11-07
 tags: [clothing-design-studio, fashion, launch-planning]
-description: "The free capsule wardrobe planner can now hand its first-drop quantities and average landed cost to the cash-flow, pre-order, wholesale, reorder and calendar tools."
+description: "The free capsule wardrobe planner now hands its first-drop quantities and average landed cost to the cash-flow, pre-order, wholesale, reorder and time tools."
 ---
 
 The capsule wardrobe planner in the Clothing Design Studio picks a small set of pieces that combine into many outfits and fills a production budget with the factory's minimum order of the pieces that appear in the most outfits. Until now a designer then retyped those numbers into every launch tool.
