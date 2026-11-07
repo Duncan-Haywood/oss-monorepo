@@ -1,7 +1,7 @@
 ---
 title: "A wind forecast with real skill still lost to a trailing mean"
 date: 2026-11-07
-description: "A ridge wind forecast fitted on real coastal data beats persistence on RMSE yet scores 0.8 points lower than a trailing mean when it plans a sailing tack schedule."
+description: "A ridge wind forecast fitted on real coastal data beats persistence on RMSE yet scores 0.8 points below a trailing mean when planning sailing tacks."
 tags: [research, sailing, marine-hull, forecasting]
 ---
 
