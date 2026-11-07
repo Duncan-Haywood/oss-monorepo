@@ -2,7 +2,7 @@
 title: "A free soffit and fascia calculator that shows its packing"
 seo_title: "Soffit and fascia calculator: panels, fascia boards, J-channel"
 date: 2026-11-07
-tags: [wall-framing-takeoff, construction, calculator]
+tags: [wall-framing-takeoff, construction, calculators]
 description: "Type a house size and overhangs; get soffit panels, fascia boards and J-channel packed into stock lengths with waste. Runs in your browser."
 ---
 
