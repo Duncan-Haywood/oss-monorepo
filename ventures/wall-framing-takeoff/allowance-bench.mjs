@@ -55,6 +55,11 @@ export function compare(plan, { gang = false } = {}) {
   };
 }
 
+/** The waste factor at which each rule would equal the counted order: counted / (rule before its 10% waste) - 1. Negative means the rule overshoots even with no waste at all. @param {{counted:number, perFoot:number, onCentre:number}} c */
+export function breakEvenWaste(c) {
+  return { perFoot: c.counted / (c.perFoot / 1.1) - 1, onCentre: c.counted / (c.onCentre / 1.1) - 1 };
+}
+
 const cases = [["example house (invented)", samplePlan()]];
 for (const n of [1, 2]) {
   const r = planFromDxf(readFileSync(new URL(`./fixtures/open-house-plans-${n}.dxf`, import.meta.url), "utf8"));
@@ -78,5 +83,11 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   for (const [name, plan] of cases) for (const c of spacingSweep(plan)) {
     if (!c.ok) continue;
     console.log(`${name}${c.ganged ? " (ganged)" : ""} | ${c.spacing} in | ${c.counted.toFixed(0)} | ${c.perFoot.toFixed(0)} (${pct(c.perFootOff)}) | ${c.onCentre.toFixed(0)} (${pct(c.onCentreOff)})`);
+  }
+  console.log("\nplan | spacing | waste at which per-foot rule matches | on-centre rule matches");
+  for (const [name, plan] of cases) for (const c of spacingSweep(plan)) {
+    if (!c.ok) continue;
+    const b = breakEvenWaste(c);
+    console.log(`${name} | ${c.spacing} in | ${pct(b.perFoot)} | ${pct(b.onCentre)}`);
   }
 }

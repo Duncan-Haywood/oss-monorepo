@@ -52,3 +52,10 @@ test("a 16 ft opening in a 20 ft wall: refused as drawn, laid out with the bench
   const g = compare(plan, { gang: true });
   assert.ok(g.ok && g.longHeaders, JSON.stringify(g.errors));
 });
+
+import { breakEvenWaste } from "./allowance-bench.mjs";
+test("break-even waste: the rule's own 10% waste is the break-even when it already equals the count", () => {
+  const b = breakEvenWaste({ counted: 100, perFoot: 110, onCentre: 220 });
+  assert.ok(Math.abs(b.perFoot - 0) < 1e-12);   // 110 / 1.1 = 100: zero waste matches
+  assert.ok(Math.abs(b.onCentre - (-0.5)) < 1e-12); // 200 raw vs 100 counted: -50%
+});
