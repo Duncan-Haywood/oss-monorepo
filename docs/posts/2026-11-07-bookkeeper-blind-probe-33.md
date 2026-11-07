@@ -1,5 +1,5 @@
 ---
-title: "Blind probe 33: our bookkeeping categorizer filed 20 of 25 right on florists, sign shops, beekeepers, mechanics and podcasters"
+title: "Blind probe 33: our bookkeeping categorizer filed 20 of 25 right on five unseen trades"
 seo_title: "AI bookkeeper categorizer: fifth blind test, florists to podcasters"
 date: 2026-11-07
 tags: [ai-bookkeeper, evaluation, bookkeeping]
