@@ -26,17 +26,26 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [
-    "docs/posts/2026-11-07-revit-writes-one-opening-per-cut.md",
-    "ventures/wall-framing-takeoff/README.md"
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The flagship next: named the Schultz duplicate-fill item, which another session took in parallel; no claim marker exists for flagship slices."
+    }
   ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post: my void fix duplicated one that landed on main minutes earlier (post the-duplicate-windows-that-were-not), so I dropped it and my post.",
+      "did": "Kept only the typecheck fix and the flagships cap trim",
+      "result": "main's CI was red on both; this clears them"
+    }
+  ],
+  "writeups": [],
   "goal": null,
-  "notes": "Cargo tests (17) and 138 JS ifc/page tests pass locally; Schultz IFC fetched from raw.githubusercontent, not committed (CC BY-ND). CI not awaited before record; no run cost attached.",
+  "notes": "Parallel session landed the same ifc-engine void fix; merged main and took theirs. Local: typecheck 0 diagnostics, wall-framing-takeoff venture suite ok before merge.",
   "corrections": [],
   "redteam": null
 }
