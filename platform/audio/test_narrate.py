@@ -189,6 +189,61 @@ class DefaultWorkers(unittest.TestCase):
             self.assertEqual(N.default_workers(), (1, 1))
 
 
+class DefaultWorkersFallback(unittest.TestCase):
+    def test_no_affinity_and_unknown_cpu_count_means_one_core(self):
+        from unittest import mock
+        had = hasattr(N.os, "sched_getaffinity")
+        orig = getattr(N.os, "sched_getaffinity", None)
+        if had:
+            del N.os.sched_getaffinity
+        try:
+            with mock.patch.object(N.os, "cpu_count", return_value=None):
+                self.assertEqual(N.default_workers(), (1, 1))
+            with mock.patch.object(N.os, "cpu_count", return_value=6):
+                self.assertEqual(N.default_workers(), (6, 1))
+        finally:
+            if had:
+                N.os.sched_getaffinity = orig
+
+
+class G2PChoice(unittest.TestCase):
+    def test_misaki_is_english_only(self):
+        self.assertEqual(N.Narrator(lang="fr-fr", g2p="misaki").g2p, "espeak")
+        self.assertEqual(N.Narrator(lang="en-gb", g2p="misaki").g2p, "misaki")
+        self.assertEqual(N.Narrator(lang="fr-fr", g2p="espeak").g2p, "espeak")
+
+
+class CacheKeyModelSize(unittest.TestCase):
+    def test_missing_model_differs_from_a_one_byte_model(self):
+        d = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, d)
+        n = N.Narrator(models=d, cache=None, g2p="espeak")
+        missing = n._key("x")
+        (d / N.MODEL_FILES[0]).write_bytes(b"x")
+        self.assertNotEqual(missing, n._key("x"))
+
+
+class PoolScheduling(unittest.TestCase):
+    def test_pool_hands_out_one_unit_at_a_time(self):
+        from unittest import mock
+        d = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, d)
+        n = N.Narrator(models=d / "m", cache=d / "c", g2p="espeak", workers=2)
+        units = ["one long enough sentence here.", "two long enough sentence here."]
+        pool = mock.MagicMock()
+        pool.map.return_value = [np.zeros(10, dtype=np.float32)] * 2
+        with mock.patch.object(N, "ensure_models"), mock.patch.object(N, "ProcessPoolExecutor", return_value=pool):
+            n.voice_units(units)
+        self.assertEqual(pool.map.call_args.kwargs["chunksize"], 1)
+
+
+class FfmpegFailure(unittest.TestCase):
+    def test_a_failing_ffmpeg_raises(self):
+        import subprocess
+        with self.assertRaises(subprocess.CalledProcessError):
+            N._ffmpeg(["-af", "nonexistent_filter_xyz", "-f", "null", "-"], np.zeros(100, dtype=np.float32))
+
+
 class Fade(unittest.TestCase):
     def test_one_sample_fade_still_applies(self):
         out = N.fade(np.ones(10, dtype=np.float32), seconds=1.5 / N.RATE)
