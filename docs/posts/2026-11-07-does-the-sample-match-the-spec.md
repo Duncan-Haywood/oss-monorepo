@@ -3,7 +3,7 @@ title: "Does the factory sample match the spec? A measurement table and a pass/f
 seo_title: "Garment spec sheet and sample check, free"
 date: 2026-11-07
 tags: [clothing-design-studio, fashion, tools]
-description: "The Clothing Design Studio tech pack now carries a points-of-measure table with tolerances for every size, and a page that checks a sample's measurements against it."
+description: "The Clothing Design Studio tech pack now has a points-of-measure table with tolerances for each size, and a page that checks a sample against it."
 ---
 
 A first sample arrives and the chest "feels tight". Without a table of measurements and tolerances, that is an argument. The Clothing Design Studio tech pack now includes one: half chest, hem, body length, sleeve, across shoulder and neck opening for every size, each with a tolerance, printed next to the artwork placements.
