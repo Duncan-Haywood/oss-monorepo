@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01E5sJKnq7R61prwbWzkZdTA",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md",
+  "input_sha256": "94a6b2a74a2fe72d09d7042291a4072d20b259b937e79b5deda0279ae57c7410",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T15:29:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13830",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Top consumers (pages tests, validate steps) are saturated or in CODEOWNERS paths; no non-control-plane lever left from the profile."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: the run's only finding was a two-line red-main fix.",
+      "did": "history note only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-07-red-main-two-seo-titles.md"
+  ],
+  "goal": null,
+  "notes": "No speed-up landed. Local cold pages suite 7m34s wall, 1458 pass/1 fail; fail fixed (two seo_titles). P063 needs owner (CODEOWNERS).",
+  "corrections": [],
+  "redteam": null
+}
