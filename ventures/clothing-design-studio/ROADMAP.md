@@ -21,6 +21,7 @@ many-session project. Each milestone below lands as a working slice.
 
 ## Next
 
+- 2026-11-07: `clothing-minimum-order-quantity.html`, a worked example (300-piece MOQ: 316 orders, 15,800 visitors at 2%, bought traffic loses money even when funded) for search; linked from the pre-order page, in sitemap and llms.txt; `page.test.mjs` recomputes every figure from `preorder.mjs`. All inputs are illustrative assumptions, no real campaign.
 - 2026-11-07: "View in VR" on the 3D preview (`enterVR` in `viewer3d.mjs`, `xrModelMatrix` in `garment3d.mjs`): an immersive-vr WebXR session draws the same mesh per eye, life-size, 1 m ahead. Matrix hand-tested; page checked in headless Chromium with a faked `navigator.xr` (button hidden, then shown). Not run on a real headset, no controllers or voice in VR yet.
 - 2026-11-07: the reorder page fills its size mix from an audience's chest (`sizeRun` from `fit.mjs`) with one button; shelf set to four weeks per size. Chromium click only, no real sell-through. Per-size reorder itself (`reorderBySize`) was already done.
 - 2026-11-07: transit days from the freight page now travel in the launch brief (`freightDays`, kept by the brief file) and fill the cash-flow "Freight (weeks)" box (days / 7, rounded). Hand-worked test in `launchbrief.test.mjs` (21 days = 3 weeks); unit tests only, no browser run.
