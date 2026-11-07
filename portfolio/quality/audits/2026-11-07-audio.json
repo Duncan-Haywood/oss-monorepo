@@ -1,0 +1,56 @@
+{
+ "date": "2026-11-07",
+ "subject": "platform/audio",
+ "stratum": "platform",
+ "seed": "2026-11-07-b",
+ "auditor": "agent session (Claude), 2026-11-07 round 2",
+ "status": "audited",
+ "professional": "a podcast / audiobook mastering engineer who ships to Apple Podcasts and Spotify (-16 LUFS integrated, true peak ceiling, constant-bitrate MP3) and would first ask: does the delivered file measure what the code says it targets, and what happens on silent or degenerate input?",
+ "scores": {
+  "correctness": 3,
+  "completeness": 2,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "What it is: one file, platform/audio/narrate.py (354 lines): sentence splitting, pause design, Kokoro voicing with a disk cache, and master(): two-pass EBU R128 fixed gain, alimiter, 32 kHz CBR MP3. Callers (grep): platform/pages/podcast_tts.py, ventures/saints-by-candlelight, hearth-and-horizon, sed-contra, catholic-shorts. Ran master() on a 20 s synthetic speech-like signal (24 kHz, syllable-rate bursts, raw -29.6 LUFS) and recomputed the output three ways I did not take from the author's code. (1) Input loudness: my own numpy BS.1770-4 implementation (K-weighting biquads from the spec constants, 400 ms blocks, -70 absolute and -10 LU relative gates) gave -29.60 LUFS; ffmpeg ebur128 gave -29.6; narrate.measure() (loudnorm, with its 60 Hz high-pass) gave -29.80. (2) Delivered loudness: ffmpeg ebur128 of the MP3 gave I=-16.4 LUFS, my numpy BS.1770 on the decoded MP3 gave -16.37 (same at input scale 0.05: -16.3 / -16.36), so the file lands 0.4 LU under the stated -16.0 target; the author's own report (docs/reports/2026-10-24-audio-engine.md) shows -16.5 to -16.8, consistent. True peak -3.0 dBTP, under the -1.5 ceiling; a signal clipped at full scale came out -5.7 dBTP. (3) Container facts via ffprobe: 32000 Hz, 1 channel, 40000 bit/s CBR as claimed; duration 20.052 s for 20.000 s of input (the 52 ms is the encoder delay; master() reports round(seconds,2)=20.05, i.e. the file length, not the content length). sentences() checked by hand on abbreviations ('Mr.', 'Washington D.C.', '$3.50', '3 p.m.'): no bad splits. Not recomputed: voicing itself (no Kokoro model or kokoro_onnx in this container), so the speech path is unverified here.",
+  "completeness": "Claims checked from the module docstring and docs/reports/2026-10-24-audio-engine.md: sentence units and merging (works, tested); on-disk cache keyed by model/voice/speed/lang/text (tested with stand-in audio); parallel workers (logic tested with mocks only, not run); designed pauses and fades (works); linear two-pass loudness with limiter (works, measured above); 32 kHz CBR MP3 (works, ffprobe). Gaps: the end-to-end Narrator.render with a real voice could not be run (350 MB model not present, kokoro_onnx not installed), so the central feature is checked only against mocks; there is no README or CLI in the directory (the 'Setup, once' text lives in the module docstring); master() on an all-zero input silently produces a file because loudnorm returns -inf and the gain becomes +inf (volume=inf dB) with no error or warning, and near-silent input (1e-6 noise) is delivered at -28.2 LUFS not -16, again silently; master() on an empty array raises a bare CalledProcessError. Metadata values are passed through unescaped but as separate argv items, so no injection.",
+  "verification": "Ran (cd platform/audio && python3 -m pytest -q test_narrate.py): 24 passed in 1.4 s. Seeded mutation 1 in master(): gain = LOUDNESS - m['lufs'] + 0.8 (output about -15.2 LUFS, a clear mis-calibration): 24 passed, NOT caught, because test_lands_on_target_loudness allows delta=1.0 LU. Seeded mutation 2 in Narrator._key: dropped round(self.speed, 3) from the cache key: caught (test_key_depends_on_voice_speed_and_g2p failed). Both reverted with git checkout -- platform/audio/narrate.py; git diff --stat on platform/audio is empty afterwards. A third sed (removing 'Mr' from _ABBREV) did not apply, so it is not counted. Other gaps: no test for the silent/-inf case, none for the real voicing path (_voice, _load only with mocks), and the suite is not run by any GitHub workflow (grep of .github/workflows finds no reference; it is only listed as a manual command in .github/prompts/verify-and-merge.md:26), so a regression would reach the five callers unseen. Tests are otherwise meaningful (stand-in cache audio so the timing math is exercised exactly).",
+  "craft": "Read narrate.py whole and test_narrate.py (headers, test list, the master tests). Good: atomic cache write via .part/.tmp then rename; model download to .part then rename; cache key includes the model file size and g2p so a swapped model invalidates it; worker count from sched_getaffinity (respects cgroup/affinity); longest-first scheduling; ffmpeg fed over a pipe with check=True; argv lists, no shell. Defects: master() trusts measure() blindly (no isinf check, no guard for empty input); measure() parses the last {...} block of stderr with a regex, so a changed ffmpeg log format fails with IndexError rather than a clear message; the pool is created outside the try, and results are lazily consumed so an exception mid-run leaves the shutdown to the finally but the single-process path leaves a loaded global _KOKORO; _store writes float16 (documented, but an unconditional lossy cache); round(seconds, 2) includes encoder delay; 'import numpy' at top makes the module unusable without it, fine for a tool.",
+  "claims": "Checked claims: 'Two-pass EBU R128: measure, then one fixed gain and a true-peak limiter' backed (master(), measured above). 'MP3 at 32 kHz' backed (ffprobe). 'LOUDNESS = -16.0 # the podcast norm' - the code targets -16.0 but delivers -16.3 to -16.4 on my signal and the author's report shows -16.5 to -16.8; the report discloses this and the 0.5 dB true-peak overshoot, but the docstring does not, and the one test that would pin it allows a full LU. 'True-peak limiter' with TRUE_PEAK = -1.5: output measured -3.0 and -5.7 dBTP so the ceiling holds on these inputs (report admits about +0.5 dB overshoot on real speech). 'a re-render with no edits runs no model' backed by test_renders_from_cache_with_designed_gaps (mock). 'half precision ... ~66 dB below the signal' is arithmetic, plausible, with test_cache_round_trip_is_close. 'Needs ffmpeg' stated. 'Measurements behind every default: docs/reports/2026-10-24-audio-engine.md' exists and carries tables (PESQ, LSD, gain wobble) that I did not re-run (needs the 29-episode corpus and models). No claim of CI coverage is made, but the verify-and-merge doc implies the tests are part of the routine while no workflow runs them.",
+  "fitness": "Job: a producer renders an episode script to a loudness-normalised MP3 for a feed. For the mastering half I walked it through end to end on a synthetic piece: float PCM in, correct MP3 out with title tag, correct sample rate, bitrate and length, loudness within 0.4 LU of target. Five callers in the repo use it. The synthesis half I could not run here. A practitioner would accept the master() output for podcasts (platforms normalise anyway) but would ask for a measured-after-encode correction pass and a fail-loud check on silent input.",
+  "domain": "Compared against ITU-R BS.1770-4 / EBU R128 (K-weighting, 400 ms blocks, -70 LUFS absolute and -10 LU relative gate), the Apple/Spotify podcast norm of about -16 LUFS integrated with -1 to -2 dBTP, and mastering practice. Matches: a fixed linear gain plus look-ahead limiter at 4x oversampling (aresample=96000) is how a mastering engineer avoids loudnorm's dynamic mode pumping; 60 Hz high-pass; mono CBR for length estimation; true-peak handled on an oversampled signal. My independent BS.1770 implementation agrees with the ffmpeg measure to 0.0 to 0.2 LU. Departures: the loudness is measured before the encoder and the limiter, so the delivered file is 0.3 to 0.8 LU off target and there is no after-encode verification pass; the measurement filter chain includes a high-pass that the BS.1770 meter does not (0.1 to 0.2 LU effect seen: -29.80 vs -29.60); no handling of mono-vs-stereo downmix assumptions (mono only, which suits speech); 32 kHz sample rate is non-standard for podcast hosts though valid MPEG-1 and justified by the report."
+ },
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The loudness test allows +/-1.0 LU, so a +0.8 dB calibration error in master() (seeded mutation) passes all 24 tests; the file already lands 0.3 to 0.4 LU below target.",
+   "where": "platform/audio/test_narrate.py:196"
+  },
+  {
+   "severity": "medium",
+   "what": "master() on silent or near-silent input does not fail: loudnorm returns -inf, gain becomes +inf and ffmpeg is called with 'volume=inf dB'; an all-zero clip yields a file silently, noise at 1e-6 amplitude is delivered at -28.2 LUFS, and an empty array raises a bare CalledProcessError.",
+   "where": "platform/audio/narrate.py:339"
+  },
+  {
+   "severity": "medium",
+   "what": "The suite is not run by any GitHub workflow (only a manual line in verify-and-merge.md), while five venture and platform pipelines depend on this module.",
+   "where": ".github/workflows/ (no reference); .github/prompts/verify-and-merge.md:26"
+  },
+  {
+   "severity": "low",
+   "what": "Loudness is measured before limiter and MP3 encode, so delivered loudness (-16.3 to -16.8) and true peak differ from the targets; the docstring and constants do not say so (the report does).",
+   "where": "platform/audio/narrate.py:339"
+  },
+  {
+   "severity": "low",
+   "what": "Reported seconds includes encoder delay (20.05 for 20.00 s of content); measure() parses ffmpeg stderr with a fragile last-JSON-block regex; no README for the directory.",
+   "where": "platform/audio/narrate.py:328"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "platform/audio is a single 354-line narration engine whose mastering half is sound and independently verified: on a synthetic piece my own BS.1770-4 implementation and ffmpeg ebur128 agree (-29.60 and -29.6 LUFS in, -16.37 and -16.4 out), the MP3 is 32 kHz mono 40 kbps CBR as claimed, and true peak stays under the ceiling. It falls short of the bar on verification and claims: the loudness test's 1 LU tolerance let a seeded +0.8 dB gain bug through (another seeded bug, in the cache key, was caught), the 24 tests are not run by CI although five pipelines depend on the module, the voicing path could not be run here (no model) and is mock-tested only, and silent input is accepted without error. The delivered loudness sits 0.3 to 0.8 LU under the -16 LUFS target and no pass checks the encoded file. Good craft and the right professional method, one fixable test tolerance and one wiring gap short of meeting the bar."
+}
