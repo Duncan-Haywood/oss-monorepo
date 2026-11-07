@@ -5,7 +5,9 @@
   "prompt_version": 1,
   "input": "scheduled: continue revenue software work, merge when done",
   "model": "claude-sonnet-5-5",
-  "projects": ["ventures/wall-framing-takeoff"],
+  "projects": [
+    "ventures/wall-framing-takeoff"
+  ],
   "tests_added": 4,
   "outcome": "success",
   "errors": [],
@@ -19,6 +21,9 @@
       "result": "Shipped with tests."
     }
   ],
-  "writeups": ["docs/posts/2026-11-07-how-many-retaining-wall-blocks.md"],
-  "notes": "retaining.test.mjs and page.test.mjs pass. Hand tests only; no real block maker takeoff checked."
+  "writeups": [
+    "docs/posts/2026-11-07-how-many-retaining-wall-blocks.md"
+  ],
+  "notes": "retaining.test.mjs and page.test.mjs pass. Hand tests only; no real block maker takeoff checked.",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13730"
 }
