@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
-for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "insulation-calculator.html", "trim-calculator.html", "roof-calculator.html", "gutter-calculator.html", "flooring-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html", "ventilation-calculator.html", "stud-drilling-checker.html", "plumbing-calculator.html", "hvac-calculator.html", "walltile-calculator.html", "electrical-calculator.html", "paint-calculator.html", "price-sensitivity-calculator.html", "order-by-date-calculator.html", "fireblock-calculator.html", "nail-calculator.html", "floor-calculator.html", "foundation-calculator.html", "cmu-calculator.html", "dormer-calculator.html", "fence-calculator.html"]) {
+for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "insulation-calculator.html", "trim-calculator.html", "roof-calculator.html", "gutter-calculator.html", "flooring-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html", "ventilation-calculator.html", "stud-drilling-checker.html", "plumbing-calculator.html", "hvac-calculator.html", "walltile-calculator.html", "electrical-calculator.html", "paint-calculator.html", "price-sensitivity-calculator.html", "order-by-date-calculator.html", "fireblock-calculator.html", "nail-calculator.html", "floor-calculator.html", "foundation-calculator.html", "cmu-calculator.html", "dormer-calculator.html", "fence-calculator.html", "paver-calculator.html"]) {
   test(`${name} carries the disclaimer, privacy line and sponsor link`, () => {
     const html = page(name);
     assert.match(html, /No warranty/);
@@ -596,7 +596,7 @@ test("the deck lumber calculator page: FAQ matches its data, default inputs give
 });
 
 test("every page links to every other page (internal linking for readers and crawlers)", () => {
-  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "insulation-calculator", "trim-calculator", "roof-calculator", "gutter-calculator", "flooring-calculator", "deck-lumber-calculator", "schedule-calculator", "bid-leveling-calculator", "change-order-calculator", "ventilation-calculator", "stud-drilling-checker", "plumbing-calculator", "hvac-calculator", "walltile-calculator", "electrical-calculator", "paint-calculator", "price-sensitivity-calculator", "order-by-date-calculator", "fireblock-calculator", "nail-calculator", "floor-calculator", "foundation-calculator", "cmu-calculator", "dormer-calculator", "fence-calculator"].map((n) => n + ".html");
+  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "insulation-calculator", "trim-calculator", "roof-calculator", "gutter-calculator", "flooring-calculator", "deck-lumber-calculator", "schedule-calculator", "bid-leveling-calculator", "change-order-calculator", "ventilation-calculator", "stud-drilling-checker", "plumbing-calculator", "hvac-calculator", "walltile-calculator", "electrical-calculator", "paint-calculator", "price-sensitivity-calculator", "order-by-date-calculator", "fireblock-calculator", "nail-calculator", "floor-calculator", "foundation-calculator", "cmu-calculator", "dormer-calculator", "fence-calculator", "paver-calculator"].map((n) => n + ".html");
   for (const f of pages) {
     const html = page(f);
     for (const other of pages) if (other !== f) assert.ok(html.includes(`<a href="${other}">`), `${f} does not link ${other}`);
@@ -1101,4 +1101,21 @@ test("the fence calculator page: FAQ matches its data and the stated figures are
   assert.equal(r.posts, 16); assert.equal(r.cornerPosts, 4); assert.equal(r.linePosts, 10); assert.equal(r.gatePosts, 2);
   assert.equal(r.bays, 14); assert.equal(r.railPieces, 42); assert.equal(r.pickets, 222);
   assert.equal(r.concreteBags, 31); assert.equal(r.concreteBagsPerPost.toFixed(2), "1.92"); assert.equal(r.fasteners, 1332); assert.equal(r.fastenerBoxes, 2); assert.equal(r.postLength, 120);
+});
+
+test("the paver calculator page: FAQ matches its data and the stated figures are what the engine gives", async () => {
+  const html = page("paver-calculator.html");
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("([\w-]+)"\)/g)) assert.ok(ids.has(m[1]), m[1]);
+  const { layoutPaver } = await import("./paver.mjs");
+  const r = layoutPaver(JSON.parse(html.match(/<textarea[^>]*>(.*?)<\/textarea>/s)[1]));
+  assert.equal(r.ok, true);
+  assert.equal(r.netSqFt, 176); assert.equal(r.pavers, 832); assert.equal(r.edgePieces, 6); assert.equal(r.spikes, 56); assert.equal(r.jointSandBags, 4);
+  assert.equal(r.paversExact.toFixed(2), "756.18"); assert.equal(r.baseCuYd.toFixed(2), "3.16"); assert.equal(r.baseTons.toFixed(2), "4.43");
+  assert.equal(Math.round(r.jointSandLb), 158);
 });
