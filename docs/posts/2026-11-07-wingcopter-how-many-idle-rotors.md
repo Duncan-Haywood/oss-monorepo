@@ -1,7 +1,7 @@
 ---
 title: How many idle rotors explain a delivery drone's range claim?
 date: 2026-11-07
-description: "Four stopped lift rotors of the Wingcopter 198 would add enough drag to match its quoted 94 km range; all eight would overshoot it. A plausibility range, not a finding."
+description: "Four stopped lift rotors of the Wingcopter 198 would add enough drag to match its quoted 94 km range; all eight would overshoot it. A plausibility range."
 tags: [research, uav, aerolog-scaling]
 ---
 
