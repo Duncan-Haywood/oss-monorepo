@@ -486,6 +486,14 @@ test("the insulation calculator page: FAQ matches its data, the 40 x 30 house gi
     assert.equal(+d.assembly.clearWallR.toFixed(1), clearR, size);
     assert.equal(+(100 * d.framingShare).toFixed(1), share, size);
   }
+  {
+    // ventilation fields: 1200 sq ft, 3 bedrooms -> 0.03*1200 + 7.5*4 = 66 cfm; x 1.08 = 71.28 BTU/h per F (hand arithmetic)
+    for (const id of ["vfl", "vbed", "vrec"]) assert.ok(ids.has(id), id);
+    const plan = build("2x4");
+    const d = layoutInsulation({ bagSqFt: 88, waste: 0.05, assembly: { ventFloorSqFt: 1200, ventBedrooms: 3, ventRecoveryEff: 0 } }, plan, takeoff(plan));
+    assert.equal(+d.assembly.heat.ventCfm.toFixed(1), 66);
+    assert.equal(+d.assembly.heat.ventilationUA.toFixed(2), 71.28);
+  }
   assert.match(html, /890 sq ft of open cavity/);
   assert.match(html, /about R-13\.1/);
   assert.match(html, /about R-17\.8/);

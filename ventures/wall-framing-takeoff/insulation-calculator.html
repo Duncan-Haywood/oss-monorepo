@@ -41,6 +41,9 @@
       <div><label for="waste">Waste (%)</label><input id="waste" value="5"></div>
       <div><label for="doors">Doors (3 x 6 ft 8 in)</label><input id="doors" type="number" min="0" value="1"></div>
       <div><label for="wins">Windows (3 x 4 ft)</label><input id="wins" type="number" min="0" value="2"></div>
+      <div><label for="vfl">Conditioned floor area for ventilation (sq ft, optional)</label><input id="vfl" type="number" min="0" placeholder="e.g. 1200"></div>
+      <div><label for="vbed">Bedrooms (with floor area)</label><input id="vbed" type="number" min="0" placeholder="e.g. 3"></div>
+      <div><label for="vrec">Heat recovery effectiveness (%, 0 for none)</label><input id="vrec" type="number" min="0" max="95" value="0"></div>
     </div>
   </form>
   <pre id="out" aria-live="polite"></pre>
@@ -89,7 +92,9 @@
       if (!ok) { $("out").textContent = "Check the numbers: sides of at least 8 ft, walls 6 to 16 ft high, bags of 10 to 500 sq ft, waste 0 to 30%, and the doors and windows have to fit along the first wall."; return; }
       try {
         const r = takeoff(plan);
-        const d = layoutInsulation({ bagSqFt: bag, waste, assembly: true }, plan, r);
+        const vfl = $("vfl").value.trim(), vbed = $("vbed").value.trim();
+        const assembly = vfl || vbed ? { ventFloorSqFt: vfl === "" ? undefined : +vfl, ventBedrooms: vbed === "" ? undefined : +vbed, ventRecoveryEff: (+$("vrec").value || 0) / 100 } : true;
+        const d = layoutInsulation({ bagSqFt: bag, waste, assembly }, plan, r);
         $("out").textContent = d.ok === false ? d.errors.join("\n") : insulationText(d).join("\n");
       } catch (e) { $("out").textContent = String(e && e.message || e); }
     };
