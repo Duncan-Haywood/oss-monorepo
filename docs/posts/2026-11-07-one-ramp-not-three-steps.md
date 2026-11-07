@@ -2,7 +2,7 @@
 title: "One ramp, not three steps: grouping a changepoint detector's cuts"
 date: 2026-11-07
 tags: [changepoint-detector, statistics, time-series]
-description: "A changepoint detector cuts a smooth rise into steps. The changepoint-detector now reports adjacent same-direction cuts as one ramp, and says why that is only a grouping rule."
+description: "A changepoint detector cuts a smooth rise into steps. The changepoint-detector now reports adjacent same-direction cuts as one ramp, a grouping rule, not a test."
 ---
 
 A changepoint detector fed a smooth rise will cut it into steps. On US median unemployment duration (574 months), every
