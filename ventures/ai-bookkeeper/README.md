@@ -983,3 +983,7 @@ A bank CSV whose date column is headed `Time`, `Timestamp`, `Date/Time` or `Date
 ### Gumroad sales export (2026-11-06)
 
 `readStatement` read a Gumroad sales CSV (Item Name, Sale Price, Gumroad Fee, Net Total, Date) as zero rows. It now books Net Total under the item name. Layout from memory; made-up rows only (`gumroad-sales.test.mjs`). A real export is wanted.
+
+### Platform exports keep customers out of descriptions (2026-11-07)
+
+`platform-exports-privacy.test.mjs` (5 tests, made-up rows, layouts from memory like the readers it covers) reads a Gumroad, Paddle, Patreon, Ko-fi and Lemon Squeezy export carrying a buyer name and email and asserts neither reaches a row description, which feeds the categorizer, payee memory and the CSV/QBO exports. All five passed with no code change; the test guards the property. Square's export was not added (its layout is covered in `square-export-net.test.mjs`). No real export seen.
