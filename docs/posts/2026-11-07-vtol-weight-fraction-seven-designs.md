@@ -3,7 +3,7 @@ title: "Seven NASA air-taxi designs say a cargo VTOL's airframe weighs 48 to 62%
 seo_title: "VTOL empty weight fraction: seven NASA concept vehicles checked"
 date: 2026-11-07
 tags: [aerolog-scaling, research, vtol]
-description: "A hover-plus-L/D energy model reproduces NASA's fuel weights for two turboshaft air taxis; their non-energy weight fraction runs 0.48 to 0.62, well above our assumed 0.40."
+description: "A hover-plus-L/D model reproduces NASA fuel weights for two turboshaft air taxis; their non-energy weight fraction is 0.48 to 0.62, not our 0.40."
 ---
 
 Our battery cargo-VTOL sizing model assumed everything except energy and payload was 40% of takeoff weight. Checking it against NASA's published concept vehicles (Johnson, Silva and Solis, 2018) showed the energy half is fine and the airframe half is not.
