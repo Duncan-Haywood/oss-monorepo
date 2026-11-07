@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-07",
+  "stratum": "venture",
+  "seed": "2026-11-07-c",
+  "auditor": "agent session (Claude), subagent audit",
+  "status": "audited",
+  "fix_prs": [],
+  "subject": "ventures/campground-site-profit-calculator",
+  "professional": "a campground/RV-park operator or hospitality accountant who builds a park's P&L by occupied site-nights, with seasonal rate mix, lodging tax and OTA commission, checking break-even occupancy first",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran compute() on the built-in SAMPLE (40 sites, 6 months, 55%, $48, 2.5-night stay, $6 fee, $4/night, 15 min turnover @$16, 8% commission, $120,000 fixed, $40,000 target). Hand arithmetic: available = 40*6*30.4 = 7296 site-nights; occupied = 4012.8 (tool 4012.8); income/night = (48+6/2.5)*0.92 = 46.368; revenue = 4012.8*46.368 = $186,065.51 (tool 186065.51); variable = 4+0.25*16/2.5 = 5.6/night, margin 40.768; profit = 186065.51 - 22471.68 - 120000 = $43,593.83 (tool 43593.83); break-even = 120000/40.768/7296 = 40.34% (tool 40.34); rate for $40k target = ((160000/4012.8)+5.6)/0.92 - 2.4 = $47.03 (tool 47.03). Edge: fixedYear 0 gives break-even 0%, rate 0. Formulas are the author's; hand arithmetic only, no external standard.",
+    "completeness": "README claims: yearly profit, break-even occupancy, break-even and target nightly rate, occupancy table. All appear in compute() output and sweep; summaryText and sweepCsv exist. Page not rendered in a browser; page.test.mjs checks markup as text.",
+    "verification": "cd ventures/campground-site-profit-calculator && node --test: 21 pass, 0 fail. Seeded mutation 1 (DAYS 30.4 to 30 and removing /avgStay on labour): 2 tests failed. Mutation 2 (labour without /avgStay only): 1 test failed. Both reverted with git checkout. Only 21 tests, but sensitive.",
+    "craft": "Read calc.mjs (90 lines), llms.txt, README, page.test.mjs. Compact, pure, input parsing tolerates $ , %, explicit error list. Defects: error text at calc.mjs:28 repeats 'insurance' twice; DAYS=30.4 hard-coded approximation of 365/12; sweep uses fixed occupancy grid plus the user's value.",
+    "claims": "README/llms.txt claims map to calc.mjs outputs; disclaimer 'No warranty ... not legal, tax, accounting' on index.html:114 and tested; page lists 'Not decided' limits (taxes, seasonality, capital repairs) at index.html:95. llms.txt still links the old github.io address (low).",
+    "fitness": "Owner can answer 'do we make money at this rate and occupancy and what rate fixes it' in minutes. Gaps in the first hour: a single flat occupancy and single rate for the whole season, so weekend/weekday and peak/shoulder mix and site types (full hookup vs tent) cannot be modelled; no lodging/occupancy tax, no seasonal-site or monthly-stay revenue, turnover labour has no payroll burden.",
+    "domain": "A campground operator/hospitality accountant models revenue by site type and season and tracks RevPAR/ADR-like metrics; this uses one blended ADR and occupancy, a sound first-order contribution-margin break-even (fixed / unit margin) that is correctly derived. Departs on seasonality, burden, tax, which the page states as not decided."
+  },
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Turnover labour uses the raw wage with no payroll burden, understating variable cost per night by roughly 10-25%",
+      "where": "ventures/campground-site-profit-calculator/calc.mjs:42"
+    },
+    {
+      "severity": "medium",
+      "what": "Single blended occupancy and rate for the whole season; no peak/shoulder or weekend mix, so break-even is only indicative",
+      "where": "ventures/campground-site-profit-calculator/calc.mjs:51"
+    },
+    {
+      "severity": "low",
+      "what": "Error message lists 'insurance' twice",
+      "where": "ventures/campground-site-profit-calculator/calc.mjs:28"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt links the old github.io address",
+      "where": "ventures/campground-site-profit-calculator/llms.txt:8"
+    }
+  ],
+  "verdict": "Maths is right (five outputs recomputed by hand match to the cent), tests catch seeded bugs, and limits are stated on the page. It is a competent first-order worksheet; an operator would hit missing seasonality, burden and tax in the first hour, so fitness and domain are 2. Meets the bar by the computed rule."
+}

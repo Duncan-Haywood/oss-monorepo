@@ -28,7 +28,7 @@ export function regime(country) {
   return { code: c, kind: "unknown", text: `No rule of thumb recorded for ${c}; check local law before sending.` };
 }
 
-const POSTAL = /\b\d{1,6}\s+[\w.'-]+(\s+[\w.'-]+){0,4}\s+(st|street|ave|avenue|rd|road|blvd|boulevard|ln|lane|dr|drive|way|ct|court|pl|place|suite|ste|floor|box|strasse|straße|rue|calle)\b|\bP\.?O\.?\s*Box\s*\d+|\b[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}\b|\b\d{5}(-\d{4})?\b/i;
+const POSTAL = /\b\d{1,6}\s+[\w.'-]+(\s+[\w.'-]+){0,4}\s+(st|street|ave|avenue|rd|road|blvd|boulevard|ln|lane|dr|drive|way|ct|court|pl|place|suite|ste|floor|box|strasse|straße|rue|calle)\b|\bP\.?O\.?\s*Box\s*\d+|\b[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}\b|\b\d{5}-\d{4}\b|,\s*[A-Za-z]{2}\s+\d{5}\b/i;
 const OPT_OUT = /unsubscribe|opt[- ]?out|not hear from me|stop (emailing|contacting|these)|reply (with )?(stop|no)|remove me/i;
 const FAKE_FWD = /^\s*(re|fw|fwd)\s*:/i;
 const DECEPTIVE = [[/\b(your (invoice|order|payment|account|package)|security alert|action required|urgent)\b/i, "Subject looks like a transactional or alarm message; CAN-SPAM bans deceptive subject lines"], [/\bfree (gift|trial|money)\b/i, "Subject leads with a free offer; make sure the body delivers exactly that"]];

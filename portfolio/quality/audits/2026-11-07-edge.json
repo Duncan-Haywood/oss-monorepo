@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-07",
+  "subject": "platform/edge",
+  "stratum": "platform",
+  "seed": "2026-11-07-c",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a CDN/edge reliability engineer who runs Cloudflare Workers + D1 in production (and, for the inbox, a privacy engineer checking GDPR retention). First checks: CORS/origin handling, rate-limit and quota-exhaustion behaviour, whether the SQL is tested against a real engine, and error observability.",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 3,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran `node --test platform/edge/*.test.mjs platform/counter/*.test.mjs`: 68 pass, 0 fail. Recomputed independently (not via the author's tests): (1) inbox retention cutoff for 2026-11-07 at 90 days: node retentionCutoff gave 2026-08-09T00:00:00.000Z; Python date arithmetic gave 2026-08-09, match. (2) The per-slug cap upsert `INSERT ... ON CONFLICT DO UPDATE SET n=n+1 WHERE n < ?3` was run against real SQLite 3.45 using schema.sql with cap 3: changes() = 1,1,1,0,0 and n stays 3, so the Worker's SQL semantics are right (D1 is SQLite). (3) feedbackRecord boundaries and email scrub: 4 chars rejected, 5 accepted, 'a.b+c@ex.co.uk' replaced by '[email removed]'; sameSecret(abc,abc)=true, (abc,abd)=false, (abc,abcd)=false. Cross-check against Cloudflare free-plan figures (100k requests/day, 100k D1 rows written/day) gives the README's '5 rows per load, ~20,000 loads/day' (100000/5). Not deployed here, so live Worker/D1 behaviour, real email routing and the 5xx path were not exercised; score capped at 2 for that. Defect found: a non-integer cap env var like '20k' gives NaN, so `n < NaN` never allows an increment and counting silently stops (worker.mjs:51).",
+    "completeness": "README claims checked: POST /feedback (origin gate, email scrub, 50/day cap, 3/min limiter) works in tests; GET /feedback, POST /hit (DNT/GPC, unknown slug, geo/dev/bot keys), GET /counts?since, /healthz, inbox email() handler, GET/DELETE /inbox bearer auth, 256 KB limit, 200/day cap, 90-day retention on delivery and read: all present and test-covered. pull-feedback.mjs and read-inbox.mjs exist. Not done and admitted: replying to mail ('not built yet'). wrangler.toml database_id is a zero placeholder, but edge-deploy.yml:74 seds the real id in, so it is deliberate. No TODOs or stubs found.",
+    "verification": "Tests run: 68 pass. Seeded mutations: (a) worker.mjs countHit SQL `WHERE n < ?3` changed to `n < ?3 + 1000000` (removes the daily abuse cap in production): ALL 68 TESTS STILL PASSED, because worker.test.mjs:8 fakeDb() re-implements the cap in JavaScript and never executes the SQL, so the SQL in worker.mjs:54, 82 and inbox.mjs:77 is untested (the Worker's riskiest logic: quota protection). (b) Origin check at worker.mjs:103 disabled: caught (2 failures). (c) feedback.mjs MESSAGE_MIN 5 to 4: NOT caught, the minimum-length boundary has no test. All reverted with git checkout; git status clean. Tests are otherwise meaningful (header, CORS, 413 boundary, limiter, auth, retention).",
+    "craft": "Read worker.mjs, inbox.mjs, feedback.mjs, wrangler.toml, schema.sql, tests. Good: pure rules split out (feedback.mjs), constant-time token compare, streaming size cap in readCapped, parameterised SQL everywhere. Defects: (1) worker.mjs:161 bare `catch {}` returns 500 with no logging of the error, so a D1 outage or quota exhaustion is invisible to an on-call engineer. (2) worker.mjs:154-157 comment says '204 either way' but a D1 failure in countHit returns 500, not 204. (3) worker.mjs:56-67 up to five separate non-atomic writes per hit (no db.batch), so a failure midway leaves the page count without its breakdown rows and the README's 'the same loads' invariant breaks. (4) worker.mjs:51 Number() of a bad var gives NaN, silently disabling counting (see correctness). (5) worker.mjs:118 limiter key falls back to the literal 'unknown', so requests without cf-connecting-ip share one bucket. (6) worker.mjs:121-123 the daily-cap slot is consumed before the INSERT, so a failed insert burns a slot, and one sender can spend the 50/day site-wide quota (denial of feedback). (7) inbox.mjs:41 reads the stream to find size rather than checking message.rawSize first. (8) schema.sql has no index on inbox.received although purgeExpired runs on every delivery and read (full scan, fine at 200 rows/day).",
+    "claims": "README line 1-3 and 30-ish still describe the site as served at duncan-haywood.github.io and says 'GitHub Pages gives no request logs', but CLAUDE.md and the same README's later text say the site is marisstella.app on Cloudflare since 2026-10-30; worker.test.mjs:63 also still uses the legacy origin as the test origin. 'It never creates a charge' is true only while the account is on the free plan with no paid add-ons; stated as such in wrangler.toml but asserted flatly in worker.mjs:30-32. 'No IP address ... is stored by this code' is true (checked: the IP is only the limiter key). 'Rows covered ~20,000 loads/day' recomputed above and holds as an upper bound only when geo is present. Privacy copy 90 days matches inbox.mjs RETENTION_DAYS (build.mjs not re-read). The README header/hook ('Checking it') uses a workers.dev URL that I could not load via the proxy, so live claims such as 'id 1 is an agent test message' are unverified.",
+    "fitness": "Job walked through: a visitor posts feedback, it is validated, stored, pulled by pull-feedback.mjs into the repo; page pings counted per day; support mail stored privately and read with a token, retention enforced, erasure endpoint exists. For the owner's real job (private feedback/counts/inbox at zero cost) the design works and quota failure modes are bounded. Gaps: no way to see failures (no logging), no reply path, /hit accepts any origin so counts can be inflated by anyone (bounded by the 20,000 cap), no alerting when the daily caps are hit.",
+    "domain": "Compared with Cloudflare's Workers/D1 guidance and standard edge practice: uses Rate Limiting binding and D1 upserts correctly; Email Routing `email()` handler with setReject is the documented pattern; CORS echoing an allow-list with Vary: Origin is correct. Departures an edge engineer would flag: no structured logging or observability (console/Workers Logs), writes not batched (D1 batch() exists for exactly this), no testing against miniflare/workerd or real SQLite, OPTIONS answered 204 for every path (worker.mjs:134), emails removed from feedback but other personal data (phone numbers, as seen: '555-123-4567' kept) published to a public repo. GDPR storage-limitation purge for the inbox is a good touch."
+  },
+  "defects": [
+    {
+      "severity": "high",
+      "what": "The cap SQL (daily per-slug cap, feedback cap, inbox cap) is never executed by any test; mutating the cap condition to effectively remove it leaves all 68 tests green because fakeDb re-implements it in JS. The abuse/quota guard is unverified.",
+      "where": "platform/edge/worker.test.mjs:8"
+    },
+    {
+      "severity": "medium",
+      "what": "Bare catch returns 500 and discards the error: D1 outage/quota exhaustion invisible to operators; comment claims 204 either way on /hit.",
+      "where": "platform/edge/worker.mjs:161"
+    },
+    {
+      "severity": "medium",
+      "what": "MAX_PER_SLUG_PER_DAY parsed with Number(); a malformed value gives NaN and counting silently stops.",
+      "where": "platform/edge/worker.mjs:51"
+    },
+    {
+      "severity": "medium",
+      "what": "Up to five non-atomic D1 writes per hit; partial failure breaks the documented invariant that breakdown keys are the same loads as the page key. D1 batch() would fix it.",
+      "where": "platform/edge/worker.mjs:61"
+    },
+    {
+      "severity": "medium",
+      "what": "Daily feedback cap slot is consumed before the insert and one sender can exhaust the 50/day site-wide quota, blocking real users.",
+      "where": "platform/edge/worker.mjs:121"
+    },
+    {
+      "severity": "low",
+      "what": "README and test origin still reference the retired github.io hosting as the live site; MESSAGE_MIN boundary untested; phone numbers are not scrubbed from public feedback.",
+      "where": "platform/edge/README.md:3"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "A small, honest, mostly well-built Worker whose 68 tests pass and whose logic I could recompute (retention date, cap upsert in real SQLite, validation boundaries) with no wrong output found. It does not meet the bar: verification is 2 because the tests replace the SQL with a JS fake, and a seeded mutation that removes the production abuse cap went uncaught (the origin check mutation was caught, the min-length one was not). Correctness is capped at 2 because I could not run it against a deployed Worker or D1. Claims are 2 due to stale hosting statements in the README. An edge reliability engineer would ask for real-SQL tests (better-sqlite3 or miniflare), logging in the catch, batched writes and a numeric-parse guard before signing it off."
+}

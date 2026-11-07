@@ -1,0 +1,56 @@
+{
+ "date": "2026-11-07",
+ "subject": "research/robofab-armaccel",
+ "stratum": "research",
+ "seed": "2026-11-07-c",
+ "auditor": "agent session (Claude), 2026-11-07 round 3",
+ "status": "audited",
+ "professional": "a senior robotics researcher in manipulator dynamics and grasp mechanics, who would first check the rigid-body torque equations against an independent derivation, whether the wrist-acceleration and jaw-force path is tested at all, and whether the modelled carry is the real task (base yaw, motor limits) and the result is beyond textbook",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran `PYTHONPATH=src python3 experiments/run.py` (2.9 s): output byte-identical to committed results.txt, git status clean. Recomputed independently in a scratchpad script (not importing model.py; only geometry.targets for the points): torques by virtual work from finite-difference accelerations of the rod centres and wrist (time-domain, no mass matrix), IK written afresh, min time by bisection on a continuous T, jaw force from the double-differenced wrist trajectory. L=0.12 m, 5 N m, base (10,0) mm: continuous minimum times 0.0559/0.0520/0.0764/0.0631/0.0775/0.0906 s, which round up on the 0.01 s grid to 0.06/0.06/0.08/0.07/0.08/0.10, exactly the committed per-part T; at those T my peak jaw forces are 0.595/0.524/0.346/0.374/0.082/1.246 N, matching the committed table to 3 decimals. Part mass 1240*40*30*4e-9 = 5.952 g matches the 5.95 g in the README. Static force for the cover: 0.005952*9.81/(2*0.5) = 0.0584 N, matches 0.058 and the x21 ratio (1.246/0.0584=21.3). Total of the continuous minima is 0.415 s vs the committed 0.45 s (8% grid inflation, which the Limitations section discloses). Within the stated planar model the numbers are right.",
+  "completeness": "Checked each README item: three arms x three torque limits (9 cases) and the grip-limited table for cover and link: present in results.txt, regenerated exactly. Ranges '5 to 100 times static' (data 5.4 to 105.4), accelerations '28 to 837 m/s^2' (27.8 to 836.1), totals 0.45/0.70/0.33/0.30/0.85 s, cover 1.25/0.52/2.49 N, grip-limited 0.17/0.23/0.29/0.53 s and 'none' at 0.05 N: all present. Figure script and svg present, covered by a test. README says 9 tests; there are 10 (stale count). paper/whitepaper.md is a 12-line abstract plus pointer to the README: no method, results or figures, a stub. Live page https://marisstella.app/research/robofab-armaccel/ did not load (proxy, HTTP 000), unverified. The 'Next steps' (MuJoCo arm, time-optimal profile) are not done here, which is as stated.",
+  "verification": "Ran `PYTHONPATH=src python3 -m unittest discover -s tests`: 10 OK in 0.1 s. Seeded four mutations in model.py, each reverted by git checkout (status clean). (1) line 90 `G + az` -> `G - az` (sign of the vertical term in the jaw bound): ALL 10 PASS, survived. (2) lines 86-87 drop the centripetal acc_c term from the wrist acceleration: ALL 10 PASS, survived. (3) drop the d2*d2 term in the Coriolis expression in torque(): FAILED (energy balance test). (4) min-jerk acceleration coefficient 180 -> 150: FAILED. The torque model is well protected (kinetic and potential energy computed from forward kinematics independently, plus a power balance); the wrist-acceleration and jaw-force path, which produces every headline jaw-force number, has no effective test: tests/test_model.py:67-71 moves from (0,0) to (0,0) so asserts nothing, and the only motion test checks that faster means more force.",
+  "craft": "Read model.py, geometry.py, run.py, test_model.py, test_figure.py. Short, readable, stdlib-only, docstrings state assumptions. Defects: the wrist acceleration is obtained with 1e-5 finite differences and a Jacobian by central differences inside the inner loop (model.py:78-87) rather than the analytic Jacobian, with no test of the result; geometry.py is a declared copy of robofab-reach (the robofab track holds many such copies); run.py:96 writes JSON via an unclosed open() with a cwd-relative path (only works from the project root); min_time is a linear 0.01 s scan with no bracketing, so a 0.01 s quantisation carries into every headline (disclosed); run.py:29 collapses each 3D target to its radial distance; leg() returns None silently and the caller reports 'infeasible' without saying which of gravity/unreachable.",
+  "claims": "Checked against results.txt: every numeric claim in the three bullets and the caveat (totals, per-part times, forces, ratios, acceleration range, 0.058 N static, the 0.5/0.3/0.2/0.1/0.05 N grip table) is backed. Limits and disclaimers are strong: 'Stylised', every non-geometry parameter listed as assumed, torque limits flagged as far above a hobby arm, jaw bound explicitly not re-simulated beyond 40 m/s^2, MIT, AI-assistance note, Flash and Hogan flagged not re-verified. Unbacked or misleading: (1) '9 tests' is stale, 10 exist (README.md:14). (2) 'A bigger arm is slower, not stronger' is stated as a finding but follows directly from the assumed 1 kg/m link-mass scaling with a fixed torque limit, and the bases also differ per arm; the README does say the mass is assumed but not that the conclusion is the scaling assumption restated. (3) The carry is described as a vertical-plane arm carrying a part between two points, but the base yaw swing between pick and place is never timed or loaded (run.py:29), not listed in Limitations. (4) Live page not loadable.",
+  "fitness": "A researcher can rerun it in 3 s and extend the arm; it is self-contained. But the result is not new or beyond textbook: min-jerk (Flash and Hogan 1985), planar two-link Lagrange dynamics, minimum-time under torque limits (Bobrow, Dubowsky and Gibson 1985; Shin and McKay 1985) and the inertial grasp-force bound m*sqrt((g+az)^2+ar^2)/(2 mu) (standard in the grasp-mechanics textbooks, e.g. Siciliano and Khatib, Handbook of Robotics, grasping chapter) are all known, and none is compared against. 'Torque limits trade against jaw friction' follows from F proportional to acceleration. The assumed 2-10 N m on 0.08-0.2 m links gives 28-837 m/s^2, outside the validated range of the bound, so the numbers are not usable for a real arm. Sound as a small reproducible calculation; far below the PhD/publishable bar in research/CLAUDE.md, and the paper is a stub.",
+  "domain": "Compared against standard rigid-body manipulator modelling (Spong, Hutchinson and Vidyasagar) and grasp-force practice. Right: rod inertia m l^2/12 about the centre, point-mass gripper and part, gravity terms and Coriolis structure, all reproduced by my independent virtual-work derivation. Departs: min-jerk is not time-optimal under torque limits, so 'carry time' is a profile-dependent upper bound; no base yaw; torque is the only limit (no motor torque-speed curve, joint speed, gearbox inertia); the part is a point mass at the wrist and the gripper 0.1 kg dominates the arm for L=0.12 m (0.12 kg per link); the jaw bound ignores pad compliance and the grasp-axis orientation, assuming accelerations lie in the pad plane; no payload swing. A robotics reviewer would accept the model as a teaching-grade first pass and not as a basis for a gripper or arm spec."
+ },
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Wrist acceleration and jaw-force path (the source of every headline force number) has no effective test: flipping G+az to G-az or dropping the centripetal term passes all 10 tests; the one test meant for it moves (0,0) to (0,0) and asserts nothing",
+   "where": "research/robofab-armaccel/tests/test_model.py:67"
+  },
+  {
+   "severity": "medium",
+   "what": "Carry time uses only the radial distance of each 3D target; the base yaw swing between pick and place is neither timed nor loaded and is not listed in Limitations",
+   "where": "research/robofab-armaccel/experiments/run.py:29"
+  },
+  {
+   "severity": "low",
+   "what": "README says 9 tests, 10 exist",
+   "where": "research/robofab-armaccel/README.md:14"
+  },
+  {
+   "severity": "low",
+   "what": "Whitepaper is a one-paragraph abstract with no method, results or figure; 'bigger arm is slower' restates the assumed 1 kg/m mass scaling",
+   "where": "research/robofab-armaccel/paper/whitepaper.md:1"
+  },
+  {
+   "severity": "low",
+   "what": "JSON written through an unclosed open() with a cwd-relative path",
+   "where": "research/robofab-armaccel/experiments/run.py:96"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A tidy, honest, stdlib-only calculation whose numbers are right: I rederived the torques and jaw forces with a different method and matched all six per-part times and forces for the 0.12 m, 5 N m case, and the run reproduces byte for byte. The disclaimers are unusually candid. It falls short of the bar on verification (the jaw-force path that yields the headline can be broken without a test failing) and on fitness/domain (all ingredients are textbook, nothing is compared with prior work, the model omits base yaw and motor limits, the paper is a stub). Finished against its own README, correct inside its model, not publishable and not usable as an arm or gripper specification."
+}

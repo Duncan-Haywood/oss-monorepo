@@ -1,0 +1,51 @@
+{
+ "date": "2026-11-07",
+ "subject": "research/range-twin",
+ "stratum": "research",
+ "seed": "2026-11-07-c",
+ "auditor": "agent session (Claude), 2026-11-07 round 3",
+ "status": "audited",
+ "professional": "a senior controls engineer (anti-windup and sensor-limited loops) together with a system-identification statistician, who would first check the step-count law against exact arithmetic, the windup numbers against an independent simulation, the closed-form regression attenuation factor, and whether any of it is beyond known results on saturated feedback and censored regression",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran `PYTHONPATH=src python3 experiments/run.py`: output identical to committed results.txt (diff empty), git clean. Recomputed in a scratchpad script with sources the author did not write: (1) the P-loop step counts with exact rational arithmetic (fractions.Fraction, k=1/4, tol=1/1000): 29, 41, 221, 821, 4021 steps for x0/R = 2, 5, 50, 200, 1000, equal to the law and the table, and twin 27/30/38/43/49 from the closed form; the 82x ratio (4021/49 = 82.06) holds. (2) The PI loop at kp=0.5, ki=0.1, x0=1000R in exact rationals: real overshoot 870.18R and settling 2006 steps; the unclipped twin overshoot 211.36R; twin spectral radius sqrt(0.5)=0.707 and sqrt(0.7)=0.837 from the characteristic polynomial by hand. (3) The regression attenuation factor by midpoint quadrature (2e6 points) at L=2R: 0.687500, equal to 1.5q-0.5q^3 at q=0.5; also derived analytically by hand (3q/2 - q^3/2). All three match. One failure of the exact law outside its stated domain: for tol >= R real_steps is wrong (9 of 24 probes, e.g. k=0.25, x0=1.6, tol=1.1: simulation 2 steps, function 3), though the docstring calls it caller-handled.",
+  "completeness": "Checked each README/whitepaper item: exact step-count law with 108 cases (run.py loops 6 gains x 6 x0 x 3 tol = 108, 0 mismatches): yes; 49 vs 4021 steps (82x): yes; slope 1/k = 4.00: yes; PI overshoot/settling table for three gain pairs with a frozen-integrator column: yes; scale invariance 6.300000000 / 55 steps: yes; fitted-gain factor with Monte Carlo (3e-4): yes; 8 tests as claimed: yes. The figure script and svg (steps_vs_x0.svg) exist but are not mentioned in the README and have no test. The paper has no reference list, only a one-line Builds-on; the \u00c5str\u00f6m and Rundqvist 1989 citation has no bib entry. Live page https://marisstella.app/research/range-twin/ not loadable from here (proxy, HTTP 000), unverified.",
+  "verification": "Ran `PYTHONPATH=src python3 -m unittest discover -s tests`: 8 OK in 0.6 s. Mutations in model.py, each reverted with git checkout (status clean): (1) conditional-integration threshold `abs(x) > r` -> `abs(x) > 2*r` (line 59): ALL 8 PASS, survived; no test exercises freeze=True although conditional integration is a headline result. (2) twin_radius `sqrt(det)` -> `sqrt(det)*0.5` (line 73): ALL 8 PASS, survived (only checked '< 1'). (3) fitted_gain_factor 0.5q^3 -> 0.45q^3: FAILED. (4) real_steps ceil -> floor in j1: FAILED. So the exact-law and fitting-factor claims are protected, the PI windup/anti-windup and spectral-radius claims are protected only by the experiment script, and results.txt is never diffed in a test. test_exact_step_count has a loop grid of only 40 cases.",
+  "craft": "Read model.py, test_model.py, run.py, whitepaper.md. Short, clear, stdlib-only, good docstrings. Defects: real_steps silently returns wrong counts for tol >= R (model.py:48, comment says 'handled by caller grids' but nothing enforces it); run.py uses `from range_twin.model import *` with no __all__; twin_steps/real_steps raise or misbehave for k outside (0,1) and negative x0 without a guard (documented only in docstrings); steps_to_tol assumes monotone loops; the test's Monte Carlo uses places=2 (tolerance 0.005) against a 400k sample, so it cannot tell a 0.0019 coefficient error from noise in principle; results come from stdout redirection rather than a written file; the scale-invariance test is true by construction of a positively homogeneous map, so it checks float arithmetic only.",
+  "claims": "Every number in README and whitepaper traced to results.txt: 49 vs 4021 (82x), 38/221 at 50R, overshoot 0.403 vs 0.423 and 0.864 vs 1.057 at 2R and 5R, 11.5R vs 6.3R at 30R, 870R vs 211R (4.1x: 870.18/211.36 = 4.117), settling 36 vs 22 and 2006 vs 37, frozen overshoot 0.211 and 0.167-0.326, 883R and 920R, 2015 vs 2006 steps, 0.6875 vs 0.6877, 31% low at L=2R, predictions 38/85/285: all backed. The 'right near L~7R' statement is a rough inversion (needs factor ~0.19, L~7.7R), not in results.txt. Limits are stated: stylised, scalar, hard symmetric clip, noiseless, simulated 'real' system, no field data; the one tie moved from tol 0.5 to 0.45 is disclosed. Unbacked: 'Negative and out-of-model results are marked' is true only loosely; the 'exact law' is stated for 0<k<1, x0>R but not flagged as invalid for tol >= R; the live page could not be loaded.",
+  "fitness": "A researcher can rerun and extend it in under 2 s. But the contribution is not new: the P-loop law is arithmetic on x+ = x - k*clip(x), which is exactly an input-saturated integrator (rate-limited approach), classical; sensor saturation making an integrator wind up is the textbook anti-windup case (Astrom and Rundqvist 1989; Hippe, Windup in Control, 2006; Tarbouriech et al., saturated linear systems) and conditional integration is a standard remedy; the fitted-gain factor is the attenuation bias of least squares on a censored/saturated regressor (Tobit-type censoring, errors-in-variables) with a one-line integral. None of this prior work is compared against, there is no field lidar/radar data, and the paper has no reference list. Sound and honest as a worked example; well below the PhD/publishable bar of research/CLAUDE.md.",
+  "domain": "Compared against standard practice in anti-windup and saturated-sensor control and in system identification. Right: the piecewise-linear, positively homogeneous structure, the speed cap kR beyond R, the windup mechanism (integrator accumulates R per step while the state is far), the regression factor, and conditional integration as a remedy. Departs: real lidar/radar beyond max range returns no-return/inf/zero rather than clipping (the author says so and points to dropout-twin), a first-order integrator plant with no actuator limit or delay, no measurement noise, a single-axis state, and an anti-windup scheme (conditional integration) rather than back-calculation or a tuned tracking gain; an identification statistician would also note that real logs are not uniform on [-L,L]. A senior controls engineer would accept it as a clean illustration, not a result they would cite."
+ },
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Conditional integration (freeze) and the twin spectral radius, both headline results, have no test: moving the freeze threshold to 2R or halving the radius passes all 8 tests",
+   "where": "research/range-twin/src/range_twin/model.py:59"
+  },
+  {
+   "severity": "low",
+   "what": "real_steps returns wrong counts when tol >= R (9 of 24 probes, e.g. k=0.25, x0=1.6, tol=1.1: simulation 2, function 3); the comment defers to 'caller grids' but nothing enforces it",
+   "where": "research/range-twin/src/range_twin/model.py:48"
+  },
+  {
+   "severity": "low",
+   "what": "Anti-windup citation (Astrom and Rundqvist 1989) has no reference entry; whitepaper has no reference list and does not compare against saturated-feedback or censored-regression prior work",
+   "where": "research/range-twin/paper/whitepaper.md:20"
+  },
+  {
+   "severity": "low",
+   "what": "Figure script and svg exist but are neither mentioned in the README nor tested",
+   "where": "research/range-twin/experiments/figure.py:1"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A small, honest, correct worked example: the exact step law, the 49-vs-4021 step headline, the 870R-vs-211R windup numbers and the 1.5q-0.5q^3 gain factor all reproduce under independent arithmetic (exact rationals, a hand-derived integral and numerical quadrature). The tests protect the step law and the fitting factor, but not conditional integration or the spectral radius, and the law is silently wrong for tol >= R. The result is a textbook-level observation about saturated feedback and attenuation bias, uncompared to its prior work and with no real sensor data, so it is not a publishable research contribution. Correct and finished within a stylised scope; not at the bar for verification, fitness or domain."
+}
