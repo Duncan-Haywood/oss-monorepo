@@ -836,7 +836,18 @@ export function houseSheathingPlan(o) {
   if (!pre) return { ok: false, errors: ["Wall height must be 8ft, 9ft or 10ft (precut studs)."] };
   const whole = (v) => Number.isInteger(v) && v >= 0 && v <= 40;
   if (!whole(o.windows) || !whole(o.doors)) return { ok: false, errors: ["Windows and doors must be whole numbers from 0 to 40."] };
-  if (!(o.length >= 96 && o.width >= 96 && o.length <= 1200 && o.width <= 1200)) return { ok: false, errors: ["House sides must be at least 8 ft and at most 100 ft."] };
+  const side = (v) => typeof v === "number" && v >= 96 && v <= 1200;
+  if (!side(o.length) || !side(o.width)) return { ok: false, errors: ["House sides must be numbers from 8 ft to 100 ft (96 to 1200 in)."] };
+  if (o.orientation !== undefined && o.orientation !== "vertical" && o.orientation !== "horizontal") return { ok: false, errors: ['Orientation must be "vertical" or "horizontal".'] };
+  if (o.sheetLength !== undefined && o.sheetLength !== null && o.sheetLength !== "" && o.sheetLength !== 0 && !(typeof o.sheetLength === "number" && o.sheetLength >= 48 && o.sheetLength <= 240)) return { ok: false, errors: ["Sheet length must be a number from 48 to 240 in."] };
+  // Each opening takes 36 in plus 12 in of wall either side, on its own wall.
+  const perWall = [0, 0, 0, 0];
+  for (let i = 0; i < o.doors; i++) perWall[i % 2 ? 2 : 0]++;
+  for (let i = 0; i < o.windows; i++) perWall[i % 4]++;
+  const lens = [o.length, o.width, o.length, o.width];
+  for (let wi = 0; wi < 4; wi++) {
+    if (perWall[wi] * 36 + (perWall[wi] + 1) * 12 > lens[wi]) return { ok: false, errors: [`${["Front", "Right", "Back", "Left"][wi]} wall (${lens[wi]} in) cannot fit ${perWall[wi]} openings of 36 in with 12 in between and at the ends; use fewer or a bigger house.`] };
+  }
   const plan = samplePlan();
   plan.studLength = pre;
   plan.stock = defaultStock(pre);

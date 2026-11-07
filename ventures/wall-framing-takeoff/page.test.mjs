@@ -1235,6 +1235,13 @@ test("the wall sheathing page: FAQ matches its data and the stated figures are w
   const h8 = houseSheathingPlan({ length: 480, width: 288, height: "8ft", windows: 0, doors: 0, sheetLength: 96 });
   assert.equal(sheathe(h8.plan, takeoff(h8.plan)).ok, false);
   for (const bad of [{ height: "7ft" }, { windows: 1.5 }, { doors: -1 }, { length: 10 }, { width: 1e9 }, null]) assert.equal(houseSheathingPlan(bad === null ? null : { length: 480, width: 288, height: "8ft", windows: 0, doors: 0, ...bad }).ok, false);
+  // 2026-11-07: text sides, unknown orientation, nonsense sheet lengths and openings that cannot fit are refused.
+  for (const bad of [{ length: "480" }, { orientation: "diag" }, { sheetLength: -5 }, { sheetLength: "x" }, { sheetLength: 1e9 }, { sheetLength: NaN }, { length: 96, width: 96, windows: 40, doors: 40 }])
+    assert.equal(houseSheathingPlan({ length: 480, width: 288, height: "8ft", windows: 0, doors: 0, ...bad }).ok, false, JSON.stringify(bad));
+  // 3 openings on a 96 in wall need 3 x 36 + 4 x 12 = 156 in: refused; 2 on 8 ft fit only on a longer wall.
+  assert.equal(houseSheathingPlan({ length: 96, width: 96, height: "8ft", windows: 3, doors: 0 }).ok, true); // one per wall at most, 36 + 24 = 60 fits
+  assert.equal(houseSheathingPlan({ length: 96, width: 96, height: "8ft", windows: 8, doors: 0 }).ok, false); // two per wall: 72 + 36 = 108 > 96
+  assert.equal(houseSheathingPlan({ length: 480, width: 288, height: "8ft", windows: 6, doors: 2, sheetLength: 0, orientation: "vertical" }).ok, true);
 });
 
 test("the stair page has a spiral stair check wired to checkSpiral", () => {
