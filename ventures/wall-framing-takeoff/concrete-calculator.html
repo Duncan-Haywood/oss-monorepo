@@ -49,6 +49,7 @@
   <ol>
     <li><strong>Volume.</strong> Area times thickness, converted from cubic inches: 1,728 to a cubic foot, 27 cubic feet to a cubic yard. A pier is a cylinder.</li>
     <li><strong>Waste.</strong> Your percentage is added, then the order is rounded up to the next quarter yard, the way plants sell it.</li>
+    <li><strong>Control joints (slab only).</strong> Panels no wider than 30 times the thickness and never over 15 ft, equal in size; saw cuts a quarter of the thickness deep. A rule of thumb: your engineer or local code wins.</li>
     <li><strong>Bags.</strong> Volume with waste divided by the label yield of the bag, rounded up.</li>
   </ol>
 
@@ -70,7 +71,7 @@
     <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { slabConcrete, slabText } from "./slab.mjs";
+    import { slabConcrete, slabText, controlJoints, jointText } from "./slab.mjs";
     import { parseLength } from "./engine.mjs";
     const $ = (id) => document.getElementById(id);
     const run = () => {
@@ -78,7 +79,9 @@
       $("lw").hidden = $("ww").hidden = shape === "pier";
       $("dw").hidden = $("cw").hidden = shape !== "pier";
       const r = slabConcrete({ shape, length: parseLength($("len").value), width: parseLength($("wid").value), diameter: +$("dia").value, depth: +$("dep").value, count: shape === "pier" ? Math.floor(+$("cnt").value) : 1, waste: (+$("waste").value) / 100, bag: +$("bag").value });
-      $("out").textContent = slabText(r).join("\n");
+      const lines = slabText(r);
+      if (shape === "slab" && r.ok) lines.push("", ...jointText(controlJoints({ length: parseLength($("len").value), width: parseLength($("wid").value), depth: +$("dep").value })));
+      $("out").textContent = lines.join("\n");
     };
     $("f").addEventListener("input", run);
     run();
