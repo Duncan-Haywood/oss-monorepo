@@ -85,6 +85,7 @@ test('a hit is counted per day and slug, and /counts returns it', async () => {
   await worker.fetch(req('/hit', { body: JSON.stringify({ p: 'roof-bid' }), headers: { dnt: '1' } }), e);
   await worker.fetch(req('/hit', { body: JSON.stringify({ p: '../etc' }) }), e);
   const res = await worker.fetch(req('/counts', { method: 'GET' }), e);
+  assert.equal(res.status, 200);
   const { days } = await res.json();
   const [day] = Object.keys(days);
   assert.deepEqual(days[day], { 'roof-bid': 3, 'ref:npm': 2, 'src:google': 2, 'dev:desktop': 3 }, 'a source outside the closed list is dropped');
