@@ -69,8 +69,10 @@ export function parseCrops(text) {
     const f = splitLine(line, delim);
     if (first) {
       first = false;
-      const probe = toNumber(f[1]);
-      if (f[1] !== undefined && f[1] !== "" && Number.isNaN(probe)) continue; // header row
+      // A header row has no number in yield, price or days. Testing yield alone dropped a first crop whose
+      // yield had a typo ("Kale,1.3O,3,70") without a word (quality audit 2026-11-07).
+      const cols = f.slice(1, 4);
+      if (cols.some((v) => v !== undefined && v !== "") && cols.every((v) => v === undefined || v === "" || Number.isNaN(toNumber(v)))) continue; // header row
     }
     const at = `Row ${idx + 1}`;
     const name = f[0];
