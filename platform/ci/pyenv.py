@@ -258,6 +258,12 @@ def main(argv=None):
     modules = [import_name(m) for m in modules]
     cands = candidates()
     venv_dir = os.environ.get("PYENV_VENV") or os.path.join(os.path.expanduser("~"), ".cache", "pyenv-venv")
+    # Fast path: an interpreter that already imports everything needs no
+    # install, so it must not queue behind another call's pip (doc_friction,
+    # 2026-11-07: two overlapping calls made the second wait for nothing).
+    py = next((c for c in cands if imports(c, modules)), None)
+    if py:
+        return report(py)
     # One install at a time: a second call waits here, then finds the first's
     # result importable instead of starting a duplicate pip.
     lock = open(os.path.join(os.path.dirname(venv_dir) or ".", ".pyenv.lock"), "w") if os.path.isdir(os.path.dirname(venv_dir)) else None
@@ -274,6 +280,10 @@ def main(argv=None):
         print(f"pyenv: no interpreter imports {', '.join(modules)} after pip and apt; "
               f"tried {cands}", file=sys.stderr)
         return 1
+    return report(py)
+
+
+def report(py):
     default = shutil.which("python3")
     if default and os.path.realpath(default) == os.path.realpath(py):
         print(f"pyenv: interpreter {py} (also the default python3, so plain python3 imports them too); "
