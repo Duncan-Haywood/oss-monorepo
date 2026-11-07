@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01AcxTtL2AX7zfNG3ybAXJJP",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T16:10:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13836",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "ideas/requests all empty; had to fall back to flagship by reading allocate.py; fine"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-07-the-duplicate-windows-that-were-not.md"
+  ],
+  "goal": null,
+  "notes": "cargo test --release 11 pass; real Schultz IFC rerun per floor in README. CI not awaited; local checks only.",
+  "corrections": [],
+  "redteam": null
+}
