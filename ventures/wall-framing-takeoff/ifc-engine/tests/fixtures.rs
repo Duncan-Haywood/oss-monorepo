@@ -272,3 +272,34 @@ fn floating_low_voids_are_stair_cutouts_not_doors() {
     assert!((o[0].from - 3.0).abs() < 1e-9);
     assert_eq!(m.stats.voids_floating_dropped, 1);
 }
+
+#[test]
+fn void_at_a_free_wall_end_shortens_the_wall_and_slivers_drop() {
+    let mut b = wall(100, (2.0, 1.0), (0.0, 1.0), (0.0, 0.0), (6.0, 0.0), 2.7, 0.2);
+    b += &opening(700, 104, (0.0, 0.0, 0.0), 0.8, 0.4, 2.1); // 0 to 0.8 m at the free start: wall starts past it
+    b += "#740=IFCRELVOIDSELEMENT('v',$,$,$,#100,#700);\n";
+    b += &opening(2000, 104, (3.0, 0.0, 0.0), 0.04, 0.4, 2.1); // 4 cm sliver: not frameable
+    b += "#2040=IFCRELVOIDSELEMENT('v2',$,$,$,#100,#2000);\n";
+    let m = read_str(&file("m", 0.0, &b)).unwrap();
+    let w = &m.walls[0];
+    assert!(w.openings.is_empty(), "{:?}", w.openings);
+    assert!((w.length() - 5.2).abs() < 1e-6, "{}", w.length());
+    assert_eq!(m.stats.voids_end_trimmed, 1);
+    assert_eq!(m.stats.voids_small_dropped, 1);
+}
+
+#[test]
+fn frame_stub_is_a_short_wall_that_is_mostly_opening() {
+    let mut b = wall(100, (2.0, 1.0), (0.0, 1.0), (0.0, 0.0), (8.0, 0.0), 2.7, 0.2);
+    b += &opening(850, 104, (5.0, 0.0, 0.0), 0.9, 0.4, 2.1);
+    b += "#890=IFCRELVOIDSELEMENT('v4',$,$,$,#100,#850);\n";
+    let mut m = read_str(&file("m", 0.0, &b)).unwrap();
+    let mut w = m.walls.remove(0);
+    assert_eq!(w.openings.len(), 1);
+    assert!(!w.is_frame_stub(), "8 m wall with a 0.9 m opening");
+    w.end = [w.start[0] + 0.946, w.start[1]];
+    w.openings[0].from = 0.165; w.openings[0].to = 0.946;
+    assert!(w.is_frame_stub(), "37 in wall with a 31 in door");
+    w.end = [w.start[0] + 3.0, w.start[1]];
+    assert!(!w.is_frame_stub(), "3 m wall with the same opening");
+}
