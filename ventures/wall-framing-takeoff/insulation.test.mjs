@@ -237,3 +237,9 @@ test("ventilation: ASHRAE 62.2 rate by hand, heat recovery cuts its load, partia
   assert.equal(validateInsulation({ assembly: { ventFloorSqFt: 2000 } }).length, 1);
   assert.equal(validateInsulation({ assembly: { ventBedrooms: 2, ventFloorSqFt: 1500, ventRecoveryEff: 0.99 } }).length, 1);
 });
+
+test("ventBedrooms must be a whole number", () => {
+  const e = validateInsulation({ assembly: { ventFloorSqFt: 2000, ventBedrooms: 2.5 } });
+  assert.ok(e.some((x) => /ventBedrooms must be a whole number/.test(x)), JSON.stringify(e));
+  assert.deepEqual(validateInsulation({ assembly: { ventFloorSqFt: 2000, ventBedrooms: 3 } }), []);
+});
