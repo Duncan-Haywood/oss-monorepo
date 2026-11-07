@@ -1,8 +1,8 @@
 ---
 title: "Bootstrap p-values for the permit-model comparison: the same 10 of 15 cells survive"
-seo_title: "Bootstrap p-values and Holm correction, neural vs LightGBM on building permit durations"
+seo_title: "Bootstrap p-values: neural vs LightGBM on permit durations"
 date: 2026-11-07
-description: "Replacing a normal approximation with p-values from the bootstrap draws leaves the same ten significant neural-versus-boosted cells in 2024, and shows why tiny p-values were never literal."
+description: "Bootstrap p-values leave the same ten significant neural-versus-boosted permit-model cells in 2024; the tiny approximate p-values were never literal."
 tags: [research, build-data, construction]
 ---
 
