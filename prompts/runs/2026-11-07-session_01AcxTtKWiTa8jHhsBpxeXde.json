@@ -42,7 +42,7 @@
     "docs/posts/2026-11-07-quality-audit-round-2.md"
   ],
   "goal": null,
-  "notes": "Quality track. Seed 2026-11-07-b. Subjects: ventures/ai-bookkeeper (flagship), lash-studio-profit-calculator, amazon-seller-profit-analyzer, research/precision-scores, accel-kwssparse, platform/audio. Share meeting bar: 1 of 5 sampled (precision-scores). Fix PRs: same PR corrects two unbacked ai-bookkeeper claims (README, llms.txt); other defects left in audit files. Six audits by parallel subagents; spot-checked lash, amazon, accel, precision-scores, ai-bookkeeper recomputations myself.",
+  "notes": "Quality track (round 3 after merging a parallel round 2). Seed 2026-11-07-b. Subjects: ventures/ai-bookkeeper (flagship), lash-studio-profit-calculator, amazon-seller-profit-analyzer, research/precision-scores, accel-kwssparse, platform/audio. Share meeting bar: 1 of 5 sampled (precision-scores). Fix PRs: same PR corrects two unbacked ai-bookkeeper claims (README, llms.txt); other defects left in audit files. Six audits by parallel subagents; spot-checked lash, amazon, accel, precision-scores, ai-bookkeeper recomputations myself.",
   "corrections": [],
   "redteam": null,
   "usage": {
