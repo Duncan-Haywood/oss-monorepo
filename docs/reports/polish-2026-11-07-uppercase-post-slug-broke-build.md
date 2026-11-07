@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [build, writing]
+topics: [blog-posts]
 date: 2026-11-07
 tagged: auto
 ---

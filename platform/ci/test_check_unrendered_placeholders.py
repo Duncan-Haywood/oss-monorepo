@@ -32,6 +32,20 @@ class T(unittest.TestCase):
         self.assertEqual(self.run_main({"a/index.html": "<p>{{x}}</p>"}), 1)
         self.assertEqual(self.run_main({"drip-keeper/index.html": "<p>{{name}}</p>"}), 0)
 
+    def test_reports_exact_page_count_and_skips_node_modules(self):
+        with tempfile.TemporaryDirectory() as d:
+            for n in ("a/index.html", "b/index.html", "node_modules/x/index.html"):
+                Path(d, n).parent.mkdir(parents=True, exist_ok=True)
+                Path(d, n).write_text("<p>ok</p>")
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                c.main(["--root", d])
+        self.assertIn("2 pages, 0 unrendered placeholders", buf.getvalue())
+
+    def test_default_root_is_the_ventures_tree(self):
+        self.assertEqual(c.ROOT, Path(__file__).resolve().parents[2])
+        self.assertTrue((c.ROOT / "ventures").is_dir())
+
 
 if __name__ == "__main__":
     unittest.main()

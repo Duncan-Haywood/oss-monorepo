@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-11-07
+tagged: auto
+---
 # Sources and arithmetic for the "If the line keeps going" reflection series
 
 **Answer first:** the post

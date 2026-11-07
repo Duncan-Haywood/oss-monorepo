@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-07
+tagged: auto
+---
 # Polish 2026-11-07: sideways-scroll sample sweep, three causes fixed
 
 **Checked.** Full build, then a 390 px probe of 374 pages (150 writing, 100 research, ~120 other top-level
