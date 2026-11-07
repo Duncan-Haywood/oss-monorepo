@@ -1,5 +1,6 @@
 ---
 title: "A pilot certificate for chip-flow search lowers regret but does not bound it"
+seo_title: "A pilot certificate lowers regret but does not bound it"
 date: 2026-11-07
 description: "On 40 cached SKY130 place-and-route cells, a certified pilot meant zero regret in 87% of halving runs, but one uncertified-by-theory cell still lost 13.9%."
 tags: [research, verified-dse, chip-design]
