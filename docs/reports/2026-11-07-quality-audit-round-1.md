@@ -6,7 +6,7 @@ tagged: auto
 ---
 # Quality audit round 1: handoff (2026-11-07)
 
-The programme is in `portfolio/quality/README.md`, the tool is `portfolio/quality/quality.py` (`sample`, `validate`, `summary --md`), the audit files are in `portfolio/quality/audits/`, and the post is `docs/posts/2026-11-07-quality-audit-round-1.md` (blog topic "Quality audits", tag `quality-audit`).
+The programme is in `portfolio/quality/README.md`, the tool is `platform/ci/quality_audit.py` (`sample`, `validate`, `summary --md`), the audit files are in `portfolio/quality/audits/`, and the post is `docs/posts/2026-11-07-quality-audit-round-1.md` (blog topic "Quality audits", tag `quality-audit`).
 
 Round 1 (seed 2026-11-07): 1 of 5 sampled subjects met the bar, and 6 of 6 were finished. Claims was the weakest dimension (1 of 6 at 3). Defects found: 2 high, 15 medium, 23 low. Both high defects were fixed in PR #13760: xero day-first serial dates, and the Benford causal claim. That PR also fixed the market-garden header typo bug and the README claims in wall-framing and robofab.
 

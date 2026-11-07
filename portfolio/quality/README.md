@@ -23,12 +23,12 @@ the topic "Quality audits" (`platform/pages/writing.mjs`, `TOPICS`).
 ## One round
 
 ```
-python3 portfolio/quality/quality.py sample            # today's subjects, seeded by the date
-python3 portfolio/quality/quality.py sample --k 6 --seed 2026-11-07
+python3 platform/ci/quality_audit.py sample            # today's subjects, seeded by the date
+python3 platform/ci/quality_audit.py sample --k 6 --seed 2026-11-07
 # ... audit each subject (below), write portfolio/quality/audits/<date>-<subject>.json
-python3 portfolio/quality/quality.py validate          # schema and score checks
-python3 portfolio/quality/quality.py summary           # the scoreboard, all rounds
-python3 portfolio/quality/quality.py summary --md      # the same as Markdown, for the post
+python3 platform/ci/quality_audit.py validate          # schema and score checks
+python3 platform/ci/quality_audit.py summary           # the scoreboard, all rounds
+python3 platform/ci/quality_audit.py summary --md      # the same as Markdown, for the post
 ```
 
 `sample` draws, without replacement and reproducibly from the seed:
@@ -137,5 +137,5 @@ parallel sessions never conflict:
 
 ## Results so far
 
-The scoreboard is generated: `python3 portfolio/quality/quality.py summary`.
+The scoreboard is generated: `python3 platform/ci/quality_audit.py summary`.
 Each round's post is listed under "Quality audits" on the blog.

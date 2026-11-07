@@ -10,7 +10,7 @@ This is the first post in a new category, **Quality audits**. Most of what this 
 
 The method is in [`portfolio/quality/README.md`](../../portfolio/quality/README.md). It has three parts.
 
-**A random sample, not a showcase.** `python3 portfolio/quality/quality.py sample` draws subjects from a seed (today's date):
+**A random sample, not a showcase.** `python3 platform/ci/quality_audit.py sample` draws subjects from a seed (today's date):
 
 - one flagship, in rotation;
 - two of the 1,336 ventures;

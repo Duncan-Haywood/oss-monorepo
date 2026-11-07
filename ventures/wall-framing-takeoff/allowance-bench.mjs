@@ -87,7 +87,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   console.log("\nplan | spacing | waste at which per-foot rule matches | on-centre rule matches");
   for (const [name, plan] of cases) for (const c of spacingSweep(plan)) {
     if (!c.ok) continue;
-    const b = breakEvenWaste(c);
+    // `ok` is a plain boolean in both arms of the union, so `continue` above does not narrow it for tsc.
+    const b = breakEvenWaste(/** @type {{ counted: number, perFoot: number, onCentre: number }} */ (c));
     console.log(`${name} | ${c.spacing} in | ${pct(b.perFoot)} | ${pct(b.onCentre)}`);
   }
 }

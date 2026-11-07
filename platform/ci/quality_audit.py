@@ -6,11 +6,13 @@ script does the routine parts so an auditing session spends its time on
 judgment: a reproducible stratified draw, a schema check, and the aggregate
 numbers (share meeting the bar, with Wilson intervals, by stratum and round).
 
-    python3 portfolio/quality/quality.py sample [--seed 2026-11-07] [--k 2]
-    python3 portfolio/quality/quality.py validate
-    python3 portfolio/quality/quality.py summary [--md]
+    python3 platform/ci/quality_audit.py sample [--seed 2026-11-07] [--k 2]
+    python3 platform/ci/quality_audit.py validate
+    python3 platform/ci/quality_audit.py summary [--md]
 
-Standard library only, so it runs in a bare container.
+Standard library only, so it runs in a bare container. It lives in platform/ci
+(tests: platform/ci/test_quality_audit.py) beside post_merge_review.py; the
+programme's README and audit files are in portfolio/quality/.
 """
 from __future__ import annotations
 
@@ -26,7 +28,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-AUDITS = Path(__file__).resolve().parent / "audits"
+AUDITS = ROOT / "portfolio" / "quality" / "audits"
 FLAGSHIPS = ROOT / "portfolio" / "flagships.yaml"
 
 DIMENSIONS = ("correctness", "completeness", "verification", "craft", "claims", "fitness", "domain")
