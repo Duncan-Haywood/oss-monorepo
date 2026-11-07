@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-07 · Milestone 8f: does 7d's tail redesign survive NeuralFoil's too-steep tail lift slope? (predictions in `tail_slope_cut/run.py`'s docstring, fixed before the run)
+- Why: 8c to 8e's "Next". NeuralFoil's section slope was 1.2 to 1.3 times the UIUC measurement at Re 1e5 to 2e5 in three data sets, and 7d's tail search used the NeuralFoil slope uncorrected. `experiments/tail_slope_cut/run.py` runs 7d's search unchanged (imported by path) with every tail lift-curve slope multiplied by 1 - cut, cut = 0, 10, 15, 20, 25%.
+### Outcome (`experiments/tail_slope_cut/results.txt`)
+- **Check:** cut 0 reproduces 7d (6 of 17 wings, 78 of 4,474 tails within 5%; 22 within 3%).
+- **P1 held:** at cut 20% the same 6 of 17 wings keep a passing tail (78 of 4,380 tails; 30 within 3%). **P3 held:** the k = 1.0, AR 12 wings (NACA 4412 and 5406) keep 25 to 29 passing tails at every cut, with a best worst-deviation of 1.2% or less. **P2 refuted:** the passing count is 78, 80, 86, 78, 88 at cut 0, 10, 15, 20, 25%, not monotone, because the tail grid can re-pick section, area and arm.
+- Reading: 7d's conclusion (a redesigned tail restores phugoid, short-period frequency and damping to within 5% for the k = 1.0 wings, and for no wing with k above 1.1) does not depend on the NeuralFoil slope error measured in 8c to 8e, for any cut up to 25%. The best tail moves (section 0009, 0012 or 0015; area 0.15 to 0.20; arm 2.5 to 3.5 chords), so a builder should take the tail from a re-search with the measured slope, not from the 7d design. The set of matching wings is unchanged, so the k >= 1.2 failures are not slope artefacts.
+- Limits: a uniform multiplicative cut stands in for a Re-dependent error (measured excess 1.12 to 1.3 at Re 1e5 to 3e5, on sections 0009, 2414, 2415 and 64A010, not the tail's 0012 or 0015); tail drag not corrected; wing slope left uncut; same point-mass four-state model as 7d.
+- Next: NACA 0012/0015 low-Re lift data (host permitting) to replace the proxy sections; cut the wing slope as well.
+
 ## 2026-11-07 · Milestone 8e: does NeuralFoil's too-steep slope at Re 1e5 to 2e5 hold for a symmetric section other than NACA 0009? (predictions in `uiuc_naca64a010/run.py`'s docstring, fixed before the run)
 - Why: 8c/8d's "symmetric 0012 and 0015 remain". Volumes 4 and 5 of the UIUC summary returned 404 from the session (volumes 1 to 3 hold no NACA 0012/0015), so the nearest symmetric section with measured polars across Re 2e4 to 3e5 is the NACA 64A010 (Vol. 1, Champine, clean). Not the tail's section.
 ### Outcome (`experiments/uiuc_naca64a010/results.txt`)
