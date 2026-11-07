@@ -45,7 +45,7 @@ flagships:
       connector and anchor sizes; a real architect's DXF; a real US
       wood-framed IFC (the Rust IFC reader, ifc-engine/, is on the page's
       IFC upload as WASM since 2026-11-03 and run in Chromium on the Duplex and
-      Schependomlaan models 2026-11-04; a one-wall wood-framed file ran 2026-11-04 and fixed the lost opening sizes; a whole wood-framed house was run 2026-11-07 (Schultz Residence, README: `--wood-only` added; next: a 32 in door clipped to a stub that ends in a tee (2nd Floor Int 10), tees 0.1 in apart (2nd Floor Int 1) and a door 0.035 m from a wall end (3rd Floor Int 9), which still stop floors framing; slivers and open-end voids fixed 2026-11-07) and still needs a framer's takeoff to compare with) to map its
+      Schependomlaan models 2026-11-04; a one-wall wood-framed file ran 2026-11-04 and fixed the lost opening sizes; a whole wood-framed house was run 2026-11-07 (Schultz Residence, README: `--wood-only` added; next: a 32 in door clipped to a stub that ends in a tee (2nd Floor Int 10, which `--drop-frame-stubs` clears, README), tees 0.1 in apart (2nd Floor Int 1) and a door 0.035 m from a wall end (3rd Floor Int 9), which still stop floors framing; slivers and open-end voids fixed 2026-11-07) and still needs a framer's takeoff to compare with) to map its
       stud layer to stud sizes;
       a plumber's real drain runs for `--drilling` (stud hole limits, 2026-11-04); a real foundation plan; ceiling steps against a real soffit; trim,
       drywall and siding against real orders and hangs; bid leveling on real

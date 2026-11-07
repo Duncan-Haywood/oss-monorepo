@@ -110,6 +110,16 @@ impl Wall {
         if self.layers.iter().any(|l| has(l, &["wood", "stud", "timber", "lumber", "lvl", "joist"])) { return true; }
         !self.layers.iter().any(|l| has(l, &["concrete", "masonry", "cmu", "brick", "block", "stone", "steel", "metal"]))
     }
+    /// Share of the wall's length taken by doors, windows and openings.
+    pub fn open_fraction(&self) -> f64 {
+        let l = self.length();
+        if l > 0.0 { (self.openings.iter().map(|o| o.to - o.from).sum::<f64>() / l).min(1.0) } else { 0.0 }
+    }
+    /// A short stub that is mostly one opening: a door or window frame modelled as a wall
+    /// (a 37 in "wall" holding a 32 in door). Framing it as a wall cannot fit king and jack studs.
+    pub fn is_frame_stub(&self) -> bool {
+        self.length() < 1.2 && self.open_fraction() > 0.75
+    }
     pub fn length(&self) -> f64 { ((self.end[0] - self.start[0]).powi(2) + (self.end[1] - self.start[1]).powi(2)).sqrt() }
 }
 

@@ -287,3 +287,19 @@ fn void_at_a_free_wall_end_shortens_the_wall_and_slivers_drop() {
     assert_eq!(m.stats.voids_end_trimmed, 1);
     assert_eq!(m.stats.voids_small_dropped, 1);
 }
+
+#[test]
+fn frame_stub_is_a_short_wall_that_is_mostly_opening() {
+    let mut b = wall(100, (2.0, 1.0), (0.0, 1.0), (0.0, 0.0), (8.0, 0.0), 2.7, 0.2);
+    b += &opening(850, 104, (5.0, 0.0, 0.0), 0.9, 0.4, 2.1);
+    b += "#890=IFCRELVOIDSELEMENT('v4',$,$,$,#100,#850);\n";
+    let mut m = read_str(&file("m", 0.0, &b)).unwrap();
+    let mut w = m.walls.remove(0);
+    assert_eq!(w.openings.len(), 1);
+    assert!(!w.is_frame_stub(), "8 m wall with a 0.9 m opening");
+    w.end = [w.start[0] + 0.946, w.start[1]];
+    w.openings[0].from = 0.165; w.openings[0].to = 0.946;
+    assert!(w.is_frame_stub(), "37 in wall with a 31 in door");
+    w.end = [w.start[0] + 3.0, w.start[1]];
+    assert!(!w.is_frame_stub(), "3 m wall with the same opening");
+}
