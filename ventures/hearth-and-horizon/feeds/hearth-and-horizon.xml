@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Hundred and Twenty</title>
+      <link>https://example.invalid/hearth-and-horizon/the-hundred-and-twenty.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-hundred-and-twenty.html</guid>
+      <pubDate>Sat, 07 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A parish survey on moving Sunday Mass to 11:30 comes back 55% in favour from 120 of 400 households. The parish assistant shows that the margin is about 7.5 points, that the people who answered are not the people who come, and that reweighted the result is a tie. Setting: Saint Finbarr's parish hall, an invented parish outside Cork, Sunday 9 February 2049. Read the full text at https://example.invalid/hearth-and-horizon/the-hundred-and-twenty.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A parish survey on moving Sunday Mass to 11:30 comes back 55% in favour from 120 of 400 households. The parish assistant shows that the margin is about 7.5 points, that the people who answered are not the people who come, and that reweighted the result is a tie.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Rate That Was Flat</title>
       <link>https://example.invalid/hearth-and-horizon/the-rate-that-was-flat.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-rate-that-was-flat.html</guid>
