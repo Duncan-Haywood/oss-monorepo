@@ -200,7 +200,7 @@ products:
       empty, 402 no key, 403 bad key or provider unreachable); the survey
       builder shows the branded-report controls only once CHECKOUT_URL is set.
       Route not run against a database (no integration test) and no comparable
-      prices read yet. Agent step left: a sample report and marketing page.
+      prices read yet. Sample report (scripts/build-sample-report.mjs, simulated respondents) and marketing page (site/results-report-for-surveys.html) landed 2026-11-07; agent steps done.
       Owner step: the shared checkout link.
     next_owner: false
 
