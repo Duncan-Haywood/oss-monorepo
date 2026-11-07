@@ -1,7 +1,7 @@
 ---
 title: "Twelfth reply set for the sales-agent triage: 25 of 30 before patching, 30 of 30 after"
 seo_title: "Cold email reply triage: a twelfth test set, a missed Dutch opt-out"
-date: 2026-11-08
+date: 2026-11-07
 tags: [sales-agent, evaluation, cold-email]
 description: "Thirty fresh cold-email replies in six languages scored once before any change: 25 right, one unsubscribe missed. What we patched and what we did not trust."
 ---
