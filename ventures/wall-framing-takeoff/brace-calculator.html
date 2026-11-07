@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Wall brace calculator: how many diagonal braces and how many feet of brace a house needs</title>
+  <meta name="description" content="Free wall brace calculator: type your wall lengths, height, brace spacing and angle and get the number of diagonal braces, each brace's length and the feet of 1x4 or T-brace to buy. Runs in your browser.">
+  <meta property="og:title" content="Wall brace calculator">
+  <meta property="og:description" content="Wall lengths, height and brace rule in; braces, lengths and cost out. Private, free, in your browser.">
+  <link rel="canonical" href="./brace-calculator.html">
+  
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Wall brace calculator</h1>
+  <p>Diagonal wall braces (let-in 1x4, metal T-brace) stiffen a wall until the sheathing goes on. Type one wall length per line, the wall height and your own rule, and get how many braces each wall takes, how long each brace is and the feet to buy. The rule is the same one the takeoff tool uses: every wall at least as long as your minimum gets one brace per spacing, each as long as the wall height over the sine of the angle. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <label for="walls">Wall lengths, one per line (ft, or 40' 0")</label>
+    <textarea id="walls" rows="5" style="width:100%;box-sizing:border-box;font:inherit">40
+28
+12
+3</textarea>
+    <div class="grid">
+      <div><label for="ht">Wall height (ft)</label><input id="ht" value="8"></div>
+      <div><label for="sp">One brace per (ft of wall)</label><input id="sp" value="25"></div>
+      <div><label for="mn">Shortest wall braced (ft)</label><input id="mn" value="4"></div>
+      <div><label for="an">Brace angle (degrees)</label><input id="an" type="number" value="45" min="30" max="60"></div>
+      <div><label for="pr">Price per brace (optional)</label><input id="pr" type="number" min="0" step="0.01" placeholder="none"></div>
+    </div>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Lay out and order a whole house, braces included</a></p>
+
+  <h2>The method</h2>
+  <ol>
+    <li><strong>Which walls.</strong> Every wall at least your minimum length. Which walls are braced wall lines under your code is the engineer's or building department's call; this counts a rule you type.</li>
+    <li><strong>How many.</strong> The wall length divided by your spacing, rounded up. Shorter walls get none.</li>
+    <li><strong>How long.</strong> Wall height divided by the sine of the brace angle: 135.8 in for an 8 ft wall at 45 degrees. A brace at that angle also needs height divided by the tangent in horizontal run, 96 in here, so the page warns when a wall is too short for the braces you asked for.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How long is a 45 degree brace in an 8 ft wall?</h3>
+  <p>About 11 ft 4 in measured on the diagonal (96 in over sin 45 degrees = 135.8 in). Buy a 12 ft 1x4 and cut it.</p>
+  <h3>Does this meet code?</h3>
+  <p>It does not check any code. Braced wall length and method come from your code edition and your engineer.</p>
+  <h3>Can I count metal T-braces the same way?</h3>
+  <p>Yes, if they run at your angle; the number and length are the same arithmetic. Follow the manufacturer's installation for the actual product.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="brace-calculator.html">Wall brace calculator (diagonal braces, lengths, feet)</a></li><li><a href="panel-calculator.html">Wall panel calculator (shop panel widths and weights)</a></li><li><a href="sheathing-calculator.html">Wall sheathing calculator (sheets, cut-outs, cheapest length)</a></li><li><a href="soffit-fascia-calculator.html">Soffit and fascia calculator (soffit panels, fascia, J-channel, frieze)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers, fittings)</a></li><li><a href="retaining-wall-calculator.html">Retaining wall block calculator (blocks, caps, gravel, fabric, geogrid)</a></li><li><a href="paver-calculator.html">Paver patio calculator (pavers, base, sand, edge restraint)</a></li><li><a href="dormer-calculator.html">Dormer framing calculator (gable and shed: cheek studs, rafters, valleys, roof opening)</a></li><li><a href="cmu-calculator.html">Concrete block (CMU) wall calculator (blocks, mortar, grout, rebar)</a></li><li><a href="foundation-calculator.html">Foundation calculator (footing, stem wall and slab concrete, rebar)</a></li><li><a href="floor-calculator.html">Floor joist and subfloor calculator (joists, rim, blocking, sheets)</a></li><li><a href="nail-calculator.html">Framing nail calculator (nails and boxes by connection)</a></li><li><a href="opening-schedule-calculator.html">Door and window schedule (marks, rough openings, headers)</a></li><li><a href="header-calculator.html">Header size checker (windows and doors against your own span table)</a></li><li><a href="paint-calculator.html">Paint calculator (gallons of paint and primer)</a></li><li><a href="fireblock-calculator.html">Fireblocking calculator (blocks and boards for tall wall cavities)</a></li><li><a href="order-by-date-calculator.html">Order-by date calculator (when to order long-lead items)</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator (receptacle and switch boxes, cable)</a></li><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, grout, carpet)</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator (tiles, backer board, membrane)</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator (trunk, flex, boots, registers)</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity (what a lumber or labor swing does to the bid)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li><li><a href="fence-calculator.html">Fence calculator (posts, rails, pickets, concrete)</a></li></ul></nav>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Wall lengths, height, spacing and angle are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Brace counts follow the rule stated above; your code, engineer and the brace manufacturer govern what you install.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<script type="module">
+    import { braceReport, braceText } from "./braces.mjs";
+    import { parseLength } from "./engine.mjs";
+    const $ = (id) => document.getElementById(id);
+    const ft = (v) => { const s = String(v).trim(); return /^[\d.]+$/.test(s) ? +s * 12 : parseLength(s); };
+    const run = () => {
+      try {
+        const walls = $("walls").value.split("\n").map((x) => x.trim()).filter(Boolean).map(ft);
+        const p = $("pr").value.trim();
+        $("out").textContent = braceText(braceReport({ walls, height: ft($("ht").value), spacing: ft($("sp").value), minWallLength: ft($("mn").value), angle: +$("an").value, pricePerBrace: p === "" ? null : +p })).join("\n");
+      } catch (e) { $("out").textContent = String(e && e.message || e); }
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>
