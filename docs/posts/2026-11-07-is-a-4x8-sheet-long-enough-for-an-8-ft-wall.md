@@ -2,7 +2,7 @@
 title: "Is a 4x8 sheet long enough for an 8 ft wall? No, and here is what to buy"
 seo_title: "Wall sheathing calculator: sheets for an 8 ft wall"
 date: 2026-11-07
-tags: [construction, wall-framing-takeoff, calculator]
+tags: [construction, wall-framing-takeoff, calculators]
 description: "An 8 ft stud wall is 97-1/8 in tall once its plates are on, so a 4x8 sheet is short. A free browser calculator counts the sheets and picks the cheapest length."
 ---
 

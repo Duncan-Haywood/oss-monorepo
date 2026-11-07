@@ -1,6 +1,6 @@
 ---
 title: "Does your spiral stair pass code? A free check in the browser"
-seo_title: "Spiral stair calculator: clear width, tread depth, riser, treads per turn"
+seo_title: "Spiral stair calculator: width, tread depth, riser, treads"
 date: 2026-11-07
 tags: [wall-framing-takeoff, construction, calculators]
 description: "Type a spiral stair's rise, diameter, pole and treads per turn; see which model-code rule it fails and the most treads per turn that pass."
