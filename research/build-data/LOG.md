@@ -1,5 +1,9 @@
 # build-data log
 
+## Session 49b, 2026-11-07: independent refit of the same cells (replication note; not landed as results)
+
+A second run refit the 2022 and 2023 paired cells at the same time as session 49 above (3 seeds, same code, feeds pulled the same day) and kept its numbers out of `results/` once the first landed. Its bootstrap-Holm counts: 2022 uncorrected 10, Holm 9; 2023 uncorrected 12, Holm 8; pooled 45 cells uncorrected 32, Holm 23, BH 31. Session 49 above has pooled 33, 22, 31. So two refits of identical code on identical data differ by one cell in several counts: the cell counts carry about one cell of refit noise, and any claim resting on a single borderline cell (SF a2i q0.5) is not stable. My prediction (pooled Holm 24 to 26) failed by one. Lesson: re-run the programme `CLAIM CHECK` before a long job.
+
 ## Session 49, 2026-11-07: milestone 27 (part), bootstrap p-values for 2022 and 2023 and the pooled 45-cell Holm (planned before running)
 
 Why: session 47 saved bootstrap p for 2024 only; the pooled 45-cell Holm of session 46 still rests on the normal approximation.
