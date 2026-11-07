@@ -1,7 +1,7 @@
 ---
 title: "A stair wall's cutouts were being framed as a door"
 date: 2026-11-07
-description: "Dropping floating low voids as stair cutouts lets the wall-framing takeoff frame the Schultz Residence first floor: 213 pieces, 0.19% over the cutting-stock bound."
+description: "Dropping floating low voids as stair cutouts lets the takeoff frame the Schultz Residence first floor: 213 pieces, 0.19% over the cutting-stock bound."
 tags: [construction, ifc, wall-framing-takeoff]
 ---
 
