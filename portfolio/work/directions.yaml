@@ -273,6 +273,7 @@ directions:
     paths:
       - platform/pages/cloudflare/**
       - platform/pages/page-weight*.mjs
+      - platform/pages/preload*.mjs
       - platform/pages/verify-live.sh
       - platform/ci/check_site_fresh.py
       - platform/ci/site_probe*.py
