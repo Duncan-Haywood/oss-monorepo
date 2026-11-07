@@ -37,6 +37,14 @@ def bound(p, dt):
     return float(np.sum(np.maximum(p[0], p[1])) * dt)
 
 
+def _require_short_tack(tau, span, name):
+    """These controllers model a tack as a share of ONE step or block (`span` seconds). A longer tack used to be clipped to
+    `span` silently (found in milestone 6x). Refuse it instead of returning a wrong number."""
+    if tau > span * (1 + 1e-9):
+        raise ValueError(f"{name}: tack time tau={tau} s exceeds its one-step model ({span} s); "
+                         "use sim_corridor/sim_header/dp_clairvoyant_dead, which carry dead time across steps")
+
+
 def sim_corridor(p, c, dt, corr, tau):
     x, y, sg, n_t = 0.0, 0.0, 0, 0
     pen = 0.0
@@ -114,6 +122,7 @@ def sim_mpc(p, c, dt, corr, tau, horizon, fcfun, step=5, dy=50.0, margin=0.0):
     `step`-minute blocks by value iteration over (tack, y), and executes only its first decision on the true rates p, c. The
     corridor edge forces a tack as in sim_corridor. A voluntary tack also needs the plan to beat staying by `margin` times
     the block's best forecast progress (hysteresis against chattering on forecast noise). Returns (progress m, number of tacks)."""
+    _require_short_tack(tau, step * dt, "sim_mpc")
     grid = np.arange(-corr, corr + dy / 2, dy)
     nb = max(1, horizon // step)
     f = 1.0 - min(1.0, tau / (step * dt))      # share of a block left after a tack
@@ -162,6 +171,7 @@ def dp_values(p, c, dt, corr, tau, dy=25.0, edge_tack=True):
     sim_corridor, sim_header and sim_policy force a tack at the edge. With edge_tack=True (default) the DP obeys the same rule:
     a step whose raw cross-line motion leaves the corridor is followed by a tack at the next step (the value of the other
     tack, at the clamped y, with the tack loss). edge_tack=False reproduces dp_clairvoyant exactly."""
+    _require_short_tack(tau, dt, "dp_values")
     grid = np.arange(-corr, corr + dy / 2, dy)
     n = p.shape[1]
     V = np.zeros((n + 1, 2, len(grid)))
@@ -188,6 +198,7 @@ def sim_policy(p, c, ps, cs, dt, corr, tau, grid, V, margin=0.0):
     model by `margin` times the model's best progress that step. The corridor edge forces a tack as in sim_corridor. With
     (ps, cs) = (p, c) this is the clairvoyant policy; with a smoothed (ps, cs) it is a controller that knows the wind's slow
     behaviour for the whole day exactly and nothing faster. Returns (progress m, number of tacks)."""
+    _require_short_tack(tau, dt, "sim_policy")
     f = 1.0 - min(1.0, tau / dt)
     x, y, sg, n_t, pen = 0.0, 0.0, 0, 0, 0.0
     for k in range(p.shape[1]):
@@ -220,6 +231,7 @@ def sim_replan(p, c, dt, corr, tau, forecast, every=60, margin=0.0, dwell=0):
     """Receding full-day controller. At step k0 (every `every` steps) call forecast(k0) -> (ps, cs), model rates for steps
     k0..n-1 (shape (2, n-k0)); solve dp_values on them and follow that policy on the TRUE rates until the next replan.
     The boat tacks only when switching beats staying by `margin` times the best model progress of that step (0 = 5d), and only if at least `dwell` steps have passed since the last tack of either kind (0 = 5d). The boat's own tack and y carry over. Returns (progress m, number of tacks)."""
+    _require_short_tack(tau, dt, "sim_replan")
     f = 1.0 - min(1.0, tau / dt)
     n = p.shape[1]
     x, y, sg, n_t, pen = 0.0, 0.0, 0, 0, 0.0
