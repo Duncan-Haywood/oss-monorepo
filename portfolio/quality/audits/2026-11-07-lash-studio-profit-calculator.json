@@ -1,0 +1,56 @@
+{
+ "date": "2026-11-07",
+ "subject": "ventures/lash-studio-profit-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-07-b",
+ "auditor": "agent session (Claude), 2026-11-07 round 2",
+ "status": "audited",
+ "professional": "a salon/studio owner's accountant (or a business coach for lash studios), who would first check that a service's per-hour profit nets out card fees, no-shows, supplies and a fair share of overhead, then that the price-for-target and client-lifetime numbers follow from those inputs, then whether owner pay, tax, assistants and rebooking behaviour are handled or at least disclosed",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "I recomputed the sample studio in Python (scratchpad lash.py), writing profit as an expected cash flow per scheduled booking (show: price less percent fee, fixed fee and supplies; no-show: only the deposit less percent fee) and solving the target price from that, rather than re-using calc.mjs's q-factor algebra. Results match calc.mjs solve(sampleInput()) to three decimals. (1) Overhead 1400/(36*52/12*0.7) = $12.82/booked hour. (2) Classic full set: profit $94.909, $42.182/hr, price for $45/hr $156.947; Volume set 128.616, 46.769, 194.669; 2-week fill 36.586, 29.269, 86.543. (3) Client lifetime: expected fills 0.75+...+0.75^10 = 2.831, lifetime profit $198.49 in 5.789 h = $34.29/hr, set price floor $217.938. (4) Schedule 26.33 h/week, $955.63/week, $4,141.06/month (52/12). Loaded in Chromium the page shows $4,141 a month, $12.82 overhead, 1 of 5 meet target, $198 / 2.8 fills / $217.94, and the CSV downloaded. Caveat: both models share my reading of the deposit and fixed-fee rules, so this checks arithmetic and algebra, not the business assumptions. The fixed card fee is charged only on shown appointments (not on a kept deposit), a small understatement of fees when the deposit is charged by card.",
+  "completeness": "Claimed features checked: profit per chair hour for every service (works, table of 5), price that hits target (works, and the tie test confirms it), monthly profit for a schedule (works, $4,141), client lifetime value and lowest new-client promotion (works; in the sample the floor is above the set price so the promotion note correctly does not appear), Copy as text (code path read, clipboard not exercised), CSV download (clicked in Chromium, file lash-prices.csv produced), Save/Load scenario (round trip covered by calc.test.mjs, file picker not clicked), usage opt-out (clicked: counters removed, flag persisted). Per-row validation message works (blank price: 'Service 1: enter a price above zero.'). Guide page loads and its numbers equal the engine's. No console errors, no external requests, scrollWidth 375 at 375px. No TODOs or stubs. Not delivered: VENTURE.yaml still says stage 'prototype' and the paid multi-technician view mentioned in its comments does not exist (not claimed on the page).",
+  "verification": "`node --test '*.test.mjs'` in the venture: 23 tests, 23 pass, about 0.19 s. Strong parts: a 300-case randomised tie test (price for target earns exactly the target hourly), the set-price-floor tie test, hand-worked service, deposit cases, and a page test that makes the guide's hardcoded numbers equal solve(). Seeded mutation: calc.mjs solve(), monthlyProfit changed from (weeklyProfit * 52) / 12 to (weeklyProfit * 4), which understates the headline 'a month profit' by 7.7%. Result: 23 pass, 0 fail, the mutation SURVIVED. grep shows no test references monthlyProfit; the guide test checks hourly numbers and lifetime numbers but not the monthly figure, weekly hours, weekly profit, impliedUtilPct, lifetimeRevenue or the CSV values (only the line count). Reverted with git checkout -- calc.mjs; git status --short on the venture is empty and the suite is back to 23/23. The randomised tie tests are self-consistent by construction (they use the engine on both sides), so an error in the shared hours or fee algebra would be caught only by the guide's hardcoded rows.",
+  "craft": "Read calc.mjs (160 lines), usage.mjs, the index.html module script, calc.test.mjs, page.test.mjs. Pure, small, commented with the algebra, input validation with bounds and per-service messages, HTML-escaped output (an <img onerror> service name rendered as text: 0 img elements in the result), usage.mjs handles blocked storage and Do-Not-Track. Defects: (a) the table column 'You keep' is `collected` (price after no-shows, before card fees), so it overstates what the studio keeps by the card fees; (b) the client view silently uses only the first set and first fill (documented in a note, but the sample has two of each); (c) sitemap.xml, robots.txt Sitemap and rel=canonical use relative URLs, which are invalid for crawlers; (d) no test covers the notes text or monthly figure (see verification).",
+  "claims": "Backed: disclaimer and 'No warranty' (index.html footer; page.test.mjs:12), 'nothing uploaded' (no fetch/XHR in page or calc, test at page.test.mjs:43; Chromium made 0 external requests), 'price for target earns the target to the cent' (the 300-case tie test, calc.test.mjs:41), guide worked example equals the engine (page.test.mjs:77), usage events named in the footer match record() calls and the opt-out works (run in Chromium). Not backed or stale: llms.txt:7-8 point at duncan-haywood.github.io/oss-monorepo/..., which per the repo CLAUDE.md now only redirects (live address is https://marisstella.app/lash-studio-profit-calculator/, used in README and VENTURE.yaml); sitemap.xml/robots.txt/canonical are relative so the SEO claim is not served; VENTURE.yaml says 'nothing stored' but the page stores usage counters in localStorage (disclosed on the page, so only the yaml is wrong); the page header 'You keep' label overstates; the FAQ 'no cookies, accounts' is true. The sample is labelled 'invented numbers' only after clicking Load an example, not on first load of the default values.",
+  "fitness": "Job walked through as a solo lash tech: enter prices, supplies, fees, overhead, target; click Check; read which services miss the target and the price that fixes it; read the lifetime floor. It answers 'do my fills pay?' well and fast, and the sample shows a real insight (fills earn about $29/hr vs a $45 target). Gaps a studio owner hits in the first hour: the lifetime view uses one set and one fill, so a studio with Classic, Volume and two fill lengths cannot see the blended client; rebooking is one constant probability with no fill-interval lapse (a fill booked after about 3 weeks is usually priced as a partial or new set); no way to price a rise against lost bookings; no assistant or commission cost, so a studio with a second technician cannot use it; no tax set-aside (disclosed as 'before your own tax'). Fine for a solo owner's price screen, not a studio's pricing model.",
+  "domain": "The method (contribution per booked hour with overhead spread over booked hours, deposits kept on no-shows, solve price for a target hourly) is standard salon/service-business costing, and the overhead formula matches what the page's FAQ says. Departures a studio accountant would flag: no owner-pay vs profit split beyond target hourly, no self-employment or sales-tax treatment, no retail, no commission/booth-rent technician model, a flat 75% rebooking with no decay, and overhead allocated per hour with utilisation as a user guess (it does warn when the schedule implies 15+ points difference). I could not fetch an industry source (retention or fill-interval statistics) from this session, so I did not verify the default 75% rebook or 8% no-show against any survey; the page labels them invented example numbers only after the example button is used."
+ },
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Seeded mutation survived: the headline 'a month profit' (monthlyProfit = weeklyProfit*52/12) has no test; replacing it with *4 left all 23 tests green. Weekly hours/profit, implied utilisation, lifetime revenue and CSV values are likewise unasserted.",
+   "where": "ventures/lash-studio-profit-calculator/calc.mjs:100 and calc.test.mjs"
+  },
+  {
+   "severity": "medium",
+   "what": "Client lifetime uses only the first full set and first fill, so a studio with several set or fill types (the sample has two of each) gets a lifetime figure and promotion floor for one pair only. Documented in a small note but not in the result.",
+   "where": "ventures/lash-studio-profit-calculator/calc.mjs:82-83"
+  },
+  {
+   "severity": "medium",
+   "what": "llms.txt links the retired github.io addresses; sitemap.xml, robots.txt and rel=canonical use relative URLs, which crawlers ignore or reject, so the SEO checklist items are not actually met.",
+   "where": "ventures/lash-studio-profit-calculator/llms.txt:7-8, sitemap.xml, robots.txt:4, index.html (canonical)"
+  },
+  {
+   "severity": "low",
+   "what": "Result column 'You keep' shows the collected amount before card fees (150 price shows $141.00 while card fees $4.36 are in the next column), so it is not what the studio keeps.",
+   "where": "ventures/lash-studio-profit-calculator/index.html (result table header) and calc.mjs:56-57"
+  },
+  {
+   "severity": "low",
+   "what": "VENTURE.yaml states 'nothing stored' while usage.mjs stores event counters in localStorage (disclosed on the page, not in the yaml); the example's numbers are marked invented only after clicking Load an example.",
+   "where": "ventures/lash-studio-profit-calculator/VENTURE.yaml:35, index.html footer"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The arithmetic is right: the sample studio's overhead ($12.82/hr), per-service profit ($94.91 classic set, $42.18/hr), price for target ($156.95), client lifetime ($198.49, $34.29/hr, floor $217.94) and monthly profit ($4,141.06) all reproduce from an independently written model, and the page runs clean in Chromium at phone width with no external requests. It does not meet the bar because two required dimensions fall short: verification (a seeded error in the monthly-profit headline survived all 23 tests, because the strong randomised tests check the engine against itself and only the hourly figures are pinned by the guide) and claims (llms.txt, sitemap, robots and canonical point at retired or relative URLs). It is finished against what its README promises. As a tool for a studio owner it is a competent solo price screen; it models one set and one fill per client, a flat rebooking rate and no assistants or tax, so a practicing studio accountant would use it for a first look, not to set a price list. Market inputs (75% rebook, 8% no-show) were not checked against any external source."
+}
