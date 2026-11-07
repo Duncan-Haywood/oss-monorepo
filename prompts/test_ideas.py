@@ -80,6 +80,21 @@ class IdeasTest(unittest.TestCase):
     def test_missing_site_feedback_file_is_empty(self):
         self.assertEqual(ideas._site_records(ideas.ROOT / "no-such-file.json"), [])
 
+    def test_search_issues_none_without_gh(self):
+        from unittest import mock
+        with mock.patch.object(ideas.shutil, "which", return_value=None):
+            self.assertIsNone(ideas.search_issues("x"))
+
+    def test_search_issues_empty_and_failed(self):
+        from unittest import mock
+        ok = mock.Mock(returncode=0, stdout="")
+        bad = mock.Mock(returncode=1, stdout="")
+        with mock.patch.object(ideas.shutil, "which", return_value="/bin/gh"):
+            with mock.patch.object(ideas.subprocess, "run", return_value=ok):
+                self.assertEqual(ideas.search_issues("x"), [])
+            with mock.patch.object(ideas.subprocess, "run", return_value=bad):
+                self.assertIsNone(ideas.search_issues("x"))
+
     def test_take_out_of_range(self):
         with self.assertRaises(ValueError):
             ideas.take(INBOX, 3, "u", "2026-10-30")
