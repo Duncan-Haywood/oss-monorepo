@@ -72,7 +72,8 @@ Options:
   --long-over <h>     list every assigned shift longer than <h> hours (a double or long stretch; some places owe a premium or a break)
   --days-off <n>      list everyone without <n> days off in a row this week (a day counts on the day a shift starts; the week is not wrapped)
   --cover "<Day HH:MM>" a call-out or open shift that starts then (add -HH:MM to tell two apart): who could take it outright, else the
-                      shortest chains of hand-overs (one person takes it and gives up a shift a third takes; --max-moves n, default 3) with the pay change
+                      shortest chains of hand-overs (one person takes it and gives up a shift a third takes; --max-moves n, default 3) with the pay change;
+                      with --json the same answer as data (shift, outright, blocked, chains) for a call-out bot or script
   --swap "<Day HH:MM>,<Day HH:MM>"  check one trade: the owners of those two shifts exchange them. Says whether both weeks stay inside
                       every hard rule (rest, hour limits, availability, role), the rule that stops each person if not, and the pay change
   --max-moves <n>     longest hand-over chain for --cover (1-5, default 3)
@@ -356,14 +357,19 @@ function coverReport(staff, slots, r, opts) {
   if (direct.error) return direct.error + "\n";
   const money2 = (x) => (x >= 0 ? "+" : "-") + money(Math.abs(x));
   const lines = [head, ""];
+  const asJson = opts.mode === "json";
+  const data = { shift: { day: DAYS[s.day], start: fmtClock(s.startMin), end: fmtClock(s.endMin), label: s.label || "", role: s.role || "", now: r.owner[i] >= 0 ? staff[r.owner[i]].name : null }, outright: [], blocked: [], chains: [], maxMoves: opts.maxMoves ?? 3 };
   if (direct.fits.length) {
+    data.outright = direct.fits.map((f) => ({ name: f.name, extraCost: f.extraCost, hoursAfter: f.hoursAfter, overtimeAfter: f.overtimeAfter }));
     lines.push("Can take it outright, everyone else keeps their shifts (cheapest first):");
     for (const f of direct.fits) lines.push(`  ${f.name}: payroll ${money2(f.extraCost)}, ${num(f.hoursAfter)} h that week${f.overtimeAfter > 0 ? `, ${num(f.overtimeAfter)} h overtime` : ""}`);
   } else {
     lines.push("Nobody can take it without giving something up.");
     for (const b of direct.blocked) lines.push(`  ${b.name}: ${b.reason}`);
+    data.blocked = direct.blocked.map((b) => ({ name: b.name, reason: b.reason }));
     const c = coverChain(staff, slots, r, i, {}, { maxMoves: opts.maxMoves ?? 3 });
     if (c.error) return c.error + "\n";
+    data.chains = c.chains.map((ch) => ({ moves: ch.moves, extraCost: ch.extraCost, steps: ch.steps.map((x) => ({ to: x.to, from: x.from || null, day: DAYS[x.slot.day], start: fmtClock(x.slot.startMin), end: fmtClock(x.slot.endMin) })) }));
     lines.push("");
     if (!c.chains.length) lines.push(`No chain of up to ${opts.maxMoves ?? 3} hand-overs keeps every rule. Try --max-moves ${(opts.maxMoves ?? 3) + 1}, or post the shift.`);
     else {
@@ -371,6 +377,7 @@ function coverReport(staff, slots, r, opts) {
       c.chains.forEach((ch, k) => lines.push(`  ${k + 1}. ${ch.moves} shifts move, payroll ${money2(ch.extraCost)}: ` + ch.steps.map((x) => `${x.to} takes ${DAYS[x.slot.day]} ${clock(x.slot)}${x.from ? ` from ${x.from}` : ""}`).join("; then ")));
     }
   }
+  if (asJson) return JSON.stringify(data, null, 2) + "\n";
   lines.push("", "Checks the hard rules in the staff file for everyone touched; people outside the chain keep their shifts. Planning aid, not legal advice.");
   return lines.join("\n") + "\n";
 }
