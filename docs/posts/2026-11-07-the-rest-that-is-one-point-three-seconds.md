@@ -1,5 +1,5 @@
 ---
-title: "The Rest That Is One Point Three Seconds: why two choirs cannot sing a psalm in unison across the Moon's distance"
+title: "The Rest That Is One Point Three Seconds: why two choirs cannot sing in unison across the Moon"
 seo_title: "The Rest That Is One Point Three Seconds"
 date: 2026-11-07
 tags: [hearth-and-horizon, fiction, science]
