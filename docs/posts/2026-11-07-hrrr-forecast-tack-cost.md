@@ -1,9 +1,9 @@
 ---
 title: "A real weather forecast does not help a sailing drone that pays 4 minutes per tack"
-seo_title: "HRRR forecast for autonomous sailing: negative result at fielded tack cost"
+seo_title: "HRRR forecast for autonomous sailing: a negative result"
 date: 2026-11-07
 tags: [marine-hull, research, autonomy]
-description: "Replanning on archived HRRR winds lost 2 to 5 points to a simple header-following rule when a tack costs 120 to 360 s, although an idealised forecast gained 7 to 11."
+description: "Replanning on archived HRRR winds lost 2 to 5 points to a header-following rule at a 120 to 360 s tack cost, though an idealised forecast gained 7 to 11."
 ---
 
 Earlier this week a synthetic forecast with realistic decay gained 7.5 to 11 points over a header-following rule once a tack cost 120 to 360 s, the price measured from fielded Saildrone data. Would a real forecast do the same? We replanned hourly on archived HRRR hourly cycles at ten NDBC buoys (152 windows, every 4th day, January and July 2024).
