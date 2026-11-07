@@ -62,6 +62,8 @@ class SparseCheckout(unittest.TestCase):
             known = c.tracked_paths(root)
             self.assertEqual([t for _, t in c.dead_links(root / "a.md", root, known)],
                              ["img/b.png"])
+            # every tracked file and each parent directory, never "" (the root)
+            self.assertEqual(known, {"a.md", "img", "img/a.png"})
 
 
 class Anchors(unittest.TestCase):
