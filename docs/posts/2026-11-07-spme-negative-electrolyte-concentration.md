@@ -1,7 +1,7 @@
 ---
 title: "A battery model that lets salt go negative"
 date: 2026-11-07
-description: "Two battery cell designs that the fast SPMe model scores near zero show negative electrolyte concentration in the simulation, while the full DFN model stays positive."
+description: "Two battery cell designs the fast SPMe model scores near zero show negative electrolyte concentration, while the full DFN model stays positive."
 tags: [research, batteries, energy-cell-dfn]
 ---
 
