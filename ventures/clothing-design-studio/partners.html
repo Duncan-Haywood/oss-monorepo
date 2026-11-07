@@ -64,6 +64,14 @@ Aurea,saint hoodie,1,90,90
 Nord,wool cap,1,36.6,0</textarea>
         <div style="margin-top:8px"><button type="button" id="dl" class="btn">Download statement (CSV)</button></div>
         <output id="stmt" aria-live="polite"></output></section>
+      <section><h2>Partner catalogue</h2>
+        <p class="tag">Paste a partner brand's product CSV (headers: name or title, price; optional sku, colours, sizes, image, url). Prices are shelf prices with VAT. Uses the terms on the left.</p>
+        <label for="fbrand">Partner brand</label><input id="fbrand" type="text" value="Aurea" style="width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid var(--line);border-radius:8px">
+        <textarea id="feed" aria-label="Partner product CSV" rows="6" style="width:100%;box-sizing:border-box;font:inherit;font-size:.85rem;border:1px solid var(--line);border-radius:8px;padding:8px;margin-top:8px">name,price,colours,sizes,url
+Halo tee,61,Black|Ecru,S|M|L,https://aurea.example/halo-tee
+Saint hoodie,90,Black,M|L|XL,https://aurea.example/saint-hoodie</textarea>
+        <div style="margin-top:8px"><button type="button" id="dlshop" class="btn">Download multi-brand shop page</button> <button type="button" id="dlcat" class="btn">Download payouts (CSV)</button></div>
+        <output id="cat" aria-live="polite"></output></section>
     </div>
   </div>
 </main>
@@ -75,6 +83,7 @@ Nord,wool cap,1,36.6,0</textarea>
   <script type="module">
     import { splitSale, priceForPayout, settle, statementCsv } from "./commission.mjs";
     import { recordUsage } from "./usage.mjs";
+    import { parseFeed, priceCatalogue, multiBrandShopHtml, catalogueCsv } from "./partnerfeed.mjs";
     const $ = s => document.querySelector(s);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
     const terms = () => ({ commissionPct: +$("#comm").value, vatPct: +$("#vat").value, paymentFeePct: +$("#fee").value, paymentFixed: +$("#fix").value, feeBearer: $("#bearer").value });
@@ -92,6 +101,18 @@ Nord,wool cap,1,36.6,0</textarea>
       a.href = URL.createObjectURL(new Blob([statementCsv(settle(parse(), terms()))], { type: "text/csv" }));
       a.download = "partner-statement.csv"; a.click(); recordUsage("partners_csv");
     });
+    const feeds = () => { const f = parseFeed($("#feed").value, $("#fbrand").value); return { f, c: f.ok ? priceCatalogue([f], terms()) : null }; };
+    function renderCat() {
+      const { f, c } = feeds();
+      if (!f.ok) { $("#cat").innerHTML = `<p class="notes">${esc(f.error)}</p>`; return; }
+      if (!c.ok) { $("#cat").innerHTML = `<p class="notes">${esc(c.error)}</p>`; return; }
+      $("#cat").innerHTML = `<table><tr><th>Product</th><th>Price</th><th>Brand paid</th><th>Shop keeps</th></tr>${c.items.map(i => `<tr><td>${esc(i.name)}</td><td class="num">${i.price.toFixed(2)}</td><td class="num">${i.brandPayout.toFixed(2)}</td><td class="num">${i.shopKeeps.toFixed(2)}</td></tr>`).join("")}</table>${[...f.warnings, ...c.warnings].map(w => `<p class="notes">${esc(w)}</p>`).join("")}`;
+    }
+    const save = (text, type, name) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); };
+    $("#dlshop").addEventListener("click", () => { const { c } = feeds(); if (c?.ok) { save(multiBrandShopHtml(c, { name: "Multi-brand shop", currency: "EUR" }), "text/html", "multi-brand-shop.html"); recordUsage("partners_shop"); } });
+    $("#dlcat").addEventListener("click", () => { const { c } = feeds(); if (c?.ok) { save(catalogueCsv(c), "text/csv", "partner-payouts.csv"); recordUsage("partners_catalogue_csv"); } });
+    document.querySelectorAll("section select, section input, section textarea").forEach(el => el.addEventListener("input", renderCat));
+    renderCat();
     render(); recordUsage("partners_open");
   </script>
 </body>
