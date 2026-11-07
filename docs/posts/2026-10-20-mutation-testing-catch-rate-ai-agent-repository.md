@@ -2,7 +2,7 @@
 title: "Red team, blue team: seeding 1,371 bugs to see how many tests catch"
 date: 2026-10-20
 description: "AI agents seeded 1,371 small bugs into a monorepo, one at a time. Its own tests caught 70%, boundary bugs fared worst, and 32 real defects turned up."
-tags: [ai-agents, mutation-testing, software-testing, quality]
+tags: [quality-audit, ai-agents, mutation-testing, software-testing, quality]
 ---
 
 # Red team, blue team: seeding bugs to see how many tests catch

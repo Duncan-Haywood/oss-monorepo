@@ -1,6 +1,6 @@
 ---
 title: "Tuning a tack rule cannot rescue a weather forecast for a sailing drone"
-seo_title: "HRRR forecast and sailing drone tacks: a switch margin only turns the forecast off"
+seo_title: "HRRR and drone tacks: a switch margin only turns the forecast off"
 date: 2026-11-07
 tags: [marine-hull, research, autonomy]
 description: "At a measured 240 s tack cost, archived HRRR winds lose to a simple header-following rule; a switch margin only makes HRRR copy it."
