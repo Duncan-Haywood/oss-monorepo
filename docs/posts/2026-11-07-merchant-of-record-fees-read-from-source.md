@@ -1,5 +1,5 @@
 ---
-title: "What Paddle, Lemon Squeezy and Polar list per sale, read from their own pages"
+title: "Paddle, Lemon Squeezy and Polar fees, from their pages"
 date: 2026-11-07
 description: "Paddle and Lemon Squeezy list 5% + $0.50 per transaction and Polar 4% + $0.40, read from each pricing page on 2026-11-07."
 tags: [seo, aeo, fees]
