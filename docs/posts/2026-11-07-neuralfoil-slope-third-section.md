@@ -1,7 +1,7 @@
 ---
 title: "NeuralFoil's lift slope is 20 to 30% too steep on a third wing section"
 date: 2026-11-07
-description: "Against measured NACA 64A010 data, NeuralFoil's section lift slope is 1.23 to 1.27 times measured at Reynolds 1e5 to 2e5, matching earlier checks on three other sections."
+description: "Against measured NACA 64A010 data, NeuralFoil's lift slope is 1.23 to 1.27 times measured at Reynolds 1e5 to 2e5, as on three other sections."
 tags: [research, uav, aerolog-scaling]
 ---
 
