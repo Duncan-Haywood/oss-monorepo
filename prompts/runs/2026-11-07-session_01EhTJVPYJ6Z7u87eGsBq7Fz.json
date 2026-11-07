@@ -15,9 +15,11 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
+  "task": "Wardrobe-drop launch brief for clothing-design-studio",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": 13805,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +28,21 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Router drew creative/0 but the scheduled task asked for revenue product work; recorded as ventures/1.",
+      "did": "Shipped a venture slice instead of a story",
+      "result": "Slice landed with tests and a Chromium click"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "launchbrief.test.mjs, page.test.mjs, outputs.test.mjs pass; headless Chromium: wardrobe button saved, reorder page filled, no console errors. Revenue still waits on the owner's payout rail (decision queue item 1).",
   "corrections": [],
   "redteam": null
 }
