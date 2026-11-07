@@ -1,5 +1,13 @@
 # build-data log
 
+## Session 46, 2026-11-07: milestone 27 (part), Holm/BH on 2022 and 2023 and on all 45 paired cells (committed results only, no pull)
+
+Why: session 45 left 2022 and 2023 with uncorrected intervals. No hypothesis was logged before computing (the script change was small and I ran it straight away); stated here so the record is honest, not as a pre-registration. The expectation I held was that correction would remove a few cells in the weaker years.
+Done: `src/paired_multiplicity.py` takes a year or `all` (2024 output unchanged byte for byte), new tests, `results/paired_multiplicity_{2022,2023,all}.txt`, paper 4.6a. Same normal approximation to each stored interval as session 43.
+Outcome: 2022 uncorrected 11, Holm 9, BH 11 of 15. 2023 uncorrected 11, Holm 8, BH 8 of 15. Pooled over 45 cells: uncorrected 32, Holm 24, BH 29. So 2024 was the cleanest year (all 10 survive); in 2022 and 2023 two to three of the "significant" cells are lost under Holm. Lost under pooled Holm: SF a2i q0.5 2024 (+1.11%), SF i2c q0.9 2022, SF a2i q0.1 and q0.9 2022, Austin 2023 a2i q0.9 and i2c q0.1, Chicago 2023 a2i q0.1 and q0.9 (several survive BH).
+Limits: approximate p (normal approximation, draws not saved); pooling treats 45 cells as one family although they share data across quantiles and years; the counts are therefore descriptive.
+Next: save bootstrap draws so p comes from the bootstrap; publish boosted quantile tables for `ventures/`.
+
 ## Session 45, 2026-11-07: milestone 27 (part), per-permit paired bootstrap on neural minus boosted for test year 2022 (planned before running)
 
 Why: sessions 42 and 44 ran the paired test for 2024 and 2023; 2022 was the open year. Feeds reachable (Chicago 852,489 rows, SF 1,298,001, Austin 2,384,199, pulled today).
