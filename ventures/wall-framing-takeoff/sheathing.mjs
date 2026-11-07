@@ -15,7 +15,7 @@
 // cutting-stock problem over a stock of 48 in boards, so it goes through the
 // same optimiser as the lumber, across every wall of the house at once. A
 // strip's remainder is the offcut the next wall's strip is cut from.
-import { THICK, EPS, DEPTH, optimizeStock, formatInches } from "./engine.mjs";
+import { THICK, EPS, DEPTH, optimizeStock, formatInches, samplePlan, defaultStock } from "./engine.mjs";
 
 /**
  * Sheathing past a wall's end at a corner (`sheathing.overhang`). The walls are
@@ -820,4 +820,37 @@ export function sheathingText(s) {
   }
   for (const n of s.notes) out.push(`  - ${n}`);
   return out;
+}
+
+/**
+ * A plan for a plain rectangular house, for the sheathing page: four sheathed
+ * walls (front and back `length` long, sides `width`), corners and no tees,
+ * `windows` of 36 x 48 in and `doors` of 36 x 82.5 in spread evenly along the
+ * walls (doors on the front first, then the back; windows round robin from the
+ * front). Wall height is a precut stud length plus the plates. Openings are
+ * centred on equal divisions of their wall; one that would not fit is refused.
+ * @param {{length:number,width:number,height:"8ft"|"9ft"|"10ft",windows:number,doors:number,orientation?:string,sheetLength?:number}} o inches except counts
+ */
+export function houseSheathingPlan(o) {
+  const pre = { "8ft": 92.625, "9ft": 104.625, "10ft": 116.625 }[o?.height];
+  if (!pre) return { ok: false, errors: ["Wall height must be 8ft, 9ft or 10ft (precut studs)."] };
+  const whole = (v) => Number.isInteger(v) && v >= 0 && v <= 40;
+  if (!whole(o.windows) || !whole(o.doors)) return { ok: false, errors: ["Windows and doors must be whole numbers from 0 to 40."] };
+  if (!(o.length >= 96 && o.width >= 96 && o.length <= 1200 && o.width <= 1200)) return { ok: false, errors: ["House sides must be at least 8 ft and at most 100 ft."] };
+  const plan = samplePlan();
+  plan.studLength = pre;
+  plan.stock = defaultStock(pre);
+  const walls = [["Front", o.length], ["Right", o.width], ["Back", o.length], ["Left", o.width]].map(([id, length]) => ({ id, length, stud: "2x4", corner: true, openings: [] }));
+  const place = [[], [], [], []];
+  for (let i = 0; i < o.doors; i++) place[i % 2 ? 2 : 0].push("door");
+  for (let i = 0; i < o.windows; i++) place[i % 4].push("window");
+  place.forEach((kinds, wi) => {
+    kinds.forEach((kind, k) => {
+      const width = 36, centre = (walls[wi].length * (k + 1)) / (kinds.length + 1);
+      walls[wi].openings.push({ kind, label: `${kind} ${wi + 1}.${k + 1}`, offset: Math.round(centre - width / 2), width, height: kind === "door" ? 82.5 : 48, header: "2x10" });
+    });
+  });
+  plan.walls = walls;
+  plan.sheathing = { ...defaultSheathing(), ...(o.orientation === "horizontal" ? { orientation: "horizontal" } : {}), ...(o.sheetLength ? { sheets: [{ label: `4x${o.sheetLength / 12}`, width: SHEET_WIDTH, length: o.sheetLength, price: (SHEET_WIDTH * o.sheetLength) / 144 }] } : {}) };
+  return { ok: true, plan };
 }
