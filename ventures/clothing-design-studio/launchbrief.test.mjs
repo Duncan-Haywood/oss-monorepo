@@ -131,3 +131,13 @@ test("freight page figure replaces the sheet's freight in the brief", () => {
   assert.equal(briefWithFreight(b, {}), null);
   assert.equal(briefWithFreight(null, { perPiece: 1 }), null);
 });
+
+test("freight transit days become the cash-flow freight weeks and survive a brief file", () => {
+  const b = { version: 1, quantity: 100, landed: 12, profitPerSale: 8, freightTotal: 100, currency: "EUR", leadTimeDays: 35 };
+  const n = briefWithFreight(b, { perPiece: 3.5, mode: "sea LCL", days: 21 });
+  assert.equal(n.freightDays, 21);
+  assert.equal(prefillFor("cashflow", n).fw, 3);          // 21 days = 3 weeks
+  assert.equal(briefWithFreight(b, { perPiece: 3.5 }).freightDays, null);   // no days given
+  assert.equal(briefFromFile(briefToFile(n)).brief.freightDays, 21);
+  assert.match(briefFromFile(JSON.stringify({ ...n, freightDays: "9" })).error, /"freightDays" must be a number/);
+});
