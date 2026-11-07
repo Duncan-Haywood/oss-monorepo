@@ -1,7 +1,7 @@
 ---
 title: "A negative window sill, one fix after the last one"
 date: 2026-11-07
-description: "The door and window schedule refused a window taller than its own header height, but only when the height was typed per opening. The plan-wide default slipped through."
+description: "The door and window schedule refused a window taller than its header height only when typed per opening; the plan-wide default slipped through."
 tags: [construction, wall-framing-takeoff, testing]
 ---
 
