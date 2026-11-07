@@ -6,7 +6,7 @@ import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
 import { economics, quantityBreaks } from "./costing.mjs";
 
 const read = f => readFileSync(new URL(`./${f}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "for-independent-clothing-designers.html", "how-much-does-it-cost-to-make-a-t-shirt.html", "sunglasses.html", "wardrobe.html", "fit.html", "quotes.html", "labels.html", "prices.html", "preorder.html", "duty.html", "import-duty-on-clothing.html", "wholesale.html", "reorder.html", "returns.html", "cashflow.html", "tna.html", "salestax.html", "discount.html", "spec.html"];
+const PAGES = ["index.html", "for-independent-clothing-designers.html", "how-much-does-it-cost-to-make-a-t-shirt.html", "sunglasses.html", "wardrobe.html", "fit.html", "quotes.html", "labels.html", "prices.html", "preorder.html", "duty.html", "import-duty-on-clothing.html", "clothing-minimum-order-quantity.html", "wholesale.html", "reorder.html", "returns.html", "cashflow.html", "tna.html", "salestax.html", "discount.html", "spec.html"];
 
 test("every page carries the no-warranty clause, a sponsor link and its own title and description", () => {
   for (const f of PAGES) {
@@ -84,4 +84,24 @@ test("the import-duty guide matches what duty.mjs computes", async () => {
   assert.ok(html.includes(bd.landedPerGarment.toFixed(2)));
   assert.match(html, /placeholders and unchecked defaults/);
   assert.match(html, /No warranty/);
+});
+
+test("the MOQ guide matches what preorder.mjs computes", async () => {
+  const { planPreorder } = await import("./preorder.mjs");
+  const base = { price: 35, landed: 12, moq: 300, taxPct: 20, conversionPct: 2, days: 30, fixedCosts: 800 };
+  const html = read("clothing-minimum-order-quantity.html");
+  const money = v => Math.abs(v).toLocaleString("en");
+  const paid = planPreorder({ ...base, cpc: 0.4, visitorsPerDay: 150 });
+  const free = planPreorder({ ...base, cpc: 0, visitorsPerDay: 150 });
+  const fast = planPreorder({ ...base, cpc: 0, visitorsPerDay: 400 });
+  assert.ok(html.includes(`${paid.ordersNeeded} orders`));
+  assert.ok(html.includes(paid.visitorsNeeded.toLocaleString("en")));
+  assert.ok(html.includes(`day ${paid.dayReached}`) && html.includes(`day ${fast.dayReached}`));
+  assert.ok(paid.profitIfFunded < 0 && html.includes(`-${money(paid.profitIfFunded)}`));
+  assert.ok(html.includes(money(paid.lossIfFails)));
+  assert.ok(html.includes(money(free.profitIfFunded)) && html.includes(money(free.lossIfFails)));
+  assert.ok(html.includes(paid.breakEvenPrice.toFixed(2)));
+  assert.ok(html.includes(money(paid.adCost)));
+  assert.equal(fast.pFunded < 0.001, true);
+  assert.match(html, /an assumption typed for illustration/);
 });
