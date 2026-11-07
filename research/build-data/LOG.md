@@ -1,5 +1,11 @@
 # build-data log
 
+## Session 48, 2026-11-07: milestone 27 (part), bootstrap p-values for 2022 and 2023 and the pooled 45-cell Holm (planned before running)
+
+Why: session 47 saved bootstrap p for 2024 only; the pooled 45-cell Holm of session 46 still rests on the normal approximation.
+Plan: rerun `paired_neural_boosted.py` for 2022 and 2023 (3 seeds, ten city/target runs, fresh pulls; now carrying `p_boot`), then `paired_boot_table.py` for each year and `all`.
+**Prediction (before running):** pooled over 45 cells, bootstrap Holm keeps within +-3 of the normal-approximation count of 24 (BH within +-3 of 29); the cells lost in session 46 (SF a2i q0.5 2024 etc.) stay lost or borderline.
+
 ## Session 47, 2026-11-07: milestone 27 (part), bootstrap p-values saved for the 2024 paired cells (planned before running)
 
 Why: sessions 43 and 46 corrected for multiplicity with a normal approximation to each interval. This replaces it for 2024 with p computed from the week-block bootstrap draws themselves.
