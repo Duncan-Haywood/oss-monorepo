@@ -3,6 +3,16 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-11-07 · Milestone 10e: does 10a's energy model reproduce a flown small cargo VTOL (Wingcopter 198)? (predictions written in `run.py`'s docstring before its first run)
+- Why: 10d's "Next". Published figures (manufacturer page and trade press via web search; the manufacturer pages and Wikipedia were not fetchable from this session, so these are search-result summaries, not read from the datasheet): MTOW 25 kg; about 20 kg including two 814 Wh Li-ion packs (1,628 Wh); payload 4.7 kg (manufacturer) or 6 kg (others); range 94 km (manufacturer, payload unstated) or 75 km at 6 kg; cruise 90 km/h. Pack mass is not published, so f_non is swept over pack Wh/kg 150 to 220. `experiments/wingcopter_check/run.py` (stdlib) applies 10a's hover and L/D energy terms, 20% reserve, 90% usable.
+- **Predictions:** (P1) 10a's L/D 12 model gives 120 to 180 km, above the published 94; (P2) the L/D x eta_c implied by 94 km is 5 to 8, below 10a's 10.2; (P3) implied f_non is 0.36 to 0.51 and below NASA's 0.48 floor for packs of 170 Wh/kg or more.
+### Outcome (`experiments/wingcopter_check/results.txt`)
+- **P1 held:** 167 km against 94 published (and 75 at 6 kg). 10a's model is 1.8x optimistic for this aircraft.
+- **P2 held:** implied L/D x eta_c is 5.7 (L/D 6.8 at eta_c 0.85) for 94 km and 4.6 for 75 km; insensitive to disk loading (5.5 to 5.8 for 50 to 200 N/m2), because hover is only 107 Wh of 1,628. The gap is cruise efficiency, not hover. The claimed range probably includes a larger reserve or lower usable depth than assumed, so this is an effective figure, not a measured L/D.
+- **P3 half refuted:** f_non is 0.366, 0.417, 0.457, 0.504 at 150, 170, 190, 220 Wh/kg; the 170 and 190 cases are below 0.48 as predicted, 220 is above. Not placeable on the NASA band without the pack mass.
+- Limits: one aircraft; range and weights from manufacturer and press figures, payload for the 94 km figure unstated; pack mass unknown; cruise speed not used; the 20 kg may exclude batteries in some sources (New Atlas says including).
+- Next: a pack mass or empty weight from the datasheet itself (needs the host allowed); add a drag-polar-based cruise term so L/D comes from wing area and speed rather than being fitted.
+
 ## 2026-11-07 · Milestone 10d: restate 10a's battery range with the non-energy fraction swept over the NASA band 0.48 to 0.62 (predictions fixed before the run, worked by hand from 10a's formulas)
 - Why: 10c's "Next": 10a's structure 0.35 plus motors (about 0.05) gives a non-energy fraction of about 0.40, low for all seven NASA NDARC designs (0.48 to 0.62, NTRS 20180003381). `experiments/vtol_sizing/fnon_sweep.py` (stdlib, reuses 10a's `fractions`) replaces structure plus propulsion with a fixed non-energy fraction f_non and keeps 10a's energy model, 15% payload floor and 20% reserve.
 - **Predictions:** (P1) at 250 Wh/kg the one-way range is about 166 km at 0.48, 131 km at 0.55 and 97 km at 0.62 (10a's 203 km at about 0.40 reproduced); (P2) the cell energy for 200 km is about 300, 365 and 480 Wh/kg at 0.48, 0.55, 0.62; (P3) so the whole NASA band moves 200 km from reachable at a 250 Wh/kg cell to needing 300 to 480.
