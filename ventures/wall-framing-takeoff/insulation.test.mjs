@@ -230,6 +230,10 @@ test("ventilation: ASHRAE 62.2 rate by hand, heat recovery cuts its load, partia
   const t2 = insulationText(layoutInsulation({ assembly: {} }, p, r)).join("\n");
   assert.match(t2, /Not in it: roof, floor, air leakage, ventilation;/);
   assert.equal(layoutInsulation({ assembly: {} }, p, r).assembly.heat.ventilationUA, null);
+  // The air-leakage line only says ventilation is missing when it is.
+  const air = { ach50: 3, nFactor: 20, volumeCuFt: 16000 };
+  assert.match(insulationText(layoutInsulation({ assembly: air }, p, r)).join("\n"), /mechanical ventilation is not in it/);
+  assert.doesNotMatch(insulationText(layoutInsulation({ assembly: { ...air, ventFloorSqFt: 2000, ventBedrooms: 3 } }, p, r)).join("\n"), /mechanical ventilation is not in it/);
   assert.equal(validateInsulation({ assembly: { ventFloorSqFt: 2000 } }).length, 1);
   assert.equal(validateInsulation({ assembly: { ventBedrooms: 2, ventFloorSqFt: 1500, ventRecoveryEff: 0.99 } }).length, 1);
 });
