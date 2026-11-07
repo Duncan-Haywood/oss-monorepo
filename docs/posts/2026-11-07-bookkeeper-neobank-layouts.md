@@ -1,6 +1,6 @@
 ---
 title: "Five neobank CSV layouts, probed against the bookkeeper's importer"
-seo_title: "Monzo, N26, Mercury, Cash App and Chime CSV exports: do they import correctly?"
+seo_title: "Monzo, N26, Mercury, Cash App, Chime CSV import: tested"
 date: 2026-11-07
 tags: [ai-bookkeeper, bank-import, testing]
 description: "A probe of five bank export layouts through ai-bookkeeper's statement reader found no misread dates, signs or amounts; the layouts are now pinned by tests."
