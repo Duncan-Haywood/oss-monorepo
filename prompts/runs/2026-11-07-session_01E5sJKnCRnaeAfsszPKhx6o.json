@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01E5sJKnCRnaeAfsszPKhx6o",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: read ./prompt.md and follow the instructions there",
+  "input_sha256": "f2d8c6470f61b3e050d0c0a8893c3b8623a29690722755209371e13aee4f6558",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T13:19:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13809",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post or agent doc: short scheduled run, one small programme step, logged in LOG.md",
+      "did": "LOG entry only",
+      "result": "step landed"
+    }
+  ],
+  "writeups": [
+    "research/aerolog-scaling/LOG.md milestone 10h"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}
