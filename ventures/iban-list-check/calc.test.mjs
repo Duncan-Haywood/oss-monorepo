@@ -116,3 +116,11 @@ test("national check digits verify real BE, ES, FR and IT examples and flag a re
   assert.equal(r.summary.errors, 0); assert.equal(r.summary.warnings, 1);
   assert.match(r.findings[0].title, /National check digits/);
 });
+
+test("national check digits verify public PT, NO and PL examples and flag a recomputed-IBAN forgery", () => {
+  for (const i of ["PT50000201231234567890154", "NO9386011117947", "PL61109010140000071219812874"]) assert.equal(nationalCheck(i), true, i);
+  for (const [cc, bban] of [["PT", "000201231234567890155"], ["NO", "86011117948"], ["PL", "109010150000071219812874"]]) {
+    const forged = cc + computeCheckDigits(cc, bban) + bban;
+    assert.ok(checkOk(forged), forged); assert.equal(nationalCheck(forged), false, forged);
+  }
+});
