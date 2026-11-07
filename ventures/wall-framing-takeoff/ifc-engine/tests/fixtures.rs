@@ -215,3 +215,22 @@ fn hostile_input_never_panics() {
     s.insert_str(s.find("ENDSEC;\nEND").unwrap(), &noise);
     let _ = read_str(&s).unwrap();
 }
+
+#[test]
+fn wood_only_filter_keeps_wood_and_unknown_and_drops_concrete() {
+    use ifc_engine::ifc::Layer;
+    let b = wall(100, (0.0, 0.0), (1.0, 0.0), (0.0, 0.0), (4.0, 0.0), 2.7, 0.1);
+    let mut m = read_str(&file("m", 0.0, &b)).unwrap();
+    let mut w = m.walls.remove(0);
+    let l = |s: &str| Layer { material: s.to_string(), thickness: 0.05 };
+    assert!(w.maybe_wood_framed(), "no layer data: unknown is kept");
+    // names as Revit writes them in the Schultz Residence model
+    w.layers = vec![l("Gypsum Wall Board"), l("Wood - Stud Layer")];
+    assert!(w.maybe_wood_framed());
+    w.layers = vec![l("Concrete - Cast-in-Place Concrete")];
+    assert!(!w.maybe_wood_framed());
+    w.layers = vec![l("Concrete Masonry Units"), l("Gypsum Wall Board")];
+    assert!(!w.maybe_wood_framed());
+    w.layers = vec![l("Gypsum Wall Board"), l("Paint")];
+    assert!(w.maybe_wood_framed(), "a finish-only wall is not called masonry");
+}
