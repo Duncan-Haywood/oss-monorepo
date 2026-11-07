@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Soffit and fascia calculator: soffit panels, fascia boards, J-channel and frieze for a gable or hip roof</title>
+  <meta name="description" content="Free soffit and fascia calculator: type a house size and overhangs and get soffit panels, fascia boards, J-channel and frieze boards for a gable or hip roof, with waste. Runs in your browser.">
+  <meta property="og:title" content="Soffit and fascia calculator">
+  <meta property="og:description" content="House size and overhangs in; soffit panels, fascia boards, J-channel and frieze out. Private, free, in your browser.">
+  <link rel="canonical" href="./soffit-fascia-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much soffit and fascia do I need for a 24 x 40 ft gable roof?", "acceptedAnswer": {"@type": "Answer", "text": "For a 24 ft wide, 40 ft long house with 12 in overhangs and the rakes left open, a gable roof has two eave runs of 42 ft (40 ft plus the 12 in rake overhang at each end). That is 84 ft of eave, so 84 sq ft of soffit in one course of 12 in panels, which is 8 panels of 12 ft once 10% waste is added. Fascia runs along the eaves and up the four rakes, 142 ft in all, which is 11 boards of 16 ft, and the J-channel where the soffit meets the wall is 8 pieces of 12 ft."}}, {"@type": "Question", "name": "What changes if I box the rakes and add a frieze board?", "acceptedAnswer": {"@type": "Answer", "text": "Turn on rake soffit and frieze and the same 24 x 40 ft gable roof counts soffit under the rakes as well: 142 sq ft in all, 14 panels of 12 ft, 14 pieces of J-channel and 11 frieze boards of 16 ft along the wall. Most houses leave the rake open or box it with a fascia only, so rake soffit and frieze are off until you ask for them."}}, {"@type": "Question", "name": "How much does a hip roof need?", "acceptedAnswer": {"@type": "Answer", "text": "A hip roof has eaves on all four sides and no rakes. A 24 x 40 ft hip roof with 18 in overhangs has 140 ft of eave, so with 12 in panels it takes 2 courses of soffit under each side, 210 sq ft, 27 panels of 12 ft, 11 fascia boards of 16 ft and 14 pieces of J-channel."}}, {"@type": "Question", "name": "What is not counted?", "acceptedAnswer": {"@type": "Answer", "text": "Corner mitres, drip edge (the roof calculator counts it), nails, caulk, paint, and a cross wing of a different pitch. Panel widths, stock lengths and the waste figure are yours to type; check the result against your plans and your supplier's catalogue."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Soffit and fascia calculator</h1>
+  <p>Type the house and the overhangs. The framing engine lays out the roof, finds the eave and rake runs under the overhangs, packs soffit panels, fascia boards and J-channel into stock lengths and adds your waste. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <div class="grid">
+      <div><label for="len">House length, along the ridge (ft, or 40' 0")</label><input id="len" value="40"></div>
+      <div><label for="wid">House width, eave wall to eave wall (ft)</label><input id="wid" value="24"></div>
+      <div><label for="shape">Roof shape</label><select id="shape"><option value="gable">Gable</option><option value="hip">Hip</option></select></div>
+      <div><label for="pitch">Roof pitch (rise in 12)</label><input id="pitch" type="number" step="0.5" value="6"></div>
+      <div><label for="oh">Eave overhang (in)</label><input id="oh" type="number" value="12"></div>
+      <div><label for="rake">Rake overhang (in, gable)</label><input id="rake" type="number" value="12"></div>
+      <div><label for="pw">Soffit panel width (in)</label><input id="pw" type="number" value="12"></div>
+      <div><label for="ps">Soffit panel length (ft)</label><select id="ps"><option>10</option><option selected>12</option><option>16</option></select></div>
+      <div><label for="fs">Fascia board length (ft)</label><select id="fs"><option>12</option><option selected>16</option><option>20</option></select></div>
+      <div><label for="rs">Soffit under the rakes</label><select id="rs"><option value="no">No (open or fascia only)</option><option value="yes">Yes</option></select></div>
+      <div><label for="fr">Frieze board along the wall</label><select id="fr"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="waste">Waste (%)</label><input id="waste" type="number" value="10"></div>
+    </div>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Add soffit and fascia to a whole-house framing takeoff</a></p>
+
+  <h2>The method</h2>
+  <ol>
+    <li><strong>Runs.</strong> Eaves run the roof's long sides on a gable roof and all four sides on a hip, each the wall length plus the overhang at both ends. A gable's rakes run up the slope.</li>
+    <li><strong>Soffit.</strong> Panels lie parallel to the wall, so an overhang takes as many courses as it has panel widths. Each course's run is packed into stock panels, first fit decreasing, then your waste is added. Rakes get soffit only if you turn it on.</li>
+    <li><strong>Fascia.</strong> One run along every eave and, on a gable, up every rake, packed into boards the same way.</li>
+    <li><strong>J-channel and frieze.</strong> J-channel follows the wall the soffit meets; the optional frieze board follows the same runs.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How much soffit and fascia do I need for a 24 x 40 ft gable roof?</h3>
+  <p>For a 24 ft wide, 40 ft long house with 12 in overhangs and the rakes left open, a gable roof has two eave runs of 42 ft (40 ft plus the 12 in rake overhang at each end). That is 84 ft of eave, so 84 sq ft of soffit in one course of 12 in panels, which is 8 panels of 12 ft once 10% waste is added. Fascia runs along the eaves and up the four rakes, 142 ft in all, which is 11 boards of 16 ft, and the J-channel where the soffit meets the wall is 8 pieces of 12 ft.</p>
+  <h3>What changes if I box the rakes and add a frieze board?</h3>
+  <p>Turn on rake soffit and frieze and the same 24 x 40 ft gable roof counts soffit under the rakes as well: 142 sq ft in all, 14 panels of 12 ft, 14 pieces of J-channel and 11 frieze boards of 16 ft along the wall. Most houses leave the rake open or box it with a fascia only, so rake soffit and frieze are off until you ask for them.</p>
+  <h3>How much does a hip roof need?</h3>
+  <p>A hip roof has eaves on all four sides and no rakes. A 24 x 40 ft hip roof with 18 in overhangs has 140 ft of eave, so with 12 in panels it takes 2 courses of soffit under each side, 210 sq ft, 27 panels of 12 ft, 11 fascia boards of 16 ft and 14 pieces of J-channel.</p>
+  <h3>What is not counted?</h3>
+  <p>Corner mitres, drip edge (the roof calculator counts it), nails, caulk, paint, and a cross wing of a different pitch. Panel widths, stock lengths and the waste figure are yours to type; check the result against your plans and your supplier's catalogue.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers, fittings)</a></li><li><a href="retaining-wall-calculator.html">Retaining wall block calculator (blocks, caps, gravel, fabric, geogrid)</a></li><li><a href="paver-calculator.html">Paver patio calculator (pavers, base, sand, edge restraint)</a></li><li><a href="dormer-calculator.html">Dormer framing calculator (gable and shed: cheek studs, rafters, valleys, roof opening)</a></li><li><a href="cmu-calculator.html">Concrete block (CMU) wall calculator (blocks, mortar, grout, rebar)</a></li><li><a href="foundation-calculator.html">Foundation calculator (footing, stem wall and slab concrete, rebar)</a></li><li><a href="floor-calculator.html">Floor joist and subfloor calculator (joists, rim, blocking, sheets)</a></li><li><a href="nail-calculator.html">Framing nail calculator (nails and boxes by connection)</a></li><li><a href="opening-schedule-calculator.html">Door and window schedule (marks, rough openings, headers)</a></li><li><a href="header-calculator.html">Header size checker (windows and doors against your own span table)</a></li><li><a href="paint-calculator.html">Paint calculator (gallons of paint and primer)</a></li><li><a href="fireblock-calculator.html">Fireblocking calculator (blocks and boards for tall wall cavities)</a></li><li><a href="order-by-date-calculator.html">Order-by date calculator (when to order long-lead items)</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator (receptacle and switch boxes, cable)</a></li><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, grout, carpet)</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator (tiles, backer board, membrane)</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator (trunk, flex, boots, registers)</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity (what a lumber or labor swing does to the bid)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li><li><a href="fence-calculator.html">Fence calculator (posts, rails, pickets, concrete)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. House size, pitch, overhangs, panel widths and waste are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Soffit, fascia and channel counts follow the layout stated above; the manufacturer's panel sizes and your supplier's catalogue govern what you buy.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<script type="module">
+    import { layoutRoof } from "./roof.mjs";
+    import { layoutEaves, eavesText } from "./eaves.mjs";
+    import { samplePlan, parseLength } from "./engine.mjs";
+    const $ = (id) => document.getElementById(id);
+    const ft = (v) => { const s = String(v).trim(); return /^[\d.]+$/.test(s) ? +s * 12 : parseLength(s); };
+    const run = () => {
+      const L = ft($("len").value), W = ft($("wid").value);
+      if (!(L >= 96 && W >= 96 && L <= 1200 && W <= 1200)) { $("out").textContent = "Check the numbers: sides of at least 8 ft and at most 100 ft."; return; }
+      const roof = { id: "Roof", shape: $("shape").value, width: W, length: L, pitch: +$("pitch").value, overhang: +$("oh").value, gableOverhang: +$("rake").value, rafter: "2x8", spacing: 16, ridge: "2x10", hip: "2x10" };
+      try {
+        const plan = samplePlan(); for (const sz of ["2x8", "2x10", "2x12"]) plan.stock.push({ size: sz, length: 288, price: 0 }); // long boards: only the eave runs matter here
+        const r = layoutRoof(roof, plan);
+        if (!r.ok) { $("out").textContent = (r.errors || ["The roof does not lay out."]).join("\n"); return; }
+        const g = layoutEaves({ panelWidth: +$("pw").value, panelStock: +$("ps").value * 12, fasciaStock: +$("fs").value * 12, rakeSoffit: $("rs").value === "yes", frieze: $("fr").value === "yes", waste: (+$("waste").value || 0) / 100 }, r);
+        $("out").textContent = g.ok ? eavesText(g).join("\n") : g.errors.join("\n");
+      } catch (e) { $("out").textContent = String(e && e.message || e); }
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>
