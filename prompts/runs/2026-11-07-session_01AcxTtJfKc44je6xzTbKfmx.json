@@ -38,7 +38,10 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-11-07-immigrant-catholics-survey-imputation.md; LOG.md entry; no agent doc (nothing the next run needs beyond LOG)",
+  "writeups": [
+    "docs/posts/2026-11-07-immigrant-catholics-survey-imputation.md",
+    "research/christian-belief-models/LOG.md"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],
