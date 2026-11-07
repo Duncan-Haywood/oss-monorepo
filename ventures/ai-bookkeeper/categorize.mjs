@@ -557,6 +557,11 @@ export const BUILT_IN = [
   ["6150", "out", /^paychex\b|\bpaychex (payroll|inc)/],
   ["4000", "in", /amazon (payments )?(settlement|payout|disburse)/],
   ["6110", "out", /\bdiv(ision)? of corp|secretary of state|business license/],
+  // A real Chase card export (eval/billcat-card.mjs, 2026-11-07): US regional chains and card-feed names it left blank.
+  ["6130", "out", /freddy'?s\b|skyline chili|gold star chili|texas roadhouse|cheesecake|graeter|auntie anne|big boy|maggiano|cracker barrel|culver'?s|bob evans|steak ?n ?shake|whataburger|cook out|zaxby|bojangles|waffle house|raising cane/],
+  ["6160", "out", /united dairy farmers|\bcountrymark\b|\bsheetz\b|buc-?ee|\bcircle k\b|\bthorntons\b|kwik (trip|star)|love'?s travel|flying j|pilot travel|\bparkmobile\b|\bpaybyphone\b|\bspothero\b|^raceway \d|^tom thumb #/],
+  ["6060", "out", /disney ?(\+|plus)|\bhulu\b|paramount ?\+|\bpeacock\b/],
+  ["6120", "out", /disney resorts|\bhyatt\b|holiday inn|best western|hampton inn|courtyard by|la quinta/],
 ];
 
 // Layer 3: multinomial naive Bayes with Laplace smoothing over payee tokens,
