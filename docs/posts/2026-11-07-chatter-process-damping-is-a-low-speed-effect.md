@@ -1,7 +1,7 @@
 ---
 title: "Process damping helps milling at low spindle speed, barely at high speed"
 date: 2026-11-07
-description: "In a one-mode milling chatter model, a velocity-proportional process-damping force raises the stable depth 2 to 4 times at 2000 to 3000 rpm and only 1.1 to 1.2 times above 12 000 rpm."
+description: "A process-damping force raises the stable milling depth 2 to 4 times at 2000 to 3000 rpm and only 1.1 to 1.2 times above 12 000 rpm in a one-mode model."
 tags: [research, machining, chatter, infra-chatter]
 ---
 
