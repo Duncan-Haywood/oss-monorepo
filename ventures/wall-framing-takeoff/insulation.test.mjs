@@ -224,6 +224,11 @@ test("ventilation: ASHRAE 62.2 rate by hand, heat recovery cuts its load, partia
   const h = layoutInsulation({ assembly: { ventFloorSqFt: 2000, ventBedrooms: 3, ventRecoveryEff: 0.75 } }, p, r).assembly.heat;
   assert.ok(Math.abs(h.ventilationUA - 24.3) < 1e-9);
   assert.match(insulationText(layoutInsulation({ assembly: { ventFloorSqFt: 2000, ventBedrooms: 3 } }, p, r)).join("\n"), /Ventilation: ASHRAE 62.2 rate 90.0 cfm/);
+  // The closing note lists only what is really missing.
+  const t1 = insulationText(layoutInsulation({ assembly: { ventFloorSqFt: 2000, ventBedrooms: 3 } }, p, r)).join("\n");
+  assert.match(t1, /Not in it: roof, floor, air leakage;/);
+  const t2 = insulationText(layoutInsulation({ assembly: {} }, p, r)).join("\n");
+  assert.match(t2, /Not in it: roof, floor, air leakage, ventilation;/);
   assert.equal(layoutInsulation({ assembly: {} }, p, r).assembly.heat.ventilationUA, null);
   assert.equal(validateInsulation({ assembly: { ventFloorSqFt: 2000 } }).length, 1);
   assert.equal(validateInsulation({ assembly: { ventBedrooms: 2, ventFloorSqFt: 1500, ventRecoveryEff: 0.99 } }).length, 1);

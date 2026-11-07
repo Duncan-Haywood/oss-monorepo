@@ -317,7 +317,7 @@ export function insulationText(d) {
       if (h.designBtuh != null) l.push(`    Design load through the ${h.ceilingUA != null ? "shell" : "walls"}: ${Math.round(h.designBtuh).toLocaleString("en-US")} BTU/h at ${e.settings.designDeltaF} F inside-outside`);
       if (h.annualKBtu != null) l.push(`    Seasonal conduction: ${Math.round(h.annualKBtu).toLocaleString("en-US")} kBTU at ${e.settings.heatingDegreeDays} heating degree-days (base 65 F)`);
       for (const y of h.systems || []) l.push(`    Heating cost, ${y.name}: ${y.units.toFixed(1)} units of fuel a year, ${y.cost.toFixed(2)} (efficiency and prices are the ones you typed)`);
-      l.push(`    ${h.ceilingUA != null ? "Walls and flat ceiling only: floor, air leakage" : "Walls only: roof, floor, air leakage"} and ventilation are not in it, so it is not a Manual J load. Window and door U-factors and the climate figures are the ones you typed.`);
+      { const out = [h.ceilingUA != null ? null : "roof", "floor", h.infiltrationUA != null ? null : "air leakage", h.ventilationUA != null ? null : "ventilation"].filter(Boolean); l.push(`    Not in it: ${out.join(", ")}; so it is not a Manual J load. Window and door U-factors and the climate figures are the ones you typed.`); }
     }
     l.push("    Layer values are typical handbook figures you can replace (insulation.assembly); windows, doors, air leakage and compressed batts are not in it. Not an energy-code compliance check.");
   }
