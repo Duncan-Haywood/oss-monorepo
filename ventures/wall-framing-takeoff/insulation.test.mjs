@@ -243,3 +243,21 @@ test("ventBedrooms must be a whole number", () => {
   assert.ok(e.some((x) => /ventBedrooms must be a whole number/.test(x)), JSON.stringify(e));
   assert.deepEqual(validateInsulation({ assembly: { ventFloorSqFt: 2000, ventBedrooms: 3 } }), []);
 });
+
+test("assembly: null is ignored, not dereferenced (guards the && in the assembly check)", () => {
+  assert.deepEqual(validateInsulation({ assembly: null }), []);
+});
+
+test("a wall with no members has no panel height, so no cavity", () => {
+  const l = layoutInsulation({}, plan, { walls: [wall([])] });
+  assert.equal(l.walls[0].cavitySqFt, 0);
+});
+
+test("attic.ceiling that is not a list of rectangles is an error, not a crash", () => {
+  for (const ceiling of [[null], 5, "abc", {}]) {
+    let e;
+    assert.doesNotThrow(() => { e = validateInsulation({ attic: { ceiling } }); }, JSON.stringify(ceiling));
+    assert.ok(e.length > 0, JSON.stringify(ceiling));
+  }
+  assert.deepEqual(validateInsulation({ attic: { ceiling: [{ width: 10, depth: 10 }] } }), []);
+});

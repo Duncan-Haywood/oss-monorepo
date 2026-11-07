@@ -1,6 +1,6 @@
 # build-data log
 
-## Session 48, 2026-11-07: milestone 27 (part), bootstrap p-values for 2022 and 2023 and the pooled 45-cell Holm (planned before running)
+## Session 49, 2026-11-07: milestone 27 (part), bootstrap p-values for 2022 and 2023 and the pooled 45-cell Holm (planned before running)
 
 Why: session 47 saved bootstrap p for 2024 only; the pooled 45-cell Holm of session 46 still rests on the normal approximation.
 Plan: rerun `paired_neural_boosted.py` for 2022 and 2023 (3 seeds, ten city/target runs, fresh pulls; now carrying `p_boot`), then `paired_boot_table.py` for each year and `all`.
@@ -10,6 +10,12 @@ Plan: rerun `paired_neural_boosted.py` for 2022 and 2023 (3 seeds, ten city/targ
 Caveat: the refit on fresh pulls changed the 2022 and 2023 splits (2022 now 5 worse / 5 better / 5 tie; 2023 now 7 / 6 / 2, against 6/5/4 and 6/5/4 before), so single-cell significance is not stable under refit; the earlier session summaries describe earlier fits.
 Limits: percentile-bootstrap sign p; cells share data; one untuned MLP.
 Next: publish boosted quantile tables for `ventures/`.
+
+## Session 48, 2026-11-07: paper catch-up (no data run: all three feed hosts refused by the proxy, CONNECT 403)
+
+Why: session 47 added bootstrap p-values for 2024 but left the paper without them. No hypothesis (a writing step); no number in `results/` changed.
+Done: paper 4.6a now reports the 2024 bootstrap-p multiplicity result (10 of 15 under uncorrected, Holm and BH, same cells as the normal approximation; SF a2i q0.5 closest at p 0.006) and the floor of 0.001. Fixed a stale "multiplicity covers 2024 only" limit.
+Next: rerun 2022 and 2023 with `p_boot` when a network reaches the feeds, then pool the 45 cells on bootstrap p; publish boosted quantile tables for `ventures/`.
 
 ## Session 47, 2026-11-07: milestone 27 (part), bootstrap p-values saved for the 2024 paired cells (planned before running)
 

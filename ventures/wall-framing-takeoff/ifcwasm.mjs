@@ -41,12 +41,19 @@ export function openingSizes(info) {
       const m = (o.from + o.to) / 2;
       const kind = o.kind === "void" ? (o.sill > 0.0508 ? "window" : "door") : undefined;
       const sill = Math.max(0, o.sill); // Revit puts a door's sill a hair below the floor (-0.035 m): the door still starts at the floor
-      sizes.push({ x: (w.start[0] + ux * m) * k, y: (w.start[1] + uy * m) * k, height: o.height * k, header: (sill + o.height) * k, kind });
+      sizes.push({ x: (w.start[0] + ux * m) * k, y: (w.start[1] + uy * m) * k, width: (o.to - o.from) * k, sill: sill * k, height: o.height * k, header: (sill + o.height) * k, kind });
     }
   }
-  return (mid) => {
-    let best = null, bd = 6;
-    for (const q of sizes) { const d = Math.hypot(q.x - mid.x, q.y - mid.y); if (d <= bd) { bd = d; best = q; } }
+  // Stacked units (an awning over a casement) share one offset: the DXF width, when given, picks the unit
+  // of that width; units of one width fall to the lowest sill (the door or full-height unit).
+  return (mid, width) => {
+    let best = null, bc = Infinity, bs = Infinity;
+    for (const q of sizes) {
+      const d = Math.hypot(q.x - mid.x, q.y - mid.y);
+      if (d > 6) continue;
+      const c = d + (width > 0 ? 2 * Math.abs(q.width - width) : 0);
+      if (c < bc - 0.25 || (Math.abs(c - bc) <= 0.25 && q.sill < bs)) { bc = c; bs = q.sill; best = q; }
+    }
     return best && { height: Math.round(best.height * 16) / 16, headerHeight: Math.round(best.header * 16) / 16, ...(best.kind ? { kind: best.kind } : {}) };
   };
 }

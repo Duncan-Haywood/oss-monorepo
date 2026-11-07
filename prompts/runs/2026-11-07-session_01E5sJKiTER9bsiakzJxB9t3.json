@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01E5sJKiTER9bsiakzJxB9t3",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md",
+  "input_sha256": "94a6b2a74a2fe72d09d7042291a4072d20b259b937e79b5deda0279ae57c7410",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T21:20:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13890",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "no blog post: small perf change, history doc only",
+      "did": "history doc",
+      "result": "ok"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-07-share-location-batched-reads.md"
+  ],
+  "goal": null,
+  "notes": "Metric: checkVentures wall ms (node, one machine, single runs): 2881 -> 2216; share-location.test.mjs 7.0s -> 5.5s; output cmp-identical. Pool reading from ci_profile.py --runs 600.",
+  "corrections": [],
+  "redteam": null
+}

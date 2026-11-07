@@ -478,3 +478,16 @@ test("--add-board refuses a malformed board and an unpriced size it cannot price
   assert.equal(r.code, 1);
   assert.match(r.out, /no 4x4 on the lumber list to price from/);
 });
+
+test("--paver adds the paver takeoff from the plan's paver object", () => {
+  const plan = { ...samplePlan(), paver: { areas: [{ width: 10, length: 10 }] } };
+  const { code, out } = main(["p.json", "--paver"], () => JSON.stringify(plan));
+  assert.equal(code, 0);
+  assert.match(out, /PAVERS/);
+  assert.match(out, /100\.00 sq ft/);
+  const none = main(["p.json", "--paver"], () => JSON.stringify(samplePlan()));
+  assert.equal(none.code, 2);
+  const bad = main(["p.json", "--paver"], () => JSON.stringify({ ...samplePlan(), paver: { areas: [] } }));
+  assert.equal(bad.code, 1);
+  assert.match(bad.out, /pavers have problems/i);
+});

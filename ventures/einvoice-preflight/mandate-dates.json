@@ -262,13 +262,6 @@
    "status": "In force (version 4.4)"
   },
   {
-   "date": "2025-10-23",
-   "country": "Slovenia",
-   "page": "slovenia-e-invoice-mandate.html",
-   "note": "1 Jan 2028 for domestic B2B (law adopted 23 Oct 2025; vendor guides)",
-   "status": "Upcoming"
-  },
-  {
    "date": "2025-11-01",
    "country": "Singapore",
    "page": "singapore-invoicenow-e-invoice-mandate.html",
@@ -685,7 +678,7 @@
    "date": "2028-01-01",
    "country": "Slovenia",
    "page": "slovenia-e-invoice-mandate.html",
-   "note": "1 Jan 2028 for domestic B2B (law adopted 23 Oct 2025; vendor guides)",
+   "note": "1 Jan 2028 for domestic B2B (ZIERDED, gazette text read 2026-11-07; provider rules apply earlier)",
    "status": "Upcoming"
   },
   {
