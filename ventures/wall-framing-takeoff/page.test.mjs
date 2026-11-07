@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
-for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "insulation-calculator.html", "trim-calculator.html", "roof-calculator.html", "gutter-calculator.html", "flooring-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html", "ventilation-calculator.html", "stud-drilling-checker.html", "plumbing-calculator.html", "hvac-calculator.html", "walltile-calculator.html", "electrical-calculator.html", "paint-calculator.html", "price-sensitivity-calculator.html", "order-by-date-calculator.html", "fireblock-calculator.html", "nail-calculator.html", "opening-schedule-calculator.html", "floor-calculator.html", "foundation-calculator.html", "cmu-calculator.html", "dormer-calculator.html", "fence-calculator.html", "paver-calculator.html", "retaining-wall-calculator.html"]) {
+for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "insulation-calculator.html", "trim-calculator.html", "roof-calculator.html", "gutter-calculator.html", "flooring-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html", "ventilation-calculator.html", "stud-drilling-checker.html", "plumbing-calculator.html", "hvac-calculator.html", "walltile-calculator.html", "electrical-calculator.html", "paint-calculator.html", "price-sensitivity-calculator.html", "order-by-date-calculator.html", "fireblock-calculator.html", "nail-calculator.html", "opening-schedule-calculator.html", "floor-calculator.html", "foundation-calculator.html", "cmu-calculator.html", "dormer-calculator.html", "fence-calculator.html", "paver-calculator.html", "retaining-wall-calculator.html", "soffit-fascia-calculator.html"]) {
   test(`${name} carries the disclaimer, privacy line and sponsor link`, () => {
     const html = page(name);
     assert.match(html, /No warranty/);
@@ -604,7 +604,7 @@ test("the deck lumber calculator page: FAQ matches its data, default inputs give
 });
 
 test("every page links to every other page (internal linking for readers and crawlers)", () => {
-  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "insulation-calculator", "trim-calculator", "roof-calculator", "gutter-calculator", "flooring-calculator", "deck-lumber-calculator", "schedule-calculator", "bid-leveling-calculator", "change-order-calculator", "ventilation-calculator", "stud-drilling-checker", "plumbing-calculator", "hvac-calculator", "walltile-calculator", "electrical-calculator", "paint-calculator", "price-sensitivity-calculator", "order-by-date-calculator", "fireblock-calculator", "nail-calculator", "opening-schedule-calculator", "floor-calculator", "foundation-calculator", "cmu-calculator", "dormer-calculator", "fence-calculator", "paver-calculator", "retaining-wall-calculator"].map((n) => n + ".html");
+  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "insulation-calculator", "trim-calculator", "roof-calculator", "gutter-calculator", "flooring-calculator", "deck-lumber-calculator", "schedule-calculator", "bid-leveling-calculator", "change-order-calculator", "ventilation-calculator", "stud-drilling-checker", "plumbing-calculator", "hvac-calculator", "walltile-calculator", "electrical-calculator", "paint-calculator", "price-sensitivity-calculator", "order-by-date-calculator", "fireblock-calculator", "nail-calculator", "opening-schedule-calculator", "floor-calculator", "foundation-calculator", "cmu-calculator", "dormer-calculator", "fence-calculator", "paver-calculator", "retaining-wall-calculator", "soffit-fascia-calculator"].map((n) => n + ".html");
   for (const f of pages) {
     const html = page(f);
     for (const other of pages) if (other !== f) assert.ok(html.includes(`<a href="${other}">`), `${f} does not link ${other}`);
@@ -1174,4 +1174,32 @@ test("the wall table has a Steps field that feeds expandSteppedWalls and is save
   assert.match(html, /<th>Steps \(position : stud length/);
   // saved plans carry steps in inches and the table shows them back as "at : stud"
   assert.match(html, /steps: \(w\.steps \|\| \[\]\)\.map\(\(s\) => `\$\{len\(s\.at\)\} : \$\{len\(s\.studLength\)\}`\)/);
+});
+
+test("the soffit and fascia page: FAQ matches its data and the stated figures are what the engine gives", async () => {
+  const html = page("soffit-fascia-calculator.html");
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("([\w-]+)"\)/g)) assert.ok(ids.has(m[1]), m[1]);
+  assert.match(html, /sitemap|soffit-fascia/);
+  assert.match(page("sitemap.xml"), /soffit-fascia-calculator\.html/);
+  assert.match(page("llms.txt"), /soffit-fascia-calculator\.html/);
+  const { layoutRoof } = await import("./roof.mjs");
+  const { layoutEaves } = await import("./eaves.mjs");
+  const { samplePlan } = await import("./engine.mjs");
+  const plan = samplePlan();
+  for (const sz of ["2x8", "2x10", "2x12"]) plan.stock.push({ size: sz, length: 288, price: 0 });
+  const roof = (shape, overhang) => layoutRoof({ id: "Roof", shape, width: 288, length: 480, pitch: 6, overhang, gableOverhang: 12, rafter: "2x8", spacing: 16, ridge: "2x10", hip: "2x10" }, plan);
+  // hand count: two 42 ft eaves = 84 ft = 7 panels of 12 ft, +10% = 8; channel the same; fascia packs to 10 boards of 16 ft, +10% = 11
+  const g = layoutEaves({}, roof("gable", 12));
+  assert.equal(g.eaveFeet, 84); assert.equal(g.soffitSqFt, 84); assert.equal(g.panels, 8); assert.equal(g.fascia, 11); assert.equal(g.channel, 8);
+  const b = layoutEaves({ rakeSoffit: true, frieze: true }, roof("gable", 12));
+  assert.equal(Math.round(b.soffitSqFt), 142); assert.equal(b.panels, 14); assert.equal(b.channel, 14); assert.equal(b.frieze.boards, 11);
+  // hip: 2 x 43 ft + 2 x 27 ft = 140 ft of eave, two courses of 12 in panels
+  const h = layoutEaves({}, roof("hip", 18));
+  assert.equal(h.eaveFeet, 140); assert.equal(h.eaveCourses, 2); assert.equal(h.soffitSqFt, 210); assert.equal(h.panels, 27); assert.equal(h.fascia, 11); assert.equal(h.channel, 14);
 });
