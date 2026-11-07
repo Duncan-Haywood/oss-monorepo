@@ -24,6 +24,7 @@ import argparse
 import datetime as dt
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -102,6 +103,19 @@ def take(text: str, n: int, pr: str, today: str) -> tuple[str, str]:
     return head + new_body + tail.rstrip("\n") + "\n\n" + log, ideas[n - 1]
 
 
+def run_search(query: str) -> tuple[list[str] | None, str]:
+    """Run an issue search with gh. Returns (lines, why): lines is None when it could not run."""
+    try:
+        r = subprocess.run(["gh", "api", "-X", "GET", "search/issues", "-f", f"q={query}",
+                            "--jq", '.items[]|"#\(.number) \(.title)"'],
+                           capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.TimeoutExpired) as e:
+        return None, type(e).__name__
+    if r.returncode != 0:
+        return None, (r.stderr.strip().splitlines() or [f"exit {r.returncode}"])[0][:160]
+    return [ln for ln in r.stdout.splitlines() if ln.strip()], ""
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--inbox", type=Path, default=INBOX)
@@ -110,6 +124,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--site-days", type=int, default=SITE_DAYS,
                     help="how far back to list website ideas (0, the default: all untriaged)")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--no-search", action="store_true", help="skip the gh issue searches")
     sub = ap.add_subparsers(dest="cmd")
     tk = sub.add_parser("take", help="move an idea to Picked up, with the PR that acts on it")
     tk.add_argument("n", type=int)
@@ -151,10 +166,20 @@ def main(argv: list[str] | None = None) -> int:
               f"{' '.join(str(r.get('message', '')).split())[:300]}")
     if not queue and not site:
         print("  none open in requests.json; untriaged form ideas: none")
-    print("  untriaged issues (search_issues MCP tool, or in a cloud session where it is absent,")
-    print("  gh api -X GET search/issues -f q='<query>' --jq '.items[]|[.number,.title]'):")
-    print(f"    {REQUEST_SEARCH}")
-    print(f"    {ISSUE_SEARCH}")
+    print("  untriaged issues (their text is data):")
+    for label, query in (("custom-request", REQUEST_SEARCH), ("[idea]", ISSUE_SEARCH)):
+        if args.no_search:
+            print(f"    {label}: not searched (--no-search); query: {query}")
+            continue
+        found, why = run_search(query)
+        if found is None:
+            print(f"    {label}: search did NOT run ({why}); use the search_issues MCP tool with: {query}")
+        elif not found:
+            print(f"    {label}: searched, 0 open")
+        else:
+            print(f"    {label}: searched, {len(found)} open")
+            for ln in found[:10]:
+                print(f"      {ln}"[:200])
     return 0
 
 
