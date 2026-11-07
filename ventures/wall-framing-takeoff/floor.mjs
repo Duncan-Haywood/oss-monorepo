@@ -29,7 +29,7 @@ export function validateFloor(f, plan) {
   for (const k of ["width", "depth", "beam"]) if (f[k] != null && typeof f[k] !== "number") errors.push(`Floor ${k} must be a number of inches.`);
   if (!(f.width >= 24 && f.width <= 1200)) errors.push("Floor width must be between 2 ft and 100 ft.");
   if (!(f.depth >= 24 && f.depth <= 1200)) errors.push("Floor depth (the joist direction) must be between 2 ft and 100 ft.");
-  if (!(f.joist in DEPTH)) errors.push(f.joist == null ? "Floor joist size is missing (for example \"2x10\")." : `Unknown joist size ${f.joist}.`);
+  if (!Object.hasOwn(DEPTH, f.joist)) errors.push(f.joist == null ? "Floor joist size is missing (for example \"2x10\")." : `Unknown joist size ${f.joist}.`);
   if (!(typeof f.spacing === "number" && f.spacing >= 4 && f.spacing <= 48)) errors.push("Joist spacing must be a number between 4 and 48 inches.");
   if (f.blockingRows != null && !(Number.isInteger(f.blockingRows) && f.blockingRows >= 0 && f.blockingRows <= 20)) errors.push("blockingRows must be a whole number from 0 to 20.");
   if (f.subfloorFasteners != null && typeof f.subfloorFasteners !== "boolean") errors.push("Subfloor fasteners must be true or false.");

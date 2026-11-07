@@ -51,8 +51,8 @@ export function validateCmu(d) {
   if (d.voidShare != null && !(d.voidShare >= 0.1 && d.voidShare <= 0.7)) e.push("voidShare must be between 0.1 and 0.7.");
   for (const k of /** @type {const} */ (["waste", "groutWaste"])) if (d[k] != null && !(d[k] >= 0 && d[k] <= 0.5)) e.push(`${k} must be between 0 and 0.5.`);
   if (d.blocksPerMortarBag != null && !(d.blocksPerMortarBag >= 5 && d.blocksPerMortarBag <= 200)) e.push("blocksPerMortarBag must be between 5 and 200.");
-  if (d.bar != null && !(d.bar in BAR_LB_FT)) e.push("bar must be a bar size from 3 to 8.");
-  if (d.bondBeamBar != null && !(d.bondBeamBar in BAR_LB_FT)) e.push("bondBeamBar must be a bar size from 3 to 8.");
+  if (d.bar != null && !Object.hasOwn(BAR_LB_FT, d.bar)) e.push("bar must be a bar size from 3 to 8.");
+  if (d.bondBeamBar != null && !Object.hasOwn(BAR_LB_FT, d.bondBeamBar)) e.push("bondBeamBar must be a bar size from 3 to 8.");
   if (d.barSpacing != null && !(d.barSpacing >= 8 && d.barSpacing <= 192)) e.push("barSpacing must be between 8 and 192 in (0 is not allowed: leave it out for no vertical bars).");
   if (d.lapDiameters != null && !(d.lapDiameters >= 0 && d.lapDiameters <= 100)) e.push("lapDiameters must be between 0 and 100.");
   for (const k of /** @type {const} */ (["bondBeamEvery", "jointReinfCourses"])) if (d[k] != null && !(Number.isInteger(d[k]) && d[k] >= 0 && d[k] <= 100)) e.push(`${k} must be a whole number from 0 to 100 (0 for none).`);

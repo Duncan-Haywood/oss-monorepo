@@ -56,14 +56,14 @@ export function validateFoundation(f) {
     if (!(p.pad >= 8 && p.pad <= 96) || !(p.padDepth >= 6 && p.padDepth <= 48)) e.push(`Pier group ${i + 1}: pad must be 8 to 96 in square and 6 to 48 in deep.`);
     if (p.column && (p.column < 6 || p.column > p.pad || !(p.columnHeight > 0))) e.push(`Pier group ${i + 1}: column must be at least 6 in, no wider than the pad, with a height.`);
     if (p.load != null && !(p.load > 0 && p.load <= 200000)) e.push(`Pier group ${i + 1}: load is the service load per pier in lb, above 0 and at most 200,000.`);
-    if (p.bar != null && !(p.bar in BAR_LB_FT)) e.push(`Pier group ${i + 1}: bar size #${p.bar} is not one of #3 to #6.`);
+    if (p.bar != null && !Object.hasOwn(BAR_LB_FT, p.bar)) e.push(`Pier group ${i + 1}: bar size #${p.bar} is not one of #3 to #6.`);
   }
   for (const [i, t] of (ft.steps || []).entries()) {
     if (!(t.rise >= 4 && t.rise <= 24)) e.push(`Footing step ${i + 1}: rise must be between 4 and 24 in.`);
     if (!(t.length >= 24 && t.length <= 2 * (f.width + f.depth))) e.push(`Footing step ${i + 1}: the lowered run must be at least 24 in and no longer than the perimeter.`);
   }
   if (!Number.isInteger(ft.bars) || ft.bars < 0 || ft.bars > 8) e.push("Footing bars must be a whole number from 0 to 8.");
-  for (const [n, b] of [["Footing", ft.bar], ["Stem", f.stem?.bar ?? 4], ["Slab", f.slab?.bar ?? 3]]) if (!(b in BAR_LB_FT)) e.push(`${n} bar size #${b} is not one of #3 to #6.`);
+  for (const [n, b] of [["Footing", ft.bar], ["Stem", f.stem?.bar ?? 4], ["Slab", f.slab?.bar ?? 3]]) if (!Object.hasOwn(BAR_LB_FT, b)) e.push(`${n} bar size #${b} is not one of #3 to #6.`);
   const st = { height: 32, thickness: 8, spacing: 32, ...f.stem };
   if ((f.type ?? "stem") === "stem") {
     if (!(st.height >= 8 && st.height <= 120)) e.push("Stem wall height must be between 8 and 120 in.");

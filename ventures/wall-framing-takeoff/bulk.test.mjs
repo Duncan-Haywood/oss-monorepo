@@ -33,3 +33,13 @@ test("text lists the totals", () => {
   const t = bulkText(layoutBulk({ areas: [{ name: "front bed", length: 12, width: 6, depth: 3 }], material: { pricePerYard: 35 } })).join("\n");
   assert.ok(t.includes("front bed") && t.includes("Order:") && t.includes("Bulk cost"));
 });
+
+test("material names inherited from Object.prototype are refused, not read as presets", async () => {
+  const { layoutBulk } = await import("./bulk.mjs");
+  for (const name of ["toString", "constructor", "__proto__", "hasOwnProperty"]) {
+    const r = layoutBulk({ material: { name }, areas: [{ length: 10, width: 10 }] });
+    assert.equal(r.ok, false, name);
+    assert.match(r.errors.join(" "), /material\.name is one of/);
+  }
+  assert.equal(layoutBulk({ material: { name: "mulch" }, areas: [{ length: 10, width: 10 }] }).ok, true);
+});

@@ -20,7 +20,7 @@ export function slabConcrete(s) {
   if (shape === "pier" && !(s.diameter >= 6 && s.diameter <= 60)) errors.push("Pier diameter must be between 6 and 60 in.");
   if (!Number.isInteger(count) || count < 1 || count > 500) errors.push("Count is a whole number from 1 to 500.");
   if (!(waste >= 0 && waste <= 0.5)) errors.push("Waste is a fraction from 0 to 0.5.");
-  if (!(bag in BAG_YIELD)) errors.push("Bag size is 40, 60 or 80 lb.");
+  if (!Object.hasOwn(BAG_YIELD, bag)) errors.push("Bag size is 40, 60 or 80 lb.");
   if (errors.length) return { ok: false, errors };
   const area = shape === "pier" ? Math.PI * (/** @type {number} */ (s.diameter) / 2) ** 2 : /** @type {number} */ (s.length) * /** @type {number} */ (s.width);
   const cuFt = area * /** @type {number} */ (s.depth) * count / 1728;

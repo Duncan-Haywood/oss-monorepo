@@ -248,7 +248,7 @@ export function validatePlan(plan) {
     if (!(wall.length >= 12)) { errors.push(`${name}: length must be at least 12 inches.`); continue; }
     if (wall.length > 12000) { errors.push(`${name}: length must be at most 12000 inches (1000 ft).`); continue; }
     const stud = wall.stud || "2x4";
-    if (!(stud in DEPTH) || (stud !== "2x4" && stud !== "2x6")) errors.push(`${name}: studs must be 2x4 or 2x6.`);
+    if (!Object.hasOwn(DEPTH, stud) || (stud !== "2x4" && stud !== "2x6")) errors.push(`${name}: studs must be 2x4 or 2x6.`);
     if (!sizes.has(plateSize(wall))) errors.push(`${name}: no ${plateSize(wall)} boards in the lumber list.`);
     if (!sizes.has(stud)) errors.push(`${name}: no ${stud} boards in the lumber list.`);
     for (const t of wall.tees || []) {
@@ -285,7 +285,7 @@ export function validatePlan(plan) {
       prevEnd = z.end;
       prevName = op.label || op.kind;
       const g = openingGeometry(plan, wall, op);
-      if (!(op.header in DEPTH)) errors.push(`${on}: header must be one of ${Object.keys(DEPTH).join(", ")}.`);
+      if (!Object.hasOwn(DEPTH, op.header)) errors.push(`${on}: header must be one of ${Object.keys(DEPTH).join(", ")}.`);
       else if (!sizes.has(op.header)) errors.push(`${on}: no ${op.header} boards in the lumber list.`);
       if (wall.gable && g.topCripple < -EPS) {
         // On a gable wall the header may rise into the triangle: it must clear the sloped plate at the end where the roof is lowest.

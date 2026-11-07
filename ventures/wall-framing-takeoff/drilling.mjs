@@ -32,7 +32,7 @@ export function validateDrilling(d, plan) {
   const e = [];
   if (!Array.isArray(d.runs) || !d.runs.length) return ["drilling.runs is a list of {wall, kind, size or pipe} runs."];
   if (d.clearance != null && !(typeof d.clearance === "number" && d.clearance >= 0 && d.clearance <= 1)) e.push("clearance must be between 0 and 1 inch.");
-  if (d.limits != null) { if (typeof d.limits !== "object" || Array.isArray(d.limits)) e.push("limits is an object."); else for (const k of Object.keys(d.limits)) if (!(k in DEFAULT_LIMITS)) e.push(`limits.${k} is not a limit (${Object.keys(DEFAULT_LIMITS).join(", ")}).`); else if (!(d.limits[k] > 0 && d.limits[k] <= 1.5)) e.push(`limits.${k} must be a positive fraction (edge is inches).`); }
+  if (d.limits != null) { if (typeof d.limits !== "object" || Array.isArray(d.limits)) e.push("limits is an object."); else for (const k of Object.keys(d.limits)) if (!Object.hasOwn(DEFAULT_LIMITS, k)) e.push(`limits.${k} is not a limit (${Object.keys(DEFAULT_LIMITS).join(", ")}).`); else if (!(d.limits[k] > 0 && d.limits[k] <= 1.5)) e.push(`limits.${k} must be a positive fraction (edge is inches).`); }
   const ids = plan ? new Set((plan.walls || []).map((/** @type {any} */ w) => w.id)) : null;
   d.runs.forEach((/** @type {any} */ r, i) => {
     const n = `runs[${i + 1}]`;
@@ -41,7 +41,7 @@ export function validateDrilling(d, plan) {
     if (typeof r.wall !== "string") e.push(`${n} needs a wall id.`);
     else if (ids && !ids.has(r.wall)) e.push(`${n} names "${r.wall}", which is not a wall in the plan.`);
     if (r.kind !== "bore" && r.kind !== "notch") e.push(`${n} kind is "bore" or "notch".`);
-    if (r.pipe != null && (r.kind === "notch" || !(String(r.pipe) in DWV_OD))) e.push(`${n} pipe "${r.pipe}" is not one of ${Object.keys(DWV_OD).join(", ")} (a bore only); type size instead.`);
+    if (r.pipe != null && (r.kind === "notch" || !Object.hasOwn(DWV_OD, String(r.pipe)))) e.push(`${n} pipe "${r.pipe}" is not one of ${Object.keys(DWV_OD).join(", ")} (a bore only); type size instead.`);
     if (r.pipe == null && r.size == null) e.push(`${n} needs a size (inches) or a pipe.`);
     if (r.size != null && !(r.size > 0 && r.size <= 12)) e.push(`${n} size must be over 0 and at most 12 inches.`);
     if (r.count != null && !(Number.isInteger(r.count) && r.count >= 1 && r.count <= 500)) e.push(`${n} count is a whole number 1 to 500.`);
