@@ -100,6 +100,16 @@ pub struct Wall {
 }
 
 impl Wall {
+    /// False for a wall whose layers name concrete, masonry or similar and no
+    /// wood; true for wood, and for a wall with no layer information (unknown
+    /// is kept). The match is on the material names, so it is a filter for a
+    /// US-style Revit export, not a structural classification.
+    pub fn maybe_wood_framed(&self) -> bool {
+        let has = |m: &Layer, keys: &[&str]| { let n = m.material.to_lowercase(); keys.iter().any(|k| n.contains(k)) };
+        if self.layers.is_empty() { return true; }
+        if self.layers.iter().any(|l| has(l, &["wood", "stud", "timber", "lumber", "lvl", "joist"])) { return true; }
+        !self.layers.iter().any(|l| has(l, &["concrete", "masonry", "cmu", "brick", "block", "stone", "steel", "metal"]))
+    }
     pub fn length(&self) -> f64 { ((self.end[0] - self.start[0]).powi(2) + (self.end[1] - self.start[1]).powi(2)).sqrt() }
 }
 
