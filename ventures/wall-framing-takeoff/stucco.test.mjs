@@ -50,3 +50,12 @@ test("bad input is refused with a message", () => {
   assert.equal(layoutStucco({ rebound: 0.9 }, plan).ok, false);
   assert.equal(layoutStucco({}, { ...plan, walls: [{ id: "x", length: 100, sheathed: false }] }).ok, false);
 });
+
+test("hostile input is refused with a reason, not a raw error or a null/negative count", () => {
+  for (const p of [null, { studLength: 96 }, { ...plan, walls: [{ id: "A", length: 1e12 }] }, { ...plan, walls: [{ id: "A", length: 240, openings: [null] }] }, { ...plan, walls: [{ id: "A", length: 240, openings: [{ width: NaN, height: 4 }] }] }]) {
+    const r = layoutStucco({}, p);
+    assert.equal(r.ok, false); assert.ok(r.errors[0].length > 0);
+  }
+  for (const n of [0, -5, 0.001, "9"]) assert.equal(layoutStucco({ fastenerBoxCount: n }, plan).ok, false);
+  assert.equal(layoutStucco({ fastenerBoxCount: 500 }, plan).lath.fastenerBoxes, 1); // 407 fasteners in one box of 500
+});
