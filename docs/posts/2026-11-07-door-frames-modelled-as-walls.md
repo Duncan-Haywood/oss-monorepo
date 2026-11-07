@@ -1,7 +1,7 @@
 ---
 title: "A 37 inch wall with a 32 inch door in it"
 date: 2026-11-07
-description: "Running a real Revit house through the framing takeoff showed door jambs exported as short walls; a new ifc-engine flag drops them, clearing one of three refusals on the 2nd floor."
+description: "A real Revit house exports door jambs as short walls; a new ifc-engine flag drops them, clearing one of three 2nd floor refusals."
 tags: [construction, ifc, wall-framing-takeoff]
 ---
 
