@@ -1236,3 +1236,10 @@ test("the wall sheathing page: FAQ matches its data and the stated figures are w
   assert.equal(sheathe(h8.plan, takeoff(h8.plan)).ok, false);
   for (const bad of [{ height: "7ft" }, { windows: 1.5 }, { doors: -1 }, { length: 10 }, { width: 1e9 }, null]) assert.equal(houseSheathingPlan(bad === null ? null : { length: 480, width: 288, height: "8ft", windows: 0, doors: 0, ...bad }).ok, false);
 });
+
+test("the stair page has a spiral stair check wired to checkSpiral", () => {
+  const html = readFileSync(new URL("./stair-stringer-calculator.html", import.meta.url), "utf8");
+  for (const id of ["srise", "sdia", "spole", "sper", "srail", "sout"]) assert.match(html, new RegExp(`id="${id}"`));
+  assert.match(html, /checkSpiral\(/);
+  assert.match(html, /spiralText\(/);
+});
