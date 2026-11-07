@@ -307,3 +307,22 @@ def ac_optimum_penalty_dc(net, ac=None):
     cols = ["cp1_eur_per_mw", "cp2_eur_per_mw2"]
     n.poly_cost.loc[rows, cols] = n.poly_cost.loc[rows, cols].values * pf[elem][:, None]
     return solve_dc(n), pf
+
+
+def previous_interval_penalty_dc(net, prev_ac, prev_net):
+    """Penalty-factor DC OPF for `net` using factors and the loss share taken from an
+    AC optimum solved on a *different* load level (`prev_net`, solution `prev_ac`),
+    standing in for the previous dispatch interval. No AC solve at `net` itself.
+    Returns (DC solution, factors) or (None, None)."""
+    sens = loss_sensitivities(prev_net, prev_ac)
+    if sens is None:
+        return None, None
+    pf = penalty_factors(sens)
+    share = _losses(prev_ac) / float(prev_net.load.p_mw.sum())
+    n = copy.deepcopy(net)
+    n.load["p_mw"] = net.load.p_mw * (1.0 + share)
+    rows = n.poly_cost.index[n.poly_cost.et == "gen"]
+    elem = n.poly_cost.loc[rows, "element"].astype(int).values
+    cols = ["cp1_eur_per_mw", "cp2_eur_per_mw2"]
+    n.poly_cost.loc[rows, cols] = n.poly_cost.loc[rows, cols].values * pf[elem][:, None]
+    return solve_dc(n), pf

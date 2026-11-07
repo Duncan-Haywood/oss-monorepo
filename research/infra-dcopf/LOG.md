@@ -1,5 +1,9 @@
 # Research log
 
+## 2026-11-07 · Penalty factors from a previous interval
+- Prediction (before running): factors from a 0.1-lower load level keep most of the gain; a 0.2 step much less. Supported: case118 at load 1.0 excess 0.402 % (0.1 step) and 0.703 % (0.2 step) vs 0.367 % oracle and 1.479 % plain DC.
+- Load scale stands in for time; next a real hourly profile.
+
 ## 2026-11-06 · Penalty factors at the AC optimum
 - Prediction (before running): factors from sensitivities at the AC optimum fix the high-load failure of the iterated version. Supported: case118 excess 0.367 % (load 1.0) and 0.339 % (1.1) against 1.345 and 2.236 %; unchanged at 0.6 and 0.8.
 - Caveat: it uses the AC optimum, so it is a bound on what factors can do, not a deployable scheme. Next: factors from a previous-interval estimate.
