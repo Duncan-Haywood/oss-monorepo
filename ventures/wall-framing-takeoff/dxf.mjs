@@ -468,7 +468,7 @@ export function pairDoubleLines(segs, o) {
 
 /**
  * @param {string} text ASCII DXF
- * @param {{ units?: "in"|"ft"|"mm"|"cm"|"m", openingSize?: (mid: Pt) => any, wallHeight?: (mid: Pt) => number | undefined, wallLayer?: RegExp, doorLayer?: RegExp, windowLayer?: RegExp,
+ * @param {{ units?: "in"|"ft"|"mm"|"cm"|"m", openingSize?: (mid: Pt, width?: number) => any, wallHeight?: (mid: Pt) => number | undefined, wallLayer?: RegExp, doorLayer?: RegExp, windowLayer?: RegExp,
  *   snap?: number, mergeGap?: number, doubleLine?: boolean | "auto", doorHeight?: number, windowHeight?: number, header?: string,
  *   exteriorStud?: "2x4"|"2x6", interiorStud?: "2x4"|"2x6" }} [opt]
  * @returns {{ ok: boolean, errors: string[], notes: string[], plan?: any, stats?: any }}
@@ -711,7 +711,7 @@ export function planFromDxf(text, opt = {}) {
       if (off < CLEAR && CLEAR - off <= 3) { off = CLEAR; nudged++; }
       else if (Lr - (off + width) < CLEAR && CLEAR - (Lr - (off + width)) <= 3) { off = Lr - width - CLEAR; nudged++; }
     }
-    const own = opt.openingSize?.(mid);
+    const own = opt.openingSize?.(mid, width);
     const kind = own?.kind ?? o.kind ?? kindOf(mid);
     counts[kind]++;
     if (!own) defaulted++;
