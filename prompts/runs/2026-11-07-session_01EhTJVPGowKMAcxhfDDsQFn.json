@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01EhTJVPGowKMAcxhfDDsQFn",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue revenue software work, merge when done",
+  "input_sha256": "0c5be079b21be48797de42172e4efd308e128370430eb18c0c36df1b0ae618bb",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T03:00:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "ventures/wall-framing-takeoff"
+  ],
+  "pr": 13701,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Scheduled task asked for revenue product work, not a site polish pass.",
+      "did": "Built a new SEO calculator page in a flagship venture.",
+      "result": "Shipped with tests."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Routed to polish track but the task was revenue products, so did ventures work (deviation). Added fence calculator; node --test '*.test.mjs' in wall-framing-takeoff: 1014 pass, 0 fail. No real fence plan run.",
+  "corrections": [],
+  "redteam": null
+}
