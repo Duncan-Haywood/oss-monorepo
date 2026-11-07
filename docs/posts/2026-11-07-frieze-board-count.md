@@ -1,8 +1,8 @@
 ---
 title: "Counting the frieze board under the soffit"
 date: 2026-11-07
-tags: [construction, takeoff, wall-framing]
-description: "The wall-framing takeoff now counts frieze board under the soffit with eaves.frieze: boards packed into stock lengths, with waste, off by default."
+tags: [wall-framing-takeoff, construction, tools]
+description: "The wall-framing takeoff now counts the frieze board under the soffit, the trim that runs along the wall beneath the overhang, as a new option."
 ---
 
 The wall-framing takeoff already counts soffit panels, fascia and J-channel

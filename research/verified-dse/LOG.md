@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-07 · Milestone 92: exact power of the rank-displacement certificate (no flow run)
+- Why: milestone 90 bounded false certificates but not how often a valid certificate is issued. T is the ratio of the pilot's lowest-y point, so T < 1 needs that point in G = {ratio < 1}; hence P(T<1) <= P(pilot hits G) = 1 - C(n-g,m)/C(n,m). Predictions (written first): (1) this bounds the empirical share in all 11 guaranteed cells; (2) the median gap at m = 8 exceeds 0.1.
+- **Outcome** (`experiments/theory/pilot_rho_power.py`, `pilot_rho_power_results.txt`). (1) held: 0 violations at m = 8, 16, 24 (3-sigma binomial slack). (2) **refuted**: median gap 0.089 / 0.095 / 0.062 at m = 8 / 16 / 24 (max 0.19 / 0.37 / 0.26), so the hit probability (median 0.60 / 0.87 / 0.97) is a fairly tight upper bound on the empirical power (0.49 / 0.72 / 0.88). Median |G| is 5 and the median pilot size for a hit probability of 0.9 is 18 points. `tests/test_pilot_rho_power.py` checks the formula by enumeration.
+- Limits: an upper bound on power from rung scores alone, not exact (equality needs G's members to beat everything else on y); 11 guaranteed cells; same cached table; no regret certificate.
+- Next: detail-routed mult24/mult32 cells; MLCAD 2026's CFP (found by search: six pages, ACM format, deadline May 2026) is past, so the template must be re-checked for the next call.
+
 ## 2026-11-06 · Milestone 91: full BibTeX author lists checked against arXiv and Crossref (no flow run, no new numbers)
 - Why: milestones 86 to 89 left `references.bib` with "and others" in six entries because arxiv.org and doi.org were blocked. Both hosts answered this session. Prediction (written first): the lists copied from PROPOSAL.md are correct for the lead authors and only truncated.
 - **Outcome:** six truncated entries filled from the arXiv API (Takeno 7 authors, Li 5, Balandat 7, Huang 16, Cheng et al. 5, the entry that had no author at all) and Crossref (Mirhoseini 20). Prediction **refuted in one case**: Kandasamy et al. 2016 (1603.06288) omitted Junier B. Oliva, now added. The other four complete entries (Jamieson, Falkner, Yu, Angelopoulos) match. `tests/test_bib.py` 2 passed.
