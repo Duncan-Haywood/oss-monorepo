@@ -532,6 +532,13 @@ export const BUILT_IN = [
   ["6130", "out", /\bgrocer(y|ies|s)\b|\bsupermarket\b/],  // plain-word payees (Maybe fixture, 2026-10-25): "Grocery Store".
   ["6140", "out", /\b(mobile|cell(ular)?) phone\b|\bphone (provider|company|bill)\b|\b(internet|broadband) (provider|service)\b/],
   ["6160", "out", /shell\/shell/],
+  // Canadian card descriptors, from a real Capital One export (eval/capone-card.mjs; the wider rules above are US-first).
+  ["6160", "out", /^shell(\s+#?\d+)?\s*$|\bpetro-?\s?can\b|\bpetro-canada\b|\besso\b|\bpioneer energy\b|\bhusky\b/],
+  ["6140", "out", /\bfido\b|\bkoodo\b|\bfreedom mobile\b|\bbell (mobility|canada)\b|\btelus\b|\bvirgin plus\b|\bchatr\b/],
+  ["6120", "out", /\bpresto\b.*\breload\b|\bgo (transit|tvm)\b|\bvia rail\b|\bttc\b/],
+  ["6130", "out", /\bjollibee\b|\bcongee\b|\buncle tetsu\b|\bmary brown|\bswiss chalet\b|\bharvey'?s\b/],
+  ["6030", "out", /\bbelairdirect\b|\bintact insurance\b|\bdesjardins assurance\b/],
+  ["6010", "out", /\bover-?limit fee\b|\bannual fee\b/],
   ["6100", "out", /bambu lab|joann stores|alro steel|mas epoxies|lakeshore carbide|\bvevor\b|bulksupplements/],
   ["6120", "out", /cheapoair|delta internet/],
   ["6000", "out", /discountmugs/],
