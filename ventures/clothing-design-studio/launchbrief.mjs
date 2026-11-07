@@ -46,6 +46,7 @@ export function briefFromStudio(design, sheet, plan, cost) {
     factoryPerUnit: r2(factoryPerUnit),
     extrasPerUnit: r2(extras),
     freightTotal: r2(freightUnit * design.quantity),
+    freightDays: null,
     dutyPct: sheet.dutyPct || 0,
     moq: sheet.moq || 0,
     leadTimeDays: num(sheet.leadTimeDays),
