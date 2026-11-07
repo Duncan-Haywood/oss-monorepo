@@ -1,7 +1,7 @@
 ---
 title: "A free GTIN-13 barcode maker for clothing variants"
 date: 2026-11-07
-description: "Shops and marketplaces want a different barcode for each colour and size. The Clothing Design Studio now numbers them from your own GS1 prefix, checks the digit and draws the labels."
+description: "Shops want a different barcode per colour and size. The Clothing Design Studio now numbers them from your own GS1 prefix, checks the digit and draws labels."
 tags: [clothing-design-studio, tools]
 ---
 
