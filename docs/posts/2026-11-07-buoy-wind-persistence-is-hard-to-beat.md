@@ -1,7 +1,7 @@
 ---
 title: "A buoy's own wind history barely beats persistence"
 date: 2026-11-07
-description: "On eight NDBC buoys, a fitted autoregression gains under 1% over persistence at 10 to 30 minutes and about 4% at two hours; a simple trend rule is worse at every lead."
+description: "On eight NDBC buoys a fitted autoregression gains under 1% over persistence at 10 to 30 minutes and 4% at two hours; a trend rule is worse at every lead."
 tags: [research, marine-hull, wind, forecasting]
 ---
 
