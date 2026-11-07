@@ -3,6 +3,15 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-11-07 · Milestone 10f: can a drag polar explain the Wingcopter 198's implied cruise L/D of 6.8? (predictions in `polar.py`'s docstring, fixed before the run)
+- Why: 10e's "Next". `experiments/wingcopter_check/polar.py` (stdlib) puts the published 25 kg and 90 km/h through L/D = CL/(CD0 + CL^2/(pi e AR)), e 0.8 assumed. Wing area and span are not sourced, so S 0.5 to 1.0 m2, AR 8 to 12 and CD0 are swept.
+- **Predictions:** (P1) the CD0 needed for L/D 6.8 exceeds 0.07 everywhere on the grid; (P2) a clean CD0 of 0.035 gives L/D above 12; (P3) L/D varies under 20% across S at CD0 0.07.
+### Outcome (`experiments/wingcopter_check/polar_results.txt`)
+- **P1 held:** CD0 needed is 0.074 to 0.134 (0.098 to 0.183 for L/D 5.4). **P2 held:** 12.5 to 13.4. **P3 refuted:** 7.4 to 9.5, a 28% spread, so wing area matters.
+- Reading: matching the published 94 km needs a zero-lift drag two to four times a clean airframe's, which a VTOL with idle lift rotors, booms and pods may have, but the effective L/D x eta_c of 5.7 is as consistent with a larger reserve or lower usable depth than assumed (10e). The polar alone cannot separate these.
+- Limits: S, AR, e and CD0 are swept or assumed, not read from the datasheet; one aircraft; level cruise at sea level, no climb.
+- Next: the datasheet's wing area and span (host not fetchable so far) to collapse the S and AR sweep; a rotor-drag term for the idle lift rotors.
+
 ## 2026-11-07 · Milestone 10e: does 10a's energy model reproduce a flown small cargo VTOL (Wingcopter 198)? (predictions written in `run.py`'s docstring before its first run)
 - Why: 10d's "Next". Published figures (manufacturer page and trade press via web search; the manufacturer pages and Wikipedia were not fetchable from this session, so these are search-result summaries, not read from the datasheet): MTOW 25 kg; about 20 kg including two 814 Wh Li-ion packs (1,628 Wh); payload 4.7 kg (manufacturer) or 6 kg (others); range 94 km (manufacturer, payload unstated) or 75 km at 6 kg; cruise 90 km/h. Pack mass is not published, so f_non is swept over pack Wh/kg 150 to 220. `experiments/wingcopter_check/run.py` (stdlib) applies 10a's hover and L/D energy terms, 20% reserve, 90% usable.
 - **Predictions:** (P1) 10a's L/D 12 model gives 120 to 180 km, above the published 94; (P2) the L/D x eta_c implied by 94 km is 5 to 8, below 10a's 10.2; (P3) implied f_non is 0.36 to 0.51 and below NASA's 0.48 floor for packs of 170 Wh/kg or more.
