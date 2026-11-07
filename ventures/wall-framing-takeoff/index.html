@@ -110,7 +110,7 @@
   <section class="card" aria-labelledby="h-walls">
     <h2 id="h-walls">2. Walls</h2>
     <p class="note">"Corner at start" adds corner backing at the start end. "Walls meet at" lists where other walls tee into this one (comma-separated positions), which adds backing there. "Butts into" is optional and used with the corner-lap setting: <code>Front @ 14'</code> means this wall's start ends against wall Front 14' along it (add <code>end</code> for its far end); its cap plate then runs over that wall and that wall's cap is cut for it.</p>
-    <table class="edit"><thead><tr><th>Name</th><th>Length</th><th>Studs</th><th>Treated bottom plate</th><th>Corner at start</th><th>Walls meet at</th><th>Butts into (tee lap)</th><th>Gable pitch (rise per 12 in)</th><th>Gable peak at</th><th>Partition (no sheathing)</th><th>Free ends (drywall bead)</th><th></th></tr></thead><tbody id="walls"></tbody></table>
+    <table class="edit"><thead><tr><th>Name</th><th>Length</th><th>Studs</th><th>Treated bottom plate</th><th>Corner at start</th><th>Walls meet at</th><th>Butts into (tee lap)</th><th>Gable pitch (rise per 12 in)</th><th>Gable peak at</th><th>Partition (no sheathing)</th><th>Free ends (drywall bead)</th><th>Steps (position : stud length, ...)</th><th></th></tr></thead><tbody id="walls"></tbody></table>
     <button type="button" class="secondary" id="addWall">Add a wall</button>
   </section>
 
@@ -580,6 +580,7 @@
 
   <script type="module">
     import { takeoff, samplePlan, defaultStock, parseLength, formatLength, formatInches, toCsv, verifyWall, PRECUT, DEPTH } from "./engine.mjs";
+    import { expandSteppedWalls } from "./stepwall.mjs";
     import { planFromDxf } from "./dxf.mjs";
     import { loadIfcEngine, openingSizes } from "./ifcwasm.mjs";
     import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength, restoreSketch, fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners } from "./sketch.mjs";
@@ -640,9 +641,22 @@
       return { gable: { pitch, ...(String(w.peak || "").trim() ? { peak: L(w.peak, `wall ${w.id}, gable peak`) } : {}) } };
     }
 
+    // "10 ft : 6 ft, 20 ft : 9 ft": where each step starts along the wall and the stud length from there on; blank: a level wall
+    function stepsField(w, L, bad) {
+      const t = String(w.steps ?? "").trim();
+      if (!t) return {};
+      const steps = [];
+      for (const part of t.split(",").map((x) => x.trim()).filter(Boolean)) {
+        const q = part.split(":").map((x) => x.trim());
+        if (q.length !== 2 || !q[0] || !q[1]) { bad.push(`Wall ${w.id}, steps: write each one as  10 ft : 6 ft  (position along the wall, then stud length from there), separated by commas.`); return {}; }
+        steps.push({ at: L(q[0], `wall ${w.id}, step position`), studLength: L(q[1], `wall ${w.id}, step stud length`) });
+      }
+      return steps.length ? { steps } : {};
+    }
+
     function fromPlan(plan) {
       return {
-        walls: plan.walls.map((w) => ({ id: w.id, length: len(w.length), stud: w.stud || "2x4", treatedPlate: Boolean(w.treatedPlate), corner: Boolean(w.corner), tees: (w.tees || []).map(len).join(", "), tee: w.tee ? `${w.tee.wall} @ ${len(w.tee.at)}${w.tee.end === "end" ? " end" : ""}` : "", gable: w.gable ? String(w.gable.pitch) : "", peak: w.gable?.peak !== undefined ? len(w.gable.peak) : "", partition: w.sheathed === false, freeEnds: String(w.freeEnds || 0) })),
+        walls: plan.walls.map((w) => ({ id: w.id, length: len(w.length), stud: w.stud || "2x4", treatedPlate: Boolean(w.treatedPlate), corner: Boolean(w.corner), tees: (w.tees || []).map(len).join(", "), tee: w.tee ? `${w.tee.wall} @ ${len(w.tee.at)}${w.tee.end === "end" ? " end" : ""}` : "", gable: w.gable ? String(w.gable.pitch) : "", peak: w.gable?.peak !== undefined ? len(w.gable.peak) : "", partition: w.sheathed === false, freeEnds: String(w.freeEnds || 0), steps: (w.steps || []).map((s) => `${len(s.at)} : ${len(s.studLength)}`).join(", ") })),
         openings: plan.walls.flatMap((w) => (w.openings || []).map((o) => ({ wall: w.id, kind: o.kind, label: o.label || "", offset: len(o.offset), width: len(o.width), height: len(o.height), headerHeight: o.headerHeight ? len(o.headerHeight) : "", header: o.header || "2x10", plies: o.headerPlies ?? "", jacks: o.jacks ?? 1, sillPlies: o.sillPlies }))),
         stock: plan.stock.map((s) => ({ size: s.size, length: len(s.length), price: s.price, label: s.label || "" })),
         settings: { studLength: plan.studLength, spacing: plan.studSpacing, headerHeight: plan.defaultHeaderHeight, lap: plan.topPlateLap, kerf: plan.kerf, cornerStuds: plan.cornerExtraStuds, teeStuds: plan.teeExtraStuds, blockRows: plan.blocking?.rows || 0, fire: Boolean(plan.blocking?.fire), plateLaps: Boolean(plan.plateLaps), cullPct: plan.culls?.pct ? Math.round(plan.culls.pct * 1000) / 10 : 0, advFrame: plan.advanced ? (plan.advanced.singleTopPlate ? "single" : plan.advanced.twoStudCorners && plan.advanced.ladderTees ? "both" : plan.advanced.twoStudCorners ? "corners" : plan.advanced.ladderTees ? "tees" : "") : "" },
@@ -692,6 +706,7 @@
           tees: String(w.tees || "").split(",").map((t) => t.trim()).filter(Boolean).map((t) => L(t, `wall ${w.id}, walls meet at`)),
           ...teeField(w, L, bad),
           ...gableField(w, L, bad),
+          ...stepsField(w, L, bad),
           ...(w.partition ? { sheathed: false } : {}),
           ...(Number(w.freeEnds) > 0 ? { freeEnds: Math.min(2, Math.round(Number(w.freeEnds))) } : {}),
           openings: [],
@@ -984,6 +999,7 @@
         <td>${f("walls", i, "peak", w.peak, `Wall ${i + 1} gable peak position`, 'placeholder="middle"')}</td>
         <td>${chk("walls", i, "partition", w.partition, `Wall ${i + 1} is an interior partition without sheathing`)}</td>
         <td>${sel("walls", i, "freeEnds", String(w.freeEnds || 0), ["0", "1", "2"], `Wall ${i + 1} free ends, where the wall ends without meeting another wall`)}</td>
+        <td>${f("walls", i, "steps", w.steps, `Wall ${i + 1} steps, position and stud length`, 'placeholder="level"')}</td>
         <td>${del("walls", i, `Remove wall ${i + 1}`)}</td></tr>`).join("");
     }
     function renderOpenings() {
@@ -1249,9 +1265,10 @@
       return q;
     }
     function run() {
-      const { plan, bad, source } = toPlan();
+      let { plan, bad, source } = toPlan();
       $("#errors").innerHTML = "";
       if (bad.length) { $("#errors").innerHTML = `<ul>${bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return false; }
+      { const ex = /** @type {any} */ (expandSteppedWalls(plan)); if (!ex.ok) { $("#errors").innerHTML = `<ul>${ex.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return false; } plan = ex.plan; }
       let result, nailers = [], floor = null, stairs = null, deck = null, floorExtra = [], roof = null, foundation = null, drywall = null;
       try {
         if (plan.foundation) {
@@ -1529,7 +1546,7 @@
         later(run, 0);
       }
     });
-    $("#addWall").addEventListener("click", () => { ui.walls.push({ id: `Wall ${ui.walls.length + 1}`, length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "", gable: "", peak: "", partition: false, freeEnds: "0" }); renderAll(); later(run, 0); });
+    $("#addWall").addEventListener("click", () => { ui.walls.push({ id: `Wall ${ui.walls.length + 1}`, length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "", gable: "", peak: "", partition: false, freeEnds: "0", steps: "" }); renderAll(); later(run, 0); });
     $("#addOpening").addEventListener("click", () => { ui.openings.push({ wall: ui.walls[0]?.id || "", kind: "window", label: "", offset: "24", width: "36", height: "48", headerHeight: "", header: "2x10", plies: "", jacks: 1 }); renderOpenings(); later(run, 0); });
     $("#addStock").addEventListener("click", () => { ui.stock.push({ size: "2x4", length: "8'", price: 8, label: "" }); renderStock(); });
     $("#resetStock").addEventListener("click", () => { ui.stock = defaultStock(parseLength($("#studLength").value) || PRECUT["8ft"]).map((s) => ({ size: s.size, length: formatLength(s.length), price: s.price, label: s.label || "" })); renderStock(); later(run, 0); });
@@ -1539,7 +1556,7 @@
     $("#sheathR").addEventListener("change", () => run());
     $("#run").addEventListener("click", () => { if (run()) record("takeoff_run"); });
     $("#example").addEventListener("click", () => { if (load(samplePlan())) { record("example_loaded"); $("#status").textContent = "Example: an invented 40 x 28 ft ranch, not a real plan."; } });
-    $("#clear").addEventListener("click", () => { ui.walls = [{ id: "Wall 1", length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "", gable: "", peak: "", partition: false, freeEnds: "0" }]; ui.openings = []; renderAll(); run(); $("#status").textContent = "Started an empty plan with one wall."; });
+    $("#clear").addEventListener("click", () => { ui.walls = [{ id: "Wall 1", length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "", gable: "", peak: "", partition: false, freeEnds: "0", steps: "" }]; ui.openings = []; renderAll(); run(); $("#status").textContent = "Started an empty plan with one wall."; });
     $("#wallPick").addEventListener("change", showWall);
     const download = (name, type, text) => {
       const a = document.createElement("a");
