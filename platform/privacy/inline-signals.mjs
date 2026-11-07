@@ -92,7 +92,11 @@ export function findInlineUsagePages(root = VENTURES) {
   const found = [];
   for (const slug of readdirSync(root).sort()) {
     const dir = join(root, slug);
-    if (!statSync(dir).isDirectory()) continue;
+    // A directory another process removes between readdir and stat (a test's
+    // scratch venture) is not a venture.
+    let isDir = false;
+    try { isDir = statSync(dir).isDirectory(); } catch { /* vanished */ }
+    if (!isDir) continue;
     if (!existsSync(join(dir, "VENTURE.yaml"))) continue;
     if (!existsSync(join(dir, "index.html"))) continue;
     // A venture with a usage module is `browser-signals.mjs`'s subject, and

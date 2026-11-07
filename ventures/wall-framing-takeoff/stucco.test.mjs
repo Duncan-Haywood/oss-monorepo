@@ -59,3 +59,25 @@ test("hostile input is refused with a reason, not a raw error or a null/negative
   for (const n of [0, -5, 0.001, "9"]) assert.equal(layoutStucco({ fastenerBoxCount: n }, plan).ok, false);
   assert.equal(layoutStucco({ fastenerBoxCount: 500 }, plan).lath.fastenerBoxes, 1); // 407 fasteners in one box of 500
 });
+
+// Guards added by the 2026-11-07 red-team campaign: each pins a mutant the suite let through.
+test("the panel-area limit alone cuts a short wall, and the joints are measured in feet", () => {
+  const p = { studLength: 96, walls: [{ id: "A", length: 192 }] };   // 16 ft x 8 ft = 128 sq ft, inside the 18 ft run
+  const s = layoutStucco({ maxPanelSqFt: 50 }, p);
+  assert.equal(s.trim.joints.count, 2);                              // ceil(128 / 50) = 3 panels
+  assert.equal(s.trim.joints.feet, 16);                              // 2 joints x 96 in / 12
+});
+
+test("cost adds every priced line, fasteners included", () => {
+  const prices = { barrierPrice: 1, lathPrice: 2, bagPrice: 3, screedPrice: 5, casingPrice: 7, cornerPrice: 11, jointPrice: 13, fastenerBoxPrice: 17 };
+  const s = layoutStucco(prices, plan);
+  const want = s.barrier.rolls * 1 + s.lath.sheets * 2 + s.plaster.bags * 3 + s.trim.screed.pieces * 5 +
+    s.trim.casing.pieces * 7 + s.trim.corner.pieces * 11 + s.trim.joints.pieces * 13 + Math.ceil(s.lath.fasteners / 1000) * 17;
+  assert.ok(want > 0);
+  assert.equal(s.cost, want);
+});
+
+test("barrierRollSqFt is accepted at its limits and refused just outside them", () => {
+  for (const v of [50, 3000]) assert.equal(validateStucco({ barrierRollSqFt: v }).length, 0, String(v));
+  for (const v of [49, 3001]) assert.ok(validateStucco({ barrierRollSqFt: v }).length > 0, String(v));
+});
