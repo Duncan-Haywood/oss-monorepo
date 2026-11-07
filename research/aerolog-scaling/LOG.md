@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-07 · Milestone 8m: paper draft catches up with milestones 10e to 10i (no new simulation)
+- Section 4.12 of `paper/draft.md` now reports the Wingcopter 198 check: 10a's model gives 167 km against 94 published; implied L/D x eta_c 5.7; with the sourced 1.98 m span the CD0 needed is 0.105 / 0.075 / 0.053 at S 0.5 / 0.7 / 1.0 against 0.035 clean; equivalent flat-plate area 0.035 / 0.028 / 0.018 m2; about 4 stopped 2-blade rotors fit, 8 overshoot. `paper/check_numbers.py` gains 12 checks tied to the results files (103 pass). The open-items line points to 4.12.
+- Next: wing area and rotor tilt/fold split from a datasheet; AIAA template (needs `pdflatex`).
+
 ## 2026-11-07 · Milestone 10i: how many stopped rotors does the Wingcopter 198's 94 km claim need? (predictions in `rotor_count.py`'s docstring, fixed before the run)
 - Why: 10h's "Next". A web search this session (summaries of Wikipedia's infobox and trade press; wingcopter.com did not resolve from the session) gives **8 electric motors** for the 198. Propeller diameter, blades per rotor, which rotors tilt or fold, and wing area were not found.
 ### Outcome (`experiments/wingcopter_check/rotor_count_results.txt`)
