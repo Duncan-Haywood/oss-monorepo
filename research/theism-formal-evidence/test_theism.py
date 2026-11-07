@@ -117,6 +117,29 @@ def test_ledger_entries_are_documented():
         assert it["lo"] <= it["hi"] and it["basis"] in ("published", "argued", "sweep") and it["sources"]
 
 
+def _load(name):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(name, Path(__file__).resolve().parent / "experiments" / name / "run.py")
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def test_e3_leave_one_out_reports_every_theism_level_item():
+    e3 = _load("e3_leave_one_out")
+    r = e3.run()
+    assert abs(r["full_P_N"] - 0.76) < 0.005
+    assert r["max_abs_delta_item"] == "natural_evil" and "moral_evil" in r["flippers"]
+    assert r["items"]["canon28"]["delta"] == 0.0          # church-level items do not touch naturalism
+
+
+def test_e4_godel_scott_collapse_in_finite_models():
+    e4 = _load("e4_godel_scott")
+    # one-world models: one per individual (the principal ultrafilters), and none with two or more worlds
+    assert [e4.search(1, d)["models"] for d in (1, 2, 3)] == [1, 2, 3]
+    assert e4.search(2, 1)["models"] == 0 and e4.search(3, 1)["models"] == 0 and e4.search(2, 2)["models"] == 0
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

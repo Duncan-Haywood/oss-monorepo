@@ -32,14 +32,26 @@ as independent. A crude ρ = 0.5 discount barely moves the theism result: the sh
 P(N) > 0.5 goes from 58% to 55%. The Lean files have not yet been compiled, because the session's
 permission policy refused the toolchain download. The McGrews' figure is a secondary report.
 
+**M2 results (2026-11-07).** *Leave-one-out (E3):* at the midpoints P(naturalism) is 0.76, and
+dropping any one of three theism-level items flips it below 0.5: natural evil (to 0.09),
+moral evil (0.42), and hiddenness (exactly 0.5, a boundary case). Dropping fine-tuning, the
+largest variance contributor, moves it up to 0.99. So the verdict at midpoints is fragile to the
+evil items, which is the reverse of what the variance shares alone suggest; the earlier
+prediction that no sourced item could move it by 0.1 failed. *Gödel's argument (E4):* in an
+exhaustive search of S5 models under full property semantics, Scott's axioms (A1 to A5) have
+exactly one model per individual when there is one world, and none with two to five worlds
+(up to the sizes tried): the modal collapse of Sobel (1987) shows up as "the argument is
+satisfiable only where possibility is trivial". Sizes with 6 or more cells (property sets too
+large to enumerate) are not covered, and general models are not excluded by search.
+
 ## Layout
 
 - `src/logic.py`: decision procedures (S5 exact, K/T/B/S4 by certified countermodels, monadic first-order exact), minimal inconsistent and maximal consistent subsets.
 - `src/arguments.py`: the 11 arguments, each with its published source.
 - `src/ledger.py`, `src/bayes.py`: hypotheses, priors, the 13 evidence items, and the posterior arithmetic.
 - `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results and the S4 countermodel.
-- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`: these regenerate `results.md` and `results.json`.
-- `test_theism.py`: 12 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
+- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`: these regenerate `results.md` and `results.json`.
+- `test_theism.py`: 14 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
 
 ## Run
 
@@ -47,6 +59,8 @@ permission policy refused the toolchain download. The McGrews' figure is a secon
 python3 research/theism-formal-evidence/test_theism.py
 python3 research/theism-formal-evidence/experiments/e1_arguments/run.py
 python3 research/theism-formal-evidence/experiments/e2_ledger/run.py
+python3 research/theism-formal-evidence/experiments/e3_leave_one_out/run.py
+python3 research/theism-formal-evidence/experiments/e4_godel_scott/run.py
 cd research/theism-formal-evidence/lean && lake build   # needs Lean 4 (toolchain pinned in lean-toolchain)
 ```
 
