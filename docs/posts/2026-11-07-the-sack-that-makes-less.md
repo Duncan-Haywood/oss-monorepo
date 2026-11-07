@@ -1,6 +1,6 @@
 ---
 title: "The bag says 12 litres. Measure one before you order 24."
-seo_title: "How many bags of ready-mix concrete for a slab: a worked example in fiction"
+seo_title: "How many bags of ready-mix for a slab: a worked example in fiction"
 date: 2026-11-07
 tags: [hearth-and-horizon, concrete, fiction]
 description: "A new story sizes a 288-litre slab: 24 bags by the label, 30 by one measured test bag and a level check of the ground."
