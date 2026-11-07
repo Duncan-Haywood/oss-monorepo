@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clothing Freight Calculator: Sea vs Air Cost per Garment, Cartons and Volume Weight</title>
+  <meta name="description" content="How many cartons is your clothing order, how much does sea, air or express freight add per garment, and is air worth the extra money? Volume weight, LCL and container maths on your forwarder's rates. Free, in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Clothing freight: sea vs air per garment">
+  <meta property="og:description" content="Cartons, volume weight and freight per garment by sea, air or express. Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Clothing freight: sea vs air per garment (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+  <style>.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.muted{color:var(--muted)}</style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="duty.html">Import duty</a> · <a href="tna.html">Time and action calendar</a> · <a href="cashflow.html">Launch cash flow</a></p>
+  <h1>What will freight add to each garment?</h1>
+  <p>Carriers bill the larger of what a carton weighs and the space it takes, so a carton of folded hoodies is billed on size. Give the folded piece, the carton and the rates from your forwarder's quote: this counts cartons, finds the billable weight and shows sea, air and express per garment, then whether the days air saves are worth the extra.</p>
+  <p class="placeholder">Rates are yours to type from a real quote; none here is a price list. Volume-weight divisors are the usual conventions (air 6000, express 5000) and your carrier's may differ. Not logistics or customs advice.</p>
+  <div class="grid">
+    <section>
+      <h2>The order</h2>
+      <label for="qty">Pieces</label><input id="qty" type="number" min="1" step="1" value="1000">
+      <label for="pkg">Weight of one folded, bagged piece (kg)</label><input id="pkg" type="number" min="0.01" step="any" value="0.25">
+      <label>Folded piece, cm (length, width, thickness)</label>
+      <div class="row3"><input id="p1" type="number" min="1" step="any" value="30" aria-label="piece length"><input id="p2" type="number" min="1" step="any" value="25" aria-label="piece width"><input id="p3" type="number" min="0.5" step="any" value="3" aria-label="piece thickness"></div>
+      <label>Carton inside size, cm</label>
+      <div class="row3"><input id="c1" type="number" min="1" step="any" value="60" aria-label="carton length"><input id="c2" type="number" min="1" step="any" value="40" aria-label="carton width"><input id="c3" type="number" min="1" step="any" value="30" aria-label="carton height"></div>
+      <label for="tare">Empty carton weight (kg)</label><input id="tare" type="number" min="0" step="any" value="1.2">
+      <label for="ppc">Pieces per carton (blank = best fit)</label><input id="ppc" type="number" min="1" step="1">
+      <h2 style="margin-top:14px">Rates from your quote (blank = skip)</h2>
+      <div class="row"><div><label for="seaCbm">Sea LCL per cbm</label><input id="seaCbm" type="number" min="0" step="any" value="120"></div><div><label for="seaDays">Sea days</label><input id="seaDays" type="number" min="0" step="1" value="35"></div></div>
+      <div class="row"><div><label for="airKg">Air per kg</label><input id="airKg" type="number" min="0" step="any" value="5"></div><div><label for="airDays">Air days</label><input id="airDays" type="number" min="0" step="1" value="6"></div></div>
+      <div class="row"><div><label for="expKg">Express per kg</label><input id="expKg" type="number" min="0" step="any" value="9"></div><div><label for="expDays">Express days</label><input id="expDays" type="number" min="0" step="1" value="3"></div></div>
+      <div class="row"><div><label for="fclCost">Full container price</label><input id="fclCost" type="number" min="0" step="any"></div><div><label for="fclSize">Container</label><select id="fclSize"><option value="20">20 ft</option><option value="40" selected>40 ft</option><option value="40hc">40 ft high</option></select></div></div>
+      <label for="fclDays">Container days</label><input id="fclDays" type="number" min="0" step="1" value="30">
+      <label for="ship">Fixed fee per shipment (customs filing, pickup, handling)</label><input id="ship" type="number" min="0" step="any" value="0">
+      <label for="ppw">Profit per week once on sale (for the air decision)</label><input id="ppw" type="number" min="0" step="any" value="500">
+    </section>
+    <section><h2>Cartons</h2><output id="pack" aria-live="polite"></output><h2 style="margin-top:14px">Freight by mode</h2><div id="modes"></div><h2 style="margin-top:14px">Is the faster mode worth it?</h2><output id="decide" aria-live="polite"></output></section>
+  </div>
+</main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional advice, and it does not replace a qualified professional. Conversion and traffic are your estimates; the result is a forecast, not a promise. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+
+
+  <script type="module">
+    import { packCarton, cartons, quoteModes, airVsSea } from "./freight.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const num = id => { const v = $(id).value; return v === "" ? null : +v; };
+    function run() {
+      try {
+        const piece = [num("#p1"), num("#p2"), num("#p3")], carton = [num("#c1"), num("#c2"), num("#c3")];
+        const qty = num("#qty");
+        const fit = packCarton(piece, carton);
+        const perCarton = num("#ppc") ?? fit.perCarton;
+        if (perCarton < 1) throw new Error("The folded piece does not fit in the carton.");
+        const c = cartons({ qty, perCarton, pieceKg: num("#pkg"), carton, cartonTareKg: num("#tare") ?? 0 });
+        $("#pack").innerHTML = `<p class="big">${c.cartons} cartons, ${c.cbm.toFixed(2)} cbm, ${c.grossKg.toFixed(0)} kg</p><p>${perCarton} pieces a carton${num("#ppc") == null ? " (best of the six ways to lay the piece)" : (perCarton > fit.perCarton ? " (as typed; more than a straight grid fits, so only true if the garments compress)" : " (as typed)")}; the last carton holds ${c.lastCarton}.</p>`;
+        const rates = {}, fee = num("#ship") ?? 0;
+        if (num("#seaCbm")) rates.sea = { perCbm: num("#seaCbm"), days: num("#seaDays"), perShipment: fee };
+        if (num("#airKg")) rates.air = { perKg: num("#airKg"), days: num("#airDays"), perShipment: fee };
+        if (num("#expKg")) rates.express = { perKg: num("#expKg"), days: num("#expDays"), perShipment: fee };
+        if (num("#fclCost")) rates.fcl = { container: $("#fclSize").value, perContainer: num("#fclCost"), days: num("#fclDays"), perShipment: fee };
+        const modes = quoteModes({ qty, grossKg: c.grossKg, cbm: c.cbm, rates });
+        $("#modes").innerHTML = modes.length ? `<table><tr><th scope="col">Mode</th><th scope="col" class="num">Total</th><th scope="col" class="num">Per piece</th><th scope="col" class="num">Days</th><th scope="col">Billed on</th></tr>${modes.map(m => `<tr><td>${esc(m.mode)}</td><td class="num">${m.cost.toFixed(2)}</td><td class="num">${m.perPiece.toFixed(2)}</td><td class="num">${m.days ?? ""}</td><td>${esc(m.basis)}</td></tr>`).join("")}</table>` : '<p class="muted">Type at least one rate.</p>';
+        const timed = modes.filter(m => m.days != null).sort((a, b) => b.days - a.days);
+        if (timed.length < 2) { $("#decide").innerHTML = '<p class="muted">Needs two modes with transit days.</p>'; return; }
+        const slow = timed[0], fast = timed.find(m => m.days < slow.days && m.cost > slow.cost) ;
+        if (!fast) { $("#decide").innerHTML = '<p>The faster mode is not dearer, so take it.</p>'; return; }
+        const a = airVsSea(slow, fast, num("#ppw") ?? 0);
+        $("#decide").innerHTML = `<p class="big">${a.worthIt ? "Yes" : "No"}: ${esc(fast.mode)} over ${esc(slow.mode)}</p><p>It costs ${a.premium.toFixed(2)} more (${(a.premium / qty).toFixed(2)} a piece) and lands ${a.daysSaved} days (${a.weeksSaved} weeks) sooner. At ${(num("#ppw") ?? 0).toFixed(0)} profit a week on sale those weeks are worth ${a.valueOfTimeSaved.toFixed(2)}. It pays once a week of selling earns more than ${a.breakEvenProfitPerWeek.toFixed(2)}. This counts lost sales only, not cash tied up, a missed season or a stock-out.</p>`;
+      } catch (e) { $("#pack").innerHTML = `<p class="placeholder">${esc(e.message)}</p>`; $("#modes").innerHTML = $("#decide").innerHTML = ""; }
+    }
+    document.addEventListener("input", () => { run(); recordUsage("freight_plan"); });
+    run(); recordUsage("freight_open");
+  </script>
+</body>
+</html>
