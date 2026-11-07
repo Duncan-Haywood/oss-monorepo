@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13810",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +25,35 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 1,
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "wall-framing next: lists only items needing real inputs, so a no-input slice has no guidance; the venture is saturated with hand-tested features"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "did not rewrite next:; every remaining item needs real inputs and the slice added none",
+      "did": "left unchanged",
+      "result": "n/a"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "no agent doc in docs/reports/; nothing the next run needs",
+      "did": "post only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-07-spiral-stair-check.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Small flagship slice: checkSpiral in wall-framing-takeoff, hand-computed test only (stairs.test.mjs 66 pass). Library only; flagship next: not rewritten (list already names real-input gaps). No agent doc written. Headroom check is simplified.",
   "corrections": [],
   "redteam": null
 }
