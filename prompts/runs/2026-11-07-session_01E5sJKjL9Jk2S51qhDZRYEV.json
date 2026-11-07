@@ -26,21 +26,23 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [
+  "doc_friction": [],
+  "deviations": [
     {
-      "file": "prompts/perf/prompt-0.md",
-      "issue": "Sends runs to ci_profile.py, but its table has no per-step view; I post-processed --save JSON by hand to find the step."
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Flagship 1's remaining items need real inputs; fuzz coverage is complete. Landed a small CLI fix found by a --json probe instead.",
+      "did": "--json refusals as JSON on stdout",
+      "result": "cli tests 44 pass"
     }
   ],
-  "deviations": [],
   "writeups": [
-    "docs/history/ci-perf-2026-11-07-cut-plan-running-sum.md"
+    "docs/posts/2026-11-07-framing-cli-json-refusals.md"
   ],
   "goal": null,
-  "notes": "Metric: make-gallery.mjs wall time, stamp removed, 2 runs each, date +%s.%N: 22.1/22.6 s before, 19.0/19.4 s after (~14%). gallery-data.mjs byte-identical (cmp); 46 optimize/estimate/gallery/designsearch tests pass. No blog post: small perf change, history doc only.",
+  "notes": "Small slice; flagship next: unchanged (needs real inputs).",
   "corrections": [],
   "redteam": null
 }
