@@ -13,8 +13,8 @@ review queue. It never posts anything by itself.
 **Live tool:** https://marisstella.app/ai-bookkeeper/
 
 After using this, you can now **turn a month of bank and card statements into
-balanced books in minutes, with the boring payees posting themselves from the
-second month on**, which used to take sorting every line by hand in a
+balanced books in minutes, with the boring payees learning from your
+corrections (on the benchmark, 60% of lines post themselves from the fourth month on)**, which used to take sorting every line by hand in a
 spreadsheet, or a bookkeeping subscription with a bank login.
 
 ## Run it
