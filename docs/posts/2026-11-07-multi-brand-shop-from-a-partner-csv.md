@@ -2,7 +2,7 @@
 title: "From a partner brand's CSV to a multi-brand shop page, with payouts"
 date: 2026-11-07
 description: "The clothing design studio now checks a partner brand's product CSV, shows what each piece pays the brand and the shop, and builds a multi-brand shop page."
-tags: [clothing-design-studio, ventures, marketplace]
+tags: [clothing-design-studio, ventures, marketplaces]
 ---
 
 A designer in the interview behind the clothing design studio wanted other brands on the same site for a commission. The missing piece was getting those brands' products in without retyping them.
