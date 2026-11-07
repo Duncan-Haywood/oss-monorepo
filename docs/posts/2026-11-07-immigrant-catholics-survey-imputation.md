@@ -3,7 +3,7 @@ title: "Does a survey model trained on US-born Catholics work for Hispanic immig
 seo_title: "Imputing Catholic survey answers for Hispanic immigrants: GSS test"
 date: 2026-11-07
 tags: [christian-belief-models, research, surveys]
-description: "On GSS 1972-2024, a model fitted on third-generation Catholics ranks Hispanic immigrants about as well as the pooled model, but gets levels wrong by up to 13 points."
+description: "On GSS 1972-2024, a model fitted on third-generation Catholics ranks Hispanic immigrants about as well as the pooled model but misses levels by up to 13 points."
 ---
 
 Survey analysts fill in answers respondents were never asked. If the model learned on US-born Catholics is used for immigrants, does it hold? We fitted gradient boosting on third-plus-generation Catholics in the General Social Survey (1972 to 2024) and scored first-generation Hispanic and non-Hispanic Catholics separately.
