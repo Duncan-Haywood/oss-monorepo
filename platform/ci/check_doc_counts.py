@@ -13,7 +13,7 @@ This re-computes every marked count and prints the ones that drifted.
     python3 platform/ci/check_doc_counts.py            # report drift, exit 1 if any
     python3 platform/ci/check_doc_counts.py --fix      # rewrite the numbers in place
     python3 platform/ci/check_doc_counts.py --list     # print every count's current value
-    python3 platform/ci/check_doc_counts.py --tolerance 0.1   # allow 10% drift
+    python3 platform/ci/check_doc_counts.py --tolerance 0.1   # allow 10% drift (default 2%)
 
 Markers name a registry entry rather than holding a command, so editing a doc
 can never make this run arbitrary code. Unknown names are errors.
@@ -90,7 +90,7 @@ def main(argv=None):
     ap.add_argument("--registry", default=None)
     ap.add_argument("--fix", action="store_true")
     ap.add_argument("--list", action="store_true")
-    ap.add_argument("--tolerance", type=float, default=0.0, help="fraction of drift allowed")
+    ap.add_argument("--tolerance", type=float, default=0.02, help="fraction of drift allowed (default 2%%: counts that grow daily stay green until they are really stale)")
     ap.add_argument("paths", nargs="*", help="docs to check (default: every .md outside dated records)")
     a = ap.parse_args(argv)
     root = Path(a.root)
