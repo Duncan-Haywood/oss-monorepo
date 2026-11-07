@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01E5sJKmyxCu12rH6is8bhnH",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "Blog post on AI trend (Artificial Analysis index) applied to all fields, using this repo as a model, across compute budgets from individual to global corporation; future of work and implications; ongoing reflection.",
+  "input_sha256": "184f75ce2319aeecd6581791136e2ba601c8462a20915d9ef90e7b951195f376",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T08:42:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 13762,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/goals.md",
+      "issue": "'every number is copied from the committed file it cites' has no route for external figures (benchmarks); handled by committing a sources report that the post cites."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The owner's task was a reflective essay, not a research programme step; the track draw was ignored.",
+      "did": "Wrote a post plus a sources report",
+      "result": "Post shipped with every figure traceable"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-07-if-the-line-keeps-going.md",
+    "docs/posts/2026-11-07-if-the-line-keeps-going-who-works.md",
+    "docs/reports/2026-11-07-ai-trend-reflection-sources.md"
+  ],
+  "goal": null,
+  "notes": "artificialanalysis.ai does not resolve from the session network; AA figures come from search summaries and are labelled as reported. check_post_frontmatter and check_post_links pass. Part 2 added at the owner's follow-up (graduates, resistant fields, SMBs, job market). digitaleconomy.stanford.edu also does not resolve; labour-market figures are from search summaries and labelled so. main was red on portfolio/router/validate.py: changepoint-detector and shift-roster-builder `next:` in portfolio/flagships.yaml were over the 2,000-character cap after PRs #13749 and #13726. Fixed forward here by condensing landed-history text (already in each README); every open item kept.",
+  "corrections": [],
+  "redteam": null
+}
