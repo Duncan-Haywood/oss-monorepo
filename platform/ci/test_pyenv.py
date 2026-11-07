@@ -214,6 +214,26 @@ class T(unittest.TestCase):
 
             self.assertIsNone(pyenv.venv_install("/usr/bin/python3", ["numpy"], d, run, quiet))
 
+    def test_main_skips_the_install_lock_when_a_candidate_already_imports(self):
+        import fcntl, tempfile, io, contextlib
+        with tempfile.TemporaryDirectory() as d:
+            venv = os.path.join(d, "venv")
+            with open(os.path.join(d, ".pyenv.lock"), "w") as held:
+                fcntl.flock(held, fcntl.LOCK_EX)  # another install holds it
+                old = os.environ.get("PYENV_VENV")
+                os.environ["PYENV_VENV"] = venv
+                try:
+                    out = io.StringIO()
+                    with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+                        rc = pyenv.main(["json"])  # would block forever if it waited
+                finally:
+                    if old is None:
+                        os.environ.pop("PYENV_VENV")
+                    else:
+                        os.environ["PYENV_VENV"] = old
+        self.assertEqual(rc, 0)
+        self.assertTrue(out.getvalue().strip())
+
     def test_real_interpreter_imports_stdlib(self):
         self.assertTrue(pyenv.imports(sys.executable, ["json"]))
         self.assertFalse(pyenv.imports(sys.executable, ["no_such_module_xyz"]))
