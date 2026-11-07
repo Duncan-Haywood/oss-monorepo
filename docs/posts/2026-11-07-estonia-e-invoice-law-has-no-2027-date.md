@@ -1,7 +1,7 @@
 ---
 title: "Estonia's Accounting Act names no 2027 e-invoice mandate"
 date: 2026-11-07
-description: "We read Estonia's Accounting Act in Estonian instead of vendor guides. The buyer's right is real, the register is the commercial register, and 2027 is not in the law."
+description: "We read Estonia's Accounting Act in Estonian. The buyer's right is real, the register is the commercial register, and 2027 is not in the law."
 tags: [e-invoicing, einvoice-preflight, estonia]
 ---
 
