@@ -99,6 +99,31 @@ export function briefFromWardrobe(drop, opts, plan) {
   return b;
 }
 
+/**
+ * Replace the brief's freight with a mode costed on the freight page. The
+ * studio's sheet carries one freight-per-piece figure; the freight page works
+ * it out from cartons and a forwarder's rates. Landed cost moves by the
+ * difference per piece, so profit per sale and the pages that read it follow.
+ * Duty is left as it is (it is a percent of goods, not of freight, in the
+ * sheet's own formula). Returns a new brief, or null when the inputs are not
+ * usable.
+ * @param {object} brief a version 1 brief
+ * @param {{perPiece:number, mode?:string}} f one row of quoteModes()
+ */
+export function briefWithFreight(brief, f) {
+  if (!brief || brief.version !== 1 || !(brief.quantity > 0)) return null;
+  if (!f || typeof f.perPiece !== "number" || !Number.isFinite(f.perPiece) || f.perPiece < 0) return null;
+  const oldPerPiece = brief.freightTotal / brief.quantity;
+  const delta = f.perPiece - oldPerPiece;
+  return {
+    ...brief,
+    freightTotal: r2(f.perPiece * brief.quantity),
+    landed: r2(Math.max(0, brief.landed + delta)),
+    profitPerSale: r2(brief.profitPerSale - delta),
+    freightMode: typeof f.mode === "string" ? f.mode.slice(0, 40) : undefined,
+  };
+}
+
 /** Box ids and values for each page. Only boxes the brief can honestly fill. */
 export function prefillFor(page, b) {
   if (!b || b.version !== 1) return {};
