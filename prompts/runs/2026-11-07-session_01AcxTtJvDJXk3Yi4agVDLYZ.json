@@ -36,7 +36,10 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-11-07-dropping-the-audit-screen-held-out.md; LOG.md 7z",
+  "writeups": [
+    "docs/posts/2026-11-07-dropping-the-audit-screen-held-out.md",
+    "research/llm-coding-inference/LOG.md"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],
