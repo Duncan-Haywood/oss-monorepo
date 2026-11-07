@@ -39,9 +39,19 @@ jobs:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 30
     steps:
+      # P063: the job needs platform/, .github/, docs/, portfolio/ and the
+      # ventures a PR touches, not the other ~25k venture files, research/ or
+      # prompts/. The touched ventures are added after the base fetch below;
+      # a push with no usable base falls back to the whole tree.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          filter: blob:none
+          sparse-checkout: |
+            platform
+            .github
+            docs
+            portfolio
       # Every step below only diffs BASE against HEAD, which needs the two
       # commits' trees, not the history between them. A full clone (5.3 GB)
       # was a median 95s of a 107s job; depth 1 plus this one-commit fetch is
@@ -54,12 +64,21 @@ jobs:
         run: |
           if [ -n "${BASE:-}" ] && [ "$BASE" != "0000000000000000000000000000000000000000" ]; then
             if git cat-file -e "$BASE^{commit}" 2>/dev/null; then
-              exit 0
+              :
             elif [ "$(git rev-parse --is-shallow-repository)" = true ]; then
               git fetch --quiet --no-tags --depth=1 origin "$BASE" || echo "::warning::could not fetch base $BASE"
             else
               git fetch --quiet --no-tags origin "$BASE" || echo "::warning::could not fetch base $BASE"
             fi
+          fi
+          # Materialise the touched ventures (P063). No usable base: everything.
+          if [ -n "${BASE:-}" ] && [ "$BASE" != "0000000000000000000000000000000000000000" ] \
+             && git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            slugs=$(git diff --name-only --no-renames "$BASE" HEAD -- ventures | cut -d/ -f2 | sort -u)
+            # shellcheck disable=SC2086
+            [ -z "$slugs" ] || git sparse-checkout add $(for s in $slugs; do echo "ventures/$s"; done)
+          else
+            git sparse-checkout disable
           fi
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
