@@ -1,9 +1,9 @@
 ---
 title: "Blind probe 30: our bookkeeping categorizer filed 12 of 25 right on five unseen trades"
-seo_title: "AI bookkeeper categorizer: second honest blind test, 3D printing to tree care"
+seo_title: "AI bookkeeper categorizer: a second honest blind test"
 date: 2026-11-07
 tags: [ai-bookkeeper, evaluation, bookkeeping]
-description: "25 bank descriptors for 3D-print sellers, chimney sweeps, appliance repair, arborists and organizers. Expected answers fixed first: 12 right, 3 wrong, 10 silent."
+description: "25 bank descriptors for 3D-print sellers, chimney sweeps, appliance repair, arborists and organizers. Answers fixed first: 12 right, 3 wrong, 10 silent."
 ---
 
 Yesterday's blind test gave 9 of 25. Today we ran the same test on five more trades: 3D-print sellers, chimney sweeps, appliance repair, tree services and professional organizers. We wrote 25 bank-style descriptors, fixed the expected account for each, and ran the built-in keywords with no model and no account.

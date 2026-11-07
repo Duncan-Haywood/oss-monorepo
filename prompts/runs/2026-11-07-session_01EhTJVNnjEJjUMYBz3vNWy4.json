@@ -19,7 +19,7 @@
   "projects": [
     "ai-bookkeeper"
   ],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13750",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -33,7 +33,10 @@
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [
-    "Scheduled run's own routing drew research; brief names revenue ventures, so routed --track ventures."
+    {
+      "file": "prompt.md",
+      "why": "Scheduled run's own routing drew research; brief names revenue ventures, so routed --track ventures."
+    }
   ],
   "writeups": [],
   "goal": null,
