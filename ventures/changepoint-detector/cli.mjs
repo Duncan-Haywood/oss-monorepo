@@ -111,6 +111,10 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     if (r.cycleWarning) lines.push(`  (${r.cycleWarning})`);
     for (const x of ch) lines.push(`  ${x.label}: ${x.range95.from === x.range95.to ? 'that point only' : `${x.range95.from} – ${x.range95.to}`}`);
   }
+  if (r.ramps) {
+    lines.push('', 'Adjacent changes that look like one ramp (same direction, short segments between; the changes above are unchanged):');
+    for (const x of r.ramps) lines.push(`  ${x.from} – ${x.to}: ${x.cuts} cuts, one ${x.direction} from ${x.meanBefore} to ${x.meanAfter} (${x.shift > 0 ? '+' : ''}${x.shift})`);
+  }
   if (r.trend && r.trend.growthChangeRange95) {
     lines.push('', 'Likely range for each change of growth rate (95%, other bends held fixed):');
     for (const x of r.trend.growthChangeRange95) lines.push(`  ${x.at}: ${x.from === x.to ? 'that point only' : `${x.from} – ${x.to}`}`);

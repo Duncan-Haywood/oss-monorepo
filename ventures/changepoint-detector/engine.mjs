@@ -18,6 +18,8 @@
 import { NILE_CSV } from './example-data.mjs';
 import { slopeBreaks } from './slope-breaks.mjs';
 
+import { groupRamps } from './ramps.mjs';
+
 export const PAPERS = [
   {
     authors: 'Ryan Prescott Adams and David J. C. MacKay',
@@ -2007,6 +2009,7 @@ export function analyze(input = {}) {
     ...(burstInfo ? { bursts: burstInfo } : {}),
     ...(o.episodes ? { episodes: findEpisodes(changes, values.length, typeof o.episodes === 'number' ? { maxLen: o.episodes } : {}).map((e) => ({ ...e, from: labels[e.startIndex], to: labels[e.endIndex] })) } : {}),
     ...(excursions.length ? { excursions } : {}),
+    ...(changes.length > 1 && groupRamps(changes, segments, values.length).length ? { ramps: groupRamps(changes, segments, values.length) } : {}),
     ...(o.slopeBreaks ? { slopeBreaks: slopeBreakReport(values, labels, o.slopeBreaks) } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
