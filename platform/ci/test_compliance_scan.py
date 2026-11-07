@@ -105,6 +105,22 @@ class Scan(unittest.TestCase):
         # The scan defaults to the checkout it lives in: platform/ci/ is two levels down.
         self.assertTrue((scan.REPO_ROOT / "platform" / "ci" / "compliance_scan.py").is_file())
 
+    def test_text_of_skips_binary_suffixes_and_lockfiles_separately(self):
+        # Either condition alone must skip: a lockfile with a text body, and a
+        # .png whose name is not in SKIP_NAMES.
+        self.write("a/package-lock.json", "{}")
+        self.write("a/pic.png", "plain text")
+        self.write("a/ok.txt", "hello")
+        self.assertIsNone(scan.text_of(self.root / "a/package-lock.json"))
+        self.assertIsNone(scan.text_of(self.root / "a/pic.png"))
+        self.assertEqual(scan.text_of(self.root / "a/ok.txt"), "hello")
+
+    def test_cookie_scan_skips_test_files_and_non_source_suffixes_separately(self):
+        line = 'document.cookie = "id=1; max-age=999";'
+        self.write("ventures/ref/pages.test.mjs", line)  # a test file, source suffix
+        self.write("ventures/ref/notes.md", line)  # not a test, not a source suffix
+        self.assertEqual(self.found("tracking-cookie"), [])
+
 
 if __name__ == "__main__":
     unittest.main()
