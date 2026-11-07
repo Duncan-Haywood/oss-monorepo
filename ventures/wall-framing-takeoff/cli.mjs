@@ -22,6 +22,7 @@ import { layoutDrilling, drillingText } from "./drilling.mjs";
 import { layoutOpeningSchedule, openingScheduleText } from "./openingschedule.mjs";
 import { layoutSiding, sidingText } from "./siding.mjs";
 import { layoutStucco, stuccoText } from "./stucco.mjs";
+import { layoutPaver, paverText } from "./paver.mjs";
 import { layoutEaves, eavesText } from "./eaves.mjs";
 import { layoutVentilation, ventilationText } from "./ventilation.mjs";
 import { layoutGutters, guttersText } from "./gutters.mjs";
@@ -84,6 +85,7 @@ Usage:
   node cli.mjs plan.json --dormer     frame a gable dormer from plan.dormer: width, eaveHeight, pitch, mainPitch (defaults to the roof pitch), spacing, studSize, rafterSize, valleySize, ridgeSize, window {width, height, sill}
   node cli.mjs plan.json --eaves       add soffit panels, fascia boards and J-channel under the roof overhangs (needs a roof; plan eaves: panelWidth, panelStock, fasciaStock, channelStock, waste, rakeSoffit, ventedPanelNfa, frieze, friezeStock, friezePrice, panelPrice, fasciaPrice, channelPrice)
   node cli.mjs plan.json --siding      add exterior lap siding courses, house wrap and corner boards (plan siding: exposure, stock, waste, wrapRollSqFt, wrapLap, corners, cornerStock, height, boardPrice, wrapPrice, cornerPrice, style, boardWidth, openingTrim, trimWidth, trimStock, trimPrice)
+  node cli.mjs plan.json --paver       add the plan's paver patio or walk (plan "paver": {areas: [{width, length, subtract?}] in feet, edgeFeet, paver: {length, width, thickness, joint, baseDepth, sandDepth, baseOverhang, compaction, waste, prices}}): pavers, dig, base, bedding sand, fabric, edge restraint, joint sand
   node cli.mjs plan.json --stucco      add cement stucco over metal lath on the exterior walls: barrier, lath, plaster bags, weep screed, casing and corner bead, control joints (plan stucco: scratch, brown, finish thickness in, rebound, bagYieldCuFt, maxRunFt, maxPanelSqFt, corners, prices)
   node cli.mjs plan.json --electrical  add receptacle and switch boxes (NEC 210.52 wall-space rule) and a cable estimate (plan electrical: skipWalls, maxSpacing, minSpace, switchPerDoor, cablePerDevice, cableRoll, waste, receptaclePrice, switchPrice, boxPrice, cablePrice)
   node cli.mjs plan.json --hvac        add HVAC duct rough-in quantities from plan.hvac.rooms (typed supply and return runs, outlets): trunk sticks, flex rolls, boots, registers, grilles, fittings
@@ -383,6 +385,12 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     if (!stucco.ok) return { code: 1, out: `The stucco has problems:\n${stucco.errors.map((e) => `  - ${e}`).join("\n")}` };
     r.stucco = stucco;
   }
+  if (r.ok && (flags.has("--paver") || plan.paver)) {
+    if (!plan.paver) return { code: 2, out: "The plan has no `paver` object (areas: [{width, length}] in feet; paver settings optional)." };
+    const paver = layoutPaver(plan.paver);
+    if (!paver.ok) return { code: 1, out: `The pavers have problems:\n${paver.errors.map((e) => `  - ${e}`).join("\n")}` };
+    r.paver = paver;
+  }
   let eaved = null;
   if (r.ok && (flags.has("--eaves") || plan.eaves)) {
     const eaves = layoutEaves(plan.eaves || {}, roof, plan.ventilation || flags.has("--ventilation") ? layoutVentilation(plan.ventilation || {}, roof) : undefined);
@@ -511,6 +519,7 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   if (r.openingSchedule) lines.push("", "DOOR AND WINDOW SCHEDULE", ...openingScheduleText(r.openingSchedule));
   if (r.siding) lines.push("", "SIDING", ...sidingText(r.siding));
   if (r.stucco) lines.push("", "STUCCO", ...stuccoText(r.stucco));
+  if (r.paver) lines.push("", "PAVERS", ...paverText(r.paver));
   if (r.eaves) lines.push("", "SOFFIT AND FASCIA", ...eavesText(r.eaves));
   if (r.ventilation) lines.push("", "ATTIC VENTILATION", ...ventilationText(r.ventilation));
   if (r.gutters) lines.push("", "GUTTERS AND DOWNSPOUTS", ...guttersText(r.gutters));
