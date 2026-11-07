@@ -721,7 +721,9 @@ export function planFromDxf(text, opt = {}) {
     const sl = out[n].studLength;
     if (own && sl !== undefined && !opt.header) {
       const room = sl + 1.5 - own.headerHeight;
-      const fit = [["2x10", 9.25], ["2x8", 7.25], ["2x6", 5.5], ["2x4", 3.5]].find(([, d]) => d <= room + 1e-6);
+      /** @type {[string, number][]} */
+      const depths = [["2x10", 9.25], ["2x8", 7.25], ["2x6", 5.5], ["2x4", 3.5]];
+      const fit = depths.find(([, d]) => d <= room + 1e-6);
       if (fit && fit[0] !== header) { header = fit[0]; shallower++; } else if (!fit) { header = "2x4"; shallower++; }
     }
     (out[n].openings ||= []).push({ kind, label: `${kind === "door" ? "Door" : "Window"} ${counts[kind]}`, offset: Math.max(0, off), width, height, ...(own ? { headerHeight: own.headerHeight } : {}), header });
