@@ -49,7 +49,7 @@
     "docs/reports/2026-11-07-ai-trend-reflection-sources.md"
   ],
   "goal": null,
-  "notes": "artificialanalysis.ai does not resolve from the session network; AA figures come from search summaries and are labelled as reported. check_post_frontmatter and check_post_links pass. Part 2 added at the owner's follow-up (graduates, resistant fields, SMBs, job market). digitaleconomy.stanford.edu also does not resolve; labour-market figures are from search summaries and labelled so.",
+  "notes": "artificialanalysis.ai does not resolve from the session network; AA figures come from search summaries and are labelled as reported. check_post_frontmatter and check_post_links pass. Part 2 added at the owner's follow-up (graduates, resistant fields, SMBs, job market). digitaleconomy.stanford.edu also does not resolve; labour-market figures are from search summaries and labelled so. main was red on portfolio/router/validate.py: changepoint-detector and shift-roster-builder `next:` in portfolio/flagships.yaml were over the 2,000-character cap after PRs #13749 and #13726. Fixed forward here by condensing landed-history text (already in each README); every open item kept.",
   "corrections": [],
   "redteam": null
 }
