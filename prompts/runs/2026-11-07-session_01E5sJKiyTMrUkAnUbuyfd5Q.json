@@ -1,0 +1,87 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01E5sJKiyTMrUkAnUbuyfd5Q",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "I think there should be a category in the blog for measuring objective quality of the work of this repo in general like correctness and quality. On the things it attempts what is actually getting finished and accomplished to a high senior expert professional level or higher. This should be ongoing and very thorough",
+  "input_sha256": "bfaaee4a00bdc077439af85d14724782169565b0bf217ca165d779b41b098305",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T09:27:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "A standing quality-audit programme and blog category: is the repo's work finished and at a senior professional's level?",
+  "projects": [
+    "portfolio/quality",
+    "platform/ci",
+    "platform/pages",
+    "ventures/xero-invoice-csv-check",
+    "ventures/market-garden-bed-planner",
+    "ventures/wall-framing-takeoff",
+    "research/benford-repo",
+    "research/robofab-armbang",
+    "platform/privacy"
+  ],
+  "pr": 13760,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    "A probe of robofab-armbang re-ran experiments/run.py and rewrote the committed results.json; restored with git checkout before committing.",
+    "First version of test_quality_audit.py used bare pytest functions, which the platform/ci checklist's unittest loop reports as NO TESTS RAN (exit 5); converted to a TestCase."
+  ],
+  "integrity_issues": [
+    {
+      "file": "research/benford-repo/README.md",
+      "issue": "Headline 'the cause is repetition, not shape' did not hold: content-deduplicated sizes stay nonconforming (MAD 0.0217); the distinct-value transform moves exact Benford data 0.0014 -> 0.0093. Rerun independently; README, research index and homepage corrected."
+    },
+    {
+      "file": "research/robofab-armbang/README.md",
+      "issue": "Bold headline said 20 to 29% where its own data say 21 to 29%; the unmodelled base yaw turn was not stated. Corrected."
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "A new Python test directory outside the checklist's paths needs a line in this control-plane file, which holds the PR for owner approval; moved the tool to platform/ci instead."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Touching one venture .mjs selects portfolio-pages and pages.yml, which cannot finish locally (no _site, 300 s budget), so the local sweep is never clean for such diffs."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Control-plane edits (a routed quality track in prompts/) go in a separate small PR so this work is not held for owner approval.",
+      "did": "Shipped programme, tool, topic and round 1 here; the track follows in its own PR.",
+      "result": "This PR needs no owner approval."
+    },
+    {
+      "file": "prompts/quality (proposed)",
+      "why": "Direct request fits no existing track; routed as process.",
+      "did": "--track process",
+      "result": "recorded"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-07-quality-audit-round-1.md",
+    "docs/reports/2026-11-07-quality-audit-round-1.md",
+    "portfolio/quality/README.md"
+  ],
+  "goal": null,
+  "notes": "Round 1, seed 2026-11-07: wall-framing-takeoff (flagship), market-garden-bed-planner, xero-invoice-csv-check, benford-repo, robofab-armbang, platform/privacy, audited by six parallel agents and each spot-checked: the robofab headline against results.txt, the Benford dedup MADs recomputed from git objects, the wall-framing jack/king default in engine.mjs. 1 of 5 sampled met the bar (Wilson 4%-62%); 6 of 6 finished; claims 1 of 6 at 3. Defects: 2 high, 15 medium, 23 low; both high fixed here with tests that fail on the old code. Checks: unittest test_quality_audit 9 OK; writing.test.mjs 32/32; run_venture_tests wall-framing-takeoff, xero-invoice-csv-check, market-garden-bed-planner 0 failed; checklist_coverage clean; router validate clean after merging main (#13762 fixed flagships); tsc error in allowance-bench.mjs (red since #13734) fixed with a JSDoc cast. Local pages/portfolio-pages workflows cannot complete here (no _site, 300 s budget): left to CI.",
+  "corrections": [],
+  "redteam": null
+}
