@@ -65,7 +65,8 @@ export function validateInsulation(d) {
     if (a.rPerInch != null && !(a.rPerInch >= 1 && a.rPerInch <= 8)) e.push("Attic R per inch must be between 1 and 8 (read it from the bag's coverage chart).");
     if (a.bagCuFt != null && !(a.bagCuFt > 0 && a.bagCuFt <= 200)) e.push("Attic bag volume must be between 0 and 200 cubic feet.");
     if (a.heel != null && !(a.heel >= 1 && a.heel <= 30)) e.push("Attic heel height must be between 1 and 30 inches (the clear height above the top plate at the eave).");
-    for (const c of a.ceiling || []) if (!(c.width > 0 && c.depth > 0)) e.push("Each attic ceiling rectangle needs a positive width and depth (inches).");
+    if (a.ceiling != null && !Array.isArray(a.ceiling)) e.push("Attic ceiling is a list of {width, depth} rectangles (inches).");
+    else for (const c of a.ceiling || []) if (!(c && c.width > 0 && c.depth > 0)) e.push("Each attic ceiling rectangle needs a positive width and depth (inches).");
   }
   return e;
 }
