@@ -1,6 +1,8 @@
 ---
 title: "A survey result that admits its ties"
 date: 2026-11-07
+tags: [quick-pick-survey, surveys, statistics]
+description: "Quick Pick's branded survey report shows tied options as a shared range like 2–5 and warns about thinly rated ones, with a sample page."
 ---
 
 Pairwise surveys (pick one of two, many times) produce a ranking, and the usual way to show it is a clean 1-2-3 list. Most of the time the picks cannot separate places 2 to 5, and a tidy list hides that.
