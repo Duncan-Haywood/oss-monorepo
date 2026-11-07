@@ -355,6 +355,17 @@ pub fn read(m: &Model) -> Building {
         }
     }
     for w in &mut walls { w.openings.sort_by(|p, q| p.from.total_cmp(&q.from)); }
+    let mut voids_merged = 0usize;
+    let mut voids_covered = 0usize;
+    for w in &mut walls {
+        let (ops, merged, covered) = tidy_openings(std::mem::take(&mut w.openings));
+        w.openings = ops;
+        voids_merged += merged;
+        voids_covered += covered;
+    }
+    if voids_covered + voids_merged > 0 {
+        b.warnings.push(format!("{voids_covered} bare opening(s) already filled by a door or window were dropped and {voids_merged} touching bare opening(s) were merged into their neighbours."));
+    }
     let _ = wall_frames;
     if b.stats.walls_without_geometry > 0 {
         b.warnings.push(format!("{} wall(s) had no axis and no readable body and were skipped.", b.stats.walls_without_geometry));
@@ -374,6 +385,47 @@ pub fn read(m: &Model) -> Building {
     }
     b.walls = walls;
     b
+}
+
+/// Revit writes one IfcOpeningElement per cut, so a wall can carry a bare
+/// void under the doors and windows that fill it, and one passage as several
+/// touching voids. Drop a void that fills and units cover (80% or more of its
+/// width) and merge voids that overlap or touch, so each rough opening is
+/// counted once. Returns the openings, voids merged, voids dropped.
+fn tidy_openings(ops: Vec<Opening>) -> (Vec<Opening>, usize, usize) {
+    const TOUCH: f64 = 0.01;
+    let fills: Vec<(f64, f64)> = ops.iter().filter(|o| o.kind != OpeningKind::Void).map(|o| (o.from, o.to)).collect();
+    let mut covered = 0;
+    let mut kept: Vec<Opening> = Vec::new();
+    for o in ops {
+        if o.kind == OpeningKind::Void && o.to > o.from {
+            let mut iv: Vec<(f64, f64)> = fills.iter().map(|&(a, b)| (a.max(o.from), b.min(o.to))).filter(|(a, b)| b > a).collect();
+            iv.sort_by(|p, q| p.0.total_cmp(&q.0));
+            let (mut tot, mut end) = (0.0, f64::MIN);
+            for (a, b) in iv {
+                let a = a.max(end);
+                if b > a { tot += b - a; end = b; }
+            }
+            if tot >= 0.8 * (o.to - o.from) { covered += 1; continue; }
+        }
+        kept.push(o);
+    }
+    let mut merged = 0;
+    let mut out: Vec<Opening> = Vec::new();
+    for o in kept {
+        if let Some(last) = out.last_mut() {
+            if last.kind == OpeningKind::Void && o.kind == OpeningKind::Void && o.from <= last.to + TOUCH {
+                let top = (last.sill + last.height).max(o.sill + o.height);
+                last.sill = last.sill.min(o.sill);
+                last.height = top - last.sill;
+                last.to = last.to.max(o.to);
+                merged += 1;
+                continue;
+            }
+        }
+        out.push(o);
+    }
+    (out, merged, covered)
 }
 
 fn bbox(p: &[V3]) -> (f64, f64, f64, f64) {
