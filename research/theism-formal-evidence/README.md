@@ -44,14 +44,25 @@ exactly one model per individual when there is one world, and none with two to f
 satisfiable only where possibility is trivial". Sizes with 6 or more cells (property sets too
 large to enumerate) are not covered, and general models are not excluded by search.
 
+**M4 (part), shared-cause dependence (E5, 2026-11-07).** Replacing the crude ρ discount, the
+resurrection testimony items share one latent source reliability. The combined Bayes factor is
+then BF = 1 + ω(L − 1), with L the independent product (10^44, the McGrews' figure as reported
+secondarily) and ω the credence a sceptic still gives the source after the reports; the formula
+agrees with direct enumeration of the joint model. Dependence acts on log BF only by log ω, not
+per item: ω = 10^−12 still leaves BF ≈ 10^32. At even priors the testimony stops lifting
+P(Christian) to 0.5 only if ω < 10^−43.2 (10^−41.5 at 0.1/0.1 priors). E2's ρ would have to be
+0.024 to say the same. So given a large product L, correlated reliability alone cannot defeat it;
+the dispute moves to L itself, i.e. the per-item ratios, which this ledger does not source.
+Limit: the model assumes the unreliable route yields reports under both hypotheses alike.
+
 ## Layout
 
 - `src/logic.py`: decision procedures (S5 exact, K/T/B/S4 by certified countermodels, monadic first-order exact), minimal inconsistent and maximal consistent subsets.
 - `src/arguments.py`: the 11 arguments, each with its published source.
 - `src/ledger.py`, `src/bayes.py`: hypotheses, priors, the 13 evidence items, and the posterior arithmetic.
 - `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results and the S4 countermodel.
-- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`: these regenerate `results.md` and `results.json`.
-- `test_theism.py`: 14 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
+- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`: these regenerate `results.md` and `results.json`.
+- `test_theism.py`: 15 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
 
 ## Run
 
@@ -61,6 +72,7 @@ python3 research/theism-formal-evidence/experiments/e1_arguments/run.py
 python3 research/theism-formal-evidence/experiments/e2_ledger/run.py
 python3 research/theism-formal-evidence/experiments/e3_leave_one_out/run.py
 python3 research/theism-formal-evidence/experiments/e4_godel_scott/run.py
+python3 research/theism-formal-evidence/experiments/e5_shared_cause/run.py
 cd research/theism-formal-evidence/lean && lake build   # needs Lean 4 (toolchain pinned in lean-toolchain)
 ```
 

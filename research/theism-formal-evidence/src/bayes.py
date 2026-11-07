@@ -109,3 +109,22 @@ def monte_carlo(n=20000, seed=0, rho=1.0, prior_range=(0.01, 0.99), items=ITEMS)
 def quantiles(xs, qs=(0.05, 0.5, 0.95)):
     s = sorted(xs)
     return [s[min(len(s) - 1, int(q * len(s)))] for q in qs]
+
+
+def shared_cause_bf(n, ratio, omega):
+    """Combined Bayes factor of n testimony items that share one latent cause (M4).
+
+    Generative model: a source is reliable (R) or not.  Each item is a report x_i = 1.
+    If R, P(x=1) is a under the hypothesis H and b under not-H (ratio = a / b); if not R, P(x=1) = u
+    under both.  Given R and H the items are independent.  Observing all n reports,
+        BF = [r a^n + (1-r) u^n] / [r b^n + (1-r) u^n] = 1 + omega * (ratio^n - 1),
+    where omega = P(R | all reports, not-H) is the credence a sceptic who denies H still gives
+    the source after seeing the reports.  omega = 1 is the product of independent items."""
+    return 1 + omega * (ratio ** n - 1)
+
+
+def shared_cause_bf_enumerated(n, a, b, u, r):
+    """The same Bayes factor by direct enumeration of the joint model (checks the formula)."""
+    num = r * a ** n + (1 - r) * u ** n
+    den = r * b ** n + (1 - r) * u ** n
+    return num / den, (r * b ** n) / den
