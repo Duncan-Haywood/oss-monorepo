@@ -3,7 +3,7 @@ title: "See the garment life-size in a headset: WebXR in the clothing design stu
 seo_title: "View a clothing design in VR in the browser (WebXR, free)"
 date: 2026-11-07
 tags: [clothing-design-studio, webxr, 3d, fashion]
-description: "The clothing design studio's 3D preview now has a View in VR button on headsets with WebXR: the same garment, with the artwork mapped on, drawn life-size a metre away."
+description: "The clothing design studio's 3D preview now has a View in VR button on WebXR headsets: the same garment, artwork mapped on, drawn life-size a metre away."
 ---
 
 Both designers we interviewed asked for VR. The studio's 3D preview (a WebGL garment with the front and back artwork mapped on) now has a **View in VR** button. It shows only when the browser reports an `immersive-vr` session, so on a laptop nothing changes.
