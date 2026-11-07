@@ -254,3 +254,10 @@ test("percentile and rng behave", () => {
   const r1 = rng(1); const r2 = rng(1);
   assert.equal(r1(), r2());
 });
+
+test("parseCrops reports a typo in the first row's yield instead of reading the row as a header", () => {
+  const out = parseCrops("Kale,1.3O,3,70\nCarrots,1.5,2.5,75\nLettuce,0.8,4,45");
+  assert.ok(out.error, "a bad first row is an error, not a skipped header");
+  assert.match(out.error, /Row 1 \(Kale\): yield "1\.3O" is not a number/);
+  assert.equal(parseCrops("crop,yield,price,days\nCarrots,1.5,2.5,75\nLettuce,0.8,4,45").crops.length, 2);
+});

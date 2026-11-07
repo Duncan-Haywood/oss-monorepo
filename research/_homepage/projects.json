@@ -3426,7 +3426,7 @@
     {
      "slug": "benford-repo",
      "title": "Do the file sizes and line counts of this repository follow Benford&rsquo;s law?",
-     "summary": "First-digit frequencies of the byte sizes and line counts of the 35,648 git-tracked files at one commit, scored against Benford&rsquo;s law by chi-square and Nigrini&rsquo;s mean absolute deviation (MAD). All files together are nonconforming (byte MAD 0.0183, line MAD 0.0278), because a few sizes repeat thousands of times (1,071 bytes 1,297 times, 47 bytes 993 times, 4 lines 1,822 times). Counting each distinct size once, byte sizes conform acceptably (MAD 0.0068, n = 12,429). By extension, .json and .html stay nonconforming even deduplicated, and distinct Python line counts are acceptable (MAD 0.0103, n = 476). Descriptive: one commit of one generated, templated repository; an illustration of when the law fails, not a test of the law."
+     "summary": "First-digit frequencies of the byte sizes and line counts of the 35,648 git-tracked files at one commit, scored against Benford&rsquo;s law by chi-square and Nigrini&rsquo;s mean absolute deviation (MAD). All files together are nonconforming (byte MAD 0.0183, line MAD 0.0278), because a few sizes repeat thousands of times (1,071 bytes 1,297 times, 47 bytes 993 times, 4 lines 1,822 times). Repetition alone does not explain it: with each duplicate file counted once, sizes are still nonconforming (MAD 0.0217); counting each distinct size value once looks acceptable (MAD 0.0068) but that transform moves even exact Benford data off the law. Descriptive: one commit of one generated, templated repository; an illustration of when the law fails, not a test of the law."
     },
     {
      "slug": "mimic-loop",

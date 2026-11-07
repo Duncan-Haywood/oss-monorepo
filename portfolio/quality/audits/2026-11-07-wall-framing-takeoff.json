@@ -1,0 +1,73 @@
+{
+ "date": "2026-11-07",
+ "subject": "ventures/wall-framing-takeoff",
+ "stratum": "flagship",
+ "seed": "2026-11-07",
+ "auditor": "agent session (Claude), 2026-11-07 round 1",
+ "status": "audited",
+ "professional": "a senior framing estimator / framing contractor who does takeoffs and lumber orders for US single-family houses, checking against IRC 2021 Chapter 6 (R602.3 stud and plate rules, R602.7 headers, R602.7.5 king studs). They would check first: stud count and layout marks on a wall with openings, jack/king/header/cripple lengths, plate splices landing on studs with the 24 in lap, and whether the order buys the right boards.",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Recomputed by hand (layout arithmetic from standard framing practice: end stud each end, studs centred on multiples of the spacing, i.e. the 15-1/4 in edge mark at 16 o.c.; jack = header height - 1-1/2 in bottom plate; header = RO + 1-1/2 in per jack each side; top cripple = (1.5 + 92.625) - header height - header depth; bottom cripple = RO bottom - sill - plate) and compared with layoutWall via a scratch script (probe1.mjs, probe3.mjs). (1) 12 ft wall, 16 o.c., no openings: hand 10 studs (8 layout + 2 end), 3 x 144 in plates; tool 10 studs at 0, 15.25 ... 127.25, 142.5 and 3 plates. Match. (2) 14 ft wall with a 36x48 window at 48 in, 2x10 header, header height 82.5: hand 12 layout positions, 3 removed (centres 48/64/80) -> 9 commons, kings at 45 and 85.5, 2 jacks 81 in, 2 header plies 39 in, 3 top cripples 2-3/8 in, 1 sill 36 in, 4 bottom cripples 31-1/2 in; tool identical. (3) 20 ft 2x6 wall at 24 o.c. with a 38 in door, 2x8 header: hand 9 commons, 3 plies 41 in, 2 top cripples 4-3/8 in, bottom plate cut to 60 + 142 in; tool identical, top joint 144 / cap joint 120 (24 in apart, both on stud centres). (4) 30 ft wall: I showed by hand that no two-piece cap plate exists (joint must be a 16k stud centre, >=168 from one end and <=168 from the 192 top joint) so three pieces are forced; tool gives cap 144+96+120 with joints 144/240. (5) 19.2 o.c. 8 ft wall: hand 6 studs; tool 6 at 0, 18.45, 37.65, 56.85, 76.05, 94.5, verifyWall clean. (6) Cutting stock: an independent exact DP I wrote in Python (exact.py, DP over remaining-demand vectors, kerf 1/8 with one cut free per board) on pieces 5x81, 3x57.5, 7x38.25, 4x20 gives 78.0 (flat prices + 7.72 precut) and 36.4 (non-linear prices); optimizeStock gives 78 and 36.4. The 14 ft window wall's 2x4 order (154.92) I checked by hand to be optimal (42 plates + 11 precuts at 7.72 + 28 ft, the floor for 331.125 in of short pieces at whole-foot prices). (7) `node cli.mjs --example` reproduces the README sample row exactly: 345 pieces, 253 boards, cost 2384.16, bound 2384.12. No wrong number found. Not 4: header sizes and jack/king counts are inputs, so the tool computes no code-governed quantity I could check against IRC tables.",
+  "completeness": "Checked end to end: stud layout, kings/jacks/headers/sills/cripples, door cut in bottom plate, plate splices over studs with 24 in cap offset, self-check (verifyWall), cutting-stock order with LP bound and exact solver, CLI --example and plan run, --fasteners section, headers.mjs resolveHeaders (auto fill and UNDER flag), wide-opening refusal when a header exceeds the longest board (195 in 2x12 for a 192 in opening -> clear error), 19.2 o.c. layout, gable/sheathing covered by the passing suite. All worked. The repo is far wider than the core (roof, floor, stairs, foundation, siding, MEP, schedule, bid package, IFC/DXF import); I did not exercise those beyond the suite passing. Gaps a framer meets: multiple storeys not modelled (README Limits), rough openings must be typed (no unit-size input), no automatic jack/king count by span.",
+  "verification": "Ran `node --test '*.test.mjs'` in ventures/wall-framing-takeoff (124 test files, Node 22.23.4): 1039 tests, 1038 pass, 0 fail, 1 skipped (wasm vs native IFC binary, needs `cargo build --release`), 91 s. Seeded one bug: engine.mjs:576 cap-plate forbidden window `[j - plan.topPlateLap, j + plan.topPlateLap]` -> `/ 4` (cap joints allowed within 6 in of top joints). Full suite: 4 failures, including the direct property test 'long plates are spliced over full studs, cap joints at least the lap away from top joints' (error '200: cap 96 top 112') plus three downstream pinned-output tests (bid price, committed sample bid package, CLI sensitivity). Caught. Reverted with git checkout; git status shows the venture clean. Tests include hand-counted walls, 400 seeded random walls through the self-check, and the optimiser against an exact solver; but the exact solver shares the optimiser's item/board encoding, so a kerf-encoding bug would not be caught by that comparison (my external DP covers it once).",
+  "craft": "Read engine.mjs (layoutWall 413-645, framingZones 348-383, openingGeometry 389-405, splitPlate 873-913, optimizeStock 1179-1277, takeoff 1343-1411) and headers.mjs in full. Good: @ts-check, validatePlan rejects bad input with specific messages, fuzz and hostile-input suites, kerf modelled consistently (piece + kerf, board + one free kerf). Defects: layoutGable (647-810) re-implements the whole opening-framing loop (kings, jacks, headers, cripples) instead of sharing it with layoutWall, so a fix in one can miss the other; openingGeometry engine.mjs:393 silently falls back to a 2x10 depth when op.header is missing or unknown (validatePlan stops it via takeoff, but a direct layoutWall caller gets a silent 2x10); many 200-400 character one-line expressions (e.g. validatePlan, resolveHeaders guard headers.mjs:48) that a reviewer would ask to split. Acceptable for a senior JS reviewer with those notes.",
+  "claims": "Backed: README sample-house bench row (345 pieces / 253 boards / 2384.16 / 2384.12) reproduced by the CLI; hand-counted window numbers in README Verification (81 in jacks, 39 in plies, 2-3/8 top and 31-1/2 bottom cripples) reproduced; 'every plate joint over a full stud' and the 24 in cap offset reproduced; how-many-studs page '12 ft wall has 10 studs' reproduced; disclaimer present in README and index.html:572 and states header size, jack count and spacing are unchecked inputs. Not backed / stale: README.md:146 says 'node --test (42 tests ...)' (actual 1039, and bare `node --test` is not the working command); README.md:369-372 'Not modelled yet: ... hardware and fasteners, ... an off-centre peak' while fasteners.mjs ships (CLI --fasteners ran) and engine.mjs gable.peak supports an off-centre peak; README.md:362 'No structural checks ... Nothing checks them against a span table' contradicts the headers.mjs span-table check described two bullets above; the Electrical rough-in bullet is duplicated (README.md:58 and :60). No overclaim of a number a user would act on was found, but the Limits section is not reliable as a statement of what is covered.",
+  "fitness": "Walked the job: typed walls and openings (CLI plan JSON; page also has a sketch editor and DXF/IFC import), got the order by board length, cut list, board-by-board cutting plan, layout marks, fastener counts. A framing estimator could hand the order to a yard and the cut list to a crew for a one-storey house, with the stated limits. First-hour gaps: jack and king counts must be typed for every wide opening (an 8 ft door defaults to 1 king + 1 jack each side with no note), rough openings cannot be entered from window unit sizes, no multi-storey takeoff, and no waste/cull default unless typed (by design).",
+  "domain": "Compared with standard framing practice and IRC 2021 Ch. 6 (R602.3, R602.3.2 top plate joint offset of 24 in, R602.7 header tables with an NJ jack-stud column, R602.7.5 full-height studs at header ends). I could not fetch the code text (codes.iccsafe.org and gocodebook.com are blocked in this session), so the code points are from the code's known structure, not values re-read today. Matches practice: layout from one end with stud centres on spacing multiples, precut 92-5/8 studs for a 97-1/8 wall, jack = header height less plate, header = RO + jacks, cripples kept on layout, door cuts the bottom plate, PT bottom plate only, plate joints over studs, cap joints offset 24 in, header spacer and short-cripple notes, cutting stock with kerf (Gilmore-Gomory 1961 cited). Departs: jack and king counts default to 1 regardless of span (engine.mjs:335-336) with no warning, and the user's header span table (headers.mjs:11 HeaderRow) has no jacks column, though IRC Table R602.7(1)/(2) gives NJ per row and R602.7.5 sets king-stud counts by span; resolveHeaders treats fewer plies of a deeper header as UNDER (2-2x12 vs a 3-2x10 row), a conservative rule a framer might dispute. The disclaimer states these are inputs, so the method is signable with limits."
+ },
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Jack and king stud counts default to 1 per side for every opening, however wide (an 8 ft door gets 1 king + 1 jack each side with no note). IRC Table R602.7(1)/(2) gives the number of jack studs (NJ) per header row and R602.7.5 the full-height studs by span; a framer typing a wide opening without jacks gets an under-framed opening silently.",
+   "where": "ventures/wall-framing-takeoff/engine.mjs:335-336"
+  },
+  {
+   "severity": "medium",
+   "what": "The user's header span table cannot carry the code table's jack count: HeaderRow is {upTo, header, plies}, so resolveHeaders fills header and plies from the table but never jacks, and never flags an opening with fewer jacks than the table row asks.",
+   "where": "ventures/wall-framing-takeoff/headers.mjs:11, headers.mjs:83-100"
+  },
+  {
+   "severity": "low",
+   "what": "README Limits are stale and contradict shipped features: 'Not modelled yet: ... hardware and fasteners, ... an off-centre peak' (fasteners.mjs and gable.peak ship) and 'No structural checks ... Nothing checks them against a span table' (headers.mjs does).",
+   "where": "ventures/wall-framing-takeoff/README.md:362-372"
+  },
+  {
+   "severity": "low",
+   "what": "README Verification says '`node --test` (42 tests across engine, CLI, page and usage)'; the suite is 1039 tests across 124 files and the working command is `node --test '*.test.mjs'`.",
+   "where": "ventures/wall-framing-takeoff/README.md:146"
+  },
+  {
+   "severity": "low",
+   "what": "Electrical rough-in bullet appears twice in 'What it does'.",
+   "where": "ventures/wall-framing-takeoff/README.md:58, README.md:60"
+  },
+  {
+   "severity": "low",
+   "what": "openingGeometry silently uses a 2x10 depth when the header is missing or unknown; only takeoff's validatePlan stops it, so a direct layoutWall caller gets a silent 2x10.",
+   "where": "ventures/wall-framing-takeoff/engine.mjs:393"
+  },
+  {
+   "severity": "low",
+   "what": "layoutGable duplicates the opening-framing loop of layoutWall (kings, jacks, headers, cripples) rather than sharing it; fixes to one path can miss the other.",
+   "where": "ventures/wall-framing-takeoff/engine.mjs:647-810"
+  },
+  {
+   "severity": "low",
+   "what": "resolveHeaders flags a deeper header with fewer plies as UNDER (2-2x12 against a 3-2x10 row) by comparing depth and plies separately; conservative, but a framer reading the IRC table would not call 2-2x12 lighter.",
+   "where": "ventures/wall-framing-takeoff/headers.mjs:99"
+  }
+ ],
+ "fix_prs": [
+  13760
+ ],
+ "verdict": "The core a framing estimator checks first is right: on five hand-worked walls (12 ft plain, 14 ft with a window, 20 ft 2x6 at 24 o.c. with a door, 30 ft splice, 19.2 o.c.) every stud, king, jack, header ply, sill and cripple length and position matched hand arithmetic, plate splices land on stud centres with the 24 in cap offset, two cutting-stock instances matched an independent exact DP, and the README sample-house order (2384.16 against a 2384.12 bound) reproduces from the CLI. The 1039-test suite passes and caught a seeded cap-lap bug in four tests. It falls short of the bar on claims: the README's Limits and Verification sections are stale (42 tests, fasteners and off-centre peaks listed as not modelled, 'no structural checks' beside a span-table checker), so a reader cannot trust it to say what is covered. The main domain gap is that jack and king counts default to one per side at any span and the header table has no jacks column, though the IRC header tables specify them; the disclaimer says so, but a framer would want at least a warning on wide openings. Re-checkable with the scratch commands described in evidence and `node --test '*.test.mjs'`."
+}
