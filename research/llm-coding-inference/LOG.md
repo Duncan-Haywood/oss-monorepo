@@ -2,6 +2,9 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-07 · Paper catch-up: 7w to 7z into Section 6 (no experiment)
+- Added one paragraph to `paper/paper.md` Section 6 and updated its status row; every number checked against the result files. Still missing from the paper: 7a to 7v. Open: second LLM or corpus before dropping tau.
+
 ## 2026-11-07 · Milestone 7z: does 7y's reading hold on a held-out, high-prevalence category (GoEmotions `neutral`, 23.3%, weak coder J 0.194)? (planned before the runs; `experiments/h7y_drop_screen.py neutral 500 <n>`, n = 500 and 2,000, same cached Qwen2.5-1.5B scores)
 - Why: 7y's three categories were ones the default was tuned on; `neutral` is cached, rare-category machinery is irrelevant at 23%, and the coder is weak (sens 0.64, spec 0.55). Not tuned on, so it is a free held-out check.
 - **Prediction:** all three rules cover 93% or more and none is more than 2% narrower than pooled (a weak coder at high prevalence gives cells nothing to gain). Refuted if `neg_guard=3` alone covers under 93%.
