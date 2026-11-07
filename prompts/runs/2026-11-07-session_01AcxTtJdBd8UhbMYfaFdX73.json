@@ -45,7 +45,9 @@
    "why": "Advanced a small sourcing step on an existing project rather than a full programme step; did that and recorded it; pytest absent and source unchanged, so unit tests were not run."
   }
  ],
- "writeups": "docs/posts/2026-11-07-battery-volume-ceilings-density-check.md",
+ "writeups": [
+  "docs/posts/2026-11-07-battery-volume-ceilings-density-check.md"
+ ],
  "goal": null,
  "notes": "Local checks: research/_homepage/build.py ok, check_md_links ok. CI queued (starved) when merged.",
  "corrections": [],

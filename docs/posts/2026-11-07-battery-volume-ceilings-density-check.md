@@ -1,7 +1,7 @@
 ---
 title: "Checking the densities behind battery volume ceilings: the ranking holds"
 date: 2026-11-07
-description: "Eight of the reactant densities behind the Wh/L ceilings for lead-acid, Li-S, Zn-air, Al-air and Li-O2 match PubChem's handbook records; one, FePO4, is 6.5% off and moves LiFePO4 by 3.8%."
+description: "Eight reactant densities behind battery Wh/L ceilings match PubChem's handbook records; FePO4 is 6.5% off and moves LiFePO4 by 3.8%. The ranking holds."
 tags: [research, energy, batteries]
 ---
 
