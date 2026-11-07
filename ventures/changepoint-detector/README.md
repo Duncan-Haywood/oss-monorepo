@@ -1611,3 +1611,21 @@ On the unemployment-duration series with `--ar1` the three 2009 cuts become one 
 weeks (+12.13); 2012-02 to 2012-12 shows as a two-cut fall. It is a grouping rule, not a test: a run of real steps
 close together also groups, and there is no calibration on labelled ramps. Wanted: a series with documented ramps and
 documented close steps, to see which way it errs.
+
+### Gap rule on synthetic ramps and staircases (2026-11-07, `eval/ramp-gap.mjs`, synthetic only)
+
+n = 300, N(0,1) noise, 40 seeds per cell, default `maxGap` 6, plain `analyze` (no `--ar1`). Truth A: a linear rise of height H starting at
+point 120 over L points. Truth B: two steps of H/2, L points apart. Output: `eval/ramp-gap.out.txt`.
+
+| truth | H | L (span or gap) | ramp reported |
+|---|---|---|---|
+| ramp | 8 | 6 / 12 / 24 / 48 | 38 / 30 / 8 / 0 of 40 |
+| ramp | 4 | 6 / 12 / 24 / 48 | 5 / 7 / 0 / 0 of 40 |
+| two steps | 8 | 6 / 12 / 24 / 48 | 38 / 0 / 1 / 0 of 40 |
+| two steps | 4 | 6 / 12 / 24 / 48 | 24 / 0 / 0 / 0 of 40 |
+
+Reading: a gap of 6 reports a ramp from two steps 6 points apart as often as from a real 6-point ramp (38 of 40 both), so the rule cannot tell
+them apart there. That is by design ("not a test"). New: with a ramp of 24 to 48 points the rule almost never fires (0 to 8 of 40), because PELT
+cuts a long ramp into segments longer than 6; the cut count per series rises (3.0 to 3.6 at H=8) while the grouping stays silent. Two
+steps 12 or more apart are never grouped, correctly. So `maxGap` at a fiftieth of the series catches short ramps and misses long ones; widening
+it would also group genuine staircases. Synthetic, one noise model: not a calibration on real ramps, which are still wanted.
