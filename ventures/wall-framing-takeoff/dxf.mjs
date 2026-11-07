@@ -630,7 +630,16 @@ export function planFromDxf(text, opt = {}) {
     (out[tn].tees ||= []).push(at);
     if (!out[sn].tee) out[sn].tee = { wall: names[tn], at, end: walkEnd(t.stem, t.end) === 0 ? "start" : "end" };
   }
-  for (const w of out) if (w.tees) w.tees.sort((p, q) => p - q);
+  // Two stems landing on one through wall closer than a stud apart (the same tee drawn from both
+  // sides, or a doubled wall line, as in a real Revit export) share their backing studs: keep one.
+  let teesMerged = 0;
+  for (const w of out) if (w.tees) {
+    w.tees.sort((p, q) => p - q);
+    const kept = [];
+    for (const t of w.tees) { if (kept.length && t - kept[kept.length - 1] < 1.5) teesMerged++; else kept.push(t); }
+    w.tees = kept;
+  }
+  if (teesMerged) notes.push(`${teesMerged} tee(s) landed within 1-1/2" of another tee on the same wall (one tee drawn twice, or two walls meeting from opposite sides); each pair was framed as one tee.`);
   order.forEach((o, n) => {
     if (o.ext) return;
     const free = [0, 1].filter((e) => !touched.has(`${o.w}:${e}`)).length;
@@ -670,7 +679,7 @@ export function planFromDxf(text, opt = {}) {
     return best && windowLayer.test(best.layer) && !doorLayer.test(best.layer) ? "window" : "door";
   };
   const counts = { door: 0, window: 0 };
-  let defaulted = 0, trimmed = 0;
+  let defaulted = 0, trimmed = 0, nudged = 0;
   for (const o of op) {
     const mid = { x: (o.a.x + o.b.x) / 2, y: (o.a.y + o.b.y) / 2 };
     let host = -1, hd = snap * 2;
@@ -690,7 +699,14 @@ export function planFromDxf(text, opt = {}) {
     const Lr = out[n].length, cLo = Math.max(0, lo), cHi = Math.min(Lr, hi);
     if (cHi - cLo < hi - lo - 1e-6) { width = r16(cHi - cLo); trimmed++; }
     if (width > Lr) { width = Lr; trimmed++; }
-    const off = Math.min(r16(order[n].flip ? Lr - cHi : cLo), Math.max(0, Lr - width));
+    let off = Math.min(r16(order[n].flip ? Lr - cHi : cLo), Math.max(0, Lr - width));
+    // an opening drawn within a stud-and-jack of a wall end (a jamb against the end of a wall) cannot be framed
+    // there; slide it in to the least clearance, when that moves it 3 in or less and the wall has room
+    const CLEAR = 3;
+    if (Lr >= width + 2 * CLEAR) {
+      if (off < CLEAR && CLEAR - off <= 3) { off = CLEAR; nudged++; }
+      else if (Lr - (off + width) < CLEAR && CLEAR - (Lr - (off + width)) <= 3) { off = Lr - width - CLEAR; nudged++; }
+    }
     const own = opt.openingSize?.(mid);
     const kind = own?.kind ?? o.kind ?? kindOf(mid);
     counts[kind]++;
@@ -701,6 +717,7 @@ export function planFromDxf(text, opt = {}) {
   }
   for (const w of out) if (w.openings) w.openings.sort((p, q) => p.offset - q.offset);
   if (unplaced.length) notes.push(`${unplaced.length} opening line${unplaced.length === 1 ? "" : "s"} not along any wall (${unplaced.slice(0, 3).join(", ")}${unplaced.length > 3 ? ", ..." : ""}) were dropped.`);
+  if (nudged) notes.push(`${nudged} opening${nudged === 1 ? "" : "s"} drawn within 3\" of a wall end ${nudged === 1 ? "was" : "were"} moved in to 3\" (up to 3\" of movement) so the jacks clear the end stud; check against the drawing.`);
   if (trimmed) notes.push(`${trimmed} opening line${trimmed === 1 ? "" : "s"} ran past the end of its wall and ${trimmed === 1 ? "was" : "were"} trimmed to the wall; check the width.`);
   if (defaulted) notes.push(`Opening heights are defaults, not read from the file: doors ${opt.doorHeight ?? 82.5} in, windows ${opt.windowHeight ?? 48} in tall. Every header is ${opt.header ?? "2x10"} as a placeholder; set them for your span table.`);
   else if (placed) notes.push(`Every header is ${opt.header ?? "2x10"} as a placeholder; set them for your span table.`);
