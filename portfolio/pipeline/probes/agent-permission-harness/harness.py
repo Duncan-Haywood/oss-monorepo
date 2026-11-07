@@ -53,6 +53,7 @@ import argparse
 import functools
 import json
 import os
+import bisect
 import re
 import sys
 from dataclasses import dataclass, field, asdict
@@ -743,7 +744,7 @@ def _expand_prompt_path(
     return []
 
 
-_GLOB_MEMO: dict[int, tuple[Sequence[str], dict[str, list[str]]]] = {}
+_GLOB_MEMO: dict[int, tuple[Sequence[str], dict[str, list[str]], list[str]]] = {}
 
 
 def _glob_over_index(index: Sequence[str], normalised: str) -> list[str]:
@@ -758,12 +759,18 @@ def _glob_over_index(index: Sequence[str], normalised: str) -> list[str]:
     hit = _GLOB_MEMO.get(id(index))
     if hit is None or hit[0] is not index:
         _GLOB_MEMO.clear()
-        hit = _GLOB_MEMO[id(index)] = (index, {})
+        hit = _GLOB_MEMO[id(index)] = (index, {}, sorted(index))
     table = hit[1]
     found = table.get(normalised)
     if found is None:
         rx = _glob_regex(normalised)
-        found = table[normalised] = sorted(f for f in index if rx.fullmatch(f))
+        # Every match starts with the spec's literal text before its first
+        # `*`, so only that slice of the sorted index needs the regex.
+        ordered = hit[2]
+        prefix = normalised.split("*", 1)[0]
+        lo = bisect.bisect_left(ordered, prefix)
+        hi = bisect.bisect_left(ordered, prefix + "\U0010ffff") if prefix else len(ordered)
+        found = table[normalised] = [f for f in ordered[lo:hi] if rx.fullmatch(f)]
     return found
 
 
