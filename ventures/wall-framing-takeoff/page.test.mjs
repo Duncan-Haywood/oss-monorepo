@@ -51,7 +51,7 @@ test("every static control has a label, and generated rows label their inputs", 
 
 test("the module script imports only local files, its names exist, and it parses", async () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./bidletter.mjs", "./bidlevel.mjs", "./bidpackage.mjs", "./budget.mjs", "./checkout.mjs", "./compare.mjs", "./deck.mjs", "./dormer.mjs", "./drawings.mjs", "./drywall.mjs", "./dxf.mjs", "./eaves.mjs", "./engine.mjs", "./fasteners.mjs", "./floor.mjs", "./foundation.mjs", "./gutters.mjs", "./headers.mjs", "./ifcwasm.mjs", "./insulation.mjs", "./licence.mjs", "./openingschedule.mjs", "./panels.mjs", "./pdf.mjs", "./roof.mjs", "./schedule.mjs", "./sensitivity.mjs", "./sheathing.mjs", "./siding.mjs", "./sketch.mjs", "./stairs.mjs", "./trim.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./bidletter.mjs", "./bidlevel.mjs", "./bidpackage.mjs", "./budget.mjs", "./checkout.mjs", "./compare.mjs", "./deck.mjs", "./dormer.mjs", "./drawings.mjs", "./drywall.mjs", "./dxf.mjs", "./eaves.mjs", "./engine.mjs", "./fasteners.mjs", "./floor.mjs", "./foundation.mjs", "./gutters.mjs", "./headers.mjs", "./ifcwasm.mjs", "./insulation.mjs", "./licence.mjs", "./openingschedule.mjs", "./panels.mjs", "./pdf.mjs", "./roof.mjs", "./schedule.mjs", "./sensitivity.mjs", "./sheathing.mjs", "./siding.mjs", "./sketch.mjs", "./stairs.mjs", "./stepwall.mjs", "./trim.mjs", "./usage.mjs"]);
   const names = html.match(/import \{([^}]+)\} from "\.\/engine\.mjs"/)[1].split(",").map((s) => s.trim());
   const engine = await import("./engine.mjs");
   for (const name of names) assert.ok(name in engine, name);
@@ -1143,4 +1143,13 @@ test("the retaining wall calculator page: FAQ matches its data and the stated fi
   assert.equal(r.blocks, 269); assert.equal(r.caps, 42); assert.equal(r.adhesiveTubes, 3); assert.equal(r.pipeFeet, 52);
   assert.equal(r.blocksPerSqFt.toFixed(2), "1.87"); assert.equal(r.baseCuYd.toFixed(2), "2.41"); assert.equal(r.baseTons.toFixed(2), "3.37");
   assert.equal(r.drainCuYd.toFixed(2), "6.30"); assert.equal(r.drainTons.toFixed(1), "8.5"); assert.equal(r.fabricSqFt, 326);
+});
+
+test("the wall table has a Steps field that feeds expandSteppedWalls and is saved back to the table", () => {
+  const html = page("index.html");
+  assert.match(html, /import \{ expandSteppedWalls \} from "\.\/stepwall\.mjs"/);
+  assert.match(html, /function stepsField\(/);
+  assert.match(html, /<th>Steps \(position : stud length/);
+  // saved plans carry steps in inches and the table shows them back as "at : stud"
+  assert.match(html, /steps: \(w\.steps \|\| \[\]\)\.map\(\(s\) => `\$\{len\(s\.at\)\} : \$\{len\(s\.studLength\)\}`\)/);
 });
