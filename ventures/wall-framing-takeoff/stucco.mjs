@@ -79,7 +79,7 @@ function checkPlan(plan) {
 
 /**
  * @param {any} d
- * @param {{ studLength: number, defaultHeaderHeight: number, walls: { id: string, length: number, sheathed?: boolean, openings?: { width: number, height: number }[] }[] }} plan
+ * @param {{ studLength: number, defaultHeaderHeight: number, walls: { id: string, length: number, sheathed?: boolean, gable?: { pitch: number, peak?: number }, openings?: { kind: string, offset: number, width: number, height: number, headerHeight?: number }[] }[] }} plan
  */
 export function layoutStucco(d, plan) {
   const errors = validateStucco(d);
