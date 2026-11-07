@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01AcxTtJWu73srH9Z7Tn9tyn",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T06:20:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "blobless clone + ls-tree -l ran >500s and was killed"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "wall-framing next: lists real-input items, none obtainable from a cloud session (LFS not served); no slice needing no outside data is named"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Shipped only an agent doc, no product slice or blog post",
+      "did": "documented why the real-IFC search failed",
+      "result": "thin run; flagship needs owner-supplied model"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-07-finding-a-real-ifc-from-a-cloud-session.md"
+  ],
+  "goal": null,
+  "notes": "Security queue, ideas inbox and website requests empty. Routed ventures; top flagship wall-framing-takeoff is saturated pending real inputs.",
+  "corrections": [],
+  "redteam": null
+}
