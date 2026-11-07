@@ -71,3 +71,13 @@ export function controlJoints(s) {
   notes.push("Saw within 6 to 18 hours of the pour, before random cracks start. Joints run through to meet columns, walls and any re-entrant corner.");
   return { ok: true, spacing, cutsAlongLength, cutsAlongWidth, panelLength, panelWidth, panels: nL * nW, sawCutFeet, cutDepth: D * JOINT_RULES.cutFraction, notes };
 }
+
+/** Plain-text lines for a `controlJoints` result.
+ *  @param {ReturnType<typeof controlJoints>} r */
+export function jointText(r) {
+  if (!r.ok) return /** @type {any} */ (r).errors.map((e) => `  - ${e}`);
+  const f = (/** @type {number} */ n) => (Math.round(n * 10) / 10).toString();
+  const out = [`Control joints: ${r.panels} panels of ${f(r.panelLength)} x ${f(r.panelWidth)} in (spacing limit ${f(r.spacing)} in)`, `Saw cuts: ${r.cutsAlongLength} across the length, ${r.cutsAlongWidth} across the width, ${f(r.sawCutFeet)} ft in all, ${f(r.cutDepth)} in deep`];
+  for (const n of r.notes) out.push(`- ${n}`);
+  return out;
+}

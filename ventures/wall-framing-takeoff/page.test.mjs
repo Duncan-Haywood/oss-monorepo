@@ -541,6 +541,12 @@ test("the concrete calculator page: FAQ matches its data, the 12 x 12 x 4 in cas
   assert.match(html, /about 88 bags of 80 lb/);
   const b80 = slabConcrete({ length: 108, width: 108, depth: 4, waste: 0 });
   assert.ok(b80.ok); assert.equal(b80.bags, 45); // the FAQ's 45 bags to a yard
+  // joints on the page: 144 x 144 x 4 in, spacing 120 in -> 2 x 2 panels of 72 in, 2 cuts, (144+144)/12 = 24 ft, 1 in deep
+  const { controlJoints, jointText } = await import("./slab.mjs");
+  const j = controlJoints({ length: 144, width: 144, depth: 4 });
+  assert.ok(j.ok); assert.equal(j.panels, 4); assert.equal(j.panelLength, 72); assert.equal(j.sawCutFeet, 24); assert.equal(j.cutDepth, 1);
+  assert.match(jointText(j)[0], /4 panels of 72 x 72 in/); assert.match(jointText(j)[1], /24 ft in all, 1 in deep/);
+  assert.match(html, /jointText\(controlJoints/);
 });
 
 test("the bid leveling page: FAQ matches its data, the sample bids level as the page says", async () => {
