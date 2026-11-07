@@ -57,7 +57,16 @@ escaped.
   allergen emphasis; there is no QUID (percentage) or net quantity.
 - Sulphites need the supplier's mg/kg figure; the tool can only flag wine, dried fruit and the like.
 
+## Customer allergen page (2026-11-07)
+
+`menupage.mjs` builds one self-contained HTML file from the analysis (button "Download customer
+allergen page"): customers tick the allergens they avoid and each dish is sorted into contains,
+ask staff (a "check" or "may contain" allergen) and not listed. It never says "safe" or "free
+from"; every state ends with "tell staff". Tested by `menupage.test.mjs` (classification, page
+script equals module rule, no safe/free-from wording, hostile names, no network) and opened in
+headless Chromium (tick eggs: 2 of 5 listed none, contains shown last). Host the file anywhere or
+put its URL behind a QR code. Not verified: how real customers read it.
+
 ## Next
 
-A recipe library kept in the browser, label sheets for common printers, a customer-facing
-allergen page with a QR code, and (when rails exist) a paid branded pack. See `VENTURE.yaml`.
+A recipe library kept in the browser, label sheets for common printers, a QR code generator for the page, and (when rails exist) a paid branded pack. See `VENTURE.yaml`.
