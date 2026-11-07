@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13777",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,19 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Did not deepen the top flagship; its open items need real inputs. Continued the ai-bookkeeper categorizer probe series instead."
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Flagship hosts (irs.gov, ssa.gov, ohio.gov) all unreachable, so landed a no-outside-data slice: blind probe 31, 18/25 first run, 25/25 after rules (tuned on itself). Ran probe29-31, bank-category, categorize, redteam, property tests: 22 pass, 0 fail.",
   "corrections": [],
   "redteam": null
 }
