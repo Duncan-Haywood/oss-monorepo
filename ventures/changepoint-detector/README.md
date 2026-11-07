@@ -22,7 +22,7 @@ methods from published papers, run on your own data, with the papers cited.
   doi:[10.1080/01621459.2012.737745](https://doi.org/10.1080/01621459.2012.737745).
   Exact minimum of Gaussian -2 log-likelihood plus a penalty per change, for a
   change in mean (noise sd estimated once from the median absolute difference
-  of successive points) or in mean and variance (minimum segment 5 by default).
+  of successive points) or in mean and variance (minimum segment 10 by default).
   A third model, `poisson`, is for count series (visits, orders, incidents
   per day): the cost is the Poisson -2 log-likelihood with one rate per
   segment, and the Bayesian pass uses the Gamma-Poisson conjugate pair
@@ -54,7 +54,7 @@ where it departs from the paper.
 
 ## Verification
 
-`node --test` (47 tests). What they check:
+`node --test` (291 tests). What they check:
 
 - **Against an independent PELT:** on 100 seeded cases (60-200 points, 0-3
   planted changes, mean and mean-and-variance models, several penalties) the
