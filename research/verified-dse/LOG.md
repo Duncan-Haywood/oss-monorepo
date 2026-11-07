@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-07 · Milestone 94: exact-power result written into the paper (no flow run, no new numbers)
+- Why: milestones 92 and 93 sat in this log but PAPER.md Section 4 carried only the milestone 92 bound. Added the tie-aware exact formula, its enumeration check, the 33-combination agreement (max |z| 2.32) and the median exact power to the "bound on false certificates" paragraph; nothing re-measured, all figures copied from `pilot_rho_exact_results.txt` and the milestone 93 entry.
+- Limits: `paper/main.tex` regenerated with pandoc only; `main.pdf` not rebuilt (no TeX here); official MLCAD style unchecked.
+- Next: detail-routed mult24/mult32 cells (about 12 core-hours per cell).
+
 ## 2026-11-07 · Milestone 93: closed form for the certificate's power, tie-aware (no flow run)
 - Why: milestone 92 left a 0.06 to 0.10 gap between its hit-probability bound and the empirical P(T<1). T<1 holds iff the pilot's y-best point is in G, which has an exact probability. Predictions (written first): (1) the formula equals enumeration; (2) in all 33 cell x m combinations the empirical share (92's 300 pilots) is within 3 binomial sigma of it; (3) y has no ties, so the plain rank formula applies.
 - **Outcome** (`experiments/theory/pilot_rho_exact.py`, `pilot_rho_exact_results.txt`, `tests/test_pilot_rho_exact.py`). (1) held, with the tie-aware form P(T<1) = sum over y-tie groups g of (G_g/s_g)[C(n-B_g,m) - C(n-B_g-s_g,m)]/C(n,m); the test enumerates all pilots on 60 small instances with many ties. (2) held: 0 of 33 beyond 3 sigma, max |z| 1.99 / 2.32 / 1.89 at m = 8 / 16 / 24; median |empirical - exact| 0.031 / 0.012 / 0.010, against 92's median gap of 0.09 / 0.095 / 0.062. (3) **refuted**: every guaranteed cell has duplicated y (11 to 48 of 50 to 52 values), so the first version of the formula was wrong in principle; the tie-aware version gives the same medians (median exact power 0.513 / 0.727 / 0.875), because tied points are mostly outside G.

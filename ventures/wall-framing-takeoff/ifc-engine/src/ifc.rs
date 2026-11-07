@@ -144,6 +144,12 @@ pub struct Stats {
     pub openings_without_geometry: usize,
     /// Doors and windows filling an opening in something other than a wall (a roof, a slab).
     pub openings_in_other_hosts: usize,
+    /// Unfilled voids dropped because a door or window fills most of their width.
+    pub voids_covered_by_fills: usize,
+    /// Unfilled voids under 12 in tall, treated as penetrations (pipe, vent, box), not framed openings.
+    pub voids_small_dropped: usize,
+    /// Unfilled voids floating above the floor and under 1.5 m (stair or sloped-top cutouts).
+    pub voids_floating_dropped: usize,
 }
 
 struct Ctx<'m, 'a> {
@@ -354,21 +360,19 @@ pub fn read(m: &Model) -> Building {
             }
         }
     }
-    for w in &mut walls { w.openings.sort_by(|p, q| p.from.total_cmp(&q.from)); }
-    let mut voids_merged = 0usize;
-    let mut voids_covered = 0usize;
     for w in &mut walls {
-        let (ops, merged, covered) = tidy_openings(std::mem::take(&mut w.openings));
-        w.openings = ops;
-        voids_merged += merged;
-        voids_covered += covered;
-    }
-    if voids_covered + voids_merged > 0 {
-        b.warnings.push(format!("{voids_covered} bare opening(s) already filled by a door or window were dropped and {voids_merged} touching bare opening(s) were merged into their neighbours."));
+        drop_redundant_voids(w, &mut b.stats);
+        w.openings.sort_by(|p, q| p.from.total_cmp(&q.from));
     }
     let _ = wall_frames;
     if b.stats.walls_without_geometry > 0 {
         b.warnings.push(format!("{} wall(s) had no axis and no readable body and were skipped.", b.stats.walls_without_geometry));
+    }
+    if b.stats.voids_floating_dropped > 0 {
+        b.warnings.push(format!("{} unfilled void(s) that start above the floor and stay under 1.5 m were dropped as cutouts (a stair or sloped-top profile), not doors; frame those by hand.", b.stats.voids_floating_dropped));
+    }
+    if b.stats.voids_covered_by_fills + b.stats.voids_small_dropped > 0 {
+        b.warnings.push(format!("{} unfilled void(s) were dropped as not framed openings: {} mostly covered by a door or window in the same wall, {} under 12 in tall (pipe, vent or box penetrations).", b.stats.voids_covered_by_fills + b.stats.voids_small_dropped, b.stats.voids_covered_by_fills, b.stats.voids_small_dropped));
     }
     if b.stats.doors_windows_unhosted > 0 {
         b.warnings.push(format!("{} door(s)/window(s) could not be placed in any wall (no fill relationship and no wall under them).", b.stats.doors_windows_unhosted));
@@ -387,45 +391,25 @@ pub fn read(m: &Model) -> Building {
     b
 }
 
-/// Revit writes one IfcOpeningElement per cut, so a wall can carry a bare
-/// void under the doors and windows that fill it, and one passage as several
-/// touching voids. Drop a void that fills and units cover (80% or more of its
-/// width) and merge voids that overlap or touch, so each rough opening is
-/// counted once. Returns the openings, voids merged, voids dropped.
-fn tidy_openings(ops: Vec<Opening>) -> (Vec<Opening>, usize, usize) {
-    const TOUCH: f64 = 0.01;
-    let fills: Vec<(f64, f64)> = ops.iter().filter(|o| o.kind != OpeningKind::Void).map(|o| (o.from, o.to)).collect();
-    let mut covered = 0;
-    let mut kept: Vec<Opening> = Vec::new();
-    for o in ops {
-        if o.kind == OpeningKind::Void && o.to > o.from {
-            let mut iv: Vec<(f64, f64)> = fills.iter().map(|&(a, b)| (a.max(o.from), b.min(o.to))).filter(|(a, b)| b > a).collect();
-            iv.sort_by(|p, q| p.0.total_cmp(&q.0));
-            let (mut tot, mut end) = (0.0, f64::MIN);
-            for (a, b) in iv {
-                let a = a.max(end);
-                if b > a { tot += b - a; end = b; }
-            }
-            if tot >= 0.8 * (o.to - o.from) { covered += 1; continue; }
-        }
-        kept.push(o);
-    }
-    let mut merged = 0;
-    let mut out: Vec<Opening> = Vec::new();
-    for o in kept {
-        if let Some(last) = out.last_mut() {
-            if last.kind == OpeningKind::Void && o.kind == OpeningKind::Void && o.from <= last.to + TOUCH {
-                let top = (last.sill + last.height).max(o.sill + o.height);
-                last.sill = last.sill.min(o.sill);
-                last.height = top - last.sill;
-                last.to = last.to.max(o.to);
-                merged += 1;
-                continue;
-            }
-        }
-        out.push(o);
-    }
-    (out, merged, covered)
+/// Revit often leaves an unfilled cut in a wall next to (or behind) the doors and windows set in it,
+/// and small round or box cuts for pipes. Neither is a framed opening, and keeping them stacks
+/// openings on the same stretch of wall. Dropped here: a void under 12 in tall, and a void whose
+/// width is at least half covered by door and window fills in the same wall.
+pub fn drop_redundant_voids(w: &mut Wall, st: &mut Stats) {
+    let fills: Vec<(f64, f64)> = w.openings.iter().filter(|o| o.kind != OpeningKind::Void).map(|o| (o.from, o.to)).collect();
+    w.openings.retain(|o| {
+        if o.kind != OpeningKind::Void { return true; }
+        if o.height < 0.3048 { st.voids_small_dropped += 1; return false; }
+        if o.sill > 0.1 && o.sill + o.height < 1.5 { st.voids_floating_dropped += 1; return false; }
+        let width = o.to - o.from;
+        if width <= 0.0 { return true; }
+        let mut spans: Vec<(f64, f64)> = fills.iter().map(|&(a, b)| (a.max(o.from), b.min(o.to))).filter(|&(a, b)| b > a).collect();
+        spans.sort_by(|p, q| p.0.total_cmp(&q.0));
+        let (mut covered, mut end) = (0.0, f64::MIN);
+        for (a, b) in spans { let a = a.max(end); if b > a { covered += b - a; end = b; } }
+        if covered >= 0.5 * width { st.voids_covered_by_fills += 1; return false; }
+        true
+    });
 }
 
 fn bbox(p: &[V3]) -> (f64, f64, f64, f64) {

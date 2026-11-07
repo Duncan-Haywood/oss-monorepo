@@ -468,6 +468,45 @@ certificate marks 0.70 of pilots at m = 16 in the 11 cells where the
 optimum meets the zero-regret condition, and 0.039 of pilots in the 29
 where it does not. Empirical on this table, not a theorem.
 
+\textbf{A bound on false certificates} (milestone 90,
+\texttt{experiments/\allowbreak{}theory/\allowbreak{}pilot\_\allowbreak{}rho\_\allowbreak{}bound.py},
+\texttt{pilot\_\allowbreak{}rho\_\allowbreak{}bound\_\allowbreak{}results.txt}; no flow run). Let G be the
+candidates whose ratio is below 1. Since ratio \textless{} 1 forces
+rho\_last \textless{} k\_last, and at most k\_last candidates have that
+(ties counted ahead), \textbar G\textbar{} ≤ k\_last (here 1 for the
+three-rung start and 5 for the R2 start). A false certificate needs
+ratio(x*) ≥ 1, so x* is outside G, and T \textless{} 1, so the pilot's
+best routed point is in G. Hence for a pilot of m distinct points drawn
+uniformly, P(false certificate) ≤ 1 − C(n−g, m)/C(n, m) ≤ mg/n with g =
+\textbar G\textbar, using only the rung scores and nothing about y. On
+the 29 cells where the optimum fails the condition the bound is 0 in 22
+(G is empty, so no pilot can issue a false certificate) and the
+empirical false-certificate share of milestone 84 is at most the bound
+in all 29 at m = 8, 16 and 24 (largest empirical/bound 0.71, 0.63,
+0.48). This explains the 4\% figure above: it comes from 7 cells. It is
+a bound on how often T \textless{} 1 is wrong, not on regret when T ≥ 1,
+and it does not say how often a valid certificate is issued (0.49 to
+0.85 of pilots in the 11 guaranteed cells). \textbf{Power} (milestone
+92, \texttt{experiments/\allowbreak{}theory/\allowbreak{}pilot\_\allowbreak{}rho\_\allowbreak{}power.py}): a valid
+certificate needs the pilot's best point in G, so its probability is at
+most 1 − C(n−g, m)/C(n, m); in the 11 guaranteed cells this holds with
+no violation and is within a median 0.09 of the empirical share (0.49 /
+0.72 / 0.88 at m = 8 / 16 / 24; median pilot size for a 0.9 hit
+probability, 18). \textbf{Exact power} (milestone 93,
+\texttt{experiments/\allowbreak{}theory/\allowbreak{}pilot\_\allowbreak{}rho\_\allowbreak{}exact.py},
+\texttt{pilot\_\allowbreak{}rho\_\allowbreak{}exact\_\allowbreak{}results.txt}): T \textless{} 1 holds exactly
+when the pilot's y-best point lies in G, so with y-tie groups g of size
+s\_g (B\_g points strictly better, G\_g of them in G) P(T\textless1) =
+∑g (G\_g/s\_g){[}C(n−B\_g, m) − C(n−B\_g−s\_g, m){]}/C(n, m); every
+guaranteed cell has duplicated y, so the tie-free rank formula is wrong
+in principle. Enumeration over all pilots of 60 small tied instances
+matches it, and in the 33 cell × m combinations none of the empirical
+shares (300 pilots) is beyond 3 binomial sigma of it (max
+\textbar z\textbar{} 2.32); the median exact power is 0.513 / 0.727 /
+0.875 and the hit-probability bound exceeds it by a median 0.07 to 0.10.
+The formula needs y for the whole pool, so it chooses a pilot size in
+evaluation, not inside a live search.
+
 \textbf{Pilot-side certificate and its limits} (milestones 35 to 43,
 moved here from the to-do list). A proof or counterexample for the
 top-vs-all coverage, or a conformal pilot statistic with a theorem
@@ -571,13 +610,14 @@ OpenROAD run of the larger designs at the ss corner (liberty-only so
 far). 2. A causal fanout result that does not depend on the Yosys
 version (Section 5). 3. BO/BOHB baselines on larger pools and with
 structurally unfaithful R2 beyond the multiplier family. 4. A pilot-side
-regret certificate (a proof or counterexample for the top-vs-all
-coverage; Section 4 says what is excluded). 5. Final typesetting to the
-MLCAD template. \texttt{paper/\allowbreak{}main.tex} (IEEEtran conference class,
-generated from this file by \texttt{paper/\allowbreak{}build.sh};
-\texttt{paper/\allowbreak{}main.pdf}, 6 pages) is a working draft in that class; the
-official MLCAD style file and page limit still need checking against the
-call for papers.
+regret certificate for the top-vs-all coverage (milestone 90 proves a
+false-certificate bound for the rank-displacement certificate only; a
+regret certificate from a pilot's observed excesses stays open and
+Section 4 says what is excluded). 5. Final typesetting to the MLCAD
+template. \texttt{paper/\allowbreak{}main.tex} (IEEEtran conference class, generated
+from this file by \texttt{paper/\allowbreak{}build.sh}; \texttt{paper/\allowbreak{}main.pdf}, 6
+pages) is a working draft in that class; the official MLCAD style file
+and page limit still need checking against the call for papers.
 
 Until (1) to (3) land, the honest headline is the negative one: on small
 designs, cheap rungs did not pay, and a pilot gate that detects when

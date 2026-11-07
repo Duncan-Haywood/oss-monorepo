@@ -45,7 +45,7 @@ flagships:
       connector and anchor sizes; a real architect's DXF; a real US
       wood-framed IFC (the Rust IFC reader, ifc-engine/, is on the page's
       IFC upload as WASM since 2026-11-03 and run in Chromium on the Duplex and
-      Schependomlaan models 2026-11-04; a one-wall wood-framed file ran 2026-11-04 and fixed the lost opening sizes; a whole wood-framed house was run 2026-11-07 (Schultz Residence, README: `--wood-only` added; duplicate voids dropped and touching voids merged 2026-11-07; next: a passage that reaches a wall end with a tee landing inside it, on `Int 4`) and still needs a framer's takeoff to compare with) to map its
+      Schependomlaan models 2026-11-04; a one-wall wood-framed file ran 2026-11-04 and fixed the lost opening sizes; a whole wood-framed house was run 2026-11-07 (Schultz Residence, README: `--wood-only` added; next: doors at 0 in on stub walls, tees 0.1 in apart and one 30 x 21 in void at a wall start, which still stop floors framing; the Window Wall void was fixed 2026-11-07) and still needs a framer's takeoff to compare with) to map its
       stud layer to stud sizes;
       a plumber's real drain runs for `--drilling` (stud hole limits, 2026-11-04); a real foundation plan; ceiling steps against a real soffit; trim,
       drywall and siding against real orders and hangs; bid leveling on real
@@ -65,7 +65,8 @@ flagships:
       Tested on fixtures; next are real inputs. Open items, most valuable
       first: (0) built-in keywords measured on one real makerspace's bank
       export (72.7% suggested, 96% right, tuned on itself) and one real Chase card (78.4% right of all before tuning, 2026-11-07) and on synthetic
-      sets (README Next): HCB card feed and Actual Budget samples held out; wanted: labelled books; (1) the AI layer in
+      sets (README Next): HCB card feed and Actual Budget samples held out
+      (README Next, no labels); wanted: labelled books; (1) the AI layer in
       fill-only mode on real bank descriptions, more seeds, a bigger model
       (synthetic so far; README Next); (2) the bank readers on real exports
       from Chase, Bank of America, Wells Fargo, Amex, Capital One and
@@ -80,7 +81,9 @@ flagships:
       named filing service's import layout, from its own spec; (8) `salestax
       return` (page card; no-sales-tax states warn): due dates read from the
       state's own page only for WA, TX, FL, NY, VA, MN, MO, IL, SC, OH and
-      UT monthly (OH quarterly: guides disagree on who files it; OH discount from excerpts); other states from excerpts or memory; open: a real return layout; (8b) `annualized`
+      UT monthly (OH quarterly: guides disagree on who files it; OH discount from excerpts); TX, FL and GA discounts
+      preset from search excerpts, 1.25% prepayment not modelled; the rest
+      from excerpts or memory; open: a real return layout; (8b) `annualized`
       (Schedule AI): percentages matched to the 2024 form by excerpt
       2026-10-30, factors to state forms, federal text unread (irs.gov
       blocked); (9) EITC: built-in 2025 and 2026 schedules (Schedule EIC
