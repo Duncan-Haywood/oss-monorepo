@@ -34,6 +34,11 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 30 (2026-11-07, eval/probe30.mjs): 3D-print sellers, chimney sweeps, appliance repair, arborists, professional organizers.
+  ["6170", "out", /fireplace institute/],
+  ["6060", "out", /ultimaker cura|chimney inspection software|cura cloud/],
+  ["6100", "out", /flue liner|container store|elfa shelving/],
+  ["4000", "in", /printables.*(sales|payout)|chimney (cleaning|sweep|inspection).*(customer|payment)|appliance service call|tree (removal|trimming|service).*(customer|payment)/],
   // Gap probe 29 (2026-11-07, eval/probe29.mjs): court reporters, window-film installers, bike repair, solar installers, interpreters.
   // Placed first: "energy", "permit" and "membership" otherwise hit utilities (6140) and marketing (6000).
   ["6110", "out", /(electrical|solar|building) permit|court reporter licen[cs]e/],
