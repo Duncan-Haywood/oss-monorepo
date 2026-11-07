@@ -58,7 +58,23 @@ export function validateStucco(d) {
   range("maxRunFt", 4, 60, "maxRunFt must be between 4 and 60 feet.");
   range("maxPanelSqFt", 20, 1000, "maxPanelSqFt must be between 20 and 1000.");
   range("trimStock", 48, 240, "trimStock must be between 48 and 240 inches.");
+  if (d.fastenerBoxCount != null && !(Number.isInteger(d.fastenerBoxCount) && d.fastenerBoxCount >= 1 && d.fastenerBoxCount <= 100000)) e.push("fastenerBoxCount must be a whole number from 1 to 100000.");
   return e;
+}
+
+/** Refuse a plan the layout cannot read, with a reason (null plan, no wall list, bad wall or opening sizes).
+ * @param {any} plan */
+function checkPlan(plan) {
+  if (plan == null || typeof plan !== "object" || !Array.isArray(plan.walls)) return ["Stucco needs a plan with a list of walls."];
+  for (const w of plan.walls) {
+    if (w == null || typeof w !== "object") return ["Each wall must be an object."];
+    if (!(typeof w.length === "number" && w.length >= 0 && w.length <= 120000)) return [`Wall ${w.id ?? ""} length must be a number from 0 to 120000 inches.`];
+    if (w.openings != null && !Array.isArray(w.openings)) return [`Wall ${w.id ?? ""} openings must be a list.`];
+    for (const o of w.openings || []) {
+      if (o == null || typeof o !== "object" || !(typeof o.width === "number" && o.width >= 0 && o.width <= 120000) || !(typeof o.height === "number" && o.height >= 0 && o.height <= 120000)) return [`Wall ${w.id ?? ""} has an opening whose width or height is not a number from 0 to 120000 inches.`];
+    }
+  }
+  return [];
 }
 
 /**
@@ -68,6 +84,8 @@ export function validateStucco(d) {
 export function layoutStucco(d, plan) {
   const errors = validateStucco(d);
   if (errors.length) return { ok: false, errors };
+  const planErrors = checkPlan(plan);
+  if (planErrors.length) return { ok: false, errors: planErrors };
   const sd = layoutSiding({ height: d.height }, plan);
   if (!sd.ok) return { ok: false, errors: sd.errors.map((/** @type {string} */ m) => m.replace(/^Siding/, "Stucco")) };
   const waste = d.waste ?? 0.1, height = sd.height;
