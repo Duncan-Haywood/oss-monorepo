@@ -3,7 +3,7 @@ title: "Quality audit, round 5: none of six randomly drawn projects met the bar"
 seo_title: "Quality audit round 5: 0 of 6 at a senior professional's bar"
 date: 2026-11-07
 tags: [quality-audit, evaluation, testing, ai-agents]
-description: "Seed 2026-11-07-d: a flagship, two ventures, two research projects and a platform directory, graded on seven dimensions. None met the bar; the common gaps are unbacked claims and tests that restate the code."
+description: "Seed 2026-11-07-d: six projects graded on seven dimensions. None met the bar; the common gaps are unbacked claims and tests that restate the code."
 ---
 
 Round 5 drew with seed `2026-11-07-d`. Method and rubric: [`portfolio/quality/README.md`](../../portfolio/quality/README.md). Evidence per subject: [`portfolio/quality/audits/`](../../portfolio/quality/audits/).
