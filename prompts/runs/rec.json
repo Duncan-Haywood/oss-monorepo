@@ -1,0 +1,51 @@
+{
+ "date": "2026-11-07",
+ "session": "https://claude.ai/code/session_01AcxTtHSVAcjUXxTZELBjA4",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-07T22:33:35Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13902",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "Bare python3 lacked torch; pip installed it for /usr/bin/python3 only, while /usr/local/bin/python3 (from pyenv.py) lacks it, so two interpreters were needed."
+  },
+  {
+   "file": "prompt.md",
+   "issue": "The record step's glob-by-session-prefix is easy to get wrong: all sessions share the prefix session_01Acx, and I overwrote another run's record by taking glob[0]; restored from origin/main."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-11-07-permit-duration-neural-vs-boosted-multiplicity.md",
+  "research/build-data/LOG.md session 49"
+ ],
+ "goal": null,
+ "notes": "Feeds reachable. test_paired_boot.py skipped (torch not in default interpreter); build.py ok. Prediction half-failed (pooled Holm 23 vs predicted 24-26).",
+ "corrections": [],
+ "redteam": null
+}
