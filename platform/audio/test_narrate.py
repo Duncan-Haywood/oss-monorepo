@@ -27,6 +27,10 @@ class Sentences(unittest.TestCase):
         long = "This first sentence is comfortably longer than the minimum unit."
         self.assertGreaterEqual(len(long), N.MIN_UNIT)
         self.assertEqual(N.sentences(long + " Yes."), [long + " Yes."])
+        # The "tiny" cutoff is MIN_UNIT // 2 (20 characters): 16 characters still merges.
+        mid = "Yes it was fine."
+        self.assertTrue(N.MIN_UNIT // 3 <= len(mid) < N.MIN_UNIT // 2)
+        self.assertEqual(N.sentences(long + " " + mid), [long + " " + mid])
 
     def test_keeps_abbreviations_and_acronyms_whole(self):
         units = N.sentences("We asked Dr. Okafor about it at length, over coffee. The A.I. Agent said nothing useful at all today.")
@@ -155,6 +159,16 @@ class Voicing(unittest.TestCase):
                 mock.patch.object(N, "ProcessPoolExecutor", side_effect=AssertionError("pool used")):
             out = n.voice_units(units)
         self.assertEqual(set(out), set(units))
+
+    def test_single_process_uses_every_core_as_threads(self):
+        from unittest import mock
+
+        n = N.Narrator(models=self.dir / "m", cache=self.dir / "c", g2p="espeak", workers=1)
+        with mock.patch.object(N, "ensure_models"), mock.patch.object(N, "_load") as load, \
+                mock.patch.object(N, "default_workers", return_value=(4, 1)), \
+                mock.patch.object(N, "_voice", return_value=np.zeros(10, dtype=np.float32)):
+            n.voice_units(["one long enough sentence here."])
+        self.assertEqual(load.call_args[0][1], 4)
 
     def test_empty_script_renders_nothing(self):
         n = N.Narrator(models=self.dir / "m", cache=self.dir / "c", g2p="espeak")

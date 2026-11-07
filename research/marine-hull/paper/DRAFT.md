@@ -113,6 +113,17 @@ The default drone is 2.4 times optimistic on the 2019 held-out days (model/obser
 
 Limits: the error model is synthetic (no archived NWP winds yet), the tack penalty is the only tack cost, wind is spatially uniform, and heel, waves and currents are absent. A reader should take the +5 points as an upper bound that needs roughly 1 to 2 hours of forecast skill.
 
+### 2.5.1 Reading of the wing-sail chain at a fielded tack price (milestones 6x to 6zb; numbers from `../LOG.md`)
+
+One sentence the section can carry: *at a measured tack cost of about 240 s, the only wind information that pays is skill a 3 km archived forecast does not have at these buoys, and no tuning of the tack rule recovers it.* The chain behind it, July 2024 holdout, 10 NDBC buoys, every 4th window, shares of the no-tack-cost bound:
+
+1. 6w measured the tack price (218 s, 127 to 301). 6x showed the header-follower's +3.2 point edge over corridor-edge tacking vanishes by 360 s (+2.3, +0.8, +0.0) while the clairvoyant stays 16 to 26 points above.
+2. 6z: a synthetic perfect-smoothed forecast gains +7.5, +8.7, +11.0 points at 120, 240, 360 s, so forecast value rises with tack cost; no-skill persistence only ties the header (-1.1 to +0.2).
+3. 6za: archived HRRR does not collect that gain. At 240 s bias-corrected HRRR (L = 1 h) is -2.4 points (95% -4.8 to -1.0) and raw -5.5 (-6.7 to -3.7), with more tacks than persistence (66 against 44 per day, raw L1).
+4. 6zb: a switch margin sweep (0 to 8 step-equivalents, margin read off January) takes bias-corrected HRRR to -0.2 (-1.9 to +0.0) at margin 4. The best cell is +0.0, not a gain: the margin converges HRRR on the header's roughly 42 tacks per day, i.e. it switches the forecast off.
+
+Limits to carry with it: one tack price per row (tau is pure dead time), 10 buoys with within-month windows not independent (intervals optimistic), buoy anemometer height not corrected, HRRR only (no ensemble or radar nowcast), and a margin grid not refined between 0.5 and 4. The open input is a forecast with real skill at 15 minutes.
+
 ## 2.4 Still to write
 
 4. Sensitivity: input ranking hotel > eta_pv > derate > c_s > k_form > wave scale
@@ -131,3 +142,4 @@ Limits: the error model is synthetic (no archived NWP winds yet), the tack penal
 2. Open and cite the Wave Glider sheet, the module datasheets and the Renewable Energy 2022 paper
    instead of the snippets.
 3. Sea-state resistance added to the solar-range model (milestone 6).
+4. Wing-sail part (2.5): a forecast source with measured skill at 15-minute scale (radar nowcast, upwind-buoy trend, or an ensemble) run through `sim_replan_dead` at tau 240 s; 6zb says tuning the tack rule on HRRR cannot supply it. Until then 2.5 claims only the negative chain of 2.5.1.

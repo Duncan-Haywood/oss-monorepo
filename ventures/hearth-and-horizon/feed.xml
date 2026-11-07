@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Forty Tickets</title>
+      <link>https://example.invalid/hearth-and-horizon/the-forty-tickets.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-forty-tickets.html</guid>
+      <pubDate>Sat, 07 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A parish raffle has 400 tickets and six prizes, and a man at the hall door has just bought 40 of them and says he is bound to win. The parish assistant works out what forty tickets really buy: a 47 per cent chance of at least one prize, not 60 and not certainty, and 157 tickets to reach 95 per cent. Setting: Saint Dympna's hall, an invented parish near Dundalk, Co. Louth, Saturday 8 November 2053. Read the full text at https://example.invalid/hearth-and-horizon/the-forty-tickets.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A parish raffle has 400 tickets and six prizes, and a man at the hall door has just bought 40 of them and says he is bound to win. The parish assistant works out what forty tickets really buy: a 47 per cent chance of at least one prize, not 60 and not certainty, and 157 tickets to reach 95 per cent.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Hundred and Twenty</title>
       <link>https://example.invalid/hearth-and-horizon/the-hundred-and-twenty.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-hundred-and-twenty.html</guid>
@@ -42,6 +52,16 @@
       <pubDate>Sat, 07 Nov 2026 12:00:00 GMT</pubDate>
       <description>A parish wants a concrete base for a bike shed. The ready-mix label says a 25 kg bag makes 12 litres, which means 24 bags. The parish assistant says to make one bag first and measure it; the real yield is 11.2 litres, the ground is uneven, and the answer is 29, not 24. Setting: Saint Ernan's hall yard, an invented parish near Strabane, Co. Tyrone, Saturday 14 June 2053. Read the full text at https://example.invalid/hearth-and-horizon/the-sack-that-makes-less.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
       <itunes:summary>A parish wants a concrete base for a bike shed. The ready-mix label says a 25 kg bag makes 12 litres, which means 24 bags. The parish assistant says to make one bag first and measure it; the real yield is 11.2 litres, the ground is uneven, and the answer is 29, not 24.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
+      <title>The Thermometer That Read Low</title>
+      <link>https://example.invalid/hearth-and-horizon/the-thermometer-that-read-low.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-thermometer-that-read-low.html</guid>
+      <pubDate>Sat, 07 Nov 2026 12:00:00 GMT</pubDate>
+      <description>Strawberry jam for the harvest stall sets at 105 degrees, says the recipe; the new probe thermometer says 105 and the jam is toffee. The parish assistant has her boil a pan of plain water first. The probe reads 1.5 degrees low, so the number to stop at is 103.5, and the sum shows what the mistake costs in jars. Setting: Saint Kea's hall kitchen, an invented parish near Truro, Cornwall, Saturday 21 June 2053. Read the full text at https://example.invalid/hearth-and-horizon/the-thermometer-that-read-low.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>Strawberry jam for the harvest stall sets at 105 degrees, says the recipe; the new probe thermometer says 105 and the jam is toffee. The parish assistant has her boil a pan of plain water first. The probe reads 1.5 degrees low, so the number to stop at is 103.5, and the sum shows what the mistake costs in jars.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
     </item>
