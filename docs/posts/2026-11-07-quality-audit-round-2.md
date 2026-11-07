@@ -39,4 +39,4 @@ The canonical `proposal.mjs` is re-synced to the 121-way consensus, and the `pro
 
 ## What is not at the bar
 
-Five of six miss on claims or verification. Across all 12 audited subjects, claims reach 3 in only 3, and a planted bug survived the tests in 5. The audits find tools that compute correctly and describe themselves too generously.
+Five of six miss on claims or verification. Across all 12 audited subjects, claims reach 3 in only 3, and verification is below 3 in 5. The audits find tools that compute correctly and describe themselves too generously.
