@@ -1,0 +1,56 @@
+{
+ "date": "2026-11-07",
+ "subject": "research/robofab-cell-mva",
+ "stratum": "research",
+ "seed": "2026-11-07",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a performance modeller / industrial engineer who teaches and publishes on closed queueing networks (Reiser-Lavenberg MVA, BCMP product form, multi-server approximations) and on automated manufacturing cells, reviewing for a simulation or manufacturing-systems venue; first check: does the multi-server load-dependent recursion reproduce the exact normalising-constant solution, and is the simulator validated where theory is exact",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran with /usr/local/bin/python3 (numpy present): `PYTHONPATH=src python3 -m unittest discover -s tests -v` 8 OK in 0.09 s; `python3 experiments/run.py` regenerated results.txt byte-identical (diff empty; git status clean). Recomputed independently in scratchpad ind.py (own code, no import of the subject): exact-rational brute-force normalising constant G(N-1)/G(N) with load-dependent weights prod D/min(k,m) (a different algorithm from the MVA recursion, Buzen/Baskett product form). (1) Hand demands: arm (4/0.9+4/0.8)/2=4.7222, print (20/0.9+60/0.8)/2=48.611, inspect 3.5417 min (matches cell_demands). (2) Mix, wip=P+2: P1 1.2317/h (published 1.23), P4 4.7718 (4.77), P8 8.6183 (8.62), P16 12.1285 (12.13). (3) Single type A: P1 2.6597 (2.66), P4 8.8566 (8.86). (4) Bound by hand at P4: min(6/56.875, 4/48.61)=0.0823/min=4.94/h (4.94). All MVA/bound values reproduce to the printed digits. Simulator not independently re-implemented (only checked via the author's own pf-vs-MVA agreement and the README's 4/5 within 2 s.e. claim, which I re-read from results.txt: -1.5,+0.3,+2.3,-0.5,+0.5). Percent errors in the headline bullets recomputed from the table (e.g. P4 hold/ln MVA +7.2%, bound +10.9%). Caveat: hold-mode (the real-cell semantics, the main object of findings 4-5) has no analytic benchmark, only a consistency note against the sibling project that was not run side by side.",
+  "completeness": "Checked claims: exact vs Markov chain to 9 places (test, passes); pf simulation within ~2 s.e. 4 of 5 (yes, 2.3 at P=4 as stated); mix errors -6.3% to +3.9% (yes); lognormal/det pessimism 8.2%/10.9% at P=12 (yes, rows present); bound vs MVA at 4/8/12/16 (yes, 10.9/17.4/9.3/0.8 vs 7.2/2.5/5.2/3.8); plateau at P=8 wip 20 (8.56 vs 9.79, yes); '8 tests <1 s' (yes), 'about 3 s' (yes). paper/whitepaper.md present (22 lines, consistent with README), figure.py and mva_vs_sim.png present (figure not regenerated), refs.bib has 5 entries. Live page URL not loaded (no check made). Next steps honestly list approximate MVA with blocking as unbuilt; the plateau cause is flagged as untested. Nothing is a stub. Scope is narrow but fully done.",
+  "verification": "8 tests pass. Seeded 6 one-line mutations in core logic, each reverted with git checkout (git status clean after): (1) mva.py residence time n/min(n,m) -> 1 (drops multi-server): 4 tests failed, caught. (2) cell_demands 1/(1-q) -> 1/(1+q): 2 failed, caught. (3) sim.py rework test `rng.random() < q` inverted: 2 failed, caught. (4) hold mode releases printer at print end instead of unload end: 3 failed, caught. (5) warm-up ignored (`if True`): 2 failed, caught. (6) hold_printer adds only load time instead of load+unload (the MVA-h predictor, a reported column in findings 3-5): 8 tests OK, NOT caught. So the exact-MVA core is well guarded (CTMC cross-check is a genuine independent oracle) but the MVA-h path and the hold-mode simulator have no quantitative test (test_hold_not_faster_than_pf is an inequality only). A wrong MVA-h demand would go straight into published numbers. Also tests use only 3 CTMC cases, and no test of balanced_bounds values.",
+  "craft": "Read mva.py (59 lines), sim.py (100), tests/test_mva.py (75), experiments/run.py (70). Clean, vectorised, docstrings state units and semantics, seeded RNG, fixed seeds, results regenerate deterministically. Defects: q_arm uses list.pop(0)/linear next() scans (fine at this size); `sim.py` simulate() is one 80-line function with nested closures and mutable nonlocals; no input validation (negative wip, q>=1 divides by zero, empty types); `new_job` keeps rng.choice per job (fine); `mva` p-array recomputed O(K N^2) with per-iteration allocations (immaterial); run.py hard-codes parameters with no CLI; pyproject depends on numpy only, no pytest needed (unittest). results.json is not read by the figure test. No silent fallbacks found. Acceptable for research code.",
+  "claims": "README headline bullets each map to rows in experiments/results.txt (checked above). It states limits (one class, no travel, independent failures, illustrative times, plateau cause untested, 20 seeds resolve only ~1%) and says 'Stylised'; it says references were not re-checked online. Weaknesses: the 'consistency check' against robofab-cell-bound is asserted from that README's numbers, not run; the Bolch ch. 8 chapter pointer is unverified here (no web); the 'bound' baseline is the simplest asymptotic bound, so 'MVA beats the utilisation bound in most rows' is a weak comparison, which the README does not flag. Parameters are admitted illustrative (A/B job times 'not measured'), consistent with research/CLAUDE.md only because it is disclosed, not sourced. No fabricated numbers found.",
+  "fitness": "A researcher can rebuild everything (3 s run) and reuse mva() as a correct multi-server closed-network solver, but the result is a modest fidelity comparison on invented parameters rather than a new method: nearest prior work is Reiser-Lavenberg 1980 and Bolch et al. 2006 (the solver itself), approximate multi-server MVA (Seidmann, Schweitzer and Shalev 1987), simultaneous-resource-possession / blocking models (Jacobson and Lazowska 1982; Akyildiz) and Buzacott-Shanthikumar's treatment of flexible manufacturing cells; the finding that exponential-MVA is pessimistic for low-variability service is textbook, and the held-printer under/over-prediction is the part nearest to new but is only measured, not modelled (MVA-h is ad hoc and the author recommends against it). The README names none of Seidmann, Jacobson-Lazowska or the FMS queueing literature. A manufacturing engineer sizing a real cell could not use it: no real step times, no travel, no changeovers.",
+  "domain": "A queueing-theory reviewer would accept the exact load-dependent MVA and the experiment design (one departure from product form at a time is good practice) but would object to: collapsing two job types into one class by averaged demand while the print station is FCFS with unequal means (BCMP violation, correctly noted); the lack of a validated simulator against any exact result for hold-and-wait; the weak baseline (asymptotic bound only; no balanced-job bounds, no Marie/Seidmann/Whitt two-moment approximation, which is where a practitioner would look for the cv effect); 20 replications of a 24 h run with a single 4 h warm-up and no batch-means or transient-bias check; and reporting percent errors without confidence intervals on the error. Method is sound for what it claims, short of publishable standard."
+ },
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The MVA-h predictor (hold_printer=True in cell_demands), reported in findings 3 to 5, is untested: a seeded mutation (load only instead of load+unload) passes all 8 tests.",
+   "where": "research/robofab-cell-mva/src/robofab_cell_mva/mva.py:48"
+  },
+  {
+   "severity": "medium",
+   "what": "Hold-mode simulator (the real-cell semantics behind the headline comparison with the bound) has no quantitative test or analytic benchmark; only an inequality hold<=pf and seed determinism.",
+   "where": "research/robofab-cell-mva/tests/test_mva.py:70"
+  },
+  {
+   "severity": "medium",
+   "what": "Weak comparison baseline (asymptotic utilisation bound only) and no citation of the approximate multi-server MVA / simultaneous-resource-possession literature, so novelty of the held-printer result is not placed.",
+   "where": "research/robofab-cell-mva/README.md:30"
+  },
+  {
+   "severity": "low",
+   "what": "No input validation: q>=1 or empty/zero-weight types divide by zero or yield nan silently.",
+   "where": "research/robofab-cell-mva/src/robofab_cell_mva/mva.py:42"
+  },
+  {
+   "severity": "low",
+   "what": "Cross-check against robofab-cell-bound and the cause of the high-WIP plateau are asserted or conjectured, not run; live page and refs not verified.",
+   "where": "research/robofab-cell-mva/README.md:20"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A small, honest, correct piece of research code: the exact multi-server MVA reproduces an independent exact-rational normalising-constant solution at every point I recomputed (1.23, 4.77, 8.62, 12.13, 2.66, 8.86 parts/h, plus the bound) and the full experiment regenerates byte-identically in 3 s, so correctness, completeness and claims are at a senior level. It does not meet the bar because verification is 2: five of six seeded mutations were caught, but the MVA-h predictor reported in the findings is unguarded and the hold-mode simulator has no quantitative check. Fitness and domain are 2: parameters are invented, the baseline is the weakest available bound, the central MVA behaviour is textbook, and the related blocking / simultaneous-possession literature is not cited, so a queueing specialist would call it a good teaching note rather than a publishable result."
+}
