@@ -11,6 +11,7 @@ TURN_RATE = 6.0     # deg/s own heading rate limit (placeholder for a small boat
 DT = 1.0
 WAYPOINT = (0.0, 3000.0)
 STANDON_RANGE = 300.0   # stand-on vessel acts only inside this range (Rule 17a/b); swept
+MPC_W = (1.0, 0.02, 3.0)   # default sampling-MPC cost weights (shortfall, deviation, port-turn); tuned in experiments/run_tune.py
 ACT_RANGE = 900.0   # planners ignore targets farther than this (sensor/horizon limit)
 
 
@@ -113,9 +114,10 @@ def plan_vo(s, role, rng):
     return (g + (90 if role in ("giveway", "headon") else cands[-1])) % 360.0
 
 
-def plan_mpc(s, role, rng, w=(1.0, 0.02, 3.0), horizon=150):
+def plan_mpc(s, role, rng, w=None, horizon=150):
     """Sampling MPC: first leg of 25 s at a sampled offset from the goal heading, then back to goal.
     Cost = w0*shortfall^2/D_SAFE^2*1e3 + w1*extra path + w2*port-turn penalty (give-way/head-on)."""
+    w = MPC_W if w is None else w
     g = goal_heading(s["p"])
     rel = (s["tp"][0] - s["p"][0], s["tp"][1] - s["p"][1])
     r = math.hypot(*rel)

@@ -1,3 +1,5 @@
 # Log
 
+- 2026-11-07, milestone 2 (CMA-ES against random search for the MPC weights; prediction written after launching `experiments/run_tune.py`, before reading any output). Question: does tuning the three sampling-MPC cost weights (log10 space, [-3, 3]) with CMA-ES at 90 evaluations beat uniform random search at the same budget, on held-out offsets (-100/0/+100 m) never seen in training (+-50 m)? **Prediction:** CMA-ES's mean held-out loss is lower than random search's (prior 60%), and both beat the untuned default weights (1, 0.02, 3) on mean held-out loss across sigma_v 0/0.3/0.6 (prior 70%); the gap between CMA-ES and random is under 0.02 loss (prior 65%) because the loss surface over three weights is flat once the shortfall term dominates. Refuted if the default beats the median tuned config, or random beats CMA-ES on the mean. Loss = 1 - share(safe and compliant) + 0.5 x mean detour / 1000 m.
+
 - 2026-10-31: milestone 1. Kinematic encounter library (115 cases), three planners, sensing-noise and stand-on-range sweeps. Results in `experiments/results.txt`.
