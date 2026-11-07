@@ -670,3 +670,46 @@ export function linkStairReaction(plan, parseLength) {
   hc.stairReaction = sk.totalReaction; hc.stairReactionLive = sk.totalReactionLive;
   return null;
 }
+
+// Spiral stairs (2026-11-07): the model residential code's spiral exception
+// (IRC R311.7.10.1 as typed in SPIRAL_LIMITS; the edition is the user's to
+// confirm): 26 in clear width, a tread at least 6-3/4 in deep measured 12 in
+// from the narrow edge, a riser no taller than 9-1/2 in, 6 ft 6 in of headroom
+// and equal treads. Each of `treadsPerTurn` treads turns 360/treadsPerTurn
+// degrees about the centre pole; depth is radius x angle (the arc, as for
+// winders). Hand-arithmetic tests only; no real spiral stair plan or maker's table.
+export const SPIRAL_LIMITS = { minClearWidth: 26, walkline: 12, minWalkDepth: 6.75, maxRiser: 9.5, headroom: 78 };
+
+/** @param {{ totalRise: number, outerDiameter: number, poleDiameter?: number, treadsPerTurn?: number, handrailIntrusion?: number, limits?: Partial<typeof SPIRAL_LIMITS> }} s */
+export function checkSpiral(s) {
+  const L = { ...SPIRAL_LIMITS, ...(s.limits || {}) };
+  const { totalRise, outerDiameter } = s, pole = s.poleDiameter ?? 4, per = s.treadsPerTurn ?? 12, rail = s.handrailIntrusion ?? 0;
+  const errors = [];
+  for (const [k, v] of [["totalRise", totalRise], ["outerDiameter", outerDiameter]]) if (!(typeof v === "number" && Number.isFinite(v) && v > 0)) errors.push(`${k} is a positive number of inches.`);
+  if (!(typeof pole === "number" && pole >= 0)) errors.push("The pole diameter is zero or more.");
+  if (!Number.isInteger(per) || per < 3) errors.push("Treads per turn is a whole number of three or more.");
+  if (!(typeof rail === "number" && rail >= 0)) errors.push("The handrail intrusion is zero or more.");
+  if (!errors.length && outerDiameter <= pole) errors.push("The outer diameter must exceed the pole diameter.");
+  if (errors.length) return { ok: false, errors };
+  const theta = (2 * Math.PI) / per, rOut = outerDiameter / 2, rPole = pole / 2;
+  const clearWidth = rOut - rPole - rail;
+  const walkDepth = (rPole + L.walkline) * theta;
+  const risers = Math.ceil(totalRise / L.maxRiser - 1e-9), riser = totalRise / risers;
+  const problems = [];
+  if (clearWidth < L.minClearWidth - 1e-9) problems.push(`clear width ${clearWidth.toFixed(2)} in is under ${L.minClearWidth} in`);
+  if (walkDepth < L.minWalkDepth - 1e-9) problems.push(`tread ${L.walkline} in from the narrow edge is ${walkDepth.toFixed(2)} in deep, under ${L.minWalkDepth} in`);
+  // Most treads per turn that still pass the depth rule, i.e. the steepest fan.
+  const maxPerTurn = Math.floor((2 * Math.PI * (rPole + L.walkline)) / L.minWalkDepth + 1e-9);
+  // Headroom: one full turn climbs per*riser; the opening above a tread must clear `headroom`.
+  const turnRise = per * riser, headroomOk = turnRise >= L.headroom - 1e-9;
+  if (!headroomOk) problems.push(`one turn climbs ${turnRise.toFixed(2)} in, under the ${L.headroom} in of headroom: the opening above would be too low`);
+  return { ok: problems.length === 0, risers, treads: risers - 1, riser, anglePerTread: 360 / per, clearWidth, walkDepth, maxTreadsPerTurn: maxPerTurn, turnRise, problems, limits: L };
+}
+
+export function spiralText(c) {
+  if (!c.problems) return c.errors.map((e) => `  - ${e}`);
+  return [
+    `  Spiral stair: ${c.risers} risers of ${c.riser.toFixed(3)} in (limit ${c.limits.maxRiser} in), ${c.treads} treads of ${c.anglePerTread.toFixed(1)} degrees, clear width ${c.clearWidth.toFixed(2)} in, ${c.walkDepth.toFixed(2)} in deep ${c.limits.walkline} in from the narrow edge`,
+    c.ok ? "  The spiral passes the rules as typed." : `  The spiral fails: ${c.problems.join("; ")}. At most ${c.maxTreadsPerTurn} treads per turn pass the depth rule.`,
+  ];
+}

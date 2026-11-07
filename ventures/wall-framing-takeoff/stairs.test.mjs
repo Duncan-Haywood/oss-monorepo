@@ -636,3 +636,26 @@ test("layoutStair refuses null/non-object settings and a bad rail with a reason 
   assert.equal(layoutStair({ totalRise: 108, tread: 10, rail: "yes" }, plan()).ok, false);
   assert.equal(layoutStair({ totalRise: 108, tread: 10, rail: { sides: 2 } }, plan()).ok, true);
 });
+
+import { checkSpiral, spiralText } from "./stairs.mjs";
+test("spiral stair: hand-computed", () => {
+  // 60 in outer diameter, 4 in pole, 12 treads per turn, 110 in rise.
+  const c = checkSpiral({ totalRise: 110, outerDiameter: 60, poleDiameter: 4, treadsPerTurn: 12 });
+  assert.equal(c.risers, 12); // ceil(110 / 9.5) = 12
+  assert.ok(Math.abs(c.riser - 110 / 12) < 1e-9);
+  assert.ok(Math.abs(c.clearWidth - 28) < 1e-9); // 30 - 2
+  assert.ok(Math.abs(c.walkDepth - 14 * (Math.PI / 6)) < 1e-9); // 7.330
+  assert.equal(c.ok, true);
+  assert.equal(c.maxTreadsPerTurn, 13); // floor(2 pi 14 / 6.75) = floor(13.03)
+  // 48 in outer diameter leaves 22 in clear: fails width.
+  const n = checkSpiral({ totalRise: 110, outerDiameter: 48 });
+  assert.equal(n.ok, false); assert.match(n.problems[0], /clear width/);
+  // 16 treads per turn: depth 14 * pi/8 = 5.50 in < 6.75.
+  const d = checkSpiral({ totalRise: 110, outerDiameter: 60, treadsPerTurn: 16 });
+  assert.equal(d.ok, false); assert.ok(d.problems.some((p) => /deep/.test(p)));
+  // Low rise per turn: 6 treads of 9 in = 54 in < 78 headroom.
+  assert.equal(checkSpiral({ totalRise: 54, outerDiameter: 60, treadsPerTurn: 6 }).ok, false);
+  assert.equal(checkSpiral({ totalRise: 0, outerDiameter: 60 }).ok, false);
+  assert.equal(checkSpiral({ totalRise: 100, outerDiameter: 3, poleDiameter: 4 }).ok, false);
+  assert.ok(spiralText(c)[0].includes("12 risers"));
+});
