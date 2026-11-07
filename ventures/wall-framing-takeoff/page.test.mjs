@@ -1065,3 +1065,23 @@ test("the dormer calculator page: FAQ matches its data and the stated figures ar
   assert.equal(b.geometry.rise, 18); assert.equal(b.geometry.ridgeLength, 153); assert.equal(b.geometry.commonLength, 40.25);
   assert.equal(b.geometry.valleyLength, 48.4375); assert.equal(b.areas.roofSqFt, 78);
 });
+
+test("the header checker page: FAQ matches its data and the stated figures are what the engine gives", async () => {
+  const html = page("header-calculator.html");
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("([\w-]+)"\)/g)) assert.ok(ids.has(m[1]), m[1]);
+  const { resolveHeaders } = await import("./headers.mjs");
+  const { samplePlan } = await import("./engine.mjs");
+  const d = JSON.parse(html.match(/<textarea[^>]*>(.*?)<\/textarea>/s)[1]);
+  const a = resolveHeaders({ ...samplePlan(), ...d });
+  assert.equal(a.ok, true);
+  assert.deepEqual(a.rows.map((r) => [r.required, r.chosen, r.status]), [["2 x 2x8", "2 x 2x8", "set"], ["2 x 2x6", "2 x 2x6", "ok"], ["2 x 2x10", "2 x 2x8", "under"]]);
+  const b = resolveHeaders({ ...samplePlan(), ...d, headerTable: d.headerTable.slice(0, 2) });
+  assert.equal(b.ok, false);
+  assert.match(b.errors[0], /wider than the table's longest span \(5' 0"\)/);
+});
