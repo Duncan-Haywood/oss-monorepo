@@ -24,7 +24,7 @@ test("the labelled controls exist and nothing can send data anywhere", () => {
 test("the module scripts import only local files", () => {
   const html = page("index.html");
   const imports = [...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(imports.sort(), ["./calc.mjs", "./usage.mjs"]);
+  assert.deepEqual(imports.sort(), ["./calc.mjs", "./menupage.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
 });
 
