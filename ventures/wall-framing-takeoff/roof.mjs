@@ -82,7 +82,7 @@ export function validateRoof(r, plan) {
     if (!(w.projection >= 24 && w.projection <= 1200)) errors.push("Wing projection (main wall to the wing's gable wall) must be between 2 ft and 100 ft.");
     const at = w.at ?? r.length / 2;
     if (!(at - w.width / 2 >= 0 && at + w.width / 2 <= r.length)) errors.push("The wing must sit inside the main roof's length: `at` (its centre, from the first gable wall) +- half its width.");
-    if (w.valley && !(w.valley in DEPTH)) errors.push(`Unknown valley size ${w.valley}.`);
+    if (w.valley && !Object.hasOwn(DEPTH, w.valley)) errors.push(`Unknown valley size ${w.valley}.`);
     else if (w.valley && !plan.stock.some((s) => s.size === w.valley)) errors.push(`No ${w.valley} boards listed in the stock.`);
   }
   if (r.wing && r.wing2) {
@@ -92,7 +92,7 @@ export function validateRoof(r, plan) {
   if (!r.trusses) {
     const sizes = [["rafter", r.rafter ?? "2x8"], ...(r.ridge ? [["ridge", r.ridge]] : []), ...(r.ceilingJoist ? [["ceiling joist", r.ceilingJoist]] : [])];
     for (const [what, size] of sizes) {
-      if (!(size in DEPTH)) errors.push(`Unknown ${what} size ${size}.`);
+      if (!Object.hasOwn(DEPTH, size)) errors.push(`Unknown ${what} size ${size}.`);
       else if (!plan.stock.some((s) => s.size === size)) errors.push(`No ${size} boards listed in the stock.`);
     }
   }
@@ -146,7 +146,7 @@ function layoutHip(r, plan) {
   const k = slopeFactor(r.pitch);
   const notes = [];
   const size = r.rafter ?? "2x8", hipSize = r.hip ?? size;
-  if (!(hipSize in DEPTH)) return { ok: false, errors: [`Unknown hip size ${hipSize}.`] };
+  if (!Object.hasOwn(DEPTH, hipSize)) return { ok: false, errors: [`Unknown hip size ${hipSize}.`] };
   if (!plan.stock.some((s) => s.size === hipSize)) return { ok: false, errors: [`No ${hipSize} boards listed in the stock.`] };
   const longestOf = (sz) => Math.max(...plan.stock.filter((s) => s.size === sz).map((s) => s.length));
   const ridgeT = r.ridge ? THICK : 0;

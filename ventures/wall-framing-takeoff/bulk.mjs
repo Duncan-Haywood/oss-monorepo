@@ -18,6 +18,7 @@ export const PRESETS = {
   sand: { tonsPerYard: 1.35, compaction: 1.1, depth: 1 },
 };
 const NUMS = ["tonsPerYard", "compaction", "waste", "bagCuFt", "minYards", "pricePerYard", "pricePerTon", "pricePerBag"];
+const isPreset = (/** @type {any} */ n) => typeof n === "string" && Object.hasOwn(PRESETS, n);
 const up = (/** @type {number} */ x) => Math.ceil(x - 1e-9);
 const r2 = (/** @type {number} */ x) => Math.round(x * 100) / 100;
 
@@ -30,7 +31,7 @@ export function validateBulk(d) {
   const m = d.material ?? {};
   if (typeof m !== "object" || Array.isArray(m)) e.push("`material` is an object.");
   else {
-    if (m.name != null && !(m.name in PRESETS)) e.push(`material.name is one of: ${Object.keys(PRESETS).join(", ")} (or type tonsPerYard yourself).`);
+    if (m.name != null && !isPreset(m.name)) e.push(`material.name is one of: ${Object.keys(PRESETS).join(", ")} (or type tonsPerYard yourself).`);
     e.push(...textNumberErrors(m, NUMS));
     for (const k of NUMS) if (m[k] != null && (!Number.isFinite(m[k]) || m[k] < 0)) e.push(`material.${k} must be zero or more.`);
     if (m.compaction != null && m.compaction < 1) e.push("material.compaction is 1 or more (1 = none).");
@@ -45,7 +46,7 @@ export function validateBulk(d) {
     for (const k of dims) if (a[k] != null && (!Number.isFinite(a[k]) || a[k] <= 0 || a[k] > 100000)) e.push(`${w}: ${k} must be above zero and at most 100,000.`);
     const shapes = [a.length != null && a.width != null, a.diameter != null, a.areaSqFt != null].filter(Boolean).length;
     if (shapes !== 1) e.push(`${w}: type exactly one of length and width, diameter, or areaSqFt.`);
-    if (a.depth == null && !(m.name in PRESETS)) e.push(`${w}: type a depth in inches (or pick a material name for its default).`);
+    if (a.depth == null && !isPreset(m.name)) e.push(`${w}: type a depth in inches (or pick a material name for its default).`);
     if (a.depth != null && a.depth > 120) e.push(`${w}: depth is in inches; ${a.depth} in is over 10 ft.`);
   });
   return e;
@@ -55,7 +56,7 @@ export function validateBulk(d) {
 export function layoutBulk(d) {
   const errors = validateBulk(d);
   if (errors.length) return { ok: false, errors };
-  const pre = /** @type {any} */ (PRESETS)[d.material?.name] ?? {};
+  const pre = isPreset(d.material?.name) ? /** @type {any} */ (PRESETS)[d.material.name] : {};
   const m = { tonsPerYard: 1.4, compaction: 1, waste: 0.05, bagCuFt: 0.5, minYards: 0, ...pre, ...(d.material ?? {}) };
   /** @type {string[]} */
   const notes = [];

@@ -38,9 +38,9 @@ export function validateDeck(d) {
   if (!(d.width >= 48 && d.width <= 600)) errors.push("Deck width (along the house) must be between 4 ft and 50 ft.");
   if (!(d.depth >= 48 && d.depth <= 360)) errors.push("Deck depth (out from the house) must be between 4 ft and 30 ft.");
   if (!(d.height >= 6 && d.height <= 120)) errors.push("Deck height above grade must be between 6 in and 10 ft.");
-  if (!((d.joist ?? "2x8") in NOMINAL)) errors.push(`Unknown joist size ${d.joist}.`);
-  if (!((d.beam ?? "2x10") in NOMINAL)) errors.push(`Unknown beam size ${d.beam}.`);
-  if (!((d.postSize ?? "6x6") in POST)) errors.push(`Unknown post size ${d.postSize}; use 4x4 or 6x6.`);
+  if (!Object.hasOwn(NOMINAL, d.joist ?? "2x8")) errors.push(`Unknown joist size ${d.joist}.`);
+  if (!Object.hasOwn(NOMINAL, d.beam ?? "2x10")) errors.push(`Unknown beam size ${d.beam}.`);
+  if (!Object.hasOwn(POST, d.postSize ?? "6x6")) errors.push(`Unknown post size ${d.postSize}; use 4x4 or 6x6.`);
   if (!([12, 16, 24].includes(d.spacing ?? 16))) errors.push("Joist spacing must be 12, 16 or 24 inches.");
   const plies = d.beamPlies ?? 2;
   if (![1, 2, 3].includes(plies)) errors.push("Beam plies must be 1, 2 or 3.");

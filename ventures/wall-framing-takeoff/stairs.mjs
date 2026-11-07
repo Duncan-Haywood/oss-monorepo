@@ -56,9 +56,9 @@ export function validateStair(s) {
   if (!(s.totalRise >= 12)) errors.push("Total rise (finished floor to finished floor) must be at least 1 ft.");
   else if (s.totalRise > L.maxRise) errors.push(`A flight can rise at most ${formatLength(L.maxRise)} between landings; ${formatLength(s.totalRise)} needs a landing, so lay out each flight on its own.`);
   if (s.tread != null && !(s.tread >= L.minTread)) errors.push(`Tread ${s.tread} in is under the ${L.minTread} in minimum.`);
-  if (s.stringer && !(s.stringer in DEPTH)) errors.push(`Unknown stringer size ${s.stringer}.`);
-  if (s.treadBoard && !(s.treadBoard in DEPTH)) errors.push(`Unknown tread board size ${s.treadBoard}.`);
-  if (s.riserBoard && !(s.riserBoard in DEPTH)) errors.push(`Unknown riser board size ${s.riserBoard}.`);
+  if (s.stringer && !Object.hasOwn(DEPTH, s.stringer)) errors.push(`Unknown stringer size ${s.stringer}.`);
+  if (s.treadBoard && !Object.hasOwn(DEPTH, s.treadBoard)) errors.push(`Unknown tread board size ${s.treadBoard}.`);
+  if (s.riserBoard && !Object.hasOwn(DEPTH, s.riserBoard)) errors.push(`Unknown riser board size ${s.riserBoard}.`);
   if (s.width != null && !(s.width >= L.minWidth)) errors.push(`Stair width ${s.width} in is under the ${L.minWidth} in minimum.`);
   if (s.width != null && s.width > 120) errors.push("Stair width over 10 ft is outside what this layout checks.");
   if (s.stringerSpacing != null && !(s.stringerSpacing > 0 && s.stringerSpacing <= 48)) errors.push(`Stringer spacing ${s.stringerSpacing} in must be over 0 and at most 48 in.`);
@@ -384,7 +384,7 @@ export function layoutStairWithLanding(input, plan) {
   const upper = layoutStair({ ...rest, id: `${id}, upper flight`, totalRise: rise2, ...(openingLength != null ? { openingLength } : {}) }, plan);
   const errors = [...(lower.ok ? [] : lower.errors), ...(upper.ok ? [] : upper.errors)];
   const joistSize = lc.joist || "2x8", deckSize = lc.deckBoard || input.treadBoard || "2x12", spacing = lc.spacing || 16;
-  for (const [k, v] of [["joist", joistSize], ["deck board", deckSize]]) if (!(v in DEPTH)) errors.push(`Unknown landing ${k} size ${v}.`);
+  for (const [k, v] of [["joist", joistSize], ["deck board", deckSize]]) if (!Object.hasOwn(DEPTH, v)) errors.push(`Unknown landing ${k} size ${v}.`);
   if (errors.length) return { ok: false, id, errors };
   const joists = Math.ceil((width - THICK) / spacing - 1e-9) + 1;
   const deckBoards = Math.ceil((depth + 0.25) / (DEPTH[deckSize] + 0.25) - 1e-9);
@@ -515,7 +515,7 @@ export function checkLandingJoists(j, c) {
   if (!inr(c?.Fv, 50, 500)) errors.push("joistCheck.Fv is the joist's allowable shear stress in psi (50 to 500).");
   if (!inr(c?.E, 200000, 3000000)) errors.push("joistCheck.E is the joist's modulus of elasticity in psi (200000 to 3000000).");
   if (c?.deflLimit != null && !inr(c.deflLimit, 120, 720)) errors.push("joistCheck.deflLimit is the span ratio (L/360 by default), 120 to 720.");
-  if (!(j.size in DEPTH)) errors.push(`Unknown landing joist size ${j.size}.`);
+  if (!Object.hasOwn(DEPTH, j.size)) errors.push(`Unknown landing joist size ${j.size}.`);
   if (errors.length) return { ok: false, errors };
   const b = THICK, d = DEPTH[j.size], L = j.span, lim = c.deflLimit ?? 360;
   const w = ((c.deadPsf + c.livePsf) * j.spacing) / 144, wl = (c.livePsf * j.spacing) / 144; // lb per inch
