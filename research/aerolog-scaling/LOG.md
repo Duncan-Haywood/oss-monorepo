@@ -2,6 +2,17 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+
+## 2026-11-07 · Milestone 10d: restate 10a's battery range with the non-energy fraction swept over the NASA band 0.48 to 0.62 (predictions fixed before the run, worked by hand from 10a's formulas)
+- Why: 10c's "Next": 10a's structure 0.35 plus motors (about 0.05) gives a non-energy fraction of about 0.40, low for all seven NASA NDARC designs (0.48 to 0.62, NTRS 20180003381). `experiments/vtol_sizing/fnon_sweep.py` (stdlib, reuses 10a's `fractions`) replaces structure plus propulsion with a fixed non-energy fraction f_non and keeps 10a's energy model, 15% payload floor and 20% reserve.
+- **Predictions:** (P1) at 250 Wh/kg the one-way range is about 166 km at 0.48, 131 km at 0.55 and 97 km at 0.62 (10a's 203 km at about 0.40 reproduced); (P2) the cell energy for 200 km is about 300, 365 and 480 Wh/kg at 0.48, 0.55, 0.62; (P3) so the whole NASA band moves 200 km from reachable at a 250 Wh/kg cell to needing 300 to 480.
+### Outcome (`experiments/vtol_sizing/fnon_sweep_results.txt`)
+- **P1 held.** 10a's base case has f_non 0.402 and gives 204 km (10a: 203). At 250 Wh/kg: 166 km at 0.48, 131 at 0.55, 97 at 0.62. At 400 Wh/kg: 336, 275, 220, 165 km.
+- **P2 held.** Cell energy for 200 km: 246 (0.402), 298 (0.48), 367 (0.55), 478 (0.62) Wh/kg; for 300 km 359 to 700.
+- **P3 held.** Across the NASA band a 250 Wh/kg cell reaches 97 to 166 km, not 203; 200 km needs about 300 to 480 Wh/kg, above today's usable cells. The predictions were hand-worked from the same formulas, so this confirms the code, not the physics.
+- Limits: the band comes from seven NDARC concept designs (10b, 10c), not a flown cargo aircraft; f_non is held fixed regardless of payload and range, though structure and motors would scale with MTOW and hover power; no size law.
+- Next: a flown or announced cargo VTOL with published empty and payload weight to place f_non on that band.
+
 ## 2026-11-07 · Milestone 10c: do the 10b energy model and the non-energy fraction carry over to the NASA fuel-burning designs? (predictions fixed before the run)
 - Why: 10b's "Next" asked for the tiltwing (Table 11) to see whether the non-energy fraction follows payload or configuration. Same source (NTRS 20180003381, Tables 10 and 11, mission from Table 1: hover pair per 50 nm leg, so 200 nm is 4 legs and 400 nm is 8). `experiments/nasa_fuel_check/run.py` (stdlib) applies 10b's shaft-energy model to the two turboshaft designs and compares the five fuel or generator designs' WO/GW with the two battery-electric ones.
 - **Predictions:** (P1) implied sfc (published takeoff fuel over model shaft energy) is 0 to +30% above each engine's published MCP SLS sfc; (P2) the five fuel/generator designs have a WO/GW spread under 0.07 and the two battery-electric designs fall outside that band; (P3) turboshaft 1,200 lb and 3,000 lb designs differ by under 0.05.
