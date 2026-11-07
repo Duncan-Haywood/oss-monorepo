@@ -2,7 +2,7 @@
 title: "Quality audit round 9: none of six at the bar"
 date: 2026-11-07
 tags: [quality-audit, evaluation, testing, ai-agents]
-description: "Seed 2026-11-07, six new subjects: none meets the bar. Four of the six pass their tests with core constants changed, and the platform's own test suite is red on main."
+description: "Seed 2026-11-07, six new subjects: none meets the bar. Four of six pass their tests with a core constant or sign changed, and a platform test was red on main."
 ---
 
 Method and rubric: [`portfolio/quality/README.md`](../../portfolio/quality/README.md). Evidence per subject: [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Scores are before any fix.
