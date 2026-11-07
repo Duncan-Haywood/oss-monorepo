@@ -1,6 +1,8 @@
 ---
 title: "Fixing one sourced number shrinks the Wingcopter drag gap"
 date: 2026-11-07
+description: "Fixing the Wingcopter 198 wingspan at its published 1.98 m shrinks the zero-lift drag needed to match its quoted 94 km range to 1.5 to 3 times a clean airframe."
+tags: [research, uav, aerolog-scaling]
 ---
 
 A cargo VTOL that carries 25 kg should fly further than the 94 km its maker quotes if it were a clean airframe. Yesterday's check said the zero-lift drag needed to match 94 km was two to four times a clean aircraft's. That sweep let aspect ratio vary on its own, which a real wing cannot do.
