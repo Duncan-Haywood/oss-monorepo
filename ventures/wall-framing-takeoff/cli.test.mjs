@@ -429,3 +429,23 @@ test("--orders prints order-by dates and flags late items against a given day", 
   const bad = run(["plan.json", "--orders"], { ...plan, schedule: { ...plan.schedule, orders: undefined } });
   assert.equal(bad.code, 1);
 });
+
+test("--json: a refusal prints {ok:false, errors} on stdout, keeps the exit code and the text on stderr", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const { writeFileSync, mkdtempSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const dir = mkdtempSync(join(tmpdir(), "wft-"));
+  const ex = spawnSync("node", ["cli.mjs", "--example"], { encoding: "utf8" });
+  writeFileSync(join(dir, "p.json"), ex.stdout);
+  const r = spawnSync("node", ["cli.mjs", join(dir, "p.json"), "--roof", "--json"], { encoding: "utf8" });
+  assert.equal(r.status, 2);
+  const j = JSON.parse(r.stdout);
+  assert.equal(j.ok, false);
+  assert.equal(j.code, 2);
+  assert.ok(j.errors[0].includes("no `roof` object"));
+  assert.ok(r.stderr.includes("no `roof` object"));
+  const good = spawnSync("node", ["cli.mjs", join(dir, "p.json"), "--json"], { encoding: "utf8" });
+  assert.equal(good.status, 0);
+  assert.ok(JSON.parse(good.stdout).walls);
+});

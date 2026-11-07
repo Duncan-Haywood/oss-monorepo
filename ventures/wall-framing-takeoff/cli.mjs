@@ -481,6 +481,10 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { code, out, bytes } = main(process.argv.slice(2));
   if (bytes) process.stdout.write(bytes);
-  else (code ? process.stderr : process.stdout).write(out + "\n");
+  else if (code && process.argv.includes("--json") && !/^\s*[\[{]/.test(out)) {
+    // A script asking for JSON gets JSON on stdout for a refusal too, with the same exit code (text still goes to stderr).
+    process.stdout.write(JSON.stringify({ ok: false, code, errors: out.split("\n").map((l) => l.replace(/^\s*-\s*/, "").trim()).filter(Boolean) }, null, 2) + "\n");
+    process.stderr.write(out + "\n");
+  } else (code ? process.stderr : process.stdout).write(out + "\n");
   process.exitCode = code;
 }
