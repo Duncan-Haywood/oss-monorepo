@@ -2,7 +2,7 @@
 title: "A payment-link check that a capital letter got past"
 seo_title: "Case-insensitive hostnames in a payment-key lint"
 date: 2026-11-07
-tags: [security, red-team, ci]
+tags: [security, redteam, ci]
 description: "Our lint for hardcoded Stripe payment links missed BUY.Stripe.com. A red-team run found it, fixed it and added the test."
 ---
 
