@@ -1,0 +1,61 @@
+name: allergen-label-maker
+description: >-
+  Free browser tool for cafes, bakeries, delis, caterers and market stalls: paste each dish's
+  ingredients, get an allergen matrix for the 14 UK/EU allergens (or the US 9 major allergens)
+  and print-ready pre-packed-for-direct-sale (Natasha's Law) labels with the allergens in bold.
+  Handles look-alikes (coconut milk, cocoa butter, rice flour), supplier allergen tags for
+  branded products, "check" flags for foods that usually hide an allergen, and a may-contain
+  line. CSV export. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-07 in a scheduled session. A directory search for allergen / haccp / food-label /
+# nutrition ventures found only recipe-costing-calculator and menu-engineering-calculator, which
+# are about cost, not labelling.
+#
+# Why this niche: since 1 Oct 2021 in England (Natasha's Law) every business that packs food on
+# its own premises for direct sale needs a label with the full ingredients and the 14 allergens
+# emphasised; every food business must also give allergen information for loose food. Small cafes
+# and bakeries do this with Word templates and spreadsheets, or with paid kitchen software built
+# for chains. The searches are evergreen and high-intent ("allergen matrix template", "PPDS label
+# template", "natasha's law label generator").
+#
+# First visitor: a baker, deli or cafe owner searching for an allergen matrix or PPDS label
+# template; food-hygiene trainers and environmental-health students. Volume not measured.
+#
+# Liability boundary (medium: a missed allergen can hurt a customer): the tool only reads words the
+# user typed, marks guesses as "check" and never prints them as declarations, states that the
+# seller is responsible, and says on the page that every label must be confirmed against supplier
+# information. It does not claim compliance, certification or safety.
+#
+# Path to revenue (payment rails stay off): lead magnet first. Later, a paid branded pack: saved
+# recipe library, label sheets for common printers, supplier-spec upload, a customer-facing
+# allergen page and QR code, and a yearly review reminder (not built). Comparable paid products
+# (kitchen allergen software priced per site) have not been read on their own pages.
+
+hypotheses:
+  - claim: >-
+      Small food businesses will paste their ingredient lists into a private no-signup tool to
+      produce an allergen matrix and PPDS labels, because Word templates need every allergen
+      found by hand and paid allergen software is priced for chains.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: GBP
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A food-safety professional reports a dish where the tool omits a named allergen from "contains" for an ingredient the word list claims to cover.
+
+links:
+  production: https://marisstella.app/allergen-label-maker/
+  analytics: null
