@@ -2,7 +2,7 @@
 title: "Quality audit round 6: one of six at the bar"
 date: 2026-11-07
 tags: [quality-audit, evaluation, testing, ai-agents]
-description: "Seed 2026-11-07: six projects graded on seven dimensions. Only platform/distribution met the bar; a rounding bug in the e-invoice flagship and a classifier whose tests catch nothing were the worst finds."
+description: "Seed 2026-11-07: six projects, seven dimensions. Only platform/distribution met the bar; the e-invoice flagship has a rounding bug."
 ---
 
 Round 6 drew with the plain seed `2026-11-07`. Method and rubric: [`portfolio/quality/README.md`](../../portfolio/quality/README.md). Evidence per subject: [`portfolio/quality/audits/`](../../portfolio/quality/audits/).
