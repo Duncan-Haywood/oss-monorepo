@@ -1,0 +1,13 @@
+tau 240 s dead time; every 4th window; hourly replan; header margin 0.5; shares of the no-corridor no-tack-cost bound
+
+January: 96 windows; corridor 0.770; header 0.790; clairvoyant 0.993
+  T=    0 min: 0.785; minus header +0.3 pts (boot 95% +0.0..+0.9); tacks/day 44
+  T=   30 min: 0.804; minus header +1.2 pts (boot 95% +0.5..+1.9); tacks/day 48
+  T=  120 min: 0.816; minus header +2.4 pts (boot 95% +1.5..+3.7); tacks/day 48
+  T=  inf min: 0.840; minus header +6.7 pts (boot 95% +5.5..+7.9); tacks/day 42
+
+July: 96 windows; corridor 0.742; header 0.770; clairvoyant 0.987
+  T=    0 min: 0.769; minus header -0.6 pts (boot 95% -2.1..-0.1); tacks/day 50
+  T=   30 min: 0.784; minus header +1.1 pts (boot 95% +0.0..+1.6); tacks/day 52
+  T=  120 min: 0.807; minus header +3.4 pts (boot 95% +1.9..+4.5); tacks/day 52
+  T=  inf min: 0.856; minus header +8.7 pts (boot 95% +7.5..+10.4); tacks/day 39

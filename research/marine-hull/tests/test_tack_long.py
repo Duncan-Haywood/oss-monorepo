@@ -43,3 +43,24 @@ def test_one_step_controllers_refuse_long_tacks():
         sim_replan(p, c, 60.0, 400.0, 120.0, lambda k0: (p[:, k0:], c[:, k0:]))
     with pytest.raises(ValueError):
         sim_mpc(p, c, 60.0, 400.0, 400.0, 30, lambda k0: (p[:, k0:], c[:, k0:]))
+
+
+def test_replan_dead_perfect_forecast_follows_dp_value():
+    """With the true rates as forecast, the controller realises the DP value (up to grid interpolation) and beats the corridor."""
+    from marine_hull.tack import dp_values_dead, sim_replan_dead
+    p, c = _series(240)
+    for m in (1, 4):
+        g, V = dp_values_dead(p, c, 60.0, 400.0, m)
+        v0 = max(V[0, 0, len(g) // 2], V[0, 1, len(g) // 2])
+        x, n_t = sim_replan_dead(p, c, 60.0, 400.0, m, lambda k0: (p[:, k0:], c[:, k0:]), every=10**6)
+        assert x <= v0 * 1.02
+        assert x >= 0.93 * v0
+        assert x >= sim_corridor(p, c, 60.0, 400.0, m * 60.0)[0] - 1e-6
+
+
+def test_dp_values_dead_m1_matches_dp_values():
+    from marine_hull.tack import dp_values, dp_values_dead
+    p, c = _series(100)
+    g, V1 = dp_values(p, c, 60.0, 400.0, 60.0)
+    g2, V2 = dp_values_dead(p, c, 60.0, 400.0, 1)
+    assert np.allclose(V1[0], V2[0], atol=1e-6) or abs(V1[0].max() - V2[0].max()) < 0.02 * V1[0].max()

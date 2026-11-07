@@ -255,6 +255,55 @@ def sim_replan(p, c, dt, corr, tau, forecast, every=60, margin=0.0, dwell=0):
     return x, n_t
 
 
+def dp_values_dead(p, c, dt, corr, m, dy=25.0):
+    """dp_values for a tack that is m whole steps of dead time (tau = m*dt; no progress, no cross movement). Tacking at the
+    start of step k lands on the other tack at step k+m at the same y, so the state needs no extra dimension. The corridor
+    edge forces a tack as in dp_values. Returns (grid, V) with V of shape (n+1, 2, G); V[k+m] is clamped at V[n] = 0."""
+    grid = np.arange(-corr, corr + dy / 2, dy)
+    n = p.shape[1]
+    V = np.zeros((n + 1, 2, len(grid)))
+    for k in range(n - 1, -1, -1):
+        kk = min(k + m, n)
+        for sg in (0, 1):
+            raw = grid + c[sg, k] * dt
+            yc = np.clip(raw, -corr, corr)
+            stay = p[sg, k] * dt + np.interp(yc, grid, V[k + 1, sg])
+            hit = ((raw >= corr) & (c[sg, k] > 0)) | ((raw <= -corr) & (c[sg, k] < 0))
+            k1 = min(k + 1 + m, n)       # forced tack after this step: m dead steps from k+1
+            forced = p[sg, k] * dt + np.interp(yc, grid, V[k1, 1 - sg])
+            stay = np.where(hit, forced, stay)
+            V[k, sg] = np.maximum(stay, V[kk, 1 - sg])
+    return grid, V
+
+
+def sim_replan_dead(p, c, dt, corr, m, forecast, every=60, margin=0.0, dwell=0):
+    """sim_replan with a tack of m whole steps of dead time (tau = m*dt) on the TRUE rates; plans with dp_values_dead on the
+    forecast. Returns (progress m, number of tacks)."""
+    n = p.shape[1]
+    x, y, sg, n_t, dead = 0.0, 0.0, 0, 0, 0
+    last = -10**9
+    for k0 in range(0, n, every):
+        ps, cs = forecast(k0)
+        grid, V = dp_values_dead(ps, cs, dt, corr, m)
+        L = ps.shape[1]
+        for k in range(k0, min(n, k0 + every)):
+            if dead > 0:
+                dead -= 1
+                continue
+            j, o = k - k0, 1 - sg
+            stay = ps[sg, j] * dt + np.interp(np.clip(y + cs[sg, j] * dt, -corr, corr), grid, V[j + 1, sg])
+            sw = np.interp(y, grid, V[min(j + m, L), o])
+            if sw > stay + margin * max(ps[0, j], ps[1, j]) * dt and k - last >= dwell:
+                sg = o; n_t += 1; dead = m - 1; last = k
+                continue
+            x += p[sg, k] * dt
+            y += c[sg, k] * dt
+            if (y >= corr and c[sg, k] > 0) or (y <= -corr and c[sg, k] < 0):
+                y = max(-corr, min(corr, y))
+                sg ^= 1; n_t += 1; dead = m; last = k
+    return x, n_t
+
+
 def lead_forecast(p, c, k0, T, smooth_min=15, trail=60):
     """Model rates for steps k0.. : weight a(L) = exp(-L/T) on the truth smoothed to `smooth_min` minutes plus (1-a) on the
     trailing `trail`-minute mean of that smoothed truth up to k0 (persistence). T=inf is a perfect smoothed forecast, T=0
