@@ -56,6 +56,8 @@
    "where": ".github/workflows/proposal-module-ci.yml:17"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/13780"
+ ],
  "verdict": "platform/proposal turns a finished bid into a printable customer proposal and it works: the shipped (vendored) code recomputed by hand to the cent on deposit and balance (833.33 + 1666.67 = 2500.00), price-held dates (including leap day and year end), scope pluralisation, rounding and HTML escaping, the terms link round trip is correct, and verify.mjs drove 5 real calculators in Chromium and found a sound sheet with no cost leakage. It does not meet the bar because the guard around the shared code is red and the canonical source is wrong: 3 of 108 tests fail on an untouched tree because 121 venture copies carry a calendar-validation and price-cap fix that the canonical file lacks, and the README's own sync command would roll those fixes back in 121 live calculators. A seeded Math.round -> Math.ceil on the deposit passed every test, the README's counts (112 adopted, 27 + 74, 12 terms copies, biohazard as the holdout) are all stale, and a contracts lawyer would ask for a deposit-cap and licence warning and a statement of what the signature binds. Finished (120 adopted, 6 blocked deliberately), useful to a contractor, not yet at the senior professional bar on verification, claims and domain. Smallest fix: copy ventures/fence-bid-calculator/proposal.mjs into platform/proposal/proposal.mjs, add a fractional-deposit exact-value test, and add terms.mjs to adopt.mjs VENDORED."
 }
