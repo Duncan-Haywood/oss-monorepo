@@ -59,6 +59,8 @@
     <div><section><h2>Result</h2><output id="result" aria-live="polite"></output></section>
     <section id="sizes"><h2>By size</h2>
       <p class="tag">Splits the weekly sales by a size mix you type (percent of sales) and plans each size alone. The factory minimum applies to the whole order.</p>
+      <div class="row"><div><label for="mchest">Audience average chest (cm)</label><input id="mchest" type="number" min="60" max="170" step="any" value="100"></div><div><label for="schest">Spread (cm)</label><input id="schest" type="number" min="2" max="30" step="any" value="9"></div></div>
+      <p><button type="button" id="fillMix">Fill the size mix from this audience</button> <span class="tag" id="fillNote"></span></p>
       <table id="sizeInputs"><tr><th scope="col">Size</th><th scope="col">Mix %</th><th scope="col">On shelf</th><th scope="col">On order</th></tr>
       </table><output id="sizeResult" aria-live="polite"></output></section></div>
   </div>
@@ -71,6 +73,7 @@
 
   <script type="module">
     import { reorderPlan, reorderBySize } from "./reorder.mjs";
+    import { sizeRun } from "./fit.mjs";
     import { recordUsage } from "./usage.mjs";
     import { applyBrief } from "./launchbrief.mjs";
     const $ = s => document.querySelector(s);
@@ -94,6 +97,18 @@
         ${r.notes.map(t => `<p class="notes">${esc(t)}</p>`).join("")}`;
     }
     $("#sizeInputs").insertAdjacentHTML("beforeend", ["XS","S","M","L","XL","2XL"].map((z,i)=>`<tr data-size="${z}"><td>${z}</td><td><input class="mix" type="number" min="0" step="any" value="${[0,15,35,30,15,5][i]}" aria-label="${z} mix percent"></td><td><input class="hnd" type="number" min="0" step="1" value="${[0,60,140,120,60,20][i]}" aria-label="${z} on shelf"></td><td><input class="ord2" type="number" min="0" step="1" value="0" aria-label="${z} on order"></td></tr>`).join(""));
+    $("#fillMix").addEventListener("click", () => {
+      const r = sizeRun(1000, { meanChest: n("#mchest"), sdChest: n("#schest") });
+      if (!r.ok) { $("#fillNote").textContent = r.error; return; }
+      document.querySelectorAll("#sizes tr[data-size]").forEach(tr => {
+        const z = tr.dataset.size === "2XL" ? "XXL" : tr.dataset.size;
+        const p = r.sharePct[z] ?? 0, tot = +$("#rate").value;
+        tr.querySelector(".mix").value = p;
+        tr.querySelector(".hnd").value = Math.round(tot * p / 100 * 4);
+      });
+      $("#fillNote").textContent = "Mix from a normal chest curve and the typical size chart; shelf set to four weeks of sales per size. Replace with your own sell-through.";
+      renderSizes(); recordUsage("reorder_fill_mix");
+    });
     function renderSizes() {
       const mix = {}, onHand = {}, onOrder = {};
       document.querySelectorAll("#sizes tr[data-size]").forEach(tr => {
