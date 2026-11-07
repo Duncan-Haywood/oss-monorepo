@@ -75,3 +75,27 @@ test("CLI: --from-sales writes shift lines the scheduler reads, summary on stder
   assert.equal(bad.status, 2);
   assert.match(bad.stderr, /--splh/);
 });
+
+// Hand-built: two Mondays, the second a holiday with 4x the sales.
+const TWO = "Date Time,Net Sales\n2026-11-02 10:00,100\n2026-11-09 10:00,100\n2026-11-16 10:00,400\n";
+test("skipDates leaves a day out of the average", () => {
+  const s = hourlySales(TWO, { skipDates: ["2026-11-16"] });
+  assert.equal(s.observed[0], 2);
+  assert.equal(s.avg[0][10], 100);
+  assert.equal(s.rows, 2);
+  assert.match(s.notes.join(" "), /1 day left out/);
+  assert.equal(hourlySales(TWO, { skipDates: ["2026-11-9"] }).rows, 2); // unpadded form matches too
+  assert.equal(hourlySales(TWO).avg[0][10], 200);
+});
+test("halfLife weights recent weeks more", () => {
+  const plain = hourlySales(TWO).avg[0][10];
+  const w = hourlySales(TWO, { halfLife: 1 }).avg[0][10]; // weights 0.25, 0.5, 1 -> (25+50+400)/1.75
+  assert.ok(Math.abs(w - 475 / 1.75) < 1e-9);
+  assert.ok(w > plain);
+  assert.ok(Math.abs(hourlySales(TWO, { halfLife: 1e9 }).avg[0][10] - plain) < 1e-3);
+  assert.throws(() => hourlySales(TWO, { halfLife: 0 }), /half-life/);
+});
+test("demandShifts passes skipDates through", () => {
+  const a = demandShifts(TWO, { splh: 100 }), b = demandShifts(TWO, { splh: 100, skipDates: ["2026-11-16"] });
+  assert.ok(a.needed > b.needed);
+});
