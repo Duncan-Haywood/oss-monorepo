@@ -39,7 +39,7 @@ export function computeCheckDigits(country, bban) {
 }
 // National check digits inside the BBAN. The ISO mod-97 only proves the IBAN is self-consistent: a number generator
 // that recomputes the IBAN check digits for a made-up or mistyped account passes it. Where the country's own domestic
-// check is simple and well documented (BE, ES, FR, IT) it is verified too. Returns true, false, or null (not covered).
+// check is simple and well documented (BE, ES, FR, IT, PT, NO, PL) it is verified too. Returns true, false, or null (not covered).
 const ES_W = [1, 2, 4, 8, 5, 10, 9, 7, 3, 6];
 const esDigit = (digits) => { const r = 11 - (digits.split("").reduce((a, d, i) => a + Number(d) * ES_W[i], 0) % 11); return r === 11 ? 0 : r === 10 ? 1 : r; };
 const IT_ODD = [1, 0, 5, 7, 9, 13, 15, 17, 19, 21, 2, 4, 18, 20, 11, 3, 6, 8, 12, 14, 16, 10, 22, 25, 24, 23];
@@ -57,6 +57,17 @@ export function nationalCheck(iban) {
     const body = b.slice(1);
     const sum = body.split("").reduce((a, ch, i) => a + itVal(ch, i % 2 === 0), 0);
     return String.fromCharCode(65 + (sum % 26)) === b[0];
+  }
+  if (cc === "PT" && /^\d{21}$/.test(b)) return String(98n - (BigInt(b.slice(0, 19)) * 100n) % 97n).padStart(2, "0") === b.slice(19);
+  if (cc === "NO" && /^\d{11}$/.test(b)) {
+    if (b.slice(4, 6) === "00") return null; // the pseudo-accounts that skip the check
+    const r = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2].reduce((a, w, i) => a + w * Number(b[i]), 0) % 11;
+    if (r === 1) return false; // no valid check digit exists
+    return (r === 0 ? 0 : 11 - r) === Number(b[10]);
+  }
+  if (cc === "PL" && /^\d{24}$/.test(b)) {
+    const s = [3, 9, 7, 1, 3, 9, 7].reduce((a, w, i) => a + w * Number(b[i]), 0);
+    return (10 - (s % 10)) % 10 === Number(b[7]);
   }
   return null;
 }
