@@ -26,7 +26,7 @@
  "ci_failures_before_green": null,
  "review_findings": null,
  "tests_added": null,
- "outcome": "success",
+ "outcome": "partial",
  "errors": [],
  "integrity_issues": [],
  "doc_friction": [
@@ -39,13 +39,19 @@
    "issue": "The record step's glob-by-session-prefix is easy to get wrong: all sessions share the prefix session_01Acx, and I overwrote another run's record by taking glob[0]; restored from origin/main."
   }
  ],
- "deviations": [],
+ "deviations": [
+  {
+   "file": "research/PROGRAMMES.md",
+   "why": "Claim check was not re-run before the long job; a sibling merged the same step meanwhile.",
+   "did": "Reset to main, kept a replication note",
+   "result": "duplicate compute, small added value"
+  }
+ ],
  "writeups": [
-  "docs/posts/2026-11-07-permit-duration-neural-vs-boosted-multiplicity.md",
-  "research/build-data/LOG.md session 49"
+  "research/build-data/LOG.md session 49b replication note"
  ],
  "goal": null,
- "notes": "Feeds reachable. test_paired_boot.py skipped (torch not in default interpreter); build.py ok. Prediction half-failed (pooled Holm 23 vs predicted 24-26).",
+ "notes": "A parallel run landed the same milestone first (pooled Holm 22 vs my 23). Dropped my results and post; kept an independent-refit replication note. I also overwrote another run's record by glob[0] and restored it before landing.",
  "corrections": [],
  "redteam": null
 }
