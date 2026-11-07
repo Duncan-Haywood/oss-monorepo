@@ -63,6 +63,22 @@ Next step 2 asked for loss sensitivities at the AC optimum instead of at a DC di
 - **This is a diagnostic bound, not a method.** It uses the AC optimum, which a DC planner does not have; it shows what factors evaluated at the right operating point can do. A practical scheme needs factors from a good estimate of that point (for example a previous interval's AC solution).
 - Case30 and case39: differences are within 0.1 % and change sign, as before, so not interpretable; load 1.1 has no AC solution there. One solver, one dispatch point per cell.
 
+## Penalty factors from a previous interval (added 2026-11-07, `experiments/run_prev_interval.py`, `results_prev_interval.txt`)
+Next step 2 asked for a usable scheme: `previous_interval_penalty_dc` takes factors and loss share from the AC optimum at a *different* load level (standing in for the previous dispatch interval) and solves one DC OPF at the current load, with no AC solve there. AC cost above the current AC optimum, case118 (prediction before running: a 0.1 step keeps most of the gain, a 0.2 step much less):
+
+| previous load | current load | plain DC | factors from previous | factors at current optimum |
+|---|---|---|---|---|
+| 0.5 | 0.6 | 0.728 % | 0.570 % | 0.563 % |
+| 0.7 | 0.8 | 0.750 % | 0.472 % | 0.464 % |
+| 0.9 | 1.0 | 1.479 % | 0.402 % | 0.367 % |
+| 1.0 | 1.1 | 1.678 % | 0.368 % | 0.339 % |
+| 0.8 | 1.0 | 1.479 % | 0.703 % | 0.367 % |
+| 1.0 | 0.8 | 0.750 % | 0.471 % | 0.464 % |
+
+- A 0.1 load step keeps 88 to 90 % of the oracle's gain at high load (0.402 vs 0.367 against plain 1.479) and nearly all at low load. Supported.
+- A 0.2 upward step (0.8 to 1.0) keeps about 70 % of it (0.703 %); stale factors still beat plain DC, but the sensitivity point matters, consistent with the earlier finding. Stepping down (1.0 to 0.8) costs almost nothing.
+- Limits: one network (case118), a load scale stands in for a real interval (same load shape, no outages or renewables), one solver, one dispatch point per cell.
+
 ## Method (`src/infra_dcopf/dcopf.py`)
 - **Cases.** `case30`, `case39` and `case118` from `pandapower.networks` (MATPOWER cases), with their quadratic generator costs (`poly_cost`).
 - **Two OPFs per condition.** `runopp` (AC, PIPS interior point, voltage and branch loading limits) and `rundcopp` (DC), on the same network with load scaled by 0.6, 0.8, 1.0 and 1.1 (P and Q together).
@@ -113,7 +129,7 @@ Findings (this one case, 12 converged cells of 18 attempted; 6 were infeasible f
 
 ## Next steps
 1. Solver validated and loss/congestion split done with synthetic caps (section above). Next: a case whose published ratings bind (e.g. a PGLib-OPF congested case) and an exact decomposition from the AC duals instead of differencing.
-2. Penalty factors at the AC optimum recover 75 to 80 % of the excess at full load (above); next, factors from a *previous-interval* or DC-based estimate of that point (a usable scheme), or a distributed slack.
+2. Previous-interval factors keep ~90 % of the oracle gain for 0.1 load steps (above). Next: a real time series (e.g. an hourly load profile), a DC-based estimate of the point, or a distributed slack.
 3. Done by another route (see "Voltage violations" above). Next: a voltage/Q stage that is not a full AC OPF, and full-load feasibility with a solver that converges.
 
 ## Reproduce
@@ -123,6 +139,7 @@ cd research/infra-dcopf
 python -m pytest -q tests                     # 11 tests, about 20 s
 PYTHONPATH=src python experiments/run.py      # about 1 min; writes experiments/results.txt
 PYTHONPATH=src python experiments/run_penalty_acopt.py  # about 3 min; writes results_penalty_acopt.txt
+PYTHONPATH=src python experiments/run_prev_interval.py  # about 2 min; writes results_prev_interval.txt
 PYTHONPATH=src python experiments/run_lossadj.py  # loss-adjusted DC, about 1 min; writes results_lossadj.txt
 PYTHONPATH=src python experiments/run_case300_pypower.py  # about 2 min; needs pypower; writes results_case300_pypower.txt
 PYTHONPATH=src python experiments/run_case300.py  # case300 sweep, about 1.5 min; writes results_case300.txt
