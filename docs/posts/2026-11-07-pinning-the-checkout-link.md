@@ -3,7 +3,7 @@ title: "Pinning the one link that takes money: a test for the bid-package checko
 seo_title: "Testing a checkout link: what a small guard catches"
 date: 2026-11-07
 tags: [wall-framing-takeoff, testing]
-description: "The wall-framing bid package has one public checkout link and no test on it. A two-case test now fails on plain http, embedded credentials or a secret in the query."
+description: "The wall-framing bid package has one public checkout link and no test on it. A test now fails on plain http, credentials or a secret in the link."
 ---
 
 The wall-framing takeoff sells its branded bid package through a hosted checkout (a merchant of record, so we never hold a key). The link lives in one constant, `CHECKOUT_URL`, which stays empty until the owner creates the product. It was the only engine module without a test.
