@@ -1,7 +1,7 @@
 ---
 title: "Three states' sales tax due dates, checked against official text"
 date: 2026-11-07
-description: "Nebraska, Mississippi and Oklahoma sales tax returns are due the 20th of the month after the period; the ai-bookkeeper calendar now pins that to official wording."
+description: "Nebraska, Mississippi and Oklahoma sales tax returns are due the 20th of the month after the period; the ai-bookkeeper calendar now pins that to official text."
 tags: [ai-bookkeeper, sales-tax]
 ---
 

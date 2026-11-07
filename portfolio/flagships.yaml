@@ -36,7 +36,7 @@ flagships:
       CLI and agent engine. First tool of the new-home construction program.
     next: >-
       Landed work, with dates and how each was checked, is in
-      ventures/wall-framing-takeoff/README.md and ROADMAP.md (recent, all 2026-11-05/06, dormer, foundation, floor joist, nail, order-by date, paint, electrical, wall tile, HVAC, price sensitivity, fireblocking and plumbing pages, roof nails, wall braces, stepped walls, bench retry with `--gang`; stepped walls, door and window schedule and wall panel pages 2026-11-07; schedule: crews,
+      ventures/wall-framing-takeoff/README.md and ROADMAP.md (recent: calculator pages 2026-11-05 to 07, roof nails, wall braces, bench retry with `--gang`; stepped walls, door and window schedule and wall panel pages 2026-11-07; Schultz heights via `--ifc-json` 2026-11-07 (next: stacked units by sill); schedule: crews,
       weather, holds, deadline, CSV, risk, and cost-loaded cash flow by week and
       month). Wanted, all needing real inputs: a real builder's activity list
       and draw schedule for `--schedule` (payment lag, retainage); a real

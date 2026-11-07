@@ -31,6 +31,7 @@ import { layoutStair, linkStairReaction, stairCuts, stairText, layoutStairWithLa
 import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
 import { resolveHeaders, headerText } from "./headers.mjs";
 import { gangOpenings } from "./ganged.mjs";
+import { openingSizes, wallHeights } from "./ifcwasm.mjs";
 import { drawingSetHtml } from "./drawings.mjs";
 import { drawingSetPdf } from "./pdf.mjs";
 import { panelMaxError, panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
@@ -110,6 +111,7 @@ Usage:
   node cli.mjs plan.json --pdf > walls.pdf   the same shop drawings as a PDF file (no browser; add --panel-max=12ft for panel cut lines)
   node cli.mjs plan.json --gang     frame openings too close for their own kings (same kind, height and head) as one ganged opening with a mullion, and say which
   node cli.mjs plan.json --headers  size headers from the plan's own headerTable ({upTo, header, plies?} rows from your span table; an opening with "header": "auto" takes the first row that covers it) and list hand-picked ones the table says are too light
+  node cli.mjs plan.dxf --ifc-json=plan.json  read each wall's and opening's real height from the JSON of ifc-engine plan, same storey (a DXF carries only places and widths)
   node cli.mjs house.ifc [--storey=N|name]  the same from an IFC file (one storey at a time; the lowest by default) (IfcWall axis lines, IfcDoor/IfcWindow; hand-written fixtures only so far)
   node cli.mjs house.dxf --plan-only  read a DXF floor plan (wall centre lines on a layer named like "wall", openings as lines on "door"/"window" layers; --units=in|ft|mm|cm|m when the file does not say; --wall-layer=RE, --door-layer=RE and --window-layer=RE name the layers when they are not called like that; walls drawn as two face lines are paired into centre lines automatically, --double-line forces it, --single-line turns it off) and print the plan JSON; without --plan-only it goes straight on to the takeoff
   node cli.mjs --example            print the example plan (an invented 40 x 28 ft ranch) to start from
@@ -140,6 +142,15 @@ function normalise(plan) {
   const base = samplePlan();
   for (const k of ["studSpacing", "studLength", "kerf", "topPlateLap", "cornerExtraStuds", "teeExtraStuds", "defaultHeaderHeight", "stock"]) if (!(k in plan)) plan[k] = base[k];
   return plan;
+}
+
+/** `--ifc-json=FILE` (the output of `ifc-engine plan`, same storey and flags as the DXF) for a DXF read. */
+function ifcJsonFile(argv) { return argv.find((a) => a.startsWith("--ifc-json="))?.slice(11); }
+function ifcJsonOptions(argv) {
+  const f = ifcJsonFile(argv);
+  if (!f) return {};
+  const info = JSON.parse(readFileSync(f, "utf8"));
+  return { openingSize: openingSizes(info), wallHeight: wallHeights(info) };
 }
 
 let keyNote = "";
@@ -174,10 +185,19 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   try {
     if (/\.(dxf|ifc)$/i.test(args[0])) {
       const units = argv.find((a) => a.startsWith("--units="))?.slice(8);
-      const r = /** @type {{ ok: boolean, errors: string[], notes: string[], plan?: any, stats?: any }} */ ((/\.ifc$/i.test(args[0]) ? planFromIfc : planFromDxf)(readInput(args[0]), { units: /** @type {any} */ (units), storey: (() => { const v = argv.find((a) => a.startsWith("--storey="))?.slice(9); return v == null ? undefined : /^\d+$/.test(v) ? Number(v) : v; })(), doubleLine: argv.includes("--single-line") ? false : argv.includes("--double-line") ? true : "auto", ...layerOptions(argv) }));
+      const r = /** @type {{ ok: boolean, errors: string[], notes: string[], plan?: any, stats?: any }} */ ((/\.ifc$/i.test(args[0]) ? planFromIfc : planFromDxf)(readInput(args[0]), { units: /** @type {any} */ (units), storey: (() => { const v = argv.find((a) => a.startsWith("--storey="))?.slice(9); return v == null ? undefined : /^\d+$/.test(v) ? Number(v) : v; })(), doubleLine: argv.includes("--single-line") ? false : argv.includes("--double-line") ? true : "auto", ...layerOptions(argv), ...ifcJsonOptions(argv) }));
       if (!r.ok) return { code: 2, out: `Could not read the drawing: ${r.errors.join(" ")}` };
       const note = r.notes.map((n) => `  - ${n}`).join("\n");
       if (flags.has("--plan-only")) return { code: 0, out: JSON.stringify(r.plan, null, 2) + `\n\nNotes (not part of the JSON):\n${note}` };
+      if (ifcJsonFile(argv)) {
+        // the model's own wall heights: the plan's stud length is the commonest, each wall keeps its own
+        const lens = (r.plan.walls || []).map((w) => w.studLength).filter((v) => v > 0);
+        if (lens.length) {
+          const tally = new Map(); for (const v of lens) tally.set(v, (tally.get(v) || 0) + 1);
+          r.plan.studLength = [...tally.entries()].sort((p, q) => q[1] - p[1] || p[0] - q[0])[0][0];
+          for (const w of r.plan.walls) if (w.studLength === r.plan.studLength) delete w.studLength;
+        }
+      }
       plan = normalise({ ...samplePlan(), ...r.plan });
       dxfNotes = `Read ${r.stats.walls} walls (${r.stats.exterior} exterior, ${r.stats.interior} interior), ${r.stats.tees} tees, ${r.stats.openings} openings from ${args[0]}:\n${note}\n\n`;
     } else {
