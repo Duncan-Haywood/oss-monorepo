@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01EhTJVpUpESirE4em7ob9w",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "scheduled: continue revenue software work, merge when done",
+  "input_sha256": "0c5be079b21be48797de42172e4efd308e128370430eb18c0c36df1b0ae618bb",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T06:00:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "ventures/wall-framing-takeoff"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Scheduled task asked for revenue product work, not process work.",
+      "did": "Built a small engine in the construction flagship.",
+      "result": "Engine and tests only; no user surface."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Added bulk.mjs (gravel/mulch/topsoil yards, tons, bags) with 5 hand-checked tests (node --test bulk.test.mjs: 5 pass). Engine only: no page yet, since a page needs nav links on all 31 pages and ventures/CLAUDE.md says calculators are a poor use of a run. Next run should build depth instead.",
+  "corrections": [],
+  "redteam": null
+}

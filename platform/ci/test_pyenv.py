@@ -229,6 +229,16 @@ class T(unittest.TestCase):
         self.assertEqual(pyenv.import_name("some-pkg:somemod"), "somemod")
         self.assertEqual(pyenv.PIP_NAMES["somemod"], "some-pkg")
 
+    def test_requirements_file_expands(self):
+        with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False) as f:
+            f.write("# c\nnumpy==2.4.6\ntorch==2.1  # cpu\n-e .\ncadquery[x]>=2 ; python_version>'3'\n\npytest\n")
+        try:
+            self.assertEqual(pyenv.read_requirements(f.name), ["numpy", "torch", "cadquery", "pytest"])
+            self.assertEqual(pyenv.expand_args(["scipy", "-r", f.name]),
+                             ["scipy", "numpy", "torch", "cadquery", "pytest"])
+        finally:
+            os.unlink(f.name)
+
     def test_heartbeat_logs_until_stopped(self):
         logs = []
         stop = pyenv.heartbeat(logs.append, every=0.01)
