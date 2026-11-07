@@ -140,6 +140,15 @@ def test_e4_godel_scott_collapse_in_finite_models():
     assert e4.search(2, 1)["models"] == 0 and e4.search(3, 1)["models"] == 0 and e4.search(2, 2)["models"] == 0
 
 
+def test_e5_shared_cause_closed_form_matches_enumeration():
+    from bayes import shared_cause_bf, shared_cause_bf_enumerated
+    for n, a, b, u, r in [(4, 0.9, 0.3, 0.6, 0.7), (3, 0.5, 0.25, 0.4, 0.5)]:
+        bf, om = shared_cause_bf_enumerated(n, a, b, u, r)
+        assert abs(bf - shared_cause_bf(n, a / b, om)) < 1e-9 * bf
+    assert shared_cause_bf(5, 3.0, 1.0) == 3.0 ** 5          # omega = 1: the independent product
+    assert shared_cause_bf(5, 3.0, 0.0) == 1.0               # unreliable for sure: no force
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
