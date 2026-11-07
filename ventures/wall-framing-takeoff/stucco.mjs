@@ -79,7 +79,7 @@ function checkPlan(plan) {
 
 /**
  * @param {any} d
- * @param {{ studLength: number, defaultHeaderHeight: number, walls: { id: string, length: number, sheathed?: boolean, openings?: { width: number, height: number }[] }[] }} plan
+ * @param {any} plan same shape layoutSiding takes (walls with optional gables and openings)
  */
 export function layoutStucco(d, plan) {
   const errors = validateStucco(d);
