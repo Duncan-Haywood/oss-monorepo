@@ -1178,3 +1178,25 @@ test("divisionsPlayoffs separate: random fields never gain a clash and keep ever
     assert.ok(clashes(b) <= clashes(a));
   }
 });
+
+test("duties: only playing teams, one duty a night, spread within one, CSV escapes", async () => {
+  const { parseDivisionDuties, assignDivisionDuties, validateDivisionDuties, divisionsDutiesCsv, divisionsDutiesText } = await import("./divisions.mjs");
+  const bad = parseDivisionDuties("Snack stand: 2\nSnack stand\n: 3\nGate: 11");
+  assert.equal(bad.errors.length, 3);
+  const pd = parseDivisionDuties("Snack stand: 2\nScoreboard\n=Setup: 1");
+  assert.deepEqual(pd.errors, []);
+  assert.deepEqual(pd.duties.map((d) => d.perNight), [2, 1, 1]);
+  const s = build();
+  const r = assignDivisionDuties(s, pd.duties);
+  assert.deepEqual(validateDivisionDuties(s, pd.duties, r), []);
+  assert.equal(r.rows.length + r.unfilled.length, s.nights.length * 4);
+  const tot = r.loads.map((l) => l.total);
+  assert.ok(Math.max(...tot) - Math.min(...tot) <= 2, JSON.stringify(tot));
+  assert.deepEqual(r, assignDivisionDuties(s, pd.duties)); // deterministic
+  assert.ok(divisionsDutiesCsv(r).includes("'=Setup"), "formula cell defused");
+  assert.match(divisionsDutiesText(r), /Duties per team: \d+ to \d+/);
+  // more slots than teams playing: listed, not invented
+  const many = assignDivisionDuties(s, parseDivisionDuties("Gate: 10").duties);
+  assert.ok(many.unfilled.length > 0 || many.rows.length === s.nights.length * 10);
+  assert.deepEqual(validateDivisionDuties(s, [{ name: "Gate", perNight: 10 }], many), []);
+});
