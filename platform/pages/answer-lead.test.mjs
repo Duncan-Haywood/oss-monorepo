@@ -61,3 +61,21 @@ for (const [slug, figures] of Object.entries(PILOTS)) {
     for (const n of stated) assert.ok(allowed.includes(n), `$${n} is not a figure exported by ${slug}/calc.mjs`);
   });
 }
+
+// Statutory-timing lead (no dollar figures): the stages it names must be the
+// ones the planner's calc module models, and it must cite the rule and a date.
+test('patent-maintenance-fee-planner: lead is sourced, dated and matches the modelled stages', async () => {
+  const slug = 'patent-maintenance-fee-planner';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { STAGES } = await import(new URL(`${slug}/calc.mjs`, root));
+  for (const s of STAGES) {
+    assert.ok(text.includes(s.label.replace('-year', '')) || text.includes(s.label), `lead omits the ${s.label} stage`);
+    assert.equal(s.dueMonths - s.openMonths, 6);
+    assert.equal(s.graceMonths - s.dueMonths, 6);
+  }
+});
