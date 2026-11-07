@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-07",
+  "subject": "research/robofab-armbang",
+  "stratum": "research",
+  "seed": "2026-11-07",
+  "auditor": "agent session (Claude), 2026-11-07 round 1",
+  "status": "audited",
+  "professional": "a senior robotics/controls researcher in time-optimal path parameterisation (TOPP) of serial manipulators, who would first check the path-dynamics coefficients (A, B, G), the velocity-limit curve and switching-point handling, convergence in the grid, and whether the comparison to min-jerk is fair and the modelled task is the real one",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran `PYTHONPATH=src python3 experiments/run.py` (3.2 s): results.txt is byte-identical to the committed file; results.json differs only in the 16th significant digit of a few floats (restored). Recomputed independently in a scratchpad script with my own dynamics (mass matrix written from rod inertias m l^2/3, Coriolis and gravity obtained numerically from the Lagrangian, not from model.torque), my own TOPP at n=4000 and my own min-jerk minimum time by bisection with 600-sample torque checks: for L=0.12 m, 5 N m the six-part totals are 0.4155 s (min-jerk) and 0.3315 s (time-optimal), saving 20.2%, vs the committed 0.419 / 0.332 / 21% (the min-jerk gap is the 1 ms ceiling grid; per part e.g. cover 0.0906 vs 0.091, rail_r 0.0520 vs 0.053). Cover part mass 1240*40*30*4e-9 = 0.005952 kg, matching the 5.95 g claim. Min-jerk jaw force for the cover (L=0.12, 5 N m, T=0.091) recomputed by double-differentiating forward kinematics in the time domain: 1.493 N, matching 1.493. Time-optimal jaw force converges under grid refinement with the project's own solver: 2.664 N (n=400), 2.684 (1600), 2.688 (6400), so the 2.66 N figure and the 1.78 ratio hold to about 1%; peak torque over limit falls 1.008 -> 1.0005. Analytic check: for a double integrator the min-jerk peak acceleration is (10/sqrt 3) d/T^2 vs 4 d/T^2 for bang-bang, giving a 16.8% saving; the measured 16-37% per part straddles this, as expected with gravity and configuration-dependent inertia. Within the stated planar model the numbers are right.",
+    "completeness": "Checked each README item: 14 tests pass in 0.2 s (claimed 14, < 1 s): yes. Experiment regenerates results.txt exactly: yes. Nine cases (L 0.08/0.12/0.20 x 2/5/10 N m), 54 part-case rows: yes (results.json has 9 cases x 6 parts). Peak torque/limit 1.000 to 1.008: yes (1.00009 to 1.00810). Jaw-force ratio 1.18 to 2.41: yes (1.182 to 2.406). experiments/figure.py and carry_time.svg present. paper/whitepaper.md is a one-paragraph abstract plus 'see ../README.md' with no method, results or figures: a stub. Live page https://marisstella.app/research/robofab-armbang/ could not be loaded (proxy 403), so unverified. 'Next steps' item (jaw cap) was later done in research/robofab-jawcap, not here.",
+    "verification": "Ran `PYTHONPATH=src python3 -m unittest discover -s tests -v`: 14 OK. Mutation 1 (core TOPP logic): zeroed the velocity-product coefficient B in topp.coeffs (src/robofab_armbang/topp.py:22), i.e. drop Coriolis/centripetal from the path dynamics: all 14 tests still pass. The resulting profile actually exceeds the true torque limit by 37% (peak 1.375x for the test arm), but test_limit_respected_and_not_slower_than_min_jerk checks it with peak_torque, which reuses the same coeffs, so the check is self-consistent and blind. The closed-form test has no Coriolis by construction and the 1/sqrt(tau) test is invariant to B. Mutation 2: flipped the sign of the -h d1^2 Coriolis term in model.torque (model.py:53): caught by test_torque_matches_lagrange_energy_balance. Both reverted (git status clean). test_wrist_acceleration_of_one_link_sweep (tests/test_model.py:67-71) moves from (0,0) to (0,0), so it tests nothing; wrist_force under motion has no test against an analytic case. Tests catch errors in the arm model but not in the TOPP layer that produces the headline.",
+    "craft": "Read geometry.py, model.py, topp.py, run.py, both test files. Clean, short, readable pure Python. Defects: the wrist-acceleration finite-difference block is duplicated between model.move (model.py:79-87) and topp.wrist_force (topp.py:93-114); geometry.py and model.py are declared copies of robofab-reach / robofab-armaccel rather than shared code (the robofab track has ~50 sibling projects with further copies); tests mutate the global model.G to switch gravity off (test_topp.py) rather than passing it in; run.py:55 writes JSON through an unclosed open(); the TOPP forward pass clips u to the velocity-limit curve with no switching-point logic and returns None whenever an Euler step leaves the feasible set (topp.py:63-68), a silent infeasibility rather than a diagnosed one; accelerations at nodes come from central differences of u, so the bang-bang steps are smeared.",
+    "claims": "Backed: totals, ratio ranges, peak torque range, cover 1.49 -> 2.66 N, test count, runtime, references (Bobrow et al. 1985 IJRR 4(3):3-17 and Pfeiffer and Johanni 1987 are real and correctly attributed; Flash and Hogan 1985 marked not re-verified), stylised/simulation-only disclaimer, MIT, AI-assistance note. Not backed or misleading: (1) the bold headline says 'saves 20 to 29%' while the same sentence and results.json say 21 to 29% (20.54 to 29.16%) (README.md:7). (2) The note is framed as 'carry time' for parts moved from a tray to the fixture, but the model is a planar two-link arm in the (r, z) plane: run.py:34 collapses each 3D target to its radial distance from the base, so the base yaw rotation between pick and place (10 to 118 degrees for the L=0.12 m base at (10,0) mm; rail_l 118 deg) is neither timed nor loaded. The limitations list says 'One planar arm' (README.md:41) but never says the azimuth swing is ignored, so 'carry time' and 'saves x% of carry time' overstate what was modelled. (3) Live page claim unverified (403).",
+    "fitness": "A researcher could rerun and extend it (pure stdlib, 3 s, tested model), and sibling projects did (robofab-jawcap, robofab-toppconv). But the result is not new: time-optimal path parameterisation under torque limits is Bobrow, Dubowsky and Gibson (1985) and Shin and McKay (1985, IEEE TAC); convex formulations are Verscheure et al. (2009, IEEE TAC) and the reachability-based TOPP-RA is Pham and Pham (2018, IEEE T-RO), none of which is compared against. That a min-jerk profile is roughly 17-20% slower than bang-bang under the same peak acceleration follows from the closed-form 10/sqrt(3) vs 4 peak-acceleration constants, which the note does not state; its 21-29% is that constant plus gravity/inertia effects. The paper is a stub abstract. Sound as a small reproducible calculation, well below the PhD/publishable bar set in research/CLAUDE.md.",
+    "domain": "Compared against standard TOPP practice (Bobrow 1985; Pham 2018) and manipulator modelling (Spong, Hutchinson and Vidyasagar, Robot Modeling and Control). Right: rigid-body 2-link dynamics (mass matrix and gravity verified against energies; I re-derived them independently and got the same torques), the affine form tau = A s'' + B u + G along a joint-space line, forward max-acceleration/backward max-deceleration integration and the trapezoidal time sum. Departs: no explicit switching-point or singular-arc handling (forward pass simply clips to the MVC), explicit Euler with first-order grid error (n=400 later shown 0.5% pessimistic by robofab-toppconv); base yaw joint omitted although the task needs it; torque limits only (no velocity, jerk or motor torque-speed curve), with 2-10 N m on 0.08-0.2 m links giving accelerations well outside the 40 m/s^2 range where the jaw bound was validated (stated); a bang-bang torque profile would excite structure and is not a realistic comparator for a hobby arm without jerk limits. A controls reviewer would accept the TOPP implementation as a teaching-grade solver, not the modelling of the carry."
+  },
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Carry time ignores the base yaw rotation between pick and place (10 to 118 degrees); 3D targets are collapsed to radial distance, and the README limitations do not say so, so 'carry time saved' describes only the r-z part of the move",
+      "where": "research/robofab-armbang/experiments/run.py:34"
+    },
+    {
+      "severity": "medium",
+      "what": "Tests cannot catch an error in the TOPP path-dynamics coefficients: zeroing the velocity-product term B passes all 14 tests while the profile violates the real torque limit by 37%, because the limit check reuses the same coeffs",
+      "where": "research/robofab-armbang/src/robofab_armbang/topp.py:22"
+    },
+    {
+      "severity": "low",
+      "what": "Bold headline says 'saves 20 to 29%' but the data and the same sentence give 21 to 29% (20.54 to 29.16%)",
+      "where": "research/robofab-armbang/README.md:7"
+    },
+    {
+      "severity": "low",
+      "what": "Vacuous test: the 'one-link sweep' wrist-acceleration test moves from (0,0) to (0,0), so it checks nothing about wrist acceleration",
+      "where": "research/robofab-armbang/tests/test_model.py:67"
+    },
+    {
+      "severity": "low",
+      "what": "Whitepaper is a one-paragraph abstract that points to the README; no method, results, figure or comparison to TOPP literature beyond 1985-87",
+      "where": "research/robofab-armbang/paper/whitepaper.md:1"
+    },
+    {
+      "severity": "low",
+      "what": "Wrist-acceleration finite-difference code duplicated between min-jerk and TOPP evaluators",
+      "where": "research/robofab-armbang/src/robofab_armbang/topp.py:93"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "A small, honest, reproducible calculation: the experiment regenerates results.txt exactly, and my independent dynamics, TOPP solver and min-jerk search reproduce the headline (L=0.12 m, 5 N m: 0.4155 s -> 0.3315 s, 20.2% vs the committed 0.419 -> 0.332, 21%; cover jaw force 1.493 N min-jerk and 2.66-2.69 N time-optimal). It does not meet the bar: the tests guard the arm model but not the TOPP layer (dropping Coriolis from the path dynamics passes all 14 tests while overshooting the true torque limit by 37%), the 'carry time' framing hides that the base yaw swing of up to 118 degrees is not modelled, the bold headline range is off by one point, and the result is essentially the textbook min-jerk-vs-bang-bang constant (16.8% for a double integrator) with gravity on top, with no comparison to modern TOPP methods and a stub paper. Scores: correctness 3, completeness 3, verification 2, craft 2, claims 2, fitness 2, domain 2."
+}

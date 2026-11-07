@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-07",
+  "subject": "research/benford-repo",
+  "stratum": "research",
+  "seed": "2026-11-07",
+  "auditor": "agent session (Claude), 2026-11-07 round 1",
+  "status": "audited",
+  "professional": "a statistician who has refereed papers on Benford's law and forensic-accounting digit tests. They would check first whether the conformity test fits the sample sizes (chi-square vs Nigrini MAD bands, null MAD at small n, many rows tested), then whether the 'deduplicated' control is a neutral transform, then whether the result is new against prior file-size studies",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 1,
+    "craft": 2,
+    "claims": 1,
+    "fitness": 1,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "I recomputed every committed row independently. My scratchpad script recompute.py does not import benford.py. It fetched commit 7a3a9158 (`git fetch --depth=1 origin 7a3a915...`), listed blobs with `git ls-tree -r -l` (symlinks excluded), and counted newlines per blob with `git cat-file --batch`. All 20 rows of results.txt match to the printed precision: n, MAD, chi-square and digit shares. Examples: all-bytes n=35648 MAD 0.01834 chi2 1646.5; all-lines n=29313 MAD 0.02784 chi2 3061.02; all-distinct-bytes n=12429 MAD 0.00681 chi2 90.83; .py distinct lines n=476 MAD 0.01032 chi2 5.03; .json distinct bytes MAD 0.06363. The README's repetition figures also match: 1,297 files of 1,071 bytes, 993 of 47 and 685 of 147 (the top three sizes), and 1,822 files with 4 lines (the top line count). The 15.507 critical value (chi-square, 8 df, alpha 0.05) and the Benford table are correct. I ran the project's own measure()/summarise() on today's HEAD from the scratchpad, without writing results.*: bytes n=50662 MAD 0.0225 nonconforming, distinct bytes MAD 0.0048 'close', lines MAD 0.0203. The arithmetic is right. The problem is the inference drawn from it (see claims, domain).",
+    "completeness": "Claims checked. '5 tests': `python3 -m unittest discover -s tests -v` ran 5, OK. 'python3 benford.py ... seconds; rewrites results.*': I did not run main(), because it overwrites committed files. I ran its measure()/summarise() on HEAD in about 30 s, and it works. 'Full table in results.txt, machine-readable in results.json': both exist and agree. Live page https://marisstella.app/research/benford-repo/: not verified, because the proxy refused the host (curl CONNECT 403). The Method section matches the code (symlinks skipped, NUL files excluded from lines, zeros dropped, bands at benford.py:29-34). No TODOs or stubs. The README's own next step is not done: main() hardcodes root (benford.py:72) and there is no --root option. For its stated narrow scope, everything claimed works.",
+    "verification": "`python3 -m unittest discover -s tests -v`: 5 tests, OK, 0.004 s. I seeded four mutations in benford.py, ran them with PYTHONDONTWRITEBYTECODE=1 and reverted each with git checkout. (1) MAD divisor `/ 9` -> `/ 3` (benford.py:22): NOT caught. (2) acceptable band 0.012 -> 0.020 (benford.py:32): NOT caught. (3) chi-square denominator `(n*b)` -> `n` (benford.py:26): NOT caught. (4) Benford table truncated to 8 digits plus a constant: caught by test_benford_sums_to_one. So 1 of 4. No test checks a MAD or chi-square value against a hand-computed number, no test checks any band boundary, and nothing tests measure(), the distinct-value rows or the line counting. A side finding: my first mutation run left a stale __pycache__ (the source had the same size and the same mtime second), and a later run used the mutated bytecode after the revert. I deleted both __pycache__ directories, and the tree is clean.",
+    "craft": "Read benford.py (92 lines) and tests/test_benford.py (27 lines). The code is small, stdlib-only and readable. Defects: json.dump into an unclosed `open(...)` handle (benford.py:79). main() hardcodes the repo root, so the tool cannot be pointed at another repository, which is the README's own next step (benford.py:72). 'lines' is the newline count (benford.py:67), so a one-line file without a trailing newline counts as 0 and is silently dropped, and every other file without a trailing newline is off by one. git rev-parse has no check=True (benford.py:73), so a failure records an empty commit. The project landed inside an unrelated PR, #13710 'einvoice-preflight: Bangladesh NBR mandate page' (commit ffd89b7cc), so its review history is hidden under another title.",
+    "claims": "Backed: every number in the README Result paragraph (recomputed above). The 'descriptive, one commit, not a test of Benford's law' framing and the limitations list (README.md:3, :23). The Nigrini band values. Not backed: the central inference 'The cause is repetition, not shape' (README.md:7), repeated in research/README.md:807 ('because templated files repeat the same size thousands of times'). Removing true repetition, one count per distinct file content (31,319 unique blobs at 7a3a915), gives MAD 0.0217, still nonconforming and worse than the raw 0.0183. Only collapsing to distinct size values gives 0.0068. That transform is not 'removing repetition'. It replaces the distribution with its support, and my simulation (sim.py) shows it moves even exactly-Benford data: log-uniform integer sizes go from raw MAD 0.0015 to distinct MAD 0.0067, and log-uniform line counts from 0.0013 to 0.0149. So 'acceptable after dedup' does not show that the underlying shape is Benford. Reading the .json distinct-lines row (MAD 0.0163, n=311) as 'nonconforming' is also unsupported (see domain). Live page claim unverified (proxy 403). No prior work is cited beyond Nigrini.",
+    "fitness": "Research bar (research/CLAUDE.md): PhD level, building toward a publishable result. This is a one-commit descriptive check of one repository, which the README itself says is atypical. There is no comparison corpus and no model of the spikes. Nearest prior work: Torres, Fernandez, Gamero and Sola (2007, Eur. J. Phys. 28, L17) reported that computer file sizes follow Benford's first-digit law. The scale-invariance and mixture arguments (Hill 1995) explain why heterogeneous sizes spanning several orders of magnitude should conform. Diaconis (1977) and Berger and Hill (2015) give the general theory. The README cites none of these. The finding that heavy templating breaks conformity is expected under those results (a mixture dominated by a few atoms), so the result is not new. Its one non-trivial claim, that the shape is fine once repetition is removed, is not sound. A researcher could reuse the ~90-line script after adding --root, but there is no result here to build on.",
+    "domain": "Matches practice: MAD with Nigrini's first-digit bands (0.006/0.012/0.015, Nigrini 2012) used as the headline at large n. Chi-square at 8 df reported, with the correct caveat that it rejects at n in the tens of thousands (README.md:19). Departs from practice: (1) The bands are applied at small n with only the n=980 row caveated. My simulation of exact-Benford samples (400 draws each) gives a null mean MAD of 0.0143 at n=274, 0.0131 at n=311 and 0.0108 at n=476, with 95th percentiles of 0.0211, 0.0202 and 0.0165. So the .md distinct-lines row (0.0143, 'marginal'), the .py distinct-lines row (0.0103, 'acceptable') and the .json distinct-lines row (0.0163, 'nonconforming') are all consistent with exact Benford. Nigrini's bands assume large samples. (2) Distinct-value deduplication is not a recognised conformity control and is biased (see claims). Content-hash dedup or per-template grouping would be the defensible version. (3) There is no per-digit Z-test (Nigrini's usual companion to MAD), even though the narrative is about digit-1 and digit-4 spikes. (4) 20 rows are tested with no acknowledgement of multiple comparisons. (5) Nothing checks the precondition that a variable spans enough orders of magnitude to be expected to follow Benford. Line counts of most files span only 1-3 decades."
+  },
+  "defects": [
+    {
+      "severity": "high",
+      "what": "The headline causal claim 'The cause is repetition, not shape' is unsupported. Deduplicating by file content (31,319 unique blobs) leaves bytes nonconforming (MAD 0.0217). Only the distinct-size-values transform gives 0.0068, and that transform distorts even exactly-Benford integer data (simulated raw 0.0015 -> distinct 0.0067; lines 0.0013 -> 0.0149). The claim is repeated in the research index.",
+      "where": "research/benford-repo/README.md:7"
+    },
+    {
+      "severity": "medium",
+      "what": "Nigrini MAD bands are applied at n=274-476, where the exact-Benford null MAD averages 0.011-0.014 (95th pct 0.017-0.021). The 'nonconforming' (.json distinct lines, 0.0163, n=311), 'marginal' (.md, n=274) and 'acceptable' (.py, n=476) labels cannot separate conformity from noise. Only the n=980 row is caveated. No multiple-testing note across 20 rows.",
+      "where": "research/benford-repo/results.txt:17"
+    },
+    {
+      "severity": "medium",
+      "what": "Tests do not pin any MAD, chi-square or band boundary. Mutations to the MAD divisor, the acceptable threshold and the chi-square denominator all pass the suite (1 of 4 seeded bugs caught).",
+      "where": "research/benford-repo/tests/test_benford.py:13"
+    },
+    {
+      "severity": "medium",
+      "what": "No prior work is cited beyond Nigrini. Torres et al. (2007, Eur. J. Phys.) already studied Benford on file sizes, and mixture/scale-invariance results (Hill 1995) predict the templated-mixture failure. The novelty of the result is not established.",
+      "where": "research/benford-repo/README.md:19"
+    },
+    {
+      "severity": "low",
+      "what": "Line count is the newline count: single-line files without a trailing newline count as 0 and are dropped, and others are off by one. The unclosed file handle in json.dump(open(...)). The hardcoded root blocks the README's own next step.",
+      "where": "research/benford-repo/benford.py:67"
+    },
+    {
+      "severity": "low",
+      "what": "The project landed inside an unrelated PR titled 'einvoice-preflight: Bangladesh NBR mandate page' (#13710, commit ffd89b7cc), which hides its review history.",
+      "where": "research/benford-repo/README.md:1"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "The arithmetic is right. All 20 committed rows and the README's repetition counts reproduce exactly from git objects at 7a3a915 with an independent script, and the MAD bands and chi-square critical value are quoted correctly. The interpretation is not right. The headline 'the cause is repetition, not shape' rests on counting each distinct size value once. Counting each distinct file content once leaves the repository nonconforming (MAD 0.0217), and the distinct-value transform moves even exactly-Benford data. Several small-n rows are labelled by bands that cannot distinguish them from a true Benford sample, no prior work is cited (Torres et al. 2007 studied file sizes), and the tests catch 1 of 4 seeded bugs in the core statistics. It is a tidy descriptive script with a sound limitations section. It is not a PhD-level research result and does not meet the bar. Fixes: (a) qualify or retract the causal sentence in README.md:7 and research/README.md:807, and report the content-dedup row; (b) add hand-computed MAD and chi-square tests and band-boundary tests; (c) add a small-n caveat or a simulated null MAD per row."
+}

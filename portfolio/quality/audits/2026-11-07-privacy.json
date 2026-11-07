@@ -1,0 +1,61 @@
+{
+ "date": "2026-11-07",
+ "subject": "platform/privacy",
+ "stratum": "platform",
+ "seed": "2026-11-07",
+ "auditor": "agent session (Claude), 2026-11-07 round 1",
+ "status": "audited",
+ "professional": "a senior privacy engineer / privacy counsel (GDPR, ePrivacy art. 5(3), CCPA/CPRA GPC) who would first ask: does any page send or store something under GPC/DNT that the footer says it will not, and would this checker notice if one started to?",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "What it is: no README; six portfolio-wide CI checkers that hold the footer promise (platform/pages/build.mjs disclaimerHtml: 'Browsers sending Do Not Track or Global Privacy Control are not counted at all', 'no tracking cookie, no analytics vendor', share links keep figures off the server). Ran every checker on the real catalogue: browser-signals.mjs '1313 usage module(s) honour Do Not Track and Global Privacy Control; 0 failed, 0 errored, 0 undrivable' (exit 0); inline-signals.mjs '15 inline usage counter(s) branch on ...; 0 unguarded, 3 venture(s) keep no counter' (exit 0); share-location checkVentures('ventures') 'checked 7872 findings 0'. Recomputed independently, not with the author's tools: (1) Playwright/Chromium against 5 pseudo-randomly drawn venture pages served locally (boat-rental-fleet-profit-calculator, contract-vs-fte-rate-calculator, equipment-auction-buyer-premium-calculator, uk-state-pension-ni-years-checker, which-job-first) under no signal, navigator.globalPrivacyControl=true and navigator.doNotTrack='1', filling inputs and clicking buttons: 0 non-local requests and 0 cookies in all 15 runs; the '<slug>-usage' localStorage key was written with no signal and absent under GPC and DNT on all three modules that count by default; which-job-first (inline, off by default) wrote nothing; the only key under GPC on contract-vs-fte was the '-usage-opt-out' preference my click on its opt-out button set, which is strictly necessary and correct. (2) Independent grep of all tracked venture usage.mjs/usage.js (1313) for fetch/sendBeacon/XMLHttpRequest/new Image and property-assignment storage writes: none; every one mentions globalPrivacyControl. (3) Independent grep for query-string share writes (searchParams.set, .search =): only 'url.search = \"\"' clears plus unrelated referral/OAuth code, agreeing with share-location's 0 findings. So the verdicts on today's catalogue are right; capped at 3 because fixtures below show false passes on shapes not yet in the catalogue.",
+  "completeness": "Six checkers, each claimed in its header; all six run in CI (.github/workflows/portfolio-validate.yml:741 browser-signals, :751 inline-signals, :770 node --test platform/privacy/*.test.mjs). browser-signals, inline-signals have CLIs; one-opt-out, optout-persistence, share-location, usage-call-order have no CLI entry point (running them as scripts prints nothing and exits 0) and only run through their tests, which do assert against the live catalogue (e.g. 'the shipped catalogue calls recordUsage the way each venture declares it' ok). No stubs or TODOs found. No README for the directory, so a reader must open six 200-line headers to learn what the area guarantees.",
+  "verification": "node --test 'platform/privacy/*.test.mjs': 106 tests, 106 pass, 0 fail, 7.8 s. Seeded mutation 1 (browser-signals.mjs checkModule, 'writes.length > 0' -> '> 100'): 3 tests failed (ignores-signals fixture, GPC-only fixture, CLI exit-1). Seeded mutation 2 (inline-signals.mjs MAX_ENCLOSING_BLOCKS 10 -> 1): 9 tests failed. Both reverted with git checkout. Gaps the tests do not cover (shown with scratch fixtures, not committed): a usage.mjs that calls fetch('https://collector.example/...') on every call regardless of GPC but gates its setItem passes browser-signals (3/3 fixtures 'honour'); a module that writes storage['key']=v by property assignment regardless of signal also passes because the spy only records setItem; an inline page whose draft save is GPC-gated and whose usage counter is not gated returns status 'pass'.",
+  "craft": "Read browser-signals.mjs, inline-signals.mjs (whole), headers of one-opt-out.mjs, optout-persistence.mjs, share-location.mjs, usage-call-order.mjs. Good: behavioural driving with a control run so an undrivable module cannot silently pass (browser-signals.mjs:230); git ls-files/check-ignore to exclude build output instead of a name list; ENOENT race handled. Defects: inline-signals is a brace-counting text walker, not a parser (strings or regex literals containing braces can mislead it); verdict returns 'pass' on the first gated write in the page and never examines the rest (inline-signals.mjs:371); CLI guard compares import.meta.url to a hand-built `file://${argv[1]}` (inline-signals.mjs:411), which fails silently for paths needing percent-encoding while browser-signals uses pathToFileURL correctly; the same paragraph is pasted twice (one-opt-out.mjs:33-38); comments are long incident narratives that dwarf the code and carry stale counts ('11 ventures' vs 15+3 today, '150 usage modules' vs 1313); optout-persistence.test.mjs is 121 KB in one file.",
+  "claims": "Checked claims: (a) browser-signals header 'each module is actually called, with a storage spy' - backed (drive(), makeStorage). (b) inline-signals header 'the error is toward a false alarm a human resolves, never toward a silent pass' - NOT backed: the two-writes fixture (gated draft save + ungated counter) returns 'pass', a silent pass (inline-signals.mjs:371). (c) inline-signals test 'no venture making the usage-counter promise is unchecked by either half' - backed only for pages matching /usage count|usage counter|anonymous local usage/i (inline-signals.mjs:405); a page saying 'Anonymous usage is counted in local storage. Do Not Track ... honoured' with an ungated counter is classed 'no-counter' and the CLI exits 0. (d) share-location header 'the visitor's figures never leave the device' - backed for share links by checker and my independent grep. (e) The suite's implicit claim, stated in baseline docs/legal/privacy-baseline.md ('a page that promises them must keep the promise (platform/privacy/ checks that)'), is broader than what is checked: only localStorage.setItem is observed, not network egress, which is the half of the footer promise ('not counted at all', 'no analytics vendor') a regulator would care about. No README states these limits.",
+  "fitness": "Job: a privacy engineer wants CI to go red the day a page starts counting GPC/DNT browsers, forgets an opt-out on reload, or puts figures in a query string. Walked through: all three are wired into CI and each header records a real defect it caught (e.g. six query-string share links on 2026-09-06, four split opt-out keys). On today's catalogue it gives correct answers. A practitioner would use it as a regression guard, with the stated blind spots (network egress, ungated second write, narrow claim regex) to be closed.",
+  "domain": "Compared against the GPC spec (navigator.globalPrivacyControl === true; Sec-GPC: 1 header), DNT ('1'), CPRA regs s.7025 (GPC as opt-out of sale/sharing), ePrivacy art. 5(3) and EDPB Guidelines 2/2023 on its technical scope. Matches: GPC/DNT detection uses the spec values; docs/legal/privacy-baseline.md correctly says GPC binds only sale/sharing and DNT has no legal force, so these checks hold a voluntary promise, which is the right framing. Departures a privacy counsel would raise: (1) the checks look at device storage only, never at what is transmitted, though transmission is what GDPR and CPRA regulate; (2) nothing considers that an on-by-default analytics counter in localStorage is itself 'storage of information' under ePrivacy 5(3) (EDPB 2/2023 treats local storage like cookies; the strictly-necessary exemption does not cover analytics, and the UK DUAA 2025 statistics exemption needs an opt-out) - most counters observed (3 of 4 counting ventures sampled) are on by default with no consent, which is a defensible low-risk position for data that never leaves the device but is a judgement the suite neither records nor tests; (3) the server-side counter's Sec-GPC handling (platform/counter, platform/edge) is outside this suite and the hub chrome script's guard is tested in platform/pages/counter-wiring.test.mjs instead, so 'platform/privacy' is not the single place the promise is held."
+ },
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "inline-signals returns 'pass' for the whole page on the first storage write that has a signal guard, so a GPC-gated draft save masks an ungated usage counter in the same page (scratch fixture 'two-writes' -> status pass). Contradicts the header's 'never toward a silent pass'.",
+   "where": "platform/privacy/inline-signals.mjs:371"
+  },
+  {
+   "severity": "medium",
+   "what": "browser-signals only spies Storage.setItem; a usage module that sends a network request (fetch/sendBeacon) regardless of GPC/DNT, or writes storage by property assignment, passes. The footer promise ('not counted at all', 'no analytics vendor') is about transmission too. No such module exists today (grep of 1313 modules), so this is a guard gap, not a live leak.",
+   "where": "platform/privacy/browser-signals.mjs:118"
+  },
+  {
+   "severity": "medium",
+   "what": "An inline counter that never reads a signal is classed 'no-counter' and only becomes a failure if the page text matches /usage count|usage counter|anonymous local usage/i; other phrasings of the same promise (e.g. 'Anonymous usage is counted ... Do Not Track honoured') slip through with exit 0.",
+   "where": "platform/privacy/inline-signals.mjs:405"
+  },
+  {
+   "severity": "low",
+   "what": "No README for platform/privacy: what the six checkers guarantee and, as important, what they do not (network egress, ePrivacy consent) is only in long file headers with stale counts.",
+   "where": "platform/privacy/"
+  },
+  {
+   "severity": "low",
+   "what": "CLI entry guard builds the file URL by hand (`file://${argv[1]}`) instead of pathToFileURL, so the check silently never runs from a path that needs percent-encoding; four of six modules have no CLI at all and print nothing when run directly.",
+   "where": "platform/privacy/inline-signals.mjs:411"
+  },
+  {
+   "severity": "low",
+   "what": "Duplicated comment paragraph.",
+   "where": "platform/privacy/one-opt-out.mjs:33"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "platform/privacy is a set of six CI checkers that hold the catalogue's voluntary Do Not Track / Global Privacy Control promise, opt-out persistence, one opt-out key per venture, recordUsage argument order and fragment-only share links. Its verdicts on today's catalogue are right: 106/106 tests pass, two seeded mutations were caught (3 and 9 failures), and an independent Playwright run of 5 random venture pages under GPC and DNT showed 0 third-party requests, 0 cookies and no usage key written, with independent greps agreeing on network calls and share links. It falls short of the senior-privacy-engineer bar on claims and domain: it watches device storage only, not what is transmitted; the inline checker can silently pass an ungated counter that sits next to a gated draft save, against its own stated design; the coverage test's claim regex is narrow; and nothing records the ePrivacy 5(3) judgement behind on-by-default local analytics counters. Finished, useful as a regression guard, does not meet the bar until the false-pass paths are closed and its limits are written down."
+}
