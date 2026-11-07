@@ -10,24 +10,28 @@
 // ceil(overhang / panelWidth) courses; each course's run is packed into stock
 // panels by first fit decreasing. Fascia boards follow the eave and rake runs
 // and are packed the same way. J-channel is the length of wall the soffit meets.
-// Not counted: corner mitres, frieze board, drip edge (the
+// Frieze board (2026-11-07, `frieze: true`, `friezeStock` length, default 192 in, `friezePrice`): one board along every wall the soffit meets, the same runs as the J-channel, packed into stock with the same waste; off by default so earlier totals do not move.
+// Not counted: corner mitres, drip edge (the
 // roof's own count), nails, caulk and paint; a cross wing of a different pitch than the main roof (noted).
 import { packPieces } from "./trim.mjs";
 
 import { textNumberErrors } from "./numfields.mjs";
-/** @typedef {{ panelWidth?: number, panelStock?: number, fasciaStock?: number, channelStock?: number, waste?: number, rakeSoffit?: boolean, ventedPanelNfa?: number, panelPrice?: number, fasciaPrice?: number, channelPrice?: number }} Eaves */
+/** @typedef {{ panelWidth?: number, panelStock?: number, fasciaStock?: number, channelStock?: number, waste?: number, rakeSoffit?: boolean, ventedPanelNfa?: number, panelPrice?: number, fasciaPrice?: number, channelPrice?: number, frieze?: boolean, friezeStock?: number, friezePrice?: number }} Eaves */
 
 /** @param {Eaves} d */
 export function validateEaves(d) {
   const e = [];
   if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Eave settings are an object."];
-  e.push(...textNumberErrors(d, ['channelPrice', 'channelStock', 'fasciaPrice', 'fasciaStock', 'panelPrice', 'panelStock', 'panelWidth', 'ventedPanelNfa', 'waste']));
+  e.push(...textNumberErrors(d, ['channelPrice', 'channelStock', 'friezePrice', 'friezeStock', 'fasciaPrice', 'fasciaStock', 'panelPrice', 'panelStock', 'panelWidth', 'ventedPanelNfa', 'waste']));
   if (e.length) return e;
   if (d.panelWidth != null && !(d.panelWidth >= 6 && d.panelWidth <= 24)) e.push("Soffit panel width must be between 6 and 24 inches.");
   for (const [k, n] of /** @type {const} */ ([["panelStock", "Soffit panel"], ["fasciaStock", "Fascia board"], ["channelStock", "J-channel"]])) {
     const v = d[k];
     if (v != null && !(v >= 48 && v <= 288)) e.push(`${n} length must be between 48 and 288 inches.`);
   }
+  if (d.frieze != null && typeof d.frieze !== "boolean") e.push("Frieze board is true or false.");
+  if (d.friezeStock != null && !(d.friezeStock >= 48 && d.friezeStock <= 288)) e.push("Frieze board length must be between 48 and 288 inches.");
+  if (d.friezePrice != null && !(d.friezePrice >= 0)) e.push("Frieze board price cannot be negative.");
   if (d.ventedPanelNfa != null && !(d.ventedPanelNfa > 0 && d.ventedPanelNfa <= 400)) e.push("Vented soffit panel net free area must be between 0 and 400 sq in per panel.");
   if (d.waste != null && !(d.waste >= 0 && d.waste <= 0.3)) e.push("Eave waste must be between 0 and 0.3.");
   return e;
@@ -77,6 +81,9 @@ export function layoutEaves(d, roof, vent) {
   const fp = packPieces(fasciaRuns, fasciaStock);
   const channelRuns = [...(oh > 0 ? eaveRuns : []), ...(rakeSoffit ? rakeRuns : [])];
   const cp = channelRuns.length ? packPieces(channelRuns, channelStock) : { boards: 0, usedIn: 0 };
+  const friezeStock = d.friezeStock ?? 192;
+  const zp = d.frieze === true && channelRuns.length ? packPieces(channelRuns, friezeStock) : null;
+  const frieze = zp ? up(zp.boards) : 0;
   const panels = up(sp.boards), fascia = up(fp.boards), channel = up(cp.boards);
   const money = (/** @type {number | undefined} */ p, /** @type {number} */ q) => (p != null ? q * p : 0);
   // Vented panels stand in for solid ones, so they never exceed the panels counted; the area is the
@@ -86,12 +93,13 @@ export function layoutEaves(d, roof, vent) {
     const needed = Math.ceil(vent.lowerSqIn / d.ventedPanelNfa - 1e-9);
     vented = { needed, fits: needed <= panels, solid: Math.max(0, panels - needed) };
   }
-  const priced = d.panelPrice != null || d.fasciaPrice != null || d.channelPrice != null;
+  const priced = d.panelPrice != null || d.fasciaPrice != null || d.channelPrice != null || (d.frieze === true && d.friezePrice != null);
   return {
     ok: true, errors: [], shape: hip ? "hip" : "gable", waste, panelWidth: pw, panelStock, fasciaStock, channelStock, rakeSoffit,
     eaveFeet: eaveRuns.reduce((a, b) => a + b, 0) / 12, rakeFeet: rakeRuns.reduce((a, b) => a + b, 0) / 12,
     wings: wingCount, wingNotes, ventedPanels: vented ? Math.min(vented.needed, panels) : null, solidPanels: vented ? vented.solid : null, ventedFits: vented ? vented.fits : null, ventedPanelNfa: d.ventedPanelNfa ?? null, soffitSqFt, eaveCourses, rakeCourses, panels, fascia, channel,
-    cost: priced ? money(d.panelPrice, panels) + money(d.fasciaPrice, fascia) + money(d.channelPrice, channel) : null,
+    cost: priced ? money(d.panelPrice, panels) + money(d.fasciaPrice, fascia) + money(d.channelPrice, channel) + money(d.friezePrice, frieze) : null,
+    frieze: d.frieze === true ? { boards: frieze, stock: friezeStock, feet: zp ? zp.usedIn / 12 : 0, price: d.friezePrice ?? null } : null,
     panelPrice: d.panelPrice ?? null, fasciaPrice: d.fasciaPrice ?? null, channelPrice: d.channelPrice ?? null,
   };
 }
@@ -104,8 +112,9 @@ export function eavesText(s) {
   if (s.ventedPanels != null) l.push(`  Vented soffit: ${s.ventedPanels} of the ${s.panels} panels vented (${s.ventedPanelNfa} sq in each) to give the intake area the ventilation sizing asks for, ${s.solidPanels} solid${s.ventedFits ? "" : "; the soffit has too few panels to carry it, so use a higher-NFA panel or continuous vent"}`);
   l.push(`  Fascia: ${(s.eaveFeet + s.rakeFeet).toFixed(0)} ft (eave${s.rakeFeet ? " and rake" : ""}) -> ${s.fascia} boards of ${s.fasciaStock / 12} ft${m(s.fascia, s.fasciaPrice)}`);
   l.push(`  J-channel: ${s.channel} pieces of ${s.channelStock / 12} ft along the wall${m(s.channel, s.channelPrice)}`);
+  if (s.frieze) l.push(`  Frieze board: ${s.frieze.feet.toFixed(0)} ft along the wall -> ${s.frieze.boards} boards of ${s.frieze.stock / 12} ft${m(s.frieze.boards, s.frieze.price)}`);
   if (s.wings) l.push(`  ${s.wings} cross wing(s): each replaces ${"`width + 2 x overhang`"} of main eave with its own two eaves and two gable-end rakes.`);
   for (const n of s.wingNotes || []) l.push("  " + n);
-  l.push("  Corner mitres, frieze, drip edge, nails, caulk and paint are not counted; widths, stock lengths and prices are figures you type.");
+  l.push("  Corner mitres, drip edge, nails, caulk and paint are not counted; widths, stock lengths and prices are figures you type.");
   return l;
 }
