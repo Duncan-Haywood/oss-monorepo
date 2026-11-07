@@ -29,13 +29,18 @@
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Two runs picked the same Schultz IFC next-step the same day; no marker said it was claimed."
+    }
+  ],
   "deviations": [],
   "writeups": [
-    "docs/posts/2026-11-07-a-real-house-frames-after-two-ifc-fixes.md; no docs/reports entry (README section holds the detail)"
+    "docs/posts/2026-11-07-a-stair-wall-was-framed-as-a-door.md"
   ],
   "goal": null,
-  "notes": "Local checks only: cargo test (11 pass), ifcwasm/ifc/ifc-fuzz node tests (17 pass). Venture preflight not run.",
+  "notes": "Local checks: cargo test (6+12 pass), ifcwasm/ifc/ifc-fuzz node tests. Overlapped a run that landed drop_redundant_voids first; merged and kept only the floating-cutout rule.",
   "corrections": [],
   "redteam": null
 }
