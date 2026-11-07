@@ -1,6 +1,6 @@
 ---
 title: "A wind forecast is worth more to a sailing drone when tacks are expensive"
-seo_title: "Wind forecast value for autonomous sailing drones at a realistic tack cost"
+seo_title: "Wind forecast value for sailing drones at a realistic tack cost"
 date: 2026-11-07
 tags: [marine-hull, research, autonomy]
 description: "At a 240 s tack price a perfect smoothed wind forecast beats header-following by 8.7 points in July, up from 5.4 at 30 s. Persistence forecasts do not help."
