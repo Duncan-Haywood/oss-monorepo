@@ -1,7 +1,7 @@
 ---
 title: "How often does a 16-point pilot certify that a cheap chip-flow rung is safe? An exact formula"
 date: 2026-11-07
-description: "For the verified-dse programme, the chance that a pilot's rank-displacement certificate fires has an exact tie-aware formula that matches simulation in all 33 test cells."
+description: "For verified-dse, the chance a pilot's rank-displacement certificate fires has an exact tie-aware formula that matches simulation in all 33 test cells."
 tags: [research, chip-design, verified-dse]
 ---
 
