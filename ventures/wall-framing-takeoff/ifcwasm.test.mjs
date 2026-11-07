@@ -57,3 +57,29 @@ test("openingSizes: a bare void with a sill is framed as a window at its own hei
   const ops = sized.plan.walls[0].openings;
   assert.deepEqual(ops.map((o) => [o.kind, o.height, o.headerHeight]), [["door", 80, 80], ["window", 48, 80]]);
 });
+
+test("wallHeights, a sunken door sill and header fit: the model's own heights reach the plan (Schultz 3rd Floor shapes)", async () => {
+  const { openingSizes, wallHeights } = await import("./ifcwasm.mjs");
+  const k = 1 / 0.0254;
+  // a 9 ft 1-1/4 in wall (2.77 m) and a 7 ft 3 in wall (2.21 m), both 16 ft long; the second holds a door whose sill Revit puts 0.035 m under the floor
+  const info = { walls: [
+    { start: [1.2192, 1.27635], end: [6.096, 1.27635], height: 2.77, openings: [] },
+    { start: [1.2192, 3.2], end: [6.096, 3.2], height: 2.21, openings: [{ kind: "door", from: 1.0, to: 1.9, sill: -0.035, height: 2.172 }] }] };
+  const h = wallHeights(info);
+  assert.equal(h({ x: 3.6576 * k, y: 1.27635 * k }), Math.round(2.77 * k * 16) / 16);
+  assert.equal(h({ x: 3.6576 * k, y: 3.2 * k }), Math.round(2.21 * k * 16) / 16);
+  assert.equal(h({ x: 0, y: 0 }), undefined);
+  // sill clamps to 0: the header height is the door height, not 1.4 in under it
+  const s = openingSizes(info)({ x: (1.2192 + 1.45) * k, y: 3.2 * k });
+  assert.equal(s.headerHeight, s.height);
+  const dxf = (l, y, a, b) => `0\nLINE\n8\n${l}\n10\n${a}\n20\n${y}\n30\n0\n11\n${b}\n21\n${y}\n31\n0\n`;
+  const a = 1.2192 * k, b = 6.096 * k, y = 3.2 * k;
+  const text = "0\nSECTION\n2\nHEADER\n9\n$INSUNITS\n70\n1\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n" + dxf("A-WALL", y, a, b) + dxf("A-DOOR", y, a + 1.0 * k, a + 1.9 * k) + "0\nENDSEC\n0\nEOF\n";
+  const r = planFromDxf(text, { openingSize: openingSizes(info), wallHeight: wallHeights(info) });
+  const w = r.plan.walls[0];
+  // 2.21 m = 87 in; less 3 plates (4-1/2 in) = 82-1/2 in of stud; a 2x10 would not fit over an 85-1/2 in door, so a 2x4 (or nothing deeper than the room) is used
+  assert.equal(w.studLength, Math.round((2.21 * k - 4.5) * 16) / 16);
+  assert.match(r.notes.join("\n"), /wall height read from the model/);
+  // without the option nothing changes
+  assert.equal(planFromDxf(text).plan.walls[0].studLength, undefined);
+});
