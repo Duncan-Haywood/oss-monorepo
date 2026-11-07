@@ -1,6 +1,6 @@
 ---
 title: "How many posts, rails and pickets does 100 feet of fence take? A free calculator"
-seo_title: "Fence calculator: posts, rails, pickets and concrete for a wood fence"
+seo_title: "How many posts, rails and pickets for 100 ft of fence? Free calculator"
 date: 2026-11-07
 tags: [wall-framing-takeoff, calculators, construction]
 description: "A free fence takeoff that cuts each run into equal bays so rails end on posts, and counts posts, pickets, concrete bags and fasteners."
