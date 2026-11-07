@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Final Inspection Sample Size Calculator for Clothing Orders (AQL Alternative)</title>
+  <meta name="description" content="How many pieces should a final inspection pull from your clothing order, and how many defects may it find? Exact sampling maths, the chance a good or bad lot passes, and a pass or fail verdict with the worst defect rate it hides. Free, in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Inspection sample size and verdict">
+  <meta property="og:description" content="How many pieces to inspect and how many defects to accept. Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Inspection sample size and verdict (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="spec.html">Measurement spec</a> · <a href="tna.html">Time and action calendar</a> · <a href="quotes.html">Compare factory quotes</a></p>
+  <h1>How many pieces should the inspector check?</h1>
+  <p>Before you pay the balance, an inspector pulls some pieces from the cartons and the order ships if they find no more than a set number of defects. This works out the sample that makes that rule fair to you and to the factory, the chance a lot passes at each defect rate, and what a result really tells you. It uses exact sampling without replacement, so small orders are right too, and needs no standards table.</p>
+  <p class="placeholder">Your contract may name a published plan (ISO 2859-1 or ANSI Z1.4, AQL 2.5 for major defects is common). Use the numbers here to understand it; check the plan itself against the standard. Not QC or legal advice.</p>
+  <div class="grid">
+    <section>
+      <h2>The order</h2>
+      <label for="lot">Pieces in the lot</label><input id="lot" type="number" min="2" step="1" value="1000">
+      <label for="aql">A good lot has up to this % defective</label><input id="aql" type="number" min="0.1" max="20" step="any" value="2.5">
+      <label for="rql">A lot you would refuse has this % or more</label><input id="rql" type="number" min="0.2" max="50" step="any" value="10">
+      <div class="row"><div><label for="pr">Chance a good lot is wrongly failed</label><input id="pr" type="number" min="1" max="49" step="any" value="5"></div><div><label for="br">Chance a bad lot is wrongly passed</label><input id="br" type="number" min="1" max="49" step="any" value="10"></div></div>
+      <h2 style="margin-top:14px">What the inspector found</h2>
+      <label for="found">Defective pieces found (leave blank until you know)</label><input id="found" type="number" min="0" step="1">
+      <label for="unit">Cost per piece (optional)</label><input id="unit" type="number" min="0" step="any" placeholder="e.g. 9.40">
+    </section>
+    <section><h2>Sampling plan</h2><output id="plan" aria-live="polite"></output><h2 style="margin-top:14px">Chance the lot passes</h2><div id="oc"></div><h2 style="margin-top:14px">Verdict</h2><output id="verdict" aria-live="polite"></output></section>
+  </div>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional advice, and it does not replace a qualified professional. Conversion and traffic are your estimates; the result is a forecast, not a promise. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+
+
+  <script type="module">
+    import { findPlan, ocCurve, verdict } from "./inspect.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const pct = v => (100 * v).toFixed(v < 0.995 && v > 0.005 ? 0 : 1) + "%";
+    function run() {
+      let plan;
+      try {
+        plan = findPlan({ lot: +$("#lot").value, aqlPct: +$("#aql").value, rqlPct: +$("#rql").value, producerRisk: +$("#pr").value / 100, buyerRisk: +$("#br").value / 100 });
+      } catch (e) { $("#plan").innerHTML = `<p class="placeholder">${esc(e.message)}</p>`; $("#oc").innerHTML = $("#verdict").innerHTML = ""; return; }
+      if (!plan) { $("#plan").innerHTML = '<p class="big">Check every piece</p><p>No sample smaller than the lot meets both limits. Loosen the limits or inspect all pieces.</p>'; $("#oc").innerHTML = $("#verdict").innerHTML = ""; return; }
+      const share = (100 * plan.n / plan.lot).toFixed(0);
+      $("#plan").innerHTML = `<p class="big">Inspect ${plan.n} pieces, accept up to ${plan.accept} defective</p><p>Fail the lot at ${plan.reject} or more. That is ${share}% of the order. A lot at ${plan.aqlPct}% defective passes ${pct(plan.passGoodLot)} of the time; a lot at ${plan.rqlPct}% passes only ${pct(plan.passBadLot)}.</p>`;
+      const rates = [...new Set([0.5, 1, 2.5, 4, 6.5, 10, 15, plan.aqlPct, plan.rqlPct])].sort((a, b) => a - b);
+      $("#oc").innerHTML = `<table><tr><th scope="col">Lot is this % defective</th><th scope="col" class="num">Chance it passes</th></tr>${ocCurve(plan.lot, plan.n, plan.accept, rates.map(r => r / 100)).map(o => `<tr><td>${+(o.p * 100).toFixed(2)}%</td><td class="num">${pct(o.accept)}</td></tr>`).join("")}</table>`;
+      const f = $("#found").value;
+      if (f === "") { $("#verdict").innerHTML = '<p class="muted">Type the number of defective pieces found.</p>'; return; }
+      try {
+        const v = verdict({ lot: plan.lot, n: plan.n, accept: plan.accept, found: +f });
+        const u = +$("#unit").value;
+        const risk = u > 0 ? `<p>At that worst case the lot could hold ${v.upperPieces} defective pieces, about ${(v.upperPieces * u).toFixed(2)} of product you would be paying for.</p>` : "";
+        $("#verdict").innerHTML = `<p class="big">${v.pass ? "Pass" : "Fail"}</p><p>${esc(v.message)}</p>${risk}`;
+      } catch (e) { $("#verdict").innerHTML = `<p class="placeholder">${esc(e.message)}</p>`; }
+    }
+    document.addEventListener("input", () => { run(); recordUsage("inspect_plan"); });
+    run(); recordUsage("inspect_open");
+  </script>
+</body>
+</html>
