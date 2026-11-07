@@ -41,12 +41,16 @@ check that a straight-course CPA equals the lateral offset.
 
 Kinematic ship (constant speed, turn-rate limit only); the 100 m safe distance, speeds, 6 deg/s and the action
 ranges are chosen, not sourced; the target never manoeuvres and never gives way; planners know the roles from
-perfect classification; MPC weights are untuned (the CMA-ES comparison in `PROJECTS.md` is not done); no real AIS
+perfect classification; MPC weights tuned only in milestone 2 (3 weights, one effective lever); no real AIS
 geometry; no wind, waves or Fossen dynamics (see `marine-path`). The ranking is a property of this model.
+
+## Milestone 2: tuning the MPC weights (CMA-ES against random search, equal budget)
+
+Tuned on offsets +-50 m, tested on held-out offsets -100/0/+100 m (`experiments/run_tune.py`, `experiments/results_tune.txt`). Both tuners cut mean held-out loss from 0.260 (default weights) to 0.159-0.176, and CMA-ES does not beat random search at 90 evaluations (0.1655 against 0.1651, 3 runs each). The gain is compliance (76.8-84.1% to 85.5-95.7%) from a 10 to 300 times larger port-turn penalty; safe share barely moves (84-90%). Three weights, one effective lever, so the equal-budget comparison cannot separate the optimisers here. Needs `pip install cma`.
 
 ## Next steps
 
-AIS-derived encounter geometries; a cooperative target; tune MPC weights against CMA-ES at equal budget; Fossen
+AIS-derived encounter geometries; a cooperative target; Fossen
 dynamics; the effect of the detector's miss rate (`marine-detect`).
 
 ## Citations
