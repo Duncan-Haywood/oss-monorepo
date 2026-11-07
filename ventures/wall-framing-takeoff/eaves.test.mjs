@@ -89,3 +89,20 @@ test("vented soffit panels: the ventilation intake area divided by one vented pa
   assert.equal(layoutEaves({ waste: 0, ventedPanelNfa: nfa }, roof).ventedPanels, null);
   assert.ok(validateEaves({ ventedPanelNfa: 0 }).length > 0);
 });
+
+test("frieze board by hand: a gable's two eave runs, packed and priced (2026-11-07)", async () => {
+  const { layoutRoof, sampleRoof } = await import("./roof.mjs");
+  const { samplePlan } = await import("./engine.mjs");
+  const roof = layoutRoof(sampleRoof(), { ...samplePlan(), walls: [] });
+  const off = layoutEaves({ waste: 0 }, roof);
+  assert.equal(off.frieze, null);
+  const on = layoutEaves({ waste: 0, frieze: true, friezePrice: 10 }, roof);
+  assert.ok(on.ok, JSON.stringify(on.errors));
+  // the frieze runs are the J-channel runs, so the feet match and the cost adds boards x price
+  assert.equal(on.frieze.feet, on.eaveFeet);
+  assert.equal(on.frieze.boards, 6); // each 504 in run = 2 x 192 + 120, and two 120 in offcuts do not fit one 192 in board
+  assert.equal(on.cost, on.frieze.boards * 10);
+  assert.ok(eavesText(on).some((x) => x.includes("Frieze board")));
+  assert.ok(layoutEaves({ frieze: "yes" }, roof).errors.length);
+  assert.ok(layoutEaves({ frieze: true, friezeStock: 10 }, roof).errors.length);
+});
