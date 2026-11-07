@@ -32,3 +32,23 @@ test('us-unemployment-duration --ar1: the 2009 rise is reported as one ramp', ()
   assert.ok(ramp.shift > 8);
   assert.equal(r.pelt.changepoints.length, 15, 'the changes themselves are unchanged');
 });
+
+// Synthetic, seeded (not real data): eval/ramp-gap.mjs, ramp-gap-fit.out.txt.
+function mk(kind, H, L, seed, n = 300, t0 = 120) {
+  let s = seed >>> 0; const r = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+  const x = [];
+  for (let i = 0; i < n; i++) {
+    const m = kind === 'ramp' ? (i < t0 ? 0 : i >= t0 + L ? H : H * (i - t0) / L) : (i >= t0 ? H / 2 : 0) + (i >= t0 + L ? H / 2 : 0);
+    x.push(m + Math.sqrt(-2 * Math.log(r() + 1e-12)) * Math.cos(2 * Math.PI * r()));
+  }
+  return x;
+}
+test('ramps by fit: a 48-point rise of 8 is one ramp in most series; two steps 48 points apart never are', () => {
+  let ramp = 0, steps = 0;
+  for (let s = 1; s <= 12; s++) {
+    if ((analyze({ values: mk('ramp', 8, 48, s * 7919 + 48) }).ramps || []).length) ramp++;
+    if ((analyze({ values: mk('steps', 8, 48, s * 7919 + 48) }).ramps || []).length) steps++;
+  }
+  assert.ok(ramp >= 10, `ramp found in ${ramp}/12`);
+  assert.equal(steps, 0);
+});
