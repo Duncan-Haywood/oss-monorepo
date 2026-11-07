@@ -1629,3 +1629,24 @@ them apart there. That is by design ("not a test"). New: with a ramp of 24 to 48
 cuts a long ramp into segments longer than 6; the cut count per series rises (3.0 to 3.6 at H=8) while the grouping stays silent. Two
 steps 12 or more apart are never grouped, correctly. So `maxGap` at a fiftieth of the series catches short ramps and misses long ones; widening
 it would also group genuine staircases. Synthetic, one noise model: not a calibration on real ramps, which are still wanted.
+
+### Ramps by fit (2026-11-08, `eval/ramp-gap.mjs`, `eval/ramp-gap-fit.out.txt`, synthetic only)
+
+`analyze` now passes the series to `groupRamps`, which groups same-direction cuts separated by up to a fifth of the series, then keeps a
+run as one ramp only if a flat-line-flat fit (two levels, a straight line between two knots placed anywhere from the previous cut to
+the next one; 4 parameters) beats the steps PELT found by BIC (2k+1 parameters for k cuts, so the steps pay for their positions). If the
+run fails, its last cut is dropped and it is tried again. Called without `values`, `groupRamps` keeps the old gap rule. Same simulation
+as above (n = 300, N(0,1), 40 seeds, plain `analyze`), ramp reported of 40:
+
+| truth | H | L = 6 / 12 / 24 / 48 | gap rule before | by fit now |
+|---|---|---|---|---|
+| ramp | 8 | | 38 / 30 / 8 / 0 | 27 / 29 / 39 / 40 |
+| ramp | 4 | | 5 / 7 / 0 / 0 | 5 / 17 / 33 / 33 |
+| two steps | 8 | | 38 / 0 / 1 / 0 | 1 / 1 / 0 / 0 |
+| two steps | 4 | | 24 / 0 / 0 / 0 | 6 / 9 / 3 / 0 |
+
+Reading: long ramps (24 to 48 points) are now found in 33 to 40 of 40 instead of 0 to 8, and two steps 6 apart are no longer called a ramp
+(38 to 1 of 40 at H=8). The price: a 6-point ramp of height 8 is found 27 of 40 instead of 38, and H=4 steps 12 apart are called a ramp 9 of 40
+(a small step pair next to noise looks like a bent line). Short ramps and close steps are genuinely alike in the data; this rule only claims
+that a long one is a line. The real 2009 US unemployment-duration rise is still one ramp (test `ramps.test.mjs`). Still synthetic with one noise
+model, no `--ar1`; no labelled real ramps tested. Next: sticky noise (`--ar1`), and real documented ramps.
