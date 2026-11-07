@@ -44,8 +44,12 @@ const PILOTS = {
   'card-processing-fee-audit': async (m) => [m.STRIPE_STANDARD_PUBLISHED.perTransaction],
   'freelance-platform-fee-calculator': async (m) => [100, 100 - m.FIVERR_FEE_PERCENT], // 100: the worked example order in the lead
   'course-platform-fee-calculator': async (m) => [m.PRESETS[0].txFlat, m.PRESETS[2].monthlyFee], // Gumroad flat per-sale fee, Podia paid plan
+  'merchant-of-record-fee-calculator': async (m) => [m.DEFAULT_PROVIDERS.paddle.fixed, m.DEFAULT_PROVIDERS.polar.fixed], // Paddle/Lemon Squeezy and Polar per-transaction fixed fees
   'poshmark-fee-calculator': async (m) => [m.FLAT_FEE, m.COMMISSION_THRESHOLD, m.BREAK_EVEN_PRICE],
 };
+
+// slugs whose engine is not calc.mjs
+const MODULE = { 'merchant-of-record-fee-calculator': 'engine.mjs' };
 
 for (const [slug, figures] of Object.entries(PILOTS)) {
   test(`${slug}: lead is sourced, dated and matches the calc module`, async () => {
@@ -55,7 +59,7 @@ for (const [slug, figures] of Object.entries(PILOTS)) {
     const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
     assert.match(text, /Source:/);
     assert.match(text, /(?:verified|as of) \d{4}-\d{2}(?:-\d{2})?/i);
-    const allowed = (await figures(await import(new URL(`${slug}/calc.mjs`, root)))).map(Number);
+    const allowed = (await figures(await import(new URL(`${slug}/${MODULE[slug] || 'calc.mjs'}`, root)))).map(Number);
     const stated = [...text.matchAll(/\$([\d,]+(?:\.\d+)?)/g)].map((x) => Number(x[1].replace(/,/g, '')));
     assert.ok(stated.length > 0, 'lead states no figure');
     for (const n of stated) assert.ok(allowed.includes(n), `$${n} is not a figure exported by ${slug}/calc.mjs`);
