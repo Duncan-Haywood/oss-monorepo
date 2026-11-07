@@ -563,6 +563,11 @@ class InMainRuleTest(unittest.TestCase):
             decide_stray("claude/x", UNIQUE_TIP, set(), NOW, None, None).delete
         )
 
+    def test_no_pr_branch_in_main_with_unknown_tip_date_is_kept(self):
+        decision = decide_stray("claude/x", MAIN_TIP, set(), NOW, True, None)
+        self.assertFalse(decision.delete)
+        self.assertIn("no known date", decision.reason)
+
     def test_no_pr_branch_with_an_open_pr_is_kept(self):
         decision = decide_stray("claude/x", MAIN_TIP, {"claude/x"}, NOW, True,
                                 NOW - timedelta(hours=96))
