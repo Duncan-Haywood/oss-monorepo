@@ -382,6 +382,15 @@ test("fresh set 2026-11-07: scored once at 26/30 (1 overreach), 29/30 after thre
     assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
 });
 
+test("fresh set 2026-11-08: scored once at 25/30 (1 overreach, 1 opt-out missed), 30/30 after three narrow patches and two label rulings; a tuned set", () => {
+  const s = score(load("fresh-2026-11-08.jsonl"));
+  assert.equal(s.right, 30);
+  assert.equal(s.unsubMissed, 0);
+  const T = "2026-11-08";
+  for (const [body, want] of [["Haal me van je lijst af alstublieft. Geen mails meer.", "unsubscribe"], ["Come back to me once we close our funding round, probably spring.", "not_now"], ["Sounds like another tool that sends spam under our name. We got burned by that before.", "objection"]])
+    assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+});
+
 // Full mailbox (2026-11-05). First tried as a soft bounce; 8 of the 117 real bounces in eval/bounce-corpus are final
 // "returned to sender" notices for a full mailbox, so the category stays bounce. The subtype only changes the task.
 test("a full mailbox stays a bounce, tagged mailbox_full, and the task says the address may be real", () => {

@@ -622,3 +622,17 @@ test("hostile landing and stair sizes are refused, not turned into billions of p
   assert.ok(validateStair({ ...sampleStair(), nosing: 99 }).length > 0);
   assert.deepEqual(validateStair(sampleStair()), []);
 });
+
+test("layoutStair refuses null/non-object settings and a bad rail with a reason (2026-11-07)", () => {
+  for (const bad of [null, undefined, 5, "x", []]) {
+    const r = layoutStair(bad, plan());
+    assert.equal(r.ok, false);
+    assert.match(r.errors[0], /object/);
+  }
+  for (const sides of ["x", -1, 0, 3, 1.5, NaN]) {
+    const r = layoutStair({ totalRise: 108, tread: 10, rail: { sides } }, plan());
+    assert.equal(r.ok, false, `sides ${sides}`);
+  }
+  assert.equal(layoutStair({ totalRise: 108, tread: 10, rail: "yes" }, plan()).ok, false);
+  assert.equal(layoutStair({ totalRise: 108, tread: 10, rail: { sides: 2 } }, plan()).ok, true);
+});

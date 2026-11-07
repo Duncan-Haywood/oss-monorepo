@@ -71,9 +71,12 @@ export function validateStair(s) {
  * @param {{stock: {size: string, length: number}[]}} [plan]
  */
 export function layoutStair(input, plan) {
+  if (input == null || typeof input !== "object" || Array.isArray(input)) return { ok: false, id: "Stair", errors: ["Stair settings are an object."] };
   const s = { id: "Stair", tread: 10, stringer: "2x12", width: 36, riserBoard: null, treadThickness: 1.5, treadBoard: "2x12", treadGap: 0.25, nosing: 1, stringerSpacing: 16, floorThickness: 12.25, ...input };
   const L = { ...STAIR_LIMITS, ...(input.limits || {}) };
   const errors = validateStair({ ...s, limits: input.limits });
+  if (input.rail != null && (typeof input.rail !== "object" || Array.isArray(input.rail))) errors.push("rail must be an object.");
+  else if (input.rail && input.rail.sides != null && ![1, 2].includes(input.rail.sides)) errors.push(`rail.sides must be 1 or 2, not ${JSON.stringify(input.rail.sides)}.`);
   if (errors.length) return { ok: false, id: s.id, errors };
 
   // Fewest equal risers under the limit; a tread chosen by the person stays, else the 2R+T comfort rule (25 in) bounded below by the code minimum.
