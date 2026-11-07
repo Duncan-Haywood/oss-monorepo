@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01E5sJKiwNbbF8XT3qiQeybN",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T12:24:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13803",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/sideways.mjs",
+      "issue": "Bare 'playwright' import fails in cloud sessions and no server is started; I ran without one and got hundreds of errors. Now fails fast; PLAYWRIGHT/CHROME_PATH hint in the report."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-07-the-site-holds-at-320-pixels.md",
+    "docs/reports/polish-2026-11-07-reflow-320.md"
+  ],
+  "goal": null,
+  "notes": "Full build + 320px 400-page sample clean. Did not run node --test platform/pages suite; change is a guard in a non-CI script.",
+  "corrections": [],
+  "redteam": null
+}
