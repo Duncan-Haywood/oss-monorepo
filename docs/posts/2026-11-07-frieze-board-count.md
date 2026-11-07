@@ -1,6 +1,8 @@
 ---
 title: "Counting the frieze board under the soffit"
 date: 2026-11-07
+tags: [wall-framing-takeoff, construction]
+description: "The wall-framing takeoff now counts the frieze board under the soffit with eaves.frieze, using the same runs as the soffit panels and fascia."
 ---
 
 The wall-framing takeoff already counts soffit panels, fascia and J-channel
