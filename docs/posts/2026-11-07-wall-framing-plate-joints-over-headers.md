@@ -1,6 +1,8 @@
 ---
 title: "When a wall has no studs to splice the plates on"
 date: 2026-11-07
+description: "A wall framing engine that could not splice long top plates over studs now also tries joints over a header, with a note, tested on a hand-built wall."
+tags: [wall-framing-takeoff, construction, framing]
 ---
 
 A 245 in wall with a 189 in opening has two studs that matter, the jacks. With 16 ft boards the top plate and the cap plate cannot take different joints over those two, so our wall framer used to give up and show each plate as one piece. That is what stopped the 3rd Floor of the Schultz Residence IFC model.
