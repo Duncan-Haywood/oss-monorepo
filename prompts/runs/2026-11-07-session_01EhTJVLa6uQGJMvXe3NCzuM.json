@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01EhTJVLa6uQGJMvXe3NCzuM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T23:02:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "R-0005 clothing-design-studio: GTIN-13 barcode maker",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": 13905,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-07-barcodes-for-every-colour-and-size.md"
+  ],
+  "goal": null,
+  "notes": "Studio suite 408/408 pass; Chromium click-through (rows, check-digit hint, CSV and sheet downloads) with no console errors; OpenCV BarcodeDetector decoded the rendered SVG as EAN_13 5901234000017 (at 0.25x scale only; not scanned from paper). venture-preflight (over 5 min) not run here.",
+  "corrections": [],
+  "redteam": null
+}
