@@ -1,9 +1,9 @@
 ---
 title: "Blind probe 31: our bookkeeping categorizer filed 18 of 25 right on five unseen trades"
-seo_title: "AI bookkeeper categorizer: third blind test, notaries to home inspectors"
+seo_title: "AI bookkeeper categorizer: third blind test, notaries to inspectors"
 date: 2026-11-07
 tags: [ai-bookkeeper, evaluation, bookkeeping]
-description: "25 bank descriptors for mobile notaries, pool cleaners, piano tuners, dog trainers and home inspectors, expected answers fixed first: 18 right, 1 wrong, 6 silent."
+description: "25 bank descriptors for notaries, pool cleaners, piano tuners, dog trainers and home inspectors, answers fixed first: 18 right, 1 wrong, 6 silent."
 ---
 
 The last two blind tests gave 9 of 25 and 12 of 25. Today's, on five more trades (mobile notaries, pool cleaners, piano tuners, dog trainers and home inspectors), gave 18 of 25. We wrote 25 bank-style descriptors, fixed the expected account for each, and ran the built-in keywords with no model and no account.
