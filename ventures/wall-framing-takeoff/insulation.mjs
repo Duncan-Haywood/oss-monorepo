@@ -45,6 +45,7 @@ export function validateInsulation(d) {
     for (const [k, lo, hi] of /** @type {const} */ ([["ach50", 0, 40], ["nFactor", 5, 40], ["volumeCuFt", 100, 200000]])) if (a[k] != null && !(a[k] >= lo && a[k] <= hi)) e.push(`Assembly ${k} must be between ${lo} and ${hi}.`);
     if ((a.ach50 != null || a.nFactor != null || a.volumeCuFt != null) && !(a.ach50 != null && a.nFactor != null && a.volumeCuFt != null)) e.push("Air leakage needs all three of ach50 (blower-door result), nFactor (climate/height divisor) and volumeCuFt.");
     for (const [k, lo, hi] of /** @type {const} */ ([["ventFloorSqFt", 100, 50000], ["ventBedrooms", 0, 20], ["ventRecoveryEff", 0, 0.95]])) if (a[k] != null && !(a[k] >= lo && a[k] <= hi)) e.push(`Assembly ${k} must be between ${lo} and ${hi}.`);
+    if (a.ventBedrooms != null && a.ventBedrooms >= 0 && a.ventBedrooms <= 20 && !Number.isInteger(a.ventBedrooms)) e.push("Assembly ventBedrooms must be a whole number of bedrooms.");
     if ((a.ventFloorSqFt != null) !== (a.ventBedrooms != null)) e.push("Ventilation needs both ventFloorSqFt (conditioned floor area) and ventBedrooms; ASHRAE 62.2 rate = 0.03 x floor area + 7.5 x (bedrooms + 1) cfm.");
     if (a.ventRecoveryEff != null && a.ventFloorSqFt == null) e.push("ventRecoveryEff (heat-recovery effectiveness) needs ventFloorSqFt and ventBedrooms.");
     if (a.heatingDegreeDays != null && !(a.heatingDegreeDays > 0 && a.heatingDegreeDays <= 15000)) e.push("Assembly heatingDegreeDays must be between 0 and 15000 (F-days, base 65).");
