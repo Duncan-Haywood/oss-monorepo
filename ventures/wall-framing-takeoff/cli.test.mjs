@@ -456,7 +456,9 @@ test("--add-board adds a longer board so a plate longer than 16 ft can be ordere
   plan.walls = [{ id: "Long", length: 300, stud: "2x4", openings: [{ kind: "door", label: "D", offset: 40, width: 189, height: 82.5, header: "2x10" }] }];
   const read = () => JSON.stringify(plan);
   const without = main(["plan.json"], read);
-  assert.notEqual(without.code, 0, "the 16 ft default cannot cover this wall's plates");
+  // Since 2026-11-07 the plates may splice over the header, so the 16 ft default now orders this wall too, with a note.
+  assert.equal(without.code, 0, without.out);
+  assert.match(without.out, /over a header/);
   const r = main(["plan.json", "--add-board=2x4:20ft"], read);
   assert.equal(r.code, 0, r.out);
   assert.match(r.out, /Added a 2x4 20' 0" board at 20, priced per foot/);
