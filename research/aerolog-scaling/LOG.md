@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-08 · Milestone 10m: which input decides the cruise-sized hybrid's break-even? A global sensitivity run (predictions in `vtol_sizing/global_sensitivity.py`'s docstring, fixed before the run)
+- Why: 10k's "pack peak power now decides the result" was read off one-at-a-time sweeps. `experiments/vtol_sizing/global_sensitivity.py` (stdlib, imports 10k) draws all 12 inputs together (uniform ranges in the script) and ranks them by first-order index and Spearman correlation on the break-even range against the 250 Wh/kg battery aircraft. Data hosts (UIUC, NTRS) still unreachable, so ranges remain plausible sweeps, not datasheet values.
+### Outcome (`experiments/vtol_sizing/global_sensitivity_results.txt`, N=4,000; `..._n20000.txt`, N=20,000, seed 2)
+- Break-even over the joint ranges: median 40 km, 10th to 90th percentile 22 to 70 km; never censored at the 1,500 km cap.
+- **P1 held:** pack peak power p_batt (800 to 3,000 W/kg) has first-order index 0.53 (0.55 at N=20,000; Spearman -0.67) and engine specific power 0.19 (0.18); next is climb height at 0.04. **P2 refuted:** pack energy density ranks 4th of 12 (0.02 to 0.03), not bottom three, though it is small. **P3 refuted:** the non-energy fraction ranks last (0.00 to 0.001): it moves the hybrid and the battery aircraft together, so the break-even barely moves.
+- Reading: over these ranges, one number, the pack's peak power, explains about half of the variance in where a hybrid starts to beat a battery cargo VTOL, and with engine specific power about three quarters. Interactions take the remaining ~18% (indices sum to 0.82). A datasheet for a flight-grade pack's continuous discharge rate is worth more than any other missing input.
+- Limits: ranges chosen by me, not sourced; uniform priors; first-order indices only (no total-effect); binned estimator; inherits all of 10j and 10k's model limits. Preliminary.
+- Next: source pack peak power (W/kg) from cell datasheets once a host is reachable; add total-effect indices.
+
 ## 2026-11-08 · Milestone 10l: paper draft catches up with milestones 10e, 10j and 10k (no new simulation)
 - New Section 4.13 of `paper/draft.md` reports the hybrid cargo VTOL results (hover-sized, cruise-sized, with climb and transition); `paper/check_numbers.py` gains 6 results-file checks and 3 LOG checks (all pass). Data hosts (UIUC, Wingcopter) were unreachable through the proxy, so no datasheet sourcing was possible this session.
 - Next: source pack peak power and engine specific power from datasheets once hosts are reachable.
