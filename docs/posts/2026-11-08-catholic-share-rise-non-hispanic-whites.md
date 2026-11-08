@@ -1,7 +1,7 @@
 ---
 title: "Who raised the share of Americans raised Catholic? Not third-generation Hispanics"
 date: 2026-11-08
-tags: [research, catholic-demography, gss]
+tags: [research, catholic-demography, GSS]
 description: "A GSS decomposition by immigrant generation and ethnicity finds the domestic rise sits among third-plus-generation non-Hispanic whites."
 ---
 
