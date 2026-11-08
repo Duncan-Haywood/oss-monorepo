@@ -594,3 +594,15 @@ test("--whole-house equals the four flags it stands for", () => {
   assert.equal(a.out, b.out);
   assert.match(a.out, /SKIPPED 1 WALL/);
 });
+
+test("--fixed-plan prints the plan after --skip-refused, without the refused wall, and stops", () => {
+  const plan = samplePlan();
+  plan.walls = [
+    { id: "Good", length: 192, stud: "2x4", openings: [] },
+    { id: "Bad", length: 120, stud: "2x4", openings: [{ kind: "door", label: "D", offset: 0, width: 36, height: 82.5, header: "2x6" }] },
+  ];
+  const r = main(["plan.json", "--skip-refused", "--fixed-plan"], () => JSON.stringify(plan));
+  assert.equal(r.code, 0, r.out);
+  const out = JSON.parse(r.out);
+  assert.deepEqual(out.walls.map((w) => w.id), ["Good"]);
+});
