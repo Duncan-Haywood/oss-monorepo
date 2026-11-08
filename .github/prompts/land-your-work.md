@@ -23,6 +23,12 @@ record's `deviations`.
 step below. How to load them, and what an HTTP 500 from
 `create_pull_request` means, is in [`cloud-session.md`](cloud-session.md).
 
+**Branching from `main`?** Run `git fetch --depth=1 origin main` first: a
+clone's local `origin/main` can be hours old, and `git checkout -B <branch>
+origin/main` then builds on an old base (a doc-friction report, 2026-11-08,
+cost a conflict on generated files). The session's pre-made branch is usually
+already current; check with `git rev-parse HEAD origin/main` after the fetch.
+
 ## The finish line, in this order
 
 1. **Commit** everything you mean to keep. Scratch files go outside the repo.
