@@ -2,7 +2,7 @@
 title: "The bill before the first sale: what a first clothing run costs beyond the factory quote"
 date: 2026-11-08
 tags: [clothing, ventures, small-business, tools]
-description: "A free start-up budget for a clothing line adds patterns, samples, photos and a trademark search to the factory order and shows the cash out before the first sale."
+description: "A free start-up budget for a clothing line adds patterns, samples, photos and a trademark search to the factory order and shows cash out before the first sale."
 ---
 
 A factory quote prices garments. It does not price the pattern, the second sample round and its courier, the label set-up, the photos, the shop or the trademark search. Those are paid first, and none of them sits in a garment's landed cost.
