@@ -1,9 +1,9 @@
 {
- "generated_for": "2026-11-07",
- "data_through": "2026-11-07",
+ "generated_for": "2026-11-08",
+ "data_through": "2026-11-08",
  "latest_day": {
-  "day": "2026-11-07",
-  "page_loads": 7
+  "day": "2026-11-08",
+  "page_loads": 5
  },
  "weeks": [
   {
@@ -31,13 +31,13 @@
   {
    "week": "2026-W45",
    "monday": "2026-11-02",
-   "days": 6,
-   "page_loads": 67,
-   "tool_loads": 31,
-   "tools": 9,
-   "top_tool": "shed-designer",
+   "days": 7,
+   "page_loads": 83,
+   "tool_loads": 44,
+   "tools": 14,
+   "top_tool": "secret-santa-draw",
    "feedback": 0,
-   "crawler_beacons": 66459
+   "crawler_beacons": 66889
   }
  ]
 }
