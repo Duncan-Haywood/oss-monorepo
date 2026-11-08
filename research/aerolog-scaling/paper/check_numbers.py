@@ -62,10 +62,17 @@ CHECKS = [
     ("experiments/incidence_offset_fit/results_gain_offset.txt", "OE+b | 0.60 deg | 0.10 | 2 | 0.75 | 4 of 160", "9ak: OE+b 4 of 160 at gain 1.19 + 0.596 deg, 2 periods"),
     ("experiments/incidence_offset_fit/results_gain_offset.txt", "OE+b | 0.60 deg | 0.10 | 1 | 0.75 | 0 of 160", "9ak: OE+b 0 of 160 at 1 period"),
     ("experiments/incidence_offset_fit/results_gain_offset.txt", "LS | 0.60 deg | 0.10 | 2 | 0.75 | 87 of 160", "9ak: LS 87 of 160 at 2 periods"),
+    ("experiments/vtol_sizing/cruise_sized_hybrid_results.txt", "    1   0.15  0.2 30 -> 35", "10j: break-even 35 km at 1 kW/kg"),
+    ("experiments/vtol_sizing/cruise_sized_hybrid_results.txt", "hover power 129 W/kg", "10j: hover 129 W/kg"),
+    ("experiments/vtol_sizing/climb_transition_hybrid_results.txt", "100   2   30  0.6    1 -> 47  0.376", "10k: break-even 47 km, payload 0.376"),
+    ("experiments/vtol_sizing/climb_transition_hybrid_results.txt", "100   1   30  0.6    1 -> 41", "10k: 41 km at 1 m/s"),
+    ("experiments/vtol_sizing/climb_transition_hybrid_results.txt", "100   4   30  0.6    1 -> 59", "10k: 59 km at 4 m/s"),
+    ("experiments/vtol_sizing/climb_transition_hybrid_results.txt", "100   2   30  0.6    4 -> 33", "10k: 33 km at 4 kW/kg"),
     ("experiments/rodrigues_energy/results_days.txt", "1.539", "day-cluster exponent"),
     ("experiments/rodrigues_energy/results_days.txt", "1.529", "date fixed effect exponent"),
 ]
 LOGCHECKS = [  # figures that exist in LOG.md outcomes (the results files print them in tables)
+    "1,273 km at engine 1 kW/kg", "145 to 167", "0.40 (cruise-sized), 0.34 (hover-sized, 10e) and 0.18",
     "78 of 4,474", "0 of 17", "+13% to +25%", "0.035 chords", "17 of 144", "78, 81, 79, 80",
     "1.29 to 1.45", "0.37 to 0.52", "6.5% faster", "97%",
     "76 at every true slope scale", "67 of the 78 designs keep every gust peak", "84 to 86% at sigma 2%",

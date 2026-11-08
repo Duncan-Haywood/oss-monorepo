@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01E5sJKnQUqqSEbmNnT6rZMo",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-08T13:19:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "aerolog-scaling"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14049",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post; paper-only catch-up step with no new finding."
+    }
+  ],
+  "writeups": [
+    "research/aerolog-scaling/paper/draft.md section 4.13",
+    "research/aerolog-scaling/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Programme draw aerolog-scaling. Data hosts (UIUC, Wingcopter) refused by proxy, so landed paper section 4.13 catching up with 10e/10j/10k plus number checks. No blog post: small paper-only step.",
+  "corrections": [],
+  "redteam": null
+}

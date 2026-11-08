@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-08 · Milestone 10l: paper draft catches up with milestones 10e, 10j and 10k (no new simulation)
+- New Section 4.13 of `paper/draft.md` reports the hybrid cargo VTOL results (hover-sized, cruise-sized, with climb and transition); `paper/check_numbers.py` gains 6 results-file checks and 3 LOG checks (all pass). Data hosts (UIUC, Wingcopter) were unreachable through the proxy, so no datasheet sourcing was possible this session.
+- Next: source pack peak power and engine specific power from datasheets once hosts are reachable.
+
 ## 2026-11-08 · Milestone 10k: does adding climb and transition to the cruise-sized hybrid move its break-even or max range? (predictions in `vtol_sizing/climb_transition_hybrid.py`'s docstring, fixed before the run)
 - Why: 10j's "Next" (add climb and transition power). `experiments/vtol_sizing/climb_transition_hybrid.py` (stdlib, imports 10j) adds a climb phase (h / v_c seconds at hover power plus g v_c / 0.595 per kg) and a transition (t_tr seconds at f_tr x hover power) to the battery's duty; the engine still delivers 1.2 x cruise power in every phase.
 ### Outcome (`experiments/vtol_sizing/climb_transition_hybrid_results.txt`)
