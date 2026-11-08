@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-08 · Milestone 10j: does sizing the hybrid's engine for cruise, with a battery for hover, rescue 10e's short-range break-even? (predictions in `vtol_sizing/cruise_sized_hybrid.py`'s docstring, fixed before the run)
+- Why: 10e's "Next" (size the engine for cruise with a battery for hover). This session could not reach the build-data programme's city feeds (HTTP 403 at the proxy), so it advanced this programme, which needs no network. `experiments/vtol_sizing/cruise_sized_hybrid.py` (stdlib, reuses 10e) flies the 2 x 60 s hover on a battery sized by energy and peak power, and sizes the engine for 1.2 x cruise power at 30 m/s.
+### Outcome (`experiments/vtol_sizing/cruise_sized_hybrid_results.txt`)
+- **P1 refuted by 1 km:** break-even against the 250 Wh/kg battery aircraft is 35 km (predicted under 35) at engine 1 kW/kg, down from 10e's 67 to 69 km. Across the grid it is 52 to 59 km at 0.5 kW/kg and 21 to 23 km at 4 kW/kg (10e: 145 to 167 and 4 to 7), so cruise sizing roughly halves the break-even at low engine specific power but raises it at high specific power, because the hover battery becomes the floor.
+- **P2 held:** max range at 0.5 kW/kg and chain efficiency 0.18 is 1,282 km (10e: 314). **P3 held, weakly:** with the 1,500 km cap, engine specific power 0.5 to 2 kW/kg moves max range 1,424 to 1,500 km while chain efficiency 0.12 to 0.30 moves it 979 to 1,500 km, so efficiency now matters more; speed, pack energy density and pack power barely matter once the engine is small, apart from a pack power of 800 W/kg (1,303 km).
+- Reading: the hybrid's case at 100 to 300 km no longer hinges on engine specific power once the engine is sized for cruise (cruise power is about 35 W/kg of MTOW against 129 W/kg in hover); it hinges on carrying a hover battery of about 94 W/kg peak power. At 150 km the payload fraction is 0.40 (cruise-sized), 0.34 (hover-sized, 10e) and 0.18 (battery).
+- Limits: no climb or transition power, no engine part-load efficiency penalty, no battery recharge in cruise, a fixed non-energy fraction (0.479) that ignores the extra battery's own structure, and a 1,500 km cap that hides the sensitivities; all inputs swept, none fitted to a datasheet. Preliminary.
+- Next: add climb and transition power (the engine under-delivers in climb), or source engine and pack specific power from datasheets once the hosts are reachable.
+
 ## 2026-11-08 · Milestone 10e: does a hybrid cargo VTOL still win once the engine and tank have mass? (predictions in `vtol_sizing/hybrid_mass_law.py`'s docstring, fixed before the run)
 - Why: 10a's "Next" (a tank and engine mass law for the hybrid; 10a's hybrid closed to the 1,500 km cap because it carried no engine mass). `experiments/vtol_sizing/hybrid_mass_law.py` (stdlib, reuses 10a's energy model) adds an engine+generator sized for hover power at a swept specific power, a tank mass as a fraction of fuel, and the NASA non-energy fraction 0.479 (10b).
 ### Outcome (`experiments/vtol_sizing/hybrid_mass_law_results.txt`)

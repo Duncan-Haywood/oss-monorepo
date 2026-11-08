@@ -17,3 +17,27 @@ def test_closure_fails_when_fractions_exceed_one():
 
 def test_jet_fuel_value():
     assert abs(vs.E_FUEL - 11944) < 1
+
+
+def _cruise_hybrid():
+    import sys
+    d = os.path.join(os.path.dirname(__file__), "..", "experiments", "vtol_sizing")
+    sys.path.insert(0, d)
+    import cruise_sized_hybrid as ch
+    return ch
+
+def test_cruise_sized_hybrid_hand_check():
+    # hand count: hover 129.2 W/kg, 1.2 x cruise 9.80665*30/(12*0.85)*1.2 = 34.6 W/kg
+    ch = _cruise_hybrid()
+    ph = 9.80665 * (150 / (2 * 1.225)) ** 0.5 / (0.7 * 0.85)
+    assert abs(ph - 129.2) < 0.5
+    free0 = ch.hyb_cruise(0.0, 0.479, 1, .25, .20)
+    eng = 1.2 * 9.80665 * 30 / (12 * .85) / 1000
+    batt = max((ph - 1.2 * 9.80665 * 30 / (12 * .85)) * 120 / 3600 * 1.2 / (250 * .7 * .9),
+               (ph - 1.2 * 9.80665 * 30 / (12 * .85)) / 1500)
+    assert abs(free0 - (1 - .479 - eng - batt)) < 1e-9
+
+def test_cruise_sizing_beats_hover_sizing_at_low_engine_power():
+    ch = _cruise_hybrid()
+    import hybrid_mass_law as hm
+    assert ch.hyb_cruise(150e3, .479, .5, .25, .2) > hm.hyb_free(150e3, .479, .5, .25, .2)
