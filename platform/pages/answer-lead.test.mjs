@@ -45,6 +45,7 @@ const PILOTS = {
   'freelance-platform-fee-calculator': async (m) => [100, 100 - m.FIVERR_FEE_PERCENT], // 100: the worked example order in the lead
   'course-platform-fee-calculator': async (m) => [m.PRESETS[0].txFlat, m.PRESETS[2].monthlyFee], // Gumroad flat per-sale fee, Podia paid plan
   'merchant-of-record-fee-calculator': async (m) => [m.DEFAULT_PROVIDERS.paddle.fixed, m.DEFAULT_PROVIDERS.polar.fixed], // Paddle/Lemon Squeezy and Polar per-transaction fixed fees
+  '401k-loan-vs-withdrawal-calculator': async (m) => [m.LOAN_FLOOR, m.LOAN_CAP], // statutory loan floor and cap, IRC 72(p)(2)
   'poshmark-fee-calculator': async (m) => [m.FLAT_FEE, m.COMMISSION_THRESHOLD, m.BREAK_EVEN_PRICE],
   'estate-tax-exemption-calculator': async (m) => [m.BASIC_EXCLUSION_2026, m.ANNUAL_GIFT_EXCLUSION_2026],
 };
