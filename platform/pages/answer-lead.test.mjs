@@ -116,3 +116,18 @@ test('overtime-pay-calculator: lead is sourced, dated and matches the calculator
   assert.match(text, /over 40 in a workweek/);
   assert.equal(r.overtimeRate ?? r.summary?.overtimeRate, 15);
 });
+
+// Solo 401(k) lead: every dollar figure and the 20% rate it states must be the calculator's own constants.
+test('solo-401k-contribution-calculator: lead is sourced, dated and matches the limits', async () => {
+  const slug = 'solo-401k-contribution-calculator';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { LIMITS_2026: L, EMPLOYER_CONTRIBUTION_RATE } = await import(new URL(`${slug}/calc.mjs`, root));
+  const stated = [...text.matchAll(/\$([\d,]+)/g)].map((x) => Number(x[1].replace(/,/g, '')));
+  assert.deepEqual(stated, [L.employeeDeferral, L.catchUp50, L.catchUp60to63, L.annualAdditions]);
+  assert.match(text, new RegExp(`${EMPLOYER_CONTRIBUTION_RATE * 100}%`));
+});
