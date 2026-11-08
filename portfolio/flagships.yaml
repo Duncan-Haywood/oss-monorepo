@@ -131,8 +131,8 @@ flagships:
       rho (drift not told from a cycle), a real run of 5+ steps for the block-
       variance warning, real documented ramps and close steps (`ramps` is
       synthetic only). (1) range95: a closure series quiet outside the closure
-      (none found). (2) the steep-bump clumpy-count cell is under-covered, 65/79
-      over six seeds. (3) GARCH: a segment-wise prune keeps the real sd break but
+      (none found). (2) the steep-bump clumpy-count cell is under-covered, 173/217
+      (80%) over ten seeds (replicated 2026-11-08), not retuned. (3) GARCH: a segment-wise prune keeps the real sd break but
       leaves 48% false alarms at n=200: search cuts jointly. (4) driftWarning
       fires on real shocks and autocorrelated nulls: wanted a way to tell a shape
       from a shock without swallowing a short quarterly shape; (4a-4c) Florida

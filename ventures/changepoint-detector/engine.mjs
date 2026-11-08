@@ -294,8 +294,8 @@ function solveSym(H, b) {
 const RANGE_TEMPER = 1.15;
 // Clumpy counts scored with the NB cost: 1.15 held the planted bend on 145 of 161 found bends (90%), 1.4 on 153 (95%), 1.7 on 157 (README, 2026-10-26).
 const RANGE_TEMPER_NB = 1.4;
-// Measured coverage (README, 2026-10-26 and 27): 94% over 277 found bends on tuning-free seeds, 82% (65 of 79) where the slope bump is steep (0.04).
-const GROWTH_RANGE_NB_NOTE = 'Clumpy-count ranges held the true bend on about 94% of simulated series, but only about 82% where the growth change is steep (and the range narrow): treat a narrow range as optimistic.';
+// Measured coverage (README, 2026-10-26 and 27): 94% over 277 found bends on tuning-free seeds, 80% (173 of 217, 2026-11-08) where the slope bump is steep (0.04).
+const GROWTH_RANGE_NB_NOTE = 'Clumpy-count ranges held the true bend on about 94% of simulated series, but only about 80% where the growth change is steep (and the range narrow): treat a narrow range as optimistic.';
 export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1, scale = 1, nbSize = 0, diag = null } = {}) {
   const n = x.length;
   const nb = nbSize > 0 && Number.isFinite(nbSize);
