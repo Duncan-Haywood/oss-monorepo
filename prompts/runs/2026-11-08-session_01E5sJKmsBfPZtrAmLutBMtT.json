@@ -28,7 +28,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
@@ -40,7 +40,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Critique via main_health.py; no backlog ids touched. Fix cascaded: second tilt post also needed seo_title. No post: one-line check fix.",
+  "notes": "Critique via main_health.py; no backlog ids touched. Fix cascaded: second tilt post also needed seo_title. No post: one-line check fix. Another run (PR with title-budget post) landed the same seo_title fix first; this PR shrank to the record.",
   "corrections": [],
   "redteam": null,
   "usage": {
