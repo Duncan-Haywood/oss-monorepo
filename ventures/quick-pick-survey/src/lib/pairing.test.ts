@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FIRST_OPTION_FALLBACK_SHARE, PairItem, pairKey, sameCategoryBias, selectNextPair, selectNextPairHybrid, surveyConfidence } from "./pairing";
+import { FIRST_OPTION_FALLBACK_SHARE, PairItem, admissionHash, admissionOrder, pairKey, sameCategoryBias, selectNextPair, selectNextPairHybrid, surveyConfidence } from "./pairing";
 
 function items(n: number, category = "cat"): PairItem[] {
   return Array.from({ length: n }, (_, i) => ({
@@ -129,5 +129,23 @@ describe("selectNextPairHybrid first-option fallback", () => {
 
   it("keeps the information selector below the threshold or with no share", () => {
     expect(run(0.55, 3)).toEqual(run(undefined, 3));
+  });
+});
+
+describe("admissionOrder", () => {
+  it("does not follow the id order: the first stage of 100 numbered items spans the range", () => {
+    const list = Array.from({ length: 100 }, (_, i) => ({ id: `item-${String(i).padStart(4, "0")}`, rating: 1500, rd: 350, category: "c", dimensions: [] }));
+    const first = admissionOrder(list).slice(0, 20).map((i) => Number(i.id.slice(5)));
+    // Alphabetical admission would give 0..19. A hash order reaches the top half and the bottom half.
+    expect(Math.max(...first)).toBeGreaterThan(60);
+    expect(first.filter((n) => n < 50).length).toBeGreaterThan(4);
+    expect(first.filter((n) => n >= 50).length).toBeGreaterThan(4);
+  });
+  it("is stable for the same ids whatever order they arrive in", () => {
+    const list = items(30);
+    const a = admissionOrder(list).map((i) => i.id);
+    const b = admissionOrder([...list].reverse()).map((i) => i.id);
+    expect(b).toEqual(a);
+    expect(admissionHash("i7")).toBe(admissionHash("i7"));
   });
 });
