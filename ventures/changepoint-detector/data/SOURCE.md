@@ -514,3 +514,12 @@ column is built from the `time` column of the source.
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/departures.csv> (month labels added from the series start).
 - **Licence:** fpp2 is GPL-3 on CRAN; the figures are public ABS statistics. Kept as a small test fixture with its source named.
 - **Used by:** `au-departures.test.mjs`.
+
+# Example data: Australian air transport passengers, 1970-2016
+
+`ausair.csv`: annual passengers in millions, 47 values (`ausair` from fpp2, Hyndman).
+
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/ausair.csv>.
+- **Licence:** fpp2 is GPL-3; the numbers are published Australian aviation statistics. Only the 47 numbers are used here.
+- **Used by:** `eval/ausair.mjs`, `ausair.test.mjs`.
