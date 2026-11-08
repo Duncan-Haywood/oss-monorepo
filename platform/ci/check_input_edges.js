@@ -3,7 +3,7 @@
 // "0" and "-1" in turn (dispatching input+change, clicking nothing else) and reports
 // any NaN/Infinity/undefined/[object Object] that newly appears in visible text, or a
 // new uncaught page error. Only text that was absent before the edit is reported.
-// Usage: node platform/ci/check_input_edges.js out.json [limit]
+// Usage: [VALS="1e308|99999999999999999999"] node platform/ci/check_input_edges.js out.json [limit]  (VALS: pipe-separated values, default blank|0|-1)
 const {chromium}=require('playwright');const fs=require('fs');const path=require('path');
 const root=process.cwd();
 let files=require('child_process').execSync("find ventures -name index.html -not -path '*/node_modules/*' -maxdepth 3").toString().trim().split('\n').sort();
@@ -17,7 +17,7 @@ try{await p.goto('file://'+path.join(root,f),{timeout:8000,waitUntil:'load'});aw
 const base=await p.evaluate(()=>document.body?document.body.innerText:'');
 const n=await p.evaluate(()=>[...document.querySelectorAll('input')].filter(i=>['number','text','range',''].includes(i.type)&&!i.readOnly&&!i.disabled).length);
 if(!n)continue;withInputs++;errs.length=0;
-for(const v of ['','0','-1']){
+for(const v of (process.env.VALS?process.env.VALS.split('|'):['','0','-1'])){
  await p.evaluate(v=>{for(const i of document.querySelectorAll('input')){if(!['number','text','range',''].includes(i.type)||i.readOnly||i.disabled)continue;
   const set=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;set.call(i,v);i.dispatchEvent(new Event('input',{bubbles:true}));i.dispatchEvent(new Event('change',{bubbles:true}));}},v);
  await p.waitForTimeout(60);
