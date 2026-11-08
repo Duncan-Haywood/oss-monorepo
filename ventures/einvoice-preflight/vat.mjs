@@ -1,6 +1,11 @@
 // Offline VAT identifier shape and checksum observations.
 // Typo catch only — not a VIES lookup and not a claim a party may charge tax.
 
+import { checkCuit } from "./argentina.mjs";
+import { checkBrazilId } from "./brazil.mjs";
+import { checkRut } from "./chile.mjs";
+import { checkNit } from "./colombia.mjs";
+import { checkRuc } from "./peru.mjs";
 import { checkTurkishTaxId } from "./turkey.mjs";
 
 const FORMAT_ONLY = {
@@ -180,6 +185,11 @@ function classify(country, body) {
   if (country === "RS") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
   if (country === "TR") return /^\d{10,11}$/.test(body) ? "checksum" : "bad-format";
   if (country === "KR") return /^\d{10}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "BR") return /^(\d{11}|[0-9A-Z]{12}\d{2})$/.test(body) ? "checksum" : "bad-format";
+  if (country === "AR") return /^\d{11}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "PE") return /^\d{11}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "CL") return /^\d{7,8}[0-9K]$/.test(body) ? "checksum" : "bad-format";
+  if (country === "CO") return /^\d{9,11}$/.test(body) ? "checksum" : "bad-format";
   if (country === "IN") return /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(body) ? "checksum" : "bad-format";
   const lengths = FORMAT_ONLY[country];
   if (lengths === undefined) return "unknown";
@@ -465,6 +475,11 @@ function checksumOk(country, body) {
   if (country === "RS") return rsPibOk(body);
   if (country === "TR") return checkTurkishTaxId(body).ok;
   if (country === "KR") return krBrnOk(body);
+  if (country === "BR") return checkBrazilId(body).ok;
+  if (country === "AR") return checkCuit(body).ok;
+  if (country === "PE") return checkRuc(body).ok;
+  if (country === "CL") return checkRut(body).ok;
+  if (country === "CO") return checkNit(`${body.slice(0, -1)}-${body.slice(-1)}`).ok;
   if (country === "IN") return inGstinOk(body);
   if (country === "XI") return body.length === 9 || body.length === 12 ? gbOk(body) : false;
   if (EXTRA_CHECKS[country]) return EXTRA_CHECKS[country].ok(body);
