@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-08 · Milestone 6zg: paper section 3 gains 6zd to 6zf (a writing step, no experiment)
+- Why: 6zf's "Next" said to return to paper section 3. Section 2.5.1 item 5 already carried 6zc to 6zf; section 3 item 4 (what would make it submittable) still described the spatial-information route as open. It now lists the 15/70 km neighbour and ridge-forecast results as closed branches and leaves only offshore upwind sensing or a radar nowcast.
+- Numbers copied from the 6zd, 6ze and 6zf entries above; no new run, no new citations. Not run here: homepage rebuild beyond the check below.
+- Next: the data for offshore upwind sensing (e.g. archived radar nowcasts) is not in `experiments/data`; find a reachable source, or move to the unfinished items 1 and 2 of section 3.
+
 ## 2026-11-07 · Milestone 6zf: does fitting the ridge to the smoothed wind, as a correction to the trailing mean, clear T = 0? (closes 6ze's "Next")
 - Why: 6ze's ridge forecast (fitted to the point wind, correction to the last observation) lost 0.8 points to 6z's trailing-mean persistence. `experiments/run_sail_ridge_smooth.py` refits on January to the 18-minute-smoothed future wind, as a correction to the 60-minute trailing mean, and shrinks the correction by alpha = 0.5 or 1.0 (all else as 6ze: 11 stations, 88 July windows, tau 240 s).
 - Prediction (written before the run, in this session): the alpha = 1 forecast stays below T = 0 (prior 65%); alpha = 0.5 lies within +-1 point of T = 0 (prior 60%).
