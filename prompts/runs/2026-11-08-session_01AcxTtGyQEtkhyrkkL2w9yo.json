@@ -41,7 +41,7 @@
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-08-turkey-india-vat-check-digits.md"
+    "docs/posts/2026-11-08-turkey-vat-check-digits.md"
   ],
   "goal": null,
   "notes": "node --test '*.test.mjs' in ventures/einvoice-preflight: 1338 tests, 0 fail. venture-preflight not run.",

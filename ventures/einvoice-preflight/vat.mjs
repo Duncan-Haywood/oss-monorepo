@@ -2,7 +2,6 @@
 // Typo catch only — not a VIES lookup and not a claim a party may charge tax.
 
 import { checkTurkishTaxId } from "./turkey.mjs";
-import { gstinCheckChar } from "./india.mjs";
 
 const FORMAT_ONLY = {
   BG: [9, 10],
@@ -180,7 +179,8 @@ function classify(country, body) {
   if (country === "NZ") return /^\d{8,9}$/.test(body) ? "checksum" : "bad-format";
   if (country === "RS") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
   if (country === "TR") return /^\d{10,11}$/.test(body) ? "checksum" : "bad-format";
-  if (country === "IN") return /^[0-9A-Z]{15}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "KR") return /^\d{10}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "IN") return /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(body) ? "checksum" : "bad-format";
   const lengths = FORMAT_ONLY[country];
   if (lengths === undefined) return "unknown";
   if (EXTRA_CHECKS[country]?.applies(body)) return "checksum";
@@ -419,6 +419,29 @@ function rsPibOk(body) {
   return (11 - product) % 10 === Number(body[8]);
 }
 
+// South Korean business registration number: weights 1,3,7,1,3,7,1,3,5 plus the
+// tens digit of the ninth digit times 5; the tenth digit tops the total up to a multiple of 10.
+function krBrnOk(body) {
+  const d = digitsOf(body);
+  const weights = [1, 3, 7, 1, 3, 7, 1, 3, 5];
+  let sum = 0;
+  for (let i = 0; i < 9; i += 1) sum += d[i] * weights[i];
+  sum += Math.floor((d[8] * 5) / 10);
+  return (10 - (sum % 10)) % 10 === d[9];
+}
+
+// Indian GSTIN: the fifteenth character is a base-36 check over the first fourteen,
+// with factors 1 and 2 alternating.
+function inGstinOk(body) {
+  const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let sum = 0;
+  for (let i = 0; i < 14; i += 1) {
+    const product = chars.indexOf(body[i]) * (i % 2 === 0 ? 1 : 2);
+    sum += Math.floor(product / 36) + (product % 36);
+  }
+  return chars[(36 - (sum % 36)) % 36] === body[14];
+}
+
 function checksumOk(country, body) {
   if (country === "DE") return deOk(body);
   if (country === "FR") return frOk(body);
@@ -441,7 +464,8 @@ function checksumOk(country, body) {
   if (country === "NZ") return nzIrdOk(body);
   if (country === "RS") return rsPibOk(body);
   if (country === "TR") return checkTurkishTaxId(body).ok;
-  if (country === "IN") return gstinCheckChar(body.slice(0, 14)) === body[14];
+  if (country === "KR") return krBrnOk(body);
+  if (country === "IN") return inGstinOk(body);
   if (country === "XI") return body.length === 9 || body.length === 12 ? gbOk(body) : false;
   if (EXTRA_CHECKS[country]) return EXTRA_CHECKS[country].ok(body);
   return false;
