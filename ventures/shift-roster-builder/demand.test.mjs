@@ -99,3 +99,12 @@ test("demandShifts passes skipDates through", () => {
   const a = demandShifts(TWO, { splh: 100 }), b = demandShifts(TWO, { splh: 100, skipDates: ["2026-11-16"] });
   assert.ok(a.needed > b.needed);
 });
+test("an ISO date with a 12-hour clock reads PM and midnight correctly", () => {
+  const hours = (s) => { const r = hourlySales("time,sales\n" + s + "\n"); return r.avg[3].map((v, h) => (v ? h : -1)).filter((h) => h >= 0); };
+  assert.deepEqual(hours("2026-03-05 2:00 PM,100"), [14]);
+  assert.deepEqual(hours("2026-03-05 12:00 AM,100"), [0]);
+  assert.deepEqual(hours("2026-03-05 12:30 pm,100"), [12]);
+  assert.deepEqual(hours("2026-03-05 11 PM,100"), [23]);
+  assert.deepEqual(hours("2026-03-05T14:00:00.000,100"), [14]);
+  assert.equal(hourlySales("time,sales\n2026-03-05 13:00 PM,100\n").rows, 0);
+});

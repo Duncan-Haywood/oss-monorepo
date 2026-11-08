@@ -28,9 +28,13 @@ const dayOfName = (s) => DAYNAMES.indexOf(String(s).trim().toLowerCase().slice(0
 // -> {day 0..6 (Monday = 0), hour 0..23, key (date or "" for no date)} or null.
 function readStamp(tok, dayTok) {
   const s = String(tok || "").trim();
-  let m = /^(\d{4})-(\d{1,2})-(\d{1,2})[T\s]+(\d{1,2})(?::\d{2})?/.exec(s);
+  let m = /^(\d{4})-(\d{1,2})-(\d{1,2})[T\s]+(\d{1,2})(?::\d{2})?(?::\d{2})?(?:\.\d+)?\s*([ap]m?)?/i.exec(s);
   let y, mo, d, hr;
-  if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; hr = +m[4]; }
+  if (m) {
+    y = +m[1]; mo = +m[2]; d = +m[3]; hr = +m[4];
+    // "2026-03-05 2:00 PM": a 12-hour clock must be converted, not read as 2 AM (and 12 AM is hour 0).
+    if (m[5]) { if (hr < 1 || hr > 12) return null; hr = (hr % 12) + (m[5][0].toLowerCase() === "p" ? 12 : 0); }
+  }
   else if ((m = /^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2}|\d{4})[T\s]+(\d{1,2})(?::\d{2})?(?::\d{2})?\s*([ap]m?)?/i.exec(s))) {
     y = +m[3] < 100 ? 2000 + +m[3] : +m[3];
     if (+m[1] > 12) { d = +m[1]; mo = +m[2]; } else { mo = +m[1]; d = +m[2]; }
