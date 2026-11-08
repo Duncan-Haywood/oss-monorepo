@@ -60,6 +60,7 @@ Start-up budget (startup.html): one-off costs of a first run (patterns, samples 
 - [Pre-order campaign planner: will your line reach the factory minimum?](https://marisstella.app/clothing-design-studio/preorder.html)
 - [Clothing import duty by destination: landed cost into the US, EU and UK](https://marisstella.app/clothing-design-studio/duty.html)
 - [US sales tax for a clothing brand: which states you must collect in](https://marisstella.app/clothing-design-studio/salestax.html)
+- [EU VAT for a clothing brand: the 10,000 euro line and One-Stop Shop](https://marisstella.app/clothing-design-studio/eutax.html)
 - [Duty on one online clothing order: EU flat 3 euro duty, US, UK](https://marisstella.app/clothing-design-studio/parcel.html)
 - [How much import duty will you pay on a t-shirt order? A worked example](https://marisstella.app/clothing-design-studio/import-duty-on-clothing.html)
 - [Can pre-orders reach a factory minimum order quantity? A worked example](https://marisstella.app/clothing-design-studio/clothing-minimum-order-quantity.html)
