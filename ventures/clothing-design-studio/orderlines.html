@@ -66,7 +66,7 @@ XL, 15
       <p class="tag">One per line: a name, a comma, a share (any numbers; they are scaled). The size finder's "Split the order" gives shares for an audience.</p>
     </section>
     <div><section><h2>Result</h2><output id="result" aria-live="polite"></output>
-      <p><button type="button" id="dl">Download purchase-order CSV</button></p></section></div>
+      <p><button type="button" id="dl">Download purchase-order CSV</button> <button type="button" id="tobom">Use the cut total in the bill of materials</button> <span id="tobomNote" aria-live="polite" class="tag"></span></p></section></div>
   </div>
 </main>
   <footer>
@@ -78,6 +78,7 @@ XL, 15
   <script type="module">
     import { planMatrix, matrixCsv } from "./orderlines.mjs";
     import { recordUsage } from "./usage.mjs";
+    import { saveRunQty } from "./bom.mjs";
     const $ = s => document.querySelector(s);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
     function parse(text) {
@@ -89,7 +90,7 @@ XL, 15
     function render() {
       const p = planMatrix({ total: Number($("#total").value), minPerColour: Number($("#min").value), defectPct: Number($("#spare").value), colours: parse($("#cols").value), sizes: parse($("#szs").value) });
       last = p;
-      $("#dl").disabled = !p.ok;
+      $("#dl").disabled = !p.ok; $("#tobom").disabled = !p.ok; $("#tobomNote").textContent = "";
       if (!p.ok) { $("#result").innerHTML = `<p class="placeholder">${esc(p.error)}</p>`; return; }
       $("#result").innerHTML = `<table><tr><th scope="col">Colour</th>${p.sizeNames.map(s => `<th scope="col" class="num">${esc(s)}</th>`).join("")}<th scope="col" class="num">Total</th><th scope="col" class="num">Cut</th></tr>
         ${p.rows.map(r => `<tr${r.underMin ? ' class="hit"' : ""}><td>${esc(r.colour)}</td>${p.sizeNames.map(s => `<td class="num">${r.sizes[s]}</td>`).join("")}<td class="num"><b>${r.qty}</b>${r.underMin ? " &#9888;" : ""}</td><td class="num">${r.cutQty}</td></tr>`).join("")}
@@ -102,6 +103,11 @@ XL, 15
       a.href = URL.createObjectURL(new Blob([matrixCsv(last, { style: $("#style").value })], { type: "text/csv" }));
       a.download = "order-matrix.csv"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
       recordUsage("matrix_download");
+    });
+    $("#tobom").addEventListener("click", () => {
+      if (!last || !last.ok) return;
+      $("#tobomNote").innerHTML = saveRunQty(last.cutTotal) ? `Saved ${last.cutTotal} pieces. <a href="bom.html">Open the bill of materials</a>.` : "This browser would not save it.";
+      recordUsage("matrix_to_bom");
     });
     document.querySelectorAll("section input, section textarea").forEach(el => el.addEventListener("input", () => { render(); recordUsage("matrix_check"); }));
     render(); recordUsage("matrix_open");
