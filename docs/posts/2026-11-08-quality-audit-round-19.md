@@ -2,7 +2,7 @@
 title: "Quality audit round 19: one of five subjects meets the bar, and a CAA checker misreads CNAMEs"
 seo_title: "Quality audit round 19: one of five subjects meets the bar"
 date: 2026-11-08
-tags: [quality-audit, evaluation, testing, ai-agents]
+description: "Seed 2026-11-08: two ventures, two research projects, a platform directory and a flagship were audited. One of five sampled subjects meets the bar."
 description: "Seed 2026-11-08: two ventures, two research projects, one platform directory and the shift-roster-builder flagship. One of the five sampled subjects meets the senior-professional bar."
 ---
 
