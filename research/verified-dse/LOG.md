@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-08 · README status line rewritten (no flow run, no new numbers)
+- Why: the quality audit called the README status line garbled: one 3,000-character sentence listing milestones 68 to 9 backwards. Replaced with a five-bullet headline summary (rung bias, halving versus random, the pilot certificate, proof prediction, limits) with links to the experiment results; all figures copied from existing log entries and result files.
+- Limits: the per-milestone sections below the status line are unchanged; detail-routed mult24/mult32 cells still pending.
+
 ## 2026-11-08 · Milestone 98: tests that constrain the headline metric, page text brought up to date (no flow run, no new numbers)
 - Why: the 2026-11-08 quality audit (`portfolio/quality/audits/2026-11-08-verified-dse.json`) seeded four mutations; two passed all 18 tests: `pick_regret` choosing `max(cheap)` instead of `min(cheap)` (the programme's headline metric) and the tie rule in `pilot_top_inversion` (`<=` to `<`). The existing `pick_regret` test happened to give the same value for min and max.
 - Change: `tests/test_stats.py` gains a case where the cheap minimum and maximum pick different reference values and one for averaging over cheap ties; `tests/test_bound.py` gains a rung-tie case for `pilot_top_inversion`. Re-running both mutations: each now fails (2 and 3 failures); unmutated, all new tests pass. `test_proof_success` errors on import in this container (a missing dependency), as it did before the change.
