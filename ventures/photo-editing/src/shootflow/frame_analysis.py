@@ -247,7 +247,7 @@ def tilt_from_frame(
     within 15 degrees of an axis go into quarter-degree bins, smoothed, and the
     estimate is the weighted mean of the votes within 1.5 degrees of the
     smoothed peak. Confidence is the share of near-axis vote weight inside that
-    window, 0 when there are too few coherent edges (a plain sky, a texture) to
+    window beyond what an even spread would put there (chance, 10%), 0 when there are too few coherent edges (a plain sky, a texture) to
     say. Positive tilt means the right side is lower. A frame of tilted subjects
     (a diagonal staircase, a dancer) has confidence near 0 and is not penalised.
 
@@ -311,7 +311,10 @@ def tilt_from_frame(
     if window_weight <= 0.0:
         return 0.0, 0.0
     mean = sum(d * w for d, w in window) / window_weight
-    return mean, _clamp(window_weight / near_weight)
+    # Votes spread evenly over the search range would still put this share
+    # inside the window by chance; only the excess over that counts.
+    chance = _TILT_WINDOW_DEGREES / _TILT_SEARCH_DEGREES
+    return mean, _clamp((window_weight / near_weight - chance) / (1.0 - chance))
 
 
 def noise_sigma_from_frame(frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT) -> float:
