@@ -116,3 +116,19 @@ test('overtime-pay-calculator: lead is sourced, dated and matches the calculator
   assert.match(text, /over 40 in a workweek/);
   assert.equal(r.overtimeRate ?? r.summary?.overtimeRate, 15);
 });
+
+// 401(k) plan fee lead (no dollar figures): it must say there is no safe-harbor percentage, as the calculator's benchmark table is only illustrative.
+test('401k-plan-fee-calculator: lead is sourced, dated and says no safe-harbor percentage exists', async () => {
+  const slug = '401k-plan-fee-calculator';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  assert.match(text, /408\(b\)\(2\)/);
+  assert.match(text, /no federal rule sets a safe-harbor percentage/);
+  assert.doesNotMatch(text, /\$\d/);
+  const { BENCHMARK_LABEL } = await import(new URL(`${slug}/calc.mjs`, root));
+  assert.match(BENCHMARK_LABEL, /Illustrative/);
+});
