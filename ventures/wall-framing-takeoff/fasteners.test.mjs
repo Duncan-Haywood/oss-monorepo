@@ -168,3 +168,22 @@ test("wall brace price per foot: feet x price, price each wins, bounds checked (
   assert.equal(layoutFasteners({ wallBracing: { price: 20, pricePerFoot: 1.5 } }, {}, r).wallBracing.cost, 40);
   for (const bad of [-1, 1e5]) assert.ok(validateFasteners({ wallBracing: { pricePerFoot: bad } }).length > 0);
 });
+
+import { validateFasteners as _vf } from "./fasteners.mjs";
+import { validateFence as _vfence } from "./fence.mjs";
+import { validateWallTile as _vwt } from "./walltile.mjs";
+import _test from "node:test";
+import _assert from "node:assert/strict";
+_test("box sizes and per-connection counts must be whole (2026-11-08 probe)", () => {
+  assert_(_vf({ nailsPerBox: 50.5 }).length > 0);
+  assert_(_vf({ studEndNails: 2.5 }).length > 0);
+  assert_(_vf({ nailsPerBox: 1000, studEndNails: 2 }).length === 0);
+  assert_(_vfence({ runs: [100], fence: { fastenersPerBox: 10.5 } }).length > 0);
+  assert_(_vfence({ runs: [100], fence: { fastenersPerCrossing: 2.5 } }).length > 0);
+  assert_(_vfence({ runs: [100], fence: { fastenersPerBox: 500, fastenersPerCrossing: 2 } }).length === 0);
+  const s = [{ name: "a", width: 10, height: 8 }];
+  assert_(_vwt({ surfaces: s, tile: { screwsPerBox: 1e-9 } }).length > 0);
+  assert_(_vwt({ surfaces: s, tile: { screwsPerBox: 100.5 } }).length > 0);
+  assert_(_vwt({ surfaces: s, tile: { screwsPerBox: 100 } }).length === 0);
+});
+function assert_(c) { _assert.ok(c); }
