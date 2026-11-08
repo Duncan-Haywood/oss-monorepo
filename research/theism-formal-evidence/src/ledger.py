@@ -93,8 +93,12 @@ PUBLISHED_POSTERIORS = [
          note="Goodness 10, moral evil 0.5, natural evil 0.1, intranatural miracles 2 are confirmed by reviews; "
               "the last two (extranatural miracles, religious experience) are taken as 1 and 2, the values whose "
               "product (2) the reported 67% requires."),
-    dict(who="M. Shermer, Scientific American (July 2004), using Unwin's method", claim="P(God) = 0.02", reproduce=None,
-         note="Inputs not all available to us; reported result only."),
+    dict(who="M. Shermer, Scientific American (July 2004), using Unwin's method", claim="P(God) = 0.02",
+         reproduce={"prior": 0.5, "D": [0.5, 0.1, 0.1, 1, 0.5, 0.1]},
+         note="Six D values transcribed from https://michaelshermer.com/sciam-columns/gods-number-is-up/ "
+              "(goodness 0.5, moral evil 0.1, natural evil 0.1, intranatural miracles 1, extranatural miracles 0.5, "
+              "religious experience 0.1). Their product is 2.5e-4, so Unwin's own formula gives 0.025%, not the "
+              "'2 percent' the column states: the published bottom line does not follow from its published inputs (E6)."),
     dict(who="R. Swinburne, The Resurrection of God Incarnate (OUP 2003)", claim="P(God incarnate and risen) ~ 0.97",
          reproduce=None, note="NDPR review https://ndpr.nd.edu/news/the-resurrection-of-god-incarnate/"),
 ]

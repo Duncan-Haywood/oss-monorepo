@@ -83,6 +83,13 @@ def test_unwin_reproduced():
     assert abs(unwin(pub["reproduce"]["prior"], pub["reproduce"]["D"]) - 2 / 3) < 1e-12
 
 
+def test_shermer_inputs_do_not_give_two_percent():
+    pub = PUBLISHED_POSTERIORS[1]
+    p = unwin(pub["reproduce"]["prior"], pub["reproduce"]["D"])
+    assert abs(p - 2.5e-4 / (1 + 2.5e-4)) < 1e-12
+    assert p < 0.001  # the column reports 0.02
+
+
 def test_posterior_basics():
     pr = prior_vector(0.5, 0.5, PRIOR_DEFAULT["within"])
     assert abs(sum(pr.values()) - 1) < 1e-12

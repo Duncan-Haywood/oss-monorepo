@@ -44,6 +44,14 @@ exactly one model per individual when there is one world, and none with two to f
 satisfiable only where possibility is trivial". Sizes with 6 or more cells (property sets too
 large to enumerate) are not covered, and general models are not excluded by search.
 
+**M2 (part), Shermer's published inputs (E6, 2026-11-08).** The six D values of Shermer's
+*God's Number Is Up* (Scientific American, July 2004) are transcribed from the column and run through
+Unwin's formula. They multiply to 2.5×10^−4, so P(God) = 0.025%, not the 2% the column states; the
+stated bottom line is about 82 times too large in odds for its own inputs. Unwin's 67% does reproduce.
+Which side is a slip is not knowable from the column; no claim is made. Order of application is
+irrelevant. Swinburne's four inputs remain untranscribed (the book is not reachable) and Lean is
+still uncompiled.
+
 **M4 (part), shared-cause dependence (E5, 2026-11-07).** Replacing the crude ρ discount, the
 resurrection testimony items share one latent source reliability. The combined Bayes factor is
 then BF = 1 + ω(L − 1), with L the independent product (10^44, the McGrews' figure as reported
@@ -61,7 +69,7 @@ Limit: the model assumes the unreliable route yields reports under both hypothes
 - `src/arguments.py`: the 11 arguments, each with its published source.
 - `src/ledger.py`, `src/bayes.py`: hypotheses, priors, the 13 evidence items, and the posterior arithmetic.
 - `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results and the S4 countermodel.
-- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`: these regenerate `results.md` and `results.json`.
+- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`: these regenerate `results.md` and `results.json`.
 - `test_theism.py`: 15 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
 
 ## Run
@@ -73,6 +81,7 @@ python3 research/theism-formal-evidence/experiments/e2_ledger/run.py
 python3 research/theism-formal-evidence/experiments/e3_leave_one_out/run.py
 python3 research/theism-formal-evidence/experiments/e4_godel_scott/run.py
 python3 research/theism-formal-evidence/experiments/e5_shared_cause/run.py
+python3 research/theism-formal-evidence/experiments/e6_shermer_check/run.py
 cd research/theism-formal-evidence/lean && lake build   # needs Lean 4 (toolchain pinned in lean-toolchain)
 ```
 
