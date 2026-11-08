@@ -38,7 +38,8 @@ export function validateVentilation(v) {
   if (v.soffitFill != null && !(v.soffitFill > 0 && v.soffitFill <= 1)) e.push("Soffit fill (share of the eave length that can take vents) must be above 0 and at most 1.");
   if (v.ridgePiece != null && !(v.ridgePiece >= 12 && v.ridgePiece <= 240)) e.push("Ridge vent piece length must be between 1 and 20 ft.");
   if (v.ridgeNailSpacing != null && !(v.ridgeNailSpacing >= 2 && v.ridgeNailSpacing <= 48)) e.push("Ridge vent nail spacing must be between 2 and 48 inches on centre.");
-  if (v.ridgeNailBox != null && !(v.ridgeNailBox >= 1 && v.ridgeNailBox <= 100000)) e.push("Ridge vent nail box must hold between 1 and 100,000 nails.");
+  if (v.ridgeNailBox != null && !(Number.isInteger(+v.ridgeNailBox) && v.ridgeNailBox >= 1 && v.ridgeNailBox <= 100000)) e.push("Ridge vent nail box must hold a whole number of nails, between 1 and 100,000.");
+  if (v.ridgeVent != null && typeof v.ridgeVent !== "boolean") e.push("ridgeVent must be true or false.");
   return e;
 }
 
