@@ -165,3 +165,19 @@ test('uk-vat-registration-checker: lead is sourced, dated and matches the thresh
   for (const n of stated) assert.equal(n, R.registerThreshold);
   assert.match(text, /30 days/);
 });
+
+// ACA cliff lead: the 400% cliff dollar amounts, the top and bottom applicable percentages it states must be the calculator's own.
+test('aca-subsidy-cliff-calculator: lead is sourced, dated and matches the calculator', async () => {
+  const slug = 'aca-subsidy-cliff-calculator';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { fplAmount, BANDS } = await import(new URL(`${slug}/calc.mjs`, root));
+  const stated = [...text.matchAll(/\$([\d,]+)/g)].map((x) => Number(x[1].replace(/,/g, '')));
+  assert.deepEqual(stated, [fplAmount(1) * 4, fplAmount(2) * 4]);
+  assert.match(text, new RegExp(`${BANDS[0][1].toFixed(2)}%`));
+  assert.match(text, new RegExp(`${BANDS[BANDS.length - 1][2].toFixed(2)}%`));
+});
