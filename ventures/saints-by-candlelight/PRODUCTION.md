@@ -238,6 +238,7 @@ writing it; skip any already in `episodes/`):
 - *(Done: episode 70, Cornelius and the Sheet Let Down at Joppa; text only.)* Acts 10 and 11:1-18 (Scripture told straight; Catholic and Orthodox; the distance and the tanner's trade given as estimate or guess; the tongues not elaborated; Cornelius as later bishop labelled tradition and left out; the Council of Jerusalem left for another night)
 - *(Done: episode 71, Hagar and the Well in the Wilderness of Beersheba; text only.)* Genesis 16 and 21:8-21 (Scripture told straight; Catholic and Orthodox; Sarah's harshness and Abraham's silence not excused; Ishmael's play-or-mockery and the carried-on-the-shoulder difficulty named; no feast day claimed; Paul's use of Hagar and later Jewish, Christian and Muslim retellings left out)
 - *(Done: episode 72, The Boy with Five Loaves and Two Fish on the Hillside; text only.)* John 6:1-15 with Matthew 14, Mark 6, Luke 9 (Scripture told straight; Catholic and Orthodox; the boy unnamed, his morning and mother invented and said so; how the bread was multiplied left unexplained; the Eucharistic echo and the twelve baskets named as readings; later names for the boy left out)
+- *(Done: episode 73, Aidan and the King's Horse on the Road from Bamburgh; text only.)* Saint Aidan of Lindisfarne (Bede, Ecclesiastical History III; the horse, the oil and the storm, Penda's fire; legends labelled; the roadside scene and small talk invented and said so)
 
 ## Audio status
 
