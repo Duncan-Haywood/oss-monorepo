@@ -3,6 +3,7 @@ import http.server
 import json
 import os
 import sys
+import ssl
 import threading
 import unittest
 from unittest import mock
@@ -46,6 +47,10 @@ class PlainProbe(unittest.TestCase):
 
     def probe(self, path):
         class NoTLS:
+            # http.client reads verify_mode and check_hostname off the context.
+            verify_mode = ssl.CERT_NONE
+            check_hostname = False
+
             def wrap_socket(self, sock, server_hostname=None):
                 return sock
         with mock.patch.dict(os.environ, {"HTTPS_PROXY": "", "https_proxy": ""}):
@@ -91,6 +96,16 @@ class Proxy(unittest.TestCase):
             self.assertIsNone(site_probe._proxy_for("marisstella.app"))
 
 
+class ProbeCli(unittest.TestCase):
+    def test_probe_exits_zero_when_the_site_is_down(self):
+        # Documented: a probe records an outage, it does not fail on one.
+        import io
+        import contextlib
+        with mock.patch.dict(os.environ, {"HTTPS_PROXY": "", "https_proxy": ""}):
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(site_probe.main(["probe", "--url", "https://127.0.0.1:1", "--quiet"]), 0)
+
+
 class Summary(unittest.TestCase):
     def recs(self):
         base = {"group": "static", "path": "/", "cache": "HIT", "error": None}
@@ -113,6 +128,15 @@ class Summary(unittest.TestCase):
         # The timed-out request has no status, so it is not in the latency figures.
         self.assertEqual(root["total_max"], 5.0)
         self.assertEqual(s["/writing/"]["cache_miss_share"], 1.0)
+
+    def test_exactly_at_the_slow_threshold_is_up(self):
+        # is_ok counts total <= slow as up, so the failure tally must not call
+        # a request that took exactly `slow` seconds "over" it.
+        rec = {"group": "static", "path": "/", "t": "2026-11-07T00:00:00Z",
+               "status": 200, "ttfb": 1.0, "total": 3.0, "cache": "HIT", "error": None}
+        row = site_probe.summarise([rec], slow=3.0)[0]
+        self.assertEqual(row["ok"], 1)
+        self.assertEqual(row["failures"], {})
 
     def test_since_filters_the_window(self):
         s = site_probe.summarise(self.recs(), since="2026-11-07T00:06:00")
