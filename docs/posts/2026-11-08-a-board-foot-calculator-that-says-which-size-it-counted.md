@@ -1,5 +1,6 @@
 ---
 title: "A board foot calculator that says which size it counted"
+description: "A free board foot calculator that counts lumber on the sold size, shows the milled size beside it, and handles hardwood quarters and cost."
 date: 2026-11-08
 tags: [wall-framing-takeoff, calculators]
 ---
