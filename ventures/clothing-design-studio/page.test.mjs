@@ -6,7 +6,7 @@ import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
 import { economics, quantityBreaks } from "./costing.mjs";
 
 const read = f => readFileSync(new URL(`./${f}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "for-independent-clothing-designers.html", "how-much-does-it-cost-to-make-a-t-shirt.html", "sunglasses.html", "wardrobe.html", "fit.html", "quotes.html", "labels.html", "prices.html", "preorder.html", "duty.html", "import-duty-on-clothing.html", "clothing-minimum-order-quantity.html", "wholesale.html", "reorder.html", "orderlines.html", "returns.html", "cashflow.html", "tna.html", "salestax.html", "eutax.html", "discount.html", "spec.html", "timeline.html", "tiers.html", "startup.html", "testing.html"];
+const PAGES = ["index.html", "for-independent-clothing-designers.html", "how-much-does-it-cost-to-make-a-t-shirt.html", "sunglasses.html", "wardrobe.html", "fit.html", "quotes.html", "labels.html", "prices.html", "preorder.html", "duty.html", "import-duty-on-clothing.html", "clothing-minimum-order-quantity.html", "sunglasses-profit-margin.html", "wholesale.html", "reorder.html", "orderlines.html", "returns.html", "cashflow.html", "tna.html", "salestax.html", "eutax.html", "discount.html", "spec.html", "timeline.html", "tiers.html", "startup.html", "testing.html"];
 
 test("every page carries the no-warranty clause, a sponsor link and its own title and description", () => {
   for (const f of PAGES) {
@@ -103,5 +103,27 @@ test("the MOQ guide matches what preorder.mjs computes", async () => {
   assert.ok(html.includes(paid.breakEvenPrice.toFixed(2)));
   assert.ok(html.includes(money(paid.adCost)));
   assert.equal(fast.pFunded < 0.001, true);
+  assert.match(html, /an assumption typed for illustration/);
+});
+
+test("the sunglasses profit page matches what returns.mjs computes", async () => {
+  const { returnsPlan } = await import("./returns.mjs");
+  const html = read("sunglasses-profit-margin.html");
+  const landed = Math.round((21.5 + 21.5 * 0.029) * 100) / 100;
+  assert.equal(landed, 22.12);
+  const run = (shelf, returnPct, extra = {}) => returnsPlan({ price: Math.round((shelf / 1.21) * 100) / 100, landed, shipOut: 4, feePct: 2.9, feeFixed: 0.3, returnPct, exchangePct: 0, resaleablePct: 90, salvagePct: 20, returnLabel: 5, handling: 1.5, ...extra });
+  for (const shelf of [60, 65, 70]) for (const rp of [5, 12, 20]) {
+    const r = run(shelf, rp);
+    assert.ok(html.includes(`<td class="num">${r.perOrder.profit.toFixed(2)}</td>`), `${shelf}/${rp}`);
+  }
+  const main = run(65, 12);
+  assert.equal(main.perOrder.profit, 20.96);
+  assert.ok(html.includes(`${main.perOrder.profit.toFixed(2)} per order`) && html.includes(`${main.marginPct}% of the net price`));
+  assert.equal(Math.round((65 - 65 / 1.21) * 100) / 100, 11.28);
+  assert.equal(Math.round((25 - main.perOrder.profit) * 100) / 100, 4.04);
+  assert.equal(Math.round((run(65, 5).perOrder.profit - run(65, 20).perOrder.profit) * 100) / 100, 5.98);
+  assert.equal(Math.round((run(70, 12).perOrder.profit - run(60, 12).perOrder.profit) * 100) / 100, 7.03);
+  const target = run(65, 12, { targetProfit: 10 }).priceForTarget;
+  assert.ok(html.includes((Math.round(target * 1.21 * 100) / 100).toFixed(2)), "price for target");
   assert.match(html, /an assumption typed for illustration/);
 });
