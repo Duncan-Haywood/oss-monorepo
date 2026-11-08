@@ -2,7 +2,7 @@
 title: "A pairwise-ranking dip traced to how items were admitted by id"
 date: 2026-11-08
 tags: [quick-pick-survey, ranking, debugging, open-source]
-description: "Quick Pick Survey's ranking got worse after 1,000 answers. The cause was admitting items alphabetically by id; a hash order lifts the fixed-set Spearman from 0.62 to 0.98 in simulation."
+description: "Quick Pick Survey ranked worse after 1,000 answers. Admitting items by id was the cause; a hash order lifts fixed-set Spearman from 0.62 to 0.98 in simulation."
 ---
 
 Quick Pick Survey ranks a long list by asking one person to pick between two items at a time. For weeks its route tests showed the ranking getting worse as answers went past 1,000 (Spearman 0.80, 0.72, 0.67, 0.62 on the items rated early), while every in-process simulation stayed flat at 0.98. Four suspects were ruled out one by one: the answerer, the A/B slot shuffle, the random source and the first-option gate.
