@@ -1820,7 +1820,7 @@ generative agents, UIST.
 5. `civ-commons` (landed in civ-levers 2026-10-30, second run 2026-10-31): public goods with punishment and institutions. Which sanctioning
    institutions keep cooperation in large, mobile populations; fit contribution decay to
    Fehr and Gächter's published rounds.
-6. `civ-calibrate`: estimate ε and τ from public panel data on attitude change (e.g. ANES or
+6. `civ-calibrate` (first run landed in civ-levers 2026-11-08: negative, the GSS 2016-2020 panel cannot identify eps, power 14% at eps 0.3): estimate ε and τ from public panel data on attitude change (e.g. ANES or
    GSS panels) and rerun milestones 1–2 at the fitted values.
 7. `civ-history` (landed in civ-levers 2026-10-30, second run 2026-10-31): structural-demographic dynamics (Turchin) as a toy civilization: population,
    elites and state capacity over centuries, and which policy levers damp the cycles.
