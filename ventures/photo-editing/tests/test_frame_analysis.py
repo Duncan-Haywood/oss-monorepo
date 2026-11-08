@@ -85,7 +85,7 @@ class TiltTests(unittest.TestCase):
         rng = random.Random(3)
         noise = bytes(rng.randrange(60, 200) for _ in range(SIZE))
         _, confidence = tilt_from_frame(noise)
-        self.assertLess(confidence, 0.2)  # chance level is 3/30 = 0.1
+        self.assertLess(confidence, 0.1)  # chance (3/30) is subtracted, so noise reads about 0
 
     def test_aspect_comes_from_the_ffmpeg_banner(self) -> None:
         line = "  Stream #0:0: Video: mjpeg (Baseline), yuvj420p, {size} [SAR {sar} DAR 4:3], 25 fps"
