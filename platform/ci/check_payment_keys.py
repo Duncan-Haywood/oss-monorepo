@@ -40,7 +40,7 @@ VENTURES = REPO_ROOT / "ventures"
 PATTERNS = (
     ("live Stripe key", b"k_live_", re.compile(r"(?<![A-Za-z0-9])[sr]k_live_[A-Za-z0-9]{16,}")),
     ("Stripe payment link", b"stripe.com/", re.compile(r"\b(?i:(?:buy|donate)\.stripe\.com)/(?:test_)?[A-Za-z0-9]{10,}")),
-    ("PayPal hosted button", b"hosted_button_id", re.compile(r"""hosted_button_id(?:["']?\s*[:=]\s*["']?|["']\s+value=["'])[A-Z0-9]{8,}""")),
+    ("PayPal hosted button", b"hosted_button_id", re.compile(r"""(?i:hosted_button_id)(?:["']?\s*[:=]\s*["']?|["']\s+value=["'])[A-Z0-9]{8,}""")),
 )
 
 # Anything text is scanned (a key in a .sh, .vue or .txt file is as public as
