@@ -2,7 +2,7 @@
 title: "The EU 10,000 euro VAT line, as a free calculator for clothing brands"
 date: 2026-11-08
 tags: [clothing, tax, eu, tools]
-description: "A free page that checks whether a clothing brand shipping across EU borders has passed the 10,000 euro VAT line, and what the switch to shoppers' rates costs per 100 euros."
+description: "A free page that checks whether a clothing brand selling across EU borders has passed the 10,000 euro VAT line, and what shoppers' rates cost per 100 euros."
 ---
 
 A small clothing brand selling from Germany to France and Italy may charge German VAT on those sales until they pass 10,000 euros a year, before VAT, all other EU countries added together. After that each shopper's own country's rate applies, and the seller files it through the One-Stop Shop (OSS) in its home country. The Clothing Design Studio had a US sales-tax page but nothing for the EU side of a Europe-and-US line, so it now has one: `eutax.html`.
