@@ -1,6 +1,6 @@
 ---
 kind: note
-topics: [wall-framing-takeoff]
+topics: [analysis]
 date: 2026-11-08
 ---
 # wall-framing-takeoff: allowance bench on the real Schultz house
