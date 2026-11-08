@@ -1,5 +1,23 @@
 # build-data log
 
+## Session 52, 2026-11-08: milestone 7d, which table dimensions carry the boosted gain? (H8, planned before running)
+
+Why: session 51 (H7, key-only refit) also failed, and its next step was to add another key; this ladder answers which. Session 50 refuted the flattening of the boosted model to a type x cost-bucket table (H6) and left "flatten differently" open. A quantile model on type and cost bucket alone is just the empirical lookup (already tried), so the useful question is which extra dimension a readable table needs. `src/prior_ladder.py` refits the same LightGBM quantile models on nested feature subsets (type; +cost; +work class; +description length; +area; all seven) and reports the share of the full model's mean pinball gain over the per-type baseline that each subset keeps (mean over q10/q50/q90; harness split, test year 2024, 2 seeds, fresh pulls).
+**H8 (before running):** type + cost + work class (a three-dimension table) keeps at least 50% of the full model's gain in at least 3 of the 5 city/target sets; type alone keeps under 25% in at least 3 of 5. **Refuted if** type + cost + work class keeps at least 50% in 2 or fewer sets. Secondary prediction: description length is the single step that adds the most share in Austin a2i (session 50's note that gain comes from description length).
+
+### Outcome (`results/prior_ladder_2024.json`; test year 2024; feeds pulled 2026-11-08; 2 seeds)
+Share of the full model's mean pinball gain over the per-type baseline kept by each subset (Chicago a2i / SF a2i / SF i2c / Austin a2i / Austin i2c):
+- type only: 0.00 / 0.16 / -0.28 / 0.01 / 0.02
+- + log cost: 0.23 / 0.59 / 0.87 / 0.20 / 0.11
+- + work class: 0.69 / 0.59 / 0.87 / 0.62 / 0.85
+- + description length: 0.94 / 0.99 / 0.98 / 0.93 / 0.89
+- + area: 0.97 / 1.03 / 1.08 / 1.02 / 1.00 (month and weekday add nothing visible; all = 1 by definition)
+- **H8 held.** Type + cost + work class keeps at least 50% in 5 of 5 sets (needed 3); type alone keeps under 25% in 5 of 5 (needed 3).
+- **Secondary prediction failed.** In Austin a2i the largest single step is work class (+0.42), not description length (+0.31).
+- Reading: session 50's table lacked work class, which carries most of the gain; description length then adds 0.04 to 0.37. A readable table should be type x work class x cost bucket. Caveat: these are refit models on a continuous log cost, not tables; whether a table of those three dimensions keeps the share is untested, and cells get thin (min 30 rows).
+- Limits: one test year, 2 seeds, one feature order (greedy, not a Shapley split, so step sizes depend on the order), no intervals on the shares.
+- Next: build the type x work class x cost-bucket empirical table (with the shrinkage of session 50's fallbacks) and test H9 against the share these models keep.
+
 ## Session 51, 2026-11-08: milestone 7c, quantile model refit on permit type x cost bucket only (H7, planned before running)
 
 Why: session 50 (H6) flattened the full boosted model by cell medians and kept almost none of the gain. This refits a LightGBM quantile model whose only inputs are the two table keys (`src/prior_refit.py`), so each cell's value is the model's own prediction and no flattening step is left to blame. Harness split, test year 2024, 2 seeds, fresh pulls. Austin's host was unreachable from this session (curl code 000), so only three of the five sets can run: Chicago a2i, SF a2i, SF i2c.
