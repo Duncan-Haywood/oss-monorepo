@@ -43,7 +43,10 @@
       "result": "files-only change"
     }
   ],
-  "writeups": "docs/posts/2026-11-08-a-documented-step-in-a-wandering-series.md; README section in changepoint-detector",
+  "writeups": [
+    "docs/posts/2026-11-08-a-documented-step-in-a-wandering-series.md",
+    "ventures/changepoint-detector/README.md"
+  ],
   "goal": null,
   "notes": "No agent doc written; flagship next: updated.",
   "corrections": [],
