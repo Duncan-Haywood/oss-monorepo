@@ -1,9 +1,9 @@
 ---
 title: "Can a trend term predict a whole unseen GSS survey year of Catholic opinion?"
-seo_title: "Predicting a held-out survey year of Catholic beliefs: does a period term help?"
+seo_title: "Predicting a held-out survey year of Catholic beliefs"
 date: 2026-11-08
 description: "A level shift fitted on neighbouring survey years brings a boosted imputation model to parity with simple interpolation, no better, on 13 Catholic GSS items."
-tags: [research, christian-belief-models, survey-imputation, gss]
+tags: [research, christian-belief-models, survey-imputation, GSS]
 ---
 
 An earlier check in the [christian-belief-models](/research/christian-belief-models/) programme found that a model fitted on other years' General Social Survey answers predicts the share of a whole held-out year no better than carrying the neighbouring years' observed shares (3.9 points mean error against 3.4). This run tried to fix that with a period term.
