@@ -43,7 +43,10 @@
    "result": "No coverage figure for the fix claimed."
   }
  ],
- "writeups": "docs/posts/2026-11-08-why-the-jittered-interval-lost-coverage.md; research/build-data/LOG.md session 55",
+ "writeups": [
+  "docs/posts/2026-11-08-why-the-jittered-interval-lost-coverage.md",
+  "research/build-data/LOG.md"
+ ],
  "goal": null,
  "notes": "task free-choice; mechanism is a hypothesis; no agent doc written.",
  "corrections": [],
