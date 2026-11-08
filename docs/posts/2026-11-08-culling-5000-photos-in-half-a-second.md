@@ -2,7 +2,7 @@
 title: "Grouping 5,000 near-duplicate photos went from 6 seconds to half a second"
 date: 2026-11-08
 tags: [photo-editing, performance, shootflow]
-description: "The shootflow folder cull compared every pair of photo hashes with string parsing in the inner loop. Parsing once and counting bits with int.bit_count made it about 11 times faster."
+description: "The shootflow folder cull compared every photo-hash pair with string parsing in the loop. Parsing once and using int.bit_count made it about 11 times faster."
 ---
 
 `shootflow cull` groups near-duplicate frames by comparing 64-bit difference hashes, every pair, because a burst can chain (A close to B, B close to C). The cull accepts up to 20,000 files, so the pair count reaches 200 million. The inner step re-parsed both hex strings and counted bits through `bin(...).count("1")`.
