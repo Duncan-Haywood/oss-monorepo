@@ -17,10 +17,12 @@ export function restack(b, factors = {}) {
     const v = s.subtotal * (factors[s.name] ?? 1);
     if (s.name === "Labor") labor += v; else if (s.name === "Allowances") allow += v; else materials += v;
   }
-  const tax = materials * (b.taxRate || 0), cont = (materials + tax) * (b.contingencyRate || 0);
-  const total = materials + tax + cont + labor + allow;
-  const overhead = total * (b.overheadRate || 0), profit = (total + overhead) * (b.profitRate || 0);
-  return { total: r2(total), bid: r2(total + overhead + profit) };
+  // Round at each stage as budget() does, so a 0% shock reproduces its total and bid to the cent.
+  materials = r2(materials); labor = r2(labor); allow = r2(allow);
+  const tax = r2(materials * (b.taxRate || 0)), cont = r2((materials + tax) * (b.contingencyRate || 0));
+  const total = r2(materials + tax + cont + labor + allow);
+  const overhead = r2(total * (b.overheadRate || 0)), profit = r2((total + overhead) * (b.profitRate || 0));
+  return { total, bid: r2(total + overhead + profit) };
 }
 
 /**
