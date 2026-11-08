@@ -5,3 +5,5 @@ Research programme (proposal stage), AI-assisted: do open permit feeds predict p
 Paper: a first draft assembling milestones 1 to 8 is in [`paper/paper.md`](paper/paper.md) (numbers copied from the log, with limits and a to-do list; the proposal's other baselines are still unrun).
 
 **Live page:** https://marisstella.app/research/build-data/
+
+Tests: `PY=$(python3 platform/ci/pyenv.py pytest -r research/build-data/requirements.txt)`, then `"$PY" -m pytest research/build-data/tests` (the list covers xgboost and lightgbm, which the bare interpreter lacks).
