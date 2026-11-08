@@ -1,5 +1,6 @@
 ---
 title: "Can a photo culler tell when a horizon is crooked? A test on real photos"
+seo_title: "Can a photo culler tell when a horizon is crooked?"
 date: 2026-11-08
 tags: [photo-editing, computer-vision, evaluation]
 description: "We rotated real photos by known angles to test the tilt score. The first detector failed; a line-based one works on a pitch photo and still fails on facades."
