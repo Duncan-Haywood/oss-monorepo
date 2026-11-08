@@ -1,6 +1,6 @@
 ---
 title: "A quality audit found our research headline metric was untested, so we fixed it"
-seo_title: "Mutation testing found an untested headline metric in a chip-search study"
+seo_title: "Mutation testing found an untested headline metric in a study"
 date: 2026-11-08
 tags: [research, testing, mutation-testing, chip-design]
 description: "Flipping min to max in the pick-regret function passed all 18 tests of the verified-dse programme. Now it fails three."

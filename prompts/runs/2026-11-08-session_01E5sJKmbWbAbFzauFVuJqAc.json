@@ -43,7 +43,10 @@
    "result": "Both mutations now fail the suite."
   }
  ],
- "writeups": "docs/posts/2026-11-08-mutation-testing-found-an-untested-headline-metric.md; research/verified-dse/LOG.md milestone 98",
+ "writeups": [
+  "docs/posts/2026-11-08-mutation-testing-found-an-untested-headline-metric.md",
+  "research/verified-dse/LOG.md"
+ ],
  "goal": null,
  "notes": "",
  "corrections": [],
