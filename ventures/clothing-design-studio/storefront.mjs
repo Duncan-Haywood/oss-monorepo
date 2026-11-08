@@ -79,7 +79,7 @@ export function storefront(designs, options = {}) {
     const mailto = size => `mailto:${esc(email)}?subject=${subject}&amp;body=${encodeURIComponent(`I would like to order ${design.name}, size ${size}.\n\nName and delivery address:\n`).replace(/&/g, "&amp;")}`;
     const sizeButtons = sizes.map((s, k) => `<label class="sz"><input type="radio" name="size-${handle}" value="${esc(s)}"${k === 0 ? " checked" : ""}><span>${esc(s)}</span></label>`).join("");
     const action = link
-      ? `<a class="buy" href="${esc(link)}" rel="noopener">${preOrder ? "Pre-order" : "Buy"} for ${esc(price)}</a><p class="note">Opens the seller's own checkout. Tell them your size in the order note: <b data-size-for="${handle}">${esc(sizes[0] ?? "")}</b>.</p>`
+      ? `<a class="buy" href="${esc(link)}" rel="noopener">${preOrder ? "Pre-order" : "Buy"} for ${esc(price)}</a><p class="note">Opens the seller's own checkout. Tell them your size in the order note: <b data-size-for="${handle}">${esc(sizes[0] ?? "")}</b>.</p><button type="button" class="add" data-cart="${handle}" data-name="${esc(design.name)}" data-price="${Number(design.price).toFixed(2)}" data-link="${esc(link)}">Add to cart</button>`
       : email
         ? `<a class="buy" data-mail="${handle}" href="${mailto(sizes[0] ?? "")}">${preOrder ? "Pre-order" : "Order"} by email · ${esc(price)}</a><button type="button" class="add" data-add="${handle}" data-name="${esc(design.name)}" data-price="${Number(design.price).toFixed(2)}">Add to basket</button>`
         : `<span class="buy off">Ordering is not set up yet</span>`;
@@ -133,7 +133,7 @@ fieldset{border:0;padding:0;margin:.5rem 0}legend{font-size:.85rem;color:var(--m
 .buy{display:block;text-align:center;padding:.7rem;border-radius:8px;background:var(--accent);color:var(--bg);text-decoration:none;font-weight:700}
 .buy.off{opacity:.5}
 .add{display:block;width:100%;margin-top:.5rem;padding:.6rem;border-radius:8px;border:1px solid var(--accent);background:transparent;color:var(--fg);font:inherit;cursor:pointer}
-#basket{border:1px solid var(--line);border-radius:10px;padding:1rem;margin-top:1.25rem}#basket li{margin:.25rem 0}#basket button.rm{margin-left:.5rem;font:inherit;cursor:pointer}
+#basket,#cart{border:1px solid var(--line);border-radius:10px;padding:1rem;margin-top:1.25rem}#basket li,#cart li{margin:.25rem 0}#basket button.rm{margin-left:.5rem;font:inherit;cursor:pointer}
 footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);margin-top:2rem}
 </style>
 </head>
@@ -141,7 +141,8 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);margi
 <header><h1>${esc(brand)}</h1>${about ? `<p>${esc(about)}</p>` : ""}</header>
 <main><div class="grid">
 ${products.map(card).join("\n")}
-</div>${email ? `
+</div>${products.some(p => p.link) ? `
+<section id="cart" hidden aria-live="polite"><h2>Your cart</h2><ul></ul><p><b>Total: <span id="cart-total"></span></b> <span class="muted">(before shipping and tax). Each piece has its own checkout page: open one, pay, come back for the next, and give the size shown beside it in the order note.</span></p></section>` : ""}${email ? `
 <section id="basket" hidden aria-live="polite"><h2>Your basket</h2><ul></ul><p><b>Total: <span id="basket-total"></span></b> <span class="muted">(before shipping and tax; the seller confirms the final amount)</span></p><a class="buy" id="basket-send" href="#">${preOrder ? "Pre-order" : "Order"} everything by email</a></section>` : ""}</main>
 <footer>
 ${shipping ? `<h3>Shipping</h3><p>${esc(shipping)}</p>` : ""}
@@ -154,6 +155,17 @@ document.querySelectorAll('input[type=radio][name^="size-"]').forEach(function(r
 var h=r.name.slice(5),a=document.querySelector('[data-mail="'+h+'"]'),b=document.querySelector('[data-size-for="'+h+'"]');
 if(a)a.href=a.href.replace(/size(%20|\\+| )[^.]*?\\./,'size%20'+encodeURIComponent(r.value)+'.');
 if(b)b.textContent=r.value;});});
+${products.some(p => p.link) ? `(function(){var S=${JSON.stringify(CURRENCIES[cur])},L=[],C=document.getElementById('cart');
+function m(n){return S+n.toFixed(2);}
+function draw(){var u=C.querySelector('ul'),t=0;u.textContent='';
+L.forEach(function(l,i){t+=l.p*l.q;var li=document.createElement('li');li.textContent=l.q+' x '+l.n+', size '+l.s+' · '+m(l.p*l.q)+' ';
+var a=document.createElement('a');a.href=l.u;a.rel='noopener';a.target='_blank';a.textContent='Check out';li.appendChild(a);
+var b=document.createElement('button');b.type='button';b.className='rm';b.textContent='Remove';b.addEventListener('click',function(){L.splice(i,1);draw();});li.appendChild(b);u.appendChild(li);});
+C.hidden=!L.length;document.getElementById('cart-total').textContent=m(t);}
+document.querySelectorAll('[data-cart]').forEach(function(a){a.addEventListener('click',function(){
+var h=a.getAttribute('data-cart'),c=document.querySelector('input[name="size-'+h+'"]:checked'),s=c?c.value:'',n=a.getAttribute('data-name'),p=parseFloat(a.getAttribute('data-price')),u=a.getAttribute('data-link');
+for(var i=0;i<L.length;i++){if(L[i].h===h&&L[i].s===s){L[i].q++;draw();return;}}
+L.push({h:h,n:n,s:s,p:p,q:1,u:u});draw();});});})();` : ""}
 ${email ? `(function(){var E=${JSON.stringify(email)},P=${JSON.stringify(preOrder ? "Pre-order" : "Order")},S=${JSON.stringify(CURRENCIES[cur])},L=[],B=document.getElementById('basket');
 function m(n){return S+n.toFixed(2);}
 function draw(){var u=B.querySelector('ul'),t=0,body='';u.textContent='';

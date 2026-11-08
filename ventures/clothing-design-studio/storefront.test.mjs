@@ -68,13 +68,16 @@ test("duplicate names are flagged and a back print shows both sides", () => {
   assert.equal((r.html.match(/<svg /g) || []).length >= 3, true);
 });
 
-test("email shops get a basket that totals and builds one order mail; payment-link shops do not", () => {
+test("email shops get a basket that totals and builds one order mail; payment-link shops get a cart, not an email basket", () => {
   const withBasket = storefront([tee("A", 30), tee("B", 55)], terms).html;
   assert.equal((withBasket.match(/data-add="/g) || []).length, 2);
   assert.match(withBasket, /id="basket"/);
   assert.match(withBasket, /mailto:/);
   const linked = storefront([tee()], { ...terms, email: "", paymentLinks: { "halo-tee": "https://buy.stripe.com/x" } }).html;
   assert.ok(!/data-add=/.test(linked) && !/id="basket"/.test(linked));
+  assert.match(linked, /id="cart"/);
+  assert.match(linked, /data-cart="halo-tee"[^>]*data-link="https:\/\/buy\.stripe\.com\/x"/);
+  assert.ok(!/id="cart"/.test(withBasket), "email-only shop has no cart");
   // the inline script must parse
   const scripts = [...withBasket.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
   for (const sc of scripts) new Function(sc);
