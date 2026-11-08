@@ -1,6 +1,8 @@
 ---
 title: "Three change models, one year: Australian air passengers"
 date: 2026-11-08
+tags: [changepoint, time-series, open-data, aviation]
+description: "Running the changepoint detector on 47 years of Australian air passengers: three of four models date a change at 2002, the default over-cuts 13 times."
 ---
 
 We ran the changepoint detector on 47 years of Australian air passenger counts (1970 to 2016, fpp2 `ausair`). The default model cut the smooth growth 13 times, the same over-cut it makes on GDP. The more careful models agreed with each other: the AR(1) mean model finds one change, 2002, and the trend and mean-variance models both include 2002 too. Only the trend model also dates 1989, the year of the domestic pilots' dispute.
