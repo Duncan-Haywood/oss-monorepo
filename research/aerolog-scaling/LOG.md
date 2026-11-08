@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-08 · Milestone 10e: does a hybrid cargo VTOL still win once the engine and tank have mass? (predictions in `vtol_sizing/hybrid_mass_law.py`'s docstring, fixed before the run)
+- Why: 10a's "Next" (a tank and engine mass law for the hybrid; 10a's hybrid closed to the 1,500 km cap because it carried no engine mass). `experiments/vtol_sizing/hybrid_mass_law.py` (stdlib, reuses 10a's energy model) adds an engine+generator sized for hover power at a swept specific power, a tank mass as a fraction of fuel, and the NASA non-energy fraction 0.479 (10b).
+### Outcome (`experiments/vtol_sizing/hybrid_mass_law_results.txt`)
+- **P1 half held:** the hybrid has a finite range (1,273 km at engine 1 kW/kg, chain efficiency 0.20, tank 0.25), but it beats the 250 Wh/kg battery aircraft from 67 km, not beyond 100 km. **P2 refuted as stated:** engine specific power dominates everywhere. Max range at chain efficiency 0.18 is 314 / 1,144 / 1,500+ km at 0.5 / 1 / 2 kW/kg; break-even is 145 to 167 km at 0.5 kW/kg and 4 to 7 km at 4 kW/kg, nearly independent of chain efficiency and tank fraction. **P3 held:** break-even 3.3x 10a's 20 km at 1 kW/kg.
+- Reading: whether a hybrid cargo VTOL beats a battery one at 100 to 300 km is decided by engine+generator specific power in a hover-sized chain (0.5 versus 1 kW/kg moves break-even from about 150 to 70 km), far more than by fuel density. With f_non 0.583 (quadrotor) the hybrid reaches 653 km against 115 km for the battery.
+- Limits: engine specific power, tank fraction and chain efficiency are swept, not fitted to a datasheet; no hybrid hover buffer, no climb, no size law for f_non; hover-sized engine is pessimistic for a lift-plus-cruise design that could size it for cruise. Preliminary.
+- Next: source engine and generator specific power from datasheets; size the engine for cruise with a battery for hover.
+
 ## 2026-11-07 · Milestone 8g: does 7d's tail redesign survive a NeuralFoil slope error on the wing as well as the tail? (predictions in `wing_tail_slope_cut/run.py`'s docstring, fixed before the run)
 - Why: 8f's "Next". 8f cut only the tail slope. `experiments/wing_tail_slope_cut/run.py` runs 7d's search with the wing slope cut by 0/10/20/25% and the tail slope by 0/20/20/20/25%.
 ### Outcome (`experiments/wing_tail_slope_cut/results.txt`)
