@@ -1,5 +1,22 @@
 # build-data log
 
+## Session 54, 2026-11-08: milestone 7f, do conformalised table intervals hold 80% coverage? (H10, planned before running)
+
+Why: session 53's three-key table (type x work class x cost bucket) keeps most of the boosted pinball gain at q0.1/q0.5/q0.9, but its intervals were never checked, and a readable prior is only shippable if its 80% interval means 80%. `src/prior_table3_cov.py` builds the table on train rows only (<= 2022), takes CQR scores of its [q10, q90] interval on the calibration year (2023), widens by the conformal quantile (session 19's dequantised variant is reported beside the plain one), and scores coverage and mean width on test year 2024. Same recipe on the per-type baseline and on the full LightGBM model (2 seeds; its early stopping sees the calibration year, as in session 8). Fresh pulls.
+**H10 (before running):** the conformalised table interval covers within 3 points of 80% in at least 4 of the 5 city/target sets, and its mean width is no more than 1.25x the conformalised full model's in at least 3 of 5. **Refuted if** coverage is outside the band in 2 or more sets. Prior from H2 (session 8): Chicago and SF a2i probably over-cover because same-day ties pin the quantile at 0, so I expect the plain variant to fail there and the dequantised one to pass.
+
+### Outcome (`results/prior_table3_cov_2024.json`; test year 2024; feeds pulled 2026-11-08; 2 seeds)
+Conformalised 80% interval, coverage / mean width in days, plain CQR (Chicago a2i / SF a2i / SF i2c / Austin a2i / Austin i2c):
+- table (type x work class x cost bucket): 0.832 / 0.834 / 0.842 / 0.839 / 0.842; widths 118.0 / 41.5 / 399.9 / 160.9 / 290.2
+- per-type baseline: 0.885 / 0.826 / 0.857 / 0.823 / 0.845; widths 54.9 / 31.6 / 374.4 / 155.3 / 325.1
+- full LightGBM: 0.862 / 0.891 / 0.833 / 0.813 / 0.811; widths 67.0 / 61.7 / 404.2 / 170.4 / 290.3
+- Dequantised variant, table: 0.825 / 0.834 / 0.837 / 0.765 / 0.836.
+- **H10 refuted on coverage.** The 77 to 83% band holds in 0 of 5 sets with plain CQR (all over-cover by 3.2 to 4.2 points) and in 1 of 5 dequantised. The width half held: the table is within 1.25x the full model's width in 4 of 5 sets (ratios 1.76 Chicago, 0.67 SF a2i, 0.99, 0.94, 1.00). Over-coverage is the safe direction, but it means the interval is not tight.
+- **Prior failed.** I expected dequantisation to fix the ties; for the table it did not (0.837 SF i2c, 0.765 Austin a2i). For the full model the dequantised variant collapsed in Chicago and SF a2i (0.558, 0.343 against 0.862, 0.891 plain), so session 19's jitter is unsafe there and is not used for any claim here. I did not investigate why.
+- Reading: the table is a usable prior at the median and its interval is conservative, but Chicago a2i's table interval is 1.76x as wide as the full model's (118 vs 67 days) and 2.1x the baseline's, so for Chicago the per-type baseline interval is the better shipped interval.
+- Limits: one test year, 2 seeds, one bucket scheme, no bootstrap on coverage (n_test is large, so the binomial error is under 0.5 points), table built on train only (<= 2022), not train + calibration as in session 53's pinball shares.
+- Next: decide the shipped prior per city (table median, baseline interval for Chicago) and investigate the dequantisation collapse.
+
 ## Session 53, 2026-11-08: milestone 7e, an empirical type x work class x cost-bucket table (H9)
 
 Why: session 52's ladder said type + work class + cost carries most of the boosted gain, but as refit models on a continuous cost. This builds the readable version, an empirical quantile table (`src/prior_table3.py`, tests in `tests/test_prior_table3.py`) on train + calibration rows, cells under 30 rows backing off to type x work class, then type, then the city. Same harness split, test year 2024, 2 seeds for the full model, fresh pulls (manifest refreshed).
