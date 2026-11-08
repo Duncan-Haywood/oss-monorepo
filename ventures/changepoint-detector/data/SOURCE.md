@@ -532,3 +532,11 @@ column is built from the `time` column of the source.
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/wmurders.csv> (values rounded to 3 places).
 - **Licence:** fpp2 is GPL-3 on CRAN; the figures are public US vital statistics. Kept as a small test fixture with its source named.
 - **Used by:** `eval/us-female-murder-rate.mjs`, `us-female-murder-rate.test.mjs`.
+
+## nightingale-disease.csv (2026-11-08)
+
+- **What:** monthly Crimean War British army deaths from disease per 1,000 per year, April 1854 to March 1856 (24 points), the `Disease.rate` column of Florence Nightingale's data.
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/HistData/Nightingale.csv>.
+- **Licence:** HistData is GPL-2 on CRAN; the figures are 1850s public statistics. Kept as a small test fixture with its source named.
+- **Used by:** `nightingale.test.mjs`, README "A documented fall in 24 points".

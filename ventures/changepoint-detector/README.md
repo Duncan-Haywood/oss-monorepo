@@ -1696,3 +1696,13 @@ Monthly short-term resident departures from Australia, 1976-01 to 2017-06 (498 m
 ## US female murder rate: two slope bends where homicide turned (2026-11-08)
 
 `data/us-female-murder-rate.csv` (per 100,000, 1950-2004, 55 values, fpp2 `wmurders`, source in `data/SOURCE.md`) rises through the 1960s, plateaus in the 1970s and falls from the 1990s. US homicide peaking near 1980 and again about 1991-93 is recalled, not read from a source, so this is a plausibility check, not a labelled test. The level model cuts it 10 times (1960 to 2002), the staircase-on-a-shape over-cut seen on GDP and beer. `--ar1 auto` keeps one (1966), `--model trend` five (1963, 1976, 1983, 1994, 2001), `--model meanvar` three (1960, 1971, 1995). `--trend bends` finds two slope changes: **1980** (range 1975 to 1983) and **1993** (range 1990 to 1994), one at each recalled turning point, the second inside a range of five years. `--trend bend` alone dates 1980 with a wide range (1970 to 1983). Read plainly: when the shape is a rise then a fall, the bend model, not the step models, gives the dates a reader would expect. One series, a female-only rate, no claim about rates for others. `node eval/us-female-murder-rate.mjs` (output `eval/us-female-murder-rate.out.txt`, test `us-female-murder-rate.test.mjs`). Still wanted: a documented break with a source-labelled date.
+
+## A documented fall in 24 points: Crimean War disease deaths (2026-11-08)
+
+A real series with a dated cause: the British army's monthly death rate from disease in the Crimea, April 1854 to March 1856 (Nightingale's figures, `data/nightingale-disease.csv`, source in `data/SOURCE.md`). The Sanitary Commission reached the Crimea in March 1855 and deaths fell from there. Run with `node cli.mjs --model mean --min-segment 3`:
+
+- PELT cuts four steps: up at 1854-08 and 1854-12, **down at 1855-03** (826 to 269 per 1,000, 80% Bayesian probability within 3 points), and down again at 1855-07. The first fall is dated to the month of the Commission.
+- With `--log` the fall is dated 1855-04 (one month late) and the tool reports three cuts from 1855-04 to 1856-01 as "one fall from 6.57 to 1.89", which is the right reading: the decline is a ramp, not a step.
+- The warning that the series is autocorrelated (rho about 0.95) fires, as it should, and `--slope-breaks` refuses at 24 points (needs 40).
+
+Limits: 24 points, one series, one cause; the Commission's arrival coincided with winter ending, so this shows the date lines up, not that the tool separates sanitation from season (no seasonal term fits in 24 months). Test: `nightingale.test.mjs`. This is a documented fall dated within a month, not yet a real break clearing the slope-break bar.
