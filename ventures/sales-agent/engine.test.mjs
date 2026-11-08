@@ -457,3 +457,16 @@ test("fresh set 2026-11-08c (sixteenth, a false-interested probe): scored once a
   for (const [body, want] of [["Happy to chat in theory, but our board froze all new tooling for good. Please close the file.", "not_interested"], ["I'd be open to a demo after our fiscal year ends on 30 June. Please come back then.", "not_now"], ["Yes, let's talk. Does Wednesday at 3pm work? Not interested in the other plan, just the starter one.", "interested"]])
     assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
 });
+
+test("fresh set 2026-11-08d (seventeenth, a false-bounce and false-away probe): scored once at 9/20, 16/20 after one narrow veto; a tuned set", () => {
+  const s = score(load("fresh-2026-11-08d.jsonl"));
+  assert.equal(s.n, 20);
+  assert.equal(s.right, 16);
+  assert.equal(s.overreach, 0);
+  const T = "2026-11-08";
+  for (const [body, want] of [["Your message wasn't delivered to my colleague, can you resend it to me instead? Also, what does it cost?", "question"], ["I'm travelling for work until the 20th, so ping me after that and we can talk.", "not_now"], ["Our team is on leave for the whole quarter and we've no appetite for new tools. Please close the file.", "not_interested"]])
+    assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+  // machines still win: a daemon sender or a header signal is never a person, whatever it says
+  assert.equal(triage({ from: "mailer-daemon@x.example", subject: "Undeliverable", body: "Delivery has failed. Can we help? 550 5.1.1 user unknown" }, T).category, "bounce");
+  assert.equal(triage({ subject: "Automatic reply", body: "I am out of the office until 12 December with limited access to email." }, T).category, "out_of_office");
+});
