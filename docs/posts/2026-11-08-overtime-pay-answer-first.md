@@ -2,7 +2,7 @@
 title: "The overtime calculator now opens with the rule it applies"
 date: 2026-11-08
 tags: [seo, aeo, overtime, flsa]
-description: "The overtime pay calculator's page leads with the federal rule, its Department of Labor source and an as-of date, so an assistant can quote it without misquoting."
+description: "The overtime pay calculator page now leads with the federal rule, its Department of Labor source and an as-of date, so an assistant can quote it accurately."
 ---
 
 The overtime pay calculator used to open with a description of itself. It now opens with the rule: under the federal FLSA a covered, non-exempt employee is owed at least one and one-half times their regular rate for hours over 40 in a workweek, and a week worked at two pay rates uses the weighted-average regular rate rather than either rate alone.
