@@ -22,13 +22,20 @@ NEEDS_SITE = {"check_pages_links.py", "check_built_site.py"}
 EXTRA = [("platform/pages/propose_seo_titles.py", "--check")]
 
 
+def label(path):
+    """Bare name for platform/ci scripts; repo-relative path for the others, so a red
+    line says where the script lives (runs lost time looking for propose_seo_titles.py)."""
+    p = Path(path).resolve()
+    return p.name if p.parent == HERE else str(p.relative_to(ROOT))
+
+
 def run(path, *args):
     try:
         r = subprocess.run([sys.executable, str(path), *args], cwd=ROOT, capture_output=True,
                            text=True, timeout=300)
-        return Path(path).name, r.returncode, (r.stdout + r.stderr).strip()
+        return label(path), r.returncode, (r.stdout + r.stderr).strip()
     except subprocess.TimeoutExpired:
-        return Path(path).name, 124, "timed out after 300 s"
+        return label(path), 124, "timed out after 300 s"
 
 
 def main():
