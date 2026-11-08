@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { budget, budgetText, budgetCsv } from "./budget.mjs";
+import { budget, budgetText, budgetCsv, priceSheet } from "./budget.mjs";
 import { main } from "./cli.mjs";
 import { samplePlan, takeoff } from "./engine.mjs";
 import { sampleFloor } from "./floor.mjs";
@@ -591,4 +591,12 @@ test("paint and fireblocking reach the budget: quantities from the takeoff, type
   assert.equal(over.lines.find((l) => l.item === "Paint gallons").unitPrice, 40);
   const none = bud({ ...plan, paint: { coats: 2 }, fireblock: { intervalFt: 8 } });
   assert.equal(none.lines.find((l) => l.item === "Fireblocking boards").amount, null);
+});
+
+test("budget, budgetCsv and priceSheet refuse a missing or malformed input with a clear message", () => {
+  for (const bad of [null, undefined, 5, "x"]) assert.throws(() => budget(bad), /needs a takeoff result/);
+  for (const bad of [null, 5, "x", {}, []]) {
+    assert.throws(() => budgetCsv(bad), /needs a budget/);
+    assert.throws(() => priceSheet(bad), /needs a budget/);
+  }
 });
