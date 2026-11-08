@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-08",
+  "subject": "platform/agents",
+  "stratum": "platform",
+  "seed": "2026-11-08",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a senior developer-tools engineer who ships CLIs and MCP servers (the class of the reference MCP SDK servers). First check: does every tool call return exactly what the page computes, is the JSON an agent receives faithful to the data, and is every untrusted argument (slug, module, args, root) validated before it reaches the filesystem, import() or a child process.",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 3,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Ran `node platform/agents/tools.mjs call 401k-loan-vs-withdrawal-calculator analyze --input '{\"need\":20000,\"balance\":60000}'` and recomputed three outputs with an independent annuity formula in a node one-liner (not the tool's code): loanPayment 20075 @8.5%/60 mo = 411.869366390554 (tool 411.8693663905541); outsidePayment 20000 @14%/36 mo = 683.5525951605102 (tool identical) and outsideInterest = 683.5526*36-20000 = 4607.893 (tool 4607.893425778369); gross withdrawal 20000/(1-0.37) = 31746.0317 (tool identical). So the pass-through of engine results is exact. But the serializer corrupts one field: the same run prints `\"ranked\":[\"[circular]\",{...outside...},{...withdrawal...}]`, the cheapest option replaced by the string \"[circular]\" although nothing is circular (ranked[0] is the same object as result.cheapest). Minimal repro: toJson({x:o,y:o}) -> {\"x\":{\"a\":1},\"y\":\"[circular]\"}. The WeakSet marks any repeated reference, not an ancestor cycle. An agent reading `ranked` gets a string where an object belongs. Also: `search roof bid` returns 15 hits, 'search 401k loan' returns exactly 1 (matches the AND rule). `call` with invalid inputs ({need:-5,balance:'abc'}) is passed to the engine unchanged and returns a result object, so input validation is delegated to each engine.",
+    "completeness": "Claims checked in README: search (works, AND semantics, ranking); describe (works, every catalogue engine describable: the test that imports all tools passes in 5 s); call with --input/--args/--stdin/--module (worked, errors clean with exit 1); run (spawns cli.mjs, rejects slug with no cli); mcp (round trip tested: initialize, tools/list, call_tool, parse error -32700); --compact (works); 20 s timeout and 200 KB cap (both implemented in spawnNode, cap tested only by reading). Counts: ventures/ has 1337 dirs and 1316 index.html; README says ~1,300 and 1,262 of 1,283 callable as of 2026-10-20 (dated, plausible, not re-derived; the all-tools test passes). Gap: `run` has no timeout or output cap (only MCP run_cli does). No TODOs or stubs.",
+    "verification": "`node --test platform/agents/*.test.mjs` -> 16 tests, 16 pass, 0 fail, 0 skipped, 8.8 s. Seeded 3 single-line mutations in tools.mjs, each reverted from a saved copy (git diff --stat -- platform/agents empty afterwards). M1 search `words.every` -> `words.some`: CAUGHT (test 8). M2 SLUG_RE loosened to allow `.` and `/` (path traversal in slug): CAUGHT (test 10). M3 MCP search limit cap 100 -> 1000: SURVIVED (16/16 pass), the cap is untested. Strengths: fixtures in a temp root, a real child-process MCP round trip, and a test that loads every catalogue engine. Gaps: no test for toJson on shared references (the [circular] bug), none for the output cap or timeout, none for run_cli arg validation.",
+    "craft": "Read tools.mjs (532 lines) and tools.test.mjs in full. Good: zero dependencies, slug validated by SLUG_RE before any path join (call, describe, run, MCP), `--module` is only matched against the discovered engine list so `--module ../../../etc/passwd` is rejected (ran it: 'has no engine'), child env scrubbed to PATH and HOME, no shell, MCP args type-checked for run_cli, errors return exit 1 or isError rather than crash. Defects: (1) toJson [circular] false positive, which corrupts output (see correctness); (2) `--limit abc` silently becomes 20 and a negative limit silently becomes 1 (`Number(o.limit) || 20`, `Math.max(1, limit)`) instead of an error; (3) `catch(() => null)` in `read` conflates 'missing' with 'permission denied or EISDIR'; (4) module-level `splitCache` is global mutable state; (5) `paramsOf` re-parses Function.toString by hand, which fails on default values containing unbalanced brackets in strings (acceptable, tested for common cases); (6) `call` runs an engine in-process on the CLI path with no timeout, only the MCP path is sandboxed by a child process; (7) `RISKY_SRC` is a regex gate (`fetch(` etc.) that `globalThis['fe'+'tch']` would evade, fine against accidents, not against an adversarial tool, which the README does not claim.",
+    "claims": "Checked: README 'You only need Node 18 or later' - the file uses top-level await and `??=` (Node 15+/16+), plausible, not run on 18. 'no network after the clone' - true, no network calls in tools.mjs. 'numbers match the page's exactly' - matched for the 401k tool, same module. 'Each call_tool and run_cli runs in a child process with a 20 s timeout and a 200 KB output cap' - true in code (spawnNode); but the CLI `call` and `run` commands do not, and the README sentence is scoped to MCP so it holds. Safety gate claim in header: backed by gate() and a test with a fetching fixture. Stale/unbacked: SITE and the README point to https://duncan-haywood.github.io/oss-monorepo/ while CLAUDE.md says the catalogue is served at https://marisstella.app/ and the GitHub Pages address 'serves redirect pages' (probe from this sandbox returned 403 from the proxy, so liveness of either URL was not verified); every search result's `url` field therefore points at the old host. '1,262 of 1,283' is a dated snapshot, not current (1316 index.html now). The shared-disclaimer string is present in MCP descriptions and USAGE, but not in `call` JSON output itself.",
+    "fitness": "Job walked through: an agent finds a tool (`search 401k loan`), reads its signature (`describe`), calls it with only the differing inputs merged over DEFAULTS, and gets JSON; same via MCP. Worked end to end for a real tool; error paths give one-line causes. The caller must still know each engine's units (pct as 27 not 0.27) from DEFAULTS and doc comments, and the [circular] artefact hits any engine that returns shared objects (here ranked/cheapest), so some results are lossy. Held at 3.",
+    "domain": "Compared against the MCP spec (2025-06-18): newline-delimited JSON-RPC over stdio, initialize/ping/tools/list/tools/call, notifications ignored, -32700 parse error, -32601 method not found, -32602 missing name, tool annotations (readOnlyHint, openWorldHint) and inputSchema with additionalProperties false: all conform. Departures: no `notifications/initialized` handling needed (ignored, correct), no protocol-version negotiation (always answers 2025-06-18), no schema validation of call_tool arguments (the handler reads them loosely), `run_cli` advertises readOnlyHint false but runs arbitrary venture cli.mjs with the caller's cwd. A tool-server maintainer would accept it as a small server and ask for the version negotiation and argument validation."
+  },
+  "defects": [
+    {
+      "severity": "high",
+      "what": "toJson replaces any object reached a second time with the string \"[circular]\", although it is a shared reference, not a cycle (WeakSet of all visited objects, never removed on exit). Real output corrupted: 401k-loan-vs-withdrawal-calculator analyze returns ranked[0] = \"[circular]\" instead of the cheapest option; any agent reading ranked loses the winner.",
+      "where": "platform/agents/tools.mjs:169-186"
+    },
+    {
+      "severity": "medium",
+      "what": "No test covers toJson on shared references, the MCP limit cap, the output cap or the timeout: mutation of the MCP search limit cap (100 -> 1000) leaves all 16 tests green.",
+      "where": "platform/agents/tools.test.mjs; platform/agents/tools.mjs:368"
+    },
+    {
+      "severity": "medium",
+      "what": "SITE constant (and so every search/describe result `url`, and the README) still points at the duncan-haywood.github.io address, which per CLAUDE.md now only serves redirect pages; the live host is marisstella.app.",
+      "where": "platform/agents/tools.mjs:38; platform/agents/README.md:10"
+    },
+    {
+      "severity": "low",
+      "what": "Silent fallbacks: `--limit abc` becomes 20, a negative limit becomes 1, `read()` maps every fs error to 'not found', and call_tool arguments are not schema-validated.",
+      "where": "platform/agents/tools.mjs:49,94,368,504"
+    },
+    {
+      "severity": "low",
+      "what": "CLI `call` imports and runs the engine in-process, and `run` spawns the tool CLI with inherited stdio and full env, with no timeout or output cap; only the MCP path has the child-process limits.",
+      "where": "platform/agents/tools.mjs:260-263,516"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Does not meet the bar (correctness 2, claims 2; verification 3, craft 3; median 3); finished (completeness 3). The 16 tests pass and the server is carefully built: slugs are validated before any path join, a `--module ../../../etc/passwd` is rejected, the child env is scrubbed, and the MCP protocol surface conforms to the 2025-06-18 spec. Three recomputed outputs (loan payment 411.8694, outside payment 683.5526, gross-up 31,746.03) match an independent annuity formula exactly. But the JSON layer an agent depends on has a real bug: shared object references print as \"[circular]\", so the 401k tool's `ranked` list loses its winner, and no test catches it (a mutation to the MCP limit cap also survived; 2 of 3 mutations caught). The site URL in every result points at a retired address. Reproduce: `node -e \"import('./platform/agents/tools.mjs').then(m=>{const o={a:1};console.log(m.toJson({x:o,y:o},0))})\"` prints {\"x\":{\"a\":1},\"y\":\"[circular]\"}."
+}

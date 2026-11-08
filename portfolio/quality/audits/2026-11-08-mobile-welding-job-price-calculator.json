@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-08",
+  "subject": "ventures/mobile-welding-job-price-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-08",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "an owner-operator of a mobile welding business who quotes repair and fabrication calls (or a shop estimator who builds a loaded shop rate). First check: does a quote built from my own hours, drive, rig and materials land where my books say it should, and does a field I leave empty mean what I meant.",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Ran `node --test '*.test.mjs'` in the directory: 31 tests, 31 pass, 0 fail (0.14 s). Recomputed three jobs with an independently written gross-up model (scratchpad weld/ind.py, formula written from the README's prose, not copied from calc.mjs) and compared with calc.mjs price(): (1) the defaults (4 h weld, 1 h setup, 20 mi at 40 mph, $45/h, rig $12, consumables $9, $150 materials at 20% markup, $2500 over 80 h, 3% fee, 20% margin): hand $951.14 (labour 6 h x 45 = 270, rig 60, consumables 36, truck 36, overhead 6 x 31.25 = 187.5, total 739.5; 589.5/0.77 + 180/0.97), calc.mjs 951.1514, agree. (2) 2 h weld, 0.5 h setup, 60 mi at 45 mph, $55/h, 2 h helper at $25, rig 15, cons 12, $1.10/mi, $40 materials at 10%, $3000 over 100 h, 2.9% fee, 25% margin, $200 minimum: independent 992.15, calc.mjs 992.147, agree. (3) a small job (0.5 + 0.25 h, 5 mi): cost-based 132.41 so the $150 minimum binds; independent 150, calc.mjs 150 with minBinds true and margin recomputed to 24.6% (not the 15% target), correct. Also checked by hand: overrun at 25% adds 1.25 h x (45 + 12 + 31.25) + 1.25 x ... = $119.31 extraCost, matches; per-hour figure (951.15-28.53-552+270)/6 = 106.77 matches. Source for cost practice: gross-up pricing (price = cost / (1 - fee - margin)) is the standard markup-vs-margin identity; I could not fetch published welding consumable tables through the proxy, so the $9 per arc-hour consumables default (MIG wire, gas, discs) was judged against my recollection of typical figures, not a cited table, and the repo itself labels defaults placeholders. One modelling point, not an arithmetic error: with defaults the reported margin is 19.25%, not the 20% typed, because the margin target is applied to non-material cost only and materials carry just the 20% markup (16% margin after fee). README says materials are priced at cost plus markup, so this is documented, but the input label 'Profit margin you want on each job' promises more than the output delivers.",
+    "completeness": "Claimed and checked in a real page: price for target margin, cost breakdown, price-by-distance ladder, overrun impact, offered-price check, break-even jobs per month, minimum call-out, reset-to-example, usage opt-out, JSON-LD. Loaded the page with Chrome through playwright over http (scratchpad weld/run.mjs, 375 px viewport): title renders, clicking 'Price the job' shows $951 / $183 profit (19% margin) / $107 per hour / no-profit floor $793, zero page errors, zero console errors, no horizontal scroll. All sections exist and are wired to calc.mjs. No stubs or TODOs. VENTURE.yaml says stage prototype and mentions a hosted customer-quote print as 'not built', honestly.",
+    "verification": "Test command `node --test '*.test.mjs'`: 31 pass. Three single-line mutations in calc.mjs, each reverted from a saved copy (git status clean afterwards). M1 `room = 1 - fee - margin` -> `1 - fee + margin`: CAUGHT (7 failures). M3 drive time `2 * miles` -> `1 * miles`: CAUGHT (1 failure). M2 rig wear charged on weld hours only instead of all on-site hours (`onSite * rigPerHour` -> `weld * rigPerHour`): SURVIVED, 31 of 31 pass, so the rig line (and the setup hours that feed it) is never pinned by a number. Net 2 of 3 caught. page.test.mjs is mostly regex over the HTML (disclaimer, labels, no fetch); there is no test that runs the page's input handling, which is where the defect below lives.",
+    "craft": "Read calc.mjs (148 lines), index.html (132 lines), page.test.mjs, README.md, llms.txt, VENTURE.yaml. Good: pure functions, no dependencies, outcome() reused by price/checkPrice/overrunImpact, NaN guard on an impossible margin, invalid-input paths return valid:false. Defects: (1) index.html opts() replaces any blank or non-numeric field with the DEFAULTS value, so clearing 'Materials' to mean none prices the job with the $150 default; reproduced in Chrome: materials '' -> $951, materials 0 -> $766. A silent fallback that overstates a quote by 24% on the user's own blank. (2) calc.mjs num() and nz() quietly turn text and negatives into 0 with no signal. (3) `round2`/`r2` and `money2` appear unused by the page. (4) the whole inline script is one long-line template-string renderer, no escaping issue found because only numbers are interpolated.",
+    "claims": "Checked: README 'Open index.html and click Price the job' - FALSE as written: opened via file:// Chrome blocks the module imports (CORS, 'origin null') and the button does nothing; works over http (the live site). llms.txt page link is the old github.io address while README and CLAUDE.md say marisstella.app. Backed: disclaimer, no-warranty and 'not legal, tax, accounting' text present in the footer (page.test.mjs asserts it); 'nothing leaves the browser' backed by a test forbidding fetch/XHR/beacon and I confirmed zero network requests beyond the two local modules; usage events named on the page match record() calls (tested); 'defaults are placeholders, not market rates' stated in calc.mjs and on the page; 'Not decided' section present. No reviews or invented figures. Limits stated well.",
+    "fitness": "Job walked through as a welder pricing a 5-hour call 20 miles out: filled the example, got a price, a cost breakdown, a drive-share table, an overrun test and a break-even count, all coherent and fast. Where I stalled: leaving a field empty silently used the example number (above), and a welder with no materials on the job would get a quote 24% too high without any warning; the headline margin reads 19% against a typed 20%; the overrun model raises 'fixed cost' overhead with hours, which is a capacity-opportunity view, not cash, and is not explained. No quote document to hand a customer (stated as not built). Usable for a first rough number, not something I would hand a customer without checking each default.",
+    "domain": "Compared against the way a mobile-welding or shop estimator builds a rate: loaded labour, rig and truck cost per hour and mile, consumables per arc-on hour, overhead recovered over billable hours (drive included), materials with markup, a minimum call-out, card fee grossed up. The method matches that practice and the separation of drive time and on-site time with overrun applied to on-site only is what a field welder would want. Departures a practitioner would raise: no sales tax or per-diem line, no after-hours or certified/code-weld premium, no separate travel-rate (many welders bill drive at a lower hourly rate than arc time), consumables default is a single number rather than wire lb/hr plus gas cfh, and the margin on materials is lower than the margin on labour without saying so on the input. These are scope limits, stated as not decided, not wrong math."
+  },
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Blank or non-numeric input is silently replaced by the example default: clearing 'Materials you buy' prices the job at $951 instead of $766 (reproduced in Chrome). Same for every other field, e.g. blank helper rate, fee or margin.",
+      "where": "ventures/mobile-welding-job-price-calculator/index.html:opts() (inline module script)"
+    },
+    {
+      "severity": "medium",
+      "what": "README says 'Open index.html and click Price the job'; opened from disk, the ES module imports are blocked by CORS in Chrome and nothing happens.",
+      "where": "ventures/mobile-welding-job-price-calculator/README.md:16"
+    },
+    {
+      "severity": "medium",
+      "what": "Typed target margin is not what the result reports: defaults give 19.25% not 20% because materials only carry their markup. Label says 'Profit margin you want on each job'.",
+      "where": "ventures/mobile-welding-job-price-calculator/calc.mjs:price()"
+    },
+    {
+      "severity": "medium",
+      "what": "Mutation survivor: charging rig wear on weld hours instead of on-site hours passes all 31 tests; the rig line is never pinned.",
+      "where": "ventures/mobile-welding-job-price-calculator/calc.mjs:jobCost (rig)"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt links the old github.io address; num()/nz() turn text and negatives into 0 without telling the user.",
+      "where": "ventures/mobile-welding-job-price-calculator/llms.txt:6; calc.mjs:28-35"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Does not meet the bar (verification 2, claims 2; median 2); finished (completeness 3). The arithmetic is right: three jobs recomputed with an independent gross-up model agree to the cent (951.15, 992.15, a binding $150 minimum), the page loads in Chrome with no errors and every advertised section works, and the method matches how a mobile welder or shop estimator builds a price. What a user would trip on is not the math but the input handling: an emptied field silently uses the example value (materials blank gives $951 instead of $766), the README's open-the-file instruction fails over file://, and the headline margin is below the typed target. Of three seeded mutations the suite caught two; swapping rig wear from on-site to weld hours passed all 31 tests. Consumables defaults could not be checked against a cited table through the proxy; the repo calls them placeholders."
+}
