@@ -1,5 +1,11 @@
 # Research log: christian-belief-models
 
+## 2026-11-08 · Milestone 3 (part): does the imputed share match a ballot the model never saw? (predictions written before the run; outcome below)
+
+- Why: milestone 3 asks whether imputed shares match the shares from ballots that asked the item. The out-of-fold check of 2026-11-07 still let the model see the same survey year. `experiments/m3_year_holdout/run.py` holds out a whole survey year for each Catholic item (at least 150 respondents asked), fits on all other years without `year` as a feature, and compares the weighted mean prediction with that year's observed share (200 respondent-bootstrap draws). Baselines for the same share: the mean of the other years in the decade, and linear interpolation between the nearest earlier and later asked years. Models: hgb and L2 logit. The predictions were written after the job started but before I opened any output.
+- Predictions: (1) the median absolute year-level bias of hgb is under 3 points; (2) at least 80% of year intervals contain zero (wider than the 94% of the out-of-fold check, because a year shifts the level); (3) hgb has a lower mean absolute error than the decade mean on most item-years, but not than interpolation on the slow-moving items (attendance, premarital sex), where interpolation is hard to beat; (4) hgb is worst in years at the ends of an item's run (first and last year), where interpolation has only one neighbour.
+- **Outcome:** pending.
+
 ## 2026-11-07 · Milestone 2 (part): is the imputed share right in each decade and generation? (predictions written before the run; outcome below)
 
 - Why: milestone 3 asks whether imputed shares match the shares from ballots that asked the item. Out-of-fold predictions are the same test in a cleaner form: every respondent's answer is predicted from a model that never saw them. `experiments/m2_calibration/run.py` compares the weighted mean out-of-fold hgb prediction with the weighted observed share in each decade x immigrant-generation cell (at least 100 respondents), with 200 bootstrap draws, and computes a weighted expected calibration error (10 equal-count bins) per Catholic target.
