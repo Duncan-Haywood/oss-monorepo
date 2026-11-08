@@ -1,9 +1,9 @@
 ---
 title: "The Lead Who Said \"Wrong Person\" and Meant Yes: probing an AI sales agent for false stops"
 seo_title: "AI Sales Reply Triage: False Wrong-Person and Not-Now Readings"
-date: 2026-11-11
+date: 2026-11-08
 tags: [sales-agent, evaluation, email]
-description: "A 20-reply probe found the reply rules marking six live leads as departed contacts. Narrow vetoes took it from 9/20 to 18/20, and the probe also found a missing opt-out phrase."
+description: "A 20-reply probe found the reply rules marking six live leads as departed contacts. Narrow vetoes took it from 9/20 to 18/20 and found a missing opt-out."
 ---
 
 An inbox agent that reads replies to cold email can fail two ways. It can contact someone who asked it to stop, which is the legal risk. Or it can quietly drop a live lead, which is the cost nobody sees. The [sales agent](/ventures/sales-agent/) reply rules had been probed for the first; this run probed the second.
