@@ -364,6 +364,7 @@ const RULES = {
   ],
   not_now: [
     P("\\b(ask|try|contact|ping|email|call) (me|us) (again )?(in|after|next|around|later|down the line|then)\\b"), P("\\btry again (in|after|next|later)\\b"), P("\\bhold off\\b"), P("\\blet you know when\\b"), P("\\bdown the (line|road)\\b"), P("\\bnot this (year|quarter|month)\\b"), P("\\bin the (spring|summer|fall|autumn|winter)\\b"), P("\\b(in the )?(middle|midst) of (a|an|our)\\b"),
+    P("\\bcome back (then|in|after|next|around)\\b"),
     P("\\bnot (right )?now\\b"), P("\\bnot at (this|the moment)\\b"), P("\\b(circle|check|touch) back\\b"), P("\\breach (back )?out (again )?(in|after|next|around)\\b"), P("\\b(follow up|get back to me|try (me|us) again|ping me) (in|after|next|around)\\b"),
     P("\\bnot (a|the) (top )?priority (right now|at the moment|this (quarter|year))\\b"), P("\\b(maybe|perhaps|possibly) (in|next|after|later)\\b"), P("\\bbudget (is |has been )?(frozen|locked|spent|set)\\b"), P("\\b(timing|the timing) (isn'?t|is not) (right|great|good)\\b"),
     P("\\b(revisit|reconsider|look at (this|it)) (in|next|after|later)\\b"), P("\\b(too busy|swamped|slammed) (right now|at the moment|this (month|quarter))\\b"), P("\\bnext (quarter|year|fiscal year)\\b"), P("\\b(later|end of) (this|the) year\\b"), P("\\bafter (the )?(holidays|new year)\\b"),
@@ -384,6 +385,8 @@ const RULES = {
     P("\\bnot for (us|me)\\b"), P("\\b(this|that|it) (isn'?t|is not) for (us|me)\\b"), P("\\bdecided against (it|this|that)\\b"), P("\\bstill the same answer\\b"), P("\\bya tenemos (una )?soluci[óo]n\\b"), P("\\b(we'?re|we are) not the right (company|business|fit|org|organi[sz]ation)\\b"), P("\\bnot something (we|i)'?(re| are| am)? (looking|interested)\\b"), P("\\bnot looking (for|to)\\b"), P("\\bplease don'?t follow up\\b"), P("\\bwe'?ll never\\b"),
     // Added 2026-11-04 after eval/fresh-2026-11-04b.jsonl (agent-written, 30 mixed replies) went 23/30 with 0 overreach: "isn't something we'd ever need".
     P("\\b(isn'?t|is not) something (we|i)('d| would)? ever (need|use|want)\\b"),
+    // Added 2026-11-08 after the sixteenth set (eval/fresh-2026-11-08c.jsonl, a false-"interested" probe): a decline that also sounds polite.
+    P("\\bclose (the|our|this) (file|ticket|thread|opportunity)\\b"), P("\\b(won'?t|will not|are not going to|aren'?t going to) be (buying|purchasing|signing|moving forward)\\b"), P("\\bno (call|demo|meeting) (is )?(needed|necessary)\\b"), P("\\bno need to (schedule|book|set up)\\b"), P("\\bfroze all new\\b.{0,30}\\bfor good\\b"),
     // Added 2026-11-10: "not something we'd ever buy".
     P("\\bnot something (we|i)('d| would)? ever (buy|purchase|pay for)\\b"),
   ],
@@ -480,12 +483,16 @@ export function triage(reply, today) {
   const notNow = find("not_now");
   const notInt = find("not_interested");
 
-  if (notNow && !explicitMeeting) {
+  // "Open to a demo after our fiscal year ends ... come back then" is a date, not a request for times (2026-11-08).
+  const futureOnly = meet && notNow && /\b(after|once|until|when) (our|the|we|i|my)\b/i.test(meet.s);
+  if (notNow && (!explicitMeeting || futureOnly)) {
     let d = null;
     for (const s of all) { const f = findDate(s, today); if (f) { d = f; break; } }
     return res("not_now", notNow, { date: d?.date || addDays(today, 90), dateText: d?.text || null, confidence: d ? "clear" : "weak", why: d ? `come back ${d.date}` : "no date given: 90 days by default" });
   }
-  if (notInt && !explicitMeeting && !/\bunless\b/i.test(notInt.s)) return res("not_interested", notInt, { why: "declined" });
+  // A partial "no" ("not interested in the other plan") next to a proposed time is not a decline (2026-11-08).
+  const proposesTime = notInt && findSlots(body, today).length > 0;
+  if (notInt && !explicitMeeting && !proposesTime && !/\bunless\b/i.test(notInt.s)) return res("not_interested", notInt, { why: "declined" });
 
   for (const sub of ["price", "competitor", "authority", "need"]) {
     const o = find(`objection_${sub}`);

@@ -446,3 +446,14 @@ test("'was out of the office' in a past-tense apology is not an away notice", ()
   const t = triage({ from: "p@x.example", subject: "Re: hi", body: "Sorry for the late reply, I was out of the office. Yes, let's set up a 20 minute call." }, "2026-11-08");
   assert.notEqual(t.category, "out_of_office");
 });
+
+test("fresh set 2026-11-08c (sixteenth, a false-interested probe): scored once at 13/20 (3 overreach), 17/20 after narrow patches; a tuned set", () => {
+  const s = score(load("fresh-2026-11-08c.jsonl"));
+  assert.equal(s.n, 20);
+  assert.equal(s.right, 17);
+  assert.equal(s.overreach, 1); // "we just signed with another vendor" drafts an objection answer; the label says not_interested, arguably wrong
+  assert.equal(s.unsubMissed, 0);
+  const T = "2026-11-08";
+  for (const [body, want] of [["Happy to chat in theory, but our board froze all new tooling for good. Please close the file.", "not_interested"], ["I'd be open to a demo after our fiscal year ends on 30 June. Please come back then.", "not_now"], ["Yes, let's talk. Does Wednesday at 3pm work? Not interested in the other plan, just the starter one.", "interested"]])
+    assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+});
