@@ -1,5 +1,6 @@
 ---
 title: "Three real shocks in Japanese visitor numbers, and which change-point models see them"
+seo_title: "Three shocks in Japanese visitor numbers, and who sees them"
 date: 2026-11-08
 tags: [changepoint-detector, time-series, evaluation]
 description: "Quarterly arrivals to Australia from Japan contain the Asian crisis, SARS and the 2008 crash. No single model in the detector dates all three."

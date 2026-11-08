@@ -1,5 +1,6 @@
 ---
 title: "How many hurricane ties does a roof need? A takeoff that counts them from your engineer's numbers"
+seo_title: "How many hurricane ties does a roof need?"
 date: 2026-11-08
 tags: [construction, roofing, wall-framing-takeoff]
 description: "The roof tool now turns a typed uplift pressure and a connector's rated capacity into connectors per rafter end and a total to order."
