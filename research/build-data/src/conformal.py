@@ -43,6 +43,17 @@ def cqr_interval(lo, hi, qhat, floor=0.0):
     return [max(floor, l - qhat) for l in lo], [h + qhat for h in hi]
 
 
+def cqr_interval_nonempty(lo, hi, qhat, floor=0.0):
+    """cqr_interval for a possibly negative qhat, without lifting a floored lower end.
+
+    With qhat < 0 the plain version moves lo up to -qhat and hi down by |qhat|. For a same-day
+    row (lo = hi = 0, y = 0) that gives lo = 0.14 > y and hi < 0, so a row the model placed at
+    the floor is never covered. Here a lower end already at the floor is left there (narrowing
+    cannot go below the support), and hi stays at or above lo (LOG.md, session 55)."""
+    lo2 = [l if (qhat < 0 and l <= floor) else max(floor, l - qhat) for l in lo]
+    return lo2, [max(l2, h + qhat) for l2, h in zip(lo2, hi)]
+
+
 def coverage(lo, hi, y):
     return sum(l <= v <= h for l, h, v in zip(lo, hi, y)) / len(y)
 
