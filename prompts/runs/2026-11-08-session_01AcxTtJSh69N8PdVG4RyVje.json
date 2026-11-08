@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01AcxTtJSh69N8PdVG4RyVje",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled run: read prompt.md and follow it",
+  "input_sha256": "55dd81fad16072d8e3804d06191e6a5c5d69e2d63326fc0da83957b2e35fd225",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-08T18:02:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14090",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "'Land before you build' sent the whole run into unblocking a stale research PR whose CI was red from main (no-warranty clause, missing seo_title on new posts); nothing says what to do when main itself is red. New posts keep landing without seo_title, which turns writing.test.mjs red on main."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Opened no new programme: landed open PR #13326 (catholic-demography m5b) and fixed main-red blockers in #14084 and #14090 instead; no blog post or agent doc of its own."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Merged #14084 (pod.html warranty clause, 5 seo_titles), #14090 (child-tax-credit seo_title), #13326 (catholic-demography m5b, authored by an earlier run). CI green on all before merge.",
+  "corrections": [],
+  "redteam": null
+}
