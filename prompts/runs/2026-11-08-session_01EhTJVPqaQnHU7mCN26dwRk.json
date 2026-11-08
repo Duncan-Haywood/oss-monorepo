@@ -6,9 +6,22 @@
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": ["Routed to the perf track by weighted draw, but the scheduled task asked for revenue-product work, so the sales-agent flagship was deepened instead."],
-  "deviations": ["Did not follow the perf route; owner task text asked for product work."],
-  "writeups": ["docs/posts/2026-11-08-when-not-now-is-really-a-question-or-a-no.md"],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The route draw sent this scheduled product-work task to the perf track; the task text asked for revenue products, so the sales-agent flagship was deepened instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Routed to perf by weighted draw, but the owner's scheduled task asked for product work."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-08-when-not-now-is-really-a-question-or-a-no.md"
+  ],
   "notes": "sales-agent eighteenth reply set (false not-now / wrong-person probe): 9/20 before, 15/20 after three narrow changes; all older eval sets unchanged (before/after diff of every set).",
-  "corrections": []
+  "corrections": [],
+  "pr": 14031
 }
