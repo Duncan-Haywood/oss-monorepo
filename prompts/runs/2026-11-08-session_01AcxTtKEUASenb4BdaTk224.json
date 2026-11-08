@@ -1,0 +1,54 @@
+{
+ "date": "2026-11-08",
+ "session": "https://claude.ai/code/session_01AcxTtKEUASenb4BdaTk224",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "scheduled: read prompt.md and follow it",
+ "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-08T06:34:08Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13975",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "wait_for.py --until with default timeout returned 'still failing' after 100s; a 20-minute data pull needed re-arming with --timeout"
+  }
+ ],
+ "deviations": [
+  {
+   "file": "research/build-data/LOG.md",
+   "why": "pre-registering H9 before running was skipped; disclosed in the log as post hoc, applying session 52's H8 threshold",
+   "did": "wrote the log entry after the results",
+   "result": "verdict flagged post hoc"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-11-08-a-readable-permit-duration-table.md",
+  "research/build-data/LOG.md session 53"
+ ],
+ "goal": null,
+ "notes": "",
+ "corrections": [],
+ "redteam": null
+}

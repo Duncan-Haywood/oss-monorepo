@@ -1,5 +1,21 @@
 # build-data log
 
+## Session 53, 2026-11-08: milestone 7e, an empirical type x work class x cost-bucket table (H9)
+
+Why: session 52's ladder said type + work class + cost carries most of the boosted gain, but as refit models on a continuous cost. This builds the readable version, an empirical quantile table (`src/prior_table3.py`, tests in `tests/test_prior_table3.py`) on train + calibration rows, cells under 30 rows backing off to type x work class, then type, then the city. Same harness split, test year 2024, 2 seeds for the full model, fresh pulls (manifest refreshed).
+**H9, disclosure:** I did not write the hypothesis into this log before running. The reading below applies session 52's H8 threshold after the fact: the table keeps at least 50% of the full model's mean pinball gain over the per-type baseline in at least 3 of 5 sets. Treat the verdict as post hoc.
+
+### Outcome (`results/prior_table3_2024.json`)
+Mean share of the full model's gain kept (Chicago a2i / SF a2i / SF i2c / Austin a2i / Austin i2c):
+- type x cost bucket: 0.24 / 0.59 / 0.35 / 0.17 / 0.11
+- type x work class: 0.27 / 0.02 / 0.00 / 0.41 / 0.76
+- type x work class x cost bucket: **0.80 / 0.59 / 0.35 / 0.67 / 0.87**
+- The three-key table reaches 50% in 4 of 5 sets (threshold met). It is the first readable table here to keep most of the gain in Chicago and Austin.
+- SF has no work class field (the feed maps it to none), so its three-key table equals the type x bucket table: same share, 0.59 and 0.35. SF i2c stays below 50%.
+- Austin a2i q0.1 and q0.5 keep 0.45 and 0.68 and q0.9 0.88; Austin i2c 0.75 to 0.96.
+- Caveats: Chicago's 0.80 is q0.5 only (the full model has no gain over the baseline at q0.1 and q0.9, so those shares are undefined, as in session 51). Austin's three-key table has about 195 cells, so it is a lookup, not a short chart. One test year, 2 seeds, one bucket scheme, no intervals on the shares. Coverage of intervals from the table was not checked.
+- Next: test the table's interval coverage on 2024 (conformalise it), and decide whether a Chicago and Austin table can ship to `ventures/`.
+
 ## Session 52, 2026-11-08: milestone 7d, which table dimensions carry the boosted gain? (H8, planned before running)
 
 Why: session 51 (H7, key-only refit) also failed, and its next step was to add another key; this ladder answers which. Session 50 refuted the flattening of the boosted model to a type x cost-bucket table (H6) and left "flatten differently" open. A quantile model on type and cost bucket alone is just the empirical lookup (already tried), so the useful question is which extra dimension a readable table needs. `src/prior_ladder.py` refits the same LightGBM quantile models on nested feature subsets (type; +cost; +work class; +description length; +area; all seven) and reports the share of the full model's mean pinball gain over the per-type baseline that each subset keeps (mean over q10/q50/q90; harness split, test year 2024, 2 seeds, fresh pulls).
