@@ -163,6 +163,9 @@ function classify(country, body) {
   if (country === "GB" || country === "UK") return /^\d+$/.test(body) && (body.length === 9 || body.length === 12) ? "checksum" : "bad-format";
   if (country === "NO") return /^\d{9}(MVA)?$/.test(body) ? "checksum" : "bad-format";
   if (country === "CH") return /^E\d{9}(MWST|TVA|IVA)?$/.test(body) ? "checksum" : "bad-format";
+  if (country === "AU") return /^\d{11}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "NZ") return /^\d{8,9}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "RS") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
   const lengths = FORMAT_ONLY[country];
   if (lengths === undefined) return "unknown";
   if (EXTRA_CHECKS[country]?.applies(body)) return "checksum";
@@ -364,6 +367,43 @@ function mod11Check(nine, weights) {
   return check !== 10 && (check === 11 ? 0 : check) === Number(nine[8]);
 }
 
+// Australian Business Number: first digit minus one, weighted sum divisible by 89.
+function auAbnOk(body) {
+  if (body[0] === "0") return false;
+  const d = digitsOf(body);
+  d[0] -= 1;
+  return d.reduce((sum, digit, i) => sum + digit * [10, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19][i], 0) % 89 === 0;
+}
+
+// New Zealand IRD / GST number: 8 digits padded to 9, range 10,000,000 to 150,000,000,
+// mod-11 with a second weight set when the first gives 10.
+function nzIrdOk(body) {
+  const nine = body.padStart(9, "0");
+  const n = Number(nine);
+  if (n < 10000000 || n > 150000000) return false;
+  const check = Number(nine[8]);
+  const rem = (weights) => 11 - (weighted(nine.slice(0, 8), weights) % 11);
+  let c = rem([3, 2, 7, 6, 5, 4, 3, 2]);
+  if (c === 11) c = 0;
+  if (c === 10) {
+    c = rem([7, 4, 3, 2, 5, 2, 7, 6]);
+    if (c === 11) c = 0;
+    if (c === 10) return false;
+  }
+  return c === check;
+}
+
+// Serbian PIB: ISO 7064 mod 11,10 over the first eight digits.
+function rsPibOk(body) {
+  let product = 10;
+  for (const char of body.slice(0, 8)) {
+    let step = (Number(char) + product) % 10;
+    if (step === 0) step = 10;
+    product = (2 * step) % 11;
+  }
+  return (11 - product) % 10 === Number(body[8]);
+}
+
 function checksumOk(country, body) {
   if (country === "DE") return deOk(body);
   if (country === "FR") return frOk(body);
@@ -382,6 +422,9 @@ function checksumOk(country, body) {
   if (country === "GB" || country === "UK") return gbOk(body);
   if (country === "NO") return mod11Check(body.slice(0, 9), [3, 2, 7, 6, 5, 4, 3, 2]);
   if (country === "CH") return mod11Check(body.slice(1, 10), [5, 4, 3, 2, 7, 6, 5, 4]);
+  if (country === "AU") return auAbnOk(body);
+  if (country === "NZ") return nzIrdOk(body);
+  if (country === "RS") return rsPibOk(body);
   if (country === "XI") return body.length === 9 || body.length === 12 ? gbOk(body) : false;
   if (EXTRA_CHECKS[country]) return EXTRA_CHECKS[country].ok(body);
   return false;
