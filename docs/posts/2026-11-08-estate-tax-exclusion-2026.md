@@ -1,4 +1,7 @@
 ---
+seo_title: "2026 Federal Estate Tax Exclusion: $15,000,000 Per Person"
+tags: [estate-tax-exemption-calculator, estate-tax]
+description: "The 2026 federal estate tax basic exclusion and annual gift exclusion, sourced to the IRS and tied to the calculator by a test."
 title: "The 2026 federal estate tax exclusion is $15,000,000, and the page now says so first"
 date: 2026-11-08
 ---
