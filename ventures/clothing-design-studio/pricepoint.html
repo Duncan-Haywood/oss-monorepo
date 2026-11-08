@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What Price Should a Clothing Line Sell At? Price-Test Calculator</title>
+  <meta name="description" content="Estimate how sales react to price from a two-price test, then find the shelf price that earns the most profit after VAT, fees and cost. Free, in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Best shelf price for a clothing line">
+  <meta property="og:description" content="Turn a price test into a profit-maximising price. Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Price-point finder (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"elasticity from a two-price test; profit-maximising shelf price after VAT and fees; sensitivity to the elasticity guess; price endings; CSV download"}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style></head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="tiers.html">Fabric price tiers</a> · <a href="prices.html">Price by market</a> · <a href="pod.html">Run or print-on-demand</a></p>
+  <h1>What price earns the most?</h1>
+  <p>Sell at one price for a week, then another, and write down the sales. This turns the two readings into how sharply buyers react to price, and finds the shelf price with the most profit after VAT, card fees and the cost of each piece.</p>
+  <p class="placeholder">Placeholder numbers, not a market study. Two prices do not fix a demand curve; the table at the bottom shows how much the answer moves if your reading is off. Test a price near the answer before you reprice.</p>
+  <div class="grid">
+    <section>
+      <h2>Your price test</h2>
+      <div class="row"><div><label for="p1">Price A</label><input id="p1" type="number" min="0" step="any" value="40"></div><div><label for="q1">Sales at A</label><input id="q1" type="number" min="0" step="any" value="30"></div></div>
+      <div class="row"><div><label for="p2">Price B</label><input id="p2" type="number" min="0" step="any" value="50"></div><div><label for="q2">Sales at B</label><input id="q2" type="number" min="0" step="any" value="19"></div></div>
+      <h2>Costs</h2>
+      <div class="row"><div><label for="ld">Landed cost per piece</label><input id="ld" type="number" min="0" step="any" value="15"></div><div><label for="fe">Card and shop fees %</label><input id="fe" type="number" min="0" max="99" step="any" value="3"></div></div>
+      <div class="row"><div><label for="vt">VAT / sales tax included in price %</label><input id="vt" type="number" min="0" max="60" step="any" value="20"></div><div><label for="fx">Fixed cost for the period</label><input id="fx" type="number" min="0" step="any" value="0"></div></div>
+      <div class="row"><div><label for="el">Elasticity (blank = from the test)</label><input id="el" type="number" min="0" step="any" placeholder="from test"></div><div><label for="en">Price ending</label><select id="en"><option value=".99">.99</option><option value=".95">.95</option><option value="whole">whole number</option></select></div></div>
+    </section>
+    <section><h2>Best price</h2><output id="out" aria-live="polite"></output><div id="nt"></div><h3>Nearby prices</h3><div id="tb"></div><h3>If your elasticity guess is off</h3><div id="se"></div><p><button id="csv" type="button">Download CSV</button></p></section>
+  </div>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, manufacturing or intellectual-property advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Model: sales = reference sales x (price / reference price)^-e. Fees are taken on the price net of VAT, a simplification. Costs are yours; nothing here is a supplier's price.</p>
+  </footer>
+  <script type="module">
+    import { elasticityFrom, atPrice, bestPrice, sensitivity, snap, priceCsv } from "./pricepoint.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const n = id => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : 0; };
+    const f = v => v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let res = null;
+    function run() {
+      try {
+        const typed = $("#el").value.trim() !== "";
+        const e = typed ? n("#el") : elasticityFrom(n("#p1"), n("#q1"), n("#p2"), n("#q2"));
+        if (e < 0) throw new Error("Sales rose with price in your test (elasticity " + f(e) + "). Type an elasticity, or re-run the test; a price rise that raises sales is usually noise or a change in what was on offer.");
+        const base = { refPrice: n("#p1"), refSales: n("#q1"), elasticity: e, landed: n("#ld"), feePct: n("#fe"), vatPct: n("#vt"), fixed: n("#fx") };
+        res = bestPrice(base);
+        const shelf = snap(res.best.price, $("#en").value), onShelf = atPrice(shelf, base);
+        $("#out").innerHTML = `<p class="big">${f(res.best.price)}</p><p class="tag">best price on the curve; on a shelf: <strong>${f(shelf)}</strong> (${f(onShelf.profit)} profit, ${Math.round(onShelf.sales * 10) / 10} sales)</p>
+          <table><tr><th scope="row">Elasticity used${typed ? "" : " (from your test)"}</th><td class="num">${f(e)}</td></tr>
+          <tr><th scope="row">Profit at price A</th><td class="num">${f(res.atReference.profit)}</td></tr>
+          <tr><th scope="row">Profit at the best price</th><td class="num">${f(res.best.profit)}</td></tr>
+          <tr><th scope="row">Price where a piece just covers its cost</th><td class="num">${f(res.costFloor)}</td></tr></table>`;
+        $("#nt").innerHTML = res.notes.map(t => `<p class="notes">${esc(t)}</p>`).join("");
+        $("#tb").innerHTML = `<table><tr><th scope="col">Price</th><th scope="col">Sales</th><th scope="col">Per piece</th><th scope="col">Profit</th></tr>${res.table.map(t => `<tr><td>${f(t.price)}</td><td class="num">${Math.round(t.sales * 10) / 10}</td><td class="num">${f(t.perPiece)}</td><td class="num">${f(t.profit)}</td></tr>`).join("")}</table>`;
+        $("#se").innerHTML = `<table><tr><th scope="col">Elasticity</th><th scope="col">Best price</th><th scope="col">Profit</th></tr>${sensitivity(base).map(s => `<tr><td>${s.elasticity}</td><td class="num">${f(s.price)}</td><td class="num">${f(s.profit)}</td></tr>`).join("")}</table>`;
+      } catch (err) { $("#out").textContent = err.message; $("#nt").innerHTML = ""; $("#tb").innerHTML = ""; $("#se").innerHTML = ""; res = null; }
+    }
+    $("#csv").addEventListener("click", () => { if (!res) return; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([priceCsv(res)], { type: "text/csv" })); a.download = "price-point.csv"; a.click(); recordUsage("pricepoint_csv"); });
+    document.addEventListener("input", () => { run(); recordUsage("pricepoint_calc"); });
+    run(); recordUsage("pricepoint_open");
+  </script>
+</body>
+</html>
