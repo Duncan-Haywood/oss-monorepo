@@ -497,3 +497,12 @@ column is built from the `time` column of the source.
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/marathon.csv>.
 - **Licence:** fpp2 is GPL-3; the numbers are the Boston Athletic Association's published results. Only the 120 numbers are used here.
 - **Used by:** `eval/boston-marathon.mjs`, `boston-marathon.test.mjs`.
+
+## saudi-oil.csv
+
+`saudi-oil.csv`: annual oil production in Saudi Arabia, millions of tonnes, 1965-2013, 49 values (`oil` from fpp2, Hyndman).
+
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/oil.csv> (values rounded to 3 places).
+- **Licence:** fpp2 is GPL-3 on CRAN; the figures are public production statistics. Kept as a small test fixture with its source named.
+- **Used by:** `saudi-oil.test.mjs`.
