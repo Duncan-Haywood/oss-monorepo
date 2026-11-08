@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-08",
+  "subject": "ventures/auth-mau-pricing-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-08-b",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a startup CTO / FinOps lead who has chosen and migrated hosted auth vendors and reconciles auth invoices; first check is whether each vendor's free tier, base fee and per-user tiers match the live pricing page and the vendor's own MAU definition",
+  "scores": {
+    "correctness": 1,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 1,
+    "fitness": 1,
+    "domain": 1
+  },
+  "evidence": {
+    "correctness": "Ran `node cli.mjs compare --mau 40000 --growth 8`, `--mau 150000`, `--mau 5000000 --json`, `crossover`. Fetched all six vendor pricing pages through the proxy (all HTTP 200, 2026-11-08) and recomputed. ARITHMETIC IS RIGHT: Auth0 40k = 35 + 9,500*0.07 + 30,000*0.05 = 2,200 (matches); Supabase 150k = 25 + 50,000*0.00325 = 187.50 (matches page: 100,000 included then $0.00325); Firebase/Identity Platform 150k = 50k*0.0055 + 50k*0.0046 + ... page tiers 0-50k free, 50-100k $0.0055, 100k-1M $0.0046, engine 505.00 matches; WorkOS 5M = 4M*0.0025 = 10,000 matches page ($2,500 per extra 1M above 1M free). INPUTS ARE WRONG FOR CLERK: live clerk.com/pricing shows Hobby $0 / Pro $25 with 50,000 MRUs free per app, then 50,001-100,000 $0.02, 100,001-1,000,000 $0.018, 1,000,001-10,000,000 $0.015, 10,000,001+ $0.012. Engine has freeMau 10,000 and charges $0.02 from 10,001, with no 10M+ tier. Real Clerk at 40,000 = $0 (engine $625); at 150,000 = 25 + 50k*0.02 + 50k*0.018 = $1,925 (engine $2,725, +42%). Cognito: AWS page lists Essentials at a flat $0.015/MAU above 10,000 free (950k = $14,100 on the page) and Lite at $0.0055 from 10k; engine uses an invented 0.015/0.012/0.010 volume ladder: 950k engine 11,550 vs page 14,100 (-18%), and 150k engine 1,950 vs Essentials 2,100 and Lite ~ 495+... neither. Because Clerk is wrong the headline output (40k MAU: Clerk $625 'extra vs cheapest', Clerk ranked above free providers) is a wrong number a founder would act on. Crossover table ends '50001-2000000 WorkOS' which is right on the engine's data. Capped at 1 for stale/incorrect rate card despite correct arithmetic.",
+    "completeness": "README features checked and worked: compare (human and --json), --provider, --budget exit 1 (verified exit 1 at 150k clerk budget 500), crossover, providers, --prices override merge (override changed Clerk to 2,825.00 as expected), exit 2 on bad input (--mau abc -> 2, unknown provider -> 2), growth projection, browser page (index.html imports the same engine; page tests pass), how-to page, sitemap, llms.txt, robots. Everything claimed runs end to end. Gaps: web UI edits only the first tier (stated on page); no TODO/stubs found. VENTURE.yaml stage is 'prototype'.",
+    "verification": "`node --test '*.test.mjs'` in the venture: 26 tests, 26 pass, 0 fail. Seeded 4 mutations in engine.mjs and reverted each with git checkout (engine.mjs clean after): (1) `mau <= freeMau` -> `<`: caught (1 fail); (2) `from = includedMau + 1`: caught (3 fail); (3) Clerk freeMau 10000 -> 50000: caught only because a test hardcodes the old wrong value (this test enshrines the stale figure, so a correct fix will fail it); (4) growth floor `Math.max(-50,..)` -> `-5`: NOT caught (26 pass), the clamp is untested. No test compares any rate card against a vendor source or checks PRICES_AS_OF freshness, so the class of bug that matters most here (stale prices) cannot be caught. Tests only assert hand-derived arithmetic of the author's own constants.",
+    "craft": "Read engine.mjs, cli.mjs, engine.test.mjs, page.test.mjs, index.html script. Clean zero-dependency ESM, pure engine separated from I/O, marginal-tier loop correct, tie-naming in cheapestSegments thoughtful, input validation in CLI good, HTML escaped. Defects: loadProviders JSON round-trip/Infinity juggling is clumsy; --prices on an unknown provider key silently creates a provider with tiers undefined which crashes with a TypeError stack rather than a message (not run to completion, read only); `--growth` below -50 silently clamped and a growth of 0 vs NaN silently becomes 0 (`Number(x)||0` silent fallbacks); project() silently ignores months<1 (path[-1] undefined crash risk); llms.txt links to the retired duncan-haywood.github.io address. No dead code of note.",
+    "claims": "Honest hedging: README/page say 'approximate public list prices as best known in 2025', not a quote, ignores SSO/SMS/B2B, no warranty, not affiliated, privacy claim backed by code (no fetch/XHR in engine.mjs, cli.mjs; page is a static module). But: (a) the prices were not 'best known' correct even for 2025 vs the live pages now (Clerk free tier 50k MRU, Cognito flat Essentials); (b) the as-of line says only '2025' while today is 2026-11-08, so the freshness claim is a year-plus stale with no date, no per-provider source URL check, no changelog; (c) the page and README sell 'before you find out at 50,000 users' and a crossover table whose winner list (Cognito/Clerk ranking) is wrong because of the Clerk and Cognito inputs; (d) Clerk bills 'monthly retained users' (return 24h+ after signup) not MAU, and the page's MAU-definition caveat does not name this; (e) pricing page says 'verify each at its own pricing page' which mitigates but does not make the headline numbers correct. Claim 'cheapest provider changes' is true only on the engine's data.",
+    "fitness": "Walked the job of a founder with 40,000 MAU choosing a vendor. The tool says Clerk costs $625/mo and Cognito $450; actual Clerk is $0 and Cognito Essentials $450. A founder would wrongly rule out Clerk, the single most common choice. At 150k the Clerk estimate is 42% high, Cognito is low. The CI --budget gate would fail or pass wrongly for Clerk users. Editable prices let a careful user fix it, but the defaults are what 95% of visitors read. Structure (growth projection, crossover, budget gate) is useful; inputs are not reliable enough to use unedited.",
+    "domain": "A FinOps/CTO reviewer would compare against each vendor's rate card and want: correct free tiers, plan base fees, vendor MAU/MRU definitions, Auth0 band pricing (Essentials $35 is per-500-MAU bands, not an open-ended $0.07/$0.05 ladder; page shows 'custom tiers'), Cognito tier choice (Lite/Essentials/Plus), and the SSO/MFA add-ons that dominate real bills. The method (marginal tiers above an included quantity) is the right model and Supabase, Firebase and WorkOS match, but Clerk, Cognito and Auth0 paid-tier modelling depart from the published cards; no Cognito tier selector; Auth0 modelled as a smooth ladder is a simplification the page does not state."
+  },
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Clerk rate card is stale: live page has 50,000 MRUs free (Pro $25/mo) then $0.02/$0.018/$0.015/$0.012; engine has 10,000 free and no 10M+ tier. Clerk at 40k MAU shown as $625/mo (real $0), at 150k $2,725 (real $1,925).",
+      "where": "ventures/auth-mau-pricing-calculator/engine.mjs:19"
+    },
+    {
+      "severity": "high",
+      "what": "AWS Cognito tiers invented: page lists Essentials flat $0.015/MAU above 10k free (Lite $0.0055 from 10k, Plus $0.02); engine applies a 0.015/0.012/0.010 ladder, understating 950k MAU by about 18% and modelling no tier choice.",
+      "where": "ventures/auth-mau-pricing-calculator/engine.mjs:21"
+    },
+    {
+      "severity": "medium",
+      "what": "Freshness claim is only 'as best known in 2025' on a 2026-11-08 page; no per-provider as-of date, and no test or script checks prices against vendor pages.",
+      "where": "ventures/auth-mau-pricing-calculator/engine.mjs:12"
+    },
+    {
+      "severity": "medium",
+      "what": "Test hardcodes Clerk 10,000 free and 25.02 at 10,001 and 2,725 at 150k, so the suite locks in the stale rate card and will fail on a correct fix.",
+      "where": "ventures/auth-mau-pricing-calculator/engine.test.mjs:6-12"
+    },
+    {
+      "severity": "medium",
+      "what": "Auth0 modelled as an open-ended per-MAU ladder from 500 MAU; Auth0's live page shows Essentials/Professional sold in custom MAU bands, so paid-tier costs are an unlabelled approximation. Clerk MRU vs MAU definition not named in caveat.",
+      "where": "ventures/auth-mau-pricing-calculator/engine.mjs:20"
+    },
+    {
+      "severity": "low",
+      "what": "Growth clamp Math.max(-50, ...) is untested (mutation to -5 survived); Number(x)||0 silently converts bad growth/MAU input in engine; --prices with an unknown key and no tiers would throw a TypeError.",
+      "where": "ventures/auth-mau-pricing-calculator/engine.mjs:55"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt links to the retired duncan-haywood.github.io address instead of marisstella.app.",
+      "where": "ventures/auth-mau-pricing-calculator/llms.txt:7"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Well-built, honest-looking small tool whose arithmetic is correct and whose engine, CLI and page all run (26/26 tests; 3 of 4 seeded mutations caught). But the data a pricing calculator stands on is wrong for two of six vendors against their live pages fetched today: Clerk (the free tier is 50,000 MRUs, not 10,000, so the headline 40k-MAU result is $625 instead of $0) and AWS Cognito (invented volume ladder instead of flat $0.015 Essentials). Supabase, Firebase/Identity Platform and WorkOS match their pages exactly. The freshness claim is a bare '2025' and nothing in the tests would catch rate-card drift. Correctness 1 and claims 1 mean it does not meet the bar; it is finished (completeness 3) but not reliable."
+}
