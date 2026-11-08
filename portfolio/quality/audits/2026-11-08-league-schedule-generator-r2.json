@@ -1,0 +1,61 @@
+{
+ "date": "2026-11-08",
+ "subject": "ventures/league-schedule-generator",
+ "stratum": "flagship",
+ "seed": "2026-11-08",
+ "auditor": "agent session (Claude), 2026-11-08 round 2 re-audit",
+ "status": "audited",
+ "professional": "a rec-league commissioner / tournament director who builds seasonal round-robin schedules and brackets for 6 to 24 teams. They would check first: that every team plays every other the right number of times with no team double-booked, that byes are even in an odd league, that home and away are balanced with few back-to-back runs, that the play-off bracket gives the byes to the top seeds in the standard seeding, and that the table ranks teams level on points the way their league's rules say.",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Independent scratch script (probe3.mjs, not the test suite) run with `node probe3.mjs` against calc.mjs exports. (1) Circle method, n=2..30, single and double (58 combos): round count (N-1 or 2(N-1)), no team twice in a round, every pair exactly once (twice double), one bye per team per leg in odd leagues, home-away within 1 (single) or equal (double), and exactly n-2 home/away breaks for every even n in single (de Werra 1981 minimum), counted by my own loop: 0 violations. (2) seedOrder(8)=1,8,4,5,2,7,3,6 and seedOrder(16)=1,16,8,9,4,13,5,12,2,15,7,10,3,14,6,11, the standard bracket. (3) Standings, 4 teams six results, worked by hand before running: D 6 pts GD+3 GF5, A 6 pts GD0 GF3, B 3 pts GD0 GF3, C 3 pts GD-3; tool output D:6:3:5 A:6:0:3 B:3:0:3 C:3:-3:1 matches. (4) Set scoring 3-2 gives 2 and 1, 3-0 gives 3 and 0 (FIVB): tool A5 B1 D0 C0 matches. (5) swissRounds(2,3,4,8,9,16,17,33) = 1,2,2,3,4,4,5,6 = ceil(log2 n). No wrong number found. Not 4: bye resets breaks (calc.mjs:485) is unstated; I did not re-run the browser page this round.",
+  "completeness": "Re-ran `node --test '*.test.mjs'` in the venture: 365 tests pass, covering the circle-method single/double round robin with byes, home/away balance, brackets, standings, set scoring, rainouts, divisions, exports, server and sample pack. Same feature surface as the 2026-11-07 audit (README unchanged in substance, git log for the directory shows no venture commit since). Not exercised this round: live server.mjs hosting, ICS import in a real calendar, the browser pages, ladder/mexicano/americano pages. VENTURE.yaml stage still prototype with an untested hypothesis. Head-to-head still ignores set scoring.",
+  "verification": "`cd ventures/league-schedule-generator && node --test '*.test.mjs'` (Node 22): 365 tests, 365 pass, 0 fail, 63.8 s. Seeded mutation at calc.mjs:2103, `y.gf - x.gf` replaced by `x.gf - y.gf` via sed (final tie-break reversed so fewer goals scored ranks higher): 365 of 365 still pass, nothing failed. Reverted with git checkout calc.mjs; git status clean and line 2103 restored. This is the same surviving mutation as 2026-11-07 (the prior audit's other mutation, home/away swap at line 366, was caught by 22 tests and I did not repeat it). No test was added since, so the gap is unchanged. Score 2: code that decides play-off seeding is unguarded.",
+  "craft": "Re-read calc.mjs standings 2038-2104 and seedOrder 2506-2512, plus roundRobin export, and confirmed by grep that the prior defects remain: calc.mjs is 3,197 lines in one file; standings() is a long function with a nested recursive head-to-head resolver and its mini-table does not honour setScoring; eval/browser-click-single.mjs unchanged. Zero dependencies and clear JSDoc are strengths. Same assessment as before: acceptable for a senior JS reviewer, not clean.",
+  "claims": "Re-checked by running: circle-method pair counts, byes, home/away balance, minimum breaks (n-2, even n), bracket seeding, FIVB set points and Swiss round counts all reproduce (probe3.mjs); 365-test claim true. Unchanged weak points confirmed by grep: README.md:39 still says `node --test` runs the suite (needs '*.test.mjs' on Node 22); llms.txt still contains 4 references to duncan-haywood github.io host. Disclaimer present as noted 2026-11-07 (not re-read). No false user-facing claim found.",
+  "fitness": "Not re-walked in a browser this round; relies on the 2026-11-07 walk (paste teams, dated round robin with byes, courts, exports, results, ranked table, play-off seed) plus the library recomputes above, which show the scheduling and table pieces right. Gaps unchanged: no choice of tie-break order beyond points/GD/GF and a head-to-head toggle, head-to-head ignores set scoring. Score held at 3 on the earlier evidence; I ran no new page.",
+  "domain": "Compared again against the circle method, de Werra's minimum-breaks result, standard single-elimination seeding, FIVB 3/2/1/0 set points and Swiss ceil(log2 n); all matched in probe3.mjs. Same departures as before: default tie-break order suits football, bye resets break counts, head-to-head ignores set points. A commissioner would sign off for a rec league with those limits."
+ },
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The standings final tie-break (goals for, among teams level on points, head-to-head and goal difference) can be reversed and no test fails: seeded mutation `y.gf - x.gf` -> `x.gf - y.gf` left all 365 tests green. This ordering decides play-off seeding. Still unfixed on 2026-11-08: the same mutation again left 365 of 365 green.",
+   "where": "ventures/league-schedule-generator/calc.mjs:2103"
+  },
+  {
+   "severity": "medium",
+   "what": "With head-to-head ticked and set scoring ticked together, the head-to-head mini-table awards plain win/draw/loss points and ignores setScoring, so a 3-2 set win counts as a full win inside the mini-table while the main table gives 2 and 1; ties can be broken in a way that disagrees with the visible points.",
+   "where": "ventures/league-schedule-generator/calc.mjs:2080"
+  },
+  {
+   "severity": "low",
+   "what": "eval/browser-click-single.mjs reports false FAILs (`ticked: 3-0 = 3, 3-2 = 2 and 1` and `unticking restores the default`) because pts() waits for `#standings-wrap:not([hidden])`, which is already visible from the previous build, and reads the old table; the page itself shows Aces 5, Blockers 1, Champs 0. The browser check is racy and cannot be trusted as written.",
+   "where": "ventures/league-schedule-generator/eval/browser-click-single.mjs:45"
+  },
+  {
+   "severity": "low",
+   "what": "countBreaks resets a team's home/away run on a bye, so odd-team leagues always report 0 breaks; a fair convention but unstated, and a commissioner comparing against another tool that counts across byes will see different numbers.",
+   "where": "ventures/league-schedule-generator/calc.mjs:485"
+  },
+  {
+   "severity": "low",
+   "what": "README says `node --test` runs the suite; the working command is `node --test '*.test.mjs'`, and eval/browser-click-single.mjs's header names a different script. llms.txt points at the retired github.io host.",
+   "where": "ventures/league-schedule-generator/README.md:46"
+  },
+  {
+   "severity": "low",
+   "what": "calc.mjs is a single 3,200-line file holding parsing, scheduling, exports, standings, brackets and five formats; standings() is a 75-line function with a nested recursive resolver.",
+   "where": "ventures/league-schedule-generator/calc.mjs:2038"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "Changes since the 2026-11-07 audit: none in scores or defects; no venture commit has landed and no fix PR exists. The scheduling core is right again on an independent script (58 single/double combinations for n=2..30 with 0 violations, n-2 breaks, standard seeding, a hand-worked table, FIVB set points, Swiss counts) and the 365 tests pass, but the seeded goals-for tie-break reversal at calc.mjs:2103 again failed no test, so verification stays 2 and the venture is finished (completeness 3) but does not meet the bar. Fitness and craft carry over from the prior walk and read, with only the standings code and grep checks repeated. Smallest fix: a test with two teams level on points and GD but different GF, a head-to-head plus setScoring test, and the README test command."
+}
