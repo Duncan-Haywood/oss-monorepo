@@ -24,7 +24,7 @@ import { importStaffCsv } from "./import-staff.mjs";
 import { importShiftsCsv } from "./import-shifts.mjs";
 import { demandShifts } from "./demand.mjs";
 import {
-  parseStaff, parseShifts, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, longShifts, daysOffRuns, carryOverStaff, dailyLabor, salesPerLaborHour, sampleStaff, sampleShifts,
+  parseStaff, parseShifts, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, longShifts, daysOffRuns, carryOverStaff, dailyLabor, budgetCheck, trimOptions, salesPerLaborHour, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
 } from "./calc.mjs";
 
@@ -75,6 +75,7 @@ Options:
                       --splh <$> flags days with more or fewer hours than that sales per labor hour calls for
   --tips <$>          split a tip pot over the planned hours, in whole cents that add back to the pot
   --short-under <h>   list every assigned shift shorter than <h> hours (a commute for little pay; some cities owe reporting-time pay)
+  --budget <$>        compare the week's payroll with a labor budget; if over, list drops that close the gap (safe ones first)
   --long-over <h>     list every assigned shift longer than <h> hours (a double or long stretch; some places owe a premium or a break)
   --days-off <n>      list everyone without <n> days off in a row this week (a day counts on the day a shift starts; the week is not wrapped)
   --cover "<Day HH:MM>" a call-out or open shift that starts then (add -HH:MM to tell two apart): who could take it outright, else the
@@ -152,6 +153,11 @@ export function parseArgs(argv) {
       const v = Number(argv[++i]);
       if (!(v > 0 && v <= 24)) throw new Error("--short-under needs hours between 0 and 24");
       o.shortUnder = v;
+    }
+    else if (a === "--budget") {
+      const v = Number(String(argv[++i]).replace(/[$,]/g, ""));
+      if (!(v > 0)) throw new Error("--budget needs a positive dollar amount");
+      o.budget = v;
     }
     else if (a === "--long-over") {
       const v = Number(argv[++i]);
@@ -267,6 +273,21 @@ function longReport(r, opts) {
   const head = rows.length ? `${rows.length} shift(s) over ${num(opts.longOver)} h.` : `No assigned shift is over ${num(opts.longOver)} h.`;
   return [head, ...lines, ""].join("\n");
 }
+function budgetReport(staff, slots, r, opts) {
+  const b = budgetCheck(r, opts.budget);
+  const $ = (x) => "$" + x.toFixed(2);
+  if (!b) return "Nothing to compare: no payroll.\n";
+  if (!b.over) return `Payroll ${$(b.payroll)} against a ${$(b.budget)} budget: ${$(b.headroom)} under (${b.pct.toFixed(1)}%).\n`;
+  const need = b.payroll - b.budget;
+  const t = trimOptions(staff, slots, r);
+  const rows = [];
+  let got = 0;
+  for (const x of (t.rows || [])) { if (got >= need - 0.005) break; rows.push(x); got += x.saves; }
+  const lines = rows.map((x) => `${x.person.padEnd(12)} ${DAYS[x.slot.day % 7]} ${fmtClock(x.slot.startMin)}-${fmtClock(x.slot.endMin)}  ${num(x.hoursSaved)} h  saves ${$(x.saves)}  ${x.leavesEmpty ? "LEAVES SHIFT EMPTY" : "shift stays covered"}${x.breaksMinimum ? ", under their minimum hours" : ""}`);
+  const head = `Payroll ${$(b.payroll)} against a ${$(b.budget)} budget: ${$(need)} over (about ${num(b.cutHours)} paid h at the average cost).`;
+  const tail = got >= need - 0.005 ? `These ${rows.length} drop(s) add up to about ${$(got)}; savings are per drop and overtime is priced across the week, so re-run to confirm.` : `Even every drop listed does not close the gap.`;
+  return [head, ...lines, tail, ""].join("\n");
+}
 function daysOffReport(r, opts) {
   const d = daysOffRuns(r, opts.daysOff);
   const lines = d.short.map((x) => `${x.person.padEnd(12)} works ${x.daysWorked} day(s), longest run off ${x.longestOff}`);
@@ -333,6 +354,7 @@ export function run(staffText, shiftsText, opts = {}) {
   if (opts.cover) return { code: 0, out: coverReport(st.staff, sh.slots, r, opts) };
   if (opts.sales) return { code, out: salesReport(st.staff, opts, r) };
   if (opts.tips) return { code, out: tipsReport(r, opts) };
+  if (opts.budget) return { code, out: budgetReport(st.staff, sh.slots, r, opts) };
   if (opts.daysOff) return { code, out: daysOffReport(r, opts) };
   if (opts.shortUnder) return { code, out: shortReport(r, opts) };
   if (opts.longOver) return { code, out: longReport(r, opts) };

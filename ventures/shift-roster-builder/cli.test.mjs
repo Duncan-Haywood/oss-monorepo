@@ -315,3 +315,14 @@ test("--days-off lists people without that many days off in a row", () => {
   assert.throws(() => parseArgs(["--days-off", "7"]), /1 to 6/);
   assert.equal(parseArgs(["--days-off", "2"]).daysOff, 2);
 });
+
+test("--budget compares payroll with a budget and lists drops that close the gap", () => {
+  assert.throws(() => parseArgs(["--budget", "0"]), /positive dollar/);
+  assert.equal(parseArgs(["--budget", "$1,200", "a", "b"]).budget, 1200);
+  const staff = "Ana, 10, 60, 0, Mon 6-22; Tue 6-22\nBen, 20, 60, 0, Mon 6-22; Tue 6-22\n";
+  const shifts = "Mon, 8, 16, 2, a\nTue, 8, 16, 1, b\n";
+  assert.match(run(staff, shifts, { budget: 1000 }).out, /under/);
+  const lo = run(staff, shifts, { budget: 300 });
+  assert.match(lo.out, /\$\d+\.\d\d over/);
+  assert.match(lo.out, /saves \$/);
+});
