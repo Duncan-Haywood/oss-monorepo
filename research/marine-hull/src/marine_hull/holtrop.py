@@ -5,7 +5,7 @@ blend to Fn = 0.55), model-ship correlation allowance. Bulb, transom immersion a
 are left out (set to zero), which is right for a bare Wigley hull and is stated, not hidden.
 
 Coefficients are those of Holtrop and Mennen, Int. Shipbuilding Progress 29(335), 1982. The
-paper was not opened in this session (host unreachable); the constants were typed from memory
+paper was not opened in this session (host unreachable); the constants were typed from memory (milestone 3k: a transcription of its p. 170 worked example, via the Archibald validation script, then fixed an inverted lambda branch; k_form="1982" reproduces the printed form factor, the default k_form="1984" is what earlier milestones used)
 and checked line by line against an MIT-licensed public implementation
 (github.com/Albert-Gil/ship-propulsion-power-simulator, read, not copied). That is an
 agreement of two transcriptions (milestone 3d found they shared one error: the Fn < 0.4 wave term
@@ -19,7 +19,7 @@ from .hull import G, cf_ittc57
 
 
 def hm_resistance(v, length, beam, draft, volume, cm, cwp, lcb_pct=0.0, c_stern=0.0, rho=1025.0, nu=1.1892e-6, low_form="m2",
-                  s=None, wave_scale=1.0):
+                  s=None, wave_scale=1.0, c2=1.0, c5=1.0, k_form="1984"):
     """Return a dict of components in newtons for one speed (m/s).
 
     `s` overrides the wetted area (the HM regression is used if None). lcb_pct is the longitudinal
@@ -35,17 +35,22 @@ def hm_resistance(v, length, beam, draft, volume, cm, cwp, lcb_pct=0.0, c_stern=
     lr = length * (1 - cp + 0.06 * cp * lcb_pct / (4 * cp - 1))
     q = 0.5 * rho * v * v
     rf = q * s * cf_ittc57(re)
-    k1p1 = (0.93 + 0.487118 * (1 + 0.011 * c_stern) * (beam / length) ** 1.06806 * (draft / length) ** 0.46106
-            * (length / lr) ** 0.121563 * (length ** 3 / volume) ** 0.36486 * (1 - cp) ** -0.604247)
+    if k_form == "1982":   # form factor printed in the 1982 paper (milestone 3k reproduces its example: 1.156)
+        tl = draft / length
+        c12 = tl ** 0.2228446 if tl > 0.05 else (48.20 * (tl - 0.02) ** 2.078 + 0.479948 if tl > 0.02 else 0.479948)
+        k1p1 = (1 + 0.003 * c_stern) * (0.93 + c12 * (beam / lr) ** 0.92497 * (0.95 - cp) ** -0.521448
+                                       * (1 - cp + 0.0225 * lcb_pct) ** 0.6906)
+    else:
+        k1p1 = (0.93 + 0.487118 * (1 + 0.011 * c_stern) * (beam / length) ** 1.06806 * (draft / length) ** 0.46106
+                * (length / lr) ** 0.121563 * (length ** 3 / volume) ** 0.36486 * (1 - cp) ** -0.604247)
     # half angle of entrance
     ie = 1 + 89 * math.exp(-((length / beam) ** 0.80856) * (1 - cwp) ** 0.30484 * (1 - cp - 0.0225 * lcb_pct) ** 0.6367
                            * (lr / beam) ** 0.34574 * (100 * volume / length ** 3) ** 0.16302)
     bl = beam / length
     c7 = 0.229577 * bl ** (1 / 3) if bl <= 0.11 else (bl if bl <= 0.25 else 0.5 - 0.0625 / bl)
     c1 = 2223105 * c7 ** 3.78613 * (draft / beam) ** 1.07961 * (90 - ie) ** -1.37565
-    c2 = 1.0   # no bulb
-    c5 = 1.0   # no transom
-    lam = 1.446 * cp - (0.03 * length / beam if length / beam >= 12 else 0.36)
+    # c2 (bulb) and c5 (transom) default to 1 (no bulb, no transom); milestone 3k passes the 1982 example's values
+    lam = 1.446 * cp - (0.36 if length / beam >= 12 else 0.03 * length / beam)   # branch fixed in milestone 3k
     c16 = 8.07981 * cp - 13.8673 * cp ** 2 + 6.984388 * cp ** 3 if cp <= 0.8 else 1.73014 - 0.7067 * cp
     m1 = 0.0140407 * length / draft - 1.75254 * volume ** (1 / 3) / length - 4.79323 * beam / length - c16
     c15 = -1.69385   # valid for L^3/volume <= 512 (the standard three-way rule is not coded)
