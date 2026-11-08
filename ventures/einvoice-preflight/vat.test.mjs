@@ -151,3 +151,15 @@ test("variants without a checksum here stay shape-only", () => {
     assert.ok(!kind.includes("INV-023"), number);
   }
 });
+
+test("Norway and Switzerland check digits", () => {
+  const ok = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier");
+  assert.deepEqual(ok("NO 923 609 016 MVA"), []);
+  assert.deepEqual(ok("NO923609016"), []);
+  assert.equal(ok("NO923609017MVA")[0].rule, "INV-023");
+  assert.equal(ok("NO12345MVA")[0].rule, "INV-022");
+  assert.deepEqual(ok("CHE-116.281.710 MWST"), []);
+  assert.deepEqual(ok("CHE-116.281.710 TVA"), []);
+  assert.equal(ok("CHE-116.281.711 MWST")[0].rule, "INV-023");
+  assert.equal(ok("CHE-116.281 MWST")[0].rule, "INV-022");
+});
