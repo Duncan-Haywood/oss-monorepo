@@ -48,3 +48,12 @@ test("--stack with a bad file or clashing names is refused with a reason", () =>
   assert.equal(main(["a.json", "--stack=a.json"], rd).code, 1);
   assert.equal(main(["a.json", "--stack="], rd).code, 1);
 });
+
+test("refuses duplicate wall ids, joined-name clashes and malformed stock instead of merging or throwing", () => {
+  const w = (id) => ({ id, length: 96 });
+  const base = (walls, extra = {}) => ({ studLength: 92.625, walls, ...extra });
+  assert.match(stackFloors([{ name: "a", plan: base([w("W"), w("W")]) }]).errors[0], /twice/);
+  assert.match(stackFloors([{ name: "a b", plan: base([w("c")]) }, { name: "a", plan: base([w("b c")]) }]).errors[0], /same stacked wall name/);
+  assert.ok(!stackFloors([{ name: "a", plan: base([w("c")], { stock: [null] }) }]).ok);
+  assert.ok(!stackFloors([{ name: "a", plan: base([w("c")], { stock: 5 }) }]).ok);
+});
