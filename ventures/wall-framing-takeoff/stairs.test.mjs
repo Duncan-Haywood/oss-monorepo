@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan, formatLength } from "./engine.mjs";
 import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText, checkPostSlenderness, checkLandingPostColumn, checkLandingJoists, flightPostLoad } from "./stairs.mjs";
-import { checkStringer, checkTread, checkGuardPost } from "./stairs.mjs";
+import { checkStringer, checkTread, checkGuardPost, layoutRail } from "./stairs.mjs";
 import { checkWinders, winderText, layoutLandingGuard } from "./stairs.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
@@ -658,4 +658,13 @@ test("spiral stair: hand-computed", () => {
   assert.equal(checkSpiral({ totalRise: 0, outerDiameter: 60 }).ok, false);
   assert.equal(checkSpiral({ totalRise: 100, outerDiameter: 3, poleDiameter: 4 }).ok, false);
   assert.ok(spiralText(c)[0].includes("12 risers"));
+});
+
+test("checkStringer and layoutRail refuse what layoutStair did not make (2026-11-08)", () => {
+  for (const v of [null, 5, "x", {}]) {
+    const r = checkStringer(v, {});
+    assert.equal(r.ok, false);
+    assert.ok(r.errors[0].includes("layoutStair"));
+    assert.throws(() => layoutRail(v, {}, []), /layoutRail needs/);
+  }
 });

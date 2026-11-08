@@ -1007,7 +1007,14 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   const actionCol = bank === "schwab-brokerage" || bank === "fidelity" ? hdr.indexOf("action") : -1;
   let tradesSkipped = 0;
   for (let i = first; i < rows.length; i++) {
-    const r = rows[i];
+    let r = rows[i];
+    // Bank of America writes a Zelle memo with a comma as two cells ("...Thanks," Jasper!""..."), shifting the
+    // amount right by one. When the amount cell is not an amount but the next one is, rejoin the split text.
+    if (headerAt !== -1 && columns.amount > columns.desc && columns.debit === -1 && columns.desc !== -1 && String(r[columns.amount] ?? "").trim() !== "" && !/^[-+(]?[$£€¥]?\s*\d/.test(String(r[columns.amount]).trim()) && !AMT.test(String(r[columns.amount] ?? "").trim().replace(/\s/g, "")) && AMT.test(String(r[columns.amount + 1] ?? "").trim().replace(/\s/g, "")) && String(r[columns.amount + 1]).trim() !== "") {
+      const j = columns.amount;
+      r = [...r.slice(0, columns.desc), r.slice(columns.desc, j + 1).join(","), ...r.slice(j + 1)];
+      r = [...r.slice(0, columns.desc + 1), ...Array(Math.max(0, j - columns.desc - 1)).fill(""), ...r.slice(columns.desc + 1)];
+    }
     const acctName = acctCol === -1 ? "" : String(r[acctCol] ?? "").trim();
     if (acctName && String(r[columns.date] ?? "").trim()) accountNames.add(acctName);
     if (onlyAccount !== undefined && acctName !== onlyAccount) continue;
