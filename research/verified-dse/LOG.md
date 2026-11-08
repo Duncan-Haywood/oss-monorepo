@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-08 · Milestone 96: what a pilot certificate does guarantee, no worse than the pilot's best (no flow run)
+- Why: milestone 95 refuted "T<1 bounds regret against the optimum". The certificate does bound something: ratio(p) < 1 means p is inside every cut's top-k under any tie-break (rho counts ties), so halving returns y <= y(p). Predictions (written first, m = 16): (1) zero violations; (2) the search beats the pilot-best in under half of certified draws; (3) the pilot-best's mean excess over the pool minimum exceeds mean realised regret.
+- **Outcome** (`experiments/theory/pilot_cert_guarantee.py`, `pilot_cert_guarantee_results.txt`, `tests/test_pilot_cert_guarantee.py`, tie-heavy random instances plus the committed table). (1) held: 0 violations in 397,400 / 529,800 / 617,000 draws at m = 8 / 16 / 24. (2) **refuted at m = 16**: the search improves on the pilot-best in 0.519 of draws (0.609 at m = 8, 0.391 at m = 24). (3) held: mean excess of the pilot-best 4.2 / 3.0 / 2.0% against realised regret 1.3 / 1.1 / 0.8%.
+- Reading: a certified pilot gives a deterministic, observable ceiling on the returned cost (the pilot's best), with no assumption on the table; it is about 2.7x the realised regret on average, and says nothing relative to the unknown optimum. This is the part of the open regret certificate (Section 6 item 4) that is provable; the optimum-relative part stays open.
+- Limits: same cached 40-cell table and pilots as milestones 84 and 95; the statement is trivial once stated, its content is measuring how loose it is; assumes the pilot point is routed and kept in the final answer set.
+- Next: detail-routed mult24/mult32 cells.
+
 ## 2026-11-07 · Milestone 95: what a pilot certificate says about realised regret (no flow run)
 - Why: milestones 84 to 93 describe T<1 by whether the optimum is guaranteed; a practitioner conditions on the certificate. Predictions (written first, m = 16): (1) precision about 0.87; (2) P(regret 0 | certified) above 0.9 and above the uncertified share; (3) no certified cell's mean regret above 5%.
 - **Outcome** (`experiments/theory/pilot_cert_regret.py`, `pilot_cert_regret_results.txt`, `tests/test_pilot_cert_regret.py`). (1) held: 0.872. (2) half: 0.873 zero-regret after a certificate (0.315 after none), so the 0.9 floor is refuted (m = 24: 0.907). (3) **refuted**: tight/adder_op16 from the R2 start is not guaranteed yet 0.50 of its pilots are certified and its mean relative regret is 13.9%. Mean regret certified 1.1% against 7.0% uncertified at m = 16.
