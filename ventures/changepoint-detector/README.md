@@ -1651,6 +1651,21 @@ Reading: long ramps (24 to 48 points) are now found in 33 to 40 of 40 instead of
 that a long one is a line. The real 2009 US unemployment-duration rise is still one ramp (test `ramps.test.mjs`). Still synthetic with one noise
 model, no `--ar1`; no labelled real ramps tested. Next: sticky noise (`--ar1`), and real documented ramps.
 
+### Ramps in sticky noise (2026-11-08, `eval/ramp-ar1.mjs`, `eval/ramp-ar1.out.txt`, test `ramp-ar1.test.mjs`, synthetic only)
+
+The "Next: sticky noise" item above, run: n = 300, AR(1) noise with unit marginal sd, 40 seeds per cell, ramp of height 8 starting at 120. Series with a ramp reported, plain `analyze` against `ar1: true` (cuts per series in brackets):
+
+| noise | truth | plain | `--ar1` |
+|---|---|---|---|
+| rho 0 | none | 0 / 40 (0.1) | 0 / 40 (0.0) |
+| rho 0 | ramp over 12 / 24 / 48 | 34 / 38 / 40 | 34 / 38 / 40 |
+| rho 0.5 | none | 0 / 40 (11.7) | 0 / 40 (0.1) |
+| rho 0.5 | ramp over 12 | 38 / 40 (13.8) | 13 / 40 (1.5) |
+| rho 0.5 | ramp over 24 | 35 / 40 (14.5) | 35 / 40 (1.9) |
+| rho 0.5 | ramp over 48 | 33 / 40 (13.8) | 37 / 40 (2.7) |
+
+Reading: with rho 0.5 the plain run makes 12 to 15 cuts per series, so a "ramp" there is one of many groups and says little (the 33 to 38 of 40 do not mean the plain run finds the ramp: it cuts the noise as well). `--ar1` brings the cuts to 0.1 on a null and 1.5 to 2.7 on a ramp, and keeps the ramp from 24 points up (35 to 37 of 40, all on the truth span). The price is that a short, 12-point ramp is found only 13 of 40 times, because the wider noise scale reads it as one step or nothing. Synthetic, one noise model, one height; real documented ramps are still wanted.
+
 ## A real series that rises, then flattens and falls: Australian beer (2026-11-07)
 
 `data/ausbeer.csv` is quarterly Australian beer production, 1956Q1 to 2010Q2 (218 points, fpp2's `ausbeer`, source in `data/SOURCE.md`). Production grew to the mid-1970s and drifted down afterwards (recalled, not checked against a paper: a plausibility check, not a labelled test). `eval/ausbeer.mjs` (output `eval/ausbeer.out.txt`, test `ausbeer.test.mjs`) runs it with `--period 4`.

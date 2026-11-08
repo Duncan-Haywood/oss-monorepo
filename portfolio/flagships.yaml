@@ -123,7 +123,7 @@ flagships:
       AR(2) likelihood inside PELT was no better than AR(1) (README); a real documented step inside a cycle; a cycle
       check not tied to rho (treering: drift not told from a cycle);
       a documented real run of 5+ steps to test the block-variance warning
-      (it cannot yet tell drift from steps); BJsales, uspop, US saving rate and US unemployment duration (a 2009 ramp cut 2 to 3 times; `ramps` groups the cuts and keeps them by a BIC line-fit against steps, synthetic only, README; wanted: `--ar1`/sticky noise and real documented ramps and close steps); (1) range95: a closure series quiet outside
+      (it cannot yet tell drift from steps); BJsales, uspop, US saving rate and US unemployment duration (a 2009 ramp cut 2 to 3 times; `ramps` groups the cuts and keeps them by a BIC line-fit against steps, synthetic only, README; `--ar1` synthetic 2026-11-08: ramps of 24+ points kept in rho 0.5 noise, 12-point ones lost (13/40), README; wanted: real documented ramps and close steps); (1) range95: a closure series quiet outside
       the closure (none of 30 Ansett series is, nor Peace Bridge 2009; README). (2) The steep-
       bump (0.04) clumpy-count cell is under-covered, 65/79 (82%) over six
       seeds (caveat in CLI and JSON). (3) GARCH: a filtered
