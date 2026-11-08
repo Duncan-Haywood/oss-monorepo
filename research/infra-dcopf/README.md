@@ -139,9 +139,24 @@ Next step 2 asked for a real time series. The load shape is the AEP zone's hourl
 - Hourly load moves slowly relative to the 0.1 steps tested before, so this is the favourable case; the factors would age worse across a morning ramp or an outage.
 - Limits: one case with unscaled generation costs, a zone's load shape applied uniformly to every bus, one solver (pandapower), no unit commitment, ramping or congestion (case118's ratings do not bind), and a mirrored copy of PJM data whose licence I took from the mirror's description, not from PJM.
 
+## Stale factors at the steepest real ramps (added 2026-11-08, `experiments/run_stale_factors.py`, `results_stale_factors.txt`)
+Next step 2 asked for a ramp stress test. Factors taken from the AC optimum L hours earlier (L = 1, 3, 6, 12, 24) are applied at the 10 hours of the 2017 AEP shape (same scaling as above) with the largest load change over L hours (at least 4 hours apart). Mean excess AC cost over that hour's AC optimum, 10 hours per lag, all converged:
+
+| lag | plain DC | stale factors | oracle factors |
+|---|---|---|---|
+| 1 h | 0.763 % | 0.470 % | 0.459 % |
+| 3 h | 0.732 % | 0.486 % | 0.483 % |
+| 6 h | 0.922 % | 0.544 % | 0.477 % |
+| 12 h | 1.406 % | 0.584 % | 0.422 % |
+| 24 h | 0.878 % | 0.514 % | 0.441 % |
+
+- Prediction (before running): factors age gracefully for ramps of a few hours and lose most of the gain at 12 hours. Half refuted: the gap to oracle grows from 0.01 point (1 h, 3 h) to 0.16 point (12 h), but stale factors still beat plain DC in every one of the 50 hours, and at 12 h they cut plain DC's excess by 58 %.
+- The ramps worth worrying about are the afternoon-peak ones: the 12 h hours at 16:00 to 17:00 show plain DC at 1.6 to 1.8 %, stale 0.55 to 0.60 %, oracle 0.34 to 0.36 %. Most overnight hours sit near 0.72 for plain DC regardless of lag, so the mean across lags is driven by which hours the ramp selection picks, not by the lag alone: read within a row, not down the columns.
+- Limits: 10 hours per lag, one case (case118), one load shape applied uniformly to every bus (so factors age less than with uneven regional ramps), no outage (a topology change would age them faster; not tested), one solver.
+
 ## Next steps
 1. Solver validated and loss/congestion split done with synthetic caps (section above). Next: a case whose published ratings bind (e.g. a PGLib-OPF congested case) and an exact decomposition from the AC duals instead of differencing.
-2. Previous-interval factors keep ~90 % of the oracle gain for 0.1 load steps, and essentially all of it on two real hourly weeks (above). Next: a ramping or outage stress test, a DC-based estimate of the point, or a distributed slack.
+2. Previous-interval factors keep ~90 % of the oracle gain for 0.1 load steps, and essentially all of it on two real hourly weeks (above). Ramp stress test done (above). Next: an outage stress test (a line trip invalidates the factors at once), a DC-based estimate of the point, or a distributed slack.
 3. Done by another route (see "Voltage violations" above). Next: a voltage/Q stage that is not a full AC OPF, and full-load feasibility with a solver that converges.
 
 ## Reproduce
@@ -156,6 +171,7 @@ PYTHONPATH=src python experiments/run_lossadj.py  # loss-adjusted DC, about 1 mi
 PYTHONPATH=src python experiments/run_case300_pypower.py  # about 2 min; needs pypower; writes results_case300_pypower.txt
 PYTHONPATH=src python experiments/run_case300.py  # case300 sweep, about 1.5 min; writes results_case300.txt
 PYTHONPATH=src python experiments/run_hourly_profile.py  # about 25 min; writes results_hourly_profile.txt
+PYTHONPATH=src:experiments python experiments/run_stale_factors.py  # about 4 min; writes results_stale_factors.txt
 python experiments/run_lmp.py                 # LMP comparison, about 1 min; writes experiments/results_lmp.txt
 PYTHONPATH=src python experiments/run_voltage.py  # voltage setpoint study, about 1 min; writes results_voltage.txt
 python experiments/figure.py                  # experiments/gap_vs_load.svg
