@@ -11,7 +11,7 @@
 // and whether a MoR actually removes a given tax obligation is for the seller's
 // accountant, not this file.
 
-export const PRICES_AS_OF = "approximate public list prices as best known in 2025 -- processors and MoR platforms change fees, add payout, currency-conversion, dispute and subscription charges, and negotiate at volume; verify each at its own pricing page";
+export const PRICES_AS_OF = "approximate public list prices; Paddle, Lemon Squeezy and Polar checked against their pricing pages on 2026-11-07, Stripe not rechecked -- processors and MoR platforms change fees, add payout, currency-conversion, dispute and subscription charges, and negotiate at volume; verify each at its own pricing page";
 
 // Editable. `pct` percent of each sale, `fixed` USD per transaction, `intlPct`
 // extra percent on the international share of sales, `extraPct` other percent
