@@ -235,6 +235,7 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   // --skip-refused frames the walls that pass the plan checks and lists the ones that do not (a whole-house IFC or DXF read often has a few walls the engine refuses), so one bad wall does not hide the takeoff of the rest.
   if (flags.has("--skip-refused") && Array.isArray(plan.walls)) {
     const skipped = [];
+    const unlapped = [];
     for (let pass = 0; pass < 50; pass++) {
       const errs = validatePlan(plan);
       if (!errs.length) break;
@@ -243,9 +244,13 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
       if (!bad.size) break; // an error that names no wall (stock, spacing, shape) cannot be skipped past
       for (const w of bad) skipped.push(`Wall ${w.id}: ${errs.filter((e) => e.startsWith(`Wall ${w.id}:`) || e.startsWith(`Wall ${w.id},`)).map((e) => e.replace(/^Wall [^:,]*[:,]\s*/, "")).join("; ")}`);
       plan.walls = plan.walls.filter((w) => !bad.has(w));
+      // a wall that tees into a skipped wall must not be refused for that alone: drop its lap (a tee end drawn square) and say so
+      const gone = new Set([...bad].map((w) => w.id));
+      for (const w of plan.walls) if (w.tee && gone.has(w.tee.wall)) { unlapped.push(`Wall ${w.id}: its tee lap onto skipped wall ${w.tee.wall} was dropped, so it is framed as a free-standing wall end; check that joint.`); delete w.tee; }
       if (!plan.walls.length) return { code: 1, out: `Every wall was refused:\n${skipped.map((n) => `  - ${n}`).join("\n")}` };
     }
     if (skipped.length) dxfNotes += `SKIPPED ${skipped.length} WALL${skipped.length === 1 ? "" : "S"} THE PLAN CHECKS REFUSE (not in the takeoff below; fix them and re-run):\n${skipped.map((n) => `  - ${n}`).join("\n")}\n\n`;
+    if (unlapped.length) dxfNotes += `${unlapped.map((n) => `Note: ${n}`).join("\n")}\n\n`;
   }
   let gangNotes = [];
   if (flags.has("--gang")) {

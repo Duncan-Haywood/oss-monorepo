@@ -511,3 +511,16 @@ test("--skip-refused frames the good walls and lists the refused one", () => {
   assert.equal(all.code, 1);
   assert.match(all.out, /Every wall was refused/);
 });
+
+test("--skip-refused does not refuse a wall only because the wall it tees into was skipped", () => {
+  const plan = samplePlan();
+  plan.walls = [
+    { id: "Through", length: 192, stud: "2x4", tees: [96], openings: [{ kind: "door", label: "D", offset: 0, width: 36, height: 82.5, header: "2x6" }] },
+    { id: "Stub", length: 96, stud: "2x4", tee: { wall: "Through", at: 96 }, openings: [] },
+  ];
+  const r = main(["plan.json", "--skip-refused"], () => JSON.stringify(plan));
+  assert.equal(r.code, 0, r.out);
+  assert.match(r.out, /SKIPPED 1 WALL/);
+  assert.match(r.out, /Wall Stub: its tee lap onto skipped wall Through was dropped/);
+  assert.doesNotMatch(r.out, /- Wall Stub: /);
+});
