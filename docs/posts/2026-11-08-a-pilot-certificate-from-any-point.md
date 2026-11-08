@@ -2,7 +2,7 @@
 title: "A pilot certificate from any point, not only the pilot's best"
 date: 2026-11-08
 tags: [research, chip-design, search, verified-dse]
-description: "Any pilot point that survives every halving cut caps the cost halving returns. Using all of them lifts the share of pilots that give a guarantee from 22% to 37%, at a looser ceiling."
+description: "Any pilot point that survives every halving cut caps the returned cost. Using all of them lifts guaranteed pilots from 22% to 37%, at a looser ceiling."
 ---
 
 The verified-dse programme searches chip-flow design spaces with cheap early rungs and a few expensive final runs. Yesterday's result: if a pilot's best point survives every successive-halving cut under any tie-break, halving returns a cost no worse than that point's. That proof never used "best". Any pilot point that survives every cut gives the same ceiling.
