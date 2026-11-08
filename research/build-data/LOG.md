@@ -1,5 +1,19 @@
 # build-data log
 
+## Session 50, 2026-11-08: milestone 7b, a model-based permit-duration prior as a readable table (H6, planned before running)
+
+Why: paper section 7 item 5 and sessions 48 to 49 list "a model-based (boosted quantile) version for `ventures/`" as the one open deliverable. A model file is not something a calculator can ship; a table is. So the question is how much of the boosted gain survives when the model is flattened to a permit-type x cost-bucket lookup.
+Design (`src/prior_boosted.py`, tests in `tests/test_prior_boosted.py`): cost buckets unknown, <1k, 1k-10k, 10k-100k, 100k-1M, >=1M dollars; each cell value is the median of the 2-seed boosted q10/q50/q90 predictions over the calibration-year permits in the cell (cells under 30 rows fall back to the type, then the city). Harness split, test year 2024 (train <= 2022, calibration 2023), five city/target sets, fresh pulls. Compared with the harness per-type baseline, an empirical type x bucket lookup on the same train + calibration rows, and the full boosted model. A second split (test year 2025, partial year) supplies the table that is published (calibration 2024) and a second out-of-time check.
+**H6 (before running):** the boosted-grid lookup keeps at least 50% of the full boosted model's pinball gain over the per-type baseline (mean over q10/q50/q90) in at least 4 of the 5 city/target sets. **Refuted if** it keeps under 50% in 2 or more sets. Secondary prediction: the grid beats the empirical type x bucket lookup in at least 3 of 5 sets (smoothing helps where cells are thin).
+
+### Outcome (`results/prior_boosted_eval_2024.json`; test year 2024; feeds pulled 2026-11-08)
+- **H6 refuted.** Share of the full boosted model's mean pinball gain kept by the boosted-grid lookup: Chicago a2i 0.04, SF a2i 0.83, SF i2c -0.03, Austin a2i -0.03, Austin i2c -0.10. Only 1 of 5 sets reaches 50% (needed 4; refuted at 2 or more failing).
+- **Secondary prediction failed.** The boosted grid beats the empirical type x cost-bucket lookup in 2 of 5 sets (Chicago, SF a2i), not 3.
+- Why, as far as the numbers show: the median over a cell of the model's q90 predictions is not the cell's q90 (Austin a2i q0.9: grid 42.6 against baseline 37.1 and full model 23.6), and most of the boosted gain at q0.5 comes from description length, area and month, which a type x cost table drops. The empirical lookup is also not safe: Chicago q0.9 is 16.4 against 11.1 for the baseline.
+- Decision: the boosted table is **not published**; a prior that keeps none of the gain would mislead a calculator. The empirical per-type prior (4.7) stays the shipped artefact. `src/prior_boosted.py` and the eval file stay as the negative result.
+- Limits: one flattening rule (median of predictions), one bucket scheme, 2 seeds, test year 2024 only; the 2025 check was not run because nothing was to be published.
+- Next: flatten differently (refit a quantile model on type and cost bucket only, or ship the LightGBM model with a lookup of its inputs), or publish the model file with a small JS evaluator.
+
 ## Session 49b, 2026-11-07: independent refit of the same cells (replication note; not landed as results)
 
 A second run refit the 2022 and 2023 paired cells at the same time as session 49 above (3 seeds, same code, feeds pulled the same day) and kept its numbers out of `results/` once the first landed. Its bootstrap-Holm counts: 2022 uncorrected 10, Holm 9; 2023 uncorrected 12, Holm 8; pooled 45 cells uncorrected 32, Holm 23, BH 31. Session 49 above has pooled 33, 22, 31. So two refits of identical code on identical data differ by one cell in several counts: the cell counts carry about one cell of refit noise, and any claim resting on a single borderline cell (SF a2i q0.5) is not stable. My prediction (pooled Holm 24 to 26) failed by one. Lesson: re-run the programme `CLAIM CHECK` before a long job.

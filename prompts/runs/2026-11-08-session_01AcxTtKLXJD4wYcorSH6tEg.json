@@ -1,0 +1,51 @@
+{
+ "date": "2026-11-08",
+ "session": "https://claude.ai/code/session_01AcxTtKLXJD4wYcorSH6tEg",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "scheduled: read prompt.md and follow it",
+ "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-08T00:25:22Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13917",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "tests/test_baselines.py needs xgboost, which pyenv.py was not asked for; build-data's requirements are not listed in one place"
+  },
+  {
+   "file": "research/build-data/src/permits.py",
+   "issue": "full pull of three feeds takes about 20 minutes; no note in the README, wait_for.py 100s polling worked"
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-11-08-permit-prior-table-loses-the-boosted-gain.md",
+  "research/build-data/LOG.md session 50, paper 4.7a"
+ ],
+ "goal": null,
+ "notes": "H6 refuted (1 of 5 sets keeps >=50% of boosted gain); negative result recorded, no boosted table published. build.py ok, check_md_links ok, build-data tests 43 passed (test_baselines skipped: no xgboost).",
+ "corrections": [],
+ "redteam": null
+}
