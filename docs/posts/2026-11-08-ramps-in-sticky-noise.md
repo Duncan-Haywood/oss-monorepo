@@ -2,7 +2,7 @@
 title: "Telling a ramp from noise that sticks: what --ar1 keeps and loses"
 date: 2026-11-08
 tags: [changepoint-detector, statistics, time-series, open-source]
-description: "A synthetic test of ramp detection in autocorrelated noise: the plain changepoint run makes 12 to 15 cuts per series, --ar1 makes 2, and keeps ramps of 24 points or more but loses short ones."
+description: "Synthetic ramps in autocorrelated noise: plain changepoint runs cut 12 to 15 times a series, --ar1 cuts twice, keeping ramps of 24+ points, losing short ones."
 ---
 
 Real series are rarely independent from one point to the next. When the noise sticks (lag-1 correlation 0.5), a changepoint search that assumes independence cuts it into steps. We ran the changepoint-detector's ramp grouping on 300-point series with AR(1) noise and a known ramp of height 8, 40 seeds per cell.
