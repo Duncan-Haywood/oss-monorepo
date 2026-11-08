@@ -2,6 +2,9 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-08 · Paper catch-up: 7a to 7f into Section 6 (no experiment)
+- Added one paragraph to `paper/paper.md` Section 6 (library code, 7c end-to-end match, 7d 2,000-draw 94.1%, 7f reference check); numbers checked against `h7d_admiration_2000.txt` and the 7c to 7f entries. Section 6 now covers 6 to 7z. Open: second LLM or corpus before dropping tau; LaTeX in the venue format.
+
 ## 2026-11-07 · Paper catch-up: 7g to 7v into Section 6 (no new experiment)
 - Added one paragraph to `paper/paper.md` Section 6 covering 7g to 7v (why coder cells bought little: the prevalence-free ceiling of 7i, the fitted-lambda explanation of 7l, rare-category undercoverage and the k = 3 negative-cell guard through 7v). Numbers come from the outcome lines here and were spot-checked against `h7i_cell_contrast.txt`, `h7s_*.txt`.
 - Found: `experiments/h7l_fixed_lambda.txt` held a 20-draw smoke run (cells/pooled at fitted lambda 1.000), not the 1,000 draws the 7l entry reports. Reran `python3 experiments/h7l_fixed_lambda.py 1000` (14 s): 0.915 / 0.834 / 0.995, coverage 94.2 to 95.5%, matching the entry; the file now holds that run.
