@@ -25,3 +25,9 @@
 - **Outcome (`experiments/e5_shared_cause/results.md`).** H10 held: the threshold is omega = 10^-43.2 at even priors, 10^-41.5 at sceptical (0.1, 0.1) priors, and none is needed at devout (0.9, 0.9) priors. The closed form BF = 1 + omega (L - 1) matches enumeration of the explicit joint model in three cases. The equivalent rho at the even-prior threshold is 0.024.
 - **Reading.** Shared reliability shifts log BF by log omega, once, not by a factor per item, so it cannot by itself defeat a product of 10^44; the live dispute is the per-item ratios behind L, still unsourced. The 10^44 is a secondary report.
 - Context: the session's data-bound draw (`build-data`) was skipped because all three feed hosts were refused by the proxy; this programme was redrawn.
+
+## 2026-11-08 · M2 (part): Shermer's inputs (E6) (prediction before running)
+
+- **Prediction.** Run through Unwin's formula, Shermer's six published D values give about 2% as the column says (H11); refuted if the computed value differs from 0.02 by more than rounding (say, outside 1.5% to 2.5%).
+- **Outcome (`experiments/e6_shermer_check/results.md`).** H11 refuted. The D values multiply to 2.5e-4, giving 0.025%. For 2% they would need to multiply to 0.0204. No single D changed alone is a plausible fix (each would need 8 to 82). Unwin's 67% reproduces, so the formula is read correctly. Added a test and updated the ledger note.
+- **Not done.** Swinburne's inputs (book unreachable), Lean compilation (toolchain refused), per-item leave-one-out already done in E3.
