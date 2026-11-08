@@ -189,25 +189,22 @@ flagships:
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     next: >-
-      Real-photo calibration 2026-11-08 (tools/real_photo_calibration.py, eval/README-real-photo-calibration.md; two OpenCV sample photos): sharpness, grain and exposure respond correctly to known blur, noise and brightness; tilt now recovered on real photos with straight edges (structure-tensor detector, replacing the same-day Hough one, plus source-aspect correction, 2026-11-08: 61% of readings within 1 degree vs 26%; README-real-photo-calibration.md), still random at chance confidence on scenes with no axis lines: wanted, photos with a real horizon and human labels. `--picks` also reports `reject_reasons` (why picks were rejected, 2026-10-30, made-up folder only). `shootflow cull --thumbs` (2026-10-29) adds a thumbnail contact sheet by burst to the report. `shootflow cull` (2026-10-29) turns that into a standalone folder cull with XMP
-      sidecars; `--picks FILE` (2026-10-29) now scores it against a photographer's keepers
-      (keeper hit rate, false-reject rate); wanted: a real shoot and its picks to run it on.
-      Sharpness, exposure, motion and dHash near-duplicate grouping now run
-      on real frames (src/shootflow/frame_analysis.py). Subject framing without a
-      model landed 2026-10-21 (detail-energy centroid against thirds points plus
-      detail concentration; `framing`, `subject_x/y`, 15% of story_score; synthetic
-      patches only, not yet checked against human picks). Horizon tilt
-      (tilt_degrees, 2026-10-22; synthetic horizons only) costs a crooked frame up to 8% of story score. Grain (noise_sigma, 2026-10-23; synthetic Gaussian noise only) is taken out of sharpness and costs technical score. Face and closed-eye
-      scores landed 2026-10-26 as an opt-in external detector command
-      (SHOOTFLOW_FACE_DETECTOR, faces.py; made-up output only). A Haar-cascade
-      reference detector (tools/opencv_face_detector.py, 2026-10-29) fills it (one
-      real portrait, no real blinks). Next: a trained blink model behind the same
-      contract, checked against a photographer's picks (wanted: a labelled portrait set).
-      RAW stills are scored from their embedded JPEG preview (raw_preview.py,
-      2026-10-22; synthetic containers only, so try real CR2/CR3/NEF/ARW/DNG
-      files); review proxies of RAW stills are
-      the embedded preview downscaled (2026-10-29, synthetic containers); developing
-      RAW into graded masters (a RAW developer) is still open.
+      Real-photo calibration 2026-11-08 (tools/real_photo_calibration.py,
+      eval/README-real-photo-calibration.md; two OpenCV sample photos):
+      sharpness, grain and exposure respond correctly to known blur, noise and
+      brightness; tilt is recovered on photos with straight edges (structure
+      tensor, 61% of readings within 1 degree) but is chance on scenes with no
+      axis lines. Wanted: photos with a real horizon and human labels.
+      `shootflow cull` (2026-10-29) is a standalone folder cull with XMP
+      sidecars, `--thumbs` adds a contact sheet, `--picks FILE` scores it
+      against a photographer's keepers and reports `reject_reasons`; wanted: a
+      real shoot and its picks. Face and closed-eye scores are an opt-in
+      external detector (SHOOTFLOW_FACE_DETECTOR; Haar reference detector, one
+      real portrait, no real blinks). Next: a trained blink model checked
+      against a photographer's picks (wanted: a labelled portrait set). RAW
+      stills are scored from the embedded JPEG preview (synthetic containers
+      only, so try real CR2/CR3/NEF/ARW/DNG); developing RAW into graded
+      masters is still open. History: ventures/photo-editing/README.md.
   - venture: quick-pick-survey
     why: >-
       Next.js + Postgres app with Glicko-2 ranking, adaptive pairing and a
