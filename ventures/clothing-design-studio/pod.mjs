@@ -33,7 +33,8 @@ export function poissonPmf(mean, n) {
 
 /** E[min(D, Q)] and E[(D - Q)+] for D ~ Poisson(mean). */
 export function sales(mean, Q) {
-  const top = Math.ceil(Math.max(Q, mean + 12 * Math.sqrt(mean) + 30));
+  // Past mean + 12 sd the Poisson tail is nil, so a huge Q (a big minimum order) need not be walked.
+  const top = Math.ceil(mean + 12 * Math.sqrt(mean) + 30);
   const p = poissonPmf(mean, top);
   let sold = 0, over = 0, cum = 0;
   for (let k = 0; k <= top; k++) {
@@ -87,7 +88,8 @@ function bestQ(i, fn) {
  * Returns expected profit of each route, the best run size, and the demand at which the run overtakes print-on-demand.
  */
 export function compare(input) {
-  const i = { podPrice: input.price, feePct: 0, salvage: 0, moq: 0, setup: 0, ...input };
+  const given = Object.fromEntries(Object.entries(input).filter(([, v]) => v !== undefined));
+  const i = { podPrice: input.price, feePct: 0, salvage: 0, moq: 0, setup: 0, ...given };
   check(i);
   const stock = bestQ(i, stockProfit);
   const hybrid = bestQ(i, hybridProfit);
