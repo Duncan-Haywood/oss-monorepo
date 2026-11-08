@@ -2,7 +2,7 @@
 title: "The Great Moderation, found again in a second series"
 date: 2026-11-08
 tags: [statistics, changepoint-detector]
-description: "The volatility model dates the 1984 fall in US growth volatility on monthly industrial production, with the dispersion option; one series, a replication not a calibration."
+description: "The volatility model dates the 1984 fall in US growth volatility on monthly industrial production; one series, a replication, not a calibration."
 ---
 
 The changepoint-detector's volatility model dated the fall in US growth volatility to 1984 on quarterly GDP. A good check is a different series with the same documented break, so we ran monthly industrial production growth, 1947 to 2004.
