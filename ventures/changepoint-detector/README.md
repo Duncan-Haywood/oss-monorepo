@@ -454,6 +454,18 @@ With `--period`, the holidays are now left out of the seasonal factors (they no 
 
 The seasonal PELT pass now sees the fitted holiday exposure: with `--period` and `--holidays`, the engine alternates (seasonal factors with the holidays as an exposure, then the holidays refitted on the new factors) for two extra rounds. `node eval/holiday-alternate.mjs` runs the check on 40 seeded 224-day weekly series (every 28th day a 0.3x holiday on the busiest weekday; half the series carry a 1.5x step at 120): planted step found 20/20 both ways, no extra changes either way, holiday factor error 0.022 -> 0.021, largest seasonal-factor error 0.052 -> 0.045. A small gain on synthetic data, not measured on real holiday series; the previous behaviour is behind the engine option `noHolidayAlternation`.
 
+## The Great Moderation again, on a monthly series (2026-11-08)
+
+A second, independent check of the volatility model: annualised monthly growth of US industrial production, 1947-02 to 2004-12 (`data/us-ip-growth.csv`, 695 months, AER `USMacroSWM`). The documented break is the fall in volatility around 1984 (McConnell and Perez-Quiros 2000). `node eval/ip-growth.mjs` (output `eval/ip-growth.out.txt`, test `ip-growth.test.mjs`):
+
+| setting | changes | near 1984 |
+|---|---|---|
+| `--model meanvar` | 7 | 1984-02 (range 1984-02 to 1984-08), among six cuts at recessions (1974-08, 1975-06, 1979-01, 1982-03, 1983-01) |
+| `--model meanvar --dispersion` | 2 | 1984-02, `range95` 1983-10 to 1984-09 (sd 10.7 to 6.0); the other cut is 1961-01 (sd 18.5 to 10.7) |
+| `--model meanvar --robust --min-segment 24` | 5 | none: 1980-03, 1983-03 and 2000-06 instead |
+
+So `--dispersion` isolates the break on a monthly series as it did on quarterly GDP growth (where only `--min-segment` mattered), and the plain model reads each recession's swing as a regime. One series, one recalled date, 1 of 3 settings clean: a replication of the earlier finding, not a calibration. Caveats the tool itself prints: the residuals keep clustered volatility and autocorrelation (lag 1: 0.31), and a 9.65-month periodic component shows with the plain model. The 1961-01 cut is a fall in sd from the 1950s' swings, not a documented break.
+
 ## A real volatility break: the Great Moderation (2026-10-24)
 
 Every volatility result above is on seeded synthetic series. `eval/great-moderation.mjs`

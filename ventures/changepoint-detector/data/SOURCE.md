@@ -568,3 +568,12 @@ of tonnes), the `qcement` series of R's fpp2 package (Hyndman).
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/forecast/gas.csv> (time column turned into `YYYY-MM` labels).
 - **Licence:** forecast is GPL-3 on CRAN; the figures are public statistics. Kept as a small test fixture with its source named.
 - **Used by:** `au-gas.test.mjs`.
+
+## us-ip-growth.csv (added 2026-11-08)
+
+`us-ip-growth.csv`: annualised monthly growth of US industrial production, 1200 x ln(IP_t / IP_t-1), 1947-02 to 2004-12, 695 values (`production` in `USMacroSWM` from R's AER package, Stock and Watson data).
+
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/AER/USMacroSWM.csv> (row 1 is 1947-01; logs differenced here).
+- **Licence:** AER is GPL-2/3 on CRAN; the figures are public US statistics. Kept as a small test fixture with its source named.
+- **Used by:** `ip-growth.test.mjs`.
