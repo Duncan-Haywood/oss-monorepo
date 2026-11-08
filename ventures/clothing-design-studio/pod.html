@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Factory Run or Print-on-Demand? Compare Both for a Clothing Line</title>
+  <meta name="description" content="Compare a factory run with print-on-demand for one design: expected profit of each, the best run size, the demand at which the factory wins, and a hybrid. Free, in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Factory run or print-on-demand">
+  <meta property="og:description" content="Which earns more at your expected demand, and where the factory run overtakes. Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Factory run vs print-on-demand (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"expected profit of a factory run and of print-on-demand under uncertain demand; best run size; crossover demand; hybrid run with print-on-demand overflow; CSV download"}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style></head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="startup.html">Start-up budget</a> · <a href="preorder.html">Pre-order planner</a> · <a href="cashflow.html">Launch cash flow</a></p>
+  <h1>Order a factory run, or print each order on demand?</h1>
+  <p>A factory run is cheap per piece but needs a minimum order and leaves leftovers if you guess too high. Print-on-demand costs more per piece and risks nothing. Type your costs and how many you expect to sell: see which earns more, how big the run should be, and the demand at which the factory wins.</p>
+  <p class="placeholder">The numbers below are placeholders, not any supplier's prices. Demand is your own guess, and real demand comes in bursts; the result is an average over a Poisson spread.</p>
+  <div class="grid">
+    <section>
+      <h2>Your numbers</h2>
+      <div class="row"><div><label for="dm">Expected sales this season</label><input id="dm" type="number" min="0" step="1" value="150"></div><div><label for="pr">Shelf price (factory stock)</label><input id="pr" type="number" min="0" step="any" value="45"></div></div>
+      <div class="row"><div><label for="ld">Landed cost per piece (factory)</label><input id="ld" type="number" min="0" step="any" value="14"></div><div><label for="mq">Factory minimum order</label><input id="mq" type="number" min="0" step="1" value="100"></div></div>
+      <div class="row"><div><label for="su">Run set-up (patterns, screens)</label><input id="su" type="number" min="0" step="any" value="600"></div><div><label for="sv">Leftover value per piece</label><input id="sv" type="number" min="0" step="any" value="6"></div></div>
+      <div class="row"><div><label for="pc">Print-on-demand cost per piece (incl. shipping you pay)</label><input id="pc" type="number" min="0" step="any" value="27"></div><div><label for="pp">Print-on-demand shelf price</label><input id="pp" type="number" min="0" step="any" value="45"></div></div>
+      <div class="row"><div><label for="fe">Card and shop fees %</label><input id="fe" type="number" min="0" max="99" step="any" value="3"></div></div>
+    </section>
+    <section><h2>Which earns more?</h2><output id="out" aria-live="polite"></output><div id="nt"></div><h3>Across other demands</h3><div id="sw"></div><p><button id="csv" type="button">Download CSV</button></p></section>
+  </div>
+</main>
+  <script type="module">
+    import { compare, sweep, podCsv } from "./pod.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const n = id => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : 0; };
+    const f = v => v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let rows = null;
+    const inputs = () => ({ demand: n("#dm"), price: n("#pr"), landed: n("#ld"), moq: n("#mq"), setup: n("#su"), salvage: n("#sv"), podCost: n("#pc"), podPrice: n("#pp"), feePct: n("#fe") });
+    function run() {
+      try {
+        const i = inputs(), c = compare(i);
+        const d = Math.max(1, Math.round(i.demand));
+        rows = sweep(i, [0.25, 0.5, 0.75, 1, 1.5, 2, 4].map(x => Math.max(1, Math.round(d * x))));
+        $("#out").innerHTML = `<p class="big">${esc(c.best.route)}</p><p class="tag">best average profit ${f(c.best.profit)}${c.best.runSize ? ", run of " + c.best.runSize : ""}</p>
+          <table>${c.options.map(o => `<tr><th scope="row">${esc(o.route)}</th><td class="num">${o.runSize ? "run " + o.runSize : "no stock"}</td><td class="num">${f(o.profit)}</td></tr>`).join("")}</table>
+          <table><tr><th scope="row">Profit per sale, factory stock</th><td class="num">${f(c.marginPerSale)}</td></tr>
+          <tr><th scope="row">Profit per sale, print-on-demand</th><td class="num">${f(c.pod.marginPerSale)}</td></tr>
+          <tr><th scope="row">Expected leftovers in the best plain run</th><td class="num">${c.stock.expectedLeftover}</td></tr>
+          <tr><th scope="row">Cash out for that run</th><td class="num">${f(c.stock.cashOut)}</td></tr>
+          <tr><th scope="row">Demand where the factory run starts to win</th><td class="num">${c.crossoverDemand ?? "n/a"}</td></tr></table>`;
+        $("#nt").innerHTML = c.notes.map(t => `<p class="notes">${esc(t)}</p>`).join("");
+        $("#sw").innerHTML = `<table><tr><th scope="col">Sales</th><th scope="col">POD</th><th scope="col">Run</th><th scope="col">Run + POD</th></tr>${rows.map(r => `<tr><td>${r.demand}</td><td class="num">${f(r.pod)}</td><td class="num">${f(r.stock)} (${r.stockQ})</td><td class="num">${f(r.hybrid)} (${r.hybridQ})</td></tr>`).join("")}</table>`;
+      } catch (e) { $("#out").textContent = e.message; $("#nt").innerHTML = ""; $("#sw").innerHTML = ""; rows = null; }
+    }
+    $("#csv").addEventListener("click", () => { if (!rows) return; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([podCsv(rows)], { type: "text/csv" })); a.download = "run-vs-pod.csv"; a.click(); recordUsage("pod_csv"); });
+    document.addEventListener("input", () => { run(); recordUsage("pod_calc"); });
+    run(); recordUsage("pod_open");
+  </script>
+</body>
+</html>
