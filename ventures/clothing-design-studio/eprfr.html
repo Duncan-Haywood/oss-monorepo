@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>French Textile Eco-Contribution (Refashion): What a Clothing Brand Owes per Piece</title>
+  <meta name="description" content="Free calculator for the French textile eco-contribution (Refashion) on clothing sold to shoppers in France: pieces by product line, fee per piece, and detailed versus simplified regime. Rates are editable examples. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="French textile eco-contribution calculator for clothing brands">
+  <meta property="og:description" content="What do you owe Refashion per piece sold in France? Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"French textile eco-contribution calculator (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="eutax.html">EU VAT</a> · <a href="testing.html">Safety tests</a> · <a href="labels.html">Labels</a></p>
+  <h1>What do you owe per piece sold in France?</h1>
+  <p>Brands that put clothing on the French market pay an eco-contribution per piece to the producer-responsibility organisation Refashion, set by product line and target (adult or child, women or men). Online sellers shipping to French shoppers are in scope. Type your pieces below; see the fee on the detailed per-line rate and on the flat simplified rate.</p>
+  <p class="placeholder">The per-piece rates are a handful of lines seen in search extracts of Refashion's 2025/2026 guides on 2026-11-08 (<a href="https://media-pro.refashion.fr/2026/01/refashion_guide_eco-contribution-2026.pdf">2026 guide</a>), not the full schedule, and the simplified rate is the 2025 figure. Overwrite every rate with the current official schedule before relying on a number. Penalties, eco-modulation bonuses and the fast-fashion law are not modelled.</p>
+  <section>
+    <h2>Your pieces for France (per year)</h2>
+    <table id="rows"><thead><tr><th>Product line</th><th>Pieces</th><th>EUR per piece (blank = example)</th><th></th></tr></thead><tbody></tbody></table>
+    <p><button id="add" type="button">Add a line</button></p>
+    <div class="row"><div><label for="simp">Simplified flat rate (EUR per piece)</label><input id="simp" type="number" min="0" step="0.0001"></div><div><label for="landed">Landed cost per piece (EUR, optional)</label><input id="landed" type="number" min="0" step="0.01" value="12"></div></div>
+  </section>
+  <section><h2>Result</h2><output id="result" aria-live="polite"></output></section>  <!-- journey -->
+  <nav class="journey" aria-label="Launch path" style="margin-top:24px;padding:12px 14px;border:1px solid #ddd2c4;border-radius:12px;background:#fffdf9;font-size:.9rem;line-height:1.55">
+    <strong>6. Sell it and keep selling</strong> on the <a href="launch.html">launch path for a clothing line</a>.
+    <div>Also at this stage: <a href="channels.html">Where to sell</a> · <a href="salestax.html">US sales tax</a> · <a href="eutax.html">EU VAT and one-stop shop</a> · <a href="linesheet.html">Wholesale line sheet</a></div>
+    <div>Before: <a href="eutax.html">EU VAT and one-stop shop</a> · Next: <a href="linesheet.html">Wholesale line sheet</a></div>
+  </nav>
+  <!-- /journey -->
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not legal or tax advice. Rates, who must register and which regime you may use are set by French law and Refashion; check them with Refashion or an adviser. You are responsible for your own declarations.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+  <script type="module">
+    import { eprFee, LINES, SIMPLIFIED_EUR } from "./eprfr.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const opts = Object.entries(LINES).map(([k, v]) => `<option value="${k}">${esc(v.name)} (${v.eur})</option>`).join("") + `<option value="custom">Other line (type a rate)</option>`;
+    $("#simp").value = SIMPLIFIED_EUR;
+    function addRow(line = "tee-men", units = 1000) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td><select>${opts}</select></td><td><input type="number" min="0" step="1" value="${units}"></td><td><input type="number" min="0" step="0.0001" placeholder="example"></td><td><button type="button">Remove</button></td>`;
+      tr.querySelector("select").value = line;
+      tr.querySelector("button").addEventListener("click", () => { tr.remove(); render(); });
+      $("#rows tbody").append(tr);
+    }
+    const m = n => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    function render() {
+      const rows = [...document.querySelectorAll("#rows tbody tr")].map(tr => { const i = tr.querySelectorAll("input"); return { line: tr.querySelector("select").value, units: i[0].value, eurPerPiece: i[1].value }; });
+      const r = eprFee({ rows, simplifiedEur: $("#simp").value, landedPerPiece: $("#landed").value === "" ? null : $("#landed").value });
+      if (!r.ok) { $("#result").innerHTML = `<p class="notes">${esc(r.error)}</p>`; return; }
+      $("#result").innerHTML = `<p><span class="big">${m(Math.min(r.detailed, r.simplified))} EUR</span> a year on the ${r.best} route (${m(r.saving)} EUR less than the other) for ${r.pieces.toLocaleString("en-US")} pieces.</p>` +
+        `<table><tr><th>Line</th><th class="num">Pieces</th><th class="num">EUR/piece</th><th class="num">Detailed</th><th class="num">Simplified</th></tr>${r.rows.map(x => `<tr><td>${esc(x.name)}</td><td class="num">${x.units}</td><td class="num">${x.rate}</td><td class="num">${m(x.detailed)}</td><td class="num">${m(x.simplified)}</td></tr>`).join("")}<tr><th>Total</th><td></td><td></td><th class="num">${m(r.detailed)}</th><th class="num">${m(r.simplified)}</th></tr></table>` +
+        r.notes.map(n => `<p class="tag">${esc(n)}</p>`).join("");
+    }
+    $("#add").addEventListener("click", () => { addRow("skirt-women", 200); render(); });
+    $("#rows").addEventListener("input", () => { render(); recordUsage("eprfr_check"); });
+    $("#rows").addEventListener("change", render); $("#simp").addEventListener("input", render); $("#landed").addEventListener("input", render);
+    addRow("tee-men", 1000); addRow("skirt-women", 200);
+    render(); recordUsage("eprfr_open");
+  </script>
+</body>
+</html>
