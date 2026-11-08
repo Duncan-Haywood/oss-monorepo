@@ -650,11 +650,13 @@ export function layoutWinders(w) {
   // is checked against `maxTreadSpan`; otherwise it is reported for your table.
   const tt = w.treadThickness, spanMax = typeof w.treadSpanMax === "number" ? w.treadSpanMax : typeof tt === "number" ? maxTreadSpan(tt) : null;
   const framing = { supports: count + 1, supportLength: width, totalLength: (count + 1) * width, treadSpan: chordWide, shared: count - 1, treadSpanMax: spanMax, spanOk: spanMax == null ? null : chordWide <= spanMax + 1e-9 };
-  // Stock boards for the supports (2026-11-08): typed `supportStock` length in inches; each support is one piece `width` long, so a board yields floor(stock / width) of them (no kerf). Null when no stock is typed; a stock shorter than a support gives 0 pieces per board and is rejected in `boards`.
+  // Stock boards for the supports (2026-11-08): typed `supportStock` length in inches; each support is one piece `width` long, so a board yields floor(stock / width) of them (kerf only if `supportKerf` is typed). Null when no stock is typed; a stock shorter than a support gives 0 pieces per board and is rejected in `boards`.
   const ss = w.supportStock;
   if (typeof ss === "number" && ss > 0) {
-    const per = Math.floor(ss / width + 1e-9);
-    framing.boards = per >= 1 ? { stock: ss, perBoard: per, count: Math.ceil((count + 1) / per) } : null;
+    // Saw kerf (typed `supportKerf`, inches, 0 to 1/2, default 0): n pieces need n*width + (n-1)*kerf of board.
+    const kerf = typeof w.supportKerf === "number" && w.supportKerf >= 0 && w.supportKerf <= 0.5 ? w.supportKerf : 0;
+    const per = Math.floor((ss + kerf) / (width + kerf) + 1e-9);
+    framing.boards = per >= 1 ? { stock: ss, perBoard: per, count: Math.ceil((count + 1) / per), kerf } : null;
   }
   return { ...c, treads, chordNarrow, chordWalk, chordWide, chordPasses, framing };
 }
