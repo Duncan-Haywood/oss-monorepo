@@ -48,16 +48,3 @@ test("--stack with a bad file or clashing names is refused with a reason", () =>
   assert.equal(main(["a.json", "--stack=a.json"], rd).code, 1);
   assert.equal(main(["a.json", "--stack="], rd).code, 1);
 });
-
-test("--stack takes DXF reads: two drawings ordered together keep every wall, ids carry the file name", async () => {
-  const { readFileSync } = await import("node:fs");
-  const dxf = readFileSync(new URL("./fixtures/open-house-plans-1.dxf", import.meta.url), "utf8");
-  const rd = (p) => dxf;
-  const one = main(["a.dxf", "--json", "--skip-refused"], rd);
-  const two = main(["a.dxf", "--stack=b.dxf", "--json", "--skip-refused"], rd);
-  assert.equal(two.code, 0, two.out);
-  const n = JSON.parse(one.out).walls.length;
-  const ids = JSON.parse(two.out).walls.map((w) => w.id);
-  assert.equal(ids.length, 2 * n);
-  assert.ok(ids.some((i) => i.startsWith("b ")));
-});

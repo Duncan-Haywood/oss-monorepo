@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
-for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "insulation-calculator.html", "trim-calculator.html", "roof-calculator.html", "gutter-calculator.html", "flooring-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html", "ventilation-calculator.html", "stud-drilling-checker.html", "plumbing-calculator.html", "hvac-calculator.html", "walltile-calculator.html", "electrical-calculator.html", "paint-calculator.html", "price-sensitivity-calculator.html", "order-by-date-calculator.html", "fireblock-calculator.html", "nail-calculator.html", "opening-schedule-calculator.html", "floor-calculator.html", "foundation-calculator.html", "cmu-calculator.html", "dormer-calculator.html", "fence-calculator.html", "paver-calculator.html", "board-foot-calculator.html", "retaining-wall-calculator.html", "soffit-fascia-calculator.html", "sheathing-calculator.html"]) {
+for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "insulation-calculator.html", "trim-calculator.html", "roof-calculator.html", "gutter-calculator.html", "flooring-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html", "ventilation-calculator.html", "stud-drilling-checker.html", "plumbing-calculator.html", "hvac-calculator.html", "walltile-calculator.html", "electrical-calculator.html", "paint-calculator.html", "price-sensitivity-calculator.html", "order-by-date-calculator.html", "fireblock-calculator.html", "nail-calculator.html", "opening-schedule-calculator.html", "floor-calculator.html", "foundation-calculator.html", "cmu-calculator.html", "dormer-calculator.html", "fence-calculator.html", "paver-calculator.html", "mulch-topsoil-gravel-calculator.html", "board-foot-calculator.html", "retaining-wall-calculator.html", "soffit-fascia-calculator.html", "sheathing-calculator.html"]) {
   test(`${name} carries the disclaimer, privacy line and sponsor link`, () => {
     const html = page(name);
     assert.match(html, /No warranty/);
@@ -1277,4 +1277,22 @@ test("the board foot calculator page: FAQ matches its data and the stated figure
   assert.equal(b.boardFeet, 60); assert.equal(b.cost, 270); assert.equal(b.costWithWaste, 297); assert.equal(b.boardFeetToBuy, 66);
   const c = layoutBoardFoot({ waste: 0.1, lines: [{ thickness: "8/4", width: 6, length: 10, count: 2, pricePerBf: 14 }] });
   assert.equal(c.lines[0].bfEach, 10); assert.equal(c.boardFeet, 20); assert.equal(c.cost, 280); assert.equal(c.costWithWaste, 308); assert.equal(c.boardFeetToBuy, 22);
+});
+
+test("the mulch, topsoil and gravel page: FAQ matches its data and the stated figures are what the engine gives", async () => {
+  const html = page("mulch-topsoil-gravel-calculator.html");
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("([\w-]+)"\)/g)) assert.ok(ids.has(m[1]), m[1]);
+  const { layoutBulk } = await import("./bulk.mjs");
+  const r = layoutBulk(JSON.parse(html.match(/<textarea[^>]*>(.*?)<\/textarea>/s)[1]));
+  assert.equal(r.ok, true);
+  assert.equal(r.sqFt, 194.27); assert.equal(r.cuFt, 48.57); assert.equal(r.netYards, 1.8); assert.equal(r.orderYards, 1.89);
+  assert.equal(r.roundedYards, 2); assert.equal(r.bags, 102); assert.equal(r.cost, 76);
+  const g = layoutBulk({ areas: [{ length: 40, width: 3, depth: 4 }], material: { name: "crushed stone", pricePerTon: 32 } });
+  assert.equal(g.sqFt, 120); assert.equal(g.netYards, 1.48); assert.equal(g.orderYards, 1.87); assert.equal(g.tons, 2.61); assert.equal(g.cost, 83.63);
 });

@@ -858,3 +858,9 @@ from the running docs site; see `docs-site/README.md` and
 - `docs/WORKFLOW_AUTHORITY.md`
 - `docs/TERMS_AND_CONDITIONS_DRAFT.md`
 - `docs/CONTINUATION_NOTES.md`
+
+## Cull close calls (2026-11-08)
+
+`shootflow cull` reports each keeper's score lead over the best alternate (`margin`); under 0.03 it is a `close_call`, counted in `summary.close_calls`. The 0.03 threshold is unmeasured; checking it against a photographer's real picks is open.
+
+`--picks` now also measures that threshold (2026-11-08): `keeper_misses` counts burst groups where you picked a frame other than the keeper, `misses_flagged_close` how many of those the close-call flag caught, and `margin_to_flag_all_misses` the lead a threshold would need to catch them all (null when a missed keeper had no rival). Tested on made-up frames only; a real shoot and its picks are still wanted.

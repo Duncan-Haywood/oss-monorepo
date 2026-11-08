@@ -523,3 +523,48 @@ column is built from the `time` column of the source.
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/ausair.csv>.
 - **Licence:** fpp2 is GPL-3; the numbers are published Australian aviation statistics. Only the 47 numbers are used here.
 - **Used by:** `eval/ausair.mjs`, `ausair.test.mjs`.
+
+## us-female-murder-rate.csv (added 2026-11-08)
+
+`us-female-murder-rate.csv`: US female murder rate per 100,000 standard population, 1950-2004, 55 values (`wmurders` from fpp2, Hyndman).
+
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/wmurders.csv> (values rounded to 3 places).
+- **Licence:** fpp2 is GPL-3 on CRAN; the figures are public US vital statistics. Kept as a small test fixture with its source named.
+- **Used by:** `eval/us-female-murder-rate.mjs`, `us-female-murder-rate.test.mjs`.
+
+# Example data: Australian quarterly cement production, 1956Q1-2014Q1
+
+`qcement.csv`: 233 quarters of Australian portland cement production (millions
+of tonnes), the `qcement` series of R's fpp2 package (Hyndman).
+
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/qcement.csv>
+  (the `time` column turned into `YYYYQn` labels).
+- **Licence:** fpp2 is GPL-3; Rdatasets redistributes it. The values are
+  Australian Bureau of Statistics counts, kept here as a test fixture.
+- **Used by:** `qcement.test.mjs`, README "Cement and the 2000 GST".
+## nightingale-disease.csv (2026-11-08)
+
+- **What:** monthly Crimean War British army deaths from disease per 1,000 per year, April 1854 to March 1856 (24 points), the `Disease.rate` column of Florence Nightingale's data.
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/HistData/Nightingale.csv>.
+- **Licence:** HistData is GPL-2 on CRAN; the figures are 1850s public statistics. Kept as a small test fixture with its source named.
+- **Used by:** `nightingale.test.mjs`, README "A documented fall in 24 points".
+## us-electricity.csv (added 2026-11-08)
+
+`us-electricity.csv`: US monthly net electricity generation, billion kWh, 1973-01 to 2013-06, 486 values (`usmelec` from fpp2, Hyndman).
+
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/usmelec.csv> (time column turned into `YYYY-MM` labels).
+- **Licence:** fpp2 is GPL-3 on CRAN; the figures are public US statistics. Kept as a small test fixture with its source named.
+- **Used by:** `us-electricity.test.mjs`.
+
+## au-gas.csv (added 2026-11-08)
+
+`au-gas.csv`: Australian monthly gas production, 1956-01 to 1995-08, 476 values, unit as in the source (`gas` from the R forecast package, Hyndman).
+
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/forecast/gas.csv> (time column turned into `YYYY-MM` labels).
+- **Licence:** forecast is GPL-3 on CRAN; the figures are public statistics. Kept as a small test fixture with its source named.
+- **Used by:** `au-gas.test.mjs`.

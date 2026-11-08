@@ -32,13 +32,14 @@ from pathlib import Path
 
 from shootflow.faces import FaceReport, detect_faces
 from shootflow.ffmpeg_media import PHOTO_EXTENSIONS, FfmpegMediaError, FfmpegTools, find_ffmpeg_tools
-from shootflow.frame_analysis import FrameMetrics, analyze_media, hamming_distance
+from shootflow.frame_analysis import FrameMetrics, analyze_media
 from shootflow.raw_preview import RAW_EXTENSIONS, extract_preview, is_raw_path
 
 NEAR_DUPLICATE_MAX_DISTANCE = 8
 BLURRY_BELOW = 0.2
 BAD_EXPOSURE_BELOW = 0.25
 CLOSED_EYES_BELOW = 0.3
+CLOSE_CALL_MARGIN = 0.03
 _MAX_FILES = 20000
 THUMB_WIDTH = 220
 _THUMB_TIMEOUT_SECONDS = 60.0
@@ -66,6 +67,14 @@ class CullItem:
     # Same-name files folded into this frame (a RAW beside its JPEG), so one
     # shot is one decision and one sidecar.
     companions: tuple[str, ...] = ()
+    # Keepers only: score lead over the best alternate in the burst, None when
+    # the keeper has no rival. Under CLOSE_CALL_MARGIN the pick is a toss-up
+    # worth a human glance.
+    margin: float | None = None
+
+    @property
+    def close_call(self) -> bool:
+        return self.margin is not None and self.margin < CLOSE_CALL_MARGIN
 
 
 @dataclass(frozen=True)
@@ -156,6 +165,11 @@ def cull_folder(
     for number, members in enumerate(groups, start=1):
         ranked = sorted(members, key=lambda m: (-_score(m[1], m[2]), str(m[0])))
         keeper_taken = False
+        passing = [m for m in ranked if not _failures(m[1], m[2])]
+        margin = (
+            round(_score(passing[0][1], passing[0][2]) - _score(passing[1][1], passing[1][2]), 4)
+            if len(passing) > 1 else None
+        )
         for path, metrics, faces in ranked:
             reasons = _failures(metrics, faces)
             if reasons:
@@ -176,6 +190,7 @@ def cull_folder(
                     eyes_open=faces.worst_eyes_open if faces else None,
                     dhash=metrics.dhash,
                     companions=companion_map.get(path, ()),
+                    margin=margin if role == "keeper" else None,
                 )
             )
     items.sort(key=lambda item: (item.group, item.path))
@@ -260,9 +275,13 @@ def _group(
             index = parent[index]
         return index
 
-    for i in range(len(ordered)):
-        for j in range(i + 1, len(ordered)):
-            if hamming_distance(ordered[i][1].dhash, ordered[j][1].dhash) <= NEAR_DUPLICATE_MAX_DISTANCE:
+    # Parse each hash once: the all-pairs scan is quadratic (up to _MAX_FILES
+    # photos), so the inner step must be a bare XOR and popcount.
+    hashes = [int(row[1].dhash, 16) for row in ordered]
+    for i in range(len(hashes)):
+        hi = hashes[i]
+        for j in range(i + 1, len(hashes)):
+            if (hi ^ hashes[j]).bit_count() <= NEAR_DUPLICATE_MAX_DISTANCE:
                 a, b = find(i), find(j)
                 if a != b:
                     parent[max(a, b)] = min(a, b)
@@ -327,6 +346,24 @@ class PickScore:
     picks_rejected: tuple[str, ...]  # the costly miss: a frame you wanted, flagged reject
     picks_kept: int  # picks the cull left as keeper or alternate
     reject_reasons: tuple[tuple[str, int], ...] = ()  # why picks were rejected: which threshold to loosen
+    # Groups with a pick where the keeper is not a pick, and the keeper's margin in each
+    # (None: no rival, so no margin could flag it). Checks CLOSE_CALL_MARGIN against real picks.
+    keeper_miss_margins: tuple[float | None, ...] = ()
+
+    @property
+    def keeper_misses(self) -> int:
+        return len(self.keeper_miss_margins)
+
+    @property
+    def misses_flagged_close(self) -> int:
+        return sum(1 for m in self.keeper_miss_margins if m is not None and m < CLOSE_CALL_MARGIN)
+
+    @property
+    def margin_to_flag_all_misses(self) -> float | None:
+        """Smallest threshold that would flag every miss; None if any miss had no margin."""
+        if not self.keeper_miss_margins or None in self.keeper_miss_margins:
+            return None
+        return round(max(m for m in self.keeper_miss_margins if m is not None) + 0.0001, 4)
 
     @property
     def keeper_hit_rate(self) -> float | None:
@@ -378,7 +415,13 @@ def score_against_picks(result: CullResult, picks: Sequence[str]) -> PickScore:
         if item.role == "reject":
             for reason in item.reasons or ("lost to a better frame",):
                 reasons[reason] = reasons.get(reason, 0) + 1
+    margins = {i.group: i.margin for i in result.items if i.role == "keeper"}
+    miss_margins = tuple(sorted(
+        (margins.get(g) for g in picked_groups if keepers.get(g) not in matched),
+        key=lambda m: (m is None, m or 0.0),
+    ))
     return PickScore(
+        keeper_miss_margins=miss_margins,
         reject_reasons=tuple(sorted(reasons.items(), key=lambda kv: (-kv[1], kv[0]))),
         picks=len(picks), matched=len(matched), unmatched=tuple(unmatched),
         groups_with_a_pick=len(picked_groups), keeper_hits=hits, picks_rejected=rejected,
@@ -393,6 +436,10 @@ def pick_score_to_dict(score: PickScore) -> dict[str, object]:
         "keeper_hit_rate": score.keeper_hit_rate, "picks_rejected": list(score.picks_rejected),
         "false_reject_rate": score.false_reject_rate, "picks_kept": score.picks_kept,
         "reject_reasons": dict(score.reject_reasons),
+        "keeper_misses": score.keeper_misses,
+        "misses_flagged_close": score.misses_flagged_close,
+        "keeper_miss_margins": list(score.keeper_miss_margins),
+        "margin_to_flag_all_misses": score.margin_to_flag_all_misses,
     }
 
 
@@ -408,12 +455,14 @@ def result_to_dict(result: CullResult, score: PickScore | None = None) -> dict[s
             "alternates": result.count("alternate"),
             "rejects": result.count("reject"),
             "unreadable": len(result.unreadable),
+            "close_calls": sum(1 for i in result.items if i.close_call),
         },
         "items": [
             {
                 "path": i.path, "group": i.group, "role": i.role, "score": i.score,
                 "reasons": list(i.reasons), "sharpness": i.sharpness, "exposure": i.exposure,
                 "eyes_open": i.eyes_open, "dhash": i.dhash, "companions": list(i.companions),
+                "margin": i.margin, "close_call": i.close_call,
             }
             for i in result.items
         ],
@@ -434,7 +483,7 @@ def render_html(
     assert isinstance(summary, dict)
     rows = []
     for item in result.items:
-        reasons = ", ".join(item.reasons) or ""
+        reasons = ", ".join(item.reasons) or ("close call" if item.close_call else "")
         rows.append(
             f'<tr class="{item.role}"><td>{item.group}</td><td>{html.escape(_label(item))}</td>'
             f"<td>{item.role}</td><td>{item.score:.2f}</td><td>{item.sharpness:.2f}</td>"
@@ -450,6 +499,14 @@ def render_html(
             f"({rate(score.keeper_hit_rate)}). Picks flagged reject: {len(score.picks_rejected)} "
             f"({rate(score.false_reject_rate)}).</p>"
         )
+        if score.keeper_misses:
+            need = score.margin_to_flag_all_misses
+            pick_html += (
+                f"<p>Keeper missed in {score.keeper_misses} groups; {score.misses_flagged_close} of those were "
+                f"flagged close calls (lead under {CLOSE_CALL_MARGIN})"
+                + (f"; a margin of {need} would flag them all." if need is not None else ".")
+                + "</p>"
+            )
         if score.picks_rejected:
             pick_html += "<p>Rejected but picked: " + html.escape(", ".join(score.picks_rejected)) + "</p>"
         if score.unmatched:
@@ -461,10 +518,11 @@ def render_html(
         "td,th{padding:4px 8px;border-bottom:1px solid #8884;text-align:left}"
         "tr.keeper td{background:#2a82}tr.reject td{background:#d222}.burst{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;padding:8px;border:1px solid #8884;border-radius:6px}figure{margin:0;width:220px;font-size:12px}figure img{display:block;width:220px;border:4px solid #8884;box-sizing:border-box}figure.keeper img{border-color:#2a8}figure.reject img{border-color:#d33}figure.alternate img{opacity:.75}</style></head><body>"
         f"<h1>Cull report</h1><p>{summary['photos']} photos in {summary['groups']} groups: "
-        f"{summary['keepers']} keepers, {summary['alternates']} alternates, {summary['rejects']} rejects.</p>"
+        f"{summary['keepers']} keepers, {summary['alternates']} alternates, {summary['rejects']} rejects. "
+        f"{summary['close_calls']} keeper picks are close calls (lead under {CLOSE_CALL_MARGIN}); look at those first.</p>"
         + pick_html + sheet +
         "<table><tr><th>Group</th><th>Photo</th><th>Role</th><th>Score</th><th>Sharp</th><th>Exposure</th>"
-        "<th>Why rejected</th></tr>" + "".join(rows) + "</table>"
+        "<th>Why rejected / note</th></tr>" + "".join(rows) + "</table>"
         "<p>Technical scores only; not checked against a photographer's real picks. "
         "Scores are computed on your machine; no photo leaves it.</p></body></html>"
     )
