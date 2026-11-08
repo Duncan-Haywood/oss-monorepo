@@ -132,3 +132,19 @@ test('solo-401k-contribution-calculator: lead is sourced, dated and matches the 
   assert.deepEqual(stated, [L.employeeDeferral, L.catchUp50, L.catchUp60to63, L.annualAdditions]);
   assert.match(text, new RegExp(`${EMPLOYER_CONTRIBUTION_RATE * 100}%`));
 });
+
+// Inherited-IRA lead (no dollar figures): the 10-year window and the excise-tax rates it states must be what the planner models.
+test('inherited-ira-10-year-withdrawal-planner: lead is sourced, dated and matches the planner', async () => {
+  const slug = 'inherited-ira-10-year-withdrawal-planner';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { normalize } = await import(new URL(`${slug}/calc.mjs`, root));
+  assert.equal(normalize({ years: 99 }).years, 10, 'planner caps the window at 10 years');
+  assert.match(text, /10th year/);
+  assert.match(text, /25% excise tax \(10% if corrected within two years\)/);
+  assert.ok(html.includes('25% excise tax on the amount you should have taken, reduced to 10%'));
+});
