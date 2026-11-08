@@ -386,7 +386,7 @@ function planFor(plan, wall) {
   return wall && wall.studLength !== undefined ? { ...plan, studLength: wall.studLength } : plan;
 }
 
-function openingGeometry(plan, wall, op) {
+export function openingGeometry(plan, wall, op) {
   plan = planFor(plan, wall);
   const top = THICK + plan.studLength; // underside of the top plate, from the bottom of the bottom plate
   const headerHeight = op.headerHeight ?? plan.defaultHeaderHeight;

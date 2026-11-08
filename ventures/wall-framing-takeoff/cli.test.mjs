@@ -524,3 +524,18 @@ test("--skip-refused does not refuse a wall only because the wall it tees into w
   assert.match(r.out, /Wall Stub: its tee lap onto skipped wall Through was dropped/);
   assert.doesNotMatch(r.out, /- Wall Stub: /);
 });
+
+test("--shallow-headers swaps a header too deep for the plates and notes it", () => {
+  const plan = samplePlan();
+  plan.walls = [{ id: "Tall", length: 192, stud: "2x4", openings: [{ kind: "door", label: "D", offset: 48, width: 36, height: 85.5, headerHeight: 85.5, header: "2x10" }] }];
+  const read = () => JSON.stringify(plan);
+  const stop = main(["plan.json"], read);
+  assert.equal(stop.code, 1);
+  assert.match(stop.out, /too tall/);
+  const r = main(["plan.json", "--shallow-headers"], read);
+  assert.equal(r.code, 0, r.out);
+  assert.match(r.out, /Note: Wall Tall, D: 2x10 header is .* too deep .* 2x\d+ \(/);
+  const none = main(["plan.json", "--shallow-headers"], () => JSON.stringify({ ...plan, walls: [{ ...plan.walls[0], openings: [{ ...plan.walls[0].openings[0], headerHeight: 91, height: 91 }] }] }));
+  assert.equal(none.code, 1);
+  assert.match(none.out, /nothing on the lumber list fits|too tall/);
+});
