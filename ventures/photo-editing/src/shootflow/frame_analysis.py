@@ -51,6 +51,9 @@ _TILT_FULL_PENALTY_DEGREES = 5.0
 _TILT_STORY_WEIGHT = 0.08
 _TILT_SEARCH_DEGREES = 15
 _TILT_MIN_EDGES = 200
+_TILT_STEP = 0.5
+_TILT_WINDOW_DEGREES = 2.0
+_TILT_MIN_LINE = 22
 _NOISE_FREE_SIGMA = 2.0
 _NOISE_FULL_PENALTY_SIGMA = 12.0
 _NOISE_TECHNICAL_WEIGHT = 0.15
@@ -218,42 +221,58 @@ def framing_from_frame(frame: bytes, width: int = FRAME_WIDTH, height: int = FRA
 def tilt_from_frame(frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT) -> tuple[float, float]:
     """Estimate how far the frame leans off level: ``(tilt_degrees, confidence)``.
 
-    Strong edges vote with their gradient magnitude for the angle they sit off
-    the nearest axis (horizon, doorframe, wall: the world is mostly axis
-    aligned). The estimate is the weighted mean angle of the votes within
-    15 degrees of an axis, around the busiest degree. Confidence is the share
-    of strong-edge weight inside that window, 0 when there are too few strong
-    edges (a plain sky, a texture) to say. Positive tilt means the right side is
-    lower. A frame of tilted subjects (a diagonal staircase, a dancer) has
-    confidence near 0 and is not penalised.
+    A Hough vote over long straight edges. Every strong-gradient pixel (the
+    world is mostly axis aligned: horizon, doorframe, wall) is assigned to the
+    horizontal or vertical family with its deviation from that axis. For each
+    hypothesised tilt from -15 to +15 degrees in half-degree steps, pixels
+    whose deviation is within 2 degrees are binned by their offset from a line
+    at that tilt; only bins holding at least ``_TILT_MIN_LINE`` pixels (a
+    straight run, not texture) score, by the square of their count so one long
+    line beats many short ones. The estimate is the score-weighted tilt within
+    one degree of the best hypothesis. Confidence is the share of strong-edge
+    pixels sitting on long lines at that tilt (times 4, capped at 1), 0 when
+    there are too few strong edges or no long line. Positive tilt means the
+    right side is lower. The earlier estimator, a magnitude-weighted histogram
+    of every edge pixel, read 0 on a real football pitch rotated 1 to 8
+    degrees; this one follows it (``eval/README-real-photo-calibration.md``).
     """
 
-    votes: list[tuple[float, float]] = []
+    pixels: list[tuple[int, int, float, int]] = []
     for y in range(1, height - 1):
         row, below, above = y * width, (y + 1) * width, (y - 1) * width
         for x in range(1, width - 1):
             gx = frame[row + x + 1] - frame[row + x - 1]
             gy = frame[below + x] - frame[above + x]
-            magnitude = math.hypot(gx, gy)
-            if magnitude < 20.0:
+            if math.hypot(gx, gy) < 20.0:
                 continue
-            angle = math.degrees(math.atan2(gy, gx)) % 90.0
-            votes.append((angle - 90.0 if angle > 45.0 else angle, magnitude))
-    if len(votes) < _TILT_MIN_EDGES:
+            phi = math.degrees(math.atan2(gy, gx)) % 180.0
+            if phi < 45.0 or phi >= 135.0:
+                pixels.append((x, y, phi if phi < 45.0 else phi - 180.0, 0))
+            else:
+                pixels.append((x, y, phi - 90.0, 1))
+    if len(pixels) < _TILT_MIN_EDGES:
         return 0.0, 0.0
-    # Votes near +-45 degrees are diagonals, not horizons; the window ignores them.
-    bins = [0.0] * (2 * _TILT_SEARCH_DEGREES + 1)
-    for deviation, weight in votes:
-        if abs(deviation) <= _TILT_SEARCH_DEGREES:
-            bins[round(deviation) + _TILT_SEARCH_DEGREES] += weight
-    peak = max(range(len(bins)), key=lambda index: bins[index]) - _TILT_SEARCH_DEGREES
-    window = [(d, w) for d, w in votes if abs(d - peak) <= 1.5]
-    window_weight = sum(w for _, w in window)
-    if window_weight <= 0.0:
+    scores: dict[float, tuple[int, int]] = {}
+    steps = int(_TILT_SEARCH_DEGREES / _TILT_STEP)
+    for k in range(-steps, steps + 1):
+        hypothesis = k * _TILT_STEP
+        radians = math.radians(hypothesis)
+        cos, sin = math.cos(radians), math.sin(radians)
+        bins: dict[tuple[int, int], int] = {}
+        for x, y, deviation, family in pixels:
+            if abs(deviation - hypothesis) > _TILT_WINDOW_DEGREES:
+                continue
+            offset = x * cos + y * sin if family == 0 else -x * sin + y * cos
+            key = (family, int(offset // 1.5))
+            bins[key] = bins.get(key, 0) + 1
+        long_runs = [count for count in bins.values() if count >= _TILT_MIN_LINE]
+        scores[hypothesis] = (sum(count * count for count in long_runs), sum(long_runs))
+    best = max(scores, key=lambda h: scores[h][0])
+    if scores[best][0] == 0:
         return 0.0, 0.0
-    mean = sum(d * w for d, w in window) / window_weight
-    confidence = window_weight / sum(w for _, w in votes)
-    return mean, _clamp(confidence)
+    weight = sum(score for h, (score, _) in scores.items() if abs(h - best) <= 1.0)
+    mean = sum(h * score for h, (score, _) in scores.items() if abs(h - best) <= 1.0) / weight
+    return mean, _clamp(4.0 * scores[best][1] / len(pixels))
 
 
 def noise_sigma_from_frame(frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT) -> float:
