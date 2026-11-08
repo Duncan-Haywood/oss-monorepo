@@ -346,6 +346,24 @@ class PickScore:
     picks_rejected: tuple[str, ...]  # the costly miss: a frame you wanted, flagged reject
     picks_kept: int  # picks the cull left as keeper or alternate
     reject_reasons: tuple[tuple[str, int], ...] = ()  # why picks were rejected: which threshold to loosen
+    # Groups with a pick where the keeper is not a pick, and the keeper's margin in each
+    # (None: no rival, so no margin could flag it). Checks CLOSE_CALL_MARGIN against real picks.
+    keeper_miss_margins: tuple[float | None, ...] = ()
+
+    @property
+    def keeper_misses(self) -> int:
+        return len(self.keeper_miss_margins)
+
+    @property
+    def misses_flagged_close(self) -> int:
+        return sum(1 for m in self.keeper_miss_margins if m is not None and m < CLOSE_CALL_MARGIN)
+
+    @property
+    def margin_to_flag_all_misses(self) -> float | None:
+        """Smallest threshold that would flag every miss; None if any miss had no margin."""
+        if not self.keeper_miss_margins or None in self.keeper_miss_margins:
+            return None
+        return round(max(m for m in self.keeper_miss_margins if m is not None) + 0.0001, 4)
 
     @property
     def keeper_hit_rate(self) -> float | None:
@@ -397,7 +415,13 @@ def score_against_picks(result: CullResult, picks: Sequence[str]) -> PickScore:
         if item.role == "reject":
             for reason in item.reasons or ("lost to a better frame",):
                 reasons[reason] = reasons.get(reason, 0) + 1
+    margins = {i.group: i.margin for i in result.items if i.role == "keeper"}
+    miss_margins = tuple(sorted(
+        (margins.get(g) for g in picked_groups if keepers.get(g) not in matched),
+        key=lambda m: (m is None, m or 0.0),
+    ))
     return PickScore(
+        keeper_miss_margins=miss_margins,
         reject_reasons=tuple(sorted(reasons.items(), key=lambda kv: (-kv[1], kv[0]))),
         picks=len(picks), matched=len(matched), unmatched=tuple(unmatched),
         groups_with_a_pick=len(picked_groups), keeper_hits=hits, picks_rejected=rejected,
@@ -412,6 +436,10 @@ def pick_score_to_dict(score: PickScore) -> dict[str, object]:
         "keeper_hit_rate": score.keeper_hit_rate, "picks_rejected": list(score.picks_rejected),
         "false_reject_rate": score.false_reject_rate, "picks_kept": score.picks_kept,
         "reject_reasons": dict(score.reject_reasons),
+        "keeper_misses": score.keeper_misses,
+        "misses_flagged_close": score.misses_flagged_close,
+        "keeper_miss_margins": list(score.keeper_miss_margins),
+        "margin_to_flag_all_misses": score.margin_to_flag_all_misses,
     }
 
 
@@ -471,6 +499,14 @@ def render_html(
             f"({rate(score.keeper_hit_rate)}). Picks flagged reject: {len(score.picks_rejected)} "
             f"({rate(score.false_reject_rate)}).</p>"
         )
+        if score.keeper_misses:
+            need = score.margin_to_flag_all_misses
+            pick_html += (
+                f"<p>Keeper missed in {score.keeper_misses} groups; {score.misses_flagged_close} of those were "
+                f"flagged close calls (lead under {CLOSE_CALL_MARGIN})"
+                + (f"; a margin of {need} would flag them all." if need is not None else ".")
+                + "</p>"
+            )
         if score.picks_rejected:
             pick_html += "<p>Rejected but picked: " + html.escape(", ".join(score.picks_rejected)) + "</p>"
         if score.unmatched:

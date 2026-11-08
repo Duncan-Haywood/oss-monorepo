@@ -109,6 +109,20 @@ class CullTests(unittest.TestCase):
         self.assertAlmostEqual(score.false_reject_rate or 0, 2 / 3)
         self.assertEqual(dict(score.reject_reasons), {"blurry": 1, "closed eyes": 1})
 
+    def test_close_call_recall_against_picks(self) -> None:
+        result = cull_folder(self.root, analyzer=self.analyzer)
+        # a1 is the alternate in a2's burst: picking it is a keeper miss with the keeper's margin.
+        score = score_against_picks(result, ["a1.jpg", "c1.jpg"])
+        self.assertEqual(score.keeper_misses, 1)
+        keeper = next(i for i in result.items if i.role == "keeper" and i.group == result.items[0].group)
+        self.assertEqual(score.keeper_miss_margins, (keeper.margin,))
+        self.assertEqual(score.misses_flagged_close, 0)  # the lead is far over 0.03
+        self.assertGreater(score.margin_to_flag_all_misses or 0, keeper.margin)
+        _, html_path = write_report(result, self.root / "out2", score)
+        self.assertIn("Keeper missed in 1 groups", html_path.read_text())
+        self.assertEqual(score_against_picks(result, ["a2.jpg"]).keeper_misses, 0)
+        self.assertIsNone(score_against_picks(result, ["a2.jpg"]).margin_to_flag_all_misses)
+
     def test_picks_file_and_report(self) -> None:
         picks = self.root / "picks.txt"
         picks.write_text("# keepers\n\na2.jpg\nc1.jpg\n", encoding="utf-8")
