@@ -57,7 +57,7 @@ function layerOptions(argv) {
 }
 import { planFromIfc } from "./ifc.mjs";
 import { misspeltPlanKeys, misspeltPlanKeysNote } from "./planKeys.mjs";
-import { takeoff, samplePlan, toCsv, formatLength, formatInches, parseLength } from "./engine.mjs";
+import { validatePlan, takeoff, samplePlan, toCsv, formatLength, formatInches, parseLength } from "./engine.mjs";
 
 const HELP = `wall-framing-takeoff: stud layout, cut list and the cheapest lumber order for a set of walls
 
@@ -70,6 +70,7 @@ Usage:
   node cli.mjs plan.json --rim-lap=9.25  run sheathing that many inches below the bottom plate to cover the rim board (vertical sheets)
   node cli.mjs plan.json --horizontal sheets long side along the wall (implies --sheathing)
   node cli.mjs plan.json --add-board=2x4:20ft[:price]  add a longer board to the lumber list (repeatable; a DXF or IFC read has the 16 ft default only; unpriced boards cost per foot like the longest of that size)
+  node cli.mjs plan.json --skip-refused  frame the walls that pass the plan checks and list the ones refused (opening too near a wall end, header too tall...), instead of stopping at the first bad wall
   node cli.mjs plan.json --panel-max=12ft  shop drawings with each wall split into panels no longer than that
   node cli.mjs plan.json --panel-max=12ft --panel-order --pull-lists  boards and cuts each panel is built from (add to --panel-order)
   node cli.mjs plan.json --panel-max=12ft --panel-order  lumber order for the shop panels (plates cut at panel breaks) against the whole-wall order
@@ -231,6 +232,21 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     plan.stock = [...(plan.stock || []), { size, length, price: cost }];
   }
   if (boardNotes.length) dxfNotes += boardNotes.map((n) => `Note: ${n}`).join("\n") + "\n\n";
+  // --skip-refused frames the walls that pass the plan checks and lists the ones that do not (a whole-house IFC or DXF read often has a few walls the engine refuses), so one bad wall does not hide the takeoff of the rest.
+  if (flags.has("--skip-refused") && Array.isArray(plan.walls)) {
+    const skipped = [];
+    for (let pass = 0; pass < 50; pass++) {
+      const errs = validatePlan(plan);
+      if (!errs.length) break;
+      const bad = new Set();
+      for (const e of errs) for (const w of plan.walls) if (w && typeof w.id === "string" && w.id.trim() && (e.startsWith(`Wall ${w.id}:`) || e.startsWith(`Wall ${w.id},`))) bad.add(w);
+      if (!bad.size) break; // an error that names no wall (stock, spacing, shape) cannot be skipped past
+      for (const w of bad) skipped.push(`Wall ${w.id}: ${errs.filter((e) => e.startsWith(`Wall ${w.id}:`) || e.startsWith(`Wall ${w.id},`)).map((e) => e.replace(/^Wall [^:,]*[:,]\s*/, "")).join("; ")}`);
+      plan.walls = plan.walls.filter((w) => !bad.has(w));
+      if (!plan.walls.length) return { code: 1, out: `Every wall was refused:\n${skipped.map((n) => `  - ${n}`).join("\n")}` };
+    }
+    if (skipped.length) dxfNotes += `SKIPPED ${skipped.length} WALL${skipped.length === 1 ? "" : "S"} THE PLAN CHECKS REFUSE (not in the takeoff below; fix them and re-run):\n${skipped.map((n) => `  - ${n}`).join("\n")}\n\n`;
+  }
   let gangNotes = [];
   if (flags.has("--gang")) {
     const g = gangOpenings(plan);

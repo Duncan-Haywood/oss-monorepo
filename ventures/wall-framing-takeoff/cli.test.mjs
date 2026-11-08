@@ -491,3 +491,23 @@ test("--paver adds the paver takeoff from the plan's paver object", () => {
   assert.equal(bad.code, 1);
   assert.match(bad.out, /pavers have problems/i);
 });
+
+test("--skip-refused frames the good walls and lists the refused one", () => {
+  const plan = samplePlan();
+  plan.walls = [
+    { id: "Good", length: 192, stud: "2x4", openings: [] },
+    { id: "Bad", length: 120, stud: "2x4", openings: [{ kind: "door", label: "D", offset: 0, width: 36, height: 82.5, header: "2x6" }] },
+  ];
+  const read = () => JSON.stringify(plan);
+  const stop = main(["plan.json"], read);
+  assert.equal(stop.code, 1);
+  const r = main(["plan.json", "--skip-refused"], read);
+  assert.equal(r.code, 0, r.out);
+  assert.match(r.out, /SKIPPED 1 WALL/);
+  assert.match(r.out, /Wall Bad: .*king studs/);
+  assert.doesNotMatch(r.out, /Wall Good: /);
+  plan.walls = [plan.walls[1]];
+  const all = main(["plan.json", "--skip-refused"], read);
+  assert.equal(all.code, 1);
+  assert.match(all.out, /Every wall was refused/);
+});
