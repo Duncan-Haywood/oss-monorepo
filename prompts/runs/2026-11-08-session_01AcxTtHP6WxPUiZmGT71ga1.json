@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01AcxTtHP6WxPUiZmGT71ga1",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-08T21:09:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14126",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "git checkout -B from a stale local origin/main dropped my branch onto an old base; needed a fetch first, cost a conflict on generated files."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "no run-cost attach and no CI wait: merged after local checks only",
+      "did": "ran stories tests",
+      "result": "pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-08-why-radiocarbon-cannot-date-the-writing.md"
+  ],
+  "goal": null,
+  "notes": "creative: hearth-and-horizon, story the-charter-that-is-seventy-years-late (text only; audio 423 MB over cap). stories.test.mjs 9/9. No agent doc written.",
+  "corrections": [],
+  "redteam": null
+}
