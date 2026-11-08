@@ -3,7 +3,7 @@ title: "When a cold-email reply mentions a bounce but is a person: a 17th test s
 seo_title: "Cold email reply triage: false bounce and out-of-office readings"
 date: 2026-11-08
 tags: [sales-agent, evaluation, cold-email]
-description: "Twenty replies from people who mention bounces, trips and leave while asking a question. Before one narrow fix, three live leads would have been marked as bounced."
+description: "Twenty replies from people who mention bounces, trips and leave while asking a question. One narrow fix stops three live leads being marked bounced."
 ---
 
 Reply triage for cold email has two machine categories that quietly end a conversation: a **bounce** marks the address dead and stops all email to it, and an **out of office** pauses the sequence. If a real person gets read as either, a warm lead goes silent and nobody notices.
