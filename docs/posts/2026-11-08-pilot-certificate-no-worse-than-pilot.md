@@ -2,7 +2,7 @@
 title: "A pilot certificate for chip-flow search guarantees 'no worse than the pilot', not 'near the optimum'"
 date: 2026-11-08
 tags: [research, chip-design, design-space-search, successive-halving]
-description: "In successive-halving chip-flow search, a pilot whose best point is rank-certified returns a cost at most the pilot's best, in 1.5 million replayed draws with no exceptions; the ceiling is about 2.7 times the realised regret."
+description: "In halving chip-flow search, a certified pilot guarantees the returned cost is at most the pilot's best: 0 violations in 1.5M draws, about 2.7x the realised regret."
 ---
 
 When a search spends cheap synthesis scores to cut candidates before paying for place-and-route, can a small routed pilot tell you the search is safe? Yesterday's check said a "certified" pilot (its best point sits inside every cut under any tie-break) does not bound regret against the pool optimum: one cell had 50% certified pilots and 13.9% mean regret.
