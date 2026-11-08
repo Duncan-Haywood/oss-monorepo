@@ -85,6 +85,7 @@ function gableOf(/** @type {any} */ w, /** @type {number} */ eave) {
 export function layoutSiding(d, plan) {
   const errors = validateSiding(d);
   if (errors.length) return { ok: false, errors };
+  if (plan == null || typeof plan !== "object") return { ok: false, errors: ["Siding needs the takeoff plan (its stud length and walls)."] };
   const waste = d.waste ?? 0.1, exposure = d.exposure ?? 7, stock = d.stock ?? 144;
   const wrapRoll = d.wrapRollSqFt ?? 1350, wrapLap = d.wrapLap ?? 0.1;
   const vertical = d.style === "vertical", bw = d.boardWidth ?? 11.25;

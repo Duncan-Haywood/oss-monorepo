@@ -13,6 +13,7 @@ import { DEPTH, THICK, openingGeometry } from "./engine.mjs";
  */
 export function shallowHeaders(plan) {
   const notes = [];
+  if (plan == null || typeof plan !== "object") return notes;
   const sizes = new Set((plan.stock || []).map((/** @type {any} */ s) => s.size));
   for (const wall of plan.walls || []) {
     if (!wall || wall.gable) continue;
@@ -52,6 +53,7 @@ const DOOR_THRESHOLD_MAX = 2; // in: a door bottom this far above the plate is a
  */
 export function trimOpenings(plan) {
   const notes = [];
+  if (plan == null || typeof plan !== "object") return notes;
   const sizes = (plan.stock || []).map((/** @type {any} */ s) => s.size).filter((/** @type {string} */ k) => Object.hasOwn(DEPTH, k));
   if (!sizes.length) return notes;
   const minSize = sizes.sort((a, b) => DEPTH[a] - DEPTH[b])[0];
@@ -86,6 +88,7 @@ export function trimOpenings(plan) {
  */
 export function doorsToFloor(plan) {
   const notes = [];
+  if (plan == null || typeof plan !== "object") return notes;
   for (const wall of plan.walls || []) {
     if (!wall || wall.gable) continue;
     for (const op of wall.openings || []) {
