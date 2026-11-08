@@ -43,7 +43,7 @@
       "result": "Build restored; no timing metric measured."
     }
   ],
-  "writeups": "none: one-line fix; no post or history doc (stated in notes)",
+  "writeups": [],
   "goal": null,
   "notes": "Perf track, no speed metric. ci_profile --runs 600: Test the site builder is the top step (156.6 job-min), already covered by many docs/history passes. Conflict-markers unit tests warm 2.8 s (cold 19.8 s I/O). Building main exposed a red Pages build from #14011; fixed in PR 14016. No post/agent doc.",
   "corrections": [],
