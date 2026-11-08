@@ -3,6 +3,28 @@
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
 
+## 2026-11-08 · Milestone 5b, third GSS-only step: the third-plus-generation rise is among non-Hispanic whites, not Hispanics
+
+Run: `experiments/m5d_ethnicity/run.py` (output `results.txt`, tables `t17`, `t18`; same weights and 500-draw PSU
+bootstrap, seed 1, as 5a to 5c). **Order of events:** the entry below ended with a hypothesis, that the Hispanic share
+of the third-plus group would matter; it was written before this script ran. Ethnicity exists from 2000, so periods
+are 2000-09, 2010-18 and 2021-24. Five groups (foreign-born, second generation, third-plus NH white, Hispanic,
+Black/other); exact midpoint split, summing to the change (asserted).
+
+- **Levels.** Third-plus NH white raised Catholic 27.0%, 28.5%, 29.4% (62.1%, 58.6%, 58.5% of adults). Third-plus
+  Hispanic 67.6%, 66.9%, 59.4%, with their share of adults rising 3.0% to 4.3%. Third-plus Black/other 7.8%, 11.0%, 10.4%.
+- **2000-09 to 2021-24** (R 33.4% to 33.8%, +0.40 [-0.95, +1.93]): composition +0.97 [+0.45, +1.52], foreign-born
+  rate **-1.78 [-2.37, -1.08]**, third-plus NH white rate **+1.46 [+0.38, +2.48]**, third-plus Hispanic rate
+  **-0.30 [-0.57, -0.03]**, Black/other +0.27 [+0.03, +0.50].
+- **My hypothesis is not supported as stated:** the domestic rate rise is among third-plus non-Hispanic whites, and
+  the third-plus Hispanic rate term is flat to negative (their raised-Catholic share fell to 59% by 2021-24). The
+  Hispanic contribution runs through composition (a larger share of adults), which is inside the composition term, not
+  separated here.
+- **Limits.** n is small for third-plus Hispanic (367 to 462); intervals on the 2000-09 to 2010-18 total include zero.
+  Recalled religion at 16 and a rising share among NH whites could be recall or cohort replacement; no fertility
+  measure yet, so H4 stays undecided.
+- **Next.** NCHS birth and ACS immigration series (5b proper), and a cohort split of the NH white third-plus rise.
+
 ## 2026-11-05 · Milestone 5b, second GSS-only step: the rise in the raised-Catholic share sits in the third-plus generation
 
 Run: `experiments/m5c_generation/run.py` (output `results.txt`, tables `t15`, `t16`; same samples, weights and
