@@ -2,7 +2,7 @@
 title: "Adding collapse made a toy civilization cycle, but only a third of the 'cycles' are real"
 date: 2026-11-08
 tags: [research, simulation, social-science]
-description: "A structural-demographic toy model gets a collapse reset: swings rise from 9% to 42%, yet 29 of 55 apparent 150-400 year cycles are collapses chained at the refractory floor."
+description: "A collapse reset lifts a toy civilization's swings from 9% to 42%, but 29 of 55 apparent 150-400 year cycles are collapses chained at the refractory floor."
 ---
 
 Two earlier runs of our Turchin-style toy civilization (peasants, elites, a state) could not make secular cycles: no variant swung more than 9% of its mean population. This run added the ingredient the last log entry named, a state collapse that cuts elites by half, peasants by a fifth and the state's fiscal strength to a tenth when instability crosses a threshold.
