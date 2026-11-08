@@ -5,7 +5,7 @@
 // say so. The opening's height and header height are kept: only the member
 // changes. A header is a structural member, so every swap is a note to take to
 // the engineer or the span table; nothing here sizes a header for load.
-import { DEPTH, openingGeometry } from "./engine.mjs";
+import { DEPTH, THICK, openingGeometry } from "./engine.mjs";
 
 /**
  * @param {any} plan  a plan object; walls are changed in place
@@ -19,6 +19,12 @@ export function shallowHeaders(plan) {
     for (const op of wall.openings || []) {
       if (!op || typeof op !== "object" || !Object.hasOwn(DEPTH, op.header)) continue;
       const g = openingGeometry(plan, wall, op);
+      if (op.kind === "door" && g.roBottom > THICK + 1e-9 && g.roBottom <= THICK + DOOR_THRESHOLD_MAX) {
+        // A door whose bottom sits a threshold's height above the plate (Revit sill 1-5/8 in): extend it down to the floor.
+        const drop = g.roBottom - THICK;
+        op.height += drop;
+        notes.push(`Wall ${wall.id}, ${op.label || op.kind}: the door bottom is ${drop.toFixed(2)} in above the floor in the model (a threshold or finish floor), so it was framed ${drop.toFixed(2)} in taller to reach the floor.`);
+      }
       if (!(g.topCripple < -1e-9)) continue;
       const room = DEPTH[op.header] + g.topCripple;
       const fit = Object.entries(DEPTH).filter(([k, d]) => d <= room + 1e-9 && sizes.has(k)).sort((a, b) => b[1] - a[1])[0];
@@ -30,6 +36,8 @@ export function shallowHeaders(plan) {
   }
   return notes;
 }
+
+const DOOR_THRESHOLD_MAX = 2; // in: a door bottom this far above the plate is a threshold, not a raised opening
 
 /**
  * --trim-openings: where no listed header fits under the plates even after a
