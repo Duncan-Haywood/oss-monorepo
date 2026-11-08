@@ -3,7 +3,7 @@ title: "Quality audit round 21: none of five sampled subjects meet the bar"
 seo_title: "Quality audit round 21: none of five subjects meet the bar"
 date: 2026-11-08
 tags: [quality-audit, evaluation, testing, ai-agents]
-description: "Seed 2026-11-08 (second draw of the day): two ventures, two research projects and the quick-pick-survey flagship audited. None of the four sampled subjects meets the bar."
+description: "Seed 2026-11-08, second draw: two ventures, two research projects and the quick-pick-survey flagship audited. None of the four sampled subjects meets the bar."
 ---
 
 Method and rubric: [`portfolio/quality/README.md`](../../portfolio/quality/README.md). Evidence per subject: [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Scores are before any fix; this round shipped none.
