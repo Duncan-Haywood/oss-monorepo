@@ -262,6 +262,7 @@
             <div><label for="s-packaging">Packaging per garment</label><input id="s-packaging" type="number" min="0" step="0.05"></div>
             <div><label for="s-freight">Freight to you per garment</label><input id="s-freight" type="number" min="0" step="0.05"></div>
           </div>
+          <p id="bom-row" hidden><button class="btn small" type="button" id="bom-use">Fill trims and packaging from my bill of materials</button> <span id="bom-note" aria-live="polite"></span></p>
           <div class="row3">
             <div><label for="s-duty">Import duty (%)</label><input id="s-duty" type="number" min="0" max="60" step="0.5"></div>
             <div><label for="s-dest">Look it up for selling in</label><select id="s-dest"><option value="">Choose a market</option><option value="US">United States</option><option value="EU">European Union</option><option value="UK">United Kingdom</option></select></div>
@@ -410,6 +411,7 @@
     import { EXAMPLE_SUPPLIER, supplierToCsv, supplierFromCsv } from "./suppliers.mjs";
     import { dutyPctFor } from "./duty.mjs";
     import { economics, quantityBreaks, money, DEFAULT_PLAN } from "./costing.mjs";
+    import { loadBomExtras } from "./bom.mjs";
     import { briefFromStudio, saveBrief, loadBrief, briefToFile, briefFromFile } from "./launchbrief.mjs";
     import { techPack, techPackHtml, quoteRequest } from "./techpack.mjs";
     import { launchKit } from "./launchkit.mjs";
@@ -678,6 +680,17 @@
     sheetNum("s-packaging", (s, v) => { s.packagingPerUnit = v; });
     sheetNum("s-freight", (s, v) => { s.freightPerUnit = v; });
     sheetNum("s-duty", (s, v) => { s.dutyPct = v; });
+    {
+      const e = loadBomExtras();
+      if (e) {
+        $("#bom-row").hidden = false;
+        $("#bom-use").addEventListener("click", () => {
+          const n = loadBomExtras(); if (!n) return;
+          sheetEdited(s => { s.trimsPerUnit = n.trimsPerUnit; s.packagingPerUnit = n.packagingPerUnit; });
+          $("#bom-note").textContent = `Set trims ${n.trimsPerUnit.toFixed(2)} and packaging ${n.packagingPerUnit.toFixed(2)} per garment (waste included) from the bill of materials.`;
+        });
+      }
+    }
     const lookUpDuty = () => {
       const dest = $("#s-dest").value; if (!dest) return;
       const g = d().garment, f = FABRICS[d().fabric];

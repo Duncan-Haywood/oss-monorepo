@@ -54,7 +54,7 @@
       <div id="errs" class="placeholder"></div>
       <label for="qty">Garments in the run</label><input id="qty" type="number" min="1" step="1" value="100">
     </section>
-    <section><h2>Cost per garment</h2><output id="cost" aria-live="polite"></output><h2 style="margin-top:14px">What to order</h2><div id="order"></div><p><button id="dl">Download purchase list (CSV)</button></p></section>
+    <section><h2>Cost per garment</h2><output id="cost" aria-live="polite"></output><h2 style="margin-top:14px">What to order</h2><div id="order"></div><p><button id="dl">Download purchase list (CSV)</button> <button id="use">Use trims and packaging in the costing sheet</button> <span id="useNote" aria-live="polite"></span></p></section>
   </div>
 </main>
   <footer>
@@ -66,7 +66,7 @@
 
 
   <script type="module">
-    import { EXAMPLE_LINES, bomCost, orderFor, breakEvenQuantity, orderCsv, parseLines } from "./bom.mjs";
+    import { EXAMPLE_LINES, bomCost, orderFor, breakEvenQuantity, orderCsv, parseLines, sheetExtras, saveBomExtras } from "./bom.mjs";
     import { recordUsage } from "./usage.mjs";
     const $ = s => document.querySelector(s);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -84,6 +84,13 @@
       } catch (e) { last = null; $("#order").innerHTML = `<p class="placeholder">${esc(e.message)}</p>`; }
     }
     $("#dl").addEventListener("click", () => { if (!last) return; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([orderCsv(last)], { type: "text/csv" })); a.download = "purchase-list.csv"; a.click(); recordUsage("bom_download"); });
+    $("#use").addEventListener("click", () => {
+      const { lines } = parseLines($("#lines").value);
+      if (!lines.length) { $("#useNote").textContent = "Add at least one valid line first."; return; }
+      const e = sheetExtras(lines);
+      $("#useNote").textContent = saveBomExtras(e) ? `Saved: trims ${e.trimsPerUnit.toFixed(2)}, packaging ${e.packagingPerUnit.toFixed(2)} per garment. Open the studio and press the button under the supplier sheet.` : "This browser would not save it.";
+      recordUsage("bom_use");
+    });
     document.addEventListener("input", () => { run(); recordUsage("bom_edit"); });
     run(); recordUsage("bom_open");
   </script>
