@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01E5sJKkSuNquqJnBNUj9hRN",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-08T08:23:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "research/civ-levers"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13997",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/civ-levers/src/civ_levers/history.py",
+      "issue": "PSI is not normalised (equals 1/S at equilibrium), so psi thresholds in the natural 0.3-0.7 range never fire; found only by probing."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-08-a-toy-civilization-finally-cycles.md",
+    "research/civ-levers/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Checked 55 apparent in-band cycles against collapse intervals; 29 were refractory-floor artefacts. Tests: tests/test_history.py 7 passed; research homepage build ok. CI not awaited locally beyond these.",
+  "corrections": [],
+  "redteam": null
+}
