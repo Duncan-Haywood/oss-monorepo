@@ -128,3 +128,8 @@ layer with an injected fake resolver covering the tree-walk and CNAME hop (`look
 CAA-set analysis and per-CA verdicts (`analyze.test.mjs`), the CLI's orchestration and argument
 parsing (`check.test.mjs`), the usage counter (`usage.test.mjs`), and the pages' structure and
 disclaimers (`page.test.mjs`).
+
+## Known gaps (quality audit 2026-11-08)
+
+- **CNAME lookup order departs from RFC 8659 section 3.** `resolveCaaSet` in `lookup.mjs` replaces the typed name with its CNAME target and climbs the target's ancestors. The RFC checks the typed name, then the alias target only, then climbs the typed name's own parents. A CNAME-hosted subdomain under a parent with a restrictive CAA record can be reported as open to any CA. Audit: `portfolio/quality/audits/2026-11-08-caa-record-check.json`.
+- Unquoted values (`0 issue letsencrypt.org`) are reported malformed; hostnames are not normalised; `accounturi` and `validationmethods` do not change the verdict.

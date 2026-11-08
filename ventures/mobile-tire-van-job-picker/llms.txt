@@ -6,8 +6,8 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/mobile-tire-van-job-picker/)
-- [Which mobile tire jobs should a van take? Window and drive-time math](https://duncan-haywood.github.io/oss-monorepo/mobile-tire-van-job-picker/which-mobile-tire-jobs-should-a-van-take.html)
+- [The tool](https://marisstella.app/mobile-tire-van-job-picker/)
+- [Which mobile tire jobs should a van take? Window and drive-time math](https://marisstella.app/mobile-tire-van-job-picker/which-mobile-tire-jobs-should-a-van-take.html)
 
 ## Source
 
