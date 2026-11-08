@@ -200,3 +200,30 @@ test("Lithuanian 12-digit check digit (2026-11-08)", () => {
   assert.deepEqual(rules("LT100001919018"), ["INV-023"]);
   assert.deepEqual(rules("LT100001919027"), ["INV-023"]);
 });
+
+test("Latin American tax ids on a party (2026-11-08)", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  // Numbers already pinned in each country's own test file.
+  assert.deepEqual(rules("AR 33-69345023-9"), []);
+  assert.deepEqual(rules("AR33693450238"), ["INV-023"]);
+  assert.deepEqual(rules("AR3369345023"), ["INV-022"]);
+  assert.deepEqual(rules("PE20131312955"), []);
+  assert.deepEqual(rules("PE20131312956"), ["INV-023"]);
+  assert.deepEqual(rules("CL 76.086.428-5"), []);
+  assert.deepEqual(rules("CL76086428-4"), ["INV-023"]);
+  assert.deepEqual(rules("CO 800.197.268-4"), []);
+  assert.deepEqual(rules("CO800197268-5"), ["INV-023"]);
+  assert.deepEqual(rules("CO12"), ["INV-022"]);
+  assert.deepEqual(rules("BR 11.222.333/0001-81"), []);
+  assert.deepEqual(rules("BR11222333000182"), ["INV-023"]);
+  assert.deepEqual(rules("BR12ABC34501DE35"), []);
+  assert.deepEqual(rules("BR111.444.777-35"), []);
+  assert.deepEqual(rules("BR1112"), ["INV-022"]);
+});
+
+test("Kazakhstan BIN check digit (2026-11-08, hand-computed number)", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("KZ040701200547"), []);
+  assert.deepEqual(rules("KZ040701200548"), ["INV-023"]);
+  assert.deepEqual(rules("KZ0407012005"), ["INV-022"]);
+});
