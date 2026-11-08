@@ -447,7 +447,7 @@ export function triage(reply, today) {
   // Footer boilerplate ("To stop these messages unsubscribe in settings", "To unsubscribe click here") inside an auto-reply is
   // the sender's mail system talking, not an opt-out; with no first-person ask it does not outrank the away notice (2026-11-04).
   const boiler = (e) => e && /\b(to|how to) (stop|unsubscribe)\b|\bunsubscribe (in|from|via|using|at|here|link)\b|\bclick (here|the link)\b/i.test(e.s) && !/\bunsubscribe (me|us)\b|\b(remove|take|delete) (me|us|my|our)\b|\bplease (stop|unsubscribe|remove)\b/i.test(e.s);
-  // Added 2026-11-11 (eval/fresh-2026-11-11.jsonl, a false-opt-out probe): a stop word that is negated ("don't stop sending",
+  // Added 2026-11-08 (eval/fresh-2026-11-08b.jsonl, a false-opt-out probe): a stop word that is negated ("don't stop sending",
   // "don't take me off the shortlist", "not unsubscribing"), asked about as a feature ("do you handle unsubscribe links?") or
   // about someone else's list ("unsubscribe from a different vendor") is not an ask to stop. Narrow on purpose: "how do I
   // unsubscribe?" still stops, because a person asking that usually wants out and a wrong suppression costs one lead.

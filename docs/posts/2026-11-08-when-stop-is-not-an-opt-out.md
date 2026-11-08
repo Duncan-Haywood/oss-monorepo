@@ -1,8 +1,8 @@
 ---
 title: "When 'don't stop' gets read as 'stop': false opt-outs in a cold-email reply triager"
-date: 2026-11-11
+date: 2026-11-08
 tags: [sales-agent, cold-email, evaluation]
-description: "We probed our open-source reply triager with 20 replies that contain stop words but are not opt-outs. It suppressed 6 interested or curious leads; a narrow veto fixed all 6."
+description: "A probe of 20 stop-word look-alikes made our open-source reply triager suppress 6 interested leads; a narrow veto fixed all 6."
 ---
 
 Every earlier test set for the sales-agent reply triager hunted for missed opt-outs, the legal risk. Nobody had measured the opposite error: suppressing a lead who wanted to talk. A missed opt-out is the costlier mistake, but a keyword rule that sees "stop" or "unsubscribe" anywhere can quietly bury your warmest replies.
