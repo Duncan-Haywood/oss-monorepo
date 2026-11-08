@@ -2,7 +2,7 @@
 title: "The Schultz third floor now frames every wall"
 date: 2026-11-08
 tags: [construction, wall-framing, ifc, open-source]
-description: "Running a real Revit house through an open framing takeoff: a door taller than its wall is cut down, a threshold-high door is lowered, and one French door the model puts 39 inches up is still refused."
+description: "Running a real Revit house through an open framing takeoff: an over-tall door is cut down, a threshold-high door lowered, one French door still refused."
 ---
 
 The wall-framing takeoff reads a building model, lays out studs, kings, jacks and headers, and orders the cheapest lumber. We keep running it on a real wood house, OpenDesign's Schultz Residence, because real models break assumptions that hand-built tests do not.
