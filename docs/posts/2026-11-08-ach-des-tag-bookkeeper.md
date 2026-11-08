@@ -1,5 +1,6 @@
 ---
 title: "When the payee names are gone, the ACH tag still says what a bank line is"
+seo_title: "The ACH DES tag still says what a bank line is"
 date: 2026-11-08
 tags: [bookkeeping, ai-bookkeeper, bank-feeds]
 description: "A public anonymized bank export reconciled to the cent, but keywords suggested only 4 of 346 lines. The ACH DES tag was the missing signal."
