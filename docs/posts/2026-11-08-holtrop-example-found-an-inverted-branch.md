@@ -1,5 +1,6 @@
 ---
 title: "Checking a ship-resistance model against the paper's worked example found an inverted branch"
+seo_title: "A ship-resistance check found an inverted branch"
 date: 2026-11-08
 tags: [research, marine-hull, validation]
 description: "The marine-hull Holtrop-Mennen code now reproduces the 1982 paper's worked example to 0.06%, after a check showed a wave-term branch was backwards."
