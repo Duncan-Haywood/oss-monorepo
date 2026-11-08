@@ -8,7 +8,7 @@ fleet that always yields is individually stable only when the collision cost is 
 rule for the whole crowd: a dilemma (at `k = 1.5` a deviator gains 0.219 per encounter).** The
 threshold rises with dithering cost (`k* = 1.46` at `d = 0.25`, 4.46 at `d = 2`, 7.64 at `d = 4`)
 and with robot share (2.21, 2.80, 3.82 at 10%, 30%, 50% robots, `d = 1`). When a collision is cheaper
-than waiting (`k = 0.5`) going is best for everyone and no dilemma appears. `society-doorway`'s `k = 3`
+than waiting (`k = 0.5`) and dithering costs at least 1 (`d >= 1`), going is best for everyone and no dilemma appears; at `d = 0.25` and `0.5` yielding is still crowd-best and `results.txt` section A flags those cells as dilemmas (quality audit 2026-11-08). `society-doorway`'s `k = 3`
 sat just above the threshold, which is why it saw none. Produced with AI assistance (Claude). Track 17
 (`society`, `PROJECTS.md`), the first next step named in `society-doorway`. Every result is about
 simulated agents following a stated rule, not real people or robots.
