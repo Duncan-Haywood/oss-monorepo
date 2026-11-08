@@ -2,7 +2,7 @@
 title: "A readable permit-duration table over-covers its 80% interval"
 date: 2026-11-08
 tags: [research, construction, permits, open-data]
-description: "Conformalising the type x work class x cost-bucket permit table: coverage of a nominal 80% interval lands at 83 to 84% in all five city and target sets, and Chicago's interval is 1.76x wider than the boosted model's."
+description: "Conformalising the readable permit table: nominal 80% intervals cover 83 to 84% in all five sets, and Chicago's is 1.76x wider than the boosted model's."
 ---
 
 The permit type x work class x cost-bucket table kept most of a boosted model's pinball gain. This run asked whether its 80% interval can be trusted. We built the table on 2022-and-earlier permits, calibrated a conformal widening on 2023, and measured coverage on 2024 in Chicago, San Francisco and Austin.
