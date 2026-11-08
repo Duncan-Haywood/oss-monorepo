@@ -567,3 +567,17 @@ test("--doors-to-floor frames a raised door down to the floor, keeping the leaf,
   assert.equal(on.code, 0, on.out);
   assert.match(on.out, /door bottom is 39\.00 in above the floor/);
 });
+
+test("--whole-house equals the four flags it stands for", () => {
+  const plan = samplePlan();
+  plan.walls = [
+    { id: "Good", length: 192, stud: "2x4", openings: [] },
+    { id: "Bad", length: 120, stud: "2x4", openings: [{ kind: "door", label: "D", offset: 0, width: 36, height: 82.5, header: "2x6" }] },
+  ];
+  const read = () => JSON.stringify(plan);
+  const a = main(["plan.json", "--whole-house"], read);
+  const b = main(["plan.json", "--skip-refused", "--doors-to-floor", "--shallow-headers", "--trim-openings"], read);
+  assert.equal(a.code, b.code);
+  assert.equal(a.out, b.out);
+  assert.match(a.out, /SKIPPED 1 WALL/);
+});
