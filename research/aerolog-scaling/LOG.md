@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-08 · Milestone 10k: does adding climb and transition to the cruise-sized hybrid move its break-even or max range? (predictions in `vtol_sizing/climb_transition_hybrid.py`'s docstring, fixed before the run)
+- Why: 10j's "Next" (add climb and transition power). `experiments/vtol_sizing/climb_transition_hybrid.py` (stdlib, imports 10j) adds a climb phase (h / v_c seconds at hover power plus g v_c / 0.595 per kg) and a transition (t_tr seconds at f_tr x hover power) to the battery's duty; the engine still delivers 1.2 x cruise power in every phase.
+### Outcome (`experiments/vtol_sizing/climb_transition_hybrid_results.txt`)
+- **Check:** with no climb and no transition the script reproduces 10j (break-even 35 km, payload 0.3983 at 150 km).
+- **P1 refuted:** base case (100 m at 2 m/s, 30 s transition) moves the break-even from 35 to **47 km** (predicted under 45). At engine 4 kW/kg it is 33 km (10j: 21). **P2 held:** max range stays at the 1,500 km cap. **P3 held:** at 150 km payload fraction is 0.376 with a 1.5 kW/kg pack and 0.419 with 3 kW/kg (battery aircraft: 0.183).
+- Reading: the climb adds cost through peak power, not energy. The break-even depends on climb rate (41, 47, 59 km at 1, 2, 4 m/s) and barely on climb height or transition time or fraction, because the battery is sized by max(energy, peak power / p_batt) and the pack is power-limited. Pack energy density has no effect at 150 km (e_cell 250 versus 400 gives identical payload until p_batt is 6 kW/kg). Max range falls below the cap only at 600 m climbs, 4 m/s climbs, 800 W/kg packs, or chain efficiency 0.12. The hybrid still beats the battery aircraft from about 33 to 59 km under every swept climb.
+- Limits: climb and transition parameters are swept, not from a datasheet; no engine part-load penalty; fixed f_non; engine delivers 1.2 x cruise power during climb (no overload rating); hover plus climb power assumed to share one 0.595 efficiency chain. Preliminary.
+- Next: source pack peak power (W/kg) and engine specific power from datasheets once hosts are reachable, since pack peak power now decides the result.
+
 ## 2026-11-08 · Milestone 10j: does sizing the hybrid's engine for cruise, with a battery for hover, rescue 10e's short-range break-even? (predictions in `vtol_sizing/cruise_sized_hybrid.py`'s docstring, fixed before the run)
 - Why: 10e's "Next" (size the engine for cruise with a battery for hover). This session could not reach the build-data programme's city feeds (HTTP 403 at the proxy), so it advanced this programme, which needs no network. `experiments/vtol_sizing/cruise_sized_hybrid.py` (stdlib, reuses 10e) flies the 2 x 60 s hover on a battery sized by energy and peak power, and sizes the engine for 1.2 x cruise power at 30 m/s.
 ### Outcome (`experiments/vtol_sizing/cruise_sized_hybrid_results.txt`)
