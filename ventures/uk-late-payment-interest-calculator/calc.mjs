@@ -14,7 +14,7 @@ export const BASE_RATES = {
   "2025-H1": { base: 4.75, verified: true },
   "2025-H2": { base: 4.25, verified: true },
   "2026-H1": { base: 3.75, verified: true },
-  "2026-H2": { base: 3.75, verified: false },
+  "2026-H2": { base: 3.75, verified: true },
 };
 export const MARGIN = 8;
 
