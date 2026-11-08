@@ -1,5 +1,17 @@
 # build-data log
 
+## Session 51, 2026-11-08: milestone 7c, quantile model refit on permit type x cost bucket only (H7, planned before running)
+
+Why: session 50 (H6) flattened the full boosted model by cell medians and kept almost none of the gain. This refits a LightGBM quantile model whose only inputs are the two table keys (`src/prior_refit.py`), so each cell's value is the model's own prediction and no flattening step is left to blame. Harness split, test year 2024, 2 seeds, fresh pulls. Austin's host was unreachable from this session (curl code 000), so only three of the five sets can run: Chicago a2i, SF a2i, SF i2c.
+**H7 (before running):** the key-only refit keeps at least 50% of the full boosted model's mean pinball gain over the per-type baseline (mean over q10/q50/q90) in at least 2 of the 3 testable sets. **Refuted if** it keeps under 50% in 2 or more. Secondary prediction: it beats the empirical type x bucket lookup in at least 2 of 3 sets.
+### Outcome (`results/prior_refit_eval_2024.json`; test year 2024; feeds pulled 2026-11-08; Chicago and SF only)
+- **H7 refuted.** Share of the full boosted model's mean pinball gain kept by the key-only refit: Chicago a2i 0.16, SF a2i 0.63, SF i2c 0.42. One of three sets reaches 50%; two fail (refuted at 2 or more). Chicago's figure averages q0.5 only: the full boosted model is worse than the baseline at q0.1 and q0.9 there (2.70 vs 2.69; 11.72 vs 11.08), so the mean-of-shares there is not a clean number.
+- **Secondary prediction held, by a hair.** Mean pinball over the three quantiles, refit vs empirical lookup: Chicago 10.44 vs 10.46, SF a2i 8.99 vs 9.12, SF i2c 34.96 vs 35.03. The refit is ahead in 3 of 3 but by under 1.5%; that is no evidence of smoothing beyond noise (one split, 2 seeds).
+- Reading: removing the flattening step (session 50's suspect) did not rescue the table. SF a2i keeps most of the gain at q0.5 and q0.9 (0.78, 0.82); SF i2c keeps 0.34 to 0.56. Whatever the full model gets beyond type and cost (description length, area, month) is not in a two-key table. In Chicago a2i q0.9 the type x bucket table is worse than the per-type baseline (16.2 vs 11.1), as the empirical lookup was in session 50, so cost buckets hurt there.
+- Decision: still no boosted table published; the empirical per-type prior stays the shipped artefact. Neither table-flattening route (median of predictions, key-only refit) works, so the remaining option is shipping the model with a small evaluator, or adding the next most useful key (area or month) to the table.
+- Limits: Austin not run (host unreachable from this session); one test year; 2 seeds; one bucket scheme; no bootstrap intervals.
+- Next: add one more key (SF and Chicago area, or application month) and see how the share grows, or the JS evaluator route.
+
 ## Session 50, 2026-11-08: milestone 7b, a model-based permit-duration prior as a readable table (H6, planned before running)
 
 Why: paper section 7 item 5 and sessions 48 to 49 list "a model-based (boosted quantile) version for `ventures/`" as the one open deliverable. A model file is not something a calculator can ship; a table is. So the question is how much of the boosted gain survives when the model is flattened to a permit-type x cost-bucket lookup.
