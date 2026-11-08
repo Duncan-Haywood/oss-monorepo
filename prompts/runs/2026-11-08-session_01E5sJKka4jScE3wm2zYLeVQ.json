@@ -35,8 +35,13 @@
       "issue": "Docstring promised SKIP on refused lookups but connection-level errors printed FAIL; fixed."
     }
   ],
-  "deviations": [],
-  "writeups": "none: small tool fix; no post (deviation: not a project-level finding)",
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post: a small tool fix with no finding worth a post."
+    }
+  ],
+  "writeups": [],
   "goal": null,
   "notes": "Backlog only owner/blocked rows; main_health 52/52 green; fixed cite_check from doc_friction. unittest 12 pass.",
   "corrections": [],
