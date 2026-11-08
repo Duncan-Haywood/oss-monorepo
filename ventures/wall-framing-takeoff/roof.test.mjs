@@ -462,3 +462,19 @@ test("layoutRoof, layoutSiding, layoutTrim and the opening fixers refuse null in
   assert.equal(layoutTrim({}, undefined).ok, false);
   for (const f of [shallowHeaders, trimOpenings, doorsToFloor]) assert.deepEqual(f(null), []);
 });
+
+test("typed roofing settings are refused when they would order nonsense (2026-11-08)", () => {
+  // before: waste -1 ordered -39 shingle bundles, a 0 roll length or box weight gave null counts
+  const bad = [
+    [{ roofing: { waste: -1 } }, /waste/], [{ roofing: { bundlesPerSquare: 0 } }, /bundlesPerSquare/],
+    [{ roofing: { nailsPerLb: "x" } }, /nailsPerLb/], [{ roofing: { underlaymentRoll: 0 } }, /underlaymentRoll/],
+    [{ roofing: { nailBoxLb: 0 } }, /nailBoxLb/], [{ roofing: 5 }, /roofing settings/],
+  ];
+  for (const [ov, re] of bad) {
+    const l = layoutRoof({ ...sampleRoof(), ...ov }, plan());
+    assert.equal(l.ok, false, JSON.stringify(ov));
+    assert.ok(l.errors.some((m) => re.test(m)), JSON.stringify(ov) + " " + JSON.stringify(l.errors));
+  }
+  const good = layoutRoof({ ...sampleRoof(), roofing: { waste: 1.1, bundlesPerSquare: 3, underlaymentRoll: 400 } }, plan());
+  assert.ok(good.ok, JSON.stringify(good.errors));
+});
