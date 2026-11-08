@@ -1,5 +1,10 @@
 # build-data log
 
+## Session 51, 2026-11-08: milestone 7c, which table dimensions carry the boosted gain? (H7, planned before running)
+
+Why: session 50 refuted the flattening of the boosted model to a type x cost-bucket table (H6) and left "flatten differently" open. A quantile model on type and cost bucket alone is just the empirical lookup (already tried), so the useful question is which extra dimension a readable table needs. `src/prior_ladder.py` refits the same LightGBM quantile models on nested feature subsets (type; +cost; +work class; +description length; +area; all seven) and reports the share of the full model's mean pinball gain over the per-type baseline that each subset keeps (mean over q10/q50/q90; harness split, test year 2024, 2 seeds, fresh pulls).
+**H7 (before running):** type + cost + work class (a three-dimension table) keeps at least 50% of the full model's gain in at least 3 of the 5 city/target sets; type alone keeps under 25% in at least 3 of 5. **Refuted if** type + cost + work class keeps at least 50% in 2 or fewer sets. Secondary prediction: description length is the single step that adds the most share in Austin a2i (session 50's note that gain comes from description length).
+
 ## Session 50, 2026-11-08: milestone 7b, a model-based permit-duration prior as a readable table (H6, planned before running)
 
 Why: paper section 7 item 5 and sessions 48 to 49 list "a model-based (boosted quantile) version for `ventures/`" as the one open deliverable. A model file is not something a calculator can ship; a table is. So the question is how much of the boosted gain survives when the model is flattened to a permit-type x cost-bucket lookup.
