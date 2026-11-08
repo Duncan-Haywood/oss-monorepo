@@ -39,7 +39,7 @@ export function validateFence(d) {
   rng("height", 12, 120); rng("postSpacing", 24, 144); rng("railCount", 1, 6); rng("railStock", 24, 240);
   rng("picketWidth", 1, 12); rng("gap", 0, 6); rng("postDepth", 12, 72); rng("holeDiameter", 4, 24);
   rng("postSize", 1, 8); rng("bagYieldCuFt", 0.1, 2); rng("waste", 0, 0.5); rng("fastenersPerCrossing", 1, 6); rng("fastenersPerBox", 10, 5000);
-  if (f.railCount != null && !Number.isInteger(f.railCount)) e.push("railCount is a whole number.");
+  for (const k of ["railCount", "fastenersPerCrossing", "fastenersPerBox"]) if (f[k] != null && !Number.isInteger(f[k])) e.push(`${k} is a whole number.`);
   if (e.length) return e;
   const gates = d.gates ?? [];
   if (!Array.isArray(gates) || gates.length > 50) return ["`gates` is a list of up to 50."];

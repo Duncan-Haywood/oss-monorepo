@@ -46,6 +46,7 @@ export function validateWallTile(d) {
   if (t.thickness != null && !(t.thickness > 0 && t.thickness <= 2)) e.push("thickness must be above 0 and at most 2 in.");
   for (const k of ["waste", "diagonalWaste", "backerWaste"]) if (t[k] != null && !(t[k] >= 0 && t[k] <= 0.5)) e.push(`${k} must be between 0 and 0.5.`);
   for (const k of ["thinsetSqFtPerBag", "groutLbPerCuFt", "groutBagLb", "backerSheetSqFt", "membraneSqFtPerGal", "screwsPerBox"]) if (t[k] != null && !(t[k] > 0)) e.push(`${k} must be above 0.`);
+  if (t.screwsPerBox != null && !(Number.isInteger(Number(t.screwsPerBox)) && t.screwsPerBox <= 100000)) e.push("screwsPerBox must be a whole number from 1 to 100000.");
   if (t.screwsPerSqFt != null && !(t.screwsPerSqFt >= 0 && t.screwsPerSqFt <= 10)) e.push("screwsPerSqFt must be between 0 and 10.");
   if (t.trimPieceLength != null && !(t.trimPieceLength >= 12 && t.trimPieceLength <= 240)) e.push("trimPieceLength must be between 12 and 240 in.");
   if (t.trimWaste != null && !(t.trimWaste >= 0 && t.trimWaste <= 0.5)) e.push("trimWaste must be between 0 and 0.5.");

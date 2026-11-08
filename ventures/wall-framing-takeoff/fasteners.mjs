@@ -64,6 +64,7 @@ export function validateFasteners(d) {
   rng("waste", 0, 0.5, "Fastener waste");
   rng("nailsPerBox", 50, 20000, "Nails per box");
   rng("price", 0, 1e6, "Box price");
+  for (const k of ["studEndNails", "headerEndNails", "sillEndNails", "blockingEndNails", "headerRows", "nailsPerBox"]) if (d[k] != null && !Number.isInteger(Number(d[k]))) e.push(`${k} is a whole number.`);
   const h = d.holdDowns;
   if (h != null) {
     if (typeof h !== "object") e.push("holdDowns must be an object with wallEnds, openingMinWidth and price.");
