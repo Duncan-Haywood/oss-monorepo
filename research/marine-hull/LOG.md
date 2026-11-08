@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-08 · Milestone 6zh: open a vendor page for the Wave Glider anchors (a sourcing step, no experiment)
+- Why: paper section 3 item 2 asked to open and cite the Wave Glider sheet instead of a search snippet. `www.liquidr.com` redirects to `www.liquid-robotics.com`, which the session proxy served (HTTP 200) on 2026-11-08; the PDF spec sheets themselves were not found linked from that page, so they stay unopened.
+- Read from https://www.liquid-robotics.com/wave-gliders/ (comparison table, opened this session): SV3 / SV5 / SV6 float length 3.05 / 5.15 / 5.6 m, max energy storage 6.8 / 15.7 / 30 kWh, max solar collection 225 / 525 / 900 W, max payload 70 / 215 / 450 kg. The page's record claims (3 million+ nautical miles, 9,380 NM longest single mission) are marketing figures, not used.
+- What it does for the model: the 5 to 20 W average continuous power is **not** on this page, so that anchor remains a snippet and is still unopened. The opened numbers are capacities, not averages: a 3 m class vehicle carries up to 225 W of panel and 6.8 kWh of storage, so a 10 kWh pack in the 6b/6c cases is the same order as the SV3 to SV5 range, and the 6zg-era assumptions are not contradicted. No result changes.
+- Limits: a vendor comparison table (maximums, not delivered power); one visit; no PDF.
+- Next: still item 1 (a tank curve) and the 5 to 20 W average's primary source.
+
 ## 2026-11-08 · Milestone 6zg: paper section 3 gains 6zd to 6zf (a writing step, no experiment)
 - Why: 6zf's "Next" said to return to paper section 3. Section 2.5.1 item 5 already carried 6zc to 6zf; section 3 item 4 (what would make it submittable) still described the spatial-information route as open. It now lists the 15/70 km neighbour and ridge-forecast results as closed branches and leaves only offshore upwind sensing or a radar nowcast.
 - Numbers copied from the 6zd, 6ze and 6zf entries above; no new run, no new citations. Not run here: homepage rebuild beyond the check below.
