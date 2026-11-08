@@ -266,6 +266,8 @@ const P = (re) => new RegExp(re, "i");
 
 const RULES = {
   unsubscribe: [
+    // 2026-11-11: "stop following up" / "no more follow-ups" are opt-outs too (fresh-2026-11-11.jsonl).
+    P("\\b(stop|quit|cease) (following up|chasing|pestering|bothering|spamming)\\b"), P("\\bno more (follow[- ]?ups?|emails?|messages?|reminders?)\\b"), P("\\b(do not|don'?t|never) (follow up|chase|bother|spam) (with )?(me|us|again)\\b"),
     P("\\bunsubscribed?\\b"), P("^\\s*remove\\.?\\s*$"), P("\\b(delete|remove|erase) (my|our) (contact )?(details|data|info|information|email|address|number)\\b"), P("\\bstop (sending|contacting|emailing|messaging)\\b"),
     P("\\bunsubscribe\\b"), P("\\bremove (me|us|my (email|address|name))\\b"), P("\\btake (me|us) off\\b"), P("\\b(stop|quit|cease) (emailing|contacting|messaging|sending|reaching out)\\b"),
     P("\\b(do not|don'?t|dont|never) (contact|email|e-mail|message|reach out to) (me|us|again)\\b"), P("\\bopt(ed)?[ -]?out\\b"), P("\\bopt (me|us) out\\b"), P("\\bremove (it|them|this|my \\w+|our \\w+) from\\b"), P("\\b(from|off) your (database|list|mailing list|system|crm)\\b"), P("^\\s*stop\\.?\\s*$"),
@@ -363,7 +365,7 @@ const RULES = {
     P("no soy (la persona|el contacto|el responsable)"), P("je ne suis pas (la bonne personne|le bon contact|la personne)"), P("ich bin (nicht zust[äa]ndig|nicht der richtige|nicht die richtige)"), P("non sono (la persona giusta|il referente|io il responsabile)"), P("n[ãa]o sou (a pessoa|o respons[áa]vel|o contato)"), P("ik ben niet de juiste (persoon|contactpersoon)"),
   ],
   not_now: [
-    P("\\b(ask|try|contact|ping|email|call) (me|us) (again )?(in|after|next|around|later|down the line|then)\\b"), P("\\btry again (in|after|next|later)\\b"), P("\\bhold off\\b"), P("\\blet you know when\\b"), P("\\bdown the (line|road)\\b"), P("\\bnot this (year|quarter|month)\\b"), P("\\bin the (spring|summer|fall|autumn|winter)\\b"), P("\\b(in the )?(middle|midst) of (a|an|our)\\b"),
+    P("\\b(ask|try|contact|ping|email|call) (me|us) (again )?(in|after|next|around|later(?! (today|this (morning|afternoon|evening)))|down the line|then)\\b"), P("\\btry again (in|after|next|later)\\b"), P("\\bhold off\\b"), P("\\blet you know when\\b"), P("\\bdown the (line|road)\\b"), P("\\bnot this (year|quarter|month)\\b"), P("\\bin the (spring|summer|fall|autumn|winter)\\b"), P("\\b(in the )?(middle|midst) of (a|an|our)\\b"),
     P("\\bcome back (then|in|after|next|around)\\b"),
     P("\\bnot (right )?now\\b"), P("\\bnot at (this|the moment)\\b"), P("\\b(circle|check|touch) back\\b"), P("\\breach (back )?out (again )?(in|after|next|around)\\b"), P("\\b(follow up|get back to me|try (me|us) again|ping me) (in|after|next|around)\\b"),
     P("\\bnot (a|the) (top )?priority (right now|at the moment|this (quarter|year))\\b"), P("\\b(maybe|perhaps|possibly) (in|next|after|later)\\b"), P("\\bbudget (is |has been )?(frozen|locked|spent|set)\\b"), P("\\b(timing|the timing) (isn'?t|is not) (right|great|good)\\b"),
@@ -408,6 +410,8 @@ const RULES = {
     P("\\bspam\\b.{0,30}\\bunder (our|my) name\\b"), P("\\b(we|i)('ve| have)? (got|been|were|was) burned\\b"),
     P("\\b(spam|annoy|irritate) (our|my|the) (prospects|customers|clients|leads)\\b"), P("\\b(hurt|damage|harm|ruin) (our|my|the) (domain|sender|email|brand) (reputation|score)\\b")],
   meeting: [
+    // 2026-11-11: a direct ask to meet ("Can you do Wednesday at 10?", "call me later today") is interest.
+    P("\\bcan you do (monday|tuesday|wednesday|thursday|friday|tomorrow|next week|this week|today)\\b"), P("\\bcall me (later )?(today|tomorrow|this (morning|afternoon|evening)|around \\d)"),
     // 2026-11-03: "are you free next Tuesday", "set up 20 minutes", "book something with me", "walk me through", "curious to learn".
     P("\\bare you (free|available)\\b"), P("\\b(set up|schedule|book|grab) (\\d+ (min|minutes)|something|some time|time)\\b"), P("\\bcan we (set up|schedule|book)\\b"), P("\\bwalk me through\\b"), P("\\bwalk my team through\\b"), P("\\bsend me a time\\b"), P("\\bmy calendar:"), P("\\b(curious|keen|eager) to (learn|hear|know|see)\\b"), P("\\bplease (book|schedule|set up)\\b"), P("\\bsee a demo\\b"),
     P("\\b(would|'d) love (a|to see|to learn|to hear)\\b"), P("\\byes,? please\\b"), P("\\bcount (me|us) in\\b"), P("\\bwhat are (the )?next steps\\b"), P("\\bi can do (a call|monday|tuesday|wednesday|thursday|friday|tomorrow)\\b"), P("\\bmy calendar is\\b"), P("\\bfind (\\d+ minutes|some time|a time|time)\\b"), P("\\bforward(ing|ed)? (this |you )?to\\b"), P("\\bover to you\\b"), P("\\bwhen can you (show|demo|walk)\\b"),
@@ -478,14 +482,20 @@ export function triage(reply, today) {
     const d = (() => { for (const s of all) { if (/\b(back|return|returning|until|till|away|leave|office|reply|jusqu|retour|hasta|vuelta|at[ée]|volto|bis|zur[üu]ck|fino|tot)\b/i.test(s)) { const f = findDate(s, today); if (f) return f; } } return null; })();
     return res("out_of_office", ev, { date: d?.date || null, dateText: d?.text || null, referral, why: d ? `away until ${d.date}` : "away, no return date given" });
   }
-  if ((ev = find("left_company"))) return res("left_company", ev, { referral, why: referral ? `points you to ${referral.email}` : "not the right contact" });
+  // Added 2026-11-11 (eval/fresh-2026-11-11.jsonl, a false not-now and wrong-person probe): "I'm not the right person for budget
+  // but I'd use it, Friday?", "my colleague left but I've taken over, what are you offering?", "wrong time, not wrong person" and
+  // "the wrong person to convince" are live leads or objections, not a departed contact. A left-company notice with a referral
+  // address stays one; without one, a question or a go-ahead in the same reply means a person is still here and engaged.
+  const stillHere = !referral && (/\?|\b(let'?s (talk|chat|set|do|schedule|have)|yes,|happy to (see|chat|talk|take)|i do now|(i'?ve|i have) (now )?taken over|(i'?m|i am) the one who)\b/i.test(body) || /\b(not|isn'?t) (the |a )?wrong person\b|\bwrong (person|one) to (convince|sell|pitch|persuade)\b|\bwrong time\b/i.test(body));
+  if (!stillHere && (ev = find("left_company"))) return res("left_company", ev, { referral, why: referral ? `points you to ${referral.email}` : "not the right contact" });
 
   // A sentence that asks to meet anywhere in the reply counts, not only the first positive one ("Sounds interesting.
   // Could you send times?" is an explicit ask).
   const EXPLICIT = /(are you (free|available)|walk me through|please (book|schedule)|see a demo|set up|schedule|book|times|slots|availability|calendar|link|calendly|can we|i can do|find|next steps|count|yes|love|forward|over to you|when can you|monday|tuesday|wednesday|thursday|friday|tomorrow|next week|this week|demo|jump on|hop on)/i;
   let meet = null, explicitMeeting = false;
   for (const s of all) { const m = hits(RULES.meeting, s); if (m) { const ex = EXPLICIT.test(m[0]); if (!meet || (ex && !explicitMeeting)) { meet = { s, m: m[0] }; explicitMeeting = ex; } if (ex) break; } }
-  const notNow = find("not_now");
+  // "I'd have said not now last month, but things changed" and "not now and not later either" are not a deferral (2026-11-11).
+  const notNow = /\b(would|'d) have said (not|no)\b|\bnow is (actually )?(a )?(perfect|good|great|the right) time\b|\bnot (right )?now,? (and|or|but) not (later|ever|in the future)|\bnot (now|later),? (not|nor) (ever|later)\b/i.test(body) ? null : find("not_now");
   const notInt = find("not_interested");
 
   // "Open to a demo after our fiscal year ends ... come back then" is a date, not a request for times (2026-11-08).
