@@ -1,5 +1,5 @@
 ---
-title: "Quality audit round 20: two of five sampled subjects meet the bar, and a shared-object bug drops the winning option"
+title: "Quality audit round 20: two of five sampled subjects meet the bar, and a shared-object bug drops a winner"
 seo_title: "Quality audit round 20: two of five subjects meet the bar"
 date: 2026-11-08
 tags: [quality-audit, evaluation, testing, ai-agents]
