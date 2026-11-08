@@ -75,7 +75,7 @@ export function render() {
   const data = Object.fromEntries(Object.entries(COUNTRIES).map(([k, c]) => [k, {
     name: c.name, input: c.input, prompt: c.prompt, always: c.always, note: c.note ?? null, page: c.page,
     waves: c.waves.map((w) => ({ date: w.date, what: w.what, test: w.when.toString() })) }]));
-  const rows = Object.entries(COUNTRIES).map(([k, c]) => `<tr><td><a href="${c.page}">${esc(c.name)}</a></td><td>${c.waves.map((w) => `${esc(w.date)}: ${esc(w.what)}`).join("<br>")}</td></tr>`).join("\n");
+  const rows = Object.entries(COUNTRIES).map(([k, c]) => `<tr><th scope="row"><a href="${c.page}">${esc(c.name)}</a></th><td>${c.waves.map((w) => `${esc(w.date)}: ${esc(w.what)}`).join("<br>")}</td></tr>`).join("\n");
   const options = Object.entries(COUNTRIES).map(([k, c]) => `<option value="${k}">${esc(c.name)}</option>`).join("");
   return `<!doctype html>
 <html lang="en">
@@ -103,7 +103,7 @@ ${style}
 <label for="c">Country</label><select id="c">${options}</select>
 <label for="x" id="xl">Prior-year turnover (EUR)</label>
 <input id="x" type="number" min="0" step="any" inputmode="decimal" value="500000">
-<select id="s" hidden><option value="large">Large or mid-size (ETI)</option><option value="small">Small or micro</option></select>
+<select id="s" aria-label="Company size" hidden><option value="large">Large or mid-size (ETI)</option><option value="small">Small or micro</option></select>
 </form>
 <div id="out" role="status" aria-live="polite"></div>
 <section>

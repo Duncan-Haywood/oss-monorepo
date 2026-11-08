@@ -1,6 +1,8 @@
 ---
 title: "UK late-payment interest: the 2026 H2 base rate is now confirmed"
 date: 2026-11-08
+description: "The UK late-payment interest calculator now marks the 2026 H2 base rate as confirmed at 3.75%, giving a statutory rate of 11.75%."
+tags: [uk, late-payment, calculators, real-data]
 ---
 
 The UK late-payment interest calculator charges 8% over the Bank of England
