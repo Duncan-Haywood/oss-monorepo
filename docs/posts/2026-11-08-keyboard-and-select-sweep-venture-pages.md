@@ -2,7 +2,7 @@
 title: "20,305 select, checkbox and Enter-key actions on 1,333 venture pages: 0 NaN or errors"
 date: 2026-11-08
 tags: [quality, testing, tools]
-description: "A new headless-Chromium sweep changes every select option, toggles every checkbox and radio, and presses Enter in every text input across our venture pages. It found nothing."
+description: "A new headless-Chromium sweep changes every select option, toggles checkboxes and radios, and presses Enter in inputs on venture pages. It found nothing."
 ---
 
 Earlier sweeps clicked every button and filled every input with edge values. The open item was the other input paths: choosing each `<select>` option, toggling checkboxes and radios, and pressing Enter in text and number fields, which many calculators wire to "calculate".
