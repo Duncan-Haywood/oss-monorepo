@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01E5sJKj4tXTxUBVtH6g6WEs",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled run, read prompt.md",
+  "input_sha256": "7778cbea92abd2b91516100943ce4c33b919edfdaafe7217df5379e05398946d",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-08T04:37:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13956",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says bare python3 often lacks pytest/numpy and to use pyenv.py; here python3 was 3.11 without pandapower while /usr/bin/python3 (3.13) had it after pip install, costing several steps."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-08-hour-ahead-loss-factors.md",
+    "research/infra-dcopf/README.md"
+  ],
+  "goal": null,
+  "notes": "Research track, infra-dcopf next step 2 on real PJM AEP hourly load. Tests 14 passed; research homepage build ok. Per-hour sweep ~25 min.",
+  "corrections": [],
+  "redteam": null
+}

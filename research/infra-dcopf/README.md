@@ -127,9 +127,21 @@ Findings (this one case, 12 converged cells of 18 attempted; 6 were infeasible f
 - DC cost is 1.4 to 1.9 % below AC cost in every cell, because DC drops losses; this is not DC "being cheaper".
 - Limitation: caps are synthetic, not published ratings. The loss/congestion split by differencing is an approximation (the two solves can also differ through voltage-limit effects).
 
+## A real hourly load profile (added 2026-11-08, `experiments/run_hourly_profile.py`, `results_hourly_profile.txt`)
+Next step 2 asked for a real time series. The load shape is the AEP zone's hourly load in PJM for two 168-hour weeks of 2017 (`data/`, source in `data/README.md`), scaled so the 2017 peak hour is 1.1 of case118's load; every hour is a full AC OPF plus three DC dispatches on case118. "Previous hour" takes penalty factors and the loss share from the AC optimum of hour h-1 (what an operator has); "oracle" takes them at hour h. Excess is the AC cost of the dispatch above the AC optimum of that hour.
+
+| week | plain DC | previous-hour factors | oracle factors |
+|---|---|---|---|
+| winter, 16 Jan (mean / median) | 0.734 / 0.729 % | 0.499 / 0.492 % | 0.498 / 0.493 % |
+| summer, 17 Jul (mean / median) | 1.053 / 0.809 % | 0.436 / 0.445 % | 0.431 / 0.428 % |
+
+- Hour-ahead factors keep essentially all of the oracle gain (the means differ by under 0.01 point) and cut plain DC's excess by about 32 % in winter and 59 % in summer, over 334 of 336 hours (the first hour of each week has no previous hour; every other hour converged).
+- Hourly load moves slowly relative to the 0.1 steps tested before, so this is the favourable case; the factors would age worse across a morning ramp or an outage.
+- Limits: one case with unscaled generation costs, a zone's load shape applied uniformly to every bus, one solver (pandapower), no unit commitment, ramping or congestion (case118's ratings do not bind), and a mirrored copy of PJM data whose licence I took from the mirror's description, not from PJM.
+
 ## Next steps
 1. Solver validated and loss/congestion split done with synthetic caps (section above). Next: a case whose published ratings bind (e.g. a PGLib-OPF congested case) and an exact decomposition from the AC duals instead of differencing.
-2. Previous-interval factors keep ~90 % of the oracle gain for 0.1 load steps (above). Next: a real time series (e.g. an hourly load profile), a DC-based estimate of the point, or a distributed slack.
+2. Previous-interval factors keep ~90 % of the oracle gain for 0.1 load steps, and essentially all of it on two real hourly weeks (above). Next: a ramping or outage stress test, a DC-based estimate of the point, or a distributed slack.
 3. Done by another route (see "Voltage violations" above). Next: a voltage/Q stage that is not a full AC OPF, and full-load feasibility with a solver that converges.
 
 ## Reproduce
@@ -143,6 +155,7 @@ PYTHONPATH=src python experiments/run_prev_interval.py  # about 2 min; writes re
 PYTHONPATH=src python experiments/run_lossadj.py  # loss-adjusted DC, about 1 min; writes results_lossadj.txt
 PYTHONPATH=src python experiments/run_case300_pypower.py  # about 2 min; needs pypower; writes results_case300_pypower.txt
 PYTHONPATH=src python experiments/run_case300.py  # case300 sweep, about 1.5 min; writes results_case300.txt
+PYTHONPATH=src python experiments/run_hourly_profile.py  # about 25 min; writes results_hourly_profile.txt
 python experiments/run_lmp.py                 # LMP comparison, about 1 min; writes experiments/results_lmp.txt
 PYTHONPATH=src python experiments/run_voltage.py  # voltage setpoint study, about 1 min; writes results_voltage.txt
 python experiments/figure.py                  # experiments/gap_vs_load.svg
