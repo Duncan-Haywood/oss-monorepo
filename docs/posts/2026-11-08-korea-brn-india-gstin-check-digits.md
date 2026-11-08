@@ -1,5 +1,6 @@
 ---
 title: "Korean business numbers and Indian GSTINs are now checked for typos before an invoice goes out"
+seo_title: "Korean business numbers and Indian GSTINs get a typo check"
 date: 2026-11-08
 tags: [einvoice, validation, einvoice-preflight]
 description: "einvoice-preflight now checks the check digit of South Korean business registration numbers and the check character of Indian GSTINs, offline."

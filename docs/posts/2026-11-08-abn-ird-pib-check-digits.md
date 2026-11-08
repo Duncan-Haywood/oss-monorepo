@@ -1,5 +1,6 @@
 ---
 title: "An invoice with a mistyped ABN, IRD or PIB number now fails before it is sent"
+seo_title: "A mistyped ABN, IRD or PIB now fails before sending"
 date: 2026-11-08
 tags: [einvoice, validation, einvoice-preflight]
 description: "einvoice-preflight now checks the check digits of Australian ABNs, New Zealand IRD numbers and Serbian PIBs, offline."
