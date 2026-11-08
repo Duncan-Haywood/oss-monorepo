@@ -323,7 +323,7 @@ const RULES = {
     // Added 2026-11-02 (second probe): SV, DA, NO, PL, FI, TR, CS, HU, RO, RU, JA, ZH and DE/EN gaps; 27 of 37 short phrasings went to "unclear". Agent-written, unscored on real mail.
     // No \\b around non-ASCII letters (JS \\b is ASCII-only).
     P("ta bort mig fr[åa]n"), P("sluta (skicka|maila|mejla)"), P("avregistrera"), P("inte ha fler (mejl|mail|e-?post)"), P("fjern mig fra"), P("send (mig )?ikke flere"), P("slett meg fra"), P("ikke send meg"),
-    P("usun[ąa][ćc] mnie"), P("nie (przesy[łl]a|wysy[łl]a|piszcie)\\w* (mi )?wi[ęe]cej"), P("wypisa(nie|ć)"), P("poista minut"), P("[äa]lk[äa][äa] l[äa]hett[äa]k[öo]"),
+    P("usun[ąa][ćc] mnie"), P("usun[ąa][ćc] (m[óo]j|nasz) adres"), P("\\bhow many times (do|must|should|will) (i|we) (need|have) to (say|ask|tell|repeat)\\b"), P("\\bout\\W+of\\W+your\\W+(database|list|crm|system)\\b"), P("nie (przesy[łl]a|wysy[łl]a|piszcie)\\w* (mi )?wi[ęe]cej"), P("wypisa(nie|ć)"), P("poista minut"), P("[äa]lk[äa][äa] l[äa]hett[äa]k[öo]"),
     P("beni (listenizden|listeden) [çc][ıi]kar"), P("bir daha (e-?posta|mail|mesaj) g[öo]nderme"), P("abonelikten [çc][ıi]k"),
     P("odhla[šs]te m[ěe]"), P("nepi[šs]te mi"), P("t[öo]r[öo]ljenek"), P("[șşs]terge[țţt]i-?m[ăa]"), P("m[ăa] [șşs]terge[țţt]i"), P("nu (mai )?trimite[țţt]i"),
     P("не (пишите|присылайте|отправляйте) (мне )?больше"), P("удалите меня"), P("отпишите меня"), P("отписаться"),
@@ -346,7 +346,7 @@ const RULES = {
     P("respuesta autom[áa]tica"), P("fuera de (la )?oficina"), P("\\bestar[ée] (ausente|de vacaciones|fuera)\\b"), P("\\bde vacaciones\\b"), P("mensaje autom[áa]tico"),
     P("risposta automatica"), P("fuori (dall')?ufficio"), P("\\bfuori sede\\b"), P("\\bsono (in ferie|assente)\\b"),
     P("resposta autom[áa]tica"), P("fora do escrit[óo]rio"), P("\\best(ou|arei) (ausente|de f[ée]rias)\\b"),
-    P("automatisch antwoord"), P("automatisch bericht"), P("\\bafwezig\\b"), P("niet (aanwezig|op kantoor)"), P("buiten kantoor"),
+    P("jag [äa]r p[åa] semester"), P("semester (till|fram till) "), P("automatisch antwoord"), P("automatisch bericht"), P("\\bafwezig\\b"), P("niet (aanwezig|op kantoor)"), P("buiten kantoor"),
   ],
   left_company: [
     P("\\b[a-z]+ left (the company|the firm|the business|us)\\b"),
@@ -368,6 +368,7 @@ const RULES = {
     // Added 2026-11-04 after eval/fresh-2026-11-04b.jsonl (agent-written, 30 mixed replies) went 23/30 with 0 overreach: "check in again in six months", "not a priority this half".
     // Added 2026-11-08: "once we close our funding round, probably spring" (a condition, then a season).
     P("\\bonce (we|i|the) (close|finish|complete|wrap|launch|ship)\\b.{0,40}\\b(spring|summer|fall|autumn|winter|q[1-4]|january|february|march|april|may|june|july|august|september|october|november|december)\\b"),
+    P("\\breach (back )?out again once\\b"), P("\\btry me (the )?(week|month|day)s? after\\b"),
     P("\\bcheck in (again )?(in|after|next|around)\\b"), P("\\bnot a (top )?priority (this|for the|for this) (half|period|stretch)\\b"),
   ],
   not_interested: [
@@ -378,14 +379,14 @@ const RULES = {
     // Added 2026-11-02 after a probe: "not interested" in PT, DE, FR, ES, IT, NL went to "unclear". Agent-written, unscored on real mail.
     P("n[ãa]o (tenho|temos|estou|estamos) interess"), P("sem interesse"), P("kein(e)? (interesse|bedarf)"), P("\\bnicht interessiert\\b"), P("pas (int[ée]ress[ée]|besoin)"), P("ne nous int[ée]resse pas"), P("ça ne m'int[ée]resse pas"),
     P("no (me |nos )?interesa\\b"), P("no (estoy|estamos) interesad"), P("non (sono|siamo) interessat"), P("non ci interessa"), P("geen (interesse|behoefte)"), P("niet ge[ïi]nteresseerd"),
-    P("\\bnot for (us|me)\\b"), P("\\b(we'?re|we are) not the right (company|business|fit|org|organi[sz]ation)\\b"), P("\\bnot something (we|i)'?(re| are| am)? (looking|interested)\\b"), P("\\bnot looking (for|to)\\b"), P("\\bplease don'?t follow up\\b"), P("\\bwe'?ll never\\b"),
+    P("\\bnot for (us|me)\\b"), P("\\b(this|that|it) (isn'?t|is not) for (us|me)\\b"), P("\\bdecided against (it|this|that)\\b"), P("\\bstill the same answer\\b"), P("\\bya tenemos (una )?soluci[óo]n\\b"), P("\\b(we'?re|we are) not the right (company|business|fit|org|organi[sz]ation)\\b"), P("\\bnot something (we|i)'?(re| are| am)? (looking|interested)\\b"), P("\\bnot looking (for|to)\\b"), P("\\bplease don'?t follow up\\b"), P("\\bwe'?ll never\\b"),
     // Added 2026-11-04 after eval/fresh-2026-11-04b.jsonl (agent-written, 30 mixed replies) went 23/30 with 0 overreach: "isn't something we'd ever need".
     P("\\b(isn'?t|is not) something (we|i)('d| would)? ever (need|use|want)\\b"),
   ],
   objection_price: [
     P("\\b(over|beyond|outside|above) (what (we|i) can (spend|afford|pay)|our (budget|range|price range))\\b"), P("\\bmoney is tight\\b"), P("\\bhard to justify\\b"), P("\\b(cost|price|pricing|quote)s?\\b.*\\b(too high|way over|steep|out of reach)\\b"),P("\\btoo (expensive|pricey|costly|much)\\b"), P("\\bsounds (expensive|pricey|costly)\\b"), P("\\b(can'?t|cannot|couldn'?t) afford\\b"), P("\\b(no|don'?t have (the |a )?|out of) budget\\b"), P("\\bprice is (too )?(high|steep)\\b"), P("\\bcheaper\\b")],
   objection_competitor: [
-    P("\\b(under |in a |have a |signed a )?(contract|agreement) with\\b.*\\b(until|through|expires|renew)"), P("\\blocked (in|into)\\b"),
+    P("\\b(under |in a |have a |signed a )?(contract|agreement) with\\b.*\\b(until|through|expires|renew)"), P("\\blocked (in|into)\\b"), P("\\balready (pay|paying|use|using|subscribe|subscribed)\\b.{0,12}\\b(for|to)\\b"),
     P("\\bswitched to\\b"), P("\\b(just |recently |last (week|month) )?(signed|went|gone|renewed) with\\b"), P("\\b(chose|selected|picked|went for) (another|a different|a competitor|\\w+ instead)\\b"),P("\\b(no|not) plan(s|ning)? to (change|switch|move)\\b"), P("\\balready (does|handles|covers|has|do)\\b"),P("\\b(we|i) (already )?(use|have|work with|are using|'?re using|rely on)\\b.*\\b(already|currently|happy|for (this|that))\\b"), P("\\balready (have|use|using|work with|got)\\b"), P("\\bhappy with (our|what|the)\\b"), P("\\b(locked|signed) (in|into)\\b.*\\bcontract\\b"), P("\\bin a contract\\b"), P("\\bbuilt (it|this|our own) (in[- ]house|ourselves)\\b"), P("\\bbuilt (our|my) own\\b"), P("\\bin[- ]house\\b"), P("\\bin[- ]house (solution|tool|team)\\b")],
   objection_authority: [
     P("\\b(legal|security|compliance|it|infosec|procurement) (team |department )?(would|will|won'?t|wouldn'?t)( never| not)? (approve|allow|sign off|permit)"),
@@ -401,7 +402,7 @@ const RULES = {
     P("\\b(spam|annoy|irritate) (our|my|the) (prospects|customers|clients|leads)\\b"), P("\\b(hurt|damage|harm|ruin) (our|my|the) (domain|sender|email|brand) (reputation|score)\\b")],
   meeting: [
     // 2026-11-03: "are you free next Tuesday", "set up 20 minutes", "book something with me", "walk me through", "curious to learn".
-    P("\\bare you (free|available)\\b"), P("\\b(set up|schedule|book|grab) (\\d+ (min|minutes)|something|some time|time)\\b"), P("\\bcan we (set up|schedule|book)\\b"), P("\\bwalk me through\\b"), P("\\b(curious|keen|eager) to (learn|hear|know|see)\\b"), P("\\bplease (book|schedule|set up)\\b"), P("\\bsee a demo\\b"),
+    P("\\bare you (free|available)\\b"), P("\\b(set up|schedule|book|grab) (\\d+ (min|minutes)|something|some time|time)\\b"), P("\\bcan we (set up|schedule|book)\\b"), P("\\bwalk me through\\b"), P("\\bwalk my team through\\b"), P("\\bsend me a time\\b"), P("\\bmy calendar:"), P("\\b(curious|keen|eager) to (learn|hear|know|see)\\b"), P("\\bplease (book|schedule|set up)\\b"), P("\\bsee a demo\\b"),
     P("\\b(would|'d) love (a|to see|to learn|to hear)\\b"), P("\\byes,? please\\b"), P("\\bcount (me|us) in\\b"), P("\\bwhat are (the )?next steps\\b"), P("\\bi can do (a call|monday|tuesday|wednesday|thursday|friday|tomorrow)\\b"), P("\\bmy calendar is\\b"), P("\\bfind (\\d+ minutes|some time|a time|time)\\b"), P("\\bforward(ing|ed)? (this |you )?to\\b"), P("\\bover to you\\b"), P("\\bwhen can you (show|demo|walk)\\b"),
     P("\\b(let'?s|happy to|glad to|would love to|i'?d (like|love) to|open to|keen to|could|can) (set up|schedule|book|jump on|hop on|have) (a )?(call|chat|meeting|demo|time|conversation)\\b"), P("\\b(send|share) (me |over )?(some |a few )?(times|slots|availability|your calendar|a (calendar )?link|a link)\\b"),
     P("\\b(book|grab|find|pick) (a )?(time|slot)\\b"), P("\\bhow (about|does) (monday|tuesday|wednesday|thursday|friday|next week|tomorrow)\\b"), P("\\b(free|available|works for me) (on |at )?(monday|tuesday|wednesday|thursday|friday|tomorrow|next week|this week|\\d)\\b"),
