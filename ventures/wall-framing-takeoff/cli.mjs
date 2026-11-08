@@ -232,11 +232,23 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     try {
       const floors = [{ name: base(args[0]), plan }];
       for (const f of files) {
-        const raw = JSON.parse(readInput(f)); const p2 = normalise(raw);
+        // FILE.dxf or FILE.dxf@HEIGHTS.json (the `ifc-engine plan` JSON of that floor) is read like the first file, so a whole-house DXF read can be stacked; every wall keeps its own stud length.
+        let raw;
+        const at = f.indexOf("@");
+        const dxfFile = at < 0 ? f : f.slice(0, at);
+        if (/\.dxf$/i.test(dxfFile)) {
+          const units = argv.find((a) => a.startsWith("--units="))?.slice(8);
+          const hj = at < 0 ? {} : ifcJsonOptions([`--ifc-json=${f.slice(at + 1)}`]);
+          const dr = /** @type {any} */ (planFromDxf(readInput(dxfFile), { units: /** @type {any} */ (units), doubleLine: argv.includes("--single-line") ? false : argv.includes("--double-line") ? true : "auto", ...layerOptions(argv), ...hj }));
+          if (!dr.ok) return { code: 2, out: `Could not read the drawing ${dxfFile}: ${dr.errors.join(" ")}` };
+          raw = { ...samplePlan(), ...dr.plan };
+          dxfNotes += `Read ${dr.stats.walls} walls, ${dr.stats.tees} tees, ${dr.stats.openings} openings from ${dxfFile}.\n`;
+        } else raw = JSON.parse(readInput(f));
+        const p2 = normalise(raw);
         for (const w of p2.walls || []) if (w && typeof w.studLength === "string") w.studLength = parseLength(w.studLength);
         const ex = /** @type {any} */ (expandSteppedWalls(p2));
         if (!ex.ok) return { code: 1, out: `${f}: the stepped walls have problems:\n${ex.errors.map((e) => `  - ${e}`).join("\n")}` };
-        floors.push({ name: base(f), plan: ex.plan });
+        floors.push({ name: base(dxfFile), plan: ex.plan });
       }
       const st = stackFloors(floors);
       if (!st.ok) return { code: 1, out: `Could not stack the floors:\n${st.errors.map((e) => `  - ${e}`).join("\n")}` };
