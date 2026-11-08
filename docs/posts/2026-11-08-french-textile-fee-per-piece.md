@@ -1,5 +1,5 @@
 ---
-title: "What a French textile eco-contribution costs a small clothing brand per piece"
+title: "French textile fee per piece, worked out"
 date: 2026-11-08
 tags: [clothing, regulation, clothing-design-studio]
 description: "A free calculator for the Refashion eco-contribution: pieces by product line, fee per piece, detailed versus simplified regime."
