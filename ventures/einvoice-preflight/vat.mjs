@@ -7,6 +7,7 @@ import { checkRut } from "./chile.mjs";
 import { checkNit } from "./colombia.mjs";
 import { checkRuc } from "./peru.mjs";
 import { checkTurkishTaxId } from "./turkey.mjs";
+import { checkRfc } from "./mexico.mjs";
 
 const FORMAT_ONLY = {
   BG: [9, 10],
@@ -32,7 +33,11 @@ function finding(rule, message, fix, path) {
 
 export function normalizeVat(value) {
   if (typeof value !== "string") return null;
-  const compact = value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const upper = value.toUpperCase();
+  // Mexican RFCs may contain & and Ñ (company names like "Ñandú & Hijos"), so
+  // keep them for an MX prefix; every other country strips them as before.
+  const keep = upper.replace(/[^A-Z0-9]/g, "").startsWith("MX") ? /[^A-Z0-9&Ñ]/g : /[^A-Z0-9]/g;
+  const compact = upper.replace(keep, "");
   return compact || null;
 }
 
@@ -190,6 +195,7 @@ function classify(country, body) {
   if (country === "PE") return /^\d{11}$/.test(body) ? "checksum" : "bad-format";
   if (country === "CL") return /^\d{7,8}[0-9K]$/.test(body) ? "checksum" : "bad-format";
   if (country === "CO") return /^\d{9,11}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "MX") return /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{2}[0-9A]$/.test(body) || body === "XAXX010101000" || body === "XEXX010101000" ? "checksum" : "bad-format";
 
   if (country === "KZ") return /^\d{12}$/.test(body) ? "checksum" : "bad-format";
   if (country === "IN") return /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(body) ? "checksum" : "bad-format";
@@ -493,6 +499,7 @@ function checksumOk(country, body) {
   if (country === "PE") return checkRuc(body).ok;
   if (country === "CL") return checkRut(body).ok;
   if (country === "CO") return checkNit(`${body.slice(0, -1)}-${body.slice(-1)}`).ok;
+  if (country === "MX") return checkRfc(body).ok;
   if (country === "IN") return inGstinOk(body);
   if (country === "KZ") return kzBinOk(body);
   if (country === "XI") return body.length === 9 || body.length === 12 ? gbOk(body) : false;
