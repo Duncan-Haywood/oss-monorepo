@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-08 · Milestone 99: how large a pilot must be to yield a ceiling (no flow run)
+- Why: milestone 97 reported the share of pilots with a guaranteed ceiling at m = 8, 16, 24 only. A practitioner asks how big a pilot to run. Predictions (written first): (1) zero violations; (2) the share rises monotonically in m but stays below 0.6 at m = 40 (capped by cells where no point is certifiable); (3) the ceiling's mean excess falls with m; (4) a ceiling in half of pilots needs m above 24.
+- **Outcome** (`experiments/theory/pilot_cert_size.py`, `pilot_cert_size_results.txt`, `tests/test_pilot_cert_size.py`; same table and pilot streams as 84 and 97, 12,000 pilots per m, 10 tie-breaks each). All four held. Share of pilots with a ceiling at m = 4 / 8 / 12 / 16 / 24 / 32 / 40: 0.140 / 0.242 / 0.312 / 0.367 / 0.422 / 0.440 / 0.448 (T < 1 alone: 0.106 to 0.276); 0 violations in about 285,000 draws; mean excess of the ceiling for T < 1 pilots 5.5% at m = 4 falling to 0.7% at m = 40.
+- Reading: the chance of a guarantee flattens near 0.45 whatever the pilot size, which suggests it is set by the cells (those with few or no certifiable points) rather than by sampling; I did not count the cells, so that is a reading, not a result. A bigger pilot buys a tighter ceiling, not a more reliable guarantee. A practitioner cannot fix a cell with no certifiable points by routing more of them.
+- Limits: same cached 40-cell table; at m = 40 the pilot is most of a pool of about 50, so the last points mostly measure the pool; the explanation of the plateau is untested.
+- Next: detail-routed mult24/mult32 cells.
+
 ## 2026-11-08 · README status line rewritten (no flow run, no new numbers)
 - Why: the quality audit called the README status line garbled: one 3,000-character sentence listing milestones 68 to 9 backwards. Replaced with a five-bullet headline summary (rung bias, halving versus random, the pilot certificate, proof prediction, limits) with links to the experiment results; all figures copied from existing log entries and result files.
 - Limits: the per-milestone sections below the status line are unchanged; detail-routed mult24/mult32 cells still pending.

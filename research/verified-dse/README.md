@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 98 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 99 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -13,7 +13,7 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **A theorem bounds halving's regret by the cut rungs' inversions**, and a pilot with ratio below 1
   certifies the search returns a cost no worse than the pilot's best point (0 violations in about
   1.5 million draws, milestones 96 and 97), a ceiling about 2.7 times the realised regret; it says
-  nothing relative to the unknown optimum (still open).
+  nothing relative to the unknown optimum (still open). The chance a pilot yields such a ceiling plateaus near 0.45 from about 24 points (milestone 99): a bigger pilot tightens it, not makes it likelier.
 - **Proof success (H5) is predicted by design size, not by the rewrite**; it is not testable on this benchmark as built.
 - Limits: one corner and utilisation, global-route estimates, cached tables from tens of designs.
 
