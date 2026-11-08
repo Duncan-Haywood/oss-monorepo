@@ -6,9 +6,9 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/caa-record-check/)
-- [Why a CAA Record Blocks Certificate Issuance](https://duncan-haywood.github.io/oss-monorepo/caa-record-check/how-caa-blocks-certificate-issuance.html)
-- [CAA Record Checker vs. a Plain DNS Lookup](https://duncan-haywood.github.io/oss-monorepo/caa-record-check/vs-a-plain-dns-lookup.html)
+- [The tool](https://marisstella.app/caa-record-check/)
+- [Why a CAA Record Blocks Certificate Issuance](https://marisstella.app/caa-record-check/how-caa-blocks-certificate-issuance.html)
+- [CAA Record Checker vs. a Plain DNS Lookup](https://marisstella.app/caa-record-check/vs-a-plain-dns-lookup.html)
 
 ## Source
 
