@@ -1,5 +1,9 @@
 # build-data log
 
+## Session 51, 2026-11-08: milestone 7c, quantile model refit on permit type x cost bucket only (H7, planned before running)
+
+Why: session 50 (H6) flattened the full boosted model by cell medians and kept almost none of the gain. This refits a LightGBM quantile model whose only inputs are the two table keys (`src/prior_refit.py`), so each cell's value is the model's own prediction and no flattening step is left to blame. Harness split, test year 2024, 2 seeds, fresh pulls. Austin's host was unreachable from this session (curl code 000), so only three of the five sets can run: Chicago a2i, SF a2i, SF i2c.
+**H7 (before running):** the key-only refit keeps at least 50% of the full boosted model's mean pinball gain over the per-type baseline (mean over q10/q50/q90) in at least 2 of the 3 testable sets. **Refuted if** it keeps under 50% in 2 or more. Secondary prediction: it beats the empirical type x bucket lookup in at least 2 of 3 sets.
 ## Session 50, 2026-11-08: milestone 7b, a model-based permit-duration prior as a readable table (H6, planned before running)
 
 Why: paper section 7 item 5 and sessions 48 to 49 list "a model-based (boosted quantile) version for `ventures/`" as the one open deliverable. A model file is not something a calculator can ship; a table is. So the question is how much of the boosted gain survives when the model is flattened to a permit-type x cost-bucket lookup.
