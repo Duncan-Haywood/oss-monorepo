@@ -20,10 +20,14 @@ def interval_stats(lo_c, hi_c, y_c, lo_t, hi_t, y_t, seed=0):
     """Plain and dequantised CQR from calibration arrays; coverage and width on the test arrays."""
     lo_c, hi_c, y_c, lo_t, hi_t, y_t = (np.asarray(a, float).tolist() for a in (lo_c, hi_c, y_c, lo_t, hi_t, y_t))
     out = {"raw_coverage": conformal.coverage(lo_t, hi_t, y_t)}
-    for name, sc in (("plain", conformal.cqr_scores(lo_c, hi_c, y_c)),
-                     ("dequantised", conformal.cqr_scores_dequantised(lo_c, hi_c, y_c, seed))):
+    deq = conformal.cqr_scores_dequantised(lo_c, hi_c, y_c, seed)
+    # "dequantised_nonempty" (session 55/56) uses the same scores but keeps a floored lower end
+    # in place when qhat < 0, which session 55 traced the coverage collapse to.
+    for name, sc, fn in (("plain", conformal.cqr_scores(lo_c, hi_c, y_c), conformal.cqr_interval),
+                         ("dequantised", deq, conformal.cqr_interval),
+                         ("dequantised_nonempty", deq, conformal.cqr_interval_nonempty)):
         q = conformal.conformal_quantile(sc, ALPHA)
-        lo2, hi2 = conformal.cqr_interval(lo_t, hi_t, q)
+        lo2, hi2 = fn(lo_t, hi_t, q)
         out[name] = dict(qhat=q, coverage=conformal.coverage(lo2, hi2, y_t),
                          width=float(np.mean(np.asarray(hi2) - np.asarray(lo2))))
     return out
