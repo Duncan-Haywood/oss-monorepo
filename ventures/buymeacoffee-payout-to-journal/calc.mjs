@@ -97,10 +97,10 @@ export function parseDate(s, order = "mdy") {
 // Buy Me a Coffee TransactionType values: Donation, Subscription, Shop Order, Commission (matched loosely).
 export function incomeCategory(type) {
   const t = String(type || "").toLowerCase();
-  if (/donat|tip|coffee|support/.test(t)) return "donations";
   if (/subscr|member/.test(t)) return "memberships";
-  if (/shop|order|product|digital|physical|extra|merch/.test(t)) return "shop";
   if (/commission/.test(t)) return "commissions";
+  if (/donat|tip|coffee|support/.test(t)) return "donations";
+  if (/shop|order|product|digital|physical|extra|merch/.test(t)) return "shop";
   return t ? "uncategorised" : "donations"; // a blank type is a plain tip; an unknown one is reviewed
 }
 

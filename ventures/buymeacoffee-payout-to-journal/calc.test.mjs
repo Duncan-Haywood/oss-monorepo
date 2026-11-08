@@ -38,6 +38,9 @@ test("transaction types map loosely and unknown ones are reviewed, not guessed",
   assert.equal(incomeCategory("Subscription"), "memberships");
   assert.equal(incomeCategory("Shop Order"), "shop");
   assert.equal(incomeCategory("Commission"), "commissions");
+  // the specific types win over the loose donation words (quality audit 2026-11-08)
+  assert.equal(incomeCategory("Membership support"), "memberships");
+  assert.equal(incomeCategory("Coffee commission"), "commissions");
   assert.equal(incomeCategory(""), "donations");
   assert.equal(incomeCategory("Gift Card"), "uncategorised");
 });
