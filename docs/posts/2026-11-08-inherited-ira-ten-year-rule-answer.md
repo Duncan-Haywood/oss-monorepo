@@ -1,5 +1,6 @@
 ---
 title: "The inherited IRA planner now opens with the rule, its source and a date"
+seo_title: "Inherited IRA planner: the rule, source and date"
 date: 2026-11-08
 tags: [seo, inherited-ira, polish]
 description: "The 10-year inherited IRA planner leads with the deadline, the yearly-minimum condition and the excise tax, each tied to its statute."

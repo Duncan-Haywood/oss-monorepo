@@ -1,5 +1,6 @@
 ---
 title: "Why did jittering the targets make permit-lag intervals narrower than the data?"
+seo_title: "Why jittering made permit-lag intervals too narrow"
 date: 2026-11-08
 tags: [research, build-data, conformal, permits]
 description: "A conformal fix for tied integer targets collapsed coverage in the same-day-heavy cells; the saved results show where, and a mechanism explains why."

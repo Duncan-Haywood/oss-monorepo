@@ -48,6 +48,7 @@ const PILOTS = {
   '401k-loan-vs-withdrawal-calculator': async (m) => [m.LOAN_FLOOR, m.LOAN_CAP], // statutory loan floor and cap, IRC 72(p)(2)
   'poshmark-fee-calculator': async (m) => [m.FLAT_FEE, m.COMMISSION_THRESHOLD, m.BREAK_EVEN_PRICE],
   '529-to-roth-rollover-calculator': async (m) => [m.DEFAULTS.lifetimeCap], // statutory lifetime cap, IRC 529(c)(3)(E)
+  'child-tax-credit-calculator': async (m) => [m.CTC_PER_CHILD, m.ODC_PER_DEPENDENT, m.ACTC_CAP_PER_CHILD, m.PHASEOUT_THRESHOLD_OTHER, m.PHASEOUT_THRESHOLD_JOINT],
   'estate-tax-exemption-calculator': async (m) => [m.BASIC_EXCLUSION_2026, m.ANNUAL_GIFT_EXCLUSION_2026],
 };
 
