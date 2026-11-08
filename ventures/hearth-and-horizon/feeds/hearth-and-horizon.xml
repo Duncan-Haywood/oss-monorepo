@@ -56,6 +56,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>The Lamp That Is Dark Before Dawn</title>
+      <link>https://example.invalid/hearth-and-horizon/the-lamp-that-is-dark-before-dawn.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-lamp-that-is-dark-before-dawn.html</guid>
+      <pubDate>Sun, 08 Nov 2026 12:00:00 GMT</pubDate>
+      <description>The sanctuary lamp of a lunar chapel must burn through a night 354 hours long on one battery. A June test says the battery will give 1.36 kWh; the lamp and its controller draw 4.0 W, which runs dry 14 hours before sunrise. The chapel assistant shows that dimming the lamp by under a tenth, not by a few watts at the end, keeps it lit with 12 hours in hand. Setting: Chapel of Saint Lucy, Sabine Base, Mare Tranquillitatis, the Moon (invented base), Saturday 15 September 2096. Read the full text at https://example.invalid/hearth-and-horizon/the-lamp-that-is-dark-before-dawn.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>The sanctuary lamp of a lunar chapel must burn through a night 354 hours long on one battery. A June test says the battery will give 1.36 kWh; the lamp and its controller draw 4.0 W, which runs dry 14 hours before sunrise. The chapel assistant shows that dimming the lamp by under a tenth, not by a few watts at the end, keeps it lit with 12 hours in hand.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Lamp That Outlasts Its Light</title>
       <link>https://example.invalid/hearth-and-horizon/the-lamp-that-outlasts-its-light.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-lamp-that-outlasts-its-light.html</guid>
