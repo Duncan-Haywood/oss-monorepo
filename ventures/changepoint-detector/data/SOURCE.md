@@ -548,3 +548,12 @@ column is built from the `time` column of the source.
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/usmelec.csv> (time column turned into `YYYY-MM` labels).
 - **Licence:** fpp2 is GPL-3 on CRAN; the figures are public US statistics. Kept as a small test fixture with its source named.
 - **Used by:** `us-electricity.test.mjs`.
+
+## au-gas.csv (added 2026-11-08)
+
+`au-gas.csv`: Australian monthly gas production, 1956-01 to 1995-08, 476 values, unit as in the source (`gas` from the R forecast package, Hyndman).
+
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/forecast/gas.csv> (time column turned into `YYYY-MM` labels).
+- **Licence:** forecast is GPL-3 on CRAN; the figures are public statistics. Kept as a small test fixture with its source named.
+- **Used by:** `au-gas.test.mjs`.
