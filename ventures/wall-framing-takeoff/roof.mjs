@@ -100,6 +100,7 @@ export function validateRoof(r, plan) {
   if (!(((r.gableOverhang ?? 12) >= 0) && ((r.gableOverhang ?? 12) <= 48))) errors.push("Gable (rake) overhang must be between 0 and 48 inches.");
   if (!(((r.spacing ?? 16) >= 4) && ((r.spacing ?? 16) <= 48))) errors.push("Rafter spacing must be between 4 and 48 inches.");
   errors.push(...roofingSettingErrors(r));
+  errors.push(...upliftSettingErrors(r));
   if (r.wing2 && !r.wing) errors.push("`wing2` is the second cross wing; set `wing` first.");
   for (const w of [r.wing, r.wing2]) if (w) {
     if (r.shape === "hip") errors.push("A cross wing is framed on a gable main roof; set shape to gable.");
@@ -344,7 +345,48 @@ function dripEdgeNails(l, r) {
 export function layoutRoof(r, plan) {
   if (r == null || typeof r !== "object" || Array.isArray(r)) return { ok: false, errors: ["Roof settings are an object."] };
   if (plan == null || typeof plan !== "object") return { ok: false, errors: ["Roof needs the plan (its stock list)."] };
-  return dripEdgeNails(underlaymentNails(pipeBoots(sheathingNails(layoutRoofCore(r, plan), r), r), r), r);
+  return upliftCheck(dripEdgeNails(underlaymentNails(pipeBoots(sheathingNails(layoutRoofCore(r, plan), r), r), r), r), r);
+}
+
+function upliftSettingErrors(r) {
+  const u = r.uplift;
+  if (u == null) return [];
+  if (typeof u !== "object" || Array.isArray(u)) return ["Roof uplift settings are an object: {pressure, capacity, deadLoad?, connector?}."];
+  const e = [], num = (k, lo, hi, what, req) => {
+    const v = u[k];
+    if (v == null) { if (req) e.push(`Roof uplift needs ${what} (${k}), typed from your engineer's design or the connector maker's table; none is assumed.`); return; }
+    if (!(typeof v === "number" && Number.isFinite(v) && v >= lo && v <= hi)) e.push(`${what} (uplift.${k}) must be a number from ${lo} to ${hi}.`);
+  };
+  num("pressure", 0, 500, "Net uplift pressure on the roof, psf", true);
+  num("capacity", 1, 20000, "Allowable uplift per connector, lb", true);
+  num("deadLoad", 0, 200, "Dead load that resists uplift, psf");
+  if (u.connector != null && (typeof u.connector !== "string" || u.connector.length > 60)) e.push("Uplift connector (uplift.connector) is a name of up to 60 characters, such as the maker's model.");
+  return e;
+}
+
+/**
+ * Roof-to-wall uplift connectors, opt-in with `roof.uplift: {pressure, capacity, deadLoad?, connector?}` (gable and truss
+ * roofs). `pressure` is the net uplift on the roof in psf of plan area and `capacity` the allowable uplift of one connector
+ * in lb, both typed from your engineer's design and the maker's table (none shipped); `deadLoad` psf of roof weight
+ * resisting it, already factored the way your code wants. Every rafter or truss end gets
+ * ceil(demand / capacity) connectors, where demand = (pressure - deadLoad) x spacing x (half the span + the eave overhang),
+ * the whole plane's uplift taken at the wall (the ridge is not counted on to hold, so this errs high on a tied ridge, and
+ * an end rafter, which carries half, is counted in full). Also gives the widest spacing one connector would hold.
+ */
+function upliftCheck(l, r) {
+  const u = r.uplift;
+  if (!l || l.ok === false || u == null) return l;
+  if (l.shape === "hip") return { ...l, notes: [...l.notes, "Uplift connectors are not sized for hip roofs (the hip and jack loads need an engineer's tributary areas); `uplift` was ignored."] };
+  const ends = l.trusses ? 2 * l.trusses.count : l.rafters.length;
+  const net = Math.max(0, u.pressure - (u.deadLoad ?? 0));
+  const depth = (l.width / 2 + l.overhang) / 12; // ft of plan, ridge to the eave tail
+  const demand = net * (l.spacing / 12) * depth;
+  const perEnd = Math.max(1, Math.ceil(demand / u.capacity - 1e-9));
+  const maxSpacing = net > 0 ? Math.floor((u.capacity / (net * depth)) * 12 * 16) / 16 : Infinity;
+  const name = u.connector || "connector";
+  const uplift = { connector: name, net, demand, perEnd, total: perEnd * ends, ends, capacity: u.capacity, utilization: demand / (perEnd * u.capacity), maxSpacingOneConnector: maxSpacing, assumptions: { pressure: u.pressure, deadLoad: u.deadLoad ?? 0 } };
+  const note = `Uplift: ${net.toFixed(1)} psf net x ${l.spacing} in x ${depth.toFixed(2)} ft = ${demand.toFixed(0)} lb per rafter or truss end against ${u.capacity} lb per ${name}: ${perEnd} per end, ${uplift.total} in all (${(100 * uplift.utilization).toFixed(0)}% used)${Number.isFinite(maxSpacing) ? `; one ${name} holds spacing up to ${formatInches(maxSpacing)}` : ""}. Pressure and capacity are the figures you typed; the plate-to-stud and wall-to-foundation load path, the ridge, rake overhang and gable-end loads are not checked.`;
+  return { ...l, uplift, notes: [...l.notes, note] };
 }
 
 function layoutRoofCore(r, plan) {

@@ -42,8 +42,9 @@ test("CLI: 0-shock identity on a real priced plan, and a bad --swing exits 1", (
   assert.equal(out.code, 0);
   const s = JSON.parse(out.out);
   const bj = JSON.parse(run("--budget", "--json").out);
-  assert.equal(s.total, bj.total);
-  assert.equal(s.bid, bj.bid);
+  // restack keeps full precision between stages while budget() rounds each stage to the cent, so a 0% shock agrees to a cent
+  assert.ok(Math.abs(s.total - bj.total) <= 0.011, `${s.total} vs ${bj.total}`);
+  assert.ok(Math.abs(s.bid - bj.bid) <= 0.011, `${s.bid} vs ${bj.bid}`);
   assert.equal(run("--sensitivity", "--swing=0").code, 1);
 });
 
