@@ -1,5 +1,6 @@
 ---
 title: "Why two bells rung together sound like a stutter: a Hearth & Horizon story"
+seo_title: "Why two bells rung together sound like a stutter"
 date: 2026-11-08
 description: "A new Hearth & Horizon story: two bells 1.8 km apart, sound's 5.3 s delay, and the beat that lets each hear the other midway."
 tags: [hearth-and-horizon, fiction, arithmetic]

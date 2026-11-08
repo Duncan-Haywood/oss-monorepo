@@ -1,5 +1,6 @@
 ---
 title: "Why nine kilometres to a hill chapel takes 3 h 39: a Hearth & Horizon story"
+seo_title: "Why nine kilometres to a hill chapel takes 3 h 39"
 date: 2026-11-08
 description: "A new Hearth & Horizon story: Naismith's rule, 450 m of climb, and why a party of fourteen must leave at seven, not half past eight."
 tags: [hearth-and-horizon, fiction, arithmetic]
