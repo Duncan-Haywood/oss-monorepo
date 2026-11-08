@@ -448,3 +448,17 @@ test("roof sheathing nail boxes: typed box size only, whole boxes (hand check)",
   const c = layoutRoof({ ...sampleRoof(), sheet: { nailBox: 500, clips: true } }, plan());
   assert.ok(c.notes.some((n) => /H-clips/.test(n)) && c.notes.some((n) => /nail boxes/.test(n)));
 });
+
+test("layoutRoof, layoutSiding, layoutTrim and the opening fixers refuse null input with a reason, not a TypeError", async () => {
+  const { layoutRoof } = await import("./roof.mjs");
+  const { layoutSiding } = await import("./siding.mjs");
+  const { layoutTrim } = await import("./trim.mjs");
+  const { shallowHeaders, trimOpenings, doorsToFloor } = await import("./shallowheaders.mjs");
+  for (const bad of [null, undefined, 5, "x", []]) {
+    assert.equal(layoutRoof(bad, {}).ok, false);
+  }
+  assert.equal(layoutRoof({ width: 300, length: 480, pitch: 6 }, null).ok, false);
+  assert.equal(layoutSiding({}, undefined).ok, false);
+  assert.equal(layoutTrim({}, undefined).ok, false);
+  for (const f of [shallowHeaders, trimOpenings, doorsToFloor]) assert.deepEqual(f(null), []);
+});

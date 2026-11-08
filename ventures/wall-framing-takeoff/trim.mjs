@@ -57,6 +57,7 @@ export function packPieces(pieces, stock, scarf = 0) {
 export function layoutTrim(d, plan) {
   const errors = validateTrim(d);
   if (errors.length) return { ok: false, errors };
+  if (plan == null || typeof plan !== "object") return { ok: false, errors: ["Trim needs the takeoff plan (its walls)."] };
   const waste = d.waste ?? 0.1, reveal = d.reveal ?? 0.1875, cw = d.casingWidth ?? 2.25;
   const baseStock = d.baseStock ?? 144, casingStock = d.casingStock ?? 96;
   const shoeStock = d.shoeStock ?? 96, scarf = d.scarf ?? 0;

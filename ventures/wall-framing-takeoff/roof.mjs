@@ -313,6 +313,8 @@ function dripEdgeNails(l, r) {
 }
 
 export function layoutRoof(r, plan) {
+  if (r == null || typeof r !== "object" || Array.isArray(r)) return { ok: false, errors: ["Roof settings are an object."] };
+  if (plan == null || typeof plan !== "object") return { ok: false, errors: ["Roof needs the plan (its stock list)."] };
   return dripEdgeNails(underlaymentNails(pipeBoots(sheathingNails(layoutRoofCore(r, plan), r), r), r), r);
 }
 
