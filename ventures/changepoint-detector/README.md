@@ -1746,3 +1746,12 @@ The gas takeoff above cleared its bar by about 1% with seed 1. `eval/au-gas-seed
 - **`--model trend`:** four cuts (1987Q2, 1996Q2, 2003Q4, 2008Q2): SARS and the crisis year, but not 1998.
 - **`--model meanvar`:** dates 1998Q4 and 2008Q2 and nothing in 2003. **`--ar1 auto`:** eight cuts, keeps 1998Q4, loses SARS.
 - **What it says.** SARS, a two-quarter dip, is found only by the level and trend models; the models that fix over-cutting absorb it, as with the cement GST step. No model dates all three shocks and keeps the cut count low. One series, one country pair, no significance tested here.
+
+## Australian arrivals from the US: the Olympics quarter found by two models (2026-11-08)
+
+`data/au-arrivals-us.csv` (quarterly short-term arrivals from the US, 1981Q1 to 2012Q3, 127 values, `fpp2::arrivals`, `au-arrivals-us.test.mjs`; the file was in the repository but untested). Companion to the Japan series. Known events, dates recalled, not read from a source: Expo 88 and the Bicentennial (1988), the Sydney Olympics (September 2000, 2000Q3) and 11 September 2001.
+
+- **Default mean model:** twelve cuts, including 1988Q3, **2000Q3** and 2001Q3.
+- **`--model trend`:** five cuts (1986Q4, 1989Q1, 1997Q3, 2000Q3, 2002Q1): the Olympics quarter exactly, 9/11 one quarter-plus later.
+- **`--model meanvar`:** six cuts, 2002Q2 but not 2000. **`--ar1 auto`:** six cuts, no 2000Q3.
+- **What it says.** The one-quarter Olympics spike is dated to the right quarter only by the level and trend models; the models that curb over-cutting absorb it, as with SARS in the Japan series. Without tests of significance here, and with a dozen other cuts in the default model, treat the match as suggestive. One series.
