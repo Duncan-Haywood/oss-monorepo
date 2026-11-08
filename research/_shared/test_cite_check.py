@@ -34,6 +34,8 @@ class Lookup(unittest.TestCase):
     def run_with(self, code):
         import contextlib, io, tempfile, urllib.error
         def fake(url):
+            if code == "conn":
+                raise urllib.error.URLError("Tunnel connection failed: 403 connect_rejected")
             raise urllib.error.HTTPError(url, code, "x", {}, None)
         old, cite_check._get = cite_check._get, fake
         try:
@@ -50,6 +52,12 @@ class Lookup(unittest.TestCase):
         rc, out = self.run_with(403)
         self.assertEqual(rc, 0)
         self.assertIn("SKIP", out)
+
+    def test_connection_refused_is_skipped_not_failed(self):
+        rc, out = self.run_with("conn")
+        self.assertEqual(rc, 0)
+        self.assertIn("SKIP", out)
+        self.assertNotIn("FAIL", out)
 
     def test_404_fails(self):
         rc, out = self.run_with(404)
