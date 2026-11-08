@@ -146,7 +146,7 @@ test("Cyprus check letter (2026-11-08)", () => {
 });
 
 test("variants without a checksum here stay shape-only", () => {
-  for (const number of ["BG1750747520", "CZ7103192745", "LV01011012345", "LT100001919017"]) {
+  for (const number of ["BG1750747520", "CZ7103192745", "LV01011012345"]) {
     const kind = inspectPartyVat({ id: "S1", name: "A", vat_id: number }, "supplier").map((item) => item.rule);
     assert.ok(!kind.includes("INV-023"), number);
   }
@@ -186,4 +186,9 @@ test("Turkey VKN/TCKN and India GSTIN check digits", () => {
   assert.deepEqual(ok("TR10000000146"), []);
   assert.equal(ok("TR10000000147")[0].rule, "INV-023");
   assert.equal(ok("TR123")[0].rule, "INV-022");
+test("Lithuanian 12-digit check digit (2026-11-08)", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("LT100001919017"), []);
+  assert.deepEqual(rules("LT100001919018"), ["INV-023"]);
+  assert.deepEqual(rules("LT100001919027"), ["INV-023"]);
 });
