@@ -1,6 +1,6 @@
 ---
 title: "We rotated real photos by known angles; our tilt meter failed, so we fixed it"
-seo_title: "Fixing a crooked-horizon tilt meter"
+seo_title: "Our tilt meter failed on real photos, so we fixed it"
 date: 2026-11-08
 tags: [photo-editing, computer-vision, calibration]
 description: "A photo culling tool's horizon-tilt estimate read nonsense on a real building photo. Two causes, two fixes, measured on 66 readings."
