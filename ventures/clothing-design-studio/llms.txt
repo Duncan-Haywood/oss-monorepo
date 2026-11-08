@@ -65,6 +65,7 @@ Start-up budget (startup.html): one-off costs of a first run (patterns, samples 
 - [Duty on one online clothing order: EU flat 3 euro duty, US, UK](https://marisstella.app/clothing-design-studio/parcel.html)
 - [How much import duty will you pay on a t-shirt order? A worked example](https://marisstella.app/clothing-design-studio/import-duty-on-clothing.html)
 - [Can pre-orders reach a factory minimum order quantity? A worked example](https://marisstella.app/clothing-design-studio/clothing-minimum-order-quantity.html)
+- [Sunglasses made for 20 euros, sold for 65: what is left? A worked example](https://marisstella.app/clothing-design-studio/sunglasses-profit-margin.html)
 - [How much does it cost to make a t-shirt? A worked example](https://marisstella.app/clothing-design-studio/how-much-does-it-cost-to-make-a-t-shirt.html)
 
 ## Source
