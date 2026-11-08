@@ -315,6 +315,12 @@ test("results parse, and standings order by points then goal difference", () => 
   assert.equal(rows[0].rank, 1);
 });
 
+test("teams level on points and goal difference are split by goals scored before list order", () => {
+  const teams = ["A", "B", "C", "D"];
+  const { results } = parseResults("A 1 - 0 C\nB 3 - 2 D", teams);
+  assert.deepEqual(standings(teams, results).map((r) => r.name), ["B", "A", "D", "C"]);
+});
+
 test("a forfeit line awards the win at the walkover score and is ranked like a played result", () => {
   const teams = ["Hawks", "Owls", "Kites"];
   const { results, errors } = parseResults("Hawks w/o Owls\nkites WO hawks\nOwls walkover Kites\nHawks w/o Hawks\nGhosts w/o Owls", teams);

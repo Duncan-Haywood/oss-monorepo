@@ -1,0 +1,66 @@
+{
+ "date": "2026-11-08",
+ "subject": "ventures/cafe-drink-margin-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-08",
+ "auditor": "agent session (Claude), 2026-11-08 round",
+ "status": "audited",
+ "professional": "a cafe consultant / bookkeeper who does menu costing for independent coffee shops. They would check first: that ingredient cost per drink uses the right units (grams per lb, ounces per gallon) with waste, that the card fee is percent plus fixed, that labor is priced with payroll burden, that the target price formula really lands on the target margin, that break-even drinks uses the mix, and whether the tool handles a real menu of 15 to 30 items with sizes.",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran analyze(SHARED_DEFAULTS) via a scratch script (not the test suite) and recomputed independently with separate arithmetic. (1) Flavored latte 16 oz: beans 36 g x 14/453.592 x 1.08 = 1.2000, milk 13 oz x 4.5/128 x 1.08 = 0.4936, card 6.25 x 0.026 + 0.10 = 0.2625, labor 95/3600 x 17 x 1.12 = 0.5024, contribution 6.25 - (1.2000+0.4936+0.45+0.30) - 0.2625 - 0.5024 = 3.0414; tool 3.0414. (2) Price for 65% target = (ingredients + labor + 0.10) / (1 - 0.026 - 0.65) = 9.4014; tool 9.4014. Cold brew: contribution 2.7280 and target price 5.8595, both match. (3) Break-even: fixed 9500/30 = 316.67 a day, average contribution 766.64/270 = 2.839, ceil(111.5) = 112; tool 112. (4) Alt-milk delta (9.5-4.5)/128 x 1.08 x 9.909 oz (volume-weighted pour) = 0.418, surcharge 0.418/0.974 = 0.429; tool 0.4292. Also edge: all volumes zero gives null break-even, target 70 with 2.6% card gives finite prices. No wrong number found. Capped at 3: arithmetic is right but the model omits the per-ticket nature of the fixed card fee (see domain).",
+  "completeness": "Checked each README claim: margin per drink after beans, milk, cup, card fee and labor (works); profit per barista-hour (works); price for target margin (works, null when card + target >= 100%); alternative-milk surcharge (works); break-even drinks per day (works); four sensitivities (milk +20%, beans +25%, wage +$2, prices +$0.25, all present and signed correctly); CSV export (toCsv, tested); usage counters (usage.mjs, 63-line test passes). index.html has the FAQ, JSON-LD, disclaimer. Not exercised: the page in a real browser (page.test.mjs only greps the HTML for strings; I did not load it). VENTURE.yaml stage is prototype and its one hypothesis is untested. Everything the README says is built is built; the build is small (ROWS = 5).",
+  "verification": "Ran `node --test calc.test.mjs page.test.mjs usage.test.mjs` in ventures/cafe-drink-margin-calculator (Node 22): 23 tests, 23 pass, 0 fail, 0.12 s. Seeded mutations in calc.mjs, each reverted with git checkout (git status clean afterwards). A: drop waste from milk cost (line 71): 1 failure, caught. B: drop payroll burden from labor (line 75): 1 failure, caught. C: Math.ceil -> Math.floor in break-even (line 115): 1 failure, caught. D: fixed cost per day `v.fixedMonth / v.days` -> `v.fixedMonth / 30` (line 94): 12 of 12 calc tests pass, NOT caught, because every test uses the default days = 30. E: widening the waste validation limit from 50 to 500: not caught (no test for the bounds). Also the headline cost test restates the same formulas as the code (18 * 14/453.592 * 1.08), so it checks that the code matches the author's belief, with no number taken from outside. page.test.mjs greps for strings only; no DOM or browser test, so the render code in index.html (the only place numbers meet the user) is untested. Score 2: core arithmetic is guarded but a days-open bug and all input bounds would ship.",
+  "craft": "Read calc.mjs (141 lines, all of it), calc.test.mjs, page.test.mjs, the script block of index.html and usage.mjs. Good: a small pure module with no dependencies, parse/validate separate from math, named constants for ounces per gallon and grams per pound, tolerant number parsing ($ , % stripped), per-field warnings that name the drink, clean override mechanism for scenarios. Defects: SHARED_DEFAULTS and EXAMPLE_SHARED are identical copies; `ROW_FIELDS` hard-codes five rows by field-name suffix (price1..price5), so a longer menu needs a rewrite of parse, page and CSV; `drinkEconomics` mixes `over.priceAdd` into a globals object; a bad row yields a whole-run failure with only warnings; the page builds HTML by string concatenation (escaped via esc() for names, checked). Acceptable for a senior JS reviewer, not distinguished.",
+  "claims": "Checked: README model formulas match calc.mjs line for line (beans, milk, card fee, labor, target price, break-even): backed. 'Not modelled: tips, sales tax, equipment, owner pay...' honest and true. Disclaimer present at README.md and index.html:131 and carries no-warranty text, and page.test.mjs asserts it. Privacy claim (counts kept only in local storage) backed by usage.mjs and a test. Unbacked or wrong: README 'reprice the three drinks that lose money' - with the shipped example no drink loses money (all five earn $2.05 to $3.38, all five are below the 65% target), so the headline outcome is not what the example shows; README 'Tests: node --test' - in Node 22 the working form is `node --test '*.test.mjs'` or named files; llms.txt links to the retired duncan-haywood.github.io address, not marisstella.app; FAQ answer 'ingredient and cup cost under 25-30% of the price' is stated as fact with no source. The 'Every price up $0.25' sensitivity assumes zero change in volume, which is not stated on the page (it is the single most favourable scenario: +$1,972 a month). No fabricated reviews or numbers.",
+  "fitness": "Walked the job as a cafe owner: type 5 drinks, set bean/milk cost, wage, card fee, fixed costs, see per-drink earnings, a target price and a break-even count. That works in a minute and the numbers are right. First-hour gaps: only five drink rows (ROWS = 5, calc.mjs:5), while a real menu has 15 to 30 items and each in two or three sizes; no way to save or reload the menu (nothing persists but usage counts, by design), so each visit means retyping; no per-ticket logic (customers who buy two drinks pay one fixed card fee, the tool charges $0.10 on every drink); no food or retail, no shot-yield or spillage entry, no weekday/weekend volume; the alt-milk surcharge uses one blended pour not each drink's pour. A one-drink repricing is answered; a whole-menu review is not.",
+  "domain": "Compared against standard cafe costing practice: ingredient (COGS) percent, prime cost (COGS + labor) as a share of sales, contribution margin per item, and the point-of-sale processor fee of percent plus fixed per transaction. The tool gets contribution margin right but: it never shows COGS % or prime cost %, the two numbers an operator benchmarks against 25-35% and 55-65%, so the FAQ's 25-30% advice cannot be checked in the tool itself; it charges the fixed card fee per drink, not per ticket (overstates fees by roughly $0.05 to $0.10 a drink with a typical 1.3 drinks per ticket); labor is make-time only, so the target 'margin' is a contribution margin that excludes idle labor, which it says in a warning but the headline 'price for 65% margin' invites users to read as a full margin; break-even holds the mix fixed (stated). A consultant would accept it as a quick single-drink sanity check, not sign it off for a menu rebuild."
+ },
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Menu is capped at five drinks (ROWS = 5) and field names are suffix-indexed (price1..price5) in parser, page and CSV; a real cafe menu with sizes cannot be entered, so the whole-menu repricing the README promises is not possible.",
+   "where": "ventures/cafe-drink-margin-calculator/calc.mjs:5"
+  },
+  {
+   "severity": "medium",
+   "what": "Seeded mutation replacing `v.fixedMonth / v.days` with `v.fixedMonth / 30` left all 12 calc tests green because every test uses the default days = 30; a wrong daily fixed cost changes break-even, daily profit and every sensitivity. Input bounds (e.g. waste up to 50) are also untested, and the main cost test restates the code's own formulas.",
+   "where": "ventures/cafe-drink-margin-calculator/calc.mjs:94"
+  },
+  {
+   "severity": "medium",
+   "what": "Fixed card fee ($0.10) is charged on every drink rather than once per ticket, overstating card cost on multi-drink orders and understating margin; not disclosed in README 'Not modelled'.",
+   "where": "ventures/cafe-drink-margin-calculator/calc.mjs:73"
+  },
+  {
+   "severity": "medium",
+   "what": "README headline outcome 'reprice the three drinks that lose money' does not match the shipped example: no drink loses money (contribution $2.05 to $3.38); all five fall below the 65% target. The tool also never shows COGS % or prime cost %, the benchmarks its FAQ quotes (25-30%).",
+   "where": "ventures/cafe-drink-margin-calculator/README.md:7"
+  },
+  {
+   "severity": "low",
+   "what": "'Every price up $0.25' scenario assumes no loss of volume and is the largest positive number shown (+$1,972 a month) without saying so on the page.",
+   "where": "ventures/cafe-drink-margin-calculator/calc.mjs:118"
+  },
+  {
+   "severity": "low",
+   "what": "README says tests run with `node --test` (fails in Node 22); llms.txt points at the retired duncan-haywood.github.io host; page.test.mjs only greps HTML strings, no browser or DOM test of the rendering code.",
+   "where": "ventures/cafe-drink-margin-calculator/README.md:22"
+  },
+  {
+   "severity": "low",
+   "what": "SHARED_DEFAULTS and EXAMPLE_SHARED are the same object copied twice; one is dead duplication.",
+   "where": "ventures/cafe-drink-margin-calculator/calc.mjs:19"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The arithmetic is right: four independently recomputed outputs (flavored latte contribution 3.0414, target price 9.4014, break-even 112 drinks, oat surcharge 0.429) match the tool, and the 23 tests pass. But a seeded bug that hard-codes 30 days in the fixed-cost split went undetected, the cost tests restate the code's own formulas, and the render code is untested, so verification is 2. Claims is 2 because the README's headline (reprice three money-losing drinks) is not what its example shows and the docs point at stale commands and hosts. It is finished against its own small scope (completeness 3) but a cafe owner cannot enter a real menu (five rows, no sizes, no save), the fixed card fee is charged per drink rather than per ticket, and COGS % and prime cost % are never shown, so fitness and domain are 2 and the median is 2: it does not meet the bar. Recheck with `node --test calc.test.mjs`, the mutation at calc.mjs:94 and the scratch recomputation above."
+}
