@@ -1,5 +1,6 @@
 ---
 title: "The Solo 401(k) calculator now opens with the 2026 limits and where they come from"
+seo_title: "Solo 401(k) calculator now opens with the 2026 limits"
 date: 2026-11-08
 tags: [seo, aeo, solo-401k, retirement]
 description: "The Solo 401(k) contribution calculator now leads with the 2026 deferral, catch-up and annual-additions limits, an IRS source and an as-of date."
