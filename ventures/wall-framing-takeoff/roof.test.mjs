@@ -478,3 +478,36 @@ test("typed roofing settings are refused when they would order nonsense (2026-11
   const good = layoutRoof({ ...sampleRoof(), roofing: { waste: 1.1, bundlesPerSquare: 3, underlaymentRoll: 400 } }, plan());
   assert.ok(good.ok, JSON.stringify(good.errors));
 });
+
+test("uplift connectors: demand = (pressure - dead) x spacing x (half span + overhang), counts round up (hand arithmetic)", () => {
+  // 28 ft span, 12 in overhang: depth = (168 + 12) / 12 = 15 ft; spacing 16 in; net 20 - 5 = 15 psf
+  // demand = 15 x (16/12) x 15 = 300 lb per end; capacity 175 lb -> 2 per end; 62 rafter ends -> 124
+  const l = layoutRoof({ ...sampleRoof(), uplift: { pressure: 20, deadLoad: 5, capacity: 175, connector: "H2.5A" } }, plan());
+  assert.ok(l.ok, JSON.stringify(l.errors));
+  assert.ok(Math.abs(l.uplift.demand - 300) < 1e-9);
+  assert.equal(l.uplift.perEnd, 2);
+  assert.equal(l.uplift.total, 124);
+  assert.ok(Math.abs(l.uplift.utilization - 300 / 350) < 1e-9);
+  // one connector holds 175 / (15 x 15) ft = 0.7778 ft = 9.33 in, to 1/16
+  assert.ok(Math.abs(l.uplift.maxSpacingOneConnector - 9.3125) < 1e-9);
+  assert.ok(roofText(l).some((t) => t.includes("2 per end, 124 in all")));
+});
+
+test("uplift: one connector when it holds, trusses count both ends, no figures assumed, hip ignored", () => {
+  const one = layoutRoof({ ...sampleRoof(), uplift: { pressure: 10, capacity: 1000 } }, plan());
+  assert.equal(one.uplift.perEnd, 1);
+  const tr = layoutRoof({ ...sampleRoof(), ceilingJoist: undefined, collarTies: false, ridge: null, trusses: { spacing: 24 }, uplift: { pressure: 10, capacity: 1000 } }, plan());
+  assert.equal(tr.uplift.total, 2 * tr.trusses.count);
+  const miss = layoutRoof({ ...sampleRoof(), uplift: { pressure: 10 } }, plan());
+  assert.equal(miss.ok, false);
+  assert.ok(miss.errors.some((e) => e.includes("capacity")));
+  const none = layoutRoof({ ...sampleRoof(), uplift: { pressure: 5, deadLoad: 9, capacity: 100 } }, plan());
+  assert.equal(none.uplift.demand, 0);
+  assert.equal(none.uplift.perEnd, 1);
+  assert.equal(layoutRoof(sampleRoof(), plan()).uplift, undefined);
+});
+
+test("uplift on a hip roof is ignored with a note, not guessed", () => {
+  const l = layoutRoof({ ...sampleRoof(), shape: "hip", length: 480, ridge: null, ceilingJoist: undefined, collarTies: false, uplift: { pressure: 20, capacity: 175 } }, plan());
+  if (l.ok) { assert.equal(l.uplift, undefined); assert.ok(l.notes.some((n) => n.includes("not sized for hip roofs"))); }
+});
