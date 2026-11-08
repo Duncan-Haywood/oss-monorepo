@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EU VAT for a Clothing Brand: The 10,000 Euro Line and One-Stop Shop</title>
+  <meta name="description" content="Free EU VAT checker for small online clothing brands: type your sales to shoppers in other EU countries and see whether you crossed the 10,000 euro line, which VAT rates then apply, and what you keep per 100 euros. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="EU VAT 10,000 euro line checker for clothing brands">
+  <meta property="og:description" content="Have you crossed the EU distance-selling VAT line? Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"EU VAT line checker (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="prices.html">Price by market</a> · <a href="salestax.html">US sales tax</a> · <a href="duty.html">Import duty</a> · <a href="cashflow.html">Cash flow</a></p>
+  <h1>Have you crossed the EU 10,000 euro VAT line?</h1>
+  <p>If you ship clothing from one EU country to shoppers in other EU countries, you may charge your own country's VAT on those sales until they pass 10,000 euros a year (before VAT, all other countries added together). After that, each shopper's own country's VAT applies, and you register for the One-Stop Shop (OSS) in your home country to file it in one quarterly return. Type your sales below.</p>
+  <p class="placeholder">The standard rates are typed from memory and were not checked against the European Commission's table when this page was built; several countries changed rates in 2025. Every rate can be overridden. Reduced and zero rates for children's clothing (Ireland zero-rates them) are not applied. Selling from outside the EU? There is no 10,000 euro line: see the note at the bottom.</p>
+  <section>
+    <h2>Where you ship from</h2>
+    <div class="row"><div><label for="home">Home country</label><select id="home"></select></div><div><label for="prior">Last year's sales to other EU countries (EUR, before VAT)</label><input id="prior" type="number" min="0" step="1" value="0"></div></div>
+  </section>
+  <section>
+    <h2>Your sales by country (this calendar year, before VAT)</h2>
+    <table id="rows"><thead><tr><th>Country</th><th>Sales (EUR)</th><th>Planned more sales</th><th>VAT rate % (blank = standard)</th><th></th></tr></thead><tbody></tbody></table>
+    <p><button id="add" type="button">Add a country</button></p>
+    <p class="tag">Marketplace sales (Etsy, Amazon) are handled by the marketplace: leave them out. Sales inside your home country do not count toward the line.</p>
+  </section>
+  <section><h2>Result</h2><output id="result" aria-live="polite"></output></section>
+  <section><h2>Selling from outside the EU</h2><p id="noneu"></p></section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional tax advice, and it does not replace a qualified professional. Rates, the line and the way sales above it are split between countries (in proportion to sales, without order dates) are simplifications. You are responsible for checking them with your tax office or adviser before relying on the result.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+
+  <script type="module">
+    import { euVatCheck, COUNTRIES, nonEuNote } from "./eutax.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const opts = Object.entries(COUNTRIES).map(([c, v]) => `<option value="${c}">${esc(v[0])} (${v[1]}%)</option>`).join("");
+    $("#home").innerHTML = opts; $("#home").value = "DE"; $("#noneu").textContent = nonEuNote;
+    function addRow(c = "FR", sales = 0, plan = 0) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td><select>${opts}</select></td><td><input type="number" min="0" step="1" value="${sales}"></td><td><input type="number" min="0" step="1" value="${plan}"></td><td><input type="number" min="0" max="99" step="0.1" placeholder="standard"></td><td><button type="button">Remove</button></td>`;
+      tr.querySelector("select").value = c;
+      tr.querySelector("button").addEventListener("click", () => { tr.remove(); render(); });
+      $("#rows tbody").append(tr);
+    }
+    const f = n => Math.round(n).toLocaleString("en-US");
+    function render() {
+      const rows = [...document.querySelectorAll("#rows tbody tr")].map(tr => { const i = tr.querySelectorAll("input"); return { country: tr.querySelector("select").value, netSalesEur: i[0].value, plannedEur: i[1].value, ratePct: i[2].value }; });
+      const r = euVatCheck({ home: $("#home").value, priorYearEur: $("#prior").value, rows });
+      if (!r.ok) { $("#result").innerHTML = `<p class="notes">${esc(r.error)}</p>`; return; }
+      $("#result").innerHTML = `<p><span class="big">${r.percentOfLine}%</span> of the ${f(r.lineEur)} EUR line (${f(r.crossBorderEur)} EUR to other EU countries). ${esc(r.message)}</p>` +
+        (r.summary.registerInOss ? `<p>VAT at shoppers' rates on sales past the line: <b>${f(r.summary.destVatEur)} EUR</b>, plus ${f(r.summary.homeVatOnCrossEur)} EUR home VAT on the sales before it.</p>` : "") +
+        `<table><tr><th>Country</th><th class="num">Sales</th><th class="num">At their rate</th><th class="num">Rate</th><th class="num">Keep per 100 EUR shelf price</th><th>What to do</th></tr>${r.rows.map(x => `<tr><td>${esc(x.name)}</td><td class="num">${f(x.sales)}</td><td class="num">${f(x.destSales)}</td><td class="num">${x.rateUsed}%</td><td class="num">${x.keepPerHundred == null ? "" : x.keepPerHundred.toFixed(2)}</td><td>${esc(x.note)}</td></tr>`).join("")}</table>` +
+        `<p class="tag">"Keep per 100 EUR" is what is left of a 100 EUR shelf price (set with your home VAT) if the shopper's country rate is charged instead and the price does not change.</p>`;
+    }
+    $("#add").addEventListener("click", () => { addRow("IT"); render(); });
+    $("#rows").addEventListener("input", () => { render(); recordUsage("eutax_check"); });
+    $("#home").addEventListener("change", render); $("#prior").addEventListener("input", render);
+    addRow("FR", 7000, 2000); addRow("IT", 3500, 1000); addRow("ES", 1500, 0);
+    render(); recordUsage("eutax_open");
+  </script>
+</body>
+</html>
