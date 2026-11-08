@@ -26,16 +26,26 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [
-    "docs/posts/2026-11-08-one-lumber-order-for-a-whole-house.md"
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Flagship 1 next: names 'run it on the Schultz floors next', which several overlapping scheduled sessions all picked up at once"
+    }
   ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Duplicate PRs: another session landed the identical --stack DXF change with the same numbers while I worked",
+      "did": "took main's code, docs and flagship text; dropped my post",
+      "result": "PR carries only this record"
+    }
+  ],
+  "writeups": [],
   "goal": null,
-  "notes": "--stack takes DXF floors with per-floor --ifc-json; run on Schultz IFC: 6175.20 stacked vs 6192.56 apart. cli.test.mjs 55 pass.",
+  "notes": "Duplicate of another session's work; no new deliverable from this run.",
   "corrections": [],
   "redteam": null
 }

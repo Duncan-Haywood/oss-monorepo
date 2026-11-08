@@ -151,6 +151,19 @@ test("a DXF floor plan goes straight to a takeoff, or to plan JSON with --plan-o
   assert.equal(run(["house.dxf"], g(0, "EOF")).code, 2);
 });
 
+test("--stack takes a drawing as a floor, as the first file does, and a missing file stops it", () => {
+  const g = (c, v) => `${c}\n${v}\n`;
+  const L = (l, a, b, c, d) => g(0, "LINE") + g(8, l) + g(10, a) + g(20, b) + g(11, c) + g(21, d);
+  const box = (w, d) => g(0, "SECTION") + g(2, "ENTITIES") + L("WALL", 0, 0, w, 0) + L("WALL", w, 0, w, d) + L("WALL", w, d, 0, d) + L("WALL", 0, d, 0, 0) + g(0, "ENDSEC");
+  const files = { "a.dxf": box(480, 336), "b.dxf": box(360, 240) };
+  const rd = (p) => { if (!(p in files)) throw new Error(`no file ${p}`); return files[p]; };
+  const r = main(["a.dxf", "--stack=b.dxf"], rd);
+  assert.equal(r.code, 0);
+  assert.match(r.out, /Stacked 2 floors into one order \(a: 4 walls, b: 4 walls\)/);
+  assert.match(r.out, /8 walls/);
+  assert.equal(main(["a.dxf", "--stack=missing.dxf"], rd).code, 2);
+});
+
 test("--wall-layer reads a drawing whose layers are not named like wall", () => {
   const g = (c, v) => `${c}\n${v}\n`;
   const L = (l, a, b, c, d) => g(0, "LINE") + g(8, l) + g(10, a) + g(20, b) + g(11, c) + g(21, d);
@@ -580,16 +593,4 @@ test("--whole-house equals the four flags it stands for", () => {
   assert.equal(a.code, b.code);
   assert.equal(a.out, b.out);
   assert.match(a.out, /SKIPPED 1 WALL/);
-});
-
-test("--stack takes DXF floors and orders them as one", () => {
-  const g = (c, v) => `${c}\n${v}\n`;
-  const L = (l, a, b, c, d) => g(0, "LINE") + g(8, l) + g(10, a) + g(20, b) + g(11, c) + g(21, d);
-  const box = (w, h) => g(0, "SECTION") + g(2, "ENTITIES") + L("WALL", 0, 0, w, 0) + L("WALL", w, 0, w, h) + L("WALL", w, h, 0, h) + L("WALL", 0, h, 0, 0) + g(0, "ENDSEC");
-  const files = { "a.dxf": box(480, 336), "b.dxf": box(360, 240) };
-  const r = main(["a.dxf", "--stack=b.dxf"], (p) => files[p]);
-  assert.equal(r.code, 0);
-  assert.match(r.out, /Stacked 2 floors into one order \(a: 4 walls, b: 4 walls\)/);
-  assert.match(r.out, /8 walls/);
-  assert.match(r.out, /b W1|b /);
 });
