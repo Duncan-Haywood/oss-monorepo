@@ -1,0 +1,50 @@
+cells: 40; with c = 0: 22; with c >= 1: 18; share with c >= 1: 0.450
+cell (tag, design, rungs, n, certified c)
+tight adder_op16 r3 n=50 c=0
+tight adder_op16 r2 n=50 c=4
+tight adder_ripple16 r3 n=52 c=0
+tight adder_ripple16 r2 n=52 c=0
+tight mult8 r3 n=50 c=0
+tight mult8 r2 n=50 c=5
+tight mac4 r3 n=50 c=0
+tight mac4 r2 n=50 c=4
+tight alu8 r3 n=50 c=0
+tight alu8 r2 n=50 c=5
+tight popcount16 r3 n=50 c=0
+tight popcount16 r2 n=50 c=5
+tight barrel16 r3 n=50 c=0
+tight barrel16 r2 n=50 c=5
+tight crc16 r3 n=50 c=0
+tight crc16 r2 n=50 c=2
+tight cmp_sat12 r3 n=50 c=0
+tight cmp_sat12 r2 n=50 c=5
+tight fifo8x4 r3 n=50 c=0
+tight fifo8x4 r2 n=50 c=5
+relaxed adder_op16 r3 n=50 c=0
+relaxed adder_op16 r2 n=50 c=4
+relaxed adder_ripple16 r3 n=52 c=0
+relaxed adder_ripple16 r2 n=52 c=0
+relaxed mult8 r3 n=50 c=0
+relaxed mult8 r2 n=50 c=5
+relaxed mac4 r3 n=50 c=0
+relaxed mac4 r2 n=50 c=4
+relaxed alu8 r3 n=50 c=0
+relaxed alu8 r2 n=50 c=5
+relaxed popcount16 r3 n=50 c=0
+relaxed popcount16 r2 n=50 c=5
+relaxed barrel16 r3 n=50 c=0
+relaxed barrel16 r2 n=50 c=5
+relaxed crc16 r3 n=50 c=0
+relaxed crc16 r2 n=50 c=2
+relaxed cmp_sat12 r3 n=50 c=0
+relaxed cmp_sat12 r2 n=50 c=5
+relaxed fifo8x4 r3 n=50 c=0
+relaxed fifo8x4 r2 n=50 c=5
+m | exact share with a ceiling | simulated (milestone 99) | difference
+4 | 0.1428 | 0.140 | +0.0028
+8 | 0.2458 | 0.242 | +0.0038
+12 | 0.3182 | 0.312 | +0.0062
+16 | 0.3676 | 0.367 | +0.0006
+24 | 0.4209 | 0.422 | -0.0011
+32 | 0.4412 | 0.440 | +0.0012
+40 | 0.4480 | 0.448 | +0.0000
