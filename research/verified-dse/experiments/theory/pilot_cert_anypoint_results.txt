@@ -1,0 +1,4 @@
+m | pilots | share with T<1 | share with any certified point | violations of returned<=ceiling | draws | extra pilots (T>=1 with ceiling) | mean excess of ceiling, T<1 pilots | mean excess of ceiling, extra pilots
+8 | 12000 | 0.166 | 0.242 | 0 | 145050 | 914 | 0.0425 | 0.1139
+16 | 12000 | 0.221 | 0.367 | 0 | 219950 | 1750 | 0.0302 | 0.1016
+24 | 12000 | 0.257 | 0.422 | 0 | 253450 | 1984 | 0.0198 | 0.0957
