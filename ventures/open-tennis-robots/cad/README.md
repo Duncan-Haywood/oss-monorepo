@@ -119,6 +119,7 @@ the part you actually buy before cutting metal.
   mu 0.8: measure both). That is far above the 60 N `wheel_pull_n` the retainer
   check assumes; the 17 N retainer drag stays safe either way. The head plates
   must also extend past the ball's exit from the nip.
+  **Launch window (2026-11-08, `Feeder.launch_window`):** the checks above hold at one speed; this finds the speeds that pass. At the shipped 3000 rpm topspin the window is 17.9 to 26.8 m/s: below it the bottom wheel would have to run backwards to make that spin, above it the nip's traction (assumed 20 N/mm, mu 0.8) runs out. More topspin squeezes it from the wheel-rpm side: 3500 rpm gives 20.9 to 25.9 m/s (the top wheel's 7000 rpm limit binds), and 4000 rpm has no passing speed. A softer ball squeeze (15 N/mm) shrinks it to 17.9 to 23.2 m/s; at 5 N/mm none. So the top wheel's motor and the squeeze stiffness decide the fastest heavy-topspin drive: measure both before choosing motors.
   **Not yet modelled:** the netting and trough, hopper agitator, brackets for
   the shuttle and elevation actuators, azimuth drive and cabling. The BOM
   lists the actuators and drive as bought parts without a mount.

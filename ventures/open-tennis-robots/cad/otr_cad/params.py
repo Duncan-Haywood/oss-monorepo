@@ -700,6 +700,33 @@ class Feeder:
             bad.append("head plates end before the ball has left the wheels")
         return bad
 
+    def launch_window(self, topspin_rpm: float | None = None) -> tuple[float, float, str]:
+        """(slowest, fastest, binding limit) muzzle speed in m/s that passes the wheel-rpm and
+        nip-traction checks of `check_launch` at the given topspin (default `launch_topspin_rpm`).
+        The slowest is set by the bottom wheel: at low speed the spin difference would need it to run
+        backwards. The fastest is set by the wheels' rpm limit or by the nip's traction ("wheel rpm"
+        or "nip traction"). Returns (0, 0, ...) if no speed passes. Bisection on `check_launch`'s tests."""
+        from dataclasses import replace
+        spin = self.launch_topspin_rpm if topspin_rpm is None else topspin_rpm
+
+        def state(v: float) -> tuple[bool, bool, bool]:
+            q = replace(self, launch_v_max=v, launch_topspin_rpm=spin)
+            rt, rb = q.launch_rpm
+            return rb >= 0, max(rt, rb) <= q.wheel_rpm_max, q.launch_force_n * 1.5 <= q.launch_traction_n
+
+        lo, hi = 0.0, 200.0
+        for _ in range(60):  # slowest: the bottom wheel stops running backwards
+            mid = (lo + hi) / 2
+            lo, hi = (lo, mid) if state(mid)[0] else (mid, hi)
+        vmin = hi
+        if not all(state(vmin)):
+            return 0.0, 0.0, "wheel rpm" if not state(vmin)[1] else "nip traction"
+        lo, hi = vmin, 200.0
+        for _ in range(60):  # fastest: rpm and traction limits both tighten with speed
+            mid = (lo + hi) / 2
+            lo, hi = (mid, hi) if all(state(mid)) else (lo, mid)
+        return vmin, lo, ("wheel rpm" if not state(hi)[1] else "nip traction")
+
     def retain_strain_bad(self) -> str:
         if not 0.5 < self.retain_frac < 0.95:
             return "retainer gap must be 50 to 95% of the ball diameter"

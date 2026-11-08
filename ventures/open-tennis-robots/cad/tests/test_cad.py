@@ -164,6 +164,23 @@ class FeederParamsTest(unittest.TestCase):
         self.assertTrue(any("falls only" in r for r in Feeder(hopper_out_x=-60.0, hopper_out_z=1300.0).check()))
         self.assertTrue(any("bows" in r for r in Feeder(hopper_out_z=1500.0, hose_min_bend=400.0).check()))
 
+    def test_launch_window_is_the_edge_of_the_launch_check(self):
+        p = Feeder()
+        lo, hi, why = p.launch_window()
+        self.assertTrue(lo < p.launch_v_max < hi)  # the shipped 25 m/s sits inside the window
+        self.assertEqual(Feeder(launch_v_max=hi * 0.999).check_launch(), [])
+        self.assertTrue(Feeder(launch_v_max=hi * 1.001).check_launch())
+        self.assertTrue(Feeder(launch_v_max=lo * 0.999).check_launch())
+        self.assertEqual(Feeder(launch_v_max=lo * 1.001).check_launch(), [])
+        self.assertIn(why, ("wheel rpm", "nip traction"))
+        # more topspin: the slow end rises (bottom wheel) and the fast end falls (top wheel)
+        lo2, hi2, _ = p.launch_window(3500.0)
+        self.assertTrue(lo2 > lo and hi2 < hi)
+        self.assertEqual(p.launch_window(4000.0)[:2], (0.0, 0.0))  # no speed carries that much spin
+        # a soft ball squeeze: traction binds and the window shrinks; very soft, none passes
+        self.assertEqual(Feeder(ball_stiff_n_mm=15.0).launch_window()[2], "nip traction")
+        self.assertEqual(Feeder(ball_stiff_n_mm=5.0).launch_window()[:2], (0.0, 0.0))
+
     def test_launch_checks_tie_the_head_to_the_flight_model(self):
         p = Feeder()
         self.assertAlmostEqual(p.nip_len, 74.0, delta=0.5)
