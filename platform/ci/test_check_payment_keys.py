@@ -98,6 +98,11 @@ class FindingsIn(unittest.TestCase):
                 self.write(name, text)
         self.assertEqual(len(self.kinds()), 4)
 
+    def test_uppercase_env_style_button_id_fails(self):
+        # `.env.example`-style files name the variable in capitals.
+        self.write(".env.example", "PAYPAL_HOSTED_BUTTON_ID=ABCD1234EF\n")
+        self.assertEqual(self.kinds(), ["PayPal hosted button"])
+
     def test_paypal_env_lookups_pass(self):
         self.write("a.ts", "const o = { hosted_button_id: process.env.PAYPAL_BUTTON };\n")
         self.write("b.html", '<input name="hosted_button_id" value="">\n')
