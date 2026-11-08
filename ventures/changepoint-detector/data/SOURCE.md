@@ -533,6 +533,17 @@ column is built from the `time` column of the source.
 - **Licence:** fpp2 is GPL-3 on CRAN; the figures are public US vital statistics. Kept as a small test fixture with its source named.
 - **Used by:** `eval/us-female-murder-rate.mjs`, `us-female-murder-rate.test.mjs`.
 
+# Example data: Australian quarterly cement production, 1956Q1-2014Q1
+
+`qcement.csv`: 233 quarters of Australian portland cement production (millions
+of tonnes), the `qcement` series of R's fpp2 package (Hyndman).
+
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/qcement.csv>
+  (the `time` column turned into `YYYYQn` labels).
+- **Licence:** fpp2 is GPL-3; Rdatasets redistributes it. The values are
+  Australian Bureau of Statistics counts, kept here as a test fixture.
+- **Used by:** `qcement.test.mjs`, README "Cement and the 2000 GST".
 ## nightingale-disease.csv (2026-11-08)
 
 - **What:** monthly Crimean War British army deaths from disease per 1,000 per year, April 1854 to March 1856 (24 points), the `Disease.rate` column of Florence Nightingale's data.
