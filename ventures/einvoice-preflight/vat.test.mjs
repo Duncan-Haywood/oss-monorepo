@@ -175,3 +175,13 @@ test("Australia, New Zealand and Serbia check digits", () => {
   assert.deepEqual(ok("RS101134702"), []);
   assert.equal(ok("RS101134703")[0].rule, "INV-023");
 });
+
+test("South Korea BRN and India GSTIN check digits", () => {
+  const ok = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier");
+  assert.deepEqual(ok("KR 124-81-00998"), []);
+  assert.equal(ok("KR1248100999")[0].rule, "INV-023");
+  assert.equal(ok("KR12481009")[0].rule, "INV-022");
+  assert.deepEqual(ok("IN 27AAPFU0939F1ZV"), []);
+  assert.equal(ok("IN27AAPFU0939F1ZW")[0].rule, "INV-023");
+  assert.equal(ok("IN27AAPFU0939F1")[0].rule, "INV-022");
+});
