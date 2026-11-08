@@ -27,3 +27,9 @@ test('au-gas: the annual slope test dates the takeoff at 1969 and clears its bar
 test('au-gas: on logs the same test finds nothing (growth is near-exponential, not a bend)', () => {
   assert.equal(slopeBreaks(annual.map(Math.log), { critical: 'auto' }).knots.length, 0);
 });
+
+test('au-gas: across 20 Monte Carlo seeds the takeoff clears the bar most of the time, not always (eval/au-gas-seeds.mjs)', () => {
+  let clear = 0;
+  for (let seed = 1; seed <= 20; seed++) { const r = slopeBreakPValue(annual, { reps: 499, seed }); if (r.w > r.bar95) clear++; }
+  assert.equal(clear, 17); // 17/20 at 499 reps; 19/20 at 1999 reps (output file). A borderline result, p about 0.04 to 0.05.
+});
