@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-08 · Milestone 6zi: open and cite the Renewable Energy 2022 Wave Glider paper (a sourcing step, no experiment)
+- Why: 6zh left the 10 W continuous-payload anchor as a search snippet. The RePEc record `ideas.repec.org/a/eee/renene/v188y2022icp911-921.html` was reachable (HTTP 200) and its abstract was read this session; Crossref (`api.crossref.org`) lists the same work with DOI 10.1016/j.renene.2022.02.102, vol. 188, pp. 911-921.
+- Opened: Zhang, Zhou, Chen, Zhang and Gao, "Design, modeling and numerical analysis of a WEC-Glider (WEG)", *Renewable Energy* 188, 2022. The abstract says a Wave Glider's photovoltaic generation is relatively weak, "continuous power available to payloads: 10 Watts", and that the proposed WEC-Glider reaches 34 W in regular waves in simulation. So the 10 W figure is a statement in that paper's introduction-level abstract, not a measurement of its own, and the 34 W is a Matlab/Simulink result, not a sea trial; neither is used as a model input.
+- What it does for the model: the 5 to 20 W hotel range drawn in 5m/5n is bracketed by an opened peer-reviewed statement (10 W) rather than a snippet alone. The 5 to 20 W vendor average stays unopened. No result changes.
+- Limits: abstract only (full text is paywalled; not opened); one source for the 10 W.
+- Next: item 1 (a tank curve) and the vendor 5 to 20 W average.
+
 ## 2026-11-08 · Milestone 6zh: open a vendor page for the Wave Glider anchors (a sourcing step, no experiment)
 - Why: paper section 3 item 2 asked to open and cite the Wave Glider sheet instead of a search snippet. `www.liquidr.com` redirects to `www.liquid-robotics.com`, which the session proxy served (HTTP 200) on 2026-11-08; the PDF spec sheets themselves were not found linked from that page, so they stay unopened.
 - Read from https://www.liquid-robotics.com/wave-gliders/ (comparison table, opened this session): SV3 / SV5 / SV6 float length 3.05 / 5.15 / 5.6 m, max energy storage 6.8 / 15.7 / 30 kWh, max solar collection 225 / 525 / 900 W, max payload 70 / 215 / 450 kg. The page's record claims (3 million+ nautical miles, 9,380 NM longest single mission) are marketing figures, not used.
