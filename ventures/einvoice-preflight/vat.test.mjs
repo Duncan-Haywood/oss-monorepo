@@ -200,3 +200,10 @@ test("Lithuanian 12-digit check digit (2026-11-08)", () => {
   assert.deepEqual(rules("LT100001919018"), ["INV-023"]);
   assert.deepEqual(rules("LT100001919027"), ["INV-023"]);
 });
+
+test("Kazakhstan BIN check digit (2026-11-08, hand-computed number)", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("KZ040701200547"), []);
+  assert.deepEqual(rules("KZ040701200548"), ["INV-023"]);
+  assert.deepEqual(rules("KZ0407012005"), ["INV-022"]);
+});
