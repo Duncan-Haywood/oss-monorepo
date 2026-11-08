@@ -39,6 +39,7 @@ NEAR_DUPLICATE_MAX_DISTANCE = 8
 BLURRY_BELOW = 0.2
 BAD_EXPOSURE_BELOW = 0.25
 CLOSED_EYES_BELOW = 0.3
+CLOSE_CALL_MARGIN = 0.03
 _MAX_FILES = 20000
 THUMB_WIDTH = 220
 _THUMB_TIMEOUT_SECONDS = 60.0
@@ -66,6 +67,14 @@ class CullItem:
     # Same-name files folded into this frame (a RAW beside its JPEG), so one
     # shot is one decision and one sidecar.
     companions: tuple[str, ...] = ()
+    # Keepers only: score lead over the best alternate in the burst, None when
+    # the keeper has no rival. Under CLOSE_CALL_MARGIN the pick is a toss-up
+    # worth a human glance.
+    margin: float | None = None
+
+    @property
+    def close_call(self) -> bool:
+        return self.margin is not None and self.margin < CLOSE_CALL_MARGIN
 
 
 @dataclass(frozen=True)
@@ -156,6 +165,11 @@ def cull_folder(
     for number, members in enumerate(groups, start=1):
         ranked = sorted(members, key=lambda m: (-_score(m[1], m[2]), str(m[0])))
         keeper_taken = False
+        passing = [m for m in ranked if not _failures(m[1], m[2])]
+        margin = (
+            round(_score(passing[0][1], passing[0][2]) - _score(passing[1][1], passing[1][2]), 4)
+            if len(passing) > 1 else None
+        )
         for path, metrics, faces in ranked:
             reasons = _failures(metrics, faces)
             if reasons:
@@ -176,6 +190,7 @@ def cull_folder(
                     eyes_open=faces.worst_eyes_open if faces else None,
                     dhash=metrics.dhash,
                     companions=companion_map.get(path, ()),
+                    margin=margin if role == "keeper" else None,
                 )
             )
     items.sort(key=lambda item: (item.group, item.path))
@@ -408,12 +423,14 @@ def result_to_dict(result: CullResult, score: PickScore | None = None) -> dict[s
             "alternates": result.count("alternate"),
             "rejects": result.count("reject"),
             "unreadable": len(result.unreadable),
+            "close_calls": sum(1 for i in result.items if i.close_call),
         },
         "items": [
             {
                 "path": i.path, "group": i.group, "role": i.role, "score": i.score,
                 "reasons": list(i.reasons), "sharpness": i.sharpness, "exposure": i.exposure,
                 "eyes_open": i.eyes_open, "dhash": i.dhash, "companions": list(i.companions),
+                "margin": i.margin, "close_call": i.close_call,
             }
             for i in result.items
         ],
@@ -434,7 +451,7 @@ def render_html(
     assert isinstance(summary, dict)
     rows = []
     for item in result.items:
-        reasons = ", ".join(item.reasons) or ""
+        reasons = ", ".join(item.reasons) or ("close call" if item.close_call else "")
         rows.append(
             f'<tr class="{item.role}"><td>{item.group}</td><td>{html.escape(_label(item))}</td>'
             f"<td>{item.role}</td><td>{item.score:.2f}</td><td>{item.sharpness:.2f}</td>"
@@ -461,10 +478,11 @@ def render_html(
         "td,th{padding:4px 8px;border-bottom:1px solid #8884;text-align:left}"
         "tr.keeper td{background:#2a82}tr.reject td{background:#d222}.burst{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;padding:8px;border:1px solid #8884;border-radius:6px}figure{margin:0;width:220px;font-size:12px}figure img{display:block;width:220px;border:4px solid #8884;box-sizing:border-box}figure.keeper img{border-color:#2a8}figure.reject img{border-color:#d33}figure.alternate img{opacity:.75}</style></head><body>"
         f"<h1>Cull report</h1><p>{summary['photos']} photos in {summary['groups']} groups: "
-        f"{summary['keepers']} keepers, {summary['alternates']} alternates, {summary['rejects']} rejects.</p>"
+        f"{summary['keepers']} keepers, {summary['alternates']} alternates, {summary['rejects']} rejects. "
+        f"{summary['close_calls']} keeper picks are close calls (lead under {CLOSE_CALL_MARGIN}); look at those first.</p>"
         + pick_html + sheet +
         "<table><tr><th>Group</th><th>Photo</th><th>Role</th><th>Score</th><th>Sharp</th><th>Exposure</th>"
-        "<th>Why rejected</th></tr>" + "".join(rows) + "</table>"
+        "<th>Why rejected / note</th></tr>" + "".join(rows) + "</table>"
         "<p>Technical scores only; not checked against a photographer's real picks. "
         "Scores are computed on your machine; no photo leaves it.</p></body></html>"
     )
