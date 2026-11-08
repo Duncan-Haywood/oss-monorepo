@@ -1,6 +1,8 @@
 // Offline VAT identifier shape and checksum observations.
 // Typo catch only — not a VIES lookup and not a claim a party may charge tax.
 
+import { checkTurkishTaxId } from "./turkey.mjs";
+
 const FORMAT_ONLY = {
   BG: [9, 10],
   CY: [9],
@@ -80,7 +82,17 @@ const EXTRA_CHECKS = {
   HR: { applies: (b) => /^\d{11}$/.test(b), ok: (b) => deOkIso7064(b.slice(0, 10), Number(b[10])) },
   // Legal entities only (first digit 4-9); natural persons use a birth date.
   LV: { applies: (b) => /^[4-9]\d{10}$/.test(b), ok: (b) => weighted(b, [9, 1, 4, 8, 3, 10, 2, 5, 7, 6, 1]) % 11 === 3 },
-  LT: { applies: (b) => /^\d{9}$/.test(b), ok: (b) => b[7] === "1" && mod11Retry(b, MOD11_RETRY.LT) },
+  LT: {
+    applies: (b) => /^\d{9}$|^\d{12}$/.test(b),
+    ok: (b) => {
+      if (b.length === 9) return b[7] === "1" && mod11Retry(b, MOD11_RETRY.LT);
+      // 12 digits (temporarily registered payers): 11th digit 1, mod 11 over 11 digits, second weight set on 10, then 10 -> 0.
+      let sum = weighted(b.slice(0, 11), [1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2]) % 11;
+      if (sum === 10) sum = weighted(b.slice(0, 11), [3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4]) % 11;
+      if (sum === 10) sum = 0;
+      return b[10] === "1" && sum === Number(b[11]);
+    },
+  },
   BG: { applies: (b) => /^\d{9}$/.test(b), ok: (b) => mod11Retry(b, MOD11_RETRY.BG) },
   RO: {
     applies: (b) => /^[1-9]\d{1,9}$/.test(b),
@@ -166,6 +178,9 @@ function classify(country, body) {
   if (country === "AU") return /^\d{11}$/.test(body) ? "checksum" : "bad-format";
   if (country === "NZ") return /^\d{8,9}$/.test(body) ? "checksum" : "bad-format";
   if (country === "RS") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "TR") return /^\d{10,11}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "KR") return /^\d{10}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "IN") return /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(body) ? "checksum" : "bad-format";
   const lengths = FORMAT_ONLY[country];
   if (lengths === undefined) return "unknown";
   if (EXTRA_CHECKS[country]?.applies(body)) return "checksum";
@@ -404,6 +419,29 @@ function rsPibOk(body) {
   return (11 - product) % 10 === Number(body[8]);
 }
 
+// South Korean business registration number: weights 1,3,7,1,3,7,1,3,5 plus the
+// tens digit of the ninth digit times 5; the tenth digit tops the total up to a multiple of 10.
+function krBrnOk(body) {
+  const d = digitsOf(body);
+  const weights = [1, 3, 7, 1, 3, 7, 1, 3, 5];
+  let sum = 0;
+  for (let i = 0; i < 9; i += 1) sum += d[i] * weights[i];
+  sum += Math.floor((d[8] * 5) / 10);
+  return (10 - (sum % 10)) % 10 === d[9];
+}
+
+// Indian GSTIN: the fifteenth character is a base-36 check over the first fourteen,
+// with factors 1 and 2 alternating.
+function inGstinOk(body) {
+  const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let sum = 0;
+  for (let i = 0; i < 14; i += 1) {
+    const product = chars.indexOf(body[i]) * (i % 2 === 0 ? 1 : 2);
+    sum += Math.floor(product / 36) + (product % 36);
+  }
+  return chars[(36 - (sum % 36)) % 36] === body[14];
+}
+
 function checksumOk(country, body) {
   if (country === "DE") return deOk(body);
   if (country === "FR") return frOk(body);
@@ -425,6 +463,9 @@ function checksumOk(country, body) {
   if (country === "AU") return auAbnOk(body);
   if (country === "NZ") return nzIrdOk(body);
   if (country === "RS") return rsPibOk(body);
+  if (country === "TR") return checkTurkishTaxId(body).ok;
+  if (country === "KR") return krBrnOk(body);
+  if (country === "IN") return inGstinOk(body);
   if (country === "XI") return body.length === 9 || body.length === 12 ? gbOk(body) : false;
   if (EXTRA_CHECKS[country]) return EXTRA_CHECKS[country].ok(body);
   return false;

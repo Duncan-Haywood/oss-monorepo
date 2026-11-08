@@ -146,7 +146,7 @@ test("Cyprus check letter (2026-11-08)", () => {
 });
 
 test("variants without a checksum here stay shape-only", () => {
-  for (const number of ["BG1750747520", "CZ7103192745", "LV01011012345", "LT100001919017"]) {
+  for (const number of ["BG1750747520", "CZ7103192745", "LV01011012345"]) {
     const kind = inspectPartyVat({ id: "S1", name: "A", vat_id: number }, "supplier").map((item) => item.rule);
     assert.ok(!kind.includes("INV-023"), number);
   }
@@ -174,4 +174,29 @@ test("Australia, New Zealand and Serbia check digits", () => {
   assert.equal(ok("NZ49091851")[0].rule, "INV-023");
   assert.deepEqual(ok("RS101134702"), []);
   assert.equal(ok("RS101134703")[0].rule, "INV-023");
+});
+
+test("South Korea BRN and India GSTIN check digits", () => {
+  const ok = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier");
+  assert.deepEqual(ok("KR 124-81-00998"), []);
+  assert.equal(ok("KR1248100999")[0].rule, "INV-023");
+  assert.equal(ok("KR12481009")[0].rule, "INV-022");
+  assert.deepEqual(ok("IN 27AAPFU0939F1ZV"), []);
+  assert.equal(ok("IN27AAPFU0939F1ZW")[0].rule, "INV-023");
+  assert.equal(ok("IN27AAPFU0939F1")[0].rule, "INV-022");
+});
+
+test("Turkey VKN/TCKN check digits", () => {
+  const ok = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier");
+  // TCKN 10000000146 is the standard published test number.
+  assert.deepEqual(ok("TR10000000146"), []);
+  assert.equal(ok("TR10000000147")[0].rule, "INV-023");
+  assert.equal(ok("TR123")[0].rule, "INV-022");
+});
+
+test("Lithuanian 12-digit check digit (2026-11-08)", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("LT100001919017"), []);
+  assert.deepEqual(rules("LT100001919018"), ["INV-023"]);
+  assert.deepEqual(rules("LT100001919027"), ["INV-023"]);
 });

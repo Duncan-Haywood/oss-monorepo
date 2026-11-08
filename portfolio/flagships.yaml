@@ -146,7 +146,7 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (Poland KSeF page from search excerpts, Sejm text
+      History: README and git (tax-id check digits for AU, NZ, RS, KR, IN in vat.mjs; Turkey's VKN wanted with a published example; Poland KSeF page from search excerpts, Sejm text
       unread; UK page read against gov.uk 2026-10-30; South Korea from memory, NTS
       unread). Open: ZATCA rules on a real sandbox invoice and credit or debit
       note (both made up), the Saxon route; FatturaPA code lists (TD29, RF20) and
