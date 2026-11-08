@@ -1,9 +1,9 @@
 ---
 title: "A Draft Patch That Broke an Older Reply Set: the sales agent's fourteenth test"
-seo_title: "Testing an AI Sales Reply Classifier on Finnish, Turkish and German Opt-Outs"
+seo_title: "Testing a Sales Reply Classifier on Finnish and Turkish Opt-Outs"
 date: 2026-11-08
 tags: [sales-agent, evaluation, cold-email]
-description: "Fourteenth fresh set of 31 sales replies: 26 right before any change, 31 after. One draft patch cost an older set a point, which is why old sets stay in the loop."
+description: "Fourteenth fresh set of 31 sales replies: 26 right before any change, 31 after. One draft patch cost an older set a point, so old sets stay in the loop."
 ---
 
 The [sales agent](/ventures/sales-agent/) reads replies to cold outreach and sorts them: opt-out, not interested, not now, out of office, wrong person, question, interested. A person approves anything it sends. Each round, a new set of replies is written, scored once before any change, and only then used to patch the rules.
