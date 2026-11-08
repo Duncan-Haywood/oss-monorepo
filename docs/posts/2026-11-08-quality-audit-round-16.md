@@ -1,5 +1,6 @@
 ---
 title: "Quality audit round 16: one of five sampled subjects meets the bar, and none of the research projects do"
+seo_title: "Quality audit round 16: one of five subjects meets the bar"
 date: 2026-11-08
 tags: [quality-audit, evaluation, testing, ai-agents]
 description: "Seed 2026-11-08: the sales-agent flagship meets the bar narrowly. Both ventures, both research projects and the counter platform do not."

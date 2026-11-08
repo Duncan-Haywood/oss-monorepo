@@ -1,0 +1,185 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01AcxTtJmXR2XCoTXuJc2hMh",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-08T09:06:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Neither the writing seo_title test nor doc_index test runs in a PR workflow, so both went red on main unseen (the second is already an open entry); the publishing posts step should run propose_seo_titles.py --check."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-08-two-red-tests-on-main.md"
+  ],
+  "goal": null,
+  "notes": "Both open entries are control-plane, left open. Fixed two red suites on main; doc_index campaign 5/8 caught, 8/8 after 2 new tests. Unfixed: red baselines hub.mjs, narrate.py (not investigated).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/doc_index.py",
+        "test": "/usr/local/bin/python3 -m unittest test_doc_index  (in platform/ci)",
+        "seed": 872203463,
+        "commit": "d72bfc4e",
+        "sites": 139,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 68,
+            "col": 28,
+            "operator": "div-to-times",
+            "before": "return json.loads((root / TAXONOMY).read_text())",
+            "after": "return json.loads((root * TAXONOMY).read_text())",
+            "line_text": "    return json.loads((root / TAXONOMY).read_text())",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 172,
+            "col": 13,
+            "operator": "div-to-times",
+            "before": "p = root / \"prompts\" / \"system.json\"",
+            "after": "p = root * \"prompts\" / \"system.json\"",
+            "line_text": "    p = root / \"prompts\" / \"system.json\"",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 215,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "stem = name[:-3] if name.endswith(\".md\") else name",
+            "after": "stem = name[:-4] if name.endswith(\".md\") else name",
+            "line_text": "    stem = name[:-3] if name.endswith(\".md\") else name",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 236,
+            "col": 30,
+            "operator": "or-to-and",
+            "before": "title = meta.get(\"title\") or next((ln[2:].strip() for ln in body.splitlines() if ln.startswith(\"# \")), \"\")",
+            "after": "title = meta.get(\"title\") and next((ln[2:].strip() for ln in body.splitlines() if ln.startswith(\"# \")), \"\")",
+            "line_text": "    title = meta.get(\"title\") or next((ln[2:].strip() for ln in body.splitlines() if ln.startswith(\"# \")), \"\")",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 428,
+            "col": 24,
+            "operator": "or-to-and",
+            "before": "if not (r[\"topics\"] or r[\"projects\"]):",
+            "after": "if not (r[\"topics\"] and r[\"projects\"]):",
+            "line_text": "    if not (r[\"topics\"] or r[\"projects\"]):",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "print_find output, topic-only find and post counts were untested; tests added"
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 439,
+            "col": 46,
+            "operator": "plus-to-minus",
+            "before": "print(f\"  [{g['layer']}] {where}\" + (f\"  \\\"{g['heading']}\\\"\" if g[\"heading\"] else \"\"))",
+            "after": "print(f\"  [{g['layer']}] {where}\" - (f\"  \\\"{g['heading']}\\\"\" if g[\"heading\"] else \"\"))",
+            "line_text": "            print(f\"  [{g['layer']}] {where}\" + (f\"  \\\"{g['heading']}\\\"\" if g[\"heading\"] else \"\"))",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "print_find output, topic-only find and post counts were untested; tests added"
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 466,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "post[t] = post.get(t, 0) + 1",
+            "after": "post[t] = post.get(t, 1) + 1",
+            "line_text": "            post[t] = post.get(t, 0) + 1",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "print_find output, topic-only find and post counts were untested; tests added"
+          },
+          {
+            "file": "platform/ci/doc_index.py",
+            "line": 467,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "return [(t[\"id\"], t[\"label\"], rep.get(t[\"id\"], 0), post.get(t[\"id\"], 0)) for t in tax[\"topics\"]]",
+            "after": "return [(t[\"id\"], t[\"label\"], rep.get(t[\"id\"], 1), post.get(t[\"id\"], 0)) for t in tax[\"topics\"]]",
+            "line_text": "    return [(t[\"id\"], t[\"label\"], rep.get(t[\"id\"], 0), post.get(t[\"id\"], 0)) for t in tax[\"topics\"]]",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/pages/writing.test.mjs",
+        "issue": "Red on main: 28 posts over the 70-char title budget had no seo_title (11 auto-cut, 17 hand-titled).",
+        "patched": true,
+        "patched_in": "this PR"
+      },
+      {
+        "file": "platform/ci/test_doc_index.py",
+        "issue": "Red on main: 2 reports without front matter, 2 with topic 'aeo' (an alias, not an id).",
+        "patched": true,
+        "patched_in": "this PR"
+      }
+    ]
+  }
+}

@@ -1,5 +1,6 @@
 ---
 title: "We blanked and zeroed every input on 1,279 product pages: no NaN, no errors"
+seo_title: "We blanked and zeroed every input on 1,279 product pages"
 date: 2026-11-07
 description: "A headless-browser sweep cleared then zeroed every input on 1,279 venture pages and found no NaN, Infinity or undefined text and no uncaught script errors."
 tags: [quality, testing, ventures]

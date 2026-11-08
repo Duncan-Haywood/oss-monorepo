@@ -1,5 +1,6 @@
 ---
 title: "20,305 select, checkbox and Enter-key actions on 1,333 venture pages: 0 NaN or errors"
+seo_title: "20,305 select, checkbox and Enter-key actions on 1,333 venture pages"
 date: 2026-11-08
 tags: [quality, testing, tools]
 description: "A new headless-Chromium sweep changes every select option, toggles checkboxes and radios, and presses Enter in inputs on venture pages. It found nothing."

@@ -1,5 +1,6 @@
 ---
 title: "Quality audit round 10: none of six at the bar, and the tests miss the same things"
+seo_title: "Quality audit round 10: none of six at the bar"
 date: 2026-11-08
 tags: [quality-audit, evaluation, testing, ai-agents]
 description: "Seed 2026-11-07, six new subjects: none meets the bar. Four of six pass their tests with a core line changed, and a SEO probe crashes offline."

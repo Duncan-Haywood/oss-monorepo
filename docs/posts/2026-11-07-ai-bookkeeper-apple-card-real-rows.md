@@ -1,5 +1,6 @@
 ---
 title: "Two real Apple Card exports: the bookkeeper filed a grocer's gas pumps as meals"
+seo_title: "Two real Apple Card exports"
 date: 2026-11-07
 description: "Scoring the ai-bookkeeper keyword layer on 98 real Apple Card purchases: 56.9% right before fixes, 63.8% after, and the miss that taught the most."
 tags: [ai-bookkeeper, evaluation, bookkeeping]

@@ -1,5 +1,6 @@
 ---
 title: "The bill before the first sale: what a first clothing run costs beyond the factory quote"
+seo_title: "The bill before the first sale"
 date: 2026-11-08
 tags: [clothing, ventures, small-business, tools]
 description: "A free start-up budget for a clothing line adds patterns, samples, photos and a trademark search to the factory order and shows cash out before the first sale."

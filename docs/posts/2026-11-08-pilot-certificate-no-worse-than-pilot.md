@@ -1,5 +1,6 @@
 ---
 title: "A pilot certificate for chip-flow search guarantees 'no worse than the pilot', not 'near the optimum'"
+seo_title: "A pilot certificate guarantees 'no worse than the pilot'"
 date: 2026-11-08
 tags: [research, chip-design, design-space-search, successive-halving]
 description: "In halving chip-flow search a certified pilot guarantees the returned cost is at most the pilot's best: 0 violations in 1.5M draws, ~2.7x realised regret."

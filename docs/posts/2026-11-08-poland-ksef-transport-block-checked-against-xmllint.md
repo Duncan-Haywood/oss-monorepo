@@ -1,5 +1,6 @@
 ---
 title: "Poland's KSeF invoice checker now covers the transport block, tested against the official schema"
+seo_title: "KSeF invoice checker: the transport block, schema-tested"
 date: 2026-11-08
 tags: [einvoice-preflight, poland, ksef, testing]
 description: "A made-up FA(3) invoice with two transport entries joined the differential test: 6,550 mutations, 6,550 agreements with xmllint."

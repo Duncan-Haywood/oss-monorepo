@@ -1,5 +1,6 @@
 ---
 title: "Where a stalling cheater's skipped steps sit decides how well spot-checks catch it"
+seo_title: "Where skipped steps sit decides spot-check catch rate"
 date: 2026-11-08
 tags: [research, verifiable-training, ml-security, spot-checks]
 description: "Recording where a stalling worker skips steps turns bounds on segment spot-check catch rates into exact ones: stalls cluster, so coarse checkpoints lose more."

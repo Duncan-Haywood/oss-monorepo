@@ -1,5 +1,6 @@
 ---
 title: "Quality audit round 11: two of six at the bar, and a tax cap scaled by the wrong number"
+seo_title: "Quality audit round 11: two of six at the bar"
 date: 2026-11-08
 tags: [quality-audit, evaluation, testing, ai-agents]
 description: "Seed 2026-11-08, six subjects: a mileage calculator and devstats meet the bar; a vehicle depreciation calculator scales a Section 179 cap by business use."

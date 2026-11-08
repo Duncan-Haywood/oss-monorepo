@@ -1,5 +1,6 @@
 ---
 title: "A hybrid cargo VTOL wins from 67 km once the engine has mass, and engine power-to-weight decides it"
+seo_title: "Hybrid cargo VTOL: engine power-to-weight decides it"
 date: 2026-11-08
 tags: [research, aerolog, vtol, hybrid-electric, drones]
 description: "Adding engine and tank mass to a cargo VTOL sizing model moves the hybrid-over-battery break-even from 20 km to 67 km; engine specific power matters most."

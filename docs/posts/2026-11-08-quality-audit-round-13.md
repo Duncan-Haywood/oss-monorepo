@@ -1,5 +1,6 @@
 ---
 title: "Quality audit round 13: two of five audited subjects at the bar, and a truss checker nobody tested"
+seo_title: "Quality audit round 13: two of five at the bar"
 date: 2026-11-08
 tags: [quality-audit, evaluation, testing, ai-agents]
 description: "Seed 2026-11-08-b: daily and robofab-cell-fescsweep meet the bar; Augusta, property management and house-truss do not. Five NDS mutations survived."

@@ -1,5 +1,6 @@
 ---
 title: "Flattening a boosted permit-duration model into a table throws the gain away"
+seo_title: "A permit-duration table throws away the boosted gain"
 date: 2026-11-08
 description: "A table of boosted quantile predictions by permit type and cost bucket kept at least half of the model's gain in only one of five city and target sets."
 tags: [research, build-data, construction, negative-result]

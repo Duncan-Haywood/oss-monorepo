@@ -1,5 +1,6 @@
 ---
 title: "Cut it bigger than the spec: a shrinkage calculator for small clothing brands"
+seo_title: "Cut it bigger than the spec"
 date: 2026-11-08
 tags: [clothing-design-studio, tools, manufacturing]
 description: "A free browser tool that turns a wash-test swatch into the size to cut and the extra cloth to buy."
