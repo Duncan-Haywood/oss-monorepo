@@ -1,0 +1,18 @@
+city target model: dq_qhat, raw_cov -> dq_cov (delta)
+chicago a2i table3: +0.96, 0.825 -> 0.825 (+0.000)
+chicago a2i baseline: +0.37, 0.885 -> 0.885 (+0.000)
+chicago a2i full: -0.09, 0.862 -> 0.558 (-0.304)
+sf a2i table3: +2.74, 0.813 -> 0.834 (+0.020)
+sf a2i baseline: +12.00, 0.754 -> 0.826 (+0.072)
+sf a2i full: -0.14, 0.891 -> 0.343 (-0.548)
+sf i2c table3: +8.41, 0.771 -> 0.837 (+0.066)
+sf i2c baseline: +5.56, 0.801 -> 0.844 (+0.043)
+sf i2c full: +4.35, 0.785 -> 0.830 (+0.045)
+austin a2i table3: -0.20, 0.839 -> 0.765 (-0.074)
+austin a2i baseline: +23.79, 0.791 -> 0.823 (+0.033)
+austin a2i full: -0.33, 0.813 -> 0.783 (-0.030)
+austin i2c table3: +4.63, 0.802 -> 0.836 (+0.034)
+austin i2c baseline: +4.40, 0.768 -> 0.839 (+0.071)
+austin i2c full: +3.07, 0.768 -> 0.808 (+0.040)
+qhat<0: n=4, deltas [-0.304, -0.548, -0.074, -0.03], all negative: True
+qhat>=0: n=11, min delta +0.000

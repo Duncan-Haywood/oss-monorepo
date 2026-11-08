@@ -116,3 +116,18 @@ class TestMondrian(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestNonemptyInterval(unittest.TestCase):
+    def test_plain_interval_inverts_and_clipped_does_not(self):
+        import conformal as c
+        lo, hi, y = [0.0, 0.0], [0.0, 3.0], [0, 2]
+        lo2, hi2 = c.cqr_interval(lo, hi, -0.14)
+        self.assertEqual(c.coverage(lo2, hi2, y), 0.5)  # y = 0 falls outside [0.14, -0.14]
+        lo3, hi3 = c.cqr_interval_nonempty(lo, hi, -0.14)
+        self.assertEqual(c.coverage(lo3, hi3, y), 1.0)
+        self.assertTrue(all(h >= l for l, h in zip(lo3, hi3)))
+
+    def test_positive_qhat_matches_plain(self):
+        import conformal as c
+        self.assertEqual(c.cqr_interval_nonempty([1.0, 0.0], [4.0, 2.0], 2.0), c.cqr_interval([1.0, 0.0], [4.0, 2.0], 2.0))

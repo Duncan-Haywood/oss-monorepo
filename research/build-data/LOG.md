@@ -1,5 +1,14 @@
 # build-data log
 
+## Session 55, 2026-11-08: milestone 7g, why the dequantised interval collapsed in coverage (diagnosis from saved results; no new data run)
+
+Why: session 54 left "investigate the dequantisation collapse" open. No predictions were written first; this is a post hoc reading of `results/prior_table3_cov_2024.json` (`src/dequant_diag.py`, output `results/dequant_diag.txt`) plus a mechanism I checked by hand on toy rows.
+- **Pattern:** the dequantised variant loses coverage against the raw interval in exactly the 4 of 15 model cells where its qhat is negative (-0.09 to -0.33 days: full model Chicago a2i 0.862 raw to 0.558, full SF a2i 0.891 to 0.343, table Austin a2i 0.839 to 0.765, full Austin a2i 0.813 to 0.783). In the 11 cells with qhat >= 0 coverage never fell (minimum change +0.000).
+- **Mechanism (hypothesis, consistent with the table, not yet confirmed on the feeds):** with qhat < 0 `cqr_interval` raises the lower end to -qhat and lowers the upper end by |qhat|. A same-day row has lo = hi = 0 and y = 0, so the interval becomes [0.14, -0.14] and covers nothing; jitter makes qhat a small non-zero negative number where plain CQR pinned it at exactly 0. Chicago and SF a2i are the zero-inflated cells, which fits.
+- Change: `conformal.cqr_interval_nonempty` leaves a lower end already at the floor alone when narrowing and keeps hi >= lo; two unit tests (the toy row above is covered by the new function and missed by the old one; for qhat >= 0 the two agree). All 14 conformal tests pass.
+- Not done: re-running milestone 7f with the new interval needs the permit feeds, pandas and lightgbm, none of which this session had. Until that is run, no coverage figure for the fix is claimed.
+- Next: rerun `prior_table3_cov.py` with `cqr_interval_nonempty` for the dequantised arm; then decide the shipped prior per city.
+
 ## Session 54, 2026-11-08: milestone 7f, do conformalised table intervals hold 80% coverage? (H10, planned before running)
 
 Why: session 53's three-key table (type x work class x cost bucket) keeps most of the boosted pinball gain at q0.1/q0.5/q0.9, but its intervals were never checked, and a readable prior is only shippable if its 80% interval means 80%. `src/prior_table3_cov.py` builds the table on train rows only (<= 2022), takes CQR scores of its [q10, q90] interval on the calibration year (2023), widens by the conformal quantile (session 19's dequantised variant is reported beside the plain one), and scores coverage and mean width on test year 2024. Same recipe on the per-type baseline and on the full LightGBM model (2 seeds; its early stopping sees the calibration year, as in session 8). Fresh pulls.
