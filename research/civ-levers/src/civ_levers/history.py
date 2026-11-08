@@ -20,9 +20,16 @@ S0 = A
 
 
 def run(years=3000, dt=0.5, r=0.015, tau=0.3, g=1.0, k=4.0, m=0.02, me=0.04, rho=0.02,
-        elite_cap=None, welfare=0.0, n0=0.5, e0f=0.05, seed=0, noise=0.0, lag=0.0, plag=0.0):
+        elite_cap=None, welfare=0.0, n0=0.5, e0f=0.05, seed=0, noise=0.0, lag=0.0, plag=0.0,
+        collapse_thr=None, collapse_elite=0.5, collapse_pop=0.2, refractory=50):
     """Returns arrays t, N, E, S, psi sampled each year. Levers: elite_cap (max elite
-    number, a ceiling on recruitment), welfare (share of rent paid to peasants as a transfer)."""
+    number, a ceiling on recruitment), welfare (share of rent paid to peasants as a transfer).
+    collapse_thr: if set, a state collapse fires when instability psi reaches it (and at least
+    `refractory` years since the last): elites lose the fraction collapse_elite, peasants
+    collapse_pop, fiscal strength resets to a tenth, and stress memory clears. Returns the same
+    five arrays; collapse years are in run.collapses (list) of the last call."""
+    run.collapses = []
+    last = -10 ** 9
     rng = np.random.default_rng(seed)
     R_star = (1 - A)                       # rent at N = 1
     Estar = e0f                            # elite number at equilibrium by definition of e0
@@ -50,6 +57,14 @@ def run(years=3000, dt=0.5, r=0.015, tau=0.3, g=1.0, k=4.0, m=0.02, me=0.04, rho
         if elite_cap is not None and E >= elite_cap and dE > 0:
             dE = 0.0
         dS = 0.1 * (tau * R / (g * max(E, 1e-6)) - S)
+        if collapse_thr is not None and psi >= collapse_thr and i * dt - last >= refractory:
+            last = i * dt
+            run.collapses.append(last)
+            E *= 1 - collapse_elite
+            N *= 1 - collapse_pop
+            S *= 0.1
+            PSI_s = 1.0
+            ei_s = e0
         N = max(N + dt * dN + (noise * N * rng.normal() * dt ** 0.5 if noise else 0), 1e-3)
         E = max(E + dt * dE, 1e-4)
         S = max(S + dt * dS, 1e-3)
