@@ -104,6 +104,11 @@ class Render(unittest.TestCase):
         self.assertNotEqual(k, N.Narrator(models=self.n.models, g2p="misaki")._key("x"))
         self.assertEqual(k, N.Narrator(models=self.n.models, g2p="espeak")._key("x"))
 
+    def test_store_into_an_existing_shard_directory(self):
+        self.n._store("ab" + "0" * 62, np.zeros(10, dtype=np.float32))
+        self.n._store("ab" + "1" * 62, np.zeros(10, dtype=np.float32))  # same shard: must not raise
+        self.assertIsNotNone(self.n._cached("ab" + "1" * 62))
+
     def test_cache_round_trip_is_close(self):
         audio = np.sin(np.linspace(0, 100, 4800)).astype(np.float32) * 0.8
         self.n._store("ab" * 32, audio)
@@ -148,6 +153,30 @@ class Voicing(unittest.TestCase):
             N._load(str(self.dir), 2)
         self.assertEqual(rt.InferenceSession.call_args[0][0], str(self.dir / N.MODEL_FILES[0]))
         self.assertEqual(kokoro_onnx.Kokoro.from_session.call_args[0][1], str(self.dir / N.MODEL_FILES[1]))
+
+    def test_misaki_g2p_is_built_without_the_transformer_and_per_accent(self):
+        import types
+        from unittest import mock
+
+        misaki = types.SimpleNamespace(en=mock.MagicMock(), espeak=mock.MagicMock())
+        mods = {
+            "onnxruntime": mock.MagicMock(),
+            "kokoro_onnx": types.SimpleNamespace(Kokoro=mock.MagicMock()),
+            "misaki": misaki,
+            "misaki.en": misaki.en,
+            "misaki.espeak": misaki.espeak,
+        }
+        old = (N._KOKORO, N._G2P)
+        try:
+            with mock.patch.dict(sys.modules, mods):
+                N._load(str(self.dir), 1, g2p="misaki", lang="en-gb")
+                N._load(str(self.dir), 1, g2p="misaki", lang="en-us")
+        finally:
+            N._KOKORO, N._G2P = old
+        gb, us = misaki.en.G2P.call_args_list
+        self.assertIs(gb.kwargs["trf"], False)  # the transformer is a heavy optional dependency
+        self.assertIs(gb.kwargs["british"], True)
+        self.assertIs(us.kwargs["british"], False)
 
     def test_few_units_never_get_a_pool_when_one_worker_asked(self):
         from unittest import mock
