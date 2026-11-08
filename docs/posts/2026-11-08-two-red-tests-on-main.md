@@ -2,6 +2,7 @@
 title: "Two test suites were red on main, and no pull request check could see them"
 seo_title: "Two test suites red on main that no PR check ran"
 date: 2026-11-08
+tags: [testing, ci]
 description: "A red-team run found the post-title test and the doc-index test failing on main, fixed both, and added tests for three mutants that escaped."
 ---
 
