@@ -20,11 +20,26 @@ export function stackFloors(floors) {
     names.add(f.name);
     if (!f.plan || typeof f.plan !== "object" || !Array.isArray(f.plan.walls) || !f.plan.walls.length) errors.push(`Floor "${f.name}": the plan has no walls.`);
     else if (f.plan.walls.some((w) => !w || typeof w.id !== "string" || !w.id.trim())) errors.push(`Floor "${f.name}": every wall needs a name.`);
+    else {
+      const ids = new Set();
+      for (const w of f.plan.walls) {
+        if (ids.has(w.id)) errors.push(`Floor "${f.name}": wall "${w.id}" appears twice, so tee laps cannot tell them apart.`);
+        ids.add(w.id);
+      }
+    }
+    if (f.plan && f.plan.stock !== undefined && (!Array.isArray(f.plan.stock) || f.plan.stock.some((s) => !s || typeof s !== "object"))) errors.push(`Floor "${f.name}": stock must be a list of boards.`);
   }
   if (errors.length) return { ok: false, errors, notes: [] };
   const first = floors[0].plan;
   for (const f of floors.slice(1)) for (const k of SHARED) {
     if (f.plan[k] !== undefined && first[k] !== undefined && f.plan[k] !== first[k]) errors.push(`Floor "${f.name}" has ${k} ${f.plan[k]} but "${floors[0].name}" has ${first[k]}; one order needs one setting.`);
+  }
+  if (errors.length) return { ok: false, errors, notes: [] };
+  const joined = new Set();
+  for (const f of floors) for (const w of f.plan.walls) {
+    const id = `${f.name} ${w.id}`;
+    if (joined.has(id)) errors.push(`Floors "${f.name}" and another make the same stacked wall name "${id}"; rename a floor or wall.`);
+    joined.add(id);
   }
   if (errors.length) return { ok: false, errors, notes: [] };
   const commonLen = first.studLength;
