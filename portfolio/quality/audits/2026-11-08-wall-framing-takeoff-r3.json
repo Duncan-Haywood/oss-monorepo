@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-08",
+  "subject": "ventures/wall-framing-takeoff",
+  "stratum": "flagship",
+  "seed": "2026-11-08",
+  "auditor": "agent session (Claude), third audit of this flagship, see run record",
+  "status": "audited",
+  "professional": "a lead framer / framing estimator for residential wood-frame construction, who checks stud counts and marks, plate splice rules, opening framing and the lumber order first",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 2,
+    "claims": 3,
+    "fitness": 3,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Ran node cli.mjs on plans I wrote and recomputed by hand. (1) 100 in wall, 2x4, 19.2 o.c., 92-5/8 studs: centres 19.2..96 give 5 field studs + 2 end = 7; left edges centre-0.75 = 18.45, 37.65, 56.85, 76.05, 95.25 print as 18-7/16, 37-5/8, 56-7/8, 76-1/16, 95-1/4 (nearest 1/16, all match); pieces 3x100 in + 7x92.625 in = 79.03 ft (tool 79.0), cost 3x10 ft + 7 x round(7.71875,2)=7.72 = 84.04 (tool 84.04, bound 84.04). (2) 150 in wall, 2x6, 24 o.c.: studs at centres 24..144 = 6 + 2 ends = 8, edges 23.25..143.25, plates 150 in; tool matches, wall height 97.125 = 92.625 + 3 plates x 1.5. (3) Stair, 109 in rise, 10.5 tread, 2x12, IRC 7-3/4 max riser: ceil(109/7.75)=15 risers, 109/15=7.267 (prints 7-1/4), 14 treads, run 147 = 12 ft 3 in, 2R+T = 25.03, angle atan(7.267/10.5)=34.7, first riser 7.25-1.5 = 5.75; tool identical; it refused with a 16 ft board and asked for a longer one, correct since the stringer needs 194.4 in. (4) Gable roof 240 x 288 in, 6:12, 12 in overhang, no ridge board: run 120+12 = 132, x sqrt(1.25) = 147.58, tool 147-9/16; rise 60; 19 rafters per side x 2 = 38; birdsmouth plumb cut 3.5 x 6/12 = 1.75 matches. (5) Two windows 4 in apart refused: jack+jack+king = 4.5 in needed, the message says exactly that. Full suite also run (see verification). No wrong number found.",
+    "completeness": "Checked claimed features by running them: layout/marks, cut list, cheapest order with proof label, --stairs, --roof, --sheathing path not exercised beyond roof, --add-board, plan validation messages, --help (about 50 flags listed). Stairs, roof, order and layout worked end to end with usable text output. Not exercised by me: IFC/DXF import, PDF, panels, bids; their test files exist and pass. One test is skipped. README lists 78 non-test modules and 136 test files; no stub or dead link met in what I ran.",
+    "verification": "Ran node --test '*.test.mjs' in ventures/wall-framing-takeoff: 1138 tests, 1137 pass, 0 fail, 1 skipped, 97 s. Seeded mutation: engine.mjs line 582, shrank the forbidden window around top-plate joints for the cap plate (j - topPlateLap + 20 .. j + topPlateLap - 20, so cap joints may land within the lap of top joints). Ran engine, engine-fuzz, cli and mutation-sweep tests: 134 tests, 1 failed ('long plates are spliced over full studs, cap joints at least the lap away from top joints'). Caught, but by a single test. File reverted with git checkout, git status clean. There is also an in-repo mutation-sweep.test.mjs.",
+    "craft": "Read engine.mjs (layoutWall, plateLaps, splitPlate, verifyWall regions), headers.mjs, roof.mjs and stairs.mjs excerpts, and the head of cli.mjs. Good: JSDoc typedefs and @ts-check, validators that return plain-language errors, EPS tolerances, hostile-input tests. Defects: engine.mjs is 1499 lines and layoutWall alone runs 414 to 830 with layoutGable duplicating the opening loop; cli.mjs is a 630-line flag parser importing about 45 modules and the --help is one 50-line wall of text; many parallel quantity modules (paint, trim, drywall, stucco, ...) each carry their own copied validators and waste logic; the README is 185 KB in one file with bullets of thousands of characters. A senior JS reviewer would ask for a split before accepting it.",
+    "claims": "README claims checked against runs: 'stud layout 16, 19.2 or 24 o.c.' (ran all three, correct), 'cheapest mix of board lengths with a lower bound' (order line shows cost and bound, gap 0.00 percent), 'plate splices on studs, cap joints kept away from top joints' (mutation test above proves it is enforced and tested), stairs and roof (match hand sums). Limits are stated in output ('header sizes and jack counts are your inputs and are not checked', roof notes 'your inputs ... not checked against a span table'). README Verification says 1,039 tests across 124 files 'on 2026-11-07'; it is dated and so true then, but today's run is 1138 tests in 136 files, so the figure is stale. No unbacked headline claim found.",
+    "fitness": "Job walked: a framer with a 24 ft wall plan gets studs, marks, cut list and a priced board order from one JSON file in under a second, plus stairs and a roof; refusals (stair stringer too long for the stock, openings too close) tell the user what to change, and --add-board lets a user add a 20 ft board. Friction: input is hand-written JSON (the browser page covers the walk-through), a 2x12 tread pair is bought for an 11.5 in tread (22.75 in of board; fine if the second is ripped, but nothing says so), and header sizes come only from the user, so a framer still opens the code table.",
+    "domain": "Compared against IRC R602 framing practice, R311.7 stair limits (7-3/4 max riser, 10 in min tread, 80 in headroom) and the 24 in top-plate joint offset the tool defaults to. Stud, king, jack, header, cripple and rough sill arithmetic matches what a framer cuts. Departures: no header span table is shipped (by design, user supplies it); jack/king counts default to one per side regardless of opening width (prior audits recorded this, still the case); 1/2 in header spacer in a 2x4 wall with two 2x6 plies is noted not ordered; rafters assume a ridge board of the input size and give no ridge-board count when none is typed."
+  },
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Header span is never checked by default: with no headerTable the output footer only says sizes and jack counts are inputs. A framer must still pull the IRC table; the tool ships no default one even labelled as an example.",
+      "where": "ventures/wall-framing-takeoff/headers.mjs:1-8"
+    },
+    {
+      "severity": "medium",
+      "what": "Verification of the plate-lap rule rests on one test: shrinking the cap-joint forbidden window by 20 in per side failed exactly 1 of 134 tests in the engine, fuzz, CLI and sweep files.",
+      "where": "ventures/wall-framing-takeoff/engine.mjs:582, engine.test.mjs"
+    },
+    {
+      "severity": "low",
+      "what": "Stair tread boards: perStep = 2 full 2x12 for any tread plus nosing above 11.25 in (11.5 in here), so 22.75 in of board is bought for 11.5 in of tread and the output does not say the second board is ripped or whether it is a waste.",
+      "where": "ventures/wall-framing-takeoff/stairs.mjs:126-129"
+    },
+    {
+      "severity": "low",
+      "what": "README test count (1,039 tests, 124 files, dated 2026-11-07) is stale against 1,138 tests in 136 files on 2026-11-08, and the README is 185 KB in one file; --help is a 50-line single block.",
+      "where": "ventures/wall-framing-takeoff/README.md:152"
+    },
+    {
+      "severity": "low",
+      "what": "layoutGable repeats layoutWall's opening-framing loop and engine.mjs/cli.mjs are 1499 and 630-line monoliths (also noted in earlier rounds, not fixed).",
+      "where": "ventures/wall-framing-takeoff/engine.mjs:414-830"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Third audit of the flagship. Every number I recomputed independently (stud centres and marks at 16, 19.2 and 24 o.c., plate and board totals, order cost, a stair flight against IRC R311.7, a gable rafter and birdsmouth) matched, and the tool refuses or explains bad input well. The full suite passes (1137 of 1138, 1 skipped) and a seeded plate-joint bug was caught, though by one test only. It meets the bar on correctness, claims and verification with a median of 3. The weak spot is craft (monolithic engine and CLI, duplicated gable loop, huge README) and the fact that header spans and jack counts remain the user's job. Score is before any fix."
+}
