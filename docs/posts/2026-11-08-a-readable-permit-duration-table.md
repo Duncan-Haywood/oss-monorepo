@@ -2,7 +2,7 @@
 title: "A readable permit-duration table keeps most of the boosted gain in two of three cities"
 date: 2026-11-08
 tags: [research, construction, permits, open-data]
-description: "An empirical table on permit type, work class and cost bucket keeps 67 to 87% of a boosted model's gain in Chicago and Austin, but not in San Francisco issue-to-completion."
+description: "An empirical table on permit type, work class and cost bucket keeps 67 to 87% of a boosted model gain in Chicago and Austin, but not in San Francisco i2c."
 ---
 
 Earlier this week a table of permit type by cost bucket kept almost none of a boosted permit-duration model's gain over a per-type baseline. A feature ladder then pointed at work class as the missing key. This run built that table: empirical quantiles on permit type x work class x cost bucket, backing off to coarser cells when a cell has under 30 rows, scored on test year 2024.
