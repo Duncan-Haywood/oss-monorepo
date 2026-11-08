@@ -31,9 +31,11 @@
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": "LOG.md entry in research/verified-dse; no blog post (small docs-only step)",
+  "writeups": [
+    "research/verified-dse/LOG.md"
+  ],
   "goal": null,
-  "notes": "Rewrote verified-dse README status line; no new experiments.",
+  "notes": "Rewrote verified-dse README status line; no new experiments. No blog post: small docs-only step.",
   "corrections": [],
   "redteam": null
 }
