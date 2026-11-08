@@ -538,4 +538,7 @@ test("--shallow-headers swaps a header too deep for the plates and notes it", ()
   const none = main(["plan.json", "--shallow-headers"], () => JSON.stringify({ ...plan, walls: [{ ...plan.walls[0], openings: [{ ...plan.walls[0].openings[0], headerHeight: 91, height: 91 }] }] }));
   assert.equal(none.code, 1);
   assert.match(none.out, /nothing on the lumber list fits|too tall/);
+  const trimmed = main(["plan.json", "--shallow-headers", "--trim-openings"], () => JSON.stringify({ ...plan, walls: [{ ...plan.walls[0], openings: [{ ...plan.walls[0].openings[0], headerHeight: 91, height: 91 }] }] }));
+  assert.equal(trimmed.code, 0, trimmed.out);
+  assert.match(trimmed.out, /Note: Wall Tall, D: the opening is .* in taller than the room/);
 });
