@@ -80,7 +80,17 @@ const EXTRA_CHECKS = {
   HR: { applies: (b) => /^\d{11}$/.test(b), ok: (b) => deOkIso7064(b.slice(0, 10), Number(b[10])) },
   // Legal entities only (first digit 4-9); natural persons use a birth date.
   LV: { applies: (b) => /^[4-9]\d{10}$/.test(b), ok: (b) => weighted(b, [9, 1, 4, 8, 3, 10, 2, 5, 7, 6, 1]) % 11 === 3 },
-  LT: { applies: (b) => /^\d{9}$/.test(b), ok: (b) => b[7] === "1" && mod11Retry(b, MOD11_RETRY.LT) },
+  LT: {
+    applies: (b) => /^\d{9}$|^\d{12}$/.test(b),
+    ok: (b) => {
+      if (b.length === 9) return b[7] === "1" && mod11Retry(b, MOD11_RETRY.LT);
+      // 12 digits (temporarily registered payers): 11th digit 1, mod 11 over 11 digits, second weight set on 10, then 10 -> 0.
+      let sum = weighted(b.slice(0, 11), [1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2]) % 11;
+      if (sum === 10) sum = weighted(b.slice(0, 11), [3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4]) % 11;
+      if (sum === 10) sum = 0;
+      return b[10] === "1" && sum === Number(b[11]);
+    },
+  },
   BG: { applies: (b) => /^\d{9}$/.test(b), ok: (b) => mod11Retry(b, MOD11_RETRY.BG) },
   RO: {
     applies: (b) => /^[1-9]\d{1,9}$/.test(b),
