@@ -56,3 +56,12 @@ test("sweep and CSV have one line per demand", () => {
   const rows = sweep({ price: 40, landed: 12, podCost: 26 }, [10, 100, 1000]);
   assert.equal(podCsv(rows).trim().split("\n").length, 4);
 });
+
+test("a huge minimum order returns quickly and an explicit undefined podPrice means 'same as price'", () => {
+  const base = { demand: 100, price: 40, landed: 12, podCost: 25 };
+  const t = Date.now();
+  const c = compare({ ...base, moq: 1e6 });
+  assert.ok(Date.now() - t < 3000, "moq of a million took too long");
+  assert.equal(c.best.route, "Print-on-demand only");
+  assert.deepEqual(compare({ ...base, podPrice: undefined }), compare(base));
+});
