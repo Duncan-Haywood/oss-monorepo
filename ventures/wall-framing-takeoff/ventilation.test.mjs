@@ -59,3 +59,9 @@ test("ridge vent nails by hand: 29.8667 ft x 12 / 6 in = 60 per flange, 120 in a
   assert.equal(layoutVentilation({ ridgeVent: false, ridgeNailSpacing: 6 }, gable()).ridgeNails, 0);
   assert.ok(validateVentilation({ ridgeNailSpacing: 1 }).length > 0);
 });
+
+test("a nail box holds whole nails and ridgeVent is a true/false flag", () => {
+  assert.ok(validateVentilation({ ridgeNailBox: 2.5 }).length > 0);
+  assert.ok(validateVentilation({ ridgeVent: "no" }).length > 0);
+  assert.deepEqual(validateVentilation({ ridgeNailBox: 100, ridgeVent: false }), []);
+});
