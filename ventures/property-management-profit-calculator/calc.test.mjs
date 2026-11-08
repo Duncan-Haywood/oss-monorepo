@@ -82,7 +82,7 @@ test("fee search: a higher fee loses doors, a cut adds at most 20%", () => {
   assert.ok(at(12).doors < at(10).doors);
   assert.ok(at(4).doors <= Math.round(DEFAULTS.doors * 1.2));
   const o = optimizeFee(DEFAULTS);
-  assert.ok(o.best.profit >= o.now.profit - 1e-9 || o.gain <= 0 || true);
+  assert.ok(o.best.profit >= o.now.profit - 1e-9 || o.gain <= 0);
   assert.equal(o.best.profit, Math.max(...o.rows.map((r) => r.profit)));
 });
 
