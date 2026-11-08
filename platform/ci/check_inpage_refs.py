@@ -13,6 +13,7 @@ import argparse
 import sys
 from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[2]
 ARIA = ("aria-labelledby", "aria-describedby", "aria-controls")
@@ -32,7 +33,7 @@ class _Refs(HTMLParser):
                 self.ids.add(a[k])
         href = a.get("href") or ""
         if tag == "a" and href.startswith("#") and href not in ("#", "#top"):
-            self.refs.append((line, "href", href[1:]))
+            self.refs.append((line, "href", unquote(href[1:])))
         for k in ARIA:
             for i in (a.get(k) or "").split():
                 self.refs.append((line, k, i))
