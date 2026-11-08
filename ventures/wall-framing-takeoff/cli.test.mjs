@@ -581,3 +581,15 @@ test("--whole-house equals the four flags it stands for", () => {
   assert.equal(a.out, b.out);
   assert.match(a.out, /SKIPPED 1 WALL/);
 });
+
+test("--stack takes DXF floors and orders them as one", () => {
+  const g = (c, v) => `${c}\n${v}\n`;
+  const L = (l, a, b, c, d) => g(0, "LINE") + g(8, l) + g(10, a) + g(20, b) + g(11, c) + g(21, d);
+  const box = (w, h) => g(0, "SECTION") + g(2, "ENTITIES") + L("WALL", 0, 0, w, 0) + L("WALL", w, 0, w, h) + L("WALL", w, h, 0, h) + L("WALL", 0, h, 0, 0) + g(0, "ENDSEC");
+  const files = { "a.dxf": box(480, 336), "b.dxf": box(360, 240) };
+  const r = main(["a.dxf", "--stack=b.dxf"], (p) => files[p]);
+  assert.equal(r.code, 0);
+  assert.match(r.out, /Stacked 2 floors into one order \(a: 4 walls, b: 4 walls\)/);
+  assert.match(r.out, /8 walls/);
+  assert.match(r.out, /b W1|b /);
+});

@@ -156,8 +156,9 @@ function normalise(plan) {
 
 /** `--ifc-json=FILE` (the output of `ifc-engine plan`, same storey and flags as the DXF) for a DXF read. */
 function ifcJsonFile(argv) { return argv.find((a) => a.startsWith("--ifc-json="))?.slice(11); }
-function ifcJsonOptions(argv) {
-  const f = ifcJsonFile(argv);
+/** With --stack, `--ifc-json=A,B,C` gives one file per floor, in order (first file, then the stacked ones). */
+function ifcJsonOptions(argv, floor = 0) {
+  const f = ifcJsonFile(argv)?.split(",")[floor];
   if (!f) return {};
   const info = JSON.parse(readFileSync(f, "utf8"));
   return { openingSize: openingSizes(info), wallHeight: wallHeights(info) };
@@ -197,7 +198,7 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   try {
     if (/\.(dxf|ifc)$/i.test(args[0])) {
       const units = argv.find((a) => a.startsWith("--units="))?.slice(8);
-      const r = /** @type {{ ok: boolean, errors: string[], notes: string[], plan?: any, stats?: any }} */ ((/\.ifc$/i.test(args[0]) ? planFromIfc : planFromDxf)(readInput(args[0]), { units: /** @type {any} */ (units), storey: (() => { const v = argv.find((a) => a.startsWith("--storey="))?.slice(9); return v == null ? undefined : /^\d+$/.test(v) ? Number(v) : v; })(), doubleLine: argv.includes("--single-line") ? false : argv.includes("--double-line") ? true : "auto", ...layerOptions(argv), ...ifcJsonOptions(argv) }));
+      const r = /** @type {{ ok: boolean, errors: string[], notes: string[], plan?: any, stats?: any }} */ ((/\.ifc$/i.test(args[0]) ? planFromIfc : planFromDxf)(readInput(args[0]), { units: /** @type {any} */ (units), storey: (() => { const v = argv.find((a) => a.startsWith("--storey="))?.slice(9); return v == null ? undefined : /^\d+$/.test(v) ? Number(v) : v; })(), doubleLine: argv.includes("--single-line") ? false : argv.includes("--double-line") ? true : "auto", ...layerOptions(argv), ...ifcJsonOptions(argv, 0) }));
       if (!r.ok) return { code: 2, out: `Could not read the drawing: ${r.errors.join(" ")}` };
       const note = r.notes.map((n) => `  - ${n}`).join("\n");
       if (flags.has("--plan-only")) return { code: 0, out: JSON.stringify(r.plan, null, 2) + `\n\nNotes (not part of the JSON):\n${note}` };
@@ -232,7 +233,19 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     try {
       const floors = [{ name: base(args[0]), plan }];
       for (const f of files) {
-        const raw = JSON.parse(readInput(f)); const p2 = normalise(raw);
+        let p2;
+        if (/\.dxf$/i.test(f)) {
+          // a DXF floor, read with the same flags and its own --ifc-json (the nth in the list)
+          const fl = floors.length;
+          const rr = /** @type {any} */ (planFromDxf(readInput(f), { units: /** @type {any} */ (argv.find((a) => a.startsWith("--units="))?.slice(8)), doubleLine: argv.includes("--single-line") ? false : argv.includes("--double-line") ? true : "auto", ...layerOptions(argv), ...ifcJsonOptions(argv, fl) }));
+          if (!rr.ok) return { code: 2, out: `Could not read the drawing ${f}: ${rr.errors.join(" ")}` };
+          if (ifcJsonFile(argv)?.split(",")[fl]) {
+            const tally = new Map(); for (const w of rr.plan.walls || []) if (w.studLength > 0) tally.set(w.studLength, (tally.get(w.studLength) || 0) + 1);
+            if (tally.size) { rr.plan.studLength = [...tally.entries()].sort((p, q) => q[1] - p[1] || p[0] - q[0])[0][0]; for (const w of rr.plan.walls) if (w.studLength === rr.plan.studLength) delete w.studLength; }
+          }
+          dxfNotes += `Read ${rr.stats.walls} walls from ${f}:\n${rr.notes.map((n) => `  - ${n}`).join("\n")}\n\n`;
+          p2 = normalise({ ...samplePlan(), ...rr.plan });
+        } else p2 = normalise(JSON.parse(readInput(f)));
         for (const w of p2.walls || []) if (w && typeof w.studLength === "string") w.studLength = parseLength(w.studLength);
         const ex = /** @type {any} */ (expandSteppedWalls(p2));
         if (!ex.ok) return { code: 1, out: `${f}: the stepped walls have problems:\n${ex.errors.map((e) => `  - ${e}`).join("\n")}` };
