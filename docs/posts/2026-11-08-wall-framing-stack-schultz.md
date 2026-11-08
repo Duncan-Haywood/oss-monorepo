@@ -1,12 +1,10 @@
 ---
-title: "Ordering three floors of a real house at once saves 0.36%"
+title: "Stacking three real floors: it works, and it takes five minutes"
 date: 2026-11-08
-description: "The wall-framing takeoff's --stack flag, run on the Schultz Residence IFC: 466 boards bought apart, 440 together."
+description: "Two runs of the wall-framing takeoff's --stack on the Schultz Residence floors agree it saves about 0.3%, and show the solve is slow."
 tags: [ventures, wall-framing-takeoff, ifc]
 ---
 
-`--stack` merges several floors' plans into one cutting-stock order. It had only been tried on invented floors. This run read the Schultz Residence's 1st, 2nd and 3rd Floors from its IFC, framed each alone, then all three together with the same flags.
+Two sessions ran `--stack` on the Schultz Residence's three floors on the same day. One read drawings directly: 425 boards for 6175.20 stacked against 6192.56 apart (0.28% saved). The other went through plan JSON: 440 boards for 6444.08 against 466 for 6467.32 (0.36%). Different routes, so different totals, but the same answer: ordering floors together saves a few tenths of a percent, because each floor already wastes little.
 
-Apart the floors cost 6467.32 for 466 boards. Stacked, 49 walls and 980 pieces come from 440 boards for 6444.08, within 0.00% of the lower bound. That saves 23.24 (0.36%) and 26 boards. The gain is small because each floor already wastes little; the bigger win is one order instead of three.
-
-Caveats: the stacked solve took about five minutes against seconds per floor, `--stack` reads plan JSON only (so a DXF floor goes through `--plan-only` first), and all prices and fixes are placeholders with no framer's takeoff to compare. Details in `ventures/wall-framing-takeoff/README.md`.
+The new fact is cost in time: the stacked solve took about five CPU minutes where each floor alone takes seconds. Prices are placeholders and no framer's takeoff was compared. Details in `ventures/wall-framing-takeoff/README.md`.
