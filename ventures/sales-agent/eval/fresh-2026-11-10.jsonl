@@ -1,0 +1,31 @@
+{"label":"unsubscribe","subject":"Re: quick question","body":"Poista minut postituslistaltanne. Kiitos."}
+{"label":"unsubscribe","subject":"Re: quick question","body":"Prosím, odstraňte mou adresu ze svého seznamu. Už mi nepište."}
+{"label":"unsubscribe","subject":"Re: quick question","body":"Lütfen beni e-posta listenizden çıkarın."}
+{"label":"unsubscribe","subject":"Re: quick question","body":"Désabonnez-moi s'il vous plaît, je ne souhaite plus recevoir vos messages."}
+{"label":"unsubscribe","subject":"Re: quick question","body":"Bitte streichen Sie mich aus Ihrem Verteiler. Das ist unerwünschte Werbung."}
+{"label":"unsubscribe","subject":"Re: quick question","body":"Take me off this list or I'll report you for spam."}
+{"label":"unsubscribe","subject":"Re: quick question","body":"unsubscribe"}
+{"label":"not_interested","subject":"Re: quick question","body":"Thanks, but we're happy with what we have. No need to follow up."}
+{"label":"not_interested","subject":"Re: quick question","body":"Nope, not something we'd ever buy."}
+{"label":"not_interested","subject":"Re: quick question","body":"Danke, aber wir haben kein Interesse."}
+{"label":"objection","subtype":"price","subject":"Re: quick question","body":"We're a nonprofit with no budget for tools like this, so it's a pass from us."}
+{"label":"not_now","subject":"Re: quick question","body":"Budgets are frozen until January. Ping me then and we can talk."}
+{"label":"not_now","subject":"Re: quick question","body":"Swamped with the audit right now. Can you check back in about six weeks?"}
+{"label":"not_now","subject":"Re: quick question","body":"Interesting, but the timing is off. We're hiring a head of ops first; try me after they start."}
+{"label":"out_of_office","subject":"Automatic reply: quick question","body":"I am out of the office until Monday 17 November with limited access to email. For urgent matters contact reception."}
+{"label":"out_of_office","subject":"Abwesenheitsnotiz","body":"Ich bin bis zum 21.11. nicht im Haus und lese meine E-Mails nur eingeschränkt. In dringenden Fällen wenden Sie sich bitte an meine Kollegin."}
+{"label":"out_of_office","subject":"Auto: quick question","body":"On annual leave, back on the 24th. I'll reply when I return."}
+{"label":"left_company","subject":"Re: quick question","body":"Sarah no longer works here. Please direct enquiries to info@northwindlogistics.example."}
+{"label":"left_company","subject":"Re: quick question","body":"I left the firm in September, so this isn't my area any more. Try Dev Patel who took over."}
+{"label":"left_company","subject":"Re: quick question","body":"Wrong person, I'm in finance and don't handle anything like this. Maybe ask our COO."}
+{"label":"interested","subject":"Re: quick question","body":"This looks relevant. Can you send over a short deck and we'll review it Thursday?"}
+{"label":"interested","subject":"Re: quick question","body":"Yes, happy to chat. I'm free Wednesday afternoon, any time after 2."}
+{"label":"interested","subject":"Re: quick question","body":"Sounds good, let's set up a call. Here's my calendar: https://cal.example.com/mara"}
+{"label":"interested","subject":"Re: quick question","body":"We've actually been looking for something like this. Who should I talk to?"}
+{"label":"question","subject":"Re: quick question","body":"Does this work with Xero or only QuickBooks?"}
+{"label":"question","subject":"Re: quick question","body":"What does it cost for a team of 12?"}
+{"label":"question","subject":"Re: quick question","body":"Where is the data stored, and is it GDPR compliant?"}
+{"label":"objection","subject":"Re: quick question","body":"We already use HubSpot for this and it does the job."}
+{"label":"objection","subject":"Re: quick question","body":"Too expensive for us at that price point."}
+{"label":"objection","subject":"Re: quick question","body":"Our IT team would never approve sending customer data to a third party."}
+{"label":"objection","subject":"Re: quick question","body":"Not convinced it would save us any real time versus doing it by hand."}
