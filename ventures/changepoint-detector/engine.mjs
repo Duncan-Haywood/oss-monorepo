@@ -75,7 +75,7 @@ export const DEFAULTS = {
   model: 'mean',
   // 'bic', 'aic', 'hannan-quinn', or a number (the cost of one extra change).
   penalty: 'bic',
-  // Shortest segment PELT may return; null means 2 for 'mean' and 5 for
+  // Shortest segment PELT may return; null means 2 for 'mean' and 10 for
   // 'meanvar', where a variance fitted to two or three points is so unreliable
   // that its likelihood gain alone would justify a change.
   minSegment: null,

@@ -6,7 +6,15 @@
   "auditor": "agent session (Claude), see run record",
   "status": "audited",
   "professional": "a California wage-and-hour employment attorney or payroll compliance specialist who audits timecards for Labor Code 226.7 premium exposure; first checks the meal-start boundary (end of hour five/ten per Brinker), the rest-break ladder (3.5/6/10/14 hours), waiver limits, one-premium-per-workday-per-type, and what rate the premium is paid at (regular rate, Ferra v. Loews)",
-  "scores": {"correctness": 3, "completeness": 3, "verification": 3, "craft": 3, "claims": 3, "fitness": 2, "domain": 3},
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 3
+  },
   "evidence": {
     "correctness": "Ran `node --test '*.test.mjs'` in the venture dir: 34 pass, 0 fail. Then recomputed 7 cases by hand from Labor Code 226.7, the IWC wage-order meal/rest rules and Brinker (2012) 53 Cal.4th 1004, independently of the author's tests, and fed them to analyze(): (1) 08:00-16:30, meal 12:45-13:10, 2 rests, $20: work 485 min, meal 25 min is short, rest owed ceil((485-120)/240)=2 taken, premium $20: tool $20, meal-short only. (2) 09:00-20:30, meal 14:30-15:00, 2 rests, $30: work 11h, meal began 5h30 after clock-in (late), no second meal after 10h, 2 of 3 rests (ceil(540/240)=3): meal $30 + rest $30 = $60: tool $60 with those three findings. (3) 08:00-14:30, no meal, 1 rest, $25, waiver flag: 6h30 exceeds the 6h waiver cap so meal missed, rest owed ceil(270/240)=2, $25+$25=$50: tool $50. (4) 6h shift with waiver: waived, $0 (correct, exactly 6h allowed). (5) 12h span with one meal = 11.5h work, waive2: second meal waived (<=12h, first taken), rests owed 3 taken 3: $0, correct. (6) overnight 22:00-06:30 with 02:00-02:30 meal: 8h work, meal at 4h, 2 rests: $0, correct. (7) two shifts same employee same day, 0 rests each: one rest premium only ($20), correct one-per-workday. Rest ladder 3.5/6/10/14 boundaries match the wage orders. Limits: premium rate is whatever the user types (regular rate not computed), and a meal taken late under a waiver is flagged (see defects).",
     "completeness": "README and page claim: late/short/missed first meal (works, cases 1-3), second meal (works), waivers (works, boundaries tested), rest breaks per 4h or major fraction (works), one premium per type per workday with by-day and by-employee roll-up (works), CSV and text export (toCsv/toText exercised in tests, CSV formula-injection guard present), editable rules (fieldsToRules + custom preset), usage counters with opt-out (usage.test.mjs), explainer page worked example recomputed by page.test.mjs. No stubs or TODOs found in calc.mjs. VENTURE.yaml stage is prototype and says so.",
@@ -17,11 +25,31 @@
     "domain": "Compared against Labor Code 226.7, IWC wage orders section 11 (meal) and 12 (rest), Brinker (meal must begin before end of fifth hour, 30 uninterrupted minutes, waiver of first meal at <=6h, second meal after 10h waivable at <=12h if first not waived), Donohue v. AMN (2021, missing meal records raise a presumption: the tool treats a blank meal as missed, correct) and Naranjo v. Spectrum (2022, premiums are wages). Method matches on every point checked. Departures: premium not computed at the regular rate (left to the user, disclosed); late meal under a waiver flagged where an attorney would likely not count it; unrecorded rest breaks yield no premium (defensible, since there is no equivalent presumption, and disclosed); workday is the calendar date of clock-in, not the employer's defined workday."
   },
   "defects": [
-    {"severity": "medium", "what": "A signed waiver on a shift of six hours or less does not suppress the late-meal finding: 08:00-14:00 with meal 13:30-14:00 and waiver flag yields a meal-late premium, but a waived first meal need not be taken at all, so a practitioner would not count a late one.", "where": "ventures/ca-meal-rest-break-premium-checker/calc.mjs:140"},
-    {"severity": "medium", "what": "Premium is computed at the typed rate, not the regular rate of compensation (Ferra v. Loews); the tool gives no way to enter differentials or bonuses and the dollar total can be understated. Disclosed in the page text but not surfaced next to the result.", "where": "ventures/ca-meal-rest-break-premium-checker/calc.mjs:186"},
-    {"severity": "low", "what": "Input format is a bespoke CSV-like line; no importer for real timekeeping exports, which limits real-world use.", "where": "ventures/ca-meal-rest-break-premium-checker/index.html:86"},
-    {"severity": "low", "what": "llms.txt links use the retired duncan-haywood.github.io address instead of marisstella.app.", "where": "ventures/ca-meal-rest-break-premium-checker/llms.txt:7"},
-    {"severity": "low", "what": "Redundant `d.premium > 0 ||` clause in the owedDays filter; `custom` preset duplicates the California fields.", "where": "ventures/ca-meal-rest-break-premium-checker/calc.mjs:175"}
+    {
+      "severity": "medium",
+      "what": "A signed waiver on a shift of six hours or less does not suppress the late-meal finding: 08:00-14:00 with meal 13:30-14:00 and waiver flag yields a meal-late premium, but a waived first meal need not be taken at all, so a practitioner would not count a late one.",
+      "where": "ventures/ca-meal-rest-break-premium-checker/calc.mjs:140"
+    },
+    {
+      "severity": "medium",
+      "what": "Premium is computed at the typed rate, not the regular rate of compensation (Ferra v. Loews); the tool gives no way to enter differentials or bonuses and the dollar total can be understated. Disclosed in the page text but not surfaced next to the result.",
+      "where": "ventures/ca-meal-rest-break-premium-checker/calc.mjs:186"
+    },
+    {
+      "severity": "low",
+      "what": "Input format is a bespoke CSV-like line; no importer for real timekeeping exports, which limits real-world use.",
+      "where": "ventures/ca-meal-rest-break-premium-checker/index.html:86"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt links use the retired duncan-haywood.github.io address instead of marisstella.app.",
+      "where": "ventures/ca-meal-rest-break-premium-checker/llms.txt:7"
+    },
+    {
+      "severity": "low",
+      "what": "Redundant `d.premium > 0 ||` clause in the owedDays filter; `custom` preset duplicates the California fields.",
+      "where": "ventures/ca-meal-rest-break-premium-checker/calc.mjs:175"
+    }
   ],
   "fix_prs": [],
   "verdict": "Core arithmetic is right: seven independently hand-computed cases (including overnight, waiver caps, multi-shift days and the 3.5/6/10/14 rest ladder) matched the tool, 34 tests pass, and four seeded mutations were all caught. The meal and rest rules match Labor Code 226.7, the wage orders and Brinker, and the disclaimers and not-modelled list are honest and specific. It meets the bar as a first-pass exposure estimator but falls short as a payroll tool: no regular-rate computation, no import of real timekeeping exports, and a waiver-plus-late-meal case that over-flags. Fitness is scored 2 for those gaps; the other six dimensions are 3."

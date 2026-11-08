@@ -54,7 +54,7 @@ where it departs from the paper.
 
 ## Verification
 
-`node --test` (291 tests). What they check:
+`node --test` (321 tests). What they check:
 
 - **Against an independent PELT:** on 100 seeded cases (60-200 points, 0-3
   planted changes, mean and mean-and-variance models, several penalties) the
@@ -65,8 +65,8 @@ where it departs from the paper.
 
 - **Against the literature:** on the Nile series (data/SOURCE.md) PELT puts
   the change at index 28, the first year of the new level being 1899: the
-  same answer Cobb (1978) gives and R's `changepoint::cpt.mean(Nile,
-  method = "PELT")` reports (`cpts = 28`). Output of `node cli.mjs --example`
+  same answer Cobb (1978) gives (R's `changepoint::cpt.mean(Nile)` is expected
+  to agree but was not run here). Output of `node cli.mjs --example`
   on 2026-10-20: segments 1871-1898 (mean 1097.75, sd 135.0) and 1899-1970
   (mean 849.97, sd 124.8); Bayesian probability 79% at 1899, the only point
   above 50%. The mean-and-variance model gives the same single change.
