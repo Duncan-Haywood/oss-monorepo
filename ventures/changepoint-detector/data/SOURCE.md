@@ -540,3 +540,11 @@ column is built from the `time` column of the source.
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/HistData/Nightingale.csv>.
 - **Licence:** HistData is GPL-2 on CRAN; the figures are 1850s public statistics. Kept as a small test fixture with its source named.
 - **Used by:** `nightingale.test.mjs`, README "A documented fall in 24 points".
+## us-electricity.csv (added 2026-11-08)
+
+`us-electricity.csv`: US monthly net electricity generation, billion kWh, 1973-01 to 2013-06, 486 values (`usmelec` from fpp2, Hyndman).
+
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/usmelec.csv> (time column turned into `YYYY-MM` labels).
+- **Licence:** fpp2 is GPL-3 on CRAN; the figures are public US statistics. Kept as a small test fixture with its source named.
+- **Used by:** `us-electricity.test.mjs`.
