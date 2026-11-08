@@ -341,7 +341,7 @@ const RULES = {
     P("\\breturned mail\\b"), P("\\bautomatically rejected\\b"), P("\\b(cannot|can'?t|could ?n[o']?t|unable to) be delivered\\b"), P("\\bnot (be )?delivered to (the following|one or more)\\b"), P("\\b(mail|message) (rejected|undeliverable)\\b"), P("не может быть доставлен"),
   ],
   out_of_office: [
-    P("(?<!\\b(?:was|were|been|being) )(?<!\\bhad been )\\bout of (the )?office\\b"), P("\\booo\\b"), P("\\bautomatic reply\\b"), P("\\bauto(matic)?[- ]?reply\\b"), P("\\bon (annual |parental |maternity |paternity |medical |sick )?leave\\b"), P("\\b(i am|i'?m) (currently )?(away|travell?ing|on vacation|on holiday|out)\\b"),
+    P("(?<!\\b(?:was|were|been|being) )(?<!\\bhad been )\\bout of (the )?office\\b"), P("\\booo\\b"), P("\\bautomatic reply\\b"), P("\\bauto(matic)?[- ]?reply\\b"), P("\\bon (annual |parental |maternity |paternity |medical |sick )?leave\\b"), P("\\b(i am|i'?m) (currently )?on (a )?sabbatical\\b"), P("\\bmessages (are|is) not (being )?monitored\\b"), P("\\b(i am|i'?m) (currently )?(away|travell?ing|on vacation|on holiday|out)\\b"),
     P("\\b(limited|no) access to (my )?e-?mail\\b"), P("\\bwill (be back|return)\\b"), P("\\bback in the office\\b"), P("\\breturning (on|to the office)\\b"), P("\\baway from (the office|my desk)\\b"),
 
     // Added 2026-10-26, same caveat as the opt-outs above: DE, FR, ES, IT, PT, NL auto-reply phrasings.
