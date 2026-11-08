@@ -95,9 +95,10 @@ test("second fresh set (2026-10-24, written by another session, scored once): nu
   // 27 when scored once; 28 after 2026-11-02, when "I left X" counted as a wrong-person reply (one item, no regression).
   // Row 9 (a full mailbox, first labelled bounce) was relabelled out_of_office on 2026-11-05 when full mailboxes became soft bounces; the count stays 28.
   // 29 after 2026-11-09 ("this isn't for us" style declines, one item, no regression).
-  assert.equal(s.right, 29);
+  // 30 after 2026-11-11 ("stop following up" is an opt-out, one item, no regression).
+  assert.equal(s.right, 30);
   assert.equal(s.acted, 33);
-  assert.equal(s.actedRight, 26);
+  assert.equal(s.actedRight, 27);
   assert.equal(s.unsubMissed, 2);
   assert.equal(s.guessRight, 3);
 });
@@ -174,9 +175,10 @@ test("fourth set (2026-10-25): scored once at 25/42 with 9 of 18 unsubscribes mi
   // 34 before 2026-11-02, when "I left Orchid in August" started counting as a wrong-person reply (one item).
   // 35 before 2026-11-03, when "X left the company" was added as a wrong-person phrasing (one item).
   // 37 after 2026-11-04, when "isn't something we'd ever need" became a decline (one item).
-  assert.equal(s.right, 37);
-  assert.equal(s.acted, 37);
-  assert.equal(s.actedRight, 37);
+  // 38 after 2026-11-11 ("stop following up" is an opt-out, one item).
+  assert.equal(s.right, 38);
+  assert.equal(s.acted, 38);
+  assert.equal(s.actedRight, 38);
   assert.equal(s.unsubMissed, 0);
 });
 
@@ -314,7 +316,7 @@ test("ninth set (2026-11-04b): 30 mixed replies, scored once before the change a
   assert.equal(s.n, 30);
   assert.equal(s.unsubMissed, 0);
   assert.equal(s.overreach, 0);
-  assert.equal(s.right, 28);
+  assert.equal(s.right, 29);
 });
 
 test("an unsubscribe link line inside an auto-reply is not an opt-out, but a first-person ask in one still is", () => {
@@ -471,12 +473,29 @@ test("fresh set 2026-11-08d (seventeenth, a false-bounce and false-away probe): 
   assert.equal(triage({ subject: "Automatic reply", body: "I am out of the office until 12 December with limited access to email." }, T).category, "out_of_office");
 });
 
-test("fresh set 2026-11-08e (eighteenth, a false-not-now and wrong-person probe): scored once at 9/20, 15/20 after three narrow changes; a tuned set", () => {
+test("fresh set 2026-11-08e (nineteenth, a false-not-now and wrong-person probe): scored once at 9/20, 15/20 after three narrow changes (16/20 with the 2026-11-11 vetoes); a tuned set", () => {
   const s = score(load("fresh-2026-11-08e.jsonl"));
   assert.equal(s.n, 20);
-  assert.equal(s.right, 15);
+  assert.equal(s.right, 16);
   assert.equal(s.overreach, 0);
   const T = "2026-11-08";
   for (const [body, want] of [["We're in the middle of a CRM migration. Does your tool work with HubSpot imports?", "question"], ["Timing isn't right for us because the price is double what we pay for our current tool. Can you do better?", "objection"], ["Not now, not later, not ever. We have no use for this. Please close the file.", "not_interested"], ["Wrong person, but also wrong product. We'd never buy this. Don't follow up.", "not_interested"], ["Swamped until the end of the quarter. Ping me in February and I'll look then.", "not_now"]])
     assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+});
+
+test("fresh set 2026-11-11 (eighteenth, a false not-now and wrong-person probe): scored once at 9/20 (6 live leads read as a departed contact), 18/20 after narrow vetoes; a tuned set", () => {
+  const s = score(load("fresh-2026-11-11.jsonl"));
+  assert.equal(s.n, 20);
+  assert.equal(s.right, 18);
+  assert.equal(s.overreach, 0);
+  const T = "2026-11-11";
+  for (const [body, want] of [
+    ["I'm not the right person for budget but I'm the one who'd use it. Happy to see a demo, I'll loop in finance. Friday?", "interested"],
+    ["Wrong time, not wrong person. Reach out in January.", "not_now"],
+    ["Please stop following up.", "unsubscribe"],
+    ["Call me later today, around 3pm. I'm free after lunch.", "interested"],
+    ["I'm not the right contact for this. Try our CFO, Priya Rao (priya@acmefreight.example).", "left_company"],
+    ["Sam no longer works here. For anything else please email info@acmefreight.example.", "left_company"],
+    ["Check back in March when our contract renews.", "not_now"],
+  ]) assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
 });

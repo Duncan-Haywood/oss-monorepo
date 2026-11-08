@@ -101,11 +101,11 @@ flagships:
       History and every measurement: README, eval/README and git (inbox agent,
       daily run, self-host server with TLS and XOAUTH2, research agent, call prep,
       follow-ups, meeting slots and .ics invites, CRM write-back to
-      Pipedrive/HubSpot against fake servers only; eighteen agent-written reply
+      Pipedrive/HubSpot against fake servers only; nineteen agent-written reply
       sets, latest 2026-11-08: false-not-now and wrong-person probe 9/20 before, 15/20 after three narrow changes; false-bounce and false-away probe 9/20 before,
       16/20 after one veto; all sets other than the 117 real bounces, 11 + 12 real
       mail-client emails and the 1,857-reply label mix are agent-written). Next:
-      (1) a probe for false not-now and wrong-person readings, then real mail; (2)
+      (1) real mail (false not-now and wrong-person probe 2026-11-11: 9/20 to 18/20); (2)
       real human replies and a real rep's call notes to check the reply rules,
       prep rules and follow-up sorter; (3) M2: score a hosted and a local model
       with eval/model.mjs on the fresh sets (needs a key), with a set labelled by
