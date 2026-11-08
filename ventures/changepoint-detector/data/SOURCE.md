@@ -506,3 +506,11 @@ column is built from the `time` column of the source.
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/oil.csv> (values rounded to 3 places).
 - **Licence:** fpp2 is GPL-3 on CRAN; the figures are public production statistics. Kept as a small test fixture with its source named.
 - **Used by:** `saudi-oil.test.mjs`.
+
+## au-departures.csv (added 2026-11-08)
+
+- **What:** monthly short-term resident departures from Australia, thousands, 498 months 1976-01 to 2017-06 (the `resshort` column of `fpp2::departures`).
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/departures.csv> (month labels added from the series start).
+- **Licence:** fpp2 is GPL-3 on CRAN; the figures are public ABS statistics. Kept as a small test fixture with its source named.
+- **Used by:** `au-departures.test.mjs`.
