@@ -149,3 +149,19 @@ test('inherited-ira-10-year-withdrawal-planner: lead is sourced, dated and match
   assert.match(text, /25% excise tax \(10% if corrected within two years\)/);
   assert.ok(html.includes('25% excise tax on the amount you should have taken, reduced to 10%'));
 });
+
+// UK VAT registration lead: the pound threshold it states must be the checker's own, and the 30-day rule it names must be the one modelled.
+test('uk-vat-registration-checker: lead is sourced, dated and matches the threshold', async () => {
+  const slug = 'uk-vat-registration-checker';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { R } = await import(new URL(`${slug}/calc.mjs`, root));
+  const stated = [...text.matchAll(/£([\d,]+)/g)].map((x) => Number(x[1].replace(/,/g, '')));
+  assert.ok(stated.length > 0);
+  for (const n of stated) assert.equal(n, R.registerThreshold);
+  assert.match(text, /30 days/);
+});
