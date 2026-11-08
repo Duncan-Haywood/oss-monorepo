@@ -1,5 +1,6 @@
 ---
 title: "The child tax credit calculator now opens with the answer and its source"
+seo_title: "Child tax credit calculator: answer, source and date"
 date: 2026-11-08
 tags: [child-tax-credit-calculator, seo, open-source]
 description: "The page leads with the 2026 credit amounts, the phase-out thresholds, a statutory source and an as-of date, checked against the calculator's code."
