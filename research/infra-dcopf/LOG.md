@@ -1,5 +1,9 @@
 # Research log
 
+## 2026-11-08 · Stale penalty factors at the steepest real ramps
+- Prediction (before running): factors age gracefully for a few hours and lose most of their gain by 12 hours. Half refuted: gap to oracle grows from 0.01 point (1 to 3 h) to 0.16 point (12 h), but stale factors beat plain DC in all 50 hours and cut its excess 58 % at 12 h (0.584 vs 1.406 %).
+- 10 hours per lag, one case, uniform load shape, no outage. Next: line-trip stress test.
+
 ## 2026-11-07 · Penalty factors from a previous interval
 - Prediction (before running): factors from a 0.1-lower load level keep most of the gain; a 0.2 step much less. Supported: case118 at load 1.0 excess 0.402 % (0.1 step) and 0.703 % (0.2 step) vs 0.367 % oracle and 1.479 % plain DC.
 - Load scale stands in for time; next a real hourly profile.
