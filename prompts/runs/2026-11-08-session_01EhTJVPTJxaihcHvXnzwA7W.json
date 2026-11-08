@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01EhTJVPTJxaihcHvXnzwA7W",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-08T04:59:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 1: re-run --trim-openings on the Schultz IFC",
+  "projects": [
+    "ventures/wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13958",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "The task asked for revenue products and flagship depth; the routed polish track was set aside for the top flagship.",
+      "did": "Deepened wall-framing-takeoff",
+      "result": "3rd Floor Schultz frames all 20 walls"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Ran: cargo build --release in ifc-engine; ifc-engine plan/dxf per floor; cli.mjs --skip-refused --shallow-headers --trim-openings. node --test cli.test.mjs 51 pass. Full platform/pages tests and CI not run locally.",
+  "corrections": [],
+  "redteam": null
+}
