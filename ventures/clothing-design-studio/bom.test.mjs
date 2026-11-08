@@ -38,3 +38,22 @@ test("parseLines skips header, reports bad rows", () => {
   assert.equal(r.lines.length, 1);
   assert.equal(r.errors.length, 2);
 });
+
+import { sheetExtras, saveBomExtras, loadBomExtras } from "./bom.mjs";
+test("sheetExtras: trims 0.30 (rib .504+thread .0704+label .0927+care .0412 = .7083 -> 0.71), packaging 0.06", () => {
+  const e = sheetExtras(EXAMPLE_LINES);
+  assert.equal(e.packagingPerUnit, 0.06);
+  assert.equal(e.trimsPerUnit, 0.71);
+  assert.equal(e.fabricPerGarment, 7.3);
+  assert.equal(e.total, 8.07);
+});
+test("bom extras round-trip through storage and reject junk", () => {
+  const m = new Map(); const st = { setItem: (k, v) => m.set(k, v), getItem: k => m.get(k) ?? null };
+  assert.equal(loadBomExtras(st), null);
+  assert.ok(saveBomExtras({ trimsPerUnit: 0.71, packagingPerUnit: 0.06 }, st));
+  assert.deepEqual(loadBomExtras(st), { trimsPerUnit: 0.71, packagingPerUnit: 0.06 });
+  st.setItem("clothing-design-studio-bom", JSON.stringify({ trimsPerUnit: -1, packagingPerUnit: 0 }));
+  assert.equal(loadBomExtras(st), null);
+  st.setItem("clothing-design-studio-bom", "{not json");
+  assert.equal(loadBomExtras(st), null);
+});

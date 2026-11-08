@@ -160,3 +160,27 @@ export function parseLines(text) {
   });
   return { lines: out, errors };
 }
+
+export const BOM_KEY = "clothing-design-studio-bom";
+
+/**
+ * What the costing sheet can take from a bill of materials: trims and
+ * packaging per garment, waste included. Fabric is left out on purpose: the
+ * sheet prices cloth by the metre and by the garment's own metres.
+ */
+export function sheetExtras(lines, byGroup = defaultGroup) {
+  const b = bomCost(lines, byGroup);
+  return { trimsPerUnit: b.groups.trims || 0, packagingPerUnit: b.groups.packaging || 0, fabricPerGarment: b.groups.fabric || 0, total: b.total };
+}
+
+export function saveBomExtras(extras, storage = globalThis.localStorage) {
+  try { storage.setItem(BOM_KEY, JSON.stringify({ trimsPerUnit: extras.trimsPerUnit, packagingPerUnit: extras.packagingPerUnit })); return true; } catch { return false; }
+}
+
+export function loadBomExtras(storage = globalThis.localStorage) {
+  try {
+    const e = JSON.parse(storage.getItem(BOM_KEY) || "null");
+    const ok = v => typeof v === "number" && Number.isFinite(v) && v >= 0;
+    return e && ok(e.trimsPerUnit) && ok(e.packagingPerUnit) ? { trimsPerUnit: e.trimsPerUnit, packagingPerUnit: e.packagingPerUnit } : null;
+  } catch { return null; }
+}
