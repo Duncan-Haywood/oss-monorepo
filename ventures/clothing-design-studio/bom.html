@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clothing Bill of Materials Template and Order Calculator (Trims, MOQ, Waste)</title>
+  <meta name="description" content="List every fabric, label, thread and bag a garment uses. Get the true cost per garment with waste, and what to order for your run once supplier minimums and pack sizes bite. Free, in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Bill of materials and order calculator">
+  <meta property="og:description" content="Cost per garment and what to order with minimums. Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Bill of materials and order calculator (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="quotes.html">Compare factory quotes</a> · <a href="spec.html">Measurement spec</a> · <a href="cashflow.html">Launch cash flow</a></p>
+  <h1>What does one garment really need, and what must you buy?</h1>
+  <p>A bill of materials lists every material in a garment. Waste raises what each piece uses, and suppliers sell trims in packs with minimums, so a small run pays for stock it never sews. Edit the example (one line per material: name, unit, per garment, waste %, unit cost, pack size, minimum order) with your own quotes.</p>
+  <p class="placeholder">The example prices are made up, not any supplier's. Use your own quotes. Not procurement advice.</p>
+  <div class="grid">
+    <section>
+      <h2>Materials</h2>
+      <label for="lines">CSV lines</label>
+      <textarea id="lines" rows="10" style="width:100%;box-sizing:border-box;font:.8rem ui-monospace,monospace"></textarea>
+      <div id="errs" class="placeholder"></div>
+      <label for="qty">Garments in the run</label><input id="qty" type="number" min="1" step="1" value="100">
+    </section>
+    <section><h2>Cost per garment</h2><output id="cost" aria-live="polite"></output><h2 style="margin-top:14px">What to order</h2><div id="order"></div><p><button id="dl">Download purchase list (CSV)</button></p></section>
+  </div>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional advice, and it does not replace a qualified professional. Conversion and traffic are your estimates; the result is a forecast, not a promise. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+
+
+
+  <script type="module">
+    import { EXAMPLE_LINES, bomCost, orderFor, breakEvenQuantity, orderCsv, parseLines } from "./bom.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    $("#lines").value = EXAMPLE_LINES.map(l => [l.name, l.unit, l.perGarment, l.wastePct, l.unitCost, l.packSize, l.moq].join(",")).join("\n");
+    let last = null;
+    function run() {
+      const { lines, errors } = parseLines($("#lines").value);
+      $("#errs").innerHTML = errors.map(esc).join("<br>");
+      if (!lines.length) { $("#cost").innerHTML = $("#order").innerHTML = ""; last = null; return; }
+      const b = bomCost(lines);
+      $("#cost").innerHTML = `<p class="big">${b.total.toFixed(2)}</p><p>${Object.entries(b.groups).map(([k, v]) => `${esc(k)} ${v.toFixed(2)}`).join(" · ")}</p>`;
+      try {
+        const o = orderFor(lines, Math.floor(+$("#qty").value)); last = o;
+        $("#order").innerHTML = `<p>Order total <strong>${o.orderTotal.toFixed(2)}</strong>, which is <strong>${o.effectivePerGarment.toFixed(2)}</strong> per garment; ${o.surplusCost.toFixed(2)} of it is stock left over. Minimums stop mattering from ${breakEvenQuantity(lines)} garments.</p><table><tr><th>Item</th><th class="num">Need</th><th class="num">Order</th><th class="num">Cost</th><th>Note</th></tr>${o.rows.map(r => `<tr><td>${esc(r.name)}</td><td class="num">${r.need.toFixed(1)} ${esc(r.unit)}</td><td class="num">${r.order.toFixed(1)}</td><td class="num">${r.orderCost.toFixed(2)}</td><td class="tag">${esc(r.note)}</td></tr>`).join("")}</table>`;
+      } catch (e) { last = null; $("#order").innerHTML = `<p class="placeholder">${esc(e.message)}</p>`; }
+    }
+    $("#dl").addEventListener("click", () => { if (!last) return; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([orderCsv(last)], { type: "text/csv" })); a.download = "purchase-list.csv"; a.click(); recordUsage("bom_download"); });
+    document.addEventListener("input", () => { run(); recordUsage("bom_edit"); });
+    run(); recordUsage("bom_open");
+  </script>
+</body>
+</html>
