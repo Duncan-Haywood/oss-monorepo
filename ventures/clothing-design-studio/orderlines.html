@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Colour and Size Order Matrix for Clothing Factories: Minimums per Colour</title>
+  <meta name="description" content="Free order matrix for small clothing brands: split a run into colours and sizes, check the factory minimum per colour, add spares and download a purchase-order CSV. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Colour and size order matrix for clothing brands">
+  <meta property="og:description" content="Split a run into colours and sizes and see which colours miss the factory minimum. Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Order matrix (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button, textarea { font: inherit; }
+    textarea, input[type=text] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="preorder.html">Pre-order planner</a> · <a href="reorder.html">Reorder planner</a> · <a href="quotes.html">Compare quotes</a> · <a href="fit.html">Size finder</a> · <a href="barcodes.html">Barcodes</a></p>
+  <h1>How many in each colour and size?</h1>
+  <p>Factories set a minimum per colour. 300 tees in four colours is four orders of 75, and one under the minimum can sink the quote. Type the total, the colour and size shares and the minimum: get a whole-piece table whose cells add up exactly, the colours that miss, and a CSV for the purchase order.</p>
+  <p class="placeholder">Arithmetic on typed shares, not a forecast of what sells. Sizes use the same shares inside every colour; the size totals can drift a piece or two from rounding.</p>
+  <div class="grid">
+    <section>
+      <h2>Your run</h2>
+      <div class="row"><div><label for="total">Total pieces</label><input id="total" type="number" min="1" step="1" value="300"></div><div><label for="min">Factory minimum per colour</label><input id="min" type="number" min="0" step="1" value="100"></div></div>
+      <div class="row"><div><label for="spare">Spares to cut (%)</label><input id="spare" type="number" min="0" max="49" step="any" value="3"></div><div><label for="style">Style name (for the CSV)</label><input id="style" type="text" value="Tee 01" maxlength="60"></div></div>
+      <h3>Colours (name, share)</h3>
+      <textarea id="cols" rows="5" aria-label="Colours, one per line as name, share">Black, 40
+White, 30
+Sand, 20
+Olive, 10</textarea>
+      <h3>Sizes (name, share)</h3>
+      <textarea id="szs" rows="6" aria-label="Sizes, one per line as name, share">S, 15
+M, 30
+L, 30
+XL, 15
+2XL, 10</textarea>
+      <p class="tag">One per line: a name, a comma, a share (any numbers; they are scaled). The size finder's "Split the order" gives shares for an audience.</p>
+    </section>
+    <div><section><h2>Result</h2><output id="result" aria-live="polite"></output>
+      <p><button type="button" id="dl">Download purchase-order CSV</button></p></section></div>
+  </div>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional advice, and it does not replace a qualified professional. Shares and minimums are your inputs; confirm every quantity with the factory. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+
+  <script type="module">
+    import { planMatrix, matrixCsv } from "./orderlines.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    function parse(text) {
+      return text.split("\n").map(l => l.trim()).filter(Boolean).map(l => {
+        const i = l.lastIndexOf(","); return i < 0 ? { name: l, share: NaN } : { name: l.slice(0, i), share: Number(l.slice(i + 1)) };
+      });
+    }
+    let last = null;
+    function render() {
+      const p = planMatrix({ total: Number($("#total").value), minPerColour: Number($("#min").value), defectPct: Number($("#spare").value), colours: parse($("#cols").value), sizes: parse($("#szs").value) });
+      last = p;
+      $("#dl").disabled = !p.ok;
+      if (!p.ok) { $("#result").innerHTML = `<p class="placeholder">${esc(p.error)}</p>`; return; }
+      $("#result").innerHTML = `<table><tr><th scope="col">Colour</th>${p.sizeNames.map(s => `<th scope="col" class="num">${esc(s)}</th>`).join("")}<th scope="col" class="num">Total</th><th scope="col" class="num">Cut</th></tr>
+        ${p.rows.map(r => `<tr${r.underMin ? ' class="hit"' : ""}><td>${esc(r.colour)}</td>${p.sizeNames.map(s => `<td class="num">${r.sizes[s]}</td>`).join("")}<td class="num"><b>${r.qty}</b>${r.underMin ? " &#9888;" : ""}</td><td class="num">${r.cutQty}</td></tr>`).join("")}
+        <tr><th scope="row">All</th>${p.sizeNames.map(s => `<td class="num">${p.sizeTotals[s]}</td>`).join("")}<td class="num"><b>${p.total}</b></td><td class="num">${p.cutTotal}</td></tr></table>
+        ${p.notes.map(t => `<p class="notes">${esc(t)}</p>`).join("")}`;
+    }
+    $("#dl").addEventListener("click", () => {
+      if (!last || !last.ok) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([matrixCsv(last, { style: $("#style").value })], { type: "text/csv" }));
+      a.download = "order-matrix.csv"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      recordUsage("matrix_download");
+    });
+    document.querySelectorAll("section input, section textarea").forEach(el => el.addEventListener("input", () => { render(); recordUsage("matrix_check"); }));
+    render(); recordUsage("matrix_open");
+  </script>
+</body>
+</html>
