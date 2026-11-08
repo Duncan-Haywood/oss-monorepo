@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-08 · Milestone 98: tests that constrain the headline metric, page text brought up to date (no flow run, no new numbers)
+- Why: the 2026-11-08 quality audit (`portfolio/quality/audits/2026-11-08-verified-dse.json`) seeded four mutations; two passed all 18 tests: `pick_regret` choosing `max(cheap)` instead of `min(cheap)` (the programme's headline metric) and the tie rule in `pilot_top_inversion` (`<=` to `<`). The existing `pick_regret` test happened to give the same value for min and max.
+- Change: `tests/test_stats.py` gains a case where the cheap minimum and maximum pick different reference values and one for averaging over cheap ties; `tests/test_bound.py` gains a rung-tie case for `pilot_top_inversion`. Re-running both mutations: each now fails (2 and 3 failures); unmutated, all new tests pass. `test_proof_success` errors on import in this container (a missing dependency), as it did before the change.
+- Page text: `project.json` lede and summary said "milestones 1 to 3 done"; the lede now states the current headline results (milestones 6, 96, 97) and the summary opening no longer claims only milestone 1.
+- Limits: the other ~40 experiment directories are still guarded only by byte-identical regeneration; the README status line is still the long milestone list the audit called garbled.
+- Next: detail-routed mult24/mult32 cells; a README status line rewrite.
+
 ## 2026-11-08 · Milestone 97: any certified pilot point gives the ceiling, not only the pilot's best (no flow run)
 - Why: milestone 96's proof holds for every pilot point with ratio < 1, but its ceiling used the pilot's best point and so needed T < 1. The ceiling c = min y over certified pilot points exists whenever any pilot point is certified. Predictions (written first, m = 16): (1) zero violations of returned <= c; (2) more pilots get a ceiling than have T < 1; (3) the extra pilots' ceiling is looser (larger mean excess over the pool minimum) than the T < 1 pilots'.
 - **Outcome** (`experiments/theory/pilot_cert_anypoint.py`, `pilot_cert_anypoint_results.txt`, `tests/test_pilot_cert_anypoint.py`; 12,000 pilots per m, 50 tie-breaks each). All three held. (1) 0 violations in 145,050 / 219,950 / 253,450 draws at m = 8 / 16 / 24. (2) the share of pilots with a ceiling is 0.242 / 0.367 / 0.422 against 0.166 / 0.221 / 0.257 with T < 1. (3) mean excess of the ceiling is 11.4 / 10.2 / 9.6% for the extra pilots against 4.3 / 3.0 / 2.0% for T < 1 pilots.
