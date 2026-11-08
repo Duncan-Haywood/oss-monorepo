@@ -1,0 +1,61 @@
+{
+ "date": "2026-11-07",
+ "subject": "research/buildbot-carryramp",
+ "stratum": "research",
+ "seed": "2026-11-07",
+ "auditor": "agent session (Claude), 2026-11-07 round 10",
+ "status": "audited",
+ "professional": "a senior humanoid-locomotion researcher (LIPM/ZMP walking, whole-body inverse dynamics on MuJoCo models) who would first check the closed-form pendulum orbit, that the CoP/ZMP margin and torque-limit tests are the real feasibility conditions (friction, velocity and torque-speed limits included), whether a one-grid-cell gain is robust to numerical noise and grid, and what the result adds beyond heel-to-toe ZMP planning in the walking literature",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Installed mujoco 4.0.0 and fetched the pinned Menagerie G1/H1 (`python3 -c ... fetch.model_path`). Re-ran the experiment's own `job()` for 120 of the 1,680 cases (g1 4 kg at sweeps 0>0 and -3>3, h1 0 kg at -3>3 and -6>0, all 30 L x T cells each; 220 s, run twice): all 120 pass/fail flags match results.json; 104 ratios agree to <1e-6 relative, 16 differ (all in cases with ratio well above 1 or well below 1, none crossing the limit), the largest by 1.7 percent (g1 4 kg, 0>0, L=0.25, T=0.6: 2.405 vs 2.445; g1 4 kg -3>3, L=0.25, T=1.0: 1.583 vs 1.564), so the README's 'deterministic' holds for the verdicts but not bitwise. Recomputed three outputs independently: (1) the closed-form ramp orbit against my own RK4 shooting solution of x''=(g/z)(x-p(t)) with x(0)=-L/2, x(T)=L/2 for three (L,T,z,c0,c1) triples: max error 1e-14 m; (2) the headline table re-derived from results.json rows (not from results.txt): g1 4 kg best step 0.133 m/s at -6>-6 and -3>3, h1 0 kg 0.20 at -3>3, h1 14 kg 0.067 at 0>0, g1 5 kg none; (3) cases passing per sweep recomputed from rows: G1 26,22,26,26,28,26,25,24 and H1 8,0,0,0,0,8,7,7, total 1,680 rows = 7 payload-robot x 8 sweeps x 30: all match the README. Sole extents read from Setup.box: G1 -9.0/+9.0 cm, H1 -6.15/+11.4 cm, matching the README. The torque and ZMP numbers themselves rest on carryphase's MuJoCo mj_inverse, which I did not re-derive by hand.",
+  "completeness": "Checked each README item: 7 tests pass in 0.3 s (claimed 7): yes. 1,680 cases and 8 sweeps: yes (results.json 1,680 rows). results.txt is the output of run.write_txt on that json: yes (table matches my re-derivation). figure.png and figure.py present: yes. 'Reproduces buildbot-carryphase at sweep 0>0' (0.25/0.20/0.10/none, H1 0.15/0.10/0.07): yes in the 0>0 column. Test claim 'equality with carryphase and carrycop orbits': yes (tests 1 and 3). 'About 35 minutes on 4 CPUs': 120 cases took 220 s on one process, so about 51 min single core, plausible, not run in full. Live page https://marisstella.app/research/buildbot-carryramp/ not loaded (proxy), unverified. No paper/whitepaper (the other research audits found stubs; here there is none) and the project is not listed in research/PROGRAMMES.md. 'Results' section is a pointer to results.txt rather than a written analysis. Everything it says is done runs end to end.",
+  "verification": "Ran `python3 -m pytest -q tests` in research/buildbot-carryramp: 7 passed in 0.3 s. Mutations in src/buildbot_carryramp/model.py, each reverted with git checkout (git status clean): (a) A = -L/2 + c0 (sign): 4 tests fail, caught. (b) B uses p(0) instead of p(T): 4 tests fail, caught. (c) cop_ramp passes (c0, c0) instead of (c0, c1) to the patched orbit, i.e. the sweep is silently never applied in the scoring path: all 7 tests pass. (d) score() calls cop_ramp(c1, c0), the sweep reversed (toe-to-heel instead of heel-to-toe, which is the entire experiment): all 7 pass. So the closed-form orbit is well guarded (endpoints, finite-difference equation of motion, equality with two sibling projects), but the plumbing that injects it into the scorer, the thing that produces every number in the table, has no test; no test calls score() or touches MuJoCo. The experiment table is the only integration check, and a reader could not tell a reversed sweep from the right one by the test suite.",
+  "craft": "Read model.py (41 lines), tests/test_model.py, experiments/run.py, figure.py, pyproject.toml, and the carryphase score() it patches. Clean, short, well documented, reuses carryphase rather than copying it, deterministic grid, results written as json plus text. Defects: monkeypatching carryphase's module-global lipm_x through a context manager (model.py:31-37) is not thread or process safe by design (fine under Pool, which forks) and is what makes mutations (c)/(d) invisible to tests; run.py:50 writes results.json with default=float and no seed or version of mujoco/Menagerie commit recorded in the output; pool.map over 1,680 jobs with chunksize 4 and a per-process model cache but no progress or failure handling; `hand` HAND tuple duplicated from carryphase; sys.path hacking in run.py:6-8 and pyproject pythonpath entries rather than declared dependencies on the sibling packages (pyproject lists only mujoco and numpy, so `pip install` of this project alone cannot import).",
+  "claims": "Backed (file in parentheses): all headline numbers and per-sweep pass counts (results.json, recomputed); 'constant -6 cm gives the same 0.13' (results.txt column -6>-6); H1 -6-start sweeps infeasible for all 90 cases (0 passes in four columns); sole extents (Setup.box); Kajita et al. 2001 ICRA is the right LIPM reference; simulated, preliminary, not a safety case, ISO 10218 / ISO/TS 15066 / OSHA hazard note, MIT, AI-assistance note, Menagerie BSD-3 attribution. Weak or missing: (1) the G1 4 kg 'gain' is not a robust margin: the 0.133 m/s cell (L=0.2, T=1.5) passes the torque limit at ratio 0.996 under -3>3 while the 0.125 m/s cell fails at 0>0 by 1.017 (L=0.1, T=0.8), i.e. the whole G1 improvement is a 0.4 percent torque margin, smaller than the 1 to 2 percent run-to-run IK variation I observed in infeasible cells; the README says 'one grid cell' and 'a finer grid could move them' but gives no margin, which a reader needs to judge it. (2) The README table cell for G1 at 3 kg under -6>-6 (0.19 vs 0.20) and at 0 kg (0.20 vs 0.25) are losses not mentioned in the headline, which reads 'no new gain' only. (3) Feasibility ignores stance-foot friction (the code computes mu but ok does not use it: carryphase model.py:291) and joint velocity / torque-speed limits; the README says 'carryphase limitations all hold' but does not list them. Live page unverified.",
+  "fitness": "A researcher can re-run it (pytest 0.3 s, a documented experiment) and extend it (sweep list is data), and the negative result is honestly framed, which is useful to anyone considering a heel-to-toe CoP trick. But the result is incremental on the repository's own carrycop/carryphase and not a research contribution: a time-varying ZMP/CoP reference is standard in walking generation (Kajita et al. 2003 ICRA preview control of ZMP; Vukobratovic and Borovac 2004 on ZMP; Hof 2008 on extrapolated CoM / foot roll-over; Herdt, Perrin and Wieber 2010), and a linear ramp with a closed-form LIPM orbit is a textbook exercise. What is new is only the application to the fixed-pose, hands-forward Menagerie G1/H1 carry gait under joint torque limits, and the outcome is 'torque is the wall', a conclusion already implied by carryphase. There is no paper, no confidence statement, no grid refinement, no second pose and no comparison with a trained policy or a whole-body optimiser (the stated next step). Well below the PhD/publishable bar in research/CLAUDE.md; a small reproducible sensitivity study.",
+  "domain": "Compared against standard LIPM/ZMP gait practice (Kajita 2001, 2003) and humanoid whole-body feasibility checks (joint torque and velocity limits, friction cone, ZMP inside the support polygon). Right: LIPM orbit (verified), ZMP margin taken from the full-body inverse-dynamics contact wrench rather than from the pendulum, torque limits from the vendor model, a flat sole box from the contact spheres. Departs: a prescribed single-support orbit with no double support, impact, swing-leg dynamics, trunk or arm reaction (acknowledged); friction cone computed but not enforced; no joint speed or torque-speed (motor) limits, so 'feasible' is optimistic for the G1/H1 actuators; the CoP reference is a planned pendulum input, not a controller output, and nothing tests whether a real controller can track a ramp that starts 6 cm behind the sole point (0.2 cm from the H1 heel edge); the 0.07 to 0.25 m/s feasible speeds are very slow compared with human or published humanoid walking, so a locomotion researcher would read the grid as sitting in a corner of the envelope. The decision to score torque ratios at a quasi-static stance with a static hand-carried load is reasonable for a feasibility screen, not a gait."
+ },
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Tests never exercise the path that injects the ramp into the scorer: reversing the sweep in score() (cop_ramp(c1, c0)) or passing (c0, c0) to the patched orbit leaves all 7 tests passing, although that plumbing produces every number in the table",
+   "where": "research/buildbot-carryramp/src/buildbot_carryramp/model.py:31"
+  },
+  {
+   "severity": "medium",
+   "what": "The only G1 improvement (4 kg, 0.10 to 0.13 m/s) hangs on a 0.4 percent torque margin (ratio 0.996 at L=0.2, T=1.5) against run-to-run IK variation of 1 to 2 percent in infeasible cells; the README calls it one grid cell but gives no margin or robustness check",
+   "where": "research/buildbot-carryramp/README.md:11"
+  },
+  {
+   "severity": "medium",
+   "what": "Feasibility flag ignores the stance-foot friction cone (mu is computed but not used) and joint speed/torque-speed limits, and the README does not list this beyond 'carryphase limitations all hold'",
+   "where": "research/buildbot-carryphase/src/buildbot_carryphase/model.py:291"
+  },
+  {
+   "severity": "low",
+   "what": "Headline reports 'no new gain' but omits the losses the same sweeps cause at G1 0 and 3 kg (-6>-6: 0.25 to 0.20 and 0.20 to 0.19); also 'deterministic' is true for verdicts only: 16 of 120 re-run ratios differ by up to 1.7 percent",
+   "where": "research/buildbot-carryramp/README.md:9"
+  },
+  {
+   "severity": "low",
+   "what": "pyproject.toml lists only mujoco and numpy and reaches sibling packages through pytest pythonpath and sys.path edits, so the package cannot be installed and imported on its own; no environment (mujoco version, Menagerie commit) is recorded in results.json",
+   "where": "research/buildbot-carryramp/pyproject.toml:8"
+  },
+  {
+   "severity": "low",
+   "what": "No paper and no entry in research/PROGRAMMES.md; the result is an incremental sweep of the repository's own carrycop/carryphase work, not a programme step toward a publishable result",
+   "where": "research/buildbot-carryramp/README.md:1"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "An honest, small negative result that reproduces: with mujoco installed and the pinned Menagerie fetched, 7 tests pass, 120 of 1,680 cases re-run with identical pass/fail verdicts (ratios agree to <1e-6 for 104, up to 1.7 percent for 16 infeasible-side cases), the closed-form ramp orbit matches an independent RK4 shooting solution to 1e-14 m, and the README's table and per-sweep pass counts match a re-derivation from results.json. It does not meet the bar: verification is 2 because reversing the CoP sweep or dropping its end point in the scoring path passes every test (the orbit maths is well tested, the integration is not), and the feasibility test omits friction and joint-speed limits. The sole G1 'gain' rests on a 0.4 percent torque margin smaller than observed numerical scatter, which the README does not quantify. Scientifically it is incremental on the repository's own two preceding projects and on standard ZMP-planning practice, with no paper. Scores: correctness 3, completeness 3, verification 2, craft 3, claims 3, fitness 2, domain 2."
+}

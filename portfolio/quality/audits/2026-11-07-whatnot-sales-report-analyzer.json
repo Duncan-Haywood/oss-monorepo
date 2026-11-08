@@ -1,0 +1,66 @@
+{
+ "date": "2026-11-07",
+ "subject": "ventures/whatnot-sales-report-analyzer",
+ "stratum": "venture",
+ "seed": "2026-11-07",
+ "auditor": "agent session (Claude), 2026-11-07 round 10",
+ "status": "audited",
+ "professional": "a full-time Whatnot reseller who also keeps the books for an online-selling business (the person who reconciles Seller Hub payouts to the 1099-K and decides which shows to keep running). They would check first: that fee and payout per order tie to a real Seller Hub statement, that per-show profit equals sum of order profit, that cancelled and refunded orders are out, and whether the tool knows Whatnot's category commission rates and the $1,500 cap on trading cards, coins and similar.",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Made a 9-line CSV by hand (6 live sales over 2 shows and 2 categories, one cancelled order, one Total row; shipping 4.50 to 10, tax 0 to 8, costs given) and recomputed in Python with fee = 8% x price + 2.9% x (price + shipping + tax) + 0.30, payout = price - fee, profit = payout - cost. Tool (normalizeRows + analyze, run through node) vs hand: (1) $20.00 sale, 5.00 ship, 1.60 tax: fee 2.67, payout 17.33, profit 9.33; match. (2) $5.00 sale, 4.50 ship, 0.40 tax: fee 0.99, profit -1.99, flagged as 20% fee share; match. (3) $100.00 sale, 6.00 ship, 8.00 tax: fee 11.61, profit 48.39; match. Show totals: Show1 profit 55.73 (hand 55.7355), Show2 -41.49 (hand -41.485; the tool rounds each order to cents first, so a 1 cent difference per rounding, A5 payout 39.50 vs 39.51 in float); all-sales profit 14.24. The cancelled order was excluded and counted, the Total row skipped and reported. The page (Chrome via Playwright, same CSV through the file input and Analyze) printed identical figures: 6 sales, fees 31.76 (12.2%), payout 228.24, profit 14.24. Fee rates (8% commission, 2.9% + 30c on item + shipping + tax) could not be checked against Whatnot's own schedule: help.whatnot.com and whatnot.com returned proxy 403 in this session, so the schedule is unverified by me today; the code treats the rates as editable inputs, which limits the harm. Rounding is per order, not per show, which a bookkeeper may see as a cent-level drift.",
+  "completeness": "Claimed and checked end to end: CSV/TSV/semicolon read (parser unit tests pass), alias column matching, fee from file columns or editable rates (both paths run), payout from Net Earnings with an 'other deduction' gap (run and tested), cost column and pasted SKU,cost list with SKU > order id > title matching (tested), per sale/show/category/month rollups that reconcile, minimum 3 costed sales before a group is named a loser (tested), cancelled/returned/refunded exclusion (run), skipped-row report (run), date range filter, copy summary, CSV export of per-sale results (button code read, not clicked), worst and best sales, example loader (45 sales loaded in the browser), no external requests (0 non-local requests in the browser), no console errors, no horizontal scroll at 375 px. Gap that matters: the column names are guessed 'from memory of Whatnot's export' (README and page say so honestly), so whether a real Seller Hub export loads is untested; stage is prototype and hypotheses are all untested.",
+  "verification": "Ran `node --test` in the venture: 32 tests, 32 pass, 0 fail (0.2 s), across calc.test.mjs, page.test.mjs, usage.test.mjs. Seeded five mutations in calc.mjs one at a time and reverted each with git checkout (git status clean afterwards). SURVIVED (all 32 still pass): (a) calc.mjs:18 drop `+ tax` from the processing base; (b) calc.mjs:300 and :307 `profit < 0` -> `<= 0`; (c) calc.mjs:271 date-range upper bound `to + DAY` -> `to` (the last day of the range would be dropped). CAUGHT (4 failures each): (d) calc.mjs:17 commission `/100` -> `/10`; (e) calc.mjs:193 fee columns sum commission + processing -> commission only. Reason for the survivors: the only test with a nonzero tax passes tax 0 (calc.test.mjs 'buyer shipping and tax columns raise the processing fee' uses `20,5,0`), so the tax term in the fee formula is never exercised; no test sits on a date-range boundary or on a profit of exactly zero. A fee-formula test that never uses tax is a real gap, since tax is half of why processing is not the headline rate. Also the test suite's expected values are hand-derived by the author with the same formula as the code, not from a Whatnot statement.",
+  "craft": "Read calc.mjs (380 lines) and index.html script, calc.test.mjs and page.test.mjs in full. Good: pure functions with no DOM or network (a test greps for fetch/XHR), a tolerant parser (BOM, UTF-16, quoted fields, day-first dates with an ambiguity rule, parentheses negatives), skipped rows reported with reasons rather than dropped silently, honest null for unknown cost and profit rather than 0. Defects: calc.mjs:193 if a file has only a Commission column and no Processing column, fee = commission alone (processing silently counted as 0) and only an 'info' mismatch note appears; calc.mjs:288 groups with profit null sort by payout against groups ranked by profit, so a mixed list mixes two units; calc.mjs:12-14 and :17-19 duplicate the fee constants of ../whatnot-seller-payout (guarded by a test, so acceptable); dense one-line findings strings at 313-322. No @ts-check or types. Acceptable for a senior JS reviewer with these notes.",
+  "claims": "Checked: 'nothing is uploaded' backed by page.test.mjs (no fetch/XHR/sendBeacon, local imports only) and by my browser run (zero non-local requests); disclaimer 'No warranty ... not legal, tax, or financial advice' and 'Not affiliated with Whatnot' present on the page (index.html:141-142) and asserted by a test; fee model, 'Not modelled' list (index.html:119), category caps not modelled (README:29, page line 113) and 'column names matched by alias from memory, no real export' (README:17, index.html:56) are stated candidly; the 'profit per sale/show/category/month, effective fee, low-price sales, worst and best' list is backed by running it. Not backed: the FAQ calls the fee shape 'Whatnot's published US shape' with no link to the source article and I could not reach Whatnot to confirm; llms.txt:8 links the old github.io address rather than https://marisstella.app/whatnot-sales-report-analyzer/; the README first paragraph says 'you can now see...' (fine) but gives no test count or verification section. No fake reviews found. Kept at 3 because the unverified items are labelled as assumptions on the page.",
+  "fitness": "Walked the seller's job: export orders, upload, optionally add costs, see which show lost money. Worked on a clean CSV with the stated headers (and the built-in example). A reseller's first-hour gaps: (1) no one has shown a real Whatnot export loads, so the first real file may fail with the 'No header row' message (the error is clear); (2) the $1,500 cap on trading cards, comics, coins and other categories and the lower category commission rates are not modelled, so for a seller of graded slabs the schedule fee is overstated unless the file carries fee columns; (3) seller-paid shipping labels, giveaways, buyer-protection refunds and chargebacks are outside the file and the page says so; (4) no multi-month history store or inventory import (the VENTURE.yaml path-to-revenue says not built). Useful for a seller with a tidy sheet; not yet something to trust on a real export.",
+  "domain": "A Whatnot-experienced bookkeeper reconciles per order: commission on the hammer, processing on item + shipping + tax, net to the bank, and then ties the month to the payout and 1099-K. The tool follows that structure, trusts the file's Net Earnings over derived figures and shows the gap as 'other deduction' (a sound practice), keeps profit as null when cost is unknown, and refuses to name a show a loser on fewer than three costed sales. Departures: category commission rates and the $1,500 cap are not modelled (the sibling whatnot-seller-payout does model them, but this tool does not reuse them); the effective-rate default of 8% is applied to every category; no separation of sales tax collected (a pass-through) from revenue in the totals beyond using it for the processing base; no tie-out to the payout total of a pay period; no timezone handling for sale dates near midnight (dates read as UTC, months by UTC). I could not confirm the current fee schedule today."
+ },
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The test suite never exercises the tax term of the processing fee: the only fee test with a shipping/tax column uses tax 0, so deleting `+ tax` from the processing base leaves all 32 tests green (seeded mutation survived). Two more seeded mutations also survived (`profit <= 0` for losing sales and groups, and the date-range upper bound `to + DAY` -> `to`).",
+   "where": "ventures/whatnot-sales-report-analyzer/calc.mjs:18 (tests: calc.test.mjs:30-33)"
+  },
+  {
+   "severity": "medium",
+   "what": "Category commission rates and the $1,500 cap on trading cards, coins and similar categories are not modelled; with no fee columns in the file, every sale is charged a flat 8% commission, overstating fees on high-value lots. The page says caps are not modelled, but the sibling calculator already has the presets and they are not reused.",
+   "where": "ventures/whatnot-sales-report-analyzer/calc.mjs:17"
+  },
+  {
+   "severity": "medium",
+   "what": "Column names are guessed from memory with no real Whatnot export ever tested; whether a real Seller Hub file loads is unknown (stated honestly, but it is the main risk to the tool's usefulness).",
+   "where": "ventures/whatnot-sales-report-analyzer/calc.mjs:22-39"
+  },
+  {
+   "severity": "low",
+   "what": "If the file has a Commission column but no Processing column (or the reverse), the missing part is counted as 0 and the fee is understated, with at most an info-level mismatch note.",
+   "where": "ventures/whatnot-sales-report-analyzer/calc.mjs:193"
+  },
+  {
+   "severity": "low",
+   "what": "Groups ranked by profit and groups with no costs ranked by payout are sorted together with `profit ?? payout`, mixing two measures in one list.",
+   "where": "ventures/whatnot-sales-report-analyzer/calc.mjs:288"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt links the retired github.io address instead of the marisstella.app page.",
+   "where": "ventures/whatnot-sales-report-analyzer/llms.txt:8"
+  },
+  {
+   "severity": "low",
+   "what": "The FAQ calls the 8% + 2.9% + 30c shape 'Whatnot's published US shape' without a link to the source.",
+   "where": "ventures/whatnot-sales-report-analyzer/index.html:128"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The arithmetic is right and the page works: six hand-made sales (fees 2.67, 0.99, 11.61 and the others), two show totals and the grand profit of 14.24 matched an independent Python recomputation to the cent, and the same figures appeared in a real Chrome run of the page with no console errors and no network requests, so the privacy claim holds and the disclaimer and the 'column names from memory' caveat are on the page. It does not meet the bar because verification scores 2: the 32 tests pass but three of five seeded bugs survived, including removing sales tax from the processing base, because no test uses a nonzero tax. A Whatnot reseller would also hit the missing category commission rates and the $1,500 cap, and nobody has loaded a real Seller Hub export, so fitness and domain are 2. I could not check Whatnot's current fee schedule (the site is blocked from this session), so the 8% / 2.9% / 30c rates are the author's, labelled as editable assumptions. Cheapest fix: add a fee test with nonzero tax, a boundary test on the date range and a zero-profit test. Re-checkable with `node --test` and the mutations described in evidence."
+}
