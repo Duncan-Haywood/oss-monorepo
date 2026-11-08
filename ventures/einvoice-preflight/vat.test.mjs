@@ -1,3 +1,4 @@
+import { checkDigit as mexicoCheckDigit } from "./mexico.mjs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { checkInvoice } from "./checks.mjs";
@@ -226,4 +227,18 @@ test("Kazakhstan BIN check digit (2026-11-08, hand-computed number)", () => {
   assert.deepEqual(rules("KZ040701200547"), []);
   assert.deepEqual(rules("KZ040701200548"), ["INV-023"]);
   assert.deepEqual(rules("KZ0407012005"), ["INV-022"]);
+});
+
+test("Mexico RFC on a party (2026-11-08, RFCs pinned in mexico.test.mjs)", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("MX SAT970701NN3"), []);
+  assert.deepEqual(rules("MXGODE561231GR8"), []);
+  assert.deepEqual(rules("MXGODE561231GR9"), ["INV-023"]);
+  assert.deepEqual(rules("MXXAXX010101000"), []);
+  assert.deepEqual(rules("MXSAT9707"), ["INV-022"]);
+  // a company RFC with & and Ñ survives normalising (check digit computed, not pinned)
+  const checkDigit = mexicoCheckDigit;
+  const body = "Ñ&A010101AB";
+  const rfc = body + checkDigit(body);
+  assert.deepEqual(rules("MX" + rfc), []);
 });
