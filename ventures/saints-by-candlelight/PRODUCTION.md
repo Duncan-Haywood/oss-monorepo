@@ -239,6 +239,7 @@ writing it; skip any already in `episodes/`):
 - *(Done: episode 71, Hagar and the Well in the Wilderness of Beersheba; text only.)* Genesis 16 and 21:8-21 (Scripture told straight; Catholic and Orthodox; Sarah's harshness and Abraham's silence not excused; Ishmael's play-or-mockery and the carried-on-the-shoulder difficulty named; no feast day claimed; Paul's use of Hagar and later Jewish, Christian and Muslim retellings left out)
 - *(Done: episode 72, The Boy with Five Loaves and Two Fish on the Hillside; text only.)* John 6:1-15 with Matthew 14, Mark 6, Luke 9 (Scripture told straight; Catholic and Orthodox; the boy unnamed, his morning and mother invented and said so; how the bread was multiplied left unexplained; the Eucharistic echo and the twelve baskets named as readings; later names for the boy left out)
 - *(Done: episode 73, Aidan and the King's Horse on the Road from Bamburgh; text only.)* Saint Aidan of Lindisfarne (Bede, Ecclesiastical History III; the horse, the oil and the storm, Penda's fire; legends labelled; the roadside scene and small talk invented and said so)
+- *(Done: episode 74, The Woman at the Well of Sychar; text only.)* John 4:1-42 (Scripture told straight; Catholic and Orthodox; why she came at noon and the five husbands left open and not made a disgrace; Photini and her later life named as Orthodox tradition; the walk, heat and evening invented and said so)
 
 ## Audio status
 
