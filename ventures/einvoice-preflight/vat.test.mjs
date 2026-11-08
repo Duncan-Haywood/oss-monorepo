@@ -184,6 +184,7 @@ test("South Korea BRN and India GSTIN check digits", () => {
   assert.deepEqual(ok("IN 27AAPFU0939F1ZV"), []);
   assert.equal(ok("IN27AAPFU0939F1ZW")[0].rule, "INV-023");
   assert.equal(ok("IN27AAPFU0939F1")[0].rule, "INV-022");
+});
 
 test("Lithuanian 12-digit check digit (2026-11-08)", () => {
   const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
