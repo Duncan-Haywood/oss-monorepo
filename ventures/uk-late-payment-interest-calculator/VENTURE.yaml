@@ -11,7 +11,7 @@ owner: duncan
 #
 # Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: multi-invoice ledger with automatic chaser schedule behind an env-var switch.
 #
-# Liability: the 8% margin, the compensation tiers and the 31 Dec/30 Jun reference-date rule are from the Act; base rates 2023-H1 to 2026-H1 were written from memory without network access and 2026-H2 is flagged assumed. Every result names GOV.UK as the source to verify, carries no-warranty and not-legal-advice clauses, refuses consumer debts, and lets the user override the base rate.
+# Liability: the 8% margin, the compensation tiers and the 31 Dec/30 Jun reference-date rule are from the Act; base rates 2023-H1 to 2026-H1 were written from memory without network access and 2026-H2 (3.75%, Bank Rate held at the 18 Jun 2026 MPC meeting, no decision on 30 Jun; AP and Euronews reports 2026-11-08) is confirmed from news reports, not the GOV.UK table. 31 Dec 2026 (debts due Jan-Jun 2027) is not built in until the 17 Dec 2026 MPC decision: users enter it. Every result names GOV.UK as the source to verify, carries no-warranty and not-legal-advice clauses, refuses consumer debts, and lets the user override the base rate.
 hypotheses:
   - claim: >-
       UK freelancers and small businesses chasing a late invoice will use a free calculator to see the statutory interest and compensation and copy a demand letter.
