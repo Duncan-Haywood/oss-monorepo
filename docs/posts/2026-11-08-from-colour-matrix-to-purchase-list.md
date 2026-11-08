@@ -3,7 +3,7 @@ title: "From a Colour-and-Size Matrix to a Purchase List"
 seo_title: "Clothing Order Matrix to Bill of Materials: Trims and Fabric Minimums"
 date: 2026-11-08
 tags: [clothing-design-studio, manufacturing, small-business]
-description: "A small clothing run is bought twice: once as colours and sizes, once as cloth, labels and thread with their own minimums. The studio now carries the run size from one to the other."
+description: "A small clothing run is bought twice, as colours and sizes and as cloth, labels and thread. The studio now carries the run size from one to the other."
 ---
 
 A designer planning 300 tees in four colours has two sums to do. The first is the order matrix: how many of each colour and size, with the factory's per-colour minimum checked and a few percent of spares cut. The second is the bill of materials: how much rib, thread and labels to buy, where each has its own pack size and minimum.
