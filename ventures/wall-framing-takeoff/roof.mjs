@@ -59,6 +59,34 @@ export function birdsmouth(size, pitch, bearing = 3.5, maxFraction = 0.25) {
   return { size, pitch, bearing, plumb, notch, fraction: notch / d, maxFraction, maxBearing, remaining: d - notch, ok: notch <= maxFraction * d + EPS };
 }
 
+/**
+ * The typed `roofing` and `sheet` settings. Before 2026-11-08 nothing checked them: a waste of -1 ordered -39 bundles,
+ * and a roll length, nail rate or box weight of 0 or text gave null counts with ok: true. The opt-in nail-box settings are left alone: a bad value there switches the line off.
+ * Ranges are wide sanity bounds, not a code or manufacturer schedule.
+ */
+function roofingSettingErrors(r) {
+  const e = [];
+  const num = (o, k, lo, hi, what, whole) => {
+    const v = o[k];
+    if (v == null) return;
+    if (!(typeof v === "number" && Number.isFinite(v) && v >= lo && v <= hi) || (whole && !Number.isInteger(v))) e.push(`${what} (${k}) must be ${whole ? "a whole number" : "a number"} from ${lo} to ${hi}.`);
+  };
+  for (const [name, o] of [["roofing", r.roofing]]) {
+    if (o != null && (typeof o !== "object" || Array.isArray(o))) e.push(`Roof ${name} settings are an object.`);
+  }
+  const g = r.roofing && typeof r.roofing === "object" && !Array.isArray(r.roofing) ? r.roofing : {};
+  num(g, "waste", 1, 2, "Roofing waste factor");
+  num(g, "bundlesPerSquare", 1, 10, "Bundles per square");
+  for (const k of ["underlaymentRoll", "ridgeBundleFeet", "starterBundleFeet", "dripEdgePiece", "iceShieldRoll", "valleyRollFeet"]) num(g, k, 1, 5000, "Roofing roll or piece length");
+  for (const k of ["nailsPerSquare", "nailsPerLb"]) num(g, k, 1, 2000, "Roofing nail rate");
+  num(g, "nailBoxLb", 1, 100, "Roofing nail box weight");
+  num(g, "iceShieldWaste", 1, 2, "Ice shield waste factor");
+  num(g, "valleyWaste", 1, 2, "Valley flashing waste factor");
+  num(g, "iceShield", 0, 240, "Ice shield width");
+  num(g, "valleyFeet", 0, 5000, "Valley feet");
+  return e;
+}
+
 /** @param {Roof} r @param {{stock: {size: string, length: number}[]}} plan */
 export function validateRoof(r, plan) {
   const errors = [];
@@ -71,6 +99,7 @@ export function validateRoof(r, plan) {
   if (!(((r.overhang ?? 12) >= 0) && ((r.overhang ?? 12) <= 48))) errors.push("Eave overhang must be between 0 and 48 inches.");
   if (!(((r.gableOverhang ?? 12) >= 0) && ((r.gableOverhang ?? 12) <= 48))) errors.push("Gable (rake) overhang must be between 0 and 48 inches.");
   if (!(((r.spacing ?? 16) >= 4) && ((r.spacing ?? 16) <= 48))) errors.push("Rafter spacing must be between 4 and 48 inches.");
+  errors.push(...roofingSettingErrors(r));
   if (r.wing2 && !r.wing) errors.push("`wing2` is the second cross wing; set `wing` first.");
   for (const w of [r.wing, r.wing2]) if (w) {
     if (r.shape === "hip") errors.push("A cross wing is framed on a gable main roof; set shape to gable.");
