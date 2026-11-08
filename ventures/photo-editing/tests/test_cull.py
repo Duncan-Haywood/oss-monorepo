@@ -183,3 +183,29 @@ class ThumbnailTests(CullTests):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NearDuplicateGroupingTest(unittest.TestCase):
+    def test_groups_match_the_hamming_distance_definition(self):
+        import random
+        from types import SimpleNamespace
+
+        from shootflow.cull import NEAR_DUPLICATE_MAX_DISTANCE, _group
+        from shootflow.frame_analysis import hamming_distance
+
+        rng = random.Random(3)
+        bases = [rng.getrandbits(64) for _ in range(5)]
+        rows = []
+        for n in range(60):
+            value = rng.choice(bases)
+            for bit in rng.sample(range(64), rng.randint(0, 6)):
+                value ^= 1 << bit
+            rows.append((Path(f"p{n:03d}.jpg"), SimpleNamespace(dhash=f"{value:016x}"), None))
+        groups = _group(rows)
+        where = {row[0]: g for g, group in enumerate(groups) for row in group}
+        self.assertEqual(sum(len(g) for g in groups), len(rows))
+        self.assertLess(len(groups), len(rows))
+        for a in rows:
+            for b in rows:
+                if hamming_distance(a[1].dhash, b[1].dhash) <= NEAR_DUPLICATE_MAX_DISTANCE:
+                    self.assertEqual(where[a[0]], where[b[0]])

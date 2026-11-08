@@ -32,7 +32,7 @@ from pathlib import Path
 
 from shootflow.faces import FaceReport, detect_faces
 from shootflow.ffmpeg_media import PHOTO_EXTENSIONS, FfmpegMediaError, FfmpegTools, find_ffmpeg_tools
-from shootflow.frame_analysis import FrameMetrics, analyze_media, hamming_distance
+from shootflow.frame_analysis import FrameMetrics, analyze_media
 from shootflow.raw_preview import RAW_EXTENSIONS, extract_preview, is_raw_path
 
 NEAR_DUPLICATE_MAX_DISTANCE = 8
@@ -275,9 +275,13 @@ def _group(
             index = parent[index]
         return index
 
-    for i in range(len(ordered)):
-        for j in range(i + 1, len(ordered)):
-            if hamming_distance(ordered[i][1].dhash, ordered[j][1].dhash) <= NEAR_DUPLICATE_MAX_DISTANCE:
+    # Parse each hash once: the all-pairs scan is quadratic (up to _MAX_FILES
+    # photos), so the inner step must be a bare XOR and popcount.
+    hashes = [int(row[1].dhash, 16) for row in ordered]
+    for i in range(len(hashes)):
+        hi = hashes[i]
+        for j in range(i + 1, len(hashes)):
+            if (hi ^ hashes[j]).bit_count() <= NEAR_DUPLICATE_MAX_DISTANCE:
                 a, b = find(i), find(j)
                 if a != b:
                     parent[max(a, b)] = min(a, b)
