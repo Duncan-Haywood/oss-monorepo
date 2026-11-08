@@ -135,9 +135,7 @@ flagships:
       (80%) over ten seeds (replicated 2026-11-08), not retuned. (3) GARCH: a segment-wise prune keeps the real sd break but
       leaves 48% false alarms at n=200: search cuts jointly. (4) driftWarning
       fires on real shocks and autocorrelated nulls: wanted a way to tell a shape
-      from a shock without swallowing a short quarterly shape; (4a-4c) Florida
-      juice, Gallup approval and Argentine inflation (README): more freezes kept
-      without 148 changes, an over-cut test. (5) holiday list: helps US births,
+      from a shock without swallowing a short quarterly shape; (4a-4c) three real series (README): freezes kept, an over-cut test. (5) holiday list: helps US births,
       adds changes on Capital Bikeshare; wanted: a shop's counts, or a yearly
       term.
   - venture: einvoice-preflight
