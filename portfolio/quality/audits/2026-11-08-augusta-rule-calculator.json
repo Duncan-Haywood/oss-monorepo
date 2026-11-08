@@ -6,7 +6,15 @@
   "auditor": "agent session (Claude), see run record",
   "status": "audited",
   "professional": "an enrolled agent or CPA who advises small-business owners on S corporation and pass-through owner tax planning (first check: is the entity actually allowed to rent from its owner, then the arithmetic)",
-  "scores": {"correctness": 3, "completeness": 3, "verification": 3, "craft": 3, "claims": 2, "fitness": 2, "domain": 2},
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
   "evidence": {
     "correctness": "Ran `node --test '*.test.mjs'` in the venture: 32/32 pass. Recomputed 3 scenarios independently in Python from the statutory formulas (IRC 1402(a)(12) 92.35 percent SE base, 15.3 percent combined rate; IRC 199A 20 percent QBI reduction; rent = days x rate): (1) S corp 12d x $1200, 32 percent fed, 5 percent state, QBI on, $250 yearly, $600 setup, 5 yr: rent 14400, fed 3686.40, state 720, gross 4406.40, net 4156.40, 5-yr 20182 - matches calc.mjs exactly. (2) sole prop 10d x $1500, 24 percent, 4 percent state, SE 15.3: fed 2880, SE 2119.43, state 600, gross 5599.43, 3-yr net 15398.30 - match. (3) C corp 14d x $2000, 21 percent corporate, 6 percent state, $500 cost: gross 7560, net 7060, 5-yr 35300 - match. 15 days is refused. The arithmetic is right; limits (no deduction for half of SE tax, no Social Security wage-base cap beyond the toggle, no 0.9 percent Additional Medicare) are stated. Capped at 3 because the entity treatment (see domain) makes one of the three default entity outputs a number that does not exist in law.",
     "completeness": "README, page and llms.txt claims checked and worked: rent excluded, federal / SE / state saving, net after cost, multi-year net after setup, day table (1,2,4,7,10,14), reduced-rate table (100/75/50/25 percent), findings, CSV report download (reportCsv exercised in test), 14-day refusal, usage opt-out. No TODO or stub found. page.test.mjs confirms every script import and element id exists. Not loaded in a real browser (no browser run here), so UI wiring is verified by static tests only.",
@@ -17,10 +25,24 @@
     "domain": "Compared against IRC 280A(g), IRS Pub 527 (Residential Rental Property, 'Personal use of dwelling unit', 14-day rule) and the S corporation accountable-plan/lease practice. Method (rent x marginal rate, 80 percent QBI, 92.35 percent SE base, C corp at corporate rate) is standard for a back-of-envelope. Departures: (a) disregarded entities (sole prop, SMLLC) cannot rent from their owner - a practitioner would remove them or label them no-saving; (b) rent paid by an S corp to a shareholder is not deductible against wages-based payroll tax and the owner-side exclusion is right, but QBI interaction is simplified to a flat 80 percent with no limit; (c) the 14-day count includes rental to anyone, which the FAQ does say; (d) no mention that the deduction must be ordinary and necessary under section 162 or that the corporation should pay by invoice/board resolution beyond the checklist."
   },
   "defects": [
-    {"severity": "high", "what": "Sole proprietor / single-member LLC (disregarded entity) is the default entity and is priced with federal, SE and state savings, but a disregarded entity cannot pay rent to its own owner, so no deduction exists; the FAQ says 'Often, yes'.", "where": "ventures/augusta-rule-calculator/calc.mjs:44 and index.html:62,111"},
-    {"severity": "medium", "what": "Social Security wage-base toggle is all-or-nothing; no proration and no 0.9 percent Additional Medicare; SE deduction for half of SE tax not modelled (disclosed).", "where": "ventures/augusta-rule-calculator/calc.mjs:94"},
-    {"severity": "low", "what": "llms.txt links the retired github.io address; canonical and sitemap use relative ./index.html rather than https://marisstella.app/augusta-rule-calculator/.", "where": "ventures/augusta-rule-calculator/llms.txt:9, index.html:10, sitemap.xml:3"}
+    {
+      "severity": "high",
+      "what": "Sole proprietor / single-member LLC (disregarded entity) is the default entity and is priced with federal, SE and state savings, but a disregarded entity cannot pay rent to its own owner, so no deduction exists; the FAQ says 'Often, yes'.",
+      "where": "ventures/augusta-rule-calculator/calc.mjs:44 and index.html:62,111"
+    },
+    {
+      "severity": "medium",
+      "what": "Social Security wage-base toggle is all-or-nothing; no proration and no 0.9 percent Additional Medicare; SE deduction for half of SE tax not modelled (disclosed).",
+      "where": "ventures/augusta-rule-calculator/calc.mjs:94"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt links the retired github.io address; canonical and sitemap use relative ./index.html rather than https://marisstella.app/augusta-rule-calculator/.",
+      "where": "ventures/augusta-rule-calculator/llms.txt:9, index.html:10, sitemap.xml:3"
+    }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "PR for branch claude/keen-sagan-o7euct: llms.txt host fixed in this PR"
+  ],
   "verdict": "The arithmetic is correct and well tested: three independent recomputations matched to the cent, 32 tests pass, and two seeded mutations were caught. The page is honest about what it does not model. It does not meet the bar because the entity logic is wrong for its default case: a sole proprietor or single-member LLC cannot rent its owner's home and deduct it, so the tool prices a saving that does not exist and tells that user the arrangement is often available. A tax professional would delete or neutralise that option first; for S and C corporation owners the tool is a usable estimator. Fix: drop or relabel the disregarded-entity option (show 'no saving, elect S corp or use a partnership/corporation'), update README, FAQ and tests, and refresh llms.txt URLs."
 }
