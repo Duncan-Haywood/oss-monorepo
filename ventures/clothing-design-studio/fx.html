@@ -57,7 +57,13 @@
       <div class="row"><div><label for="fr">Forward rate for the balance</label><input id="fr" type="number" min="0" step="any" value="0.95"></div><div><label for="ff">Fee, your currency</label><input id="ff" type="number" min="0" step="any" value="30"></div></div>
     </section>
     <section><h2>Break-even</h2><output id="be" aria-live="polite"></output><h2 style="margin-top:14px">If the rate moves before the balance</h2><output id="st" aria-live="polite"></output><h2 style="margin-top:14px">Forward rate</h2><output id="fw" aria-live="polite"></output><div id="nt"></div></section>
-  </div>
+  </div>  <!-- journey -->
+  <nav class="journey" aria-label="Launch path" style="margin-top:24px;padding:12px 14px;border:1px solid #ddd2c4;border-radius:12px;background:#fffdf9;font-size:.9rem;line-height:1.55">
+    <strong>2. Know what one piece costs</strong> on the <a href="launch.html">launch path for a clothing line</a>.
+    <div>Also at this stage: <a href="how-much-does-it-cost-to-make-a-t-shirt.html">Worked example: what a t-shirt costs</a> · <a href="bom.html">Bill of materials and order</a> · <a href="quotes.html">Compare factory quotes</a> · <a href="tiers.html">Fabric price tiers</a></div>
+    <div>Before: <a href="parcel.html">Duty on a single parcel</a> · Next: <a href="prices.html">Price by market</a></div>
+  </nav>
+  <!-- /journey -->
 </main>
   <script type="module">
     import { stress, breakEvenMove, forward, priceToCover, notes } from "./fx.mjs";

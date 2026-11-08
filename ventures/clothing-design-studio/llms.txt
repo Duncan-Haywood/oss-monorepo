@@ -83,3 +83,6 @@ A fabric shrinkage calculator (shrink.html) turns wash-test readings into shrink
 A production timeline planner (timeline.html) works a first run backward or forward: tech pack, sample rounds, pre-production sample, bulk cloth, production, inspection, freight and customs. Type a date stock must ship by and get the latest start, or type a start and get the earliest on-sale date; factory stages pause during a closure window, a delay allowance pads factory and freight stages, and the schedule downloads as a chart and CSV. Defaults are rough and the Lunar New Year window is unchecked; a forecast from typed numbers, not a promise.
 
 - [Production timeline planner: when must you start?](https://marisstella.app/clothing-design-studio/timeline.html)
+
+A launch-path page (launch.html) orders the studio's free tools by the sequence a first clothing run's decisions depend on each other: design, cost, price, the first run, production checks, selling and reordering. The order is a judgement, not an industry standard; every tool page now ends with a link to its stage, its neighbours and the next step.
+- [Launch path for a clothing line: what to decide, and in what order](https://marisstella.app/clothing-design-studio/launch.html)
