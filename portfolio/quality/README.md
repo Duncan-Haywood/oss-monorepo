@@ -40,8 +40,14 @@ python3 platform/ci/quality_audit.py summary --md      # the same as Markdown, f
 | `research` | every `research/<name>/` not starting `_` | 2 by default, uniform | the typical research project |
 | `platform` | every `platform/<name>/` | 1, uniform | the shared tooling everything else stands on |
 
-A subject audited in the last 90 days is skipped, so rounds spread over the
-population. Because the non-flagship strata are uniform random, the share of
+A venture, research or platform subject audited in the last 90 days is skipped,
+so rounds spread over the population and re-running the same seed after
+audits have landed draws different subjects (that is expected; the seed only
+fixes the draw for a given set of audits). The flagship is never skipped: the
+least recently audited one is drawn every time, so the same flagship under
+every seed is the rotation working, not a bug. Two rounds in flight at once
+can draw the same subjects; add a `-b`, `-c` suffix to the seed when an open
+`quality:` PR lists a subject you drew. Because the non-flagship strata are uniform random, the share of
 them that meets the bar is an unbiased estimate for that stratum, and
 `summary` reports it with a Wilson 95% interval. Flagships are reported apart:
 they are chosen, not sampled.
