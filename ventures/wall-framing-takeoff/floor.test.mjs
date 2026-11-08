@@ -487,3 +487,19 @@ test("framing nails: tail joist ends in hangers are not counted as bearing ends"
   assert.ok(l.hangers.tail > 0);
   assert.equal(l.framingNails.bearingEnds, 2 * l.joists.filter((j) => !j.header).length - l.hangers.tail);
 });
+
+test("floor refuses a plan with no stock list, a bad opening entry and a null layout instead of throwing", () => {
+  for (const bad of [undefined, null, 5, {}, { stock: "x" }, { stock: [null] }]) {
+    const r = layoutFloor(sampleFloor(), bad);
+    assert.equal(r.ok, false);
+    assert.match(r.errors[0], /stock list/);
+  }
+  for (const o of [null, 5, "x"]) {
+    const r = layoutFloor({ ...sampleFloor(), openings: [o] }, plan());
+    assert.equal(r.ok, false);
+    assert.match(r.errors[0], /openings are a list of objects/);
+  }
+  assert.equal(layoutFloor({ ...sampleFloor(), openings: "x" }, plan()).ok, false);
+  assert.deepEqual(floorCuts(null), []);
+  assert.deepEqual(floorCuts(undefined), []);
+});

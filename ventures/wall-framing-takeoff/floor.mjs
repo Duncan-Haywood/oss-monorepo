@@ -26,6 +26,8 @@ export function sampleFloor() {
 export function validateFloor(f, plan) {
   const errors = [];
   if (f == null || typeof f !== "object" || Array.isArray(f)) return ["Floor settings are an object."];
+  if (plan == null || typeof plan !== "object" || !Array.isArray(plan.stock) || plan.stock.some((s) => s == null || typeof s !== "object")) return ["The plan needs a stock list (size and length of each board) to size the floor."];
+  if (f.openings != null && (!Array.isArray(f.openings) || f.openings.some((o) => o == null || typeof o !== "object"))) return ["Floor openings are a list of objects (x, y, width, depth)."];
   for (const k of ["width", "depth", "beam"]) if (f[k] != null && typeof f[k] !== "number") errors.push(`Floor ${k} must be a number of inches.`);
   if (!(f.width >= 24 && f.width <= 1200)) errors.push("Floor width must be between 2 ft and 100 ft.");
   if (!(f.depth >= 24 && f.depth <= 1200)) errors.push("Floor depth (the joist direction) must be between 2 ft and 100 ft.");
@@ -493,7 +495,7 @@ export function layoutFloor(f, plan) {
 
 /** Cut rows in the engine's shape, so `takeoff(plan, floorCuts(layout))` buys floor lumber with the walls'. */
 export function floorCuts(l) {
-  if (!l.ok) return [];
+  if (l == null || typeof l !== "object" || !l.ok) return [];
   const map = new Map();
   const add = (size, length, kind) => {
     const len = Math.round(length * 16) / 16;
