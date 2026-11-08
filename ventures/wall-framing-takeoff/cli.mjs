@@ -77,6 +77,7 @@ Usage:
   node cli.mjs plan.json --doors-to-floor  a door whose bottom is more than 2 in above the floor in the model (a 39 in sill on a French door) is framed down to the floor, leaf height kept, with a note
   node cli.mjs plan.json --shallow-headers --trim-openings  with --shallow-headers, an opening taller than the room under the plates for even a 2x4 header is framed shorter by the excess, with a note
   node cli.mjs plan.json --shallow-headers  where a header is deeper than the room under the top plates, use the deepest listed header that fits (2x10 to 2x8 to 2x6 to 2x4) and note it for your engineer; the span is not checked
+  node cli.mjs plan.json --whole-house --fixed-plan  print the plan after the fixes above, as JSON, and stop (feeds allowance-bench.mjs)
   node cli.mjs plan.json --skip-refused  frame the walls that pass the plan checks and list the ones refused (opening too near a wall end, header too tall...), instead of stopping at the first bad wall
   node cli.mjs plan.json --panel-max=12ft  shop drawings with each wall split into panels no longer than that
   node cli.mjs plan.json --panel-max=12ft --panel-order --pull-lists  boards and cuts each panel is built from (add to --panel-order)
@@ -312,6 +313,8 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     if (skipped.length) dxfNotes += `SKIPPED ${skipped.length} WALL${skipped.length === 1 ? "" : "S"} THE PLAN CHECKS REFUSE (not in the takeoff below; fix them and re-run):\n${skipped.map((n) => `  - ${n}`).join("\n")}\n\n`;
     if (unlapped.length) dxfNotes += `${unlapped.map((n) => `Note: ${n}`).join("\n")}\n\n`;
   }
+  // --fixed-plan prints the plan as the takeoff would frame it (after the board, door, header and skip-refused steps above) and stops: the input for `node allowance-bench.mjs FILE...`.
+  if (flags.has("--fixed-plan")) return { code: 0, out: JSON.stringify(plan, null, 2) };
   let gangNotes = [];
   if (flags.has("--gang")) {
     const g = gangOpenings(plan);

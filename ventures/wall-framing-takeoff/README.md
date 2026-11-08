@@ -268,7 +268,7 @@ corner and tee end, plus three plates.
 
 | plan | wall ft | counted order ft | per-foot rule | on-centre rule |
 |---|---|---|---|---|
-| example house (invented) | 212 | 2316 | 2494 (+7.7%) | 2727 (+17.8%) |
+| example house (invented) | 212 | 2321 | 2494 (+7.4%) | 2727 (+17.5%) |
 | Open House Plans 1 (CC0, generated) | 220 | 2545 | 2594 (+1.9%) | 3171 (+24.6%) |
 | Open House Plans 2 (CC0, generated), 3 pairs of windows ganged, 24 ft header stock added | 399 | 4269 | 4704 (+10.2%) | 5494 (+28.7%) |
 
@@ -276,6 +276,17 @@ Open House Plans 2 does not lay out as drawn (three pairs of windows 3 in apart,
 two rules behave on two houses, not what a real builder over-orders. The rules
 are my reading of common practice, not a published standard; a real plan with
 the builder's actual order would settle it (ROADMAP, research threads).
+
+**A real house (2026-11-08, `allowance-bench.mjs FLOOR.json ...`, `cli.mjs --fixed-plan`):** the bench had only invented and generated houses. This run used the Schultz Residence (OpeningDesign, real Revit export, CC BY-ND so not committed; fetched from `opensourceBIM/IFC-files`), floors read with `ifc-engine dxf|plan --wood-only --drop-frame-stubs`, then `node cli.mjs FLOOR.dxf --ifc-json=FLOOR.json --add-board=2x4:20ft --whole-house --fixed-plan > FLOOR.fixed.json` (the plan as the takeoff frames it, after the placeholders the house needed) and `node allowance-bench.mjs 1st.fixed.json 2nd.fixed.json 3rd.fixed.json`. The rules now take each wall's own `studLength` (this house has walls from 88 to 137 in; the invented houses have one height, so their figures are unchanged). Lineal feet of framing lumber at 16 in o.c., each floor ordered apart:
+
+| floor | wall ft | counted order ft | per-foot rule | on-centre rule |
+|---|---|---|---|---|
+| 1st Floor (9 walls) | 117 | 890 | 963 (+8.2%) | 1212 (+36.2%) |
+| 2nd Floor (20 walls) | 192 | 2360 | 2397 (+1.6%) | 2836 (+20.2%) |
+| 3rd Floor (20 walls) | 221 | 2725 | 2797 (+2.7%) | 3403 (+24.9%) |
+| all three | 530 | 5975 | 6158 (+3.1%) | 7452 (+24.7%) |
+
+Reading: on a real house the per-foot rule lands within 1.6 to 8% of the count, closer than on the generated houses, because this house is mostly long plain walls at 16 in; the on-centre rule (four extra studs per opening, two per corner and tee) over-orders by 20 to 36%, as on the generated ones. At 24 in o.c. the per-foot rule over-orders by 18 to 19% on every floor, since it ignores spacing. The break-even waste at 16 in is +1.7%, +8.3% and +7.2% for the per-foot rule: a framer who adds the usual 10% to it buys more than the count on every floor. Caveats: one house; the wall set is the `--wood-only` read with the whole-house placeholders (lowered doors, swapped and trimmed headers, `2x4` 20 ft boards at a per-foot price guess), so it is not a framer's takeoff; the rules are my reading of common practice; no builder's actual order was compared. The 12 in rows go negative for the per-foot rule (it under-orders there), as on the other houses.
 
 **Spacing sweep (2026-11-01, `spacingSweep`, same command):** the same walls at 16 and 24 in o.c.
 
