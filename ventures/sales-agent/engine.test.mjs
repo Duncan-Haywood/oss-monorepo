@@ -427,3 +427,22 @@ test("a bare 'not the right person' with a referral is a handover, 'just signed 
   assert.equal(b.category, "objection");
   assert.equal(b.subtype, "competitor");
 });
+
+test("negated, product-feature and third-party stop words are not opt-outs (2026-11-08 probe)", () => {
+  const notStop = [
+    "Please don't stop sending the pricing details, I'd like to see them before our call on Thursday.",
+    "Love it. Don't take me off the shortlist, send over the case study please.",
+    "Do you handle unsubscribe links and suppression lists for us?",
+    "My colleague asked me to unsubscribe from a different vendor's emails, not yours. Can you tell me what your product does exactly?",
+    "Not unsubscribing, quite the opposite. Tell me more about the pilot.",
+  ];
+  for (const body of notStop) assert.notEqual(triage({ from: "p@x.example", subject: "Re: hi", body }, "2026-11-08").category, "unsubscribe", body);
+  // look-alikes that still stop
+  for (const body of ["How do I unsubscribe?", "Please don't contact me again.", "Unsubscribe me.", "Don't stop by, just remove me from your list."])
+    assert.equal(triage({ from: "p@x.example", subject: "Re: hi", body }, "2026-11-08").category, "unsubscribe", body);
+});
+
+test("'was out of the office' in a past-tense apology is not an away notice", () => {
+  const t = triage({ from: "p@x.example", subject: "Re: hi", body: "Sorry for the late reply, I was out of the office. Yes, let's set up a 20 minute call." }, "2026-11-08");
+  assert.notEqual(t.category, "out_of_office");
+});
