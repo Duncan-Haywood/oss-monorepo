@@ -1154,3 +1154,19 @@ test("a wall too long for one board with only an opening between its jacks splic
   assert.ok(w.joints.top.length >= 1 && w.joints.cap.length >= 1);
   for (const c of w.joints.cap) for (const t of w.joints.top) assert.ok(Math.abs(c - t) >= plan.topPlateLap - 1e-9);
 });
+
+test("a whole-house order (180+ lengths, 900+ pieces, 7 boards) finishes and sits within 1% of its bound", async () => {
+  const { optimizeStock } = await import("./engine.mjs");
+  let s = 987654321;
+  const r = () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
+  const lens = Array.from({ length: 190 }, () => Math.round((8 + r() * 100) * 8) / 8);
+  const pieces = Array.from({ length: 950 }, (_, i) => ({ length: lens[Math.floor(r() * lens.length)], qty: 1, ref: `p${i}` }));
+  const stock = [96, 104, 116, 120, 144, 192, 240].map((length) => ({ length, price: Math.round(length / 12 * 0.75 * 100) / 100 }));
+  const t0 = Date.now();
+  const o = optimizeStock(pieces, stock);
+  const ms = Date.now() - t0;
+  assert.ok(o.bound <= o.cost + 1e-9, "the bound is a floor");
+  assert.ok(o.cost <= o.bound * 1.01, `cost ${o.cost} within 1% of bound ${o.bound}`);
+  assert.equal(o.bars.reduce((n, b) => n + b.cuts.length, 0), 950, "every piece is cut");
+  assert.ok(ms < 30000, `took ${ms} ms`);
+});
