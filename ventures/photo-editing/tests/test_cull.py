@@ -53,6 +53,20 @@ class CullTests(unittest.TestCase):
         self.assertEqual(score.unmatched, ())
         self.assertEqual(len(write_sidecars(result).sidecars_written), 5)
 
+    def test_keeper_margin_and_close_call(self) -> None:
+        result = cull_folder(self.root, analyzer=self.analyzer)
+        keeper = next(i for i in result.items if i.role == "keeper" and i.group == 1)
+        self.assertIsNotNone(keeper.margin)
+        self.assertEqual(keeper.close_call, keeper.margin < 0.03)
+        lone = next(i for i in result.items if i.path == "c1.jpg")
+        self.assertIsNone(lone.margin)
+        self.assertFalse(lone.close_call)
+        data = json.loads(
+            (write_report(result, self.root / "out")[0]).read_text(encoding="utf-8")
+        )
+        self.assertIn("close_calls", data["summary"])
+        self.assertIn("margin", data["items"][0])
+
     def test_picks_sharpest_keeper_and_flags_rejects(self) -> None:
         result = cull_folder(self.root, analyzer=self.analyzer)
         roles = {i.path: i.role for i in result.items}

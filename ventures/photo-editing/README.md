@@ -858,3 +858,7 @@ from the running docs site; see `docs-site/README.md` and
 - `docs/WORKFLOW_AUTHORITY.md`
 - `docs/TERMS_AND_CONDITIONS_DRAFT.md`
 - `docs/CONTINUATION_NOTES.md`
+
+## Cull close calls (2026-11-08)
+
+`shootflow cull` reports each keeper's score lead over the best alternate (`margin`); under 0.03 it is a `close_call`, counted in `summary.close_calls`. The 0.03 threshold is unmeasured; checking it against a photographer's real picks is open.
