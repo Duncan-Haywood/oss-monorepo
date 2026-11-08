@@ -32,6 +32,12 @@ const STEP = 500;
 // (noisyRespondents / deepBudget); default is the logistic answerer.
 const NOISELESS = process.env.MIX_ANSWERER === "noiseless";
 
+// MIX_ROUTE=1 mimics what /api/trials/next adds to the call: no injected rand
+// (the selector uses Math.random), a first-option share only after 30 decided
+// answers (slot A share), and a random A/B slot shuffle before the answer.
+const ROUTE = process.env.MIX_ROUTE === "1";
+const ONLY_SELECTOR = process.env.MIX_SELECTOR; // "staged" | "shipped"
+
 type Policy = typeof selectNextPair;
 
 function run(policy: Policy, seed: number) {
@@ -53,7 +59,8 @@ function run(policy: Policy, seed: number) {
   let w = { ss: 0, so: 0, oo: 0, unseen: 0, gap: 0, n: 0 };
   for (let answered = 0; answered < BUDGET; answered++) {
     const live = items.map((it, i) => ({ ...it, rating: state[i].rating, rd: state[i].rd }));
-    const [aId, bId] = policy({ items: live, timesShown, recentPairKeys: new Set(recent), answeredCount: answered, firstOptionShare: answered > 0 ? firstPicks / answered : undefined, rand });
+    const [pickedA, pickedB] = policy({ items: live, timesShown, recentPairKeys: new Set(recent), answeredCount: answered, firstOptionShare: ROUTE ? (answered >= 30 ? firstPicks / answered : undefined) : answered > 0 ? firstPicks / answered : undefined, ...(ROUTE ? {} : { rand }) });
+    const [aId, bId] = ROUTE && rand() < 0.5 ? [pickedB, pickedA] : [pickedA, pickedB];
     const a = idx.get(aId)!, b = idx.get(bId)!;
     const settled = (i: number) => state[i].rd < SETTLED_RD;
     const k = Number(settled(a)) + Number(settled(b));
@@ -88,7 +95,7 @@ describe("pair mix, staged vs shipped", () => {
   it("logs pair classes and fixed-set Spearman per 500 answers", () => {
     const seeds = [11, 12, 13];
     const out: Record<string, Record<string, number>[]> = {};
-    for (const [name, p] of [["shipped", selectNextPair], ["staged", (i: Parameters<Policy>[0]) => selectNextPairHybrid(i)]] as const) {
+    for (const [name, p] of ([["shipped", selectNextPair], ["staged", (i: Parameters<Policy>[0]) => selectNextPairHybrid(i)]] as const).filter(([n]) => !ONLY_SELECTOR || n === ONLY_SELECTOR)) {
       const runs = seeds.map((s) => run(p, s));
       out[name] = runs[0].map((_, r) => {
         const row: Record<string, number> = {};

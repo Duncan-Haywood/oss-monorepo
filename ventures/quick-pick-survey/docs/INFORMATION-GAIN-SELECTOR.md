@@ -589,3 +589,30 @@ millisecond are unordered), `rd` and `volatility` read back from the database
 respondent, hand-run; the route numbers are from 2026-11-04/05.
 Reproduce: `MIX_ANSWERER=noiseless MEASURE_OUT=out.txt npx vitest run -c
 vitest.simulations.config.ts src/lib/pairMix.simulation.test.ts`.
+
+### Route-style call in the loop: still no dip (2026-11-08)
+
+`pairMix.simulation.test.ts` takes `MIX_ROUTE=1` (and `MIX_SELECTOR=staged|shipped`
+to run one selector). It makes the loop's call match `/api/trials/next`: no
+injected `rand` (the selector falls back to `Math.random`), `firstOptionShare`
+passed only after 30 decided answers and measured on the slot-A share, and a
+random A/B slot shuffle before the answer. Noiseless answerer, staged, 1000
+items, seeds 11 to 13, fixed set at 500 / 1000 / 1500 / 2000 / 2500 / 3000
+answers:
+
+| loop | 500 | 1000 | 1500 | 2000 | 2500 | 3000 |
+|---|---|---|---|---|---|---|
+| plain | 0.978 | 0.981 | 0.981 | 0.979 | 0.979 | 0.978 |
+| route-style call | 0.979 | 0.983 | 0.983 | 0.982 | 0.982 | 0.981 |
+
+Reading: **the slot shuffle, the default RNG and the first-option gate are not
+the cause.** `ParticipantItemRating.rating/rd/volatility` are `Float` (Postgres
+double precision), so reading `rd` back from the database loses nothing either.
+Left to test: how `recentPairKeys` is built from stored trials (latest 10 by
+`shownAt`, ties at one millisecond unordered), `timesShown` from the
+`groupBy` (counts unanswered rows too), and item order out of `findMany`
+(unordered; the route test's cuids rise with the true order, which the loop's
+random truth does not copy). Those need Postgres or a stub of the three reads.
+Caveats: 3 seeds, one respondent, hand-run, clean answerer.
+Reproduce: `MIX_ROUTE=1 MIX_ANSWERER=noiseless MIX_SELECTOR=staged MEASURE_OUT=out.txt
+npx vitest run -c vitest.simulations.config.ts src/lib/pairMix.simulation.test.ts`.
