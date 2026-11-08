@@ -27,6 +27,13 @@ class MarkupBasics(unittest.TestCase):
         self.assertEqual(c.problems('<html><body></body></html>'),
                          ['no <html lang>', 'no charset', 'no viewport meta'])
 
+    def test_http_equiv_content_type_counts_as_charset(self):
+        head = '<html lang="en"><head>{}<meta name="viewport" content="x"></head></html>'
+        ok = head.format('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">')
+        self.assertEqual(c.problems(ok), [])
+        other = head.format('<meta http-equiv="refresh" content="5">')
+        self.assertEqual(c.problems(other), ['no charset'])
+
     def test_other_meta_is_not_a_viewport(self):
         page = '<html lang="en"><head><meta charset="utf-8"><meta name="description" content="x"></head></html>'
         self.assertEqual(c.problems(page), ['no viewport meta'])
