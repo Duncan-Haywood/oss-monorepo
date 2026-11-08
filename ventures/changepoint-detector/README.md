@@ -1676,3 +1676,7 @@ Reading: with rho 0.5 the plain run makes 12 to 15 cuts per series, so a "ramp" 
 - **`--trend bends`:** an early bend at 1961Q4 and the mid-1970s one on both scales; the log run adds one at 1990Q3 (range 1988Q3 to 1994Q2). Steps left over include 1983Q1, 1988Q2 and 1992Q1 in most runs; what happened in those quarters was not checked.
 
 Read plainly: here the log scale gives a much tighter range than raw, the opposite of UK gas (README, above), where the log lost the bend. One series, no claim about rates.
+
+## Boston Marathon: a documented step the data does not show (2026-11-08)
+
+`data/boston-marathon.csv` (winning times in minutes, 1897-2016, 120 values, fpp2 `marathon`) was tried as the "documented break inside a long smooth series" the flagship wanted. The course was lengthened from about 24.5 to the full 26.2 miles in 1924 (recalled from the Boston Athletic Association's history; the BAA page was not read). It is not a test: the winners' mean is 153.0 minutes in 1897-1923 and 152.2 in 1924-1950, because faster runners offset the longer course. No model dates a change at 1924. The default reports 9 changes (1900 to 1978, with the range warning), `--model mean --ar1 auto` 6, `--model trend` 7, `--model meanvar` 5; all four date changes at 1953 and 1978, and the first three at 1932. Listed, not scored: no label in the data says what 1953 or 1978 were. `node eval/boston-marathon.mjs` (output `eval/boston-marathon.out.txt`, test `boston-marathon.test.mjs`). Still wanted: a documented step whose size shows in the series.
