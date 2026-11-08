@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-08",
+  "subject": "ventures/ie-self-employed-tax-set-aside-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-08-c",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "an Irish tax consultant (CTA) or practice accountant who files Form 11 returns for sole traders (first check: income tax bands and credits, USC bands including the self-employed surcharge, Class S PRSI, then the preliminary tax rules in the advice text)",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Ran `node --test '*.test.mjs'` in the venture: 23/23 pass. Revenue.ie was reachable through the proxy (HTTP 200); I fetched and read the live 'Tax rates, bands and reliefs' page and the 'Standard rates and thresholds of USC' page. They state for 2026: single standard rate band EUR 44,000 at 20% then 40%; Single Person credit 2,000; Earned Income Tax Credit max 2,000; USC 0.5% on first 12,012, 2% on next 16,688 (to 28,700), 3% on next 41,344 (to 70,044), 8% balance; USC applies to the full income once total income exceeds 13,000. These match calc.mjs YEARS['2026']. The Class S PRSI rate (4.2%, minimum 500, nothing at or under 5,000) and the 3% USC surcharge on self-employed income over 100,000 are NOT confirmed from Revenue: the PRSI and other-rates pages I tried returned a soft 404, so I cite them from my own knowledge and say so. Independent recomputation in /tmp/claude-0/ie_recompute.py (written by me from the Revenue tables above, not copying calc.mjs) for 5 cases (revenue/expenses): 90000/18000 -> profit 72000, tax 16000.00 (8800+0.4*28000-4000), USC 1790.62 (60.06+333.76+1240.32+156.48), PRSI 3024.00, total 20814.62; 30000/0 -> 2000.00 / 432.82 / 1260.00 / 3692.82; 150000/20000 -> 39200.00 / 7330.62 / 5460.00 / 51990.62 (includes 30,000 x 3% surcharge = 900); 60000/10000 -> 7200.00 / 1032.82 / 2100.00 / 10332.82; 8000/0 -> 0 / 0 / 500 / 500. All five match compute() to the cent. Not run in a real browser, so the UI wiring is checked only by page.test.mjs. Known departure: the 4.2% PRSI is applied to the whole year although the model's own finding says the rate rises 1 Oct 2026, so the true blended 2026 rate is slightly higher (disclosed, small).",
+    "completeness": "README, VENTURE.yaml, llms.txt and page claims checked: income tax with both credits (works), USC with exemption, bands and surcharge (works), Class S PRSI with 500 minimum and 5,000 floor (works), set-aside share of income, of profit, monthly and per EUR 1,000 (works), VAT-registration flag over 42,500 (works), preliminary tax / Form 11 flag (present, but see claims), summary text and CSV download wiring present in index.html, usage counting with Do Not Track opt-out (usage.test.mjs passes), 'Not decided' list present. No TODO or stub found. Not claimed and absent: marital credits, pension relief, capital allowances, the apportioned 1 October PRSI rise (all listed as not modelled). The year selector has one option (2026) although Budget 2027 was announced 6 October 2026 per the Revenue page, so only the current year can be modelled.",
+    "verification": "`node --test '*.test.mjs'`: 23 tests, 23 pass, 0 fail; the README's glob form from the repo root also gives 23/23. Seeded four mutations in calc.mjs, one at a time, each reverted from a saved copy (diff confirmed identical, git status clean): (1) USC exemption `profit <= uscExempt` -> `<` : 1 test failed, caught. (2) upper income tax rate 0.4 -> 0.41: 2 failed, caught. (3) VAT flag threshold `revenue > 42500` -> `> 45000`: 0 failed, NOT caught (the test only checks 100,000 vs 30,000, never the boundary). (4) removed the `Math.max(0, ...)` clamp on net income tax: 2 failed, caught. 3 of 4 caught. Tests assert hand-computed numbers on the rate engine, which is the part that matters; the advice text, deadline text and the 42,500 and 100,000 thresholds in findings are only regex-checked, and page.test.mjs is static string matching.",
+    "craft": "Read calc.mjs, calc.test.mjs, page.test.mjs, usage.mjs, index.html script block. Pure functions, a data table per year, input parsing that rejects negative and non-numeric values, rounding in one helper, usage storage guarded against blocked storage. Defects: (a) the Earned Income Credit is applied as a flat 2,000 with no cap at 20% of earned income (no effect on the result because gross tax is below the credits whenever that cap would bite, but the rule is not encoded); (b) `findings` is pushed to after `out` is built, which works only through shared reference; (c) YEARS supports only one year and an unknown year silently falls back to 2026 (`Object.hasOwn ... : '2026'`); (d) canonical, sitemap and robots use relative URLs, which are invalid in those files; (e) credits hard-coded as two separate 2,000 constants with no source comment per figure.",
+    "claims": "Checked against files: 'nothing is uploaded' backed by page.test.mjs (no fetch/XHR/sendBeacon) and the static page; disclaimer, no-warranty and verify-on-revenue.ie text present on page, README, VENTURE.yaml and in summaryText (tests assert it); 'written without a live lookup' is honest, and I confirmed the bands, credits and USC rates against Revenue. Unbacked or wrong: (1) the preliminary tax finding says it is 'generally 100% of the current year, 105% of the prior year, or 90% of the current year'. Revenue's rule as I know it (not re-read on revenue.ie in this audit) is 90% of the current year, or 100% of the previous year (if paying by monthly direct debit), or 105% of the PRE-PRECEDING year if paid by single payment, so '105% of the prior year' is wrong in a way that could shortchange a user's October payment; (2) llms.txt links the tool at duncan-haywood.github.io, the old Pages address that CLAUDE.md says now only redirects, not marisstella.app; (3) sitemap.xml has `<loc>./index.html</loc>` and robots.txt has `Sitemap: ./sitemap.xml`, both relative and invalid, so the SEO claim in the playbook is not met; (4) the Oct 2026 PRSI rise (+0.15 points) is stated as fact in a finding and I could not confirm it from Revenue in this audit; (5) the FAQ says Class S PRSI is '4.2%' flat, unqualified. The README's 'Tables written from memory' contradicts the page's 'published Revenue rates', but is the more honest of the two.",
+    "fitness": "Walked the job of an Irish sole trader asking 'how much of each invoice do I set aside': entered 90,000 income and 18,000 expenses, got 20,814.62 (23.13% of income, 28.9% of profit), a monthly figure and per-1,000 figure, which is a usable ballpark and matches the FAQ's 20-30% claim. Gaps a user hits in the first hour: pension contributions (the main lever Irish self-employed use), capital allowances, a spouse or the married credit, and a prior-year balance or preliminary tax amount are all not modelled; there is no calculation of the actual 31 October payment, only prose; only the 2026 year exists although the visitor is in November 2026 planning for 2027 (Budget 2027 changes were announced 6 October 2026); and a multi-month or invoice-by-invoice tracker is listed as not built. Stage is 'prototype' in VENTURE.yaml, consistent with that.",
+    "domain": "Compared against Revenue's published 2026 tables (income tax, credits, USC standard rates) and Irish self-employed practice (Form 11, preliminary tax, Class S PRSI, VAT thresholds of 42,500 for services and 85,000 for goods). The method a practitioner uses is the same: profit less expenses, then income tax, USC and Class S PRSI on that profit, with USC and PRSI computed on the same base. The core arithmetic would be signed off for a single person with no other income. Departures: PRSI is flat 4.2% not the apportioned rate (disclosed); no pension relief or capital allowances (disclosed); preliminary tax rule is misstated (see claims); USC reduced rates and the medical-card exemption are not offered; the EIC 20% cap is not encoded. These are limits stated honestly except the preliminary tax wording, so a 3 with that single carve-out."
+  },
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Preliminary tax finding says '105% of the prior year'; the 105% rule applies to the pre-preceding year (and 100% of the previous year only with direct debit). A user following the text could underpay preliminary tax.",
+      "where": "ventures/ie-self-employed-tax-set-aside-calculator/calc.mjs:84"
+    },
+    {
+      "severity": "medium",
+      "what": "Only the 2026 tax year is modelled; Budget 2027 was announced 6 October 2026 so the user planning for 2027 has no option, and an unknown year silently falls back to 2026.",
+      "where": "ventures/ie-self-employed-tax-set-aside-calculator/calc.mjs:7,52"
+    },
+    {
+      "severity": "medium",
+      "what": "sitemap.xml and robots.txt use relative URLs (`./index.html`, `Sitemap: ./sitemap.xml`), which crawlers reject; canonical is also relative.",
+      "where": "ventures/ie-self-employed-tax-set-aside-calculator/sitemap.xml:3, robots.txt:3, index.html:10"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt points to the retired GitHub Pages host instead of marisstella.app.",
+      "where": "ventures/ie-self-employed-tax-set-aside-calculator/llms.txt:7"
+    },
+    {
+      "severity": "low",
+      "what": "Mutation of the VAT-registration threshold (42,500 -> 45,000) survives all 23 tests; no boundary test for the 42,500 or 100,000 findings.",
+      "where": "ventures/ie-self-employed-tax-set-aside-calculator/calc.test.mjs:38-42"
+    },
+    {
+      "severity": "low",
+      "what": "PRSI applied at 4.2% for the whole year and the Oct 2026 rise unverified; Earned Income Credit 20% cap not encoded; no pension relief.",
+      "where": "ventures/ie-self-employed-tax-set-aside-calculator/calc.mjs:13,31-35,88"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "The rate engine is right: five cases recomputed from Revenue's own 2026 pages (bands, credits, USC bands fetched live) match to the cent, and 23 tests catch 3 of 4 seeded bugs in the arithmetic, so correctness and verification meet the bar, with the Class S PRSI rate and 3% USC surcharge cited from knowledge because the Revenue pages for them returned 404. It does not meet the bar overall because claims scores 2: the preliminary tax advice text misstates the 105% rule, the sitemap and robots files are invalid relative URLs, and llms.txt points to a retired host. It is finished against its own stated scope (completeness 3) but is a single-year, single-person estimator (fitness 2) with no pension relief, which a practising Irish accountant would call a ballpark, not a Form 11 substitute. Scores are before any fix."
+}
