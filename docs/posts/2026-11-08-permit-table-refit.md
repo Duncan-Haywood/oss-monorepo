@@ -2,7 +2,7 @@
 title: "Flattening a permit-duration model into a table still loses the gain"
 date: 2026-11-08
 tags: [research, permits, forecasting, negative-result]
-description: "A quantile model that sees only permit type and cost bucket keeps under half of the full model's gain in two of three Chicago and San Francisco sets, so no model-based permit-duration table is published."
+description: "A permit-duration model that sees only type and cost bucket keeps under half the full model's gain in two of three sets, so no table is published."
 ---
 
 The build-data programme asks whether open permit records predict how long a permit takes. A boosted quantile model beats a per-permit-type baseline, but a calculator can't ship a model file, so the question was whether a plain table of permit type by cost bucket could keep the gain.
