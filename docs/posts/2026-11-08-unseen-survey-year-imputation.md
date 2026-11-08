@@ -1,8 +1,8 @@
 ---
 title: "A model of other answers does not beat interpolation on an unseen survey year"
 date: 2026-11-08
-tags: [research, survey, religion, imputation]
-description: "Holding out whole General Social Survey years, a gradient-boosted imputation of Catholic beliefs misses the year's share by 3.9 points on average, no better than interpolating neighbouring years."
+tags: [research, surveys, religion, imputation]
+description: "Holding out whole GSS years, boosted imputation of Catholic beliefs misses the year share by 3.9 points, no better than interpolating neighbouring years."
 ---
 
 Last week's check said imputed Catholic shares match observed ones within about a point. That check let the model see the same survey year. This run held out each year entirely (13 items, 307 item-years, GSS 1972 to 2024), fitted on the other years, and compared the predicted share with the observed one.
