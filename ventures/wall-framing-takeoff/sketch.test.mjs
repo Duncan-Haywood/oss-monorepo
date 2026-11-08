@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners, emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, moveCorner, moveWall, moveOpening, resizeOpening, planFromSketch, sketchToDxf, restoreSketch } from "./sketch.mjs";
+import { fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners, emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, moveCorner, moveWall, moveOpening, moveOpeningToWall, resizeOpening, planFromSketch, sketchToDxf, restoreSketch } from "./sketch.mjs";
 import { takeoff } from "./engine.mjs";
 
 const ft = (n) => n * 12;
@@ -213,4 +213,29 @@ test("sketch refuses points that are not real numbers", () => {
   }
   assert.deepEqual(sk.walls[0].a, { x: 0, y: 0 });
   assert.equal(sk.walls.length, 1);
+});
+
+test("an opening moves to another wall, and bad moves change nothing", () => {
+  const ft = (n) => n * 12;
+  const sk = emptySketch();
+  const w1 = addWall(sk, { x: 0, y: 0 }, { x: ft(20), y: 0 });
+  const w2 = addWall(sk, { x: 0, y: 0 }, { x: 0, y: ft(10) });
+  const tiny = addWall(sk, { x: 0, y: ft(20) }, { x: 20, y: ft(20) });
+  const a = /** @type {any} */ (addOpening(sk, w1.id ?? sk.walls[0].id, "door", ft(5), 36)).opening;
+  const b = /** @type {any} */ (addOpening(sk, sk.walls[1].id, "window", ft(5), 36)).opening;
+  const id1 = sk.walls[0].id, id2 = sk.walls[1].id, id3 = sk.walls[2].id;
+  assert.equal(moveOpeningToWall(sk, a.id, id2, ft(5)).ok, false);       // onto the window
+  assert.equal(a.wall, id1);
+  assert.equal(moveOpeningToWall(sk, a.id, id3, 10).ok, false);          // 20 in wall too short
+  assert.equal(moveOpeningToWall(sk, a.id, 999, 10).ok, false);
+  assert.equal(moveOpeningToWall(sk, 999, id2, 10).ok, false);
+  assert.ok(moveOpeningToWall(sk, a.id, id2, ft(8)).ok);
+  assert.equal(a.wall, id2);
+  assert.equal(a.kind, "door");
+  assert.equal(a.width, 36);
+  assert.ok(Math.abs(a.offset + 18 - ft(8)) < 4);                        // centred near 8 ft (snap)
+  assert.ok(moveOpeningToWall(sk, a.id, id2, ft(100)).ok);               // clamped to the wall end
+  assert.ok(a.offset + a.width <= ft(10) + 1e-9);
+  assert.equal(sk.openings.filter((o) => o.wall === id2).length, 2);
+  void b; void tiny; void w2;
 });

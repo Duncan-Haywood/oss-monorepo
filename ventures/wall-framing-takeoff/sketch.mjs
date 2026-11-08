@@ -205,6 +205,28 @@ export function moveOpening(sk, id, along) {
 }
 
 /**
+ * Move an opening to another wall, centred at `along` inches from that wall's
+ * `a` end (slid to fit and snapped like `addOpening`). Refused, changing
+ * nothing, when the wall is missing, shorter than the opening, or the spot
+ * overlaps an opening already there. Keeps the opening's id, kind and width.
+ * @param {Sketch} sk @param {number} id @param {number} wallId @param {number} along
+ * @returns {{ ok: true } | { ok: false, error: string }}
+ */
+export function moveOpeningToWall(sk, id, wallId, along) {
+  const o = sk.openings.find((x) => x.id === id);
+  if (!o) return { ok: false, error: "No such opening." };
+  const w = sk.walls.find((x) => x.id === wallId);
+  if (!w) return { ok: false, error: "No such wall." };
+  const L = len(w);
+  if (o.width > L) return { ok: false, error: `A ${o.width} in opening does not fit a ${Math.round(L * 16) / 16} in wall.` };
+  const offset = snapOffset(Math.min(Math.max(along - o.width / 2, 0), L - o.width), L, o.width);
+  if (sk.openings.some((x) => x !== o && x.wall === wallId && offset < x.offset + x.width && x.offset < offset + o.width)) return { ok: false, error: "That would overlap another opening." };
+  o.wall = wallId;
+  o.offset = offset;
+  return { ok: true };
+}
+
+/**
  * Drag one edge of an opening to `pos` inches along its wall; the other edge
  * stays put. Refused when the opening would be under 6 in wide, run past the
  * wall, or overlap a neighbour.
