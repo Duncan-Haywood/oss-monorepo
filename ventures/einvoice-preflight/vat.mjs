@@ -1,6 +1,8 @@
 // Offline VAT identifier shape and checksum observations.
 // Typo catch only — not a VIES lookup and not a claim a party may charge tax.
 
+import { checkTurkishTaxId } from "./turkey.mjs";
+
 const FORMAT_ONLY = {
   BG: [9, 10],
   CY: [9],
@@ -176,6 +178,7 @@ function classify(country, body) {
   if (country === "AU") return /^\d{11}$/.test(body) ? "checksum" : "bad-format";
   if (country === "NZ") return /^\d{8,9}$/.test(body) ? "checksum" : "bad-format";
   if (country === "RS") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "TR") return /^\d{10,11}$/.test(body) ? "checksum" : "bad-format";
   if (country === "KR") return /^\d{10}$/.test(body) ? "checksum" : "bad-format";
   if (country === "IN") return /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(body) ? "checksum" : "bad-format";
   const lengths = FORMAT_ONLY[country];
@@ -460,6 +463,7 @@ function checksumOk(country, body) {
   if (country === "AU") return auAbnOk(body);
   if (country === "NZ") return nzIrdOk(body);
   if (country === "RS") return rsPibOk(body);
+  if (country === "TR") return checkTurkishTaxId(body).ok;
   if (country === "KR") return krBrnOk(body);
   if (country === "IN") return inGstinOk(body);
   if (country === "XI") return body.length === 9 || body.length === 12 ? gbOk(body) : false;
