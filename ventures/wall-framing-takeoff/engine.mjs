@@ -1123,6 +1123,7 @@ export function simplexMaxLE(A, b, c) {
  * 1/16 in) with demands; boards have integer capacity (length + kerf) and a
  * price. Returns the LP bound and the patterns with their LP values.
  */
+const FARLEY_GAP = 1e-4;
 function columnGeneration(items, boards) {
   const n = items.length;
   /** @type {{ board: number, counts: number[] }[]} */
@@ -1146,16 +1147,40 @@ function columnGeneration(items, boards) {
     addPattern(best, counts);
   });
   let lp = { value: 0, y: [], x: [] };
+  // Farley's bound: the duals y scaled down by the largest value-to-price ratio any board's
+  // knapsack reaches are dual feasible, so lp.value over that ratio is a lower bound on the
+  // true LP optimum at every round. Stop when the two are within FARLEY_GAP: on a whole house
+  // (900+ pieces, 180+ lengths) the last 0.01% took thousands of columns and over 12 minutes.
+  let farley = 0;
+  let lastAdded = 0;
+  let stopped = false;
   for (let round = 0; round < 400; round++) {
+    // Keep the LP small: once the pool is three times the item count, drop patterns the LP
+    // does not use (they are re-found by the knapsack if they are wanted again). The
+    // newest columns stay so the next solve has what this round priced in.
+    if (patterns.length > 3 * n + 60) {
+      const keepFrom = patterns.length - lastAdded;
+      const kept = patterns.filter((_, j) => j >= keepFrom || lp.x[j] > 1e-9);
+      if (kept.length < patterns.length) {
+        patterns.length = 0;
+        seen.clear();
+        for (const p of kept) { patterns.push(p); seen.add(`${p.board}:${p.counts.join(",")}`); }
+      }
+    }
     lp = simplexMaxLE(patterns.map((p) => p.counts), items.map((it) => it.d), patterns.map((p) => boards[p.board].price));
     let added = 0;
+    let ratio = 0;
     boards.forEach((bd, k) => {
       const ks = boundedKnapsack(items.map((it) => it.w), lp.y, items.map((it) => it.d), bd.cap);
+      if (bd.price > 0) ratio = Math.max(ratio, ks.value / bd.price);
       if (ks.value > bd.price * (1 + 1e-9) + 1e-9 && addPattern(k, ks.counts)) added++;
     });
+    lastAdded = added;
     if (!added) break;
+    if (ratio > 1) farley = Math.max(farley, lp.value / ratio);
+    if (farley > 0 && lp.value - farley <= FARLEY_GAP * lp.value) { stopped = true; break; }
   }
-  return { bound: lp.value, patterns, x: lp.x };
+  return { bound: stopped ? farley : lp.value, patterns, x: lp.x };
 }
 
 /** First fit decreasing onto the longest board, then each bar shrunk to the cheapest board that holds it. */
