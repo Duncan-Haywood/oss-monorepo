@@ -50,9 +50,9 @@
       <label for="q">Run size</label><input id="q" type="number" min="1" step="1" value="200">
       <h2 style="margin-top:14px">Tiers</h2>
       <table><tr><th scope="col">Name</th><th scope="col">Cloth per m</th><th scope="col">Shelf price (blank = solve)</th></tr>
-        <tr><td><input id="n1" value="Essential" style="width:90px"></td><td><input id="p1" type="number" min="0" step="any" value="5"></td><td><input id="s1" type="number" min="0" step="any" value=""></td></tr>
-        <tr><td><input id="n2" value="Signature" style="width:90px"></td><td><input id="p2" type="number" min="0" step="any" value="8"></td><td><input id="s2" type="number" min="0" step="any" value=""></td></tr>
-        <tr><td><input id="n3" value="Atelier" style="width:90px"></td><td><input id="p3" type="number" min="0" step="any" value="14"></td><td><input id="s3" type="number" min="0" step="any" value=""></td></tr></table>
+        <tr><td><input id="n1" aria-label="Tier 1 name" value="Essential" style="width:90px"></td><td><input id="p1" aria-label="Tier 1 cloth price per m" type="number" min="0" step="any" value="5"></td><td><input id="s1" aria-label="Tier 1 shelf price" type="number" min="0" step="any" value=""></td></tr>
+        <tr><td><input id="n2" aria-label="Tier 2 name" value="Signature" style="width:90px"></td><td><input id="p2" aria-label="Tier 2 cloth price per m" type="number" min="0" step="any" value="8"></td><td><input id="s2" aria-label="Tier 2 shelf price" type="number" min="0" step="any" value=""></td></tr>
+        <tr><td><input id="n3" aria-label="Tier 3 name" value="Atelier" style="width:90px"></td><td><input id="p3" aria-label="Tier 3 cloth price per m" type="number" min="0" step="any" value="14"></td><td><input id="s3" aria-label="Tier 3 shelf price" type="number" min="0" step="any" value=""></td></tr></table>
       <h2 style="margin-top:14px">Selling</h2>
       <div class="row"><div><label for="tax">Sales tax in the price %</label><input id="tax" type="number" min="0" step="any" value="22"></div><div><label for="ch">Shop or marketplace fee %</label><input id="ch" type="number" min="0" step="any" value="0"></div></div>
       <div class="row"><div><label for="pf">Card fee %</label><input id="pf" type="number" min="0" step="any" value="3"></div><div><label for="tm">Target margin %</label><input id="tm" type="number" min="0" max="95" step="any" value="60"></div></div>

@@ -160,15 +160,36 @@ def check_input(attrs: dict[str, str], bounds: list[tuple[str, Decimal]]) -> str
     return None
 
 
+IMPORT_RE = re.compile(r"""(?:from|import)\s*\(?\s*["'](\.{1,2}/[^"']+\.mjs)["']""")
+
+
+def reachable_modules(start_text: str, base: Path) -> set[Path] | None:
+    """Modules a page loads, transitively; None when it imports no local module.
+
+    Guards only apply to inputs on pages whose script can reach them. Without
+    this, a local `w < 8` in separation.mjs flagged a `w` input on tiers.html.
+    """
+    seen: set[Path] = set()
+    todo = [base / m for m in IMPORT_RE.findall(start_text)]
+    if not todo:
+        return None
+    while todo:
+        mod = todo.pop().resolve()
+        if mod in seen or not mod.is_file():
+            continue
+        seen.add(mod)
+        text = mod.read_text(encoding="utf-8", errors="replace")
+        todo.extend(mod.parent / m for m in IMPORT_RE.findall(text))
+    return seen
+
+
 def check_venture(directory: Path) -> list[str]:
-    source = "\n".join(
-        module.read_text(encoding="utf-8", errors="replace")
-        for module in sorted(directory.rglob("*.mjs"))
-    )
+    modules = sorted(directory.rglob("*.mjs"))
+    source = "\n".join(m.read_text(encoding="utf-8", errors="replace") for m in modules)
     if not source:
         return []
-    bounds = guards(source)
-    if not bounds:
+    all_bounds = guards(source)
+    if not all_bounds:
         return []
 
     pages = sorted(directory.rglob("*.html"))
@@ -178,6 +199,11 @@ def check_venture(directory: Path) -> list[str]:
     problems: list[str] = []
     for page in pages:
         markup = page.read_text(encoding="utf-8", errors="replace")
+        reach = reachable_modules(markup, page.parent)
+        if reach is None:
+            bounds = all_bounds
+        else:
+            bounds = guards("\n".join(m.read_text(encoding="utf-8", errors="replace") for m in sorted(reach)))
         for tag in INPUT_RE.findall(markup):
             attrs = _attrs(tag)
             field = attrs.get("id")

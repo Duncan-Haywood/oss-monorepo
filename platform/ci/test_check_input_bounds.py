@@ -245,3 +245,26 @@ class AttributeQuoting(unittest.TestCase):
         self.assertEqual(
             self._problems("<input type='number' id='pct' min='0' max='99.99'>"), []
         )
+
+
+class PageScope(unittest.TestCase):
+    """A guard on a local variable in a module the page never loads is not its bound."""
+
+    def _venture(self, page_imports: str):
+        d = Path(tempfile.mkdtemp())
+        (d / "a.mjs").write_text("export const f = (w) => w;", encoding="utf-8")
+        (d / "b.mjs").write_text('if (w < 8) throw new Error("crop");', encoding="utf-8")
+        (d / "p.html").write_text(
+            f'<script type="module">{page_imports}</script><input type="number" id="w" min="0">',
+            encoding="utf-8",
+        )
+        return check_venture(d)
+
+    def test_unrelated_module_guard_is_ignored(self):
+        self.assertEqual(self._venture('import { f } from "./a.mjs";'), [])
+
+    def test_imported_module_guard_still_applies(self):
+        self.assertEqual(len(self._venture('import { f } from "./b.mjs";')), 1)
+
+    def test_page_without_imports_keeps_venture_wide_check(self):
+        self.assertEqual(len(self._venture("")), 1)
