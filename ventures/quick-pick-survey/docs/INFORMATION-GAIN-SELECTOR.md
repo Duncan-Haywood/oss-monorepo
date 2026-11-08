@@ -644,3 +644,23 @@ Caveats: noiseless answerer, 3 seeds, one respondent, hand-run; the live-Postgre
 `noisyRespondents` run was not repeated here (needs `scripts/test-db.sh start`).
 Reproduce: `MIX_TRUTH_ORDER=1 MIX_ROUTE=1 MIX_ANSWERER=noiseless MIX_SELECTOR=staged
 MEASURE_OUT=out.txt npx vitest run -c vitest.simulations.config.ts src/lib/pairMix.simulation.test.ts`.
+
+### The fix holds through the real routes, live Postgres (2026-11-08)
+
+The "Next" item above, run: `NOISY_ITEMS=1000 NOISY_ANSWERS=3000
+NOISY_RESPONDENTS=3 NOISY_CONDITIONS=clean NOISY_CHECKPOINTS=500,1000,1500,2000,3000`
+through `noisyRespondents.integration.test.ts` (real routes, local Postgres 16
+from `scripts/test-db.sh start`, 638 s, test passed). Fixed set = the 113 items
+rated at 500 answers. Spearman of the fixed set, per respondent at 500 / 1000 /
+1500 / 2000 / 3000 answers:
+
+| respondent | 500 | 1000 | 1500 | 2000 | 3000 |
+|---|---|---|---|---|---|
+| 0 | 0.973 | 0.981 | 0.982 | 0.983 | 0.982 |
+| 1 | 0.977 | 0.984 | 0.984 | 0.984 | 0.982 |
+| 2 | 0.977 | 0.976 | 0.978 | 0.977 | 0.979 |
+
+Mean at 3000 answers: 0.981 (all 613 rated items 0.979; top-slot share 0.51).
+Before the hash admission the same run gave 0.62 to 0.71 at 3000. The dip is
+gone through the routes, not only in process. Caveats: noiseless answerer, 3
+respondents, one run, one item count (1000).
