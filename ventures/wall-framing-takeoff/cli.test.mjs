@@ -542,3 +542,17 @@ test("--shallow-headers swaps a header too deep for the plates and notes it", ()
   assert.equal(trimmed.code, 0, trimmed.out);
   assert.match(trimmed.out, /Note: Wall Tall, D: the opening is .* in taller than the room/);
 });
+
+test("--trim-openings lowers a door sitting on a threshold to the floor and leaves a raised one refused", () => {
+  const plan = samplePlan();
+  plan.walls = [{ id: "Tall", length: 192, stud: "2x4", openings: [{ kind: "door", label: "D", offset: 48, width: 36, height: 80, headerHeight: 80, header: "2x6" }] }];
+  const door = plan.walls[0].openings[0];
+  const withDoor = (o) => () => JSON.stringify({ ...plan, walls: [{ ...plan.walls[0], openings: [{ ...door, ...o }] }] });
+  const h = 82;
+  const low = main(["plan.json", "--shallow-headers", "--trim-openings"], withDoor({ headerHeight: h, height: h - 1.5 - 1.625 }));
+  assert.equal(low.code, 0, low.out);
+  assert.match(low.out, /door bottom is 1\.63 in above the floor/);
+  const raised = main(["plan.json", "--shallow-headers", "--trim-openings"], withDoor({ headerHeight: h, height: h - 1.5 - 39 }));
+  assert.equal(raised.code, 1);
+  assert.match(raised.out, /should reach the floor/);
+});
