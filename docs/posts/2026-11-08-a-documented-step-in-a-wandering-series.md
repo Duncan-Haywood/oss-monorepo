@@ -1,5 +1,6 @@
 ---
 title: "A documented step in Australian cement, found only by the models that over-cut"
+seo_title: "A documented step in Australian cement, found only by over-cutting"
 date: 2026-11-08
 tags: [changepoint-detector, real-data, time-series]
 description: "Australia's 2000 GST shows up in quarterly cement output as a fall the changepoint tool dates at 2000Q3 or Q4, but only among 20 or more other cuts."

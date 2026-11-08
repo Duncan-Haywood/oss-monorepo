@@ -1,5 +1,6 @@
 ---
 title: "The detector dates the 2007 US electricity stall, then declines to claim it"
+seo_title: "Detector dates the 2007 US electricity stall, then declines"
 date: 2026-11-08
 tags: [changepoint-detector, time-series, open-source]
 description: "On 40 years of US electricity generation, a monthly model over-cuts 38 times and the slope test finds 2007 but misses its own bar."

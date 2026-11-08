@@ -1,5 +1,6 @@
 ---
 title: "How much can you borrow from your 401(k)? The answer now leads the page"
+seo_title: "How much can you borrow from your 401(k)?"
 date: 2026-11-08
 tags: [seo, aeo, retirement, tools]
 description: "The 401(k) loan vs withdrawal calculator now opens with the statutory loan limit, its source and an as-of date, and a test ties the figures to the calculator."

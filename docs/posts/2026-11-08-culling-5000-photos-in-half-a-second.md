@@ -1,5 +1,6 @@
 ---
 title: "Grouping 5,000 near-duplicate photos went from 6 seconds to half a second"
+seo_title: "Grouping 5,000 near-duplicate photos: 6 seconds to half a second"
 date: 2026-11-08
 tags: [photo-editing, performance, shootflow]
 description: "The shootflow folder cull compared every photo-hash pair with string parsing in the loop. Parsing once and using int.bit_count made it about 11 times faster."
