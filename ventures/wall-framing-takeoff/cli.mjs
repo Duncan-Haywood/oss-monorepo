@@ -32,6 +32,7 @@ import { layoutStair, linkStairReaction, stairCuts, stairText, layoutStairWithLa
 import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
 import { resolveHeaders, headerText } from "./headers.mjs";
 import { gangOpenings } from "./ganged.mjs";
+import { shallowHeaders } from "./shallowheaders.mjs";
 import { openingSizes, wallHeights } from "./ifcwasm.mjs";
 import { drawingSetHtml } from "./drawings.mjs";
 import { drawingSetPdf } from "./pdf.mjs";
@@ -70,6 +71,7 @@ Usage:
   node cli.mjs plan.json --rim-lap=9.25  run sheathing that many inches below the bottom plate to cover the rim board (vertical sheets)
   node cli.mjs plan.json --horizontal sheets long side along the wall (implies --sheathing)
   node cli.mjs plan.json --add-board=2x4:20ft[:price]  add a longer board to the lumber list (repeatable; a DXF or IFC read has the 16 ft default only; unpriced boards cost per foot like the longest of that size)
+  node cli.mjs plan.json --shallow-headers  where a header is deeper than the room under the top plates, use the deepest listed header that fits (2x10 to 2x8 to 2x6 to 2x4) and note it for your engineer; the span is not checked
   node cli.mjs plan.json --skip-refused  frame the walls that pass the plan checks and list the ones refused (opening too near a wall end, header too tall...), instead of stopping at the first bad wall
   node cli.mjs plan.json --panel-max=12ft  shop drawings with each wall split into panels no longer than that
   node cli.mjs plan.json --panel-max=12ft --panel-order --pull-lists  boards and cuts each panel is built from (add to --panel-order)
@@ -232,6 +234,11 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     plan.stock = [...(plan.stock || []), { size, length, price: cost }];
   }
   if (boardNotes.length) dxfNotes += boardNotes.map((n) => `Note: ${n}`).join("\n") + "\n\n";
+  // --shallow-headers swaps a header that is deeper than the room under the plates for the deepest listed one that fits, with a note, before the plan checks run.
+  if (flags.has("--shallow-headers") && Array.isArray(plan.walls)) {
+    const sh = shallowHeaders(plan);
+    if (sh.length) dxfNotes += sh.map((n) => `Note: ${n}`).join("\n") + "\n\n";
+  }
   // --skip-refused frames the walls that pass the plan checks and lists the ones that do not (a whole-house IFC or DXF read often has a few walls the engine refuses), so one bad wall does not hide the takeoff of the rest.
   if (flags.has("--skip-refused") && Array.isArray(plan.walls)) {
     const skipped = [];
