@@ -1,5 +1,6 @@
 ---
 title: "einvoice-preflight now checks Brazilian, Argentine, Peruvian, Chilean and Colombian tax ids inside an invoice"
+seo_title: "einvoice-preflight checks BR, AR, PE, CL and CO tax ids"
 date: 2026-11-08
 tags: [einvoice, validation, einvoice-preflight]
 description: "A BR, AR, PE, CL or CO party identifier is now run through the check-digit code the country pages already had, offline."
