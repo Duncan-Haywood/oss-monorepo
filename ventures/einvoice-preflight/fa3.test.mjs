@@ -106,6 +106,13 @@ test("correction and settlement seeds pass the schema gate and say what they ski
   }
 });
 
+test("transport seed (carrier, cargo, route, a second transport by the 'other' branch) passes the schema gate and the sums", () => {
+  const r = checkFa3(read("fa3-transport.xml"));
+  assert.deepEqual(r.findings, []);
+  const noCargo = read("fa3-transport.xml").replace(/<OpisLadunku>1<\/OpisLadunku>\s*/, "");
+  assert.deepEqual(rules(noCargo), ["PL-013"]); // the next element is then out of place
+});
+
 test("a correction missing its corrected-invoice block, and a settlement with its advance block out of order, are found", () => {
   const noRef = read("fa3-correction.xml").replace(/<DaneFaKorygowanej>[\s\S]*?<\/DaneFaKorygowanej>\s*/g, "");
   assert.deepEqual(rules(noRef), ["PL-014"]);
