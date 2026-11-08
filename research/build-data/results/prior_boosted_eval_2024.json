@@ -1,0 +1,262 @@
+[
+ {
+  "test_year": 2024,
+  "n_train": 727114,
+  "n_calib": 34782,
+  "n_test": 33064,
+  "seeds": 2,
+  "grid_cells": 34,
+  "grid_types": 9,
+  "pinball": {
+   "0.1": {
+    "baseline": 2.688873094604404,
+    "empirical_grid": 2.6888851923542227,
+    "boosted_grid": 2.695826020823252,
+    "boosted_full": 2.695833927534479
+   },
+   "0.5": {
+    "baseline": 12.592502419549964,
+    "empirical_grid": 12.302027885313331,
+    "boosted_grid": 12.542669478604711,
+    "boosted_full": 11.393078330608786
+   },
+   "0.9": {
+    "baseline": 11.08444531817082,
+    "empirical_grid": 16.399251451729974,
+    "boosted_grid": 13.297240970865333,
+    "boosted_full": 11.719004056619527
+   }
+  },
+  "retained": {
+   "0.1": {
+    "grid_rel": -0.0025858141958428307,
+    "full_rel": -0.0025887547255550526,
+    "emp_grid_rel": -4.49918958357784e-06,
+    "share_of_full_gain": null
+   },
+   "0.5": {
+    "grid_rel": 0.003957350118741026,
+    "full_rel": 0.09524906559311537,
+    "emp_grid_rel": 0.02306726054589985,
+    "share_of_full_gain": 0.04154739045573445
+   },
+   "0.9": {
+    "grid_rel": -0.1996307067406485,
+    "full_rel": -0.057247676382008,
+    "emp_grid_rel": -0.47948327417399494,
+    "share_of_full_gain": null
+   }
+  },
+  "mean_share_of_full_gain": 0.04154739045573445,
+  "city": "chicago",
+  "target": "a2i"
+ },
+ {
+  "test_year": 2024,
+  "n_train": 1144046,
+  "n_calib": 22916,
+  "n_test": 23688,
+  "seeds": 2,
+  "grid_cells": 14,
+  "grid_types": 5,
+  "pinball": {
+   "0.1": {
+    "baseline": 2.421715636609254,
+    "empirical_grid": 2.410566953731848,
+    "boosted_grid": 2.3912133091531933,
+    "boosted_full": 2.3806328626091577
+   },
+   "0.5": {
+    "baseline": 11.583586626139818,
+    "empirical_grid": 11.127860097939886,
+    "boosted_grid": 11.05592095644986,
+    "boosted_full": 11.015841648830774
+   },
+   "0.9": {
+    "baseline": 15.689305555555556,
+    "empirical_grid": 13.83328731847349,
+    "boosted_grid": 13.395489081169337,
+    "boosted_full": 12.915934494057375
+   }
+  },
+  "retained": {
+   "0.1": {
+    "grid_rel": 0.012595338195349944,
+    "full_rel": 0.01696432619050931,
+    "emp_grid_rel": 0.004603630050064777,
+    "share_of_full_gain": 0.7424602695034479
+   },
+   "0.5": {
+    "grid_rel": 0.045552874659668334,
+    "full_rel": 0.049012883110646915,
+    "emp_grid_rel": 0.03934243709729143,
+    "share_of_full_gain": 0.9294061432140692
+   },
+   "0.9": {
+    "grid_rel": 0.14620254964528895,
+    "full_rel": 0.1767682483891797,
+    "emp_grid_rel": 0.11829830393129502,
+    "share_of_full_gain": 0.8270860348370022
+   }
+  },
+  "mean_share_of_full_gain": 0.8329841491848398,
+  "city": "sf",
+  "target": "a2i"
+ },
+ {
+  "test_year": 2024,
+  "n_train": 684970,
+  "n_calib": 18381,
+  "n_test": 19204,
+  "seeds": 2,
+  "grid_cells": 12,
+  "grid_types": 4,
+  "pinball": {
+   "0.1": {
+    "baseline": 15.06191835034368,
+    "empirical_grid": 14.709452718183712,
+    "boosted_grid": 15.731702754499034,
+    "boosted_full": 14.143631991015521
+   },
+   "0.5": {
+    "baseline": 57.1122682774422,
+    "empirical_grid": 54.330621224744846,
+    "boosted_grid": 54.02067487752001,
+    "boosted_full": 49.746542114135664
+   },
+   "0.9": {
+    "baseline": 36.42881899604248,
+    "empirical_grid": 36.05921787127681,
+    "boosted_grid": 36.140131707932916,
+    "boosted_full": 35.173441042048054
+   }
+  },
+  "retained": {
+   "0.1": {
+    "grid_rel": -0.044468731576948924,
+    "full_rel": 0.060967423801444605,
+    "emp_grid_rel": 0.02340111159558404,
+    "share_of_full_gain": -0.7293851175633118
+   },
+   "0.5": {
+    "grid_rel": 0.05413186156262831,
+    "full_rel": 0.12896924575863494,
+    "emp_grid_rel": 0.04870489540328811,
+    "share_of_full_gain": 0.41972689879830505
+   },
+   "0.9": {
+    "grid_rel": 0.007924695229371182,
+    "full_rel": 0.03446112140310688,
+    "emp_grid_rel": 0.01014584427801036,
+    "share_of_full_gain": 0.22996045708067767
+   }
+  },
+  "mean_share_of_full_gain": -0.026565920561443034,
+  "city": "sf",
+  "target": "i2c"
+ },
+ {
+  "test_year": 2024,
+  "n_train": 2189169,
+  "n_calib": 52889,
+  "n_test": 53007,
+  "seeds": 2,
+  "grid_cells": 10,
+  "grid_types": 5,
+  "pinball": {
+   "0.1": {
+    "baseline": 8.002460052445905,
+    "empirical_grid": 8.002460052445905,
+    "boosted_grid": 7.982092367718111,
+    "boosted_full": 7.650178486764696
+   },
+   "0.5": {
+    "baseline": 39.94113984945385,
+    "empirical_grid": 37.88907125473994,
+    "boosted_grid": 37.095871475839125,
+    "boosted_full": 29.405272173569255
+   },
+   "0.9": {
+    "baseline": 37.09914162280453,
+    "empirical_grid": 32.675733016394055,
+    "boosted_grid": 42.61765575430567,
+    "boosted_full": 23.638661933068327
+   }
+  },
+  "retained": {
+   "0.1": {
+    "grid_rel": 0.002545177932074595,
+    "full_rel": 0.04402165876148751,
+    "emp_grid_rel": 0.0,
+    "share_of_full_gain": 0.057816493146352135
+   },
+   "0.5": {
+    "grid_rel": 0.07123653416850667,
+    "full_rel": 0.2637848523000692,
+    "emp_grid_rel": 0.05137731678286013,
+    "share_of_full_gain": 0.2700554392997189
+   },
+   "0.9": {
+    "grid_rel": -0.1487504532479252,
+    "full_rel": 0.36282455876181674,
+    "emp_grid_rel": 0.11923210114628215,
+    "share_of_full_gain": -0.4099790095674735
+   }
+  },
+  "mean_share_of_full_gain": -0.02736902570713416,
+  "city": "austin",
+  "target": "a2i"
+ },
+ {
+  "test_year": 2024,
+  "n_train": 2010024,
+  "n_calib": 52456,
+  "n_test": 48280,
+  "seeds": 2,
+  "grid_cells": 10,
+  "grid_types": 5,
+  "pinball": {
+   "0.1": {
+    "baseline": 14.103036454018229,
+    "empirical_grid": 13.974370339685171,
+    "boosted_grid": 14.127732005473474,
+    "boosted_full": 13.148758580691027
+   },
+   "0.5": {
+    "baseline": 55.306296603148304,
+    "empirical_grid": 54.62323943661972,
+    "boosted_grid": 54.9661351572658,
+    "boosted_full": 45.12307061287178
+   },
+   "0.9": {
+    "baseline": 39.44144159072079,
+    "empirical_grid": 38.33068144159072,
+    "boosted_grid": 42.01754590277598,
+    "boosted_full": 31.32355998402842
+   }
+  },
+  "retained": {
+   "0.1": {
+    "grid_rel": -0.0017510804524800854,
+    "full_rel": 0.06766471010966646,
+    "emp_grid_rel": 0.009123291622521344,
+    "share_of_full_gain": -0.025878784519168863
+   },
+   "0.5": {
+    "grid_rel": 0.006150501240814183,
+    "full_rel": 0.18412417058669675,
+    "emp_grid_rel": 0.012350441242339513,
+    "share_of_full_gain": 0.033404094754187395
+   },
+   "0.9": {
+    "grid_rel": -0.06531465910366863,
+    "full_rel": 0.20582111807501044,
+    "emp_grid_rel": 0.028162260412697395,
+    "share_of_full_gain": -0.3173370143673257
+   }
+  },
+  "mean_share_of_full_gain": -0.1032705680441024,
+  "city": "austin",
+  "target": "i2c"
+ }
+]

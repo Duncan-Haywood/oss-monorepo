@@ -249,6 +249,10 @@ The descriptive reference class behind the baseline is published as a data file 
 
 The spread across permit types is as large as the spread across cities: the per-type median application-to-issue lag runs 0 to 24 days in Chicago, 0 to 533 in San Francisco and 15 to 182 in Austin, so a city-level number alone is a poor prior. The two pre-registered hypotheses (LOG sessions 34 and 35) held: Chicago and SF median application-to-issue is 0 or 1 day, Austin same-day share is 4.8% (below 20%), and the Austin and SF issue-to-completion medians are 111 and 119 days (above 60 and 90). Limits: descriptive quantiles with no model; Chicago is issued-only, so its application-to-issue lags are survivorship-biased; a three-year window; the model-based (boosted) version is not published.
 
+### 4.7a Can the boosted model be flattened to a table? (H6 refuted)
+
+To ship the boosted gain to `ventures/` without a model file, each cell of permit type x cost bucket (unknown, <1k, 1k-10k, 10k-100k, 100k-1M, >=1M dollars) took the median of the model's q10/q50/q90 predictions over the calibration year (`../src/prior_boosted.py`, `../results/prior_boosted_eval_2024.json`; `../LOG.md`, session 50). Pre-registered: the table keeps at least half of the full model's pinball gain over the per-type baseline in at least 4 of 5 city/target sets. It did in one (SF a2i, 0.83); the others were 0.04 (Chicago a2i), -0.03 (SF i2c), -0.03 (Austin a2i) and -0.10 (Austin i2c). At q0.9 the cell median of predictions sits above the cell's own q90 in Austin (pinball 42.6 against 37.1 baseline and 23.6 for the full model). An empirical type x bucket lookup was no safer (Chicago q0.9 16.4 against 11.1). So the boosted prior is not published as a table; the gain lives in features a type x cost grid drops. Limits: one flattening rule, 2 seeds, test year 2024.
+
 ## 5 Limitations
 
 One test year (2024) for H3, H4, H5 (H1 and the neural comparison also run for 2022 and 2023); three seeds (two for conformal); one fixed
@@ -272,5 +276,5 @@ tighter quantile levels (4.2a) can halve the width, but pick them with drift in 
 2. A year-ahead (Y-2 versus Y-1) calibration check for the quantile pair (4.2b did not solve Chicago); (H2g now run for every city and target that has one; see 4.2c).
 3. Spread over draws and i2c for 4.5; first-n-rows ordering instead of random draws.
 4. A fourth city after a licence check (H1 now runs over test years 2022 to 2024, see 4.1a); the per-permit paired bootstrap on neural minus boosted now covers 2022, 2023 and 2024 (4.6a).
-5. Empirical permit-duration prior published for all three cities (4.7); still to do: a model-based (boosted quantile) version for `ventures/`.
+5. Empirical permit-duration prior published for all three cities (4.7); a median-of-predictions table of the boosted model failed to keep its gain (4.7a); a model-based version for `ventures/` is still to do.
 6. Re-run `research/_shared/cite_check.py` at submission and re-check novelty.
