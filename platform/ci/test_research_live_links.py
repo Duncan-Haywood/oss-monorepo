@@ -86,6 +86,11 @@ class Topics(unittest.TestCase):
             self.assertIn("BLOCK", out)
             self.assertIn("- a", out)
 
+    def test_text_after_the_block_survives_a_repeated_end_marker(self):
+        text = f"# R\n{r.TOPICS_START}\nold\n{r.TOPICS_END}\nTail {r.TOPICS_END} kept.\n"
+        out = r.with_topics(text, "BLOCK")
+        self.assertEqual(out, f"# R\nBLOCK\nTail {r.TOPICS_END} kept.\n")
+
     def test_inserted_before_first_list_item_then_replaced_in_place(self):
         text = "# R\n\nIntro.\n\n- [`research/a`](a) — one.\n"
         once = r.with_topics(text, r.topics_block(self.DATA))
