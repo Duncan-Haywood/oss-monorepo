@@ -1,5 +1,5 @@
 ---
-title: "Quality audit round 19: one of five sampled subjects meets the bar, and a CAA checker can say 'any CA may issue' when it should not"
+title: "Quality audit round 19: one of five subjects meets the bar, and a CAA checker misreads CNAMEs"
 seo_title: "Quality audit round 19: one of five subjects meets the bar"
 date: 2026-11-08
 tags: [quality-audit, evaluation, testing, ai-agents]
