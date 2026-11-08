@@ -186,6 +186,8 @@ test("Turkey VKN/TCKN and India GSTIN check digits", () => {
   assert.deepEqual(ok("TR10000000146"), []);
   assert.equal(ok("TR10000000147")[0].rule, "INV-023");
   assert.equal(ok("TR123")[0].rule, "INV-022");
+});
+
 test("Lithuanian 12-digit check digit (2026-11-08)", () => {
   const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
   assert.deepEqual(rules("LT100001919017"), []);
