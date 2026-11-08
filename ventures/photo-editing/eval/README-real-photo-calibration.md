@@ -96,3 +96,16 @@ facade is not a crooked camera).
 Existing unit tests (synthetic horizons, diagonal-only frames, plain frames)
 still pass; `tests/test_workspace_health.py::test_unreadable_render_input...`
 fails here only because the sandbox runs as root (it also fails on `main`).
+
+## Tilt confidence made chance-corrected, 2026-11-09
+
+On scenes with no straight axis lines the old confidence sat at 0.11 to 0.17,
+which is the chance level: a 3 degree window out of the 30 degree search range
+holds 10% of evenly spread votes. `tilt_from_frame` now returns
+`(share - 0.10) / 0.90`, clamped to 0..1, so a frame with no dominant angle reads
+about 0 and a line-rich photo keeps most of its value. Random-grain frames are
+asserted below 0.1 (was below 0.2). The story penalty is multiplied by this
+confidence, so no-line scenes are now not penalised at all. Not re-run on the
+real photos (the harness needs fetched images and the sandbox lacks PIL); the
+change is a fixed monotone rescale, so ordering of photos by confidence is
+unchanged. Still wanted: photos with a real horizon and human "crooked" labels.
